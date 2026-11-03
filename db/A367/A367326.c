@@ -7,6 +7,7 @@
  * Formula:   a(n) = n^2*A000005(n) - 2*n*A000203(n) + A001157(n)
  * Range:     u8 n <= 8, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

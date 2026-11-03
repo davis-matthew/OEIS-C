@@ -9,6 +9,7 @@
  *            then ((n+19)^2 + 487)/4; if n is odd then ((n+18)^2 + 639)/4)
  * Range:     u8 none, u16 n <= 493, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
+ * Validated: standard, pass, 76 terms through n = 7585 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

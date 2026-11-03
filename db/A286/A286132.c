@@ -9,12 +9,14 @@
  *            x^{10k})(1 - x^{14k})(1 - x^{105k})
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 9720 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *coeff = NULL;       /* memoised coefficient array */
 static idx_t coeff_max = 0;       /* largest exponent computed so far */
@@ -29,7 +31,7 @@ static int  coeff_init = 0;       /* flag: has coeff been initialized? */
 static void compute_coeffs(idx_t maxE)
 {
     size_t N = (size_t)maxE + 1;
-    seq_t *newcoeff = (seq_t*)calloc(N, sizeof(seq_t));
+    seq_t *newcoeff = mem_new(seq_t, N);
     if (!newcoeff) abort();
 
     newcoeff[0] = 1;                 /* start with the constant term 1 */
@@ -53,7 +55,7 @@ static void compute_coeffs(idx_t maxE)
         }
     }
 
-    free(coeff);
+    mem_free(coeff);
     coeff = newcoeff;
     coeff_max = maxE;
     coeff_init = 1;

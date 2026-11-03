@@ -10,18 +10,19 @@
  *            p+1) if q is odd, a(n) = gcd(n, (p+1)/2) if q is even
  * Range:     u8 n <= 256, u16 n <= 300, u32 n <= 300, u64 n <= 300,
  *            u128 n <= 300, big any n
- * Helpers:   a7967_gcd, a7967_isqrt
+ * Validated: standard, pass, 100 terms through n = 276 (2026-11-01)
+ * Helpers:   gcd_u64, isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a7967_gcd.h"
-#include "../utils/a7967_isqrt.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t N = (uint64_t)n;
-    uint64_t r = a7967_isqrt(N);
+    uint64_t r = isqrt_u64(N);
     if (r * r == N) return (seq_t)r;
 
     uint64_t M = 2 * N;
@@ -47,10 +48,10 @@ seq_t a(idx_t n) {
     uint64_t y;
     if (k % 2 == 1) {
         uint64_t t = (h + 1) % M % N;
-        y = a7967_gcd(N, t);
+        y = gcd_u64(N, t);
     } else {
         uint64_t t = ((h + 1) % M) / 2;
-        y = a7967_gcd(N, t % N);
+        y = gcd_u64(N, t % N);
     }
     return (seq_t)y;
 }

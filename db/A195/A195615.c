@@ -8,12 +8,14 @@
  *            a(3)=4895
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 792 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the n-th term of OEIS sequence A195615.
    n is 1‑based.  Calls may be in any order. */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* Allocate cache if first time */
     if (cache == NULL) {
         cache_size = 4;                      /* indices 1..3 will be used */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0;                /* allocation failure; return 0 as sentinel */
         cache[1] = (seq_t)15;
         cache[2] = (seq_t)273;
@@ -46,9 +48,9 @@ seq_t a(idx_t n)
     /* Grow cache if needed */
     if (n >= cache_size) {
         idx_t new_size = n + 1;   /* one past maximum index needed */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) {               /* realloc failed, keep old cache */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_size = 0;
             return 0;

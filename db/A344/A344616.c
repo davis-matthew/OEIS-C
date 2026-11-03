@@ -8,8 +8,9 @@
  *            partition obtained by writing n as a product of primes, mapping
  *            prime → its index in the prime list). The sequence is defined
  *            for n ≥ 1, with a(1) = 0
- * Range:     u8 n <= 1618, u16 n <= 8190, u32 n <= 8190, u64 n <= 8190,
- *            u128 n <= 8190, big any n
+ * Range:     u8 n <= 1618, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 98 terms through n = 8190 (2026-11-01)
  * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,8 +22,8 @@
 #include <stdint.h>
 
 /* Utility headers supplied by the build */
-#include "../utils/factor_u64.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
 
 /* Global state: list of primes for indexing */
 static uint64_t *prime_list = NULL;   /* primes[0] = 2, primes[1] = 3, … */

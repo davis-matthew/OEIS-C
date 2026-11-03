@@ -7,14 +7,17 @@
  * Formula:   a(n) = T(r,k) where r = largest integer with r(r+1)/2 ≤ n, k = n
  *            - r(r+1)/2, and T(r,k) = Catalan(k)·Catalan(r-k) (row‑by‑row
  *            flattening of the triangle)
- * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 59, u64 n <= 59, u128 n <= 59,
+ * Range:     u8 n <= 27, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
 
 seq_t a(idx_t n)

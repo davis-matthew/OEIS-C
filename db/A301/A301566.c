@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,12 +38,12 @@ seq_t a(idx_t n)
     idx_t r = n - 1;
 
     /* Allocate arrays for binomial coefficients */
-    seq_t *cR = (seq_t *)malloc((r + 1) * sizeof(seq_t));
-    seq_t *cN = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *cR = mem_new(seq_t, (r + 1));
+    seq_t *cN = mem_new(seq_t, (r + 1));
 
     if (!cR || !cN) {
-        free(cR);
-        free(cN);
+        mem_free(cR);
+        mem_free(cN);
         return (seq_t)0;  /* fallback on allocation failure */
     }
 
@@ -69,8 +71,8 @@ seq_t a(idx_t n)
         sum += count * (seq_t)k;
     }
 
-    free(cR);
-    free(cN);
+    mem_free(cR);
+    mem_free(cN);
 
     return sum;
 }

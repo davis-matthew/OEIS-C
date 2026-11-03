@@ -9,12 +9,14 @@
  *            3x-2 and 4x+2
  * Range:     u8 n <= 6, u16 n <= 271, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9692 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t *data;
@@ -26,7 +28,7 @@ typedef struct {
 static void heap_push(heap_t *h, seq_t val) {
     if (h->size == h->cap) {
         size_t newcap = h->cap ? h->cap * 2 : 16;
-        h->data = (seq_t *)realloc(h->data, newcap * sizeof(seq_t));
+        h->data = mem_resize(seq_t, h->data, newcap);
         h->cap = newcap;
     }
     h->data[h->size++] = val;
@@ -89,7 +91,7 @@ seq_t a(idx_t n) {
             /* ensure space in array */
             if (terms_len == terms_cap) {
                 size_t newcap = terms_cap ? terms_cap * 2 : 16;
-                terms = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, newcap);
                 terms_cap = newcap;
             }
             terms[terms_len++] = x;

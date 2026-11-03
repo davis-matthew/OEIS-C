@@ -10,11 +10,14 @@
  * Formula:   a(n) = numerator of 2^(n-1)*(3^n-1)/(3^n-2^n) after reduction
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 12, u64 n <= 25, u128 n <= 50,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 963 (2026-11-01)
  * Helpers:   gcd, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"

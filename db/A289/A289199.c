@@ -11,7 +11,8 @@
  *            arithmetic formula)
  * Range:     u8 n <= 4, u16 n <= 153, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_odd13_up_to
+ * Validated: standard, pass, 87 terms through n = 997 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,12 @@
    as the difference of two floor sums over odd multiples of 13. */
 
 #include <stdint.h>
-#include "../utils/count_odd13_up_to.h"
+
+static inline seq_t count_odd13_up_to(seq_t X)
+{
+    seq_t M = X / 13;          /* largest k with 13*k <= X   */
+    return (M + 1) / 2;        /* odd k count: 1,3,5,... <= M */
+}
 
 seq_t a(idx_t n)
 {

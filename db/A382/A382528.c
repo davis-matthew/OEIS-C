@@ -13,12 +13,14 @@
  *            >= n and c = n - r(r-1)/2
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of the triangle in a one‑dimensional array. */
 static seq_t *triangle = NULL;        /* 0‑based linear storage        */
@@ -49,7 +51,7 @@ static void extend_triangle(idx_t r)
 {
     /* Determine new size of the flattened array. */
     size_t new_size = (size_t)r * (r + 1) / 2;
-    seq_t *new_data = (seq_t *)realloc(triangle, new_size * sizeof(seq_t));
+    seq_t *new_data = mem_resize(seq_t, triangle, new_size);
     if (!new_data) {
         /* Out of memory – abort the program. */
         exit(EXIT_FAILURE);

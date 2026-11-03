@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 687, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 122 terms through n = 9975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* smallest decimal digit in x (x>=0) */
 static unsigned smallest_digit(seq_t x)
@@ -60,7 +62,7 @@ static void ensure_cache(idx_t need)
 {
     if (!initialized) {               /* first call: initialize sequence */
         cache_cap = 16;
-        cache_seq = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache_seq = mem_new(seq_t, cache_cap);
         if (!cache_seq) return;       /* allocation failure – should not happen */
         /* a(0)=0 */
         cache_seq[0] = (seq_t)0;
@@ -79,7 +81,7 @@ static void ensure_cache(idx_t need)
         /* ensure capacity */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *new_buf = (seq_t *)realloc(cache_seq, new_cap * sizeof(seq_t));
+            seq_t *new_buf = mem_resize(seq_t, cache_seq, new_cap);
             if (!new_buf) return;       /* allocation failure */
             cache_seq = new_buf;
             cache_cap = new_cap;

@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
- *            big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 770, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 111 terms through n = 9781 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +42,7 @@ seq_t a(idx_t n)
     /* enlarge cache if needed */
     if (cache_size < n) {
         idx_t new_size = n;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) abort();  /* allocation failure */
         cache = new_cache;
 
@@ -65,7 +69,7 @@ seq_t a(idx_t n)
                 for (idx_t p = 3; p <= i / p; p += 2) {   /* p <= sqrt(i) */
                     if (i % p == 0) {
                         idx_t q = i / p;
-                        if (is_prime(p) && is_prime(q)) {
+                        if (is_prime_u64(p) && is_prime_u64(q)) {
                             sum = (seq_t)(p + q);
                             found = true;
                             break;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9302 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Helper: product of non‑zero decimal digits of n */
 static uint64_t prod_nonzero_digits(uint64_t n)
@@ -61,7 +63,7 @@ static void init_sequence(void)
     for (idx_t m = 1; m < MAX_M; ++m)
         if (cnt[(size_t)m] == 1) ++cache_len;
 
-    cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_len);
     if (!cache) exit(1);   /* allocation failure */
 
     size_t pos = 0;

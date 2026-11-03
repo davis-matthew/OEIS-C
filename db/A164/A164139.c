@@ -12,7 +12,8 @@
  *            0–3 represent the last two bits 00,01,10,11. At each s...
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 35, u64 n <= 67, u128 n <= 132,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Transition tables: next state and change in difference for each
    current state and appended bit.  */
@@ -53,10 +55,10 @@ static void ensure_cache(idx_t n)
         return;
 
     size_t new_len = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)calloc(new_len, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_len);
     if (cache) {
-        memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_cache;
     cache_len = new_len;
@@ -69,7 +71,7 @@ static void init_dp(void)
     cur_range = 1;      /* only difference 0 is possible for length 2 */
 
     for (int s = 0; s < 4; ++s) {
-        dp[s] = (seq_t *)calloc(cur_range, sizeof(seq_t));
+        dp[s] = mem_new(seq_t, cur_range);
         dp[s][0] = (seq_t)1;  /* exactly one string ends with each 2‑bit pattern */
     }
 }
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
         /* Allocate new DP arrays for the next length */
         seq_t *new_dp[4];
         for (int s = 0; s < 4; ++s)
-            new_dp[s] = (seq_t *)calloc(new_range, sizeof(seq_t));
+            new_dp[s] = mem_new(seq_t, new_range);
 
         /* Perform transitions from current state to new state */
         for (int s = 0; s < 4; ++s) {
@@ -128,7 +130,7 @@ seq_t a(idx_t n)
 
         /* Free old DP arrays and adopt the new ones */
         for (int s = 0; s < 4; ++s) {
-            free(dp[s]);
+            mem_free(dp[s]);
             dp[s] = new_dp[s];
         }
 

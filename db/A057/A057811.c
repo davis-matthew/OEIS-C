@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 142, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9557 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>   /* for size_t */
+#include "../utils/mem.h"
 
 /* static state */
 static idx_t        limit   = 0;         /* current sieve limit   */
@@ -49,7 +51,7 @@ static void rebuild(idx_t new_limit)
     limit = new_limit;
 
     /* rebuild the sequence */
-    seq = (seq_t*)realloc(seq, sizeof(seq_t)*new_limit);
+    seq = mem_resize(seq_t, seq, new_limit);
     seq_len = 0;
 
     idx_t prime_cnt = 0;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 49, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Dynamic array for the sequence S ---------- */
 #ifdef __cplusplus
@@ -69,7 +71,7 @@ static size_t heap_sz  = 0;
 static void heap_push(Node n) {
     if (heap_sz == heap_cap) {
         heap_cap = heap_cap ? 2 * heap_cap : 16;
-        heap = (Node *)realloc(heap, heap_cap * sizeof(Node));
+        heap = mem_resize(Node, heap, heap_cap);
     }
     size_t pos = heap_sz++;
     heap[pos] = n;

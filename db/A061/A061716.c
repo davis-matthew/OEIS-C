@@ -7,7 +7,8 @@
  * Formula:   a(n) = ceil(log2(prime(n)))
  * Range:     u8 n <= 2000, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   _floor_log2_uint64
+ * Validated: standard, pass, 118 terms through n = 1897 (2026-11-01)
+ * Helpers:   ilog2_u64_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_floor_log2_uint64.h"
+#include "../utils/ilog2_u64_to_u32.h"
 
 /* Internal state for on‑demand prime generation */
 
@@ -65,7 +66,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)0;        /* undefined for offset < 1 */
 
     uint64_t p   = _nth_prime(n);       /* nth prime (uint64_t)          */
-    unsigned fl = _floor_log2_uint64(p);/* floor(log2(p))                */
+    unsigned fl = ilog2_u64_to_u32(p);/* floor(log2(p))                */
 
     /* If p is a power of two, ceil equals fl; otherwise ceil = fl+1 */
     unsigned ceil = ((1ULL << fl) == p) ? fl : fl + 1;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 15, i16 n <= 52, i32 n <= 62, i64 n <= 62, i128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,12 +44,12 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate arrays for σ and a[0..n] */
-    seq_t *sigma = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *sigma = mem_new(seq_t, (n + 1));
     if (!sigma)
         return (seq_t)0;          /* allocation failed */
 
-    seq_t *an     = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    if (!an) { free(sigma); return (seq_t)0; }
+    seq_t *an     = mem_new(seq_t, (n + 1));
+    if (!an) { mem_free(sigma); return (seq_t)0; }
 
     /* Initialise sigma array */
     for (idx_t i = 0; i <= n; ++i)
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = an[n];
-    free(an);
-    free(sigma);
+    mem_free(an);
+    mem_free(sigma);
     return result;
 }

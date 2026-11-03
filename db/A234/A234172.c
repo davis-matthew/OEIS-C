@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 11, u128 n <= 24,
  *            big any n
- * Helpers:   abs_int
+ * Validated: standard, pass, 29 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/abs_int.h"
+#include "../utils/mem.h"
+
+/* simple absolute value for int */
+static inline int abs_int(int x) { return x < 0 ? -x : x; }
 
 #define STATE_COUNT 2401   /* 7^4 */
 
@@ -93,14 +97,14 @@ static void init(void)
     }
 
     /* Allocate DP vectors. */
-    dp    = (seq_t *)malloc(STATE_COUNT * sizeof(seq_t));
-    newdp = (seq_t *)malloc(STATE_COUNT * sizeof(seq_t));
+    dp    = mem_new(seq_t, STATE_COUNT);
+    newdp = mem_new(seq_t, STATE_COUNT);
 
     /* Initial vector: one way to start from any row. */
     for (idx_t i = 0; i < STATE_COUNT; ++i) dp[i] = (seq_t)1;
 
     /* sums[0] holds the count of arrays with 1 row (length‑1). */
-    sums = (seq_t *)malloc(sizeof(seq_t));
+    sums = mem_new(seq_t, 1);
     sums[0] = (seq_t)STATE_COUNT;
     max_cached_n = 0;
 }
@@ -110,11 +114,11 @@ static void extend_to(idx_t n)
 {
     if (n <= max_cached_n) return;   /* already available */
 
-    sums = (seq_t *)realloc(sums, (n + 1) * sizeof(seq_t));
+    sums = mem_resize(seq_t, sums, (n + 1));
 
     for (idx_t step = max_cached_n + 1; step <= n; ++step) {
         /* Zero newdp. */
-        memset(newdp, 0, STATE_COUNT * sizeof(seq_t));
+        mem_set(newdp, 0, STATE_COUNT * sizeof(seq_t));
 
         /* Transition from each state. */
         for (idx_t r = 0; r < STATE_COUNT; ++r) {

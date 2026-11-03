@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 172, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9926 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root for 64‑bit values, used to test perfect squares. */
 static inline uint64_t _floor_isqrt_u64(uint64_t n)
@@ -54,8 +56,8 @@ static void recompute_arrays(idx_t new_limit)
     if (new_limit <= cur_limit) return;
 
     /* Allocate new arrays.  The cast is required for C++. */
-    seq_t *new_sigma = (seq_t*)realloc(sigma, (new_limit + 1) * sizeof(seq_t));
-    seq_t *new_tau   = (seq_t*)realloc(tau,   (new_limit + 1) * sizeof(seq_t));
+    seq_t *new_sigma = mem_resize(seq_t, sigma, (new_limit + 1));
+    seq_t *new_tau   = mem_resize(seq_t, tau, (new_limit + 1));
 
     /* Initialise to zero. */
     for (size_t i = 0; i <= (size_t)new_limit; ++i) {
@@ -83,8 +85,8 @@ static void rebuild_terms_up_to(idx_t limit)
     recompute_arrays(limit);
 
     /* Allocate terms array; worst case every integer could be an entry. */
-    if (terms) free(terms);
-    terms = (seq_t*)malloc((limit + 1) * sizeof(seq_t));
+    if (terms) mem_free(terms);
+    terms = mem_new(seq_t, (limit + 1));
     terms_cnt = 0;
 
     for (size_t m = 1; m <= (size_t)limit; ++m) {

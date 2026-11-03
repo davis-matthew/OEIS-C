@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n is a squarefree semiprime of the form
  *            (4t+3)*(4u+3), * otherwise 0
- * Range:     u8 n <= 9944, u16 n <= 9944, u32 n <= 9944, u64 n <= 9944,
- *            u128 n <= 9944, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 145 terms through n = 9944 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

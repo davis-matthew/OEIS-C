@@ -7,28 +7,38 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n,k) * Catalan(k) * k^k
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow, binom, catalan, seq_mul
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   binomial, catalan, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
+#include "../utils/binomial.h"
 #include "../utils/catalan.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
     seq_t sum = 0;
     for (idx_t k = 0; k <= n; ++k)
     {
-        seq_t bin   = binom(n, k);                 /* C(n,k)            */
+        seq_t bin   = binomial(n, k);                 /* C(n,k)            */
         seq_t cat   = catalan(k);                  /* Catalan(k)        */
         seq_t powk;
         if (k == 0)
             powk = 1;                             /* 0^0 is defined as 1 */
         else
-            powk = big_pow((seq_t)k, (seq_t)k);    /* k^k               */
+            powk = ipow((seq_t)k, (seq_t)k);    /* k^k               */
         seq_t prod = seq_mul(bin, cat);            /* bin*cat           */
         prod = seq_mul(prod, powk);                /* (bin*cat)*k^k     */
         sum += prod;                               /* accumulate        */

@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) + 7^(n-2) * a(n-2), a(0)=0, a(1)=1, a(2)=1
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 #define MAX_CACHE 20000   /* safe limit for pre‑cached values */
 
 /* Compute the q‑Fibonacci numbers for q = 7 with scaling a(n-2) */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* If the index exceeds our pre‑allocated cache limit,
        compute it on the fly without caching the tail. */
     if ((size_t)n >= MAX_CACHE) {
-        seq_t *tmp = (seq_t*)malloc(((size_t)n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, ((size_t)n + 1));
         if (!tmp) abort();
         tmp[0] = (seq_t)0;
         tmp[1] = (seq_t)1;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
             tmp[k]   = tmp[k-1] + tmp_pow7 * tmp[k-2];
         }
         seq_t result = tmp[n];
-        free(tmp);
+        mem_free(tmp);
         return result;
     }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *seq      = NULL;  /* sequence storage                 */
 static size_t  seq_cap = 0;     /* capacity of seq                  */
@@ -65,7 +67,7 @@ static void append_term(seq_t value)
 {
     if (seq_len >= seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         seq = tmp;
         seq_cap = new_cap;

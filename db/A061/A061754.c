@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   legendre_valuation
+ * Validated: standard, pass, 74 terms through n = 9904 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/legendre_valuation.h"
+#include "../utils/mem.h"
+
+/* Legendre exponent of prime p in k! */
+static inline uint64_t legendre_valuation(idx_t k, uint64_t p)
+{
+    uint64_t v = 0;
+    uint64_t t = (uint64_t)k;
+    while (t) { t /= p; v += t; }
+    return v;
+}
 
 /* ---------- Prime factorization support ---------- */
 static uint64_t *primes = NULL;
@@ -97,7 +107,7 @@ seq_t a(idx_t n)
         if (satisfies(last_k)) {
             if (cache_cnt == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 cache = tmp;
                 cache_cap = new_cap;

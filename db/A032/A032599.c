@@ -7,13 +7,15 @@
  * Formula:   a(n) = A000959(n)^3
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static storage for precomputed lucky numbers */
 static seq_t *lucky = NULL;
@@ -32,8 +34,8 @@ static void ensure_lucky(idx_t needed)
     while (1) {
         /* Only odd numbers are needed after the first sieve step. */
         idx_t init_size = limit / 2 + 10;
-        seq_t *a = (seq_t *)malloc(sizeof(seq_t) * init_size);
-        seq_t *b = (seq_t *)malloc(sizeof(seq_t) * init_size);
+        seq_t *a = mem_new(seq_t, init_size);
+        seq_t *b = mem_new(seq_t, init_size);
         if (!a || !b) {
             /* Allocation failed – abort; the sequence is not used in this
                environment */
@@ -70,18 +72,18 @@ static void ensure_lucky(idx_t needed)
 
         /* If we have produced enough lucky numbers, store them. */
         if (sz >= needed) {
-            if (lucky) free(lucky);
-            lucky = (seq_t *)malloc(sizeof(seq_t) * sz);
-            memcpy(lucky, a, sizeof(seq_t) * sz);
+            if (lucky) mem_free(lucky);
+            lucky = mem_new(seq_t, sz);
+            mem_copy(lucky, a, sizeof(seq_t) * sz);
             lucky_cap = sz;
-            free(a);
-            free(b);
+            mem_free(a);
+            mem_free(b);
             break;
         }
 
         /* Not enough numbers – double the search limit and try again. */
-        free(a);
-        free(b);
+        mem_free(a);
+        mem_free(b);
         limit *= 2;
     }
 }

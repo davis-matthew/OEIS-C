@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state for the sieve and the sequence terms */
 static size_t sieve_limit = 0;         /* highest number sieved so far */
@@ -66,14 +68,14 @@ static void rebuild_terms(void)
 {
     /* free the old terms array if it exists */
     if (terms) {
-        free(terms);
+        mem_free(terms);
     }
 
     /* rough estimate of how many pairs we'll get – avoid allocating zero */
     terms_cap = sieve_limit / 10;
     if (terms_cap < 100) terms_cap = 100;
 
-    terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
     if (!terms) {
         terms_len = 0;
         return;
@@ -88,9 +90,9 @@ static void rebuild_terms(void)
 
             if (terms_len == terms_cap) {
                 terms_cap <<= 1;           /* grow capacity */
-                seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                 if (!tmp) {                 /* realloc failed – abort */
-                    free(terms);
+                    mem_free(terms);
                     terms = NULL;
                     terms_len = 0;
                     return;

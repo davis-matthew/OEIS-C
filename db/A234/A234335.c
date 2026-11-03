@@ -9,7 +9,8 @@
  *            nearest squares are all perfect squares
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   append_candidate, floor_isqrt_u64, floor_sqrt
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   ipow_i32, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,45 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/floor_isqrt_u64.h"   /* floor_isqrt_u64(idx_t) → idx_t */
-#include "../utils/floor_sqrt.h"        /* floor_sqrt(seq_t) → seq_t  */
-#include "../utils/append_candidate.h"  /* append_candidate(...)    */
+#include <stdlib.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -45,7 +82,7 @@ seq_t a(idx_t n)
     while (cache_len < n)
     {
         idx_t k = next_k;
-        idx_t m = floor_isqrt_u64(k);      /* m^2 ≤ k < (m+1)^2 */
+        idx_t m = isqrt(k);      /* m^2 ≤ k < (m+1)^2 */
 
         seq_t m_sq   = (seq_t)m * (seq_t)m;
         seq_t next_sq = (seq_t)(m + 1) * (seq_t)(m + 1);

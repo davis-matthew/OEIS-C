@@ -8,7 +8,8 @@
  * Formula:   a(n) = floor(A007954(n)^(1/A055642(n))*10^(A055642(n)-1))
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   digit_product, digits_of
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-01)
+ * Helpers:   digit_product, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
    where d is the number of decimal digits of n. */
 
 #include <stdint.h>
-#include "../utils/digits_of.h"
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_product.h"
+#include "../utils/num_digits_idx.h"
 
 static inline unsigned __int128 pow_uint128(unsigned __int128 base, int exp)
 {
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
     }
 
-    int d = digits_of(n);
+    int d = num_digits_idx(n);
     if (d <= 0) {          /* should not occur, but be safe */
         return (seq_t)0;
     }

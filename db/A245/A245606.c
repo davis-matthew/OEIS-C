@@ -11,20 +11,67 @@
  *            argument to the next primes. This implementation memoizes a()
  *            and factors its arguments using trial division with a
  *            pre‑computed prime table
- * Range:     u8 n <= 45, u16 n <= 471, u32 n <= 9432, u64 n <= 9432,
- *            u128 n <= 9432, big any n
- * Helpers:   build_primes_upto, ensure_cache, floor_sqrt, next_prime, pow_seq
+ * Range:     u8 n <= 45, u16 n <= 471, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 90 terms through n = 9432 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow_i32, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/next_prime.h"
-#include "../utils/pow_seq.h"
-#include "../utils/ensure_cache.h"
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Make sure the cache is large enough */
+static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr) {
+    seq_t *cache = *cache_ptr;
+    size_t cap = *cap_ptr;
+    if (cap <= (size_t)n) {
+        size_t new_cap = cap ? (cap << 1) : 16;
+        while (new_cap <= (size_t)n)
+            new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+        if (!tmp && new_cap > 0) {
+            /* Allocation failed – abort the program. */
+            exit(1);
+        }
+        if (tmp) {
+            /* Initialize newly allocated slots to zero. */
+            if (!cache) {
+                for (size_t i = 0; i < new_cap; ++i)
+                    tmp[i] = 0;
+            } else {
+                for (size_t i = cap; i < new_cap; ++i)
+                    tmp[i] = 0;
+            }
+            *cache_ptr = tmp;
+            *cap_ptr = new_cap;
+        }
+    }
+}
 
 /* Prime table used for factorisation: at most 1 000 000. */
 static uint64_t *primes = NULL;
@@ -62,7 +109,7 @@ static seq_t a003961(seq_t n)
                 ++exp;
             }
             uint64_t nxt = next_prime(p);
-            result *= pow_seq((seq_t)nxt, exp);
+            result *= ipow_i32((seq_t)nxt, exp);
         }
     }
 

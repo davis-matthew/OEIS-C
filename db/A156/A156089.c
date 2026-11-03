@@ -9,6 +9,7 @@
  *            a(n-4) with initial values a(0)=0, a(1)=-1, a(2)=3, a(3)=-22
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 12, i64 n <= 24, i128 n <= 47,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 983 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

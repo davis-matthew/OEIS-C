@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 4417, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd64, seventh_root_floor
+ * Validated: standard, pass, 68 terms through n = 9286 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,24 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd64.h"
-#include "../utils/seventh_root_floor.h"
+#include "../utils/gcd_u64.h"
+
+/* Integer 7th root: largest s with s^7 < k */
+static uint64_t seventh_root_floor(uint64_t k) {
+    uint64_t s = 0;
+    while (true) {
+        /* compute s^7, check overflow */
+        uint64_t val = 1;
+        for (int i = 0; i < 7; ++i) {
+            if (s == 0) { val = 0; break; }
+            if (val > UINT64_MAX / s) { val = UINT64_MAX; break; }
+            val *= s;
+        }
+        if (val >= k) break;
+        ++s;
+    }
+    return s - 1;
+}
 
 #define SIEVE_MAX 5000000   /* enough for n up to ≈10000 */
 
@@ -122,7 +139,7 @@ seq_t a(idx_t n) {
                 uint64_t g = 1;
                 for (int i = 0; i < 7; ++i) g *= s;
                 if (g >= next_k) break;
-                if (gcd64(g, next_k) != 1) continue;
+                if (gcd_u64(g, next_k) != 1) continue;
                 if (is_primitive_root(g, next_k)) {
                     /* record k */
                     if (len == cap) { cap *= 2; terms = (uint64_t*)realloc(terms, cap * sizeof(uint64_t)); }

@@ -8,14 +8,29 @@
  *            Σ_{k∈ℤ} q^{k^2}
  * Range:     u8 n <= 36, u16 n <= 547, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_free_arr, seq_malloc_zero
+ * Validated: standard, pass, 66 terms through n = 9739 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_free_arr.h"
-#include "../utils/seq_malloc_zero.h"
+
+static void seq_free_arr(seq_t *ptr) {
+#ifdef __cplusplus
+    delete[] ptr;
+#else
+    free(ptr);
+#endif
+}
+
+static seq_t* seq_malloc_zero(idx_t len) {
+#ifdef __cplusplus
+    return new seq_t[len]();          /* value‑initialised (zero) */
+#else
+    return (seq_t*)calloc((size_t)len, sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n) {
     /* Divisors of 20: 1,2,4,5,10,20 */

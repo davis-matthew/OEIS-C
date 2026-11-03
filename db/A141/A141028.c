@@ -11,15 +11,76 @@
  *            and m = n - r*(r+1)/2 - 1
  * Range:     i8 n <= 10, i16 n <= 15, i32 n <= 36, i64 n <= 42, i128 n <= 42,
  *            big any n
- * Helpers:   big_pow, binomial, get_prime, seq_mul
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/get_prime.h"
-#include "../utils/big_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stddef.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow.h"
+
+/* Return the k‑th prime (k ≥ 1).  On first call the prime list
+   is built incrementally using trial division.  The list is
+   stored in a static array which is expanded as necessary.   */
+static uint32_t get_prime(idx_t k)
+{
+    static uint32_t *pr = NULL;     /* array of primes */
+    static size_t sz   = 0;         /* number of primes stored */
+    static size_t cap  = 0;         /* allocated capacity */
+    static uint32_t cand = 3;       /* candidate after 2 */
+
+    /* initialise the prime table on first use */
+    if (sz == 0) {
+        cap = 8;
+        pr = (uint32_t *)realloc(pr, cap * sizeof(uint32_t));
+        if (!pr) abort();
+        sz = 0;
+    }
+
+    /* grow the array until we have at least k primes */
+    while (sz < (size_t)k) {
+        if (sz == 0) {                /* add the first prime */
+            pr[sz++] = 2;
+            continue;
+        }
+
+        /* find the next prime candidate */
+        uint32_t p = cand;
+        bool ok = true;
+        for (size_t i = 0; i < sz; ++i) {
+            uint32_t prime = pr[i];
+            if ((uint64_t)prime * prime > (uint64_t)p) break;
+            if (p % prime == 0) { ok = false; break; }
+        }
+
+        if (!ok) {                    /* not prime – keep searching */
+            cand += 2;                /* only odd numbers remain */
+            continue;
+        }
+
+        /* prime found – store it, grow table if needed */
+        if (sz == cap) {
+            cap <<= 1;
+            pr = (uint32_t *)realloc(pr, cap * sizeof(uint32_t));
+            if (!pr) abort();
+        }
+        pr[sz++] = p;
+        cand = p + 2;
+    }
+
+    return pr[(size_t)k - 1];
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +100,7 @@ seq_t a(idx_t n)
 
     /* Compute prime^(r-m) */
     seq_t exp  = (seq_t)(r - m);
-    seq_t powp = big_pow(prime, exp);
+    seq_t powp = ipow(prime, exp);
 
     /* Binomial coefficient C(r, m) */
     seq_t bin = binomial(r, m);

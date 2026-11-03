@@ -8,16 +8,44 @@
  *            value: a(0) = 7
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   pow2, pow3, pow6, power5
+ * Validated: standard, pass, 38 terms through n = 1127 (2026-11-01)
+ * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
-#include "../utils/power5.h"
-#include "../utils/pow6.h"
+
+static inline seq_t power5(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = 5;
+    while (exp)
+    {
+        if (exp & 1)
+            result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
+
+/* Compute 6^e using binary exponentiation.  e is non–negative. */
+static seq_t pow6(idx_t e)
+{
+    seq_t result = 1;
+    seq_t base = 6;
+    while (e) {
+        if (e & 1)
+            result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

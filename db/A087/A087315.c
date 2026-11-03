@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∏_{k=1..n} prime(k)^{prime(n-k+1)} (OEIS A087315)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 7,
  *            big any n
- * Helpers:   seq_mul, seq_pow, sieve_first_n_primes
+ * Validated: standard, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   ipow_idx, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,11 +16,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/ipow_idx.h"
 #include "../utils/sieve_first_n_primes.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
 
-extern seq_t seq_pow(seq_t base, idx_t exp);
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+extern seq_t ipow_idx(seq_t base, idx_t exp);
 extern seq_t seq_mul(seq_t a, seq_t b);
 
 static uint32_t *primes = NULL;      /* primes[0] = 2, primes[1] = 3, ... */
@@ -61,7 +68,7 @@ seq_t a(idx_t n)
         idx_t exp = (idx_t)primes[n - k];
 
         /* term = base^exp */
-        seq_t term = seq_pow(base, exp);
+        seq_t term = ipow_idx(base, exp);
 
         /* result *= term */
         result = seq_mul(result, term);

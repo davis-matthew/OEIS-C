@@ -11,7 +11,8 @@
  *            smallest part
  * Range:     u8 n <= 52, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static struct {
     idx_t  maxN;   /* largest n already computed */
@@ -42,17 +44,17 @@ static void recompute(idx_t new_max)
 
     /* 2. allocate working arrays */
     const size_t sz = (size_t)new_max + 1;
-    seq_t *result = (seq_t*)calloc(sz, sizeof(seq_t));   /* a[n] values */
-    seq_t *count  = (seq_t*)calloc(sz, sizeof(seq_t));   /* number of partitions */
-    seq_t *sum    = (seq_t*)calloc(sz, sizeof(seq_t));   /* sum of multiplicities of current c */
+    seq_t *result = mem_new(seq_t, sz);   /* a[n] values */
+    seq_t *count  = mem_new(seq_t, sz);   /* number of partitions */
+    seq_t *sum    = mem_new(seq_t, sz);   /* sum of multiplicities of current c */
 
     /* 3. for each cube c, compute sum of multiplicities of c as smallest part */
     for (size_t idx_c = 0; idx_c < cube_cnt; ++idx_c) {
         idx_t c_val = cubes[idx_c];
 
         /* reset count and sum arrays */
-        memset(count, 0, sz * sizeof(seq_t));
-        memset(sum,   0, sz * sizeof(seq_t));
+        mem_set(count, 0, sz * sizeof(seq_t));
+        mem_set(sum, 0, sz * sizeof(seq_t));
         count[0] = (seq_t)1;    /* base: one way to make 0 */
 
         /* process all cubes from c upward */
@@ -77,12 +79,12 @@ static void recompute(idx_t new_max)
     }
 
     /* 4. free old cache, store new data */
-    if (cache.a != NULL) free(cache.a);
+    if (cache.a != NULL) mem_free(cache.a);
     cache.a   = result;
     cache.maxN = new_max;
 
-    free(count);
-    free(sum);
+    mem_free(count);
+    mem_free(sum);
     free(cubes);
 }
 

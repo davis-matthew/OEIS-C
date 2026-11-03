@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 225, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   cc_coords
+ * Validated: standard, pass, 88 terms through n = 964 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,32 @@
    spiral value at that coordinate.  */
 #include <stdint.h>
 #include <inttypes.h>
-#include "../utils/cc_coords.h"
+
+/* helper: obtain counter‑clockwise spiral coordinates for step n */
+static inline void cc_coords(idx_t n, int64_t *x, int64_t *y)
+{
+    int64_t xi = 0, yi = 0;
+    idx_t rem = n - 1;           /* steps after the first position (origin) */
+    idx_t side = 0;              /* side index: 0-left,1-up,2-right,3-down,... */
+
+    while (rem > 0) {
+        idx_t step_len = side / 2 + 1;        /* length of this side  */
+        int dx = 0, dy = 0;
+        switch (side % 4) {                  /* direction of this side */
+            case 0: dx = -1; break;          /* left  */
+            case 1: dy =  1; break;          /* up    */
+            case 2: dx =  1; break;          /* right */
+            case 3: dy = -1; break;          /* down  */
+        }
+        idx_t step = (rem < step_len) ? rem : step_len;
+        xi += (int64_t)dx * (int64_t)step;
+        yi += (int64_t)dy * (int64_t)step;
+        rem -= step;
+        ++side;
+    }
+    *x = xi;
+    *y = yi;
+}
 
 /* main sequence function --------------------------------------------------- */
 seq_t a(idx_t n)

@@ -11,7 +11,8 @@
  *            until enough terms are found
  * Range:     u8 n <= 12, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 879 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Default bound for creating the first table.  10 million comfortably
  * contains more than ten‑thousand terms, and the memory footprint of
@@ -36,7 +38,7 @@ static idx_t         current_limit = 0;
 /* Free the existing table and set state to uninitialized. */
 static void clear_tables(void)
 {
-    free(term_list);
+    mem_free(term_list);
     term_list = NULL;
     term_len  = 0;
     term_cap  = 0;
@@ -71,7 +73,7 @@ static bool build_table(idx_t limit)
 
     /* Collect numbers with exactly two representations. */
     term_cap = 4096;
-    term_list = (seq_t *)malloc(term_cap * sizeof(seq_t));
+    term_list = mem_new(seq_t, term_cap);
     if (!term_list) {
         free(freq);
         return false;
@@ -82,10 +84,10 @@ static bool build_table(idx_t limit)
         if (freq[v] == 2) {
             if (term_len == term_cap) {
                 term_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(term_list, term_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, term_list, term_cap);
                 if (!tmp) {
                     free(freq);
-                    free(term_list);
+                    mem_free(term_list);
                     term_list = NULL;
                     term_cap = 0;
                     return false;

@@ -9,8 +9,9 @@
  * Formula:   a(n) = smallest m such that (σ(n)/τ(n))*(σ(m)/τ(m)) is integer,
  *            where σ(x) is the sum of divisors of x and τ(x) is the divisor
  *            count
- * Range:     u8 n <= 15, u16 n <= 9687, u32 n <= 9687, u64 n <= 9687,
- *            u128 n <= 9687, big any n
+ * Range:     u8 n <= 15, u16 n <= 16383, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9687 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Helper: compute σ(n) and τ(n) for n >= 1.

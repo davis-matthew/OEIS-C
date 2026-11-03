@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 44, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
     every dp[j] for j ≥ k the value dp[j‑k].  This requires ~0.44 n²
     additions, which is well below the 2 s limit for n ≤ 10000. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
        fits easily in a size_t because n ≤ 10000 in the tests. */
     size_t N = (size_t)n;
     /* Allocate dp[0..N] and zero‑initialise it. */
-    seq_t *dp = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, N + 1);
     if (!dp) return (seq_t)0;          /* allocation failure – return 0 */
     dp[0] = (seq_t)1;                  /* empty partition */
 
@@ -39,6 +41,6 @@ seq_t a(idx_t n)
             dp[j] += dp[j - k];
     }
     seq_t ans = dp[N];
-    free(dp);
+    mem_free(dp);
     return ans;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Find the row r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2  */
@@ -41,22 +43,22 @@ seq_t a(idx_t n) {
 
     /* Row 0 */
     prev_len = 1;
-    prev = (seq_t *)malloc(prev_len * sizeof(seq_t));
+    prev = mem_new(seq_t, prev_len);
     if (!prev) return (seq_t)0;  /* allocation failed, return 0 */
     prev[0] = 0;                 /* only element of row 0 */
 
     if (r == 0) {
         seq_t res = prev[col];
-        free(prev);
+        mem_free(prev);
         return res;
     }
 
     /* Build successive rows */
     for (idx_t row = 1; row <= r; ++row) {
         curr_len = row + 1;
-        curr = (seq_t *)malloc(curr_len * sizeof(seq_t));
+        curr = mem_new(seq_t, curr_len);
         if (!curr) {
-            free(prev);
+            mem_free(prev);
             return (seq_t)0;
         }
 
@@ -70,13 +72,13 @@ seq_t a(idx_t n) {
         }
 
         /* Prepare for next iteration */
-        free(prev);
+        mem_free(prev);
         prev = curr;
         prev_len = curr_len;
         curr = NULL;
     }
 
     seq_t result = prev[col];
-    free(prev);
+    mem_free(prev);
     return result;
 }

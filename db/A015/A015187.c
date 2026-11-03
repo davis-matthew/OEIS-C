@@ -11,13 +11,15 @@
  *            (x^38 – 1) * (x^62 – 1) * (x^589 – 1) * (the fact...
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define PERIOD 1178
 
@@ -88,7 +90,7 @@ static void init_period(void)
     tmp = cur; cur = next; next = tmp;
 
     /* copy the computed period into the global array */
-    memcpy(period, cur, PERIOD * sizeof(seq_t));
+    mem_copy(period, cur, PERIOD * sizeof(seq_t));
     period_ready = true;
 }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 25,
  *            big any n
- * Helpers:   alloc_seq_array, digit_len, free_seq_array, pow10
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,10 +25,29 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/digit_len.h"   /* int digit_len(seq_t); */
-#include "../utils/pow10.h"      /* seq_t pow10(idx_t); */
-#include "../utils/alloc_seq_array.h"   /* seq_t *alloc_seq_array(size_t); */
-#include "../utils/free_seq_array.h"    /* void free_seq_array(seq_t*); */
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* cache for memoisation */
 static seq_t *cache = NULL;    /* cache[i] holds a(i+1) */
@@ -56,7 +76,7 @@ static seq_t next_term(seq_t prev)
 {
     for (int d = 1; d <= 9; ++d) {
         seq_t m = prev * (seq_t)9 + (seq_t)d;
-        int len = digit_len(m);
+        int len = num_digits(m);
         seq_t pow = pow10((idx_t)(len - 1));
         seq_t hd = m / pow;                /* leading digit, 1‑9 */
         if ((unsigned int)hd == (unsigned int)d)

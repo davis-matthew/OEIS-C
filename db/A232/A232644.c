@@ -11,13 +11,15 @@
  *            the values in the order of their first appearance
  * Range:     u8 n <= 97, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 936 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* dynamic generation of the tree; results are stored
    in a static array growing as needed */
@@ -32,7 +34,7 @@ static void ensure_seq_cap(size_t need)
     if (need <= seq_cap) return;
     size_t ncap = seq_cap ? seq_cap << 1 : 8;
     while (ncap < need) ncap <<= 1;
-    seq = (seq_t *)realloc(seq, ncap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, ncap);
     if (!seq) abort(); /* out of memory */
     seq_cap = ncap;
 }

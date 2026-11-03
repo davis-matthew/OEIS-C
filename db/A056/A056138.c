@@ -10,14 +10,40 @@
  *            < v, same parity, and checking if (v–u)/2 > n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   dfs_div, factor_uint64
+ * Validated: standard, pass, 106 terms through n = 9502 (2026-11-01)
+ * Helpers:   factor_uint64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include "../utils/factor_uint64.h"
-#include "../utils/dfs_div.h"
+
+/* Recursive helper to generate all divisors of n² up to n. */
+static void dfs_div(uint64_t cur, int idx, int cnt, uint64_t N, uint64_t N2,
+                    uint64_t fac[], int exp[], uint64_t *ans)
+{
+    if (cur > N) return;                 /* pruning: product already too large */
+    if (idx == cnt) {                    /* reached a divisor */
+        if (cur < N) {
+            uint64_t v = N2 / cur;        /* complementary divisor */
+            if (((cur & 1u) == (v & 1u))) {
+                uint64_t m = (v - cur) / 2u;
+                if (m > N) (*ans)++;
+            }
+        }
+        return;
+    }
+
+    uint64_t p = fac[idx];
+    uint64_t cur2 = cur;
+    int maxe = 2 * exp[idx];              /* exponent range for n² */
+    for (int e = 0; e <= maxe; ++e) {
+        if (cur2 > N) break;              /* further multiplication makes it larger */
+        dfs_div(cur2, idx + 1, cnt, N, N2, fac, exp, ans);
+        cur2 *= p;
+    }
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4701, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 124 terms through n = 8578 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 static bool is_prime_uint64(uint64_t x)
 {
@@ -86,7 +89,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < prime_cnt; ++i) {
             uint64_t p = primes[i];
             /* Legendre symbol via Euler's criterion. */
-            seq_t r = mod_pow((seq_t)q,
+            seq_t r = powmod((seq_t)q,
                               (uint64_t)((p - 1) / 2),
                               (seq_t)p);
             if (r == (seq_t)(p - 1)) return (seq_t)q;  /* nonresidue mod p */

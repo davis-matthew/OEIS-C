@@ -11,14 +11,25 @@
  *            with 18 words of weight 4; a(n) = coefficient of q^n
  * Range:     u8 n <= 3, u16 n <= 19, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   alloc_zero, release
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 /* dst = src * (E or O), truncated at degree n */
 static void mul_sparse(seq_t *dst, const seq_t *src, idx_t n, int odd)

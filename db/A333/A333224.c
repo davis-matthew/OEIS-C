@@ -9,14 +9,47 @@
  *            of the k‑th composition in standard order (row k of A066099)
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   count_distinct_sums
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/count_distinct_sums.h"
+
+/* Count distinct positive sums of all contiguous subarrays of a composition.
+   `parts` holds the composition parts (already reversed per the definition).
+   The maximum possible sum is at most 64 (for 64‑bit indices), so a static
+   boolean array of modest size suffices. */
+static seq_t count_distinct_sums(const seq_t *parts, size_t len)
+{
+    if (len == 0)
+        return (seq_t)0;
+
+    /* Prefix sums: pref[i] = sum of first i parts, pref[0] = 0. */
+    seq_t pref[65] = {0};
+    for (size_t i = 0; i < len; ++i)
+        pref[i + 1] = pref[i] + parts[i];
+
+    seq_t max_sum = pref[len];
+    /* Boolean array indexed by possible sum values (1..max_sum). */
+    bool seen[128] = {0};
+
+    for (size_t i = 0; i < len; ++i) {
+        for (size_t j = i + 1; j <= len; ++j) {
+            seq_t s = pref[j] - pref[i];
+            if (s > 0 && s <= max_sum)
+                seen[(size_t)s] = true;
+        }
+    }
+
+    seq_t count = 0;
+    for (seq_t s = 1; s <= max_sum; ++s)
+        if (seen[(size_t)s])
+            ++count;
+    return count;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

@@ -9,13 +9,15 @@
  *            with (d+1)(d+2)/2 > n and j = n - d(d+1)/2 (the offset within
  *            diagonal d). The triangle element is a(n,k)=binomial(n+k,
  *            floor(k/2)), and on diagonal d we have n+k = d
- * Range:     u8 n <= 35, u16 n <= 189, u32 n <= 560, u64 n <= 1274,
+ * Range:     u8 n <= 65, u16 n <= 189, u32 n <= 629, u64 n <= 1274,
  *            u128 n <= 1274, big any n
+ * Validated: standard, pass, 94 terms through n = 1223 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

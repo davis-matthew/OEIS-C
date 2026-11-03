@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 192, u32 n <= 192, u64 n <= 192, u128 n <= 192,
  *            big any n
- * Helpers:   int_to_roman
+ * Validated: full, pass, 192 terms through n = 192 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,28 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/int_to_roman.h"
+
+/* Convert an integer (1..3888) to its standard Roman
+   numeral representation. The result is stored in 'buf'
+   and is null‑terminated. */
+static void int_to_roman(idx_t n, char *buf)
+{
+    static const int vals[] =  {1000, 900, 500, 400, 100, 90, 50, 40,
+                                10,   9,   5,   4,   1};
+    static const char *syms[] = {"M","CM","D","CD","C","XC","L","XL",
+                                 "X","IX","V","IV","I"};
+    int i, pos = 0;
+    for (i = 0; i < 13; ++i) {
+        while (n >= vals[i]) {
+            const char *s = syms[i];
+            while (*s) {
+                buf[pos++] = *s++;
+            }
+            n -= vals[i];
+        }
+    }
+    buf[pos] = '\0';
+}
 
 /* Public entry point for the sequence. */
 seq_t a(idx_t n)

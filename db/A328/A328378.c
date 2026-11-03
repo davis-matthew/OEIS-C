@@ -9,6 +9,7 @@
  *            a(2*n+1)=4*n!*(n-1)! for n>0
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 18, u64 n <= 27, u128 n <= 42,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 503 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 315, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_counts, sigma_of
+ * Validated: standard, pass, 62 terms through n = 980 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,25 @@
 /* A249899: numbers k such that the set of decimal digits of sigma(k) equals the set of digits of k. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/sigma_of.h"
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 static seq_t *cache     = NULL;
 static size_t cache_cap = 0;
@@ -29,7 +47,7 @@ static void ensure_cache(size_t needed) {
     if (needed > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();  /* allocation failed */
         cache = tmp;
         cache_cap = new_cap;

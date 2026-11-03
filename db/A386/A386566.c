@@ -9,17 +9,20 @@
  *            binomial(5*n,k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 907 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;          /* a(0) = 0 */
 
     /* allocate array for binomial(5*n, k), k = 0..n‑1 */
-    seq_t *binom = (seq_t*)malloc(sizeof(seq_t) * n);
+    seq_t *binom = mem_new(seq_t, n);
     if (!binom) return 0;          /* allocation failure → return 0 */
 
     binom[0] = 1;                  /* C(5*n,0) = 1 */
@@ -42,6 +45,6 @@ seq_t a(idx_t n)
         pow4 *= 4;                  /* next power of 4 */
     }
 
-    free(binom);
+    mem_free(binom);
     return sum;
 }

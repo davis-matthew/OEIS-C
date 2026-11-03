@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
    Equivalent closed form for n > 1:
      a(n) = n * (2*n^(n+1) - n^3 - n^2 + n - 1) / (2*(n-1)^3)   */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -54,7 +57,7 @@ seq_t a(idx_t n)
     } else {
         /* Arbitrary‑precision branch */
         seq_t nt   = (seq_t)n;
-        seq_t pow  = big_pow(nt, (seq_t)(n + 1));
+        seq_t pow  = ipow(nt, (seq_t)(n + 1));
         seq_t n2   = nt * nt;
         seq_t n3   = n2 * nt;
         seq_t inner = (seq_t)2 * pow - n3 - n2 + nt - (seq_t)1;

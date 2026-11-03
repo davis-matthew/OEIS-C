@@ -11,7 +11,8 @@
  *            for n > 10 the value is undefined (return 0)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   build_primes_upto, popcount_mask
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-02)
+ * Helpers:   build_primes_upto, popcount_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/popcount_mask.h"
+#include "../utils/popcount_u32.h"
 
 static bool initialized = false;
 static seq_t best_for_pop[11];
@@ -56,7 +57,7 @@ static void init_sequence(void) {
     for (int i = 0; i < 11; ++i) best_for_pop[i] = (seq_t)0;
     for (unsigned m = 1; m < 1024; ++m) {
         if (!dp[m]) continue;
-        int pc = popcount_mask(m);
+        int pc = popcount_u32(m);
         if (!best_for_pop[pc] || dp[m] < best_for_pop[pc])
             best_for_pop[pc] = dp[m];
     }

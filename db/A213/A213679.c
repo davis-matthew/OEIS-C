@@ -10,14 +10,23 @@
  *            number
  * Range:     u8 n <= 6, u16 n <= 18, u32 n <= 65, u64 n <= 261,
  *            u128 n <= 1000, big any n
- * Helpers:   free_seq_array
+ * Validated: standard, pass, 53 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <string.h>   /* memcpy */
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Helper to allocate arrays for arbitrary‑precision seq_t types. */
 static seq_t *alloc_seq_array(size_t n)
@@ -25,7 +34,7 @@ static seq_t *alloc_seq_array(size_t n)
     /* In the provided utilities this is defined.  It simply
        allocates \`n\` elements of type seq_t with appropriate
        constructors/destructors. */
-    return (seq_t *)malloc(n * sizeof(seq_t));
+    return mem_new(seq_t, n);
 }
 
 static seq_t *p   = NULL;       /* p[i] = partition number of i */
@@ -48,9 +57,9 @@ static void ensure_up_to(idx_t n)
         seq_t *new_s1 = alloc_seq_array(new_cap);
         seq_t *new_s2 = alloc_seq_array(new_cap);
 
-        if (p)   memcpy(newp,   p,   cap * sizeof(seq_t));
-        if (s1)  memcpy(new_s1, s1,  cap * sizeof(seq_t));
-        if (s2)  memcpy(new_s2, s2,  cap * sizeof(seq_t));
+        if (p)   mem_copy(newp, p, cap * sizeof(seq_t));
+        if (s1)  mem_copy(new_s1, s1, cap * sizeof(seq_t));
+        if (s2)  mem_copy(new_s2, s2, cap * sizeof(seq_t));
 
         if (p)   free_seq_array(p);
         if (s1)  free_seq_array(s1);

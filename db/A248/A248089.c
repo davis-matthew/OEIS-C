@@ -8,21 +8,23 @@
  *            3k)*(-3)^(3k)*4^(n-4k)
  * Range:     i8 n <= 3, i16 n <= 7, i32 n <= 13, i64 n <= 25, i128 n <= 25,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n) {
     idx_t max_k = n / 4;
     seq_t sum = 0;
 
     /* Precompute 4^n as the starting value t0 (k = 0). */
-    seq_t pow4 = pow_seq(4, (int)n);   /* 4^n  */
+    seq_t pow4 = ipow_i32(4, (int)n);   /* 4^n  */
     seq_t powMinus27 = 1;              /* (-27)^k  */
 
     /* k = 0 term: binomial = 1, powMinus27 = 1, pow4 = 4^n */

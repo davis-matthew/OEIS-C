@@ -10,6 +10,7 @@
  *            and memoised for subsequent calls
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 18, u64 n <= 140, u128 n <= 324,
  *            big any n
+ * Validated: full, pass, 325 terms through n = 324 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

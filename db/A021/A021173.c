@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor(10^(n+1)/169) - 10*floor(10^n/169)
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         rem = (rem * 10) % (seq_t)169;
 
         /* Resize cache */
-        seq_t *tmp = (seq_t *)realloc(digits, (size_t)(cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, digits, (size_t)(cap + 1));
         if (!tmp) { /* allocation failure: return 0 as fallback */
             return (seq_t)0;
         }

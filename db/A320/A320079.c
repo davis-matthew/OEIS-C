@@ -10,12 +10,14 @@
  *            in antidiagonal order
  * Range:     u8 n <= 24, u16 n <= 41, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* ----- 3. Compute unsigned Stirling numbers of the first kind up to i ----- */
     size_t N = i;
     size_t sz = (N + 1) * (N + 1);
-    seq_t *S = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, sz);
     if (!S)
         return (seq_t)0;          /* memory failure; unlikely for small N */
 
@@ -57,9 +59,9 @@ seq_t a(idx_t n)
     }
 
     /* ----- 4. Compute factorials up to N ----- */
-    seq_t *fact = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (N + 1));
     if (!fact) {
-        free(S);
+        mem_free(S);
         return (seq_t)0;
     }
     fact[0] = (seq_t)1;
@@ -76,8 +78,8 @@ seq_t a(idx_t n)
     }
 
     /* ----- 6. Free temporary storage ----- */
-    free(S);
-    free(fact);
+    mem_free(S);
+    mem_free(fact);
 
     return res;
 }

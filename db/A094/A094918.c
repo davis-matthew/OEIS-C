@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look
  * Formula:   a(n) = (3^n - 1)/2 mod n (offset 1)
- * Range:     u8 n <= 287, u16 n <= 9055, u32 n <= 9055, u64 n <= 9055,
- *            u128 n <= 9055, big any n
+ * Range:     u8 n <= 287, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 104 terms through n = 9055 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

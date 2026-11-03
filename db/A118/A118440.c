@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 11, i32 n <= 20, i64 n <= 33, i128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  *   ((1-2x)(1+4x²)(1+64x⁴))
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Cache to store computed values – grows as needed */
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     /* Initialisation: allocate first 8 terms (indices 0..7) */
     if (cache_len == 0) {
         cache_len = 8;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return 0;  /* allocation failure – undefined for the problem */
 
         /* Set known initial values */
@@ -53,7 +55,7 @@ seq_t a(idx_t n) {
     if ((idx_t)(n) >= cache_len) {
         idx_t new_len = cache_len;
         while ((idx_t)(n) >= new_len) new_len <<= 1;  /* double until sufficient */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) return 0;  /* allocation failure – undefined for the problem */
         cache = new_cache;
         cache_len = new_len;

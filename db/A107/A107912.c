@@ -9,14 +9,33 @@
  *            sigma(sigma(k)) >= 2*k (sigma = sum of positive divisors)
  * Range:     u8 n <= 43, u16 n <= 6613, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sigma_trial
+ * Validated: standard, pass, 85 terms through n = 8957 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/sigma_trial.h"
+
+/* Fallback trial division for n > MAX_LIMIT (unlikely to be used). */
+static seq_t sigma_trial(idx_t n) {
+    seq_t res = 1;
+    idx_t temp = n;
+    for (idx_t p = 2; p * p <= temp; ++p) {
+        if (temp % p == 0) {
+            seq_t sum = 1, curr_pow = 1;
+            while (temp % p == 0) {
+                temp /= p;
+                curr_pow *= p;
+                sum += curr_pow;
+            }
+            res *= sum;
+        }
+    }
+    if (temp > 1) res *= (1 + temp);
+    return res;
+}
 
 static const idx_t MAX_LIMIT = 2000000;          /* limit for precomputed SPF/sigma */
 static unsigned *spf = NULL;                    /* smallest prime factor table */

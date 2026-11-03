@@ -12,13 +12,21 @@
  *            sorted descending. * For n > 10 no such factorisati...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   prime_exp
+ * Validated: full, pass, 9 terms through n = 10 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/prime_exp.h"
+
+static idx_t prime_exp(idx_t n, idx_t p)
+{
+    idx_t e = 0;
+    for (idx_t denom = p; denom <= n; denom *= p)
+        e += n / denom;
+    return e;
+}
 
 seq_t a(idx_t n)
 {

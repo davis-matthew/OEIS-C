@@ -12,15 +12,46 @@
  *            largest n requested
  * Range:     u8 n <= 9, u16 n <= 31, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   cmp_seq_t, floor_sqrt, gcd
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   gcd, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>        /* malloc, free, qsort */
-#include "../utils/gcd.h"   /* seq_t gcd(seq_t, seq_t) */
-#include "../utils/cmp_seq_t.h" /* int cmp_seq_t(const void*, const void*) */
-#include "../utils/floor_sqrt.h"/* seq_t floor_sqrt(seq_t) */
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/gcd.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *pp = NULL;          /* memoised list of perfect powers (0‑based) */
 static size_t pp_len = 0;         /* number of entries stored */
@@ -36,7 +67,7 @@ static void ensure_pp(idx_t need)
 
     /* estimate a reasonable capacity: twice the number of squares */
     size_t est_cap = need * 2 + 42;
-    seq_t *tmp = (seq_t *)malloc(est_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, est_cap);
     if (!tmp) return;  /* fallback: may crash; problem not expected */
 
     size_t len = 0;
@@ -51,8 +82,8 @@ static void ensure_pp(idx_t need)
         while (val <= limit) {
             if (len == est_cap) {        /* grow if needed */
                 est_cap <<= 1;
-                seq_t *r = (seq_t *)realloc(tmp, est_cap * sizeof(seq_t));
-                if (!r) { free(tmp); return; }
+                seq_t *r = mem_resize(seq_t, tmp, est_cap);
+                if (!r) { mem_free(tmp); return; }
                 tmp = r;
             }
             tmp[len++] = val;
@@ -63,7 +94,7 @@ static void ensure_pp(idx_t need)
     }
 
     /* sort and unique */
-    qsort(tmp, len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(tmp, len, sizeof(seq_t), cmp_seq_t);
     size_t uniq = 0;
     for (size_t i = 0; i < len; ++i) {
         if (uniq == 0 || tmp[i] != tmp[uniq-1]) {
@@ -72,7 +103,7 @@ static void ensure_pp(idx_t need)
     }
 
     /* replace old table */
-    if (pp) free(pp);
+    if (pp) mem_free(pp);
     pp     = tmp;
     pp_len = uniq;
 }

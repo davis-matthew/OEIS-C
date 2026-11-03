@@ -11,13 +11,15 @@
  *            divides a(n)
  * Range:     u8 n <= 5, u16 n <= 28, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----------  GLOBAL DATA  ---------- */
 #define LIMIT 20000000U      /* upper bound for candidate numbers */
@@ -95,7 +97,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache == NULL) {
         cache_capacity = 16;
-        cache = (seq_t*)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         cache[0] = 0;                 /* dummy for 1‑based indexing */
         cache_len = 1;
     }
@@ -108,7 +110,7 @@ static void ensure_cache(idx_t n)
         if (is_valid(next_candidate)) {
             if (cache_len >= cache_capacity) {
                 size_t new_cap = cache_capacity * 2;
-                cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, new_cap);
                 cache_capacity = new_cap;
             }
             cache[cache_len++] = (seq_t)next_candidate;

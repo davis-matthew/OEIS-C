@@ -12,14 +12,49 @@
  *            few values are: a(1)=0, a(2)=1, a(3)=1, a(4)=1, a(5)=3, …
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   get_ij
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/get_ij.h"
+
+/* ------------------------------------------------------------------
+   Find the row i and column j (0‑based) for the n‑th element in the
+   antidiagonal traversal of the extended Wythoff array.
+   ----------------------------------------------------------- */
+static inline void get_ij(idx_t n, idx_t *i, idx_t *j)
+{
+    idx_t t = n - 1;          /* 0‑based offset */
+    idx_t lo = 0, hi = 0;
+
+    /* find hi such that cum(hi) > t,
+       where cum(s) = (s+1)(s+2)/2  (total terms up to diagonal s) */
+    while (true) {
+        __int128 cum = (__int128)(hi + 1) * (hi + 2) / 2;
+        if (cum > t)
+            break;
+        hi = hi * 2 + 1;           /* grow search range */
+    }
+
+    /* binary search for minimal s with cum(s) > t */
+    while (lo < hi) {
+        idx_t mid = lo + ((hi - lo) >> 1);
+        __int128 cum_mid = (__int128)(mid + 1) * (mid + 2) / 2;
+        if (cum_mid > t)
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    idx_t s = hi;                                 /* diagonal index */
+
+    __int128 prev_cnt = (__int128)s * (s + 1) / 2; /* terms before this diagonal */
+    idx_t offset = t - (idx_t)prev_cnt;            /* position inside diagonal   */
+    *i = offset;
+    *j = s - offset;
+}
 
 /* ------------------------------------------------------------------
    Integer square root of a 128‑bit value, returning the floor.

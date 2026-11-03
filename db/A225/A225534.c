@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   get_digits, is_prime_small
+ * Validated: standard, pass, 68 terms through n = 9692 (2026-11-03)
+ * Helpers:   get_digits, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/get_digits.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Cache of already found numbers.  cache[i] holds a(i+1). */
 static seq_t *cache = NULL;
@@ -36,7 +39,7 @@ static void grow_cache(size_t min_cap)
     if (min_cap <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < min_cap) new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -52,7 +55,7 @@ static bool sum_of_cubes_is_prime(seq_t x)
         seq_t d = (seq_t)buf[i];
         sum += d * d * d;
     }
-    return is_prime_small(sum);   /* handles small integer sums */
+    return is_prime_seq(sum);   /* handles small integer sums */
 }
 
 /* Main sequence function required by the framework. */

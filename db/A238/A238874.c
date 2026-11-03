@@ -10,11 +10,13 @@
  *            coefficient
  * Range:     u8 n <= 21, u16 n <= 44, u32 n <= 103, u64 n <= 259,
  *            u128 n <= 696, big any n
+ * Validated: standard, pass, 73 terms through n = 935 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

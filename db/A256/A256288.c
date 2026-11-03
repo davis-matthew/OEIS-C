@@ -11,13 +11,15 @@
  *            be evaluated for any n ≥ 0
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 28, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     idx_t m = 7 * n - 7;
 
     /* Allocate DP array part[0 … m]. */
-    seq_t *part = (seq_t *)malloc((size_t)(m + 1) * sizeof(seq_t));
+    seq_t *part = mem_new(seq_t, (size_t)(m + 1));
     if (!part)
         return (seq_t)0;               /* out‑of‑memory fallback */
 
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     }
 
     seq_t ways = part[m];
-    free(part);
+    mem_free(part);
 
     /* a(n) = 7 * n * ways */
     return (seq_t)7 * (seq_t)n * ways;

@@ -7,14 +7,16 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = a(n-16) ^ a(n-5) ^ a(n-3) ^ a(n-2), with initial terms
  *            a(0)=0,...,a(14)=0, a(15)=1 (period 65535)
- * Range:     u8 n <= 9916, u16 n <= 9916, u32 n <= 9916, u64 n <= 9916,
- *            u128 n <= 9916, big any n
- * Helpers:   none
+ * Range:     u8 n <= 66000, u16 n <= 66000, u32 n <= 66000, u64 n <= 66000,
+ *            u128 n <= 66000, big any n
+ * Validated: standard, pass, 97 terms through n = 9916 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Lazy initialization of cache and first 16 terms */
     if (cap == 0) {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return (seq_t)0; /* allocation failure: return 0 */
         for (size_t i = 0; i < 16; ++i) {
             cache[i] = (i == 15) ? (seq_t)1 : (seq_t)0;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (idx >= cap) {
         size_t newcap = cap;
         while (newcap <= idx) newcap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) return (seq_t)0; /* allocation failure: return 0 */
         cache = tmp;
         cap = newcap;

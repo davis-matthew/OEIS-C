@@ -11,13 +11,16 @@
  *            leaving an integer
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 52 terms through n = 981 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"   /* seq_t binom(idx_t a, idx_t b); */
-#include "../utils/pow2.h"    /* seq_t pow2(idx_t exp);  returns 2^exp  */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +47,7 @@ seq_t a(idx_t n)
             /* Positive contribution from n = +divisor when t <= 2*divisor+1 */
             if (t <= 2 * divisor + 1) {
                 idx_t k = t - 1;              /* 0 <= k <= 2*divisor */
-                seq_t c = binom(2 * divisor, k);
+                seq_t c = binomial(2 * divisor, k);
                 idx_t e = 2 * divisor - k;    /* exponent of sqrt(2) */
                 if (e % 2 == 0) {
                     seq_t val = c * pow2(e / 2);
@@ -58,7 +61,7 @@ seq_t a(idx_t n)
             /* Negative contribution from n = -divisor when t >= 2*divisor-1 */
             if (t >= 2 * divisor - 1) {
                 idx_t k2 = t - (2 * divisor - 1);   /* k2 >= 0 */
-                seq_t c = binom(2 * divisor + k2 - 1, k2);
+                seq_t c = binomial(2 * divisor + k2 - 1, k2);
                 bool sign_positive = (k2 % 2 == 0);  /* (-1)^k2 */
                 if (k2 % 2 == 0) {                 /* integer part */
                     seq_t val = c * pow2(k2 / 2);

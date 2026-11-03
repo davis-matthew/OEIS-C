@@ -7,17 +7,22 @@
  * Formula:   a(n) = floor((10^n mod 307) * 10 / 307)
  * Range:     u8 n <= 0, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
     /* 10^n (mod 307) */
-    seq_t pow10 = mod_pow((seq_t)10, n, (seq_t)307);
+    seq_t pow10 = powmod((seq_t)10, n, (seq_t)307);
     /* nth digit after the decimal point of 1/307 */
     return (pow10 * 10) / (seq_t)307;
 }

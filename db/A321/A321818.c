@@ -9,6 +9,7 @@
  *            Prod_{p^e || m, p odd} (1 + p^8 + p^16 + ... + p^(8e))
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 15, u64 n <= 255,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 39 terms through n = 9500 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

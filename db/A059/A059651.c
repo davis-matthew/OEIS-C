@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 119, i16 n <= 119, i32 n <= 119, i64 n <= 119,
  *            i128 n <= 119, big any n
- * Helpers:   int_cube_root
+ * Validated: partial, pass, 120 terms through n = 119 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,22 @@
    and a(0)=0.) */
 
 #include <stdint.h>
-#include "../utils/int_cube_root.h"
+#include <limits.h>
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 seq_t a(idx_t n)
 {

@@ -12,14 +12,16 @@
  *            along upwards antidiagonals: index n corresponds to (i,k) with i
  *            = s - k, k = n - s*(s+1)/2, where s = ⌊(√(8n+1)-1)/2⌋. The
  *            function below computes a(n) using the explicit fo...
- * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 61, u64 n <= 68, u128 n <= 68,
+ * Range:     u8 n <= 18, u16 n <= 40, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* ------------------------------------------------------------ */

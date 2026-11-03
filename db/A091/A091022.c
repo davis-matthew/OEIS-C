@@ -9,7 +9,8 @@
  *            whose index is that value
  * Range:     u8 n <= 27, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *semiprimes = NULL;   /* 1‑based array of semiprime values */
 static idx_t   semiprime_cnt = 0;  /* number of semiprimes stored */
@@ -49,7 +51,7 @@ static void init_semiprimes(void)
         }
     }
 
-    semiprimes = (seq_t *)malloc((MAX_SEM_CNT + 1) * sizeof(seq_t));
+    semiprimes = mem_new(seq_t, (MAX_SEM_CNT + 1));
     if (!semiprimes) { free(spf); return; }
 
     semiprime_cnt = 0;

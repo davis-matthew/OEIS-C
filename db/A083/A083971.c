@@ -8,7 +8,8 @@
  * Formula:   a(n) = ( reverse(k) * 10^d + k ) / k, where k = A083970(n)
  * Range:     u8 n <= 12, u16 n <= 168, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_count, reverse_uint64
+ * Validated: standard, pass, 75 terms through n = 8387 (2026-11-03)
+ * Helpers:   mem, num_digits0, reverse_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,14 +18,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/reverse_uint64.h"
-#include "../utils/digit_count.h"
+#include <math.h>
+#include "../utils/num_digits0.h"
+#include "../utils/reverse_digits_u64.h"
+#include "../utils/mem.h"
 
 /* Test whether k satisfies k | reverse(k) * 10^d */
 static bool k_is_good(uint64_t k)
 {
-    int d = digit_count(k);
-    uint64_t revk = reverse_uint64(k);
+    int d = num_digits0(k);
+    uint64_t revk = reverse_digits_u64(k);
 
     /* compute 10^d mod k */
     uint64_t powmod = 1 % k;
@@ -57,8 +60,8 @@ seq_t a(idx_t n)
         }
 
         /* Compute a value for this k */
-        uint64_t revk = reverse_uint64(last_k);
-        int d = digit_count(last_k);
+        uint64_t revk = reverse_digits_u64(last_k);
+        int d = num_digits0(last_k);
 
         /* compute 10^d as unsigned long long (fits for d <= 19, which is enough for n <= 10000) */
         unsigned long long pow10d = 1ULL;
@@ -74,7 +77,7 @@ seq_t a(idx_t n)
         /* Expand cache if necessary */
         if (cache_size == cache_cap) {
             size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) {
                 /* allocation failed: fall back to zero */
                 return 0;

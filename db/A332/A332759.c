@@ -10,11 +10,13 @@
  *            A332757(0)=1 and A332757(k)=A332757(k-1)^2 + 2^(2^(k-1)-1)
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 static seq_t f[64];          /* A332757(k) values */

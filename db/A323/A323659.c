@@ -7,6 +7,7 @@
  * Formula:   a(n) = ∏_{k=0..n} (k^10 + (n-k)^10)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 5,
  *            big any n
+ * Validated: standard, pass, 24 terms through n = 59 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

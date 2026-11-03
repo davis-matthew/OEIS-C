@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* State for memoisation */
 static seq_t *a_cache      = NULL;   /* 1‑based array of a(n) values   */
@@ -45,7 +47,7 @@ static void ensure_a_cache_cap(idx_t n)
     size_t newcap = (a_cache_cap > 0) ? a_cache_cap : 1;
     while ((size_t)n >= newcap)
         newcap *= 2;
-    a_cache = (seq_t*)realloc(a_cache, newcap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, newcap);
     a_cache_cap = newcap;
 }
 
@@ -57,13 +59,13 @@ static void init_storage(void)
 
     /* a_cache[1] = 1 */
     a_cache_cap = 2;
-    a_cache = (seq_t*)calloc(a_cache_cap, sizeof(seq_t));
+    a_cache = mem_new(seq_t, a_cache_cap);
     a_cache[1] = (seq_t)1;
     cache_max = 1;
 
     /* prev_row for i = 0 : only value 0 = 1 */
     prev_len  = 1;
-    prev_row  = (seq_t*)calloc(prev_len, sizeof(seq_t));
+    prev_row  = mem_new(seq_t, prev_len);
     prev_row[0] = (seq_t)1;
     prev_index = 0;  /* row index 0 */
 }
@@ -84,10 +86,10 @@ seq_t a(idx_t n)
         idx_t curr_len   = (idx_t)8 * curr_index + 1; /* 8*i + 1 */
 
         /* current row array */
-        seq_t *curr_row = (seq_t*)calloc((size_t)curr_len, sizeof(seq_t));
+        seq_t *curr_row = mem_new(seq_t, (size_t)curr_len);
 
         /* prefix sums of previous row for O(1) range sums */
-        seq_t *pref = (seq_t*)calloc((size_t)prev_len, sizeof(seq_t));
+        seq_t *pref = mem_new(seq_t, (size_t)prev_len);
         pref[0] = prev_row[0];
         for (idx_t j = 1; j < prev_len; ++j)
             pref[j] = pref[j - 1] + prev_row[j];
@@ -108,8 +110,8 @@ seq_t a(idx_t n)
         /* store the new term and advance state */
         a_cache[cache_max + (idx_t)1] = sum_next;
 
-        free(prev_row);
-        free(pref);
+        mem_free(prev_row);
+        mem_free(pref);
         prev_row   = curr_row;
         prev_len   = curr_len;
         prev_index = curr_index;

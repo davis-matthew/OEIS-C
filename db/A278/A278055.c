@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 376, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9096 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
     (indices in the recurrence are 1‑based)                      */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *a_cache = NULL;          /* allocated array */
@@ -35,7 +37,7 @@ static void ensure_cache_capacity(idx_t n)
     size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 16;
     if (new_cap < (size_t)n)
         new_cap = n;
-    seq_t *new_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_cap);
     if (!new_cache)
         abort();                       /* out of memory */
     a_cache = new_cache;

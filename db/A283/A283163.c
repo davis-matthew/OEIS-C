@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 184, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   sigma_of
+ * Validated: standard, pass, 76 terms through n = 939 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,22 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/sigma_of.h"   /* provides seq_t sigma_of(idx_t n) */
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 static seq_t *a_cache   = NULL;   /* cache of computed a(n) values   */
 static size_t a_cap     = 0;       /* allocated capacity in a_cache   */
@@ -33,7 +49,7 @@ static void ensure_capacity(idx_t n)
     if (a_cap < (size_t)(n + 1)) {
         size_t newcap = a_cap ? a_cap * 2 : 128;
         while (newcap < (size_t)(n + 1)) newcap <<= 1;
-        a_cache = (seq_t *)realloc(a_cache, newcap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, newcap);
         a_cap   = newcap;
     }
 
@@ -41,7 +57,7 @@ static void ensure_capacity(idx_t n)
     if (sigma_cap < (size_t)(n + 1)) {
         size_t newcap = sigma_cap ? sigma_cap * 2 : 128;
         while (newcap < (size_t)(n + 1)) newcap <<= 1;
-        sigma_cache = (seq_t *)realloc(sigma_cache, newcap * sizeof(seq_t));
+        sigma_cache = mem_resize(seq_t, sigma_cache, newcap);
         sigma_cap   = newcap;
     }
 

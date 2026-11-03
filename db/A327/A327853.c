@@ -8,16 +8,23 @@
  * Formula:   a(n) = k * (binomial(row, k) mod 2) read by rows where row
  *            satisfies (row+1)(row+2)/2 ≥ n > row(row+1)/2, and k = n -
  *            row(row+1)/2 - 1
- * Range:     u8 n <= 9584, u16 n <= 9584, u32 n <= 9584, u64 n <= 9584,
- *            u128 n <= 9584, big any n
- * Helpers:   cum_including
+ * Range:     u8 n <= 33152, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 107 terms through n = 9584 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/cum_including.h"
+
+/* cumulative number of terms up to and including row r:
+   (r+1)(r+2)/2. */
+static inline __uint128_t cum_including(idx_t r)
+{
+    return (__uint128_t)(r + 1) * (r + 2) / 2;
+}
 
 /* cumulative number of terms before row r (i.e. up to row r-1):
    r(r+1)/2. */

@@ -8,13 +8,15 @@
  *            function (number of unrestricted partitions of n)
  * Range:     u8 n <= 13, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 10 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External linkage: the required function */
 seq_t a(idx_t n)
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Ensure we have computed p(k) for all k <= n */
     if (n > cache_n) {
         /* Allocate or expand the cache */
-        seq_t *new_cache = (seq_t *)realloc(p_cache, sizeof(seq_t) * (n + 1));
+        seq_t *new_cache = mem_resize(seq_t, p_cache, (n + 1));
         if (!new_cache) return 0;  /* fallback on allocation failure */
         p_cache = new_cache;
 

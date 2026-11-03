@@ -12,7 +12,8 @@
  *            000)
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   _a129925_factorial
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_a129925_factorial.h"
+
+/*  Compute factorial in seq_t domain                                       */
+static seq_t _a129925_factorial(idx_t n)
+{
+    seq_t f = 1;
+    for (idx_t k = 2; k <= n; ++k) f *= (seq_t)k;
+    return f;
+}
 
 static bool          _a129925_inited   = false;
 static idx_t         _a129925_limit   = 0;

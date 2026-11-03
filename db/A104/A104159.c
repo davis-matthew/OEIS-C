@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = pattern[(n-1) % 20] where pattern =
  *            {4,20,1,16,6,17,8,12,9,14,5,19,2,15,3,18,7,11,10,13}
- * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
- *            big any n
+ * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 91 terms through n = 9894 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

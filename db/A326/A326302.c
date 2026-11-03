@@ -8,7 +8,8 @@
  * Formula:   a(n) = lcm(n, A030101(n)) – binary reverse of n
  * Range:     u8 n <= 18, u16 n <= 262, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   binary_reverse, gcd
+ * Validated: standard, pass, 76 terms through n = 7602 (2026-11-01)
+ * Helpers:   gcd, reverse_bits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
    that is an unsigned integer. */
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/binary_reverse.h"
+#include "../utils/reverse_bits_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         return 0;               /* lcm(0,0) is defined as 0 */
 
     seq_t n_val  = (seq_t)n;
-    idx_t rev_idx = binary_reverse(n);
+    idx_t rev_idx = reverse_bits_idx(n);
     seq_t rev_val = (seq_t)rev_idx;
 
     seq_t g = gcd(n_val, rev_val);          /* greatest common divisor */

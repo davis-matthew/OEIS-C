@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = exponent of the highest power of 2 dividing the n-th term
  *            of the EKG sequence
- * Range:     u8 n <= 105, u16 n <= 9137, u32 n <= 9137, u64 n <= 9137,
- *            u128 n <= 9137, big any n
- * Helpers:   gcd, trailing_zeros
+ * Range:     u8 n <= 268, u16 n <= 65538, u32 n <= 65539, u64 n <= 65539,
+ *            u128 n <= 65539, big any n
+ * Validated: standard, pass, 121 terms through n = 9137 (2026-11-03)
+ * Helpers:   ctz_seq, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include "../utils/ctz_seq.h"
 #include "../utils/gcd.h"
-#include "../utils/trailing_zeros.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;           /* actual EKG terms */
 static seq_t *vals  = NULL;           /* 2‑adic valuations of the terms */
@@ -49,8 +52,8 @@ static void ensure_terms_capacity(idx_t min_cap)
     if (terms_cap >= min_cap) return;
     size_t new_cap = terms_cap ? terms_cap << 1 : 1;
     while (new_cap < (size_t)min_cap) new_cap <<= 1;
-    seq_t *new_terms = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
-    seq_t *new_vals  = (seq_t*)realloc(vals,  new_cap * sizeof(seq_t));
+    seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
+    seq_t *new_vals  = mem_resize(seq_t, vals, new_cap);
     if (!new_terms || !new_vals) exit(1);
     terms = new_terms;
     vals  = new_vals;
@@ -69,7 +72,7 @@ static void compute_up_to(idx_t n)
     {
         used[1] = true;
         terms[0] = (seq_t)1;
-        vals[0]  = trailing_zeros((seq_t)1);
+        vals[0]  = ctz_seq((seq_t)1);
         max_computed = 1;
     }
 
@@ -102,7 +105,7 @@ static void compute_up_to(idx_t n)
             }
         }
         terms[idx] = term;
-        vals[idx]  = trailing_zeros(term);
+        vals[idx]  = ctz_seq(term);
     }
     max_computed = n;
 }

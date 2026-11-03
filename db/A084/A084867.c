@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
    allocation functions are `malloc`/`realloc`, cast to `seq_t*`
    so they are valid in C and C++.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -51,13 +53,13 @@ seq_t a(idx_t n)
         size_t sizeA = (size_t)(d + 1);
         size_t sizeT = sizeA * sizeA;
 
-        A = (seq_t*)malloc(sizeA * sizeof(seq_t));
+        A = mem_new(seq_t, sizeA);
         if (!A)
             return (seq_t)0;        /* out of memory – caller must ignore */
-        T = (seq_t*)malloc(sizeT * sizeof(seq_t));
+        T = mem_new(seq_t, sizeT);
         if (!T)
         {
-            free(A);
+            mem_free(A);
             return (seq_t)0;
         }
 
@@ -101,13 +103,13 @@ seq_t a(idx_t n)
         size_t sizeA = (size_t)(d + 1);
         size_t sizeT = sizeA * sizeA;
 
-        A = (seq_t*)realloc(A, sizeA * sizeof(seq_t));
+        A = mem_resize(seq_t, A, sizeA);
         if (!A)
             return (seq_t)0;
-        T = (seq_t*)realloc(T, sizeT * sizeof(seq_t));
+        T = mem_resize(seq_t, T, sizeT);
         if (!T)
         {
-            free(A);
+            mem_free(A);
             return (seq_t)0;
         }
 

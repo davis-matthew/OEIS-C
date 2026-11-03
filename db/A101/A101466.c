@@ -13,9 +13,10 @@
  *            all previous terms (ties resolved by choosing the largest digit,
  *            where digit 0 is treated as 10). The new term is the previous
  *            term plus this chosen digit
- * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 199, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 81 terms through n = 9898 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term of A101466, with n>=1. */
 seq_t a(idx_t n)
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (cap < n) {
         idx_t newcap = cap ? cap * 2 : 16;
         while (newcap < n) newcap *= 2;
-        seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, newcap);
         cap = newcap;
     }
 

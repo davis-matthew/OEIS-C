@@ -9,12 +9,14 @@
  *            x²→x+1
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined in the build environment */
 seq_t a(idx_t n)
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     idx_t m = n - 1;                /* exponent in (x±2)^m */
     /* Pre‑compute Fibonacci numbers up to m‑1 (B_k = F_{k-1}), needed for the
        constant part of x^k after reduction */
-    seq_t *fib = (seq_t *)malloc((m + 1) * sizeof(seq_t));
+    seq_t *fib = mem_new(seq_t, (m + 1));
     if (!fib)
         return (seq_t)0;           /* allocation failure – should not happen */
 
@@ -60,6 +62,6 @@ seq_t a(idx_t n)
         k -= 2;
     }
 
-    free(fib);
+    mem_free(fib);
     return sum;
 }

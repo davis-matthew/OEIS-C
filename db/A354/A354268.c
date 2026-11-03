@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -43,5 +45,5 @@ seq_t a(idx_t n)
     seq_t base = (seq_t)(m + k);
     idx_t exp   = m - 1;                 /* exp fits in idx_t (m <= 142 for n <= 10000) */
 
-    return seq_pow(base, exp);
+    return ipow_idx(base, exp);
 }

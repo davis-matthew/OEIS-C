@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,12 +31,13 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* Helper to construct a seq_t object at *p when compiling as C++. */
 static void init_seq_t(seq_t *p) {
 #ifdef __cplusplus
     /* Placement new constructs a default‑initialised object. */
-    new (p) seq_t();
+    *(p) = (seq_t)0;
 #else
     (void)p;  /* nothing to do for plain integer types */
 #endif
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     /* Lazy initialisation of the memo table and the first‑length DP. */
     if (memo == NULL) {
         /* Allocate space for a(0) and a(1). */
-        memo = (seq_t *)malloc(2 * sizeof(seq_t));
+        memo = mem_new(seq_t, 2);
         if (!memo) abort();
 
         /* Construct each element (no‑op for built‑in types). */
@@ -111,8 +113,7 @@ seq_t a(idx_t n)
         }
 
         /* Resize the memo array. */
-        seq_t *new_memo = (seq_t *)realloc(memo,
-                                           (memo_size + 1) * sizeof(seq_t));
+        seq_t *new_memo = mem_resize(seq_t, memo, (memo_size + 1));
         if (!new_memo) abort();
 
         /* Construct the new element (C++ only). */

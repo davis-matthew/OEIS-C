@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 1445, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has32
+ * Validated: standard, pass, 65 terms through n = 9365 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,22 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has32.h"
+#include "../utils/mem.h"
+
+static bool has32(seq_t x)
+{
+    /* return true iff base‑7 digits of x contain the substring 32 */
+    if (x < 7) return false;           /* single digit cannot contain 32 */
+    unsigned prev = (unsigned)(x % 7);
+    x /= 7;
+    while (x > 0) {
+        unsigned curr = (unsigned)(x % 7);
+        if (curr == 3 && prev == 2) return true;
+        prev = curr;
+        x /= 7;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +53,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         cache_cap = 128;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_used = 0;
         initialized = 1;
     }
@@ -53,7 +69,7 @@ seq_t a(idx_t n)
             if (!has32(k-1)) {
                 if (cache_used >= cache_cap) {
                     cache_cap *= 2;
-                    cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_used++] = k;
             }

@@ -8,13 +8,15 @@
  *            (n-j)!. For n=1..6: a(n)=0; a(7)=5040
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *fact = NULL;          /* factorial table, fact[i] = i!   */
 static idx_t fact_len = 0;          /* highest index computed         */
@@ -25,12 +27,12 @@ static void ensure_factorial(idx_t n)
     if (n < fact_len)
         return;
     if (fact_len == 0) {
-        fact = (seq_t *)malloc(sizeof(seq_t));
+        fact = mem_new(seq_t, 1);
         fact[0] = (seq_t)1;
         fact_len = 0;
     }
     if (n > fact_len) {
-        seq_t *tmp = (seq_t *)realloc(fact, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact, (n + 1));
         if (!tmp) abort();
         fact = tmp;
         for (idx_t i = fact_len + 1; i <= n; ++i)

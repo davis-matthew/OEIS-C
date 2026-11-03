@@ -9,13 +9,14 @@
  *            divisor of 2n+1 that is ≥ √(2n+1)
  * Range:     u8 n <= 146, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_floor_isqrt
+ * Validated: standard, pass, 104 terms through n = 8218 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/seq_floor_isqrt.h"
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +24,7 @@ seq_t a(idx_t n)
     seq_t m = (seq_t)n * 2 + 1;
 
     /* sqrt_m_floor = ⌊√m⌋ */
-    seq_t sqrt_m_floor = seq_floor_isqrt(m);
+    seq_t sqrt_m_floor = isqrt_seq(m);
 
     /* Find the largest divisor f ≤ ⌊√m⌋.  Then d = m/f is the
        smallest divisor ≥ √m. */
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
 
     /* floor_sqrt(2n) */
     seq_t two_n = (seq_t)n * 2;
-    seq_t sqrt_two_n = seq_floor_isqrt(two_n);
+    seq_t sqrt_two_n = isqrt_seq(two_n);
 
     return x - sqrt_two_n;
 }

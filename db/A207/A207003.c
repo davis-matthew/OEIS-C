@@ -9,7 +9,8 @@
  *            no vertical 0 1 1
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 32,
  *            big any n
- * Helpers:   has_vertical_011
+ * Validated: standard, pass, 31 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/has_vertical_011.h"
+#include "../utils/mem.h"
+
+static bool has_vertical_011(unsigned char s)
+{
+    for (int r = 0; r <= 3; ++r)
+    {
+        int b0 = (s >> r) & 1;
+        int b1 = (s >> (r + 1)) & 1;
+        int b2 = (s >> (r + 2)) & 1;
+        if (b0 == 0 && b1 == 1 && b2 == 1)
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -89,8 +103,8 @@ seq_t a(idx_t n)
     }
 
     /* 4. Dynamic programming for n ≥ 3. */
-    seq_t *dp      = (seq_t *)calloc((size_t)total_pairs, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc((size_t)total_pairs, sizeof(seq_t));
+    seq_t *dp      = mem_new(seq_t, (size_t)total_pairs);
+    seq_t *dp_next = mem_new(seq_t, (size_t)total_pairs);
 
     /* Initial DP: every pair of columns is allowed once. */
     for (int idx = 0; idx < total_pairs; ++idx)
@@ -98,7 +112,7 @@ seq_t a(idx_t n)
 
     for (idx_t step = 3; step <= n; ++step)
     {
-        memset(dp_next, 0, (size_t)total_pairs * sizeof(seq_t));
+        mem_set(dp_next, 0, (size_t)total_pairs * sizeof(seq_t));
         for (int idx = 0; idx < total_pairs; ++idx)
         {
             seq_t val = dp[idx];
@@ -122,8 +136,8 @@ seq_t a(idx_t n)
         result += dp[idx];
 
     /* Clean up. */
-    free(dp);
-    free(dp_next);
+    mem_free(dp);
+    mem_free(dp_next);
     free(trans);
 
     return result;

@@ -8,12 +8,14 @@
  *            3
  * Range:     u8 n <= 505, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9706 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* memoisation cache */
 static seq_t *seq_cache = NULL;   /* 1‑based index: seq_cache[1] holds a(1) */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* grow cache if necessary */
     if (cache_len < n) {
-        seq_t *tmp = (seq_t *)realloc(seq_cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, (n + 1));
         if (!tmp) abort();          /* out of memory */
         seq_cache = tmp;
 

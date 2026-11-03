@@ -10,11 +10,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 8840, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 75 terms through n = 9923 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Implements A282107 (base‑2 fulcrum numbers).
  * Computation by brute‑force: iterate natural numbers and check the
  * weighted‑sum fulcrum condition.  The sequence is memoized in a

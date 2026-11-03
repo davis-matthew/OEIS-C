@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   square_digits_ok
+ * Validated: partial, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,58 @@
 /* Standard headers */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/square_digits_ok.h"
+#include "../utils/mem.h"
+
+/* --- Helper: check that all decimal digits of x^2 are in {2,4,6,7}.
+   Implements squaring in decimal to avoid overflow of seq_t. --- */
+static bool square_digits_ok(seq_t x)
+{
+    /* Extract decimal digits of x into an array (least‑significant first). */
+    seq_t tmp = x;
+    int digits[200];          /* enough for numbers up to ~10^200 */
+    int len = 0;
+    while (tmp > 0) {
+        uint64_t d = (uint64_t)(tmp % 10); /* cast to a small native type */
+        digits[len++] = (int)d;
+        tmp /= 10;
+    }
+    if (len == 0) return false;          /* x is zero */
+
+    /* Convolution to compute the square in decimal digits. */
+    int64_t prod[400] = {0};
+    int prodlen = len * 2;              /* maximum possible length */
+
+    for (int i = 0; i < len; i++) {
+        for (int j = i; j < len; j++) {
+            int64_t p = (int64_t)digits[i] * digits[j];
+            if (i == j)
+                prod[i + j] += p;
+            else
+                prod[i + j] += p * 2;
+        }
+    }
+
+    /* Propagate carries base 10. */
+    for (int i = 0; i < prodlen; i++) {
+        int64_t carry = prod[i] / 10;
+        prod[i] %= 10;
+        if (carry && i + 1 < prodlen)
+            prod[i + 1] += carry;
+    }
+
+    /* Find most significant non‑zero digit. */
+    int ms = prodlen - 1;
+    while (ms > 0 && prod[ms] == 0)
+        ms--;
+
+    /* Verify that each digit is allowed. */
+    for (int i = 0; i <= ms; i++) {
+        int d = (int)prod[i];
+        if (d != 2 && d != 4 && d != 6 && d != 7)
+            return false;
+    }
+    return true;
+}
 
 /* --- Helper: check that all decimal digits of x are in {2,4,6,7}. --- */
 static bool digits_ok(seq_t x)
@@ -45,7 +97,7 @@ static void heap_grow(size_t min_cap)
         return;
     size_t new_cap = heap_cap ? heap_cap << 1 : 16;
     while (new_cap < min_cap) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(heap, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, heap, new_cap);
     heap = tmp;
     heap_cap = new_cap;
 }
@@ -94,7 +146,7 @@ static void cache_grow(size_t min_cap)
         return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < min_cap) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }

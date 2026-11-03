@@ -9,12 +9,13 @@
  *            non‑negative integers x , y , z and constraint y ≤ z
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   icuberoot
+ * Validated: standard, pass, 97 terms through n = 9832 (2026-11-01)
+ * Helpers:   icbrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/icuberoot.h"
+#include "../utils/icbrt.h"
 /* Integer square root (floor).  Uses only integer arithmetic. */
 static inline idx_t isqrt(idx_t n)
 {
@@ -34,7 +35,7 @@ static inline idx_t isqrt(idx_t n)
 seq_t a(idx_t n)
 {
     seq_t count = 0;
-    idx_t max_x = icuberoot(n);
+    idx_t max_x = icbrt(n);
 
     for (idx_t x = 0; x <= max_x; ++x) {
         idx_t x3 = x * x * x;        /* x³  (safe: x ≤ 2²¹) */

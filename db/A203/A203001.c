@@ -11,13 +11,15 @@
  *            on that diagonal). 4. Then a(n) = Σ_{t=0}^{min(i,j)-1}...
  * Range:     u8 n <= 28, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----------  Fibonacci squares cache  ---------- */
 static seq_t *fib_sq   = NULL;   /* s[k] = F_k^2  (1‑based) */
@@ -35,8 +37,8 @@ static void ensure_fib_sq(idx_t need)
         new_cap = need;
 
     /* Reallocate both arrays.  */
-    fib_sq    = (seq_t *)realloc(fib_sq,    (new_cap + 1) * sizeof(seq_t));
-    fib_fibo  = (seq_t *)realloc(fib_fibo,  (new_cap + 1) * sizeof(seq_t));
+    fib_sq    = mem_resize(seq_t, fib_sq, (new_cap + 1));
+    fib_fibo  = mem_resize(seq_t, fib_fibo, (new_cap + 1));
     if (!fib_sq || !fib_fibo)
         exit(1);                    /* unrecoverable */
 

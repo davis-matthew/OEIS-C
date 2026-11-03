@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* helper arrays and state */
 static seq_t *g  = NULL;  /* g[n] = a(n), for n≥1  */
@@ -39,18 +41,18 @@ static void ensure_capacity(idx_t n)
     if (n <= max_cached) return;
     size_t new_cap = n + 1;
     if (g == NULL) { /* first allocation */
-        g  = (seq_t *)calloc(new_cap, sizeof(seq_t));
-        h2 = (seq_t *)calloc(new_cap, sizeof(seq_t));
-        h3 = (seq_t *)calloc(new_cap, sizeof(seq_t));
-        h4 = (seq_t *)calloc(new_cap, sizeof(seq_t));
-        h5 = (seq_t *)calloc(new_cap, sizeof(seq_t));
+        g  = mem_new(seq_t, new_cap);
+        h2 = mem_new(seq_t, new_cap);
+        h3 = mem_new(seq_t, new_cap);
+        h4 = mem_new(seq_t, new_cap);
+        h5 = mem_new(seq_t, new_cap);
         /* g[0] stays 0; arrays are zeroed */
     } else {
-        g  = (seq_t *)realloc(g,  new_cap * sizeof(seq_t));
-        h2 = (seq_t *)realloc(h2, new_cap * sizeof(seq_t));
-        h3 = (seq_t *)realloc(h3, new_cap * sizeof(seq_t));
-        h4 = (seq_t *)realloc(h4, new_cap * sizeof(seq_t));
-        h5 = (seq_t *)realloc(h5, new_cap * sizeof(seq_t));
+        g  = mem_resize(seq_t, g, new_cap);
+        h2 = mem_resize(seq_t, h2, new_cap);
+        h3 = mem_resize(seq_t, h3, new_cap);
+        h4 = mem_resize(seq_t, h4, new_cap);
+        h5 = mem_resize(seq_t, h5, new_cap);
     }
     /* compute new values from max_cached+1 .. n */
     for (idx_t k = max_cached + 1; k <= n; ++k) {

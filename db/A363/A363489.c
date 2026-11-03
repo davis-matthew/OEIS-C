@@ -7,7 +7,8 @@
  * Formula:   a(n) = round_half_even( (∑ e * π(p)) / (∑ e) ), with a(1)=0
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   _smallest_prime_factor, compute_pi
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-01)
+ * Helpers:   prime_pi, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,11 @@
    rule is "round half to even": if the fractional part is exactly 0.5,
    the result rounds to the nearest even integer. */
 
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/prime_pi.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -28,14 +32,14 @@ seq_t a(idx_t n)
     seq_t cnt = 0;
 
     while (v > 1) {
-        uint64_t p = _smallest_prime_factor(v);
+        uint64_t p = smallest_prime_factor(v);
         if (p == 0) break;                /* safety, should not happen */
         uint64_t e = 0;
         while (v % p == 0) {
             v /= p;
             ++e;
         }
-        idx_t pi = (idx_t)compute_pi(p);   /* index of prime p, 1‑based */
+        idx_t pi = (idx_t)prime_pi(p);   /* index of prime p, 1‑based */
         sum += (seq_t)pi * e;
         cnt += e;
     }

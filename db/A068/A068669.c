@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 24, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   digit_len, isPrimeGeneric
+ * Validated: full, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,32 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/isPrimeGeneric.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 static seq_t *terms = NULL;
 static size_t term_count = 0;
@@ -37,7 +62,7 @@ static bool good_number(seq_t x)
     if (!isPrimeGeneric(x))
         return false;              /* x must be prime itself */
 
-    int len = digit_len(x);
+    int len = num_digits(x);
     if (len == 0)
         return false;              /* safety */
 
@@ -79,7 +104,7 @@ static void generate_terms(void)
         if (good_number((seq_t)num)) {
             if (term_count == cap) {
                 cap = cap ? cap * 2 : 4;
-                terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
             }
             terms[term_count++] = (seq_t)num;
         }

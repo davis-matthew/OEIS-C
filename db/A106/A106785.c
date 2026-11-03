@@ -5,17 +5,20 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   a(n) = the n-th prime whose decimal digit sum equals 58
- * Range:     u8 none, u16 none, u32 n <= 24, u64 n <= 24, u128 n <= 24,
+ * Range:     u8 none, u16 none, u32 n <= 2600, u64 n <= 2600, u128 n <= 2600,
  *            big any n
- * Helpers:   digit_sum_uint64, isPrime64
+ * Validated: standard, pass, 40 terms through n = 2471 (2026-11-03)
+ * Helpers:   digit_sum_u64, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isPrime64.h"
-#include "../utils/digit_sum_uint64.h"
+#include <stdlib.h>
+#include <stddef.h>
+#include "../utils/digit_sum_u64.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -31,8 +34,8 @@ seq_t a(idx_t n)
             continue;
         }
 
-        if (digit_sum_uint64(candidate) == TARGET_DIGITSUM &&
-            isPrime64(candidate))
+        if (digit_sum_u64(candidate) == TARGET_DIGITSUM &&
+            is_prime_u64(candidate))
         {
             ++count;
             if (count == n)

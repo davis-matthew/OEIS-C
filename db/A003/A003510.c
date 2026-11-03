@@ -8,18 +8,20 @@
  *            function
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 35,
  *            big any n
- * Helpers:   euler_phi
+ * Validated: standard, pass, 40 terms through n = 193 (2026-11-03)
+ * Helpers:   mem, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/euler_phi.h"
+#include "../utils/totient_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
     
-    seq_t *a_vals = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *a_vals = mem_new(seq_t, n + 1);
     a_vals[0] = 1;
     
     for (idx_t i = 1; i <= n; i++) {
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
         seq_t falling = 1;
         
         for (idx_t j = 1; j <= i; j++) {
-            uint64_t phi_j = euler_phi(j);
+            uint64_t phi_j = totient_u64(j);
             sum += (falling / (seq_t)phi_j) * a_vals[i - j];
             if (j < i)
                 falling *= (seq_t)(i - j);
@@ -37,6 +39,6 @@ seq_t a(idx_t n) {
     }
     
     seq_t result = a_vals[n];
-    free(a_vals);
+    mem_free(a_vals);
     return result;
 }

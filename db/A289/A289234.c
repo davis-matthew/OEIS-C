@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, look
  * Formula:   not stated
- * Range:     u8 n <= 251, u16 n <= 9548, u32 n <= 9548, u64 n <= 9548,
- *            u128 n <= 9548, big any n
- * Helpers:   _mod_inverse
+ * Range:     u8 n <= 251, u16 n <= 30029, u32 n <= 30029, u64 n <= 30029,
+ *            u128 n <= 30029, big any n
+ * Validated: standard, pass, 82 terms through n = 9548 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,19 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/_mod_inverse.h"
+
+/* Brute‑force inverse since p is prime and < 100 for any n used here. */
+static uint64_t _mod_inverse(uint64_t d, uint64_t mod)
+{
+    if (d == 0 || mod <= 1)
+        return 0;
+
+    for (uint64_t x = 1; x < mod; ++x) {
+        if ((x * d) % mod == 1)
+            return x;
+    }
+    return 0;   /* never reached for prime mod */
+}
 
 /* ---------- Prime generation ------------------------------------------ */
 

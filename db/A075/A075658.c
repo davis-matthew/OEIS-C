@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 142, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9738 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Primality test for the small sums occurring in this sequence. */
 static bool is_prime_small(uint64_t n)
@@ -56,7 +58,7 @@ static void extend_sieve(idx_t limit)
 
     idx_t *new_spf    = (idx_t *)realloc(spf,   newsize * sizeof(idx_t));
     if (!new_spf) exit(EXIT_FAILURE);
-    sum_dist = (seq_t *)realloc(sum_dist, newsize * sizeof(seq_t));
+    sum_dist = mem_resize(seq_t, sum_dist, newsize);
     if (!sum_dist) exit(EXIT_FAILURE);
 
     /* Zero the new portion of the spf array */
@@ -135,7 +137,7 @@ seq_t a(idx_t n)
         if (is_comp) {
             if (terms_len == terms_cap) {
                 terms_cap = terms_cap ? terms_cap * 2 : 4;
-                seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 terms = tmp;
             }

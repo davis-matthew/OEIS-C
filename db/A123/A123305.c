@@ -11,7 +11,8 @@
  *            a(0)=1, a(1)=1, a(2)=1, …
  * Range:     u8 n <= 15, u16 n <= 35, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 /* When seq_t is a C++ big-integer class, <stdint.h> may not be needed. */
 #endif
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build */
 extern seq_t seq_zero(void);  /* optional helper returning zero of seq_t type */
@@ -57,7 +59,7 @@ static void ensure_rows(idx_t r)
     /* Compute any missing rows */
     for (idx_t i = rows_len; i <= r; ++i) {
         /* Allocate row i with (i+1) entries */
-        seq_t *row = (seq_t *)malloc((size_t)(i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)(i + 1));
         if (!row) exit(1);                   /* allocation failed */
         rows[i] = row;
 

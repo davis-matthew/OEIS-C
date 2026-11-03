@@ -13,12 +13,14 @@
  *            3*a(n‑5) – 4*a(n‑7) – 5*a(n‑8) + 17*a(n‑9) + 9*a(n‑10) –...
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 29, u64 n <= 56, u128 n <= 111,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_capacity = 0;
@@ -39,7 +41,7 @@ static void ensure_cache_size(idx_t n)
     if (cache_capacity < needed) {
         size_t new_cap = cache_capacity ? cache_capacity << 1 : 16;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return;               /* allocation failure – keep old cache */
         cache = tmp;
         cache_capacity = new_cap;

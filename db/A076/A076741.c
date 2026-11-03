@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 15, i32 n <= 32, i64 n <= 32, i128 n <= 32,
  *            big any n
- * Helpers:   total_terms
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,17 @@
  */
 
 #include <stdint.h>
-#include "../utils/total_terms.h"
+
+/* helper: total number of terms up to and including derivative N */
+static inline idx_t total_terms(idx_t N) {
+    if ((N & 1) == 0) {               /* N even: N = 2m */
+        idx_t m = N >> 1;
+        return (m + 1) * (m + 1);    /* (m+1)^2 */
+    } else {                          /* N odd:  N = 2m+1 */
+        idx_t m = (N - 1) >> 1;
+        return (m + 1) * (m + 2);    /* (m+1)(m+2) */
+    }
+}
 
 seq_t a(idx_t idx) {
     /* 1. Find derivative order d such that total_terms(d-1) <= idx < total_terms(d) */

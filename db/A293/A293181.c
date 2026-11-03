@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 61, u32 n <= 163, u64 n <= 471,
  *            u128 n <= 1281, big any n
- * Helpers:   _row_for_idx
+ * Validated: standard, pass, 72 terms through n = 9957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,15 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/_row_for_idx.h"
+#include "../utils/mem.h"
+
+/* Return the 1‑based row number r such that r*(r+1) ≥ n. */
+static size_t _row_for_idx(idx_t n)
+{
+    size_t r = 1;
+    while ((unsigned long long)r * (r + 1) < (unsigned long long)n) ++r;
+    return r;
+}
 
 /* Dynamically allocated storage for the triangle rows. */
 static seq_t **_tri_rows = NULL;   /* pointers to rows 0,1,2,… */
@@ -55,7 +64,7 @@ static void _ensure_rows_until(size_t up_to)
         _ensure_rows_cap(r + 1);
         /* Row r has length 2*r+1 (indices 0 … 2*r). */
         size_t len = 2 * r + 1;
-        seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) abort();
 
         if (r == 0) {

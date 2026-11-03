@@ -7,7 +7,8 @@
  * Formula:   (n+1)·a_{n+1} = a_n + 2a_{n-1} + 3a_{n-2} + 4a_{n-3} (a_0 = 1)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Simple Euclidean algorithm – works for any unsigned seq_t type. */
 static seq_t gcd_seq_t(seq_t a, seq_t b)
@@ -123,7 +125,7 @@ static void big_ensure_up_to(idx_t n)
 {
     if (big_coeff == NULL) {
         big_size = (n * 2 > MAX_PRECOMPUTE ? n * 2 : MAX_PRECOMPUTE * 2);
-        big_coeff = (rational_t*)malloc(sizeof(rational_t) * (size_t)big_size);
+        big_coeff = mem_new(rational_t, (size_t)big_size);
         if (big_coeff == NULL) return;                /* allocation failure         */
         big_coeff[0].num = (seq_t)1;
         big_coeff[0].den = (seq_t)1;
@@ -133,7 +135,7 @@ static void big_ensure_up_to(idx_t n)
     /* Grow the buffer if necessary. */
     while (big_size <= n) {
         big_size *= 2;
-        void *tmp = realloc(big_coeff, sizeof(rational_t) * (size_t)big_size);
+        void *tmp = mem_resize(rational_t, big_coeff, (size_t)big_size);
         if (tmp == NULL) return;                     /* allocation failure         */
         big_coeff = (rational_t*)tmp;
     }

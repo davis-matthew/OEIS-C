@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 43, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 838 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    a(1)=1, a(2)=3, a(3)=7, a(4)=18, a(5)=52
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap ? cap : 16;
         while (new_cap < (size_t)n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)          /* allocation failure – propagate zero */
             return (seq_t)0;
         cache = tmp;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* Initialise the first five terms once */
     if (max_n < 5) {
         if (!cache) {
-            cache = (seq_t *)calloc(5, sizeof(seq_t));
+            cache = mem_new(seq_t, 5);
             if (!cache)
                 return (seq_t)0;
             cap = 5;

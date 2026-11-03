@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort. */
 static int seq_cmp(const void *a, const void *b)
@@ -53,7 +55,7 @@ static void init_sequence(void)
     const idx_t K = 4000;
 
     /* Allocate triangular numbers T[i] = i*(i+1)/2, 1‑based. */
-    seq_t *tri = (seq_t *)malloc((size_t)(K + 1) * sizeof(seq_t));
+    seq_t *tri = mem_new(seq_t, (size_t)(K + 1));
     if (!tri) return;
 
     for (idx_t i = 1; i <= K; ++i)
@@ -67,7 +69,7 @@ static void init_sequence(void)
      * counter at 3 to save memory. */
     uint8_t *cnt = (uint8_t *)calloc(max_sum + 1, sizeof(uint8_t));
     if (!cnt) {
-        free(tri);
+        mem_free(tri);
         return;
     }
 
@@ -81,9 +83,9 @@ static void init_sequence(void)
 
     /* Collect sums that occur in at least three distinct ways. */
     size_t cap = 256;
-    terms = (seq_t *)malloc(cap * sizeof(seq_t));
+    terms = mem_new(seq_t, cap);
     if (!terms) {
-        free(tri);
+        mem_free(tri);
         free(cnt);
         return;
     }
@@ -92,7 +94,7 @@ static void init_sequence(void)
         if (cnt[v] == 3) {
             if (term_count == cap) {
                 cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, cap);
                 if (!tmp) break;
                 terms = tmp;
             }
@@ -100,11 +102,11 @@ static void init_sequence(void)
         }
     }
 
-    free(tri);
+    mem_free(tri);
     free(cnt);
 
     /* Sort the qualifying sums.  The original order is not guaranteed. */
-    qsort(terms, term_count, sizeof(seq_t), seq_cmp);
+    mem_qsort(terms, term_count, sizeof(seq_t), seq_cmp);
 
     initialized = true;
 }

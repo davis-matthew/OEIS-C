@@ -9,15 +9,25 @@
  *            a(1)=4, a(2)=5
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   digit_sum, seq_alloc_new_array, seq_free
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 seq_t a(idx_t n)
 {

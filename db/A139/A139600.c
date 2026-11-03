@@ -9,8 +9,9 @@
  *            s*(s+1)/2; then a(n) = (s-p)*(p-1)*p/2 + p. (This uses the
  *            square array T(r,k) = r*(k-1)*k/2 + k read by antidiagonals
  *            upwards.)
- * Range:     u8 n <= 144, u16 n <= 4812, u32 n <= 9336, u64 n <= 9336,
- *            u128 n <= 9336, big any n
+ * Range:     u8 n <= 144, u16 n <= 4812, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 94 terms through n = 9336 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

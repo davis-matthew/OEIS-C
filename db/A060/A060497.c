@@ -7,7 +7,8 @@
  * Formula:   a(n) = binomial(2^n , prime(n))
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   binomial_big, pow_two
+ * Validated: standard, pass, 26 terms through n = 31 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,26 @@
    The build supplies the types seq_t and idx_t.  ---------------------------------*/
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/binomial_big.h"
-#include "../utils/pow_two.h"
+#include "../utils/pow2.h"
+
+/* ---------- multiplicative binomial N choose k ----------
+   N is a seq_t and k is an idx_t (k ≤ N).  The algorithm
+   avoids any intermediate factorial, dividing at every step.  */
+static seq_t
+binomial_big(seq_t N, idx_t k)
+{
+    if (k == 0)
+        return (seq_t)1;
+
+    seq_t result = (seq_t)1;
+    for (idx_t i = 1; i <= k; ++i)
+    {
+        /* N - (k - i) == N - k + i   */
+        seq_t term = N - (seq_t)(k - i);
+        result = (result * term) / (seq_t)i;
+    }
+    return result;
+}
 
 /* ---------- small prime sieve (200 000) ----------
    We keep the sieve array inside the init function to avoid
@@ -77,6 +96,6 @@ a(idx_t n)
         return (seq_t)0;
 
     int p = nth_prime(n);          /* p_n, the n‑th prime          */
-    seq_t N = pow_two(n);          /* N = 2^n, as seq_t            */
+    seq_t N = pow2(n);          /* N = 2^n, as seq_t            */
     return binomial_big(N, (idx_t)p);
 }

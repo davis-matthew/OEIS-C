@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 47, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    Offset: 1 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[12] = {
     (seq_t)8,
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
 
     size_t old_len = cached_len;
     size_t new_len = (size_t)n;
-    cache = (seq_t *)realloc(cache, sizeof(seq_t) * (new_len + 1));
+    cache = mem_resize(seq_t, cache, (new_len + 1));
     cached_len = new_len;
 
     /* Fill base values up to 12 if not already present. */

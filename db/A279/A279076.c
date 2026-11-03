@@ -9,13 +9,15 @@
  *            = 3, a(4) = 4, a(5) = 5
  * Range:     u8 n <= 24, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* This function memoizes the sequence, allowing arbitrary call order. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for already computed terms */
 static seq_t *cache = NULL;   /* array of seq_t values */
@@ -31,7 +33,7 @@ static void ensure_capacity(idx_t n)
     size_t new_len = (cache_len == 0) ? 16 : (size_t)cache_len * 2;
     while (new_len <= (size_t)n)
         new_len *= 2;
-    cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_len);
     cache_len = (idx_t)new_len;
     for (size_t i = old_len; i < new_len; ++i)
         cache[i] = (seq_t)0;

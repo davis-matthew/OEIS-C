@@ -12,13 +12,15 @@
  *            a(9) = 297288, * a(10) = 612480, a(11) =1410760, a(12) =2875104
  * Range:     u8 none, u16 n <= 7, u32 n <= 21, u64 n <= 49, u128 n <= 106,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,15 +50,15 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_size = sizeof(init) / sizeof(init[0]);   /* 13 */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) return (seq_t)0;           /* allocation failed */
-        memcpy(cache, init, cache_size * sizeof(seq_t));
+        mem_copy(cache, init, cache_size * sizeof(seq_t));
     }
 
     /* grow cache if necessary and fill missing values using recurrence */
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) return (seq_t)0;            /* allocation failed */
         cache = tmp;
         /* compute terms from old cache_size up to n (inclusive) */

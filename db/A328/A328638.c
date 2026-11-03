@@ -9,7 +9,8 @@
  * Formula:   a(n) = sum_{m = 2..n, gpf(m)=gpf(n)} m, a(1)=1
  * Range:     u8 n <= 59, u16 n <= 1949, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9820 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,11 +33,11 @@ seq_t a(idx_t n)
     if (n > cached) {
         /* free old data */
         free(gpf);
-        free(sumPerPrime);
+        mem_free(sumPerPrime);
 
         /* allocate fresh arrays – indices 0..n inclusive */
         gpf        = (uint64_t*)calloc((size_t)(n + 1), sizeof(uint64_t));
-        sumPerPrime = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+        sumPerPrime = mem_new(seq_t, (size_t)(n + 1));
 
         /* simple sieve for primes up to n */
         bool *isPrime = (bool*)malloc((size_t)(n + 1) * sizeof(bool));

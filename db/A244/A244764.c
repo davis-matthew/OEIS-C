@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 169, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 57 terms through n = 971 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *cache     = NULL;   /* cache of 100*k+17 primes      */
 static size_t cache_len = 0;       /* number of cached terms        */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     {
         if (n > cache_len)
         {
-            seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, n);
             if (!tmp) return 0;          /* allocation failure   */
             cache = tmp;
         }
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         for (; cache_len < n; )
         {
             seq_t cand = (seq_t)100 * next_k + 17;
-            if (is_prime_small(cand))
+            if (is_prime_seq(cand))
             {
                 cache[cache_len++] = cand;
             }

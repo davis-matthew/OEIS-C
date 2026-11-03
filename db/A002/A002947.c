@@ -9,8 +9,9 @@
  *            x^3 - 4; repeatedly take a = floor(real root of P) (largest
  *            integer a with P(a) < 0), shift x -> x + a, then invert x -> 1/x
  *            (reverse and negate the coefficients). Coefficients...
- * Range:     u8 n <= 39, u16 n <= 9352, u32 n <= 9352, u64 n <= 9352,
- *            u128 n <= 9352, big any n
+ * Range:     u8 n <= 39, u16 n <= 19999, u32 n <= 19999, u64 n <= 19999,
+ *            u128 n <= 19999, big any n
+ * Validated: standard, pass, 116 terms through n = 9352 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

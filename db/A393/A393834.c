@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl, base
  * Formula:   not stated
- * Range:     u8 n <= 8723, u16 n <= 8723, u32 n <= 8723, u64 n <= 8723,
- *            u128 n <= 8723, big any n
- * Helpers:   cell
+ * Range:     u8 n <= 10010, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 107 terms through n = 8723 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,25 @@
  */
 
 #include <stdbool.h>
-#include "../utils/cell.h"
+
+/* Compute A(i,j) according to the parity of common ternary digit 1s. */
+static seq_t cell(idx_t i, idx_t j)
+{
+    bool parity = false;       /* false → even count, true → odd count */
+
+    while (i || j)
+    {
+        idx_t di = i % 3;
+        idx_t dj = j % 3;
+        if (di == 1 && dj == 1)
+            parity = !parity;
+
+        i /= 3;
+        j /= 3;
+    }
+
+    return parity ? (seq_t)0 : (seq_t)1;
+}
 
 /* Convert linear index n into coordinates (i,j) on the antidiagonals. */
 static void antidiagonal_coords(idx_t n, idx_t *i, idx_t *j)

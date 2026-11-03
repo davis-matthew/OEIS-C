@@ -9,14 +9,33 @@
  *            if it is greater than 1
  * Range:     u8 n <= 32, u16 n <= 395, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   concat_with_num, factor_u64
+ * Validated: standard, pass, 76 terms through n = 9156 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/concat_with_num.h"
+
+/* Append the decimal representation of ``num`` to ``res``.
+   res = res * 10^digits(num) + num. */
+static inline seq_t concat_with_num(seq_t res, uint64_t num)
+{
+    /* Determine number of decimal digits of num (num > 0). */
+    uint64_t tmp   = num;
+    uint64_t digs  = 0;
+    do { ++digs; tmp /= 10; } while (tmp);
+
+    /* Compute 10^digs as a seq_t. */
+    seq_t pow10 = 1;
+    for (uint64_t i = 0; i < digs; ++i)
+        pow10 *= 10;
+
+    return res * pow10 + (seq_t)num;
+}
 
 seq_t a(idx_t n)
 {

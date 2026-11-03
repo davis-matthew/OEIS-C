@@ -9,19 +9,20 @@
  *            A071051
  * Range:     u8 n <= 190, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   popcnt_uint64
+ * Validated: standard, pass, 90 terms through n = 874 (2026-11-01)
+ * Helpers:   popcount_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/popcnt_uint64.h"
+#include "../utils/popcount_u64.h"
 
 seq_t a(idx_t n)
 {
     /* Compute 2^(1 + popcount(n)).  Shift amount fits in 64 bits
        because popcount(n) ≤ 64 for uint64_t indices. */
-    const unsigned int pc = popcnt_uint64((uint64_t)n);
+    const unsigned int pc = popcount_u64((uint64_t)n);
     seq_t val = ((seq_t)1) << (1 + pc);
 
     /* Subtract 1 if n = 2^i - 1, i.e. n & (n+1) == 0. */

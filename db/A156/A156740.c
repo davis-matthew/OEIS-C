@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 22, u64 n <= 48, u128 n <= 125,
+ * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 22, u64 n <= 48, u128 n <= 125,
  *            big any n
- * Helpers:   binom, gcd
+ * Validated: standard, pass, 52 terms through n = 456 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 #include "../utils/gcd.h"
 
 /* compute a single T(r,k,7) value */
@@ -36,11 +37,11 @@ static inline seq_t compute_T(idx_t r, idx_t k)
     {
         idx_t a1 = 2 * (r + j);
         idx_t b1 = 2 * (k + j);
-        seq_t bin1 = binom(a1, b1);
+        seq_t bin1 = binomial(a1, b1);
 
         idx_t a2 = 2 * (r - k + j);
         idx_t b2 = 2 * j;
-        seq_t bin2 = binom(a2, b2);
+        seq_t bin2 = binomial(a2, b2);
 
         /* reduce bin1 with current denominator */
         seq_t g1 = gcd(bin1, den);

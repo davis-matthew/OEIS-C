@@ -7,13 +7,15 @@
  * Formula:   a(n) = H(n,3*n) (physicists Hermite polynomial)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     seq_t base = (seq_t)6 * (seq_t)n;
 
     /* Initial term: T0 = base^n = (6*n)^n  */
-    seq_t term   = big_pow(base, (seq_t)n);
+    seq_t term   = ipow(base, (seq_t)n);
     seq_t result = term;
 
     /* Sign of the next term: alternating, start with negative. */

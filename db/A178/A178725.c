@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 209, u16 n <= 209, u32 n <= 209, u64 n <= 209,
  *            u128 n <= 209, big any n
- * Helpers:   none
+ * Validated: partial, pass, 210 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         row_start = (size_t*)malloc(sizeof(size_t) * (cap + 1));
 
         /* Row 0: one coefficient 1. */
-        rows[0] = (seq_t*)calloc(1, sizeof(seq_t));
+        rows[0] = mem_new(seq_t, 1);
         rows[0][0] = (seq_t)1;
         row_size[0] = 1;
 
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         }
 
         /* Allocate and initialise new row array. */
-        rows[r] = (seq_t*)calloc(new_size, sizeof(seq_t));
+        rows[r] = mem_new(seq_t, new_size);
 
         /* Copy previous row coefficients and add shifted coefficients. */
         seq_t *prev_row = rows[prev];

@@ -9,13 +9,15 @@
  *            a(5)=24, a(6)=41, a(7)=50
  * Range:     u8 n <= 15, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* need at least indices 1..7 (offset 1) */
         cache_size = 8;
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) abort();
 
         /* initialise the first seven values */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         computed_max = 7;
     } else if (cache_size <= n) {
         idx_t new_size = n + 1;          /* extend to include n */
-        cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         if (cache == NULL) abort();
         cache_size = new_size;
     }

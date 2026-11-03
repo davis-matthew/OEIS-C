@@ -11,22 +11,24 @@
  *            time, which is well below the limit for n ≈ 10 000
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return a(n) of OEIS A187814.   idx_t and seq_t are provided by the build. */
 seq_t a(idx_t n)
 {
     /* allocate arrays a, c (coefficients of A^2), q (1/A^2), r (1/A(x^2)) */
     size_t len = (size_t)n + 1;
-    seq_t *A = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *C = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *Q = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *R = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, len);
+    seq_t *C = mem_new(seq_t, len);
+    seq_t *Q = mem_new(seq_t, len);
+    seq_t *R = mem_new(seq_t, len);
 
     if (!A || !C || !Q || !R)
     {
@@ -84,6 +86,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = A[n];
-    free(A); free(C); free(Q); free(R);
+    mem_free(A); mem_free(C); mem_free(Q); mem_free(R);
     return result;
 }

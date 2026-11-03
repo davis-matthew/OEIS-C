@@ -7,12 +7,14 @@
  * Formula:   a(n) = 9*a(n-1) - 16*a(n-2); a(0) = 1, a(1) = 9
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 1172 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes A102902.  Values are stored in a static cache so that multiple calls
  * with arbitrary n are fast.  The cache grows geometrically to keep the
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_cap = 2;                    /* at least two terms for base cases */
-        cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
         if (cache == NULL)
             return 0;                    /* fallback: cannot allocate */
         cache[0] = (seq_t)1;              /* a(0) */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     {
         while (cache_cap < n + 1)
             cache_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (tmp == NULL)
             return 0;                    /* fallback: cannot reallocate */
         cache = tmp;

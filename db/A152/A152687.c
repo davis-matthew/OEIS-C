@@ -10,12 +10,14 @@
  *            operator applied thrice to nonzero Fibonacci numbers
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for memoisation.  cache[1] == a(1). */
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
         if (needed > cache_cap) {
             size_t newcap = (cache_cap == 0) ? 16 : cache_cap * 2;
             while (newcap < needed) newcap *= 2;
-            seq_t *newarr = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *newarr = mem_resize(seq_t, cache, newcap);
             if (!newarr) abort(); /* memory allocation failure */
             cache = newarr;
             cache_cap = newcap;

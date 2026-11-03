@@ -7,14 +7,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = (1/(n+1)) * Sum_{k=0..floor(n/2)} binomial(n+1,k) *
  *            binomial(n+3*k-1,n-2*k)
- * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 31, u128 n <= 58,
+ * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 17, u64 n <= 31, u128 n <= 58,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 399 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 #ifdef __cplusplus

@@ -11,7 +11,8 @@
  *            works for any unsigned integer type seq_t (8–128 b...
  * Range:     u8 none, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* a comparison function for qsort that works with any seq_t type  */
 static int seq_compare(const void *a, const void *b)
@@ -40,7 +42,7 @@ static void rebuild(void)
 {
     /* estimated number of triples (i≤j≤k) */
     size_t tot_triples = (size_t)(maxK + 2) * (maxK + 1) * maxK / 6;
-    seq_t *tmp = (seq_t *)malloc(tot_triples * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, tot_triples);
     if (!tmp) {
         /* out of memory – abort program (allowed in this context) */
         abort();
@@ -59,7 +61,7 @@ static void rebuild(void)
     }
 
     /* Sort the raw list of sums */
-    qsort(tmp, pos, sizeof(seq_t), seq_compare);
+    mem_qsort(tmp, pos, sizeof(seq_t), seq_compare);
 
     /* Remove duplicates in‑place */
     size_t uniq = 0;
@@ -69,7 +71,7 @@ static void rebuild(void)
         }
     }
 
-    free(values);
+    mem_free(values);
     values   = tmp;
     uniq_cnt = uniq;
 }

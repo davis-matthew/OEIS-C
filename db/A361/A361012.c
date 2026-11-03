@@ -8,12 +8,20 @@
  *            where sigma(e) = sum of divisors of e (i.e., A000203)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sigma_exp
+ * Validated: standard, pass, 102 terms through n = 8768 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sigma_exp.h"
+static seq_t sigma_exp(idx_t e)
+{
+    seq_t sum = 0;
+    for (idx_t i = 1; i <= e; ++i)
+        if (e % i == 0)
+            sum += (seq_t)i;
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,14 +8,15 @@
  *            = 1
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   pow_base3
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   pow3_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_base3.h"
+#include "../utils/pow3_seq.h"
 
 /* --------------------------------------------------------------------- */
 /* Prime sieve ---------------------------------------------------------- */
@@ -74,5 +75,5 @@ seq_t a(idx_t n)
 
     uint32_t p = nth_prime(n);
     seq_t exp = (seq_t)p * (seq_t)p;
-    return pow_base3(exp);
+    return pow3_seq(exp);
 }

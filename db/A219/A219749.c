@@ -7,18 +7,20 @@
  * Formula:   a(n) = concat(1^n,12,1^n,2,1^n,12)
  * Range:     u8 none, u16 none, u32 n <= 1, u64 n <= 5, u128 n <= 10,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     /* 10^n */
-    seq_t pow10_n = seq_pow(10, n);
+    seq_t pow10_n = ipow_idx(10, n);
 
     /* n repeated '1' digits: (10^n - 1) / 9 */
     seq_t ones = (pow10_n - 1) / 9;

@@ -11,12 +11,14 @@
  *            x*(1-3*x+9*x²-6*x³+2*x⁴)/((1-x)(1-x-x²)³)
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of computed terms; indices 0..cache_cap are valid */
 static seq_t *cache = NULL;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_cap   = 8;           /* capacity up to index 8 */
-        cache       = (seq_t *)calloc(cache_cap + 1, sizeof(seq_t));
+        cache       = mem_new(seq_t, cache_cap + 1);
         if (!cache) return (seq_t)0;   /* allocation failed */
         for (idx_t i = 0; i < 8; ++i) cache[i] = base[i];
         cache_size = 8;            /* next index to compute */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if (n >= cache_cap) {
         idx_t new_cap = cache_cap;
         while (new_cap <= n) new_cap <<= 1;  /* double until enough */
-        seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (!tmp) return (seq_t)0;   /* allocation failed */
         /* initialise newly allocated part to zero */
         for (idx_t i = cache_cap + 1; i <= new_cap; ++i) tmp[i] = (seq_t)0;

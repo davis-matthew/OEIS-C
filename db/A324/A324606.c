@@ -11,7 +11,8 @@
  *            moving to the lowest available unvisited square
  * Range:     i8 n <= 36, i16 n <= 2016, i32 n <= 2016, i64 n <= 2016,
  *            i128 n <= 2016, big any n
- * Helpers:   hash_coord
+ * Validated: full, pass, 2016 terms through n = 2016 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/hash_coord.h"
+#include "../utils/mem.h"
+
+static inline uint64_t hash_coord(int32_t x, int32_t y)
+{
+    uint64_t h = (uint64_t)(uint32_t)x;
+    h = h * 0x9e3779b97f4a7c15ULL + (uint64_t)(uint32_t)y;
+    return h;
+}
 
 /* --- Helper: spiral index of (x,y) ------------------------------------- */
 static inline seq_t spiral_index(int32_t x, int32_t y)
@@ -121,7 +129,7 @@ static void seq_grow(size_t min_cap)
     if (seq_cap >= min_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < min_cap) new_cap <<= 1;
-    seq = (seq_t*)realloc(seq, new_cap * sizeof(*seq));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 

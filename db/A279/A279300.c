@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 23, u64 n <= 44, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    order are handled efficiently. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     if ((size_t)n > cache_len)
     {
         size_t new_len = (size_t)n;
-        seq_t *p = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, cache, new_len);
         if (!p) abort();                 /* allocation failure */
         cache = p;
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 112, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, prev_prime
+ * Validated: standard, pass, 76 terms through n = 9736 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/prev_prime.h"
+#include "../utils/mem.h"
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
 
 /* Cache of computed terms */
 static seq_t *cache = NULL;
@@ -54,10 +65,10 @@ static void ensure_cache(idx_t n)
     /* Allocate or grow cache */
     if (cache_len == 0) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (cache_len == cache_cap) {
         cache_cap *= 2;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* Search for more terms */
@@ -68,7 +79,7 @@ static void ensure_cache(idx_t n)
                 /* store term */
                 if (cache_len == cache_cap) {
                     cache_cap *= 2;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = (seq_t)next_to_test;
             }

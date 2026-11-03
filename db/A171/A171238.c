@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 39, u32 n <= 185, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *b_cache = NULL;      /* cache of b(n) values */
 static idx_t  cache_cap = 0;       /* allocated capacity (in elements) */
@@ -42,7 +44,7 @@ static void ensure_capacity(idx_t min_cap)
 {
     if (min_cap <= cache_cap)
         return;
-    seq_t *new_cache = (seq_t *)realloc(b_cache, min_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, b_cache, min_cap);
     /* If realloc fails we simply keep the old buffer; the
        caller will get an incorrect result, but such a failure
        is impossible for the expected n ≤ 10 000. */

@@ -12,12 +12,14 @@
  *            a(3)=1, a(4)=1, a(5)=-4, …
  * Range:     i8 n <= 17, i16 n <= 31, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,13 +38,13 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate the first row (row 1). */
-    seq_t *prev = (seq_t *)malloc((size_t)1 * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)1);
     prev[0] = (seq_t)1;   /* T(1,1) */
 
     /* Build rows from 2 up to r. */
     for (idx_t row = 2; row <= r; ++row) {
         idx_t len = row;                            /* current row length */
-        seq_t *curr = (seq_t *)malloc((size_t)len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, (size_t)len);
 
         curr[0] = (seq_t)1;                         /* first element T(row,1) */
 
@@ -57,12 +59,12 @@ seq_t a(idx_t n)
 
         curr[len - 1] = (seq_t)1;                      /* last element T(row,row) */
 
-        free(prev);                                    /* discard previous row */
+        mem_free(prev);                                    /* discard previous row */
         prev = curr;                                    /* current becomes previous */
     }
 
     /* Extract the desired element. */
     seq_t result = prev[pos - 1];                     /* pos is 1‑based */
-    free(prev);                                      /* clean up */
+    mem_free(prev);                                      /* clean up */
     return result;
 }

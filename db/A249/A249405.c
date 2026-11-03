@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 124, u64 n <= 124, u128 n <= 124,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 119 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* adjacency: true if a+b is prime (0…18) */
 static bool adj[10][10];
@@ -87,7 +89,7 @@ static void cache_append(seq_t val)
 {
     if (cache_len >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             abort();
         cache = tmp;

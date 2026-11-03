@@ -11,6 +11,7 @@
  *            2*k*(n-k)*T(n-2,k-1,2) with T(n,0,2)=T(n,n,2)=1
  * Range:     u8 n <= 16, u16 n <= 37, u32 n <= 81, u64 n <= 179,
  *            u128 n <= 479, big any n
+ * Validated: standard, pass, 71 terms through n = 1245 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

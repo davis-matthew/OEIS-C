@@ -9,13 +9,27 @@
  *            floor(n/2)
  * Range:     u8 n <= 22, u16 n <= 45, u32 n <= 91, u64 n <= 183,
  *            u128 n <= 368, big any n
- * Helpers:   fib_pair_iter
+ * Validated: standard, pass, 68 terms through n = 975 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/fib_pair_iter.h"
+
+static void fib_pair_iter(idx_t n, seq_t *fn, seq_t *fn1)
+{
+    seq_t a = 0;
+    seq_t b = 1;
+    idx_t i;
+    for (i = 0; i < n; ++i) {
+        seq_t tmp = a + b;
+        a = b;
+        b = tmp;
+    }
+    *fn  = a;
+    *fn1 = b;
+}
 
 seq_t a(idx_t n)
 {

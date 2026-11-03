@@ -11,12 +11,14 @@
  *            convolving A023531 (indicator of T) with Lucas)
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *lucas_cache = NULL;   /* 1‑based Lucas numbers (lucas_cache[1]=1, lucas_cache[2]=3) */
 static idx_t lucas_max   = 0;        /* highest index currently cached */
@@ -27,7 +29,7 @@ static void ensure_lucas(idx_t max_index)
     if (lucas_cache == NULL) {
         /* Allocate enough space for indices 0…2 (index 0 unused). */
         size_t init_cap = 3;
-        lucas_cache = (seq_t *)malloc(sizeof(seq_t) * init_cap);
+        lucas_cache = mem_new(seq_t, init_cap);
         lucas_cache[0] = (seq_t)0;   /* unused placeholder */
         lucas_cache[1] = (seq_t)1;   /* Luc(1)  */
         lucas_cache[2] = (seq_t)3;   /* Luc(2)  */
@@ -35,7 +37,7 @@ static void ensure_lucas(idx_t max_index)
     }
     if (max_index > lucas_max) {
         size_t new_cap = (size_t)(max_index + 1);
-        lucas_cache = (seq_t *)realloc(lucas_cache, sizeof(seq_t) * new_cap);
+        lucas_cache = mem_resize(seq_t, lucas_cache, new_cap);
         for (idx_t i = lucas_max + 1; i <= max_index; ++i) {
             lucas_cache[i] = lucas_cache[i-1] + lucas_cache[i-2];
         }

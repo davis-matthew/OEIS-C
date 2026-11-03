@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 16, i16 n <= 55, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   grow_seq, is_prime
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,23 @@
 #include <stdbool.h>
 #include <stddef.h>          /* size_t */
 
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t)            */
-#include "../utils/grow_seq.h"   /* void grow_seq(seq_t **,size_t*,size_t) */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 static seq_t *series      = NULL;   /* dynamic array of found terms   */
 static size_t series_cap  = 0;      /* capacity of the array          */

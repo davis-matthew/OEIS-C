@@ -9,14 +9,16 @@
  *            T(n, m) = binom(n-1, m-1) * Sum_{k=1..m} binom(2*k-2, k-1) *
  *            binom(n-m, m-k) / m * The sequence is obtained by flattening the
  *            triangle row by row
- * Range:     u8 n <= 14, u16 n <= 44, u32 n <= 55, u64 n <= 55, u128 n <= 55,
+ * Range:     u8 n <= 25, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Find the smallest row r such that r*(r+1)/2 >= n */

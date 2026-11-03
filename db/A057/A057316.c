@@ -11,7 +11,8 @@
  *            + x²) (1 - x² + x⁴) * (1 - x + x² - x³...
  * Range:     u8 n <= 11, u16 n <= 192, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 813 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Coefficients of the denominator polynomial Q(x), degree 23 */
 static const int Q[24] = {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* Allocate or grow cache to include index n */
     if ((size_t)n + 1 > cache_len) {
         size_t new_len = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp)  /* allocation failure – return 0 as safe fallback */
             return (seq_t)0;
         cache = tmp;

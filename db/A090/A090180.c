@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 157, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_trial, sum_digits_idx
+ * Validated: standard, pass, 60 terms through n = 975 (2026-11-01)
+ * Helpers:   digit_sum_idx_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,25 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime_trial.h"
-#include "../utils/sum_digits_idx.h"
+#include "../utils/digit_sum_idx_to_seq.h"
+
+/* Simple trial division primality test using the primes discovered so far.
+   Since primes are added in increasing order, the list contains all
+   primes ≤ sqrt(candidate), so the test is correct.                 */
+static inline bool is_prime_trial(idx_t candidate,
+                                  idx_t const *primes, size_t primes_len)
+{
+    if (candidate < 2)
+        return false;
+    for (size_t i = 0; i < primes_len; ++i) {
+        idx_t p = primes[i];
+        if (p > candidate / p)  /* p > sqrt(candidate)  */
+            break;
+        if (candidate % p == 0)
+            return false;
+    }
+    return true;
+}
 
 /* Static storage for the sequence values and the primes used in the test.
    The limits are chosen to comfortably cover the first 10 000 terms.
@@ -61,7 +79,7 @@ seq_t a(idx_t n)
         if (primes_len >= 1)
         {
             idx_t prev = primes[primes_len - 1];
-            seq_t sumd = sum_digits_idx(prev);
+            seq_t sumd = digit_sum_idx_to_seq(prev);
             seq_t plus  = (seq_t)prev + sumd;
             seq_t cand_seq = (seq_t)cand;
             if (cand_seq == plus + (seq_t)1 || cand_seq == plus - (seq_t)1)

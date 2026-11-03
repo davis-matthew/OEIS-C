@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 typedef struct { seq_t val; size_t idx; } Node;
 
@@ -69,7 +71,7 @@ static void seq_push(seq_t val)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? seq_cap << 1 : 64;
-        seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
     }
     seq_arr[seq_len++] = val;
 }
@@ -91,13 +93,13 @@ static void init(void)
 
     /* Collect twin‑prime products */
     size_t cap = 1024;
-    base_vals = (seq_t *)malloc(cap * sizeof(seq_t));
+    base_vals = mem_new(seq_t, cap);
     for (int p = 2; p + 2 <= PRIME_LIMIT; ++p) {
         if (is_prime[p] && is_prime[p + 2]) {
             seq_t prod = (seq_t)p * (seq_t)(p + 2);
             if (base_cnt == cap) {
                 cap <<= 1;
-                base_vals = (seq_t *)realloc(base_vals, cap * sizeof(seq_t));
+                base_vals = mem_resize(seq_t, base_vals, cap);
             }
             base_vals[base_cnt++] = prod;
         }
@@ -105,7 +107,7 @@ static void init(void)
     free(is_prime);
 
     /* Build initial min‑heap of first multiples (which are the products themselves) */
-    heap = (Node *)malloc(base_cnt * sizeof(Node));
+    heap = mem_new(Node, base_cnt);
     heap_sz = 0;
     for (size_t i = 0; i < base_cnt; ++i) heap_push(base_vals[i], i);
 

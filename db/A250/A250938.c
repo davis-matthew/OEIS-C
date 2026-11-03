@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 10, u64 n <= 29, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* 3^5 = 243 possible rows, constant at compile time */
 #define NODES 243
@@ -104,7 +106,7 @@ static void build_adjacency(void)
     for (int i = 0; i < NODES; ++i) cur_dp[i] = 1;
 
     /* allocate cache for a(0) */
-    a_cache = (seq_t *)malloc(sizeof(seq_t));
+    a_cache = mem_new(seq_t, 1);
     if (!a_cache) abort();
     a_cache[0] = (seq_t)NODES;   /* 3^5 */
     a_cache_size = 1;
@@ -119,7 +121,7 @@ static void ensure_cache_capacity(idx_t idx)
     if ((size_t)idx < a_cache_size) return;
     size_t new_size = a_cache_size ? a_cache_size * 2 : 1;
     while (new_size <= (size_t)idx) new_size <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_size);
     if (!tmp) abort();          /* memory exhausted */
     a_cache = tmp;
     a_cache_size = new_size;
@@ -132,7 +134,7 @@ static void extend_to_n(idx_t n)
 {
     for (idx_t step = cur_n_max + 1; step <= n; ++step) {
         /* zero next DP array */
-        memset(next_dp, 0, sizeof(next_dp));
+        mem_set(next_dp, 0, sizeof(next_dp));
 
         /* propagate transitions from current state */
         for (int i = 0; i < NODES; ++i) {
@@ -154,7 +156,7 @@ static void extend_to_n(idx_t n)
         a_cache[step] = total;
 
         /* prepare for next iteration */
-        memcpy(cur_dp, next_dp, sizeof(cur_dp));
+        mem_copy(cur_dp, next_dp, sizeof(cur_dp));
     }
     cur_n_max = n;
 }

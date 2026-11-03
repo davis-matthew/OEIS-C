@@ -8,7 +8,8 @@
  * Formula:   a(n) = T(i,j) where T(i,j)=j!*(i-j)!/(⌊j/2⌋! * ⌊(i-j)/2⌋!)²
  * Range:     u8 n <= 35, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   floor_isqrt_u64, s_value
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,14 +17,34 @@
 /* row i = floor( (sqrt(8*n+1)-1)/2 ), column j = n - i*(i+1)/2 */
 
 #include <stdint.h>
-#include "../utils/floor_isqrt_u64.h"
-#include "../utils/s_value.h"
+#include "../utils/isqrt.h"
+
+/* calculate s(n) = n! / (floor(n/2)! )²  (= T(n,0)) */
+static seq_t s_value(idx_t n)
+{
+    if (n <= 1)
+        return (seq_t)1;
+
+    idx_t m = n >> 1;                 /* floor(n/2) */
+    seq_t res = (seq_t)1;
+
+    /* binomial(2*m, m) = product_{k=1}^{m} (m+k)/k */
+    for (idx_t k = 1; k <= m; ++k) {
+        res = res * (seq_t)(m + k);
+        res = res / (seq_t)k;
+    }
+
+    if (n & (idx_t)1)                /* odd n: multiply by (2*m+1) */
+        res = res * (seq_t)(2 * m + 1);
+
+    return res;
+}
 
 seq_t a(idx_t n)
 {
     /* determine row and column of the anti‑diagonal index n */
     idx_t d = 8 * n + 1;                 /* 8*n+1 fits in 64‑bit for the test range */
-    idx_t r = floor_isqrt_u64(d);        /* floor(sqrt(8*n+1)) */
+    idx_t r = isqrt(d);        /* floor(sqrt(8*n+1)) */
     idx_t row = (r - 1) / 2;              /* row index i */
     idx_t offset = (idx_t)((seq_t)row * (row + 1) / 2); /* first index of this row */
     idx_t k = n - offset;                 /* column index j */

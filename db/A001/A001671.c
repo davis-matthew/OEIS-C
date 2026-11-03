@@ -10,7 +10,8 @@
  *            never an integer for n >= 1), a(0) = 1
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 44, u128 n <= 88,
  *            big any n
- * Helpers:   a001671_mulfix
+ * Validated: standard, pass, 47 terms through n = 491 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,31 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a001671_mulfix.h"
+
+/* out = (x*y) >> (32*F); x, y, out have L limbs; tmp has 2L limbs */
+static void a001671_mulfix(const uint32_t *x, const uint32_t *y, uint32_t *out,
+                           uint32_t *tmp, size_t L, size_t F) {
+    size_t i, j, ly = L;
+    while (ly > 0 && y[ly - 1] == 0) ly--;
+    memset(tmp, 0, 2 * L * sizeof(uint32_t));
+    for (i = 0; i < L; i++) {
+        uint64_t carry = 0;
+        if (x[i] == 0) continue;
+        for (j = 0; j < ly; j++) {
+            uint64_t t = (uint64_t)x[i] * y[j] + tmp[i + j] + carry;
+            tmp[i + j] = (uint32_t)t;
+            carry = t >> 32;
+        }
+        j = i + ly;
+        while (carry && j < 2 * L) {
+            uint64_t t = (uint64_t)tmp[j] + carry;
+            tmp[j] = (uint32_t)t;
+            carry = t >> 32;
+            j++;
+        }
+    }
+    memcpy(out, tmp + F, L * sizeof(uint32_t));
+}
 
 seq_t a(idx_t n) {
     size_t I, F, L, i;

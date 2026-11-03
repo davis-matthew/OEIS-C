@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, sign, tabl
  * Formula:   not stated
- * Range:     i8 n <= 9, i16 n <= 27, i32 n <= 55, i64 n <= 55, i128 n <= 55,
+ * Range:     i8 n <= 10, i16 n <= 36, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -31,6 +32,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* coefficient of x^m in C(-x)^q (q >= 0) */

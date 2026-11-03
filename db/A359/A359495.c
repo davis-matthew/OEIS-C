@@ -8,8 +8,9 @@
  * Keywords:  sign, look, base
  * Formula:   a(n) = Σ_{j=1}^{k} (k + 1 - 2*j) * ((n >> (j-1)) & 1) where k =
  *            ⌊log₂(n)⌋ + 1 (k = 0 for n = 0)
- * Range:     i8 n <= 8982, i16 n <= 8982, i32 n <= 8982, i64 n <= 8982,
- *            i128 n <= 8982, big any n
+ * Range:     i8 n <= 16383, i16 n <= 16383, i32 n <= 16383, i64 n <= 16383,
+ *            i128 n <= 16383, big any n
+ * Validated: standard, pass, 88 terms through n = 8982 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

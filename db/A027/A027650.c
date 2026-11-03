@@ -7,19 +7,22 @@
  * Formula:   a(n) = 6*4^n - 6*3^n + 2^n
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 14, u64 n <= 30, u128 n <= 62,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 41 terms through n = 494 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* Compute the required powers using big_pow */
-    seq_t p4 = big_pow((seq_t)4, (seq_t)n);   /* 4^n */
-    seq_t p3 = big_pow((seq_t)3, (seq_t)n);   /* 3^n */
-    seq_t p2 = big_pow((seq_t)2, (seq_t)n);   /* 2^n */
+    seq_t p4 = ipow((seq_t)4, (seq_t)n);   /* 4^n */
+    seq_t p3 = ipow((seq_t)3, (seq_t)n);   /* 3^n */
+    seq_t p2 = ipow((seq_t)2, (seq_t)n);   /* 2^n */
 
     /* Evaluate the formula */
     const seq_t six = (seq_t)6;

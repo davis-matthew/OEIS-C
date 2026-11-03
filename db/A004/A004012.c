@@ -9,18 +9,19 @@
  *            exponent n by direct search
  * Range:     u8 n <= 1190, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   a000037_isqrt
+ * Validated: standard, pass, 97 terms through n = 4799 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a000037_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
     seq_t count = 0;
     int64_t N = (int64_t)n;
-    int64_t r = (int64_t)a000037_isqrt((uint64_t)n);
+    int64_t r = (int64_t)isqrt_u64((uint64_t)n);
     int64_t mi = r + 2;
     int64_t mjk = r + 3;
     int64_t i, j, k;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = sum_{x=1..n} smallest divisor of x that is >= sqrt(x)
  * Range:     u8 n <= 30, u16 n <= 659, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 72 terms through n = 8198 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

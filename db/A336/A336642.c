@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = A008833(n)-1 * A008833(n) is the largest perfect square
  *            that divides n. * Hence a(n) is that square minus one
- * Range:     u8 n <= 288, u16 n <= 8995, u32 n <= 8995, u64 n <= 8995,
- *            u128 n <= 8995, big any n
+ * Range:     u8 n <= 288, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8995 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

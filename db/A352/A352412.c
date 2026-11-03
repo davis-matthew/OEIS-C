@@ -11,12 +11,14 @@
  *            v(n‑k) All sums use ordinary binomial coefficien...
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 9, i64 n <= 14, i128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;          /* a(n)  */
 static seq_t *v_cache = NULL;          /* 1/A series */
@@ -33,10 +35,10 @@ static void ensure_capacity(size_t lim)
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap < lim) new_cap <<= 1;
 
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-    v_cache = (seq_t *)realloc(v_cache, new_cap * sizeof(seq_t));
-    u_cache = (seq_t *)realloc(u_cache, new_cap * sizeof(seq_t));
-    e_cache = (seq_t *)realloc(e_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
+    v_cache = mem_resize(seq_t, v_cache, new_cap);
+    u_cache = mem_resize(seq_t, u_cache, new_cap);
+    e_cache = mem_resize(seq_t, e_cache, new_cap);
 
     /* initialise new slots */
     for (size_t i = cache_cap; i < new_cap; ++i) {

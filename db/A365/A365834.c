@@ -11,13 +11,16 @@
  *            brute‑force search
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 25, u64 n <= 57, u128 n <= 121,
  *            big any n
- * Helpers:   count_prime_factors, pow2
+ * Validated: standard, pass, 47 terms through n = 980 (2026-11-01)
+ * Helpers:   bigomega_seq, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/bigomega_seq.h"
 #include "../utils/pow2.h"
-#include "../utils/count_prime_factors.h"
 
 seq_t a(idx_t n)
 {
@@ -30,15 +33,15 @@ seq_t a(idx_t n)
 
     /* Brute force search for n < 8 */
     for (seq_t k = (seq_t)2; ; ++k) {
-        if ((idx_t)count_prime_factors(k) != n) continue;
+        if ((idx_t)bigomega_seq(k) != n) continue;
 
         /* Find the next number m with n prime divisors */
         seq_t m = k + 1;
-        while ((idx_t)count_prime_factors(m) != n) ++m;
+        while ((idx_t)bigomega_seq(m) != n) ++m;
 
         /* Check the sum and difference condition */
-        if ((idx_t)count_prime_factors(k + m) == n &&
-            (idx_t)count_prime_factors(m - k) == n) {
+        if ((idx_t)bigomega_seq(k + m) == n &&
+            (idx_t)bigomega_seq(m - k) == n) {
             return k;
         }
     }

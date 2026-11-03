@@ -6,7 +6,8 @@
  * Keywords:  nonn, fini, full
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 4, u128 n <= 4, big any n
- * Helpers:   floor_sqrt
+ * Validated: full, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,27 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *solutions = NULL;
 static size_t sol_count = 0;
@@ -41,10 +62,10 @@ static void init_sequence(void)
         if (r * r == t) {                  /* 8*val+1 is a perfect square */
             if (tmp_cnt == tmp_cap) {
                 size_t new_cap = tmp_cap ? tmp_cap * 2 : 4;
-                seq_t *p = (seq_t *)malloc(new_cap * sizeof(seq_t));
+                seq_t *p = mem_new(seq_t, new_cap);
                 if (!p) exit(EXIT_FAILURE);
-                if (tmp_cap) memcpy(p, tmp, tmp_cap * sizeof(seq_t));
-                free(tmp);
+                if (tmp_cap) mem_copy(p, tmp, tmp_cap * sizeof(seq_t));
+                mem_free(tmp);
                 tmp = p;
                 tmp_cap = new_cap;
             }

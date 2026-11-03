@@ -11,13 +11,16 @@
  *            factoring 54 = 2·3^3
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 21, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 43 terms through n = 191 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/big_pow.h"   /* provides seq_t big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
 
     /* Compute e = n-3 (exponent for 3). */
     idx_t e = n - 3;
-    seq_t pow3e = big_pow((seq_t)3, (seq_t)e);
+    seq_t pow3e = ipow((seq_t)3, (seq_t)e);
 
     /* (3^(n-3) + 1) is always even, so divide by 2 first to avoid overflow. */
     seq_t half_sum = (pow3e + (seq_t)1) / (seq_t)2;

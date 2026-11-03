@@ -8,14 +8,17 @@
  *            k‑th prime (p_1 = 2). The rounding is half‑up
  * Range:     u8 n <= 5, u16 n <= 24, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   _isqrt_seq
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   isqrt_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_isqrt_seq.h"
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
+#include "../utils/mem.h"
 
 /* --- static tables of primes and cumulative sums of their squares --- */
 static seq_t *primes   = NULL;   /* primes[1] .. primes[max_n]   */
@@ -31,8 +34,8 @@ static void ensure_capacity(size_t need)
     size_t newcap = (cap == 0) ? 4 : cap * 2;
     if (newcap < need)
         newcap = need;
-    primes = (seq_t *)realloc(primes, newcap * sizeof(seq_t));
-    sumSq  = (seq_t *)realloc(sumSq,  newcap * sizeof(seq_t));
+    primes = mem_resize(seq_t, primes, newcap);
+    sumSq  = mem_resize(seq_t, sumSq, newcap);
     cap    = newcap;
 }
 
@@ -68,7 +71,7 @@ static void generate_primes_up_to(idx_t n)
     for (;;) {
         /* trial division up to √candidate */
         bool isPrime = true;
-        seq_t sqrtCand = _isqrt_seq(candidate);
+        seq_t sqrtCand = isqrt_seq(candidate);
         for (idx_t i = 1; i <= max_n; ++i) {
             seq_t p = primes[i];
             if (p > sqrtCand)
@@ -103,7 +106,7 @@ seq_t a(idx_t n)
 
     /* k = floor( sqrt( S / n ) )  (floor of exact mean of squares) */
     seq_t Q = S / n;                  /* exact floor of mean of squares */
-    seq_t k = _isqrt_seq(Q);
+    seq_t k = isqrt_seq(Q);
 
     /* Compute n * (2*k + 1)² = n * (4*k² + 4*k + 1) */
     seq_t rhs = n * ((k * k) * 4 + (k * 4) + 1);

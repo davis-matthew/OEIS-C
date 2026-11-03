@@ -8,13 +8,15 @@
  *            (i+1)a(i)a(j)a(k)a(l)a(m) with a(0)=1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declarations (seq_t and idx_t are provided by the build). */
 static seq_t *a_seq = NULL;    /* a(n) values */
@@ -35,11 +37,11 @@ static void ensure_capacity(idx_t need)
     size_t new_cap = a_cap ? a_cap << 1 : 16;
     if (new_cap <= (size_t)need) new_cap = (size_t)need + 1;
     /* Grow a_seq */
-    a_seq = (seq_t *)realloc(a_seq, new_cap * sizeof(seq_t));
+    a_seq = mem_resize(seq_t, a_seq, new_cap);
     /* Grow t_conv */
-    t_conv = (seq_t *)realloc(t_conv, new_cap * sizeof(seq_t));
+    t_conv = mem_resize(seq_t, t_conv, new_cap);
     /* Grow s_conv */
-    s_conv = (seq_t *)realloc(s_conv, new_cap * sizeof(seq_t));
+    s_conv = mem_resize(seq_t, s_conv, new_cap);
     /* Initialize new cells to zero */
     for (size_t i = a_cap; i < new_cap; ++i) {
         a_seq[i] = 0;

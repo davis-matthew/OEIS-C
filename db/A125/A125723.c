@@ -8,15 +8,24 @@
  *            primes 2 and 3 appear in 6^n, so the gcd is 2^{min(6*v2(n), n)}
  *            * 3^{min(6*v3(n), n)}
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 47, u64 n <= 1727,
- *            u128 n <= 8995, big any n
- * Helpers:   pow2, pow3, seq_mul
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 64 terms through n = 8995 (2026-11-01)
+ * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
-#include "../utils/seq_mul.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n) {
     /* Count powers of 2 and 3 in n */

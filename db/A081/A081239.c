@@ -10,13 +10,14 @@
  *            j) , 1 ≤ i, j ≤ n, for which μ(i)·μ(j) = 0
  * Range:     u8 n <= 21, u16 n <= 324, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
- * Helpers:   mobius_single
+ * Validated: standard, pass, 69 terms through n = 497 (2026-11-01)
+ * Helpers:   mobius_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mobius_single.h"
+#include "../utils/mobius_idx.h"
 
 /*---- integer square root (floor) --------------------------------*/ 
 static idx_t floor_sqrt(idx_t x) {
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
     seq_t sqf    = 0;                     /* square‑free count       */
 
     for (idx_t k = 1; k <= limit; ++k) {
-        int mu_k = mobius_single(k);
+        int mu_k = mobius_idx(k);
         if (mu_k == 0) continue;         /* skip non‑square‑free k  */
         idx_t denom = k * k;              /* k², safe: k² ≤ n ≤ 2⁶⁴‑1*/
         seq_t term = (seq_t)(n / denom);  /* floor(n / k²)           */

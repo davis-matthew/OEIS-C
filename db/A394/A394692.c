@@ -10,13 +10,17 @@
  *            of the triangle in row-major order (offset 0)
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 32, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 /* Computes the n-th term of OEIS A394692. */
 seq_t a(idx_t n)
@@ -41,7 +45,7 @@ seq_t a(idx_t n)
         int base_int = 1 + (int)k - (int)j;
         int base_abs = base_int >= 0 ? base_int : -base_int;
 
-        seq_t pow_val = big_pow((seq_t)base_abs, (seq_t)(2 * r));
+        seq_t pow_val = ipow((seq_t)base_abs, (seq_t)(2 * r));
         seq_t term = bin * pow_val;
 
         if ((j & 1) == 0)

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 39, u128 n <= 78,
  *            big any n
- * Helpers:   check_full, check_single
+ * Validated: standard, pass, 42 terms through n = 200 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,32 @@
     the upper‑left cell is 0.
     Computation by dynamic programming over rows with a transfer matrix.   */
 #include <stdbool.h>
-#include "../utils/check_full.h"
-#include "../utils/check_single.h"
+
+/* helper: test if a middle row is valid when all three rows exist. */
+static inline bool check_full(uint8_t up, uint8_t mid, uint8_t down) {
+    for (int col = 0; col < 4; ++col) {
+        int same = 0;
+        uint8_t val = (mid >> col) & 1;
+        if (((up >> col) & 1) == val)   ++same;
+        if (((down >> col) & 1) == val) ++same;
+        if (col > 0 && (((mid >> (col - 1)) & 1) == val)) ++same;
+        if (col < 3 && (((mid >> (col + 1)) & 1) == val)) ++same;
+        if (same != 0 && same != 1 && same != 3) return false;
+    }
+    return true;
+}
+
+/* helper: test single row with no neighbours (n=1). */
+static inline bool check_single(uint8_t mid) {
+    for (int col = 0; col < 4; ++col) {
+        int same = 0;
+        uint8_t val = (mid >> col) & 1;
+        if (col > 0 && (((mid >> (col - 1)) & 1) == val)) ++same;
+        if (col < 3 && (((mid >> (col + 1)) & 1) == val)) ++same;
+        if (same != 0 && same != 1 && same != 3) return false;
+    }
+    return true;
+}
 
 /* Pre‑computed validity tables */
 static bool valid_init[16][16] = {0};   /* first row given second row (no up) */

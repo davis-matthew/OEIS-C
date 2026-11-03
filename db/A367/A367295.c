@@ -10,7 +10,8 @@
  *            sequentially and collecting those that satisfy the condition
  * Range:     u8 n <= 17, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Local constants, accurate to 20+ decimal digits (80‑bit long double). */
 static const long double LOG10_2 = 0.3010299956639811952137388947244930L;
@@ -36,11 +38,11 @@ static void ensure_cache(size_t n)
 {
     if (cache_cap == 0) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (n > cache_cap) {
         while (n > cache_cap)
             cache_cap <<= 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 }
 

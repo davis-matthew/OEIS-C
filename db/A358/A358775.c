@@ -8,8 +8,9 @@
  * Formula:   a(n) = 1 if the number of prime factors of n (counting
  *            multiplicity) * is even and the sum of all prime factors
  *            (counting multiplicity) is odd; * otherwise a(n) = 0
- * Range:     u8 n <= 9813, u16 n <= 9813, u32 n <= 9813, u64 n <= 9813,
- *            u128 n <= 9813, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 9813 (2026-11-02)
  * Helpers:   bigomega, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,11 +19,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/bigomega.h"          /* bigomega(idx_t) → seq_t */
-#include "../utils/factor_u64.h"        /* factor_u64(uint64_t n,
-                                          uint64_t *primes,
-                                          uint64_t *exponents,
-                                          size_t *cnt) */
+#include <stdlib.h>
+#include "../utils/bigomega.h"
+#include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)
 {

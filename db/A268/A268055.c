@@ -11,7 +11,8 @@
  *            a(5)=915745002, a(6)=322124540754
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 /* Standard headers for dynamic allocation and size_t */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper: ensure the cache can hold indices up to n (1‑based) */
 static void
@@ -30,15 +32,15 @@ ensure_cache(idx_t n, seq_t **cache, size_t *cap)
     if (*cache == NULL) {
         size_t init = 64;                     /* initial capacity */
         if (n + 1 > init) init = n + 1;       /* at least n+1 */
-        *cache = (seq_t*)malloc(init * sizeof(seq_t));
+        *cache = mem_new(seq_t, init);
         *cap   = init;
     }
     if ((size_t)(n + 1) > *cap) {
         size_t newcap = *cap;
         while ((size_t)(n + 1) > newcap) newcap <<= 1;
-        seq_t *newp = (seq_t*)malloc(newcap * sizeof(seq_t));
+        seq_t *newp = mem_new(seq_t, newcap);
         for (size_t i = 0; i < *cap; ++i) newp[i] = (*cache)[i];
-        free(*cache);
+        mem_free(*cache);
         *cache = newp;
         *cap   = newcap;
     }

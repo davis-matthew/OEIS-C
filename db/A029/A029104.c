@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,11 +19,12 @@
    value c in {1,5,10,12} we add dp[i‑c] to every dp[i] with i ≥ c.
 */
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate and initialise the DP array.  calloc zeroes the array. */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return 0;          /* allocation failure → return 0 */
     dp[0] = 1;                   /* base case */
 
@@ -38,6 +40,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

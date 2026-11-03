@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 23, u64 n <= 45, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 901 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    multiplications and works for any seq_t type the build supplies. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
     seq_t **dp    = (seq_t**)malloc(3 * sizeof(seq_t*));
     seq_t **sumdp = (seq_t**)malloc(3 * sizeof(seq_t*));
     for (int i = 0; i < 3; ++i) {
-        dp[i]    = (seq_t*)calloc(maxsize, sizeof(seq_t));
-        sumdp[i] = (seq_t*)calloc(maxsize, sizeof(seq_t));
+        dp[i]    = mem_new(seq_t, maxsize);
+        sumdp[i] = mem_new(seq_t, maxsize);
     }
 
     /* initial row: weight 0, only one empty path at height 0            */
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
 
     /* cleanup                                                          */
     for (int i = 0; i < 3; ++i) {
-        free(dp[i]);    free(sumdp[i]);
+        mem_free(dp[i]);    mem_free(sumdp[i]);
     }
     free(dp);   free(sumdp);
 

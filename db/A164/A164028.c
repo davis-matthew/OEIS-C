@@ -7,6 +7,7 @@
  * Formula:   a(n) = A002808(n) - 3 (nth composite number minus 3)
  * Range:     u8 n <= 202, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 87 terms through n = 4695 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

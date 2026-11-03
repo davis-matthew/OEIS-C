@@ -12,7 +12,8 @@
  *            decomposed into such a sum using DFS. * A cache h...
  * Range:     u8 n <= 16, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t *data;    /* list of primes with this first digit, sorted ascending */
@@ -87,7 +89,7 @@ static void add_prime_to_digit_list(seq_t p) {
     DigitList *dl = &digit_lists[d];
     if (dl->len == dl->cap) {
         size_t new_cap = dl->cap == 0 ? 8 : dl->cap * 2;
-        seq_t *new_data = (seq_t*)realloc(dl->data, new_cap * sizeof(seq_t));
+        seq_t *new_data = mem_resize(seq_t, dl->data, new_cap);
         dl->data = new_data;
         dl->cap = new_cap;
     }
@@ -148,7 +150,7 @@ static bool is_acronym_prime(seq_t p) {
 static void init_if_needed(void) {
     if (initialized) return;
     cache_cap = 1024;
-    cache = (seq_t*)calloc(cache_cap, sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     for (int d = 0; d < 10; ++d) {
         digit_lists[d].data = NULL;
         digit_lists[d].len = 0;
@@ -167,7 +169,7 @@ static void ensure_cache(idx_t n) {
         if (is_acronym_prime(p)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *new_buf = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
                 cache = new_buf;
                 cache_cap = new_cap;
             }

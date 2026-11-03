@@ -13,12 +13,14 @@
  *            same if d0(0) is omitted). Here d0(n) is the constant...
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised tables for a(n) and constant terms d0(n) */
 static seq_t *a_cache = NULL;
@@ -37,8 +39,8 @@ seq_t a(idx_t n)
     {
         /* Allocate space for indices 0 and 1 */
         size_t init_len = 2;
-        a_cache  = (seq_t*)calloc(init_len, sizeof(seq_t));
-        d0_cache = (seq_t*)calloc(init_len, sizeof(seq_t));
+        a_cache  = mem_new(seq_t, init_len);
+        d0_cache = mem_new(seq_t, init_len);
         if (!a_cache || !d0_cache)
             return (seq_t)0;                     /* memory failure → 0 */
 
@@ -53,8 +55,8 @@ seq_t a(idx_t n)
     if (n > max_cached)
     {
         size_t new_len = (size_t)(n + 1);
-        a_cache  = (seq_t*)realloc(a_cache,  new_len * sizeof(seq_t));
-        d0_cache = (seq_t*)realloc(d0_cache, new_len * sizeof(seq_t));
+        a_cache  = mem_resize(seq_t, a_cache, new_len);
+        d0_cache = mem_resize(seq_t, d0_cache, new_len);
         if (!a_cache || !d0_cache)
             return (seq_t)0;                     /* memory failure → 0 */
 

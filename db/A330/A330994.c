@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *P = NULL;          /* partitions p(0..cap‑1)   */
 static seq_t *Q = NULL;          /* strict partitions q(0..) */
@@ -64,11 +66,11 @@ static void ensure_capacity(idx_t n)
     if (needed <= cap) return;           /* already sufficient */
 
     /* free old memory if any */
-    free(P);
-    free(Q);
+    mem_free(P);
+    mem_free(Q);
 
-    P = (seq_t*)calloc(needed, sizeof(seq_t));
-    Q = (seq_t*)calloc(needed, sizeof(seq_t));
+    P = mem_new(seq_t, needed);
+    Q = mem_new(seq_t, needed);
     if (!P || !Q) exit(EXIT_FAILURE);
 
     compute_dp(needed - 1);

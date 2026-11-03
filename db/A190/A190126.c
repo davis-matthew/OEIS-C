@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _cmp_bin, _log2_uint64
+ * Validated: full, pass, 10000 terms through n = 10000 (2026-11-02)
+ * Helpers:   ilog2_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,30 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_cmp_bin.h"
-#include "../utils/_log2_uint64.h"
+#include "../utils/ilog2_idx.h"
+
+/* Comparator that orders integers by the lexicographic order of
+ * their binary strings (no leading zeros). */
+static int _cmp_bin(const void *a, const void *b) {
+    idx_t x = *(const idx_t*)a;
+    idx_t y = *(const idx_t*)b;
+    if (x == y) return 0;
+
+    idx_t lx = ilog2_idx(x) + 1;
+    idx_t ly = ilog2_idx(y) + 1;
+
+    if (lx == ly) return (x < y) ? -1 : 1;
+
+    idx_t minlen = (lx < ly) ? lx : ly;
+    idx_t shiftx = lx - minlen;
+    idx_t shifty = ly - minlen;
+    idx_t mx = x >> shiftx;
+    idx_t my = y >> shifty;
+
+    if (mx != my) return (mx < my) ? -1 : 1;
+    /* common prefix, shorter is smaller */
+    return (lx < ly) ? -1 : 1;
+}
 
 /* Static workspace for the permutation. */
 static idx_t _sorted[10000];

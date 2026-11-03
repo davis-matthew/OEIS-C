@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∏_{p^e‖n} (p^(6e) - p^(6(e-1))) (Jordan function J₆)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 40, u64 n <= 1626,
  *            u128 n <= 2000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 43 terms through n = 1823 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -37,8 +40,8 @@ seq_t a(idx_t n)
         uint64_t e = exps[i];
 
         /* Compute p^(6e) and p^(6(e-1)).  For e=1, the second term is p^0 = 1. */
-        seq_t pow_high = big_pow(p, (seq_t)(6 * e));
-        seq_t pow_low  = big_pow(p, (seq_t)(6 * (e - 1)));
+        seq_t pow_high = ipow(p, (seq_t)(6 * e));
+        seq_t pow_low  = ipow(p, (seq_t)(6 * (e - 1)));
 
         result = result * (pow_high - pow_low);
     }

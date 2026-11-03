@@ -7,13 +7,26 @@
  * Formula:   a(n) = floor(n^(1/6))
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   power_of_sixth
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>  /* for uintptr_t, if needed */
-#include "../utils/power_of_sixth.h"
+
+static seq_t power_of_sixth(seq_t k)
+{
+    /* Computes k^6 by successive multiplication. */
+    seq_t v = k;
+    /* Multiply 5 more times (total 6). */
+    v *= k; /* k^2 */
+    v *= k; /* k^3 */
+    v *= k; /* k^4 */
+    v *= k; /* k^5 */
+    v *= k; /* k^6 */
+    return v;
+}
 
 seq_t a(idx_t n)
 {

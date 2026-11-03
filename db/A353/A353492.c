@@ -8,8 +8,9 @@
  * Formula:   a(n) = 1 iff the largest proper divisor of n is of the form
  *            4k+3, else 0. The largest proper divisor of n > 1 is n / spf(n),
  *            where spf(n) is the smallest prime factor of n. a(1) = 0
- * Range:     u8 n <= 9730, u16 n <= 9730, u32 n <= 9730, u64 n <= 9730,
- *            u128 n <= 9730, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 137 terms through n = 9730 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

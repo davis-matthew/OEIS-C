@@ -7,16 +7,19 @@
  * Formula:   a(n) = Sum_{d|n} d^n * binomial(n/d-1,d-1)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 15, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   binomial, factor_u64, pow_int
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
+ * Helpers:   binomial, factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_int.h"
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
 
 /* Recursively enumerate all divisors of n and accumulate the sum. */
 static void rec_divs(idx_t i, idx_t nf,
@@ -24,7 +27,7 @@ static void rec_divs(idx_t i, idx_t nf,
                      idx_t cur_d, idx_t n, seq_t *sum)
 {
     if (i == nf) {
-        seq_t pow_val = pow_int((seq_t)cur_d, n);
+        seq_t pow_val = ipow_idx((seq_t)cur_d, n);
         idx_t q = n / cur_d;
         idx_t binom_a = q - 1;
         idx_t binom_b = cur_d - 1;

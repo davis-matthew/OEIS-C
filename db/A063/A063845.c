@@ -10,13 +10,40 @@
  *            divisors of n and sigma(n) = sum of all divisors of n
  * Range:     u8 n <= 59, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   usigma_uint64
+ * Validated: standard, pass, 73 terms through n = 966 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/usigma_uint64.h"
+
+/* Compute the sum of unitary divisors of n:  usigma(n) = Π (1 + p^e) */
+static seq_t usigma_uint64(uint64_t n)
+{
+    if (n == 1)
+        return 1;
+
+    seq_t result = 1;
+    uint64_t tmp  = n;
+
+    for (uint64_t p = 2; p * p <= tmp; ++p) {
+        if (tmp % p == 0) {
+            uint64_t p_pow = 1; /* p^e */
+            while (tmp % p == 0) {
+                tmp /= p;
+                p_pow *= p;
+            }
+            /* term = 1 + p^e */
+            result *= ((seq_t)1 + p_pow);
+        }
+    }
+    if (tmp > 1) {
+        /* Remaining prime factor: term = 1 + tmp */
+        result *= ((seq_t)1 + tmp);
+    }
+    return result;
+}
 
 /* Compute σ(n) for n ≤ 2^64 - 1 using trial division. */
 static seq_t sigma_uint64(uint64_t n)

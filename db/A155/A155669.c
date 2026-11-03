@@ -7,17 +7,28 @@
  * Formula:   a(n) = 10^n + 9^n – 1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   pow10, pow_int
+ * Validated: standard, pass, 37 terms through n = 876 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"
-#include "../utils/pow_int.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
     seq_t p10 = pow10(n);                 /* 10^n          */
-    seq_t p9  = pow_int((seq_t)9, n);     /* 9^n           */
+    seq_t p9  = ipow_idx((seq_t)9, n);     /* 9^n           */
     return p10 + p9 - (seq_t)1;           /* 10^n + 9^n – 1*/
 }

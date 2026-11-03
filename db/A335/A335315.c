@@ -13,7 +13,8 @@
  *            repeated calls
  * Range:     u8 n <= 4, u16 n <= 363, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, digit_sum, pow10
+ * Validated: standard, pass, 84 terms through n = 9432 (2026-11-03)
+ * Helpers:   digit_sum, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,18 @@
 #include <string.h>
 #include <stdbool.h>
 #include "../utils/digit_sum.h"
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n) {
     /* Cached sequence and used-number flags */
@@ -38,7 +49,7 @@ seq_t a(idx_t n) {
     /* Initialization on first call */
     if (seq_len == 0) {
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) abort();
         seq[0] = (seq_t)1;
         seq_len = 1;
@@ -76,13 +87,13 @@ seq_t a(idx_t n) {
                 seq_t cand = (seq_t)candidate;
                 seq_t sum_digits = digit_sum_prev + digit_sum(cand);
                 if (sum_digits != 0) {
-                    seq_t power10 = pow10(digit_len(cand));
+                    seq_t power10 = pow10(num_digits(cand));
                     seq_t concat = prev * power10 + cand;
                     if ((concat % sum_digits) == (seq_t)0) {
                         /* Accept the candidate */
                         if (seq_len >= seq_cap) {
                             size_t new_cap = seq_cap ? seq_cap << 1 : 16;
-                            seq_t *new_seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                            seq_t *new_seq = mem_resize(seq_t, seq, new_cap);
                             if (!new_seq) abort();
                             seq = new_seq;
                             seq_cap = new_cap;

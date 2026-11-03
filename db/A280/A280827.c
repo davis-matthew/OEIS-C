@@ -9,19 +9,21 @@
  *            And A055642(n) = digits(n), the number of decimal digits of n
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   digit_count
+ * Validated: standard, pass, 116 terms through n = 9417 (2026-11-01)
+ * Helpers:   num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digit_count.h"
+#include <math.h>
+#include "../utils/num_digits0.h"
 
 seq_t a(idx_t n)
 {
     /* Handle the only special case: n = 1 */
     if (n == 1) {
-        seq_t digits_n = (seq_t)digit_count((uint64_t)1); /* = 1 */
+        seq_t digits_n = (seq_t)num_digits0((uint64_t)1); /* = 1 */
         return (seq_t)0 - digits_n; /* -1 */
     }
 
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         count++;
     }
     if (count) {
-        seq_t digits_of_2 = (seq_t)digit_count(2); /* = 1 */
+        seq_t digits_of_2 = (seq_t)num_digits0(2); /* = 1 */
         digit_sum += digits_of_2 * count;
     }
 
@@ -47,17 +49,17 @@ seq_t a(idx_t n)
                 temp /= p;
                 count++;
             }
-            seq_t digits_p = (seq_t)digit_count(p);
+            seq_t digits_p = (seq_t)num_digits0(p);
             digit_sum += digits_p * count;
         }
     }
 
     /* If anything is left, it is a prime > sqrt(original n) */
     if (temp > 1) {
-        seq_t digits_temp = (seq_t)digit_count(temp);
+        seq_t digits_temp = (seq_t)num_digits0(temp);
         digit_sum += digits_temp; /* exponent 1 */
     }
 
-    seq_t digits_n = (seq_t)digit_count((uint64_t)n);
+    seq_t digits_n = (seq_t)num_digits0((uint64_t)n);
     return digit_sum - digits_n;
 }

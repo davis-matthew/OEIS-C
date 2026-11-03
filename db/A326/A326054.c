@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = (sigma(n) - largest_square_divisor(n)) - n
- * Range:     i8 n <= 48, i16 n <= 9514, i32 n <= 9514, i64 n <= 9514,
- *            i128 n <= 9514, big any n
+ * Range:     i8 n <= 48, i16 n <= 12599, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 107 terms through n = 9514 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

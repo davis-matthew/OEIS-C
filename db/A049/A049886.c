@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
        let m = x – 2^p
        then a(n) = (a(1)+…+a(n‑1)) – a(m)   */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,8 +40,8 @@ seq_t a(idx_t n)
     if (cap <= (size_t)n) {
         size_t newcap = (size_t)n + 1;
         if (newcap < 4) newcap = 4;
-        seq_t *tmpA = (seq_t *)realloc(A, newcap * sizeof(seq_t));
-        seq_t *tmpS = (seq_t *)realloc(S, newcap * sizeof(seq_t));
+        seq_t *tmpA = mem_resize(seq_t, A, newcap);
+        seq_t *tmpS = mem_resize(seq_t, S, newcap);
         if (!tmpA || !tmpS)   /* allocation failure */
             return (seq_t)0;
         A = tmpA;  S = tmpS;  cap = newcap;

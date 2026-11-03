@@ -8,12 +8,14 @@
  *            initial values a(0)=0, a(1)=1, a(2)=0, a(3)=9
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 17, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for computed values (zero‑based index) */
 static seq_t *cache = NULL;
@@ -28,7 +30,7 @@ static void ensure_cap(idx_t need)
     idx_t new_cap = cap ? (cap << 1) : 4;          /* start with 4 elements */
     while (new_cap <= need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cap   = new_cap;
 }

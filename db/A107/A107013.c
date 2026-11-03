@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 11, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
- *            big any n
- * Helpers:   cmp_uint64
+ * Range:     u8 n <= 11, u16 n <= 1612, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 65 terms through n = 9734 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,16 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/cmp_uint64.h"
+
+/* Utility function for sorting uint64_t arrays with qsort.              */
+static int cmp_uint64(const void *a, const void *b)
+{
+    const uint64_t *pa = (const uint64_t *)a;
+    const uint64_t *pb = (const uint64_t *)b;
+    if (*pa < *pb) return -1;
+    if (*pa > *pb) return 1;
+    return 0;
+}
 
 /* Configurable bound – large enough to contain the first
    several thousand terms of the sequence. */

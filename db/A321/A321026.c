@@ -9,7 +9,8 @@
  *            theta_3(q)=sum_{m∈Z} q^{m^2}
  * Range:     i8 n <= 13, i16 n <= 37, i32 n <= 107, i64 n <= 329,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,8 +27,8 @@ seq_t a(idx_t n)
     const idx_t Kmax = (N + 1) / 2;          /* largest k that can influence coeffs ≤ N */
 
     /* allocate coefficient arrays */
-    seq_t *S = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *T = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *T = mem_new(seq_t, (size_t)(N + 1));
     if (!S || !T) {
         /* abort on allocation failure */
         return (seq_t)0;
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = S[N];
-    free(T);
-    free(S);
+    mem_free(T);
+    mem_free(S);
     return result;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 76 terms through n = 991 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* dynamic cache of found ks */
 static size_t cache_capacity = 0;    /* allocated size of cache     */
@@ -38,8 +40,7 @@ static void ensure_cache_capacity(size_t new_cap)
     if (new_cap <= cache_capacity) return;
     size_t new_size = cache_capacity ? cache_capacity * 2 : 16;
     if (new_size < new_cap) new_size = new_cap;
-    seq_t *new_cache = (seq_t *)realloc(cache,
-                                         new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) {
         /* Allocation failed – abort; this situation should not occur
            for the intended usage. */

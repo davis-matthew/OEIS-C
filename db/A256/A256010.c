@@ -13,13 +13,15 @@
  *            sizes because only integer arithmetic is used
  * Range:     u8 n <= 6, u16 n <= 18, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build */
 typedef uint64_t idx_t;
@@ -36,8 +38,8 @@ static void ensure_capacity(idx_t n)
     if (n <= computed_max) return;
 
     /* Allocate new storage */
-    seq_t *new_p = (seq_t *)realloc(p_arr, (n + 1) * sizeof(seq_t));
-    seq_t *new_s = (seq_t *)realloc(s_arr, (n + 1) * sizeof(seq_t));
+    seq_t *new_p = mem_resize(seq_t, p_arr, (n + 1));
+    seq_t *new_s = mem_resize(seq_t, s_arr, (n + 1));
     uint32_t *new_d = (uint32_t *)realloc(d_arr, (n + 1) * sizeof(uint32_t));
     if (!new_p || !new_s || !new_d) abort();
 

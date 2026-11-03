@@ -13,13 +13,27 @@
  *            are the two-entry rows) where edges correspond to...
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 31, u128 n <= 65,
  *            big any n
- * Helpers:   f_of_block
+ * Validated: standard, pass, 38 terms through n = 201 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t */
-#include "../utils/f_of_block.h"
+
+/* helper to compute the quantity f of a 2×2 block (a,b,c,d)
+ *  with 0 ≤ a,b,c,d ≤ 2.  The result is an integer 0..4. */
+static int f_of_block(int a, int b, int c, int d) {
+    int v[4] = { a, b, c, d };
+    int tmp;
+    /* sorting network for four elements */
+    if (v[0] > v[1]) { tmp = v[0]; v[0] = v[1]; v[1] = tmp; }
+    if (v[2] > v[3]) { tmp = v[2]; v[2] = v[3]; v[3] = tmp; }
+    if (v[0] > v[2]) { tmp = v[0]; v[0] = v[2]; v[2] = tmp; }
+    if (v[1] > v[3]) { tmp = v[1]; v[1] = v[3]; v[3] = tmp; }
+    if (v[1] > v[2]) { tmp = v[1]; v[1] = v[2]; v[2] = tmp; }
+    return v[3] + v[2] + v[0] - v[1];
+}
 
 /* 9×9 matrix of seq_t values */
 typedef seq_t mat_t[9][9];

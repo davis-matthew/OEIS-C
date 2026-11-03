@@ -7,18 +7,29 @@
  * Keywords:  nonn, easy, base
  * Formula:   a(n) = concatenation of the prime factors of n (with
  *            multiplicities) in increasing order
- * Range:     u8 n <= 15, u16 n <= 63, u32 n <= 2047, u64 n <= 9513,
- *            u128 n <= 9513, big any n
- * Helpers:   digits, factor_u64, pow10
+ * Range:     u8 n <= 15, u16 n <= 63, u32 n <= 2047, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 70 terms through n = 9513 (2026-11-01)
+ * Helpers:   factor_u64, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/digits.h"
-#include "../utils/pow10.h"
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -42,7 +53,7 @@ seq_t a(idx_t n)
                 result = p_val;
                 first = false;
             } else {
-                int d = digits((idx_t)primes[i]); /* number of decimal digits of the prime */
+                int d = num_digits_idx((idx_t)primes[i]); /* number of decimal digits of the prime */
                 result = result * pow10((idx_t)d) + p_val;
             }
         }

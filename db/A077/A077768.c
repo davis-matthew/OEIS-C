@@ -8,7 +8,8 @@
  * Formula:   a(n) = #{ (x,y) ∈ ℕ² : 0 ≤ y ≤ x and n² < x² + y² < (n+1)² }
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   u64_isqrt
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/u64_isqrt.h"
+#include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Integer square‑root of a 64‑bit unsigned value, floor(√x).       */
@@ -36,7 +38,7 @@ static void recompute_upto(idx_t limit)
     if (limit == 0) return;
 
     /* Allocate a new array.  Index 0 is unused. */
-    seq_t *new_counts = (seq_t *)calloc(limit + 1, sizeof(seq_t));
+    seq_t *new_counts = mem_new(seq_t, limit + 1);
     if (!new_counts) abort();          /* out of memory */
 
     /* Main double loop over unordered pairs (a,b) with a ≥ b.           */
@@ -49,11 +51,11 @@ static void recompute_upto(idx_t limit)
             if (sum <= 1) continue;          /* never lies between squares */
 
             /* Skip perfect squares; they are not inside an open interval. */
-            uint64_t sroot = u64_isqrt(sum);
+            uint64_t sroot = isqrt_u64(sum);
             if (sroot * sroot == sum) continue;
 
             /* Determine n: n² < sum < (n+1)²   →   n = floor(√(sum‑1)). */
-            uint64_t n_root = u64_isqrt(sum - 1);
+            uint64_t n_root = isqrt_u64(sum - 1);
             if (n_root == 0) continue;       /* should not happen for sum>1 */
             if (n_root <= limit) {
                 /* Increment the counter; wrap around is acceptable when
@@ -65,7 +67,7 @@ static void recompute_upto(idx_t limit)
     }
 
     /* Replace the old table. */
-    free(counts);
+    mem_free(counts);
     counts = new_counts;
     max_n  = limit;
 }

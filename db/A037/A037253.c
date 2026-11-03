@@ -7,6 +7,7 @@
  * Formula:   a(n) = n^12*(n^8+n^4+1)*(n^6-1)*(n^2-1)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 4, u128 n <= 23,
  *            big any n
+ * Validated: standard, pass, 27 terms through n = 8980 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

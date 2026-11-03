@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn
  * Formula:   not stated
- * Range:     u8 n <= 23, u16 n <= 444, u32 n <= 9991, u64 n <= 9991,
- *            u128 n <= 9991, big any n
- * Helpers:   digit_mask_seq_t
+ * Range:     u8 n <= 23, u16 n <= 444, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 91 terms through n = 9991 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,18 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/digit_mask_seq_t.h"
+
+/* Helper: compute bitmask of decimal digits in x.
+ * mask has bit d set iff digit d occurs in x. */
+static inline uint16_t digit_mask_seq_t(seq_t x)
+{
+    uint16_t mask = 0;
+    while (x != (seq_t)0) {
+        mask |= 1u << (unsigned)(x % (seq_t)10);
+        x /= (seq_t)10;
+    }
+    return mask;
+}
 
 /* Compare decimal digit masks of a and b */
 static inline bool has_common_digit(seq_t a, seq_t b)

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 1001, u32 n <= 1001, u64 n <= 1001,
  *            u128 n <= 1001, big any n
- * Helpers:   digit_sum, seq_pow
+ * Validated: standard, pass, 83 terms through n = 992 (2026-11-01)
+ * Helpers:   digit_sum, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,11 @@
    functions `seq_pow` and `digit_sum`, which work for all supported
    integer types (fixed‑width or arbitrary precision). */
 
-#include "../utils/seq_pow.h"    /* seq_pow(seq_t base, idx_t exp) */
-#include "../utils/digit_sum.h"  /* digit_sum(seq_t) */
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/digit_sum.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +36,7 @@ seq_t a(idx_t n)
 
     for (idx_t i = 2; i <= n; ++i) {
         /* a(i) = sum_of_digits( a(i-1)^2 ) */
-        seq_t square = seq_pow(cur, (idx_t)2);
+        seq_t square = ipow_idx(cur, (idx_t)2);
         cur = digit_sum(square);
     }
 

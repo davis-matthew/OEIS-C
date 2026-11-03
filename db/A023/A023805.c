@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 211, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   distinct_base11
+ * Validated: standard, pass, 85 terms through n = 9860 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/distinct_base11.h"
+#include "../utils/mem.h"
+
+/* test if base‑11 digits of val are all distinct */
+static inline bool distinct_base11(seq_t val)
+{
+    unsigned int mask = 0;
+    if (val == 0)
+        return true;               /* zero has a single distinct digit */
+    while (val) {
+        unsigned int d = (unsigned)(val % 11);
+        unsigned int bit = 1u << d;
+        if (mask & bit)
+            return false;          /* repeated digit */
+        mask |= bit;
+        val /= 11;
+    }
+    return true;
+}
 
 static seq_t *cache = NULL;      /* cache of generated terms */
 static size_t cache_cap = 0;     /* allocated capacity of cache */
@@ -32,7 +50,7 @@ static void generate_up_to(idx_t n)
 {
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)realloc(NULL, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_cap);
         cache_cnt = 0;
     }
 
@@ -50,7 +68,7 @@ static void generate_up_to(idx_t n)
         if (distinct_base11(candidate)) {
             if (cache_cnt == cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) /* out of memory – terminate (undefined behaviour for this assignment) */
                     return;
                 cache = tmp;

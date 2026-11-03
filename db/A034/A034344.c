@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 31, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -41,6 +42,7 @@
  */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Coefficients of the denominator polynomial (degree 21) */
 static const long long d_coeff_arr[22] = {
@@ -94,7 +96,7 @@ static void ensure_cache(idx_t n)
         new_size = (size_t)(n + 1);
 
     if (new_size > cache_alloc) {
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();           /* memory failure */
         cache = tmp;
         cache_alloc = new_size;

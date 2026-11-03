@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 46, i32 n <= 46, i64 n <= 46, i128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
    requested n and uses only integer arithmetic. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   /* memoised values, index i stores a(i) */
 static idx_t  capacity   = 0;      /* allocated size of cache (>= computed+1) */
@@ -66,7 +68,7 @@ static void ensure_cache(idx_t n)
     /* Allocate initial memory if needed */
     if (cache == NULL) {
         capacity = (n >= 2 ? n + 1 : 3);
-        cache = (seq_t*)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache) abort();
         for (idx_t i = 0; i < capacity; ++i)
             cache[i] = 0;            /* values a(0)=a(1)=0 */
@@ -77,7 +79,7 @@ static void ensure_cache(idx_t n)
     if (n >= capacity) {
         idx_t new_cap = capacity * 2;
         if (new_cap <= n) new_cap = n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         for (idx_t i = capacity; i < new_cap; ++i)

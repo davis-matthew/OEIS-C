@@ -7,12 +7,14 @@
  * Formula:   a(1) = 1; a(n+1) = Σ_{k=1..n} a(n+1-k) mod k for n ≥ 1
  * Range:     u8 n <= 42, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values: a[1] .. a[cache_max] */
 static seq_t *cache = NULL;
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
     while (cache_size < n + 2)
         cache_size <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cache_size);
     cache = tmp;                       /* realloc may move the block */
 
     /* Initialize a(1) if the cache was empty. */

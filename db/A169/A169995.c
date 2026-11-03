@@ -8,12 +8,14 @@
  *            number of subsets of {1,3,5,...,23} whose elements sum to n
  * Range:     u8 n <= 144, u16 n <= 144, u32 n <= 144, u64 n <= 144,
  *            u128 n <= 144, big any n
- * Helpers:   none
+ * Validated: full, pass, 145 terms through n = 144 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     if (coeff == NULL) {                 /* first call, compute coefficients */
         coeff_size = 145;                /* indices 0..144 */
-        coeff = (seq_t*)malloc(coeff_size * sizeof(seq_t));
+        coeff = mem_new(seq_t, coeff_size);
         for (size_t i = 0; i < coeff_size; ++i)
             coeff[i] = 0;
 

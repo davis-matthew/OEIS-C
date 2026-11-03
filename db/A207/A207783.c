@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 14, u64 n <= 31, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Build‑time constants ----------------------------------------------------- */
 #define COLS        6
@@ -78,7 +80,7 @@ static void init_sequence(void)
 
     /* -- initialise memoised table ---------------------------------------- */
     totals_cap = 8;              /* initial capacity */
-    totals     = (seq_t *)malloc(totals_cap * sizeof(seq_t));
+    totals     = mem_new(seq_t, totals_cap);
     if (!totals) exit(EXIT_FAILURE);
 
     totals[0] = 0;                               /* a(0) – unused but for safety   */
@@ -107,7 +109,7 @@ seq_t a(idx_t n)
     /* enlarge memoisation table if necessary */
     if ((size_t)n >= totals_cap) {
         size_t new_cap = totals_cap * 2 + 10;
-        seq_t *tmp = (seq_t *)realloc(totals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, totals, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         totals     = tmp;
         totals_cap = new_cap;

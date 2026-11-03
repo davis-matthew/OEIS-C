@@ -10,7 +10,8 @@
  *            sequence * A198682 (offset 1)
  * Range:     u8 n <= 29, u16 n <= 7282, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum_mod3
+ * Validated: standard, pass, 71 terms through n = 9843 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/digit_sum_mod3.h"
+
+/* Return the base‑3 digit sum of x modulo 3.
+ * Works for builtin integers as well as for arbitrary‑precision
+ * types that support the operators % and /. */
+static int digit_sum_mod3(seq_t x)
+{
+    int sum = 0;
+    while (x != 0) {
+        sum = (sum + (int)(x % 3)) % 3;
+        x   /= 3;
+    }
+    return sum;
+}
 
 /* Public function required by the build. */
 seq_t a(idx_t n)

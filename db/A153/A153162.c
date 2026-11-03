@@ -11,13 +11,15 @@
  *            children (a+p)/(b+q) and (p+c)/(q+d)
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static state */
 static seq_t *terms      = NULL;   /* array of sequence terms */
@@ -43,10 +45,10 @@ static void grow_terms(size_t min_cap)
     if (terms_cap >= min_cap) return;
     size_t new_cap = terms_cap ? terms_cap << 1 : 16;
     if (new_cap < min_cap) new_cap = min_cap;
-    seq_t *new_terms = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_terms = mem_new(seq_t, new_cap);
     if (!new_terms) abort();
-    if (terms_len) memcpy(new_terms, terms, terms_len * sizeof(seq_t));
-    free(terms);
+    if (terms_len) mem_copy(new_terms, terms, terms_len * sizeof(seq_t));
+    mem_free(terms);
     terms      = new_terms;
     terms_cap  = new_cap;
 }
@@ -58,10 +60,10 @@ static void grow_queue(size_t min_cap)
     if (q_cap >= min_cap && q_tail < q_cap) return;   /* enough space */
     size_t new_cap = q_cap ? q_cap << 1 : 16;
     if (new_cap < min_cap) new_cap = min_cap;
-    Node *new_q = (Node *)malloc(new_cap * sizeof(Node));
+    Node *new_q = mem_new(Node, new_cap);
     if (!new_q) abort();
-    if (used) memcpy(new_q, queue + q_head, used * sizeof(Node));
-    free(queue);
+    if (used) mem_copy(new_q, queue + q_head, used * sizeof(Node));
+    mem_free(queue);
     queue = new_q;
     q_cap = new_cap;
     q_head = 0;

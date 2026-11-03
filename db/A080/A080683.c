@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 150, u16 n <= 3526, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9826 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Lazy initialization of cache and prime indices */
     if (!init) {
         cache_cap = 256;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;          /* allocation failed */
         cache[0] = 1;                  /* first 23‑smooth number */
         cache_size = 1;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         /* Extend storage if necessary. */
         if (cache_size >= cache_cap) {
             cache_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
             if (!tmp) return 0;   /* allocation failed */
             cache = tmp;
         }

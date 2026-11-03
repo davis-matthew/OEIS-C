@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3734, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 9882 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime list (dynamic linear sieve) ---------- */
 static uint32_t *primes = NULL;      /* array of primes */
@@ -137,7 +139,7 @@ static void push_value(seq_t val)
 {
     if (values_size >= values_cap) {
         size_t new_cap = (values_cap == 0) ? 16 : values_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, values, new_cap);
         if (!tmp) exit(1);
         values = tmp;
         values_cap = new_cap;

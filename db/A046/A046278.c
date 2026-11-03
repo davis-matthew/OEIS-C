@@ -7,7 +7,8 @@
  * Formula:   a(n) = concatenation of the first n lucky numbers
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   digit_len
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdint.h>   /* uint64_t */
 #include <stddef.h>   /* size_t */
 #include <math.h>     /* log */
-#include "../utils/digit_len.h"  /* int digit_len(seq_t) */
+#include <stdbool.h>
+#include "../utils/num_digits.h"
 
 static idx_t *lucky   = NULL;   /* cached lucky numbers */
 static size_t lucky_len = 0;    /* number of lucky numbers stored */
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     for (size_t i = 0; i < (size_t)n; ++i) {
         seq_t val   = (seq_t)lucky[i];
-        int   digs  = digit_len(val);        /* number of decimal digits */
+        int   digs  = num_digits(val);        /* number of decimal digits */
 
         seq_t pow10 = 1;
         for (int j = 0; j < digs; ++j) pow10 *= (seq_t)10;

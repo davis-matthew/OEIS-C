@@ -7,7 +7,8 @@
  * Formula:   a(n) = squarefree part of n*(n+1)/2
  * Range:     u8 n <= 10, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   build_primes_upto, floor_sqrt
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,27 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/floor_sqrt.h"
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* compute the squarefree part of a positive integer m.
    The function removes all square factors from m. */

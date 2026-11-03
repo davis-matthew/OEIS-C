@@ -12,7 +12,8 @@
  *            recurrence * of order 29 is derived by Berlekamp–Ma...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   mat_mul_exact, mat_mul_mod
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,36 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mat_mul_exact.h"
-#include "../utils/mat_mul_mod.h"
+
+/* ---------- Matrix multiplication (exact) ---------- */
+static void mat_mul_exact(size_t dim, const seq_t A[][29], const seq_t B[][29],
+                          seq_t C[][29])
+{
+    for (size_t i = 0; i < dim; ++i)
+        for (size_t j = 0; j < dim; ++j)
+        {
+            seq_t sum = (seq_t)0;
+            for (size_t k = 0; k < dim; ++k)
+                sum += A[i][k] * B[k][j];
+            C[i][j] = sum;
+        }
+}
+
+/* ----------- Matrix multiplication (modular) ------------ */
+static void mat_mul_mod(size_t dim, const uint64_t A[][29], const uint64_t B[][29],
+                        uint64_t C[][29], uint64_t mod)
+{
+    for (size_t i = 0; i < dim; ++i)
+    {
+        for (size_t j = 0; j < dim; ++j)
+        {
+            unsigned __int128 sum = 0;
+            for (size_t k = 0; k < dim; ++k)
+                sum += (unsigned __int128)A[i][k] * B[k][j];
+            C[i][j] = (uint64_t)(sum % mod);
+        }
+    }
+}
  
 /* seq_t and idx_t are supplied by the build; do not define them. */
  

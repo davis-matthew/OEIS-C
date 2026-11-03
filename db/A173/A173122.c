@@ -11,7 +11,8 @@
  *            triangle A173122
  * Range:     u8 n <= 17, u16 n <= 61, u32 n <= 157, u64 n <= 349,
  *            u128 n <= 571, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 84 terms through n = 531 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,12 @@
 /* For a given row r (0‑based) and position p (0‑based), a(n) = 2^r if p = 0, otherwise a(n) = 2^(r‑2p). */
 
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 static inline seq_t pow2(idx_t e) {
-    return seq_pow((seq_t)2, e);
+    return ipow_idx((seq_t)2, e);
 }
 
 seq_t a(idx_t n) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 17, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 171 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define STATE_COUNT 65536U   /* 256 × 256 possible 2‑row states */
 
@@ -108,8 +110,8 @@ seq_t a(idx_t n)
 
     const size_t S = STATE_COUNT;
 
-    seq_t *dpA = (seq_t *)calloc(S, sizeof(seq_t));
-    seq_t *dpB = (seq_t *)calloc(S, sizeof(seq_t));
+    seq_t *dpA = mem_new(seq_t, S);
+    seq_t *dpB = mem_new(seq_t, S);
     if (!dpA || !dpB) abort();
 
     int *actA = (int *)calloc(S, sizeof(int));
@@ -157,8 +159,8 @@ seq_t a(idx_t n)
         total += dpA[actA[ia]];
     }
 
-    free(dpA);
-    free(dpB);
+    mem_free(dpA);
+    mem_free(dpB);
     free(actA);
     free(actB);
 

@@ -10,16 +10,43 @@
  *            external linkage, suitable for all seq_t/idx_t types
  * Range:     u8 n <= 1278, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrime, nth_root_floor, pow_leq_ui
+ * Validated: standard, pass, 97 terms through n = 9338 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isPrime.h"
-#include "../utils/nth_root_floor.h"
-#include "../utils/pow_leq_ui.h"
+#include "../utils/is_prime.h"
+
+/*  Return true iff base^exp ≤ limit; 90‑bit * is used
+    to avoid overflow for 64‑bit limit values.                */
+static bool pow_leq_ui(uint64_t base, int exp, uint64_t limit)
+{
+    __int128 prod = 1;
+    for (int i = 0; i < exp; ++i) {
+        prod *= base;
+        if (prod > limit) return false;
+    }
+    return true;
+}
+
+/*  Integer floor of n^(1/e) for n ≥ 1, e ≥ 1 .
+    Binary search using pow_leq_ui for correctness. */
+static uint64_t nth_root_floor(uint64_t n, int e)
+{
+    if (e == 1) return n;
+    uint64_t lo = 1, hi = n;
+    while (lo < hi) {
+        uint64_t mid = lo + ((hi - lo) >> 1);
+        if (pow_leq_ui(mid, e, n))
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /*  Main sequence function.  It is safe for any idx_t ≥ 1
     and works under the original performance constraints.   */
@@ -41,7 +68,7 @@ seq_t a(idx_t n)
 
         /*  Find the largest prime ≤ bound.                */
         uint64_t p = bound;
-        while (p >= 2L && !isPrime(p))
+        while (p >= 2L && !is_prime(p))
             --p;
         if (p < 2L) continue;
 

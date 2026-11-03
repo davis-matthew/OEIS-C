@@ -8,7 +8,8 @@
  * Formula:   a(n) = number of (i,j,k) ≥ 0 with i^2 + 2*j^2 + 3*k^2 = n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_seq_array, seq_free_array
+ * Validated: standard, pass, 115 terms through n = 9494 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,20 @@
    with a larger n extend the array by recomputing from scratch; this
    keeps the code simple and fast enough for n up to about 10 000. */
 
-#include "../utils/alloc_seq_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 #include <string.h>          /* for memset */
 
 /* Static cache of counts; counts[i] = a(i).  On the first call a() the
@@ -41,7 +54,7 @@ static void compute_up_to(idx_t max_n)
     /* allocate new table (max_n+1) elements */
     counts = alloc_seq_array((size_t)(max_n + 1));
     /* zero the array – alloc_seq_array does not guarantee zero‑initialisation */
-    memset(counts, 0, (size_t)(max_n + 1) * sizeof(seq_t));
+    mem_set(counts, 0, (size_t)(max_n + 1) * sizeof(seq_t));
 
     precomputed_max = max_n;
 

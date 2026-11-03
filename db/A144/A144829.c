@@ -7,6 +7,7 @@
  * Formula:   a(n) = (9*n - 5) * a(n-1) with a(0) = 1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 20,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 298 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

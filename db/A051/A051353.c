@@ -9,13 +9,15 @@
  *            if n is prime, 0 otherwise)
  * Range:     i8 n <= 10, i16 n <= 72, i32 n <= 3708, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9918 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper: primality test (trial division, sufficient for n ≤ 10000) */
 static bool is_prime(idx_t n)
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         size_t new_len = (size_t)n + 1;
 
         /* reallocate the cache */
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp)   /* allocation failed – abort with zero (should never happen) */
             abort();
         cache = tmp;

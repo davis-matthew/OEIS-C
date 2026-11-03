@@ -12,7 +12,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 29, u32 n <= 96, u64 n <= 683,
  *            u128 n <= 9295, big any n
- * Helpers:   find_k_partition, gen_fixed_part
+ * Validated: standard, pass, 65 terms through n = 8984 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,8 +32,45 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/find_k_partition.h"
-#include "../utils/gen_fixed_part.h"
+
+/* ---- generate a partition of r into m parts (lexicographically) */
+static void gen_fixed_part(int parts_left, int rem, int max_part,
+                           unsigned char *parts, int idx,
+                           idx_t *kptr, unsigned char *out, int *out_len,
+                           bool *found) {
+    if (*found) return;
+    if (parts_left == 0) {
+        if (rem == 0) {
+            if (*kptr == 0) {
+                memcpy(out, parts, idx);
+                *out_len = idx;
+                *found = true;
+            } else {
+                (*kptr)--;
+            }
+        }
+        return;
+    }
+    int max_possible = rem - (parts_left - 1);          /* each remaining part ≥ 1 */
+    int upper = max_part;
+    if (max_possible < upper) upper = max_possible;
+    for (int part = 1; part <= upper; ++part) {
+        parts[idx] = (unsigned char)part;
+        gen_fixed_part(parts_left - 1, rem - part, part,
+                       parts, idx + 1, kptr, out, out_len, found);
+        if (*found) return;
+    }
+}
+
+static bool find_k_partition(int r, idx_t k, unsigned char *out, int *out_len) {
+    if (r == 0) { *out_len = 0; return true; }
+    unsigned char parts[200];
+    bool found = false;
+    for (int m = r; m >= 1 && !found; --m) {
+        gen_fixed_part(m, r, r, parts, 0, &k, out, out_len, &found);
+    }
+    return found;
+}
 
 /* ---- small prime table --------------------------------------- */
 static const uint32_t primes[30] = {

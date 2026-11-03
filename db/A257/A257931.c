@@ -8,6 +8,7 @@
  * Formula:   a(n) = coeff of x/(1 - x + x^2) - x^4/(1 - x^4 + x^8)
  * Range:     i8 n <= 78, i16 n <= 78, i32 n <= 78, i64 n <= 78, i128 n <= 78,
  *            big any n
+ * Validated: partial, pass, 79 terms through n = 78 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,14 +7,14 @@
  * Formula:   a(n) = phi(3*n)/2
  * Range:     u8 n <= 143, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 99 terms through n = 967 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/phi.h"
-
+#include "../utils/totient.h"
 
 /* Return the n-th term of A195459. */
 seq_t a(idx_t n)
@@ -23,6 +23,6 @@ seq_t a(idx_t n)
         return 0;
 
     /* 3*n fits in idx_t for all allowed n */
-    seq_t val = phi(3 * n);    /* φ(3*n) */
+    seq_t val = totient(3 * n);    /* φ(3*n) */
     return val / (seq_t)2;     /* divide by 2 */
 }

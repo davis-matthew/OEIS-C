@@ -9,12 +9,14 @@
  *            the partition number (A000041)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 44, u128 n <= 94,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 2810 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *p_cache = NULL;    /* partition numbers */
 static idx_t  p_max   = 0;        /* highest index computed for p_cache */
@@ -36,7 +38,7 @@ ensure_cap(seq_t **arr, size_t *cap, idx_t n)
     if (*cap <= (size_t)n) {
         size_t new_cap = (*cap ? (*cap << 1) : 1);
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) abort();
         *arr = tmp;
         *cap = new_cap;

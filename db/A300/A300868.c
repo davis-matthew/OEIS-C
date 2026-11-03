@@ -12,14 +12,34 @@
  *            natural numbers
  * Range:     u8 n <= 19, u16 n <= 610, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   extend_if_needed
+ * Validated: standard, pass, 83 terms through n = 9408 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/extend_if_needed.h"
+#include "../utils/mem.h"
+
+/* Ensure that the internal arrays can address idx (>=0). */
+static void extend_if_needed(idx_t idx, seq_t **perm_pp, unsigned char **used_pp,
+                             size_t *cap_pp)
+{
+    if ((size_t)idx < *cap_pp) return;
+
+    size_t new_cap = (*cap_pp) ? *cap_pp : 4;
+    while (new_cap <= (size_t)idx) new_cap <<= 1;
+
+    *perm_pp = mem_resize(seq_t, *perm_pp, (new_cap * sizeof(**perm_pp)) / sizeof(seq_t));
+    *used_pp = (unsigned char*)realloc(*used_pp, new_cap * sizeof(**used_pp));
+
+    for (size_t i = *cap_pp; i < new_cap; ++i) {
+        (*perm_pp)[i] = 0;
+        (*used_pp)[i] = 0;
+    }
+    *cap_pp = new_cap;
+}
 
 static seq_t *perm = NULL;          /* perm[i] = a(i) */
 static unsigned char *used = NULL;  /* used[i] == 1 if i already paired */

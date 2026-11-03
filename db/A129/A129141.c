@@ -11,12 +11,14 @@
  *            separately (gcd(a,b)=1 iff gca=gcd(a,c)=1 and gcd(b,c)=1)
  * Range:     u8 n <= 63, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 #define MAX_CACHE 20001   /* enough for n up to ~10 000, extendable */

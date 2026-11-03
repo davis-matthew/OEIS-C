@@ -10,7 +10,8 @@
  *            are the antidiagonal coordinates of n in the array defined by
  *            OEIS A294453
  * Range:     u8 n <= 94, u16 n <= 307, u32 n <= 1142, u64 n <= 4400,
- *            u128 n <= 9588, big any n
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 97 terms through n = 9588 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

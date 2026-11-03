@@ -13,12 +13,14 @@
  *            otherwise. a(k) = 0 for k < 0
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 125 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int64_t _c_vals[13] = {
     1, /* n = 0 */
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
                we can store the first 13 results without further
                reallocation.                                         */
             cache_cap = (n < 13) ? 13 : (size_t)n + 1;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
             if (!cache) return (seq_t)0; /* allocation failure */
             cache_len = 0;
         } else if ((size_t)n + 1 > cache_cap) {
@@ -66,8 +68,7 @@ seq_t a(idx_t n)
                multiplicative growth to keep time bounded.        */
             while (cache_cap <= (size_t)n + 1)
                 cache_cap <<= 1;
-            seq_t *new_cache = (seq_t *)
-                realloc(cache, cache_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, cache_cap);
             if (!new_cache) return (seq_t)0; /* allocation failure */
             cache = new_cache;
         }

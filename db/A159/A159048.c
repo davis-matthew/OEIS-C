@@ -8,13 +8,15 @@
  *            (so a(1) = 5)
  * Range:     u8 n <= 6, u16 n <= 49, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 857 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root: largest x with x*x <= n. */
 static seq_t isqrt_seq(seq_t n)
@@ -63,14 +65,14 @@ seq_t a(idx_t n)
     /* allocate / grow cache as required */
     if (cached_len < n && cached_cap == 0) {
         cached_cap = n < 8 ? 8 : n;  /* initial cap */
-        cache = (seq_t *)realloc(NULL, cached_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cached_cap);
         if (!cache)
             abort();
     }
     while (cached_len < n) {
         if (cached_len >= cached_cap) {
             cached_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, cached_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cached_cap);
             if (!tmp)
                 abort();
             cache = tmp;

@@ -9,7 +9,8 @@
  *            prime The function builds the sequence once, caching the terms
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 416, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 9936 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------- */
 /* Miller–Rabin primality test for 64-bit integers                  */
@@ -104,7 +106,7 @@ static void init_sequence(void) {
 
     /* Allocate cache for sequence values */
     seq_cap = INITIAL_SEQ_CAP;
-    seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, seq_cap);
     seq_len = 0;
 
     /* Generate the sequence */
@@ -115,7 +117,7 @@ static void init_sequence(void) {
         if (is_prime_u64(val)) {
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
             }
             seq_cache[seq_len++] = (seq_t)val;
         }

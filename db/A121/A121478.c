@@ -8,7 +8,8 @@
  *            distinct prime factors
  * Range:     u8 n <= 6, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   count_distinct_primes
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* Memoised cache of found triangular numbers */
 static seq_t *cache      = NULL;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         /* Count distinct prime factors of each part */
         uint64_t x1 = (uint64_t)a_val;
         uint64_t x2 = (uint64_t)b_val;
-        int cnt = count_distinct_primes(x1) + count_distinct_primes(x2);
+        int cnt = omega(x1) + omega(x2);
 
         if (cnt == 3) {
             /* Compute the triangular number using 128‑bit arithmetic to avoid overflow on the
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
             /* Grow the cache if necessary */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 32;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (!new_cache) { exit(1); }
                 cache = new_cache;
                 cache_cap = new_cap;

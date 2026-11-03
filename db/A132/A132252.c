@@ -8,6 +8,7 @@
  *            form such that p-2 and p+2 are composite)
  * Range:     u8 n <= 1, u16 n <= 519, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 57 terms through n = 992 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

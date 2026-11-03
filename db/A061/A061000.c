@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=1..n} round(k^3/9) * k^3
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* here round(x) returns the nearest integer to x   */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Prefix sums of a(k).  prefix[0] = 0. */
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
         if (alloc_size < req) {
             size_t new_size = alloc_size ? alloc_size * 2 : 16;
             if (new_size < req) new_size = req;
-            seq_t *newp = (seq_t *)realloc(prefix, new_size * sizeof(seq_t));
+            seq_t *newp = mem_resize(seq_t, prefix, new_size);
             if (!newp) return (seq_t)0; /* allocation failed, return 0 */
             prefix = newp;
             alloc_size = new_size;

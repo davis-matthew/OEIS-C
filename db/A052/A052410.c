@@ -9,8 +9,9 @@
  *            possible. For n>1, let n = Π p_i^e_i. Let g = gcd(e_1, e_2, …).
  *            Then k = g and a(n) = Π p_i^(e_i/g). If g = 1, a(n) = n. a(1) =
  *            1
- * Range:     u8 n <= 256, u16 n <= 9510, u32 n <= 9510, u64 n <= 9510,
- *            u128 n <= 9510, big any n
+ * Range:     u8 n <= 256, u16 n <= 65536, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 90 terms through n = 9510 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,12 +12,14 @@
  *            a(7)=33
  * Range:     u8 n <= 12, u16 n <= 29, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         cache_cap = 8;
         if (cache_cap < (size_t)(n + 1))
             cache_cap = n + 1;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         /* Initialize the first eight terms. */
         for (size_t i = 0; i < 8; ++i)
             cache[i] = init[i];
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap;
         while (new_cap <= (size_t)n)
             new_cap = new_cap * 2;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* Out of memory; abort as this is a fatal error for the build. */
             abort();

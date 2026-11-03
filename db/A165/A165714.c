@@ -10,8 +10,8 @@
  * Formula:   a(n) = product over k of p(A165713(n),k)^{b(n,k)}
  * Range:     u8 n <= 15, u16 n <= 15, u32 n <= 63, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   big_pow, build_primes, count_distinct_primes, factor_u64,
- *            seq_mul, seq_one
+ * Validated: partial, pass, 64 terms through n = 65 (2026-11-01)
+ * Helpers:   build_primes, factor_u64, ipow, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +20,19 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../utils/count_distinct_primes.h"
-#include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_one.h"
-#include "../utils/seq_mul.h"
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/build_primes.h"
+#include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
+#include "../utils/omega.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static bool primes_initialized = false;
 static idx_t *prime_list = NULL;
@@ -48,11 +55,11 @@ seq_t a(idx_t n) {
     init_prime_list();
 
     /* 1. Count distinct primes of n (omega(n)). */
-    uint64_t omega_n = count_distinct_primes((uint64_t)n);
+    uint64_t omega_n = omega((uint64_t)n);
 
     /* 2. Find A165713(n): smallest integer > n with same omega. */
     uint64_t m = (uint64_t)n + 1;
-    while (count_distinct_primes(m) != omega_n) {
+    while (omega(m) != omega_n) {
         ++m;
     }
 
@@ -76,7 +83,7 @@ seq_t a(idx_t n) {
     for (size_t i = 0; i < cntN; ++i) {
         seq_t base = (seq_t)primesM[i];
         seq_t exp  = (seq_t)expsN[i];
-        seq_t pw   = big_pow(base, exp);
+        seq_t pw   = ipow(base, exp);
         result = seq_mul(result, pw);
     }
     return result;

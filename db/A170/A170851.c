@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of ∏_{k≥1}(1 + 3x^(2^k-1) + 3x^(2^k))
  * Range:     u8 n <= 26, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,11 +19,12 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate coefficient array for the current (old) polynomial. */
-    seq_t *old = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *old = mem_new(seq_t, (size_t)n + 1);
     if (!old) return 0;          /* allocation failure – should not happen */
     old[0] = 1;                  /* base polynomial is 1 */
 
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
             break;                     /* beyond required index */
 
         /* Allocate temporary array for the new polynomial. */
-        seq_t *tmp = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
-        if (!tmp) { free(old); return 0; }
+        seq_t *tmp = mem_new(seq_t, (size_t)n + 1);
+        if (!tmp) { mem_free(old); return 0; }
 
         /* Start with old coefficients (case of '1' in the factor). */
         for (idx_t i = 0; i <= n; ++i)
@@ -57,11 +59,11 @@ seq_t a(idx_t n)
             }
         }
 
-        free(old);   /* old array no longer needed */
+        mem_free(old);   /* old array no longer needed */
         old = tmp;   /* use the new polynomial for next iteration */
     }
 
     seq_t result = old[n];
-    free(old);
+    mem_free(old);
     return result;
 }

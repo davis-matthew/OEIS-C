@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of helper functions */
 static int compare_seq_t(const void *a, const void *b);
@@ -54,7 +56,7 @@ static void dfs_rec(int pos, int last_plus, int last_minus,
     if (cur_pos_sum >= cur_neg_sum) {
         if (*count >= *cap) {
             *cap *= 2;
-            *buf = (seq_t *)realloc(*buf, *cap * sizeof(seq_t));
+            *buf = mem_resize(seq_t, *buf, (*cap * sizeof(seq_t)) / sizeof(seq_t));
         }
         (*buf)[*count] = cur_pos_sum - cur_neg_sum;
         (*count)++;
@@ -84,22 +86,22 @@ static void dfs_rec(int pos, int last_plus, int last_minus,
 static void generate_all(int max_idx, seq_t **out, size_t *cnt)
 {
     /* Precompute powers of 3 */
-    seq_t *pow3 = (seq_t *)malloc((max_idx + 1) * sizeof(seq_t));
+    seq_t *pow3 = mem_new(seq_t, (max_idx + 1));
     pow3[0] = (seq_t)1;
     for (int i = 1; i <= max_idx; i++)
         pow3[i] = pow3[i - 1] * (seq_t)3;
 
     size_t cap = 128;
-    seq_t *buf = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, cap);
     size_t count = 0;
 
     dfs_rec(0, -1, -1, (seq_t)0, (seq_t)0, max_idx, pow3,
             &buf, &count, &cap);
 
-    free(pow3);
+    mem_free(pow3);
 
     /* Sort and deduplicate */
-    qsort(buf, count, sizeof(seq_t), compare_seq_t);
+    mem_qsort(buf, count, sizeof(seq_t), compare_seq_t);
     size_t uniq = 0;
     for (size_t i = 0; i < count; i++) {
         if (uniq == 0 || buf[i] != buf[uniq - 1])
@@ -127,13 +129,13 @@ seq_t a(idx_t n)
 
             if ((idx_t)n < (idx_t)tmpcnt) {
                 /* Replace cache with the larger set */
-                free(cache);
+                mem_free(cache);
                 cache = tmp;
                 cache_cnt = tmpcnt;
                 max_idx_global = new_idx;
                 break;
             }
-            free(tmp);
+            mem_free(tmp);
             new_idx += 5;   /* increase search window */
         }
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 24, u32 n <= 61, u64 n <= 166, u128 n <= 460,
  *            big any n
- * Helpers:   compute_b_value
+ * Validated: standard, pass, 56 terms through n = 8721 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,34 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/compute_b_value.h"
+#include "../utils/mem.h"
+
+/* compute b(j) for a given j >= 1                              */
+static int64_t compute_b_value(idx_t j)
+{
+    int64_t sum = 0;
+    for (idx_t d = 1; d * d <= j; ++d) {
+        if (j % d == 0) {
+            idx_t d1 = d;
+            idx_t d2 = j / d;
+            int64_t coeff1 = (int64_t)d1 * (1 + (d1 + 1) / 2);
+            /* sign = +1 if (j/d) is odd, -1 otherwise */
+            if ((j / d1) & 1)
+                sum += coeff1;
+            else
+                sum -= coeff1;
+
+            if (d1 != d2) {
+                int64_t coeff2 = (int64_t)d2 * (1 + (d2 + 1) / 2);
+                if ((j / d2) & 1)
+                    sum += coeff2;
+                else
+                    sum -= coeff2;
+            }
+        }
+    }
+    return sum;
+}
 
 static seq_t *a_cache = NULL;       /* a[0..] values */
 static size_t a_cap  = 0;
@@ -45,7 +73,7 @@ static void ensure_cache_upto(idx_t n)
     /* resize a_cache if needed */
     if ((size_t)n + 1 > a_cap) {
         size_t new_cap = (size_t)n + 1;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         a_cap   = new_cap;
     }
 

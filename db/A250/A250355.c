@@ -8,6 +8,7 @@
  * Formula:   a(n) = n^6 + 6*n^5 - 5*n^4 + 55*n^3 + 25*n^2 - 61*n + 98 for n>3
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 39, u64 n <= 210, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 201 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

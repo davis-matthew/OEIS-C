@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 710, u16 n <= 8286, u32 n <= 8286, u64 n <= 8286,
- *            u128 n <= 8286, big any n
- * Helpers:   none
+ * Range:     u8 n <= 710, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 99 terms through n = 8286 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    unsigned integer type idx_t. */
 
 #include <stdlib.h>   /* malloc, realloc, exit */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
             size_t needed = (size_t)cur_diagonal + 2;   /* +1 for 1‑based index */
             size_t new_cap = row_cap ? row_cap * 2 : 16;
             if (new_cap < needed) new_cap = needed;
-            seq_t *tmp = (seq_t *)realloc(row_vals, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, row_vals, new_cap);
             if (!tmp) exit(1);
             row_vals = tmp;
             row_cap = new_cap;
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
             /* append val to the global sequence cache */
             if (seq_cache_size == seq_cache_cap) {
                 size_t new_cap = seq_cache_cap ? seq_cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
                 if (!tmp) exit(1);
                 seq_cache = tmp;
                 seq_cache_cap = new_cap;

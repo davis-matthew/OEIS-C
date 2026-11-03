@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 576, u32 n <= 1468, u64 n <= 1468,
  *            u128 n <= 1468, big any n
- * Helpers:   v_binom_prime
+ * Validated: standard, pass, 60 terms through n = 1330 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/v_binom_prime.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------- */
+static seq_t v_binom_prime(idx_t k, uint32_t p)
+{
+    seq_t exp = 0;
+    __int128 pk = p;
+    __int128 twok = (__int128)k * 2;
+
+    while (pk <= twok) {
+        exp += (seq_t)(twok / pk) - (seq_t)(2 * ((__int128)k / pk));
+        pk *= p;
+    }
+    return exp;
+}
 
 /* --------------------------------------------------------------------- */
 /* Prime sieve – static cache of primes up to a fixed limit.             */
@@ -147,7 +162,7 @@ seq_t a(idx_t n)
     /* initialise cache storage if not yet done */
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             exit(EXIT_FAILURE);
     }
@@ -159,7 +174,7 @@ seq_t a(idx_t n)
 
         if (cache_len == cache_cap) {
             cache_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
             if (!tmp)
                 exit(EXIT_FAILURE);
             cache = tmp;

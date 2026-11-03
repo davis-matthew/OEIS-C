@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   floor_log2_uint64, next_prime
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   ilog2, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/next_prime.h"          /* uint64_t next_prime(uint64_t); */
-#include "../utils/floor_log2_uint64.h"   /* unsigned floor_log2_uint64(idx_t); */
+#include <stdbool.h>
+#include "../utils/ilog2.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* Return the n‑th term of the sequence (n ≥ 1). */
 seq_t a(idx_t n)
@@ -37,10 +40,10 @@ seq_t a(idx_t n)
         /* Ensure the cache array is large enough. */
         if (cache_cap == 0) {
             cache_cap = 64;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
         } else if (cache_len == cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         /* Find the next prime. */
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
         uint64_t q = next_prime(p + 1);   /* always greater than p */
 
         uint64_t gap = q - p;
-        unsigned log2p = floor_log2_uint64(p);
+        unsigned log2p = ilog2(p);
 
         /* Store p if it meets the criterion. */
         if (gap < log2p) {

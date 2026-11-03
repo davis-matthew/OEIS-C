@@ -11,23 +11,25 @@
  *            a(2) = 2, a(3) = 2
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 38, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static void ensure_cache(idx_t n, seq_t **cache, size_t *cap) {
     if (*cache == NULL) {
         size_t init = (n + 1 > 4) ? n + 1 : 4;
-        *cache = (seq_t *)malloc(init * sizeof(seq_t));
+        *cache = mem_new(seq_t, init);
         if (!*cache) exit(1);
         *cap   = init;
     } else if (*cap <= n) {
         size_t newcap = *cap * 2;
         if (newcap <= n) newcap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(*cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *cache, newcap);
         if (!tmp) exit(1);
         *cache = tmp;
         *cap   = newcap;

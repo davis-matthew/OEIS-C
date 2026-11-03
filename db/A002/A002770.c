@@ -12,7 +12,8 @@
  *            3*Sum_{j=1..n-1} c(j)*c(n-j) / ((4n+1)*(2n-3...
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 6, i64 n <= 9, i128 n <= 14,
  *            big any n
- * Helpers:   a2770_isprime, a2770_isq, a2770_pw
+ * Validated: standard, pass, 29 terms through n = 151 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/a2770_isprime.h"
-#include "../utils/a2770_isq.h"
-#include "../utils/a2770_pw.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt_u64.h"
+
+static uint64_t a2770_pw(uint64_t b, uint64_t e, uint64_t m)
+{
+    uint64_t r = 1 % m;
+    b %= m;
+    while (e) {
+        if (e & 1) r = r * b % m;
+        b = b * b % m;
+        e >>= 1;
+    }
+    return r;
+}
 
 static uint64_t *a2770_Q = NULL;
 static size_t a2770_nQ = 0, a2770_capQ = 0;
@@ -39,7 +51,7 @@ static void a2770_need_primes(size_t k)
     }
     c = a2770_nQ ? a2770_Q[a2770_nQ - 1] - 2 : 2147483647ULL;
     while (a2770_nQ < k) {
-        if (a2770_isprime(c)) a2770_Q[a2770_nQ++] = c;
+        if (is_prime_u64(c)) a2770_Q[a2770_nQ++] = c;
         c -= 2;
     }
 }
@@ -80,9 +92,9 @@ seq_t a(idx_t n)
             nd = (dd[1] == d) ? 1 : 2;
             for (t = 0; t < nd; t++) {
                 uint64_t e = dd[t], p = e + 1, x;
-                if (e % 4 || !a2770_isprime(p)) continue;
+                if (e % 4 || !is_prime_u64(p)) continue;
                 for (x = 1; x * x < p; x += 2) {
-                    uint64_t rem = p - x * x, y = a2770_isq(rem);
+                    uint64_t rem = p - x * x, y = isqrt_u64(rem);
                     if (y * y == rem) {
                         long long xs;
                         if (y % 4 == 0) xs = (x % 4 == 1) ? (long long)x : -(long long)x;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap << 1 : 16;
         while (new_cap <= (size_t)n) new_cap <<= 1;
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();              /* allocation error */
         cache = tmp;
         cache_cap = new_cap;
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         unsigned __int128 sum   = 0;
         unsigned __int128 power4 = 1;    /* 4^k */
         unsigned __int128 B = 1;         /* binomial(m-1 , 0)   */
-        unsigned __int128 C = (unsigned __int128)binom(4*m, m-1);   /* binomial(4m , m-1) */
+        unsigned __int128 C = (unsigned __int128)binomial(4*m, m-1);   /* binomial(4m , m-1) */
 
         for (idx_t k = 0; k < m; ++k)
         {

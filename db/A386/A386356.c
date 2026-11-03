@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 2323, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   forb_digits_uint64
+ * Validated: standard, pass, 73 terms through n = 9050 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/forb_digits_uint64.h"
+
+/* test whether an unsigned 64‑bit integer contains a forbidden digit 6 or 9 */
+static bool forb_digits_uint64(uint64_t n)
+{
+    while (n > 0) {
+        uint8_t d = (uint8_t)(n % 10);
+        if (d == 6 || d == 9) return true;
+        n /= 10;
+    }
+    return false;
+}
 
 /* primality test for 64‑bit integers (trial division) */
 static bool is_prime_uint64(uint64_t n)

@@ -10,7 +10,8 @@
  *            n>5, with a(1)=4, a(2)=7, a(3)=13, a(4)=25, a(5)=47
  * Range:     u8 n <= 8, u16 n <= 34, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   seq_alloc_new_array
+ * Validated: standard, pass, 57 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,13 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc_new_array.h"   /* declares seq_alloc_new_array */
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 static seq_t *cache   = NULL;   /* memoisation array, indices start at 1 */
 static idx_t cache_sz = 0;      /* allocated size (length of cache) */
@@ -63,7 +70,7 @@ static void ensure_cache(idx_t n)
     }
 
     /* Replace old cache. */
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     cache    = new_cache;
     cache_sz = new_sz;
 }

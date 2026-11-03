@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=1..n} k^gcd(k,n)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static inline idx_t gcd_idx(idx_t a, idx_t b)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     for (idx_t k = 1; k <= n; ++k)
     {
         idx_t d = gcd_idx(k, n);
-        seq_t term = big_pow((seq_t)k, (seq_t)d);
+        seq_t term = ipow((seq_t)k, (seq_t)d);
         sum += term;
     }
 

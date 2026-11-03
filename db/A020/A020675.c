@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* comparator for qsort – not one of the forbidden names */
 static int seq_cmp(const void *a, const void *b)
@@ -52,7 +54,7 @@ static void ensure_cache(idx_t n)
 
         /* maximum number of pairs to try */
         size_t total_pairs = (size_t)(Xmax + 1) * (Ymax + 1);
-        seq_t *temp = (seq_t *)malloc(total_pairs * sizeof(seq_t));
+        seq_t *temp = mem_new(seq_t, total_pairs);
         if (!temp) exit(1);
 
         size_t count = 0;
@@ -70,7 +72,7 @@ static void ensure_cache(idx_t n)
         }
 
         /* sort and deduplicate */
-        qsort(temp, count, sizeof(seq_t), seq_cmp);
+        mem_qsort(temp, count, sizeof(seq_t), seq_cmp);
 
         size_t unique = 0;
         if (count > 0) unique = 1;
@@ -80,9 +82,9 @@ static void ensure_cache(idx_t n)
 
         seq_t *new_cache = NULL;
         if (unique > 0) {
-            new_cache = (seq_t *)malloc(unique * sizeof(seq_t));
+            new_cache = mem_new(seq_t, unique);
             if (!new_cache) {
-                free(temp);
+                mem_free(temp);
                 exit(1);
             }
             new_cache[0] = temp[0];
@@ -94,8 +96,8 @@ static void ensure_cache(idx_t n)
             }
         }
 
-        free(temp);
-        free(cache);
+        mem_free(temp);
+        mem_free(cache);
         cache = new_cache;
         cache_size = unique;
 

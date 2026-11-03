@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 41, u64 n <= 88, u128 n <= 180,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 926 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 /* The function is memoised and can be called in any order. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* table of computed a(n) */
 static size_t  cap   = 0;       /* current capacity of cache   */
@@ -33,7 +35,7 @@ static void ensure_cap(idx_t n)
     size_t newcap = cap ? (cap << 1) : 4;          /* double until big enough */
     while (newcap <= (size_t)(n + 1)) newcap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp) {                                  /* allocation failed – abort */
         abort();
     }

@@ -13,12 +13,14 @@
  *            flattened triangle...
  * Range:     u8 n <= 19, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,16 +41,16 @@ seq_t a(idx_t n)
     if (r == 2) return (k == 0) ? 0 : 4;  /* T(2,0)=0, T(2,1)=4 */
 
     /* Prepare rows 1 and 2 for the recurrence. */
-    seq_t *prev2 = (seq_t *)malloc(sizeof(seq_t) * 1);   /* row 1 */
+    seq_t *prev2 = mem_new(seq_t, 1);   /* row 1 */
     prev2[0] = 1;
 
-    seq_t *prev1 = (seq_t *)malloc(sizeof(seq_t) * 2);   /* row 2 */
+    seq_t *prev1 = mem_new(seq_t, 2);   /* row 2 */
     prev1[0] = 0;   /* T(2,0) */
     prev1[1] = 4;   /* T(2,1) */
 
     /* Build rows 3..r using the recurrence. */
     for (idx_t row = 3; row <= r; ++row) {
-        seq_t *curr = (seq_t *)malloc(sizeof(seq_t) * row);
+        seq_t *curr = mem_new(seq_t, row);
         for (idx_t kk = 0; kk < row; ++kk) {
             seq_t a_val = (kk < row - 1) ? prev1[kk] : 0;
             seq_t b_val = (kk > 0)     ? prev1[kk - 1] : 0;
@@ -56,14 +58,14 @@ seq_t a(idx_t n)
             curr[kk] = a_val + 2 * b_val + 2 * c_val;
         }
         /* Advance the row buffers: prev2 <- prev1, prev1 <- curr. */
-        free(prev2);
+        mem_free(prev2);
         prev2 = prev1;
         prev1 = curr;
     }
 
     /* Extract the desired entry from the last computed row. */
     seq_t result = prev1[(size_t)k];
-    free(prev2);
-    free(prev1);
+    mem_free(prev2);
+    mem_free(prev1);
     return result;
 }

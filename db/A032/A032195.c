@@ -5,16 +5,18 @@
  * Offset:    10    (a(10) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = (1/n) * Σ_{d | gcd(n,10)} φ(d) * C(n/d, 10/d)
- * Range:     u8 n <= 12, u16 n <= 16, u32 n <= 37, u64 n <= 39, u128 n <= 39,
+ * Range:     u8 n <= 12, u16 n <= 18, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 30 terms through n = 39 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* where φ(1)=1, φ(2)=1, φ(5)=4, φ(10)=4. */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         if (n % d != 0) continue;      /* d must divide n */
         idx_t nd = n / d;               /* n/d   */
         idx_t kd = 10 / d;              /* 10/d  */
-        seq_t term = binom(nd, kd);     /* C(n/d,10/d) */
+        seq_t term = binomial(nd, kd);     /* C(n/d,10/d) */
         term *= (seq_t)phivals[i];      /* multiply by φ(d) */
         sum += term;
     }

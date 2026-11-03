@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   count_distinct_primes
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* external linkage required by the build system */
 seq_t a(idx_t n)
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     /* allocate or grow storage when needed */
     if (sz == 0) {
         cap = 16;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
         if (!seq) abort();
     }
 
@@ -41,13 +44,13 @@ seq_t a(idx_t n)
     while (sz < n) {
         uint64_t x = (uint64_t)cur;
         /* test the three numbers for at least 3 distinct prime factors */
-        if (   count_distinct_primes(x)        >= 3
-            && count_distinct_primes(x + 1)   >= 3
-            && count_distinct_primes(2 * x + 1) >= 3) {
+        if (   omega(x)        >= 3
+            && omega(x + 1)   >= 3
+            && omega(2 * x + 1) >= 3) {
             /* increase capacity if necessary before storing */
             if (sz == cap) {
                 size_t new_cap = cap * 2;
-                seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, new_cap);
                 if (!tmp) abort();
                 seq = tmp;
                 cap = new_cap;

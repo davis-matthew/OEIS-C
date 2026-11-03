@@ -7,12 +7,15 @@
  * Formula:   a(n) = 2^(n-1) · n! for all n≥3, except a(2)=2 and a(4)=2^n · n!
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -25,9 +28,9 @@ seq_t a(idx_t n)
 
     seq_t pow;
     if (n == 4)
-        pow = big_pow((seq_t)2, (seq_t)n);          /* 2^n for n = 4 */
+        pow = ipow((seq_t)2, (seq_t)n);          /* 2^n for n = 4 */
     else
-        pow = big_pow((seq_t)2, (seq_t)(n - 1));     /* 2^(n-1) for others */
+        pow = ipow((seq_t)2, (seq_t)(n - 1));     /* 2^(n-1) for others */
 
     return fact * pow;
 }

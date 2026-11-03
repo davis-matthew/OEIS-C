@@ -9,13 +9,15 @@
  *            path graph on n vertices (each walk counted with direction)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 27, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,8 +25,8 @@ seq_t a(idx_t n)
 
     /* Allocate arrays indexed 1..n (0 and n+1 unused). */
     size_t sz = (size_t)n + 2;               /* allow access to cur[n+1] */
-    seq_t *cur  = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *next = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, sz);
+    seq_t *next = mem_new(seq_t, sz);
     if (!cur || !next) return 0;              /* allocation failure */
 
     /* Initial vector: one walk of length 0 ending at each vertex. */
@@ -59,8 +61,8 @@ seq_t a(idx_t n)
     }
 
     /* Free the allocated arrays. */
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
 
     /* Half of the total walks gives the desired sequence value. */
     return cumWalks / 2;

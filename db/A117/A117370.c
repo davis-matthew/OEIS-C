@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = # of primes strictly between the smallest and largest
  *            prime divisors of n
- * Range:     u8 n <= 3253, u16 n <= 9336, u32 n <= 9336, u64 n <= 9336,
- *            u128 n <= 9336, big any n
- * Helpers:   smallest_and_largest_prime_factors
+ * Range:     u8 n <= 3253, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 119 terms through n = 9336 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,31 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/smallest_and_largest_prime_factors.h"
+#include "../utils/mem.h"
+
+/* Compute smallest and largest prime factors of n.  */
+static void smallest_and_largest_prime_factors(uint64_t n,
+                                               uint64_t *spf,
+                                               uint64_t *lpf)
+{
+    if (n < 2) { *spf = 0; *lpf = 0; return; }
+    uint64_t temp = n;
+    uint64_t min_factor = 0;
+    uint64_t max_factor = 0;
+    for (uint64_t i = 2; i * i <= temp; ++i) {
+        if (temp % i == 0) {
+            if (!min_factor) min_factor = i;
+            while (temp % i == 0) temp /= i;
+            max_factor = i;
+        }
+    }
+    if (temp > 1) {                 /* remaining prime factor */
+        if (!min_factor) min_factor = temp;
+        max_factor = temp;           /* it is the largest factor */
+    }
+    *spf = min_factor;
+    *lpf = max_factor;
+}
 
 /* --- Cached prime sieve: is_prime[i] indicates primality of i,
    pi_prefix[i] counts primes ≤ i.  --- */
@@ -31,9 +56,9 @@ static void ensure_sieve(idx_t limit)
 {
     if (limit <= sieve_limit) return;          /* already enough */
     free(sieve_is_prime);
-    free(pi_prefix);
+    mem_free(pi_prefix);
     sieve_is_prime = (unsigned char *)malloc((size_t)(limit + 1));
-    pi_prefix      = (seq_t *)malloc((size_t)(limit + 1) * sizeof(seq_t));
+    pi_prefix      = mem_new(seq_t, (size_t)(limit + 1));
     if (!sieve_is_prime || !pi_prefix) return; /* allocation failed */
 
     for (idx_t i = 0; i <= limit; ++i) sieve_is_prime[i] = 1;

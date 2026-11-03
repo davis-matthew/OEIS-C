@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   has_even_parity_at_even_and_odd_positions
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
  * counting those that satisfy the parity condition. */
 
 #include <stdbool.h>
-#include "../utils/has_even_parity_at_even_and_odd_positions.h"
+
+static inline bool has_even_parity_at_even_and_odd_positions(idx_t x)
+{
+    int even = 0, odd = 0, pos = 0;
+    while (x) {
+        int bit = (int)(x & 1ULL);
+        if ((pos & 1) == 0)
+            even ^= bit;   /* even index */
+        else
+            odd ^= bit;     /* odd index */
+        x >>= 1;
+        ++pos;
+    }
+    return even == 0 && odd == 0;
+}
 
 seq_t a(idx_t n)
 {

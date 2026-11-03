@@ -8,7 +8,8 @@
  * Formula:   a(n) = the n-th prime after swapping decimal digits 1 and 5
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   swap_1_5
+ * Validated: standard, pass, 72 terms through n = 980 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,28 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/swap_1_5.h"
+
+/* Swap decimal digits 1↔5 in a prime number. */
+static seq_t swap_1_5(uint64_t p)
+{
+    seq_t result = 0;
+    seq_t place  = 1;
+    uint64_t tmp = p;
+    while (tmp > 0) {
+        int d  = tmp % 10;
+        int nd;
+        if (d == 1)
+            nd = 5;
+        else if (d == 5)
+            nd = 1;
+        else
+            nd = d;
+        result += (seq_t)nd * place;
+        place  *= 10;
+        tmp     /= 10;
+    }
+    return result;
+}
 
 /* Dynamic array of primes discovered so far */
 static size_t primes_cap = 0;

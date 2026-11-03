@@ -9,14 +9,31 @@
  *            the sequence stops after reaching 0, which occurs at n = 178)
  * Range:     u8 n <= 3, u16 n <= 21, u32 n <= 110, u64 n <= 178,
  *            u128 n <= 178, big any n
- * Helpers:   aliquot_sum_uint64
+ * Validated: full, pass, 179 terms through n = 178 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/aliquot_sum_uint64.h"
+
+/* A short helper: aliquot sum for a 64‑bit unsigned integer.
+ * The sequence values stay below 2^64 for all steps until 0 is reached,
+ * so this helper suffices for every requested n. */
+static seq_t aliquot_sum_uint64(uint64_t x)
+{
+    if (x <= 1) return 0;          /* 0 and 1 have no proper divisors */
+    uint64_t sum = 1;              /* 1 is always a proper divisor */
+    for (uint64_t i = 2; i <= x / i; ++i) {
+        if (x % i == 0) {
+            sum += i;
+            uint64_t j = x / i;
+            if (j != i) sum += j;   /* avoid adding a square root twice */
+        }
+    }
+    return (seq_t)sum;             /* cast to the build‑specific seq_t */
+}
 
 /* Cache for the first 179 terms (0 … 178).  After 0 is reached
  * all subsequent terms stay 0, so no larger array is required. */

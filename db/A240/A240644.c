@@ -12,12 +12,14 @@
  *            a(6)=60, a(7)=149, a(8)=396, a(9)=105...
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 24, u64 n <= 46, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_terms[20] = {
     (seq_t)1, (seq_t)2, (seq_t)6, (seq_t)8, (seq_t)23,
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)0;
     if (cache == NULL) {
         cache_len = 20;
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) abort();
         for (idx_t i = 0; i < 20; ++i) {
             cache[i] = init_terms[i];
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     }
     if (n > cache_len) {
         size_t new_len = (size_t)n;
-        seq_t *new_cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) abort();
         cache = new_cache;
         for (idx_t pos = cache_len + 1; pos <= n; ++pos) {

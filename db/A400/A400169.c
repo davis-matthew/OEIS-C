@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 182, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, factor_u64
+ * Validated: standard, pass, 95 terms through n = 9539 (2026-11-03)
+ * Helpers:   build_primes_upto, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 /* utilities provided by the framework */
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static uint64_t *prime_list = NULL;   /* array of primes */
 static size_t   prime_cnt   = 0;       /* how many primes */
@@ -124,7 +126,7 @@ static void append_term(idx_t val)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();   /* out of memory */
         terms      = tmp;
         terms_cap  = new_cap;

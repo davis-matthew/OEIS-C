@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 12, i16 n <= 25, i32 n <= 52, i64 n <= 54, i128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -25,6 +26,7 @@
 /*  The sequence is indexed from n = 0.                         */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* maximum row index needed for a(n) with n ≤ 10000 */

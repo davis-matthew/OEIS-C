@@ -12,12 +12,14 @@
  *            4 with a(0) = 4
  * Range:     u8 n <= 7, u16 n <= 21, u32 n <= 179, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 56 terms through n = 987 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -29,9 +31,9 @@ seq_t a(idx_t n)
     idx_t n_minus_1 = n - 1u;
     seq_t sum = 0;
     for (idx_t k = 0; k <= 4; ++k) {
-        sum += binom(n_minus_1, k);
+        sum += binomial(n_minus_1, k);
     }
-    seq_t c5 = binom(n_minus_1, 5u);
+    seq_t c5 = binomial(n_minus_1, 5u);
 
     /* Diff = floor((5*(n+6)+7)/12) - floor((5*(n+6)+2)/12)  (0 or 1) */
     idx_t t = n + 6u;                     /* n + 6 */

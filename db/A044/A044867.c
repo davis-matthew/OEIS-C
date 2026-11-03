@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   has_equal_odd_even_runs
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,34 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_equal_odd_even_runs.h"
+#include "../utils/mem.h"
+
+/* Helper: true if x has equal number of base‑11 runs of odd and even length */
+static bool has_equal_odd_even_runs(seq_t x)
+{
+    seq_t tmp = x;
+    int prev = -1;          /* previous digit, -1 for none */
+    int run_len = 0;        /* current run length */
+    int odd = 0, even = 0;  /* counts of odd/even runs */
+
+    while (tmp > 0) {
+        int digit = (int)(tmp % 11);
+        tmp /= 11;
+        if (digit == prev) {
+            run_len++;
+        } else {
+            if (prev != -1) {            /* finish previous run */
+                if (run_len & 1) odd++; else even++;
+            }
+            prev = digit;
+            run_len = 1;
+        }
+    }
+    if (prev != -1) {                        /* finish last run */
+        if (run_len & 1) odd++; else even++;
+    }
+    return odd == even;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,7 +60,7 @@ seq_t a(idx_t n)
     /* initialize static storage */
     if (table_cap == 0) {
         table_cap = 64;
-        table = (seq_t *)malloc(table_cap * sizeof(seq_t));
+        table = mem_new(seq_t, table_cap);
     }
 
     /* extend table until it contains at least n terms */
@@ -45,7 +73,7 @@ seq_t a(idx_t n)
         /* store it */
         if (table_len == table_cap) {
             table_cap <<= 1;
-            table = (seq_t *)realloc(table, table_cap * sizeof(seq_t));
+            table = mem_resize(seq_t, table, table_cap);
         }
         table[table_len++] = candidate;
         next_start = candidate + 1;

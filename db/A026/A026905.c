@@ -9,12 +9,14 @@
  *            numbers A000041
  * Range:     u8 n <= 11, u16 n <= 33, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *p_cache = NULL;        /* partition numbers p(0..n) */
 static seq_t *sum_cache = NULL;      /* partial sums a(0..n) = sum_{k=1..i} p(k) */
@@ -28,8 +30,8 @@ static void ensure_cap(idx_t n)
 
     /* allocate new capacity, simple grow to n+1 */
     idx_t new_cap = n + 1;
-    seq_t *new_p = (seq_t *)realloc(p_cache, new_cap * sizeof(seq_t));
-    seq_t *new_sum = (seq_t *)realloc(sum_cache, new_cap * sizeof(seq_t));
+    seq_t *new_p = mem_resize(seq_t, p_cache, new_cap);
+    seq_t *new_sum = mem_resize(seq_t, sum_cache, new_cap);
     if (!new_p || !new_sum) {
         /* allocation failure – terminate program */
         exit(1);

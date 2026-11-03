@@ -13,7 +13,8 @@
  *            {0,1,2}^k with fix(T^j) = fix(h^{j/d})^d, d = g...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   a001327_fixh, a001327_gcd
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a001327_fixh.h"
-#include "../utils/a001327_gcd.h"
+#include "../utils/gcd_u64.h"
+
+static uint64_t a001327_fixh(int cls, uint64_t i)
+{
+    if (cls == 0) return 3;
+    if (cls == 1) return (i % 2 == 0) ? 3 : 1;
+    return (i % 3 == 0) ? 3 : 0;
+}
 
 typedef struct { uint64_t len, cnt; } a001327_cyc;
 typedef unsigned __int128 a001327_u128;
@@ -44,7 +51,7 @@ static int a001327_ftype(uint64_t k, int cls, a001327_cyc *O)
     for (m = 1; m <= L; m++) {
         uint64_t d, f, fm, sub;
         if (L % m) continue;
-        d = a001327_gcd(m, k);
+        d = gcd_u64(m, k);
         f = a001327_fixh(cls, m / d);
         fm = 1;
         for (j = 0; j < d; j++) fm *= f;
@@ -62,7 +69,7 @@ static int a001327_comb(const a001327_cyc *A, int na, const a001327_cyc *B, int 
     int no = 0, i, j, q;
     for (i = 0; i < na; i++)
         for (j = 0; j < nb; j++) {
-            uint64_t g = a001327_gcd(A[i].len, B[j].len);
+            uint64_t g = gcd_u64(A[i].len, B[j].len);
             uint64_t l = A[i].len / g * B[j].len;
             uint64_t c = A[i].cnt * B[j].cnt * g;
             for (q = 0; q < no; q++) if (O[q].len == l) break;

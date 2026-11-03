@@ -10,14 +10,17 @@
  *            of T read by antidiagonals upwards
  * Range:     u8 n <= 36, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,13 +41,13 @@ seq_t a(idx_t n)
         return pow2(j) - (seq_t)1;
     } else {
         size_t J = (size_t)j;
-        seq_t *prev = (seq_t *)malloc((J + 1) * sizeof(seq_t));
-        seq_t *cur  = (seq_t *)malloc((J + 1) * sizeof(seq_t));
+        seq_t *prev = mem_new(seq_t, (J + 1));
+        seq_t *cur  = mem_new(seq_t, (J + 1));
 
         if (!prev || !cur) {
             /* allocation failure – abort with zero (should not occur) */
-            free(prev);
-            free(cur);
+            mem_free(prev);
+            mem_free(cur);
             return (seq_t)0;
         }
 
@@ -64,8 +67,8 @@ seq_t a(idx_t n)
         }
 
         seq_t result = prev[j];
-        free(prev);
-        free(cur);
+        mem_free(prev);
+        mem_free(cur);
         return result;
     }
 }

@@ -8,7 +8,8 @@
  *            504 Σ_{k≥1} σ_5(k) q^k). Here σ_s(k)=∑_{d|k} d^s
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 6, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 353 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,16 +40,16 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;          /* index fits in size_t          */
     if (!ac || N > max_cached) {   /* recompute if out‑of‑range     */
         /* free old buffers */
-        free(sigma5);
-        free(sigma7);
-        free(inv);
-        free(ac);
+        mem_free(sigma5);
+        mem_free(sigma7);
+        mem_free(inv);
+        mem_free(ac);
 
         /* allocate new buffers (size N+1 to include index 0) */
-        sigma5 = (seq_t *)calloc(N + 1, sizeof(seq_t));
-        sigma7 = (seq_t *)calloc(N + 1, sizeof(seq_t));
-        inv    = (seq_t *)calloc(N + 1, sizeof(seq_t));
-        ac     = (seq_t *)calloc(N + 1, sizeof(seq_t));
+        sigma5 = mem_new(seq_t, N + 1);
+        sigma7 = mem_new(seq_t, N + 1);
+        inv    = mem_new(seq_t, N + 1);
+        ac     = mem_new(seq_t, N + 1);
 
         /* compute σ₅(k) and σ₇(k) for k = 1 … N */
         for (size_t d = 1; d <= N; ++d) {

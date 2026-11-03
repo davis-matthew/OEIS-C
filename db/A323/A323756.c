@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 210, u16 n <= 210, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,12 +27,29 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Helper for realloc that works in both C and C++ */
+#ifdef __cplusplus
+template <class T>
+static T * realloc_cast(T * ptr, size_t size)
+{
+    return mem_resize(T, ptr, (size) / sizeof(T));
+}
+#else
 static void* realloc_cast(void* ptr, size_t size)
 {
     return realloc(ptr, size);
 }
+#endif
 
 /* Global cache state */
 static seq_t  *values     = NULL; /* cached terms                       */

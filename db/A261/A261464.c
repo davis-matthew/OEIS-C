@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 10, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   big_pow, is_prime
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-01)
+ * Helpers:   ipow, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 #include "../utils/is_prime.h"
 
 /* The build supplies the following typedefs:
@@ -101,7 +102,7 @@ seq_t a(idx_t n)
     seq_t p_n2 = (seq_t)primes[(size_t)(n + 1)];    /* prime(n+2) */
 
     /* Compute the formula using seq_t arithmetic. */
-    seq_t cube   = big_pow(p_n2, (seq_t)3);
+    seq_t cube   = ipow(p_n2, (seq_t)3);
     seq_t square = p_n1 * p_n1;
     seq_t val    = cube - square + p_n;
     return val;

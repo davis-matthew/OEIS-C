@@ -9,13 +9,15 @@
  *            * (4n + 2) / (n + 1) The division is always integral
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 464 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* previously computed terms */
 static idx_t   cache_len = 0;    /* number of terms stored (index+1) */
@@ -27,7 +29,7 @@ static void ensure_capacity(idx_t needed)
     if (needed + 1 <= cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap << 1 : 1;
     while (new_cap <= needed) new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+    cache = mem_resize(seq_t, cache, new_cap);
     if (!cache) abort();          /* memory allocation failed */
     cache_cap = new_cap;
 }

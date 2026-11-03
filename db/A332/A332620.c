@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} phi(d) * n^d
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 35 terms through n = 380 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 /* Recursive helper to enumerate all divisors of n.
  * cur: current divisor,
@@ -30,7 +33,7 @@ static void enum_div(idx_t pos, seq_t cur, seq_t phi_cur, idx_t n,
 {
     if (pos == cnt) {
         /* term = phi(cur) * n^cur */
-        seq_t term = phi_cur * big_pow((seq_t)n, (seq_t)cur);
+        seq_t term = phi_cur * ipow((seq_t)n, (seq_t)cur);
         *sum_ptr += term;
         return;
     }

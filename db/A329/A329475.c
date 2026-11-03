@@ -10,12 +10,14 @@
  *            k>=2 satisfies T(k) = ((2*k-1)*T(k-1) + (3*(k-1))*T(k-2)) / k
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 20, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 875 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global cache for T(n) */
 static seq_t *T_cache = NULL;
@@ -30,11 +32,11 @@ static void ensure_T(idx_t n)
     /* Expand capacity if needed */
     if (T_cap == 0) {
         T_cap = 16;
-        T_cache = (seq_t*)malloc(T_cap * sizeof(seq_t));
+        T_cache = mem_new(seq_t, T_cap);
         if (!T_cache) return;  /* let function fail gracefully */
     }
     while (T_cap <= n) T_cap <<= 1;
-    T_cache = (seq_t*)realloc(T_cache, T_cap * sizeof(seq_t));
+    T_cache = mem_resize(seq_t, T_cache, T_cap);
 
     /* Compute missing values */
     if (T_len == 0) {        /* first element */

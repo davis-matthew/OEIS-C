@@ -7,7 +7,8 @@
  * Formula:   a(0) = 1 * a(n) = 4*n*a(n-1) + 4^n for n > 0
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The types idx_t and seq_t are defined by the build system. */
 
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (n >= (idx_t)cache_size) {
         /* Grow the cache to accommodate index n. */
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();                /* fatal if allocation fails */
         cache = tmp;
 

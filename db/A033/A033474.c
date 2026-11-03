@@ -8,7 +8,8 @@
  *            Bernoulli number with 0-based index
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 8, i64 n <= 10, i128 n <= 10,
  *            big any n
- * Helpers:   gcd, seq_pow
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   gcd, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 /* Rational structure for computing Bernoulli numbers. */
 typedef struct {
@@ -50,13 +52,13 @@ static void compute_bernoulli_up_to(idx_t N)
 
     /* Allocate storage for B and bnumer if necessary. */
     if (B_cap < (size_t)(N + 1)) {
-        B = (Rational *)realloc(B, (size_t)(N + 1) * sizeof(Rational));
+        B = mem_resize(Rational, B, (size_t)(N + 1));
         if (!B) exit(EXIT_FAILURE);
         B_cap = N + 1;
     }
 
     if (N_cap < (size_t)(N + 1)) {
-        bnumer = (seq_t *)realloc(bnumer, (size_t)(N + 1) * sizeof(seq_t));
+        bnumer = mem_resize(seq_t, bnumer, (size_t)(N + 1));
         if (!bnumer) exit(EXIT_FAILURE);
         N_cap = N + 1;
     }
@@ -114,7 +116,7 @@ seq_t a(idx_t n)
     compute_bernoulli_up_to(two_n);
 
     /* Compute (2^(2n-1) - 1). */
-    seq_t pow2_val = seq_pow((seq_t)2, two_n - 1);
+    seq_t pow2_val = ipow_idx((seq_t)2, two_n - 1);
     seq_t base     = pow2_val - (seq_t)1;
 
     /* Multiply by the absolute numerator of B_{2n}. */

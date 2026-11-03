@@ -11,13 +11,27 @@
  *            condition
  * Range:     u8 n <= 109, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _has_equal_3_5
+ * Validated: standard, pass, 82 terms through n = 9444 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/_has_equal_3_5.h"
+
+static bool _has_equal_3_5(seq_t x)
+{
+    idx_t c3 = 0, c5 = 0;
+    seq_t t = x;
+    if (t == 0) return true;  /* 0 has no 3's or 5's */
+    while (t != 0) {
+        seq_t d = t % (seq_t)6;
+        if (d == 3) ++c3;
+        else if (d == 5) ++c5;
+        t /= (seq_t)6;
+    }
+    return c3 == c5;
+}
 
 seq_t a(idx_t n)
 {

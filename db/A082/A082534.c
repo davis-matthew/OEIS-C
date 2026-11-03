@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 157, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _is_prime
+ * Validated: standard, pass, 65 terms through n = 974 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/_is_prime.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -81,7 +82,7 @@ seq_t a(idx_t n)
 
     for (idx_t i = n; i > 0; --i) {
         sum += primes[i - 1];
-        if (_is_prime(sum) && sum > best) best = sum;
+        if (is_prime_u64(sum) && sum > best) best = sum;
     }
 
     return (seq_t)best;

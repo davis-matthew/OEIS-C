@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 111, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, is_prime
+ * Validated: standard, pass, 57 terms through n = 949 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto */
-#include "../utils/is_prime.h"           /* is_prime */
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Cached cumulative sums of isolated primes.
    cum[0] = 0, cum[i] = sum of first i isolated primes. */
@@ -68,7 +70,7 @@ ensure_cached(idx_t n)
     }
 
     /* Build the cumulative sums array. */
-    seq_t *new_cum = (seq_t *)malloc((iso_cnt + 1) * sizeof(seq_t));
+    seq_t *new_cum = mem_new(seq_t, (iso_cnt + 1));
     if (!new_cum) abort();           /* unlikely but safe */
 
     new_cum[0] = (seq_t)0;
@@ -84,7 +86,7 @@ ensure_cached(idx_t n)
     }
 
     /* Replace the old cache. */
-    free(cum);
+    mem_free(cum);
     cum = new_cum;
     cum_len = iso_cnt + 1;
 

@@ -11,13 +11,32 @@
  *            = sum_{i=1}^{r-k} H(r-i,k-1) / i for k>0
  * Range:     u8 n <= 16, u16 n <= 38, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   decode_idx
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/decode_idx.h"
+#include "../utils/mem.h"
+
+/* Map triangular index n (1‑based) to row r and column k (0‑based) */
+static void decode_idx(idx_t n, idx_t *r, idx_t *k)
+{
+    /* Find smallest r with r(r+1)/2 >= n */
+    idx_t lo = 1, hi = 1;
+    while (hi * (hi + 1) / 2 < n) hi <<= 1;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo) / 2;
+        if (mid * (mid + 1) / 2 >= n)
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    *r = lo;
+    idx_t prev_tri = (lo - 1) * lo / 2;
+    *k = n - prev_tri - 1;
+}
 
 typedef struct { seq_t num; seq_t den; } Frac;
 
@@ -74,7 +93,7 @@ static void ensure_rows(idx_t need)
 
     /* Allocate and compute new rows */
     for (idx_t r = rows + 1; r <= need; ++r) {
-        new_table[r] = (Frac*)malloc(sizeof(Frac) * r);   /* indices 0..r-1 */
+        new_table[r] = mem_new(Frac, r);   /* indices 0..r-1 */
         if (!new_table[r]) continue;    /* allocation failure – skip this row */
 
         /* H(r,0) */

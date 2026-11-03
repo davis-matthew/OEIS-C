@@ -10,7 +10,8 @@
  *            a(1)=1, a(2)=2, a(3)=3, a(4)=4, a(5)=7, etc
  * Range:     u8 n <= 38, u16 n <= 694, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 1925 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- sequence storage ---------- */
 static seq_t *seq = NULL;          /* array of sequence terms          */
@@ -40,7 +42,7 @@ static void seq_expand(size_t needed)
     if (seq_cap >= needed) return;
     size_t newcap = seq_cap ? seq_cap << 1 : 64;
     while (newcap < needed) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, newcap);
     if (!tmp) return;            /* allocation failed – keep old array   */
     seq = tmp;
     seq_cap = newcap;
@@ -52,7 +54,7 @@ static void used_expand(size_t needed)
     if (used_cap >= needed) return;
     size_t newcap = used_cap ? used_cap << 1 : 8;
     while (newcap < needed) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(used, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, used, newcap);
     if (!tmp) return;            /* allocation failed – keep old array   */
     used = tmp;
     used_cap = newcap;

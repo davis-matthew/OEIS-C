@@ -10,12 +10,14 @@
  *            of Euclid's algorithm steps for gcd(x,y)
  * Range:     u8 n <= 15, u16 n <= 181, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9350 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
         /* Allocate or grow a_cache. */
         size_t new_a_bytes = sizeof(seq_t) * (size_t)(new_max + 1);
-        seq_t *new_a_cache = (seq_t *)realloc(a_cache, new_a_bytes);
+        seq_t *new_a_cache = mem_resize(seq_t, a_cache, (new_a_bytes) / sizeof(seq_t));
         if (!new_a_cache) return (seq_t)0;    /* allocation failed */
         a_cache = new_a_cache;
         a_cache[0] = (seq_t)0;               /* maintain a(0)=0 */

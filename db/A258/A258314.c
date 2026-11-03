@@ -11,14 +11,17 @@
  *            = A[0] = C[0] = 1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 12, u64 n <= 22, u128 n <= 23,
  *            big any n
- * Helpers:   mul
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <assert.h>
-#include "../utils/mul.h"
+#include "../utils/mem.h"
+
+static inline seq_t mul(seq_t a, seq_t b) { return a * b; }
 
 /* Multiplication helper for C++ builds.
  * Works for any seq_t that defines operator* (including big-integer types). */
@@ -33,9 +36,9 @@ seq_t a(idx_t n)
 
     /* Allocate first element if first call */
     if (B == NULL) {
-        B = (seq_t *)malloc(sizeof(seq_t));
-        A = (seq_t *)malloc(sizeof(seq_t));
-        C = (seq_t *)malloc(sizeof(seq_t));
+        B = mem_new(seq_t, 1);
+        A = mem_new(seq_t, 1);
+        C = mem_new(seq_t, 1);
         assert(B && A && C);
         B[0] = A[0] = C[0] = (seq_t)1;
         maxn = 0;
@@ -44,9 +47,9 @@ seq_t a(idx_t n)
     /* Extend tables if needed */
     if (n > maxn) {
         size_t newcap = (size_t)n + 1;
-        B = (seq_t *)realloc(B, newcap * sizeof(seq_t));
-        A = (seq_t *)realloc(A, newcap * sizeof(seq_t));
-        C = (seq_t *)realloc(C, newcap * sizeof(seq_t));
+        B = mem_resize(seq_t, B, newcap);
+        A = mem_resize(seq_t, A, newcap);
+        C = mem_resize(seq_t, C, newcap);
         assert(B && A && C);
 
         for (idx_t k = maxn + 1; k <= n; ++k) {

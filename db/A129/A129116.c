@@ -10,13 +10,28 @@
  *            determined by k + m = s, the smallest integer with (s‑1)*s/2 ≥ n
  * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 90, u64 n <= 230,
  *            u128 n <= 629, big any n
- * Helpers:   _antidiag_level
+ * Validated: standard, pass, 94 terms through n = 9598 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_antidiag_level.h"
+
+static uint64_t _antidiag_level(uint64_t N)
+{
+    uint64_t low = 2, high = 2;
+    while (((unsigned __int128)high * (high - 1)) / 2 < N)
+        high <<= 1;
+    while (low < high) {
+        uint64_t mid = low + (high - low) / 2;
+        if (((unsigned __int128)mid * (mid - 1)) / 2 >= N)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 seq_t a(idx_t n)
 {

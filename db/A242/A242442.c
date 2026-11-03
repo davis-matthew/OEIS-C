@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    such that T + S + P = n (n ≥ 1). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for precomputed data */
 static idx_t max_n = 0;                 /* largest n that has been processed   */
@@ -39,13 +41,13 @@ static void enlarge_tables(idx_t new_max) {
         if (t > new_max) break;
         ++tr_cnt;
     }
-    seq_t *new_tri = (seq_t*)malloc((size_t)tr_cnt * sizeof(seq_t));
+    seq_t *new_tri = mem_new(seq_t, (size_t)tr_cnt);
     for (idx_t k = 0, j = 0;; ++k) {
         seq_t t = ((seq_t)k) * ((seq_t)k + 1) / 2;
         if (t > new_max) break;
         new_tri[j++] = t;
     }
-    free(triangle_cache);
+    mem_free(triangle_cache);
     triangle_cache = new_tri;
     triangle_cnt = tr_cnt;
 
@@ -56,19 +58,19 @@ static void enlarge_tables(idx_t new_max) {
         if (p > new_max) break;
         ++pent_cnt;
     }
-    seq_t *new_pent = (seq_t*)malloc((size_t)pent_cnt * sizeof(seq_t));
+    seq_t *new_pent = mem_new(seq_t, (size_t)pent_cnt);
     for (idx_t j = 0, i = 0;; ++j) {
         seq_t p = ((seq_t)j) * (3 * (seq_t)j - 1) / 2;
         if (p > new_max) break;
         new_pent[i++] = p;
     }
-    free(pentagon_cache);
+    mem_free(pentagon_cache);
     pentagon_cache = new_pent;
     pentagon_cnt = pent_cnt;
 
     /* pairCount array */
     size_t pc_size = (size_t)(new_max + 1);
-    seq_t *new_pc = (seq_t*)calloc(pc_size, sizeof(seq_t));
+    seq_t *new_pc = mem_new(seq_t, pc_size);
     for (idx_t i = 0; i < tr_cnt; ++i) {
         seq_t tr_val = new_tri[i];
         for (idx_t j = 0; j < pent_cnt; ++j) {
@@ -78,7 +80,7 @@ static void enlarge_tables(idx_t new_max) {
             }
         }
     }
-    free(pairCount);
+    mem_free(pairCount);
     pairCount = new_pc;
     max_n = new_max;
 }

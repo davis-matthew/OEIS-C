@@ -10,15 +10,52 @@
  *            (OEIS A000005)
  * Range:     u8 n <= 16, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   build_spf, gcd
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <assert.h>
-#include "../utils/gcd.h"
-#include "../utils/build_spf.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Greatest common divisor for seq_t values. */
+static seq_t gcd(seq_t a, seq_t b)
+{
+    while (b != 0) {
+        seq_t t = a % b;
+        a = b;
+        b = t;
+    }
+    return a;
+}
+
+/* Build the smallest‑prime‑factor table up to limit. */
+static void build_spf(idx_t limit, idx_t **spf_out)
+{
+    idx_t i, j;
+    idx_t *spf = (idx_t *)malloc((limit + 1) * sizeof(idx_t));
+    if (!spf) {
+        *spf_out = NULL;
+        return;
+    }
+
+    for (i = 0; i <= limit; ++i) spf[i] = 0;
+    spf[0] = 0;
+    spf[1] = 1;
+
+    for (i = 2; i <= limit; ++i) {
+        if (!spf[i]) {            /* i is prime */
+            spf[i] = i;
+            if (i <= limit / i)   /* avoid overflow in j loop */
+                for (j = i * i; j <= limit; j += i)
+                    if (!spf[j]) spf[j] = i;
+        }
+    }
+    *spf_out = spf;
+}
 
 static idx_t max_n = 0;          /* highest n processed so far       */
 static seq_t *den_arr = NULL;    /* den_arr[i] = denominator of S(i) */
@@ -37,8 +74,8 @@ seq_t a(idx_t n)
     /* ---- initialise structures on first call ---- */
     if (max_n == 0) {
         size_t sz = (size_t)(n + 1);
-        den_arr     = (seq_t *)malloc(sz * sizeof(seq_t));
-        div_counts  = (seq_t *)malloc(sz * sizeof(seq_t));
+        den_arr     = mem_new(seq_t, sz);
+        div_counts  = mem_new(seq_t, sz);
         assert(den_arr && div_counts);
 
         /* build smallest prime factor table up to n */
@@ -55,8 +92,8 @@ seq_t a(idx_t n)
     if (n > max_n) {
         size_t newsize = (size_t)(n + 1);
         if (max_n != 0) {
-            den_arr    = (seq_t *)realloc(den_arr,  newsize * sizeof(seq_t));
-            div_counts = (seq_t *)realloc(div_counts, newsize * sizeof(seq_t));
+            den_arr    = mem_resize(seq_t, den_arr, newsize);
+            div_counts = mem_resize(seq_t, div_counts, newsize);
             assert(den_arr && div_counts);
         }
 

@@ -9,7 +9,8 @@
  *            (p_1 = 2). The function computes a(n) with memoisation
  * Range:     i8 n <= 40, i16 n <= 169, i32 n <= 531, i64 n <= 1207,
  *            i128 n <= 2715, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build system.
    Do not redefine them. */
@@ -49,8 +51,8 @@ static void extend_cache(idx_t need)
     idx_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
     while (new_cap < need) new_cap <<= 1;
 
-    a_cache  = (seq_t *)realloc(a_cache,  (new_cap + 1) * sizeof(seq_t));
-    sum_mult = (seq_t *)realloc(sum_mult, (new_cap + 1) * sizeof(seq_t));
+    a_cache  = mem_resize(seq_t, a_cache, (new_cap + 1));
+    sum_mult = mem_resize(seq_t, sum_mult, (new_cap + 1));
     if (!a_cache || !sum_mult) exit(EXIT_FAILURE);
     for (idx_t i = cache_cap + 1; i <= new_cap; ++i) {
         a_cache[i]  = 0;

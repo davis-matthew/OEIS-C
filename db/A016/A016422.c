@@ -12,6 +12,7 @@
  *            (with Q[<0...
  * Range:     i8 n <= 448, i16 n <= 448, i32 n <= 448, i64 n <= 448,
  *            i128 n <= 448, big any n
+ * Validated: full, pass, 449 terms through n = 448 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

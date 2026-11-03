@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 29, u32 n <= 63, u64 n <= 132,
  *            u128 n <= 270, big any n
- * Helpers:   alloc_seq, free_seq
+ * Validated: standard, pass, 58 terms through n = 934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,22 @@
 /* OEIS A145131: a(n) = a(n-1)+a(n-4)+n,  a(0)=0, a(1)=1, a(2)=3, a(3)=6, a(4)=10, a(5)=16 */
 
 #include <stdlib.h>
-#include "../utils/alloc_seq.h"
-#include "../utils/free_seq.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache = NULL;
 static idx_t cached_max = (idx_t)-1; /* sentinel: cache not yet built */

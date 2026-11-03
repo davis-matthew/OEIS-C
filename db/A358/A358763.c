@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 81 terms through n = 9369 (2026-11-01)
  * Helpers:   bigomega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,7 @@
 
 #include <stdlib.h>     /* malloc, realloc, abort */
 #include <stddef.h>     /* size_t */
-#include "../utils/bigomega.h"   /* seq_t bigomega(idx_t) */
+#include "../utils/bigomega.h"
 
 /* Static cache of qualifying numbers (stored as idx_t). */
 static idx_t *terms   = NULL;   /* array of k that satisfy the condition */

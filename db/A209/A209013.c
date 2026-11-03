@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t init_vals[6] = {
     (seq_t)12,      /* a(1) */
@@ -42,7 +44,7 @@ static void ensure_cache(idx_t need)
     if (alloc_size >= need + 1)
         return;                      /* already large enough */
 
-    seq_t *newc = (seq_t*)malloc((size_t)(need + 1) * sizeof(seq_t));
+    seq_t *newc = mem_new(seq_t, (size_t)(need + 1));
     if (newc == NULL)
         return;                      /* out of memory – caller may handle */
 
@@ -50,7 +52,7 @@ static void ensure_cache(idx_t need)
     if (cache != NULL) {
         for (idx_t i = 1; i <= cur_max; ++i)
             newc[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
 
     cache = newc;

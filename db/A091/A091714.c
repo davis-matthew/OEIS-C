@@ -10,15 +10,18 @@
  *            (1/k)*Σ_{e|k} φ(e)*2^{k/e}
  * Range:     u8 none, u16 n <= 14, u32 n <= 25, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   binom, pow_uint
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   binomial, ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 static const idx_t MAX_PRECOMP = 10000;
 static bool initialized = false;
@@ -40,8 +43,8 @@ static inline idx_t gcd_idx(idx_t a, idx_t b)
 static void init_precomputation(void)
 {
     phi = (int *)malloc((MAX_PRECOMP+1) * sizeof(int));
-    pow2 = (seq_t *)malloc((MAX_PRECOMP+1) * sizeof(seq_t));
-    B = (seq_t *)malloc((MAX_PRECOMP+1) * sizeof(seq_t));
+    pow2 = mem_new(seq_t, (MAX_PRECOMP+1));
+    B = mem_new(seq_t, (MAX_PRECOMP+1));
     if (!phi || !pow2 || !B) return; /* allocation failure – leave uninit */
 
     /* φ[i] = i initially */
@@ -88,10 +91,10 @@ seq_t a(idx_t n)
         for (idx_t d = 1; d * d <= g; ++d) {
             if (g % d == 0) {
                 /* first divisor d */
-                sumN += (seq_t)phi[d] * binom(n / d, k / d);
+                sumN += (seq_t)phi[d] * binomial(n / d, k / d);
                 /* second divisor g/d, if distinct */
                 if (d != g / d)
-                    sumN += (seq_t)phi[g / d] * binom(n / (g / d), k / (g / d));
+                    sumN += (seq_t)phi[g / d] * binomial(n / (g / d), k / (g / d));
             }
         }
         seq_t N_val = sumN / (seq_t)n;

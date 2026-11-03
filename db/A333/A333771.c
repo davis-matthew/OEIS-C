@@ -10,7 +10,8 @@
  *            square‑free 4‑prime condition
  * Range:     u8 n <= 1, u16 n <= 59, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_candidate, build_primes_upto
+ * Validated: standard, pass, 56 terms through n = 9130 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,24 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/append_candidate.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 /* Global state: prime sieve and cached results */
 static uint64_t *primes    = NULL;   /* array of primes */

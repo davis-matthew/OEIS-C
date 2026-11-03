@@ -8,13 +8,18 @@
  * Formula:   not stated
  * Range:     u8 n <= 143, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 97 terms through n = 9218 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Least positive integer m such that Σ_{k=1}^{m} k^n ≡ 0 (mod n) */
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +30,7 @@ seq_t a(idx_t n)
     seq_t sum  = 0;          /* running sum modulo mod */
 
     for (idx_t m = 1;; ++m) {
-        seq_t term = mod_pow((seq_t)m, n, mod);   /* m^n mod n */
+        seq_t term = powmod((seq_t)m, n, mod);   /* m^n mod n */
         sum += term;                             /* sum < 2*mod */
         if (sum >= mod) sum -= mod;              /* keep sum in [0,mod) */
         if (sum == 0)                            /* found least m */

@@ -12,12 +12,14 @@
  *            a(0)=1,a(1)=0,a(2)=0,a(3)=0,a(4)=1,a(5)=1,a(6)=2,a(7)=2,a(8)=2,a(9)=4,a(10)=6,a(11)=7
  * Range:     u8 n <= 20, u16 n <= 36, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Initial 12 values of A187504. */
 static const seq_t init_vals[12] = {
@@ -43,7 +45,7 @@ static void ensure_cache(idx_t n)
     while (new_cap <= n)
         new_cap <<= 1;                 /* double until sufficient */
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (new_cache == NULL)
         abort();                       /* allocation failed */
 

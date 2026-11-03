@@ -7,7 +7,8 @@
  * Formula:   a(n) = -10*a(n-1) - 5*a(n-2) with a(0)=1, a(1)=-11
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 9, i64 n <= 19, i128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computes values by iterative recurrence, memoising results with a static array. */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (cap < need) {
         size_t new_cap = cap ? cap * 2 : 16;
         if (new_cap < need) new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         /* In both C and C++ realloc may return NULL on failure.
            For the purposes of the sequence generator we assume
            sufficient memory; otherwise the program would terminate. */

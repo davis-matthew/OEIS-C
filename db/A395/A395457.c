@@ -10,12 +10,14 @@
  *            (1/(2k)!) * Σ_{j=0}^{2k} (-1)^j binom(2k,j) (3+k-j)^(2r)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 29, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

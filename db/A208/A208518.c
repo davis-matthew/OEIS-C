@@ -12,13 +12,15 @@
  *            coefficients); * a(n) is the coefficient of the n-th...
  * Range:     u8 n <= 39, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term of the sequence (n>=1). */
 seq_t a(idx_t n) {
@@ -44,10 +46,10 @@ seq_t a(idx_t n) {
 
     /* Allocate space for up to r coefficients for u and v */
     size_t max_len = n_rows;
-    seq_t *u_prev = (seq_t *)calloc(max_len, sizeof(seq_t));
-    seq_t *v_prev = (seq_t *)calloc(max_len, sizeof(seq_t));
-    seq_t *u_cur  = (seq_t *)calloc(max_len, sizeof(seq_t));
-    seq_t *v_cur  = (seq_t *)calloc(max_len, sizeof(seq_t));
+    seq_t *u_prev = mem_new(seq_t, max_len);
+    seq_t *v_prev = mem_new(seq_t, max_len);
+    seq_t *u_cur  = mem_new(seq_t, max_len);
+    seq_t *v_cur  = mem_new(seq_t, max_len);
 
     /* Initial row (r = 1) */
     u_prev[0] = 1;
@@ -81,10 +83,10 @@ seq_t a(idx_t n) {
     seq_t result = u_prev[(size_t)offset];
 
     /* Free allocated memory */
-    free(u_prev);
-    free(v_prev);
-    free(u_cur);
-    free(v_cur);
+    mem_free(u_prev);
+    mem_free(v_prev);
+    mem_free(u_cur);
+    mem_free(v_cur);
 
     return result;
 }

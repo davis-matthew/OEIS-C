@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static const seq_t BASE[10] = {
     0, 1, 4, 17, 42, 85, 142, 235, 346, 495
@@ -44,7 +46,7 @@ static void ensure_cache(idx_t n)
     /* Grow allocation if necessary */
     if ((size_t)(n + 1) > cache_capacity) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort();
         cache = new_cache;
         cache_capacity = new_cap;

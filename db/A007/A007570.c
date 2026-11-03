@@ -8,7 +8,8 @@
  *            = M(n-2) * M(n-1)
  * Range:     u8 n <= 7, u16 n <= 8, u32 n <= 9, u64 n <= 11, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t m[2][2];
@@ -38,13 +40,13 @@ static void ensure_size(idx_t n) {
     if (n < memo_size) return;
     
     idx_t new_size = n + 1;
-    Matrix* new_memo = (Matrix*)malloc(new_size * sizeof(Matrix));
+    Matrix* new_memo = mem_new(Matrix, new_size);
     bool* new_computed = (bool*)malloc(new_size * sizeof(bool));
     
     if (memo != NULL) {
-        memcpy(new_memo, memo, memo_size * sizeof(Matrix));
+        mem_copy(new_memo, memo, memo_size * sizeof(Matrix));
         memcpy(new_computed, computed, memo_size * sizeof(bool));
-        free(memo);
+        mem_free(memo);
         free(computed);
     }
     

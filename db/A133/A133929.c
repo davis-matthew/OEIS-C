@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   or_shift
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,31 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/or_shift.h"
+#include "../utils/mem.h"
+
+/* limit   : maximum number considered (highest bit that may be set)         */
+static void or_shift(uint64_t *dst, const uint64_t *src, idx_t shift,
+                     size_t words, idx_t limit)
+{
+    if (shift > limit) return;
+    size_t wshift = shift >> 6;          /* shift in words   */
+    unsigned bshift = shift & 63;        /* shift in bits    */
+    if (wshift >= words) return;
+
+    /* Process from high word to low to avoid overwriting src values */
+    for (size_t i = words; i-- > wshift; ) {
+        uint64_t val = src[i - wshift] << bshift;
+        if (bshift && i > wshift)
+            val |= src[i - wshift - 1] >> (64 - bshift);
+        dst[i] |= val;
+    }
+    /* mask off bits beyond the limit in the last word */
+    size_t last_bits = (limit & 63) + 1;
+    if (last_bits != 64) {
+        uint64_t mask = (1ULL << last_bits) - 1;
+        dst[words - 1] &= mask;
+    }
+}
 
 /* Helper macros for bit manipulations -----------------------------------*/
 static inline void set_bit(uint64_t *bits, idx_t pos)
@@ -91,7 +116,7 @@ static void recompute_representation(idx_t new_limit)
     if (term_cap < new_limit) {                     /* crude heuristic */
         size_t need = new_limit / 2;                /* arbitrary buffer */
         if (need > term_cap) {
-            seq_t *tmp = (seq_t *)realloc(terms, need * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, need);
             if (!tmp && need) { /* allocation failed, abort gracefully */ }
             terms = tmp;
             term_cap = need;
@@ -106,7 +131,7 @@ static void recompute_representation(idx_t new_limit)
             !test_bit(reach4, val)) {
             if (term_count >= term_cap) {
                 size_t new_cap = term_cap ? term_cap << 1 : 128;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp && new_cap) return; /* allocation failed */
                 terms = tmp;
                 term_cap = new_cap;

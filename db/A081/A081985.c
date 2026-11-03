@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_u64
+ * Validated: standard, pass, 69 terms through n = 8862 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* local data structure for temporary sorting */
 typedef struct { seq_t s; seq_t hyp; } term_t;
@@ -53,7 +56,7 @@ static void ensure_terms(idx_t n)
     if (cache_terms >= (size_t)n) return;  /* already enough */
 
     /* free old cache if present */
-    if (hyp_cache) { free(hyp_cache); hyp_cache = NULL; }
+    if (hyp_cache) { mem_free(hyp_cache); hyp_cache = NULL; }
     cache_terms = 0;
 
     while (1) {
@@ -75,8 +78,8 @@ static void ensure_terms(idx_t n)
                 /* store the pair (semiperimeter, hypotenuse) */
                 if (cnt == cap) {
                     size_t new_cap = cap ? (cap << 1) : 16;
-                    term_t *p = (term_t *)realloc(tmp, new_cap * sizeof(term_t));
-                    if (!p) { free(tmp); exit(1); }
+                    term_t *p = mem_resize(term_t, tmp, new_cap);
+                    if (!p) { mem_free(tmp); exit(1); }
                     tmp = p; cap = new_cap;
                 }
                 tmp[cnt].s   = (seq_t)u * ( (seq_t)u + (seq_t)v );
@@ -86,13 +89,13 @@ static void ensure_terms(idx_t n)
         }
 
         /* sort the collected pairs by semiperimeter, then hypotenuse */
-        qsort(tmp, cnt, sizeof(term_t), cmp_terms);
+        mem_qsort(tmp, cnt, sizeof(term_t), cmp_terms);
 
         /* allocate the hypotenuse array */
-        hyp_cache = (seq_t *)malloc(cnt * sizeof(seq_t));
-        if (!hyp_cache) { free(tmp); exit(1); }
+        hyp_cache = mem_new(seq_t, cnt);
+        if (!hyp_cache) { mem_free(tmp); exit(1); }
         for (size_t i = 0; i < cnt; ++i) hyp_cache[i] = tmp[i].hyp;
-        free(tmp);
+        mem_free(tmp);
 
         cache_terms = cnt;
         if (cache_terms >= (size_t)n) break;

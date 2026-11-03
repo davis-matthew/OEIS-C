@@ -8,7 +8,8 @@
  *            = [2,1,2,−1,2,1,2,0] for d mod 8 = 1..8 respectively
  * Range:     u8 n <= 11, u16 n <= 32, u32 n <= 101, u64 n <= 345,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 944 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    intermediate sums are performed in unsigned 128‑bit to avoid overflow. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
     }
 
     /* Array to store a[0..n] */
-    seq_t *a_arr = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *a_arr = mem_new(seq_t, (n + 1));
     if (!a_arr) { free(s); return (seq_t)0; }
     a_arr[0] = (seq_t)1;
     for (idx_t i = 1; i <= n; ++i) {
@@ -58,7 +60,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = a_arr[n];
-    free(a_arr);
+    mem_free(a_arr);
     free(s);
     return result;
 }

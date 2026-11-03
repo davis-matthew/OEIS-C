@@ -10,12 +10,14 @@
  *            sequence a(n) is the triangle read by rows starting at n=0
  * Range:     u8 n <= 13, u16 n <= 43, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,9 +40,9 @@ seq_t a(idx_t n)
 
     /* Grow the array if we need more space. */
     if (triangle == NULL) {
-        triangle = (seq_t *)malloc(needed_size * sizeof(seq_t));
+        triangle = mem_new(seq_t, needed_size);
     } else if (needed_size > cur_size) {
-        seq_t *tmp = (seq_t *)realloc(triangle, needed_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, triangle, needed_size);
         if (tmp != NULL) triangle = tmp;
         /* If realloc fails, we leave the old pointer untouched; the
            subsequent computation will use the existing data, which is

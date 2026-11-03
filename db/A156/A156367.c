@@ -8,13 +8,23 @@
  *            read by rows
  * Range:     u8 n <= 23, u16 n <= 42, u32 n <= 100, u64 n <= 247,
  *            u128 n <= 625, big any n
- * Helpers:   _my_fact
+ * Validated: standard, pass, 71 terms through n = 944 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_my_fact.h"
+
+static seq_t _my_fact(idx_t n)
+{
+    seq_t res = 1;
+    for (idx_t i = 2; i <= n; ++i)
+    {
+        res *= (seq_t)i;
+    }
+    return res;
+}
 
 /* local helpers – use seq_t arithmetic */
 static seq_t _my_binom(idx_t n, idx_t k)

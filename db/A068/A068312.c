@@ -7,14 +7,30 @@
  * Formula:   a(n) = d(n*(n+1)/2), where d is the arithmetic derivative
  * Range:     u8 n <= 22, u16 n <= 223, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor
+ * Validated: standard, pass, 66 terms through n = 8600 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor.h"
+#include <stdbool.h>
+
+/* --------------------------------------------------------------- */
+static void factor(uint64_t n, uint64_t *pr, uint64_t *exp, size_t *cnt)
+{
+    size_t c = 0;
+    for (uint64_t p = 2; p*p <= n; ++p) {
+        if (n % p == 0) {
+            pr[c] = p; exp[c] = 0;
+            while (n % p == 0) { n /= p; ++exp[c]; }
+            ++c;
+        }
+    }
+    if (n > 1) { pr[c] = n; exp[c] = 1; ++c; }
+    *cnt = c;
+}
 
 seq_t a(idx_t n)
 {

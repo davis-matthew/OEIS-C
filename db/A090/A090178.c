@@ -7,11 +7,13 @@
  * Formula:   a(n) = n + prime(n-1)
  * Range:     u8 n <= 47, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 /* a(1) = 2; for n > 1, a(n) = n + the (n-1)-th prime number. */
 
 #include <stdlib.h>

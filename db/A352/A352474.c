@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 12, u32 n <= 21, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 22 terms through n = 30 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/pow2.h"   /* provides seq_t pow2(idx_t exp) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,8 +43,8 @@ seq_t a(idx_t n)
     if (capacity < needed) {
         size_t new_cap = capacity ? capacity << 1 : 16;
         if (new_cap < needed) new_cap = needed;
-        b_vals = (seq_t*)realloc(b_vals, new_cap * sizeof(seq_t));
-        a_vals = (seq_t*)realloc(a_vals, new_cap * sizeof(seq_t));
+        b_vals = mem_resize(seq_t, b_vals, new_cap);
+        a_vals = mem_resize(seq_t, a_vals, new_cap);
         capacity = new_cap;
     }
 

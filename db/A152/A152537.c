@@ -10,13 +10,15 @@
  *            c(0)=1, c(n)=(-1)^k if n=k(3k±1)/2, else 0)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 129,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 918 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 {
     if (cache == NULL) {
         cache_len = 1;
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) abort();
         cache[0] = (seq_t)1;       /* a(0) */
         last_n   = 0;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     if (n > last_n) {
         size_t new_len = (size_t)n + 1;
         if (new_len > cache_len) {
-            seq_t *tmp = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_len);
             if (!tmp) abort();
             cache = tmp;
             cache_len = new_len;

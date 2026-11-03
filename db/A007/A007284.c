@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy, base
  * Formula:   write n in base 4, then map digits 0,1,2,3 -> 0,1,3,8 and read
  *            the result in base 10
- * Range:     u8 n <= 31, u16 n <= 767, u32 n <= 9258, u64 n <= 9258,
- *            u128 n <= 9258, big any n
+ * Range:     u8 n <= 31, u16 n <= 767, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 72 terms through n = 9258 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

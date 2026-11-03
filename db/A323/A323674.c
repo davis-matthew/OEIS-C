@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   find_sum, row_sum
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,30 @@
  */
 
 #include <stdint.h>
-#include "../utils/find_sum.h"
-#include "../utils/row_sum.h"
+
+/* Number of elements up to the end of sum s  (s ≥ 2):
+ * C(s) = (s-1)*s/2  - i.e. all pairs (m,n) with m+n ≤ s. */
+static inline idx_t row_sum(idx_t s)
+{
+    return (s - 1) * s / 2;
+}
+
+/* Find the smallest s (s ≥ 2) such that row_sum(s) ≥ n.
+ *  Binary search is used to keep the cost O(log n).          */
+static inline idx_t find_sum(idx_t n)
+{
+    idx_t low  = 2;
+    idx_t high = 2 * n + 3;          /* safe upper bound for n ≥ 1   */
+    while (low < high)
+    {
+        idx_t mid = low + (high - low) / 2;
+        if (row_sum(mid) >= n)
+            high = mid;
+        else
+            low  = mid + 1;
+    }
+    return low;
+}
 
 /* Implementation of A323674.  */
 seq_t a(idx_t n)

@@ -7,12 +7,13 @@
  * Formula:   a(n) = A001221(n) - A001221(phi(n))
  * Range:     i8 n <= 5000, i16 n <= 5000, i32 n <= 5000, i64 n <= 5000,
  *            i128 n <= 5000, big any n
- * Helpers:   count_distinct_prime_factors
+ * Validated: standard, pass, 105 terms through n = 4929 (2026-11-01)
+ * Helpers:   omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count_distinct_prime_factors.h"
+#include "../utils/omega.h"
 /*  A001221(n) = number of distinct prime factors of n */
 /*  phi(n) = Euler's totient function */
 
@@ -41,8 +42,8 @@ seq_t a(idx_t n)
     /* treat n==0 as 0 to avoid undefined use */
     if (n == 0) return 0;
     uint64_t num = (uint64_t)n;
-    int cnt_n = count_distinct_prime_factors(num);
+    int cnt_n = omega(num);
     uint64_t phi_n = totient_uint64(num);
-    int cnt_phi = count_distinct_prime_factors(phi_n);
+    int cnt_phi = omega(phi_n);
     return (seq_t)(cnt_n - cnt_phi);
 }

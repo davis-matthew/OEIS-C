@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 1280, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_adjacent_17
+ * Validated: standard, pass, 57 terms through n = 9031 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>   /* size_t */
-#include "../utils/has_adjacent_17.h"
+#include "../utils/mem.h"
+
+static bool has_adjacent_17(seq_t x)
+{
+    /* Return true if the decimal digits of x contain 17 or 71. */
+    seq_t prev = (seq_t)10;          /* sentinel: not a digit 0‑9 */
+    while (x > (seq_t)0) {
+        seq_t cur = x % (seq_t)10;
+        if (prev != (seq_t)10 &&
+            ((prev == (seq_t)1 && cur == (seq_t)7) ||
+             (prev == (seq_t)7 && cur == (seq_t)1)))
+            return true;
+        prev = cur;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +54,7 @@ seq_t a(idx_t n)
         /* Ensure enough allocated space. */
         if (terms_len >= terms_cap) {
             size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-            seq_t *new_ptr = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+            seq_t *new_ptr = mem_resize(seq_t, terms, new_cap);
             if (new_ptr == NULL) { /* allocation failure – signal error */
                 /* In an OEIS evaluation environment we can safely abort. */
                 abort();

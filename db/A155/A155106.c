@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Utility: integer square root (floor) ---------- */
 static idx_t
@@ -63,7 +65,7 @@ generate_terms_for_B(idx_t B)
     }
 
     /* Free previous terms array */
-    free(terms);
+    mem_free(terms);
     terms = NULL;
     terms_size = 0;
     terms_cap  = 0;
@@ -73,7 +75,7 @@ generate_terms_for_B(idx_t B)
         if (cnt[x] >= 2 && cnt[x + 1] >= 2) {
             if (terms_size == terms_cap) {
                 terms_cap = terms_cap ? terms_cap * 2 : 1024;
-                seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                 if (!tmp) { free(cnt); exit(1); }
                 terms = tmp;
             }

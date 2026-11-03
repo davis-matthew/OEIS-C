@@ -14,13 +14,15 @@
  *            row starting with T(0,0). This * i...
  * Range:     u8 n <= 59, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Memoised storage of the rows of T: rows[r] points to an array of
  * (r+1) seq_t values.  rows_len is the number of rows currently
@@ -46,7 +48,7 @@ static void ensure_rows(idx_t r)
 
         /* Compute the next row. */
         size_t rr = rows_len;
-        seq_t *new_row = (seq_t*)malloc((rr + 1) * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, (rr + 1));
         if (!new_row) abort();
 
         if (rr == 0) {

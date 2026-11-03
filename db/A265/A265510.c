@@ -11,12 +11,14 @@
  *            corresponding * binary digit of 2n+1
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 511, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 58 terms through n = 8034 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 /* Reverse the lowest 'len' bits of x. */
 static seq_t reverse_bits(seq_t x, unsigned int len)
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     seq_t t = ((seq_t)n << 1) | 1;
 
     /* length of the binary representation of t */
-    unsigned int len = bitlen_seq_t(t);
+    unsigned int len = bit_length(t);
 
     /* largest palindrome with digits ≤ those of t */
     seq_t rev = reverse_bits(t, len);

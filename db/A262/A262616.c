@@ -8,7 +8,8 @@
  *            1 ) / 2 )
  * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 135, u64 n <= 527,
  *            u128 n <= 2079, big any n
- * Helpers:   pow4, tri_prod
+ * Validated: standard, pass, 82 terms through n = 5134 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,24 @@
  *  T(n,k) = 4^(n-k),  0 ≤ k ≤ n  (rows are flattened row‑by‑row).   */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow4.h"
-#include "../utils/tri_prod.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
+
+/* Helper: product r*(r+1)/2 using 128‑bit to avoid overflow */
+static inline __int128 tri_prod(idx_t r)
+{
+    return (__int128)r * (r + 1) / 2;
+}
 
 /* Compute a(n) for the required triangle */
 seq_t a(idx_t n)

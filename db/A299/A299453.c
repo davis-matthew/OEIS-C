@@ -14,13 +14,15 @@
  *            688...
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 23, u64 n <= 44, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t base[20] = {
     0,
@@ -54,11 +56,11 @@ grow_cache(idx_t needed)
     if (cache_cap > needed) return;
     idx_t new_cap = cache_cap ? cache_cap * 2 : 20;
     while (new_cap <= needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();          /* out of memory */
     cache = tmp;
     /* initialise new entries to 0 */
-    memset(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+    mem_set(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
     cache_cap = new_cap;
     /* fill the first 19 entries with known values */
     for (idx_t i = 1; i <= 19 && i < cache_cap; ++i) cache[i] = base[i];

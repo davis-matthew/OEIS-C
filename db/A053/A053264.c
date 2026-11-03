@@ -10,13 +10,15 @@
  *            function F_0(q) = Σ_{m≥0} q^(2m²)/((1-q)(1-q³)…(1-q^(2m-1)))
  * Range:     u8 n <= 66, u16 n <= 179, u32 n <= 554, u64 n <= 1885,
  *            u128 n <= 6832, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static storage for pre‑computed values */
 static seq_t *a_tbl = NULL;      /* a[n] values */
@@ -29,11 +31,11 @@ static void recompute(idx_t max_n)
     size_t len = (size_t)max_n + 1;
 
     /* free old tables if any */
-    if (a_tbl) free(a_tbl);
-    if (dp_tbl) free(dp_tbl);
+    if (a_tbl) mem_free(a_tbl);
+    if (dp_tbl) mem_free(dp_tbl);
 
-    a_tbl   = (seq_t *)calloc(len, sizeof(seq_t));
-    dp_tbl  = (seq_t *)calloc(len, sizeof(seq_t));
+    a_tbl   = mem_new(seq_t, len);
+    dp_tbl  = mem_new(seq_t, len);
     if (!a_tbl || !dp_tbl) {        /* allocation failed – leave as NULL */
         a_tbl   = dp_tbl = NULL;
         tbl_size = 0;

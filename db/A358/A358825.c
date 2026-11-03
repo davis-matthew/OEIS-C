@@ -10,19 +10,21 @@
  *            all k <= n, then uses the recurrence to obtain a(n)
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate arrays of size n+1 */
     size_t N = (size_t)(n + 1);
-    seq_t* p = (seq_t*)malloc(N * sizeof(seq_t));
-    seq_t* A = (seq_t*)malloc(N * sizeof(seq_t));
+    seq_t* p = mem_new(seq_t, N);
+    seq_t* A = mem_new(seq_t, N);
     if (!p || !A) return 0;          /* out of memory */
 
     /* initialize */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
     seq_t result = A[n];
 
-    free(p);
-    free(A);
+    mem_free(p);
+    mem_free(A);
     return result;
 }

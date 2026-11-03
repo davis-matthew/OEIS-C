@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 178, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 9605 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    for idx_t = uint64_t.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global memoisation tables (1‑based index). */
 static seq_t *terms   = NULL;   /* terms[i] = a(i)          */
@@ -37,8 +39,8 @@ static void ensure_capacity(size_t need)
 
     /* Reallocate the underlying storage.  The cast accommodates
        arbitrary‑precision seq_t types that are not plain pointers in C++. */
-    terms  = (seq_t *)realloc((void *)terms, (nc + 1) * sizeof(seq_t));
-    prefix = (seq_t *)realloc((void *)prefix, (nc + 1) * sizeof(seq_t));
+    terms  = mem_resize(seq_t, terms, (nc + 1));
+    prefix = mem_resize(seq_t, prefix, (nc + 1));
     cap    = nc;
 
     /* Initialise the base of the prefix array if this is the first call. */

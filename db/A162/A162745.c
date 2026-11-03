@@ -9,15 +9,27 @@
  *            Fib(k-j+1)
  * Range:     u8 n <= 30, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom_n_k, fib
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/binom_n_k.h"
-#include "../utils/fib.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 seq_t a(idx_t n)
 {
@@ -43,8 +55,8 @@ seq_t a(idx_t n)
         if (k1 > n1)
             continue;                   /* binomial is zero when k1>n1 */
 
-        seq_t c1 = binom_n_k(r, j);
-        seq_t c2 = binom_n_k(n1, k1);
+        seq_t c1 = binomial(r, j);
+        seq_t c2 = binomial(n1, k1);
         seq_t f  = fib(rem + 1);
 
         sum += c1 * c2 * f;

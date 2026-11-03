@@ -10,7 +10,8 @@
  *            is read row‑major)
  * Range:     u8 n <= 16, u16 n <= 44, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* ---------- integer square root for 128‑bit values ----------
  * returns floor(sqrt(x)) for 0 <= x <= 8*2^64.
@@ -54,7 +56,7 @@ static void ensure_factorial(size_t maxn)
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap << 1;
     while (new_cap <= maxn) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(fact_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fact_cache, new_cap);
     if (tmp == NULL) abort();
     fact_cache = tmp;
     cache_cap = new_cap;

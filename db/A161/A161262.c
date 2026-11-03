@@ -12,12 +12,14 @@
  *            sum ≥ 9*s. dp2[sum] counts partitions that use pa...
  * Range:     u8 n <= 109, u16 n <= 322, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 105 terms through n = 966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,12 +30,12 @@ seq_t a(idx_t n)
 
     /* allocate DP arrays */
     size_t sz = (size_t)(n + 1);
-    seq_t *dp = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *newdp = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *dp2 = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
+    seq_t *newdp = mem_new(seq_t, sz);
+    seq_t *dp2 = mem_new(seq_t, sz);
     if (!dp || !newdp || !dp2) {
         /* allocation failed; return 0 as safe fallback */
-        free(dp); free(newdp); free(dp2);
+        mem_free(dp); mem_free(newdp); mem_free(dp2);
         return 0;
     }
     dp[0] = 1;                      /* empty partition */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     size_t parts_cnt = 0;
     parts = (idx_t *)malloc(parts_cap * sizeof(idx_t));
     if (!parts) {
-        free(dp); free(newdp); free(dp2);
+        mem_free(dp); mem_free(newdp); mem_free(dp2);
         return 0;
     }
     for (idx_t k = 0;; ++k) {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
             parts_cap <<= 1;
             parts = (idx_t *)realloc(parts, parts_cap * sizeof(idx_t));
             if (!parts) {
-                free(dp); free(newdp); free(dp2);
+                mem_free(dp); mem_free(newdp); mem_free(dp2);
                 return 0;
             }
         }
@@ -93,9 +95,9 @@ seq_t a(idx_t n)
     seq_t result = dp[n];
 
     /* cleanup */
-    free(dp);
-    free(newdp);
-    free(dp2);
+    mem_free(dp);
+    mem_free(newdp);
+    mem_free(dp2);
     free(parts);
 
     return result;

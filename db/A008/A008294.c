@@ -9,7 +9,8 @@
  *            a(0,k)=δ(0,k) and a(n+1,k)=k*a(n,k-1)+(k+1)*a(n,k+1)
  * Range:     u8 n <= 12, u16 n <= 21, u32 n <= 50, u64 n <= 114,
  *            u128 n <= 294, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 899 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,24 +19,25 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper: compute value a(r, c) of the triangle */
 static seq_t
 triangle_value(idx_t r, idx_t c)
 {
     /* row 0 */
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, 1);
     prev[0] = (seq_t)1;
 
     if (r == 0) {
         seq_t val = (c == 0) ? prev[0] : (seq_t)0;
-        free(prev);
+        mem_free(prev);
         return val;
     }
 
     /* iterate rows up to r */
     for (idx_t n = 1; n <= r; ++n) {
-        seq_t *curr = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, (size_t)(n + 1));
         for (idx_t k = 0; k <= n; ++k) {
             seq_t val = (seq_t)0;
             if (k > 0)
@@ -44,12 +46,12 @@ triangle_value(idx_t r, idx_t c)
                 val += (seq_t)(k + 1) * prev[k + 1];
             curr[k] = val;
         }
-        free(prev);
+        mem_free(prev);
         prev = curr;
     }
 
     seq_t result = prev[c];
-    free(prev);
+    mem_free(prev);
     return result;
 }
 

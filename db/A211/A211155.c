@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 162, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 #include <stdlib.h>     /* malloc, realloc */
 #include <stdint.h>     /* uint32_t, etc. */
 #include <stdbool.h>    /* bool */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* memoisation table */
 static size_t cache_len = 0;          /* allocated size in elements */
@@ -46,9 +48,9 @@ static void compute_base(void)
 {
     /* Ensure storage for at least 10 elements */
     if (cache_len < 10) {
-        seq_t *new_cache = (seq_t *)malloc(10 * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, 10);
         if (!new_cache) return;            /* allocation failure – nothing to do */
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache = new_cache;
         cache_len = 10;
     }
@@ -76,14 +78,14 @@ static void ensure_cache(idx_t n)
     if (!cache) {
         /* initialise cache (will also fill base values) */
         if (needed < 10) needed = 10;
-        cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         if (!cache) return;           /* allocation failure */
         cache_len = needed;
         compute_base();
         return;
     }
     if (cache_len < needed) {
-        seq_t *new_cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, needed);
         if (!new_cache) return;        /* allocation failure – keep old cache */
         cache = new_cache;
         cache_len = needed;

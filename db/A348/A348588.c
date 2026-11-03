@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   update_sieve
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,24 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/update_sieve.h"
+
+/* Helper to update the prime sieve up to at least limit */
+static void update_sieve(idx_t limit, bool **prime, idx_t *sieve_size)
+{
+    if (*sieve_size >= limit) return;
+    /* Reallocate */
+    bool *new_flag = (bool *)realloc(*prime, (limit + 1) * sizeof(bool));
+    if (!new_flag) return; /* allocation failure – unlikely for small limits */
+    *prime = new_flag;
+    /* Initialize: assume all >=2 are prime */
+    for (idx_t i = 2; i <= limit; ++i) (*prime)[i] = true;
+    /* Sieve */
+    for (idx_t p = 2; p * p <= limit; ++p)
+        if ((*prime)[p])
+            for (idx_t j = p * p; j <= limit; j += p)
+                (*prime)[j] = false;
+    *sieve_size = limit;
+}
 
 seq_t a(idx_t n)
 {

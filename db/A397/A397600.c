@@ -10,12 +10,15 @@
  *            by antidiagonals
  * Range:     u8 n <= 17, u16 n <= 38, u32 n <= 82, u64 n <= 196,
  *            u128 n <= 504, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 71 terms through n = 9696 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -48,8 +51,8 @@ seq_t a(idx_t n)
     seq_t sum_sq = xx * xx + yy * yy;
 
     /* Raise to the power D using the provided big integer power function */
-    seq_t pow1 = big_pow(sum_sq, (seq_t)D);      /* (x^2 + y^2)^D */
-    seq_t pow2 = big_pow((seq_t)N, (seq_t)D);    /*  N^D        */
+    seq_t pow1 = ipow(sum_sq, (seq_t)D);      /* (x^2 + y^2)^D */
+    seq_t pow2 = ipow((seq_t)N, (seq_t)D);    /*  N^D        */
 
     seq_t diff = pow1 - pow2;
     seq_t ans = diff / 2;

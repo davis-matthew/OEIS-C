@@ -10,7 +10,8 @@
  *            e.g. rev(10) = "01"
  * Range:     u8 n <= 9, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   digits, seq_to_str
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,28 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/digits.h"
-#include "../utils/seq_to_str.h"
+#include <stdbool.h>
+#include "../utils/num_digits_idx.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 seq_t a(idx_t n) {
     /* n must be ≥ 1; for safety return 0 if 0 is passed */
@@ -32,7 +53,7 @@ seq_t a(idx_t n) {
         rev_small = rev_small * 10 + (tmp % 10);
         tmp /= 10;
     }
-    int D = digits(n);                         /* length of n in decimal  */
+    int D = num_digits_idx(n);                         /* length of n in decimal  */
     char rev_buf[32];
     size_t rev_len;
     seq_t rev_int = (seq_t)rev_small;

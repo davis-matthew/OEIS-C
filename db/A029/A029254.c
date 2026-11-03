@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 643, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Count the partitions of n into the parts 3, 4, 6, and 10
    using a standard coin‑change dynamic programming approach.   */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     if (n + 1 > dp_len) {
         /* Grow the array to fit 0 .. n inclusive. */
-        dp = (seq_t *)realloc(dp, sizeof(seq_t) * (n + 1));
+        dp = mem_resize(seq_t, dp, (n + 1));
         dp_len = n + 1;
     }
 

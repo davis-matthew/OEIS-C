@@ -8,12 +8,14 @@
  * Formula:   not stated
  * Range:     i8 n <= 816, i16 n <= 5000, i32 n <= 5000, i64 n <= 5000,
  *            i128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 4955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Coefficients of φ(q) * φ(q²) * φ(−q⁴).  The triple convolution
    is performed on three sparse power series:
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)calloc(new_size, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
 
         /* 3‑fold convolution.  The series are extremely sparse,
            only terms at perfect squares or twice/Z/4 times squares. */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }

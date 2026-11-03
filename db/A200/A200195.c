@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 68, u64 n <= 200, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache     = NULL;   /* 1‑based cache, cache[0] unused */
 static size_t cache_len = 0;      /* highest index currently stored */
@@ -52,7 +54,7 @@ static void expand_cache(size_t idx)
     if (idx <= cache_len) return;
 
     /* Allocate new cache array. */
-    seq_t *new_cache = (seq_t*)malloc((idx + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (idx + 1));
     if (!new_cache) abort();                /* allocation failure */
 
     /* Copy any old values. */
@@ -86,7 +88,7 @@ static void expand_cache(size_t idx)
     }
 
     /* Replace old cache. */
-    free(cache);
+    mem_free(cache);
     cache     = new_cache;
     cache_len = idx;
 }

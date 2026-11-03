@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   digits_in_idx, is_prime_seq, pow10_seq
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, num_digits_idx_to_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,21 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/digits_in_idx.h"
-#include "../utils/pow10_seq.h"
+#include <stdint.h>
 #include "../utils/is_prime_seq.h"
+#include "../utils/num_digits_idx_to_idx.h"
+#include "../utils/mem.h"
+
+/* return 10^exp as seq_t */
+static seq_t pow10_seq(idx_t exp)
+{
+    seq_t res = (seq_t)1;
+    while (exp != 0) {
+        res *= 10;
+        --exp;
+    }
+    return res;
+}
 
 /* Static storage for generated terms and state */
 static seq_t *terms = NULL;
@@ -37,8 +50,8 @@ seq_t a(idx_t n)
     /* Ensure we have at least n terms stored */
     while (terms_size < n) {
         /* Compute 1LM1 for current L */
-        idx_t lenL = digits_in_idx(next_L);
-        idx_t lenM = digits_in_idx(next_L + 1);
+        idx_t lenL = num_digits_idx_to_idx(next_L);
+        idx_t lenM = num_digits_idx_to_idx(next_L + 1);
 
         /* 1 * 10^(lenL + lenM + 1)  */
         seq_t nnum = pow10_seq(lenL + lenM + 1);
@@ -54,7 +67,7 @@ seq_t a(idx_t n)
             /* Resize the array if necessary */
             if (terms_size == terms_cap) {
                 idx_t new_cap = terms_cap ? terms_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) {
                     /* Out of memory – abort */
                     exit(EXIT_FAILURE);

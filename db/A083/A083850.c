@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   exp_of_11
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,19 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/exp_of_11.h"
+
+/* Helper: count how many times 11 divides x. */
+static inline seq_t exp_of_11(uint64_t x)
+{
+    /* 0 is treated as having exponent 1.  */
+    if (x == 0) return (seq_t)1;
+    seq_t e = 0;
+    while (x % 11 == 0) {
+        ++e;
+        x /= 11;
+    }
+    return e;
+}
 
 /* Helper: reverse the decimal digits of a 64‑bit integer. */
 static inline uint64_t rev_uint64(uint64_t x)

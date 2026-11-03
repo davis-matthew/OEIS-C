@@ -7,19 +7,21 @@
  * Formula:   a(n) = phi(2*n+1) - phi(2*n)
  * Range:     u8 n <= 155, u16 n <= 156, u32 n <= 156, u64 n <= 156,
  *            u128 n <= 156, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 88 terms through n = 9688 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     /* Compute φ(2n) and φ(2n+1) using the helper phi().
        The helper returns seq_t, which may be signed, so the
        subtraction yields the correct signed difference. */
-    seq_t phi_2n   = phi(n * 2ULL);
-    seq_t phi_2n1  = phi(n * 2ULL + 1ULL);
+    seq_t phi_2n   = totient(n * 2ULL);
+    seq_t phi_2n1  = totient(n * 2ULL + 1ULL);
     return phi_2n1 - phi_2n;
 }

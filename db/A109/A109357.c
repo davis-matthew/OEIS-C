@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 2848, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_mod
+ * Validated: standard, pass, 75 terms through n = 9949 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul_mod.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
 
 static const uint64_t BASE = 112354ULL;
 
@@ -30,8 +32,8 @@ static uint64_t pow_mod(uint64_t a, uint64_t e, uint64_t mod)
 {
     uint64_t res = 1;
     while (e) {
-        if (e & 1U) res = mul_mod(res, a, mod);
-        a = mul_mod(a, a, mod);
+        if (e & 1U) res = mulmod(res, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1U;
     }
     return res;
@@ -56,7 +58,7 @@ static bool is_prime_uint64(uint64_t n)
         if (x == 1ULL || x == n - 1ULL) continue;
         bool composite = true;
         for (uint64_t r = 1ULL; r < s; ++r) {
-            x = mul_mod(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1ULL) { composite = false; break; }
         }
         if (composite) return false;

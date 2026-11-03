@@ -11,14 +11,18 @@
  *            triangular construction above
  * Range:     u8 n <= 15, u16 n <= 47, u32 n <= 173, u64 n <= 601,
  *            u128 n <= 1275, big any n
- * Helpers:   binomial, isqrt, pow_uint
+ * Validated: standard, pass, 71 terms through n = 1268 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx, isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/isqrt.h"   /* _floor_isqrt_u64 if needed */
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -52,7 +56,7 @@ seq_t a(idx_t n)
     seq_t bin = binomial(r, k);
 
     /* Compute 3^e as seq_t */
-    seq_t pow3e = pow_uint(3, e);
+    seq_t pow3e = ipow_u64_idx(3, e);
 
     /* Compute 3^e - (-1)^e, avoiding negative values */
     seq_t diff = (e & 1) ? (pow3e + 1) : (pow3e - 1);

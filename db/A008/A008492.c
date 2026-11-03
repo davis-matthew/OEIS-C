@@ -7,6 +7,7 @@
  * Formula:   a(n) = (8064 + 26060*n^2 + 5985*n^4 + 210*n^6 + n^8) / 4032
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 44, u64 n <= 722, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 922 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

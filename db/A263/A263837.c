@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 196, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 9712 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    caches the sequence for quick repeated look‑ups. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *nonab = NULL;        /* cache of non‑abundant numbers */
 static size_t nonab_cnt = 0;       /* how many terms stored */
@@ -48,7 +50,7 @@ static void ensure_limit(idx_t target)
     /* Allocate sigma array if necessary */
     if (sigma_cap < (size_t)max_limit + 1)
     {
-        seq_t *tmp = (seq_t *)realloc(sigma, (max_limit + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, sigma, (max_limit + 1));
         sigma = tmp;
         sigma_cap = max_limit + 1;
     }
@@ -75,7 +77,7 @@ static void ensure_limit(idx_t target)
             if (nonab_cnt >= nonab_cap)
             {
                 size_t new_cap = nonab_cap == 0 ? 256 : nonab_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(nonab, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, nonab, new_cap);
                 nonab = tmp;
                 nonab_cap = new_cap;
             }

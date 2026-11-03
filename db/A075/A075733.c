@@ -11,7 +11,8 @@
  *            of P_(2,0)(x), etc
  * Range:     i8 n <= 11, i16 n <= 32, i32 n <= 51, i64 n <= 51, i128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build */
 extern seq_t a(idx_t n);
@@ -44,12 +46,12 @@ seq_t a(idx_t n) {
     if (even_cap == 0) {
         /* T_0 */
         T_prev_len = 1;
-        T_prev = (seq_t*)malloc(sizeof(seq_t) * T_prev_len);
+        T_prev = mem_new(seq_t, T_prev_len);
         T_prev[0] = (seq_t)1;
 
         /* T_1 */
         T_curr_len = 2;
-        T_curr = (seq_t*)malloc(sizeof(seq_t) * T_curr_len);
+        T_curr = mem_new(seq_t, T_curr_len);
         T_curr[0] = (seq_t)0;
         T_curr[1] = (seq_t)1;
     }
@@ -66,7 +68,7 @@ seq_t a(idx_t n) {
         /* Compute next Chebyshev polynomial T_{k+1} = 2x*T_k - T_{k-1} */
         idx_t next_k    = T_k + 1;
         size_t next_len = T_curr_len + 1;
-        seq_t *next = (seq_t*)malloc(sizeof(seq_t) * next_len);
+        seq_t *next = mem_new(seq_t, next_len);
         for (idx_t i = 0; i < next_len; ++i) next[i] = 0;
 
         /* 2x * T_k (shift left by one, multiply by 2) */
@@ -78,7 +80,7 @@ seq_t a(idx_t n) {
             next[i] = next[i] - T_prev[i];
 
         /* Rotate buffers */
-        free(T_prev);
+        mem_free(T_prev);
         T_prev = T_curr;
         T_prev_len = T_curr_len;
         T_curr = next;
@@ -88,7 +90,7 @@ seq_t a(idx_t n) {
         /* If k is even, store coefficients of P_(k/2,0)(x) */
         if ((T_k & 1) == 0) {
             idx_t m = T_k >> 1;          /* polynomial index m = k/2  */
-            seq_t *coef = (seq_t*)malloc(sizeof(seq_t) * (m + 1));
+            seq_t *coef = mem_new(seq_t, (m + 1));
             seq_t sign = (m & 1) ? (seq_t)-1 : (seq_t)1;
             for (idx_t j = 0; j <= m; ++j)
                 coef[j] = T_curr[2 * j] * sign;

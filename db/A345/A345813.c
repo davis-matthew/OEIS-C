@@ -8,7 +8,8 @@
  *            fourth powers of positive integers in exactly one way
  * Range:     u8 n <= 1, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9892 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The implementation is a coroutine that lazily builds the sequence:
    - Generate all non‑decreasing 6‑tuples (a,b,c,d,e,f) with 1 ≤ a ≤ … ≤ f ≤ M
@@ -43,7 +45,7 @@ static void build_sequence(void)
     const size_t cnt_size = (size_t)max_sum + 1;
 
     /* Array of fourth powers: pow4[i] = (i+1)^4   (i from 0..M-1) */
-    seq_t *pow4 = (seq_t *)malloc(sizeof(seq_t) * M);
+    seq_t *pow4 = mem_new(seq_t, M);
     for (idx_t i = 0; i < M; ++i) {
         seq_t x = (seq_t)(i + 1);
         pow4[i] = x * x * x * x;
@@ -70,11 +72,11 @@ static void build_sequence(void)
             }
         }
     }
-    free(pow4);
+    mem_free(pow4);
 
     /* Collect all sums that appear exactly once */
     /* Allocate space for at most cnt_size entries, each a seq_t. */
-    seq_t *temp = (seq_t *)malloc(sizeof(seq_t) * cnt_size);
+    seq_t *temp = mem_new(seq_t, cnt_size);
     idx_t pos = 0;
     for (idx_t sum = 0; sum < cnt_size; ++sum) {
         if (cnt[sum] == 1) {
@@ -84,7 +86,7 @@ static void build_sequence(void)
     free(cnt);
 
     /* Trim unused tail and store final sequence */
-    seq = (seq_t *)realloc(temp, sizeof(seq_t) * pos);
+    seq = mem_resize(seq_t, temp, pos);
     seq_len = pos;
     initialized = true;
 }

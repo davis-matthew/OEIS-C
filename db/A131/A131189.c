@@ -12,6 +12,7 @@
  *            a(1)=2, a(2)=9, a(3)=16, … as in OEIS A131189.)
  * Range:     u8 n <= 32, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 70 terms through n = 894 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

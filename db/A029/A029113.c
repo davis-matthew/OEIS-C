@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of partitions of n into parts 1,6,9,10
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Implementation: dynamic programming recomputed each call. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,13 +30,13 @@ seq_t a(idx_t n)
     /* make sure the array is large enough for index n */
     if (dp_size <= n) {
         idx_t new_size = n + 1;
-        seq_t *new_dp = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, new_size);
         if (!new_dp) {
             /* allocation failure – return 0 as a safe fallback */
             return (seq_t)0;
         }
         if (dp)
-            free(dp);
+            mem_free(dp);
         dp = new_dp;
         dp_size = new_size;
     }

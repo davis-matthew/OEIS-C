@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 17, i16 n <= 66, i32 n <= 222, i64 n <= 520,
  *            i128 n <= 520, big any n
+ * Validated: standard, pass, 91 terms through n = 496 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -29,7 +30,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* binomial(idx_t n, idx_t k) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

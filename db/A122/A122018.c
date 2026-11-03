@@ -9,12 +9,14 @@
  *            (n‑1)·a(n‑2) if n is even: a(n) = 2·a(n‑1) + 2·(n‑1)·a(n‑2)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 27, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 721 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[0..cache_size-1] already computed */
 static idx_t cache_size = 0;  /* number of valid entries in cache */
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 {
     /* Initialize cache for the first two terms if necessary */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (!cache) exit(1);                /* allocation failure */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)2;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         return cache[n];
 
     /* Expand cache array to hold up to index n */
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) exit(1);
     cache = new_cache;
 

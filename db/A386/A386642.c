@@ -11,20 +11,22 @@
  * Formula:   a(n) = n^n - sum_{k=0..n} binom(n,k)*(k-1)^k + 1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  (n >= 1, n is the sequence index) */
 
-#include "../utils/pow_seq.h"  /* pow_seq(seq_t base, int exp) */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
     /* Use unsigned intermediate arithmetic; seq_t may be an arbitrary-precision type. */
     /* Compute n^n */
-    seq_t pow_n_n = pow_seq((seq_t)n, (int)n);
+    seq_t pow_n_n = ipow_i32((seq_t)n, (int)n);
 
     /* c holds binomial(n,k) iteratively (starting with k=0 -> c=1) */
     seq_t c = 1;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         if (k == 0)
             pow_k = 1;
         else
-            pow_k = pow_seq((seq_t)(k - 1), (int)k);
+            pow_k = ipow_i32((seq_t)(k - 1), (int)k);
 
         /* Add term c * pow_k to the sum. */
         sum += c * pow_k;

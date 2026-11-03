@@ -8,6 +8,7 @@
  *            a(1) = 1, and a(n) = 0 for all even n ≥ 2
  * Range:     u8 n <= 34, u16 n <= 874, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 85 terms through n = 951 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Simple exponentiation by squaring for seq_t values. */

@@ -8,6 +8,7 @@
  * Formula:   a(n) = (2*n^3 + 12*n^2 + 25*n - 6 + (-1)^n*(3*n + 6))/12
  * Range:     u8 n <= 3, u16 n <= 29, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 62 terms through n = 966 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,7 +12,8 @@
  *            Christopher R. 2024
  * Range:     u8 n <= 194, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 87 terms through n = 9057 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gpf.h"          /* largest prime divisor of a uint64_t */
+#include "../utils/largest_prime_factor.h"
 
 static uint64_t *matches = NULL;  /* cached terms */
 static size_t match_len = 0;      /* number of terms stored */
@@ -36,7 +37,7 @@ static bool is_match(uint64_t k)
 
     while (n > 1) {
         /* p is the largest prime divisor of n at this point */
-        uint64_t p = gpf(n);
+        uint64_t p = largest_prime_factor(n);
         uint64_t power = 1;
         /* factor out all copies of p to get the largest power of p dividing n */
         while (n % p == 0) {

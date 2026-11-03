@@ -10,16 +10,20 @@
  *            greater than the largest prime factor of n
  * Range:     u8 n <= 292, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, mod_pow, next_prime
+ * Validated: standard, pass, 111 terms through n = 9583 (2026-11-01)
+ * Helpers:   factor_u64, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
 #include "../utils/next_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 /* Return the n‑th term of sequence A392870. */
 seq_t a(idx_t n)
@@ -51,6 +55,6 @@ seq_t a(idx_t n)
 
     /* Compute the multiplicative inverse of residue modulo p using Fermat's little theorem.
        Since p is prime, inverse = residue^{p-2} mod p. */
-    seq_t inv = mod_pow((seq_t)residue, p - 2, (seq_t)p);
+    seq_t inv = powmod((seq_t)residue, p - 2, (seq_t)p);
     return inv;
 }

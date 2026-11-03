@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 5, u64 n <= 12, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Types supplied externally: seq_t – integer type of arbitrary size   */
@@ -175,8 +177,8 @@ static void build_graph(void)
     }
 
     /* 5. allocate DP buffers for path counting */
-    curBuf  = (seq_t *)calloc(nodeCount, sizeof(seq_t));
-    nextBuf = (seq_t *)calloc(nodeCount, sizeof(seq_t));
+    curBuf  = mem_new(seq_t, nodeCount);
+    nextBuf = mem_new(seq_t, nodeCount);
     if (!curBuf || !nextBuf) exit(1);
 
     /* 6. initialise current counts for length 1 (single node arrays)   */
@@ -188,7 +190,7 @@ static void build_graph(void)
 
     /* 8. initialise cache with a(1) */
     cacheCap = 256;
-    cache = (seq_t *)calloc(cacheCap, sizeof(seq_t));
+    cache = mem_new(seq_t, cacheCap);
     if (!cache) exit(1);
     cache[1] = a1;
     cacheSize = 2;   /* index 0 unused, 1 stored */
@@ -226,7 +228,7 @@ seq_t a(idx_t n)
         /* grow cache if needed */
         if (cacheSize >= cacheCap) {
             size_t newCap = cacheCap * 2;
-            seq_t *newCache = (seq_t *)realloc(cache, newCap * sizeof(seq_t));
+            seq_t *newCache = mem_resize(seq_t, cache, newCap);
             if (!newCache) exit(1);
             /* initialise new entries to zero */
             for (size_t i = cacheCap; i < newCap; ++i) newCache[i] = (seq_t)0;

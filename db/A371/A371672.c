@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor(log_phi(n)) where phi = (1+sqrt(5))/2
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,8 +23,8 @@
 seq_t a(idx_t n)
 {
     /* golden ratio */
-    static const long double phi = (1.0L + sqrtl(5.0L)) / 2.0L;
-    static const long double lnphi = logl(phi);
+    const long double phi = (1.0L + sqrtl(5.0L)) / 2.0L;
+    const long double lnphi = logl(phi);
 
     /* n is always ≥ 1, but guard just in case */
     if (n < 1)

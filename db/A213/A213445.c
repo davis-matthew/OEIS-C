@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   has_digit2
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
    cache is retained between calls. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_digit2.h"
+#include "../utils/mem.h"
+
+/* Return true if the decimal representation of x contains a digit 2. */
+static bool has_digit2(seq_t x)
+{
+    while (x > 0)
+    {
+        if (x % 10 == 2)
+            return true;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +50,7 @@ seq_t a(idx_t n)
             if (sz == cap)   /* need more room */
             {
                 size_t newcap = cap ? cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 cache = tmp;
                 cap = newcap;
             }

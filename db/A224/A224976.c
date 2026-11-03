@@ -8,7 +8,8 @@
  * Formula:   a(n) = 2*A111932(n) - sigma(n) (OEIS A224976)
  * Range:     i8 n <= 71, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9550 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static arrays for the generating function */
 static seq_t *F      = NULL; /* G(x) = 1 + Σ x^{p_k}   */
@@ -34,19 +36,19 @@ static void build_tables(idx_t n)
     if (n <= MaxN) return;              /* already built */
 
     /* free any previous allocation */
-    if (F)      free(F);
-    if (Fprime) free(Fprime);
-    if (Inv)    free(Inv);
-    if (H)      free(H);
-    if (Cache)  free(Cache);
+    if (F)      mem_free(F);
+    if (Fprime) mem_free(Fprime);
+    if (Inv)    mem_free(Inv);
+    if (H)      mem_free(H);
+    if (Cache)  mem_free(Cache);
 
     /* allocate arrays; explicit cast needed for C++ */
     idx_t size = n + 1;
-    F      = (seq_t*)calloc(size, sizeof(seq_t));
-    Fprime = (seq_t*)calloc(size, sizeof(seq_t));
-    Inv    = (seq_t*)calloc(size, sizeof(seq_t));
-    H      = (seq_t*)calloc(size, sizeof(seq_t));
-    Cache  = (seq_t*)calloc(n,  sizeof(seq_t));  /* indices 0..n-1 */
+    F      = mem_new(seq_t, size);
+    Fprime = mem_new(seq_t, size);
+    Inv    = mem_new(seq_t, size);
+    H      = mem_new(seq_t, size);
+    Cache  = mem_new(seq_t, n);  /* indices 0..n-1 */
 
     if (!F || !Fprime || !Inv || !H || !Cache) {
         /* allocation failure – abort (should not happen) */

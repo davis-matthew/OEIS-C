@@ -7,12 +7,14 @@
  * Formula:   not stated
  * Range:     i8 n <= 8, i16 n <= 18, i32 n <= 38, i64 n <= 78, i128 n <= 160,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 892 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(1) = 3; a(2) = -1; a(n) = 3*a(n-2) for n > 2. */
+#include <stdint.h>
 #include "../utils/pow3.h"
 
 seq_t a(idx_t n) {

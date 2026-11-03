@@ -12,13 +12,15 @@
  *            of k (sum_{i=0}^k P(i)·P(k-i))
  * Range:     u8 n <= 511, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   powmod64
+ * Validated: standard, pass, 128 terms through n = 6816 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/powmod64.h"
+#include <stdint.h>
+#include "../utils/powmod_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
             } else {                               /* p odd, p ∤ 15 */
                 idx_t t = 15 % p;                  /* 15 mod p */
                 idx_t x = (p - t) % p;             /* x = (−15) mod p */
-                idx_t ls = powmod64(x, (p - 1) / 2, p);
+                idx_t ls = powmod_u64(x, (p - 1) / 2, p);
                 bool split = (ls == 1);
                 if (split) {
                     val = bip[e];
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
         } else {
             idx_t t = 15 % p;
             idx_t x = (p - t) % p;
-            idx_t ls = powmod64(x, (p - 1) / 2, p);
+            idx_t ls = powmod_u64(x, (p - 1) / 2, p);
             bool split = (ls == 1);
             if (split) {
                 val = bip[e];

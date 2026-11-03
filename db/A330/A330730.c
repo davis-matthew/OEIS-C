@@ -9,7 +9,8 @@
  *            (n^2-n-1)^(2n^2-2n) * (2n^2-2n-1)^(2n-2) * (3n^2-2n-1)
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 2, i64 n <= 2, i128 n <= 3,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 5 terms through n = 4 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
  *  for arbitrary‑precision seq_t as well as for native integer types.  */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 /* required type definitions are provided by the build system */
 seq_t a(idx_t n)
@@ -36,22 +38,22 @@ seq_t a(idx_t n)
     /* 1. (-1-n)^(2n^3-4n^2+2n) */
     seq_t base1 = - ( (seq_t)1 + (seq_t)n );
     seq_t exp1  = (seq_t)2*n*n*n - (seq_t)4*n*n + (seq_t)2*n;
-    res        *= big_pow(base1, exp1);
+    res        *= ipow(base1, exp1);
 
     /* 2. (n^2-2n-1)^(n^2-2n+1) */
     seq_t base2 = (seq_t)n*n - (seq_t)2*n - (seq_t)1;
     seq_t exp2  = (seq_t)n*n - (seq_t)2*n + (seq_t)1;
-    res        *= big_pow(base2, exp2);
+    res        *= ipow(base2, exp2);
 
     /* 3. (n^2-n-1)^(2n^2-2n) */
     seq_t base3 = (seq_t)n*n - (seq_t)n - (seq_t)1;
     seq_t exp3  = (seq_t)2*n*n - (seq_t)2*n;
-    res        *= big_pow(base3, exp3);
+    res        *= ipow(base3, exp3);
 
     /* 4. (2n^2-2n-1)^(2n-2) */
     seq_t base4 = (seq_t)2*n*n - (seq_t)2*n - (seq_t)1;
     seq_t exp4  = (seq_t)2*n - (seq_t)2;
-    res        *= big_pow(base4, exp4);
+    res        *= ipow(base4, exp4);
 
     /* 5. (3n^2-2n-1) */
     seq_t base5 = (seq_t)3*n*n - (seq_t)2*n - (seq_t)1;

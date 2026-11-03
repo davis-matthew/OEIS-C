@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n,k) * |Stirling1(k+1,4)|
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Compute unsigned Stirling numbers of the first kind up to k=4
     using the recurrence   c(n,k) = c(n-1,k-1) + (n-1)*c(n-1,k)  */
@@ -25,8 +27,8 @@ seq_t a(idx_t n)
     idx_t need = n + 2;               /* allocate indices 0 .. n+1 */
     if (need > cache_len) {
         /* Reallocate and recompute */
-        if (t_cache) free(t_cache);
-        t_cache = (seq_t*)malloc(need * sizeof(seq_t));
+        if (t_cache) mem_free(t_cache);
+        t_cache = mem_new(seq_t, need);
         if (!t_cache) return 0;       /* allocation failure – unlikely */
 
         /* recurrence tables for c(n,k)   k = 0 .. 4   */

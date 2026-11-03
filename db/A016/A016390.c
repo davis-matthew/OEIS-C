@@ -8,7 +8,8 @@
  *            Φ_357(x)
  * Range:     i8 n <= 192, i16 n <= 192, i32 n <= 192, i64 n <= 192,
  *            i128 n <= 192, big any n
- * Helpers:   none
+ * Validated: full, pass, 193 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Polynomial structure: degree and array of coefficients (coef[0] is constant term). */
 struct poly_s {
@@ -29,7 +31,7 @@ static struct poly_s *poly_mul(const struct poly_s *a, const struct poly_s *b)
     size_t new_deg = a->deg + b->deg;
     struct poly_s *c = (struct poly_s *)malloc(sizeof *c);
     c->deg = new_deg;
-    c->coef = (seq_t *)calloc(new_deg + 1, sizeof(seq_t));
+    c->coef = mem_new(seq_t, new_deg + 1);
 
     for (size_t i = 0; i <= a->deg; ++i) {
         seq_t ai = a->coef[i];
@@ -53,17 +55,17 @@ static struct poly_s *poly_div(const struct poly_s *num, const struct poly_s *di
         /* Result is zero polynomial. */
         struct poly_s *res = (struct poly_s *)malloc(sizeof *res);
         res->deg = 0;
-        res->coef = (seq_t *)calloc(1, sizeof(seq_t));
+        res->coef = mem_new(seq_t, 1);
         return res;
     }
 
     size_t deg_quo = deg_num - deg_div;
     struct poly_s *quo = (struct poly_s *)malloc(sizeof *quo);
     quo->deg = deg_quo;
-    quo->coef = (seq_t *)calloc(deg_quo + 1, sizeof(seq_t));
+    quo->coef = mem_new(seq_t, deg_quo + 1);
 
     /* Work copy of numerator coefficients. */
-    seq_t *work = (seq_t *)calloc(deg_num + 1, sizeof(seq_t));
+    seq_t *work = mem_new(seq_t, deg_num + 1);
     for (size_t i = 0; i <= deg_num; ++i) work[i] = num->coef[i];
 
     for (int i = (int)deg_num; i >= (int)deg_div; --i) {
@@ -76,7 +78,7 @@ static struct poly_s *poly_div(const struct poly_s *num, const struct poly_s *di
         }
     }
 
-    free(work);
+    mem_free(work);
     return quo;
 }
 
@@ -85,7 +87,7 @@ static struct poly_s *poly_xpow_minus1(idx_t d)
 {
     struct poly_s *p = (struct poly_s *)malloc(sizeof *p);
     p->deg = (size_t)d;
-    p->coef = (seq_t *)calloc(d + 1, sizeof(seq_t));
+    p->coef = mem_new(seq_t, d + 1);
     p->coef[0] = -1;
     p->coef[d] = 1;
     return p;
@@ -110,7 +112,7 @@ static void compute_coeff357(void)
             /* Φ₁(x) = x - 1 */
             phis[0] = (struct poly_s *)malloc(sizeof *phis[0]);
             phis[0]->deg = 1;
-            phis[0]->coef = (seq_t *)calloc(2, sizeof(seq_t));
+            phis[0]->coef = mem_new(seq_t, 2);
             phis[0]->coef[0] = -1;
             phis[0]->coef[1] = 1;
             continue;
@@ -119,13 +121,13 @@ static void compute_coeff357(void)
         /* Product of Φ_e for proper divisors e of d. */
         struct poly_s *prod = (struct poly_s *)malloc(sizeof *prod);
         prod->deg = 0;
-        prod->coef = (seq_t *)calloc(1, sizeof(seq_t));
+        prod->coef = mem_new(seq_t, 1);
         prod->coef[0] = 1;   /* polynomial 1 */
 
         for (size_t j = 0; j < idx; ++j) {
             if (d % divs[j] == 0) {
                 struct poly_s *tmp = poly_mul(prod, phis[j]);
-                free(prod->coef);
+                mem_free(prod->coef);
                 free(prod);
                 prod = tmp;
             }
@@ -141,9 +143,9 @@ static void compute_coeff357(void)
         phis[idx] = phi;
 
         /* Free temporaries. */
-        free(num->coef);
+        mem_free(num->coef);
         free(num);
-        free(prod->coef);
+        mem_free(prod->coef);
         free(prod);
     }
 
@@ -154,7 +156,7 @@ static void compute_coeff357(void)
 
     /* Free all allocated polynomials. */
     for (size_t i = 0; i < D; ++i) {
-        free(phis[i]->coef);
+        mem_free(phis[i]->coef);
         free(phis[i]);
     }
 }

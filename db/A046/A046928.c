@@ -12,7 +12,8 @@
  *            composites between p+2 and the next prime after p+2....
  * Range:     u8 n <= 7, u16 n <= 28, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Forward declaration – the build system provides the types seq_t and idx_t. */
 extern seq_t a(idx_t n);
@@ -82,7 +84,7 @@ static void ensure_sequence(idx_t target)
         }
 
         /* ----------  Allocate minimal prime per sea size  ---------- */
-        seq_t *min_prime = (seq_t *)calloc((size_t)(max_sea + 1), sizeof(seq_t));
+        seq_t *min_prime = mem_new(seq_t, (size_t)(max_sea + 1));
         for (size_t k = 1; k + 1 < primes_sz; ++k) {
             if (primes[k + 1] == primes[k] + 2) {
                 idx_t p  = primes[k];
@@ -101,18 +103,18 @@ static void ensure_sequence(idx_t target)
             if (min_prime[s] != 0)
                 seq_new_len++;
 
-        seq_t *seq_new = (seq_t *)malloc(seq_new_len * sizeof(seq_t));
+        seq_t *seq_new = mem_new(seq_t, seq_new_len);
         size_t pos = 0;
         for (idx_t s = 1; s <= max_sea; ++s)
             if (min_prime[s] != 0)
                 seq_new[pos++] = min_prime[s];
 
         /* ----------  Replace old sequence data  ---------- */
-        if (global_seq) free(global_seq);
+        if (global_seq) mem_free(global_seq);
         global_seq = seq_new;
         global_seq_len = seq_new_len;
 
-        free(min_prime);
+        mem_free(min_prime);
         free(primes);
         free(is_prime);
 

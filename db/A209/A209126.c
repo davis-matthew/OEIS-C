@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    r*(r+1)/2 ≥ n and k = n - r*(r-1)/2 - 1.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;   /* array of row pointers, indexed by row number */
 static idx_t  rows_generated = 0; /* highest row computed so far (≥0) */
@@ -50,7 +52,7 @@ ensure_rows(idx_t n)
     /* Generate any rows that are still missing.  */
     for (idx_t r = rows_generated + 1; r <= n; ++r)
     {
-        seq_t *row = (seq_t *)malloc((size_t)r * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)r);
         if (!row) exit(EXIT_FAILURE);
 
         if (r == 1)

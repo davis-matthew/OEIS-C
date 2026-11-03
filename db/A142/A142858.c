@@ -7,7 +7,8 @@
  * Formula:   a(n) = nth prime p such that p ≡ 60 (mod 61)
  * Range:     u8 none, u16 n <= 109, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 55 terms through n = 955 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         pcap = 128;                           /* initial capacity   */
-        primes = (seq_t *)malloc(pcap * sizeof(seq_t));
+        primes = mem_new(seq_t, pcap);
         initialized = true;
     }
 
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         /* store the prime */
         if (plen == pcap) {                    /* grow array if full */
             pcap *= 2;
-            primes = (seq_t *)realloc(primes, pcap * sizeof(seq_t));
+            primes = mem_resize(seq_t, primes, pcap);
         }
         primes[plen++] = p;
         cand_k++;                              /* advance to next candidate  */

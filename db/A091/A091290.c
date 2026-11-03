@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 2985, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9336 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------- prime generation ---------- */
 static uint64_t *prime_list = NULL;     /* list of primes */
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
     /* initialise storage if needed */
     if (seq_cache == NULL) {
         seq_cap   = 64;
-        seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
     }
 
     /* extend the sequence until it contains the requested term */
@@ -116,8 +118,7 @@ seq_t a(idx_t n)
         if ((unsigned __int128)s1 + s2 <= s3) {
             if (seq_len == seq_cap) {
                 seq_cap <<= 1;
-                seq_cache = (seq_t *)realloc(seq_cache,
-                                seq_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
             }
             seq_cache[seq_len++] = (seq_t)k;
         }

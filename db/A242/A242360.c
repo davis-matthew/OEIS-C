@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2500, u16 n <= 2500, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 2462 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 typedef struct { seq_t num; seq_t den; } Rational;
 
@@ -106,7 +108,7 @@ static void compute_next_row(void)
     }
 
     /* sort descending */
-    qsort(candidates, total, sizeof(Rational), rational_cmp);
+    mem_qsort(candidates, total, sizeof(Rational), rational_cmp);
 
     /* create next row copy and store numerators */
     Rational *new_row = alloc_rat(total);

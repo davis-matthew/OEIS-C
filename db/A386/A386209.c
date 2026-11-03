@@ -8,7 +8,8 @@
  *            A386209)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static state */
 static seq_t *a_tbl = NULL;   /* a values */
@@ -32,8 +34,8 @@ static void ensure_capacity(size_t needed)
     if (tbl_cap > needed) return;
     size_t new_cap = tbl_cap ? tbl_cap : 1;
     while (new_cap <= needed) new_cap <<= 1;
-    a_tbl = (seq_t*)realloc(a_tbl, new_cap * sizeof(seq_t));
-    s_tbl = (seq_t*)realloc(s_tbl, new_cap * sizeof(seq_t));
+    a_tbl = mem_resize(seq_t, a_tbl, new_cap);
+    s_tbl = mem_resize(seq_t, s_tbl, new_cap);
     tbl_cap = new_cap;
 }
 

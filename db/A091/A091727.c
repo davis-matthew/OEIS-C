@@ -11,7 +11,8 @@
  *            value of the norm
  * Range:     u8 n <= 28, u16 n <= 3269, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_split_prime, isqrt32
+ * Validated: standard, pass, 65 terms through n = 9698 (2026-11-01)
+ * Helpers:   isqrt_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_split_prime.h"
-#include "../utils/isqrt32.h"
+#include "../utils/isqrt_u32.h"
+
+/* ------------------------------------------------------------------ */
+static inline bool is_split_prime(uint32_t p) {
+    if (p == 2 || p == 5) return true;
+    uint32_t r = p % 20U;
+    return (r == 1U) || (r == 3U) || (r == 7U) || (r == 9U);
+}
 
 /* ------------------------------------------------------------------ */
 /* Parameters for precomputation                                    */
@@ -83,7 +90,7 @@ static void init_prime_data(void) {
 static uint64_t count_leq(uint32_t m) {
     if (m > MAX_LIMIT) m = MAX_LIMIT;
     uint32_t split_val   = pref_split[m];
-    uint32_t root        = isqrt32(m);
+    uint32_t root        = isqrt_u32(m);
     uint32_t primes_root = pref_cnt[root];
     uint32_t split_root  = pref_split[root];
     uint32_t inert_root  = primes_root - split_root;   /* inert primes ≤ √m */

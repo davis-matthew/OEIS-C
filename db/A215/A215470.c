@@ -13,7 +13,8 @@
  *            primes lazily
  * Range:     u8 n <= 1, u16 n <= 14, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   is_prime, spiral_value
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,31 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"     /* provides: bool is_prime(idx_t) */
-#include "../utils/spiral_value.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* Coordinate → Ulam‑spiral value (for any 64‑bit coordinates). */
+static seq_t spiral_value(int64_t x, int64_t y)
+{
+    if (x == 0 && y == 0) return 1;
+
+    int64_t r = (llabs(x) > llabs(y)) ? llabs(x) : llabs(y);
+    seq_t side = (seq_t)(2 * r);
+    seq_t max_val = (seq_t)(2 * r + 1);
+    max_val *= max_val;
+
+    seq_t offset;
+    if (y == -r)                 /* bottom side, moving left   */
+        offset = r - x;
+    else if (x == -r)            /* left side, moving up      */
+        offset = side + (y + r);
+    else if (y == r)             /* top side, moving right    */
+        offset = 2 * side + (x + r);
+    else                         /* right side, moving down   */
+        offset = 3 * side + (r - y);
+
+    return max_val - offset;
+}
 
 /* Count how many of the eight neighbours of (x,y) are prime. */
 static int count_prime_neighbors(int64_t x, int64_t y)
@@ -61,14 +85,14 @@ seq_t a(idx_t n)
 
     if (!init) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         init = true;
     }
 
     /* Grow cache when required. */
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;           /* out of memory – unlikely */
         cache = tmp;
         cache_cap = new_cap;

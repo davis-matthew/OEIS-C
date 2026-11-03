@@ -7,17 +7,20 @@
  * Formula:   a(n) = (product of the non‑zero decimal digits of n^5)^2
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 17, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     /* Compute n^5. */
-    seq_t pow = seq_pow((seq_t)n, 5);
+    seq_t pow = ipow_idx((seq_t)n, 5);
 
     /* Compute the product of non‑zero digits. */
     seq_t prod = 1;

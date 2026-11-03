@@ -10,13 +10,19 @@
  *            a(3) is the first element
  * Range:     u8 n <= 4853, u16 n <= 4853, u32 n <= 4853, u64 n <= 4853,
  *            u128 n <= 4853, big any n
- * Helpers:   row_last128
+ * Validated: standard, pass, 107 terms through n = 4790 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/row_last128.h"
+
+static inline __int128 row_last128(idx_t r)
+{
+    /* last global index of row r (inclusive) */
+    return (__int128)3 + (__int128)(r - 3) * (r - 2) / 2 + (r - 3);
+}
 
 seq_t a(idx_t n)
 {

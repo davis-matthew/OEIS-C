@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root (binary search). */
 static inline idx_t isqrt_u64(idx_t n)
@@ -55,7 +57,7 @@ static void ensure_capacity(idx_t n)
     /* Allocate new table. */
     size_t stride_new = (size_t)(new_nmax + 1);
     size_t new_total  = (size_t)(new_kmax + 1) * stride_new;
-    seq_t *newP = (seq_t *)calloc(new_total, sizeof(seq_t));
+    seq_t *newP = mem_new(seq_t, new_total);
     if (!newP) exit(1);   /* out‑of‑memory */
 
     /* Set base case: p_0(0) = 1.  (calloc already gave 0 everywhere.) */
@@ -65,11 +67,9 @@ static void ensure_capacity(idx_t n)
     if (P) {
         size_t stride_old = (size_t)(Nmax + 1);
         for (idx_t k = 0; k <= Kmax; ++k) {
-            memcpy(newP + k * stride_new,
-                   P + k * stride_old,
-                   stride_old * sizeof(seq_t));
+            mem_copy(newP + k * stride_new, P + k * stride_old, stride_old * sizeof(seq_t));
         }
-        free(P);
+        mem_free(P);
     }
 
     /* Update rows that already existed (k ≤ min(old Kmax, new Kmax)). */

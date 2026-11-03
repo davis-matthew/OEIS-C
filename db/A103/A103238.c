@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   row_of
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,29 @@
    Sequence a(n) is read by rows: a(n) = T[row_of(n)][n - row_of(n) * (row_of(n)+1) / 2];
 */
 #include <stdlib.h>
-#include "../utils/row_of.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static inline idx_t
+row_of(idx_t n)                 /* return r with r(r+1)/2 ≤ n < (r+1)(r+2)/2 */
+{
+    idx_t low  = 0;
+    idx_t high = 1;
+    /* exponential search to find an upper bound */
+    while ((unsigned __int128)high * (high + 1) / 2 <= n) {
+        low  = high;
+        high <<= 1;              /* double high */
+    }
+    /* binary search between low (inclusive) and high (inclusive) */
+    while (low < high) {
+        idx_t mid = low + ((high - low) >> 1) + 1; /* upper mid to avoid infinite loop */
+        if ((unsigned __int128)mid * (mid + 1) / 2 <= n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,16 +58,16 @@ seq_t a(idx_t n)
     if (!T) return (seq_t)0;  /* allocation failure */
 
     /* Row 0 */
-    T[0] = (seq_t *)calloc(1, sizeof(seq_t));
+    T[0] = mem_new(seq_t, 1);
     if (!T[0]) { free(T); return (seq_t)0; }
     T[0][0] = (seq_t)1;
 
     /* Build subsequent rows */
     for (idx_t i = 1; i <= r; ++i) {
-        T[i] = (seq_t *)calloc((size_t)(i + 1), sizeof(seq_t));
+        T[i] = mem_new(seq_t, (size_t)(i + 1));
         if (!T[i]) {
             /* Clean up before returning */
-            for (idx_t k = 0; k < i; ++k) free(T[k]);
+            for (idx_t k = 0; k < i; ++k) mem_free(T[k]);
             free(T);
             return (seq_t)0;
         }
@@ -63,7 +86,7 @@ seq_t a(idx_t n)
     seq_t result = T[r][c];
 
     /* Free allocated memory */
-    for (idx_t i = 0; i <= r; ++i) free(T[i]);
+    for (idx_t i = 0; i <= r; ++i) mem_free(T[i]);
     free(T);
 
     return result;

@@ -8,12 +8,15 @@
  * Formula:   a(n) = Sum_{k=0..n-1} (n-k+1)*k!*((k+1)^(n-k)-k^(n-k))
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 38 terms through n = 197 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +27,8 @@ seq_t a(idx_t n)
         idx_t exp = n - k;                       /* exponent n-k  */
 
         /* powers (k+1)^(n-k) and k^(n-k) */
-        seq_t pow1 = big_pow((seq_t)(k + 1), (seq_t)exp);
-        seq_t pow2 = big_pow((seq_t)k, (seq_t)exp);
+        seq_t pow1 = ipow((seq_t)(k + 1), (seq_t)exp);
+        seq_t pow2 = ipow((seq_t)k, (seq_t)exp);
 
         /* difference of the two powers */
         seq_t diff = pow1 - pow2;

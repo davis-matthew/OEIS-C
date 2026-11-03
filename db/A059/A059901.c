@@ -9,7 +9,8 @@
  * Formula:   a(n) = A059900(A059902(n))
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <string.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 #define MAX_SUM 50                          /* enough for n <= 10000 */
 
@@ -79,7 +86,7 @@ static void ensure_cache(idx_t n)
     size_t need = (size_t)n + 1;
     if (need <= cache_size) return;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, need * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, need);
     uint8_t *new_filled = (uint8_t *)realloc(filled, need * sizeof(uint8_t));
 
     if (new_cache == NULL || new_filled == NULL) return; /* allocation failed */
@@ -90,7 +97,7 @@ static void ensure_cache(idx_t n)
     filled = new_filled;
 
     if (old < need) {
-        memset(cache + old, 0, (need - old) * sizeof(seq_t));
+        mem_set(cache + old, 0, (need - old) * sizeof(seq_t));
         memset(filled + old, 0, (need - old) * sizeof(uint8_t));
     }
 }
@@ -109,7 +116,7 @@ static void gen_len(int rem, int max_part, int parts_left, int pos,
             if (*counter == target) {
                 seq_t val = 1;
                 for (int i = 0; i < pos; ++i)
-                    val = seq_mul(val, seq_pow((seq_t)primesArray[i], (idx_t)parts[i]));
+                    val = seq_mul(val, ipow_idx((seq_t)primesArray[i], (idx_t)parts[i]));
                 *result = val;
                 *found = true;
             }

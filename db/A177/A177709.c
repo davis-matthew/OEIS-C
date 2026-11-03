@@ -10,7 +10,8 @@
  *            ascending order
  * Range:     u8 n <= 5, u16 n <= 35, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   cmp_seq_t, free_seq_array, seq_alloc_array, sieve_first_n_primes
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,32 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/sieve_first_n_primes.h"   /* sieve_first_n_primes */
-#include "../utils/seq_alloc_array.h"       /* seq_alloc_array */
-#include "../utils/free_seq_array.h"        /* free_seq_array */
-#include "../utils/cmp_seq_t.h"             /* cmp_seq_t */
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/sieve_first_n_primes.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 static seq_t *sums = NULL;     /* sorted sums */
 static size_t sums_len = 0;    /* current number of sums stored */
@@ -84,7 +107,7 @@ static void ensure_sufficient(idx_t need)
     }
 
     /* Sort the sums.  cmp_seq_t is provided by the utilities. */
-    qsort(sums, need_sums, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(sums, need_sums, sizeof(seq_t), cmp_seq_t);
 
     /* Record state for future calls. */
     sums_len = need_sums;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*--- Cached dynamic arrays ----------------------------------------*/
 
@@ -42,9 +44,9 @@ static void ensure_bell_capacity(size_t new_cap)
     size_t new_size = new_cap;
     seq_t *new_arr = NULL;
     if (bell == NULL) {
-        new_arr = (seq_t*)malloc(new_size * sizeof(seq_t));
+        new_arr = mem_new(seq_t, new_size);
     } else {
-        new_arr = (seq_t*)realloc(bell, new_size * sizeof(seq_t));
+        new_arr = mem_resize(seq_t, bell, new_size);
     }
     if (new_arr == NULL) return;          /* allocation failed – give up */
     bell = new_arr;
@@ -62,9 +64,9 @@ static void ensure_dfact_capacity(size_t new_cap)
     size_t new_size = new_cap;
     seq_t *new_arr = NULL;
     if (dfact == NULL) {
-        new_arr = (seq_t*)malloc(new_size * sizeof(seq_t));
+        new_arr = mem_new(seq_t, new_size);
     } else {
-        new_arr = (seq_t*)realloc(dfact, new_size * sizeof(seq_t));
+        new_arr = mem_resize(seq_t, dfact, new_size);
     }
     if (new_arr == NULL) return;          /* allocation failed – give up */
     dfact = new_arr;

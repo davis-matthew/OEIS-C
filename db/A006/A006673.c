@@ -9,13 +9,15 @@
  *            a(n-1-k), a(0) = 0, a(1) = 1
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 13, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     
     if (cache == NULL) {
         cache_len = n + 1;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         for (idx_t i = 0; i < cache_len; i++) {
             cache[i] = 0;
         }
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
         for (idx_t i = 2; i <= n; i++) {
             seq_t sum = 0;
             for (idx_t k = 1; k < i - 1; k++) {
-                seq_t binom_val = binom(i - 1, k);
+                seq_t binom_val = binomial(i - 1, k);
                 sum = sum + binom_val * cache[k] * cache[i - 1 - k];
             }
             cache[i] = 2 * cache[i - 1] - sum;
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
     } else if (n >= cache_len) {
         idx_t old_len = cache_len;
         cache_len = n + 1;
-        cache = (seq_t *)realloc(cache, cache_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_len);
         for (idx_t i = old_len; i < cache_len; i++) {
             cache[i] = 0;
         }
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
         for (idx_t i = old_len; i <= n; i++) {
             seq_t sum = 0;
             for (idx_t k = 1; k < i - 1; k++) {
-                seq_t binom_val = binom(i - 1, k);
+                seq_t binom_val = binomial(i - 1, k);
                 sum = sum + binom_val * cache[k] * cache[i - 1 - k];
             }
             cache[i] = 2 * cache[i - 1] - sum;

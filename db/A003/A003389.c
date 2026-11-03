@@ -9,14 +9,19 @@
  *            distinct sums are found
  * Range:     u8 n <= 1, u16 n <= 75, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   A3389_cmpu
+ * Validated: standard, pass, 59 terms through n = 9404 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/A3389_cmpu.h"
+
+static int A3389_cmpu(const void *p, const void *q) {
+    uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+    return (x > y) - (x < y);
+}
 
 static uint64_t *A3389_vals = NULL;
 static size_t A3389_cnt = 0, A3389_cap = 0;

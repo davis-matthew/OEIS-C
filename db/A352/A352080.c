@@ -11,13 +11,24 @@
  *            function returns 0 for n < 2
  * Range:     u8 n <= 108, u16 n <= 108, u32 n <= 108, u64 n <= 108,
  *            u128 n <= 108, big any n
- * Helpers:   v2_of
+ * Validated: partial, pass, 107 terms through n = 108 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/v2_of.h"
+
+/* compute the 2‑adic valuation of an unsigned integer */
+static inline unsigned v2_of(unsigned k)
+{
+    unsigned v = 0;
+    while ((k & 1u) == 0u) {
+        k >>= 1;
+        ++v;
+    }
+    return v;
+}
 
 seq_t a(idx_t n)
 {

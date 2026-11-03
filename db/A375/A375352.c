@@ -8,6 +8,7 @@
  *            14*floor((n-2)/2)^2 + 20*floor((n-2)/2) + 7 if n is even
  * Range:     u8 n <= 8, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

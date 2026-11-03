@@ -8,8 +8,9 @@
  * Formula:   a(n) = number of proper divisors d of n such that the binary
  *            representation of d, interpreted as a polynomial over GF(2), is
  *            irreducible
- * Range:     u8 n <= 9975, u16 n <= 9975, u32 n <= 9975, u64 n <= 9975,
- *            u128 n <= 9975, big any n
+ * Range:     u8 n <= 21845, u16 n <= 21845, u32 n <= 21845, u64 n <= 21845,
+ *            u128 n <= 21845, big any n
+ * Validated: standard, pass, 121 terms through n = 9975 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

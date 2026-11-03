@@ -9,15 +9,27 @@
  *            yield 0 because sum_all = sum_unitary
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 33, u64 n <= 67, u128 n <= 131,
  *            big any n
- * Helpers:   v_p_factorial
+ * Validated: standard, pass, 51 terms through n = 977 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/v_p_factorial.h"
+
+/* Legendre exponent of prime p in n!  */
+static idx_t v_p_factorial(idx_t n, idx_t p)
+{
+    idx_t exp = 0;
+    while (n) {
+        n /= p;
+        exp += n;
+    }
+    return exp;
+}
 
 /* Prime sieve – generates all primes ≤ limit.
    Uses a static vector for reuse across calls. */

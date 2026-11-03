@@ -9,6 +9,7 @@
  *            334746252n^2 + 2455095600n + 8821612800) / 10321920
  * Range:     u8 none, u16 none, u32 none, u64 n <= 21, u128 n <= 31,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 195 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

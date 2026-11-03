@@ -11,6 +11,7 @@
  *            k(k+1)/2; t = n - k(k-1)/2 - 1 (zero–based)
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 78, u64 n <= 91, u128 n <= 91,
  *            big any n
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

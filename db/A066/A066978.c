@@ -7,7 +7,8 @@
  * Formula:   a(n) = gcd(prime(2*n)+1 , prime(n)+1) (offset 1)
  * Range:     u8 n <= 235, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_u64, int_est_va_limit
+ * Validated: standard, pass, 110 terms through n = 9960 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include <stdint.h>
 #include "../utils/gcd_u64.h"
-#include "../utils/int_est_va_limit.h"
+
+/* ------- estimate upper bound for the p_k-th prime  */
+static inline idx_t
+int_est_va_limit(idx_t k)
+{
+    if (k < 6) return 15;           /* p_6 = 13, safe margin */
+    /* Rosser's theorem: p_k < k (log k + log log k) for k >= 6 */
+    double dk = (double)k;
+    double limit = dk * (log(dk) + log(log(dk))) + 3*dk;
+    return (idx_t)(limit) + 1;
+}
 
 /* ---------  state for prime generation  --------- */
 static idx_t  sieve_limit   = 0;   /* last limit used for sieve */

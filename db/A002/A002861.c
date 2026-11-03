@@ -12,17 +12,41 @@
  *            (Sum_{d|k} d*r(d)) * r(m-k+1)
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 24, u64 n <= 45, u128 n <= 86,
  *            big any n
- * Helpers:   a001028_grow, a001028_z, a2861_is_fixed, a2861_phi
+ * Validated: standard, pass, 48 terms through n = 952 (2026-11-03)
+ * Helpers:   mem, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a001028_grow.h"
-#include "../utils/a001028_z.h"
-#include "../utils/a2861_is_fixed.h"
-#include "../utils/a2861_phi.h"
+#include <stddef.h>
+#include "../utils/totient_u64.h"
+#include "../utils/mem.h"
+
+static seq_t *a001028_z(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *a001028_grow(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = a001028_z(newlen);
+    for (idx_t i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
+
+static int a2861_is_fixed(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 300; i++) {
+        x = x + x;
+        if (x == 0) return 1;
+    }
+    return 0;
+}
 
 typedef unsigned __int128 a2861_u128;
 
@@ -130,13 +154,13 @@ seq_t a(idx_t n)
         a2861_u128 S = 0;
         a2861_fixed_ensure(n);
         for (d = 1; d <= n; d++)
-            if (n % d == 0) S += (a2861_u128)a2861_phi(n / d) * a2861_fc[d];
+            if (n % d == 0) S += (a2861_u128)totient_u64(n / d) * a2861_fc[d];
         return (seq_t)a2861_exdiv(S, n);
     } else {
         seq_t S = 0;
         a2861_big_ensure(n);
         for (d = 1; d <= n; d++)
-            if (n % d == 0) S += (seq_t)a2861_phi(n / d) * a2861_bc[d];
+            if (n % d == 0) S += (seq_t)totient_u64(n / d) * a2861_bc[d];
         return S / (seq_t)n;
     }
 }

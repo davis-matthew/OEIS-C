@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 111, u64 n <= 1083,
  *            u128 n <= 10000, big any n
- * Helpers:   is_subseq, maxsize, seq_from_str
+ * Validated: standard, pass, 58 terms through n = 9957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,32 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/is_subseq.h"
-#include "../utils/maxsize.h"
-#include "../utils/seq_from_str.h"
+#include "../utils/mem.h"
+
+/* Simple subsequence test: true if all characters of sub appear in
+   order in full.                                                            */
+static bool is_subseq(const char *full, const char *sub)
+{
+    const char *p = full, *q = sub;
+    while (*p && *q) {
+        if (*p == *q) ++q;
+        ++p;
+    }
+    return (*q == '\0');
+}
+
+/* ------------------------------------------------------------------ */
+static inline size_t maxsize(size_t a, size_t b) { return a>b?a:b; }
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Global state                                                    */
@@ -80,23 +104,23 @@ static void ensure_fib(idx_t req)
     if (fib_cap == 0) {
         fib_cap = 8;
         fib_str = (char**)malloc((fib_cap+1)*sizeof(char*));
-        fib_val = (seq_t*)malloc((fib_cap+1)*sizeof(seq_t));
+        fib_val = mem_new(seq_t, (fib_cap+1));
     }
     if (fib_count < 2) {
-        fib_str[1] = strdup("1"); fib_val[1] = 1;
-        fib_str[2] = strdup("1"); fib_val[2] = 1;
+        fib_str[1] = mem_strdup("1"); fib_val[1] = 1;
+        fib_str[2] = mem_strdup("1"); fib_val[2] = 1;
         fib_count = 2;
     }
     while (fib_count < (size_t)req) {
         if (fib_count+2 > fib_cap) {
             fib_cap <<= 1;
             fib_str = (char**)realloc(fib_str,(fib_cap+1)*sizeof(char*));
-            fib_val = (seq_t*)realloc(fib_val,(fib_cap+1)*sizeof(seq_t));
+            fib_val = mem_resize(seq_t, fib_val, (fib_cap+1));
         }
         seq_t next_val = fib_val[fib_count] + fib_val[fib_count-1];
         char tmpbuf[400];
         seq_to_str(next_val,tmpbuf);
-        fib_str[++fib_count] = strdup(tmpbuf);
+        fib_str[++fib_count] = mem_strdup(tmpbuf);
         fib_val[fib_count] = next_val;
     }
 }
@@ -109,7 +133,7 @@ static void ensure_cache(idx_t n)
     if (n < cache_cap) return;
     size_t new_cap = cache_cap?cache_cap:8;
     while (new_cap <= n) new_cap <<= 1;
-    cache = (seq_t*)realloc(cache,new_cap*sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     for (size_t i=cache_cap;i<new_cap;i++) cache[i]=0;
     cache_cap = new_cap;
 }

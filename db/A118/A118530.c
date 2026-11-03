@@ -8,7 +8,8 @@
  * Formula:   a(n) = rev(a(n-1)) + 13, a(1) = 1
  * Range:     u8 n <= 7, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* rev(x) reverses the decimal digits of x. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Reverse the decimal digits of an unsigned seq_t value.  */
 static seq_t reverse_seq_t(seq_t x)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first term a(1) = 1. */
     if (cache_len == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;        /* allocation failure – unlikely in tests */
         cache[0] = 1;
         cache_len = 1;
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
             if (i >= cache_cap) {
                 idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
                 while (new_cap <= i) new_cap *= 2;
-                cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+                cache = mem_resize(seq_t, cache, new_cap);
                 cache_cap = new_cap;
             }
             cache[i] = next;

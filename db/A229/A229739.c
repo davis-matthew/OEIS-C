@@ -8,7 +8,8 @@
  *            A000961(n)
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   count_distinct_primes
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
 
 /* Cache of the first prime powers, stored as uint64_t */
 static uint64_t *prime_powers = NULL;
@@ -29,7 +30,7 @@ static bool is_prime_power(uint64_t m)
 {
     if (m == 1)
         return true;
-    return count_distinct_primes(m) == 1;
+    return omega(m) == 1;
 }
 
 /* Extend the cache until it contains at least 'target' prime powers. */

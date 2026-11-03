@@ -8,13 +8,14 @@
  *            number)
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n) {
     uint64_t m = 0;          /* current integer being tested */
@@ -31,7 +32,7 @@ seq_t a(idx_t n) {
             ++seen;
             if (seen == n) {
                 /* return number of divisors of m */
-                return (seq_t)divisor_count_u64(m);
+                return (seq_t)num_divisors(m);
             }
         }
     }

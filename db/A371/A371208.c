@@ -9,12 +9,14 @@
  *            (1/4)*(n-1)*n^2*(n/2-1)! for n even and n>4
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact = NULL;
 static size_t fact_cap = 0;
@@ -24,13 +26,13 @@ static seq_t factorial_of_idx(idx_t m)
     if (fact == NULL) {
         /* initialize 0! */
         fact_cap = 1;
-        fact = (seq_t *)malloc(fact_cap * sizeof(seq_t));
+        fact = mem_new(seq_t, fact_cap);
         if (!fact) return 0;        /* allocation failure */
         fact[0] = (seq_t)1;
     }
     if (fact_cap <= (size_t)m) {
         size_t new_cap = (size_t)m + 1;
-        seq_t *tmp = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact, new_cap);
         if (!tmp) return 0;        /* allocation failure */
         fact = tmp;
         for (size_t i = fact_cap; i < new_cap; ++i) {

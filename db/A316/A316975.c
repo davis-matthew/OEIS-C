@@ -9,13 +9,15 @@
  *            * over all ordered pairs of quadratic residues r0,r1 modulo n
  * Range:     u8 n <= 718, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 939 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     }
 
     /* Step 3: count how many times each difference occurs. */
-    seq_t *cnt = (seq_t *)calloc((size_t)n, sizeof(seq_t));
+    seq_t *cnt = mem_new(seq_t, (size_t)n);
     if (!cnt) { free(isQR); free(res); exit(EXIT_FAILURE); }
 
     for (size_t i = 0; i < res_len; ++i) {
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     /* Clean up allocated memory. */
     free(isQR);
     free(res);
-    free(cnt);
+    mem_free(cnt);
 
     return mincnt;
 }

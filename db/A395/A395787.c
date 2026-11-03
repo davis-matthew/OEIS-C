@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} 3^k * binomial(k+2,2) * binomial(4*n+11,n-k)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 17, u128 n <= 37,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 980 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Computes the n-th term of OEIS sequence A395787.

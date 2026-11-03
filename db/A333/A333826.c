@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 242, u32 n <= 5399, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 83 terms through n = 9368 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;   /* 1‑indexed array of terms, seq[0] unused   */
 static size_t sz   = 0;     /* number of terms currently stored         */
@@ -40,7 +43,7 @@ static void ensure_capacity(idx_t max_index) {
     size_t newcap = cap ? cap << 1 : 16;               /* start with 16 if currently empty  */
     /* newcap must be strictly greater than max_index */
     while (newcap <= (size_t)max_index) newcap <<= 1;
-    seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, newcap);
     cap = newcap;
 }
 

@@ -10,13 +10,16 @@
  *            smallest integers > a(n-1) coprime to s = sum_{i=1}^{n-1} a(i)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 52 terms through n = 969 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache */
@@ -31,7 +34,7 @@ seq_t a(idx_t n) {
     if (cap < (size_t)n) {
         size_t newcap = cap ? cap : 16;
         while (newcap < (size_t)n) newcap <<= 1;
-        seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, newcap);
         cap = newcap;
     }
 

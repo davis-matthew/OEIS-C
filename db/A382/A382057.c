@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1, i16 n <= 5, i32 n <= 12, i64 n <= 23, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
       a(3) = -865
       a(n) = -7*a(n-1) -12*a(n-2) - 6*a(n-3)   for n ≥ 4   */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         while (newcap <= n)
             newcap <<= 1;                     /* double until large enough */
 
-        seq_t *tmp = (seq_t *)realloc(buf, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, newcap);
         if (!tmp) return 0;                  /* should never happen in tests */
         buf = tmp;
 

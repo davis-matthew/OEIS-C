@@ -7,11 +7,14 @@
  * Formula:   a(n) = π(5*n) – π(4*n-1)
  * Range:     u8 n <= 2423, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 91 terms through n = 8624 (2026-11-01)
  * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 19, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  *   a(1)=50, a(2)=64, a(3)=135, a(4)=260, a(5)=471,
  *   a(6)=800, a(7)=1296, a(8)=2010. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* dynamically allocated cache */
 static size_t cache_len = 0;         /* allocated size (>= maximum n+1 seen) */
@@ -49,11 +51,11 @@ seq_t a(idx_t n) {
     /* Ensure cache is large enough to hold indices up to n. */
     size_t sz_needed = (size_t)(n + 1);
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sz_needed * sizeof(seq_t));
+        cache = mem_new(seq_t, sz_needed);
         if (!cache) abort();
         cache_len = sz_needed;
     } else if (cache_len < sz_needed) {
-        seq_t *tmp = (seq_t *)realloc(cache, sz_needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, sz_needed);
         if (!tmp) abort();
         cache = tmp;
         cache_len = sz_needed;

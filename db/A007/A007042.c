@@ -9,14 +9,26 @@
  *            (p(m-k(3k-1)/2) + p(m-k(3k+1)/2)), p(0) = 1
  * Range:     u8 n <= 15, u16 n <= 42, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   alloc_zero, release
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 static seq_t partition_count(idx_t n) {
     seq_t *p = alloc_zero(n + 1);

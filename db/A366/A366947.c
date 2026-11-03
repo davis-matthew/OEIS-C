@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Non‑square digits in decimal */
 static bool const non_square[10] = {
@@ -53,7 +55,7 @@ static void ensure_terms_cap(size_t need)
     if (terms_cap < need) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 4;
         if (new_cap < need) new_cap = need;
-        terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
         terms_cap = new_cap;
     }
 }

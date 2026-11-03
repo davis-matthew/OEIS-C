@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_adjacent_4_6
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,25 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_adjacent_4_6.h"
+#include "../utils/mem.h"
+
+/* Return true if the base‑8 representation of x contains the adjacent digits
+   4 and 6 in either order. */
+static bool has_adjacent_4_6(seq_t x)
+{
+    if (x == 0)
+        return false;
+
+    int last = -1;          /* digit seen just before the current one */
+    while (x > 0) {
+        int d = (int)(x % 8);   /* least‑significant digit */
+        if ((last == 6 && d == 4) || (last == 4 && d == 6))
+            return true;
+        last = d;
+        x /= 8;
+    }
+    return false;
+}
 
 /* Return the n‑th such number (1‑based indexing). */
 seq_t a(idx_t n)
@@ -36,7 +55,7 @@ seq_t a(idx_t n)
         if (has_adjacent_4_6(k) && !has_adjacent_4_6(k - 1)) {
             if (cache_size == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
                 cache = new_arr;
                 cache_cap = new_cap;
             }

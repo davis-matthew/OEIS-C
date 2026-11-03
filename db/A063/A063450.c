@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 171, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _divisor_count_u64_local
+ * Validated: standard, pass, 86 terms through n = 9884 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_divisor_count_u64_local.h"
+#include "../utils/num_divisors.h"
 
 /* Dynamic array that works both as C (malloc/realloc) and as C++ (new/delete). */
 static seq_t *terms   = NULL;   /* stored sequence values                */
@@ -53,8 +54,8 @@ seq_t a(idx_t n)
     /* Compute terms until we’ve produced at least n of them */
     while (len < n) {
         uint64_t k   = next_k;
-        uint64_t dk  = _divisor_count_u64_local(k);
-        uint64_t dk1 = _divisor_count_u64_local(k + 1);
+        uint64_t dk  = num_divisors(k);
+        uint64_t dk1 = num_divisors(k + 1);
         if (dk1 < 2 * dk) {
             terms[len++] = (seq_t)k;   /* cast is safe for all seq_t types */
         }

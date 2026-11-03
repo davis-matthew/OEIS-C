@@ -9,13 +9,15 @@
  *            Fibonacci numbers * (1, 2, 3, 5, 8, …)
  * Range:     u8 n <= 12, u16 n <= 25, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Dynamic programming cache: 10 rows for 0–9 parts, up to largest n     */
@@ -32,7 +34,7 @@ static void _free_cache(void)
 {
     if (_dp[0] != NULL) {
         for (int k = 0; k < 10; ++k)
-            free(_dp[k]);
+            mem_free(_dp[k]);
         for (int k = 0; k < 10; ++k)
             _dp[k] = NULL;
     }
@@ -71,7 +73,7 @@ static void _recompute(idx_t newmax)
 
     /* ----------------- allocate DP tables -------------------------- */
     for (int k = 0; k < 10; ++k)
-        _dp[k] = (seq_t*)calloc((size_t)(newmax + 1), sizeof(seq_t));
+        _dp[k] = mem_new(seq_t, (size_t)(newmax + 1));
 
     /* base case: 0 parts sum to 0 in exactly one way */
     _dp[0][0] = (seq_t)1;

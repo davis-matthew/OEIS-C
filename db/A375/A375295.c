@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   property
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,24 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/property.h"
+#include "../utils/mem.h"
+
+/* Helper that decides whether a composition satisfies the property */
+static bool property(const int *parts, int len)
+{
+    int last_leader = parts[0];
+    bool strictly_decreasing = true;
+    for (int i = 1; i < len; ++i) {
+        if (parts[i] < parts[i-1]) {          /* start of new weakly
+                                                increasing run */
+            if (last_leader <= parts[i])      /* leaders not strictly
+                                                decreasing */
+                strictly_decreasing = false;
+            last_leader = parts[i];
+        }
+    }
+    return !strictly_decreasing;
+}
 
 /* Recursive enumeration of all compositions of 'rem' in
  * descending lexicographic order.  'pos' is the next index in
@@ -54,7 +72,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)0;          /* offset is 1, but guard */
 
     size_t needed = (size_t)n;
-    seq_t *vals = (seq_t *)malloc(needed * sizeof(seq_t));
+    seq_t *vals = mem_new(seq_t, needed);
     if (!vals) return (seq_t)0;           /* allocation failure guard */
 
     size_t cnt = 0;
@@ -69,6 +87,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = vals[needed - 1];
-    free(vals);
+    mem_free(vals);
     return result;
 }

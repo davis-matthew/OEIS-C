@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2*a(n-1) + a(n-2) - a(n-3), with a(0)=2, a(1)=6, a(2)=11
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 26, u64 n <= 53, u128 n <= 108,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 984 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,13 +10,15 @@
  *            of divisors of t
  * Range:     i8 n <= 12, i16 n <= 48, i32 n <= 60, i64 n <= 60, i128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
     /* initial allocation for n == 0 (a(0) = 1) */
     if (A == NULL) {
         capacity = 1;
-        A = (seq_t *)malloc(capacity * sizeof(seq_t));
-        B = (seq_t *)malloc(capacity * sizeof(seq_t));
+        A = mem_new(seq_t, capacity);
+        B = mem_new(seq_t, capacity);
         TAU = (idx_t *)malloc(capacity * sizeof(idx_t));
         A[0] = (seq_t)1;   /* a(0) = 1 */
         last_a = 0;
@@ -44,8 +46,8 @@ seq_t a(idx_t n)
         idx_t new_cap = (idx_t)n + 1;
 
         /* Reallocate arrays */
-        A  = (seq_t *)realloc(A,  new_cap * sizeof(seq_t));
-        B  = (seq_t *)realloc(B,  new_cap * sizeof(seq_t));
+        A  = mem_resize(seq_t, A, new_cap);
+        B  = mem_resize(seq_t, B, new_cap);
         TAU = (idx_t *)realloc(TAU, new_cap * sizeof(idx_t));
         capacity = new_cap;
 

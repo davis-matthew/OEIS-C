@@ -12,15 +12,26 @@
  *            2n.)
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 43, u64 n <= 140, u128 n <= 222,
  *            big any n
- * Helpers:   seq_alloc_array, seq_free_array
+ * Validated: standard, pass, 49 terms through n = 222 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <string.h>
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 seq_t a(idx_t n)
 {
@@ -38,12 +49,12 @@ seq_t a(idx_t n)
         seq_t *newdp = seq_alloc_array(new_size);
         if (!newdp)
             return 0; /* allocation failure */
-        memset(newdp, 0, new_size * sizeof(seq_t));
+        mem_set(newdp, 0, new_size * sizeof(seq_t));
 
         /* copy old data if any */
         if (dp) {
             size_t old_size = (size_t)(max_computed + 1) * 37;
-            memcpy(newdp, dp, old_size * sizeof(seq_t));
+            mem_copy(newdp, dp, old_size * sizeof(seq_t));
             seq_free_array(dp);
         }
         dp = newdp;

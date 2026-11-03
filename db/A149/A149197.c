@@ -13,7 +13,8 @@
  *            larger n it applies the recurrence by binary exp...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   compute_exact_base
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,67 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/compute_exact_base.h"
+#include "../utils/mem.h"
+
+/* ----- Compute first K terms exactly (seq_t) ----- */
+static void compute_exact_base(seq_t *out, size_t K) {
+    size_t maxsz = K*K*K;
+    seq_t *dp_cur = mem_new(seq_t, maxsz);
+    seq_t *dp_next = mem_new(seq_t, maxsz);
+    dp_cur[0] = 1;
+    out[0] = 1;
+    for(size_t step=1; step<K; ++step){
+        size_t dprev=step, dcur=step+1;
+        size_t szcur = dcur*dcur*dcur;
+        mem_set(dp_next, 0, sizeof(seq_t)*maxsz);
+        for(size_t x=0;x<dprev;x++)
+        for(size_t y=0;y<dprev;y++)
+        for(size_t z=0;z<dprev;z++){
+            size_t idx = (x*dprev + y)*dprev + z;
+            seq_t v = dp_cur[idx];
+            if(!v) continue;
+            /* 1 (-1,-1,0) */
+            if(x>=1 && y>=1){
+                size_t nidx = ((x-1)*dcur + (y-1))*dcur + z;
+                dp_next[nidx] = dp_next[nidx] + v;
+            }
+            /* 2 (-1,0,0) */
+            if(x>=1){
+                size_t nidx = ((x-1)*dcur + y)*dcur + z;
+                dp_next[nidx] = dp_next[nidx] + v;
+            }
+            /* 3 (1,-1,1) */
+            if(y>=1){
+                size_t nx=x+1, ny=y-1, nz=z+1;
+                if(nx<dcur && nz<dcur){
+                    size_t nidx = (nx*dcur + ny)*dcur + nz;
+                    dp_next[nidx] = dp_next[nidx] + v;
+                }
+            }
+            /* 4 (1,0,-1) */
+            if(z>=1){
+                size_t nx=x+1, ny=y, nz=z-1;
+                if(nx<dcur){
+                    size_t nidx = (nx*dcur + ny)*dcur + nz;
+                    dp_next[nidx] = dp_next[nidx] + v;
+                }
+            }
+            /* 5 (1,1,0) */
+            {
+                size_t nx=x+1, ny=y+1, nz=z;
+                if(nx<dcur && ny<dcur){
+                    size_t nidx = (nx*dcur + ny)*dcur + nz;
+                    dp_next[nidx] = dp_next[nidx] + v;
+                }
+            }
+        }
+        seq_t s=0;
+        for(size_t i=0;i<szcur;i++) s = s + dp_next[i];
+        out[step] = s;
+        seq_t *tmp=dp_cur; dp_cur=dp_next; dp_next=tmp;
+    }
+    mem_free(dp_cur); mem_free(dp_next);
+}
 
 /* ----- Modulo arithmetic for Berlekamp–Massey (Mersenne prime 2^61‑1) ----- */
 static const uint64_t MOD = 1152921504606846975ULL;        /* 2^61-1 */
@@ -172,7 +233,7 @@ seq_t a(idx_t n) {
     seq_t vec[MAX_K], tmp_vec[MAX_K];
 
     /* build T */
-    memset(T,0,sizeof(T));
+    mem_set(T, 0, sizeof(T));
     for(size_t j=0;j<k;j++) T[0][j] = rec_coef[j];
     for(size_t i=1;i<k;i++) T[i][i-1] = 1;
 
@@ -188,17 +249,17 @@ seq_t a(idx_t n) {
                 for(size_t j=0;j<k;j++) sum = sum + T[i][j] * vec[j];
                 tmp_vec[i] = sum;
             }
-            memcpy(vec,tmp_vec,sizeof(seq_t)*k);
+            mem_copy(vec, tmp_vec, sizeof(seq_t)*k);
         }
         /* T = T * T */
-        memset(T2,0,sizeof(T2));
+        mem_set(T2, 0, sizeof(T2));
         for(size_t i=0;i<k;i++)
         for(size_t j=0;j<k;j++){
             seq_t sum = 0;
             for(size_t t=0;t<k;t++) sum = sum + T[i][t] * T[t][j];
             T2[i][j] = sum;
         }
-        memcpy(T,T2,sizeof(T));
+        mem_copy(T, T2, sizeof(T));
         e >>= 1;
     }
     return vec[0];

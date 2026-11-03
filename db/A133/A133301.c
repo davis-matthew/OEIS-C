@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 265 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *odd_cache  = NULL;   /* stores a(1), a(3), a(5), …  (index 0->a(1)) */
 static size_t odd_len      = 0, odd_cap = 0;
@@ -35,7 +37,7 @@ static void ensure_odd_up_to(size_t k)
     if (k <= odd_len) return;
     size_t new_cap = odd_cap ? odd_cap * 2 : 4;
     if (new_cap < k) new_cap = k;
-    seq_t *tmp = (seq_t *)realloc(odd_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, odd_cache, new_cap);
     if (!tmp) abort();
     odd_cache = tmp; odd_cap = new_cap;
 
@@ -61,7 +63,7 @@ static void ensure_even_up_to(size_t k)
     if (k <= even_len) return;
     size_t new_cap = even_cap ? even_cap * 2 : 4;
     if (new_cap < k) new_cap = k;
-    seq_t *tmp = (seq_t *)realloc(even_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, even_cache, new_cap);
     if (!tmp) abort();
     even_cache = tmp; even_cap = new_cap;
 

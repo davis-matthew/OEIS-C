@@ -9,7 +9,8 @@
  *            a(3)=7, …
  * Range:     u8 n <= 35, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *term_cache = NULL;        /* cached sequence terms   */
 static size_t term_capacity = 0;        /* current capacity of cache */
@@ -44,7 +46,7 @@ static void ensure_terms(idx_t n)
             /* Append distance to cache. */
             if (term_count == term_capacity) {
                 term_capacity = term_capacity == 0 ? 64 : term_capacity << 1;
-                term_cache = (seq_t *)realloc(term_cache, term_capacity * sizeof(seq_t));
+                term_cache = mem_resize(seq_t, term_cache, term_capacity);
             }
             term_cache[term_count++] = (seq_t)dist;
         }
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)0;          /* offset is 1; a(0) is undefined */
     if (!term_cache) {
         term_capacity = 64;
-        term_cache = (seq_t *)malloc(term_capacity * sizeof(seq_t));
+        term_cache = mem_new(seq_t, term_capacity);
     }
     ensure_terms(n);
     return term_cache[n - 1];

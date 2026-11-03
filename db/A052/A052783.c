@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    where s(n,k) are the unsigned Stirling numbers of the first kind. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Helper: compute unsigned Stirling numbers of the first kind
@@ -32,7 +34,7 @@ static void ensure_stirling(idx_t max_n)
 
     /* Allocate or enlarge the table.  Size = (max_n+1) rows × 6 columns. */
     idx_t newN = max_n;
-    seq_t *newS = (seq_t *)realloc(s, (newN + 1) * 6 * sizeof(seq_t));
+    seq_t *newS = mem_resize(seq_t, s, (newN + 1) * 6);
     if (!newS) abort();          /* out of memory – crash in a sane build */
     s = newS;
 

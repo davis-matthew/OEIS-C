@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Static tables and state                                         */
@@ -156,7 +158,7 @@ static void compute_terms_up_to(idx_t needed)
         /* store the term */
         if (terms_len == terms_cap) {
             terms_cap = terms_cap ? terms_cap * 2 : 256;
-            terms     = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+            terms     = mem_resize(seq_t, terms, terms_cap);
         }
         terms[terms_len++] = (seq_t)cur;
     }

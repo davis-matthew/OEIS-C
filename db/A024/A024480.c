@@ -9,13 +9,15 @@
  *            p(2), …) and t = (composite numbers)
  * Range:     u8 n <= 10, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static uint64_t *primes = NULL;   /* primes[0] = 2, primes[1] = 3, …   */
 static size_t  primes_len = 0;
@@ -27,7 +29,7 @@ static uint64_t last_limit = 0;
 static void rebuild_tables(uint64_t bound)
 {
     free(primes);
-    free(composites);
+    mem_free(composites);
 
     /* Sieve of Eratosthenes.  is_prime[i] == 1  ⇔  i is prime.  */
     unsigned char *is_prime = (unsigned char *)calloc((size_t)(bound + 1), 1);
@@ -56,10 +58,10 @@ static void rebuild_tables(uint64_t bound)
     }
 
     primes = (uint64_t *)malloc(pcnt * sizeof(uint64_t));
-    composites = (seq_t *)malloc(ccnt * sizeof(seq_t));
+    composites = mem_new(seq_t, ccnt);
     if (!primes || !composites) {
         free(primes);
-        free(composites);
+        mem_free(composites);
         free(is_prime);
         return;
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 8, i16 n <= 11, i32 n <= 15, i64 n <= 23, i128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 432 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(3)=0,
    a(n)=-(n-3)*a(n-1)+(n-3)*(n-2)   for n≥4   (offset 3) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* ----- allocate or grow the cache as needed ----------------- */
     if (cache == NULL) {                 /* first call */
         cache_size = n + 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0;            /* out‑of‑memory: give zero (should not happen) */
         for (idx_t i = 0; i < cache_size; ++i)
             cache[i] = 0;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         max_computed = 3;
     } else if (n + 1 > cache_size) {    /* need more space */
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0;             /* out‑of‑memory: give zero */
         /* initialise the newly added entries */
         for (idx_t i = cache_size; i < new_size; ++i)

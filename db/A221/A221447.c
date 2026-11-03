@@ -10,12 +10,14 @@
  *            a(5)=429, a(6)=1577, a(7)=5785
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 34, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Returns the n-th term of OEIS A221447 (n >= 1). */
 seq_t a(idx_t n)
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (!cache) {
         /* ensure capacity for at least n+1 (index 0 unused) and room for first 7 terms */
         cache_cap = (n > 7 ? n + 1 : 8);
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) { /* out‑of‑memory: abort device‑wide (no errno check) */
             abort();
         }
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         size_t new_cap = n + 1;
         if (new_cap < cache_cap * 2)
             new_cap = cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             abort();
         }

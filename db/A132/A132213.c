@@ -8,7 +8,8 @@
  *            for 0 ≤ k < n
  * Range:     u8 n <= 3498, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, mod_mul
+ * Validated: standard, pass, 116 terms through n = 8860 (2026-11-01)
+ * Helpers:   is_prime, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_mul.h"
+#include "../utils/mulmod.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
     seq_t distinct = 0;
 
     for (idx_t k = 0; k < n; ++k) {
-        idx_t r = mod_mul(k, k, n);   /* (k*k) mod n */
+        idx_t r = mulmod(k, k, n);   /* (k*k) mod n */
         if (r >= 2 && is_prime(r)) {
             if (!seen[(size_t)r]) {
                 seen[(size_t)r] = 1;

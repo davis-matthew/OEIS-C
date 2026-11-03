@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 51, u32 n <= 153, u64 n <= 529,
  *            u128 n <= 2184, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9835 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     idx_t k = n - start;  /* column index within the row */
 
     /* --- build the polynomial incrementally up to row r ---------------- */
-    seq_t *dp   = (seq_t*)calloc(1, sizeof(seq_t));   /* current polynomial */
+    seq_t *dp   = mem_new(seq_t, 1);   /* current polynomial */
     if (!dp) return 0;  /* allocation failure; should not happen */
     dp[0] = (seq_t)1;
     size_t cur_len = 1;
@@ -48,8 +50,8 @@ seq_t a(idx_t n)
         size_t glen   = (size_t)m;               /* length of factor g_m */
         size_t new_len = cur_len + glen - 1;     /* new polynomial length */
 
-        seq_t *tmp = (seq_t*)calloc(new_len, sizeof(seq_t));
-        if (!tmp) { free(dp); return 0; }
+        seq_t *tmp = mem_new(seq_t, new_len);
+        if (!tmp) { mem_free(dp); return 0; }
 
         for (size_t i = 0; i < cur_len; ++i)
         {
@@ -61,13 +63,13 @@ seq_t a(idx_t n)
             }
         }
 
-        free(dp);
+        mem_free(dp);
         dp     = tmp;
         cur_len = new_len;
     }
 
     /* dp[k] now holds the desired coefficient */
     seq_t result = dp[(size_t)k];
-    free(dp);
+    mem_free(dp);
     return result;
 }

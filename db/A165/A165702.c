@@ -11,13 +11,15 @@
  *            a(n)=44*(a(n-1)+...+a(n-8)) - 990*a(n-9) for n>=10
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[10] = {
     (seq_t)1ULL,                  /* a(0) */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* initialise cache if this is the first call */
     if (buf == NULL) {
         cap = 16;                               /* minimal size (>=10)               */
-        buf = (seq_t *)malloc(cap * sizeof(seq_t));
+        buf = mem_new(seq_t, cap);
         if (buf == NULL) return (seq_t)0;        /* out of memory – return 0          */
         for (size_t i = 0; i < 10; ++i)
             buf[i] = init_vals[i];
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap;
         while (new_cap <= (size_t)n + 1)
             new_cap <<= 1;                 /* double until big enough            */
-        seq_t *tmp = (seq_t *)realloc(buf, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, new_cap);
         if (tmp == NULL) return (seq_t)0;   /* out of memory – return 0          */
         /* initialise new elements to zero */
         for (size_t i = cap; i < new_cap; ++i)

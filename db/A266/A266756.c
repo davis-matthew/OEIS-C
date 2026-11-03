@@ -7,6 +7,7 @@
  * Formula:   a(n) = pattern[n mod 22] where the pattern repeats
  * Range:     u8 n <= 131, u16 n <= 131, u32 n <= 131, u64 n <= 131,
  *            u128 n <= 131, big any n
+ * Validated: partial, pass, 132 terms through n = 131 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -15,7 +15,8 @@
  *            divisors) to any other isolated divisor
  * Range:     u8 n <= 14, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int cmp_uint64(const void *a, const void *b) {
     const uint64_t *x = (const uint64_t *)a;
@@ -91,7 +93,7 @@ seq_t a(idx_t n) {
             /* Grow array if needed. */
             if (terms_count >= terms_cap) {
                 terms_cap = (terms_cap == 0) ? 64 : terms_cap * 2;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_count++] = (seq_t)current_candidate;
         }

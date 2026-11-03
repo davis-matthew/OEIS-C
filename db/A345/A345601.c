@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9601 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;          /* array of found terms */
 static size_t terms_len = 0;         /* number of terms stored */
@@ -67,14 +69,14 @@ static void build_terms(void)
 
     /* ---------- Extract sums with ≥8 representations ---------- */
     size_t cap = 200000;                      /* initial capacity */
-    terms = (seq_t*)malloc(cap * sizeof(seq_t));
+    terms = mem_new(seq_t, cap);
     if (!terms) abort();
 
     for (size_t s = 0; s <= MAX_SUM; ++s) {
         if (dp[MAX_T * stride + s] >= 8) {
             if (terms_len >= cap) {
                 cap *= 2;
-                terms = (seq_t*)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
                 if (!terms) abort();
             }
             terms[terms_len++] = (seq_t)s;

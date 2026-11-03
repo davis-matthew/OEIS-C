@@ -10,13 +10,23 @@
  *            = 0 if no such m exists
  * Range:     u8 n <= 13, u16 n <= 41, u32 n <= 75, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_evil
+ * Validated: standard, pass, 103 terms through n = 954 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_evil.h"
+
+static bool is_evil(seq_t x)
+{
+    int parity = 0;
+    while (x) {
+        parity ^= (int)(x & 1ULL);
+        x >>= 1;
+    }
+    return parity == 0;            /* even pop‑count */
+}
 
 seq_t a(idx_t n)
 {

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"   /* gcd(seq_t a, seq_t b) */
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Static cache for the sequence values */
 static seq_t *cache = NULL;   /* array of found k’s              */
@@ -44,7 +46,7 @@ ensure_cache_size(size_t needed)
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
     while (new_cap < cache_len + needed)
         new_cap *= 2;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

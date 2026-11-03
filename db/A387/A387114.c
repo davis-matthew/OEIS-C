@@ -9,7 +9,8 @@
  *            n. * For n=1, a(1)=0
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   build_primes_upto, divisor_count_u64, factor_u64, gcd
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, gcd, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
 #include "../utils/gcd.h"
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 static uint64_t *prime_list = NULL;
 static size_t prime_cnt   = 0;
@@ -61,5 +62,5 @@ seq_t a(idx_t n) {
         g = (i == 0) ? idx : gcd(g, idx);
     }
 
-    return (seq_t)divisor_count_u64((uint64_t)g);
+    return (seq_t)num_divisors((uint64_t)g);
 }

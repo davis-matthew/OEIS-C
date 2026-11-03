@@ -8,13 +8,17 @@
  *            8^k
  * Range:     u8 n <= 19, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +28,8 @@ seq_t a(idx_t n)
     idx_t k = 1;
 
     for (;;) {
-        seq_t t1 = mod_pow((seq_t)10, k, (seq_t)k);
-        seq_t t2 = mod_pow((seq_t)8,  k, (seq_t)k);
+        seq_t t1 = powmod((seq_t)10, k, (seq_t)k);
+        seq_t t2 = powmod((seq_t)8,  k, (seq_t)k);
 
         /* (10^k + 8^k) mod k == 0? */
         if ( (t1 + t2) % (seq_t)k == (seq_t)0 ) {

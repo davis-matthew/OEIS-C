@@ -8,11 +8,13 @@
  *            r*(r-1)/2 - 1 and T(n,k) = (n-k)*C(n,k)*C(2*n-k, n-1)/n
  * Range:     u8 n <= 7, u16 n <= 22, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* find the row r such that r*(r+1)/2 >= n */

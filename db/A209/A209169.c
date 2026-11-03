@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    (0 ≤ k < n).  a(n) is the n‑th element of the flattened triangle
    row‑wise, starting with a(1)=T(1,0). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* forward declaration of the types supplied by the build system */
 extern seq_t a(idx_t n);   /* declaration required by the build */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         idx_t cur = rows_cap + 1;   /* 1‑based row number to compute */
 
         /* allocate space for the new row */
-        seq_t *row_mem = (seq_t *)malloc(cur * sizeof(seq_t));
+        seq_t *row_mem = mem_new(seq_t, cur);
         if (!row_mem)
             abort();   /* out of memory */
 

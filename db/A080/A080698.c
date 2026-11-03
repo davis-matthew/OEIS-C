@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 10, u32 n <= 336, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   estimate_limit_for_k
+ * Validated: standard, pass, 46 terms through n = 980 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/estimate_limit_for_k.h"
+
+/* Estimate an upper bound on the number to sieve in order to obtain
+ * at least 'k' prime numbers.
+ * Uses the prime number theorem: p_k ~ k (ln k + ln ln k).          */
+static idx_t estimate_limit_for_k(idx_t k)
+{
+    if (k < 6) return 15;
+    double dk = (double)k;
+    double est = dk * (log(dk) + log(log(dk))) + 3.0;
+    return (idx_t)est + 1;
+}
 
 /* ------------------------------------------------------------------ */
 /* Global (static) data structures – kept between calls                */

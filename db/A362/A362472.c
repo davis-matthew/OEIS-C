@@ -8,13 +8,16 @@
  *            (for n≥1, a(0)=1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 36 terms through n = 273 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
 
 static seq_t *factorial_cache = NULL;
 static size_t factorial_cap = 0;
@@ -27,7 +30,7 @@ static void ensure_factorial_size(idx_t n)
     size_t new_cap = factorial_cap ? factorial_cap : 1;
     while (new_cap <= (size_t)n) new_cap <<= 1;
 
-    seq_t *new_arr = (seq_t *)realloc(factorial_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, factorial_cache, new_cap);
     if (!new_arr) exit(EXIT_FAILURE);          /* out of memory */
 
     if (!factorial_cache) { /* first allocation */
@@ -60,7 +63,7 @@ seq_t a(idx_t n)
 
         seq_t base = (seq_t)(3 * k + 1);
         int exp = (int)(n - 2 * k - 1);          /* n-2k-1 ≥ 0 for n≥1 */
-        seq_t power = pow_seq(base, exp);
+        seq_t power = ipow_i32(base, exp);
 
         part = part * power;
         sum += part;

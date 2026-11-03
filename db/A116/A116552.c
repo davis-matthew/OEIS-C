@@ -7,7 +7,8 @@
  * Formula:   a(2*n+1) = 3*a(n), a(2*n+2) = 4*a(n)+a(n-1)
  * Range:     u8 n <= 21, u16 n <= 317, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 2444 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computes A116552.  Memoised array ensures O(max(n)) cost over all
  * calls, independent of order. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* array of computed values */
 static idx_t  cap   = 0;      /* allocated capacity (in seq_t elements) */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
     idx_t new_cap = cap ? cap << 1 : 4;
     while (new_cap <= n) new_cap <<= 1;   /* make sure new_cap > n */
 
-    seq_t *new_cache = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_cap);
     if (!new_cache) exit(EXIT_FAILURE);  /* abort on allocation failure */
     cache = new_cache;
     cap   = new_cap;

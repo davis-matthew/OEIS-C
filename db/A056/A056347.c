@@ -10,7 +10,8 @@
  *            (m/2)·(6^(m/2)+6^(m/2+1)) )
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   mu_func
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   mobius_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mu_func.h"
+#include "../utils/mobius_idx.h"
 
 /* ---------- fast exponentiation for seq_t ---------- */
 static seq_t pow_big(seq_t base, idx_t exp)
@@ -91,7 +92,7 @@ seq_t a(idx_t n)
     for (idx_t i = 1; i * i <= n; ++i) {
         if (n % i == 0) {
             idx_t d1 = i;
-            int mu1 = mu_func(d1);
+            int mu1 = mobius_idx(d1);
             if (mu1 != 0) {
                 seq_t B = B_func(n / d1);
                 if (mu1 > 0) sum_pos += B; else sum_neg += B;
@@ -99,7 +100,7 @@ seq_t a(idx_t n)
 
             idx_t d2 = n / i;
             if (d2 != d1) {
-                int mu2 = mu_func(d2);
+                int mu2 = mobius_idx(d2);
                 if (mu2 != 0) {
                     seq_t B = B_func(n / d2);
                     if (mu2 > 0) sum_pos += B; else sum_neg += B;

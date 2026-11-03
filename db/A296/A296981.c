@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 13, i64 n <= 21, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,19 +42,19 @@ seq_t a(idx_t n)
     if (!fact) {
         /* factorial[0] = 1 */
         fact_cap = 1;
-        fact = (seq_t *)realloc(NULL, fact_cap * sizeof(seq_t));
+        fact = mem_resize(seq_t, NULL, fact_cap);
         fact[0] = (seq_t)1;
 
         /* Stirling tables, capacity 1 */
         stir_cap = 1;
-        s_prev = (seq_t *)realloc(NULL, stir_cap * sizeof(seq_t));
-        s_curr = (seq_t *)realloc(NULL, stir_cap * sizeof(seq_t));
+        s_prev = mem_resize(seq_t, NULL, stir_cap);
+        s_curr = mem_resize(seq_t, NULL, stir_cap);
         s_prev[0] = (seq_t)1;          /* s1(0,0)=1 */
         s_curr[0] = (seq_t)0;          /* dummy */
 
         /* a(0)=0 */
         a_cap = 1;
-        a_val = (seq_t *)realloc(NULL, a_cap * sizeof(seq_t));
+        a_val = mem_resize(seq_t, NULL, a_cap);
         a_val[0] = (seq_t)0;
 
         max_n = 0;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     /*--- grow factorial table if needed -----------------------------------*/
     if (fact_cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        seq_t *new_fact = mem_resize(seq_t, fact, new_cap);
         for (size_t i = fact_cap; i < new_cap; ++i) {
             new_fact[i] = new_fact[i - 1] * (seq_t)i;
         }
@@ -72,8 +74,8 @@ seq_t a(idx_t n)
     /*--- grow Stirling tables if needed -----------------------------------*/
     size_t need_cap = (size_t)n + 1;
     if (stir_cap < need_cap) {
-        seq_t *new_prev = (seq_t *)realloc(s_prev, need_cap * sizeof(seq_t));
-        seq_t *new_curr = (seq_t *)realloc(s_curr, need_cap * sizeof(seq_t));
+        seq_t *new_prev = mem_resize(seq_t, s_prev, need_cap);
+        seq_t *new_curr = mem_resize(seq_t, s_curr, need_cap);
         for (size_t i = stir_cap; i < need_cap; ++i) {
             new_prev[i] = (seq_t)0;
             new_curr[i] = (seq_t)0;
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
 
     /*--- grow a(n) table if needed ---------------------------------------*/
     if (a_cap < need_cap) {
-        seq_t *new_a = (seq_t *)realloc(a_val, need_cap * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_val, need_cap);
         for (size_t i = a_cap; i < need_cap; ++i) {
             new_a[i] = (seq_t)0;
         }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
     seq_t **dp    = (seq_t **)malloc(9 * sizeof(seq_t *));
     seq_t **sum3  = (seq_t **)malloc(9 * sizeof(seq_t *));
     for (int k = 0; k <= 8; ++k) {
-        dp[k]   = (seq_t *)calloc(sz, sizeof(seq_t));
-        sum3[k] = (seq_t *)calloc(sz, sizeof(seq_t));
+        dp[k]   = mem_new(seq_t, sz);
+        sum3[k] = mem_new(seq_t, sz);
     }
 
     /* build list of square‑free numbers up to n */
@@ -73,8 +75,8 @@ seq_t a(idx_t n)
 
     /* free allocated memory */
     for (int k = 0; k <= 8; ++k) {
-        free(dp[k]);
-        free(sum3[k]);
+        mem_free(dp[k]);
+        mem_free(sum3[k]);
     }
     free(dp);
     free(sum3);

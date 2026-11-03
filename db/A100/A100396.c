@@ -7,12 +7,14 @@
  * Formula:   a(n) = Bell(n-1) + Fibonacci(n)
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 16, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,13 +32,13 @@ seq_t a(idx_t n)
     if (bell_len <= n - 1) {
         idx_t newlen = n;   /* we want Bell[0..n-1] inclusive */
         if (bell == NULL) {
-            bell = (seq_t*)malloc(sizeof(seq_t) * newlen);
+            bell = mem_new(seq_t, newlen);
             if (bell == NULL)   /* allocation failed */
                 return (seq_t)0;
             bell[0] = (seq_t)1;   /* B0 = 1 */
             bell_len = 1;
         } else if (newlen > bell_len) {
-            bell = (seq_t*)realloc(bell, sizeof(seq_t) * newlen);
+            bell = mem_resize(seq_t, bell, newlen);
             if (bell == NULL)
                 return (seq_t)0;
         }
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     if (fib_len <= n) {
         idx_t newlen = n + 1;   /* we need fib[0..n] */
         if (fib == NULL) {
-            fib = (seq_t*)malloc(sizeof(seq_t) * newlen);
+            fib = mem_new(seq_t, newlen);
             if (fib == NULL)
                 return (seq_t)0;
             fib[0] = (seq_t)0;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
                 fib[1] = (seq_t)1;
             fib_len = 2;
         } else if (newlen > fib_len) {
-            fib = (seq_t*)realloc(fib, sizeof(seq_t) * newlen);
+            fib = mem_resize(seq_t, fib, newlen);
             if (fib == NULL)
                 return (seq_t)0;
         }

@@ -13,12 +13,14 @@
  *            in O(n^2) time with small memory
  * Range:     i8 n <= 16, i16 n <= 38, i32 n <= 47, i64 n <= 47, i128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t Qcoeff[4]   = { 1, -2, -2, 1 };   /* Q(x) = 1 - 2x - 2x^2 + x^3   */
 static const seq_t Qprime[3]   = { -2, -4, 3 };     /* Q'(x) = -2 - 4x + 3x^2      */
@@ -35,7 +37,7 @@ static void append_cache(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;
@@ -51,14 +53,14 @@ static void compute_next_derivative(void)
 
     /* derivative of prev polynomial (ascending) */
     size_t der_len = prev_len - 1;
-    seq_t *deriv = (seq_t*)malloc(der_len * sizeof(seq_t));
+    seq_t *deriv = mem_new(seq_t, der_len);
     for (size_t i = 0; i < der_len; ++i)
         deriv[i] = (seq_t)(i + 1) * poly[i + 1];
 
     size_t new_len = prev_len + 2;          /* length of new polynomial */
 
-    seq_t *term1 = (seq_t*)calloc(new_len, sizeof(seq_t));
-    seq_t *term2 = (seq_t*)calloc(new_len, sizeof(seq_t));
+    seq_t *term1 = mem_new(seq_t, new_len);
+    seq_t *term2 = mem_new(seq_t, new_len);
 
     /* term1 = deriv * Qcoeff */
     for (size_t i = 0; i < der_len; ++i)
@@ -71,7 +73,7 @@ static void compute_next_derivative(void)
             term2[i + j] += poly[i] * Qprime[j];
 
     /* new polynomial = term1 - n * term2 */
-    seq_t *new_poly = (seq_t*)malloc(new_len * sizeof(seq_t));
+    seq_t *new_poly = mem_new(seq_t, new_len);
     for (size_t i = 0; i < new_len; ++i) {
         seq_t t1 = term1[i];
         seq_t t2 = (seq_t)n * term2[i];
@@ -79,16 +81,16 @@ static void compute_next_derivative(void)
     }
 
     /* free temporary arrays */
-    free(deriv);
-    free(term1);
-    free(term2);
+    mem_free(deriv);
+    mem_free(term1);
+    mem_free(term2);
 
     /* append new polynomial coefficients in descending order to cache */
     for (size_t i = new_len; i-- > 0; )
         append_cache(new_poly[i]);
 
     /* replace old polynomial with new one */
-    free(poly);
+    mem_free(poly);
     poly = new_poly;
     poly_len = new_len;
     ++last_derivative;
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
     /* initialisation on first call */
     if (cache_len == 0) {
         poly_len = 3;                       /* degree 2 polynomial */
-        poly = (seq_t*)malloc(poly_len * sizeof(seq_t));
+        poly = mem_new(seq_t, poly_len);
         poly[0] = 0;      /* x^0 term */
         poly[1] = 1;      /* x^1 term */
         poly[2] = -1;     /* x^2 term */

@@ -7,7 +7,8 @@
  * Keywords:  nonn, base, fini, full
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 4, u128 n <= 4, big any n
- * Helpers:   array_to_seq
+ * Validated: full, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/array_to_seq.h"
+#include "../utils/mem.h"
+
+/* Convert a 10‑digit array to a seq_t integer value. */
+static seq_t array_to_seq(const int *d)
+{
+    seq_t val = 0;
+    for (int i = 0; i < 10; ++i) val = val * 10 + d[i];
+    return val;
+}
 
 /* Forward declaration of the required API. */
 seq_t a(idx_t n);
@@ -65,7 +74,7 @@ static void generate_perm(int pos, uint16_t used, int *curr,
             if (*len == *cap)
             {
                 *cap = (*cap == 0) ? 128 : *cap * 2;
-                *out = (seq_t *)realloc(*out, (*cap) * sizeof(seq_t));
+                *out = mem_resize(seq_t, *out, (*cap));
             }
             (*out)[(*len)++] = array_to_seq(curr);
         }
@@ -85,7 +94,7 @@ static void init_cache(seq_t **cache, size_t *len, size_t *cap)
 {
     int digits[10];
     generate_perm(0, 0, digits, cache, len, cap);
-    qsort(*cache, *len, sizeof(seq_t), cmp_seq);
+    mem_qsort(*cache, *len, sizeof(seq_t), cmp_seq);
 }
 
 /* Public function required by the test harness. */

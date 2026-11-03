@@ -9,8 +9,9 @@
  *            otherwise 0. The arithmetic derivative D(n) for n > 1 with prime
  *            factorisation n = ∏ p_i^e_i is D(n) = n * Σ (e_i / p_i). For n =
  *            0 or 1 the derivative is 0
- * Range:     u8 n <= 9838, u16 n <= 9838, u32 n <= 9838, u64 n <= 9838,
- *            u128 n <= 9838, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 122 terms through n = 9838 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

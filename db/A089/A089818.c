@@ -12,16 +12,19 @@
  *            integer with r(r+1)/2 >= N; the column k is N - (r...
  * Range:     u8 n <= 46, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   binom, compute_pi, pow2
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-01)
+ * Helpers:   binomial, pow2, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/compute_pi.h"   /* seq_t compute_pi(idx_t n); */
-#include "../utils/binom.h"       /* seq_t binom(idx_t n, idx_t k); */
-#include "../utils/pow2.h"       /* seq_t pow2(idx_t exp); */
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t N)
 {
@@ -42,11 +45,11 @@ seq_t a(idx_t N)
     unsigned __int128 tri_prev = (__uint128_t)(r - 1) * r / 2;
     idx_t k = (idx_t)(N - tri_prev - 1);           /* column index */
 
-    idx_t pi = (idx_t)compute_pi(r);               /* number of primes ≤ r */
+    idx_t pi = (idx_t)prime_pi(r);               /* number of primes ≤ r */
     if (k > pi)
         return 0;                                  /* column exceeds number of primes */
 
-    seq_t bin = binom(pi, k);                      /* C(pi, k) */
+    seq_t bin = binomial(pi, k);                      /* C(pi, k) */
     seq_t pw  = pow2(r - pi);                      /* 2^(r-pi) */
     return bin * pw;                               /* final value */
 }

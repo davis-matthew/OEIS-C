@@ -9,13 +9,15 @@
  *            a(7)=2020; a(8)=83629; a(9)=124431
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 16, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,9 +30,9 @@ seq_t a(idx_t n)
     /* Allocate/expand cache if necessary. */
     if ((size_t)n >= cap) {
         size_t new_cap = (size_t)n + 1;   /* indices 0..n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) { /* allocation failed – return 0 as fallback */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cap = 0;
             last = 0;

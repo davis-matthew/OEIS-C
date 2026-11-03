@@ -10,7 +10,8 @@
  *            with –n ≤ b0 , b1 ≤ n * such that a0·b0 + a1·b1 = 2
  * Range:     u8 n <= 12, u16 n <= 207, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   div_ceil, div_floor, egcd_pos, k_interval, llabsll
+ * Validated: standard, pass, 65 terms through n = 198 (2026-11-01)
+ * Helpers:   div_ceil
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,50 @@
 #include <stdbool.h>
 #include <limits.h>
 #include "../utils/div_ceil.h"
-#include "../utils/div_floor.h"
-#include "../utils/egcd_pos.h"
-#include "../utils/k_interval.h"
-#include "../utils/llabsll.h"
+
+/* floor division for any signs */
+static inline long long div_floor(long long a, long long b)
+{
+    long long q = a / b;
+    long long r = a % b;
+    if (r && ((r > 0) != (b > 0))) q--;
+    return q;
+}
+
+/* extended gcd for |a|,|b|; returns integers x,y with |a|*x + |b|*y = 1 */
+static inline void egcd_pos(long long a, long long b, long long *x, long long *y)
+{
+    if (b == 0) { *x = 1; *y = 0; return; }
+    long long x1, y1;
+    egcd_pos(b, a % b, &x1, &y1);
+    *x = y1;
+    *y = x1 - (a / b) * y1;
+}
+
+/* compute interval of k such that lower <= value + step*k <= upper */
+static inline bool k_interval(long long value, long long step,
+                              long long lower, long long upper,
+                              long long *k_min, long long *k_max)
+{
+    /* No restriction if step == 0 */
+    if (step == 0) {
+        if (value < lower || value > upper) return false;   /* impossible */
+        *k_min = LLONG_MIN / 2; /* effectively -∞ */
+        *k_max = LLONG_MAX / 2; /* effectively +∞ */
+        return true;
+    }
+    if (step > 0) {
+        *k_min = div_ceil(lower - value, step);
+        *k_max = div_floor(upper - value, step);
+    } else { /* step < 0 */
+        *k_min = div_ceil(upper - value, step);   /* note step negative */
+        *k_max = div_floor(lower - value, step);
+    }
+    return true;
+}
+
+/* integer absolute value for long long */
+static inline long long llabsll(long long x) { return x >= 0 ? x : -x; }
 
 /* Euclidean gcd for non‑negative numbers */
 static inline long long my_gcd(long long a, long long b)

@@ -9,6 +9,7 @@
  *            n^4*(7*n^2+12*n+8)/96 for n even
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 28, u64 n <= 30, u128 n <= 30,
  *            big any n
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

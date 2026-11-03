@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   _ceil_div, _diag_index
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,30 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_ceil_div.h"
-#include "../utils/_diag_index.h"
+
+static idx_t _ceil_div(idx_t a, idx_t b)
+{
+    return (a + b - 1) / b;
+}
+
+/* Find the smallest non‑negative integer d such that d*(d+1)/2 >= n.
+ * Uses binary search with 128‑bit arithmetic to avoid overflow. */
+static idx_t _diag_index(idx_t n)
+{
+    idx_t low = 0, high = 1;
+    /* Expand high until it satisfies the inequality. */
+    while ((__int128)high * (high + 1) / 2 < n)
+        high <<= 1;
+    low = high >> 1;
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        if ((__int128)mid * (mid + 1) / 2 >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return high;
+}
 
 seq_t a(idx_t n)
 {

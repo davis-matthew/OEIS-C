@@ -11,13 +11,15 @@
  *            339671260820, a(10) = 6453753955560, a(11) = 122621325155260
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 729 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[12] = {
     (seq_t)1ULL,
@@ -45,7 +47,7 @@ static void _ensure_capacity(size_t needed)
     size_t new_cap = (_memo_cap == 0) ? 12 : _memo_cap * 2;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_ptr = (seq_t *)realloc(_memo, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, _memo, new_cap);
     if (!new_ptr) {
         /* allocation failure – return zero as safe fallback */
         return;

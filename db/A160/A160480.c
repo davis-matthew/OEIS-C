@@ -11,14 +11,27 @@
  *            - BETA(n-1,m-1) (n≥3, 2≤m≤n-2) BETA(n,n-1) = - BETA(...
  * Range:     i8 n <= 4, i16 n <= 11, i32 n <= 22, i64 n <= 29, i128 n <= 29,
  *            big any n
- * Helpers:   factorial
+ * Validated: partial, pass, 28 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The factorial function is available in the utils library. */
 #include <stdlib.h>
-#include "../utils/factorial.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,13 +50,13 @@ seq_t a(idx_t n)
 
     /* Build the Beta triangle up to row r. */
     /* Row 2: single element BETA(2,1) = -1. */
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, 1);
     prev[0] = (seq_t)-1;
     size_t prev_len = 1;
 
     for (idx_t row = 3; row <= r; ++row) {
         size_t curr_len = (size_t)(row - 1);
-        seq_t *curr = (seq_t *)malloc(curr_len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, curr_len);
 
         /* Precompute the constant (2*row-3)^2. */
         seq_t coeff = (seq_t)(2 * row - 3);
@@ -64,13 +77,13 @@ seq_t a(idx_t n)
         }
 
         /* Move to the next row. */
-        free(prev);
+        mem_free(prev);
         prev = curr;
         prev_len = curr_len;
     }
 
     /* Extract the requested element. */
     seq_t result = prev[m - 1];
-    free(prev);
+    mem_free(prev);
     return result;
 }

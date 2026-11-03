@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 20, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   have_loop_digits
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/have_loop_digits.h"
+#include "../utils/mem.h"
+
+/* Test whether all decimal digits of a value belong to {0,4,6,8,9}. */
+static inline bool have_loop_digits(seq_t x)
+{
+    if (x == 0)          /* 0 has a single zero digit */
+        return true;
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (d && d != 4 && d != 6 && d != 8 && d != 9)
+            return false;
+        x /= 10;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -53,7 +68,7 @@ seq_t a(idx_t n)
         /* cur qualifies – store it */
         if (size == cap) {
             idx_t newcap = cap ? cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, newcap);
             if (!tmp) abort();     /* allocation failure */
             terms = tmp;
             cap   = newcap;

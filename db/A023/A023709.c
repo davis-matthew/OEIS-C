@@ -9,6 +9,7 @@
  *            numbers that contain no digit 1 in their base‑4 expansion
  * Range:     u8 n <= 81, u16 n <= 6561, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 68 terms through n = 9847 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

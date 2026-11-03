@@ -10,7 +10,8 @@
  *            indexed with offset 5 (a(5) is the first term)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto, is_prime
+ * Validated: standard, pass, 103 terms through n = 9718 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,18 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/_prime_limit_for_idx.h"
+#include <math.h>
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/is_prime.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 /* Cache of primes used to obtain the n‑th prime and to test q. */
 static uint64_t *prime_cache = NULL;

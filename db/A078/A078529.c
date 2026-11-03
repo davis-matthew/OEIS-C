@@ -10,13 +10,15 @@
  *            a(13)=10
  * Range:     u8 n <= 49, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t init[14] = {3,1,0,0,0,0,0,1,2,3,4,6,9,10};
 
@@ -32,14 +34,14 @@ seq_t a(idx_t n)
     /* Initialise the cache on the first call */
     if (cache_len == 0) {
         cache_len = 14;
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
-        memcpy(cache, init, cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
+        mem_copy(cache, init, cache_len * sizeof(seq_t));
     }
 
     /* Extend the cache if necessary */
     if (n >= cache_len) {
         idx_t new_len = n + 1;
-        cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         for (idx_t i = cache_len; i <= n; ++i) {
             /* Compute a(i) using the linear recurrence.  All
                intermediate results are held in a signed 64‑bit

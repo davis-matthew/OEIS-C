@@ -8,6 +8,7 @@
  * Formula:   a(n) = (1291 * a(n-1) + 4621) mod 21870 a(1) = 1
  * Range:     u8 n <= 1, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 57 terms through n = 8702 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

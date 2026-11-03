@@ -13,13 +13,15 @@
  *            exhaustive search
  * Range:     u8 n <= 18, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build environment */
 seq_t a(idx_t n)
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (terms == NULL) {
         terms_cap = 16;                 /* initial capacity */
-        terms     = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms     = mem_new(seq_t, terms_cap);
         terms_len = 0;
     }
 
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
             /* ensure capacity */
             if (terms_len == terms_cap) {
                 terms_cap <<= 1;  /* double the capacity */
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)current;
         }

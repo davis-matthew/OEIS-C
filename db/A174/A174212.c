@@ -7,13 +7,15 @@
  * Formula:   a(n) = (n!!)^(n!!)
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 7 terms through n = 6 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static seq_t
 double_factorial(idx_t n)
@@ -28,5 +30,5 @@ seq_t
 a(idx_t n)
 {
     seq_t d = double_factorial(n);
-    return big_pow(d, d);
+    return ipow(d, d);
 }

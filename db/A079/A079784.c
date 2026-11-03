@@ -12,7 +12,8 @@
  *            lcm(1..r) – r, with t = floor(2r / lcm(1..r)) + 1
  * Range:     u8 n <= 21, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   gcd, int_sqrt
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   gcd, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/int_sqrt.h"   /* int_sqrt(idx_t n) -> floor(sqrt(n)) */
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* Cache of lcm(1..i) for i up to the largest requested row. */
 static seq_t *lcm_cache = NULL;
@@ -41,7 +43,7 @@ static void ensure_lcm_upto(idx_t n)
 
     /* Grow cache to size n+1. */
     idx_t new_len = n + 1;
-    seq_t *tmp = (seq_t *)realloc(lcm_cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, lcm_cache, new_len);
     if (!tmp)
         exit(1);   /* out of memory */
     lcm_cache = tmp;
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
 
     /* Find the row r such that r(r+1)/2 >= n. */
     idx_t disc   = 1 + 8 * n;                /* 1 + 8*n */
-    idx_t sqrt_disc = int_sqrt(disc);        /* floor(sqrt(disc)) */
+    idx_t sqrt_disc = isqrt(disc);        /* floor(sqrt(disc)) */
     idx_t r = (sqrt_disc - 1) / 2;
     if ((r * (r + 1)) / 2 < n)
         ++r;   /* adjust to satisfy the inequality */

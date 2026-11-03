@@ -10,7 +10,8 @@
  *            n
  * Range:     u8 n <= 272, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 4970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* forward declaration of the exported function */
 seq_t a(idx_t n);
@@ -42,7 +44,7 @@ static void ensure_sieve(idx_t n)
 
     /* reallocate arrays – C++ needs an explicit cast */
     is_prime  = (uint8_t *)realloc(is_prime,  (new_size + 1) * sizeof(uint8_t));
-    pi_prefix = (seq_t  *)realloc(pi_prefix, (new_size + 1) * sizeof(seq_t));
+    pi_prefix = mem_resize(seq_t, pi_prefix, (new_size + 1));
 
     /* initialise the whole array to 1 (prime), then correct 0/1 */
     for (idx_t i = 0; i <= new_size; ++i)

@@ -7,15 +7,38 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   largest_fib, largest_lucas
+ * Validated: standard, pass, 102 terms through n = 9881 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes A353655: number of terms in the Fibonacci‑Lucas representation of n */
 #include <stdbool.h>
-#include "../utils/largest_fib.h"
-#include "../utils/largest_lucas.h"
+
+/* Return the largest Fibonacci number ≤ v.  v ≥ 1. */
+static idx_t largest_fib(idx_t v)
+{
+    idx_t a = 1, b = 1;          /* F(1), F(2) */
+    while (b <= v) {
+        idx_t tmp = b;
+        b = a + b;
+        a = tmp;
+    }
+    return a;                    /* a ≤ v < b */
+}
+
+/* Return the largest Lucas number ≤ v.  v ≥ 1. */
+static idx_t largest_lucas(idx_t v)
+{
+    idx_t a = 2, b = 1;          /* L(0), L(1) */
+    while (b <= v) {
+        idx_t tmp = b;
+        b = a + b;
+        a = tmp;
+    }
+    return a;                    /* a ≤ v < b */
+}
 
 seq_t a(idx_t n)
 {

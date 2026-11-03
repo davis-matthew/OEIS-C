@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    until no further removals are possible, then returns the n-th survivor. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         /* Allocate an array of seq_t values from 1..L.  Use malloc directly
            to avoid any helper; seq_t is a plain integer type (or an
            arbitrary‑precision class). */ 
-        seq_t *arr = (seq_t *)malloc(sizeof(seq_t) * L);
+        seq_t *arr = mem_new(seq_t, L);
         if (!arr) return 0;   /* Allocation failure */
 
         for (size_t i = 0; i < L; ++i)
@@ -56,12 +58,12 @@ seq_t a(idx_t n)
 
         if (len >= (size_t)n) {        /* enough survivors found */
             seq_t res = arr[n - 1];    /* n‑th survivor (1‑based) */
-            free(arr);
+            mem_free(arr);
             return res;
         }
 
         /* Not enough survivors – increase the list size and retry. */
-        free(arr);
+        mem_free(arr);
         L = L * 2 + 10;
     }
 }

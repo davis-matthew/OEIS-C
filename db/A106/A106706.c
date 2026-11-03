@@ -8,11 +8,13 @@
  * Formula:   a(3n) = 3*2^n+16; a(3n+1) = 3*2^n+11; a(3n+2) = 3*2^n+8
  * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 92, u64 n <= 188,
  *            u128 n <= 380, big any n
+ * Validated: standard, pass, 65 terms through n = 996 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

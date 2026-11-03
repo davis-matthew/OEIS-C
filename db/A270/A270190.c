@@ -10,7 +10,8 @@
  *            consecutive‑prime difference is divisible by 3
  * Range:     u8 n <= 87, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9703 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static data needed for the search */
 static uint32_t *primes        = NULL;   /* generated primes */
@@ -44,7 +46,7 @@ static void grow_primes(void) {
 /* Grow the good array to a larger capacity. */
 static void grow_good(void) {
     size_t new_cap = (good_cap == 0) ? 64 : good_cap * 2;
-    seq_t *new_ptr = (seq_t *)realloc(good, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, good, new_cap);
     if (new_ptr) {
         good = new_ptr;
         good_cap = new_cap;
@@ -65,7 +67,7 @@ static void ensure_good_cnt(idx_t target) {
         primes_cnt = 1;
 
         good_cap = 64;
-        good = (seq_t *)malloc(good_cap * sizeof(seq_t));
+        good = mem_new(seq_t, good_cap);
         if (!good) return;            /* allocation failure – silently abort */
 
         cur_candidate = 3;

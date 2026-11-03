@@ -12,13 +12,15 @@
  *            decreasing order. * The sequence a(n) is the numerator...
  * Range:     u8 n <= 133, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Local GCD routine – works for any unsigned seq_t type.                */
@@ -62,7 +64,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)n > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 64;
         if (new_cap < (size_t)n) new_cap = (size_t)n;
-        seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, cache, new_cap);
         if (!p) abort();              /* allocation failure */
         cache = p;
         cache_cap = new_cap;
@@ -80,7 +82,7 @@ static void init_once(void)
 {
     /* Initialise cache. */
     cache_cap = 64;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) abort();
     cache_size = 0;
 
@@ -90,21 +92,21 @@ static void init_once(void)
     if (!row_arr || !row_len) abort();
 
     /* Row 1: 1/1 */
-    row_arr[0] = (frac_t *)malloc(sizeof(frac_t));
+    row_arr[0] = mem_new(frac_t, 1);
     row_arr[0][0].num = (seq_t)1;
     row_arr[0][0].den = (seq_t)1;
     row_len[0] = 1;
     cache[cache_size++] = 1;
 
     /* Row 2: 2/1 (1 + 1/1) */
-    row_arr[1] = (frac_t *)malloc(sizeof(frac_t));
+    row_arr[1] = mem_new(frac_t, 1);
     row_arr[1][0].num = (seq_t)2;
     row_arr[1][0].den = (seq_t)1;
     row_len[1] = 1;
     cache[cache_size++] = 2;
 
     /* Row 3: 3/1 (1 + 2/1) */
-    row_arr[2] = (frac_t *)malloc(sizeof(frac_t));
+    row_arr[2] = mem_new(frac_t, 1);
     row_arr[2][0].num = (seq_t)3;
     row_arr[2][0].den = (seq_t)1;
     row_len[2] = 1;
@@ -133,7 +135,7 @@ seq_t a(idx_t n)
         size_t        len_prevprev = row_len[idx_prevprev];
 
         size_t new_len = len_prev + len_prevprev;
-        frac_t *new_row = (frac_t *)malloc(new_len * sizeof(frac_t));
+        frac_t *new_row = mem_new(frac_t, new_len);
         if (!new_row) abort();
 
         size_t pos = 0;
@@ -159,7 +161,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort the new row in decreasing order. */
-        qsort(new_row, new_len, sizeof(frac_t), cmp_frac_desc);
+        mem_qsort(new_row, new_len, sizeof(frac_t), cmp_frac_desc);
 
         /* Append numerators to the cache. */
         ensure_cache(cache_size + new_len);
@@ -168,7 +170,7 @@ seq_t a(idx_t n)
 
         /* Replace the oldest stored row. */
         size_t replace_idx = (size_t)cur_row % 3;
-        free(row_arr[replace_idx]);
+        mem_free(row_arr[replace_idx]);
 
         row_arr[replace_idx] = new_row;
         row_len[replace_idx] = new_len;

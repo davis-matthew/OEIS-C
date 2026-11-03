@@ -8,13 +8,14 @@
  * Formula:   a(n) = n! * (n-1)^2 * (n-2)^2 * (n-3) * (n-4) / 1152
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 17, u128 n <= 30,
  *            big any n
- * Helpers:   gcd_uint64
+ * Validated: standard, pass, 31 terms through n = 239 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* Euclidean gcd for uint64_t */
 
@@ -27,7 +28,7 @@ seq_t a(idx_t n) {
     /* Multiply all factors of n! */
     for (idx_t i = 2; i <= n; ++i) {
         uint64_t f = (uint64_t)i;
-        uint64_t g = gcd_uint64(f, remaining_div);
+        uint64_t g = gcd_u64(f, remaining_div);
         result = result * (seq_t)(f / g);
         remaining_div /= g;
     }
@@ -35,25 +36,25 @@ seq_t a(idx_t n) {
     /* Extra factors (n-1)^2, (n-2)^2, (n-3), (n-4) */
     for (int k = 0; k < 2; ++k) {
         uint64_t f = (uint64_t)n - 1;
-        uint64_t g = gcd_uint64(f, remaining_div);
+        uint64_t g = gcd_u64(f, remaining_div);
         result = result * (seq_t)(f / g);
         remaining_div /= g;
     }
     for (int k = 0; k < 2; ++k) {
         uint64_t f = (uint64_t)n - 2;
-        uint64_t g = gcd_uint64(f, remaining_div);
+        uint64_t g = gcd_u64(f, remaining_div);
         result = result * (seq_t)(f / g);
         remaining_div /= g;
     }
     {
         uint64_t f = (uint64_t)n - 3;
-        uint64_t g = gcd_uint64(f, remaining_div);
+        uint64_t g = gcd_u64(f, remaining_div);
         result = result * (seq_t)(f / g);
         remaining_div /= g;
     }
     {
         uint64_t f = (uint64_t)n - 4;
-        uint64_t g = gcd_uint64(f, remaining_div);
+        uint64_t g = gcd_u64(f, remaining_div);
         result = result * (seq_t)(f / g);
         remaining_div /= g;
     }

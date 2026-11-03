@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 9615, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* A list of the first two dozen primes – enough for the sizes we need. */
 static const uint32_t PRIMES[] = {
@@ -114,7 +116,7 @@ seq_t a(idx_t n)
         /* The candidate is a self‑number.  Store it.                  */
         if (self_len >= self_cap) {
             size_t new_cap = self_cap ? self_cap << 1 : 16;
-            seq_t *tmp = (seq_t *)realloc(self_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, self_cache, new_cap);
             if (!tmp) exit(1);
             self_cache = tmp;
             self_cap = new_cap;

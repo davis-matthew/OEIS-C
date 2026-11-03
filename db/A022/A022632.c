@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of q^n in ∏_{m≥1} (1 + m*q^m)^4
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 27, u64 n <= 73, u128 n <= 202,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* you may add any needed includes, but keep the code compliant to C11/C++17 */
 
@@ -28,15 +30,15 @@ seq_t a(idx_t n)
                 return (seq_t)1;
 
         /* allocate coefficient array of size n+1, initialise to zero */
-        seq_t *coef = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        seq_t *coef = mem_new(seq_t, (size_t)(n + 1));
         if (!coef)
                 return (seq_t)0;            /* memory allocation failed */
         coef[0] = (seq_t)1;
 
         /* temporary array to hold the coefficients before each m‑step   */
-        seq_t *tmp  = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp  = mem_new(seq_t, (size_t)(n + 1));
         if (!tmp) {
-                free(coef);
+                mem_free(coef);
                 return (seq_t)0;
         }
 
@@ -68,8 +70,8 @@ seq_t a(idx_t n)
         seq_t result = coef[n];
 
         /* free memory */
-        free(tmp);
-        free(coef);
+        mem_free(tmp);
+        mem_free(coef);
 
         return result;
 }

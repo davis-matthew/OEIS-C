@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 16, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term (n ≥ 1).  For n = 0 the function returns 0. */
 seq_t a(idx_t n)
@@ -49,9 +51,9 @@ seq_t a(idx_t n)
     /* Resize cache if necessary */
     if (n > cap) {
         idx_t new_cap = n;          /* allocate exactly n entries */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {                 /* allocation failure – clean up */
-            if (cache) free(cache);
+            if (cache) mem_free(cache);
             cache = NULL;
             len = cap = 0;
             return (seq_t)0;

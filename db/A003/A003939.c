@@ -8,7 +8,8 @@
  *            A000961(n+1) is the n-th prime power > 1
  * Range:     u8 none, u16 none, u32 n <= 1, u64 n <= 6, u128 n <= 10,
  *            big any n
- * Helpers:   a000272_ipow
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a000272_ipow.h"
+#include "../utils/ipow_idx.h"
 
 static uint64_t *pp_list = NULL;
 static idx_t pp_count = 0;
@@ -62,6 +63,6 @@ seq_t a(idx_t n) {
     if (qq % 2 == 1) f1 /= 2;
     seq_t q4 = q2 * q2;
     seq_t q6 = q4 * q2;
-    seq_t q9 = a000272_ipow(q, 9);
+    seq_t q9 = ipow_idx(q, 9);
     return q9 * f1 * (q4 - 1) * (q6 - 1);
 }

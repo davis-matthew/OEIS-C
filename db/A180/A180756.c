@@ -9,7 +9,8 @@
  *            element equals at least two of its four orthogonal neighbors
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 20, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define ROWS 7
 #define STATE_BITS 7
@@ -110,8 +112,8 @@ seq_t a(idx_t n)
     /* DP arrays (fixed size 128×128 = 16384). */
     static seq_t dp[STATE_COUNT * STATE_COUNT];
     static seq_t next[STATE_COUNT * STATE_COUNT];
-    memset(dp, 0, sizeof dp);
-    memset(next, 0, sizeof next);
+    mem_set(dp, 0, sizeof dp);
+    mem_set(next, 0, sizeof next);
 
     /* Initial pairs of first two rows.  r1 is already validated against r2. */
     for (unsigned r1 = 0; r1 < STATE_COUNT; ++r1) {
@@ -124,7 +126,7 @@ seq_t a(idx_t n)
 
     /* Process rows 3..n. */
     for (idx_t row = 3; row <= n; ++row) {
-        memset(next, 0, sizeof next);
+        mem_set(next, 0, sizeof next);
         for (unsigned prev = 0; prev < STATE_COUNT; ++prev) {
             for (unsigned curr = 0; curr < STATE_COUNT; ++curr) {
                 seq_t val = dp[prev * STATE_COUNT + curr];
@@ -141,7 +143,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, next, sizeof dp);
+        mem_copy(dp, next, sizeof dp);
     }
 
     /* Sum over final states: last row must be valid with its upper neighbor. */

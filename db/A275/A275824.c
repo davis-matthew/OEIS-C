@@ -10,13 +10,27 @@
  *            pen(x)+pen(y)+pen(z)+2*pen(w)=n where pen(k)=k*(3*k-1)/2
  * Range:     u8 n <= 299, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pent_of_k
+ * Validated: standard, pass, 97 terms through n = 9179 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pent_of_k.h"
+
+/* Compute pen(k) using a wider type to avoid overflow in the
+   intermediate arithmetic.  The result is cast to seq_t because
+   the cache only stores values that fit into seq_t. */
+static inline seq_t pent_of_k(idx_t k)
+{
+    /* use 128‑bit if available, otherwise 64‑bit works for all OEIS builds */
+#if defined(__SIZEOF_INT128__)
+    __uint128_t t = (__uint128_t)k * ((__uint128_t)3 * k - 1);
+#else
+    uint64_t t = (uint64_t)k * ((uint64_t)3 * k - 1);
+#endif
+    return (seq_t)(t / 2);
+}
 
 /* ------------------------------------------------------------------ */
 /*  Pentagonal numbers cache                                          */

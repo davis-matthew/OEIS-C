@@ -7,7 +7,8 @@
  * Formula:   a(1) = 1, a(n) = 2^a(n‑1) mod n (n ≥ 2)
  * Range:     u8 n <= 225, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 91 terms through n = 8609 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* index 0 unused, cache[1] = 1 */
 static idx_t   max_computed = 0;   /* highest index already computed */
@@ -30,7 +34,7 @@ seq_t a(idx_t n)
         idx_t new_cap = n + 1;           /* indices 0 … n */
         seq_t *tmp;
 #if defined(__cplusplus)
-        tmp = static_cast<seq_t*>(realloc(cache, new_cap * sizeof(seq_t)));
+        tmp = mem_resize(seq_t, cache, new_cap);
 #else
         tmp = realloc(cache, new_cap * sizeof(seq_t));
 #endif
@@ -49,7 +53,7 @@ seq_t a(idx_t n)
     for (idx_t i = max_computed + 1; i <= n; ++i) {
         seq_t exp = cache[i - 1];
         /* a(i) = 2^exp mod i.  exp ≤ i, so it fits in uint64_t. */
-        cache[i] = mod_pow((seq_t)2, (uint64_t)exp, (seq_t)i);
+        cache[i] = powmod((seq_t)2, (uint64_t)exp, (seq_t)i);
     }
     max_computed = n;
     return cache[n];

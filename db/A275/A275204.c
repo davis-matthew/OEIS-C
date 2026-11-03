@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 70, u16 n <= 359, u32 n <= 2362, u64 n <= 9963,
- *            u128 n <= 9963, big any n
- * Helpers:   none
+ * Range:     u8 n <= 70, u16 n <= 359, u32 n <= 2362, u64 n <= 20100,
+ *            u128 n <= 20100, big any n
+ * Validated: standard, pass, 107 terms through n = 9963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  * It works for any seq_t and idx_t provided by the build system.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cached triangle: triangle[t][k] (k=1..t). Index 0 unused. */
 static seq_t **triangle = NULL;
@@ -43,7 +45,7 @@ static void ensure_rows(idx_t max_row)
 
     /* compute every missing row */
     for (idx_t t = computed_rows + 1; t <= max_row; ++t) {
-        triangle[t] = (seq_t*)calloc(t + 1, sizeof(seq_t));
+        triangle[t] = mem_new(seq_t, t + 1);
         if (triangle[t] == NULL)
             return;                               // allocation failure
 

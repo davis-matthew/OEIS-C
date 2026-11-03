@@ -9,14 +9,26 @@
  *            : 0); where p_i is the i‑th prime
  * Range:     u8 n <= 6, u16 n <= 30, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   estimate_prime_upper_bound, simple_sieve
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   simple_sieve
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/estimate_prime_upper_bound.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <math.h>
 #include "../utils/simple_sieve.h"
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 seq_t a(idx_t n)
 {

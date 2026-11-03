@@ -9,8 +9,9 @@
  *            the sum of all positive divisors. * Largest proper divisor of n
  *            is n / smallest prime factor of n, * except for n = 1, where it
  *            is defined to be 0
- * Range:     i8 n <= 130, i16 n <= 9911, i32 n <= 9911, i64 n <= 9911,
- *            i128 n <= 9911, big any n
+ * Range:     i8 n <= 130, i16 n <= 16384, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 106 terms through n = 9911 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

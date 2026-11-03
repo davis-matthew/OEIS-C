@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 10, u64 n <= 11, u128 n <= 13,
  *            big any n
- * Helpers:   pow3_big
+ * Validated: standard, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   pow3_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,7 @@
 */
 
 #include <stdbool.h>
-#include "../utils/pow3_big.h"
+#include "../utils/pow3_seq.h"
 
 /* primary sequence function */
 seq_t a(idx_t n)
@@ -56,7 +57,7 @@ seq_t a(idx_t n)
 
         /* if we are at the requested index, return the term */
         if (i == n)
-            return pow3_big(e_next);
+            return pow3_seq(e_next);
 
         /* update cumulative exponent for the next iteration */
         E = E + e_next;

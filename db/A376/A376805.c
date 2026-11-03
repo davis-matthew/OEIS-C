@@ -11,7 +11,8 @@
  *            binomial(-1/3 , e). * This recurrence is used...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Static cache for T[e] = (-9)^e * binomial(-1/3 , e)   */
 static seq_t *T_cache = NULL;        /* pointer to cache array */
@@ -33,17 +35,17 @@ static void ensure_T_cache(idx_t n)
         seq_t *new_cache = NULL;
 
         if (T_cache == NULL) {
-            new_cache = (seq_t *)malloc((size_t)new_cap * sizeof(seq_t));
+            new_cache = mem_new(seq_t, (size_t)new_cap);
             if (new_cache == NULL) abort();    /* allocation failure */
             T_cache = new_cache;
             T_cap   = new_cap;
             T_len   = 0;
         } else {
-            new_cache = (seq_t *)malloc((size_t)new_cap * sizeof(seq_t));
+            new_cache = mem_new(seq_t, (size_t)new_cap);
             if (new_cache == NULL) abort();
             /* copy old values */
             for (idx_t i = 0; i < T_len; ++i) new_cache[i] = T_cache[i];
-            free(T_cache);
+            mem_free(T_cache);
             T_cache = new_cache;
             T_cap   = new_cap;
         }

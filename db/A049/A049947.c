@@ -13,12 +13,14 @@
  *            prefix‑sum array for O(1) access to the * cumulative...
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 /* Compute floor(log2(v)) for v>0 */
 static inline idx_t floor_log2_idx(idx_t v)
@@ -43,8 +45,8 @@ static inline void ensure_capacity(idx_t n)
 
     /* realloc may return NULL on failure, but we ignore that
        here because the testing harness guarantees enough memory. */
-    A = (seq_t *)realloc(A, (size_t)(new_cap + 1) * sizeof(seq_t));
-    P = (seq_t *)realloc(P, (size_t)(new_cap + 1) * sizeof(seq_t));
+    A = mem_resize(seq_t, A, (size_t)(new_cap + 1));
+    P = mem_resize(seq_t, P, (size_t)(new_cap + 1));
 
     cap = new_cap;
 }

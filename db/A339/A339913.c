@@ -6,13 +6,15 @@
  * Keywords:  nonn
  * Formula:   a(n) = (1+A060681(n))/A323071(n) i.e. a(n) = x/gcd(n,x) * where
  *            x = 1 + (n - n/p) and p = smallest prime factor of n
- * Range:     u8 n <= 287, u16 n <= 8968, u32 n <= 8968, u64 n <= 8968,
- *            u128 n <= 8968, big any n
+ * Range:     u8 n <= 287, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 106 terms through n = 8968 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 #include <stdint.h>
 

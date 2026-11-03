@@ -10,12 +10,14 @@
  *            6^(i-j) * 8^j
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static seq_t pow_seq(seq_t base, idx_t exp)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     }
     idx_t j = n - tri;           /* column within the row */
 
-    seq_t bin = binom(i, j);
+    seq_t bin = binomial(i, j);
     seq_t pow6   = pow_seq((seq_t)6, i - j);
     seq_t pow8   = pow_seq((seq_t)8, j);
 

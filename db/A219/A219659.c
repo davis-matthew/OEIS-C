@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2097, u16 n <= 2097, u32 n <= 2097, u64 n <= 2097,
  *            u128 n <= 2097, big any n
- * Helpers:   digit_sum_factoradic
+ * Validated: standard, pass, 103 terms through n = 2027 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,19 @@
  *  a(n) is the n‑th element (0‑based) of the concatenation of all rows.  */
 
 #include <stdbool.h>
-#include "../utils/digit_sum_factoradic.h"
+
+/* Sum of digits of x in factorial base (factoradic). */
+static seq_t digit_sum_factoradic(seq_t x)
+{
+    seq_t sum = 0;
+    seq_t divisor = 2;            /* i+1 for the i‑th digit (i starts at 1) */
+    while (x > 0) {
+        sum += x % divisor;
+        x /= divisor;
+        divisor++;
+    }
+    return sum;
+}
 
 /* Return the n‑th term of the sequence. */
 seq_t a(idx_t n)

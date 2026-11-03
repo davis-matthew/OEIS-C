@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    provided by the build (8,16,32,64,128‑bit or arbitrary‑precision). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,13 +33,13 @@ seq_t a(idx_t n)
     size_t size_u = (size_t)n + 1;          /* indices 0 .. n    */
     size_t size_c = (size_t)n + 1;          /* conv[0..n]        */
 
-    seq_t *s_abs = (seq_t*)calloc(size_s, sizeof(seq_t));
-    seq_t *u     = (seq_t*)calloc(size_u, sizeof(seq_t));
-    seq_t *conv  = (seq_t*)calloc(size_c, sizeof(seq_t));
+    seq_t *s_abs = mem_new(seq_t, size_s);
+    seq_t *u     = mem_new(seq_t, size_u);
+    seq_t *conv  = mem_new(seq_t, size_c);
 
     if (!s_abs || !u || !conv) {
         /* Memory allocation failed – return zero silently. */
-        free(s_abs); free(u); free(conv);
+        mem_free(s_abs); mem_free(u); mem_free(conv);
         return 0;
     }
 
@@ -75,6 +77,6 @@ seq_t a(idx_t n)
     }
     result = result / 2;
 
-    free(s_abs); free(u); free(conv);
+    mem_free(s_abs); mem_free(u); mem_free(conv);
     return result;
 }

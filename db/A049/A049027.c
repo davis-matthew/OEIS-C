@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 30, u128 n <= 59,
  *            big any n
- * Helpers:   catalan
+ * Validated: standard, pass, 42 terms through n = 195 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
 
 #include <stddef.h>      /* for size_t */
 #include <stdlib.h>      /* for malloc, realloc, free */
-#include "../utils/catalan.h"   /* catalan(idx_t) */
+#include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* ---------- initialisation (once) ---------- */
     if (cache == NULL) {
         /* allocate space for a(0) and a(1) */
-        cache = (seq_t *)malloc(sizeof(seq_t) * 2);
+        cache = mem_new(seq_t, 2);
         if (!cache) return 0;                 /* allocation failure */
         cache_cap = 2;
         cache[0] = (seq_t)1;                  /* a(0) */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     if (needed > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap : 1;
         while (new_cap < needed) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;                 /* allocation failure */
         cache   = tmp;
         cache_cap = new_cap;

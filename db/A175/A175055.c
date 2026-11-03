@@ -9,9 +9,10 @@
  * Formula:   a(n) = decimal equivalent of {A033015(n) written in binary, and
  *            each run of 0's reduced in length by one digit, and each run of
  *            1's reduced in length by one digit}
- * Range:     u8 n <= 87, u16 n <= 4179, u32 n <= 8757, u64 n <= 8757,
- *            u128 n <= 8757, big any n
- * Helpers:   compute_a_from_m, has_run_single
+ * Range:     u8 n <= 87, u16 n <= 4179, u32 n <= 10945, u64 n <= 10945,
+ *            u128 n <= 10945, big any n
+ * Validated: standard, pass, 86 terms through n = 8757 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,65 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/compute_a_from_m.h"
-#include "../utils/has_run_single.h"
+#include "../utils/mem.h"
+
+/* Helper: from a number m whose binary representation has no 1–bit
+   runs, produce the value of a(n) by shrinking each run by one.       */
+static seq_t compute_a_from_m(uint64_t m)
+{
+    if (m == 0) return 0;
+    int bits = 0;
+    uint64_t tmp = m;
+    while (tmp) { bits++; tmp >>= 1; }
+
+    int prev = (m >> (bits - 1)) & 1;
+    int run  = 1;
+    seq_t res = 0;
+
+    for (int i = bits - 2; i >= 0; --i) {
+        int bit = (m >> i) & 1;
+        if (bit == prev) {
+            ++run;
+        } else {
+            int outlen = run - 1;
+            for (int k = 0; k < outlen; ++k) {
+                res = (res << 1) | (seq_t)prev;
+            }
+            prev = bit;
+            run  = 1;
+        }
+    }
+    /* last run */
+    int outlen = run - 1;
+    for (int k = 0; k < outlen; ++k) {
+        res = (res << 1) | (seq_t)prev;
+    }
+    return res;
+}
+
+/* Helper: check whether x has any run of identical bits of length 1.
+   Returns true if such a run exists.   */
+static bool has_run_single(uint64_t x)
+{
+    if (x == 0) return false;
+    int bits = 0;
+    uint64_t tmp = x;
+    while (tmp) { bits++; tmp >>= 1; }
+
+    int prev = (x >> (bits - 1)) & 1;
+    int run  = 1;
+    for (int i = bits - 2; i >= 0; --i) {
+        int bit = (x >> i) & 1;
+        if (bit == prev) {
+            ++run;
+        } else {
+            if (run == 1) return true;
+            prev = bit;
+            run  = 1;
+        }
+    }
+    return (run == 1);
+}
 
 /* Static cache for computed a(n) values.  All indices are 1‑based. */
 static seq_t *a_cache      = NULL;
@@ -34,7 +92,7 @@ static void ensure_a_cache_capacity(size_t needed)
     if (needed <= a_cache_cap) return;
     size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 8;
     while (new_cap < needed) new_cap *= 2;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     a_cache_cap = new_cap;
 }
 

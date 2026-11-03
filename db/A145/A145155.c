@@ -7,7 +7,8 @@
  * Formula:   a(n) = (n+1) * tau(n+1)
  * Range:     i8 n <= 1, i16 n <= 4, i32 n <= 27, i64 n <= 785, i128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *tau_cache = NULL;      /* tau[0..] */
 static idx_t  cache_max = 0;         /* largest index computed so far */
@@ -48,8 +50,8 @@ ensure_tau(idx_t N)
 
     build_coeff();
     size_t size = (size_t)(N + 1);
-    seq_t *dp_cur  = (seq_t *)calloc(size, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *dp_cur  = mem_new(seq_t, size);
+    seq_t *dp_next = mem_new(seq_t, size);
 
     /* Δ(q) = q * ∏_{m≥1} (1 - q^m)^24
        Start with the polynomial q */
@@ -57,7 +59,7 @@ ensure_tau(idx_t N)
 
     for (idx_t m = 1; m <= N; ++m) {
         /* Zero dp_next for this stage */
-        memset(dp_next, 0, sizeof(seq_t) * size);
+        mem_set(dp_next, 0, sizeof(seq_t) * size);
 
         for (idx_t n = 0; n <= N; ++n) {
             seq_t val = dp_cur[n];
@@ -78,12 +80,12 @@ ensure_tau(idx_t N)
     }
 
     /* dp_cur now holds τ[0..N] */
-    if (tau_cache) free(tau_cache);
+    if (tau_cache) mem_free(tau_cache);
     tau_cache = dp_cur;
     cache_max = N;
 
     /* dp_next is no longer needed */
-    free(dp_next);
+    mem_free(dp_next);
 }
 
 /* Public interface */

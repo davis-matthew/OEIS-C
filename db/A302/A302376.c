@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   free_seq_array
+ * Validated: standard, pass, 36 terms through n = 184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,13 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache = NULL;        /* cache[i] holds a(i+1)          */
 static size_t cache_len = 0;       /* number of cached elements      */
@@ -59,7 +66,7 @@ static seq_t *alloc_seq_array(size_t n)
 {
     if (n == 0)
         return NULL;
-    return (seq_t *)malloc(n * sizeof(seq_t));
+    return mem_new(seq_t, n);
 }
 
 seq_t a(idx_t n)

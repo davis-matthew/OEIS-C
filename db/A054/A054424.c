@@ -12,13 +12,28 @@
  *            a+b and, for equal sums, by increasing a
  * Range:     u8 n <= 27, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   compute_index
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/compute_index.h"
+
+static inline seq_t compute_index(uint64_t a, uint64_t b)
+{
+    seq_t idx = 1;
+    while (a != b) {
+        if (a < b) {
+            idx = idx * 2;      /* left child */
+            b -= a;
+        } else {
+            idx = idx * 2 + 1;  /* right child */
+            a -= b;
+        }
+    }
+    return idx;
+}
 
 static inline uint64_t gcd_idx(uint64_t a, uint64_t b)
 {

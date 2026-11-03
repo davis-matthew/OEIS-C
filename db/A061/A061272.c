@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- integer square root on seq_t ----------
    Returns floor(sqrt(x)). Works for any seq_t that can store
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
             /* grow array if needed */
             if (cache_len == 0 || cache_len == SIZE_MAX) {
                 size_t new_cap = cache_len == 0 ? 64 : cache_len * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) exit(1);   /* out of memory */
                 cache = tmp;
             }

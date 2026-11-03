@@ -12,13 +12,25 @@
  *            by a single 0 and the scan * continues after th...
  * Range:     u8 n <= 114, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   thue_morse
+ * Validated: standard, pass, 77 terms through n = 9102 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/thue_morse.h"
+
+/* Thue–Morse bit (0 or 1) at position n, where n is 0‑based. */
+static inline seq_t thue_morse(idx_t n) {
+    uint64_t x = (uint64_t)n;
+    x ^= x >> 1;
+    x ^= x >> 2;
+    x ^= x >> 4;
+    x ^= x >> 8;
+    x ^= x >> 16;
+    x ^= x >> 32;
+    return (seq_t)(x & 1);
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* defined only for n ≥ 1, but guard */

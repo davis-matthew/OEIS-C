@@ -13,15 +13,19 @@
  *            p ≡ 1 (mod 4) a(p) = p otherwise (p ≡ 3 (mod 4))
  * Range:     u8 n <= 39, u16 n <= 1199, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, is_prime_small, next_prime
+ * Validated: standard, pass, 90 terms through n = 8751 (2026-11-01)
+ * Helpers:   is_prime_seq, next_prime, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* External helper headers.  The build system provides these. */
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_seq.h"
 #include "../utils/next_prime.h"
+#include "../utils/smallest_prime_factor.h"
 
 #include <stdint.h>
 
@@ -46,7 +50,7 @@ seq_t a(idx_t n)
     if (n <= 1) return (seq_t)1;       /* a(1) = 1 */
 
     uint64_t nn = (uint64_t)n;          /* idx_t is uint64_t */
-    uint64_t spf = _smallest_prime_factor(nn); /* smallest prime factor */
+    uint64_t spf = smallest_prime_factor(nn); /* smallest prime factor */
 
     if (spf == nn)                     /* n is prime */
         return prime_image(spf);

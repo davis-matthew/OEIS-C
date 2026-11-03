@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static state used to generate and cache the terms */
 static seq_t *cache = NULL;      /* dynamic array of found terms */
@@ -57,7 +59,7 @@ static void ensure_cache(size_t need)
     /* lazily allocate the cache with a default capacity */
     if (cache_cap == 0) {
         cache_cap = 20000; /* initial guess */
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
     }
 
@@ -66,7 +68,7 @@ static void ensure_cache(size_t need)
         if (has_adjacent(k) && !has_adjacent(k + 1)) {
             if (cache_len == cache_cap) {           /* expand capacity */
                 cache_cap *= 2;
-                seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * cache_cap);
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) abort();
                 cache = tmp;
             }

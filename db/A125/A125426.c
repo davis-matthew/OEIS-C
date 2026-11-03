@@ -9,13 +9,15 @@
  *            A[i][j] = 1 if |i-j| <= 7, else 0. * a(0) = 1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache if needed */
     if (n + 1 > cache_size) {
         idx_t new_size = n + 1;
-        trace_cache = (seq_t *)realloc(trace_cache, new_size * sizeof(seq_t));
+        trace_cache = mem_resize(seq_t, trace_cache, new_size);
         /* The new element(s) may be uninitialized, but we set trace_cache[0] with
          * the base case and others will be filled when computed */
         cache_size = new_size;

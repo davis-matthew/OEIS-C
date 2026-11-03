@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 1999, u32 n <= 1999, u64 n <= 1999,
  *            u128 n <= 1999, big any n
- * Helpers:   odd_part
+ * Validated: standard, pass, 78 terms through n = 1781 (2026-11-03)
+ * Helpers:   mem, odd_part
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/odd_part.h"
+#include "../utils/mem.h"
 
 static uint8_t *digits = NULL;   /* base‑10 digits of 7^current_n, least significant first */
 static idx_t digits_len = 0;     /* number of digits in use   */
@@ -48,7 +51,7 @@ static void ensure_cache_cap(idx_t need)
     if (need > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap : 1;
         while (new_cap < (size_t)need) new_cap <<= 1;
-        seq_t *newptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, cache, new_cap);
         if (!newptr) abort();
         cache = newptr;
         cache_cap = (idx_t)new_cap;
@@ -67,7 +70,7 @@ static void init(void)
         digits[0] = 1;
 
         cache_cap = 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache_len = 1;
         cache[0] = 1;                 /* a(0) = 1 */

@@ -14,7 +14,8 @@
  *            non‑negative index m
  * Range:     i8 n <= 22, i16 n <= 29, i32 n <= 47, i64 n <= 69, i128 n <= 123,
  *            big any n
- * Helpers:   alloc_seq_array, binomial, free_seq_array, int_sqrt, sum_array
+ * Validated: standard, pass, 71 terms through n = 1264 (2026-11-03)
+ * Helpers:   binomial, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,11 +27,28 @@
 
 /* Utility headers provided by the build.  Their functions are
  * declared as extern and available to the compiler. */
-#include "../utils/alloc_seq_array.h" /* seq_t *alloc_seq_array(size_t) */
-#include "../utils/free_seq_array.h"   /* void free_seq_array(seq_t *) */
-#include "../utils/binomial.h"        /* seq_t binomial(idx_t, idx_t) */
-#include "../utils/int_sqrt.h"        /* idx_t int_sqrt(idx_t) */
-#include "../utils/sum_array.h"
+#include "../utils/binomial.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* Cumulative sum of a dp array.  Handles seq_t arithmetic. */
+static seq_t sum_array(seq_t *arr, size_t len)
+{
+    seq_t s = 0;
+    for (size_t i = 0; i < len; ++i)
+        s += arr[i];
+    return s;
+}
 
 /* Compute A(n,k) where 0 ≤ n,k.  Uses integer DP that avoids fractions. */
 static seq_t compute_A(idx_t n, idx_t k)
@@ -89,7 +107,7 @@ static void antidiagonal_coords(idx_t m, idx_t *n_out, idx_t *k_out)
 
     /* Solve s(s+1)/2 ≤ m < (s+1)(s+2)/2. */
     idx_t t = 8 * m + 1;
-    idx_t s = (int_sqrt(t) - 1) / 2;     /* floor of the quadratic solution */
+    idx_t s = (isqrt(t) - 1) / 2;     /* floor of the quadratic solution */
 
     /* Correct possible rounding errors. */
     while (((idx_t)(s + 1) * (s + 2)) / 2 <= m) ++s;

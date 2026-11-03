@@ -13,12 +13,14 @@
  *            antidiagonals: * a(0)=f[0][0], a(1)=f[0][1], a(2)=f[1][0],
  * Range:     u8 n <= 26, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Locate the antidiagonal d such that d*(d+1)/2 <= n < (d+1)*(d+2)/2 */
@@ -37,11 +39,11 @@ seq_t a(idx_t n) {
 
     /* Allocate two working arrays of size d+2 (extra space to avoid bounds checks) */
     size_t sz = (size_t)d + 2;
-    seq_t *prev = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, sz);
+    seq_t *curr = mem_new(seq_t, sz);
     if (!prev || !curr) {
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return (seq_t)0;   /* sentinel for allocation failure */
     }
 
@@ -77,7 +79,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = prev[col];
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

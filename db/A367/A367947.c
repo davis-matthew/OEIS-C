@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   factor_u64, is_prime
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   factor_u64, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/factor_u64.h"
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* cache for the computed sequence */
 static seq_t  *cache      = NULL;   /* array of sequence values          */
@@ -33,7 +36,7 @@ static void grow_cache_if_needed(size_t need)
     if (cache_cap >= need) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < need) new_cap *= 2;
-    seq_t *new_mem = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, cache, new_cap);
     cache = new_mem;
     cache_cap = new_cap;
 }

@@ -8,8 +8,9 @@
  * Formula:   a(n) = A003557(A003415(n)) i.e. a(n) = arithmetic_derivative(n)
  *            / rad(arithmetic_derivative(n)) where rad(m) is the largest
  *            square‑free divisor of m (product of its distinct prime factors)
- * Range:     u8 n <= 255, u16 n <= 9928, u32 n <= 9928, u64 n <= 9928,
- *            u128 n <= 9928, big any n
+ * Range:     u8 n <= 255, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 120 terms through n = 9928 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

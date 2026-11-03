@@ -11,14 +11,21 @@
  *            descending
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 24, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   alloc_zero, tri
+ * Validated: partial, pass, 28 terms through n = 30 (2026-11-03)
+ * Helpers:   mem, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/tri.h"
+#include "../utils/triangular.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t **rows = NULL;   /* rows[m][k] = d(m, k), k = 1..rowlen[m] */
 static idx_t *rowlen = NULL;
@@ -52,12 +59,12 @@ static void ensure_rows(idx_t n) {
     rowlen = (idx_t *)realloc(rowlen, nn * sizeof(idx_t));
     for (idx_t m = nrows; m < nn; m++) {
         idx_t K = 0;
-        while (tri(K + 1) <= m) K++;
+        while (triangular(K + 1) <= m) K++;
         ensure_pascal(K + 1);
         rows[m] = alloc_zero(K + 2);
         rowlen[m] = K;
         for (idx_t k = K; k >= 1; k--) {
-            idx_t tk = tri(k);
+            idx_t tk = triangular(k);
             if (tk == m) {
                 rows[m][k] = 1;
                 continue;

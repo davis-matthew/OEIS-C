@@ -11,6 +11,7 @@
  *            +3684*n^2 -2436*n +852)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 16, u128 n <= 256,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 886 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

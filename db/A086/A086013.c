@@ -7,13 +7,26 @@
  * Formula:   a(n) = number of digit '5' in the decimal representation of n^2
  * Range:     u8 n <= 15, u16 n <= 260, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_fives
+ * Validated: standard, pass, 121 terms through n = 922 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/count_fives.h"
+
+/* Count the digit '5' in a number represented by seq_t */
+static seq_t count_fives(seq_t v)
+{
+    seq_t cnt = 0;
+    while (v > 0)
+    {
+        if ((v % 10) == 5)
+            cnt++;
+        v /= 10;
+    }
+    return cnt;
+}
 
 /* OEIS sequence A086013: number of 5's in decimal expansion of n^2 */
 seq_t a(idx_t n)

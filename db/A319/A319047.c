@@ -10,14 +10,36 @@
  *            a(n) is the i-th integer in the balanced (2k+1)-ary enumeration,
  *            i.e. write i in base (2k+1), replace every digit d by d' = d (if
  *            d<=k) or d' = d-(2k+1) (if d>k), and interp...
- * Range:     i8 n <= 8775, i16 n <= 9312, i32 n <= 9312, i64 n <= 9312,
- *            i128 n <= 9312, big any n
- * Helpers:   balanced_value
+ * Range:     i8 n <= 8775, i16 n <= 20300, i32 n <= 20300, i64 n <= 20300,
+ *            i128 n <= 20300, big any n
+ * Validated: standard, pass, 107 terms through n = 9312 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/balanced_value.h"
+static seq_t balanced_value(idx_t i, idx_t k)
+{
+    /* base = 2k+1, digits of i in that base are mapped to signed digits */
+    seq_t base = (seq_t)(2 * k + 1);
+    seq_t value = 0;
+    seq_t power = 1;
+    idx_t temp = i;
+    idx_t base_idx = 2 * k + 1; /* integer value of base for modulo/division */
+
+    while (temp > 0) {
+        idx_t digit = temp % base_idx;
+        seq_t signed_digit = (seq_t)digit;
+        if (digit > k) {
+            signed_digit -= base;
+        }
+        value += signed_digit * power;
+        power *= base;
+        temp /= base_idx;
+    }
+
+    return value;
+}
 
 seq_t a(idx_t n)
 {

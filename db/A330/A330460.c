@@ -11,7 +11,8 @@
  *            row(n) = ⌊(√(1+8n) – 1)/2⌋ col(n) = n – row(n)*(row(n)+1)/2
  * Range:     u8 n <= 191, u16 n <= 863, u32 n <= 1325, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   index_to_pos
+ * Validated: standard, pass, 107 terms through n = 1248 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,17 @@
 #include <stddef.h>
 #include <math.h>
 #include <stdlib.h>
-#include "../utils/index_to_pos.h"
+#include "../utils/mem.h"
+
+/* Convert integer n to (row, col) in the triangle */
+static inline void index_to_pos(idx_t n, idx_t *row, idx_t *col)
+{
+    /* row = floor((sqrt(1+8n) – 1)/2) */
+    double d = sqrt((double)1 + 8.0 * (double)n);
+    idx_t r = (idx_t)((d - 1.0) / 2.0);
+    *row = r;
+    *col = n - r * (r + 1) / 2;
+}
 
 /* User supplied types seq_t and idx_t – do NOT define them here */
 
@@ -42,11 +53,11 @@ static void init(void)
     MAX_I = (size_t)((sqrt(8.0 * (double)MAX_SUM + 1.0) - 1.0) / 2.0);
 
     /* Allocate partition table P[m][i] : (MAX_SUM+1) × (MAX_I+1) */
-    P = (seq_t*)malloc((MAX_SUM + 1) * (MAX_I + 1) * sizeof(seq_t));
+    P = mem_new(seq_t, (MAX_SUM + 1) * (MAX_I + 1));
     if (!P) abort();
 
     /* Allocate Stirling table S[i][k] : (MAX_I+1) × (MAX_I+1) */
-    S = (seq_t*)malloc((MAX_I + 1) * (MAX_I + 1) * sizeof(seq_t));
+    S = mem_new(seq_t, (MAX_I + 1) * (MAX_I + 1));
     if (!S) abort();
 
     /* Initialize all entries to zero */

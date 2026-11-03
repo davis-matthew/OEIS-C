@@ -9,13 +9,17 @@
  *            contains the terms R(r,1)…R(r,r) = 2^(r-1)…2^0 (mod r))
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +52,7 @@ seq_t a(idx_t n)
     /* Modulus = r.  Compute 2^e mod r using the provided utility
        which works for all seq_t sizes (including arbitrary-precision). */
     seq_t mod_val = (seq_t)r;
-    seq_t result = mod_pow((seq_t)2, e, mod_val);
+    seq_t result = powmod((seq_t)2, e, mod_val);
 
     return result;
 }

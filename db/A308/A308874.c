@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, changed
  * Formula:   not stated
- * Range:     u8 n <= 4, u16 n <= 2934, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt, is_prime
+ * Range:     u8 n <= 4, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ *            big any n
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   ipow_i32, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,26 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../utils/floor_sqrt.h"   /* floor_sqrt(seq_t) */
-#include "../utils/is_prime.h"     /* bool is_prime(idx_t) */
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Test whether x is a perfect square. */
 static bool is_square(seq_t x)

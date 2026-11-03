@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2*(2*n+3)*a(n-1); a(0)=1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 335 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
         while (new_cap <= n) new_cap <<= 1;
         if (new_cap > cap) {
             /* realloc returns void* in C++; cast explicitly */
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cap   = new_cap;
         }
 

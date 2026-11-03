@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   DH
+ * Validated: partial, pass, 67 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,15 @@
  */
 
 #include <stdint.h>   /* for uint64_t, etc. */
-#include "../utils/DH.h"
+
+static inline seq_t DH(idx_t r, idx_t d)
+{
+    /* Number of unordered index pairs at cycle distance d */
+    if (r % 2 == 0 && d == r / 2)    /* even r, central distance */
+        return (seq_t)(r / 2);
+    else                            /* all other distances */
+        return (seq_t)r;
+}
 
 static inline seq_t pair_count(idx_t r, idx_t k)
 {

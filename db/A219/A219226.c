@@ -12,13 +12,15 @@
  *            gives the required values a(n) = c[2n]
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 27, u64 n <= 50, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 2215 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for coefficients of A(x) */
 static seq_t *coeff = NULL;          /* coefficients c[i] = [x^i]A(x) */
@@ -30,7 +32,7 @@ static void ensure_capacity(size_t max_index)
 {
     if (max_index < coeff_size) return;
     size_t new_size = max_index + 1;
-    seq_t *tmp = (seq_t *)realloc(coeff, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, coeff, new_size);
     if (!tmp) exit(EXIT_FAILURE);          /* allocation failed */
     for (size_t i = coeff_size; i < new_size; ++i) tmp[i] = 0;   /* initialise new slots */
     coeff = tmp;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* initialise on first use */
     if (!coeff) {
         coeff_size = 3;                   /* indices 0,1,2 */
-        coeff = (seq_t *)malloc(coeff_size * sizeof(seq_t));
+        coeff = mem_new(seq_t, coeff_size);
         if (!coeff) exit(EXIT_FAILURE);
         for (size_t i = 0; i < coeff_size; ++i) coeff[i] = 0;
         coeff[1] = 1;                     /* c[1] = 1  → a(1) = 1 */

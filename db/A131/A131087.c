@@ -8,15 +8,16 @@
  * Formula:   a(n) = T(r,k) where T(n,k) = 2*binomial(n,k) - (1 +
  *            (-1)^(n-k))/2, r and k are determined from the flat index n
  *            (0‑based) as the row and column in the triangular array
- * Range:     u8 n <= 39, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
+ * Range:     u8 n <= 58, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 static inline idx_t triangular(idx_t r)
 /*  r*(r+1)/2  (no overflow for idx_t within typical limits) */
@@ -54,7 +55,7 @@ seq_t a(idx_t n)
     idx_t k = n - triangular(r);
 
     /* Compute binomial coefficient. */
-    seq_t bin = binom(r, k);
+    seq_t bin = binomial(r, k);
 
     /* Compute the parity term:
         parity = ((r - k) % 2 == 0) ? 1 : 0   (i.e. (1 + (-1)^(r-k))/2)

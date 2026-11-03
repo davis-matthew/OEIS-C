@@ -11,14 +11,42 @@
  *            digit from left to right
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   dedup_digits
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/dedup_digits.h"
+
+/* Helper: remove repeated digits, keeping first occurrence. */
+static seq_t dedup_digits(seq_t x)
+{
+    /* maximum decimal digits for 128-bit: 39, so 40 is enough for all built‐ins. */
+    uint8_t digits[40];
+    size_t dlen = 0;
+    /* Extract digits least‑to‑most. */
+    while (x > (seq_t)0) {
+        uint8_t d = (uint8_t)(x % 10);
+        digits[dlen++] = d;
+        x /= 10;
+    }
+    if (dlen == 0) {   /* handle x == 0 if ever needed */
+        digits[dlen++] = 0;
+    }
+    bool seen[10] = {false};
+    seq_t result = 0;
+    /* Process most‑to‑least to preserve order of first occurrences. */
+    for (size_t i = dlen; i-- > 0;) {
+        uint8_t d = digits[i];
+        if (!seen[d]) {
+            seen[d] = true;
+            result = result * 10 + d;
+        }
+    }
+    return result;
+}
 
 /* Sequence function. */
 seq_t a(idx_t n)

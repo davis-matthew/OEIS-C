@@ -8,24 +8,25 @@
  *            24*6^n
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   _powseq
+ * Validated: standard, pass, 32 terms through n = 504 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_powseq.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     /* Calculate each power once */
-    seq_t p6  = _powseq((seq_t)6, n);
-    seq_t p7  = _powseq((seq_t)7, n);
-    seq_t p8  = _powseq((seq_t)8, n);
-    seq_t p10 = _powseq((seq_t)10, n);
-    seq_t p11 = _powseq((seq_t)11, n);
-    seq_t p17 = _powseq((seq_t)17, n);
-    seq_t p32 = _powseq((seq_t)32, n);
+    seq_t p6  = ipow_idx((seq_t)6, n);
+    seq_t p7  = ipow_idx((seq_t)7, n);
+    seq_t p8  = ipow_idx((seq_t)8, n);
+    seq_t p10 = ipow_idx((seq_t)10, n);
+    seq_t p11 = ipow_idx((seq_t)11, n);
+    seq_t p17 = ipow_idx((seq_t)17, n);
+    seq_t p32 = ipow_idx((seq_t)32, n);
 
     /* Combine according to the formula */
     seq_t ans = p32

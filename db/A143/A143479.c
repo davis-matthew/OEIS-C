@@ -12,14 +12,50 @@
  *            +8554 t⁶ -3875 t⁷ +1140 t⁸ -210 t⁹ +22 t¹⁰ - t¹¹
  * Range:     i8 n <= 1, i16 n <= 4, i32 n <= 11, i64 n <= 27, i128 n <= 60,
  *            big any n
- * Helpers:   init_q
+ * Validated: standard, pass, 38 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/init_q.h"
+#include "../utils/mem.h"
+
+static void init_q(seq_t *q)
+{
+    /* p(t) coefficients, k = 0 … 11 */
+    const seq_t p_coeff[12] = {
+        -2, -167, 1694, -6069, 11210, -12297,
+         8554, -3875, 1140, -210, 22, -1
+    };
+
+    /* binomial coefficients binom[n][k] for n,k ≤ 11 */
+    static int binom[12][12] = {0};
+    static int binom_inited = 0;
+
+    if (!binom_inited) {
+        binom_inited = 1;
+        for (int i = 0; i <= 11; ++i) {
+            binom[i][0] = binom[i][i] = 1;
+            for (int j = 1; j < i; ++j)
+                binom[i][j] = binom[i-1][j-1] + binom[i-1][j];
+        }
+    }
+
+    /* initialise q to zero */
+    for (int i = 0; i <= 22; ++i)
+        q[i] = 0;
+
+    /* q(x) = x^11 * p(x + x^{-1}) */
+    for (int k = 0; k <= 11; ++k) {
+        seq_t c = p_coeff[k];
+        for (int j = 0; j <= k; ++j) {
+            int m = 11 + 2*j - k;          /* exponent of x */
+            q[m] += c * (seq_t)binom[k][j];
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -41,10 +77,10 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap << 1 : 16;
         if (new_cap < need)
             new_cap = need;
-        seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (cache && cache_len > 0)
-            memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-        free(cache);
+            mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

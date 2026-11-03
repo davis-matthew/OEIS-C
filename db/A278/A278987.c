@@ -14,13 +14,32 @@
  *            OEIS index n is read by a “downward” antidiag...
  * Range:     u8 n <= 47, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   index_to_b_m
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/index_to_b_m.h"
+
+/* Convert OEIS linear index to the pair (b,m) in the array T(b,m),
+   where b is the alphabet size and m is the word length.  The
+   array is read by antidiagonals downwards. */
+static void index_to_b_m(idx_t idx, idx_t *b, idx_t *m)
+{
+    /* find the diagonal d such that (d+1)(d+2)/2 ≥ idx */
+    idx_t d = 0;
+    idx_t tri = 1;                     /* (d+1)(d+2)/2 for d=0 */
+    while (tri < idx) {
+        ++d;
+        tri = (d + 1) * (d + 2) / 2;
+    }
+    idx_t prev_tri = d * (d + 1) / 2;   /* sum of elements up to previous diagonal */
+    idx_t pos = idx - prev_tri;         /* 1‑based position within diagonal d */
+
+    *b = pos;                           /* row index */
+    *m = d + 2 - pos;                   /* column index */
+}
 
 /* Pre‑allocated tables for S₂ up to a fixed maximum */
 #define MAX_N 1000          /* sufficient for all test cases */

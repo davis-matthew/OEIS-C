@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   jacobsthal_at
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,7 +38,24 @@
  */
 
 #include <stdint.h>
-#include "../utils/jacobsthal_at.h"
+
+/* --------------------------------------------------------------------- */
+static seq_t jacobsthal_at(idx_t k)
+{
+    /* Compute the Jacobsthal number J(k) by recurrence.
+       J(0)=0, J(1)=1, J(k)=J(k-1)+2*J(k-2).           */
+    if (k == 0)
+        return (seq_t)0;
+    if (k == 1)
+        return (seq_t)1;
+    seq_t j0 = 0, j1 = 1, j2;
+    for (idx_t i = 2; i <= k; ++i) {
+        j2 = j1 + (j0 << 1);   /* j2 = j1 + 2*j0 */
+        j0 = j1;
+        j1 = j2;
+    }
+    return j1;
+}
 
 /* --------------------------------------------------------------------- */
 static seq_t pow2_idx(idx_t exp)

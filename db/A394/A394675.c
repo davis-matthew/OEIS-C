@@ -12,12 +12,14 @@
  *            intermediate values
  * Range:     u8 n <= 17, u16 n <= 28, u32 n <= 51, u64 n <= 97, u128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == (idx_t)1) return (seq_t)1;
@@ -28,8 +30,8 @@ seq_t a(idx_t n) {
      * element starts at zero.
      */
     size_t sz = (size_t)n + 3;
-    seq_t *inc = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *rem = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *inc = mem_new(seq_t, sz);
+    seq_t *rem = mem_new(seq_t, sz);
     if (!inc || !rem) {
         /* Allocation failed – abort with zero (unlikely in tests). */
         return (seq_t)0;
@@ -67,7 +69,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = prev;
-    free(inc);
-    free(rem);
+    mem_free(inc);
+    mem_free(rem);
     return result;
 }

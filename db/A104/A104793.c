@@ -9,6 +9,7 @@
  *            position in row r)
  * Range:     u8 n <= 28, u16 n <= 190, u32 n <= 903, u64 n <= 3916,
  *            u128 n <= 5050, big any n
+ * Validated: standard, pass, 82 terms through n = 4381 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

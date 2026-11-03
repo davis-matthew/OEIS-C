@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   pow3
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,9 @@
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/pow3.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,17 +39,19 @@ seq_t a(idx_t n)
     /* Build rows until we have stored a(n) */
     while (1) {
         idx_t r = rows;
-        /* starting index of row r: r*(r+1)/2   (computed as seq_t then cast to idx_t) */
-        idx_t start = (idx_t)(((seq_t)r * (r + 1)) / 2);
+        /* starting index of row r: r*(r+1)/2, in idx_t (going through seq_t
+           made g++ 15.2 -O2 miscompile the big build: its jump threading
+           took the r == 0 branch below for every r) */
+        idx_t start = r * (r + 1) / 2;
         /* starting index of previous row (needed for interior entries) */
-        idx_t prev_start = (r == 0) ? 0 : (idx_t)(((seq_t)(r - 1) * r) / 2);
+        idx_t prev_start = (r == 0) ? 0 : (r - 1) * r / 2;
 
         /* ensure enough storage for the new row (indices up to start+r inclusive) */
         size_t needed = (size_t)(start + r + 1);
         if (cap < needed) {
             size_t new_cap = cap ? cap << 1 : 16;
             if (new_cap < needed) new_cap = needed;
-            seq_t *p = (seq_t *)realloc(tri, new_cap * sizeof(seq_t));
+            seq_t *p = mem_resize(seq_t, tri, new_cap);
             if (!p) abort();
             tri = p;
             cap = new_cap;

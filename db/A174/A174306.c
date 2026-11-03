@@ -12,6 +12,7 @@
  *            arithmetic is performed with seq_t
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 3, i64 n <= 5, i128 n <= 6,
  *            big any n
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

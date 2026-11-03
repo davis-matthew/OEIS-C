@@ -9,7 +9,8 @@
  *            exponent ≥ p)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   u64_gcd
+ * Validated: standard, pass, 136 terms through n = 9461 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/u64_gcd.h"
+#include "../utils/gcd_u64.h"
 
 /* multiplication modulo n using 128‑bit arithmetic */
 static inline uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t mod) {
@@ -83,7 +84,7 @@ static uint64_t pollard_rho(uint64_t n) {
             y = (mul_mod(y, y, n) + c) % n;
             y = (mul_mod(y, y, n) + c) % n;
             uint64_t diff = x > y ? x - y : y - x;
-            d = u64_gcd(diff, n);
+            d = gcd_u64(diff, n);
         }
         if (d != n) return d;
         ++c;

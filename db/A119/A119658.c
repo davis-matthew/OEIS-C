@@ -8,7 +8,8 @@
  *            (prime whose index in the list of primes is itself prime)
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 844, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes, is_prime
+ * Validated: standard, pass, 50 terms through n = 985 (2026-11-03)
+ * Helpers:   build_primes, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdbool.h>
 
 /* helpers from the utils library */
-#include "../utils/build_primes.h"   /* build_primes */
-#include "../utils/is_prime.h"       /* is_prime */
+#include <stddef.h>
+#include "../utils/build_primes.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *pip_vals = NULL;   /* array of Prime‑Indexed Primes */
 static idx_t  pip_cnt = 0;       /* number of values stored in pip_vals */
@@ -50,7 +53,7 @@ init_pip_table(void)
     }
 
     /* allocate storage for the Prime‑Indexed Primes */
-    pip_vals = (seq_t*)malloc(hit_cnt * sizeof(seq_t));
+    pip_vals = mem_new(seq_t, hit_cnt);
     if (!pip_vals) exit(EXIT_FAILURE);
 
     /* copy the relevant primes into the table */

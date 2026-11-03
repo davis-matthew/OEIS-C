@@ -8,8 +8,9 @@
  * Keywords:  nice, nonn
  * Formula:   a(n) = # {(p,x,y) : p + 2^x + 11·2^y = 2·n – 1, * p prime ≡ 5
  *            (mod 6), x>0, y>0}
- * Range:     u8 n <= 9442, u16 n <= 9442, u32 n <= 9442, u64 n <= 9442,
- *            u128 n <= 9442, big any n
+ * Range:     u8 n <= 200000, u16 n <= 200000, u32 n <= 200000,
+ *            u64 n <= 200000, u128 n <= 200000, big any n
+ * Validated: standard, pass, 76 terms through n = 9442 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

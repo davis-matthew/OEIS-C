@@ -11,12 +11,14 @@
  *            arbitrary order of calls
  * Range:     i8 n <= 7, i16 n <= 12, i32 n <= 18, i64 n <= 28, i128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoization array */
 static idx_t cache_len = 0;   /* number of elements currently stored */
@@ -30,7 +32,7 @@ ensure_cache(idx_t n)
 
     /* Allocate or extend the cache. */
     size_t new_len = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp)
         abort();                      /* out of memory */
     cache = tmp;

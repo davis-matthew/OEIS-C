@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{k=1}^{⌊(√(8n+1)-1)/2⌋} n!/(n-k)! * p_distinct(n,k)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 27, u64 n <= 63, u128 n <= 160,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     size_t cols = (size_t)(kmax + 1);
     size_t total = rows * cols;
 
-    seq_t *dp = (seq_t *)malloc(total * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, total);
     if (!dp) return 0;
 
     /* zero initialise */
@@ -74,6 +76,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(dp);
+    mem_free(dp);
     return ans;
 }

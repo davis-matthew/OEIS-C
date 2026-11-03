@@ -8,12 +8,15 @@
  * Formula:   a(n) = n^n - ((n-1)*n*(2*n-1)/6)*n^(n-2) (n >= 1)
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 9, i64 n <= 15, i128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 100 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -24,13 +27,13 @@ seq_t a(idx_t n)
     seq_t N = (seq_t)n;                    /* cast index to seq_t once */
 
     /* n^n */
-    seq_t p1 = big_pow(N, N);
+    seq_t p1 = ipow(N, N);
 
     /* coefficient ((n-1)*n*(2*n-1)/6) */
     seq_t coeff = ((seq_t)(n - 1)) * N * (((seq_t)2 * N) - 1) / 6;
 
     /* n^(n-2) */
-    seq_t p2 = big_pow(N, (seq_t)(N - 2));
+    seq_t p2 = ipow(N, (seq_t)(N - 2));
 
     return p1 - coeff * p2;
 }

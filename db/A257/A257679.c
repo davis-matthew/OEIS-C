@@ -9,6 +9,7 @@
  *            return 0 when n==0
  * Range:     u8 n <= 5040, u16 n <= 5040, u32 n <= 5040, u64 n <= 5040,
  *            u128 n <= 5040, big any n
+ * Validated: standard, pass, 137 terms through n = 4990 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

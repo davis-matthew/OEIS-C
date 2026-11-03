@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 713, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9816 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---- minimal heap for seq_t --------------------------------- */
 static seq_t *heap = NULL;
@@ -28,7 +30,7 @@ static size_t heap_size = 0, heap_cap = 0;
 
 static void heap_resize(void) {
     size_t new_cap = heap_cap ? heap_cap << 1 : 64;
-    seq_t *new_hp = (seq_t *)realloc(heap, new_cap * sizeof(seq_t));
+    seq_t *new_hp = mem_resize(seq_t, heap, new_cap);
     if (!new_hp) abort();
     heap = new_hp;
     heap_cap = new_cap;
@@ -68,7 +70,7 @@ static size_t hash_cap = 0, hash_mask = 0;
 static void hash_init(void) {
     hash_cap = 1 << 17;          /* 131072 entries, load < 1/4 for n≈10^4 */
     hash_mask = hash_cap - 1;
-    hash_keys = (seq_t *)calloc(hash_cap, sizeof(seq_t));
+    hash_keys = mem_new(seq_t, hash_cap);
     if (!hash_keys) abort();
 }
 
@@ -105,7 +107,7 @@ static void cache_resize(size_t min_cap) {
     if (cache_cap >= min_cap) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 64;
     if (new_cap < min_cap) new_cap = min_cap;
-    seq_t *new_cp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cp = mem_resize(seq_t, cache, new_cap);
     if (!new_cp) abort();
     cache = new_cp;
     cache_cap = new_cap;

@@ -8,7 +8,8 @@
  *            binomial(n-1,n-k)/(k+1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* public function required by the judge */
 seq_t a(idx_t n)
@@ -34,10 +36,10 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (seq == NULL) {
         capacity = 16;   /* initial capacity (number of stored terms) */
-        seq = (seq_t*)malloc(capacity * sizeof(seq_t));
-        d   = (seq_t*)malloc(capacity * sizeof(seq_t));
-        b   = (seq_t*)malloc(capacity * sizeof(seq_t));
-        c   = (seq_t*)malloc(capacity * sizeof(seq_t));
+        seq = mem_new(seq_t, capacity);
+        d   = mem_new(seq_t, capacity);
+        b   = mem_new(seq_t, capacity);
+        c   = mem_new(seq_t, capacity);
 
         /* term n = 0 */
         seq[0] = 1;      /* a[0] = 1 */
@@ -53,10 +55,10 @@ seq_t a(idx_t n)
         if (needed > capacity) {
             size_t newcap = capacity;
             while (newcap < needed) newcap <<= 1;
-            seq = (seq_t*)realloc(seq, newcap * sizeof(seq_t));
-            d   = (seq_t*)realloc(d,   newcap * sizeof(seq_t));
-            b   = (seq_t*)realloc(b,   newcap * sizeof(seq_t));
-            c   = (seq_t*)realloc(c,   newcap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, newcap);
+            d   = mem_resize(seq_t, d, newcap);
+            b   = mem_resize(seq_t, b, newcap);
+            c   = mem_resize(seq_t, c, newcap);
             capacity = newcap;
         }
 

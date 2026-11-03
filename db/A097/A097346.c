@@ -8,21 +8,23 @@
  *            where A003418(n) = lcm(1, 2, …, n+1)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   binom, seq_gcd
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/seq_gcd.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
     /* 1. compute A003418(n) = lcm(1 .. n+1) */
     seq_t lcm_val = 1;
     for (idx_t i = 2; i <= n + 1; ++i) {
-        seq_t g = seq_gcd(lcm_val, (seq_t)i);
+        seq_t g = gcd(lcm_val, (seq_t)i);
         lcm_val = (lcm_val / g) * (seq_t)i;   /* lcm = lcm_prev / g * i */
     }
 
@@ -30,12 +32,12 @@ seq_t a(idx_t n)
     seq_t sum_num = 0;
     seq_t sum_den = 1;
     for (idx_t k = 0; k <= n / 2; ++k) {
-        seq_t term_num = binom(n - k, k);      /* binomial coefficient */
+        seq_t term_num = binomial(n - k, k);      /* binomial coefficient */
         seq_t term_den = (seq_t)(k + 1);       /* denominator of the term */
 
         seq_t new_num = sum_num * term_den + term_num * sum_den;
         seq_t new_den = sum_den * term_den;
-        seq_t g = seq_gcd(new_num, new_den);
+        seq_t g = gcd(new_num, new_den);
         sum_num = new_num / g;
         sum_den = new_den / g;
     }

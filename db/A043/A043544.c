@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   sum_digits_in_base, sum_of_digits_all_bases
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,27 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sum_digits_in_base.h"
-#include "../utils/sum_of_digits_all_bases.h"
+
+/* Helper: sum of digits of a number k in a given base (k and base fit in uint64_t) */
+static seq_t sum_digits_in_base(uint64_t k, uint64_t base)
+{
+    seq_t sum = 0;
+    while (k)
+    {
+        sum += (seq_t)(k % base);
+        k /= base;
+    }
+    return sum;
+}
+
+/* Helper: sum of digits of k in all bases from 2 to k */
+static seq_t sum_of_digits_all_bases(uint64_t k)
+{
+    seq_t total = 0;
+    for (uint64_t base = 2; base <= k; ++base)
+        total += sum_digits_in_base(k, base);
+    return total;
+}
 
 /* Forward declaration of the external function */
 seq_t a(idx_t n);

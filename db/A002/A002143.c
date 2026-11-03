@@ -11,7 +11,8 @@
  *            residues are marked by squaring; p is found by trial division
  * Range:     u8 n <= 1502, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a2143_isprime, a2143_nth_prime_3mod4
+ * Validated: standard, pass, 104 terms through n = 9866 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/a2143_isprime.h"
-#include "../utils/a2143_nth_prime_3mod4.h"
+#include "../utils/is_prime_u64.h"
+
+static uint64_t a2143_nth_prime_3mod4(idx_t n) {
+    idx_t count = 0;
+    uint64_t p = 3;
+    for (;;) {
+        if (is_prime_u64(p)) {
+            count++;
+            if (count == n) return p;
+        }
+        p += 4;
+    }
+}
 
 seq_t a(idx_t n) {
     uint64_t p = a2143_nth_prime_3mod4(n);

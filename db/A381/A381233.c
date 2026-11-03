@@ -9,8 +9,9 @@
  *            pos = n - k*k. * Then a(n) = pos == 0 ? 0 : * (pos is odd ?
  *            (pos+1)/2 * : -(pos/2)); * This implements the concatenation of
  *            S(k) = [0,1,-1,…,k,-k] for k=0,1,…
- * Range:     i8 n <= 9157, i16 n <= 9564, i32 n <= 9564, i64 n <= 9564,
- *            i128 n <= 9564, big any n
+ * Range:     i8 n <= 9157, i16 n <= 10200, i32 n <= 10200, i64 n <= 10200,
+ *            i128 n <= 10200, big any n
+ * Validated: standard, pass, 116 terms through n = 9564 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

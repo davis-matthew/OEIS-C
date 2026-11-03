@@ -8,13 +8,15 @@
  *            offset 0)
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n)
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap ? (cap << 1) : 8;
         while (new_cap <= (size_t)n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)1;         /* unlikely fallback */
         cache = tmp;
         cap   = new_cap;

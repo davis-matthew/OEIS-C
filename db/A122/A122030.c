@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 8, u64 n <= 9, u128 n <= 10,
  *            big any n
- * Helpers:   read_decimal_in_base
+ * Validated: partial, pass, 8 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,36 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/read_decimal_in_base.h"
+#include "../utils/mem.h"
+
+static seq_t read_decimal_in_base(seq_t value, seq_t base)
+{
+    /* convert decimal digits of 'value' and interpret in 'base' */
+    if (value == 0)
+        return 0;
+
+    /* collect digits in reverse order */
+    size_t cap = 16;
+    size_t pos = 0;
+    uint8_t *buf = (uint8_t *)malloc(cap);
+    seq_t tmp = value;
+    while (tmp > 0) {
+        if (pos == cap) {
+            cap <<= 1;
+            buf = (uint8_t *)realloc(buf, cap);
+        }
+        buf[pos++] = (uint8_t)(tmp % 10);
+        tmp /= 10;
+    }
+
+    seq_t result = 0;
+    for (size_t i = pos; i-- > 0; ) {
+        result = result * base + (seq_t)buf[i];
+    }
+
+    free(buf);
+    return result;
+}
 
 /* cached base values for each chain length m (m >= 1) */
 static seq_t *base_cache = NULL;
@@ -33,7 +63,7 @@ static void ensure_base_cache(idx_t m)
 {
     if (m >= base_cache_size) {
         idx_t new_size = (m + 1) * 2;
-        seq_t *new_cache = (seq_t *)realloc(base_cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, base_cache, new_size);
         for (idx_t i = base_cache_size; i < new_size; ++i)
             new_cache[i] = 0;
         base_cache = new_cache;
@@ -49,7 +79,7 @@ static seq_t compute_base(idx_t m)
     if (base_cache[m] != 0) return base_cache[m];
 
     /* Build array of base values B[1..m]  (B[k] = 32 * 2^(k-1)) */
-    seq_t *B = (seq_t *)malloc((m + 1) * sizeof(seq_t));
+    seq_t *B = mem_new(seq_t, (m + 1));
     seq_t val = (seq_t)32;
     for (idx_t k = 1; k <= m; ++k) {
         B[k] = val;
@@ -68,7 +98,7 @@ static seq_t compute_base(idx_t m)
         }
     }
 
-    free(B);
+    mem_free(B);
     base_cache[m] = base_val;
     return base_val;
 }
@@ -81,7 +111,7 @@ static void ensure_a_cache(idx_t n)
 {
     if (n >= a_cache_size) {
         idx_t new_size = (n + 1) * 2;
-        seq_t *new_cache = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, a_cache, new_size);
         for (idx_t i = a_cache_size; i < new_size; ++i)
             new_cache[i] = 0;
         a_cache = new_cache;

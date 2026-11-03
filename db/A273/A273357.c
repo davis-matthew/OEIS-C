@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 2, u16 n <= 42, u32 n <= 9819, u64 n <= 9819,
- *            u128 n <= 9819, big any n
- * Helpers:   digit_len, pow10
+ * Range:     u8 n <= 2, u16 n <= 42, u32 n <= 13085, u64 n <= 13085,
+ *            u128 n <= 13085, big any n
+ * Validated: standard, pass, 59 terms through n = 9819 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,20 @@
 /* a(n) = the n-th integer n such that concat(2,n) is a perfect square. */
 
 #include <stdlib.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"   /* digit_len(seq_t) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +44,7 @@ seq_t a(idx_t n)
     while (cache_len < n) {
         /* Square of the current candidate */
         seq_t sq = (seq_t)next_m * (seq_t)next_m;
-        int d = digit_len(sq);                    /* number of decimal digits of sq */
+        int d = num_digits(sq);                    /* number of decimal digits of sq */
         /* d >= 2 because the first digit of any matching square must be 2. */
 
         /* Leading digit of sq: 2 ? */
@@ -45,7 +58,7 @@ seq_t a(idx_t n)
                 /* Ensure cache capacity */
                 if (cache_len == cache_cap) {
                     cache_cap = cache_cap ? cache_cap * 2 : 8;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = n_val;
             }

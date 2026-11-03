@@ -11,7 +11,8 @@
  *            b(k) is even b(k+1) = b(k) - k if b(k) is odd
  * Range:     u8 n <= 21, u16 n <= 2514, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 4132 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
     relation b(k)=2*k-4 is met or a fail condition is detected. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the main function.  seq_t and idx_t are
    provided by the build environment. */
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
                 /* Ensure enough capacity */
                 if (cache_len == cache_cap) {
                     idx_t new_cap = cache_cap ? cache_cap << 1 : 16;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) /* allocation failure */
                         abort();
                     cache = tmp;

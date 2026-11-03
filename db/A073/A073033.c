@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   sigma_seq_t
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   sigma_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
    cycle once and returns the n‑th term modulo the cycle length. */
 
 #include <stdbool.h>
-#include "../utils/sigma_seq_t.h"
+#include "../utils/sigma_seq.h"
 
 static seq_t cycle[4];
 static bool cycle_initialized = false;
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
         seq_t cur = 18656380;
         for (int i = 0; i < 4; ++i) {
             cycle[i] = cur;
-            seq_t sigma = sigma_seq_t(cur);
+            seq_t sigma = sigma_seq(cur);
             cur = sigma - cur;
         }
         cycle_initialized = true;

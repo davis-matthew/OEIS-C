@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   alternates_hex
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,46 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/alternates_hex.h"
+#include "../utils/mem.h"
+
+/* Test whether `num` has alternating run lengths in base‑16
+   (first run must be odd, next even, next odd, …). */
+static bool alternates_hex(seq_t num)
+{
+    seq_t tmp = num;
+    /* Collect hex digits least‑significant first. */
+    int digits[1024];
+    size_t len = 0;
+
+    if (tmp == (seq_t)0) {
+        digits[len++] = 0;
+    } else {
+        while (tmp > (seq_t)0) {
+            digits[len++] = (int)(tmp % (seq_t)16);
+            tmp /= (seq_t)16;
+        }
+    }
+
+    /* Process digits most‑significant first. */
+    int expected = 1; /* 1 = odd, 0 = even; first run must be odd. */
+    int prev = digits[len - 1];
+    size_t run = 1;
+
+    for (long long i = (long long)len - 2; i >= 0; --i) {
+        int d = digits[i];
+        if (d == prev) {
+            ++run;
+        } else {
+            if ((run & 1) != expected)
+                return false;
+            expected ^= 1;           /* toggle between odd/even */
+            prev = d;
+            run = 1;
+        }
+    }
+    /* Final run satisfies the same parity rule. */
+    return (run & 1) == expected;
+}
 
 /* Static cache of found terms */
 static seq_t *cache = NULL;
@@ -33,7 +73,7 @@ static void ensure_cache_capacity(size_t needed)
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
         while (new_cap < needed)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             abort();           /* Out of memory */
         cache = tmp;

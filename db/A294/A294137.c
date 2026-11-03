@@ -9,12 +9,14 @@
  *            divisors of n
  * Range:     u8 n <= 23, u16 n <= 35, u32 n <= 59, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for already computed values. */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
 
     /* Ensure the base case a(0) = 1 is stored. */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0;   /* unlikely */
         cache[0] = (seq_t)1;
         cache_cap = 0;
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
 
     /* Compute all values up to n that are not yet cached. */
     if (n > cache_cap) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache && n + 1 > 0) return (seq_t)0; /* allocation failure */
         cache = new_cache;
 
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
         for (idx_t m = cache_cap + 1; m <= n; ++m) {
             /* Resize temporary buffer if necessary. */
             if (m > tmp_cap) {
-                seq_t *new_tmp = (seq_t *)realloc(tmp, (m + 1) * sizeof(seq_t));
+                seq_t *new_tmp = mem_resize(seq_t, tmp, (m + 1));
                 if (!new_tmp && m + 1 > 0) { cache[m] = (seq_t)0; continue; }
                 tmp = new_tmp;
                 tmp_cap = m;

@@ -8,7 +8,8 @@
  *            2n-3, 2n-1
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 12,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,20 @@
  * descending and ascending halves separately, avoiding unsigned
  * underflow in the loops. */
 
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,7 +48,7 @@ seq_t a(idx_t n)
     for (idx_t i = 0; i < count_desc; ++i) {
         idx_t odd = m - 2*i;            /* odd number in descending order */
         seq_t k = (seq_t)odd;
-        seq_t pow10d = pow10((idx_t)digit_len(k));
+        seq_t pow10d = pow10((idx_t)num_digits(k));
         result = result * pow10d + k;
     }
 
@@ -47,7 +60,7 @@ seq_t a(idx_t n)
         for (idx_t i = 0; i < count_asc; ++i) {
             idx_t odd = 3 + 2*i;        /* odd numbers starting from 3 */
             seq_t k = (seq_t)odd;
-            seq_t pow10d = pow10((idx_t)digit_len(k));
+            seq_t pow10d = pow10((idx_t)num_digits(k));
             result = result * pow10d + k;
         }
     }

@@ -9,13 +9,15 @@
  *            = 1 / (1 + x + x^3 + x^7 + …) )
  * Range:     i8 n <= 11, i16 n <= 24, i32 n <= 51, i64 n <= 104,
  *            i128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 4690 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the main function */
 seq_t a(idx_t n);
@@ -31,7 +33,7 @@ ensure_b_cache(idx_t max_n)
 {
     /* allocate if needed */
     if (b_cache == NULL) {
-        b_cache = (seq_t *)malloc(sizeof(seq_t));
+        b_cache = mem_new(seq_t, 1);
         if (!b_cache) abort();
         b_cache[0] = (seq_t)1;       /* constant term of B(x) */
         b_cache_len = 0;
@@ -41,7 +43,7 @@ ensure_b_cache(idx_t max_n)
         return;
 
     /* Resize the array */
-    seq_t *tmp = (seq_t *)realloc(b_cache, (max_n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, b_cache, (max_n + 1));
     if (!tmp) abort();
     b_cache = tmp;
 

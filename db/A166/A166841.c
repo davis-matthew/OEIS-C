@@ -10,11 +10,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* A166841: Number of n×2 1..7 arrays with all constraints.
    Formula (derived from the rational generating function):
      a(n) = 0                         for n < 4

@@ -9,13 +9,15 @@
  *            (8n-28)*a(n-3)) / (2*(n+1)), with a(1)=1, a(2)=1, a(3)=2, a(4)=5
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>  /* size_t */
+#include "../utils/mem.h"
 
 /* cache for memoisation (indices start at 1) */
 static seq_t *cache = NULL;
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t needed)
     while (new_cap <= (size_t)needed)
         new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache && new_cap > 0)
         exit(EXIT_FAILURE);
     cache = new_cache;

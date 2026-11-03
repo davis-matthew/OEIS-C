@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   build_primes_upto, pow_seq, seq_mul
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,9 +32,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_mul.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -126,7 +132,7 @@ seq_t a(idx_t n)
     {
         if (max_exp[pi] > 0)
         {
-            seq_t prime_sq = pow_seq((seq_t)primes[pi], (int)max_exp[pi]);
+            seq_t prime_sq = ipow_i32((seq_t)primes[pi], (int)max_exp[pi]);
             lcm = seq_mul(lcm, prime_sq);
         }
     }

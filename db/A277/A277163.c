@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9935, u16 n <= 9935, u32 n <= 9935, u64 n <= 9935,
- *            u128 n <= 9935, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 136 terms through n = 9935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 /* Standard utilities. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Memoised storage for the sequence. */
 static seq_t *seq   = NULL;  /* array of computed terms          */
@@ -38,7 +40,7 @@ static void grow_seq(size_t need)
     size_t newcap = seq_cap ? seq_cap << 1 : 1;
     while (newcap < need)
         newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, newcap);
     seq = tmp;
     seq_cap = newcap;
 }

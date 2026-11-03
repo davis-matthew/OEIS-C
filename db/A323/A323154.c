@@ -7,9 +7,10 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 1 if n divides sigma(n) - usigma(n) where sigma = sum of
  *            divisors and usigma = sum of unitary divisors, 0 otherwise
- * Range:     u8 n <= 16, u16 n <= 885, u32 n <= 9307, u64 n <= 9307,
- *            u128 n <= 9307, big any n
- * Helpers:   big_pow, factor_u64
+ * Range:     u8 n <= 16, u16 n <= 885, u32 n <= 65536, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 9307 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* No defined value for n == 0, return 0 safely */
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
         seq_t e = (seq_t)exps[i];
 
         /* p^e and p^(e+1) */
-        seq_t p_pow_e = big_pow(p, e);
+        seq_t p_pow_e = ipow(p, e);
         seq_t p_pow_e1 = p_pow_e * p;
 
         /* Sigma multiplier: (p^(e+1) - 1) / (p - 1) */

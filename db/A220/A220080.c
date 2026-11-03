@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 7955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static unsigned char *thue = NULL;   /* bit i of Thue‑Morse sequence */
 static seq_t *pal = NULL;            /* longest palindromic suffix ending at i */
@@ -36,7 +38,7 @@ static void extend_tables(idx_t n)
 
     size_t new_cap = (size_t)n;
     thue = (unsigned char *)realloc(thue, new_cap * sizeof(unsigned char));
-    pal  = (seq_t *)realloc(pal,  new_cap * sizeof(seq_t));
+    pal  = mem_resize(seq_t, pal, new_cap);
 
     for (size_t i = cap; i < new_cap; ++i) {
         /* Thue‑Morse bit: parity of number of 1‑bits in i */

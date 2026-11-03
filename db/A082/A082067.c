@@ -7,17 +7,18 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if gcd(n, φ(n)) = 1; otherwise the smallest prime
  *            factor of gcd(n, φ(n)). φ is Euler’s totient function
- * Range:     u8 n <= 465, u16 n <= 9346, u32 n <= 9346, u64 n <= 9346,
- *            u128 n <= 9346, big any n
- * Helpers:   gcd, phi
+ * Range:     u8 n <= 465, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9346 (2026-11-01)
+ * Helpers:   gcd, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/gcd.h"   /* seq_t gcd(seq_t a, seq_t b); */
-#include "../utils/phi.h"   /* seq_t phi(idx_t m); */
+#include "../utils/gcd.h"
+#include "../utils/totient.h"
 
 /* Return the smallest prime divisor of a positive integer x.  For x<2
    return 0 (not used).  The routine uses simple trial division. */
@@ -34,7 +35,7 @@ static uint64_t spf_uint64(uint64_t x)
 
 seq_t a(idx_t n)
 {
-    seq_t phi_n = phi(n);
+    seq_t phi_n = totient(n);
     seq_t g = gcd((seq_t)n, phi_n);
 
     if (g == (seq_t)1) return (seq_t)1;   /* coprime case */

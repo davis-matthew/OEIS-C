@@ -7,8 +7,9 @@
  * Keywords:  nonn, tabl, easy
  * Formula:   Let t = floor((sqrt(8*n-7)-1)/2), i = n - t*(t+1)/2. Then a(n) =
  *            (t+1) * i. (Row-by-row enumeration of the triangle T(n,k)=n*k)
- * Range:     u8 n <= 135, u16 n <= 9870, u32 n <= 9870, u64 n <= 9870,
- *            u128 n <= 9870, big any n
+ * Range:     u8 n <= 135, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 94 terms through n = 9870 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

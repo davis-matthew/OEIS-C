@@ -9,13 +9,27 @@
  *            a(1) = 3, a(2) = 9, a(3) = 29
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 36, u128 n <= 73,
  *            big any n
- * Helpers:   ensure_capacity
+ * Validated: standard, pass, 43 terms through n = 952 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/ensure_capacity.h"
+#include <stdbool.h>
+#include <stdlib.h>
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
 
 /* compute nth term of sequence A289804 */
 seq_t a(idx_t n)

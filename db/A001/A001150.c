@@ -12,8 +12,8 @@
  *            summed over conjugacy classes (rational cano...
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   q1150_add_shifted, q1150_div_small, q1150_gcd, q1150_mul_small,
- *            q1150_pdeg, q1150_pmod
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   gcd_u64, ilog2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,12 +21,63 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/q1150_add_shifted.h"
-#include "../utils/q1150_div_small.h"
-#include "../utils/q1150_gcd.h"
-#include "../utils/q1150_mul_small.h"
-#include "../utils/q1150_pdeg.h"
-#include "../utils/q1150_pmod.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ilog2_u64.h"
+
+static void q1150_add_shifted(uint32_t *tot, int Lt, const uint32_t *src, int Ls, long long sh) {
+    int word = (int)(sh / 32), bit = (int)(sh % 32);
+    uint64_t carry = 0;
+    uint32_t prev = 0;
+    int i, k;
+    while (Ls > 0 && src[Ls - 1] == 0) Ls--;
+    for (i = 0; i <= Ls; i++) {
+        uint32_t cur = i < Ls ? src[i] : 0;
+        uint32_t w = bit ? ((cur << bit) | (prev >> (32 - bit))) : cur;
+        uint64_t s;
+        prev = cur;
+        s = (uint64_t)tot[word + i] + w + carry;
+        tot[word + i] = (uint32_t)s;
+        carry = s >> 32;
+    }
+    k = word + Ls + 1;
+    while (carry && k < Lt) {
+        uint64_t s = (uint64_t)tot[k] + carry;
+        tot[k] = (uint32_t)s;
+        carry = s >> 32;
+        k++;
+    }
+}
+
+static void q1150_div_small(uint32_t *x, int L, uint32_t d) {
+    uint64_t rem = 0;
+    int i;
+    if (d == 1) return;
+    for (i = L - 1; i >= 0; i--) {
+        uint64_t cur = (rem << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        rem = cur % d;
+    }
+}
+
+static void q1150_mul_small(uint32_t *x, int L, uint32_t m) {
+    uint64_t carry = 0;
+    int i;
+    for (i = 0; i < L; i++) {
+        uint64_t v = (uint64_t)x[i] * m + carry;
+        x[i] = (uint32_t)v;
+        carry = v >> 32;
+    }
+}
+
+static uint64_t q1150_pmod(uint64_t x, uint64_t f) {
+    int df = ilog2_u64(f);
+    int dx = ilog2_u64(x);
+    while (dx >= df) {
+        x ^= f << (dx - df);
+        dx = ilog2_u64(x);
+    }
+    return x;
+}
 
 typedef struct { int deg; uint64_t ord; uint64_t mask; } q1150_poly;
 
@@ -80,7 +131,7 @@ static void q1150_leaf(void) {
         cexp += (long long)d * (sconj - sm2);
         while ((1 << s) < lam[0]) s++;
         uo = q1150_ce[ci] << s;
-        N = N / q1150_gcd(N, uo) * uo;
+        N = N / gcd_u64(N, uo) * uo;
     }
     pexp = (long long)n * (n - 1) / 2 - cexp;
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_pair_57_or_75
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
  * are cached for efficiency. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_pair_57_or_75.h"
+#include "../utils/mem.h"
+
+/* Return true if x contains the adjacent pair 5–7 or 7–5. */
+static bool has_pair_57_or_75(seq_t x)
+{
+    if (x < 10) return false;          /* single digit cannot contain a pair        */
+    seq_t prev = x % 10;                /* lowest digit                                 */
+    x /= 10;
+    while (x > 0) {
+        seq_t cur = x % 10;            /* next digit from the right                   */
+        if ((cur == 5 && prev == 7) || (cur == 7 && prev == 5))
+            return true;
+        prev = cur;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +50,7 @@ seq_t a(idx_t n)
     /* Expand the cache if necessary. */
     if (count >= cap) {
         size_t new_cap = cap == 0 ? 64 : cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cap = new_cap;
     }

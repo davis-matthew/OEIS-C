@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9365 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Constants ---------------------------------------------------- */
 #define MAX_K        200000UL            /* maximum k to precompute */
@@ -120,14 +122,14 @@ static void build_sequence(void)
 
     /* 5. Gather non‑prime valid k into seq_vals */
     size_t capacity = 1024;
-    seq_vals = (seq_t*)malloc(capacity * sizeof(seq_t));
+    seq_vals = mem_new(seq_t, capacity);
     seq_len = 0;
     for (uint64_t k = 1; k <= MAX_K; ++k) {
         if (!valid_k[k]) continue;
         if (k <= SIEVE_LIMIT && is_prime[k]) continue;  /* skip primes */
         if (seq_len == capacity) {
             capacity *= 2;
-            seq_vals = (seq_t*)realloc(seq_vals, capacity * sizeof(seq_t));
+            seq_vals = mem_resize(seq_t, seq_vals, capacity);
         }
         seq_vals[seq_len++] = (seq_t)k;
     }

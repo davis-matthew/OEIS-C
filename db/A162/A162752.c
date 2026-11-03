@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 10, u64 n <= 14, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow, is_prime
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
 #include "../utils/is_prime.h"
 
 /* Return a(n) for n≥1. */
@@ -55,5 +57,5 @@ seq_t a(idx_t n)
 
     /* After the loop, prev_base holds exponent of a(n-1) and prev_exp the exponent of a(n) */
     /* a(n) = prev_base ^ prev_exp */
-    return big_pow((seq_t)prev_base, (seq_t)prev_exp);
+    return ipow((seq_t)prev_base, (seq_t)prev_exp);
 }

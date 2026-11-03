@@ -8,7 +8,8 @@
  * Formula:   a(n) = ∏_{p^e∥n} p^(2^⌈log₂(e+1)⌉ − 1) (OEIS A372329)
  * Range:     u8 n <= 47, u16 n <= 624, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64, floor_log2_uint64
+ * Validated: standard, pass, 81 terms through n = 9901 (2026-11-01)
+ * Helpers:   factor_u64, ilog2, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,11 @@
 #include <stddef.h>
 
 /* Helper prototypes – provided by the build environment */
-#include "../utils/factor_u64.h"          /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/floor_log2_uint64.h"   /* unsigned floor_log2_uint64(idx_t v); */
-#include "../utils/big_pow.h"             /* seq_t big_pow(seq_t base, seq_t exp); */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ilog2.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
         uint64_t ep1 = e + 1;                    /* e + 1 */
 
         /* k = ceil(log₂(e + 1)) */
-        unsigned k = floor_log2_uint64(ep1);
+        unsigned k = ilog2(ep1);
         if ((1ULL << k) != ep1) {
             ++k;                                 /* make it a ceiling */
         }
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
         uint64_t exp = (1ULL << k) - 1;
 
         /* Compute p^exp in the target type seq_t. */
-        seq_t term = big_pow((seq_t)p, (seq_t)exp);
+        seq_t term = ipow((seq_t)p, (seq_t)exp);
 
         /* Accumulate the product. */
         result = result * term;

@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 9430, u16 n <= 9430, u32 n <= 9430, u64 n <= 9430,
- *            u128 n <= 9430, big any n
- * Helpers:   divisor_at_u64
+ * Range:     u8 n <= 13185, u16 n <= 13185, u32 n <= 13185, u64 n <= 13185,
+ *            u128 n <= 13185, big any n
+ * Validated: standard, pass, 112 terms through n = 9430 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/divisor_at_u64.h"
+
+/* return the divisor at position idx (0‑based) of n,
+   divisors sorted in ascending order */
+static seq_t divisor_at_u64(uint64_t n, uint64_t idx)
+{
+    uint64_t small[128], large[128];
+    size_t sc = 0, lc = 0;
+    for (uint64_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            small[sc++] = d;
+            uint64_t d2 = n / d;
+            if (d2 != d) large[lc++] = d2;
+        }
+    }
+    if (idx < sc) return (seq_t)small[idx];
+    idx -= sc;
+    /* large array holds divisors larger than sqrt(n) in decreasing order */
+    size_t pos = lc - 1 - idx;
+    return (seq_t)large[pos];
+}
 
 /* maximum k for which we need partition numbers */
 #define PART_MAX 2000

@@ -12,13 +12,15 @@
  *            t^2 – … – 44 t^43 + 990 t^44)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------- */
 static seq_t *seq_cache = NULL;     /* cache of a(i) values                */
@@ -28,13 +30,13 @@ seq_t a(idx_t n)
 {
     /* Grow cache if necessary */
     if (seq_cache == NULL) { /* first call */
-        seq_cache = (seq_t *)malloc((size_t)(1) * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, (size_t)(1));
         if (seq_cache == NULL) exit(1);  /* out of memory */
         seq_cache[0] = (seq_t)1;         /* a(0) = 1 */
         cache_last = 0;
     }
     if ((size_t)(cache_last + 1) < (size_t)(n + 1)) {
-        seq_t *tmp = (seq_t *)realloc(seq_cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, (size_t)(n + 1));
         if (tmp == NULL) exit(1);        /* out of memory */
         seq_cache = tmp;
         /* Values beyond cache_last are not initialized yet; they will be set in the loop below. */

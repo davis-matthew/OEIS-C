@@ -10,12 +10,14 @@
  *            for n>13: a(n) = a(n-4) + a(n-6) - a(n-10)
  * Range:     i8 n <= 22, i16 n <= 54, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         size_t newcap = (cap == 0) ? 16 : cap;
         while (newcap < (size_t)(pos + 1))
             newcap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp)
             return 0;  /* allocation failure (unlikely) */
         cache = tmp;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *solutions = NULL;   /* array of found numbers */
 static size_t  sol_size   = 0;     /* number of solutions found   */
@@ -32,10 +34,10 @@ static bool    initialized = false;
 static void grow_solutions(void) {
     if (sol_cap == 0) {
         sol_cap = 1024;
-        solutions = (seq_t *)malloc(sol_cap * sizeof(seq_t));
+        solutions = mem_new(seq_t, sol_cap);
     } else {
         sol_cap *= 2;
-        solutions = (seq_t *)realloc(solutions, sol_cap * sizeof(seq_t));
+        solutions = mem_resize(seq_t, solutions, sol_cap);
     }
 }
 

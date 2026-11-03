@@ -8,8 +8,9 @@
  * Formula:   a(n) = A084558(n) - A230403(n); Computes the length of the
  *            factorial base representation of n minus the number of its
  *            trailing zero digits
- * Range:     u8 n <= 322, u16 n <= 9895, u32 n <= 9895, u64 n <= 9895,
- *            u128 n <= 9895, big any n
+ * Range:     u8 n <= 322, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 137 terms through n = 9895 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

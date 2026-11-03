@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 151, u16 n <= 6401, u32 n <= 6401, u64 n <= 6401,
  *            u128 n <= 6401, big any n
- * Helpers:   append_candidate, ensure_capacity, is_prime_small
+ * Validated: standard, pass, 79 terms through n = 6303 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,58 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/append_candidate.h"
-#include "../utils/ensure_capacity.h"
+#include <stdlib.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#endif
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size) /* elem_size: sizeof(T) */
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, new_cap);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 seq_t a(idx_t n)
 {
@@ -40,18 +90,18 @@ seq_t a(idx_t n)
 
     /* Ensure at least one slot in the sequence array */
     if (seq_cap == 0) {
-        ensure_capacity(1, &seq_cap, (void **)&seq, sizeof(seq_t));
+        ensure_capacity(1, &seq_cap, OEISC_VPP(&seq), sizeof(seq_t));
     }
 
     /* Generate rows until we have at least n elements in the sequence */
     while (seq_len < n) {
         /* Make sure we have the current_row‑th prime to start the row */
         while (primes_len < current_row) {
-            do { ++last_checked; } while (!is_prime_small(last_checked));
+            do { ++last_checked; } while (!is_prime_seq(last_checked));
             if (primes_cap == 0) {
-                ensure_capacity(1, &primes_cap, (void **)&primes, sizeof(uint64_t));
+                ensure_capacity(1, &primes_cap, OEISC_VPP(&primes), sizeof(uint64_t));
             }
-            ensure_capacity(primes_len + 1, &primes_cap, (void **)&primes, sizeof(uint64_t));
+            ensure_capacity(primes_len + 1, &primes_cap, OEISC_VPP(&primes), sizeof(uint64_t));
             primes[primes_len++] = last_checked;
         }
 
@@ -65,11 +115,11 @@ seq_t a(idx_t n)
 
         /* Ensure primes list extends up to the bound */
         while (primes_len == 0 || primes[primes_len - 1] <= bound) {
-            do { ++last_checked; } while (!is_prime_small(last_checked));
+            do { ++last_checked; } while (!is_prime_seq(last_checked));
             if (primes_cap == 0) {
-                ensure_capacity(1, &primes_cap, (void **)&primes, sizeof(uint64_t));
+                ensure_capacity(1, &primes_cap, OEISC_VPP(&primes), sizeof(uint64_t));
             }
-            ensure_capacity(primes_len + 1, &primes_cap, (void **)&primes, sizeof(uint64_t));
+            ensure_capacity(primes_len + 1, &primes_cap, OEISC_VPP(&primes), sizeof(uint64_t));
             primes[primes_len++] = last_checked;
         }
 

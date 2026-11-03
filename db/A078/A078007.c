@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 30, u64 n <= 59, u128 n <= 117,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
                 a(n) = a(n‑1) + 2*a(n‑2) + a(n‑3)   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache   = NULL;  /* cache of computed terms   */
 static size_t a_len     = 0;     /* number of terms in cache  */
@@ -27,7 +29,7 @@ static void ensure_cache_capacity(idx_t n)
     /* Grow the cache until it can hold index n and the first three terms. */
     while (a_cap <= (size_t)n || a_cap < 3) {
         size_t new_cap = a_cap ? a_cap << 1 : 8; /* double, 8 if empty */
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) abort();  /* out of memory */
         a_cache = tmp;
         a_cap   = new_cap;

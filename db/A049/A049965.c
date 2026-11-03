@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stdint.h>
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
 
 /* Memoisation caches */
 /* a_cache[1…]  holds the sequence terms   */
@@ -37,8 +40,8 @@ static void ensure_cache(idx_t n)
 
     /* Grow the arrays to accommodate indices 0 … n */
     size_t new_size = (size_t)(n + 1);
-    a_cache      = (seq_t *)realloc(a_cache,      new_size * sizeof(seq_t));
-    pref_cache   = (seq_t *)realloc(pref_cache,   new_size * sizeof(seq_t));
+    a_cache      = mem_resize(seq_t, a_cache, new_size);
+    pref_cache   = mem_resize(seq_t, pref_cache, new_size);
     if (pref_cache) pref_cache[0] = (seq_t)0;   /* prefix[0] = 0 */
 
     /* Compute remaining terms */
@@ -52,7 +55,7 @@ static void ensure_cache(idx_t n)
             val = (seq_t)1;
         } else {
             /* p = ⌊log₂(k−2)⌋  */
-            unsigned p = floor_log2_uint64(k - 2ULL);
+            unsigned p = ilog2(k - 2ULL);
             idx_t two_pow = ((idx_t)1U << (p + 1));     /* 2^(p+1) */
             idx_t m = two_pow + 2ULL - k;              /* m < k   */
             val = pref_cache[k - 1] + a_cache[m];

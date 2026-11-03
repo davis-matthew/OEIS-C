@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 85, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   exp_of_2, exp_of_3
+ * Validated: standard, pass, 76 terms through n = 7719 (2026-11-03)
+ * Helpers:   ctz_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/exp_of_2.h"
-#include "../utils/exp_of_3.h"
+#include "../utils/ctz_idx.h"
+#include "../utils/mem.h"
+
+/* helper – exponent of 3 in an integer */
+static inline unsigned int exp_of_3(idx_t x) {
+    unsigned int c = 0;
+    while ((x % 3) == 0) {
+        c++;
+        x /= 3;
+    }
+    return c;
+}
 
 /* Global state for memoized sequence */
 static seq_t *seq          = NULL;   /* array of terms */
@@ -35,7 +46,7 @@ static void ensure_capacity(size_t min_cap) {
     if (seq_cap < min_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 64;
         if (new_cap < min_cap) new_cap = min_cap;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 }
@@ -44,7 +55,7 @@ static void ensure_capacity(size_t min_cap) {
 static void generate_terms(size_t needed) {
     while (seq_len < needed) {
         last_checked++; /* next integer to examine */
-        acc_v2 += exp_of_2(last_checked);
+        acc_v2 += ctz_idx(last_checked);
         acc_v3 += exp_of_3(last_checked);
         if (acc_v3 == (acc_v2 >> 1)) { /* floor(v2/2) */
             ensure_capacity(seq_len + 1);

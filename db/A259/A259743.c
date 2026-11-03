@@ -10,7 +10,8 @@
  *            multiplying the generating function incrementally
  * Range:     i8 n <= 843, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <string.h>   /* for memset */
+#include "../utils/mem.h"
 
 static const int c_coeff[16] = {
     1,  -3,  3, -1,
@@ -36,22 +38,22 @@ seq_t a(idx_t n)
 {
     /* Allocate coefficient arrays; they store up to n inclusive. */
     size_t sz = (size_t)(n + 1);
-    seq_t *coeff = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *tmp    = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, sz);
+    seq_t *tmp    = mem_new(seq_t, sz);
     if (!coeff || !tmp) {
         /* If allocation fails, return zero (never expected in tests). */
-        free(coeff); free(tmp);
+        mem_free(coeff); mem_free(tmp);
         return (seq_t)0;
     }
     /* Initialise: constant term is 1. */
-    memset(coeff, 0, sz * sizeof(seq_t));
-    memset(tmp,   0, sz * sizeof(seq_t));
+    mem_set(coeff, 0, sz * sizeof(seq_t));
+    mem_set(tmp, 0, sz * sizeof(seq_t));
     coeff[0] = (seq_t)1;
 
     /* Iterate over the product factors for k = 1 … n. */
     for (idx_t k = 1; k <= n; ++k) {
         /* Zero temporary array for this step. */
-        memset(tmp, 0, sz * sizeof(seq_t));
+        mem_set(tmp, 0, sz * sizeof(seq_t));
 
         /* For each existing term in coeff, convolve with the fixed
            16‑term polynomial of degree 15k. */
@@ -71,11 +73,11 @@ seq_t a(idx_t n)
         }
 
         /* Move temporary results back to coeff for the next iteration. */
-        memcpy(coeff, tmp, sz * sizeof(seq_t));
+        mem_copy(coeff, tmp, sz * sizeof(seq_t));
     }
 
     seq_t result = coeff[n];
-    free(coeff);
-    free(tmp);
+    mem_free(coeff);
+    mem_free(tmp);
     return result;
 }

@@ -9,13 +9,15 @@
  *            twin primes
  * Range:     u8 n <= 6, u16 n <= 150, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 9828 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* lazy static state ----------------------------------------------------- */
 static seq_t *primes      = NULL;  /* 0‑indexed list of primes          */
@@ -43,13 +45,13 @@ static void init(void)
 
     /* pre‑allocate primes ------------------------------------------------ */
     idx_t primes_cap = 2000000;  /* rough upper bound */
-    primes = (seq_t*)malloc(primes_cap * sizeof(seq_t));
+    primes = mem_new(seq_t, primes_cap);
     if (!primes) exit(1);
     primes_cnt = 0;
 
     /* pre‑allocate twin list -------------------------------------------- */
     idx_t twin_cap = 20000;
-    twin_Q = (seq_t*)malloc(twin_cap * sizeof(seq_t));
+    twin_Q = mem_new(seq_t, twin_cap);
     if (!twin_Q) exit(1);
     twin_cnt = 0;
 
@@ -65,7 +67,7 @@ static void init(void)
         /* store prime -------------------------------------------------- */
         if (primes_cnt == primes_cap) {
             primes_cap <<= 1;
-            primes = (seq_t*)realloc(primes, primes_cap * sizeof(seq_t));
+            primes = mem_resize(seq_t, primes, primes_cap);
             if (!primes) exit(1);
         }
         primes[primes_cnt++] = (seq_t)i;
@@ -75,7 +77,7 @@ static void init(void)
         {
             if (twin_cnt == twin_cap) {
                 twin_cap <<= 1;
-                twin_Q = (seq_t*)realloc(twin_Q, twin_cap * sizeof(seq_t));
+                twin_Q = mem_resize(seq_t, twin_Q, twin_cap);
                 if (!twin_Q) exit(1);
             }
             twin_Q[twin_cnt++] = (seq_t)i;   /* larger twin prime = Q */

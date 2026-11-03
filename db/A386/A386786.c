@@ -7,7 +7,8 @@
  * Formula:   a(n) = n^4 * sigma_6(n) where sigma_6(n) = sum_{d|n} d^6
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 84, u128 n <= 7120,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 39 terms through n = 9818 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
    multiplicatively using the closed‑form product formula for the divisor
    sigma function.  The resulting value a(n) is returned as a seq_t.       */
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -34,8 +35,8 @@ seq_t a(idx_t n)
                 ++e;
             }
             /* term = (p^{6(e+1)} - 1) / (p^6 - 1) */
-            seq_t term_num = pow_seq((seq_t)p, 6 * (e + 1)) - 1;
-            seq_t term_den = pow_seq((seq_t)p, 6) - 1;
+            seq_t term_num = ipow_i32((seq_t)p, 6 * (e + 1)) - 1;
+            seq_t term_den = ipow_i32((seq_t)p, 6) - 1;
             seq_t term = term_num / term_den;
             sigma6 *= term;
         }
@@ -43,8 +44,8 @@ seq_t a(idx_t n)
     /* If a prime factor remains */
     if (rem > 1) {
         unsigned e = 1; /* rem is prime, exponent 1 */
-        seq_t term_num = pow_seq((seq_t)rem, 6 * (e + 1)) - 1; /* e+1 = 2 */
-        seq_t term_den = pow_seq((seq_t)rem, 6) - 1;
+        seq_t term_num = ipow_i32((seq_t)rem, 6 * (e + 1)) - 1; /* e+1 = 2 */
+        seq_t term_den = ipow_i32((seq_t)rem, 6) - 1;
         seq_t term = term_num / term_den;
         sigma6 *= term;
     }

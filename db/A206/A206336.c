@@ -9,6 +9,7 @@
  * Formula:   a(n) = 192, 96, 455, 296, 1376, 880, 4111,
  * Range:     u8 n <= 2, u16 n <= 12, u32 n <= 32, u64 n <= 72, u128 n <= 154,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 198 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 /* For n > 7:
    a(n) = 872 * 3^((n-6)/2) + 6   if n is even
    a(n) = 12313 * 3^((n-9)/2) + 6 if n is odd */
+#include <stdint.h>
 #include "../utils/pow3.h"
 
 seq_t a(idx_t n)

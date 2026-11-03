@@ -10,16 +10,19 @@
  *            2))*3^m, * 2^k + (1+(n mod 2))*3^m is squarefree }
  * Range:     u8 n <= 90, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 106 terms through n = 9392 (2026-11-01)
  * Helpers:   is_prime, is_squarefree, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/pow2.h"
-#include "../utils/pow3.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/is_prime.h"
 #include "../utils/is_squarefree.h"
+#include "../utils/pow2.h"
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {

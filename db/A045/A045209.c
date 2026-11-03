@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 37, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   pow3_cap
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,18 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow3_cap.h"
+
+/* Compute 3^exp, but cap the result at (cap+1); used to avoid overflow
+ * when the exact number is not needed. */
+static idx_t pow3_cap(idx_t exp, idx_t cap)
+{
+    idx_t r = 1;
+    for (idx_t i = 0; i < exp; ++i) {
+        if (r > cap / 3) return cap + 1;
+        r *= 3;
+    }
+    return r;
+}
 
 /* ---------- helper routines ------------------------------------------------ */
 

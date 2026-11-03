@@ -13,15 +13,39 @@
  *            p^min(v_p(w^2+z^2),k...
  * Range:     u8 n <= 7, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   a_power_of_2, a_power_of_odd_prime, power_of_p
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a_power_of_2.h"
-#include "../utils/a_power_of_odd_prime.h"
-#include "../utils/power_of_p.h"
+#include "../utils/ipow_idx.h"
+
+static seq_t a_power_of_2(idx_t k) {
+    if (k == 1) return 0;
+    if (k == 2) return 32;
+    if (k == 3) return 256;
+    if (k == 4) return 2048;
+    return (seq_t)(k - 4) * ipow_idx(2, 2 * k + 2);
+}
+
+static seq_t a_power_of_odd_prime(seq_t p, idx_t k) {
+    seq_t p2 = p * p;
+    if (p % 4 == 1) {
+        seq_t t1 = (seq_t)((k + 1) * (k + 2) / 2) * p2;
+        seq_t t2 = (seq_t)(k * (k + 2)) * p;
+        seq_t t3 = (seq_t)(k * (k + 1) / 2);
+        return (t1 - t2 + t3) * ipow_idx(p, 2 * k - 2);
+    } else {
+        seq_t res = ipow_idx(p, k);
+        for (idx_t j = 0; j < k; j++) {
+            idx_t m = (2 * j < k) ? 2 * j : k;
+            res += (p2 - 1) * ipow_idx(p, 2 * k - 2 * j - 2 + m);
+        }
+        return res;
+    }
+}
 
 seq_t a(idx_t n) {
     if (n == 1) return 1;

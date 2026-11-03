@@ -8,13 +8,15 @@
  *            the sum of all divisors of n. Then Σ_{d|n} 1/d = σ(n)/n, so
  *            Σ_{1<d<n} 1/d = (σ(n)−n−1)/n. The fraction is reduced and we
  *            return its numerator
- * Range:     u8 n <= 167, u16 n <= 8713, u32 n <= 8713, u64 n <= 8713,
- *            u128 n <= 8713, big any n
+ * Range:     u8 n <= 167, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 96 terms through n = 8713 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 #include <stdint.h>
 

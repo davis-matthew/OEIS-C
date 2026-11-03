@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   divisor_count_u64, rev_decimal
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-01)
+ * Helpers:   num_divisors, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,8 @@
 #include <string.h>
 
 /* Utility functions provided by the framework */
-#include "../utils/rev_decimal.h"          /* seq_t rev_decimal(seq_t v); */
-#include "../utils/divisor_count_u64.h"     /* uint64_t divisor_count_u64(uint64_t n); */
+#include "../utils/num_divisors.h"
+#include "../utils/reverse_digits.h"
 
 /* Local fast integer reversal (used for 64‑bit values) */
 static seq_t rev_uint64(uint64_t x) {
@@ -38,7 +39,7 @@ seq_t a(idx_t n) {
     uint64_t start = (uint64_t)n + 1;
     for (uint64_t k = start; ; ++k) {
         seq_t rev = rev_uint64(k - n);   /* rev(k-n) */
-        uint64_t tau = divisor_count_u64(k);  /* tau(k) */
+        uint64_t tau = num_divisors(k);  /* tau(k) */
         if ((seq_t)tau == rev) {
             return (seq_t)k;             /* found the minimal k */
         }

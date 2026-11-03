@@ -7,16 +7,17 @@
  * Formula:   a(n) = n^(n-2) for n >= 2, a(0) = a(1) = 1
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 28,
  *            big any n
- * Helpers:   a000272_ipow
+ * Validated: standard, pass, 38 terms through n = 360 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000272_ipow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     if (n <= 2)
         return 1;
-    return a000272_ipow((seq_t)n, n - 2);
+    return ipow_idx((seq_t)n, n - 2);
 }

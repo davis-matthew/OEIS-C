@@ -8,13 +8,14 @@
  * Formula:   a(n) = Σ_{k=0..n} ( n!/(n‑k)! * C(n,k) * k^(2*(n‑k)) )
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   pow_seq_idx
+ * Validated: standard, pass, 35 terms through n = 257 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq_idx.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= n; ++k) {
         idx_t exp = 2 * (n - k);                /* exponent for k^(2*(n‑k)) */
-        seq_t power = pow_seq_idx((seq_t)k, exp);
+        seq_t power = ipow_idx((seq_t)k, exp);
 
         seq_t term = falling;
         term *= binom;

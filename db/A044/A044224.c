@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 1136, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has45
+ * Validated: standard, pass, 57 terms through n = 9620 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,24 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has45.h"
+#include "../utils/mem.h"
+
+/* Return true if x contains the pattern 45 in its base‑8 representation. */
+static inline bool has45(idx_t x)
+{
+    if (x == 0) return false;
+    uint64_t prev = x & 7;
+    x >>= 3;
+    while (x > 0)
+    {
+        uint64_t curr = x & 7;
+        if (prev == 5 && curr == 4)
+            return true;
+        prev = curr;
+        x >>= 3;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +49,7 @@ seq_t a(idx_t n)
 
     if (!cache)
     {
-        cache = (seq_t *)malloc(CACHE_CAP * sizeof(seq_t));
+        cache = mem_new(seq_t, CACHE_CAP);
         if (!cache) abort();
     }
 

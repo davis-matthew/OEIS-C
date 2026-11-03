@@ -11,15 +11,17 @@
  *            number. * Computed by dynamic programming: for each step i, keep
  *            all reachable * positions and record the first step count when
  *            each position appears
- * Range:     u8 n <= 9479, u16 n <= 9479, u32 n <= 9479, u64 n <= 9479,
- *            u128 n <= 9479, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20100, u16 n <= 20100, u32 n <= 20100, u64 n <= 20100,
+ *            u128 n <= 20100, big any n
+ * Validated: standard, pass, 95 terms through n = 9479 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* initialise on the first call */
     if (min_steps == NULL) {
         min_steps_sz = 1;
-        min_steps = (seq_t *)malloc(min_steps_sz * sizeof(seq_t));
+        min_steps = mem_new(seq_t, min_steps_sz);
         min_steps[0] = 0;                    /* 0 steps to reach position 0      */
 
         curr_sz = 1;
@@ -68,8 +70,7 @@ seq_t a(idx_t n)
         if (new_sz > min_steps_sz) {
             size_t old_sz = min_steps_sz;
             min_steps_sz = new_sz;
-            seq_t *tmp = (seq_t *)realloc(min_steps,
-                                          min_steps_sz * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, min_steps, min_steps_sz);
             min_steps = tmp;
             for (size_t i = old_sz; i < min_steps_sz; ++i) {
                 min_steps[i] = UNKNOWN;

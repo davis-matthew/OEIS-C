@@ -10,7 +10,8 @@
  *            in row‑major order. This implements OEIS A193848
  * Range:     u8 n <= 11, u16 n <= 39, u32 n <= 127, u64 n <= 449,
  *            u128 n <= 1325, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 1284 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root for 64‑bit unsigned numbers. */
 static idx_t floor_isqrt_u64(idx_t x)
@@ -51,7 +53,7 @@ static void ensure_triangle(size_t max_row)
 
     for (size_t r = rows_allocated; r <= max_row; ++r) {
         size_t len = r + 1;
-        seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (row == NULL) abort(); /* out of memory */
 
         if (r == 0) {

@@ -11,13 +11,15 @@
  *            most m parts (non‑negative)
  * Range:     u8 n <= 12, u16 n <= 86, u32 n <= 999, u64 n <= 999,
  *            u128 n <= 999, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* for n up to 10000 we keep a table of partitions into 0..5 parts.
    Each row contains 6 entries: columns 0..5.                     */
@@ -37,14 +39,14 @@ static void ensure_partitions(idx_t n)
 
     if (part_exact == NULL) {
         /* first allocation */
-        new_ptr = (seq_t *)malloc(new_size * sizeof(seq_t));
+        new_ptr = mem_new(seq_t, new_size);
         for (size_t i = 0; i < new_size; ++i)
             new_ptr[i] = (seq_t)0;
         /* base case: partition of 0 into 0 parts */
         new_ptr[0 * 6 + 0] = (seq_t)1;
     } else {
         /* grow existing table */
-        new_ptr = (seq_t *)realloc(part_exact, new_size * sizeof(seq_t));
+        new_ptr = mem_resize(seq_t, part_exact, new_size);
     }
 
     /* compute rows from (max_n_computed+1) up to n */

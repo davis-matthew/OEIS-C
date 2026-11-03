@@ -7,12 +7,13 @@
  * Formula:   a(n) = Σ_{d|n} (-1)^(d-1) * 2^(n/d-1)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +26,7 @@ seq_t a(idx_t n)
             /* divisor d1 = i */
             idx_t d1 = i;
             idx_t exp1 = n / d1 - 1;          /* n/d1 - 1 */
-            seq_t term1 = pow_int((seq_t)2, exp1);
+            seq_t term1 = ipow_idx((seq_t)2, exp1);
             if (d1 & 1)    /* odd */
                 sumOdd += term1;
             else
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
             idx_t d2 = n / i;
             if (d2 != d1) {
                 idx_t exp2 = n / d2 - 1;      /* i - 1 */
-                seq_t term2 = pow_int((seq_t)2, exp2);
+                seq_t term2 = ipow_idx((seq_t)2, exp2);
                 if (d2 & 1)    /* odd */
                     sumOdd += term2;
                 else

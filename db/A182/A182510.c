@@ -8,13 +8,15 @@
  *            (XOR is the bitwise exclusive‑or operator)
  * Range:     i8 n <= 57, i16 n <= 664, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9767 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;
 static size_t cache_cap  = 0;
@@ -28,7 +30,7 @@ static inline void ensure_cache_capacity(size_t needed)
     size_t newcap = cache_cap ? cache_cap * 2 : 4;
     while (newcap < needed)
         newcap *= 2;
-    seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * newcap);
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp)
         abort();
     cache     = tmp;

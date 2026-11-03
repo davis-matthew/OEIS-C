@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 6553, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 8845 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* static state shared among all calls */
 static seq_t *sums = NULL;      /* array of computed sums (a(k)) */
@@ -57,7 +59,7 @@ seq_t a(idx_t n) {
             /* grow storage if needed */
             if (sums_len == sums_cap) {
                 size_t new_cap = sums_cap ? sums_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(sums, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, sums, new_cap);
                 assert(tmp != NULL);      /* abort on allocation failure */
                 sums = tmp;
                 sums_cap = new_cap;

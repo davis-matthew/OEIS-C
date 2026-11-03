@@ -10,14 +10,29 @@
  *            does NOT contain that substring. Computed by brute‑force search
  * Range:     u8 n <= 6, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_10_in_base6
+ * Validated: standard, pass, 59 terms through n = 915 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_10_in_base6.h"
+#include "../utils/mem.h"
+
+/* ---- helper: does a base‑6 representation contain "10"? ---- */
+static bool has_10_in_base6(seq_t x)
+{
+    seq_t prev = x % 6;
+    x /= 6;
+    while (x > 0) {
+        seq_t cur = x % 6;
+        if (cur == 1 && prev == 0) return true;
+        prev = cur;
+        x /= 6;
+    }
+    return false;
+}
 
 /* ---- dynamic array for cached terms ---- */
 static seq_t *terms = NULL;   /* array of found terms */
@@ -31,7 +46,7 @@ static void ensure_capacity(idx_t need)
     if (cap >= need) return;
     idx_t newcap = cap ? cap * 2 : 16;
     while (newcap < need) newcap *= 2;
-    terms = (seq_t *)realloc(terms, (size_t)newcap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, (size_t)newcap);
     cap   = newcap;
 }
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 221, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   comb_uint64
+ * Validated: standard, pass, 48 terms through n = 9249 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
  * any seq_t/idx_t combination and is well under the
  * time limits for n up to thousands. */
 #include <stdint.h>
-#include "../utils/comb_uint64.h"
+
+static uint64_t comb_uint64(int n, int k)
+{
+    if (k < 0 || k > n) return 0;
+    if (k > n - k) k = n - k;
+    uint64_t res = 1;
+    for (int i = 1; i <= k; ++i) {
+        res = res * (uint64_t)(n - k + i) / (uint64_t)i;
+    }
+    return res;
+}
 
 /* number = 9^(exp)  (exp <= 20 so it fits 64‑bit) */
 static uint64_t pow9[21];

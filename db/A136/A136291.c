@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   multiply_by
+ * Validated: full, pass, 74 terms through n = 75 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,23 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/multiply_by.h"
+
+/* Multiply a big integer (digits stored LSD first) by a small base
+   in place, increasing its length as needed. */
+static void multiply_by(uint8_t *digits, size_t *len, uint8_t mult) {
+    size_t i;
+    uint16_t carry = 0;                       /* enough for 9*9+carry */
+    for (i = 0; i < *len; ++i) {
+        uint16_t prod = (uint16_t)digits[i] * mult + carry;
+        digits[i] = (uint8_t)(prod % 10);
+        carry    = prod / 10;
+    }
+    while (carry) {
+        digits[*len] = (uint8_t)(carry % 10);
+        carry /= 10;
+        ++(*len);
+    }
+}
 
 /* Tunable limits – enough to capture all known finite rows (bases 2–9) */
 #define MAX_BASE        9          /* largest base that has a finite row   */

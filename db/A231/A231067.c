@@ -9,13 +9,15 @@
  * Formula:   a(n) = 5*a(n-2) - 5*a(n-4) + 2*a(n-6) (empirical recurrence)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 67, u128 n <= 133,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* base values for n = 1 .. 6 */
 static const seq_t base_val[7] = {0, 1, 3, 4, 11, 15, 42};
@@ -31,7 +33,7 @@ ensure_cache(idx_t n)
     if (!cache) {
         /* first allocation: at least slots for n and for indices 1..6 */
         capacity = (n < 7) ? 7 : n + 1;
-        cache = (seq_t *)malloc((size_t)capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)capacity);
         if (!cache) return; /* allocation failure: caller will use 0 */
         for (idx_t i = 1; i <= 6 && i < capacity; ++i)
             cache[i] = base_val[i];
@@ -44,7 +46,7 @@ ensure_cache(idx_t n)
     if (capacity <= n) {
         idx_t new_cap = capacity * 2;
         if (new_cap <= n) new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!tmp) return; /* allocation failure */
         cache = tmp;
         capacity = new_cap;

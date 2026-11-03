@@ -11,6 +11,7 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
  * Helpers:   get_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -26,6 +27,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/get_digits.h"
 
 static seq_t dsf(seq_t x)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   straight_word
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,27 @@
    the sequence by testing each number 1..99 and returning the n‑th valid
    number. For indices beyond the length (16 elements) it returns 0. */
 #include <stdbool.h>
-#include "../utils/straight_word.h"
+
+/* Helper to test if a word consists only of straight‑line letters. */
+static bool straight_word(const char *s)
+{
+    static const bool allowed[26] = {
+        /*  A  B  C  D  E  F  G  H  I  J  K  L  M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z */
+          1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1
+    };
+    for (; *s; ++s) {
+        char c = *s;
+        if (c == '-' || c == ' ') continue; /* ignore hyphens/spaces */
+        if (c >= 'a' && c <= 'z') {
+            if (!allowed[c - 'a']) return false;
+        } else if (c >= 'A' && c <= 'Z') {
+            if (!allowed[c - 'A']) return false;
+        } else {
+            return false; /* non‑alphabetic character */
+        }
+    }
+    return true;
+}
 
 /* Static lookup tables for English words of numbers up to 99. */
 static const char *const ones[20] = {

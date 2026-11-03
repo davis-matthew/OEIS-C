@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 64, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 925 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime sieve (up to a fixed limit) ---------- */
 #define PRIME_LIMIT 1000000               /* enough to factor all values we test */
@@ -81,7 +83,7 @@ static void append_term(seq_t value)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap == 0 ? 4U : seq_cap << 1;
-        seq_terms = (seq_t*)realloc(seq_terms, seq_cap * sizeof(seq_t));
+        seq_terms = mem_resize(seq_t, seq_terms, seq_cap);
         if (!seq_terms) abort();
     }
     seq_terms[seq_len++] = value;

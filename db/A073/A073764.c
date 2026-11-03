@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   compute_spf
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,24 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/compute_spf.h"
+#include "../utils/mem.h"
+
+/* Compute the smallest prime factor for every integer up to 'limit'. */
+static void compute_spf(size_t limit, uint32_t *spf)
+{
+    for (size_t i = 0; i <= limit; ++i) spf[i] = 0;
+
+    for (size_t i = 2; i <= limit; ++i) {
+        if (spf[i] == 0) {           /* i is prime */
+            spf[i] = (uint32_t)i;
+            if (i <= limit / i) {   /* avoid overflow on i*i */
+                for (size_t j = i * i; j <= limit; j += i) {
+                    if (spf[j] == 0) spf[j] = (uint32_t)i;
+                }
+            }
+        }
+    }
+}
 
 #ifndef SEQ_T_DEFINED
 #define SEQ_T_DEFINED
@@ -42,7 +60,7 @@ static void init_cache(void)
 
     size_t lim = LIMIT;
     spf_arr = (uint32_t*)calloc(lim + 1, sizeof(uint32_t));
-    ans_arr = (seq_t*)calloc(lim + 1, sizeof(seq_t));
+    ans_arr = mem_new(seq_t, lim + 1);
 
     compute_spf(lim, spf_arr);
 

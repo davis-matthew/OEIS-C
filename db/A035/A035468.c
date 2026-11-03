@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 94, u16 n <= 217, u32 n <= 584, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #if defined(__cplusplus)
 #include <cstddef>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Allocate or extend the DP array as needed. */
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     /* Ensure dp[0] = 1 and other elements are initialized to 0 */
     if (n + 1 > dp_len) {
         /* Reallocate to size n + 1 */
-        seq_t *tmp = (seq_t *)realloc(dp, sizeof(seq_t) * ((size_t)n + 1));
+        seq_t *tmp = mem_resize(seq_t, dp, ((size_t)n + 1));
         if (!tmp) { /* allocation failure; return zero */
             return (seq_t)0;
         }

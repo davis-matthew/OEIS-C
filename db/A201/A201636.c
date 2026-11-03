@@ -11,7 +11,8 @@
  *            where r = floor((sqrt(8n+1)-1)/2), k = n - r*(r+1)/2
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binomial, pow2
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* ----- Stirling number of the first kind (unsigned) caching ----- */
 static seq_t *st_table = NULL; /* flat array of size (limit+1)^2 */
@@ -36,9 +39,9 @@ static void rebuild_stirling(int max_n)
     if (max_n <= st_limit) return;
 
     /* free previous table and allocate new one */
-    if (st_table) free(st_table);
+    if (st_table) mem_free(st_table);
     int stride = max_n + 1;
-    st_table = (seq_t*)calloc((size_t)stride * stride, sizeof(seq_t));
+    st_table = mem_new(seq_t, (size_t)stride * stride);
     if (!st_table) abort();   /* unlikely */
 
     for (int n = 0; n <= max_n; ++n) {

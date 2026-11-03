@@ -13,23 +13,43 @@
  *            positive y’s. The second one is returned. Comp...
  * Range:     u8 n <= 2, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   floor_sqrt, next_prime, powmod64
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   ipow_i32, next_prime, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/ipow_i32.h"
 #include "../utils/next_prime.h"
-#include "../utils/floor_sqrt.h"
-#include "../utils/powmod64.h"
+#include "../utils/powmod_u64.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static uint64_t sqrt_mod_prime(uint64_t a, uint64_t p)
 {
     if (a == 0) return 0;
     if (p == 2) return a;
     /* Legendre symbol check – no root if not 1 */
-    if (powmod64(a, (p - 1) / 2, p) != 1) return 0;
+    if (powmod_u64(a, (p - 1) / 2, p) != 1) return 0;
 
     /* Tonelli–Shanks */
     uint64_t q = p - 1;
@@ -41,11 +61,11 @@ static uint64_t sqrt_mod_prime(uint64_t a, uint64_t p)
 
     /* find a quadratic non‑residue z */
     uint64_t z = 2;
-    while (powmod64(z, (p - 1) / 2, p) != p - 1) ++z;
+    while (powmod_u64(z, (p - 1) / 2, p) != p - 1) ++z;
 
-    uint64_t c = powmod64(z, q, p);
-    uint64_t x = powmod64(a, (q + 1) / 2, p);
-    uint64_t t = powmod64(a, q, p);
+    uint64_t c = powmod_u64(z, q, p);
+    uint64_t x = powmod_u64(a, (q + 1) / 2, p);
+    uint64_t t = powmod_u64(a, q, p);
     uint64_t m = s;
 
     while (t != 1) {
@@ -56,7 +76,7 @@ static uint64_t sqrt_mod_prime(uint64_t a, uint64_t p)
             t2 = (t2 * t2) % p;
             ++i;
         }
-        uint64_t b = powmod64(c, 1ULL << (m - i - 1), p);
+        uint64_t b = powmod_u64(c, 1ULL << (m - i - 1), p);
         x = (x * b) % p;
         c = (b * b) % p;
         t = (t * c) % p;

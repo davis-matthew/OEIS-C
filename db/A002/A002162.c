@@ -6,8 +6,9 @@
  * Keywords:  nonn, cons
  * Formula:   log(2) = 2*Sum_{k>=0} 1/((2k+1)*3^(2k+1)) (= 2*atanh(1/3)); a(n)
  *            = floor(10^(n+1)*log(2)) mod 10
- * Range:     u8 n <= 9738, u16 n <= 9738, u32 n <= 9738, u64 n <= 9738,
- *            u128 n <= 9738, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 115 terms through n = 9738 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

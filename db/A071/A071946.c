@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 73, u32 n <= 205, u64 n <= 627,
  *            u128 n <= 2206, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9812 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the required types – the build system
    supplies seq_t and idx_t.  Do not define them here. */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     /* Generate missing rows up to r */
     while (used <= r) {
         /* Allocate the new row (length used+1) */
-        seq_t *row = (seq_t *)malloc((used + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (used + 1));
         if (used == 0) {                  /* base case: T(0,0)=1 */
             row[0] = 1;
         } else {

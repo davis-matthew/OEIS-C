@@ -7,13 +7,15 @@
  * Formula:   a(n) = n-th divisor of 370, sorted increasingly
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* extern linkage as required */
 seq_t a(idx_t n) {
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
         const uint64_t primes[3] = {2, 5, 37};
         size_t p = 3;
         divcnt = (size_t)1ULL << p;                 /* 8 */
-        divs = (seq_t *)malloc(divcnt * sizeof(seq_t));
+        divs = mem_new(seq_t, divcnt);
         if (!divs) return 0;                       /* allocation failure */
 
         /* generate all products of subsets of primes */

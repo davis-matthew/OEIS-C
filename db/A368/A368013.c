@@ -7,12 +7,14 @@
  * Formula:   a(0) = 1; a(n) = Σ_{k=1..n} (1 - 2^k) * C(n,k) * a(n-k)
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 20, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, exit */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* table of computed a(n) values          */
 static size_t cache_cap = 0;     /* capacity of cache (in elements)       */
@@ -28,8 +30,8 @@ static void grow_cache(idx_t n)
     while (new_cap <= (size_t)n) new_cap <<= 1;   /* power‑of‑two growth */
 
     seq_t *new_ptr = cache
-        ? (seq_t *)realloc(cache, new_cap * sizeof(*cache))
-        : (seq_t *)malloc(new_cap * sizeof(*cache));
+        ? mem_resize(seq_t, cache, new_cap)
+        : mem_new(seq_t, new_cap);
     if (!new_ptr) exit(EXIT_FAILURE);             /* allocation failed   */
 
     cache     = new_ptr;

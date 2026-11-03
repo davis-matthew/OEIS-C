@@ -8,6 +8,7 @@
  * Formula:   a(n) = 1 + coefficient of x^n in Product_{k>=1} (1-x^k)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 121 terms through n = 902 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

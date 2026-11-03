@@ -11,15 +11,18 @@
  *            Z(e) is the Zeckendorf representation of the exponent e
  * Range:     u8 n <= 137, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 83 terms through n = 8581 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Fibonacci numbers used for Zeckendorf decompositions.
    F(1)=1, F(2)=2, so the array starts with 1,2,3,5,8,... */
@@ -54,7 +57,7 @@ seq_t a(idx_t n)
            number that does not exceed the remainder. */
         for (int j = (int)sizeof(fib) / (int)sizeof(fib[0]) - 1; j >= 0; --j) {
             if (rem >= fib[j]) {
-                seq_t powp = pow_uint(p, fib[j]); /* p^fib[j] */
+                seq_t powp = ipow_u64_idx(p, fib[j]); /* p^fib[j] */
                 powp += 1;                       /* p^s + 1 */
                 contrib *= powp;
                 rem -= fib[j];

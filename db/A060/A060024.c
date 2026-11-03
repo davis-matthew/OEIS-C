@@ -11,12 +11,14 @@
  *            a(15)=-16
  * Range:     i8 n <= 24, i16 n <= 97, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for OEIS A060024, N = 5.  The function is
    memoised and works for any n >= 0, in any call order. */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* initialise the first 16 known terms */
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) {            /* allocation failed – return a default */
             return (seq_t)0;
         }
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
             while (new_cap < needed) {
                 new_cap *= 2;
             }
-            seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (!new_cache) {
                 /* memory failure – return a default value */
                 return (seq_t)0;

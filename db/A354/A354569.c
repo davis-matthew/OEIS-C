@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   good_odd_primes
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/good_odd_primes.h"
+#include "../utils/mem.h"
+
+/* Return true if every odd prime factor of x is 1 (mod 4).  x >= 1. */
+static bool good_odd_primes(uint64_t x) {
+    while ((x & 1u) == 0) x >>= 1;          /* strip factors of 2 */
+    if (x == 1) return true;               /* no odd prime factors */
+    for (uint64_t p = 3; p <= x / p; p += 2) {
+        if (x % p == 0) {
+            if (p % 4u != 1u) return false;
+            while (x % p == 0) x /= p;
+        }
+    }
+    return (x == 1u) || (x % 4u == 1u);
+}
 
 /* ---------- helper functions ---------------------------------------- */
 
@@ -62,7 +76,7 @@ static uint64_t m_max = 0;        /* largest m processed so far       */
 static void add_value(seq_t v) {
     if (data_len == data_cap) {
         data_cap = data_cap ? data_cap * 2 : 16;
-        data = (seq_t *)realloc(data, data_cap * sizeof(seq_t));
+        data = mem_resize(seq_t, data, data_cap);
     }
     data[data_len++] = v;
 }
@@ -106,7 +120,7 @@ static void extend_to(uint64_t new_limit) {
     }
     /* Keep the list sorted; duplicates are preserved. */
     if (data_len > 1)
-        qsort(data, data_len, sizeof(seq_t), seq_cmp);
+        mem_qsort(data, data_len, sizeof(seq_t), seq_cmp);
 
     m_max = new_limit;
 }
@@ -116,7 +130,7 @@ static void ensure_size(idx_t target) {
     if (target == 0) return;
     if (data == NULL) {
         data_cap = 16;
-        data = (seq_t *)malloc(data_cap * sizeof(seq_t));
+        data = mem_new(seq_t, data_cap);
     }
     if (ok_cache == NULL) {
         ok_cache = (uint8_t *)malloc(1);

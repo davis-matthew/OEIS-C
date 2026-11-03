@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2^n - \sum_{k=1}^{n-1} C(n,k) if gcd(n,k)=1, a(1) = 1
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 31, u64 n <= 35, u128 n <= 35,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
  * Helpers:   binomial, gcd, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,9 +15,10 @@
 
 #include <stdlib.h>      /* for size_t, abort() */
 #include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
 #include "../utils/gcd.h"
-#include "../utils/binomial.h"   /* declares seq_t binomial(idx_t, idx_t) */
-#include "../utils/is_prime.h"   /* declares bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {

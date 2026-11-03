@@ -7,12 +7,15 @@
  * Formula:   a(n) = ceil((2*n + 1/n)^n) = ceil(((2*n^2+1)/n)^n)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 14,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 33 terms through n = 295 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -47,8 +50,8 @@ seq_t a(idx_t n)
     seq_t n_seq = (unsigned long long)n;          /* construct from uint64_t */
     seq_t base  = 2 * n_seq * n_seq + 1;          /* (2n^2 + 1) as seq_t */
 
-    seq_t num  = big_pow(base, n_seq);            /* (2n^2+1)^n */
-    seq_t den  = big_pow(n_seq, n_seq);          /* n^n             */
+    seq_t num  = ipow(base, n_seq);            /* (2n^2+1)^n */
+    seq_t den  = ipow(n_seq, n_seq);          /* n^n             */
     seq_t q    = num / den;                      /* floor result    */
     seq_t r    = num % den;                      /* remainder       */
 

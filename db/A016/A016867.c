@@ -7,6 +7,7 @@
  * Formula:   a(n) = (5*n + 1)^7
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 4, u64 n <= 112, u128 n <= 10000,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 9302 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

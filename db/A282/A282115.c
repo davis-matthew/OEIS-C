@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 3577, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_candidate, fulcrum_digit
+ * Validated: standard, pass, 69 terms through n = 9375 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,75 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/append_candidate.h"
-#include "../utils/fulcrum_digit.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
+
+static bool fulcrum_digit(seq_t x)
+{
+    /* Extract decimal digits into an array (LSD first). */
+    unsigned char lsd_digits[256];
+    size_t len = 0;
+    seq_t t = x;
+
+    if (t == (seq_t)0) {
+        lsd_digits[0] = 0;
+        len = 1;
+    } else {
+        while (t != (seq_t)0) {
+            lsd_digits[len++] = (unsigned char)(t % (seq_t)10);
+            t /= (seq_t)10;
+        }
+    }
+
+    /* Numbers with fewer than 3 digits cannot have an internal digit j. */
+    if (len < 3) return false;
+
+    /* Build MSD‑first array for easier index handling. */
+    unsigned char msd[256];
+    for (size_t i = 0; i < len; ++i) msd[i] = lsd_digits[len - 1 - i];
+
+    /* Quick check: odd‑length palindromes satisfy the condition. */
+    if ((len & 1u) != 0) {
+        bool pal = true;
+        for (size_t i = 0; i < len / 2; ++i) {
+            if (msd[i] != msd[len - 1 - i]) {
+                pal = false; break;
+            }
+        }
+        if (pal) return true;
+    }
+
+    /* Test every internal position j (1‑based from left). */
+    for (size_t pos = 1; pos + 1 < len; ++pos) {
+        seq_t left  = 0;
+        seq_t right = 0;
+        /* Sum over digits to the right of pos (higher indices). */
+        for (size_t idx = pos + 1; idx < len; ++idx)
+            left += (seq_t)(idx - pos) * (seq_t)msd[idx];
+        /* Sum over digits to the left of pos. */
+        for (size_t idx = 0; idx < pos; ++idx)
+            right += (seq_t)(pos - idx) * (seq_t)msd[idx];
+        if (left == right) return true;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;

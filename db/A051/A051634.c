@@ -11,7 +11,8 @@
  *            The limit is large enough to contain ≥ 10 000 such p...
  * Range:     u8 n <= 23, u16 n <= 3097, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9647 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define PRIME_LIMIT 400000     /* safe upper bound for 20000 primes   */
 #define MAX_PRIMES 40000       /* maximum number of primes stored  */
@@ -47,7 +49,7 @@ static void init_primes(void)
                 is_composite[j] = 1;
 
     /* allocate primes array */
-    primes = (seq_t *)malloc(MAX_PRIMES * sizeof(seq_t));
+    primes = mem_new(seq_t, MAX_PRIMES);
     if (!primes) exit(1);
 
     prime_cnt = 0;

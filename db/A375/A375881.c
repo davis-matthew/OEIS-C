@@ -9,12 +9,14 @@
  * Formula:   a(n) = 11*a(n-1)-64*a(n-2), a(0) = 2, a(1) = 11
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 10, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initialise cache if needed */
     if (cache == NULL) {
         cache_size = 2;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0;          /* out‑of‑memory; caller can check for 0 */
         cache[0] = (seq_t)2;
         cache[1] = (seq_t)11;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (cache_size <= n) {
         idx_t new_size = cache_size ? cache_size * 2 : 4;
         if (new_size <= n + 1) new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0;            /* out‑of‑memory */
         cache = tmp;
         cache_size = new_size;

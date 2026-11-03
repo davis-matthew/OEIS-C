@@ -12,17 +12,38 @@
  *            q*(2m)+r so no intermediate overflows the exact result
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 23, u64 n <= 40, u128 n <= 73,
  *            big any n
- * Helpers:   a2995_big, a2995_cbin, a2995_is_fixed, a2995_phi
+ * Validated: standard, pass, 46 terms through n = 197 (2026-11-03)
+ * Helpers:   central_binomial, mem, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a2995_big.h"
-#include "../utils/a2995_cbin.h"
-#include "../utils/a2995_is_fixed.h"
-#include "../utils/a2995_phi.h"
+#include "../utils/central_binomial.h"
+#include "../utils/totient_u64.h"
+#include "../utils/mem.h"
+
+static seq_t a2995_big(idx_t n) {
+    idx_t m = n - 1, d;
+    seq_t S = 0, cm;
+    for (d = 1; d <= m; d++)
+        if (m % d == 0)
+            S += (seq_t)totient_u64(m / d) * central_binomial(d);
+    cm = central_binomial(m) / (seq_t)(m + 1);
+    S -= cm * (seq_t)m;
+    if (n % 2 == 0) {
+        idx_t k = n / 2 - 1;
+        S += central_binomial(k) / (seq_t)(k + 1) * (seq_t)m;
+    }
+    return S / ((seq_t)m * 2);
+}
+
+static int a2995_is_fixed(void) {
+    seq_t z = 0;
+    z -= 1;
+    return z > 0;
+}
 
 typedef struct { seq_t q; uint64_t r; } a2995_qr;
 
@@ -56,8 +77,8 @@ static seq_t a2995_fixed(idx_t n) {
     idx_t k = n / 2 - 1, r, j;
     int even = (n % 2 == 0);
     a2995_qr zero, S, catm, catk;
-    a2995_qr *prev = (a2995_qr *)malloc((size_t)(m + 3) * sizeof(a2995_qr));
-    a2995_qr *cur = (a2995_qr *)malloc((size_t)(m + 3) * sizeof(a2995_qr));
+    a2995_qr *prev = mem_new(a2995_qr, (size_t)(m + 3));
+    a2995_qr *cur = mem_new(a2995_qr, (size_t)(m + 3));
     a2995_qr *tmp;
     zero.q = 0; zero.r = 0;
     S = zero; catm = zero; catk = zero;
@@ -77,7 +98,7 @@ static seq_t a2995_fixed(idx_t n) {
         if (r % 2 == 0) {
             idx_t d = r / 2;
             if (m % d == 0)
-                S = a2995_add(S, a2995_mulc(cur[d], a2995_phi(m / d), D), D);
+                S = a2995_add(S, a2995_mulc(cur[d], totient_u64(m / d), D), D);
             if (even && d == k)
                 catk = a2995_sub(cur[d], cur[d + 1], D);
             if (d == m)
@@ -88,8 +109,8 @@ static seq_t a2995_fixed(idx_t n) {
     /* row 0 case for k == 0 (n == 2) cannot occur since n >= 4 here */
     S = a2995_sub(S, a2995_mulc(catm, m, D), D);
     if (even) S = a2995_add(S, a2995_mulc(catk, m, D), D);
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
     return S.q;
 }
 

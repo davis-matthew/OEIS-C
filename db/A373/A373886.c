@@ -11,12 +11,15 @@
  *            Implementation brute‑forces all possible bit blocks
  * Range:     u8 n <= 509, u16 n <= 8190, u32 n <= 8190, u64 n <= 8190,
  *            u128 n <= 8190, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 90 terms through n = 8005 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/bit_length.h"
 #include <stdbool.h>
 
 /* Reverse the lowest 'len' bits of 'v'.  'len' is between 1 and 64. */
@@ -33,7 +36,7 @@ static seq_t reverse_bits(seq_t v, unsigned len)
 seq_t a(idx_t n)
 {
     seq_t x = (seq_t)n;
-    unsigned bitlen = bitlen_seq_t(x);
+    unsigned bitlen = bit_length(x);
     if (bitlen == 0)  /* n == 0 */
         return 0;
     seq_t best = x;

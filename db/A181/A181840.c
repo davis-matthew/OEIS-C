@@ -9,13 +9,15 @@
  *            such k. (k is strongly prime to n.)
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   _gcd_u64
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_gcd_u64.h"
+#include <stddef.h>
+#include "../utils/gcd_u64.h"
 
 /* Euclidean algorithm for uint64_t (idx_t). */
 
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
 
     for (uint64_t k = n - 1; k > 0; --k) {
         /* Check gcd(k,n) == 1 */
-        if (_gcd_u64(k, n) != 1) continue;
+        if (gcd_u64(k, n) != 1) continue;
         /* Check k does not divide n-1 */
         if (nm1 % k == 0) continue;
         return (seq_t)k;

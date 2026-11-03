@@ -11,7 +11,8 @@
  *            the positive integers generated this way
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"          /* declares bool is_prime(uint64_t) */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *seq   = NULL;          /* sequence values, 0‑based (a(1) at seq[0]) */
 static idx_t seq_len = 0;
@@ -37,7 +40,7 @@ static void ensure_seq_capacity(idx_t need) {
     if (need <= seq_cap) return;
     idx_t ncap = seq_cap ? seq_cap * 2 : 16;
     if (ncap < need) ncap = need;
-    seq = (seq_t *)realloc(seq, ncap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, ncap);
     seq_cap = ncap;
 }
 
@@ -51,7 +54,7 @@ static void ensure_prime_capacity(idx_t need) {
 
 static void generate_primes_upto(idx_t k) {
     while (prime_count < k) {
-        while (!is_prime(prime_gen)) ++prime_gen;
+        while (!is_prime_u64(prime_gen)) ++prime_gen;
         ensure_prime_capacity(prime_count + 1);
         primes[prime_count++] = prime_gen;
         ++prime_gen;
@@ -59,7 +62,7 @@ static void generate_primes_upto(idx_t k) {
 }
 
 static bool is_composite(uint64_t n) {
-    return n > 1 && !is_prime(n);
+    return n > 1 && !is_prime_u64(n);
 }
 
 seq_t a(idx_t n) {

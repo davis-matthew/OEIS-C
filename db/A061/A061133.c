@@ -7,13 +7,23 @@
  * Formula:   a(n) = number of degree‑n even permutations of order exactly 6
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   falling_fact
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* realloc, calloc, size_t */
-#include "../utils/falling_fact.h"
+#include "../utils/mem.h"
+
+/* Falling factorial (n)!/(n-k)!  (k ≤ n) */
+static inline seq_t falling_fact(idx_t n, idx_t k)
+{
+    seq_t res = (seq_t)1;
+    for (idx_t i = 0; i < k; ++i)
+        res *= (seq_t)(n - i);
+    return res;
+}
 
 static seq_t *dp_tot_1236 = NULL;   /* all permutations with cycles 1,2,3,6   */
 static seq_t *dp_even_1236 = NULL;  /* even such permutations                */
@@ -32,15 +42,15 @@ static void extend_tables(idx_t n)
 
     size_t new_len = (size_t)(n + 1);
 
-    dp_tot_1236 = (seq_t *)realloc(dp_tot_1236, new_len * sizeof(seq_t));
-    dp_even_1236 = (seq_t *)realloc(dp_even_1236, new_len * sizeof(seq_t));
-    dp_odd_1236 = (seq_t *)realloc(dp_odd_1236, new_len * sizeof(seq_t));
+    dp_tot_1236 = mem_resize(seq_t, dp_tot_1236, new_len);
+    dp_even_1236 = mem_resize(seq_t, dp_even_1236, new_len);
+    dp_odd_1236 = mem_resize(seq_t, dp_odd_1236, new_len);
 
-    dp_tot_12 = (seq_t *)realloc(dp_tot_12, new_len * sizeof(seq_t));
-    dp_even_12 = (seq_t *)realloc(dp_even_12, new_len * sizeof(seq_t));
-    dp_odd_12 = (seq_t *)realloc(dp_odd_12, new_len * sizeof(seq_t));
+    dp_tot_12 = mem_resize(seq_t, dp_tot_12, new_len);
+    dp_even_12 = mem_resize(seq_t, dp_even_12, new_len);
+    dp_odd_12 = mem_resize(seq_t, dp_odd_12, new_len);
 
-    dp_tot_13 = (seq_t *)realloc(dp_tot_13, new_len * sizeof(seq_t));
+    dp_tot_13 = mem_resize(seq_t, dp_tot_13, new_len);
 
     /* Base cases (for n = 0) */
     dp_tot_1236[0] = (seq_t)1;

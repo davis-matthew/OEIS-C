@@ -8,7 +8,8 @@
  *            triangular numbers
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- internal state ---------- */
 static idx_t flag_size = 0;            /* size of the triangular flag array */
@@ -50,7 +52,7 @@ static void ensure_triang_capacity(size_t needed)
     if (needed <= triang_cap) return;
     size_t new_cap = triang_cap ? 2 * triang_cap : 8;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(triang, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, triang, new_cap);
     if (!new_arr) exit(EXIT_FAILURE);
     triang = new_arr;
     triang_cap = new_cap;
@@ -61,7 +63,7 @@ static void ensure_cache_capacity(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? 2 * cache_cap : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     if (!new_arr) exit(EXIT_FAILURE);
     cache = new_arr;
     cache_cap = new_cap;

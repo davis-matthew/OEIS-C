@@ -10,7 +10,8 @@
  *            whose index is prime, and then builds the sequence lazily
  * Range:     u8 n <= 163, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes, is_prime
+ * Validated: standard, pass, 81 terms through n = 9394 (2026-11-03)
+ * Helpers:   build_primes, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/build_primes.h"   /* build_primes(limit, &arr, &cnt) */
-#include "../utils/is_prime.h"       /* is_prime(idx_t) */
+#include "../utils/build_primes.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static bool initialized = false;
 
@@ -60,7 +62,7 @@ static void init_sequence(void)
         if (is_prime((idx_t)(i + 1))) ++special_cnt;
     }
     if (special_cnt > 0) {
-        special_primes = (seq_t *)malloc(special_cnt * sizeof(seq_t));
+        special_primes = mem_new(seq_t, special_cnt);
         size_t k = 0;
         for (size_t i = 0; i < prime_cnt; ++i) {
             if (is_prime((idx_t)(i + 1))) {
@@ -73,7 +75,7 @@ static void init_sequence(void)
     /* allocate initial cache for sequence terms                            */
     /* ------------------------------------------------------------------ */
     cache_cap   = 128;
-    term_cache  = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    term_cache  = mem_new(seq_t, cache_cap);
     cache_len   = 0;
     next_candidate = 3; /* first odd candidate to test */
 }
@@ -112,8 +114,7 @@ seq_t a(idx_t n)
             /* grow cache if needed */
             if (cache_len >= cache_cap) {
                 cache_cap *= 2;
-                term_cache = (seq_t *)realloc(term_cache,
-                                 cache_cap * sizeof(seq_t));
+                term_cache = mem_resize(seq_t, term_cache, cache_cap);
             }
             term_cache[cache_len++] = (seq_t)cand;
         }

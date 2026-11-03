@@ -12,16 +12,20 @@
  *            primes and storing the results
  * Range:     u8 n <= 53, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   gpf
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include the helper that returns the greatest prime factor of a 64‑bit integer. */
-#include "../utils/gpf.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/largest_prime_factor.h"
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square root using only integer operations. */
 static uint64_t isqrt_u64(uint64_t n)
@@ -94,11 +98,11 @@ static void ensure_twin_count(idx_t n)
             if (last_prime != 0 && cand == last_prime + 2) {
                 /* Found a twin pair (last_prime, cand).  Compute a value. */
                 uint64_t avg = last_prime + 1;  /* average of the pair */
-                uint64_t g = gpf(avg);
+                uint64_t g = largest_prime_factor(avg);
                 seq_t val = (seq_t)(g > 3 ? g : 1);
                 if (cache_sz == cache_cap) {
                     size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
-                    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                     if (!new_cache) exit(1);
                     cache = new_cache;
                     cache_cap = new_cap;

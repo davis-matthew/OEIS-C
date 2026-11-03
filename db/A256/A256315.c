@@ -8,13 +8,15 @@
  *            the number of partitions of m = 3*n into exactly k = 6 parts)
  * Range:     u8 n <= 8, u16 n <= 28, u32 n <= 271, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 933 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;
 static idx_t dp_cap = 0;   /* maximum m for which dp is filled (inclusive) */
@@ -30,14 +32,14 @@ static void ensure_dp(idx_t max_m)
     idx_t old_cap = had_old ? dp_cap : (idx_t)0;
 
     size_t new_len = (size_t)(max_m + 1) * 7;
-    seq_t *new_dp = (seq_t *)calloc(new_len, sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, new_len);
     if (!new_dp)
         return;   /* allocation failure; caller will get 0 */
 
     if (had_old) {
         size_t old_len = (size_t)(old_cap + 1) * 7;
-        memcpy(new_dp, dp, old_len * sizeof(seq_t));
-        free(dp);
+        mem_copy(new_dp, dp, old_len * sizeof(seq_t));
+        mem_free(dp);
     }
 
     /* Base row: dp[0][j] = 1 for all j */

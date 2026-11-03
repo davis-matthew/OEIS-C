@@ -11,13 +11,15 @@
  *            degree 37 with integer coefficients
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;   /* stores a(0)..a(max_needed) */
@@ -28,15 +30,15 @@ seq_t a(idx_t n) {
         size_t old_len = cache_len;
         size_t new_len = (size_t)n + 1;
         /* allocate new arrays and copy existing data */
-        seq_t *new_cache = (seq_t*)calloc(new_len, sizeof(seq_t));
-        seq_t *new_pref  = (seq_t*)calloc(new_len, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
+        seq_t *new_pref  = mem_new(seq_t, new_len);
         if (!new_cache || !new_pref) return 0; /* memory error, return 0 */
         for (size_t i = 0; i < old_len; ++i) {
             new_cache[i] = cache[i];
             new_pref[i]  = pref[i];
         }
-        free(cache);
-        free(pref);
+        mem_free(cache);
+        mem_free(pref);
         cache = new_cache;
         pref  = new_pref;
         cache_len = new_len;

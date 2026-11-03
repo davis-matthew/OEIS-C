@@ -8,7 +8,8 @@
  * Formula:   a(n) = A290255(2*n)
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 /* A290255(k) = number of 0's following directly the first 1 in the binary representation of k. */
 /* This implementation uses only integer arithmetic and the helper bitlen_seq_t. */
 
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     seq_t m = (seq_t)n * 2u;
 
     /* Find the bit length of m (must be >=1 for n>=1). */
-    unsigned bitlen = bitlen_seq_t(m);
+    unsigned bitlen = bit_length(m);
 
     /* Count consecutive zeros starting just below the most significant bit. */
     seq_t count = 0;

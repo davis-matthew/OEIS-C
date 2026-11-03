@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 29, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
- *            big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 29, u16 n <= 87, u32 n <= 100, u64 n <= 100,
+ *            u128 n <= 100, big any n
+ * Validated: standard, pass, 71 terms through n = 99 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 /* a(n) = the nth integer n such that n‑4^k is prime for all k>0 with 4^k < n */
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 static seq_t seq[200];
 static unsigned seq_cnt = 0;
@@ -26,7 +29,7 @@ static bool good_candidate(uint64_t cand)
     uint64_t p = 4;          /* power 4^1 */
     while (p < cand) {
         uint64_t diff = cand - p;
-        if (!is_prime(diff))
+        if (!is_prime_u64(diff))
             return false;
         /* Avoid overflow when computing the next power of 4. */
         if (p > ULLONG_MAX / 4)

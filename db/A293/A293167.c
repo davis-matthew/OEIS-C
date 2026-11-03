@@ -8,14 +8,26 @@
  * Formula:   a(n) = Sum_{k = 1..n} d(d(d(k))) where d is the divisor count
  * Range:     u8 n <= 107, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_small
+ * Validated: standard, pass, 85 terms through n = 9450 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/divisor_count_small.h"
+
+/* Compute the number of divisors of a small integer n (n is assumed small, e.g. n <= 2000). */
+static inline idx_t divisor_count_small(idx_t n)
+{
+    idx_t cnt = 0;
+    for (idx_t i = 1; i*i <= n; ++i) {
+        if (n % i == 0) {
+            cnt += (i*i == n) ? 1 : 2;
+        }
+    }
+    return cnt;
+}
 
 /* Sequence function */
 seq_t a(idx_t n)

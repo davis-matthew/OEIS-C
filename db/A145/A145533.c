@@ -9,7 +9,8 @@
  *            prime} – 1
  * Range:     u8 none, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
                 primes[k++] = i;             /* primes[0] = 2, primes[1] = 3, … */
 
         /* ---- count numbers whose smallest prime factor is p ---- */
-        count_by_prime = (seq_t*)calloc(limit + 1, sizeof(seq_t));
+        count_by_prime = mem_new(seq_t, limit + 1);
         if (!count_by_prime) { free(lpf); free(primes); return 0; }
 
         for (idx_t i = 2; i <= limit; ++i)

@@ -7,7 +7,8 @@
  * Formula:   a(n) = pi(n) mod 2 (Parity of the prime‑counting function)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root for unsigned 64‑bit values.  The result is the floor of sqrt(x). */
 static inline idx_t isqrt_u64(idx_t x)
@@ -47,7 +49,7 @@ static void extend_sieve(idx_t max_n)
 
     /* Resize arrays.  A NULL pointer from realloc works like malloc. */
     is_prime = (bool *)realloc(is_prime, (max_n + 1) * sizeof(bool));
-    parity   = (seq_t *)realloc(parity,   (max_n + 1) * sizeof(seq_t));
+    parity   = mem_resize(seq_t, parity, (max_n + 1));
 
     /* Initialize every entry as a prime candidate. */
     for (idx_t i = 0; i <= max_n; ++i)

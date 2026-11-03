@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9648 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    order, caches the results, and returns the n‑th element (n ≥ 1). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,8 +51,7 @@ seq_t a(idx_t n)
             if (cache_size == cache_cap)      /* grow array if full       */
             {
                 idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc((void *)cache,
-                                              new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)                    /* allocation failed        */
                     return 0;                /* safe fallback            */
                 cache      = tmp;

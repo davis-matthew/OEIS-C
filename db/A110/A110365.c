@@ -8,7 +8,8 @@
  *            = 2
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 27, u128 n <= 54,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 40 terms through n = 965 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
    a(4)=112, a(5)=448, a(n+1)=a(n)* (4 if n+1 is odd else 7). */
 
 #include <stdint.h>   /* for clarity; seq_t and idx_t are defined by the build */
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 1)
@@ -25,7 +26,7 @@ seq_t a(idx_t n) {
     /* Count how many odd and even indices from 3..n */
     idx_t oddCount   = (n - 1) / 2;          /* number of odd i >= 3 */
     idx_t evenCount  = (n - 2) / 2;          /* number of even i >= 4 */
-    seq_t fourPow = pow_seq(4, oddCount + 1);   /* extra factor 4 for i=2 */
-    seq_t sevenPow = pow_seq(7, evenCount);
+    seq_t fourPow = ipow_idx(4, oddCount + 1);   /* extra factor 4 for i=2 */
+    seq_t sevenPow = ipow_idx(7, evenCount);
     return fourPow * sevenPow;
 }

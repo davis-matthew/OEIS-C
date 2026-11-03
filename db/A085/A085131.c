@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 316, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,12 +17,13 @@
    Computed as 8 times the n‑th 7‑smooth number (A002473).
    Generated with the standard 4‑pointer algorithm for humble numbers. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;          /* undefined for n<1, but guard anyway */
     /* allocate array to hold the first n 7‑smooth numbers */
-    seq_t *h = (seq_t*)malloc(sizeof(seq_t) * (size_t)n);
+    seq_t *h = mem_new(seq_t, (size_t)n);
     if (!h) return 0;              /* allocation failure – not expected */
 
     h[0] = 1;                      /* first 7‑smooth number */
@@ -48,6 +50,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = h[n - 1] * 8;    /* multiply the n‑th 7‑smooth number by 8 */
-    free(h);
+    mem_free(h);
     return result;
 }

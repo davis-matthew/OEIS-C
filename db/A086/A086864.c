@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 11, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    Handles all n ≥ 1 (offset 1).
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Ensure cache covers exponent n */
     if (pow3_cache_size <= n) {
         size_t new_size = (size_t)n + 1;   /* need indices 0..n */
-        seq_t *tmp = (seq_t *)realloc(pow3_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow3_cache, new_size);
         if (!tmp) return (seq_t)0;        /* allocation failure – return 0 as fallback */
         pow3_cache = tmp;
 

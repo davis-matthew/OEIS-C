@@ -8,15 +8,19 @@
  *            d(k) is the number of divisors of k
  * Range:     u8 n <= 24, u16 n <= 2500, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, mod_pow
+ * Validated: standard, pass, 81 terms through n = 9810 (2026-11-03)
+ * Helpers:   mem, num_divisors, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/num_divisors.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Dynamic array to store found k-values */
 static seq_t *values = NULL;
@@ -32,7 +36,7 @@ static void ensure_capacity(size_t needed)
     if (valcap >= needed) return;
     size_t newcap = valcap ? valcap * 2 : 16;
     while (newcap < needed) newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(values, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, values, newcap);
     if (!tmp)
         abort(); /* allocation failed */
     values = tmp;
@@ -48,9 +52,9 @@ seq_t a(idx_t n)
     while (valcnt < (size_t)n) {
         checked++;  /* next integer to test */
         /* number of divisors of 'checked' */
-        seq_t d = divisor_count_u64((uint64_t)checked);
+        seq_t d = num_divisors((uint64_t)checked);
         /* 2^(checked-1) mod checked */
-        seq_t mod = mod_pow((seq_t)2, checked - 1, (seq_t)checked);
+        seq_t mod = powmod((seq_t)2, checked - 1, (seq_t)checked);
         if (mod == d) {
             ensure_capacity(valcnt + 1);
             values[valcnt++] = (seq_t)checked;

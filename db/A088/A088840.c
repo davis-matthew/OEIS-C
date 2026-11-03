@@ -7,15 +7,16 @@
  * Formula:   a(n) = denominator of sigma(4*n)/sigma(n). Write n = 2^e * m
  *            with m odd. Then a(n) = { 2^(e+1) - 1, if e is even (2^(e+1) -
  *            1) / 3, if e is odd } (for e = v2(n), the exponent of 2 in n)
- * Range:     u8 n <= 255, u16 n <= 9392, u32 n <= 9392, u64 n <= 9392,
- *            u128 n <= 9392, big any n
- * Helpers:   v2_idx
+ * Range:     u8 n <= 255, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 118 terms through n = 9392 (2026-11-01)
+ * Helpers:   ctz
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>  /* may be optional, provided by the build */
-#include "../utils/v2_idx.h"
+#include "../utils/ctz.h"
 
 static inline seq_t pow2_seq(idx_t exp) {
     seq_t res = 1;
@@ -26,7 +27,7 @@ static inline seq_t pow2_seq(idx_t exp) {
 
 seq_t a(idx_t n) {
     /* exponent of 2 in n */
-    idx_t e = v2_idx(n);
+    idx_t e = ctz(n);
 
     /* compute 2^(e+1) */
     seq_t pow2 = pow2_seq(e + 1);

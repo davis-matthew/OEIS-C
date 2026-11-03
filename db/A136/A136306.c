@@ -8,7 +8,8 @@
  * Formula:   a(0)=1, a(n)=a(n-1)*(10^K)+n*a(n-1), K=floor(log10(n*a(n-1)))
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,19 @@
 /* -------------  helpers ------------- */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* -------------  cache ------------- */
 static seq_t *cache     = NULL;   /* array of computed terms               */
@@ -36,7 +48,7 @@ static void ensure_cache(idx_t n)
     while (new_size <= n)
         new_size <<= 1;                            /* double until enough */
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     cache = tmp;
     cache_size = new_size;
 }
@@ -56,7 +68,7 @@ seq_t a(idx_t n)
     for (idx_t i = computed_max + 1; i <= n; ++i) {
         seq_t prev   = cache[i-1];                 /* a(i-1)   */
         seq_t prod   = (seq_t)i * prev;            /* i * a(i-1) */
-        int   digits = digit_len(prod);            /* decimal digits of i*a(i-1) */
+        int   digits = num_digits(prod);            /* decimal digits of i*a(i-1) */
         idx_t K = (idx_t)(digits - 1);             /* K = floor(log10(prod)) */
 
         seq_t pow10k = pow10(K);                   /* 10^K          */

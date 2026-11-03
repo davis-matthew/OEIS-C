@@ -7,6 +7,7 @@
  * Formula:   a(n) = product of ratio sequence 1,1,2,3,3,4,5,5,6,7,7,
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 23, u128 n <= 38,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 425 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 107, u16 n <= 107, u32 n <= 107, u64 n <= 107,
  *            u128 n <= 107, big any n
- * Helpers:   none
+ * Validated: partial, pass, 107 terms through n = 107 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    initial values: a(1)=0, a(2)=1, a(3)=4, a(4)=5, a(5)=7, a(6)=8,
    a(7)=11, a(8)=12 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static idx_t seq_cache_size = 0; /* Highest index that has been computed */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (seq_cache == NULL) {
         /* Allocate storage for indices 1..8 (index 0 unused) */
         seq_cache_size = 8;
-        seq_cache = (seq_t *)malloc((seq_cache_size + 1) * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, (seq_cache_size + 1));
         if (!seq_cache) exit(EXIT_FAILURE);
         seq_cache[1] = (seq_t)0;
         seq_cache[2] = (seq_t)1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
     if (n > seq_cache_size) {
         idx_t new_size = n;
-        seq_cache = (seq_t *)realloc(seq_cache, (new_size + 1) * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, (new_size + 1));
         if (!seq_cache) exit(EXIT_FAILURE);
         for (idx_t i = seq_cache_size + 1; i <= new_size; ++i) {
             if (i <= 8) {

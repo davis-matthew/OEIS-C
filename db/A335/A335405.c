@@ -11,7 +11,8 @@
  *            the number of ordered compositions following that fact...
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 95, u64 n <= 767,
  *            u128 n <= 8191, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 70 terms through n = 9087 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/binom.h"      /* seq_t binom(idx_t a, idx_t b) */
+#include "../utils/binomial.h"
 
 static void dfs_factor(idx_t remaining, size_t start_idx,
                        idx_t *parts, size_t depth, idx_t sum_parts,
@@ -35,7 +36,7 @@ static void dfs_factor(idx_t remaining, size_t start_idx,
         idx_t m = depth + t;             /* total number of parts */
 
         seq_t perm = (seq_t)1;
-        perm *= binom(m, t);              /* positions for the 1's */
+        perm *= binomial(m, t);              /* positions for the 1's */
         idx_t rem = m - t;
 
         /* count equal non‑one factors */
@@ -45,7 +46,7 @@ static void dfs_factor(idx_t remaining, size_t start_idx,
             size_t cnt = 1;
             while (i + cnt < depth && parts[i + cnt] == val)
                 ++cnt;
-            perm *= binom(rem, cnt);
+            perm *= binomial(rem, cnt);
             rem -= cnt;
             i += cnt;
         }

@@ -13,7 +13,8 @@
  *            0,1,2 and the state consists of the last column plus the * pr...
  * Range:     u8 none, u16 n <= 4, u32 n <= 22, u64 n <= 57, u128 n <= 127,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define VALS   3
 #define NUM_COLS (VALS*VALS*VALS)   /* 3^3 = 27 */
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
         }
         /* allocate seq_vals */
         seq_cap = 64;
-        seq_vals = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_vals = mem_new(seq_t, seq_cap);
         seq_vals[0] = 0;   /* dummy for n=0 */
         seq_used = 1;
         computed_steps = 0;
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
     if (n >= seq_cap) {
         size_t new_cap = seq_cap * 2;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_vals = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+        seq_vals = mem_resize(seq_t, seq_vals, new_cap);
         for (size_t i = seq_cap; i < new_cap; ++i) seq_vals[i] = 0;
         seq_cap = new_cap;
     }

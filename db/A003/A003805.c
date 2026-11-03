@@ -6,7 +6,8 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = q^28 * Product_{i=2..8} (q^i - 1), where q = A000961(n+1)
  * Range:     u8 none, u16 none, u32 none, u64 n <= 1, u128 n <= 3, big any n
- * Helpers:   a000248_pow, compare_uint64
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,13 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../utils/a000248_pow.h"
-#include "../utils/compare_uint64.h"
+#include "../utils/ipow_idx.h"
+
+static int compare_uint64(const void *a, const void *b) {
+    uint64_t x = *(const uint64_t *)a;
+    uint64_t y = *(const uint64_t *)b;
+    return (x > y) - (x < y);
+}
 
 static bool *sieve_of_eratosthenes(uint64_t limit) {
     bool *is_prime = (bool *)malloc(limit + 1);
@@ -75,11 +81,11 @@ seq_t a(idx_t n) {
     uint64_t q_ll = prime_powers[n];
     seq_t q = (seq_t)q_ll;
     
-    seq_t q_28 = a000248_pow(q, 28);
+    seq_t q_28 = ipow_idx(q, 28);
     
     seq_t product = 1;
     for (int i = 2; i <= 8; i++) {
-        seq_t q_i = a000248_pow(q, (idx_t)i);
+        seq_t q_i = ipow_idx(q, (idx_t)i);
         product *= (q_i - 1);
     }
     

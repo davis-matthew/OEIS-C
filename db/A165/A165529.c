@@ -12,12 +12,14 @@
  *            -508·a(n-8) +105·a(n-9) -9·a(n-10) Initial values: a(0...
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 38, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 496 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* initial values */
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     }
 
     /* allocate array for sequence values up to n */
-    seq_t *seq = (seq_t*)malloc(((size_t)n + 1ULL) * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, ((size_t)n + 1ULL));
     if (!seq) {  /* fallback: return 0 on allocation failure */
         return (seq_t)0;
     }
@@ -64,6 +66,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = seq[(size_t)n];
-    free(seq);
+    mem_free(seq);
     return result;
 }

@@ -11,7 +11,8 @@
  *            divisors of m
  * Range:     u8 n <= 9, u16 n <= 28, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static idx_t max_n = 0;                  /* largest n computed so far   */
 static seq_t *p_arr  = NULL;             /* partition numbers 0..max_n */
@@ -33,10 +35,10 @@ static void ensure_capacity(idx_t n)
 
     /* Allocate or grow arrays */
     size_t new_cap = (size_t)n + 1;
-    p_arr  = (seq_t*)realloc(p_arr,  new_cap * sizeof(seq_t));
-    a_arr  = (seq_t*)realloc(a_arr,  new_cap * sizeof(seq_t));
+    p_arr  = mem_resize(seq_t, p_arr, new_cap);
+    a_arr  = mem_resize(seq_t, a_arr, new_cap);
     tau_arr = (uint32_t*)realloc(tau_arr, new_cap * sizeof(uint32_t));
-    s_arr  = (seq_t*)realloc(s_arr,  new_cap * sizeof(seq_t));
+    s_arr  = mem_resize(seq_t, s_arr, new_cap);
 
     /* Compute divisor counts tau[i] for 1..n */
     for (idx_t i = 1; i <= n; ++i)

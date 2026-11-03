@@ -7,7 +7,8 @@
  * Formula:   a(n) = smallest odd prime p such that n = (p-1)/ord_p(3)
  * Range:     u8 n <= 6, u16 n <= 30, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   is_prime, pow_mod
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   is_prime_u64, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,13 +19,14 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/pow_mod.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/powmod_u64.h"
 
 static uint64_t order_of_3(uint64_t p, uint64_t m)
 {
     /* 3 must be coprime to p (p > 3) so we can test its order. */
-    if (pow_mod(3ULL, m, p) != 1ULL)
+    if (powmod_u64(3ULL, m, p) != 1ULL)
         return 0;                /* m cannot be the order */
 
     uint64_t ord = m;
@@ -37,13 +39,13 @@ static uint64_t order_of_3(uint64_t p, uint64_t m)
         while (tmp % f == 0)
             tmp /= f;
         while (ord % f == 0 &&
-               pow_mod(3ULL, ord / f, p) == 1ULL)
+               powmod_u64(3ULL, ord / f, p) == 1ULL)
             ord /= f;
     }
     if (tmp > 1) {                 /* remaining prime factor */
         uint64_t f = tmp;
         while (ord % f == 0 &&
-               pow_mod(3ULL, ord / f, p) == 1ULL)
+               powmod_u64(3ULL, ord / f, p) == 1ULL)
             ord /= f;
     }
     return ord;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
 
         if (p <= 3 || (p & 1ULL) == 0)
             continue;
-        if (!is_prime(p))
+        if (!is_prime_u64(p))
             continue;
 
         if (order_of_3(p, m) == m)

@@ -11,12 +11,14 @@
  *            Σ_{i=0..k} a_i*a_{k-i}
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache for already computed a(n) and d(n) values */
 static seq_t *a_cache = NULL;
@@ -28,8 +30,8 @@ static void ensure_cache(idx_t n)
 {
     /* initialise cache for n = 0 */
     if (cache_size == 0) {
-        a_cache = (seq_t*)malloc(sizeof(seq_t));
-        d_cache = (seq_t*)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
+        d_cache = mem_new(seq_t, 1);
         a_cache[0] = (seq_t)1;
         d_cache[0] = (seq_t)1;
         cache_size = 1;
@@ -39,8 +41,8 @@ static void ensure_cache(idx_t n)
         return;
 
     /* grow the arrays to hold up to index n */
-    a_cache = (seq_t*)realloc(a_cache, (size_t)(n + 1) * sizeof(seq_t));
-    d_cache = (seq_t*)realloc(d_cache, (size_t)(n + 1) * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, (size_t)(n + 1));
+    d_cache = mem_resize(seq_t, d_cache, (size_t)(n + 1));
 
     /* compute values incrementally from cache_size up to n */
     for (idx_t k = cache_size; k <= n; ++k) {

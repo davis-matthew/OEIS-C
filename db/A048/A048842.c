@@ -7,7 +7,8 @@
  * Formula:   a(n) = minimal k such that 13^n divides k!
  * Range:     u8 n <= 20, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   exp13
+ * Validated: standard, pass, 66 terms through n = 975 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,21 @@
 /* Implementation: Legendre's formula + binary search */
 
 #include <stdint.h>
-#include "../utils/exp13.h"
+
+static seq_t exp13(seq_t k)
+/* returns the exponent of 13 in k! */
+{
+    seq_t sum = 0;
+    seq_t div = 13;
+    while (div <= k) {
+        sum += k / div;
+        /* stop if the next power of 13 would overflow k */
+        if (div > k / 13)
+            break;
+        div *= 13;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

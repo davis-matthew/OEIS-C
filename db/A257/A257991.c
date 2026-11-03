@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = sum_{p odd-indexed prime} v_p(n)
- * Range:     u8 n <= 9628, u16 n <= 9628, u32 n <= 9628, u64 n <= 9628,
- *            u128 n <= 9628, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 104 terms through n = 9628 (2026-11-01)
  * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 /*  Compute a(n) by factoring n and summing the exponents of primes with odd
     index (prime_pi(p) odd).  */
 
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)

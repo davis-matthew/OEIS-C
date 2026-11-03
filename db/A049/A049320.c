@@ -6,14 +6,16 @@
  * Keywords:  nonn, nice
  * Formula:   a(n) is the nth term of the fixed point of the morphism 0 →
  *            0010, 1 → 1. The sequence starts 0,0,1,0,0,0,1,0,1,0,0,1
- * Range:     u8 n <= 9810, u16 n <= 9810, u32 n <= 9810, u64 n <= 9810,
- *            u128 n <= 9810, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10001, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 115 terms through n = 9810 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache holding the sequence up to the current known length */
 static seq_t *cache = NULL;   /* array of 0/1 */
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
 
     /* initialise with the single symbol 0 if necessary */
     if (cache_len == 0) {
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = (seq_t)0;
         cache_len = 1;
     }
@@ -46,7 +48,7 @@ static void ensure_cache(idx_t n)
         idx_t new_len = zero_cnt * 4 + one_cnt;
 
         /* allocate buffer for the new sequence */
-        seq_t *new_arr = (seq_t*)malloc(sizeof(seq_t) * (size_t)new_len);
+        seq_t *new_arr = mem_new(seq_t, (size_t)new_len);
         idx_t pos = 0;
         for (idx_t i = 0; i < cache_len; ++i) {
             if (cache[i] == 0) {
@@ -60,7 +62,7 @@ static void ensure_cache(idx_t n)
         }
 
         /* replace old cache */
-        free(cache);
+        mem_free(cache);
         cache      = new_arr;
         cache_len  = new_len;
     }

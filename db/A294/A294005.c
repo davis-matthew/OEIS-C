@@ -10,13 +10,15 @@
  * Formula:   a(n) = [x^n y^3] Prod_{j>=1} 1/(1-y*x^j)^A000085(j)
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 20, u64 n <= 33, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 767 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 /* seq_t and idx_t are defined by the surrounding build. */
 
 static seq_t *I_arr      = NULL;   /* Involution numbers up to max_n. */
@@ -29,9 +31,9 @@ static void ensure_involutions(idx_t n)
         return;
 
     if (I_arr == NULL) {
-        I_arr = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        I_arr = mem_new(seq_t, (n + 1));
     } else {
-        I_arr = (seq_t *)realloc(I_arr, (n + 1) * sizeof(seq_t));
+        I_arr = mem_resize(seq_t, I_arr, (n + 1));
     }
 
     I_arr[0] = (seq_t)1;

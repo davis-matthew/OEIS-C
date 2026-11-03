@@ -9,14 +9,17 @@
  *            binom(2*(k+1)+(n-k)-1, n-k)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 24, u128 n <= 27,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/binomial.h"   /* for big‑integer path only          */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Static table of computed values: a_tbl[0 .. a_size-1] = a(m) */
 static seq_t *a_tbl   = NULL;
@@ -42,7 +45,7 @@ static void ensure_capacity(idx_t req) {
     /* resize table */
     size_t target = (size_t)req + 1;
     if (target < 8) target = 8;
-    seq_t *tmp = (seq_t *)realloc(a_tbl, target * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_tbl, target);
     if (!tmp) return;  /* allocation failed – caller will get garbage */
     a_tbl = tmp;
 

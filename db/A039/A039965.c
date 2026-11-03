@@ -7,12 +7,14 @@
  * Formula:   a(n) = ((-1)^(n+1) * Catalan(n-1)) mod 3
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Catalan numbers modulo 3 – memoised */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     /* initialise storage if first call */
     if (!cat) {
         cat_cap = 1;
-        cat = (seq_t*)malloc(cat_cap * sizeof(seq_t));
+        cat = mem_new(seq_t, cat_cap);
         cat[0] = (seq_t)1;            /* Catalan(0) = 1 */
         cat_max = 0;
     }
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
         if (cat_cap <= (size_t)idx) {
             size_t new_cap = cat_cap > 0 ? cat_cap : 1;
             while (new_cap <= (size_t)idx) new_cap <<= 1;
-            cat = (seq_t*)realloc(cat, new_cap * sizeof(seq_t));
+            cat = mem_resize(seq_t, cat, new_cap);
             cat_cap = new_cap;
         }
         /* compute missing Catalan modulo 3 values */

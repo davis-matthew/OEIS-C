@@ -8,17 +8,53 @@
  *            a growing bound B^11, sort, dedupe, take the n-th
  * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   alloc_zero, release, seq_is_fixed_width, sift_down
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/sift_down.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static void sift_down(seq_t *v, idx_t start, idx_t end) {
+    idx_t root = start;
+    while (2 * root + 1 < end) {
+        idx_t child = 2 * root + 1;
+        if (child + 1 < end && v[child] < v[child + 1]) child++;
+        if (v[root] < v[child]) {
+            seq_t t = v[root]; v[root] = v[child]; v[child] = t;
+            root = child;
+        } else {
+            return;
+        }
+    }
+}
 
 static void heap_sort(seq_t *v, idx_t len) {
     if (len < 2) return;

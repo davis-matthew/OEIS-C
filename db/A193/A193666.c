@@ -12,13 +12,25 @@
  *            → next F(k) even Fibonacci numbers. * The bloc...
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 23, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   fib_num
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/fib_num.h"
+
+static seq_t fib_num(idx_t k)
+{
+    seq_t fprev = 1, fcurr = 1;
+    if (k <= 2) return 1;
+    for (idx_t i = 3; i <= k; ++i) {
+        seq_t nxt = fprev + fcurr;
+        fprev = fcurr;
+        fcurr = nxt;
+    }
+    return fcurr;
+}
 
 seq_t a(idx_t n)
 {

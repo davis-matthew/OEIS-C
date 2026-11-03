@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   grow_ptr, prime_divides_factorial_sum
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,55 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/grow_ptr.h"
-#include "../utils/prime_divides_factorial_sum.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* minimal grow helper */
+#ifdef __cplusplus
+template <class T>
+static T *grow_ptr(T *ptr, size_t *cap, size_t need, size_t elem_size)
+{
+    if (*cap < need) {
+        size_t new_cap = *cap ? *cap * 2 : 16;
+        while (new_cap < need) new_cap *= 2;
+        ptr = mem_resize(T, ptr, (new_cap * elem_size) / sizeof(T));
+        *cap = new_cap;
+    }
+    return ptr;
+}
+#else
+static void *grow_ptr(void *ptr, size_t *cap, size_t need, size_t elem_size)
+{
+    if (*cap < need) {
+        size_t new_cap = *cap ? *cap * 2 : 16;
+        while (new_cap < need) new_cap *= 2;
+        ptr = realloc(ptr, new_cap * elem_size);
+        *cap = new_cap;
+    }
+    return ptr;
+}
+#endif
+
+/* ----- test whether a prime p divides ∑_{i=1}^{m} i! for some m < p -------- */
+static bool prime_divides_factorial_sum(uint64_t p)
+{
+    uint64_t fact = 1 % p;   /* 1! modulo p */
+    uint64_t sum  = 0;
+    for (uint64_t i = 1; i < p; ++i) {
+        fact = (uint64_t)(((__uint128_t)fact * i) % p);
+        sum += fact;
+        if (sum >= p) sum -= p;   /* simple mod reduction */
+        if (sum == 0) return true;
+    }
+    return false;
+}
 
 /* ----- global storage --------------------------------------------------- */
 static seq_t *terms      = NULL;            /* cached sequence values       */

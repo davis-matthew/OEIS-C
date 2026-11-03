@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   get_bit
+ * Validated: standard, pass, 58 terms through n = 8311 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,11 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "../utils/get_bit.h"
+#include "../utils/mem.h"
+
+static inline int get_bit(const unsigned char *tab, uint32_t i) {
+    return (tab[i >> 3] >> (i & 7)) & 1U;
+}
 
 /* towering constant – size sufficient for n up to 10 000 */
 static const uint32_t MAX_K = 10000000;          /* integers to test            */
@@ -105,7 +110,7 @@ static void init(void) {
     /* 3. generate the sequence up to MAX_K */
     seq_len = 0;
     size_t seq_cap = 20000;
-    seq_arr = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+    seq_arr = mem_new(seq_t, seq_cap);
 
     for (i = 1; i <= MAX_K; ++i) {
         seq_t prod = (seq_t)i * (seq_t)tau[i];
@@ -113,7 +118,7 @@ static void init(void) {
         if (prod > thr) {
             if (seq_len == seq_cap) {
                 seq_cap <<= 1;
-                seq_arr = (seq_t*)realloc(seq_arr, seq_cap * sizeof(seq_t));
+                seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
             }
             seq_arr[seq_len++] = (seq_t)i;
         }

@@ -8,7 +8,8 @@
  * Formula:   a(n) = 365^(n-1) - Π_{i=1}^{n-1} (365-i) (n ≥ 2)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 13,
  *            big any n
- * Helpers:   pow_365
+ * Validated: partial, pass, 12 terms through n = 13 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,21 @@
 /* (the product is taken over 1 ≤ i < n; for n > 366 the product becomes 0) */
 
 #include <stdbool.h>
-#include "../utils/pow_365.h"
+
+/* Compute 365^exp for an arbitrary exponent exp (idx_t).  */
+static seq_t pow_365(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = 365;
+    while (exp)
+    {
+        if (exp & 1)
+            result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
 
 /* Return the n‑th term, where a(2) is the first term.            */
 seq_t a(idx_t n)

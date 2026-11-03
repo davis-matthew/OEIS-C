@@ -10,7 +10,8 @@
  *            factors of m (with multiplicity)
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf, int_cube_root, sum_pf_value
+ * Validated: standard, pass, 84 terms through n = 9672 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,37 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <limits.h>
 #include "../utils/build_spf.h"
-#include "../utils/int_cube_root.h"
-#include "../utils/sum_pf_value.h"
+#include "../utils/mem.h"
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
+
+/* sum of prime factors of val using the smallest‑prime‑factor table */
+static seq_t sum_pf_value(seq_t val, idx_t *spf)
+{
+    idx_t v = (idx_t)val;          /* val is guaranteed <= limit */
+    seq_t sum = 0;
+    while (v > (idx_t)1) {
+        uint64_t p = spf[v];
+        sum += (seq_t)p;
+        v /= p;
+    }
+    return sum;
+}
 
 /* comparison routine for qsort on seq_t values */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -39,7 +68,7 @@ static void generate_terms(idx_t lim, size_t *terms, seq_t **sums)
     /* dynamic list for candidate values */
     size_t cap = 256;
     size_t len = 0;
-    seq_t *cand = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *cand = mem_new(seq_t, cap);
     if (!cand) exit(1);
 
     idx_t max_y = int_cube_root(lim);          /* floor(cbrt(lim)) */
@@ -50,7 +79,7 @@ static void generate_terms(idx_t lim, size_t *terms, seq_t **sums)
             if (val > lim) break;
             if (len == cap) {
                 cap <<= 1;
-                cand = (seq_t *)realloc(cand, cap * sizeof(seq_t));
+                cand = mem_resize(seq_t, cand, cap);
                 if (!cand) exit(1);
             }
             cand[len++] = val;
@@ -58,7 +87,7 @@ static void generate_terms(idx_t lim, size_t *terms, seq_t **sums)
     }
 
     /* sort and deduplicate */
-    qsort(cand, len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(cand, len, sizeof(seq_t), cmp_seq_t);
     size_t uniq = 0;
     for (size_t i = 0; i < len; ++i) {
         if (uniq == 0 || cand[i] != cand[uniq - 1]) {
@@ -71,14 +100,14 @@ static void generate_terms(idx_t lim, size_t *terms, seq_t **sums)
     build_spf(lim, &spf);
 
     /* compute sums of prime factors for each unique value */
-    seq_t *arr = (seq_t *)malloc(uniq * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, uniq);
     if (!arr) exit(1);
     for (size_t i = 0; i < uniq; ++i) {
         arr[i] = sum_pf_value(cand[i], spf);
     }
 
     /* clean up temporary data */
-    free(cand);
+    mem_free(cand);
     free(spf);
 
     *terms = uniq;
@@ -102,7 +131,7 @@ seq_t a(idx_t n)
     size_t idx = (size_t)(n - 1);
     while (idx >= term_count) {   /* need more terms: double the limit */
         current_limit <<= 1;
-        free(sum_arr);
+        mem_free(sum_arr);
         generate_terms(current_limit, &term_count, &sum_arr);
     }
 

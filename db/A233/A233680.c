@@ -12,7 +12,8 @@
  *            a(1) = 32456, a(2) = 621904, * … as given in the OEI...
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 11, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Constants for the state graph */
 #define NUM_STATES 16384   /* 4⁷ possible rows */
@@ -148,20 +150,20 @@ static void init_once(void)
 {
     build_adjacency();
 
-    dp_prev = (seq_t *)malloc(NUM_STATES * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(NUM_STATES * sizeof(seq_t));
+    dp_prev = mem_new(seq_t, NUM_STATES);
+    dp_next = mem_new(seq_t, NUM_STATES);
     if (!dp_prev || !dp_next) abort();
 
     /* Zero the DP vectors. */
-    memset(dp_prev, 0, NUM_STATES * sizeof(seq_t));
-    memset(dp_next, 0, NUM_STATES * sizeof(seq_t));
+    mem_set(dp_prev, 0, NUM_STATES * sizeof(seq_t));
+    mem_set(dp_next, 0, NUM_STATES * sizeof(seq_t));
 
     /* First row: all rows are allowed. */
     for (size_t i = 0; i < NUM_STATES; ++i)
         dp_prev[i] = (seq_t)1;
 
     /* Initialise the answer cache. */
-    result_cache = (seq_t *)malloc(sizeof(seq_t));
+    result_cache = mem_new(seq_t, 1);
     if (!result_cache) abort();
     result_cache[0] = (seq_t)0;  /* unused */
     cache_size   = 1;
@@ -181,15 +183,14 @@ seq_t a(idx_t n)
 
     if (target >= cache_size) {
         /* Grow the cache to hold values up to target. */
-        seq_t *tmp = (seq_t *)realloc(result_cache,
-                                      (target + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, result_cache, (target + 1));
         if (!tmp) abort();
         result_cache = tmp;
         cache_size = target + 1;
 
         for (size_t step = max_n_done + 1; step <= target; ++step) {
             /* reset dp_next */
-            memset(dp_next, 0, NUM_STATES * sizeof(seq_t));
+            mem_set(dp_next, 0, NUM_STATES * sizeof(seq_t));
 
             /* perform one DP transition */
             for (size_t r = 0; r < NUM_STATES; ++r) {

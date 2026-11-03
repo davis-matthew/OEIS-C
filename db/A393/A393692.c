@@ -10,13 +10,15 @@
  *            2q⁷+3q⁶+5q⁴
  * Range:     u8 n <= 15, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* dynamic array, index 0…max_n */
 static idx_t cache_n = 0;        /* highest n that is already computed */
@@ -29,16 +31,16 @@ seq_t a(idx_t n)
     /* ensure the cache can hold indices up to n */
     if (cache_n < n) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return 0;  /* out‑of‑memory – return 0 as a safe fallback */
 
         /* preserve old values */
         if (cache) {
-            memcpy(new_cache, cache, (cache_n + 1) * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, (cache_n + 1) * sizeof(seq_t));
+            mem_free(cache);
         } else {
             /* no previous cache – initialise all to 0 */
-            memset(new_cache, 0, new_size * sizeof(seq_t));
+            mem_set(new_cache, 0, new_size * sizeof(seq_t));
         }
         cache = new_cache;
 

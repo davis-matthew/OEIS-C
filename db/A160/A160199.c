@@ -7,17 +7,50 @@
  * Formula:   a(n) = product of non‑exponential divisors of n
  * Range:     u8 n <= 23, u16 n <= 41, u32 n <= 119, u64 n <= 359,
  *            u128 n <= 839, big any n
- * Helpers:   factor_u64, seq_mul, seq_pow, tau_sum_divisors_uint64
+ * Validated: standard, pass, 83 terms through n = 9738 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
-#include "../utils/tau_sum_divisors_uint64.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Compute the number of divisors and the sum of divisors of m (m ≥ 1). */
+static void tau_sum_divisors_uint64(uint64_t m, uint64_t *tau, uint64_t *sum)
+{
+    *tau = 1;
+    *sum = 1;
+    uint64_t n = m;
+    for (uint64_t p = 2; p * p <= n; ++p) {
+        if (n % p == 0) {
+            uint64_t k = 0, pk = 1;
+            while (n % p == 0) {
+                n /= p;
+                ++k;
+                pk *= p;
+            }
+            *tau *= (k + 1);
+            uint64_t pk_next = pk * p;
+            uint64_t part = (pk_next - 1) / (p - 1);
+            *sum *= part;
+        }
+    }
+    if (n > 1) {
+        /* Remaining prime factor with exponent 1 */
+        *tau *= 2;
+        *sum *= (1 + n);
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -57,7 +90,7 @@ seq_t a(idx_t n)
         if (diff_i == 0) {
             continue;
         }
-        seq_t term = seq_pow((seq_t)primes[i], (idx_t)diff_i);
+        seq_t term = ipow_idx((seq_t)primes[i], (idx_t)diff_i);
         result = seq_mul(result, term);
     }
 

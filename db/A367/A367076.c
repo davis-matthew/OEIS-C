@@ -11,17 +11,20 @@
  *            2^(i-1)) / 2^i
  * Range:     u8 n <= 138, u16 n <= 8190, u32 n <= 8190, u64 n <= 8190,
  *            u128 n <= 8190, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 84 terms through n = 7665 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
     /* row index r = ⌊log2(n+1)⌋ */
-    idx_t r = floor_log2_uint64(n + 1);
+    idx_t r = ilog2(n + 1);
 
     /* number of elements before row r */
     idx_t prev = ((idx_t)1 << r) - 1;

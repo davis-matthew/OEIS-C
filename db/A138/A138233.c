@@ -7,13 +7,14 @@
  * Formula:   a(n) = 2^(2*n+1) + 3^(2*n+1) (OEIS A138233)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 37 terms through n = 717 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -21,8 +22,8 @@ seq_t a(idx_t n)
     idx_t exp = (n << 1) + 1;
 
     /* compute 2^exp and 3^exp using the big‑int helper pow_int */
-    seq_t term2 = pow_int(2, exp);   /* 2^(2*n+1) */
-    seq_t term3 = pow_int(3, exp);   /* 3^(2*n+1) */
+    seq_t term2 = ipow_idx(2, exp);   /* 2^(2*n+1) */
+    seq_t term3 = ipow_idx(3, exp);   /* 3^(2*n+1) */
 
     return term2 + term3;
 }

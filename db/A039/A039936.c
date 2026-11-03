@@ -7,6 +7,7 @@
  * Formula:   a(n) = 5^ceil(log2(n+1))
  * Range:     u8 n <= 7, u16 n <= 63, u32 n <= 8191, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 58 terms through n = 9612 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

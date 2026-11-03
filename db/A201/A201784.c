@@ -5,13 +5,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = nth prime of the form 5 k² – 2 (OEIS A201784)
- * Range:     u8 n <= 2, u16 n <= 13, u32 n <= 32, u64 n <= 32, u128 n <= 32,
- *            big any n
+ * Range:     u8 n <= 2, u16 n <= 13, u32 n <= 1223, u64 n <= 5000,
+ *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 48 terms through n = 4823 (2026-11-01)
  * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/is_prime_seq.h"
 #include <stdint.h>
 

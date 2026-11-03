@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   vcalloc, vmalloc
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/vcalloc.h"
-#include "../utils/vmalloc.h"
+
+/* Allocate or enlarge a boolean array for the sieve.  Use explicit casts
+   to be C++‑compatible. */
+static bool *vcalloc(size_t n)
+{
+    return (bool *)calloc(n, sizeof(bool));
+}
+
+static uint32_t *vmalloc(size_t n)
+{
+    return (uint32_t *)malloc(n * sizeof(uint32_t));
+}
 
 /* Prime table cache ----------------------------------------------------- */
 static uint32_t *prime_array = NULL;   /* array of primes in ascending order */

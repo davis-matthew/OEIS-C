@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 316, u16 n <= 2690, u32 n <= 9885, u64 n <= 9885,
- *            u128 n <= 9885, big any n
- * Helpers:   kth_divisor
+ * Range:     u8 n <= 316, u16 n <= 2690, u32 n <= 11528, u64 n <= 11528,
+ *            u128 n <= 11528, big any n
+ * Validated: standard, pass, 103 terms through n = 9885 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/kth_divisor.h"
+#include "../utils/mem.h"
+
+/* Return the k‑th (0‑based) divisor of m in ascending order. */
+static idx_t kth_divisor(idx_t m, idx_t k) {
+    idx_t small[128], large[128];
+    idx_t ssz = 0, lsz = 0;
+    for (idx_t i = 1; i * i <= m; ++i) {
+        if (m % i == 0) {
+            small[ssz++] = i;
+            if (i != m / i)
+                large[lsz++] = m / i;
+        }
+    }
+    if (k < ssz) return small[(size_t)k];
+    /* large was filled in descending order; reverse for ascending */
+    idx_t offset = k - ssz;
+    if (offset < lsz) return large[lsz - 1 - offset];
+    return 0; /* should not happen for valid inputs */
+}
 
 #define MAX_ROWS 2000   /* sufficient for n ≈ few 10⁵ – 10⁶ */
 
@@ -41,7 +60,7 @@ static seq_t *partitions = NULL;   /* partition numbers  p(k) for k<MAX_ROWS */
 /* Compute partition numbers p(0)...p(MAX_ROWS-1) using pentagonal
    recurrence with modulo arithmetic on seq_t. */
 static void compute_partitions(void) {
-    partitions = (seq_t *)malloc(sizeof(seq_t) * (MAX_ROWS + 1));
+    partitions = mem_new(seq_t, (MAX_ROWS + 1));
     partitions[0] = (seq_t)1;        /* p(0) = 1 */
     for (idx_t n = 1; n < MAX_ROWS; ++n) {
         seq_t sum = 0;

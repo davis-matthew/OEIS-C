@@ -6,8 +6,9 @@
  * Keywords:  nonn, changed
  * Formula:   a(n) = # of integers d (1 ≤ d ≤ n) such that there exists e with
  *            n = OR_{i∈bits(e)} (d << i) (OR-numbral arithmetic in base 2)
- * Range:     u8 n <= 2045, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
+ * Range:     u8 n <= 1024, u16 n <= 1024, u32 n <= 1024, u64 n <= 1024,
+ *            u128 n <= 1024, big any n
+ * Validated: standard, pass, 116 terms through n = 941 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,17 +12,71 @@
  *            (-6j*g_k + (2j+k-1)*g_{k-1})/(k+1), giving the coefficients...
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 18, u64 n <= 32, u128 n <= 58,
  *            big any n
- * Helpers:   a2890_isp, a2890_nprimes, a2890_pw, a2890_run
+ * Validated: standard, pass, 41 terms through n = 474 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a2890_isp.h"
-#include "../utils/a2890_nprimes.h"
-#include "../utils/a2890_pw.h"
-#include "../utils/a2890_run.h"
+
+static int a2890_isp(uint64_t x) {
+    uint64_t d;
+    if (x % 2 == 0) return 0;
+    for (d = 3; d * d <= x; d += 2)
+        if (x % d == 0) return 0;
+    return 1;
+}
+
+static int a2890_nprimes(idx_t n, int w) {
+    uint64_t bits = 2544 * (uint64_t)n / 1000 + 40;
+    if (w < 300 && bits > (uint64_t)w + 40) bits = (uint64_t)w + 40;
+    return (int)(bits / 30 + 1);
+}
+
+static uint64_t a2890_pw(uint64_t b, uint64_t e, uint64_t p) {
+    uint64_t r = 1 % p;
+    b %= p;
+    while (e) {
+        if (e & 1) r = r * b % p;
+        b = b * b % p;
+        e >>= 1;
+    }
+    return r;
+}
+
+static void a2890_run(uint64_t p, idx_t N, uint32_t *out, uint64_t *inv, uint64_t *l) {
+    idx_t k, j, n;
+    uint64_t inv4, C;
+    inv[1] = 1;
+    for (k = 2; k <= N; k++) inv[k] = (p - (p / k) * inv[p % k] % p) % p;
+    l[0] = 0;
+    for (k = 1; k < N; k++) l[k] = (k & 1) ? inv[k] : (p - inv[k]) % p;
+    inv4 = a2890_pw(4, p - 2, p);
+    C = 1;
+    for (j = 1; j < N; j++) {
+        uint64_t coef, gp = 0, gc = 1, m6;
+        C = C * ((2 * (2 * j - 1)) % p) % p * inv[j] % p;
+        coef = C * C % p * inv[j] % p * inv4 % p;
+        m6 = (p - (6 * j) % p) % p;
+        for (k = 0; j + k < N; k++) {
+            uint64_t nx;
+            l[j + k] = (l[j + k] + p - coef * gc % p) % p;
+            nx = (m6 * gc + ((2 * j + k - 1) % p) * gp) % p;
+            nx = nx * inv[k + 1] % p;
+            gp = gc;
+            gc = nx;
+        }
+    }
+    for (k = 1; k < N; k++) l[k] = l[k] * (k % p) % p;
+    out[0] = (uint32_t)(1 % p);
+    for (n = 1; n < N; n++) {
+        uint64_t s = 0;
+        for (k = 1; k <= n; k++) s = (s + l[k] * (uint64_t)out[n - k]) % p;
+        out[n] = (uint32_t)(s * inv[n] % p);
+    }
+}
 
 static idx_t g_cap = 0;
 static int g_np = 0;

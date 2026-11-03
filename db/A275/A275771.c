@@ -9,7 +9,8 @@
  *            a(1)=0, a(2)=0
  * Range:     u8 n <= 52, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *noncomposite_arr = NULL; /* 0‑based: noncomposite[0]=1, then primes */
 static size_t noncomposite_cap = 0, noncomposite_len = 0;
@@ -34,7 +36,7 @@ static void ensure_noncomposite(size_t needed)
     /* Initialise noncomposite array on first use */
     if (noncomposite_len == 0) {
         noncomposite_cap = 16;
-        noncomposite_arr = (seq_t*)calloc(noncomposite_cap, sizeof(seq_t));
+        noncomposite_arr = mem_new(seq_t, noncomposite_cap);
         noncomposite_arr[0] = (seq_t)1;
         noncomposite_len   = 1;
     }
@@ -67,8 +69,7 @@ static void ensure_noncomposite(size_t needed)
                 /* Add to noncomposite array */
                 if (noncomposite_len == noncomposite_cap) {
                     noncomposite_cap *= 2;
-                    noncomposite_arr = (seq_t*)realloc(noncomposite_arr,
-                                                       noncomposite_cap * sizeof(seq_t));
+                    noncomposite_arr = mem_resize(seq_t, noncomposite_arr, noncomposite_cap);
                 }
                 noncomposite_arr[noncomposite_len++] = (seq_t)cand;
 
@@ -88,7 +89,7 @@ static void ensure_a(idx_t n)
     /* Lazy initialisation with base values a(0)=a(1)=a(2)=0 */
     if (a_arr == NULL) {
         a_cap = 3;
-        a_arr = (seq_t*)calloc(a_cap, sizeof(seq_t));
+        a_arr = mem_new(seq_t, a_cap);
         a_arr[0] = a_arr[1] = a_arr[2] = (seq_t)0;
         a_len   = 3;
     }
@@ -99,7 +100,7 @@ static void ensure_a(idx_t n)
     if (a_cap <= (size_t)n + 1) {
         size_t new_cap = a_cap ? a_cap * 2 : 16;
         while (new_cap <= (size_t)n + 1) new_cap *= 2;
-        a_arr = (seq_t*)realloc(a_arr, new_cap * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, new_cap);
         a_cap = new_cap;
     }
 

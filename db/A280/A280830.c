@@ -9,7 +9,8 @@
  *            that equal m)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 106 terms through n = 896 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------
    Prime table helpers
@@ -121,7 +123,7 @@ static void ensure_A(idx_t limit)
 
     if ((size_t)limit + 1 > A_allocated) {
         size_t new_size = (size_t) limit + 1;
-        seq_t *tmp = (seq_t *) realloc(A_array, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A_array, new_size);
         if (!tmp) abort();
         A_array = tmp;
         for (size_t i = A_allocated; i < new_size; ++i)

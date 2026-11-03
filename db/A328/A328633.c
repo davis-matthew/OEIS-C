@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 5453, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   powmod30
+ * Validated: standard, pass, 86 terms through n = 8904 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/powmod30.h"
+#include "../utils/mem.h"
+
+/* Small modular exponentiation modulo 30. */
+static uint32_t powmod30(uint32_t base, uint32_t exp) {
+    uint32_t result = 1;
+    base %= 30;
+    while (exp) {
+        if (exp & 1U)
+            result = (result * base) % 30;
+        base = (base * base) % 30;
+        exp >>= 1U;
+    }
+    return result;
+}
 
 /* First 20 primes – enough for any 64‑bit primorial base number. */
 static const uint32_t primes[20] = {
@@ -66,7 +80,7 @@ static void ensure_seq_capacity(size_t needed) {
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 8;
     if (new_cap < needed) new_cap = needed;
-    seq_t *new_arr = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, seq_vals, new_cap);
     if (!new_arr) abort();
     seq_vals = new_arr;
     seq_cap = new_cap;

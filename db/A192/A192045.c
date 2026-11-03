@@ -9,7 +9,8 @@
  *            Lucas numbers L_1=1, L_2=3, L_{k}=L_{k-1}+L_{k-2}
  * Range:     u8 n <= 46, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 
 /*--------------------------------------------------------------------*/
@@ -32,7 +34,7 @@ static void ensure_lucas(idx_t idx) {
 
     if (lucas == NULL) {
         lucas_cap = 8;
-        lucas = (seq_t *)malloc(lucas_cap * sizeof(seq_t));
+        lucas = mem_new(seq_t, lucas_cap);
         lucas[0] = (seq_t)1;               /* L_1 */
         lucas[1] = (seq_t)3;               /* L_2 */
         lucas_len = 2;
@@ -40,7 +42,7 @@ static void ensure_lucas(idx_t idx) {
 
     if (lucas_cap < needed)
         lucas_cap = needed * 2;
-    lucas = (seq_t *)realloc(lucas, lucas_cap * sizeof(seq_t));
+    lucas = mem_resize(seq_t, lucas, lucas_cap);
 
     while (lucas_len < needed) {
         lucas[lucas_len] = lucas[lucas_len - 1] + lucas[lucas_len - 2];
@@ -140,7 +142,7 @@ static void heap_push(idx_t i, idx_t j) {
 
     if (heap_size >= heap_cap) {
         heap_cap = heap_cap == 0 ? 16 : heap_cap * 2;
-        heap = (HeapNode *)realloc(heap, heap_cap * sizeof(HeapNode));
+        heap = mem_resize(HeapNode, heap, heap_cap);
     }
 
     size_t pos = heap_size++;
@@ -188,7 +190,7 @@ static size_t seq_cap = 0;
 static void append_seq(seq_t val) {
     if (seq_len >= seq_cap) {
         seq_cap = seq_cap == 0 ? 64 : seq_cap * 2;
-        seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
     }
     seq_arr[seq_len++] = val;
 }

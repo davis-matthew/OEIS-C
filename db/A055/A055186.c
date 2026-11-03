@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1019, u16 n <= 1019, u32 n <= 1019, u64 n <= 1019,
  *            u128 n <= 1019, big any n
- * Helpers:   none
+ * Validated: standard, pass, 117 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Algorithm: iterative construction of OEIS A055186 via cumulative counting. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function may be called with any order of indices; it memoises
    the sequence in dynamic arrays that grow as needed. */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* one‑time initialization */
     if (!seq) {
         seq_cap = 16;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq_len = 1;
         seq[0] = (seq_t)0;                 /* start value */
 
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
             /* grow seq array if necessary */
             if (seq_len + 2 > seq_cap) {
                 seq_cap *= 2;
-                seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = count;
             seq[seq_len++] = (seq_t)i;

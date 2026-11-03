@@ -9,13 +9,29 @@
  *            binary expansion of n
  * Range:     u8 n <= 126, u16 n <= 8190, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   pell_value
+ * Validated: standard, pass, 102 terms through n = 7912 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>   /* for uint64_t if needed */
-#include "../utils/pell_value.h"
+
+static seq_t pell_value(idx_t k)
+{
+    /* Compute the k‑th Pell number: P(0)=0, P(1)=1, P(n)=2*P(n-1)+P(n-2). */
+    seq_t p0 = 0;
+    seq_t p1 = 1;
+    if (k == 0)
+        return p0;
+    for (idx_t i = 2; i <= k; ++i)
+    {
+        seq_t p2 = 2 * p1 + p0;
+        p0 = p1;
+        p1 = p2;
+    }
+    return p1;
+}
 
 seq_t a(idx_t n)
 {

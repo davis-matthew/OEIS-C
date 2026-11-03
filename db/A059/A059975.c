@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Σ e_i·(p_i − 1) over the prime factorization of n
- * Range:     u8 n <= 256, u16 n <= 8109, u32 n <= 8109, u64 n <= 8109,
- *            u128 n <= 8109, big any n
- * Helpers:   add_term
+ * Range:     u8 n <= 256, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 98 terms through n = 8109 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,12 @@
 /* a(1) = 0; for n > 1, a(n) = sum over p^e||n of e*(p-1). */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/add_term.h"
+
+/* Helper: add a * b to a result (seq_t), result may be larger than 64 bits. */
+static inline seq_t add_term(idx_t e, idx_t p) {
+    /* result = e * (p - 1) */
+    return (seq_t)e * ((seq_t)p - 1);
+}
 
 /* Main function */
 seq_t a(idx_t n) {

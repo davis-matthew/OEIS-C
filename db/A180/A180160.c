@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  base, nonn
  * Formula:   a(n) = A007953(n) mod A055642(n)
- * Range:     u8 n <= 9581, u16 n <= 9581, u32 n <= 9581, u64 n <= 9581,
- *            u128 n <= 9581, big any n
+ * Range:     u8 n <= 25000, u16 n <= 25000, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 121 terms through n = 9581 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

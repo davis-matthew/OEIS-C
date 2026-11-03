@@ -7,17 +7,18 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{j=0..7} (-1)^(j+1) * binomial(3*n+1, 7-j) *
  *            (binomial(j+1, 3))^n
- * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 11, u128 n <= 22,
+ * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 5, u64 n <= 11, u128 n <= 22,
  *            big any n
- * Helpers:   big_pow, small_comb
+ * Validated: standard, pass, 32 terms through n = 194 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"   /* for seq_t big_pow(seq_t, seq_t) */
-#include "../utils/small_comb.h"
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +34,7 @@ seq_t a(idx_t n)
     for (idx_t j = 0; j <= 7; ++j)
     {
         int sign = (j % 2 == 0) ? -1 : 1;   /* (-1)^(j+1) */
-        seq_t base = small_comb(j + 1, 3);  /* (j+1 choose 3) */
+        seq_t base = binomial(j + 1, 3);  /* (j+1 choose 3) */
 
         /* Skip terms that are immediately zero: base = 0 or base^n = 0 */
         if (base == 0)
@@ -44,11 +45,11 @@ seq_t a(idx_t n)
         if (base == 1)
             pow_term = 1;                  /* 1^n = 1 */
         else
-            pow_term = big_pow(base, (seq_t)n);
+            pow_term = ipow(base, (seq_t)n);
 
         /* binomial(3*n+1, 7-j) */
         idx_t k = 7 - j;
-        seq_t binom_term = small_comb(big_n_part, k);
+        seq_t binom_term = binomial(big_n_part, k);
 
         seq_t term = binom_term * pow_term;
 

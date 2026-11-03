@@ -8,7 +8,8 @@
  *            1≤m≤n)
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the n‑th term, 1‑based. */
 seq_t a(idx_t n)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         euler_rows = (seq_t**)realloc(euler_rows, (r + 1) * sizeof(seq_t*));
         /* Build new rows up to r. */
         for (idx_t i = max_row + 1; i <= r; ++i) {
-            euler_rows[i] = (seq_t*)calloc((size_t)i + 1, sizeof(seq_t)); /* 1‑based columns */
+            euler_rows[i] = mem_new(seq_t, (size_t)i + 1); /* 1‑based columns */
             if (i == 1) {
                 euler_rows[i][1] = 1;
             } else {

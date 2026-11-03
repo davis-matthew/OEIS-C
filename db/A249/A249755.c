@@ -9,6 +9,7 @@
  *            (x+1)*p(n-1,x) + (n+1)*x, and n = r(r+1)/2 + k (0 ≤ k ≤ r)
  * Range:     u8 n <= 39, u16 n <= 159, u32 n <= 576, u64 n <= 2239,
  *            u128 n <= 5252, big any n
+ * Validated: standard, pass, 81 terms through n = 5123 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

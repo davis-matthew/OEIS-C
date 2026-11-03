@@ -11,13 +11,15 @@
  *            is the Euler transform recurrence for the sequence
  * Range:     i8 n <= 18, i16 n <= 774, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const int pat[6] = {-2, -1, 1, -1, -2, -3};
 
@@ -28,16 +30,16 @@ seq_t a(idx_t n)
 
     if ((size_t)n + 1 > cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (new_cache == NULL) return 0; /* allocation failed, return 0 */
 
         /* copy old values */
         if (cache != NULL && cap > 0)
-            memcpy(new_cache, cache, cap * sizeof(seq_t));
+            mem_copy(new_cache, cache, cap * sizeof(seq_t));
 
         /* compute new A array */
-        seq_t *A = (seq_t *)calloc(new_cap, sizeof(seq_t));
-        if (A == NULL) { free(new_cache); return 0; }
+        seq_t *A = mem_new(seq_t, new_cap);
+        if (A == NULL) { mem_free(new_cache); return 0; }
 
         /* fill A[k] = Σ_{d|k} d*b_d */
         for (idx_t d = 1; d < new_cap; ++d) {
@@ -55,8 +57,8 @@ seq_t a(idx_t n)
             new_cache[i] = sum / (seq_t)i;
         }
 
-        free(A);
-        if (cache != NULL) free(cache);
+        mem_free(A);
+        if (cache != NULL) mem_free(cache);
         cache = new_cache;
         cap   = new_cap;
     }

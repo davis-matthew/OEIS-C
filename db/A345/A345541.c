@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 8818 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper: floor cubic root of a 64‑bit integer (inclusive).  */
 static idx_t floor_cube_root(idx_t x)
@@ -70,7 +72,7 @@ static void compute_terms(idx_t n, seq_t **out_terms, size_t *out_len)
         }
 
         /* Collect sums with at least two representations */
-        seq_t *terms = (seq_t *)malloc(sizeof(seq_t) * cap);
+        seq_t *terms = mem_new(seq_t, cap);
         if (!terms) abort();
         size_t tlen = 0;
         for (size_t s = 1; s <= (size_t)L; ++s) {
@@ -88,7 +90,7 @@ static void compute_terms(idx_t n, seq_t **out_terms, size_t *out_len)
         }
 
         /* Not enough: free terms and double the range */
-        free(terms);
+        mem_free(terms);
         L <<= 1;                       /* double L */
     }
 }
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
         return 0;                       /* undefined, but guard */
 
     if (!terms || terms_len < n) {
-        free(terms);
+        mem_free(terms);
         compute_terms(n, &terms, &terms_len);
     }
     return terms[n - 1];                 /* 1‑based indexing */

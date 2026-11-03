@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 479, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, pow10
+ * Validated: standard, pass, 77 terms through n = 8112 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,19 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/digit_len.h"   /* int digit_len(seq_t x)          */
-#include "../utils/pow10.h"      /* seq_t pow10(idx_t e)           */
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* integer decimal digit count for unsigned 64‑bit indices */
 static int int_digits(idx_t x) {
@@ -39,7 +51,7 @@ seq_t a(idx_t n) {
     /* initialise cache on first use */
     if (!len) {
         cap = 64;                            /* initial capacity */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = 0;                        /* a(0) = 0       */
         len = 1;
     }
@@ -48,7 +60,7 @@ seq_t a(idx_t n) {
     while (len <= n) {
         if (len == cap) {
             cap <<= 1;                       /* double capacity */
-            cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
         }
 
         seq_t candidate;
@@ -61,7 +73,7 @@ seq_t a(idx_t n) {
         for (;;) {
             seq_t sq = candidate * candidate;
 
-            int digits_sq = digit_len(sq);
+            int digits_sq = num_digits(sq);
             int digits_n  = int_digits(len);
 
             if (digits_sq >= digits_n) {

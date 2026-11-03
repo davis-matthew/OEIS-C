@@ -7,8 +7,9 @@
  * Keywords:  base, easy, nonn, mult
  * Formula:   a(n) = 1 if n is odd; otherwise a(n) = 2^(k‑1), * where 2^k is
  *            the largest power of two dividing n
- * Range:     u8 n <= 511, u16 n <= 9139, u32 n <= 9139, u64 n <= 9139,
- *            u128 n <= 9139, big any n
+ * Range:     u8 n <= 511, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 112 terms through n = 9139 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

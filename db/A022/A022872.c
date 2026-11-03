@@ -8,6 +8,7 @@
  * Formula:   a(1)=2, a(2)=2, a(3)=1, a(n)=Σ_{odd k≤n-1} a(n-k)/a(k) for n≥4
  * Range:     u8 n <= 25, u16 n <= 45, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

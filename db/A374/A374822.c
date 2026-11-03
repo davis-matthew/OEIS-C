@@ -12,12 +12,15 @@
  *            Σ_{i=2..k} (k+1-i) * i^j
  * Range:     u8 n <= 23, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -41,14 +44,14 @@ seq_t a(idx_t n)
     if (k == 1)
     {
         /* T(j,1) = 2^j. */
-        return big_pow((seq_t)2, (seq_t)j);
+        return ipow((seq_t)2, (seq_t)j);
     }
     else
     {
         seq_t sum = 0;
         for (idx_t i = 2; i <= k; ++i)
         {
-            seq_t pow_val = big_pow((seq_t)i, (seq_t)j);   /* i^j   */
+            seq_t pow_val = ipow((seq_t)i, (seq_t)j);   /* i^j   */
             seq_t coeff   = (seq_t)(k + 1 - i);           /* k+1-i */
             sum += coeff * pow_val;
         }

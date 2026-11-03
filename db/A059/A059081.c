@@ -11,13 +11,22 @@
  *            [k]_n = k*(k-1)*…*(k-n+1) (falling factoria...
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 32,
  *            big any n
- * Helpers:   falling_int128
+ * Validated: full, pass, 33 terms through n = 32 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/falling_int128.h"
+
+static inline __int128 falling_int128(idx_t n, idx_t k)
+{
+    if (n > k) return 0;
+    __int128 prod = 1;
+    for (idx_t i = 0; i < n; ++i)
+        prod *= (int64_t)(k - i);
+    return prod;
+}
 
 seq_t a(idx_t n)
 {

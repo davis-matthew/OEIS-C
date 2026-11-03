@@ -10,7 +10,8 @@
  *            the primorial base exp-function and A003415 is the arithmetic
  *            derivative
  * Range:     u8 n <= 16, u16 n <= 58, u32 n <= 416, u64 n <= 2308,
- *            u128 n <= 9738, big any n
+ *            u128 n <= 11550, big any n
+ * Validated: standard, pass, 85 terms through n = 9738 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

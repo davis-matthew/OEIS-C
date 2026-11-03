@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 14, u128 n <= 79,
  *            big any n
- * Helpers:   f_compute
+ * Validated: standard, pass, 29 terms through n = 169 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,7 +39,51 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/f_compute.h"
+
+static seq_t f_compute(idx_t R)
+{
+    /* All weakly increasing 4‑tuples over {0,1,2}. */
+    static const int patterns[15][4] = {
+        {0,0,0,0}, {0,0,0,1}, {0,0,0,2},
+        {0,0,1,1}, {0,0,1,2}, {0,0,2,2},
+        {0,1,1,1}, {0,1,1,2}, {0,1,2,2},
+        {0,2,2,2}, {1,1,1,1}, {1,1,1,2},
+        {1,1,2,2}, {1,2,2,2}, {2,2,2,2}
+    };
+
+    /* Precompute comparability once per program run. */
+    static bool comp[15][15];
+    static bool init = false;
+    if (!init) {
+        for (int q = 0; q < 15; ++q)
+            for (int p = 0; p < 15; ++p) {
+                bool le = true;
+                for (int k = 0; k < 4; ++k)
+                    if (patterns[q][k] > patterns[p][k]) { le = false; break; }
+                comp[q][p] = le;
+            }
+        init = true;
+    }
+
+    seq_t dp[15];
+    seq_t next[15];
+    for (int p = 0; p < 15; ++p) dp[p] = 1;        /* first row can be any pattern */
+
+    for (idx_t r = 1; r < R; ++r) {                 /* add remaining R-1 rows */
+        for (int p = 0; p < 15; ++p) next[p] = 0;
+        for (int q = 0; q < 15; ++q) {
+            seq_t val = dp[q];
+            if (!val) continue;
+            for (int p = 0; p < 15; ++p)
+                if (comp[q][p]) next[p] += val;
+        }
+        for (int p = 0; p < 15; ++p) dp[p] = next[p];
+    }
+
+    seq_t sum = 0;
+    for (int p = 0; p < 15; ++p) sum += dp[p];
+    return sum;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Sequence definition                                               */

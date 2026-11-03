@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 2195, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9399 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*--- primality test (deterministic Miller–Rabin for 64‑bit numbers) ---*/
 static uint64_t mod_mul_uint64(uint64_t a, uint64_t b, uint64_t mod)
@@ -144,7 +146,7 @@ seq_t a(idx_t n)
             if (sz >= cap)
             {
                 cap = (cap == 0) ? 16 : cap << 1;
-                arr = (seq_t *)realloc(arr, cap * sizeof(seq_t));
+                arr = mem_resize(seq_t, arr, cap);
             }
             arr[sz++] = (seq_t)cur;
         }

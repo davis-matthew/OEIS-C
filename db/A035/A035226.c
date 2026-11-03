@@ -9,15 +9,50 @@
  * Formula:   a(n) = Sum_{d|n} Kronecker(44,d) (Kronecker symbol)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_for_prime_exp, jacobi_symbol
+ * Validated: standard, pass, 97 terms through n = 9710 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/jacobi_symbol.h"
-#include "../utils/factor_for_prime_exp.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
+
+/* Return the factor contributed by the prime power p^exp
+   when Kronecker(44,p) = 1 or -1.  For Kronecker(44,p)=0 the
+   factor is always 1 and is handled separately. */
+static inline seq_t factor_for_prime_exp(uint64_t exp, int kronecker)
+{
+    if (kronecker == 1) {                /* a(p^e) = e+1 */
+        return (seq_t)(exp + 1);
+    } else { /* kronecker == -1 */        /* a(p^e) = (1+(-1)^e)/2 : 1 if e even, 0 if odd */
+        return (seq_t)((exp % 2ULL) == 0 ? 1ULL : 0ULL);
+    }
+}
 
 seq_t a(idx_t n)
 {

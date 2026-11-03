@@ -8,12 +8,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Formula used:
         a(n) is the coefficient of x^k in u(r,x), where r is the
@@ -48,14 +50,14 @@ seq_t a(idx_t n)
 
     /* --- Allocate working arrays ------------------------------------- */
 
-    seq_t *u     = (seq_t *)calloc(r, sizeof(seq_t));
-    seq_t *v     = (seq_t *)calloc(r, sizeof(seq_t));
-    seq_t *new_u = (seq_t *)calloc(r, sizeof(seq_t));
-    seq_t *new_v = (seq_t *)calloc(r, sizeof(seq_t));
+    seq_t *u     = mem_new(seq_t, r);
+    seq_t *v     = mem_new(seq_t, r);
+    seq_t *new_u = mem_new(seq_t, r);
+    seq_t *new_v = mem_new(seq_t, r);
 
     if (!u || !v || !new_u || !new_v) {
         /* memory allocation failed */
-        free(u); free(v); free(new_u); free(new_v);
+        mem_free(u); mem_free(v); mem_free(new_u); mem_free(new_v);
         return 0;
     }
 
@@ -86,10 +88,10 @@ seq_t a(idx_t n)
     seq_t result = u[pos];
 
     /* --- Clean up ---------------------------------------------------- */
-    free(u);
-    free(v);
-    free(new_u);
-    free(new_v);
+    mem_free(u);
+    mem_free(v);
+    mem_free(new_u);
+    mem_free(new_v);
 
     return result;
 }

@@ -10,7 +10,8 @@
  *            phi(q^k) ) = 2
  * Range:     u8 n <= 46, u16 n <= 8868, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gcd, pow_seq
+ * Validated: standard, pass, 72 terms through n = 9381 (2026-11-03)
+ * Helpers:   factor_u64, gcd, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdlib.h>
 
 #include "../utils/factor_u64.h"
-#include "../utils/pow_seq.h"
 #include "../utils/gcd.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
 
 /* Test whether m is a cyclic semiprime of the required form. */
 static bool is_cyclic_semiprime(uint64_t m)
@@ -45,9 +47,9 @@ static bool is_cyclic_semiprime(uint64_t m)
         return false;
 
     /* phi(p^e) = p^(e-1) * (p-1)  */
-    seq_t phi1 = pow_seq((seq_t)primes[0], (int)(exps[0] - 1))
+    seq_t phi1 = ipow_i32((seq_t)primes[0], (int)(exps[0] - 1))
                  * ((seq_t)primes[0] - 1U);
-    seq_t phi2 = pow_seq((seq_t)primes[1], (int)(exps[1] - 1))
+    seq_t phi2 = ipow_i32((seq_t)primes[1], (int)(exps[1] - 1))
                  * ((seq_t)primes[1] - 1U);
 
     seq_t g = gcd(phi1, phi2);
@@ -77,8 +79,7 @@ static void ensure_cache(idx_t n)
         if (cache_size == cache_cap)
         {
             cache_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_cache = (seq_t *)realloc(seq_cache,
-                                          cache_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, cache_cap);
         }
         seq_cache[cache_size++] = (seq_t)current_val;
     }

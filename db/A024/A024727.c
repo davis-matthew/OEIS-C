@@ -9,13 +9,15 @@
  *            initial values a(1)=a(2)=1, a(3)=4. (OEIS offset: 1)
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 31, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of computed terms.
    cache[0] is unused so that a(n) can be accessed directly as cache[n]. */
@@ -31,7 +33,7 @@ static void expand_cache(idx_t n)
         return;
 
     /* New capacity is n+1.  Reallocate (or allocate if this is the first time). */
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache)
         abort(); /* out of memory – the test harness cannot recover */
 

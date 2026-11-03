@@ -8,12 +8,14 @@
  *            values: a(0)=1, a(1)=8, a(2)=47, a(3)=238
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 15, u64 n <= 33, u128 n <= 72,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 39 terms through n = 998 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -27,6 +29,6 @@ seq_t a(idx_t n)
                + (seq_t)30 * nn * nn
                + (seq_t)103 * nn
                + (seq_t)81;
-    seq_t pow3 = pow_seq((seq_t)3, (int)(n - 4));
+    seq_t pow3 = ipow_i32((seq_t)3, (int)(n - 4));
     return poly * pow3;
 }

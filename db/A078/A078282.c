@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   mul_mod64
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,11 @@
    starts with a(n-1) (for n > 1). */
 
 #include <stdlib.h>
-#include "../utils/mul_mod64.h"   /* for mul_mod64 */
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +37,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 1;
         while ((size_t)n >= new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (!tmp) return (seq_t)0;          /* allocation failed */
         cache = tmp;
         cache_cap = new_cap + 1;            /* +1 to keep index 0 unused */
@@ -55,7 +60,7 @@ seq_t a(idx_t n)
         /* Search minimal d such that (prev*10^d + r) % n == 0 with r < 10^d */
         while (1) {
             idx_t prev_mod = (idx_t)(prev % (seq_t)ni);          /* prev % n */
-            idx_t prod_mod = mul_mod64(prev_mod, pow10mod, ni); /* (prev_mod*10^d) % n */
+            idx_t prod_mod = mulmod(prev_mod, pow10mod, ni); /* (prev_mod*10^d) % n */
             idx_t r = (prod_mod == 0) ? 0 : ni - prod_mod;
 
             if ((seq_t)r < pow10) {                    /* r is usable */
@@ -65,7 +70,7 @@ seq_t a(idx_t n)
 
             /* increase d */
             pow10   = pow10 * (seq_t)10;
-            pow10mod = mul_mod64(pow10mod, 10, ni);
+            pow10mod = mulmod(pow10mod, 10, ni);
         }
     }
 

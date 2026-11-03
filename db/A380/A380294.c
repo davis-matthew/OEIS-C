@@ -8,12 +8,15 @@
  *            2^A070939(A070939(n)), q = floor(n/m), r = n mod m
  * Range:     u8 n <= 39, u16 n <= 103, u32 n <= 447, u64 n <= 959,
  *            u128 n <= 1983, big any n
- * Helpers:   bitlen_seq_t, pow2
+ * Validated: standard, pass, 72 terms through n = 9360 (2026-11-01)
+ * Helpers:   bit_length, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/bitlen_seq_t.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/bit_length.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -21,10 +24,10 @@ seq_t a(idx_t n)
     if (n == 0) return 0;  /* defined trivially for n = 0 */
 
     /* k1 = A070939(n) = bitlen(n) */
-    idx_t k1 = bitlen_seq_t((seq_t)n);
+    idx_t k1 = bit_length((seq_t)n);
 
     /* k2 = A070939(k1) */
-    idx_t k2 = bitlen_seq_t((seq_t)k1);
+    idx_t k2 = bit_length((seq_t)k1);
 
     /* m = 2^k2 as an idx_t (small enough to fit in 64 bits) */
     idx_t m_idx = 1ULL << k2;
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
     idx_t r = n % m_idx;
 
     /* k3 = A070939(m) = bitlen(m) */
-    idx_t k3 = bitlen_seq_t((seq_t)m_idx);
+    idx_t k3 = bit_length((seq_t)m_idx);
 
     /* Compute (2^q - 1)*2^k3 + r using seq_t arithmetic */
     seq_t pow2q  = pow2(q);      /* 2^q   */

@@ -11,7 +11,8 @@
  *            n) per * call and uses ≤ 9 MB of static memory
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   build_primes_upto, int_sqrt
+ * Validated: standard, pass, 48 terms through n = 989 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,8 @@
 #include <stdbool.h>
 
 /* Utilities provided by the build. */
-#include "../utils/build_primes_upto.h"   /* void build_primes_upto(idx_t limit, uint64_t **, size_t *); */
-#include "../utils/int_sqrt.h"          /* idx_t int_sqrt(idx_t) */
+#include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
 
 #define BLOCK_SIZE 1000000ULL      /* size of each million block */
 
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
     }
 
     /* generate primes up to sqrt(end) */
-    const idx_t sqrt_end = int_sqrt(end);
+    const idx_t sqrt_end = isqrt(end);
     uint64_t *primes = NULL;
     size_t   prime_cnt = 0;
     build_primes_upto(sqrt_end, &primes, &prime_cnt);

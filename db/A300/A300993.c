@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 271 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
    with both C11 and C++17. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* function prototype given in the problem description */
 seq_t a(idx_t n)
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (cached < n) {
         /* allocate space for indices 0..n */
         idx_t newsize = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * newsize);
+        seq_t *new_cache = mem_resize(seq_t, cache, newsize);
         if (!new_cache) {
             /* allocation failure – return 0 (unlikely in test harness) */
             return 0;

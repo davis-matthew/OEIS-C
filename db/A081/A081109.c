@@ -7,12 +7,14 @@
  * Formula:   a(n) = 18*a(n-1) - 81*a(n-2), a(0) = 1, a(1) = 10
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 294 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the n-th term of OEIS sequence A081109.
  * The sequence satisfies the linear recurrence
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (cache_len == 0) {
         cache_len = 2;                    /* at least indices 0 and 1 */
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
        
         /* base values */
         cache[0] = (seq_t)1;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     if (n >= cache_len) {
         idx_t new_len = cache_len;
         while (new_len <= n) new_len <<= 1;   /* double until large enough */
-        cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         cache_len = new_len;
     }
 

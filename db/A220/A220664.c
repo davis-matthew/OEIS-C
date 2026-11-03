@@ -7,6 +7,7 @@
  * Formula:   a(n) = A030299(n+1) - A030299(n)
  * Range:     u8 n <= 8, u16 n <= 152, u32 n <= 5912, u64 n <= 5912,
  *            u128 n <= 5912, big any n
+ * Validated: standard, pass, 81 terms through n = 5742 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

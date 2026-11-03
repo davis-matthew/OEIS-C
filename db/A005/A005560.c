@@ -8,12 +8,13 @@
  *            ceiling((m-1)/2))*C(m+2, floor((m-1)/2)), where m = n-2
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 35, u128 n <= 68,
  *            big any n
- * Helpers:   a005560_binom
+ * Validated: standard, pass, 43 terms through n = 980 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a005560_binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     idx_t m;
@@ -21,7 +22,7 @@ seq_t a(idx_t n) {
     if (n < 2) return 0;
     m = n - 2;
     if (m == 0) return 1;
-    t1 = a005560_binom(m + 3, (m + 1) / 2) * a005560_binom(m + 2, m / 2);
-    t2 = a005560_binom(m + 3, m / 2) * a005560_binom(m + 2, (m - 1) / 2);
+    t1 = binomial(m + 3, (m + 1) / 2) * binomial(m + 2, m / 2);
+    t2 = binomial(m + 3, m / 2) * binomial(m + 2, (m - 1) / 2);
     return t1 - t2;
 }

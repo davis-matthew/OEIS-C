@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 #include <stdlib.h>
 #include <string.h> /* for memcpy */
+#include "../utils/mem.h"
 
 /* Static cache for computed terms */
 static seq_t *a_cache   = NULL;   /* a[n] */
@@ -35,8 +37,8 @@ static void ensure_capacity(idx_t n)
         /* First allocation: size at least 2 to store a[0] (unused) and a[1] */
         idx_t first_size = n > 1 ? n : 1;
         size_t sz = (size_t)(first_size + 1);
-        a_cache = (seq_t *)malloc(sz * sizeof(seq_t));
-        s_cache = (seq_t *)malloc(sz * sizeof(seq_t));
+        a_cache = mem_new(seq_t, sz);
+        s_cache = mem_new(seq_t, sz);
         /* initialise index 0 to 0 for cumulative sums */
         if (a_cache) a_cache[0] = (seq_t)0;
         if (s_cache) s_cache[0] = (seq_t)0;
@@ -46,13 +48,13 @@ static void ensure_capacity(idx_t n)
     if (n <= num_computed) return;          /* already enough space */
 
     size_t new_sz = (size_t)(n + 1);
-    seq_t *new_a = (seq_t *)malloc(new_sz * sizeof(seq_t));
-    seq_t *new_s = (seq_t *)malloc(new_sz * sizeof(seq_t));
+    seq_t *new_a = mem_new(seq_t, new_sz);
+    seq_t *new_s = mem_new(seq_t, new_sz);
     if (!new_a || !new_s) return;           /* allocation failed – keep old */
-    memcpy(new_a, a_cache, (size_t)(num_computed + 1) * sizeof(seq_t));
-    memcpy(new_s, s_cache, (size_t)(num_computed + 1) * sizeof(seq_t));
-    free(a_cache);
-    free(s_cache);
+    mem_copy(new_a, a_cache, (size_t)(num_computed + 1) * sizeof(seq_t));
+    mem_copy(new_s, s_cache, (size_t)(num_computed + 1) * sizeof(seq_t));
+    mem_free(a_cache);
+    mem_free(s_cache);
     a_cache = new_a;
     s_cache = new_s;
 }

@@ -10,12 +10,14 @@
  *            a(1)=232, a(2)=267920, a(3)=309179640
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 6, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 293 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
        known first three terms. */
     if (cache == NULL) {
         idx_t init = n > 3 ? n : 3;          /* allocate at least three slots */
-        cache = (seq_t *)malloc(init * sizeof(seq_t));
+        cache = mem_new(seq_t, init);
         if (cache == NULL) {               /* allocation failed */
             return (seq_t)0;
         }
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* If we don't yet have the requested term, grow the cache and compute */
     if (n > cache_sz) {
         /* Grow the cache to at least size n */
-        cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, n);
         if (cache == NULL) {               /* allocation failed */
             return (seq_t)0;
         }

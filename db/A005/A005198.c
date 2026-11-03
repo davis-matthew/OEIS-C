@@ -13,17 +13,58 @@
  *            * A000081(m-k). For fixed-width seq_t, the same trans...
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 26, u64 n <= 47, u128 n <= 89,
  *            big any n
- * Helpers:   fold, grow_zero, my_gcd, seq_is_fixed_width
+ * Validated: standard, pass, 48 terms through n = 2123 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/grow_zero.h"
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/fold.h"
-#include "../utils/my_gcd.h"
+#include <string.h>
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+/* multiply series arr (length n+1) by 1/(1-x^k)^B */
+static void fold(seq_t *arr, seq_t *binc, idx_t n, idx_t k, seq_t B) {
+    if (B == 0 || k > n) return;
+    idx_t jm = n / k;
+    seq_t C = 1;
+    for (idx_t j = 1; j <= jm; j++) {
+        seq_t g = gcd(C, (seq_t)j);
+        seq_t x = B + (seq_t)(j - 1);
+        C = (C / g) * (x / ((seq_t)j / g));
+        binc[j] = C;
+    }
+    for (idx_t i = n; i >= k; i--) {
+        for (idx_t j = 1; j * k <= i; j++)
+            arr[i] += binc[j] * arr[i - j * k];
+    }
+}
 
 static seq_t *R = NULL, *CR = NULL, *CB = NULL, *AV = NULL;
 static idx_t cap = 0, have = 0;
@@ -70,10 +111,10 @@ static void ensure(idx_t n) {
 }
 
 static seq_t fixed_a(idx_t n) {
-    seq_t *r = (seq_t *)malloc(sizeof(seq_t) * (n + 2));
-    seq_t *F = (seq_t *)malloc(sizeof(seq_t) * (n + 2));
-    seq_t *G = (seq_t *)malloc(sizeof(seq_t) * (n + 2));
-    seq_t *binc = (seq_t *)malloc(sizeof(seq_t) * (n + 2));
+    seq_t *r = mem_new(seq_t, (n + 2));
+    seq_t *F = mem_new(seq_t, (n + 2));
+    seq_t *G = mem_new(seq_t, (n + 2));
+    seq_t *binc = mem_new(seq_t, (n + 2));
     for (idx_t i = 0; i <= n + 1; i++) { r[i] = 0; F[i] = 0; G[i] = 0; binc[i] = 0; }
     F[0] = 1;
     G[0] = 1;
@@ -84,7 +125,7 @@ static seq_t fixed_a(idx_t n) {
         if (k >= 2) fold(G, binc, n, k, r[k - 1]);
     }
     seq_t res = G[n];
-    free(r); free(F); free(G); free(binc);
+    mem_free(r); mem_free(F); mem_free(G); mem_free(binc);
     return res;
 }
 

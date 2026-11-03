@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 16, u64 n <= 36, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static tables and DP state */
@@ -64,8 +66,8 @@ seq_t a(idx_t n) {
         /* Allocate transition table */
         trans_counts    = (uint8_t *)malloc(S * sizeof(uint8_t));
         transitions     = (uint16_t *)malloc(S * M * sizeof(uint16_t));
-        dp              = (seq_t *)calloc(S, sizeof(seq_t));
-        ndp             = (seq_t *)calloc(S, sizeof(seq_t));
+        dp              = mem_new(seq_t, S);
+        ndp             = mem_new(seq_t, S);
 
         /* Build transitions: (i,j) -> (j,k) if vertical rule holds */
         for (idx_t i_row = 0; i_row < M; ++i_row) {
@@ -89,7 +91,7 @@ seq_t a(idx_t n) {
 
         /* Base answers for n = 1,2 and initialise DP for n = 2 */
         answers_size = 3;                                   /* indices 0,1,2 used */
-        answers = (seq_t *)calloc(answers_size, sizeof(seq_t));
+        answers = mem_new(seq_t, answers_size);
         answers[1] = (seq_t)M;
         answers[2] = (seq_t)M * (seq_t)M;
         max_precomputed_n = 2;
@@ -103,10 +105,10 @@ seq_t a(idx_t n) {
     /* Ensure answers array large enough for requested n */
     if (n + 1 > answers_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_arr = (seq_t *)realloc(answers, new_size * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, answers, new_size);
         if (!new_arr) exit(1);
         /* initialise new entries to zero */
-        memset(new_arr + answers_size, 0, (new_size - answers_size) * sizeof(seq_t));
+        mem_set(new_arr + answers_size, 0, (new_size - answers_size) * sizeof(seq_t));
         answers = new_arr;
         answers_size = new_size;
     }
@@ -117,7 +119,7 @@ seq_t a(idx_t n) {
     /* Compute DP from curN+1 up to n */
     for (idx_t step = curN + 1; step <= n; ++step) {
         /* clear ndp */
-        memset(ndp, 0, S * sizeof(seq_t));
+        mem_set(ndp, 0, S * sizeof(seq_t));
 
         /* iterate over all states */
         for (idx_t src = 0; src < S; ++src) {

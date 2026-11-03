@@ -12,24 +12,26 @@
  *            6*2^m - 4)/24
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 16, u64 n <= 24, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     size_t N = (size_t)n;
     /* Allocate temporary arrays for f and a */
-    seq_t *f = (seq_t*)malloc((N + 1) * sizeof(seq_t));
-    seq_t *A = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (N + 1));
+    seq_t *A = mem_new(seq_t, (N + 1));
     if (!f || !A) {
         /* In case of allocation failure, return 0 */
-        if (f) free(f);
-        if (A) free(A);
+        if (f) mem_free(f);
+        if (A) mem_free(A);
         return 0;
     }
 
@@ -89,8 +91,8 @@ seq_t a(idx_t n)
     seq_t result = A[N];
 
     /* Free allocated memory */
-    free(f);
-    free(A);
+    mem_free(f);
+    mem_free(A);
 
     return result;
 }

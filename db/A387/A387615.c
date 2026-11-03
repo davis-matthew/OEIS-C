@@ -7,8 +7,9 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, tabl, base
  * Formula:   not stated
- * Range:     u8 n <= 278, u16 n <= 9926, u32 n <= 9926, u64 n <= 9926,
- *            u128 n <= 9926, big any n
+ * Range:     u8 n <= 278, u16 n <= 11326, u32 n <= 11326, u64 n <= 11326,
+ *            u128 n <= 11326, big any n
+ * Validated: standard, pass, 107 terms through n = 9926 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
    T(b,n) using the closed formulas supplied by the OEIS, with a brute‑force
    fallback for the remaining cases. */
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static seq_t compute_T(seq_t b, seq_t n)

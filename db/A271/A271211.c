@@ -11,7 +11,8 @@
  *            appears is 8 (between 7 and 11)
  * Range:     u8 n <= 45, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static data -------------------------------------------------------- */
 
@@ -70,7 +72,7 @@ static void init_sequence(void)
     /* 3. build the sequence from pairs of consecutive primes
        with difference 4 and prime >= 7.  There are 3 numbers per pair. */
     size_t est_terms = prime_count / 5 * 3 + 10; /* rough estimate */
-    seq_terms = (seq_t *)malloc(est_terms * sizeof(seq_t));
+    seq_terms = mem_new(seq_t, est_terms);
     seq_len = 0;
 
     for (size_t i = 0; i + 1 < prime_count; ++i) {
@@ -84,7 +86,7 @@ static void init_sequence(void)
     }
 
     /* shrink to actual size */
-    seq_terms = (seq_t *)realloc(seq_terms, seq_len * sizeof(seq_t));
+    seq_terms = mem_resize(seq_t, seq_terms, seq_len);
 
     initialized = true;
 }

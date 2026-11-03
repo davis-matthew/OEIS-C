@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 474, u64 n <= 474, u128 n <= 474,
  *            big any n
- * Helpers:   seq_alloc
+ * Validated: full, pass, 474 terms through n = 474 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,16 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/seq_alloc.h"   /* provides seq_alloc(size_t) for allocating seq_t arrays */
+#include <stdlib.h>
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 static bool sq_digit[82];        /* flags for digit sums 0..81 which are squares   */
 static bool sq_group[3000];      /* flags for group sums 0..2997 which are squares */

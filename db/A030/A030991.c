@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   pow2, pow_seq
+ * Validated: standard, pass, 33 terms through n = 930 (2026-11-01)
+ * Helpers:   ipow_i32, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,8 @@
    a(n) ≡ 0   (mod 5^n)   and   7*a(n) ≡ 1 (mod 2^n)        */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_seq.h"   /* pow_seq(base, exp)                     */
-#include "../utils/pow2.h"      /* pow2(n)   returns 2^n                  */
+#include "../utils/ipow_i32.h"
+#include "../utils/pow2.h"
 
 /* Compute the inverse of an odd integer a modulo 2^k.
    The second argument is the modulus 2^k.            */
@@ -43,7 +44,7 @@ seq_t a(idx_t n)
     if (n == 0) return 0; /* offset 1 – optional guard */
 
     /* 5^n and 2^n */
-    seq_t pow5 = pow_seq((seq_t)5, (int)n);   /* 5^n  */
+    seq_t pow5 = ipow_i32((seq_t)5, (int)n);   /* 5^n  */
     seq_t pow2_val = pow2(n);                /* 2^n  */
 
     /* t = 5^n mod 2^n  (odd, hence invertible modulo 2^n) */

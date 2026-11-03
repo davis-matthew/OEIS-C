@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 231, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 926 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(1) = 2; a(n>1) = greatest prime divisor of (a(n-1) + n) */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached terms (1‑based).  Static allocation is rebuilt lazily. */
 static seq_t *cache   = NULL;
@@ -48,7 +50,7 @@ static void ensure_cache(idx_t n)
     if (n <= cache_len) return;
 
     size_t needed = (size_t)n + 1;              /* 1‑based indexing */
-    seq_t *tmp = (seq_t*)realloc(cache, needed * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, needed);
     if (!tmp) abort();                          /* allocation failure */
     cache = tmp;
 

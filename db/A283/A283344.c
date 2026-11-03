@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 */
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static unsigned char pre[32][32][32];   /* violation count for middle row */
 
@@ -63,8 +65,8 @@ seq_t a(idx_t n)
 
     /* DP arrays: 32*32*2 = 2048 states */
     const size_t STATES = 2048;
-    seq_t *cur  = (seq_t *)calloc(STATES, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(STATES, sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, STATES);
+    seq_t *next = mem_new(seq_t, STATES);
     if (!cur || !next) return 0; /* allocation failure */
 
     /* Initial state: only one row processed (row 0), prevprev = 0 */
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
 
     /* Process rows 2 .. n */
     for (idx_t r = 2; r <= n; ++r) {
-        memset(next, 0, STATES * sizeof(seq_t));
+        mem_set(next, 0, STATES * sizeof(seq_t));
         for (size_t st = 0; st < STATES; ++st) {
             seq_t val = cur[st];
             if (!val)
@@ -128,7 +130,7 @@ seq_t a(idx_t n)
             ans += val;
     }
 
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     return ans;
 }

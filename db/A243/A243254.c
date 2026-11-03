@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 44, u32 n <= 83, u64 n <= 162,
  *            u128 n <= 320, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 7158 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache of DP table */
 static idx_t max_computed = 0;          /* largest n computed so far */
@@ -38,7 +40,7 @@ static void ensure_capacity(idx_t n)
     /* New table size */
     idx_t new_size = n + 1;
     /* Reallocate memory */
-    dp = (seq_t *)realloc(dp, new_size * 8 * sizeof(seq_t));
+    dp = mem_resize(seq_t, dp, new_size * 8);
 
     /* Initialize new entries to zero */
     for (idx_t i = max_computed + 1; i <= n; ++i)

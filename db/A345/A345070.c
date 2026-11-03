@@ -7,6 +7,7 @@
  * Formula:   a(n) = (prime(2*n) + prime(2*n+2)) / 2
  * Range:     u8 n <= 15, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

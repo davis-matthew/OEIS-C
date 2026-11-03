@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
  
 /* Helper to grow dynamic arrays.  */
 static void ensure_cap(size_t *cap, seq_t **arr, size_t need)
@@ -26,7 +28,7 @@ static void ensure_cap(size_t *cap, seq_t **arr, size_t need)
     if (*cap < need) {
         size_t new_cap = (*cap == 0) ? 1 : (*cap << 1);
         while (new_cap < need) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) abort();
         *arr = tmp;
         *cap = new_cap;

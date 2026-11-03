@@ -8,13 +8,17 @@
  *            0), with a(0)=1. Here C(a,b) is the binomial coefficient
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   binom, seq_one
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/seq_one.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 seq_t a(idx_t n)
 {
@@ -28,8 +32,8 @@ seq_t a(idx_t n)
     {
         if ( (n - k) % 3 == 0 )
         {
-            seq_t c1 = binom(n, k);
-            seq_t c2 = (k + 1 <= n) ? binom(n, k + 1) : (seq_t)0;
+            seq_t c1 = binomial(n, k);
+            seq_t c2 = (k + 1 <= n) ? binomial(n, k + 1) : (seq_t)0;
             seq_t prod = c1 * c2;
             prod = prod / n_seq;   /* exact division */
             sum += prod;

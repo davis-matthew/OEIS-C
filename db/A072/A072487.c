@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build. */
 static seq_t *a_cache = NULL;             /* array of computed a(n) */
@@ -75,7 +77,7 @@ static void ensure_cache(idx_t n)
 
     /* Extend a_cache array */
     if (n + 1 > cache_cap) {
-        a_cache = (seq_t*)realloc(a_cache, sizeof(seq_t) * (n + 1));
+        a_cache = mem_resize(seq_t, a_cache, (n + 1));
         cache_cap = n + 1;
     }
 

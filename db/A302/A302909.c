@@ -8,12 +8,14 @@
  * Formula:   a(n) = a(n‑1) * n * (3*n + 5) / 2, a(1) = 1 (integer product)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 93 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,9 +29,9 @@ seq_t a(idx_t n)
     if (n > cache_sz) {
         idx_t new_sz = n;
         if (cache == NULL) {
-            cache = (seq_t*)malloc(new_sz * sizeof(seq_t));
+            cache = mem_new(seq_t, new_sz);
         } else {
-            cache = (seq_t*)realloc(cache, new_sz * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_sz);
         }
         if (cache == NULL) return 0;   /* allocation failure – unlikely */
 

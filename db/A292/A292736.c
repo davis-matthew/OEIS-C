@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 395, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_majority_six
+ * Validated: standard, pass, 74 terms through n = 9697 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
  * for any build where `idx_t` is an unsigned integer type (uint64_t).
  * It returns the result as a `seq_t`. */
 #include <stdbool.h>
-#include "../utils/has_majority_six.h"
+
+static bool has_majority_six(idx_t x)
+{
+    unsigned cnt6 = 0, cnt_other = 0;
+    do {
+        uint8_t d = x % 10;
+        if (d == 6)
+            ++cnt6;
+        else
+            ++cnt_other;
+        x /= 10;
+    } while (x);
+    return cnt6 > cnt_other;
+}
 
 seq_t a(idx_t n)
 {

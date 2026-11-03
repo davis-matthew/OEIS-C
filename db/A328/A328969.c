@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   factor_u64, pow_uint, seq_mul, seq_pow
+ * Validated: partial, pass, 61 terms through n = 62 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,10 +24,15 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_mul.h"  /* seq_mul   */
-#include "../utils/seq_pow.h"  /* seq_pow   */
-#include "../utils/pow_uint.h" /* pow_uint  */
-#include "../utils/factor_u64.h"/* factor_u64 */
+#include <string.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static bool     init_done = false;
 static idx_t    max_n     = 200000;           /* sieve limit – plenty for n≈1e4 */
@@ -125,12 +131,12 @@ a(idx_t n)
     seq_t denom = 1;
     for (size_t i = 0; i < fac_cnt; ++i) {
         if (fac[i] <= pk)
-            denom = denom * pow_uint(fac[i], exp[i]);
+            denom = denom * ipow_u64_idx(fac[i], exp[i]);
     }
 
     /* numerator = row / denom * (pk^m_k - 1) */
     seq_t num = ((seq_t)row) / denom;
-    seq_t term = pow_uint(pk, m_k) - (seq_t)1;
+    seq_t term = ipow_u64_idx(pk, m_k) - (seq_t)1;
     num = num * term;
     num = num / (pk - 1);  /* division is exact */
 

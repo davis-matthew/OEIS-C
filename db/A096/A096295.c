@@ -7,13 +7,35 @@
  * Formula:   a(n) = a(n-1) + 3*(a(n-1)-floor(a(n-1)^(1/3))^3); a(1)=2
  * Range:     u8 n <= 5, u16 n <= 28, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   floor_cube_root
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/floor_cube_root.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *cache = NULL;      /* array of computed a(i) values */
 static size_t cache_cap = 0;     /* allocated capacity of cache */
@@ -30,11 +52,11 @@ seq_t a(idx_t n)
 
     /* Grow the cache if necessary */
     if (cache == NULL) {
-        cache = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)n);
         if (!cache)
             exit(1);           /* out of memory */
     } else if ((size_t)n > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
         if (!tmp)
             exit(1);
         cache = tmp;

@@ -12,12 +12,14 @@
  *            a(5)=14976529, a(6)=339125187, a(7)=7657326365
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* cache[0] unused; cache[i] = a(i) */
 static idx_t  cache_limit = 0;     /* number of elements allocated */
@@ -32,9 +34,9 @@ static void ensure_cache_size(idx_t n)
         if (new_limit < 8)        /* at least for the 7 base terms */
             new_limit = 8;
         if (cache == NULL)
-            cache = (seq_t*)malloc(new_limit * sizeof(seq_t));
+            cache = mem_new(seq_t, new_limit);
         else
-            cache = (seq_t*)realloc(cache, new_limit * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_limit);
         for (size_t i = cache_limit; i < new_limit; ++i)
             cache[i] = 0;
         cache_limit = new_limit;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 96, u16 n <= 3289, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   good_run_length_all_equal
+ * Validated: standard, pass, 83 terms through n = 8860 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,38 @@
 
 #include <stdlib.h>
 #include <assert.h>
-#include "../utils/good_run_length_all_equal.h"
+#include "../utils/mem.h"
+
+/* ----- helper: test whether all 1‑runs have equal length ---------------- */
+static inline int good_run_length_all_equal(idx_t x)
+{
+    int prev_len = 0;        /* length of the previous 1‑run  */
+    int first_run = 1;       /* flag for the first 1‑run       */
+
+    while (x != 0) {
+        /* skip any leading zero run */
+        while ((x & 1) == 0)
+            x >>= 1;
+        if (x == 0) /* no more 1’s */
+            break;
+
+        /* count the length of the current 1‑run */
+        int len = 0;
+        while ((x & 1) != 0) {
+            ++len;
+            x >>= 1;
+        }
+
+        /* compare with previous run length */
+        if (first_run) {
+            prev_len = len;
+            first_run = 0;
+        } else if (len != prev_len) {
+            return 0;          /* run lengths differ */
+        }
+    }
+    return 1;
+}
 
 /* ----- global cache ----------------------------------------------------- */
 static seq_t *cache = NULL;       /* cache of computed terms          */
@@ -38,7 +70,7 @@ static void ensure_capacity(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();            /* memory allocation failed */
 

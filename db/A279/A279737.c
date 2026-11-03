@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* signed coefficients of the recurrence, from a(n-1) to a(n-16) */
 static const int coeffs[16] = {
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first 17 terms on first call */
     if (cache == NULL) {
         /* allocate space for indices 0..17 */
-        cache = (seq_t *)malloc((17 + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (17 + 1));
         if (cache == NULL) return 0; /* allocation failure */
         for (size_t i = 0; i <= 17; ++i) cache[i] = init[i];
         cached_len = 17;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
     /* extend cache to contain up to index n */
     size_t old_len = cached_len;
     size_t new_len = (size_t)n;
-    seq_t *new_cache = (seq_t *)realloc(cache, (new_len + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_len + 1));
     if (new_cache == NULL) return 0; /* reallocation failure */
     cache = new_cache;
     cached_len = new_len;

@@ -7,17 +7,20 @@
  * Formula:   a(n) = (11*n + 2)^8
  * Range:     u8 none, u16 n <= 0, u32 n <= 1, u64 n <= 23, u128 n <= 5957,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 32 terms through n = 9660 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* Convert index to seq_t and compute the base (11*n + 2) */
     seq_t base = (seq_t)11 * (seq_t)n + (seq_t)2;
     /* Raise it to the 8th power using the provided helper */
-    return big_pow(base, (seq_t)8);
+    return ipow(base, (seq_t)8);
 }

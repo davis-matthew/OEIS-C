@@ -8,7 +8,8 @@
  *            prime > p)
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   nextPrime
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
    overflow and the function falls back to a simple loop that multiplies
    by 2 repeatedly.  The test harness for the available builds should
    never query a value that does not fit in seq_t.  */
-#include "../utils/nextPrime.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/is_prime.h"
+
+/* Smallest prime > n (nextprime) */
+static seq_t nextPrime(idx_t n)
+{
+    for (idx_t k = n+1; ; ++k)
+    {
+        if (is_prime(k))           return (seq_t)k;
+    }
+}
 #include <stdint.h>   /* for uint_fast64_t if needed */
 
 seq_t a(idx_t n)

@@ -12,6 +12,7 @@
  *            y^4 - 4p y^2 + 2 p^2. For e≥1: a(p^e) is defi...
  * Range:     i8 n <= 14, i16 n <= 124, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 80 terms through n = 9751 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

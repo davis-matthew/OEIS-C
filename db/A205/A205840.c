@@ -11,7 +11,8 @@
  *            difference is odd
  * Range:     u8 n <= 34, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   count_valid_j
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/count_valid_j.h"
+#include "../utils/mem.h"
+
+/* Count how many j in [1,k-1] give an even difference with k.           */
+static inline idx_t count_valid_j(idx_t k)
+{
+    if (k <= 2) return 0;
+    idx_t m = k - 1;           /* number of candidates j */
+    idx_t cnt_rem2 = 0;        /* j ≡ 2 (mod 3) */
+    if (2 <= m)
+        cnt_rem2 = ((m - 2) / 3) + 1;
+    if (k % 3 == 2)               /* s(k) is even, so j must be even */
+        return cnt_rem2;
+    else                           /* s(k) is odd, j cannot be ≡2 (mod3) */
+        return m - cnt_rem2;
+}
 
 /* Fibonacci cache -------------------------------------------------------- */
 static seq_t *fib_cache   = NULL;   /* stores F[0..] (F(0)=0, F(1)=1) */
@@ -33,7 +48,7 @@ static void ensure_fib_capacity(size_t needed)
     {
         size_t newcap = fib_capacity ? fib_capacity << 1 : 2;
         while (newcap < needed) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(fib_cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fib_cache, newcap);
         if (!tmp) abort();
         fib_cache   = tmp;
         fib_capacity = newcap;
@@ -48,7 +63,7 @@ static seq_t get_fib(idx_t idx)
         if (fib_capacity == 0)
         {
             fib_capacity = 2;
-            fib_cache = (seq_t *)malloc(fib_capacity * sizeof(seq_t));
+            fib_cache = mem_new(seq_t, fib_capacity);
             if (!fib_cache) abort();
             fib_cache[0] = (seq_t)0;
             fib_cache[1] = (seq_t)1;

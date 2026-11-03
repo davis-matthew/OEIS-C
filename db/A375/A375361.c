@@ -10,7 +10,8 @@
  *            builds the list lazily and returns the n‑th term (1‑indexed)
  * Range:     u8 n <= 14, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         build_primes_upto(PRIME_LIMIT, (uint64_t **)&primes, &primes_cnt);
 
         terms_cap = 1024;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         inited = true;
     }
 
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         if (count >= 2) {
             if (terms_filled == terms_cap) {
                 terms_cap <<= 1;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_filled++] = (seq_t)x;
         }

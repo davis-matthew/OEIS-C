@@ -9,15 +9,30 @@
  *            0 if n%3==1, +1 if n%3==2. A005836(k) is the k‑th number whose
  *            ternary representation contains only digits 0 and 1; it is
  *            obtained by interpreting k-1 in binary as a base‑3 number
- * Range:     u8 n <= 58, u16 n <= 1919, u32 n <= 9533, u64 n <= 9533,
- *            u128 n <= 9533, big any n
- * Helpers:   a005836_value
+ * Range:     u8 n <= 58, u16 n <= 1919, u32 n <= 12287, u64 n <= 12287,
+ *            u128 n <= 12287, big any n
+ * Validated: standard, pass, 81 terms through n = 9533 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a005836_value.h"
+
+static seq_t a005836_value(idx_t k)
+{
+    // k >= 1
+    idx_t m = k - 1;           /* binary counter */
+    seq_t value = 0;
+    seq_t power = 1;           /* 3^0 initially */
+    while (m > 0) {
+        if (m & 1u)
+            value += power;
+        power *= 3;
+        m >>= 1;
+    }
+    return value;
+}
 
 seq_t a(idx_t n)
 {

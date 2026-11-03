@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 15, i16 n <= 33, i32 n <= 64, i64 n <= 129,
  *            i128 n <= 256, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoisation */
@@ -27,8 +29,7 @@ seq_t a(idx_t n) {
     /* Grow the cache if needed */
     if (n >= cache_len) {
         size_t needed = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache,
-                                            needed * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, needed);
         assert(new_cache != NULL);          /* memory allocation success */
         cache = new_cache;
         for (size_t i = cache_len; i < needed; ++i) {

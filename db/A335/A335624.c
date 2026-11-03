@@ -10,13 +10,14 @@
  *            is a perfect square
  * Range:     u8 n <= 4289, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 117 terms through n = 9870 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -36,13 +37,13 @@ seq_t a(idx_t n)
                 idx_t rem = n - xyz_sum;          /* must be w² */
 
                 /* w² has to be a perfect square */
-                idx_t w = _floor_isqrt_u64(rem);
+                idx_t w = isqrt(rem);
                 if (w * w != rem)
                     continue;
 
                 /* x + 3*y + 4*z must be a perfect square */
                 idx_t L = x + 3 * y + 4 * z;
-                idx_t LS = _floor_isqrt_u64(L);
+                idx_t LS = isqrt(L);
                 if (LS * LS == L) {
                     /* Found one representation */
                     count += (seq_t)1;

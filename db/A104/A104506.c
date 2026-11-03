@@ -12,6 +12,7 @@
  *            allocation is required
  * Range:     i8 n <= 4, i16 n <= 9, i32 n <= 21, i64 n <= 30, i128 n <= 30,
  *            big any n
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

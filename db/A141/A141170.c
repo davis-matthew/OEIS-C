@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 1607, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 70 terms through n = 9399 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* Sequence: A141170 – primes of the form x^2+4xy-2y^2
    (equivalently, primes ≡ 1 or 19 (mod 24), plus the prime 3). */
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n) {

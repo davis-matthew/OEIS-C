@@ -8,7 +8,8 @@
  *            form: a(n) = Σ_{m=0..⌊n/2⌋} binom(n, 2m) * n^{n-2m} * 3^m
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   seq_pow_big
+ * Validated: standard, pass, 36 terms through n = 263 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,14 +17,14 @@
 /* Author: ChatGPT */
 
 #include <stdint.h>
-#include "../utils/seq_pow_big.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 0u) return 1;
     if (n == 1u) return 1;
 
     /* compute n^n */
-    seq_t term = seq_pow_big((seq_t)n, n);      /* term = n^n       */
+    seq_t term = ipow_idx((seq_t)n, n);      /* term = n^n       */
     seq_t sum  = term;                          /* start sum       */
     seq_t coeff = 1;                            /* binom(n,0)      */
     seq_t two_n_sq = (seq_t)n * (seq_t)n;       /* n^2             */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static uint64_t *primes = NULL;          /* primes array, 1‑based index */
 static size_t    primes_cnt = 0;
@@ -107,7 +109,7 @@ static void ensure_cache(idx_t target)
         if (qualifies((uint64_t)checked_up_to)) {
             if (cache_size == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 64;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = (seq_t)checked_up_to;
         }

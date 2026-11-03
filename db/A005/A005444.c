@@ -7,16 +7,18 @@
  * Formula:   a(n) = Sum_{k=0..n} k! * Fibonacci(k+1) * Stirling1(n, k)
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 11, i64 n <= 19, i128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
-    seq_t *prev = (seq_t *)calloc((n + 1), sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc((n + 1), sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (n + 1));
+    seq_t *curr = mem_new(seq_t, (n + 1));
     
     prev[0] = 1;
     
@@ -45,8 +47,8 @@ seq_t a(idx_t n) {
         }
     }
     
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     
     return result;
 }

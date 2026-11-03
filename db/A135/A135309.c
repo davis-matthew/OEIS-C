@@ -10,8 +10,9 @@
  *            occurrences of UUUU starting at level 0. * T(n,k) = Σ_{j=k}^{
  *            ⌊n/4⌋} (-1)^{j-k}·(5j+1)·C(j,k)·C(2n-3j, n+j)/(n+j+1), * where
  *            C(a,b) is the binomial coefficient. * a(n) is obt...
- * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 39, u64 n <= 39, u128 n <= 39,
+ * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* binomial(idx_t n, idx_t k) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

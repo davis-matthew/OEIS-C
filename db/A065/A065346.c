@@ -7,7 +7,8 @@
  * Formula:   a(n) = binomial(2*n, n) mod ((n+1)*(n+2)*(n+3)*(n+4))
  * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 266, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   generate_primes, mod_pow
+ * Validated: standard, pass, 52 terms through n = 9087 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,45 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/generate_primes.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+
+/* simple sieve: generate all primes up to limit,
+   returns array of primes (malloced) and their count. */
+static void generate_primes(uint32_t limit, uint32_t **primes, size_t *cnt)
+{
+    if (limit < 2) {
+        *primes = NULL;
+        *cnt = 0;
+        return;
+    }
+    bool *is_prime = (bool *)calloc(limit + 1, sizeof(bool));
+    if (!is_prime) {
+        *primes = NULL;
+        *cnt = 0;
+        return;
+    }
+    memset(is_prime, 1, limit + 1);
+    is_prime[0] = is_prime[1] = 0;
+    for (uint32_t i = 2; i * i <= limit; ++i) {
+        if (is_prime[i]) {
+            for (uint32_t j = i * i; j <= limit; j += i)
+                is_prime[j] = 0;
+        }
+    }
+    *cnt = 0;
+    for (uint32_t i = 2; i <= limit; ++i)
+        if (is_prime[i]) (*cnt)++;
+    *primes = (uint32_t *)malloc(*cnt * sizeof(uint32_t));
+    if (!*primes) {
+        free(is_prime);
+        *cnt = 0;
+        return;
+    }
+    size_t k = 0;
+    for (uint32_t i = 2; i <= limit; ++i)
+        if (is_prime[i]) (*primes)[k++] = i;
+    free(is_prime);
+}
 
 /* ---------- helpers ------------------------------------- */
 
@@ -58,7 +96,7 @@ seq_t a(idx_t n)
         uint64_t e = exp_in_factorial(limit, p) - 2 * exp_in_factorial((uint64_t)n, p);
         if (e == 0)
             continue;
-        seq_t term = mod_pow((seq_t)p, e, M);
+        seq_t term = powmod((seq_t)p, e, M);
         result = (unsigned __int128)result * term % M;
     }
 

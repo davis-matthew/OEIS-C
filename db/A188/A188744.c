@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 26,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: standard, pass, 31 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,13 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"   /* alloc_seq_array(size_t) */
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Pre‑computed transition table */
 static bool trans_built = false;
@@ -80,7 +87,7 @@ static void ensure_cache(idx_t n)
     size_t new_cap = (size_t)n;
     seq_t *new_cache = alloc_seq_array(new_cap);
     for (size_t i = 0; i < cache_cap; ++i) new_cache[i] = cache[i];
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_cap = new_cap;
 }

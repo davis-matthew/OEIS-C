@@ -11,7 +11,8 @@
  *            order k)
  * Range:     u8 n <= 30, u16 n <= 59, u32 n <= 157, u64 n <= 412,
  *            u128 n <= 1092, big any n
- * Helpers:   jordan
+ * Validated: standard, pass, 82 terms through n = 9551 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,55 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/jordan.h"
+
+/* compute J_k(j) for j>=1 , k>=0 */
+static seq_t jordan(idx_t k, idx_t j, const uint64_t *primes, size_t cnt)
+{
+    if (j <= 1)
+        return 1;
+
+    seq_t result = 1;
+    idx_t tmp = j;
+
+    for (size_t pi = 0; pi < cnt && primes[pi] <= tmp / primes[pi]; ++pi) {
+        uint64_t p = primes[pi];
+        if (tmp % p != 0)
+            continue;
+        idx_t exp = 0;
+        while (tmp % p == 0) {
+            tmp /= p;
+            ++exp;
+        }
+
+        /* compute p^k */
+        seq_t pk = 1;
+        for (idx_t t = 0; t < k; ++t)
+            pk *= (seq_t)p;
+        seq_t pk_minus1 = pk - 1;
+
+        /* compute p^{k*(exp-1)} */
+        seq_t pk_power = 1;
+        if (exp > 1) {
+            idx_t mult = k * (exp - 1);
+            for (idx_t t = 0; t < mult; ++t)
+                pk_power *= (seq_t)p;
+        }
+        /* factor = (p^k - 1) * p^{k*(exp-1)} */
+        seq_t factor = pk_minus1 * pk_power;
+        result *= factor;
+    }
+
+    if (tmp > 1) {
+        uint64_t p = tmp;          /* prime factor with exp = 1 */
+        seq_t pk = 1;
+        for (idx_t t = 0; t < k; ++t)
+            pk *= (seq_t)p;
+        seq_t factor = pk - 1;
+        result *= factor;
+    }
+
+    return result;
+}
 
 static idx_t find_s(idx_t n)
 {

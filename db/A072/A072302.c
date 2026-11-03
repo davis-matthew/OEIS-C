@@ -8,14 +8,17 @@
  * Formula:   a(n) = Sum_{d|phi(n)} mu(d) * floor(n/d) (mobius mu)
  * Range:     u8 n <= 511, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, phi
+ * Validated: standard, pass, 93 terms through n = 9908 (2026-11-01)
+ * Helpers:   factor_u64, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 static void dfs_div(const uint64_t *primes, const uint64_t *exps, size_t k,
                     size_t idx, uint64_t cur, int mu, idx_t n,
@@ -44,7 +47,7 @@ static void dfs_div(const uint64_t *primes, const uint64_t *exps, size_t k,
 seq_t a(idx_t n)
 {
     /* Compute phi(n) and cast to 64‑bit unsigned */
-    seq_t phi_val = phi(n);
+    seq_t phi_val = totient(n);
     uint64_t phi_n  = (uint64_t)phi_val;
 
     /* Factor phi_n */

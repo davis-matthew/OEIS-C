@@ -12,13 +12,15 @@
  *            terms) * m = 3, d = 1,2,…,9 (9 terms) * m =...
  * Range:     u8 none, u16 n <= 8, u32 n <= 17, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -33,11 +35,11 @@ seq_t a(idx_t n)
     }
 
     /* base b = d * (10^m - 1) / 9 */
-    seq_t pow10m = big_pow((seq_t)10, (seq_t)m);
+    seq_t pow10m = ipow((seq_t)10, (seq_t)m);
     seq_t base = ((pow10m - (seq_t)1) / (seq_t)9) * (seq_t)d;
 
     /* b^m, then (b^m - 1) / (b - 1) * d */
-    seq_t pow_b_m = big_pow(base, (seq_t)m);
+    seq_t pow_b_m = ipow(base, (seq_t)m);
     seq_t numerator   = pow_b_m - (seq_t)1;
     seq_t denominator = base - (seq_t)1;
     seq_t val = (numerator / denominator) * (seq_t)d;

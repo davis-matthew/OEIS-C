@@ -7,18 +7,19 @@
  * Formula:   a(n) = 10^n - n^8
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 9, i64 n <= 18, i128 n <= 38,
  *            big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 35 terms through n = 295 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     // Compute 10^n
-    seq_t pow10 = pow_int((seq_t)10, n);
+    seq_t pow10 = ipow_idx((seq_t)10, n);
     // Compute n^8
-    seq_t pow_n8 = pow_int((seq_t)n, (idx_t)8);
+    seq_t pow_n8 = ipow_idx((seq_t)n, (idx_t)8);
     // Return the difference
     return pow10 - pow_n8;
 }

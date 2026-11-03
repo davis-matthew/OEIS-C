@@ -10,7 +10,8 @@
  *            earlier. This yields a permutation of the non‑negative integers
  * Range:     u8 n <= 37, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Back‑end storage – static variables are initialised on first call. */
 static seq_t   *g_seq   = NULL;
@@ -41,7 +43,7 @@ ensure_seq_cap(size_t new_cap)
     size_t cap = g_seq_cap ? g_seq_cap : 16;
     while (cap < new_cap)
         cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(g_seq, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, g_seq, cap);
     if (!tmp) abort();                 /* out of memory */
     g_seq  = tmp;
     g_seq_cap = cap;
@@ -56,7 +58,7 @@ ensure_seen_cap(size_t new_cap)
     size_t cap = g_seen_cap ? g_seen_cap : 16;
     while (cap < new_cap)
         cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(g_seen, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, g_seen, cap);
     if (!tmp) abort();
     g_seen  = tmp;
     g_seen_cap = cap;

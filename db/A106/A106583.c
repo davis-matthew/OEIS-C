@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf, easy
  * Formula:   not stated
- * Range:     u8 n <= 9636, u16 n <= 9636, u32 n <= 9636, u64 n <= 9636,
- *            u128 n <= 9636, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10921, u16 n <= 10921, u32 n <= 10921, u64 n <= 10921,
+ *            u128 n <= 10921, big any n
+ * Validated: standard, pass, 121 terms through n = 9636 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static memoization state */
 static seq_t *seq_buf     = NULL;   /* flattened sequence */
@@ -46,7 +48,7 @@ static void grow_sequence(void)
     }
 
     /* Allocate temporary buffer for the new row */
-    seq_t *new_row = (seq_t*)malloc((size_t)new_row_len * sizeof(seq_t));
+    seq_t *new_row = mem_new(seq_t, (size_t)new_row_len);
     if (new_row == NULL) return; /* allocation failure; caller will handle error */
 
     /* Build the new row element by element */
@@ -86,10 +88,10 @@ static void grow_sequence(void)
     }
 
     /* Extend the global buffer */
-    seq_t *new_buf = (seq_t*)realloc(seq_buf, (size_t)(seq_len + new_row_len) * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, seq_buf, (size_t)(seq_len + new_row_len));
     if (new_buf == NULL)
     {
-        free(new_row);
+        mem_free(new_row);
         return; /* allocation failure */
     }
     seq_buf = new_buf;
@@ -98,7 +100,7 @@ static void grow_sequence(void)
     for (idx_t i = 0; i < new_row_len; ++i)
         seq_buf[seq_len + i] = new_row[i];
 
-    free(new_row);
+    mem_free(new_row);
 
     /* Update bookkeeping */
     seq_len      += new_row_len;
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
     /* One‑time initialization */
     if (!initialized)
     {
-        seq_buf = (seq_t*)malloc(sizeof(seq_t));
+        seq_buf = mem_new(seq_t, 1);
         if (seq_buf == NULL) return (seq_t)0; /* allocation failure */
         seq_buf[0] = (seq_t)1;      /* a(0) = 1 */
         seq_len     = 1;

@@ -9,13 +9,15 @@
  *            exactly three 2's and three 3's
  * Range:     u8 none, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of precomputed values */
 static seq_t *seq_cache = NULL;
@@ -31,7 +33,7 @@ static void build_cache(void)
 
     const idx_t LIMIT = 1048576ULL;    /* 4^10 */
     seq_capacity = 30000;              /* initial capacity, will grow if necessary */
-    seq_cache = (seq_t*)malloc(seq_capacity * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, seq_capacity);
     seq_count  = 0;
 
     for (idx_t num = 0; num < LIMIT; ++num) {
@@ -52,7 +54,7 @@ static void build_cache(void)
         if (c2 == 3 && c3 == 3) {
             if (seq_count == seq_capacity) {
                 seq_capacity <<= 1;
-                seq_cache = (seq_t*)realloc(seq_cache, seq_capacity * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_capacity);
             }
             seq_cache[seq_count++] = (seq_t)num;
         }

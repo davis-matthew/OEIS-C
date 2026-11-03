@@ -9,6 +9,7 @@
  *            1-k) row-wise
  * Range:     i8 n <= 383, i16 n <= 9002, i32 n <= 9002, i64 n <= 9002,
  *            i128 n <= 9002, big any n
+ * Validated: standard, pass, 86 terms through n = 8868 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

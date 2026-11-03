@@ -8,7 +8,8 @@
  *            a(0)=1, a(1)=3, a(2)=5, a(3)=3
  * Range:     i8 n <= 7, i16 n <= 16, i32 n <= 35, i64 n <= 35, i128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* memoisation array */
 static size_t cache_cap = 0;    /* current capacity of `cache` */
@@ -30,10 +32,10 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (cache) {
-        memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = new_cap;

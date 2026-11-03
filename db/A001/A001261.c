@@ -10,6 +10,7 @@
  *            = 1 (from E.g.f. (x^5/5!)*exp(-x)/(1-x)^2 with offset 1)
  * Range:     u8 n <= 8, u16 n <= 10, u32 n <= 15, u64 n <= 22, u128 n <= 35,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 195 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

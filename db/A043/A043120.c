@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   has_adjacent_0_5
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,24 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/has_adjacent_0_5.h"
+
+/* Test whether a base‑6 number contains an adjacent 0 and 5. */
+static bool has_adjacent_0_5(seq_t x)
+{
+    if (x < 6)
+        return false;               /* single digit → no adjacency possible */
+
+    seq_t prev = x % 6;              /* least significant digit */
+    x /= 6;
+    while (x > 0) {
+        seq_t d = x % 6;
+        if ((d == 0 && prev == 5) || (d == 5 && prev == 0))
+            return true;
+        prev = d;
+        x /= 6;
+    }
+    return false;
+}
 
 /* Forward declaration of seq_t and idx_t is supplied by the build. */
 

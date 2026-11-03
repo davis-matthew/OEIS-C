@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 58, u16 n <= 4808, u32 n <= 9831, u64 n <= 9831,
- *            u128 n <= 9831, big any n
- * Helpers:   none
+ * Range:     u8 n <= 58, u16 n <= 4808, u32 n <= 16637, u64 n <= 16637,
+ *            u128 n <= 16637, big any n
+ * Validated: standard, pass, 85 terms through n = 9831 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* compute floor(log2(v)) for a 64‑bit unsigned integer (v > 0) */
 static inline unsigned floor_log2_idx(idx_t v)
@@ -66,7 +68,7 @@ static void ensure_terms(idx_t req)
 {
     if (seq_len == 0) {           /* first initialisation          */
         seq_cap     = 64;
-        seq_arr     = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_arr     = mem_new(seq_t, seq_cap);
         seq_arr[0]  = (seq_t)0;  /* a(0) = 0                       */
         seq_len     = 1;
         next_candidate = 1;
@@ -78,7 +80,7 @@ static void ensure_terms(idx_t req)
 
         if (seq_len >= seq_cap) {                 /* grow array   */
             seq_cap <<= 1;
-            seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+            seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
         }
         seq_arr[seq_len++] = (seq_t)cand;          /* store term   */
     }

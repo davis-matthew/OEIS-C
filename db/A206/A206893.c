@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 12, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* number of admissible column patterns (no vertical 1‑0‑0) */
 #define COLS 54
@@ -89,13 +91,13 @@ static void ensure_memo(idx_t n)
 {
     if (memo == NULL) {
         memo_cap = 128;
-        memo = (seq_t*)malloc(sizeof(seq_t) * memo_cap);
+        memo = mem_new(seq_t, memo_cap);
         for (size_t i = 0; i < memo_cap; ++i) memo[i] = 0;
     }
     if ((size_t)n >= memo_cap) {
         size_t new_cap = memo_cap;
         while ((size_t)n >= new_cap) new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(memo, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, memo, new_cap);
         if (!tmp) return; /* allocation failure – caller will handle */
         for (size_t i = memo_cap; i < new_cap; ++i) tmp[i] = 0;
         memo = tmp;

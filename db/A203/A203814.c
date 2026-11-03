@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 458, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   num_distinct_digits
+ * Validated: standard, pass, 85 terms through n = 9934 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,24 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/num_distinct_digits.h"
+
+/* --------------------------------------------------------------------
+   Helper: Returns the number of distinct decimal digits in n.
+   -------------------------------------------------------------------- */
+static int
+num_distinct_digits(idx_t n)
+{
+    if (n == 0)
+        return 1;
+
+    unsigned mask = 0;
+    while (n) {
+        int d = n % 10;
+        mask |= (1u << d);
+        n /= 10;
+    }
+    return __builtin_popcount(mask);
+}
 
 /* Maximum decimal digits for idx_t (uint64_t can have at most 20 digits). */
 #define MAX_DIGITS 40

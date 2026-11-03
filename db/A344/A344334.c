@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 9, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t s;   /* side length a*b*(a^2+b^2)   */
@@ -61,7 +64,7 @@ seq_t a(idx_t n) {
         }
 
         /* Allocate space for all pairs up to B */
-        seq = (Pair *)malloc(total * sizeof(Pair));
+        seq = mem_new(Pair, total);
         if (!seq) abort();
 
         /* Generate all pairs, compute s and z, store them */
@@ -84,7 +87,7 @@ seq_t a(idx_t n) {
         }
 
         /* Sort by side length to obtain the required order */
-        qsort(seq, len, sizeof(Pair), cmp_pair);
+        mem_qsort(seq, len, sizeof(Pair), cmp_pair);
 
         inited = true;
     }

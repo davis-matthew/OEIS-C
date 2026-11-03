@@ -8,6 +8,7 @@
  *            rule: a(2)=1, a(2^e)=34 for e≥2, a(p^e)=1 for odd primes.)
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
+ * Validated: partial, pass, 84 terms through n = 83 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

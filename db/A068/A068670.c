@@ -8,13 +8,19 @@
  *            digits of the i-th prime)
  * Range:     u8 n <= 94, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_count, sieve_first_n_primes
+ * Validated: standard, pass, 78 terms through n = 9546 (2026-11-01)
+ * Helpers:   num_digits0, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stddef.h>
+#include "../utils/num_digits0.h"
 #include "../utils/sieve_first_n_primes.h"
-#include "../utils/digit_count.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -29,7 +35,7 @@ seq_t a(idx_t n)
 
     seq_t sum = (seq_t)0;
     for (size_t i = 0; i < count; ++i) {
-        sum += (seq_t)digit_count((uint64_t)primes[i]);
+        sum += (seq_t)num_digits0((uint64_t)primes[i]);
     }
 
     free(primes);

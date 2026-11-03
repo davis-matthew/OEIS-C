@@ -12,13 +12,22 @@
  *            is the elements of this triangle written row by row
  * Range:     u8 n <= 23, u16 n <= 47, u32 n <= 118, u64 n <= 318,
  *            u128 n <= 838, big any n
- * Helpers:   needed_row
+ * Validated: standard, pass, 77 terms through n = 1959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/needed_row.h"
+#include "../utils/mem.h"
+
+/* smallest r with r(r+1) >= n */
+static idx_t needed_row(idx_t n)
+{
+    idx_t r = 0;
+    while (r * (r + 1) < n) ++r;
+    return r;
+}
 
 static seq_t *prev_row = NULL;   /* current row (1‑based row number r_cur)   */
 static idx_t  r_cur     = 0;     /* current row number, 0 means uninitialised */
@@ -30,7 +39,7 @@ static void grow_to(idx_t target)
     /* initialise first row if needed */
     if (r_cur == 0) {
         prev_len = 2;
-        prev_row = (seq_t*)malloc(prev_len * sizeof(seq_t));
+        prev_row = mem_new(seq_t, prev_len);
         prev_row[0] = (seq_t)1;
         prev_row[1] = (seq_t)1;
         r_cur = 1;
@@ -39,7 +48,7 @@ static void grow_to(idx_t target)
     while (r_cur < target) {
         int next_r   = (int)(r_cur) + 1;       /* new row number (fits in int) */
         idx_t new_len = prev_len + 2;          /* 2 * next_r */
-        seq_t *new_row = (seq_t*)malloc(new_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_len);
 
         for (idx_t j = 0; j < new_len; ++j) {
             int k = -next_r + (int)j;          /* column index for the new row */
@@ -63,7 +72,7 @@ static void grow_to(idx_t target)
             new_row[j] = val;
         }
 
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = new_row;
         r_cur    = next_r;
         prev_len = new_len;

@@ -10,7 +10,8 @@
  *            reached
  * Range:     u8 n <= 6, u16 n <= 26, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_power_of_two
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   is_pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
    whether a term is a power of two. */
 
 #include <stdbool.h>
-#include "../utils/is_power_of_two.h"
+#include "../utils/is_pow2.h"
 
 seq_t a(idx_t n) {
     /* Convert the index to the sequence type. */
@@ -30,7 +31,7 @@ seq_t a(idx_t n) {
     if (cur == 0) return 0;
 
     /* Generate the 3x+1 sequence until a power of 2 is reached. */
-    while (!is_power_of_two(cur)) {
+    while (!is_pow2(cur)) {
         /* Accumulate the current term, which is not a power of 2. */
         sum += cur;
 

@@ -10,7 +10,8 @@
  *            (n^3*(2*n-1)) for n >= 1
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 15,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 29 terms through n = 195 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "../utils/gcd.h"          /* provides gcd(seq_t, seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +32,7 @@ seq_t a(idx_t n)
 
     /* initialize cache for a(0) */
     if (!cache) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return 0;          /* out of memory: give 0 as a safe fallback */
         cache[0] = (seq_t)1;           /* a(0) = 1 */
         cache_size = 1;
@@ -43,10 +46,10 @@ seq_t a(idx_t n)
     size_t old_size = cache_size;
     if (n + 1 > cache_size) {
         size_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return 0;          /* out of memory */
-        memcpy(new_cache, cache, old_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, old_size * sizeof(seq_t));
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }

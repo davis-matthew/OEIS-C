@@ -14,7 +14,8 @@
  *            divisors; * ties are broken by the lowe...
  * Range:     u8 n <= 34, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   spiral_from_coord
+ * Validated: full, pass, 62 terms through n = 62 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,31 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <limits.h>
-#include "../utils/spiral_from_coord.h"
+
+/* ------------------------------------------------------------------ */
+static uint64_t spiral_from_coord(int64_t x, int64_t y)
+{
+    if (x == 0 && y == 0) return 1;
+
+    int64_t ax = x < 0 ? -x : x;
+    int64_t ay = y < 0 ? -y : y;
+    int64_t r  = ax > ay ? ax : ay;                       /* ring index */
+
+    uint64_t start  = (2ULL * r - 1ULL) * (2ULL * r - 1ULL) + 1ULL;
+    uint64_t offset = 0ULL;
+
+    if (x == r && y >= -(r - 1) && y <= r) {              /* right side */
+        offset = (uint64_t)(y + (r - 1));
+    } else if (y == r && x <= r - 1 && x >= -r) {          /* top side   */
+        offset = 2ULL * r + (uint64_t)(r - 1 - x);
+    } else if (x == -r && y <= r - 1 && y >= -r) {         /* left side  */
+        offset = 4ULL * r + (uint64_t)(r - 1 - y);
+    } else {                                               /* bottom side */
+        /* y == -r && x >= -r + 1 && x <= r   */
+        offset = 6ULL * r + (uint64_t)(x + r - 1);
+    }
+    return start + offset;
+}
 
 /* ------------------------------------------------------------------ */
 /* helper: convert (x,y) in the square‑spiral to the linear number     */

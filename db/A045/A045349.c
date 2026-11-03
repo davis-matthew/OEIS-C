@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrimeTrial
+ * Validated: standard, pass, 62 terms through n = 860 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* array of primes in the sequence */
 static size_t  cap   = 0;       /* current allocation size */
@@ -27,7 +29,7 @@ static size_t  sz    = 0;       /* number of primes stored */
 static void grow_cache(void)
 {
     const size_t new_cap = (cap == 0) ? 16 : cap << 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();           /* allocation failed */
     cache = tmp;
     cap   = new_cap;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         seq_t cand = (seq_t)(sz == 0 ? 2 : cache[sz-1] + 1);
 
         for (;;) {
-            if (isPrimeTrial(cand)) {
+            if (is_prime_seq(cand)) {
                 seq_t r = cand % (seq_t)5;
                 if (r == (seq_t)0 || r == (seq_t)1 || r == (seq_t)2) {
                     if (sz == cap) grow_cache();

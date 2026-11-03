@@ -8,8 +8,9 @@
  * Formula:   a(n) = number of partitions of n into exactly six positive
  *            Fibonacci numbers. Computed by dynamic programming over the
  *            Fibonacci values
- * Range:     u8 n <= 603, u16 n <= 9930, u32 n <= 9930, u64 n <= 9930,
- *            u128 n <= 9930, big any n
+ * Range:     u8 n <= 603, u16 n <= 17711, u32 n <= 17711, u64 n <= 17711,
+ *            u128 n <= 17711, big any n
+ * Validated: standard, pass, 86 terms through n = 9930 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 83, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9506 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stddef.h>   /* size_t, NULL */
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t *fib = NULL;          /* Fibonacci numbers (fib[0] = 1, fib[1] = 2) */
 static idx_t  fib_len = 0;         /* number of Fibonacci numbers stored */
@@ -36,7 +38,7 @@ ensure_fibs(seq_t limit)
 {
     if (fib == NULL) {
         fib_cap = 8;
-        fib = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+        fib = mem_new(seq_t, fib_cap);
         if (!fib) abort();
         fib[0] = 1;          /* F2 */
         fib[1] = 2;          /* F3 */
@@ -48,7 +50,7 @@ ensure_fibs(seq_t limit)
         /* In 64‑bit builds the sequence never overflows for n ≤ 10000. */
         if (fib_len == fib_cap) {
             fib_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(fib, fib_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fib, fib_cap);
             if (!tmp) abort();
             fib = tmp;
         }
@@ -62,14 +64,14 @@ ensure_seq_cap(idx_t min_len)
 {
     if (seq == NULL) {
         seq_cap = 8;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) abort();
         seq_len = 0;
     }
     if (seq_len >= min_len) return;
 
     while (seq_cap < (size_t)min_len) seq_cap = seq_cap == 0 ? 8 : seq_cap * 2;
-    seq_t *tmp = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, seq_cap);
     if (!tmp) abort();
     seq = tmp;
 }

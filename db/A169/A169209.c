@@ -12,7 +12,8 @@
  *            … (28 letters) with i < j.) The sequence starts with...
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ----------  Automaton structure  ---------- */
 #define MAX_STATES 500          /* enough for 12·28+1 = 337 */
@@ -110,10 +112,10 @@ static void build_automaton(void)
 
     /* allocate DP buffers */
     dp_size = state_cnt * ALPHA;
-    dp_prev = (seq_t *)malloc(dp_size * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(dp_size * sizeof(seq_t));
-    memset(dp_prev, 0, dp_size * sizeof(seq_t));
-    memset(dp_next, 0, dp_size * sizeof(seq_t));
+    dp_prev = mem_new(seq_t, dp_size);
+    dp_next = mem_new(seq_t, dp_size);
+    mem_set(dp_prev, 0, dp_size * sizeof(seq_t));
+    mem_set(dp_next, 0, dp_size * sizeof(seq_t));
 }
 
 /* ----------  Main sequence function  ---------- */
@@ -129,7 +131,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)1;
 
     /* initial placement of the first letter */
-    memset(dp_next, 0, dp_size * sizeof(seq_t));
+    mem_set(dp_next, 0, dp_size * sizeof(seq_t));
     for (prev = 0; prev < ALPHA; ++prev) {
         int st = nodes[0].next[prev];
         if (nodes[st].out) continue;               /* should not happen */
@@ -143,7 +145,7 @@ seq_t a(idx_t n)
         seq_t *tmp = dp_prev;
         dp_prev = dp_next;
         dp_next = tmp;
-        memset(dp_next, 0, dp_size * sizeof(seq_t));
+        mem_set(dp_next, 0, dp_size * sizeof(seq_t));
 
         /* iterate over all previous states */
         for (prev = 0; prev < ALPHA; ++prev) {

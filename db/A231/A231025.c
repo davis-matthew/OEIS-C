@@ -11,13 +11,15 @@
  *            values a(1)=0, a(2)=2, a(3)=12, a(4)=62, a(5)=344
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 27, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Memoised recurrence for A231025                                       */
@@ -34,12 +36,12 @@ static void ensure_cache(idx_t n)
 
     /* Allocate a little bit more space to reduce reallocations. */
     size_t new_cap = (size_t)n + 2;
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp) return;                       /* allocation failed – let caller fail */
 
     if (cache) {
-        memcpy(tmp, cache, sizeof(seq_t) * (max_computed + 1));
-        free(cache);
+        mem_copy(tmp, cache, sizeof(seq_t) * (max_computed + 1));
+        mem_free(cache);
     }
     cache = tmp;
     cache_cap = new_cap;

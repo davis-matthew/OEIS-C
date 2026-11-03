@@ -14,13 +14,15 @@
  *            otherwise (2 ≤ c < r) ⇒ T(r,c) = (10·2^(2r–c–4) –...
  * Range:     u8 n <= 15, u16 n <= 45, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -34,18 +36,18 @@ seq_t a(idx_t n)
     if (r == 1) return 0;                    /* first row */
 
     if (c == r)                /* diagonal */
-        return seq_pow((seq_t)2, r - 2);
+        return ipow_idx((seq_t)2, r - 2);
 
     if (c == 1) {                /* first column */
-        seq_t pow4_val = seq_pow((seq_t)4, r - 2);
+        seq_t pow4_val = ipow_idx((seq_t)4, r - 2);
         return (pow4_val - 1) / 3;
     }
 
     /* general case 2 <= c < r */
     idx_t e = 2 * r - c - 4;            /* exponent for 2^e   */
-    seq_t pow2_e = seq_pow((seq_t)2, e);
+    seq_t pow2_e = ipow_idx((seq_t)2, e);
     seq_t term1  = pow2_e * (seq_t)10;          /* 10 * 2^e         */
-    seq_t pow2_c2 = seq_pow((seq_t)2, c - 2);   /* 2^(c-2)          */
+    seq_t pow2_c2 = ipow_idx((seq_t)2, c - 2);   /* 2^(c-2)          */
     seq_t numer = term1 - pow2_c2;             /* numerator of division by 3 */
     return numer / 3;
 }

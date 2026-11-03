@@ -8,13 +8,15 @@
  * Formula:   a(n) = 3*a(n-1) - 5*a(n-2) + 2*a(n-3), a(1)=3, a(2)=3, a(3)=-3
  * Range:     i8 n <= 7, i16 n <= 15, i32 n <= 32, i64 n <= 67, i128 n <= 136,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Ensure array can hold index n (0 is unused) */
     if ((size_t)(n + 1) > capacity) {
         size_t newcap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(data, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, data, newcap);
         if (!tmp) {
             /* allocation failed – abort (problem context will handle it) */
             return 0;

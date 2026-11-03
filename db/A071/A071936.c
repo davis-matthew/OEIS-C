@@ -7,6 +7,7 @@
  * Formula:   a(n) = -1 if n mod 8 == 2; otherwise a(n) = +1
  * Range:     i8 n <= 120, i16 n <= 120, i32 n <= 120, i64 n <= 120,
  *            i128 n <= 120, big any n
+ * Validated: partial, pass, 120 terms through n = 120 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

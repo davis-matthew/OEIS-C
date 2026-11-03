@@ -12,6 +12,7 @@
  *            element of the concatenation of these row...
  * Range:     i8 n <= 1375, i16 n <= 1375, i32 n <= 1375, i64 n <= 1375,
  *            i128 n <= 1375, big any n
+ * Validated: standard, pass, 92 terms through n = 1258 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

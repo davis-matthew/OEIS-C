@@ -10,12 +10,14 @@
  *            a(3)=4694, a(4)=36506, * a(5)=190224, a(6)=1152620
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;   /* number of terms stored (≥0) */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (cache_size < 6) {
         /* Allocate space for indices 0..6 (index 0 unused). */
         size_t sz = (size_t)(7) * sizeof(seq_t);
-        seq_t *p = (seq_t *)realloc(cache, sz);
+        seq_t *p = mem_resize(seq_t, cache, (sz) / sizeof(seq_t));
         if (!p) return 0;     /* allocation failed */
         cache = p;
         cache_size = 6;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
 
     /* Enlarge cache to hold up to n (indexing 1..n). */
     size_t new_sz = (size_t)(n + 1) * sizeof(seq_t);
-    seq_t *p = (seq_t *)realloc(cache, new_sz);
+    seq_t *p = mem_resize(seq_t, cache, (new_sz) / sizeof(seq_t));
     if (!p) return 0;     /* allocation failed */
     cache = p;
 

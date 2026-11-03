@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∏_{p≤n} p^{ ∑_{k≥1} ⌊n/p^k⌋² }
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   build_primes_upto, pow_int, seq_mul
+ * Validated: standard, pass, 32 terms through n = 63 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,15 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_mul.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Cached list of primes up to the largest n encountered so far. */
 static uint64_t *cached_primes = NULL;
@@ -62,7 +69,7 @@ seq_t a(idx_t n)
             div /= p;
         }
         if (exponent > 0) {
-            seq_t term  = pow_int((seq_t)p, exponent);
+            seq_t term  = ipow_idx((seq_t)p, exponent);
             result = seq_mul(result, term);
         }
     }

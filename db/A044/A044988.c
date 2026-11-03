@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3790, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   generate_rec
+ * Validated: standard, pass, 55 terms through n = 8686 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,39 @@
    length, guaranteeing the overall order.  */
 
 #include <stdlib.h>
-#include "../utils/generate_rec.h"
+#include "../utils/mem.h"
+
+/* Recursive helper:
+   rem       – number of positions still to fill
+   val       – value formed so far (including leading digit)
+   zeros_l   – zeros needed in the remaining positions
+   ones_l    – ones needed in the remaining positions   */
+static void generate_rec(idx_t rem, seq_t val, int zeros_l, int ones_l,
+                         seq_t **arr, size_t *len, size_t *cap)
+{
+    if (rem == 0) {
+        if (zeros_l == 0 && ones_l == 0) {
+            /* Append the number to the sequence array. */
+            if (*len >= *cap) {
+                *cap = (*cap == 0) ? 1024 : *cap << 1;
+                *arr = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
+            }
+            (*arr)[(*len)++] = val;
+        }
+        return;
+    }
+
+    /* Digit 0 – consumes a zero if still needed. */
+    if (zeros_l > 0)
+        generate_rec(rem - 1, val * 3 + 0, zeros_l - 1, ones_l, arr, len, cap);
+
+    /* Digit 1 – consumes an one if still needed. */
+    if (ones_l > 0)
+        generate_rec(rem - 1, val * 3 + 1, zeros_l, ones_l - 1, arr, len, cap);
+
+    /* Digit 2 – never changes counts. */
+    generate_rec(rem - 1, val * 3 + 2, zeros_l, ones_l, arr, len, cap);
+}
 
 /* Generate all numbers of given length `len` whose base‑3 representation
    starts with `lead` (1 or 2) and contains exactly four 0's and three 1's. */

@@ -8,8 +8,9 @@
  * Formula:   a(n) = Π_{p^e‖n} f(e) where f(2)=1, f(3)=−2, f(1)=0, f(e>3)=0.
  *            Therefore a(n)=0 unless every prime exponent is 2 or 3; in that
  *            case a(n)=(-2)^{#primes with exponent 3}
- * Range:     i8 n <= 9922, i16 n <= 9922, i32 n <= 9922, i64 n <= 9922,
- *            i128 n <= 9922, big any n
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 124 terms through n = 9922 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

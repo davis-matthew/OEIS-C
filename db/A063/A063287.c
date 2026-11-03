@@ -11,13 +11,15 @@
  *            a(13) = 22
  * Range:     i8 n <= 63, i16 n <= 63, i32 n <= 63, i64 n <= 63, i128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Base values for n = 2 … 13.  base_vals[i] == a(i+2). */
 static const seq_t base_vals[12] = {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Ensure the cache covers index n. */
     if (n >= cache_sz) {
         idx_t new_sz = n + 1;                     /* include index n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_sz);
         if (tmp == NULL)                          /* allocation failed */
             return 0;
         cache = tmp;

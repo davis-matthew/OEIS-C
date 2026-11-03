@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   popcount_is_odious
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,12 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/popcount_is_odious.h"
+
+/* ---------- Utility: popcount for idx_t ---------------------------------- */
+static inline bool popcount_is_odious(idx_t x)
+{
+    return (__builtin_popcountll(x) & 1);
+}
 
 /* ---------- Prime sieve with dynamic growth -------------------------------- */
 #define MAX_PRIME_ARRAY 200000   /* ample for limits up to ~1e6 */

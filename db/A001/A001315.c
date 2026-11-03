@@ -7,13 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} 2^binomial(n,k)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 9,
  *            big any n
- * Helpers:   a001315_pow2
+ * Validated: standard, pass, 14 terms through n = 13 (2026-11-01)
+ * Helpers:   pow2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001315_pow2.h"
+#include "../utils/pow2_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +24,7 @@ seq_t a(idx_t n)
     idx_t half = n / 2;
     idx_t k;
     for (k = 0; k <= half; k++) {
-        seq_t p = sat ? (seq_t)0 : a001315_pow2(b);
+        seq_t p = sat ? (seq_t)0 : pow2_u64(b);
         if (2 * k == n)
             sum += p;
         else

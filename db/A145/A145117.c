@@ -11,7 +11,8 @@
  *            (OEIS offset 0): * a(0)=1, a(1)=2, a(2)=4, … , a(10)=1024
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 50 terms through n = 938 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow2.h"   /* pow2(idx_t exp) returns 2^exp as seq_t */
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* computed a(n) values */
 static size_t   cache_len = 0;   /* number of entries in cache */
@@ -33,7 +35,7 @@ static void ensure_cache(idx_t n)
     size_t new_cap = cache_len ? cache_len : 1;
     while (new_cap <= (size_t)n) new_cap <<= 1;
 
-    cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     if (!cache) { /* memory allocation failed */
         /* In production we might abort or handle error; here we simply set 0. */
         return;

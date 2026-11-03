@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 78, u32 n <= 231, u64 n <= 741,
  *            u128 n <= 2485, big any n
- * Helpers:   build_row
+ * Validated: standard, pass, 82 terms through n = 9722 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,22 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/build_row.h"
+#include "../utils/mem.h"
+
+/* build row 'r' (r ≥ 1) from previously constructed row r-1 */
+static void build_row(seq_t **rows, idx_t r) {
+    idx_t len = r + 1;
+    seq_t *prev = rows[r - 1];
+    seq_t *cur  = mem_new(seq_t, len);
+    if (!cur) exit(1);                 /* out of memory */
+
+    cur[r] = (seq_t)1;                  /* T(r,r) = 1 */
+    for (idx_t k = r - 1; k >= 1; --k) {
+        cur[k] = prev[k - 1] + cur[k + 1];   /* recurrence */
+    }
+    cur[0] = (seq_t)1;                  /* T(r,0) = 1 */
+    rows[r] = cur;
+}
 
 static idx_t find_row(idx_t n) {
     idx_t r = 0;
@@ -48,7 +64,7 @@ seq_t a(idx_t n) {
     if (!rows) {
         rows = (seq_t**)malloc(sizeof(seq_t*));
         if (!rows) exit(1);
-        rows[0] = (seq_t*)malloc(sizeof(seq_t));
+        rows[0] = mem_new(seq_t, 1);
         if (!rows[0]) exit(1);
         rows[0][0] = (seq_t)1;          /* T(0,0) */
         max_computed = 0u;

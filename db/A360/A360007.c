@@ -9,7 +9,8 @@
  *            prime} ∪ {2p : p is a prime of even index}
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* compare two seq_t values for qsort */
 static int cmp_seq(const void *a, const void *b)
@@ -82,7 +84,7 @@ static void generate_values(size_t prime_limit, seq_t **vals_out, size_t *len_ou
 
     /* worst‑case capacity: 1 + primes_cnt (primes) + primes_cnt/2 (even‑index 2p) */
     size_t temp_cap = primes_cnt * 3 + 1;
-    seq_t *temp = (seq_t *)malloc(temp_cap * sizeof(seq_t));
+    seq_t *temp = mem_new(seq_t, temp_cap);
     if (!temp) {
         free(primes);
         *vals_out = NULL;
@@ -103,7 +105,7 @@ static void generate_values(size_t prime_limit, seq_t **vals_out, size_t *len_ou
     }
 
     /* sort the values */
-    qsort(temp, len, sizeof(seq_t), cmp_seq);
+    mem_qsort(temp, len, sizeof(seq_t), cmp_seq);
 
     /* All values are distinct; no deduplication needed. */
     *vals_out = temp;
@@ -128,7 +130,7 @@ seq_t a(idx_t n)
 
         /* regenerate cache */
         if (cache_vals) {
-            free(cache_vals);
+            mem_free(cache_vals);
             cache_vals = NULL;
         }
 

@@ -11,13 +11,15 @@
  *            T(i,k)=T(i-1,k-1)+T(i-1,k) for 2 ≤ k ≤ i-2 and i ≥ 4
  * Range:     u8 n <= 58, u16 n <= 178, u32 n <= 644, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 1299 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t **triangle_rows = NULL;   /* row i array */
 static idx_t  max_computed_row = 0;    /* largest row fully computed */
@@ -27,7 +29,7 @@ static bool   initialized = false;    /* row 0 computed flag */
 static void compute_row(idx_t r)
 {
     size_t row_len = (size_t)(r + 1);
-    seq_t *row = (seq_t *)malloc(row_len * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, row_len);
     if (!row) abort();
 
     row[0] = (seq_t)1;

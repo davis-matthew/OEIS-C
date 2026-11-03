@@ -7,12 +7,14 @@
  * Formula:   a(0) = 2; for n >= 0, a(n+1) = a(n)*(a(n)+1)/2
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;
@@ -22,12 +24,12 @@ static int initialized = 0;
 seq_t a(idx_t n) {
     if (memo_len <= n) {
         idx_t new_len = n + 1;
-        seq_t *new_memo = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, new_len);
         if (memo != NULL) {
             for (idx_t i = 0; i < memo_len; i++) {
                 new_memo[i] = memo[i];
             }
-            free(memo);
+            mem_free(memo);
         }
         memo = new_memo;
         memo_len = new_len;

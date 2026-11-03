@@ -7,14 +7,18 @@
  * Keywords:  nonn
  * Formula:   a(n) = gcd(σ(n), ∏(p+1)^e) where σ(n) is the sum of divisors and
  *            the product runs over the prime factorisation n = ∏ p^e
- * Range:     u8 n <= 71, u16 n <= 9452, u32 n <= 9452, u64 n <= 9452,
- *            u128 n <= 9452, big any n
+ * Range:     u8 n <= 71, u16 n <= 19999, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 100 terms through n = 9452 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/gcd.h"
 

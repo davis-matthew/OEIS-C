@@ -7,13 +7,15 @@
  * Formula:   a(n) = 3*a(n-1)+5*a(n-2), a(0)=1, a(1)=1
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 31, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, NULL */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 /* The build supplies seq_t and idx_t.
    This function is not static so it has external linkage. */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         while (new_cap <= n)
             new_cap <<= 1;     /* multiply by 2 */
 
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* on allocation failure return 0 (should not happen in tests) */
             return 0;

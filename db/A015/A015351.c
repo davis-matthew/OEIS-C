@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define PER 1342   /* period length */
 
@@ -38,11 +40,11 @@ static seq_t *poly_div(const seq_t *num, size_t ndeg,
                        size_t *qdeg_out)
 {
     /* copy numerator into a writable buffer */
-    seq_t *rem = (seq_t *)malloc((ndeg + 1) * sizeof(seq_t));
-    memcpy(rem, num, (ndeg + 1) * sizeof(seq_t));
+    seq_t *rem = mem_new(seq_t, (ndeg + 1));
+    mem_copy(rem, num, (ndeg + 1) * sizeof(seq_t));
 
     size_t qdeg = ndeg - ddeg;
-    seq_t *q = (seq_t *)calloc(qdeg + 1, sizeof(seq_t));
+    seq_t *q = mem_new(seq_t, qdeg + 1);
 
     /* long division, descending degree */
     for (long long i = (long long)ndeg; i >= (long long)ddeg; --i) {
@@ -54,7 +56,7 @@ static seq_t *poly_div(const seq_t *num, size_t ndeg,
         for (size_t j = 0; j <= ddeg; ++j)
             rem[k + j] -= coef * den[j];
     }
-    free(rem);
+    mem_free(rem);
     *qdeg_out = qdeg;
     return q;
 }
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
         for (size_t id = 0; id < 7; ++id) {
             idx_t d = divs[id];
             size_t ddeg = (size_t)d;
-            seq_t *num = (seq_t *)calloc(ddeg + 1, sizeof(seq_t));
+            seq_t *num = mem_new(seq_t, ddeg + 1);
             num[0] = -1;         /* x^d - 1 */
             num[ddeg] = 1;
             size_t nd = ddeg;
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
                 if (d % divs[ie] != 0) continue;  /* not a divisor */
                 size_t qdeg;
                 seq_t *q = poly_div(num, nd, phi[ie], phi_deg[ie], &qdeg);
-                free(num);
+                mem_free(num);
                 num = q;
                 nd = qdeg;
             }
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
         /* Now compute Φ_{1342}: divide by all proper divisors */
         idx_t d = divs[7];
         size_t ddeg = (size_t)d;
-        seq_t *num = (seq_t *)calloc(ddeg + 1, sizeof(seq_t));
+        seq_t *num = mem_new(seq_t, ddeg + 1);
         num[0] = -1;
         num[ddeg] = 1;
         size_t nd = ddeg;
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
         for (size_t ie = 0; ie < 7; ++ie) {
             size_t qdeg;
             seq_t *q = poly_div(num, nd, phi[ie], phi_deg[ie], &qdeg);
-            free(num);
+            mem_free(num);
             num = q;
             nd = qdeg;
         }

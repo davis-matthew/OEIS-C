@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of distinct unordered factorizations of n into
  *            Fibonacci numbers > 1
- * Range:     u8 n <= 9975, u16 n <= 9975, u32 n <= 9975, u64 n <= 9975,
- *            u128 n <= 9975, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 126 terms through n = 9975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static uint64_t *fib_vals = NULL;
 static size_t fib_count = 0;
@@ -50,7 +52,7 @@ static void ensure_prepared(idx_t n) {
     size_t new_rows    = (size_t)n + 1;
     size_t new_total   = new_rows * new_fib_cnt;
 
-    seq_t *new_memo = (seq_t*)calloc(new_total, sizeof(seq_t));
+    seq_t *new_memo = mem_new(seq_t, new_total);
     bool  *new_vis  = (bool*)calloc(new_total, sizeof(bool));
 
     if (memo) {
@@ -59,12 +61,11 @@ static void ensure_prepared(idx_t n) {
         for (size_t r = 0; r < rows_to_copy; ++r) {
             size_t old_offset = r * current_fib_cnt;
             size_t new_offset = r * new_fib_cnt;
-            memcpy(new_memo + new_offset, memo + old_offset,
-                   current_fib_cnt * sizeof(seq_t));
+            mem_copy(new_memo + new_offset, memo + old_offset, current_fib_cnt * sizeof(seq_t));
             memcpy(new_vis  + new_offset, vis  + old_offset,
                    current_fib_cnt * sizeof(bool));
         }
-        free(memo);
+        mem_free(memo);
         free(vis);
     }
 

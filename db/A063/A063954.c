@@ -11,14 +11,41 @@
  *            < a(n), a(n) – k² is NOT of the form 4^α(8β + 7)
  * Range:     u8 n <= 29, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   is_sum_of_three_squares, ok_value
+ * Validated: full, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/is_sum_of_three_squares.h"
-#include "../utils/ok_value.h"
+#include "../utils/mem.h"
+
+/* Helper: true iff m can be expressed as a sum of three squares.  */
+static int is_sum_of_three_squares(seq_t m)
+{
+    seq_t x = m;
+    while (x % 4 == 0) x /= 4;
+    return (x % 8 != 7);
+}
+
+/* Helper: true iff odd number v satisfies the defining property. */
+static int ok_value(seq_t v)
+{
+    /* k = 0 ------------------------------------------------- */
+    if (!is_sum_of_three_squares(v)) return 0;
+
+    /* k >= 1 ------------------------------------------------ */
+    for (seq_t k = 1; ; ++k) {
+        /* Stop when k² would exceed v−1.  Avoid overflow by comparing
+           (v−1)/k < k, which is equivalent to k² > v−1.            */
+        if (k > 0 && (v - 1) / k < k) break;
+
+        seq_t sq = k * k;
+        seq_t r  = v - sq;
+        if (!is_sum_of_three_squares(r)) return 0;
+    }
+    return 1;
+}
 
 /* Cache of already computed sequence terms. */
 static seq_t  *cache = NULL;
@@ -31,7 +58,7 @@ static void ensure_cap(idx_t need)
     if (need <= cap) return;
     idx_t new_cap = cap ? cap * 2 : 16;
     while (new_cap < need) new_cap *= 2;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cap   = new_cap;
 }
 

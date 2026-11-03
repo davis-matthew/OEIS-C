@@ -11,13 +11,16 @@
  *            array by antidiagonals downwards
  * Range:     u8 n <= 30, u16 n <= 59, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Return a(n) for n >= 1.  n is an idx_t (unsigned 64‑bit);  the
    value is a seq_t (unsigned, possibly arbitrary‑precision). */
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
     for (idx_t j = 1; j <= row; ++j) {
         idx_t denom = 2 * j - 1;
         idx_t f = row / denom;                 /* floor(row / (2*j-1)) */
-        seq_t val = big_pow((seq_t)f, (seq_t)col);  /* f^col as seq_t */
+        seq_t val = ipow((seq_t)f, (seq_t)col);  /* f^col as seq_t */
 
         if (j & 1U)  /* odd -> sign + */
             pos_sum += val;

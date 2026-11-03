@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 485 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
      a(8)=3607411331054, a(9)=133474219248998,
      a(10)=4938546112212223 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (buf == NULL) {
         buffer_cap = 64;
         if (buffer_cap < 32) buffer_cap = 32;
-        buf = (seq_t *)malloc(buffer_cap * sizeof(seq_t));
+        buf = mem_new(seq_t, buffer_cap);
         if (!buf) exit(1);
         buf[0] = (seq_t)1ULL;
         buf[1] = (seq_t)38ULL;
@@ -61,10 +63,10 @@ seq_t a(idx_t n)
                 break;
             }
         }
-        seq_t *new_buf = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_buf = mem_new(seq_t, new_cap);
         if (!new_buf) exit(1);
         for (idx_t i = 0; i < next_compute; ++i) new_buf[i] = buf[i];
-        free(buf);
+        mem_free(buf);
         buf = new_buf;
         buffer_cap = new_cap;
     }

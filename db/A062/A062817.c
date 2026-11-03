@@ -11,6 +11,7 @@
  *            external helper functions are required
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 31,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 415 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,19 +9,21 @@
  *            positive divisors of k
  * Range:     u8 n <= 143, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 8622 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n < 1) return 0;
 
     /* Allocate array for σ(1..n).  Use calloc so all entries start at 0. */
-    seq_t *sigma = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *sigma = mem_new(seq_t, (size_t)(n + 1));
     if (!sigma) return 0;  /* Allocation failed – return 0 as a safe fallback. */
 
     /* Compute σ(k) by adding each divisor d to all its multiples. */
@@ -39,6 +41,6 @@ seq_t a(idx_t n)
         if (val > best) best = val;
     }
 
-    free(sigma);
+    mem_free(sigma);
     return best;
 }

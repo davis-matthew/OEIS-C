@@ -8,12 +8,22 @@
  *            Product_{k=0..n-1} (6*k - 1))
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 7, i64 n <= 13, i128 n <= 26,
  *            big any n
- * Helpers:   a004996_gcd
+ * Validated: standard, pass, 31 terms through n = 490 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a004996_gcd.h"
+static seq_t a004996_gcd(seq_t x, seq_t y) {
+    if (x < 0) x = -x;
+    if (y < 0) y = -y;
+    while (y != 0) {
+        seq_t t = x % y;
+        x = y;
+        y = t;
+    }
+    return x;
+}
 
 seq_t a(idx_t n) {
     seq_t result = 1;

@@ -9,7 +9,8 @@
  *            integer
  * Range:     u8 none, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   cmp_seq, simple_sieve
+ * Validated: standard, pass, 77 terms through n = 957 (2026-11-03)
+ * Helpers:   mem, simple_sieve
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,18 @@
 #include <assert.h>
 #include <stdbool.h>
 
-#include "../utils/simple_sieve.h"   /* simple_sieve(limit,&primes,&cnt) */
-#include "../utils/cmp_seq.h"        /* cmp_seq(const void*,const void*) */
+#include "../utils/simple_sieve.h"
+#include "../utils/mem.h"
+
+/* Comparator for qsort on seq_t values. */
+static int cmp_seq(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 static seq_t *semiprimes = NULL;               /* sorted semiprime values   */
 static size_t semiprime_count = 0;             /* number of stored semiprimes */
@@ -78,7 +89,7 @@ static void regenerate_semiprimes(idx_t limit) {
     }
 
     /* Allocate buffer and generate semiprimes */
-    seq_t *buf = (seq_t *)malloc(estimated * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, estimated);
     assert(buf);
     size_t idx = 0;
     for (size_t i = 0; i < primes_cnt; ++i) {
@@ -90,10 +101,10 @@ static void regenerate_semiprimes(idx_t limit) {
     }
 
     /* Sort to maintain sp(n) order */
-    qsort(buf, idx, sizeof(seq_t), cmp_seq);
+    mem_qsort(buf, idx, sizeof(seq_t), cmp_seq);
 
     /* Replace old list */
-    free(semiprimes);
+    mem_free(semiprimes);
     semiprimes = buf;
     semiprime_count = idx;
     current_limit = limit;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 48, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <stdint.h>   /* int64_t */
+#include "../utils/mem.h"
 
 #define INIT 20
 
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (!cache) {
         cache_cap = INIT;
-        cache = (seq_t *)malloc((size_t)cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_cap);
         if (!cache) return 0; /* allocation failed – return 0 as sentinel */
 
         for (idx_t i = 0; i < INIT; ++i)
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
     /* Grow cache to accommodate terms up to n */
     if (n > cache_cap) {
         idx_t new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!tmp) return 0; /* allocation failed – return 0 as sentinel */
         cache = tmp;
         cache_cap = new_cap;

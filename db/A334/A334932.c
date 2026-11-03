@@ -11,12 +11,14 @@
  *            a(1)=2535, a(2)=3705, a(3)=162279, a(4)=237177
  * Range:     u8 none, u16 n <= 2, u32 n <= 8, u64 n <= 18, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 1083 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 /* Static cache for already computed terms. */
@@ -36,9 +38,9 @@ static void ensure_capacity(idx_t n)
         new_cap = 8;
 
     if (cache == NULL) {
-        cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, new_cap);
     } else {
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL)
             return;          /* allocation failed – caller will get 0 */
         cache = tmp;

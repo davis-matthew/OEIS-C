@@ -5,8 +5,9 @@
  * Offset:    5    (a(5) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = floor(10*(prime(n+1)-prime(n))/log(prime(n))^2), n >= 5
- * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
- *            big any n
+ * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 103 terms through n = 9921 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

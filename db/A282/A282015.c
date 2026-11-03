@@ -10,14 +10,24 @@
  *            the series expansion using the divisor–sum σ₃(m)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 11, u128 n <= 122,
  *            big any n
- * Helpers:   alloc_seq_size
+ * Validated: standard, pass, 31 terms through n = 863 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_size.h"
+
+/* Auxiliary allocation helpers: work for both C (integer seq_t) and C++ (class seq_t). */
+static inline seq_t *alloc_seq_size(size_t sz)
+{
+#ifdef __cplusplus
+    return new seq_t[sz]();          /* value–initialize each element to 0 */
+#else
+    return (seq_t*)calloc(sz, sizeof(seq_t));
+#endif
+}
 
 static inline void free_seq_arr(seq_t *arr)
 {

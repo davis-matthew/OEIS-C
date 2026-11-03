@@ -8,12 +8,14 @@
  *            k‑th smallest number that is a power of 2 or a power of 3
  * Range:     u8 n <= 12, u16 n <= 25, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *a_arr = NULL;      /* array of a(n) values, 1‑based */
 static size_t arr_cap = 0;       /* allocated capacity of a_arr */
@@ -28,7 +30,7 @@ static void ensure_capacity(size_t needed)
     if (needed+1 <= arr_cap) return;            /* we always keep a[0] unused */
     size_t new_cap = (arr_cap == 0) ? 128 : arr_cap * 2;
     while (new_cap <= needed) new_cap *= 2;
-    a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+    a_arr = mem_resize(seq_t, a_arr, new_cap);
     arr_cap = new_cap;
 }
 
@@ -37,7 +39,7 @@ static void init_state(void)
 {
     if (a_arr != NULL) return;                   /* already initialised */
 
-    a_arr  = (seq_t *)malloc(128 * sizeof(seq_t));
+    a_arr  = mem_new(seq_t, 128);
     arr_cap = 128;
     a_arr[1] = (seq_t)1;                         /* a(1) = 1               */
     arr_len  = 1;                                /* we have computed a(1)  */

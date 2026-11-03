@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Divisors of 1680 sorted in increasing order (a(1)=1, a(40)=1680) */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compare two seq_t values for qsort (works in C and C++) */
 static int seq_t_cmp(const void *p, const void *q)
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
             }
         }
         /* Sort the 40 divisor values. */
-        qsort(divisors, 40, sizeof(seq_t), seq_t_cmp);
+        mem_qsort(divisors, 40, sizeof(seq_t), seq_t_cmp);
         init = true;
     }
 

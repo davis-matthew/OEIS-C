@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 44, u64 n <= 44, u128 n <= 44,
+ * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binom_val
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 */
 
 #include <stdlib.h>
-#include "../utils/binom_val.h"   /* provides seq_t binom_val(idx_t N, idx_t K) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;     /* pointers to the rows of the triangle   */
 static idx_t   tra_rows = 0;        /* number of rows currently stored       */
@@ -43,7 +45,7 @@ static void ensure_row(idx_t r)
     /* compute each new row */
     for (idx_t i = tra_rows; i <= r; ++i) {
         /* allocate the row (i+1) elements, initialised to 0 */
-        triangle[i] = (seq_t *)calloc(i + 1, sizeof(seq_t));
+        triangle[i] = mem_new(seq_t, i + 1);
 
         /* first and last entries are 1 */
         triangle[i][0] = 1;
@@ -56,9 +58,9 @@ static void ensure_row(idx_t r)
         for (idx_t k = 1; k <= half; ++k) {
             seq_t sum = 0;
             for (idx_t j = 0; j <= k; ++j) {
-                seq_t b1 = binom_val(i + 1, j);
+                seq_t b1 = binomial(i + 1, j);
                 idx_t N  = i + (i + 1) * (k - j);
-                seq_t b2 = binom_val(N, i);
+                seq_t b2 = binomial(N, i);
                 seq_t term = b1 * b2;
                 if (j & 1) {
                     sum -= term;           /* subtract for odd j */

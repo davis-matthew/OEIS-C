@@ -10,7 +10,8 @@
  *            (pi((j+1)^2)*pi(j^2)) pi(k) = number of primes ≤ k
  * Range:     u8 none, u16 none, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   gcd, is_bitset_prime
+ * Validated: partial, pass, 64 terms through n = 65 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/is_bitset_prime.h"
+#include "../utils/mem.h"
+
+/* Helper: check if a number is marked prime in the bitset */
+static inline int is_bitset_prime(const unsigned char *bits, uint64_t n)
+{
+    return (bits[n >> 3] & (1u << (n & 7u))) != 0;
+}
 
 #define MAX_N 10000   /* maximum n that may be requested (offset 2) */
 
@@ -58,7 +65,7 @@ static void init_sequence(void)
     }
 
     /* 2. Allocate array for numerators. */
-    numerators = (seq_t *)calloc((size_t)MAX_N + 2, sizeof(seq_t));
+    numerators = mem_new(seq_t, (size_t)MAX_N + 2);
     if (numerators == NULL) {
         free(bits);
         return;

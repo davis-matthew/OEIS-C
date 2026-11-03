@@ -8,7 +8,8 @@
  * Formula:   a(n) = ∏_{p^e||n} p^{ (∏ e_i) * (e+1)/2 }
  * Range:     u8 n <= 15, u16 n <= 47, u32 n <= 143, u64 n <= 431,
  *            u128 n <= 2591, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 75 terms through n = 9282 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,11 @@
  *   factors of n.  For squarefree n this simplifies to a(n)=n. */
 
 #include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +49,7 @@ seq_t a(idx_t n)
         /* exponent for this prime:  E * (e+1) / 2  */
         seq_t exp_factor = (E * (seq_t)(exps[i] + 1)) / 2;
 
-        seq_t p_pow = big_pow((seq_t)primes[i], exp_factor);
+        seq_t p_pow = ipow((seq_t)primes[i], exp_factor);
         res *= p_pow;
     }
 

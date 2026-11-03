@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 1793, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 84 terms through n = 8584 (2026-11-01)
  * Helpers:   factor_u64, is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,8 +23,8 @@
 #include <stdbool.h>
 
 /* Utility headers provided by the build system */
-#include "../utils/is_squarefree.h"
 #include "../utils/factor_u64.h"
+#include "../utils/is_squarefree.h"
 
 /* Compute the arithmetic derivative of a uint64_t number.
    Formula: d(n) = n * Σ (e_p / p) over prime powers p^e dividing n */

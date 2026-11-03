@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 256, u16 n <= 256, u32 n <= 256, u64 n <= 256,
  *            u128 n <= 256, big any n
- * Helpers:   none
+ * Validated: full, pass, 256 terms through n = 256 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stddef.h>   /* for size_t */
 #include <stdint.h>   /* for uint64_t */
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* cached sequence values */
 static size_t a_cache_size = 0; /* number of cached terms */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     if (a_cache == NULL) {
         /* Allocate and fill the cache */
-        a_cache = (seq_t *)malloc(TOTAL * sizeof(seq_t));
+        a_cache = mem_new(seq_t, TOTAL);
         if (!a_cache) return (seq_t)0; /* fallback on allocation failure */
 
         size_t pos = 0;

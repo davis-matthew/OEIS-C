@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    These two recurrences together generate the sequence A328488. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for computed values of a(n) and B(n) (coefficients of exp(x*exp(x))) */
 static seq_t *a_cache   = NULL;   /* a[n] */
@@ -36,8 +38,8 @@ static void ensure_cache(idx_t n)
         return;   /* already large enough */
 
     /* Allocate new arrays of required capacity */
-    seq_t *new_a = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *new_b = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *new_a = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *new_b = mem_new(seq_t, (size_t)(n + 1));
 
     /* If this is the first call, initialize a[0] and B[0] */
     if (a_cache == NULL) {
@@ -52,8 +54,8 @@ static void ensure_cache(idx_t n)
     }
 
     /* Free old arrays if they existed */
-    free(a_cache);
-    free(b_cache);
+    mem_free(a_cache);
+    mem_free(b_cache);
 
     a_cache   = new_a;
     b_cache   = new_b;

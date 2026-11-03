@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 117, u32 n <= 332, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,13 +34,13 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* Allocate temporary arrays for dynamic programming */
-    seq_t *dps  = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *dp0  = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *dp2  = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dps  = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *dp0  = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *dp2  = mem_new(seq_t, (size_t)(n + 1));
 
     if (!dps || !dp0 || !dp2)   /* allocation failure, return 0 */
     {
-        free(dps); free(dp0); free(dp2);
+        mem_free(dps); mem_free(dp0); mem_free(dp2);
         return (seq_t)0;
     }
 
@@ -72,9 +74,9 @@ seq_t a(idx_t n)
     result -= dp2[n];
 
     /* Free temporary memory */
-    free(dps);
-    free(dp0);
-    free(dp2);
+    mem_free(dps);
+    mem_free(dp0);
+    mem_free(dp2);
 
     return result;
 }

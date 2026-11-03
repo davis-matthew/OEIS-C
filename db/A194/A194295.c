@@ -12,7 +12,8 @@
  *            [(p-1)/r , p/r), φ = (1+√5)/2
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     idx_t p = n - (r - 1) * r / 2;          /* 1 <= p <= r */
 
     /* Allocate an array to count the occurrences of each residue 0..r-1. */
-    seq_t *cnt = (seq_t *)calloc((size_t)r, sizeof(seq_t));
+    seq_t *cnt = mem_new(seq_t, (size_t)r);
     if (!cnt) return 0;                      /* allocation failure */
 
     /* Golden ratio φ and its fractional part. */
@@ -62,6 +64,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = cnt[p - 1];
-    free(cnt);
+    mem_free(cnt);
     return result;
 }

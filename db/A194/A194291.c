@@ -11,12 +11,14 @@
  *            with r(r+1)/2 ≥ n, * col = n - r(r-1)/2. g(row,col) is returned
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root: floor(sqrt(x)) for unsigned 128‑bit x. */
 static inline idx_t isqrt_u128(unsigned __int128 x)
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     idx_t col = n - prev_tri;          /* 1‑based */
 
     /* Allocate histogram for counts in this row */
-    seq_t *cnt = (seq_t *)malloc((size_t)r * sizeof(seq_t));
+    seq_t *cnt = mem_new(seq_t, (size_t)r);
     if (!cnt) return 0;                /* memory failure – return 0 */
     for (idx_t i = 0; i < r; ++i) cnt[i] = 0;
 
@@ -77,6 +79,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = cnt[col - 1];
-    free(cnt);
+    mem_free(cnt);
     return result;
 }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} (n-d)^sigma(n/d) (sigma = sum of divisors)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Recursive enumeration of divisors */
 static void dfs(const uint64_t *primes, const uint64_t *exps, size_t prime_cnt,
@@ -37,7 +39,7 @@ static void dfs(const uint64_t *primes, const uint64_t *exps, size_t prime_cnt,
             sigma_nd *= s;
         }
         seq_t base  = (seq_t)n - (seq_t)d;
-        seq_t tterm = big_pow(base, sigma_nd);
+        seq_t tterm = ipow(base, sigma_nd);
         *sum += tterm;
         return;
     }

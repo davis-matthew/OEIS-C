@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 28, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(1,1) = 1 ; a(n,0)=0 ; a(n,m)=0 for n<m.
    a(n) is obtained by reading the triangle row‑by‑row left to right. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of computed triangle rows */
 static seq_t **tri = NULL;
@@ -36,7 +38,7 @@ static void ensure_row(idx_t need)
 
     /* Allocate each new row */
     for (idx_t r = maxRow + 1; r <= need; ++r) {
-        tri[r] = (seq_t*)malloc((size_t)(r + 1) * sizeof(seq_t));
+        tri[r] = mem_new(seq_t, (size_t)(r + 1));
         tri[r][0] = (seq_t)0;  /* unused element */
     }
 

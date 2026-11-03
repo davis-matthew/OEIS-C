@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 183, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   only_odd_exp
+ * Validated: standard, pass, 86 terms through n = 1989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,25 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/only_odd_exp.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------
+ * Helper: test whether x has only odd prime exponents.
+ * ------------------------------------------------------------------ */
+static bool only_odd_exp(idx_t x, const idx_t *spf)
+{
+    if (x <= 1) return true;                         /* 1 is allowed */
+    while (x > 1) {
+        idx_t p   = spf[x];
+        idx_t exp = 0;
+        do {
+            x /= p;
+            ++exp;
+        } while (x % p == 0);
+        if ((exp & 1u) == 0) return false;          /* even exponent */
+    }
+    return true;
+}
 
 /* ------------------------------------------------------------------
  * Helper: build an array spf[0..limit] where spf[x] is the smallest
@@ -58,7 +77,7 @@ seq_t a(idx_t n)
         build_spf(bound, spf);
 
         /* allocate result list */
-        seq_t *list = (seq_t *)malloc((size_t)(bound + 1) * sizeof(seq_t));
+        seq_t *list = mem_new(seq_t, (size_t)(bound + 1));
         if (!list) {
             free(spf);
             return 0;
@@ -78,11 +97,11 @@ seq_t a(idx_t n)
 
         if (count >= (size_t)n) {
             seq_t result = list[n - 1];
-            free(list);
+            mem_free(list);
             return result;
         }
 
-        free(list);
+        mem_free(list);
         /* not enough terms – increase bound and try again */
         bound = bound * 2 + 100;
     }

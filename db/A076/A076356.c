@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 111, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 82 terms through n = 956 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t x) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Return the n-th term of the sequence.
    The value itself is the integer n for which 210*n−11 is prime. */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Allocate the table once. */
     if (cap == 0) {
         cap = 4;
-        table = (seq_t *)malloc(cap * sizeof(seq_t));
+        table = mem_new(seq_t, cap);
     }
 
     /* Extend the table until we have at least n terms. */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
             /* Grow the array if needed. */
             if (len == cap) {
                 cap <<= 1;
-                table = (seq_t *)realloc(table, cap * sizeof(seq_t));
+                table = mem_resize(seq_t, table, cap);
             }
             table[len++] = last_checked;   /* store the integer itself */
         }

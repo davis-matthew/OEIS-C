@@ -7,14 +7,26 @@
  * Formula:   a(n) = Π_{i=1}^{7} (4^(n-i+1)-1)/(4^i-1)
  * Range:     u8 none, u16 none, u32 n <= 7, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   gcd, pow4
+ * Validated: standard, pass, 26 terms through n = 188 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow4.h"
 #include "../utils/gcd.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

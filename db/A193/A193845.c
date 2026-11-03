@@ -11,6 +11,7 @@
  *            remaining terms of the row, with the rows rev...
  * Range:     u8 n <= 21, u16 n <= 68, u32 n <= 257, u64 n <= 915,
  *            u128 n <= 3509, big any n
+ * Validated: standard, pass, 71 terms through n = 9531 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

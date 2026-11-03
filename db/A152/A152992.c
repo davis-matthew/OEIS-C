@@ -7,6 +7,7 @@
  * Formula:   a(n) = sigma(n) - d(n) - pi(n)
  * Range:     u8 n <= 48, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 87 terms through n = 972 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -25,6 +26,7 @@
 /* Utility to generate all primes up to a limit and return the count.  */
 /* The function is provided by the framework and allocates an array
    that we must free with free() when we replace it. */
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 /* Static storage for the dynamic prime table.  */

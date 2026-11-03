@@ -8,6 +8,7 @@
  * Formula:   a(n) = reverse_bits(n) mod n
  * Range:     u8 n <= 288, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
+ * Validated: standard, pass, 91 terms through n = 7221 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

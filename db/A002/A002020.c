@@ -7,12 +7,14 @@
  * Formula:   a(n+1) = a(n) - n*(n-1)*a(n-1), a(0)=a(1)=a(2)=a(3)=1
  * Range:     i8 n <= 6, i16 n <= 8, i32 n <= 14, i64 n <= 22, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     
     if (memo == NULL) {
         memo_len = (n < 1000) ? 1024 : n + 100;
-        memo = (seq_t *)malloc(memo_len * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_len);
         memo[0] = 1;
         memo[1] = 1;
         memo[2] = 1;
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
     
     while (n >= memo_len) {
         memo_len *= 2;
-        memo = (seq_t *)realloc(memo, memo_len * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, memo_len);
     }
     
     while (computed_up_to < n) {

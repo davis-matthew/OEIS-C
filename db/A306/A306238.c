@@ -7,7 +7,8 @@
  * Formula:   a(n) = the smallest integer k such that floor(n!/k) is odd
  * Range:     u8 n <= 225, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   fact_mod_u64
+ * Validated: standard, pass, 87 terms through n = 9463 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,16 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/fact_mod_u64.h"
+
+/* Compute n! mod mod_value.  mod_value is small (≤ 2*PRIME_BOUND). */
+static uint64_t fact_mod_u64(idx_t n, uint64_t mod_value)
+{
+    uint64_t res = 1 % mod_value;
+    for (idx_t i = 1; i <= n; ++i) {
+        res = (res * (uint64_t)i) % mod_value;
+    }
+    return res;
+}
 
 /* Allocate and cache primes up to a fixed bound. */
 #define PRIME_BOUND 50000

@@ -13,13 +13,15 @@
  *            that any n≥1 can be computed in O(n) time overall, wit...
  * Range:     u8 none, u16 n <= 17, u32 n <= 52, u64 n <= 121, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h> /* for uintptr_t conversion if needed */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,9 +41,9 @@ seq_t a(idx_t n)
         size_t needed = (size_t)(n + 1);          /* include 0 index */
         if (needed > cache_cap) {
             if (cache == NULL) {
-                cache = (seq_t *)malloc(needed * sizeof(seq_t));
+                cache = mem_new(seq_t, needed);
             } else {
-                seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, needed);
                 /* realloc may fail; in that case leave cache untouched,
                    allowing the function to retry (unlikely for small n). */
                 if (tmp != NULL) {

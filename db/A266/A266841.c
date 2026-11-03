@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 9, u128 n <= 18,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 31 terms through n = 995 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
      a(n) = (100 * 100^n - 10^n) / 99                for even n
 */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -31,14 +34,14 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     if (n & 1) {                /* odd n */
-        seq_t pow100_n = seq_pow((seq_t)100, n);
-        seq_t pow100_half = seq_pow((seq_t)100, n / 2);
+        seq_t pow100_n = ipow_idx((seq_t)100, n);
+        seq_t pow100_half = ipow_idx((seq_t)100, n / 2);
 
         /* (10*100^n + 100^floor(n/2) - 11) / 99 */
         return (((seq_t)10 * pow100_n) + pow100_half - (seq_t)11) / (seq_t)99;
     } else {                     /* even n */
-        seq_t pow100_n = seq_pow((seq_t)100, n);
-        seq_t pow10_n = seq_pow((seq_t)10, n);
+        seq_t pow100_n = ipow_idx((seq_t)100, n);
+        seq_t pow10_n = ipow_idx((seq_t)10, n);
 
         /* (100*100^n - 10^n) / 99 */
         return (((seq_t)100 * pow100_n) - pow10_n) / (seq_t)99;

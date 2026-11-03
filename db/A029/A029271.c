@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 119, u16 n <= 839, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,12 +16,13 @@
 /*  Sequence A029271 – partitions of n into 3, 4, 11, and 12
     a(n) = number of partitions of n using parts 3, 4, 11 and 12. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     const idx_t coins[4] = { 3, 4, 11, 12 };
     /* Allocate dp[0..n] and initialise to 0 */
-    seq_t *dp = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)n + 1);
     if (!dp) return (seq_t)0;   /* allocation failed – return 0 as safe fallback */
     dp[0] = (seq_t)1;           /* one way to make 0 */
 
@@ -34,6 +36,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

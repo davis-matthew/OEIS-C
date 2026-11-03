@@ -8,8 +8,9 @@
  * Formula:   a(n) = gcd(A003415(n), A018804(n)) where A003415(n) is the
  *            arithmetic derivative of n, and A018804(n) is Pillai's
  *            arithmetical function (=∑_{k=1}^n gcd(k,n))
- * Range:     u8 n <= 62, u16 n <= 9866, u32 n <= 9866, u64 n <= 9866,
- *            u128 n <= 9866, big any n
+ * Range:     u8 n <= 62, u16 n <= 13823, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 114 terms through n = 9866 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

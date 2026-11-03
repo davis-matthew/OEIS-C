@@ -7,6 +7,7 @@
  * Formula:   a(n) = ((k*(k+1)*(4*k-1)/6)^2), where k = 4*⌊n/2⌋ + (n%2?2:1)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 22, u64 n <= 929, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 951 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

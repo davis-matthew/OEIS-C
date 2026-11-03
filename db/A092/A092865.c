@@ -10,14 +10,16 @@
  *            binomial[n,m-n] in order of increasing m then n; hence a(n) =
  *            (-1)^n_val * binomial[n_val, m-n_val] where (m, offset)
  *            satisfies the cumulative index condition
- * Range:     i8 n <= 37, i16 n <= 76, i32 n <= 76, i64 n <= 76, i128 n <= 76,
+ * Range:     i8 n <= 58, i16 n <= 76, i32 n <= 76, i64 n <= 76, i128 n <= 76,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t idx) {
     /* Find the anti‑diagonal index m such that the cumulative
@@ -49,7 +51,7 @@ seq_t a(idx_t idx) {
     idx_t n_val = ((m + 1) / 2) + offset;       /* ceil(m/2) + offset = n */
     idx_t k = m - n_val;                         /* k = m - n */
 
-    seq_t val = binom(n_val, k);
+    seq_t val = binomial(n_val, k);
     if ((n_val & 1) != 0)
         return -val;
     else

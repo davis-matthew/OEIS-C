@@ -8,7 +8,8 @@
  *            digit-by-digit base-6 square root with internal multiprecision
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_add, trim
+ * Validated: standard, pass, 115 terms through n = 9879 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/mul_add.h"
-#include "../utils/trim.h"
+
+static void trim(uint32_t *x, size_t *len) {
+    while (*len > 0 && x[*len - 1] == 0) (*len)--;
+}
+
+static void mul_add(uint32_t *x, size_t *len, uint32_t m, uint32_t add) {
+    uint64_t carry = add;
+    size_t i;
+    for (i = 0; i < *len; i++) {
+        uint64_t v = (uint64_t)x[i] * m + carry;
+        x[i] = (uint32_t)v;
+        carry = v >> 32;
+    }
+    while (carry) {
+        x[(*len)++] = (uint32_t)carry;
+        carry >>= 32;
+    }
+    trim(x, len);
+}
 
 static uint32_t *P = NULL, *R = NULL, *T = NULL;
 static size_t plen = 0, rlen = 0, tlen = 0, cap = 0;

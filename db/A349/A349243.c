@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 23, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /*  This function computes A349243: the indices n (starting at 1) for which
  *  the triangular number T(n) = n*(n+1)/2 consists only of odd decimal digits.
  *  The implementation uses a lazy cache that expands up to a fixed maximum.

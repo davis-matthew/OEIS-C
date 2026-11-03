@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th prime that is congruent to 47 modulo 61
  * Range:     u8 n <= 1, u16 n <= 103, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 56 terms through n = 918 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"   /* declares bool is_prime(idx_t x); */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *prog_primes = NULL;   /* list of primes ≡ 47 (mod 61) */
 static size_t prog_cnt   = 0;       /* number of primes stored */
@@ -33,7 +35,7 @@ static void ensure_primes_up_to(idx_t n)
     /* Loop: increase the sieve limit until we have enough primes. */
     while (1) {
         /* Free previous list if any. */
-        free(prog_primes);
+        mem_free(prog_primes);
         prog_primes = NULL;
         prog_cnt   = 0;
         prog_cap   = 0;
@@ -41,7 +43,7 @@ static void ensure_primes_up_to(idx_t n)
         /* Simple estimate of capacity: number of candidates 61k+47\n <= limit */
         size_t est_cap = (size_t)(limit / 61 + 10);
         if (est_cap == 0) est_cap = 64;
-        prog_primes = (seq_t*)malloc(est_cap * sizeof(seq_t));
+        prog_primes = mem_new(seq_t, est_cap);
         if (!prog_primes) return;          /* allocation failure, give up */
         prog_cap = est_cap;
 
@@ -51,9 +53,9 @@ static void ensure_primes_up_to(idx_t n)
                 if (prog_cnt >= prog_cap) {
                     /* Grow the array. */
                     size_t new_cap = prog_cap ? prog_cap * 2 : 64;
-                    seq_t *tmp = (seq_t*)realloc(prog_primes, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, prog_primes, new_cap);
                     if (!tmp) {
-                        free(prog_primes);
+                        mem_free(prog_primes);
                         prog_primes = NULL;
                         prog_cnt = prog_cap = 0;
                         return;            /* allocation failure */

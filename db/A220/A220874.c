@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 22, u64 n <= 28, u128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,7 +17,8 @@
    Formula: a(n) = 2 + ((n-1)*(n^2+n+42)*2^(n-4))/3  (valid for n>0)
    a(0) = 1 */
 
-#include "../utils/pow2.h"          /* gives seq_t pow2(idx_t exp); */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

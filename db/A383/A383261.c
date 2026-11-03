@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{k=1..n} k*2^(k-1)*3^(n-k)*Stirling2(n,k)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------- global state -------------------------------------------------- */
 static seq_t *S = NULL;       /* current Stirling numbers S(cur,k)   */
@@ -36,7 +38,7 @@ static idx_t computed_max = 0;    /* largest n whose a(n) is stored */
 /* --------- helper: resize an array --------------------------------------- */
 static seq_t *grow_array(seq_t *old, size_t old_cap, size_t new_cap)
 {
-    seq_t *new_arr = (seq_t *)realloc(old, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, old, new_cap);
     if (!new_arr) abort();          /* fatal error on allocation failure */
     for (size_t i = old_cap; i < new_cap; ++i)
         new_arr[i] = (seq_t)0;      /* initialise new elements to zero   */

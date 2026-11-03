@@ -7,6 +7,7 @@
  * Formula:   a(n) = gcd(primorial(n), phi(primorial(n)))
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 26, u64 n <= 42, u128 n <= 72,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 929 (2026-11-01)
  * Helpers:   sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/sieve_primes.h"
 
 seq_t a(idx_t n) {

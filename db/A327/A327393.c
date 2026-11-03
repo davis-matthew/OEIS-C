@@ -8,7 +8,8 @@
  *            number has distinct prime indices that are pairwise indivisible
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_pi, factor_u64, pow_int
+ * Validated: standard, pass, 87 terms through n = 9701 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,10 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"      /* factor_u64(n, pr, ex, &cnt) */
-#include "../utils/compute_pi.h"     /* compute_pi(p) -> idx of prime p */
-#include "../utils/pow_int.h"        /* pow_int(base, exp) returns seq_t */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/prime_pi.h"
 
 /* Recursive search of stable prime subsets */
 static void dfs(size_t pos, seq_t prod,
@@ -61,8 +63,8 @@ seq_t a(idx_t n)
     idx_t   idxs[64];
     seq_t   pow_arr[64];
     for (size_t i = 0; i < cnt; ++i) {
-        idxs[i]   = (idx_t)compute_pi(pr[i]);          /* index of prime pr[i] */
-        pow_arr[i] = pow_int((seq_t)pr[i], (idx_t)ex[i]); /* p^e */
+        idxs[i]   = (idx_t)prime_pi(pr[i]);          /* index of prime pr[i] */
+        pow_arr[i] = ipow_idx((seq_t)pr[i], (idx_t)ex[i]); /* p^e */
     }
 
     seq_t best = (seq_t)1;

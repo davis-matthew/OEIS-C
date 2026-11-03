@@ -9,6 +9,7 @@
  *            (m+1)(m+2)/2 x^m/m!
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 10, i64 n <= 17, i128 n <= 29,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 379 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

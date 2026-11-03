@@ -9,14 +9,32 @@
  *            in the triangle
  * Range:     u8 n <= 26, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   _row_for
+ * Validated: standard, pass, 71 terms through n = 4903 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t */
 #include <stdint.h>   /* for uint64_t on C/C++ */
-#include "../utils/_row_for.h"
+
+static inline idx_t _row_for(idx_t n)
+{
+    /* Find r such that r*(r+1)/2 >= n using binary search
+       (the multiplication is performed in unsigned __int128 to avoid overflow). */
+    idx_t low  = 0;
+    idx_t high = 1;
+    while ((unsigned __int128)high * (high + 1) / 2 < n)
+        high <<= 1;
+    while (high - low > 1) {
+        idx_t mid = low + (high - low) / 2;
+        if ((unsigned __int128)mid * (mid + 1) / 2 >= n)
+            high = mid;
+        else
+            low = mid;
+    }
+    return high;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,16 +7,20 @@
  * Formula:   a(n) = denominator of sum of -8th powers of divisors of n
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 15, u64 n <= 255,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_gcd, seq_pow
+ * Validated: standard, pass, 36 terms through n = 9785 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* That is a(n) = n^8 / gcd( sigma_8(n), n^8 ) where sigma_8(n) = sum_{d|n} d^8  */
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
 
 static seq_t compute_denominator(idx_t n)
 {
@@ -32,7 +36,7 @@ static seq_t compute_denominator(idx_t n)
     for (size_t i = 0; i < pcnt; ++i)
     {
         seq_t p = (seq_t)primes[i];
-        seq_t p8 = seq_pow(p, 8);                /* p^8 */
+        seq_t p8 = ipow_idx(p, 8);                /* p^8 */
         seq_t term = 1;                          /* current p^{8k} , starts with 1 for k=0 */
         seq_t sum = 1;                           /* sum of powers for this prime factor */
 
@@ -45,10 +49,10 @@ static seq_t compute_denominator(idx_t n)
     }
 
     /* compute n^8 */
-    seq_t n8 = seq_pow((seq_t)n, 8);
+    seq_t n8 = ipow_idx((seq_t)n, 8);
 
     /* denominator = n^8 / gcd( sigma, n^8 ) */
-    seq_t g = seq_gcd(sigma, n8);
+    seq_t g = gcd(sigma, n8);
     return n8 / g;
 }
 

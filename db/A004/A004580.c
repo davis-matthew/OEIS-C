@@ -9,7 +9,8 @@
  *            multi-limb integers
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a4580_cmp
+ * Validated: standard, pass, 115 terms through n = 9652 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a4580_cmp.h"
+
+static int a4580_cmp(const uint32_t *a, size_t al, const uint32_t *b, size_t bl) {
+    size_t i;
+    if (al != bl) return al < bl ? -1 : 1;
+    for (i = al; i-- > 0;) {
+        if (a[i] != b[i]) return a[i] < b[i] ? -1 : 1;
+    }
+    return 0;
+}
 
 #define A4580_LB 1220703125u /* 5^13 */
 

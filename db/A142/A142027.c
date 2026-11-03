@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 219, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 60 terms through n = 992 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"   /* provides: bool is_prime(idx_t). */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* keep a cache of found primes; last_checked holds the largest tested number */
 static seq_t *cache = NULL;
@@ -29,7 +31,7 @@ static void ensure_cache_capacity(void)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();   /* out of memory */
         cache = tmp;
         cache_cap = new_cap;

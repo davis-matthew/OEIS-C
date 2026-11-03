@@ -7,12 +7,14 @@
  * Formula:   a(n) = binomial(7*n,3*n) * binomial(3*n,n)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 7, u128 n <= 13,
  *            big any n
+ * Validated: standard, pass, 30 terms through n = 345 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /*

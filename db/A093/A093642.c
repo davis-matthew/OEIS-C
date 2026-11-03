@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 126, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_to_bin
+ * Validated: standard, pass, 77 terms through n = 9271 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,34 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_to_bin.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------- */
+static void seq_to_bin(seq_t x, char *buf, unsigned *len)
+{
+    /* Special case: zero */
+    if (x == 0) {
+        buf[0] = '0';
+        buf[1] = '\0';
+        *len = 1;
+        return;
+    }
+
+    unsigned pos = 0;
+    seq_t tmp = x;
+    while (tmp != 0) {
+        buf[pos++] = ((tmp & (seq_t)1) != 0) ? '1' : '0';
+        tmp >>= 1;
+    }
+    /* Reverse the string */
+    for (unsigned i = 0; i < pos / 2; ++i) {
+        char c = buf[i];
+        buf[i] = buf[pos - 1 - i];
+        buf[pos - 1 - i] = c;
+    }
+    buf[pos] = '\0';
+    *len = pos;
+}
 
 /* --------------------------------------------------------------------- */
 /* Helper: convert a seq_t value to a binary string representation.      */
@@ -137,7 +165,7 @@ static void cache_append(seq_t val)
 {
     if (cache_count == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort(); /* unrecoverable allocation failure */
         cache = tmp;
         cache_cap = new_cap;

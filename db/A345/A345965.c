@@ -9,7 +9,8 @@
  *            prime divisor of n
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   ensure_cache, lpf, phi
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,47 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "../utils/phi.h"
-#include "../utils/lpf.h"
-#include "../utils/ensure_cache.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/totient.h"
+#include "../utils/mem.h"
+
+/* Return the smallest prime factor of n   (n > 1) */
+static inline idx_t lpf(idx_t n)
+{
+    if (n % 2 == 0) return 2;
+    for (idx_t i = 3; i <= n / i; i += 2)
+        if (n % i == 0) return i;
+    return n;   /* n itself is prime – should not be called for primes */
+}
+
+/* Make sure the cache is large enough */
+static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr) {
+    seq_t *cache = *cache_ptr;
+    size_t cap = *cap_ptr;
+    if (cap <= (size_t)n) {
+        size_t new_cap = cap ? (cap << 1) : 16;
+        while (new_cap <= (size_t)n)
+            new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+        if (!tmp && new_cap > 0) {
+            /* Allocation failed – abort the program. */
+            exit(1);
+        }
+        if (tmp) {
+            /* Initialize newly allocated slots to zero. */
+            if (!cache) {
+                for (size_t i = 0; i < new_cap; ++i)
+                    tmp[i] = 0;
+            } else {
+                for (size_t i = cap; i < new_cap; ++i)
+                    tmp[i] = 0;
+            }
+            *cache_ptr = tmp;
+            *cap_ptr = new_cap;
+        }
+    }
+}
 
 /* Compute the value of the A345965 sequence at position n.  The function is
    memoised internally to allow arbitrary order calls. */
@@ -37,8 +76,7 @@ seq_t a(idx_t n) {
 
     /* Zero any new slots that have not yet been initialised. */
     if (elements_filled < cache_cap) {
-        memset(&cache[elements_filled], 0,
-               (cache_cap - elements_filled) * sizeof(seq_t));
+        mem_set(&cache[elements_filled], 0, (cache_cap - elements_filled) * sizeof(seq_t));
         elements_filled = cache_cap;
     }
 
@@ -60,7 +98,7 @@ seq_t a(idx_t n) {
     /* Recursively calculate a(next). */
     seq_t sub = a(next);
     /* Euler's totient of n. */
-    seq_t ph = phi(n);
+    seq_t ph = totient(n);
 
     /* a(n) = phi(n) + a(n/p). */
     seq_t result = ph + sub;

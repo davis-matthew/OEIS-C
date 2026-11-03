@@ -12,7 +12,8 @@
  *            on demand
  * Range:     u8 n <= 1, u16 n <= 13, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   d_is_allowed, floor_sqrt, gcd
+ * Validated: standard, pass, 58 terms through n = 929 (2026-11-03)
+ * Helpers:   gcd, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,42 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/floor_sqrt.h"
-#include "../utils/d_is_allowed.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+static bool d_is_allowed(idx_t d)
+{
+    /* d must not be divisible by 3 and
+     * each prime factor must be ≡ 1 or 11 (mod 12). */
+    if (d % 3 == 0) return false;
+    idx_t tmp = d;
+    for (idx_t p = 2; p * p <= tmp; ++p) {
+        if (tmp % p == 0) {
+            while (tmp % p == 0) tmp /= p;
+            if (p % 12 != 1 && p % 12 != 11) return false;
+        }
+    }
+    if (tmp > 1 && (tmp % 12 != 1 && tmp % 12 != 11)) return false;
+    return true;
+}
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -34,7 +69,7 @@ static void grow_cache(size_t needed)
     if (cache_alloc < needed) {
         size_t new_cap = cache_alloc ? cache_alloc * 2 : 64;
         while (new_cap < needed) new_cap *= 2;
-        seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
         cache = new_ptr;
         cache_alloc = new_cap;
     }

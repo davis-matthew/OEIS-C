@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 46, u32 n <= 91, u64 n <= 183,
  *            u128 n <= 368, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* array of computed a(n) (index 0 unused) */
 static size_t cache_len = 0;    /* number of valid entries (index 0 … cache_len-1) */
@@ -28,7 +30,7 @@ static size_t cache_cap = 0;    /* capacity of cache array */
 static void init_cache(void)
 {
     cache_cap = 10;
-    cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) abort();
 
     cache_len = 10;
@@ -53,7 +55,7 @@ static void enlarge_cache(idx_t n)
     size_t new_cap = cache_cap ? cache_cap * 2 : 1;
     while (new_cap <= (size_t)n + 1)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();
     cache = new_cache;
     cache_cap = new_cap;

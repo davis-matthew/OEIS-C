@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 11, i32 n <= 18, i64 n <= 26, i128 n <= 26,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
    binary‑coefficient routine and stores a running cache for speed. */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
 
     /* Initialisation: b(0) = -1 */
     if (b_cache == NULL) {
-        b_cache   = (seq_t *)malloc(sizeof(seq_t));
+        b_cache   = mem_new(seq_t, 1);
         if (!b_cache) return (seq_t)0;          /* allocation failure */
         b_cache[0] = (seq_t)-1;
         b_cap     = 1;
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
         /* Ensure sufficient storage for the new element */
         if (b_cap == b_alloc) {
             idx_t new_alloc = b_alloc * 2u;
-            seq_t *new_ptr = (seq_t *)realloc(b_cache, new_alloc * sizeof(seq_t));
+            seq_t *new_ptr = mem_resize(seq_t, b_cache, new_alloc);
             if (!new_ptr) return (seq_t)0;      /* allocation failure */
             b_cache = new_ptr;
             b_alloc = new_alloc;
@@ -57,7 +60,7 @@ seq_t a(idx_t n)
 
         for (idx_t i = 1; i <= m; ++i) {
             seq_t bi1  = b_cache[i-1];
-            seq_t comb = binom(m, i);          /* C(m,i) */
+            seq_t comb = binomial(m, i);          /* C(m,i) */
             sum += bi1 * comb;
         }
         b_cache[m] = -sum;          /* b(m) = -sum */

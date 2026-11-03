@@ -10,9 +10,10 @@
  * Formula:   a(n) is the lexicographically earliest infinite sequence such
  *            that a(i) = a(j) implies v_2(i) = v_2(j), v_3(i) = v_3(j) and
  *            v_5(i) = v_5(j)
- * Range:     u8 n <= 9836, u16 n <= 9836, u32 n <= 9836, u64 n <= 9836,
- *            u128 n <= 9836, big any n
- * Helpers:   hash32, valuations
+ * Range:     u8 n <= 43199, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 9836 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/hash32.h"
-#include "../utils/valuations.h"
+#include "../utils/mem.h"
+
+/* ----------------- hash table utilities ----------------- */
+static size_t hash32(uint32_t k) { return (size_t)(k * 2654435761u); }
+
+/* ----------------- valuation of 2,3,5 ----------------- */
+static void valuations(idx_t n, uint8_t *v2, uint8_t *v3, uint8_t *v5)
+{
+    idx_t m = n;
+    *v2 = 0; *v3 = 0; *v5 = 0;
+    while ((m & 1) == 0) { ++*v2; m >>= 1; }
+    while (m % 3 == 0) { ++*v3; m /= 3; }
+    while (m % 5 == 0) { ++*v5; m /= 5; }
+}
 
 typedef uint64_t idx_t;   /* index type */
 
@@ -41,13 +54,13 @@ static void hash_init(void)
 {
     hash_cap = 64;
     hash_used = 0;
-    hash_table = (struct HashEntry*)calloc(hash_cap, sizeof(struct HashEntry));
+    hash_table = mem_new(struct HashEntry, hash_cap);
 }
 
 static void hash_rehash(void)
 {
     size_t new_cap = hash_cap * 2;
-    struct HashEntry *new_tab = (struct HashEntry*)calloc(new_cap, sizeof(struct HashEntry));
+    struct HashEntry *new_tab = mem_new(struct HashEntry, new_cap);
     for (size_t i = 0; i < hash_cap; ++i) {
         if (hash_table[i].used) {
             uint32_t k = hash_table[i].key;
@@ -59,7 +72,7 @@ static void hash_rehash(void)
             new_tab[idx].val   = v;
         }
     }
-    free(hash_table);
+    mem_free(hash_table);
     hash_table = new_tab;
     hash_cap = new_cap;
 }
@@ -96,7 +109,7 @@ static void ensure_cache(idx_t n)
     if (n <= cache_cap) return;
     size_t old_cap = cache_cap;
     cache_cap = n;
-    cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
     for (size_t i = old_cap; i < cache_cap; ++i) {
         idx_t idx = i + 1;                          /* indices start at 1 */
         uint8_t v2, v3, v5;

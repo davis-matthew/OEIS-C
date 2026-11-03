@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 22, u64 n <= 45, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
    all terms listed in OEIS A042123. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t coeff[23] = {
     (seq_t)4,  (seq_t)1,  (seq_t)4,  (seq_t)1,  (seq_t)1,  (seq_t)2,
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
     /* Ensure at least the first two terms are available. */
     if (cache_len == 0) {
-        cache = (seq_t*)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (!cache) return (seq_t)0;          /* allocation failure */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)4;
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* Extend cache up to requested index. */
     size_t required = (size_t)n + 1;
     if (required > cache_len) {
-        seq_t *new_cache = (seq_t*)realloc(cache, required * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, required);
         if (!new_cache) return (seq_t)0;      /* allocation failure */
         cache = new_cache;
 

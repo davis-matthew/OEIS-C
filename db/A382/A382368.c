@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   v3_plus_one
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,18 @@
 */
 
 #include <stdlib.h>
-#include "../utils/v3_plus_one.h"
+#include "../utils/mem.h"
+
+/*  v3_plus_one(n)  -- exponent of 3 in n plus one,  n > 0  */
+static inline seq_t v3_plus_one(idx_t n)
+{
+    seq_t exp = 0;
+    while ((n % 3) == 0) {
+        ++exp;
+        n /= 3;
+    }
+    return exp + (seq_t)1;
+}
 
 static seq_t *a_cache = NULL;   /* a(n) values              */
 static seq_t *c_cache = NULL;   /* auxiliary c(n)          */
@@ -46,9 +58,9 @@ static void ensure_cache(idx_t n)
 
     size_t new_size = (size_t)n + 1;
 
-    a_cache = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
-    c_cache = (seq_t *)realloc(c_cache, new_size * sizeof(seq_t));
-    b_cache = (seq_t *)realloc(b_cache, new_size * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_size);
+    c_cache = mem_resize(seq_t, c_cache, new_size);
+    b_cache = mem_resize(seq_t, b_cache, new_size);
 
     for (size_t i = cache_size; i < new_size; ++i) {
         if (i == 0) {

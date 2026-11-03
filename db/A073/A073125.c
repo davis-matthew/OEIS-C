@@ -9,7 +9,8 @@
  *            (p_k denotes the k‑th prime, indices are 1‑based)
  * Range:     u8 n <= 42, u16 n <= 760, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*----- Prime sieve helpers ----------------------------------------------------*/
 static seq_t *prime_list = NULL;      /* array of primes in increasing order   */
@@ -42,7 +44,7 @@ static void rebuild_primes(uint64_t limit)
     for (uint64_t i = 2; i <= limit; ++i)
         if (is_prime[i]) ++cnt;
 
-    seq_t *new_list = (seq_t *)malloc(cnt * sizeof(seq_t));
+    seq_t *new_list = mem_new(seq_t, cnt);
     if (!new_list) { free(is_prime); return; }
 
     size_t pos = 0;
@@ -52,7 +54,7 @@ static void rebuild_primes(uint64_t limit)
     free(is_prime);
 
     /* Replace old list with the new one. */
-    free(prime_list);
+    mem_free(prime_list);
     prime_list  = new_list;
     prime_count = cnt;
     sieve_limit = limit;

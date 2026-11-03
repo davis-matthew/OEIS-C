@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   good_row_no_down, good_row_only_down, good_row_only_horiz
+ * Validated: standard, pass, 34 terms through n = 191 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,85 @@
    row‑states and divides the final count by 3. */
 
 #include <stdbool.h>
-#include "../utils/good_row_no_down.h"
-#include "../utils/good_row_only_down.h"
-#include "../utils/good_row_only_horiz.h"
+
+/* only horizontal neighbours + up neighbour */
+static inline bool good_row_no_down(int mid, int up)
+{
+    static int decode[27][3];
+    static bool init = false;
+    if (!init) {
+        for (int code = 0; code < 27; ++code) {
+            int v = code;
+            decode[code][0] = v % 3;  v /= 3;
+            decode[code][1] = v % 3;  v /= 3;
+            decode[code][2] = v;
+        }
+        init = true;
+    }
+    const int *midv  = decode[mid];
+    const int *upv   = decode[up];
+    for (int j = 0; j < 3; ++j) {
+        int val   = midv[j];
+        int count = 0;
+        if (upv[j]      == val) ++count;
+        if (j > 0 && midv[j-1] == val) ++count;
+        if (j < 2 && midv[j+1] == val) ++count;
+        if (!(count == 1 || count == 2)) return false;
+    }
+    return true;
+}
+
+/* only horizontal neighbours + down neighbour */
+static inline bool good_row_only_down(int mid, int down)
+{
+    static int decode[27][3];
+    static bool init = false;
+    if (!init) {
+        for (int code = 0; code < 27; ++code) {
+            int v = code;
+            decode[code][0] = v % 3;  v /= 3;
+            decode[code][1] = v % 3;  v /= 3;
+            decode[code][2] = v;
+        }
+        init = true;
+    }
+    const int *midv  = decode[mid];
+    const int *downv = decode[down];
+    for (int j = 0; j < 3; ++j) {
+        int val   = midv[j];
+        int count = 0;
+        if (j > 0 && midv[j-1] == val) ++count;
+        if (j < 2 && midv[j+1] == val) ++count;
+        if (downv[j] == val) ++count;
+        if (!(count == 1 || count == 2)) return false;
+    }
+    return true;
+}
+
+/* only horizontal neighbours (single row) */
+static inline bool good_row_only_horiz(int mid)
+{
+    static int decode[27][3];
+    static bool init = false;
+    if (!init) {
+        for (int code = 0; code < 27; ++code) {
+            int v = code;
+            decode[code][0] = v % 3;  v /= 3;
+            decode[code][1] = v % 3;  v /= 3;
+            decode[code][2] = v;
+        }
+        init = true;
+    }
+    const int *midv = decode[mid];
+    for (int j = 0; j < 3; ++j) {
+        int val   = midv[j];
+        int count = 0;
+        if (j > 0 && midv[j-1] == val) ++count;
+        if (j < 2 && midv[j+1] == val) ++count;
+        if (!(count == 1 || count == 2)) return false;
+    }
+    return true;
+}
 
 /* ------------------------------------------------------------------- */
 /* Row validation helpers                                                */

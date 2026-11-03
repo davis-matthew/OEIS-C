@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   more_even_digits
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
  * The function works for any integers n ≥ 1.
  */
 #include <stdbool.h>
-#include "../utils/more_even_digits.h"
+
+static bool more_even_digits(seq_t x)
+{
+    /* 0 has one digit 0, which is even */
+    if (x == (seq_t)0) return true;
+
+    unsigned evens = 0, odds = 0;
+    seq_t t = x;
+    while (t != (seq_t)0) {
+        seq_t d = t % (seq_t)3;
+        t = t / (seq_t)3;
+        if (d == (seq_t)0 || d == (seq_t)2)
+            ++evens;
+        else
+            ++odds;
+    }
+    return evens > odds;
+}
 
 seq_t a(idx_t n)
 {

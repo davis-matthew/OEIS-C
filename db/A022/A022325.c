@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-1) + a(n-2) + 1 with a(0) = 1, a(1) = 11
  * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 42, u64 n <= 88, u128 n <= 180,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 840 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = (seq_t*)NULL;
 static size_t cache_cap  = 0;
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         /* start with a small capacity, will grow as needed */
         cache_cap = 8;
-        seq_cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_cap);
         if (!seq_cache) exit(1);          /* allocation failed */
         seq_cache[0] = 1;
         seq_cache[1] = 11;
@@ -37,8 +39,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap;
         while ((idx_t)n >= new_cap)
             new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(seq_cache,
-                                    new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) exit(1);                /* allocation failed */
         seq_cache = tmp;
         cache_cap = new_cap;

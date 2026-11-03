@@ -12,7 +12,8 @@
  *            cycle inspection, and keep those for which the ord...
  * Range:     u8 n <= 27, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Utility: greatest common divisor for 128‑bit integers */
 static inline unsigned __int128 gcd128(unsigned __int128 a, unsigned __int128 b)
@@ -109,7 +111,7 @@ static void ensure_fixed_cap(size_t m)
     if (cap_vals < m) {
         size_t new_cap = cap_vals ? cap_vals * 2 : 16;
         while (new_cap < m) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(fixed_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fixed_vals, new_cap);
         if (!tmp) exit(1);
         fixed_vals = tmp;
         cap_vals   = new_cap;

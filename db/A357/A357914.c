@@ -12,7 +12,8 @@
  *            positive n, let D be the unique integer with D(D+1)/2 ≥ n. Th...
  * Range:     i8 n <= 82, i16 n <= 238, i32 n <= 718, i64 n <= 2515,
  *            i128 n <= 9109, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 9572 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
     library headers. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **T = NULL;          /* 2‑D table of iterated partial sums   */
 static idx_t T_limit = 0;         /* current table size (>=1)              */
@@ -32,7 +34,7 @@ static void ensure_dim(idx_t limit)
         return;
 
     /* ---- compute Möbius μ[1..limit] --------------------------------- */
-    seq_t *mu = (seq_t*)calloc(limit + 1, sizeof(seq_t));
+    seq_t *mu = mem_new(seq_t, limit + 1);
     int   *is_comp = (int*)calloc(limit + 1, sizeof(int));
     int   *primes  = (int*)malloc(limit * sizeof(int));
     int    pcnt = 0;
@@ -63,7 +65,7 @@ static void ensure_dim(idx_t limit)
     /* ---- allocate new table ----------------------------------------- */
     seq_t **new_T = (seq_t**)malloc((limit + 1) * sizeof(seq_t*));
     for (idx_t i = 1; i <= limit; ++i)
-        new_T[i] = (seq_t*)calloc(limit + 1, sizeof(seq_t));
+        new_T[i] = mem_new(seq_t, limit + 1);
 
     /* ---- fill row 1 with μ ------------------------------------------ */
     for (idx_t j = 1; j <= limit; ++j)
@@ -81,10 +83,10 @@ static void ensure_dim(idx_t limit)
     /* ---- free old table --------------------------------------------- */
     if (T) {
         for (idx_t i = 1; i <= T_limit; ++i)
-            free(T[i]);
+            mem_free(T[i]);
         free(T);
     }
-    free(mu);
+    mem_free(mu);
 
     T      = new_T;
     T_limit = limit;

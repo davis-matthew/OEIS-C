@@ -8,8 +8,9 @@
  * Formula:   a(n) is read row-wise from the triangle T(n,k) defined by T(n,k)
  *            = (n+1)*(1+(-1)^x)/2 - k*(-1)^x, where x = (n-1)/2 -
  *            |k-(n+1)/2|. The sequence starts at a(1)=1
- * Range:     u8 n <= 8960, u16 n <= 8960, u32 n <= 8960, u64 n <= 8960,
- *            u128 n <= 8960, big any n
+ * Range:     u8 n <= 11325, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 107 terms through n = 8960 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

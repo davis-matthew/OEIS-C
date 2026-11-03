@@ -13,19 +13,34 @@
  *            division, so...
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 42, u128 n <= 83,
  *            big any n
- * Helpers:   seq_is_fixed_width
+ * Validated: standard, pass, 45 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_is_fixed_width.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     if (seq_is_fixed_width()) {
         /* coefficients 0..n-1 of (1+x+x^2)^r, built row by row */
         idx_t len = n;
-        seq_t *row = (seq_t *)malloc(sizeof(seq_t) * (size_t)len);
+        seq_t *row = mem_new(seq_t, (size_t)len);
         idx_t i, r;
         seq_t res;
         for (i = 0; i < len; i++) row[i] = 0;
@@ -41,7 +56,7 @@ seq_t a(idx_t n) {
             }
         }
         res = row[n - 1];
-        free(row);
+        mem_free(row);
         return res;
     } else {
         seq_t t0 = 1, t1 = 1; /* t(k-2), t(k-1) */

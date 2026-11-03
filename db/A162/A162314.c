@@ -8,7 +8,8 @@
  *            * a(k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,11 +17,12 @@
 /* ------------------------------------------------------------------ */
 
 #include <stdlib.h>   /* for malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* allocate arrays for a[0..n] and powers of two 2^i */
-    seq_t *A = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    seq_t *P = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, (n + 1));
+    seq_t *P = mem_new(seq_t, (n + 1));
     if (!A || !P) return 0;   /* allocation failed */
 
     /* precompute powers of two */
@@ -52,7 +54,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = A[n];
-    free(A);
-    free(P);
+    mem_free(A);
+    mem_free(P);
     return result;
 }

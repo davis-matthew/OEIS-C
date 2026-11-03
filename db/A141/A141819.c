@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 177, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 89 terms through n = 9495 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Count the ones in the binary form of an idx_t.
    Uses the compiler builtin if available, otherwise a simple loop. */
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
     /* Ensure the cache has room for index n. */
     if (cache_cap <= n) {
         idx_t new_cap = n + 1;                 /* include index 0 */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)                               /* allocation failed */
             return 0;
         cache = tmp;

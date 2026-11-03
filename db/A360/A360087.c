@@ -9,12 +9,14 @@
  *            a(1)=-1, a(2)=-2, a(3)=2
  * Range:     i8 n <= 9, i16 n <= 21, i32 n <= 37, i64 n <= 37, i128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* --- initialize first four values --- */
     if (cache == NULL) {
         cap = 4;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)-1;
         cache[2] = (seq_t)-2;
@@ -44,9 +46,9 @@ seq_t a(idx_t n)
             size_t newcap = cap;
             if (newcap == 0) newcap = 4;
             while (needed > newcap) newcap <<= 1;
-            seq_t *newptr = (seq_t*)malloc(newcap * sizeof(seq_t));
+            seq_t *newptr = mem_new(seq_t, newcap);
             for (size_t i = 0; i < len; ++i) newptr[i] = cache[i];
-            free(cache);
+            mem_free(cache);
             cache = newptr;
             cap   = newcap;
         }

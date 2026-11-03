@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_digits_uint32, has_five_consecutive
+ * Validated: standard, pass, 73 terms through n = 9015 (2026-11-01)
+ * Helpers:   num_digits_u32_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include "../utils/count_digits_uint32.h"
-#include "../utils/has_five_consecutive.h"
+#include "../utils/num_digits_u32_to_u64.h"
+
+static bool has_five_consecutive(const char *s)
+{
+    for (size_t i = 0; s[i + 4]; ++i) {
+        char d = s[i];
+        if (s[i + 1] == d && s[i + 2] == d && s[i + 3] == d && s[i + 4] == d)
+            return true;
+    }
+    return false;
+}
 
 /* ------------------------------------------------------------------- */
 /* Big integer in base 1e9. Only the operations required by the routine */
@@ -93,7 +103,7 @@ static char *bigint_to_str(const BigInt *a)
         return s;
     }
     size_t ms = a->len - 1;                /* most significant limb */
-    size_t len = count_digits_uint32(a->limb[ms]) + (a->len - 1) * 9;
+    size_t len = num_digits_u32_to_u64(a->limb[ms]) + (a->len - 1) * 9;
     char *s = (char *)malloc(len + 1);
     if (!s) return NULL;
     size_t pos = 0;

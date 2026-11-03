@@ -8,6 +8,7 @@
  *            (e_i + 1) where n = Π_i p_i^{e_i}
  * Range:     u8 n <= 359, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 101 terms through n = 9896 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,10 @@
 
 /* Compute the number of distinct prime factors of n and their
    exponents.  This helper is provided by the project. */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stddef.h>
 #include "../utils/factor_u64.h"
 #include <stddef.h>
 #include <stdint.h>

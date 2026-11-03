@@ -9,15 +9,22 @@
  *            x^(m(m+1)/2) (Jacobi). a(n) = coefficient of x^(n-1) in
  *            (Sum_{m>=0} (-1)^m (2m+1) x^(m(m+1)/2))^8
  * Range:     i8 n <= 2, i16 n <= 7, i32 n <= 46, i64 n <= 2562,
- *            i128 n <= 9968, big any n
- * Helpers:   alloc_zero
+ *            i128 n <= 16091, big any n
+ * Validated: standard, pass, 46 terms through n = 9968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *a594_T = 0;
 static idx_t a594_cap = 0;

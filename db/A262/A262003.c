@@ -9,7 +9,8 @@
  *            integer)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 18,
  *            big any n
- * Helpers:   seq_free
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,11 +18,14 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_free.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 /* Eager allocation of an array of seq_t */
 static seq_t *seq_alloc(size_t n) {
-    return (seq_t*)malloc(n * sizeof(seq_t));
+    return mem_new(seq_t, n);
 }
 
 /* Cached data for f[n] = B_n / n!  and a[n] */
@@ -40,9 +44,9 @@ static void ensure_cache(idx_t n) {
 
     seq_t *new_f = f_cache;
     seq_t *new_a = a_cache;
-    if (new_f) new_f = (seq_t*)realloc(new_f, new_cap * sizeof(seq_t));
+    if (new_f) new_f = mem_resize(seq_t, new_f, new_cap);
     else       new_f = seq_alloc(new_cap);
-    if (new_a) new_a = (seq_t*)realloc(new_a, new_cap * sizeof(seq_t));
+    if (new_a) new_a = mem_resize(seq_t, new_a, new_cap);
     else       new_a = seq_alloc(new_cap);
 
     f_cache = new_f;

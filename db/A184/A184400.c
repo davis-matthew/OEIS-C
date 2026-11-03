@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   encode_key
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>   /* for size_t */
-#include "../utils/encode_key.h"
+
+/* encode an (i,j) pair into a 64‑bit key (i<2^32, j<2^32) */
+static inline uint64_t encode_key(idx_t i, idx_t j)
+{
+    return ((uint64_t)i << 32) | (uint64_t)j;
+}
 
 /* ---------- helpers for integer key encoding ---------- */
 

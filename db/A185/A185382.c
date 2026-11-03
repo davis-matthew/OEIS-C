@@ -12,7 +12,8 @@
  *            Complexity: O(n) for the first computation, th...
  * Range:     u8 n <= 11, u16 n <= 144, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sieve_first_n_primes
+ * Validated: standard, pass, 62 terms through n = 9733 (2026-11-03)
+ * Helpers:   mem, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
+#include "../utils/mem.h"
 
 static uint32_t *primes      = NULL;   /* primes[0] = 2, primes[1] = 3, ... */
 static size_t   primes_cnt   = 0;      /* number of primes stored */
@@ -41,13 +45,13 @@ static void ensure_primes(idx_t n)
 
     /* free old memory */
     if (primes)   free(primes);
-    if (prefix_sums) free(prefix_sums);
+    if (prefix_sums) mem_free(prefix_sums);
 
     primes     = newp;
     primes_cnt = newcnt;
 
     /* build prefix sums of odd primes (skipping primes[0] == 2) */
-    prefix_sums = (seq_t*)calloc(newcnt, sizeof(seq_t));
+    prefix_sums = mem_new(seq_t, newcnt);
     prefix_len   = newcnt;
     seq_t sum = 0;
     for (size_t i = 1; i < newcnt; ++i) {

@@ -10,6 +10,7 @@
  * Formula:   a(n) = (n even? (3*n^2 + 8*n + 4)/4 : (3*n^2 + 16*n + 5)/4)
  * Range:     u8 n <= 16, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,12 +7,14 @@
  * Formula:   a(n) = (14 + n)*2^(n-1), a(0) = 7
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 27, u64 n <= 58, u128 n <= 121,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 3229 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* This implementation uses the existing pow2 function for arbitrary‑precision* */

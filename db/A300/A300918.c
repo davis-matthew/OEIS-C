@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 31, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 176 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
    a(17)=9395650615, a(18)=39752075589, a(19)=168185729492,
    a(20)=711577787970, a(21)=3010611147958, a(22)=12737611709683 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[22] = {
     1ULL, 5ULL, 20ULL, 76ULL, 290ULL, 1245ULL,
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     /* Ensure the cache is large enough for indices 1..n. */
     if (cache_size <= n) {
         idx_t new_size = n + 1;                      /* +1 because we ignore index 0 */
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_size);
         if (!tmp) {
             /* Allocation failure – return 0 (unlikely in real tests). */
             return (seq_t)0;

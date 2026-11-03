@@ -9,13 +9,15 @@
  *            a(1)=a(2)=a(3)=a(4)=a(5)=1. pi(k) is the prime‑counting function
  * Range:     u8 n <= 40, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9802 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* external integer types: seq_t (output) and idx_t (index), provided by build.  */
 
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
     /* Initialisation of base terms */
     if (dp_len == 0) {
         dp_len = 6;                     /* indices 0..5 usable */
-        dp = (seq_t*)calloc(dp_len, sizeof(seq_t));
+        dp = mem_new(seq_t, dp_len);
         if (!dp) abort();
         for (idx_t i = 1; i <= 5; ++i)
             dp[i] = (seq_t)1;
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
     /* Extend dp until it covers index n */
     while (n >= dp_len) {
         /* allocate one more slot */
-        seq_t *new_dp = (seq_t*)realloc(dp, (dp_len + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, (dp_len + 1));
         if (!new_dp) abort();
         dp = new_dp;
 

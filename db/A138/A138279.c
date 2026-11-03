@@ -8,6 +8,7 @@
  * Formula:   a(0)=0; a(1)=1; for n≥2, a(n) = [1,2,5,6][(n‑2) mod 4]
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
+ * Validated: partial, pass, 86 terms through n = 85 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

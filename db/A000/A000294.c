@@ -8,14 +8,23 @@
  *            Sum_{d|k} d*d*(d+1)/2 = (sigma_2(k)+sigma_3(k))/2
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 32, u64 n <= 75, u128 n <= 183,
  *            big any n
- * Helpers:   seq_is_big
+ * Validated: standard, pass, 57 terms through n = 945 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_is_big.h"
+#include "../utils/mem.h"
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
 
 static uint64_t *Bt = NULL;
 static idx_t Bn = 0;
@@ -89,9 +98,9 @@ static seq_t big_term(idx_t n)
         idx_t nc = n + 1, i;
         seq_t *nw;
         if (nc < 2 * ABcap) nc = 2 * ABcap;
-        nw = (seq_t *)calloc((size_t)nc, sizeof(seq_t));
+        nw = mem_new(seq_t, (size_t)nc);
         for (i = 0; i < ABn; i++) nw[i] = AB[i];
-        free(AB);
+        mem_free(AB);
         AB = nw;
         ABcap = nc;
     }

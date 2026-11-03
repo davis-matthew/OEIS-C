@@ -6,8 +6,9 @@
  * Keywords:  easy, sign, mult
  * Formula:   a(n) = a(n-2)-a(n-4), with a(0)=0, a(1)=1, a(2)=0, a(3)=0
  *            (periodic of length 12)
- * Range:     i8 n <= 8483, i16 n <= 8483, i32 n <= 8483, i64 n <= 8483,
- *            i128 n <= 8483, big any n
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8483 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

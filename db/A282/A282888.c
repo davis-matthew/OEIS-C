@@ -13,7 +13,8 @@
  *            unused integer that is legal – * a square (always lega...
  * Range:     u8 n <= 60, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   is_square_idx
+ * Validated: partial, pass, 88 terms through n = 87 (2026-11-03)
+ * Helpers:   is_square_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <string.h>
 #include "../utils/is_square_idx.h"
+#include "../utils/mem.h"
 
 /* Dynamic array for the permutation p(k). */
 static seq_t *perm = NULL;
@@ -50,7 +52,7 @@ static void ensure_used_capacity(idx_t idx) {
 static void ensure_perm_capacity(idx_t pos) {
     while ((size_t)pos >= perm_cap) {
         size_t new_cap = perm_cap ? perm_cap * 2 : 16;
-        seq_t *p = (seq_t*)realloc(perm, new_cap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, perm, new_cap);
         if (!p) abort();
         perm = p;
         perm_cap = new_cap;
@@ -68,7 +70,7 @@ static seq_t running_sum = 0;       /* current partial sum S(n)          */
 seq_t a(idx_t n) {
     /* One‑time initialization. */
     if (!perm) {
-        perm      = (seq_t*)malloc(16 * sizeof(seq_t));
+        perm      = mem_new(seq_t, 16);
         perm_cap  = 16;
         perm_len  = 1;
         perm[0]   = 0;

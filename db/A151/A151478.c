@@ -11,13 +11,15 @@
  *            = (2n+1) * M(n-1) + (3n-3) * M(n-2) for n ≥ 2
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *motzkin = NULL;
 static idx_t motzkin_cap = 0;
@@ -30,7 +32,7 @@ static void ensure_motzkin(idx_t n)
 
     idx_t old_cap = motzkin_cap;
     idx_t new_cap = n + 1;
-    seq_t *tmp = (seq_t *)realloc(motzkin, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, motzkin, new_cap);
     if (!tmp)
         abort();                         /* allocation failure */
     motzkin = tmp;

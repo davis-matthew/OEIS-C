@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   append_uint, seq_from_str
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,8 +32,33 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/seq_from_str.h"
-#include "../utils/append_uint.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+/* Append the decimal representation of val to buf at position *pos. */
+static size_t append_uint(char *buf, size_t *pos, size_t val)
+{
+    char tmp[32];
+    size_t t = 0;
+    do {
+        tmp[t++] = (char)('0' + (val % 10));
+        val /= 10;
+    } while (val);
+    while (t--) {
+        buf[(*pos)++] = tmp[t];
+    }
+    return *pos;
+}
 
 seq_t a(idx_t n)
 {
@@ -48,7 +74,7 @@ seq_t a(idx_t n)
     if (cache_cap < (size_t)n) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
         if (new_cap < (size_t)n) new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;           /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;

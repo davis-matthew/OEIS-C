@@ -10,7 +10,8 @@
  *            divisor count)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 23, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    smaller n simply return the previously stored value. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_arr   = NULL;   /* a(n) values                       */
 static seq_t *s_arr   = NULL;   /* A174478(k) values                 */
@@ -36,9 +38,9 @@ static void compute_up_to(idx_t n)
         return;  /* already ready */
 
     /* Allocate or grow storage */
-    a_arr   = (seq_t *)realloc(a_arr,   (size_t)(n+1) * sizeof(seq_t));
-    s_arr   = (seq_t *)realloc(s_arr,   (size_t)(n+1) * sizeof(seq_t));
-    pow2    = (seq_t *)realloc(pow2,    (size_t)(n+1) * sizeof(seq_t));
+    a_arr   = mem_resize(seq_t, a_arr, (size_t)(n+1));
+    s_arr   = mem_resize(seq_t, s_arr, (size_t)(n+1));
+    pow2    = mem_resize(seq_t, pow2, (size_t)(n+1));
     tau_arr = (idx_t *)realloc(tau_arr, (size_t)(n+1) * sizeof(idx_t));
 
     /* ---- compute τ(i) for i=0..n ---- */

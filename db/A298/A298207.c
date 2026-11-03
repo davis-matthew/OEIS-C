@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 115, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9835 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- constants and globals ---------- */
 static const size_t SIEVE_LIMIT = 2000000U;    /* sufficient for n ≤ 10 000 */
@@ -81,7 +83,7 @@ static void ensure_cache(idx_t n)
 {
     if (!cache_ready) {
         cache_cap = 32;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_cnt = 0;
         cache_ready = true;
     }
@@ -96,9 +98,9 @@ static void ensure_cache(idx_t n)
         if (omega == 0 || omega == 1 || omega == 3) {
             if (cache_cnt >= cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *new_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
-                memcpy(new_arr, cache, cache_cnt * sizeof(seq_t));
-                free(cache);
+                seq_t *new_arr = mem_new(seq_t, new_cap);
+                mem_copy(new_arr, cache, cache_cnt * sizeof(seq_t));
+                mem_free(cache);
                 cache = new_arr;
                 cache_cap = new_cap;
             }

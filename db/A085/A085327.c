@@ -7,7 +7,8 @@
  * Formula:   a(0)=1, a(1)=3, a(n)=3*a(n-1)-a(n-2)+1 for n>=2
  * Range:     i8 n <= 4, i16 n <= 10, i32 n <= 14, i64 n <= 14, i128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * for arbitrary‑precision builds as well. */
 
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of computed terms          */
 static size_t cache_len = 0;     /* number of terms currently stored  */
@@ -30,7 +32,7 @@ static void grow_cache(size_t new_cap)
     if (new_cap <= cache_cap)
         return;
     /* realloc may return NULL; in that case we keep the old cache. */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) /* allocation failed – keep old cache */
         return;
     cache = tmp;

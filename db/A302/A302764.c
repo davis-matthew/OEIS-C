@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 59, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    the sequence a(n) is obtained by reading the triangle row‑by‑row (row 0 first). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the nth term of OEIS sequence A302764. */
 seq_t a(idx_t n)
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
     idx_t k = n - before - 1;
 
     /* Allocate two rows of length R+1. */
-    seq_t *prev = (seq_t *)malloc((R + 1) * sizeof(seq_t));
-    seq_t *cur  = (seq_t *)malloc((R + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (R + 1));
+    seq_t *cur  = mem_new(seq_t, (R + 1));
 
     /* Row 0 */
     prev[0] = 1;
@@ -55,8 +57,8 @@ seq_t a(idx_t n)
     seq_t result = prev[k];          /* the required element */
 
     /* Free the allocated memory. */
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
 
     return result;
 }

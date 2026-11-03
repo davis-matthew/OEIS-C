@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of proper divisors of n that are Lucas numbers
  *            (excluding 2)
- * Range:     u8 n <= 291, u16 n <= 8324, u32 n <= 8324, u64 n <= 8324,
- *            u128 n <= 8324, big any n
+ * Range:     u8 n <= 291, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8324 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

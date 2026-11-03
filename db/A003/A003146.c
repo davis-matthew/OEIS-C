@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   Tribonacci word S_n = S_{n-1} S_{n-2} S_{n-3} with S_1="a",
  *            S_2="ab", S_3="abac"; find n-th 'c' position
- * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 2, u64 n <= 9880, u128 n <= 9880,
- *            big any n
+ * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 2, u64 n <= 10609,
+ *            u128 n <= 10609, big any n
+ * Validated: standard, pass, 74 terms through n = 9880 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

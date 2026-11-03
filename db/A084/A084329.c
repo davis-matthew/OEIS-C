@@ -7,13 +7,15 @@
  * Formula:   a(0)=0, a(1)=1, a(n)=20*a(n‑1)-20*a(n‑2)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -24,7 +26,7 @@ static void ensure_cache(idx_t n)
     if (cache_len > n) return;
 
     size_t new_len = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_len);
     if (!new_cache) return;                     /* allocation failed – caller must handle */
 
     if (cache_len == 0) {
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
         if (new_len > 1) new_cache[1] = 1;
         cache_len = (new_len > 1) ? 2 : 1;
     } else {
-        memcpy(new_cache, cache, cache_len * sizeof(seq_t));
+        mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
     }
 
     for (idx_t i = cache_len; i <= n; ++i) {
@@ -45,7 +47,7 @@ static void ensure_cache(idx_t n)
         }
     }
 
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_len = new_len;
 }

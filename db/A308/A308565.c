@@ -7,7 +7,8 @@
  * Formula:   a(n) = SUM_{k=0..n} binomial(n,k) * Stirling1(n,k) * k!
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 11, i64 n <= 19, i128 n <= 22,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 /* Uses the definition a(n) = n! * [x^n] (1+log(1+x))^n */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------------- */
 /* Static state */
@@ -35,10 +38,10 @@ static void ensure_capacity(idx_t need)
     if (need < capacity) return;
     size_t new_cap = (size_t)(need + 1);
 
-    fact   = (seq_t *)realloc(fact,   new_cap * sizeof(seq_t));
-    s_prev = (seq_t *)realloc(s_prev, new_cap * sizeof(seq_t));
-    s_curr = (seq_t *)realloc(s_curr, new_cap * sizeof(seq_t));
-    a_arr  = (seq_t *)realloc(a_arr,  new_cap * sizeof(seq_t));
+    fact   = mem_resize(seq_t, fact, new_cap);
+    s_prev = mem_resize(seq_t, s_prev, new_cap);
+    s_curr = mem_resize(seq_t, s_curr, new_cap);
+    a_arr  = mem_resize(seq_t, a_arr, new_cap);
 
     /* Initialise new slots to zero */
     for (idx_t i = capacity; i <= need; ++i) {

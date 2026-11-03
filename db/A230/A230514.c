@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3616, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 4884 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ----------  Prime test – deterministic Miller‑Rabin for 64‑bit ---------- */
 static uint64_t mod_pow_uint64(uint64_t a, uint64_t d, uint64_t mod)
@@ -110,7 +112,7 @@ static void rebuild_sg_list(idx_t limit)
 static void compute_up_to(idx_t n)
 {
     if (n <= SEQ_SIZE) return;
-    SEQ = (seq_t*)realloc(SEQ, (size_t)(n + 1) * sizeof(seq_t));
+    SEQ = mem_resize(seq_t, SEQ, (size_t)(n + 1));
     if (!SEQ) return; /* ignore failure */
     /* initialise new part of array to zero */
     for (idx_t i = SEQ_SIZE + 1; i <= n; ++i) SEQ[i] = 0;

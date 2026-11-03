@@ -10,6 +10,7 @@
  *            -1 if popcount(k)%4==3, else 0
  * Range:     i8 n <= 8192, i16 n <= 8192, i32 n <= 8192, i64 n <= 8192,
  *            i128 n <= 8192, big any n
+ * Validated: standard, pass, 84 terms through n = 8087 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,12 +8,14 @@
  *            ≤ i. i is the row index, j is the column index in that row
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t pow_seq(seq_t base, idx_t exp)

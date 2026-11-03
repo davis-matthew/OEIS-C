@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = Sum_{i=0}^{2n+1} J(i,12n+7) where J is the Jacobi symbol
- * Range:     i8 n <= 1641, i16 n <= 9951, i32 n <= 9951, i64 n <= 9951,
- *            i128 n <= 9951, big any n
+ * Range:     i8 n <= 1641, i16 n <= 131071, i32 n <= 131071, i64 n <= 131071,
+ *            i128 n <= 131071, big any n
+ * Validated: standard, pass, 92 terms through n = 9951 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

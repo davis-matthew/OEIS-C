@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_pi
+ * Validated: standard, pass, 102 terms through n = 9608 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         __uint128_t v128 = (__uint128_t)3 * m * m / 2;
         if (v128 > UINT64_MAX) break;    /* value no longer fits in idx_t */
         idx_t v = (idx_t)v128;
-        seq_t pi_v = compute_pi(v);
+        seq_t pi_v = prime_pi(v);
         if (pi_v > n) break;
         idx_t idx = (idx_t)pi_v;
         freq[idx]++;
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         __uint128_t v128 = (__uint128_t)k * k / 2;
         if (v128 > UINT64_MAX) break;
         idx_t v = (idx_t)v128;
-        seq_t pi_k = compute_pi(v);
+        seq_t pi_k = prime_pi(v);
         if (pi_k > n) break;
         idx_t pi_k_i = (idx_t)pi_k;
         idx_t target = n - pi_k_i;        /* required pi(3*m^2/2) value */

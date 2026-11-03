@@ -11,14 +11,15 @@
  *            antidiagonal coordinates of n
  * Range:     i8 n <= 38, i16 n <= 58, i32 n <= 97, i64 n <= 179,
  *            i128 n <= 336, big any n
- * Helpers:   binom, pow_seq
+ * Validated: standard, pass, 82 terms through n = 4707 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/pow_seq.h"
+#include "../utils/binomial.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -40,15 +41,15 @@ seq_t a(idx_t n)
         /* Inner sum Σ_{j=0..i} binomial(i,j)^col. */
         seq_t inner = 0;
         for (idx_t j = 0; j <= i; ++j) {
-            seq_t b = binom(i, j);
-            seq_t p = pow_seq(b, (int)col);
+            seq_t b = binomial(i, j);
+            seq_t p = ipow_i32(b, (int)col);
             inner += p;
         }
 
-        seq_t coeff = binom(row, i);
+        seq_t coeff = binomial(row, i);
 
         /* Compute (-2)^(row-i) as ((-1)^(row-i))*2^(row-i). */
-        seq_t two_pow = pow_seq((seq_t)2, (int)(row - i));
+        seq_t two_pow = ipow_i32((seq_t)2, (int)(row - i));
         if ((row - i) & 1)
             two_pow = -two_pow;  /* multiply by -1 if exponent is odd */
 

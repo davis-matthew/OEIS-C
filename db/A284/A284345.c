@@ -10,13 +10,15 @@
  *            sqrt(n)) which easily satisfies the required limits
  * Range:     u8 n <= 107, u16 n <= 431, u32 n <= 2591, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 117 terms through n = 9671 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper: integer floor square root for idx_t (uint64_t). */
 static idx_t isqrt_idx(idx_t n)
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     }
 
     /* 2. DP array for partition counts up to n. */
-    seq_t *dp = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)n + 1);
     if (!dp) {
         free(sqs);
         return (seq_t)0;
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
 
     seq_t result = dp[n];
 
-    free(dp);
+    mem_free(dp);
     free(sqs);
     return result;
 }

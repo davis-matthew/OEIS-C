@@ -10,12 +10,15 @@
  *            from 11 by iterating the hereditary base increment operation
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 13, u128 n <= 24,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 350 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Recursive helper that computes B_b(m),
    i.e. the result of replacing every base b by (b+1) in the hereditary
@@ -44,7 +47,7 @@ static seq_t B_b(seq_t b, seq_t m) {
 
     /* Recursive evaluation of the exponent and the remainder. */
     seq_t exp_val = B_b(b, e);
-    seq_t pow_new = big_pow(b + (seq_t)1, exp_val);  /* (b+1)^(exp_val) */
+    seq_t pow_new = ipow(b + (seq_t)1, exp_val);  /* (b+1)^(exp_val) */
     seq_t term1   = c * pow_new;
     seq_t term2   = B_b(b, r);
 

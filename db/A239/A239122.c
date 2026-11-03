@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σₖ₌₁ⁿ (-1)^Ω(k) * k – partial sums of A061019
  * Range:     i8 n <= 31, i16 n <= 1614, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---- state for incremental computation ------------------------------------ */
 static idx_t  computed_max = 0;   /* largest n for which cum array is valid   */
@@ -64,7 +66,7 @@ static void ensure_cumulative(idx_t n)
     size_t required = (size_t)n + 1;          /* need indices 0…n */
     if (cum_cap < required) {
         seq_t *old = cum;
-        cum = (seq_t *)realloc(cum, required * sizeof(seq_t));
+        cum = mem_resize(seq_t, cum, required);
         if (!cum) {
             cum = old;      /* allocation failed – fall back to old data */
             return;

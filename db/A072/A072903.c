@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   valid_m
+ * Validated: standard, pass, 75 terms through n = 9823 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,32 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/valid_m.h"
+#include "../utils/mem.h"
+
+/* Return true iff m satisfies the discriminant condition.  m fits in 64‑bit
+   because we only need to handle n up to about 10 000; the sequence values
+   are well below 2⁶⁴. */
+static bool valid_m(uint64_t m)
+{
+    uint64_t temp = m;
+    uint64_t kmax = 1;
+
+    /* Extract the square part: for every prime p, while p²|temp divide it
+       out and multiply kmax by p. */
+    for (uint64_t p = 2; p * p <= temp; ++p) {
+        while ((temp % (p * p)) == 0) {
+            temp /= p * p;
+            kmax *= p;
+        }
+    }
+
+    /* Now temp is the square‑free part m0. */
+    uint64_t m0 = temp;
+    if ((m0 & 3ULL) == 1)          /* m0 ≡ 1 (mod 4) or m0 = 1 */
+        return kmax >= 2;
+    else                            /* m0 ≠ 1 (mod 4) */
+        return kmax >= 3;
+}
 
 /* Static memoisation table.  seq_cache holds the terms a(1), a(2), … */
 static seq_t *seq_cache = NULL;
@@ -42,7 +68,7 @@ seq_t a(idx_t n)
            compatible with both C and C++ where seq_t may be a class. */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-            seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
             if (!tmp) abort();            /* unrecoverable memory failure */
             seq_cache = tmp;
             cache_cap = new_cap;

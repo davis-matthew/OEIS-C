@@ -9,13 +9,15 @@
  *            2^k
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 18, u64 n <= 43, u128 n <= 101,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 38 terms through n = 840 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Compute the sequence using the binomial helper functions. */
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t a, idx_t b) */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -26,10 +28,10 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= max_k; ++k) {
         /* binom(n-k+6, 6) is always defined because k <= n/2 <= n */
-        seq_t t1 = binom(n - k + 6, 6);
+        seq_t t1 = binomial(n - k + 6, 6);
 
         /* binom(n-k, k) – if k > n-k it returns 0 (handled by binom) */
-        seq_t t2 = binom(n - k, k);
+        seq_t t2 = binomial(n - k, k);
 
         /* Multiply the terms together, then add to result */
         seq_t term = t1 * t2;

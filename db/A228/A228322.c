@@ -8,14 +8,15 @@
  * Formula:   a(n) = 6*2^(2*n) - 2^(n-2)*(4 + 12*n + n^2 + n^3)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 14, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -23,8 +24,8 @@ seq_t a(idx_t n)
     if (n == 1) return (seq_t)15;   /* base case */
 
     seq_t n_t = (seq_t)n;
-    seq_t pow2_2n      = big_pow((seq_t)2, (seq_t)(2 * n));
-    seq_t pow2_n_minus2 = big_pow((seq_t)2, (seq_t)(n - 2));
+    seq_t pow2_2n      = ipow((seq_t)2, (seq_t)(2 * n));
+    seq_t pow2_n_minus2 = ipow((seq_t)2, (seq_t)(n - 2));
 
     seq_t n2 = n_t * n_t;            /* n^2 */
     seq_t n3 = n2 * n_t;             /* n^3 */

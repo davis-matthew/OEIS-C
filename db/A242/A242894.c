@@ -14,6 +14,7 @@
  *            {20,25,30,20,25} with the base values a(1)=5, a(2)=10, a...
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

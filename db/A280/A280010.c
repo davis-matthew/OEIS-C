@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 2378, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_prime_factors, is_prime
+ * Validated: standard, pass, 79 terms through n = 9241 (2026-11-03)
+ * Helpers:   bigomega_seq, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include "../utils/bigomega_seq.h"
 #include "../utils/is_prime.h"
-#include "../utils/count_prime_factors.h"
+#include "../utils/mem.h"
 
 /* Static state for memoisation ********************************************/
 
@@ -43,7 +45,7 @@ ensure_cluster_cap(size_t needed)
     size_t new_cap = cluster_cap ? cluster_cap * 2 : 8;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cluster_len_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cluster_len_arr, new_cap);
     cluster_len_arr = tmp;
     cluster_cap     = new_cap;
 }
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
         /* Determine if p is a Chen prime.  A Chen prime has p+2 with
            at most two prime factors (counted with multiplicity). */
         idx_t pp2 = p + 2;
-        bool is_chen = (count_prime_factors((seq_t)pp2) <= 2);
+        bool is_chen = (bigomega_seq((seq_t)pp2) <= 2);
 
         if (!is_chen)              /* non‑Chen prime: extend current cluster */
         {

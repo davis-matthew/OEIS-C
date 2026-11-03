@@ -8,13 +8,15 @@
  * Formula:   a(n) = 9180 + 2^n*(2800*n+136)+4^n*(320*n-976)
  * Range:     u8 none, u16 n <= 2, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow2.h"          /* provides seq_t pow2(idx_t exp) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

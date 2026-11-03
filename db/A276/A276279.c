@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  *  term a(s). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Array of the 36 coin weights corresponding to the factors in the generating function.
  * 8 copies of 1, 7 copies of 3, 6 copies of 5, 5 copies of 7,
@@ -41,7 +43,7 @@ static const idx_t weights[36] = {
 seq_t a(idx_t n)
 {
     /* Allocate an array of seq_t of size n+1 initialized to 0 */
-    seq_t *dp = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (dp == NULL) {
         /* In an environment where malloc can fail, return 0 for safety */
         return 0;
@@ -58,6 +60,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

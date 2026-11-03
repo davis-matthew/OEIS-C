@@ -8,14 +8,24 @@
  * Formula:   a(n) = nth even n ≥ 6 with lpf(n-1) > lpf(n-3)
  * Range:     u8 n <= 71, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   lpf
+ * Validated: standard, pass, 74 terms through n = 9215 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/lpf.h"
+#include "../utils/mem.h"
+
+/* Return the smallest prime factor of n   (n > 1) */
+static inline idx_t lpf(idx_t n)
+{
+    if (n % 2 == 0) return 2;
+    for (idx_t i = 3; i <= n / i; i += 2)
+        if (n % i == 0) return i;
+    return n;   /* n itself is prime – should not be called for primes */
+}
 
 seq_t a(idx_t n)
 {
@@ -33,9 +43,9 @@ seq_t a(idx_t n)
             /* Grow the cache if necessary. */
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0 ? 16 : cache_cap * 2);
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
-                    if (cache) free(cache);
+                    if (cache) mem_free(cache);
                     exit(EXIT_FAILURE);
                 }
                 cache = tmp;

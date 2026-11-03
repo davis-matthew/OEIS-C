@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 5462, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   term_ok
+ * Validated: standard, pass, 67 terms through n = 9603 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,18 @@
    ordered increasingly.  This implementation scans natural numbers
    and returns the nth term. */
 #include <stdbool.h>
-#include "../utils/term_ok.h"
+
+static bool term_ok(seq_t x)
+{
+    seq_t y = x;
+    uint64_t parity = 0;          /* parity of v2(x); 1 if odd, 0 if even */
+    while ((y % 2) == 0) {
+        y /= 2;
+        parity ^= 1;             /* toggle parity */
+    }
+    if (parity == 0) return false;      /* exponent is even or zero */
+    return (y % 8) == 1;                 /* odd part ≡ 1 (mod 8) */
+}
 
 seq_t a(idx_t n)
 {

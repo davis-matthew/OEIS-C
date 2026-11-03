@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 39, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* ---------- helper: Gaussian binomial coefficient for q = 2 ---------- */
 static seq_t gaussian_binom(idx_t n, idx_t k)
@@ -38,8 +40,8 @@ static seq_t gaussian_binom(idx_t n, idx_t k)
     seq_t res = 1;
     /* product over i = 1 .. k of (2^(n+1-i)-1)/(2^i-1) */
     for (idx_t i = 1; i <= k; ++i) {
-        seq_t num = big_pow((seq_t)2, (seq_t)(n + 1 - i)) - 1;
-        seq_t den = big_pow((seq_t)2, (seq_t)i) - 1;
+        seq_t num = ipow((seq_t)2, (seq_t)(n + 1 - i)) - 1;
+        seq_t den = ipow((seq_t)2, (seq_t)i) - 1;
         res = res * num / den;           /* exact division at each step */
     }
     return res;
@@ -76,6 +78,6 @@ seq_t a(idx_t n)
     /* Compute T(r,k) = GaussianBinomial(r,k) * 2^(k*(r-k)) */
     seq_t g = gaussian_binom(r, k);
     idx_t expo = k * (r - k);
-    seq_t p2 = big_pow((seq_t)2, (seq_t)expo);
+    seq_t p2 = ipow((seq_t)2, (seq_t)expo);
     return g * p2;
 }

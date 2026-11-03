@@ -7,12 +7,14 @@
  * Formula:   a(n) = 54*a(n-2) - a(n-4), a(0)=1, a(1)=2, a(2)=53, a(3)=108
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache with the first four terms on first use */
     if (cache == NULL) {
-        cache = (seq_t*)malloc(4 * sizeof(seq_t));
+        cache = mem_new(seq_t, 4);
         if (!cache) return 0; /* allocation failed */
         cache[0] = 1;
         cache[1] = 2;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache if necessary */
     if (n + 1 > cache_size) {
-        seq_t *tmp = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) return 0; /* allocation failed */
         cache = tmp;
         cache_size = n + 1;

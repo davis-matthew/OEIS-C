@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * coefficient of x^n in arcsin(exp(x)-cos(x))
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Implementation uses scaled integer arithmetic (EGF basis)        */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *fSc   = NULL;   /* f(x) scaled coefficients (f_i = coeff * i!)  */
 static seq_t *v     = NULL;   /* (f^2) scaled coefficients                  */
@@ -31,11 +33,11 @@ static void ensure(idx_t n)
     idx_t newSize = n;
     size_t sz = (newSize + 1) * sizeof(seq_t);
 
-    fSc   = (seq_t *)realloc(fSc  , sz);
-    v     = (seq_t *)realloc(v    , sz);
-    b     = (seq_t *)realloc(b    , sz);
-    gG    = (seq_t *)realloc(gG   , sz);
-    aVals = (seq_t *)realloc(aVals, sz);
+    fSc   = mem_resize(seq_t, fSc, (sz) / sizeof(seq_t));
+    v     = mem_resize(seq_t, v, (sz) / sizeof(seq_t));
+    b     = mem_resize(seq_t, b, (sz) / sizeof(seq_t));
+    gG    = mem_resize(seq_t, gG, (sz) / sizeof(seq_t));
+    aVals = mem_resize(seq_t, aVals, (sz) / sizeof(seq_t));
 
     /* initialise fSc for new indices */
     for (idx_t i = computed + 1; i <= newSize; ++i)

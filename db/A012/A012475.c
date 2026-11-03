@@ -11,12 +11,14 @@
  *            any idx_t (usually uint64_t). It is * cache‑fr...
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 5, i64 n <= 9, i128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +26,8 @@ seq_t a(idx_t n)
         return 1;                 /* a(0) = 1 */
 
     /* Allocate two auxiliary tables of size n+1 (worst case). */
-    seq_t *prev = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *curr = mem_new(seq_t, (size_t)(n + 1));
     if (!prev || !curr)          /* defensive: never expected to fail in tests */
         return 0;                /* return zero as a graceful fallback */
 
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* After completing n steps, prev[0] holds A(n,1) = a(n). */
     seq_t result = prev[0];
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

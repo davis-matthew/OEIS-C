@@ -10,7 +10,8 @@
  *            all vertical neighbours
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 135 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* pre‑computation static data */
@@ -118,8 +120,8 @@ seq_t a(idx_t n) {
         /* ------------------------------------------------------------------ */
         /* 4. Allocate DP arrays.                                               */
         /* ------------------------------------------------------------------ */
-        dp  = (seq_t *)malloc(STATES * sizeof(seq_t));
-        dp2 = (seq_t *)malloc(STATES * sizeof(seq_t));
+        dp  = mem_new(seq_t, STATES);
+        dp2 = mem_new(seq_t, STATES);
         for (int i = 0; i < STATES; ++i) {
             dp[i] = 0;
             dp2[i] = 0;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 2, u64 n <= 4, u128 n <= 7,
  *            big any n
- * Helpers:   factorial
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
  * returned via the supplied big‑integer routine `factorial`. */
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/factorial.h"        /* seq_t factorial(idx_t n); */
+#include <stdint.h>
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 static idx_t   *idx_list  = NULL;    /* indices where n! starts with 2 */
 static size_t  idx_cap   = 0;        /* capacity of idx_list              */

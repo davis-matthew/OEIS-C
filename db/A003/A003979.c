@@ -8,7 +8,8 @@
  *            ... + q^e, where q = A000041(A000720(p)+1)
  * Range:     u8 n <= 52, u16 n <= 190, u32 n <= 708, u64 n <= 2860,
  *            u128 n <= 10000, big any n
- * Helpers:   geom_sum, release, zalloc_arr
+ * Validated: standard, pass, 80 terms through n = 9670 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,28 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/zalloc_arr.h"
-#include "../utils/release.h"
-#include "../utils/geom_sum.h"
+#include "../utils/mem.h"
+
+static seq_t *zalloc_arr(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+/* sum 1 + q + q^2 + ... + q^e */
+static seq_t geom_sum(seq_t q, idx_t e) {
+    seq_t sum = 1;
+    seq_t power = 1;
+    idx_t i;
+    for (i = 1; i <= e; i++) {
+        power = power * q;
+        sum = sum + power;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n) {
     uint64_t primes[64];

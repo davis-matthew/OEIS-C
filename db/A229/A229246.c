@@ -9,12 +9,14 @@
  *            of {1,…,n} with largest block of size exactly 4. (Offset 4.)
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 15, u64 n <= 26, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 477 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *B4 = NULL;       /* partitions with block size ≤4 */
 static seq_t *B3 = NULL;       /* partitions with block size ≤3 */
@@ -30,18 +32,18 @@ static void ensure_to(idx_t n)
 
     /* Allocate or grow the arrays. */
     if (B4 == NULL) {
-        B4 = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        B3 = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        B4 = mem_new(seq_t, new_cap);
+        B3 = mem_new(seq_t, new_cap);
         if (B4 == NULL || B3 == NULL)
             exit(EXIT_FAILURE);
         B4[0] = 1;
         B3[0] = 1;
     } else {
-        seq_t *tmp = (seq_t *)realloc(B4, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, B4, new_cap);
         if (tmp == NULL)
             exit(EXIT_FAILURE);
         B4 = tmp;
-        tmp = (seq_t *)realloc(B3, new_cap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, B3, new_cap);
         if (tmp == NULL)
             exit(EXIT_FAILURE);
         B3 = tmp;

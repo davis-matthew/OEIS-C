@@ -8,7 +8,8 @@
  * Formula:   a(n) = 1 + Sum_{k=0..n-1} a(floor(k/3)) * a(n-1-k); a(0) = 1
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 29, u64 n <= 58, u128 n <= 117,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for memoisation */
@@ -29,10 +31,10 @@ seq_t a(idx_t n) {
     /* initialise cache if needed */
     if (seq_len == 0) {
         capacity = 1;
-        seq = (seq_t *)malloc(capacity * sizeof(seq_t));
+        seq = mem_new(seq_t, capacity);
         if (!seq) abort();
 #ifdef __cplusplus
-        new (seq) seq_t();         /* construct default element */
+        *(seq) = (seq_t)0;         /* construct default element */
         seq[0] = (seq_t)1;         /* a(0) */
 #else
         seq[0] = (seq_t)1;         /* a(0) */
@@ -49,18 +51,18 @@ seq_t a(idx_t n) {
         }
         if (new_cap > capacity) {
 #ifdef __cplusplus
-            seq_t *new_seq = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_t *new_seq = mem_new(seq_t, new_cap);
             if (!new_seq) abort();
             /* copy existing elements */
             for (idx_t i = 0; i < capacity; ++i)
-                new (new_seq + i) seq_t(seq[i]);   /* copy‑construct */
+                *(new_seq + i) = (seq_t)(seq[i]);   /* copy‑construct */
             /* default‑construct new slots */
             for (idx_t i = capacity; i < new_cap; ++i)
-                new (new_seq + i) seq_t();
+                *(new_seq + i) = (seq_t)0;
             /* destroy old elements */
             for (idx_t i = 0; i < capacity; ++i)
-                seq[i].~seq_t();
-            free(seq);
+(void)0;  /* mem_free destroys the elements */
+            mem_free(seq);
             seq = new_seq;
 #else
             seq_t *new_seq = (seq_t *)malloc(new_cap * sizeof(seq_t));

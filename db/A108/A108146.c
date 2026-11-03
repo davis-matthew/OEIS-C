@@ -7,13 +7,34 @@
  * Formula:   a(n) = 4*a(n-1) - a(n-2) - a(n-3), a(0)=a(1)=a(2)=1
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   seq_malloc, seq_realloc
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_malloc.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+static inline seq_t *seq_realloc(seq_t *p, idx_t n)
+{
+#ifdef __cplusplus
+    return mem_resize(seq_t, p, n);
+#else
+    return (seq_t *)realloc(p, n * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n) {
     /* static cache of computed values */

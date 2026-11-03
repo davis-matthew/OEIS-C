@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   satisfies_seq_t
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,33 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/satisfies_seq_t.h"
+#include "../utils/mem.h"
+
+/* Return true if x satisfies the condition. */
+static bool satisfies_seq_t(seq_t x)
+{
+    bool seen[10] = {0};
+    seq_t t = x;
+    int cnt = 0;
+
+    while (t > 0) {
+        int d = (int)(t % 10);   /* current least significant digit */
+        if (!seen[d]) {
+            seen[d] = true;
+            ++cnt;
+            if (cnt > 9) {
+                /* More than 9 distinct digits -> impossible to have a
+                   digit equal to the count (max digit is 9).  We may
+                   break early, but we continue to consume the remaining
+                   digits to keep the loop simple. */
+            }
+        }
+        t /= 10;
+    }
+
+    if (cnt > 9) return false;   /* distinct digits 10 impossible */
+    return seen[cnt];
+}
 
 /* Static cache of already computed terms.  The cache grows as needed. */
 static seq_t *cache = NULL;          /* array of terms */
@@ -36,7 +63,7 @@ seq_t a(idx_t n)
         /* Ensure capacity for a new term */
         if (cache_size == cache_capacity) {
             idx_t new_cap = cache_capacity == 0 ? 64 : cache_capacity * 2;
-            seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *p = mem_resize(seq_t, cache, new_cap);
             if (!p) abort();          /* out of memory */
             cache = p;
             cache_capacity = new_cap;

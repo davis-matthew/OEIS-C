@@ -10,15 +10,17 @@
  *            x^2 + x^3 + x^4 + x^5 + x^6) * A(x^5). The sequence is computed
  *            via the recurrence: a(0) = 1 a(n) = Σ_{i=0}^6 a((n-i)/5) for all
  *            i with n≥i and (n-i)%5==0
- * Range:     u8 n <= 9397, u16 n <= 9397, u32 n <= 9397, u64 n <= 9397,
- *            u128 n <= 9397, big any n
- * Helpers:   none
+ * Range:     u8 n <= 15625, u16 n <= 15625, u32 n <= 15625, u64 n <= 15625,
+ *            u128 n <= 15625, big any n
+ * Validated: standard, pass, 108 terms through n = 9397 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         /* Resize cache to accommodate n. */
         idx_t old_len = cache_len;
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_len);
         if (!tmp) { /* allocation failed – return 0 as a safe fallback */
             return (seq_t)0;
         }

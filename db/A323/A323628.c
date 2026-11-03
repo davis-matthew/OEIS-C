@@ -9,7 +9,8 @@
  *            modulo p, * 2) p ≡ 1 (mod 7)
  * Range:     u8 n <= 6, u16 n <= 363, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 62 terms through n = 9958 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 
 /* Utility routines that are available in
  * the OEIS build environment */
-#include "../utils/is_prime.h"     /* bool is_prime(idx_t n); */
-#include "../utils/mod_pow.h"      /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* integer square root for 64‑bit values (non‑floating point)        */
@@ -113,13 +116,13 @@ static bool is_primitive_root(uint64_t p)
         uint64_t q = prime_list[i];
         if (q > temp) break;
         if (temp % q == 0) {
-            seq_t res = mod_pow((seq_t)3, (uint64_t)(m / q), (seq_t)p);
+            seq_t res = powmod((seq_t)3, (uint64_t)(m / q), (seq_t)p);
             if (res == (seq_t)1) return false;
             while (temp % q == 0) temp /= q;
         }
     }
     if (temp > 1) {
-        seq_t res = mod_pow((seq_t)3, (uint64_t)(m / temp), (seq_t)p);
+        seq_t res = powmod((seq_t)3, (uint64_t)(m / temp), (seq_t)p);
         if (res == (seq_t)1) return false;
     }
     return true;
@@ -148,7 +151,7 @@ static void extend_cache(idx_t n)
         /* grow cache if necessary                                     */
         if (cache_cnt == cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();                /* allocation failure */
             cache = tmp;
             cache_cap = new_cap;

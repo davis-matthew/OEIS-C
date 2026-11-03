@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   coeff_num
+ * Validated: standard, pass, 32 terms through n = 490 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,19 @@
    indices ever requested.  No hard‑coded table of terms is used.  */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/coeff_num.h"
+#include "../utils/mem.h"
+
+/* coefficient of t^n in the numerator N(t) of the generating function */
+static seq_t coeff_num(idx_t n)
+{
+    if (n == 0)
+        return (seq_t)1;
+    if (1 <= n && n <= 14)
+        return (seq_t)2;
+    if (n == 15)
+        return (seq_t)1;
+    return (seq_t)0;   /* for n > 15 the numerator has no term          */
+}
 
 /* dynamic cache of computed values */
 static seq_t *cache = NULL;          /* sequence values a(0), a(1), …         */
@@ -42,7 +55,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = cache_cap > 0 ? cache_cap * 2 : 16;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     /* If realloc fails the program will terminate, which is acceptable
        for the contest environment. */
     cache = new_cache;

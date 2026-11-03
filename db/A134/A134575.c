@@ -9,13 +9,19 @@
  *            position in row m)
  * Range:     u8 n <= 135, u16 n <= 1275, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   prev_tri
+ * Validated: standard, pass, 107 terms through n = 1264 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/prev_tri.h"
+
+static idx_t prev_tri(idx_t r)
+{
+    __int128 t = (__int128)(r - 1) * r / 2;
+    return (idx_t)t;
+}
 
 static idx_t row_for_idx(idx_t n)
 {

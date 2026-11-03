@@ -10,12 +10,14 @@
  *            27*(a(n-1)-a(n-2)+27*a(n-3)) for n >= 4
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* array of computed terms              */
 static idx_t cache_len = 0;        /* number of elements currently stored  */
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t n)
 
     idx_t old_len = cache_len;              /* elements currently computed */
     size_t new_len = (size_t)(n + 1);        /* needed size (indices 0..n)   */
-    seq_t *new_cache = (seq_t*)malloc(new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_len);
     if (!new_cache)                         /* allocation failed : abort   */
         return;
 
@@ -36,7 +38,7 @@ static void ensure_cache(idx_t n)
     for (idx_t i = 0; i < old_len; ++i)
         new_cache[i] = cache[i];
     /* the rest are zero-initialised implicitly by malloc  */
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     cache = new_cache;
     cache_len = new_len;
 

@@ -8,13 +8,20 @@
  *            Abelian groups of order n)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   partitions_le3
+ * Validated: standard, pass, 118 terms through n = 9879 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/partitions_le3.h"
+
+/* partitions of e into at most 3 parts: floor((e²+6e+12)/12) */
+static seq_t partitions_le3(uint64_t e)
+{
+    seq_t x = (seq_t)e;
+    return (x * x + 6 * x + 12) / 12;
+}
 
 /* --------------------------------------------------------------- */
 /*  Main sequence function                                         */

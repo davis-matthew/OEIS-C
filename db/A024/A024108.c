@@ -7,13 +7,16 @@
  * Formula:   a(n) = 9^n - n^7
  * Range:     i8 n <= 2, i16 n <= 5, i32 n <= 9, i64 n <= 19, i128 n <= 40,
  *            big any n
- * Helpers:   big_pow, pow_seq
+ * Validated: standard, pass, 36 terms through n = 384 (2026-11-01)
+ * Helpers:   ipow, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -21,10 +24,10 @@ seq_t a(idx_t n)
     seq_t sn = (seq_t)n;
 
     /* 9^n */
-    seq_t pow9 = big_pow((seq_t)9, sn);
+    seq_t pow9 = ipow((seq_t)9, sn);
 
     /* n^7 */
-    seq_t pow7 = pow_seq(sn, 7);
+    seq_t pow7 = ipow_i32(sn, 7);
 
     /* Difference */
     return pow9 - pow7;

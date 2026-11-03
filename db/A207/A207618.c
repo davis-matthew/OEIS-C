@@ -12,7 +12,8 @@
  *            the flattened list of the polynomial coeffi...
  * Range:     u8 n <= 32, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /*  #include for required types  */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  static state for memoisation  */
 static seq_t *u = NULL;        /* coefficients of current u(r,x)   */
@@ -37,8 +39,8 @@ static void grow_to_row(idx_t target)
         idx_t new_u_len  = (new_row <= 2 ? 1 : new_row - 1);    /* length of u(next) */
         idx_t new_v_len  = new_row;                            /* length of v(next) */
 
-        seq_t *new_u = (seq_t*)malloc((size_t)new_u_len * sizeof(seq_t));
-        seq_t *new_v = (seq_t*)malloc((size_t)new_v_len * sizeof(seq_t));
+        seq_t *new_u = mem_new(seq_t, (size_t)new_u_len);
+        seq_t *new_v = mem_new(seq_t, (size_t)new_v_len);
 
         /*  compute u(next)  */
         for (idx_t i = 0; i < new_u_len; ++i)
@@ -58,8 +60,8 @@ static void grow_to_row(idx_t target)
             new_v[i] = part1 + part2;
         }
 
-        free(u);
-        free(v);
+        mem_free(u);
+        mem_free(v);
         u = new_u;
         v = new_v;
         curr_row = new_row;
@@ -75,8 +77,8 @@ seq_t a(idx_t n)
     if (curr_row == 0)
     {
         curr_row = 1;
-        u = (seq_t*)malloc(sizeof(seq_t));
-        v = (seq_t*)malloc(sizeof(seq_t));
+        u = mem_new(seq_t, 1);
+        v = mem_new(seq_t, 1);
         u[0] = v[0] = (seq_t)1;
     }
 

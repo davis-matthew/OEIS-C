@@ -8,6 +8,7 @@
  *            listing all integers whose first decimal digit is 5.)
  * Range:     u8 n <= 11, u16 n <= 1111, u32 n <= 1111, u64 n <= 1111,
  *            u128 n <= 1111, big any n
+ * Validated: standard, pass, 70 terms through n = 1106 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

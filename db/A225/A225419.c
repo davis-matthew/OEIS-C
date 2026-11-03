@@ -7,13 +7,15 @@
  * Formula:   a(n) = binomial(2*row + 2, k) where n = row*(row+1)/2 + k, 0 ≤ k
  *            ≤ row. The implementation finds row by binary search on the
  *            triangular numbers
- * Range:     u8 n <= 12, u16 n <= 34, u32 n <= 47, u64 n <= 47, u128 n <= 47,
+ * Range:     u8 n <= 18, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

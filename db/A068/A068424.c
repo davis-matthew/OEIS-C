@@ -11,14 +11,24 @@
  *            and return T(r,k)
  * Range:     u8 n <= 18, u16 n <= 42, u32 n <= 89, u64 n <= 228,
  *            u128 n <= 625, big any n
- * Helpers:   row_of_index
+ * Validated: standard, pass, 71 terms through n = 5008 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/row_of_index.h"
+
+static inline idx_t row_of_index(idx_t n) {
+    /* Compute the smallest r with r*(r+1)/2 >= n. */
+    long double disc = sqrtl((long double)8 * n + 1);
+    idx_t r = (idx_t)((disc - 1) / 2);                  /* floor */
+    /* Adjust to be the ceil. */
+    while ((unsigned __int128)r * (r + 1) / 2 < n) r++;
+    while (r > 0 && (unsigned __int128)(r - 1) * r / 2 >= n) r--;
+    return r;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;  /* offset is 1; behaviour for n=0 is undefined but return 0 */

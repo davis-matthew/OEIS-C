@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{p odd prime, p² ≤ n} (⌊log₂(n / p²)⌋ + 1)
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   build_primes_upto, int_sqrt
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,9 @@
 #include <stdlib.h>          /* malloc, free */
 #include <stdint.h>          /* uint64_t */
 #include <stddef.h>          /* size_t */
-#include "../utils/int_sqrt.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     }
 
     /* compute sqrt(n) once, used as upper bound for primes */
-    idx_t lim = int_sqrt(n);
+    idx_t lim = isqrt(n);
 
     /* primes array returned by build_primes_upto */
     uint64_t *primes = NULL;

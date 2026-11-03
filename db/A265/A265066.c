@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 25, u32 n <= 53, u64 n <= 108,
  *            u128 n <= 220, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 896 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t init[13] = {
     (seq_t)1,   /* a(0) */
@@ -61,10 +63,10 @@ seq_t a(idx_t n)
         cache_cap = n + 1;
         if (cache_cap < 16U)
             cache_cap = 16U;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL)
             return (seq_t)0;  /* out of memory – unlikely in the test harness */
-        memcpy(cache, init, 13 * sizeof(seq_t));
+        mem_copy(cache, init, 13 * sizeof(seq_t));
         cache_len = 13;
     }
 
@@ -74,12 +76,11 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap;
         while (new_cap <= (size_t)n + 1)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL)
             return (seq_t)0;
         /* Zero the newly allocated part */
-        memset(tmp + cache_cap, 0,
-               (new_cap - cache_cap) * sizeof(seq_t));
+        mem_set(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
         cache = tmp;
         cache_cap = new_cap;
     }

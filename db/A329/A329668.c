@@ -12,12 +12,14 @@
  *            that tracks the current altitude * and the last step...
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 28, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache       = NULL;     // a_cache[n] = a(n)
 static idx_t  cache_size    = 0;        // allocated size of a_cache
@@ -36,7 +38,7 @@ static void ensure_up_to(idx_t n)
     /* Resize the a_cache array if necessary */
     idx_t need_cache = n + 1;   /* store values for indices 0..n */
     if ((size_t)need_cache > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(a_cache, need_cache * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, need_cache);
         a_cache = tmp;
         cache_size = need_cache;
     }
@@ -44,12 +46,12 @@ static void ensure_up_to(idx_t n)
     /* Resize the DP arrays if necessary (indices 0..n) */
     size_t need_size = (size_t)n + 1;
     if (need_size > array_size) {
-        u_arr  = (seq_t *)realloc(u_arr,  need_size * sizeof(seq_t));
-        h_arr  = (seq_t *)realloc(h_arr,  need_size * sizeof(seq_t));
-        d_arr  = (seq_t *)realloc(d_arr,  need_size * sizeof(seq_t));
-        nu_arr = (seq_t *)realloc(nu_arr, need_size * sizeof(seq_t));
-        nh_arr = (seq_t *)realloc(nh_arr, need_size * sizeof(seq_t));
-        nd_arr = (seq_t *)realloc(nd_arr, need_size * sizeof(seq_t));
+        u_arr  = mem_resize(seq_t, u_arr, need_size);
+        h_arr  = mem_resize(seq_t, h_arr, need_size);
+        d_arr  = mem_resize(seq_t, d_arr, need_size);
+        nu_arr = mem_resize(seq_t, nu_arr, need_size);
+        nh_arr = mem_resize(seq_t, nh_arr, need_size);
+        nd_arr = mem_resize(seq_t, nd_arr, need_size);
 
         /* Zero the newly allocated portion */
         for (size_t i = array_size; i < need_size; i++) {

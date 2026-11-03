@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 23, u128 n <= 24,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 /* required external helpers */
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (coeff_len <= 0) {
         /* allocate initial capacity */
         coeff_cap = 64;
-        coeffs = (seq_t *)malloc(coeff_cap * sizeof(seq_t));
+        coeffs = mem_new(seq_t, coeff_cap);
         coeffs[0] = (seq_t)1;            /* k=0: 1! / 6^0 = 1 */
         coeff_len = 1;
     }
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         if (need_coeff > coeff_cap) {
             size_t new_cap = coeff_cap * 2;
             if (new_cap < need_coeff) new_cap = need_coeff;
-            coeffs = (seq_t *)realloc(coeffs, new_cap * sizeof(seq_t));
+            coeffs = mem_resize(seq_t, coeffs, new_cap);
             coeff_cap = new_cap;
         }
         for (idx_t k = coeff_len; k < need_coeff; ++k) {
@@ -69,14 +71,14 @@ seq_t a(idx_t n)
     if (cache_size <= n) {
         if (cache_size < 4) {
             cache_cap = 16;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
             for (idx_t i = 0; i < 4; ++i) cache[i] = (seq_t)1;
             cache_size = 4;
         }
         if (n + 1 > cache_cap) {
             size_t new_cap = cache_cap * 2;
             if (new_cap < n + 1) new_cap = n + 1;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
         for (idx_t i = cache_size; i <= n; ++i) {

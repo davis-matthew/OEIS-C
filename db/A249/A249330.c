@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   is_prime_small, mod_pow
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"    /* mod_pow(seq_t base, uint64_t exp, seq_t mod) */
-#include "../utils/is_prime_small.h"  /* bool is_prime_small(seq_t n) */
+#include <string.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Cache of computed sequence values. */
 static seq_t *terms      = NULL;
@@ -62,11 +65,11 @@ static void add_term(seq_t v)
 {
     if (term_cap == 0) {
         term_cap = 64;
-        terms = (seq_t *)malloc(term_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, term_cap);
     }
     if (term_len == term_cap) {
         term_cap *= 2;
-        terms = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, term_cap);
     }
     terms[term_len++] = v;
 }
@@ -93,19 +96,19 @@ static void ensure_terms(idx_t n)
             if (temp % q == 0) {
                 while (temp % q == 0) temp /= q;
                 while (order % q == 0 &&
-                       mod_pow((seq_t)10, order / q, (seq_t)p) == (seq_t)1)
+                       powmod((seq_t)10, order / q, (seq_t)p) == (seq_t)1)
                     order /= q;
             }
         }
         if (temp > 1) {                  /* remaining prime factor */
             idx_t q = temp;
             while (order % q == 0 &&
-                   mod_pow((seq_t)10, order / q, (seq_t)p) == (seq_t)1)
+                   powmod((seq_t)10, order / q, (seq_t)p) == (seq_t)1)
                 order /= q;
         }
 
         /* Include the prime if the order is composite (or 1). */
-        if (!is_prime_small((seq_t)order))
+        if (!is_prime_seq((seq_t)order))
             add_term((seq_t)p);
     }
 }

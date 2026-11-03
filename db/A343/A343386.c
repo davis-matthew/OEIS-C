@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 24, u64 n <= 45, u128 n <= 87,
  *            big any n
- * Helpers:   acc_add, catalan
+ * Validated: standard, pass, 48 terms through n = 797 (2026-11-01)
+ * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,35 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
-#include "../utils/acc_add.h"
+
+/* Accumulate value with given sign (+1 or -1) into the running
+   signed magnitude *mag (positive) and *sign (+1 or -1, 0 if zero). */
+static void acc_add(seq_t *mag, int *sign, seq_t val, int val_sign)
+{
+    if (val == 0)
+        return;
+    if (*mag == 0) {
+        *mag   = val;
+        *sign  = val_sign;
+        return;
+    }
+    if (*sign == val_sign) {
+        *mag += val;                 /* same sign: add magnitudes */
+    } else {
+        if (*mag > val) {
+            *mag -= val;             /* larger magnitude stays */
+            /* sign unchanged */
+        } else if (*mag < val) {
+            *mag = val - *mag;
+            *sign = val_sign;        /* sign of larger magnitude */
+        } else {                    /* magnitudes equal -> zero */
+            *mag  = 0;
+            *sign = +1;              /* neutral */
+        }
+    }
+}
 
 static seq_t binomial(unsigned long long n, unsigned long long r)
 {

@@ -7,23 +7,24 @@
  * Formula:   a(n) = (n - A007917(n)) * (A007918(n) - n)
  * Range:     u8 n <= 1338, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   my_is_prime
+ * Validated: standard, pass, 118 terms through n = 9623 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/my_is_prime.h"
+#include "../utils/is_prime_u64.h"
 
 /* Largest prime ≤ n.  Integrity of n ≥ 2 is assumed by the caller. */
 static uint64_t prev_prime(idx_t n)
 {
     uint64_t x = (uint64_t)n;
-    if (my_is_prime(x)) return x;
+    if (is_prime_u64(x)) return x;
     if (x % 2 == 0) x--;            /* make x odd */
     while (x >= 2) {
-        if (my_is_prime(x)) return x;
+        if (is_prime_u64(x)) return x;
         x -= 2;
     }
     return 2;                        /* should not happen for n≥2 */
@@ -33,10 +34,10 @@ static uint64_t prev_prime(idx_t n)
 static uint64_t next_prime(idx_t n)
 {
     uint64_t x = (uint64_t)n;
-    if (my_is_prime(x)) return x;
+    if (is_prime_u64(x)) return x;
     if (x % 2 == 0) x++;            /* make x odd */
     while (1) {
-        if (my_is_prime(x)) return x;
+        if (is_prime_u64(x)) return x;
         x += 2;
     }
 }

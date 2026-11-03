@@ -7,13 +7,15 @@
  * Formula:   primes ≡ {2, 3, 4} (mod 17)
  * Range:     u8 n <= 13, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,11 +39,11 @@ seq_t a(idx_t n)
 
         /* initialise cache array */
         cache_cap = 4;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
 
         /* initialise primes array */
         primes_cap = 4;
-        primes = (seq_t *)malloc(primes_cap * sizeof(seq_t));
+        primes = mem_new(seq_t, primes_cap);
 
         /* seed the lists with the first two primes */
         primes[primes_cnt++] = 2;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
             /* store the prime */
             if (primes_cnt == primes_cap) {
                 primes_cap = primes_cap ? primes_cap * 2 : 4;
-                primes = (seq_t *)realloc(primes, primes_cap * sizeof(seq_t));
+                primes = mem_resize(seq_t, primes, primes_cap);
             }
             primes[primes_cnt++] = candidate;
 
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
             if (r == 2 || r == 3 || r == 4) {
                 if (cache_cnt == cache_cap) {
                     cache_cap = cache_cap ? cache_cap * 2 : 4;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_cnt++] = candidate;
             }

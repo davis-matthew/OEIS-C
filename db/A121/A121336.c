@@ -10,14 +10,16 @@
  *            index n, let r be the row such that * offset(r) = r*(r+1)/2 <= n
  *            < offset(r+1). Then k = n - offset(r) * and a(n) = C( r*(r+1)/2
  *            + r-k + 2, r-k ). This implementation * co...
- * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 44, u64 n <= 44, u128 n <= 44,
+ * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     /* Find row r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2  */
@@ -43,5 +45,5 @@ seq_t a(idx_t n) {
         (unsigned __int128)r * (r + 1) / 2 + (unsigned __int128)d + 2;
     idx_t base = (idx_t)base_128;
 
-    return binom(base, d);
+    return binomial(base, d);
 }

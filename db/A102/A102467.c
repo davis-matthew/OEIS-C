@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 110, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 77 terms through n = 953 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -76,7 +77,7 @@ static void ensure_sieve(uint64_t limit)
             }
         }
     }
-    if (spf) free((void *)spf);
+    if (spf) free(spf);
     spf        = new_spf;
     sieve_limit = new_limit;
 }

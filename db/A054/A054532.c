@@ -12,7 +12,8 @@
  *            mu_of(idx_t d) helper
  * Range:     i8 n <= 1275, i16 n <= 1275, i32 n <= 1275, i64 n <= 1275,
  *            i128 n <= 1275, big any n
- * Helpers:   gcd_uint64, mu_of, unravel
+ * Validated: standard, pass, 108 terms through n = 1228 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,15 +21,48 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/mu_of.h"
-#include "../utils/gcd_uint64.h"
-#include "../utils/unravel.h"
+#include <stddef.h>
+#include "../utils/gcd_u64.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
+
+/* Convert flattened index n into row r and column k (1‑based) */
+static void unravel(idx_t n, idx_t *r, idx_t *k)
+{
+    /* approximate r from triangular inequality */
+    long double disc = sqrtl((long double)8 * n + 1);
+    idx_t guess = (idx_t)((disc - 1) / 2);
+    /* refine by simple loop (guaranteed to converge quickly for n ≤ 1e12) */
+    while (guess * (guess + 1) / 2 < n) ++guess;
+    while ((guess - 1) * guess / 2 >= n) --guess;
+    *r = guess;
+    *k = n - (guess - 1) * guess / 2;
+}
 
 /* Compute Ramanujan sum T(r,k) (with r≥1, 1≤k≤r) using the divisor‑sum formula */
 static seq_t ramanujan_c(idx_t r, idx_t k)
 {
     seq_t sum = 0;
-    uint64_t g   = gcd_uint64((uint64_t)k, (uint64_t)r);
+    uint64_t g   = gcd_u64((uint64_t)k, (uint64_t)r);
     for (idx_t d = 1; d * d <= g; ++d) {
         if (g % d == 0) {
             int mu1 = mu_of(k / d);

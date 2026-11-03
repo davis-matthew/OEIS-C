@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 0, i16 n <= 1, i32 n <= 4, i64 n <= 9, i128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 479 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    calls in any order are O(n) overall.  Intermediate arithmetic is
    performed in seq_t to avoid overflow.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache to hold indices 0 … n */
     idx_t new_size = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache)
         exit(1);          /* abort on allocation failure */
     cache = new_cache;

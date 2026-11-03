@@ -10,9 +10,10 @@
  *            divisor is d. It can be computed by enumerating all divisors of
  *            n and applying the following criterion: - d = n is always valid.
  *            - d = 1 is valid iff n is not a prime power. - For d...
- * Range:     u8 n <= 303, u16 n <= 9205, u32 n <= 9205, u64 n <= 9205,
- *            u128 n <= 9205, big any n
- * Helpers:   dfs_r
+ * Range:     u8 n <= 303, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9205 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,39 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/dfs_r.h"
+
+/* Recursive enumeration of all divisors of n */
+static void dfs_r(size_t idx, seq_t cur, size_t *f, uint64_t *primes, size_t *exps,
+                  size_t rc, uint64_t n_val, bool n_prime_power, seq_t *cnt)
+{
+    if (idx == rc) {
+        /* Evaluate current divisor cur */
+        if (cur == n_val) {
+            ++(*cnt);                            /* d = n */
+            return;
+        }
+        if (cur == (seq_t)1) {
+            if (!n_prime_power) ++(*cnt);       /* d = 1, n not prime power */
+            return;
+        }
+        bool ok = true;
+        for (size_t i = 0; i < rc && ok; ++i) {
+            if (f[i] > 0 && exps[i] < (size_t)(2 * f[i]))
+                ok = false;
+        }
+        if (ok) ++(*cnt);
+        return;
+    }
+
+    size_t max_exp = exps[idx];
+    seq_t pow = 1;
+    for (size_t m = 0; m <= max_exp; ++m) {
+        f[idx] = m;
+        dfs_r(idx + 1, cur * pow, f, primes, exps, rc,
+              n_val, n_prime_power, cnt);
+        pow *= (seq_t)primes[idx];
+    }
+}
 
 /* Forward declaration of helper recursive function */
 static void dfs_r(size_t idx, seq_t cur, size_t *f, uint64_t *primes, size_t *exps,

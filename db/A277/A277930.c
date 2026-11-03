@@ -14,11 +14,14 @@
  *            n < (s...
  * Range:     i8 n <= 31, i16 n <= 71, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
 
 seq_t a(idx_t n)

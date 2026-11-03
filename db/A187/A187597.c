@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 13, u128 n <= 28,
  *            big any n
- * Helpers:   precompute_triples
+ * Validated: standard, pass, 30 terms through n = 176 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,44 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/precompute_triples.h"
+#include "../utils/mem.h"
+
+/* Pre‑compute admissible transitions between consecutive row pairs.
+ * trans[idx] contains all rows that can follow the pair (a,b),
+ * where idx = a*27 + b.  transcnt[idx] is the number of such rows. */
+static void precompute_triples(int trans[729][27], unsigned char transcnt[729]) {
+    int rows[27][3];
+    for (int i = 0; i < 27; ++i) {
+        rows[i][0] = (i / 9) % 3;
+        rows[i][1] = (i / 3) % 3;
+        rows[i][2] = i % 3;
+    }
+
+    unsigned char sums[27][27][2];
+    for (int a = 0; a < 27; ++a) {
+        for (int b = 0; b < 27; ++b) {
+            for (int c = 0; c < 2; ++c) {
+                int s = rows[a][c] + rows[a][c + 1]
+                      + rows[b][c] + rows[b][c + 1];
+                sums[a][b][c] = (unsigned char)s;
+            }
+        }
+    }
+
+    for (int a = 0; a < 27; ++a) {
+        for (int b = 0; b < 27; ++b) {
+            int idx = a * 27 + b;
+            unsigned char cnt = 0;
+            for (int c = 0; c < 27; ++c) {
+                if (sums[a][b][0] != sums[b][c][1] &&
+                    sums[a][b][1] != sums[b][c][0]) {
+                    trans[idx][cnt++] = c;
+                }
+            }
+            transcnt[idx] = cnt;
+        }
+    }
+}
 
 static inline int state_index(int prev, int last) { return prev * 27 + last; }
 
@@ -43,7 +81,7 @@ static void ensure_cache_size(idx_t n) {
     if (n + 1 <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap <= n) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
         /* Allocation failure: terminate. */
         abort();
@@ -52,7 +90,7 @@ static void ensure_cache_size(idx_t n) {
     cache_cap = new_cap;
     /* Initialise new slots to 0 which indicates 'not computed'. */
     if (cache_len < new_cap) {
-        memset(cache + cache_len, 0, (new_cap - cache_len) * sizeof(seq_t));
+        mem_set(cache + cache_len, 0, (new_cap - cache_len) * sizeof(seq_t));
         cache_len = new_cap;
     }
 }
@@ -71,7 +109,7 @@ seq_t a(idx_t n) {
 
     if (!initialized) {
         precompute_triples(trans, transcnt);
-        memset(dp, 0, sizeof(dp));
+        mem_set(dp, 0, sizeof(dp));
         for (int a = 0; a < 27; ++a)
             for (int b = 0; b < 27; ++b)
                 dp[state_index(a, b)] = (seq_t)1;  /* two rows */
@@ -86,7 +124,7 @@ seq_t a(idx_t n) {
 
     while (processed_n < n) {
         /* Add one more row to the array. */
-        memset(newdp, 0, sizeof(newdp));
+        mem_set(newdp, 0, sizeof(newdp));
         for (int prev = 0; prev < 27; ++prev) {
             for (int last = 0; last < 27; ++last) {
                 int idx = state_index(prev, last);
@@ -100,7 +138,7 @@ seq_t a(idx_t n) {
                 }
             }
         }
-        memcpy(dp, newdp, sizeof(dp));
+        mem_copy(dp, newdp, sizeof(dp));
 
         /* Sum all end states to get a(processed_n+1). */
         seq_t sum = (seq_t)0;

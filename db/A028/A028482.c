@@ -8,7 +8,8 @@
  *            transfer‑matrix DP over the 11‑vertex cycle
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 14,
  *            big any n
- * Helpers:   least_bit_index
+ * Validated: standard, pass, 29 terms through n = 189 (2026-11-03)
+ * Helpers:   ctz_u32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/least_bit_index.h"
+#include "../utils/ctz_u32.h"
+#include "../utils/mem.h"
 
 #define H 11                     /* height of the cycle */
 #define STATES (1 << H)          /* 2048 possible masks on a column */
@@ -37,7 +39,7 @@ static void dfs_enum(int prevMask, unsigned freeMask, unsigned nextMask) {
         trans_next[prevMask][ trans_count[prevMask]++ ] = (uint16_t)nextMask;
         return;
     }
-    int i = least_bit_index(freeMask);        /* first free vertex */
+    int i = ctz_u32(freeMask);        /* first free vertex */
     unsigned rem = freeMask & ~(1u << i);
 
     /* Option 1: match i vertically (to the right). */
@@ -73,12 +75,12 @@ seq_t a(idx_t n) {
     int cur = 0, nxt = 1;
 
     /* initial state: nothing matched to the left */
-    memset(dp[cur], 0, sizeof(dp[cur]));
+    mem_set(dp[cur], 0, sizeof(dp[cur]));
     dp[cur][0] = 1;
 
     idx_t steps = 2 * n;                 /* number of columns */
     for (idx_t step = 0; step < steps; ++step) {
-        memset(dp[nxt], 0, sizeof(dp[nxt]));
+        mem_set(dp[nxt], 0, sizeof(dp[nxt]));
         for (int prev = 0; prev < STATES; ++prev) {
             seq_t val = dp[cur][prev];
             if (!val) continue;

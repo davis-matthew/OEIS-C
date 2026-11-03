@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/is_prime_small.h"   /* bool is_prime_small(idx_t) */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* cache for computed sequence entries */
 static seq_t *seq      = NULL;
@@ -40,7 +42,7 @@ static void ensure_seq_capacity(size_t need)
     if (need <= seq_cap) return;
     size_t newcap = seq_cap ? seq_cap * 2 : 32;
     while (newcap < need) newcap *= 2;
-    seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, newcap);
     seq_cap = newcap;
 }
 
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
             ensure_used_capacity((size_t)candidate);
 
             /* skip primes and already used composites */
-            if (is_prime_small((idx_t)candidate) || used[(size_t)candidate])
+            if (is_prime_seq((idx_t)candidate) || used[(size_t)candidate])
                 continue;
 
             /* compute absolute difference */

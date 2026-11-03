@@ -11,14 +11,37 @@
  *            r)
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   adderivative, gcd
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/adderivative.h"
 #include "../utils/gcd.h"
+
+/* Arithmetic derivative of a positive integer (A003415). */
+static seq_t adderivative(idx_t x)
+{
+    if (x <= 1) return (seq_t)0;
+    seq_t sum = 0;
+    idx_t n = x;
+    for (idx_t p = 2; p * p <= n; ++p) {
+        if (n % p == 0) {
+            uint64_t e = 0;
+            while (n % p == 0) {
+                n /= p;
+                ++e;
+            }
+            sum += (seq_t)((x / p) * e);
+        }
+    }
+    if (n > 1) {
+        /* remaining prime factor, exponent e = 1 */
+        sum += (seq_t)(x / n);
+    }
+    return sum;
+}
 
 /* Integer square root (floor) for 64‑bit values. */
 static idx_t isqrt(idx_t x)

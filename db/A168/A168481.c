@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 10,
  *            big any n
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,8 +20,10 @@
  * exact. For small builds only the terms that fit in seq_t are correct.)
  */
 
-#include "../utils/binomial.h"   /* binomial(idx_t, idx_t) */
-#include "../utils/pow2.h"       /* pow2(idx_t) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

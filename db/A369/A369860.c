@@ -13,15 +13,46 @@
  *            floor(x^(1/3))^3 and L(b) = number of decimal digits of b
  * Range:     u8 none, u16 n <= 17, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   digit_len, floor_cube_root, pow10
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   ipow_i32, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/floor_cube_root.h"
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/num_digits.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +62,7 @@ seq_t a(idx_t n)
         seq_t rc   = floor_cube_root(x);          // floor cube root of current value
         seq_t c    = rc * rc * rc;                // largest perfect cube ≤ x
         seq_t b    = x - c;                       // cube excess
-        int   d    = digit_len(b);                // number of decimal digits of b
+        int   d    = num_digits(b);                // number of decimal digits of b
 
         /* When d is a multiple of 3 the orbit has entered the
            pseudo‑loop; the base cube root a is rc with trailing zeros removed. */

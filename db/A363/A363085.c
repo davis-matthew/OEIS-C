@@ -7,14 +7,15 @@
  * Formula:   a(n) = Sum_{d|n, tau(d)|d, gcd(d,n/d)=1} d
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -63,7 +64,7 @@ seq_t a(idx_t n)
         seq_t tau = 1;
         for (size_t i = 0; i < k; ++i) {
             if (mask & (1ULL << i)) {
-                seq_t pow_val = pow_int((seq_t)primes[i], (idx_t)exps[i]);
+                seq_t pow_val = ipow_idx((seq_t)primes[i], (idx_t)exps[i]);
                 d = d * pow_val;
                 tau = tau * (seq_t)(exps[i] + 1);
             }

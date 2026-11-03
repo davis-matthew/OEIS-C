@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 5, u16 n <= 22, u32 n <= 1003, u64 n <= 9492,
- *            u128 n <= 9492, big any n
- * Helpers:   none
+ * Range:     u8 n <= 5, u16 n <= 22, u32 n <= 1003, u64 n <= 16861,
+ *            u128 n <= 16861, big any n
+ * Validated: standard, pass, 109 terms through n = 9492 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    in a growing static array so that repeated calls are fast. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static table of cumulative cube sums P[k] = (k(k+1)/2)^2 */
@@ -31,9 +33,9 @@ seq_t a(idx_t n) {
     /* ensure pref contains values up to k = n */
     if ((size_t)n + 1 > pref_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(pref, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pref, new_cap);
         if (!tmp) {                      /* allocation failed */
-            if (pref) free(pref);
+            if (pref) mem_free(pref);
             pref = NULL;
             pref_cap = 0;
             return 0;                    /* cannot compute */

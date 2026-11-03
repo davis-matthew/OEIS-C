@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   allocate_seq_array
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,16 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/allocate_seq_array.h"   /* allocate_seq_array(len) */
+#include <assert.h>
+
+static seq_t *allocate_seq_array(size_t n)
+{
+#ifdef __cplusplus
+    return new seq_t[n];
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
 
 static seq_t **triangle = NULL;   /* array of pointers to rows */
 static long long max_row = -1;    /* largest row already built, -1 = none */

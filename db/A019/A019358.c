@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, is_prime, mod_pow
+ * Validated: standard, pass, 72 terms through n = 971 (2026-11-01)
+ * Helpers:   factor_u64, is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t) */
-#include "../utils/factor_u64.h" /* void factor_u64(uint64_t,n,...,cnt) */
-#include "../utils/mod_pow.h"   /* seq_t mod_pow(seq_t base, seq_t exp, seq_t mod) */
+#include <string.h>
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 static idx_t last_checked = 2;     /* number already examined */
 static uint64_t *prime_cache = NULL;
@@ -62,7 +64,7 @@ has_primitive_root_32(idx_t p)
     for (size_t i = 0; i < prime_cnt; ++i) {
         uint64_t q   = primes[i];
         uint64_t exp = phi / q;
-        seq_t r = mod_pow((seq_t)32, exp, (seq_t)p);
+        seq_t r = powmod((seq_t)32, exp, (seq_t)p);
         if ((long long)r == 1) return false;     /* order divides (p-1)/q */
     }
     return true;

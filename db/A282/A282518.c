@@ -6,14 +6,19 @@
  * Keywords:  nonn
  * Formula:   a(0)=0, a(1)=1, a(2)=2, a(n)=π((n+1)(n+2)/2) – π(n(n+1)/2) for
  *            n≥3 (π(x) = prime counting function)
- * Range:     u8 n <= 3620, u16 n <= 9255, u32 n <= 9255, u64 n <= 9255,
- *            u128 n <= 9255, big any n
+ * Range:     u8 n <= 3620, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 100 terms through n = 9255 (2026-11-01)
  * Helpers:   sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sieve_primes.h"   /* provides sieve_primes */
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/sieve_primes.h"
 
 static idx_t   sieve_limit   = 0;   /* highest number currently sieved */
 static idx_t *cached_primes = NULL; /* array of primes ≤ sieve_limit */

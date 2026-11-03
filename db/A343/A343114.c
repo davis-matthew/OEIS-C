@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{i=1..n} gcd(n^i , i)
  * Range:     u8 n <= 41, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 78 terms through n = 886 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

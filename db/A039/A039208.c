@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 178, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * terms so that calls may be made in any order.  It is valid C11 and C++17. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* dynamic cache of found terms */
 static seq_t *terms = NULL;      /* array of known terms           */
@@ -44,7 +46,7 @@ static void grow_terms(size_t new_cap)
 {
     size_t cap = (terms_cap ? terms_cap << 1 : 64);
     if (cap < new_cap) cap = new_cap;
-    seq_t *tmp = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, cap);
     if (!tmp) abort();          /* allocation failure – terminate */
     terms = tmp;
     terms_cap = cap;

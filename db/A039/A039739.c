@@ -9,7 +9,8 @@
  *            (prime(n) mod q) is maximal
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 82 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper to generate all primes up to LIMIT using a simple sieve. */
 static void build_primes_upto(uint64_t limit, uint32_t **primes_out, size_t *cnt_out)
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         uint64_t LIMIT = 200000;
         build_primes_upto(LIMIT, &primes, &primes_cnt);
         cache_cap = primes_cnt + 2;    /* room for n up to primes_cnt+1 */
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         init = true;
     }
 

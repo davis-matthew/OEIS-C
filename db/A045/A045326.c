@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 3285, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 76 terms through n = 9568 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

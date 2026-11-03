@@ -8,16 +8,61 @@
  * Formula:   a(n) = reduced numerator of (n+1)(n+2)/(2*n!)
  * Range:     u8 n <= 14, u16 n <= 1029, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   exp_in_factorial, process_val, seq_pow_loop
+ * Validated: standard, pass, 99 terms through n = 9963 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/exp_in_factorial.h"
-#include "../utils/process_val.h"
-#include "../utils/seq_pow_loop.h"
+#include "../utils/ipow_idx.h"
+
+/* helper: compute v_p(n!) using Legendre's formula */
+static idx_t exp_in_factorial(idx_t n, idx_t p)
+{
+    idx_t sum = 0;
+    for (idx_t q = p; q <= n; q = q * p) {
+        sum += n / q;
+        if (q > n / p) break;                /* prevent overflow */
+    }
+    return sum;
+}
+
+/* process prime factors of a single integer 'val' (of type idx_t) */
+static void process_val(idx_t n, seq_t *num)
+{
+    idx_t temp = (idx_t)(*num / ((seq_t)(n+1)) / ((seq_t)(n+2))); /* dummy, not used */
+    (void)temp; /* avoid unused warning */
+    /* iterate through prime factors of (n+1) or (n+2) */
+    for (idx_t p = 2; p * p <= n; ++p) {
+        if (n % p == 0) {
+            idx_t exp = 0;
+            while (n % p == 0) {
+                ++exp;
+                n /= p;
+            }
+            idx_t cancel = exp;
+            idx_t exp_fact = exp_in_factorial(n, p);
+            if (p == 2) exp_fact += 1;          /* account for the factor 2 in the denominator */
+            if (cancel > exp_fact) cancel = exp_fact;
+
+            seq_t div = ipow_idx((seq_t)p, cancel);
+            *num /= div;
+        }
+    }
+    if (n > 1) {                     /* remaining prime factor */
+        idx_t p = n;
+        idx_t exp = 1;
+        idx_t cancel = exp;
+        idx_t exp_fact = exp_in_factorial(p, p);
+        if (p == 2) exp_fact += 1;
+        if (cancel > exp_fact) cancel = exp_fact;
+
+        seq_t div = ipow_idx((seq_t)p, cancel);
+        *num /= div;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +83,7 @@ seq_t a(idx_t n)
                 idx_t v = exp_in_factorial(n, p);
                 if (p == 2) v += 1;
                 if (cancel > v) cancel = v;
-                seq_t div = seq_pow_loop((seq_t)p, cancel);
+                seq_t div = ipow_idx((seq_t)p, cancel);
                 num /= div;
             }
         }
@@ -48,7 +93,7 @@ seq_t a(idx_t n)
             idx_t v = exp_in_factorial(n, p);
             if (p == 2) v += 1;
             if (cancel > v) cancel = v;
-            seq_t div = seq_pow_loop((seq_t)p, cancel);
+            seq_t div = ipow_idx((seq_t)p, cancel);
             num /= div;
         }
     }
@@ -67,7 +112,7 @@ seq_t a(idx_t n)
                 idx_t v = exp_in_factorial(n, p);
                 if (p == 2) v += 1;
                 if (cancel > v) cancel = v;
-                seq_t div = seq_pow_loop((seq_t)p, cancel);
+                seq_t div = ipow_idx((seq_t)p, cancel);
                 num /= div;
             }
         }
@@ -77,7 +122,7 @@ seq_t a(idx_t n)
             idx_t v = exp_in_factorial(n, p);
             if (p == 2) v += 1;
             if (cancel > v) cancel = v;
-            seq_t div = seq_pow_loop((seq_t)p, cancel);
+            seq_t div = ipow_idx((seq_t)p, cancel);
             num /= div;
         }
     }

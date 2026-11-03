@@ -9,14 +9,17 @@
  *            10)
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-02)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* provides factor_u64 */
+#include <stdbool.h>
+#include "../utils/factor_u64.h"
 
 /* Count the sum of prime factors (with multiplicity) of a 64‑bit integer.
    Called sopfr in OEIS terminology. */

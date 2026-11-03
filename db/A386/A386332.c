@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th prime that contains no decimal digit 1 or 6
  * Range:     u8 n <= 21, u16 n <= 1899, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 72 terms through n = 9795 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         if (cache_len == cache_cap)
         {
             size_t new_cap = cache_cap ? 2 * cache_cap : 128;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (!new_cache)
                 exit(EXIT_FAILURE);  /* allocation failed */
             cache = new_cache;

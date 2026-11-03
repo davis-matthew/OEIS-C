@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 67, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 50 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 static seq_t *series      = NULL;   /* memoised sequence values      */
 static size_t series_len  = 0;       /* number of terms stored        */
@@ -40,7 +43,7 @@ static void ensure_series_cap(size_t needed)
     if (series_cap >= needed) return;
     size_t new_cap = series_cap ? series_cap * 2 : 16;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(series, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, series, new_cap);
     if (!tmp) abort();
     series = tmp;
     series_cap = new_cap;
@@ -52,8 +55,8 @@ static void initialise(void)
     if (series_len != 0) return; /* already initialised */
 
     omega_k_minus3 = 0;                                    // ω(1)
-    omega_k_minus2 = (int)count_distinct_primes(2ULL);      // ω(2)
-    omega_k_minus1 = (int)count_distinct_primes(3ULL);      // ω(3)
+    omega_k_minus2 = (int)omega(2ULL);      // ω(2)
+    omega_k_minus1 = (int)omega(3ULL);      // ω(3)
     current_k = 3;
 }
 
@@ -66,7 +69,7 @@ seq_t a(idx_t n)
     /* generate terms until we have at least n of them */
     while (series_len < (size_t)n) {
         ++current_k;                                   /* next integer to test */
-        int currOmega = (int)count_distinct_primes(current_k);
+        int currOmega = (int)omega(current_k);
 
         if (currOmega == omega_k_minus1 + omega_k_minus2 + omega_k_minus3) {
             ensure_series_cap(series_len + 1);

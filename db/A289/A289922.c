@@ -12,7 +12,8 @@
  *            -1, 1, -1, 0, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, 1]...
  * Range:     i8 n <= 94, i16 n <= 190, i32 n <= 398, i64 n <= 789,
  *            i128 n <= 1573, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 9865 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Coefficients of the denominator polynomial of the rational generating
    function.  Index i corresponds to the coefficient of x^i. */
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     idx_t required = n + 1;
     if (required > cache_len) {
         /* Allocate or grow the cache. */
-        cache = (seq_t*)realloc(cache, required * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, required);
         if (!cache) exit(EXIT_FAILURE);
 
         /* Initialise the first term if needed. */

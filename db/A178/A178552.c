@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 135, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit3_count_u64
+ * Validated: standard, pass, 56 terms through n = 9904 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/digit3_count_u64.h"
+#include "../utils/mem.h"
+
+/* ---------- Count digit '3' in a 64‑bit integer ---------- */
+static inline int digit3_count_u64(uint64_t x)
+{
+    int cnt = 0;
+    while (x)
+    {
+        if (x % 10 == 3)
+            ++cnt;
+        x /= 10;
+    }
+    return cnt;
+}
 
 /* ---------- Helper: modular arithmetic for 64‑bit numbers ---------- */
 static inline uint64_t mod_mul_u64(uint64_t a, uint64_t b, uint64_t m)
@@ -119,7 +133,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap)
             {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 cache_cap = new_cap;
             }

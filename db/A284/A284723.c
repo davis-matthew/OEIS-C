@@ -5,17 +5,19 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = smallest odd prime p such that n % p != 0
- * Range:     u8 n <= 9290, u16 n <= 9290, u32 n <= 9290, u64 n <= 9290,
- *            u128 n <= 9290, big any n
- * Helpers:   build_primes_upto, is_prime_small
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 117 terms through n = 9290 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 static uint64_t *primes = NULL;
 static size_t prime_cnt = 0;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
        (theoretically unreachable for our limits but kept for safety). */
     uint64_t candidate = primes[prime_cnt - 1] + 2;
     while (1) {
-        if (is_prime_small(candidate)) {
+        if (is_prime_seq(candidate)) {
             if (n % candidate != 0) {
                 return (seq_t)candidate;
             }

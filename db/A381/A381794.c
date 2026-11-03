@@ -11,6 +11,7 @@
  *            implementation uses the provided utilities pow2 (2^x) and...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 493 (2026-11-01)
  * Helpers:   fib_pair, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,8 +19,9 @@
 
 #include <stddef.h>
 /* seq_t and idx_t are provided by the build; no need to define them */
-#include "../utils/pow2.h"     /* pow2(idx_t n) -> 2^n */
-#include "../utils/fib_pair.h" /* fib_pair(idx_t n, seq_t *f_n, seq_t *f_n1) */
+#include <stdbool.h>
+#include "../utils/fib_pair.h"
+#include "../utils/pow2.h"
 
 static seq_t lucas_value(idx_t k)
 {

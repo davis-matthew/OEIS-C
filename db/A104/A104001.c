@@ -10,13 +10,14 @@
  *            (k-1)^(n+1-k) read by rows, starting with n = 3
  * Range:     u8 n <= 14, u16 n <= 33, u32 n <= 77, u64 n <= 206,
  *            u128 n <= 584, big any n
- * Helpers:   idx_isqrt
+ * Validated: standard, pass, 61 terms through n = 1037 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/idx_isqrt.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n) {
     if (n < 3) return 0;                     /* offset is 3, behaviour below is irrelevant */
@@ -26,7 +27,7 @@ seq_t a(idx_t n) {
     /* Find the row r such that S(r) <= t < S(r)+(r-2)
        where S(r) = (r-3)(r-2)/2 is the number of entries before row r. */
     idx_t D = 1 + 8 * t;                     /* D = 1 + 8t, guaranteed to fit in idx_t for n up to ~10^9 */
-    idx_t sqrtD = idx_isqrt(D);
+    idx_t sqrtD = isqrt(D);
     idx_t r = (5 + sqrtD) >> 1;              /* floor((5 + sqrt(D))/2) */
     if (r < 3) r = 3;                        /* safety for very small n */
 

@@ -13,13 +13,15 @@
  *            a(9)=34546,a(10)=...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 31, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Initial 18 terms stored as 64‑bit integers; conversion to seq_t
    occurs on assignment.  */
@@ -39,7 +41,7 @@ ensure_cache(idx_t n)
 {
     if (cache == NULL) {
         /* Allocate space for indices 1 … 18.  */
-        cache = (seq_t *)malloc(19 * sizeof(seq_t));
+        cache = mem_new(seq_t, 19);
         if (cache == NULL) exit(EXIT_FAILURE);
         for (idx_t i = 1; i <= 18; ++i)
             cache[i] = (seq_t)init_vals[i - 1];
@@ -49,7 +51,7 @@ ensure_cache(idx_t n)
 
     /* Grow cache to size n+1. */
     size_t new_cap = (size_t)n + 1;          /* indices 1 … n */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (tmp == NULL) exit(EXIT_FAILURE);
     cache = tmp;
 

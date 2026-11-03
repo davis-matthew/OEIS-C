@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 87, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_concat
+ * Validated: standard, pass, 81 terms through n = 9754 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,35 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_concat.h"
+
+/* Return true iff S is the decimal concatenation of two consecutive
+   positive integers x and x‑1.  No leading zeros are allowed. */
+static bool is_concat(seq_t S)
+{
+    /* The concatenation must have at least two digits, thus S ≥ 10. */
+    if (S < 10) return false;
+
+    seq_t pow10 = 10;                /* current 10^d (d ≥ 1) */
+    while (pow10 <= S) {
+        /* If S = y * (10^d + 1) + 10^d,
+           then y = x‑1 and the concatenation is x‖(x‑1). */
+        seq_t denom = pow10 + 1;      /* 10^d + 1 */
+        seq_t rem   = S - pow10;      /* S – 10^d  (≥ 0) */
+
+        if (rem % denom == 0) {
+            seq_t y = rem / denom;    /* y = x‑1 */
+            seq_t low  = pow10 / 10;  /* 10^{d‑1}  – lower bound for y */
+            seq_t high = pow10 - 1;   /* 10^d – 1   – upper bound for y */
+
+            if (y >= low && y <= high) {
+                /* y has exactly d digits ⇒ concatenation has no leading zeros. */
+                return true;
+            }
+        }
+        pow10 = pow10 * 10;           /* advance to next power of ten */
+    }
+    return false;
+}
 
 /* Find the least k such that the sum of n consecutive integers starting
    at k is a concatenation of two consecutive integers. */

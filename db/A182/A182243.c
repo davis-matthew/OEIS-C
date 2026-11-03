@@ -7,12 +7,14 @@
  * Formula:   a(n) = (a(n-1) AND n) + n, a(0) = 0
  * Range:     u8 n <= 127, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 8082 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoisation cache */
 static size_t cache_len = 0;  /* current cached length */
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     size_t needed = (size_t)n + 1;          /* number of elements required */
 
     if (needed > cache_len) {              /* enlarge cache if necessary */
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) abort();                 /* allocation failed */
         cache = tmp;
 

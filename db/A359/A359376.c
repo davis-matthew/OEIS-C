@@ -8,12 +8,14 @@
  * Formula:   a(n) is the nth integer k ≥ 0 such that k mod 12 ∈ {0,3,4,8,9}
  * Range:     u8 n <= 107, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 8260 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Allocate initial storage on the first call */
     if (!seq) {
         cap = 16;
-        seq = (seq_t *)malloc((size_t)(cap + 1) * sizeof(seq_t));
+        seq = mem_new(seq_t, (size_t)(cap + 1));
         if (!seq) return 0;          /* allocation failed – give up */
     }
 
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
             /* grow storage if necessary */
             if (size + 1 > cap) {
                 cap = cap * 2;
-                seq = (seq_t *)realloc(seq, (size_t)(cap + 1) * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, (size_t)(cap + 1));
                 if (!seq) return 0;  /* allocation failed – give up */
             }
             seq[++size] = next_k;   /* store the new term */

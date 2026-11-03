@@ -8,7 +8,8 @@
  *            A142748)
  * Range:     u8 n <= 1, u16 n <= 118, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mul_mod64
+ * Validated: standard, pass, 56 terms through n = 962 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mul_mod64.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
 
 /* Dynamically grow an array of uint64_t primes. */
 static void grow_array(size_t *cap, uint64_t **arr, size_t needed)
@@ -37,8 +39,8 @@ static uint64_t mod_pow_u64(uint64_t a, uint64_t d, uint64_t mod)
     uint64_t result = 1 % mod;
     uint64_t base   = a % mod;
     while (d) {
-        if (d & 1ULL) result = mul_mod64(base, result, mod);
-        base = mul_mod64(base, base, mod);
+        if (d & 1ULL) result = mulmod(base, result, mod);
+        base = mulmod(base, base, mod);
         d >>= 1;
     }
     return result;
@@ -70,7 +72,7 @@ static bool is_prime_u64(uint64_t n)
         if (x == 1 || x == n-1) continue;
         bool composite = true;
         for (int r = 1; r < s; ++r) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1) { composite = false; break; }
         }
         if (composite) return false;

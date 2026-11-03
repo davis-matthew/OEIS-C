@@ -7,8 +7,9 @@
  * Formula:   a(n) = A079427(n) – n where A079427(n) is the smallest m > n
  *            with d(m) = d(n) (d = number‑of‑divisors function). For n = 1
  *            the answer is 0 because τ(1)=1 occurs only at 1
- * Range:     u8 n <= 63, u16 n <= 4095, u32 n <= 8204, u64 n <= 8204,
- *            u128 n <= 8204, big any n
+ * Range:     u8 n <= 63, u16 n <= 4095, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 111 terms through n = 8204 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

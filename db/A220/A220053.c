@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 275, u16 n <= 7260, u32 n <= 7260, u64 n <= 7260,
  *            u128 n <= 7260, big any n
- * Helpers:   sum_arith
+ * Validated: standard, pass, 85 terms through n = 6734 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,20 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sum_arith.h"
+
+/* Integer arithmetic for an arithmetic progression:
+   sum of m terms starting at first, ending at last (step = 2 or –2). */
+static inline seq_t
+sum_arith(seq_t first, seq_t last, idx_t m)
+{
+    /* (first + last) is always even, so the product is integral. */
+    if ((m & 1) == 0) {             /* m even */
+        return ((seq_t)(m / 2)) * (first + last);
+    } else {                         /* m odd, first+last even */
+        seq_t part = (first + last) / 2;
+        return (seq_t)m * part;
+    }
+}
 
 /* Find the row r that contains position n (1‑based). */
 static inline idx_t

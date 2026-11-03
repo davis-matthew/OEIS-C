@@ -9,6 +9,7 @@
  *            if n%3==0; where m = floor((n-1)/3)
  * Range:     u8 n <= 33, u16 n <= 543, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 73 terms through n = 7249 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

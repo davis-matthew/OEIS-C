@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 5429, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sum_sq_digits_uint64
+ * Validated: standard, pass, 73 terms through n = 9935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/sum_sq_digits_uint64.h"
+#include "../utils/mem.h"
+
+/*  sum of squares of decimal digits of a 64‑bit integer          */
+static inline uint64_t sum_sq_digits_uint64(uint64_t x)
+{
+    uint64_t s = 0;
+    while (x) {
+        uint64_t d = x % 10;
+        s += d * d;
+        x /= 10;
+    }
+    return s;
+}
 
 /* ------------------------------------------------------------ */
 
@@ -74,12 +87,12 @@ seq_t a(idx_t n)
         /* enlarge cache if necessary */
         if (!cache) {
             cache_cap = 128;
-            cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
         }
         /* grow when needed */
         if (cache_len >= cache_cap) {
             cache_cap <<= 1;
-            cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         uint64_t candidate = last_checked + 1;
@@ -87,7 +100,7 @@ seq_t a(idx_t n)
             if (hits_100_before_1(candidate)) {
                 if (cache_len >= cache_cap) {
                     cache_cap <<= 1;
-                    cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = (seq_t)candidate;
             }

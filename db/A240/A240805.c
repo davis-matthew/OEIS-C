@@ -12,12 +12,14 @@
  *            a(11)=624
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 129,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[12] = {
     1, 0, 0, 8, 6, 0, 48, 72, 39, 272, 600, 624
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
     size_t need = (size_t)n + 1;
     if (cache_sz >= need) return;
 
-    seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, need);
     if (!tmp) abort();  /* allocation failed */
     cache = tmp;
 

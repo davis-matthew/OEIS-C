@@ -12,13 +12,35 @@
  *            sums of the non‑empty subsets of {1,2,…,k} for k = 1,2,3,…
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   rec_find
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/rec_find.h"
+
+/* recursive search for the offset‑th sum among all r‑element subsets
+   of {1,…,k}.  *ofs is decremented each time a combination is skipped.
+   When *ofs becomes zero, the corresponding sum is written to *res
+   and true is returned to unwind the recursion. */
+static bool rec_find(idx_t k, idx_t r, idx_t start, seq_t sum,
+                     idx_t *ofs, seq_t *res)
+{
+    if (r == 0) {
+        if (*ofs == 0) {
+            *res = sum;
+            return true;
+        }
+        (*ofs)--;
+        return false;
+    }
+    for (idx_t i = start; i <= k - r + 1; ++i) {
+        if (rec_find(k, r - 1, i + 1, sum + (seq_t)i, ofs, res))
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

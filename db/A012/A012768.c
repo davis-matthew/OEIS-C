@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 8, i32 n <= 12, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Internal tables for factorials, h‑coefficients, and the sequence */
 static seq_t *fact = NULL;   /* fact[i] = i!                         */
@@ -40,7 +42,7 @@ static void ensure_fact_cap(idx_t n)
         if (limit > 20) limit = 20;
     }
     size_t new_cap = (size_t)limit + 1;
-    seq_t *new_fact = (seq_t*)realloc(fact, new_cap * sizeof(seq_t));
+    seq_t *new_fact = mem_resize(seq_t, fact, new_cap);
     if (!new_fact) abort();
     if (fact_cap == 0) {
         new_fact[0] = (seq_t)1;      /* 0! = 1 */
@@ -59,7 +61,7 @@ static void ensure_H_cap(idx_t n)
     /* Need factorials up to n */
     ensure_fact_cap(n);
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_H = (seq_t*)realloc(H, new_cap * sizeof(seq_t));
+    seq_t *new_H = mem_resize(seq_t, H, new_cap);
     if (!new_H) abort();
     for (size_t k = H_cap; k < new_cap; ++k) {
         if ((k & 1) == 0) {
@@ -88,7 +90,7 @@ static void ensure_a_cap(idx_t n)
     if ((idx_t)a_cap > n) return;
     ensure_H_cap(n);
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_a = (seq_t*)realloc(seq_a, new_cap * sizeof(seq_t));
+    seq_t *new_a = mem_resize(seq_t, seq_a, new_cap);
     if (!new_a) abort();
     if (a_cap == 0) {
         new_a[0] = (seq_t)1;     /* a(0) = 1 */

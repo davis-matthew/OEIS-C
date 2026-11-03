@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _is_prime
+ * Validated: standard, pass, 61 terms through n = 991 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/_is_prime.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* ---------- memoised storage of results ---------- */
 static seq_t *terms = NULL;
@@ -40,7 +42,7 @@ static void _grow_terms(size_t min)
     if (terms_cap >= min) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 128;
     if (new_cap < min) new_cap = min;
-    terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, new_cap);
     terms_cap = new_cap;
 }
 
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         }
 
         while ((idx_t)terms_len < n) {
-            if (_is_prime(candidate)) {
+            if (is_prime_u64(candidate)) {
                 unsigned ones  = __builtin_popcountll(candidate);
                 unsigned bits  = 64 - __builtin_clzll(candidate);
                 unsigned zeros = bits - ones;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 12, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   process_divisors_rec
+ * Validated: partial, pass, 36 terms through n = 37 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,51 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/process_divisors_rec.h"
+
+/* ---------- Recursive divisor enumeration with processing ---------- */
+static void process_divisors_rec(int idx,
+                                 seq_t cur,
+                                 const uint64_t *pr,
+                                 const int *exp_doub,
+                                 size_t npr,
+                                 seq_t P_sq,
+                                 seq_t A,
+                                 seq_t P,
+                                 seq_t x,
+                                 seq_t *best_a,
+                                 seq_t *best_z)
+{
+    if (idx == npr) {
+        if (cur > P) return;                     /* y < z requires a <= P    */
+        if ( (cur + P) % A != 0 ) return;        /* y integer                */
+        seq_t y = (cur + P) / A;
+        if (y <= x) return;
+        if ( y % 2 == 0 ) return;                 /* odd y                    */
+
+        seq_t b = P_sq / cur;
+        if ( (b + P) % A != 0 ) return;           /* z integer                */
+        seq_t z = (b + P) / A;
+        if ( z <= y ) return;
+        if ( z % 2 == 0 ) return;                 /* odd z                    */
+
+        if ( (*best_a == 0) || (cur < *best_a) ) {
+            *best_a = cur;
+            *best_z = z;
+        }
+        return;
+    }
+
+    uint64_t p  = pr[idx];
+    seq_t val   = 1;
+    for (int k = 0; k <= exp_doub[idx]; ++k) {
+        process_divisors_rec(idx + 1,
+                             cur * val,
+                             pr, exp_doub, npr,
+                             P_sq, A, P,
+                             x, best_a, best_z);
+        val *= p;
+    }
+}
 
 /* ---------- Prime table (simple sieve) ---------- */
 static uint32_t *prime_list = NULL;

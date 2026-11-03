@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1030, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 1983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Sequence A227980: numbers n with sigma(n‑1) – sigma(n+1) >= sigma(n) */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* sigmas of all numbers up to a fixed limit */
 static seq_t *sigma = NULL;
@@ -30,14 +32,14 @@ static idx_t last_checked = 0;
 /* helper to grow the cache */
 static void grow_cache(void) {
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap = new_cap;
 }
 
 /* build divisor sums up to LIMIT */
 static void build_sigma(size_t LIMIT) {
     sigma_size = LIMIT + 2;                     /* allow indices up to LIMIT+1 */
-    sigma = (seq_t *)calloc(sigma_size, sizeof(seq_t));
+    sigma = mem_new(seq_t, sigma_size);
 
     for (size_t i = 1; i < sigma_size; ++i) {
         for (size_t j = i; j < sigma_size; j += i) {

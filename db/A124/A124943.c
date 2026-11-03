@@ -9,7 +9,8 @@
  *            sequence is the table read by rows
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   index_to_Nk
+ * Validated: partial, pass, 98 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/index_to_Nk.h"
+#include "../utils/mem.h"
+
+/* Convert a linear index n into row number N and column k. */
+static void index_to_Nk(idx_t n, idx_t *N_ptr, idx_t *k_ptr)
+{
+    idx_t N = 0;
+    while ((N * (N + 1)) / 2 < n)
+        ++N;                               /* at most ~400 steps for n ≤ 10⁴ */
+
+    idx_t prev_tri = (N - 1) * N / 2;
+    *N_ptr = N;
+    *k_ptr = n - prev_tri;
+}
 
 /* The build supplies seq_t and idx_t.  idx_t is an unsigned 64‑bit type. */
 
@@ -40,8 +53,8 @@ static void compute_tables(void)
     size_t size2 = (curN + 1) * (curN + 1);
     size_t size3 = (curN + 1) * (curN + 1) * (curN + 1);
 
-    dp_atmost = (seq_t *)calloc(size2, sizeof(seq_t));
-    dp_exact  = (seq_t *)calloc(size3, sizeof(seq_t));
+    dp_atmost = mem_new(seq_t, size2);
+    dp_exact  = mem_new(seq_t, size3);
     if (!dp_atmost || !dp_exact) {
         /* Allocation failed – terminate the program */
         abort();

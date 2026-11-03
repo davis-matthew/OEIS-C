@@ -7,11 +7,13 @@
  * Formula:   a(n) = |{ i*j : 0 ≤ i, j ≤ n }|
  * Range:     u8 n <= 27, u16 n <= 502, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 75 terms through n = 9508 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Computes the number of distinct products of two integers in the range [0, n] */
 #include <stddef.h>
 #include <stdint.h>

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 15, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    The sequence a(n) is read row‑by‑row, starting with n = 1. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static state for memoisation */
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
     /* Initialise on first invocation */
     if (!seq) {
         seq_cap = 64;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) return (seq_t)0;     /* allocation failed */
         seq_len = 0;
         prev = NULL;
@@ -57,12 +59,12 @@ seq_t a(idx_t n) {
             /* row 1: single element 1 */
             if (seq_len + 1 > seq_cap) {
                 seq_cap = (seq_cap + 1) * 2;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)1;
 
             /* initialise prev array for the next rows */
-            prev = (seq_t *)malloc(sizeof(seq_t));
+            prev = mem_new(seq_t, 1);
             prev[0] = (seq_t)1;
             prev_len = 1;
             Pprev = (seq_t)1;
@@ -72,7 +74,7 @@ seq_t a(idx_t n) {
             idx_t new_len = prev_len_local + 1;
 
             /* allocate array for the new row */
-            seq_t *new_row = (seq_t *)malloc(new_len * sizeof(seq_t));
+            seq_t *new_row = mem_new(seq_t, new_len);
             if (!new_row) return (seq_t)0;      /* allocation failed */
 
             /* compute elements of the new row and accumulate product */
@@ -89,7 +91,7 @@ seq_t a(idx_t n) {
             /* extend the sequence array if necessary */
             if (seq_len + new_len > seq_cap) {
                 seq_cap = (seq_cap + new_len) * 2;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             /* store new row into the sequence */
             for (idx_t i = 0; i < new_len; ++i) {
@@ -97,7 +99,7 @@ seq_t a(idx_t n) {
             }
 
             /* update state for next iteration */
-            free(prev);
+            mem_free(prev);
             prev = new_row;
             prev_len = new_len;
             Pprev = prod;

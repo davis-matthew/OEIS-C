@@ -14,14 +14,15 @@
  *            C(r+1,k) is the binomial coefficient
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     /* find row r */
@@ -42,8 +43,8 @@ seq_t a(idx_t n) {
         uint64_t base1 = 5 * s + 1;            /* 5*(m-k)+1 */
         uint64_t base4 = 5 * s + 4;            /* 5*(m-k)+4 */
 
-        seq_t pow1 = pow_uint(base1, r);
-        seq_t pow4 = pow_uint(base4, r);
+        seq_t pow1 = ipow_u64_idx(base1, r);
+        seq_t pow4 = ipow_u64_idx(base4, r);
         seq_t term = pow1 + pow4;
 
         if (k & 1) {

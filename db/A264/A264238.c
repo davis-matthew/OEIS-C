@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 16, u64 n <= 34, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
     (Same recurrence can also be derived from the given generating function.)
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first three terms if necessary */
     if (cached == 0) {
         cached = 3;
-        cache = (seq_t *)malloc(cached * sizeof(seq_t));
+        cache = mem_new(seq_t, cached);
         if (!cache) return 0;    /* allocation failed: return 0 as sentinel */
         cache[0] = (seq_t)8;
         cache[1] = (seq_t)21;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* extend cache up to the requested term */
     if ((size_t)n > cached) {
         size_t new_size = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0;      /* allocation failed: return 0 as sentinel */
         cache = tmp;
 

@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  base, easy, nonn
  * Formula:   a(n) = (n! / 12^k) mod 12, where k = min(v2(n!)/2, v3(n!))
- * Range:     u8 n <= 9539, u16 n <= 9539, u32 n <= 9539, u64 n <= 9539,
- *            u128 n <= 9539, big any n
+ * Range:     u8 n <= 10368, u16 n <= 10368, u32 n <= 10368, u64 n <= 10368,
+ *            u128 n <= 10368, big any n
+ * Validated: standard, pass, 115 terms through n = 9539 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

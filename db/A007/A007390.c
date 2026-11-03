@@ -10,12 +10,14 @@
  *            b(2k+1) = 2k+2
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n) {
@@ -24,14 +26,14 @@ seq_t a(idx_t n) {
     
     if (lucas_len < n) {
         idx_t new_len = (n < 1024) ? 1024 : n + 256;
-        seq_t *new_lucas = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_lucas = mem_new(seq_t, new_len);
         
         idx_t start_idx = 0;
         if (lucas) {
             for (idx_t i = 0; i < lucas_len; i++) {
                 new_lucas[i] = lucas[i];
             }
-            free(lucas);
+            mem_free(lucas);
             start_idx = lucas_len;
         } else {
             new_lucas[0] = (seq_t)1;

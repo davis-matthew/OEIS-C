@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_seq_array, floor_log2_uint64, free_seq_array
+ * Validated: standard, pass, 65 terms through n = 9239 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,21 @@
 
 #include <stdlib.h>
 
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* The sequence is only defined for n >= 7.  For n < 7 the function
  * returns 0 (the behaviour below the offset does not matter). */
@@ -31,7 +44,7 @@ seq_t a(idx_t n)
     if (n < 7) return 0;
 
     /* Determine all distinct powers of two ≤ n.  */
-    idx_t max_pow = floor_log2_uint64(n);          /* ⌊log₂ n⌋ */
+    idx_t max_pow = ilog2(n);          /* ⌊log₂ n⌋ */
     size_t num_powers = (size_t)max_pow + 1;       /* count of powers */
 
     idx_t *powers = (idx_t *)malloc(num_powers * sizeof(idx_t));

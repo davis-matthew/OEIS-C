@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   isPrime
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isPrime.h"   /* provides: bool isPrime(idx_t x); */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,14 +43,14 @@ seq_t a(idx_t n)
         /* Next candidate: 210*next_k + 1 */
         uint64_t cand64 = 210ull * (uint64_t)next_k + 1ull;
 
-        if (isPrime((idx_t)cand64))
+        if (is_prime((idx_t)cand64))
         {
             /* Grow cache if necessary */
             if (cache_len >= cache_cap)
             {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
                 /* realloc returning void* must be cast for both C and C++ */
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)   /* allocation failed – return zero as graceful failure */
                     return (seq_t)0;
                 cache     = tmp;

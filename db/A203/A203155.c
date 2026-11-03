@@ -9,6 +9,7 @@
  *            denotes the k-th elementary symmetric function of the multiset
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 21, u128 n <= 21,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

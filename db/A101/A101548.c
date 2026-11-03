@@ -9,7 +9,8 @@
  *            !k where !k = sum_{i=0}^{k-1} i! (OEIS A101548)
  * Range:     u8 n <= 106, u16 n <= 106, u32 n <= 106, u64 n <= 106,
  *            u128 n <= 106, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 106 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------
    Prime generation – up to the first 20000 primes
@@ -84,7 +86,7 @@ static void ensure_computed(idx_t n)
 
     if (a_values == NULL)
     {
-        a_values = (seq_t*)calloc(MAX_PRIMES + 1, sizeof(seq_t));
+        a_values = mem_new(seq_t, MAX_PRIMES + 1);
         /* a_values[0] and a_values[1] stay zero (indexes < 2 are unused) */
     }
 

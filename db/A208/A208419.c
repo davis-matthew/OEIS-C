@@ -12,7 +12,8 @@
  *            precompute, for every * pair of previous...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 11, u64 n <= 31, u128 n <= 70,
  *            big any n
- * Helpers:   compatible
+ * Validated: standard, pass, 36 terms through n = 206 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/compatible.h"
+
+/* Helper: Check whether three rows (a,b,c) satisfy the vertical
+ * forbidden patterns for all 7 columns.  Forbidden: 000 and 011.   */
+static bool compatible(int a, int b, int c)
+{
+    for (int col = 0; col < 7; ++col) {
+        int a_bit = (a >> col) & 1;
+        int b_bit = (b >> col) & 1;
+        int c_bit = (c >> col) & 1;
+        if ((a_bit == 0 && b_bit == 0 && c_bit == 0) ||
+            (a_bit == 0 && b_bit == 1 && c_bit == 1))
+            return false;
+    }
+    return true;
+}
 
 /* ------------------------------------------------------------ */
 /* Helper: Check whether a 7‑bit row avoids 000 and 001 horizontally   */

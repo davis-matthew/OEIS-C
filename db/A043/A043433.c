@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   has_one_3_in_base8
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,23 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has_one_3_in_base8.h"
+#include "../utils/mem.h"
+
+/* Test whether a value has exactly one digit 3 in base‑8 notation. */
+static bool has_one_3_in_base8(seq_t x)
+{
+    seq_t count = 0;
+    seq_t v = x;
+    while (v != (seq_t)0) {
+        if ((v % (seq_t)8) == (seq_t)3) {
+            ++count;
+            if (count > (seq_t)1)
+                return false;
+        }
+        v /= (seq_t)8;
+    }
+    return count == (seq_t)1;
+}
 
 /* Return the n-th term of the sequence (1‑based index). */
 seq_t a(idx_t n)
@@ -37,7 +54,7 @@ seq_t a(idx_t n)
             /* Grow cache if necessary. */
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();   /* allocation failed */
                 cache      = tmp;
                 cache_cap  = new_cap;

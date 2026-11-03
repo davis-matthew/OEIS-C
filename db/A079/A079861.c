@@ -9,6 +9,7 @@
  * Formula:   a(n) = (n+2) * 2^(n-8) for n >= 8 (offset 8)
  * Range:     u8 n <= 12, u16 n <= 19, u32 n <= 34, u64 n <= 65, u128 n <= 128,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 913 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

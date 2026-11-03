@@ -13,6 +13,7 @@
  *            non‑terminating pattern)
  * Range:     i8 n <= 4, i16 n <= 114, i32 n <= 114, i64 n <= 114,
  *            i128 n <= 114, big any n
+ * Validated: partial, pass, 114 terms through n = 114 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

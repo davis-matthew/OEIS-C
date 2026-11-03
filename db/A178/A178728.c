@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   word_to_mask
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/word_to_mask.h"
+
+/* Convert a word to a 26‑bit bit mask */
+static inline uint32_t word_to_mask(const char *w)
+{
+    uint32_t m = 0;
+    for (; *w; ++w) {
+        unsigned char c = (unsigned char)*w;
+        if (c >= 'a' && c <= 'z')
+            m |= 1u << (c - 'a');
+        else if (c >= 'A' && c <= 'Z')
+            m |= 1u << (c - 'A');
+    }
+    return m;
+}
 
 /* word tables – used to build the masks */
 static const char *const UNIT_WORDS[10] = {

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,13 +45,13 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* Initial capacity choices are arbitrary but adequate. */
         data_cap = 1024;
-        data = (seq_t *)malloc(data_cap * sizeof(seq_t));
+        data = mem_new(seq_t, data_cap);
         if (!data) return 0;            /* allocation failure */
 
         prev_len = 1;
-        prev = (seq_t *)malloc(prev_len * sizeof(seq_t));
+        prev = mem_new(seq_t, prev_len);
         if (!prev) {
-            free(data);
+            mem_free(data);
             return 0;
         }
 
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         idx_t next_row = current_row + 1;
         size_t next_len = 5 * next_row + 1;   /* number of coefficients in new row */
 
-        seq_t *cur = (seq_t *)malloc(next_len * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, next_len);
         if (!cur) {
             /* Allocation failed: return 0 as a sentinel. */
             return 0;
@@ -90,19 +92,19 @@ seq_t a(idx_t n)
             size_t new_cap = data_cap * 2;
             while (new_cap < data_len + next_len)
                 new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(data, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, data, new_cap);
             if (!tmp) {
-                free(cur);
+                mem_free(cur);
                 return 0;
             }
             data = tmp;
             data_cap = new_cap;
         }
-        memcpy(data + data_len, cur, next_len * sizeof(seq_t));
+        mem_copy(data + data_len, cur, next_len * sizeof(seq_t));
         data_len += next_len;
 
         /* Prepare for the next iteration. */
-        free(prev);
+        mem_free(prev);
         prev = cur;
         prev_len = next_len;
         current_row = next_row;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 20, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Cache for the divisor–sum function σ(·) up to a maximum value.     */
@@ -51,10 +53,10 @@ static void ensure_sigma(size_t need)
     if (sigma_cap > need) return;               /* already sufficient */
 
     /* free old cache */
-    free(sigma_cache);
+    mem_free(sigma_cache);
 
     /* allocate new cache (indices 0..need) */
-    sigma_cache = (seq_t*)calloc(need + 1, sizeof(seq_t));
+    sigma_cache = mem_new(seq_t, need + 1);
     if (!sigma_cache) abort();
 
     /* divisor–sum sieve */
@@ -76,8 +78,8 @@ static void ensure_s(size_t need)
     /* σ(k·2^{k-1}) requires σ of odd parts up to need. */
     ensure_sigma(need);
 
-    free(s_cache);
-    s_cache = (seq_t*)calloc(need + 1, sizeof(seq_t));
+    mem_free(s_cache);
+    s_cache = mem_new(seq_t, need + 1);
     if (!s_cache) abort();
 
     s_cache[0] = (seq_t)0;                  /* unused (k starts at 1) */
@@ -113,7 +115,7 @@ static void ensure_a(size_t need)
     ensure_s(need);
 
     /* Allocate or grow a_cache to size need+1 */
-    a_cache = (seq_t*)realloc(a_cache, (need + 1) * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, (need + 1));
     if (!a_cache) abort();
 
     /* Initialize new entries to zero (they will be overwritten). */

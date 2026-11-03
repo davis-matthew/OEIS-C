@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 41, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   odd_prime_factors
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/odd_prime_factors.h"
+
+/* compute the distinct odd prime factors of n, store in buf, set *cnt */
+static void odd_prime_factors(uint64_t n, uint64_t *buf, size_t *cnt)
+{
+    *cnt = 0;
+    while ((n & 1) == 0)
+        n >>= 1;                     /* remove factor 2 */
+    for (uint64_t p = 3; p * p <= n; p += 2) {
+        if (n % p == 0) {
+            buf[(*cnt)++] = p;
+            while (n % p == 0)
+                n /= p;
+        }
+    }
+    if (n > 1)
+        buf[(*cnt)++] = n;
+}
 
 /* return true if x is a power of two */
 static bool is_power_of_two(uint64_t x)

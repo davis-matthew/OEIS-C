@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
  * Helpers:   build_primes_upto, is_prime, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -24,10 +25,10 @@
 
 /* Build a list of primes up to a given limit */
 #include "../utils/build_primes_upto.h"
-/* Return the next prime greater than start */
-#include "../utils/next_prime.h"
-/* Test whether an unsigned integer <= 64‑bit is prime */
 #include "../utils/is_prime.h"
+#include "../utils/next_prime.h"
+/* Return the next prime greater than start */
+/* Test whether an unsigned integer <= 64‑bit is prime */
 
 static uint64_t *prime_list = NULL;
 static size_t prime_cnt   = 0;

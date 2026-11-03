@@ -8,7 +8,8 @@
  *            Pythagorean triple. The sequence is OEIS A009188 (offset 1)
  * Range:     u8 n <= 168, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 9908 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #ifdef __cplusplus
 #include <new>    /* needed for placement new */
 #endif
+#include "../utils/mem.h"
 
 /* index type */
 typedef uint64_t idx_t;
@@ -41,7 +43,7 @@ static inline idx_t gcd_uint64(idx_t a, idx_t b)
 static inline void destroy_seq_array(seq_t *arr, size_t sz)
 {
     for (size_t i = 0; i < sz; ++i)
-        arr[i].~seq_t();
+(void)0;  /* mem_free destroys the elements */
 }
 #else
 static inline void destroy_seq_array(seq_t *arr, size_t sz) { (void)arr; (void)sz; }
@@ -92,14 +94,14 @@ static void generate_up_to(uint64_t limit)
     /* Allocate array for the qualifying numbers. */
     seq_t *new_vals = NULL;
     if (pos > 0) {
-        new_vals = (seq_t *)malloc(pos * sizeof(seq_t));
+        new_vals = mem_new(seq_t, pos);
         if (!new_vals) abort();
         size_t idx = 0;
         for (uint64_t s = 1; s <= limit; ++s) {
             if (cnt[s] >= 2) {
 #ifdef __cplusplus
                 /* placement new constructs the object with value s. */
-                new(&new_vals[idx]) seq_t((seq_t)s);
+                *(&new_vals[idx]) = (seq_t)((seq_t)s);
 #else
                 new_vals[idx] = (seq_t)s;
 #endif
@@ -112,7 +114,7 @@ static void generate_up_to(uint64_t limit)
 
     /* Replace old list with the new one. */
     destroy_seq_array(values, val_count);
-    free(values);
+    mem_free(values);
     values = new_vals;
     val_count = pos;
     processed_limit = limit;

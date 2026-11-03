@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   _sieve_primes_upto
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,68 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/_sieve_primes_upto.h"
+
+/* Generate all primes up to limit (inclusive) using a simple sieve.
+ * The caller must free the returned array. */
+static void _sieve_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out)
+{
+    if (limit < 2) {
+        *primes_out = NULL;
+        *cnt_out    = 0;
+        return;
+    }
+
+    size_t sz = (size_t)limit + 1;
+    bool *is_composite = (bool*)calloc(sz, sizeof(bool));
+    if (!is_composite) {
+        *primes_out = NULL;
+        *cnt_out    = 0;
+        return;
+    }
+
+    /* rough initial capacity: about half of limit + 1, enough for most cases */
+    size_t cap = (size_t)(limit / 2 + 1);
+    uint64_t *primes = (uint64_t*)malloc(cap * sizeof(uint64_t));
+    if (!primes) {
+        free(is_composite);
+        *primes_out = NULL;
+        *cnt_out    = 0;
+        return;
+    }
+    size_t pn = 0;
+
+    for (size_t p = 2; p <= (size_t)limit; ++p) {
+        if (!is_composite[p]) {
+            if (pn == cap) {                 /* grow array if needed */
+                cap *= 2;
+                uint64_t *tmp = (uint64_t*)realloc(primes, cap * sizeof(uint64_t));
+                if (!tmp) {
+                    free(primes);
+                    free(is_composite);
+                    *primes_out = NULL;
+                    *cnt_out    = 0;
+                    return;
+                }
+                primes = tmp;
+            }
+            primes[pn++] = (uint64_t)p;
+
+            if (p * p <= (size_t)limit) {     /* mark multiples */
+                for (uint64_t q = (uint64_t)p * (uint64_t)p; q <= (uint64_t)limit; q += p) {
+                    is_composite[(size_t)q] = true;
+                }
+            }
+        }
+    }
+
+    /* shrink array to actual size */
+    uint64_t *tmp = (uint64_t*)realloc(primes, pn * sizeof(uint64_t));
+    if (tmp) primes = tmp;
+
+    free(is_composite);
+    *primes_out = primes;
+    *cnt_out    = pn;
+}
 
 seq_t a(idx_t n)
 {

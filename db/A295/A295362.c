@@ -13,13 +13,15 @@
  *            sequences a() and b() are complementary
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t cache_size = 0;       /* number of already computed terms   */
 static seq_t *A = NULL;            /* a[0..cache_size-1]                */
@@ -57,11 +59,11 @@ static void grow_cache(idx_t n)
     if (n < cache_size) return;           /* already ready */
     size_t new_size = (size_t)n + 1;      /* need indices 0..n inclusive */
     if (cache_size == 0) {                /* first allocation */
-        A = (seq_t *)malloc(new_size * sizeof(seq_t));
-        B = (seq_t *)malloc(new_size * sizeof(seq_t));
+        A = mem_new(seq_t, new_size);
+        B = mem_new(seq_t, new_size);
     } else {
-        A = (seq_t *)realloc(A, new_size * sizeof(seq_t));
-        B = (seq_t *)realloc(B, new_size * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_size);
+        B = mem_resize(seq_t, B, new_size);
     }
     /* initialise newly allocated entries */
     for (idx_t i = cache_size; i <= n; ++i) {

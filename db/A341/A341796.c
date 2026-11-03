@@ -10,13 +10,15 @@
  *            whose sum is n
  * Range:     u8 n <= 154, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
     /* dp_prev[sum] = number of ways to reach `sum` using the current
        number of terms.  All arrays have size n+1. */
-    seq_t *dp_prev = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, (size_t)(n + 1));
     seq_t *dp_cur  = NULL;
 
     /* Initialise for one term: each tetrahedral number contributes
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
 
     /* Add terms one by one until we have exactly five terms. */
     for (idx_t iter = 2; iter <= 5; ++iter) {
-        dp_cur = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        dp_cur = mem_new(seq_t, (size_t)(n + 1));
         for (idx_t sum = 1; sum <= n; ++sum) {
             seq_t ways = dp_prev[sum];
             if (!ways) {
@@ -68,13 +70,13 @@ seq_t a(idx_t n)
                 }
             }
         }
-        free(dp_prev);
+        mem_free(dp_prev);
         dp_prev = dp_cur;
     }
 
     seq_t result = dp_prev[n];
 
-    free(dp_prev);
+    mem_free(dp_prev);
     free(tet);
 
     return result;

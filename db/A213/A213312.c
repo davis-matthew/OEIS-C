@@ -10,7 +10,8 @@
  *            are counted as nonprime). Computed by a brute‑force search
  * Range:     u8 n <= 48, u16 n <= 1245, u32 n <= 1330, u64 n <= 1330,
  *            u128 n <= 1330, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 1286 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of helper.  seq_t and idx_t are provided by the build. */
 static void build_sequence(void);
@@ -56,7 +58,7 @@ static void append_seq_value(seq_t val)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = (seq_cap == 0) ? 64 : seq_cap * 2;
-        seq_t *new_arr = (seq_t *)realloc(seq_values, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, seq_values, new_cap);
         if (!new_arr) {
             /* abort silently; memory exhausted */
             return;

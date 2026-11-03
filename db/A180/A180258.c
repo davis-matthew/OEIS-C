@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 116 terms through n = 8391 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 typedef struct {
     uint64_t prod;
@@ -114,7 +117,7 @@ static void init(void)
     qsort(records, rec_cnt, sizeof(triple_t), cmp_triple);
 
     /* Allocate cache for the sequence values. */
-    cache = (seq_t *)malloc(rec_cnt * sizeof(seq_t));
+    cache = mem_new(seq_t, rec_cnt);
     if (!cache) { free(records); free(primes); free(is_prime); return; }
     cache_len = rec_cnt;
 
@@ -122,7 +125,7 @@ static void init(void)
     for (size_t idx = 0; idx < rec_cnt; ++idx) {
         const triple_t *t = &records[idx];
         uint64_t exp = (uint64_t)t->q * t->r;
-        cache[idx] = mod_pow((seq_t)2, exp, (seq_t)t->p);
+        cache[idx] = powmod((seq_t)2, exp, (seq_t)t->p);
     }
 
     /* Free temporary storage. */

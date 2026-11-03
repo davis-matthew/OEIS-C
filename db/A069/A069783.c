@@ -8,14 +8,25 @@
  * Formula:   a(n) = gcd(d(n!^3), d(n!))
  * Range:     u8 n <= 14, u16 n <= 27, u32 n <= 73, u64 n <= 185,
  *            u128 n <= 419, big any n
- * Helpers:   fact_exp
+ * Validated: standard, pass, 63 terms through n = 999 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/fact_exp.h"
+
+/* return exponent of prime p in n! */
+static idx_t fact_exp(idx_t n, int p)
+{
+    idx_t e = 0;
+    while (n) {
+        n /= p;
+        e += n;
+    }
+    return e;
+}
 
 #define MAXN 10000             /* maximum n this implementation supports */
 

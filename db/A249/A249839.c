@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 16, u64 n <= 38, u128 n <= 83,
  *            big any n
- * Helpers:   forbidden5
+ * Validated: standard, pass, 39 terms through n = 170 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,26 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/forbidden5.h"
+
+/* internal helper to detect forbidden 5‑tuple */
+static bool forbidden5(const unsigned char *a, unsigned char e)
+{
+    unsigned char d[5];
+    for (int i = 0; i < 4; ++i) d[i] = a[i];
+    d[4] = e;
+
+    for (int i = 0; i < 5; ++i) {
+        for (int j = i + 1; j < 5; ++j) {
+            unsigned char mx = d[i] > d[j] ? d[i] : d[j];
+            unsigned char mn = 255;
+            for (int k = 0; k < 5; ++k) {
+                if (k != i && k != j && d[k] < mn) mn = d[k];
+            }
+            if (mx == mn) return true;
+        }
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

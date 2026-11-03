@@ -7,16 +7,18 @@
  * Formula:   a(n) = C(n+3,3) * C(n+5,5)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 33, u64 n <= 580, u128 n <= 1000,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 45 terms through n = 984 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
-    seq_t c1 = binom(n + 3, 3);
-    seq_t c2 = binom(n + 5, 5);
+    seq_t c1 = binomial(n + 3, 3);
+    seq_t c2 = binomial(n + 5, 5);
     return c1 * c2;
 }

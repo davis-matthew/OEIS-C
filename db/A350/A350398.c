@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 24, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Sieve state ------------------------------------------------------- */
@@ -94,7 +96,7 @@ ensure_seq_cap (size_t need)
     size_t new_cap = seq_cap ? seq_cap * 2 : 128;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *new_seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *new_seq = mem_resize(seq_t, seq, new_cap);
     if (!new_seq) abort();
     seq = new_seq;
     seq_cap = new_cap;

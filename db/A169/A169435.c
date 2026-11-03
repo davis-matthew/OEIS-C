@@ -9,12 +9,14 @@
  *            c_0 = 1, c_1…c_31 = 2, c_32 = 1, and c_n = 0 for n ≥ 33
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Initialise the cache if this is the first call */
     if (cache == NULL) {
         cap = 1;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) return 0;   /* allocation failure – return 0 */
         cache[0] = (seq_t)1;  /* a(0) = 1 */
         len = 1;
@@ -41,9 +43,9 @@ seq_t a(idx_t n)
         idx_t new_cap = cap;
         while (new_cap <= n)
             new_cap <<= 1;          /* double until enough */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) {
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             return 0;               /* allocation failure */
         }

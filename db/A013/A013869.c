@@ -7,15 +7,18 @@
  * Formula:   a(n) = 13^(5*n + 4)
  * Range:     u8 none, u16 n <= 0, u32 n <= 0, u64 n <= 2, u128 n <= 6,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 25 terms through n = 90 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     seq_t exp = (seq_t)n * 5 + 4;
-    return big_pow((seq_t)13, exp);
+    return ipow((seq_t)13, exp);
 }

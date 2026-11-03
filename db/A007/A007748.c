@@ -11,16 +11,51 @@
  *            * Sum_{j>=1} e(m-j*d); a(2n+1) = e(n)
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   grow_zero, mulwide, seq_is_fixed_width
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/grow_zero.h"
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/mulwide.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static void mulwide(seq_t x, seq_t y, seq_t *hi, seq_t *lo)
+{
+    int W = (int)(8 * sizeof(seq_t)), H = W / 2;
+    seq_t mask = ((seq_t)1 << H) - 1;
+    seq_t x0 = x & mask, x1 = x >> H, y0 = y & mask, y1 = y >> H;
+    seq_t p00 = x0 * y0, p01 = x0 * y1, p10 = x1 * y0, p11 = x1 * y1;
+    seq_t mid = (p00 >> H) + (p01 & mask) + (p10 & mask);
+    *lo = (p00 & mask) | (mid << H);
+    *hi = p11 + (p01 >> H) + (p10 >> H) + (mid >> H);
+}
 
 static seq_t *E = 0, *R = 0, *C = 0;
 static idx_t have = 0, cap = 0;

@@ -9,7 +9,8 @@
  *            A372043)
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   rad_uint
+ * Validated: standard, pass, 84 terms through n = 9724 (2026-11-03)
+ * Helpers:   mem, radical_u64_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/rad_uint.h"
+#include "../utils/radical_u64_to_u64.h"
+#include "../utils/mem.h"
 
 /* ---------- Static state for memoisation ---------- */
 static seq_t *memo      = NULL;    /* a(1) … a(current_len) */
@@ -57,7 +59,7 @@ static void compute_until(idx_t n)
 
     /* First call: initialise a(1)=1. */
     if (!memo) {
-        memo = (seq_t *)malloc(sizeof(seq_t));
+        memo = mem_new(seq_t, 1);
         if (!memo) exit(1);
         memo[0] = (seq_t)1;
         memo_len = 1;
@@ -80,7 +82,7 @@ static void compute_until(idx_t n)
             }
             /* product = last * candidate (both small enough for 64‑bit) */
             uint64_t prod = (uint64_t)last * candidate;
-            uint64_t rad   = rad_uint(prod);
+            uint64_t rad   = radical_u64_to_u64(prod);
             if (!rad_exists(rad)) {
                 chosen = (seq_t)candidate;
                 chosen_rad = rad;
@@ -90,7 +92,7 @@ static void compute_until(idx_t n)
         }
 
         /* Append the chosen term. */
-        seq_t *tmp = (seq_t *)realloc(memo, (memo_len + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, (memo_len + 1));
         if (!tmp) exit(1);
         memo = tmp;
         memo[memo_len++] = chosen;

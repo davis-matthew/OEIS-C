@@ -12,7 +12,8 @@
  *            m·(m-1)·…·(m-i+1) is the falling factorial
  * Range:     u8 n <= 37, u16 n <= 79, u32 n <= 156, u64 n <= 381,
  *            u128 n <= 951, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 9527 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* External integer types supplied by the build system. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static storage for the table. */
 static seq_t *table = NULL;      /* flattened 2‑D: row * stride + col */
@@ -70,11 +72,11 @@ static void ensure_table(idx_t need_n, idx_t need_k)
     idx_t new_stride = new_kmax + 1;
     size_t new_size = (size_t)(new_nmax + 1) * (size_t)new_stride;
 
-    seq_t *new_table = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_table = mem_new(seq_t, new_size);
     if (!new_table)
         abort();
     /* Initialize to zero. */
-    memset(new_table, 0, new_size * sizeof(seq_t));
+    mem_set(new_table, 0, new_size * sizeof(seq_t));
 
     /* Compute all required entries. */
     for (idx_t n = 1; n <= new_nmax; ++n) {
@@ -111,7 +113,7 @@ static void ensure_table(idx_t need_n, idx_t need_k)
     }
 
     /* Replace old table. */
-    free(table);
+    mem_free(table);
     table   = new_table;
     stride  = new_stride;
     cur_nmax = new_nmax;

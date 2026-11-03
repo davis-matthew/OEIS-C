@@ -7,15 +7,19 @@
  * Formula:   a(n) = sum of even divisors of the sum of distinct primes
  *            dividing n (i.e. a(n) = σ(sopf(n)) – σ(sopf(n) / 2^k), where k ≥
  *            1 is the exponent of 2 in sopf(n); if sopf(n) is odd, a(n) = 0)
- * Range:     u8 n <= 410, u16 n <= 9348, u32 n <= 9348, u64 n <= 9348,
- *            u128 n <= 9348, big any n
+ * Range:     u8 n <= 410, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 96 terms through n = 9348 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 static seq_t sigma_of_uint64(uint64_t m)
 {

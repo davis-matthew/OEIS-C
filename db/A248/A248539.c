@@ -13,13 +13,15 @@
  *            a(n-1)-a(n-2)+a(n-4)+a(n-7)+a(n-8)-a(n-9)+a(n-10) * -a(n-...
  * Range:     u8 n <= 5, u16 n <= 29, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* helper to test if a 4‑tuple satisfies the condition */
 static inline int tuple_good(int b,int c,int d,int x)
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* allocate array 1..n (index 0 unused) */
     size_t size = (size_t)(n + 1);
-    seq_t *seq = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, size);
     if (!seq) return 0;                 /* allocation failed */
 
     /* compute initial values a(1) … a(28) by brute force when needed */
@@ -73,6 +75,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[n];
-    free(seq);
+    mem_free(seq);
     return result;
 }

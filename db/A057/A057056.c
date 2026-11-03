@@ -8,8 +8,9 @@
  * Formula:   a(n) = j( C(n,3) ) where C(n,3)=n*(n-1)*(n-2)/6 and j(k) is the
  *            column index of number k in the infinite anti‑diagonal numbering
  *            of the rectangle R(i,j)
- * Range:     u8 n <= 6, u16 n <= 37, u32 n <= 1883, u64 n <= 9827,
- *            u128 n <= 9827, big any n
+ * Range:     u8 n <= 6, u16 n <= 37, u32 n <= 1883, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 76 terms through n = 9827 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Build the rows up to index `up_to`.  row[0] holds the first
    element of row 0 (value 1).  All rows are stored in the static
@@ -56,12 +58,12 @@ static void ensure_rows(idx_t up_to)
         seq_t *row;
         if (r == 0) {
             /* row 0: only the first element (value 1) is needed. */
-            row = (seq_t *)malloc(sizeof(seq_t));
+            row = mem_new(seq_t, 1);
             row[0] = (seq_t)1;
         } else {
             /* length of current row: r + 1 */
             size_t len = (size_t)(r + 1);
-            row = (seq_t *)malloc(len * sizeof(seq_t));
+            row = mem_new(seq_t, len);
             /* first element: the natural number r + 1 */
             row[0] = (seq_t)(r + 1);
             /* middle elements: reversed previous row's slice */

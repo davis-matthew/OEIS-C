@@ -13,7 +13,8 @@
  *            has length ⟨n⟩ = floor((n+1)/2)+1. * The sequenc...
  * Range:     u8 n <= 28, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   poly_mul_add
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,27 @@
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc, calloc, free */
 #include <stdbool.h>  /* for bool */
-#include "../utils/poly_mul_add.h"
+#include "../utils/mem.h"
+
+/* Multiply two coefficient arrays a[..len_a-1] and b[..len_b-1]
+ * and add the result into result[0..len_a+len_b-2] which must
+ * already be zeroed. */
+static void poly_mul_add(const seq_t *a, size_t len_a,
+                         const seq_t *b, size_t len_b,
+                         seq_t *result)
+{
+    size_t prod_len = len_a + len_b - 1;
+    for (size_t i = 0; i < prod_len; ++i) {
+        seq_t sum = 0;
+        size_t ii_start = (i + 1 > len_b) ? i + 1 - len_b : 0;
+        size_t ii_end   = (i < len_a) ? i : len_a - 1;
+        for (size_t ii = ii_start; ii <= ii_end; ++ii) {
+            size_t jj = i - ii;
+            sum += a[ii] * b[jj];
+        }
+        result[i] += sum;
+    }
+}
 
 /* The types seq_t and idx_t are provided by the build environment. */
 extern seq_t a(idx_t n);
@@ -46,20 +67,20 @@ static void precompute(idx_t n)
 {
     if (!init_done) {
         /* b(0) = 1 */
-        poly[0] = (seq_t*)malloc(1 * sizeof(seq_t));
+        poly[0] = mem_new(seq_t, 1);
         poly[0][0] = (seq_t)1;
         len_arr[0] = 1;
         cumulative[0] = 1;
 
         /* b(1) = x   → coefficients {0,1} */
-        poly[1] = (seq_t*)malloc(2 * sizeof(seq_t));
+        poly[1] = mem_new(seq_t, 2);
         poly[1][0] = (seq_t)0;
         poly[1][1] = (seq_t)1;
         len_arr[1] = 2;
         cumulative[1] = cumulative[0] + (idx_t)len_arr[1];
 
         /* b(2) = 1   → coefficients {1,0} (padded) */
-        poly[2] = (seq_t*)malloc(2 * sizeof(seq_t));
+        poly[2] = mem_new(seq_t, 2);
         poly[2][0] = (seq_t)1;
         poly[2][1] = (seq_t)0;
         len_arr[2] = 2;
@@ -74,7 +95,7 @@ static void precompute(idx_t n)
         idx_t k = last_k;
         size_t len_k = poly_len(k);
 
-        seq_t *res = (seq_t*)calloc(len_k, sizeof(seq_t));
+        seq_t *res = mem_new(seq_t, len_k);
 
         for (idx_t i = 1; i <= k; ++i) {
             const seq_t *p1 = poly[i - 1];

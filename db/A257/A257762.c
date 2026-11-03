@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 4044, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 76 terms through n = 9240 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 /* Sequence A257762
  * a(n) = the n-th index i (1‑based) such that
  * 2*prime(i) + prime(i+2) == 3*prime(i+1).

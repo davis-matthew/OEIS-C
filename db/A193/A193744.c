@@ -8,12 +8,14 @@
  *            OEIS entry) a(0) = 3, a(1) = 3, a(2) = 5, a(3) = 8
  * Range:     u8 n <= 14, u16 n <= 34, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of already computed terms */
 static seq_t *cache = NULL;
@@ -24,7 +26,7 @@ static idx_t last_computed = 0;    /* distance to last computed index     */
 static void init_cache(void)
 {
     cache_capacity = 4;
-    cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_capacity);
     cache[0] = (seq_t)3;
     cache[1] = (seq_t)3;
     cache[2] = (seq_t)5;
@@ -45,7 +47,7 @@ static void ensure_cache(idx_t n)
 
     /* grow cache if n is outside current capacity */
     if (n >= cache_capacity) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         cache = tmp;
         cache_capacity = n + 1;
     }

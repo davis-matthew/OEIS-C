@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 44, u32 n <= 152, u64 n <= 560,
  *            u128 n <= 2144, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 71 terms through n = 9906 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -41,7 +42,8 @@
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* popcount for 64‑bit values --------------------------------------- */
 static inline unsigned int popcnt64(uint64_t x) {
@@ -83,5 +85,5 @@ seq_t a(idx_t n)
     idx_t e = (idx_t)e_int;
 
     /* 5. Return 2^e.  Use seq_pow for arbitrary‑precision types. */
-    return seq_pow((seq_t)2, e);
+    return ipow_idx((seq_t)2, e);
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 13, u64 n <= 26, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[12] = {
     25ULL, 26ULL, 77ULL, 1951ULL, 3979ULL, 5930ULL,
@@ -38,14 +40,14 @@ seq_t a(idx_t n)
     /* initialise cache on first use or enlarge it when needed */
     if (cache_len < 12) {
         size_t need = 12;
-        cache = (seq_t*)malloc(need * sizeof(seq_t));
+        cache = mem_new(seq_t, need);
         if (!cache) return 0;          /* memory failure – unlikely */
-        memcpy(cache, init_vals, 12 * sizeof(seq_t));
+        mem_copy(cache, init_vals, 12 * sizeof(seq_t));
         cache_len = 12;
         cache_got  = 11;               /* indices 0..11 known */
     }
     if ((idx_t)n + 1 > cache_len) {
-        seq_t *new_cache = (seq_t*)realloc(cache, ((n+1)*sizeof(seq_t)));
+        seq_t *new_cache = mem_resize(seq_t, cache, (((n+1)*sizeof(seq_t))) / sizeof(seq_t));
         if (!new_cache) return 0;      /* memory failure – unlikely */
         cache      = new_cache;
         cache_len  = n + 1;

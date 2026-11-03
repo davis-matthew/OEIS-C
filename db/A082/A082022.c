@@ -9,13 +9,14 @@
  * Formula:   a(n) = ∏_{k=1..n} lcm(k, n+1–k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 21,
  *            big any n
- * Helpers:   egcd_uint64
+ * Validated: standard, pass, 35 terms through n = 221 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>                /* for uint64_t */
-#include "../utils/egcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* OEIS A082022: product of the LCMs along the n‑th anti‑diagonal.  */
 seq_t a(idx_t n)
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
         idx_t i = k;                     /* first element of the pair */
         idx_t j = n + 1 - k;              /* second element of the pair */
 
-        uint64_t g = egcd_uint64(i, j);   /* gcd(i, j) */
+        uint64_t g = gcd_u64(i, j);   /* gcd(i, j) */
 
         /* Compute lcm(i, j) = i / gcd(i, j) * j  as a 64‑bit integer. */
         uint64_t l = (i / g) * j;

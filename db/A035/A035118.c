@@ -11,12 +11,14 @@
  *            72 and sigma_1(d) = sum of divisors of d. * The...
  * Range:     i8 n <= 4, i16 n <= 5, i32 n <= 9, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t max_n = 0;          /* maximum index requested so far */
 static seq_t *sigma = NULL;      /* divisor sum sigma_1 */
@@ -34,8 +36,8 @@ static void recompute_upto(idx_t n)
 
     /* Allocate new arrays */
     size_t new_cap = (size_t)(target + 1);
-    seq_t *new_sigma = (seq_t*)malloc(new_cap * sizeof(seq_t));
-    seq_t *new_aQ    = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_sigma = mem_new(seq_t, new_cap);
+    seq_t *new_aQ    = mem_new(seq_t, new_cap);
 
     /* Zero them */
     for (size_t i = 0; i < new_cap; ++i) {
@@ -64,8 +66,8 @@ static void recompute_upto(idx_t n)
     }
 
     /* Replace old arrays */
-    free(sigma);
-    free(a_Q);
+    mem_free(sigma);
+    mem_free(a_Q);
     sigma = new_sigma;
     a_Q   = new_aQ;
     cap   = new_cap;

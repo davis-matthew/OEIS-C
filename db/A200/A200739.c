@@ -7,13 +7,15 @@
  * Formula:   a(0)=1,a(1)=0,a(2)=0; for n≥3: a(n)=a(n‑3)+5*a(n‑1)−a(n‑2)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 17, u64 n <= 31, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 417 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -28,11 +30,11 @@ seq_t a(idx_t n)
         size_t need = idx + 1;
         if (cache == NULL) {
             cache_cap = need > 16 ? need : 16;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
         } else if (need > cache_cap) {
             size_t new_cap = cache_cap << 1;
             if (new_cap < need) new_cap = need;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
 

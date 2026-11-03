@@ -9,13 +9,28 @@
  *            10)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   base3_to_base8
+ * Validated: standard, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/base3_to_base8.h"
+#include "../utils/mem.h"
+
+static seq_t base3_to_base8(seq_t x)
+{
+    seq_t result = 0;
+    seq_t pow8   = 1;
+    while (x > 0) {
+        seq_t digit = x % 3;   /* digit is 0, 1 or 2 */
+        x = x / 3;
+        if (digit)
+            result += digit * pow8;
+        pow8 *= 8;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,7 +45,7 @@ seq_t a(idx_t n)
 
     /* Ensure the first value is in the cache. */
     if (cache_size == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) exit(1);           /* out of memory */
         cache[0] = 3;                  /* a(1) */
         cache_size = 1;
@@ -43,7 +58,7 @@ seq_t a(idx_t n)
         while (new_cap < n)
             new_cap *= 2;             /* grow exponentially to reduce reallocs */
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);
         cache = tmp;
         cache_cap = new_cap;

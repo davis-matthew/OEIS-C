@@ -13,7 +13,8 @@
  *            a factor with a(n-1)
  * Range:     u8 n <= 137, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 84 terms through n = 9574 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* stored terms */
 static size_t seq_cap = 0;         /* capacity of seq array   */
@@ -35,7 +37,7 @@ static void ensure_seq_cap(size_t n) {
     if ((size_t)n > seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 4;
         while (new_cap < n) new_cap <<= 1;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         if (!seq) abort();
         seq_cap = new_cap;
     }

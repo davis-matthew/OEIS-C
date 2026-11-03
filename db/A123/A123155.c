@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 2, u64 n <= 2, u128 n <= 2,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 2 terms through n = 2 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <stdint.h>   /* uint8_t */
+#include "../utils/mem.h"
 
 static seq_t next_term(seq_t prev)
 {
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
             new_cap <<= 1;     /* double until big enough */
 
         if (new_cap > cache_cap) {
-            seq_t *ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *ptr = mem_resize(seq_t, cache, new_cap);
             if (!ptr)
                 return (seq_t)0;   /* allocation failure */
             cache = ptr;

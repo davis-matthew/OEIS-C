@@ -8,15 +8,19 @@
  *            (including n=0), else a(n) = 2 * L(n)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   build_primes_upto, floor_log2_uint64, pow_seq
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-01)
+ * Helpers:   build_primes_upto, ilog2, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/pow_seq.h"
-#include "../utils/floor_log2_uint64.h"
+#include "../utils/ilog2.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n) {
     /* Special case n = 0 */
@@ -26,7 +30,7 @@ seq_t a(idx_t n) {
 
     idx_t limit = 2 * n;                      /* compute lcm up to 2n */
     /* Determine exponent of 2 */
-    idx_t exp2 = floor_log2_uint64(limit);     /* floor(log2(limit)) */
+    idx_t exp2 = ilog2(limit);     /* floor(log2(limit)) */
     if ( (n & (n - 1)) != 0 ) {               /* n not a power of two */
         exp2 += 1;                             /* extra factor of 2 */
     }
@@ -60,7 +64,7 @@ seq_t a(idx_t n) {
             }
         }
 
-        seq_t pow_val = pow_seq((seq_t)p, (int)exp);
+        seq_t pow_val = ipow_i32((seq_t)p, (int)exp);
         result = result * pow_val;
     }
 

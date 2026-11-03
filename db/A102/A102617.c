@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Cached list of primes to accelerate kth_prime queries. */
 static seq_t *prime_list     = NULL;
@@ -44,14 +47,13 @@ static void ensure_primes(size_t need)
         prime_capacity = new_cap;
     }
     if (prime_list == NULL) {
-        prime_list = (seq_t *)malloc(prime_capacity * sizeof(seq_t));
+        prime_list = mem_new(seq_t, prime_capacity);
     } else {
-        prime_list = (seq_t *)realloc(prime_list,
-                                      prime_capacity * sizeof(seq_t));
+        prime_list = mem_resize(seq_t, prime_list, prime_capacity);
     }
     /* Generate primes until we have 'need' of them. */
     while (prime_count < need) {
-        if (is_prime(prime_next)) {
+        if (is_prime_u64(prime_next)) {
             prime_list[prime_count++] = (seq_t)prime_next;
         }
         ++prime_next;
@@ -78,9 +80,9 @@ seq_t a(idx_t n)
 
     /* Scan integers until we locate the n‑th second‑order nonprime. */
     while (found < n) {
-        if (!is_prime(num)) {          /* num is nonprime */
+        if (!is_prime_u64(num)) {          /* num is nonprime */
             ++np_idx;                 /* its index among nonprimes */
-            if (!is_prime(np_idx)) {  /* index itself is nonprime => 2‑nd order */
+            if (!is_prime_u64(np_idx)) {  /* index itself is nonprime => 2‑nd order */
                 ++found;
                 if (found == n)
                     return kth_prime(num);

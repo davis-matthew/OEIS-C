@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   primes of the form 9n^3+4 (OEIS A201265)
- * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 27, u64 n <= 27, u128 n <= 27,
- *            big any n
+ * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 69, u64 n <= 3200,
+ *            u128 n <= 3200, big any n
+ * Validated: standard, pass, 43 terms through n = 2977 (2026-11-01)
  * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

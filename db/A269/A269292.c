@@ -14,14 +14,25 @@
  *            a(9)=16263720330382476...
  * Range:     u8 none, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 22,
  *            big any n
- * Helpers:   parse_seq
+ * Validated: standard, pass, 29 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/parse_seq.h"
+#include "../utils/mem.h"
+
+/* Convert an unsigned decimal string to seq_t.
+   seq_t handles integer types of arbitrary size. */
+static seq_t parse_seq(const char *s) {
+    seq_t r = 0;
+    for (; *s; ++s) {
+        r = r * 10 + (seq_t)(*s - '0');
+    }
+    return r;
+}
 
 /* Cache for already computed terms. */
 static seq_t *cache = NULL;        /* array of a(1), a(2), ... */
@@ -45,7 +56,7 @@ seq_t a(idx_t n) {
             "29056221832723692012",
             "1211537520551702429316"
         };
-        cache = (seq_t *)malloc(sizeof(seq_t) * 12);
+        cache = mem_new(seq_t, 12);
         for (idx_t i = 0; i < 12; ++i) {
             cache[i] = parse_seq(first12_str[i]);
         }
@@ -60,7 +71,7 @@ seq_t a(idx_t n) {
 
     /* extend the cache up to n */
     idx_t new_len = n;
-    seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) {
         /* allocation failed; return 0 (undefined for this n) */
         return (seq_t)0;

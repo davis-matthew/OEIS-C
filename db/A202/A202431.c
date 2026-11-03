@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 16, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static int init_done = 0;               /* has the static data been built? */
 
@@ -145,14 +147,14 @@ static void init_state(void)
     }
 
     /* ---------- allocate DP vectors ---------- */
-    dp_cur = (seq_t *)calloc(S, sizeof(seq_t));
-    dp_next = (seq_t *)calloc(S, sizeof(seq_t));
+    dp_cur = mem_new(seq_t, S);
+    dp_next = mem_new(seq_t, S);
     for (size_t s = 0; s < S; ++s)     /* all pairs of first two rows */
         dp_cur[s] = (seq_t)1;
 
     /* ---------- allocate memoisation storage ---------- */
     sum_cap = 32;                      /* initial capacity */
-    sum_cache = (seq_t *)calloc(sum_cap + 1, sizeof(seq_t)); /* index 0 unused */
+    sum_cache = mem_new(seq_t, sum_cap + 1); /* index 0 unused */
 
     max_cached = 0;                     /* no terms computed yet */
 
@@ -176,7 +178,7 @@ seq_t a(idx_t n)
         size_t new_cap = sum_cap * 2;
         if (new_cap < n)
             new_cap = n;
-        sum_cache = (seq_t *)realloc(sum_cache, (new_cap + 1) * sizeof(seq_t));
+        sum_cache = mem_resize(seq_t, sum_cache, (new_cap + 1));
         if (!sum_cache) return (seq_t)0;  /* out‑of‑memory, unlikely */
         for (size_t i = sum_cap + 1; i <= new_cap; ++i)
             sum_cache[i] = (seq_t)0;
@@ -186,7 +188,7 @@ seq_t a(idx_t n)
     /* iterative DP from max_cached+1 up to n */
     for (idx_t cur_n = max_cached + 1; cur_n <= n; ++cur_n) {
         /* zero next vector */
-        memset(dp_next, 0, sizeof(seq_t) * S);
+        mem_set(dp_next, 0, sizeof(seq_t) * S);
 
         /* transition */
         for (size_t s = 0; s < S; ++s) {

@@ -8,12 +8,14 @@
  *            values: a(0)=1, a(1)=1, a(2)=1, a(3)=4, a(4)=11, a(5)=22
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 30, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* first six terms, used to initialise the cache */
 static const seq_t init[6] = { (seq_t)1, (seq_t)1, (seq_t)1,
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
         /* first allocation: at least 8 slots */
         size_t initial = 8;
         if (n + 1 > initial) initial = n + 1;
-        cache = (seq_t*)malloc(initial * sizeof(seq_t));
+        cache = mem_new(seq_t, initial);
         if (cache == NULL) abort();          /* out of memory */
         cache_size = initial;
         /* initialise first six terms */
@@ -42,7 +44,7 @@ static void ensure_cache(idx_t n)
         /* grow, doubling strategy */
         size_t new_size = cache_size;
         while (new_size <= (size_t)n) new_size <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) abort();
         cache = tmp;
         /* zero the new slots – they will be filled when needed */

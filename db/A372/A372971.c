@@ -7,7 +7,8 @@
  * Formula:   a(1)=1; a(n)=floor(n / min(a(n-1), a(floor(n/2)))) for n≥2
  * Range:     u8 n <= 103, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9817 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Cached memoisation structure                                       */
@@ -48,7 +50,7 @@ static void __seq_cache_grow(idx_t need)
 
     /* Copy any already‑computed values. */
     if (__seq_cache) {
-        memcpy(new_buf, __seq_cache, __seq_cache_len * sizeof(seq_t));
+        mem_copy(new_buf, __seq_cache, __seq_cache_len * sizeof(seq_t));
 #if defined(__cplusplus)
         ::operator delete(__seq_cache);
 #else

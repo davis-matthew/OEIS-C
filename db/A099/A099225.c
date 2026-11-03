@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 332, u32 n <= 2384, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 70 terms through n = 9033 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"   /* provides seq_t big_pow(seq_t base, seq_t exp) */
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* data structure for the heap elements */
 typedef struct {
@@ -40,7 +42,7 @@ static void heap_push(node_t *n)
     /* grow the heap if necessary */
     if (heap_len >= heap_cap) {
         size_t new_cap = heap_cap ? heap_cap << 1 : 4;
-        node_t *tmp = (node_t *)realloc(heap, new_cap * sizeof(node_t));
+        node_t *tmp = mem_resize(node_t, heap, new_cap);
         if (!tmp) abort();
         heap = tmp;
         heap_cap = new_cap;
@@ -100,7 +102,7 @@ static void init_sequence(void)
     node_t n;
     n.m = 2;
     n.k = 2;
-    n.val = big_pow((seq_t)2, (seq_t)2) + (seq_t)2;
+    n.val = ipow((seq_t)2, (seq_t)2) + (seq_t)2;
     heap_push(&n);
     next_base = 3;
     has_prev = false;
@@ -122,7 +124,7 @@ seq_t a(idx_t n)
 
         /* insert new bases whose initial candidate <= current minimum */
         while (heap_len > 0) {
-            seq_t next_init = big_pow((seq_t)next_base, (seq_t)2) + (seq_t)2;
+            seq_t next_init = ipow((seq_t)next_base, (seq_t)2) + (seq_t)2;
             if (next_init <= heap[0].val) {
                 node_t nm;
                 nm.m = next_base;
@@ -152,7 +154,7 @@ seq_t a(idx_t n)
         if (!duplicate) {
             if (cache_len >= cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap << 1 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();
                 cache = tmp;
                 cache_cap = new_cap;
@@ -162,7 +164,7 @@ seq_t a(idx_t n)
 
         /* push the next candidate for this base */
         cur.k++;
-        cur.val = big_pow((seq_t)cur.m, (seq_t)cur.k) + (seq_t)cur.k;
+        cur.val = ipow((seq_t)cur.m, (seq_t)cur.k) + (seq_t)cur.k;
         heap_push(&cur);
     }
 

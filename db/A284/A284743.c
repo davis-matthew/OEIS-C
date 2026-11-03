@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   apply_power
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,29 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/apply_power.h"
+
+/* shift bits left by step positions (step ≤ LIMIT) */
+static void apply_power(uint64_t *bits, size_t words, seq_t step)
+{
+    if (step == 0) return;
+    size_t shift = (size_t)step;
+    size_t wshift = shift >> 6;
+    unsigned int bshift = shift & 63u;
+    if (wshift >= words) return;
+    if (bshift == 0) {
+        for (size_t i = words; i-- > 0;) {
+            if (i < wshift) continue;
+            bits[i] |= bits[i - wshift];
+        }
+    } else {
+        for (size_t i = words; i-- > 0;) {
+            if (i < wshift) continue;
+            uint64_t src = bits[i - wshift];
+            uint64_t lower = (i - wshift > 0) ? bits[i - wshift - 1] : 0;
+            bits[i] |= (src << bshift) | (lower >> (64 - bshift));
+        }
+    }
+}
 
 /* comparison for qsort on seq_t values */
 static int cmp_seq_t(const void *a, const void *b)

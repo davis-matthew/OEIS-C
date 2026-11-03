@@ -8,12 +8,14 @@
  *            number (Fib(0)=0, Fib(1)=1)
  * Range:     u8 n <= 63, u16 n <= 255, u32 n <= 511, u64 n <= 2047,
  *            u128 n <= 4095, big any n
+ * Validated: standard, pass, 121 terms through n = 9367 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

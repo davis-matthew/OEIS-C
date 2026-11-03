@@ -11,7 +11,8 @@
  *            covers all known terms)
  * Range:     u8 none, u16 none, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_values = NULL;
 static size_t seq_len = 0;
@@ -59,7 +61,7 @@ static void build_sequence(void)
     }
 
     /* Build the list of integers not representable. */
-    seq_t *vals = (seq_t*)malloc(sizeof(seq_t) * maxK);
+    seq_t *vals = mem_new(seq_t, maxK);
     size_t len = 0;
     for (idx_t k = 1; k <= maxK; ++k) {
         if (!rep[(size_t)cubes[k]]) {

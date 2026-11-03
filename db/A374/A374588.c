@@ -11,7 +11,8 @@
  *            excluded)
  * Range:     u8 n <= 12, u16 n <= 3471, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, isPrimeGeneric
+ * Validated: standard, pass, 69 terms through n = 9542 (2026-11-03)
+ * Helpers:   factor_u64, is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,31 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <limits.h>
 #include "../utils/factor_u64.h"
-#include "../utils/isPrimeGeneric.h"
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 /* Static cache holding the computed terms. */
 static seq_t *seq_cache      = NULL;
@@ -37,7 +61,7 @@ ensure_terms(idx_t n)
 {
     if (seq_cache == NULL) {
         seq_cache_cap = 16;
-        seq_cache = (seq_t *)malloc(seq_cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cache_cap);
     }
 
     while (seq_cache_len < (size_t)n) {
@@ -58,7 +82,7 @@ ensure_terms(idx_t n)
             /* Grow cache if necessary. */
             if (seq_cache_len == seq_cache_cap) {
                 seq_cache_cap *= 2;
-                seq_cache = (seq_t *)realloc(seq_cache, seq_cache_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cache_cap);
             }
             seq_cache[seq_cache_len++] = (seq_t)val;
         }

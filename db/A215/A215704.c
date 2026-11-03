@@ -11,6 +11,7 @@
  *            from the derivative of e^{g(x)}
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 11, i64 n <= 19, i128 n <= 33,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 359 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

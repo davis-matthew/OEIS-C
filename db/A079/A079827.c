@@ -7,12 +7,13 @@
  * Formula:   a(n) = floor((n + reverse(n)) / 2)
  * Range:     u8 n <= 103, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   rev_idx
+ * Validated: standard, pass, 89 terms through n = 984 (2026-11-01)
+ * Helpers:   reverse_digits_idx_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/rev_idx.h"
+#include "../utils/reverse_digits_idx_to_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -20,7 +21,7 @@ seq_t a(idx_t n)
      * The cast to seq_t guarantees that the arithmetic is done in the
      * target integer type without overflow for the given n.
      */
-    seq_t rev = rev_idx(n);
+    seq_t rev = reverse_digits_idx_to_seq(n);
     seq_t sum = (seq_t)n + rev;
     return sum / 2;   /* integer division truncates toward 0 → floor */
 }

@@ -12,7 +12,8 @@
  *            a(n) = a(n‑1) + 3
  * Range:     u8 n <= 108, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9866 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Dynamic cache for the sequence ---------- */
 static seq_t *seq_vals = NULL;      /* 1‑based storage: seq_vals[i] = a(i)  */
@@ -35,7 +37,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = seq_cap ? seq_cap << 1 : 16;
     while (new_cap <= needed) new_cap <<= 1;
 
-    seq_vals = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_vals = mem_resize(seq_t, seq_vals, new_cap);
     seq_cap = new_cap;
 }
 

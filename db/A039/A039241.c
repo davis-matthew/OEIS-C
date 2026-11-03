@@ -9,14 +9,27 @@
  *            and 6's
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   has_equal_3_and_6
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_equal_3_and_6.h"
+
+static bool has_equal_3_and_6(uint64_t x)
+{
+    unsigned int cnt3 = 0, cnt6 = 0;
+    if (x == 0) return true;  /* 0 has 0 3's and 0 6's */
+    while (x != 0) {
+        unsigned int d = x % 12;
+        if (d == 3) ++cnt3;
+        else if (d == 6) ++cnt6;
+        x /= 12;
+    }
+    return cnt3 == cnt6;
+}
 
 seq_t a(idx_t n)
 {

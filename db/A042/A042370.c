@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 14, u64 n <= 31, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*--------------------  Seed values  --------------------*/
 static const seq_t init[12] = {
@@ -42,7 +44,7 @@ static void ensure_capacity(idx_t next)
     if ((idx_t)cache_cap > next) return;        /* already enough                    */
     size_t new_cap = cache_cap ? cache_cap : 16;
     while ((idx_t)new_cap <= next) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();                          /* allocation failure                */
     cache      = tmp;
     cache_cap  = new_cap;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (!cache) {
         cache_cap    = 32;                      /* choose a modest initial size     */
-        cache        = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache        = mem_new(seq_t, cache_cap);
         if (!cache) abort();                    /* allocation failure               */
         for (idx_t i = 0; i < 12; ++i) cache[i] = init[i];
         max_computed = 11;                      /* indices 0…11 are now known       */

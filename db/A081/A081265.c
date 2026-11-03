@@ -12,12 +12,14 @@
  *            sequence
  * Range:     u8 n <= 37, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,9 +44,9 @@ seq_t a(idx_t n)
 
     /* Allocate arrays that will hold rows up to length r+1. */
     const size_t max_len = (size_t)r + 1;
-    seq_t *prev2 = (seq_t *)calloc(max_len, sizeof(seq_t)); /* row i-2 */
-    seq_t *prev1 = (seq_t *)calloc(max_len, sizeof(seq_t)); /* row i-1 */
-    seq_t *cur   = (seq_t *)calloc(max_len, sizeof(seq_t)); /* row i   */
+    seq_t *prev2 = mem_new(seq_t, max_len); /* row i-2 */
+    seq_t *prev1 = mem_new(seq_t, max_len); /* row i-1 */
+    seq_t *cur   = mem_new(seq_t, max_len); /* row i   */
 
     /* Initialize the first two rows.  The calloc gives zeros,
        so we only set the non‑zero entries. */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
 
     if (r == 1) {
         seq_t result = prev1[k];
-        free(prev2); free(prev1); free(cur);
+        mem_free(prev2); mem_free(prev1); mem_free(cur);
         return result;
     }
 
@@ -88,6 +90,6 @@ seq_t a(idx_t n)
     seq_t result = prev1[k];
 
     /* Clean up allocated memory. */
-    free(prev2); free(prev1); free(cur);
+    mem_free(prev2); mem_free(prev1); mem_free(cur);
     return result;
 }

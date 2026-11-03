@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- small‑prime test for values ≤ 8500 (sum of positions) ---------- */
 static bool is_prime_sum(uint64_t s)
@@ -40,7 +42,7 @@ static void ensure_cache_capacity(size_t N)
     if (cache_cap >= N) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     if (new_cap < N) new_cap = N;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     cache = new_cache;
     cache_cap = new_cap;
 }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = n-th divisor of 7560 in ascending order, 1‑based
  * Range:     u8 n <= 12, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   compare_seq_t
+ * Validated: full, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,16 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/compare_seq_t.h"
+#include "../utils/mem.h"
+
+static int compare_seq_t(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 static seq_t *divs = NULL;     /* array of all divisors of 7560 */
 static size_t num_divs = 0;    /* number of divisors (64) */
@@ -46,13 +56,13 @@ static void compute_divisors(void)
         }
     }
 
-    divs = (seq_t *)malloc(count * sizeof(seq_t));
+    divs = mem_new(seq_t, count);
     for (size_t i = 0; i < count; ++i) {
         divs[i] = tmp[i];
     }
 
     /* Sort ascending using the provided comparison helper. */
-    qsort(divs, count, sizeof(seq_t), compare_seq_t);
+    mem_qsort(divs, count, sizeof(seq_t), compare_seq_t);
 
     num_divs = count;   /* should be 64 */
 }

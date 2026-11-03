@@ -10,12 +10,14 @@
  *            (n>4)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 25, u64 n <= 49, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 2203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;        /* array storing computed values   */
 static size_t a_cache_size = 0;      /* number of values actually stored */
@@ -27,7 +29,7 @@ static void ensure_capacity(size_t need)
     if (need <= a_cache_cap) return;
     size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 8;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) return; /* allocation failure: leave cache unchanged */
     a_cache = tmp;
     a_cache_cap = new_cap;

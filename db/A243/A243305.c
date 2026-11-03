@@ -7,13 +7,16 @@
  * Formula:   a(n) = 2^phi(n)+1
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 36, u64 n <= 66, u128 n <= 130,
  *            big any n
- * Helpers:   phi, pow2
+ * Validated: standard, pass, 57 terms through n = 979 (2026-11-01)
+ * Helpers:   pow2, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
     /* φ(n) fits easily into an idx_t for n ≤ 10000.
        The helper `phi` returns a seq_t, which is safe to cast
        back to idx_t because the result is small. */
-    seq_t phival = phi(n);
+    seq_t phival = totient(n);
 
     /* Compute 2^φ(n) by using the power-of-two helper.
        It expects an idx_t exponent; cast is safe. */

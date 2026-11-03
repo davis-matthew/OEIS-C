@@ -7,6 +7,7 @@
  * Formula:   a(n) = A030132(24 - (n mod 24))
  * Range:     u8 none, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

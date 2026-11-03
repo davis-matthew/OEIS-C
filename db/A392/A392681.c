@@ -8,8 +8,9 @@
  * Formula:   a(n) = T(n_val, k_val) where T(n,k) = (n - M) + (h-1)*L with M =
  *            (k^h - 1)/(k-1), h = floor(log_k(n*(k-1))), L = n - floor((n + k
  *            - 2)/k)
- * Range:     u8 n <= 2503, u16 n <= 8765, u32 n <= 8765, u64 n <= 8765,
- *            u128 n <= 8765, big any n
+ * Range:     u8 n <= 2503, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 94 terms through n = 8765 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

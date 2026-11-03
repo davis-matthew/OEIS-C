@@ -13,14 +13,32 @@
  *            satisfying d(d+1)/2 < n ≤ (d+1)(d+2)/2, and r = n - d(d+1)/2
  * Range:     i8 n <= 31, i16 n <= 72, i32 n <= 181, i64 n <= 426,
  *            i128 n <= 1160, big any n
- * Helpers:   compute_A_row
+ * Validated: standard, pass, 82 terms through n = 4308 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/compute_A_row.h"
+
+/* Helper: compute A(row, col) for fixed row>=1 and col>=0 using recurrence. */
+static seq_t
+compute_A_row(seq_t row, idx_t col)
+{
+    if (col == 0) return 1;
+    if (col == 1) return row + 1;
+
+    seq_t prev2 = 1;          /* A(row,0) */
+    seq_t prev1 = row + 1;    /* A(row,1) */
+    seq_t cur;
+    for (idx_t t = 2; t <= col; ++t) {
+        cur = row * prev1 - prev2;
+        prev2 = prev1;
+        prev1 = cur;
+    }
+    return cur;
+}
 
 seq_t a(idx_t n)
 {

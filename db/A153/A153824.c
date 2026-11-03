@@ -7,6 +7,7 @@
  * Formula:   a(n) = sigma(n!) – n! (sum of proper divisors of n!)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 489 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 seq_t a(idx_t n)

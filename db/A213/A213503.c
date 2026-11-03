@@ -12,6 +12,7 @@
  *            * let d = minimal integer with (d+1)(d+2)/2 >= n. * let pr...
  * Range:     u8 n <= 21, u16 n <= 406, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
+ * Validated: standard, pass, 71 terms through n = 5006 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,12 +8,14 @@
  *            congruent to 1 modulo 5. (Products 1/(1 - x^(5*k+1)).)
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     }
 
     /* Allocate a DP array of size n+1 and zero‑initialize it. */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) {
         return (seq_t)0;          /* out of memory – safe default */
     }
@@ -37,6 +39,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

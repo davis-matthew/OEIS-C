@@ -8,11 +8,13 @@
  * Formula:   a(n) = round(n*(phi-1)) = floor((floor(n*sqrt5) - n + 1)/2)
  * Range:     u8 n <= 7, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-01)
  * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)

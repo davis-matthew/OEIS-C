@@ -10,7 +10,8 @@
  *            (binomial(3*k+3,k)/(k+2) - binomial(3*k,k-1)/(k+1))
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 /* The implementation uses the binom function from utils/binom.h. */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Euclidean gcd for idx_t. */
 static idx_t gcd_idx(idx_t a, idx_t b) {
@@ -36,17 +37,17 @@ seq_t a(idx_t n) {
 
     for (idx_t k = 0; k <= maxk; ++k) {
         /* binomial(n, 3k) */
-        seq_t bin_n_3k = binom(n, 3 * k);
+        seq_t bin_n_3k = binomial(n, 3 * k);
 
         /* term1: C(3k+3, k)/(k+2) */
-        seq_t term1_num = binom(3 * k + 3, k);
+        seq_t term1_num = binomial(3 * k + 3, k);
         idx_t d1 = k + 2;                /* denominator */
 
         /* term2: C(3k, k-1)/(k+1), zero when k==0 */
         seq_t term2_num = 0;
         idx_t d2 = k + 1;                /* denominator */
         if (k >= 1) {
-            term2_num = binom(3 * k, k - 1);
+            term2_num = binomial(3 * k, k - 1);
         }
 
         /* Common denominator: lcm(d1,d2) */

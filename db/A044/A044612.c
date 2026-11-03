@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has54
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
    tested integer up to the required index. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has54.h"
+#include "../utils/mem.h"
+
+/* helper to test whether x in base 8 contains "54" */
+static bool has54(seq_t x) {
+    int prev_digit = -1;          /* holds previous (more significant) digit */
+    while (x > (seq_t)0) {
+        int cur_digit = (int)(x % (seq_t)8);
+        if (cur_digit == 5 && prev_digit == 4) {
+            return true;
+        }
+        prev_digit = cur_digit;
+        x /= (seq_t)8;
+    }
+    return false;
+}
 
 /* dynamic array of found terms */
 static seq_t *terms = NULL;        /* array of terms */
@@ -33,7 +48,7 @@ static seq_t last_tested = 0;
 static void append_term(seq_t val) {
     if (terms_size == terms_cap) {
         terms_cap = terms_cap ? terms_cap * 2 : 8;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
     terms[terms_size++] = val;
 }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 16, u128 n <= 35,
  *            big any n
- * Helpers:   absdiff, encodeM
+ * Validated: standard, pass, 31 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/absdiff.h"
-#include "../utils/encodeM.h"
+#include "../utils/mem.h"
+
+/* ---------------  Transfer function  --------------- */
+static inline int absdiff(int a, int b)
+{
+    return a > b ? a - b : b - a;
+}
+
+/* Encode a 4‑tuple (0..4) into a 5‑base integer 0..624                  */
+static inline uint16_t encodeM(const uint8_t m[4]) {
+    return (uint16_t)m[0] + (uint16_t)m[1] * 5 +
+           (uint16_t)m[2] * 25 + (uint16_t)m[3] * 125;
+}
 
 #define NUM_ROWS   243        /* 3^5 possible rows (base‑3 digits)   */
 #define M_CODES    625        /* 5^4 possible 4‑tuple M values      */
@@ -138,8 +150,8 @@ seq_t a(idx_t n)
     if (n == 0) return 0;               /* not used but safe */
 
     /* Allocate auxiliary arrays.  All sizes are fixed and small.    */
-    seq_t *dp_cur   = (seq_t*)calloc(STATE_SZ, sizeof(seq_t));
-    seq_t *dp_next  = (seq_t*)calloc(STATE_SZ, sizeof(seq_t));
+    seq_t *dp_cur   = mem_new(seq_t, STATE_SZ);
+    seq_t *dp_next  = mem_new(seq_t, STATE_SZ);
     bool   *visited = (bool*)calloc(STATE_SZ, sizeof(bool));
 
     idx_t *active_cur  = (idx_t*)calloc(STATE_SZ, sizeof(idx_t));
@@ -172,7 +184,7 @@ seq_t a(idx_t n)
     if (n == 1) {
         seq_t sum = 0;
         for (size_t i = 0; i < act_cur_sz; ++i) sum += dp_cur[active_cur[i]];
-        free(dp_cur); free(dp_next); free(visited);
+        mem_free(dp_cur); mem_free(dp_next); free(visited);
         free(active_cur); free(active_next);
         return sum;
     }
@@ -182,7 +194,7 @@ seq_t a(idx_t n)
        ---------------------------------------------------------------- */
     for (idx_t step = 1; step <= n - 1; ++step) {
         /* Clear data for the next DP level. */
-        memset(dp_next, 0, STATE_SZ * sizeof(seq_t));
+        mem_set(dp_next, 0, STATE_SZ * sizeof(seq_t));
         memset(visited, 0, STATE_SZ * sizeof(bool));
         act_next_sz = 0;
 
@@ -236,7 +248,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < act_cur_sz; ++i) result += dp_cur[active_cur[i]];
 
     /* Clean up. */
-    free(dp_cur); free(dp_next); free(visited);
+    mem_free(dp_cur); mem_free(dp_next); free(visited);
     free(active_cur); free(active_next);
 
     return result;

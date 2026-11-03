@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   no02_in_base9
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,21 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/no02_in_base9.h"
+#include "../utils/mem.h"
+
+/* Check that x has no “02” substring in its base‑9 representation. */
+static bool no02_in_base9(idx_t x)
+{
+    idx_t prev = 9;          /* sentinel (never a digit) */
+    while (x > 0) {
+        idx_t cur = x % 9;
+        if (prev == 2 && cur == 0)
+            return false;
+        prev = cur;
+        x /= 9;
+    }
+    return true;
+}
 
 /* Simple binary heap of nodes ordered by node.val (seq_t). */
 typedef struct {
@@ -47,7 +62,7 @@ static void heap_push(node_t *heap, size_t *len, size_t cap, node_t v)
 {
     if (*len >= cap) { /* grow heap if needed */
         cap = cap ? cap * 2 : 16;
-        heap = (node_t *)realloc(heap, cap * sizeof(node_t));
+        heap = mem_resize(node_t, heap, cap);
     }
     size_t i = (*len)++;
     while (i > 0) {
@@ -97,7 +112,7 @@ seq_t a(idx_t n)
     }
 
     /* Build a heap with the first term (k = 0) for each good z. */
-    node_t *heap = (node_t *)malloc(goodcnt * sizeof(node_t));
+    node_t *heap = mem_new(node_t, goodcnt);
     size_t heaplen = 0;
     for (idx_t i = 0; i < goodcnt; ++i) {
         node_t node;
@@ -123,6 +138,6 @@ seq_t a(idx_t n)
 
     /* Clean up */
     free(goodz);
-    free(heap);
+    mem_free(heap);
     return result;
 }

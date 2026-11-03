@@ -11,7 +11,8 @@
  *            n*10^n. * For example: n = 2, p = 19 → 2*10^2 + 19 = 219
  * Range:     u8 n <= 16, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   isPrimeTrial
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/isPrimeTrial.h"
+#include <stdlib.h>
+#include "../utils/is_prime_seq.h"
 
 static seq_t pow10_arr[10];
 static size_t exact_counts[10];   /* primes of exactly d digits, 1 ≤ d ≤ 6 */
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
     size_t cnt = 0;
 
     while (true) {
-        if (isPrimeTrial(candidate)) {
+        if (is_prime_seq(candidate)) {
             ++cnt;
             if (cnt == target) {
                 return (seq_t)d * pow10_arr[d] + candidate;

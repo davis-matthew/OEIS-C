@@ -7,7 +7,8 @@
  * Formula:   a(n) = 3*a(n-2) + a(n-4) with a(0)=a(1)=0, a(2)=1, a(3)=2
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 39, u64 n <= 76, u128 n <= 150,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    maximum requested n.  The cache is built with standard malloc/free,
    which works for any seq_t type. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
             newcap *= 2;
 
         /* allocate new storage */
-        seq_t *newcache = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *newcache = mem_new(seq_t, newcap);
         if (!newcache)
             return 0;  /* out‑of‑memory: return zero (should never happen) */
 
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
             newcache[i] = cache[i];
 
         /* free old storage */
-        free(cache);
+        mem_free(cache);
 
         cache = newcache;
         cap   = newcap;

@@ -11,12 +11,14 @@
  *            a(10)=5424, a(11)=9650, a(12)=16964)
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 37, u64 n <= 89, u128 n <= 199,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 920 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,10 +33,10 @@ seq_t a(idx_t n)
 
         /* allocate or grow cache */
         if (cache_len == 0) {
-            cache = (seq_t *)malloc(target_len * sizeof(seq_t));
+            cache = mem_new(seq_t, target_len);
             if (!cache) return 0;   /* allocation failure: return zero */
         } else {
-            cache = (seq_t *)realloc(cache, target_len * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, target_len);
             if (!cache) return 0;
         }
 

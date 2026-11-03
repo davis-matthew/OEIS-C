@@ -8,13 +8,15 @@
  *            constant, 2.686780111... × 10^25
  * Range:     u8 n <= 112, u16 n <= 112, u32 n <= 112, u64 n <= 112,
  *            u128 n <= 112, big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 112 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  The denominator of the rational representation 101325/(1.380649e-23*273.15)  */
 static const uint64_t D = 37712427435ULL;   /* 1,380,649 × 27,315 / 100,000,000 = 37,712,427,435 */
@@ -34,7 +36,7 @@ static void init(void)
 
     /* allocate an initial capacity */
     capacity = 64;
-    digits = (seq_t *)malloc(capacity * sizeof(seq_t));
+    digits = mem_new(seq_t, capacity);
 
     /* digits of N = 101325 × 10^31 (i.e. 1 0 1 3 2 5 followed by 31 zeros) */
     uint64_t r = 0;
@@ -80,7 +82,7 @@ static seq_t generate_next(void)
 
     if (computed == capacity) {
         capacity *= 2;
-        digits = (seq_t *)realloc(digits, capacity * sizeof(seq_t));
+        digits = mem_resize(seq_t, digits, capacity);
     }
     digits[computed++] = d;
     return d;

@@ -8,7 +8,8 @@
  *            a(0) … a(31) given by the convergents of sqrt(217)
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 23, u64 n <= 47, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /*  External integer types are supplied by the build system. */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values and bookkeeping */
 static seq_t *cache = NULL;      /* array of computed terms */
@@ -30,13 +32,13 @@ static void ensure_cache(idx_t n)
     size_t new_cap = (size_t)n + 1;
     if (new_cap < 32) new_cap = 32;
 
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) return;                    /* allocation failed – leave cache unchanged */
 
     /* Copy already computed values */
     for (idx_t i = 0; i < cache_cap; ++i) new_cache[i] = cache[i];
 
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     cache = new_cache;
     cache_cap = new_cap;
 }
@@ -47,7 +49,7 @@ static void init_terms(void)
     if (cache) return;                          /* already initialised */
 
     cache_cap = 32;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) return;                          /* allocation failed */
 
     /* Variables for the continued‑fraction algorithm */

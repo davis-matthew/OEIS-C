@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 38, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper to read a bit from a 3‑bit pattern. */
 static inline int bit(int p, int j) { return (p >> j) & 1; }
@@ -77,9 +79,9 @@ a(idx_t n)
 
     /* Allocate or extend answers array to hold up to n. */
     if (!answers) {
-        answers = (seq_t*)malloc(((size_t)n + 1) * sizeof(seq_t));
+        answers = mem_new(seq_t, ((size_t)n + 1));
     } else if (answer_count < n) {
-        seq_t *tmp = (seq_t*)realloc(answers, ((size_t)n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, answers, ((size_t)n + 1));
         if (!tmp) exit(1);
         answers = tmp;
     }

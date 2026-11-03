@@ -9,6 +9,7 @@
  *            - r) read by rows.)
  * Range:     i8 n <= 31, i16 n <= 716, i32 n <= 5150, i64 n <= 5150,
  *            i128 n <= 5150, big any n
+ * Validated: standard, pass, 82 terms through n = 5118 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 171, i16 n <= 483, i32 n <= 1511, i64 n <= 5158,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 7089 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,10 +31,10 @@ seq_t a(idx_t n)
     if (dp_size <= n) {
         /* allocate new table */
         idx_t new_size = n + 1;
-        seq_t *new_dp = (seq_t *)malloc((size_t)new_size * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, (size_t)new_size);
         if (!new_dp) return 0;  /* Out of memory → return 0 as safe */
         /* zero‑initialize the array */
-        memset(new_dp, 0, (size_t)new_size * sizeof(seq_t));
+        mem_set(new_dp, 0, (size_t)new_size * sizeof(seq_t));
         /* first coefficient is 1 */
         new_dp[0] = 1;
 
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         }
 
         /* free old table if it existed */
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
         dp      = new_dp;
         dp_size = new_size;
     }

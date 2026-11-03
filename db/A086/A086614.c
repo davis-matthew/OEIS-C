@@ -8,14 +8,16 @@
  * Formula:   a(n) = T(r,c) where r is the row such that r*(r+1)/2 <= n <
  *            (r+1)*(r+2)/2, c = n - r*(r+1)/2. T(r,0) = r+1. For k>0: T(r,k)
  *            = binomial(2*k, k-1) * binomial(r+k+1, r-k) / k
- * Range:     u8 n <= 19, u16 n <= 43, u32 n <= 53, u64 n <= 53, u128 n <= 53,
+ * Range:     u8 n <= 23, u16 n <= 50, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial.h"   /* provides binomial(idx_t, idx_t) -> seq_t */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 /* Compute the triangle entry T(n,k). */
 static seq_t triangle_value(idx_t n, idx_t k)

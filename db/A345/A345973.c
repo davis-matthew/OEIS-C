@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 29, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,10 @@
 */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* a(i) values, 1‑based indexing */
 static seq_t *b_cache = NULL;   /* b(i) values, 1‑based indexing */
@@ -34,8 +38,8 @@ seq_t a(idx_t n)
         idx_t new_size = cache_size ? cache_size : 16;
         while (new_size <= n + 1)
             new_size <<= 1;          /* power‑of‑two growth */
-        a_cache = (seq_t *)realloc(a_cache, sizeof(seq_t) * new_size);
-        b_cache = (seq_t *)realloc(b_cache, sizeof(seq_t) * new_size);
+        a_cache = mem_resize(seq_t, a_cache, new_size);
+        b_cache = mem_resize(seq_t, b_cache, new_size);
         cache_size = new_size;
     }
 
@@ -48,12 +52,12 @@ seq_t a(idx_t n)
         b_cache[1] = (seq_t)1;   /* d=1: 1 * a(1)^1 = 1 */
 
         /* b(2) = 1*a(1)^2 + 2*a(2)^1 */
-        b_cache[2] = (seq_t)1 * big_pow(a_cache[1], (seq_t)2) +
-                     (seq_t)2 * big_pow(a_cache[2], (seq_t)1);
+        b_cache[2] = (seq_t)1 * ipow(a_cache[1], (seq_t)2) +
+                     (seq_t)2 * ipow(a_cache[2], (seq_t)1);
 
         /* b(3) = 1*a(1)^3 + 3*a(3)^1 */
-        b_cache[3] = (seq_t)1 * big_pow(a_cache[1], (seq_t)3) +
-                     (seq_t)3 * big_pow(a_cache[3], (seq_t)1);
+        b_cache[3] = (seq_t)1 * ipow(a_cache[1], (seq_t)3) +
+                     (seq_t)3 * ipow(a_cache[3], (seq_t)1);
     }
 
     /* Compute needed values up to n */
@@ -76,12 +80,12 @@ seq_t a(idx_t n)
             if (m % d == 0)
             {
                 /* divisor d */
-                bm += (seq_t)d * big_pow(a_cache[d], (seq_t)(m / d));
+                bm += (seq_t)d * ipow(a_cache[d], (seq_t)(m / d));
 
                 /* paired divisor m/d, avoid double counting if square */
                 idx_t d2 = m / d;
                 if (d2 != d)
-                    bm += (seq_t)d2 * big_pow(a_cache[d2], (seq_t)(m / d2));
+                    bm += (seq_t)d2 * ipow(a_cache[d2], (seq_t)(m / d2));
             }
         }
         b_cache[m] = bm;

@@ -10,6 +10,7 @@
  *            greatest power ≤ n is larger than n/2
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 42, u128 n <= 82,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 603 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,9 @@
 /*  Implementation uses the utility function  
  *  build_primes_upto(idx_t limit, uint64_t **primes, size_t *cnt)   
  *  which returns the list of all primes ≤ limit and their count.  */
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 seq_t a(idx_t n)

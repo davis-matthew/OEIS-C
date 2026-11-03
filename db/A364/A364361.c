@@ -10,12 +10,14 @@
  *            binomial(r-j,k)
  * Range:     u8 n <= 30, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Compute the sum T(r,k) */
     for (idx_t j = 0; j <= r - k; ++j)
     {
-        seq_t term = (seq_t)k * binom(k, j) * binom(r - j, k);
+        seq_t term = (seq_t)k * binomial(k, j) * binomial(r - j, k);
         sum += term;
     }
 

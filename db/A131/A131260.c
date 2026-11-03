@@ -13,21 +13,39 @@
  *            count_prime_factors(seq_t)...
  * Range:     u8 n <= 8, u16 n <= 40, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   count_prime_factors, grow_seq, is_palindrome
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   bigomega_seq, is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_palindrome.h"
-#include "../utils/count_prime_factors.h"
-#include "../utils/grow_seq.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/bigomega_seq.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 #include <stdbool.h>
 
 /* Find the smallest palindrome strictly greater than n */
 static seq_t next_palindrome(seq_t n)
 {
     seq_t x = n + 1;
-    while (!is_palindrome(x, 10))
+    while (!is_palindrome_base(x, 10))
         ++x;
     return x;
 }
@@ -35,7 +53,7 @@ static seq_t next_palindrome(seq_t n)
 /* Return true iff n is a semiprime (product of exactly two primes) */
 static bool is_semiprime(seq_t n)
 {
-    seq_t f = count_prime_factors(n);
+    seq_t f = bigomega_seq(n);
     return f == 2;
 }
 

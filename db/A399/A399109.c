@@ -7,13 +7,15 @@
  * Formula:   a(n) = Σ_{i+j+k=n} (n!/(i! j! k!))^3 * 8^k
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* compute a(n) */
 seq_t a(idx_t n) {
@@ -21,12 +23,12 @@ seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;
 
     /* allocate arrays for binomial coefficients of n and powers of 8 */
-    seq_t *binom = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    seq_t *pow8  = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *binom = mem_new(seq_t, (n + 1));
+    seq_t *pow8  = mem_new(seq_t, (n + 1));
     if (!binom || !pow8) {
         /* allocation failed – return 0 */
-        if (binom) free(binom);
-        if (pow8)  free(pow8);
+        if (binom) mem_free(binom);
+        if (pow8)  mem_free(pow8);
         return (seq_t)0;
     }
 
@@ -72,7 +74,7 @@ seq_t a(idx_t n) {
         }
     }
 
-    free(binom);
-    free(pow8);
+    mem_free(binom);
+    mem_free(pow8);
     return result;
 }

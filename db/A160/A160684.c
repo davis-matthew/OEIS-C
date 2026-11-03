@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 6055, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 73 terms through n = 9844 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"   /* provides uint64_t divisor_count_u64(uint64_t) */
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* ---------- fast doubling Fibonacci modulo mod --------------------------------- */
 static inline void fib_pair_mod(idx_t n, uint64_t mod,
@@ -70,7 +72,7 @@ static void grow_seq(size_t needed)
     if (seq_cap >= needed) return;
     size_t new_cap = seq_cap ? seq_cap : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     seq_vals = tmp;
     seq_cap = new_cap;
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
 
     while (seq_len < (size_t)n) {  /* generate terms until we have n entries   */
         ++last_k;                  /* next k to test                           */
-        uint64_t d = divisor_count_u64(last_k);
+        uint64_t d = num_divisors(last_k);
         if (fib_mod(last_k, d) == 0) {
             grow_seq(seq_len + 1);
             seq_vals[seq_len++] = (seq_t)last_k;

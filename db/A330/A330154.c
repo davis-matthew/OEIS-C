@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Static tables with dynamic growth. */
 static seq_t *values = NULL;          /* a(n) values, 1‑based */
@@ -44,7 +46,7 @@ static void ensure_values(size_t n)
     if (n < values_cap) return;
     size_t newcap = values_cap ? values_cap : 16;
     while (newcap <= n) newcap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(values, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, values, newcap);
     if (!tmp) abort();
     for (size_t i = values_cap; i < newcap; ++i) tmp[i] = 0;
     values = tmp;

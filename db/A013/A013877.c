@@ -7,14 +7,23 @@
  * Formula:   a(n) = 15^(5*n + 4)
  * Range:     u8 none, u16 n <= 0, u32 n <= 0, u64 n <= 2, u128 n <= 5,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: standard, pass, 24 terms through n = 94 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Memoized cache of computed terms.  */
 static seq_t *cache = NULL;          /* array of terms a(0)..a(cache_len-1)  */
@@ -31,16 +40,16 @@ static void init_cache(void)
         return; /* already initialized */
 
     /* Compute base5 = 15^5 once. */
-    base5 = big_pow((seq_t)15, (seq_t)5);
+    base5 = ipow((seq_t)15, (seq_t)5);
 
     /* Allocate initial storage.  */
     cache_cap = 64;
-    cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+    cache = mem_new(seq_t, cache_cap);
     if (!cache)
         return; /* allocation failed – program may crash on first call */
 
     /* Compute a(0) = 15^4. */
-    cache[0] = big_pow((seq_t)15, (seq_t)4);
+    cache[0] = ipow((seq_t)15, (seq_t)4);
     cache_len = 1;
 }
 
@@ -55,7 +64,7 @@ static void ensure_up_to(idx_t n)
         size_t new_cap = cache_cap;
         while ((size_t)n >= new_cap)
             new_cap *= 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache)
             return; /* realloc failed – leave cache unchanged */
         cache = new_cache;

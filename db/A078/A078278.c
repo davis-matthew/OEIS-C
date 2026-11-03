@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 10,
  *            big any n
- * Helpers:   append_digits_left
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,28 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/append_digits_left.h"
+
+/* Append digits of an unsigned integer in normal (MSD→LSD) order
+ * to a dynamic array of uint8_t (digits 0..9). */
+static void append_digits_left(idx_t num, uint8_t **arr, size_t *len, size_t *cap)
+{
+    uint8_t tmp[32];
+    size_t t = 0;
+    do {
+        tmp[t++] = (uint8_t)(num % 10);
+        num /= 10;
+    } while (num);
+    for (size_t i = 0; i < t; ++i) {
+        uint8_t d = tmp[t - 1 - i];
+        if (*len >= *cap) {
+            size_t new_cap = *cap ? *cap * 2 : 32;
+            uint8_t *tmp_arr = (uint8_t *)realloc(*arr, new_cap * sizeof(uint8_t));
+            *arr = tmp_arr;
+            *cap = new_cap;
+        }
+        (*arr)[(*len)++] = d;
+    }
+}
 
 /*---------------------------------------------------------------*/
 /* Prime generation – lazily computed first n primes             */

@@ -12,12 +12,14 @@
  *            (OEIS A229573, offset 1)
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 27, u64 n <= 58, u128 n <= 121,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t _base_vals[5] = { (seq_t)2, (seq_t)26, (seq_t)76, (seq_t)171, (seq_t)362 };
 static seq_t * _cache = NULL;       /* storage for computed terms, index 1.. */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Ensure storage large enough for index n */
     if (_cache_cap < (size_t)(n + 1)) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *new_ptr = (seq_t *)realloc(_cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, _cache, new_cap);
         if (!new_ptr) return (seq_t)0; /* memory failure; return 0 */
         _cache = new_ptr;
         _cache_cap = new_cap;

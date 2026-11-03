@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   digit_product, is_palindrome
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   digit_product, is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
 #include <stdbool.h>
 
 /* Helper utilities from the utils library */
-#include "../utils/is_palindrome.h"
 #include "../utils/digit_product.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 /* Computation of A244542 */
 seq_t a(idx_t n)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         seq_t cur = (seq_t)last_tested;
 
         /* Check if cur is a palindrome */
-        if (!is_palindrome(cur, 10))
+        if (!is_palindrome_base(cur, 10))
             continue;
 
         /* Compute product of digits */
@@ -56,11 +58,11 @@ seq_t a(idx_t n)
         /* Check the +/- conditions */
         seq_t plus  = cur + prod;
         seq_t minus = cur - prod;
-        if (is_palindrome(plus, 10) && is_palindrome(minus, 10)) {
+        if (is_palindrome_base(plus, 10) && is_palindrome_base(minus, 10)) {
             /* Ensure there is space in the cache */
             if (cache_len + 1 > cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 128;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
                     /* Allocation failure; abort since we cannot recover */
                     abort();

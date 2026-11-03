@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 24, u64 n <= 51, u128 n <= 104,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #ifdef __cplusplus
 #include <vector>
 #endif
+#include "../utils/mem.h"
 
 /* Forward declaration of function */
 seq_t a(idx_t n);
@@ -66,7 +68,7 @@ static void ensure_size_c(idx_t n) {
     if (n + 1 > seq_cap) {               /* need to grow */
         idx_t new_cap = seq_cap ? seq_cap * 2 : 4;
         while (new_cap < n + 1) new_cap <<= 1;
-        seq = (seq_t *)realloc(seq, sizeof(seq_t) * (new_cap + 1));
+        seq = mem_resize(seq_t, seq, (new_cap + 1));
         seq_cap = new_cap;
     }
 

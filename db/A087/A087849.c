@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
             for n≥3: a(n)=a(a(a(n-1))) + abs(2*a(n-1)-n) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of already computed terms.  The pointer type is seq_t* so it can point
    to integers or to a big‑integer class.  The value is a plain C integer
@@ -39,7 +41,7 @@ ensure_capacity(idx_t n)
     while (new_cap <= n)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     /* If realloc returns a non‑NULL pointer we replace the old block. */
     if (tmp == NULL) {
         /* In a real program we would handle allocation failure.
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on the first call. */
     if (cache == NULL) {
         /* Allocate space for indices 0,1,2.  Index 0 is unused. */
-        cache = (seq_t *)calloc(3, sizeof(seq_t));
+        cache = mem_new(seq_t, 3);
         if (cache == NULL) abort();
         cache[1] = (seq_t)1;
         cache[2] = (seq_t)1;

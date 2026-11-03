@@ -8,13 +8,20 @@
  *            3 (OEIS A081567)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 34, u128 n <= 69,
  *            big any n
- * Helpers:   mul5_seq_t
+ * Validated: standard, pass, 43 terms through n = 991 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mul5_seq_t.h"
+
+/* Use a 128‑bit unsigned type for intermediate arithmetic
+   to avoid signed‑overflow undefined behaviour. */
+static inline seq_t mul5_seq_t(seq_t v) {
+    /* 5 * v computed in 128 space, then truncated to seq_t */
+    return (seq_t)(((__uint128_t)5 * v));
+}
 
 seq_t a(idx_t n)
 {

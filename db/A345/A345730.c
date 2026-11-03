@@ -11,7 +11,8 @@
  *            described in OEIS A345730
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Count the number of positive divisors of n.  For n==0 a special
    value 0 is returned, matching the definition in the sequence. */
@@ -56,7 +58,7 @@ seq_t a(idx_t n) {
     /* One‑time initialisation. */
     if (seq == NULL) {
         seq_cap = 32;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = 0;                 /* a(0) = 0 */
         seq_len = 1;
 
@@ -75,7 +77,7 @@ seq_t a(idx_t n) {
         /* Append the new term. */
         if (seq_len == seq_cap) {
             seq_cap *= 2;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len++] = val;
 

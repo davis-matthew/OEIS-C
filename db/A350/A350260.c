@@ -10,7 +10,8 @@
  *            The sequence a(n) lists T(r,k) row by row, with offset 0
  * Range:     u8 n <= 16, u16 n <= 26, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for arbitrary seq_t and idx_t types. */
 seq_t a(idx_t n)
@@ -39,11 +41,11 @@ seq_t a(idx_t n)
         return (seq_t)0;          /* n>0 here, 0^n = 0 */
 
     /* Allocate arrays for Stirling numbers (1‑D) and powers of k. */
-    seq_t *S = (seq_t *)malloc((r + 1) * sizeof(seq_t));
-    seq_t *powk = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, (r + 1));
+    seq_t *powk = mem_new(seq_t, (r + 1));
     if (!S || !powk) {
-        free(S);
-        free(powk);
+        mem_free(S);
+        mem_free(powk);
         /* On memory failure, fall back to zero to keep the function
            well‑defined (the tests never trigger this). */
         return (seq_t)0;
@@ -79,8 +81,8 @@ seq_t a(idx_t n)
     }
 
     /* Clean up */
-    free(S);
-    free(powk);
+    mem_free(S);
+    mem_free(powk);
 
     return result;
 }

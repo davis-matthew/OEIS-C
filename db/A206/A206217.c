@@ -12,12 +12,14 @@
  *            a(11)=3772143906359, a(12)=35177251141094, * a(13)=3...
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 17, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t _a_start[16] = {
     452ULL, 7313ULL, 73133ULL, 656053ULL,
@@ -38,7 +40,7 @@ static void _ensure_cache_cap(idx_t need)
     if (_cache_cap < need) {
         idx_t new_cap = _cache_cap ? _cache_cap * 2 : need;
         if (new_cap < need) new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _cache, new_cap);
         _cache = tmp;
         _cache_cap = new_cap;
     }

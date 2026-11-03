@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, changed
  * Formula:   not stated
- * Range:     u8 n <= 20, u16 n <= 65, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20, u16 n <= 926, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 81 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for the sequence and the sieve */
 static seq_t *comp_def_seq = NULL;      /* array of found numbers */
@@ -61,7 +63,7 @@ static void ensure_seq_capacity(size_t need)
     size_t new_cap = (comp_def_cap == 0) ? 32 : comp_def_cap * 2;
     while (new_cap < need) new_cap *= 2;
 
-    seq_t *new_seq = (seq_t *)realloc(comp_def_seq, new_cap * sizeof(seq_t));
+    seq_t *new_seq = mem_resize(seq_t, comp_def_seq, new_cap);
     if (!new_seq) abort();
 
     comp_def_seq = new_seq;

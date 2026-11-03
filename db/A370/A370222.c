@@ -9,17 +9,74 @@
  * Formula:   a(n) = flattened values of the inversion tables of
  *            stack‑sortable permutations of length m, sorted
  *            lexicographically
- * Range:     u8 n <= 8419, u16 n <= 8419, u32 n <= 8419, u64 n <= 8419,
- *            u128 n <= 8419, big any n
- * Helpers:   catalan_uint64, decode_permutation, generate_dyck_rec
+ * Range:     u8 n <= 15521, u16 n <= 15521, u32 n <= 15521, u64 n <= 15521,
+ *            u128 n <= 15521, big any n
+ * Validated: standard, pass, 107 terms through n = 8419 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/catalan_uint64.h"
-#include "../utils/decode_permutation.h"
-#include "../utils/generate_dyck_rec.h"
+#include "../utils/mem.h"
+
+/* Catalan numbers for n <= 12 (sufficient for the needed size). */
+static size_t catalan_uint64(int n)
+{
+    unsigned __int128 res = 1;
+    for (int i = 1; i <= n; ++i)
+    {
+        res = res * (2 * (2 * i - 1));
+        res = res / (i + 1);
+    }
+    return (size_t)res;
+}
+
+/* Decode a Dyck word (balanced parentheses of length 2*m) into the
+   corresponding stack‑sortable permutation. */
+static int *decode_permutation(const char *w, int m)
+{
+    int *perm  = (int *)malloc(m * sizeof(int));
+    int *stack = (int *)malloc(m * sizeof(int));
+    int sp = 0, next = 1, outpos = 0;
+    for (int i = 0; i < 2 * m; ++i)
+    {
+        if (w[i] == '(')
+            stack[sp++] = next++;
+        else
+        {
+            int v = stack[--sp];
+            perm[outpos++] = v;
+        }
+    }
+    free(stack);
+    return perm;
+}
+
+/* Recursive generation of all Dyck words of length 2*m. Each word
+   is decoded into a permutation and stored. */
+static void generate_dyck_rec(int m, int pos, int open, int close,
+                              char *buf, int **perm_ptrs, size_t *perm_count)
+{
+    if (pos == 2 * m)
+    {
+        int *perm = decode_permutation(buf, m);
+        perm_ptrs[*perm_count] = perm;
+        ++(*perm_count);
+        return;
+    }
+    if (open < m)
+    {
+        buf[pos] = '(';
+        generate_dyck_rec(m, pos + 1, open + 1, close, buf, perm_ptrs, perm_count);
+    }
+    if (close < open)
+    {
+        buf[pos] = ')';
+        generate_dyck_rec(m, pos + 1, open, close + 1,
+                          buf, perm_ptrs, perm_count);
+    }
+}
 
 /* Global cache for the sequence values */
 static seq_t *seq_cache = NULL;
@@ -33,7 +90,7 @@ static void ensure_seq_cache_capacity(size_t needed)
     if (needed <= seq_cache_cap) return;
     size_t new_cap = seq_cache_cap ? seq_cache_cap << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_buf = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, seq_cache, new_cap);
     seq_cache = new_buf;
     seq_cache_cap = new_cap;
 }

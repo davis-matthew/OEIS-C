@@ -8,6 +8,7 @@
  * Formula:   a(n) = floor( 1 / abs( n*e - nearest_integer(n*e) ) )
  * Range:     u8 none, u16 none, u32 none, u64 n <= 96, u128 n <= 96,
  *            big any n
+ * Validated: partial, pass, 96 terms through n = 96 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

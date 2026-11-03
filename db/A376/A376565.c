@@ -9,13 +9,16 @@
  *            (n-4k)!) * (n+1)^(n-3k-1) )
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_pow.h"      /* seq_pow(seq_t base, idx_t exp) */
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 static seq_t *fac = NULL;          /* factorial table, fac[i] = i!   */
 static idx_t fac_size = 0;         /* current size of fac (fac_size-1 is max n computed) */
@@ -24,12 +27,12 @@ static idx_t fac_size = 0;         /* current size of fac (fac_size-1 is max n c
 static void ensure_factorial(idx_t n)
 {
     if (n + 1 > fac_size) {
-        seq_t *newfac = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *newfac = mem_new(seq_t, (n + 1));
         if (!newfac) return;      /* out of memory – caller will handle failure */
         newfac[0] = (seq_t)1;
         for (idx_t i = 1; i <= n; ++i)
             newfac[i] = newfac[i - 1] * (seq_t)i;
-        free(fac);
+        mem_free(fac);
         fac = newfac;
         fac_size = n + 1;
     }
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
     seq_t fact_n = fac[n];
 
     seq_t base   = (seq_t)(n + 1);
-    seq_t power  = seq_pow(base, (idx_t)(n - 1));     /* (n+1)^(n-1) for k = 0 */
+    seq_t power  = ipow_idx(base, (idx_t)(n - 1));     /* (n+1)^(n-1) for k = 0 */
     seq_t base_cub = base * base * base;             /* (n+1)^3  */
 
     seq_t sum = 0;

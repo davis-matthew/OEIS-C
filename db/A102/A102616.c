@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for the nonprime number list. */
 static bool            cache_ready   = false;
@@ -57,7 +59,7 @@ static void init(void)
     }
 
     /* Allocate the array that will hold the nonprime values. */
-    nonprimes = (seq_t *)malloc((size_t)cnt * sizeof(seq_t));
+    nonprimes = mem_new(seq_t, (size_t)cnt);
     if (!nonprimes) { free(isprime); return; }
 
     /* Fill the array. */

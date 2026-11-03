@@ -13,7 +13,8 @@
  *            is a power of two; for i the blocks that bec...
  * Range:     u8 n <= 31, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   hs_hash_value
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,12 +22,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/hs_hash_value.h"
+#include "../utils/mem.h"
+
+/* 64‑bit Fibonacci hash of the value (truncating to 64 bit). */
+static inline size_t hs_hash_value(seq_t v) {
+    return (size_t)((uint64_t)v * 11400714819323198485ull);
+}
 
 /* Forward declaration of seq_t and idx_t types supplied by the build. */
-extern void *malloc(size_t);
-extern void *realloc(void *, size_t);
-extern void free(void *);
 
 seq_t a(idx_t n);
 
@@ -45,18 +48,18 @@ static void hs_init(HashSet *hs, size_t init_cap) {
     hs->cap = init_cap;
     hs->mask = init_cap - 1;
     hs->sz = 0;
-    hs->table = (seq_t *)calloc(hs->cap, sizeof(seq_t));
+    hs->table = mem_new(seq_t, hs->cap);
 }
 
 static void hs_free(HashSet *hs) {
-    free(hs->table);
+    mem_free(hs->table);
     hs->table = NULL;
     hs->cap = hs->mask = hs->sz = 0;
 }
 
 static void hs_rehash(HashSet *hs) {
     size_t new_cap = hs->cap << 1;
-    seq_t *new_table = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_table = mem_new(seq_t, new_cap);
     size_t new_mask = new_cap - 1;
     for (size_t i = 0; i < hs->cap; ++i) {
         seq_t val = hs->table[i];
@@ -66,7 +69,7 @@ static void hs_rehash(HashSet *hs) {
             new_table[h] = val;
         }
     }
-    free(hs->table);
+    mem_free(hs->table);
     hs->table = new_table;
     hs->cap = new_cap;
     hs->mask = new_mask;
@@ -119,13 +122,13 @@ static void ensure_buffers(idx_t need) {
     size_t required_seq_cap = 2 * (size_t)need;     /* safety factor */
     if (required_seq_cap > seq_cap) {
         seq_cap = required_seq_cap;
-        seq_buf = (seq_t *)realloc(seq_buf, seq_cap * sizeof(seq_t));
+        seq_buf = mem_resize(seq_t, seq_buf, seq_cap);
     }
     /* Grow prefix buffer */
     size_t required_pref_cap = required_seq_cap + 1;
     if (required_pref_cap > pref_cap) {
         pref_cap = required_pref_cap;
-        pref_buf = (seq_t *)realloc(pref_buf, pref_cap * sizeof(seq_t));
+        pref_buf = mem_resize(seq_t, pref_buf, pref_cap);
     }
 }
 

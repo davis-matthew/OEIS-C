@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(n-1) + Sum_{d|n, 1<d<n} a(n/d) * a(d), a(1)=1
  * Range:     u8 n <= 25, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary */
     if (limit < n) {
         idx_t new_limit = n > 1 ? n * 2 : 1; /* safety factor */
-        cache = (seq_t *)realloc(cache, (new_limit + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (new_limit + 1));
         if (!cache)
             exit(EXIT_FAILURE);
         limit = new_limit;

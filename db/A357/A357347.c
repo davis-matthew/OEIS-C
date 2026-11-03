@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k=1..n} (n+2*k)^(k-1) * Stirling2(n,k) (OEIS A357347)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Persistent storage for the sequence and for Stirling‑2 numbers */
 static seq_t *seq_cache   = NULL;   /* a(n) cache */
@@ -33,8 +36,8 @@ static void ensure_capacity(size_t needed)
         new_cap = needed;
 
     /* Allocate new arrays; use C‑style cast to avoid C++ warnings */
-    seq_t *new_stirling = (seq_t*)malloc(new_cap * sizeof(seq_t));
-    seq_t *new_cache    = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_stirling = mem_new(seq_t, new_cap);
+    seq_t *new_cache    = mem_new(seq_t, new_cap);
     if (!new_stirling || !new_cache) {
         /* In an OJ environment, an allocation failure is fatal */
         exit(EXIT_FAILURE);
@@ -57,8 +60,8 @@ static void ensure_capacity(size_t needed)
         new_stirling[0] = (seq_t)1;
 
     /* Free old arrays */
-    free(Stirling);
-    free(seq_cache);
+    mem_free(Stirling);
+    mem_free(seq_cache);
 
     Stirling   = new_stirling;
     seq_cache  = new_cache;
@@ -89,7 +92,7 @@ seq_t a(idx_t n)
             seq_t sum = (seq_t)0;
             for (idx_t k = 1; k <= cur; ++k) {
                 seq_t base   = (seq_t)cur + (seq_t)(2 * k);
-                seq_t power  = big_pow(base, (seq_t)(k - 1));
+                seq_t power  = ipow(base, (seq_t)(k - 1));
                 sum += power * Stirling[k];
             }
             seq_cache[cur] = sum;

@@ -10,13 +10,19 @@
  *            the square array A(n,k) = (k*n)^2 + 5*k*n + 1
  * Range:     u8 n <= 38, u16 n <= 542, u32 n <= 1325, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   tri_u128
+ * Validated: standard, pass, 82 terms through n = 1325 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/tri_u128.h"
+
+/* Return T(d) = (d+1)(d+2)/2 as unsigned __int128 to avoid overflow. */
+static unsigned __int128 tri_u128(uint64_t d)
+{
+    return ((unsigned __int128)(d + 1) * (d + 2)) / 2;
+}
 
 seq_t a(idx_t n)
 {

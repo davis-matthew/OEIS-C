@@ -11,12 +11,14 @@
  *            a(7)=33, a(8)=39, a(9)=44, a(10)=49
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base_values[11] = {
     1ULL, 5ULL, 11ULL, 15ULL, 20ULL,
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     /* Grow the cache so that it contains entries up to n */
     if (cache_size <= n) {
         size_t new_size = (size_t)(n + 1);
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         /* Initialise missing entries */
         for (idx_t i = cache_size; i <= n; ++i) {
             if (i < 11) {

@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = the n-th integer k such that the XOR‑Möbius transform of
  *            A318457 at k equals k, where A318457(m) = m XOR (σ(m) – m)
- * Range:     u8 n <= 10, u16 n <= 65, u32 n <= 6010, u64 n <= 9916,
- *            u128 n <= 9916, big any n
- * Helpers:   factor_u64, seq_pow
+ * Range:     u8 n <= 10, u16 n <= 65, u32 n <= 6590, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 87 terms through n = 9916 (2026-11-03)
+ * Helpers:   factor_u64, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 /* Test whether k is a fixed point of the XOR‑Möbius transform A378226. */
 static bool is_fixed(uint64_t k)
@@ -37,8 +39,8 @@ static bool is_fixed(uint64_t k)
         for (size_t i = 0; i < np; ++i) {
             uint64_t bit   = (mask >> i) & 1U;
             uint64_t exp   = exps[i] - bit;
-            seq_t pow_p    = seq_pow((seq_t)primes[i], exp);
-            seq_t pow_p1   = seq_pow((seq_t)primes[i], exp + 1);
+            seq_t pow_p    = ipow_idx((seq_t)primes[i], exp);
+            seq_t pow_p1   = ipow_idx((seq_t)primes[i], exp + 1);
             seq_t sigma_p  = (pow_p1 - 1) / (primes[i] - 1);
             m     *= pow_p;
             sigma *= sigma_p;
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
 {
     if (!fixed) {
         fp_cap = 128;
-        fixed  = (seq_t *)malloc(fp_cap * sizeof(seq_t));
+        fixed  = mem_new(seq_t, fp_cap);
     }
 
     while (fp_len < (size_t)n) {
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         if (is_fixed((uint64_t)checked)) {
             if (fp_len == fp_cap) {
                 fp_cap <<= 1;
-                fixed = (seq_t *)realloc(fixed, fp_cap * sizeof(seq_t));
+                fixed = mem_resize(seq_t, fixed, fp_cap);
             }
             fixed[fp_len++] = (seq_t)checked;
         }

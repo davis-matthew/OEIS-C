@@ -9,13 +9,15 @@
  *            lexicographically least sequence of squares that is sum‑free
  * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoization. */
 static seq_t *cache = NULL;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary */
     if (cache_len < n) {
         idx_t new_len = n;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) return (seq_t)0; /* allocation failure → 0 */
         cache = new_cache;
 

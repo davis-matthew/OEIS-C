@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 25,
  *            big any n
- * Helpers:   mul_div_safe
+ * Validated: standard, pass, 36 terms through n = 199 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
 */
 
 #include <stdint.h>
-#include "../utils/mul_div_safe.h"
+
+/* helper for small seq_t types: multiply and divide with 128‑bit guard */
+static inline seq_t mul_div_safe(seq_t val, seq_t mul, seq_t div)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 prod = (unsigned __int128)val * (unsigned __int128)mul;
+        prod /= (unsigned __int128)div;
+        return (seq_t)prod;
+    }
+    return (val * mul) / div;
+}
 
 /* helper for small seq_t types: multiplication with 128‑bit guard */
 static inline seq_t mul_safe(seq_t a, seq_t b)

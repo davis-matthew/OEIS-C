@@ -7,7 +7,8 @@
  * Formula:   a(n) is the nth prime that is congruent to 0, 1, 3 or 6 modulo 7
  * Range:     u8 n <= 28, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   resize_if_needed
+ * Validated: standard, pass, 62 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/resize_if_needed.h"
+#include "../utils/mem.h"
+
+/* Grow an array if required. */
+static void resize_if_needed(seq_t **arr, size_t *len, size_t *cap) {
+    if (*len == *cap) {
+        *cap = (*cap) ? (*cap) * 2 : 8;
+        *arr = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
+        if (!(*arr)) exit(EXIT_FAILURE);
+    }
+}
 
 static seq_t *selected = NULL;
 static size_t selected_len = 0, selected_cap = 0;
@@ -31,13 +41,13 @@ static void init_static(void) {
 
     /* start with 2 as the first prime */
     all_cap = 16;
-    all_primes = (seq_t *)malloc(all_cap * sizeof(seq_t));
+    all_primes = mem_new(seq_t, all_cap);
     if (!all_primes) exit(EXIT_FAILURE);
     all_primes[0] = (seq_t)2;
     all_len = 1;
 
     selected_cap = 16;
-    selected = (seq_t *)malloc(selected_cap * sizeof(seq_t));
+    selected = mem_new(seq_t, selected_cap);
     if (!selected) exit(EXIT_FAILURE);
     selected_len = 0;
 }

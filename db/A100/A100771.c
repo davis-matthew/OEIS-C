@@ -9,15 +9,35 @@
  *            and greater * than or equal to n respectively
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   digits, make_pal_from_leftHalf
+ * Validated: partial, pass, 89 terms through n = 88 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digits.h"
-#include "../utils/make_pal_from_leftHalf.h"
+#include "../utils/num_digits_idx.h"
+
+/* Construct a palindrome of totalLen digits from the leftHalf value.
+ * leftHalf has leftHalfLen decimal digits.  The most significant digit of
+ * leftHalf may be zero if leftHalf has fewer digits than leftHalfLen. */
+static inline seq_t make_pal_from_leftHalf(seq_t leftHalf, int leftHalfLen, int totalLen)
+{
+    unsigned int leftDigits[20];
+    seq_t tmp = leftHalf;
+    for (int i = leftHalfLen - 1; i >= 0; --i) {
+        leftDigits[i] = (unsigned int)(tmp % 10ULL);
+        tmp /= 10ULL;
+    }
+
+    seq_t pal = 0;
+    for (int i = 0; i < totalLen; ++i) {
+        int d = (i < leftHalfLen) ? leftDigits[i] : leftDigits[totalLen - 1 - i];
+        pal = pal * 10ULL + d;
+    }
+    return pal;
+}
 
 /* Powers of ten.  POW10[i] == 10^i for i=0..20.  The largest needed value
  * is 10^19 which fits in unsigned long long. */
@@ -36,7 +56,7 @@ seq_t a(idx_t n)
     /* All single-digit numbers are palindromes. */
     if (n < 10ULL) return 0;
 
-    int len = digits(n);               /* number of decimal digits of n */
+    int len = num_digits_idx(n);               /* number of decimal digits of n */
     int leftHalfLen = (len + 1) / 2;   /* digits taken for the left side */
 
     /* divisor = 10^(len - leftHalfLen) */

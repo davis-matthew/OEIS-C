@@ -8,7 +8,8 @@
  *            1)!)^2)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 4, u128 n <= 9,
  *            big any n
- * Helpers:   build_primes, prime_exp_in_fact, seq_mul, seq_pow
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-01)
+ * Helpers:   build_primes, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,10 +26,26 @@
 #include <stdbool.h>         /* bool */
 
 /* Utility headers – the build system provides these implementations.  */
-#include "../utils/build_primes.h"   /* build_primes() */
-#include "../utils/seq_mul.h"        /* seq_mul() */
-#include "../utils/seq_pow.h"        /* seq_pow() */
-#include "../utils/prime_exp_in_fact.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/build_primes.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* ------------------------------------------------------------------ */
+static idx_t prime_exp_in_fact(idx_t n, idx_t p)
+{
+    idx_t exp = 0;
+    while (n) {
+        n /= p;
+        exp += n;
+    }
+    return exp;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Helper: exponent of prime p in n!  (Legendre’s formula)           */
@@ -71,7 +88,7 @@ static seq_t term_for(idx_t n)
                 - 2 * prime_exp_in_fact(five_f, p);
 
         if (e > 0) {
-            seq_t pe = seq_pow((seq_t)p, e);
+            seq_t pe = ipow_idx((seq_t)p, e);
             result = seq_mul(result, pe);
         }
     }

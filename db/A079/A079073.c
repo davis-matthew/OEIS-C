@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, look, base
  * Formula:   a(n) = sum of all m < n such that popcount(m) == popcount(n)
- * Range:     u8 n <= 37, u16 n <= 683, u32 n <= 9352, u64 n <= 9352,
- *            u128 n <= 9352, big any n
- * Helpers:   popcnt
+ * Range:     u8 n <= 37, u16 n <= 683, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 81 terms through n = 9352 (2026-11-01)
+ * Helpers:   popcount_idx_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/popcnt.h"
+#include "../utils/popcount_idx_to_u32.h"
 
 /* Forward declaration of seq_t and idx_t are provided by the build. */
 
@@ -52,7 +53,7 @@ seq_t a(idx_t n) {
            dynamic programming. */
     if (n > last_computed) {
         for (idx_t i = last_computed + 1; i <= n; ++i) {
-            unsigned int pc = popcnt(i);
+            unsigned int pc = popcount_idx_to_u32(i);
             cache[i] = sum_pop[pc];
             sum_pop[pc] += (seq_t)i;   /* update cumulative sum for this popcount */
         }

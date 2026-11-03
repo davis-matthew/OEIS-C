@@ -9,12 +9,14 @@
  *            demand and memoises them in a static array
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
             capacity = capacity ? capacity * 2 : 16;
             while (capacity < (size_t)n)
                 capacity *= 2;
-            cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, capacity);
         }
         /* compute missing terms up to n */
         for (; size < n; ++size) {

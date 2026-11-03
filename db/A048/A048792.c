@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 28, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   cube_digits_ok
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/cube_digits_ok.h"
+#include "../utils/mem.h"
+
+/*  Test whether the cube of m consists only of the digits 0–4.        */
+static bool cube_digits_ok(idx_t m)
+{
+    /* Use 128‑bit arithmetic to avoid overflow up to m≈2.6·10^6,
+       which is far above the value needed for the first 10 000 terms. */
+    unsigned __int128 cube = (unsigned __int128)m * m * m;
+    if (cube == 0) return true;
+    while (cube != 0) {
+        unsigned d = (unsigned)(cube % 10);
+        if (d > 4) return false;
+        cube /= 10;
+    }
+    return true;
+}
 
 /*---------------------------------------------------------------------*/
 
@@ -41,7 +57,7 @@ static void grow_cache(size_t min_cap)
     if (min_cap <= cache_cap) return;
     size_t new_cap = cache_cap > 0 ? cache_cap : 8;
     while (new_cap < min_cap) new_cap *= 2;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) abort();        /* out of memory */
     cache = new_ptr;
     cache_cap = new_cap;

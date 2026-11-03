@@ -8,7 +8,8 @@
  *            integer into odd squares. The value a(1)=0
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* State for incremental computation */
 static struct {
@@ -34,7 +36,7 @@ static struct {
 static void ensure_dp_cap(size_t cap)
 {
     if (cap <= memo.dp_cap) return;
-    seq_t *new_dp = (seq_t *)realloc(memo.dp, cap * sizeof(seq_t));
+    seq_t *new_dp = mem_resize(seq_t, memo.dp, cap);
     if (!new_dp) abort();
     /* zero the new region */
     for (size_t i = memo.dp_cap; i < cap; ++i) new_dp[i] = 0;
@@ -57,7 +59,7 @@ static void init_state(void)
 {
     memo.max_n    = 0;
     memo.dp_cap   = 1;
-    memo.dp       = (seq_t *)malloc(sizeof(seq_t));
+    memo.dp       = mem_new(seq_t, 1);
     if (!memo.dp) abort();
     memo.dp[0]    = 1;             /* p(0) = 1 */
     memo.next_odd = 1;             /* next odd to process */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 10,
  *            big any n
- * Helpers:   big_pow, seq_to_str
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,29 @@
 #include <stdlib.h>   /* malloc, realloc */
 #include <math.h>     /* log10 */
 
-#include "../utils/big_pow.h"      /* seq_t big_pow(seq_t, seq_t); */
-#include "../utils/seq_to_str.h"   /* void seq_to_str(seq_t, char*, size_t*); */
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 static seq_t *cache = NULL;       /* cache of discovered terms      */
 static size_t cache_len  = 0;      /* number of cached terms         */
@@ -48,7 +70,7 @@ static void ensure_cache(size_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < cache_len + need)
         new_cap = cache_len + need;
-    seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, new_cap);
     if (!newp)
         abort();
     cache = newp;
@@ -88,7 +110,7 @@ seq_t a(idx_t n)
         snprintf(kbuf, sizeof(kbuf), "%ju", (uintmax_t)next_k);
 
         /* Compute k^k. */
-        seq_t power = big_pow((seq_t)next_k, (seq_t)next_k);
+        seq_t power = ipow((seq_t)next_k, (seq_t)next_k);
 
         /* Rough estimate of the number of decimal digits of k^k. */
         size_t est_digits = (size_t)(next_k * log10((double)next_k) + 15);

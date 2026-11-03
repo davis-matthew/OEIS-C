@@ -10,8 +10,9 @@
  *            (including multiplicity). For n>=1, a(1)=1. Implemented by
  *            factoring n via trial division and performing polynomial
  *            multiplication modulo 2 on the primes
- * Range:     u8 n <= 255, u16 n <= 9925, u32 n <= 9925, u64 n <= 9925,
- *            u128 n <= 9925, big any n
+ * Range:     u8 n <= 255, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 83 terms through n = 9925 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

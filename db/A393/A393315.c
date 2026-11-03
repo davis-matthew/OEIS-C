@@ -8,7 +8,8 @@
  *            a(0)=1). This implements the recurrence from OEIS A393315
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   fib
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,19 @@
 #include <stddef.h>     /* for NULL, size_t */
 #include <stdlib.h>     /* for realloc, abort */
 #include <stdint.h>     /* for uint64_t */
-#include "../utils/fib.h"   /* provides fib(idx_t n) -> seq_t */
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 /* Static cache for memoization */
 static seq_t *cache = NULL;          /* array of previously computed values   */
@@ -28,7 +41,7 @@ static void ensure_cache_capacity(idx_t sz)
 {
     if (cache == NULL || sz > cap) {
         size_t new_cap = (size_t)sz;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort();          /* out of memory */
         cache = new_cache;
         /* Construct any new elements for C++ arbitrary‑precision types. */
@@ -39,7 +52,7 @@ static void ensure_cache_capacity(idx_t sz)
         idx_t start = (computed_max == (idx_t)-1) ? 0
                                                    : computed_max + 1;
         for (size_t i = (size_t)start; i < new_cap; ++i)
-            new (&cache[i]) seq_t(); /* default construction */
+            *(&cache[i]) = (seq_t)0; /* default construction */
 #endif
         cap = new_cap;
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 7471, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9917 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* smallest prime factor table (uint32_t *) for numbers up to spf_limit */
 static uint32_t *spf = NULL;
@@ -83,10 +85,10 @@ static void maybe_resize_sequence(void)
 {
     if (seq_cap == 0) {
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
     } else if (seq_len >= seq_cap) {
         seq_cap *= 2;
-        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
     }
 }
 

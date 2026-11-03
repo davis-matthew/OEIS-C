@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 72, u32 n <= 181, u64 n <= 425,
  *            u128 n <= 1159, big any n
- * Helpers:   binomial_coeff
+ * Validated: standard, pass, 82 terms through n = 1101 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 
 /* Helpers – use only integer arithmetic on seq_t and idx_t */
 #include <stdlib.h>  /* for malloc, free */
-#include "../utils/binomial_coeff.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t pow_seq(seq_t base, idx_t exp)
 {
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     idx_t col = k;     /* column */
 
     /* Precompute Fibonacci numbers up to k. */
-    seq_t *fib_arr = (seq_t*)malloc((k + 1) * sizeof(seq_t));
+    seq_t *fib_arr = mem_new(seq_t, (k + 1));
     if (fib_arr == NULL) return 0;  /* out of memory, return 0 */
     fib_arr[0] = 0;
     if (k >= 1) fib_arr[1] = 1;
@@ -74,6 +76,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(fib_arr);
+    mem_free(fib_arr);
     return sum;
 }

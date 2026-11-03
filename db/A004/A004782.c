@@ -11,7 +11,8 @@
  *            when every such carry count is >= e
  * Range:     u8 n <= 29, u16 n <= 7458, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   carries2, divides_catalan
+ * Validated: standard, pass, 69 terms through n = 9567 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,33 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/carries2.h"
-#include "../utils/divides_catalan.h"
+
+static uint64_t carries2(uint64_t x, uint64_t p) {
+    uint64_t cnt = 0, carry = 0;
+    while (x) {
+        uint64_t d = x % p;
+        uint64_t s = 2 * d + carry;
+        carry = (s >= p) ? 1 : 0;
+        cnt += carry;
+        x /= p;
+    }
+    return cnt;
+}
+
+static bool divides_catalan(uint64_t m) {
+    uint64_t x = m, p;
+    for (p = 2; p * p <= x; p++) {
+        if (x % p == 0) {
+            uint64_t e = 0;
+            while (x % p == 0) { x /= p; e++; }
+            if (carries2(m, p) < e) return false;
+        }
+    }
+    if (x > 1) {
+        if (carries2(m, x) < 1) return false;
+    }
+    return true;
+}
 
 static uint64_t *terms = NULL;
 static idx_t nterms = 0, cap = 0;

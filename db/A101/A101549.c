@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 277, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   int_sqrt
+ * Validated: standard, pass, 72 terms through n = 965 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/int_sqrt.h"   /* path is kept to match the build environment */
+#include "../utils/isqrt.h"
 
 /* Upper bound for the sieve. 2 000 000 gives >140 000 primes and covers the
    required sqrt range for the test data. */

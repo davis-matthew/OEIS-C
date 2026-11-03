@@ -7,15 +7,16 @@
  * Formula:   a(n) = Flattened triangle T(r,c) with T(r,c) = binomial(r+1,
  *            2*(r-c)), r,c >= 0, 0 <= c <= r. Row r contains r+1 terms; the
  *            sequence is the row-major listing of the triangle
- * Range:     u8 n <= 32, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
+ * Range:     u8 n <= 61, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -44,5 +45,5 @@ seq_t a(idx_t n)
     if (b_param > a_param)                   /* binom will return 0, guard */
         return 0;
 
-    return binom(a_param, b_param);
+    return binomial(a_param, b_param);
 }

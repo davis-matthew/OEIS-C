@@ -12,7 +12,8 @@
  *            tested by comparing prime exponents of 2, 3, 5 and 7 in m wi...
  * Range:     u8 n <= 20, u16 n <= 181, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 874 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* exponents of 2,3,5,7 in d! for d=0..9 */
 static const uint8_t fact_exp[10][4] = {
@@ -78,7 +80,7 @@ seq_t a(idx_t n) {
     /* allocate initial storage */
     if (cache == NULL) {
         cap   = 64;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
     /* keep generating terms until we have at least n of them */
     while (len < n) {
@@ -86,7 +88,7 @@ seq_t a(idx_t n) {
         if (satisfies(last_checked)) {
             if (len == cap) {
                 cap *= 2;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[len++] = (seq_t)last_checked;
         }

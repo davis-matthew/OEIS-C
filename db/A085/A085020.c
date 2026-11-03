@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d|n, (d+1) prime} (d + 1)
  * Range:     u8 n <= 155, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 102 terms through n = 8564 (2026-11-01)
  * Helpers:   factor_u64, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,8 +17,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
 
 static void gen_divs(const uint64_t *pr, const uint64_t *exp, size_t cnt,
                      size_t idx, uint64_t cur, seq_t *sum)

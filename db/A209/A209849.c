@@ -11,6 +11,7 @@
  *            R(n+1,t)=t*(2*R(n,t)-R(n,t-1))
  * Range:     i8 n <= 23, i16 n <= 56, i32 n <= 121, i64 n <= 301,
  *            i128 n <= 744, big any n
+ * Validated: standard, pass, 71 terms through n = 9334 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

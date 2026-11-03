@@ -7,13 +7,15 @@
  * Formula:   a(n) = Σ_{k=0..⌊(n-1)/4⌋} binomial(n+1, 4k+2) * a(k) a(0) = 1
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 30, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>         /* malloc, realloc */
-#include "../utils/binomial.h"   /* binomial(idx_t n, idx_t k) returns seq_t */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,13 +26,13 @@ seq_t a(idx_t n)
 
     /* ensure cache is large enough */
     if (cache == NULL) {
-        cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (n + 1));
         cache_cap = n + 1;
         if (cache == NULL) return (seq_t)0;   /* out of memory; will never happen */
         /* initialise to 0 */
         for (size_t i = 0; i < cache_cap; ++i) cache[i] = (seq_t)0;
     } else if (cache_cap <= n) {
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         if (cache == NULL) return (seq_t)0;   /* out of memory */
         /* initialise new elements to 0 */
         for (size_t i = cache_cap; i < (size_t)(n + 1); ++i) cache[i] = (seq_t)0;

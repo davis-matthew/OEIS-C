@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, sign
  * Formula:   a(n) = sign(core(n) – φ(n)) (core = squarefree part of n)
- * Range:     i8 n <= 215, i16 n <= 9657, i32 n <= 9657, i64 n <= 9657,
- *            i128 n <= 9657, big any n
+ * Range:     i8 n <= 215, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 116 terms through n = 9657 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

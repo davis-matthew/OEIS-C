@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 17, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   gcd
+ * Validated: full, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* --- Helper: test whether x (>1) is a prime power (p^k, k>=1) */
 static bool is_prime_power(seq_t x)
@@ -67,7 +70,7 @@ static void init_valid(void)
 
     /* Start with a small capacity and grow as needed. */
     valid_cap = 32;
-    valid = (seq_t *)malloc(valid_cap * sizeof(seq_t));
+    valid = mem_new(seq_t, valid_cap);
     if (!valid) return;                   /* allocation failure: silently fall back to zero results */
 
     const uint64_t UPPER_BOUND = 100;  /* safe bound: 60 is the largest known term */
@@ -75,8 +78,8 @@ static void init_valid(void)
         if (is_valid((seq_t)cand)) {
             if (valid_count == valid_cap) {
                 size_t new_cap = valid_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(valid, new_cap * sizeof(seq_t));
-                if (!tmp) { free(valid); valid = NULL; return; }
+                seq_t *tmp = mem_resize(seq_t, valid, new_cap);
+                if (!tmp) { mem_free(valid); valid = NULL; return; }
                 valid = tmp;
                 valid_cap = new_cap;
             }

@@ -11,13 +11,23 @@
  *            up to 10000
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 47, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   count_base5_digits
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>   /* for log10l, sqrtl, floorl */
-#include "../utils/count_base5_digits.h"
+
+static seq_t count_base5_digits(seq_t x)
+{
+    seq_t cnt = 0;
+    while (x) {
+        x /= 5;
+        ++cnt;
+    }
+    return cnt;
+}
 
 static void fib_pair(idx_t n, seq_t *fn, seq_t *fn1)
 {

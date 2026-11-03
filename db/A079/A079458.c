@@ -9,6 +9,7 @@
  *            a(p^e) = (p-1)^2 * p^(2e-2) for p ≡ 1 (mod 4) (Sequence A079458)
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 2461, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 69 terms through n = 9986 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥1} (1 + x^(2k^2-1))
- * Range:     u8 n <= 1423, u16 n <= 5079, u32 n <= 9361, u64 n <= 9361,
- *            u128 n <= 9361, big any n
- * Helpers:   alloc_seq, free_seq
+ * Range:     u8 n <= 1423, u16 n <= 5079, u32 n <= 21911, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 103 terms through n = 9361 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,22 @@
 /* (1 + x^(2k^2-1)) expands to a subset‑sum count over the set {1,7,17,31,…} */
 
 #include <stdint.h>
-#include "../utils/alloc_seq.h"   /* alloc_seq(size_t) -> seq_t* */
-#include "../utils/free_seq.h"    /* free_seq(seq_t*) */
+#include <stdlib.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {

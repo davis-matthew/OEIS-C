@@ -6,15 +6,17 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = pi(2n-1) - pi(n) (number of primes strictly between n and
  *            2n)
- * Range:     u8 n <= 2049, u16 n <= 9016, u32 n <= 9016, u64 n <= 9016,
- *            u128 n <= 9016, big any n
- * Helpers:   none
+ * Range:     u8 n <= 2049, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 93 terms through n = 9016 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache: store primes up to the largest 2n seen so far */
 static idx_t cached_limit = 0;          /* current maximum value of 2n-1 computed */
@@ -26,10 +28,10 @@ static void build_sieve(idx_t limit)
 {
     /* free old caches if any */
     if (prime_cache) free(prime_cache);
-    if (pi_cache)     free(pi_cache);
+    if (pi_cache)     mem_free(pi_cache);
 
     prime_cache = (uint8_t *)malloc((limit + 1) * sizeof(uint8_t));
-    pi_cache    = (seq_t   *)malloc((limit + 1) * sizeof(seq_t));
+    pi_cache    = mem_new(seq_t, (limit + 1));
     if (!prime_cache || !pi_cache) {
         /* In an unlikely out‑of‑memory situation, abort */
         exit(1);

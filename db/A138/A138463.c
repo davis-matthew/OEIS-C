@@ -9,13 +9,15 @@
  *            (n‑2)*(2n‑5)*a(n‑3) Initial values: a(0)=2, a(1)=22, a(2)=394
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system */
 seq_t a(idx_t n)
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 4;                   /* initial capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return 0;     /* allocation failure */
         /* seed the first three values */
         cache[0] = (seq_t)2;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         while (cache_cap <= n) {
             cache_cap = cache_cap ? cache_cap << 1 : 4;
         }
-        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (tmp == NULL) return 0;       /* reallocation failed */
         cache = tmp;
     }

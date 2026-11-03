@@ -9,14 +9,16 @@
  *            such that d1 + d2 is prime
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   isPrimeTrial
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/isPrimeTrial.h"
+#include <stdlib.h>
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     for (size_t a = 0; a < len; ++a) {
         for (size_t b = a; b < len; ++b) {
             seq_t sum = (seq_t)divs[a] + (seq_t)divs[b];
-            if (isPrimeTrial(sum)) {
+            if (is_prime_seq(sum)) {
                 ++count;
             }
         }

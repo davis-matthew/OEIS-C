@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum, next_prime
+ * Validated: standard, pass, 72 terms through n = 995 (2026-11-03)
+ * Helpers:   digit_sum, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"
 #include "../utils/digit_sum.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* Return the n-th term of sequence A383680.
    The sequence is built incrementally and memoised.
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
             /* Ensure capacity of the term array. */
             if (terms_len == terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 4;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) {
                     /* Out of memory – terminate. */
                     abort();

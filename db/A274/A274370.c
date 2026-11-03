@@ -10,8 +10,9 @@
  *            move, a(n) = a(n-1) + a(n-104) - a(n-105) for n >= 10081,
  *            a(n+104) = a(n) - 2 for n > 9975 (recurrence follows the OEIS
  *            definition)
- * Range:     i8 n <= 9854, i16 n <= 9854, i32 n <= 9854, i64 n <= 9854,
- *            i128 n <= 9854, big any n
+ * Range:     i8 n <= 15000, i16 n <= 15000, i32 n <= 15000, i64 n <= 15000,
+ *            i128 n <= 15000, big any n
+ * Validated: standard, pass, 92 terms through n = 9854 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

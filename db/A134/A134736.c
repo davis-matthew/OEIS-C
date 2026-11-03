@@ -7,14 +7,17 @@
  * Formula:   a(1) = 5; for n > 1, a(n) = a(n-1) + gcd(n, a(n-1))
  * Range:     u8 n <= 100, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 82 terms through n = 991 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>          /* size_t */
 #include <stdlib.h>          /* malloc, realloc, free */
-#include "../utils/gcd.h"    /* gcd(seq_t, seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Compute OEIS sequence A134736 */
 seq_t a(idx_t n)
@@ -35,10 +38,10 @@ seq_t a(idx_t n)
         if (new_cap < (size_t)n)
             new_cap = n;
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* allocation failure: clean up and return 0 */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_cap = 0;
             cache_len = 0;

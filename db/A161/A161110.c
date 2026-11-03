@@ -9,12 +9,14 @@
  *            where every distinct part appears at least 9 times
  * Range:     u8 n <= 158, u16 n <= 458, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 111 terms through n = 963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* calloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* handle trivial case quickly */
@@ -24,11 +26,11 @@ seq_t a(idx_t n) {
 
     /* allocate DP arrays */
     size_t size = (size_t)n + (size_t)1;
-    seq_t *dp     = (seq_t*)calloc(size, sizeof(seq_t));
-    seq_t *newdp  = (seq_t*)calloc(size, sizeof(seq_t));
+    seq_t *dp     = mem_new(seq_t, size);
+    seq_t *newdp  = mem_new(seq_t, size);
     if (!dp || !newdp) {   /* allocation failed – return 0 */
-        free(dp);
-        free(newdp);
+        mem_free(dp);
+        mem_free(newdp);
         return (seq_t)0;
     }
 
@@ -59,7 +61,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[(size_t)n];
-    free(dp);
-    free(newdp);
+    mem_free(dp);
+    mem_free(newdp);
     return result;
 }

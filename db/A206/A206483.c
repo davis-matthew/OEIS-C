@@ -12,7 +12,8 @@
  *            matching when the root is matched to exactly one child...
  * Range:     u8 n <= 110, u16 n <= 110, u32 n <= 110, u64 n <= 110,
  *            u128 n <= 110, big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 110 terms through n = 110 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------- */
 /* Global tables (static to keep state between calls)          */
@@ -66,8 +68,8 @@ static void ensure_dp_size(idx_t up_to)
     idx_t new_cap = dp_cap ? dp_cap * 2 : 16;
     while (new_cap < up_to) new_cap <<= 1;
 
-    dp0      = (seq_t*)realloc(dp0, (new_cap + 1) * sizeof(seq_t));
-    dp1      = (seq_t*)realloc(dp1, (new_cap + 1) * sizeof(seq_t));
+    dp0      = mem_resize(seq_t, dp0, (new_cap + 1));
+    dp1      = mem_resize(seq_t, dp1, (new_cap + 1));
     computed = (unsigned char*)realloc(computed,
                     (new_cap + 1) * sizeof(unsigned char));
 

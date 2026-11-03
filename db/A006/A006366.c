@@ -12,13 +12,14 @@
  *            with a smallest-prime-factor sieve, then multiplying
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 12, u128 n <= 18,
  *            big any n
- * Helpers:   a6366_ipow
+ * Validated: standard, pass, 33 terms through n = 90 (2026-11-01)
+ * Helpers:   ipow_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a6366_ipow.h"
+#include "../utils/ipow_i64.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
@@ -67,7 +68,7 @@ seq_t a(idx_t n) {
 
     seq_t r = 1;
     for (m = 2; m <= M; m++) {
-        if (e[m] > 0) r *= a6366_ipow((seq_t)m, e[m]);
+        if (e[m] > 0) r *= ipow_i64((seq_t)m, e[m]);
     }
 
     free(d);

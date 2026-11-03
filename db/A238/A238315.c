@@ -8,13 +8,16 @@
  * Formula:   a(n) = n^2 + 2^(n-1) - 2*a(n-1), a(1) = 1
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 129,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 52 terms through n = 996 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
     /* Initial allocation if this is the first call */
     if (!cache) {
         cap   = 1;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* Grow cache if necessary to fit up to index n */
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap * 2;
         if (n > new_cap)
             new_cap = n * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) { /* allocation failure -> abort */
             return (seq_t)0;
         }
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
     /* Compute missing terms up to n */
     for (idx_t k = last + 1; k <= n; ++k) {
         seq_t sq   = (seq_t)k * (seq_t)k;            /* k^2 */
-        seq_t p2   = seq_pow((seq_t)2, k - 1);       /* 2^(k-1) */
+        seq_t p2   = ipow_idx((seq_t)2, k - 1);       /* 2^(k-1) */
         seq_t prev = cache[k - 2];                   /* a(k-1) */
         cache[k - 1] = sq + p2 - ((seq_t)2 * prev); /* recurrence */
     }

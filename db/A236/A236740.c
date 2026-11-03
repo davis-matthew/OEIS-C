@@ -12,13 +12,28 @@
  *            height n is a(n) = Σ_{S=0..4} 1ᵀ · M_Sⁿ · 1 Th...
  * Range:     u8 none, u16 n <= 4, u32 n <= 9, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   block_sum
+ * Validated: standard, pass, 34 terms through n = 200 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/block_sum.h"
+
+/* lower‑median + upper‑median of the 2×2 block formed by rows a and b
+   starting at column col (0 or 1) */
+static int block_sum(int a[3], int b[3], int col) {
+    int v[4] = { a[col], a[col + 1], b[col], b[col + 1] };
+    /* simple insertion sort for four elements */
+    for (int i = 0; i < 4; ++i)
+        for (int j = i + 1; j < 4; ++j)
+            if (v[j] < v[i]) {
+                int t = v[i];
+                v[i] = v[j];
+                v[j] = t;
+            }
+    return v[1] + v[2];
+}
 
 typedef struct { seq_t v[27][27]; } Matrix;
 

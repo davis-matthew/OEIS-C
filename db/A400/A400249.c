@@ -8,8 +8,9 @@
  * Formula:   a(1)=1 and a is multiplicative with a(p^e) = p^e - p^(e-2) if e
  *            ≡ 0 (mod p) 0 if e-1 ≡ 0 (mod p) p^(e-1) - p^(e-2) otherwise (p
  *            prime, e≥1)
- * Range:     u8 n <= 431, u16 n <= 9257, u32 n <= 9257, u64 n <= 9257,
- *            u128 n <= 9257, big any n
+ * Range:     u8 n <= 431, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 124 terms through n = 9257 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static seq_t pow_seq(seq_t base, idx_t exp)

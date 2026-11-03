@@ -6,9 +6,10 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = the n-th prime that can be written as x^2 + 52*y^2 (y >
  *            0)
- * Range:     u8 n <= 5, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
- *            big any n
- * Helpers:   mul_mod64
+ * Range:     u8 n <= 5, u16 n <= 806, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 59 terms through n = 9613 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,15 +17,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mul_mod64.h"
+#include <stddef.h>
+#include <string.h>
+#include "../utils/mulmod.h"
 
 /* ---------- helper functions ---------- */
 
 static uint64_t mod_pow64(uint64_t a, uint64_t e, uint64_t mod) {
     uint64_t r = 1;
     while (e) {
-        if (e & 1U) r = mul_mod64(r, a, mod);
-        a = mul_mod64(a, a, mod);
+        if (e & 1U) r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1U;
     }
     return r;
@@ -56,7 +59,7 @@ static bool is_prime(uint64_t n) {
         if (x == 1ULL || x == n - 1ULL) continue;
         bool composite = true;
         for (unsigned int r = 1U; r < s; ++r) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1ULL) { composite = false; break; }
         }
         if (composite) return false;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 118, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9318 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static idx_t max_k = 0;              /* largest index of Q that has been computed   */
 static seq_t *Q = NULL;              /* array of Hofstadter Q values, 1‑based       */
@@ -54,9 +56,9 @@ static void expand_Q(size_t need)
     size_t newsize = Qsize ? Qsize << 1 : 64;
     if (newsize < need)
         newsize = need;
-    seq_t *newQ = (seq_t *)realloc(Q, newsize * sizeof(seq_t));
+    seq_t *newQ = mem_resize(seq_t, Q, newsize);
     if (!newQ) abort();
-    memset(newQ + Qsize, 0, (newsize - Qsize) * sizeof(seq_t));
+    mem_set(newQ + Qsize, 0, (newsize - Qsize) * sizeof(seq_t));
     Q = newQ;
     Qsize = newsize;
 }
@@ -91,9 +93,9 @@ static void expand_A(size_t need)
     size_t newsize = Asize ? Asize << 1 : 64;
     if (newsize < need)
         newsize = need;
-    seq_t *newA = (seq_t *)realloc(A, newsize * sizeof(seq_t));
+    seq_t *newA = mem_resize(seq_t, A, newsize);
     if (!newA) abort();
-    memset(newA + Asize, 0, (newsize - Asize) * sizeof(seq_t));
+    mem_set(newA + Asize, 0, (newsize - Asize) * sizeof(seq_t));
     A = newA;
     Asize = newsize;
 }

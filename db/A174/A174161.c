@@ -13,18 +13,24 @@
  *            is a permutation of the prime numbers
  * Range:     u8 n <= 13, u16 n <= 158, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 72 terms through n = 9872 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* External utility needed for 64‑bit factoring. */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stddef.h>
 #include "../utils/factor_u64.h"
 
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Dynamic array helpers for seq_t values. */
 static seq_t *seq_buf = NULL;          /* holds the sequence */
@@ -39,10 +45,10 @@ static size_t used_used = 0;
 /* Ensure seq_buf has at least capacity 'need'. */
 static void seq_grow(size_t need) {
     if (seq_buf == NULL) {
-        seq_buf = (seq_t *)malloc((need > 8 ? need : 8) * sizeof(seq_t));
+        seq_buf = mem_new(seq_t, (need > 8 ? need : 8));
         seq_size = (need > 8 ? need : 8);
     } else if (need > seq_size) {
-        seq_buf = (seq_t *)realloc(seq_buf, need * sizeof(seq_t));
+        seq_buf = mem_resize(seq_t, seq_buf, need);
         seq_size = need;
     }
 }

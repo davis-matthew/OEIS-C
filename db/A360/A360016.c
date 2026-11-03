@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   lower_bound_uint16
+ * Validated: standard, pass, 125 terms through n = 9445 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/lower_bound_uint16.h"
+
+/* ----- binary search: first element ≥ val ----- */
+static inline size_t lower_bound_uint16(const uint16_t *arr, size_t len, uint32_t val)
+{
+    size_t l = 0, r = len;
+    while (l < r) {
+        size_t m = (l + r) >> 1;
+        if ((uint32_t)arr[m] < val) l = m + 1;
+        else                       r = m;
+    }
+    return l;
+}
 
 /* ----- global data (per limit) ----- */
 static uint8_t  *prime_flags  = NULL;   /* prime flag array          */

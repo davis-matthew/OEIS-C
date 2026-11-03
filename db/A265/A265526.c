@@ -9,12 +9,15 @@
  *            m = 101₂ = 5₁₀, function returns 101 (decimal)
  * Range:     u8 n <= 8, u16 n <= 32, u32 n <= 1024, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 64 terms through n = 9307 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"   /* floor_log2_uint64(idx_t) */
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 /* Reverse the lowest 'bits' bits of x (bits ≤ 64). */
 static seq_t reverse_bits(seq_t x, unsigned bits)
@@ -48,7 +51,7 @@ seq_t a(idx_t n)
     if (n == 0) return 0;
 
     /* Number of bits in n (n > 0). */
-    unsigned L = (unsigned)floor_log2_uint64(n) + 1;
+    unsigned L = (unsigned)ilog2(n) + 1;
 
     /* Number of bits in the "high" half (including middle if L odd). */
     unsigned half_len = (L + 1) >> 1;

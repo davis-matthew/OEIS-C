@@ -8,16 +8,19 @@
  *            a(n)=18*a(n-1)-77*a(n-2))
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     seq_t exp = (seq_t)(n + 1);
-    seq_t pow11 = big_pow((seq_t)11, exp);
-    seq_t pow7  = big_pow((seq_t)7, exp);
+    seq_t pow11 = ipow((seq_t)11, exp);
+    seq_t pow7  = ipow((seq_t)7, exp);
     return (pow11 - pow7) / (seq_t)4;
 }

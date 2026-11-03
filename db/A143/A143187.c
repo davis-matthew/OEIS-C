@@ -11,19 +11,20 @@
  *            2k. The triangle has T(r,0)=T(r,r)=1 and mirror symmetry
  * Range:     u8 n <= 1325, u16 n <= 1325, u32 n <= 1325, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   offset_row_local
+ * Validated: standard, pass, 107 terms through n = 1276 (2026-11-01)
+ * Helpers:   triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/offset_row_local.h"
+#include "../utils/triangular.h"
 
 seq_t a(idx_t n)
 {
     /* Find the row r such that offset(r) ≤ n < offset(r+1). */
     idx_t low = 0, high = 1;
-    while (offset_row_local(high) <= n) {
+    while (triangular(high) <= n) {
         if (high > (UINT64_MAX >> 1)) {  /* safeguard against overflow */
             high = UINT64_MAX;
             break;
@@ -32,13 +33,13 @@ seq_t a(idx_t n)
     }
     while (low + 1 < high) {
         idx_t mid = low + ((high - low) >> 1);
-        if (offset_row_local(mid) <= n)
+        if (triangular(mid) <= n)
             low = mid;
         else
             high = mid;
     }
     idx_t r = low;
-    idx_t offset = offset_row_local(r);
+    idx_t offset = triangular(r);
     idx_t j = n - offset;           /* column index within the row */
 
     if (j == 0 || j == r)          /* first or last element of the row */

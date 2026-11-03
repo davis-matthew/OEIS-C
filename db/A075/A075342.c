@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   estimate_limit_for_n
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,7 +37,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/estimate_limit_for_n.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static size_t estimate_limit_for_n(idx_t n)
+{
+    unsigned __int128 nn = (unsigned __int128)n;
+    unsigned __int128 val = nn * nn * 5ULL + 100ULL;     /* n²·5 + 100     */
+    return (size_t)val;
+}
 
 /* ------------------------------------------------------------------ */
 /* Prime sieve (bitset over odd numbers)                              */
@@ -115,7 +124,7 @@ static void ensure_computed_upto(idx_t n)
     /* Grow the cache to hold indices up to n */
     if (!seq_cache || (size_t)(max_cache_n + 1) < (size_t)n + 1) {
         size_t new_len = (size_t)n + 1;            /* 1‑indexed */
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_len);
         if (!tmp) exit(1);                        /* out of memory */
         seq_cache = tmp;
     }

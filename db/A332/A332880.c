@@ -7,9 +7,10 @@
  * Keywords:  nonn, frac
  * Formula:   a(n) = numerator of \prod_{p\mid n}\!\left(1+\frac1p\right) (the
  *            product is over the distinct prime divisors of n)
- * Range:     u8 n <= 200, u16 n <= 9485, u32 n <= 9485, u64 n <= 9485,
- *            u128 n <= 9485, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto, gcd
+ * Range:     u8 n <= 200, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 86 terms through n = 9485 (2026-11-01)
+ * Helpers:   build_primes_upto, gcd, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"
-#include "../utils/_floor_isqrt_u64.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/gcd.h"
+#include "../utils/isqrt.h"
 
 /* primes cache up to the required square‑root bound */
 static uint64_t *primes = NULL;
@@ -43,7 +44,7 @@ seq_t a(idx_t n)
     if (n == 1) return 1;
 
     /* integer square‑root of n */
-    idx_t sqrt_n = _floor_isqrt_u64(n);
+    idx_t sqrt_n = isqrt(n);
     if (sqrt_n < 2) sqrt_n = 2;          /* at least 2 for prime tests */
 
     ensure_primes(sqrt_n);

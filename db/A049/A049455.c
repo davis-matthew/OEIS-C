@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   stern_diagonal
+ * Validated: standard, pass, 121 terms through n = 9943 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,7 +37,16 @@
  */
 
 #include <stdint.h>
-#include "../utils/stern_diagonal.h"
+
+static seq_t stern_diagonal(idx_t k)
+{
+    if (k == 0) return 0;
+    if (k == 1) return 1;
+    if ((k & 1) == 0)      /* even */
+        return stern_diagonal(k >> 1);
+    else /* odd */
+        return stern_diagonal(k >> 1) + stern_diagonal((k >> 1) + 1);
+}
 
 seq_t a(idx_t n)
 {

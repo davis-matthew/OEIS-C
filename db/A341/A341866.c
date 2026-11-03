@@ -8,13 +8,25 @@
  * Formula:   a(n) = (n/p - 1)*(p-1) + 1, where p is the smallest factor of n
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   smallest_factor
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/smallest_factor.h"
+
+/* Return the smallest factor of n (1 for n==1). */
+static uint64_t smallest_factor(uint64_t n)
+{
+    if (n < 2)
+        return 1;
+    for (uint64_t i = 2; i <= n / i; ++i) {
+        if (n % i == 0)
+            return i;
+    }
+    return n;   /* n is prime */
+}
 
 seq_t a(idx_t n)
 {

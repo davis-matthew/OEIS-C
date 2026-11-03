@@ -8,7 +8,8 @@
  *            numbers. Computed by exhaustive search up to 1791
  * Range:     u8 n <= 13, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static uint64_t isqrt(uint64_t n) {
@@ -71,7 +73,7 @@ seq_t a(idx_t n) {
     static seq_t *sequence = NULL;
     static idx_t sequence_len = 0;
     if (sequence == NULL) {
-        sequence = (seq_t *)malloc(sizeof(seq_t) * 500);
+        sequence = mem_new(seq_t, 500);
         sequence_len = 0;
         for (uint64_t k = 1; k <= 1791; k++) {
             if (!can_sum_4_hexagonal(k)) {

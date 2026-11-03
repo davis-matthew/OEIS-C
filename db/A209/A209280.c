@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static bool next_permutation_int(int *arr, int n) {
     int i = n - 2;
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     static seq_t *diff = NULL;
     static const idx_t N = 362880;       /* 9!   */
     if (!diff) {
-        diff = (seq_t *)malloc((N - 1) * sizeof(seq_t));
+        diff = mem_new(seq_t, (N - 1));
         if (!diff) return 0;             /* out of memory */
         int digits[9] = {1,2,3,4,5,6,7,8,9};
         seq_t prev = 0, curr = 0;

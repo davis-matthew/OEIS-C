@@ -5,13 +5,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Σ_{d|n} C(n,d)/(n-d+1)
- * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 73, u128 n <= 139,
+ * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 35, u64 n <= 73, u128 n <= 139,
  *            big any n
+ * Validated: standard, pass, 60 terms through n = 918 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
 #include <stdbool.h>
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   ensure_capacity, is_prime, rev
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   is_prime, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,21 @@
 /*  A099180 – Primes p with p > reverse(p) (decimal) */
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/rev.h"
-#include "../utils/ensure_capacity.h"
+#include "../utils/reverse_digits_idx.h"
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,7 +48,7 @@ seq_t a(idx_t n)
         if (!is_prime(cur))
             continue;
 
-        seq_t rev_cur = (seq_t)rev(cur);
+        seq_t rev_cur = (seq_t)reverse_digits_idx(cur);
         if (rev_cur >= (seq_t)cur)
             continue;    /* condition p > reverse(p) not satisfied */
 

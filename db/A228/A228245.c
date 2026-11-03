@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n % 3 == 0) ? 1 : 10 - ((n - 1) / 3) (defined for n ≥ 1)
  * Range:     u8 n <= 31, u16 n <= 31, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
+ * Validated: full, pass, 31 terms through n = 31 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

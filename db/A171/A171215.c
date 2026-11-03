@@ -9,13 +9,15 @@
  *            the triangle of Lucas polynomials)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 154 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,25 +38,25 @@ seq_t a(idx_t n)
         idx_t new_cap = n / 2 + 2;
         /* reallocate sum array */
         if (max_n == 0) {
-            sum_arr = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+            sum_arr = mem_new(seq_t, (n + 1));
         } else {
-            sum_arr = (seq_t *)realloc(sum_arr, (n + 1) * sizeof(seq_t));
+            sum_arr = mem_resize(seq_t, sum_arr, (n + 1));
         }
-        memset(sum_arr, 0, (n + 1) * sizeof(seq_t));
+        mem_set(sum_arr, 0, (n + 1) * sizeof(seq_t));
 
         if (max_n == 0) {
             /* allocate coefficient arrays */
-            prev1 = (seq_t *)malloc(new_cap * sizeof(seq_t));
-            prev2 = (seq_t *)malloc(new_cap * sizeof(seq_t));
-            cur   = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            prev1 = mem_new(seq_t, new_cap);
+            prev2 = mem_new(seq_t, new_cap);
+            cur   = mem_new(seq_t, new_cap);
         } else if (new_cap > cap) {
-            prev1 = (seq_t *)realloc(prev1, new_cap * sizeof(seq_t));
-            prev2 = (seq_t *)realloc(prev2, new_cap * sizeof(seq_t));
-            cur   = (seq_t *)realloc(cur,   new_cap * sizeof(seq_t));
+            prev1 = mem_resize(seq_t, prev1, new_cap);
+            prev2 = mem_resize(seq_t, prev2, new_cap);
+            cur   = mem_resize(seq_t, cur, new_cap);
         }
-        memset(prev1, 0, new_cap * sizeof(seq_t));
-        memset(prev2, 0, new_cap * sizeof(seq_t));
-        memset(cur,   0, new_cap * sizeof(seq_t));
+        mem_set(prev1, 0, new_cap * sizeof(seq_t));
+        mem_set(prev2, 0, new_cap * sizeof(seq_t));
+        mem_set(cur, 0, new_cap * sizeof(seq_t));
         cap = new_cap;
 
         /* ------------ initialise base rows -------------- */

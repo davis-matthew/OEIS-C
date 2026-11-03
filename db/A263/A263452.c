@@ -12,13 +12,15 @@
  *            memoised for arbitrary order of calls
  * Range:     u8 n <= 2500, u16 n <= 2500, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 2120 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Periodic sequence b(k) of length 24 */
 static const signed char period_b[24] = {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Initialise on first call */
     if (max_n == (idx_t)-1) {
         cap = 1;
-        a_arr = (seq_t *)malloc(cap * sizeof(seq_t));
+        a_arr = mem_new(seq_t, cap);
         b_arr = (signed char *)malloc(cap * sizeof(signed char));
         D_arr = (int32_t *)malloc(cap * sizeof(int32_t));
         if (!a_arr || !b_arr || !D_arr) return 0; /* allocation failure */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* Extend storage if needed */
     if ((size_t)n + 1 > cap) {
         size_t new_cap = (size_t)n + 1;
-        a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, new_cap);
         b_arr = (signed char *)realloc(b_arr, new_cap * sizeof(signed char));
         D_arr = (int32_t *)realloc(D_arr, new_cap * sizeof(int32_t));
         if (!a_arr || !b_arr || !D_arr) return 0;           /* allocation failure */

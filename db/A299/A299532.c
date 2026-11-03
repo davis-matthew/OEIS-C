@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
  
 /* Static state used by the function.  All arrays grow with the
    highest n that has been requested so far. */
@@ -80,8 +82,8 @@ static void init_tables(void)
 {
     /* Small capacity – it will grow automatically. */
     A_cap = 4;
-    A = (seq_t*)malloc(A_cap * sizeof(seq_t));
-    B = (seq_t*)malloc(A_cap * sizeof(seq_t));
+    A = mem_new(seq_t, A_cap);
+    B = mem_new(seq_t, A_cap);
     if (!A || !B) abort();
 
     /* Initial values from the definition. */
@@ -114,8 +116,8 @@ static void extend_to(idx_t n)
     if ((idx_t)A_cap <= n) {
         size_t new_cap = A_cap ? A_cap * 2 : 4;
         if (new_cap <= (size_t)n) new_cap = (size_t)n + 1;
-        seq_t *tmpA = (seq_t*)realloc(A, new_cap * sizeof(seq_t));
-        seq_t *tmpB = (seq_t*)realloc(B, new_cap * sizeof(seq_t));
+        seq_t *tmpA = mem_resize(seq_t, A, new_cap);
+        seq_t *tmpB = mem_resize(seq_t, B, new_cap);
         if (!tmpA || !tmpB) abort();
         A = tmpA; B = tmpB; A_cap = new_cap;
     }

@@ -9,13 +9,15 @@
  *            a(3)=400
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initialize base values once */
     if (cache_cap == 0) {
         cache_cap = 3;  /* we have values up to a(3) */
-        cache = (seq_t*)malloc(sizeof(seq_t) * (cache_cap + 1)); /* +1 for index 0 */
+        cache = mem_new(seq_t, (cache_cap + 1)); /* +1 for index 0 */
         if (!cache) abort();          /* allocation failure */
         cache[0] = (seq_t)0;          /* unused slot */
         cache[1] = (seq_t)3;          /* a(1) */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* we need to compute up to n */
     size_t old_cap = cache_cap;
     size_t new_cap = (size_t)n;
-    seq_t *new_cache = (seq_t*)realloc(cache, sizeof(seq_t) * (new_cap + 1));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_cap + 1));
     if (!new_cache) abort();          /* allocation failure */
     cache = new_cache;
     cache_cap = new_cap;

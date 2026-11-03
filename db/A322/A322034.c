@@ -10,8 +10,9 @@
  *            p₁≤p₂≤⋯≤p_k are the prime factors of n with multiplicity. a(1) =
  *            0. The computation factors n by trial division, accumulates the
  *            terms n/(p₁⋯pᵢ), then divides by gcd with n
- * Range:     u8 n <= 286, u16 n <= 9764, u32 n <= 9764, u64 n <= 9764,
- *            u128 n <= 9764, big any n
+ * Range:     u8 n <= 286, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 88 terms through n = 9764 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

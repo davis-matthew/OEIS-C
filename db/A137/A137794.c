@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if the distinct prime factors of n form a consecutive
  *            run of primes; otherwise a(n) = 0
- * Range:     u8 n <= 9605, u16 n <= 9605, u32 n <= 9605, u64 n <= 9605,
- *            u128 n <= 9605, big any n
- * Helpers:   build_primes_upto, int_sqrt, next_prime
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9605 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,10 @@
 #include <stdlib.h>
 
 /* Utility functions from the build */
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
 #include "../utils/next_prime.h"
-#include "../utils/int_sqrt.h"   /* not used directly but available */
 
 /* static cache of primes */
 static uint64_t *prime_list   = NULL;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 37, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* cache for the values a(n) */
 static seq_t *dp = NULL;          /* dp[i] = a(i)                     */
@@ -97,13 +100,13 @@ static void ensure_dp(idx_t limit)
 {
     if (dp_len == 0) {                     /* first allocation */
         dp_len = limit + 1;
-        dp = (seq_t *)malloc(dp_len * sizeof(seq_t));
+        dp = mem_new(seq_t, dp_len);
         for (idx_t i = 0; i < dp_len; ++i)
             dp[i] = 0;
         dp[0] = 1;
         max_n_computed = 0;
     } else if (limit >= dp_len) {          /* extend the array */
-        dp = (seq_t *)realloc(dp, (limit + 1) * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, (limit + 1));
         for (idx_t i = dp_len; i <= limit; ++i)
             dp[i] = 0;
         dp_len = limit + 1;

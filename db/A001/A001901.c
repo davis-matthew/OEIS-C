@@ -9,12 +9,13 @@
  *            2*floor(k/2) + 1
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   wallis_gcd
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/wallis_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     seq_t q = 1;
@@ -33,11 +34,11 @@ seq_t a(idx_t n) {
 
         denom = (seq_t)(k >> 1) * 2 + 1;
 
-        seq_t g1 = wallis_gcd(q, denom);
+        seq_t g1 = gcd(q, denom);
         q = q / g1;
         denom = denom / g1;
 
-        seq_t g2 = wallis_gcd(r, numer);
+        seq_t g2 = gcd(r, numer);
         numer = numer / g2;
         r = r / g2;
 

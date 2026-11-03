@@ -12,6 +12,7 @@
  *            288*n^32 * + 40*n^40 + 400*n^44 + n^60 - 60*n^61 + 450*n^62 * -
  *            60*n^75 + n^120) / 14400 * (Offset: 2)
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 n <= 2, big any n
+ * Validated: standard, pass, 19 terms through n = 30 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

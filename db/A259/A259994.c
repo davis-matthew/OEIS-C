@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 23, u64 n <= 50, u128 n <= 104,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 172 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the function requested by the interface */
 seq_t a(idx_t n);
@@ -48,7 +50,7 @@ static void init_seq_cache(void)
         return;
 
     /* allocate space for indices 0…7 (index 0 unused) */
-    seq_cache = (seq_t *)calloc(8, sizeof(seq_t));
+    seq_cache = mem_new(seq_t, 8);
     if (seq_cache == NULL) exit(1);   /* OOM -> terminate */
     seq_cache_size = 7;               /* a(7) is the largest pre‑computed value */
 
@@ -75,15 +77,14 @@ static void ensure_capacity(idx_t n)
         return;
 
     /* Allocate a new array large enough for indices 0…n. */
-    seq_t *new_cache = (seq_t *)realloc(seq_cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, seq_cache, (n + 1));
     if (new_cache == NULL)
         exit(1);   /* OOM */
 
     /* Zero the elements that were added by the reallocation. */
     if (n + 1 > seq_cache_size + 1) {
         size_t added = (n + 1) - (seq_cache_size + 1);
-        memset(new_cache + seq_cache_size + 1, 0,
-               added * sizeof(seq_t));
+        mem_set(new_cache + seq_cache_size + 1, 0, added * sizeof(seq_t));
     }
 
     seq_cache = new_cache;

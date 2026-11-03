@@ -10,7 +10,8 @@
  *            sizes)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 408 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* factorial table with increasing size */
 static seq_t *fac_tbl = NULL;          /* fac_tbl[0] = 1, fac_tbl[i] = i! */
@@ -29,7 +31,7 @@ static void ensure_factorial(idx_t n)
 {
     if (n < fac_cnt) return;
     /* realloc: cast the void* return to seq_t* (required for C++) */
-    seq_t *new_tbl = (seq_t *)realloc(fac_tbl, (n + 1) * sizeof(seq_t));
+    seq_t *new_tbl = mem_resize(seq_t, fac_tbl, (n + 1));
     if (!new_tbl) abort();            /* fatal out‑of‑memory */
     fac_tbl = new_tbl;
     for (idx_t i = fac_cnt; i <= n; ++i) {

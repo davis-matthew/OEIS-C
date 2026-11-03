@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 16, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Initial 9 terms of the sequence */
 static const seq_t init_vals[9] = {
@@ -68,7 +70,7 @@ static void ensure_cache_size(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         abort();  /* memory allocation failed */
 

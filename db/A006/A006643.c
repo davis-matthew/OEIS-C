@@ -10,15 +10,33 @@
  *            <= c, b >= 0 if |b| = a or a = c
  * Range:     u8 n <= 8547, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   class_number_4m, g_u64
+ * Validated: standard, pass, 107 terms through n = 9512 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/class_number_4m.h"
-#include "../utils/g_u64.h"
+#include "../utils/gcd_u64.h"
+
+static uint64_t class_number_4m(uint64_t m) {
+    /* forms a x^2 + b x y + c y^2 with b^2 - 4ac = -4m */
+    uint64_t D = 4 * m;
+    uint64_t h = 0;
+    for (uint64_t b = 0; 3 * b * b <= D; b += 2) {
+        uint64_t N = (b * b + D) / 4; /* = a*c */
+        uint64_t a0 = b ? b : 1;
+        for (uint64_t a = a0; a * a <= N; a++) {
+            if (N % a) continue;
+            uint64_t c = N / a;
+            if (gcd_u64(gcd_u64(a, b), c) != 1) continue;
+            if (b == 0 || a == b || a == c) h += 1;
+            else h += 2;
+        }
+    }
+    return h;
+}
 
 static bool sqfree_u64(uint64_t n) {
     uint64_t t = n;

@@ -11,12 +11,14 @@
  *            an 8‑, 16‑, 32‑, 64‑bit unsigned integer or an arbitr...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 16, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute gcd of two values of type seq_t.  The loop terminates
    when b becomes zero; for unsigned types the division is exact. */
@@ -49,7 +51,7 @@ static void ensure_terms(idx_t n)
     if (cache == NULL)
     {
         cache_cap = 16;
-        cache = (seq_t *)realloc(NULL, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_cap);
         cache[0] = (seq_t)1;
         sum      = (seq_t)1;
         cache_len = 1;
@@ -62,7 +64,7 @@ static void ensure_terms(idx_t n)
         if (cache_len >= cache_cap)
         {
             cache_cap <<= 1;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         idx_t   i      = (idx_t)cache_len;   /* index of new term */

@@ -10,6 +10,7 @@
  *            keeps cumulative maximum exponents to compute the required lcm
  * Range:     u8 n <= 11, u16 n <= 33, u32 n <= 105, u64 n <= 370,
  *            u128 n <= 1385, big any n
+ * Validated: standard, pass, 57 terms through n = 9874 (2026-11-01)
  * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t exp);   */
-#include "../utils/pow3.h"   /* seq_t pow3(idx_t exp);   */
+#include <stdbool.h>
+#include "../utils/pow2.h"
+#include "../utils/pow3.h"
 
 static idx_t   g_max_n = 0;     /* number of entries already computed   */
 static size_t  g_cap   = 0;     /* current allocation capacity          */

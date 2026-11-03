@@ -7,13 +7,15 @@
  * Formula:   a(n) = Σ_{k=0..n} F(n+k) * C(n+k,k), F is Fibonacci (F0=0,F1=1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for Fibonacci numbers up to the largest requested index */
 static seq_t *fib_cache = NULL;
@@ -29,7 +31,7 @@ static void ensure_fib_capacity(idx_t max_n)
     while (new_cap <= (size_t)max_n)
         new_cap <<= 1;
 
-    seq_t *new_ptr = (seq_t *)realloc(fib_cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, fib_cache, new_cap);
     if (!new_ptr)    /* allocation failed – return zero on demand */
         return;
 

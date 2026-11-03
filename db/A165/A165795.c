@@ -10,12 +10,14 @@
  *            along antidiagonals
  * Range:     i8 n <= 30, i16 n <= 449, i32 n <= 1325, i64 n <= 1325,
  *            i128 n <= 1325, big any n
+ * Validated: standard, pass, 94 terms through n = 1312 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include gcd utility */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

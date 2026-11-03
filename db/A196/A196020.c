@@ -12,6 +12,7 @@
  *            * Each row m has length L(m) = floor((sqrt(8*m+1)-1)/2)
  * Range:     u8 n <= 1255, u16 n <= 2489, u32 n <= 2489, u64 n <= 2489,
  *            u128 n <= 2489, big any n
+ * Validated: standard, pass, 110 terms through n = 2096 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

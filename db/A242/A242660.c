@@ -7,8 +7,9 @@
  * Formula:   a(n) = a(n-1)+a(n-4)-a(n-5) for n>5 * Initial values: a(1)=0,
  *            a(2)=1, a(3)=4, a(4)=7, a(5)=9 * OEIS A242660 – nonnegative
  *            numbers of the form x^2+xy-2y^2
- * Range:     u8 n <= 114, u16 n <= 9082, u32 n <= 9082, u64 n <= 9082,
- *            u128 n <= 9082, big any n
+ * Range:     u8 n <= 114, u16 n <= 22223, u32 n <= 22223, u64 n <= 22223,
+ *            u128 n <= 22223, big any n
+ * Validated: standard, pass, 98 terms through n = 9082 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

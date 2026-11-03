@@ -9,13 +9,16 @@
  *            (prime_k)^{d_k}, with d_k the k‑th digit of n in factorial base
  *            (digit k = n mod (k+1) after successive division)
  * Range:     u8 n <= 16, u16 n <= 69, u32 n <= 476, u64 n <= 9958,
- *            u128 n <= 9882, big any n
- * Helpers:   seq_pow
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 82 terms through n = 9882 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 static const seq_t PRIMES[] = {
     (seq_t)2,(seq_t)3,(seq_t)5,(seq_t)7,(seq_t)11,(seq_t)13,(seq_t)17,(seq_t)19,
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
         if (digit)
         {
             seq_t p = PRIMES[k - 1];
-            seq_t p_pow = seq_pow(p, (idx_t)digit);
+            seq_t p_pow = ipow_idx(p, (idx_t)digit);
 
             /* updated product after adding this prime factor */
             seq_t new_product = product * p_pow;

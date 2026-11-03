@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 18, u64 n <= 41, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* allowed row patterns; initialized once */
 static int  allowed_rows[64];
@@ -120,14 +122,14 @@ seq_t a(idx_t n)
     size_t stride = R;          /* index j in dp as i*stride + j */
 
     /* init for length 2 */
-    memset(dp_cur, 0, stride * stride * sizeof(seq_t));
+    mem_set(dp_cur, 0, stride * stride * sizeof(seq_t));
     for (int i = 0; i < (int)R; ++i)
         for (int j = 0; j < (int)R; ++j)
             dp_cur[i*stride + j] = (seq_t)1;
 
     /* iterate rows from 3 to n */
     for (idx_t step = 3; step <= n; ++step) {
-        memset(dp_nxt, 0, stride * stride * sizeof(seq_t));
+        mem_set(dp_nxt, 0, stride * stride * sizeof(seq_t));
 
         for (int i = 0; i < (int)R; ++i) {
             size_t base_ij = i * stride;

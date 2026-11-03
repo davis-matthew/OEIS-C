@@ -9,8 +9,9 @@
  * Formula:   a(1)=1; for n>1, a(n)=a(n-1)/wt(n-1) if wt(n-1) divides a(n-1),
  *            * otherwise a(n)=a(n-1)*wt(n-1); wt(m)=A000120(m) (binary weight
  *            of m)
- * Range:     u8 n <= 135, u16 n <= 2551, u32 n <= 9982, u64 n <= 9982,
- *            u128 n <= 9982, big any n
+ * Range:     u8 n <= 135, u16 n <= 2551, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 94 terms through n = 9982 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

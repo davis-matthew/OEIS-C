@@ -13,7 +13,8 @@
  *            required height. It uses a precomputed adjacency...
  * Range:     u8 none, u16 n <= 10, u32 n <= 27, u64 n <= 60, u128 n <= 125,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----- constants ------------------------------------------------------- */
 #define N_ROWS   64U            /* 3‑digit base–4 rows 0 … 63 */
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
     /* extend rows from height 3 up to h */
     for (idx_t step = 3; step <= h; ++step) {
         /* clear dp_next */
-        memset(dp_next, 0, sizeof(seq_t) * N_STATES);
+        mem_set(dp_next, 0, sizeof(seq_t) * N_STATES);
 
         /* for every previous pair (ra,rb) let val be its count */
         for (size_t idx = 0; idx < N_STATES; ++idx) {

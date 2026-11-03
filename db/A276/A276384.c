@@ -11,8 +11,9 @@
  *            … The lengths of the runs of 2's follow the periodic pattern
  *            5,5,5,5,6,5,5,5,6,5,5,5,6,…, i.e. runs of 5 of length
  *            alternating 4 and 3 separated by single 6. Thus a(n) =...
- * Range:     u8 n <= 139, u16 n <= 9201, u32 n <= 9201, u64 n <= 9201,
- *            u128 n <= 9201, big any n
+ * Range:     u8 n <= 139, u16 n <= 35631, u32 n <= 40000, u64 n <= 40000,
+ *            u128 n <= 40000, big any n
+ * Validated: standard, pass, 89 terms through n = 9201 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 19, u64 n <= 39, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* a(n) = 97684*a(n-10) - a(n-20)   for n>19
    initial values are computed from the continued‑fraction of √603:
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cache_sz = 20;
-        cache    = (seq_t *)malloc(cache_sz * sizeof(seq_t));
+        cache    = mem_new(seq_t, cache_sz);
         if (cache == NULL) {
             exit(EXIT_FAILURE);
         }
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
     /* Extend cache if necessary */
     if ((idx_t)n >= cache_sz) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) {
             exit(EXIT_FAILURE);
         }

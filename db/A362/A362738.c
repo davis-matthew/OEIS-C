@@ -8,12 +8,15 @@
  * Formula:   a(n) = n^n - n^3 for n > 2; a(2)=a(3)=0
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 19 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +24,7 @@ seq_t a(idx_t n)
         return 0;
     }
     seq_t base = (seq_t)n;
-    seq_t pow_n = seq_pow(base, n);   /* n^n   */
-    seq_t pow3  = seq_pow(base, (idx_t)3); /* n^3   */
+    seq_t pow_n = ipow_idx(base, n);   /* n^n   */
+    seq_t pow3  = ipow_idx(base, (idx_t)3); /* n^3   */
     return pow_n - pow3;
 }

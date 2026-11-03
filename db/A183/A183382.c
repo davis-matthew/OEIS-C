@@ -12,6 +12,7 @@
  *            is half of that count. All calculations are perfor...
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 43, u128 n <= 86,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 197 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

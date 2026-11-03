@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   diag_start
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/diag_start.h"
+#include "../utils/mem.h"
+
+/* 1. Find the largest s with s*(s+1)/2 ≤ n  (triangular number). */
+static idx_t diag_start(idx_t n)
+{
+    idx_t low  = 0;
+    idx_t high = 1;
+
+    /* Grow high until inequality fails, guarding against overflow. */
+    while ((unsigned __int128)high * (high + 1) / 2 <= n) {
+        high <<= 1;
+        if (high == 0) break;          /* overflow guard */
+    }
+
+    /* Binary search in [low,high] (high is exclusive). */
+    while (low < high) {
+        idx_t mid = (low + high + 1) >> 1;
+        if ((unsigned __int128)mid * (mid + 1) / 2 <= n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 /* 2. Cached table for T(n,k) up to rows/cols = s_max+1. */
 static seq_t *table      = NULL;   /* 1‑D array indexed as [i*cols + j] */
@@ -36,7 +60,7 @@ static void rebuild_table(idx_t new_smax)
 {
     size_t cols = new_smax + 1;
     size_t size = cols * cols;
-    seq_t *new_t = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *new_t = mem_new(seq_t, size);
     if (!new_t) return;               /* allocation failure -> keep old */
 
     /* Row 0: T(0,k)=1 for all k. */
@@ -62,7 +86,7 @@ static void rebuild_table(idx_t new_smax)
     }
 
     /* Replace old table. */
-    if (table) free(table);
+    if (table) mem_free(table);
     table      = new_t;
     table_smax = new_smax;
     table_cols = cols;

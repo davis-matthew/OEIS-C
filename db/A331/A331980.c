@@ -12,12 +12,14 @@
  *            with a size restriction. * The algorithm runs...
  * Range:     u8 n <= 37, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Compute the maximum possible number of parts k: k(k+2) <= n */
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     size_t rows = max_k + 1;          /* number of rows for k */
 
     /* Allocate DP table for partitions p(k, m) */
-    seq_t *dp = (seq_t *)calloc(rows * cols, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, rows * cols);
     if (!dp) return 0;                 /* allocation failure: return 0 */
 
     /* dp[0][0] = 1 */
@@ -53,8 +55,8 @@ seq_t a(idx_t n) {
     }
 
     /* Precompute factorials up to max_k */
-    seq_t *fact = (seq_t *)malloc((max_k + 1) * sizeof(seq_t));
-    if (!fact) { free(dp); return 0; }
+    seq_t *fact = mem_new(seq_t, (max_k + 1));
+    if (!fact) { mem_free(dp); return 0; }
     fact[0] = 1;
     for (idx_t i = 1; i <= max_k; ++i)
         fact[i] = fact[i - 1] * (seq_t)i;
@@ -72,7 +74,7 @@ seq_t a(idx_t n) {
         ans += ways * fact[k];
     }
 
-    free(dp);
-    free(fact);
+    mem_free(dp);
+    mem_free(fact);
     return ans;
 }

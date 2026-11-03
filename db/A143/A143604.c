@@ -11,13 +11,15 @@
  *            of x^n in 1/(1 + x^2 - x^3 - x^5 - x^7 + x^8 + x^10)
  * Range:     i8 n <= 43, i16 n <= 59, i32 n <= 59, i64 n <= 59, i128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build system. */
 extern seq_t a(idx_t n);
@@ -35,9 +37,9 @@ seq_t a(idx_t n)
     if (n >= (idx_t)cap) {
         size_t new_cap = (size_t)n + 1;
         if (cap == 0) {
-            cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, new_cap);
         } else {
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
         }
         cap = new_cap;
         /* initialize base values if they have been destroyed */

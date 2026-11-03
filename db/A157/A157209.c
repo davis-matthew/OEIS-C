@@ -13,13 +13,17 @@
  *            if k <= floor(n/2) else n-k
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 57, u64 n <= 141,
  *            u128 n <= 387, big any n
- * Helpers:   seq_one
+ * Validated: standard, pass, 71 terms through n = 1296 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_one.h"   /* provides seq_one(void) -> seq_t */
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 /* cache of rows of the triangle */
 static seq_t **g_tri = NULL;        /* array of pointers to rows */
@@ -42,7 +46,7 @@ static void ensure_row(idx_t row)
         size_t len = (size_t)(r + 1);
 
         /* allocate the row */
-        g_tri[r] = (seq_t*)malloc(len * sizeof(seq_t));
+        g_tri[r] = mem_new(seq_t, len);
 
         /* boundary values */
         g_tri[r][0]        = seq_one();

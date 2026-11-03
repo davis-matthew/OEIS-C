@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4619, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_practical_number
+ * Validated: standard, pass, 116 terms through n = 9927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,57 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_practical_number.h"
+#include "../utils/mem.h"
+
+/* Test whether n is a practical number using the known characterization. */
+static bool is_practical_number(idx_t n, idx_t *prime_list, size_t prime_count)
+{
+    if (n == 1)
+        return true;
+    if ((n & 1UL) != 0)
+        return false;   /* odd numbers >1 are not practical */
+
+    idx_t temp = n;
+    idx_t sigma_prefix = 1;  /* σ(product of processed prime powers) */
+    idx_t last_prime = 0;    /* last prime processed */
+
+    for (size_t i = 0; i < prime_count && prime_list[i] * prime_list[i] <= temp; ++i) {
+        idx_t p = prime_list[i];
+        if (temp % p == 0) {
+            idx_t exp = 0;
+            while (temp % p == 0) {
+                temp /= p;
+                ++exp;
+            }
+            if (last_prime == 0 && p != 2)
+                return false;   /* first prime must be 2 */
+            if (last_prime != 0 && p > sigma_prefix + 1)
+                return false;   /* p_i <= σ(prev)+1 fails */
+
+            /* σ(p^exp) = 1 + p + ... + p^exp */
+            idx_t sigma_pe = 1;
+            idx_t p_pow    = 1;
+            for (idx_t k = 0; k < exp; ++k) {
+                p_pow *= p;
+                sigma_pe += p_pow;
+            }
+            sigma_prefix *= sigma_pe;
+            last_prime = p;
+        }
+    }
+
+    if (temp > 1) {      /* remaining prime factor (exponent 1) */
+        idx_t p = temp;
+        if (last_prime == 0 && p != 2)
+            return false;
+        if (last_prime != 0 && p > sigma_prefix + 1)
+            return false;
+        idx_t sigma_pe = 1 + p;   /* exponent 1 */
+        sigma_prefix *= sigma_pe;
+    }
+
+    return true;
+}
 
 /* Integer square root (floor).  Works for idx_t (uint64_t). */
 static idx_t int_sqrt(idx_t n)
@@ -118,7 +169,7 @@ static void extend_precomp(idx_t wanted)
         }
         if (dp_len == dp_cap) {
             dp_cap = dp_cap ? dp_cap * 2 : 16;
-            dp = (seq_t*)realloc(dp, (dp_cap + 1) * sizeof(seq_t));
+            dp = mem_resize(seq_t, dp, (dp_cap + 1));
             if (!dp) exit(1);
         }
         dp[n] = cnt;

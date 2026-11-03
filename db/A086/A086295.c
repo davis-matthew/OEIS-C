@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 389, u16 n <= 701, u32 n <= 8057, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *h   = NULL;      /* 7‑smooth numbers, 1‑indexed */
 static seq_t *spf = NULL;      /* sum of prime factors of h[i] */
@@ -32,8 +34,8 @@ static void ensure_capacity(idx_t need)
     if (need <= cap) return;
     idx_t newcap = cap ? cap : 16;
     while (newcap < need) newcap <<= 1;
-    h   = (seq_t *)realloc(h,   newcap * sizeof(seq_t));
-    spf = (seq_t *)realloc(spf, newcap * sizeof(seq_t));
+    h   = mem_resize(seq_t, h, newcap);
+    spf = mem_resize(seq_t, spf, newcap);
     cap = newcap;
 }
 

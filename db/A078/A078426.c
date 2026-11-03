@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 145, u32 n <= 300, u64 n <= 300,
  *            u128 n <= 300, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 281 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n)
 {
@@ -66,7 +68,7 @@ extern seq_t a(idx_t n)
         for (idx_t k = 1; k <= LIMIT; ++k)
             if (!reachable[k]) ++missing_cnt;
 
-        missing = (seq_t *)malloc(missing_cnt * sizeof(seq_t));
+        missing = mem_new(seq_t, missing_cnt);
         if (!missing) abort();           /* allocation failed */
 
         /* fill the array */

@@ -12,7 +12,8 @@
  *            quadratic residue mod p_i (i.e. (17|p_i) = 1), other...
  * Range:     u8 n <= 20, u16 n <= 20, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   factor_u64, is_quadratic_residue_prime
+ * Validated: partial, pass, 19 terms through n = 20 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,35 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/is_quadratic_residue_prime.h"
+
+/* Quick test of the Legendre symbol (17|p) for odd prime p≠17
+   using pre‑computed quadratic residues mod 17.           */
+static bool is_quadratic_residue_prime(uint64_t p)
+{
+    /* residues of a^2 mod 17 for a=1..16 : 1,4,9,16,8,2,15,13,13,15,2,8,16,9,4,1 */
+    static const bool residue[17] = {
+        false, /* 0 not used */
+        true,  /* 1  */
+        true,  /* 2  */
+        false, /* 3  */
+        true,  /* 4  */
+        false, /* 5  */
+        false, /* 6  */
+        false, /* 7  */
+        true,  /* 8  */
+        true,  /* 9  */
+        false, /*10  */
+        false, /*11  */
+        false, /*12  */
+        true,  /*13  */
+        false, /*14  */
+        true,  /*15  */
+        true   /*16  */
+    };
+    return residue[p % 17];
+}
 
 seq_t a(idx_t n)
 {

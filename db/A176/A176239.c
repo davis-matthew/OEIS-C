@@ -10,16 +10,19 @@
  *            (-1)^(n+k+1) * (binom(n+m,m) - binom(n+m,m-1)) for k = n-1 …
  *            2n-1, where m = k-n+1 (0 ≤ m ≤ n) T(n,2n) = 0 T(n,2n+1) =
  *            (-1)^(n+1) * Catalan(n+1) (# of rows = 2(n+1)) Offsets a...
- * Range:     i8 n <= 26, i16 n <= 71, i32 n <= 71, i64 n <= 71, i128 n <= 71,
+ * Range:     i8 n <= 40, i16 n <= 71, i32 n <= 71, i64 n <= 71, i128 n <= 71,
  *            big any n
- * Helpers:   binom, catalan
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-01)
+ * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
 #include "../utils/catalan.h"
 
 seq_t a(idx_t n) {
@@ -38,10 +41,10 @@ seq_t a(idx_t n) {
     /* middle band: n-1 <= k <= 2n-1 */
     if (k >= r - 1 && k <= 2 * r - 1) {
         idx_t m = k - r + 1;             /* 0 <= m <= r */
-        seq_t bin1 = binom(r + m, m);
+        seq_t bin1 = binomial(r + m, m);
         seq_t bin2 = 0;
         if (m > 0) {
-            bin2 = binom(r + m, m - 1);
+            bin2 = binomial(r + m, m - 1);
         }
         seq_t val = bin1 - bin2;         /* A009766(n,m) */
         /* apply sign (-1)^(r+k+1) */

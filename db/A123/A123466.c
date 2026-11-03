@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 169, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_equal_run
+ * Validated: standard, pass, 80 terms through n = 9847 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,45 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_equal_run.h"
+#include "../utils/mem.h"
+
+/* Return true if v in binary has at least one run of 1's whose length
+   equals the length of some run of 0's.  v ≥ 1. */
+static bool has_equal_run(uint64_t v)
+{
+    bool seen1[65] = {0};
+    bool seen0[65] = {0};
+
+    /* Find most significant set bit. */
+    int msb = 0;
+    uint64_t tmp = v;
+    while (tmp >>= 1) ++msb;
+
+    int curr = (v >> msb) & 1;   /* the most significant bit is 1 */
+    int len = 1;
+
+    for (int pos = msb - 1; pos >= 0; --pos) {
+        int bit = (v >> pos) & 1;
+        if (bit == curr) {
+            ++len;
+        } else {
+            if (curr == 1) seen1[len] = true;
+            else seen0[len] = true;
+            curr = bit;
+            len = 1;
+        }
+    }
+
+    /* record the final run */
+    if (curr == 1) seen1[len] = true;
+    else seen0[len] = true;
+
+    /* check for a common length */
+    for (int l = 1; l <= 64; ++l) {
+        if (seen1[l] && seen0[l]) return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,7 +80,7 @@ seq_t a(idx_t n)
         /* ensure enough space */
         if (cache_size >= cache_cap) {
             idx_t new_cap = cache_cap ? cache_cap << 1 : 8;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort(); /* allocation failure */
             cache = tmp;
             cache_cap = new_cap;

@@ -12,12 +12,14 @@
  *            * (n-1-k, a(n-1-k)) and (n-1, a(n-1))
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 8418 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;  /* protective guard; offset starts at 1 */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
 
     /* lazy allocation of the cache */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (cache == NULL) return 0;   /* allocation failure */
         cache[0] = 0;                  /* a(1) */
         cached_n = 1;
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
 
     /* enlarge cache if necessary */
     if (cached_n < n) {
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (tmp == NULL) return cache[n-1]; /* fall back; should not happen */
         cache = tmp;
 

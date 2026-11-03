@@ -12,6 +12,7 @@
  *            . Complexity: O(1) per call. The routine works fo...
  * Range:     u8 n <= 139, u16 n <= 4687, u32 n <= 5150, u64 n <= 5150,
  *            u128 n <= 5150, big any n
+ * Validated: standard, pass, 94 terms through n = 4493 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

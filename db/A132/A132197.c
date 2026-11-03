@@ -9,6 +9,7 @@
  *            of the sequence “2^n‑1 written 2^n‑1 times”
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 /* The function pow2 is defined in the utilities; it returns 2^exp
    as a seq_t. */
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

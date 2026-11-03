@@ -11,8 +11,9 @@
  *            k appearing at row k(k+1)/2. Rows are read from left to right,
  *            and rows are concatenated to form the sequence. For a given
  *            index n: 1. Find the row r such that Σ_{i<r} L(...
- * Range:     u8 n <= 45, u16 n <= 3608, u32 n <= 9794, u64 n <= 9794,
- *            u128 n <= 9794, big any n
+ * Range:     u8 n <= 45, u16 n <= 3608, u32 n <= 10075, u64 n <= 10075,
+ *            u128 n <= 10075, big any n
+ * Validated: standard, pass, 86 terms through n = 9794 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

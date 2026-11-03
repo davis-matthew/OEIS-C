@@ -14,8 +14,8 @@
  *            ov...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   z851_addbig, z851_addsmall, z851_deg, z851_div, z851_mul,
- *            z851_pmod, z851_pmul, z851_shl, z851_shr
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   ilog2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,15 +23,90 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/z851_addbig.h"
-#include "../utils/z851_addsmall.h"
-#include "../utils/z851_deg.h"
-#include "../utils/z851_div.h"
-#include "../utils/z851_mul.h"
-#include "../utils/z851_pmod.h"
-#include "../utils/z851_pmul.h"
-#include "../utils/z851_shl.h"
-#include "../utils/z851_shr.h"
+#include "../utils/ilog2_u64.h"
+
+static void z851_addbig(uint32_t *x, const uint32_t *y, int L) {
+    uint64_t c = 0;
+    for (int i = 0; i < L; i++) {
+        uint64_t s = (uint64_t)x[i] + y[i] + c;
+        x[i] = (uint32_t)s;
+        c = s >> 32;
+    }
+}
+
+static void z851_addsmall(uint32_t *x, int L, uint64_t v) {
+    for (int i = 0; i < L && v; i++) {
+        uint64_t s = (uint64_t)x[i] + (v & 0xffffffffull);
+        x[i] = (uint32_t)s;
+        v = (v >> 32) + (s >> 32);
+    }
+}
+
+static void z851_div(uint32_t *x, int L, uint32_t d) {
+    uint64_t r = 0;
+    for (int i = L - 1; i >= 0; i--) {
+        uint64_t v = (r << 32) | x[i];
+        x[i] = (uint32_t)(v / d);
+        r = v % d;
+    }
+}
+
+static void z851_mul(uint32_t *x, int L, uint32_t m) {
+    uint64_t c = 0;
+    for (int i = 0; i < L; i++) {
+        uint64_t v = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)v;
+        c = v >> 32;
+    }
+}
+
+static uint64_t z851_pmod(uint64_t f, uint64_t g) {
+    int dg = ilog2_u64(g);
+    int df = ilog2_u64(f);
+    while (df >= dg) {
+        f ^= g << (df - dg);
+        df = ilog2_u64(f);
+    }
+    return f;
+}
+
+static uint64_t z851_pmul(uint64_t a, uint64_t b) {
+    uint64_t r = 0;
+    while (b) {
+        if (b & 1) r ^= a;
+        a <<= 1;
+        b >>= 1;
+    }
+    return r;
+}
+
+static void z851_shl(uint32_t *x, int L, long long s) {
+    long long ws = s / 32;
+    int bs = (int)(s % 32);
+    for (long long i = L - 1; i >= 0; i--) {
+        uint64_t v = 0;
+        long long j = i - ws;
+        if (j >= 0) {
+            v = (uint64_t)x[j] << bs;
+            if (bs && j - 1 >= 0) v |= (uint64_t)x[j - 1] >> (32 - bs);
+        }
+        x[i] = (uint32_t)v;
+    }
+}
+
+static void z851_shr(uint32_t *x, int L, long long s) {
+    long long ws = s / 32;
+    int bs = (int)(s % 32);
+    for (long long i = 0; i < L; i++) {
+        uint64_t v = 0;
+        long long j = i + ws;
+        if (j < L) {
+            v = (uint64_t)x[j] >> bs;
+            if (bs && j + 1 < L) v |= (uint64_t)x[j + 1] << (32 - bs);
+        }
+        x[i] = (uint32_t)v;
+    }
+}
 
 static int zN, zL, znirr, zncls;
 static uint64_t *zirr;
@@ -155,7 +230,7 @@ seq_t a(idx_t n) {
     for (int d = 1; d <= nn; d++) {
         for (uint64_t f = (1ull << d) | 1; f < (2ull << d); f += 2) {
             int ok = 1;
-            for (uint64_t g = 2; ok && z851_deg(g) <= d / 2; g++)
+            for (uint64_t g = 2; ok && ilog2_u64(g) <= d / 2; g++)
                 if (z851_pmod(f, g) == 0) ok = 0;
             if (ok) { zirr[znirr] = f; zirrd[znirr] = d; znirr++; }
         }

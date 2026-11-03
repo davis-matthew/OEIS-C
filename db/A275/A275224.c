@@ -13,7 +13,8 @@
  *            value seen so far (0,1,2). The implementation is O(n...
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 13, u64 n <= 26, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define PATTS   81   /* 3⁴ patterns */
 #define P2MAX   82   /* previous‑row patterns + sentinel */
@@ -109,14 +111,14 @@ seq_t a(idx_t n)
     /* size of DP state space */
     size_t sz = (size_t)PATTS * P2MAX * MAXM;
     if (dp_cur == NULL || dp_size < sz) {
-        free(dp_cur);
-        free(dp_nxt);
-        dp_cur = (seq_t*)calloc(sz, sizeof(seq_t));
-        dp_nxt = (seq_t*)calloc(sz, sizeof(seq_t));
+        mem_free(dp_cur);
+        mem_free(dp_nxt);
+        dp_cur = mem_new(seq_t, sz);
+        dp_nxt = mem_new(seq_t, sz);
         dp_size = sz;
     }
     /* reset current DP */
-    memset(dp_cur, 0, sz * sizeof(seq_t));
+    mem_set(dp_cur, 0, sz * sizeof(seq_t));
 
     /* ---- initialise first row (row 1) ---- */
     for (int r = 0; r < PATTS; ++r) {
@@ -129,7 +131,7 @@ seq_t a(idx_t n)
 
     /* ---- iterate subsequent rows ---- */
     for (idx_t row = 2; row <= n; ++row) {
-        memset(dp_nxt, 0, sz * sizeof(seq_t));
+        mem_set(dp_nxt, 0, sz * sizeof(seq_t));
         for (int p1 = 0; p1 < PATTS; ++p1)
             for (int p2 = 0; p2 < P2MAX; ++p2)
                 for (int m = 0; m < MAXM; ++m) {

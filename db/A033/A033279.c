@@ -7,12 +7,14 @@
  * Formula:   a(n) = binomial(n+5,6) * binomial(n-3,6) / 7
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 21, u64 n <= 143,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 41 terms through n = 901 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
 

@@ -9,7 +9,8 @@
  *            a(n‑8)
  * Range:     u8 n <= 18, u16 n <= 38, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <stdint.h>   /* for fixed-width types, if needed */
+#include "../utils/mem.h"
 
 /* Forward declaration required by the build */
 extern seq_t a(idx_t n);   /* just to satisfy the compiler, will be defined below */
@@ -36,7 +38,7 @@ static void ensure(idx_t n)
     if (needed > cap) {
         size_t new_cap = cap ? cap : 1;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);         /* out‑of‑memory; abort */
         cache = tmp;
         cap   = new_cap;
@@ -46,7 +48,7 @@ static void ensure(idx_t n)
     if (size == 0) {
         /* guarantee space for at least 8 elements */
         if (cap < 8) {
-            seq_t *tmp = (seq_t*)realloc(cache, 8 * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, 8);
             if (!tmp) exit(1);
             cache = tmp;
             cap = 8;

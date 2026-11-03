@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
  * Helpers:   digit_counts
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,8 @@
    by brute‑force search. */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
 
 /* Return true iff x has a positive number of 0's and 6's, and those

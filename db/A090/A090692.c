@@ -7,13 +7,15 @@
  * Formula:   a(0)=30, a(1)=42, a(2)=146, a(n)=2*a(n-1)+2*a(n-2)-a(n-3)
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 19, u64 n <= 42, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 871 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,11 +27,11 @@ seq_t a(idx_t n)
     if ((size_t)n >= cap) {
         size_t new_cap = cap ? cap << 1 : 16;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *new_buf = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_buf = mem_new(seq_t, new_cap);
         if (!new_buf) return 0;    /* out of memory – unlikely for the test size */
         if (seq) {
-            memcpy(new_buf, seq, len * sizeof(seq_t));
-            free(seq);
+            mem_copy(new_buf, seq, len * sizeof(seq_t));
+            mem_free(seq);
         }
         seq = new_buf;
         cap = new_cap;

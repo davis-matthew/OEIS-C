@@ -14,7 +14,8 @@
  *            4*C(N/3+1)) using a small multi-limb integer, then d...
  * Range:     u8 n <= 9, u16 n <= 13, u32 n <= 22, u64 n <= 39, u128 n <= 72,
  *            big any n
- * Helpers:   lm_add, lm_cat, lm_div, lm_mul
+ * Validated: standard, pass, 47 terms through n = 198 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,10 +23,51 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/lm_add.h"
-#include "../utils/lm_cat.h"
-#include "../utils/lm_div.h"
-#include "../utils/lm_mul.h"
+
+static void lm_add(uint32_t *a, const uint32_t *b, size_t L)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)a[i] + b[i] + c;
+        a[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+}
+
+static void lm_div(uint32_t *r, size_t L, uint64_t d)
+{
+    uint64_t rem = 0;
+    size_t i = L;
+    while (i-- > 0) {
+        uint64_t cur = (rem << 32) | r[i];
+        r[i] = (uint32_t)(cur / d);
+        rem = cur % d;
+    }
+}
+
+static void lm_mul(uint32_t *r, size_t L, uint64_t m)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)r[i] * m + c;
+        r[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+}
+
+/* r = Catalan(m) = A000108(m) */
+static void lm_cat(uint32_t *r, size_t L, uint64_t m)
+{
+    uint64_t j;
+    memset(r, 0, L * sizeof(uint32_t));
+    r[0] = 1;
+    for (j = 0; j < m; j++) {
+        lm_mul(r, L, 4 * j + 2);
+        lm_div(r, L, j + 2);
+    }
+}
 
 seq_t a(idx_t n)
 {

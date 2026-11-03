@@ -5,14 +5,28 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, easy
  * Formula:   not stated
- * Range:     i8 n <= 12, i16 n <= 28, i32 n <= 46, i64 n <= 46, i128 n <= 46,
- *            big any n
- * Helpers:   pow_neg4
+ * Range:     i8 n <= 12, i16 n <= 28, i32 n <= 60, i64 n <= 124,
+ *            i128 n <= 252, big any n
+ * Validated: standard, pass, 63 terms through n = 951 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_neg4.h"
+static inline seq_t pow_neg4(idx_t e)
+{
+    seq_t result = 1;          /* (-4)^0 = 1 */
+    seq_t base   = -4;         /* base = -4 */
+
+    while (e)
+    {
+        if (e & 1U)
+            result *= base;
+        base *= base;
+        e >>= 1U;
+    }
+    return result;
+}
 /*  OEIS A108520 – Expansion of 1/(1+2*x+2*x^2).
     Recurrence:  a(n) = -2*(a(n-1)+a(n-2)),   a(0)=1, a(1)=-2.
     Equivalent closed form:

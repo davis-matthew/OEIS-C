@@ -7,77 +7,37 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 10, i64 n <= 17, i128 n <= 19,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-/* Sequence: A355763
- * Formula: a(n) = Σ_{k=0..n} (n-2*k+1)^(k-1) * Stirling2(n,k)
- */
+/* A355763: a(n) = Sum_{k=0..n} (n-2k+1)^(k-1) S2(n,k); only k = 0 needs the power -1, and S2(n,0) = 0 unless n = 0, where the term is 1.
+ * Stirling rows by their recurrences and plain products only, so exact modulo
+ * the width (the original's caches read entries that realloc had left unset,
+ * or divided values that had wrapped). */
 
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
-    /* Static cache for Stirling numbers and sequence values */
-    static seq_t *S = NULL;          /* Stirling numbers for current n-1 */
-    static size_t Scap = 0;          /* Allocated capacity of S */
-    static seq_t *cache = NULL;      /* Cached a(n) values */
-    static size_t cachcap = 0;       /* Allocated capacity of cache */
-    static idx_t computed = 0;       /* Highest n for which S and cache are valid */
-
-    /* Ensure cache has space for n */
-    if (n + 1 > cachcap) {
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
-        cachcap = n + 1;
+    const size_t N = (size_t)n;
+    if (N == 0) return (seq_t)1;
+    seq_t *S = mem_new(seq_t, N + 1);
+    if (!S) abort();
+    S[0] = (seq_t)1;
+    for (size_t m = 1; m <= N; ++m) {
+        for (size_t k = m; k >= 1; --k) S[k] = S[k - 1] + (seq_t)k * S[k];
+        S[0] = (seq_t)0;
     }
-
-    /* Base case: a(0) = 1 */
-    if (n == 0) {
-        if (cachcap == 0) {
-            cache = (seq_t *)realloc(cache, sizeof(seq_t));
-            cachcap = 1;
-        }
-        cache[0] = (seq_t)1;
-        return cache[0];
+    seq_t sum = (seq_t)0;
+    for (size_t k = 1; k <= N; ++k) {
+        seq_t b = (seq_t)((long long)N - 2 * (long long)k + 1), w = (seq_t)1;
+        for (size_t i = 1; i < k; ++i) w *= b;
+        sum += w * S[k];
     }
-
-    /* Ensure Stirling array is initialized for n=1 */
-    if (computed == 0) {
-        S = (seq_t *)realloc(S, sizeof(seq_t));
-        Scap = 1;
-        S[0] = (seq_t)1;   /* S(0,0) = 1 */
-    }
-
-    /* Compute successive rows up to n */
-    for (idx_t i = computed + 1; i <= n; ++i) {
-        /* Allocate space for new row */
-        if ((i + 1) > Scap) {
-            S = (seq_t *)realloc(S, (i + 1) * sizeof(seq_t));
-            Scap = i + 1;
-        }
-
-        /* Update Stirling numbers in-place (backward to avoid overwrite) */
-        for (idx_t k = i; k >= 1; --k) {
-            seq_t term1 = S[k] * (seq_t)k;   /* k * S(n-1,k) */
-            seq_t term2 = S[k - 1];          /* S(n-1,k-1) */
-            S[k] = term1 + term2;
-        }
-        S[0] = (seq_t)0;   /* S(n,0) = 0 for n>0 */
-
-        /* Compute a(i) from the freshly-computed Stirling numbers */
-        seq_t sum = (seq_t)0;
-        for (idx_t k = 1; k <= i; ++k) {
-            seq_t base = (seq_t)i - (seq_t)(2 * k) + (seq_t)1;   /* (n-2k+1) */
-            seq_t pow  = seq_pow(base, k - 1);                   /* (n-2k+1)^(k-1) */
-            seq_t term = pow * S[k];                             /* term */
-            sum = sum + term;
-        }
-        cache[i] = sum;
-    }
-
-    computed = n;
-    return cache[n];
+    mem_free(S);
+    return sum;
 }

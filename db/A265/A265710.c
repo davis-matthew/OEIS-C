@@ -7,6 +7,7 @@
  * Formula:   a(n) = denominator of Sum_{d|n} 1/sigma(d)
  * Range:     u8 n <= 11, u16 n <= 47, u32 n <= 511, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 80 terms through n = 9457 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
    and uses a fraction addition routine for each divisor. */
 
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Small primes up to 100 (enough for any n <= 10 000). */

@@ -10,13 +10,15 @@
  *            The terms are listed in increasing order
  * Range:     u8 n <= 20, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 4804 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return true iff x has at least one pair of identical adjacent decimal digits. */
 static bool has_adj_pair(seq_t x)
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
             /* Ensure capacity for another term. */
             if (len == cap) {
                 cap = cap ? cap * 2 : 4;
-                cache = (seq_t*)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[len++] = cur;      /* store found term */
         }

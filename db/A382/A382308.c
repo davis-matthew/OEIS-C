@@ -9,17 +9,18 @@
  * Formula:   a(n) = 2*(Fibonacci(n))^2 + 4*Fibonacci(n) + 1
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 47, u128 n <= 93,
  *            big any n
- * Helpers:   _fib_fast
+ * Validated: standard, pass, 47 terms through n = 989 (2026-11-01)
+ * Helpers:   fibonacci
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_fib_fast.h"
+#include "../utils/fibonacci.h"
 
 seq_t a(idx_t n)
 {
-    seq_t f = _fib_fast(n);              /* Fibonacci(n) */
+    seq_t f = fibonacci(n);              /* Fibonacci(n) */
     seq_t result = 2 * f * f + 4 * f + 1;
     return result;
 }

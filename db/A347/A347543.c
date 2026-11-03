@@ -10,13 +10,15 @@
  *            most 6 parts)
  * Range:     u8 n <= 19, u16 n <= 43, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* indexed by the index */
 static seq_t *p_cache = NULL;  /* unrestricted partitions */
@@ -29,8 +31,8 @@ static void compute_to(idx_t N)
     if (N <= max_computed_n) return;
 
     /* allocate new arrays, initialized to 0 */
-    seq_t *new_p = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *new_q = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *new_p = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *new_q = mem_new(seq_t, (size_t)(N + 1));
 
     /* unrestricted partitions using the classic coin‑change DP */
     new_p[0] = 1;
@@ -49,8 +51,8 @@ static void compute_to(idx_t N)
     }
 
     /* replace the old caches */
-    free(p_cache);
-    free(q_cache);
+    mem_free(p_cache);
+    mem_free(q_cache);
     p_cache = new_p;
     q_cache = new_q;
     max_computed_n = N;

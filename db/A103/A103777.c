@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 131, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_uint64
+ * Validated: standard, pass, 59 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,55 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* primality test for 64‑bit unsigned integers */
-#include "../utils/is_prime_uint64.h"
+
+/* Deterministic Miller‑Rabin for 64‑bit integers */
+static bool is_prime_uint64(uint64_t n) {
+    if (n < 2) return false;
+    static const uint64_t small_primes[] = {2ULL,3ULL,5ULL,7ULL,11ULL,
+                                            13ULL,17ULL,19ULL,23ULL,29ULL,
+                                            31ULL,37ULL};
+    for (size_t i = 0; i < sizeof(small_primes)/sizeof(small_primes[0]); ++i) {
+        uint64_t p = small_primes[i];
+        if (n == p) return true;
+        if (n % p == 0) return false;
+    }
+    /* Write n-1 = d * 2^s with d odd. */
+    uint64_t d = n - 1, s = 0;
+    while ((d & 1) == 0) {
+        d >>= 1;
+        ++s;
+    }
+    /* Bases sufficient for 64‑bit deterministic test. */
+    const uint64_t bases[] = {2ULL, 325ULL, 9375ULL, 28178ULL, 450775ULL,
+                              9780504ULL, 1795265022ULL};
+    for (size_t i = 0; i < sizeof(bases)/sizeof(bases[0]); ++i) {
+        uint64_t a = bases[i] % n;
+        if (a == 0) continue;            /* skip witnesses that equal 0 */
+        __uint128_t x = 1, power = d;
+        __uint128_t base = a;
+        /* Compute a^d mod n using binary exponentiation. */
+        while (power) {
+            if (power & 1) x = (x * base) % n;
+            base = (base * base) % n;
+            power >>= 1;
+        }
+        if (x == 1 || x == n - 1) continue;
+        bool cont = false;
+        for (uint64_t r = 1; r < s; ++r) {
+            x = (x * x) % n;
+            if (x == n - 1) {
+                cont = true;
+                break;
+            }
+        }
+        if (cont) continue;
+        return false;
+    }
+    return true;
+}
 
 /* ---- f(k) = 8*k^2 + 4*k + 1, computed in 128‑bit to avoid overflow ---- */
 static uint64_t f_of(uint64_t k)
@@ -37,7 +84,7 @@ static void ensure_capacity(size_t *cap, size_t needed, seq_t **arr)
     if (*cap >= needed) return;
     size_t new_cap = (*cap > 0) ? *cap : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp) abort();      /* terminate on out‑of‑memory */
     *arr = tmp;
     *cap = new_cap;

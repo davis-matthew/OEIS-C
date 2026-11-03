@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    The sequence is memoised so that repeated calls are fast. */
 
 #include <stdlib.h>   /* realloc, NULL */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state for memoisation */
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
         /* Ensure enough capacity for the table */
         if (length == capacity) {
             size_t new_cap = capacity ? capacity << 1 : 16;
-            seq_t *tmp = (seq_t *)realloc(table, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, table, new_cap);
             if (!tmp) return (seq_t)0;      /* allocation failure */
             table = tmp;
             capacity = new_cap;

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 19, u16 n <= 8184, u32 n <= 9693, u64 n <= 9693,
- *            u128 n <= 9693, big any n
- * Helpers:   none
+ * Range:     u8 n <= 19, u16 n <= 8184, u32 n <= 26439, u64 n <= 26439,
+ *            u128 n <= 26439, big any n
+ * Validated: standard, pass, 69 terms through n = 9693 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;      /* array of terms with minlen==7      */
 static size_t term_cnt = 0;      /* number of stored terms             */
@@ -81,7 +83,7 @@ static void ensure_terms(idx_t n) {
     for (idx_t s = 1; s <= LIMIT; ++s)
         if (minlen[s] == 7) ++cnt;
 
-    seq_t *tmp = (seq_t*)realloc(terms, cnt * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, cnt);
     if (!tmp) { free(minlen); free(powers); return; }
     terms = tmp;
     term_cnt = cnt;

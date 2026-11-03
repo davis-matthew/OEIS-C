@@ -11,13 +11,15 @@
  *            is stored as a strictly increasing list of filtered integers
  * Range:     u8 n <= 65, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 7497 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of the helper functions that will be defined
    as static inline below. */
@@ -51,7 +53,7 @@ static void ensure_primes(seq_t limit) {
         if (primes_cnt == 0) {
             if (primes_cap == 0) {
                 primes_cap = 16;
-                primes = (seq_t *)malloc(primes_cap * sizeof(seq_t));
+                primes = mem_new(seq_t, primes_cap);
             }
             primes[primes_cnt++] = 2;
         }
@@ -72,7 +74,7 @@ static void ensure_primes(seq_t limit) {
         if (is_prime) {
             if (primes_cnt == primes_cap) {
                 primes_cap = primes_cap ? primes_cap * 2 : 16;
-                primes = (seq_t *)realloc(primes, primes_cap * sizeof(seq_t));
+                primes = mem_resize(seq_t, primes, primes_cap);
             }
             primes[primes_cnt++] = n;
         }
@@ -131,7 +133,7 @@ seq_t a(idx_t n) {
     /* Initialise the memoised list on first call. */
     if (!found) {
         found_cap = 64;
-        found = (seq_t *)malloc(found_cap * sizeof(seq_t));
+        found = mem_new(seq_t, found_cap);
         /* The first term is k = 1. */
         found[0] = (seq_t)1;
         found_cnt = 1;
@@ -147,7 +149,7 @@ seq_t a(idx_t n) {
         /* Store the found term. */
         if (found_cnt == found_cap) {
             found_cap *= 2;
-            found = (seq_t *)realloc(found, found_cap * sizeof(seq_t));
+            found = mem_resize(seq_t, found, found_cap);
         }
         found[found_cnt++] = curr;
     }

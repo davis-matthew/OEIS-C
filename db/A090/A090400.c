@@ -7,7 +7,8 @@
  * Formula:   a(n) = 3*a(n-1) - 3*a(n-3) (Recurrence)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Initial values: a(0)=1, a(1)=3, a(2)=9  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Initialize cache on first call */
     if (cache == NULL) {
         cache_cap   = 4;                          /* initial capacity large enough for a(3) */
-        cache       = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache       = mem_new(seq_t, cache_cap);
         if (!cache) abort();                      /* unrecoverable in contest environment */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)3;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap;
         do new_cap <<= 1;
         while (new_cap <= (size_t)n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

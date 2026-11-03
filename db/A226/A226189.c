@@ -8,14 +8,21 @@
  *            1/2 + ... + 1/k (harmonic number)
  * Range:     u8 n <= 37, u16 n <= 136, u32 n <= 150, u64 n <= 150,
  *            u128 n <= 150, big any n
- * Helpers:   harmonic_exact
+ * Validated: standard, pass, 74 terms through n = 150 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdint.h>
-#include "../utils/harmonic_exact.h"
+
+/* Exact harmonic sum for k up to 100,000 (long double) */
+static long double harmonic_exact(idx_t k) {
+    long double sum = 0.0L;
+    for (idx_t i = 1; i <= k; ++i) sum += 1.0L / (long double)i;
+    return sum;
+}
 
 static const long double GAMMA = 0.57721566490153286060651209L;
 

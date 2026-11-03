@@ -7,7 +7,8 @@
  * Formula:   a(n) = n * Pell(n-2)
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 24, u64 n <= 49, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    satisfy the arithmetic constraints of the build. */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *pell_cache = NULL;   /* cache of Pell numbers */
 static idx_t  pell_cache_size = 0; /* number of elements currently cached */
@@ -37,14 +39,13 @@ static void ensure_pell(idx_t max_k)
         /* Allocate at least two slots to hold P0 and P1. */
         if (new_size < 2)
             new_size = 2;
-        tmp = (seq_t *)malloc(new_size * sizeof(seq_t));
+        tmp = mem_new(seq_t, new_size);
         if (!tmp)
             return; /* allocation failed – no safe fallback */
         tmp[0] = 0;
         tmp[1] = 1;              /* base values */
     } else {                       /* grow existing array */
-        tmp = (seq_t *)realloc(pell_cache,
-                               new_size * sizeof(seq_t));
+        tmp = mem_resize(seq_t, pell_cache, new_size);
         if (!tmp)
             return; /* reallocation failed – leave cache unchanged */
         /* preserve existing values; the new slots are uninitialised */

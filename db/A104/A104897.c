@@ -7,7 +7,8 @@
  * Formula:   a(n) = nextPrime(n + prime(n)) - (n + prime(n))
  * Range:     u8 n <= 46, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   estimate_prime_upper_bound
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/estimate_prime_upper_bound.h"
+#include <math.h>
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 /* Global storage for the sieve and prime list */
 static bool   *is_prime   = NULL;   /* sieve array, indexed by natural number */

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ----- Parameters ------------------------------------------------- */
 #define ROWS         5                /* number of rows in the array */
@@ -191,8 +193,8 @@ seq_t a(idx_t n)
         init_tables();
 
     if (cur == NULL) {
-        cur  = (seq_t *)calloc(STATE_CNT, sizeof(seq_t));
-        nxt  = (seq_t *)calloc(STATE_CNT, sizeof(seq_t));
+        cur  = mem_new(seq_t, STATE_CNT);
+        nxt  = mem_new(seq_t, STATE_CNT);
         active      = (int *)malloc(STATE_CNT * sizeof(int));
         next_active = (int *)malloc(STATE_CNT * sizeof(int));
         max_active  = STATE_CNT;
@@ -200,7 +202,7 @@ seq_t a(idx_t n)
 
     /* Initialise for the first column (no left neighbours) */
     size_t active_cnt = 0;
-    memset(cur, 0, STATE_CNT * sizeof(seq_t));
+    mem_set(cur, 0, STATE_CNT * sizeof(seq_t));
     for (int p = 0; p < PATTERN_CNT; ++p) {
         int mask = 0, ok = 1;
         for (int r = 0; r < ROWS; ++r) {
@@ -219,7 +221,7 @@ seq_t a(idx_t n)
     /* Process remaining columns */
     for (idx_t col = 1; col < n; ++col) {
         size_t next_cnt = 0;
-        memset(nxt, 0, STATE_CNT * sizeof(seq_t));
+        mem_set(nxt, 0, STATE_CNT * sizeof(seq_t));
 
         for (size_t ai = 0; ai < active_cnt; ++ai) {
             int idx = active[ai];

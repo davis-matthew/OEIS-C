@@ -6,14 +6,17 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = (2^(n-1)-1) * binomial(2*n, n) / (n+1)
- * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 24, u128 n <= 46,
+ * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 24, u128 n <= 46,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 975 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

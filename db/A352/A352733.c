@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global data for the sieve and record list. */
 static seq_t *farr = NULL;          /* f(k) values */
@@ -35,11 +37,11 @@ static idx_t reccnt = 0;            /* number of records stored */
 static void recompute_up_to(idx_t bound)
 {
     /* free previous data */
-    if (farr) free(farr);
+    if (farr) mem_free(farr);
     if (recarr) free(recarr);
 
     fmax = bound;
-    farr = (seq_t *)malloc((bound + 1U) * sizeof(seq_t));
+    farr = mem_new(seq_t, (bound + 1U));
     if (!farr) abort();
 
     /* zero the array */

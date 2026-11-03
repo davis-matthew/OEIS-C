@@ -7,13 +7,14 @@
  * Formula:   a(n) = ceil(sqrt(n) + n^(1/3))
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   floor_cuberoot128
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   icbrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_cuberoot128.h"
+#include "../utils/icbrt_u128.h"
 
 #define SCALE 20
 #define SCALE_PLUS ((uint64_t)1 << SCALE)
@@ -40,7 +41,7 @@ seq_t a(idx_t n)
 
     /* floor(sqrt(n) * 2^SCALE) and floor(cuberoot(n) * 2^SCALE) */
     uint64_t sqrt_scaled  = floor_sqrt128(nsq);
-    uint64_t cbrt_scaled  = floor_cuberoot128(ncb);
+    uint64_t cbrt_scaled  = icbrt_u128(ncb);
 
     /* sum the scaled values and round up */
     uint64_t sum_scaled = sqrt_scaled + cbrt_scaled;

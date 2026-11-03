@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 50, u16 n <= 1508, u32 n <= 9350, u64 n <= 9350,
- *            u128 n <= 9350, big any n
- * Helpers:   A344005
+ * Range:     u8 n <= 50, u16 n <= 1508, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 100 terms through n = 9350 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
    Computes the value for any n ≥ 1, any idx_t or seq_t size. */
 
 #include <stdint.h>   /* For uint64_t if needed */
-#include "../utils/A344005.h"
+
+/* Compute A344005 for a given n (uint64_t). */
+static seq_t A344005(idx_t n) {
+    seq_t sn = (seq_t)n;   /* Convert to seq_t for arithmetic */
+    seq_t k = 1;
+    /* Search k until sn | k*(k+1).  This always terminates with k ≤ n-1. */
+    for (;;) {
+        seq_t prod = k * (k + 1);
+        if (prod % sn == 0) {
+            return k;
+        }
+        ++k;
+    }
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 48, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>   // malloc, free
 #include <string.h>   // memcpy
+#include "../utils/mem.h"
 
 /* Compute a(n) as defined by the recurrence above. */
 seq_t a(idx_t n)
@@ -43,11 +45,11 @@ seq_t a(idx_t n)
     if (n >= cache_cap) {
         idx_t newcap = n + 64;            /* grow by some slack */
         newcap += newcap >> 1;            /* ~1.5x */
-        seq_t *newc = (seq_t*)malloc(newcap * sizeof(seq_t));
+        seq_t *newc = mem_new(seq_t, newcap);
         if (!newc) return (seq_t)0;      /* allocation failed */
         if (cache) {
-            memcpy(newc, cache, cache_cap * sizeof(seq_t));
-            free(cache);
+            mem_copy(newc, cache, cache_cap * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = newc;
         cache_cap = newcap;

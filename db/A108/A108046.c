@@ -9,13 +9,15 @@
  *            Fibonacci(1)=1
  * Range:     u8 n <= 14, u16 n <= 25, u32 n <= 48, u64 n <= 94, u128 n <= 187,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *fib = NULL;          /* array of Fibonacci numbers */
 static idx_t fib_len = 0;          /* number of Fibonacci numbers stored */
@@ -29,7 +31,7 @@ ensure_fib(idx_t n)
         return;                   /* already computed */
     if (fib == NULL) {            /* first time, initialise */
         fib_cap = 16;
-        fib = (seq_t *)malloc(sizeof(seq_t) * fib_cap);
+        fib = mem_new(seq_t, fib_cap);
         fib[0] = (seq_t)0;
         fib[1] = (seq_t)1;
         fib_len = 2;
@@ -37,7 +39,7 @@ ensure_fib(idx_t n)
     while (fib_len <= n) {
         if (fib_len == fib_cap) {   /* grow array */
             fib_cap <<= 1;
-            fib = (seq_t *)realloc(fib, sizeof(seq_t) * fib_cap);
+            fib = mem_resize(seq_t, fib, fib_cap);
         }
         fib[fib_len] = fib[fib_len - 1] + fib[fib_len - 2];
         ++fib_len;

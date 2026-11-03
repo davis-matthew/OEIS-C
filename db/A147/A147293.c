@@ -11,15 +11,27 @@
  *            let * r = floor((sqrt(8n+1)−1)/2) // row number *...
  * Range:     u8 n <= 34, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   fib, pow2
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/fib.h"
+#include <stdbool.h>
 #include "../utils/pow2.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 static inline idx_t row_for_n(idx_t n) {
     /* Compute r = floor((sqrt(8n+1)-1)/2) with corrections. */

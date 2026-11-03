@@ -8,18 +8,19 @@
  * Formula:   a(n) = 15 / gcd(15, n)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd_uint64
+ * Validated: standard, pass, 96 terms through n = 989 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* Local gcd for uint64_t values; small and safe. */
 
 seq_t a(idx_t n)
 {
-    uint64_t g = gcd_uint64(15ULL, (uint64_t)n);
+    uint64_t g = gcd_u64(15ULL, (uint64_t)n);
     return (seq_t)(15ULL / g);
 }

@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(0) = 1; a(n) = Sum_{1 <= k^2 <= n} a(n-k^2), if n > 0
  * Range:     u8 n <= 18, u16 n <= 33, u32 n <= 65, u64 n <= 129,
  *            u128 n <= 256, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 4996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -20,13 +22,13 @@ seq_t a(idx_t n) {
     
     if (n >= cache_len) {
         idx_t new_len = n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         
         if (cache) {
             for (idx_t i = 0; i < cache_len; i++) {
                 new_cache[i] = cache[i];
             }
-            free(cache);
+            mem_free(cache);
         }
         cache = new_cache;
         

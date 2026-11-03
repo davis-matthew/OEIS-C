@@ -9,7 +9,8 @@
  * Formula:   Generate palindromic dates in DDMMYYYY format after Jan 1 1000
  * Range:     u8 none, u16 none, u32 n <= 335, u64 n <= 335, u128 n <= 335,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 334 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *pal_seq = NULL;
 static size_t pal_cnt = 0;
@@ -27,7 +29,7 @@ static void generate_pal_dates(void)
 {
     if (pal_seq) return;
     size_t cap = 400;
-    pal_seq = (seq_t *)malloc(cap * sizeof(seq_t));
+    pal_seq = mem_new(seq_t, cap);
     if (!pal_seq) exit(1);
 
     for (int Y = 1000; Y <= 9999; ++Y) {
@@ -48,7 +50,7 @@ static void generate_pal_dates(void)
                         v = v * 10 + (seq_t)(s[i] - '0');
                     if (pal_cnt >= cap) {
                         cap <<= 1;
-                        pal_seq = (seq_t *)realloc(pal_seq, cap * sizeof(seq_t));
+                        pal_seq = mem_resize(seq_t, pal_seq, cap);
                         if (!pal_seq) exit(1);
                     }
                     pal_seq[pal_cnt++] = v;

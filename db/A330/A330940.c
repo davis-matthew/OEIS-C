@@ -11,6 +11,7 @@
  *            of n while preserving the order within each copy
  * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
+ * Validated: standard, pass, 66 terms through n = 8185 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

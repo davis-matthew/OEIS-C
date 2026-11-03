@@ -9,13 +9,15 @@
  *            a(11)=1
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* initialise cache if not done yet */
     if (cache_len == 0) {
         size_t cap = 12;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return init_vals[0]; /* fallback if malloc fails */
         cache_cap = cap;
         for (size_t i = 0; i < 12; ++i)
@@ -51,19 +53,19 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap;
         while (new_cap < need)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_len = cache_cap = 0;
             /* recompute without caching (unlikely for n <= 10000) */
-            seq_t *tmp2 = (seq_t *)malloc(need * sizeof(seq_t));
+            seq_t *tmp2 = mem_new(seq_t, need);
             if (!tmp2) return init_vals[0];
             for (size_t i = 0; i < 12; ++i) tmp2[i] = init_vals[i];
             for (size_t i = 12; i < need; ++i)
                 tmp2[i] = tmp2[i-1] + tmp2[i-11] - tmp2[i-12];
             seq_t r = tmp2[n];
-            free(tmp2);
+            mem_free(tmp2);
             return r;
         }
         cache = tmp;

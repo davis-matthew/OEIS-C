@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 76, i16 n <= 76, i32 n <= 76, i64 n <= 76, i128 n <= 76,
  *            big any n
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-02)
  * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
 
@@ -55,7 +57,7 @@ a(idx_t n)
     /* Build or extend the prime list up to n once per call. */
     if (n > max_prime_limit) {
         if (prime_list != NULL)
-            free((void *)prime_list);
+            free(prime_list);
         build_primes_upto(n, &prime_list, &prime_cnt);
         max_prime_limit = n;
     }

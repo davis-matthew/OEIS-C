@@ -7,12 +7,14 @@
  * Formula:   a(n) = 8*a(n-1) + 21*a(n-2), a(1)=1, a(2)=11
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first two terms */
     if (cache_len == 0) {
         cache_len = 2;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         cache[0] = (seq_t)1;        /* a(1) */
         cache[1] = (seq_t)11;       /* a(2) */
     }
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         seq_t next = ((seq_t)8) * cache[cache_len - 1] +
                       ((seq_t)21) * cache[cache_len - 2];
         idx_t new_len = cache_len + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * new_len);
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         /* Assume realloc succeeds; in contest environment memory limits
            are sufficient. If it fails, cache becomes NULL, which will
            cause the next iteration to crash – acceptable for the

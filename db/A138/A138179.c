@@ -8,6 +8,7 @@
  *            + 4k + 1) where k = ⌊(n-1)/2⌋ for odd n, and k = n/2 for even n
  * Range:     u8 n <= 7, u16 n <= 50, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 58 terms through n = 974 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

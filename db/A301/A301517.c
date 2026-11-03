@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 473, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9758 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Maximum integer for which we precompute a smallest‑prime‑factor sieve. 
    10 million is enough for the first ten thousand terms.               */
@@ -85,7 +87,7 @@ static void ensure_seq_capacity(size_t needed) {
     size_t newcap = seq_cap ? seq_cap * 2 : 16;
     while (newcap < needed) newcap <<= 1;
     /* Reallocate with an explicit cast to satisfy both C and C++. */
-    seq_t *newp = (seq_t *)realloc(seq_arr, newcap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, seq_arr, newcap);
     if (!newp) { /* memory exhausted */ abort(); }
     seq_arr = newp;
     seq_cap = newcap;

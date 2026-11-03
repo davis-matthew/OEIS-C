@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 106, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   equal_ones_and_fours
+ * Validated: standard, pass, 77 terms through n = 9159 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/equal_ones_and_fours.h"
+#include "../utils/mem.h"
+
+/* Helper: true iff value has equal numbers of 1’s and 4’s in base‑7. */
+static bool equal_ones_and_fours(seq_t value)
+{
+    unsigned cnt1 = 0, cnt4 = 0;
+    while (value > 0) {
+        unsigned digit = (unsigned)(value % 7);
+        if (digit == 1) ++cnt1;
+        else if (digit == 4) ++cnt4;
+        value /= 7;
+    }
+    return cnt1 == cnt4;
+}
 
 /* Main sequence generator with lazy memoisation. */
 seq_t a(idx_t n)
@@ -35,7 +49,7 @@ seq_t a(idx_t n)
 
     if (cache_len == 0) {                    /* first call */
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 0;                       /* a(1) = 0 */
         cache_len = 1;
         matched = 1;
@@ -50,7 +64,7 @@ seq_t a(idx_t n)
         if (equal_ones_and_fours(candidate)) {
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = candidate;
             ++matched;

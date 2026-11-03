@@ -10,7 +10,8 @@
  *            e·p^(e–1), where the n‑th prime‑power is p^e
  * Range:     u8 n <= 44, u16 n <= 1961, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 9766 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Global state                                                         */
@@ -49,7 +51,7 @@ static void ensure_values_capacity(idx_t n)
     if (needed <= values_cap) return;
     size_t new_cap = values_cap ? values_cap * 2 : 128;
     while (needed > new_cap) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, values, new_cap);
     values = tmp;
     values_cap = new_cap;
 }

@@ -9,13 +9,16 @@
  *            (-1)^(n-k-1)*(k+1))/2)) with a(0)=1
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
     /* initialise cache with a(0)=1 */
     if (cache == NULL) {
         cap  = 1;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) return (seq_t)0; /* allocation failed */
         cache[0] = (seq_t)1;
         last = 0;
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
         /* ensure enough space */
         if ((size_t)(n + 1) > cap) {
             cap = (n + 1) * 2;
-            cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
             if (cache == NULL) return (seq_t)0; /* allocation failed */
         }
 
@@ -60,7 +63,7 @@ seq_t a(idx_t n)
                 idx_t r = t >> 1;    /* floor(t/2) */
 
                 /* binomial coefficient */
-                seq_t bin = binom(m - 1, r);
+                seq_t bin = binomial(m - 1, r);
 
                 sum += cache[k] * bin;
             }

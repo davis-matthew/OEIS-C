@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd64, has_solution_prime, mul64, pow64
+ * Validated: standard, pass, 73 terms through n = 968 (2026-11-01)
+ * Helpers:   gcd_u64, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd64.h"
-#include "../utils/has_solution_prime.h"
-#include "../utils/mul64.h"
-#include "../utils/pow64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+
+/* Test whether a prime p satisfies x^64 ≡ –2 (mod p) */
+static bool has_solution_prime(uint64_t p)
+{
+    if (p == 2) return true;          /* x = 0 is a solution modulo 2 */
+    uint64_t d = gcd_u64(64ULL, p - 1ULL);
+    uint64_t exp = (p - 1ULL) / d;
+    uint64_t base = p - 2ULL;          /* –2 (mod p) for p > 2 */
+    return powmod_u64(base, exp, p) == 1ULL;
+}
 
 /* 64‑bit modular multiplication using 128‑bit intermediate */
 
@@ -52,11 +62,11 @@ static bool is_prime_64(uint64_t n)
     for (size_t i = 0; i < sizeof bases / sizeof *bases; ++i) {
         uint64_t a = bases[i] % n;
         if (a == 0) continue;
-        uint64_t x = pow64(a, d, n);
+        uint64_t x = powmod_u64(a, d, n);
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mul64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 composite = false;
                 break;

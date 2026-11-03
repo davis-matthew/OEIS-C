@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 28, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 835 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,13 +19,14 @@
 */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --- Utility: grow a seq_t array to at least new_cap elements --- */
 static void grow_seq_array(seq_t **arr, size_t *cap, size_t new_cap) {
     if (*cap >= new_cap) return;
     size_t new_cap2 = (*cap == 0) ? 8 : (*cap << 1);
     while (new_cap2 < new_cap) new_cap2 <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap2 * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap2);
     if (!tmp) abort();                     /* out of memory – abort */
     *arr = tmp;
     *cap = new_cap2;

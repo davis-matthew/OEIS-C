@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
  * Helpers:   factor_u64, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,8 +24,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/factor_u64.h"   /* uint64_t factor_u64(uint64_t n, uint64_t *, uint64_t *, size_t *); */
-#include "../utils/is_prime.h"    /* bool is_prime(uint64_t); */
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
 
 /* bitwise shift‑or: shift src by 'shift' bits and OR into dst.
    Both src and dst point to arrays of 'words' 64‑bit words. */

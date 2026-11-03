@@ -7,12 +7,14 @@
  * Formula:   a(0)=1, a(1)=2, a(n) = 2*n*a(n-1) + n*(n-1)*a(n-2)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 310 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>             /* for malloc / realloc */
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;      /* memoisation buffer */
 static size_t seq_len = 0;     /* number of terms currently stored */
@@ -24,7 +26,7 @@ static void ensure_cap(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 4;
     while (new_cap < needed) new_cap *= 2;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 

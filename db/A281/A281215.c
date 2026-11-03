@@ -12,13 +12,15 @@
  *            x‑axis of Rule 342 cellular automaton)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 10, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 120 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -31,13 +33,13 @@ static void grow_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 4;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *new_cache = (seq_t*)malloc(sizeof(seq_t) * new_cap);
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         exit(EXIT_FAILURE); /* memory allocation failed */
     for (size_t i = 0; i < cache_size; ++i)
         new_cache[i] = cache[i];
     if (cache)
-        free(cache);
+        mem_free(cache);
     cache = new_cache;
     cache_cap = new_cap;
 }

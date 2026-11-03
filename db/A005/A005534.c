@@ -7,8 +7,9 @@
  * Formula:   a(n) = floor(5^(1/5) * 10^(n-1)) mod 10. 5^(1/5) = 5*y^4, where
  *            y = 5^(-1/5) comes from the Newton iteration y <- y + y*(1 -
  *            5*y^5)/5, run in multi-limb fixed point
- * Range:     u8 n <= 9998, u16 n <= 9998, u32 n <= 9998, u64 n <= 9998,
- *            u128 n <= 9998, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 103 terms through n = 9998 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

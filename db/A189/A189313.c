@@ -11,7 +11,8 @@
  *            primes
  * Range:     u8 n <= 7, u16 n <= 1100, u32 n <= 1100, u64 n <= 1100,
  *            u128 n <= 1100, big any n
- * Helpers:   count_distinct_primes, is_prime
+ * Validated: standard, pass, 66 terms through n = 1065 (2026-11-01)
+ * Helpers:   is_prime, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"          /* is_prime(idx_t) */
-#include "../utils/count_distinct_primes.h"  /* count_distinct_primes(uint64_t) */
+#include "../utils/is_prime.h"
+#include "../utils/omega.h"
 
 /* Return the n-th term (n ≥ 1).  Undefined behaviour for n == 0. */
 seq_t a(idx_t n)
@@ -51,7 +52,7 @@ seq_t a(idx_t n)
         uint64_t v = (uint64_t)v128;
 
         /* For p>2, need ω(v) == 3. */
-        if (count_distinct_primes(v) == 3) {
+        if (omega(v) == 3) {
             ++found;
             if (found + 1 == n)    /* +1 for the initial 2 */
                 return (seq_t)p;

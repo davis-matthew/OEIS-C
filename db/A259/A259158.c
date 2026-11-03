@@ -11,13 +11,15 @@
  *            y = 2m+1 → m = (y-1)/2 → a(n) = m(m+1)/2
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 24 terms through n = 158 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         curY = (seq_t)1;
         cache_cap = 4;
         cache_len = 0;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         initialized = 1;
     }
 
@@ -54,9 +56,9 @@ seq_t a(idx_t n)
             /* Grow cache if necessary */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 4;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
-                    free(cache);
+                    mem_free(cache);
                     exit(1);          /* memory allocation failed */
                 }
                 cache = tmp;

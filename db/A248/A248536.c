@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 13, u32 n <= 37, u64 n <= 85, u128 n <= 182,
  *            big any n
- * Helpers:   good_quad
+ * Validated: standard, pass, 46 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,16 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/good_quad.h"
+#include "../utils/mem.h"
+
+/* Test if four numbers satisfy the property */
+static inline bool good_quad(int a, int b, int c, int d)
+{
+    int sum = a + b + c + d;
+    if (sum & 3) return false;          /* sum % 4 != 0 */
+    int avg = sum >> 2;                 /* sum / 4 */
+    return (a == avg || b == avg || c == avg || d == avg);
+}
 
 typedef uint64_t idx_t;   /* Assume idx_t is defined by the build */
 
@@ -68,8 +78,8 @@ static void init_transitions(void)
 static void init_dp_arrays(void)
 {
     if (dp) return;
-    dp = (seq_t *)malloc(512 * sizeof(seq_t));
-    nextdp = (seq_t *)malloc(512 * sizeof(seq_t));
+    dp = mem_new(seq_t, 512);
+    nextdp = mem_new(seq_t, 512);
     for (size_t i = 0; i < 512; ++i) dp[i] = 1; /* length 3: all states possible */
 }
 
@@ -79,7 +89,7 @@ static void ensure_a_cache(idx_t n)
     size_t need = (size_t)n + 1;
     if (need <= a_cache_cap) return;
     size_t new_cap = need * 2;
-    seq_t *new_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_cap);
     if (!new_cache) { /* Allocation failed – abort (should not happen) */
         abort();
     }
@@ -97,9 +107,9 @@ seq_t a(idx_t n)
 
     /* Allocate cache if first call */
     if (!a_cache) {
-        a_cache = (seq_t *)malloc(512 * sizeof(seq_t)); /* initial size */
+        a_cache = mem_new(seq_t, 512); /* initial size */
         a_cache_cap = 512;
-        memset(a_cache, 0, a_cache_cap * sizeof(seq_t));
+        mem_set(a_cache, 0, a_cache_cap * sizeof(seq_t));
         a_cache_used = 0; /* no terms yet */
     }
 
@@ -117,7 +127,7 @@ seq_t a(idx_t n)
     /* Loop from current_length+1 up to target_len */
     for (idx_t L = current_length + 1; L <= target_len; ++L) {
         /* Zero nextdp */
-        memset(nextdp, 0, 512 * sizeof(seq_t));
+        mem_set(nextdp, 0, 512 * sizeof(seq_t));
 
         /* Transition step */
         for (size_t s = 0; s < 512; ++s) {

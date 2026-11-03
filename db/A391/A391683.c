@@ -10,13 +10,15 @@
  *            the rational generating function)
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 63, u64 n <= 127,
  *            u128 n <= 255, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 920 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
        Index 0 is unused to keep the code simple.  */
     if (!initialized) {
         cache_size = 6;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (!cache) abort();           /* out of memory */
         cache[0] = 0;
         cache[1] = 0;  /* a(1) */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
        0 .. cache_size-1 inclusive.  */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();               /* out of memory */
         cache = tmp;
         cache_size = new_size;

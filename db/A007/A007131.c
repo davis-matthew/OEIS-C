@@ -12,8 +12,8 @@
  *            even graphs). By Burnside over cycle types lambda...
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   alloc_zero, big_add_shift, big_divsmall, big_mulsmall,
- *            big_to_seq, grow_zero
+ * Validated: standard, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,12 +22,86 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/grow_zero.h"
-#include "../utils/big_add_shift.h"
-#include "../utils/big_divsmall.h"
-#include "../utils/big_mulsmall.h"
-#include "../utils/big_to_seq.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+/* acc += x * 2^sh */
+static void big_add_shift(uint32_t *acc, size_t alen, const uint32_t *x, size_t xlen, uint64_t sh)
+{
+    size_t q = (size_t)(sh >> 5), j;
+    unsigned b = (unsigned)(sh & 31);
+    uint64_t carry = 0;
+    for (j = 0; j <= xlen; j++) {
+        uint32_t lo = j < xlen ? x[j] : 0;
+        uint32_t w;
+        if (b == 0) w = lo;
+        else {
+            uint32_t prev = j > 0 ? x[j - 1] : 0;
+            w = (lo << b) | (prev >> (32 - b));
+        }
+        uint64_t s = (uint64_t)acc[q + j] + w + carry;
+        acc[q + j] = (uint32_t)s;
+        carry = s >> 32;
+    }
+    for (j = q + xlen + 1; carry && j < alen; j++) {
+        uint64_t s = (uint64_t)acc[j] + carry;
+        acc[j] = (uint32_t)s;
+        carry = s >> 32;
+    }
+}
+
+static void big_divsmall(uint32_t *x, size_t len, uint32_t dv)
+{
+    uint64_t r = 0;
+    size_t i;
+    for (i = len; i-- > 0;) {
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / dv);
+        r = cur % dv;
+    }
+}
+
+static uint32_t big_mulsmall(uint32_t *x, size_t len, uint32_t m)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        uint64_t cur = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)cur;
+        c = cur >> 32;
+    }
+    return (uint32_t)c;
+}
+
+static seq_t big_to_seq(const uint32_t *x, size_t len)
+{
+    seq_t v = 0;
+    size_t i;
+    while (len > 0 && x[len - 1] == 0) len--;
+    for (i = len; i-- > 0;) {
+        v *= 256; v *= 256;
+        v += (idx_t)(x[i] >> 16);
+        v *= 256; v *= 256;
+        v += (idx_t)(x[i] & 0xFFFFu);
+    }
+    return v;
+}
 
 static uint32_t *bf, *bt, *bE, *bT;
 static size_t fl, al;

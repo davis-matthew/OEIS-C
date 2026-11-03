@@ -11,6 +11,7 @@
  *            smaller number * produces the optimal partition
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 9, u128 n <= 9,
  *            big any n
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

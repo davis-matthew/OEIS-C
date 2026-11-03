@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 23, i16 n <= 54, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of already computed coefficients */
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
     if (n >= dp_size) {
         /* allocate (n+1) elements, resize if needed */
         idx_t new_size = n + 1;
-        seq_t *new_dp = (seq_t*)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, new_size);
         if (!new_dp) abort();             /* allocation failed */
         dp = new_dp;
 

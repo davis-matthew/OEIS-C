@@ -7,14 +7,17 @@
  * Formula:   a(n) = binomial(2*n, n) * n^n
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow, binom
+ * Validated: standard, pass, 33 terms through n = 313 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Use the provided binom and big_pow utilities */
-#include "../utils/binom.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +25,7 @@ seq_t a(idx_t n)
     if (n == 0)
         return (seq_t)1;
 
-    seq_t bin = binom(2 * n, n);          /* central binomial coefficient */
-    seq_t pow = big_pow((seq_t)n, (seq_t)n); /* n^n */
+    seq_t bin = binomial(2 * n, n);          /* central binomial coefficient */
+    seq_t pow = ipow((seq_t)n, (seq_t)n); /* n^n */
     return bin * pow;
 }

@@ -11,7 +11,8 @@
  *            }|
  * Range:     u8 n <= 38, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Helper routines ---------- */
 
@@ -47,12 +49,12 @@ static idx_t   max_limit = 0;     /* maximum n for which arrays are valid    */
 static void recompute_up_to(idx_t limit)
 {
     /* Allocate zeroed arrays.  */
-    seq_t *new_freq = (seq_t *)calloc((size_t)(limit + 1), sizeof(seq_t));
+    seq_t *new_freq = mem_new(seq_t, (size_t)(limit + 1));
     if (!new_freq) return;   /* allocation failure – unlikely for limits <= 10000 */
 
-    seq_t *new_cum = (seq_t *)calloc((size_t)(limit + 1), sizeof(seq_t));
+    seq_t *new_cum = mem_new(seq_t, (size_t)(limit + 1));
     if (!new_cum) {
-        free(new_freq);
+        mem_free(new_freq);
         return;
     }
 
@@ -92,8 +94,8 @@ static void recompute_up_to(idx_t limit)
     }
 
     /* Replace old tables with the new ones. */
-    free(freq);
-    free(cum);
+    mem_free(freq);
+    mem_free(cum);
     freq = new_freq;
     cum  = new_cum;
     max_limit = limit;

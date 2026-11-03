@@ -8,12 +8,14 @@
  *            a(n-k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *cache = NULL;
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 {
     /* Ensure a(0) exists */
     if (cap == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) abort();
         cap = 1;
         cache[0] = (seq_t)1;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     size_t new_cap = (size_t)n + 1;
     if (new_cap > cap) {
         /* Use a C‑style cast so that the code compiles in C++ as well */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort();
         cache = new_cache;
         /* Initialise the new part to zero (not strictly required) */

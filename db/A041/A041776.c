@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 17, u64 n <= 33, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 182 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Periodic part of the continued fraction (excluding the first term c_0=20). */
 static const seq_t period_arr[21] = {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (n >= cache_len) {
         idx_t old_len = cache_len;
         idx_t new_len = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) { /* allocation failed */
             /* In contest environment we can abort; otherwise handle error. */
             exit(EXIT_FAILURE);

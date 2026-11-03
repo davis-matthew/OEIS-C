@@ -11,6 +11,7 @@
  *            with more than one preimage (i.e. A054973(x) > 1). a(1) = 0
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

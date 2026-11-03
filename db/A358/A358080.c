@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 409 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,14 +39,14 @@ seq_t a(idx_t n)
     if (n >= cached)
     {
         idx_t new_cap = n + 1;                    /* we need indices 0..n inclusive */
-        seq_t *new_mem = (seq_t *)malloc(sizeof(seq_t) * (size_t)new_cap);
+        seq_t *new_mem = mem_new(seq_t, (size_t)new_cap);
         if (!new_mem) return 0;                   /* allocation failed */
 
         /* Copy old values (if any) */
         if (cache)
         {
             for (idx_t i = 0; i < used; ++i) new_mem[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
 
         cache  = new_mem;

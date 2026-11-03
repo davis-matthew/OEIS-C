@@ -11,6 +11,7 @@
  *            a(16)=4, a(17)=8, a(18)=3, a(19)=9, a(20)=4, a(21)=6,...
  * Range:     i8 n <= 24, i16 n <= 24, i32 n <= 24, i64 n <= 24, i128 n <= 24,
  *            big any n
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,13 +11,15 @@
  *            Sum_{i=j..floor((n-j-k-l-m-o)/2)} k
  * Range:     u8 n <= 21, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const idx_t weights[7] = { 7, 6, 5, 4, 3, 2, 1 };
 
@@ -29,12 +31,12 @@ seq_t a(idx_t n) {
     size_t size = (size_t)(N + 1);
 
     /* Allocate arrays for counts and sum of the first four d's. */
-    seq_t *cnt = (seq_t *)calloc(size, sizeof(seq_t));
-    seq_t *sum4 = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *cnt = mem_new(seq_t, size);
+    seq_t *sum4 = mem_new(seq_t, size);
     if (!cnt || !sum4) {
         /* Memory allocation failed – return 0; caller should not rely on this case. */
-        if (cnt) free(cnt);
-        if (sum4) free(sum4);
+        if (cnt) mem_free(cnt);
+        if (sum4) mem_free(sum4);
         return (seq_t)0;
     }
 
@@ -59,7 +61,7 @@ seq_t a(idx_t n) {
 
     seq_t result = cnt[(size_t)N] + sum4[(size_t)N];
 
-    free(cnt);
-    free(sum4);
+    mem_free(cnt);
+    mem_free(sum4);
     return result;
 }

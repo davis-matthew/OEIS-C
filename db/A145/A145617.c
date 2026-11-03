@@ -8,7 +8,8 @@
  * Formula:   a(n) = numerator of Σ_{d=1}^{2n} 5^{2n+1-d} / d in lowest terms
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +35,7 @@ seq_t a(idx_t n)
         /* add term = pow / d to the running fraction */
         seq_t new_num = num * (seq_t)d + den * pow;
         seq_t new_den = den * (seq_t)d;
-        seq_t g = seq_gcd(new_num, new_den);
+        seq_t g = gcd(new_num, new_den);
         num = new_num / g;
         den = new_den / g;
 

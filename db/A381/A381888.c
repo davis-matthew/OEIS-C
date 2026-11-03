@@ -8,7 +8,8 @@
  * Formula:   a(n) = sequence A381888 (flattened OEIS triangle)
  * Range:     u8 n <= 16, u16 n <= 38, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial_row
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binomial_row.h"
+#include "../utils/mem.h"
+
+/* Compute the binomial coefficients C(n, k) for k=0..n multiplicatively. */
+static void binomial_row(idx_t n, seq_t *buf) {
+    buf[0] = (seq_t)1;
+    for (idx_t k = 1; k <= n; ++k) {
+        buf[k] = buf[k - 1] * (seq_t)(n - k + 1) / (seq_t)k;
+    }
+}
 
 /* Compute floor(sqrt(x)) for 64‑bit values. */
 static inline idx_t isqrt_u64(idx_t x) {
@@ -44,7 +53,7 @@ static void ensure_euler(idx_t n) {
     /* Allocate or grow the outer array. */
     if (euler == NULL) {
         euler = (seq_t**)malloc((n + 1) * sizeof(seq_t*));
-        euler[0] = (seq_t*)malloc(sizeof(seq_t));
+        euler[0] = mem_new(seq_t, 1);
         euler[0][0] = (seq_t)1;
         euler_max = 0;
     } else if (euler_max < n) {
@@ -55,7 +64,7 @@ static void ensure_euler(idx_t n) {
 
     /* Compute new rows incrementally. */
     for (idx_t i = euler_max + 1; i <= n; ++i) {
-        euler[i] = (seq_t*)calloc((size_t)(i + 1), sizeof(seq_t));
+        euler[i] = mem_new(seq_t, (size_t)(i + 1));
         for (idx_t m = 0; m < i; ++m) {
             seq_t val = 0;
             if (m > 0)
@@ -81,7 +90,7 @@ seq_t a(idx_t n) {
     ensure_euler(r);
 
     /* Compute binomial coefficients for this row. */
-    seq_t *bin = (seq_t*)malloc((size_t)(r + 1) * sizeof(seq_t));
+    seq_t *bin = mem_new(seq_t, (size_t)(r + 1));
     binomial_row(r, bin);
 
     /* Accumulate the sum over j = col..r. */
@@ -93,6 +102,6 @@ seq_t a(idx_t n) {
 
     seq_t result = (seq_t)(r + 1) * sum;
 
-    free(bin);
+    mem_free(bin);
     return result;
 }

@@ -11,6 +11,7 @@
  *            that interval marking numbers divisible by any prime < p_n
  * Range:     u8 n <= 60, u16 n <= 564, u32 n <= 564, u64 n <= 564,
  *            u128 n <= 564, big any n
+ * Validated: standard, pass, 97 terms through n = 454 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,12 +10,20 @@
  *            computed by the coin-change DP over parts 1,2,4,12,24,48,96,120
  * Range:     u8 n <= 41, u16 n <= 195, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_zero
+ * Validated: standard, pass, 76 terms through n = 886 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/alloc_zero.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *a001364_tab = 0;
 static idx_t a001364_len = 0;

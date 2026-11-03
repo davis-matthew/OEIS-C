@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∏_{i=0}^{n-1} (8^n - 8^i)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 24 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(0)=1; a(n+1)=a(n)*8^n*(8^{n+1}-1) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,14 +30,14 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* first call – initialise */
         pow_q = (seq_t)1;                 /* 8^0 */
-        cache = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (n + 1));
         cache[0] = (seq_t)1;              /* a(0) = 1 */
         cache_cap = n + 1;
         cached_n = 0;
         initialized = 1;
     } else if (n >= cache_cap) {
         /* grow cache to fit the requested n */
-        seq_t *tmp = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         cache = tmp;
         cache_cap = n + 1;
     }

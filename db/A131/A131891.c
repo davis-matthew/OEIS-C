@@ -13,15 +13,23 @@
  *            in seq_t)
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 37, u64 n <= 57, u128 n <= 182,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: standard, pass, 55 terms through n = 779 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -41,10 +49,10 @@ static void ensure_cache_size(idx_t need)
     while (new_size <= (size_t)need)
         new_size <<= 1;
 
-    seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (cache) {
-        memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
     }
 
     /* initialize new entries (will be overwritten as needed)  */
@@ -89,8 +97,8 @@ static void compute_up_to(idx_t n)
         seq_t left  = cache[kk + 1]; /* a(k+1) */
         seq_t right = cache[kk];     /* a(k)   */
 
-        seq_t pow_left  = seq_pow(left,  (idx_t)m);
-        seq_t pow_right = seq_pow(right, (idx_t)(5 - m));
+        seq_t pow_left  = ipow_idx(left,  (idx_t)m);
+        seq_t pow_right = ipow_idx(right, (idx_t)(5 - m));
         seq_t prod      = seq_mul(pow_left, pow_right);
         seq_t coeff     = bin5[m];
 

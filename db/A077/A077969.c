@@ -9,7 +9,8 @@
  *            two distinct primes in exactly three ways
  * Range:     u8 n <= 12, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*--------- Global state ------------------------------------*/
 static idx_t current_limit = 300000;          /* starting sieve limit   */
@@ -42,7 +44,7 @@ static void free_allocated(void)
 {
     free(prime_list);
     free(rep_count);
-    free(term_array);
+    mem_free(term_array);
     prime_list   = NULL;
     rep_count    = NULL;
     term_array   = NULL;
@@ -56,7 +58,7 @@ static void ensure_term_capacity(size_t new_cnt)
     if (new_cnt <= term_cap) return;
     size_t new_cap = term_cap ? term_cap * 2 : 4;
     while (new_cap < new_cnt) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(term_array, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, term_array, new_cap);
     if (!tmp) exit(1);           /* allocation failed */
     term_array = tmp;
     term_cap   = new_cap;

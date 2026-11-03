@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 26, i16 n <= 43, i32 n <= 63, i64 n <= 63, i128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper: start index of row r in the flattened array */
 static inline size_t start_of_row(idx_t r)
@@ -49,7 +51,7 @@ static void push_value(seq_t x)
 {
     if (values_len == values_cap) {
         size_t new_cap = values_cap ? values_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, values, new_cap);
         if (!tmp) { /* allocation failure – return zero as a safe default */
             return;
         }
@@ -67,7 +69,7 @@ static void ensure_factorial(idx_t r)
         size_t new_cap = fact_cap ? fact_cap * 2 : 4;
         if (new_cap <= (size_t)r + 1)
             new_cap = (size_t)r + 1;
-        seq_t *tmp = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact, new_cap);
         if (!tmp) {
             return;
         }

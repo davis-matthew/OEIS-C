@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 131, u32 n <= 6200, u64 n <= 6200,
  *            u128 n <= 6200, big any n
- * Helpers:   digit_sum_uint64, is_prime, seq_malloc, seq_realloc
+ * Validated: standard, pass, 50 terms through n = 5949 (2026-11-03)
+ * Helpers:   digit_sum_u64, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,29 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"          /* bool is_prime(uint64_t n); */
-#include "../utils/digit_sum_uint64.h"  /* uint16_t digit_sum_uint64(uint64_t x); */
-#include "../utils/seq_malloc.h"        /* seq_t *seq_malloc(idx_t n); */
-#include "../utils/seq_realloc.h"      /* seq_t *seq_realloc(seq_t *p, idx_t n); */
+#include <stddef.h>
+#include "../utils/digit_sum_u64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+static inline seq_t *seq_realloc(seq_t *p, idx_t n)
+{
+#ifdef __cplusplus
+    return mem_resize(seq_t, p, n);
+#else
+    return (seq_t *)realloc(p, n * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -34,8 +54,8 @@ seq_t a(idx_t n)
         if (next_candidate > 2 && (next_candidate & 1) == 0)
             next_candidate++;
 
-        if (is_prime(next_candidate) &&
-            digit_sum_uint64(next_candidate) == 32) {
+        if (is_prime_u64(next_candidate) &&
+            digit_sum_u64(next_candidate) == 32) {
             if (primes_cnt == primes_cap) {
                 size_t new_cap = primes_cap == 0 ? 16 : primes_cap * 2;
                 seq_t *tmp = seq_realloc(primes, new_cap);

@@ -11,6 +11,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 58, u32 n <= 136, u64 n <= 312,
  *            u128 n <= 726, big any n
+ * Validated: standard, pass, 76 terms through n = 2475 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,6 +23,8 @@
  * in descending order of k to obtain the minimal value. */
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 /* static prime list, initialized once */

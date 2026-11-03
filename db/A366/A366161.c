@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   _gcd_idx
+ * Validated: partial, pass, 87 terms through n = 88 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_gcd_idx.h"
+#include <stdlib.h>
+#include "../utils/gcd_idx.h"
 
 /* gcd for unsigned integers (idx_t) */
 
@@ -42,11 +44,11 @@ extern seq_t a(idx_t n) {
         if (x % p == 0) {
             idx_t e = 0;
             do { x /= p; ++e; } while (x % p == 0);
-            g = (g == 0) ? e : _gcd_idx(g, e);
+            g = (g == 0) ? e : gcd_idx(g, e);
         }
     }
     if (x > 1) {                    /* remaining prime factor with exponent 1 */
-        g = (g == 0) ? 1 : _gcd_idx(g, 1);
+        g = (g == 0) ? 1 : gcd_idx(g, 1);
     }
 
     /* ----- M = n * g ----- */

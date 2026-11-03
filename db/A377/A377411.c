@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2 * Sum_{k=0..n} (5*k+1)!/(4*k+2)! * |Stirling1(n,k)|
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
     The sequence values are cached so successive calls are O(1) after the first
     computation for that n.                                              */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;        /* a(n) values */
 static size_t a_cache_size = 0;
@@ -34,7 +36,7 @@ static void ensure_pk(idx_t n)
 {
     if (pk_size > 0 && pk_size > n) return;
     size_t new_size = n + 1;
-    pk_arr = (seq_t *)realloc(pk_arr, new_size * sizeof(seq_t));
+    pk_arr = mem_resize(seq_t, pk_arr, new_size);
     for (size_t k = pk_size; k <= n; ++k) {
         seq_t prod = 1;
         /* product of integers from 4*k+3 to 5*k+1 (empty product = 1) */
@@ -50,11 +52,11 @@ static void ensure_pk(idx_t n)
 static void ensure_stirling_rows(size_t l)
 {
     if (curr_size < l) {
-        curr_row = (seq_t *)realloc(curr_row, l * sizeof(seq_t));
+        curr_row = mem_resize(seq_t, curr_row, l);
         curr_size = l;
     }
     if (prev_size < l) {
-        prev_row = (seq_t *)realloc(prev_row, l * sizeof(seq_t));
+        prev_row = mem_resize(seq_t, prev_row, l);
         prev_size = l;
     }
 }
@@ -64,7 +66,7 @@ static void ensure_cache(idx_t n)
 {
     if (a_cache_size > 0 && a_cache_size > n) return;
     size_t new_size = n + 1;
-    a_cache = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_size);
     if (a_cache_size == 0) {
         a_cache[0] = (seq_t)1;                 /* a(0) = 1 */
         a_cache_size = 1;

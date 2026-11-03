@@ -9,6 +9,7 @@
  * Formula:   a(n) = (n^4 + 14n^3 + 23n^2 + 16n + 6)/6
  * Range:     u8 n <= 3, u16 n <= 21, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
+ * Validated: standard, pass, 52 terms through n = 209 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

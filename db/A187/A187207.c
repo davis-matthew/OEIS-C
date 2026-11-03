@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf, easy
  * Formula:   not stated
- * Range:     u8 n <= 6514, u16 n <= 8567, u32 n <= 8567, u64 n <= 8567,
- *            u128 n <= 8567, big any n
+ * Range:     u8 n <= 6514, u16 n <= 10021, u32 n <= 10021, u64 n <= 10021,
+ *            u128 n <= 10021, big any n
+ * Validated: standard, pass, 108 terms through n = 8567 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,6 +23,7 @@
 
 /* Utility: factorization, returns number of distinct prime factors in *cnt.
    (Defined in ../utils/factor_u64.h) */
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
 
 /* Comparator for descending order of uint64_t values. */

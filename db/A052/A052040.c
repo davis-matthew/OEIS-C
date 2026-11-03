@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 1381, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_zero_in_square
+ * Validated: standard, pass, 88 terms through n = 9799 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_zero_in_square.h"
+#include "../utils/mem.h"
+
+/* Return true if v*v contains a decimal digit 0 */
+static bool has_zero_in_square(seq_t v) {
+    seq_t sq = v * v;
+    while (sq > 0) {
+        if ((sq % 10) == 0)
+            return true;
+        sq /= 10;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -33,7 +45,7 @@ static void ensure_capacity(idx_t needed) {
     idx_t new_size = cache_size ? cache_size * 2 : 16;
     while (new_size < needed)
         new_size *= 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     cache = new_cache;
     cache_size = new_size;
 }

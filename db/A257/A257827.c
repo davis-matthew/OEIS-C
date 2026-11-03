@@ -11,12 +11,14 @@
  *            a(12)=9836, a(13)=17996, a(14)=23404, a(15)=25628, a(16)=28724
  * Range:     u8 none, u16 n <= 17, u32 n <= 56, u64 n <= 133, u128 n <= 288,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 790 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base_terms[16] = {
     (seq_t)652, (seq_t)724, (seq_t)788, (seq_t)1012,
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary */
     if (N >= cache_size) {
         size_t new_size = N + 1;   /* include index 0 */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) {
             /* Allocation failed – return 0 as a safe fallback */
             return (seq_t)0;

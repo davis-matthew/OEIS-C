@@ -10,13 +10,15 @@
  *            Initial values: a(0)=0, a(1)=0, …, a(10)=0, a(11)=1, …
  * Range:     u8 n <= 14, u16 n <= 19, u32 n <= 32, u64 n <= 62, u128 n <= 127,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 2048 terms through n = 2047 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *T_table[12];
 static bool T_initialized = false;
@@ -29,7 +31,7 @@ static void build_tables(void)
         return;
 
     for (int h = 0; h <= 11; ++h) {
-        T_table[h] = (seq_t *)calloc((size_t)(MAX_N + 1), sizeof(seq_t));
+        T_table[h] = mem_new(seq_t, (size_t)(MAX_N + 1));
         if (!T_table[h]) {
             exit(EXIT_FAILURE);
         }

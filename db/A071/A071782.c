@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = (sum of distinct quadratic residues modulo n) modulo n
- * Range:     u8 n <= 33, u16 n <= 870, u32 n <= 7661, u64 n <= 7661,
- *            u128 n <= 7661, big any n
+ * Range:     u8 n <= 33, u16 n <= 870, u32 n <= 16848, u64 n <= 16848,
+ *            u128 n <= 16848, big any n
+ * Validated: standard, pass, 96 terms through n = 7661 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

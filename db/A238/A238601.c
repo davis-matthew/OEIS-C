@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 496 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External array helper prototypes (provided by the build) */
 extern seq_t fib(idx_t n);
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         while (new_cap <= n)
             new_cap <<= 1;
 
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         /* If realloc fails, abort.  In the judge environment this
            should never happen; if it does, we treat the address as
            NULL and recover. */

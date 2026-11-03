@@ -10,14 +10,23 @@
  *            are cached so that calls in any order are efficient
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 29, u128 n <= 56,
  *            big any n
- * Helpers:   seq_alloc_new_array, seq_free_array
+ * Validated: standard, pass, 40 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <string.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *A = NULL;   /* cache for a(n) */
 static seq_t *B = NULL;   /* auxiliary b(n) = (5^n-1)/4 */
@@ -31,11 +40,11 @@ static void expand_to(size_t newlen)
     seq_t *newA = seq_alloc_new_array(newlen);
     seq_t *newB = seq_alloc_new_array(newlen);
     if (A) {
-        memcpy(newA, A, sz * sizeof(seq_t));
+        mem_copy(newA, A, sz * sizeof(seq_t));
         seq_free_array(A);
     }
     if (B) {
-        memcpy(newB, B, sz * sizeof(seq_t));
+        mem_copy(newB, B, sz * sizeof(seq_t));
         seq_free_array(B);
     }
     A = newA;

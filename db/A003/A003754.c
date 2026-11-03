@@ -5,15 +5,29 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, base, nice
  * Formula:   not stated
- * Range:     u8 n <= 88, u16 n <= 4180, u32 n <= 8694, u64 n <= 8694,
- *            u128 n <= 8694, big any n
- * Helpers:   has_no_adjacent_zeros
+ * Range:     u8 n <= 88, u16 n <= 4180, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 76 terms through n = 8694 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_no_adjacent_zeros.h"
+
+static bool has_no_adjacent_zeros(seq_t k) {
+    seq_t bit = k & 1;
+    k >>= 1;
+    while (k > 0) {
+        seq_t next_bit = k & 1;
+        if (bit == 0 && next_bit == 0) {
+            return false;
+        }
+        bit = next_bit;
+        k >>= 1;
+    }
+    return true;
+}
 
 /* Brute-force enumeration: a(n) is the n-th number with no adjacent 0's in binary */
 

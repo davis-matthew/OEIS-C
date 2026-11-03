@@ -9,6 +9,7 @@
  *            1) - 1) / 2), i = n - d*(d+1)/2, j = d - i
  * Range:     u8 n <= 24, u16 n <= 74, u32 n <= 249, u64 n <= 900,
  *            u128 n <= 3401, big any n
+ * Validated: standard, pass, 75 terms through n = 4901 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

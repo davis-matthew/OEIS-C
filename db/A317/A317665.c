@@ -7,13 +7,15 @@
  * Formula:   a(0)=1, a(n) = - Sum_{k=1..n} [k is a perfect square] * a(n-k)
  * Range:     i8 n <= 23, i16 n <= 49, i32 n <= 98, i64 n <= 193,
  *            i128 n <= 387, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9172 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,13 +27,13 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* First call: allocate space for at least n+1 entries */
         cache_size = n + 1;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = 1;             /* a(0) = 1 */
         computed = 0;
     } else if (n >= cache_size) {
         /* Grow cache to accommodate entries up to n */
         cache_size = n + 1;
-        cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_size);
     }
 
     /* Compute all missing values up to n */

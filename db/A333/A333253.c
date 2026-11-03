@@ -12,7 +12,8 @@
  *            call with n ≥ 1 is answered in O(1) after...
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Cached lengths of increasing runs */
 static seq_t *subseq_lengths = NULL;
@@ -52,7 +54,7 @@ static void grow_subseq_array(size_t new_len)
     /* realloc is safe for POD types; seq_t is POD for the integer builds
        and for the arbitrary‑precision build the class implements
        trivial construction/destruction. */
-    seq_t *tmp = (seq_t *)realloc(subseq_lengths, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, subseq_lengths, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     subseq_lengths = tmp;
     subseq_cap     = new_cap;

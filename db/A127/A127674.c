@@ -12,16 +12,36 @@
  *            offset m by the usual triangular numbering: r is the un...
  * Range:     i8 n <= 7, i16 n <= 32, i32 n <= 51, i64 n <= 51, i128 n <= 51,
  *            big any n
- * Helpers:   binomial, floor_sqrt, pow2
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-01)
+ * Helpers:   binomial, ipow_i32, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow2.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/pow2.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* seq_t and idx_t are provided by the build system. */
 seq_t a(idx_t n)

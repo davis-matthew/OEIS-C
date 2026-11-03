@@ -7,13 +7,17 @@
  * Formula:   a(n) = Sum_{k=1..n-2} k^(n-k-2)*C(n-k,2)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 17, u64 n <= 28, u128 n <= 46,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 41 terms through n = 492 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +27,7 @@ seq_t a(idx_t n)
         idx_t nk = n - k;                       /* n-k >= 2 */
         seq_t bin = binomial(nk, 2);            /* C(n-k, 2) */
         seq_t exp = (seq_t)(nk - 2);            /* n-k-2 */
-        seq_t pw  = big_pow((seq_t)k, exp);     /* k^(n-k-2) */
+        seq_t pw  = ipow((seq_t)k, exp);     /* k^(n-k-2) */
         total += pw * bin;
     }
     return total;

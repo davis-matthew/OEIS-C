@@ -8,7 +8,8 @@
  *            starts with digit 2
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   starts_with_2, upper_limit_for_n
+ * Validated: standard, pass, 103 terms through n = 989 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,24 @@
 #include <stdbool.h>
 #include <math.h>
 #include <stdint.h>
-#include "../utils/starts_with_2.h"
-#include "../utils/upper_limit_for_n.h"
+
+/* check if p starts with digit 2 */
+static inline bool
+starts_with_2(uint64_t p)
+{
+    while (p >= 10ULL) p /= 10ULL;
+    return p == 2ULL;
+}
+
+/* estimate an upper bound for the nth prime */
+static unsigned long long
+upper_limit_for_n(idx_t n)
+{
+    if (n < 6) return 15ULL;
+    double x = (double)n;
+    double lim = x * (log(x) + log(log(x)));
+    return (unsigned long long)(lim) + 3ULL;   /* safety margin */
+}
 
 /* main function */
 seq_t a(idx_t n)

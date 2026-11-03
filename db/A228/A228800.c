@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache with the 13 known terms on first call */
     if (cache_len == 0) {
-        memcpy(cache, init, sizeof(init));
+        mem_copy(cache, init, sizeof(init));
         cache_len = 13;
     }
 

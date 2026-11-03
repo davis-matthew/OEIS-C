@@ -7,6 +7,7 @@
  * Formula:   a(n) = (2*n)! * Sum_{i=1..n} Sum_{j=1..n} i^2/(i+j)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 12,
  *            big any n
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

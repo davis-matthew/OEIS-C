@@ -7,13 +7,17 @@
  * Formula:   a(n) = [x^n] Product_{k>=1} (1 + n^n * x^k)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 9,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 28 terms through n = 54 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,10 +26,10 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* C = n^n  (n is idx_t, cast to seq_t) */
-    seq_t C = big_pow((seq_t)n, (seq_t)n);
+    seq_t C = ipow((seq_t)n, (seq_t)n);
 
     /* Allocate array dp[0..n] for coefficients of x^j */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) return (seq_t)0;          /* out of memory */
 
     dp[0] = (seq_t)1;
@@ -41,6 +45,6 @@ seq_t a(idx_t n)
     }
 
     seq_t res = dp[n];
-    free(dp);
+    mem_free(dp);
     return res;
 }

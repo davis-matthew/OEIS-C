@@ -11,7 +11,8 @@
  *            0..3 give 2 choices per parity, and the parity...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 7, u64 n <= 10, u128 n <= 13,
  *            big any n
- * Helpers:   v2l
+ * Validated: standard, pass, 22 terms through n = 22 (2026-11-01)
+ * Helpers:   ctz_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/v2l.h"
+#include "../utils/ctz_i64.h"
 
 static int g_big;
 static int g_bits;
@@ -71,7 +72,7 @@ static void rec(long rem, long maxp, long long N, long k, int odd,
                 z2 *= (seq_t)c;
                 z2 *= (seq_t)m;
             } else {
-                int vc = v2l(c), vm = v2l(m);
+                int vc = ctz_i64(c), vm = ctz_i64(m);
                 s2 += vc + vm;
                 z2 *= (seq_t)(c >> vc);
                 z2 *= (seq_t)(m >> vm);

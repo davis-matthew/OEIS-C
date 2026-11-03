@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 72, i16 n <= 9898, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   a_prime, pow_uint64_uint32
+ * Validated: standard, pass, 103 terms through n = 9302 (2026-11-01)
+ * Helpers:   ipow_u64_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,30 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/a_prime.h"
-#include "../utils/pow_uint64_uint32.h"
+#include "../utils/ipow_u64_u32.h"
+
+/* Find integers x,y s.t. p = x^2 + 2*y^2, using brute force.
+   The prime satisfies p ≡ 1,3 (mod 8), so a solution exists. */
+static seq_t a_prime(unsigned long p)
+{
+    for (uint64_t x = 0; x * x <= p; ++x)
+    {
+        uint64_t rem = p - x * x;
+        if ((rem & 1ULL) != 0) continue;          /* must be even */
+        uint64_t y2 = rem / 2ULL;
+        for (uint64_t y = 0; y * y <= y2; ++y)
+        {
+            if (y * y == y2)
+            {
+                seq_t xx = (seq_t)x;
+                seq_t pp = (seq_t)p;
+                return 4 * xx * xx - 2 * pp;
+            }
+        }
+    }
+    /* Should never reach here for valid p */
+    return 0;
+}
 
 static seq_t a_prime_power(uint64_t p, uint32_t e)
 {
@@ -42,7 +65,7 @@ static seq_t a_prime_power(uint64_t p, uint32_t e)
     if (mod8 == 5ULL || mod8 == 7ULL)
     {
         /* even exponent -> p^e, odd exponent -> 0 */
-        return (e & 1U) ? 0 : pow_uint64_uint32(p, e);
+        return (e & 1U) ? 0 : ipow_u64_u32(p, e);
     }
 
     /* p ≡ 1 or 3 (mod 8) : recurrence with base a(p) */

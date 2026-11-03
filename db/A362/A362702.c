@@ -7,13 +7,16 @@
  * Formula:   a(n) = n! * Sum_{k=0..⌊n/2⌋} k^(n‑k) / (k! * (n‑2k)!)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 28,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 386 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
         coeff = coeff * num1 * num2 / (seq_t)k;
 
         /* compute k^(n-k) */
-        seq_t pow_val = big_pow((seq_t)k, (seq_t)(n - k));
+        seq_t pow_val = ipow((seq_t)k, (seq_t)(n - k));
 
         /* add term to the sum */
         sum += coeff * pow_val;

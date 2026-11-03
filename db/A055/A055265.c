@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 250, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9585 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <string.h>   /* memset */
 #include <stdbool.h>  /* bool */
 #include <stdint.h>   /* uint64_t */
+#include "../utils/mem.h"
 
 /* ------ helper: modular exponentiation ------------------------------------ */
 static seq_t modpow(seq_t base, seq_t exp, seq_t mod)
@@ -105,7 +107,7 @@ static void ensure_seq(size_t needed)
     if (needed <= seq_alloc) return;
     size_t new_alloc = seq_alloc ? seq_alloc * 2 : 256;
     while (new_alloc < needed) new_alloc <<= 1;
-    seq = (seq_t *)realloc(seq, new_alloc * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_alloc);
     seq_alloc = new_alloc;
 }
 

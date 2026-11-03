@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ensure_cap_idx, ensure_cap_seq, int_sqrt
+ * Validated: standard, pass, 94 terms through n = 876 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,15 +20,34 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/int_sqrt.h"
-#include "../utils/ensure_cap_idx.h"
-#include "../utils/ensure_cap_seq.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* Grow an array of idx_t elements.  The cast is required for C++17. */
+static void ensure_cap_idx(size_t needed, size_t *cap, idx_t **arr)
+{
+    if (*arr && needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    *arr = (idx_t *)realloc(*arr, new_cap * sizeof(idx_t));
+    *cap = new_cap;
+}
+
+/* Grow an array of seq_t elements.  The cast is required for C++17. */
+static void ensure_cap_seq(size_t needed, size_t *cap, seq_t **arr)
+{
+    if (*arr && needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    *arr = mem_resize(seq_t, *arr, new_cap);
+    *cap = new_cap;
+}
 
 /* Test if x is prime using the primes that have already been found. */
 static bool is_prime_local(idx_t x, const seq_t *primes, size_t m)
 {
     if (x < 2) return false;
-    idx_t limit = int_sqrt(x);
+    idx_t limit = isqrt(x);
     for (size_t i = 0; i < m; ++i) {
         idx_t p = (idx_t)primes[i];
         if (p > limit) break;

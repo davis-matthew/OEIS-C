@@ -7,8 +7,9 @@
  * Keywords:  nonn, changed
  * Formula:   a(n) = (S+1)(S+2)/2 - m(n) where S = n(n+1)/2 and m(n) is 0 for
  *            n≤1, 1 for n=2, 4 for n=3, and 6 for n≥4
- * Range:     u8 n <= 6, u16 n <= 26, u32 n <= 39, u64 n <= 39, u128 n <= 39,
+ * Range:     u8 n <= 6, u16 n <= 26, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

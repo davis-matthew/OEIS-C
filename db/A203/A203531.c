@@ -9,14 +9,32 @@
  *            s(n)=(-1)^{popcount(n&(n>>1))}
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   parity_of_popcount_shift, sign_of
+ * Validated: standard, pass, 102 terms through n = 9917 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>          /* malloc, realloc, abort */
-#include "../utils/parity_of_popcount_shift.h"
-#include "../utils/sign_of.h"
+#include "../utils/mem.h"
+
+/* parity of popcount(n & (n>>1)) : 0 = even, 1 = odd */
+static int parity_of_popcount_shift(idx_t n)
+{
+    idx_t x = n & (n >> 1);
+    int p = 0;
+    while (x) {
+        p ^= 1;
+        x &= x - 1;
+    }
+    return p;
+}
+
+/* s(n) = +1 if parity is even, –1 otherwise */
+static int sign_of(idx_t n)
+{
+    return parity_of_popcount_shift(n) ? -1 : 1;
+}
 
 static seq_t *run_lengths   = NULL;
 static size_t  runs_cap     = 0;
@@ -33,7 +51,7 @@ static void grow_runs(size_t min_cap)
     size_t new_cap = runs_cap ? runs_cap << 1 : 4;
     while (new_cap < min_cap)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(run_lengths, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, run_lengths, new_cap);
     if (!tmp)
         abort();                      /* allocation failed */
     run_lengths = tmp;

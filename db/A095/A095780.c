@@ -11,13 +11,27 @@
  *            (has a digit ≥ 10) in base 13
  * Range:     u8 n <= 52, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   all_dec_digits
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/all_dec_digits.h"
+
+/* test whether all digits of m in the given base are <=9 */
+static inline bool all_dec_digits(seq_t m, int base)
+{
+    /* 0 is trivially okay */
+    if (m == 0) return true;
+    seq_t bd = (seq_t)base;
+    while (m > 0) {
+        seq_t d = m % bd;
+        if (d >= 10) return false;
+        m /= bd;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

@@ -12,7 +12,8 @@
  *            is an integer ⇔ D(k) divides binom(n,k). For k=1,...
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   divisible_by_prime
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 /* ---------- include needed headers ---------- */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/divisible_by_prime.h"
+
+/* ---------- test whether p divides binom(n,k) (Lucas' theorem) ---------- */
+static bool divisible_by_prime(idx_t n, idx_t k, uint32_t p)
+{
+    while (n > 0 || k > 0) {
+        idx_t n_mod = n % p;
+        idx_t k_mod = k % p;
+        if (k_mod > n_mod)
+            return true;            /* binom≡0 (mod p) */
+        n /= p;
+        k /= p;
+    }
+    return false;                   /* binom≠0 (mod p) */
+}
 
 /* ---------- static data for primes ---------- */
 static uint32_t *PRIMES = NULL;        /* list of primes up to current_limit+1 */

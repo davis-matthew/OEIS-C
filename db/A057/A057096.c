@@ -12,7 +12,8 @@
  *            of those primitives in ascending order of product...
  * Range:     u8 none, u16 none, u32 n <= 11, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   gcd_u64
+ * Validated: standard, pass, 53 terms through n = 8884 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* The build supplies the types 'seq_t' and 'idx_t' */
 static void init_primitives(void);
@@ -99,8 +101,8 @@ static void init_primitives(void)
         }
     }
     prim_count = count;
-    prim_prod = (seq_t *)malloc(prim_count * sizeof(seq_t));
-    heap = (struct HeapNode *)malloc(prim_count * sizeof(struct HeapNode));
+    prim_prod = mem_new(seq_t, prim_count);
+    heap = mem_new(struct HeapNode, prim_count);
 
     /* Generate primitives */
     size_t idx = 0;
@@ -161,7 +163,7 @@ static seq_t next_term(void)
             /* store it */
             if (cache.len == cache.cap) {
                 size_t new_cap = cache.cap ? cache.cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache.data, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache.data, new_cap);
                 cache.data = tmp;
                 cache.cap = new_cap;
             }

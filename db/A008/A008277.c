@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 58, u32 n <= 140, u64 n <= 358,
  *            u128 n <= 957, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 4356 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /*  Helper: integer square‑root for unsigned 64‑bit numbers      */
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
 
         /* Build missing rows one by one */
         for (idx_t i = max_row + 1; i <= r; ++i) {
-            s2_table[i] = (seq_t*)calloc((size_t)i + 1, sizeof(seq_t));
+            s2_table[i] = mem_new(seq_t, (size_t)i + 1);
             /* S2(i,1) = S2(i,i) = 1 */
             s2_table[i][1] = 1;
             s2_table[i][i] = 1;

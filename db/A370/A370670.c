@@ -9,12 +9,14 @@
  *            a(6)=702
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc and free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     /* Allocate a temporary buffer to hold the sequence up to n.
        The buffer is sized n+1 because we store a[0]..a[n]. */
-    seq_t *buf = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, (n + 1));
     if (!buf) return (seq_t)0;   /* graceful failure if memory cannot be allocated */
 
     /* Initialize the known first terms */
@@ -53,6 +55,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = buf[n];
-    free(buf);
+    mem_free(buf);
     return result;
 }

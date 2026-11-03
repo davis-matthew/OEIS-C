@@ -10,13 +10,15 @@
  *            pattern
  * Range:     u8 n <= 10, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: returns true if the base‑7 representation of x contains
    the substring 26 or 62.  */
@@ -56,7 +58,7 @@ seq_t a(idx_t n) {
             /* Ensure capacity for the new term. */
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 16;
-                seq_terms = (seq_t *)realloc(seq_terms, seq_cap * sizeof(seq_t));
+                seq_terms = mem_resize(seq_t, seq_terms, seq_cap);
             }
             seq_terms[seq_len++] = last_k;
         }

@@ -7,15 +7,18 @@
  * Formula:   a(n) = phi(n) * tau(n^2) (tau is the divisor–count function)
  * Range:     u8 n <= 35, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, phi
+ * Validated: standard, pass, 82 terms through n = 786 (2026-11-01)
+ * Helpers:   factor_u64, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/phi.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +26,7 @@ seq_t a(idx_t n)
         return (seq_t)0;                  /* sequence is defined for n≥1 */
 
     /* φ(n) */
-    seq_t phi_n = phi(n);                  /* helper from utils/phi.h */
+    seq_t phi_n = totient(n);                  /* helper from utils/phi.h */
 
     /* factorise n: pr[] holds primes, ex[] holds exponents */
     uint64_t pr[64];

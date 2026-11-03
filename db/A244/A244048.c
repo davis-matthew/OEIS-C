@@ -9,13 +9,29 @@
  *            (n-1)·n/2 (sum of proper divisors of all integers < n)
  * Range:     u8 n <= 30, u16 n <= 451, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sum_sigma_upto
+ * Validated: standard, pass, 68 terms through n = 9933 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sum_sigma_upto.h"
+
+static seq_t sum_sigma_upto(idx_t N)
+{
+    seq_t res = 0;
+    idx_t d = 1;
+    while (d <= N) {
+        idx_t q = N / d;            /* floor(N/d) */
+        idx_t last = N / q;         /* largest d with same quotient q */
+        /* sum of integers from d to last */
+        seq_t cnt   = (seq_t)(last - d + 1);
+        seq_t sum_d = ((seq_t)d + (seq_t)last) * cnt / 2;
+        res += sum_d * (seq_t)q;
+        d = last + 1;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

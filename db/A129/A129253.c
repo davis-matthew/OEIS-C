@@ -9,7 +9,8 @@
  *            with exponent e of p satisfying e ≥ p
  * Range:     u8 n <= 919, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 8979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t  _max_n = 0;
 static idx_t * _spf   = NULL;   /* smallest prime factor array */
@@ -52,7 +54,7 @@ a(idx_t n)
         idx_t new_max = n;
 
         _spf = (idx_t *)realloc(_spf, (new_max + 1) * sizeof(idx_t));
-        _cum = (seq_t *)realloc(_cum, (new_max + 1) * sizeof(seq_t));
+        _cum = mem_resize(seq_t, _cum, (new_max + 1));
 
         /* Initialize spf array. */
         for (idx_t i = 0; i <= new_max; ++i) {

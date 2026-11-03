@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 93, u32 n <= 169, u64 n <= 321,
  *            u128 n <= 625, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the value of a(n) for the OEIS sequence A017891. */
 seq_t a(idx_t n)
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
          * C-conformant; the type seq_t is assumed to be trivially
          * constructible in both C and C++. */
         cache_size = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL)
             return (seq_t)0; /* fallback – should never happen in tests */
 
@@ -49,8 +51,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary. */
     if (n >= cache_size) {
         idx_t new_size = n + 1;               /* include index n */
-        seq_t *new_cache = (seq_t *)realloc(cache,
-                                            sizeof(seq_t) * new_size);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (new_cache == NULL)
             return (seq_t)0;                 /* fallback */
         cache = new_cache;

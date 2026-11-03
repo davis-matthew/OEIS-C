@@ -8,6 +8,7 @@
  * Formula:   a(n) = ∏_{d∈digits of n, d≠0} d^d (empty product = 1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 38, u64 n <= 498,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 56 terms through n = 9344 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

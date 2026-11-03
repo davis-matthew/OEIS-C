@@ -8,6 +8,7 @@
  *            power of 2, 0 otherwise
  * Range:     i8 n <= 124, i16 n <= 124, i32 n <= 124, i64 n <= 124,
  *            i128 n <= 124, big any n
+ * Validated: partial, pass, 125 terms through n = 124 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

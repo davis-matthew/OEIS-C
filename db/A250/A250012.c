@@ -13,7 +13,8 @@
  *            current array
  * Range:     u8 none, u16 none, u32 n <= 7, u64 n <= 20, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define ALPHA          7U          /* alphabet 0..6 */
 #define STATE_COUNT   16807U        /* ALPHA^5 */
@@ -72,8 +74,8 @@ static void init_transitions(void)
     /* Allocate tables */
     nxt_state = (uint16_t*)malloc((size_t)STATE_COUNT * ALPHA * sizeof(uint16_t));
     allowed   = (uint8_t*)malloc((size_t)STATE_COUNT * ALPHA * sizeof(uint8_t));
-    dp        = (seq_t*)malloc((size_t)STATE_COUNT * sizeof(seq_t));
-    nextdp    = (seq_t*)malloc((size_t)STATE_COUNT * sizeof(seq_t));
+    dp        = mem_new(seq_t, (size_t)STATE_COUNT);
+    nextdp    = mem_new(seq_t, (size_t)STATE_COUNT);
 
     init_combos();
 
@@ -117,7 +119,7 @@ static void init_transitions(void)
     /* Prepare cache: cache[0] unused, cache_len==1 means nothing cached yet */
     cache_cap = 8;
     cache_len = 1;
-    cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache[0] = 0;
 }
 
@@ -129,7 +131,7 @@ static void compute_up_to(idx_t n)
 
     while (cur_len < target_len) {
         /* zero nextdp */
-        memset(nextdp, 0, (size_t)STATE_COUNT * sizeof(seq_t));
+        mem_set(nextdp, 0, (size_t)STATE_COUNT * sizeof(seq_t));
 
         /* transition */
         for (int s = 0; s < (int)STATE_COUNT; ++s) {
@@ -151,7 +153,7 @@ static void compute_up_to(idx_t n)
         /* cache the result for a( cur_len - 4 ) */
         if (cache_len >= cache_cap) {
             cache_cap = (cache_cap << 1) + 1;
-            cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len] = total;
         ++cache_len;

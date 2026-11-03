@@ -10,7 +10,8 @@
  *            3*d-93+720/d
  * Range:     u8 none, u16 n <= 19, u32 n <= 19, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         }
 
         /* Compute values for divisors d >= 15 (n >= -1) */
-        seq_t *vals = (seq_t *)malloc(div_cnt * sizeof(seq_t));
+        seq_t *vals = mem_new(seq_t, div_cnt);
         size_t val_cnt = 0;
 
         for (size_t i = 0; i < div_cnt; ++i) {

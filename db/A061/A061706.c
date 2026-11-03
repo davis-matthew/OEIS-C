@@ -11,12 +11,14 @@
  *            a(6)=185, a(7)=805, a(8)=3552, a(9)=15671, a(10)=68827
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 17, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     static idx_t  len   = 0;
     if (!cache) {
         cap = 16;                     /* initial capacity */
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
 
         /* base values 0..10 */
         cache[0] = 0;   cache[1] = 0;   cache[2] = 1;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     while (len <= n) {
         if (len == cap) {
             cap <<= 1;                           /* double capacity */
-            cache = (seq_t*)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
         }
 
         __int128 sum = 0;

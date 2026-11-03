@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 21, u64 n <= 253, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 939 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* Binomial coefficients C(10,k) */
 static const unsigned int binom10[11] = {
@@ -56,12 +58,12 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < (size_t)n + 1)
         new_cap = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp)
         abort();
     if (cache) {
-        memcpy(tmp, cache, cache_cap * sizeof(seq_t));
-        free(cache);
+        mem_copy(tmp, cache, cache_cap * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = tmp;
     cache_cap = new_cap;

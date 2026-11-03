@@ -13,8 +13,8 @@
  *            its multiplicative * factorizations, and...
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   build_primes_upto, cmp_idx_desc, floor_sqrt, is_power_of_two,
- *            pow_seq
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow_i32, is_pow2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,10 +24,39 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/is_power_of_two.h"
-#include "../utils/floor_sqrt.h"
-#include "../utils/pow_seq.h"
-#include "../utils/cmp_idx_desc.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/is_pow2.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* ----------------------------------------------------------------------
+ * Helper: comparison for qsort, descending order
+ * ---------------------------------------------------------------------- */
+static int cmp_idx_desc(const void *a, const void *b)
+{
+    idx_t va = *(const idx_t *)a;
+    idx_t vb = *(const idx_t *)b;
+    if (va < vb) return 1;
+    if (va > vb) return -1;
+    return 0;
+}
 
 /* ----------------------------------------------------------------------
  * Global data: primes list and sequence cache
@@ -97,7 +126,7 @@ static seq_t inverse_prime_shadow(idx_t n)
     seq_t result = (seq_t)1;
     for (int i = 0; i < idx_cnt; ++i) {
         uint64_t prime_val = primes[i];          /* i-th prime (0‑based) */
-        result *= pow_seq((seq_t)prime_val, indices[i]);
+        result *= ipow_i32((seq_t)prime_val, indices[i]);
     }
     return result;
 }
@@ -150,11 +179,11 @@ seq_t a(idx_t n)
         /* Evaluate candidate number */
         seq_t shadow = inverse_prime_shadow(next_candidate);
         seq_t fac_cnt = count_factorizations(shadow);
-        if (is_power_of_two(fac_cnt)) {
+        if (is_pow2(fac_cnt)) {
             /* store in cache */
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 16;
-                seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
             }
             seq_cache[seq_len++] = (seq_t)next_candidate;
         }

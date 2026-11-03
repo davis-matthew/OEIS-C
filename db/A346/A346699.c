@@ -9,7 +9,8 @@
  *            number is n
  * Range:     u8 n <= 1618, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 5902 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static prime table */
 static uint64_t *prime_list  = NULL;  /* ascending list of primes */
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
     /* Factor n into primes, collecting their indices (with multiplicity). */
     uint64_t m = (uint64_t)n;
     size_t  cap   = 64;                     /* sufficient for n ≤ 64‑bit */
-    seq_t  *idx_arr = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t  *idx_arr = mem_new(seq_t, cap);
     if (idx_arr == NULL) return 0;          /* memory error – fallback */
 
     size_t idx_cnt = 0;
@@ -100,8 +102,8 @@ seq_t a(idx_t n)
         while (m % p == 0) {
             if (idx_cnt >= cap) {
                 cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(idx_arr, cap * sizeof(seq_t));
-                if (tmp == NULL) { free(idx_arr); return 0; }
+                seq_t *tmp = mem_resize(seq_t, idx_arr, cap);
+                if (tmp == NULL) { mem_free(idx_arr); return 0; }
                 idx_arr = tmp;
             }
             idx_arr[idx_cnt++] = (seq_t)prime_index(p);
@@ -111,14 +113,14 @@ seq_t a(idx_t n)
     if (m > 1) {   /* remaining prime factor */
         if (idx_cnt >= cap) {
             cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(idx_arr, cap * sizeof(seq_t));
-            if (tmp == NULL) { free(idx_arr); return 0; }
+            seq_t *tmp = mem_resize(seq_t, idx_arr, cap);
+            if (tmp == NULL) { mem_free(idx_arr); return 0; }
             idx_arr = tmp;
         }
         idx_arr[idx_cnt++] = (seq_t)prime_index(m);
     }
 
-    if (idx_cnt == 0) { free(idx_arr); return 0; }   /* should not happen for n>1 */
+    if (idx_cnt == 0) { mem_free(idx_arr); return 0; }   /* should not happen for n>1 */
 
     /* Sort indices in descending order (largest first).  Simple insertion sort. */
     for (size_t i = 1; i < idx_cnt; ++i) {
@@ -136,6 +138,6 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < idx_cnt; i += 2)
         sum += idx_arr[i];
 
-    free(idx_arr);
+    mem_free(idx_arr);
     return sum;
 }

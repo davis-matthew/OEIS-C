@@ -11,13 +11,25 @@
  *            by the 10 fixed grid points listed in the OEIS entry
  * Range:     u8 n <= 7, u16 n <= 120, u32 n <= 120, u64 n <= 120,
  *            u128 n <= 120, big any n
- * Helpers:   seq_cmp
+ * Validated: full, pass, 120 terms through n = 120 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_cmp.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +45,7 @@ seq_t a(idx_t n)
             {18,0}, {19,5}
         };
         const idx_t total = 120;          /* C(10,3) */
-        areas = (seq_t *)malloc(total * sizeof(seq_t));
+        areas = mem_new(seq_t, total);
         if (!areas) return 0;            /* allocation failed */
 
         idx_t pos = 0;
@@ -50,7 +62,7 @@ seq_t a(idx_t n)
             }
         }
         n_terms = pos;
-        qsort(areas, n_terms, sizeof(seq_t), seq_cmp);
+        mem_qsort(areas, n_terms, sizeof(seq_t), seq_cmp);
     }
 
     if (n < 1 || n > n_terms) return 0;   /* out of range */

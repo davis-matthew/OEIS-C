@@ -8,7 +8,8 @@
  * Formula:   a(n) = sigma( least integer with the same prime signature as n )
  * Range:     u8 n <= 119, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 94 terms through n = 9775 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* The first thirty primes are sufficient for all 64‑bit
    integers (the product of the first 30 primes far exceeds 2^64). */
@@ -58,7 +61,7 @@ seq_t a(idx_t n)
     /* For each exponent, compute the sigma factor for the
        corresponding smallest prime. */
     for (size_t i = 0; i < cnt; ++i) {
-        seq_t pow_term    = big_pow((seq_t)_small_primes[i],
+        seq_t pow_term    = ipow((seq_t)_small_primes[i],
                                     (idx_t)(expos[i] + 1ULL));
         seq_t numerator   = pow_term - (seq_t)1;
         seq_t denominator = (seq_t)(_small_primes[i] - 1ULL);

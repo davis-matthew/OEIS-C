@@ -6,9 +6,10 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, tabf, changed
  * Formula:   not stated
- * Range:     u8 n <= 4780, u16 n <= 9978, u32 n <= 9978, u64 n <= 9978,
- *            u128 n <= 9978, big any n
- * Helpers:   none
+ * Range:     u8 n <= 4780, u16 n <= 10094, u32 n <= 10094, u64 n <= 10094,
+ *            u128 n <= 10094, big any n
+ * Validated: standard, pass, 101 terms through n = 9978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- global data ---------- */
 static uint64_t *primes = NULL;                /* list of primes (ascending)          */
@@ -132,7 +134,7 @@ static void add_row(uint64_t row)
         seq_t val = sum - 1;
         if (terms_cnt == terms_cap) {
             terms_cap = terms_cap ? terms_cap * 2 : 4;
-            terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, terms_cap);
         }
         terms[terms_cnt++] = val;
         prior = (seq_t)prime_indices[j];

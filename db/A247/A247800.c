@@ -13,13 +13,15 @@
  *            sorting the...
  * Range:     u8 n <= 1, u16 n <= 123, u32 n <= 990, u64 n <= 992,
  *            u128 n <= 992, big any n
- * Helpers:   none
+ * Validated: full, pass, 992 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const int order[10] = {4,9,2,1,0,8,5,7,6,3};
 static seq_t *seq_arr = NULL;
@@ -28,7 +30,7 @@ static size_t seq_len = 0;
 static void init_seq(void)
 {
     const size_t cap = 1023;                      /* 2^10 – 1 subsets */
-    seq_arr = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_arr = mem_new(seq_t, cap);
     seq_len = 0;
 
     const uint16_t mask0    = 1u << 0;                                 /* digit 0 */

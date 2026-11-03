@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 689, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   largest_digit_is_six_uint128
+ * Validated: standard, pass, 76 terms through n = 9786 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,23 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/largest_digit_is_six_uint128.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------
+   Local helper:  check whether the greatest decimal digit of a
+   128‑bit number is exactly 6.  This routine is independent of the
+   width of seq_t. */
+static bool largest_digit_is_six_uint128(unsigned __int128 x)
+{
+    bool seen6 = false;
+    while (x > 0) {
+        unsigned d = (unsigned)(x % 10);
+        if (d > 6) return false;      /* a higher digit appears   */
+        if (d == 6) seen6 = true;
+        x /= 10;
+    }
+    return seen6;
+}
 
 /* Utility supplied by the build – used only for very large values of
    seq_t; the cube is computed directly in the implementation below. */
@@ -44,7 +61,7 @@ static void grow_cache(size_t new_cap)
     while (cap < new_cap)
         cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cap);
     if (!tmp)
         abort();                    /* allocation failure */
 

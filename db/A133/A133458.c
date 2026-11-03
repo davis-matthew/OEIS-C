@@ -12,6 +12,7 @@
  *            (1 + x + … + x^(n-1))^7
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 45, u64 n <= 1817,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 43 terms through n = 8097 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

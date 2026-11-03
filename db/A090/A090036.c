@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   inc_count
+ * Validated: full, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/inc_count.h"
+#include "../utils/mem.h"
+
+/* Increment a value in the counts array */
+static inline void inc_count(seq_t *arr, idx_t idx) {
+    arr[idx] = arr[idx] + 1;
+}
 
 /* factorials up to 10! for Lehmer code */
 static const idx_t fact[11] = {
@@ -144,7 +150,7 @@ seq_t a(idx_t n) {
         }
 
         /* ---------- Count distribution of distances ---------- */
-        counts = (seq_t*)malloc((max_dist + 1) * sizeof(seq_t));
+        counts = mem_new(seq_t, (max_dist + 1));
         if (!counts) { free(distance); free(queue); return (seq_t)0; }
         for (idx_t i = 0; i <= max_dist; ++i) counts[i] = (seq_t)0;
 

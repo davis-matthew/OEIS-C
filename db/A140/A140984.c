@@ -11,13 +11,15 @@
  *            ⌊n/2⌋.)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t pow_seq(seq_t base, idx_t exp)
 {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         m = n >> 1;                /* floor(n/2) */
         exp_rows = (n - 1) >> 1;   /* (n‑1)/2  */
         /* precompute binom(m, k) for all k = 0..m */
-        binom_m = (seq_t*)malloc((m + 1) * sizeof(seq_t));
+        binom_m = mem_new(seq_t, (m + 1));
         binom_m[0] = 1;
         for (idx_t k = 1; k <= m; ++k)
             binom_m[k] = binom_m[k - 1] * (m - k + 1) / k;
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
 
     /* free temporary array */
     if (binom_m)
-        free(binom_m);
+        mem_free(binom_m);
 
     return sum / 2;   /* halve the count as specified in the sequence */
 }

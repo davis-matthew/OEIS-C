@@ -10,15 +10,18 @@
  *            prime p in n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, twopow
+ * Validated: standard, pass, 111 terms through n = 8958 (2026-11-01)
+ * Helpers:   factor_u64, pow2_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* provides factor_u64() */
-#include "../utils/twopow.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/pow2_u32.h"
 
 seq_t a(idx_t n)
 {
@@ -36,6 +39,6 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i) sum_exp += (seq_t)exps[i];
 
     /* a(n) = 2^ω(n) + Σ e(p) – ω(n) */
-    seq_t result = twopow(omega) + sum_exp - (seq_t)omega;
+    seq_t result = pow2_u32(omega) + sum_exp - (seq_t)omega;
     return result;
 }

@@ -9,13 +9,15 @@
  *            (a(0), …, a(6)) = (0, 2, 5, 10, 17, 25, 36)
  * Range:     u8 n <= 16, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,10 +34,10 @@ seq_t a(idx_t n)
         idx_t new_cap = seq_cap > 0 ? seq_cap : 16;    /* start with 16 entries */
         while (new_cap < n + 1) new_cap <<= 1;        /* double until enough */
 
-        seq_t *new_seq = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_seq = mem_new(seq_t, new_cap);
         if (seq) {
-            memcpy(new_seq, seq, seq_len * sizeof(seq_t));
-            free(seq);
+            mem_copy(new_seq, seq, seq_len * sizeof(seq_t));
+            mem_free(seq);
         }
         seq = new_seq;
         seq_cap = new_cap;

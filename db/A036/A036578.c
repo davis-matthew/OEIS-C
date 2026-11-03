@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    starting with the symbol 1.  The nth element of the infinite fixed
    point is returned. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*------ mapping of the morphism ------------------------------------*/
 static const seq_t map0[2] = { 1, 2 };      /* 0 → 12 */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
 
     /* initialise the first word (just the starting symbol 1) */
     if (current == NULL) {
-        current = (seq_t *)malloc(sizeof(seq_t));
+        current = mem_new(seq_t, 1);
         current[0] = 1;
         cur_len = 1;
     }
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
             new_len += rep_len[(size_t)current[i]];
 
         /* allocate buffer for the expansion */
-        seq_t *next = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, new_len);
 
         /* fill the next buffer with the expansion */
         size_t pos = 0;
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         }
 
         /* swap buffers */
-        free(current);
+        mem_free(current);
         current = next;
         cur_len = new_len;
     }

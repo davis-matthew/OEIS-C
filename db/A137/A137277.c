@@ -13,13 +13,20 @@
  *            sequence lists the coefficients of each row in order of...
  * Range:     i8 n <= 28, i16 n <= 92, i32 n <= 92, i64 n <= 92, i128 n <= 92,
  *            big any n
- * Helpers:   binomial, prefix
+ * Validated: partial, pass, 93 terms through n = 92 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/prefix.h"
+
+static inline idx_t prefix(idx_t r)
+{
+    /* cumulative number of terms up to and including row r: (r+1)(r+2)/2 */
+    return (idx_t)((unsigned __int128)(r + 1) * (r + 2) / 2);
+}
 
 seq_t a(idx_t n)
 {

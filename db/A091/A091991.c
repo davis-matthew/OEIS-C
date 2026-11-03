@@ -10,9 +10,10 @@
  *            so that the result * is a prime. The function searches insertion
  *            counts in increasing order * using a recursive stars‑and‑bars
  *            composition enumeration and tests each * constr...
- * Range:     u8 n <= 9796, u16 n <= 9796, u32 n <= 9796, u64 n <= 9796,
- *            u128 n <= 9796, big any n
- * Helpers:   isPrime
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 118 terms through n = 9796 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/isPrime.h"   /* assumes isPrime(idx_t) is available */
+#include "../utils/is_prime.h"
 
 /* Recursive search over compositions of 'rem' into 'k' parts.
  * If a prime is found, *found is set to true and the function returns true. */
@@ -42,7 +43,7 @@ static bool search_comps(int pos, int rem, int k, int *cnt, const uint8_t *bits,
         for (int j = 0; j < cnt[k - 1]; ++j)
             val = val * 2 + 1;
 
-        if (isPrime(val)) {
+        if (is_prime(val)) {
             *found = true;
             return true;
         }

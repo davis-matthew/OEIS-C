@@ -8,12 +8,14 @@
  * Formula:   a(n) = 2*a(n-1) + 8*a(n-4) with a(1)=1, a(2)=2, a(3)=4, a(4)=8
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 49, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache: cache[0] holds a(1), cache[1] holds a(2), etc. */
 static seq_t *cache = NULL;
@@ -32,10 +34,10 @@ seq_t a(idx_t n)
     /* Grow the cache to hold terms up to n. */
     seq_t *new_cache;
     if (cache == NULL) {
-        new_cache = (seq_t *)malloc(n * sizeof(seq_t));
+        new_cache = mem_new(seq_t, n);
         if (!new_cache) abort();   /* allocation failed */
     } else {
-        new_cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        new_cache = mem_resize(seq_t, cache, n);
         if (!new_cache) abort();   /* allocation failed */
     }
     cache = new_cache;

@@ -12,7 +12,8 @@
  *            and the upper-left element is zero
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static bool valid_row(uint8_t above, bool has_above,
                       uint8_t curr,
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
     /* DP arrays: dp holds paths ending with rows (prevprev, prev) */
     static seq_t dp[4096];
     static seq_t ndp[4096];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* Initial step: choose row1 with bit0==0, and any row2 */
     for (int r1 = 0; r1 < 64; ++r1) {
@@ -123,7 +125,7 @@ seq_t a(idx_t n)
 
     /* Process rows 3 .. n */
     for (idx_t row = 3; row <= n; ++row) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
         for (int cur = 0; cur < 4096; ++cur) {
             seq_t cnt = dp[cur];
             if (cnt == (seq_t)0) continue;
@@ -136,7 +138,7 @@ seq_t a(idx_t n)
                 ndp[nidx] += cnt;
             }
         }
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     /* Finalization: verify last row (prev) with no below neighbors */

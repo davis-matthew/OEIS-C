@@ -9,15 +9,27 @@
  *            This recurrence reproduces OEIS A074134
  * Range:     u8 n <= 23, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   is_excep, is_pow3
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_excep.h"
-#include "../utils/is_pow3.h"
+
+static bool is_pow3(idx_t v)
+{
+    if (v < 1) return false;
+    while (v % 3 == 0) v /= 3;
+    return v == 1;
+}
+
+static bool is_excep(idx_t n)
+{
+    /* n is exceptional if n+1 or n+2 is a power of 3. */
+    return is_pow3(n + 1) || is_pow3(n + 2);
+}
 
 seq_t a(idx_t n)
 {

@@ -10,8 +10,9 @@
  *            = 1 + (r-1)*(c-1) (r,c ≥ 1) row‑by‑row. For a given linear index
  *            n ≥ 1 find the row r where S(r-1) < n ≤ S(r), with S(r) =
  *            r*(r+1)/2, then c = n - S(r-1), and return T(r,c)
- * Range:     u8 n <= 151, u16 n <= 9207, u32 n <= 9207, u64 n <= 9207,
- *            u128 n <= 9207, big any n
+ * Range:     u8 n <= 151, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 94 terms through n = 9207 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

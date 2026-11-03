@@ -5,22 +5,26 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = phi(n) - prod_{p | n} gcd(p-1, n-1)
- * Range:     u8 n <= 257, u16 n <= 9837, u32 n <= 9837, u64 n <= 9837,
- *            u128 n <= 9837, big any n
- * Helpers:   factorize, gcd, phi
+ * Range:     u8 n <= 257, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 112 terms through n = 9837 (2026-11-01)
+ * Helpers:   factorize, gcd, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factorize.h"
 #include "../utils/gcd.h"
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 /* Compute a(n) for n >= 1 */
 seq_t a(idx_t n)
 {
     /* Compute phi(n) */
-    seq_t phi_val = phi(n);
+    seq_t phi_val = totient(n);
 
     /* Edge case n == 1: product is 1 by convention */
     seq_t prod = 1;

@@ -9,7 +9,8 @@
  *            same non‑zero number of 3’s and 6’s
  * Range:     u8 n <= 4, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   check_property
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/check_property.h"
+#include "../utils/mem.h"
+
+static bool check_property(seq_t x)
+{
+    size_t cnt3 = 0, cnt6 = 0;
+    seq_t tmp = x;
+    while (tmp > 0) {
+        unsigned digit = (unsigned)(tmp % (seq_t)11);
+        if (digit == 3)
+            ++cnt3;
+        else if (digit == 6)
+            ++cnt6;
+        tmp /= (seq_t)11;
+    }
+    return (cnt3 > 0 && cnt6 > 0 && cnt3 == cnt6);
+}
 
 static seq_t *seq_cache = NULL;
 static size_t seq_len  = 0;
@@ -31,9 +47,9 @@ static void seq_grow(size_t needed)
         if (new_cap < needed)
             new_cap = needed;
         if (seq_cache)
-            seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         else
-            seq_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_cache = mem_new(seq_t, new_cap);
         seq_cap = new_cap;
     }
 }

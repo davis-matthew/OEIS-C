@@ -7,11 +7,13 @@
  * Formula:   a(n) = (3^(9 + n) - 3^(11 - n)) / 2 for 1 ≤ n ≤ 11; otherwise 0
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
+ * Validated: full, pass, 11 terms through n = 11 (2026-11-02)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/pow3.h"
 
 seq_t a(idx_t n)

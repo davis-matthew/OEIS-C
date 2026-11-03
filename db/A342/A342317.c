@@ -9,14 +9,17 @@
  * Formula:   T(n,k) = binom(n+1,k) * (2^(n+2k) + 2^(2n+1+k) - 2^k)
  * Range:     u8 n <= 6, u16 n <= 21, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 36 terms through n = 34 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(n) is the sequence a(-1)=0, then the triangle rows read left to right: */
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -44,9 +47,9 @@ seq_t a(idx_t n)
 
     /* compute T(r,j) */
     seq_t bin = binomial(r + 1, j);
-    seq_t term1 = pow_uint(2, r + 2 * j);           /* 2^(n+2k)  */
-    seq_t term2 = pow_uint(2, 2 * r + 1 + j);       /* 2^(2n+1+k) */
-    seq_t term3 = pow_uint(2, j);                   /* 2^k       */
+    seq_t term1 = ipow_u64_idx(2, r + 2 * j);           /* 2^(n+2k)  */
+    seq_t term2 = ipow_u64_idx(2, 2 * r + 1 + j);       /* 2^(2n+1+k) */
+    seq_t term3 = ipow_u64_idx(2, j);                   /* 2^k       */
     seq_t inside = term1 + term2;
     inside -= term3;
 

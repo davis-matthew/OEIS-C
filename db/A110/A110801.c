@@ -7,14 +7,16 @@
  * Formula:   a(n) = the n-th positive integer k such that 12*k + 1 is prime
  * Range:     u8 n <= 103, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 80 terms through n = 997 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(uint64_t n) */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     for (;; ++k)
     {
         uint64_t candidate = 12ULL * (uint64_t)k + 1ULL;
-        if (is_prime(candidate))
+        if (is_prime_u64(candidate))
         {
             ++count;
             if (count == n)

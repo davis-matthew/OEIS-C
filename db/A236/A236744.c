@@ -12,7 +12,8 @@
  *            is used
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 9, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define ROWS 2187        /* 3^7 possible rows */
 #define SBITS 5          /* S ranges 0..4 */
@@ -126,8 +128,8 @@ seq_t a(idx_t n)
     static seq_t *dp_cur = NULL, *dp_next = NULL;
     static size_t dp_cap = 0;
     if (dp_cap < ROWS) {
-        dp_cur = (seq_t *)calloc(ROWS, sizeof(seq_t));
-        dp_next = (seq_t *)calloc(ROWS, sizeof(seq_t));
+        dp_cur = mem_new(seq_t, ROWS);
+        dp_next = mem_new(seq_t, ROWS);
         dp_cap = ROWS;
     }
     seq_t result = 0;
@@ -137,7 +139,7 @@ seq_t a(idx_t n)
         for (int i = 0; i < ROWS; ++i) dp_cur[i] = (seq_t)1;
 
         for (idx_t step = 1; step <= n; ++step) {
-            memset(dp_next, 0, ROWS * sizeof(seq_t));
+            mem_set(dp_next, 0, ROWS * sizeof(seq_t));
             for (int a = 0; a < ROWS; ++a) {
                 seq_t ways = dp_cur[a];
                 if (!ways) continue;

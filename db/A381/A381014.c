@@ -10,7 +10,8 @@
  *            a(1)=0
  * Range:     u8 n <= 16, u16 n <= 46, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 /* factor_u64 is provided in the OEIS utils repository. */
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Cached partition numbers.  part_cache[i] holds p(i) for i ≤ part_max. */
 static seq_t *part_cache = NULL;
@@ -34,7 +36,7 @@ static void recompute_partitions(idx_t limit)
 {
     /* Allocate or enlarge the cache.  Use a cast in C++ as required. */
     size_t new_cap = (size_t)(limit + 1);
-    seq_t *tmp = (seq_t*)realloc(part_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, part_cache, new_cap);
     /* In the unlikely event of malloc failure exit immediately. */
     if (!tmp) { exit(EXIT_FAILURE); }
 

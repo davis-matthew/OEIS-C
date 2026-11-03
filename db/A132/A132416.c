@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 28, u32 n <= 57, u64 n <= 116,
  *            u128 n <= 231, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 58 terms through n = 5965 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 typedef struct {
     seq_t value;     /* current value d^k */
@@ -49,7 +50,7 @@ seq_t a(idx_t n)
         nodes[i].d          = d;
         nodes[i].step       = step;
         nodes[i].exp        = 1;
-        nodes[i].value      = big_pow((seq_t)d, (seq_t)1);
+        nodes[i].value      = ipow((seq_t)d, (seq_t)1);
         nodes[i].exhausted  = false;
     }
 
@@ -79,7 +80,7 @@ seq_t a(idx_t n)
 
         /* advance this base to the next admissible exponent */
         nodes[minIdx].exp += nodes[minIdx].step;
-        seq_t newVal = big_pow((seq_t)nodes[minIdx].d,
+        seq_t newVal = ipow((seq_t)nodes[minIdx].d,
                                (seq_t)nodes[minIdx].exp);
         /* check for overflow: for increasing exponent the value should not
            decrease. If it does, we mark this series as exhausted.   */

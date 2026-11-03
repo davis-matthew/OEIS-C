@@ -12,9 +12,10 @@
  *            integers, reading points by increasing antidiagonal (downwards),
  *            with the constraint that any two points at a knight's move
  *            distance must receive different labels. The algorithm builds...
- * Range:     u8 n <= 9541, u16 n <= 9541, u32 n <= 9541, u64 n <= 9541,
- *            u128 n <= 9541, big any n
- * Helpers:   _triangular_root
+ * Range:     u8 n <= 10010, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 107 terms through n = 9541 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/_triangular_root.h"
+#include "../utils/mem.h"
+
+/* Integer square‑root for triangular numbers  (used only for coord conversion). */
+static inline idx_t _triangular_root(idx_t n)
+{
+    double d = sqrt((double)8 * n + 1.0);
+    idx_t s = (idx_t)((d - 1.0) / 2.0);
+    while (s * (s + 1) / 2 > n) --s;
+    while ((s + 1) * (s + 2) / 2 <= n) ++s;
+    return s;
+}
 
 /* Cache of computed labels – grows only forwards. */
 static seq_t *label_cache = NULL;
@@ -49,7 +60,7 @@ seq_t a(idx_t n)
     if (n >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 128;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(label_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, label_cache, new_cap);
         label_cache = tmp;
         cache_cap   = new_cap;
     }

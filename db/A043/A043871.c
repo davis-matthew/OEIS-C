@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    without leading zeros. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation */
 static seq_t *cache = NULL;          /* Array of found numbers */
@@ -48,7 +50,7 @@ static void extend_cache_to(idx_t n)
         if (runs % 10 == 4) {        /* Record numbers satisfying the property */
             if (cache_used == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 cache_cap = new_cap;
             }

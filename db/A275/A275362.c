@@ -11,13 +11,15 @@
  *            the exceptions: a(6)=7, a(7)=9, a(11)=2
  * Range:     i8 n <= 115, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached sequence values   */
 static size_t cache_capacity = 0;    /* allocated size of cache   */
@@ -32,7 +34,7 @@ static void ensure_cache_for(idx_t n)
     /* Allocate or grow buffer. */
     if ((size_t)n + 1 > cache_capacity) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_capacity = new_cap;
     }

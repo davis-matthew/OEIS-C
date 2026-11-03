@@ -8,7 +8,8 @@
  *            (1 + x + … + x^{2i-1})
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 12, u64 n <= 46, u128 n <= 702,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 703 terms through n = 702 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>   /* for malloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (coeffs == NULL) {
         /* Start with f(27) = 1 + x + … + x^26 */
         idx_t maxdeg = 26;                 /* current maximum degree */
-        seq_t *res = (seq_t*)malloc((maxdeg + 1) * sizeof(seq_t));
+        seq_t *res = mem_new(seq_t, (maxdeg + 1));
         if (res == NULL) return 0;          /* allocation failed → zero */
         for (idx_t i = 0; i <= maxdeg; ++i)
             res[i] = 1;                      /* coefficient 1 for each power */
@@ -40,10 +42,10 @@ seq_t a(idx_t n)
             /* f(2i) has coefficients 1 for powers 0 .. (2*i-1) */
             idx_t m = 2 * i;                 /* length of f(2i) = 2*i */
             idx_t new_deg = maxdeg + (m - 1);
-            seq_t *new_res = (seq_t*)malloc((new_deg + 1) * sizeof(seq_t));
+            seq_t *new_res = mem_new(seq_t, (new_deg + 1));
             if (new_res == NULL) {
                 /* Allocation failed: free and abort, return zero */
-                free(res);
+                mem_free(res);
                 return 0;
             }
             for (idx_t j = 0; j <= new_deg; ++j)
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
                     new_res[a + b] += val;
                 }
             }
-            free(res);
+            mem_free(res);
             res = new_res;
             maxdeg = new_deg;
         }

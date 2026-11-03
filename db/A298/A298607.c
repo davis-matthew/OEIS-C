@@ -8,8 +8,8 @@
  *            the digit 0
  * Range:     u8 none, u16 n <= 3, u32 n <= 11, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   digit_frequencies, mul_small, seq_alloc_new_array,
- *            seq_free_array
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   digit_frequencies, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +17,31 @@
 /* Implementation: incremental generation with caching. */
 
 #include <stddef.h>
-#include "../utils/mul_small.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/digit_frequencies.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *cache_ptr = NULL;
 static idx_t cache_cap = 0;

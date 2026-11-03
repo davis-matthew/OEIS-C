@@ -8,6 +8,7 @@
  * Formula:   a(n) = leading_digit(n) * sum_of_squares_of_digits(n)
  * Range:     u8 n <= 6, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 82 terms through n = 9916 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

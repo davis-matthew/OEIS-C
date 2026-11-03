@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n/n! in sin(x)*exp(sinh(x))
  * Range:     i8 n <= 7, i16 n <= 11, i32 n <= 17, i64 n <= 28, i128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for the auxiliary sequence b(n) */
 static seq_t *b_cache = NULL;    /* array of b values */
@@ -33,7 +35,7 @@ static void ensure_b(idx_t n)
     idx_t new_capacity = (b_max == 0) ? 1 : b_max * 2;
     while (new_capacity < n + 1) new_capacity <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(b_cache, new_capacity * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, b_cache, new_capacity);
     if (!new_cache) exit(EXIT_FAILURE);     /* allocation failed */
     b_cache = new_cache;
 

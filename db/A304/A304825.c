@@ -12,7 +12,8 @@
  *            /((1-q^2)(1-q^4)) * Prod_{j>=1} 1/(1-q^j)
  * Range:     u8 n <= 18, u16 n <= 40, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *p_arr = NULL;      /* partition numbers p[0..N]     */
 static seq_t *a_arr = NULL;      /* results a[0..N]               */
@@ -32,8 +34,8 @@ static void ensure_capacity(idx_t N)
     if (capacity > (size_t)N) return;
     size_t new_cap = capacity ? capacity << 1 : 16;
     while (new_cap <= (size_t)N) new_cap <<= 1;
-    p_arr = (seq_t *)realloc(p_arr, new_cap * sizeof(seq_t));
-    a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+    p_arr = mem_resize(seq_t, p_arr, new_cap);
+    a_arr = mem_resize(seq_t, a_arr, new_cap);
     for (size_t i = capacity; i < new_cap; ++i) {
         p_arr[i] = 0;
         a_arr[i] = 0;

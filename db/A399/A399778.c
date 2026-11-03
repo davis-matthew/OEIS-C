@@ -13,12 +13,13 @@
  *            smaller
  * Range:     u8 none, u16 none, u32 n <= 2, u64 n <= 3, u128 n <= 5,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: standard, pass, 23 terms through n = 62 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -41,14 +42,14 @@ seq_t a(idx_t n)
         seq_t term2 = c * c - 4 * (nn + 1) * (nn + 1) * kk * kk;
 
         /* cancel with remaining part of the divisor */
-        seq_t g = seq_gcd(term1, denom);
+        seq_t g = gcd(term1, denom);
         if (g > 1) {
             term1 /= g;
             denom /= g;
         }
         prod *= term1;
 
-        g = seq_gcd(term2, denom);
+        g = gcd(term2, denom);
         if (g > 1) {
             term2 /= g;
             denom /= g;

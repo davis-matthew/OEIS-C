@@ -9,12 +9,14 @@
  *            r = floor((sqrt(8*n+1)-1)/2). v5(m!) = Sum_{i>=1} floor(m / 5^i)
  * Range:     u8 n <= 7874, u16 n <= 7874, u32 n <= 7874, u64 n <= 7874,
  *            u128 n <= 7874, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 104 terms through n = 7781 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 static inline idx_t legendre5(idx_t n) {
     idx_t count = 0;
@@ -43,5 +45,5 @@ seq_t a(idx_t n) {
     /* Compute exponent via Legendre's formula for 5-adic valuation. */
     idx_t exp = legendre5(r) - legendre5(k) - legendre5(r - k);
 
-    return pow_uint(5, exp);
+    return ipow_u64_idx(5, exp);
 }

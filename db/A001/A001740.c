@@ -7,6 +7,7 @@
  * Formula:   a(n) = A007091(A000290(n)) - square of n written in base 5
  * Range:     u8 n <= 8, u16 n <= 55, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 59 terms through n = 837 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

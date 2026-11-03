@@ -8,14 +8,15 @@
  *            k. Implements a brute‑force search with efficient residue checks
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   gcd_uint64
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* Euclidean gcd for 64‑bit integers. */
 
@@ -97,7 +98,7 @@ static bool is_6th_power_residue_modulo_k(uint64_t n, uint64_t k) {
                 for (uint64_t i = 0; i < exp_mod - 1; ++i) pe1 *= p;
                 seq_t phi = pe1 * (p - 1);
 
-                uint64_t g = gcd_uint64(6, (uint64_t)phi);
+                uint64_t g = gcd_u64(6, (uint64_t)phi);
                 uint64_t exp = (uint64_t)(phi) / g;      /* φ/g */
 
                 seq_t u_mod = tmp % modulus;
@@ -120,7 +121,7 @@ static bool is_6th_power_residue_modulo_k(uint64_t n, uint64_t k) {
 
             seq_t modulus = p;                 /* p^1 */
             seq_t phi = p - 1;
-            uint64_t g = gcd_uint64(6, (uint64_t)phi);
+            uint64_t g = gcd_u64(6, (uint64_t)phi);
             uint64_t exp = (uint64_t)(phi) / g;
             seq_t u_mod = tmp % modulus;
             if (mod_pow(u_mod, exp, modulus) != (seq_t)1) return false;

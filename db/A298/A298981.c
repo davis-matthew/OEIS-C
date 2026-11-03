@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   digits_of, pow10
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,15 +18,27 @@
  * floor(10^d * k / m) = m, where d = #decimal digits of m.
  * The algorithm checks each candidate m sequentially and
  * stops when the nth valid m is found. */
-#include "../utils/digits_of.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 #include <stdbool.h>
 
 seq_t a(idx_t n)
 {
     idx_t count = 0;
     for (idx_t m = 1; ; ++m) {
-        int d = digits_of(m);            /* number of decimal digits of m   */
+        int d = num_digits_idx(m);            /* number of decimal digits of m   */
         seq_t div = pow10(d);            /* 10^d as seq_t                    */
         seq_t ms   = (seq_t)m;           /* m as seq_t                        */
         seq_t sq   = ms * ms;            /* m^2                               */

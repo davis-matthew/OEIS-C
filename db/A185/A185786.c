@@ -9,12 +9,14 @@
  *            antidiagonals (sum n+k fixed)
  * Range:     u8 n <= 6, u16 n <= 47, u32 n <= 924, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 75 terms through n = 1167 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;  /* not part of the sequence */
@@ -44,8 +46,8 @@ seq_t a(idx_t n) {
     idx_t j = s - i;                   /* column index (k in T) */
 
     /* Compute T(i,j) = (i+j+3)*C(i+3,4)*C(j+3,4)/5 */
-    seq_t bin1 = binom(i + 3, 4);      /* C(i+3,4) */
-    seq_t bin2 = binom(j + 3, 4);      /* C(j+3,4) */
+    seq_t bin1 = binomial(i + 3, 4);      /* C(i+3,4) */
+    seq_t bin2 = binomial(j + 3, 4);      /* C(j+3,4) */
     seq_t sum = (seq_t)(i + j + 3);    /* i + j + 3 */
     seq_t product = sum * bin1;        /* (i+j+3)*C(i+3,4)   */
     product *= bin2;                   /* times C(j+3,4)      */

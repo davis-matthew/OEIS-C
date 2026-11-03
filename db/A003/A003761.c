@@ -11,13 +11,26 @@
  *            * s_3(n-1) * s_5(n-1) * s_6(n-1)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 11, u128 n <= 21,
  *            big any n
- * Helpers:   cheb_u
+ * Validated: standard, pass, 31 terms through n = 88 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/cheb_u.h"
+
+static seq_t cheb_u(seq_t x, idx_t k) {
+    seq_t prev = (seq_t)1;
+    seq_t cur = x;
+    idx_t i;
+    if (k == 0) return prev;
+    for (i = 1; i < k; i++) {
+        seq_t next = x * cur - prev;
+        prev = cur;
+        cur = next;
+    }
+    return cur;
+}
 
 seq_t a(idx_t n) {
     idx_t k = n - 1;

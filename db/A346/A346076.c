@@ -8,13 +8,15 @@
  *            a(0)=a(1)=a(2)=a(3)=a(4)=1 (offset 0)
  * Range:     u8 n <= 17, u16 n <= 29, u32 n <= 52, u64 n <= 97, u128 n <= 185,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* External linkage as requested.  Types seq_t and idx_t are supplied
    by the build system. */
@@ -30,7 +32,7 @@ static void ensure_cache_size(idx_t n)
     if (cache_size < needed) {
         size_t new_size = cache_size > 0 ? cache_size * 2 : needed;
         if (new_size < needed) new_size = needed;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         cache = new_cache;
         cache_size = new_size;
     }

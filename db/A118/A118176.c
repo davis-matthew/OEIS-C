@@ -9,7 +9,8 @@
  *            divisor_count(a(i)) == divisor_count(n) }|
  * Range:     u8 n <= 263, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 90 terms through n = 9188 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 #if defined(__cplusplus)
   /* In C++ convert by C‑style cast; works for both integer types and
@@ -49,7 +51,7 @@ static void ensure_capacity(size_t n)
         size_t new_cap = seq_cap ? seq_cap * 2 : 64;
         while (new_cap < n) new_cap *= 2;
         /* cast necessary for C++ */
-        seq_values = (seq_t *)realloc(seq_values, new_cap * sizeof(seq_t));
+        seq_values = mem_resize(seq_t, seq_values, new_cap);
         seq_cap = new_cap;
     }
 }
@@ -67,13 +69,13 @@ seq_t a(idx_t n)
             /* term 1 is the special initial value 1 */
             if (cur == 1) {
                 seq_values[seq_len++] = TO_SEQ_T(1);
-                uint64_t d1 = divisor_count_u64(TO_U64(1));
+                uint64_t d1 = num_divisors(TO_U64(1));
                 if (d1 < MAX_DIVCOUNT) divcnt_freq[d1]++;
                 continue;
             }
 
             /* divisor count of the index n itself */
-            uint64_t d_cur = divisor_count_u64(TO_U64(cur));
+            uint64_t d_cur = num_divisors(TO_U64(cur));
             unsigned int same = 0;
             if (d_cur < MAX_DIVCOUNT) same = divcnt_freq[d_cur];
 
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
             seq_values[seq_len++] = val;
 
             /* update frequency table for divisor count of a(cur) */
-            uint64_t d_val = divisor_count_u64(val_u64);
+            uint64_t d_val = num_divisors(val_u64);
             if (d_val < MAX_DIVCOUNT) divcnt_freq[d_val]++;
         }
     }

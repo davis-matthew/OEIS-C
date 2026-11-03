@@ -8,14 +8,17 @@
  *            (multiplicative, Q = 8)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 4, u64 n <= 455, u128 n <= 6113,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 43 terms through n = 9296 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Return the number of sublattices of index n in a generic 8‑dimensional lattice. */
 seq_t a(idx_t n)
@@ -37,8 +40,8 @@ seq_t a(idx_t n)
         /* Compute a(p^e) = ∏_{k=1..7} (p^(e+k)−1)/(p^k−1). */
         seq_t prime_term = 1;
         for (int k = 1; k <= 7; ++k) {
-            seq_t num   = big_pow(p, (seq_t)(e + k)) - (seq_t)1;
-            seq_t denom = big_pow(p, (seq_t)k) - (seq_t)1;
+            seq_t num   = ipow(p, (seq_t)(e + k)) - (seq_t)1;
+            seq_t denom = ipow(p, (seq_t)k) - (seq_t)1;
             prime_term = (prime_term * num) / denom;   /* exact division */
         }
         result *= prime_term;

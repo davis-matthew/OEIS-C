@@ -8,13 +8,15 @@
  *            where S(n) = Σ_{k=1}^{n‑3} (-1)^{n‑k‑3} · C(n‑4, k‑1) · a(k)
  * Range:     i8 n <= 10, i16 n <= 15, i32 n <= 24, i64 n <= 36, i128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 649 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* External integer types provided by the build system */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Implement the sequence function */
 seq_t a(idx_t n)
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_size) {
         /* Grow the cache */
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         cache = tmp;
 
         /* Compute terms up to n */

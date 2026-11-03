@@ -7,7 +7,8 @@
  * Formula:   a(1) = 1; a(n) = -Sum_{d|n, d < n} lpf(n/d) * a(d)
  * Range:     i8 n <= 29, i16 n <= 839, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   lpf
+ * Validated: standard, pass, 76 terms through n = 9631 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/lpf.h"
+#include "../utils/mem.h"
+
+/* Return the smallest prime factor of n   (n > 1) */
+static inline idx_t lpf(idx_t n)
+{
+    if (n % 2 == 0) return 2;
+    for (idx_t i = 3; i <= n / i; i += 2)
+        if (n % i == 0) return i;
+    return n;   /* n itself is prime – should not be called for primes */
+}
 
 static seq_t *a_cache      = NULL;   /* table of already computed values */
 static bool  *a_computed   = NULL;   /* flag whether value is valid     */
@@ -31,7 +41,7 @@ static void ensure_cache(idx_t n)
     if (a_cache == NULL) {
         /* initialise for indices 0 and 1 (index 0 unused) */
         a_cap = 2;
-        a_cache    = (seq_t*)calloc(a_cap, sizeof(seq_t));
+        a_cache    = mem_new(seq_t, a_cap);
         a_computed = (bool*)  calloc(a_cap, sizeof(bool));
         if (!a_cache || !a_computed) exit(1);
         a_cache[1]      = (seq_t)1;     /* a(1) = 1 */
@@ -41,11 +51,11 @@ static void ensure_cache(idx_t n)
     }
     if (a_cap <= n) {
         idx_t new_cap = n + 1;
-        seq_t *tmp_cache    = (seq_t*)realloc(a_cache,    new_cap * sizeof(seq_t));
+        seq_t *tmp_cache    = mem_resize(seq_t, a_cache, new_cap);
         bool  *tmp_computed = (bool*) realloc(a_computed, new_cap * sizeof(bool));
         if (!tmp_cache || !tmp_computed) exit(1);
         /* zero-initialize the newly allocated part */
-        memset(tmp_cache + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
+        mem_set(tmp_cache + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
         memset(tmp_computed + a_cap, 0, (new_cap - a_cap) * sizeof(bool));
         a_cache    = tmp_cache;
         a_computed = tmp_computed;

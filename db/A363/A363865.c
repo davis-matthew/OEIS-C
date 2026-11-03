@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(3*n,n-k)^2*binomial(3*n+k,k)^2
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 12,
  *            big any n
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

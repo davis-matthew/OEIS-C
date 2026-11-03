@@ -7,12 +7,14 @@
  * Formula:   a(2n) = 3*2^n - 2, a(2n+1) = 2^(n+2) - 2
  * Range:     u8 n <= 13, u16 n <= 29, u32 n <= 61, u64 n <= 125,
  *            u128 n <= 253, big any n
+ * Validated: standard, pass, 59 terms through n = 4506 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Uses the supplied pow2(idx_t) routine for powers of two. */
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

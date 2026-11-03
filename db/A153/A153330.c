@@ -8,7 +8,8 @@
  * Formula:   a(n) = A006577(n+1) - A006577(n)
  * Range:     i8 n <= 702, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   total_stopping_time
+ * Validated: standard, pass, 88 terms through n = 9533 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,25 @@
 /* Implements A153330: difference of total stopping times for consecutive numbers */
 
 #include <stdint.h>
-#include "../utils/total_stopping_time.h"
+
+/* compute total stopping time for a positive integer n (n>0) */
+static idx_t total_stopping_time(idx_t n)
+{
+    idx_t steps = 0;
+    while (n > 1)
+    {
+        if ((n & 1) == 0)
+        {
+            n >>= 1;          /* even: divide by 2 */
+        }
+        else
+        {
+            n = 3 * n + 1;    /* odd: 3n + 1 */
+        }
+        ++steps;
+    }
+    return steps;
+}
 
 /* public API: a(n) for n >= 1 */
 seq_t a(idx_t n)

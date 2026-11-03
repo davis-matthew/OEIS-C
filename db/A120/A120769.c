@@ -9,6 +9,7 @@
  *            a(n) = (2^k - r) * a(2^k - 1 - r)
  * Range:     u8 n <= 20, u16 n <= 81, u32 n <= 340, u64 n <= 5416,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 88 terms through n = 9515 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

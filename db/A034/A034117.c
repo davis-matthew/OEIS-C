@@ -11,7 +11,8 @@
  *            (10m+2)^3 /1000 ) ]. * The sequence is obt...
  * Range:     u8 n <= 30, u16 n <= 6717, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ceil_div1000
+ * Validated: standard, pass, 70 terms through n = 9629 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,12 @@
 #pragma once
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/ceil_div1000.h"
+
+static inline seq_t ceil_div1000(seq_t num)
+{
+    /* Ceil of num/1000 for num positive */
+    return (num + 999) / 1000;
+}
 
 /* Assume seq_t and idx_t are defined elsewhere by the build system. */
 

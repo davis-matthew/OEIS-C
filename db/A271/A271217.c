@@ -8,13 +8,15 @@
  *            =(2k-1)*a(2k-1)+(2k-2)*a(2k-3) (k≥1) (OEIS A271217)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 28, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 483 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>      /* for malloc / realloc */
 #include <stdint.h>      /* for uint64_t, etc. (types are supplied by the build) */
+#include "../utils/mem.h"
 
 /* Static storage for memoisation */
 static seq_t *cache = NULL;      /* array of computed terms            */
@@ -32,8 +34,7 @@ static void ensure_capacity(idx_t need)
     while (new_cap < need)
         new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache,
-                                        (size_t)new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_cap);
     cache = new_cache;
     cap   = new_cap;
 }

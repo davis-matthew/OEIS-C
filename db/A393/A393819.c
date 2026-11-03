@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 3513, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 72 terms through n = 9648 (2026-11-01)
  * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
 

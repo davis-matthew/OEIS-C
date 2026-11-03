@@ -8,13 +8,16 @@
  * Formula:   a(n) = pi(r) + pi(k) – pi(r + k) where r and k satisfy n =
  *            r*(r‑1)/2 + k, 1 ≤ k ≤ r. The pair (r,k) is found by triangular
  *            indexing of the rows of the triangle
- * Range:     i8 n <= 9985, i16 n <= 9985, i32 n <= 9985, i64 n <= 9985,
- *            i128 n <= 9985, big any n
+ * Range:     i8 n <= 11325, i16 n <= 11325, i32 n <= 11325, i64 n <= 11325,
+ *            i128 n <= 11325, big any n
+ * Validated: standard, pass, 121 terms through n = 9985 (2026-11-01)
  * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)

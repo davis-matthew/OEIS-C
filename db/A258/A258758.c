@@ -7,13 +7,15 @@
  * Formula:   a(n) = C(r + k - 1, k) * C(2·r - 1, r - k) where r is the unique
  *            row index so that r·(r + 1)/2 ≤ n < (r + 1)·(r + 2)/2, and k = n
  *            - r·(r + 1)/2
- * Range:     u8 n <= 14, u16 n <= 37, u32 n <= 95, u64 n <= 308,
+ * Range:     u8 n <= 15, u16 n <= 37, u32 n <= 95, u64 n <= 308,
  *            u128 n <= 1097, big any n
+ * Validated: standard, pass, 60 terms through n = 4743 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

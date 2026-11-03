@@ -8,11 +8,13 @@
  * Formula:   a(n) = ( C(2^n + n - 1, n) + (-1)^n * C(2^n, n) ) / 2
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 12,
  *            big any n
+ * Validated: standard, pass, 29 terms through n = 47 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Compute C(N, k) where N is a seq_t (possibly huge) and 0 <= k <= n. */

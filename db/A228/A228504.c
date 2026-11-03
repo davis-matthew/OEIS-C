@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 23, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
            a(k) = Σ_{mask'} dp_k[mask'] */
 #include <stdlib.h>
 #include <stddef.h>   /* for size_t, NULL */
+#include "../utils/mem.h"
 
 static seq_t *cumulative = NULL;  /* cumulative[n-1] = a(n) */
 static size_t  cum_cap = 0, cum_len = 0;
@@ -46,12 +48,12 @@ static void ensure_cumulative(size_t need)
     size_t new_cap = cum_cap ? cum_cap << 1 : need;
     if (new_cap < need)
         new_cap = need;
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp)
         abort();               /* allocation failure */
     for (size_t i = 0; i < cum_len; ++i)
         tmp[i] = cumulative[i];
-    free(cumulative);
+    mem_free(cumulative);
     cumulative = tmp;
     cum_cap = new_cap;
 }
@@ -68,8 +70,8 @@ static void init_state(void)
             valid_masks[mask_cnt++] = m;
 
     dp_rows = mask_cnt;
-    dp_prev = (seq_t *)malloc(dp_rows * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(dp_rows * sizeof(seq_t));
+    dp_prev = mem_new(seq_t, dp_rows);
+    dp_next = mem_new(seq_t, dp_rows);
     if (!dp_prev || !dp_next)
         abort();
 }

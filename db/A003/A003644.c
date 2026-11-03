@@ -12,18 +12,45 @@
  *            (one class per genus). The sequence is finite with...
  * Range:     u8 n <= 30, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   a003644_fundamental, a003644_gcd, a003644_one_class_per_genus,
- *            a003644_squarefree
+ * Validated: full, pass, 65 terms through n = 65 (2026-11-02)
+ * Helpers:   gcd_i64, is_squarefree_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/a003644_fundamental.h"
-#include "../utils/a003644_gcd.h"
-#include "../utils/a003644_one_class_per_genus.h"
-#include "../utils/a003644_squarefree.h"
+#include "../utils/gcd_i64.h"
+#include "../utils/is_squarefree_i64.h"
+
+static bool a003644_fundamental(long D)
+{
+    if (D % 4 == 3) return is_squarefree_i64(D);
+    if (D % 4 == 0) {
+        long m = D / 4;
+        if (m % 4 != 1 && m % 4 != 2) return false;
+        return is_squarefree_i64(m);
+    }
+    return false;
+}
+
+static bool a003644_one_class_per_genus(long D)
+{
+    long b;
+    /* look for a non-ambiguous reduced primitive form: 0 < b < a < c */
+    for (b = (D & 1); 3 * b * b <= D; b += 2) {
+        long a, N = b * b + D;
+        if (b == 0) continue;
+        for (a = b + 1; 4 * a * a < N; a++) {
+            long c;
+            if (N % (4 * a) != 0) continue;
+            c = N / (4 * a);
+            if (c <= a) continue;
+            if (gcd_i64(gcd_i64(a, b), c) == 1) return false;
+        }
+    }
+    return true;
+}
 
 static long a003644_terms[128];
 static int a003644_count = -1;

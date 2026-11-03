@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   antidiagonal_index
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,24 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/antidiagonal_index.h"
+
+/* Find the largest S such that S*(S+1)/2 <= n.  Uses only integer
+ * arithmetic and works for all n up to at least 10⁵. */
+static idx_t antidiagonal_index(idx_t n)
+{
+    idx_t low = 0, high = n, mid, best = 0;
+    while (low <= high) {
+        mid = (low + high) / 2;
+        idx_t tri = mid * (mid + 1) / 2;
+        if (tri <= n) {
+            best = mid;
+            low = mid + 1;
+        } else {
+            high = mid - 1;
+        }
+    }
+    return best;
+}
 
 /* Compute Σ_{m=0..n} F(k,m)^2 for given k,n (both ≤ about 200 for n≤10000). */
 static seq_t sum_of_squares(idx_t k, idx_t n)

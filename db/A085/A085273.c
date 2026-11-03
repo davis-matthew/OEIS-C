@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 211, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, largest_prime_divisor
+ * Validated: standard, pass, 88 terms through n = 9347 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,29 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/largest_prime_divisor.h"
+#include "../utils/mem.h"
+
+/* Return the largest prime divisor of m (m >= 2). */
+static uint64_t largest_prime_divisor(uint64_t m)
+{
+    uint64_t largest = 0;
+    /* factor 2 */
+    while ((m & 1ULL) == 0) {
+        largest = 2;
+        m >>= 1;
+    }
+    /* odd factors */
+    for (uint64_t f = 3; f <= m / f; f += 2) {
+        if (m % f == 0) {
+            largest = f;
+            while (m % f == 0)
+                m /= f;
+        }
+    }
+    if (m > 1)            /* remaining m is prime */
+        largest = m;
+    return largest;
+}
 
 static seq_t *cache = NULL;          /* 1‑based cache for a(n) */
 static size_t cache_len = 0;          /* number of cached elements (last index) */
@@ -35,7 +58,7 @@ static void ensure_cache(idx_t n)
 
     /* Grow cache array.  +1 for 1‑based indexing. */
     size_t new_len = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) return;   /* allocation failure – silently skip, caller will fail */
     cache = tmp;
     cache_len = new_len - 1;  /* last valid index now n */

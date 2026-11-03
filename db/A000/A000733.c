@@ -10,14 +10,24 @@
  *            for k >= 1, p = partition numbers (A000041)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 14, u64 n <= 23, u128 n <= 38,
  *            big any n
- * Helpers:   release, zeroed
+ * Validated: standard, pass, 38 terms through n = 482 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/release.h"
-#include "../utils/zeroed.h"
+#include "../utils/mem.h"
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+/* calloc gives zeroed storage, which is a valid zero value for every seq_t build */
+static seq_t *zeroed(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;

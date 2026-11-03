@@ -10,6 +10,7 @@
  *            p_i^{e_{(i+s) mod omega(n)}}, with a(1) = 0 (empty sum)
  * Range:     u8 n <= 39, u16 n <= 271, u32 n <= 2367, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 81 terms through n = 9699 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* small helper to compute base^exp for seq_t values. */

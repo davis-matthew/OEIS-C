@@ -10,12 +10,14 @@
  *            + x + … + x^{3k-1}), i.e. a(n)=0 for n>187
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 42, u64 n <= 187, u128 n <= 187,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* the sequence is zero for n>187 */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     if (!coeff) {
         /* start with polynomial 1                     */
         coeff_len = 1;
-        coeff = (seq_t*)malloc(sizeof(seq_t));
+        coeff = mem_new(seq_t, 1);
         coeff[0] = 1;
 
         /* multiply by each factor (1 + x + … + x^{3k-1}) */
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
             size_t m = 3u * k;               /* length of the factor */
             size_t new_len = coeff_len + m - 1;
 
-            seq_t *new_coeff = (seq_t*)calloc(new_len, sizeof(seq_t));
+            seq_t *new_coeff = mem_new(seq_t, new_len);
             if (!new_coeff) return 0; /* allocation failure */
 
             for (size_t i = 0; i < coeff_len; ++i) {
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
                 }
             }
 
-            free(coeff);
+            mem_free(coeff);
             coeff = new_coeff;
             coeff_len = new_len;
         }

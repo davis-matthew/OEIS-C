@@ -9,12 +9,14 @@
  *            triangle * T(n,k)=binomial(n,k)*(n+1)^2
  * Range:     u8 n <= 16, u16 n <= 70, u32 n <= 361, u64 n <= 1274,
  *            u128 n <= 1274, big any n
+ * Validated: standard, pass, 69 terms through n = 1215 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Integer square root for 64‑bit values. */

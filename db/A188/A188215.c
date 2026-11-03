@@ -12,7 +12,8 @@
  *            representation
  * Range:     u8 n <= 382, u16 n <= 1023, u32 n <= 1023, u64 n <= 1023,
  *            u128 n <= 1023, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 87 terms through n = 1020 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 /* Lexicographic comparison of binary strings of a and b.
    Return <0 if a<b, 0 if equal, >0 if a>b. */
@@ -32,8 +34,8 @@ static inline int cmp_bin(idx_t a, idx_t b)
     if (b == 0) return 1;
 
     /* bit length of a and b */
-    idx_t la = floor_log2_uint64(a) + 1;
-    idx_t lb = floor_log2_uint64(b) + 1;
+    idx_t la = ilog2(a) + 1;
+    idx_t lb = ilog2(b) + 1;
 
     /* compare bits from most‑significant to least‑significant */
     for (idx_t i = 0; i < (idx_t)(la > lb ? la : lb); ++i) {

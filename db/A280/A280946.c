@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 147, u16 n <= 3000, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 2984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global state for on‑demand sieving and result storage */
 static idx_t      sieve_limit = 0;   /* largest index ever sieved          */
@@ -89,7 +91,7 @@ ensure_capacity_result(size_t needed)
     size_t new_cap = res_cap ? res_cap * 2 : 1;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(results, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, results, new_cap);
     if (!tmp)
         exit(1);
     results = tmp;

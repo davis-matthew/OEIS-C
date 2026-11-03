@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _count
+ * Validated: standard, pass, 121 terms through n = 8103 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
    which is fast enough for n up to 10‑000 and works for all n ≥ 1. */
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/_count.h"
+
+/* Recursive helper: count subsets of powers[p]..powers[k-1] that sum to rem. */
+static seq_t _count(const idx_t *powers, size_t k, size_t pos, idx_t rem)
+{
+    if (rem == 0)          /* empty subset – one way */
+        return 1;
+    if (pos == k)          /* no more powers to use */
+        return 0;
+    if (rem < powers[pos]) /* even the smallest remaining power is too big */
+        return _count(powers, k, pos + 1, rem);
+
+    /* Include or exclude the current power */
+    return _count(powers, k, pos + 1, rem) +
+           _count(powers, k, pos + 1, rem - powers[pos]);
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

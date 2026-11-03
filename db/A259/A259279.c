@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum_{k=0..n} k^2 * p(k) (p(k) = A000041(k))
  * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   alloc_seq
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,14 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alloc_seq.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* External types supplied by the build */
 extern seq_t a(idx_t n); /* will be defined below */
@@ -24,11 +32,11 @@ extern seq_t a(idx_t n); /* will be defined below */
 
 static seq_t *realloc_seq(seq_t *p, size_t n)
 {
-    return (seq_t *)realloc(p, n * sizeof(seq_t));
+    return mem_resize(seq_t, p, n);
 }
 static void free_seq_arr(seq_t *p)
 {
-    free(p);
+    mem_free(p);
 }
 
 /* Partition numbers p(k)   □ = A000041(k)   */

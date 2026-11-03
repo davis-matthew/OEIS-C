@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _is_prime
+ * Validated: standard, pass, 116 terms through n = 8752 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,14 +18,17 @@
  * 11, 11+2n, 11+4n, … until the first composite term is reached.
  * For n ≥ 1 this yields the sequence A088423. */
 #include <stdbool.h>
-#include "../utils/_is_prime.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;                 // offset is 1; below not defined
     uint64_t d = (uint64_t)n * 2;          // common difference 2n
     uint64_t term = 11;                    // first term
     uint64_t cnt = 0;                      // count of primes
-    while (_is_prime(term)) {
+    while (is_prime_u64(term)) {
         ++cnt;
         term += d;
     }

@@ -11,7 +11,8 @@
  *            rotation-built cosine table (all on native p, never on seq_t)
  * Range:     u8 n <= 12, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a921_cossin, a921_isprime
+ * Validated: standard, pass, 67 terms through n = 966 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,24 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a921_cossin.h"
-#include "../utils/a921_isprime.h"
+#include "../utils/is_prime_u64.h"
+
+static void a921_cossin(double t, double *c, double *s)
+{
+    double cc = 0.0, ss = 0.0, term = 1.0;
+    int k;
+    /* term = t^k / k! */
+    for (k = 0; k < 40; k++) {
+        int r = k & 3;
+        if (r == 0) cc += term;
+        else if (r == 1) ss += term;
+        else if (r == 2) cc -= term;
+        else ss -= term;
+        term = term * t / (double)(k + 1);
+    }
+    *c = cc;
+    *s = ss;
+}
 
 static uint64_t *a921_terms = NULL;
 static idx_t a921_cnt = 0, a921_cap = 0;
@@ -61,7 +78,7 @@ seq_t a(idx_t n)
 {
     while (a921_cnt < n) {
         uint64_t p = a921_next++;
-        if (p % 3 != 1 || !a921_isprime(p)) continue;
+        if (p % 3 != 1 || !is_prime_u64(p)) continue;
         if (a921_test(p)) {
             if (a921_cnt == a921_cap) {
                 idx_t nc = a921_cap ? 2 * a921_cap : 1024;

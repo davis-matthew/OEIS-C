@@ -12,14 +12,17 @@
  *            always yields the next smallest unique area
  * Range:     u8 none, u16 none, u32 n <= 2390, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_int
+ * Validated: standard, pass, 67 terms through n = 9951 (2026-11-03)
+ * Helpers:   gcd_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/gcd_int.h"
+#include <stddef.h>
+#include "../utils/gcd_i32.h"
+#include "../utils/mem.h"
 
 /* Node in the min‑heap. */
 typedef struct {
@@ -82,14 +85,14 @@ static void init_primatives(void) {
     const unsigned M = 600;  /* sufficient for n up to about 10 000 */
     /* Rough estimate of the number of primaries: 0.6*M*M */
     heap_cap = (size_t)(0.7 * M * M) + 10;
-    heap_data = (node_t *)malloc(sizeof(node_t) * heap_cap);
+    heap_data = mem_new(node_t, heap_cap);
     heap_len = 0;
 
     for (unsigned m = 2; m <= M; ++m) {
         unsigned m_parity = m & 1;
         for (unsigned n = 1; n < m; ++n) {
             if ((n & 1) == m_parity) continue;          /* opposite parity required */
-            if (gcd_int((int)m, (int)n) != 1) continue;   /* coprime */
+            if (gcd_i32((int)m, (int)n) != 1) continue;   /* coprime */
             seq_t m_val = (seq_t)m;
             seq_t n_val = (seq_t)n;
             seq_t m2 = m_val * m_val;
@@ -98,7 +101,7 @@ static void init_primatives(void) {
             seq_t area0 = m_val * n_val * diff;          /* primitive area */
             if (heap_len == heap_cap) {                 /* grow heap if needed */
                 heap_cap *= 2;
-                heap_data = (node_t *)realloc(heap_data, sizeof(node_t) * heap_cap);
+                heap_data = mem_resize(node_t, heap_data, heap_cap);
             }
             heap_data[heap_len++] = (node_t){area0, area0, 1};
         }
@@ -111,7 +114,7 @@ static void init_primatives(void) {
 
     /* Prepare sequence array. */
     seq_cap = 256;
-    seq_arr = (seq_t *)malloc(sizeof(seq_t) * seq_cap);
+    seq_arr = mem_new(seq_t, seq_cap);
 }
 
 /* Generate terms until we have at least n terms. */
@@ -128,7 +131,7 @@ static void generate_upto(idx_t n) {
         if (seq_len == 0 || area != seq_arr[seq_len - 1]) {
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq_arr = (seq_t *)realloc(seq_arr, sizeof(seq_t) * seq_cap);
+                seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
             }
             seq_arr[seq_len++] = area;
         }
@@ -139,7 +142,7 @@ static void generate_upto(idx_t n) {
         seq_t new_area = top.area0 * kk;
         if (heap_len == heap_cap) {         /* grow heap if needed */
             heap_cap *= 2;
-            heap_data = (node_t *)realloc(heap_data, sizeof(node_t) * heap_cap);
+            heap_data = mem_resize(node_t, heap_data, heap_cap);
         }
         heap_data[heap_len++] = (node_t){new_area, top.area0, nk};
         heapify_up(heap_data, heap_len - 1);

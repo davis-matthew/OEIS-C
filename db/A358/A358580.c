@@ -12,7 +12,8 @@
  *            internal nodes in the Matula–Goebel tree
  * Range:     i8 n <= 75, i16 n <= 75, i32 n <= 75, i64 n <= 75, i128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* Prime infrastructure                                         */
@@ -94,8 +96,7 @@ static void ensure_cache_size(idx_t needed)
     size_t new_cap = cache_cap ? cache_cap << 1 : 1;
     while (new_cap <= needed) new_cap <<= 1;
 
-    seq_t  *tmp_cache  = (seq_t *)realloc(a_cache,
-                                          new_cap * sizeof(seq_t));
+    seq_t  *tmp_cache  = mem_resize(seq_t, a_cache, new_cap);
     bool   *tmp_comp   = (bool  *)realloc(computed,
                                           new_cap * sizeof(bool));
 

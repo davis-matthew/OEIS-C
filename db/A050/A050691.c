@@ -9,16 +9,49 @@
  *            with its largest prime divisor
  * Range:     u8 n <= 8, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digits, largest_prime_divisor, pow10
+ * Validated: standard, pass, 65 terms through n = 998 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Helper function prototypes (implemented elsewhere) */
 #include <stdint.h>
-#include "../utils/largest_prime_divisor.h" /* uint64_t largest_prime_divisor(uint64_t m) */
-#include "../utils/digits.h"                /* int digits(idx_t x) */
-#include "../utils/pow10.h"                 /* seq_t pow10(idx_t e) */
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/num_digits_idx.h"
+
+/* Return the largest prime divisor of m (m >= 2). */
+static uint64_t largest_prime_divisor(uint64_t m)
+{
+    uint64_t largest = 0;
+    /* factor 2 */
+    while ((m & 1ULL) == 0) {
+        largest = 2;
+        m >>= 1;
+    }
+    /* odd factors */
+    for (uint64_t f = 3; f <= m / f; f += 2) {
+        if (m % f == 0) {
+            largest = f;
+            while (m % f == 0)
+                m /= f;
+        }
+    }
+    if (m > 1)            /* remaining m is prime */
+        largest = m;
+    return largest;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n) {
     /* The sequence is defined for n >= 1 only. */
@@ -34,8 +67,8 @@ seq_t a(idx_t n) {
         /* Skip primes. */
         if (p != m) {
             /* Lengths of decimal representations. */
-            int len_m = digits((idx_t)m);          /* number of digits of m  */
-            int len_p = digits((idx_t)p);          /* number of digits of p  */
+            int len_m = num_digits_idx((idx_t)m);          /* number of digits of m  */
+            int len_p = num_digits_idx((idx_t)p);          /* number of digits of p  */
 
             /* Compute 10^(len_m - len_p) as a uint64_t. */
             int diff = len_m - len_p;

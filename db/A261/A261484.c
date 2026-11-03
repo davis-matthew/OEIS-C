@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 12, u32 n <= 18, u64 n <= 30, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define NUM_SIZE 20          /* degree of numerator (x^8 * (deg 11 polynomial)) */
 #define DEN_D 19             /* degree of the denominator */
@@ -121,7 +123,7 @@ static void ensure_cache_capacity(size_t new_cap)
     size_t new_size = CACHE_CAP ? CACHE_CAP : 64;
     while (new_size < new_cap)
         new_size <<= 1;
-    CACHE = (seq_t *)realloc(CACHE, new_size * sizeof(seq_t));
+    CACHE = mem_resize(seq_t, CACHE, new_size);
     CACHE_CAP = new_size;
 }
 

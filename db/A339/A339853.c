@@ -7,153 +7,77 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn
  * Formula:   not stated
- * Range:     u8 n <= 202, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
+ * Range:     u8 n <= 203, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 96 terms through n = 4912 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-/* Sequence A339853.
-   Start with the list S = [1].  Read the digits of the current S
-   (ignoring zeros).  For each digit d read, append to S the
-   smallest multiple of d that is not yet present in S.
-   The function returns the nth term (1‑based). */
+/* A339853: S starts with 1; its digits are read one at a time from the first,
+ * zeros skipped, and each digit d extends S with the smallest multiple of d not
+ * yet in S. Generated in order with exact 64-bit values, a bitmap of the
+ * values present and a cursor into the digits read so far. */
 
-#include <stddef.h>
 #include <stdint.h>
-#include <stdbool.h>
 #include <stdlib.h>
-#include <string.h>
 
-/* The external types seq_t and idx_t are supplied by the build system. */
-static seq_t *seq_vals   = NULL;   /* stored terms            */
-static size_t seq_cap   = 0;       /* capacity of seq_vals     */
-static size_t seq_len   = 0;       /* number of stored terms   */
+static uint64_t *S = NULL;
+static size_t ns = 0, cap = 0;
+static unsigned char *present = NULL;
+static uint64_t pcap = 0;
+static size_t rd_term = 0;                /* the term being read */
+static int rd_pos = 0;                    /* digits of it already read */
+static uint64_t next_mult[10];            /* smallest multiple of d possibly free */
 
-static uint8_t *digit_q = NULL;   /* queue of digits to read   */
-static size_t q_cap  = 0;         /* capacity of the queue     */
-static size_t q_head = 0;         /* head index into digit_q   */
-static size_t q_len  = 0;         /* tail index (length)       */
+static int has(uint64_t v) { return v < pcap && present[v]; }
 
-static bool *used      = NULL;   /* used[v] == true if v present */
-static size_t used_cap = 0;       /* capacity of used array     */
-
-static seq_t next_mult[10];       /* next multiple to try for digit d (1‑9) */
-
-/* Ensure the capacity of the term array. */
-static void ensure_seq_cap(size_t n)
+static void add(uint64_t v)
 {
-    if (seq_cap < n) {
-        size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-        while (new_cap < n) new_cap <<= 1;
-        seq_vals = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
-        seq_cap = new_cap;
+    if (v >= pcap) {
+        uint64_t c = pcap ? pcap : 4096;
+        while (c <= v) c *= 2;
+        unsigned char *t = (unsigned char *)realloc(present, (size_t)c);
+        if (!t) abort();
+        for (uint64_t i = pcap; i < c; ++i) t[i] = 0;
+        present = t;
+        pcap = c;
     }
-}
-
-/* Ensure the capacity of the digit queue array. */
-static void ensure_q_cap(size_t n)
-{
-    if (q_cap < n) {
-        size_t new_cap = q_cap ? q_cap * 2 : 32;
-        while (new_cap < n) new_cap <<= 1;
-        digit_q = (uint8_t *)realloc(digit_q, new_cap * sizeof(uint8_t));
-        q_cap = new_cap;
+    present[v] = 1;
+    if (ns == cap) {
+        cap = cap ? 2 * cap : 1024;
+        uint64_t *t = (uint64_t *)realloc(S, cap * sizeof *t);
+        if (!t) abort();
+        S = t;
     }
+    S[ns++] = v;
 }
 
-/* Ensure the capacity of the used array up to index x. */
-static void ensure_used_cap(size_t x)
+static int digit_at(uint64_t v, int pos)  /* pos-th digit from the left, -1 past the end */
 {
-    if (x + 1 > used_cap) {
-        size_t new_cap = used_cap ? used_cap * 2 : 16;
-        while (new_cap <= x + 1) new_cap <<= 1;
-        used = (bool *)realloc(used, new_cap * sizeof(bool));
-        for (size_t i = used_cap; i < new_cap; ++i) used[i] = false;
-        used_cap = new_cap;
-    }
+    char buf[24];
+    int len = 0;
+    do { buf[len++] = (char)(v % 10); v /= 10; } while (v);
+    return pos < len ? buf[len - 1 - pos] : -1;
 }
 
-/* Enqueue a single digit d (1‑9) into the digit queue. */
-static void enqueue_digit(uint8_t d)
-{
-    ensure_q_cap(q_len + 1);
-    digit_q[q_len++] = d;
-}
-
-/* Push the decimal digits of x onto the digit queue (most significant first). */
-static void enqueue_digits(seq_t x)
-{
-    if (x == (seq_t)0) return;            /* zeros are never pushed */
-    /* collect digits in reverse order */
-    uint8_t tmp[256];
-    size_t tlen = 0;
-    while (x != (seq_t)0) {
-        tmp[tlen++] = (uint8_t)(x % (seq_t)10);
-        x /= (seq_t)10;
-    }
-    /* append them in correct order */
-    /* first ensure the queue can hold these additional digits */
-    ensure_q_cap(q_len + tlen);
-    for (size_t i = 0; i < tlen; ++i)
-        digit_q[q_len++] = tmp[tlen - 1 - i];
-}
-
-/* Initialise static state on the first call. */
-static void init_once(void)
-{
-    if (seq_vals != NULL) return;   /* already initialised */
-
-    /* start with 1 */
-    ensure_seq_cap(1);
-    seq_vals[0] = (seq_t)1;
-    seq_len = 1;
-
-    /* enqueue its digits */
-    ensure_q_cap(1);
-    digit_q[0] = 1;
-    q_head = 0;
-    q_len = 1;
-
-    /* used array */
-    ensure_used_cap(1);
-    used[1] = true;
-
-    /* initialise next multiples */
-    for (int d = 1; d <= 9; ++d) next_mult[d] = (seq_t)d;
-}
-
-/* Main function required by the interface. */
 seq_t a(idx_t n)
 {
-    init_once();
-
-    while (seq_len < n) {
-        /* get next digit to process */
-        if (q_head >= q_len) break;      /* safety, should not happen */
-        uint8_t d = digit_q[q_head++];
-        if (d == 0) continue;            /* zeros are ignored */
-
-        /* find smallest multiple of d not yet used */
-        seq_t cand = next_mult[d];
-        while (cand <= (seq_t)used_cap && used[(size_t)cand]) {
-            cand += (seq_t)d;
-        }
-        /* set next multiple for future */
-        next_mult[d] = cand + (seq_t)d;
-
-        /* append the new term */
-        ensure_seq_cap(seq_len + 1);
-        seq_vals[seq_len++] = cand;
-
-        /* mark as used and grow used array if needed */
-        ensure_used_cap((size_t)cand);
-        used[(size_t)cand] = true;
-
-        /* enqueue digits of the new term for future processing */
-        enqueue_digits(cand);
+    if (n < 1) return (seq_t)0;
+    if (!ns) {
+        for (int d = 1; d < 10; ++d) next_mult[d] = d;
+        add(1);
     }
-
-    return seq_vals[n - 1];
+    while (ns < (size_t)n) {
+        int d = digit_at(S[rd_term], rd_pos);
+        if (d < 0) { ++rd_term; rd_pos = 0; continue; }
+        ++rd_pos;
+        if (d == 0) continue;
+        uint64_t m = next_mult[d];
+        while (has(m)) m += (uint64_t)d;
+        next_mult[d] = m;
+        add(m);
+    }
+    return (seq_t)S[n - 1];
 }

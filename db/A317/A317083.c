@@ -10,12 +10,19 @@
  *            x → (3x+1)/2^k with k chosen so that the result is odd
  * Range:     u8 n <= 12, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   reduced_collatz
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/reduced_collatz.h"
+static inline seq_t reduced_collatz(seq_t x)
+{
+    seq_t y = 3 * x + 1;
+    while ((y & 1) == 0)
+        y >>= 1;
+    return y;
+}
 
 seq_t a(idx_t n)
 {

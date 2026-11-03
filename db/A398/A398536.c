@@ -8,13 +8,16 @@
  * Formula:   a(n) = (n^(2n+2)-n^2)/(n^2-1) for n>1; a(1)=1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 31 terms through n = 196 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The sequence is the trace of the Hankel n×n matrix M_n(i,j)=n^(i+j). */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
     seq_t exp = (seq_t)tmp;
 
     /* Compute n^(2n+2) */
-    seq_t pow_big = big_pow(bn, exp);
+    seq_t pow_big = ipow(bn, exp);
 
     /* Numerator = n^(2n+2) - n^2 */
     seq_t numerator = pow_big - bn_sq;

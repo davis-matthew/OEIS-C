@@ -7,12 +7,14 @@
  * Formula:   a(n) = the n‑th divisor of 684 (sorted in increasing order)
  * Range:     u8 n <= 13, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparison function for qsort, works for any unsigned seq_t type. */
 static int seq_cmp(const void *p, const void *q) {
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
                 divisors[count++] = pow2[e2] * pow3[e3] * pow19[e19];
 
     /* Sort the divisors to satisfy the OEIS ordering. */
-    qsort(divisors, count, sizeof(seq_t), seq_cmp);
+    mem_qsort(divisors, count, sizeof(seq_t), seq_cmp);
 
     /* Return the requested term if within range, otherwise 0. */
     return (n <= count) ? divisors[n - 1] : (seq_t)0;

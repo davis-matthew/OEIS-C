@@ -12,12 +12,14 @@
  *            [[0,1,0],[0,0,1],[1,1,0]]. The terms are produced row‑wise
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for the sequence and matrix state */
 static seq_t *seq      = NULL; /* dynamic array of terms          */
@@ -31,7 +33,7 @@ static void init_sequence(void)
 {
     /* allocate initial buffer for first 9 terms */
     seq_cap = 64;
-    seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     if (!seq) exit(1);
 
     /* set A[0] */
@@ -67,7 +69,7 @@ static void compute_next(void)
     /* ensure capacity for 9 more terms */
     if (seq_len + 9 > seq_cap) {
         seq_cap = seq_cap * 2 + 9;
-        seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
         if (!seq) exit(1);
     }
 

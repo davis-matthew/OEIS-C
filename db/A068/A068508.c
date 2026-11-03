@@ -8,12 +8,14 @@
  * Formula:   a(n) = round((a(n-1)+a(n-2))/a(n-3)), a(1)=a(2)=a(3)=1
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* cached sequence values, 1‑based */
 static idx_t  cache_len = 0;       /* number of terms already computed */
@@ -27,7 +29,7 @@ static void ensure_cache_cap(idx_t need)
     idx_t new_cap = cache_cap ? cache_cap * 2 : 4;
     if (new_cap < need)
         new_cap = need;
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * (new_cap + 1));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_cap + 1));
     if (!new_cache)
         abort();          /* allocation failure */
     cache = new_cache;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* initialise cache if this is the first call */
     if (!cache)
     {
-        cache = (seq_t *)calloc(5, sizeof(seq_t));  /* small initial size */
+        cache = mem_new(seq_t, 5);  /* small initial size */
         cache_cap = 4;
         /* base terms */
         cache[1] = cache[2] = cache[3] = (seq_t)1;

@@ -10,14 +10,33 @@
  *            k+1 does not
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains_83
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains_83.h"
+#include "../utils/mem.h"
+
+/* helper: does decimal string of x contain "83" ?  */
+static bool contains_83(seq_t x)
+{
+    /* numbers with fewer than 2 digits cannot contain the substring */
+    if (x < (seq_t)10)
+        return false;
+    seq_t prev = x % (seq_t)10;   /* units digit */
+    x /= (seq_t)10;
+    while (x > (seq_t)0) {
+        seq_t cur = x % (seq_t)10;   /* next higher digit */
+        if (prev == (seq_t)3 && cur == (seq_t)8)
+            return true;
+        prev = cur;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 /* memoised sequence storage */
 static seq_t *cache      = NULL;   /* array of found terms */
@@ -39,7 +58,7 @@ seq_t a(idx_t n)
                 /* store the found term */
                 if (cache_len == cache_cap) {
                     size_t new_cap = (cache_cap == 0 ? 4 : cache_cap << 1);
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     cache    = tmp;
                     cache_cap = new_cap;
                 }

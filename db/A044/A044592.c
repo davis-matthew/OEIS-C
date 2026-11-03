@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has30_oct
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,21 @@
 */
 
 #include <stdbool.h>
-#include "../utils/has30_oct.h"
+
+static bool has30_oct(seq_t x)
+{
+    if (x == 0) return false;
+    seq_t tmp = x;
+    int prev = -1;                     /* previous digit (less significant)      */
+    while (tmp > 0) {
+        int d = (int)(tmp % 8);         /* current digit (0‑7)                     */
+        if (prev == 0 && d == 3)        /* 03 in reversed order => 30 in normal   */
+            return true;
+        prev = d;
+        tmp /= 8;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 473 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    a(n)=48·(a(n-1)+a(n-2)+a(n-3)+a(n-4)+a(n-5)) – 1176·a(n-6)   for n≥7
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *_seq_cache = NULL;      /* cache holding computed values          */
 static size_t _seq_len   = 0;         /* number of elements stored             */
@@ -28,7 +30,7 @@ static size_t _seq_cap   = 0;         /* current capacity of the cache          
 static void _grow_cache(size_t new_cap) {
     size_t cap = _seq_cap ? _seq_cap : 16;
     while (cap < new_cap) cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(_seq_cache, cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, _seq_cache, cap);
     if (!new_cache) abort();          /* allocation failure – abort */
     _seq_cache = new_cache;
     _seq_cap   = cap;

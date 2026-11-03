@@ -9,7 +9,8 @@
  *            where f(n) = 2*rad(n) if 4|n, otherwise rad(n)
  * Range:     u8 n <= 12, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   is_prime, rad
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   is_prime, mem, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/rad.h"          /* seq_t rad(idx_t n); */
-#include "../utils/is_prime.h"     /* bool is_prime(idx_t n); */
+#include "../utils/is_prime.h"
+#include "../utils/radical.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  A minimal dynamic array that grows as needed. */
@@ -34,7 +36,7 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t needed)
     if (*cap < needed) {
         size_t newcap = (*cap) ? (*cap) * 2 : 16;
         while (newcap < needed) newcap *= 2;
-        seq_t *tmp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, newcap);
         if (!tmp) abort();
         *arr = tmp;
         *cap = newcap;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         /* 1. Skip integers that are not composite. */
         if (next > 1 && !is_prime(next)) {
             /* 2. Compute rad(next). */
-            seq_t r = rad(next);
+            seq_t r = radical(next);
 
             /* 3. Compute f(next). */
             seq_t f = (next % 4 == 0) ? r * (seq_t)2 : r;

@@ -11,14 +11,17 @@
  *            ≤ k
  * Range:     u8 n <= 31, u16 n <= 63, u32 n <= 126, u64 n <= 126,
  *            u128 n <= 126, big any n
- * Helpers:   big_pow, floor_log2_uint64
+ * Validated: standard, pass, 76 terms through n = 124 (2026-11-01)
+ * Helpers:   ilog2, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ilog2.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +33,8 @@ seq_t a(idx_t n)
 
     /* Even n ≥ 2 */
     idx_t k = n >> 1;           /* k = n/2  */
-    idx_t m = floor_log2_uint64(k);  /* m = ⌊log₂(k)⌋ */
+    idx_t m = ilog2(k);  /* m = ⌊log₂(k)⌋ */
     idx_t p = ((idx_t)1) << m; /* p = largest power of two ≤ k */
-    seq_t val = big_pow((seq_t)2, (seq_t)p); /* 2^p */
+    seq_t val = ipow((seq_t)2, (seq_t)p); /* 2^p */
     return val - (seq_t)2;     /* subtract 2 */
 }

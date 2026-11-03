@@ -9,7 +9,8 @@
  *            where φ(k) is Euler's totient function
  * Range:     u8 n <= 137, u16 n <= 300, u32 n <= 300, u64 n <= 300,
  *            u128 n <= 300, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 285 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         return 0;                      /* undefined for n < 1, return 0 */
 
     /* --- Compute totient values φ(1)…φ(n) --- */
-    seq_t *phi = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *phi = mem_new(seq_t, (n + 1));
     if (!phi)
         return 0;
 
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     size_t maxSum = 2 * (size_t)n;          /* φ(i) ≤ i, so sum ≤ 2n */
     char *mark = (char *)calloc(maxSum + 1, 1);
     if (!mark) {
-        free(phi);
+        mem_free(phi);
         return 0;
     }
 
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(phi);
+    mem_free(phi);
     free(mark);
     return distinct;
 }

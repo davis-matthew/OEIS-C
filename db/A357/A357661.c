@@ -8,12 +8,14 @@
  *            Stirling number of the second kind
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Sequence types are supplied by the build system. */
  
@@ -47,11 +49,11 @@ static void ensure_up_to(idx_t n)
     /* First time: allocate the first row and the first power of two. */
     if (S == NULL) {
         S = (seq_t **)malloc(sizeof(seq_t *));
-        S[0] = (seq_t *)malloc(sizeof(seq_t));
+        S[0] = mem_new(seq_t, 1);
         S[0][0] = (seq_t)1;
         max_n = 0;
 
-        pow2 = (seq_t *)malloc(sizeof(seq_t));
+        pow2 = mem_new(seq_t, 1);
         pow2[0] = (seq_t)1;
         max_pow2 = 0;
     }
@@ -62,7 +64,7 @@ static void ensure_up_to(idx_t n)
     /* Grow the Stirling table row by row up to n. */
     S = (seq_t **)realloc(S, sizeof(seq_t *) * (n + 1));
     for (idx_t i = max_n + 1; i <= n; ++i) {
-        S[i] = (seq_t *)malloc(sizeof(seq_t) * (i + 1));
+        S[i] = mem_new(seq_t, (i + 1));
 
         /* Base case: S[i][0] = 0 for i > 0. */
         S[i][0] = (seq_t)0;
@@ -79,7 +81,7 @@ static void ensure_up_to(idx_t n)
 
     /* Ensure powers of two table covers exponent n. */
     if (n > max_pow2) {
-        pow2 = (seq_t *)realloc(pow2, sizeof(seq_t) * (n + 1));
+        pow2 = mem_resize(seq_t, pow2, (n + 1));
         for (idx_t i = max_pow2 + 1; i <= n; ++i)
             pow2[i] = pow2[i - 1] * ((seq_t)2);
         max_pow2 = n;

@@ -12,14 +12,15 @@
  *            L/(2j+1), and v_...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 48,
  *            big any n
- * Helpers:   a2550_inv
+ * Validated: standard, pass, 37 terms through n = 195 (2026-11-01)
+ * Helpers:   modinv
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a2550_inv.h"
+#include "../utils/modinv.h"
 
 seq_t a(idx_t n) {
     uint64_t N = 2 * (uint64_t)n - 1;
@@ -65,7 +66,7 @@ seq_t a(idx_t n) {
             long long v = 0, j;
             while (u % p == 0) { u /= p; v++; }
             for (j = 0; j < e - v; j++) pw *= p;
-            T = (T + (pw % pe) * a2550_inv(u % pe, pe)) % pe;
+            T = (T + (pw % pe) * modinv(u % pe, pe)) % pe;
         }
         vP = 0;
         if (T == 0) vP = e;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 41, u64 n <= 100, u128 n <= 100,
  *            big any n
- * Helpers:   isPrime128, isPrimeGeneric, isPrimeULL, pow_u64
+ * Validated: standard, pass, 51 terms through n = 96 (2026-11-03)
+ * Helpers:   ipow_u64_u32, is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,10 +36,30 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/isPrime128.h"
-#include "../utils/isPrimeGeneric.h"
-#include "../utils/isPrimeULL.h"
-#include "../utils/pow_u64.h"
+#include "../utils/ipow_u64_u32.h"
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 /* -----------------  Helper:  Miller–Rabin for 128‑bit --------------- */
 #if defined(__SIZEOF_INT128__)
@@ -109,7 +130,7 @@ static void grow_terms(size_t need)
     if (terms_cap >= need) return;
     size_t new_cap = terms_cap == 0 ? 64 : terms_cap * 2;
     while (new_cap < need) new_cap *= 2;
-    terms = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, new_cap);
     terms_cap = new_cap;
 }
 
@@ -133,7 +154,7 @@ seq_t a(idx_t n)
         seq_t usigma = (seq_t)1;
         for (size_t i = 0; i < fcnt; ++i) {
             unsigned full_exp = 2u * (unsigned)exps[i];      /* exponent in m^2 */
-            seq_t p_power = pow_u64(factors[i], full_exp);   /* p^(2e)   */
+            seq_t p_power = ipow_u64_u32(factors[i], full_exp);   /* p^(2e)   */
             seq_t p_next  = p_power * (seq_t)factors[i];     /* p^(2e+1) */
 
             /* sigma factor: (p^(2e+1) - 1)/(p - 1) */

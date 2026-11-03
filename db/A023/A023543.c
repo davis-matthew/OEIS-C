@@ -10,6 +10,7 @@
  *            L(i)=(i+1)(i+2)/2 for i≥2 cum(d)= (d+1)(d+2)(d+3)/6 – 2
  * Range:     u8 n <= 62, u16 n <= 3433, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 74 terms through n = 4974 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

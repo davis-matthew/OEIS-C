@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 135, u64 n <= 434,
+ * Range:     u8 n <= 14, u16 n <= 35, u32 n <= 135, u64 n <= 434,
  *            u128 n <= 1325, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 71 terms through n = 1154 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,8 @@
  */
 
 #include <stddef.h>
-#include "../utils/binom.h"          /* seq_t binom(idx_t a, idx_t b) */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static inline idx_t row_of(idx_t n, idx_t *col)
 {
@@ -43,8 +45,8 @@ static seq_t triangle_T(idx_t n, idx_t k)
     seq_t sum = 0;
     for (idx_t j = k; j <= n; ++j)
     {
-        seq_t term = binom(n + j, n);
-        term = term * binom(n, j);
+        seq_t term = binomial(n + j, n);
+        term = term * binomial(n, j);
         term = term / (j + 1);
         sum += term;
     }

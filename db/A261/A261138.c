@@ -11,14 +11,18 @@
  *            of ten and adding the next part
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   digits_of, rev, seq_pow
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   ipow_idx, num_digits_idx, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"   /* seq_t seq_pow(seq_t base, idx_t exp); */
-#include "../utils/rev.h"       /* idx_t rev(idx_t x); */
-#include "../utils/digits_of.h"/* int digits_of(idx_t x); */
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/num_digits_idx.h"
+#include "../utils/reverse_digits_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -26,14 +30,14 @@ seq_t a(idx_t n)
 
     /* Concatenate 1,2,…,n */
     for (idx_t i = 1; i <= n; ++i) {
-        seq_t pow10d = seq_pow(10, digits_of(i));
+        seq_t pow10d = ipow_idx(10, num_digits_idx(i));
         res = res * pow10d + (seq_t)i;
     }
 
     /* Concatenate rev(n), rev(n‑1), …, rev(1) */
     for (idx_t i = n; i > 0; --i) {
-        seq_t pow10d = seq_pow(10, digits_of(i));
-        seq_t r = rev(i);
+        seq_t pow10d = ipow_idx(10, num_digits_idx(i));
+        seq_t r = reverse_digits_idx(i);
         res = res * pow10d + r;
     }
 

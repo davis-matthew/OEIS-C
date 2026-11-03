@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 11, u64 n <= 36, u128 n <= 201,
  *            big any n
- * Helpers:   init_constants, leq_pair
+ * Validated: standard, pass, 36 terms through n = 198 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,23 @@
     The answer is the sum of these two counts.
 */
 #include <stdbool.h>
-#include "../utils/init_constants.h"
-#include "../utils/leq_pair.h"
+
+static void init_constants(void)
+{
+    static bool run = false;
+    if (run) return;
+    run = true;
+    /* nothing to do here; initialization is done in the first call to a() */
+}
+
+static bool leq_pair(int p, int q)
+{
+    int a1 = p / 4, b1 = p % 4;
+    int a2 = q / 4, b2 = q % 4;
+    if (a1 < a2) return true;
+    if (a1 == a2 && b1 <= b2) return true;
+    return false;
+}
 
 static void compute_counts(idx_t n, seq_t *ca, seq_t *cb)
 {

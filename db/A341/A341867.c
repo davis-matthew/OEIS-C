@@ -12,6 +12,7 @@
  *            floor((√(8n+1)-1)/2) (diagonal number) * p = n - d*(d+1)/2 (...
  * Range:     u8 n <= 28, u16 n <= 81, u32 n <= 261, u64 n <= 961,
  *            u128 n <= 3524, big any n
+ * Validated: standard, pass, 71 terms through n = 4331 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/binomial.h"      /* provides seq_t binomial(idx_t n, idx_t k); */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

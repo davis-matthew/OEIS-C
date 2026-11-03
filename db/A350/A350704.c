@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 5746, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9871 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Constant parameters ---------- */
 static const idx_t PRIMES_LIMIT = 2000000;   /* sieve size (enough for n≈10000) */
@@ -122,7 +124,7 @@ static void ensure_terms(size_t need)
     /* Prepare dynamic cache */
     if (term_cache == NULL) {
         cache_cap = 1024;
-        term_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        term_cache = mem_new(seq_t, cache_cap);
         if (term_cache == NULL) return;  /* allocation failure */
     }
 
@@ -133,7 +135,7 @@ static void ensure_terms(size_t need)
         if (!has_sg_prime_factor(cand)) {
             if (cache_len >= cache_cap) {
                 cache_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(term_cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, term_cache, cache_cap);
                 if (tmp == NULL) return; /* allocation failure */
                 term_cache = tmp;
             }

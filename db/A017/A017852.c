@@ -9,13 +9,15 @@
  *            of n with parts 6…12)
  * Range:     u8 n <= 33, u16 n <= 57, u32 n <= 106, u64 n <= 204,
  *            u128 n <= 399, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 900 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* malloc, calloc, realloc */
 #include <stddef.h>  /* size_t */
+#include "../utils/mem.h"
 
 /* External linkage as required */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialise cache with space for 13 entries (0..12) */
     if (memo == NULL) {
         cache_size = 13;
-        memo = (seq_t *)calloc(cache_size, sizeof(seq_t));
+        memo = mem_new(seq_t, cache_size);
         if (memo == NULL) return 0;  /* fallback: out of memory, return 0 */
         memo[0] = 1;                 /* base value a(0) */
         max_computed = 0;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* ensure the cache is large enough */
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_mem = (seq_t *)realloc(memo, new_size * sizeof(seq_t));
+        seq_t *new_mem = mem_resize(seq_t, memo, new_size);
         if (new_mem == NULL) return 0; /* memory failure */
         /* zero the newly allocated part (except a(0) which is already 1) */
         for (size_t i = cache_size; i < new_size; ++i)

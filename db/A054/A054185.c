@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -60,12 +61,12 @@ seq_t a(idx_t n)
         for (idx_t d = 1; d * d <= k; ++d) {
             if (k % d == 0) {
                 idx_t m = k / d;              /* m = k/d */
-                seq_t term = pow_uint(2ULL, m); /* 2^{k/d} */
+                seq_t term = ipow_u64_idx(2ULL, m); /* 2^{k/d} */
                 term *= (seq_t)phi[d];         /* φ(d) * 2^{m} */
                 sum += term;
 
                 if (d != m) {                 /* other divisor pair */
-                    term = pow_uint(2ULL, d);  /* 2^{d} */
+                    term = ipow_u64_idx(2ULL, d);  /* 2^{d} */
                     term *= (seq_t)phi[m];    /* φ(m) * 2^{d} */
                     sum += term;
                 }

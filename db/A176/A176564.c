@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, tabl, easy
  * Formula:   not stated
- * Range:     i8 n <= 10, i16 n <= 36, i32 n <= 51, i64 n <= 51, i128 n <= 51,
+ * Range:     i8 n <= 21, i16 n <= 48, i32 n <= 51, i64 n <= 51, i128 n <= 51,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
  * Computes the OEIS sequence A176564 (triangle read by rows).
  */
 #include <math.h>           /* sqrt needed for the upper bound of r */
-#include "../utils/binom.h" /* provides seq_t binom(idx_t a, idx_t b); */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -52,9 +54,9 @@ seq_t a(idx_t n)
 
     idx_t two_r = r << 1;             /* 2*r */
 
-    seq_t term1 = binom(two_r, m);
-    seq_t term2 = binom(two_r, r - m);
-    seq_t term3 = binom(two_r, r);
+    seq_t term1 = binomial(two_r, m);
+    seq_t term2 = binomial(two_r, r - m);
+    seq_t term3 = binomial(two_r, r);
 
     return term1 + term2 - term3;
 }

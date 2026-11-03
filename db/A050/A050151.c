@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{k=1..n} 2^{k-1} * C(n, k) * C(n, k-1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 26, u128 n <= 51,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 990 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

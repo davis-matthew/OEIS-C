@@ -10,14 +10,34 @@
  *            base‑8 * representation of k+1 does not
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   octal_adj67
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/octal_adj67.h"
+#include "../utils/mem.h"
+
+/* Detect whether v (in base 10) has an adjacent pair of digits 6 and 7
+ * in its octal representation, regardless of order. */
+static bool octal_adj67(seq_t v)
+{
+    if (v == 0)
+        return false;
+
+    int prev = -1;                     /* no previous digit yet */
+    while (v > 0) {
+        int cur = (int)(v % 8);       /* current least‑significant octal digit */
+        if (prev != -1 &&
+            ((cur == 6 && prev == 7) || (cur == 7 && prev == 6)))
+            return true;
+        v /= 8;
+        prev = cur;
+    }
+    return false;
+}
 
 /* Simple dynamic array to cache computed terms. */
 static seq_t   *cache   = NULL;
@@ -30,7 +50,7 @@ static void cache_push(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 128 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             abort();        /* out of memory */
         cache = tmp;

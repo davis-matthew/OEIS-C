@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 109, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   big_pow, is_prime
+ * Validated: standard, pass, 84 terms through n = 9921 (2026-11-01)
+ * Helpers:   ipow, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,9 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
+#include "../utils/ipow.h"
 #include "../utils/is_prime.h"
-#include "../utils/big_pow.h"
 
 /* ------- small‑term cache (indices 0 … 5) ------- */
 static seq_t small_cache[6];
@@ -73,8 +75,8 @@ a(idx_t n)
             seq_t p = 2;
             while (true) {
                 if (is_prime((idx_t)p)) {
-                    seq_t lhs = big_pow(prev, p);
-                    seq_t rhs = big_pow(prevprev, prev);
+                    seq_t lhs = ipow(prev, p);
+                    seq_t rhs = ipow(prevprev, prev);
                     if (lhs > rhs) break;
                 }
                 p = (p == 2) ? 3 : p + 2;       /* next prime candidate */

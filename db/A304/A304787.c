@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥1} (1 + x^k)^{Catalan(k)}
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   catalan
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 /* Compute a(n) for OEIS A304787. */
 seq_t a(idx_t n) {
@@ -25,10 +27,10 @@ seq_t a(idx_t n) {
         return (seq_t)1;
 
     /* Allocate temporary arrays.  All arrays are sized n+1. */
-    seq_t *pos = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *neg = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *r   = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *dp  = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *pos = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *neg = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *r   = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *dp  = mem_new(seq_t, (size_t)(n + 1));
     if (!pos || !neg || !r || !dp)
         return (seq_t)0;   /* error path: return 0 on allocation failure */
 
@@ -57,8 +59,8 @@ seq_t a(idx_t n) {
     }
 
     /* Free intermediate arrays that are no longer needed. */
-    free(pos);
-    free(neg);
+    mem_free(pos);
+    mem_free(neg);
 
     /* STEP 2: Compute the sequence a[n] using the recurrence derived from
        the logarithmic derivative:  n·a[n] = Σ_{j=1}^n a[n-j]·r[j]. */
@@ -73,7 +75,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[n];
-    free(r);
-    free(dp);
+    mem_free(r);
+    mem_free(dp);
     return result;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 6045, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_power_of
+ * Validated: standard, pass, 71 terms through n = 9820 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,14 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_power_of.h"
+
+/* ---------- Helper: check if m is a power of a (a > 1) ---------- */
+static bool is_power_of(uint64_t m, uint64_t a)
+{
+    if (m == 0) return false;
+    while (m % a == 0) m /= a;
+    return m == 1;
+}
 
 /* ---------- Helper: trial division primality test ---------- */
 static bool is_prime_uint64(uint64_t n)

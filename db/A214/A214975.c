@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9641 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------- static data and helpers --------- */
 
@@ -41,12 +43,12 @@ static size_t terms_len = 0, terms_cap = 0;
 static idx_t last_k = 0;        /* last k checked                              */
 
 /* Make sure an array has at least 'need' capacity */
-static void grow_array(void **p, size_t *cap, size_t need)
+static void grow_array(seq_t **p, size_t *cap, size_t need)
 {
     if (need <= *cap) return;
     size_t new_cap = (*cap > 0 ? *cap * 2 : 16);
     if (new_cap < need) new_cap = need;
-    void *tmp = realloc(*p, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *p, new_cap);
     if (!tmp) abort();  /* out of memory */
     *p = tmp;
     *cap = new_cap;
@@ -59,28 +61,28 @@ static void init_tables(void)
 
     /* Fibonacci for Zeckendorf: 1, 2 */
     fib_cap = 2;
-    fib = (seq_t*)malloc(fib_cap * sizeof(seq_t));
+    fib = mem_new(seq_t, fib_cap);
     fib[0] = (seq_t)1;
     fib[1] = (seq_t)2;
     fib_len = 2;
 
     /* Lucas in index order: L(0)=2, L(1)=1 */
     lucas_cap = 2;
-    lucas = (seq_t*)malloc(lucas_cap * sizeof(seq_t));
+    lucas = mem_new(seq_t, lucas_cap);
     lucas[0] = (seq_t)2;
     lucas[1] = (seq_t)1;
     lucas_len = 2;
 
     /* Ascending Lucas list: start with 1, 2 */
     asc_cap = 2;
-    asc_l   = (seq_t*)malloc(asc_cap * sizeof(seq_t));
+    asc_l   = mem_new(seq_t, asc_cap);
     asc_l[0] = (seq_t)1;   /* L(1) */
     asc_l[1] = (seq_t)2;   /* L(0) */
     asc_len = 2;
 
     /* Term cache */
     terms_cap = 16;
-    terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
     terms_len = 0;
 }
 
@@ -88,7 +90,7 @@ static void init_tables(void)
 static void extend_fib(idx_t n)
 {
     while (fib_len > 0 && fib[fib_len-1] <= (seq_t)n) {
-        grow_array((void**)&fib, &fib_cap, fib_len + 1);
+        grow_array(&fib, &fib_cap, fib_len + 1);
         fib[fib_len] = fib[fib_len-1] + fib[fib_len-2];
         fib_len++;
     }
@@ -100,13 +102,13 @@ static void extend_fib(idx_t n)
 static void extend_lucas(idx_t n)
 {
     while (lucas_len > 0 && lucas[lucas_len-1] <= (seq_t)n) {
-        grow_array((void**)&lucas, &lucas_cap, lucas_len + 1);
+        grow_array(&lucas, &lucas_cap, lucas_len + 1);
         lucas[lucas_len] = lucas[lucas_len-1] + lucas[lucas_len-2];
         lucas_len++;
 
         /* Since all new Lucas numbers after L(1) are increasing,
            we can safely append to asc_l. */
-        grow_array((void**)&asc_l, &asc_cap, asc_len + 1);
+        grow_array(&asc_l, &asc_cap, asc_len + 1);
         asc_l[asc_len] = lucas[lucas_len-1];
         asc_len++;
     }
@@ -159,7 +161,7 @@ static void ensure_terms_up_to(idx_t n)
         extend_lucas(last_k);
 
         if (lucas_digit_count(last_k) < zeckendorf_digit_count(last_k)) {
-            grow_array((void**)&terms, &terms_cap, terms_len + 1);
+            grow_array(&terms, &terms_cap, terms_len + 1);
             terms[terms_len] = (seq_t)last_k;
             terms_len++;
         }

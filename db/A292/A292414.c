@@ -7,7 +7,8 @@
  * Formula:   a(n) = [x^n] ∏_{k≥1} (1 + 2^n·x^k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 21,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 35 terms through n = 168 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
    over the distinct-sum partition generating function. */
 
 #include <stdlib.h>
-#include "../utils/pow2.h"   /* provides seq_t pow2(idx_t exp); */
+#include <stdbool.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Allocate DP array of size n+1 */
     idx_t size = n + 1;
-    seq_t *dp = (seq_t *)malloc(sizeof(seq_t) * size);
+    seq_t *dp = mem_new(seq_t, size);
     if (!dp) return 0;                  /* out of memory → return 0 */
 
     /* Initialize dp[0] = 1, others = 0 */
@@ -43,6 +46,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

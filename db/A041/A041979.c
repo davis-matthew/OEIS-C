@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 18, u64 n <= 39, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* periodic coefficient pattern */
 static const uint64_t pattern[12] = {1,1,1,2,6,11,6,2,1,1,1,44};
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cap   = 2;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)1;
         last    = 1;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     if (n >= cap) {
         idx_t new_cap = cap;
         while (new_cap <= n) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap   = new_cap;
     }
 

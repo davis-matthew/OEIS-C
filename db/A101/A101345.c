@@ -10,14 +10,25 @@
  *            floor(k*sqrt(5)) = floor(sqrt(5*k*k))
  * Range:     u8 n <= 6, u16 n <= 2219, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_phi_seq, isqrt_seq
+ * Validated: standard, pass, 74 terms through n = 9850 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_phi_seq.h"
 #include "../utils/isqrt_seq.h"
+
+/* Return floor(k * phi) for k >= 1.
+   Uses the identity: floor(k*phi) = (k + floor(k*sqrt(5))) / 2. */
+static inline seq_t floor_phi_seq(seq_t k)
+{
+    /* compute floor(k*sqrt(5)) as floor(sqrt(5*k*k)) */
+    seq_t sq = k * k;          /* k^2 */
+    sq = sq * (seq_t)5;        /* 5*k^2 */
+    seq_t s = isqrt_seq(sq);   /* floor(k*sqrt(5)) */
+    return (k + s) >> 1;       /* division by 2 */
+}
 
 seq_t a(idx_t n)
 {

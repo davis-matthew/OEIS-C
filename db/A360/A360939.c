@@ -8,14 +8,18 @@
  *            / k! (a(0)=1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 22,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 330 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"   /* seq_t big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* ensure a seq_t array has room for at least `need` elements */
 static void grow_seq_arr(seq_t **arr, size_t *cap, size_t need)
@@ -24,7 +28,7 @@ static void grow_seq_arr(seq_t **arr, size_t *cap, size_t need)
         size_t new_cap = (*cap) ? (*cap) << 1 : 1;
         while (new_cap < need)
             new_cap <<= 1;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }
@@ -68,7 +72,7 @@ seq_t a(idx_t n)
 
     for (size_t k = 1; k <= N; ++k) {
         pow2 *= (seq_t)2;                      /* 2^k */
-        seq_t powk = big_pow((seq_t)(k + 1), (seq_t)(k - 1)); /* (k+1)^(k-1) */
+        seq_t powk = ipow((seq_t)(k + 1), (seq_t)(k - 1)); /* (k+1)^(k-1) */
 
         seq_t term = ratio;
         term *= binom;

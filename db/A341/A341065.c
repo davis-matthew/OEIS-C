@@ -8,7 +8,8 @@
  * Formula:   a(n) = coefficient of x^n in ( ∑_{k≥1, k squarefree} x^k )^5
  * Range:     u8 n <= 13, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Simple square‑free test by checking squares of all integers up to sqrt(x). */
 static bool is_squarefree_uint64(uint64_t x)
@@ -40,11 +42,11 @@ seq_t a(idx_t n)
     if (n >= cache_cap) {
         /* Allocate new cache. */
         idx_t new_cap = n + 1;
-        seq_t *new_cache = (seq_t*)calloc((size_t)new_cap, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)new_cap);
         if (!new_cache) return 0;      /* allocation failed */
 
         /* Free any previous cache. */
-        free(a_cache);
+        mem_free(a_cache);
         a_cache = new_cache;
         cache_cap = new_cap;
 
@@ -58,12 +60,12 @@ seq_t a(idx_t n)
 
         /* DP arrays for t‑length compositions.  We only keep two rows. */
         size_t len = (size_t)n + 1;
-        seq_t *prev = (seq_t*)calloc(len, sizeof(seq_t));
-        seq_t *curr = (seq_t*)calloc(len, sizeof(seq_t));
+        seq_t *prev = mem_new(seq_t, len);
+        seq_t *curr = mem_new(seq_t, len);
         if (!prev || !curr) {
             free(sq);
-            free(prev);
-            free(curr);
+            mem_free(prev);
+            mem_free(curr);
             return 0;
         }
 
@@ -92,8 +94,8 @@ seq_t a(idx_t n)
         }
 
         /* Clean up. */
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         free(sq);
     }
 

@@ -7,9 +7,10 @@
  * Keywords:  nonn, tabl
  * Formula:   T(n,k) = T(n‑k,k) + P_k(n‑k) where P_k(m) is the number of
  *            partitions of m with all parts ≥ k
- * Range:     u8 n <= 78, u16 n <= 595, u32 n <= 5886, u64 n <= 7803,
- *            u128 n <= 7803, big any n
- * Helpers:   seq_alloc
+ * Range:     u8 n <= 78, u16 n <= 595, u32 n <= 5886, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 107 terms through n = 7803 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,16 @@
 /* a(n) is the triangle read by rows: a(1)=T(1,1), a(2)=T(2,1), a(3)=T(2,2), …   */
 
 #include <stdbool.h>
-#include "../utils/seq_alloc.h"          /* seq_alloc – allocates seq_t arrays */
+#include <stdlib.h>
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 /* maximum number of rows pre‑computed.
    For n ≤ 10000 the corresponding row is ≤ 142, so 200 is more than enough. */

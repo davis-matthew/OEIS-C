@@ -10,7 +10,8 @@
  *            condition
  * Range:     u8 n <= 1, u16 n <= 578, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   integer_sqrt, is_prime
+ * Validated: standard, pass, 58 terms through n = 9508 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../utils/is_prime.h"
-#include "../utils/integer_sqrt.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* Static state: discovered terms */
 static seq_t  *terms      = NULL;   /* array of found primes   */
@@ -33,10 +36,10 @@ static void push_term(seq_t val)
 {
     if (terms_cap == 0) {
         terms_cap = 16;
-        terms = (seq_t*)malloc(sizeof(seq_t) * terms_cap);
+        terms = mem_new(seq_t, terms_cap);
     } else if (terms_cnt == terms_cap) {
         terms_cap <<= 1;
-        terms = (seq_t*)realloc(terms, sizeof(seq_t) * terms_cap);
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
     terms[terms_cnt++] = val;
 }
@@ -48,7 +51,7 @@ static void generate_upto(idx_t n)
 
     while (terms_cnt < n) {
         uint64_t p = cur_candidate++;
-        if (!is_prime(p)) continue;
+        if (!is_prime_u64(p)) continue;
 
         bool rep = false;
         for (uint64_t y = 0; ; ++y) {
@@ -59,7 +62,7 @@ static void generate_upto(idx_t n)
             int64_t k2 = (int64_t)4 * p - (int64_t)47 * y2;
             if (k2 < 0) continue;   /* discriminant negative */
 
-            idx_t k_i = integer_sqrt((idx_t)k2);
+            idx_t k_i = isqrt((idx_t)k2);
             seq_t k   = (seq_t)k_i;
 
             if ((k * k) != (seq_t)k2) continue;   /* not a perfect square */

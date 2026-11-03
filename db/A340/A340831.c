@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of unordered factorizations of n into factors > 1
  *            with odd greatest factor. a(n) is 0 for n = 1,2
- * Range:     u8 n <= 9035, u16 n <= 9035, u32 n <= 9035, u64 n <= 9035,
- *            u128 n <= 9035, big any n
+ * Range:     u8 n <= 15119, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 124 terms through n = 9035 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

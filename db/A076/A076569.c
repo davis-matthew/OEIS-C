@@ -9,12 +9,14 @@
  *            factor of (2*n + 5)
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   gpf
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gpf.h"
+#include <stdint.h>
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -23,5 +25,5 @@ seq_t a(idx_t n)
        to avoid overflow before casting back to 64 bits. */
     uint64_t m = (uint64_t)(((unsigned __int128)n) * 2 + 5);
     /* gpf returns the greatest prime factor of a 64‑bit integer. */
-    return (seq_t)gpf(m);
+    return (seq_t)largest_prime_factor(m);
 }

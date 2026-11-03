@@ -13,6 +13,7 @@
  *            0≤v≤3
  * Range:     i8 n <= 2197, i16 n <= 2197, i32 n <= 2197, i64 n <= 2197,
  *            i128 n <= 2197, big any n
+ * Validated: standard, pass, 91 terms through n = 2035 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

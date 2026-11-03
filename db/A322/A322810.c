@@ -9,15 +9,34 @@
  * Formula:   a(1)=1, a(2)=2, for n>2 if n is an odd square‑free integer >1,
  *            a(n)=3, otherwise a(n)=3 plus the number of indices i≤n such
  *            that i is not an odd square‑free integer
- * Range:     u8 n <= 425, u16 n <= 8181, u32 n <= 8181, u64 n <= 8181,
- *            u128 n <= 8181, big any n
- * Helpers:   is_odd_squarefree
+ * Range:     u8 n <= 425, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8181 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_odd_squarefree.h"
+
+static bool is_odd_squarefree(idx_t n)
+{
+    if (n <= 1)           return false;        /* 1 is not considered odd square‑free >1 */
+    if ((n & 1) == 0)     return false;        /* even numbers are not odd square‑free */
+
+    /* Test for a squared prime factor */
+    idx_t m = n;
+    for (idx_t p = 3; p <= m / p; p += 2) {
+        if (m % p == 0) {                    /* p divides m */
+            m /= p;
+            if (m % p == 0)                 /* p² divides original n */
+                return false;
+            /* consume higher powers of p to reduce m */
+            while (m % p == 0) m /= p;
+        }
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

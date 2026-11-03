@@ -13,14 +13,24 @@
  *            predecessor) The count increases for every s...
  * Range:     u8 n <= 13, u16 n <= 4999, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   next_a342369
+ * Validated: standard, pass, 106 terms through n = 4842 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/next_a342369.h"
+
+/* Helper: single step of the A342369 function. */
+static inline seq_t next_a342369(seq_t k)
+{
+    /* k % 3 == 2  ⇔  (2*k-1) is divisible by 3 and the quotient is odd. */
+    if (k % 3 == 2)
+        return (2 * k - 1) / 3;   /* odd predecessor */
+    else
+        return 2 * k;             /* even predecessor */
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

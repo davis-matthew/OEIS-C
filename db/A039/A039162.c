@@ -9,7 +9,8 @@
  *            has the same number of 0's and 7's
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   alloc_seq_array, equal_zero_and_seven
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,29 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/equal_zero_and_seven.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Return true if x's base‑11 representation contains equal numbers of
+ * digits 0 and 7.  The function works for any seq_t type. */
+static bool equal_zero_and_seven(seq_t x)
+{
+    int zeros  = 0;
+    int sevens = 0;
+    const seq_t BASE = (seq_t)11;
+
+    while (x > 0) {
+        seq_t d = x % BASE;
+        if (d == 0) zeros++;
+        else if (d == 7) sevens++;
+        x /= BASE;
+    }
+    return zeros == sevens;
+}
 
 /* Allocate enough space for the largest n we anticipate.  A few
  * hundred thousand entries are more than enough for n up to 10 000. */

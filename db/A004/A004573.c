@@ -9,7 +9,8 @@
  *            base 6
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmpn, subn
+ * Validated: standard, pass, 115 terms through n = 9916 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/cmpn.h"
-#include "../utils/subn.h"
+
+static int cmpn(const uint32_t *a, size_t la, const uint32_t *b, size_t lb)
+{
+    if (la != lb) return la < lb ? -1 : 1;
+    for (size_t i = la; i-- > 0;) {
+        if (a[i] != b[i]) return a[i] < b[i] ? -1 : 1;
+    }
+    return 0;
+}
+
+/* a -= b (a >= b); returns normalized length */
+static size_t subn(uint32_t *a, size_t la, const uint32_t *b, size_t lb)
+{
+    int64_t br = 0;
+    for (size_t i = 0; i < la; i++) {
+        int64_t v = (int64_t)a[i] - br - (i < lb ? (int64_t)b[i] : 0);
+        if (v < 0) { v += ((int64_t)1 << 32); br = 1; } else br = 0;
+        a[i] = (uint32_t)v;
+    }
+    while (la && a[la - 1] == 0) la--;
+    return la;
+}
 
 static uint32_t *P = NULL, *R = NULL, *T = NULL;
 static size_t cap = 0, lp = 0, lr = 0;

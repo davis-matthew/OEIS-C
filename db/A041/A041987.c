@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 22, u64 n <= 44, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 174 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         /* Allocate for index 0 */
-        qs = (seq_t*)malloc(sizeof(seq_t));
+        qs = mem_new(seq_t, 1);
         mm = (uint64_t*)malloc(sizeof(uint64_t));
         dd = (uint64_t*)malloc(sizeof(uint64_t));
         aa = (uint64_t*)malloc(sizeof(uint64_t));
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     if (n > max_n) {
         /* Enlarge tables to hold indices up to n */
         size_t new_size = (size_t)(n + 1);
-        qs = (seq_t*)realloc(qs, new_size * sizeof(seq_t));
+        qs = mem_resize(seq_t, qs, new_size);
         mm = (uint64_t*)realloc(mm, new_size * sizeof(uint64_t));
         dd = (uint64_t*)realloc(dd, new_size * sizeof(uint64_t));
         aa = (uint64_t*)realloc(aa, new_size * sizeof(uint64_t));

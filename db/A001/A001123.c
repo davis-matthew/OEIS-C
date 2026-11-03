@@ -7,13 +7,31 @@
  * Formula:   primes p where 3 is the smallest primitive root
  * Range:     u8 n <= 12, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   get_prime_factors
+ * Validated: standard, pass, 64 terms through n = 947 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/get_prime_factors.h"
+
+static int get_prime_factors(uint64_t n, uint64_t *factors) {
+    int count = 0;
+    if (n % 2 == 0) {
+        factors[count++] = 2;
+        while (n % 2 == 0) n /= 2;
+    }
+    for (uint64_t i = 3; i * i <= n; i += 2) {
+        if (n % i == 0) {
+            factors[count++] = i;
+            while (n % i == 0) n /= i;
+        }
+    }
+    if (n > 1) {
+        factors[count++] = n;
+    }
+    return count;
+}
 
 static uint64_t modpow(uint64_t base, uint64_t exp, uint64_t mod) {
     uint64_t result = 1;

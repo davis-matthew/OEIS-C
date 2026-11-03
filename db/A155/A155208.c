@@ -10,13 +10,17 @@
  *            (1/n) * Σ_{k=1}^n ((4^k+1)^k) * a(n-k)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 7,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +36,7 @@ seq_t a(idx_t n)
 
     /* initialise cache for a[0] */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * 1);
+        cache = mem_new(seq_t, 1);
         cache[0] = (seq_t)1;      /* a(0) = 1 */
         cache_cap = 1;
         highest = 0;
@@ -41,7 +45,7 @@ seq_t a(idx_t n)
     /* ensure cache can hold up to n */
     if ((size_t)n >= cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) exit(1);   /* abort on allocation failure */
         cache = tmp;
         cache_cap = new_cap;
@@ -50,7 +54,7 @@ seq_t a(idx_t n)
     /* ensure b array can hold up to n (only if n>=1) */
     if ((size_t)n >= b_cap) {
         size_t new_cap = (size_t)n;   /* need indices 0..n-1 for b[1..n] */
-        seq_t *tmp = (seq_t *)realloc(b, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, b, new_cap);
         if (tmp == NULL) exit(1);
         b = tmp;
         b_cap = new_cap;
@@ -58,9 +62,9 @@ seq_t a(idx_t n)
 
     /* compute b[k] for k = b_highest+1 .. n */
     for (idx_t k = b_highest + 1; k <= n; ++k) {
-        seq_t pow4  = big_pow((seq_t)4, (seq_t)k);          /* 4^k */
+        seq_t pow4  = ipow((seq_t)4, (seq_t)k);          /* 4^k */
         seq_t base  = pow4 + (seq_t)1;                      /* 4^k + 1 */
-        seq_t bk    = big_pow(base, (seq_t)k);             /* (4^k+1)^k */
+        seq_t bk    = ipow(base, (seq_t)k);             /* (4^k+1)^k */
         b[k - 1] = bk;
     }
     b_highest = n;

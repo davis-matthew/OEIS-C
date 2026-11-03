@@ -8,6 +8,7 @@
  *            c(d_j)*10^j where c(0)=0, c(1)=4, c(2)=6, c(3)=8, c(4)=9
  * Range:     u8 n <= 25, u16 n <= 1500, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 74 terms through n = 9089 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

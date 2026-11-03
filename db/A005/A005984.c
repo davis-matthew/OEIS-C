@@ -10,14 +10,15 @@
  *            decreasing value; so a(2^k - 1) = (4^k - 1)/3
  * Range:     u8 n <= 15, u16 n <= 15, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   popc
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   popcount
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/popc.h"
+#include "../utils/popcount.h"
 
 static uint64_t C_tab[65][65];
 static bool C_ready = false;
@@ -49,7 +50,7 @@ static uint64_t count_lt(uint64_t y, int p) {
 
 /* position of j among k-bit numbers ordered by popcount, then decreasing value */
 static uint64_t rank_k(uint64_t j, int k) {
-    int p = popc(j), q;
+    int p = popcount(j), q;
     uint64_t r = 0;
     for (q = 0; q < p; q++) r += C_tab[k][q];
     r += C_tab[k][p] - count_lt(j + 1, p);

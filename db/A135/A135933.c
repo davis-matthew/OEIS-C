@@ -8,7 +8,8 @@
  *            prime
  * Range:     u8 n <= 33, u16 n <= 3000, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 71 terms through n = 2916 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>          /* for size_t */
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 /* --------------------------------------------------------------------- */
 /* internal cache limits ------------------------------------------------ */
@@ -43,7 +44,7 @@ static uint64_t last_checked = 1;   /* last integer examined for primeness */
 static bool isPrimeUint(uint64_t n)
 {
     if (n < 2) return false;
-    uint64_t r = _floor_isqrt_u64((idx_t)n);
+    uint64_t r = isqrt((idx_t)n);
     for (size_t i = 0; i < prime_len && primes[i] <= r; ++i)
         if (n % primes[i] == 0) return false;
     return true;
@@ -67,7 +68,7 @@ seq_t a(idx_t n)
                 primes[prime_len++] = last_checked;
 
             /* compute the remainder r = p - floor(sqrt(p))^2 */
-            uint64_t k = _floor_isqrt_u64((idx_t)last_checked);
+            uint64_t k = isqrt((idx_t)last_checked);
             uint64_t r = last_checked - k * k;
 
             /* include p if the remainder is not prime */

@@ -9,13 +9,22 @@
  *            x^{4k})^3
  * Range:     i8 n <= 55, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   exp_for_m
+ * Validated: standard, pass, 77 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/exp_for_m.h"
+#include "../utils/mem.h"
+
+/* Returns exponent e(m) for (1‑x^m)^e in the product */
+static int exp_for_m(idx_t m)
+{
+    if (m % 6 == 0) return 6;
+    if (m % 2 == 0) return 3;
+    return 4;
+}
 
 /* Pre‑computed binomial coefficients for 0≤c≤6 */
 static const seq_t binom[7][7] = {
@@ -38,8 +47,8 @@ seq_t a(idx_t n)
     if (n >= cache_size)
     {
         idx_t new_size = n + 1;
-        seq_t *coeff  = (seq_t*)calloc(new_size, sizeof(seq_t));
-        seq_t *temp   = (seq_t*)calloc(new_size, sizeof(seq_t));
+        seq_t *coeff  = mem_new(seq_t, new_size);
+        seq_t *temp   = mem_new(seq_t, new_size);
         if (!coeff || !temp) return 0;          /* memory failure – unlikely in tests */
 
         coeff[0] = (seq_t)1;                     /* a(0)=1 */
@@ -80,14 +89,14 @@ seq_t a(idx_t n)
         }
 
         /* Final coefficients are in cur.  Copy into cache. */
-        free(cache);
-        cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+        mem_free(cache);
+        cache = mem_new(seq_t, new_size);
         for (idx_t i = 0; i < new_size; ++i) cache[i] = cur[i];
         cache_size = new_size;
 
         /* free temporary buffers */
-        free(cur);
-        free(nxt);
+        mem_free(cur);
+        mem_free(nxt);
     }
 
     return cache[n];

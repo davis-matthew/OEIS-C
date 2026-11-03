@@ -9,15 +9,17 @@
  *            numbers (OEIS A294624). Implements a dynamic programming
  *            approach that rebuilds the table only when a larger n is
  *            requested
- * Range:     u8 n <= 499, u16 n <= 1764, u32 n <= 7751, u64 n <= 9328,
- *            u128 n <= 9328, big any n
- * Helpers:   none
+ * Range:     u8 n <= 499, u16 n <= 1764, u32 n <= 7751, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 117 terms through n = 9328 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* DP table: dp[s] = number of partitions of s */
 static size_t dp_cap = 0;         /* allocated size of dp array */
@@ -53,7 +55,7 @@ static void rebuild(idx_t n)
     /* Allocate or reallocate the DP table for indices 0 … n.              */
     /* ------------------------------------------------------------------ */
     dp_cap = (size_t)n + 1;
-    dp = (seq_t *)realloc(dp, dp_cap * sizeof(seq_t));
+    dp = mem_resize(seq_t, dp, dp_cap);
     for (size_t i = 0; i < dp_cap; ++i) {
         dp[i] = 0;                          /* zero all entries            */
     }

@@ -8,12 +8,14 @@
  *            a(0)=1, a(1)=1, a(2)=-4, a(3)=-9, a(4)=-11, a(5)=-21, a(6)=-31
  * Range:     i8 n <= 13, i16 n <= 42, i32 n <= 42, i64 n <= 42, i128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;   /* number of elements currently stored */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         const idx_t init_size = 7;              /* indices 0..6 */
-        cache = (seq_t *)malloc(init_size * sizeof(seq_t));
+        cache = mem_new(seq_t, init_size);
         if (cache == NULL)
             exit(1);                            /* memory allocation failed */
 
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         if (cache_len == cache_cap)
         {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (tmp == NULL)
                 exit(1);                        /* memory allocation failed */
             cache = tmp;

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 7248, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   coords_to_idx
+ * Validated: standard, pass, 70 terms through n = 9639 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,29 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/coords_to_idx.h"
+#include "../utils/mem.h"
+
+/* --- Map (x,y) -> index */
+static idx_t coords_to_idx(int64_t x, int64_t y) {
+    if (x == 0 && y == 0) return 0;
+
+    int64_t abx = x >= 0 ? x : -x;
+    int64_t aby = y >= 0 ? y : -y;
+    int64_t k = abx > aby ? abx : aby;
+    idx_t ring_start = ((2 * k - 1) * (int64_t)(2 * k - 1));
+    idx_t offset = 0;
+
+    if (x == k && y >= -(int64_t)(k - 1) && y <= k) {          /* east side */
+        offset = (idx_t)(y + (int64_t)(k - 1));
+    } else if (y == k && x <= k - 1 && x >= -k) {              /* north side */
+        offset = (idx_t)(2 * k) + (idx_t)(k - 1 - x);
+    } else if (x == -k && y <= k - 1 && y >= -k) {              /* west side */
+        offset = (idx_t)(4 * k) + (idx_t)(k - 1 - y);
+    } else {                                                   /* south side */
+        offset = (idx_t)(6 * k) + (idx_t)(x + (int64_t)(k - 1));
+    }
+    return ring_start + offset;
+}
 
 /* --- Helper: integer square root (floor). Works for 64‑bit integers. */
 static inline idx_t _floor_isqrt_u64(idx_t n) {
@@ -96,7 +119,7 @@ static size_t cache_len = 0;            /* number of entries stored */
 static void cache_push(seq_t val) {
     if (cache_len >= cache_cap) {
         size_t newcap = cache_cap ? cache_cap * 2 : 16;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         cache_cap = newcap;
     }
     cache[cache_len++] = val;

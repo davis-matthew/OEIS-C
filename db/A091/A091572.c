@@ -9,18 +9,20 @@
  *            non‑negative integer solutions of i + 4*j + 6*k = n
  * Range:     u8 n <= 37, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* dynamic programming for p(m) up to m = n   */
     idx_t N = n;
-    seq_t *dp = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(N + 1));
     if (!dp) return (seq_t)0;          /* unlikely allocation failure */
 
     dp[0] = (seq_t)1;                  /* only the empty combination */
@@ -39,6 +41,6 @@ seq_t a(idx_t n)
 
     seq_t a_val = (seq_t)6 * ((seq_t)n + (seq_t)1) + (seq_t)2 * (p_n - p_shift);
 
-    free(dp);
+    mem_free(dp);
     return a_val;
 }

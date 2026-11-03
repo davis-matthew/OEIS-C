@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow, next_prime, seq_alloc, seq_realloc
+ * Validated: standard, pass, 74 terms through n = 959 (2026-11-01)
+ * Helpers:   next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,12 +22,33 @@
 #include <stdint.h>
 #include <stddef.h>
 /* next_prime returns the first prime strictly greater than its argument. */
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 /* fast modular exponentiation for seq_t bases. */
-#include "../utils/mod_pow.h"
 /* dynamic array helpers. */
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
 
 /* cached sequence entries */
 static seq_t *terms   = NULL;   /* array of primes found */
@@ -54,7 +76,7 @@ static void ensure_terms(idx_t n)
         {
             /* p ≡ 1 (mod 29): check whether 2 is a 29‑th power residue. */
             uint64_t exp = (cur - 1) / 29;
-            seq_t val = mod_pow((seq_t)2, exp, (seq_t)cur);
+            seq_t val = powmod((seq_t)2, exp, (seq_t)cur);
             ok = (val == (seq_t)1);
         }
         else

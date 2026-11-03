@@ -11,12 +11,14 @@
  *            2896500982661242290253612 a(13) = 34419121542689...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 7, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;      /* memoized values a(n) */
 static size_t memo_len = 0;     /* number of valid terms stored */
@@ -28,12 +30,13 @@ static size_t coef_len = 0;
 static size_t coef_cap = 0;
 
 /* grow an array to hold at least 'need' elements */
-static void *grow(void *ptr, size_t *cap, size_t need, size_t elem_size)
+static seq_t *grow(seq_t *ptr, size_t *cap, size_t need, size_t elem_size)
 {
+    (void)elem_size;                       /* typed: both arrays are seq_t, which raw realloc must not move */
     if (*cap < need) {
         size_t new_cap = (*cap == 0) ? 16 : *cap;
         while (new_cap < need) new_cap <<= 1;
-        void *new_ptr = realloc(ptr, new_cap * elem_size);
+        seq_t *new_ptr = mem_resize(seq_t, ptr, new_cap);
         if (!new_ptr) return NULL; /* allocation failure */
         ptr    = new_ptr;
         *cap   = new_cap;
@@ -75,13 +78,13 @@ seq_t a(idx_t n)
 {
     /* initialisation on first call */
     if (!memo) {
-        memo     = (seq_t *)malloc(16 * sizeof(seq_t));
+        memo     = mem_new(seq_t, 16);
         if (!memo) return (seq_t)0;
         memo_cap = 16;
         memo_len = 0;
     }
     if (!coef) {
-        coef     = (seq_t *)malloc(16 * sizeof(seq_t));
+        coef     = mem_new(seq_t, 16);
         if (!coef) return (seq_t)0;
         coef_cap = 16;
         coef_len = 0;

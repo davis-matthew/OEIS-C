@@ -7,6 +7,7 @@
  * Formula:   a(n) = ∑_{k≥1, T_k≤n, (n–T_k)%k==0} k where T_k = k(k+1)/2
  * Range:     u8 n <= 357, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 105 terms through n = 9509 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   ensure_capacity
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,39 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
-#include "../utils/ensure_capacity.h"
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size) /* elem_size: sizeof(T) */
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, new_cap);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 typedef struct {
     uint64_t *keys;          /* (x<<32)|(y<<16)|z  */
@@ -50,14 +82,14 @@ static void init_tables(void)
     size_t c = INIT_CAP;
     cur.cap   = c; cur.mask  = c-1;
     cur.keys  = (uint64_t *)malloc(c * sizeof(uint64_t));
-    cur.vals  = (seq_t   *)malloc(c * sizeof(seq_t));
+    cur.vals  = mem_new(seq_t, c);
     cur.used  = (unsigned char *)malloc(c);
     cur.used_idx = (size_t *)malloc(c * sizeof(size_t));
     cur.used_cnt = 0;
 
     nxt.cap   = c; nxt.mask  = c-1;
     nxt.keys  = (uint64_t *)malloc(c * sizeof(uint64_t));
-    nxt.vals  = (seq_t   *)malloc(c * sizeof(seq_t));
+    nxt.vals  = mem_new(seq_t, c);
     nxt.used  = (unsigned char *)malloc(c);
     nxt.used_idx = (size_t *)malloc(c * sizeof(size_t));
     nxt.used_cnt = 0;
@@ -107,7 +139,7 @@ seq_t a(idx_t n)
     /* ensure results array large enough */
     if (results_cap <= (size_t)n) {
         ensure_capacity((size_t)n + 1, &results_cap,
-                        (void **)&results, sizeof(seq_t));
+                        OEISC_VPP(&results), sizeof(seq_t));
         /* initialise the first term if array is newly allocated */
         if (results_cap == 0)
             results[0] = (seq_t)1;

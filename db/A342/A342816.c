@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 26, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Node in the priority queue: j and k give the pair, val is the sequence value */
 typedef struct {
@@ -98,7 +101,7 @@ seq_t a(idx_t n)
        This guarantees that we can extract the first n terms. */
     size_t j_max = (size_t)n;
     size_t heap_size = j_max + 1;
-    node_t *heap = (node_t *)malloc(heap_size * sizeof(node_t));
+    node_t *heap = mem_new(node_t, heap_size);
     if (!heap) return 0; /* allocation failure – unlikely for our size */
 
     /* Build initial heap with all j, k=0 */
@@ -132,6 +135,6 @@ seq_t a(idx_t n)
         sift_up(heap, heap_size - 1);
     }
 
-    free(heap);
+    mem_free(heap);
     return result;
 }

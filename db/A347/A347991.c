@@ -7,15 +7,32 @@
  * Formula:   a(n) = Σ_{d|n} 2^(σ(d)-1) (OEIS A347991)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 29, u128 n <= 59,
  *            big any n
- * Helpers:   big_pow, factor_u64, sigma_of
+ * Validated: standard, pass, 46 terms through n = 981 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/sigma_of.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* Recursive helper to add contributions of every divisor of n */
 static void recurse_divisors(size_t idx, uint64_t cur, const uint64_t *primes,
@@ -25,7 +42,7 @@ static void recurse_divisors(size_t idx, uint64_t cur, const uint64_t *primes,
     if (idx == prime_cnt) {
         seq_t sigma = sigma_of((idx_t)cur);        /* σ(cur) */
         seq_t exp   = sigma - 1;                  /* exponent for 2^ */
-        seq_t val   = big_pow((seq_t)2, exp);     /* 2^(σ(cur)-1) */
+        seq_t val   = ipow((seq_t)2, exp);     /* 2^(σ(cur)-1) */
         *sum += val;
         return;
     }

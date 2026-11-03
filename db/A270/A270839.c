@@ -10,7 +10,8 @@
  *            number (F(1)=1, F(2)=1)
  * Range:     u8 n <= 26, u16 n <= 500, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
- * Helpers:   sort_uint32
+ * Validated: standard, pass, 79 terms through n = 449 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/sort_uint32.h"
+#include "../utils/mem.h"
+
+/* quick simple sorting (divisor count is small) */
+static void sort_uint32(uint32_t *a, size_t n)
+{
+    for (size_t i = 0; i < n; ++i)
+        for (size_t j = i + 1; j < n; ++j)
+            if (a[i] > a[j]) {
+                uint32_t t = a[i]; a[i] = a[j]; a[j] = t;
+            }
+}
 
 /* --------------------- modular arithmetic --------------------- */
 static inline uint64_t mod_mul(uint64_t a, uint64_t b, uint64_t mod)
@@ -216,7 +227,7 @@ seq_t a(idx_t n)
     /* allocate cache if necessary */
     if (!terms) {
         size_t cap = (n > 1024) ? n : 1024;
-        terms = (seq_t*)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
         terms_cnt = 0;
     }
 

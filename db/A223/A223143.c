@@ -11,13 +11,15 @@
  *            * S[n] = (n%2==0 ? S[n/2] : 0) + (n==1?9:0) * and the...
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 12, i64 n <= 23, i128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 284 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Required standard header for malloc/realloc. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function a computes the nth term of OEIS sequence A223143.
  * It memoizes all computed terms so that subsequent calls are
@@ -36,9 +38,9 @@ seq_t a(idx_t n)
         size_t newcap = cap ? cap << 1 : 16;
         while (newcap <= (size_t)n) newcap <<= 1;
 
-        A = (seq_t*)realloc(A, newcap * sizeof(seq_t));
-        B = (seq_t*)realloc(B, newcap * sizeof(seq_t));
-        S = (seq_t*)realloc(S, newcap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, newcap);
+        B = mem_resize(seq_t, B, newcap);
+        S = mem_resize(seq_t, S, newcap);
         cap = newcap;
     }
 

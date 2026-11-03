@@ -9,7 +9,8 @@
  *            integer
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 12, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   digit_len, digit_sum
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   digit_sum, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/digit_sum.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +47,7 @@ seq_t a(idx_t n)
 
         /* Test the integer-mean condition */
         unsigned long long sum = (unsigned long long)digit_sum(next);
-        size_t          len = digit_len(next);
+        size_t          len = num_digits(next);
         if (len == 0)
             len = 1;              /* safety: empty number cannot occur */
 

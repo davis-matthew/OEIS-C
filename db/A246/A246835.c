@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 878, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   alloc_and_zero_size_t
+ * Validated: standard, pass, 80 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,14 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_and_zero_size_t.h"
+#include "../utils/mem.h"
+
+/* Local helper: allocate and zero an array of seq_t                */
+static seq_t *alloc_and_zero_size_t(size_t len)
+{
+    seq_t *p = mem_new(seq_t, len);
+    return p;   /* calloc already zeroes memory */
+}
 
 /* --------------------------------------------------------------- */
 
@@ -87,7 +95,7 @@ seq_t a(idx_t n)
     }
 
     /* Free temporary memory */
-    free(conv);
+    mem_free(conv);
     free(tri);
     free(sgn);
 

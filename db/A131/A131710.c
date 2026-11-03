@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 26, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build */
 extern seq_t a(idx_t n);
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 {
     /* Initialise cache with the first two Pell numbers */
     if (!pell_init) {
-        pell_cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        pell_cache = mem_new(seq_t, 2);
         if (pell_cache == NULL) {
             /* Allocation failed – abort */
             exit(EXIT_FAILURE);
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         /* Grow the cache to size (n+1) */
         idx_t   new_size = n + 1;
         size_t  new_bytes = (size_t)(new_size) * sizeof(seq_t);
-        seq_t * tmp = (seq_t *)realloc(pell_cache, new_bytes);
+        seq_t * tmp = mem_resize(seq_t, pell_cache, (new_bytes) / sizeof(seq_t));
         if (tmp == NULL) {
             /* Allocation failed – abort */
             exit(EXIT_FAILURE);

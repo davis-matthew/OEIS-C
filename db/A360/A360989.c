@@ -8,15 +8,18 @@
  *            binomial(n,k)
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 9, i64 n <= 15, i128 n <= 25,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 35 terms through n = 314 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* Handle the offset case explicitly */
@@ -32,12 +35,12 @@ seq_t a(idx_t n) {
         /* Base1 = (-2*n + 2*k + 1) and exponent = k-1 */
         seq_t base1 = (seq_t)(-2 * (seq_t)n + 2 * (seq_t)k + 1);
         seq_t exp1  = (seq_t)(k - 1);
-        seq_t pow1  = big_pow(base1, exp1);
+        seq_t pow1  = ipow(base1, exp1);
 
         /* Base2 = (2*k) and exponent = n-k */
         seq_t base2 = (seq_t)(2 * (seq_t)k);
         seq_t exp2  = (seq_t)(n - k);
-        seq_t pow2  = big_pow(base2, exp2);
+        seq_t pow2  = ipow(base2, exp2);
 
         /* term = binom * pow1 * pow2 */
         seq_t term = binom * pow1 * pow2;

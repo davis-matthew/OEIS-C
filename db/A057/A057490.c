@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 37, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,10 @@
    unordered queries are efficient. */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;       /* array of found terms */
 static size_t term_count = 0;     /* number of terms stored */
@@ -31,7 +35,7 @@ static void ensure_capacity(size_t needed)
     if (needed <= term_cap) return;
     size_t new_cap = term_cap ? term_cap * 2 : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_terms = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
     if (!new_terms) {
         /* In an embedded environment, aborting is acceptable. */
         abort();
@@ -47,7 +51,7 @@ static bool is_good_k(idx_t k)
     seq_t sum = 0;
     /* Sum i^k for i=2..8 (mod k). */
     for (int base = 2; base <= 8; ++base) {
-        seq_t p = mod_pow((seq_t)base, k, kseq);
+        seq_t p = powmod((seq_t)base, k, kseq);
         sum += p;
     }
     return (sum % kseq) == 0;

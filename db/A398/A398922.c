@@ -8,12 +8,23 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   f_of_m
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/f_of_m.h"
+/* Compute f(m) as defined above.  The helper is defined outside 'a' because
+ * C forbids static inline function definitions inside a function body. */
+static inline seq_t f_of_m(seq_t m)
+{
+    if (m < 4) 
+        return 0;
+
+    seq_t K = m - 4;          /* K = m-4 >= 0 */
+    seq_t t = K >> 1;         /* floor(K/2) */
+    return (t + 1) * (K + 1 - t);
+}
 /*  OEIS A398922
  *  Number of distinct acute lattice trapezia of area n/2 with horizontal base.
  *  Equivalent combinatorial formula:

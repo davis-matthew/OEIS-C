@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 2032, u32 n <= 2032, u64 n <= 2032,
  *            u128 n <= 2032, big any n
- * Helpers:   coord_to_num, digit_sum_int
+ * Validated: full, pass, 2032 terms through n = 2032 (2026-11-02)
+ * Helpers:   digit_sum_u64_to_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,28 @@
    (ties broken by the lowest number). */
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/coord_to_num.h"
-#include "../utils/digit_sum_int.h"
+#include "../utils/digit_sum_u64_to_i32.h"
+
+/* Convert coordinates (x,y) to the square number placed in the
+   square spiral.  (x,y) may be negative. */
+static inline int coord_to_num(int x, int y) {
+    int ax = x >= 0 ? x : -x;
+    int ay = y >= 0 ? y : -y;
+    int L = ax > ay ? ax : ay;
+    if (L == 0) return 1;
+    int base = (2 * L - 1) * (2 * L - 1);
+    int offset;
+    if (x == L && y != -L) {
+        offset = y + L - 1;
+    } else if (y == L) {
+        offset = 2 * L + (L - 1 - x);
+    } else if (x == -L) {
+        offset = 4 * L + (L - 1 - y);
+    } else { /* y == -L */
+        offset = 6 * L + (x + L - 1);
+    }
+    return base + offset + 1;
+}
 
 /* Helper to compute the integer sqrt of a seq_t (fits in unsigned long long). */
 static inline seq_t isqrt_u64(seq_t v) {
@@ -112,7 +133,7 @@ seq_t a(idx_t n) {
                     }
                     if (seen) continue;
 
-                    int dsum = digit_sum_int((unsigned long long)nnum);
+                    int dsum = digit_sum_u64_to_i32((unsigned long long)nnum);
                     if (dsum > best_dsum || (dsum == best_dsum && nnum < (int)best_num)) {
                         best_dsum = dsum;
                         best_num = (seq_t)nnum;

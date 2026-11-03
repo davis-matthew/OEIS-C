@@ -8,13 +8,23 @@
  * Formula:   a(n) = n + ⌊n*(10+2√5)/5⌋ + ⌊n*(1+√5)/2⌋ + ⌊n*(4√5)/5⌋
  * Range:     u8 n <= 35, u16 n <= 8976, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   fractional_geq_one
+ * Validated: standard, pass, 85 terms through n = 9584 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/fractional_geq_one.h"
+
+/* Helper: true if (p + q*√5) / 10  is greater or equal to 1  */
+static inline int fractional_geq_one(int64_t p, int64_t q)
+{
+    /* q is always positive in our usage */
+    if (p >= 10)
+        return 1;
+    int64_t rhs = 10 - p;           /* rhs > 0  */
+    return (int64_t)5 * q * q >= rhs * rhs;
+}
 
 seq_t a(idx_t n)
 {

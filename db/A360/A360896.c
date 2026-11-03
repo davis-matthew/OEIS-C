@@ -8,7 +8,8 @@
  *            k) * a(n-1-2k) (n >= 1)
  * Range:     i8 n <= 11, i16 n <= 16, i32 n <= 25, i64 n <= 41, i128 n <= 69,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 49 terms through n = 947 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t   *cache      = NULL;  /* memoisation buffer */
 static size_t   cache_cap  = 0;      /* allocated capacity of cache   */
@@ -31,7 +33,7 @@ static void ensure_cache_cap(size_t needed)
     while (new_cap <= needed)
         new_cap *= 2U;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                 /* out of memory */
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 14, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   increasing_square
+ * Validated: full, pass, 15 terms through n = 15 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,22 @@
 /* Search: a(n) = the n‑th integer x whose square x² has digits in strictly increasing order. */
 
 #include <stdbool.h>
-#include "../utils/increasing_square.h"
+
+static bool increasing_square(seq_t x)
+{
+    seq_t sq = x * x;
+    if (sq == 0)
+        return true;
+    seq_t prev = 10;            /* greater than any decimal digit */
+    while (sq > 0) {
+        seq_t d = sq % 10;
+        if (d >= prev)
+            return false;
+        prev = d;
+        sq /= 10;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

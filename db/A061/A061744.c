@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2^A000959(n) - 1 (A000959 = lucky numbers)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 static idx_t *lucky_arr = NULL;   /* stored lucky numbers */

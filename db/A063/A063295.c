@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 27, i16 n <= 54, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoised values */
 static seq_t *cache = NULL;          /* array a[0 … cache_len-1]  */
@@ -46,7 +48,7 @@ static void ensure_cache(idx_t n)
     idx_t new_len = n + 1;           /* we want indices 0 … n */
 
     /* realloc must be cast for C++ compatibility */
-    seq_t *tmp = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (tmp == NULL) abort();        /* out of memory */
     cache = tmp;
 

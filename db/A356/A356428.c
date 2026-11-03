@@ -10,7 +10,8 @@
  *            if p = n or gpf(n-p) > p, otherwise a(n) = a(n-p)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 108 terms through n = 9762 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;
 static bool  *seen    = NULL;
@@ -33,7 +35,7 @@ static void grow_cache(size_t needed)
     size_t newcap = (cap > 0 ? cap * 2 : 16);
     while (newcap <= needed)
         newcap <<= 1;
-    seq_t *tmp_cache = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp_cache = mem_resize(seq_t, cache, newcap);
     if (!tmp_cache)
         abort();
     bool *tmp_seen  = (bool*)realloc(seen,  newcap * sizeof(bool));
@@ -54,12 +56,12 @@ seq_t a(idx_t n)
     grow_cache((size_t)n + 1);
     if (seen[n])
         return cache[n];
-    uint64_t p64 = gpf((uint64_t)n);
+    uint64_t p64 = largest_prime_factor((uint64_t)n);
     idx_t    p   = (idx_t)p64;
     idx_t    n_minus_p = n - p;
     idx_t    g = 0;
     if (n_minus_p > 0)
-        g = (idx_t)gpf((uint64_t)n_minus_p);
+        g = (idx_t)largest_prime_factor((uint64_t)n_minus_p);
     seq_t res;
     if (n_minus_p == 0 || g > p)
         res = 1 + a(n_minus_p);

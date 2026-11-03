@@ -7,13 +7,15 @@
  * Formula:   a(n) = 0 for n < 6, a(n) = (n-5) * n! for n ≥ 6
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 440 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact_cache = NULL;
 static idx_t cache_len = 0;
@@ -23,13 +25,13 @@ static void ensure_factorial(idx_t n) {
     if (cache_len == 0) {
         /* Initialise fact_cache[0] = 1 */
         cache_len = 1;
-        fact_cache = (seq_t *)malloc(sizeof(seq_t));
+        fact_cache = mem_new(seq_t, 1);
         fact_cache[0] = (seq_t)1;
     }
     if (n + 1 <= cache_len) return;           /* already computed up to n */
 
     /* Expand cache */
-    fact_cache = (seq_t *)realloc(fact_cache, (n + 1) * sizeof(seq_t));
+    fact_cache = mem_resize(seq_t, fact_cache, (n + 1));
     for (idx_t i = cache_len; i <= n; ++i) {
         fact_cache[i] = fact_cache[i - 1] * (seq_t)i;
     }

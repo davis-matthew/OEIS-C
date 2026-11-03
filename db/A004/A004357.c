@@ -8,12 +8,14 @@
  *            (6n-j)/(j+1) with gcd reduction
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 34,
  *            big any n
- * Helpers:   gcd_seq
+ * Validated: standard, pass, 36 terms through n = 850 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd_seq.h"
+#include <stdlib.h>
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     seq_t result = 1;
@@ -21,7 +23,7 @@ seq_t a(idx_t n) {
     for (idx_t j = 0; j < k; j++) {
         seq_t num = (seq_t)6 * (seq_t)n - (seq_t)j;
         seq_t den = (seq_t)j + 1;
-        seq_t g = gcd_seq(result, den);
+        seq_t g = gcd(result, den);
         result /= g;
         den /= g;
         num /= den;

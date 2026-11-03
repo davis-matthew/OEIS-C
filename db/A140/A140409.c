@@ -8,15 +8,39 @@
  *            ordered increasingly
  * Range:     u8 n <= 36, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   extend_seq_array, extend_uint64_array
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/extend_seq_array.h"
-#include "../utils/extend_uint64_array.h"
+#include "../utils/mem.h"
+
+/* helper: extend the capacity of a dynamic array of seq_t */
+static void extend_seq_array(seq_t **arr, size_t *cap, size_t needed)
+{
+    if (*cap < needed) {
+        size_t newcap = (*cap) ? (*cap) * 2 : 16;
+        while (newcap < needed) newcap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, newcap);
+        *arr = tmp;
+        *cap = newcap;
+    }
+}
+
+/* helper: extend the capacity of a dynamic array of uint64_t */
+static void extend_uint64_array(uint64_t **arr, size_t *cap, size_t needed)
+{
+    if (*cap < needed) {
+        size_t newcap = (*cap) ? (*cap) * 2 : 16;
+        while (newcap < needed) newcap <<= 1;
+        uint64_t *tmp = (uint64_t *)realloc(*arr, newcap * sizeof(uint64_t));
+        *arr = tmp;
+        *cap = newcap;
+    }
+}
 
 /* returns |true| if p divides any Lucas number */
 static int divides_lucas(uint64_t p)

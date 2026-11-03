@@ -8,9 +8,10 @@
  * Keywords:  nonn
  * Formula:   a(n) is the n-th integer k for which the arithmetic derivative
  *            of k is at least the sum of its proper divisors
- * Range:     u8 n <= 57, u16 n <= 5791, u32 n <= 8875, u64 n <= 8875,
- *            u128 n <= 8875, big any n
- * Helpers:   _floor_isqrt_u64, append_candidate, build_primes_upto, gcd
+ * Range:     u8 n <= 57, u16 n <= 5791, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 95 terms through n = 8875 (2026-11-03)
+ * Helpers:   build_primes_upto, gcd, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,27 @@
 #include <stdbool.h>
 
 /* Helper declarations from the utils library */
-#include "../utils/gcd.h"                    /* provides seq_t type */
-#include "../utils/_floor_isqrt_u64.h"
 #include "../utils/build_primes_upto.h"
-#include "../utils/append_candidate.h"
+#include "../utils/gcd.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 static seq_t *terms = NULL;          /* stored qualifying numbers    */
 static size_t  terms_len = 0;        /* how many stored              */
@@ -59,7 +77,7 @@ static bool _is_good(uint64_t k)
     seq_t sigma      = 1;
 
     uint64_t rem = k;
-    uint64_t sqrt_rem = _floor_isqrt_u64(rem);
+    uint64_t sqrt_rem = isqrt(rem);
     _ensure_primes_up_to(sqrt_rem + 1);
 
     for (size_t i = 0; i < prime_cnt && prime_list[i] * prime_list[i] <= rem; ++i) {

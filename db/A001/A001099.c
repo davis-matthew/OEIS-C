@@ -7,13 +7,14 @@
  * Formula:   a(n) = n^n - a(n-1), a(1) = 1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 26,
  *            big any n
- * Helpers:   a001099_powi
+ * Validated: standard, pass, 35 terms through n = 99 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001099_powi.h"
+#include "../utils/ipow_idx.h"
 
 static idx_t a001099_last_n = 0;
 static seq_t a001099_last_v = 0;
@@ -31,7 +32,7 @@ seq_t a(idx_t n) {
     }
     while (i < n) {
         i++;
-        result = a001099_powi((seq_t)i, i) - result;
+        result = ipow_idx((seq_t)i, i) - result;
     }
     a001099_last_n = n;
     a001099_last_v = result;

@@ -8,12 +8,14 @@
  *            (coefficient of x^n in 1/((1-x^2)(1-x^4)(1-x^7)(1-x^9)))
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* memoised table of a(k) for k <= dp_cap-1 */
 static size_t dp_cap = 0;         /* current size of dp (dp_cap == 0 -> uninitialised) */
@@ -27,7 +29,7 @@ static void ensure_up_to(idx_t n)
 
     /* allocate a new table of the required size */
     size_t new_cap = (size_t)n + 1;              /* n is small (≤ 10000)       */
-    seq_t *new_dp = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, new_cap);
     if (!new_dp) exit(1);                        /* out‑of‑memory: abort       */
 
     /* initialise the DP table using the part sizes */
@@ -40,7 +42,7 @@ static void ensure_up_to(idx_t n)
     }
 
     /* replace the old table */
-    free(dp);
+    mem_free(dp);
     dp      = new_dp;
     dp_cap  = new_cap;
 }

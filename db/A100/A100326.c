@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 35, u32 n <= 91, u64 n <= 299,
  *            u128 n <= 1034, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 7197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         /* Compute all missing rows up to 'r'. */
         for (idx_t cur = (idx_t)rows_used; cur <= r; ++cur) {
             size_t len = (size_t)cur + 1;
-            seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+            seq_t *row = mem_new(seq_t, len);
 
             /* T(cur,0) */
             if (cur == 0) {

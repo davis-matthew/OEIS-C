@@ -13,6 +13,7 @@
  *            period, omitting leading zeros
  * Range:     u8 n <= 27, u16 n <= 27, u32 n <= 152, u64 n <= 275,
  *            u128 n <= 1127, big any n
+ * Validated: standard, pass, 82 terms through n = 9765 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

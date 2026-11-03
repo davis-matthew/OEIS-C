@@ -11,7 +11,8 @@
  *            each maximal consecutive block that satisfies the de...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_seq_t, divisor_count_u64, factor_u64
+ * Validated: standard, pass, 121 terms through n = 9674 (2026-11-01)
+ * Helpers:   factor_u64, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/factor_u64.h"
-#include "../utils/divisor_count_u64.h"
-#include "../utils/cmp_seq_t.h"
+#include "../utils/num_divisors.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* Comparator for qsort on arrays of idx_t */
 static int cmp_idx_t(const void *a, const void *b)
@@ -59,7 +70,7 @@ seq_t a(idx_t n)
     factor_u64((uint64_t)n, primes, exps, &fac_cnt);
 
     /* 2. Compute number of divisors and allocate array */
-    size_t dcnt = (size_t)divisor_count_u64((uint64_t)n);
+    size_t dcnt = (size_t)num_divisors((uint64_t)n);
     if (dcnt == 0) return (seq_t)0;            /* should not happen for n≥1 */
 
     idx_t *divs = (idx_t *)malloc(dcnt * sizeof(idx_t));

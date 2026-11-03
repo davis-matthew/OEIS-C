@@ -7,13 +7,15 @@
  * Formula:   a(n) = #{(x, y) | x + y = n, x ≤ y, x & y are 5‑smooth}
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- static data for 5‑smooth numbers up to the maximum n seen so far --- */
 static seq_t *smooth = NULL;         /* sorted list of 5‑smooth numbers */
@@ -36,7 +38,7 @@ ensure_smooth_up_to(idx_t limit)
     /* initialise the list if it is empty */
     if (smooth_len == 0) {
         smooth_cap = 128;
-        smooth = (seq_t *)malloc(smooth_cap * sizeof(seq_t));
+        smooth = mem_new(seq_t, smooth_cap);
         smooth_len = 1;
         smooth[0] = (seq_t)1;    /* 1 is 5‑smooth */
         idx2 = idx3 = idx5 = 0;
@@ -58,7 +60,7 @@ ensure_smooth_up_to(idx_t limit)
         /* grow the array if necessary */
         if (smooth_len == smooth_cap) {
             smooth_cap *= 2;
-            smooth = (seq_t *)realloc(smooth, smooth_cap * sizeof(seq_t));
+            smooth = mem_resize(seq_t, smooth, smooth_cap);
         }
         smooth[smooth_len++] = (seq_t)next;
 

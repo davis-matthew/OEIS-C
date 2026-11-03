@@ -9,12 +9,38 @@
  * Formula:   a(n) = (421*a(n-1) + 54773) mod 259200, a(1) = 1
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   power_sum
+ * Validated: standard, pass, 51 terms through n = 8523 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/power_sum.h"
+/* Compute the kth power of A modulo M together with the sum of the
+   geometric series 1 + A + A^2 + … + A^(k-1) mod M.  The function
+   recursively splits k in half to achieve O(log k). */
+static inline void power_sum(seq_t A, idx_t k, seq_t *pow_ret, seq_t *sum_ret) {
+    const seq_t MOD = (seq_t)259200;
+    if (k == 0) {
+        *pow_ret = (seq_t)1;
+        *sum_ret = (seq_t)0;
+        return;
+    }
+    if ((k & 1) == 0) {                /* k even */
+        seq_t pow_half, sum_half;
+        power_sum(A, k >> 1, &pow_half, &sum_half);
+        seq_t pow = (pow_half * pow_half) % MOD;
+        seq_t sum = (sum_half + (pow_half * sum_half) % MOD) % MOD;
+        *pow_ret = pow;
+        *sum_ret = sum;
+    } else {                            /* k odd */
+        seq_t pow_prev, sum_prev;
+        power_sum(A, k - 1, &pow_prev, &sum_prev);
+        seq_t pow = (pow_prev * A) % MOD;
+        seq_t sum = (sum_prev + pow_prev) % MOD;
+        *pow_ret = pow;
+        *sum_ret = sum;
+    }
+}
 
 /* Main sequence function.  It works for any n >= 1, in any call order,
    and is efficient even for large n because it uses a logarithmic

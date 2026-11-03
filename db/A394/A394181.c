@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 85, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   in_S
+ * Validated: standard, pass, 101 terms through n = 9981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,7 +37,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/in_S.h"
+#include "../utils/mem.h"
+
+/* helper: test membership in S */
+static bool in_S(seq_t val, const seq_t *S, size_t cnt)
+{
+    for (size_t i = 0; i < cnt; ++i)
+        if (S[i] == val) return true;
+    return false;
+}
 
 /* helper: grow an array to at least `need` elements */
 static void ensure_capacity(seq_t **arr, size_t *cap, size_t need)
@@ -44,7 +53,7 @@ static void ensure_capacity(seq_t **arr, size_t *cap, size_t need)
     if (need > *cap) {
         size_t newcap = (*cap) ? (*cap) * 2 : 16;
         if (newcap < need) newcap = need;
-        seq_t *tmp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, newcap);
         if (!tmp) abort();
         *arr = tmp;
         *cap = newcap;

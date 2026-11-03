@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_54
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,23 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_54.h"
+#include "../utils/mem.h"
+
+/* true iff x's base‑6 representation contains the substring “5,4” */
+static bool has_54(seq_t x) {
+    if (x == 0) return false;
+    seq_t prev = 0;
+    seq_t cur;
+    bool first = true;
+    while (x != 0) {
+        cur = x % 6;
+        if (!first && cur == 5 && prev == 4) return true;
+        prev = cur;
+        first = false;
+        x = x / 6;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;      /* stored a(1)…a(k) */
 static idx_t cache_cnt = 0;      /* number of terms stored */
@@ -30,7 +47,7 @@ seq_t a(idx_t n) {
     if (!cache) {
         cache_cap   = 16;
         cache_cnt   = 0;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
 
     while (cache_cnt < n) {
@@ -38,7 +55,7 @@ seq_t a(idx_t n) {
         if (has_54(cur) && !has_54(cur - 1)) {
             if (cache_cnt == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_cnt++] = cur;
         }

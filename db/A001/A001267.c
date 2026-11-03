@@ -13,13 +13,28 @@
  *            +...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   add_prod
+ * Validated: standard, pass, 40 terms through n = 175 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/add_prod.h"
+
+static void add_prod(seq_t *pos, seq_t *neg, const long long *c, int sign,
+                     const seq_t *S) {
+    int i, j;
+    for (i = 0; i < 4; i++) {
+        long long ci = c[i] * sign;
+        if (ci == 0) continue;
+        for (j = 0; i + j < 4; j++) {
+            if (ci > 0)
+                pos[i + j] += (seq_t)(unsigned long long)ci * S[j];
+            else
+                neg[i + j] += (seq_t)(unsigned long long)(-ci) * S[j];
+        }
+    }
+}
 
 seq_t a(idx_t n) {
     seq_t h[4][4];

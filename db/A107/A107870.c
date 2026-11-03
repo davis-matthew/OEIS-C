@@ -7,16 +7,18 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) = T(r,k) where r = row_of_index(n), k = n - r*(r+1)/2,
  *            T(n,k) = C( n*(n-1)/2 - k*(k-1)/2 + n - k + 2 , n-k )
- * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 44, u64 n <= 46, u128 n <= 46,
+ * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -34,5 +36,5 @@ seq_t a(idx_t n)
     seq_t N  = rn - kn + r - k + 2;             /* numerator */
     seq_t K  = r - k;                           /* denominator */
 
-    return binom((idx_t)N, (idx_t)K);
+    return binomial((idx_t)N, (idx_t)K);
 }

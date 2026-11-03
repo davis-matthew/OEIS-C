@@ -7,13 +7,15 @@
  * Formula:   a(n) = floor_sqrt_seq( n*(n+1)*(2*n+1)/6 ) ^ 2
  * Range:     u8 n <= 4, u16 n <= 31, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_sqrt_seq
+ * Validated: standard, pass, 58 terms through n = 970 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* include the helper that provides floor_sqrt_seq() */
-#include "../utils/floor_sqrt_seq.h"
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     s /= 6;
 
     /* Find floor(sqrt(s)) using the provided helper */
-    seq_t r = floor_sqrt_seq(s);
+    seq_t r = isqrt_seq(s);
 
     /* Return the square of that integer */
     return r * r;

@@ -9,7 +9,8 @@
  *            (leading zeros not allowed)
  * Range:     u8 n <= 2965, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_frequencies, digits
+ * Validated: standard, pass, 115 terms through n = 9394 (2026-11-01)
+ * Helpers:   digit_frequencies, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/digits.h"
 #include "../utils/digit_frequencies.h"
+#include "../utils/num_digits_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -50,7 +51,7 @@ seq_t a(idx_t n)
             continue;
         idx_t r = n - p;
         /* leading zeros not allowed: r must have same number of digits as p */
-        if (digits(p) != digits(r))
+        if (num_digits_idx(p) != num_digits_idx(r))
             continue;
         memset(freq_p, 0, sizeof(freq_p));
         memset(freq_r, 0, sizeof(freq_r));

@@ -10,12 +10,14 @@
  *            u(n,x)=u(n-1,x)+v(n-1,x)+1, v(n,x)=u(n-1,x)+x*v(n-1,x)+1
  * Range:     u8 n <= 38, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,14 +42,14 @@ seq_t a(idx_t n)
         {
             u_len = 1;
             v_len = 1;
-            u = (seq_t *)malloc(sizeof(seq_t));
-            v = (seq_t *)malloc(sizeof(seq_t));
+            u = mem_new(seq_t, 1);
+            v = mem_new(seq_t, 1);
             u[0] = v[0] = (seq_t)1;
 
             /* store first coefficient u(1)[0] */
             if (coeffs_cap == 0)
             {
-                coeffs = (seq_t *)malloc(sizeof(seq_t));
+                coeffs = mem_new(seq_t, 1);
                 coeffs_cap = 1;
             }
             coeffs[coeffs_len++] = u[0];
@@ -62,8 +64,8 @@ seq_t a(idx_t n)
         size_t new_v_len = (size_t)next_row;
 
         /* Allocate new coefficient arrays */
-        seq_t *new_u = (seq_t *)malloc(new_u_len * sizeof(seq_t));
-        seq_t *new_v = (seq_t *)malloc(new_v_len * sizeof(seq_t));
+        seq_t *new_u = mem_new(seq_t, new_u_len);
+        seq_t *new_v = mem_new(seq_t, new_v_len);
 
         /* u(new) = u + v + 1 */
         new_u[0] = u[0] + v[0] + (seq_t)1;
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
             size_t new_cap = (coeffs_cap == 0) ? 1 : coeffs_cap;
             while (coeffs_len + new_u_len > new_cap)
                 new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(coeffs, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, coeffs, new_cap);
             if (!tmp) abort();          /* out of memory */
             coeffs = tmp;
             coeffs_cap = new_cap;
@@ -99,8 +101,8 @@ seq_t a(idx_t n)
             coeffs[coeffs_len++] = new_u[i];
 
         /* free old arrays and update state */
-        free(u);
-        free(v);
+        mem_free(u);
+        mem_free(v);
         u = new_u;
         v = new_v;
         u_len = new_u_len;

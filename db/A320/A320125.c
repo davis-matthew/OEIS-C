@@ -7,7 +7,8 @@
  * Formula:   count of integer solutions to a^2 + b^2 + 2*c^2 + 4*d^2 = n
  * Range:     u8 n <= 57, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9741 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root of n (floor(sqrt(n))) on nano‑kernal level. */
 static inline idx_t int_sqrt(idx_t n) {
@@ -35,11 +37,11 @@ static inline idx_t int_sqrt(idx_t n) {
 seq_t a(idx_t n) {
     idx_t N = n;
     /* Allocate arrays for counts of a^2 + b^2 and 2*c^2 + 4*d^2. */
-    seq_t *A = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *B = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *B = mem_new(seq_t, (size_t)(N + 1));
     if (!A || !B) {
-        if (A) free(A);
-        if (B) free(B);
+        if (A) mem_free(A);
+        if (B) mem_free(B);
         return 0;
     }
 
@@ -78,7 +80,7 @@ seq_t a(idx_t n) {
     for (idx_t k = 0; k <= N; ++k)
         ans += A[(size_t)k] * B[(size_t)(N - k)];
 
-    free(A);
-    free(B);
+    mem_free(A);
+    mem_free(B);
     return ans;
 }

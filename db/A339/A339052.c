@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = floor((2n+2)*φ) - floor((2n+1)*φ) - 1, where φ = (1+√5)/2
- * Range:     u8 n <= 1662, u16 n <= 9580, u32 n <= 9580, u64 n <= 9580,
- *            u128 n <= 9580, big any n
+ * Range:     u8 n <= 1662, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 102 terms through n = 9580 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

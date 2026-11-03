@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   simple_is_prime
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/simple_is_prime.h"
+#include "../utils/is_prime.h"
 
 /* Static state for sieve */
 static bool *is_prime_tbl = NULL;
@@ -91,7 +92,7 @@ seq_t a(idx_t n)
         if (q <= sieve_limit) {
             if (is_prime_tbl[q]) ++count;
         } else {                        /* should not happen for q ≤ n/2 */
-            if (simple_is_prime(q)) ++count;
+            if (is_prime(q)) ++count;
         }
     }
 

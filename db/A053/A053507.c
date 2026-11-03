@@ -7,13 +7,14 @@
  * Formula:   a(n) = binomial(n-1,2) * n^(n-3)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 35 terms through n = 97 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
     seq_t bin = ((seq_t)(n-1) * (n-2)) / 2;
 
     /* n^(n-3) */
-    seq_t pw = pow_uint((uint64_t)n, n-3);
+    seq_t pw = ipow_u64_idx((uint64_t)n, n-3);
 
     return bin * pw;
 }

@@ -9,8 +9,9 @@
  * Formula:   a(n) = 1 if the maximal digit in the primorial base expansion of
  *            n is greater than or equal to the maximal exponent in the prime
  *            factorization of n; otherwise 0
- * Range:     u8 n <= 8793, u16 n <= 8793, u32 n <= 8793, u64 n <= 8793,
- *            u128 n <= 8793, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 8793 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* First 16 primes are enough for n < 2^64 (primorial grows very fast). */

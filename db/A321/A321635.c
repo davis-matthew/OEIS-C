@@ -8,7 +8,8 @@
  *            - 72*C(n,5)
  * Range:     u8 n <= 0, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   binom
+ * Validated: full, pass, 6 terms through n = 5 (2026-11-02)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,21 +17,22 @@
 /* where C(n,k) = binom(n,k).  This is the Newton forward-difference
    expansion of the 5‑th degree polynomial that satisfies the first six
    terms of the sequence. */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     /* positive contributions */
     seq_t pos =
         (seq_t)54
-        + (seq_t)648 * binom(n, 1)
-        + (seq_t)810 * binom(n, 2)
-        + (seq_t)2286 * binom(n, 4);
+        + (seq_t)648 * binomial(n, 1)
+        + (seq_t)810 * binomial(n, 2)
+        + (seq_t)2286 * binomial(n, 4);
 
     /* negative contributions */
     seq_t neg =
-        (seq_t)2268 * binom(n, 3)
-        + (seq_t)72 * binom(n, 5);
+        (seq_t)2268 * binomial(n, 3)
+        + (seq_t)72 * binomial(n, 5);
 
     return pos - neg;
 }

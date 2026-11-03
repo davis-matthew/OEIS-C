@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{i≥1, j≥1} (1 + x^(i*prime(j)))
  * Range:     u8 n <= 27, u16 n <= 65, u32 n <= 179, u64 n <= 542,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* dp[t] will hold the coefficient of x^t after processing all items */
-    seq_t *dp = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (N + 1));
     if (!dp)
         return (seq_t)0;
     for (size_t i = 0; i <= N; ++i)
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     size_t limit = N;
     uint8_t *is_composite = (uint8_t *)calloc(limit + 1, sizeof(uint8_t));
     if (!is_composite) {
-        free(dp);
+        mem_free(dp);
         return (seq_t)0;
     }
     size_t primes_cnt = 0;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[N];
-    free(dp);
+    mem_free(dp);
     free(primes);
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   a(n) = (n*(10^n - 1))/9 - 2*n + 1, with a(1) = 1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    where k = n*(10^n - 1)/9 and R_n = (10^n - 1)/9.
    For n = 1 the expression gives 0, so we return 1 explicitly. */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Compute 10^n */
-    seq_t ten_pow_n = pow_uint(10, n);
+    seq_t ten_pow_n = ipow_u64_idx(10, n);
 
     /* tmp = (10^n - 1) */
     seq_t tmp = ten_pow_n - (seq_t)1;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   _append_str
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/_append_str.h"
+#include "../utils/mem.h"
+
+/* Helper: copy a NUL‑terminated C string into a buffer */
+static void _append_str(const char *s, char *buf, size_t *pos)
+{
+    while (*s) {
+        buf[(*pos)++] = *s++;
+    }
+}
 
 /* ------------------------------------------------------------------ */
 /* Word tables for number → text conversion */
@@ -120,7 +129,7 @@ static void _grow_cache(idx_t needed)
     if (_cache_cap >= needed) return;
     idx_t new_cap = _cache_cap ? _cache_cap * 2 : 128;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _cache, new_cap);
     if (!tmp) return;                       /* out‑of‑memory handling omitted     */
     _cache = tmp;
     _cache_cap = new_cap;

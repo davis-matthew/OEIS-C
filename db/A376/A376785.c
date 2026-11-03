@@ -8,13 +8,15 @@
  *            initial values a(0)=1, a(1)=3, a(2)=5, a(3)=8, a(4)=19, a(5)=46
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 29, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>   /* provided if needed */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
         return;
 
     idx_t const new_len = n + 1;
-    cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_len);
     if (!cache) {
         /* memory allocation failed – abort with zero */
         exit(1);

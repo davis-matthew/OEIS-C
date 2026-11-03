@@ -7,14 +7,17 @@
  * Formula:   a(n) = Sum_{k=0..n} (k!)^k * binomial(n,k)
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 27 terms through n = 28 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"   /* provides big_pow(seq_t base, seq_t exp) */
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Cached factorials and (k!)^k values */
 static seq_t *fact_cache = NULL;
@@ -29,8 +32,8 @@ static void ensure_cache(idx_t n)
         return;
 
     /* Resize the arrays */
-    fact_cache = (seq_t *)realloc(fact_cache, target * sizeof(seq_t));
-    t_cache   = (seq_t *)realloc(t_cache,   target * sizeof(seq_t));
+    fact_cache = mem_resize(seq_t, fact_cache, target);
+    t_cache   = mem_resize(seq_t, t_cache, target);
 
     /* Initialize from the current capacity up to n */
     if (cache_cap == 0) {
@@ -45,7 +48,7 @@ static void ensure_cache(idx_t n)
         fact_cache[k] = fact_cache[k - 1] * (seq_t)k;
 
         /* (k!)^k  ->  big_pow takes seq_t for both arguments */
-        t_cache[k] = big_pow(fact_cache[k], (seq_t)k);
+        t_cache[k] = ipow(fact_cache[k], (seq_t)k);
     }
 
     cache_cap = target;

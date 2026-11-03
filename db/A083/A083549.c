@@ -13,7 +13,8 @@
  *            64‑bit arithmetic, casting the result back to the b...
  * Range:     u8 n <= 34, u16 n <= 493, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd64
+ * Validated: standard, pass, 84 terms through n = 9002 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
 
 /* Primitive math for seq_t and idx_t */
 #define IDX_CAST(x) ((idx_t)(x))
@@ -107,7 +108,7 @@ seq_t a(idx_t n)
     uint64_t cot_n    = (uint64_t)n - phi_uint64(n);
     uint64_t cot_np1  = (uint64_t)(n + 1) - phi_uint64(n + 1);
 
-    uint64_t g = gcd64(cot_n, cot_np1);            /* gcd of the two cototients */
+    uint64_t g = gcd_u64(cot_n, cot_np1);            /* gcd of the two cototients */
     uint64_t lcm = (cot_n / g) * cot_np1;          /* lcm = (a/g) * b */
     uint64_t ans = (lcm / g);                     /* answer = lcm / gcd = (a*b)/(g*g) */
 

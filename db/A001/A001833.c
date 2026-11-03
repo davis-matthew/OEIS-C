@@ -11,13 +11,20 @@
  *            levels. Computed via V_m = w * x^m/m! * (1 + sum...
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 19,
  *            big any n
- * Helpers:   norm_pair
+ * Validated: standard, pass, 35 terms through n = 97 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/norm_pair.h"
+#include "../utils/mem.h"
+
+static void norm_pair(seq_t *p, seq_t *q)
+{
+    if (*p >= *q) { *p -= *q; *q = 0; }
+    else { *q -= *p; *p = 0; }
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -25,16 +32,16 @@ static idx_t cache_len = 0;
 static void compute(idx_t n)
 {
     idx_t N = n + 1, t, m, mp, j, r;
-    seq_t *Bn = (seq_t *)calloc(N * N, sizeof(seq_t));
-    seq_t *pw = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *E = (seq_t *)calloc(N * N, sizeof(seq_t));
-    seq_t *A = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *wp = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *wn = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *vp = (seq_t *)calloc(N * N, sizeof(seq_t));
-    seq_t *vn = (seq_t *)calloc(N * N, sizeof(seq_t));
-    seq_t *up = (seq_t *)calloc(N * N, sizeof(seq_t));
-    seq_t *un = (seq_t *)calloc(N * N, sizeof(seq_t));
+    seq_t *Bn = mem_new(seq_t, N * N);
+    seq_t *pw = mem_new(seq_t, N);
+    seq_t *E = mem_new(seq_t, N * N);
+    seq_t *A = mem_new(seq_t, N);
+    seq_t *wp = mem_new(seq_t, N);
+    seq_t *wn = mem_new(seq_t, N);
+    seq_t *vp = mem_new(seq_t, N * N);
+    seq_t *vn = mem_new(seq_t, N * N);
+    seq_t *up = mem_new(seq_t, N * N);
+    seq_t *un = mem_new(seq_t, N * N);
 
     for (t = 0; t < N; t++) {
         Bn[t * N] = 1;
@@ -91,9 +98,9 @@ static void compute(idx_t n)
         }
     }
 
-    free(Bn); free(pw); free(E); free(wp); free(wn);
-    free(vp); free(vn); free(up); free(un);
-    if (cache) free(cache);
+    mem_free(Bn); mem_free(pw); mem_free(E); mem_free(wp); mem_free(wn);
+    mem_free(vp); mem_free(vn); mem_free(up); mem_free(un);
+    if (cache) mem_free(cache);
     cache = A;
     cache_len = N;
 }

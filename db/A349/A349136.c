@@ -5,14 +5,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 0 for n even; a(1)=1; for odd n>1, a(n)=phi(n)/2
- * Range:     u8 n <= 446, u16 n <= 9057, u32 n <= 9057, u64 n <= 9057,
- *            u128 n <= 9057, big any n
- * Helpers:   phi
+ * Range:     u8 n <= 446, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 111 terms through n = 9057 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -23,6 +25,6 @@ seq_t a(idx_t n)
         return (seq_t)0;
     }
     /* n is odd > 1 */
-    seq_t ph = phi(n);
+    seq_t ph = totient(n);
     return ph / 2;
 }

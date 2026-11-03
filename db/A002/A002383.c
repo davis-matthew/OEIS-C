@@ -6,18 +6,19 @@
  * Keywords:  nonn, easy
  * Formula:   search: a(n) = n-th prime of the form k^2 + k + 1, k >= 1
  *            (deterministic Miller-Rabin test)
- * Range:     u8 n <= 9, u16 n <= 66, u32 n <= 7364, u64 n <= 9531,
- *            u128 n <= 9531, big any n
- * Helpers:   a2383_isprime, a2383_mulmod, a2383_powmod
+ * Range:     u8 n <= 9, u16 n <= 66, u32 n <= 7364, u64 n <= 10751,
+ *            u128 n <= 10751, big any n
+ * Validated: standard, pass, 61 terms through n = 9531 (2026-11-03)
+ * Helpers:   is_prime_u64, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a2383_isprime.h"
-#include "../utils/a2383_mulmod.h"
-#include "../utils/a2383_powmod.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
 
 seq_t a(idx_t n) {
     idx_t count = 0;
@@ -25,7 +26,7 @@ seq_t a(idx_t n) {
     for (;;) {
         k++;
         uint64_t c = k * k + k + 1;
-        if (a2383_isprime(c)) {
+        if (is_prime_u64(c)) {
             count++;
             if (count == n) return (seq_t)c;
         }

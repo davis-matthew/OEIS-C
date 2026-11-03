@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 19, u64 n <= 42, u128 n <= 85,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 194 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* OEIS A042936 – Numerators of continued‑fraction convergents to sqrt(1000)
  *
  * Formula: a(0) = 31

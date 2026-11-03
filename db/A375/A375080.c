@@ -7,14 +7,15 @@
  * Formula:   a(n) = numerator((n - sigma(n))/tau(n))
  * Range:     u8 n <= 47, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   gcd, seq_gcd
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/seq_gcd.h"
 
 /* local helper: compute base^exp, exp < 2^64 */
 static inline seq_t pow_seq(seq_t base, idx_t exp)
@@ -76,6 +77,6 @@ seq_t a(idx_t n)
     seq_t term = (seq_t)n * tau - sigma;
 
     /* reduce the fraction term / tau */
-    seq_t g = seq_gcd(term, tau);
+    seq_t g = gcd(term, tau);
     return term / g;
 }

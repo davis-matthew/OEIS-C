@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9234 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;          /* a(n) values           */
 static seq_t *B = NULL;          /* b(n) values           */
@@ -36,9 +38,9 @@ static void ensure_a_cap(size_t need)
     if (A_cap >= need) return;
     size_t new_cap = A_cap ? A_cap : 1;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, A, new_cap);
     if (!tmp) abort();
-    memset(tmp + A_cap, 0, (new_cap - A_cap) * sizeof(seq_t));
+    mem_set(tmp + A_cap, 0, (new_cap - A_cap) * sizeof(seq_t));
     A = tmp;
     A_cap = new_cap;
 }
@@ -48,9 +50,9 @@ static void ensure_b_cap(size_t need)
     if (B_cap >= need) return;
     size_t new_cap = B_cap ? B_cap : 1;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(B, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, B, new_cap);
     if (!tmp) abort();
-    memset(tmp + B_cap, 0, (new_cap - B_cap) * sizeof(seq_t));
+    mem_set(tmp + B_cap, 0, (new_cap - B_cap) * sizeof(seq_t));
     B = tmp;
     B_cap = new_cap;
 }

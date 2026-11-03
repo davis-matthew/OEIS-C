@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1840 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------- */
 /* Mobius function for m ≤ 1716.                                 */
@@ -68,18 +70,18 @@ static void compute_phi(seq_t **phi, size_t *phi_deg)
     }
 
     /* Build the numerator N = ∏(x^d-1) for μ=1 */
-    seq_t *poly = (seq_t*)calloc(1, sizeof(seq_t));
+    seq_t *poly = mem_new(seq_t, 1);
     poly[0] = 1;
     size_t deg = 0;
     for (size_t i = 0; i < np; ++i) {
         idx_t d = pos_ds[i];
         size_t new_deg = deg + d;
-        seq_t *new_poly = (seq_t*)calloc(new_deg + 1, sizeof(seq_t));
+        seq_t *new_poly = mem_new(seq_t, new_deg + 1);
         for (size_t k = 0; k <= deg; ++k) {
             new_poly[k] += poly[k];
             new_poly[k + d] -= poly[k];
         }
-        free(poly);
+        mem_free(poly);
         poly = new_poly;
         deg = new_deg;
     }
@@ -88,7 +90,7 @@ static void compute_phi(seq_t **phi, size_t *phi_deg)
     for (size_t i = 0; i < nn; ++i) {
         idx_t d = neg_ds[i];
         size_t new_deg = deg - d;
-        seq_t *new_poly = (seq_t*)calloc(new_deg + 1, sizeof(seq_t));
+        seq_t *new_poly = mem_new(seq_t, new_deg + 1);
         for (size_t m = 0; m <= new_deg; ++m) {
             if (m < d) {
                 new_poly[m] = -poly[m];
@@ -96,7 +98,7 @@ static void compute_phi(seq_t **phi, size_t *phi_deg)
                 new_poly[m] = new_poly[m - d] - poly[m];
             }
         }
-        free(poly);
+        mem_free(poly);
         poly = new_poly;
         deg = new_deg;
     }
@@ -120,7 +122,7 @@ seq_t a(idx_t n)
     }
 
     if (!period) {
-        period = (seq_t*)calloc(PERIOD, sizeof(seq_t));
+        period = mem_new(seq_t, PERIOD);
         period[0] = 1;
         for (idx_t i = 1; i < PERIOD; ++i) {
             seq_t sum = 0;

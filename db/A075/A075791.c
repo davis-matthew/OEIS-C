@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 29, u32 n <= 105, u64 n <= 105, u128 n <= 105,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /*  Helper structure and global tables                       */
@@ -101,7 +103,7 @@ static void init_powers(void)
 
     /* Estimate capacity, will grow as needed */
     size_t capacity = 1200000;
-    power_t *tmp = (power_t *)malloc(capacity * sizeof(power_t));
+    power_t *tmp = mem_new(power_t, capacity);
     if (!tmp) exit(1);
     size_t cnt = 0;
 
@@ -112,7 +114,7 @@ static void init_powers(void)
         while (pow <= (seq_t)LIMIT64) {
             if (cnt == capacity) {
                 capacity <<= 1;
-                tmp = (power_t *)realloc(tmp, capacity * sizeof(power_t));
+                tmp = mem_resize(power_t, tmp, capacity);
                 if (!tmp) exit(1);
             }
             tmp[cnt].val = pow;
@@ -127,7 +129,7 @@ static void init_powers(void)
     }
 
     /* Sort all values */
-    qsort(tmp, cnt, sizeof(power_t), cmp_power);
+    mem_qsort(tmp, cnt, sizeof(power_t), cmp_power);
 
     /* Deduplicate keeping the minimal exponent for each value */
     size_t uniq = 0;
@@ -143,7 +145,7 @@ static void init_powers(void)
     }
 
     /* Allocate final array including 1 as a perfect power (j=2) */
-    power_t *final = (power_t *)malloc((uniq + 1) * sizeof(power_t));
+    power_t *final = mem_new(power_t, (uniq + 1));
     if (!final) exit(1);
 
     final[0].val = 1;
@@ -151,7 +153,7 @@ static void init_powers(void)
     for (size_t i = 0; i < uniq; ++i)
         final[i + 1] = tmp[i];
 
-    free(tmp);
+    mem_free(tmp);
 
     powers   = final;
     power_cnt = uniq + 1;

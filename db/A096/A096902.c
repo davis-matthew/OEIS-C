@@ -8,7 +8,8 @@
  *            also prime
  * Range:     u8 n <= 96, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9865 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------- support for 64‑bit modular arithmetic ---------- */
 static uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t mod)
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
         prime_cap = 64;
         primes = (uint32_t*)malloc(prime_cap * sizeof(uint32_t));
         term_cap  = 64;
-        terms = (seq_t*)malloc(term_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, term_cap);
         initialized = true;
     }
 
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
             if (is_prime_u64(expr)) {
                 if (term_cnt == term_cap) {
                     term_cap <<= 1;
-                    terms = (seq_t*)realloc(terms, term_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, term_cap);
                 }
                 terms[term_cnt++] = (seq_t)(prime_cnt - 1);
             }

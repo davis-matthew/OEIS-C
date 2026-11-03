@@ -10,24 +10,26 @@
  *            1,1,2,2,3,3,…)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)0;          /* offset 1, but safety */
     size_t N = (size_t)n;
     /* Allocate prefix and suffix product arrays */
-    seq_t *pref = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *suff = (seq_t *)malloc((N + 2) * sizeof(seq_t));
+    seq_t *pref = mem_new(seq_t, (N + 1));
+    seq_t *suff = mem_new(seq_t, (N + 2));
     if (!pref || !suff) {
         /* Out of memory – return 0 as a safe fallback */
-        if (pref) free(pref);
-        if (suff) free(suff);
+        if (pref) mem_free(pref);
+        if (suff) mem_free(suff);
         return (seq_t)0;
     }
 
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         sum += pref[i - 1] * suff[i + 1];
     }
 
-    free(pref);
-    free(suff);
+    mem_free(pref);
+    mem_free(suff);
     return sum;
 }

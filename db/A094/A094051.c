@@ -7,7 +7,8 @@
  * Formula:   a(n) = phi(phi(p)) / 2 where p = prime(n) (offset = 3)
  * Range:     u8 n <= 54, u16 n <= 6989, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 92 terms through n = 8741 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,20 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/phi.h"   /* seq_t phi(idx_t m); */
+
+static seq_t phi(idx_t m)
+{
+    seq_t result = (seq_t)m;
+    idx_t d = 2;
+    for (; d * d <= m; ++d) {
+        if (m % d == 0) {
+            while (m % d == 0) m /= d;
+            result -= result / (seq_t)d;
+        }
+    }
+    if (m > 1) result -= result / (seq_t)m;
+    return result;
+}
 
 static idx_t *prime_list = NULL;   /* 1‑based array of primes */
 static size_t prime_count = 0;     /* number of primes stored */

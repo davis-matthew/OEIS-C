@@ -11,13 +11,27 @@
  *            a(3)=1905, a(4)=28248, a(5)=420345, a(6)=6256258, a(7)=93109949
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 33,
  *            big any n
- * Helpers:   mul_small
+ * Validated: standard, pass, 32 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 seq_t a(idx_t n) {
     /* Cache to store already computed values (1‑based indexing) */
@@ -26,7 +40,7 @@ seq_t a(idx_t n) {
 
     /* Initialize cache with first seven terms if needed */
     if (!cache) {
-        cache = (seq_t*)malloc(7 * sizeof(seq_t));
+        cache = mem_new(seq_t, 7);
         cache[0] = 8;
         cache[1] = 128;
         cache[2] = 1905;
@@ -44,7 +58,7 @@ seq_t a(idx_t n) {
 
     /* Grow cache if necessary */
     if (n > filled) {
-        cache = (seq_t*)realloc(cache, n * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, n);
         for (idx_t k = filled + 1; k <= n; ++k) {
             /* Compute a(k) using the 7‑term recurrence */
             seq_t sum = mul_small(cache[k-2], 15)                          /* 15*a(k-1) */

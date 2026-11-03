@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_in_sequence
+ * Validated: standard, pass, 78 terms through n = 9773 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,61 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_in_sequence.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static bool is_in_sequence(idx_t m)
+{
+    /* Collect all divisors of m.  The number of divisors of a 64‑bit
+     * number never exceeds a few thousand even for highly composite
+     * values, so a fixed array of size 2048 is safe.                     */
+    enum { MAX_D = 2048 };
+    idx_t divs[MAX_D];
+    int dcnt = 0;
+
+    for (idx_t d = 1; d <= m / d; ++d) {
+        if (m % d == 0) {
+            if (dcnt < MAX_D) divs[dcnt++] = d;
+            idx_t other = m / d;
+            if (other != d && dcnt < MAX_D) divs[dcnt++] = other;
+        }
+    }
+
+    /* Sort the divisor list ascending (small numbers have few divisors,
+     * so an O(n²) sort is inexpensive).                           */
+    for (int i = 0; i < dcnt - 1; ++i)
+        for (int j = i + 1; j < dcnt; ++j)
+            if (divs[i] > divs[j]) {
+                idx_t tmp = divs[i];
+                divs[i] = divs[j];
+                divs[j] = tmp;
+            }
+
+    /* Prefix sums of the divisors.                                   */
+    seq_t prefix[MAX_D];
+    int pcnt = 0;
+    seq_t sum_total = 0;
+    for (int i = 0; i < dcnt; ++i) {
+        sum_total += (seq_t)divs[i];
+        prefix[pcnt++] = sum_total;
+    }
+
+    /* Incrementally sum non‑divisors and check against the divisor
+     * prefix sums.  The moment the two sums become equal we have found
+     * a valid pair (i,j).                                             */
+    seq_t sum_non = 0;
+    for (idx_t x = 1; x <= m; ++x) {
+        if (m % x != 0) {
+            sum_non += (seq_t)x;
+            for (int i = 0; i < pcnt; ++i)
+                if (sum_non == prefix[i])
+                    return true;
+        }
+        if (sum_non > sum_total)
+            break;
+    }
+    return false;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Helper that determines whether m belongs to the sequence.         */
@@ -56,7 +111,7 @@ seq_t a(idx_t n)
         if (is_in_sequence(max_checked)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();          /* memory exhausted */
                 cache = tmp;
                 cache_cap = new_cap;

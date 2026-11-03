@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 9929 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t  *cache_vals  = NULL;
 static unsigned char *cache_flag = NULL;
@@ -36,8 +38,7 @@ static void ensure_capacity(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
 
-    seq_t *tmp_vals  = (seq_t *)realloc(cache_vals,
-                                        new_cap * sizeof(seq_t));
+    seq_t *tmp_vals  = mem_resize(seq_t, cache_vals, new_cap);
     unsigned char *tmp_flag =
         (unsigned char *)realloc(cache_flag,
                                  new_cap * sizeof(unsigned char));

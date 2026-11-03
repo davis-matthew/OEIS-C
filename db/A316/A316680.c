@@ -9,15 +9,28 @@
  *            concat( a(n‑1)/s , a(n‑1)%s ); /* q * 10^k + r, k = digit_len(r)
  * Range:     u8 none, u16 n <= 3, u32 n <= 20, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   digit_len, digit_sum, pow10
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   digit_sum, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/digit_sum.h"       /* returns seq_t */
-#include "../utils/digit_len.h"       /* returns int */
-#include "../utils/pow10.h"           /* seq_t pow10(idx_t) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/digit_sum.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -28,7 +41,7 @@ seq_t a(idx_t n)
 
     if (size == 0) {                 /* first time, initialize */
         cap   = 64;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
         if (!cache) {
             /* perror omitted; return 0 on allocation failure */
             return 0;
@@ -45,13 +58,13 @@ seq_t a(idx_t n)
         seq_t q = prev / s;
         seq_t r = prev % s;
 
-        int k = digit_len(r);               /* number of decimal digits of r */
+        int k = num_digits(r);               /* number of decimal digits of r */
 
         seq_t newv = q * pow10((idx_t)k) + r;
 
         if (size >= cap) {                  /* need more space */
             cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * cap);
+            seq_t *tmp = mem_resize(seq_t, cache, cap);
             if (!tmp) {
                 /* realloc failed, keep old cache to avoid corruption */
                 return 0;

@@ -12,7 +12,8 @@
  *            which the maximum is attained is returned
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   weak_goodstein_step
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,30 @@
    both languages. */
 #include <stdint.h>
 #include <stdbool.h>   /* required for bool, though not used */
-#include "../utils/weak_goodstein_step.h"
+
+/* Perform one weak Goodstein step:
+   given a current value m and a base b (b ≥ 2),
+   return b_{b+1}(m) – 1, where b_{c}(x) means: write x in base c,
+   interpret the same digit string in base c+1. */
+static seq_t weak_goodstein_step(seq_t m, idx_t base)
+{
+    if (m == (seq_t)0)               /* 0 stays 0 – further steps would
+                                       underflow when subtracting 1       */
+        return (seq_t)0;
+
+    seq_t sum   = (seq_t)0;          /* accumulation of digit × (b+1)^i   */
+    seq_t power = (seq_t)1;          /* (b+1)^0 initially               */
+    seq_t base_plus = (seq_t)(base + 1);
+    seq_t temp = m;
+
+    while (temp != (seq_t)0) {
+        seq_t digit = temp % (seq_t)base;  /* least significant digit */
+        sum += digit * power;             /* contrib in higher base  */
+        power *= base_plus;               /* next power of (b+1)   */
+        temp /= (seq_t)base;              /* shift right by one digit */
+    }
+    return sum - (seq_t)1;                 /* final -1 step */
+}
 
 /* Main function required by the problem statement. */
 seq_t a(idx_t n)

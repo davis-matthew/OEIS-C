@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small, mod_pow
+ * Validated: standard, pass, 57 terms through n = 967 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
-#include "../utils/is_prime_small.h"
+#include <string.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,13 +48,13 @@ seq_t a(idx_t n)
         }
 
         /* primality test */
-        if (is_prime_small((seq_t)cand))
+        if (is_prime_seq((seq_t)cand))
         {
             /* only p ≡ 1 (mod 5) can fail to be a fifth‑power residue */
             if ((cand % 5U) == 1U)
             {
                 uint64_t exp = (cand - 1) / 5U;   /* (p-1)/5  */
-                seq_t r = mod_pow((seq_t)6, exp, (seq_t)cand);
+                seq_t r = powmod((seq_t)6, exp, (seq_t)cand);
 
                 if (r != (seq_t)1)
                 {
@@ -59,7 +62,7 @@ seq_t a(idx_t n)
                     if (cache_len + 1 > cache_cap)
                     {
                         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                         if (tmp == NULL) /* out of memory */
                             abort();
                         cache = tmp;

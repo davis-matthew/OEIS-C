@@ -10,13 +10,15 @@
  *            number of even parts as odd parts
  * Range:     u8 n <= 43, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: test if k satisfies the parity condition */
 static inline bool good_k(idx_t k) {
@@ -41,7 +43,7 @@ static inline bool good_k(idx_t k) {
 /* Grow the cache array when needed */
 static void grow_cache(size_t *cap, seq_t **arr) {
     size_t new_cap = (*cap) ? (*cap) * 2 : 64;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp) abort();            /* run‑time failure is acceptable */
     *arr   = tmp;
     *cap   = new_cap;

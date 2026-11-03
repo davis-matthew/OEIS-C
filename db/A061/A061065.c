@@ -9,13 +9,14 @@
  *            a(2) = 12
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 32 terms through n = 99 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +33,7 @@ seq_t a(idx_t n)
     seq_t term2 = (seq_t)(2 * n - 3);
 
     /* C(2n-4, n-2)  */
-    seq_t bin = binom(2 * n - 4, n - 2);
+    seq_t bin = binomial(2 * n - 4, n - 2);
 
     /* a(n) = term1 * term2 * bin^2  */
     seq_t res = term1;

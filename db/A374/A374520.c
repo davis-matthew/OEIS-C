@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   leaders_not_identical
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,25 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/leaders_not_identical.h"
+#include "../utils/mem.h"
+
+/* Return true iff the leaders of maximal anti‑runs in the composition
+ * described by 'parts' are not all identical. */
+static bool leaders_not_identical(const seq_t *parts, size_t len)
+{
+    if (len < 2)
+        return false;          /* fewer than two parts → only one leader */
+
+    seq_t first_leader = parts[0];
+    for (size_t i = 1; i < len; ++i) {
+        if (parts[i] == parts[i - 1]) {       /* run starts at i */
+            seq_t new_leader = parts[i];
+            if (new_leader != first_leader)
+                return true;
+        }
+    }
+    return false;
+}
 
 /* Produce the k‑th composition in standard order.
  * 'parts' is an array that must be at least 64 elements long.
@@ -88,7 +107,7 @@ seq_t a(idx_t n)
             /* Store k as seq_t. */
             if (found_size + 1 > found_cap) {
                 size_t new_cap = (found_cap == 0) ? 16 : found_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(found, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, found, new_cap);
                 if (!tmp) abort();
                 found = tmp;
                 found_cap = new_cap;

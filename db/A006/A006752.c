@@ -9,8 +9,9 @@
  *            ((2*k+1)^3*C(2*k,k)^3); a(n) = floor(10^(n+1)*G) mod 10,
  *            evaluated in base-10^9 fixed point with native limbs (term ratio
  *            k^3/(2k-1)^3)
- * Range:     u8 n <= 9821, u16 n <= 9821, u32 n <= 9821, u64 n <= 9821,
- *            u128 n <= 9821, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9821 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

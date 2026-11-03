@@ -9,13 +9,14 @@
  *            1/hk, and returns the reduced numerator
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: standard, pass, 37 terms through n = 975 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
         seq_t new_den = sum_den * hk;
 
         /* reduce */
-        seq_t g = seq_gcd(new_num, new_den);
+        seq_t g = gcd(new_num, new_den);
         if (g != (seq_t)1) {
             new_num /= g;
             new_den /= g;
@@ -51,7 +52,7 @@ seq_t a(idx_t n)
     seq_t hm_den = sum_num;
 
     /* reduce numerator of HM */
-    seq_t g = seq_gcd(hm_num, hm_den);
+    seq_t g = gcd(hm_num, hm_den);
     if (g != (seq_t)1) {
         hm_num /= g;
         /* hm_den /= g;  not needed for the answer */

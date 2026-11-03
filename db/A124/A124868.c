@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-02)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,7 @@
    n terms that cannot be expressed as p+q+r with distinct primes p<q<r. */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t x) */
+#include "../utils/is_prime.h"
 
 /* Returns true if x can be written as the sum of three distinct primes p<q<r. */
 static bool is_sum_of_three_distinct_primes(idx_t x)

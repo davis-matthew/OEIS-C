@@ -11,8 +11,8 @@
  *            -g(n+1). The denominator of b(n) divides M = 2*...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 4, u64 n <= 8, u128 n <= 16,
  *            big any n
- * Helpers:   q2197_add, q2197_div, q2197_isprime, q2197_mod, q2197_mul,
- *            q2197_pw
+ * Validated: standard, pass, 31 terms through n = 99 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +20,67 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/q2197_add.h"
-#include "../utils/q2197_div.h"
-#include "../utils/q2197_isprime.h"
-#include "../utils/q2197_mod.h"
-#include "../utils/q2197_mul.h"
-#include "../utils/q2197_pw.h"
+#include "../utils/is_prime_u64.h"
+
+static size_t q2197_add(uint32_t *d, size_t len, uint64_t v)
+{
+    uint64_t c = v;
+    size_t i = 0;
+    while (c) {
+        if (i == len) d[len++] = 0;
+        c += d[i];
+        d[i] = (uint32_t)c;
+        c >>= 32;
+        i++;
+    }
+    return len;
+}
+
+static size_t q2197_div(uint32_t *d, size_t len, uint32_t m)
+{
+    uint64_t r = 0;
+    size_t i;
+    for (i = len; i-- > 0;) {
+        uint64_t cur = (r << 32) | d[i];
+        d[i] = (uint32_t)(cur / m);
+        r = cur % m;
+    }
+    while (len && d[len - 1] == 0) len--;
+    return len;
+}
+
+static uint32_t q2197_mod(const uint32_t *d, size_t len, uint32_t m)
+{
+    uint64_t r = 0;
+    size_t i;
+    for (i = len; i-- > 0;) r = ((r << 32) | d[i]) % m;
+    return (uint32_t)r;
+}
+
+static size_t q2197_mul(uint32_t *d, size_t len, uint32_t m)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        c += (uint64_t)d[i] * m;
+        d[i] = (uint32_t)c;
+        c >>= 32;
+    }
+    if (c) d[len++] = (uint32_t)c;
+    return len;
+}
+
+static uint64_t q2197_pw(uint64_t b, uint64_t e, uint64_t m)
+{
+    uint64_t r = 1 % m;
+    b %= m;
+    while (e) {
+        if (e & 1) r = r * b % m;
+        b = b * b % m;
+        e >>= 1;
+    }
+    return r;
+}
 
 seq_t a(idx_t n)
 {
@@ -72,7 +127,7 @@ seq_t a(idx_t n)
     vv = (uint32_t *)malloc(K * sizeof(uint32_t));
     cnt = 0;
     for (q = (1ULL << 30) - 1; cnt < K; q -= 2)
-        if (q2197_isprime(q)) ps[cnt++] = (uint32_t)q;
+        if (is_prime_u64(q)) ps[cnt++] = (uint32_t)q;
 
     c = (uint32_t *)malloc((T + 1) * sizeof(uint32_t));
     g = (uint32_t *)malloc((T + 1) * sizeof(uint32_t));

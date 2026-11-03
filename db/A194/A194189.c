@@ -9,7 +9,8 @@
  *            triangular number T_n = n(n+1)/2 and the n‑th square S_n = n²)
  * Range:     u8 n <= 15, u16 n <= 444, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, first_ge, first_gt
+ * Validated: standard, pass, 77 terms through n = 976 (2026-11-01)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,33 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/first_ge.h"
-#include "../utils/first_gt.h"
+
+static inline size_t first_ge(const uint64_t *arr, size_t n, uint64_t value)
+{
+    size_t lo = 0, hi = n;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (arr[mid] < value)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo;
+}
+
+/* Binary search helpers for a sorted array of uint64_t primes. */
+static inline size_t first_gt(const uint64_t *arr, size_t n, uint64_t value)
+{
+    size_t lo = 0, hi = n;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (arr[mid] <= value)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo;
+}
 
 /* Static storage for the prime list */
 static uint64_t *prime_list   = NULL;   /* array of primes */

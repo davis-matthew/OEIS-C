@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    4k+2, 20k, 20k+1 or 20k-1.  The sequence is OEIS A036024.  */
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;   /* dp[i] = number of admissible partitions of i */
 static idx_t dp_cap = 0;   /* highest index for which dp has been filled */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 
     if (n > dp_cap) {
         /* Allocate a new table up to n.  The old one will be discarded. */
-        seq_t *new_dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, (n + 1));
         if (!new_dp)
             return 0;    /* allocation failed – return 0 as a safe fallback */
 
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace the old table.  No need to free new_dp itself. */
-        free(dp);
+        mem_free(dp);
         dp = new_dp;
         dp_cap = n;
     }

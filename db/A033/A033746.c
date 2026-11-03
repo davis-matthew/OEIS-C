@@ -8,7 +8,8 @@
  *            17*k3^2 + 34*k4^2
  * Range:     u8 n <= 339, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _mult_for_k
+ * Validated: standard, pass, 86 terms through n = 8706 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,13 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/_mult_for_k.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static inline seq_t _mult_for_k(uint64_t k)
+{
+    return (k == 0) ? (seq_t)1 : (seq_t)2;
+}
 
 /* ------------------------------------------------------------------ */
 /* Global cache of coefficients.  Cached up to seq_cache_max.        */
@@ -35,7 +42,7 @@ static idx_t seq_cache_max = 0;   /* highest index computed */
 static void _compute_up_to(idx_t N)
 {
     size_t len = (size_t)(N + 1);
-    seq_t *new_cache = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, len);
     for (size_t i = 0; i < len; ++i)
         new_cache[i] = 0;
 
@@ -68,7 +75,7 @@ static void _compute_up_to(idx_t N)
     }
 
     if (seq_cache)
-        free(seq_cache);
+        mem_free(seq_cache);
     seq_cache = new_cache;
     seq_cache_max = N;
 }

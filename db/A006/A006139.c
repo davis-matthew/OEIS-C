@@ -9,16 +9,41 @@
  *            a(0) = 1, a(1) = 2
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 29, u128 n <= 58,
  *            big any n
- * Helpers:   grow_zero, pw2, u128_to_seq
+ * Validated: standard, pass, 39 terms through n = 982 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/grow_zero.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/pw2.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
 
 static unsigned __int128 small_binom(idx_t m, idx_t k) {
     unsigned __int128 r = 1;
@@ -42,7 +67,7 @@ seq_t a(idx_t n) {
         for (k = 0; 2 * k <= n; k++) {
             seq_t c1 = u128_to_seq(small_binom(n, 2 * k));
             seq_t c2 = u128_to_seq(small_binom(2 * k, k));
-            s += c1 * c2 * pw2(n - k);
+            s += c1 * c2 * pow2(n - k);
         }
         return s;
     }

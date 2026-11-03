@@ -10,7 +10,8 @@
  *            satisfies
  * Range:     u8 n <= 23, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd64
+ * Validated: standard, pass, 86 terms through n = 948 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
 
 /* ---------- small helper routines ---------- */
 
@@ -113,7 +114,7 @@ static void fill_good_up_to(size_t target)
         if (p == 2ULL) {
             ok = true;
         } else {
-            uint64_t g = gcd64(14ULL, p - 1ULL);
+            uint64_t g = gcd_u64(14ULL, p - 1ULL);
             uint64_t e = (p - 1ULL) / g;
             if (powmod64(p - 2ULL, e, p) == 1ULL)
                 ok = true;

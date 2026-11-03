@@ -7,6 +7,7 @@
  * Formula:   a(n) = A059841(n) + 2*A005089(n) + A005091(n)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 116 terms through n = 9108 (2026-11-01)
  * Helpers:   factor_uint64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,7 @@
    A005091(n) = number of distinct prime factors of n that are ≡3 (mod 4) */
 
 #include <stdint.h>
-#include "../utils/factor_uint64.h"   /* provides factor_uint64() */
+#include "../utils/factor_uint64.h"
 
 seq_t a(idx_t n)
 {

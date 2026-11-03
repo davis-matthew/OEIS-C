@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 12, u64 n <= 30, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 180 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* One‑time static initialisation data */
 static bool initialized   = false;     /* flag */
@@ -91,8 +93,8 @@ static void precompute(void)
     }
 
     /* Allocate DP arrays */
-    dp_cur  = (seq_t*)malloc(STATE_COUNT * sizeof(seq_t));
-    dp_next = (seq_t*)malloc(STATE_COUNT * sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, STATE_COUNT);
+    dp_next = mem_new(seq_t, STATE_COUNT);
     for (int i = 0; i < STATE_COUNT; ++i) {
         dp_cur[i]  = 0;
         dp_next[i] = 0;
@@ -113,7 +115,7 @@ static void precompute(void)
     }
 
     /* Initialise cache for n = 1 and n = 2 */
-    cache      = (seq_t*)malloc(3 * sizeof(seq_t));   /* indices 0..2 */
+    cache      = mem_new(seq_t, 3);   /* indices 0..2 */
     cache[0]   = 0;
     cache[1]   = 0;
     cache[2]   = 0;
@@ -135,11 +137,11 @@ seq_t a(idx_t n)
     /* Extend cache and DP if required */
     if (n > max_cached) {
         /* Allocate larger cache */
-        seq_t *new_cache = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (n + 1));
         for (idx_t i = 0; i <= max_cached; ++i) new_cache[i] = cache[i];
 
         /* Free old cache */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
 
         /* Compute DP steps from length = max_cached+1 up to n */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   poly_degree, poly_div_once, poly_divides
+ * Validated: partial, pass, 97 terms through n = 97 (2026-11-01)
+ * Helpers:   ilog2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,40 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/poly_degree.h"
-#include "../utils/poly_div_once.h"
-#include "../utils/poly_divides.h"
+#include "../utils/ilog2_u64.h"
+
+/* divide f by g (which is known to divide f); return quotient */
+static uint64_t poly_div_once(uint64_t f, uint64_t g)
+{
+    int dg = ilog2_u64(g);
+    uint64_t q = 0;
+    int dr = ilog2_u64(f);
+
+    while (dr >= dg) {
+        uint64_t shift = dr - dg;
+        q |= (uint64_t)1 << shift;
+        f ^= g << shift;
+        dr = ilog2_u64(f);
+    }
+    return q;
+}
+
+/* return true iff g divides f */
+static bool poly_divides(uint64_t f, uint64_t g)
+{
+    int dg = ilog2_u64(g);
+    if (dg < 0) return false;        /* g == 0 never divides anything */
+    int dr = ilog2_u64(f);
+    if (dr < dg) return false;
+
+    while (dr >= dg) {
+        uint64_t shift = dr - dg;
+        f ^= g << shift;
+        dr = ilog2_u64(f);
+        if (f == 0) return true;
+    }
+    return false;
+}
 
 /* ----- helper: polynomial arithmetic over GF(2) using 64‑bit bitsets ----- */
 
@@ -72,7 +104,7 @@ seq_t a(idx_t n)
     uint64_t f = (uint64_t)n;            /* polynomial bits */
     seq_t res = 1;
 
-    int d = poly_degree(f);
+    int d = ilog2_u64(f);
     if (d == -1) return res;            /* n == 0, should not happen */
 
     for (int deg = 1; deg <= d / 2; ++deg) {

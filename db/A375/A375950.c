@@ -9,13 +9,15 @@
  *            2k+1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache size tracking */
 static size_t array_cap = 0;
@@ -32,18 +34,20 @@ static void ensure_capacity(size_t need)
 
     /* Reallocate arrays, preserve existing data. */
     void *tmp;
-    tmp = realloc(B, need * sizeof(seq_t));
+    tmp = mem_resize(seq_t, B, need);
     if (!tmp) abort();  /* allocation failed */
     B = (seq_t *)tmp;
 
-    tmp = realloc(S, need * sizeof(seq_t));
+    tmp = mem_resize(seq_t, S, need);
     if (!tmp) abort();
     S = (seq_t *)tmp;
 
-    tmp = realloc(A, need * sizeof(seq_t));
+    tmp = mem_resize(seq_t, A, need);
     if (!tmp) abort();
     A = (seq_t *)tmp;
 
+    /* the new entries are unset after realloc (in C); S needs them zero */
+    for (size_t i = array_cap; i < need; ++i) B[i] = S[i] = A[i] = (seq_t)0;
     array_cap = need;
 }
 

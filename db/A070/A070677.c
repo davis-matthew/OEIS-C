@@ -9,15 +9,18 @@
  *            such m exists (e.g. n is a multiple of 5 or n = 1)
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   factor_u64, mod_pow
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
+ * Helpers:   factor_u64, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"      /* void factor_u64(uint64_t,uint64_t*,uint64_t*,size_t*); */
-#include "../utils/mod_pow.h"        /* seq_t mod_pow(seq_t,uint64_t,seq_t); */
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/factor_u64.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +51,7 @@ seq_t a(idx_t n)
         /* try to reduce ord by p as many times as possible */
         while (ord % p == (seq_t)0) {
             seq_t cand = ord / p;
-            if (mod_pow((seq_t)5, (uint64_t)cand, mod) == (seq_t)1)
+            if (powmod((seq_t)5, (uint64_t)cand, mod) == (seq_t)1)
                 ord = cand;
             else
                 break;

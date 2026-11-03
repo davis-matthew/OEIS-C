@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 685, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum, is_prime, is_prime_small
+ * Validated: standard, pass, 65 terms through n = 9295 (2026-11-03)
+ * Helpers:   digit_sum, is_prime, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/digit_sum.h"
-#include "../utils/is_prime_small.h"
 #include "../utils/is_prime.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *terms   = NULL;   /* array of sequence values */
 static size_t term_len = 0;      /* number of stored terms   */
@@ -34,7 +36,7 @@ static void append_term(idx_t p)
     if (term_len == term_cap)
     {
         term_cap = term_cap ? term_cap * 2 : 8;
-        terms = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, term_cap);
     }
     terms[term_len++] = (seq_t)p;
 }
@@ -49,7 +51,7 @@ static void ensure_n_terms(idx_t n)
     if (!terms)
     {
         term_cap = 8;
-        terms = (seq_t *)malloc(term_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, term_cap);
     }
 
     while ((idx_t)term_len < n)
@@ -58,11 +60,11 @@ static void ensure_n_terms(idx_t n)
         if (is_prime(current_candidate))
         {
             seq_t sum1 = digit_sum((seq_t)current_candidate);
-            if (is_prime_small((idx_t)sum1))
+            if (is_prime_seq((idx_t)sum1))
             {
                 seq_t doubled = ((seq_t)current_candidate) * (seq_t)2;
                 seq_t sum2   = digit_sum(doubled);
-                if (is_prime_small((idx_t)sum2))
+                if (is_prime_seq((idx_t)sum2))
                     append_term(current_candidate);
             }
         }

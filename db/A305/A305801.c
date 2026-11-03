@@ -10,8 +10,9 @@
  *            composite n, where π(n) is the number of primes ≤ n. This yields
  *            the lexicographically earliest sequence satisfying: a(i)=a(j) ⇒
  *            f(i)=f(j) with f(n)=0 for odd primes and f(n)=n otherwise
- * Range:     u8 n <= 319, u16 n <= 8004, u32 n <= 8004, u64 n <= 8004,
- *            u128 n <= 8004, big any n
+ * Range:     u8 n <= 319, u16 n <= 72725, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 8004 (2026-11-01)
  * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,8 +22,8 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"          /* bool is_prime(idx_t n); */
-#include "../utils/build_primes_upto.h" /* void build_primes_upto(idx_t limit, uint64_t **array, size_t *cnt); */
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
 
 static uint64_t *sieve_primes = NULL;   /* array of primes up to sieve_limit */
 static size_t sieve_count = 0;          /* number of primes in ->sieve_primes */

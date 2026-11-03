@@ -10,13 +10,25 @@
  *            prefixSum[n-1]
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 22, u128 n <= 41,
  *            big any n
- * Helpers:   pow10
+ * Validated: standard, pass, 39 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow10.h"   /* assumes pow10(idx_t) returns seq_t */
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static seq_t *A = NULL;    /* a[n] values   */
 static seq_t *S = NULL;    /* prefix sums   */
@@ -28,8 +40,8 @@ seq_t a(idx_t n)
     /* grow tables to length n+1 if needed */
     if (n + 1 > computed) {
         idx_t new_size = n + 1;
-        A = (seq_t*)realloc(A, new_size * sizeof(seq_t));
-        S = (seq_t*)realloc(S, new_size * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_size);
+        S = mem_resize(seq_t, S, new_size);
         for (idx_t i = computed; i <= n; ++i) {
             if (i < 4) {
                 A[i] = (seq_t)0;

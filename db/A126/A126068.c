@@ -8,13 +8,15 @@
  *            * Σ_{k=2}^{n-2} a(k) * a(n-k)
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 25, u64 n <= 46, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* cache[i] holds a(i) */
 static idx_t  cache_size = 0;   /* first unused index in cache (i.e. equal to number of computed values) */
@@ -32,7 +34,7 @@ ensure_cache(idx_t n)
     if (need > cache_cap) {
         size_t new_cap = (cache_cap > 0) ? cache_cap * 2 : 16;
         if (new_cap < need) new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) {
             /* allocation failed: abort further computation */
             return;

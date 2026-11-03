@@ -10,13 +10,14 @@
  *            a(1) = T(1,1), a(2) = T(2,1), a(3) = T(2,2), a(4) = T(3,1), …
  * Range:     u8 n <= 40, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* idx_t is an unsigned integer type; seq_t is the output type (uintX_t or arbitrary-precision) */
 seq_t a(idx_t N)
@@ -36,7 +37,7 @@ seq_t a(idx_t N)
     seq_t sum = 0;
     /* Sum over i = 0 .. k-1 of binomial(r-1, i) */
     for (idx_t i = 0; i < k; ++i)
-        sum += binom(r - 1, i);
+        sum += binomial(r - 1, i);
 
     /* Compute T(r,k) = 2*sum - 1 */
     return sum * (seq_t)2 - (seq_t)1;

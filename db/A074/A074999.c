@@ -8,13 +8,24 @@
  * Formula:   a(n) = floor(concatenation of n, n+1, …, n+8 divided by 9)
  * Range:     u8 none, u16 none, u32 n <= 3, u64 n <= 93, u128 n <= 1000,
  *            big any n
- * Helpers:   idx_digits, pow10
+ * Validated: standard, pass, 29 terms through n = 822 (2026-11-01)
+ * Helpers:   num_digits_idx_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"
-#include "../utils/idx_digits.h"
+#include <stdint.h>
+#include "../utils/num_digits_idx_to_u32.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -23,7 +34,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k < 9; ++k) {
         idx_t cur = n + k;                 /* current number to append */
-        unsigned d   = idx_digits(cur);    /* number of decimal digits of cur */
+        unsigned d   = num_digits_idx_to_u32(cur);    /* number of decimal digits of cur */
         seq_t  base = pow10(d);            /* 10^d */
 
         /* t = r * base + cur  (value < 9*1000 + 999 < 9000) */

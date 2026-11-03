@@ -12,13 +12,26 @@
  *            ((m+2)!(m+1)!m!)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 11, u128 n <= 20,
  *            big any n
- * Helpers:   binomial, factorial
+ * Validated: standard, pass, 30 terms through n = 198 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/factorial.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 static seq_t SYT_3(idx_t m) {
     /* 2 * factorial(3*m) / (factorial(m+2) * factorial(m+1) * factorial(m)) */

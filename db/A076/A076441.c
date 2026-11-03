@@ -8,6 +8,7 @@
  * Formula:   u(1)=u(2)=u(3)=1; u(n)=sign(u(n-1)-u(n-2))*u(n-3); a(n)=1+u(n)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

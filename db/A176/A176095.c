@@ -5,18 +5,20 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = n - phi(2*n)
- * Range:     u8 n <= 523, u16 n <= 8926, u32 n <= 8926, u64 n <= 8926,
- *            u128 n <= 8926, big any n
- * Helpers:   phi
+ * Range:     u8 n <= 523, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 107 terms through n = 8926 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     idx_t two_n = n * 2;
-    seq_t phi_val = phi(two_n);
+    seq_t phi_val = totient(two_n);
     return ((seq_t)n) - phi_val;
 }

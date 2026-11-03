@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 38, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 1229 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>    /* malloc, calloc, free */
 #include <math.h>      /* sqrt, floor */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -51,16 +53,16 @@ seq_t a(idx_t n)
     }
 
     /* Allocate the first row (row 0). */
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, 1);
     if (!prev) return (seq_t)0;   /* allocation failure -> 0 */
     prev[0] = (seq_t)1;
 
     /* Build rows up to and including row r using the recurrence. */
     for (idx_t row = 1; row <= r; ++row) {
         /* Allocate the current row of length row+1. */
-        seq_t *curr = (seq_t *)calloc((size_t)(row + 1), sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, (size_t)(row + 1));
         if (!curr) {
-            free(prev);
+            mem_free(prev);
             return (seq_t)0;
         }
 
@@ -73,12 +75,12 @@ seq_t a(idx_t n)
             curr[col] = prev[col - 1] + power * prev[col];
         }
 
-        free(prev);
+        mem_free(prev);
         prev = curr;
     }
 
     /* prev now points to the desired row r. */
     seq_t result = prev[k];
-    free(prev);
+    mem_free(prev);
     return result;
 }

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 16, u32 n <= 30, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *f_arr = NULL;       /* f[0 .. last_computed]          */
 static idx_t  f_cap = 0;          /* current length of f_arr         */
@@ -40,7 +42,7 @@ static void ensure_f(idx_t up_to)
 {
     if (f_arr == NULL) {
         /* initially require indices 0 and 1 */
-        f_arr = (seq_t *)malloc(2 * sizeof(seq_t));
+        f_arr = mem_new(seq_t, 2);
         if (!f_arr) exit(1);
         f_arr[0] = (seq_t)0;
         f_arr[1] = (seq_t)1;
@@ -50,7 +52,7 @@ static void ensure_f(idx_t up_to)
     if ((idx_t)(f_cap - 1) >= up_to) return;   /* already computed all needed */
 
     size_t new_cap = (size_t)up_to + 1;         /* need indices 0..up_to inclusive */
-    f_arr = (seq_t *)realloc(f_arr, new_cap * sizeof(seq_t));
+    f_arr = mem_resize(seq_t, f_arr, new_cap);
     if (!f_arr) exit(1);
 
     for (idx_t i = f_cap; i <= up_to; ++i) {

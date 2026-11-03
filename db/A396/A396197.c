@@ -9,12 +9,14 @@
  *            2*F(n-k) + F(n-k+2) ), F(0)=0, F(1)=1. (OEIS A396197)
  * Range:     i8 n <= 21, i16 n <= 80, i32 n <= 306, i64 n <= 1143,
  *            i128 n <= 4495, big any n
+ * Validated: standard, pass, 71 terms through n = 9581 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* fast doubling for Fibonacci numbers: 

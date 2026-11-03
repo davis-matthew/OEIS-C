@@ -11,16 +11,27 @@
  *            (1/(2^(n+1) n!)) * Sum_{g in B_n} 2^c(g) * (1 + [all...
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   gcd_u, mulmod_u, pow2mod
+ * Validated: standard, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   gcd_u64, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd_u.h"
-#include "../utils/mulmod_u.h"
-#include "../utils/pow2mod.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mulmod.h"
+
+static unsigned long long pow2mod(unsigned long long e, unsigned long long m)
+{
+    unsigned long long r = 1 % m, b = 2 % m;
+    while (e) {
+        if (e & 1) r = mulmod(r, b, m);
+        b = mulmod(b, b, m);
+        e >>= 1;
+    }
+    return r;
+}
 
 static int cyc_k[128];
 static int cyc_neg[128];
@@ -35,7 +46,7 @@ static int fixexp(unsigned long long m)
     int i, tot = 0;
     for (i = 0; i < ncyc; i++) {
         unsigned long long k = (unsigned long long)cyc_k[i];
-        unsigned long long g = gcd_u(m, k);
+        unsigned long long g = gcd_u64(m, k);
         if (cyc_neg[i] && ((m / g) & 1)) return -1;
         tot += (int)g;
     }
@@ -49,7 +60,7 @@ static void process_class(void)
     unsigned long long E;
     for (i = 0; i < ncyc; i++) {
         unsigned long long len = (unsigned long long)cyc_k[i] * (cyc_neg[i] ? 2 : 1);
-        L = L / gcd_u(L, len) * len;
+        L = L / gcd_u64(L, len) * len;
     }
     for (m = 0; m < L; m++) {
         int f = fixexp(m);

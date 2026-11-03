@@ -9,7 +9,8 @@
  *            n>=5. Access: a(1) is the first term
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 22, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* pointer to cached terms, cache[i] = a(i+1) */
 static size_t cache_size = 0;    /* number of elements currently allocated */
@@ -30,7 +32,7 @@ static void ensure_cache(size_t n)
     if (new_size < n) new_size = n;
 
     /* realloc may return NULL on failure; abort as per the problem statement */
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) abort();
     cache = tmp;
 

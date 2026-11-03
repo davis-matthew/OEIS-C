@@ -7,7 +7,8 @@
  * Formula:   numbers having two 7's in base 8 (OEIS A043450)
  * Range:     u8 n <= 4, u16 n <= 2500, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   has_two_sevens_idx
+ * Validated: standard, pass, 60 terms through n = 2409 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,19 @@
 /* Implementation: brute‑force enumeration in increasing order. */
 
 #include <stdbool.h>
-#include "../utils/has_two_sevens_idx.h"
+
+/* returns true iff x has exactly two digits 7 in its base‑8 representation */
+static inline bool has_two_sevens_idx(idx_t x)
+{
+    unsigned count = 0;
+    while (x) {
+        if ((x & 7ULL) == 7) {          /* check the least significant octal digit */
+            if (++count > 2) return false;
+        }
+        x >>= 3;                         /* move to the next 3‑bit octal digit */
+    }
+    return count == 2;
+}
 
 seq_t a(idx_t n)
 {

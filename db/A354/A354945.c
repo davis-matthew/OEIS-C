@@ -9,7 +9,8 @@
  *            with a(1) = 2. A002034(n) is the least k such that n | k!
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   min_k_for_p_exp
+ * Validated: standard, pass, 86 terms through n = 8517 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,24 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/min_k_for_p_exp.h"
+#include "../utils/mem.h"
+
+/* Binary search for the minimal k such that p^e | k! */
+static seq_t min_k_for_p_exp(uint64_t p, uint64_t e, idx_t bound) {
+    idx_t lo = 1, hi = bound;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo) / 2;
+        seq_t exp = 0;
+        idx_t t = mid;
+        while (t) {
+            t /= p;
+            exp += t;
+        }
+        if (exp >= e) hi = mid;
+        else lo = mid + 1;
+    }
+    return (seq_t)lo;
+}
 
 /* Cache for the A002034 values */
 static seq_t *f_cache = NULL;
@@ -60,7 +78,7 @@ static void ensure_spf(idx_t limit) {
 static void ensure_f_cache(idx_t n) {
     if (n < f_cache_alloc) return;
     idx_t new_size = (n + 1) * 2; /* grow faster to reduce reallocs */
-    f_cache = (seq_t *)realloc(f_cache, new_size * sizeof(seq_t));
+    f_cache = mem_resize(seq_t, f_cache, new_size);
     for (idx_t i = f_cache_alloc; i < new_size; ++i) f_cache[i] = 0;
     f_cache_alloc = new_size;
 }

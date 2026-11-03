@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    returns a(n) for any n >= 0 using memoisation. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of previously computed terms. */
 static size_t            a_cap   = 0,    /* current capacity of a_arr */
@@ -39,7 +41,7 @@ ensure_capacity(size_t *cap, seq_t **arr, size_t needed)
     if (needed > *cap) {
         size_t new_cap = (*cap > 0) ? (*cap) << 1 : 2;
         while (new_cap < needed) new_cap <<= 1;
-        void *tmp = realloc(*arr, new_cap * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) abort();                 /* out‑of‑memory */
         *arr    = (seq_t *)tmp;
         *cap    = new_cap;
@@ -53,8 +55,8 @@ seq_t a(idx_t n)
     if (!a_arr) {
         a_cap    = 2;
         b_cap    = 2;
-        a_arr    = (seq_t *)malloc(a_cap * sizeof(seq_t));
-        b_arr    = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        a_arr    = mem_new(seq_t, a_cap);
+        b_arr    = mem_new(seq_t, b_cap);
         if (!a_arr || !b_arr) abort();
 
         a_arr[0] = (seq_t)3;

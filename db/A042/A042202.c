@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 170 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    Initial values: a(0) = 25, a(1) = 626, a(2) = 31325, a(3) = 783751 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values. */
 static seq_t *cache = NULL;
@@ -28,7 +30,7 @@ static void cache_init(void)
         return;
 
     cache_len = 4;
-    cache = (seq_t *)malloc(4 * sizeof(seq_t));
+    cache = mem_new(seq_t, 4);
     if (cache == NULL)
         return;  /* allocation failed – subsequent calls will see garbage */
 
@@ -50,7 +52,7 @@ static void cache_extend(idx_t n)
     size_t new_len  = (size_t)n + 1;          /* length needed */
 
     /* Reallocate to required size. */
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (tmp == NULL)
         return;                                 /* leave cache unchanged */
     cache      = tmp;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   is_prime, isprime_big, seq_malloc, seq_realloc
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   is_prime_seq, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,10 +23,30 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/seq_malloc.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/is_prime.h"
-#include "../utils/isprime_big.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+static inline seq_t *seq_realloc(seq_t *p, idx_t n)
+{
+#ifdef __cplusplus
+    return mem_resize(seq_t, p, n);
+#else
+    return (seq_t *)realloc(p, n * sizeof(seq_t));
+#endif
+}
 
 static seq_t *seq = NULL;
 static idx_t cap = 0;
@@ -71,12 +92,12 @@ seq_t a(idx_t n)
 
             /* If the value fits in 64 bits, use the 64‑bit primality test */
             if (pre_minus <= (unsigned __int128)UINT64_MAX) {
-                prime = is_prime((uint64_t)pre_minus);
+                prime = is_prime_u64((uint64_t)pre_minus);
             }
             /* Else if it fits in seq_t, try the arbitrary‑precision test */
             else if (pre_minus <= MAX_SEQ_VAL) {
                 seq_t test_val = (seq_t)pre_minus;
-                prime = isprime_big(test_val);
+                prime = is_prime_seq(test_val);
             }
             /* Otherwise we cannot test; treat as non‑prime and keep searching */
             if (prime) break;

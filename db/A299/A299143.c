@@ -10,7 +10,8 @@
  *            p, a(p)=3p
  * Range:     u8 n <= 87, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 78 terms through n = 8964 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* Cached results for indices >=2 */
 static bool   *seen  = NULL;   /* true if cache[n] contains a valid value */
@@ -34,11 +37,12 @@ static void ensure_capacity(idx_t n)
     size_t newcap = cap ? cap << 1 : 64;
     while (newcap <= (size_t)n)
         newcap <<= 1;
-    seq_t *newc = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *newc = mem_resize(seq_t, cache, newcap);
     bool  *news = (bool  *)realloc(seen,  newcap * sizeof(bool));
     if (!newc || !news)
         abort();  /* memory allocation failed */
 
+    for (size_t i = cap; i < newcap; ++i) news[i] = false;   /* (were left uninitialised) */
     cache = newc;
     seen  = news;
     cap   = newcap;

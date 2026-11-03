@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9593 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* integer square‑root: floor(sqrt(n)) for unsigned 64‑bit values */
 static idx_t floor_isqrt(idx_t n)
@@ -50,14 +52,14 @@ static void recompute(idx_t N)
 {
     /* allocate new cache array */
     idx_t new_cap = N + 1;
-    seq_t *new_cache = (seq_t *)malloc((size_t)new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)new_cap);
     if (!new_cache) exit(EXIT_FAILURE);
     for (idx_t i = 0; i < new_cap; ++i) new_cache[i] = 0;
 
     /* pre‑compute w^2 table up to sqrt(N) */
     idx_t w_limit = floor_isqrt(N);
     idx_t *w_sq = (idx_t *)malloc((size_t)(w_limit + 1) * sizeof(idx_t));
-    if (!w_sq) { free(new_cache); exit(EXIT_FAILURE); }
+    if (!w_sq) { mem_free(new_cache); exit(EXIT_FAILURE); }
     for (idx_t w = 0; w <= w_limit; ++w) w_sq[w] = w * w;
 
     /* main search loops over x, y, z */
@@ -96,7 +98,7 @@ static void recompute(idx_t N)
     }
 
     free(w_sq);
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     cache = new_cache;
     cache_cap = new_cap;
 }

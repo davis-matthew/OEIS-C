@@ -8,12 +8,14 @@
  * Formula:   a(0)=1; a(2*n) = (2^n + n - 1) * (n-1)! for n>0; a(2*n+1) = n!
  * Range:     u8 n <= 9, u16 n <= 13, u32 n <= 21, u64 n <= 35, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 298 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *factorial_cache = NULL;   /* factorial_cache[i] == i!   */
 static idx_t  factorial_len  = 0;       /* next index to compute  */
@@ -27,7 +29,7 @@ static void ensure_factorial(idx_t upto)
     if (new_len < 2 * factorial_len) new_len = 2 * factorial_len;
     if (new_len == 0) new_len = 1;
 
-    seq_t *tmp = (seq_t*)realloc(factorial_cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, factorial_cache, new_len);
     if (!tmp) abort();
     factorial_cache = tmp;
 
@@ -49,7 +51,7 @@ static void ensure_pow2(idx_t upto)
     if (new_len < 2 * pow2_len) new_len = 2 * pow2_len;
     if (new_len == 0) new_len = 1;
 
-    seq_t *tmp = (seq_t*)realloc(pow2_cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, pow2_cache, new_len);
     if (!tmp) abort();
     pow2_cache = tmp;
 

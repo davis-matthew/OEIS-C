@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 33, u32 n <= 63, u64 n <= 122,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 enum { STATES = 27 };            /* 3^3 possible triples (-1/0/1)^3 */
 
@@ -86,17 +88,17 @@ seq_t a(idx_t n)
     size_t total_cells = (size_t)STATES * (size_t)sum_range;
 
     /* Allocate DP arrays */
-    seq_t *cur_counts = (seq_t*)calloc(total_cells, sizeof(seq_t));
-    seq_t *next_counts = (seq_t*)calloc(total_cells, sizeof(seq_t));
+    seq_t *cur_counts = mem_new(seq_t, total_cells);
+    seq_t *next_counts = mem_new(seq_t, total_cells);
     if (!cur_counts || !next_counts) {
-        free(cur_counts); free(next_counts);
+        mem_free(cur_counts); mem_free(next_counts);
         return (seq_t)0;
     }
 
     size_t *cur_keys = (size_t*)malloc(total_cells * sizeof(size_t));
     size_t *next_keys = (size_t*)malloc(total_cells * sizeof(size_t));
     if (!cur_keys || !next_keys) {
-        free(cur_counts); free(next_counts);
+        mem_free(cur_counts); mem_free(next_counts);
         free(cur_keys); free(next_keys);
         return (seq_t)0;
     }
@@ -156,8 +158,8 @@ seq_t a(idx_t n)
     }
 
     /* --------  Clean up ---------------------------------- */
-    free(cur_counts);
-    free(next_counts);
+    mem_free(cur_counts);
+    mem_free(next_counts);
     free(cur_keys);
     free(next_keys);
 

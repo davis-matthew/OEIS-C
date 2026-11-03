@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 23,
  *            big any n
- * Helpers:   digits_base15
+ * Validated: standard, pass, 35 terms through n = 199 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,17 @@
 /* a(n) = a(n-1) * 15^d(n) + n, a(1) = 1; d(n) = number of base‑15 digits of n. */
 
 #include <stddef.h>
-#include "../utils/digits_base15.h"
+
+static size_t digits_base15(idx_t x)
+{
+    size_t len = 0;
+    do
+    {
+        ++len;
+        x /= 15;
+    } while (x);
+    return len;
+}
 
 seq_t a(idx_t n)
 {

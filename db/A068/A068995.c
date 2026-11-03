@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   repunit128
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,7 +40,17 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/repunit128.h"
+
+/* Build a repunit of given length as an integer that fits into
+ * a 128‑bit value.  For lengths that exceed 128 bits we never
+ * need the full value (the term will not fit into seq_t anyway). */
+static inline __uint128_t repunit128(size_t len)
+{
+    __uint128_t r = 0;
+    for (size_t i = 0; i < len; ++i)
+        r = r * 10 + 1;
+    return r;
+}
 
 /* 128‑bit integer square root: returns floor( sqrt(v) ) for v ≥ 0.
  * The result is guaranteed to fit into an unsigned 64‑bit value

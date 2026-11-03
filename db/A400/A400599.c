@@ -10,6 +10,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 151, u32 n <= 151, u64 n <= 151,
  *            u128 n <= 151, big any n
+ * Validated: full, pass, 151 terms through n = 151 (2026-11-02)
  * Helpers:   digit_product
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -28,6 +29,7 @@
 #include <stddef.h>
 
 /* Utility: digit product of a seq_t number */
+#include <stdlib.h>
 #include "../utils/digit_product.h"
 
 /* Directions: N, NE, E, SE, S, SW, W, NW */

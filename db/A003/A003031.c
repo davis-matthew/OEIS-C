@@ -7,12 +7,14 @@
  * Formula:   a(n) = (4*n+3) * 2^(2*n+1) * (2*n+1)!
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 13,
  *            big any n
- * Helpers:   A001832_pow2
+ * Validated: standard, pass, 27 terms through n = 187 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/A001832_pow2.h"
+#include <stdint.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -21,6 +23,6 @@ seq_t a(idx_t n)
 		factorial = factorial * (seq_t)i;
 	}
 	
-	seq_t result = ((seq_t)(4 * n + 3)) * factorial * A001832_pow2(2 * n + 1);
+	seq_t result = ((seq_t)(4 * n + 3)) * factorial * pow2(2 * n + 1);
 	return result;
 }

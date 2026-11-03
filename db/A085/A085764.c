@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 162, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   lower_bound, upper_bound
+ * Validated: standard, pass, 70 terms through n = 958 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,29 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/lower_bound.h"
-#include "../utils/upper_bound.h"
+
+/* ------------------------------------------------------------- */
+static size_t lower_bound(const seq_t *arr, size_t n, seq_t v)
+{
+    size_t l = 0, r = n;
+    while (l < r) {
+        size_t m = (l + r) >> 1;
+        if (arr[m] < v) l = m + 1;
+        else r = m;
+    }
+    return l;
+}
+
+static size_t upper_bound(const seq_t *arr, size_t n, seq_t v)
+{
+    size_t l = 0, r = n;
+    while (l < r) {
+        size_t m = (l + r) >> 1;
+        if (arr[m] <= v) l = m + 1;
+        else r = m;
+    }
+    return l;
+}
 
 /* ------------------------------------------------------------- */
 /*  Palindrome generation utilities                              */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_mul.h"
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Static helper arrays shared across calls */
 static seq_t *p_arr = NULL;   /* partition numbers p[0..N]           */
@@ -33,13 +41,13 @@ static void ensure_up_to(idx_t n)
     if (n <= cur_n) return;                       /* already computed */
 
     /* Free old memory if it exists */
-    free(p_arr);   free(fact_arr); free(pow_arr); free(a_arr);
+    mem_free(p_arr);   mem_free(fact_arr); mem_free(pow_arr); mem_free(a_arr);
 
     /* Allocate new arrays (n+1 to include index 0) */
-    p_arr   = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    fact_arr= (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    pow_arr = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    a_arr   = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    p_arr   = mem_new(seq_t, (n + 1));
+    fact_arr= mem_new(seq_t, (n + 1));
+    pow_arr = mem_new(seq_t, (n + 1));
+    a_arr   = mem_new(seq_t, (n + 1));
     if (!p_arr || !fact_arr || !pow_arr || !a_arr) return; /* OOM – caller gets 0 */
 
     /* ---- 1. Partition numbers via DP ---- */
@@ -60,7 +68,7 @@ static void ensure_up_to(idx_t n)
     /* ---- 3. Powers k^(k-1) ---- */
     pow_arr[0] = 1;   /* unused */
     for (idx_t i = 1; i <= n; ++i) {
-        pow_arr[i] = big_pow((seq_t)i, (seq_t)(i - 1));
+        pow_arr[i] = ipow((seq_t)i, (seq_t)(i - 1));
     }
 
     /* ---- 4. Sequence a(n) ---- */

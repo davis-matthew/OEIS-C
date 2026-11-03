@@ -7,13 +7,26 @@
  * Formula:   a(n) = 2 + (n+1)*ceil(log_2(n+1)) - 2^ceil(log_2(n+1))
  * Range:     u8 n <= 51, u16 n <= 5670, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ceil_log2_u64
+ * Validated: standard, pass, 75 terms through n = 9261 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/ceil_log2_u64.h"
+
+/* Return ceil(log2(v)) for v >= 1. For v == 0, returns 0 (unused). */
+static inline unsigned int ceil_log2_u64(idx_t v) {
+    if (v <= 1) return 0;
+    /* floor_log2 = 63 - __builtin_clzll(v) */
+    unsigned int floor_log2 = 63 - __builtin_clzll(v);
+    /* v is a power of two if (v & (v-1)) == 0 */
+    if ((v & (v - 1)) == 0) {
+        return floor_log2;
+    } else {
+        return floor_log2 + 1;
+    }
+}
 
 seq_t a(idx_t n) {
     /* Compute r = ceil(log2(n+1)) */

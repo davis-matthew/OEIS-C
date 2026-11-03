@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 96, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_property
+ * Validated: standard, pass, 79 terms through n = 9662 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,30 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_property.h"
+#include "../utils/mem.h"
+
+/* Test whether integer n satisfies the property:
+   there exists a divisor a with a ≤ n/a ≤ 2a. */
+static bool has_property(seq_t n) {
+    if (n == (seq_t)1)      /* 1 is included in the sequence */
+        return true;
+
+    seq_t a = 1;
+    seq_t d;
+    /* Iterate over divisors a from 1 up to sqrt(n).
+       The loop stops when a > d (i.e. a > sqrt(n)). */
+    for (a = 1; ; ++a) {
+        d = n / a;          /* integer division */
+        if (a > d)          /* a > sqrt(n)  →  stop */
+            break;
+
+        if ((n % a) == (seq_t)0) {   /* n divisible by a */
+            if (d <= a * (seq_t)2)   /* condition a ≤ d ≤ 2a holds */
+                return true;
+        }
+    }
+    return false;
+}
 
 /* Dynamic array holding the sequence values seen so far. */
 static seq_t *seq_arr  = NULL;   /* array of seq_t values */
@@ -34,7 +58,7 @@ static void ensure_capacity(size_t new_capacity) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 16;
         while (new_cap < new_capacity)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
         if (!tmp) abort();
         seq_arr = tmp;
         seq_cap = new_cap;

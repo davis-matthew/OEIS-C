@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k=0..n} binomial(n,k) * Catalan(k) * n^(n-k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow, binomial, catalan
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   binomial, catalan, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include <stdbool.h>
 #include "../utils/binomial.h"
 #include "../utils/catalan.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Forward declarations for internal allocation helpers */
 static seq_t* alloc_seq(size_t n);
@@ -71,7 +73,7 @@ static void ensure_a(idx_t n)
         seq_t n_val = (seq_t)ii;
 
         /* n^n once */
-        seq_t n_pow = big_pow(n_val, (seq_t)ii);
+        seq_t n_pow = ipow(n_val, (seq_t)ii);
 
         seq_t binom = (seq_t)1;          /* binomial(ii,0)   */
         seq_t sum   = (seq_t)0;

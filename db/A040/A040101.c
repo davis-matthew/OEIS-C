@@ -7,7 +7,8 @@
  * Formula:   a(n) = nth prime p such that x^4 ≡ 3 (mod p)
  * Range:     u8 n <= 21, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow, seq_alloc_new_array, seq_free_array
+ * Validated: standard, pass, 61 terms through n = 930 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,17 @@
 #include <stddef.h>
 
 /* Utility functions from the framework */
-#include "../utils/is_prime.h"     /* bool is_prime(idx_t n);        */
-#include "../utils/mod_pow.h"      /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
-#include "../utils/seq_alloc_new_array.h" /* seq_t* seq_alloc_new_array(size_t n); */
-#include "../utils/seq_free_array.h"      /* void seq_free_array(seq_t *p); */
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *cache = NULL;          /* array of found primes of this sequence */
 static idx_t cache_size = 0;         /* number of stored elements */
@@ -59,7 +67,7 @@ seq_t a(idx_t n)
                 (next_candidate == 3) ||
                 (next_candidate % 12 == 11) ||  /* 11 (mod 12) */
                 ( (next_candidate % 4 == 1) &&
-                  (mod_pow((seq_t)3, (next_candidate - 1) / 4, val) == (seq_t)1) );
+                  (powmod((seq_t)3, (next_candidate - 1) / 4, val) == (seq_t)1) );
             if (accept) {
                 if (cache_size == cache_cap)
                     grow_cache();

@@ -12,13 +12,15 @@
  *            n contains floor(n^2/4)+1 entries. The function...
  * Range:     u8 n <= 185, u16 n <= 889, u32 n <= 4943, u64 n <= 9548,
  *            u128 n <= 9548, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9396 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Dynamic storage for the table. */
 static seq_t **rows   = NULL;     /* pointers to each row            */
@@ -43,7 +45,7 @@ static void add_next_row(void)
 {
     idx_t n = (idx_t)rows_n;                /* row index to be added   */
     idx_t L = ((idx_t)n * (idx_t)n) / 4 + 1;/* length of the new row   */
-    seq_t *row = (seq_t *)malloc((size_t)L * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (size_t)L);
     if (!row) exit(1);                      /* out of memory            */
 
     if (n == 0) {

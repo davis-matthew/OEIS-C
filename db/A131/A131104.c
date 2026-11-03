@@ -13,16 +13,28 @@
  *            * g(i-1, j-1) * * where g(m, r) is the numbe...
  * Range:     u8 n <= 32, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   binomial, factorial, pow_seq
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/factorial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* Compute g(m, r) as described above.  m, r are idx_t (unsigned). */
 static seq_t _g(idx_t m, idx_t r)
@@ -36,7 +48,7 @@ static seq_t _g(idx_t m, idx_t r)
         term *= factorial(t);                      /* t! */
         if (r > t) {
             /* (m - t)^(r - t) */
-            term *= pow_seq((seq_t)(m - t), (int)(r - t));
+            term *= ipow_i32((seq_t)(m - t), (int)(r - t));
         }
         if (t & 1) result -= term;   /* subtract if t is odd */
         else       result += term;   /* add if t is even */

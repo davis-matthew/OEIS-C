@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(n-1)*10 - a(n-2)*20, a(0)=1, a(1)=8
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* This implementation uses a static cache that is extended on demand.  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first two terms if it is still empty   */
     if (cache_size == 0) {
         /* allocate space for 2 entries, cast required for C compatibility */
-        cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (!cache) return 0;          /* allocation failure – return 0     */
         cache[0] = (seq_t)1;           /* a(0) */
         cache[1] = (seq_t)8;           /* a(1) */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     }
 
     /* extend the cache to hold up to a(n) */
-    seq_t *new_cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)(n + 1));
     if (!new_cache) return 0;          /* allocation failure – return 0     */
     cache = new_cache;
 

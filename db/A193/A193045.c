@@ -12,12 +12,14 @@
  *            cache so that calls in any order run in O(n) time
  * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,8 +34,7 @@ seq_t a(idx_t n)
         if (new_cap <= (size_t)n) new_cap = (size_t)n + 1;   /* avoid overflow */
         /* realloc works for both C and C++ once we cast properly */
 #ifdef __cplusplus
-        seq_t *tmp = reinterpret_cast<seq_t*>(realloc(cache,
-                            new_cap * sizeof(seq_t)));
+        seq_t *tmp = reinterpret_cast<seq_t*>(mem_resize(seq_t, cache, new_cap));
 #else
         seq_t *tmp = (seq_t*)realloc(cache,
                             new_cap * sizeof(seq_t));

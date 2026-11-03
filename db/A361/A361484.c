@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* static state ---------------------------------------------------------- */
 static seq_t *cache      = NULL;   /* array of found numbers              */
@@ -33,7 +35,7 @@ static void ensure_capacity(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? (cache_cap << 1) : 4;
     /* realloc returns void*, cast explicitly for C++ */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) return;               /* out of memory – leave cache empty */
     cache = tmp;
     cache_cap = new_cap;

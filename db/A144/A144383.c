@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 44, i16 n <= 78, i32 n <= 78, i64 n <= 78, i128 n <= 78,
  *            big any n
- * Helpers:   coeff_nk
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,33 @@
    antidiagonals, i.e. (n,k) is the unique pair with n ≥ 1, k ≥ 0
    such that the (n,k)-entry appears at position N in that ordering. */
 #include <stdlib.h>
-#include "../utils/coeff_nk.h"
+#include "../utils/mem.h"
+
+/* compute coefficient T(n,k) for n≥1, k≥0 */
+static seq_t coeff_nk(seq_t n, seq_t k)
+{
+    if (k == 0)           /* the constant term is always 1 */
+        return (seq_t)1;
+    if (k < 0 || n < 1)
+        return (seq_t)0;  /* defensive, should not happen */
+
+    /* allocate array of k+1 coefficients */
+    seq_t *coeff = mem_new(seq_t, (size_t)k + 1);
+    if (!coeff)           /* allocation failure – return 0 */
+        return (seq_t)0;
+
+    coeff[0] = (seq_t)1;
+    for (seq_t j = 1; j <= k; ++j)
+    {
+        seq_t c = -coeff[(size_t)(j - 1)];
+        if (j >= n)
+            c -= coeff[(size_t)(j - n)];
+        coeff[(size_t)j] = c;
+    }
+    seq_t result = coeff[(size_t)k];
+    mem_free(coeff);
+    return result;
+}
 
 /* public function: a(N) (1‑based index) */
 seq_t a(idx_t N)

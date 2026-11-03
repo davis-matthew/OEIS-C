@@ -9,13 +9,14 @@
  *            totient function
  * Range:     u8 n <= 13, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -38,10 +39,10 @@ seq_t a(idx_t n)
             const idx_t d2 = n / d;
 
             /* d1 * φ(n/d1) */
-            sum_gcd += (seq_t)d1 * phi(d2);
+            sum_gcd += (seq_t)d1 * totient(d2);
 
             if (d1 != d2)
-                sum_gcd += (seq_t)d2 * phi(d1);
+                sum_gcd += (seq_t)d2 * totient(d1);
         }
     }
 

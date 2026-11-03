@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   bigomega, digit_product
+ * Validated: standard, pass, 68 terms through n = 900 (2026-11-03)
+ * Helpers:   bigomega, digit_product, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include "../utils/bigomega.h"
 #include "../utils/digit_product.h"
+#include "../utils/mem.h"
 
 static seq_t mdr(seq_t x)
 {
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         if (prev_semiprime && m == prev_mdr) {
             if (cache_len + 1 > cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 /* If realloc fails the program aborts – no need for error handling */
                 cache = tmp;
                 cache_cap = new_cap;

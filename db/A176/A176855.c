@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 13, i32 n <= 24, i64 n <= 27, i128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* cache of computed terms */
 static seq_t *cache = NULL;        /* array of cached a(n) */
@@ -39,7 +41,7 @@ static void grow_cache(idx_t n)
         cache_cap = 2;            /* at least space for a(0) and a(1) */
     while (cache_cap <= (size_t)n)
         cache_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
     cache = tmp; /* on failure tmp is NULL, propagating */
 }
 

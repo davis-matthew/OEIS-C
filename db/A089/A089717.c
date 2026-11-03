@@ -8,13 +8,14 @@
  *            determining the nth base‑10 palindrome
  * Range:     u8 n <= 12, u16 n <= 45, u32 n <= 866, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   rev_num
+ * Validated: standard, pass, 59 terms through n = 999 (2026-11-01)
+ * Helpers:   reverse_digits_idx_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/rev_num.h"
+#include "../utils/reverse_digits_idx_to_seq.h"
 
 static idx_t pow10_idx(int exp)
 {
@@ -31,11 +32,11 @@ static seq_t make_palindrome(int len, int half_len, idx_t offset)
 
     if (len % 2 == 0) {                           /* even length */
         idx_t pow_left = pow10_idx(half_len);
-        seq_t rev = rev_num(left);
+        seq_t rev = reverse_digits_idx_to_seq(left);
         return (seq_t)left * (seq_t)pow_left + rev;
     } else {                                       /* odd length */
         idx_t pow_left = pow10_idx(half_len - 1);
-        seq_t rev = rev_num(left / 10);
+        seq_t rev = reverse_digits_idx_to_seq(left / 10);
         return (seq_t)left * (seq_t)pow_left + rev;
     }
 }

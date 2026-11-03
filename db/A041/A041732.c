@@ -8,7 +8,8 @@
  *            of sqrt(386)
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 19, u64 n <= 41, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build system */
 seq_t a(idx_t n)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         /* compute the periodic part of the continued fraction of sqrt(386)   */
         uint64_t m = 0, d = 1, a = a0_ull;
         size_t   cap = 32;
-        period = (seq_t *)malloc(cap * sizeof(seq_t));
+        period = mem_new(seq_t, cap);
         period_len = 0;
         while (1)
         {
@@ -50,14 +52,14 @@ seq_t a(idx_t n)
             if (period_len >= cap)          /* grow the array if needed */
             {
                 cap <<= 1;
-                period = (seq_t *)realloc(period, cap * sizeof(seq_t));
+                period = mem_resize(seq_t, period, cap);
             }
             period[period_len++] = (seq_t)a;
             if (a == 2 * a0_ull) break;     /* end of period */
         }
 
         /* initialise the numerator cache with the first term */
-        p_cache = (seq_t *)malloc(sizeof(seq_t));
+        p_cache = mem_new(seq_t, 1);
         p_cache[0] = a0;                   /* p_0 = a0 */
         cache_size = 1;
         initialized = true;
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_size)
     {
         size_t  new_size  = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(p_cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, p_cache, new_size);
         if (!new_cache) return 0;          /* allocation failed – return 0 */
 
         /* compute all missing entries */

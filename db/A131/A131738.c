@@ -7,6 +7,7 @@
  * Formula:   a(0) = 0, a(n) = (n+1)*(-1)^n for n > 0
  * Range:     i8 n <= 127, i16 n <= 5000, i32 n <= 5000, i64 n <= 5000,
  *            i128 n <= 5000, big any n
+ * Validated: standard, pass, 91 terms through n = 4567 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

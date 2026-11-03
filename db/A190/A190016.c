@@ -8,7 +8,8 @@
  * Formula:   a(n) = the n-th lexicographically sorted integer from 1 to 10000
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_alloc_array, seq_to_str
+ * Validated: full, pass, 10000 terms through n = 10000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,34 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/seq_to_str.h"
-#include "../utils/seq_alloc_array.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Compare two seq_t values lexicographically by their decimal string representation */
 static int cmp_seq_lex(const void *p1, const void *p2)
@@ -48,7 +75,7 @@ seq_t a(idx_t n)
             sorted[i] = (seq_t)(i + 1);
         }
         /* Sort lexicographically */
-        qsort(sorted, N, sizeof(seq_t), cmp_seq_lex);
+        mem_qsort(sorted, N, sizeof(seq_t), cmp_seq_lex);
     }
 
     if (n == 0 || n > N)

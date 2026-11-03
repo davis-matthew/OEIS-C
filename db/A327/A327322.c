@@ -11,7 +11,8 @@
  *            = gcd_{j=0}^{r-1} [ binom(r,j) * (5^r + (-1)^(r-j) * 5^j) ]
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *pow5_cache = NULL;
 static idx_t pow5_len   = 0;
@@ -30,7 +33,7 @@ static void ensure_pow5(idx_t n)
     if (pow5_len <= n) {
         idx_t new_cap = pow5_cap ? pow5_cap : 1;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(pow5_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow5_cache, new_cap);
         if (!tmp) abort();
         pow5_cache = tmp;
         pow5_cap   = new_cap;
@@ -71,7 +74,7 @@ static void ensure_row_gcd(idx_t n)
     if (row_gcd_len <= n) {
         idx_t new_cap = row_gcd_cap ? row_gcd_cap : 1;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(row_gcd_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, row_gcd_cache, new_cap);
         if (!tmp) abort();
         row_gcd_cache = tmp;
         row_gcd_cap   = new_cap;

@@ -12,6 +12,7 @@
  *            satisfies gcd(m-1, p-1) = 2 * Even numbers always s...
  * Range:     u8 n <= 113, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 82 terms through n = 9744 (2026-11-01)
  * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

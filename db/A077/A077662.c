@@ -11,13 +11,35 @@
  *            n is returned
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_primes
+ * Validated: standard, pass, 76 terms through n = 990 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/factor_primes.h"
+
+/* Prime factorization of n; primes[] stores distinct prime factors,
+   k is the number of them. */
+static void factor_primes(idx_t n, uint64_t primes[], int *k)
+{
+    uint64_t tmp = (uint64_t)n;
+    *k = 0;
+
+    if ((tmp & 1ULL) == 0) {
+        primes[(*k)++] = 2ULL;
+        while ((tmp & 1ULL) == 0) tmp >>= 1;
+    }
+
+    for (uint64_t p = 3; p <= tmp / p; p += 2) {
+        if (tmp % p == 0) {
+            primes[(*k)++] = p;
+            while (tmp % p == 0) tmp /= p;
+        }
+    }
+
+    if (tmp > 1) primes[(*k)++] = tmp;
+}
 
 seq_t a(idx_t n)
 {

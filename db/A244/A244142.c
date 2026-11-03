@@ -11,15 +11,34 @@
  *            T(r,k)=0
  * Range:     i8 n <= 13, i16 n <= 25, i32 n <= 53, i64 n <= 132,
  *            i128 n <= 345, big any n
- * Helpers:   big_pow, get_row
+ * Validated: standard, pass, 61 terms through n = 5044 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/big_pow.h"
-#include "../utils/get_row.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+/* Compute the row index r for a given flattened position n.
+   The triangular number T(r) = r(r+1)/2. */
+static inline idx_t get_row(idx_t n)
+{
+    idx_t lo = 0, hi = 1;
+    /* Expand hi until its triangle number exceeds n. */
+    while (hi * (hi + 1) / 2 <= n) hi <<= 1;
+    /* Binary search. */
+    while (lo < hi) {
+        idx_t mid = (lo + hi + 1) >> 1;     /* upper mid to avoid infinite loop */
+        if (mid * (mid + 1) / 2 <= n)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +57,7 @@ seq_t a(idx_t n)
     /* r ≥ 2 and k ≥ 2: compute the formula. */
     seq_t base = (seq_t)(2 * k - 1);
     seq_t exp  = (seq_t)(r - 2);
-    seq_t result = big_pow(base, exp);          /* (2k-1)^(r-2) */
+    seq_t result = ipow(base, exp);          /* (2k-1)^(r-2) */
 
     result *= (seq_t)k;                         /* multiply by k */
     if (k & 1)                                 /* apply (-1)^k */

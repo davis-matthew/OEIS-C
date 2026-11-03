@@ -11,14 +11,15 @@
  *            expansion of n+1
  * Range:     u8 n <= 255, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 88 terms through n = 8180 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
 
     /* number of bits needed to represent N */
-    unsigned limit = bitlen_seq_t(N);
+    unsigned limit = bit_length(N);
 
     idx_t i = 0;
     while (i < limit) {

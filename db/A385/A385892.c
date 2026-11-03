@@ -10,7 +10,8 @@
  *            duplicate rows removed (OEIS A385892)
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   compute_run_lengths, hash_row
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,47 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/compute_run_lengths.h"
-#include "../utils/hash_row.h"
+
+/* Compute the run lengths of binary indices of m */
+static void compute_run_lengths(idx_t m, idx_t *out, size_t *len_out) {
+    idx_t buf[128];
+    size_t len = 0;
+    bool in_run = false;
+    idx_t run_len = 0;
+
+    while (m) {
+        if (m & 1ULL) {
+            if (!in_run) {
+                in_run = true;
+                run_len = 1;
+            } else {
+                ++run_len;
+            }
+        } else {
+            if (in_run) {
+                buf[len++] = run_len;
+                in_run = false;
+            }
+        }
+        m >>= 1;
+    }
+    if (in_run) {
+        buf[len++] = run_len;
+    }
+
+    memcpy(out, buf, len * sizeof(idx_t));
+    *len_out = len;
+}
+
+/* FNV‑1a 64‑bit hash for an array of run lengths */
+static inline uint64_t hash_row(const idx_t *runs, size_t len) {
+    uint64_t h = 14695981039346656037ULL;
+    for (size_t i = 0; i < len; ++i) {
+        h ^= (uint64_t)runs[i];
+        h *= 1099511628211ULL;
+    }
+    return h;
+}
 
 typedef uint64_t idx_t;
 

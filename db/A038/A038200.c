@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 15, i32 n <= 30, i64 n <= 34, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached divisor counts up to the largest argument seen so far. */
 static seq_t *tau_cache = NULL;
@@ -36,7 +38,7 @@ compute_tau_up_to(idx_t n)
         return;
 
     /* Allocate new cache with enough room. */
-    seq_t *new_tau = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *new_tau = mem_new(seq_t, (n + 1));
     if (!new_tau)
         return;                   /* allocation failure – give up */
 
@@ -54,7 +56,7 @@ compute_tau_up_to(idx_t n)
 
     /* Replace the old cache. */
     if (tau_cache)
-        free(tau_cache);
+        mem_free(tau_cache);
     tau_cache   = new_tau;
     tau_cached  = n;
 }

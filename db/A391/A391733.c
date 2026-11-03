@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   not stated
- * Range:     u8 n <= 92, u16 n <= 7852, u32 n <= 9840, u64 n <= 9840,
- *            u128 n <= 9840, big any n
- * Helpers:   none
+ * Range:     u8 n <= 92, u16 n <= 7852, u32 n <= 13420, u64 n <= 13420,
+ *            u128 n <= 13420, big any n
+ * Validated: standard, pass, 88 terms through n = 9840 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * (all other runs of 1‑bits are even).  Results are memoized so
  * later calls to a() are fast. */
 #include <stdlib.h>  /* for malloc, realloc */
+#include "../utils/mem.h"
 
 static int is_good(seq_t x)
 {
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         /* store the good number */
         if (cache_len == cache_cap) {
             cache_cap = (cache_cap == 0) ? 64 : (cache_cap << 1);
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = next_candidate;
         next_candidate++;   /* next number to test */

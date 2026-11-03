@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 13, u64 n <= 29, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
  */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 /* external integer types supplied by the build */
 extern seq_t a(idx_t);   /* forward declaration required by the test harness */
@@ -77,15 +79,15 @@ static void init(void)
 
     /* Allocate cache for indices 1 and 2. */
     cache_cap = 3; /* indices 0,1,2 */
-    cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) abort();
     cache[0] = 0;
     cache[1] = (seq_t)10;   /* a(1) */
     cache[2] = (seq_t)100;  /* a(2) */
 
     /* Allocate DP arrays. */
-    dp_cur = (seq_t *)malloc(sizeof(seq_t) * NROWS * NROWS);
-    dp_next = (seq_t *)malloc(sizeof(seq_t) * NROWS * NROWS);
+    dp_cur = mem_new(seq_t, NROWS * NROWS);
+    dp_next = mem_new(seq_t, NROWS * NROWS);
     if (!dp_cur || !dp_next) abort();
 
     /* For length 2, all pairs of admissible rows are possible once. */
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
 
     /* Grow cache to accommodate n. */
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();
     cache = new_cache;
     for (size_t i = cache_cap; i < new_cap; ++i) cache[i] = (seq_t)0;

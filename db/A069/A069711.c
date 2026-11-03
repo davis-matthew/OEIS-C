@@ -9,14 +9,35 @@
  *            divisible by the number of decimal digits of m
  * Range:     u8 n <= 7, u16 n <= 35, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   square_good
+ * Validated: standard, pass, 59 terms through n = 9239 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/square_good.h"
+#include "../utils/mem.h"
+
+/* Checks whether a square m satisfies the condition: sum of digits of m
+   is divisible by the number of digits of m.  The function works for
+   any seq_t type that supports %, /, >, +.  */
+static int square_good(seq_t m) {
+    seq_t tmp = m;
+    seq_t sum = 0;
+    int digits = 1;               /* at least one digit (zero has 1 digit) */
+    while (tmp >= 10) {
+        tmp /= 10;
+        digits++;
+    }
+    /* Compute digit sum */
+    tmp = m;
+    while (tmp != 0) {
+        sum += tmp % 10;
+        tmp /= 10;
+    }
+    return (sum % ((seq_t)digits) == 0);
+}
 
 /* The type seq_t is defined by the build and may be an unsigned integer
    of various sizes or an arbitrary‑precision integer class.  The type
@@ -30,7 +51,7 @@ static uint64_t last_k = 0;        /* last value of k processed (inclusive) */
 static void append_to_cache(seq_t val) {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-        seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
         if (!new_ptr) {
             /* Out of memory – in the test harness this should not happen.
                In production code you would handle this appropriately. */

@@ -9,15 +9,35 @@
  *            a(3) = 1
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 16, u64 n <= 22, u128 n <= 24,
  *            big any n
- * Helpers:   seq_is_big, u128_to_seq
+ * Validated: standard, pass, 42 terms through n = 97 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/seq_is_big.h"
-#include "../utils/u128_to_seq.h"
+#include <stdlib.h>
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
 
 seq_t a(idx_t n) {
     if (n < 4) return (seq_t)1;

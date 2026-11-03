@@ -7,12 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n, k)^2 * (k - n)^k
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 11, i64 n <= 19, i128 n <= 21,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
         }
 
         seq_t base = (seq_t)k - (seq_t)n;   /* (k - n) */
-        seq_t pow  = big_pow(base, (seq_t)k);
+        seq_t pow  = ipow(base, (seq_t)k);
 
         seq_t term = c * c;     /* binomial^2 */
         term = term * pow;      /* * (k - n)^k */

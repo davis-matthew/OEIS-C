@@ -11,14 +11,16 @@
  *            builds as well
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: standard, pass, 26 terms through n = 192 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +37,8 @@ seq_t a(idx_t n)
         idx_t exp_den = 4 - i;      /* exponent in the denominator factor */
 
         /* 8^exp_num and 8^exp_den as seq_t */
-        seq_t pow_num = big_pow((seq_t)8, (seq_t)exp_num);
-        seq_t pow_den = big_pow((seq_t)8, (seq_t)exp_den);
+        seq_t pow_num = ipow((seq_t)8, (seq_t)exp_num);
+        seq_t pow_den = ipow((seq_t)8, (seq_t)exp_den);
 
         /* absolute values of the factors 1 - (-8)^exp */
         seq_t abs_num = (exp_num & 1u) ? (pow_num + 1) : (pow_num - 1);

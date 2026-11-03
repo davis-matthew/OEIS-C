@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,26 @@
 /* S3-primes: generate via trial division on previously found S3-primes. */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *s3p = NULL;         /* stored S3-primes           */
 static size_t s3cnt = 0;          /* number of primes stored   */
@@ -27,7 +47,7 @@ static idx_t  next_k = 1;         /* next k for candidate 3*k+1 */
 static void grow_s3(void) {
     if (s3cnt >= s3cap) {
         size_t newcap = (s3cap == 0) ? 32 : s3cap * 2;
-        seq_t *tmp = (seq_t *)realloc(s3p, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, s3p, newcap);
         if (!tmp) abort();           /* out of memory */
         s3p   = tmp;
         s3cap = newcap;

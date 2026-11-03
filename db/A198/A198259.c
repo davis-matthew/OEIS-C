@@ -9,12 +9,14 @@
  *            sequence (F(0)=0, F(1)=1)
  * Range:     u8 n <= 22, u16 n <= 46, u32 n <= 92, u64 n <= 184,
  *            u128 n <= 370, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 921 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) as specified in the OEIS entry A198259. */
 seq_t a(idx_t n)
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Allocate storage for Fibonacci numbers F[0..n-1]. */
-    seq_t *fib = (seq_t *)malloc(sizeof(seq_t) * n);
+    seq_t *fib = mem_new(seq_t, n);
     if (!fib)
         return 0;        /* allocation failure → return 0 as a safe fallback */
 
@@ -41,6 +43,6 @@ seq_t a(idx_t n)
         sum += fib[r];
     }
 
-    free(fib);
+    mem_free(fib);
     return sum;
 }

@@ -12,12 +12,14 @@
  *            Σ_{d∈D(n)} a(m-d) (with the convention a(k)=0 f...
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 35, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root for 64‑bit unsigned values; fits in O(log n). */
 static inline idx_t isqrt_u64(idx_t n)
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     }
 
     /* Dynamic programming array */
-    seq_t *dp = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) {
         free(divs);
         return (seq_t)0;
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)n];
-    free(dp);
+    mem_free(dp);
     free(divs);
     return result;
 }

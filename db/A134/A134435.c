@@ -11,14 +11,27 @@
  *            * C(m+1,k) (0 ≤ k < ceil(n/2))
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   total_terms_upto
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/total_terms_upto.h"
+
+static idx_t total_terms_upto(idx_t r)
+{
+    /* cumulative number of entries in rows 0..r */
+    if (r == (idx_t)0) return (idx_t)1;
+    if ((r & (idx_t)1) == (idx_t)0) {          /* even r = 2m */
+        idx_t m = r >> 1;
+        return (idx_t)1 + m * (m + (idx_t)1);
+    } else {                                   /* odd r = 2m+1 */
+        idx_t m = (r + (idx_t)1) >> 1;
+        return (idx_t)1 + m * m;
+    }
+}
 
 /* --- small helpers ----------------------------------------------------- */
 static seq_t fact_upto(idx_t n)

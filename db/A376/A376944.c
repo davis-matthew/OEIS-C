@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 76, u32 n <= 251, u64 n <= 883,
  *            u128 n <= 3257, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 7894 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Compute term a(n) of A376944.
    idx_t and seq_t are defined by the build system. */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     /* maximum sum needed is n, allocate DP array accordingly    */
     size_t N = (size_t)n;                 /* safe cast for array size */
-    seq_t *f = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, N + 1);
     if (!f) return (seq_t)0;             /* allocation failure fallback */
 
     /* DP initialization: empty set */
@@ -66,6 +68,6 @@ seq_t a(idx_t n)
             result = result + pow2 * f[(size_t)rem];
     }
 
-    free(f);
+    mem_free(f);
     return result;
 }

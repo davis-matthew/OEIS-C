@@ -11,12 +11,14 @@
  *            28814940, a(9) = 285214743. For n < 3, a(n) = 0
  * Range:     u8 none, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* local cache for computed a(n) values */
 static seq_t *a_cache = NULL;
@@ -33,7 +35,7 @@ static void ensure_a_cache(idx_t n)
         size_t new_cap = a_capacity ? a_capacity * 2 : 16;
         while (new_cap <= (size_t)n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp)
             abort();
         a_cache = tmp;

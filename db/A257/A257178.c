@@ -10,7 +10,8 @@
  *            a(n)=3^n + sum_{k=0}^{n-2} a(k)*a(n-2-k)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 67,
  *            big any n
- * Helpers:   alloc_seq, free_seq
+ * Validated: standard, pass, 42 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/alloc_seq.h"
-#include "../utils/free_seq.h"
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *a_cache   = NULL;
 static seq_t *pow3_cache = NULL;

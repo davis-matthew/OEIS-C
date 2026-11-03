@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/pow_uint.h"     /* pow_uint(uint64_t base, idx_t exp) -> seq_t */
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -97,7 +98,7 @@ seq_t a(idx_t n)
     seq_t values[32];
     for (size_t i = 0; i < cnt; ++i) {
         /* pow_uint returns seq_t, exponent is idx_t */
-        values[i] = pow_uint(primes[i], (idx_t)exps[i]);
+        values[i] = ipow_u64_idx(primes[i], (idx_t)exps[i]);
     }
 
     /* sort the values ascendingly (cnt is small, trivial O(c²)) */

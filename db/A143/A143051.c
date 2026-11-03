@@ -12,20 +12,21 @@
  *            functions. The function is fully self‑contained...
  * Range:     u8 n <= 225, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   square_root_u64
+ * Validated: standard, pass, 89 terms through n = 9920 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>   /* for uint64_t if the compiler does not provide it */
-#include "../utils/square_root_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n) {
     if (n == 0) {
         return (seq_t)0;
     }
     idx_t m = n - 1;                       /* n > 0, so safe */
-    idx_t k = square_root_u64(m);
+    idx_t k = isqrt(m);
     if (k * k == m) {                     /* n = 1 + k^2 */
         idx_t res = n + 2 * k;
         return (seq_t)res;

@@ -7,15 +7,52 @@
  * Formula:   a(n) = 3^(n-1) - lcm{1,2,…,n} (n ≥ 1)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   ensure_capacity, gcd
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>          /* size_t */
 #include <stdlib.h>          /* malloc, realloc */
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/ensure_capacity.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 static seq_t *lcm_cache = NULL;    /* lcm_cache[i] = lcm{1..i} (1‑based) */
 static idx_t  lcm_max  = 0;        /* largest i with lcm_cache[i] computed */
@@ -34,7 +71,7 @@ static void extend_lcm(idx_t n)
     if (needed > lcm_cap) {
         size_t new_cap = lcm_cap > 0 ? lcm_cap * 2 : 1;
         if (new_cap < needed) new_cap = needed;
-        ensure_capacity(new_cap, &lcm_cap, (void **)&lcm_cache, sizeof(seq_t));
+        ensure_capacity(new_cap, &lcm_cap, OEISC_VPP(&lcm_cache), sizeof(seq_t));
     }
 
     if (lcm_max == 0) {
@@ -61,7 +98,7 @@ static void extend_pow(idx_t n)
     if (needed > pow_cap) {
         size_t new_cap = pow_cap > 0 ? pow_cap * 2 : 1;
         if (new_cap < needed) new_cap = needed;
-        ensure_capacity(new_cap, &pow_cap, (void **)&pow_cache, sizeof(seq_t));
+        ensure_capacity(new_cap, &pow_cap, OEISC_VPP(&pow_cache), sizeof(seq_t));
     }
 
     if (pow_max == 0) {

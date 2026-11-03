@@ -6,7 +6,8 @@
  * Keywords:  nonn, more, hard
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 8, u128 n <= 8, big any n
- * Helpers:   pow2, sort_terms
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,25 @@
    values are known, so the function returns 0 for indices beyond eight.
 */
 
-#include "../utils/pow2.h"
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/sort_terms.h"
+#include "../utils/pow2.h"
+
+/* insertion sort for tiny arrays */
+static void sort_terms(seq_t *arr, size_t len)
+{
+    for (size_t i = 1; i < len; ++i) {
+        seq_t key = arr[i];
+        size_t j = i;
+        while (j > 0 && arr[j - 1] > key) {
+            arr[j] = arr[j - 1];
+            --j;
+        }
+        arr[j] = key;
+    }
+}
+#include <stdbool.h>
+#include <stddef.h>
 
 /* static cache of the first known terms */
 static seq_t seq_terms[20];

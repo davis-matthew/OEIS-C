@@ -8,13 +8,16 @@
  * Formula:   a(n) = n*((1-n)^n*(n-2)+(n-2)^n*(n-1)^n)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the chromatic polynomial of the helm graph H_n at z=n */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -25,8 +28,8 @@ seq_t a(idx_t n)
     seq_t n_seq = (seq_t)n;
 
     /* Compute (n-2)^n and (n-1)^n using big_pow */
-    seq_t pow_a = big_pow((seq_t)(n - 2), (seq_t)n);
-    seq_t pow_b = big_pow((seq_t)(n - 1), (seq_t)n);
+    seq_t pow_a = ipow((seq_t)(n - 2), (seq_t)n);
+    seq_t pow_b = ipow((seq_t)(n - 1), (seq_t)n);
 
     /* B = (n-2)^n * (n-1)^n */
     seq_t B = pow_a * pow_b;

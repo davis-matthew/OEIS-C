@@ -10,12 +10,14 @@
  *            for n ≥ 1. This recurrence follows from the e.g.f
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 22, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 249 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return a(n) for the OEIS sequence A166922. */
 seq_t a(idx_t n)
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         size = n + 1;
 
         /* allocate new array */
-        seq_t *new_g = (seq_t *)malloc(size * sizeof(seq_t));
+        seq_t *new_g = mem_new(seq_t, size);
         if (!new_g) { /* allocation failure – abort execution */
             abort();
         }
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 
         /* free old array */
         if (g)
-            free(g);
+            mem_free(g);
 
         g = new_g;
 

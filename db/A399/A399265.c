@@ -10,7 +10,8 @@
  *            triple
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_u64
+ * Validated: standard, pass, 62 terms through n = 9679 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* Euclidean GCD for uint64_t */
 
@@ -38,7 +41,7 @@ static void heap_push(Node x)
 {
     if (heap_size == heap_cap) {
         heap_cap = (heap_cap == 0) ? 16 : heap_cap * 2;
-        heap = (Node *)realloc(heap, heap_cap * sizeof(Node));
+        heap = mem_resize(Node, heap, heap_cap);
     }
     size_t i = heap_size++;
     while (i > 0) {
@@ -104,7 +107,7 @@ static void init_sequence(void)
 
     /* Initialise cache for output values */
     cache_cap = 4096;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache_size = 0;
 }
 
@@ -122,7 +125,7 @@ seq_t a(idx_t n)
         if (cache_size == 0 || v != cache[cache_size - 1]) {
             if (cache_size == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = v;
         }

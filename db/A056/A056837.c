@@ -8,6 +8,7 @@
  *            / 2) + ((n/2) mod 2) (n even)
  * Range:     i8 n <= 23, i16 n <= 25, i32 n <= 25, i64 n <= 25, i128 n <= 25,
  *            big any n
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

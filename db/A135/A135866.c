@@ -8,13 +8,15 @@
  *            = (1/3) · (9^(n‑1)·a(n‑1) – sum_{i+j+k=n+2} a(i)a(j)a(k))
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static memoisation storage */
 static seq_t *seq      = NULL;   /* array of a(n) */
@@ -29,7 +31,7 @@ static void ensure_seq(size_t n) {
     if (n < seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap : 1;
     while (new_cap <= n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) abort();
     seq = tmp;
     seq_cap = new_cap;
@@ -41,7 +43,7 @@ static void ensure_pair(size_t n) {
     if (need <= pair_cap) return;
     size_t new_cap = pair_cap ? pair_cap : 1;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(pair, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, pair, new_cap);
     if (!tmp) abort();
     /* initialise newly allocated entries to zero */
     for (size_t i = pair_cap; i < new_cap; ++i) tmp[i] = 0;

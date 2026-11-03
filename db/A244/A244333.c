@@ -12,12 +12,14 @@
  *            2*(n-3)*3^{n-4}
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 19, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* initialise first four terms */
     if (a_val == NULL) {
         a_cap = 5;  /* indices 0..4 */
-        a_val = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_val = mem_new(seq_t, a_cap);
         a_val[0] = 0;   /* unused (offset 1) */
         a_val[1] = 0;
         a_val[2] = 1;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         lastNCD = 1;    /* NCD(4) = 1 */
 
         pow_cap = 1;    /* pow3[0] = 1 */
-        pow3 = (seq_t *)malloc(pow_cap * sizeof(seq_t));
+        pow3 = mem_new(seq_t, pow_cap);
         pow3[0] = (seq_t)1;
     }
 
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         size_t new_cap = a_cap * 2;
         if (new_cap < (size_t)(n + 1))
             new_cap = n + 1;
-        a_val = (seq_t *)realloc(a_val, new_cap * sizeof(seq_t));
+        a_val = mem_resize(seq_t, a_val, new_cap);
         a_cap = new_cap;
     }
 
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     size_t max_pow_needed = (n >= 4) ? (size_t)(n - 4) : 0;
     while (pow_cap <= max_pow_needed) {
         seq_t next = pow3[pow_cap - 1] * (seq_t)3;
-        pow3 = (seq_t *)realloc(pow3, (pow_cap + 1) * sizeof(seq_t));
+        pow3 = mem_resize(seq_t, pow3, (pow_cap + 1));
         pow3[pow_cap] = next;
         pow_cap++;
     }

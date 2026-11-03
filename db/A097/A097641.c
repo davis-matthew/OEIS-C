@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   seq_alloc, seq_pow, seq_realloc
+ * Validated: full, pass, 4 terms through n = 4 (2026-11-02)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,29 @@
  * numbers n that satisfy n = Σ d_i^π(d_i) over the decimal digits d_i of n. */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static const int pi_table[10] = {0,0,1,2,2,3,3,4,4,4};
 
@@ -42,7 +63,7 @@ static void init_sequence(void)
         while (x > 0) {
             int d = x % 10;
             int p = pi_table[d];
-            seq_t t = seq_pow((seq_t)d, (idx_t)p);
+            seq_t t = ipow_idx((seq_t)d, (idx_t)p);
             sum += t;
             x /= 10;
         }

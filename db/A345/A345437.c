@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 23, u32 n <= 23, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   int_sqrt, is_prime
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   is_prime, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -41,7 +42,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 /*  Return true if the element with norm N in ℤ[√‑2] is zero or a prime. */
 static bool is_prime_norm(idx_t N)
@@ -58,7 +59,7 @@ static bool is_prime_norm(idx_t N)
     }
 
     /* N might be a square of an inert prime p ≡ 5 or 7 (mod 8) */
-    idx_t r = int_sqrt(N);
+    idx_t r = isqrt(N);
     if (r * r == N && is_prime(r) && (r % 8 == 5 || r % 8 == 7))
         return true;
 

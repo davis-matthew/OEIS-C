@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 31, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,8 +45,8 @@ seq_t a(idx_t n)
 
     if (cap == 0) { /* first call: allocate minimal capacity */
         cap = 8;
-        N = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
-        P = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        N = mem_resize(seq_t, NULL, cap);
+        P = mem_resize(seq_t, NULL, cap);
         if (!N || !P) abort();
         P[0] = 0;
     }
@@ -53,8 +55,8 @@ seq_t a(idx_t n)
     while (cap <= n) {
         idx_t new_cap = cap << 1;
         if (new_cap < cap) new_cap = (idx_t)-1; /* overflow guard */
-        N = (seq_t *)realloc(N, new_cap * sizeof(seq_t));
-        P = (seq_t *)realloc(P, new_cap * sizeof(seq_t));
+        N = mem_resize(seq_t, N, new_cap);
+        P = mem_resize(seq_t, P, new_cap);
         if (!N || !P) abort();
         cap = new_cap;
     }

@@ -9,17 +9,37 @@
  *            3y²‑3y+1 for some integers x,y ≥ 1
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 32, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   isqrt, rev, seq_malloc, seq_realloc
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   isqrt_seq, mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/rev.h"
-#include "../utils/isqrt.h"
-#include "../utils/seq_malloc.h"
-#include "../utils/seq_realloc.h"
+#include <stdbool.h>
+#include "../utils/isqrt_seq.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+static inline seq_t *seq_realloc(seq_t *p, idx_t n)
+{
+#ifdef __cplusplus
+    return mem_resize(seq_t, p, n);
+#else
+    return (seq_t *)realloc(p, n * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -46,11 +66,11 @@ seq_t a(idx_t n)
         seq_t t = (seq_t)cur_t;
         seq_t k = 3 * t * t - 3 * t + 1;    /* 3t²‑3t+1 */
 
-        seq_t revk = rev(k);
+        seq_t revk = reverse_digits(k);
         if ((revk % 3) == 1) {
             seq_t d     = (revk - 1) / 3;
             seq_t delta = 1 + 4 * d;        /* discriminant */
-            seq_t sqrtDelta = isqrt(delta);
+            seq_t sqrtDelta = isqrt_seq(delta);
             if (sqrtDelta * sqrtDelta == delta &&
                 ((1 + sqrtDelta) % 2) == 0) {
                 /* k and rev(k) are both valid differences of successive cubes */

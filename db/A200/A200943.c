@@ -12,7 +12,8 @@
  *            a(9)=636, a(10)=997, a(11)=1492
  * Range:     u8 n <= 7, u16 n <= 27, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  *====================================================================*/
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for already computed terms (offset 1).  If seq_cache==NULL,
  * the sequence has not been computed yet.  cache_size is the number
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
      * terms (indices 0 .. n-1 correspond to a(1) .. a(n)). */
     if (seq_cache == NULL) {
         /* First allocation: reserve space for n terms. */
-        seq_cache = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, (size_t)n);
         if (!seq_cache) return 0;                 /* allocation failed */
         cache_size = n;
         /* Copy the seed values. */
@@ -59,8 +61,7 @@ seq_t a(idx_t n)
         }
     } else if (cache_size < n) {
         /* Grow the existing cache. */
-        seq_t *tmp = (seq_t *)realloc(seq_cache,
-                                      (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, (size_t)n);
         if (!tmp) return 0;                 /* allocation failed */
         seq_cache = tmp;
         cache_size = n;

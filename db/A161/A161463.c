@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{k=n}^{2n-1} p_k (p_k = k-th prime)
  * Range:     u8 n <= 7, u16 n <= 87, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 60 terms through n = 900 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
 
 /* static state: cached list of primes (1‑based: prime_list[i] = i‑th prime) */

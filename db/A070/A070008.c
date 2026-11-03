@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 593, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   is_power_of_two
+ * Validated: standard, pass, 71 terms through n = 2808 (2026-11-03)
+ * Helpers:   is_pow2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_power_of_two.h"
+#include "../utils/is_pow2.h"
+#include "../utils/mem.h"
 
 static uint32_t *spf = NULL;          /* smallest prime factor table */
 static size_t    spf_cap = 0;         /* size of spf table   */
@@ -63,7 +65,7 @@ static void append_seq(seq_t val)
 {
     if (seq_size == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-        seq_t *new_seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *new_seq = mem_resize(seq_t, seq, new_cap);
         if (!new_seq) exit(EXIT_FAILURE);
         seq = new_seq;
         seq_cap = new_cap;
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
         if (k > 0) {
             if ((sum % (seq_t)k) == 0) {
                 seq_t avg = sum / (seq_t)k;
-                if (is_power_of_two(avg)) {
+                if (is_pow2(avg)) {
                     append_seq(last_checked);
                 }
             }

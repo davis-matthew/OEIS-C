@@ -10,8 +10,8 @@
  *            after the binary point (search over computed bits)
  * Range:     u8 n <= 130, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   add_to, addmul, bitlen_arr, cmp_arr, is_zero_arr, setbit,
- *            shl_bits, shr_bits, sub_from
+ * Validated: standard, pass, 71 terms through n = 880 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,15 +19,98 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/add_to.h"
-#include "../utils/addmul.h"
-#include "../utils/bitlen_arr.h"
-#include "../utils/cmp_arr.h"
-#include "../utils/is_zero_arr.h"
-#include "../utils/setbit.h"
-#include "../utils/shl_bits.h"
-#include "../utils/shr_bits.h"
-#include "../utils/sub_from.h"
+
+static void add_to(uint32_t *x, const uint32_t *y, size_t L)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        c += (uint64_t)x[i] + y[i];
+        x[i] = (uint32_t)c;
+        c >>= 32;
+    }
+}
+
+static void addmul(uint32_t *x, const uint32_t *y, size_t L, uint32_t k)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        c += (uint64_t)y[i] * k + x[i];
+        x[i] = (uint32_t)c;
+        c >>= 32;
+    }
+}
+
+static size_t bitlen_arr(const uint32_t *x, size_t L)
+{
+    size_t i = L, b = 0;
+    uint32_t t;
+    while (i > 0 && x[i - 1] == 0) i--;
+    if (i == 0) return 0;
+    t = x[i - 1];
+    while (t) { b++; t >>= 1; }
+    return (i - 1) * 32 + b;
+}
+
+static int cmp_arr(const uint32_t *x, const uint32_t *y, size_t L)
+{
+    size_t i;
+    for (i = L; i-- > 0;) {
+        if (x[i] != y[i]) return x[i] > y[i] ? 1 : -1;
+    }
+    return 0;
+}
+
+static int is_zero_arr(const uint32_t *x, size_t L)
+{
+    size_t i;
+    for (i = 0; i < L; i++) if (x[i]) return 0;
+    return 1;
+}
+
+static void setbit(uint32_t *x, size_t pos)
+{
+    x[pos / 32] |= (uint32_t)1 << (pos % 32);
+}
+
+static void shl_bits(uint32_t *x, size_t L, size_t s)
+{
+    size_t w = s / 32, i;
+    unsigned b = (unsigned)(s % 32);
+    if (w) {
+        for (i = L; i-- > w;) x[i] = x[i - w];
+        for (i = 0; i < w && i < L; i++) x[i] = 0;
+    }
+    if (b) {
+        for (i = L - 1; i > 0; i--) x[i] = (x[i] << b) | (x[i - 1] >> (32 - b));
+        x[0] <<= b;
+    }
+}
+
+static void shr_bits(uint32_t *x, size_t L, size_t s)
+{
+    size_t w = s / 32, i;
+    unsigned b = (unsigned)(s % 32);
+    if (w) {
+        for (i = 0; i < L; i++) x[i] = (i + w < L) ? x[i + w] : 0;
+    }
+    if (b) {
+        for (i = 0; i < L; i++)
+            x[i] = (x[i] >> b) | ((i + 1 < L) ? (x[i + 1] << (32 - b)) : 0);
+    }
+}
+
+static void sub_from(uint32_t *x, const uint32_t *y, size_t L)
+{
+    uint64_t br = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)x[i] - y[i] - br;
+        x[i] = (uint32_t)t;
+        br = (t >> 63) & 1;
+    }
+}
 
 static uint64_t *g_pos = NULL;
 static size_t g_cnt = 0;

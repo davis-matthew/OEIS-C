@@ -11,7 +11,8 @@
  *            uses a linear DP with states given by two consecutive columns
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 28,
  *            big any n
- * Helpers:   cur_is_valid
+ * Validated: standard, pass, 31 terms through n = 204 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,32 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/cur_is_valid.h"
+
+/* Helper: check whether a given middle column  (cur) satisfies the
+   constraint when its left neighbor is 'prev' and its right neighbor
+   is 'next'. */
+static bool cur_is_valid(uint32_t prev, uint32_t cur, uint32_t next)
+{
+    for (int r = 0; r < 5; ++r) {
+        if (cur & (1u << r)) {               /* cell is 1 */
+            int cnt = 0;
+            /* left (same row) */
+            cnt += (prev >> r) & 1u;
+            /* right (same row) */
+            cnt += (next >> r) & 1u;
+            /* up-left */
+            if (r > 0)    cnt += (prev >> (r - 1)) & 1u;
+            /* down-left */
+            if (r < 4)    cnt += (prev >> (r + 1)) & 1u;
+            /* up-right */
+            if (r > 0)    cnt += (next >> (r - 1)) & 1u;
+            /* down-right */
+            if (r < 4)    cnt += (next >> (r + 1)) & 1u;
+            if (cnt > 3)  return false;      /* violation */
+        }
+    }
+    return true;
+}
 
 /* Pre‑computed transition lists.  nexts[i][k] gives the k‑th allowed
    next column for state i = prev*32 + cur.  next_count[i] is the

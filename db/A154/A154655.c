@@ -9,13 +9,15 @@
  *            13‑bit sliding window
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 28, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* K = maximal displacement (6) */
 static const int K = 6;
@@ -45,10 +47,10 @@ a(idx_t n)
     }
 
     /* allocate DP arrays */
-    seq_t *cur  = (seq_t *)calloc((size_t)(FULL_MASK + 1), sizeof(seq_t));
-    seq_t *nxt  = (seq_t *)calloc((size_t)(FULL_MASK + 1), sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, (size_t)(FULL_MASK + 1));
+    seq_t *nxt  = mem_new(seq_t, (size_t)(FULL_MASK + 1));
     if (!cur || !nxt) {
-        free(cur); free(nxt); free(outMask);
+        mem_free(cur); mem_free(nxt); free(outMask);
         return 0;
     }
 
@@ -64,7 +66,7 @@ a(idx_t n)
     /* DP over positions 1 … n */
     for (idx_t i = 1; i <= n; ++i) {
         /* clear next array */
-        memset(nxt, 0, (size_t)(FULL_MASK + 1) * sizeof(seq_t));
+        mem_set(nxt, 0, (size_t)(FULL_MASK + 1) * sizeof(seq_t));
 
         unsigned int outM = outMask[i];
         unsigned int outM_next = outMask[i + 1];
@@ -100,8 +102,8 @@ a(idx_t n)
     /* final answer: all bits must be matched */
     seq_t result = cur[FULL_MASK];
 
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
     free(outMask);
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 352, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   hasSquareFactor, smallestPrimeFactor
+ * Validated: standard, pass, 62 terms through n = 9478 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,34 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/hasSquareFactor.h"
-#include "../utils/smallestPrimeFactor.h"
+#include "../utils/mem.h"
+
+/* Return the smallest prime factor of n.  If n is prime, returns n. */
+static uint64_t smallestPrimeFactor(uint64_t n)
+{
+    if (n % 2u == 0u) return 2u;
+    for (uint64_t d = 3u; d * d <= n; d += 2u) {
+        if (n % d == 0u) return d;
+    }
+    return n;
+}
+
+/* Return true iff the integer n (>1) has a squared prime factor. */
+static bool hasSquareFactor(uint64_t n)
+{
+    uint64_t factor = n;
+    while (factor > 1u) {
+        uint64_t sp = smallestPrimeFactor(factor);
+        if (sp == factor) return false;          /* prime factor only once */
+        uint64_t cnt = 0u;
+        while (factor % sp == 0u) {
+            factor /= sp;
+            ++cnt;
+            if (cnt >= 2u) return true;          /* square found */
+        }
+    }
+    return false;
+}
 
 /* Type aliases from the build system */
 typedef uint64_t idx_t;  /* index */
@@ -55,7 +82,7 @@ static void cache_push(seq_t value)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

@@ -12,13 +12,15 @@
  *            the powers of A incrementally using only addi...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*  helper: multiply a seq_t by an unsigned integer (up to 32 bits) */
 extern seq_t mul_small(seq_t x, unsigned int m);
@@ -64,13 +66,13 @@ static void need_cache(idx_t idx)
     if (idx < cache_len) return;
     if (cache_cap == 0) {
         cache_cap = 64;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
     }
     while (cache_len <= idx) {
         if (cache_len == cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
             if (!cache) abort();
         }
         /* Compute the next term of the sequence */
@@ -119,7 +121,7 @@ seq_t a(idx_t n)
     }
     if (cache_len == 0) {
         cache_cap = 64;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache[0] = 1;   /* a(0) = 1 */
         cache_len = 1;

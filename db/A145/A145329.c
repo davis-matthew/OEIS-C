@@ -7,18 +7,21 @@
  * Formula:   a(n) = sum_{k=1..n} (k^(k+1) + (k+1)^k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 #ifndef FREESEQ
 #define FREESEQ(x) free(x)
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     /* initialise the cache on first use */
     if (!cache) {
         cache_size = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (!cache) exit(1);
         cache[0] = 0;   /* a(0) = 0 */
     }
@@ -41,14 +44,14 @@ seq_t a(idx_t n)
     /* extend cache if necessary */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) exit(1);
         cache = tmp;
 
         /* compute new terms */
         for (idx_t i = cache_size; i <= n; ++i) {
-            seq_t term1 = big_pow((seq_t)i, (seq_t)(i + 1));
-            seq_t term2 = big_pow((seq_t)(i + 1), (seq_t)i);
+            seq_t term1 = ipow((seq_t)i, (seq_t)(i + 1));
+            seq_t term2 = ipow((seq_t)(i + 1), (seq_t)i);
             cache[i] = cache[i - 1] + term1 + term2;
         }
         cache_size = new_size;

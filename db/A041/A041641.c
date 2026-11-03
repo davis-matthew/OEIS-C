@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 38, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*  Initial 20 terms of the sequence  */
 static const seq_t init20[20] = {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
 
     /*  Initialise the cache on first call  */
     if (!initialized) {
-        memcpy(cache, init20, sizeof(init20));
+        mem_copy(cache, init20, sizeof(init20));
         cache_len = sizeof(init20) / sizeof(seq_t);
         initialized = true;
     }

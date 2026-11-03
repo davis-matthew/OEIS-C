@@ -8,13 +8,15 @@
  *            a(d) * a((n-3)/d) (Dirichlet convolution shifted by 3)
  * Range:     u8 n <= 23, u16 n <= 47, u32 n <= 95, u64 n <= 191,
  *            u128 n <= 383, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (capacity <= n) {
         idx_t new_cap = capacity ? capacity << 1 : 4;
         while (new_cap < n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (!tmp) abort();
         cache = tmp;
         capacity = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   OEIS A261278 – coefficients of η(q³)⁸ + 4·η(q⁶)⁸
  * Range:     i8 n <= 25, i16 n <= 558, i32 n <= 2500, i64 n <= 2500,
  *            i128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 2454 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Pascal triangle values for (1 – x)⁸ */
 static const seq_t C8[9] = {1, 8, 28, 56, 70, 56, 28, 8, 1};
@@ -45,11 +47,11 @@ seq_t a(idx_t n)
     if (n == 0) return 0;            /* unused index, safeguard */
 
     /* arrays indexed [0..n], we need up to n‑1 and n‑2 */
-    seq_t *f1 = (seq_t *)calloc(n + 1, sizeof(seq_t));
-    seq_t *f2 = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *f1 = mem_new(seq_t, n + 1);
+    seq_t *f2 = mem_new(seq_t, n + 1);
     if (!f1 || !f2) {                /* allocation failure */
-        free(f1);
-        free(f2);
+        mem_free(f1);
+        mem_free(f2);
         return 0;
     }
 
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     if (n >= 2)
         result += (seq_t)4 * f2[n - 2];
 
-    free(f1);
-    free(f2);
+    mem_free(f1);
+    mem_free(f2);
     return result;
 }

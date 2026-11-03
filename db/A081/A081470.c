@@ -12,7 +12,8 @@
  *            e. * The product is (n+1)(n+2)...(m)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   get_prime_table
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,31 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/get_prime_table.h"
+
+/* Return a table of all primes up to 10000 and its count. */
+static const uint32_t *get_prime_table(size_t *cnt)
+{
+    static bool initialized = false;
+    static uint32_t primes[1229];      /* 1229 primes ≤ 10000 */
+    static size_t prime_cnt = 0;
+    if (!initialized) {
+        const size_t N = 10000;
+        bool is_prime[N + 1];
+        for (size_t i = 0; i <= N; ++i) is_prime[i] = true;
+        is_prime[0] = is_prime[1] = false;
+        for (size_t i = 2; i * i <= N; ++i)
+            if (is_prime[i])
+                for (size_t j = i * i; j <= N; j += i)
+                    is_prime[j] = false;
+        size_t idx = 0;
+        for (size_t i = 2; i <= N; ++i)
+            if (is_prime[i]) primes[idx++] = (uint32_t)i;
+        prime_cnt = idx;
+        initialized = true;
+    }
+    *cnt = prime_cnt;
+    return primes;
+}
 
 static idx_t vp_factorial(idx_t n, idx_t p)
 {

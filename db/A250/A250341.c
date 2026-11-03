@@ -10,6 +10,7 @@
  *            * + (1384/15)*n^4 + (621/14)*n^3 - (173/21)*n^2 - (193/15)*n + 1
  * Range:     u8 none, u16 n <= 2, u32 n <= 14, u64 n <= 210, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 206 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

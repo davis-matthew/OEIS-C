@@ -7,12 +7,15 @@
  * Formula:   a(n) = n! * Sum_{k=1..floor(n/3)} k^{n-3k-1}/(n-3k)!
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
         }
         else                              /* exponent is t-1 >= 0 */
         {
-            seq_t k_pow = big_pow((seq_t)k, (seq_t)(t - 1));
+            seq_t k_pow = ipow((seq_t)k, (seq_t)(t - 1));
             term = fall * k_pow;
         }
 

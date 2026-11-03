@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 25, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -48,6 +49,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External type definitions are provided by the build system */
 
@@ -60,12 +62,12 @@ seq_t a(idx_t n)
     const size_t sz = (size_t)n + 1;
 
     /* Allocate arrays for current and next DP layers */
-    seq_t *dpU   = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *dpH   = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *dpD   = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *nextU = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *nextH = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *nextD = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *dpU   = mem_new(seq_t, sz);
+    seq_t *dpH   = mem_new(seq_t, sz);
+    seq_t *dpD   = mem_new(seq_t, sz);
+    seq_t *nextU = mem_new(seq_t, sz);
+    seq_t *nextH = mem_new(seq_t, sz);
+    seq_t *nextD = mem_new(seq_t, sz);
 
     if (!dpU || !dpH || !dpD || !nextU || !nextH || !nextD) {
         /* Allocation failed – return 0 as an undefined value */
@@ -123,8 +125,8 @@ seq_t a(idx_t n)
     }
 
     /* Free allocated memory */
-    free(dpU); free(dpH); free(dpD);
-    free(nextU); free(nextH); free(nextD);
+    mem_free(dpU); mem_free(dpH); mem_free(dpD);
+    mem_free(nextU); mem_free(nextH); mem_free(nextD);
 
     return result;
 }

@@ -10,12 +10,13 @@
  *            / ((k+1)^3*(3k+3-n)*(3k+2-n)*(3k+1-n))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 24,
  *            big any n
- * Helpers:   a658_bin
+ * Validated: standard, pass, 34 terms through n = 569 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a658_bin.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     idx_t k0 = (n + 2) / 3;
@@ -23,17 +24,17 @@ seq_t a(idx_t n) {
 
     if (n <= 40) {
         for (idx_t k = k0; k <= n; k++) {
-            seq_t b1 = a658_bin(n, k);
-            seq_t b2 = a658_bin(2 * k, k);
-            seq_t b3 = a658_bin(2 * k, n - k);
+            seq_t b1 = binomial(n, k);
+            seq_t b2 = binomial(2 * k, k);
+            seq_t b3 = binomial(2 * k, n - k);
             result += b1 * b1 * b2 * b2 * b3;
         }
         return result;
     }
 
-    seq_t b1 = a658_bin(n, k0);
-    seq_t b2 = a658_bin(2 * k0, k0);
-    seq_t b3 = a658_bin(2 * k0, n - k0);
+    seq_t b1 = binomial(n, k0);
+    seq_t b2 = binomial(2 * k0, k0);
+    seq_t b3 = binomial(2 * k0, n - k0);
     seq_t t = b1 * b1 * b2 * b2 * b3;
     result = t;
     for (idx_t k = k0; k < n; k++) {

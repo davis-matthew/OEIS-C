@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 417, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   admissible_residue, next_prime
+ * Validated: standard, pass, 58 terms through n = 8749 (2026-11-01)
+ * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,13 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t start); */
-#include "../utils/admissible_residue.h"
+#include "../utils/next_prime.h"
+
+/* Return true if r is one of the six admissible residues modulo 280. */
+static inline bool admissible_residue(int r)
+{
+    return (r == 37 || r == 53 || r == 93 || r == 197 || r == 253 || r == 277);
+}
 
 /* Return the n-th prime of the form 8*x^2+8*x*y+37*y^2 (OEIS offset 1). */
 seq_t a(idx_t n)

@@ -10,7 +10,8 @@
  *            (r-3)(r-2)/2). S(k,3) = (3^k - 3·2^k + 3)/6
  * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *pow2_arr = NULL;
 static seq_t *pow3_arr = NULL;
@@ -29,9 +31,9 @@ static void ensure_pow_arrays(idx_t max_n)
 {
     if (max_n <= pow_cap) return;
 
-    seq_t *new2 = (seq_t*)malloc((max_n + 1) * sizeof(seq_t));
-    seq_t *new3 = (seq_t*)malloc((max_n + 1) * sizeof(seq_t));
-    seq_t *new4 = (seq_t*)malloc((max_n + 1) * sizeof(seq_t));
+    seq_t *new2 = mem_new(seq_t, (max_n + 1));
+    seq_t *new3 = mem_new(seq_t, (max_n + 1));
+    seq_t *new4 = mem_new(seq_t, (max_n + 1));
 
     new2[0] = new3[0] = new4[0] = (seq_t)1;
     for (idx_t i = 1; i <= max_n; ++i) {
@@ -41,9 +43,9 @@ static void ensure_pow_arrays(idx_t max_n)
     }
 
     /* free old tables if any */
-    if (pow2_arr) free(pow2_arr);
-    if (pow3_arr) free(pow3_arr);
-    if (pow4_arr) free(pow4_arr);
+    if (pow2_arr) mem_free(pow2_arr);
+    if (pow3_arr) mem_free(pow3_arr);
+    if (pow4_arr) mem_free(pow4_arr);
 
     pow2_arr = new2;
     pow3_arr = new3;

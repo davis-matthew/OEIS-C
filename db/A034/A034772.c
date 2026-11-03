@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* static storage for Fibonacci numbers */
 static seq_t *fib_arr = NULL;
@@ -33,13 +35,13 @@ static void ensure_fib(idx_t upto)
 {
     if (upto + 1 <= fib_cap) return;
     idx_t new_cap = upto + 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) abort();
     new_arr[0] = 0;
     if (new_cap > 1) new_arr[1] = 1;
     for (idx_t i = 2; i <= upto; ++i)
         new_arr[i] = new_arr[i-1] + new_arr[i-2];
-    if (fib_arr) free(fib_arr);
+    if (fib_arr) mem_free(fib_arr);
     fib_arr = new_arr;
     fib_cap = new_cap;
 }
@@ -59,13 +61,13 @@ seq_t a(idx_t n)
             idx_t d2 = n / i;
 
             seq_t f1 = fib_arr[n / d1];
-            seq_t dcnt1 = (seq_t)divisor_count_u64(d1);
+            seq_t dcnt1 = (seq_t)num_divisors(d1);
             sum += dcnt1 * f1;
 
             if (d2 != d1)
             {
                 seq_t f2 = fib_arr[n / d2];
-                seq_t dcnt2 = (seq_t)divisor_count_u64(d2);
+                seq_t dcnt2 = (seq_t)num_divisors(d2);
                 sum += dcnt2 * f2;
             }
         }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2*A010785(n) (twice the nth repdigit; A010785(0)=0)
  * Range:     u8 n <= 19, u16 n <= 38, u32 n <= 82, u64 n <= 170,
  *            u128 n <= 343, big any n
+ * Validated: standard, pass, 62 terms through n = 982 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

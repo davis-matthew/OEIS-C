@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   compute_mask
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/compute_mask.h"
+#include "../utils/mem.h"
+
+/* Letter mask computation for a string (ignores non-letters) */
+static void compute_mask(const char *s, unsigned *mask, bool *valid)
+{
+    unsigned m = 0;
+    bool dup = false;
+    for (const char *p = s; *p; ++p) {
+        if (*p >= 'a' && *p <= 'z') {
+            unsigned bit = 1u << (*p - 'a');
+            if (m & bit) dup = true;
+            m |= bit;
+        }
+    }
+    *mask = m;
+    *valid = !dup;
+}
 
 /* Helper structure for a word: its letter mask and validity */
 struct WordEntry { unsigned mask; bool valid; };
@@ -136,7 +153,7 @@ seq_t a(idx_t n)
 
     if (!seq_initialized) {
         seq_cap = 128;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq_len = 0;
         cur_val = 0;
         seq_initialized = true;
@@ -146,7 +163,7 @@ seq_t a(idx_t n)
         if (is_valid_number(cur_val)) {
             if (seq_len == seq_cap) {
                 seq_cap <<= 1;
-                seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len] = (seq_t)cur_val;
             ++seq_len;

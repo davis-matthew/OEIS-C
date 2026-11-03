@@ -11,14 +11,16 @@
  *            1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 20,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -27,12 +29,12 @@ seq_t a(idx_t n)
     seq_t n_plus   = (seq_t)(n + (idx_t)1);
     seq_t n_seq    = (seq_t)n;
 
-    v[0] = seq_pow(n_minus, n);                  /* (n-1)^n        */
-    v[1] = seq_pow(n_minus, n + (idx_t)1);       /* (n-1)^(n+1)    */
-    v[2] = seq_pow(n_seq, n - (idx_t)1);         /* n^(n-1)        */
-    v[3] = seq_pow(n_seq, n + (idx_t)1);         /* n^(n+1)        */
-    v[4] = seq_pow(n_plus, n - (idx_t)1);        /* (n+1)^(n-1)    */
-    v[5] = seq_pow(n_plus, n);                   /* (n+1)^n        */
+    v[0] = ipow_idx(n_minus, n);                  /* (n-1)^n        */
+    v[1] = ipow_idx(n_minus, n + (idx_t)1);       /* (n-1)^(n+1)    */
+    v[2] = ipow_idx(n_seq, n - (idx_t)1);         /* n^(n-1)        */
+    v[3] = ipow_idx(n_seq, n + (idx_t)1);         /* n^(n+1)        */
+    v[4] = ipow_idx(n_plus, n - (idx_t)1);        /* (n+1)^(n-1)    */
+    v[5] = ipow_idx(n_plus, n);                   /* (n+1)^n        */
 
     /* insertion sort (6 elements only) */
     for (idx_t i = 1; i < 6; ++i) {

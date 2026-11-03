@@ -12,8 +12,9 @@
  *            n XOR k) for n < k, * and T(n,k) = n + (n+k-2)(n+k-1)/2 \ (the
  *            two‑dimensional layout of A000027). * The index n (1‑based) is
  *            mapped to coordinates (i,j) by antidiagonals
- * Range:     i8 n <= 70, i16 n <= 9872, i32 n <= 9872, i64 n <= 9872,
- *            i128 n <= 9872, big any n
+ * Range:     i8 n <= 70, i16 n <= 10585, i32 n <= 10585, i64 n <= 10585,
+ *            i128 n <= 10585, big any n
+ * Validated: standard, pass, 106 terms through n = 9872 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

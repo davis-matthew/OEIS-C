@@ -10,12 +10,14 @@
  *            the linearized sequence of T(n,k) (row by row)
  * Range:     u8 n <= 31, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **vRows = NULL;          /* vRows[r][k] = coeff of x^k in v(r,x) */
 static size_t vRowsCap = 0;           /* allocated capacity for vRows[] */
@@ -46,12 +48,12 @@ static void ensure_rows_upto(idx_t r)
     /* Initialise the very first row if we have not done so yet. */
     if (maxRowComputed == 0) {
         /* u(1,x)=1, v(1,x)=1 */
-        uPrev = (seq_t*)malloc(sizeof(seq_t));
+        uPrev = mem_new(seq_t, 1);
         if (!uPrev) return;
         uPrevLen = 1;
         uPrev[0] = (seq_t)1;
 
-        vRows[1] = (seq_t*)malloc(sizeof(seq_t));
+        vRows[1] = mem_new(seq_t, 1);
         if (!vRows[1]) return;
         vRows[1][0] = (seq_t)1;
 
@@ -65,8 +67,8 @@ static void ensure_rows_upto(idx_t r)
         seq_t *vPrev = vRows[cur - 1]; /* v(n-1,x) coefficients           */
 
         /* Allocate arrays for u_cur and v_cur. */
-        seq_t *uCur = (seq_t*)malloc(curLen * sizeof(seq_t));
-        seq_t *vCur = (seq_t*)malloc(curLen * sizeof(seq_t));
+        seq_t *uCur = mem_new(seq_t, curLen);
+        seq_t *vCur = mem_new(seq_t, curLen);
         if (!uCur || !vCur) return;
 
         for (idx_t k = 0; k < curLen; ++k) {
@@ -87,7 +89,7 @@ static void ensure_rows_upto(idx_t r)
 
         /* Store current v row; free previous u; move uPrev pointer. */
         vRows[cur] = vCur;
-        free(uPrev);
+        mem_free(uPrev);
         uPrev = uCur;
         uPrevLen = curLen;
 

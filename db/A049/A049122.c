@@ -8,12 +8,14 @@
  *            = -3*(n-2)*a(n-1) - (8*n - 27)*a(n-2) + 5*(n-3)*a(n-3)
  * Range:     i8 n <= 9, i16 n <= 16, i32 n <= 30, i64 n <= 38, i128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the nth term of OEIS A049122.  The function is memoised
    across calls and can be invoked in any order.  It works for any
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Expand the cache if needed. */
     if (n + 1 > cache_sz)
     {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp && n + 1 > 0)
             return 0;                 /* allocation failure – fall back to 0 */
         cache     = tmp;

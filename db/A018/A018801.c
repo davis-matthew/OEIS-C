@@ -8,12 +8,13 @@
  *            decimal representation starts with the decimal digits of n
  * Range:     u8 n <= 7, u16 n <= 67, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   seq_isqrt_floor
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_isqrt_floor.h"
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +26,7 @@ seq_t a(idx_t n)
         seq_t upper = (N + (seq_t)1) * pow10 - (seq_t)1;
 
         seq_t target = lower * (seq_t)8 + (seq_t)1;
-        seq_t s      = seq_isqrt_floor(target);
+        seq_t s      = isqrt_seq(target);
         seq_t k      = (s - (seq_t)1) / (seq_t)2;
 
         /* adjust k upward until T_k >= lower */

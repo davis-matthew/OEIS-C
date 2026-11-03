@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * The flattened triangle of the coefficients of v(n,x) is the sequence A210553.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,11 +37,11 @@ seq_t a(idx_t n)
     idx_t j = n - (cum - r) - 1;
 
     /* Allocate arrays for the current row.  The maximum size needed is r. */
-    seq_t *u = (seq_t *)malloc(r * sizeof(seq_t));
-    seq_t *v = (seq_t *)malloc(r * sizeof(seq_t));
+    seq_t *u = mem_new(seq_t, r);
+    seq_t *v = mem_new(seq_t, r);
     if (!u || !v) {
-        free(u);
-        free(v);
+        mem_free(u);
+        mem_free(v);
         return (seq_t)0;
     }
 
@@ -51,13 +53,13 @@ seq_t a(idx_t n)
     for (idx_t i = 2; i <= r; ++i) {
         idx_t len_prev = i - 1;             /* length of previous row */
 
-        seq_t *newu = (seq_t *)malloc(i * sizeof(seq_t));
-        seq_t *newv = (seq_t *)malloc(i * sizeof(seq_t));
+        seq_t *newu = mem_new(seq_t, i);
+        seq_t *newv = mem_new(seq_t, i);
         if (!newu || !newv) {
-            free(u);
-            free(v);
-            free(newu);
-            free(newv);
+            mem_free(u);
+            mem_free(v);
+            mem_free(newu);
+            mem_free(newv);
             return (seq_t)0;
         }
 
@@ -77,15 +79,15 @@ seq_t a(idx_t n)
             }
         }
 
-        free(u);
-        free(v);
+        mem_free(u);
+        mem_free(v);
         u = newu;
         v = newv;
     }
 
     seq_t result = v[j];
 
-    free(u);
-    free(v);
+    mem_free(u);
+    mem_free(v);
     return result;
 }

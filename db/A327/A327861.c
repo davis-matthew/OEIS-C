@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = #{ d|n : d * A003415(d) = n } where A003415 is the
  *            arithmetic derivative
- * Range:     u8 n <= 640, u16 n <= 9867, u32 n <= 9867, u64 n <= 9867,
- *            u128 n <= 9867, big any n
+ * Range:     u8 n <= 640, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9867 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  *            = #divisors d of m with bigomega(d) = omega(m))
  * Range:     u8 n <= 5, u16 n <= 17, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   compute_A355382
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,42 @@
 #include <string.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/compute_A355382.h"
+#include "../utils/mem.h"
+
+/* Computes A355382 value for a given m using its factorization */
+static int compute_A355382(uint32_t m, const uint32_t *spf)
+{
+    int distinct = 0;
+    int exps[16];   /* exponents of distinct primes, trust that r <= 16 for m <= 1e7 */
+    int r = 0;
+    while (m > 1) {
+        uint32_t p = spf[m];
+        int e = 0;
+        while (m % p == 0) {
+            m /= p;
+            ++e;
+        }
+        exps[r++] = e;
+    }
+    distinct = r;    /* omega(m) = number of distinct prime factors */
+
+    /* DP to count number of solutions to sum f_i = r with 0 <= f_i <= exps[i] */
+    int ways[20] = {0};
+    ways[0] = 1;
+    for (int idx = 0; idx < distinct; ++idx) {
+        int e = exps[idx];
+        int new_ways[20] = {0};
+        for (int s = 0; s <= distinct; ++s) {
+            if (ways[s] == 0) continue;
+            int max_add = (s + e <= distinct) ? e : (distinct - s);
+            for (int add = 0; add <= max_add; ++add) {
+                new_ways[s + add] += ways[s];
+            }
+        }
+        memcpy(ways, new_ways, sizeof(ways));
+    }
+    return ways[distinct];
+}
 
 static const idx_t MAX_M = 10000000;  /* Upper bound for m to search */
 
@@ -51,10 +87,10 @@ static void ensure_positions_size(size_t needed)
 {
     if (needed < pos_size) return;
     size_t new_size = needed * 2 + 10;
-    seq_t *new_arr = (seq_t*)realloc(positions, new_size * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, positions, new_size);
     if (!new_arr) exit(EXIT_FAILURE);
     /* Zero initialize the new portion */
-    memset(new_arr + pos_size, 0, (new_size - pos_size) * sizeof(seq_t));
+    mem_set(new_arr + pos_size, 0, (new_size - pos_size) * sizeof(seq_t));
     positions = new_arr;
     pos_size = new_size;
 }
@@ -65,8 +101,8 @@ static void init_lookup(void)
     uint32_t *spf = NULL;
     build_spf(MAX_M, &spf);
 
-    positions = (seq_t*)malloc(10 * sizeof(seq_t)); /* initial small size */
-    memset(positions, 0, 10 * sizeof(seq_t));
+    positions = mem_new(seq_t, 10); /* initial small size */
+    mem_set(positions, 0, 10 * sizeof(seq_t));
     pos_size = 10;
 
     for (uint32_t m = 1; m <= MAX_M; ++m) {

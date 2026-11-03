@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------- private state ------------------------------------------ */
 static size_t chosen_cap = 0;          /* capacity of chosen array   */
@@ -64,7 +66,7 @@ static void ensure_chosen_capacity(size_t need)
     size_t new_cap = chosen_cap ? chosen_cap << 1 : 64;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(chosen, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, chosen, new_cap);
     if (!new_arr)
         abort();
     chosen = new_arr;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 60, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_seq_t
+ * Validated: standard, pass, 76 terms through n = 8423 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,19 @@
 #include <stdbool.h>
 
 /* Comparison function for qsort (provided by the utilities library). */
-#include "../utils/cmp_seq_t.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 static seq_t *cache = NULL;     /* sorted unique terms */
 static size_t cache_len = 0;    /* number of stored terms */
@@ -42,7 +55,7 @@ static void ensure_terms(idx_t n)
         /* Allocate enough space for generated values (rough estimate). */
         if (cache_cap < (size_t)limit + 1024) {
             size_t new_cap = (size_t)limit + 1024;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             cache = tmp;
             cache_cap = new_cap;
@@ -78,7 +91,7 @@ static void ensure_terms(idx_t n)
                     if (count == cache_cap) {
                         /* Double the capacity. */
                         size_t new_cap = cache_cap == 0 ? 1024 : cache_cap * 2;
-                        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                         if (!tmp) abort();
                         cache = tmp;
                         cache_cap = new_cap;
@@ -101,7 +114,7 @@ static void ensure_terms(idx_t n)
         }
 
         /* Sort the generated values and remove duplicates. */
-        qsort(cache, count, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(cache, count, sizeof(seq_t), cmp_seq_t);
         size_t uniq = 0;
         for (size_t i = 0; i < count; ++i) {
             if (i == 0 || cache[i] != cache[i - 1])

@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 8191, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
+ * Validated: standard, pass, 121 terms through n = 7637 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,8 @@
    It is known that a(n)=0 unless n is a power of two.
    For n = 2^(k+1) (k≥0) we have a(n)=Catalan(k). */
 
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
 
 seq_t a(idx_t n)

@@ -8,14 +8,16 @@
  *            divisible by 6. a(1) = 1, a(2) = 4, a(3) = 7, …
  * Range:     u8 n <= 31, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   sigma_uint_uint64
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem, sigma_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/sigma_uint_uint64.h"
+#include "../utils/sigma_u64.h"
+#include "../utils/mem.h"
 
 /* Return the nth term of the sequence. */
 seq_t a(idx_t n) {
@@ -28,13 +30,13 @@ seq_t a(idx_t n) {
     /* ensure the cache is large enough for index n */
     if (cache == NULL) {
         cache_cap = 32;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     while (cache_len < n) {
         /* test next_candidate */
         uint64_t m = next_candidate;
-        seq_t sigma = sigma_uint_uint64(m);
+        seq_t sigma = sigma_u64(m);
 
         bool has2 = (m % 2 == 0) || ((sigma % 2) == 0);
         bool has3 = (m % 3 == 0) || ((sigma % 3) == 0);
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
             /* m*sigma(m) is NOT divisible by 6 -> include in sequence */
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)m;
         }

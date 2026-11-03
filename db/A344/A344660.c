@@ -14,7 +14,8 @@
  *            neighbours is never prime
  * Range:     u8 n <= 37, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   get_digits
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   get_digits, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/get_digits.h"
+#include "../utils/mem.h"
 
 /* Grid large enough for all digits that may be needed */
 #define GRID_SIZE 2049
@@ -67,7 +70,7 @@ seq_t a(idx_t n)
                 grid[y][x] = 255;                /* empty cell   */
         grid[OFFSET][OFFSET] = 0;              /* first term   */
         seq_cap = 1;
-        seq = (seq_t *)malloc(sizeof(seq_t) * seq_cap);
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)0;
         seq_len = 1;
         grid_init = true;
@@ -168,7 +171,7 @@ seq_t a(idx_t n)
             if (!fail) {
                 if (seq_len + 1 > seq_cap) {
                     seq_cap = seq_cap ? seq_cap * 2 : 1;
-                    seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, seq_cap);
                 }
                 seq[seq_len++] = cand;
                 break;   /* proceed to next element */

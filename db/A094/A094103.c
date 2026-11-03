@@ -11,12 +11,14 @@
  *            The cache is size‑grown as needed
  * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 90, u64 n <= 182,
  *            u128 n <= 366, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         capacity = 16;                  /* initial capacity */
-        cache = (seq_t*)realloc(cache, capacity * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, capacity);
         if (cache == NULL) return 0;    /* out of memory – return 0 */
 
         /* base values, 1‑based */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         idx_t newcap = capacity;
         while (newcap <= n)
             newcap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (tmp == NULL) return 0;     /* allocation failed */
         cache = tmp;
         capacity = newcap;

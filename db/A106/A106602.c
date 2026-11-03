@@ -8,14 +8,15 @@
  *            8 n + 2 = x² + y², counted unordered (x ≤ y)
  * Range:     u8 n <= 31, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd64
+ * Validated: standard, pass, 91 terms through n = 925 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
 
 /* Integer square root (unsigned 64‑bit).  Returns floor(sqrt(x)). */
 static uint64_t isqrt64(uint64_t x)
@@ -52,7 +53,7 @@ seq_t a(idx_t n)
         seq_t y = isqrt64((uint64_t)y2);
         if (y * y != y2) continue;          /* y^2 not exact */
         if (y < x) continue;                /* enforce x <= y */
-        if (gcd64((uint64_t)x, (uint64_t)y) == 1)
+        if (gcd_u64((uint64_t)x, (uint64_t)y) == 1)
             ++count;
     }
     return count;

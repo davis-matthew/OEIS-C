@@ -9,7 +9,8 @@
  *            prime factorization of n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 102 terms through n = 9304 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root: floor(sqrt(n)) for 0 <= n <= 2^64-1.
    Uses only integer arithmetic, safe from overflow. */
@@ -55,7 +57,7 @@ static void ensure_memo(idx_t target)
     if ((size_t)target + 1 <= memo_cap)
         return;
     size_t new_cap = ((size_t)target + 1) * 2;
-    seq_t *new_mem = (seq_t*)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, memo, new_cap);
     bool *new_c   = (bool*)realloc(cached, new_cap * sizeof(bool));
     if (!new_mem || !new_c)
         abort();

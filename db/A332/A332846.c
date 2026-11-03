@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 26, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(1) = 1; a(n+1) = ∑_{k=1..n} a(k) * ceil(n/k)  (OEIS A332846) */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Permanent cache for already computed values.  cache[0] is unused. */
 static seq_t *cache      = NULL;   /* pointer to the array   */
@@ -36,7 +38,7 @@ ensure_cache(idx_t n)
         new_cap <<= 1;                 /* multiply by 2 */
 
     /* Reallocate memory.  cast the result of realloc to the build‑type. */
-    seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
     if (!tmp)
         abort();                      /* allocation failed */
 

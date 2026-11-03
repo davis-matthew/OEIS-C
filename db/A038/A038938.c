@@ -10,15 +10,39 @@
  *            incrementally
  * Range:     u8 n <= 28, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small, jacobi_symbol
+ * Validated: standard, pass, 62 terms through n = 947 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/jacobi_symbol.h"
+#include "../utils/is_prime_seq.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 /* Storage for the sequence.  200 000 slots comfortably hold >10 000 terms. */
 static seq_t static_vals[200000];
@@ -39,7 +63,7 @@ seq_t a(idx_t n)
 
         /* Search for a prime. */
         for (;;) {
-            if (is_prime_small(cand)) {
+            if (is_prime_seq(cand)) {
                 last_checked = cand;                 /* remember last prime */
 
                 /* Skip the primes that divide 58. */

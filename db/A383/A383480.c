@@ -7,13 +7,15 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..⌊n/4⌋} binomial(n+k,k) *
  *            binomial(2*n-3*k,n-4*k)
- * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 62,
+ * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 31, u128 n <= 62,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 1446 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t compute_term(idx_t n)

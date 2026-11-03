@@ -11,17 +11,29 @@
  *            b, and check the triangle inequality and coprimality
  * Range:     u8 n <= 53, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Requires the gcd utility:
-   #include "../utils/gcd.h" */
+#include <stdint.h>
+#include <stdbool.h>
+
+/* Greatest common divisor for seq_t values. */
+static seq_t gcd(seq_t a, seq_t b)
+{
+    while (b != 0) {
+        seq_t t = a % b;
+        a = b;
+        b = t;
+    }
+    return a;
+}
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"
 
 /* Count all integer-sided triangles of perimeter n that are pairwise coprime
    and sum the smallest side of each. */

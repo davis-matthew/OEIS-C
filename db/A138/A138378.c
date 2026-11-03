@@ -7,7 +7,8 @@
  * Formula:   a(n) = Bell(n+1) - Bell(n)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 24, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 495 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  *   The function caches values so that repeated calls are fast. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global cache for Bell numbers */
 static seq_t *bell = NULL;        /* array of Bell numbers */
@@ -31,7 +33,7 @@ static void ensure_bell(idx_t need)
     /* Initialise the cache on first use */
     if (bell == NULL) {
         bell_cap = 1;
-        bell = (seq_t *)calloc(bell_cap, sizeof(seq_t));
+        bell = mem_new(seq_t, bell_cap);
         if (bell == NULL) exit(EXIT_FAILURE);   /* kernel error */
         bell[0] = 1;             /* Bell(0) = 1 */
         bell_last = 0;
@@ -44,7 +46,7 @@ static void ensure_bell(idx_t need)
     if (bell_cap < (size_t)need + 1) {
         size_t new_cap = bell_cap ? bell_cap * 2 : 16;
         while (new_cap < (size_t)need + 1) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(bell, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, bell, new_cap);
         if (tmp == NULL) exit(EXIT_FAILURE);
         bell = tmp;
         bell_cap = new_cap;

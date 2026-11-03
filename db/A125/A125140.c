@@ -8,8 +8,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, mult
  * Formula:   a(n) = Product_i [(-1)^{r_i} + (p_i^{\,r_i+1} - p_i)/(p_i-1)]
- * Range:     u8 n <= 16, u16 n <= 3872, u32 n <= 9958, u64 n <= 9958,
- *            u128 n <= 9958, big any n
+ * Range:     u8 n <= 16, u16 n <= 3872, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 89 terms through n = 9958 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

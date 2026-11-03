@@ -12,6 +12,7 @@
  *            terminates with zeros after the last digit of 6438.4696
  * Range:     u8 none, u16 none, u32 n <= 1, u64 n <= 1, u128 n <= 1,
  *            big any n
+ * Validated: full, pass, 8 terms through n = 1 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

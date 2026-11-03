@@ -9,7 +9,8 @@
  *            non‑negative integer m, i.e. the exponent of 2 in p−1 is even
  * Range:     u8 n <= 19, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 1977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* cache for computed terms of the sequence */
 static seq_t *seq_vals = NULL;
@@ -31,7 +33,7 @@ static void seq_grow(size_t need) {
     if (need <= seq_cap) return;
     size_t newcap = seq_cap ? seq_cap * 2 : 16;
     while (newcap < need) newcap <<= 1;
-    seq_vals = (seq_t *)realloc(seq_vals, newcap * sizeof(seq_t));
+    seq_vals = mem_resize(seq_t, seq_vals, newcap);
     seq_cap = newcap;
 }
 

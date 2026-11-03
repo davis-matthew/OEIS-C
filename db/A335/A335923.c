@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t   max_computed = 0;      /* highest index computed so far          */
 static seq_t *terms = NULL;          /* dynamic array of sequence values       */
@@ -37,7 +39,7 @@ static void init(void)
 {
     if (!terms) {
         capacity = 1;
-        terms = (seq_t *)malloc(capacity * sizeof(seq_t));
+        terms = mem_new(seq_t, capacity);
         if (!terms) exit(1);            /* abort on allocation failure */
         terms[0] = 0;
         sz = 1;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         if (capacity <= (size_t)n + 1) {
             size_t new_cap = capacity * 2;
             if (new_cap <= (size_t)n + 1) new_cap = (size_t)n + 1;
-            seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, new_cap);
             if (!tmp) exit(1);
             terms = tmp;
             capacity = new_cap;

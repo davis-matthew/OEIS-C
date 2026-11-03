@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 38, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _gcd_idx
+ * Validated: standard, pass, 76 terms through n = 9312 (2026-11-03)
+ * Helpers:   gcd_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_gcd_idx.h"
+#include <stdbool.h>
+#include "../utils/gcd_idx.h"
+#include "../utils/mem.h"
 
 /* Euclidean GCD for idx_t (used only for loop indices). */
 
@@ -56,7 +59,7 @@ static void _push_triple(triple_t t)
     if (temp_len == temp_cap)
     {
         temp_cap = (temp_cap == 0) ? 256 : temp_cap << 1;
-        temp_arr = (triple_t *)realloc(temp_arr, temp_cap * sizeof(triple_t));
+        temp_arr = mem_resize(triple_t, temp_arr, temp_cap);
     }
     temp_arr[temp_len++] = t;
 }
@@ -86,7 +89,7 @@ static void _init_cache(void)
         {
             if (((m - n) & 1) == 0)         /* opposite parity required */
                 continue;
-            if (_gcd_idx(m, n) != 1)        /* primitive condition */
+            if (gcd_idx(m, n) != 1)        /* primitive condition */
                 continue;
 
             seq_t mm = (seq_t)m;
@@ -103,17 +106,17 @@ static void _init_cache(void)
     }
 
     /* Sort by the leg sum, breaking ties by the diff value. */
-    qsort(temp_arr, temp_len, sizeof(triple_t), _cmp_triple);
+    mem_qsort(temp_arr, temp_len, sizeof(triple_t), _cmp_triple);
 
     /* Transfer diffs to the final cache. */
     cache_cap = temp_len;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     for (size_t i = 0; i < temp_len; ++i)
         cache[i] = temp_arr[i].diff;
     cache_len = cache_cap;
 
     /* Free the temporary array. */
-    free(temp_arr);
+    mem_free(temp_arr);
     temp_arr = NULL;
     temp_cap = temp_len = 0;
 }

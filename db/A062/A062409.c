@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_uint64
+ * Validated: standard, pass, 74 terms through n = 864 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/is_prime_uint64.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
 
 static const long double E_CONST = 2.7182818284590452353602874713527L;
 
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     while (count < n) {
         ++k;
         unsigned long long m = (unsigned long long)floorl((long double)k * E_CONST);
-        if (is_prime_uint64(m))
+        if (is_prime_u64(m))
             ++count;
     }
     return (seq_t)k;

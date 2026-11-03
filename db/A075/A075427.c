@@ -8,12 +8,14 @@
  *            odd
  * Range:     u8 n <= 14, u16 n <= 30, u32 n <= 62, u64 n <= 126,
  *            u128 n <= 254, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 1947 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for computed values */
 static seq_t *cache = NULL;      /* array holding computed terms */
@@ -32,14 +34,14 @@ ensure_cache(idx_t n)
         /* double capacity until big enough, starting from 16 */
         idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap < needed) new_cap *= 2;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) { /* allocation failed – abort in an unlikely case */
             abort();
         }
         if (cache) {
             for (idx_t i = 0; i < cache_size; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = new_cache;
         cache_cap = new_cap;
@@ -59,7 +61,7 @@ a(idx_t n)
     /* Lazy initialization of the cache */
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();     /* allocation failure */
         cache[0] = 1;
         cache_size = 1;

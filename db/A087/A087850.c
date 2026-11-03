@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(a(a(a(a(n-1))))) + abs(2*a(n-1)-n)
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static cache for memoization */
 static seq_t *cache = NULL;
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
 
         seq_t *tmp;
 #if defined(__cplusplus)
-        tmp = reinterpret_cast<seq_t*>(realloc(cache, new_len * sizeof(seq_t)));
+        tmp = reinterpret_cast<seq_t*>(mem_resize(seq_t, cache, new_len));
 #else
         tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
 #endif

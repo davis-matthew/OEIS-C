@@ -9,7 +9,8 @@
  *            root)
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   factor_u64, gcd64
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   factor_u64, gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/factor_u64.h"    /* factor_u64 */
-#include "../utils/gcd64.h"
+#include <stdint.h>
+#include "../utils/factor_u64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* Return true if x is a perfect power and x > 1.
    1 is treated specially in a(n) itself. */
@@ -41,7 +44,7 @@ static bool is_perfect_power(seq_t x)
         if (g == 0)
             g = e;
         else
-            g = gcd64(g, e);
+            g = gcd_u64(g, e);
     }
     return g > 1;
 }
@@ -57,12 +60,12 @@ seq_t a(idx_t n)
 
     /* extend cache to include n */
     idx_t new_size = n + 1;               /* allocate indices 0..n */
-    seq_t *new_cache = (seq_t *)calloc(new_size, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache)                      /* allocation error: return 0 (unlikely) */
         return (seq_t)0;
     if (cache) {
-        memcpy(new_cache, cache, (max_cached + 1) * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, (max_cached + 1) * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_cache;
 

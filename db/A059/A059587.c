@@ -10,15 +10,17 @@
  *            Π_{k=0}^{n-1} (2^i + k) Equivalently T(n,m) = Σ_{i=0..n}
  *            |S(n,i)| * binom(2^i, m) where S(n,i) is the (signless) Stirling
  *            number of the first kind and binom(a,b) is the binomial...
- * Range:     u8 n <= 13, u16 n <= 25, u32 n <= 47, u64 n <= 47, u128 n <= 47,
+ * Range:     u8 n <= 20, u16 n <= 40, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 #define MAX_R 64   /* enough for any n ≤ 10⁶ (2^20 ≈ 10⁶) */
 
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
     for (int i = 0; i <= r; ++i) {
         seq_t s = stirling[(int)r][i];          /* |S(r,i)| is already unsigned */
         /* binom returns 0 when m > 2^i, so no special test needed */
-        seq_t b = binom(((idx_t)1 << i), m);
+        seq_t b = binomial(((idx_t)1 << i), m);
         sum += s * b;
     }
     return sum;

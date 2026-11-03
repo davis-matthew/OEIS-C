@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_nonprime_digits, isPrime
+ * Validated: standard, pass, 69 terms through n = 982 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/isPrime.h"   /* Provides: bool isPrime(idx_t x); */
-#include "../utils/count_nonprime_digits.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* Count how many decimal digits of x are nonprime (0,1,4,6,8,9). */
+static int count_nonprime_digits(uint64_t x)
+{
+    int cnt = 0;
+    while (x > 0) {
+        int d = x % 10;
+        if (d == 0 || d == 1 || d == 4 || d == 6 || d == 8 || d == 9)
+            ++cnt;
+        x /= 10;
+    }
+    return cnt;
+}
 
 /* Cache of computed terms.  Results are stored in increasing order. */
 static seq_t *cache = NULL;
@@ -32,11 +46,11 @@ static void ensure_cache_cap(size_t needed)
 {
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     while (cache_cap < needed) {
         cache_cap <<= 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 }
 
@@ -52,7 +66,7 @@ static void append_cache(seq_t val)
 static void generate_terms(idx_t n)
 {
     while ((idx_t)cache_len < n) {
-        if (isPrime(next_candidate)) {
+        if (is_prime(next_candidate)) {
             if (count_nonprime_digits(next_candidate) == 2)
                 append_cache((seq_t)next_candidate);
         }

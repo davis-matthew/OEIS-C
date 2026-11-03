@@ -9,7 +9,8 @@
  *            divisors of n
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   big_pow, binom, divisor_count_u64, seq_mul
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   binomial, ipow, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,17 @@
  * - seq_mul             : multiplies two seq_t values.
  */
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/binom.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/num_divisors.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,15 +40,15 @@ seq_t a(idx_t n)
         return 0; /* offset 1 – not used, but safe */
 
     /* τ(n) – number of divisors of n */
-    idx_t tau = divisor_count_u64((uint64_t)n);
+    idx_t tau = num_divisors((uint64_t)n);
 
     seq_t result = 1;
     for (idx_t k = 1; k <= tau; ++k) {
         /* exponent = C(tau, k) */
-        seq_t exp = binom(tau, k);
+        seq_t exp = binomial(tau, k);
 
         /* term = k ^ exp */
-        seq_t term = big_pow((seq_t)k, exp);
+        seq_t term = ipow((seq_t)k, exp);
 
         /* multiply into result */
         result = seq_mul(result, term);

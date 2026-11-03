@@ -8,7 +8,8 @@
  * Formula:   a(n) = largest power of 2 dividing prime(n+1) – prime(n)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow2_lowbit
+ * Validated: standard, pass, 121 terms through n = 8589 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,16 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/pow2_lowbit.h"
+
+/* largest power of 2 dividing x */
+static seq_t pow2_lowbit(uint64_t x) {
+    seq_t res = (seq_t)1;
+    while ((x & 1ULL) == 0) {
+        x >>= 1;
+        res <<= 1;
+    }
+    return res;
+}
 
 /* dynamic storage for primes, 0‑based */
 static uint64_t *prime_list = NULL;

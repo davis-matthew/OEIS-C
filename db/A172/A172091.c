@@ -11,14 +11,17 @@
  *            (2^{j+1}-1), * with c(0)=c(1)=1
  * Range:     i8 n <= 10, i16 n <= 21, i32 n <= 36, i64 n <= 66, i128 n <= 136,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 61 terms through n = 1187 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Integer square root for 64‑bit values (no external helper needed). */
 static idx_t isqrt_u64(idx_t v)
@@ -44,7 +47,7 @@ static void ensure_c(idx_t n)
     if (c_len > n) return;
 
     idx_t new_len = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(c_cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, c_cache, new_len);
     if (!new_cache) abort();
 
     /* Initialize new entries */

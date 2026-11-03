@@ -9,12 +9,14 @@
  *            a(4)=1549, a(5)=1795, a(6)=2081
  * Range:     u8 none, u16 n <= 11, u32 n <= 30, u64 n <= 67, u128 n <= 143,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the nth term of OEIS sequence A159844.
    The function uses a simple linear recurrence and memoizes
@@ -41,14 +43,14 @@ seq_t a(idx_t n)
     /* Allocate initial cache if not yet done. */
     if (cache == NULL) {
         if (cap == 0) cap = 16;    /* start with some room */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* Ensure capacity for index n. */
     if (cap <= (size_t)n) {
         size_t new_cap = cap;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap = new_cap;
     }
 

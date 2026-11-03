@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   digits_lt10, passes_property
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,33 @@
    the description of OEIS sequence A095782. */
 
 #include <stdbool.h>
-#include "../utils/digits_lt10.h"
-#include "../utils/passes_property.h"
+
+/* Check that all digits of x in the given base are < 10. */
+static bool digits_lt10(seq_t x, uint32_t base)
+{
+    while (x > 0) {
+        if ((x % base) >= 10)
+            return false;
+        x /= base;
+    }
+    return true;
+}
+
+/* Test whether x satisfies the required property. */
+static bool passes_property(seq_t x)
+{
+    /* Bases 11 to 14 must have only digits 0–9. */
+    if (!digits_lt10(x, 11)) return false;
+    if (!digits_lt10(x, 12)) return false;
+    if (!digits_lt10(x, 13)) return false;
+    if (!digits_lt10(x, 14)) return false;
+
+    /* Base 15 must be *not* representable using only digits
+       0–9, i.e., at least one digit must be ≥ 10. */
+    if (digits_lt10(x, 15)) return false;
+
+    return true;
+}
 
 /* Return the nth element of the sequence (1‑based index). */
 seq_t a(idx_t n)

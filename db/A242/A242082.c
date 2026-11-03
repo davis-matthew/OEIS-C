@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         len_word = (idx_t *)malloc(words_cap * sizeof(idx_t));
 
         /* w1 = "01" */
-        seq_t *w1 = (seq_t *)malloc(2 * sizeof(seq_t));
+        seq_t *w1 = mem_new(seq_t, 2);
         w1[0] = (seq_t)0;
         w1[1] = (seq_t)1;
         words[0] = w1;
@@ -52,19 +54,19 @@ seq_t a(idx_t n)
         new_len += 1;                                        /* final "2" */
 
         /* allocate storage for the new word */
-        seq_t *new_word = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_word = mem_new(seq_t, new_len);
         size_t pos = 0;
 
         /* copy first two copies of w_{prev} */
-        memcpy(new_word + pos, words[word_cnt - 1], len_word[word_cnt - 1] * sizeof(seq_t));
+        mem_copy(new_word + pos, words[word_cnt - 1], len_word[word_cnt - 1] * sizeof(seq_t));
         pos += len_word[word_cnt - 1];
-        memcpy(new_word + pos, words[word_cnt - 1], len_word[word_cnt - 1] * sizeof(seq_t));
+        mem_copy(new_word + pos, words[word_cnt - 1], len_word[word_cnt - 1] * sizeof(seq_t));
         pos += len_word[word_cnt - 1];
 
         /* copy remaining words in reverse order */
         for (size_t j = word_cnt - 2; j < word_cnt; --j)
         {
-            memcpy(new_word + pos, words[j], len_word[j] * sizeof(seq_t));
+            mem_copy(new_word + pos, words[j], len_word[j] * sizeof(seq_t));
             pos += len_word[j];
         }
 

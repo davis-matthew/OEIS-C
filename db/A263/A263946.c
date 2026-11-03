@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 none,
  *            big any n
+ * Validated: standard, pass, 31 terms through n = 570 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* 
    Sequence A263946: a(1)=26, a(2)=2626, a(3)=132522,
    recurrence: a(n)=51*a(n-1)-51*a(n-2)+a(n-3) for n>3

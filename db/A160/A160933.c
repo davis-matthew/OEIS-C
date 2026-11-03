@@ -7,12 +7,14 @@
  * Formula:   a(n) = n - rev(n-1) - rev(n+1)
  * Range:     i8 n <= 17, i16 n <= 54, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   rev
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/rev.h"
+#include <stdbool.h>
+#include "../utils/reverse_digits_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -20,8 +22,8 @@ seq_t a(idx_t n)
     seq_t nval = (seq_t)n;
 
     /* rev gives an idx_t; cast to seq_t for arithmetic. */
-    seq_t rev_n_minus_1 = (seq_t)rev(n - 1);
-    seq_t rev_n_plus_1  = (seq_t)rev(n + 1);
+    seq_t rev_n_minus_1 = (seq_t)reverse_digits_idx(n - 1);
+    seq_t rev_n_plus_1  = (seq_t)reverse_digits_idx(n + 1);
 
     return nval - rev_n_minus_1 - rev_n_plus_1;
 }

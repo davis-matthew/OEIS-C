@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 9413, u16 n <= 9413, u32 n <= 9413, u64 n <= 9413,
- *            u128 n <= 9413, big any n
- * Helpers:   get_invariants
+ * Range:     u8 n <= 10659, u16 n <= 10659, u32 n <= 10659, u64 n <= 10659,
+ *            u128 n <= 10659, big any n
+ * Validated: standard, pass, 100 terms through n = 9413 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,27 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/get_invariants.h"
+#include "../utils/mem.h"
+
+static void get_invariants(int dir, int32_t x, int32_t y, int32_t z,
+                           int32_t *k1, int32_t *k2)
+{
+    switch (dir) {
+        case 0:  *k1 = y;          *k2 = z;          break; /* (1,0,0) */
+        case 1:  *k1 = x;          *k2 = z;          break; /* (0,1,0) */
+        case 2:  *k1 = x;          *k2 = y;          break; /* (0,0,1) */
+        case 3:  *k1 = y - x;      *k2 = z;          break; /* (1,1,0) */
+        case 4:  *k1 = x + y;      *k2 = z;          break; /* (1,-1,0) */
+        case 5:  *k1 = y;          *k2 = z - x;      break; /* (1,0,1) */
+        case 6:  *k1 = y;          *k2 = x + z;      break; /* (1,0,-1) */
+        case 7:  *k1 = x;          *k2 = z - y;      break; /* (0,1,1) */
+        case 8:  *k1 = x;          *k2 = y + z;      break; /* (0,1,-1) */
+        case 9:  *k1 = y - x;      *k2 = z - x;      break; /* (1,1,1) */
+        case 10: *k1 = y - x;      *k2 = x + z;      break; /* (1,1,-1) */
+        case 11: *k1 = x + y;      *k2 = x - z;      break; /* (1,-1,1) */
+        case 12: *k1 = x + y;      *k2 = x + z;      break; /* (-1,1,1) */
+    }
+}
 
 /* number of directional axes of a cube */
 #define DIRS 13
@@ -144,7 +165,7 @@ static void grow_seq(idx_t need)
     if (need < seq_cap) return;
     idx_t newcap = seq_cap ? seq_cap << 1 : 64;
     while (newcap <= need) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, newcap);
     seq = tmp;
     seq_cap = newcap;
 }

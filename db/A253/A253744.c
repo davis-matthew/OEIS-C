@@ -13,12 +13,14 @@
  *            rows with state (previous row, previous vertical sums)
  * Range:     u8 none, u16 n <= 2, u32 n <= 12, u64 n <= 47, u128 n <= 120,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define INVALID_S 255U
 
@@ -84,8 +86,8 @@ seq_t a(idx_t n)
 
     /* 81 rows × 125 sum states = 10125 states. */
     const size_t STATES = 81 * 125;
-    seq_t *dp_prev = (seq_t *)calloc(STATES, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(STATES, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, STATES);
+    seq_t *dp_next = mem_new(seq_t, STATES);
 
     /* Base case: all pairs of first two rows that satisfy horizontal
        constraint. */
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
         idx_t steps = n - 1;
         for (idx_t step = 0; step < steps; ++step) {
             /* Clear next DP table. */
-            memset(dp_next, 0, STATES * sizeof(seq_t));
+            mem_set(dp_next, 0, STATES * sizeof(seq_t));
 
             for (int a = 0; a < 81; ++a) {
                 size_t base_a = a * 125;
@@ -143,7 +145,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < STATES; ++i)
         total += dp_prev[i];
 
-    free(dp_prev);
-    free(dp_next);
+    mem_free(dp_prev);
+    mem_free(dp_next);
     return total;
 }

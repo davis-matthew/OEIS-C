@@ -7,6 +7,7 @@
  * Formula:   a(n) = 6*n^2 - 13*n + 11 for n >= 3; a(1)=1; a(2)=8
  * Range:     u8 n <= 7, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: standard, pass, 62 terms through n = 63 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

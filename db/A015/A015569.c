@@ -9,7 +9,8 @@
  *            1560
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build environment. */
 typedef seq_t seq_t;
@@ -31,9 +33,9 @@ static seq_t *poly_div_monic(const seq_t *dividend, size_t m,
 {
     /* divisor is monic, m >= k.  The quotient has degree m-k. */
     size_t qlen = m - k + 1;
-    seq_t *quot = (seq_t *)calloc(qlen, sizeof(seq_t));      /* zeros */
-    seq_t *rem  = (seq_t *)malloc((m + 1) * sizeof(seq_t));
-    memcpy(rem, dividend, (m + 1) * sizeof(seq_t));
+    seq_t *quot = mem_new(seq_t, qlen);      /* zeros */
+    seq_t *rem  = mem_new(seq_t, (m + 1));
+    mem_copy(rem, dividend, (m + 1) * sizeof(seq_t));
 
     for (long long i = (long long)m; i >= (long long)k; --i) {
         seq_t coef = rem[(size_t)i];
@@ -48,7 +50,7 @@ static seq_t *poly_div_monic(const seq_t *dividend, size_t m,
         /* rem[i] should now be zero (leading coefficient subtracted) */
     }
 
-    free(rem);
+    mem_free(rem);
     return quot;
 }
 
@@ -93,7 +95,7 @@ static void init_phi(void)
         size_t deg = (size_t)d;
 
         /* start with x^d - 1 */
-        seq_t *num = (seq_t *)calloc(deg + 1, sizeof(seq_t));
+        seq_t *num = mem_new(seq_t, deg + 1);
         num[0] = (seq_t)-1;
         num[deg] = (seq_t)1;
 
@@ -103,7 +105,7 @@ static void init_phi(void)
                 continue;
             seq_t *q = poly_div_monic(num, deg,
                                       polys[l].coeff, polys[l].deg);
-            free(num);
+            mem_free(num);
             num = q;
             deg -= polys[l].deg;
         }
@@ -114,13 +116,13 @@ static void init_phi(void)
 
     /* φ_1560 is the last divisor */
     phi_deg = polys[nd - 1].deg;
-    memcpy(phi_coeff, polys[nd - 1].coeff, (phi_deg + 1) * sizeof(seq_t));
+    mem_copy(phi_coeff, polys[nd - 1].coeff, (phi_deg + 1) * sizeof(seq_t));
 
     /* free temporary polys (except the last, already copied) */
     for (size_t k = 0; k < nd - 1; ++k)
-        free(polys[k].coeff);
+        mem_free(polys[k].coeff);
     /* but we also need to free the last polynomial after copy */
-    free(polys[nd - 1].coeff);
+    mem_free(polys[nd - 1].coeff);
 
     phi_inited = 1;
 }

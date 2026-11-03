@@ -13,12 +13,14 @@
  *            *...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
 
     /* Compute up to n using the recurrence */
     size_t len = (size_t)n + 1;          /* 1‑based indexing */
-    seq_t *buf = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, len);
     if (!buf) return 0;                  /* allocation failure -> 0 (unlikely) */
 
     /* Initialize first 19 terms */
@@ -105,6 +107,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = buf[(size_t)n];
-    free(buf);
+    mem_free(buf);
     return result;
 }

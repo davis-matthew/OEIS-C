@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   di_from_n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,7 +36,23 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/di_from_n.h"
+
+/* Find the greatest d such that d*(d+1)/2 ≤ n.  Uses binary search. */
+static idx_t di_from_n(idx_t n)
+{
+    idx_t low  = 0;
+    idx_t high = 4294967295ULL;   /* 2^32‑1, upper bound for d (fits n ≤ 2^64‑1) */
+
+    while (low <= high) {
+        idx_t mid = low + ((high - low) >> 1);
+        idx_t tri = mid * (mid + 1) / 2;
+
+        if (tri == n)           return mid;
+        if (tri < n)            low  = mid + 1;
+        else                    high = mid - 1;
+    }
+    return high;                /* high is the largest with tri ≤ n */
+}
 
 /* Compute a(n) */
 seq_t a(idx_t n)

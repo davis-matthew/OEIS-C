@@ -8,8 +8,9 @@
  * Keywords:  sign
  * Formula:   a(n) = A276086(1+n) - A276086(A001065(n))
  * Range:     i8 n <= 11, i16 n <= 56, i32 n <= 339, i64 n <= 2059,
- *            i128 n <= 9613, big any n
- * Helpers:   build_primes_upto, factor_u64, seq_pow
+ *            i128 n <= 30030, big any n
+ * Validated: standard, pass, 75 terms through n = 9613 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/seq_pow.h"
-#include "../utils/factor_u64.h"
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
 
 /* Compute A276086(m) = product of p_i ^ (digit_i) for primorial
    base representation of m (digit_i < p_i).  m must fit in idx_t. */
@@ -38,7 +40,7 @@ static seq_t primorial_exp(idx_t m, const uint64_t *primes, size_t prime_cnt)
         idx_t digit  = remainder % prime;
         remainder  /= prime;
         if (digit)
-            result = result * seq_pow((seq_t)prime, (idx_t)digit);
+            result = result * ipow_idx((seq_t)prime, (idx_t)digit);
     }
     return result;
 }
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
     {
         seq_t p   = (seq_t)pf[i];
         idx_t  e  = (idx_t)(pe[i] + 1);            /* e+1 for the term */
-        seq_t p_e = seq_pow(p, e);                 /* p^(e+1) */
+        seq_t p_e = ipow_idx(p, e);                 /* p^(e+1) */
         seq_t numer = p_e - (seq_t)1;
         seq_t denom = p - (seq_t)1;
         sigma = sigma * (numer / denom);

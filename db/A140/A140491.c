@@ -10,13 +10,15 @@
  *            n > 13: a(n) = a(n‑1) + a(n‑12) – a(n‑13)
  * Range:     u8 n <= 52, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- Memoization cache ------------------------------------------------- */
 static seq_t  *cache      = NULL; /* array of terms, 1‑based indices         */
@@ -31,7 +33,7 @@ static void grow_cache_to(size_t idx)
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap <= idx)
         new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

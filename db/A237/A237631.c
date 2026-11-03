@@ -12,13 +12,15 @@
  *            a(10)=116180, a(11)=223768, a(12)=429680
  * Range:     u8 none, u16 n <= 9, u32 n <= 26, u64 n <= 60, u128 n <= 127,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -29,7 +31,7 @@ static void init_cache(void) {
         260, 636, 1220, 2356, 4500, 8594, 16448, 31672,
         60362, 116180, 223768, 429680};
     cache_size = 13;          /* indices 0 .. 12 are present */
-    cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_size);
     if (!cache) return;
     for (idx_t i = 0; i < cache_size; ++i) {
         cache[i] = base[i];
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
     if (!initialized) init_cache();
     if (n >= cache_size) {
         idx_t new_size = n + 1;                /* need indices 0 .. n */
-        cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         for (idx_t i = cache_size; i <= n; ++i) {
             seq_t t1 = (seq_t)3 * cache[i-3] + (seq_t)10 * cache[i-4];
             seq_t t2 = (seq_t)12 * cache[i-7];

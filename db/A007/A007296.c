@@ -11,7 +11,8 @@
  *            g^(k+1). Large n: power of the series via th...
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 16, i64 n <= 25, i128 n <= 25,
  *            big any n
- * Helpers:   alloc_zero, first_primes, release
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,33 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/first_primes.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static long long *first_primes(idx_t cnt) {
+    long long *pr = (long long *)malloc((size_t)(cnt + 1) * sizeof(long long));
+    idx_t c = 0;
+    long long v;
+    for (v = 2; c < cnt; v++) {
+        bool isp = true;
+        idx_t i;
+        for (i = 0; i < c && pr[i] * pr[i] <= v; i++) {
+            if (v % pr[i] == 0) { isp = false; break; }
+        }
+        if (isp) pr[c++] = v;
+    }
+    return pr;
+}
 
 #define SMALLN 64
 

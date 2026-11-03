@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define COLS 5
 #define STATE_BITS (2 * COLS)                  /* 10 bits for 5 columns */
@@ -136,8 +138,8 @@ seq_t a(idx_t n)
     initialise();
 
     /* Allocate DP arrays. */
-    seq_t *dp_cur = (seq_t *)calloc(STATE_COUNT, sizeof(seq_t));
-    seq_t *dp_nxt = (seq_t *)calloc(STATE_COUNT, sizeof(seq_t));
+    seq_t *dp_cur = mem_new(seq_t, STATE_COUNT);
+    seq_t *dp_nxt = mem_new(seq_t, STATE_COUNT);
     if (!dp_cur || !dp_nxt) return (seq_t)0;    /* safety */
 
     dp_cur[0] = (seq_t)1;   /* start with an empty previous row */
@@ -173,7 +175,7 @@ seq_t a(idx_t n)
         if (ok) result += dp_cur[s];
     }
 
-    free(dp_cur);
-    free(dp_nxt);
+    mem_free(dp_cur);
+    mem_free(dp_nxt);
     return result;
 }

@@ -10,12 +10,14 @@
  *            triangle of these coefficients
  * Range:     u8 n <= 30, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external linkage as required */
 seq_t a(idx_t n)
@@ -35,21 +37,21 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* build rows until we have at least n+1 terms */
     while (cache_len <= (size_t)n) {
         /* --- compute next row ---------------------------------------- */
         if (next_row == 0) {                /* row 0: p(0) = 2   */
-            seq_t *row = (seq_t *)malloc(sizeof(seq_t));
+            seq_t *row = mem_new(seq_t, 1);
             row[0] = (seq_t)2;
 
             /* append term to cache */
             if (cache_len + 1 > cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 128;
                 while (new_cap < cache_len + 1) new_cap *= 2;
-                cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, new_cap);
                 cache_cap = new_cap;
             }
             cache[cache_len++] = row[0];
@@ -60,13 +62,13 @@ seq_t a(idx_t n)
         }
 
         if (next_row == 1) {                /* row 1: p(1) = 1   */
-            seq_t *row = (seq_t *)malloc(sizeof(seq_t));
+            seq_t *row = mem_new(seq_t, 1);
             row[0] = (seq_t)1;
 
             if (cache_len + 1 > cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 128;
                 while (new_cap < cache_len + 1) new_cap *= 2;
-                cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, new_cap);
                 cache_cap = new_cap;
             }
             cache[cache_len++] = row[0];
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
 
         /* rows n >= 2 */
         size_t len = (next_row / 2) + 1;          /* floor(n/2)+1   */
-        seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
 
         for (size_t k = 0; k < len; ++k) {
             seq_t val = 0;
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
         if (cache_len + len > cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 128;
             while (new_cap < cache_len + len) new_cap *= 2;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
 
@@ -101,7 +103,7 @@ seq_t a(idx_t n)
         }
 
         /* shift rows for next iteration */
-        free(prev2);
+        mem_free(prev2);
         prev2 = prev1;  len2 = len1;
         prev1 = row;    len1 = len;
 

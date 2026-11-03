@@ -7,9 +7,10 @@
  * Keywords:  sign, frac, look
  * Formula:   a(n) = numerator of the constant term of the remainder obtained
  *            when Stern polynomial B(n,x) is divided by B(5,x)
- * Range:     i8 n <= 510, i16 n <= 9080, i32 n <= 9080, i64 n <= 9080,
- *            i128 n <= 9080, big any n
- * Helpers:   none
+ * Range:     i8 n <= 510, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 110 terms through n = 9080 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* dynamic storage */
 static seq_t   *num = NULL;     /* rational numerator (in lowest terms) */
@@ -37,7 +39,7 @@ static void ensure_capacity(idx_t n)
     if (n < cap) return;
     size_t newcap = cap ? cap : 2;
     while (newcap <= (size_t)n) newcap <<= 1;
-    num   = (seq_t*)      realloc(num,   newcap * sizeof(seq_t));
+    num   = mem_resize(seq_t, num, newcap);
     expv  = (uint32_t*)    realloc(expv,  newcap * sizeof(uint32_t));
     have  = (bool*)        realloc(have,  newcap * sizeof(bool));
     for (size_t i = cap; i < newcap; ++i) have[i] = false;

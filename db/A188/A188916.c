@@ -9,13 +9,24 @@
  *            union of all squares and all powers of two
  * Range:     u8 n <= 247, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   log2_uint128
+ * Validated: standard, pass, 110 terms through n = 9043 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/log2_uint128.h"
+
+/* compute ⌊log₂(v)⌋ for a 128‑bit unsigned integer v */
+static inline idx_t log2_uint128(unsigned __int128 v)
+{
+    /* v > 0 for all calls */
+    if ((v >> 64) != 0)                  /* high 64 bits non‑zero */
+        return 64 + (63 - __builtin_clzll((uint64_t)(v >> 64)));
+    else                                 /* only low 64 bits */
+        return (v == 0) ? 0
+                         : (63 - __builtin_clzll((uint64_t)v));
+}
 
 seq_t a(idx_t n)
 {

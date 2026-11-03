@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_S
+ * Validated: standard, pass, 75 terms through n = 9771 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,60 @@
    index them. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_S.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether a given 64‑bit integer belongs to the set S. */
+static bool is_S(uint64_t n)
+{
+    if (n < 12)            /* the very first S number is 12 */
+        return false;
+
+    /* factorisation: store prime factors and exponents */
+    uint64_t primes[64];
+    int       exps [64];
+    int       cnt   = 0;
+    uint64_t tmp = n;
+
+    for (uint64_t d = 2; d <= tmp / d; ++d)
+    {
+        if (tmp % d == 0)
+        {
+            int e = 0;
+            while (tmp % d == 0)
+            {
+                tmp /= d;
+                ++e;
+            }
+            primes[cnt] = d;
+            exps[cnt]   = e;
+            ++cnt;
+            if (cnt == 64)
+                break;   /* safety; should never happen for our range */
+        }
+    }
+    if (tmp > 1)          /* remaining prime factor */
+    {
+        primes[cnt] = tmp;
+        exps[cnt]   = 1;
+        ++cnt;
+    }
+
+    if (cnt < 2)          /* primes, prime powers, and products of two primes */
+        return false;
+
+    /* check the defining property */
+    uint64_t pref = 1;
+    for (int i = 0; i < cnt - 1; ++i)
+    {
+        uint64_t powv = 1;
+        for (int j = 0; j < exps[i]; ++j)
+            powv *= primes[i];
+        pref *= powv;
+        if (pref > primes[i + 1])
+            return true;
+    }
+    return false;
+}
 
 /* Cache of previously found terms */
 static seq_t *cache   = NULL;
@@ -38,7 +92,7 @@ static void ensure_cache(size_t need)
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
     if (new_cap < need)
         new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }

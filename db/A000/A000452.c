@@ -10,14 +10,22 @@
  *            smallest-prime-factor sieve over a growing limit
  * Range:     u8 n <= 186, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   exp_ok
+ * Validated: standard, pass, 89 terms through n = 9792 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/exp_ok.h"
+
+static int exp_ok(unsigned e) {
+    while (e) {
+        if (e % 3 == 2) return 0;
+        e /= 3;
+    }
+    return 1;
+}
 
 seq_t a(idx_t n) {
     static uint64_t *terms = NULL;

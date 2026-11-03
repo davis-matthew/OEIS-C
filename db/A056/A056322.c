@@ -10,7 +10,8 @@
  *            Σ_{i=0}^6 (-1)^i · C(6,i) · (6-i)^⌈k/2⌉ (palindromic strings)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   mu_of, pow_seq
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,28 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mu_of.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 /* binomial coefficients C(6,i) */
 static const unsigned int binom[7] = {1,6,15,20,15,6,1};
@@ -30,7 +51,7 @@ static seq_t A056313(idx_t k)
     /* T(k): all strings length k using all colors at least once */
     seq_t T = 0;
     for (unsigned int i = 0; i <= 6; ++i) {
-        seq_t pw = pow_seq((seq_t)(6 - i), (int)k);
+        seq_t pw = ipow_i32((seq_t)(6 - i), (int)k);
         seq_t term = binom[i] * pw;
         if ((i & 1) == 0)
             T += term;
@@ -42,7 +63,7 @@ static seq_t A056313(idx_t k)
     idx_t half = (k + 1) / 2;       /* ceil(k/2) = number of independent positions in a palindrome */
     seq_t P = 0;
     for (unsigned int i = 0; i <= 6; ++i) {
-        seq_t pw = pow_seq((seq_t)(6 - i), (int)half);
+        seq_t pw = ipow_i32((seq_t)(6 - i), (int)half);
         seq_t term = binom[i] * pw;
         if ((i & 1) == 0)
             P += term;

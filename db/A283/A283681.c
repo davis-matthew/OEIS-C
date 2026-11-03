@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl, nice, look
  * Formula:   not stated
- * Range:     u8 n <= 1011, u16 n <= 9971, u32 n <= 9971, u64 n <= 9971,
- *            u128 n <= 9971, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1011, u16 n <= 26796, u32 n <= 26796, u64 n <= 26796,
+ *            u128 n <= 26796, big any n
+ * Validated: standard, pass, 96 terms through n = 9971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static void ensure_capacity(idx_t n,
                             seq_t **cache,
@@ -40,7 +42,7 @@ static void ensure_capacity(idx_t n,
 
     size_t oldcap = *cap;
 
-    seq_t *tmp  = (seq_t *)realloc(*cache,  needed * sizeof(seq_t));
+    seq_t *tmp  = mem_resize(seq_t, *cache, needed);
     if (!tmp) abort();
 
     char *rtmp  = (char  *)realloc(*ready,  needed * sizeof(char));

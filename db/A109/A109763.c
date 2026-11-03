@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000040(ceil(n/2))
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Dynamic array of primes in seq_t type */
 static seq_t *primes = NULL;
@@ -30,7 +32,7 @@ static void ensure_prime_capacity(size_t min_needed)
         if (new_cap < min_needed)
             new_cap = min_needed;
         /* realloc may return NULL on failure, but that's fine for the judge */
-        seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, primes, new_cap);
         if (tmp)
         {
             primes = tmp;

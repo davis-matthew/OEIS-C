@@ -11,14 +11,31 @@
  *            handled
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   pod_of
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pod_of.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------- */
+static seq_t
+pod_of(idx_t m)
+{
+    seq_t prod = 1;
+    for (idx_t d = 1; d <= m / d; ++d) {
+        if (m % d == 0) {
+            prod *= d;
+            idx_t other = m / d;
+            if (other != d)
+                prod *= other;
+        }
+    }
+    return prod;
+}
 
 /* static tables */
 static seq_t *pod_arr = NULL;   /* pod values, indices 1..n */
@@ -39,7 +56,7 @@ ensure_pod(idx_t n)
 {
     if (n <= pod_cap)
         return;
-    seq_t *new_pod = (seq_t *)realloc(pod_arr, (n + 1) * sizeof(seq_t));
+    seq_t *new_pod = mem_resize(seq_t, pod_arr, (n + 1));
     if (!new_pod && n > 0)
         abort();              /* allocation failure */
     pod_arr = new_pod;
@@ -80,14 +97,14 @@ a(idx_t n)
 
     /* Allocate or enlarge the a_arr array if needed */
     if (a_arr == NULL) {
-        a_arr = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        a_arr = mem_new(seq_t, (n + 1));
         if (!a_arr)
             abort();
         a_cap = n;
         a_arr[1] = 1;           /* a(1) = 1 */
         a_last  = 1;
     } else if (n > a_cap) {
-        seq_t *tmp = (seq_t *)realloc(a_arr, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_arr, (n + 1));
         if (!tmp)
             abort();
         a_arr = tmp;

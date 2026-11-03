@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 30, u64 n <= 62, u128 n <= 126,
  *            big any n
- * Helpers:   get_cache_len, set_cache_len
+ * Validated: standard, pass, 47 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,19 @@
    The function memoises the values for repeated calls. */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/get_cache_len.h"
-#include "../utils/set_cache_len.h"
+#include "../utils/mem.h"
+
+static size_t *get_cache_len(void)
+{
+    static size_t len = 0;
+    return &len;
+}
+
+static void set_cache_len(size_t val)
+{
+    static size_t len = 0;
+    len = val;
+}
 
 /* Helper to grow the internal cache */
 static void ensure_cache_capacity(size_t need)
@@ -30,7 +42,7 @@ static void ensure_cache_capacity(size_t need)
     if (need <= cap) return;
     size_t new_cap = cap ? cap << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cap = new_cap;
     /* Return the static pointer so the main function can use it */
@@ -58,7 +70,7 @@ seq_t a(idx_t n)
     if (need > cap) {
         size_t new_cap = cap ? cap << 1 : 16;
         while (new_cap < need) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0; /* allocation failed */
         cache = tmp;
         cap = new_cap;

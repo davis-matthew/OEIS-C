@@ -10,6 +10,7 @@
  *            … (p = 210*k – 1)
  * Range:     u8 none, u16 n <= 54, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 51 terms through n = 956 (2026-11-03)
  * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_u64.h"   /* provides bool is_prime_u64(uint64_t) */
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {

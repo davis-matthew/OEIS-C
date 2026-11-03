@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 109, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_equal_2_and_4_idx
+ * Validated: standard, pass, 82 terms through n = 8977 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
    and returns that number. */
 
 #include <stdbool.h>
-#include "../utils/has_equal_2_and_4_idx.h"
+
+static inline bool has_equal_2_and_4_idx(idx_t x)
+{
+    unsigned count2 = 0, count4 = 0;
+    while (x > 0) {
+        unsigned digit = x % 7;
+        if (digit == 2)    ++count2;
+        else if (digit == 4) ++count4;
+        x /= 7;
+    }
+    return count2 == count4;
+}
 
 seq_t a(idx_t n)
 {

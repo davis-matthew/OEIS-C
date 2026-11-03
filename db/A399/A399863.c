@@ -9,8 +9,9 @@
  * Formula:   a(n) = T(r,k) where T(r,k) = binomial(r+1,2) - binomial(r-k+1,2)
  *            + binomial(r-k,2) - [r-k+1 > k] * binomial(r-2*k+1,2) (1‑based
  *            row r, column k)
- * Range:     u8 n <= 262, u16 n <= 9642, u32 n <= 9642, u64 n <= 9642,
- *            u128 n <= 9642, big any n
+ * Range:     u8 n <= 262, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 82 terms through n = 9642 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

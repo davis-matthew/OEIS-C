@@ -8,12 +8,14 @@
  *            p(m) is the partition number of m
  * Range:     u8 n <= 26, u16 n <= 55, u32 n <= 142, u64 n <= 432,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 926 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* Compute partition numbers p[0..n] using the generalized pentagonal theorem. */
     size_t len = (size_t)n + 1;
-    seq_t *p = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, len);
     if (!p) return (seq_t)0;            /* malloc failure guard */
     p[0] = (seq_t)1;
 
@@ -59,6 +61,6 @@ seq_t a(idx_t n)
         total -= p[n - 7 * k];
     }
 
-    free(p);
+    mem_free(p);
     return total;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 9703 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    Then a(n)=1 if n==1 else 2*h(n). */
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *h_cache = NULL;
 static size_t h_cap = 0;
@@ -28,12 +30,12 @@ static void ensure_h_up_to(idx_t n)
     /* Allocate or enlarge the cache as needed. */
     if (n + 1 > h_cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (!new_arr) abort();          /* out of memory */
         if (h_cache) {
             for (size_t i = 0; i < h_cap; ++i)
                 new_arr[i] = h_cache[i];
-            free(h_cache);
+            mem_free(h_cache);
         }
         h_cache = new_arr;
         h_cap   = new_cap;

@@ -9,7 +9,8 @@
  *            beginning with a(n)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 17,
  *            big any n
- * Helpers:   is_prime, smallest_multiple_with_prefix
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/smallest_multiple_with_prefix.h"
+#include "../utils/mem.h"
+
+/* Find the smallest multiple of `cmp` whose decimal representation begins
+   with the digits of `prev`.  We successively search over
+   suffixes of increasing length (10⁰,10¹,10²,…). */
+static seq_t smallest_multiple_with_prefix(seq_t prev, seq_t cmp)
+{
+    seq_t pow10 = 1;                 /* 10ᵗ */
+    while (true) {
+        seq_t L = prev * pow10;                  /* lower bound of numbers with same prefix        */
+        seq_t U = (prev + 1) * pow10;            /* upper bound (exclusive)                       */
+
+        /* smallest k with cmp*k >= L  */
+        seq_t k_start = (L + cmp - 1) / cmp;
+        seq_t m = k_start * cmp;
+
+        if (m < U)                /* found a multiple that shares the prefix */
+            return m;
+
+        pow10 = pow10 * 10;        /* next suffix length                         */
+    }
+}
 
 /* Check if a number n (1‑based) is composite.  We keep a growing list
    of composite numbers in ascending order.  Composite(1)=4, Composite(2)=6, ... */
@@ -63,7 +85,7 @@ seq_t a(idx_t n)
 
     if ((size_t)n >= memo_len) {      /* need more space */
         size_t new_cap = (size_t)n + 2;   /* one beyond n for 1‑based index */
-        seq_t *new_arr = (seq_t*)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, memo, new_cap);
         if (!memo) memo = new_arr; else memo = new_arr;
         for (size_t i = memo_len; i < new_cap; ++i)
             memo[i] = 0;

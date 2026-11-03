@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 21, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   get_digits
+ * Validated: full, pass, 12 terms through n = 21 (2026-11-03)
+ * Helpers:   get_digits, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/get_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* temporary array to gather terms */
         size_t cap = 16, len = 0;
-        terms = (seq_t*)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
         if (!terms) return 0; /* out of memory; return 0 */
 
         /* iterate over all 2‑4 digit numbers – the sequence is finite
@@ -79,9 +81,9 @@ seq_t a(idx_t n)
                 /* store term */
                 if (len == cap) {
                     cap *= 2;
-                    seq_t *tmp = (seq_t*)realloc(terms, cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, cap);
                     if (!tmp) {
-                        free(terms);
+                        mem_free(terms);
                         return 0; /* allocation failure */
                     }
                     terms = tmp;

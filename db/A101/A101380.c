@@ -7,12 +7,13 @@
  * Formula:   a(n) = n^2*(n+1)*(4*n^3 - 2*n^2 + n + 3)/12
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 48, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd_seq_local_calc
+ * Validated: standard, pass, 47 terms through n = 925 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd_seq_local_calc.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
 
     /* cancel common factors with the denominator */
     for (int i = 0; i < 4 && den > 1; ++i) {
-        seq_t g = gcd_seq_local_calc(nums[i], den);
+        seq_t g = gcd(nums[i], den);
         if (g > 1) {
             nums[i] /= g;
             den    /= g;

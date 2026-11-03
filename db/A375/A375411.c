@@ -11,12 +11,14 @@
  *            recurrence
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 11, i64 n <= 18, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* initialise cache with first five terms */
     if (cache == NULL) {
         cache_size = 5;                     /* cache[0]..cache[4] */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = 1;
         cache[1] = 0;
         cache[2] = 7;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
     /* grow cache to accommodate index n */
     size_t new_cap = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
         return 0;   /* allocation failure – caller will handle */
     }

@@ -10,7 +10,8 @@
  *            implemented below
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *A_cache = NULL;   /* a(n) */
 static seq_t *C_cache = NULL;   /* c(n) = sum_{i=0}^n a_i * a_{n-i} */
@@ -30,8 +32,8 @@ static void ensure_cache(idx_t n)
     if (n < cache_size) return;
 
     size_t new_cap = (size_t)(n + 1);
-    A_cache = (seq_t *)realloc(A_cache, new_cap * sizeof(seq_t));
-    C_cache = (seq_t *)realloc(C_cache, new_cap * sizeof(seq_t));
+    A_cache = mem_resize(seq_t, A_cache, new_cap);
+    C_cache = mem_resize(seq_t, C_cache, new_cap);
     for (size_t i = cache_size; i < new_cap; ++i) {
         A_cache[i] = 0;
         C_cache[i] = 0;

@@ -12,13 +12,15 @@
  *            memoized growth)
  * Range:     u8 n <= 5, u16 n <= 20, u32 n <= 67, u64 n <= 201, u128 n <= 582,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 4719 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact_cache = NULL;      /* factorials: fact[i] = i!  (i ≥ 0) */
 static seq_t *pow7_cache = NULL;      /* powers of 7: pow7[i] = 7^i */
@@ -30,7 +32,7 @@ static void ensure_fact(idx_t n)
 {
     if (fact_len > n) return;
     size_t new_len = n + 1;
-    fact_cache = (seq_t *)realloc(fact_cache, new_len * sizeof(seq_t));
+    fact_cache = mem_resize(seq_t, fact_cache, new_len);
     for (size_t i = fact_len; i < new_len; ++i) {
         fact_cache[i] = (seq_t)(i == 0 ? 1 : fact_cache[i - 1] * (seq_t)i);
     }
@@ -42,7 +44,7 @@ static void ensure_pow7(idx_t n)
 {
     if (pow7_len > n) return;
     size_t new_len = n + 1;
-    pow7_cache = (seq_t *)realloc(pow7_cache, new_len * sizeof(seq_t));
+    pow7_cache = mem_resize(seq_t, pow7_cache, new_len);
     for (size_t i = pow7_len; i < new_len; ++i) {
         pow7_cache[i] = (seq_t)(i == 0 ? 1 : pow7_cache[i - 1] * (seq_t)7);
     }

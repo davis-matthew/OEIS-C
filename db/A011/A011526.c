@@ -7,6 +7,7 @@
  * Formula:   a(n) = Stirling number of the first kind s(16,n)
  * Range:     i8 none, i16 none, i32 none, i64 n <= 16, i128 n <= 16,
  *            big any n
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

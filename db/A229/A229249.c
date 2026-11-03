@@ -9,7 +9,8 @@
  *            with largest part 7
  * Range:     u8 n <= 9, u16 n <= 12, u32 n <= 17, u64 n <= 26, u128 n <= 43,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 37 terms through n = 494 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Upper bound for n in the expected tests (≈10000). */
 #define MAX_N 10000
@@ -43,7 +44,7 @@ static void ensure_Bk(idx_t up_to, idx_t k, seq_t *B, idx_t *max_ptr)
         if (max_i > n)
             max_i = n;
         for (idx_t i = 1; i <= max_i; ++i) {
-            seq_t comb = binom(n - 1, i - 1);
+            seq_t comb = binomial(n - 1, i - 1);
             sum += comb * B[n - i];
         }
         B[n] = sum;

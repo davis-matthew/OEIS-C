@@ -7,14 +7,16 @@
  * Keywords:  easy, nonn, tabl
  * Formula:   a(n) = T(row, col) where row + col = d, n = d(d+1)/2 + row and
  *            T(i, j) = binomial(2*i + j, j) - binomial(2*i, j)
- * Range:     u8 n <= 22, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
+ * Range:     u8 n <= 38, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     idx_t col = d - row;
 
     /* Compute T(row, col) = binom(2*row + col, col) - binom(2*row, col) */
-    seq_t val1 = binom(row * 2 + col, col);
-    seq_t val2 = binom(row * 2, col);
+    seq_t val1 = binomial(row * 2 + col, col);
+    seq_t val2 = binomial(row * 2, col);
     return val1 - val2;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Find s such that (s+1)(s+2)/2 > n */
@@ -56,10 +58,10 @@ seq_t a(idx_t n) {
 
     if ((int)s >= dim) {
         /* Grow table to dimension = s + 1 */
-        if (table) free(table);
+        if (table) mem_free(table);
         dim = (int)s + 1;
         size_t total = (size_t)dim * (size_t)dim;
-        table = (seq_t*)calloc(total, sizeof(seq_t));  /* zero‑init */
+        table = mem_new(seq_t, total);  /* zero‑init */
 
         /* Compute entire table up to current dimension */
         for (int rr = 0; rr < dim; ++rr) {
@@ -71,12 +73,12 @@ seq_t a(idx_t n) {
             }
 
             /* Temporary vectors for dynamic program */
-            seq_t *v = (seq_t*)calloc(rr + 1, sizeof(seq_t));
+            seq_t *v = mem_new(seq_t, rr + 1);
             v[rr] = (seq_t)1;           /* start vector: only last element 1 */
             table[rr * dim + 0] = (seq_t)1; /* f[rr][0] */
 
             for (int step = 1; step < dim; ++step) {
-                seq_t *newv = (seq_t*)calloc(rr + 1, sizeof(seq_t));
+                seq_t *newv = mem_new(seq_t, rr + 1);
                 for (int i = 0; i <= rr; ++i) {
                     seq_t val = 0;
                     if (i > 0)   val += v[i - 1];
@@ -84,11 +86,11 @@ seq_t a(idx_t n) {
                     if (i == rr) val += v[i];   /* self‑loop at last node */
                     newv[i] = val;
                 }
-                free(v);
+                mem_free(v);
                 v = newv;
                 table[rr * dim + step] = v[rr];   /* bottom‑right entry */
             }
-            free(v);
+            mem_free(v);
         }
     }
 

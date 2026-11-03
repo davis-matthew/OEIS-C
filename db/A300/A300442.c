@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 28, u64 n <= 51, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    Recurrence:  a(0) = a(1) = a(2) = 1
                 a(n) = 1 + Σ_{x+y=n, 0 < x < y < n} a(x)·a(y)   for n ≥ 3   */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *table = NULL;     /* memoisation table */
 static idx_t table_size = 0;    /* current number of computed entries (size of table) */
@@ -27,7 +29,7 @@ static void ensure_capacity(idx_t n)
 
     /* Allocate more space.  New size is n+1 (to include index n). */
     idx_t new_size = n + 1;
-    seq_t *tmp = (seq_t *)realloc(table, (size_t)new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, table, (size_t)new_size);
     if (!tmp) abort();              /* out of memory */
     table = tmp;
 

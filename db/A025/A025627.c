@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 23, u32 n <= 78, u64 n <= 287,
  *            u128 n <= 1103, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 9666 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computation: generate numbers of the form 6^i * 8^j (i,j≥0) sorted ascending.
    Uses a two‑pointer merge similar to the "ugly numbers" algorithm. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     }
 
     /* Allocate array for the first n terms (indices 0 .. n-1). */
-    seq_t *seq = (seq_t *)malloc(sizeof(seq_t) * (size_t)n);
+    seq_t *seq = mem_new(seq_t, (size_t)n);
     if (!seq) return (seq_t)0;   /* unlikely in test environment */
 
     seq[0] = (seq_t)1;
@@ -51,6 +53,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[n - 1];
-    free(seq);
+    mem_free(seq);
     return result;
 }

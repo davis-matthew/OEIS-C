@@ -12,7 +12,8 @@
  *            triangle entries of A086145 read by rows
  * Range:     u8 n <= 5067, u16 n <= 5067, u32 n <= 5067, u64 n <= 5067,
  *            u128 n <= 5067, big any n
- * Helpers:   modpow64
+ * Validated: standard, pass, 99 terms through n = 5028 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/modpow64.h"
+#include "../utils/powmod_u64.h"
 
 static bool initialized = false;
 static uint64_t primes[2000];
@@ -54,14 +55,14 @@ static seq_t multiplicative_order(idx_t k, idx_t p) {
         if (temp % q == 0) {
             while (temp % q == 0) temp /= q;
             while (order % q == 0 &&
-                   modpow64((uint64_t)k, (uint64_t)(order / q), (uint64_t)p) == 1)
+                   powmod_u64((uint64_t)k, (uint64_t)(order / q), (uint64_t)p) == 1)
                 order /= q;
         }
     }
     if (temp > 1) {
         idx_t q = temp;
         while (order % q == 0 &&
-               modpow64((uint64_t)k, (uint64_t)(order / q), (uint64_t)p) == 1)
+               powmod_u64((uint64_t)k, (uint64_t)(order / q), (uint64_t)p) == 1)
             order /= q;
     }
     return (seq_t)order;

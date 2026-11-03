@@ -11,6 +11,7 @@
  *            = |{ y : ceil( k/(2+√2) ) ≤ y ≤ (k-1)/2 , gcd(k,y)=1 }|
  * Range:     u8 n <= 38, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,6 +23,7 @@
 
 #include <limits.h>
 #include <math.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* --------------------------------------------------------------------- */

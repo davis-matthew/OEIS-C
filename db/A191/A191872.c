@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 59, u32 n <= 386, u64 n <= 467,
  *            u128 n <= 467, big any n
- * Helpers:   digit_frequencies, seq_mul
+ * Validated: standard, pass, 80 terms through n = 467 (2026-11-01)
+ * Helpers:   digit_frequencies
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,15 @@
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/digit_frequencies.h"
-#include "../utils/seq_mul.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static uint64_t digit_square_sum_seq(seq_t x)
 {

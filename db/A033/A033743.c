@@ -9,7 +9,8 @@
  *            square
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 97 terms through n = 9221 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
    we add the product of the corresponding coefficients. */
 
 #include <stdint.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 /* external linkage as required */
 seq_t a(idx_t n)
@@ -42,7 +43,7 @@ seq_t a(idx_t n)
             cj = (seq_t)1;
         } else if (j % 31 == 0) {
             idx_t t = j / 31;
-            idx_t s = _floor_isqrt_u64(t);
+            idx_t s = isqrt(t);
             if (s * s == t)
                 cj = (seq_t)2;
             else

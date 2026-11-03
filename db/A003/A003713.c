@@ -8,14 +8,17 @@
  *            (k-1)! * a(n-k)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 38 terms through n = 95 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 #define MAX_CACHE 10001
 
@@ -25,7 +28,7 @@ static bool computed[MAX_CACHE];
 static void initialize_cache(void) {
     static bool initialized = false;
     if (!initialized) {
-        memset(cache, 0, sizeof(cache));
+        mem_set(cache, 0, sizeof(cache));
         memset(computed, 0, sizeof(computed));
         cache[0] = 0;
         computed[0] = true;
@@ -49,7 +52,7 @@ seq_t a(idx_t n) {
     // Add the sum: Sum_{k=1..n-1} binomial(n-1,k) * (k-1)! * a(n-k)
     seq_t k_factorial = 1; // (k-1)! for k=1 is 0! = 1
     for (idx_t k = 1; k < n; k++) {
-        seq_t binom_coeff = binom((idx_t)(n - 1), k);
+        seq_t binom_coeff = binomial((idx_t)(n - 1), k);
         seq_t a_n_minus_k = a(n - k);
         seq_t term = binom_coeff * k_factorial * a_n_minus_k;
         result += term;

@@ -10,7 +10,8 @@
  *            of 1..n²)
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   sieve_prime_list
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,55 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/sieve_prime_list.h"
+
+/*  simple prime sieve – generates all primes ≤ limit                     */
+static void sieve_prime_list(idx_t limit, idx_t **out, size_t *cnt)
+{
+    if (limit < 2) {
+        *out = NULL;
+        *cnt = 0;
+        return;
+    }
+    /* Allocate a boolean marker array */
+    bool *is_comp = (bool *)calloc((size_t)limit + 1, sizeof(bool));
+    if (!is_comp)
+        return; /* on allocation failure leave at NULL size 0 */
+
+    size_t estimated = limit / 10; /* rough estimation of count */
+    idx_t *pr = (idx_t *)malloc(estimated * sizeof(idx_t));
+    if (!pr) {
+        free(is_comp);
+        return;
+    }
+    size_t pc = 0;
+    for (idx_t p = 2; p <= limit; ++p) {
+        if (!is_comp[(size_t)p]) {
+            /* p is prime */
+            if (pc == estimated) {
+                estimated = (estimated == 0) ? 8 : estimated * 2;
+                idx_t *tmp = (idx_t *)realloc(pr, estimated * sizeof(idx_t));
+                if (!tmp) {
+                    free(pr);
+                    free(is_comp);
+                    return;
+                }
+                pr = tmp;
+            }
+            pr[pc++] = p;
+            if (p * p <= limit)
+                for (idx_t q = p * p; q <= limit; q += p)
+                    is_comp[(size_t)q] = true;
+        }
+    }
+    free(is_comp);
+    idx_t *tmp = (idx_t *)realloc(pr, pc * sizeof(idx_t));
+    if (!tmp) {
+        /* if realloc fails just keep the old block – it has enough space */
+        *out = pr;
+    } else
+        *out = tmp;
+    *cnt = pc;
+}
 
 /* ------------------------------------------------------------------ */
 

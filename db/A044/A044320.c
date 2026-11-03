@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 890, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_76, seq_realloc
+ * Validated: standard, pass, 63 terms through n = 9996 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,36 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_realloc.h"
-#include "../utils/has_76.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* Test whether the base‑9 representation of x contains the adjacent
+   digits 7 (more significant) followed by 6 (less significant). */
+static bool has_76(seq_t x)
+{
+    if (x == (seq_t)0)
+        return false;
+    seq_t prev = x % (seq_t)9;
+    x /= (seq_t)9;
+    while (x > (seq_t)0) {
+        seq_t curr = x % (seq_t)9;
+        if (curr == (seq_t)7 && prev == (seq_t)6)
+            return true;
+        prev = curr;
+        x /= (seq_t)9;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

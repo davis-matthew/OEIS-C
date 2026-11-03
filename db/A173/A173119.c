@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl, easy, less
  * Formula:   not stated
- * Range:     u8 n <= 39, u16 n <= 158, u32 n <= 574, u64 n <= 1325,
+ * Range:     u8 n <= 48, u16 n <= 159, u32 n <= 608, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 1278 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 static inline seq_t compute_T(idx_t r, idx_t k)
 {
@@ -46,7 +47,7 @@ static inline seq_t compute_T(idx_t r, idx_t k)
         idx_t b = k - j;
         if (b > a)
             continue;
-        seq_t bin = binom(a, b);      /* binomial(a, b) */
+        seq_t bin = binomial(a, b);      /* binomial(a, b) */
         sum += pow3[j] * bin;
     }
 

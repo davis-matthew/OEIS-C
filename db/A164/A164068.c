@@ -9,7 +9,8 @@
  *            C_n, where C_0=1, C_1..C_5=2, C_6=1, C_n=0 for n>6
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    an arbitrary-precision integer class. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* cache of computed values */
 static idx_t  seq_cache_size = 0; /* number of entries in seq_cache */
@@ -28,9 +30,9 @@ seq_t a(idx_t n)
     /* Ensure the cache has room for indices up to n. */
     size_t new_size = (size_t)n + 1;
     if (seq_cache == NULL) {
-        seq_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, new_size);
     } else if (new_size > (size_t)seq_cache_size) {
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_size);
         if (!tmp) return 0;          /* allocation failed – unlikely in tests */
         seq_cache = tmp;
     }

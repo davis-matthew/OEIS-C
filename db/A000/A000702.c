@@ -11,6 +11,7 @@
  *            3Q(x))/2); a(1) = 1, a(n) = b(n) for n>1
  * Range:     u8 n <= 19, u16 n <= 47, u32 n <= 134, u64 n <= 428,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 64 terms through n = 923 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 2574, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9930 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const idx_t INITIAL_LIMIT = 2000000ULL;
 static uint64_t *phi_arr  = NULL;   /* computed φ values      */
@@ -36,7 +38,7 @@ static void _grow_terms(size_t needed)
     if (terms_cap >= needed) return;
     size_t new_cap = terms_cap ? terms_cap << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, terms, new_cap);
     if (!new_arr) abort();      /* out of memory */
     terms     = new_arr;
     terms_cap = new_cap;

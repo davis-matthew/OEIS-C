@@ -12,19 +12,21 @@
  *            the “coins” S_k counts the solutions
  * Range:     u8 n <= 48, u16 n <= 298, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 478 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;           /* offset starts at 1 */
 
     /* Allocate DP array once; reused for each base length m */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) return 0;
 
     seq_t total = 0;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
         /* Binomial coefficients w[i] = C(m-1,i) */
         idx_t *w = (idx_t *)malloc(m * sizeof(idx_t));
-        if (!w) { free(dp); return 0; }
+        if (!w) { mem_free(dp); return 0; }
         w[0] = 1;
         for (idx_t i = 1; i < m; ++i)
         {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
         /* Suffix sums S[k] = Σ_{i=k}^{m-1} w[i] (k = 0 .. m-1) */
         idx_t *S = (idx_t *)malloc(m * sizeof(idx_t));
-        if (!S) { free(dp); free(w); return 0; }
+        if (!S) { mem_free(dp); free(w); return 0; }
         S[m - 1] = w[m - 1];
         for (idx_t k = m - 1; k > 0; --k)
             S[k - 1] = S[k] + w[k - 1];
@@ -78,6 +80,6 @@ seq_t a(idx_t n)
         free(S);
     }
 
-    free(dp);
+    mem_free(dp);
     return total;
 }

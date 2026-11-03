@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 102, u32 n <= 512, u64 n <= 512,
  *            u128 n <= 512, big any n
- * Helpers:   floor_sqrt, is_four_four_eight_seven
+ * Validated: standard, pass, 102 terms through n = 465 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,34 @@
    and not of the form 4^a·(8b+7)). */
 
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/is_four_four_eight_seven.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Test whether k is of the form 4^a·(8b+7) (Legendre's theorem for four squares). */
+static bool is_four_four_eight_seven(seq_t k)
+{
+    while ((k & 3) == 0)   /* divide by 4 while possible */
+        k >>= 2;
+    return (k & 7) == 7;
+}
 
 /* Test whether k is a perfect square */
 static bool is_square(seq_t k)

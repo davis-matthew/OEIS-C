@@ -8,7 +8,8 @@
  *            j = n – i·(i+1)/2
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 37, u64 n <= 123, u128 n <= 444,
  *            big any n
- * Helpers:   binom, seq_pow
+ * Validated: standard, pass, 46 terms through n = 9905 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 
 /* Uses only integer arithmetic; see the resource functions below. */
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 /* Compute the row index i given n.  Uses a binary search with 128‑bit
    arithmetic to avoid overflow for large n. */
@@ -48,7 +51,7 @@ seq_t a(idx_t n)
     idx_t i = _row_index(n);          /* row number */
     idx_t j = n - i * (i + 1) / 2;    /* column number */
 
-    seq_t bin = binom(i, j);          /* binomial(i, j) */
-    seq_t pow12 = seq_pow((seq_t)12, i); /* 12^i */
+    seq_t bin = binomial(i, j);          /* binomial(i, j) */
+    seq_t pow12 = ipow_idx((seq_t)12, i); /* 12^i */
     return bin * pow12;
 }

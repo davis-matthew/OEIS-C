@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 256, u16 n <= 9950, u32 n <= 9950, u64 n <= 9950,
- *            u128 n <= 9950, big any n
- * Helpers:   mask_uint, mulmod2n
+ * Range:     u8 n <= 256, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 111 terms through n = 9950 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,18 @@
    of odd residues x modulo 2^r satisfying x^5 · (2k+1) ≡ 1 (mod 2^r),
    where r = floor(log2(n)) + 1 and k = n – 2^(r‑1). */
 #include <stdint.h>
-#include "../utils/mask_uint.h"
-#include "../utils/mulmod2n.h"
+
+/* Return a 2^bits - 1 mask for seq_t. */
+static inline seq_t mask_uint(int bits)
+{
+    return (((seq_t)1 << bits) - 1);
+}
+
+/* Modulo 2^bits multiplication: (a * b) & (2^bits – 1). */
+static inline seq_t mulmod2n(seq_t a, seq_t b, int bits)
+{
+    return (a * b) & mask_uint(bits);
+}
 
 /* Inverse of odd a modulo 2^bits using Newton lifting. */
 static inline seq_t inv_mod_pow2(seq_t a, int bits)

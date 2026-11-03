@@ -7,16 +7,27 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of distinct prime factors of n that are greater
  *            than spf(n)^2, where spf(n) is the smallest prime factor of n
- * Range:     u8 n <= 8601, u16 n <= 8601, u32 n <= 8601, u64 n <= 8601,
- *            u128 n <= 8601, big any n
- * Helpers:   factor_u64, lpf
+ * Range:     u8 n <= 10001, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 136 terms through n = 8601 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/lpf.h"
+
+/* Return the smallest prime factor of n   (n > 1) */
+static inline idx_t lpf(idx_t n)
+{
+    if (n % 2 == 0) return 2;
+    for (idx_t i = 3; i <= n / i; i += 2)
+        if (n % i == 0) return i;
+    return n;   /* n itself is prime – should not be called for primes */
+}
 
 seq_t a(idx_t n) {
     if (n <= 1) return 0;

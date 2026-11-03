@@ -9,7 +9,8 @@
  *            of letters (ignoring spaces and hyphens)}|
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Letter counts for units and teens (1‑19) and for tens (20‑90).  Index 0/1 are unused. */
 static const int unit_len[20] = {
@@ -122,7 +124,7 @@ seq_t a(idx_t n)
 
     if (cum == NULL) {
         init_prime_letter();
-        cum = (seq_t *)malloc(sizeof(seq_t));
+        cum = mem_new(seq_t, 1);
         cum[0] = 0;
         cum_size = 1;
     }
@@ -130,7 +132,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cum_size) {
         size_t old = cum_size;
         cum_size = (size_t)n + 1;
-        cum = (seq_t *)realloc(cum, cum_size * sizeof(seq_t));
+        cum = mem_resize(seq_t, cum, cum_size);
 
         for (size_t i = old; i < cum_size; ++i) {
             seq_t val = cum[i - 1];

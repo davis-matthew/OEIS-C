@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static const int SEARCH_LIMIT = 200000;      /* sufficient to cover all known terms */
 
@@ -85,14 +87,14 @@ static void init_terms(void)
     init_primes();
 
     term_capacity = 32;
-    term_list = (seq_t *)malloc(term_capacity * sizeof(seq_t));
+    term_list = mem_new(seq_t, term_capacity);
     term_count = 0;
 
     for (int n = 4; n <= SEARCH_LIMIT; ++n) {   /* smallest even > 2 */
         if (count_goldbach_parts(n) == 5) {
             if (term_count >= term_capacity) {
                 term_capacity *= 2;
-                term_list = (seq_t *)realloc(term_list, term_capacity * sizeof(seq_t));
+                term_list = mem_resize(seq_t, term_list, term_capacity);
             }
             term_list[term_count++] = (seq_t)n;
         }

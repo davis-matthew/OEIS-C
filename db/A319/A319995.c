@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = number of divisors of n which are congruent to 5 mod 6
- * Range:     u8 n <= 825, u16 n <= 7380, u32 n <= 7380, u64 n <= 7380,
- *            u128 n <= 7380, big any n
+ * Range:     u8 n <= 825, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 7380 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

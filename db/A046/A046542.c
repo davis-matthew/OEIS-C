@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   pow3
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/pow3.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of odd numerators */
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
     if (!cache) {
         /* cache at least 8 entries */
         cache_cap = 8;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;   /* out of memory */
 
         /* pre‑filled first 6 odd numerators: all equal to 1 */
@@ -62,7 +64,7 @@ seq_t a(idx_t n) {
         /* prepare previous row: row 2 of the triangle
            fractions: 1/1, 1/3, 1/1  --> numerators 1,1,1 exponents 0,1,0   */
         prev_len = 3;
-        prev_num = (seq_t*)malloc(prev_len * sizeof(seq_t));
+        prev_num = mem_new(seq_t, prev_len);
         prev_exp = (uint8_t*)malloc(prev_len * sizeof(uint8_t));
         if (!prev_num || !prev_exp) return (seq_t)0;
         prev_num[0] = (seq_t)1; prev_exp[0] = 0;
@@ -75,7 +77,7 @@ seq_t a(idx_t n) {
         size_t row_len = (size_t)next_row + 1;   /* number of elements in the new row */
 
         /* allocate new row */
-        seq_t *new_num = (seq_t*)malloc(row_len * sizeof(seq_t));
+        seq_t *new_num = mem_new(seq_t, row_len);
         uint8_t *new_exp = (uint8_t*)malloc(row_len * sizeof(uint8_t));
         if (!new_num || !new_exp) return (seq_t)0;
 
@@ -122,7 +124,7 @@ seq_t a(idx_t n) {
             if ((new_num[k] % (seq_t)2) != (seq_t)0) {
                 if (cache_len == cache_cap) {
                     size_t new_cap = cache_cap << 1;
-                    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) return (seq_t)0;
                     cache = tmp;
                     cache_cap = new_cap;
@@ -132,7 +134,7 @@ seq_t a(idx_t n) {
         }
 
         /* recycle previous row buffer */
-        free(prev_num);
+        mem_free(prev_num);
         free(prev_exp);
 
         /* set new row as previous for the next iteration */

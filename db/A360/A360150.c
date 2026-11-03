@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..floor(n/3)} binomial(2*n-k, n-3*k)
- * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 25, u128 n <= 25,
+ * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 17, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binom, ensure_capacity
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,21 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/binom.h"   /* binom(idx_t a, idx_t b) returns seq_t */
-#include "../utils/ensure_capacity.h"  /* ensure_capacity() prototype */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
 
 static const seq_t SMALL[7] = { (seq_t)1, (seq_t)2, (seq_t)6, (seq_t)21,
                                 (seq_t)77, (seq_t)288, (seq_t)1090 };
@@ -60,7 +74,7 @@ seq_t a(idx_t n)
             idx_t kmax = i / 3;
             for (idx_t k = 0; k <= kmax; ++k)
             {
-                seq_t term = binom(2*i - k, i - 3*k);
+                seq_t term = binomial(2*i - k, i - 3*k);
                 sum += term;
             }
             cache[i] = sum;

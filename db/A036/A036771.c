@@ -8,14 +8,17 @@
  * Formula:   a(n) = ((3*n)!/(6^n)) * binomial(3*n + 1, n)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 11,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(0)=1, a(n+1)=a(n)*3*(3n+4)*(3n+1)*(3n+2)^2/(4*(2n+3)) */
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
     /* Allocate initial cache if needed */
     if (!cache) {
         cap = 16;
-        cache = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cap);
         if (!cache) return 0; /* allocation failure, graceful exit */
     }
 
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cap) {
         size_t newcap = cap;
         while ((size_t)n >= newcap) newcap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) return 0; /* allocation failure */
         cache = tmp;
         cap = newcap;

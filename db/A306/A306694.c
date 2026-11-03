@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = exponent if n is a prime power p^exponent, otherwise 1;
  *            a(1) = 1
- * Range:     u8 n <= 9826, u16 n <= 9826, u32 n <= 9826, u64 n <= 9826,
- *            u128 n <= 9826, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 137 terms through n = 9826 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

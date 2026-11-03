@@ -13,14 +13,34 @@
  *            whenever a(n) fits
  * Range:     u8 n <= 12, u16 n <= 21, u32 n <= 38, u64 n <= 71, u128 n <= 136,
  *            big any n
- * Helpers:   mul_s, seq_bits
+ * Validated: standard, pass, 52 terms through n = 3297 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mul_s.h"
-#include "../utils/seq_bits.h"
+
+static seq_t mul_s(seq_t a, seq_t b)
+{
+    return (seq_t)(1u * a * b);
+}
+
+/* number of bits in seq_t, or -1 for arbitrary precision */
+static int seq_bits(void)
+{
+    static int bits = 0;
+    if (bits == 0) {
+        seq_t x = 1;
+        int b = 0;
+        while (x != 0 && b < 300) {
+            x += x;
+            b++;
+        }
+        bits = (b >= 300) ? -1 : b;
+    }
+    return bits;
+}
 
 static unsigned long long phi_ull(unsigned long long x)
 {

@@ -10,8 +10,9 @@
  *            index of prime p (1‑based). Its binary indices are the positions
  *            (1‑based) of 1 bits in the binary representation of m. All
  *            positions belonging to the same m are united. T...
- * Range:     u8 n <= 9772, u16 n <= 9772, u32 n <= 9772, u64 n <= 9772,
- *            u128 n <= 9772, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9772 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

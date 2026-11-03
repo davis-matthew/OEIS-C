@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *primes = NULL;         /* array of generated primes (p[0] = prime(1)) */
 static size_t  prime_cnt = 0, prime_cap = 0;
@@ -53,10 +55,10 @@ ensure_prime_count(idx_t target)
         /* Append cand to the primes array. */
         if (prime_cap == 0) {
             prime_cap = 64;
-            primes = (seq_t *)malloc(prime_cap * sizeof(seq_t));
+            primes = mem_new(seq_t, prime_cap);
         } else if (prime_cnt == prime_cap) {
             prime_cap <<= 1;
-            primes = (seq_t *)realloc(primes, prime_cap * sizeof(seq_t));
+            primes = mem_resize(seq_t, primes, prime_cap);
         }
         primes[prime_cnt++] = (seq_t)cand;
     }
@@ -80,10 +82,10 @@ a(idx_t n)
             /* Append p(next_test) to the stored sequence. */
             if (out_cap == 0) {
                 out_cap = 64;
-                output = (seq_t *)malloc(out_cap * sizeof(seq_t));
+                output = mem_new(seq_t, out_cap);
             } else if (out_cnt == out_cap) {
                 out_cap <<= 1;
-                output = (seq_t *)realloc(output, out_cap * sizeof(seq_t));
+                output = mem_resize(seq_t, output, out_cap);
             }
             output[out_cnt++] = primes[next_test - 1];
         }

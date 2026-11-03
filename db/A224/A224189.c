@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 8, u64 n <= 53, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define LENGTH 7
 #define MAX_STATES 240          /* 239 + safety */
@@ -104,14 +106,14 @@ static void init_poset(void)
     }
 
     /* ---------- DP arrays -------------------------------------------- */
-    dpCurr = (seq_t *)malloc(stateCount * sizeof(seq_t));
-    dpNext = (seq_t *)malloc(stateCount * sizeof(seq_t));
+    dpCurr = mem_new(seq_t, stateCount);
+    dpNext = mem_new(seq_t, stateCount);
     for (uint16_t i = 0; i < stateCount; ++i)
         dpCurr[i] = (seq_t)1;           /* chains of length 1 */
 
     /* ---------- caching ------------------------------------------------ */
     cacheCap = 1024;                     /* initial cache capacity */
-    aCache = (seq_t *)malloc(cacheCap * sizeof(seq_t));
+    aCache = mem_new(seq_t, cacheCap);
     cacheSize = 1;                      /* a(1) will be stored at index 1 */
 
     /* compute a(1) */
@@ -133,7 +135,7 @@ seq_t a(idx_t n)
     if (n > cacheCap - 1) {
         while (n > cacheCap - 1)
             cacheCap <<= 1;
-        aCache = (seq_t *)realloc(aCache, cacheCap * sizeof(seq_t));
+        aCache = mem_resize(seq_t, aCache, cacheCap);
     }
 
     /* return cached value when possible */

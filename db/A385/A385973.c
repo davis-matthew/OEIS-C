@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   pow2_repeated
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
    For n = 1 the formula yields a(1) = 5, matching the first term. */
 
 #include <stdint.h>
-#include "../utils/pow2_repeated.h"
+
+/* Compute 2^(power) by repeated squaring.
+   'power' is given as the number of times we square the base 2,
+   i.e. we compute 2^(2^power). */
+static seq_t pow2_repeated(idx_t power)
+{
+    seq_t v = 2;                 /* 2^1 */
+    for (idx_t i = 0; i < power; ++i)
+        v = v * v;               /* square: doubles the exponent each time */
+    return v;                    /* v == 2^(2^power) */
+}
 
 seq_t a(idx_t n)
 {

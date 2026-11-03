@@ -7,12 +7,14 @@
  * Formula:   a(n) = 3*a(n-1) + 2*a(n-2) + a(n-3), a(1) = a(2) = a(3) = 1
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache of previously computed terms */
 static idx_t  cache_cap = 0;     /* allocated cache capacity */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Initialise cache storage if needed */
     if (cache == NULL) {
         cache_cap = 8;                   /* arbitrary initial size */
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;     /* allocation failure */
     }
 
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         if (cache_cap < n) {
             idx_t newcap = cache_cap;
             while (newcap < n) newcap <<= 1;   /* double until large enough */
-            seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp) return (seq_t)0;         /* allocation failure */
             cache = tmp;
             cache_cap = newcap;

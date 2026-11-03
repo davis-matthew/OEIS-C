@@ -8,6 +8,7 @@
  * Formula:   a(n) = # {(x,y) in [0,n-1]^2 : n mod (x^2 + y^2) == 0}
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 73 terms through n = 989 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Static state for caching the primes found                                 */
@@ -37,7 +40,7 @@ static void append_cache(uint64_t p)
 {
     if (prime_cache_len == prime_cache_cap) {
         size_t new_cap = (prime_cache_cap == 0) ? 8 : prime_cache_cap << 1;
-        seq_t *tmp = (seq_t *)realloc(prime_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prime_cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);   /* unrecoverable allocation error */
         prime_cache = tmp;
         prime_cache_cap = new_cap;
@@ -73,7 +76,7 @@ static bool has_primitive_root_44(uint64_t p)
     /* Check the primitive‑root condition */
     for (size_t i = 0; i < pc; ++i) {
         uint64_t q = primes[i];
-        seq_t r = mod_pow((seq_t)44, (idx_t)(phi / q), (seq_t)p);
+        seq_t r = powmod((seq_t)44, (idx_t)(phi / q), (seq_t)p);
         if (r == (seq_t)1) return false;
     }
     return true;

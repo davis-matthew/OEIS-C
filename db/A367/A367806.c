@@ -11,11 +11,13 @@
  *            a(n) for any n ≥ 0. It uses no global state, o...
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #ifdef __cplusplus
 #include <vector>

@@ -12,7 +12,8 @@
  *            distinct-part sieve
  * Range:     u8 n <= 39, u16 n <= 94, u32 n <= 263, u64 n <= 837,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,13 +34,13 @@ seq_t a(idx_t n)
     /* If we need to compute up to a larger n, recompute from scratch. */
     if (!built || n > max_n) {
         size_t sz = (size_t)n + 1;
-        free(even_cnt); free(odd_cnt); free(even_sum); free(odd_sum);
+        mem_free(even_cnt); mem_free(odd_cnt); mem_free(even_sum); mem_free(odd_sum);
 
         /* Allocate zeroed arrays. */
-        even_cnt = (seq_t *)calloc(sz, sizeof(seq_t));
-        odd_cnt  = (seq_t *)calloc(sz, sizeof(seq_t));
-        even_sum = (seq_t *)calloc(sz, sizeof(seq_t));
-        odd_sum  = (seq_t *)calloc(sz, sizeof(seq_t));
+        even_cnt = mem_new(seq_t, sz);
+        odd_cnt  = mem_new(seq_t, sz);
+        even_sum = mem_new(seq_t, sz);
+        odd_sum  = mem_new(seq_t, sz);
         if (!even_cnt || !odd_cnt || !even_sum || !odd_sum)
             abort();  /* memory allocation failed */
 

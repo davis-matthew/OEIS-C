@@ -8,16 +8,17 @@
  *            floor(sqrt(15125*n^2)))/2)
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 1305, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a004945_isqrt
+ * Validated: standard, pass, 51 terms through n = 8751 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a004945_isqrt.h"
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
     seq_t nn = (seq_t)n;
-    seq_t m = a004945_isqrt(nn * nn * 15125);
+    seq_t m = isqrt_seq(nn * nn * 15125);
     return (nn * 123 + 1 + m) / 2;
 }

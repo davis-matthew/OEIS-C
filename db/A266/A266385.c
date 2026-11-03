@@ -12,12 +12,24 @@
  *            order of 10 modulo m (0 if m = 1)
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 16, u64 n <= 22, u128 n <= 36,
  *            big any n
- * Helpers:   multiplicative_order_uint64
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/multiplicative_order_uint64.h"
+/* Return the multiplicative order of 10 modulo mod (mod > 1). */
+static idx_t multiplicative_order_uint64(uint64_t mod)
+{
+    if (mod == 1) return 0;
+    uint64_t val = 10 % mod;
+    idx_t order = 1;
+    while (val != 1) {
+        val = (val * 10) % mod;
+        ++order;
+    }
+    return order;
+}
 /* Ensure 128‑bit support if available */
 #if defined(__SIZEOF_INT128__)
 typedef unsigned __int128 uint128_t;

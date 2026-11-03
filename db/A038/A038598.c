@@ -12,13 +12,15 @@
  *            requires O(A^2 log A) time and O(A^2) memory for...
  * Range:     u8 none, u16 none, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort on seq_t (unsigned). */
 static int cmp_seq_t(const void *p, const void *q)
@@ -46,7 +48,7 @@ static void init_sequence(void)
     const size_t pair_cnt = (size_t)AMAX * (AMAX - 1) / 2;
 
     /* Allocate space for all pair differences (not yet deduplicated). */
-    seq_t *tmp = (seq_t *)malloc(pair_cnt * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, pair_cnt);
     if (!tmp) return;                         /* allocation failure – give up */
 
     size_t pos = 0;
@@ -60,7 +62,7 @@ static void init_sequence(void)
     }
 
     /* Sort all differences. */
-    qsort(tmp, pos, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(tmp, pos, sizeof(seq_t), cmp_seq_t);
 
     /* Deduplicate in place. */
     size_t uniq = 0;
@@ -70,9 +72,9 @@ static void init_sequence(void)
     }
 
     /* Resize the array to hold only the unique values. */
-    s_vals = (seq_t *)realloc(tmp, uniq * sizeof(seq_t));
+    s_vals = mem_resize(seq_t, tmp, uniq);
     if (!s_vals) {                       /* allocation failure – keep temp */
-        free(tmp);
+        mem_free(tmp);
         s_vals = NULL;
         s_len   = 0;
         return;

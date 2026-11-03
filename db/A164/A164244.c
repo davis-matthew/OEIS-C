@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 33, u64 n <= 66, u128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 385 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed transition tables for each state and next bit. */
 static int dest[2][16];
@@ -67,11 +69,11 @@ seq_t a(idx_t n)
     size_t total     = 16 * diffSize;    /* total entries in an array       */
 
     /* Allocate two DP arrays and zero them. */
-    seq_t *curr = (seq_t *)calloc(total, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(total, sizeof(seq_t));
+    seq_t *curr = mem_new(seq_t, total);
+    seq_t *next = mem_new(seq_t, total);
     if (!curr || !next) {
         /* Allocation failed – return zero (should not happen). */
-        free(curr); free(next);
+        mem_free(curr); mem_free(next);
         return 0;
     }
 
@@ -125,7 +127,7 @@ seq_t a(idx_t n)
     for (int s = 0; s < 16; ++s) result += curr[s * stride + offset];
 
     /* Clean up. */
-    free(curr);
-    free(next);
+    mem_free(curr);
+    mem_free(next);
     return result;
 }

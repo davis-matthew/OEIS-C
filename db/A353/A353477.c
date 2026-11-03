@@ -6,15 +6,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n is a product of exactly two primes (counting
  *            multiplicity) and n ≡ 1 (mod 4); otherwise a(n) = 0
- * Range:     u8 n <= 9881, u16 n <= 9881, u32 n <= 9881, u64 n <= 9881,
- *            u128 n <= 9881, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 137 terms through n = 9881 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* is_prime(idx_t) */
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {

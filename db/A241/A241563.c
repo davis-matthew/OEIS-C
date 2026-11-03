@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ==== Prime sieve and list ==== */
 static bool   *prime_sieve  = NULL;   /* prime_sieve[i] == true iff i is prime   */
@@ -81,8 +83,8 @@ static void extend_to(idx_t n)
 
     /* Resize a_cache and prime_cnt arrays. */
     size_t new_len = (size_t)n + 1;          /* indices 0..n  */
-    a_cache   = (seq_t *)realloc(a_cache,   new_len * sizeof(seq_t));
-    prime_cnt = (seq_t *)realloc(prime_cnt, new_len * sizeof(seq_t));
+    a_cache   = mem_resize(seq_t, a_cache, new_len);
+    prime_cnt = mem_resize(seq_t, prime_cnt, new_len);
     if (!a_cache || !prime_cnt) abort();
     /* Initialise new entries to 0 for safety */
     for (size_t i = current_n + 1; i <= n; ++i) {

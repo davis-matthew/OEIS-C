@@ -8,12 +8,14 @@
  * Formula:   a(n) = the n-th number k such that phi(2k-1) < phi(2k)
  * Range:     u8 n <= 3, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a001226_phi
+ * Validated: standard, pass, 59 terms through n = 939 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a001226_phi.h"
+#include <stdint.h>
+#include "../utils/totient_u64.h"
 
 seq_t a(idx_t n) {
     idx_t count = 0;
@@ -21,8 +23,8 @@ seq_t a(idx_t n) {
     
     while (count < n) {
         k++;
-        uint64_t phi_2k_minus_1 = a001226_phi(2 * k - 1);
-        uint64_t phi_2k = a001226_phi(2 * k);
+        uint64_t phi_2k_minus_1 = totient_u64(2 * k - 1);
+        uint64_t phi_2k = totient_u64(2 * k);
         
         if (phi_2k_minus_1 < phi_2k) {
             count++;

@@ -10,8 +10,9 @@
  *            oddcount(k, a), where a = (n‑k(k‑1)/2)/k and oddcount(k, a) = {
  *            k/2, if k even { (k+1)/2, if k odd and a odd { (k‑1)/2, if k odd
  *            and a even @see OEIS A329321
- * Range:     u8 n <= 146, u16 n <= 8869, u32 n <= 8869, u64 n <= 8869,
- *            u128 n <= 8869, big any n
+ * Range:     u8 n <= 146, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 106 terms through n = 8869 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

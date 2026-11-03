@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --- Constants ----------------------------------------------- */
 #define MAX_DIVISORS      2048          /* upper bound on divisors list */
@@ -40,7 +42,7 @@ static void ensure_solids_cap(size_t needed)
     if (solid_cap >= needed) return;
     size_t cap = solid_cap ? solid_cap * 2 : 16;
     if (cap < needed) cap = needed * 2;
-    solid_cache = (seq_t *)realloc(solid_cache, cap * sizeof(seq_t));
+    solid_cache = mem_resize(seq_t, solid_cache, cap);
     solid_cap = cap;
 }
 

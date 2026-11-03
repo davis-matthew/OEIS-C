@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn
  * Formula:   not stated
- * Range:     u8 n <= 58, u16 n <= 9234, u32 n <= 9234, u64 n <= 9234,
- *            u128 n <= 9234, big any n
- * Helpers:   none
+ * Range:     u8 n <= 58, u16 n <= 10280, u32 n <= 14309, u64 n <= 14309,
+ *            u128 n <= 14309, big any n
+ * Validated: standard, pass, 75 terms through n = 9234 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    representation contains the same count of +1 and –1 digits. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Initialise once on the first call. */
     if (cache == NULL) {
         capacity = 16;                                 /* initial guess          */
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         /* In production code we would check for NULL, but the
            correctness tests assume sufficient memory is available.  */
         cache[0] = (seq_t)0;   /* a(1) is 0                           */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     while (capacity < count) {
         size_t new_cap = capacity * 2;
         if (new_cap == 0) new_cap = 16;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         capacity = new_cap;
     }
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
             if (count == capacity) {
                 size_t new_cap = capacity * 2;
                 if (new_cap == 0) new_cap = 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 capacity = new_cap;
             }

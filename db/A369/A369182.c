@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 73 terms through n = 9784 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
    extend the search. */
 
 #include <stdlib.h>
-#include "../utils/divisor_count_u64.h"   /* for divisor_count_u64(uint64_t) */
+#include <stdint.h>
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,22 +39,22 @@ seq_t a(idx_t n)
     /* grow capacity helper */
     if (terms == NULL) {
         cap = 32;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
     }
 
     /* extend the search until we have at least n terms */
     for (uint64_t k = checked + 1; len < (size_t)n; ++k) {
         /* divisor counts of k-2 .. k+2 */
-        uint64_t d_km2 = divisor_count_u64(k-2);
-        uint64_t d_km1 = divisor_count_u64(k-1);
-        uint64_t d_k   = divisor_count_u64(k);
-        uint64_t d_kp1 = divisor_count_u64(k+1);
-        uint64_t d_kp2 = divisor_count_u64(k+2);
+        uint64_t d_km2 = num_divisors(k-2);
+        uint64_t d_km1 = num_divisors(k-1);
+        uint64_t d_k   = num_divisors(k);
+        uint64_t d_kp1 = num_divisors(k+1);
+        uint64_t d_kp2 = num_divisors(k+2);
 
         if (d_k > d_km2 && d_k > d_km1 && d_k > d_kp1 && d_k > d_kp2) {
             if (len == cap) {
                 cap *= 2;
-                terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
             }
             terms[len++] = (seq_t)k;
         }

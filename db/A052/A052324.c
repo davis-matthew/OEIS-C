@@ -12,7 +12,8 @@
  *            ((n-1)(n-2)/2)·a(n-2)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 22, u128 n <= 35,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 38 terms through n = 231 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
    seq_t; the library provides a fast binomial function. */
 
 #include <stdlib.h>
-#include "../utils/binom.h"   /* for binom(idx_t a, idx_t b) */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Simple memoisation – only grow the cache,
@@ -36,8 +39,8 @@ seq_t a(idx_t n) {
     /* Allocate/reallocate cache if necessary. */
     if (cache_cap <= n) {
         size_t new_cap = n + 1;
-        void *ptr = realloc(cache, new_cap * sizeof(seq_t));
-        if (!ptr) { free(cache); exit(1); }   /* simple error handling */
+        void *ptr = mem_resize(seq_t, cache, new_cap);
+        if (!ptr) { mem_free(cache); exit(1); }   /* simple error handling */
         cache = (seq_t *)ptr;
 
         /* Initialise new elements to zero. */
@@ -73,7 +76,7 @@ seq_t a(idx_t n) {
 
         /* Inner sum:  Σ_{k=1}^{n} C(n-1,k-1)·a(k)·a(n-k+1) */
         for (idx_t k = 1; k <= n_; ++k) {
-            seq_t comb = binom(n_-1, k-1);        /* C(n-1, k-1)              */
+            seq_t comb = binomial(n_-1, k-1);        /* C(n-1, k-1)              */
             seq_t term = comb * cache[k] * cache[n_-k+1];
             sum = sum + term;
         }

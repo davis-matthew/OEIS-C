@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 22, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   modinv_int
+ * Validated: partial, pass, 29 terms through n = 30 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/modinv_int.h"
+
+static int modinv_int(int a, int mod) {
+    int t = 0, newt = 1;
+    int r = mod, newr = a;
+    while (newr != 0) {
+        int q = r / newr;
+        int tmp = newt;
+        newt = t - q * newt;
+        t = tmp;
+        tmp = newr;
+        newr = r - q * newr;
+        r = tmp;
+    }
+    if (r > 1) return -1; /* inverse does not exist, should not happen */
+    if (t < 0) t += mod;
+    return t;
+}
 
 /* ---------- Utility functions ---------- */
 

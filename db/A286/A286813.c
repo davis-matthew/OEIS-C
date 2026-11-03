@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 8221, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 104 terms through n = 9954 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
  *   which equals x^2.  If val is a perfect square with odd square root,
  *   we have a solution.  Count all such solutions. */
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 /* Integer square root for unsigned 64‑bit values */
 static idx_t uint64_sqrt(idx_t n)
@@ -46,7 +48,7 @@ static idx_t uint64_sqrt(idx_t n)
 static seq_t seq_isqrt(seq_t v)
 {
     if (v == 0) return 0;
-    unsigned bits = bitlen_seq_t(v);
+    unsigned bits = bit_length(v);
     unsigned sqrt_bits = (bits + 1) >> 1;
     seq_t low = 0;
     seq_t high = ((seq_t)1 << sqrt_bits);

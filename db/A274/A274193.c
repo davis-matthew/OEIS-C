@@ -11,7 +11,8 @@
  *            Initial value: T(0,0) = 1
  * Range:     u8 n <= 352, u16 n <= 1129, u32 n <= 4096, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   row_leq
+ * Validated: standard, pass, 102 terms through n = 9847 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,13 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/row_leq.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static inline bool row_leq(idx_t r, idx_t n)
+{
+    return ((unsigned __int128)r * (r + 1)) / 2 <= n;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Helper: binary search for the row that contains index n           */
@@ -75,7 +82,7 @@ static void init(void)
     if (!rows)
         abort();
 
-    seq_t *row0 = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *row0 = mem_new(seq_t, 1);
     if (!row0)
         abort();
     row0[0] = (seq_t)1;     /* T(0,0) = 1 */
@@ -93,7 +100,7 @@ static void compute_rows_upto(size_t target)
 
     for (size_t i = max_row + 1; i <= target; ++i) {
         ensure_rows_capacity(i + 1);
-        seq_t *row = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (i + 1));
         if (!row)
             abort();
 

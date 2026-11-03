@@ -9,15 +9,18 @@
  *            – 1 if p ≥ 5. Hence a(n) = ∏_{p^e‖n} f(p^e)
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 84 terms through n = 9108 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
 
     seq_t prod = 1;
     for (size_t i = 0; i < cnt; ++i) {
-        seq_t val = pow_uint(primes[i], exps[i]);  /* p^e */
+        seq_t val = ipow_u64_idx(primes[i], exps[i]);  /* p^e */
         if (primes[i] <= 3u)
             prod *= val;                /* keep p^e itself */
         else

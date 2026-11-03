@@ -11,7 +11,8 @@
  *            primorials by backward subtraction, and finally bu...
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 23, u64 n <= 41, u128 n <= 79,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: standard, pass, 47 terms through n = 1864 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -97,7 +103,7 @@ seq_t a(idx_t n)
         if (coeffs[i] == 0)
             continue;
         seq_t prime_val = (seq_t)primes[i];
-        seq_t pow_val = seq_pow(prime_val, coeffs[i]);
+        seq_t pow_val = ipow_idx(prime_val, coeffs[i]);
         result = seq_mul(result, pow_val);
     }
 

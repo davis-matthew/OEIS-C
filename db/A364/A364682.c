@@ -12,14 +12,27 @@
  *            counts as the first iteration
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_terminal
+ * Validated: standard, pass, 102 terms through n = 9927 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_terminal.h"
+
+/*  ----- check whether x is a terminal value (0,1 or a cycle member) ----- */
+static inline bool is_terminal(uint64_t x)
+{
+    switch (x) {
+        case 0:  case 1:
+        case 4:  case 16: case 20: case 37:
+        case 42: case 58: case 89: case 145:
+            return true;
+        default:
+            return false;
+    }
+}
 
 /*  seq_t and idx_t are supplied by the build system.  */
 extern seq_t a(idx_t n);

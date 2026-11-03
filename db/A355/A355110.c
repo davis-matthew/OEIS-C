@@ -8,13 +8,16 @@
  *            binomial(n,k)*2^(k-1)*a(n-k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoised sequence values */
 static idx_t  cache_len = 0;  /* number of values currently stored */
@@ -28,7 +31,7 @@ static void ensure_capacity(idx_t n)
     idx_t new_cap = cache_cap ? cache_cap * 2 : 4;
     while (new_cap <= n)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     cache = new_cache;
     cache_cap = new_cap;
 }

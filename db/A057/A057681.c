@@ -9,7 +9,8 @@
  *            a(5)=-9. The recurrence holds for all n ≥ 6
  * Range:     i8 n <= 10, i16 n <= 21, i32 n <= 40, i64 n <= 81, i128 n <= 161,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
   
 /* The sequence entry function.  */
 seq_t a(idx_t n) {
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
     /* Initialise the table on first use, storing a(0) … a(5).  */
     if (table == NULL) {
         table_cap = 8;                  /* initial capacity (at least 6) */
-        table = (seq_t*)malloc(table_cap * sizeof(seq_t));
+        table = mem_new(seq_t, table_cap);
         if (table == NULL) return 0;    /* allocation failure, unlikely */
         table[0] = 1;
         table[1] = 1;
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
         while (new_cap <= n) {
             new_cap <<= 1;
         }
-        seq_t *tmp = (seq_t*)realloc(table, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, table, new_cap);
         if (tmp == NULL) return 0;      /* allocation failure */
         table = tmp;
         table_cap = new_cap;

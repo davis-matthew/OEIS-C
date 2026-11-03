@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 73 terms through n = 895 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,15 +20,15 @@
  * required – each call recomputes from the start and returns the correct
  * value for any n ≥ 1. */
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 static inline int count_prime_neighbors(uint64_t k)
 {
     int c = 0;
-    if (k >= 3 && is_prime_small((seq_t)(k - 2))) c++;
-    if (k >= 2 && is_prime_small((seq_t)(k - 1))) c++;
-    if (is_prime_small((seq_t)(k + 1)))          c++;
-    if (is_prime_small((seq_t)(k + 2)))          c++;
+    if (k >= 3 && is_prime_seq((seq_t)(k - 2))) c++;
+    if (k >= 2 && is_prime_seq((seq_t)(k - 1))) c++;
+    if (is_prime_seq((seq_t)(k + 1)))          c++;
+    if (is_prime_seq((seq_t)(k + 2)))          c++;
     return c;
 }
 

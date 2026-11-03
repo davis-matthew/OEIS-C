@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{p prime} (1 – x^p)
  * Range:     i8 n <= 190, i16 n <= 483, i32 n <= 1402, i64 n <= 4694,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 109 terms through n = 9284 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --- Generate all primes ≤ limit ---------------------------------- */
 static void primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out)
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
 
     /* DP array: dp[s] = signed number of ways to obtain sum s. */
     size_t dp_size = (size_t)(n + 1);
-    seq_t *dp = (seq_t*)calloc(dp_size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     if (!dp) {                    /* memory failure fallback */
         free(primes);
         return (seq_t)0;
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     free(primes);
     return result;
 }

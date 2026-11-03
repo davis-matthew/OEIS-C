@@ -9,7 +9,8 @@
  *            n-th semiprime, q = largest prime factor of the n-th semiprime
  * Range:     u8 n <= 20, u16 n <= 221, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9903 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration */
 static void init_once(void);
@@ -71,8 +73,8 @@ init_once(void)
     }
 
     /* Allocate arrays for the prime factors */
-    p_arr = (seq_t *)malloc(count * sizeof(seq_t));
-    q_arr = (seq_t *)malloc(count * sizeof(seq_t));
+    p_arr = mem_new(seq_t, count);
+    q_arr = mem_new(seq_t, count);
     if (!p_arr || !q_arr) {
         free(spf); free(primes);
         return;

@@ -13,7 +13,8 @@
  *            generating function contributions
  * Range:     u8 n <= 23, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 /* -- include needed headers -------------------------------------------------- */
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 /* -- function --------------------------------------------------------------- */
 seq_t a(idx_t N)
@@ -31,8 +33,8 @@ seq_t a(idx_t N)
     size_t n = (size_t)N;           /* n ≤ 10000, safe for size_t */
 
     /* allocate arrays for counts */
-    seq_t *cnt   = (seq_t *)malloc((n + 1) * sizeof(seq_t));  /* a[]  */
-    seq_t *part  = (seq_t *)malloc((n + 1) * sizeof(seq_t));  /* curP[]*/
+    seq_t *cnt   = mem_new(seq_t, (n + 1));  /* a[]  */
+    seq_t *part  = mem_new(seq_t, (n + 1));  /* curP[]*/
 
     /* initialisation */
     for (size_t i = 0; i <= n; ++i) {
@@ -81,8 +83,8 @@ seq_t a(idx_t N)
 
     seq_t result = cnt[n];
 
-    free(cnt);
-    free(part);
+    mem_free(cnt);
+    mem_free(part);
 
     return result;
 }

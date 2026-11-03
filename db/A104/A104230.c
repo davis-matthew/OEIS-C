@@ -8,13 +8,16 @@
  *            (minimal number of primes needed to sum to n^2)
  * Range:     u8 n <= 16, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 69 terms through n = 70 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -27,5 +30,5 @@ seq_t a(idx_t n)
         return 2;
 
     uint64_t candidate = (uint64_t)sq - 2; /* s - 2 */
-    return is_prime(candidate) ? 2 : 3;
+    return is_prime_u64(candidate) ? 2 : 3;
 }

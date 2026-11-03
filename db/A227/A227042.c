@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 */
 
 #include <math.h>
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
     /* compute denominator (r+c)/gcd(2*r*c, r+c) */
     seq_t denom = (seq_t)(r + c);
     seq_t num   = 2ull * (seq_t)r * (seq_t)c;
-    seq_t g     = seq_gcd(num, denom);
+    seq_t g     = gcd(num, denom);
 
     return denom / g;
 }

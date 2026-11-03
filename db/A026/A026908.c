@@ -6,24 +6,25 @@
  * Keywords:  nonn
  * Formula:   a(n) = binomial(2*n, n) + 3*binomial(2*n+4, n+2) - 18 (OEIS
  *            A026908)
- * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 30, u128 n <= 62,
+ * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 30, u128 n <= 63,
  *            big any n
- * Helpers:   _safe_binom
+ * Validated: standard, pass, 38 terms through n = 783 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/_safe_binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     /* binomial(2*n, n) */
-    seq_t first = _safe_binom(2 * n, n);
+    seq_t first = binomial(2 * n, n);
 
     /* binomial(2*n+4, n+2) */
-    seq_t second = _safe_binom(2 * n + 4, n + 2);
+    seq_t second = binomial(2 * n + 4, n + 2);
 
     /* a(n) = first + 3*second - 18 */
     if (sizeof(seq_t) <= 8) {

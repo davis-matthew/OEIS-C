@@ -10,13 +10,15 @@
  *            in the prefix of length k
  * Range:     u8 n <= 63, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         run_index  = 1;
 
         places_cap = 64;
-        places     = (seq_t*)malloc(places_cap * sizeof(seq_t));
+        places     = mem_new(seq_t, places_cap);
         places_len = 0;
     }
 
@@ -73,8 +75,7 @@ seq_t a(idx_t n)
         if ((seq_len & 1U) == 0 && ones_parity == 0) {
             if (places_len >= places_cap) {
                 places_cap <<= 1;
-                places = (seq_t*)realloc(places,
-                                         places_cap * sizeof(seq_t));
+                places = mem_resize(seq_t, places, places_cap);
             }
             places[places_len++] = (seq_t)seq_len;
         }
@@ -97,8 +98,7 @@ seq_t a(idx_t n)
             if ((seq_len & 1U) == 0 && ones_parity == 0) {
                 if (places_len >= places_cap) {
                     places_cap <<= 1;
-                    places = (seq_t*)realloc(places,
-                                             places_cap * sizeof(seq_t));
+                    places = mem_resize(seq_t, places, places_cap);
                 }
                 places[places_len++] = (seq_t)seq_len;
             }

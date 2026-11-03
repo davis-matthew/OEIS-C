@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 26, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   mul_mod_u128
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem, mulmod_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mul_mod_u128.h"
+#include "../utils/mulmod_u128.h"
+#include "../utils/mem.h"
 
 static inline unsigned __int128 pow_mod_u128(unsigned __int128 base,
                                              unsigned __int128 exp,
@@ -31,8 +33,8 @@ static inline unsigned __int128 pow_mod_u128(unsigned __int128 base,
     base %= mod;
     while (exp) {
         if (exp & 1u)
-            result = mul_mod_u128(result, base, mod);
-        base = mul_mod_u128(base, base, mod);
+            result = mulmod_u128(result, base, mod);
+        base = mulmod_u128(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -73,7 +75,7 @@ static inline bool is_prime_u128(unsigned __int128 n)
         bool composite = true;
         int j;
         for (j = 1; j < r; ++j) {
-            x = mul_mod_u128(x, x, n);
+            x = mulmod_u128(x, x, n);
             if (x == n - 1) {
                 composite = false;
                 break;
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
 
     if (terms_len == 0) {          /* initialise on first call */
         terms_cap = 16;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         terms[0] = (seq_t)0;       /* a(0) = 0 */
         terms_len = 1;
     }
@@ -115,7 +117,7 @@ seq_t a(idx_t n)
         /* All three numbers are primes – record the term. */
         if (terms_len == terms_cap) {
             terms_cap <<= 1;
-            terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, terms_cap);
         }
         terms[terms_len++] = (seq_t)v;
 

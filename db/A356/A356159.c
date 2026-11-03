@@ -9,13 +9,17 @@
  *            prime‑factor exponents of the *smallest* number having the same
  *            prime signature as n, arranged in non‑increasing order. For n =
  *            1 the value is 0
- * Range:     u8 n <= 9359, u16 n <= 9359, u32 n <= 9359, u64 n <= 9359,
- *            u128 n <= 9359, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9359 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 #define MAX_FACTORS 16   /* enough for n ≤ 10^12, far above the limits */

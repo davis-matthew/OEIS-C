@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   is_alternating
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,23 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_alternating.h"
+#include "../utils/mem.h"
+
+/* Return true iff all adjacent decimal digits of x have opposite parity. */
+static bool is_alternating(seq_t x)
+{
+    if (x < (seq_t)10) return true;   /* single digit is trivially alternating */
+
+    int prev_parity = (int)((x % 10) & 1);
+    seq_t tmp = x / 10;
+    while (tmp > 0) {
+        int p = (int)((tmp % 10) & 1);
+        if (p == prev_parity) return false;
+        prev_parity = p;
+        tmp /= 10;
+    }
+    return true;
+}
 
 /* Forward declarations of helper functions. */
 static bool is_alternating(seq_t x);
@@ -42,7 +59,7 @@ seq_t a(idx_t n)
     /* initialise the cache once */
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Generate more terms until we have at least n+1 elements. */
@@ -63,7 +80,7 @@ seq_t a(idx_t n)
                 /* Accept this term. */
                 if (cache_len == cache_cap) {
                     cache_cap *= 2;
-                    cache = (seq_t*)realloc(cache, sizeof(seq_t) * cache_cap);
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = sq;
                 prev_last_parity = last;
@@ -71,7 +88,7 @@ seq_t a(idx_t n)
                 /* First term – no boundary to check. */
                 if (cache_len == cache_cap) {
                     cache_cap *= 2;
-                    cache = (seq_t*)realloc(cache, sizeof(seq_t) * cache_cap);
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = sq;
                 prev_last_parity = (uint8_t)((sq % 10) & 1);

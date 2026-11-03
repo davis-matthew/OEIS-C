@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Ensure a_cache can hold index n. */
     if (a_cap <= n) {
         size_t new_cap = n + 1;                      /* up to index n inclusive */
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) abort();                          /* allocation failure        */
         if (a_cap == 0) {                           /* first allocation          */
             tmp[0] = (seq_t)0;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     idx_t need_p3 = n - 3;                          /* maximum exponent needed   */
     if (p3_cap <= need_p3) {
         size_t new_cap = need_p3 + 1;               /* powers 0 .. need_p3       */
-        seq_t *tmp = (seq_t *)realloc(p3_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, p3_cache, new_cap);
         if (!tmp) abort();
         if (p3_cap == 0) {                         /* first allocation          */
             tmp[0] = (seq_t)1;                     /* 3^0 = 1                   */

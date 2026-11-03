@@ -11,6 +11,7 @@
  *            representation of m
  * Range:     u8 n <= 7465, u16 n <= 9217, u32 n <= 9217, u64 n <= 9217,
  *            u128 n <= 9217, big any n
+ * Validated: standard, pass, 106 terms through n = 9124 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

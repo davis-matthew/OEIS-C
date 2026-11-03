@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 18, u64 n <= 50, u128 n <= 114,
  *            big any n
- * Helpers:   key3
+ * Validated: standard, pass, 40 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/key3.h"
+#include "../utils/mem.h"
+
+/*  helper: encode a 3‑tuple (0..4) to 0..124 */
+static inline int key3(int a, int b, int c)
+{
+    return a * 25 + b * 5 + c;
+}
 
 /*  External types are provided by the build system.  No redefinition
     is required.  */
@@ -138,13 +145,13 @@ seq_t a(idx_t n)
     static seq_t *dp_next = NULL;
     if (!dp)
     {
-        dp      = (seq_t *)calloc(stateCount, sizeof(seq_t));
-        dp_next = (seq_t *)calloc(stateCount, sizeof(seq_t));
+        dp      = mem_new(seq_t, stateCount);
+        dp_next = mem_new(seq_t, stateCount);
     }
     else
     {
-        memset(dp,      0, stateCount * sizeof(seq_t));
-        memset(dp_next, 0, stateCount * sizeof(seq_t));
+        mem_set(dp, 0, stateCount * sizeof(seq_t));
+        mem_set(dp_next, 0, stateCount * sizeof(seq_t));
     }
 
     /*  initialise with all admissible 2×4 base blocks
@@ -178,7 +185,7 @@ seq_t a(idx_t n)
         seq_t *tmp = dp;
         dp = dp_next;
         dp_next = tmp;
-        memset(dp_next, 0, stateCount * sizeof(seq_t));
+        mem_set(dp_next, 0, stateCount * sizeof(seq_t));
     }
 
     /*  sum over all final states */

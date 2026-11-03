@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(10*n-8)
  * Range:     u8 n <= 6, u16 n <= 655, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 899 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* External linkage required by the build system */
 seq_t a(idx_t n);
@@ -47,11 +49,11 @@ static void ensure_primes(idx_t needed)
 
     /* Free previous sieve data */
     free(is_composite);
-    free(prime_arr);
+    mem_free(prime_arr);
 
     /* Allocate new sieve */
     is_composite = (bool*)calloc((size_t)(limit + 1), sizeof(bool));
-    prime_arr    = (seq_t*)malloc((size_t)(limit + 1) * sizeof(seq_t));
+    prime_arr    = mem_new(seq_t, (size_t)(limit + 1));
     if (!is_composite || !prime_arr) {
         /* Allocation failed – zero state. The function will return 0. */
         prime_cnt = 0;

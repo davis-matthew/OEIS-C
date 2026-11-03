@@ -7,13 +7,22 @@
  * Formula:   a(n) = Sum_{k=0..⌊n/3⌋} k! * (n - 3*k)!
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   factorial_value
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>   /* for uint64_t, if needed by the build */
-#include "../utils/factorial_value.h"
+
+/* compute factorial of n in seq_t; uses seq_t arithmetic only */
+static seq_t factorial_value(idx_t n)
+{
+    seq_t f = 1;
+    for (idx_t i = 1; i <= n; ++i)
+        f *= (seq_t)i;
+    return f;
+}
 
 seq_t a(idx_t n)
 {

@@ -10,6 +10,7 @@
  *            of n that are 0 or 2}) mod 6
  * Range:     u8 n <= 242, u16 n <= 242, u32 n <= 242, u64 n <= 242,
  *            u128 n <= 242, big any n
+ * Validated: full, pass, 243 terms through n = 242 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,19 +11,21 @@
  *            ∏ p_i^e_i (p_i odd primes) we compute a(n)...
  * Range:     u8 n <= 9, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 static seq_t power_of_prime(idx_t p, idx_t e)
 {
     /* Compute p^e and p^(2e) using seq_pow */
-    seq_t pe = seq_pow((seq_t)p, e);     /* p^e */
+    seq_t pe = ipow_idx((seq_t)p, e);     /* p^e */
     seq_t pe2 = pe * pe;                 /* p^(2e) */
     seq_t term = pe2 + (pe2 / (seq_t)p) + (seq_t)2;  /* p^(2e)+p^(2e-1)+2 */
     return term;

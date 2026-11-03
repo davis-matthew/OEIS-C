@@ -12,7 +12,8 @@
  *            current row). All arithmetic is performed in seq_t
  * Range:     u8 none, u16 n <= 2, u32 n <= 10, u64 n <= 25, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define ROWS      243                     /* 3^5 possible rows */
 #define STATE_COUNT  (ROWS * ROWS)         /* pair of rows */
@@ -163,14 +165,14 @@ seq_t a(idx_t n)
     if (!neighbor_start || !neighbor_flat) return 0;   /* allocation failed */
 
     /* Allocate DP arrays */
-    seq_t *dp_cur  = (seq_t *)malloc(STATE_COUNT * sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)malloc(STATE_COUNT * sizeof(seq_t));
+    seq_t *dp_cur  = mem_new(seq_t, STATE_COUNT);
+    seq_t *dp_next = mem_new(seq_t, STATE_COUNT);
     if (!dp_cur || !dp_next) {
-        free(dp_cur); free(dp_next);
+        mem_free(dp_cur); mem_free(dp_next);
         return 0;
     }
 
-    memset(dp_cur, 0, STATE_COUNT * sizeof(seq_t));
+    mem_set(dp_cur, 0, STATE_COUNT * sizeof(seq_t));
 
     /* Base: first pair of rows (n = 1) */
     for (size_t id = 0; id < STATE_COUNT; ++id) {
@@ -180,13 +182,13 @@ seq_t a(idx_t n)
     if (n == 1) {
         seq_t sum = (seq_t)0;
         for (size_t i = 0; i < STATE_COUNT; ++i) sum += dp_cur[i];
-        free(dp_cur); free(dp_next);
+        mem_free(dp_cur); mem_free(dp_next);
         return sum;
     }
 
     /* Transition for each additional row */
     for (idx_t step = 2; step <= n; ++step) {
-        memset(dp_next, 0, STATE_COUNT * sizeof(seq_t));
+        mem_set(dp_next, 0, STATE_COUNT * sizeof(seq_t));
         for (size_t s = 0; s < STATE_COUNT; ++s) {
             seq_t val = dp_cur[s];
             if (!val) continue;
@@ -207,6 +209,6 @@ seq_t a(idx_t n)
     seq_t result = (seq_t)0;
     for (size_t i = 0; i < STATE_COUNT; ++i) result += dp_cur[i];
 
-    free(dp_cur); free(dp_next);
+    mem_free(dp_cur); mem_free(dp_next);
     return result;
 }

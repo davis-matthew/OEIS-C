@@ -8,6 +8,7 @@
  * Formula:   a(n) = n + floor(n*log(2)/log(5)) + floor(n*log(3)/log(5))
  * Range:     u8 none, u16 none, u32 none, u64 n <= 120, u128 n <= 120,
  *            big any n
+ * Validated: partial, pass, 120 terms through n = 120 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

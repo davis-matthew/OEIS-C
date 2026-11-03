@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_bit
+ * Validated: standard, pass, 102 terms through n = 9336 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,19 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/append_bit.h"
+#include "../utils/mem.h"
+
+static void append_bit(seq_t **seq, size_t *cap, size_t *len, seq_t val)
+{
+    if (*len == *cap) {
+        size_t new_cap = (*cap) ? (*cap) * 2 : 128;
+        seq_t *tmp = mem_resize(seq_t, *seq, new_cap);
+        *seq = tmp;
+        *cap = new_cap;
+    }
+    (*seq)[*len] = val;
+    (*len)++;
+}
 
 seq_t a(idx_t n)
 {

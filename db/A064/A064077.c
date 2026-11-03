@@ -11,7 +11,8 @@
  *            difference 2. The sequence is cached across calls
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_seq_t_cb
+ * Validated: standard, pass, 71 terms through n = 9699 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,16 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/cmp_seq_t_cb.h"
+#include "../utils/mem.h"
+
+static int cmp_seq_t_cb(const void *a, const void *b)
+{
+    seq_t x = *(const seq_t *)a;
+    seq_t y = *(const seq_t *)b;
+    if (x < y) return -1;
+    if (x > y) return 1;
+    return 0;
+}
 
 static seq_t *seq_vals = NULL;   /* cached sequence values   */
 static size_t seq_len = 0;       /* number of values stored  */
@@ -63,7 +73,7 @@ seq_t a(idx_t n)
 
         /* 3. Generate all odd prime powers ≤ limit. */
         size_t pow_cap = (size_t)primes_cnt * 2 + 16;
-        seq_t *powers = (seq_t *)malloc(pow_cap * sizeof(seq_t));
+        seq_t *powers = mem_new(seq_t, pow_cap);
         if (!powers) exit(1);
         size_t pow_len = 0;
 
@@ -73,7 +83,7 @@ seq_t a(idx_t n)
             while (1) {
                 if (pow_len == pow_cap) {
                     pow_cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(powers, pow_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, powers, pow_cap);
                     if (!tmp) exit(1);
                     powers = tmp;
                 }
@@ -89,7 +99,7 @@ seq_t a(idx_t n)
         free(primes);
 
         /* 4. Sort and deduplicate the power list. */
-        qsort(powers, pow_len, sizeof(seq_t), cmp_seq_t_cb);
+        mem_qsort(powers, pow_len, sizeof(seq_t), cmp_seq_t_cb);
         size_t uniq_len = 0;
         if (pow_len) {
             uniq_len = 1;
@@ -100,7 +110,7 @@ seq_t a(idx_t n)
 
         /* 5. Extract the larger term of every twin pair. */
         size_t twin_cap = uniq_len + 1;
-        seq_t *twins = (seq_t *)malloc(twin_cap * sizeof(seq_t));
+        seq_t *twins = mem_new(seq_t, twin_cap);
         if (!twins) exit(1);
         size_t twin_len = 0;
 
@@ -108,7 +118,7 @@ seq_t a(idx_t n)
             if (powers[i] - powers[i - 1] == (seq_t)2) {
                 if (twin_len == twin_cap) {
                     twin_cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(twins, twin_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, twins, twin_cap);
                     if (!tmp) exit(1);
                     twins = tmp;
                 }
@@ -116,10 +126,10 @@ seq_t a(idx_t n)
             }
         }
 
-        free(powers);
+        mem_free(powers);
 
         /* 6. Replace old cached sequence with the new one. */
-        free(seq_vals);
+        mem_free(seq_vals);
         seq_vals = twins;
         seq_len  = twin_len;
     }

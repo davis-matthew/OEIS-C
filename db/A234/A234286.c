@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*      Configuration                                                      */
@@ -73,7 +75,7 @@ static void init_sequence(void)
 
     /* Allocate space for the sequence terms. */
     terms_cap = 100000;                     /* initial capacity */
-    seq_terms = (seq_t*)calloc(terms_cap, sizeof(seq_t));
+    seq_terms = mem_new(seq_t, terms_cap);
     if (!seq_terms) exit(EXIT_FAILURE);
 
     /* Collect terms up to the capacity or until odd limit runs out. */
@@ -83,8 +85,7 @@ static void init_sequence(void)
         if (!odd_f_present[(size_t)odd]) {
             if (terms_cnt >= terms_cap) {   /* grow array if needed */
                 terms_cap <<= 1;
-                seq_terms = (seq_t*)realloc(seq_terms,
-                                             terms_cap * sizeof(seq_t));
+                seq_terms = mem_resize(seq_t, seq_terms, terms_cap);
                 if (!seq_terms) exit(EXIT_FAILURE);
             }
             seq_terms[terms_cnt++] = (seq_t)odd;
@@ -112,8 +113,7 @@ static void grow_terms(idx_t target)
         if (!odd_f_present[(size_t)next_odd_to_test]) {
             if (terms_cnt >= terms_cap) {
                 terms_cap <<= 1;
-                seq_terms = (seq_t*)realloc(seq_terms,
-                                             terms_cap * sizeof(seq_t));
+                seq_terms = mem_resize(seq_t, seq_terms, terms_cap);
                 if (!seq_terms) exit(EXIT_FAILURE);
             }
             seq_terms[terms_cnt++] = (seq_t)next_odd_to_test;

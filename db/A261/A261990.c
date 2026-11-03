@@ -7,8 +7,9 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = color of the cell Langton’s Ant touches on its n‑th step
  *            before the color is changed by the ant; 0 = white, 1 = black
- * Range:     u8 n <= 9083, u16 n <= 9083, u32 n <= 9083, u64 n <= 9083,
- *            u128 n <= 9083, big any n
+ * Range:     u8 n <= 10288, u16 n <= 10288, u32 n <= 10288, u64 n <= 10288,
+ *            u128 n <= 10288, big any n
+ * Validated: standard, pass, 123 terms through n = 9083 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

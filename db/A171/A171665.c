@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 67 terms through n = 1843 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,13 +34,13 @@ seq_t a(idx_t n)
 
     while (list_len < n) {
         uint64_t val = (uint64_t)next_cand;
-        uint64_t d1  = divisor_count_u64(val);
-        uint64_t d2  = divisor_count_u64(val + 1);
+        uint64_t d1  = num_divisors(val);
+        uint64_t d2  = num_divisors(val + 1);
 
         if (d1 == d2 && d1 > 4) {
             if (list_len == list_cap) {
                 size_t new_cap = list_cap ? (list_cap << 1) : 16;
-                seq_t *tmp = (seq_t *)realloc(list, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, list, new_cap);
                 if (!tmp) return 0;               /* allocation failure   */
                 list     = tmp;
                 list_cap = new_cap;

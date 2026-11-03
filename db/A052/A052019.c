@@ -8,7 +8,8 @@
  *            appears as a contiguous substring of p itself
  * Range:     u8 n <= 9, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   digit_len, digit_sum, is_prime, seq_to_dec
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   digit_sum, is_prime, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,37 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/digit_sum.h"
-#include "../utils/digit_len.h"
 #include "../utils/is_prime.h"
-#include "../utils/seq_to_dec.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Convert a seq_t value to a null‑terminated decimal string.
+   Caller must provide a buffer of at least digit_len(x)+1 bytes. */
+static void seq_to_dec(seq_t x, char *buf)
+{
+    if (x == (seq_t)0) {
+        buf[0] = '0';
+        buf[1] = '\0';
+        return;
+    }
+    seq_t temp = x;
+    const seq_t ten = (seq_t)10;
+    size_t pos = 0;
+    while (temp != (seq_t)0) {
+        seq_t rem = temp % ten;
+        temp   = temp / ten;
+        buf[pos++] = (char)((int)rem + '0');
+    }
+    /* reverse the digits */
+    for (size_t i = 0; i < pos / 2; ++i) {
+        char t = buf[i];
+        buf[i] = buf[pos - 1 - i];
+        buf[pos - 1 - i] = t;
+    }
+    buf[pos] = '\0';
+}
 
 /* Main function requested by the framework. */
 seq_t a(idx_t n)
@@ -41,8 +69,8 @@ seq_t a(idx_t n)
         seq_t sum = digit_sum(p);
 
         /* convert p and sum to strings */
-        size_t len_p  = (size_t)digit_len(p);
-        size_t len_s  = (size_t)digit_len(sum);
+        size_t len_p  = (size_t)num_digits(p);
+        size_t len_s  = (size_t)num_digits(sum);
         char *buf_p   = (char *)malloc(len_p + 1);
         char *buf_s   = (char *)malloc(len_s + 1);
         if (!buf_p || !buf_s) { /* safety check: abort on allocation failure */
@@ -57,7 +85,7 @@ seq_t a(idx_t n)
             /* prime satisfies the property – store it */
             if (cache_size == cache_cap) {
                 cache_cap = cache_cap * 2 + 10;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = p;
         }

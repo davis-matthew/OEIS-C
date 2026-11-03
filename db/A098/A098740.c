@@ -12,7 +12,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   fenwick_add
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,13 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/fenwick_add.h"
+
+/* Fenwick tree helpers ----------------------------------------------------- */
+static void fenwick_add(int *bit, int n, int idx, int delta)
+{
+    for (; idx <= n; idx += idx & -idx)
+        bit[idx] += delta;
+}
 
 static int fenwick_find_kth(int *bit, int n, int k)
 {

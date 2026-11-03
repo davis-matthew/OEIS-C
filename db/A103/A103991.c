@@ -8,6 +8,7 @@
  * Formula:   a(3k-2)=6k-3, a(3k-1)=6k-1, a(3k)=18k+3
  * Range:     u8 n <= 44, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

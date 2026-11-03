@@ -8,7 +8,8 @@
  * Formula:   a(n) = a(n-1) + gpf(a(n-1)), with a(1)=1, a(2)=2
  * Range:     u8 n <= 31, u16 n <= 511, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 73 terms through n = 9293 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* Static cache: cache[0] = a(1), cache[1] = a(2), ... */
 static seq_t *cache       = NULL; /* pointer to cached values          */
@@ -32,7 +34,7 @@ static void ensure_cache_cap(size_t needed)
     size_t new_cap = cache_cap ? cache_cap : 4;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)    /* allocation error, abort safely */
         exit(EXIT_FAILURE);
     cache = new_cache;
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
            uint64_t is safe for all values that fit in seq_t (and the tests
            stay far below the 64‑bit overflow threshold)                     */
         uint64_t prev_ui = (uint64_t)prev;
-        uint64_t g       = gpf(prev_ui);
+        uint64_t g       = largest_prime_factor(prev_ui);
         cache[i] = prev + (seq_t)g;
     }
 

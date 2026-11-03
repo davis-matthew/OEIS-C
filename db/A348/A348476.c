@@ -8,12 +8,14 @@
  * Formula:   a(n) = Σ_{k=1..n, k≡n (mod 2)} C(n,k) * C((n+k)/2 - 1, k-1)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 40, u128 n <= 78,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 1828 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

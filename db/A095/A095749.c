@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 44, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   bitlen_seq_t, is_prime_small
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   bit_length, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
+#include "../utils/is_prime_seq.h"
 
 /* Maximum flip count needed for n up to 10000 (about 141).
  * We allow a small margin. */
@@ -41,7 +42,7 @@ static uint64_t next_prime_candidate = 2;
  * representation of p a palindrome. */
 static size_t flips_needed(seq_t p)
 {
-    unsigned int len = bitlen_seq_t(p);
+    unsigned int len = bit_length(p);
     size_t flips = 0;
     idx_t i = 0;
     idx_t j = (idx_t)len - 1;
@@ -66,7 +67,7 @@ static void generate_until(size_t f, size_t need)
     while (len_by_flips[f] < need)
     {
         uint64_t cand = next_prime_candidate;
-        while (!is_prime_small(cand))
+        while (!is_prime_seq(cand))
             ++cand;
         next_prime_candidate = cand + 1;
 

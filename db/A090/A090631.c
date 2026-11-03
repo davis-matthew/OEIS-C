@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Function to compute a(n).  seq_t and idx_t are provided by the build. */
 seq_t a(idx_t n) {
@@ -38,12 +40,12 @@ seq_t a(idx_t n) {
     /* Initialisation on first call */
     if (dp == NULL) {
         dp_size = 1;                       /* holds dp[0] only */
-        dp = (seq_t*)calloc(dp_size, sizeof(seq_t));
+        dp = mem_new(seq_t, dp_size);
         dp[0] = 1;                         /* empty stack */
         cur_sum = 1;
 
         a_size = 1;                        /* a(0) only */
-        a_arr = (seq_t*)calloc(a_size, sizeof(seq_t));
+        a_arr = mem_new(seq_t, a_size);
         a_arr[0] = 1;
     }
 
@@ -56,19 +58,19 @@ seq_t a(idx_t n) {
 
         /* Reallocate dp array */
         if (new_dp_size > dp_size) {
-            seq_t *new_dp = (seq_t*)calloc(new_dp_size, sizeof(seq_t));
+            seq_t *new_dp = mem_new(seq_t, new_dp_size);
             /* copy old content */
-            memcpy(new_dp, dp, dp_size * sizeof(seq_t));
-            free(dp);
+            mem_copy(new_dp, dp, dp_size * sizeof(seq_t));
+            mem_free(dp);
             dp = new_dp;
             dp_size = new_dp_size;
         }
 
         /* Reallocate a array */
         if (new_a_size > a_size) {
-            seq_t *new_a = (seq_t*)calloc(new_a_size, sizeof(seq_t));
-            memcpy(new_a, a_arr, a_size * sizeof(seq_t));
-            free(a_arr);
+            seq_t *new_a = mem_new(seq_t, new_a_size);
+            mem_copy(new_a, a_arr, a_size * sizeof(seq_t));
+            mem_free(a_arr);
             a_arr = new_a;
             a_size = new_a_size;
         }

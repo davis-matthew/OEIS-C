@@ -13,7 +13,8 @@
  *            (mod 4), collects their exponents, sorts them i...
  * Range:     u8 n <= 6560, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: standard, pass, 136 terms through n = 9684 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdbool.h>
 
 /*  ----  helper from the utils library  ----  */
-#include "../utils/_smallest_prime_factor.h"   /* gives uint64_t _smallest_prime_factor(uint64_t n) */
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
 
 /*  ----  cache of the first primes (ascending)  ----  */
 static uint64_t *prime_cache      = NULL;
@@ -83,7 +85,7 @@ a(idx_t n)
 
     uint64_t m = (uint64_t)n;
     while (m > 1) {
-        uint64_t p = _smallest_prime_factor(m);
+        uint64_t p = smallest_prime_factor(m);
         if (p == 0) {                      /* safety, shouldn't happen */
             m = 1;
             break;

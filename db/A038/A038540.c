@@ -11,7 +11,8 @@
  *            partition(k)·partition(e−k) if (40/p)=1 (split)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   chi_int
+ * Validated: standard, pass, 112 terms through n = 9276 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/chi_int.h"
+
+/* Kronecker symbol (40/p). p odd prime or 2. */
+static int chi_int(int p)
+{
+    if (p % 2 == 0) return 0;          /* 2 → ramified */
+    int l2 = ((p % 8 == 1) || (p % 8 == 7)) ? 1 : -1;
+    int l5;
+    int mod5 = p % 5;
+    if (mod5 == 0) l5 = 0;
+    else if ((mod5 == 1) || (mod5 == 4)) l5 = 1;
+    else l5 = -1;
+    return l2 * l5;
+}
 
 /* estimate of primes needed to factor n≤10000 */
 #define PRIME_LIMIT 20000

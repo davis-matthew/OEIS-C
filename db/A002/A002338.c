@@ -9,15 +9,16 @@
  *            found by searching primes, then searching y
  * Range:     u8 n <= 939, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a002338_isprime, a002338_isqrt
+ * Validated: standard, pass, 109 terms through n = 955 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a002338_isprime.h"
-#include "../utils/a002338_isqrt.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t count = 0;
@@ -25,7 +26,7 @@ seq_t a(idx_t n) {
     uint64_t four_p, y;
 
     for (;;) {
-        if (a002338_isprime(p)) {
+        if (is_prime_u64(p)) {
             count++;
             if (count == (uint64_t)n) break;
         }
@@ -35,7 +36,7 @@ seq_t a(idx_t n) {
     four_p = 4 * p;
     for (y = 1; 27 * y * y < four_p; y++) {
         uint64_t rem = four_p - 27 * y * y;
-        uint64_t x = a002338_isqrt(rem);
+        uint64_t x = isqrt_u64(rem);
         if (x * x == rem) return (seq_t)x;
     }
     return (seq_t)0;

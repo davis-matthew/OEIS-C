@@ -11,7 +11,8 @@
  *            lowest numbered unvisited reachable square
  * Range:     u8 n <= 155, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   spiral_num
+ * Validated: standard, pass, 92 terms through n = 9881 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,29 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/spiral_num.h"
+#include "../utils/mem.h"
+
+/* Convert Cartesian coordinates to the board number in the square spiral. */
+static inline seq_t spiral_num(long long a, long long b) {
+    long long ax = a >= 0 ? a : -a;
+    long long ay = b >= 0 ? b : -b;
+    long long s = ax > ay ? ax : ay;            /* ring index */
+    if (s == 0) return 1;                       /* centre */
+    long long prev = 2 * s - 1;                 /* side length of inner ring */
+    long long prev_max = prev * prev;           /* (2s-1)^2 */
+    long long side = 2 * s;                     /* side length of current ring */
+    long long offset;
+    if (a == s && b != -s) {                   /* right side */
+        offset = b + (s - 1);
+    } else if (b == s) {                        /* top side */
+        offset = side + (s - 1 - a);
+    } else if (a == -s) {                       /* left side */
+        offset = side + side + (s - 1 - b);
+    } else {                                    /* bottom side (b == -s) */
+        offset = side + side + side + (a + (s - 1));
+    }
+    return (seq_t)(prev_max + 1 + offset);
+}
 
 /* Dynamic storage for the sequence and its coordinates. */
 static seq_t *seq = NULL;
@@ -71,7 +94,7 @@ static void ensure_seq_capacity(size_t n) {
     if (n <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap : 256;
     while (new_cap < n) new_cap <<= 1;
-    seq_t *new_seq = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *new_seq = mem_resize(seq_t, seq, new_cap);
     long long *new_x = (long long*)realloc(x, new_cap * sizeof(long long));
     long long *new_y = (long long*)realloc(y, new_cap * sizeof(long long));
     if (!new_seq || !new_x || !new_y) exit(EXIT_FAILURE);
@@ -85,7 +108,7 @@ static void ensure_seq_capacity(size_t n) {
 static void init_sequence(void) {
     seq_cap = 256;
     seq_len = 1;
-    seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     x = (long long*)malloc(seq_cap * sizeof(long long));
     y = (long long*)malloc(seq_cap * sizeof(long long));
     visited_bits_bytes = 16;                     /* 128 bits */

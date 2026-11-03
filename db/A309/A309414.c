@@ -9,8 +9,9 @@
  *            set under repeated squaring modulo n; equivalently the maximum
  *            distance from any residue to a cycle in the functional graph x →
  *            x² mod n
- * Range:     u8 n <= 555, u16 n <= 9671, u32 n <= 9671, u64 n <= 9671,
- *            u128 n <= 9671, big any n
+ * Range:     u8 n <= 555, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9671 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

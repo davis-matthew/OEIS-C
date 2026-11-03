@@ -12,7 +12,8 @@
  *            sequence a is: 1; 2,2; 3,8,3; 4,22,22,4; …
  * Range:     u8 n <= 23, u16 n <= 59, u32 n <= 180, u64 n <= 647,
  *            u128 n <= 1275, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 1271 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for the computed rows of T */
 static idx_t     max_row = 0;      /* highest row computed so far   */
@@ -62,7 +64,7 @@ ensure_rows(idx_t r)
 
     for (idx_t i = max_row + 1; i <= r; ++i) {
         /* allocate row i (1‑based indexing; ignore 0) */
-        tri[i] = (seq_t*)malloc((i + 1) * sizeof(seq_t));
+        tri[i] = mem_new(seq_t, (i + 1));
         /* compute entries of row i */
         for (idx_t k = 1; k <= i; ++k) {
             if (k == 1 || k == i) {

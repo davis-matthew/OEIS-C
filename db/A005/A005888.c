@@ -11,13 +11,14 @@
  *            (theta2(q^2)*psi(3,q^6) + theta3(q^2)*psi(6,q^6))
  * Range:     u8 n <= 999, u16 n <= 999, u32 n <= 999, u64 n <= 999,
  *            u128 n <= 999, big any n
- * Helpers:   a000037_isqrt
+ * Validated: standard, pass, 146 terms through n = 986 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a000037_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +32,7 @@ seq_t a(idx_t n)
             uint64_t r = N - 2 * u * u - 3 * v * v;
             if (r % 4 != 0) continue;
             r /= 4;
-            uint64_t s = a000037_isqrt(r);
+            uint64_t s = isqrt_u64(r);
             if (s * s != r) continue;
             /* t = s if s%3==1, t = -s if s%3==2; s%3==0 gives no t = 1 mod 3 */
             if (s % 3 != 0) cnt += 4;
@@ -42,7 +43,7 @@ seq_t a(idx_t n)
     for (u = 1; 2 * u * u <= N; u += 2) {
         for (b = 0; 2 * u * u + 12 * b * b <= N; b++) {
             uint64_t r = N - 2 * u * u - 12 * b * b;
-            uint64_t s = a000037_isqrt(r);
+            uint64_t s = isqrt_u64(r);
             if (s * s != r) continue;
             if (s % 6 == 1 || s % 6 == 5)
                 cnt += (b == 0) ? 2 : 4;

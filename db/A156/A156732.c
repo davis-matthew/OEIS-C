@@ -7,14 +7,17 @@
  * Keywords:  nonn, tabl
  * Formula:   T(n,k) = ((n-2k)^2/(n-k+1)) * binomial(n+1, k+1) Sequence a(n)
  *            is obtained by reading the triangle T row-wise, with offset 0
- * Range:     u8 n <= 30, u16 n <= 157, u32 n <= 604, u64 n <= 1325,
+ * Range:     u8 n <= 46, u16 n <= 157, u32 n <= 605, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 71 terms through n = 1148 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
 

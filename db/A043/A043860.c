@@ -9,13 +9,31 @@
  *            representation * congruent to 2 modulo 9. (Offset = 1, a(1) = 4)
  * Range:     u8 n <= 54, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   has_run_condition
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_run_condition.h"
+
+/* Helper that returns true if x has (runs in base‑4) ≡ 2 (mod 9) */
+static bool has_run_condition(seq_t x)
+{
+    int runs = 0;
+    unsigned int prev = 255;                 /* sentinel value */
+    static const seq_t FOUR = (seq_t)4;
+
+    while (x != (seq_t)0) {
+        unsigned int digit = (unsigned int)(x % FOUR);  /* digit 0‑3 */
+        if (digit != prev) {
+            ++runs;
+            prev = digit;
+        }
+        x /= FOUR;
+    }
+    return (runs % 9 == 2);
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

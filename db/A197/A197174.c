@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 48, u128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 179 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    a(5)=58, a(6)=144, a(7)=363, a(8)=917
    The function memoises computed values so that subsequent calls are O(1). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (!cache) {
         /* allocate space for at least the first 8 terms */
-        cache = (seq_t*)malloc((9 + 1) * sizeof(seq_t)); /* 1‑based indices */
+        cache = mem_new(seq_t, (9 + 1)); /* 1‑based indices */
         if (!cache) return 0; /* allocation failed: return 0 as fallback */
 
         /* set the first 8 known values */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* extend the cache if needed */
     if (n > max_cached) {
         idx_t new_size = n + 1;  /* space for indices 0..n */
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0;     /* allocation failed: return 0 as fallback */
         cache = tmp;
 

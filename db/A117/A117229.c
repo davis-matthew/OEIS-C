@@ -7,12 +7,15 @@
  * Formula:   a(n) = number of decimal digits of n that are in {0,1,4,8,9}
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
  * Helpers:   digit_counts
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
 
 seq_t a(idx_t n)

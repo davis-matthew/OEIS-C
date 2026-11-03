@@ -8,6 +8,7 @@
  * Formula:   a(1) = 1, a(n) = a(n-1) + (n^4 if n odd, n^5 if n even)
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 59, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 44 terms through n = 941 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

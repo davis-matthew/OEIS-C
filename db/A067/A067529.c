@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 59, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdbool.h>
 
 /* Utilities provided by the framework */
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
                 if (seq_len >= seq_cap)
                 {
                     size_t new_cap = (seq_cap == 0) ? 64 : seq_cap * 2;
-                    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, new_cap);
                     seq_cap = new_cap;
                 }
                 seq[seq_len++] = (seq_t)current;

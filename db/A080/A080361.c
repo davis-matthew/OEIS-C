@@ -15,7 +15,8 @@
  *            The arrays min_x[n] and max_x[n] store the first and las...
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of idx_t and seq_t are supplied by the build. */
 extern seq_t seq_from_str(const char *s);
@@ -67,8 +69,8 @@ static void init(void)
         if (g > max_n_seen) max_n_seen = g;
     }
     /* Allocate min/max arrays */
-    min_x = (seq_t*)calloc((size_t)max_n_seen + 1, sizeof(seq_t));
-    max_x = (seq_t*)calloc((size_t)max_n_seen + 1, sizeof(seq_t));
+    min_x = mem_new(seq_t, (size_t)max_n_seen + 1);
+    max_x = mem_new(seq_t, (size_t)max_n_seen + 1);
     if (!min_x || !max_x) exit(EXIT_FAILURE);
     /* Fill min and max */
     for (i = 1; i <= (size_t)LMAX; ++i) {

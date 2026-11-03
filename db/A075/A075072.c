@@ -9,7 +9,8 @@
  *            n)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 15, u64 n <= 23, u128 n <= 35,
  *            big any n
- * Helpers:   exp_in_fact
+ * Validated: standard, pass, 42 terms through n = 316 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/exp_in_fact.h"
+
+/* exponent of prime p in factorial m (Legendre's formula) */
+static inline int exp_in_fact(uint64_t m, uint64_t p)
+{
+    int exp = 0;
+    while (m) {
+        m /= p;
+        exp += (int)m;
+    }
+    return exp;
+}
 
 /* maximum n expected in the tests (safe upper bound for 10000) */
 #define MAX_N 20000

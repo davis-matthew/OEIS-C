@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n+1)*(n^3+15*n^2+74*n+132)/12
  * Range:     u8 n <= 0, u16 n <= 12, u32 n <= 258, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 57 terms through n = 952 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

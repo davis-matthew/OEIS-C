@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 1055, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   first_digit_is_five, is_prime_small
+ * Validated: standard, pass, 62 terms through n = 4651 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,15 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-#include "../utils/is_prime_small.h"   /* bool is_prime_small(seq_t n) */
-#include "../utils/first_digit_is_five.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* Test whether the first decimal digit of a 64‑bit integer is 5. */
+static bool first_digit_is_five(uint64_t v)
+{
+    while (v >= 10u) v /= 10u;
+    return v == 5u;
+}
 
 /*  External linkage required by the build.  */
 seq_t a(idx_t n)
@@ -41,7 +49,7 @@ seq_t a(idx_t n)
         if (cache_len == cache_cap)
         {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) {  /* allocation failed – abort safely */
                 return (seq_t)0;
             }
@@ -53,7 +61,7 @@ seq_t a(idx_t n)
         while (true)
         {
             if (first_digit_is_five(next_candidate) &&
-                is_prime_small((seq_t)next_candidate))
+                is_prime_seq((seq_t)next_candidate))
             {
                 cache[cache_len++] = (seq_t)next_candidate;
                 /* Move to the next integer for further searching. */

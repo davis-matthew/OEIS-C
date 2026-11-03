@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor(4^n / n)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 34, u128 n <= 63,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 40 terms through n = 287 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
  * precision implementation in big_pow.h is used. */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -46,6 +48,6 @@ seq_t a(idx_t n)
 
     /* For seq_t larger than 64 bits (e.g., 128‑bit or arbitrary precision),
      * use the big_pow helper which returns an exact integer of that type. */
-    seq_t pw = big_pow((seq_t)4, (seq_t)n);
+    seq_t pw = ipow((seq_t)4, (seq_t)n);
     return pw / (seq_t)n;
 }

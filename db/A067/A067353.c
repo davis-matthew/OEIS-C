@@ -10,12 +10,14 @@
  * Formula:   a(1) = 2; a(n) = n*a(n-1) - (n-1)(n-2)/2 (for n ≥ 2)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,14 +29,14 @@ seq_t a(idx_t n)
     /* initial allocation */
     if (cache == NULL) {
         cap = (n < 2 ? 2 : n + 1);  /* at least space for index 1 */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
     }
 
     /* grow if needed */
     if (n + 1 > cap) {
         idx_t new_cap = cap * 2;
         if (new_cap < n + 1) new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp) {
             cache = tmp;
             cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 5500, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_runs_uint64
+ * Validated: standard, pass, 79 terms through n = 6741 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,23 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_runs_uint64.h"
+#include "../utils/mem.h"
+
+/* local helper: count runs of equal digits in a uint64_t number */
+static inline int count_runs_uint64(uint64_t n)
+{
+    if (n == 0) return 1;       /* special case: number 0 has one run */
+    int runs = 1;
+    int prev = n % 10;
+    n /= 10;
+    while (n > 0) {
+        int d = n % 10;
+        if (d != prev) ++runs;
+        prev = d;
+        n /= 10;
+    }
+    return runs;
+}
 
 /* local helper: compute divisor count of a uint64_t integer by trial div */
 static inline int divisor_count_uint64(uint64_t n)
@@ -61,7 +78,7 @@ seq_t a(idx_t n)
         /* ensure capacity of array */
         if (seq_len >= seq_cap) {
             size_t new_cap = seq_cap == 0 ? 16 : seq_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
             seq_cache = tmp;
             seq_cap   = new_cap;
         }

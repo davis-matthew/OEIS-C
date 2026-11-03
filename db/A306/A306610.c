@@ -9,12 +9,14 @@
  *            a(2)=24, a(3)=109, a(4)=524
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache array holding a(1) … a(cache_len). */
 static seq_t *cache = NULL;
@@ -25,7 +27,7 @@ static void ensure_cache(idx_t n)
 {
     /* First time: allocate space for the first four terms. */
     if (cache == NULL) {
-        cache = (seq_t*)malloc((size_t)4 * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)4);
         cache[0] = (seq_t)4;
         cache[1] = (seq_t)24;
         cache[2] = (seq_t)109;
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
 
     /* Extend the cache if the requested index is beyond what we have. */
     if (n > cache_len) {
-        seq_t *new_cache = (seq_t*)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)n);
         /* In practice the allocation will succeed; if not we keep the old
            cache to avoid undefined behaviour. */
         if (new_cache != NULL) {

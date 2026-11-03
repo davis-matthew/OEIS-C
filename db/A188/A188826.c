@@ -10,13 +10,15 @@
  *            a(4)=256, a(5)=841, a(6)=2704, a(7)=8836
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 18, u64 n <= 36, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper function to ensure the cache can hold at least (n+1) elements. */
 static void ensure_capacity(idx_t n)
@@ -31,7 +33,7 @@ static void ensure_capacity(idx_t n)
 
     /* Allocate or reallocate the cache.  The cast is legal for both C and C++. */
     static seq_t *cache = NULL;
-    cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, newcap);
     capacity = newcap;
 }
 
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         size_t newcap = capacity ? capacity << 1 : 16;
         while (newcap <= (size_t)n)
             newcap <<= 1;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         capacity = newcap;
     }
 

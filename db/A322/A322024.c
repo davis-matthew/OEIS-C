@@ -9,9 +9,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 1931, u16 n <= 9303, u32 n <= 9303, u64 n <= 9303,
- *            u128 n <= 9303, big any n
- * Helpers:   alloc_u64_array
+ * Range:     u8 n <= 1931, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9303 (2026-11-03)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_u64_array.h"
+
+/* Allocate or reallocate an array of uint64_t with given capacity */
+static void alloc_u64_array(uint64_t **arr, size_t *cap, size_t new_cap)
+{
+    if (*cap < new_cap) {
+        uint64_t *tmp = (uint64_t*)realloc(*arr, new_cap * sizeof(uint64_t));
+        if (!tmp) abort();             /* allocation failed */
+        *arr = tmp;
+        /* initialize new entries to 0 */
+        for (size_t i = *cap; i < new_cap; ++i) (*arr)[i] = 0;
+        *cap = new_cap;
+    }
+}
 
 /* ----- internal data structures --------------------------------------- */
 
@@ -120,12 +133,17 @@ static void extend_to(idx_t n)
 {
     if (n <= max_n) return;                 /* nothing to do */
 
-    /* Recompute preimage counts and φ values up to the new maximum */
-    recompute_pre_cnt((uint64_t)n);
+    /* Recompute preimage counts and φ values when n passes the range they
+       cover, doubling it (they were redone for every new n) */
+    static uint64_t covered = 0;
+    if ((uint64_t)n > covered) {
+        covered = covered ? 2 * covered : 1024;
+        while (covered < (uint64_t)n) covered *= 2;
+        recompute_pre_cnt(covered);
+    }
 
     /* Ensure all auxiliary arrays can hold data up to n */
     ensure_arrays(n);
-    ensure_pairs_capacity();
 
     /* Build the sequence for indices > max_n */
     for (idx_t i = max_n + 1; i <= n; ++i) {
@@ -142,6 +160,7 @@ static void extend_to(idx_t n)
 
         seq_t val;
         if (j == pair_cnt) {              /* new pair encountered */
+            ensure_pairs_capacity();      /* (was done once per call, before the loop) */
             pairs[pair_cnt].x = x;
             pairs[pair_cnt].y = y;
             val = (seq_t)(pair_cnt + 1);  /* RGS numbers are 1‑based */

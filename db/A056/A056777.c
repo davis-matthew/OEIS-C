@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 28, u64 n <= 166, u128 n <= 166,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 156 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const uint64_t SIEVE_LIMIT = 200000000ULL; /* 2·10^8 */
 static uint8_t *prime_bits = NULL;                /* bitset of composites */
@@ -71,7 +73,7 @@ static void generate_terms(void)
         init_sieve();
 
     terms_cap = 20000;   /* initial capacity */
-    terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
 
     for (uint64_t p = 5; p + 8 <= SIEVE_LIMIT; p += 2) {
         if (!is_composite(p) &&
@@ -81,8 +83,7 @@ static void generate_terms(void)
             seq_t val = (seq_t)p * (seq_t)(p + 8);
             if (terms_len == terms_cap) {
                 terms_cap <<= 1;
-                terms = (seq_t *)realloc(terms,
-                                         terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = val;
         }

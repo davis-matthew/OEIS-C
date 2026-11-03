@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 849, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   allowed_digit, is_prime
+ * Validated: standard, pass, 68 terms through n = 9554 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,14 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t) */
-#include "../utils/allowed_digit.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* allowed curved digits */
+static inline bool allowed_digit(int d)
+{
+    return d == 0 || d == 2 || d == 3 || d == 5 || d == 6 || d == 8 || d == 9;
+}
 
 /* static cache of already found terms */
 static seq_t *cache = NULL;
@@ -34,7 +41,7 @@ static void ensure_capacity(size_t needed)
     if (needed <= cache_cap) return;
     size_t newcap = cache_cap ? cache_cap << 1 : 128;
     while (newcap < needed) newcap <<= 1;
-    cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, newcap);
     cache_cap = newcap;
 }
 

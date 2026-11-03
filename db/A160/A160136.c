@@ -7,7 +7,8 @@
  * Formula:   a(n) = lod_9(Fibonacci(n))
  * Range:     u8 n <= 133, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9338 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached state (static for all calls) */
 static seq_t *cache           = NULL;          /* a(n) values */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         while (new_cap <= n) new_cap <<= 1;
 
         /* Allocate or resize cache array */
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         /* Allocate or resize Fibonacci-mod9 cache array */
         fib_cache = (uint8_t *)realloc(fib_cache, new_cap * sizeof(uint8_t));
         cached_cap = new_cap;

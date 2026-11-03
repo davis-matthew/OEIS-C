@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 17, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   alloc_seq, free_seq
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,21 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/alloc_seq.h"
-#include "../utils/free_seq.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache = NULL;     /* cached terms */
 static size_t cache_len = 0;    /* number of filled entries      */

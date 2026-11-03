@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, modpow_uint64
+ * Validated: standard, pass, 73 terms through n = 924 (2026-11-03)
+ * Helpers:   is_prime_u64, mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"          /* bool is_prime(uint64_t n); */
-#include "../utils/modpow_uint64.h"     /* uint64_t modpow_uint64(uint64_t base, uint64_t exp, uint64_t mod); */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 static bool is_primitive_root(uint64_t p)
 {
@@ -38,21 +41,21 @@ static bool is_primitive_root(uint64_t p)
 
     /* factor 2 */
     if ((temp & 1ULL) == 0) {
-        if (modpow_uint64(base, orig / 2, p) == 1ULL) return false;
+        if (powmod_u64(base, orig / 2, p) == 1ULL) return false;
         while ((temp & 1ULL) == 0) temp >>= 1;
     }
 
     /* odd factors using 6k±1 optimisation */
     for (uint64_t q = 3; q * q <= temp; q += 2) {
         if (temp % q == 0) {
-            if (modpow_uint64(base, orig / q, p) == 1ULL) return false;
+            if (powmod_u64(base, orig / q, p) == 1ULL) return false;
             while (temp % q == 0) temp /= q;
         }
     }
 
     /* residual prime factor, if any */
     if (temp > 1) {
-        if (modpow_uint64(base, orig / temp, p) == 1ULL) return false;
+        if (powmod_u64(base, orig / temp, p) == 1ULL) return false;
     }
 
     return true;
@@ -68,7 +71,7 @@ static void ensure_capacity(idx_t new_len)
     if (new_len <= found_cap) return;
     idx_t new_cap = found_cap ? found_cap * 2 : 16;
     if (new_cap < new_len) new_cap = new_len;
-    seq_t *tmp = (seq_t *)realloc(found, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, found, new_cap);
     if (!tmp) abort();                 /* allocation failed */
     found = tmp;
     found_cap = new_cap;
@@ -80,7 +83,7 @@ seq_t a(idx_t n)
 
     /* expand stored list until it contains at least n primes   */
     while (found_len < n) {
-        if (is_prime(current_candidate)) {
+        if (is_prime_u64(current_candidate)) {
             if (is_primitive_root(current_candidate)) {
                 ensure_capacity(found_len + 1);
                 found[found_len++] = (seq_t)current_candidate;

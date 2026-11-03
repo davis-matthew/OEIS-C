@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 8, u64 n <= 19, u128 n <= 41,
  *            big any n
- * Helpers:   check_horiz, check_vertical, commute, get_matrix
+ * Validated: standard, pass, 34 terms through n = 187 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,55 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/check_horiz.h"
-#include "../utils/check_vertical.h"
-#include "../utils/commute.h"
-#include "../utils/get_matrix.h"
+
+/* test whether two 2×2 matrices commute (over the integers) */
+static bool commute(const uint8_t m1[4], const uint8_t m2[4]) {
+    int r00 = m1[0] * m2[0] + m1[1] * m2[2];
+    int r01 = m1[0] * m2[1] + m1[1] * m2[3];
+    int r10 = m1[2] * m2[0] + m1[3] * m2[2];
+    int r11 = m1[2] * m2[1] + m1[3] * m2[3];
+
+    int s00 = m2[0] * m1[0] + m2[1] * m1[2];
+    int s01 = m2[0] * m1[1] + m2[1] * m1[3];
+    int s10 = m2[2] * m1[0] + m2[3] * m1[2];
+    int s11 = m2[2] * m1[1] + m2[3] * m1[3];
+
+    return (r00 == s00 && r01 == s01 && r10 == s10 && r11 == s11);
+}
+
+/* helper: extract a 2×2 matrix from two rows at a given column start */
+static void get_matrix(uint8_t top, uint8_t bottom, int col, uint8_t out[4]) {
+    out[0] = (top >> col) & 1U;          /* a */
+    out[1] = (top >> (col + 1)) & 1U;    /* b */
+    out[2] = (bottom >> col) & 1U;       /* c */
+    out[3] = (bottom >> (col + 1)) & 1U; /* d */
+}
+
+/* horizontal adjacency: the two 2×2 blocks in the same pair of rows
+   must not commute for each adjacent pair of columns j and j+1 (j=0..2) */
+static bool check_horiz(uint8_t a, uint8_t b) {
+    uint8_t m[2][4];
+    for (int j = 0; j <= 2; ++j) {
+        get_matrix(a, b, j, m[0]);
+        get_matrix(a, b, j + 1, m[1]);
+        if (commute(m[0], m[1]))
+            return false;
+    }
+    return true;
+}
+
+/* vertical adjacency: the 2×2 block formed by rows a,b and that
+   formed by rows b,c must not commute for each column pair (j=0..3) */
+static bool check_vertical(uint8_t a, uint8_t b, uint8_t c) {
+    uint8_t m_ab[4], m_bc[4];
+    for (int j = 0; j <= 3; ++j) {
+        get_matrix(a, b, j, m_ab);
+        get_matrix(b, c, j, m_bc);
+        if (commute(m_ab, m_bc))
+            return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n) {
     /* number of rows in the array = n+1 */

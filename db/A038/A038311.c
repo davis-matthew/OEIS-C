@@ -9,12 +9,13 @@
  *            10^(i – j) · 9^j
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   pow_u8
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_u8.h"
+#include "../utils/ipow_idx.h"
 static seq_t binomial(idx_t n, idx_t k)
 {
     if (k > n) return 0;
@@ -39,8 +40,8 @@ seq_t a(idx_t n)
     /* compute binomial(i,j) *
        10^(i-j) * 9^j  */
     seq_t bin = binomial(i, j);
-    seq_t pow10 = pow_u8((seq_t)10, i - j);
-    seq_t pow9  = pow_u8((seq_t)9,  j );
+    seq_t pow10 = ipow_idx((seq_t)10, i - j);
+    seq_t pow9  = ipow_idx((seq_t)9,  j );
 
     return bin * pow10 * pow9;
 }

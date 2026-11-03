@@ -10,12 +10,13 @@
  *            and k is the largest integer with k*(k+1) <= T_n
  * Range:     u8 n <= 20, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   triangular_calc
+ * Validated: partial, pass, 83 terms through n = 82 (2026-11-01)
+ * Helpers:   triangular_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/triangular_calc.h"
+#include "../utils/triangular_idx.h"
 
  
 /* 
@@ -23,7 +24,7 @@
    Binary search on the interval [0, n]. */ 
 static inline idx_t max_k(idx_t n)
 {
-    seq_t Tn = triangular_calc(n);
+    seq_t Tn = triangular_idx(n);
     idx_t lo = 0, hi = n;          /* hi inclusive */
     while (lo < hi)
     {
@@ -40,10 +41,10 @@ static inline idx_t max_k(idx_t n)
 /*  External linkage as required. */
 seq_t a(idx_t n)
 {
-    seq_t Tn = triangular_calc(n);
+    seq_t Tn = triangular_idx(n);
     idx_t k = max_k(n);
-    seq_t Tk   = triangular_calc(k);
-    seq_t Tk1  = triangular_calc(k + 1);
+    seq_t Tk   = triangular_idx(k);
+    seq_t Tk1  = triangular_idx(k + 1);
     seq_t diff1 = Tn - 2 * Tk;
     seq_t diff2 = 2 * Tk1 - Tn;
     return diff1 < diff2 ? diff1 : diff2;

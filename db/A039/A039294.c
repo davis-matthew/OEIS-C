@@ -9,7 +9,8 @@
  *            contains an equal non‑zero number of digits 0 and 2
  * Range:     u8 n <= 26, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Test whether a number has the required property. */
 static inline bool is_valid(seq_t val) {
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
     /* initialize cache on first call */
     if (cache == NULL) {
         capacity = 64;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
     }
 
     /* generate terms until we have at least n of them */
@@ -53,7 +55,7 @@ seq_t a(idx_t n) {
         if (is_valid(val)) {
             if (cache_len >= capacity) {
                 capacity <<= 1;
-                cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, capacity);
             }
             cache[cache_len++] = val;
         }

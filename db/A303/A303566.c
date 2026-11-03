@@ -9,7 +9,8 @@
  *            (Sum_{k=0..n} (k+1)!*(-x)^k)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 12, u64 n <= 20, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 440 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Determine the type from the build configuration. */
 seq_t a(idx_t n)
@@ -35,8 +37,8 @@ seq_t a(idx_t n)
     /* Allocate more space if needed. */
     if (n + 1 > cap) {
         idx_t new_cap = n + 1;
-        seq_t *newA   = (seq_t *)calloc((size_t)new_cap, sizeof(seq_t));
-        seq_t *newFact= (seq_t *)calloc((size_t)new_cap, sizeof(seq_t));
+        seq_t *newA   = mem_new(seq_t, (size_t)new_cap);
+        seq_t *newFact= mem_new(seq_t, (size_t)new_cap);
         if (!newA || !newFact) {
             /* allocation failed – terminate execution (no explicit error
                handling is required for this evaluation environment). */
@@ -48,8 +50,8 @@ seq_t a(idx_t n)
             newFact[i]  = fact[i];
         }
         /* free old buffers */
-        free(A);
-        free(fact);
+        mem_free(A);
+        mem_free(fact);
         /* assign new buffers */
         A     = newA;
         fact  = newFact;

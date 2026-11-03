@@ -6,8 +6,9 @@
  * Keywords:  sign
  * Formula:   a(n) = 1/(n+1) * Σ_{k=0..⌊n/5⌋} (-1)^k * binom(n+k,k) * *
  *            binom(2*n-4*k, n-5*k) (OEIS A366046)
- * Range:     i8 n <= 3, i16 n <= 7, i32 n <= 14, i64 n <= 28, i128 n <= 28,
+ * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 17, i64 n <= 28, i128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,7 +16,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* provides: seq_t binomial(idx_t,n,k) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

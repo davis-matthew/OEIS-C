@@ -10,14 +10,15 @@
  *            (r-1)r/2
  * Range:     u8 n <= 103, u16 n <= 103, u32 n <= 103, u64 n <= 103,
  *            u128 n <= 103, big any n
- * Helpers:   is_prime_generic
+ * Validated: partial, pass, 103 terms through n = 103 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_generic.h"
+#include "../utils/is_prime.h"
 
 #define MAX_PRIME 2000000  /* upper bound for pre‑computed primes */
 
@@ -38,7 +39,7 @@ static void prepare_primes(void) {
 
 static bool is_prime_idx(idx_t p) {
     if (p <= MAX_PRIME) return prime_flag[p];
-    return is_prime_generic(p);
+    return is_prime(p);
 }
 
 /* binary search for the row index r such that r(r+1)/2 >= n */

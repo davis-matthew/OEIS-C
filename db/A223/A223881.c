@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 71 terms through n = 946 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,8 @@
 #include <stdbool.h>
 
 /* ------- helpers from the common utils ------- */
-#include "../utils/gcd.h"          /* not strictly needed, kept for consistency */
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* ------- fast integer exponentiation for seq_t ------- */
 static seq_t seq_pow_small(seq_t base, unsigned int exp)
@@ -105,7 +107,7 @@ static void ensure_seq_cache_capacity(size_t new_len)
     if (new_len <= seq_cache_cap) return;
     size_t new_cap = seq_cache_cap ? seq_cache_cap << 1 : 16;
     if (new_cap < new_len) new_cap = new_len;
-    seq_cache = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     if (!seq_cache) abort();
     seq_cache_cap = new_cap;
 }

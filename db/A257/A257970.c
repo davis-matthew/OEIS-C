@@ -8,12 +8,14 @@
  * Formula:   a(1)=1, a(2)=2, a(3)=5, a(4)=16, a(n)=3*a(n-1) for n>=5
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     if (n > cap) {
         /* Grow cache to hold up to n */
-        seq_t *tmp = (seq_t*)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp) {
             /* Memory failure: compute on the fly without caching */
             seq_t a1 = (seq_t)1;

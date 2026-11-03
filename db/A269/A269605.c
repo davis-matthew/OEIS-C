@@ -12,15 +12,27 @@
  *            a(9)=113629480. The implementation uses a dynamic programm...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   free_seq_array, seq_alloc_new_array
+ * Validated: standard, pass, 35 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {
@@ -36,7 +48,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         /* base case n = 1  (no repeat yet) */
-        memset(dp_prev, 0, sizeof(dp_prev));
+        mem_set(dp_prev, 0, sizeof(dp_prev));
         for (int v = 0; v < 8; ++v) {
             dp_prev[v][8] = 1;            /* last = v, prev_rep = none */
         }
@@ -52,7 +64,7 @@ seq_t a(idx_t n)
 
     /* extend computation up to length n */
     for (idx_t len = cache_size + 1; len <= n; ++len) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         for (int last = 0; last < 8; ++last) {
             for (int prev = 0; prev < 9; ++prev) {
@@ -84,14 +96,14 @@ seq_t a(idx_t n)
 
         /* grow cache to hold new value */
         seq_t *new_cache = seq_alloc_new_array(len);
-        memcpy(new_cache, cache, cache_size * sizeof(seq_t));
+        mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
         new_cache[cache_size] = total;          /* index len-1 */
         free_seq_array(cache);
         cache      = new_cache;
         cache_size = len;
 
         /* prepare for next iteration */
-        memcpy(dp_prev, dp_next, sizeof(dp_prev));
+        mem_copy(dp_prev, dp_next, sizeof(dp_prev));
     }
 
     return cache[n - 1];

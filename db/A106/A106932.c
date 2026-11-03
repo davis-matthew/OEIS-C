@@ -11,7 +11,8 @@
  *            is_prime routine from ../utils/is_prime.h
  * Range:     u8 n <= 27, u16 n <= 2974, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 70 terms through n = 9827 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Integer square‑root for unsigned __int128 (returns a 64‑bit value) */
 static unsigned __int128 isqrt128(unsigned __int128 n)
@@ -72,18 +75,18 @@ seq_t a(idx_t n)
     if (cache_size < n) {
         if (cache_cap == 0) {
             cache_cap = 8;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
         } else if (cache_size + (n - cache_size) > cache_cap) {
             while (cache_cap < cache_size + (n - cache_size))
                 cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
     }
 
     /* Generate terms until we have the n‑th */
     while (cache_size < n) {
         /* Use the provided primality test */
-        if (is_prime(next_prime_candidate)) {
+        if (is_prime_u64(next_prime_candidate)) {
             if (has_representation(next_prime_candidate))
                 cache[cache_size++] = (seq_t)next_prime_candidate;
         }

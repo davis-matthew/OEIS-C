@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 97 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* Formula : a(n) = (n^n - n) / (n-1)^2  (n >= 2), a(1) = 1 */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n == 1) return (seq_t)1;
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
        and for 64‑bit seq_t when n is small enough for the result to
        fit (the compiler will generate the correct code path below). */
     seq_t base = (seq_t)n;
-    seq_t pow_val = big_pow(base, (seq_t)n);      /* n^n  */
+    seq_t pow_val = ipow(base, (seq_t)n);      /* n^n  */
     seq_t numerator = pow_val - (seq_t)n;
     seq_t denom = (seq_t)(n - 1);
     denom = denom * denom;                         /* (n-1)^2 */

@@ -7,6 +7,7 @@
  * Formula:   a(n) = |n^2 + n - 1354363|
  * Range:     u8 none, u16 none, u32 n <= 2000, u64 n <= 2000, u128 n <= 2000,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 1937 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,12 +8,24 @@
  *            from sequence 2,2,3,4,4,5,6,6,
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 23, u128 n <= 37,
  *            big any n
- * Helpers:   ratio_at_pos_0indexed
+ * Validated: standard, pass, 38 terms through n = 454 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/ratio_at_pos_0indexed.h"
+static idx_t ratio_at_pos_0indexed(idx_t n) {
+    idx_t pos = 0;
+    idx_t m = 2;
+    while (1) {
+        idx_t count = (m & 1) ? 1 : 2;
+        if (pos + count > n) {
+            return m;
+        }
+        pos += count;
+        m++;
+    }
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;

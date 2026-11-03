@@ -12,7 +12,8 @@
  *            odd part of n! is divided out exactly
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   is_fixed_seq
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/is_fixed_seq.h"
+
+static int is_fixed_seq(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 200; i++) x *= 2;
+    return x == 0;
+}
 
 static unsigned char *vis;
 static int perm[32];

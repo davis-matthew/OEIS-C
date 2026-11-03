@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 58, u32 n <= 183, u64 n <= 601,
  *            u128 n <= 1991, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9282 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* Grid constants: radius of the square surrounding the spiral. */
 static const int  OFFSET      = 256;
@@ -53,11 +55,11 @@ static void init_grid(void)
 {
     if (!grid) {
         size_t total = (size_t)GRID_SIZE * GRID_SIZE;
-        grid = (seq_t*)malloc(total * sizeof(seq_t));
+        grid = mem_new(seq_t, total);
         if (!grid) return;               /* out of memory – caller will fail */
 #ifdef __cplusplus
         for (size_t i = 0; i < total; ++i)
-            new (&grid[i]) seq_t();
+            *(&grid[i]) = (seq_t)0;
 #else
         memset(grid, 0, total * sizeof(seq_t));
 #endif
@@ -70,17 +72,17 @@ static void ensure_seq_capacity(idx_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 128;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_seq = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_seq = mem_new(seq_t, new_cap);
     if (!new_seq) return;                /* out of memory – caller will fail */
 #ifdef __cplusplus
     for (size_t i = 0; i < new_cap; ++i)
-        new (&new_seq[i]) seq_t();
+        *(&new_seq[i]) = (seq_t)0;
 #else
     memset(new_seq, 0, new_cap * sizeof(seq_t));
 #endif
     if (seq) {
-        memcpy(new_seq, seq, (size_t)seq_len * sizeof(seq_t));
-        free(seq);
+        mem_copy(new_seq, seq, (size_t)seq_len * sizeof(seq_t));
+        mem_free(seq);
     }
     seq = new_seq;
     seq_cap = new_cap;

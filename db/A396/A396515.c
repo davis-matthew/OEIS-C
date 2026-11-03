@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{d|n} ( d*phi(n/d)-d+1 )
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"   /* Provides seq_t phi(idx_t m) */
+#include <stdint.h>
+#include "../utils/totient.h"
 
 /* Computes the OEIS sequence A396515.
    Input:  n >= 1
@@ -31,14 +33,14 @@ seq_t a(idx_t n)
             idx_t d2 = n / i;
 
             /* contribution for d1 */
-            seq_t phi1 = phi(d2);                     /* phi(n/d1) */
+            seq_t phi1 = totient(d2);                     /* phi(n/d1) */
             seq_t contrib1 = (seq_t)d1 * phi1 - (seq_t)d1 + (seq_t)1;
             total += contrib1;
 
             /* if d1 and d2 differ, add the second divisor */
             if (d1 != d2)
             {
-                seq_t phi2 = phi(d1);                 /* phi(n/d2) */
+                seq_t phi2 = totient(d1);                 /* phi(n/d2) */
                 seq_t contrib2 = (seq_t)d2 * phi2 - (seq_t)d2 + (seq_t)1;
                 total += contrib2;
             }

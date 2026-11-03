@@ -10,7 +10,8 @@
  *            prime)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   _pow_seq
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/_pow_seq.h"
+#include "../utils/ipow_idx.h"
 
 /* ---------- prime table --------------------------------------------------- */
 static idx_t     _last_prime_limit = 0; /* largest n for which primes are generated  */
@@ -87,7 +88,7 @@ seq_t a(idx_t n)
                 tmp /= p;
                 ++exp;
             }
-            seq_t term = (seq_t)exp * _pow_seq((seq_t)m, (idx_t)i);
+            seq_t term = (seq_t)exp * ipow_idx((seq_t)m, (idx_t)i);
             total += term;
         }
     }
@@ -103,7 +104,7 @@ seq_t a(idx_t n)
             else                        hi = mid;
         }
         /* idx is zero‑based index of the prime */
-        seq_t term = (seq_t)1 * _pow_seq((seq_t)m, (idx_t)idx);
+        seq_t term = (seq_t)1 * ipow_idx((seq_t)m, (idx_t)idx);
         total += term;
     }
 

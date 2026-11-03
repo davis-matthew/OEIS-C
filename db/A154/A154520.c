@@ -10,18 +10,38 @@
  *            of that string
  * Range:     u8 n <= 99, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   _prime_limit_for_idx, build_primes, digit_count, is_prime, pow10
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   build_primes, is_prime, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/_prime_limit_for_idx.h"
+#include <stdint.h>
+#include <math.h>
+#include <stdbool.h>
 #include "../utils/build_primes.h"
 #include "../utils/is_prime.h"
-#include "../utils/digit_count.h"
-#include "../utils/pow10.h"
+#include "../utils/num_digits0.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -48,7 +68,7 @@ seq_t a(idx_t n)
 
     for (idx_t m = 1; ; ++m) {
         if (!is_prime(m)) {            /* m is a non‑prime (including 1) */
-            uint64_t d = digit_count(m);   /* number of decimal digits in m */
+            uint64_t d = num_digits0(m);   /* number of decimal digits in m */
             idx_t digit_len = (idx_t)d;
 
             if (accumulated + digit_len >= target_pos) {

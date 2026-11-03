@@ -7,13 +7,15 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} k^(3 * (n-k)) / (n-k)!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 32 terms through n = 207 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     seq_t sum = 0;
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
         if (base == 0 && exp == 0)
             pow = 1;
         else
-            pow = big_pow(base, exp);
+            pow = ipow(base, exp);
 
         sum += pow * prod;
 

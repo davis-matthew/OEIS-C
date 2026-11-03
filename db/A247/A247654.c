@@ -11,7 +11,8 @@
  *            factor count
  * Range:     u8 n <= 126, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ctz_u64
+ * Validated: standard, pass, 81 terms through n = 8158 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/ctz_u64.h"
+
+/* Count trailing zeros in an unsigned 64‑bit integer */
+static idx_t ctz_u64(uint64_t x)
+{
+    idx_t c = 0;
+    while ((x & 1ULL) == 0ULL) {
+        x >>= 1;
+        ++c;
+    }
+    return c;
+}
 
 /* Maximum odd part we cache for speed */
 #define MAX_ODD 20000

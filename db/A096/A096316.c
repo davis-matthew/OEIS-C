@@ -10,6 +10,7 @@
  *            (p_0 = 2)
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 /* use the prime sieve routine supplied by the framework */
+#include <stddef.h>
 #include "../utils/build_primes.h"
 
 /* Static state --------------------------------------------------------- */

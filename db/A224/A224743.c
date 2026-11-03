@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 5, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* constants ------------------------------------------------------------- */
 #define N_STATES 128            /* 7‑bit rows: 0 … 127 */
@@ -110,7 +112,7 @@ static void extend_table(idx_t n)
     for (idx_t step = computed_n + 1; step <= n; ++step) {
         /* compute nxt from cur */
         for (int c = 0; c < N_C; ++c)
-            memset(nxt[c], 0, N_STATES * sizeof(seq_t));
+            mem_set(nxt[c], 0, N_STATES * sizeof(seq_t));
 
         for (int c = 0; c < N_C; ++c) {
             for (int v = 0; v < N_STATES; ++v) {
@@ -134,7 +136,7 @@ static void extend_table(idx_t n)
 
         /* move to next iteration */
         for (int c = 0; c < N_C; ++c)
-            memcpy(cur[c], nxt[c], N_STATES * sizeof(seq_t));
+            mem_copy(cur[c], nxt[c], N_STATES * sizeof(seq_t));
 
         computed_n = step;
     }
@@ -158,7 +160,7 @@ seq_t a(idx_t n)
         seq_t answer = 0;
         for (idx_t step = 1; step <= n; ++step) {
             for (int c = 0; c < N_C; ++c)
-                memset(nxt[c], 0, N_STATES * sizeof(seq_t));
+                mem_set(nxt[c], 0, N_STATES * sizeof(seq_t));
 
             for (int c = 0; c < N_C; ++c) {
                 for (int v = 0; v < N_STATES; ++v) {
@@ -180,7 +182,7 @@ seq_t a(idx_t n)
             answer = step_total;
 
             for (int c = 0; c < N_C; ++c)
-                memcpy(cur[c], nxt[c], N_STATES * sizeof(seq_t));
+                mem_copy(cur[c], nxt[c], N_STATES * sizeof(seq_t));
         }
         return answer;
     }

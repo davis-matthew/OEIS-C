@@ -9,6 +9,7 @@
  *            only for 1 ≤ n ≤ 11)
  * Range:     u8 none, u16 none, u32 n <= 1, u64 n <= 2, u128 n <= 11,
  *            big any n
+ * Validated: full, pass, 11 terms through n = 11 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

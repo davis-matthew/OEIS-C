@@ -8,9 +8,10 @@
  * Formula:   a(n) = T(m,k), * where m is the smallest integer such that
  *            m*(m+1)/2 ≥ n, * and k = n - (m-1)*m/2. T(m,k) = Σ_{d=1}^{⌊m/k⌋}
  *            μ(d)·C(⌊m/d⌋, k)
- * Range:     u8 n <= 31, u16 n <= 177, u32 n <= 610, u64 n <= 1275,
+ * Range:     u8 n <= 58, u16 n <= 178, u32 n <= 611, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   binomial, mu_of
+ * Validated: standard, pass, 85 terms through n = 1199 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,30 @@
 /* Required utility functions */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mu_of.h"      /* int mu_of(idx_t d)          */
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n,k)   */
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 /* Compute a(n) as defined above. */
 seq_t a(idx_t n) {

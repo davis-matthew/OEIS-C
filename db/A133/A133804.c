@@ -10,14 +10,16 @@
  *            r(r+1)/2. This flattens the triangular array defined by T(n,k) =
  *            binomial(n,k) + binomial(n,k+1) + (binomial(n,k+2) –
  *            (–1)^k·binomial(n,k+2))/2
- * Range:     u8 n <= 38, u16 n <= 144, u32 n <= 543, u64 n <= 1325,
+ * Range:     u8 n <= 47, u16 n <= 159, u32 n <= 609, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 94 terms through n = 1309 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

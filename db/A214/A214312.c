@@ -11,16 +11,41 @@
  *            length n that use all four colours
  * Range:     u8 none, u16 n <= 7, u32 n <= 13, u64 n <= 27, u128 n <= 58,
  *            big any n
- * Helpers:   big_pow, binom_n_4, mul_small
+ * Validated: standard, pass, 38 terms through n = 99 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
-#include "../utils/mul_small.h"
-#include "../utils/binom_n_4.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/ipow.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+/* Binomial coefficient n choose 4, computed multiplicatively. */
+static seq_t binom_n_4(idx_t n)
+{
+    seq_t r = (seq_t)n;
+    r *= (seq_t)(n - 1);
+    r *= (seq_t)(n - 2);
+    r *= (seq_t)(n - 3);
+    r /= (seq_t)24;
+    return r;
+}
 
 /* Small integer totient for d <= 10000 (fits in uint64_t). */
 static seq_t phi_uint64(idx_t d)
@@ -63,7 +88,7 @@ static seq_t bracelet_count(idx_t n, idx_t k)
     {
         idx_t d = divs[j];
         idx_t exp = n / d;
-        seq_t pow_val = big_pow((seq_t)k, (seq_t)exp);
+        seq_t pow_val = ipow((seq_t)k, (seq_t)exp);
         seq_t phi_d   = phi_uint64(d);
         rot_sum += mul_small(pow_val, (unsigned int)phi_d);
     }
@@ -72,13 +97,13 @@ static seq_t bracelet_count(idx_t n, idx_t k)
     seq_t refl_sum;
     if (n & 1)   /* n odd */
     {
-        seq_t pow_val = big_pow((seq_t)k, (seq_t)((n + 1) / 2));
+        seq_t pow_val = ipow((seq_t)k, (seq_t)((n + 1) / 2));
         refl_sum = mul_small(pow_val, (unsigned int)n);
     }
     else         /* n even */
     {
-        seq_t pow1 = big_pow((seq_t)k, (seq_t)(n / 2 + 1));
-        seq_t pow2 = big_pow((seq_t)k, (seq_t)(n / 2));
+        seq_t pow1 = ipow((seq_t)k, (seq_t)(n / 2 + 1));
+        seq_t pow2 = ipow((seq_t)k, (seq_t)(n / 2));
         seq_t part1 = mul_small(pow1, (unsigned int)(n / 2));
         seq_t part2 = mul_small(pow2, (unsigned int)(n / 2));
         refl_sum = part1 + part2;

@@ -7,7 +7,8 @@
  * Formula:   a(n) is the (row, column) entry of the triangle defined by
  * Range:     u8 n <= 30, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
  /* where C(k, m) are binomial coefficients (Pascal's triangle). */
 
 #include <stdint.h>
-#include "../utils/binom.h"   /* provides: seq_t binom(idx_t a, idx_t b); */
+#include "../utils/binomial.h"
 
 static inline idx_t triangular(idx_t n)
 {
@@ -44,7 +45,7 @@ seq_t a(idx_t n)
     for (idx_t k = 1; k <= r - 1; ++k)
     {
         /* binom returns 0 if j‑1 > k, so we may skip the check to keep code short */
-        seq_t term = binom(k, j - 1);
+        seq_t term = binomial(k, j - 1);
         term = term * (seq_t)k;   /* k is small (≤ r ≤ 200) */
         sum += term;
     }

@@ -10,13 +10,16 @@
  *            x>y>0, x+y odd (primitive PPTs)
  * Range:     u8 none, u16 none, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* comparison function for qsort  */
 static int cmp_seq_t(const void *p1, const void *p2) {
@@ -40,7 +43,7 @@ seq_t a(idx_t n) {
         const idx_t XMAX = 1200;      /* generates ~72 000 PPTs */
         /* initial allocation guess */
         sorted_cap = 20000;
-        sorted = (seq_t*)malloc(sorted_cap * sizeof(seq_t));
+        sorted = mem_new(seq_t, sorted_cap);
         if (!sorted) return (seq_t)0;
         sorted_len = 0;
 
@@ -61,8 +64,8 @@ seq_t a(idx_t n) {
                 /* grow array if necessary */
                 if (sorted_len == sorted_cap) {
                     sorted_cap *= 2;
-                    seq_t *tmp = (seq_t*)realloc(sorted, sorted_cap * sizeof(seq_t));
-                    if (!tmp) { free(sorted); return (seq_t)0; }
+                    seq_t *tmp = mem_resize(seq_t, sorted, sorted_cap);
+                    if (!tmp) { mem_free(sorted); return (seq_t)0; }
                     sorted = tmp;
                 }
                 sorted[sorted_len++] = I;
@@ -70,7 +73,7 @@ seq_t a(idx_t n) {
         }
 
         /* sort the collected internal‑point counts */
-        qsort(sorted, sorted_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(sorted, sorted_len, sizeof(seq_t), cmp_seq_t);
     }
 
     /* n is unsigned and guaranteed ≥ 1 by the problem statement. */

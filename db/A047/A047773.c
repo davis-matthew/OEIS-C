@@ -12,13 +12,15 @@
  *            below computes a(n) for any n ≥ 1 by exploiting explici...
  * Range:     u8 none, u16 n <= 40, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const idx_t MAX_N = 10000;          /* maximum n to be handled */
 
@@ -38,10 +40,10 @@ static void precompute(void)
     const size_t c24_size= (size_t)(MAX_N / 24) + 1;
 
     /* allocate memory */
-    g   = (seq_t*)malloc(g_size * sizeof(seq_t));
-    C6  = (seq_t*)malloc(c6_size * sizeof(seq_t));
-    C12 = (seq_t*)malloc(c12_size * sizeof(seq_t));
-    C24 = (seq_t*)malloc(c24_size * sizeof(seq_t));
+    g   = mem_new(seq_t, g_size);
+    C6  = mem_new(seq_t, c6_size);
+    C12 = mem_new(seq_t, c12_size);
+    C24 = mem_new(seq_t, c24_size);
 
     /* g[0] = 1 (G(0) = 1) */
     g[0] = (seq_t)1;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 127, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 82 terms through n = 944 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t x) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache[0] holds a(1) */
 static idx_t cache_cap = 0;          /* current cached capacity */
@@ -33,15 +35,15 @@ static void ensure_cache(idx_t n)
     idx_t new_cap = (cache_cap ? cache_cap * 2 : 128);
     if (new_cap < n)
         new_cap = n;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         exit(EXIT_FAILURE);
     if (cache) {
-        memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
+        mem_free(cache);
     }
     /* initialise new slots to 0 (unsatisfied value) */
-    memset(new_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+    mem_set(new_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
     cache = new_cache;
     cache_cap = new_cap;
 }

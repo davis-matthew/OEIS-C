@@ -9,9 +9,10 @@
  *            exactly {2,3,7}. The development checks every integer m in
  *            increasing order, testing divisors of 6*m for the forbidden
  *            primes
- * Range:     u8 n <= 23, u16 n <= 5200, u32 n <= 8945, u64 n <= 8945,
- *            u128 n <= 8945, big any n
- * Helpers:   none
+ * Range:     u8 n <= 23, u16 n <= 5200, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 70 terms through n = 8945 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Integer types provided by the build */
 typedef seq_t seq_t;
@@ -151,7 +153,7 @@ static void ensure_cache(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? (cache_cap << 1) : 16;
     if (new_cap < needed) new_cap = needed;
-    seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, new_cap);
     cache = newp;
     cache_cap = new_cap;
 }

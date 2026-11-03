@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 46, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cached tables */
 static seq_t *dp = NULL;        /* dynamic programming array */
@@ -59,7 +61,7 @@ static void ensure_dp_up_to(idx_t limit)
 {
     /* First allocation: dp[0] = 1 */
     if (dp == NULL) {
-        dp = (seq_t *)malloc(sizeof(seq_t) * 1);
+        dp = mem_new(seq_t, 1);
         if (!dp) abort();
         dp[0] = 1;
         dp_size = 1;
@@ -68,7 +70,7 @@ static void ensure_dp_up_to(idx_t limit)
     /* Extend the array if needed */
     if (dp_size <= (size_t)limit) {
         size_t new_size = (size_t)limit + 1;
-        seq_t *tmp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_size);
         if (!tmp) abort();           /* allocation failure */
         dp = tmp;
         /* Compute new dp values */

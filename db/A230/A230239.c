@@ -8,6 +8,7 @@
  * Formula:   a(n) = 2*floor((4*(n-1)+1)/7) + floor((n-1+3)/7) + (n-1)
  * Range:     u8 n <= 112, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 77 terms through n = 930 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

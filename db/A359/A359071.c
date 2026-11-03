@@ -9,6 +9,7 @@
  * Formula:   a(n) = numerator(∑_{k=2..n} 1/A051903(k))
  * Range:     u8 n <= 15, u16 n <= 206, u32 n <= 8404, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 71 terms through n = 8405 (2026-11-01)
  * Helpers:   build_spf, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

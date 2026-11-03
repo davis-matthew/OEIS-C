@@ -10,13 +10,15 @@
  *            a(1)=23, a(2)=506, a(3)=11132, a(4)=244651
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* initialise the table for n=0 */
     if (len == 0) {
         len = 1;
-        arr = (seq_t *)malloc(len * sizeof(seq_t));
+        arr = mem_new(seq_t, len);
         if (!arr) return 0;     /* memory failure: return 0 */
         arr[0] = 1;
     }
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
     /* extend the table up to n if needed */
     if (n >= len) {
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(arr, new_len * sizeof(seq_t));
-        if (!tmp) { free(arr); arr = NULL; len = 0; return 0; }
+        seq_t *tmp = mem_resize(seq_t, arr, new_len);
+        if (!tmp) { mem_free(arr); arr = NULL; len = 0; return 0; }
         arr = tmp;
 
         for (idx_t i = len; i <= n; ++i) {

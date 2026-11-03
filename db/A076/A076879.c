@@ -9,21 +9,22 @@
  *            number of 0’s and 1’s as the binary representation of n
  * Range:     u8 n <= 15, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   bitlen_seq_t_custom
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/bitlen_seq_t_custom.h"
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
     /* n ≥ 1 for the sequence */
-    unsigned len_n   = bitlen_seq_t_custom((seq_t)n);          /* length of binary(n)  */
+    unsigned len_n   = bit_length((seq_t)n);          /* length of binary(n)  */
     unsigned ones_n  = __builtin_popcountll((unsigned long long)n); /* popcount of n   */
 
     seq_t sq = (seq_t)n * (seq_t)n;                           /* n^2 as seq_t      */
-    unsigned len_sq = bitlen_seq_t_custom(sq);                 /* length of binary(n^2) */
+    unsigned len_sq = bit_length(sq);                 /* length of binary(n^2) */
 
     if (len_n > len_sq) return 0;  /* impossible, but safe */
 

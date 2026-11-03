@@ -7,9 +7,10 @@
  * Formula:   a(n) = floor(2^(1/5) * 10^(n-1)) mod 10, computed in fixed-point
  *            from 2^(1/5) = (23/20) * (1 - y)^(1/5), y = 36343/6436343, (1 -
  *            y)^(1/5) = Sum_{k>=0} binomial(1/5,k) * (-y)^k
- * Range:     u8 n <= 9955, u16 n <= 9955, u32 n <= 9955, u64 n <= 9955,
- *            u128 n <= 9955, big any n
- * Helpers:   a5531_iszero
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9955 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a5531_iszero.h"
+
+static int a5531_iszero(const uint32_t *a, long L) {
+    long i;
+    for (i = 0; i < L; i++) if (a[i]) return 0;
+    return 1;
+}
 
 #define A5531_BASE 1000000000ULL
 

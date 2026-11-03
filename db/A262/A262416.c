@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
      a(n) = 11*a(n-1) + 48*a(n-2) - 528*a(n-3) - 579*a(n-4)
             + 6369*a(n-5) + 1612*a(n-6) - 17732*a(n-7) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache[i] holds a(i+1) */
 static idx_t cache_size = 0;     /* number of cached terms */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
     if (cache_size >= n)
         return;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, n);
     if (!new_cache && n > 0)
         abort(); /* allocation failed */
 

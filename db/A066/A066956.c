@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nice, nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 8718, u16 n <= 8718, u32 n <= 8718, u64 n <= 8718,
- *            u128 n <= 8718, big any n
- * Helpers:   none
+ * Range:     u8 n <= 34668, u16 n <= 34668, u32 n <= 34668, u64 n <= 34668,
+ *            u128 n <= 34668, big any n
+ * Validated: standard, pass, 87 terms through n = 8718 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 struct Entry {
     int sum;      /* signed sum of one expression */
@@ -107,7 +109,7 @@ static void init_table(void)
     }
 
     /* sort table by sum to enable binary search */
-    qsort(table, table_len, sizeof(struct Entry), cmp_entry);
+    mem_qsort(table, table_len, sizeof(struct Entry), cmp_entry);
 
     initialized = 1;
 }

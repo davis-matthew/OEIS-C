@@ -7,14 +7,16 @@
  * Formula:   a(n) = the n-th odd composite number congruent to 4 (mod 9)
  * Range:     u8 n <= 5, u16 n <= 2548, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrimeTrial
+ * Validated: standard, pass, 64 terms through n = 9216 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isPrimeTrial.h"   /* provides bool isPrimeTrial(seq_t n) */
+#include <stdlib.h>
+#include "../utils/is_prime_seq.h"
 
 /* Return the n-th odd composite ≡ 4 (mod 9).  Indexing starts at 1. */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     while (count < n) {
         candidate = (seq_t)18 * m + (seq_t)13;
         /* candidate is odd and > 1; test for primality. */
-        if (!isPrimeTrial(candidate)) {
+        if (!is_prime_seq(candidate)) {
             /* Non‑prime ⇒ composite (odd by construction). */
             count++;
             if (count == n)

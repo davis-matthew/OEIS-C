@@ -8,8 +8,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 54, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 14, u16 n <= 35, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -30,6 +31,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include "../utils/catalan.h"
 
 /* Helper: allocate an array of seq_t that works in C and C++ */

@@ -6,18 +6,35 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = gcd(sigma(n), psi(n))
- * Range:     u8 n <= 137, u16 n <= 8832, u32 n <= 8832, u64 n <= 8832,
- *            u128 n <= 8832, big any n
- * Helpers:   factor_u64, gcd, sigma_of
+ * Range:     u8 n <= 137, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 101 terms through n = 8832 (2026-11-01)
+ * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"  /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/sigma_of.h"   /* seq_t sigma_of(idx_t n); */
-#include "../utils/gcd.h"        /* seq_t gcd(seq_t a, seq_t b); */
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* Dedekind ψ function: ψ(n) = ∏_{p^e‖n} p^{e-1}·(p+1) */
 static seq_t dedekind_psi(uint64_t n)

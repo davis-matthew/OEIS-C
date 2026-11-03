@@ -9,15 +9,46 @@
  *            #{(x,y) in F_p^2 : y^2 + y = x^3 - x^2} (elliptic curve 11a3)
  * Range:     i8 n <= 2653, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   a_prime_power, ap_prime
+ * Validated: standard, pass, 116 terms through n = 9883 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a_prime_power.h"
-#include "../utils/ap_prime.h"
+
+/* a(p) for a prime p: p minus the number of affine points of y^2 + y = x^3 - x^2 over F_p */
+static long long ap_prime(uint64_t p) {
+    if (p == 11) return 1;
+    long long *cnt = (long long *)calloc((size_t)p, sizeof(long long));
+    for (uint64_t y = 0; y < p; y++) {
+        uint64_t v = (y * y + y) % p;
+        cnt[v]++;
+    }
+    long long N = 0;
+    for (uint64_t x = 0; x < p; x++) {
+        uint64_t x2 = (x * x) % p;
+        uint64_t x3 = (x2 * x) % p;
+        uint64_t f = (x3 + p - x2) % p;
+        N += cnt[f];
+    }
+    free(cnt);
+    return (long long)p - N;
+}
+
+static long long a_prime_power(uint64_t p, unsigned e) {
+    if (p == 11) return 1;
+    long long ap = ap_prime(p);
+    long long prev2 = 1, prev1 = ap; /* a(p^0), a(p^1) */
+    if (e == 0) return 1;
+    for (unsigned k = 2; k <= e; k++) {
+        long long cur = ap * prev1 - (long long)p * prev2;
+        prev2 = prev1;
+        prev1 = cur;
+    }
+    return prev1;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;

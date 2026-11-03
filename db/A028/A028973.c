@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 92 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *count = NULL;   /* table of a(0)…a(max_n-1)          */
 static idx_t   max_n  = 0;    /* size of table                       */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* enlarge table if necessary */
     if (n >= max_n) {
         idx_t new_cap = n + 1;
-        seq_t *new_count = (seq_t*)calloc((size_t)new_cap, sizeof(seq_t));
+        seq_t *new_count = mem_new(seq_t, (size_t)new_cap);
         if (!new_count) return 0;   /* out of memory */
 
         /* λ_min = 2 → each |xi| ≤ sqrt(n/2) */
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(count);
+        mem_free(count);
         count = new_count;
         max_n = new_cap;
     }

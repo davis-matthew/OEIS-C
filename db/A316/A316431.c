@@ -10,13 +10,15 @@
  *            indices. For a Heinz‑number n the partition is the multiset of
  *            indices of the prime factors of n; the quotient of LCM and GCD
  *            of those indices is returned. This implementation...
- * Range:     u8 n <= 2180, u16 n <= 9615, u32 n <= 9615, u64 n <= 9615,
- *            u128 n <= 9615, big any n
+ * Range:     u8 n <= 2180, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 120 terms through n = 9615 (2026-11-02)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>

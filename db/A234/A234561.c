@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 17, u64 n <= 36, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* cache for computed values, 1‑indexed; cache[0] is unused */
 static seq_t *cache = NULL;
@@ -45,7 +47,7 @@ static bool init_done = false;
 /* initialise cache with the first 14 terms */
 static void init_seeds(void)
 {
-    cache = (seq_t *)calloc(15, sizeof(seq_t));  /* indices 0..14 */
+    cache = mem_new(seq_t, 15);  /* indices 0..14 */
     if (!cache) abort();
 
     cache[1]  = 5506;
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
 
     /* extend the cache up to n */
     size_t new_len = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) abort();
     cache = tmp;
 

@@ -7,12 +7,14 @@
  * Formula:   a(n) = -14*a(n-1) - a(n-2); a(1)=1, a(2)=1
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 10, i64 n <= 18, i128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 850 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static size_t seq_cache_capacity = 0;
@@ -22,7 +24,7 @@ static void ensure_seq_cache_capacity(size_t cap) {
     if (cap <= seq_cache_capacity) return;
     size_t new_cap = seq_cache_capacity ? seq_cache_capacity * 2 : 1;
     while (new_cap < cap) new_cap *= 2;
-    seq_t *tmp = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     /* allocation is assumed to succeed; in a real setting handle errors */
     seq_cache = tmp;
     seq_cache_capacity = new_cap;

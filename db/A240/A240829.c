@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, hear
  * Formula:   not stated
- * Range:     i8 n <= 187, i16 n <= 9474, i32 n <= 9474, i64 n <= 9474,
- *            i128 n <= 9474, big any n
- * Helpers:   none
+ * Range:     i8 n <= 187, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 98 terms through n = 9474 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    The function uses memoisation to allow arbitrary order of calls. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build system.  */
 
@@ -37,14 +39,14 @@ static void ensure_cache(idx_t min_size)
     while (new_cap <= (size_t)min_size)
         new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)malloc((new_cap + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (new_cap + 1));
     if (!new_cache)
         return;                    /* allocation failure – not expected */
 
     if (cache) {
         for (size_t i = 0; i <= (size_t)computed; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
 
     cache = new_cache;

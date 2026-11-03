@@ -9,13 +9,15 @@
  *            a(1)=1, a(2)=4, a(3)=7
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 129,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 926 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;    /* allocated cache for terms */
 static size_t  a_cache_cap = 0;   /* capacity of the allocated cache   */
@@ -31,7 +33,7 @@ static void a_expand_cache(idx_t need)
     while (new_cap <= (size_t)need) {
         new_cap *= 2;
     }
-    seq_t *new_mem = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, a_cache, new_cap);
     if (new_mem == NULL) {
         /* Allocation failed – abort as the test framework expects no failures. */
         abort();

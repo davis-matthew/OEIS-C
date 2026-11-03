@@ -8,8 +8,9 @@
  * Formula:   a(n) = number of positive integer solutions (x_0,…,x_k) *
  *            satisfying x_i + x_{i+1} = c[i] for the n‑th composition c in
  *            standard * order (graded reverse‑lexicographic)
- * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
+ * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
+ *            big any n
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

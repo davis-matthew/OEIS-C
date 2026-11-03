@@ -8,7 +8,8 @@
  *            power of 2, where d(m) is the number of positive divisors of m
  * Range:     u8 none, u16 n <= 209, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, int_sqrt
+ * Validated: standard, pass, 55 terms through n = 7743 (2026-11-03)
+ * Helpers:   build_primes_upto, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/int_sqrt.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 static seq_t *seq     = NULL;   /* cached sequence values      */
 static size_t seq_len = 0;      /* number of values stored     */
@@ -70,7 +72,7 @@ static void append_seq(seq_t val)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap == 0 ? 64 : seq_cap * 2;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         if (!seq) abort();
         seq_cap = new_cap;
     }
@@ -104,7 +106,7 @@ static bool is_member(uint64_t k)
     uint64_t mask2 = 0;   /* odd primes dividing some (3*e_i+1) */
 
     uint64_t tmp = k;
-    uint64_t limit = int_sqrt(k);
+    uint64_t limit = isqrt(k);
     ensure_primes_upto(limit);
 
     for (size_t i = 0; i < primes_cnt && (uint64_t)primes[i] * primes[i] <= tmp; ++i) {

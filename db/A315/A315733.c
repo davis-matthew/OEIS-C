@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Special index storage ---------- */
 static idx_t *specials = NULL;
@@ -84,14 +86,14 @@ static void ensure_cache(idx_t n)
 {
     if (!cache) {
         cache_cap = n + 1 > 64 ? n + 1 : 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)6;
         cache_len = 2;
     }
     if (n >= cache_cap) {
         cache_cap = n + 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     for (idx_t i = cache_len; i <= n; ++i) {
         seq_t diff = is_special(i) ? (seq_t)4 : (seq_t)6;

@@ -12,13 +12,15 @@
  *            0. The sequence a(n) is obtained by listin...
  * Range:     u8 n <= 30, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static storage for the triangle */
 static seq_t **T = NULL;       /* T[i] points to row i (indices 1..i) */
@@ -40,7 +42,7 @@ static void ensure_rows(size_t r)
     /* compute new rows i = maxRow+1 .. r */
     for (size_t i = maxRow + 1; i <= r; ++i) {
         /* allocate space for row i (index 1..i) */
-        T[i] = (seq_t*)calloc(i + 1, sizeof(*T[i]));
+        T[i] = mem_new(seq_t, i + 1);
         if (i == 1) {
             T[1][1] = (seq_t)1;
         } else if (i == 2) {

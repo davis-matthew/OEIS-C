@@ -8,13 +8,18 @@
  *            2^k
  * Range:     u8 n <= 90, u16 n <= 6781, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 82 terms through n = 8604 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,9 +33,9 @@ seq_t a(idx_t n)
         seq_t k = (seq_t)next_k;              /* candidate k */
 
         /* modular powers of 5, 3 and 2 modulo k */
-        seq_t v5 = mod_pow((seq_t)5, next_k, k);
-        seq_t v3 = mod_pow((seq_t)3, next_k, k);
-        seq_t v2 = mod_pow((seq_t)2, next_k, k);
+        seq_t v5 = powmod((seq_t)5, next_k, k);
+        seq_t v3 = powmod((seq_t)3, next_k, k);
+        seq_t v2 = powmod((seq_t)2, next_k, k);
 
         /* (v5 - v3 - v2) mod k without overflow */
         seq_t diff;
@@ -42,7 +47,7 @@ seq_t a(idx_t n)
         if (diff == 0) {                      /* k satisfies the condition */
             if (terms_len == terms_cap) {      /* grow the array */
                 size_t new_cap = (terms_cap == 0) ? 16 : terms_cap << 1;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 terms = tmp;
                 terms_cap = new_cap;
             }

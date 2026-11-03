@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 110 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state for on‑demand computation */
 static bool          initialized = false;
@@ -81,7 +83,7 @@ static inline void ensure_dist_cap(size_t need)
     if (dist_cap >= need) return;
     size_t new_cap = dist_cap ? dist_cap << 1 : 8;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(dist_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, dist_arr, new_cap);
     if (!tmp) return;               /* keep old pointer on failure */
     dist_arr = tmp;
     dist_cap = new_cap;
@@ -93,7 +95,7 @@ static void init_once(void)
     if (initialized) return;
     /* allocate distance array */
     dist_cap = 8;
-    dist_arr = (seq_t *)malloc(dist_cap * sizeof(seq_t));
+    dist_arr = mem_new(seq_t, dist_cap);
     dist_len = 0;
     /* initial state reflects primes 2 and 3 */
     prev_prime   = 3;

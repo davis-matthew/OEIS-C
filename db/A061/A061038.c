@@ -7,6 +7,7 @@
  * Formula:   a(n) = 4*n^2 / gcd(4*n^2, n^2-4)
  * Range:     u8 n <= 7, u16 n <= 127, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 62 terms through n = 971 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* Uses the gcd utility from utils/gcd.h */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

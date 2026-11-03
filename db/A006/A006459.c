@@ -11,7 +11,8 @@
  *            contains an element of A_{n-1}. Then a(n) = |A_n|
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   A6459_egcd, A6459_isqrt
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   isqrt_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/A6459_egcd.h"
-#include "../utils/A6459_isqrt.h"
+#include "../utils/isqrt_i64.h"
+
+static long long A6459_egcd(long long a, long long b, long long *u, long long *v)
+{
+    /* returns g = gcd(a,b) >= 0 with u*a + v*b = g, for a,b >= 0 */
+    long long r0 = a, r1 = b, s0 = 1, s1 = 0, t0 = 0, t1 = 1;
+    while (r1 != 0) {
+        long long qq = r0 / r1, tmp;
+        tmp = r0 - qq * r1; r0 = r1; r1 = tmp;
+        tmp = s0 - qq * s1; s0 = s1; s1 = tmp;
+        tmp = t0 - qq * t1; t0 = t1; t1 = tmp;
+    }
+    *u = s0; *v = t0;
+    return r0;
+}
 
 static long long *A6459_cnt = NULL;
 static idx_t A6459_ncnt = 0, A6459_cntcap = 0;
@@ -47,7 +61,7 @@ static int A6459_in(long long x, long long y)
 
 static void A6459_ensure_grid(long long m)
 {
-    long long need = A6459_isqrt(m) + 2, i, W;
+    long long need = isqrt_i64(m) + 2, i, W;
     if (need <= A6459_R) return;
     A6459_R = need * 2;
     W = 2 * A6459_R + 1;
@@ -108,11 +122,11 @@ static void A6459_next_level(void)
         A6459_stamp = (int *)calloc((size_t)A6459_stcap, sizeof(int));
         A6459_cur = 0;
     }
-    xmax = A6459_isqrt(m);
+    xmax = isqrt_i64(m);
     nx = (int *)malloc((size_t)(m + 4) * sizeof(int));
     ny = (int *)malloc((size_t)(m + 4) * sizeof(int));
     for (x = 0; x <= xmax; x++) {
-        long long ymax = A6459_isqrt((m - x * x) / 2);
+        long long ymax = isqrt_i64((m - x * x) / 2);
         for (y = 0; y <= ymax; y++) {
             if (x == 0 && y == 0) continue;
             if (A6459_in(x, y)) continue;

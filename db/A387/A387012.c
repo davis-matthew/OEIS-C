@@ -8,19 +8,21 @@
  * Formula:   a(n) = 9^n - Sum_{i=0..n} 2^i * binomial(2*n,i)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 21,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     /* 9^n */
-    seq_t pow9n = seq_pow((seq_t)9, n);
+    seq_t pow9n = ipow_idx((seq_t)9, n);
 
     /* Sum_{i=0..n} 2^i * binomial(2*n,i) */
     seq_t sum  = (seq_t)0;

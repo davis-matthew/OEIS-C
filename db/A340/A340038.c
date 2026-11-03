@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   cmp_seq_t, floor_sqrt, seq_alloc
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,47 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/seq_alloc.h"   /* seq_alloc */
-#include "../utils/floor_sqrt.h"  /* floor_sqrt */
-#include "../utils/cmp_seq_t.h"   /* cmp_seq_t */
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 static seq_t *sum_vals = NULL;   /* array of all distinct sums */
 static size_t sum_len  = 0;       /* number of elements in sum_vals */
@@ -58,7 +97,7 @@ static void build_sequence(void)
     }
 
     /* Sort the array. */
-    qsort(sum_vals, sum_len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(sum_vals, sum_len, sizeof(seq_t), cmp_seq_t);
 
     /* Remove duplicates in place. */
     size_t uniq = 0;

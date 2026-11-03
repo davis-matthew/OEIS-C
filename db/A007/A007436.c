@@ -8,14 +8,30 @@
  *            Fibonacci
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 47, u64 n <= 93, u128 n <= 186,
  *            big any n
- * Helpers:   get_divisors
+ * Validated: standard, pass, 56 terms through n = 4596 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/get_divisors.h"
+
+static uint64_t *get_divisors(uint64_t n, idx_t *count) {
+    uint64_t *divisors = (uint64_t *)malloc(sizeof(uint64_t) * 256);
+    *count = 0;
+    
+    for (uint64_t i = 1; i * i <= n; i++) {
+        if (n % i == 0) {
+            divisors[(*count)++] = i;
+            if (i != n / i) {
+                divisors[(*count)++] = n / i;
+            }
+        }
+    }
+    
+    return divisors;
+}
 
 static int moebius(uint64_t n) {
     if (n == 1) return 1;

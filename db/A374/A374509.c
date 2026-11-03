@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 17, i64 n <= 27, i128 n <= 27,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,13 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include "../utils/seq_mul.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static seq_t *cache = NULL;      /* dynamic array of computed terms           */
 static size_t cache_len = 0;     /* number of terms currently stored          */
@@ -34,7 +41,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = cache_cap ? cache_cap : 4;
     while (new_cap < needed)
         new_cap <<= 1;                     /* double until enough                     */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         exit(EXIT_FAILURE);               /* out of memory                            */
     cache = new_cache;

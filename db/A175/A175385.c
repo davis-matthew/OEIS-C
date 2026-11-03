@@ -7,13 +7,16 @@
  * Formula:   a(n) = numerator of Sum_{i=1..n} binomial(2n-i-1,i-1)/i
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 20, u64 n <= 27, u128 n <= 27,
  *            big any n
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

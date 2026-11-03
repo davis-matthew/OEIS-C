@@ -9,13 +9,15 @@
  *            a(4)=37
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoized computation of A279277 (composition of Lucas and Fibonacci numbers). */
 seq_t a(idx_t n)
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         if (cache_len == 0)
         {
             /* Allocate space and initialise first four entries. */
-            cache = (seq_t *)malloc((new_len + 1) * sizeof(seq_t));
+            cache = mem_new(seq_t, (new_len + 1));
             if (!cache)
                 return (seq_t)0; /* allocation failure; fallback value */
             for (size_t i = 1; i <= 4; ++i)
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         }
         else
         {
-            cache = (seq_t *)realloc(cache, (new_len + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (new_len + 1));
             if (!cache)
                 return (seq_t)0;
             /* All entries up to cache_len already filled. */

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
    list of denominators is then used to answer queries. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *denom_cache = NULL;        /* flattened denominators */
 static size_t  cache_len   = 0;           /* number of stored terms    */
@@ -43,7 +45,7 @@ static void ensure_cache_cap(size_t need)
     if (cache_cap >= need) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 512;
     if (new_cap < need) new_cap = need;
-    denom_cache = (seq_t*)realloc(denom_cache, new_cap * sizeof(seq_t));
+    denom_cache = mem_resize(seq_t, denom_cache, new_cap);
     cache_cap = new_cap;
 }
 

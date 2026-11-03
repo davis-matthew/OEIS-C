@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 235, u32 n <= 939, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,17 +21,18 @@
 */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Allocate DP arrays (size n+1).  seq_t is an integer type. */
     size_t size = (size_t)n + 1;
-    seq_t *dp = (seq_t *)calloc(size, sizeof(seq_t));
-    seq_t *h  = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, size);
+    seq_t *h  = mem_new(seq_t, size);
     if (!dp || !h) {
         /* In a real build we would handle allocation failure.
            Here we simply return 0. */
-        if (dp) free(dp);
-        if (h)  free(h);
+        if (dp) mem_free(dp);
+        if (h)  mem_free(h);
         return 0;
     }
 
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[n];
-    free(dp);
-    free(h);
+    mem_free(dp);
+    mem_free(h);
     return result;
 }

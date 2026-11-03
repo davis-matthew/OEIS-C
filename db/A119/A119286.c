@@ -11,13 +11,15 @@
  *            * for n≥8. The sequence is memoised for arbitrary‑order access
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 10, i64 n <= 19, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const seq_t init[8] = {
     (seq_t)0,   (seq_t)-1, (seq_t)0,  (seq_t)-32,
@@ -37,11 +39,11 @@ seq_t a(idx_t n)
     size_t need = (size_t)n + 1;
     if (!cache) {
         cap = need > 8 ? need : 8;
-        cache = (seq_t*)calloc(cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     } else if (need > cap) {
         size_t new_cap = cap == 0 ? 8 : cap * 2;
         while (new_cap < need) new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cap = new_cap;
     }

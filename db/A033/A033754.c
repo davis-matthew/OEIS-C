@@ -7,12 +7,14 @@
  * Formula:   a(n) = coefficient of q^n in ∏_{d|42} θ₃(q^d)
  * Range:     u8 n <= 26, u16 n <= 182, u32 n <= 6887, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9672 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *coeff_cache = NULL;
 static idx_t cache_len = 0;
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
         return coeff_cache[n];
 
     idx_t new_len = n + 1;
-    seq_t *cur = (seq_t *)calloc((size_t)new_len, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, (size_t)new_len);
     cur[0] = 1;
 
     /* Divisors of 42 */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     for (size_t di = 0; di < dcnt; ++di) {
         idx_t d = divisors[di];
-        seq_t *next = (seq_t *)calloc((size_t)new_len, sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, (size_t)new_len);
 
         for (idx_t sum = 0; sum < new_len; ++sum) {
             seq_t val = cur[sum];
@@ -49,12 +51,12 @@ seq_t a(idx_t n)
             }
         }
 
-        free(cur);
+        mem_free(cur);
         cur = next;
     }
 
     /* Store computed coefficients for future calls */
-    free(coeff_cache);
+    mem_free(coeff_cache);
     coeff_cache = cur;
     cache_len = new_len;
 

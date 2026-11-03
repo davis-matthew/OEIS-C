@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 96, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   modmul
+ * Validated: standard, pass, 55 terms through n = 995 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/modmul.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ---------- Miller–Rabin for 64‑bit integers ---------- */
 
@@ -31,8 +33,8 @@ static inline uint64_t modpow(uint64_t a, uint64_t e, uint64_t mod)
     a %= mod;
     while (e) {
         if (e & 1u)
-            r = modmul(r, a, mod);
-        a = modmul(a, a, mod);
+            r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return r;
@@ -74,7 +76,7 @@ static inline bool isPrime64(uint64_t n)
             continue;
         bool comp = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = modmul(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 comp = false;
                 break;
@@ -144,9 +146,9 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap * 2 : 1;
         if (new_cap < (size_t)n)
             new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {                 /* allocation failed */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_cap = 0;
             cache_len = 0;

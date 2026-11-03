@@ -12,13 +12,16 @@
  *            * `phi` and `big_pow`
  * Range:     u8 n <= 39, u16 n <= 84, u32 n <= 200, u64 n <= 482,
  *            u128 n <= 1207, big any n
- * Helpers:   big_pow, phi
+ * Validated: standard, pass, 82 terms through n = 9783 (2026-11-01)
+ * Helpers:   ipow, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -43,18 +46,18 @@ seq_t a(idx_t n)
         if (i % d == 0)
         {
             /* First divisor d */
-            seq_t phi_d = phi(d);
+            seq_t phi_d = totient(d);
             idx_t exp = i / d;
-            seq_t pow_val = big_pow((seq_t)j, (seq_t)exp);
+            seq_t pow_val = ipow((seq_t)j, (seq_t)exp);
             sum += phi_d * pow_val;
 
             /* Second divisor i/d if distinct */
             idx_t d2 = i / d;
             if (d2 != d)
             {
-                seq_t phi_d2 = phi(d2);
+                seq_t phi_d2 = totient(d2);
                 idx_t exp2 = i / d2;
-                seq_t pow_val2 = big_pow((seq_t)j, (seq_t)exp2);
+                seq_t pow_val2 = ipow((seq_t)j, (seq_t)exp2);
                 sum += phi_d2 * pow_val2;
             }
         }

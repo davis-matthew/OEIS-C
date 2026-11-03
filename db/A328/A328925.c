@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   factor_u64, gcd, phi_prime_power, powmod64
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   factor_u64, gcd, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,10 +29,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"
 #include "../utils/factor_u64.h"
-#include "../utils/powmod64.h"
-#include "../utils/phi_prime_power.h"
+#include "../utils/gcd.h"
+#include "../utils/powmod_u64.h"
+
+/* φ(p^e) as uint64_t */
+static inline uint64_t phi_prime_power(uint64_t p, uint64_t e)
+{
+    if (e == 0) return 1;
+    uint64_t m = 1;
+    for (uint64_t i = 0; i < e; ++i) m *= p;     /* p^e */
+    return m / p * (p - 1);                     /* p^(e-1)*(p-1) */
+}
 
 /* compute lcm of two seq_t */
 static inline seq_t seq_lcm(seq_t a, seq_t b)
@@ -91,7 +100,7 @@ static seq_t order_mod(uint64_t a, uint64_t m)
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t q = pr[i];
         while (ord % q == 0 &&
-               powmod64(a, ord / q, m) == 1) {
+               powmod_u64(a, ord / q, m) == 1) {
             ord /= q;
         }
     }

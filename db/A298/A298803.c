@@ -11,7 +11,8 @@
  *            <S,T|S^3=T^3=(ST)^4=1>)
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 38, u64 n <= 79, u128 n <= 161,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cached terms -------------------------------------------------------- */
 static seq_t *cache       = NULL; /* dynamic array of terms */
@@ -31,7 +33,7 @@ static void init_cache(void)
     /* Allocate space for the first 8 terms */
     size_t needed = 8;
     if (cache == NULL) {
-        cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         if (cache == NULL) return;   /* allocation failure -- will crash later */
         cache_cap = needed;
     }
@@ -42,7 +44,7 @@ static void init_cache(void)
         (seq_t)16, (seq_t)30, (seq_t)50,
         (seq_t)88, (seq_t)150
     };
-    memcpy(cache, init_vals, sizeof(init_vals));
+    mem_copy(cache, init_vals, sizeof(init_vals));
 
     last_computed = 7;
 }
@@ -59,11 +61,11 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = cache_cap ? cache_cap : 8;
     while (new_cap < required) new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (new_cache == NULL) return; /* allocation failure */
 
-    memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
-    free(cache);
+    mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
+    mem_free(cache);
     cache      = new_cache;
     cache_cap  = new_cap;
 }

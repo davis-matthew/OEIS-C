@@ -13,21 +13,23 @@
  *            +...
  * Range:     u8 n <= 10, u16 n <= 35, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* allocate working arrays of length n+1 */
     idx_t N = n;
-    seq_t *dp      = (seq_t*)malloc((N + 1) * sizeof(seq_t));
-    seq_t *dp_next = (seq_t*)malloc((N + 1) * sizeof(seq_t));
-    seq_t *s       = (seq_t*)malloc((N + 1) * sizeof(seq_t));
-    seq_t *a_val   = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *dp      = mem_new(seq_t, (N + 1));
+    seq_t *dp_next = mem_new(seq_t, (N + 1));
+    seq_t *s       = mem_new(seq_t, (N + 1));
+    seq_t *a_val   = mem_new(seq_t, (N + 1));
     if (!dp || !dp_next || !s || !a_val) {
         /* allocation failed – leave for caller to handle */
         return (seq_t)0;
@@ -67,9 +69,9 @@ seq_t a(idx_t n) {
 
     seq_t result = a_val[N];
 
-    free(dp);
-    free(dp_next);
-    free(s);
-    free(a_val);
+    mem_free(dp);
+    mem_free(dp_next);
+    mem_free(s);
+    mem_free(a_val);
     return result;
 }

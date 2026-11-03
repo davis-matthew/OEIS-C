@@ -8,7 +8,8 @@
  *            q)
  * Range:     u8 n <= 6, u16 n <= 35, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static unsigned char *sieve_isprime = NULL;
 static seq_t *cum_sum = NULL;
@@ -26,10 +28,10 @@ static void build_sieve(idx_t maximum_limit)
 {
     idx_t i, j;
     unsigned char *isprime = (unsigned char*)malloc((maximum_limit + 1) * sizeof(unsigned char));
-    seq_t *cumsum = (seq_t*)malloc((maximum_limit + 1) * sizeof(seq_t));
+    seq_t *cumsum = mem_new(seq_t, (maximum_limit + 1));
     if (!isprime || !cumsum) {
         /* Allocation failure – release any allocated memory */
-        free(isprime); free(cumsum);
+        free(isprime); mem_free(cumsum);
         return;
     }
 
@@ -59,7 +61,7 @@ static void build_sieve(idx_t maximum_limit)
 
     /* Replace old data with new */
     free(sieve_isprime);
-    free(cum_sum);
+    mem_free(cum_sum);
     sieve_isprime = isprime;
     cum_sum = cumsum;
     sieve_limit = maximum_limit;

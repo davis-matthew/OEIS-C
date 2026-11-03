@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 41, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 344 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define WINDOW 13                       /* 13 possible values per position */
 #define STATE_MASK ((1U << WINDOW) - 1) /* 0 .. 8191 */
@@ -28,8 +30,8 @@
 seq_t a(idx_t n) {
     static seq_t dp[STATE_MASK + 1];
     static seq_t ndp[STATE_MASK + 1];
-    memset(dp, 0, sizeof(dp));
-    memset(ndp, 0, sizeof(ndp));
+    mem_set(dp, 0, sizeof(dp));
+    mem_set(ndp, 0, sizeof(ndp));
 
     /* initial window for i = 1: values j in [1,3] (since n≥1) */
     uint16_t init_mask = 0;

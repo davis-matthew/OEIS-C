@@ -8,7 +8,8 @@
  * Formula:   a(n) = [x^n y^9] 1/Product_{j>=2} (1‑y*x^A002113(j))
  * Range:     u8 n <= 27, u16 n <= 304, u32 n <= 3783, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_palindrome_int
+ * Validated: standard, pass, 72 terms through n = 9515 (2026-11-03)
+ * Helpers:   is_palindrome_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_palindrome_int.h"
+#include "../utils/is_palindrome_idx.h"
+#include "../utils/mem.h"
 
 /* External integer types provided by the build system. */
 extern seq_t a(idx_t n);
@@ -39,12 +41,12 @@ seq_t a(idx_t n)
         size_t res_size = (size_t)(new_max + 1);
 
         /* Allocate new tables. Explicit casts required for C++. */
-        seq_t *new_dp = (seq_t*)calloc(dp_size, sizeof(seq_t));
-        seq_t *new_res = (seq_t*)calloc(res_size, sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, dp_size);
+        seq_t *new_res = mem_new(seq_t, res_size);
         if (!new_dp || !new_res) {
             /* Allocation failed – best effort return 0. */
-            free(new_dp);
-            free(new_res);
+            mem_free(new_dp);
+            mem_free(new_res);
             return (seq_t)0;
         }
 
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         idx_t *pals = (idx_t*)malloc((size_t)(new_max + 1) * sizeof(idx_t));
         size_t pal_cnt = 0;
         for (idx_t i = 1; i <= new_max; ++i)
-            if (is_palindrome_int(i))
+            if (is_palindrome_idx(i))
                 pals[pal_cnt++] = i;
 
         /* ---------- dynamic programming for partitions ---------- */
@@ -74,8 +76,8 @@ seq_t a(idx_t n)
 
         /* ---------- free old memory and store new tables ---------- */
         free(pals);
-        free(dp);
-        free(res);
+        mem_free(dp);
+        mem_free(res);
         dp  = new_dp;
         res = new_res;
         cur = new_max;

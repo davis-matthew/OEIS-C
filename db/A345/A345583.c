@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3986, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 9550 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t   _search_limit = 2000000;   /* current upper bound for DP      */
 static seq_t * _terms        = NULL;      /* cached list of found terms      */
@@ -88,7 +90,7 @@ static void recompute_terms(idx_t needed)
             if (dp[8 * stride + s] >= 8) ++cnt;
 
         /* Allocate/reallocate cache for those terms. */
-        seq_t *terms = (seq_t *)realloc(_terms, cnt * sizeof(seq_t));
+        seq_t *terms = mem_resize(seq_t, _terms, cnt);
         if (!terms) { free(dp); return; }      /* failure – keep old cache */
         _terms  = terms;
         _termcnt = cnt;

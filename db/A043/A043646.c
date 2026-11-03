@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 800 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparison routine used by qsort for seq_t values. */
 static int cmp_seq_t(const void *a, const void *b)
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
                             /* Append val to temporary array */
                             if (tmp_sz == tmp_cap) {
                                 tmp_cap = tmp_cap ? tmp_cap * 2 : 8;
-                                seq_t *p = (seq_t *)realloc(tmp, tmp_cap * sizeof(seq_t));
+                                seq_t *p = mem_resize(seq_t, tmp, tmp_cap);
                                 if (!p) exit(EXIT_FAILURE);
                                 tmp = p;
                             }
@@ -86,11 +88,11 @@ seq_t a(idx_t n)
         }
 
         /* Sort the new block */
-        qsort(tmp, tmp_sz, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(tmp, tmp_sz, sizeof(seq_t), cmp_seq_t);
 
         /* Merge sorted new numbers into the main cache */
         size_t new_cache_sz = cache_sz + tmp_sz;
-        seq_t *new_cache = (seq_t *)malloc(new_cache_sz * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cache_sz);
         if (!new_cache) exit(EXIT_FAILURE);
         size_t i = 0, j = 0, k = 0;
         while (i < cache_sz && j < tmp_sz) {
@@ -103,8 +105,8 @@ seq_t a(idx_t n)
         while (j < tmp_sz)  new_cache[k++] = tmp[j++];
 
         /* Release old structures */
-        free(cache);
-        free(tmp);
+        mem_free(cache);
+        mem_free(tmp);
         cache = new_cache;
         cache_sz = new_cache_sz;
     }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n+1)*2^(n+4) (offset -1)
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 23, u64 n <= 54, u128 n <= 117,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 199 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

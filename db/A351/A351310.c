@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d^2 | n} (d^2)^5 = Sum_{d^2 | n} d^10
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 99, u64 n <= 7224,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 74 terms through n = 9240 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

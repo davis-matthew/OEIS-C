@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer sqrt for 64‑bit unsigned numbers */
 static uint64_t isqrt_u64(uint64_t n)
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call or if empty */
     if (cache_len == 0) {
         cache_cap = 8;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* generate terms until we have at least n of them */
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
                 /* store candidate */
                 if (cache_len == cache_cap) {
                     cache_cap <<= 1;
-                    cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = (seq_t)k;
             }

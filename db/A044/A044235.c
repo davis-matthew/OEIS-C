@@ -10,14 +10,30 @@
  *            not
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has60_seq_t
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has60_seq_t.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether a base‑8 representation of v contains the substring 6,0. */
+static bool has60_seq_t(seq_t v)
+{
+    if (v == 0) return false;           /* 0 never contains "60" */
+    seq_t w = v;
+    uint8_t prev = 255;                  /* sentinel for the “previous” digit */
+    while (w > 0) {
+        uint8_t digit = (uint8_t)(w & 7);    /* w % 8 */
+        if (digit == 6 && prev == 0) return true;
+        prev = digit;
+        w >>= 3;                   /* w /= 8 */
+    }
+    return false;
+}
 
 /* Main sequence function.  Memoises past values so calls in any order are fast. */
 seq_t a(idx_t n)
@@ -40,7 +56,7 @@ seq_t a(idx_t n)
             if (cache_len >= cache_cap) {
                 /* double capacity, at least 32 entries */
                 size_t new_cap = cache_cap ? cache_cap * 2 : 32;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (!new_cache) abort();    /* memory error */
                 cache = new_cache;
                 cache_cap = new_cap;

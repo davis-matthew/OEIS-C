@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 127, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 79 terms through n = 9595 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
    all with odd runlength.  Computed by brute‑force search with memoization. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/bitlen_seq_t.h"   /* provides unsigned bitlen_seq_t(seq_t) */
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 static bool has_odd_zero_runs(seq_t x)
 {
@@ -26,7 +29,7 @@ static bool has_odd_zero_runs(seq_t x)
     if (x <= 1)
         return false;
 
-    unsigned len = bitlen_seq_t(x);          /* number of bits in x */
+    unsigned len = bit_length(x);          /* number of bits in x */
     bool in_zero_run = false;
     unsigned zero_len = 0;
     bool found_zero = false;
@@ -67,7 +70,7 @@ seq_t a(idx_t n)
         if (has_odd_zero_runs(next_value)) {
             if (cache_sz == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 cache_cap = new_cap;
             }

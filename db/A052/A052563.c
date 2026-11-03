@@ -10,12 +10,14 @@
  *            order
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 371 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         size_t new_cap = (fact_cap == 0) ? 64 : fact_cap * 2;
         if ((size_t)n + 1 > new_cap)
             new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact, new_cap);
         fact = tmp;
         fact_cap = new_cap;
     }
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         size_t need = (size_t)(n - 1) + 1;
         if (need > new_cap)
             new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(pow3, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow3, new_cap);
         pow3 = tmp;
         pow3_cap = new_cap;
     }

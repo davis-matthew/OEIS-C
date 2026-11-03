@@ -9,7 +9,8 @@
  *            prime and one even‑indexed prime (computed via a sieve)
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   sieve_primes_upto
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,49 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/sieve_primes_upto.h"
+
+/* simple prime sieve up to limit (inclusive) */
+static void sieve_primes_upto(idx_t limit, uint64_t **prime_arr, size_t *cnt)
+{
+    if (limit < 2) {
+        *prime_arr = NULL;
+        *cnt = 0;
+        return;
+    }
+
+    size_t sz = (size_t)limit + 1;
+    uint8_t *is_comp = (uint8_t *)calloc(sz, sizeof(uint8_t));
+    if (!is_comp) {
+        *prime_arr = NULL;
+        *cnt = 0;
+        return;
+    }
+
+    size_t est = (size_t)(limit / 2 + 10);
+    uint64_t *pr = (uint64_t *)malloc(est * sizeof(uint64_t));
+    if (!pr) {
+        free(is_comp);
+        *prime_arr = NULL;
+        *cnt = 0;
+        return;
+    }
+
+    size_t c = 0;
+    for (idx_t i = 2; i <= limit; ++i) {
+        if (!is_comp[i]) {
+            if (c < est)
+                pr[c++] = (uint64_t)i;
+            if ((idx_t)i * (idx_t)i <= limit) {
+                for (idx_t j = (idx_t)i * (idx_t)i; j <= limit; j += i)
+                    is_comp[j] = 1;
+            }
+        }
+    }
+
+    free(is_comp);
+    *prime_arr = pr;
+    *cnt = c;
+}
 
 /* binary search in a sorted array of 64‑bit integers */
 static bool binary_search(const uint64_t *arr, size_t n, uint64_t value, size_t *out_index)

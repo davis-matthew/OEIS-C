@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the number of partitions of n into parts 2, 4, 5, and 9. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     size_t m = (size_t)n;
 
     /* Allocate the DP table and zero‑initialize it. */
-    seq_t *dp = (seq_t *)calloc(m + 1, sizeof *dp);
+    seq_t *dp = mem_new(seq_t, m + 1);
     if (!dp) return 0;            /* allocation failed – return 0 */
 
     dp[0] = 1;   /* empty partition */
@@ -38,6 +40,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[m];
-    free(dp);
+    mem_free(dp);
     return result;
 }

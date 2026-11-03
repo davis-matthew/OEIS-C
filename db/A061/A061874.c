@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   alt_abs_sum
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,24 @@
 /*  A061874: a(n) is the n-th positive integer with
     |first digit - second digit + third digit - fourth digit …| = 5   (alternating sum of digits in absolute value equals 5)   */
 #include <stdlib.h>
-#include "../utils/alt_abs_sum.h"
+
+static int alt_abs_sum(unsigned long long v) {
+    int digits[64];
+    int dlen = 0;
+    /* collect digits in reverse order */
+    do {
+        digits[dlen++] = v % 10;
+        v /= 10;
+    } while (v > 0);
+    /* compute alternating sum from most significant digit */
+    int alt = 0;
+    int sign = 1;          /* + for first (most significant) digit */
+    for (int i = dlen - 1; i >= 0; --i) {
+        alt += sign * digits[i];
+        sign = -sign;
+    }
+    return (alt < 0) ? -alt : alt;   /* absolute value */
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;   /* undefined for offset 1, but harmless */

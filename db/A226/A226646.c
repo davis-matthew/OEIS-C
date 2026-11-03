@@ -13,14 +13,56 @@
  *            of counts
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   egypt3_count
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/egypt3_count.h"
+
+/* Count the number of Egyptian fraction representations of m/n
+   in exactly three terms with 1 ≤ x ≤ y ≤ z. */
+static seq_t
+egypt3_count(idx_t m, idx_t n)
+{
+    seq_t cnt = 0;
+    /* Lower bound for x: 1/x < m/n  ->  x > n/m */
+    idx_t minx = n / m + 1;            /* integer division gives floor */
+    /* Upper bound for x: 3/x ≤ m/n  ->  x ≤ 3n/m  */
+    idx_t maxx = (3 * n) / m;          /* floor division */
+
+    for (idx_t x = minx; x <= maxx; ++x) {
+        /* For fixed x the denominator of z must be positive: m*x - n > 0 */
+        idx_t mx_minus_n = m * x - n;
+        if (mx_minus_n == 0) continue;   /* denominator would be zero */
+
+        /* Lower bound for y: y > n*x/(m*x - n) and y ≥ x */
+        idx_t num1 = n * x;
+        idx_t den1 = mx_minus_n;
+        idx_t y_low = num1 / den1 + 1;   /* floor + 1 => strict > */
+        if (y_low < x) y_low = x;
+
+        /* Upper bound for y from z ≥ y:
+           y ≤ 2n*x/(m*x - n) */
+        idx_t y_high = (2 * n * x) / den1;
+        if (y_high < y_low) continue;
+
+        for (idx_t y = y_low; y <= y_high; ++y) {
+            /* Compute denominator of z */
+            uint64_t denom =
+                (uint64_t)m * x * y - (uint64_t)n * y - (uint64_t)n * x;
+            if (!denom) continue;       /* avoid division by zero */
+            uint64_t numer = (uint64_t)n * x * y;
+            if (numer % denom) continue; /* z must be integer */
+            uint64_t z = numer / denom;
+            if (z < y) continue;        /* maintain x ≤ y ≤ z */
+            ++cnt;
+        }
+    }
+    return cnt;
+}
 
 /* Optional helper: compute integer square root (floor) of a 64‑bit
    value.  The build system may provide an equivalent function;

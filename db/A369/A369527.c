@@ -8,12 +8,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 31, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recurrence:
    A(0,k) = 1
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         rows = need_rows;
         cols = need_cols;
 
-        seq_t *buf = (seq_t *)calloc(rows * cols, sizeof(seq_t));
+        seq_t *buf = mem_new(seq_t, rows * cols);
         if (!buf)
             return (seq_t)0;  /* unlikely, but avoid crash */
 
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
 
         /* Replace old buffer */
         if (A)
-            free(A);
+            mem_free(A);
         A = buf;
     }
 

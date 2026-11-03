@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -69,10 +70,14 @@ seq_t a(idx_t n)
         }
 
         for (int i = 0; i < len; i++) {
-            /* Shift window left by one digit. */
-            for (int j = 0; j < wlen; j++) win[j] = win[j + 1];
-            if (wlen < L) wlen++;
-            win[wlen - 1] = buf[i] - '0';
+            /* Append the digit, shifting the window left once it is full
+               (shifting a window that was not full read win[] before it
+               was written, undefined, and lost the first digit). */
+            if (wlen == L) {
+                for (int j = 0; j + 1 < L; j++) win[j] = win[j + 1];
+                wlen--;
+            }
+            win[wlen++] = buf[i] - '0';
 
             pos++; /* increase digit position counter */
 

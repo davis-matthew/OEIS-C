@@ -14,13 +14,15 @@
  *            initial values a(1) … a(1...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 28, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int COEFF[19] = {
     4, 1, 7, 11, 2, -28, -11, -4, -13, 12, -137, -48, 129, 31, -51, -32, 6, 10, 2
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     /* initialise cache if needed */
     if (!cache) {
         cache_len    = 20;                           /* 0..19 */
-        cache        = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache        = mem_new(seq_t, cache_len);
         for (size_t i = 0; i < cache_len; ++i)
             cache[i] = 0;
         for (size_t i = 1; i <= 19; ++i)
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if (n + 1 > cache_len) {
         size_t new_len = n + 1;
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         cache_len = new_len;
     }
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
  * 10 000. */
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +48,7 @@ seq_t a(idx_t n)
         if (digit_sum(val) == digit_sum(val3)) {
             if (count >= cap) {
                 size_t new_cap = cap ? cap << 1 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();      /* out of memory */
                 cache = tmp;
                 cap   = new_cap;

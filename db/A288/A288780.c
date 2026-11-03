@@ -7,13 +7,15 @@
  * Formula:   a(n) = n * Σ_{k=1}^{n‑1} k! (a(0)=a(1)=0)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 425 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cached factorials: fact[i] = i!   (0 ≤ i ≤ cache_max) */
 static seq_t *fact   = NULL;
@@ -30,8 +32,8 @@ static void ensure_cache(idx_t m)
 
     /* first allocation */
     if (fact == NULL) {
-        fact = (seq_t*)malloc(target * sizeof(seq_t));
-        sumfact = (seq_t*)malloc(target * sizeof(seq_t));
+        fact = mem_new(seq_t, target);
+        sumfact = mem_new(seq_t, target);
         if (fact == NULL || sumfact == NULL) {
             /* allocation failure – abort: undefined behaviour for this simple build */
             exit(1);
@@ -42,8 +44,8 @@ static void ensure_cache(idx_t m)
     }
     /* grow arrays if necessary */
     else if (target > cache_max + 1) {
-        fact = (seq_t*)realloc(fact, target * sizeof(seq_t));
-        sumfact = (seq_t*)realloc(sumfact, target * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, target);
+        sumfact = mem_resize(seq_t, sumfact, target);
         if (fact == NULL || sumfact == NULL) {
             exit(1);
         }

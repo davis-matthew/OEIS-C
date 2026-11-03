@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 7, i32 n <= 8, i64 n <= 9, i128 n <= 12,
  *            big any n
- * Helpers:   seq_mul, seq_realloc
+ * Validated: standard, pass, 24 terms through n = 150 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,26 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static const seq_t Q = -9;          /* q value */
 

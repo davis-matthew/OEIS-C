@@ -7,13 +7,31 @@
  * Formula:   a(n) = the decimal number obtained by writing n! in base‑6
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   factorial_to_base6_decimal
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/factorial_to_base6_decimal.h"
+#include "../utils/mem.h"
+
+/* The result is the decimal reading of the base‑6 digits. */
+static seq_t factorial_to_base6_decimal(seq_t val)
+{
+    const seq_t six = (seq_t)6;
+    const seq_t ten = (seq_t)10;
+    seq_t out = (seq_t)0;
+    seq_t mult = (seq_t)1;
+
+    while (val > (seq_t)0) {
+        seq_t digit = val % six;     /* base‑6 digit (0..5) */
+        out += digit * mult;        /* append as decimal digit */
+        mult *= ten;                /* next decimal place */
+        val /= six;
+    }
+    return out;
+}
 
 /* Static cache state */
 static seq_t *cache = NULL;        /* array of computed a(n) values */
@@ -26,7 +44,7 @@ static seq_t last_factor = (seq_t)1;/* factorial of last_index */
 static void init_cache(void)
 {
     if (cache_size == 0) {
-        cache = (seq_t *)calloc(1, sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         seen  = (unsigned char *)calloc(1, sizeof(unsigned char));
         cache_size = 1;
         seen[0] = 1;
@@ -42,7 +60,7 @@ static seq_t cache_greater(idx_t n)
     /* Grow arrays if necessary */
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         seen  = (unsigned char *)realloc(seen,  new_size * sizeof(unsigned char));
         /* Initialise new entries as uncomputed */
         for (size_t i = cache_size; i < new_size; ++i) {
@@ -69,7 +87,7 @@ static seq_t compute_from_scratch(idx_t n)
     /* Grow arrays if necessary */
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         seen  = (unsigned char *)realloc(seen,  new_size * sizeof(unsigned char));
         for (size_t i = cache_size; i < new_size; ++i) {
             seen[i] = 0;

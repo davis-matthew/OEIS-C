@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ceil_sqrt_idx
+ * Validated: standard, pass, 91 terms through n = 9690 (2026-11-01)
+ * Helpers:   isqrt_ceil
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,14 +25,14 @@
    5. a(n) = start + offs.
  */
 #include <stdint.h>                 /* for the supplied types */
-#include "../utils/ceil_sqrt_idx.h"
+#include "../utils/isqrt_ceil.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0)                     /* safety for offset 1 */
         return 0;
 
-    idx_t r   = ceil_sqrt_idx(n);   /* row number (1‑based) */
+    idx_t r   = isqrt_ceil(n);   /* row number (1‑based) */
     idx_t mid = r - 1;              /* middle offset in the row */
     idx_t start = mid * mid + 1;    /* first index of this row */
     idx_t pos  = n - start;         /* position in the row (0‑based) */

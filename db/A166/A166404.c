@@ -10,8 +10,9 @@
  * Formula:   a(n) = integer obtained by swapping the run lengths of adjacent
  *            runs of 1's and 0's in the binary representation of n (starting
  *            with a run of 1's)
- * Range:     u8 n <= 255, u16 n <= 9272, u32 n <= 9272, u64 n <= 9272,
- *            u128 n <= 9272, big any n
+ * Range:     u8 n <= 255, u16 n <= 65535, u32 n <= 65535, u64 n <= 65535,
+ *            u128 n <= 65535, big any n
+ * Validated: standard, pass, 86 terms through n = 9272 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

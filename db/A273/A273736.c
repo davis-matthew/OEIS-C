@@ -8,6 +8,7 @@
  * Formula:   a(n) = A000142(n)/A273695(n+1)
  * Range:     u8 n <= 26, u16 n <= 48, u32 n <= 83, u64 n <= 155,
  *            u128 n <= 300, big any n
+ * Validated: standard, pass, 69 terms through n = 954 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

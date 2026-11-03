@@ -8,14 +8,16 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   reverse_digits_local
+ * Validated: standard, pass, 64 terms through n = 946 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(1) = 1, a(n) = reverse(a(n-1)) + 71 for n > 1 */
 #include <stdlib.h>
-#include "../utils/reverse_digits_local.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 /* Dynamic cache for the sequence values */
 static seq_t *cache = NULL;
@@ -28,9 +30,9 @@ static void ensure_size(idx_t n)
     if (cache_cap >= n)
         return;
     size_t new_cap = (size_t)n;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
-        free(cache);
+        mem_free(cache);
         abort();
     }
     cache = tmp;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* Compute any missing terms up to n. */
     for (idx_t i = computed; i < n; ++i) {
         seq_t prev = cache[i - 1];
-        seq_t rev  = reverse_digits_local(prev);
+        seq_t rev  = reverse_digits(prev);
         seq_t cur  = rev + (seq_t)71;
         cache[i] = cur;
     }

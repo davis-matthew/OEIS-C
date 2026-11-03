@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 25, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -25,6 +26,7 @@
           A(n,k) = 0                     if k == 0
           A(n,k) = (n+1)*C(2k+n-1, k-1)^2 / (2k+n-1)   otherwise.
     The function returns a(i) for any i ≥ 0.  */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

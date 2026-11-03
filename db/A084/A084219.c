@@ -7,13 +7,27 @@
  * Formula:   a(n) = (4 - 3*n*(-2)^(n-1) + 5*(-2)^n)/9
  * Range:     i8 n <= 3, i16 n <= 10, i32 n <= 25, i64 n <= 28, i128 n <= 28,
  *            big any n
- * Helpers:   pow_neg_two
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_neg_two.h"
+
+/* Uses binary exponentiation */
+static seq_t pow_neg_two(idx_t k)
+{
+    seq_t result = 1;
+    seq_t base   = -2;
+    idx_t e = k;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 /* Compute (-2)^k in seq_t */
 

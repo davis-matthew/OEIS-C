@@ -7,7 +7,8 @@
  * Formula:   a(n) = tau(n)^omega(n)
  * Range:     u8 n <= 29, u16 n <= 209, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   integer_sqrt, pow_seq
+ * Validated: standard, pass, 93 terms through n = 9094 (2026-11-01)
+ * Helpers:   ipow_idx, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/pow_seq.h"
-#include "../utils/integer_sqrt.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/isqrt.h"
 
 /* Small dynamic prime table for factorization */
 static uint32_t *primes = NULL;
@@ -34,7 +35,7 @@ static void ensure_primes(uint32_t limit)
 
     for (uint32_t num = max_generated + 1; num <= limit; ++num) {
         bool prime = true;
-        uint32_t sqrt_num = (uint32_t)integer_sqrt(num);
+        uint32_t sqrt_num = (uint32_t)isqrt(num);
         for (size_t i = 0; i < primes_count && primes[i] <= sqrt_num; ++i) {
             if (num % primes[i] == 0) {
                 prime = false;
@@ -67,7 +68,7 @@ seq_t a(idx_t n)
     seq_t tau = 1;                      /* number of divisors */
     idx_t omega = 0;                    /* number of distinct primes */
 
-    uint32_t limit = (uint32_t)integer_sqrt((idx_t)n);
+    uint32_t limit = (uint32_t)isqrt((idx_t)n);
     ensure_primes(limit);
 
     for (size_t i = 0; i < primes_count; ++i) {
@@ -82,7 +83,7 @@ seq_t a(idx_t n)
                 ++exp;
             }
             tau *= (seq_t)(exp + 1);
-            limit = (uint32_t)integer_sqrt(temp);
+            limit = (uint32_t)isqrt(temp);
         }
     }
 
@@ -91,5 +92,5 @@ seq_t a(idx_t n)
         tau *= 2;
     }
 
-    return pow_seq(tau, omega);          /* tau ^ omega */
+    return ipow_idx(tau, omega);          /* tau ^ omega */
 }

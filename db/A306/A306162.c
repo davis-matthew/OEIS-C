@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 39, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    -5a(n‑10)-5a(n‑11)-9a(n‑12)-24a(n‑13)-26a(n‑14)-20a(n‑15)+6a(n‑16)+20a(n‑17)+16a(n‑18). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Initial 24 terms of the sequence (a(1)=8).  They are indexed from 1. */
 static const seq_t base[24] = {
@@ -61,7 +63,7 @@ seq_t a(idx_t n) {
     /* Allocate initial cache if this is the first call.  */
     if (!cache) {
         cache_cap = 25; /* need indices 0..24 inclusive; index 0 unused */
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();   /* allocation failure */
         for (idx_t i = 1; i <= 24; ++i) {
             cache[i] = base[i-1];
@@ -73,7 +75,7 @@ seq_t a(idx_t n) {
     if (n >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 32;
         if (new_cap <= (size_t)n) new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp && new_cap > 0) abort();
         cache = tmp;
         cache_cap = new_cap;

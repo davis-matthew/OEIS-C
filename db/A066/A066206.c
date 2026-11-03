@@ -9,7 +9,8 @@
  *            primes)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for primes and prefix products.  All variables are
  * lazily initialised the first time a() is called. */
@@ -86,7 +88,7 @@ static void ensure_products(size_t need)
 {
     if (!prod) {
         prod_cap = 16;
-        prod = (seq_t *)malloc(prod_cap * sizeof(seq_t));
+        prod = mem_new(seq_t, prod_cap);
         if (!prod) abort();
         prod[0] = (seq_t)1;   /* a(0) = 1, used for multiplication base */
         prod_size = 0;
@@ -95,7 +97,7 @@ static void ensure_products(size_t need)
     if (prod_cap <= need) {
         size_t new_cap = prod_cap ? prod_cap * 2 : 16;
         while (new_cap <= need) new_cap <<= 1;
-        seq_t *new_arr = (seq_t *)realloc(prod, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, prod, new_cap);
         if (!new_arr) abort();
         prod     = new_arr;
         prod_cap = new_cap;

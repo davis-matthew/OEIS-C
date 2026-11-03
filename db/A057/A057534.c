@@ -10,14 +10,25 @@
  *            The sequence has period 84
  * Range:     u8 n <= 0, u16 n <= 13, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_val
+ * Validated: standard, pass, 56 terms through n = 992 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/next_val.h"
+
+static inline seq_t next_val(seq_t cur)
+{
+    if ((cur % (seq_t)2) == 0)  return cur / 2;
+    if ((cur % (seq_t)3) == 0)  return cur / 3;
+    if ((cur % (seq_t)5) == 0)  return cur / 5;
+    if ((cur % (seq_t)7) == 0)  return cur / 7;
+    if ((cur % (seq_t)11) == 0) return cur / 11;
+    if ((cur % (seq_t)13) == 0) return cur / 13;
+    return cur * (seq_t)17 + 1;
+}
 
 static seq_t cache[84];
 static bool init_done = false;

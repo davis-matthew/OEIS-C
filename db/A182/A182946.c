@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 29, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"   /* provides seq_t big_pow(seq_t base, seq_t exp); */
+#include "../utils/ipow.h"
 
 /* Static storage for odd primes (3,5,7,…) */
 static uint64_t *primes = NULL;      /* 0‑based array of primes */
@@ -78,5 +79,5 @@ seq_t a(idx_t n)
     uint64_t prime = primes[i - 1];   /* array is 0‑based */
 
     /* Compute prime^j using the provided big_pow routine. */
-    return big_pow((seq_t)prime, (seq_t)j);
+    return ipow((seq_t)prime, (seq_t)j);
 }

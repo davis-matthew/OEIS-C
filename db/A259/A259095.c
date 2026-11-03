@@ -14,7 +14,8 @@
  *            T(n-r, t) otherwise
  * Range:     u8 n <= 287, u16 n <= 1450, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   none
+ * Validated: standard, pass, 136 terms through n = 5019 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t **dp = NULL;   /* dp[i][j] holds T(i,j) for 1 <= j <= i */
 static idx_t dpRows = 0;
@@ -45,7 +47,7 @@ static void ensure_rows(idx_t target)
 
     dp = (seq_t **)realloc(dp, (target + 1) * sizeof(seq_t *));
     for (idx_t i = dpRows + 1; i <= target; ++i) {
-        dp[i] = (seq_t *)calloc(i + 1, sizeof(seq_t));  /* indices 0..i */
+        dp[i] = mem_new(seq_t, i + 1);  /* indices 0..i */
         for (idx_t r = 1; r <= i; ++r) {
             if (r == i) {
                 dp[i][r] = (seq_t)1;

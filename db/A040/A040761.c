@@ -8,7 +8,8 @@
  *            algorithm for quadratic irrationals
  * Range:     u8 none, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 92 terms through n = 91 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,26 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +58,7 @@ seq_t a(idx_t n)
         prev_a = a_start;
 
         cf_cap = 16;
-        cf = (seq_t *)malloc(cf_cap * sizeof(seq_t));
+        cf = mem_new(seq_t, cf_cap);
         if (cf == NULL) return 0;          /* allocation failure – unlikely */
         cf[0] = a_start;
         cf_len = 1;
@@ -56,7 +76,7 @@ seq_t a(idx_t n)
         if (cf_len == cf_cap) {
             size_t new_cap = cf_cap * 2;
             if (new_cap == 0) new_cap = 16;
-            seq_t *tmp = (seq_t *)realloc(cf, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cf, new_cap);
             if (tmp == NULL) return 0;    /* allocation failure – unlikely */
             cf = tmp;
             cf_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 511, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digits, pow10
+ * Validated: standard, pass, 79 terms through n = 9100 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,18 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow10.h"
-#include "../utils/digits.h"
+#include <stdbool.h>
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Small binomial coefficient for 0 <= k <= n <= 64, result as idx_t. */
 static inline idx_t small_binom(idx_t n, idx_t k)
@@ -95,13 +106,13 @@ seq_t a(idx_t n)
         for (idx_t i = 0; i < r; ++i)
         {
             seq_t val  = (seq_t)comb[i];
-            seq_t pow  = pow10(digits((idx_t)comb[i]));
+            seq_t pow  = pow10(num_digits_idx((idx_t)comb[i]));
             res = res * pow + val;
         }
     }
 
     /* Append the largest element m. */
-    seq_t powm = pow10(digits(m));
+    seq_t powm = pow10(num_digits_idx(m));
     res = res * powm + (seq_t)m;
     return res;
 }

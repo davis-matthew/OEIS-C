@@ -11,13 +11,15 @@
  *            rr, and the sequence a(n) * lists these square...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /*  Node structure for the priority queue                      */
@@ -102,7 +104,7 @@ static void ensure_vals_cap(size_t needed)
     if (needed <= vals_cap) return;
     size_t new_cap = (vals_cap == 0) ? 16 : vals_cap;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(saved_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, saved_vals, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     saved_vals = tmp;
     vals_cap = new_cap;

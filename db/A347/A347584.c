@@ -12,14 +12,30 @@
  *            T[r-1][k-1] + T[r-1][k] The sequence a(n) is defined by...
  * Range:     u8 n <= 48, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   _grow_seq
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/_grow_seq.h"
+#include "../utils/mem.h"
+
+/* Ensure the values array can hold at least 'need' elements. */
+static void _grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap >= need)
+        return;
+    size_t newcap = (*cap > 0) ? (*cap << 1) : 8;
+    while (newcap < need)
+        newcap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, newcap);
+    if (!tmp)
+        abort();                      /* Out of memory */
+    *arr = tmp;
+    *cap = newcap;
+}
 
 /* Forward declaration of the sequence function. */
 seq_t a(idx_t n);

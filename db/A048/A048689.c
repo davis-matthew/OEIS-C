@@ -10,7 +10,8 @@
  *            C(n,k), 0 ≤ k ≤ n
  * Range:     u8 n <= 50, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 931 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ----------  small sieve cache  ---------- */
 static struct {
@@ -33,7 +35,7 @@ static void _ensure_spf(size_t n)
     if (n < _spf_cache.sz) return;                 /* already ready */
 
     size_t new_sz = n + 1;
-    seq_t *new_spf = (seq_t *)calloc(new_sz, sizeof(seq_t));
+    seq_t *new_spf = mem_new(seq_t, new_sz);
     if (!new_spf) return;                          /* allocation failed */
 
     for (size_t i = 2; i < new_sz; ++i) {
@@ -46,7 +48,7 @@ static void _ensure_spf(size_t n)
         }
     }
 
-    free(_spf_cache.spf);
+    mem_free(_spf_cache.spf);
     _spf_cache.spf = new_spf;
     _spf_cache.sz   = new_sz;
 }
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
     if (!visited) return 0;                      /* allocation failed */
 
     /* exponent array for every prime up to n (primes < n → exponent 0) */
-    seq_t *exp = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *exp = mem_new(seq_t, (size_t)n + 1);
     if (!exp) {
         free(visited);
         return 0;
@@ -112,7 +114,7 @@ seq_t a(idx_t n)
         /* omega_total will never exceed visited_limit for n ≤ 10000 */
     }
 
-    free(exp);
+    mem_free(exp);
     free(visited);
     return (seq_t)seen;
 }

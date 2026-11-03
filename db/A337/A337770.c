@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 35,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: standard, pass, 39 terms through n = 355 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,20 @@
    The “concat” operation is performed by multiplying the leading part by
    10^(k) where k = digit count of a(n‑1) – 1, and adding the remaining
    digits. */
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,7 +43,7 @@ seq_t a(idx_t n)
     seq_t curr = (seq_t)1;
     for (idx_t i = 1; i <= n; ++i)
     {
-        int len  = digit_len(curr);                     /* number of decimal digits of curr */
+        int len  = num_digits(curr);                     /* number of decimal digits of curr */
         seq_t base = pow10((idx_t)(len - 1));           /* 10^(len-1) */
         seq_t leading = curr / base;                    /* leading digit of curr */
         seq_t rest     = curr % base;                   /* remaining digits of curr */

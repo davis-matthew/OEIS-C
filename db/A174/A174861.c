@@ -8,12 +8,14 @@
  * Formula:   T(n,k) = n! * (S(n,k) + S(n,n-k) - 1) + 1 -- A174861
  * Range:     i8 n <= 10, i16 n <= 21, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system. */
 
@@ -29,11 +31,11 @@ static size_t s_prev_len = 0;       /* length of s_prev (previous n + 1) */
 static void ensure_factorial(idx_t n)
 {
     if (fact == NULL) {
-        fact = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        fact = mem_new(seq_t, (n + 1));
         if (!fact) abort();
         fact[0] = (seq_t)1;
     } else {
-        fact = (seq_t*)realloc(fact, (n + 1) * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, (n + 1));
         if (!fact) abort();
     }
 }
@@ -42,10 +44,10 @@ static void ensure_factorial(idx_t n)
 static void ensure_a_capacity(size_t needed)
 {
     if (a_seq == NULL) {
-        a_seq = (seq_t*)malloc(needed * sizeof(seq_t));
+        a_seq = mem_new(seq_t, needed);
         if (!a_seq) abort();
     } else if (needed > seq_len) {
-        a_seq = (seq_t*)realloc(a_seq, needed * sizeof(seq_t));
+        a_seq = mem_resize(seq_t, a_seq, needed);
         if (!a_seq) abort();
     }
     seq_len = needed;
@@ -56,7 +58,7 @@ static void compute_up_to(idx_t target_row)
 {
     /* Initialise row 0 once. */
     if (max_row == 0 && s_prev == NULL) {
-        s_prev = (seq_t*)malloc(sizeof(seq_t));
+        s_prev = mem_new(seq_t, 1);
         if (!s_prev) abort();
         s_prev[0] = (seq_t)1;
         s_prev_len = 1;
@@ -68,7 +70,7 @@ static void compute_up_to(idx_t target_row)
 
     for (idx_t r = max_row + 1; r <= target_row; ++r) {
         size_t rlen = r + 1;
-        seq_t *s_cur = (seq_t*)calloc(rlen, sizeof(seq_t));
+        seq_t *s_cur = mem_new(seq_t, rlen);
         if (!s_cur) abort();
 
         /* Stirling recurrence: s(n,0)=0, s(n,n)=1 */
@@ -96,7 +98,7 @@ static void compute_up_to(idx_t target_row)
         }
 
         /* Release previous Stirling row and promote current row */
-        free(s_prev);
+        mem_free(s_prev);
         s_prev     = s_cur;
         s_prev_len = rlen;
         max_row    = r;

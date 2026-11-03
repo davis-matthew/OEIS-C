@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 26, u16 n <= 3268, u32 n <= 9622, u64 n <= 9622,
- *            u128 n <= 9622, big any n
- * Helpers:   is_inert_uint64
+ * Range:     u8 n <= 26, u16 n <= 3268, u32 n <= 10048, u64 n <= 10048,
+ *            u128 n <= 10048, big any n
+ * Validated: standard, pass, 72 terms through n = 9622 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_inert_uint64.h"
+
+/* -- modular exponentiation, 19^((p-1)/2) mod p ------------------------------ */
+static bool is_inert_uint64(uint64_t p)
+{
+    if (p == 2 || p == 19) return false;            /* ramified */
+    uint64_t exp = (p - 1) >> 1;                    /* (p-1)/2 */
+    uint64_t base = 19 % p;
+    uint64_t res  = 1 % p;
+    while (exp) {
+        if (exp & 1) res = (unsigned __int128)res * base % p;
+        base = (unsigned __int128)base * base % p;
+        exp >>= 1;
+    }
+    return res == p - 1;                            /* Legendre = -1 */
+}
 
 /* -- helper: grow a generic array of uint64_t --------------------------------- */
 static void grow_if_needed(uint64_t **arr, size_t *cnt, size_t *cap)

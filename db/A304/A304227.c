@@ -10,13 +10,15 @@
  *            a(7)=237, a(8)=494, a(9)=1162, a(10)=3043
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 26, u64 n <= 51, u128 n <= 102,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoized values */
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     /* allocate and initialise cache on first call */
     if (cache == NULL) {
         capacity = 11;                /* indices 0..10 needed for initial data */
-        cache = (seq_t *)calloc(capacity, sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache) return 0;         /* fallback on allocation failure */
 
         cache[1]  = (seq_t)16;
@@ -48,7 +50,7 @@ seq_t a(idx_t n) {
     /* grow cache if the requested index exceeds current capacity */
     if ((size_t)(n + 1) > capacity) {
         capacity = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, capacity);
         if (!tmp) return 0;  /* fallback on allocation failure */
         cache = tmp;
     }

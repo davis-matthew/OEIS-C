@@ -9,7 +9,8 @@
  *            is n
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 100 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* External types: seq_t and idx_t are provided by the build environment. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *coeff = NULL;   /* cache of coefficients, size 100 */
 static bool initialized = false;
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Lazy initialization of the coefficient cache. */
     if (!initialized) {
         initialized = true;
-        coeff = (seq_t *)malloc(100 * sizeof(seq_t));
+        coeff = mem_new(seq_t, 100);
         if (!coeff) return 0;   /* allocation failure: fall back to 0 */
 
         /* zero all entries */

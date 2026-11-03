@@ -10,12 +10,14 @@
  *            a(0)=0, a(1)=1, a(2)=6, a(3)=16
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for previously computed values */
 static seq_t *cache = NULL;          /* array of computed a(n) */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* ensure cache exists and contains at least the first four values */
     if (cache == NULL) {
         cache_cap = 4;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) abort();     /* fatal if allocation fails */
 
         cache[0] = 0;                  /* a(0) */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         size_t new_cap = n + 1;        /* exact size needed */
 
         /* realloc may return NULL on failure; in that unlikely event abort */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (new_cache == NULL) abort();
 
         cache = new_cache;

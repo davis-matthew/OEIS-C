@@ -12,12 +12,14 @@
  *            equals T(n,k) for the i‑th such pair
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 42, u128 n <= 75,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 48 terms through n = 208 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 /* Convert a global sequence index to the corresponding (n,k) pair.  */
 static void index_to_pair(idx_t idx, idx_t *pn, idx_t *pk)
@@ -54,8 +56,8 @@ seq_t a(idx_t idx)
     seq_t base1 = (seq_t)(k + 1);
     seq_t base2 = base1 * ((seq_t)2 * k + 1);
 
-    seq_t t1 = pow_seq(base1, exp1);
-    seq_t t2 = pow_seq(base2, exp2);
+    seq_t t1 = ipow_i32(base1, exp1);
+    seq_t t2 = ipow_i32(base2, exp2);
 
     return t1 * t2;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   seq_from_str, to_decimal_string
+ * Validated: standard, pass, 22 terms through n = 22 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,36 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_from_str.h"
-#include "../utils/to_decimal_string.h"
+#include <stdbool.h>
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+/* Convert a non‑negative integer to a decimal string.
+   The result is written into buf and the length (without the nul) is returned. */
+static size_t to_decimal_string(size_t num, char *buf)
+{
+    size_t i = 0;
+    do {
+        buf[i++] = '0' + (unsigned)(num % 10);
+        num /= 10;
+    } while (num);
+    /* reverse the buffer */
+    for (size_t j = 0; j < i / 2; ++j) {
+        char t = buf[j];
+        buf[j] = buf[i - 1 - j];
+        buf[i - 1 - j] = t;
+    }
+    buf[i] = '\0';
+    return i;
+}
 
 seq_t a(idx_t n)
 {

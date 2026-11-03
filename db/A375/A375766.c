@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_fib_uint64
+ * Validated: standard, pass, 121 terms through n = 9825 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,31 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_fib_uint64.h"
+#include "../utils/mem.h"
+
+/* --------- small helper: check if an integer is a Fibonacci number --------- */
+static bool is_fib_uint64(uint64_t e)
+{
+    /* Fibonacci numbers up to 219330 (which exceeds any exponent we will
+       encounter for n ≤ 10000). */
+    static const uint64_t fibs[] = {
+        0ULL, 1ULL, 1ULL, 2ULL, 3ULL, 5ULL, 8ULL, 13ULL, 21ULL,
+        34ULL, 55ULL, 89ULL, 144ULL, 233ULL, 377ULL, 610ULL,
+        987ULL, 1597ULL, 2584ULL, 4181ULL, 6765ULL, 10946ULL,
+        17711ULL, 28657ULL, 46368ULL, 75025ULL, 121393ULL,
+        196418ULL, 317811ULL, 514229ULL, 832040ULL, 1346269ULL,
+        2178309ULL, 3524578ULL, 5702887ULL, 9227465ULL,
+        14930354ULL, 24157819ULL, 39088173ULL, 63245992ULL,
+        102334155ULL, 165580141ULL, 267914296ULL, 433494437ULL,
+        701408733ULL, 1134903170ULL, 1836311903ULL, 2971215073ULL,
+        4807526976ULL, 7778742049ULL
+    };
+    for (size_t i = 0; i < sizeof(fibs)/sizeof(fibs[0]); ++i) {
+        if (fibs[i] == e) return true;
+        if (fibs[i] > e) break;
+    }
+    return false;
+}
 
 /* --------- test if a number x (uint64_t) has all exponents Fibonacci --------- */
 static bool good_number(uint64_t x, seq_t *max_exp)
@@ -97,9 +122,9 @@ seq_t a(idx_t n)
             /* add the result to the cache */
             if (count == capacity) {
                 size_t new_cap = capacity ? capacity * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {          /* allocation failure – clean up and return 0 */
-                    free(cache);
+                    mem_free(cache);
                     cache = NULL;
                     capacity = 0;
                     count = 0;

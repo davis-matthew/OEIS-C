@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   phi, sigma_of
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,24 @@
  */
 
 #include <stdbool.h>
-#include "../utils/phi.h"
-#include "../utils/sigma_of.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/totient.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,11 +49,11 @@ seq_t a(idx_t n)
         /* convert to idx_t so we can call the utility functions */
         idx_t xi = (idx_t)x;
 
-        seq_t phi_x   = phi(xi);               /* φ(x)   */
+        seq_t phi_x   = totient(xi);               /* φ(x)   */
         seq_t sigma_x = sigma_of(xi);          /* σ(x)   */
 
         seq_t sum = phi_x + sigma_x;           /* σ(x)+φ(x)  */
-        seq_t y   = phi((idx_t)sum);           /* φ(σ(x)+φ(x)) */
+        seq_t y   = totient((idx_t)sum);           /* φ(σ(x)+φ(x)) */
 
         if (y == x)           /* fixed point reached */
             return x;

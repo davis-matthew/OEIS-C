@@ -9,6 +9,7 @@
  *            5+2n, 5+2·2n, 5+2·3n, ... until the first non‑prime appears
  * Range:     u8 n <= 41, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,15 +7,25 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = the nth digit of the infinite string formed by
  *            concatenating S_k = '0' + reverse(base-6(k)) for k = 0,1,2,3,
- * Range:     u8 n <= 9469, u16 n <= 9469, u32 n <= 9469, u64 n <= 9469,
- *            u128 n <= 9469, big any n
- * Helpers:   base6_len
+ * Range:     u8 n <= 10001, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 121 terms through n = 9469 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/base6_len.h"
+
+static inline size_t base6_len(idx_t x)
+{
+    size_t len = 0;
+    do {
+        ++len;
+        x /= 6;
+    } while (x > 0);
+    return len;
+}
 
 seq_t a(idx_t n)
 {

@@ -11,13 +11,15 @@
  *            a(n-1)+a(n-2)+a(n-3)-a(n-4)+a(n-5)-a(n-6) for n ≥ 7
  * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         idx_t newsize = cache_size ? cache_size * 2 : 8;
         if (newsize < n + 1)
             newsize = n + 1;
-        cache = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newsize);
         cache_size = newsize;
     }
 

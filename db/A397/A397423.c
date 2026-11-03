@@ -8,13 +8,15 @@
  * Formula:   a(n) = Sum_{j=0..n} |Stirling1(n, j)| * binomial(n + j, n) * n^j
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *c_vals = NULL;   /* unsigned Stirling numbers of the first kind for current n */
 static seq_t *a_vals = NULL;   /* a(n) values for all computed n */
@@ -25,8 +27,8 @@ seq_t a(idx_t n)
     /* initialisation for n = 0 */
     if (max_n == (idx_t)-1) {
         max_n = 0;
-        c_vals = (seq_t*)malloc(sizeof(seq_t)*(max_n+1));
-        a_vals = (seq_t*)malloc(sizeof(seq_t)*(max_n+1));
+        c_vals = mem_new(seq_t, (max_n+1));
+        a_vals = mem_new(seq_t, (max_n+1));
         if (!c_vals || !a_vals) return (seq_t)0;   /* allocation failed */
         c_vals[0] = (seq_t)1;      /* |S(0,0)| = 1 */
         a_vals[0] = (seq_t)1;      /* a(0) = 1 */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
             prev_max = m - 1;
 
             /* allocate new array for |S(m, j)| (size m+1) */
-            seq_t *new_c = (seq_t*)malloc(sizeof(seq_t)*(m+1));
+            seq_t *new_c = mem_new(seq_t, (m+1));
             if (!new_c) return (seq_t)0;   /* allocation failed */
 
             /* compute new Stirling numbers and a(m) in one pass */
@@ -68,11 +70,11 @@ seq_t a(idx_t n)
 
             /* a(m) = sum (no need to add contribution from j = 0 as it is 0) */
             /* free old Stirling array and adopt the new one */
-            free(c_vals);
+            mem_free(c_vals);
             c_vals = new_c;
 
             /* enlarge a_vals array to store a(m) */
-            a_vals = (seq_t*)realloc(a_vals, sizeof(seq_t)*(m+1));
+            a_vals = mem_resize(seq_t, a_vals, (m+1));
             if (!a_vals) return (seq_t)0;   /* allocation failed */
 
             a_vals[m] = sum;

@@ -11,7 +11,8 @@
  *            generates the Beatty sequences A and B laz...
  * Range:     u8 n <= 112, u16 n <= 112, u32 n <= 112, u64 n <= 112,
  *            u128 n <= 112, big any n
- * Helpers:   binsearch
+ * Validated: partial, pass, 112 terms through n = 112 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/binsearch.h"
+
+/* ------------------------------------------------------------------ */
+static bool binsearch(const idx_t *arr, idx_t len, idx_t target, idx_t *pos)
+{
+    idx_t lo = 0, hi = len;
+    while (lo < hi) {
+        idx_t mid = (lo + hi) >> 1;
+        if (arr[mid] < target)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    if (lo < len && arr[lo] == target) {
+        *pos = lo;
+        return true;
+    }
+    return false;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Beatty sequence storage (static, lazily built)                     */

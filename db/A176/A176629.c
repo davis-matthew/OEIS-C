@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for primes and semiprimes */
 static uint64_t *primes = NULL;       /* primes up to current_limit     */
@@ -32,13 +34,13 @@ static idx_t    current_limit = 0;    /* maximum value sieved so far    */
    non‑POD seq_t types in C++ and trivially sized types in C. */
 static seq_t *alloc_seq_arr(size_t cap)
 {
-    seq_t *arr = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, cap);
     if (!arr) return NULL;
     /* Construct each element if seq_t is a C++ class.  The cast is
        harmless for POD types. */
 #ifdef __cplusplus
     for (size_t i = 0; i < cap; ++i)
-        ::new (arr + i) seq_t();
+        *(arr + i) = (seq_t)0;
 #endif
     return arr;
 }
@@ -79,13 +81,13 @@ static void build_primes_and_semis(idx_t limit)
             /* resize if necessary */
             if (s_cnt == s_cap) {
                 s_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(s_arr, s_cap * sizeof(seq_t));
-                if (!tmp) { free(is_prime); free(p_arr); free(s_arr); return; }
+                seq_t *tmp = mem_resize(seq_t, s_arr, s_cap);
+                if (!tmp) { free(is_prime); free(p_arr); mem_free(s_arr); return; }
                 s_arr = tmp;
 #ifdef __cplusplus
                 /* Construct the newly allocated slots. */
                 for (size_t i = s_cnt; i < s_cap; ++i)
-                    ::new (s_arr + i) seq_t();
+                    *(s_arr + i) = (seq_t)0;
 #endif
             }
             s_arr[s_cnt++] = (seq_t)prod;
@@ -106,7 +108,7 @@ static void build_primes_and_semis(idx_t limit)
     /* 5. Release old data and store the new data. */
     free(is_prime);
     free(primes);
-    free(semis);
+    mem_free(semis);
     primes      = p_arr;
     primes_len  = pc;
     semis       = s_arr;

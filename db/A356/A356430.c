@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   divisor_count_u64, gcd
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   gcd, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@ divisor_count(a(n‑1)). */
 #include <string.h>
 
 #include "../utils/gcd.h"
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  State for lazy, memoised generation                               */
@@ -45,7 +47,7 @@ static void enlarge_seq(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 8;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     seq = tmp;
     seq_cap = new_cap;
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
         {
             /* Number of divisors of the previous term */
             idx_t prev = (idx_t)seq[i - 1];
-            idx_t d    = divisor_count_u64(prev);   /* small integer */
+            idx_t d    = num_divisors(prev);   /* small integer */
 
             /* Search smallest unused positive integer sharing a factor with d */
             idx_t cand = 1;

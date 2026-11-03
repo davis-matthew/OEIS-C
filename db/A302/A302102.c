@@ -11,13 +11,15 @@
  *            a(i) * a(k-i)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,11 +34,11 @@ seq_t a(idx_t n)
     /* ---------- initialization (once) ---------- */
     if (a_vals == NULL) {
         a_cap = 1;
-        a_vals = (seq_t*)malloc(a_cap * sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_cap);
         a_vals[0] = 1;             /* a(0) = 1            */
 
         conv2_cap = 1;
-        conv2 = (seq_t*)malloc(conv2_cap * sizeof(seq_t));
+        conv2 = mem_new(seq_t, conv2_cap);
         conv2[0] = 1;              /* conv2(0) = a0*a0 = 1 */
 
         max_n = 0;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* ---------- grow arrays if needed ---------- */
     if ((size_t)n + 1 > a_cap) {
         size_t new_cap = (size_t)n + 1;
-        a_vals = (seq_t*)realloc(a_vals, new_cap * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, new_cap);
         for (size_t i = a_cap; i < new_cap; ++i) a_vals[i] = 0;
         a_cap = new_cap;
     }
@@ -75,8 +77,7 @@ seq_t a(idx_t n)
         /* ensure conv2 capacity at least 2*cur+1 */
         size_t required_cap = (size_t)2 * cur + 1;
         if (conv2_cap < required_cap) {
-            conv2 = (seq_t*)realloc(conv2,
-                    required_cap * sizeof(seq_t));
+            conv2 = mem_resize(seq_t, conv2, required_cap);
             for (size_t i = conv2_cap; i < required_cap; ++i)
                 conv2[i] = 0;
             conv2_cap = required_cap;

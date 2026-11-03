@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 4975, u32 n <= 5001, u64 n <= 5001,
  *            u128 n <= 5001, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 4301 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Test whether a number has the required property. */
 static bool good(seq_t x)
@@ -61,7 +63,7 @@ static void ensure_cache(size_t need)
         while (cache_cap < need)
             cache_cap <<= 1;                /* double capacity */
 
-        seq_t *newptr = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, cache, cache_cap);
         if (!newptr) {
             /* Allocation failed – abort rather than crash. */
             abort();

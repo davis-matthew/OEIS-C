@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n,k)^3 * k! * n^(n-k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     seq_t binom = 1;                    /* C(n,0) */
     seq_t fac   = 1;                    /* 0!   */
-    seq_t power = pow_uint((uint64_t)n, n);   /* n^n   */
+    seq_t power = ipow_u64_idx((uint64_t)n, n);   /* n^n   */
 
     for (idx_t k = 0; k <= n; ++k)
     {

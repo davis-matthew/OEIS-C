@@ -9,6 +9,7 @@
  *            n^2 + 450 n^3 + 15 n^4)/(8 + n))
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 92, u64 n <= 3900,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 49 terms through n = 9574 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

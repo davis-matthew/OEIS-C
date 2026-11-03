@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, is_bin_palindrome_uint64
+ * Validated: standard, pass, 121 terms through n = 9987 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,28 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/is_bin_palindrome_uint64.h"
+
+/* Check if a 64‑bit unsigned integer is a binary palindrome. */
+static bool is_bin_palindrome_uint64(uint64_t x)
+{
+    /* 0 is not a positive divisor, but will never be tested. */
+    if (x == 0) return false;
+    unsigned bits = 0;
+    uint64_t t = x;
+    while (t) { ++bits; t >>= 1; }
+    if (bits <= 1) return true;          /* 0 or 1 bit: always palindrome */
+
+    unsigned i = 0, j = bits - 1;
+    while (i < j) {
+        if (((x >> i) & 1ULL) != ((x >> j) & 1ULL))
+            return false;
+        ++i;
+        --j;
+    }
+    return true;
+}
 
 /* ---------------------------------------------------------------------- */
 

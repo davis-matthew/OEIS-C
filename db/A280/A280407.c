@@ -11,15 +11,57 @@
  *            p*q = v. Special cases: a(0)=1, a(1)=45
  * Range:     u8 n <= 3, u16 n <= 58, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   count_prod, gcd_uint64
+ * Validated: standard, pass, 60 terms through n = 1951 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/count_prod.h"
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
+
+/* Count ordered pairs (p,q) in [-n,n] such that p*q = v.
+   Uses integer arithmetic only. */
+static seq_t count_prod(idx_t n, int64_t v) {
+    /* v == 0 */
+    if (v == 0) {
+        /* number of ordered pairs with product 0:
+           (p=0, q any) + (q=0, p any) - (p=0,q=0) */
+        return (seq_t)(4 * n + 1);
+    }
+
+    int64_t nn = (int64_t)n;
+    int64_t sqrtv = (int64_t)sqrt((double)(v > 0 ? v : -v));
+    seq_t cnt = 0;
+
+    if (v > 0) {
+        /* product positive: both signs same */
+        for (int64_t d = 1; d <= sqrtv; ++d) {
+            if (v % d == 0) {
+                int64_t s = v / d;
+                if (d <= nn && s <= nn) {
+                    if (d == s) cnt += 1;
+                    else cnt += 2;
+                }
+            }
+        }
+        /* multiply by 2 for the negative sign combination */
+        return cnt * 2;
+    } else {
+        /* product negative: signs opposite */
+        for (int64_t d = 1; d <= sqrtv; ++d) {
+            if (-v % d == 0) {
+                int64_t s = (-v) / d;
+                if (d <= nn && s <= nn) {
+                    if (d == s) cnt += 2;   /* (d,-d), (-d,d) */
+                    else cnt += 4;          /* (d,-s),(s,-d),(-d,s),(-s,d) */
+                }
+            }
+        }
+        return cnt;
+    }
+}
 
 /* gcd for unsigned 64-bit integers */
 
@@ -29,7 +71,7 @@ seq_t a(idx_t n) {
 
     /* n >= 2 */
     uint64_t un = (uint64_t)n;
-    uint64_t g = gcd_uint64(un - 1, un + 1);      // g = gcd(n-1, n+1)
+    uint64_t g = gcd_u64(un - 1, un + 1);      // g = gcd(n-1, n+1)
     uint64_t n1 = (un - 1) / g;
     uint64_t n2 = (un + 1) / g;
 

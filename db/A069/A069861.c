@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   pow_mod_10
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,23 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/pow_mod_10.h"
+#include "../utils/mem.h"
+
+/* Compute (base^exp) mod mod, where exp is an idx_t and all arithmetic
+   is performed with seq_t.  This helper is used only for fast power of 10.
+   It is small and depends only on the allowed operators. */
+static seq_t pow_mod_10(int exp, seq_t mod)
+{
+    seq_t result = 1;
+    seq_t base   = 10;
+    while (exp > 0) {
+        if (exp & 1)
+            result = (result * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1;
+    }
+    return result;
+}
 
 /* ---------- Static helpers ---------------------------------------------- */
 /* Return the number of decimal digits of an unsigned integer. */
@@ -45,7 +62,7 @@ static void append_term(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
-        seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
         if (!new_arr)
             abort();  /* out of memory */
         cache = new_arr;

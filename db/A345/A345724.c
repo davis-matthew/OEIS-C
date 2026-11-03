@@ -12,7 +12,8 @@
  *            required sums directly
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   gcd, min_abs_sum_candidate
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,31 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/min_abs_sum_candidate.h"
+
+static inline int min_abs_sum_candidate(int a, int b, int u, int v, int *u_sel, int *v_sel)
+/* choose between two candidates (u,v) and (u-b, v + a) the one with
+   smaller |u|+|v|, breaking ties by smaller |u|.  Returns 0 on success. */
+{
+    int u2 = u - b;
+    int v2 = v + a;
+    
+    int abs1 = abs(u) + abs(v);
+    int abs2 = abs(u2) + abs(v2);
+    
+    if (abs1 < abs2) {
+        *u_sel = u; *v_sel = v;
+    } else if (abs2 < abs1) {
+        *u_sel = u2; *v_sel = v2;
+    } else {
+        /* tie – choose the one with smaller |u| */
+        if (abs(u) <= abs(u2)) {
+            *u_sel = u; *v_sel = v;
+        } else {
+            *u_sel = u2; *v_sel = v2;
+        }
+    }
+    return 0;
+}
 
 static inline int egcd(int a, int b, int *x, int *y)
 /* extended Euclid – returns gcd(a,b); finds integers x,y with ax+by=gcd */

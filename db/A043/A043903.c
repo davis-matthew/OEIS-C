@@ -11,14 +11,35 @@
  *            25, 46, 65, 82, 97,…
  * Range:     u8 n <= 14, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   has_adjacent_14
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_adjacent_14.h"
+
+/* Return true iff n written in base‑6 contains the adjacent digits
+   1 and 4 (either "14" or "41").  The digits are examined from
+   least‑significant upward; an adjacency is found when a 4 is
+   followed by a 1 or a 1 is followed by a 4 in this order. */
+static bool has_adjacent_14(uint64_t n)
+{
+    if (n == 0) return false;
+    uint8_t prev = 0;
+    bool have_prev = false;
+    while (n > 0) {
+        uint8_t cur = n % 6U;
+        if (have_prev &&
+            ((prev == 4U && cur == 1U) || (prev == 1U && cur == 4U)))
+            return true;
+        have_prev = true;
+        prev = cur;
+        n /= 6U;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

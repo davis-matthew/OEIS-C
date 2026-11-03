@@ -9,9 +9,10 @@
  *            ascending order using a Hamming‑style generator over the set of
  *            odd palindromic primes, discarding primes and duplicates. The
  *            first few terms agree with the OEIS entries shown above
- * Range:     u8 n <= 14, u16 n <= 9, u32 n <= 896, u64 n <= 1000,
+ * Range:     u8 n <= 15, u16 n <= 16, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, ensure_size_cap, is_palindrome, is_prime_big
+ * Validated: standard, pass, 71 terms through n = 977 (2026-11-03)
+ * Helpers:   build_primes_upto, is_palindrome_base, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,76 @@
 #include <stdbool.h>
 
 /* Utility functions supplied by the build system */
-#include "../utils/build_primes_upto.h"  /* build_primes_upto */
-#include "../utils/is_palindrome.h"     /* is_palindrome */
-#include "../utils/is_prime_big.h"      /* is_prime_big */
-#include "../utils/ensure_size_cap.h"
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
+#include "../utils/is_prime_u64.h"
+
+/* Miller–Rabin primality test for seq_t (supports 8/16/32/64/128/ arbitrary-precision) */
+/* n fits in uint64_t (n >= 0 here) */
+static bool is_prime_big_fits_u64(seq_t v)
+{
+    if (sizeof(seq_t) <= 8) return true;
+    return !((seq_t)UINT64_MAX < v);
+}
+
+static bool is_prime_big(seq_t n) {
+    if (n < 2) return false;
+    /* exact in 64 bits when n fits: the seq_t products below overflow at
+       u64/i64 once n passes 2^32, and are slow under big */
+    if (is_prime_big_fits_u64(n)) return is_prime_u64((uint64_t)n);
+    if (n == 2 || n == 3) return true;
+    if ((n & 1) == 0) return false;
+
+    /* write n-1 as d * 2^s with d odd */
+    seq_t d = n - 1;
+    unsigned s = 0;
+    while ((d & 1) == 0) {
+        d >>= 1;
+        s++;
+    }
+
+    /* deterministic bases covering 128‑bit values */
+    static const int base_list[] = {2,3,5,7,11,13,17,19,23,29,31,37};
+    const int num_bases = sizeof(base_list)/sizeof(base_list[0]);
+
+    for (int i = 0; i < num_bases; i++) {
+        seq_t a = (seq_t)base_list[i];
+        if (a >= n) continue;
+
+        /* compute a^d mod n */
+        seq_t x = 1;
+        seq_t pow = a % n;
+        seq_t exp = d;
+        while (exp > 0) {
+            if (exp & 1) x = (x * pow) % n;
+            pow = (pow * pow) % n;
+            exp >>= 1;
+        }
+
+        if (x == 1 || x == n-1) continue;
+
+        bool cont = false;
+        for (unsigned r = 1; r < s; r++) {
+            x = (x * x) % n;
+            if (x == n-1) { cont = true; break; }
+        }
+        if (!cont) return false;
+    }
+    return true;
+}
+
+/* --------------------------------------------------------------------- */
+static void ensure_size_cap(size_t need, size_t *cap, size_t **ptr)
+{
+    if (need <= *cap) return;
+    size_t newcap = (*cap == 0) ? 4 : (*cap << 1);
+    while (need > newcap) newcap <<= 1;
+    size_t *tmp = (size_t *)realloc(*ptr, newcap * sizeof(size_t));
+    if (!tmp) exit(1);
+    *ptr  = tmp;
+    *cap  = newcap;
+}
 
 /* --------------------------------------------------------------------- */
 /*  Helper routine: grow a dynamic array of seq_t                        */
@@ -34,7 +101,7 @@ static void ensure_seq_cap(size_t need, size_t *cap, seq_t **ptr)
     if (need <= *cap) return;
     size_t newcap = (*cap == 0) ? 4 : *cap << 1;
     while (need > newcap) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*ptr, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *ptr, newcap);
     if (!tmp) exit(1);
     *ptr  = tmp;
     *cap  = newcap;
@@ -72,17 +139,17 @@ static void init(void)
     /* Count how many of these primes are odd and palindromic */
     for (size_t i = 0; i < primes_cnt; ++i) {
         uint64_t p = primes_u64[i];
-        if (p > 2 && is_palindrome((seq_t)p, 10ULL))
+        if (p > 2 && is_palindrome_base((seq_t)p, 10ULL))
             ++pCount;
     }
 
     /* Allocate the prime array and fill it */
-    palPrimes = (seq_t *)malloc(pCount * sizeof(seq_t));
+    palPrimes = mem_new(seq_t, pCount);
     if (!palPrimes) exit(1);
     size_t idx = 0;
     for (size_t i = 0; i < primes_cnt; ++i) {
         uint64_t p = primes_u64[i];
-        if (p > 2 && is_palindrome((seq_t)p, 10ULL))
+        if (p > 2 && is_palindrome_base((seq_t)p, 10ULL))
             palPrimes[idx++] = (seq_t)p;
     }
 

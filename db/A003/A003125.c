@@ -11,13 +11,24 @@
  *            seq_t
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   a003125_sadd
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a003125_sadd.h"
+#include "../utils/mem.h"
+
+static void a003125_sadd(seq_t am, int as, seq_t bm, int bs, seq_t *rm, int *rs)
+{
+    if (as == 0) { *rm = bm; *rs = bs; return; }
+    if (bs == 0) { *rm = am; *rs = as; return; }
+    if (as == bs) { *rm = am + bm; *rs = as; return; }
+    if (am > bm) { *rm = am - bm; *rs = as; }
+    else if (bm > am) { *rm = bm - am; *rs = bs; }
+    else { *rm = 0; *rs = 0; }
+}
 
 seq_t a(idx_t n)
 {
@@ -30,10 +41,10 @@ seq_t a(idx_t n)
     p = n + 1;
     w = p + 1;
 
-    Apm = (seq_t *)malloc(w * sizeof(seq_t));
-    Acm = (seq_t *)malloc(w * sizeof(seq_t));
-    Bp = (seq_t *)malloc(w * sizeof(seq_t));
-    Bc = (seq_t *)malloc(w * sizeof(seq_t));
+    Apm = mem_new(seq_t, w);
+    Acm = mem_new(seq_t, w);
+    Bp = mem_new(seq_t, w);
+    Bc = mem_new(seq_t, w);
     Aps = (int *)malloc(w * sizeof(int));
     Acs = (int *)malloc(w * sizeof(int));
 
@@ -67,7 +78,7 @@ seq_t a(idx_t n)
 
     result = Bp[p];
 
-    free(Apm); free(Acm); free(Bp); free(Bc);
+    mem_free(Apm); mem_free(Acm); mem_free(Bp); mem_free(Bc);
     free(Aps); free(Acs);
     return result;
 }

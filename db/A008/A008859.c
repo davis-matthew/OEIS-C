@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=0..6} binomial(n, k) (binomial coefficient)
  * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 122, u64 n <= 4867,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 55 terms through n = 9933 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

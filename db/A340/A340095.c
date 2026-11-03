@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   U_mod
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,49 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/U_mod.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static seq_t U_mod(seq_t n, seq_t mod) {
+    if (n == 0) return 0 % mod;
+    if (n == 1) return 1 % mod;
+    /* Transition matrix [[5,1],[1,0]] */
+    seq_t a00 = 5 % mod, a01 = 1 % mod, a10 = 1 % mod, a11 = 0;
+    seq_t r00 = 1 % mod, r01 = 0, r10 = 0, r11 = 1 % mod;
+    idx_t e = (idx_t)(n - 1);
+    while (e) {
+        if (e & 1) {
+            seq_t t00 = (seq_t)((unsigned __int128)r00 * a00 % mod +
+                                (unsigned __int128)r01 * a10 % mod);
+            if (t00 >= mod) t00 -= mod;
+            seq_t t01 = (seq_t)((unsigned __int128)r00 * a01 % mod +
+                                (unsigned __int128)r01 * a11 % mod);
+            if (t01 >= mod) t01 -= mod;
+            seq_t t10 = (seq_t)((unsigned __int128)r10 * a00 % mod +
+                                (unsigned __int128)r11 * a10 % mod);
+            if (t10 >= mod) t10 -= mod;
+            seq_t t11 = (seq_t)((unsigned __int128)r10 * a01 % mod +
+                                (unsigned __int128)r11 * a11 % mod);
+            if (t11 >= mod) t11 -= mod;
+            r00 = t00; r01 = t01; r10 = t10; r11 = t11;
+        }
+        seq_t t00 = (seq_t)((unsigned __int128)a00 * a00 % mod +
+                            (unsigned __int128)a01 * a10 % mod);
+        if (t00 >= mod) t00 -= mod;
+        seq_t t01 = (seq_t)((unsigned __int128)a00 * a01 % mod +
+                            (unsigned __int128)a01 * a11 % mod);
+        if (t01 >= mod) t01 -= mod;
+        seq_t t10 = (seq_t)((unsigned __int128)a10 * a00 % mod +
+                            (unsigned __int128)a11 * a10 % mod);
+        if (t10 >= mod) t10 -= mod;
+        seq_t t11 = (seq_t)((unsigned __int128)a10 * a01 % mod +
+                            (unsigned __int128)a11 * a11 % mod);
+        if (t11 >= mod) t11 -= mod;
+        a00 = t00; a01 = t01; a10 = t10; a11 = t11;
+        e >>= 1;
+    }
+    return r00 % mod;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Helper: deterministic primality test for uint64_t                */
@@ -101,7 +144,7 @@ static void cache_append(seq_t val) {
     if (cached_terms >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 128;
         /* cast suited for both C and C++ */
-        cache = (seq_t *)realloc((void *)cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
     cache[cached_terms++] = val;
@@ -133,7 +176,7 @@ seq_t a(idx_t n) {
     if (n == 0) return 0;             /* undefined, but harmless             */
     if (!cache) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cached_terms = 0;
         last_checked = 8;
     }

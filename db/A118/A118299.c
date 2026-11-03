@@ -8,14 +8,28 @@
  * Formula:   a(n) = reverse_decimal(a(n-1)) + 1, a(1) = 24
  * Range:     u8 n <= 94, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
- * Helpers:   ensure_capacity, reverse_decimal
+ * Validated: partial, pass, 94 terms through n = 94 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/ensure_capacity.h"
-#include "../utils/reverse_decimal.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +53,7 @@ seq_t a(idx_t n)
         if (i == 1) {
             val = 24;
         } else {
-            val = reverse_decimal(cache[(size_t)(i - 2)]) + 1;
+            val = reverse_digits(cache[(size_t)(i - 2)]) + 1;
         }
         cache[(size_t)(i - 1)] = val;
     }

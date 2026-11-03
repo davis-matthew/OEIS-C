@@ -12,6 +12,7 @@
  *            ascending order. For each k the smallest p whose progressio...
  * Range:     u8 n <= 407, u16 n <= 407, u32 n <= 407, u64 n <= 407,
  *            u128 n <= 407, big any n
+ * Validated: standard, pass, 99 terms through n = 405 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

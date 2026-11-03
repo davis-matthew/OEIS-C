@@ -10,14 +10,25 @@
  *            n, * where h = popcount(n). a(0) = 0
  * Range:     u8 n <= 46, u16 n <= 766, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   rev_bits64
+ * Validated: standard, pass, 80 terms through n = 7921 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/rev_bits64.h"
+
+/* reverse the lowest h bits of x (h <= 64) */
+static inline uint64_t rev_bits64(uint64_t x, unsigned h)
+{
+    uint64_t rev = 0;
+    for (unsigned i = 0; i < h; ++i) {
+        rev = (rev << 1) | (x & 1U);
+        x >>= 1;
+    }
+    return rev;
+}
 
 static inline unsigned int popcount_u64(uint64_t x)
 {

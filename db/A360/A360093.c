@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 none, i16 n <= 60, i32 n <= 60, i64 n <= 60, i128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdint.h>   /* uint64_t */
 #include <stdlib.h>   /* malloc, calloc, free */
 #include <stdbool.h>  /* bool */
+#include "../utils/mem.h"
 
 /*  seq_t and idx_t are supplied by the build system.  Do NOT redefine them.  */
 static seq_t *best   = NULL; /* best[n] = answer for n, or -1 */
@@ -59,7 +61,7 @@ static void init(void) {
         max_sum += (size_t)part_vals[i];
 
     /*  Allocate cost tables.  */
-    seq_t *cnt = (seq_t *)calloc(max_sum + 1, sizeof(seq_t));
+    seq_t *cnt = mem_new(seq_t, max_sum + 1);
     if (cnt == NULL) return;          /* allocation failure – unlikely */
     cnt[0] = (seq_t)1;                /* empty subset */
 
@@ -81,8 +83,8 @@ static void init(void) {
 
     /*  Allocate best array and initialise to -1.  */
     best_cap = MAX_COUNT + 1;
-    best = (seq_t *)calloc(best_cap, sizeof(seq_t));
-    if (best == NULL) { free(cnt); return; }
+    best = mem_new(seq_t, best_cap);
+    if (best == NULL) { mem_free(cnt); return; }
     for (size_t i = 0; i < best_cap; ++i)
         best[i] = (seq_t)-1;
 
@@ -98,7 +100,7 @@ static void init(void) {
     }
 
     /*  Clean up temporary table.  */
-    free(cnt);
+    mem_free(cnt);
 }
 
 /* ----------------------------------------------------- */

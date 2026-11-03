@@ -11,6 +11,7 @@
  *            binomial(j+1,2) * (-1)^(c-j) * j^(r-2) (r≥2), * with T_2(1,1)=0
  * Range:     u8 n <= 17, u16 n <= 32, u32 n <= 84, u64 n <= 200,
  *            u128 n <= 514, big any n
+ * Validated: standard, pass, 71 terms through n = 1119 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

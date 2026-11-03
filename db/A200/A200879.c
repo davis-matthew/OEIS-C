@@ -8,13 +8,16 @@
  *            equivalent to 10^100 ≡ 1 (mod n) for n > 1
  * Range:     u8 n <= 10, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   mod_mul
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_mul.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/mulmod.h"
 
 seq_t a(idx_t n) {
     if (n == 1) return (seq_t)1;
@@ -30,8 +33,8 @@ seq_t a(idx_t n) {
 
         /* fast modular exponentiation using mod_mul to avoid overflow */
         while (exp) {
-            if (exp & 1) result = mod_mul(result, base, mod);
-            base = mod_mul(base, base, mod);
+            if (exp & 1) result = mulmod(result, base, mod);
+            base = mulmod(base, base, mod);
             exp >>= 1;
         }
 

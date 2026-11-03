@@ -9,18 +9,19 @@
  *            right by 1 bit)
  * Range:     u8 n <= 383, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_idx, bitlen_seq_t
+ * Validated: standard, pass, 80 terms through n = 9731 (2026-11-01)
+ * Helpers:   bit_length, bit_length_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/bitlen_idx.h"
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
+#include "../utils/bit_length_idx.h"
 
 seq_t a(idx_t n) {
     /* find bit length of n */
-    unsigned l = bitlen_idx(n);
+    unsigned l = bit_length_idx(n);
     /* left rotation of n with bit length l */
     seq_t left = ((seq_t)n << 1) | (seq_t)(n >> (l - 1));
     /* mask to keep only l bits */
@@ -33,7 +34,7 @@ seq_t a(idx_t n) {
     }
     seq_t m = left & mask;
     /* right rotation of m using its actual bit length */
-    unsigned lm = bitlen_seq_t(m);
+    unsigned lm = bit_length(m);
     seq_t result = (m >> 1) | ((m & 1) << (lm - 1));
     return result;
 }

@@ -7,8 +7,9 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = (60*n^3 - 72*n^2 + 18*n)/6 (simplifies to 10*n^3 - 12*n^2
  *            + 3*n)
- * Range:     u8 n <= 3, u16 n <= 19, u32 n <= 32, u64 n <= 32, u128 n <= 32,
- *            big any n
+ * Range:     u8 n <= 3, u16 n <= 19, u32 n <= 754, u64 n <= 5000,
+ *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 48 terms through n = 4678 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

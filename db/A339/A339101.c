@@ -8,12 +8,14 @@
  * Formula:   a(n) = number of compositions of n into distinct parts >=3
  * Range:     u8 n <= 22, u16 n <= 43, u32 n <= 94, u64 n <= 222,
  *            u128 n <= 569, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 4760 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,9 +26,9 @@ seq_t a(idx_t n)
     if (k > 0) --k;  /* last k that satisfies the inequality */
 
     /* allocate working arrays */
-    seq_t *answer = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *coeff  = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *fact   = (seq_t *)calloc((size_t)(k + 1), sizeof(seq_t));
+    seq_t *answer = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *coeff  = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *fact   = mem_new(seq_t, (size_t)(k + 1));
 
     /* Base: k = 0 */
     coeff[0] = 1;
@@ -49,8 +51,8 @@ seq_t a(idx_t n)
     }
 
     seq_t result = answer[n];
-    free(answer);
-    free(coeff);
-    free(fact);
+    mem_free(answer);
+    mem_free(coeff);
+    mem_free(fact);
     return result;
 }

@@ -9,7 +9,8 @@
  *            in the sequence such that a(n-1)+a(n) is a multiple of n
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 74 terms through n = 940 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/next_prime.h"    /* uint64_t next_prime(uint64_t start); */
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* Static memoisation of the sequence */
 static seq_t *seq_cache = NULL;   /* array of terms */
@@ -36,7 +38,7 @@ static void append_seq(seq_t val)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? seq_cap << 1 : 8;
-        seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
     }
     seq_cache[seq_len++] = val;
 }

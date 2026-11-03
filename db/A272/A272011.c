@@ -8,8 +8,9 @@
  * Formula:   a(n) = the exponent (index of a power of two) appearing as the
  *            n-th element when all binary exponent lists of the integers
  *            1,2,3,… are concatenated in row‑by‑row lexicographic order
- * Range:     u8 n <= 9579, u16 n <= 9579, u32 n <= 9579, u64 n <= 9579,
- *            u128 n <= 9579, big any n
+ * Range:     u8 n <= 10001, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 104 terms through n = 9579 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

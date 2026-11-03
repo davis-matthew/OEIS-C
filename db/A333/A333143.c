@@ -11,12 +11,14 @@
  *            and T(0,k)=0^k. qBracket(m)=1+3+⋯+3^{m-1}
  * Range:     u8 n <= 15, u16 n <= 23, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;          /* rows[i] points to array of length i+1 */
 static size_t rows_cap = 0;          /* allocated capacity for rows array   */
@@ -35,7 +37,7 @@ static void ensure_brackets(size_t need)
     size_t new_cap = bracket_cap == 0 ? 2 : bracket_cap * 2;
     if (new_cap <= need) new_cap = need + 1;
 
-    seq_t *tmp = (seq_t *)realloc(bracket, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, bracket, new_cap);
     if (!tmp) exit(1);                 /* fatal allocation failure */
 
     if (bracket_cap == 0) {            /* first time: initialise */
@@ -69,7 +71,7 @@ static void ensure_rows(size_t target)
 
     /* Create each new row */
     for (size_t i = rows_count; i <= target; ++i) {
-        rows[i] = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        rows[i] = mem_new(seq_t, (i + 1));
         if (!rows[i]) exit(1);                /* allocation failure */
 
         /* First element of every row */

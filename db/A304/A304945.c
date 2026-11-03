@@ -9,8 +9,9 @@
  * Formula:   a(n) = number of nonnegative integers k such that n - k*L(k) is
  *            positive and squarefree, where L(k) is the k-th Lucas number,
  *            OEIS A000032
- * Range:     u8 n <= 232, u16 n <= 9848, u32 n <= 9848, u64 n <= 9848,
- *            u128 n <= 9848, big any n
+ * Range:     u8 n <= 232, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 116 terms through n = 9848 (2026-11-01)
  * Helpers:   is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 
 /* Potentially used utilities */
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/is_squarefree.h"
 
 seq_t a(idx_t n) {

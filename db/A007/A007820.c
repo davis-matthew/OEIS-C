@@ -10,16 +10,40 @@
  *            adds and multiplies)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 22,
  *            big any n
- * Helpers:   a000248_pow, alloc_zero, release, seq_is_fixed_width
+ * Validated: standard, pass, 34 terms through n = 301 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/a000248_pow.h"
-#include "../utils/seq_is_fixed_width.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 static seq_t a007820_dp(idx_t n) {
     idx_t N = 2 * n;
@@ -51,7 +75,7 @@ static seq_t a007820_formula(idx_t n) {
     idx_t k;
 
     for (k = 0; k <= n; k++) {
-        seq_t term = c * a000248_pow((seq_t)(n - k), 2 * n);
+        seq_t term = c * ipow_idx((seq_t)(n - k), 2 * n);
         if (k % 2 == 0)
             pos += term;
         else

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   has_equal_2_5
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,21 @@
    contains the same (non‑zero) number of 2’s and 5’s. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_equal_2_5.h"
+#include "../utils/mem.h"
+
+/* Check whether a given number satisfies the condition. */
+static bool has_equal_2_5(seq_t v)
+{
+    unsigned int c2 = 0, c5 = 0;
+    seq_t t = v;
+    while (t > 0) {
+        unsigned d = (unsigned)(t % 6);   /* digit in base 6 */
+        if (d == 2) ++c2;
+        else if (d == 5) ++c5;
+        t /= 6;
+    }
+    return (c2 == c5) && (c2 > 0);
+}
 
 /* Return the n‑th term of the sequence. */
 seq_t a(idx_t n)
@@ -34,7 +49,7 @@ seq_t a(idx_t n)
         if (has_equal_2_5(next)) {
             if (found >= cap) {      /* grow the cache if necessary */
                 size_t new_cap = cap ? cap * 2 : 128;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) return 0;  /* allocation failed – give up */
                 cache = tmp;
                 cap   = new_cap;

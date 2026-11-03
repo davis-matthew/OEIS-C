@@ -6,15 +6,17 @@
  * Keywords:  nonn
  * Formula:   a(n) is the n-th positive integer k such that phi(k) =
  *            phi(sigma(k))
- * Range:     u8 n <= 16, u16 n <= 953, u32 n <= 9079, u64 n <= 9079,
- *            u128 n <= 9079, big any n
- * Helpers:   none
+ * Range:     u8 n <= 16, u16 n <= 953, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 66 terms through n = 9079 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static uint64_t phi(uint64_t n) {
     if (n == 1) return 1;
@@ -56,12 +58,12 @@ static void ensure_cache(idx_t needed) {
     idx_t new_cap = cache_cap > 0 ? cache_cap * 2 : 1000;
     while (new_cap < needed) new_cap *= 2;
     
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (cache != NULL) {
         for (idx_t i = 0; i < cache_len; i++) {
             new_cache[i] = cache[i];
         }
-        free(cache);
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = new_cap;

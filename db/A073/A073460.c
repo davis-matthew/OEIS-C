@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 7606, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9634 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Computes a(n) = Min{x ; phi(x) - pi(x) = n}, returning 0 if no such x exists. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static seq_t *diff_to_x = NULL;   /* diff + 2 -> smallest x */
@@ -59,7 +61,7 @@ static void init_sequence(void)
     }
 
     /* ---------- Prepare mapping from diff to smallest x ---------- */
-    diff_to_x = (seq_t *)malloc((MAX_DIFF + 3) * sizeof(seq_t)); /* indices [-2 .. MAX_DIFF] */
+    diff_to_x = mem_new(seq_t, (MAX_DIFF + 3)); /* indices [-2 .. MAX_DIFF] */
     for (int i = 0; i < MAX_DIFF + 3; ++i) diff_to_x[i] = 0;
 
     for (idx_t x = 1; x <= MAX_X; ++x) {

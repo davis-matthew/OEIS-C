@@ -10,12 +10,14 @@
  *            + 3*n + 2)*a(n) * - (2*n + 4)*a(n+1) * + (2*n + 6)*a(n+2)) / 2
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,11 +29,11 @@ seq_t a(idx_t n)
     /* Grow the array if needed (powers of two for efficiency)    */
     if (dp == NULL) {
         dp_size = 4;                         /* at least to hold indices 0 .. 3   */
-        dp      = (seq_t *)malloc(dp_size * sizeof(seq_t));
+        dp      = mem_new(seq_t, dp_size);
     }
     while (dp_size <= n) {
         dp_size <<= 1;
-        dp        = (seq_t *)realloc(dp, dp_size * sizeof(seq_t));
+        dp        = mem_resize(seq_t, dp, dp_size);
     }
 
     /* ----------------------------------------------------------- */

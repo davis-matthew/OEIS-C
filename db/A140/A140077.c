@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 9469, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 63 terms through n = 9480 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,10 @@
  */
 #include <stddef.h>       /* size_t */
 #include <stdlib.h>      /* malloc, realloc, free, EXIT_FAILURE */
-#include "../utils/count_distinct_primes.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,8 +42,8 @@ seq_t a(idx_t n)
         /*  Search for the next integer whose two successive values
          *  each have exactly three distinct prime factors.  */
         while (1) {
-            if (count_distinct_primes(i) == 3 &&
-                count_distinct_primes(i + 1) == 3)
+            if (omega(i) == 3 &&
+                omega(i + 1) == 3)
                 break;
             ++i;
         }
@@ -48,7 +52,7 @@ seq_t a(idx_t n)
         if (size + 1 > cap) {
             cap = cap ? cap * 2 : 16;
             /*  realloc returns void*; cast explicitly for C++.  */
-            seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cap);
             if (!tmp) {                  /* allocation failed  */
                 exit(EXIT_FAILURE);
             }

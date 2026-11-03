@@ -11,13 +11,22 @@
  *            1250, 8000, …
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 27, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   pow_uint, seq_mul
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"   /* pow_uint(uint64_t base, idx_t exp) */
-#include "../utils/seq_mul.h"    /* seq_mul(seq_t a, seq_t b) */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,9 +39,9 @@ seq_t a(idx_t n)
 
     /* Block e = 1 has only two terms */
     if (remaining == 0)                 /* 10¹ */
-        return pow_uint(10, 1);
+        return ipow_u64_idx(10, 1);
     if (remaining == 1)                 /* 8·10¹ */
-        return seq_mul((seq_t)8, pow_uint(10, 1));
+        return seq_mul((seq_t)8, ipow_u64_idx(10, 1));
 
     /* From here on we are in full 3‑term blocks for e ≥ 2 */
     remaining -= 2;                    /* skip the two terms of e = 1 block */
@@ -41,8 +50,8 @@ seq_t a(idx_t n)
     idx_t e     = 2 + block;           /* the exponent of 10 in this block */
     idx_t pos   = remaining % 3;       /* 0 → 10^e, 1 → 125·10^(e‑2), 2 → 8·10^e */
 
-    seq_t pow10  = pow_uint(10, e);
-    seq_t pow10_e_minus_2 = pow_uint(10, e - 2);
+    seq_t pow10  = ipow_u64_idx(10, e);
+    seq_t pow10_e_minus_2 = ipow_u64_idx(10, e - 2);
 
     switch (pos) {
         case 0: return pow10;

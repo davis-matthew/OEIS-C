@@ -11,7 +11,8 @@
  *            at the (k‑1)-th row's coefficients, in row‑major order
  * Range:     u8 n <= 27, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --- Parameters for memory allocation ------------------------------------- */
 static const size_t INITIAL_CACHE_CAP = 1024;
@@ -47,7 +49,7 @@ static void ensure_cache_cap(size_t needed)
 {
     while (cache_cap < needed) {
         size_t new_cap = cache_cap == 0 ? INITIAL_CACHE_CAP : cache_cap * 2;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;
@@ -61,15 +63,15 @@ static void init_static(void)
 
     /* Allocate cache */
     cache_cap = INITIAL_CACHE_CAP;
-    cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) abort();
     cache_len = 0;
 
     /* Allocate coefficient arrays */
-    u_curr = (seq_t*)malloc(MAX_ROW_CAP * sizeof(seq_t));
-    v_curr = (seq_t*)malloc(MAX_ROW_CAP * sizeof(seq_t));
-    u_next = (seq_t*)malloc(MAX_ROW_CAP * sizeof(seq_t));
-    v_next = (seq_t*)malloc(MAX_ROW_CAP * sizeof(seq_t));
+    u_curr = mem_new(seq_t, MAX_ROW_CAP);
+    v_curr = mem_new(seq_t, MAX_ROW_CAP);
+    u_next = mem_new(seq_t, MAX_ROW_CAP);
+    v_next = mem_new(seq_t, MAX_ROW_CAP);
     if (!u_curr || !v_curr || !u_next || !v_next) abort();
 
     /* Initial row n = 1 */

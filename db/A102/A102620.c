@@ -8,12 +8,14 @@
  * Formula:   a(n) = 3*a(n-1) - a(n-2) + a(n-3), a(1)=1, a(2)=5, a(3)=15
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;   /* cached values, indexed by n, 1‑based */
 static idx_t memo_size = 0;  /* current allocated size (elements) */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* First call: allocate minimal storage */
     if (memo == NULL) {
         memo_size = 4;              /* indices 0..3; ignore index 0 */
-        memo = (seq_t *)malloc(memo_size * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_size);
         if (memo == NULL) return (seq_t)0;  /* allocation failure */
         memo[1] = (seq_t)1;
         memo[2] = (seq_t)5;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         idx_t new_size = memo_size;
         while (new_size <= n)
             new_size <<= 1;          /* double until large enough */
-        seq_t *tmp = (seq_t *)realloc(memo, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_size);
         if (tmp == NULL) return (seq_t)0;  /* allocation failure */
         memo = tmp;
         memo_size = new_size;

@@ -9,7 +9,8 @@
  *            for n >= 2
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 18, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,14 +42,14 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* Allocate space for a[0] and a[1] */
         a_cap   = 2;
-        a_cache = (seq_t *) malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         a_cache[0] = (seq_t)1;
         a_cache[1] = (seq_t)1;
         a_max     = 1;   /* we have a[0] and a[1] */
 
         /* Allocate and initialise C for row 1: C(1,0)=1, C(1,1)=1 */
         C_cap   = 2;
-        C       = (seq_t *) malloc(C_cap * sizeof(seq_t));
+        C       = mem_new(seq_t, C_cap);
         C[0]    = (seq_t)1;
         C[1]    = (seq_t)1;
         C_row   = 1;     /* C represents row 1 */
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         if (m >= a_cap) {
             size_t new_cap = a_cap ? a_cap * 2 : 4;
             if (new_cap <= m) new_cap = m + 1;
-            a_cache = (seq_t *) realloc(a_cache, new_cap * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, new_cap);
             a_cap   = new_cap;
         }
         a_cache[m] = sum;
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
         if (newSize > C_cap) {
             size_t new_cap = C_cap ? C_cap * 2 : 4;
             if (new_cap < newSize) new_cap = newSize;
-            C      = (seq_t *) realloc(C, new_cap * sizeof(seq_t));
+            C      = mem_resize(seq_t, C, new_cap);
             C_cap  = new_cap;
         }
         /* New last element starts as 0 before Pascal update */

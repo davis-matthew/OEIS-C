@@ -10,7 +10,8 @@
  *            prime
  * Range:     u8 n <= 9, u16 n <= 399, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 103 terms through n = 9781 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/is_prime_small.h"   // bool is_prime_small(uint64_t)
+#include "../utils/is_prime_seq.h"
 
 static size_t flag_limit = 0;               /* size of prime_flags array */
 static bool *prime_flags = NULL;            /* sieve array, true = prime */
@@ -96,7 +97,7 @@ seq_t a(idx_t n) {
 
         /* p is prime; check first condition */
         seq_t t1 = (seq_t)p * (p + 1) - (seq_t)primes[p - 1];
-        if (!is_prime_small((uint64_t)t1))
+        if (!is_prime_seq((uint64_t)t1))
             continue;
 
         idx_t q = two_n - p;
@@ -105,7 +106,7 @@ seq_t a(idx_t n) {
 
         /* check second condition */
         seq_t t2 = (seq_t)primes[q - 1] - q + 1;
-        if (!is_prime_small((uint64_t)t2))
+        if (!is_prime_seq((uint64_t)t2))
             continue;
 
         ++count;                       /* a valid pair found */

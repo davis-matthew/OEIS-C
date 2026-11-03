@@ -7,9 +7,10 @@
  * Formula:   a(n) = Π_{p^e‖n} f(p^e) * f(2^e) = -1 * if p is a Mersenne
  *            prime: * f(p) = 1 - p * f(p^2) = -p * f(p^e) = 0 (e ≥ 3) *
  *            otherwise: * f(p) = -p * f(p^e) = 0 (e ≥ 2)
- * Range:     i8 n <= 130, i16 n <= 9443, i32 n <= 9443, i64 n <= 9443,
- *            i128 n <= 9443, big any n
- * Helpers:   _smallest_prime_factor, is_prime
+ * Range:     i8 n <= 130, i16 n <= 32769, i32 n <= 32769, i64 n <= 32769,
+ *            i128 n <= 32769, big any n
+ * Validated: standard, pass, 96 terms through n = 9443 (2026-11-01)
+ * Helpers:   is_prime, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stddef.h>
 
 #include "../utils/is_prime.h"
-#include "../utils/_smallest_prime_factor.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
     uint64_t m = (uint64_t)n;
 
     while (m > 1) {
-        uint64_t p = _smallest_prime_factor(m);
+        uint64_t p = smallest_prime_factor(m);
         unsigned int exp = 0;
         while (m % p == 0) {
             m /= p;

@@ -9,12 +9,14 @@
  *            factorials
  * Range:     u8 n <= 59, u16 n <= 409, u32 n <= 6207, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9944 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* for malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,8 +25,8 @@ seq_t a(idx_t n)
     static idx_t dp_size = 0;
     if (dp_size <= n) {
         idx_t new_size = n + 1;
-        seq_t *new_dp = (seq_t *)malloc(new_size * sizeof(seq_t));
-        if (dp) free(dp);
+        seq_t *new_dp = mem_new(seq_t, new_size);
+        if (dp) mem_free(dp);
         dp = new_dp;
         dp_size = new_size;
     }

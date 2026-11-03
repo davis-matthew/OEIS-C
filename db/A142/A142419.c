@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 158, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 57 terms through n = 957 (2026-11-02)
  * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* This function returns the n‑th prime congruent to 6 modulo 49
    (OEIS A142419).  It uses next_prime to iterate over primes and
    keeps a cache so that repeated calls with arbitrary ordering are
@@ -20,6 +22,7 @@
 
 #include <stddef.h>      /* size_t */
 #include <stdint.h>      /* uint64_t */
+#include <stdbool.h>
 #include "../utils/next_prime.h"
 
 /* Static cache of already found terms.  The cache is resized as needed.

@@ -8,7 +8,8 @@
  *            floor(-n/log(n))
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   floor_neg
+ * Validated: standard, pass, 109 terms through n = 9916 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,15 @@
 /* using natural logarithm, defined for n >= 2 */
 
 #include <math.h>
-#include "../utils/floor_neg.h"
+
+static inline seq_t floor_neg(idx_t k)
+{
+    /* k >= 2 */
+    long double ln = logl((long double)k);
+    long double val = -(long double)k / ln;
+    long long iv = (long long)floor(val);
+    return (seq_t)iv;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,12 +9,15 @@
  * Formula:   a(n) = floor(110/127 * 2^n)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 127,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 48 terms through n = 986 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
     } else {
         /* seq_t has enough capacity (arbitrary‑precision).  Use
            big_pow for exact 2^n. */
-        seq_t pow2 = big_pow((seq_t)2, (seq_t)n);
+        seq_t pow2 = ipow((seq_t)2, (seq_t)n);
         seq_t prod = (seq_t)110 * pow2;
         return prod / (seq_t)127;
     }

@@ -11,7 +11,8 @@
  *            symbol by modular exponentiation
  * Range:     u8 n <= 24, u16 n <= 3234, u32 n <= 9973, u64 n <= 9973,
  *            u128 n <= 9973, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 70 terms through n = 8455 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"    /* bool is_prime(idx_t x); */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static inline uint64_t mod_pow64(uint64_t base, uint64_t exp, uint64_t mod)
 {
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
                 if (splits_cnt + 1 > splits_cap) {
                     size_t new_cap = splits_cap ? splits_cap << 1U : 16;
                     while (new_cap <= splits_cnt + 1) new_cap <<= 1U;
-                    seq_t *tmp = (seq_t *)realloc(splits, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, splits, new_cap);
                     splits = tmp;
                     splits_cap = new_cap;
                 }

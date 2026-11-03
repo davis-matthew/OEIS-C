@@ -10,12 +10,14 @@
  *            a(9) = 143 a(10) = 165 a(11) = 187 a(12) = 209 a(13) = 229
  * Range:     i8 n <= 8, i16 n <= 50, i32 n <= 50, i64 n <= 50, i128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n < 2) return 0; /* behavior undefined below the offset */
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     if (cache_len <= idx) {
         /* Need to extend the cache */
         size_t new_len = idx + 1;
-        seq_t *new_cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) return 0;        /* allocation failed: fallback */
 
         cache = new_cache;

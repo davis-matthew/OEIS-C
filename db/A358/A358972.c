@@ -7,7 +7,8 @@
  * Formula:   a(n) = n!^A000178(n-1) (product of factorials 1!*2!*...*(n-1)!)
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,10 @@
 
 /* Include necessary utilities */
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Cache for factorials */
 static seq_t *fact_cache = NULL;
@@ -27,8 +31,8 @@ static size_t fact_cache_size = 0;
 static void ensure_factorial_cache(idx_t n)
 {
     if (fact_cache_size < (size_t)n + 1) {
-        free(fact_cache);
-        fact_cache = (seq_t *)malloc(((size_t)n + 1) * sizeof(seq_t));
+        mem_free(fact_cache);
+        fact_cache = mem_new(seq_t, ((size_t)n + 1));
         fact_cache_size = (size_t)n + 1;
     }
 }
@@ -60,11 +64,11 @@ seq_t a(idx_t n)
     compute_factorials(n);
 
     /* Compute left‑nested power */
-    seq_t result = big_pow(fact_cache[n], fact_cache[n - 1]);
+    seq_t result = ipow(fact_cache[n], fact_cache[n - 1]);
 
     /* Remaining exponents from (n-2)! down to 1! */
     for (idx_t k = n - 2; k >= 1; --k) {
-        result = big_pow(result, fact_cache[k]);
+        result = ipow(result, fact_cache[k]);
         if (k == 1) {
             break;   /* avoid unsigned wrap‑around */
         }

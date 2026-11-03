@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 18, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,13 @@
    k must be even, and all solutions satisfy k ≡ 2 (mod 4). */
 
 /* Utility for modular exponentiation */
-#include "../utils/mod_pow.h"
+#include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +37,7 @@ seq_t a(idx_t n)
     /* grow cache when needed */
     if (cache_len + 1 > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 4;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) { /* allocation failure – return 0 */
             return (seq_t)0;
         }
@@ -42,7 +48,7 @@ seq_t a(idx_t n)
     /* search until we have at least n terms stored */
     while (cache_len < (size_t)n) {
         seq_t mod = (seq_t)(test_k - 1);
-        seq_t t = mod_pow((seq_t)8, (uint64_t)test_k, mod);
+        seq_t t = powmod((seq_t)8, (uint64_t)test_k, mod);
 
         /* check 8^k ≡ -1 (mod k-1) ⇔ t = mod - 1 */
         if (t == mod - (seq_t)1) {

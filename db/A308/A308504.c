@@ -10,13 +10,15 @@
  *            ∑_{d|j} d^i
  * Range:     u8 n <= 9, u16 n <= 25, u32 n <= 54, u64 n <= 135, u128 n <= 377,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 61 terms through n = 9171 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -35,10 +37,10 @@ seq_t a(idx_t n)
 
     for (d = 1; d * d <= j; ++d) {
         if (j % d == 0) {
-            sum += big_pow((seq_t)d, (seq_t)i);
+            sum += ipow((seq_t)d, (seq_t)i);
             idx_t q = j / d;
             if (q != d)
-                sum += big_pow((seq_t)q, (seq_t)i);
+                sum += ipow((seq_t)q, (seq_t)i);
         }
     }
     return sum;

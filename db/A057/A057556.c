@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 9289, u16 n <= 9289, u32 n <= 9289, u64 n <= 9289,
- *            u128 n <= 9289, big any n
- * Helpers:   binom3_uint64
+ * Range:     u8 n <= 10962, u16 n <= 10962, u32 n <= 10962, u64 n <= 10962,
+ *            u128 n <= 10962, big any n
+ * Validated: standard, pass, 184 terms through n = 9289 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,18 @@
    n up to at least 10 000 and the algorithm works for any n that fits in
    idx_t.  */
 #include <stdint.h>
-#include "../utils/binom3_uint64.h"
+
+/* Find binomial coefficient C(n,3), safe for large n using 128‑bit
+   intermediate arithmetic.  It is used for n≥3, but the formula still
+   works when n<3 (returns 0). */
+static inline seq_t binom3_uint64(idx_t n)
+{
+    __uint128_t v = 0;
+    if (n >= 3) {
+        v = (__uint128_t)n * (n - 1) * (n - 2) / 6;
+    }
+    return (seq_t)v;
+}
 
 /* Main function – returns the n‑th term of the sequence. */
 seq_t a(idx_t n)

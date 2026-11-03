@@ -8,7 +8,8 @@
  * Formula:   a(n) = A001055(n) - A368413(n)
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   dfs_factor, factorize, match_rec
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   factorize
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,55 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factorize.h"
-#include "../utils/dfs_factor.h"
-#include "../utils/match_rec.h"
+
+/* Match a factorization if distinct primes can be assigned to each factor */
+static bool match_rec(int i, int depth, uint8_t *mask, uint8_t used, int r)
+{
+    if (i == depth) return true;
+    uint8_t avail = mask[i];
+    for (int p = 0; p < r; ++p) {
+        if ((avail & (1u << p)) && !(used & (1u << p))) {
+            if (match_rec(i + 1, depth, mask, used | (1u << p), r)) return true;
+        }
+    }
+    return false;
+}
+
+/* Recursive generation of multiplicative partitions */
+static void dfs_factor(idx_t rem, idx_t last, int depth,
+                       idx_t *parts, uint8_t *mask,
+                       uint64_t *primes, int r,
+                       idx_t *divs, size_t divcnt,
+                       seq_t *cnt)
+{
+    if (rem == 1) {
+        if (depth > r) return;
+        for (int i = 0; i < depth; ++i) {
+            uint8_t m = 0;
+            idx_t v = parts[i];
+            for (int j = 0; j < r; ++j)
+                if (v % primes[j] == 0)
+                    m |= (1u << j);
+            mask[i] = m;
+        }
+        if (match_rec(0, depth, mask, 0, r)) (*cnt)++;
+        return;
+    }
+
+    for (size_t k = 0; k < divcnt; ++k) {
+        idx_t d = divs[k];
+        if (d < last) continue;
+        if (d > rem) continue;
+        if (rem % d == 0) {
+            parts[depth] = d;
+            dfs_factor(rem / d, d, depth + 1,
+                       parts, mask, primes, r,
+                       divs, divcnt, cnt);
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {

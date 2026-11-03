@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, easy, nice
  * Formula:   not stated
- * Range:     u8 n <= 96, u16 n <= 9380, u32 n <= 9380, u64 n <= 9380,
- *            u128 n <= 9380, big any n
- * Helpers:   none
+ * Range:     u8 n <= 96, u16 n <= 18322, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 84 terms through n = 9380 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the sum of the decimal digits of v. */
 static seq_t digit_sum(seq_t v)
@@ -51,7 +53,7 @@ static seq_t next_candidate = (seq_t)2;   /* start checking at 2 */
 static void ensure_cache_capacity(size_t new_cap)
 {
     if (new_cap <= cache_cap) return;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(1);          /* abort on allocation failure */
     cache     = tmp;
     cache_cap = new_cap;

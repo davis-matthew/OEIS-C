@@ -9,12 +9,13 @@
  *            reversal of k
  * Range:     u8 n <= 18, u16 n <= 1274, u32 n <= 1274, u64 n <= 1274,
  *            u128 n <= 1274, big any n
- * Helpers:   _rev_decimal
+ * Validated: standard, pass, 71 terms through n = 1194 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_rev_decimal.h"
+#include "../utils/reverse_digits.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;   /* undefined; offset starts from 1 */
@@ -25,7 +26,7 @@ seq_t a(idx_t n) {
 
     while (count < n) {
         ++m;
-        seq_t rev = _rev_decimal((seq_t)m);
+        seq_t rev = reverse_digits((seq_t)m);
         diff += (long long) m - (long long) rev;
         if (diff > 0) ++count;
     }

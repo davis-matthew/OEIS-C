@@ -8,14 +8,30 @@
  * Formula:   a(n) = floor(10*(log_10(n) - floor(log_10(n))))
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   digits_of_uint32
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/digits_of_uint32.h"
+
+/* Count decimal digits of a 32‑bit integer. */
+static uint32_t digits_of_uint32(uint32_t x)
+{
+    if (x >= 1000000000U) return 10;
+    if (x >= 100000000U)  return 9;
+    if (x >= 10000000U)   return 8;
+    if (x >= 1000000U)    return 7;
+    if (x >= 100000U)     return 6;
+    if (x >= 10000U)      return 5;
+    if (x >= 1000U)       return 4;
+    if (x >= 100U)        return 3;
+    if (x >= 10U)         return 2;
+    if (x >= 1U)          return 1;
+    return 0;              /* should never happen for n>=1 */
+}
 
 /* Base for a simple big‑integer representation (fits in 32 bits). */
 static const uint32_t BASE = 1000000000U;     /* 1e9 */

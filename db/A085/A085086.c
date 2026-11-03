@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 26, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
 
     /* initialise for n = 1 */
     if (cached_max == 0) {
-        a_cache     = (seq_t*)malloc(2 * sizeof(seq_t)); /* indices 0 and 1 */
+        a_cache     = mem_new(seq_t, 2); /* indices 0 and 1 */
         a_cache[1]  = (seq_t)1;
         cached_max  = 1;
         prime_sum   = 0;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         size_t old_max = (size_t)cached_max;
         size_t new_sz  = (size_t)n + 1; /* need indices 0..n */
 
-        a_cache = (seq_t*)realloc(a_cache, new_sz * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_sz);
 
         for (idx_t j = old_max + 1; j <= n; ++j) {
             /* test primality of j using the primes found so far */

@@ -7,8 +7,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = second least significant nonzero digit in the primorial
  *            base * expansion of n, or 0 if there is no such digit
- * Range:     u8 n <= 9757, u16 n <= 9757, u32 n <= 9757, u64 n <= 9757,
- *            u128 n <= 9757, big any n
+ * Range:     u8 n <= 60060, u16 n <= 60060, u32 n <= 60060, u64 n <= 60060,
+ *            u128 n <= 60060, big any n
+ * Validated: standard, pass, 122 terms through n = 9757 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

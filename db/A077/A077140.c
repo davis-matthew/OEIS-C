@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 128, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 88 terms through n = 896 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
    a(n) = a(n-1) - n   otherwise
 */
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* cache holds a(1)..a(cache_size) in cache[0]..[cache_size-1] */
@@ -35,7 +38,7 @@ seq_t a(idx_t n) {
     /* Compute missing terms up to n */
     while (cache_size < (size_t)n) {
         if (cache_size == 0) {
-            cache = (seq_t*)malloc(sizeof(seq_t));
+            cache = mem_new(seq_t, 1);
             if (!cache) return 0;         /* allocation failure */
             cache[0] = (seq_t)1;          /* a(1) */
             cache_size = 1;
@@ -50,7 +53,7 @@ seq_t a(idx_t n) {
                 next = prev - step;
             }
 
-            seq_t *tmp = (seq_t*)realloc(cache, (cache_size + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, (cache_size + 1));
             if (!tmp) return 0;           /* allocation failure */
             cache = tmp;
             cache[cache_size] = next;

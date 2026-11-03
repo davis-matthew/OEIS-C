@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 13, u128 n <= 28,
  *            big any n
- * Helpers:   min4
+ * Validated: standard, pass, 30 terms through n = 209 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,15 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/min4.h"
+
+/* minimum and maximum of four integers */
+static inline int min4(int a, int b, int c, int d)
+{
+    int m = a < b ? a : b;
+    m = m < c ? m : c;
+    m = m < d ? m : d;
+    return m;
+}
 
 #define ROWS   256          /* 4 columns, values 0..3 */
 #define SUMS   7            /* possible sums 0..6 */

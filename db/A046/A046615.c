@@ -13,7 +13,8 @@
  *            denominator (otherwise we output only the numerator...
  * Range:     u8 n <= 21, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
     fast.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t        num;   /* numerator (may be 1)   */
@@ -52,7 +54,7 @@ static void push_term(seq_t v)
 {
     if (terms_len >= terms_cap) {
         terms_cap = (terms_cap == 0) ? 64 : terms_cap * 2;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
     terms[terms_len++] = v;
 }
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* row 3: 1 , 1/5 , 1 */
         prev_len = 3;
-        prev_row = (Frac *)malloc(prev_len * sizeof(Frac));
+        prev_row = mem_new(Frac, prev_len);
         prev_row[0].num = (seq_t)1;  prev_row[0].den = (seq_t)1;
         prev_row[1].num = (seq_t)1;  prev_row[1].den = (seq_t)5;
         prev_row[2].num = (seq_t)1;  prev_row[2].den = (seq_t)1;
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
 
         /* Ensure curr_row has enough space. */
         if (curr_len < len) {
-            curr_row = (Frac *)realloc(curr_row, len * sizeof(Frac));
+            curr_row = mem_resize(Frac, curr_row, len);
             curr_len = len;
         }
 

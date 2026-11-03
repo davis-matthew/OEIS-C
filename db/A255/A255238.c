@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   floor_row_index
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,25 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_row_index.h"
+
+/* Find the row index r such that r(r+1)/2 ≤ n < (r+1)(r+2)/2. */
+static inline idx_t floor_row_index(idx_t n)
+{
+    idx_t low = 0, high = n;
+    idx_t ans = 0;
+    while (low <= high) {
+        idx_t mid = low + (high - low) / 2;
+        __int128 f = (__int128)mid * (mid + 1) / 2;
+        if (f <= n) {
+            ans = mid;
+            low = mid + 1;
+        } else {
+            if (mid == 0) break;
+            high = mid - 1;
+        }
+    }
+    return ans;
+}
 
 /* Integer square root (floor) for values that fit in 64 bits. */
 static inline idx_t isqrt_u64(idx_t n)

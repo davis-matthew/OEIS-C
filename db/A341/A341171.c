@@ -8,14 +8,17 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 2385, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 72 terms through n = 9487 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sequence A341171: numbers N such that N ≡ 4 (mod sum_of_digits(N)) */
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* Cache to store already found terms. */
 static seq_t *cache = NULL;   /* dynamic array of terms */
@@ -33,7 +36,7 @@ static void cache_ensure_cap(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();              /* terminate on out‑of‑memory */
     cache = tmp;
     cache_cap = new_cap;

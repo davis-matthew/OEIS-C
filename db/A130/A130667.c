@@ -6,14 +6,16 @@
  * Keywords:  nonn
  * Formula:   a(1) = 1; a(2*n) = 6*a(n); a(2*n+1) = 5*a(n) + a(n+1); (even and
  *            odd recursion)
- * Range:     u8 n <= 10, u16 n <= 93, u32 n <= 6845, u64 n <= 10000,
- *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10, u16 n <= 93, u32 n <= 6845, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 63 terms through n = 10000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of already computed terms.  Index 0 is unused. */
 static seq_t *cache = NULL;
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
         newsize <<= 1;
 
     /* Use a C‑style cast so the code is valid for both C and C++ */
-    seq_t *tmp = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newsize);
     if (!tmp)
         abort();                /* allocation failed */
     cache = tmp;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache on first call. */
     if (!cache) {
-        cache = (seq_t *)calloc(2, sizeof(seq_t));  /* indices 0..1 */
+        cache = mem_new(seq_t, 2);  /* indices 0..1 */
         if (!cache)
             abort();
         cache[1] = (seq_t)1;                 /* a(1) = 1 */

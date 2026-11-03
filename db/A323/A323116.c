@@ -9,7 +9,8 @@
  *            2, 1, 2, 2,
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9803 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    so repeated calls are efficient.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;        /* store computed prefix */
 static size_t seq_len = 0;       /* length of seq */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     {
         if (seq_len == 0) /* initialise with the image of the seed '1' */
         {
-            seq = (seq_t *)malloc(3 * sizeof(seq_t));
+            seq = mem_new(seq_t, 3);
             if (!seq) return (seq_t)0; /* allocation failure */
             seq[0] = (seq_t)2;
             seq[1] = (seq_t)2;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         size_t old_len = seq_len;
         /* worst‑case size after expansion: each symbol produces 4 symbols */
         size_t new_cap = old_len * 4;
-        seq_t *new_seq = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_seq = mem_new(seq_t, new_cap);
         if (!new_seq) return (seq_t)0; /* allocation failure */
 
         size_t pos = 0;
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(seq);
+        mem_free(seq);
         seq = new_seq;
         seq_len = pos;
     }

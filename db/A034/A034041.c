@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global state ------------------------------------------------------- */
 static unsigned char *prim_flag = NULL;   /* 1 if a value has a primitive rep */
@@ -65,7 +67,7 @@ static void recompute(idx_t limit)
 
     /* Build the list of numbers that are both primitively & imprimitive */
     if (both_vals) {
-        free(both_vals);
+        mem_free(both_vals);
         both_vals = NULL;
     }
     both_size = 0;
@@ -74,7 +76,7 @@ static void recompute(idx_t limit)
         if (prim_flag[v] && impr_flag[v]) {
             if (both_size >= both_cap) {
                 both_cap = both_cap ? both_cap * 2 : 1024;
-                both_vals = (seq_t*)realloc(both_vals, both_cap * sizeof(seq_t));
+                both_vals = mem_resize(seq_t, both_vals, both_cap);
                 if (!both_vals) abort();
             }
             both_vals[both_size++] = (seq_t)v;

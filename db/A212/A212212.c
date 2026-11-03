@@ -10,12 +10,13 @@
  *            antidiagonals. i+j is the diagonal index
  * Range:     i8 n <= 4950, i16 n <= 4950, i32 n <= 4950, i64 n <= 4950,
  *            i128 n <= 4950, big any n
- * Helpers:   pi_leq
+ * Validated: standard, pass, 121 terms through n = 4901 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pi_leq.h"
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -36,9 +37,9 @@ seq_t a(idx_t n)
     idx_t j = s - d;
 
     /* Compute the prime counting function values. */
-    seq_t pi_i   = pi_leq(i);
-    seq_t pi_j   = pi_leq(j);
-    seq_t pi_sum = pi_leq(i + j);
+    seq_t pi_i   = prime_pi(i);
+    seq_t pi_j   = prime_pi(j);
+    seq_t pi_sum = prime_pi(i + j);
 
     return pi_i + pi_j - pi_sum;
 }

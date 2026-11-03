@@ -9,12 +9,14 @@
  *            * d * a(d)) * a(n-k+1)
  * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 14, i64 n <= 25, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for memoization */
 static seq_t *A = NULL;        /* a array, indices 0..CAP-1 correspond to a(1)..a(CAP) */
@@ -98,8 +100,8 @@ static void ensure_capacity(idx_t n)
     while (new_cap < n)
         new_cap *= 2;
 
-    seq_t *tmp_A     = (seq_t *)realloc(A,     new_cap * sizeof(seq_t));
-    seq_t *tmp_INNER = (seq_t *)realloc(INNER, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp_A     = mem_resize(seq_t, A, new_cap);
+    seq_t *tmp_INNER = mem_resize(seq_t, INNER, (new_cap + 1));
 
     A     = tmp_A;
     INNER = tmp_INNER;

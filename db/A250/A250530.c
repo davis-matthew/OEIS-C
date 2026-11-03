@@ -13,6 +13,7 @@
  *            row patterns. For each pair of consecutive rows p,q...
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 23, u128 n <= 50,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 198 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

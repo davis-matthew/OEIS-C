@@ -7,14 +7,16 @@
  * Keywords:  nonn
  * Formula:   a(0) = a(1) = 0, for n >= 2, a(n) = 1 + max_{d|n, d>1}
  *            a((n-d)/d)
- * Range:     u8 n <= 8545, u16 n <= 8545, u32 n <= 8545, u64 n <= 8545,
- *            u128 n <= 8545, big any n
- * Helpers:   none
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 8545 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function is defined with external linkage as required. */
 static seq_t *cache = NULL;      /* Dynamic cache of computed values. */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Extend the cache if necessary. */
     if (n >= cache_len) {
         idx_t new_len = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) return 0;   /* Allocation failed – return 0 as a graceful fallback. */
         cache = new_cache;
 

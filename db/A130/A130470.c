@@ -8,13 +8,15 @@
  * Formula:   a(n) = Σ_{i=1}^{n-1, i≡n-1 (mod 2)} ((n+1−i)/2)·i! + (n%2?1:0)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(1)=1, a(2)=1, a(3)=3, a(4)=8, a(5)=29, a(6)=135, a(7)=775, …   */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (n > max_n)
     {
         size_t new_size = (size_t)(n + 1);          /* indices 0..n */
-        a_buf = (seq_t *)realloc(a_buf, new_size * sizeof(seq_t));
+        a_buf = mem_resize(seq_t, a_buf, new_size);
         if (!a_buf) return 0;                    /* allocation failure */
 
         /* compute a(i) for i=max_n+1 .. n */

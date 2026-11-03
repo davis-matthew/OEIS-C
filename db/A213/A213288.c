@@ -10,13 +10,14 @@
  *            152, 499, -290, 6224, 6496, 41203, 52034, 256561}
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 15, u64 n <= 141, u128 n <= 1000,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 42 terms through n = 950 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
         if (n <= k) continue;               /* n <= k means a < 9 */
 
         idx_t a = n + 8 - k;
-        seq_t bin = binom(a, 9);            /* C(a, 9) */
+        seq_t bin = binomial(a, 9);            /* C(a, 9) */
 
         int coeff = coeffs[k];
         if (coeff >= 0)

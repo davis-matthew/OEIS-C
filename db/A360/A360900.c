@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 17, i32 n <= 28, i64 n <= 48, i128 n <= 84,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 50 terms through n = 931 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binomial.h"   /* Provides seq_t binomial(idx_t n, idx_t k) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary (ensure space for indices 0..n) */
     if ((size_t)(n + 1) > cache_cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) exit(1);          /* allocation failed */
         cache     = new_cache;
         cache_cap = new_cap;

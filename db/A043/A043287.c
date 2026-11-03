@@ -6,8 +6,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = maximal run length of equal digits in the base‑13
  *            representation of n
- * Range:     u8 n <= 9817, u16 n <= 9817, u32 n <= 9817, u64 n <= 9817,
- *            u128 n <= 9817, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 133 terms through n = 9817 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

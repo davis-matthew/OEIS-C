@@ -8,13 +8,15 @@
  *            x)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 30,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 32 terms through n = 196 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"   /* big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 static inline idx_t trailing_zeros(idx_t v) {
     /* v > 0 : count of trailing zero bits in v */
@@ -28,7 +30,7 @@ static inline idx_t trailing_zeros(idx_t v) {
 
 seq_t a(idx_t n) {
     /* 17^n */
-    seq_t pow17 = big_pow((seq_t)17, (seq_t)n);
+    seq_t pow17 = ipow((seq_t)17, (seq_t)n);
 
     /* 2^{v2(n+1)} */
     idx_t tz = trailing_zeros(n + 1);

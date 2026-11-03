@@ -12,7 +12,8 @@
  *            into exactly r parts
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 43, u64 n <= 149, u128 n <= 235,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 232 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---- internal constants -------------------------------------------------- */
 #define MAX_R 32            /* number of columns (0 … 31) */
@@ -34,7 +36,7 @@ static void ensure_partitions(idx_t n)
 {
     /* allocate initial empty table */
     if (partition_tbl == NULL) {
-        partition_tbl = (seq_t *)calloc(1 * MAX_R, sizeof(seq_t));
+        partition_tbl = mem_new(seq_t, 1 * MAX_R);
         if (!partition_tbl) abort();
         partition_tbl[0] = 1;               /* p(0,0) = 1 */
         partition_max_n = 0;
@@ -44,7 +46,7 @@ static void ensure_partitions(idx_t n)
     /* enlarge table to hold up to n rows (rows are 0 … n) */
     size_t old_rows = (size_t)(partition_max_n + 1);
     size_t new_rows = (size_t)(n + 1);
-    seq_t *new_tbl = (seq_t *)realloc(partition_tbl, new_rows * MAX_R * sizeof(seq_t));
+    seq_t *new_tbl = mem_resize(seq_t, partition_tbl, new_rows * MAX_R);
     if (!new_tbl) abort();
     partition_tbl = new_tbl;
 

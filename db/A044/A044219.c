@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_40_in_base8
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
  */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_40_in_base8.h"
+#include "../utils/mem.h"
+
+/* Return true if x written in base 8 contains the pattern 40. */
+static bool has_40_in_base8(seq_t x)
+{
+    if (x == 0) return false;
+    seq_t prev = x % 8;   /* least significant digit */
+    x /= 8;
+    while (x > 0) {
+        seq_t d = x % 8;
+        if (d == 4 && prev == 0) return true;
+        prev = d;
+        x /= 8;
+    }
+    return false;
+}
 
 /* Main function.  The sequence is generated on demand and stored in a
  * static array so that repeated calls with any order of 'n' are fast. */
@@ -41,7 +57,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap : 16;
         while (new_cap < (size_t)n) new_cap <<= 1;
         if (new_cap != cache_cap) {
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (tmp == NULL) abort();          /* allocation failure */
             cache = tmp;
             cache_cap = new_cap;

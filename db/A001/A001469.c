@@ -9,29 +9,32 @@
  *            C(n,2j)*a(n-j)
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 15, i128 n <= 24,
  *            big any n
- * Helpers:   a000707_binom
+ * Validated: standard, pass, 35 terms through n = 274 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a000707_binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 1) return -1;
     
-    seq_t *dp = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, n + 1);
     dp[1] = -1;
     
     for (idx_t i = 2; i <= n; i++) {
         seq_t sum = 0;
         for (idx_t j = 1; j <= i / 2; j++) {
-            sum += a000707_binom(i, 2 * j) * dp[i - j];
+            sum += binomial(i, 2 * j) * dp[i - j];
         }
         dp[i] = -sum;
     }
     
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

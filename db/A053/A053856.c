@@ -9,7 +9,8 @@
  *            GaussianBinomial(n−r,r,4) * |GL(r,4)|
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  * built‑in arithmetic for the usual integer types. */
 
 #include <stdlib.h>   /* malloc, realloc, exit */
+#include "../utils/mem.h"
 
 /* Dynamic array of powers of 4: pow4_arr[k] = 4^k. */
 static seq_t *pow4_arr = NULL;  /* pointer to array of seq_t */
@@ -32,7 +34,7 @@ static void ensure_pow4_up_to(idx_t n)
 {
     /* Initialise the array on first call. */
     if (pow4_arr == NULL) {
-        pow4_arr = (seq_t *)malloc(sizeof(seq_t));
+        pow4_arr = mem_new(seq_t, 1);
         if (!pow4_arr) exit(1);
         pow4_cap = 1;
         pow4_len = 1;
@@ -43,7 +45,7 @@ static void ensure_pow4_up_to(idx_t n)
     if (pow4_len < need) {
         size_t new_cap = pow4_cap ? pow4_cap : 1;
         while (new_cap < need) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(pow4_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow4_arr, new_cap);
         if (!tmp) exit(1);
         pow4_arr = tmp;
         pow4_cap = new_cap;
@@ -90,7 +92,7 @@ static size_t cache_len = 0;   /* number of valid entries (>=1) */
 static void init_cache(void)
 {
     if (cache_arr != NULL) return;              /* already initialised */
-    cache_arr = (seq_t *)malloc(sizeof(seq_t));
+    cache_arr = mem_new(seq_t, 1);
     if (!cache_arr) exit(1);
     cache_cap = 1;
     cache_len = 1;                              /* cache_arr[0] is dummy */
@@ -112,7 +114,7 @@ seq_t a(idx_t n)
     if (cache_len <= n) {
         size_t new_cap = cache_cap ? cache_cap : 1;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache_arr, new_cap);
         if (!tmp) exit(1);
         cache_arr = tmp;
         cache_cap = new_cap;

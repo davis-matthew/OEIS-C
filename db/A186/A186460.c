@@ -12,12 +12,14 @@
  *            computed on demand and memoised
  * Range:     u8 n <= 1, u16 n <= 14, u32 n <= 40, u64 n <= 94, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[13] = {
     245, 292, 590, 945, 1681, 2377, 4121, 5633, 8893, 11977,
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     /* allocate or grow storage if necessary */
     if (cap < n) {
-        cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, n);
         cap = n;
     }
 

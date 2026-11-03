@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 7948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;                /* 1‑indexed array of values */
 static size_t terms_len = 0;               /* number of terms stored */
@@ -71,7 +73,7 @@ static void rebuild_terms(idx_t need)
 
         /* Collect qualifying sums into a new terms array. */
         size_t cap = 1024;
-        seq_t *new_terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq_t *new_terms = mem_new(seq_t, cap);
         if (!new_terms) { free(cnt); free(cube); return; }
 
         size_t len = 0;
@@ -82,8 +84,8 @@ static void rebuild_terms(idx_t need)
                 if (len == cap)
                 {
                     cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(new_terms, cap * sizeof(seq_t));
-                    if (!tmp) { free(new_terms); free(cnt); free(cube); return; }
+                    seq_t *tmp = mem_resize(seq_t, new_terms, cap);
+                    if (!tmp) { mem_free(new_terms); free(cnt); free(cube); return; }
                     new_terms = tmp;
                 }
                 new_terms[len++] = (seq_t)s;
@@ -95,7 +97,7 @@ static void rebuild_terms(idx_t need)
         free(cube);
 
         /* Replace old terms array with the new one. */
-        free(terms);
+        mem_free(terms);
         terms = new_terms;
         terms_len = len;
         data_ready = true;

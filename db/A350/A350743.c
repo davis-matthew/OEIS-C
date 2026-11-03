@@ -8,12 +8,17 @@
  *            of divisors of n)
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +42,7 @@ seq_t a(idx_t n)
         seq_t sum_mod = 0;
         for (size_t i = 0; i < divcnt; ++i)
         {
-            sum_mod += mod_pow(divs[i], (uint64_t)k, modk);
+            sum_mod += powmod(divs[i], (uint64_t)k, modk);
             if (sum_mod >= modk) sum_mod -= modk;  /* keep modulo k */
         }
         if (sum_mod == 0)

@@ -7,18 +7,20 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 16, u64 n <= 37, u128 n <= 81,
  *            big any n
- * Helpers:   reverse_decimal
+ * Validated: standard, pass, 38 terms through n = 957 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(0)=69; a(n+1)=a(n)+reverse_decimal(a(n)) */
-#include "../utils/reverse_decimal.h"
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
 
 seq_t a(idx_t n)
 {
     seq_t x = (seq_t)69;          /* a(0) */
     for (idx_t i = 0; i < n; ++i) /* perform n iterations of the map */
-        x = x + reverse_decimal(x);
+        x = x + reverse_digits(x);
     return x;
 }

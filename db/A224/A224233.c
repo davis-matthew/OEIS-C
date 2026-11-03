@@ -11,13 +11,15 @@
  *            a(22)=9, a(23)=6, a(24)=0
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t _init[23] = {
     3, 9, 3, 7, 0, 0, 7, 8, 7, 4, 0, 1, 5, 7, 4, 8, 0, 3, 1, 4, 9, 6, 0
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap ? cap << 1 : 8;
         while (new_cap <= (size_t)n) new_cap <<= 1;
 
-        seq_t *tmp_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp_cache = mem_resize(seq_t, cache, new_cap);
         if (!tmp_cache) return 0;                        /* allocation failure */
         cache = tmp_cache;
 

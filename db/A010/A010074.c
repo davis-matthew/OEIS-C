@@ -9,13 +9,25 @@
  *            a(1)=1, a(2)=1 (digit_sum_7(v) = sum of base‑7 digits of v)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum_7
+ * Validated: standard, pass, 91 terms through n = 960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>     /* malloc, realloc, size_t */
-#include "../utils/digit_sum_7.h"
+#include "../utils/mem.h"
+
+/* Sum the base‑7 digits of v. */
+static seq_t digit_sum_7(seq_t v)
+{
+    seq_t sum = 0;
+    while (v > 0) {
+        sum += v % 7;
+        v   /= 7;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -27,7 +39,7 @@ seq_t a(idx_t n)
     /* Initial terms for n = 0,1,2. */
     if (cache_len == 0) {
         cache_len = 3;
-        cache = (seq_t *)realloc(cache, (size_t)cache_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)cache_len);
         if (!cache) return 0;          /* allocation failed */
         cache[0] = 0;
         cache[1] = 1;
@@ -37,7 +49,7 @@ seq_t a(idx_t n)
     /* Grow cache if needed. */
     if (n + 1 > cache_len) {
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_len);
         if (!tmp) return 0;          /* allocation failed */
         cache = tmp;
         cache_len = new_len;

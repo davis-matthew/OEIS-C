@@ -8,13 +8,15 @@
  *            number of k
  * Range:     u8 n <= 23, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *p_seq = NULL;      /* partition numbers */
 static seq_t *a_seq = NULL;      /* a(n) values */
@@ -26,14 +28,14 @@ static void ensure_cache(idx_t n)
     if (n <= cachedN) return;
 
     /* Allocate new arrays up to n. */
-    seq_t *new_p = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    seq_t *new_a = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *new_p = mem_new(seq_t, (n + 1));
+    seq_t *new_a = mem_new(seq_t, (n + 1));
     if (!new_p || !new_a) return;   /* allocation failed – unlikely */
 
     /* Copy old data. */
     if (cachedN > 0) {
-        memcpy(new_p, p_seq, (cachedN + 1) * sizeof(seq_t));
-        memcpy(new_a, a_seq, (cachedN + 1) * sizeof(seq_t));
+        mem_copy(new_p, p_seq, (cachedN + 1) * sizeof(seq_t));
+        mem_copy(new_a, a_seq, (cachedN + 1) * sizeof(seq_t));
     }
 
     /* Initialize new slots to zero. */
@@ -78,8 +80,8 @@ static void ensure_cache(idx_t n)
     }
 
     /* Free old arrays and install new ones. */
-    free(p_seq);
-    free(a_seq);
+    mem_free(p_seq);
+    mem_free(a_seq);
     p_seq = new_p;
     a_seq = new_a;
     cachedN = n;

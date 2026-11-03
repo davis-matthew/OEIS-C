@@ -9,12 +9,14 @@
  *            a[m-i-j] Sequence A256331 (offset 1): a(1)=1, a(2)=3, a(3)=14,
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) {
@@ -22,8 +24,8 @@ seq_t a(idx_t n) {
     }
 
     size_t sz = (size_t)n + 1;          /* store a[0..n] */
-    seq_t *a = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *s2 = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, sz);
+    seq_t *s2 = mem_new(seq_t, sz);
 
     a[0] = (seq_t)1;                   /* a(0) = 1 for the generating function */
     s2[0] = (seq_t)1;                  /* s2[0] = a0 * a0 */
@@ -58,7 +60,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = a[(size_t)n];
-    free(a);
-    free(s2);
+    mem_free(a);
+    mem_free(s2);
     return result;
 }

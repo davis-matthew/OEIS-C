@@ -7,6 +7,7 @@
  * Formula:   a(n) = decimal integer formed by writing 85 in base (14 - n)
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
+ * Validated: full, pass, 14 terms through n = 13 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

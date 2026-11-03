@@ -12,13 +12,15 @@
  *            r = 1; a(n) = 2k if r ≥ 2
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 103 terms through n = 9943 (2026-11-01)
+ * Helpers:   omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include "../utils/omega.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         r++;
     }
     /* temp is now the odd part of n */
-    seq_t k = (seq_t)count_distinct_primes(temp);
+    seq_t k = (seq_t)omega(temp);
     if (k == 0)                    /* n is a power of 2 */
         return 0;
     if (r <= 1)                    /* r == 0 (odd n) or r == 1 (2 * odd) */

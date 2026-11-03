@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 11, u64 n <= 30, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define STATE_COUNT 16384   /* 4^7 */
 #define INVALID_TRANS (UINT16_MAX)
@@ -89,7 +91,7 @@ static void ensure_upto(idx_t n)
 
     if (!cache) {   /* first time: initialise DP and cache */
         cache_cap = 64;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
 
         for (idx_t i = 0; i < STATE_COUNT; ++i) {
@@ -103,7 +105,7 @@ static void ensure_upto(idx_t n)
     idx_t target_len = n + 7;          /* array length needed for term a(n) */
     while (current_len < target_len) {
         /* clear next stage */
-        memset(dp[dp_parity ^ 1], 0, sizeof(dp[dp_parity ^ 1]));
+        mem_set(dp[dp_parity ^ 1], 0, sizeof(dp[dp_parity ^ 1]));
 
         /* transition */
         for (int s = 0; s < STATE_COUNT; ++s) {
@@ -129,7 +131,7 @@ static void ensure_upto(idx_t n)
         /* extend cache if necessary */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *new_ptr = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
             cache = new_ptr;
             cache_cap = new_cap;
         }

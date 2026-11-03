@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
  * (d+1)(d+2)/2, then n lies on diagonal d with offset i in [0,d] and j=d−i.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -52,8 +54,8 @@ seq_t a(idx_t n)
         if (a_val < (int64_t)r || c_val < (int64_t)r)
             continue;   /* binomial would be 0; skip */
 
-        seq_t t1 = binom((idx_t)a_val, r);
-        seq_t t2 = binom((idx_t)c_val, r);
+        seq_t t1 = binomial((idx_t)a_val, r);
+        seq_t t2 = binomial((idx_t)c_val, r);
         result += t1 * t2;
     }
     return result;

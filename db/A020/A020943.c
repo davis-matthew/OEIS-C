@@ -8,12 +8,14 @@
  *            (offset 1, a(1)=0)
  * Range:     u8 n <= 5461, u16 n <= 5461, u32 n <= 5461, u64 n <= 5461,
  *            u128 n <= 5461, big any n
- * Helpers:   none
+ * Validated: standard, pass, 119 terms through n = 4819 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,11 +26,11 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if (n + 1 > cap) {
         idx_t new_cap = n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) exit(1);
         if (cache) {
             for (idx_t i = 0; i <= last; ++i) new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = new_cache;
         cap   = new_cap;

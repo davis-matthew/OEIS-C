@@ -13,7 +13,8 @@
  *            generated from the generating‐function)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 126,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 122 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* coefficients N[n] of the numerator of the generating function */
 static const int64_t N[26] = {
@@ -62,7 +64,7 @@ seq_t a(idx_t n) {
     /* Ensure cache has enough space */
     if (!initialized) {
         size_t need = (n >= 26 ? n + 1 : 26);
-        cache = (seq_t *)malloc(need * sizeof(seq_t));
+        cache = mem_new(seq_t, need);
         cache_cap = need;
 
         /* Compute the first 26 terms using the recurrence that includes N[n] */
@@ -90,7 +92,7 @@ seq_t a(idx_t n) {
     } else if (cache_cap < n + 1) {
         /* Grow the cache if necessary */
         size_t new_cap = n + 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

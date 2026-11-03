@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 13, i64 n <= 21, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 399 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first five terms on first call */
     if (cache_len == 0) {
         cache_cap = 5;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 1;   /* a(0) */
         cache[1] = 0;   /* a(1) */
         cache[2] = 0;   /* a(2) */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     if (needed > cache_cap) {
         size_t new_cap = cache_cap * 2;
         if (new_cap < needed) new_cap = needed;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

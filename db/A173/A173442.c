@@ -9,7 +9,8 @@
  *            divide n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, sigma_p_term
+ * Validated: standard, pass, 116 terms through n = 9887 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,22 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/sigma_p_term.h"
+
+static inline unsigned __int128 sigma_p_term(uint64_t p, unsigned e, uint64_t limit)
+{
+    /* Compute sigma(p^e) = 1 + p + ... + p^e, stopping if the sum
+       would certainly exceed `limit` (used as a hint). */
+    unsigned __int128 pow = 1;
+    unsigned __int128 sum = 1;
+    for (unsigned i = 1; i <= e; ++i) {
+        pow *= (unsigned __int128)p;
+        sum += pow;
+        if (sum > limit) return sum;   /* value > limit, caller will treat it */
+    }
+    return sum;
+}
 
 /* Recursively count divisors d of n whose sigma(d) does not divide n. */
 static void dfs_divisors(unsigned idx,

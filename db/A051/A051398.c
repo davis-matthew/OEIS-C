@@ -7,12 +7,14 @@
  * Formula:   a(n) = -(n-3)*a(n-1) + 2*(n-2)^2 , offset = 3 a(3) = 2
  * Range:     i8 n <= 8, i16 n <= 11, i32 n <= 15, i64 n <= 23, i128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 416 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         idx_t needed = (n - 3) + 1;    /* number of entries required */
 
         /* reallocate with sufficient size */
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp)
             return 0;                  /* out of memory – unlikely in normal use */
         cache = tmp;

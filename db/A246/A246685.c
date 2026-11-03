@@ -10,6 +10,7 @@
  *            b(1) = 1 * b(k) = 2^(2^(k-2)) + 1 for k >= 2 (Fermat numbers)
  * Range:     u8 n <= 30, u16 n <= 62, u32 n <= 126, u64 n <= 254,
  *            u128 n <= 510, big any n
+ * Validated: standard, pass, 112 terms through n = 965 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

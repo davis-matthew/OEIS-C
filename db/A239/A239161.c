@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 170, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, gen_small_divs
+ * Validated: standard, pass, 83 terms through n = 980 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,32 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/gen_small_divs.h"
+#include "../utils/mem.h"
+
+/* Recursively enumerate divisors of k not exceeding sqrtk
+   and accumulate their sum in *sum_small. */
+static void gen_small_divs(size_t idx, uint64_t cur, uint64_t sqrtk,
+                           const uint64_t *pr, const uint64_t *exps,
+                           size_t cnt, seq_t *sum_small)
+{
+    if (cur > sqrtk) return;
+    if (idx == cnt) {                 /* leaf: cur is a divisor          */
+        *sum_small += (seq_t)cur;
+        return;
+    }
+    uint64_t p   = pr[idx];
+    uint64_t ee  = exps[idx];
+    uint64_t mult = 1;
+    for (uint64_t i = 0; i <= ee; ++i) {
+        if (cur > ((uint64_t)((uint64_t)-1) / mult))
+            break;                     /* overflow guard                    */
+        uint64_t prod = cur * mult;
+        gen_small_divs(idx + 1, prod, sqrtk, pr, exps, cnt, sum_small);
+        if (mult > ((uint64_t)((uint64_t)-1) / p))
+            break;                     /* next multiplication would overflow */
+        mult *= p;
+    }
+}
 
 /* --------- helpers --------------------------------------------- */
 
@@ -52,7 +78,7 @@ static void ensure_seq_cap(size_t new_cap)
     if (new_cap <= seq_cap) return;
     size_t cap = seq_cap ? seq_cap : 1;
     while (cap < new_cap) cap <<= 1;
-    seq_val = (seq_t *)realloc(seq_val, cap * sizeof(seq_t));
+    seq_val = mem_resize(seq_t, seq_val, cap);
     seq_cap = cap;
 }
 

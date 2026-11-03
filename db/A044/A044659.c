@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   has_30_base9
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,29 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/has_30_base9.h"
+#include "../utils/mem.h"
+
+/* Return 1 iff the base‑9 representation of x contains the pattern 3,0. */
+static int has_30_base9(uint64_t x)
+{
+    uint8_t digits[32];
+    int len = 0;
+
+    if (x == 0) {
+        digits[0] = 0;
+        len = 1;
+    } else {
+        while (x != 0) {
+            digits[len++] = (uint8_t)(x % 9);
+            x /= 9;
+        }
+    }
+
+    for (int i = len - 1; i >= 1; --i)
+        if (digits[i] == 3 && digits[i - 1] == 0)
+            return 1;
+    return 0;
+}
 
 /* Cached sequence values.  They are stored in the type seq_t which may be
    a primitive unsigned integer or an arbitrary‑precision class. */
@@ -37,7 +60,7 @@ static void grow_cache(void)
     else
         cache_cap *= 2;
     /* Re‑allocate with an explicit cast, good for both C and C++. */
-    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
 }
 
 /* a(idx_t n) – returns the n‑th term of the sequence (1‑based indexing). */

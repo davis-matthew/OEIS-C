@@ -8,7 +8,8 @@
  *            k where 18*k^2-1 and 18*k^2+1 are both primes
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 620, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 9201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----- fast 64‑bit modular arithmetic ----- */
 static inline uint64_t mul_mod64(uint64_t a, uint64_t b, uint64_t mod)
@@ -102,7 +104,7 @@ static void ensure_cache_size(idx_t target)
                 seq_t val = (seq_t)18 * (seq_t)last_t * (seq_t)last_t;
                 if (cache_len >= cache_cap) {
                     cache_cap = cache_cap ? cache_cap * 2 : 16;
-                    seq_t *newptr = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    seq_t *newptr = mem_resize(seq_t, cache, cache_cap);
                     if (newptr == NULL) abort();
                     cache = newptr;
                 }

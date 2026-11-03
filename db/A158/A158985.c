@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 28, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* -------------  cache for the flattened sequence  ------------- */
 static seq_t *cache      = NULL;
@@ -40,11 +42,11 @@ static void ensure_cache_cap(size_t needed)
 {
     if (cache_cap == 0) {
         cache_cap = needed;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (cache_cap < needed) {
         size_t new_cap = cache_cap * 2;
         if (new_cap < needed) new_cap = needed;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 }
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     while (cache_len < idx) {
         if (prev_poly == NULL) {     /* first row: P(1,x) = x+1 */
             prev_len = 2;            /* degree 1 → two coeffs */
-            prev_poly = (seq_t *)malloc(prev_len * sizeof(seq_t));
+            prev_poly = mem_new(seq_t, prev_len);
 
             prev_poly[0] = (seq_t)1; /* constant term */
             prev_poly[1] = (seq_t)1; /* coefficient of x */
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
         } else {                     /* subsequent rows */
             /* new polynomial: degree doubles, +1 */
             size_t new_len = 2 * prev_len - 1;
-            seq_t *new_poly = (seq_t *)malloc(new_len * sizeof(seq_t));
+            seq_t *new_poly = mem_new(seq_t, new_len);
 
             /* initialise to zero */
             for (size_t k = 0; k < new_len; ++k) new_poly[k] = (seq_t)0;
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
             new_poly[0] += (seq_t)1;
 
             /* free old polynomial & set up for next iteration */
-            free(prev_poly);
+            mem_free(prev_poly);
             prev_poly = new_poly;
             prev_len  = new_len;
 

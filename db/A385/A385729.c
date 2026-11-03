@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2008, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 116 terms through n = 9886 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 /* Brute‑force search – O(n·log n) time, works up to n ≈ 10 000. */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -31,10 +34,10 @@ seq_t a(idx_t n)
         seq_t alt_mod = ((seq_t)(n) - (seq_t)s) % mod_n;
 
         /* s^s mod n */
-        seq_t pow_s = mod_pow((seq_t)s, s, mod_n);
+        seq_t pow_s = powmod((seq_t)s, s, mod_n);
 
         /* (-s)^s mod n */
-        seq_t pow_alt = mod_pow(alt_mod, s, mod_n);
+        seq_t pow_alt = powmod(alt_mod, s, mod_n);
 
         if (pow_s == pow_alt && pow_s == alt_mod)
             ++cnt;

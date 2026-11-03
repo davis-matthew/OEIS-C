@@ -9,7 +9,8 @@
  *            multiplicity), interpreted as a decimal integer, taken modulo n
  * Range:     u8 n <= 271, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, digit_count, mod_pow
+ * Validated: standard, pass, 100 terms through n = 8616 (2026-11-01)
+ * Helpers:   num_digits0, powmod, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,14 @@
    the digit‑count function, and modular exponentiation via mod_pow. */
 
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/digit_count.h"
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include <math.h>
+#include <stddef.h>
+#include "../utils/num_digits0.h"
+#include "../utils/powmod.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n) {
     seq_t result = 0;                /* current concatenated value modulo n  */
@@ -28,11 +34,11 @@ seq_t a(idx_t n) {
     uint64_t tmp = n;                /* working copy of n                   */
 
     while (tmp > 1) {
-        uint64_t p = _smallest_prime_factor(tmp);  /* smallest prime factor */
+        uint64_t p = smallest_prime_factor(tmp);  /* smallest prime factor */
 
         /* compute 10^digits(p) mod n once per distinct prime factor */
-        unsigned d = digit_count(p);
-        seq_t pow10mod = mod_pow((seq_t)10, (uint64_t)d, mod);
+        unsigned d = num_digits0(p);
+        seq_t pow10mod = powmod((seq_t)10, (uint64_t)d, mod);
 
         /* repeat for each occurrence of the factor p      */
         while (tmp % p == 0) {

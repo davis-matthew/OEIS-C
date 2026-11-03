@@ -11,14 +11,20 @@
  *            where v_2(value) = v_2(H) - v_2(n!) - (3n-3) and, for od...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 18,
  *            big any n
- * Helpers:   a2555_leg
+ * Validated: standard, pass, 31 terms through n = 342 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a2555_leg.h"
+
+static uint64_t a2555_leg(uint64_t N, uint64_t p) {
+  uint64_t s = 0;
+  while (N) { N /= p; s += N; }
+  return s;
+}
 
 seq_t a(idx_t n) {
   uint64_t L = 2 * (uint64_t)n - 1;

@@ -11,6 +11,7 @@
  *            1,2,11,1,14,2,2,1,1,2,2,14,1,11,2,1,60 (length 17)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 16, u64 n <= 33, u128 n <= 69,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 197 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

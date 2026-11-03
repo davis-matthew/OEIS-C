@@ -12,12 +12,14 @@
  *            -28*a(n-17) +12*a(n-18) +4*a(n-20) (coefficients for a(n-19...
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 16, u64 n <= 34, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         /* allocate storage for indices 0..23 inclusive */
         size_t needed = 24; /* we ignore index 0 */
         if (!cache || cache_size < needed) {
-            cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, needed);
             cache_size = needed;
         }
         /* initialize the known terms; only indices 1..23 are meaningful */
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
     /* ensure cache has space for n */
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = n + 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         cache_size = new_size;
     }
 

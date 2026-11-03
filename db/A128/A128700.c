@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- helper: integer square root ---------- */
 static inline idx_t
@@ -63,7 +65,7 @@ init_sequence(void)
 {
     const idx_t LIMIT = 7200;                /* known upper bound */
     /* allocate array for divisor sums */
-    seq_t *sigma = (seq_t *)malloc((LIMIT + 1) * sizeof(seq_t));
+    seq_t *sigma = mem_new(seq_t, (LIMIT + 1));
     if (!sigma)
         return;                              /* allocation failure */
 
@@ -74,7 +76,7 @@ init_sequence(void)
     }
 
     /* temporary storage for the terms found (there are only 13) */
-    seq_t *tmp  = (seq_t *)malloc(20 * sizeof(seq_t));
+    seq_t *tmp  = mem_new(seq_t, 20);
     size_t cnt  = 0;
     seq_t max_sigma = 0;
 
@@ -86,18 +88,18 @@ init_sequence(void)
         }
     }
 
-    free(sigma);
+    mem_free(sigma);
 
-    sequence = (seq_t *)malloc(cnt * sizeof(seq_t));
+    sequence = mem_new(seq_t, cnt);
     if (!sequence) {
-        free(tmp);
+        mem_free(tmp);
         return;                              /* allocation failure */
     }
     for (size_t i = 0; i < cnt; ++i)
         sequence[i] = tmp[i];
     seq_len = cnt;
 
-    free(tmp);
+    mem_free(tmp);
 }
 
 /* ---------- required public routine ---------- */

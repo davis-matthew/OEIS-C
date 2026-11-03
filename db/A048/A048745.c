@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2*a(n-1) + a(n-2) + 3 a(0) = 1, a(1) = 5
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 24, u64 n <= 49, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>  /* for size_t */
+#include "../utils/mem.h"
 
 /* Local cache of computed terms. */
 static seq_t *cache = NULL;   /* array of cache values       */
@@ -24,7 +26,7 @@ static void grow_cache(size_t needed) {
     if (needed <= cap) return;
     size_t new_cap = cap ? cap << 1 : 8;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cap   = new_cap;
 }

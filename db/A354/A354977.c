@@ -9,7 +9,8 @@
  *            r*(r+1)/2, and T(r,c) = Stirling2(r+c,r)
  * Range:     u8 n <= 7, u16 n <= 25, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   floor_sqrt, mul_small
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,39 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/mul_small.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +65,7 @@ seq_t a(idx_t n)
     idx_t m = r + offset;   /* m = r + c = (row + column) */
 
     /* Compute Stirling numbers of the second kind S(m, r) via DP. */
-    seq_t *s = (seq_t *)malloc((m + 1) * sizeof(seq_t));
+    seq_t *s = mem_new(seq_t, (m + 1));
     if (!s) return (seq_t)0;
     for (idx_t i = 0; i <= m; ++i) s[i] = (seq_t)0;
     s[0] = (seq_t)1;   /* S(0,0)=1 */
@@ -47,6 +79,6 @@ seq_t a(idx_t n)
     }
 
     seq_t res = s[r];
-    free(s);
+    mem_free(s);
     return res;
 }

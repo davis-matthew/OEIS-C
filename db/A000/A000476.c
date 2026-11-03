@@ -13,13 +13,15 @@
  *            - 2t^2...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* signed coefficients kept as (pos, neg) pairs of seq_t */
 static seq_t *SP[4], *SN[4];
@@ -37,13 +39,13 @@ static void s_ensure(idx_t need) {
     idx_t nc = s_cap * 2;
     if (nc < need) nc = need;
     for (int r = 0; r < 4; r++) {
-        seq_t *p = (seq_t *)malloc(nc * sizeof(seq_t));
-        seq_t *q = (seq_t *)malloc(nc * sizeof(seq_t));
+        seq_t *p = mem_new(seq_t, nc);
+        seq_t *q = mem_new(seq_t, nc);
         for (idx_t j = 0; j < nc; j++) {
             if (j < s_cap) { p[j] = SP[r][j]; q[j] = SN[r][j]; }
             else { p[j] = 0; q[j] = 0; }
         }
-        free(SP[r]); free(SN[r]);
+        mem_free(SP[r]); mem_free(SN[r]);
         SP[r] = p; SN[r] = q;
     }
     s_cap = nc;

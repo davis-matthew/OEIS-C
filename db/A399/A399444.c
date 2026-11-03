@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 29, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,9 @@
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"        /* seq_t binom(idx_t n, idx_t k); */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;      /* triangle[n][k]            */
 static size_t triangle_cap = 0;      /* capacity of triangle array */
@@ -62,11 +65,11 @@ static void ensure_triangle(idx_t m)
     /* extend row_sums array if required */
     if (row_sums_count <= (size_t)m) {
         size_t new_cap = (size_t)m + 1;
-        seq_t *new_sums = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_sums = mem_new(seq_t, new_cap);
         if (!new_sums) return;
         if (row_sums) {
-            memcpy(new_sums, row_sums, row_sums_count * sizeof(seq_t));
-            free(row_sums);
+            mem_copy(new_sums, row_sums, row_sums_count * sizeof(seq_t));
+            mem_free(row_sums);
         }
         for (size_t i = row_sums_count; i < new_cap; ++i)
             new_sums[i] = (seq_t)0;
@@ -76,7 +79,7 @@ static void ensure_triangle(idx_t m)
 
     /* compute rows from triangle_count up to m */
     for (idx_t r = triangle_count; r <= (idx_t)m; ++r) {
-        seq_t *row = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (r + 1));
         if (!row) return;
         for (idx_t j = 0; j <= r; ++j)
             row[j] = (seq_t)0;
@@ -98,8 +101,8 @@ static void ensure_triangle(idx_t m)
             seq_t term_sum = (seq_t)0;
             for (idx_t i = 1; i <= r - k + 1; ++i) {
                 seq_t part1 = triangle[r - i][k - 1];
-                seq_t part2 = binom(r, i);
-                seq_t part3 = binom(r - k, i - 1);
+                seq_t part2 = binomial(r, i);
+                seq_t part3 = binomial(r - k, i - 1);
                 seq_t part4 = row_sums[i - 1];
                 seq_t term = part1 * part2;
                 term = term * part3;

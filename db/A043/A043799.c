@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static int count_runs_base3(seq_t n)
 {
@@ -51,7 +53,7 @@ static void ensure_terms(idx_t n)
         if (count_runs_base3(candidate) % 8 == 1) {
             if (cache_len >= cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 128;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (!new_cache) abort();          /* allocation failed */
                 cache = new_cache;
                 cache_cap = new_cap;

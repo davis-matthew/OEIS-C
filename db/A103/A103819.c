@@ -9,13 +9,15 @@
  *            applies for n>=6
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 45, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 913 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The function uses memoisation so repeated calls are O(1) after first calculation. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache array of computed terms */
 static idx_t cache_size = 0;     /* number of terms currently stored */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 {
     /* Initialise cache with first six terms if needed */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(6 * sizeof(seq_t));
+        cache = mem_new(seq_t, 6);
         if (!cache) return 0;   /* allocation failure – return 0 as fallback */
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         return cache[n];
 
     /* Extend cache up to required n */
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) return 0;   /* allocation failure – return 0 as fallback */
     cache = new_cache;
 

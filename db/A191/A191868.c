@@ -11,7 +11,8 @@
  *            A191868
  * Range:     u8 n <= 27, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static uint32_t *spf = NULL;           /* smallest prime factor array */
 static const uint32_t SPF_LIMIT = 4000000U;   /* upper bound for SPF array */
@@ -141,7 +143,7 @@ static void ensure_seq_capacity(idx_t needed)
     size_t new_cap = seq_cap ? seq_cap * 2 : 64;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp)
         return; /* allocation failure; leave as is */
     seq = tmp;

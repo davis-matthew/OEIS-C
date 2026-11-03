@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   build_rec
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,18 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/build_rec.h"
+#include "../utils/mem.h"
+
+/* Recursive helper that fills the Eytzinger array for size R
+ *   at the given 1‑based index idx.  The counter is incremented
+ *   in in‑order traversal order. */
+static void build_rec(idx_t R, idx_t idx, seq_t *arr, idx_t *counter)
+{
+    if (idx > R) return;
+    build_rec(R, idx * 2, arr, counter);
+    arr[idx] = (seq_t)(++(*counter));
+    build_rec(R, idx * 2 + 1, arr, counter);
+}
 
 /* Cache of permutations: perm_cache[r] points to an array of
  *  size r+1 (1‑based indexing).  NULL means “not yet built”. */
@@ -51,7 +63,7 @@ static void ensure_cache(idx_t r)
 
     /* build permutation if this size has not been built yet */
     if (perm_cache[r] == NULL) {
-        seq_t *arr = (seq_t *)calloc((size_t)r + 1, sizeof(seq_t));  /* 1‑based */
+        seq_t *arr = mem_new(seq_t, (size_t)r + 1);  /* 1‑based */
         if (!arr) abort();   /* out of memory */
         idx_t counter = 0;
         build_rec(r, 1, arr, &counter);

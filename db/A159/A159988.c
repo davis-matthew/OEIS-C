@@ -7,12 +7,24 @@
  * Formula:   a(n) = Catalan(n) mod 11 using Lucas theorem
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   powmod11
+ * Validated: partial, pass, 85 terms through n = 84 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/powmod11.h"
+/* fast exponentiation modulo 11 */
+static int powmod11(int a, int e)
+{
+    int r = 1;
+    while (e)
+    {
+        if (e & 1) r = r * a % 11;
+        a = a * a % 11;
+        e >>= 1;
+    }
+    return r;
+}
 /* Pre‑compute binomial coefficients C(n,k) mod 11 for 0≤n,k≤10 */
 static int binom_small[11][11];
 static int init_lucas = 0;

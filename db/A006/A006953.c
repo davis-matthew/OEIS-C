@@ -10,18 +10,19 @@
  *            p^(1+v_p(2n)) over primes p with p-1 | 2n)
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 35, u64 n <= 209,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 52 terms through n = 872 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
 
 static seq_t factor_for(uint64_t d, uint64_t m) {
     uint64_t p = d + 1;
-    if (!is_prime(p)) return (seq_t)1;
+    if (!is_prime_u64(p)) return (seq_t)1;
     seq_t f = (seq_t)p;
     uint64_t t = m;
     while (t % p == 0) {

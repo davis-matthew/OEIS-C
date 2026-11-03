@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
     (uint8_t … unsigned __int128 or arbitrary‑precision). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 struct Graph {
     int offsets[244];   /* offsets into edges array, offsets[0] = 0   */
@@ -57,8 +59,8 @@ static void build_graph(void) {
 
     /* allocate graph struct */
     graph = (struct Graph *)malloc(sizeof(struct Graph));
-    graph->dp1 = (seq_t *)calloc(243, sizeof(seq_t));
-    graph->dp2 = (seq_t *)calloc(243, sizeof(seq_t));
+    graph->dp1 = mem_new(seq_t, 243);
+    graph->dp2 = mem_new(seq_t, 243);
 
     /* temporary arrays for edge counts */
     int edge_count[243] = {0};

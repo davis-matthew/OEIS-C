@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  * Sequence is zero for n > 1089 (longest word length is 1089).
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t const B_M = 33;
 static idx_t const MAX_DEG = B_M * B_M;           /* 33^2 = 1089 */
@@ -34,7 +36,7 @@ static void init_coeff_array(void)
     if (coeff_arr != NULL)
         return;                    /* already initialized */
 
-    coeff_arr = (seq_t *)malloc((MAX_DEG + 1) * sizeof(seq_t));
+    coeff_arr = mem_new(seq_t, (MAX_DEG + 1));
     if (coeff_arr == NULL) {
         /* Allocation failure; return zero on all queries */
         return;
@@ -45,9 +47,9 @@ static void init_coeff_array(void)
     coeff_deg = 0;
 
     /* temporary array for intermediate convolution results */
-    seq_t *tmp = (seq_t *)malloc((MAX_DEG + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, (MAX_DEG + 1));
     if (tmp == NULL) {
-        free(coeff_arr);
+        mem_free(coeff_arr);
         coeff_arr = NULL;
         return;
     }
@@ -75,7 +77,7 @@ static void init_coeff_array(void)
         coeff_deg = newdeg;
     }
 
-    free(tmp);
+    mem_free(tmp);
 }
 
 seq_t a(idx_t n)

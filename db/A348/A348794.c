@@ -8,7 +8,8 @@
  * Formula:   a(n) = 2*(6n-3)!/(12^n*n!*(3n-2)!)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 7, u128 n <= 12,
  *            big any n
- * Helpers:   prime_factorial_exponent, seq_mul, seq_pow
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,27 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
-#include "../utils/prime_factorial_exponent.h"
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Legendre exponent of prime p in m! */
+static idx_t prime_factorial_exponent(idx_t m, uint32_t p)
+{
+    idx_t exp = 0;
+    idx_t div = p;
+    while (div <= m) {
+        exp += m / div;
+        if (div > m / p)          /* prevent overflow */
+            break;
+        div *= p;
+    }
+    return exp;
+}
 
 /* ---- Prime sieve for values up to 60000 ------------------------------------ */
 #define MAX_PRIME_LIMIT 60000
@@ -88,7 +107,7 @@ seq_t a(idx_t n)
             exp += 1;
 
         if (exp > 0) {
-            seq_t powp = seq_pow((seq_t)p, (idx_t)exp);
+            seq_t powp = ipow_idx((seq_t)p, (idx_t)exp);
             result = seq_mul(result, powp);
         }
     }

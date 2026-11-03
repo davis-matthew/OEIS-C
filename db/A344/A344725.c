@@ -10,13 +10,14 @@
  *            antidiagonals
  * Range:     u8 n <= 24, u16 n <= 58, u32 n <= 157, u64 n <= 412,
  *            u128 n <= 1092, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 82 terms through n = 9230 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
  
 seq_t a(idx_t n)
 {
@@ -42,7 +43,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     for (idx_t j = 1; j <= row; ++j) {
         idx_t base = row / j;               /* floor division */
-        seq_t term = pow_uint((uint64_t)base, col);
+        seq_t term = ipow_u64_idx((uint64_t)base, col);
         result += term;
     }
     return result;

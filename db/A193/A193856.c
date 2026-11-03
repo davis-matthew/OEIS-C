@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 50, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
       T(r,k) = -T(r,k-1) + C(r+1,k) * 3^k    (for k>=1)
 */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* compute successive elements using the recurrence */
     for (idx_t j = 1; j <= col; ++j) {
         pow3 = pow3 * (seq_t)3;          /* 3^j */
-        seq_t bin = binom(N, j);         /* C(r+1,j) */
+        seq_t bin = binomial(N, j);         /* C(r+1,j) */
         seq_t term = bin * pow3;         /* C(r+1,j) * 3^j */
         seq_t cur = term - prev;         /* T(r,j)   */
         prev = cur;

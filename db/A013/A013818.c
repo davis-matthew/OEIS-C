@@ -8,13 +8,15 @@
  *            for n >= 1
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 1, u64 n <= 3, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 25 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for memoization */
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     /* Ensure cache is initialized */
     if (cache == NULL) {
         cache_cap = 2;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) {
             /* Out of memory: return 0 as a graceful fallback */
             return 0;
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
         while (n + 1 > cache_cap) {
             cache_cap = cache_cap ? cache_cap * 2 : 2;
         }
-        seq_t *new_cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, cache_cap);
         if (!new_cache) {
             /* Out of memory: return last cached value */
             return cache[cache_len - 1];

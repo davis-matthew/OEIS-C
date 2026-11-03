@@ -7,8 +7,9 @@
  * Keywords:  sign
  * Formula:   a(n) = Σ_{d|n} d' * (-1)^(d') (where d' is the arithmetic
  *            derivative of d)
- * Range:     i8 n <= 47, i16 n <= 3071, i32 n <= 8602, i64 n <= 8602,
- *            i128 n <= 8602, big any n
+ * Range:     i8 n <= 47, i16 n <= 3071, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 82 terms through n = 8602 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

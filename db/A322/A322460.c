@@ -8,12 +8,14 @@
  *            a(2) = 9201
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 4, i64 n <= 9, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 370 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* On first call, allocate at least space for the first three terms */
         cap = (size_t)(n < 3 ? 3 : n + 1);
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();
         /* initialise first three terms */
         cache[0] = (seq_t)3;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     } else if ((size_t)(n + 1) > cap) {
         /* Grow the cache to fit n */
         size_t newcap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();
         cache = tmp;
         cap = newcap;

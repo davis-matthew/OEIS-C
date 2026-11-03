@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has56_in_base7
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/has56_in_base7.h"
+
+/* Test whether a base‑7 representation of v contains the
+   adjacent digits 5 followed by 6. */
+static bool has56_in_base7(seq_t v)
+{
+    bool prev_is_6 = false;
+    while (v != 0) {
+        unsigned d = (unsigned)(v % 7);
+        if (prev_is_6 && d == 5) return true;
+        prev_is_6 = (d == 6);
+        v = v / 7;
+    }
+    return false;
+}
 
 /* Public sequence function */
 seq_t a(idx_t n)

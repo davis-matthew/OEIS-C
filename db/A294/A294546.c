@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   binary_in_array
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/binary_in_array.h"
+
+/* Auxiliary binary search – a[0..len-1] is sorted */
+static bool binary_in_array(const seq_t *arr, size_t len, seq_t x)
+{
+    size_t lo = 0, hi = len;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (arr[mid] < x)
+            lo = mid + 1;
+        else if (arr[mid] > x)
+            hi = mid;
+        else
+            return true;
+    }
+    return false;
+}
 
 /* Dynamic arrays for a and b */
 static seq_t *a_seq = NULL;

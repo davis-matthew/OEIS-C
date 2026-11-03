@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
      even → floor(log₂(x))        (step 2)
    The function returns the total number of steps. */
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"          /* unsigned bitlen_seq_t(seq_t x) */
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 /*  LOG2(3) ≈ 1.584962500721156
     Using a rational approximation:
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     while (x != (seq_t)1) {
         if ((x & (seq_t)1) == (seq_t)0) {          /* even */
             steps++;
-            x = (seq_t)(bitlen_seq_t(x) - 1);      /* floor(log₂(x)) */
+            x = (seq_t)(bit_length(x) - 1);      /* floor(log₂(x)) */
         } else {                                  /* odd  */
             steps += 2;                           /* odd → 3^x+1 → log₂(...) */
             x = floor_log2_3pow((idx_t)x);

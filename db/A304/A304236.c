@@ -9,11 +9,13 @@
  *            rows of length floor(row/2)+1
  * Range:     u8 n <= 22, u16 n <= 76, u32 n <= 234, u64 n <= 830,
  *            u128 n <= 2600, big any n
+ * Validated: standard, pass, 80 terms through n = 2533 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 extern seq_t binomial(idx_t n, idx_t k);

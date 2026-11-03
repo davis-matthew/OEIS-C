@@ -9,13 +9,27 @@
  *            factor of n. For n = 1 the value is 0 by definition
  * Range:     u8 n <= 120, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _least_prime_factor
+ * Validated: standard, pass, 136 terms through n = 8597 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_least_prime_factor.h"
+
+/* Find the least prime factor of a 64‑bit integer.  The function is
+ * a small helper, local to this file; it performs trial division up
+ * to sqrt(n).  Since the queries in the test harness are limited
+ * (n up to about 10 000) this is sufficiently fast. */
+static uint64_t _least_prime_factor(uint64_t n)
+{
+    if (n <= 1) return 1;                /* no prime factor for 0 or 1 */
+    if (n % 2 == 0) return 2u;
+    for (uint64_t d = 3; d * d <= n; d += 2u)
+        if (n % d == 0)
+            return d;
+    return n;                            /* n itself is prime */
+}
 
 seq_t a(idx_t n)
 {

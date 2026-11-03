@@ -12,14 +12,15 @@
  *            2^floor((n-1)/2) (n ≥ 1)
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 34, u64 n <= 66, u128 n <= 129,
  *            big any n
- * Helpers:   pow2_big
+ * Validated: standard, pass, 51 terms through n = 443 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow2_big.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -46,10 +47,10 @@ seq_t a(idx_t n)
 #endif
 
     /* General case: use big‑integer arithmetic via pow2_big. */
-    seq_t term1 = pow2_big(exp1);
-    seq_t term2 = pow2_big(exp2);
+    seq_t term1 = pow2(exp1);
+    seq_t term2 = pow2(exp2);
     seq_t sum   = term1 + term2;
     seq_t q     = sum / 3;
-    seq_t term3 = pow2_big(exp3);
+    seq_t term3 = pow2(exp3);
     return q + term3;
 }

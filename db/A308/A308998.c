@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 42, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -50,8 +52,8 @@ seq_t a(idx_t n)
     if (len > cache_len) {
         for (int k = 0; k < 8; ++k) {
             if (dp[k])
-                free(dp[k]);
-            dp[k] = (seq_t *)malloc(len * sizeof(seq_t));
+                mem_free(dp[k]);
+            dp[k] = mem_new(seq_t, len);
             if (!dp[k])
                 abort();                    /* allocation failed */
         }
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
 
     /* Initialise to zero.  seq_t is an integer type, so memset is safe. */
     for (int k = 0; k < 8; ++k)
-        memset(dp[k], 0, len * sizeof(seq_t));
+        mem_set(dp[k], 0, len * sizeof(seq_t));
 
     /* There is exactly one way to partition 0 into 0 parts. */
     dp[0][0] = 1;

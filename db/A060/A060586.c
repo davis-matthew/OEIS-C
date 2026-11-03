@@ -11,12 +11,35 @@
  * Formula:   a(n) = A060585(A060583(n))
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   moves_rec
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/moves_rec.h"
+static seq_t moves_rec(idx_t n, int start, int num_disks)
+{
+    if (num_disks == 0)
+        return 0;
+
+    int k = num_disks - 1;          /* index of the highest disk in this call */
+    idx_t pow3 = 1;
+    for (int i = 0; i < k; ++i)
+        pow3 *= 3;                   /* pow3 = 3^k */
+
+    int d = (int)((n / pow3) % 3);  /* target peg of the highest disk */
+
+    if (d == start) {
+        /* highest disk already on the correct peg */
+        return moves_rec(n % pow3, start, k);
+    } else {
+        int aux = 3 - start - d;    /* the remaining peg */
+        seq_t cost = ((seq_t)1 << k) - 1;  /* moves to bring lower disks to aux */
+        cost += 1;                               /* move the highest disk */
+        cost += moves_rec(n % pow3, aux, k);     /* arrange lower disks on target */
+        return cost;
+    }
+}
 /* Recursive computation of the minimum number of moves in the 3‑peg Tower of Hanoi.
  * seq_t and idx_t are provided by the build system.  No external helpers are used.
  */

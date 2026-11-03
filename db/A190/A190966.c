@@ -7,13 +7,15 @@
  * Formula:   a(n) = 4*a(n-1) - 8*a(n-2), with a(0)=0, a(1)=1
  * Range:     i8 n <= 5, i16 n <= 10, i32 n <= 21, i64 n <= 42, i128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 #ifdef __cplusplus
 #include <type_traits>
 static inline seq_t mul4(seq_t x) {
@@ -48,7 +50,7 @@ static void ensure_cap(idx_t n) {
     if (cache_cap >= (size_t)(n + 1)) return;
     size_t new_cap = cache_cap > 0 ? cache_cap : 16;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     cache = tmp;
     cache_cap = new_cap;
@@ -65,7 +67,7 @@ seq_t a(idx_t n) {
             cache[1] = (seq_t)1;
         } else {
             /* Extend to hold index 1 */
-            seq_t *tmp = (seq_t *)realloc(cache, 2 * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, 2);
             if (!tmp) exit(EXIT_FAILURE);
             cache = tmp;
             cache_cap = 2;

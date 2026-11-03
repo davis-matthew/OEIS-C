@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{i=1..n} i * (-1)^floor((i-1)/3)
  * Range:     i8 n <= 86, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 913 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Offset: 1 (a(1) is the first term) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of already computed values; cache[0] holds the value for n=0. */
 static seq_t *cache = NULL;
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     /* Grow cache to support indices up to n. */
     idx_t new_size = n + 1;                     /* indices 0..n inclusive */
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) {                                 /* allocation failed */
         return 0;
     }

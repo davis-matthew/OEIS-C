@@ -8,7 +8,8 @@
  *            digits
  * Range:     u8 n <= 17, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   isPrimeInt
+ * Validated: full, pass, 97 terms through n = 97 (2026-11-02)
+ * Helpers:   is_prime_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/isPrimeInt.h"
+#include "../utils/is_prime_i32.h"
 
 /* Returns the nth term (1‑based) of A074675. */
 seq_t a(idx_t n)
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
         built = true;
         int count = 0;
         for (int num = 100; num <= 999; ++num) {
-            if (!isPrimeInt(num)) continue;
+            if (!is_prime_i32(num)) continue;
 
             int d1 = num % 10;
             int d2 = (num / 10) % 10;

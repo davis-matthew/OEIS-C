@@ -7,6 +7,7 @@
  * Formula:   a(n) = (108*n^3 - 150*n^2 + 48*n)/6 = 18*n^3 - 25*n^2 + 8*n
  * Range:     u8 n <= 2, u16 n <= 15, u32 n <= 620, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 48 terms through n = 4693 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

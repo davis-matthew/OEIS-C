@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 13, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   isqrt_seq, seq_to_str
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,45 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/seq_to_str.h"
-#include "../utils/isqrt_seq.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
+
+/* Integer square root (floor) of a non‑negative seq_t value. */
+static seq_t isqrt_seq(seq_t v)
+{
+    seq_t lo = 0, hi = v;
+    while (lo <= hi) {
+        seq_t mid = lo + ((hi - lo) >> 1);
+        seq_t sq  = mid * mid;
+        if (sq == v) return mid;
+        if (sq < v) {
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return hi;
+}
 
 static seq_t *cache = NULL;
 static size_t cacheSize = 0;
@@ -67,7 +105,7 @@ static void push_term(seq_t val)
 {
     if (cacheSize == cacheCap) {
         size_t newCap = cacheCap ? cacheCap * 2 : 16;
-        seq_t *tmp = (seq_t*)realloc(cache, newCap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newCap);
         if (!tmp) exit(1);
         cache = tmp;
         cacheCap = newCap;

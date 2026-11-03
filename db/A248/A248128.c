@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for the sequence and for the concatenated digit stream. */
 static seq_t *terms = NULL;          /* array of a(i) values */
@@ -38,7 +40,7 @@ static void ensure_terms_capacity(size_t needed)
     {
         size_t new_cap = terms_cap ? terms_cap * 2 : 64;
         if (new_cap < needed) new_cap = needed;
-        terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
         terms_cap = new_cap;
     }
 }
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
     {
         /* Start with a single term a(0) = 50. */
         terms_cap = 64;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         terms_len = 1;
         terms[0] = 50;
 

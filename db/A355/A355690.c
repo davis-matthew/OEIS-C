@@ -10,14 +10,17 @@
  *            where the p_i are distinct odd primes. If any p_i appears with
  *            exponent ≥ 2 => a(n) = 0. - Otherwise a(n) = (-1)^k · a(2^e),
  *            where k is the number of odd primes. - Power...
- * Range:     i8 n <= 9981, i16 n <= 9981, i32 n <= 9981, i64 n <= 9981,
- *            i128 n <= 9981, big any n
+ * Range:     i8 n <= 100000, i16 n <= 100000, i32 n <= 100000,
+ *            i64 n <= 100000, i128 n <= 100000, big any n
+ * Validated: standard, pass, 124 terms through n = 9981 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n) {

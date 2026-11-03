@@ -8,7 +8,8 @@
  *            its decimal expansion
  * Range:     u8 n <= 17, u16 n <= 17, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* initialisation */
     if (terms == NULL) {
         tcap = 32;
-        terms = (seq_t *)malloc(tcap * sizeof(seq_t));
+        terms = mem_new(seq_t, tcap);
         terms[0] = (seq_t)0;     /* a(1) = 0 */
         tsize = 1;
 
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
         /* store the found exponent */
         if (tsize == tcap) {
             tcap = tcap ? tcap * 2 : 32;
-            terms = (seq_t *)realloc(terms, tcap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, tcap);
         }
         terms[tsize++] = (seq_t)curr_k;
     }

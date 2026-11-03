@@ -8,12 +8,14 @@
  *            the partition function, p(0)=1
  * Range:     u8 n <= 28, u16 n <= 57, u32 n <= 145, u64 n <= 437,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *p_part = NULL;       /* array of partition numbers */
 static idx_t  p_part_len = 0;      /* number of elements allocated (>=1) */
@@ -27,9 +29,9 @@ static void ensure_partitions(idx_t need)
     idx_t new_len = need + 1;                 /* indices 0..need */
     seq_t *new_arr = NULL;
     if (p_part == NULL) {
-        new_arr = (seq_t *)malloc(new_len * sizeof(seq_t));
+        new_arr = mem_new(seq_t, new_len);
     } else {
-        new_arr = (seq_t *)realloc(p_part, new_len * sizeof(seq_t));
+        new_arr = mem_resize(seq_t, p_part, new_len);
     }
     /* memory allocation failure is unlikely for n≈10 000; ignore for brevity */
     p_part      = new_arr;

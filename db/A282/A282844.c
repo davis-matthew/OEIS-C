@@ -7,7 +7,8 @@
  * Formula:   a(n) = A100484(n) + A046315(n)
  * Range:     u8 n <= 20, u16 n <= 2813, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 60 terms through n = 9764 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <math.h>
 
 /* Utilities supplied by the build */
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Global storage for the prime table (including 2) */
 static uint64_t *prime_list   = NULL;
@@ -89,8 +92,8 @@ static seq_t nth_odd_semiprime(idx_t n)
     static heap_node_t *heap  = NULL;
     static size_t       heap_cap = 0;
     if (heap_cap < pc) {
-        if (heap) free(heap);
-        heap = (heap_node_t *)malloc(sizeof(heap_node_t) * pc);
+        if (heap) mem_free(heap);
+        heap = mem_new(heap_node_t, pc);
         heap_cap = pc;
     }
     size_t heap_size = 0;

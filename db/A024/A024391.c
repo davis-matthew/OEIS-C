@@ -8,6 +8,7 @@
  * Formula:   a(n) = n*(n+1)*(3*n+2)*(3*n+5)/8
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

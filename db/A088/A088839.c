@@ -7,16 +7,17 @@
  * Formula:   a(n) = numerator( sigma(4n) / sigma(n) ) For n = 2^e * m with m
  *            odd, sigma(4n)/sigma(n) = (2^(e+3)-1) / (2^(e+1)-1) The function
  *            below computes this fraction and returns the reduced numerator
- * Range:     u8 n <= 63, u16 n <= 9815, u32 n <= 9815, u64 n <= 9815,
- *            u128 n <= 9815, big any n
- * Helpers:   pow2_u64
+ * Range:     u8 n <= 63, u16 n <= 16383, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 108 terms through n = 9815 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* required standard header */
 #include <stdlib.h>
-#include "../utils/pow2_u64.h"
+#include "../utils/pow2.h"
 
 /* helper: gcd for seq_t */
 static seq_t seq_gcd(seq_t a, seq_t b) {
@@ -41,8 +42,8 @@ seq_t a(idx_t n) {
     }
 
     /* compute numerator and denominator of the ratio */
-    seq_t num = pow2_u64(e + 3) - 1;   /* 2^(e+3)-1 */
-    seq_t den = pow2_u64(e + 1) - 1;   /* 2^(e+1)-1 */
+    seq_t num = pow2(e + 3) - 1;   /* 2^(e+3)-1 */
+    seq_t den = pow2(e + 1) - 1;   /* 2^(e+1)-1 */
 
     /* reduce the fraction */
     seq_t g = seq_gcd(num, den);

@@ -9,7 +9,8 @@
  *            starts at a(1)=23. The definition follows the OEIS entry A153740
  * Range:     u8 n <= 10, u16 n <= 743, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- 64‑bit Miller–Rabin primality test ---------- */
 
@@ -135,7 +137,7 @@ seq_t a(idx_t n)
                         if (cache_len == cache_cap)
                         {
                             cache_cap = cache_cap ? cache_cap * 2 : 16;
-                            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                            cache = mem_resize(seq_t, cache, cache_cap);
                         }
                         cache[cache_len++] = (seq_t)cand;
                         prev_output = cand;

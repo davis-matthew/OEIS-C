@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   uint64_pow_mod
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/uint64_pow_mod.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Allocate initial cache space. */
     if (!cache) {
         cache_cap = 32;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0; /* allocation failed */
     }
 
@@ -51,8 +53,8 @@ seq_t a(idx_t n)
         uint64_t mod = cand;
 
         /* Compute (5^cand + 3^cand + 1) % cand. */
-        uint64_t part5 = uint64_pow_mod(5, cand, mod);
-        uint64_t part3 = uint64_pow_mod(3, cand, mod);
+        uint64_t part5 = powmod_u64(5, cand, mod);
+        uint64_t part3 = powmod_u64(3, cand, mod);
 
         /* Use unsigned __int128 for the addition to prevent overflow. */
         unsigned __int128 sum128 = (unsigned __int128)part5 + part3 + 1;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         if (sum_mod == 0) {   /* cand satisfies the condition */
             if (cache_size == cache_cap) {
                 cache_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) return 0; /* realloc failed */
                 cache = tmp;
             }

@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1)*a(n-2) - 1, a(0) = 0, a(1) = 1
  * Range:     i8 n <= 8, i16 n <= 10, i32 n <= 11, i64 n <= 13, i128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;
@@ -25,13 +27,13 @@ seq_t a(idx_t n) {
     // Initialize or resize memo
     if (memo == NULL) {
         memo_len = (n < 100) ? 100 : (n + 10);
-        memo = (seq_t *)malloc(memo_len * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_len);
         memo[0] = (seq_t)0;
         memo[1] = (seq_t)1;
         computed_len = 2;
     } else if (n >= memo_len) {
         memo_len = n + 10;
-        memo = (seq_t *)realloc(memo, memo_len * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, memo_len);
     }
     
     // Compute values up to n

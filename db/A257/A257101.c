@@ -10,6 +10,7 @@
  *            where (1/5 choose e) = (1/5)(1/5-1)…(1/5-e+1)/e!
  * Range:     i8 n <= 7, i16 n <= 31, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 116 terms through n = 9039 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

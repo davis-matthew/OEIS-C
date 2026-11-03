@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = σ(n) – Π p (1 + Σ_{k=2}^{e_p} p^k) (sum of divisors minus
  *            sum of powerful divisors, including 1)
- * Range:     u8 n <= 119, u16 n <= 9771, u32 n <= 9771, u64 n <= 9771,
- *            u128 n <= 9771, big any n
+ * Range:     u8 n <= 119, u16 n <= 16385, u32 n <= 16385, u64 n <= 16385,
+ *            u128 n <= 16385, big any n
+ * Validated: standard, pass, 116 terms through n = 9771 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

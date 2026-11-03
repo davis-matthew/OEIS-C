@@ -6,8 +6,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) is the binary number whose i‑th bit (0‑based) is 1 iff the
  *            i‑th least‑significant base‑4 digit of n equals 3
- * Range:     u8 n <= 9693, u16 n <= 9693, u32 n <= 9693, u64 n <= 9693,
- *            u128 n <= 9693, big any n
+ * Range:     u8 n <= 65536, u16 n <= 65536, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 137 terms through n = 9693 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

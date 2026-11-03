@@ -9,7 +9,8 @@
  *            ∑_{d|k} c(d) * d
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   b_coeff, c_coeff
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,31 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/b_coeff.h"
-#include "../utils/c_coeff.h"
+#include "../utils/mem.h"
+
+static idx_t c_coeff(idx_t k) {
+	if (k == 1) return 0;
+	if (k == 2) return 2;
+	if (k == 3) return 4;
+	if (k == 4) return 3;
+	if (k == 5) return 4;
+	if (k == 6) return 2;
+	return (k % 2 == 1) ? 4 : 2;
+}
+
+static seq_t b_coeff(idx_t m) {
+	seq_t result = 0;
+	for (idx_t d = 1; d * d <= m; d++) {
+		if (m % d == 0) {
+			result += (seq_t)c_coeff(d) * (seq_t)d;
+			if (d != m / d) {
+				idx_t d2 = m / d;
+				result += (seq_t)c_coeff(d2) * (seq_t)d2;
+			}
+		}
+	}
+	return result;
+}
 
 seq_t a(idx_t n) {
 	static seq_t *cache = NULL;
@@ -29,7 +53,7 @@ seq_t a(idx_t n) {
 
 	if (cache_size == 0) {
 		cache_size = 256;
-		cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+		cache = mem_new(seq_t, cache_size);
 		computed = (bool *)malloc(cache_size * sizeof(bool));
 		cache[0] = 1;
 		computed[0] = true;
@@ -40,11 +64,11 @@ seq_t a(idx_t n) {
 
 	if (n >= cache_size) {
 		idx_t new_size = n + 256;
-		seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+		seq_t *new_cache = mem_new(seq_t, new_size);
 		bool *new_computed = (bool *)malloc(new_size * sizeof(bool));
-		memcpy(new_cache, cache, cache_size * sizeof(seq_t));
+		mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
 		memcpy(new_computed, computed, cache_size * sizeof(bool));
-		free(cache);
+		mem_free(cache);
 		free(computed);
 		cache = new_cache;
 		computed = new_computed;

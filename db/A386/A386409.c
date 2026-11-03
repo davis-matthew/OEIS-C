@@ -10,13 +10,17 @@
  *            limit
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +34,7 @@ seq_t a(idx_t n)
         /* Compute (–s) mod n, which for 0 < s < n is n - s. */
         seq_t base = (seq_t)(n - s);
         /* Compute base^s mod n.  mod_pow handles any seq_t type. */
-        seq_t res  = mod_pow(base, s, (seq_t)n);
+        seq_t res  = powmod(base, s, (seq_t)n);
         if (res == base)
             ++count;
     }

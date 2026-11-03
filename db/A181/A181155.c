@@ -8,14 +8,25 @@
  *            odd number of 1 bits in binary
  * Range:     u8 n <= 128, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_odious_u64
+ * Validated: standard, pass, 82 terms through n = 935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_odious_u64.h"
+#include "../utils/mem.h"
+
+/* Test if x has an odd number of 1-bits (odious). */
+static int is_odious_u64(uint64_t x) {
+    int parity = 0;
+    while (x) {
+        parity ^= 1;
+        x &= x - 1;    /* clear lowest set bit */
+    }
+    return parity;
+}
 
 /* Static cache of computed values. */
 static seq_t *cache      = NULL;
@@ -36,7 +47,7 @@ static void ensure_cache(idx_t n) {
         seq_t val = (seq_t)(num + 1);
         if (cache_len >= cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 1024 : cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();   /* memory allocation failed */
             cache   = tmp;
             cache_cap = new_cap;

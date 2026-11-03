@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Prime generation – sieve of Eratosthenes up to PRIME_LIMIT            */
@@ -123,7 +125,7 @@ seq_t a(idx_t n)
     if (seq == NULL)
     {
         seq_cap = 8;                  /* initial capacity */
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (seq == NULL) exit(EXIT_FAILURE);
     }
 
@@ -144,7 +146,7 @@ seq_t a(idx_t n)
         if (seq_len == seq_cap)
         {
             seq_cap = (seq_cap << 1) | 1;   /* double and make odd */
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
             if (seq == NULL) exit(EXIT_FAILURE);
         }
 

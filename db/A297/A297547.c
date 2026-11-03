@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 49,
  *            big any n
- * Helpers:   _valid_middle_column
+ * Validated: standard, pass, 37 terms through n = 200 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,29 @@
  * stores the last two columns of the array.  No formula is known. */
 
 #include <stdbool.h>
-#include "../utils/_valid_middle_column.h"
+
+/* For a '1' cell in the middle column, this function checks whether
+ * it has 2–3 neighboring '1's among the 6 cells that lie in the
+ * adjacent columns (left and right).  The three arguments are the
+ * left, middle, and right column bitmasks (each 4 bits). */
+static bool _valid_middle_column(int left, int middle, int right)
+{
+    for (int r = 0; r < 4; ++r) {
+        if ((middle >> r) & 1) {        /* a 1 in the middle column */
+            int cnt = 0;
+            /* left side neighbours */
+            if ((left >> r) & 1)         ++cnt;
+            if (r > 0 && (left >> (r-1)) & 1) ++cnt;
+            if (r < 3 && (left >> (r+1)) & 1) ++cnt;
+            /* right side neighbours */
+            if ((right >> r) & 1)        ++cnt;
+            if (r > 0 && (right >> (r-1)) & 1) ++cnt;
+            if (r < 3 && (right >> (r+1)) & 1) ++cnt;
+            if (cnt < 2 || cnt > 3)      return false;
+        }
+    }
+    return true;
+}
 
 /* Pre‑computed transition masks.  For every pair (left,middle)
  * _nextmask[left][middle] is a 16‑bit bitmask where bit `next` is 1

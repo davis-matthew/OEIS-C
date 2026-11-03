@@ -11,13 +11,15 @@
  *            producing that value, and answers queries in O(1)
  * Range:     u8 n <= 35, u16 n <= 6719, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9219 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined elsewhere by the build system */
 seq_t a(idx_t n)
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     {
         /* Allocate arrays */
         phi = (int *)malloc((MAX_BOUND + 1) * sizeof(int));
-        best = (seq_t *)malloc((MAX_BOUND + 1) * sizeof(seq_t));
+        best = mem_new(seq_t, (MAX_BOUND + 1));
         prime_cap = 256;
         primes = (int *)malloc(prime_cap * sizeof(int));
 

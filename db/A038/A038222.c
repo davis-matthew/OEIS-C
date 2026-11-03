@@ -8,14 +8,28 @@
  *            floor((sqrt(1+8n)-1)/2) and j = n - i*(i+1)/2
  * Range:     u8 n <= 10, u16 n <= 29, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   binomial, pow3, pow4
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-01)
+ * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow3.h"
-#include "../utils/pow4.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

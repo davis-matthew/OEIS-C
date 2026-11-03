@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 51, u32 n <= 115, u64 n <= 250,
  *            u128 n <= 661, big any n
- * Helpers:   cum_before
+ * Validated: standard, pass, 82 terms through n = 5004 (2026-11-03)
+ * Helpers:   mem, triangular_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/cum_before.h"
+#include "../utils/triangular_idx.h"
+#include "../utils/mem.h"
 
 /* global storage for the triangle:  T[row] points to an array
    of (row+1) seq_t values */
@@ -47,7 +49,7 @@ static void ensure_rows(idx_t r) {
 
     /* allocate and fill the new rows */
     for (idx_t i = rows_allocated; i <= r; ++i) {
-        seq_t *row = (seq_t*)malloc((i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (i + 1));
         if (!row) abort();
         T[i] = row;
 

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Product_{i=1..8} ((-2)^(n-i+1)-1)/((-2)^i-1)
  * Range:     u8 none, u16 n <= 8, u32 n <= 11, u64 n <= 16, u128 n <= 24,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: standard, pass, 28 terms through n = 194 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 /* Compute 2^exp as a seq_t.  For seq_t that fits in 64 bits we use
    an intermediate uint128_t when the shift would overflow 64 bits. */
@@ -51,12 +52,12 @@ seq_t a(idx_t n)
         seq_t a_den = (i & 1) ? (pw_den + 1) : (pw_den - 1);       /* |(-2)^i-1| */
 
         /* cancel common factors between numerator and denominator   */
-        seq_t g1 = seq_gcd(a_num, a_den);
+        seq_t g1 = gcd(a_num, a_den);
         a_num /= g1;
         a_den /= g1;
 
         /* cancel common factors between current result and denom   */
-        seq_t g2 = seq_gcd(result, a_den);
+        seq_t g2 = gcd(result, a_den);
         result /= g2;
         a_den /= g2;          /* a_den should now be 1              */
 

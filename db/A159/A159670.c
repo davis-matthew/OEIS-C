@@ -8,7 +8,8 @@
  *            2
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 6, i64 n <= 12, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Computes the nth term of sequence A159670.
    The function is memoised and works for any order of calls. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* Initialise the cache with the two base terms if needed */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (cache == NULL)          /* unlikely but keep it safe */
             return (seq_t)0;
         cache[0] = (seq_t)1;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* Expand the cache if it does not yet contain the requested index */
     if (n >= size) {
         size_t new_size = (size_t)n + 1;   /* cast n to size_t for allocation */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL)                     /* not expected in tests */
             return (seq_t)0;
         cache = tmp;

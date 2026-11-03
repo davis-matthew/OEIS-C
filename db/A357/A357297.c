@@ -9,7 +9,8 @@
  *            from n by antidiagonals
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 28, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   big_pow, fact_exp
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,18 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/fact_exp.h"
+#include "../utils/ipow.h"
+
+/* return exponent of prime p in n! */
+static idx_t fact_exp(idx_t n, int p)
+{
+    idx_t e = 0;
+    while (n) {
+        n /= p;
+        e += n;
+    }
+    return e;
+}
 
 /* Prime sieve up to a modest bound (enough for all possible factorial arguments). */
 #define MAX_PRIME 20000
@@ -97,7 +108,7 @@ seq_t a(idx_t n)
         /* Net exponent to multiply into result. */
         idx_t e = e_num - e_den;
         if (e > 0)
-            result *= big_pow((seq_t)p, e);
+            result *= ipow((seq_t)p, e);
     }
 
     return result;

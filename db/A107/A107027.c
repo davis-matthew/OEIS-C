@@ -8,17 +8,31 @@
  * Formula:   a(n) = T(row,col) where (row,col) is obtained from the n-th
  *            element of the row‑wise flattening of the triangle T, and T(n,k)
  *            = (n-k-1)*C((n-k)*k,k) - (n-k-2)*sum_{j=0..k} C((n-k)*k,j)
- * Range:     u8 n <= 24, u16 n <= 49, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 39, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom, row_col
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Include the binomial coefficient helper */
-#include "../utils/binom.h"
+#include <sys/types.h>
 #include <stdint.h>
-#include "../utils/row_col.h"
+#include "../utils/binomial.h"
+
+/* Helper: determine the row and column in the triangle from the
+   one‑dimensional index n. */
+static void row_col(idx_t n, idx_t *row, idx_t *col) {
+    idx_t r = 0;
+    /* Find the largest r such that r*(r+1)/2 <= n */
+    while (((r + 1) * (r + 2)) / 2 <= n) {
+        ++r;
+    }
+    *row = r;
+    *col = n - (r * (r + 1)) / 2;
+}
+#include <stdint.h>
 
 seq_t a(idx_t n) {
     idx_t r, k;
@@ -27,12 +41,12 @@ seq_t a(idx_t n) {
     idx_t M     = diff * k;       /* (n-k)*k */
 
     /* Binomial coefficient C(M, k) */
-    seq_t C = binom(M, k);
+    seq_t C = binomial(M, k);
 
     /* Compute the partial sum Σ_{j=0..k} C(M, j) */
     seq_t sum = (seq_t)0;
     for (idx_t j = 0; j <= k; ++j) {
-        sum += binom(M, j);
+        sum += binomial(M, j);
     }
 
     /* Signed multipliers */

@@ -10,13 +10,15 @@
  *            (OEIS A044493)
  * Range:     u8 n <= 8, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Test whether the base‑6 representation of x contains the substring “14”.
  * We process digits from least significant to most significant, keeping
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
     /* Grow the cache if needed */
     if (!terms) {
         capacity = 1024;
-        terms = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        terms = mem_new(seq_t, capacity);
         if (!terms) return 0; /* allocation failed */
     }
 
@@ -55,7 +57,7 @@ seq_t a(idx_t n) {
             /* Append candidate to cache */
             if (term_count == capacity) {
                 capacity *= 2;
-                seq_t *tmp = (seq_t *)realloc(terms, sizeof(seq_t) * capacity);
+                seq_t *tmp = mem_resize(seq_t, terms, capacity);
                 if (!tmp) return 0; /* allocation failed */
                 terms = tmp;
             }

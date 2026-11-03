@@ -8,7 +8,8 @@
  * Formula:   a(n) = binomial(bigomega(n) + omega(n), omega(n))
  * Range:     u8 n <= 1679, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega, binomial, count_distinct_primes
+ * Validated: standard, pass, 95 terms through n = 9439 (2026-11-01)
+ * Helpers:   bigomega, binomial, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,11 @@
 /* where bigomega(n) is A001222 (total prime factors with multiplicity)  */
 /* and omega(n)    is A001221 (number of distinct prime factors).      */
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/bigomega.h"
-#include "../utils/count_distinct_primes.h"
 #include "../utils/binomial.h"
+#include "../utils/omega.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
     /* total number of prime factors with multiplicity   */
     seq_t bigo = bigomega(n);            /* A001222(n) */
     /* number of distinct prime factors               */
-    idx_t om   = (idx_t)count_distinct_primes((uint64_t)n); /* A001221(n) */
+    idx_t om   = (idx_t)omega((uint64_t)n); /* A001221(n) */
     /* sum bigo + om fits easily into idx_t for all n */
     idx_t tot  = (idx_t)bigo + om;
     return binomial(tot, om);            /* A010846(tot, om) */

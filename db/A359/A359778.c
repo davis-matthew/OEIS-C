@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of multiplicative partitions of n into factors not
  *            divisible by p^p for any prime p
- * Range:     u8 n <= 8827, u16 n <= 8827, u32 n <= 8827, u64 n <= 8827,
- *            u128 n <= 8827, big any n
- * Helpers:   none
+ * Range:     u8 n <= 18899, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 124 terms through n = 8827 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper constants and tables */
 static bool _init_done = false;
@@ -31,7 +33,7 @@ static void _grow_tables(idx_t new_limit)
 {
     _spf      = (idx_t  *)realloc(_spf,      (new_limit + 1) * sizeof(idx_t));
     _allowed  = (bool   *)realloc(_allowed,  (new_limit + 1) * sizeof(bool));
-    _cache    = (seq_t  *)realloc(_cache,    (new_limit + 1) * sizeof(seq_t));
+    _cache    = mem_resize(seq_t, _cache, (new_limit + 1));
 
     for (idx_t i = _limit + 1; i <= new_limit; ++i) {
         _spf[i] = 0;

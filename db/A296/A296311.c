@@ -12,6 +12,7 @@
  *            types seq_t and idx_t supplied by the build. No hard‑...
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 39, u128 n <= 74,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 209 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

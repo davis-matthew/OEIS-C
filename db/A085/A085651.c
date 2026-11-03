@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 2334, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9461 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t  global_limit = 0;        /* current sieving limit            */
 static idx_t *global_spf   = NULL;     /* smallest prime factor array      */
@@ -33,7 +35,7 @@ static void build_tables(idx_t new_limit) {
     /* free previous tables */
     if (global_spf)     free(global_spf);
     if (global_good)    free(global_good);
-    if (global_terms)   free(global_terms);
+    if (global_terms)   mem_free(global_terms);
 
     global_limit = new_limit;
     global_spf = (idx_t*)malloc((global_limit + 2) * sizeof(idx_t));
@@ -74,7 +76,7 @@ static void build_tables(idx_t new_limit) {
         if (global_good[i] && global_good[i + 1]) {
             if (global_terms_cnt >= global_terms_cap) {
                 size_t newcap = global_terms_cap ? global_terms_cap * 2 : 1024;
-                seq_t *tmp = (seq_t*)realloc(global_terms, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, global_terms, newcap);
                 global_terms = tmp;
                 global_terms_cap = newcap;
             }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = min(5^n - 2^k, 2^(k+1) - 5^n) where k = floor(log₂(5^n))
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   bitlen_seq_t, pow2, power5
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   bit_length, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,24 @@
 /* Computes the minimal distance between 5^n and the nearest power of 2. */
 
 #include <stddef.h>
-#include "../utils/power5.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/bit_length.h"
 #include "../utils/pow2.h"
-#include "../utils/bitlen_seq_t.h"
+
+static inline seq_t power5(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = 5;
+    while (exp)
+    {
+        if (exp & 1)
+            result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -25,7 +41,7 @@ seq_t a(idx_t n)
     seq_t p = power5(n);
 
     /* k = floor(log2(p)) = bitlen(p) - 1. */
-    size_t bl = bitlen_seq_t(p);
+    size_t bl = bit_length(p);
     idx_t k = (idx_t)(bl - 1);
 
     /* Powers of two surrounding 5^n. */

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 8059 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,6 +39,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root (floor). Binary search implementation. */
 static inline idx_t isqrt_u64(idx_t v)
@@ -65,13 +67,13 @@ seq_t a(idx_t n)
     if (n + 1 > z_counts_size) {
         /* free previous allocation if any */
         if (z_counts)
-            free(z_counts);
-        z_counts = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+            mem_free(z_counts);
+        z_counts = mem_new(seq_t, (n + 1));
         if (!z_counts) {
             /* allocation failed – return 0 as safe fallback */
             return (seq_t)0;
         }
-        memset(z_counts, 0, (n + 1) * sizeof(seq_t));
+        mem_set(z_counts, 0, (n + 1) * sizeof(seq_t));
         z_counts_size = n + 1;
 
         /* Precompute admissible (z,w) pairs for all sums up to n */

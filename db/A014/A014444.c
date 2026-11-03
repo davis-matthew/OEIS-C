@@ -9,7 +9,8 @@
  *            is periodic with period 435
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Helper structure for polynomial operations */
 #define MAX_POLY_DEG 500
@@ -33,7 +35,7 @@ static void poly_mul(const struct poly *A, const struct poly *B, struct poly *R)
     size_t na = A->deg, nb = B->deg;
     size_t nr = na + nb;
     if (nr >= MAX_POLY_DEG) nr = MAX_POLY_DEG - 1;   /* safe guard */
-    memset(R->coeff, 0, sizeof(seq_t) * (na + nb + 1));
+    mem_set(R->coeff, 0, sizeof(seq_t) * (na + nb + 1));
     for (size_t i = 0; i <= na; ++i)
         for (size_t j = 0; j <= nb; ++j)
             R->coeff[i + j] += A->coeff[i] * B->coeff[j];
@@ -49,7 +51,7 @@ static void poly_div(const struct poly *N, const struct poly *D, struct poly *Q)
     int nd = (int)N->deg, dd = (int)D->deg;
     int qdeg = nd - dd;
     if (qdeg < 0) qdeg = 0;
-    memset(Q->coeff, 0, sizeof(seq_t) * (qdeg + 1));
+    mem_set(Q->coeff, 0, sizeof(seq_t) * (qdeg + 1));
     Q->deg = qdeg;
 
     for (int i = nd; i >= dd; --i) {
@@ -85,14 +87,14 @@ static void init_sequence(void)
         int d = divs[idx];
         /* Numerator: x^d - 1 */
         struct poly num;
-        memset(num.coeff, 0, sizeof(num.coeff));
+        mem_set(num.coeff, 0, sizeof(num.coeff));
         num.coeff[0] = -1;
         if (d < (int)MAX_POLY_DEG) num.coeff[d] = 1;
         num.deg = d;
 
         /* Denominator: product of Φ_e for e | d, e < d */
         struct poly denom;
-        memset(denom.coeff, 0, sizeof(denom.coeff));
+        mem_set(denom.coeff, 0, sizeof(denom.coeff));
         denom.coeff[0] = 1;   /* polynomial '1' */
         denom.deg = 0;
 

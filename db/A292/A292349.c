@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------
    Helper: 64‑bit deterministic Miller–Rabin primality test.
@@ -121,7 +123,7 @@ seq_t a(idx_t n)
 
     if (terms == NULL) {
         term_alloc = 128;
-        terms = (seq_t *)malloc(term_alloc * sizeof(seq_t));
+        terms = mem_new(seq_t, term_alloc);
     }
 
     while (term_count < n) {
@@ -131,7 +133,7 @@ seq_t a(idx_t n)
         if (is_pri_most(p)) {
             if (term_count == term_alloc) {
                 term_alloc *= 2;
-                terms = (seq_t *)realloc(terms, term_alloc * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, term_alloc);
             }
             terms[term_count] = (seq_t)p;
             ++term_count;

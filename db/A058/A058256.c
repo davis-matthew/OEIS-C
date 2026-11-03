@@ -7,13 +7,23 @@
  * Formula:   a(n) = lcm_{i=1..n+1} (prime(i)-1) / lcm_{i=1..n} (prime(i)-1)
  * Range:     u8 n <= 101, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_small_pow
+ * Validated: standard, pass, 105 terms through n = 8989 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/mul_small_pow.h"
+
+/*--------------------------------------------------------------------
+   Helper: multiply small power (q^exp) into a 128‑bit accumulator
+--------------------------------------------------------------------*/
+static unsigned __int128 mul_small_pow(unsigned int q, int exp, unsigned __int128 acc)
+{
+    for (int i = 0; i < exp; ++i)
+        acc *= q;
+    return acc;
+}
 
 /*--------------------------------------------------------------------
    Precomputed data

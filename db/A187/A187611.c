@@ -13,13 +13,15 @@
  *            a(14)=140386
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The external function required by the test harness. */
 seq_t a(idx_t n)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Allocate space if needed. */
     if (cache == NULL || (size_t)(n + 1) > cache_cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) {
             /* Memory allocation failed – the test harness does not
                expect failure, but we return 0 as a safe default. */

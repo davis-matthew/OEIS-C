@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t VALUES[6] = { 1, 5, 10, 20, 50, 100 };
 
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
         for (int s = 3; s <= 300; ++s)
             if (seen[s]) ++count;
         /* allocate all at once */
-        CACHE = (seq_t *)malloc(count * sizeof(seq_t));
+        CACHE = mem_new(seq_t, count);
         if (!CACHE) abort();  /* allocation failure */
         size_t idx = 0;
         for (int s = 3; s <= 300; ++s)

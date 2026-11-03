@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,8 +41,8 @@ seq_t a(idx_t n)
     /* Ensure we have space for indices up to n */
     if (s == NULL) {
         cap = n + 1;
-        s = (seq_t*)malloc(cap * sizeof(seq_t));
-        a_seq = (seq_t*)malloc(cap * sizeof(seq_t));
+        s = mem_new(seq_t, cap);
+        a_seq = mem_new(seq_t, cap);
         if (!s || !a_seq) abort();          /* memory failure */
         for (size_t i = 0; i < cap; ++i) {
             s[i] = 0;
@@ -52,8 +54,8 @@ seq_t a(idx_t n)
         computed = 0;
     } else if ((size_t)(n + 1) > cap) {
         size_t new_cap = n + 1;
-        s = (seq_t*)realloc(s, new_cap * sizeof(seq_t));
-        a_seq = (seq_t*)realloc(a_seq, new_cap * sizeof(seq_t));
+        s = mem_resize(seq_t, s, new_cap);
+        a_seq = mem_resize(seq_t, a_seq, new_cap);
         if (!s || !a_seq) abort();          /* memory failure */
         for (size_t i = cap; i < new_cap; ++i) {
             s[i] = 0;

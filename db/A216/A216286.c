@@ -9,7 +9,8 @@
  *            x>0, y>0)
  * Range:     u8 n <= 44, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   add_to_seq, add_to_uint64
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,35 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/add_to_seq.h"
-#include "../utils/add_to_uint64.h"
+#include "../utils/mem.h"
+
+/* add a value to a growing seq_t array */
+static void add_to_seq(seq_t **arr, size_t *cnt, size_t *cap, seq_t v)
+{
+    if (*cnt == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *arr, newcap);
+        if (!tmp) return;              /* out of memory – caller will abort */
+        *arr = tmp;
+        *cap = newcap;
+    }
+    (*arr)[*cnt] = v;
+    (*cnt)++;
+}
+
+/* add a value to a growing uint64_t array */
+static void add_to_uint64(uint64_t **arr, size_t *cnt, size_t *cap, uint64_t v)
+{
+    if (*cnt == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        uint64_t *tmp = (uint64_t *)realloc(*arr, newcap * sizeof(uint64_t));
+        if (!tmp) return;               /* out of memory – caller will abort */
+        *arr = tmp;
+        *cap = newcap;
+    }
+    (*arr)[*cnt] = v;
+    (*cnt)++;
+}
 
 /* primality test using existing list of primes (trial division) */
 static bool is_prime_uint64(uint64_t n, uint64_t *primes, size_t prime_cnt)

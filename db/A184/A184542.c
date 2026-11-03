@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 18, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* multiply a by a small integer constant k (0 ≤ k ≤ 20) using only
    addition to avoid overflow on small seq_t types                                 */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     if (needed < 7) needed = 7;         /* need space for the 6 initial values */
 
     if (cache == NULL) {
-        cache = (seq_t *)realloc(NULL, needed * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, needed);
         if (!cache) abort();           /* allocation failure */
         cache[0] = 0;                   /* unused entry */
 
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         cache[6] = 2413;
         cached_n = 6;
     } else if (needed > (size_t)cached_n + 1) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) abort();
         cache = tmp;
     }

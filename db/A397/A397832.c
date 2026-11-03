@@ -12,7 +12,8 @@
  *            KMP prefix function, and records each uniqu...
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   next_fib_greater
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/next_fib_greater.h"
+
+/* Return the smallest Fibonacci number strictly larger than n. */
+static idx_t next_fib_greater(idx_t n)
+{
+    idx_t a = 1;
+    idx_t b = 2;
+    while (a <= n) {
+        idx_t c = a + b;
+        a = b;
+        b = c;
+    }
+    return a;
+}
 
 /* Global Fibonacci word buffer and its length. */
 static char *fib_word = NULL;

@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) + a(n-2), a(0) = 0, a(1) = 26
  * Range:     u8 n <= 6, u16 n <= 17, u32 n <= 40, u64 n <= 87, u128 n <= 179,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term of the sequence a(n) = 26*A000045(n)  */
 seq_t a(idx_t n)
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Allocate or extend cache to hold terms up to n */
     if (n >= cache_len) {
         size_t newlen = (size_t)(n + 1);
-        cache = (seq_t*)realloc(cache, newlen * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newlen);
 
         /* Compute missing terms */
         for (size_t i = (size_t)cache_len; i <= (size_t)n; ++i) {

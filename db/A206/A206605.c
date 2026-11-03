@@ -7,13 +7,25 @@
  * Formula:   a(n) = Fibonacci(n+5) + Fibonacci(n) + Fibonacci(n-6)
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 42, u64 n <= 88, u128 n <= 180,
  *            big any n
- * Helpers:   fib_of
+ * Validated: standard, pass, 52 terms through n = 969 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/fib_of.h"
+
+/* Iteratively compute the nth Fibonacci number (F(0)=0, F(1)=1).  */
+static void fib_of(idx_t n, seq_t *fn)
+{
+    seq_t a = 0, b = 1;
+    for (idx_t i = 0; i < n; ++i) {
+        seq_t t = a + b;
+        a = b;
+        b = t;
+    }
+    *fn = a;
+}
 
 seq_t a(idx_t n)
 {

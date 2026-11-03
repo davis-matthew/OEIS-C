@@ -9,7 +9,8 @@
  *            integer that divides n!
  * Range:     u8 n <= 15, u16 n <= 17, u32 n <= 23, u64 n <= 31, u128 n <= 59,
  *            big any n
- * Helpers:   build_primes_upto, seq_mul
+ * Validated: standard, pass, 47 terms through n = 995 (2026-11-01)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,14 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_mul.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Cache of primes up to the largest n seen */
 static uint64_t *primes = NULL;

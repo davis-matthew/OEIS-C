@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   least_divisor_expr, pow2_mod_k
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/least_divisor_expr.h"
-#include "../utils/pow2_mod_k.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------ */
+static uint64_t pow2_mod_k(uint64_t e, uint64_t m)
+{
+    uint64_t res  = 1 % m;
+    uint64_t base = 2 % m;
+    while (e) {
+        if (e & 1ULL) res = (uint64_t)((__uint128_t)res * base % m);
+        base = (uint64_t)((__uint128_t)base * base % m);
+        e >>= 1ULL;
+    }
+    return res;
+}
+
+/* ------------------------------------------------------------ */
+static uint32_t least_divisor_expr(uint64_t n)
+{
+    for (uint64_t k = 2; ; ++k) {
+        uint64_t mod = pow2_mod_k(k, k);
+        uint64_t val = ((n % k) + mod + k - 2ULL) % k;
+        if (val == 0ULL) return (uint32_t)k;
+    }
+}
 
 /* ------------------------------------------------------------ */
 /*  Parameters (change if you need more terms)                  */
@@ -107,7 +130,7 @@ static void ensure_cache_cap(size_t new_len)
     if (new_len <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap : 128;
     while (new_cap < new_len) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     cache = tmp;
     cache_cap = new_cap;

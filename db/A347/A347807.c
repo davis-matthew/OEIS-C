@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 33, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The types seq_t (value) and idx_t (index) are defined by the build system. */
 
@@ -33,9 +35,9 @@ seq_t a(idx_t n)
     if (n > max_n) {
         size_t new_size = (size_t)(n + 1);                /* indices 0 .. n */
 
-        dp_total = (seq_t*)realloc(dp_total, new_size * sizeof(seq_t));
-        dp2      = (seq_t*)realloc(dp2,      new_size * sizeof(seq_t));
-        dp3      = (seq_t*)realloc(dp3,      new_size * sizeof(seq_t));
+        dp_total = mem_resize(seq_t, dp_total, new_size);
+        dp2      = mem_resize(seq_t, dp2, new_size);
+        dp3      = mem_resize(seq_t, dp3, new_size);
         is_sq    = (bool*)realloc(is_sq,    new_size * sizeof(bool));
 
         if (!dp_total || !dp2 || !dp3 || !is_sq) abort(); /* allocation failure */

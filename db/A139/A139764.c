@@ -8,12 +8,27 @@
  *            a(n) = a( n - (largest Fibonacci number < n) )
  * Range:     u8 n <= 376, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   largest_fib_le
+ * Validated: standard, pass, 105 terms through n = 9572 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/largest_fib_le.h"
+/* A helper that returns the largest Fibonacci number ≤ x.
+ * Fibonacci numbers used: 1, 2, 3, 5, 8, …  (F(1)=1, F(2)=2). */
+static seq_t largest_fib_le (seq_t x)
+{
+    if (x <= (seq_t)1) return (seq_t)1;   /* covers x==0 and x==1 */
+    seq_t a = (seq_t)1;
+    seq_t b = (seq_t)2;
+    seq_t c;
+    while (b <= x) {
+        c = a + b;  /* compute next Fibonacci number   */
+        a = b;
+        b = c;
+    }
+    return a;  /* a is the largest Fibonacci ≤ x   */
+}
 
 seq_t a (idx_t n)
 {

@@ -7,6 +7,7 @@
  * Formula:   a(n) = Product of proper divisors of n
  * Range:     u8 n <= 17, u16 n <= 35, u32 n <= 89, u64 n <= 239,
  *            u128 n <= 719, big any n
+ * Validated: standard, pass, 81 terms through n = 8746 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

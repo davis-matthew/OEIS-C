@@ -13,12 +13,15 @@
  *            n⌋ (i.e. 2ᵏ ≤ n < 2ᵏ⁺¹) and m = n – 2ᵏ (0 ≤ m < 2ᵏ)...
  * Range:     u8 n <= 192, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 82 terms through n = 7659 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* power‑of‑two indexing */
-    const int k = floor_log2_uint64(n);          /* 2ᵏ ≤ n < 2ᵏ⁺¹ */
+    const int k = ilog2(n);          /* 2ᵏ ≤ n < 2ᵏ⁺¹ */
     const idx_t base = ((idx_t)1) << k;          /* 2ᵏ */
     const idx_t m = n - base;                    /* 0 ≤ m < 2ᵏ */
 

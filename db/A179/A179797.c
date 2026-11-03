@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 188, u16 n <= 762, u32 n <= 764, u64 n <= 764,
  *            u128 n <= 764, big any n
- * Helpers:   none
+ * Validated: full, pass, 764 terms through n = 764 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for the precomputation. */
 static bool *expressible = NULL;      /* expressible[i] == true ⇔ i is of the form */
@@ -69,7 +71,7 @@ static void init_tables(void)
     }
 
     /* Build the list of non–expressible numbers. */
-    non_expr = (seq_t *)malloc((size_t)(LIMIT + 1) * sizeof(seq_t));
+    non_expr = mem_new(seq_t, (size_t)(LIMIT + 1));
     if (non_expr == NULL) {
         return; /* allocation failed – callers will return 0 */
     }

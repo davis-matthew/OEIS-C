@@ -8,9 +8,10 @@
  *            recursively: row0 = [1] row_{k+1} = [1] || row_k || (row_k[i] +
  *            row_k[i+1] for all i) || [1] The sequence a(n) is obtained by
  *            reading all rows left‑to‑right
- * Range:     u8 n <= 9958, u16 n <= 9958, u32 n <= 9958, u64 n <= 9958,
- *            u128 n <= 9958, big any n
- * Helpers:   none
+ * Range:     u8 n <= 21058, u16 n <= 65518, u32 n <= 65518, u64 n <= 65518,
+ *            u128 n <= 65518, big any n
+ * Validated: standard, pass, 136 terms through n = 9958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,12 +35,12 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* initial cache capacity */
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
 
         /* first row [1] */
         row_cap = 8;
-        row = (seq_t *)malloc(row_cap * sizeof(seq_t));
+        row = mem_new(seq_t, row_cap);
         row_len = 1;
         row[0] = (seq_t)1;
         cache[cache_len++] = (seq_t)1;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     while (cache_len <= (size_t)n) {
         /* new row length = 2*row_len + 1 */
         size_t newlen = 2 * row_len + 1;
-        seq_t *newrow = (seq_t *)malloc(newlen * sizeof(seq_t));
+        seq_t *newrow = mem_new(seq_t, newlen);
 
         size_t idx = 0;
         newrow[idx++] = (seq_t)1;                  /* leading 1 */
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
             size_t new_cap = cache_cap;
             while (cache_len + newlen > new_cap)
                 new_cap *= 2;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
 
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
             cache[cache_len++] = newrow[i];
 
         /* prepare for next iteration */
-        free(row);
+        mem_free(row);
         row = newrow;
         row_len = newlen;
     }

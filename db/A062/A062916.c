@@ -11,14 +11,16 @@
  *            less than x)
  * Range:     u8 none, u16 n <= 21, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   reverse_uint64
+ * Validated: standard, pass, 52 terms through n = 898 (2026-11-01)
+ * Helpers:   reverse_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/reverse_uint64.h"
+#include <stdlib.h>
+#include "../utils/reverse_digits_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     idx_t x      = 1;               /* current integer being tested */
     while (true) {
         if (x % 19 == 0) {
-            seq_t rev = (seq_t)reverse_uint64((uint64_t)x);
+            seq_t rev = (seq_t)reverse_digits_u64((uint64_t)x);
             if (rev % 19 == 0 && rev != (seq_t)x) {
                 found++;
                 if (found == target)

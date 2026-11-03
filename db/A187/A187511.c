@@ -10,12 +10,14 @@
  *            1525, a(7) = 2524 (a(8) onward follow the recurrence)
  * Range:     u8 n <= 3, u16 n <= 25, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     /* Expand the cache to hold terms up to n */
     idx_t needed = n;
-    seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, needed);
     if (!tmp)                /* allocation failure – terminate */
         abort();
     cache = tmp;

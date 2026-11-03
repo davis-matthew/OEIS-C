@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 13, u64 n <= 33, u128 n <= 74,
  *            big any n
- * Helpers:   window_valid
+ * Validated: standard, pass, 36 terms through n = 202 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,23 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/window_valid.h"
+
+/* Return true iff the window of seven digits w[0..6] satisfies the
+   required property. */
+static bool window_valid(const uint8_t w[7]) {
+    for (int i = 0; i < 7; ++i) {
+        for (int j = i + 1; j < 7; ++j) {
+            uint8_t max_pair = w[i] > w[j] ? w[i] : w[j];
+            uint8_t min_rest = 4;          /* larger than any digit */
+            for (int k = 0; k < 7; ++k) {
+                if (k == i || k == j) continue;
+                if (w[k] < min_rest) min_rest = w[k];
+            }
+            if (max_pair == min_rest) return true;
+        }
+    }
+    return false;
+}
 
 #define STATE_COUNT 4096
 #define MASK        0xFFF     /* lower 12 bits (6 digits in base 4) */

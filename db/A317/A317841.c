@@ -7,15 +7,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = Σ_{d|n} μ(d) * ( n/d – Stern(n/d) ) where Stern(0)=0,
  *            Stern(1)=1, Stern(2k)=Stern(k), Stern(2k+1)=Stern(k)+Stern(k+1)
- * Range:     u8 n <= 306, u16 n <= 9684, u32 n <= 9684, u64 n <= 9684,
- *            u128 n <= 9684, big any n
- * Helpers:   none
+ * Range:     u8 n <= 306, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 102 terms through n = 9684 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached Stern values: 0..stern_cap-1 */
 static seq_t *stern_cache = NULL;
@@ -26,14 +28,14 @@ static void ensure_stern(idx_t n)
 {
     if (stern_cap <= n) {
         idx_t new_cap = n + 1;
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) return; /* allocation failed – leave cache empty */
         if (stern_cache) {
-            memcpy(new_cache, stern_cache, sizeof(seq_t) * stern_cap);
-            free(stern_cache);
+            mem_copy(new_cache, stern_cache, sizeof(seq_t) * stern_cap);
+            mem_free(stern_cache);
         }
         /* initialise new entries to zero */
-        memset(new_cache + stern_cap, 0, sizeof(seq_t) * (new_cap - stern_cap));
+        mem_set(new_cache + stern_cap, 0, sizeof(seq_t) * (new_cap - stern_cap));
         /* set base value */
         if (new_cap > 1) new_cache[1] = (seq_t)1;
         stern_cache = new_cache;

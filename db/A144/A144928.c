@@ -7,7 +7,8 @@
  * Formula:   a(n) = 110*a(n-1) - a(n-2) with a(1) = 49 , a(2) = 5341
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 445 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* The sequence grows rapidly; the recurrence is used to generate any term. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* dynamic array storing a(1) .. a(cache_size) */
 static idx_t  cache_size = 0;     /* number of terms stored   */
@@ -28,14 +30,14 @@ static void ensure_cache(idx_t n)
     /* initialise */
     if (cache_cap == 0) {
         cache_cap = 8;                          /* initial arbitrary capacity */
-        seq_cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_cap);
         /* guard against allocation failure – undefined behaviour if fails */
         if (seq_cache == NULL) abort();
 
         /* store a(1) and a(2) */
         if (cache_cap < 2) {
             cache_cap = 2;
-            seq_cache = (seq_t*)realloc(seq_cache, cache_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, cache_cap);
         }
         seq_cache[0] = (seq_t)49;
         seq_cache[1] = (seq_t)5341;
@@ -47,7 +49,7 @@ static void ensure_cache(idx_t n)
         /* grow storage if necessary */
         if (cache_size >= cache_cap) {
             cache_cap *= 2;
-            seq_cache = (seq_t*)realloc(seq_cache, cache_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, cache_cap);
             if (seq_cache == NULL) abort();
         }
         /* recurrence: a(k+1) = 110*a(k) - a(k-1)  (here k = cache_size-1) */

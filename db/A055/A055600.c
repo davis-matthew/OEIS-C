@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 93, u32 n <= 337, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   bs_find, mul_small
+ * Validated: standard, pass, 71 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,34 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/mul_small.h"
-#include "../utils/bs_find.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+/* binary search on the sorted vector of seen values */
+static size_t bs_find(const seq_t *seen, size_t len, seq_t v)
+{
+    size_t lo = 0, hi = len;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (seen[mid] < v)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo;  /* first index >= v (could be len) */
+}
 
 typedef struct {
     seq_t  val; /* 2^i * 3^j */
@@ -31,7 +58,7 @@ static void heap_push(node *heap, size_t *hs, size_t *hc, node n)
 {
     if (*hs == *hc) {                     /* grow the heap array if needed */
         *hc = (*hc * 2) + 1;
-        heap = (node*)realloc(heap, *hc * sizeof(node));
+        heap = mem_resize(node, heap, (*hc * sizeof(node)) / sizeof(node));
     }
     heap[*hs] = n;
     size_t pos = *hs;
@@ -105,13 +132,13 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (!seq) {
         seq_cap = 128;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
 
         heap_cap = 128;
-        heap = (node*)malloc(heap_cap * sizeof(node));
+        heap = mem_new(node, heap_cap);
 
         seen_cap = 128;
-        seen = (seq_t*)malloc(seen_cap * sizeof(seq_t));
+        seen = mem_new(seq_t, seen_cap);
 
         /* push the initial product 1 (=2^0*3^0) */
         node root = { .val = 1, .i = 0, .j = 0 };
@@ -130,7 +157,7 @@ seq_t a(idx_t n)
         if (!have_last || cur.val != last_val) {
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = cur.val + 1;   /* add 1 as required by the sequence */
             last_val = cur.val;
@@ -152,11 +179,11 @@ seq_t a(idx_t n)
         if (idx == seen_len || seen[idx] != child1.val) {
             if (seen_len == seen_cap) {
                 seen_cap *= 2;
-                seen = (seq_t*)realloc(seen, seen_cap * sizeof(seq_t));
+                seen = mem_resize(seq_t, seen, seen_cap);
             }
             /* make room for the new value */
             if (seen_len > idx)
-                memmove(&seen[idx + 1], &seen[idx], (seen_len - idx) * sizeof(seq_t));
+                mem_move(&seen[idx + 1], &seen[idx], (seen_len - idx) * sizeof(seq_t));
             seen[idx] = child1.val;
             seen_len++;
 
@@ -168,10 +195,10 @@ seq_t a(idx_t n)
         if (idx == seen_len || seen[idx] != child2.val) {
             if (seen_len == seen_cap) {
                 seen_cap *= 2;
-                seen = (seq_t*)realloc(seen, seen_cap * sizeof(seq_t));
+                seen = mem_resize(seq_t, seen, seen_cap);
             }
             if (seen_len > idx)
-                memmove(&seen[idx + 1], &seen[idx], (seen_len - idx) * sizeof(seq_t));
+                mem_move(&seen[idx + 1], &seen[idx], (seen_len - idx) * sizeof(seq_t));
             seen[idx] = child2.val;
             seen_len++;
 

@@ -12,13 +12,16 @@
  *            A000111(m‑1‑k) (m≥2)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"   /* binom(idx_t N, idx_t K) */
+#include <sys/types.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +33,8 @@ seq_t a(idx_t n)
 
     /* ensure allocated memory can hold indices 0…n */
     if (cap < n + 1) {
-        free(e);
-        e = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        mem_free(e);
+        e = mem_new(seq_t, (n + 1));
         cap = n + 1;
     }
 
@@ -44,7 +47,7 @@ seq_t a(idx_t n)
         idx_t h   = m - 1;
         seq_t sum = (seq_t)0;
         for (idx_t k = 0; k <= h; ++k) {
-            seq_t term = binom(h, k) * e[k] * e[h - k];
+            seq_t term = binomial(h, k) * e[k] * e[h - k];
             sum += term;
         }
         e[m] = sum / (seq_t)2;   /* division is exact */

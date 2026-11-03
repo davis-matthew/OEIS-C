@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, look
  * Formula:   not stated
- * Range:     u8 n <= 15, u16 n <= 126, u32 n <= 1993, u64 n <= 8742,
- *            u128 n <= 8742, big any n
- * Helpers:   none
+ * Range:     u8 n <= 15, u16 n <= 126, u32 n <= 1993, u64 n <= 10280,
+ *            u128 n <= 10280, big any n
+ * Validated: standard, pass, 80 terms through n = 8742 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * A385296. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----- digits per residue class ------------------------------------ */
 static const uint8_t digits0[2] = {0, 7};
@@ -56,7 +58,7 @@ static void cache_push(seq_t v)
 {
     if (cache_size == cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);          /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;
@@ -69,7 +71,7 @@ static void heap_push(Node n)
 {
     if (heap_size == heap_cap) {
         size_t new_cap = (heap_cap == 0) ? 64 : heap_cap * 2;
-        Node *tmp = (Node *)realloc(heap, new_cap * sizeof(Node));
+        Node *tmp = mem_resize(Node, heap, new_cap);
         if (!tmp) exit(1);
         heap = tmp;
         heap_cap = new_cap;

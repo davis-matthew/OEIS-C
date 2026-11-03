@@ -11,6 +11,7 @@
  *            a(n) is computed for all n ≥ 1
  * Range:     u8 n <= 33, u16 n <= 513, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 78 terms through n = 9894 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "../utils/factor_u64.h"
 
 static bool is_power_of_prime_uint64(uint64_t x)

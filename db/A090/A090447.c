@@ -9,11 +9,13 @@
  *            the triangle
  * Range:     u8 n <= 17, u16 n <= 25, u32 n <= 42, u64 n <= 47, u128 n <= 47,
  *            big any n
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

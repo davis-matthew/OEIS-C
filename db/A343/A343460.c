@@ -10,6 +10,7 @@
  *            n = x^6 + y^3 + z(3*z+1)/2 + 2^k (OEIS A343460)
  * Range:     u8 n <= 1313, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 96 terms through n = 9431 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,6 +10,7 @@
  *            For the sequence, index n starts at 1583
  * Range:     u8 none, u16 n <= 1664, u32 n <= 1664, u64 n <= 1664,
  *            u128 n <= 1664, big any n
+ * Validated: partial, pass, 82 terms through n = 1664 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

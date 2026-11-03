@@ -9,13 +9,15 @@
  *            function)
  * Range:     u8 n <= 139, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9829 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
             parity[i] = parity[i / spf[i]] ^ 1;   /* toggle parity */
 
         /* Generate terms up to the current limit. */
-        seq_t *new_terms = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+        seq_t *new_terms = mem_new(seq_t, (limit + 1));
         if (!new_terms) {
             free(spf);
             free(parity);
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
         /* Replace old cache with the new one. */
         free(spf);
         free(parity);
-        free(terms);
+        mem_free(terms);
         terms       = new_terms;
         terms_len   = count;
         computed_limit = limit;

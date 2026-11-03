@@ -10,7 +10,8 @@
  *            s(k) = Sum_{d|k} d*r(d)
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 28, u64 n <= 50, u128 n <= 92,
  *            big any n
- * Helpers:   alloc_series, width_bits
+ * Validated: standard, pass, 53 terms through n = 930 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,26 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/alloc_series.h"
-#include "../utils/width_bits.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_series(size_t sz)
+{
+    seq_t *p = mem_new(seq_t, sz);
+    size_t i;
+    for (i = 0; i < sz; i++) p[i] = 0;
+    return p;
+}
+
+static int width_bits(void)
+{
+    seq_t x = 1;
+    int w = 0;
+    do {
+        x = (seq_t)(x * 2u);
+        w++;
+    } while (x != 0 && w < 300);
+    return w;
+}
 
 /* ---------- small fixed-size bignum, used for fixed-width seq_t ---------- */
 #define BL 16

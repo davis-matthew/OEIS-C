@@ -8,6 +8,7 @@
  * Formula:   a(n) = A007088(A007088(n))
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 11, u64 n <= 95, u128 n <= 4095,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 9221 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

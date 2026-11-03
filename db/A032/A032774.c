@@ -8,6 +8,7 @@
  * Formula:   a(n) = n*(n+1)*(n+2)*(n+3)*(n+4)*(n+5)*(n+6) / (7*(n+3))
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 52, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 47 terms through n = 888 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

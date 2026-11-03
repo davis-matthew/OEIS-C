@@ -8,7 +8,8 @@
  * Formula:   a(n) = sum{j=7..n+6} Stirling2(n+6,j)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 36,
  *            big any n
- * Helpers:   binom_coef
+ * Validated: standard, pass, 34 terms through n = 170 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binom_coef.h"
+#include "../utils/binomial.h"
 
 /* Maximum n that is expected (per requirement) */
 #define MAX_N 10000U
@@ -62,7 +63,7 @@ static void expand_to_m(idx_t target_m)
         idx_t n = m - 1;
         seq_t new_bell = 0;
         for (idx_t k = 0; k <= n; ++k) {
-            seq_t binom = binom_coef(n, k);
+            seq_t binom = binomial(n, k);
             new_bell += binom * Bell_arr[k];
         }
         Bell_arr[m] = new_bell;

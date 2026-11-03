@@ -8,7 +8,8 @@
  *            a(0)=1, a(1)=2, a(2)=4, a(3)=9, a(4)=18, a(5)=35
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 35, u64 n <= 71, u128 n <= 144,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #if defined(__cplusplus)
 #  include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,9 +41,9 @@ seq_t a(idx_t n)
     if (n + 1 > size) {
         idx_t new_size = n + 1;
         if (seq == NULL) {
-            seq = (seq_t *)malloc(sizeof(seq_t) * new_size);
+            seq = mem_new(seq_t, new_size);
         } else {
-            seq = (seq_t *)realloc(seq, sizeof(seq_t) * new_size);
+            seq = mem_resize(seq_t, seq, new_size);
         }
         /* initialise newly allocated entries that fall in the initial range */
         for (idx_t i = size; i <= n; ++i) {

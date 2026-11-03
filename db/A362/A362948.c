@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 73, u32 n <= 286, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   grow_seq
+ * Validated: standard, pass, 69 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/grow_seq.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -43,7 +59,7 @@ seq_t a(idx_t n)
     /* Initialise storage for sequence values */
     if (!vals) {
         vals_cap = 16;
-        vals = (seq_t *)calloc(vals_cap, sizeof(seq_t));
+        vals = mem_new(seq_t, vals_cap);
     }
 
     /* Initialise next power of 5 */
@@ -55,7 +71,7 @@ seq_t a(idx_t n)
     /* Initialise table of 2^j*3^k values */
     if (!initB) {
         B_cap = 16;
-        B = (seq_t *)calloc(B_cap, sizeof(seq_t));
+        B = mem_new(seq_t, B_cap);
         B[0] = (seq_t)6;          /* 2^1 * 3^1 */
         B_len = 1;
         B_ptr = 0;

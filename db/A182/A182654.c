@@ -8,7 +8,8 @@
  *            = sqrt(2) starting from the two Seed elements 1 and 2
  * Range:     u8 n <= 2, u16 n <= 30, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,27 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Heap utilities                                                      */
@@ -40,7 +61,7 @@ static void heap_push(seq_t val)
 {
     if (heap_len == heap_cap) {
         heap_cap = heap_cap ? heap_cap * 2 : 4;
-        heap = (seq_t *)realloc(heap, heap_cap * sizeof(seq_t));
+        heap = mem_resize(seq_t, heap, heap_cap);
     }
     size_t i = heap_len++;
     heap[i] = val;
@@ -112,7 +133,7 @@ seq_t a(idx_t n)
             /* Initialisation */
             if (S_cap < 2) {
                 S_cap = 2;
-                S = (seq_t *)realloc(S, S_cap * sizeof(seq_t));
+                S = mem_resize(seq_t, S, S_cap);
             }
             S[0] = (seq_t)1;
             S[1] = (seq_t)2;
@@ -120,7 +141,7 @@ seq_t a(idx_t n)
 
             if (heap_cap < 4) {
                 heap_cap = 4;
-                heap = (seq_t *)realloc(heap, heap_cap * sizeof(seq_t));
+                heap = mem_resize(seq_t, heap, heap_cap);
             }
             heap_len = 0;
             /* push the first candidate from 1 and 2 */
@@ -137,7 +158,7 @@ seq_t a(idx_t n)
             /* Append new term */
             if (S_len == S_cap) {
                 S_cap = S_cap ? S_cap * 2 : 2;
-                S = (seq_t *)realloc(S, S_cap * sizeof(seq_t));
+                S = mem_resize(seq_t, S, S_cap);
             }
             S[S_len] = cand;
             S_len++;

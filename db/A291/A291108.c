@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = sum of squares of nontrivial divisors of n
- * Range:     u8 n <= 23, u16 n <= 359, u32 n <= 9170, u64 n <= 9170,
- *            u128 n <= 9170, big any n
+ * Range:     u8 n <= 23, u16 n <= 359, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 91 terms through n = 9170 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

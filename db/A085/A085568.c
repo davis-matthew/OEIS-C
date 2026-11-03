@@ -9,13 +9,15 @@
  *            even? C(n,n/2)/(n+1) : 0)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   binom_at, gcd
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/gcd.h"
-#include "../utils/binom_at.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
@@ -50,7 +52,7 @@ seq_t a(idx_t n) {
     }
 
     if ((n & 1) == 0) {   /* even additional term */
-        seq_t bin_mid = binom_at(n, n / 2);
+        seq_t bin_mid = binomial(n, n / 2);
         seq_t t_num   = bin_mid;
         seq_t t_den   = (seq_t)(n + 1);
 

@@ -7,7 +7,8 @@
  * Formula:   a(n) is the nth prime p with p ≡ 0,3,5 (mod 7) (OEIS A045401)
  * Range:     u8 n <= 20, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build system. */
 
@@ -46,7 +48,7 @@ static void build_desired(idx_t limit)
             ++cnt;
 
     /* Allocate array for the qualifying primes. */
-    seq_t *tmp = (seq_t *)malloc(cnt * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, cnt);
     if (!tmp) {
         free(composite);
         return; /* memory error */
@@ -59,7 +61,7 @@ static void build_desired(idx_t limit)
             tmp[pos++] = (seq_t)p;
 
     /* Replace the old cache. */
-    free(desired);
+    mem_free(desired);
     desired      = tmp;
     desired_len  = cnt;
 

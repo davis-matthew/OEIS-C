@@ -7,6 +7,7 @@
  * Formula:   a(n) = m*n - floor((m-1)*(m+3)*(2m-1)/12) where m = A172471(n)
  * Range:     u8 n <= 43, u16 n <= 1704, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 79 terms through n = 9995 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

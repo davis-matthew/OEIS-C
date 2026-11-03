@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} binomial(n-1,k-1)*prime(k)*a(n-k), a(0) = 1
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 35,
  *            big any n
- * Helpers:   grow_zero, zalloc_arr
+ * Validated: standard, pass, 38 terms through n = 496 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,23 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/zalloc_arr.h"
-#include "../utils/grow_zero.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *zalloc_arr(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
 
 static uint64_t *pr_list = NULL;
 static idx_t pr_count = 0;

@@ -11,23 +11,25 @@
  *            ceil(3i/4) and j ≤ i. The recurrence for a cel...
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 20, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate two rows of DP.  calloc gives zeroed storage, which works
        for builtin numeric types and for big‑integer types that have a
        zero value at bit‑wise zero.  The cast is required for C++. */
-    seq_t *prev = (seq_t *)calloc(n + 1, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, n + 1);
+    seq_t *next = mem_new(seq_t, n + 1);
     if (!prev || !next) {
-        free(prev);
-        free(next);
+        mem_free(prev);
+        mem_free(next);
         return 0;          /* allocation failed */
     }
 
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
 
     seq_t result = prev[n];
 
-    free(prev);
-    free(next);
+    mem_free(prev);
+    mem_free(next);
     return result;
 }

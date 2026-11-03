@@ -9,14 +9,16 @@
  *            / 2
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 5, i64 n <= 7, i128 n <= 9,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 28 terms through n = 42 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* here binom(a,b) is provided in ../utils/binom.h                         */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     seq_t prod = 1;
     for (idx_t k = 1; k < n; ++k)
     {
-        seq_t b = binom(2 * k, k);          /* binomial(2k,k) */
+        seq_t b = binomial(2 * k, k);          /* binomial(2k,k) */
         seq_t term = (b * b) / 2;            /* (binomial)^2 / 2  */
         prod = prod * term;
     }

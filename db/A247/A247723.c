@@ -9,7 +9,8 @@
  *            pairs in any consecutive four terms having the same sum
  * Range:     u8 none, u16 n <= 3, u32 n <= 11, u64 n <= 25, u128 n <= 55,
  *            big any n
- * Helpers:   triple_to_index
+ * Validated: standard, pass, 35 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,10 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/triple_to_index.h"
+
+static inline int triple_to_index(int x, int y, int z) {
+    return x * 36 + y * 6 + z;
+}
 
 static int nextState[216][6];
 static bool initialized = false;

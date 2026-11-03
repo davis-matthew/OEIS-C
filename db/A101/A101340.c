@@ -7,7 +7,8 @@
  * Formula:   a(n) = p^p + p, where p = prime(n)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 26 terms through n = 65 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_idx.h"
 
 /* Number of primes that fit in the sieve (enough for n <= 20000) */
 #define MAX_PRIME_COUNT 20000
@@ -90,7 +91,7 @@ seq_t a(idx_t n)
     }
 
     seq_t p = primes[n - 1];             /* p = prime(n) */
-    seq_t res = pow_seq(p, (idx_t)p);    /* p^p  (exponent fits in idx_t) */
+    seq_t res = ipow_idx(p, (idx_t)p);    /* p^p  (exponent fits in idx_t) */
     res += p;                            /* + p */
     return res;
 }

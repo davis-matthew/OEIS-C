@@ -7,13 +7,15 @@
  * Formula:   a(1) = 1; a(n+1) = 2 * Sum_{k=1..n} Stirling2(n,k) * a(k)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 316 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>      /* malloc, realloc, exit */
 #include <stddef.h>     /* size_t */
+#include "../utils/mem.h"
 
 /* External linkage as requested */
 seq_t a(idx_t n)
@@ -28,11 +30,11 @@ seq_t a(idx_t n)
     /* Initialisation on first call */
     if (A == NULL) {
         A_cap = 1;             /* need index 1 at least */
-        A = (seq_t*)malloc(sizeof(seq_t) * (A_cap + 1));
+        A = mem_new(seq_t, (A_cap + 1));
         if (A == NULL) exit(1);
         S_cap = 1;
-        S = (seq_t*)malloc(sizeof(seq_t) * (S_cap + 1));
-        if (S == NULL) { free(A); exit(1); }
+        S = mem_new(seq_t, (S_cap + 1));
+        if (S == NULL) { mem_free(A); exit(1); }
 
         /* base values */
         A[1] = (seq_t)1;        /* a(1) = 1 */
@@ -49,11 +51,11 @@ seq_t a(idx_t n)
         size_t new_cap = old_cap * 2;
         if (new_cap < (size_t)n + 1) new_cap = (size_t)n + 1;
 
-        seq_t *tmpA = (seq_t*)realloc(A, sizeof(seq_t) * (new_cap + 1));
+        seq_t *tmpA = mem_resize(seq_t, A, (new_cap + 1));
         if (tmpA == NULL) exit(1);
         A = tmpA; A_cap = new_cap;
 
-        seq_t *tmpS = (seq_t*)realloc(S, sizeof(seq_t) * (new_cap + 1));
+        seq_t *tmpS = mem_resize(seq_t, S, (new_cap + 1));
         if (tmpS == NULL) exit(1);
         S = tmpS; S_cap = new_cap;
 

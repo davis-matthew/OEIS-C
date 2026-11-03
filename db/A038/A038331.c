@@ -9,14 +9,16 @@
  *            entries (i,j) along anti‑diagonals
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 44, u64 n <= 154, u128 n <= 536,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: standard, pass, 52 terms through n = 8658 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
 
     /* Compute binomial(i,j) and the powers of 12 and 5. */
     seq_t bin = binomial(i, j);
-    seq_t pow12 = seq_pow(12, i - j);
-    seq_t pow5  = seq_pow(5,  j);
+    seq_t pow12 = ipow_idx(12, i - j);
+    seq_t pow5  = ipow_idx(5,  j);
 
     return bin * pow12 * pow5;
 }

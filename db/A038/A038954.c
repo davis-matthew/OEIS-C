@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, jacobi_symbol
+ * Validated: standard, pass, 61 terms through n = 946 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,31 @@
 #include <stdlib.h>
 
 #include "../utils/is_prime.h"
-#include "../utils/jacobi_symbol.h"
+#include "../utils/mem.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 /* Memoised list of qualifying primes.  The array is dynamically
    grown as needed. */
@@ -67,7 +92,7 @@ seq_t a(idx_t n)
             /* Grow the array if necessary. */
             if (qlen == qcap) {
                 size_t newcap = qcap ? qcap * 2 : 16;
-                seq_t *tmp = (seq_t*)realloc(qual, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, qual, newcap);
                 if (!tmp) {
                     /* Allocation failure – abort gracefully. */
                     exit(1);

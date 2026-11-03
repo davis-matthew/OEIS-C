@@ -10,12 +10,14 @@
  *            a(1)..a(13) are as listed above
  * Range:     u8 n <= 4, u16 n <= 23, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 172 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- initial values --------------------------------------------------- */
 static const seq_t initial[14] = {
@@ -37,8 +39,8 @@ static void ensure_cache(idx_t n)
     idx_t new_size = n + 1;           /* we need indices 0..n */
     if (cache_size >= new_size) return;
 
-    seq_t *tmp = (cache == NULL) ? NULL : (seq_t *)realloc(cache, new_size * sizeof(seq_t));
-    if (cache == NULL) tmp = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *tmp = (cache == NULL) ? NULL : mem_resize(seq_t, cache, new_size);
+    if (cache == NULL) tmp = mem_new(seq_t, new_size);
     if (tmp == NULL) {                /* allocation failure – abort silently */
         return;
     }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = min{k ≥ 1 : 2*n*k – 1 is prime}
  * Range:     u8 n <= 42, u16 n <= 5538, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 121 terms through n = 8388 (2026-11-01)
  * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

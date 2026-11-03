@@ -10,14 +10,21 @@
  *            of odd numbers)
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 21, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   seq_alloc_array
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc_array.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {
@@ -43,7 +50,7 @@ seq_t a(idx_t n)
         seq_t *tmp = seq_alloc_array(need);
         for (idx_t i = 0; i <= last; ++i)
             tmp[i] = arr[i];
-        free(arr);
+        mem_free(arr);
         arr = tmp;
         cap = need;
     }
@@ -64,7 +71,7 @@ seq_t a(idx_t n)
         seq_t *tmp = seq_alloc_array(dneed);
         for (idx_t i = 0; i <= max_c; ++i)
             tmp[i] = dfarr[i];
-        free(dfarr);
+        mem_free(dfarr);
         dfarr = tmp;
         dcap = dneed;
         for (idx_t k = max_c + 1; k <= need_c; ++k)

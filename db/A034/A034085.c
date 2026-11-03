@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 33 terms through n = 34 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"   /* provides big_pow(seq_t base, seq_t exp) */
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -40,8 +41,8 @@ seq_t a(idx_t n)
         unsigned __int128 denom = pow5;
         return (seq_t)(numer / denom);
     } else {
-        seq_t pow9 = big_pow((seq_t)9, (seq_t)n);
-        seq_t pow5 = big_pow((seq_t)5, (seq_t)n);
+        seq_t pow9 = ipow((seq_t)9, (seq_t)n);
+        seq_t pow5 = ipow((seq_t)5, (seq_t)n);
         seq_t numer = pow9 + pow5 - (seq_t)1;
         return numer / pow5;
     }

@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = (#nodes(n) – height(n)) for the rooted tree with
  *            Matula-Goebel number n
- * Range:     u8 n <= 9308, u16 n <= 9308, u32 n <= 9308, u64 n <= 9308,
- *            u128 n <= 9308, big any n
- * Helpers:   alloc_seq_array, build_primes_upto, factor_u64, free_seq_array
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 124 terms through n = 9308 (2026-11-03)
+ * Helpers:   build_primes_upto, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *nodes      = NULL;
 static seq_t *heights    = NULL;

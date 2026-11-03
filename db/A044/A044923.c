@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   is_pal_runlen
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,44 @@
    calls. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_pal_runlen.h"
+#include "../utils/mem.h"
+
+/* Return true iff the run lengths of the base‑7 representation of x
+   form a palindrome. */
+static bool is_pal_runlen(seq_t x)
+{
+    if (x == 0) return true;          /* not used, but harmless */
+
+    /* The number of runs is at most the number of digits; 256 is
+       ample for the range needed (10 000th term fits within <2^256). */
+    unsigned runs[256];
+    size_t rlen = 0;
+    int curr_len = 0;
+    unsigned curr_digit = 0;
+
+    seq_t temp = x;
+    while (temp > 0) {
+        unsigned digit = (unsigned)(temp % 7);   /* digit in base 7 */
+        if (curr_len == 0) {                    /* first digit */
+            curr_digit = digit;
+            curr_len = 1;
+        } else if (digit == curr_digit) {       /* same run */
+            curr_len++;
+        } else {                                /* new run */
+            runs[rlen++] = (unsigned)curr_len;
+            curr_digit = digit;
+            curr_len   = 1;
+        }
+        temp /= 7;
+    }
+    runs[rlen++] = (unsigned)curr_len;          /* final run */
+
+    for (size_t i = 0; i < rlen / 2; ++i) {
+        if (runs[i] != runs[rlen - 1 - i])
+            return false;
+    }
+    return true;
+}
 
 /* External linkage: compute the n‑th term of the sequence.
    (n >= 1; behaviour for n == 0 is undefined but return 0.) */
@@ -38,7 +76,7 @@ seq_t a(idx_t n)
         /* Grow the cache if necessary */
         if (cap == len) {
             size_t new_cap = cap ? cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();          /* allocation failed */
             cache = tmp;
             cap   = new_cap;

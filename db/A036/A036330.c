@@ -8,7 +8,8 @@
  * Formula:   none (definition based)
  * Range:     u8 n <= 9, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 68 terms through n = 8736 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/is_prime_small.h"  /* is_prime_small(seq_t n) */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Helper: simple sieve of Eratosthenes to generate primes up to a limit.
@@ -96,10 +98,10 @@ static void grow_cache(void)
 {
     if (cache_cap == 0) {
         cache_cap = 1024;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else {
         cache_cap <<= 1;
-        cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 }
 
@@ -112,7 +114,7 @@ static void ensure_cache_size(idx_t n)
         seq_t val = next_candidate++;
         if (val < 4)
             continue;                          /* ignore 1,2,3 */
-        if (is_prime_small(val))
+        if (is_prime_seq(val))
             continue;                          /* exclude primes */
 
         size_t dsum = factor_digit_sum((uint64_t)val);

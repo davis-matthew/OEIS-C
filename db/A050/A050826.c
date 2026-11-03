@@ -9,12 +9,14 @@
  *            returns the nth odd value of that sequence (OEIS A050826)
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The full sequence (1‑based, b[0] unused).  Allocated dynamically. */
 static seq_t *b = NULL;
@@ -32,7 +34,7 @@ static void ensure_b_capacity(size_t need)
     if (need <= b_cap) return;
     size_t new_cap = b_cap ? b_cap << 1 : 1;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(b, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, b, (new_cap + 1));
     b = tmp;
     b_cap = new_cap;
 }
@@ -43,7 +45,7 @@ static void ensure_odds_capacity(size_t need)
     if (need <= odds_cap) return;
     size_t new_cap = odds_cap ? odds_cap << 1 : 1;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(odd, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, odd, (new_cap + 1));
     odd = tmp;
     odds_cap = new_cap;
 }

@@ -8,6 +8,7 @@
  * Formula:   a(n) = least i such that (2*n - prime(i)) is prime
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 101 terms through n = 9845 (2026-11-01)
  * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,8 +17,10 @@
 /* Sequence A377758, offset 2 (a(2) is the first term). */
 
 #include <stdlib.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
 
 /* Static storage for the list of primes up to the largest requested limit. */
 static uint64_t *prime_list = NULL;      /* array of primes */

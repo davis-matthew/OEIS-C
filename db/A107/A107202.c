@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = the nth prime p for which p ≡ 1, 9, 25, 49 or 81 (mod 88)
- * Range:     u8 n <= 4, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
- *            big any n
- * Helpers:   is_prime, matches_residue
+ * Range:     u8 n <= 4, u16 n <= 778, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 59 terms through n = 9922 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"      /* provides bool is_prime(uint64_t) */
-#include "../utils/matches_residue.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+
+static bool matches_residue(uint64_t p)
+{
+    /* prime p must be one of the five admissible residue classes */
+    switch (p % 88) {
+        case 1: case 9: case 25: case 49: case 81: return true;
+        default: return false;
+    }
+}
 
 /*  Expand the dynamic array of uint64_t primes if needed.  */
 static bool ensure_capacity(size_t needed, uint64_t **arr, size_t *cap)
@@ -71,7 +81,9 @@ seq_t a(idx_t n)
 
     /* Find primes until we have the nth term */
     while (buf_len < (size_t)n) {
-        if (is_prime(cand) && matches_residue(cand)) {
+        if (is_prime_u64(cand) && matches_residue(cand)) {
+            if (!ensure_capacity(buf_len + 1, &buf, &buf_cap))   /* each store (it grew once) */
+                return (seq_t)0;
             buf[buf_len++] = cand;
         }
         cand += 2;                      /* skip even numbers */

@@ -10,14 +10,18 @@
  *            the triangle row by row
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   seq_one
+ * Validated: partial, pass, 101 terms through n = 101 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/seq_one.h"
+#include <stdint.h>
+#include <stdlib.h>
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 #define MAX_N 200 /* enough for n up to ~20000 (row 200 gives 20100 indices) */
 

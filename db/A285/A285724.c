@@ -11,16 +11,26 @@
  *            descending antidiagonals. A(n,k) = T(lcm(n,k),gcd(n,k)) if n>k,
  *            otherwise A(n,k) = T(gcd(n,k),lcm(n,k)), where T is Cantor's
  *            pairing function T(x,y) = (x + y - 1)*(x + y - 2)/2 + x
- * Range:     u8 n <= 31, u16 n <= 718, u32 n <= 9899, u64 n <= 9899,
- *            u128 n <= 9899, big any n
- * Helpers:   cantor_pair, gcd
+ * Range:     u8 n <= 31, u16 n <= 718, u32 n <= 10585, u64 n <= 10585,
+ *            u128 n <= 10585, big any n
+ * Validated: standard, pass, 107 terms through n = 9899 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/cantor_pair.h"
+
+static seq_t cantor_pair(seq_t n, seq_t k)
+{
+    seq_t sum   = n + k - 1;
+    seq_t summ1 = n + k - 2;
+    seq_t prod  = sum * summ1;
+    seq_t half  = prod / 2;
+    return half + n;
+}
 
 seq_t a(idx_t n)
 {

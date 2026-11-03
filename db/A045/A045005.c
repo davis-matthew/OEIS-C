@@ -12,7 +12,8 @@
  *            all other digits 1. The values are produced in as...
  * Range:     u8 n <= 9, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* comparison routine for qsort */
 static int cmp_seq(const void *p1, const void *p2)
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
         /* ensure pow3 array covers required exponents */
         if ((size_t)L > pow3_cap) {
             size_t new_cap = (size_t)L;
-            seq_t *new_pow3 = (seq_t *)realloc(pow3, new_cap * sizeof(seq_t));
+            seq_t *new_pow3 = mem_resize(seq_t, pow3, new_cap);
             if (!new_pow3) return 0;           /* allocation failure (unlikely) */
             size_t start = pow3_cap;
             if (start == 0) {
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
         }
 
         /* temporary array for numbers of current length */
-        seq_t *tmp = (seq_t *)malloc((size_t)countL * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, (size_t)countL);
         if (!tmp) return 0;           /* allocation failure (unlikely) */
 
         /* base value with all digits equal to 1 */
@@ -114,22 +116,22 @@ seq_t a(idx_t n)
         }
 
         /* sort the numbers of this length */
-        qsort(tmp, (size_t)countL, sizeof(seq_t), cmp_seq);
+        mem_qsort(tmp, (size_t)countL, sizeof(seq_t), cmp_seq);
 
         /* append sorted numbers to global array */
         if (num_len + countL > num_cap) {
             size_t new_cap = num_len + countL + 1024;
-            seq_t *new_nums = (seq_t *)realloc(nums, new_cap * sizeof(seq_t));
+            seq_t *new_nums = mem_resize(seq_t, nums, new_cap);
             if (!new_nums) {
-                free(tmp);
+                mem_free(tmp);
                 return 0;               /* allocation failure (unlikely) */
             }
             nums = new_nums;
             num_cap = new_cap;
         }
-        memcpy(nums + num_len, tmp, (size_t)countL * sizeof(seq_t));
+        mem_copy(nums + num_len, tmp, (size_t)countL * sizeof(seq_t));
         num_len += countL;
-        free(tmp);
+        mem_free(tmp);
 
         cur_len = L;
     }

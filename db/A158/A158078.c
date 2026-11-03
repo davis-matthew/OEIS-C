@@ -11,7 +11,8 @@
  *            a(n-23))
  * Range:     i8 n <= 6, i16 n <= 13, i32 n <= 27, i64 n <= 30, i128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation */
 static seq_t *cache = NULL;   /* array of computed a(n) */
@@ -36,11 +38,11 @@ static void ensure_cached(idx_t n)
     /* Allocate or grow the cache to hold up to index n. */
     size_t new_len = (size_t)n + 1;
     if (cache == NULL) {
-        cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        cache = mem_new(seq_t, new_len);
         if (cache == NULL)
             abort();      /* OOM */
     } else {
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp == NULL)
             abort();
         cache = tmp;

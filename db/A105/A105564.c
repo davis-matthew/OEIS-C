@@ -10,14 +10,28 @@
  *            4 numbers
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   digits_limb
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/digits_limb.h"
+
+/* number of decimal digits in a 32‑bit limb */
+static inline int digits_limb(uint32_t x)
+{
+    if (x >= 100000000U) return 9;
+    if (x >= 10000000U)  return 8;
+    if (x >= 1000000U)   return 7;
+    if (x >= 100000U)    return 6;
+    if (x >= 10000U)     return 5;
+    if (x >= 1000U)      return 4;
+    if (x >= 100U)       return 3;
+    if (x >= 10U)        return 2;
+    return 1;
+}
 
 /* --------- Big integer with base 1e9 (enough for 10000 digits) --------- */
 #define MAX_DIGITS 10000                     /* maximum decimal digits required   */

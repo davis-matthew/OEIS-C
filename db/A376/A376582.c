@@ -10,15 +10,46 @@
  *            + k, 0 ≤ k ≤ r
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial, factorial, idx_to_rowcol
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/factorial.h"   /* factorial(idx_t) */
-#include "../utils/binomial.h"   /* binomial(idx_t, idx_t) */
-#include "../utils/idx_to_rowcol.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
+
+/* Decode the linear index n into row r and column k of the triangle. */
+static void idx_to_rowcol(idx_t n, idx_t *r, idx_t *k)
+{
+    /* r satisfies r(r+1)/2 ≤ n < (r+1)(r+2)/2. */
+    idx_t lo = 0, hi = ((idx_t)1 << 32);
+    idx_t rv = 0;
+    while (lo <= hi) {
+        idx_t mid = lo + ((hi - lo) >> 1);
+        __int128 val = (__int128)mid * (mid + 1) / 2;
+        if (val <= n) {
+            rv = mid;
+            lo = mid + 1;
+        } else
+            hi = mid - 1;
+    }
+    *r = rv;
+    __int128 offset = (__int128)rv * (rv + 1) / 2;
+    *k = n - (idx_t)offset;
+}
 
 /* Compute integer square root of a 64‑bit unsigned integer using only
  * integer arithmetic.  Result is floor(sqrt(x)). */

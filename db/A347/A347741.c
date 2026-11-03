@@ -10,7 +10,8 @@
  *            ordered partitions of n into exactly k primes for k = 1..4
  * Range:     u8 n <= 39, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* static cache of primes up to the largest n seen so far */
 static uint64_t *prime_list = NULL;
@@ -48,10 +50,10 @@ static void ensure_dp(idx_t n)
     idx_t needed = n + 1;
     if (dp_size >= needed)
         return;
-    if (dp_prev) free(dp_prev);
-    if (dp_cur)  free(dp_cur);
-    dp_prev = (seq_t *)malloc(needed * sizeof(seq_t));
-    dp_cur  = (seq_t *)malloc(needed * sizeof(seq_t));
+    if (dp_prev) mem_free(dp_prev);
+    if (dp_cur)  mem_free(dp_cur);
+    dp_prev = mem_new(seq_t, needed);
+    dp_cur  = mem_new(seq_t, needed);
     dp_size = needed;
 }
 

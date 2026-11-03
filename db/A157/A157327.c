@@ -9,12 +9,15 @@
  *            where b = 2 if n is even, b = 3 if n is odd
  * Range:     i8 n <= 3, i16 n <= 8, i32 n <= 16, i64 n <= 36, i128 n <= 76,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 44 terms through n = 944 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +32,7 @@ seq_t a(idx_t n)
     seq_t base = ((n & 1) == 0) ? (seq_t)2 : (seq_t)3;
 
     /* compute base^exp as a seq_t */
-    seq_t pow_val = big_pow(base, exp);
+    seq_t pow_val = ipow(base, exp);
 
     /* combine: coeff * base^exp */
     seq_t result = coeff * pow_val;

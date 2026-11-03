@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{i=1..q} d(i)^i (divisors of n in increasing order)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 59, u128 n <= 179,
  *            big any n
- * Helpers:   big_pow, qsort_uint64
+ * Validated: standard, pass, 49 terms through n = 8980 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,24 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
-#include "../utils/qsort_uint64.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+static void qsort_uint64(uint64_t *arr, size_t n) {
+    if (n <= 1) return;
+    uint64_t pivot = arr[n / 2];
+    size_t i = 0, j = n - 1;
+    while (i <= j) {
+        while (arr[i] < pivot) i++;
+        while (arr[j] > pivot) j--;
+        if (i <= j) {
+            uint64_t tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+            i++; if (j == 0) break; j--;
+        }
+    }
+    if (j > 0) qsort_uint64(arr, j + 1);
+    qsort_uint64(arr + i, n - i);
+}
 
 static void factor_uint64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) {
     size_t c = 0;
@@ -76,7 +93,7 @@ seq_t a(idx_t n) {
     for (size_t i = 0; i < dcnt; ++i) {
         seq_t base = (seq_t)divisors[i];
         seq_t exp  = (seq_t)(i + 1);
-        sum += big_pow(base, exp);
+        sum += ipow(base, exp);
     }
     return sum;
 }

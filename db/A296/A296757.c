@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   rises_gt_falls
+ * Validated: standard, pass, 79 terms through n = 8972 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,29 @@
    rises > falls (offset 1). */
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/rises_gt_falls.h"
+
+/* Return true if @x has more rises than falls in its base‑15 digits. */
+static bool rises_gt_falls(seq_t x)
+{
+    /* Extract base‑15 digits (least‑significant first).  The maximum
+       possible number of digits for seq_t is bounded; 64 is ample. */
+    unsigned char d[64];
+    size_t len = 0;
+    while (x > (seq_t)0) {
+        d[len++] = (unsigned char)(x % (seq_t)15);
+        x /= (seq_t)15;
+    }
+
+    int rises = 0, falls = 0;
+    /* Compare adjacent digits from most‑significant to least‑significant. */
+    for (size_t i = len; i-- > 1; ) {
+        unsigned char hi = d[i];
+        unsigned char lo = d[i - 1];
+        if (hi < lo)      ++rises;
+        else if (hi > lo) ++falls;
+    }
+    return rises > falls;
+}
 
 seq_t a(idx_t n)
 {

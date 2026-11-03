@@ -9,7 +9,8 @@
  *            the number of partitions of n into powers of 2 not exceeding 32
  * Range:     u8 n <= 35, u16 n <= 161, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    coin‑change DP (order–independent).  The cost is O(n·6) operations,
    well within the required limits for n ≤ 10 000. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* Allocate array for current computation */
     size_t len = (size_t)(n + 1);
-    seq_t *ways = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *ways = mem_new(seq_t, len);
     if (!ways)  /* allocation failed – return 0 as a safe fallback */
         return (seq_t)0;
 
@@ -45,6 +47,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = ways[n];
-    free(ways);
+    mem_free(ways);
     return result;
 }

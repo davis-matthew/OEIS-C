@@ -9,7 +9,8 @@
  *            primes satisfying p < q < r
  * Range:     u8 n <= 190, u16 n <= 6520, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, simple_sieve
+ * Validated: standard, pass, 94 terms through n = 9719 (2026-11-03)
+ * Helpers:   is_prime_u64, simple_sieve
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/is_prime_u64.h"
 #include "../utils/simple_sieve.h"
-#include "../utils/is_prime.h"
 
 /* Cached prime list (sorted).  The list is rebuilt when a larger upper bound
    is required. */
@@ -84,7 +85,7 @@ seq_t a(idx_t n)
             if (r <= q)                /* ensures p < q < r */
                 break;
 
-            if (is_prime(r))
+            if (is_prime_u64(r))
                 count++;               /* found a valid triple */
         }
     }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* One iteration of the process:  f(x) = x XOR rol(x) XOR ror(x).  */
 static inline seq_t f_xor_rotate(seq_t x)
@@ -31,7 +33,7 @@ static inline seq_t f_xor_rotate(seq_t x)
         return 0;
 
     /* number of bits needed to represent x */
-    unsigned len = bitlen_seq_t(x);
+    unsigned len = bit_length(x);
     unsigned width = sizeof(seq_t) * 8;
 
     /* mask for the significant bits (length == width => all 1s) */
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     if (found_len == 0) {
         if (found_cap == 0) {
             found_cap = 4;
-            found = (seq_t *)malloc(found_cap * sizeof(seq_t));
+            found = mem_new(seq_t, found_cap);
             if (!found) abort();
         }
         found[0] = (seq_t)0;
@@ -98,8 +100,7 @@ seq_t a(idx_t n)
             /* ensure capacity */
             if (found_len == found_cap) {
                 size_t new_cap = found_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(found,
-                                               new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, found, new_cap);
                 if (!tmp) abort();
                 found = tmp;
                 found_cap = new_cap;

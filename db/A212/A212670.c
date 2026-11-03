@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1/15*(128*n^5 + 320*n^4 + 80*n^3 - 200*n^2 + 92*n - 15)
  * Range:     u8 none, u16 n <= 3, u32 n <= 42, u64 n <= 1000, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 941 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,14 +9,50 @@
  *            order
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   grow_cap, is_prime
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/is_prime.h"
-#include "../utils/grow_cap.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Resize a dynamic array. */
+#ifdef __cplusplus
+template <class T>
+static void grow_cap(size_t *cap, size_t *size, T **arr, size_t elem_size) {
+    if (*size >= *cap) {
+        size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
+        T *tmp = mem_resize(T, *arr, (new_cap * elem_size) / sizeof(T));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
+#else
+static void grow_cap(size_t *cap, size_t *size, void **arr, size_t elem_size) {
+    if (*size >= *cap) {
+        size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
+        void *tmp = realloc(*arr, new_cap * elem_size);
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
+#endif
 
 seq_t a(idx_t n) {
     if (n < 1) return 0;                /* valid for n ≥ 1 only */
@@ -36,15 +72,15 @@ seq_t a(idx_t n) {
     while (cum_cnt == 0 || (seq_t)n > cum[cum_cnt - 1]) {
         /* find next prime */
         uint64_t p = next_prime;
-        while (!is_prime(p)) p++;
+        while (!is_prime_u64(p)) p++;
 
         /* store the prime */
-        grow_cap(&primes_cap, &primes_cnt, (void **)&primes, sizeof(uint64_t));
+        grow_cap(&primes_cap, &primes_cnt, OEISC_VPP(&primes), sizeof(uint64_t));
         primes[primes_cnt++] = p;
 
         /* update cumulative sum */
         seq_t prev_sum = (cum_cnt == 0) ? (seq_t)0 : cum[cum_cnt - 1];
-        grow_cap(&cum_cap, &cum_cnt, (void **)&cum, sizeof(seq_t));
+        grow_cap(&cum_cap, &cum_cnt, OEISC_VPP(&cum), sizeof(seq_t));
         cum[cum_cnt++] = prev_sum + (seq_t)p;
 
         /* advance to the following number for the next search */
@@ -57,10 +93,10 @@ seq_t a(idx_t n) {
     /* ---------- ensure enough composites ---------- */
     while (comp_cnt < (size_t)k) {
         uint64_t c = next_comp;
-        while (is_prime(c)) c++;          /* skip primes */
+        while (is_prime_u64(c)) c++;          /* skip primes */
 
         /* store the composite */
-        grow_cap(&comp_cap, &comp_cnt, (void **)&comps, sizeof(seq_t));
+        grow_cap(&comp_cap, &comp_cnt, OEISC_VPP(&comps), sizeof(seq_t));
         comps[comp_cnt++] = (seq_t)c;
 
         /* next candidate starts just after this composite */

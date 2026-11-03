@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 100, i16 n <= 100, i32 n <= 100, i64 n <= 100,
  *            i128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 typedef struct { seq_t val; idx_t last; } map_entry_t;
 
@@ -42,7 +44,7 @@ static inline void ensure_cache(idx_t need)
         size_t newCap = cacheCap ? cacheCap * 2 : 16;
         if (newCap < (size_t)(need + 1))
             newCap = (size_t)(need + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, newCap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newCap);
         if (!tmp) exit(1);           /* allocation failed */
         cache = tmp;
         cacheCap = newCap;
@@ -55,7 +57,7 @@ static inline void ensure_map(size_t need)
         size_t newCap = mapCap ? mapCap * 2 : 16;
         if (newCap < need)
             newCap = need;
-        map_entry_t *tmp = (map_entry_t *)realloc(map, newCap * sizeof(map_entry_t));
+        map_entry_t *tmp = mem_resize(map_entry_t, map, newCap);
         if (!tmp) exit(1);
         map = tmp;
         mapCap = newCap;
@@ -67,14 +69,14 @@ seq_t a(idx_t n)
     /* initialise structures on first call */
     if (!cache) {
         cacheCap = 16;
-        cache = (seq_t *)calloc(cacheCap, sizeof(seq_t));
+        cache = mem_new(seq_t, cacheCap);
         if (!cache) exit(1);
         cache[1] = 0;
         maxComputed = 1;
     }
     if (!map) {
         mapCap = 16;
-        map = (map_entry_t *)malloc(mapCap * sizeof(map_entry_t));
+        map = mem_new(map_entry_t, mapCap);
         if (!map) exit(1);
         mapSize = 0;
     }

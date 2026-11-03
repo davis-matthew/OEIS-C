@@ -8,6 +8,7 @@
  * Formula:   a(n) = day_of_month( 1 + (n-1)*7 ) for days in a leap year
  * Range:     u8 n <= 53, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
+ * Validated: full, pass, 53 terms through n = 53 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

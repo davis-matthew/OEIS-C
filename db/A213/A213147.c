@@ -7,12 +7,14 @@
  * Formula:   a(n) = li(-n,-5/8) * (13^(n+1))/8
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 7, i64 n <= 13, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,17 +25,17 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* Allocate required arrays */
-    seq_t *S  = (seq_t*)calloc(N + 2, sizeof(seq_t));   /* Stirling numbers S(n+1,k) */
-    seq_t *fact = (seq_t*)calloc(N + 1, sizeof(seq_t)); /* factorials */
-    seq_t *pow5 = (seq_t*)calloc(N + 2, sizeof(seq_t)); /* powers of 5 */
-    seq_t *pow13 = (seq_t*)calloc(N + 1, sizeof(seq_t));/* powers of 13 */
+    seq_t *S  = mem_new(seq_t, N + 2);   /* Stirling numbers S(n+1,k) */
+    seq_t *fact = mem_new(seq_t, N + 1); /* factorials */
+    seq_t *pow5 = mem_new(seq_t, N + 2); /* powers of 5 */
+    seq_t *pow13 = mem_new(seq_t, N + 1);/* powers of 13 */
 
     if (!S || !fact || !pow5 || !pow13) {
         /* Allocation failed – return 0 (should not happen in tests) */
-        if (S) free(S);
-        if (fact) free(fact);
-        if (pow5) free(pow5);
-        if (pow13) free(pow13);
+        if (S) mem_free(S);
+        if (fact) mem_free(fact);
+        if (pow5) mem_free(pow5);
+        if (pow13) mem_free(pow13);
         return (seq_t)0;
     }
 
@@ -75,10 +77,10 @@ seq_t a(idx_t n)
     seq_t result = sum / (seq_t)8;             /* exact division by 8 */
 
     /* Free memory */
-    free(S);
-    free(fact);
-    free(pow5);
-    free(pow13);
+    mem_free(S);
+    mem_free(fact);
+    mem_free(pow5);
+    mem_free(pow13);
 
     return result;
 }

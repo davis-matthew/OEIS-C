@@ -7,12 +7,14 @@
  * Formula:   a(n) = 4*a(n-2) - a(n-4); a(0)=1, a(1)=2, a(2)=6, a(3)=9
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 33, u64 n <= 67, u128 n <= 133,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 3407 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute A077237. */
 seq_t a(idx_t n)
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_len) {
         /* Resize cache to hold values up to n. */
         idx_t new_len = n + 1;
-        cache = (seq_t *)realloc(cache, (size_t)new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)new_len);
         /* Initialize newly added elements.  Loop uses idx_t because
            n is idx_t; cache indices fit in idx_t on all supported
            architectures. */

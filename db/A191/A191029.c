@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th prime p with Jacobi(p,39) = 1 (p ≠ 3,13)
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mul_mod64
+ * Validated: standard, pass, 70 terms through n = 942 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/mul_mod64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* Forward declarations of helpers (required only for the pragma
    environment but not used directly).  They are not linked,
@@ -38,8 +40,8 @@ static uint64_t pow_mod64(uint64_t base, uint64_t exp, uint64_t mod)
 {
     uint64_t result = 1;
     while (exp) {
-        if (exp & 1) result = mul_mod64(result, base, mod);
-        base = mul_mod64(base, base, mod);
+        if (exp & 1) result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -76,7 +78,7 @@ static bool is_prime_uint64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool cont = false;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { cont = true; break; }
         }
         if (!cont) return false;
@@ -115,11 +117,11 @@ static void ensure_cache_cap(size_t needed)
     if (cache_cap >= needed) return;
     size_t newcap = cache_cap ? cache_cap * 2 : 128;
     while (newcap < needed) newcap <<= 1;
-    seq_t *newptr = (seq_t *)malloc(newcap * sizeof(seq_t));
+    seq_t *newptr = mem_new(seq_t, newcap);
     if (!newptr) exit(EXIT_FAILURE);
     if (cache) {
-        memcpy(newptr, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(newptr, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = newptr;
     cache_cap = newcap;

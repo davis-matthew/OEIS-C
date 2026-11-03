@@ -8,88 +8,58 @@
  *            Σ e copies of the index of each prime factor p (with
  *            multiplicity e); S = Σ (index_of(p) * e), k = Σ e. The returned
  *            value is the denominator of the reduced average of this multiset
- * Range:     u8 n <= 7627, u16 n <= 9944, u32 n <= 9944, u64 n <= 9944,
- *            u128 n <= 9944, big any n
- * Helpers:   build_primes_upto, gcd
+ * Range:     u8 n <= 7627, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 123 terms through n = 9944 (2026-11-03)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+/* The prime indices of n with multiplicity have sum S and count k; a(n) is
+   the denominator of S/k, k / gcd(S, k). pi comes from a sieve that grows
+   with n (the original's table stopped at 20000). */
+
 #include <stdint.h>
-#include <stddef.h>
-#include <stdbool.h>
 #include <stdlib.h>
-
 #include "../utils/gcd.h"
-#include "../utils/build_primes_upto.h"
 
-/* Cached data for prime indices */
-static bool initialized = false;
-static uint64_t *primes = NULL;      /* prime list (1‑based) */
-static size_t prime_cnt = 0;         /* number of primes */
-static idx_t *prime_index = NULL;    /* prime_index[p] = 1‑based index of prime p */
-static const idx_t PRIME_LIMIT = 20000;   /* sufficient for n ≤ 10000 */
+static uint32_t *pi_tab = NULL;           /* pi_tab[x] = pi(x), x <= pi_lim */
+static uint64_t pi_lim = 0;
 
-/* Initialise primes and prime_index table on first use. */
-static void init_primes(void)
+static void ensure_pi(uint64_t n)
 {
-    if (initialized) return;
-
-    /* Build the list of primes up to PRIME_LIMIT. */
-    build_primes_upto(PRIME_LIMIT, &primes, &prime_cnt);
-
-    /* Allocate the index array. */
-    prime_index = (idx_t *)malloc((PRIME_LIMIT + 1) * sizeof(idx_t));
-    if (!prime_index) exit(EXIT_FAILURE);  /* abort on allocation failure */
-
-    /* Initially all entries are 0 (non‑prime). */
-    for (idx_t i = 0; i <= PRIME_LIMIT; ++i) prime_index[i] = 0;
-
-    /* Fill index for each prime number. */
-    for (size_t i = 0; i < prime_cnt; ++i) {
-        prime_index[primes[i]] = (idx_t)(i + 1);  /* 1‑based index */
+    if (n <= pi_lim) return;
+    uint64_t lim = pi_lim ? 2 * pi_lim : 1024;
+    while (lim < n) lim *= 2;
+    unsigned char *comp = (unsigned char *)calloc(lim + 1, 1);
+    uint32_t *t = (uint32_t *)malloc((lim + 1) * sizeof *t);
+    if (!comp || !t) abort();
+    for (uint64_t i = 2; i * i <= lim; ++i)
+        if (!comp[i])
+            for (uint64_t j = i * i; j <= lim; j += i) comp[j] = 1;
+    uint32_t c = 0;
+    for (uint64_t i = 0; i <= lim; ++i) {
+        if (i >= 2 && !comp[i]) ++c;
+        t[i] = c;
     }
-
-    initialized = true;
+    free(comp);
+    free(pi_tab);
+    pi_tab = t;
+    pi_lim = lim;
 }
 
-/* Main function computing the sequence term a(n). */
 seq_t a(idx_t n)
 {
-    if (n < 2) return 0;          /* undefined for the offset; caller may ignore */
-
-    init_primes();                /* ensure primes are ready */
-
-    idx_t temp = n;
-    seq_t S = 0;                  /* sum of (index * multiplicity) */
-    idx_t k = 0;                  /* total multiplicity count */
-
-    /* Trial division using precomputed primes. */
-    for (size_t i = 0; i < prime_cnt && primes[i] * primes[i] <= temp; ++i) {
-        uint64_t p = primes[i];
-        if (temp % p != 0) continue;
-
-        /* Count exponent of p. */
-        idx_t e = 0;
-        while (temp % p == 0) {
-            temp /= p;
-            ++e;
+    if (n < 2) return (seq_t)0;
+    ensure_pi((uint64_t)n);
+    uint64_t m = (uint64_t)n, S = 0, k = 0;
+    for (uint64_t p = 2; p * p <= m; ++p)
+        while (m % p == 0) {
+            m /= p;
+            S += pi_tab[p];
+            ++k;
         }
-
-        seq_t mul = (seq_t)prime_index[p] * (seq_t)e;
-        S += mul;
-        k += e;
-    }
-
-    /* Residual prime factor greater than sqrt(n). */
-    if (temp > 1) {
-        idx_t p = temp;
-        seq_t mul = (seq_t)prime_index[p];  /* exponent is 1 */
-        S += mul;
-        ++k;
-    }
-
-    /* Compute the reduced denominator. */
-    seq_t denom = (seq_t)k / gcd(S, (seq_t)k);
-    return denom;
+    if (m > 1) { S += pi_tab[m]; ++k; }
+    return (seq_t)k / gcd((seq_t)S, (seq_t)k);
 }

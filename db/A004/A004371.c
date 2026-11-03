@@ -9,12 +9,13 @@
  *            result
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 21,
  *            big any n
- * Helpers:   a004371_gcd
+ * Validated: partial, pass, 19 terms through n = 21 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a004371_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     idx_t k = n - 3;
@@ -24,7 +25,7 @@ seq_t a(idx_t n) {
     for (i = 1; i <= k; i++) {
         seq_t num = (seq_t)base + (seq_t)i;
         seq_t den = (seq_t)i;
-        seq_t g = a004371_gcd(r, den);
+        seq_t g = gcd(r, den);
         r /= g;
         den /= g;
         num /= den;

@@ -9,13 +9,29 @@
  *            a base 8 number (result given in base 10)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 10, u128 n <= 11,
  *            big any n
- * Helpers:   convert_base4_to_base8
+ * Validated: standard, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/convert_base4_to_base8.h"
+
+/* Convert a number from base 4 to base 8 treating the same digits. */
+static seq_t
+convert_base4_to_base8(seq_t x)
+{
+    seq_t next = 0;
+    seq_t mul  = 1;
+
+    while (x > 0) {
+        seq_t rem = x % (seq_t)4;   /* digit (0‑3) in base 4 */
+        if (rem) next = next + rem * mul;
+        mul = mul * (seq_t)8;       /* next power of 8 */
+        x   = x / (seq_t)4;         /* shift right by one base‑4 digit */
+    }
+    return next;
+}
 
 seq_t
 a(idx_t n)

@@ -8,7 +8,8 @@
  * Formula:   a(n) is the n-th balanced evil prime
  * Range:     u8 n <= 28, u16 n <= 3239, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   runs_of_ones
+ * Validated: standard, pass, 71 terms through n = 9706 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/runs_of_ones.h"
+#include "../utils/mem.h"
+
+/* Count the number of runs of 1's in the binary representation of x. */
+static int runs_of_ones(uint64_t x) {
+    int runs = 0;
+    bool in_run = false;
+    while (x) {
+        if (x & 1) {
+            if (!in_run) { ++runs; in_run = true; }
+        } else {
+            in_run = false;
+        }
+        x >>= 1;
+    }
+    return runs;
+}
 
 /* Static storage for the sequence. */
 static seq_t *balanced = NULL;
@@ -45,8 +61,7 @@ static void ensure_balanced_list(idx_t n) {
             if ((runs & 1) == 0) {            /* even number of runs */
                 if (balanced_cnt == balanced_cap) {
                     balanced_cap = balanced_cap ? balanced_cap << 1 : 8;
-                    balanced = (seq_t *)realloc(balanced,
-                                                balanced_cap * sizeof(seq_t));
+                    balanced = mem_resize(seq_t, balanced, balanced_cap);
                     if (!balanced) abort();
                 }
                 balanced[balanced_cnt++] = (seq_t)last_checked;

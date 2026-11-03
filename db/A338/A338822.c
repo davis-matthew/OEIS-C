@@ -10,19 +10,22 @@
  *            the modulus
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_count, floor_isqrt_u64
+ * Validated: standard, pass, 107 terms through n = 9806 (2026-11-01)
+ * Helpers:   isqrt, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/digit_count.h"    /* uint64_t digit_count(uint64_t n); */
-#include "../utils/floor_isqrt_u64.h"/* idx_t floor_isqrt_u64(idx_t n); */
+#include <stdint.h>
+#include <math.h>
+#include "../utils/isqrt.h"
+#include "../utils/num_digits0.h"
 
 seq_t a(idx_t n)
 {
     /* number of digits of n */
-    uint64_t D = digit_count(n);
+    uint64_t D = num_digits0(n);
 
     /* number of digits of D (k) */
     uint64_t tmp = D;
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
         mod *= 10;
 
     seq_t count = 0;
-    idx_t root = floor_isqrt_u64(n);
+    idx_t root = isqrt(n);
     for (idx_t i = 1; i <= root; ++i) {
         if (n % i == 0) {
             idx_t j = n / i;

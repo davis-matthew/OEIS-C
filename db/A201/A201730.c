@@ -11,12 +11,14 @@
  *            the element of the triangle read row‑by‑row
  * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **ROWS = (seq_t**)0;      /* ROWS[r][k] stores T(r,k) */
 static size_t MAX_ROW = 0;            /* highest row index that has been computed */
@@ -40,7 +42,7 @@ static void ensure_rows(idx_t r)
         ROWS = (seq_t**)calloc(1, sizeof(seq_t*));
         if (ROWS == (seq_t**)0) return;      /* allocation failure */
 
-        seq_t *row0 = (seq_t*)calloc(1, sizeof(seq_t));
+        seq_t *row0 = mem_new(seq_t, 1);
         if (row0 == (seq_t*)0) { free(ROWS); ROWS = (seq_t**)0; return; }
         row0[0] = 1;
         ROWS[0] = row0;
@@ -56,7 +58,7 @@ static void ensure_rows(idx_t r)
 
     for (idx_t i = MAX_ROW + 1; i <= r; ++i) {
         size_t len = (size_t)(i + 1);
-        seq_t *row = (seq_t*)calloc(len, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (row == (seq_t*)0) return;
 
         if (i == 1) {

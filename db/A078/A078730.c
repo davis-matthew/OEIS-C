@@ -8,14 +8,44 @@
  *            are the divisors of n
  * Range:     u8 n <= 19, u16 n <= 287, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gen_div, insertion_sort
+ * Validated: standard, pass, 73 terms through n = 9017 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/gen_div.h"
-#include "../utils/insertion_sort.h"
+
+/* Generate all divisors of n represented by its prime factors. */
+static void gen_div(idx_t idx, seq_t cur, const int *exps, const seq_t *pr,
+                    int pcnt, seq_t *arr, size_t *len)
+{
+    if (idx == pcnt) {
+        arr[*len] = cur;
+        (*len)++;
+        return;
+    }
+    seq_t prime = pr[idx];
+    seq_t val   = cur;
+    for (int e = 0; e <= exps[idx]; ++e) {
+        gen_div(idx + 1, val, exps, pr, pcnt, arr, len);
+        val = val * prime;
+    }
+}
+
+/* Simple insertion sort – works for any seq_t that supports < . */
+static void insertion_sort(seq_t *arr, size_t len)
+{
+    for (size_t i = 1; i < len; ++i) {
+        seq_t key = arr[i];
+        size_t j = i;
+        while (j > 0 && key < arr[j - 1]) {
+            arr[j] = arr[j - 1];
+            --j;
+        }
+        arr[j] = key;
+    }
+}
 
 #define MAX_DIVISORS 8192
 

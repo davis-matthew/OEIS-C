@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <assert.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static seq_t *losing = NULL;          /* array of losing positions (seq_t)   */
 static size_t losing_cnt = 0;         /* number of stored losing positions   */
@@ -55,7 +57,7 @@ static void losing_ensure_cap(size_t n)
     if (n <= losing_cap) return;
     size_t new_cap = losing_cap ? losing_cap << 1 : 16;
     while (new_cap < n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(losing, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, losing, new_cap);
     assert(tmp);
     losing = tmp;
     losing_cap = new_cap;

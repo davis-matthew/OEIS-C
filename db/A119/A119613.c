@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 74 terms through n = 997 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdbool.h>
 
 /* Prime test supplied by the build environment. */
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Utility: factor n into its distinct prime divisors, returning the
    smallest and largest such factors.  Returns true if at least two
@@ -82,15 +84,15 @@ seq_t a(idx_t n)
     /* Produce terms until we have enough. */
     while (cache_size < (size_t)n) {
         /* Skip primes – they cannot satisfy the property. */
-        if (!is_prime_small((seq_t)next_candidate)) {
+        if (!is_prime_seq((seq_t)next_candidate)) {
             idx_t min, max;
             if (factor_min_max(next_candidate, &min, &max)) {
                 idx_t diff = max - min;
-                if (is_prime_small((seq_t)diff)) {
+                if (is_prime_seq((seq_t)diff)) {
                     /* Append to cache. */
                     if (cache_size == cache_cap) {
                         cache_cap = cache_cap ? cache_cap * 2 : 8;
-                        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                        cache = mem_resize(seq_t, cache, cache_cap);
                         if (!cache) abort();
                     }
                     cache[cache_size++] = (seq_t)next_candidate;

@@ -11,8 +11,9 @@
  *            order. For each element the value is the integer whose binary
  *            representation is the concatenation of the binary for i followed
  *            by the binary for j. a(n) returns the decim...
- * Range:     u8 n <= 260, u16 n <= 9250, u32 n <= 9250, u64 n <= 9250,
- *            u128 n <= 9250, big any n
+ * Range:     u8 n <= 260, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 87 terms through n = 9250 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

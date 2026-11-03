@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 201, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 8519 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
             if (!is_prime[i])
                 comps_cnt++;
 
-        comps = (seq_t *)malloc((comps_cnt + 1) * sizeof(seq_t)); /* 1‑based */
+        comps = mem_new(seq_t, (comps_cnt + 1)); /* 1‑based */
         if (!comps) { free(is_prime); return 0; }
 
         idx_t pos = 1;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  *  (t^39 + 2*t^38 + … + 2*t + 1) / (1 - 14*t - 14*t^2 - … - 14*t^38 + 105*t^39). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,11 +35,11 @@ seq_t a(idx_t n)
     /* Expand cache if necessary */
     if (seq == NULL) {
         size_t init = (size_t)n + 1;
-        seq = (seq_t*)malloc(init * sizeof(seq_t));
+        seq = mem_new(seq_t, init);
         stored = 0;
     } else if ((size_t)n + 1 > (size_t)stored) {
         size_t newsize = (size_t)n + 1;
-        seq = (seq_t*)realloc(seq, newsize * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, newsize);
         /* No need to initialize new area, we will fill it immediately */
     }
 

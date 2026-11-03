@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   _parity_idx
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,12 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_parity_idx.h"
+
+static inline unsigned _parity_idx(idx_t x)
+{
+    /* returns popcount(x) & 1, i.e. τ(x+1) since τ(k)=popcount(k-1) mod 2 */
+    return __builtin_popcountll(x) & 1U;
+}
 
 static const seq_t _tm_map[8] = {
     0, /* 000 – never occurs in Thue–Morse */

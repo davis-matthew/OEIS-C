@@ -10,16 +10,23 @@
  *            such prime exists, a(n) = 0
  * Range:     u8 n <= 99, u16 n <= 9999, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_digits, is_prime, pow10
+ * Validated: standard, pass, 92 terms through n = 8689 (2026-11-03)
+ * Helpers:   is_prime_u64, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/count_digits.h"
-#include "../utils/pow10.h"
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/num_digits_idx.h"
+
+static seq_t pow10(idx_t exp) {
+    seq_t res = 1;
+    for (idx_t i = 0; i < exp; ++i) res *= (seq_t)10;
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -28,7 +35,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* number of decimal digits of n */
-    int k = count_digits(n);
+    int k = num_digits_idx(n);
 
     /* bounds for k‑digit numbers: 10^(k-1) ≤ p < 10^k */
     seq_t low_seq  = pow10(k - 1);   /* 1 for k=1 */
@@ -55,7 +62,7 @@ seq_t a(idx_t n)
 
     for (uint64_t t = t_max; ; --t) {
         uint64_t candidate = 1 + t * n64;
-        if (is_prime(candidate))
+        if (is_prime_u64(candidate))
             return (seq_t)candidate;
         if (t == t_min)
             break;          /* reached the lower bound */

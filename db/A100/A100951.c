@@ -9,13 +9,15 @@
  *            prime numbers p, q, r
  * Range:     u8 n <= 4049, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 120 terms through n = 9475 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system. */
 seq_t a(idx_t n)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /*--- enlarge cache if needed -------------------------------------------*/
     if ((size_t)n >= cache_sz) {
         size_t new_sz = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_sz);
         if (!new_cache) return 0;         /* allocation failure */
         /* initialize new entries to sentinel */
         for (size_t i = cache_sz; i < new_sz; ++i) new_cache[i] = sentinel;

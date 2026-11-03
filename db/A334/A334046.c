@@ -9,7 +9,8 @@
  * Formula:   a(n) = n-1 - A375421(n) (number of invisible points)
  * Range:     u8 n <= 54, u16 n <= 7269, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, isPrimeTrial
+ * Validated: standard, pass, 97 terms through n = 8837 (2026-11-03)
+ * Helpers:   gcd, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Forward declaration of helper to generate primes on demand */
 static void ensure_primes(idx_t n);
@@ -39,7 +41,7 @@ static void ensure_primes(idx_t n)
 
     /* Allocate or grow the array */
     if (!prime_seq) {
-        prime_seq = (seq_t*)malloc(sizeof(seq_t) * (n + 4));
+        prime_seq = mem_new(seq_t, (n + 4));
         if (!prime_seq) return;          /* malloc failure, should not happen */
         prime_seq[1] = (seq_t)2;
         prime_seq_len = 1;
@@ -48,13 +50,13 @@ static void ensure_primes(idx_t n)
         /* enlarge to accommodate at least n elements */
         size_t old_cap = prime_seq_len + 4;
         if (old_cap < n + 4) old_cap = n + 4;
-        prime_seq = (seq_t*)realloc(prime_seq, sizeof(seq_t) * old_cap);
+        prime_seq = mem_resize(seq_t, prime_seq, old_cap);
     }
 
     for (uint64_t cand = prime_last_checked + 1;
          prime_seq_len < n;
          cand++) {
-        if (isPrimeTrial((seq_t)cand)) {
+        if (is_prime_seq((seq_t)cand)) {
             prime_seq_len++;
             prime_seq[prime_seq_len] = (seq_t)cand;
         }

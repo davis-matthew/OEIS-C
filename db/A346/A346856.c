@@ -12,7 +12,8 @@
  *            the types seq_t and idx_t supplied by the build
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 20, u128 n <= 37,
  *            big any n
- * Helpers:   allocate_seq_array, seq_realloc
+ * Validated: standard, pass, 37 terms through n = 530 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,30 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/allocate_seq_array.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include <assert.h>
+#include "../utils/mem.h"
+
+static seq_t *allocate_seq_array(size_t n)
+{
+#ifdef __cplusplus
+    return new seq_t[n];
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Pre‑computed partition numbers P(m) for m = 0 .. 10 */
 static const seq_t PARTS[11] = {
@@ -56,10 +79,9 @@ static void f_expand(size_t needed) {
     size_t new_cap = f_cap ? f_cap * 2 : needed;
     while (new_cap < needed) new_cap <<= 1;
     seq_t *new_arr = seq_realloc(f_arr, f_cap, new_cap);
-    if (new_arr == NULL) *new_arr = NULL; /* will trigger abort below */
     if (new_arr == NULL) abort();
     /* Initialise new region to zero */
-    memset(new_arr + f_cap, 0, (new_cap - f_cap) * sizeof(seq_t));
+    mem_set(new_arr + f_cap, 0, (new_cap - f_cap) * sizeof(seq_t));
     f_arr = new_arr;
     f_cap = new_cap;
 }
@@ -101,8 +123,8 @@ static void S_expand(size_t needed) {
     seq_t *new_curr = seq_realloc(S_curr, S_cap, new_cap);
     if (new_prev == NULL || new_curr == NULL) abort();
     /* Initialise new region to zero */
-    memset(new_prev + S_cap, 0, (new_cap - S_cap) * sizeof(seq_t));
-    memset(new_curr + S_cap, 0, (new_cap - S_cap) * sizeof(seq_t));
+    mem_set(new_prev + S_cap, 0, (new_cap - S_cap) * sizeof(seq_t));
+    mem_set(new_curr + S_cap, 0, (new_cap - S_cap) * sizeof(seq_t));
     S_prev = new_prev;
     S_curr = new_curr;
     S_cap = new_cap;
@@ -120,7 +142,7 @@ static void a_expand(size_t needed) {
     while (new_cap < needed) new_cap <<= 1;
     seq_t *new_arr = seq_realloc(a_arr, a_cap, new_cap);
     if (new_arr == NULL) abort();
-    memset(new_arr + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
+    mem_set(new_arr + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
     a_arr = new_arr;
     a_cap = new_cap;
 }

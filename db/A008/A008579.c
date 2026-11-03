@@ -8,6 +8,7 @@
  * Formula:   a(0)=1, a(1)=4; for n>1 * a(n) = ((9+(-1)^n)*n)/2 - 2*(-1)^n
  * Range:     u8 n <= 51, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 73 terms through n = 975 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

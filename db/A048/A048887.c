@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 227, u32 n <= 736, u64 n <= 2550,
  *            u128 n <= 9309, big any n
- * Helpers:   first_t
+ * Validated: standard, pass, 94 terms through n = 8875 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,20 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/first_t.h"
+
+static idx_t first_t(idx_t n)
+{
+    idx_t low = 1, high = n;
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        __uint128_t prod = (__uint128_t)mid * (mid + 1) / 2;
+        if (prod >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 seq_t a(idx_t n)
 {

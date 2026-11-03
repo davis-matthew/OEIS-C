@@ -7,13 +7,14 @@
  * Formula:   a(n) = Product_{k=1..n} k^k, a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 9,
  *            big any n
- * Helpers:   a002109_pw
+ * Validated: standard, pass, 28 terms through n = 34 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a002109_pw.h"
+#include "../utils/ipow_idx.h"
 
 static int a002109_have = 0;
 static idx_t a002109_last_n = 0;
@@ -30,7 +31,7 @@ seq_t a(idx_t n) {
         k = 1;
     }
     for (; k <= n; k++) {
-        result *= a002109_pw((seq_t)k, k);
+        result *= ipow_idx((seq_t)k, k);
     }
     a002109_last_v = result;
     a002109_last_n = n;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    and reading rows left‑to‑right.  a(0)=1, a(1)=1, a(2)=1, a(3)=1, a(4)=0, a(5)=1, … */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,16 +41,16 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* reserve a small initial capacity */
         cache_cap = 32;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         /* first row: a single 1 */
         cache[0] = (seq_t)1;
         cache_len = 1;
 
         /* initialise CA rows */
         cur_len  = 1;
-        row_cur  = (seq_t *)malloc(sizeof(seq_t) * cur_len);
+        row_cur  = mem_new(seq_t, cur_len);
         row_cur[0] = (seq_t)1;
-        row_next = (seq_t *)malloc(sizeof(seq_t) * (cur_len + 1));
+        row_next = mem_new(seq_t, (cur_len + 1));
     }
 
     /* enlarge cache if necessary */
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap * 2;
         if (new_cap < (size_t)(n + 1))
             new_cap = n + 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     while (cache_len <= n) {
         /* next row has length cur_len + 1 */
         size_t next_len = cur_len + 1;
-        row_next = (seq_t *)realloc(row_next, sizeof(seq_t) * next_len);
+        row_next = mem_resize(seq_t, row_next, next_len);
 
         /* compute the next row according to Rule 28:
            output = 1 when pattern is 100, 011 or 010 */
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
         for (idx_t j = 0; j < (idx_t)next_len; ++j) {
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = row_next[j];
         }

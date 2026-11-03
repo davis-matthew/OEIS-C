@@ -10,13 +10,15 @@
  *            1^c 0^d. * The sequence contains only even numbers
  * Range:     u8 n <= 69, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Comparison routine for qsort – works for any unsigned seq_t type */
 static int cmp_seq(const void *p1, const void *p2)
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
     }
 
     /* Sort the gathered numbers and return the (n‑1)th element. */
-    qsort(arr, total, sizeof(seq_t), cmp_seq);
+    mem_qsort(arr, total, sizeof(seq_t), cmp_seq);
     seq_t result = arr[n - 1];
     freeSeq(arr);
     return result;

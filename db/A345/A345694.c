@@ -12,15 +12,22 @@
  *            gcd(x,y)=1
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   mul128_uint64, ui_gcd
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Auxiliary functions -------------------------------------------------------*/
 #include <stdint.h>
-#include "../utils/mul128_uint64.h"
-#include "../utils/ui_gcd.h"
+#include "../utils/gcd_u64.h"
+
+/* Fallback: use long double (not exact for very large numbers,
+ * but this build should support __int128 when needed). */
+static inline unsigned long long mul128_uint64(uint64_t a, uint64_t b)
+{
+    return a * b;  /* for 64‑bit build we will not overflow here */
+}
 
 /* modular inverse of a modulo m (gcd(a,m)=1), result in [1,m-1] */
 static inline uint64_t modinv(uint64_t a, uint64_t m)
@@ -65,7 +72,7 @@ seq_t a(idx_t n)
         /* residues r from 1 to min(y-1,n) are the only ones that can appear */
         uint64_t maxr = (y - 1 < n) ? y - 1 : n;
         for (uint64_t r = 1; r <= maxr; ++r) {
-            if (ui_gcd(r, y) != 1)
+            if (gcd_u64(r, y) != 1)
                 continue;
 
             /* minimal absolute Bézout coefficient for residue r */

@@ -9,14 +9,31 @@
  *            or "54" in decimal but whose predecessor does not
  * Range:     u8 n <= 6, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has45_or54
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has45_or54.h"
+#include "../utils/mem.h"
+
+/* Test whether x contains the adjacent digits 4 and 5 in any order */
+static bool has45_or54(seq_t x)
+{
+    if (x == 0) return false;
+    seq_t last = x % 10;   /* least significant digit */
+    x /= 10;
+    while (x != 0) {
+        seq_t cur = x % 10;
+        if ((last == 4 && cur == 5) || (last == 5 && cur == 4))
+            return true;
+        last = cur;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Static cache for memoisation */
 static seq_t *cache = NULL;      /* cached sequence values */
@@ -30,7 +47,7 @@ static void ensure_cache_size(idx_t needed)
     if (needed <= cached_cap) return;
     idx_t newcap = cached_cap ? cached_cap * 2 : 4;
     while (newcap < needed) newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     cache = tmp;
     cached_cap = newcap;
 }

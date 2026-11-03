@@ -9,7 +9,8 @@
  *            is 1
  * Range:     u8 n <= 127, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow2, rev_decimal
+ * Validated: standard, pass, 89 terms through n = 9101 (2026-11-01)
+ * Helpers:   pow2, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 /* Example: a(17) = rev_decimal(16)+rev_decimal(1) = 61+1 = 62. */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow2.h"
-#include "../utils/rev_decimal.h"
+#include "../utils/reverse_digits.h"
 
 seq_t a(idx_t n) {
     seq_t sum = 0;
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     while (bits) {
         if (bits & 1) {
             seq_t p = pow2(pos);
-            sum += rev_decimal(p);
+            sum += reverse_digits(p);
         }
         bits >>= 1;
         pos++;

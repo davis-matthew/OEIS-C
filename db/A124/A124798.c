@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 96, u16 n <= 96, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   cum_digits
+ * Validated: partial, pass, 96 terms through n = 96 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,15 @@
 */
 
 #include <stdint.h>
-#include "../utils/cum_digits.h"
+
+/* cumulative digits up to index m (m ≥ 1).
+   C(m) = 1 + ∑_{i=2}^{m} (i+1) = (m*(m+3)-2)/2 .
+   For m = 0 we define C(0) = 0. */
+static inline idx_t cum_digits(idx_t m)
+{
+    if (m == 0) return 0;
+    return ((m * (m + 3)) - 2) >> 1;   /* /2 via right shift, safe for even result */
+}
 
 /* find minimal k such that cum_digits(k) ≥ n  (C(0)=0). */
 static idx_t find_block(idx_t n)

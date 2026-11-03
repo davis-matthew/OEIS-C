@@ -11,13 +11,15 @@
  *            a(3)=6, a(4)=10, a(5)=21, a(6)=46, a(7)=102, a(8)=220
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 29, u64 n <= 57, u128 n <= 112,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;      /* memo[0] unused */
 static size_t memo_cap = 0;     /* allocated size of memo array */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if (!memo) {
         size_t init_cap = (size_t)(n + 1);
         if (init_cap < 9) init_cap = 9;
-        memo = (seq_t *)realloc(NULL, init_cap * sizeof(seq_t));
+        memo = mem_resize(seq_t, NULL, init_cap);
         if (!memo) abort();
         memo_cap = init_cap;
         for (idx_t i = 1; i <= 8; ++i) memo[(size_t)i] = init_vals[i];
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > memo_cap) {
         size_t new_cap = (size_t)n + 1;
         if (new_cap < memo_cap * 2) new_cap = memo_cap * 2;
-        memo = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, new_cap);
         if (!memo) abort();
         memo_cap = new_cap;
     }

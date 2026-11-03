@@ -10,13 +10,15 @@
  *            the number of divisors of k
  * Range:     u8 n <= 83, u16 n <= 4919, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9644 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
             ++d[j];
 
     /* r[0..N] = (d[i]+1)/2  as seq_t */
-    seq_t *r = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *r = mem_new(seq_t, (N + 1));
     if (!r) {
         free(d);
         return 0;
@@ -57,6 +59,6 @@ seq_t a(idx_t n)
     }
 
     free(d);
-    free(r);
+    mem_free(r);
     return ans;
 }

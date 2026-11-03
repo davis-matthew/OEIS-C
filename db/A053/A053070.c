@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 233, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define BLOCK_SIZE 1048576          /* block size for segmented sieve (1 MiB) */
 #define SMALL_PRIME_MAX 50000       /* limit for pre‑computed small primes */
@@ -69,7 +71,7 @@ static void append_term(seq_t v)
 {
     if (terms_len == terms_cap) {
         terms_cap = terms_cap ? terms_cap * 2 : 128;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
     terms[terms_len++] = v;
 }

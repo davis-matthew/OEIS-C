@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Global storage for the intermediate and final sequences. */
 static seq_t *lucky_list = NULL;      /* all lucky numbers up to a limit */
@@ -40,7 +42,7 @@ static void generate_lucky(uint64_t limit)
 {
     /* Allocate space for all odd numbers up to `limit`. */
     size_t init_cnt = (size_t)((limit + 1ULL) / 2ULL);
-    lucky_list = (seq_t *)malloc(init_cnt * sizeof(seq_t));
+    lucky_list = mem_new(seq_t, init_cnt);
     for (size_t i = 0; i < init_cnt; ++i) {
         lucky_list[i] = (seq_t)(2ULL * i + 1ULL);
     }
@@ -73,7 +75,7 @@ static void compute_very_lucky(void)
 
     /* Start with a copy of the lucky list. */
     size_t len = lucky_len;
-    very_list = (seq_t *)malloc(len * sizeof(seq_t));
+    very_list = mem_new(seq_t, len);
     for (size_t i = 0; i < len; ++i) {
         very_list[i] = lucky_list[i];
     }
@@ -107,11 +109,11 @@ static void ensure_very_len(idx_t n)
         if (lucky_limit == 0) lucky_limit = 1;   /* overflow guard */
 
         /* Free old storage. */
-        free(lucky_list);
+        mem_free(lucky_list);
         lucky_list = NULL;
         lucky_len  = 0;
 
-        free(very_list);
+        mem_free(very_list);
         very_list = NULL;
         very_len  = 0;
 

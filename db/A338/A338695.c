@@ -7,11 +7,14 @@
  * Formula:   a(n) = Sum_{d|n} 2^(d-1) * binomial(d, n/d)
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 28, u64 n <= 33, u128 n <= 33,
  *            big any n
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

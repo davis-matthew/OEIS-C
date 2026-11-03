@@ -8,14 +8,17 @@
  *            \binom{n}{j} \; j^{\,2n-1}
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 31 terms through n = 200 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     for (idx_t j = 1; j <= n; ++j)           /* j = 0 contributes 0 anyway. */
     {
         /* Compute j^(2n-1). */
-        seq_t pow_j = big_pow((seq_t)j, (seq_t)exp);
+        seq_t pow_j = ipow((seq_t)j, (seq_t)exp);
 
         /* Binomial coefficient C(n, j). */
         seq_t coeff = binomial(n, j);

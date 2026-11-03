@@ -12,6 +12,7 @@
  *            5‑bit masks) and precomputes a validity table for tri...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 29,
  *            big any n
+ * Validated: standard, pass, 31 terms through n = 198 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

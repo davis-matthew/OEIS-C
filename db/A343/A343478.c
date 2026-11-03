@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 400, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes, next_prime
+ * Validated: standard, pass, 68 terms through n = 9780 (2026-11-03)
+ * Helpers:   mem, next_prime, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,8 @@
 #include <stdbool.h>
 
 #include "../utils/next_prime.h"
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* Helper: test whether a prime p satisfies the sequence conditions. */
 static bool prime_good(uint64_t p)
@@ -45,7 +47,7 @@ static bool prime_good(uint64_t p)
     uint64_t odd = p - 1ULL;
     while ((odd & 1ULL) == 0ULL)      /* remove 2's */
         odd >>= 1ULL;
-    if (odd <= 1ULL || count_distinct_primes(odd) != 1U)
+    if (odd <= 1ULL || omega(odd) != 1U)
         return false;
 
     /* p+1: first remove powers of 2, then powers of 3.
@@ -56,7 +58,7 @@ static bool prime_good(uint64_t p)
         rest >>= 1ULL;
     while (rest % 3ULL == 0ULL)        /* remove 3's */
         rest /= 3ULL;
-    if (rest <= 1ULL || count_distinct_primes(rest) != 1U)
+    if (rest <= 1ULL || omega(rest) != 1U)
         return false;
 
     return true;
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     /* Initialise cache capacity. */
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             abort();
     }
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
         if (prime_good(p)) {
             if (cache_size == cache_cap) {      /* grow cache */
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
                 if (!cache)
                     abort();
             }

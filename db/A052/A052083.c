@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   get_digits, seq_alloc_new_array, seq_free_array, seq_pow
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   get_digits, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,10 +24,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <math.h>
 #include "../utils/get_digits.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* --------------------------------------------------------------------- */
 /*  Static cache for found terms                                          */
@@ -75,7 +81,7 @@ static void ensure_cache_capacity(size_t need)
     if (!tmp) return;                   /* allocation failed – keep old state */
 
     if (seq_cache) {
-        memcpy(tmp, seq_cache, seq_len * sizeof(seq_t));
+        mem_copy(tmp, seq_cache, seq_len * sizeof(seq_t));
         seq_free_array(seq_cache);
     }
     seq_cache = tmp;
@@ -92,7 +98,7 @@ seq_t a(idx_t n)
     /* Generate terms until we have at least 'n' of them. */
     while (seq_len < (size_t)n) {
         seq_t cand   = (seq_t)next_candidate;
-        seq_t cube   = seq_pow(cand, (idx_t)3);
+        seq_t cube   = ipow_idx(cand, (idx_t)3);
 
         if (digits_grouped(cube)) {
             ensure_cache_capacity(seq_len + 1);

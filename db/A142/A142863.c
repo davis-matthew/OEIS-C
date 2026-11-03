@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 74 terms through n = 987 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* cached sequence data */
 static seq_t *cache = NULL;
@@ -39,7 +42,7 @@ static void build_cache(idx_t limit)
 {
     /* free old cache if any */
     if (cache) {
-        free(cache);
+        mem_free(cache);
         cache = NULL;
         cache_size = 0;
     }
@@ -52,7 +55,7 @@ static void build_cache(idx_t limit)
 
     /* storage for candidate numbers (dynamic array) */
     size_t cand_cap = 1024;
-    seq_t *cand = (seq_t *)malloc(cand_cap * sizeof(seq_t));
+    seq_t *cand = mem_new(seq_t, cand_cap);
     if (!cand) { free(primes); return; }
     size_t cand_len = 0;
 
@@ -63,8 +66,8 @@ static void build_cache(idx_t limit)
         if (sq > (uint64_t)limit) break;
         if (cand_len == cand_cap) {
             cand_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cand, cand_cap * sizeof(seq_t));
-            if (!tmp) { free(cand); free(primes); return; }
+            seq_t *tmp = mem_resize(seq_t, cand, cand_cap);
+            if (!tmp) { mem_free(cand); free(primes); return; }
             cand = tmp;
         }
         cand[cand_len++] = (seq_t)sq;
@@ -82,8 +85,8 @@ static void build_cache(idx_t limit)
             if (q % p == 1) {
                 if (cand_len == cand_cap) {
                     cand_cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(cand, cand_cap * sizeof(seq_t));
-                    if (!tmp) { free(cand); free(primes); return; }
+                    seq_t *tmp = mem_resize(seq_t, cand, cand_cap);
+                    if (!tmp) { mem_free(cand); free(primes); return; }
                     cand = tmp;
                 }
                 cand[cand_len++] = (seq_t)prod;
@@ -94,7 +97,7 @@ static void build_cache(idx_t limit)
     free(primes);
 
     /* sort and deduplicate the candidate list */
-    qsort(cand, cand_len, sizeof(seq_t), seq_cmp);
+    mem_qsort(cand, cand_len, sizeof(seq_t), seq_cmp);
     size_t uniq_len = 0;
     for (size_t i = 0; i < cand_len; ++i) {
         if (i == 0 || cand[i] != cand[i - 1]) {
@@ -103,9 +106,9 @@ static void build_cache(idx_t limit)
     }
 
     /* shrink to actual size */
-    seq_t *tmp = (seq_t *)realloc(cand, uniq_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cand, uniq_len);
     if (!tmp) {
-        free(cand);
+        mem_free(cand);
         return;
     }
     cand = tmp;

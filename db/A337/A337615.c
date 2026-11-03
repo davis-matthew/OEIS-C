@@ -9,14 +9,17 @@
  *            <= k <= r. Here sf(m) is the subfactorial (A000166)
  * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *sf_cache = NULL;
 static idx_t sf_len = 0;
@@ -26,7 +29,7 @@ static void ensure_sf(idx_t n)
     if (sf_len <= n)
     {
         idx_t new_len = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(sf_cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, sf_cache, new_len);
         if (!new_cache)
             return; /* allocation failure – let the caller handle it */
 
@@ -66,7 +69,7 @@ seq_t a(idx_t n)
     /* Column offset within row r */
     idx_t k = n - (idx_t)((unsigned __int128)r * (r + 1) / 2);
 
-    seq_t bin = binom(r, k);
+    seq_t bin = binomial(r, k);
     seq_t sf_k = subfact(k);
     seq_t sf_rk = subfact(r - k);
 

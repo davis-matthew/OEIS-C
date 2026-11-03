@@ -8,13 +8,14 @@
  *            (2*n^2+15*n+51+3*(n-5)*(-1)^n) / 30720
  * Range:     u8 n <= 10, u16 n <= 38, u32 n <= 380, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd_ull
+ * Validated: standard, pass, 59 terms through n = 805 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd_ull.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
 
     for (int i = 0; i < 4; ++i) {
         unsigned long long f = fac[i];
-        unsigned long long g = gcd_ull(f, D);
+        unsigned long long g = gcd_u64(f, D);
         D /= g;                         /* cancel gcd part from the divisor */
         unsigned long long f_red = f / g;
 

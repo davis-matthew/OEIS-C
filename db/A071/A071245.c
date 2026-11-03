@@ -7,6 +7,7 @@
  * Formula:   a(n) = n*(n-1)*(2*n^2 + 1) / 6
  * Range:     u8 n <= 5, u16 n <= 21, u32 n <= 337, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 54 terms through n = 1948 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

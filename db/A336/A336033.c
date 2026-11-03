@@ -9,12 +9,14 @@
  *            = 0, where XOR is the bitwise XOR operator
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9226 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* realloc, abort */
+#include "../utils/mem.h"
 
 /*  External integer types supplied by the build environment  */
 seq_t a(idx_t n)
@@ -36,8 +38,8 @@ seq_t a(idx_t n)
         size_t needed = (size_t)(n + 1);
         if (needed > alloc_size) {
             size_t new_cap = needed < 16 ? 16 : needed * 2;
-            seq_t *new_seq  = (seq_t *)realloc(seq,  new_cap * sizeof(seq_t));
-            seq_t *new_pref = (seq_t *)realloc(pref, new_cap * sizeof(seq_t));
+            seq_t *new_seq  = mem_resize(seq_t, seq, new_cap);
+            seq_t *new_pref = mem_resize(seq_t, pref, new_cap);
             if (!new_seq || !new_pref) {
                 /* memory allocation failed – program terminates */
                 abort();

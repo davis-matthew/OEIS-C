@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;
@@ -29,7 +32,7 @@ seq_t a(idx_t n) {
     /* initialise terms */
     seq_t sum    = 0;
     seq_t n_pow  = 1;                       /* n^(k-1) */
-    seq_t tri_pow = big_pow((seq_t)3, (seq_t)(n - 1));  /* 3^(n-k) */
+    seq_t tri_pow = ipow((seq_t)3, (seq_t)(n - 1));  /* 3^(n-k) */
     seq_t ratio = n_fact;                    /* n! / k!  (k=1) */
 
     for (idx_t k = 1; k <= n; ++k) {

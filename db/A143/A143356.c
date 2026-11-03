@@ -9,12 +9,14 @@
  *            Sum_{i=1}^d τ(i)
  * Range:     u8 n <= 35, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *tau = NULL;   /* τ(i) for i up to current limit */
 static seq_t *f   = NULL;   /* cumulative divisor counts f(i) = Σ_{k≤i} τ(k) */
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
         idx_t new_max = n;
 
         /* allocate new temporary arrays */
-        seq_t *new_tau = (seq_t*)malloc((new_max + 1) * sizeof(seq_t));
-        seq_t *new_f   = (seq_t*)malloc((new_max + 1) * sizeof(seq_t));
+        seq_t *new_tau = mem_new(seq_t, (new_max + 1));
+        seq_t *new_f   = mem_new(seq_t, (new_max + 1));
 
         /* initialize */
         for (idx_t i = 0; i <= new_max; ++i) new_tau[i] = 0;
@@ -47,8 +49,8 @@ seq_t a(idx_t n)
             new_f[i] = new_f[i-1] + new_tau[i];
 
         /* free old arrays */
-        free(tau);
-        free(f);
+        mem_free(tau);
+        mem_free(f);
 
         /* install new arrays */
         tau = new_tau;

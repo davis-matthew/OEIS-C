@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 212, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_prime, represents_prime, seq_alloc_new_array
+ * Validated: standard, pass, 56 terms through n = 9958 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,35 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/next_prime.h"          /* uint64_t next_prime(uint64_t) */
-#include "../utils/seq_alloc_new_array.h" /* seq_t *seq_alloc_new_array(size_t) */
-#include "../utils/represents_prime.h"
+#include <string.h>
+#include <stddef.h>
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+/* Test whether a prime p can be written as 8x^2+8xy+233y^2. */
+static bool represents_prime(uint64_t p)
+{
+    /* product 32*p fits 64 bits for all p that appear in the sequence
+       (the first 10 000 terms are far below 2^63). */
+    uint64_t prod_p = 32ULL * p;
+    /* maximum y such that 7392*y^2 ≤ 32*p   */
+    uint64_t y_max = 0;
+    if (prod_p > 7392ULL)
+        y_max = (uint64_t)floor(sqrt((double)prod_p / 7392.0));
+    for (uint64_t y = 0; y <= y_max; ++y) {
+        uint64_t ysq     = y * y;
+        uint64_t d       = prod_p - 7392ULL * ysq;          /* D = 32p – 7392y² ≥ 0   */
+        uint64_t t       = (uint64_t)sqrt((double)d);      /* floor sqrt(D)        */
+        if (t * t != d)          continue;                  /* not a perfect square  */
+        if (t % 8 != 0)          continue;                  /* sqrt must be multiple of 8 */
+        uint64_t k        = t / 8;
+        if (((k - y) & 1ULL) == 0) return true;            /* parity condition      */
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -43,7 +70,7 @@ static void grow_cache(size_t new_len)
     for (size_t i = 0; i < cache_len; ++i)
         new_cache[i] = cache[i];
     /* free the old buffer (objects were trivially destructible) */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_cap = new_cap;
 }

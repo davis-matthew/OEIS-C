@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 26, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   gen_products
+ * Validated: full, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,32 @@
    returns the nth smallest value. */
 
 #include <stdlib.h>
-#include "../utils/gen_products.h"
+#include "../utils/mem.h"
+
+/* Recursive generator of all products */
+static void
+gen_products(int idx, int sum, seq_t prod,
+             seq_t *array, size_t *len)
+{
+    static const int primes[7] = {2, 3, 5, 7, 11, 13, 17};
+
+    if (idx == 7) {
+        if (sum == 20)
+            array[(*len)++] = prod;
+        return;
+    }
+
+    int p = primes[idx];
+    seq_t prime_pow = 1;
+    for (int e = 0; e <= 20 / p; ++e) {
+        if (sum + p * e > 20)  /* pruning */
+            break;
+        seq_t new_prod = prod * prime_pow;
+        gen_products(idx + 1, sum + p * e, new_prod,
+                     array, len);
+        prime_pow *= p;
+    }
+}
 
 /* Comparator for qsort on seq_t */
 static int
@@ -40,7 +66,7 @@ seq_t a(idx_t n)
     /* Build cache lazily */
     if (count == 0) {
         gen_products(0, 0, 1, values, &count);
-        qsort(values, count, sizeof(seq_t), seq_t_cmp);
+        mem_qsort(values, count, sizeof(seq_t), seq_t_cmp);
     }
 
     /* Return nth term (1‑based index) */

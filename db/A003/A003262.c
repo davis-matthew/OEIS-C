@@ -12,12 +12,14 @@
  *            C_E(v), where PA_k = partitions into exactly...
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 35, u64 n <= 94, u128 n <= 263,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 397 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a3262_ans = NULL;
 static idx_t a3262_have = 0;
@@ -25,15 +27,15 @@ static idx_t a3262_have = 0;
 static void a3262_build(idx_t N) {
     idx_t E, m, k, a, x, w;
     seq_t **C = (seq_t **)malloc(N * sizeof(seq_t *));
-    seq_t *acc = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *S = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *P = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *prev = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *cur = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *acc = mem_new(seq_t, N + 1);
+    seq_t *S = mem_new(seq_t, N + 1);
+    seq_t *P = mem_new(seq_t, N + 1);
+    seq_t *prev = mem_new(seq_t, N + 1);
+    seq_t *cur = mem_new(seq_t, N + 1);
     seq_t *tmp;
-    seq_t *res = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *res = mem_new(seq_t, N + 1);
 
-    for (E = 0; E < N; E++) C[E] = (seq_t *)calloc(N - E, sizeof(seq_t));
+    for (E = 0; E < N; E++) C[E] = mem_new(seq_t, N - E);
     C[0][0] = 1;
 
     /* multiply by prod_{i>=0} 1/(1 - v^i z^m) = sum_k z^{mk}/(v;v)_k, Horner per row */
@@ -78,9 +80,9 @@ static void a3262_build(idx_t N) {
         res[x] = s;
     }
 
-    for (E = 0; E < N; E++) free(C[E]);
-    free(C); free(acc); free(S); free(P); free(prev); free(cur);
-    if (a3262_ans) free(a3262_ans);
+    for (E = 0; E < N; E++) mem_free(C[E]);
+    free(C); mem_free(acc); mem_free(S); mem_free(P); mem_free(prev); mem_free(cur);
+    if (a3262_ans) mem_free(a3262_ans);
     a3262_ans = res;
     a3262_have = N;
 }

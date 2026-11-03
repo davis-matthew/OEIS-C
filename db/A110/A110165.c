@@ -11,13 +11,15 @@
  *            recurrence T(0,0)=1, T(n,0)=3*T(n-1,0)+2...
  * Range:     u8 n <= 14, u16 n <= 35, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   tri
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* malloc, realloc */
-#include "../utils/tri.h"
+#include "../utils/triangular.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* integer arithmetic helpers                                         */
@@ -28,13 +30,13 @@ static idx_t row_of_index(idx_t n)
 {
     idx_t low  = 0;
     idx_t high = 1;
-    while (tri(high) <= n) {
+    while (triangular(high) <= n) {
         low = high;
         high <<= 1;           /* double until too large */
     }
     while (low < high) {
         idx_t mid = low + (high - low + 1) / 2;
-        if (tri(mid) <= n)
+        if (triangular(mid) <= n)
             low = mid;
         else
             high = mid - 1;
@@ -56,7 +58,7 @@ static void ensure_rows(idx_t r)
     while (rows_cnt <= (size_t)r)   /* compute next row */
     {
         size_t n     = rows_cnt;                                 /* current row index to compute                */
-        seq_t *new_row = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, (n + 1));
         if (!new_row) exit(EXIT_FAILURE);                       /* allocation failed                          */
 
         if (n == 0) {                                            /* base case */
@@ -98,7 +100,7 @@ static void ensure_rows(idx_t r)
 seq_t a(idx_t n)
 {
     idx_t r = row_of_index(n);                             /* row index   */
-    idx_t k = n - tri(r);                                  /* column index*/
+    idx_t k = n - triangular(r);                                  /* column index*/
 
     ensure_rows(r);                                         /* compute rows up to r */
 

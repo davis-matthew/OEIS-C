@@ -8,9 +8,10 @@
  * Formula:   a(n) is obtained by searching for integer k such that 6*k^2-1
  *            and 6*k^2+1 are both prime; a(1)=1, all other k are multiples of
  *            5
- * Range:     u8 n <= 9, u16 n <= 515, u32 n <= 9504, u64 n <= 9504,
- *            u128 n <= 9504, big any n
- * Helpers:   none
+ * Range:     u8 n <= 9, u16 n <= 515, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 70 terms through n = 9504 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* fast deterministic Miller–Rabin for 64‑bit integers */
 static inline bool is_prime_uint64(uint64_t n)
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache_size == 0) {
         cache_cap   = 64;
-        cache       = (seq_t*)malloc((size_t)cache_cap * sizeof(seq_t));
+        cache       = mem_new(seq_t, (size_t)cache_cap);
         cache[0]    = (seq_t)1;        /* a(1) = 1 */
         cache_size  = 1;
         next_k      = 5;               /* first multiple of 5 */
@@ -90,8 +92,7 @@ seq_t a(idx_t n)
         if (is_prime_uint64(val1) && is_prime_uint64(val2)) {
             if (cache_size == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t*)realloc(cache,
-                                        (size_t)cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, (size_t)cache_cap);
             }
             cache[cache_size++] = k;
         }

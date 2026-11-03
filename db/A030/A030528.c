@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 115, u16 n <= 369, u32 n <= 1310, u64 n <= 4821,
  *            u128 n <= 7875, big any n
+ * Validated: standard, pass, 107 terms through n = 7636 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
  * then returns the binomial value.
  */
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* triangular number as unsigned __int128 */

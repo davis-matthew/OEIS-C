@@ -10,14 +10,42 @@
  * Formula:   a(n) = (1/n)*Sum_{d | n} mu(n/d)*2^d for n >= 1, a(0) = 1
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 37, u64 n <= 70, u128 n <= 135,
  *            big any n
- * Helpers:   a1037_mu, a1037_qdiv
+ * Validated: standard, pass, 57 terms through n = 3317 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a1037_mu.h"
-#include "../utils/a1037_qdiv.h"
+
+static int a1037_mu(uint64_t m) {
+    int r = 1;
+    for (uint64_t p = 2; p * p <= m; p++) {
+        if (m % p == 0) {
+            m /= p;
+            if (m % p == 0) return 0;
+            r = -r;
+        }
+    }
+    if (m > 1) r = -r;
+    return r;
+}
+
+/* floor(2^d / n) by binary long division; *rem receives 2^d mod n */
+static seq_t a1037_qdiv(idx_t d, uint64_t n, uint64_t *rem) {
+    seq_t q = 0;
+    uint64_t r = 0;
+    for (idx_t i = 0; i <= d; i++) {
+        r = 2 * r + (i == 0 ? 1 : 0);
+        q = q + q;
+        if (r >= n) {
+            r -= n;
+            q = q + 1;
+        }
+    }
+    *rem = r;
+    return q;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;

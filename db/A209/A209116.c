@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 36, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    /* memoisation buffer */
 static size_t cache_len = 0;   /* number of entries stored so far */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* Ensure array large enough to hold entries up to 'target' */
     if (target > cache_len) {
         size_t new_len = target;                           /* might be larger than current */
-        seq_t *p = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, cache, new_len);
         if (!p && new_len > 0)                            /* allocation failed */
             return (seq_t)0;
         cache = p;

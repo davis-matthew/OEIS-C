@@ -7,15 +7,27 @@
  * Formula:   E.g.f. f(x) satisfies 2*f(x) - exp(f(x)) = exp(x) - 2
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 26,
  *            big any n
- * Helpers:   alloc_zero, binom, release
+ * Validated: standard, pass, 36 terms through n = 373 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 seq_t a(idx_t n) {
     seq_t *f = alloc_zero(n + 1);
@@ -27,7 +39,7 @@ seq_t a(idx_t n) {
     for (idx_t m = 1; m <= n; m++) {
         seq_t sum = 0;
         for (idx_t k = 0; k < m - 1; k++) {
-            seq_t binom_coeff = binom(m - 1, k);
+            seq_t binom_coeff = binomial(m - 1, k);
             sum += binom_coeff * f[k + 1] * h[m - 1 - k];
         }
         h[m] = 1 + 2 * sum;

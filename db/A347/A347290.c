@@ -9,12 +9,14 @@
  *            0201020, 1 → 1020, 2 → 201020, starting from the letter 0
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
 
     /* initial word: "0" */
     size_t cur_len = 1;
-    seq_t *cur = (seq_t *)malloc(cur_len * sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, cur_len);
     cur[0] = (seq_t)0;
 
     /* iterate until the word reach at least n symbols */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
             else            next_len += 6;   /* 201020   */
         }
 
-        seq_t *next = (seq_t *)malloc(next_len * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, next_len);
         size_t pos = 0;
         for (size_t i = 0; i < cur_len; ++i)
         {
@@ -70,12 +72,12 @@ seq_t a(idx_t n)
             }
         }
 
-        free(cur);
+        mem_free(cur);
         cur      = next;
         cur_len  = next_len;
     }
 
     seq_t result = cur[n - 1];
-    free(cur);
+    mem_free(cur);
     return result;
 }

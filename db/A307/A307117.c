@@ -11,14 +11,26 @@
  *            prime factor)
  * Range:     u8 n <= 5, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   gpf, lpf
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/lpf.h"
-#include "../utils/gpf.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
+
+/* Return the smallest prime factor of n   (n > 1) */
+static inline idx_t lpf(idx_t n)
+{
+    if (n % 2 == 0) return 2;
+    for (idx_t i = 3; i <= n / i; i += 2)
+        if (n % i == 0) return i;
+    return n;   /* n itself is prime – should not be called for primes */
+}
 
 /* Cache of already found terms.  Index n in the sequence is 1‑based. */
 static seq_t *cache     = NULL;   /* array of terms          */
@@ -32,7 +44,7 @@ static idx_t tested = 1;
 static void grow_cache(void)
 {
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -48,7 +60,7 @@ seq_t a(idx_t n)
         idx_t x = tested;            /* candidate integer         */
 
         idx_t lp = lpf(x);           /* least prime factor (idx_t) */
-        uint64_t gp = gpf((uint64_t)x);  /* greatest prime factor        */
+        uint64_t gp = largest_prime_factor((uint64_t)x);  /* greatest prime factor        */
 
         /* Compute the expression using 128‑bit arithmetic to avoid overflow. */
         unsigned __int128 prod = (unsigned __int128)lp * (unsigned __int128)gp;

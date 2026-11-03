@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 2506, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 4704 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Remove zero digits from a non‑negative integer. */
 static seq_t noz(seq_t x)
@@ -57,7 +59,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap << 1 : 8;
     while (new_cap < needed) new_cap <<= 1;
 
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) abort();
 
     cache = new_ptr;

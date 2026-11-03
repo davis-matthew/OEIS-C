@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    support arbitrary order of calls efficiently.
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (lucas == NULL) {
         /* First allocation.  Ensure indices 0 and 1 exist. */
         lucas_cap = needed_lucas > 2 ? needed_lucas : 2;
-        lucas     = (seq_t*)malloc(lucas_cap * sizeof(seq_t));
+        lucas     = mem_new(seq_t, lucas_cap);
         if (!lucas) return (seq_t)0;   /* allocation failure, best-effort */
         lucas[0] = (seq_t)2;
         lucas[1] = (seq_t)1;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         /* Grow the array */
         size_t new_cap = lucas_cap * 2;
         if (new_cap < needed_lucas) new_cap = needed_lucas;
-        seq_t *tmp = (seq_t*)realloc(lucas, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, lucas, new_cap);
         if (!tmp) return (seq_t)0;
         lucas     = tmp;
         lucas_cap = new_cap;
@@ -71,14 +73,14 @@ seq_t a(idx_t n)
         /* First allocation. Ensure cum[0] is 0. */
         cum_cap = needed_cum + 1;
         if (cum_cap < 1) cum_cap = 1;
-        cum     = (seq_t*)malloc(cum_cap * sizeof(seq_t));
+        cum     = mem_new(seq_t, cum_cap);
         if (!cum) return (seq_t)0;
         cum[0] = (seq_t)0;
         cum_size = 1;
     } else if (needed_cum + 1 > cum_cap) {
         size_t new_cap = cum_cap * 2;
         if (new_cap < needed_cum + 1) new_cap = needed_cum + 1;
-        seq_t *tmp = (seq_t*)realloc(cum, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cum, new_cap);
         if (!tmp) return (seq_t)0;
         cum     = tmp;
         cum_cap = new_cap;

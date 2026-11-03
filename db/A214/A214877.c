@@ -7,14 +7,17 @@
  * Formula:   a(n) = n^(last digit of n)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 17, u64 n <= 138, u128 n <= 1000,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 51 terms through n = 998 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Handles the 0^0 case by defining a(0) = 1 */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -31,5 +34,5 @@ seq_t a(idx_t n)
         return (seq_t)1;
     }
 
-    return big_pow((seq_t)n, (seq_t)d);
+    return ipow((seq_t)n, (seq_t)d);
 }

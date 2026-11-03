@@ -7,14 +7,15 @@
  * Formula:   a(n) = \displaystyle\sum_{k=0}^{n-1} 4^{\,n-k-1}\binom{5n-1}{k}
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +24,7 @@ seq_t a(idx_t n)
     }
 
     /* 4^(n-1)  (can be zero for big n if seq_t overflows – fits the type) */
-    seq_t pow4 = pow_int(4, n - 1);
+    seq_t pow4 = ipow_idx(4, n - 1);
 
     seq_t sum  = 0;
     seq_t binom = 1;              /* C(5n-1,0) */

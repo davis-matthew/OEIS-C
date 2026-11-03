@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 177 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* constants ------------------------------------------------------------- */
 #define NUM_COLS 3
@@ -157,8 +159,8 @@ seq_t a(idx_t n)
 
     /* allocate DP arrays */
     size_t states = NUM_STATES;
-    seq_t *dp    = (seq_t *)calloc(states, sizeof(seq_t));
-    seq_t *newdp = (seq_t *)calloc(states, sizeof(seq_t));
+    seq_t *dp    = mem_new(seq_t, states);
+    seq_t *newdp = mem_new(seq_t, states);
 
     /* initialise with first two rows (prev = NULL, curr = r1) */
     for (int r1 = 0; r1 < NUM_ROWS; ++r1) {
@@ -178,8 +180,8 @@ seq_t a(idx_t n)
             if (isValidIdx(prev, curr, NULL_IDX))
                 result += dp[s];
         }
-        free(dp);
-        free(newdp);
+        mem_free(dp);
+        mem_free(newdp);
         return result;
     }
 
@@ -216,7 +218,7 @@ seq_t a(idx_t n)
             result += dp[s];
     }
 
-    free(dp);
-    free(newdp);
+    mem_free(dp);
+    mem_free(newdp);
     return result;
 }

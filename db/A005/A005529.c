@@ -10,7 +10,8 @@
  *            them in order
  * Range:     u8 n <= 11, u16 n <= 180, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root using Newton's method */
 static seq_t isqrt_seq(seq_t n) {
@@ -69,8 +71,8 @@ seq_t a(idx_t n) {
     
     if (primitive_factors == NULL) {
         capacity = 1024;
-        primitive_factors = (seq_t *)malloc(capacity * sizeof(seq_t));
-        all_primes = (seq_t *)malloc(capacity * sizeof(seq_t));
+        primitive_factors = mem_new(seq_t, capacity);
+        all_primes = mem_new(seq_t, capacity);
         num_factors = 0;
         num_all_primes = 0;
         max_k = 0;
@@ -101,8 +103,8 @@ seq_t a(idx_t n) {
                 /* p is primitive */
                 if (num_factors >= capacity) {
                     capacity *= 2;
-                    primitive_factors = (seq_t *)realloc(primitive_factors, capacity * sizeof(seq_t));
-                    all_primes = (seq_t *)realloc(all_primes, capacity * sizeof(seq_t));
+                    primitive_factors = mem_resize(seq_t, primitive_factors, capacity);
+                    all_primes = mem_resize(seq_t, all_primes, capacity);
                 }
                 
                 primitive_factors[num_factors++] = p;

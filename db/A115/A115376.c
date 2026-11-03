@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 47, u32 n <= 473, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build environment.          */
 /* They are unsigned integer types (built‑in or arbitrary–precision). */
@@ -40,8 +42,7 @@ seq_t a(idx_t n) {
     /* Ensure the array is large enough to hold index n. */
     if (cache_alloc <= n) {
         size_t new_alloc = (size_t)(n + 1);          /* n is unsigned 64‑bit */
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      new_alloc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_alloc);
         if (!tmp) abort();                          /* allocation failed   */
         cache = tmp;
         cache_alloc = new_alloc;

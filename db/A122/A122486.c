@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} |Stirling1(n,k)| * Bell(k)^2
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 struct Signed {
     seq_t abs;   /* absolute value of the Stirling number */
@@ -72,11 +74,11 @@ seq_t a(idx_t n)
     /* enlarge storage if needed */
     if ((size_t)n + 1 > cap) {
         size_t new_cap = (size_t)n + 1;
-        a_vals   = (seq_t  *)realloc(a_vals,   new_cap * sizeof(seq_t));
-        bell     = (seq_t  *)realloc(bell,     new_cap * sizeof(seq_t));
-        bell_sq  = (seq_t  *)realloc(bell_sq,  new_cap * sizeof(seq_t));
-        s_prev   = (struct Signed *)realloc(s_prev, new_cap * sizeof(struct Signed));
-        s_curr   = (struct Signed *)realloc(s_curr, new_cap * sizeof(struct Signed));
+        a_vals   = mem_resize(seq_t, a_vals, new_cap);
+        bell     = mem_resize(seq_t, bell, new_cap);
+        bell_sq  = mem_resize(seq_t, bell_sq, new_cap);
+        s_prev   = mem_resize(struct Signed, s_prev, new_cap);
+        s_curr   = mem_resize(struct Signed, s_curr, new_cap);
         for (size_t i = cap; i < new_cap; ++i) {
             a_vals[i]   = 0;
             bell[i]     = 0;

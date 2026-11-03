@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 145, u16 n <= 400, u32 n <= 3526, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 89 terms through n = 9672 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* The function is thread‑unsafe due to static allocation, but the
    build harness does not require thread safety. */
@@ -44,11 +47,11 @@ seq_t a(idx_t n)
     /* Allocate DP tables for k = 0..7 */
     seq_t *dp[8];
     for (int k = 0; k < 8; k++) {
-        dp[k] = (seq_t *)calloc(sz, sizeof(seq_t));
+        dp[k] = mem_new(seq_t, sz);
         if (!dp[k]) {
             /* Allocation failed – clean up and return 0 */
             for (int j = 0; j < k; j++) {
-                free(dp[j]);
+                mem_free(dp[j]);
             }
             free(primes);
             return 0;
@@ -77,7 +80,7 @@ seq_t a(idx_t n)
 
     /* Free allocated memory */
     for (int k = 0; k < 8; k++) {
-        free(dp[k]);
+        mem_free(dp[k]);
     }
     free(primes);
 

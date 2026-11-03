@@ -9,14 +9,36 @@
  *            other zeros)
  * Range:     u8 n <= 1, u16 n <= 13, u32 n <= 1144, u64 n <= 4000,
  *            u128 n <= 4000, big any n
- * Helpers:   is_cyclops_sq
+ * Validated: standard, pass, 62 terms through n = 3348 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_cyclops_sq.h"
+#include "../utils/mem.h"
+
+static bool is_cyclops_sq(seq_t x)
+{
+    if (x == 0) return true;         /* 0 is a cyclops number */
+    int digits[64];
+    int d = 0;
+    seq_t tmp = x;
+    /* extract digits least‑significant first */
+    while (tmp > 0) {
+        digits[d++] = (int)(tmp % 10);
+        tmp /= 10;
+    }
+    if (d % 2 == 0) return false;    /* need odd length */
+    int mid = d / 2;
+    int zero_cnt = 0;
+    for (int i = 0; i < d; ++i) {
+        if (digits[i] == 0) ++zero_cnt;
+    }
+    if (zero_cnt != 1) return false;
+    return digits[mid] == 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,7 +54,7 @@ seq_t a(idx_t n)
         if (is_cyclops_sq(sq)) {
             if (cache_len >= cache_cap) {
                 idx_t new_cap = cache_cap == 0 ? 8 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) exit(1);           /* allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

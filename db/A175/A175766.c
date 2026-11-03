@@ -10,7 +10,8 @@
  *            A001222
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   bigomega, pow2
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   bigomega, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include "../utils/bigomega.h"
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache of computed terms */
 static size_t cache_cap = 0;         /* capacity of cache */
@@ -34,7 +36,7 @@ static idx_t last_checked = 2;       /* last integer we examined for twin proper
 static void ensure_cache_capacity(idx_t n) {
     if (n <= cache_cap) return;
     size_t new_cap = (size_t)(n * 1.5 + 64);
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     /* If realloc fails, we let crash happen (as per usual contest code). */
     cache = new_ptr;
     cache_cap = new_cap;

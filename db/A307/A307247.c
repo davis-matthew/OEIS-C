@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 985, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 4943 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *p_vals = NULL;     /* array of the pᵢ sequence */
 static size_t  p_cap = 0;        /* allocated capacity of p_vals   */
@@ -31,7 +33,7 @@ static size_t  p_len = 0;        /* current number of elements     */
 /* Ensure that p_vals has enough capacity for at least new_cap elements. */
 static void grow_p_cap(size_t new_cap) {
     if (p_cap < new_cap) {
-        seq_t *tmp = (seq_t*)realloc(p_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, p_vals, new_cap);
         if (!tmp) exit(EXIT_FAILURE);   /* out of memory */
         p_vals = tmp;
         p_cap = new_cap;

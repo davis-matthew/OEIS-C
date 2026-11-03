@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, pow10_ssize
+ * Validated: standard, pass, 93 terms through n = 9024 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,17 @@
  *              supported seq_t types (small integer or arbitrary‑precision). */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10_ssize.h"
+#include <stdint.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Computes 10^e (e >= 0).  Reused for block boundary computations. */
+static seq_t pow10_ssize(unsigned int e)
+{
+    seq_t r = 1;
+    for (unsigned int i = 0; i < e; ++i) r = r * 10;
+    return r;
+}
 
 static seq_t *cache          = NULL;     /* cached sequence terms   */
 static size_t cache_cap      = 0;         /* capacity                 */
@@ -39,7 +49,7 @@ static size_t ensure_cache_capacity(size_t cap)
 {
     if (cap <= cache_cap) return cache_cap;
     size_t new_cap = cap > 1 ? cap : 1;
-    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();               /* allocation failure */
     cache   = new_cache;
     cache_cap = new_cap;
@@ -50,7 +60,7 @@ static size_t ensure_cache_capacity(size_t cap)
 static void advance_pos(int f)
 {
     seq_t cur = pos[f];
-    int    d  = digit_len(cur);              /* number of decimal digits */
+    int    d  = num_digits(cur);              /* number of decimal digits */
     unsigned int k  = (unsigned int)d - 1;   /* trailing digits count    */
     seq_t powk = pow10_ssize(k);
 

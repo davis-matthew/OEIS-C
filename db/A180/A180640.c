@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_prime, largest_prime_factor
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   is_prime, largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"               /* bool is_prime(idx_t) */
-#include "../utils/largest_prime_factor.h"   /* uint64_t largest_prime_factor(uint64_t) */
+#include "../utils/is_prime.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* static cache of qualifying primes, 1‑based indexing */
 static seq_t *prime_cache = NULL;
@@ -34,7 +36,7 @@ static uint64_t next_candidate = 2;    /* next integer to test */
 static void grow_cache(void)
 {
     cache_cap = cache_cap ? cache_cap * 2 : 64;
-    prime_cache = (seq_t *)realloc(prime_cache, cache_cap * sizeof(seq_t));
+    prime_cache = mem_resize(seq_t, prime_cache, cache_cap);
     if (!prime_cache) abort();
 }
 

@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, mult
  * Formula:   a(n) = phi(n) * mu(n / gcd(n,4)) / phi(n / gcd(n,4))
- * Range:     i8 n <= 2397, i16 n <= 9337, i32 n <= 9337, i64 n <= 9337,
- *            i128 n <= 9337, big any n
+ * Range:     i8 n <= 2397, i16 n <= 9337, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 100 terms through n = 9337 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

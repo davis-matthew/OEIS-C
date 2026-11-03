@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 208, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 9402 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global storage for the computed terms */
 static seq_t *seq_vals = NULL;
@@ -80,7 +82,7 @@ static void generate_sequence(void)
 
     /* Collect all k such that k % tau3[k] == 0 */
     size_t cap = 16384;
-    seq_vals = (seq_t*)malloc(cap * sizeof(seq_t));
+    seq_vals = mem_new(seq_t, cap);
     if (!seq_vals) abort();
     seq_len = 0;
 
@@ -88,7 +90,7 @@ static void generate_sequence(void)
         if (k % tau3[k] == 0) {
             if (seq_len == cap) {
                 cap <<= 1;
-                seq_vals = (seq_t*)realloc(seq_vals, cap * sizeof(seq_t));
+                seq_vals = mem_resize(seq_t, seq_vals, cap);
                 if (!seq_vals) abort();
             }
             seq_vals[seq_len++] = (seq_t)k;

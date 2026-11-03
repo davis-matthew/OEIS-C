@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   qualifies_digits
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,42 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/qualifies_digits.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether a sequence of decimal digits (0/1) represents
+   a periodic binary string after allowing leading zeros.  digits[0..len-1]
+   are the decimal digits of the number, most significant first. */
+static bool qualifies_digits(const uint8_t *digits, unsigned len)
+{
+    /* must contain at least one 0 and one 1 */
+    bool has0 = false, has1 = false;
+    for (unsigned i = 0; i < len; ++i) {
+        if (digits[i] == 0) has0 = true;
+        else if (digits[i] == 1) has1 = true;
+        if (has0 && has1) break;
+    }
+    if (!(has0 && has1)) return false;
+
+    /* try all possible numbers of leading zeros k (0..len) */
+    for (unsigned k = 0; k <= len; ++k) {
+        unsigned N = len + k;
+        /* build the candidate string s[0..N-1] */
+        unsigned char s[64];              /* N <= 64 for all numbers we consider */
+        for (unsigned i = 0; i < k; ++i) s[i] = 0;
+        for (unsigned i = 0; i < len; ++i) s[k + i] = digits[i];
+
+        /* find minimal period d < N that divides N */
+        for (unsigned d = 1; d < N; ++d) {
+            if (N % d != 0) continue;
+            bool ok = true;
+            for (unsigned i = 0; i < N; ++i) {
+                if (s[i] != s[i % d]) { ok = false; break; }
+            }
+            if (ok) return true;  /* periodic with this k */
+        }
+    }
+    return false;
+}
 
 /* Cache of found terms for memoisation.  Cache grows lazily. */
 static seq_t *cache = NULL;
@@ -35,7 +71,7 @@ static uint64_t gen_suffix = 0;
 static void grow_cache(void)
 {
     size_t new_cap = cache_cap ? cache_cap * 2 : 128;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) return; /* allocation failed – keep old cache */
     cache = tmp;
     cache_cap = new_cap;

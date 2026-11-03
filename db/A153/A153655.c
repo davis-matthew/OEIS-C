@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 31, u64 n <= 112, u128 n <= 419,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1239 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Return a(n), the n-th term of OEIS sequence A153655. */
 seq_t a(idx_t n)
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     while (cumulative < n) {
         idx_t r = max_row + 1;                     /* next row to generate */
         size_t len = (size_t)r;                    /* number of entries in this row */
-        seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) abort();
 
         /* Initialise the new row according to the base cases. */

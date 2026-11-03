@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   contains_24_base5
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,26 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/contains_24_base5.h"
+#include "../utils/mem.h"
+
+static bool contains_24_base5(seq_t x)
+{
+    if (x == 0) return false;                    /* base‑5 "0" */
+    uint8_t digs[64];
+    int len = 0;
+    while (x > 0) {
+        seq_t d = x % 5;
+        digs[len++] = (uint8_t)d;
+        x = x / 5;
+    }
+    /* Scan digits from most significant to least significant */
+    for (int i = 0; i < len - 1; ++i) {
+        if (digs[len - 1 - i] == 2 && digs[len - 2 - i] == 4) {
+            return true;
+        }
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,7 +50,7 @@ seq_t a(idx_t n)
     /* Lazy allocation of cache */
     if (cache == NULL) {
         cached_cap = 128;
-        cache = (seq_t *)malloc(cached_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cached_cap);
     }
 
     /* Grow cache until it contains at least n terms */
@@ -40,7 +60,7 @@ seq_t a(idx_t n)
             if (contains_24_base5(cur) && !contains_24_base5(cur - 1)) {
                 if (cached_len == cached_cap) {
                     cached_cap *= 2;
-                    cache = (seq_t *)realloc(cache, cached_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cached_cap);
                 }
                 cache[cached_len++] = cur;
             }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/3)} C([(n-k)/2],k) * C([(n-k+1)/2],k)
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 43, u64 n <= 83, u128 n <= 162,
  *            big any n
+ * Validated: standard, pass, 54 terms through n = 902 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

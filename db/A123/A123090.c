@@ -9,7 +9,8 @@
  *            occurs among a(1) … a(n-1) }
  * Range:     u8 n <= 32, u16 n <= 1060, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   value_in_cache
+ * Validated: standard, pass, 73 terms through n = 9867 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/value_in_cache.h"
+#include "../utils/mem.h"
+
+/* binary search on the sorted cache (1 … upto) */
+static bool value_in_cache(const seq_t *c, idx_t upto, seq_t val)
+{
+    idx_t lo   = 1;
+    idx_t hi   = upto;
+    while (lo <= hi) {
+        idx_t mid = lo + (hi - lo) / 2;
+        if (c[mid] == val) return true;
+        if (c[mid] < val)  lo = mid + 1;
+        else               hi = mid - 1;
+    }
+    return false;
+}
 
 /* static storage for the sequence */
 static seq_t *cache       = NULL;   /* 1‑based array of a(n) */
@@ -31,9 +46,9 @@ static void ensure_cache_capacity(idx_t n)
 {
     if ((size_t)(n + 1) > cache_size) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) { /* allocation failed */
-            free(cache);
+            mem_free(cache);
             cache      = NULL;
             cache_size = 0;
             computed   = 0;

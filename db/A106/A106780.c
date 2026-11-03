@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 3300, u64 n <= 3300, u128 n <= 3300,
  *            big any n
- * Helpers:   digit_sum_uint64, isPrime64
+ * Validated: standard, pass, 45 terms through n = 3249 (2026-11-03)
+ * Helpers:   digit_sum_u64, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <vector>
 #endif
 
-#include "../utils/isPrime64.h"          /* bool isPrime64(uint64_t) */
-#include "../utils/digit_sum_uint64.h"   /* uint32_t digit_sum_uint64(uint64_t) */
+#include <stddef.h>
+#include "../utils/digit_sum_u64.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -47,8 +49,8 @@ seq_t a(idx_t n)
     /* generate primes until we have at least n terms */
 #ifdef __cplusplus
     while (primes.size() < n) {
-        if (isPrime64(cand)) {
-            if (digit_sum_uint64(cand) == 50u) {
+        if (is_prime_u64(cand)) {
+            if (digit_sum_u64(cand) == 50u) {
                 primes.push_back(static_cast<seq_t>(cand));
             }
         }
@@ -56,8 +58,8 @@ seq_t a(idx_t n)
     }
 #else
     while (sz < n) {
-        if (isPrime64(cand)) {
-            if (digit_sum_uint64(cand) == 50u) {
+        if (is_prime_u64(cand)) {
+            if (digit_sum_u64(cand) == 50u) {
                 if (sz == cap) {
                     cap <<= 1;
                     seq_t *tmp = (seq_t *)realloc(primes, cap * sizeof(seq_t));

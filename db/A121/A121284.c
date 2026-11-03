@@ -12,13 +12,15 @@
  *            Fib(2)=1)
  * Range:     u8 n <= 21, u16 n <= 36, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static caches for Fibonacci numbers and their running products */
 static seq_t *fib_cache  = NULL;   /* fib_cache[i] = Fib(i) */
@@ -35,8 +37,8 @@ static void ensure_cache(size_t up_to)
     if (new_cap == 0) new_cap = 8;
     while (new_cap <= up_to) new_cap <<= 1;
 
-    fib_cache  = (seq_t *)realloc(fib_cache,  new_cap * sizeof(seq_t));
-    prod_cache = (seq_t *)realloc(prod_cache, new_cap * sizeof(seq_t));
+    fib_cache  = mem_resize(seq_t, fib_cache, new_cap);
+    prod_cache = mem_resize(seq_t, prod_cache, new_cap);
     cache_cap = new_cap;
 
     for (size_t i = cache_size + 1; i <= up_to; ++i) {

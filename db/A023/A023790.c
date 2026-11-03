@@ -8,12 +8,14 @@
  *            representation has strictly decreasing digits
  * Range:     u8 n <= 9, u16 n <= 163, u32 n <= 255, u64 n <= 255,
  *            u128 n <= 255, big any n
- * Helpers:   none
+ * Validated: full, pass, 255 terms through n = 255 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort on seq_t values. */
 static int seq_cmp(const void *p1, const void *p2)
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
             table[mask - 1] = val;
         }
         /* Sort the values in increasing order. */
-        qsort(table, 255, sizeof(seq_t), seq_cmp);
+        mem_qsort(table, 255, sizeof(seq_t), seq_cmp);
         ready = 1;
     }
 

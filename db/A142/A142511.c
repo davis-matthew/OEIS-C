@@ -7,12 +7,15 @@
  * Formula:   a(n) is the n‑th prime congruent to 7 modulo 52
  * Range:     u8 n <= 3, u16 n <= 271, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_generic
+ * Validated: standard, pass, 60 terms through n = 996 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_prime_generic.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +26,7 @@ seq_t a(idx_t n)
     idx_t cand = 7;         /* first integer ≡ 7 (mod 52) */
 
     for (;;) {
-        if (is_prime_generic(cand)) {
+        if (is_prime(cand)) {
             ++cnt;
             if (cnt == n) return (seq_t)cand;
         }

@@ -11,7 +11,8 @@
  *            of 1..i. This summation produces OEIS A083956
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 13, u128 n <= 16,
  *            big any n
- * Helpers:   digit_count, pow10
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
+ * Helpers:   num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/digit_count.h"   /* uint64_t digit_count(uint64_t n) */
-#include "../utils/pow10.h"         /* seq_t pow10(idx_t e) */
+#include <math.h>
+#include "../utils/num_digits0.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* compute the n-th term of OEIS A083956 */
 seq_t a(idx_t n)
@@ -34,7 +45,7 @@ seq_t a(idx_t n)
     idx_t total_len = 0;       /* total number of digits in S_n */
 
     for (i = 1; i <= n; ++i) {
-        idx_t d = digit_count(i);              /* digits of the number i */
+        idx_t d = num_digits0(i);              /* digits of the number i */
         total_len += d;
         seq_t powd = pow10(d);                 /* 10^d */
         suffix = suffix * powd + (seq_t)i;      /* append i to the right */
@@ -60,7 +71,7 @@ seq_t a(idx_t n)
         /* Prepare data for the next rotation (i -> i+1) */
 
         /* Next number to append to the prefix */
-        idx_t next_digit = digit_count(i + 1);
+        idx_t next_digit = num_digits0(i + 1);
         seq_t pow_next = pow10(next_digit);              /* 10^{digits(next)} */
 
         /* Update prefix and its power of ten */

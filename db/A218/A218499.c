@@ -8,12 +8,15 @@
  * Formula:   a(n) = Sum_{j=0..n} 7 * (n-j+7)^(n-j-1) * binomial(n,j)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 25,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 35 terms through n = 143 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 /* Computes A218499: the 7th iteration of the hyperbinomial transform on the
  * sequence of 1's. */
@@ -28,7 +31,7 @@ seq_t a(idx_t n)
             term = 1;
         } else {
             /* (m+7)^(m-1) */
-            seq_t pow_term = seq_pow((seq_t)(m + 7), m - 1);
+            seq_t pow_term = ipow_idx((seq_t)(m + 7), m - 1);
 
             /* binomial(n, j) computed multiplicatively */
             seq_t bin = 1;

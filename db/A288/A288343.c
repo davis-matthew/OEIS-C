@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 39, u32 n <= 208, u64 n <= 3609,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 8458 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,12 +17,13 @@
  * of k into parts ≤ 8 (equivalently, partitions of at most n into at most 8 parts). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate an array of length n+1 to hold the partition counts. */
     size_t sz = (size_t)n + 1;
-    seq_t *dp = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp)
         abort();
 
@@ -46,6 +48,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

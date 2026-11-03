@@ -12,7 +12,8 @@
  *            table is used
  * Range:     u8 n <= 48, u16 n <= 5570, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 8705 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- type aliases (provided by the build system) ----------
    The following declarations exist in the build environment:
@@ -138,7 +140,7 @@ static void ensure_sym_capacity(size_t needed)
     if (sym_cap < needed) {
         size_t new_cap = (sym_cap == 0) ? 256 : sym_cap * 2;
         while (new_cap < needed) new_cap <<= 1;
-        sym_primes = (seq_t *)realloc(sym_primes, new_cap * sizeof(seq_t));
+        sym_primes = mem_resize(seq_t, sym_primes, new_cap);
         sym_cap = new_cap;
     }
 }

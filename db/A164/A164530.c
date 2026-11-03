@@ -9,7 +9,8 @@
  *            d(n) = number of positive divisors of n, and a(1) = 1
  * Range:     u8 n <= 73, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9276 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- Helper: divisor count ------------------------------------------- */
 static seq_t
@@ -68,7 +70,7 @@ a(idx_t n)
     if (cache_cap < needed_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : needed_cap;
         if (new_cap < needed_cap) new_cap = needed_cap;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();        /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;

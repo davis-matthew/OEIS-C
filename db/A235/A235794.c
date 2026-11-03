@@ -14,13 +14,28 @@
  *            max{k | k(k+1)/2 ≤ r} = ⌊(√(8r+1) – 1)/2⌋. T...
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   row_len
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/row_len.h"
+
+static idx_t row_len(idx_t r)
+{
+    /* Find the largest k with k*(k+1)/2 ≤ r by binary search. */
+    idx_t lo = 0, hi = r;
+    while (lo < hi) {
+        idx_t mid = (lo + hi + 1) >> 1;
+        __int128 prod = (__int128)mid * (mid + 1) / 2;
+        if (prod <= (__int128)r)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 seq_t a(idx_t n)
 {

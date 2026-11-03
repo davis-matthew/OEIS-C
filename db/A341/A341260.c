@@ -7,7 +7,8 @@
  * Formula:   a(n) = W*(n,k) = F(k+1)*ceil(n*φ) + (n−1)*F(k)
  * Range:     u8 n <= 55, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- Fibonacci table ----------------------------------------------- */
 static seq_t *fibs   = NULL;   /* Fibonacci numbers, 0‑based: F(0),F(1),... */
@@ -33,7 +35,7 @@ static void ensure_fib(size_t max_k)
     if (new_cap <= max_k)
         new_cap = max_k + 1;
 
-    seq_t *new_fibs = (seq_t *)realloc(fibs, new_cap * sizeof(seq_t));
+    seq_t *new_fibs = mem_resize(seq_t, fibs, new_cap);
     if (!new_fibs)
         return; /* allocation failure – unlikely in test harness */
 
@@ -91,7 +93,7 @@ static void ensure_ceil_arr(idx_t max_r)
     if (new_cap <= (size_t)max_r)
         new_cap = (size_t)max_r + 1;
 
-    seq_t *new_arr = (seq_t *)realloc(ceil_arr, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, ceil_arr, new_cap);
     if (!new_arr)
         return; /* allocation failure – unlikely */
 

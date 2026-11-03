@@ -8,13 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 683, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9678 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Recurrence: a(n) = a(n‑4) + c(n‑4)  (n > 4),  a(1)=1, a(2)=2, a(3)=3, a(4)=4;
    c(k) is the k‑th integer NOT in the sequence a(1…), i.e. the complement of a. */
@@ -36,7 +38,7 @@ static inline void grow_seq(size_t needed)
     {
         size_t new_cap = seq_cap ? seq_cap * 2 : 4;
         if (new_cap < needed) new_cap = needed;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 }
@@ -48,7 +50,7 @@ static inline void grow_comp(size_t needed)
     {
         size_t new_cap = comp_cap ? comp_cap * 2 : 4;
         if (new_cap < needed) new_cap = needed;
-        comp = (seq_t *)realloc(comp, new_cap * sizeof(seq_t));
+        comp = mem_resize(seq_t, comp, new_cap);
         comp_cap = new_cap;
     }
 }

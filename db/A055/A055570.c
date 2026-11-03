@@ -10,7 +10,8 @@
  *            O(n) time, O(n) memory
  * Range:     u8 n <= 25, u16 n <= 25, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;      /* cached sequence values                */
 static size_t terms_len   = 0;    /* number of values currently stored     */
@@ -30,7 +32,7 @@ static void grow_terms(size_t needed)
     if (needed <= terms_cap) return;
     size_t newcap = terms_cap ? terms_cap << 1 : 16;
     while (newcap < needed) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, newcap);
     terms = tmp;
     terms_cap = newcap;
 }

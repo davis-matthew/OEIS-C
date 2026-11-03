@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* Cached sequence values   */
 static size_t cache_len = 0;       /* Number of values cached */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         idx_t max_len = L - 1;             /* last useful length */
 
         /* Allocate space for all numbers up to max_len. */
-        seq_t *tmp = (seq_t *)malloc(cumulative * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, cumulative);
         if (!tmp) return 0;                /* allocation failed */
 
         /* Generate all two‑run numbers for lengths 2 … max_len. */
@@ -82,10 +84,10 @@ seq_t a(idx_t n)
         }
 
         /* Sort numerically. */
-        qsort(tmp, cumulative, sizeof(seq_t), seq_compare);
+        mem_qsort(tmp, cumulative, sizeof(seq_t), seq_compare);
 
         /* Replace old cache. */
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache     = tmp;
         cache_len = cumulative;
     }

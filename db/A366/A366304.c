@@ -12,7 +12,8 @@
  *            antidiagonals
  * Range:     u8 n <= 18, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   antidiagonal_coords
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/antidiagonal_coords.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* mapping from linear index n to pair (i,j) on the antidiagonals of T */
+static inline void antidiagonal_coords(idx_t n, idx_t *i, idx_t *j)
+{
+    /* find s such that (s+1)(s+2)/2 <= n < (s+2)(s+3)/2 */
+    idx_t s = 0;
+    while (((s + 1) * (s + 2)) / 2 <= n) ++s;
+    idx_t pos = n - (s * (s + 1)) / 2;  /* 0 <= pos <= s */
+    *i = pos;
+    *j = s - pos;
+}
 
 static idx_t cache_len = 0;
 static seq_t *cache = NULL;
@@ -42,7 +55,7 @@ static HashSet usedSet = {0,0,NULL,NULL};
 static void hashset_init(void) {
     usedSet.cap = 8;
     usedSet.size = 0;
-    usedSet.table = (seq_t*)malloc(usedSet.cap * sizeof(seq_t));
+    usedSet.table = mem_new(seq_t, usedSet.cap);
     usedSet.used = (uint8_t*)malloc(usedSet.cap * sizeof(uint8_t));
     memset(usedSet.used, 0, usedSet.cap);
 }
@@ -53,7 +66,7 @@ static inline size_t hash_val(seq_t v) {
 
 static void hashset_grow(void) {
     size_t newCap = usedSet.cap * 2;
-    seq_t *newTable = (seq_t*)malloc(newCap * sizeof(seq_t));
+    seq_t *newTable = mem_new(seq_t, newCap);
     uint8_t *newUsed = (uint8_t*)malloc(newCap * sizeof(uint8_t));
     memset(newUsed, 0, newCap);
     size_t mask = newCap - 1;
@@ -66,7 +79,7 @@ static void hashset_grow(void) {
             newUsed[h] = 1;
         }
     }
-    free(usedSet.table);
+    mem_free(usedSet.table);
     free(usedSet.used);
     usedSet.table = newTable;
     usedSet.used = newUsed;
@@ -97,8 +110,8 @@ static void ensure_row(idx_t r) {
     if ((size_t)r >= rowSize) {
         size_t newSize = rowSize ? rowSize * 2 : 1;
         while (newSize <= (size_t)r) newSize *= 2;
-        rowMask = (seq_t*)realloc(rowMask, newSize * sizeof(seq_t));
-        memset(rowMask + rowSize, 0, (newSize - rowSize) * sizeof(seq_t));
+        rowMask = mem_resize(seq_t, rowMask, newSize);
+        mem_set(rowMask + rowSize, 0, (newSize - rowSize) * sizeof(seq_t));
         rowSize = newSize;
     }
 }
@@ -107,8 +120,8 @@ static void ensure_col(idx_t c) {
     if ((size_t)c >= colSize) {
         size_t newSize = colSize ? colSize * 2 : 1;
         while (newSize <= (size_t)c) newSize *= 2;
-        colMask = (seq_t*)realloc(colMask, newSize * sizeof(seq_t));
-        memset(colMask + colSize, 0, (newSize - colSize) * sizeof(seq_t));
+        colMask = mem_resize(seq_t, colMask, newSize);
+        mem_set(colMask + colSize, 0, (newSize - colSize) * sizeof(seq_t));
         colSize = newSize;
     }
 }
@@ -116,7 +129,7 @@ static void ensure_col(idx_t c) {
 static void compute_to(idx_t n) {
     if (n < cache_len) return;
     size_t newLen = (size_t)n + 1;
-    cache = (seq_t*)realloc(cache, newLen * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, newLen);
     for (size_t idx = cache_len; idx < newLen; ++idx) {
         idx_t i = (idx_t)idx;
         idx_t row, col;

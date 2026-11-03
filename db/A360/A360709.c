@@ -8,12 +8,14 @@
  *            binomial(n-2k-1, k-1)
  * Range:     u8 n <= 11, u16 n <= 15, u32 n <= 23, u64 n <= 36, u128 n <= 58,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 662 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* utilities for binomial coefficient */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

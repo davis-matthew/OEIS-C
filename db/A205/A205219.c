@@ -10,7 +10,8 @@
  * Formula:   a(1)=8, a(2)=20, a(n)=a(n-1)+4*a(n-2) for n≥3
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 22, u64 n <= 45, u128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stddef.h>   /* size_t, NULL */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /*  Static cache:  cache_len = number of terms stored (≥0)     */
@@ -37,7 +39,7 @@ static idx_t     cache_cap  = 0;/* allocated size of the array     */
 static void grow_cache(idx_t new_cap)
 {
     /* new_cap is always > cache_cap */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (tmp != NULL) {
         cache = tmp;
         cache_cap = new_cap;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         /* allocate space for the first two elements          */
         idx_t init_cap = 2;
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (cache == NULL)        /* allocation failure – return 0       */
             return (seq_t)0;
 

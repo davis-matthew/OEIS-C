@@ -10,7 +10,8 @@
  *            found prime-by-prime (multi-limb integers)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 24, u64 n <= 46, u128 n <= 88,
  *            big any n
- * Helpers:   b2547_add, b2547_div, b2547_mul
+ * Validated: standard, pass, 46 terms through n = 1734 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,35 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/b2547_add.h"
-#include "../utils/b2547_div.h"
-#include "../utils/b2547_mul.h"
+
+static void b2547_add(uint32_t *x, const uint32_t *y, size_t len) {
+    uint64_t c = 0;
+    for (size_t i = 0; i < len; i++) {
+        uint64_t v = (uint64_t)x[i] + y[i] + c;
+        x[i] = (uint32_t)v;
+        c = v >> 32;
+    }
+}
+
+/* q = x / d (q may alias x, or be NULL to compute only the remainder); returns x mod d */
+static uint32_t b2547_div(uint32_t *q, const uint32_t *x, size_t len, uint32_t d) {
+    uint64_t r = 0;
+    for (size_t i = len; i-- > 0;) {
+        uint64_t v = (r << 32) | x[i];
+        if (q) q[i] = (uint32_t)(v / d);
+        r = v % d;
+    }
+    return (uint32_t)r;
+}
+
+static void b2547_mul(uint32_t *x, size_t len, uint32_t m) {
+    uint64_t c = 0;
+    for (size_t i = 0; i < len; i++) {
+        uint64_t v = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)v;
+        c = v >> 32;
+    }
+}
 
 seq_t a(idx_t n) {
     size_t N = (size_t)n;

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = #{k | 0 < k < n, σ(n) = σ(k) + σ(n-k)}
- * Range:     u8 n <= 1515, u16 n <= 9340, u32 n <= 9340, u64 n <= 9340,
- *            u128 n <= 9340, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1515, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9340 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* NOTE: No external utilities are used.  sigma is cached across calls. */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 /* static cache of divisor-sum values */
 static seq_t *sigma = NULL;
@@ -25,10 +27,10 @@ static idx_t sigma_max = 0;
 static void recompute_sigma(idx_t n)
 {
     if (sigma != NULL) {
-        free(sigma);
+        mem_free(sigma);
     }
     /* allocate array 0..n, but sigma[0] is unused */
-    sigma = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    sigma = mem_new(seq_t, (n + 1));
     for (idx_t i = 0; i <= n; ++i) {
         sigma[i] = 0;
     }

@@ -8,7 +8,8 @@
  * Formula:   a(n) = n * pod(n) where pod(n) = product of all divisors of n
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_mul.h"
+#include <string.h>
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Integer exponentiation for seq_t using repeated squaring.
    Uses seq_mul from the utilities. */

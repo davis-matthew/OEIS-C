@@ -9,6 +9,7 @@
  *            (p4(n-x)+p3(n-2x)+p2(n-3x)+p1(n-4x)+[n==5x]) * [gcd(n,x)=1]
  * Range:     u8 n <= 18, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 /* where p_k(m) is the number of partitions of m into exactly k parts (p_1(m)=1 for m>=1). */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 #define MAXN 10000

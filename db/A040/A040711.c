@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    subsequent terms repeat with the period computed on the first call. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const idx_t D = 739ULL;               /* the radicand */
 static const idx_t a0 = 27ULL;               /* floor(sqrt(D)) */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (period_len == 0) {
         /* Prepare storage */
         period_cap = 64;
-        period = (seq_t *)malloc(period_cap * sizeof(seq_t));
+        period = mem_new(seq_t, period_cap);
         if (!period) return (seq_t)0;      /* allocation failure */
 
         idx_t m = 0;
@@ -46,9 +48,9 @@ seq_t a(idx_t n)
             /* Store a in the period array */
             if (period_len == period_cap) {
                 period_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(period, period_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, period, period_cap);
                 if (!tmp) {
-                    free(period);
+                    mem_free(period);
                     period = NULL;
                     period_len = 0;
                     return (seq_t)0;

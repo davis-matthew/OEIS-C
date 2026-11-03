@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial(42,n)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 42, u128 n <= 42,
  *            big any n
+ * Validated: full, pass, 43 terms through n = 42 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

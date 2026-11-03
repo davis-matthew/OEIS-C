@@ -11,12 +11,14 @@
  *            imaginary part c_n^I for n ≥ 2
  * Range:     i8 n <= 9, i16 n <= 15, i32 n <= 26, i64 n <= 32, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *real_part = NULL;
 static seq_t *imag_part = NULL;
@@ -28,8 +30,8 @@ static void grow_seq(size_t need)
     if (cap < need) {
         size_t newcap = cap ? cap * 2 : 1;
         while (newcap < need) newcap <<= 1;
-        seq_t *new_real = (seq_t *)realloc(real_part, newcap * sizeof(seq_t));
-        seq_t *new_imag = (seq_t *)realloc(imag_part, newcap * sizeof(seq_t));
+        seq_t *new_real = mem_resize(seq_t, real_part, newcap);
+        seq_t *new_imag = mem_resize(seq_t, imag_part, newcap);
         if (!new_real || !new_imag) return;  /* allocation failed – caller will crash */
         /* initialise new elements to zero */
         for (size_t i = cap; i < newcap; ++i) {

@@ -7,6 +7,7 @@
  * Formula:   a(n) = (2^n+1)*(2^n+2)*(2^n+4)*(2^n+6)*(4^n+15*2^n+176)/8!
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 7, u64 n <= 13, u128 n <= 16,
  *            big any n
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* 8! = 40320 = 2^7·3^2·5·7 */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* small power for base=2,3,5,7 (exponent is tiny) */

@@ -8,7 +8,8 @@
  * Formula:   a(n) = min_{1 <= t <= n/2, gcd(t,n)=1} rad(t*(n-t))
  * Range:     u8 n <= 43, u16 n <= 1703, u32 n <= 8928, u64 n <= 8928,
  *            u128 n <= 8928, big any n
- * Helpers:   rad
+ * Validated: standard, pass, 89 terms through n = 8606 (2026-11-01)
+ * Helpers:   radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 /* Uses the rad(idx_t) helper from ../utils/rad.h */
 
 #include <stdbool.h>
-#include "../utils/rad.h"
+#include "../utils/radical.h"
 
 static inline idx_t gcd_uint64(idx_t a, idx_t b)
 {
@@ -43,7 +44,7 @@ seq_t a(idx_t n)
             continue;
 
         idx_t prod = t * (n - t);   /* product fits in 64 bits for expected n */
-        seq_t r = rad(prod);
+        seq_t r = radical(prod);
         if (first || r < best) {
             best = r;
             first = false;

@@ -9,15 +9,24 @@
  *            of n!
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 19, u64 n <= 31, u128 n <= 48,
  *            big any n
- * Helpers:   big_pow, build_primes_upto, seq_mul
+ * Validated: standard, pass, 44 terms through n = 1000 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Helper prototypes from the utils library */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 #include <stdlib.h>
 
 /* Compute a(n) = the largest fourth‑power divisor of n! */
@@ -52,7 +61,7 @@ seq_t a(idx_t n)
             continue;
 
         /* p^exp4  (exp4 is an integer ≤ vp) */
-        seq_t factor = big_pow((seq_t)p, (seq_t)exp4);
+        seq_t factor = ipow((seq_t)p, (seq_t)exp4);
         result = seq_mul(result, factor);
     }
 

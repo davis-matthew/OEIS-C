@@ -12,6 +12,7 @@
  *            prefix‑sums that works for any integer type seq_t (i...
  * Range:     u8 n <= 31, u16 n <= 82, u32 n <= 243, u64 n <= 802,
  *            u128 n <= 802, big any n
+ * Validated: standard, pass, 75 terms through n = 794 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

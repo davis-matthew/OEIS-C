@@ -7,6 +7,7 @@
  * Formula:   a(n) = 9*floor((n-1)/2) + (n%2?1:7) (for n ≥ 1)
  * Range:     u8 n <= 57, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 76 terms through n = 998 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

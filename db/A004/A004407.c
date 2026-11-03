@@ -9,14 +9,26 @@
  *            - 2*Sum_{k>=1, k^2<=n} f_j(n-k^2), f_0 = 1
  * Range:     i8 n <= 2, i16 n <= 6, i32 n <= 17, i64 n <= 54, i128 n <= 182,
  *            big any n
- * Helpers:   alloc_zero, release
+ * Validated: standard, pass, 38 terms through n = 8894 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 static seq_t *A004407_tab = 0;
 static idx_t A004407_len = 0;

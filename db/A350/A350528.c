@@ -13,15 +13,19 @@
  *            implementation builds the required row of Stirling numb...
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Required utilities */
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /*  External integer types supplied by the build system   */
 extern seq_t a(idx_t n);
@@ -41,7 +45,7 @@ seq_t a(idx_t n)
     idx_t k        = offset + 1ULL;         /* 1‑based component index      */
 
     /*  Allocate two rows for Stirling numbers: prev and cur  */
-    seq_t *prev = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)(r + 1));
     if (!prev) return 0;   /*  allocation failure  */
 
     /*  S(0,0) = 1  */
@@ -49,16 +53,16 @@ seq_t a(idx_t n)
 
     /*  Build up to S(r,j)  */
     for (idx_t i = 1; i <= r; ++i) {
-        seq_t *cur = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, (size_t)(r + 1));
         if (!cur) {
-            free(prev);
+            mem_free(prev);
             return 0;
         }
         cur[0] = 0;
         for (idx_t j = 1; j <= i; ++j) {
             cur[j] = prev[j] * (seq_t)j + prev[j - 1];
         }
-        free(prev);
+        mem_free(prev);
         prev = cur;
     }
 
@@ -72,7 +76,7 @@ seq_t a(idx_t n)
                 simplifies to S(r,j).  */
             term = prev[j];
         } else {
-            seq_t pow = big_pow((seq_t)j, (seq_t)(j - k - 1ULL));
+            seq_t pow = ipow((seq_t)j, (seq_t)(j - k - 1ULL));
             term = prev[j] * binomial(j, k) * (seq_t)k * pow;
         }
 
@@ -83,7 +87,7 @@ seq_t a(idx_t n)
             neg += term;
     }
 
-    free(prev);
+    mem_free(prev);
 
     return pos - neg;   /*  pos should be >= neg  */
 }

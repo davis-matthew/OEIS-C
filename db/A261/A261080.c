@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 15, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 66 terms through n = 936 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         initialized = true;
         last_prime = 2;                    /* start with first prime */
         cache_cap = 8;                     /* initial capacity */
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
     }
 
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
                 if (cache_cap == 0) cache_cap = 8;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             /* Store the semiprime product */
             cache[cache_len++] = (seq_t)p * (seq_t)q;

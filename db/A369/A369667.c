@@ -9,8 +9,9 @@
  * Formula:   a(n) = 1 if n' ≡ 3 (mod 4) and Ω(n) ≡ 0 (mod 2), else 0 * (where
  *            n' is the arithmetic derivative and Ω(n) is the total * number
  *            of prime factors of n counting multiplicity)
- * Range:     u8 n <= 8583, u16 n <= 8583, u32 n <= 8583, u64 n <= 8583,
- *            u128 n <= 8583, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 142 terms through n = 8583 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* External linkage as required */

@@ -10,13 +10,15 @@
  *            rows of the coefficients of (1 + x + 2x^2)^n
  * Range:     u8 n <= 40, u16 n <= 109, u32 n <= 342, u64 n <= 1195,
  *            u128 n <= 4561, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 8663 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---- static storage for computed rows ---- */
 static seq_t **row_ptrs = NULL;          /* pointers to coefficient arrays */
@@ -59,7 +61,7 @@ static void ensure_row(idx_t r)
     /* compute rows up to r */
     for (idx_t i = rows_computed; i <= r; ++i) {
         size_t len = (size_t)(2 * i + 1);
-        row_ptrs[i] = (seq_t *)malloc(len * sizeof(seq_t));
+        row_ptrs[i] = mem_new(seq_t, len);
         if (i == 0) {
             row_ptrs[0][0] = (seq_t)1;
             continue;

@@ -10,9 +10,10 @@
  *            Möbius function). The implementation keeps a sieve of μ up to
  *            the current limit, a prefix‑sum array to test sums in O(1), and
  *            a cache of previously computed a(n)
- * Range:     u8 n <= 546, u16 n <= 546, u32 n <= 1000, u64 n <= 1000,
+ * Range:     u8 n <= 206, u16 n <= 68, u32 n <= 66, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_spf
+ * Validated: standard, pass, 98 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,12 +22,57 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
-#include "../utils/build_spf.h"    /* builds spf[] : smallest prime factor */
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Build the smallest‑prime‑factor table up to limit. */
+static void build_spf(idx_t limit, idx_t **spf_out)
+{
+    idx_t i, j;
+    idx_t *spf = (idx_t *)malloc((limit + 1) * sizeof(idx_t));
+    if (!spf) {
+        *spf_out = NULL;
+        return;
+    }
+
+    for (i = 0; i <= limit; ++i) spf[i] = 0;
+    spf[0] = 0;
+    spf[1] = 1;
+
+    for (i = 2; i <= limit; ++i) {
+        if (!spf[i]) {            /* i is prime */
+            spf[i] = i;
+            if (i <= limit / i)   /* avoid overflow in j loop */
+                for (j = i * i; j <= limit; j += i)
+                    if (!spf[j]) spf[j] = i;
+        }
+    }
+    *spf_out = spf;
+}
 
 /*------------------------------------------------------------*/
 /*   Dynamic array helpers                                     */
 /*------------------------------------------------------------*/
+#ifdef __cplusplus
+template <class T>
+static void grow_array(T **arr, size_t *cap, size_t need, size_t elem_size)
+{
+    if (need <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+    while (new_cap < need) new_cap <<= 1;
+    T *p = mem_resize(T, *arr, (new_cap * elem_size) / sizeof(T));
+    if (!p) abort();              /* out of memory */
+    *arr = p;
+    *cap = new_cap;
+}
+#else
 static void grow_array(void **arr, size_t *cap, size_t need, size_t elem_size)
 {
     if (need <= *cap) return;
@@ -37,6 +83,7 @@ static void grow_array(void **arr, size_t *cap, size_t need, size_t elem_size)
     *arr = p;
     *cap = new_cap;
 }
+#endif
 
 /*------------------------------------------------------------*/
 /*   Möbius sieve and prefix sums                             */
@@ -62,8 +109,8 @@ static void ensure_mu_upto(idx_t limit)
     spf_cap = limit + 1;
 
     /* Allocate/resize mu and pref arrays */
-    grow_array((void **)&mu,   &mu_cap,   limit + 1, sizeof(int8_t));
-    grow_array((void **)&pref, &pref_cap, limit + 1, sizeof(int32_t));
+    grow_array(OEISC_VPP(&mu),   &mu_cap,   limit + 1, sizeof(int8_t));
+    grow_array(OEISC_VPP(&pref), &pref_cap, limit + 1, sizeof(int32_t));
 
     /* Compute μ up to limit.  μ(1)=1, μ(n)=0 if n has a squared prime factor,
        otherwise μ(n)=(-1)^{number of distinct prime factors}. */
@@ -94,7 +141,7 @@ static size_t cache_cap = 0;
 
 static void cache_init(size_t n)
 {
-    grow_array((void **)&cache, &cache_cap, n, sizeof(seq_t));
+    grow_array(OEISC_VPP(&cache), &cache_cap, n, sizeof(seq_t));
     for (size_t i = cache_cap; i < n; ++i)
         cache[i] = 0;              /* 0 indicates unsolved (a(n)≥1) */
 }

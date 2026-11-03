@@ -10,6 +10,7 @@
  *            C(⌈r/2⌉,2j) * C(⌊r/2⌋,k-2j)
  * Range:     u8 n <= 82, u16 n <= 218, u32 n <= 682, u64 n <= 2445,
  *            u128 n <= 8974, big any n
+ * Validated: standard, pass, 107 terms through n = 9864 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

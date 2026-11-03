@@ -8,14 +8,16 @@
  *            C(b_4,4) + C(b_3,3) + C(b_2,2) + C(b_1,1) (strictly decreasing
  *            b_5 > b_4 > b_3 > b_2 > b_1 >= 1), then a(n) = C(b_5,4) +
  *            C(b_4,3) + C(b_3,2) + C(b_2,1) + C(b_1,0)
- * Range:     u8 n <= 55, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
+ * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <limits.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

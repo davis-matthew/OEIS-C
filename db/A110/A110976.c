@@ -12,7 +12,8 @@
  *            a(n)=d(n)*a(n-1)+a(n-2) for n≥1
  * Range:     u8 n <= 15, u16 n <= 26, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <limits.h>
-#include "../utils/is_prime.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Return the numerator a(n) for the OEIS sequence A110976.  */
 seq_t a(idx_t n)
@@ -36,9 +40,9 @@ seq_t a(idx_t n)
     /* Allocate / reallocate the cache to hold terms up to n. */
     idx_t new_size = n + 1;
     if (cache == NULL)
-        cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        cache = mem_new(seq_t, new_size);
     else
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
 
     /* Compute new terms, extending the cache. */
     for (idx_t k = cached_size; k <= n; ++k)
@@ -61,7 +65,7 @@ seq_t a(idx_t n)
         /* Search downwards for the nearest prime ≤ k. */
         for (uint64_t p = (uint64_t)k; p >= 2; --p)
         {
-            if (is_prime(p))
+            if (is_prime_u64(p))
             {
                 p_low = p;
                 dist_low = k - p;
@@ -73,7 +77,7 @@ seq_t a(idx_t n)
         uint64_t p_high = 0;
         for (uint64_t p = (uint64_t)k; ; ++p)
         {
-            if (is_prime(p))
+            if (is_prime_u64(p))
             {
                 p_high = p;
                 break;

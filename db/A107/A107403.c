@@ -8,7 +8,8 @@
  *            a(n‑2k‑1) (n ≥ 1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 25,
  *            big any n
- * Helpers:   binom_small
+ * Validated: standard, pass, 35 terms through n = 356 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 
 #include <stddef.h>           /* for size_t */
 #include <stdlib.h>          /* for realloc */
-#include "../utils/binom_small.h"   /* binom_small(idx_t N, idx_t K) */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
         size_t new_cap = (cap == 0) ? 1 : cap;
         while (new_cap <= (size_t)n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cap   = new_cap;
     }
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
             idx_t odd = 2 * k + 1;
             if (odd > i)
                 break;
-            seq_t bin   = binom_small(i, odd);
+            seq_t bin   = binomial(i, odd);
             seq_t term  = bin * cache[i - odd];
             sum += term;
         }

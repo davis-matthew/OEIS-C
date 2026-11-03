@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of unitary prime divisors of Catalan(n)
  * Range:     u8 n <= 1310, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, v_p_of, v_p_pow_factorial
+ * Validated: standard, pass, 94 terms through n = 9547 (2026-11-01)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,33 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/v_p_of.h"
-#include "../utils/v_p_pow_factorial.h"
+
+/* exponent of prime p in integer x (x > 0, x fits in idx_t) */
+static inline seq_t v_p_of(idx_t x, idx_t p)
+{
+    seq_t cnt = 0;
+    while (x % p == 0) {
+        cnt++;
+        x /= p;
+    }
+    return cnt;
+}
+
+/* exponent of prime p in m! */
+static inline seq_t v_p_pow_factorial(idx_t m, idx_t p)
+{
+    seq_t res = 0;
+    idx_t div = p;
+    while (div <= m) {
+        res += (seq_t)(m / div);
+        /* avoid overflow: stop if div * p would overflow or exceed m */
+        if (div > m / p) break;
+        div *= p;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

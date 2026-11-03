@@ -7,15 +7,17 @@
  * Formula:   a(n) = binomial(row, col) + (row + col) mod 2 where row, col are
  *            determined by the row-major enumeration of the triangle T(n,k) =
  *            binomial(n,k) + (n + k) mod 2
- * Range:     u8 n <= 39, u16 n <= 182, u32 n <= 645, u64 n <= 1274,
+ * Range:     u8 n <= 69, u16 n <= 197, u32 n <= 646, u64 n <= 1274,
  *            u128 n <= 1274, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 94 terms through n = 1085 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>                     /* for sqrt */
-#include "../utils/binom.h"           /* seq_t binom(idx_t, idx_t) */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     idx_t k = n - offset;
 
     /* Compute the triangle entry and add parity correction. */
-    seq_t val = binom(r, k);                   /* binomial coefficient as seq_t */
+    seq_t val = binomial(r, k);                   /* binomial coefficient as seq_t */
     if ( ((r + k) & 1) != 0 )                 /* (r + k) mod 2 */
         val += (seq_t)1;                       /* add 1 if odd */
 

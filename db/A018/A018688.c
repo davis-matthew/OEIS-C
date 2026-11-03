@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   _sort_divs
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,21 @@
 /* Sequence: Divisors of 860, sorted ascending */
 
 #include <stdlib.h>
-#include "../utils/_sort_divs.h"
+#include "../utils/mem.h"
+
+/* Simple insertion sort for at most 12 elements */
+static void _sort_divs(seq_t *arr, size_t n)
+{
+    for (size_t i = 1; i < n; ++i) {
+        seq_t key = arr[i];
+        size_t j = i;
+        while (j > 0 && arr[j - 1] > key) {
+            arr[j] = arr[j - 1];
+            --j;
+        }
+        arr[j] = key;
+    }
+}
 
 /* Prime factorization of 860 = 2^2 * 5 * 43 */
 static const uint64_t _primes[3] = { 2ULL, 5ULL, 43ULL };
@@ -56,7 +71,7 @@ static void _init_divs(void)
         cnt *= (size_t)(_exps[i] + 1);
 
     _div_count = cnt;
-    _divs = (seq_t *)malloc(cnt * sizeof(seq_t));
+    _divs = mem_new(seq_t, cnt);
     if (!_divs) {
         _div_count = 0;
         return;            /* memory failure – callers will get 0 */

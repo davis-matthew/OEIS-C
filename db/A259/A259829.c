@@ -7,7 +7,8 @@
  * Formula:   a(n) = (-1)^floor(n/2) * A035185(n)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 9951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static storage for memoised values */
 static seq_t *ans_arr = NULL;        /* a(0)..a(max)          */
@@ -34,11 +36,11 @@ static void ensure_arrays(idx_t n)
 {
     size_t needed = (size_t)n + 1;
     if (needed > max_alloc) {
-        free(ans_arr); free(R_arr); free(E_arr); free(T_arr);
-        ans_arr = (seq_t*)calloc(needed, sizeof(seq_t));
-        R_arr   = (seq_t*)calloc(needed, sizeof(seq_t));
-        E_arr   = (seq_t*)calloc(needed, sizeof(seq_t));
-        T_arr   = (seq_t*)calloc(needed, sizeof(seq_t));
+        mem_free(ans_arr); mem_free(R_arr); mem_free(E_arr); mem_free(T_arr);
+        ans_arr = mem_new(seq_t, needed);
+        R_arr   = mem_new(seq_t, needed);
+        E_arr   = mem_new(seq_t, needed);
+        T_arr   = mem_new(seq_t, needed);
         max_alloc = needed;
     }
 }
@@ -51,8 +53,8 @@ static void compute_up_to(idx_t n)
     ensure_arrays(n);
 
     /* reset arrays for fresh computation */
-    memset(ans_arr, 0, (n + 1) * sizeof(seq_t));
-    memset(R_arr,   0, (n + 1) * sizeof(seq_t));
+    mem_set(ans_arr, 0, (n + 1) * sizeof(seq_t));
+    mem_set(R_arr, 0, (n + 1) * sizeof(seq_t));
     R_arr[0] = 1;                          /* R_0 = 1 */
 
     idx_t k;

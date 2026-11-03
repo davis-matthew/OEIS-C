@@ -11,7 +11,8 @@
  *            loops and edges). Parts >= 3 are enumerat...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   add_shift, bn_div_u, bn_len, bn_mul_u, g6_gcd
+ * Validated: standard, pass, 34 terms through n = 78 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +20,55 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/add_shift.h"
-#include "../utils/bn_div_u.h"
-#include "../utils/bn_len.h"
-#include "../utils/bn_mul_u.h"
-#include "../utils/g6_gcd.h"
+#include "../utils/gcd_idx.h"
+
+static void add_shift(uint32_t *dst, int dlen, const uint32_t *src, int slen, idx_t e)
+{
+    int off = (int)(e / 32), sh = (int)(e % 32), j;
+    uint64_t carry = 0, spill = 0;
+    for (j = 0; j <= slen && off + j < dlen; j++) {
+        uint64_t w = j < slen ? (uint64_t)src[j] : 0;
+        uint64_t sw = (w << sh) | spill;
+        uint64_t t;
+        spill = sw >> 32;
+        t = (uint64_t)dst[off + j] + (uint32_t)sw + carry;
+        dst[off + j] = (uint32_t)t;
+        carry = t >> 32;
+    }
+    for (j = off + slen + 1; carry && j < dlen; j++) {
+        uint64_t t = (uint64_t)dst[j] + carry;
+        dst[j] = (uint32_t)t;
+        carry = t >> 32;
+    }
+}
+
+static void bn_div_u(uint32_t *x, int len, uint64_t d)
+{
+    uint64_t rem = 0;
+    int i;
+    for (i = len - 1; i >= 0; i--) {
+        uint64_t cur = (rem << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        rem = cur % d;
+    }
+}
+
+static int bn_len(const uint32_t *x, int len)
+{
+    while (len > 0 && x[len - 1] == 0) len--;
+    return len;
+}
+
+static void bn_mul_u(uint32_t *x, int len, uint64_t m)
+{
+    uint64_t carry = 0;
+    int i;
+    for (i = 0; i < len; i++) {
+        uint64_t t = (uint64_t)x[i] * m + carry;
+        x[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+}
 
 static idx_t gD1, gD2;
 static int TL, CL;
@@ -46,7 +91,7 @@ static void rec(idx_t r, idx_t maxk, idx_t depth, idx_t e, idx_t A1, idx_t A2)
     for (k = kmax; k >= 3; k--) {
         idx_t base = 0, ee = e, rr = r, a1 = A1, a2 = A2;
         uint32_t *cur = coef + (size_t)(depth + 1) * CL;
-        for (i = 0; i < depth; i++) base += pm[i] * g6_gcd(k, pk[i]);
+        for (i = 0; i < depth; i++) base += pm[i] * gcd_idx(k, pk[i]);
         memcpy(cur, coef + (size_t)depth * CL, sizeof(uint32_t) * (size_t)CL);
         for (m = 1; m <= r / k; m++) {
             idx_t t;

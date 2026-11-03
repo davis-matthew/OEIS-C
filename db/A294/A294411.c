@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 34, u32 n <= 76, u64 n <= 169,
  *            u128 n <= 433, big any n
- * Helpers:   binom, diag_from_n, seq_pow
+ * Validated: standard, pass, 82 terms through n = 1241 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,9 +32,21 @@
  *  `binom(idx_t a, idx_t b)` and `seq_pow(seq_t base, idx_t exp)`.
  */
 
-#include "../utils/binom.h"
-#include "../utils/seq_pow.h"
-#include "../utils/diag_from_n.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
+
+/* Find diagonal index s such that s*(s+1)/2 ≤ n < (s+1)*(s+2)/2   */
+static idx_t
+diag_from_n(idx_t n)
+{
+    idx_t s = 0;
+    /* Increment s until the triangular bound would exceed n */
+    while ((s + 1) * (s + 2) / 2 <= n)
+        ++s;
+    return s;
+}
 
 seq_t
 a(idx_t n)
@@ -52,9 +65,9 @@ a(idx_t n)
     /* Step 2: evaluate A(row,k) = Σ_{m=1}^{row} binom(row,m)·m^{m−1}·k^{row−m} */
     seq_t sum = 0;
     for (idx_t m = 1; m <= row; ++m) {
-        seq_t term = binom(row, m);
-        term = term * seq_pow((seq_t)m, m - 1);            /* m^{m-1}          */
-        term = term * seq_pow((seq_t)k, row - m);          /* k^{row-m}        */
+        seq_t term = binomial(row, m);
+        term = term * ipow_idx((seq_t)m, m - 1);            /* m^{m-1}          */
+        term = term * ipow_idx((seq_t)k, row - m);          /* k^{row-m}        */
         sum += term;
     }
     return sum;

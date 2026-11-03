@@ -7,9 +7,10 @@
  * Offset:    3    (a(3) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 301, u16 n <= 9873, u32 n <= 9873, u64 n <= 9873,
- *            u128 n <= 9873, big any n
- * Helpers:   solve_T
+ * Range:     u8 n <= 301, u16 n <= 11028, u32 n <= 11028, u64 n <= 11028,
+ *            u128 n <= 11028, big any n
+ * Validated: standard, pass, 94 terms through n = 9873 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,30 @@
 */
 
 #include <stdint.h>
-#include "../utils/solve_T.h"
+
+/* Compute a(n) for n ≥ 3.  For n < 3 the function returns 0. */
+static seq_t solve_T(idx_t n, idx_t k)
+{
+    if (k == 3) {
+        return (seq_t)1;
+    }
+    if (k == 4) {
+        return (n == 4) ? (seq_t)3 : (seq_t)2;
+    }
+    /* n ≥ k ≥ 5 */
+    idx_t m = (k - 1) / 2;             /* floor((k-1)/2) */
+    seq_t e = (k & 1) ? (seq_t)1 : (seq_t)2;   /* 1 if k odd, else 2 */
+
+    /* term1 = binom(k-2,2) + 1 */
+    seq_t term1 = ((seq_t)(k - 2) * (k - 3)) / 2 + 1;
+
+    /* term2 = binom(m-1,2) + (m-1)*(n-m+1) + e */
+    seq_t bin2 = ((seq_t)(m - 1) * (m - 2)) / 2;
+    seq_t prod = (seq_t)(m - 1) * (n - m + 1);
+    seq_t term2 = bin2 + prod + e;
+
+    return (term1 > term2) ? term1 : term2;
+}
 
 seq_t a(idx_t n)
 {

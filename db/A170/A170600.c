@@ -10,12 +10,14 @@
  *            b(n)=0 otherwise
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n) {
     /* static cache of already computed values */
@@ -26,7 +28,7 @@ extern seq_t a(idx_t n) {
     /* helper to grow the cache if needed */
     if (cache == NULL) {
         cap = 64;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
     while (len <= n) {
         /* compute a(len) from the recurrence */
@@ -55,7 +57,7 @@ extern seq_t a(idx_t n) {
         /* ensure capacity */
         if (len + 1 > cap) {
             cap *= 2;
-            cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
         }
         cache[len++] = val;
     }

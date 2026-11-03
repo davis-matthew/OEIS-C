@@ -8,7 +8,8 @@
  * Formula:   a(n) = count_prime_factors( n*(n^2-3n+4)/2 )
  * Range:     u8 n <= 8, u16 n <= 41, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_prime_factors
+ * Validated: standard, pass, 102 terms through n = 977 (2026-11-01)
+ * Helpers:   bigomega_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 /* a(n) is the number of prime factors (with multiplicity) of the
    n-th n-gonal number, i.e. the n-th element of A060354. */
 #include <stdint.h>
-#include "../utils/count_prime_factors.h"
+#include "../utils/bigomega_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -28,5 +29,5 @@ seq_t a(idx_t n)
     seq_t num   = ns * part;              /* n*(n^2-3n+4) */
     seq_t pn     = num / 2;               /* the n-th n-gonal number */
 
-    return count_prime_factors(pn);       /* number of prime factors with multiplicity */
+    return bigomega_seq(pn);       /* number of prime factors with multiplicity */
 }

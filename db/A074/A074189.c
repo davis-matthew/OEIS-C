@@ -9,12 +9,14 @@
  *            1, a(2) = 2 Recurrence derived from a(n+2) = (n+1)*a(n+1) - a(n)
  * Range:     i8 n <= 6, i16 n <= 8, i32 n <= 13, i64 n <= 19, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_len = 3;                     /* we will store indices 0,1,2 */
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (cache == NULL) return 0;       /* allocation failure -> return 0 (unused) */
 
         cache[0] = -1;     /* a(0) */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     if (n >= cache_len)
     {
         idx_t new_len = n + 1;                 /* index n will be stored at cache[n] */
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp == NULL) return 0;            /* allocation failure -> return 0 (unused) */
         cache = tmp;
         /* Compute the missing values iteratively */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 948, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 49 terms through n = 995 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Return the n‑th term of A165296: the larger prime of a prime pair
    with difference 10000 (offset 1).  The function is memoised so that
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         /* Ensure sufficient capacity in the cache. */
         if (cache_size >= cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) {   /* allocation failed – return zero as a fallback */
                 return (seq_t)0;
             }

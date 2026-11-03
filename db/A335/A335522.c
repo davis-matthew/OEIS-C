@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   composition_k
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,37 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/composition_k.h"
+
+/* Build the composition corresponding to the non‑negative integer k.
+   The parts are written into out[0 … *len-1].
+   The maximum length for k < 2^64 is 64, so a fixed buffer of 128 suffices. */
+static void composition_k(idx_t k, seq_t *out, size_t *len)
+{
+    if (k == 0) {
+        *len = 0;
+        return;          /* empty composition for k = 0 */
+    }
+
+    idx_t t = k;
+    size_t pos = 1;          /* positions start at 1 (LSB is position 1) */
+    size_t last = 0;         /* prepend 0 */
+    size_t idx = 0;
+    seq_t tmp[128];
+
+    while (t) {
+        if (t & 1) {
+            tmp[idx++] = (seq_t)(pos - last);
+            last = pos;
+        }
+        t >>= 1;
+        ++pos;
+    }
+
+    /* reverse the parts into out[] */
+    *len = idx;
+    for (size_t i = 0; i < idx; ++i)
+        out[i] = tmp[idx - 1 - i];
+}
 
 /* Return true iff the composition parts[0 … len-1] avoids the pattern (1,1,2).
    Pattern (1,1,2) means: there exist i<j<k with parts[i]==parts[j] and parts[k]>parts[i]. */

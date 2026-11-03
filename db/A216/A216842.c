@@ -10,13 +10,29 @@
  *            polynomial is 1, so the answer is 0
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   order_of
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/order_of.h"
+
+static seq_t order_of(idx_t d)
+{
+    /* Compute the multiplicative order of 2 modulo d (d > 1). */
+    idx_t pow = 1 % d;   /* 2^0 mod d, always 1 when d>1 */
+    for (idx_t k = 1; ; ++k) {
+        pow = (pow << 1) % d;   /* multiply by 2 modulo d */
+        if (pow == 1) {
+            return (seq_t)k;
+        }
+        /* In the worst case the order is d-1, so the loop will stop. */
+        if (k >= d - 1) {
+            return (seq_t)d;   /* fallback, should not happen for valid d */
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {

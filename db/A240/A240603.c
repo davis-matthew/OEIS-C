@@ -8,7 +8,8 @@
  *            squarefree integer
  * Range:     u8 n <= 77, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9099 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: test whether an integer x (idx_t) is squarefree.
    Only integer arithmetic is used; x is small enough for 64‑bit
@@ -49,7 +51,7 @@ static void ensure_squarefree(idx_t need)
 
     /* Allocate new array: need+2 entries are safe (extra for growth). */
     size_t new_cap     = (size_t)need + 2;
-    seq_t *new_arr     = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr     = mem_new(seq_t, new_cap);
     if (!new_arr) { abort(); }
 
     /* Build the list of squarefree numbers. */
@@ -63,7 +65,7 @@ static void ensure_squarefree(idx_t need)
     }
 
     /* Replace old cache.  The old cache is freed if non‑null. */
-    if (sq) free(sq);
+    if (sq) mem_free(sq);
     sq      = new_arr;
     sq_len  = (size_t)need + 1;     /* now contains indices 0 … need */
 }

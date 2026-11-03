@@ -9,13 +9,15 @@
  *            not end with 0
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* stored squares */
 static size_t cache_size = 0;        /* current number of cached terms */
@@ -28,7 +30,7 @@ static void grow_cache(size_t new_cap)
     if (new_cap <= cache_cap) return;
     size_t new_capacity = cache_cap ? cache_cap * 2 : 64;
     while (new_capacity < new_cap) new_capacity <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
     if (!tmp) exit(1);   /* abort on allocation failure */
     cache = tmp;
     cache_cap = new_capacity;

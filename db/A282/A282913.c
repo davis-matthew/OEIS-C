@@ -11,18 +11,30 @@
  *            values a(0)=1, a(1)=3, a(2)=7, a(3)=13, a(4)=25, a(5)=59
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 126,
  *            big any n
- * Helpers:   alloc_seq_array, free_cache
+ * Validated: standard, pass, 49 terms through n = 125 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t, NULL */
 #include <stdint.h>   /* uint64_t */
+#include "../utils/mem.h"
 
 /* The utilities allow allocation for arbitrary-precision seq_t in both
    C and C++.  For C++ they use new; for C they use malloc. */
-#include "../utils/alloc_seq_array.h"    /* seq_t *alloc_seq_array(size_t) */
-#include "../utils/free_cache.h"          /* void free_cache(seq_t *) */
+#include <stdlib.h>
+#include <stdbool.h>
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache      = NULL;   /* dynamically grown array of terms */
 static idx_t  cache_size = 0;      /* number of terms currently stored */

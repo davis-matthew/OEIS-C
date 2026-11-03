@@ -9,13 +9,14 @@
  *            a(5)=1, a(6)=2, a(7)=3, a(8)=9, a(9)=27, a(10)=81, a(11)=729
  * Range:     i8 n <= 10, i16 n <= 12, i32 n <= 16, i64 n <= 21, i128 n <= 24,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
     idx_t exp = q * (6 * q + r - 4);
 
     /* compute 27^exp, ignoring the sign of the base first */
-    seq_t pow_pos = pow_int((seq_t)27, exp);
+    seq_t pow_pos = ipow_idx((seq_t)27, exp);
 
     /* sign contributed by the negative base (-27)^exp */
     seq_t sign_base = (exp & 1) ? (seq_t)-1 : (seq_t)1;

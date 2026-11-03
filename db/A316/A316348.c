@@ -12,7 +12,8 @@
  *            searches * only composite numbers of the form L*...
  * Range:     u8 n <= 9, u16 n <= 249, u32 n <= 306, u64 n <= 306,
  *            u128 n <= 306, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 65 terms through n = 251 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/mod_pow.h"   /* for mod_pow(seq_t base, uint64_t exp, seq_t mod) */
+#include <stdlib.h>
+#include "../utils/powmod.h"
 
 /* sieve limit – large enough for n up to 10000                */
 #define PRIME_LIMIT 200000
@@ -77,11 +79,11 @@ seq_t a(idx_t n)
         bool ok = true;
         /* Check the condition for all m = 2 .. n */
         for (idx_t m = 2; m <= n && ok; ++m) {
-            if (mod_pow((seq_t)m, (uint64_t)k_minus1, (seq_t)L) == (seq_t)1) {
+            if (powmod((seq_t)m, (uint64_t)k_minus1, (seq_t)L) == (seq_t)1) {
                 ok = false;
                 break;
             }
-            if (mod_pow((seq_t)m, (uint64_t)k_minus1, (seq_t)U) == (seq_t)1) {
+            if (powmod((seq_t)m, (uint64_t)k_minus1, (seq_t)U) == (seq_t)1) {
                 ok = false;
                 break;
             }

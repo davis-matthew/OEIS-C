@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 194, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_zero_in_ternary
+ * Validated: standard, pass, 87 terms through n = 9671 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,17 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_zero_in_ternary.h"
+#include "../utils/mem.h"
+
+static bool has_zero_in_ternary(seq_t x)
+{
+    if (x == 0) return true;
+    while (x > 0) {
+        if (x % 3 == 0) return true;
+        x /= 3;
+    }
+    return false;
+}
 
 static void ensure_capacity(size_t needed)
 {
@@ -25,12 +36,12 @@ static void ensure_capacity(size_t needed)
     static size_t terms_cap = 0;
     if (terms == NULL) {
         terms_cap = 64;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (terms == NULL) exit(1);
     }
     while (needed > terms_cap) {
         terms_cap *= 2;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
         if (terms == NULL) exit(1);
     }
 }
@@ -50,12 +61,12 @@ seq_t a(idx_t n)
         /* allocate or grow array on first use */
         if (terms == NULL) {
             terms_cap = 64;
-            terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+            terms = mem_new(seq_t, terms_cap);
             if (terms == NULL) exit(1);
             terms_size = 0;
         } else if (terms_size >= terms_cap) {
             terms_cap *= 2;
-            terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, terms_cap);
             if (terms == NULL) exit(1);
         }
 

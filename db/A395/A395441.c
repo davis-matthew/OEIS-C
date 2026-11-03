@@ -11,9 +11,10 @@
  *            in the order they are first visited. The simulation stops when
  *            all knights are trapped. Dynamic allocation is used to keep
  *            memory usage modest
- * Range:     u8 n <= 139, u16 n <= 9865, u32 n <= 9865, u64 n <= 9865,
- *            u128 n <= 9865, big any n
- * Helpers:   num_to_xy
+ * Range:     u8 n <= 129, u16 n <= 10007, u32 n <= 10007, u64 n <= 10007,
+ *            u128 n <= 10007, big any n
+ * Validated: full, pass, 10007 terms through n = 10007 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,59 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/num_to_xy.h"
+#include "../utils/mem.h"
+
+/* Convert a square number n (n >= 1) to its (x,y) coordinates on the
+   square-spiral.  Only integer arithmetic is used. */
+static void num_to_xy(seq_t n, int *x, int *y)
+{
+    if (n <= (seq_t)1)
+    {
+        *x = 0;
+        *y = 0;
+        return;
+    }
+
+    /* Determine the ring index r such that (2*r-1)^2 < n <= (2*r+1)^2. */
+    uint64_t nn = (uint64_t)n;
+    uint64_t r = 0;
+    for (;;)
+    {
+        uint64_t side = 2 * r + 1;
+        if (side * side >= nn)
+            break;
+        ++r;
+    }
+
+    uint64_t start = (2 * r - 1) * (2 * r - 1) + 1; /* first number on ring */
+    uint64_t offset = nn - start;                  /* 0‑based offset in ring */
+    uint64_t sideLen = 2 * r;                      /* side length of ring */
+
+    /* Determine side and coordinates. */
+    if (offset < sideLen)                       /* right side (moving up) */
+    {
+        *x = (int)r;
+        *y = (int)(-r + 1 + offset);
+    }
+    else if (offset < 2 * sideLen)              /* top side (moving left) */
+    {
+        uint64_t t = offset - sideLen;
+        *x = (int)(r - 1 - t);
+        *y = (int)r;
+    }
+    else if (offset < 3 * sideLen)              /* left side (moving down) */
+    {
+        uint64_t t = offset - 2 * sideLen;
+        *x = (int)(-r);
+        *y = (int)(r - 1 - t);
+    }
+    else                                        /* bottom side (moving right) */
+    {
+        uint64_t t = offset - 3 * sideLen;
+        *x = (int)(-r + 1 + t);
+        *y = (int)(-r);
+    }
+}
 
 /* Convert (x,y) coordinates to the corresponding square number.  Only
    integer arithmetic is used. */
@@ -79,7 +132,7 @@ seq_t a(idx_t n)
     {
         /* initial capacities */
         seq_cap = 1024;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
 
         visited_cap = 1024;
         visited = (unsigned char *)calloc(visited_cap, sizeof(unsigned char));
@@ -166,7 +219,7 @@ seq_t a(idx_t n)
                     if (seq_len >= seq_cap)
                     {
                         size_t new_cap = seq_cap * 2;
-                        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                        seq = mem_resize(seq_t, seq, new_cap);
                         seq_cap = new_cap;
                     }
                     seq[seq_len++] = best;

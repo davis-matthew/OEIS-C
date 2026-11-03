@@ -8,6 +8,7 @@
  * Formula:   a(n) = 0 if n ≡ 0 or 1 (mod 4); a(n) = n‑1 if n ≡ 2 or 3 (mod 4)
  * Range:     u8 n <= 257, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 102 terms through n = 917 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

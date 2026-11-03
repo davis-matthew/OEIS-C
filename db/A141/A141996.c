@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 232, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 60 terms through n = 998 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    until the desired count is reached.  We use the provided
    is_prime_small function for primality testing. */
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     seq_t cand = 20;                 /* first number ≡20 (mod 29) */
     while (1) {
         cand += 29;                  /* next candidate ≡20 (mod 29) */
-        if (is_prime_small(cand)) {
+        if (is_prime_seq(cand)) {
             ++count;
             if (count == n) return cand;
         }

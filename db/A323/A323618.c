@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 10, i32 n <= 14, i64 n <= 22, i128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  * (unsigned 64‑bit index) provided by the build.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (n == 0)
         return 0;
     /* allocate array for intermediate values */
-    seq_t *v = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *v = mem_new(seq_t, (n + 1));
     if (!v)
         abort();          /* allocation failed -- terminate */
     v[0] = 0;
@@ -46,6 +48,6 @@ seq_t a(idx_t n)
         v[i] = factor1 * v[i - 1] - factor2 * v[i - 2];
     }
     seq_t result = v[n];
-    free(v);
+    mem_free(v);
     return result;
 }

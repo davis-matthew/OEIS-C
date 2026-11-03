@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 struct {
     idx_t        max_needed;          /* largest n requested so far */
@@ -45,8 +47,8 @@ static void _recompute_composites(idx_t need)
     }
 
     /* --- collect composites into an array --- */
-    free(_a_state.composites);
-    seq_t *tmp = (seq_t *)malloc((size_t)(bound + 1) * sizeof(seq_t));
+    mem_free(_a_state.composites);
+    seq_t *tmp = mem_new(seq_t, (size_t)(bound + 1));
     if (!tmp) exit(1);
     size_t cnt = 0;
     for (idx_t i = 4; i <= bound; ++i)

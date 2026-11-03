@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   contains_zero, has_zero_divisor_recursive
+ * Validated: standard, pass, 93 terms through n = 8754 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,43 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/contains_zero.h"
-#include "../utils/has_zero_divisor_recursive.h"
+#include "../utils/mem.h"
+
+/* Helper: does x contain a decimal digit 0? */
+static bool contains_zero(uint64_t x)
+{
+    while (x > 0) {
+        if (x % 10ULL == 0ULL)
+            return true;
+        x /= 10ULL;
+    }
+    return false;
+}
+
+/* Recursively search all divisor combinations for a zero‑digit divisor. */
+static bool has_zero_divisor_recursive(int idx,
+                                       uint64_t current,
+                                       size_t pcnt,
+                                       const uint64_t primes[20],
+                                       const uint8_t  exps [20])
+{
+    if (idx == (int)pcnt) {
+        /* Skip the divisor 1, which never has a zero digit. */
+        return current > 1ULL && contains_zero(current);
+    }
+
+    /* Exponent 0 – skip this prime. */
+    if (has_zero_divisor_recursive(idx + 1, current, pcnt, primes, exps))
+        return true;
+
+    uint64_t temp = current;
+    for (int e = 1; e <= exps[idx]; ++e) {
+        temp *= primes[idx];
+        if (has_zero_divisor_recursive(idx + 1, temp, pcnt, primes, exps))
+            return true;
+    }
+    return false;
+}
 
 /* Factorisation of a 64‑bit integer into primes, at most 20 distinct factors. */
 static void factor_uint64(uint64_t n,
@@ -88,7 +124,7 @@ static void ensure_sequence_upto(idx_t n)
 
     if (seq_cache == NULL) {
         seq_cap = 64;
-        seq_cache = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
     }
 
     while (seq_size < n) {
@@ -96,7 +132,7 @@ static void ensure_sequence_upto(idx_t n)
         if (has_zero_divisor(current_k)) {
             if (seq_size == seq_cap) {
                 seq_cap <<= 1;
-                seq_cache = (seq_t*)realloc(seq_cache, seq_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
             }
             seq_cache[seq_size++] = (seq_t)current_k;
         }

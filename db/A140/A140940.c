@@ -10,14 +10,17 @@
  *            (n+18-i)^(n-i-1)
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 2, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   binomial, seq_gcd, seq_pow
+ * Validated: partial, pass, 7 terms through n = 6 (2026-11-01)
+ * Helpers:   binomial, gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -41,14 +44,14 @@ seq_t a(idx_t n)
         term_num *= fact;                      /* times i! */
 
         idx_t exp = r - i - 1;
-        seq_t term_den = (exp == 0) ? 1 : seq_pow((seq_t)(s - i), exp);
+        seq_t term_den = (exp == 0) ? 1 : ipow_idx((seq_t)(s - i), exp);
 
         /* incorporate the term into the running fraction */
         num *= term_num;
         den *= term_den;
 
         /* reduce the fraction to avoid growth */
-        seq_t g = seq_gcd(num, den);
+        seq_t g = gcd(num, den);
         if (g > 1)
         {
             num /= g;

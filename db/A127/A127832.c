@@ -14,7 +14,8 @@
  *            T(h,0) = T(0,k) = 1 (except T(0,0)=0) * T(h,k) = (st...
  * Range:     u8 n <= 82, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   vertical_allowed
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,19 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/vertical_allowed.h"
+#include "../utils/mem.h"
+
+/* check whether a vertical step into (h,k) would cross the line
+ * at a non‑lattice point.  The step is from (h,k-1) to (h,k). */
+static inline bool vertical_allowed(idx_t h, idx_t k)
+{
+    if (k == 0) return true;
+    idx_t lhs = (k - 1) * 3;          /* 3(k-1) */
+    idx_t rhs = k * 3;                /* 3k     */
+    idx_t mid = 2 * h;                /* 2h     */
+    if (lhs < mid && mid < rhs && (mid % 3u)) return false; /* forbidden */
+    return true;                    /* allowed */
+}
 
 /* check whether a horizontal step into (h,k) would cross the line
  * at a non‑lattice point.  The step is from (h-1,k) to (h,k). */
@@ -66,7 +79,7 @@ seq_t a(idx_t n)
     size_t width = (size_t)(sum + 1);
 
     /* allocate table, zero‑initialized */
-    seq_t *tab = (seq_t *)calloc((size_t)width * width, sizeof(seq_t));
+    seq_t *tab = mem_new(seq_t, (size_t)width * width);
     if (!tab) return (seq_t)0;          /* allocation failure */
 
     /* base case: T(0,0) = 0 (already zero) */
@@ -90,6 +103,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = tab[(size_t)h * width + k];
-    free(tab);
+    mem_free(tab);
     return result;
 }

@@ -8,12 +8,14 @@
  *            + a(n-31) with a(0) = 1 and a(n) = 0 for 1 ≤ n < 9
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array holding computed values   */
 static size_t cache_cap = 0;     /* current capacity of cache         */
@@ -27,7 +29,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 1;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, new_cap);
     if (!newp)          /* allocation failure – abort the program */
         abort();
     cache = newp;

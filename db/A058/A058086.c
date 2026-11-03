@@ -6,14 +6,15 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=6..n} (-1)^k * (n-k)! * binomial(k,6) *
  *            binomial(2*n-k,k)
- * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 14, u64 n <= 22, u128 n <= 35,
+ * Range:     u8 n <= 8, u16 n <= 10, u32 n <= 14, u64 n <= 22, u128 n <= 35,
  *            big any n
- * Helpers:   binom_general
+ * Validated: standard, pass, 34 terms through n = 437 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom_general.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
     seq_t bin_k6 = 1;
 
     /* binomial(2n-k,k) starts at k = 6 */
-    seq_t bin_2nk_k = binom_general(2 * n - 6, 6);
+    seq_t bin_2nk_k = binomial(2 * n - 6, 6);
 
     seq_t sum = 0;
 

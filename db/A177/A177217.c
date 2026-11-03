@@ -12,7 +12,8 @@
  *            incremental search
  * Range:     u8 none, u16 n <= 5, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static inline bool is_product_two_distinct_primes(uint64_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* grow cache if needed */
     if (cap == 0) {
         cap = 64;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
     }
     while (len < (size_t)n) {
         /* Find next candidate that is a product of two distinct primes.   */
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
             /* Append to cache. Grow if necessary. */
             if (len == cap) {
                 cap *= 2;
-                terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
             }
             terms[len++] = (seq_t)candidate;
         }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
  * intermediate product within bounds for small seq_t types.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -30,11 +31,11 @@ seq_t a(idx_t n)
     }
 
     /* Compute 3^(n-1). */
-    seq_t pow3_n_minus1 = pow_int((seq_t)3, n - 1);
+    seq_t pow3_n_minus1 = ipow_idx((seq_t)3, n - 1);
 
     /* Compute 9^n = 3^(2n). */
     idx_t two_n = n << 1;            /* 2 * n */
-    seq_t pow9_n = pow_int((seq_t)3, two_n);
+    seq_t pow9_n = ipow_idx((seq_t)3, two_n);
 
     /* (9^n - 1) / 8 – division is exact. */
     seq_t part = (pow9_n - (seq_t)1) / (seq_t)8;

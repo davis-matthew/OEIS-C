@@ -9,6 +9,7 @@
  *            1/n, with any leading zeros moved to the end
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 12, u64 n <= 28, u128 n <= 52,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 867 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

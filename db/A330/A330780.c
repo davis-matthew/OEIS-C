@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9227 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*  Knight‑move offsets (real and imaginary parts) as signed 64‑bit. */
 static const int64_t m_re[8] = {  2,  1, -1, -2, -2, -1,  1,  2 };
@@ -52,7 +54,7 @@ static void ensure_terms_cap(idx_t need)
     if (need <= terms_cap) return;
     size_t new_cap = terms_cap ? terms_cap << 1 : 64;
     while (new_cap < need) new_cap <<= 1;
-    terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, new_cap);
     terms_cap = new_cap;
 }
 static void ensure_sums_cap(idx_t need)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   count5_upto
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,29 @@
    The function below computes these by directly searching and returns the
    n-th term for 1 <= n <= 5.  For larger n it returns 0. */
 #include <stdbool.h>
-#include "../utils/count5_upto.h"
+
+static seq_t count5_upto(seq_t n)
+{
+    seq_t count = 0;
+    seq_t weight = (seq_t)1;
+    const seq_t TEN = (seq_t)10;
+    while (weight <= n) {
+        seq_t higher = n / (weight * TEN);
+        seq_t current = (n / weight) % TEN;
+        seq_t lower = n % weight;
+
+        count += higher * weight;
+        if (current > (seq_t)5) {
+            count += weight;
+        } else if (current == (seq_t)5) {
+            count += lower + (seq_t)1;
+        }
+
+        if (weight > n / TEN) break;   /* avoid overflow when next weight > n */
+        weight *= TEN;
+    }
+    return count;
+}
 
 seq_t a(idx_t n)
 {

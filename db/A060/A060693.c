@@ -10,15 +10,18 @@
  *            the r‑th row starts at index r*(r+1)/2 and ends before
  *            (r+1)*(r+2)/2. Then k = n – r*(r+1)/2. The entry is T(r,k) =
  *            binomial(2*r - k, k) * Catalan(r - k)
- * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 140, u64 n <= 470,
+ * Range:     u8 n <= 21, u16 n <= 55, u32 n <= 140, u64 n <= 470,
  *            u128 n <= 1606, big any n
- * Helpers:   binom, catalan
+ * Validated: standard, pass, 72 terms through n = 5113 (2026-11-01)
+ * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
 #include "../utils/catalan.h"
 
 seq_t a(idx_t n)
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
     --r;                                    /* now r satisfies r*(r+1)/2 <= n */
     start = r * (r + 1) / 2;
     idx_t k = n - start;
-    seq_t val = binom(2 * r - k, k);
+    seq_t val = binomial(2 * r - k, k);
     val *= catalan(r - k);
     return val;
 }

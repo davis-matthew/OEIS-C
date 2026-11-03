@@ -7,6 +7,7 @@
  * Formula:   a(n) = (p*(p+4)+1)/2 where (p,p+4) is the n‑th cousin prime pair
  * Range:     u8 n <= 3, u16 n <= 16, u32 n <= 112, u64 n <= 112,
  *            u128 n <= 112, big any n
+ * Validated: standard, pass, 52 terms through n = 106 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

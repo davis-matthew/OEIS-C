@@ -9,12 +9,14 @@
  *            = [1, 82, 582, 840, 273, 14]
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 26, u64 n <= 654,
  *            u128 n <= 10000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 43 terms through n = 9998 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (idx_t i = 0; i < 6; ++i)
     {
-        sum += (seq_t)coeff[i] * binom(n + 7 - i, 7);
+        sum += (seq_t)coeff[i] * binomial(n + 7 - i, 7);
     }
     return sum;
 }

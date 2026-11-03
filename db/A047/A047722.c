@@ -6,16 +6,30 @@
  * Keywords:  nonn
  * Formula:   a(n) = the n-th integer that cannot be represented as a sum of
  *            fewer than 11 non‑zero fourth powers
- * Range:     u8 n <= 18, u16 n <= 4935, u32 n <= 9511, u64 n <= 9511,
- *            u128 n <= 9511, big any n
- * Helpers:   pow4_limit
+ * Range:     u8 n <= 18, u16 n <= 4935, u32 n <= 14429, u64 n <= 14429,
+ *            u128 n <= 14429, big any n
+ * Validated: standard, pass, 69 terms through n = 9511 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/pow4_limit.h"
+#include "../utils/mem.h"
+
+/* ----------------------------------------------------------- helper ----------------------------------------------------------- */
+static inline size_t pow4_limit(size_t base, size_t limit)
+{
+    /* returns base^4 if it does not exceed limit, otherwise limit+1 */
+    unsigned __int128 v = (unsigned __int128)base;
+    v *= base;          /* base²  */
+    v *= base;          /* base³  */
+    v *= base;          /* base⁴  */
+    if (v > (unsigned __int128)limit)
+        return limit + 1;
+    return (size_t)v;
+}
 
 /* ----------------------------------------------------------- static state ----------------------------------------------------------- */
 static uint16_t *dp          = NULL;   /* dp[i] = minimal number of 4th powers for i   */
@@ -91,7 +105,7 @@ static void extend_to(size_t new_limit)
         if (best == 11) {
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 128 : cache_cap * 2;
-                seq_t *tmpcache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmpcache = mem_resize(seq_t, cache, new_cap);
                 if (!tmpcache)
                     abort();
                 cache = tmpcache;

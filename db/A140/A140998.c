@@ -12,7 +12,8 @@
  *            G(n-2, k-1) + G(n-2, k) + G(n-1, k) for 1 ≤ k ≤ n-2
  * Range:     u8 n <= 56, u16 n <= 174, u32 n <= 634, u64 n <= 2288,
  *            u128 n <= 5150, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 5100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* external integer types provided by the build */
 extern seq_t a(idx_t n);
@@ -41,7 +43,7 @@ static void ensure_rows(idx_t up_to)
 
     /* compute new rows incrementally */
     for (idx_t r = max_rows; r <= up_to; ++r) {
-        seq_t *row = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (r + 1));
         if (!row) exit(1);              /* out of memory */
 
         /* first and last entries */

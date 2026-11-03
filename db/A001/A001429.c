@@ -11,7 +11,8 @@
  *            [x^n] Q) / 2, A000081(n+1) = (1/n) Sum_{k=1..n}...
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 25, u64 n <= 46, u128 n <= 87,
  *            big any n
- * Helpers:   a1429_regrow, a1429_tot
+ * Validated: standard, pass, 46 terms through n = 482 (2026-11-03)
+ * Helpers:   mem, totient_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/a1429_regrow.h"
-#include "../utils/a1429_tot.h"
+#include "../utils/totient_idx.h"
+#include "../utils/mem.h"
+
+static seq_t *a1429_regrow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < newlen; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static int a1429_mode = -1;
 
@@ -92,7 +103,7 @@ static seq_t a1429_big_calc(idx_t n)
             idx_t m = n / d;
             seq_t b = 0;
             for (k = 1; k <= m; k++) b += (seq_t)k * BR[k] * BG[m - k];
-            nsum += (seq_t)a1429_tot(d) * b;
+            nsum += (seq_t)totient_idx(d) * b;
         }
     }
     Nn = nsum / (seq_t)n;
@@ -231,7 +242,7 @@ static seq_t a1429_fix_calc(idx_t n)
             a1429_u b = a1429_U(0);
             for (k = 1; k <= m; k++)
                 b = a1429_add(b, a1429_mul(a1429_mul(a1429_U(k), FR[k]), FG[m - k]));
-            nsum = a1429_add(nsum, a1429_mul(a1429_U(a1429_tot(d)), b));
+            nsum = a1429_add(nsum, a1429_mul(a1429_U(totient_idx(d)), b));
         }
     }
     Nn = a1429_div(nsum, (uint32_t)n);

@@ -10,7 +10,8 @@
  *            radix > 1)
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   is_composite_uint64
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,16 @@
    arbitrary‑precision integer class. */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_composite_uint64.h"
+
+/* Helper: small is‑prime test used to generate the composite radices  */
+static int is_composite_uint64(uint64_t n)
+{
+    if (n < 4) return 0;          /* 0,1,2,3 are not composite */
+    if (n % 2 == 0) return 1;    /* even numbers >=4 are composite */
+    for (uint64_t i = 3; i * i <= n; i += 2)
+        if (n % i == 0) return 1;
+    return 0;                     /* n is prime */
+}
 
 /* ------------------------------------------------------------------ */
 

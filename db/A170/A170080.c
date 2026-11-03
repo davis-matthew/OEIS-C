@@ -9,12 +9,15 @@
  *            reduced words in the Coxeter group with 23 generators)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n == 0ULL) {
@@ -22,6 +25,6 @@ seq_t a(idx_t n) {
     }
     /* exponent is (n-1) */
     seq_t exp = (seq_t)(n - 1ULL);
-    seq_t pow22 = big_pow((seq_t)22, exp);
+    seq_t pow22 = ipow((seq_t)22, exp);
     return (seq_t)23 * pow22;
 }

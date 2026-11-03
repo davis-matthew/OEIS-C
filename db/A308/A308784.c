@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 464, u32 n <= 714, u64 n <= 714,
  *            u128 n <= 714, big any n
- * Helpers:   is_prime, jacobi_symbol, next_prime
+ * Validated: standard, pass, 62 terms through n = 693 (2026-11-03)
+ * Helpers:   is_prime, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,33 @@
 #include <stdlib.h>
 
 /* Utility headers provided by the build system */
-#include "../utils/is_prime.h"          /* bool is_prime(idx_t x)          */
-#include "../utils/next_prime.h"        /* uint64_t next_prime(uint64_t)  */
-#include "../utils/jacobi_symbol.h"     /* int  jacobi_symbol(uint64_t a,uint64_t n) */
+#include "../utils/is_prime.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 /* ---- fast doubling Fibonacci modulo mod ---------------------------------- */
 static void fib_mod(uint64_t n, uint64_t mod, uint64_t *fn, uint64_t *fn1)
@@ -126,7 +151,7 @@ seq_t a(idx_t n)
 
     if (!cache) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     while (cache_len < (size_t)n) {
@@ -136,7 +161,7 @@ seq_t a(idx_t n)
 
         if (cache_len == cache_cap) {
             cache_cap <<= 1;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = (seq_t)p;
     }

@@ -7,7 +7,8 @@
  * Formula:   (1+2x)(1+2x+4x^2)/(1-3x-8x^3-8x^4)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 16, u64 n <= 33, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 886 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,13 +16,14 @@
 /* Recurrence: a(0)=1, a(1)=7, a(2)=29, a(3)=103
    For n>=4: a(n)=3*a(n-1)+8*a(n-3)+8*a(n-4)+ (4 if n==1; 8 if n==2||n==3; 0 otherwise) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
     static idx_t cache_len = 0;
 
     if (n + 1 > cache_len) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp && n + 1 > 0) {
             /* allocation failure – abort */
             abort();

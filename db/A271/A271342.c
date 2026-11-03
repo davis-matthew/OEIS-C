@@ -7,6 +7,7 @@
  * Formula:   a(n) = sum_{d even, 2 <= d <= n} d * floor(n/d)
  * Range:     u8 n <= 25, u16 n <= 399, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 81 terms through n = 4304 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

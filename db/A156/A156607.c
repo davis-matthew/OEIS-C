@@ -10,6 +10,7 @@
  *            once and count the required digits
  * Range:     u8 n <= 54, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
  * Helpers:   digit_frequencies, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,11 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/sieve_first_n_primes.h"
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/digit_frequencies.h"
+#include "../utils/sieve_first_n_primes.h"
 
 static uint32_t *prime_cache = NULL;
 static idx_t cache_size = 0;

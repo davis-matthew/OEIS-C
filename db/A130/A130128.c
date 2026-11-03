@@ -10,11 +10,13 @@
  *            (r-k+1)*2^(k-1)
  * Range:     u8 n <= 43, u16 n <= 151, u32 n <= 559, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 82 terms through n = 1258 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 static inline idx_t isqrt_uint128(unsigned __int128 x) {

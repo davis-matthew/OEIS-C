@@ -9,7 +9,8 @@
  *            consecutive block of 10 bits contains at most 5 ones
  * Range:     u8 none, u16 n <= 8, u32 n <= 26, u64 n <= 63, u128 n <= 136,
  *            big any n
- * Helpers:   grow_seq_array, pop9
+ * Validated: standard, pass, 42 terms through n = 208 (2026-11-03)
+ * Helpers:   mem, popcount_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/grow_seq_array.h"
-#include "../utils/pop9.h"
+#include "../utils/popcount_i32.h"
+#include "../utils/mem.h"
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 static seq_t dp_cur[512];
 static seq_t dp_next[512];
@@ -49,20 +62,20 @@ static void extend_to(idx_t target_n)
     ensure_results_cap(target_n);
 
     if (!init_done) {
-        memset(dp_cur, 0, sizeof(dp_cur));
+        mem_set(dp_cur, 0, sizeof(dp_cur));
         dp_cur[0] = 1;                           /* empty prefix */
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         init_done = 1;
     }
 
     while (curr_L < target_L) {
         int full_window = (curr_L >= 9);         /* a new window will have size 10 */
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         for (int mask = 0; mask < 512; ++mask) {
             seq_t cnt = dp_cur[mask];
             if (!cnt) continue;
-            int ones = pop9(mask);
+            int ones = popcount_i32(mask);
 
             /* append 0 */
             if (!full_window || ones <= 5) {
@@ -87,7 +100,7 @@ static void extend_to(idx_t target_n)
             results[n] = total;
         }
 
-        memcpy(dp_cur, dp_next, sizeof(dp_cur));
+        mem_copy(dp_cur, dp_next, sizeof(dp_cur));
     }
 
     curr_nmax = target_n;

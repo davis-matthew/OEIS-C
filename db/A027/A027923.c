@@ -8,14 +8,26 @@
  * Formula:   a(n) = min{k: A000914(k+1) >= A000330(n)}
  * Range:     u8 n <= 6, u16 n <= 26, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   second_sym, sum_i, sum_i2
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   triangular_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/second_sym.h"
-#include "../utils/sum_i.h"
-#include "../utils/sum_i2.h"
+#include "../utils/triangular_idx.h"
+
+static inline seq_t sum_i2(idx_t k)
+{
+    seq_t kk = (seq_t)k;
+    return kk * (kk + 1) * (2 * kk + 1) / 6;
+}
+
+static inline seq_t second_sym(idx_t k)
+{
+    seq_t S = triangular_idx(k);
+    seq_t Q = sum_i2(k);
+    return (S * S - Q) / 2;
+}
 /* i.e. return the smallest k such that the second elementary symmetric
    sum of {1,…,k+1} is at least the sum of squares 1^2+…+n^2,
    then subtract 1 to match the OEIS offset. */

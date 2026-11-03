@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 256, u16 n <= 9894, u32 n <= 9894, u64 n <= 9894,
- *            u128 n <= 9894, big any n
- * Helpers:   none
+ * Range:     u8 n <= 256, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 92 terms through n = 9894 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- static memoisation tables ---------- */
 static seq_t *seq_cache = NULL;   /* 1‑based a-values, seq_cache[0] unused   */
@@ -67,11 +69,11 @@ static void ensure_capacity(idx_t n)
 {
     /* seq_cache */
     if (seq_cache == NULL) {
-        seq_cache = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        seq_cache = mem_new(seq_t, (size_t)(n + 1));
         if (!seq_cache) exit(EXIT_FAILURE);
         cache_cap = (size_t)(n + 1);
     } else if (cache_cap < (size_t)(n + 1)) {
-        seq_cache = (seq_t *)realloc(seq_cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, (size_t)(n + 1));
         if (!seq_cache) exit(EXIT_FAILURE);
         cache_cap = (size_t)(n + 1);
     }

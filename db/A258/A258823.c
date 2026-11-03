@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 310, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MAX_STEPS 40000   /* safety limit for the forward Collatz test */
 
@@ -60,7 +62,7 @@ static void ensure_capacity(void)
 {
     if (cache_size >= cache_cap) {
         size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
-        seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
         if (!new_ptr)
             abort();
         cache = new_ptr;

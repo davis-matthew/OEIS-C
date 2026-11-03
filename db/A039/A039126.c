@@ -8,11 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 120, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 85 terms through n = 3263 (2026-11-01)
  * Helpers:   digit_counts
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
 
 /* A039126: Brute force search for numbers whose decimal representation has equal numbers of 1's and 8's */

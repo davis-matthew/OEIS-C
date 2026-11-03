@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 572, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 9205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 /* Include only C headers acceptable for both C11 and C++17. */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static data used for memoisation. */
 static seq_t *a_list   = NULL; /* pointers to the terms found */
@@ -69,7 +71,7 @@ static void init_sequence(void)
 
     /* Collect sums that appear exactly twice. */
     size_t cap = 128;
-    seq_t *list = (seq_t*)malloc(cap * sizeof(seq_t));
+    seq_t *list = mem_new(seq_t, cap);
     if (!list) abort();
     size_t len = 0;
 
@@ -77,7 +79,7 @@ static void init_sequence(void)
         if (cnt[s] == 2) {
             if (len == cap) {  /* grow capacity */
                 cap <<= 1;      /* double */
-                seq_t *tmp = (seq_t*)realloc(list, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, list, cap);
                 if (!tmp) abort();
                 list = tmp;
             }

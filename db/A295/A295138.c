@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   next_unused
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,29 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/next_unused.h"
+#include "../utils/mem.h"
+
+/* Helper to find the smallest integer not present in A or B.  All arguments
+ * are passed by reference so that the caller can maintain state between calls. */
+static seq_t next_unused(const seq_t *A, size_t A_len, const seq_t *B, size_t B_len,
+                         size_t *idx_A, size_t *idx_B, seq_t *next_candidate)
+{
+    seq_t val = *next_candidate;
+    while (true) {
+        /* advance idx_A until A[idx_A] ≥ val */
+        while (*idx_A < A_len && A[*idx_A] < val) (*idx_A)++;
+        if (*idx_A < A_len && A[*idx_A] == val) { val++; continue; }
+
+        /* advance idx_B until B[idx_B] ≥ val */
+        while (*idx_B < B_len && B[*idx_B] < val) (*idx_B)++;
+        if (*idx_B < B_len && B[*idx_B] == val) { val++; continue; }
+
+        /* val is unused */
+        break;
+    }
+    *next_candidate = val + 1;   /* next search starts above this number */
+    return val;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,11 +62,11 @@ seq_t a(idx_t n)
     /* ---------- helper: ensure capacity ---------- */
     if (A_cap == 0) {
         A_cap = 4;
-        A = (seq_t *)malloc(A_cap * sizeof(seq_t));
+        A = mem_new(seq_t, A_cap);
     }
     if (B_cap == 0) {
         B_cap = 4;
-        B = (seq_t *)malloc(B_cap * sizeof(seq_t));
+        B = mem_new(seq_t, B_cap);
     }
 
     /* ---------- initialization of first terms ---------- */
@@ -65,7 +88,7 @@ seq_t a(idx_t n)
                                     &idx_A_use, &idx_B_use, &next_candidate);
             if (B_len == B_cap) {
                 B_cap *= 2;
-                B = (seq_t *)realloc(B, B_cap * sizeof(seq_t));
+                B = mem_resize(seq_t, B, B_cap);
             }
             B[B_len++] = val;
         }
@@ -79,7 +102,7 @@ seq_t a(idx_t n)
 
         if (A_len == A_cap) {
             A_cap *= 2;
-            A = (seq_t *)realloc(A, A_cap * sizeof(seq_t));
+            A = mem_resize(seq_t, A, A_cap);
         }
         A[A_len++] = new_a;
     }

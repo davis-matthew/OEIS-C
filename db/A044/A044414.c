@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains_82
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,40 @@
    and tests the required condition. */
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/contains_82.h"
+
+/* Return true if the decimal representation of n contains "82". */
+static bool contains_82(seq_t n)
+{
+    if (n == 0) {
+        return false;               /* "0" never contains "82" */
+    }
+
+    /* Buffer large enough for all 128‑bit numbers (< 40 decimal digits). */
+    unsigned char digits[80];
+    size_t len = 0;
+    seq_t temp = n;
+    const seq_t ten = (seq_t)10;
+
+    /* Extract digits, least significant first. */
+    while (temp > 0)
+    {
+        seq_t rem = temp % ten;
+        /* Convert the remainder to an ordinary integer for storage. */
+        digits[len++] = (unsigned char)((unsigned long long)rem);
+        temp = temp / ten;
+    }
+
+    /* Scan from most significant to least significant digit looking for
+       the pattern 8 followed by 2. */
+    for (size_t i = len; i > 1; --i)
+    {
+        if (digits[i - 1] == 8 && digits[i - 2] == 2)
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
 /* Return the n‑th number such that "82" occurs in its base‑10 representation
    but does not occur in (n-1).  The index n starts at 1. */

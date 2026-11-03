@@ -8,13 +8,15 @@
  *            (1/k)*Sum_{d|k} mu(d)*2^(k/d)
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *P = NULL;   /* P[e] = 2^e */
 static seq_t *S = NULL;   /* S[k] = a(k) */
@@ -69,8 +71,8 @@ static void grow(idx_t n) {
     idx_t newcap = cap ? cap : 16, i, k;
     seq_t *NP, *NS;
     while (newcap < n) newcap *= 2;
-    NP = (seq_t *)malloc(sizeof(seq_t) * ((size_t)newcap + 1));
-    NS = (seq_t *)malloc(sizeof(seq_t) * ((size_t)newcap + 1));
+    NP = mem_new(seq_t, ((size_t)newcap + 1));
+    NS = mem_new(seq_t, ((size_t)newcap + 1));
     for (i = 0; i <= newcap; i++) {
         NP[i] = 0;
         NS[i] = 0;
@@ -80,8 +82,8 @@ static void grow(idx_t n) {
     for (i = 1; i <= have; i++) NS[i] = S[i];
     if (P) {
         for (i = 0; i <= cap; i++) { P[i] = 0; S[i] = 0; }
-        free(P);
-        free(S);
+        mem_free(P);
+        mem_free(S);
     }
     P = NP;
     S = NS;

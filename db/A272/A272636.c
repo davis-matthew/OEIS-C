@@ -10,13 +10,15 @@
  *            (i.e. the product of distinct primes of x raised to odd powers)
  * Range:     u8 n <= 115, u16 n <= 115, u32 n <= 115, u64 n <= 115,
  *            u128 n <= 115, big any n
- * Helpers:   none
+ * Validated: partial, pass, 116 terms through n = 115 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    /* cache of precomputed values */
 static size_t cache_len = 0;   /* number of elements actually stored */
@@ -50,7 +52,7 @@ seq_t a(idx_t n) {
     /* Ensure cache has entries for 0 and 1 */
     if (cache_len == 0) {
         cache_len = 2;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         cache[0] = 0;
         cache[1] = 1;
     }
@@ -58,7 +60,7 @@ seq_t a(idx_t n) {
     /* Grow cache as needed */
     if ((size_t)n >= cache_len) {
         size_t new_len = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         /* Compute missing values */
         for (size_t i = cache_len; i < new_len; ++i) {
             seq_t sum = cache[i - 1] + cache[i - 2];

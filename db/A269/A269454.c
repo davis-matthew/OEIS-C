@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 240, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   generate_safe_primes
+ * Validated: standard, pass, 61 terms through n = 9715 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,70 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/generate_safe_primes.h"
+
+/* ------------------------------------------------------------------ */
+static void
+generate_safe_primes(uint64_t limit, uint64_t **arr, size_t *cnt)
+{
+    if (limit < 2) {
+        *arr   = NULL;
+        *cnt   = 0;
+        return;
+    }
+
+    /* Allocate and initialise a simple sieve */
+    bool *is_prime = (bool *)malloc((size_t)(limit + 1) * sizeof(bool));
+    if (is_prime == NULL) {
+        *arr = NULL;
+        *cnt = 0;
+        return;
+    }
+    memset(is_prime, 1, (size_t)(limit + 1) * sizeof(bool));
+    is_prime[0] = is_prime[1] = false;
+
+    for (uint64_t i = 2; i * i <= limit; ++i) {
+        if (!is_prime[i])
+            continue;
+        for (uint64_t j = i * i; j <= limit; j += i)
+            is_prime[j] = false;
+    }
+
+    /* Count safe primes, first pass to allocate storage */
+    size_t tmp_cnt = 0;
+    for (uint64_t p = 2; p <= limit; ++p) {
+        if (!is_prime[p])
+            continue;
+        if ((p & 7) == 7)          /* p % 8 == 7 */
+            continue;
+        uint64_t q = (p - 1) >> 1; /* (p-1)/2 */
+        if (q >= 2 && q <= limit && is_prime[q])
+            ++tmp_cnt;
+    }
+
+    uint64_t *tmp_arr = (uint64_t *)malloc(tmp_cnt * sizeof(uint64_t));
+    if (tmp_arr == NULL) {
+        free(is_prime);
+        *arr = NULL;
+        *cnt = 0;
+        return;
+    }
+
+    size_t idx = 0;
+    for (uint64_t p = 2; p <= limit; ++p) {
+        if (!is_prime[p])
+            continue;
+        if ((p & 7) == 7)
+            continue;
+        uint64_t q = (p - 1) >> 1;
+        if (q >= 2 && q <= limit && is_prime[q]) {
+            tmp_arr[idx++] = p;
+        }
+    }
+
+    free(is_prime);
+    *arr = tmp_arr;
+    *cnt = tmp_cnt;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Static data                                               */

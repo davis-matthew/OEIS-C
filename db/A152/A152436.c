@@ -7,6 +7,7 @@
  * Formula:   a(n) = 170*a(n-2) - 169*a(n-4) a(0)=0, a(1)=1, a(2)=7, a(3)=183
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 35,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 757 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

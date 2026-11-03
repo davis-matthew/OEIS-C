@@ -10,12 +10,14 @@
  *            Ncoeff[n] = 0 for n>10
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 437 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global cache of computed values */
 static seq_t *cache = NULL;           /* array of a(i) */
@@ -28,10 +30,10 @@ static const int Ncoeff[11] = {1,2,2,2,2,2,2,2,2,2,1};
 static void ensure_up_to(idx_t idx)
 {
     if (cache == NULL) {
-        cache = (seq_t *)malloc((idx + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (idx + 1));
         cache_size = idx + 1;
     } else if (cache_size <= idx) {
-        cache = (seq_t *)realloc(cache, (idx + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (idx + 1));
         cache_size = idx + 1;
     }
 

@@ -7,13 +7,22 @@
  * Formula:   A004820 - numbers that are sums of 9 positive 11th powers
  * Range:     u8 none, u16 none, u32 none, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   cmp_seq_func
+ * Validated: standard, pass, 52 terms through n = 9783 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/cmp_seq_func.h"
+#include "../utils/mem.h"
+
+static int cmp_seq_func(const void *a, const void *b) {
+    seq_t va = *(const seq_t *)a;
+    seq_t vb = *(const seq_t *)b;
+    if (va < vb) return -1;
+    if (va > vb) return 1;
+    return 0;
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_count = 0;
@@ -30,7 +39,7 @@ static void init_cache(void) {
         powers[i] = result;
     }
     
-    seq_t *temp = (seq_t *)malloc(2000000 * sizeof(seq_t));
+    seq_t *temp = mem_new(seq_t, 2000000);
     idx_t temp_count = 0;
     
     for (idx_t a = 1; a <= max_base; a++) {
@@ -63,9 +72,9 @@ static void init_cache(void) {
         }
     }
     
-    qsort(temp, temp_count, sizeof(seq_t), cmp_seq_func);
+    mem_qsort(temp, temp_count, sizeof(seq_t), cmp_seq_func);
     
-    cache = (seq_t *)malloc(temp_count * sizeof(seq_t));
+    cache = mem_new(seq_t, temp_count);
     
     cache_count = 0;
     for (idx_t i = 0; i < temp_count; i++) {
@@ -74,7 +83,7 @@ static void init_cache(void) {
         }
     }
     
-    free(temp);
+    mem_free(temp);
 }
 
 seq_t a(idx_t n) {

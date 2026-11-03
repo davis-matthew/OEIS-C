@@ -8,6 +8,7 @@
  * Formula:   a(n) = Σ_{d|n} μ(d) * A027383(n/d - 2) (A027383(-1)=0)
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 63, u64 n <= 127,
  *            u128 n <= 255, big any n
+ * Validated: standard, pass, 60 terms through n = 885 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

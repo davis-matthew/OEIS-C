@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 1326, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 9868 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Count p‑adic valuation of n!  (n is an unsigned integer). */
 static idx_t v_p_factorial(idx_t n, uint64_t p)
@@ -80,7 +82,7 @@ static void grow_cache(size_t needed, seq_t **arr, size_t *cap)
     if (*cap < needed) {
         size_t new_cap = (*cap) ? (*cap) << 1 : 64;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         *arr = tmp;
         *cap = new_cap;
     }

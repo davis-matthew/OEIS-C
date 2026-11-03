@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   base12_has_equal_nonzero_6_and_8
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
 /* The function returns the nth such number. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/base12_has_equal_nonzero_6_and_8.h"
+
+static bool base12_has_equal_nonzero_6_and_8(seq_t x)
+{
+    unsigned int c6 = 0, c8 = 0;
+    const seq_t base = (seq_t)12;
+    while (x > (seq_t)0) {
+        seq_t d = x % base;
+        if (d == (seq_t)6) c6++;
+        else if (d == (seq_t)8) c8++;
+        x /= base;
+    }
+    return (c6 == c8) && (c6 > 0);
+}
 
 seq_t a(idx_t n)
 {

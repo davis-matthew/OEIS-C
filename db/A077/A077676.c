@@ -8,7 +8,8 @@
  *            {2,3,5,6,7}. The sequence is infinite
  * Range:     u8 n <= 3, u16 n <= 14, u32 n <= 152, u64 n <= 600,
  *            u128 n <= 600, big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 589 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* digits allowed in a square */
 static const bool allowed_digit[10] = {
@@ -48,10 +50,10 @@ static void cache_append(seq_t **cache, size_t *len, size_t *cap, seq_t val)
 {
     if (*len + 1 > *cap) {
         size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (*cache) {
             for (size_t i = 0; i < *len; ++i) tmp[i] = (*cache)[i];
-            free(*cache);
+            mem_free(*cache);
         }
         *cache = tmp;
         *cap = new_cap;

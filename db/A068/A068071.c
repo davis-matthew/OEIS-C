@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 26, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   digit_len, floor_sqrt, pow10
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   ipow_i32, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,9 +29,38 @@
  */
 
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/num_digits.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static bool is_triangular(seq_t x)
 {
@@ -52,7 +82,7 @@ seq_t a(idx_t n)
         // rotate: move least significant decimal digit to the front
         seq_t d   = tri % 10;                      // last digit
         seq_t rest = tri / 10;                      // remaining digits
-        idx_t  m_digits = digit_len(tri);           // total decimal digits
+        idx_t  m_digits = num_digits(tri);           // total decimal digits
         seq_t rotated = d * pow10(m_digits - 1) + rest;
 
         if (is_triangular(rotated))

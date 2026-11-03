@@ -6,8 +6,9 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = Sum_{d|n} A181819(d). Multiplicative with a(p^e) = 1 +
  *            Sum_{k=1..e} prime(k)
- * Range:     u8 n <= 479, u16 n <= 9914, u32 n <= 9914, u64 n <= 9914,
- *            u128 n <= 9914, big any n
+ * Range:     u8 n <= 479, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 106 terms through n = 9914 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

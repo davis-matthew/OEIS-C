@@ -8,13 +8,15 @@
  *            a(n) = a(j) + 2·a(j+1)
  * Range:     u8 n <= 58, u16 n <= 2038, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 7730 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* static cache of computed values */
 static size_t a_cache_cap = 0;  /* current capacity of the cache */
@@ -25,7 +27,7 @@ static void ensure_a_cache(idx_t n)
     if (n < a_cache_cap) return;
     size_t new_cap = (n + 1 > a_cache_cap * 2) ? (size_t)(n + 1)
                                                : (a_cache_cap ? a_cache_cap * 2 : 1);
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) abort();                      /* OOM – terminate */
     if (tmp != a_cache) a_cache = tmp;
     /* initialise newly allocated space to 0 (unused values) */

@@ -8,20 +8,23 @@
  * Formula:   a(n) = n*bigomega(n)^n
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   big_pow, bigomega
+ * Validated: standard, pass, 44 terms through n = 195 (2026-11-01)
+ * Helpers:   bigomega, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/bigomega.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* n >= 1 according to OEIS offset */
     seq_t n_val = (seq_t)n;
     seq_t w = bigomega(n);          /* bigomega(n) */
-    seq_t pw = big_pow(w, n_val);   /* w^n */
+    seq_t pw = ipow(w, n_val);   /* w^n */
     return pw * n_val;              /* n * w^n */
 }

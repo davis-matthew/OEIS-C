@@ -9,7 +9,8 @@
  *            k < m, (m^2 + 1) mod (k^2 + 1) ≠ 0
  * Range:     u8 n <= 67, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9170 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define PRIMELIMIT 50000     /* enough for sqrt(2·10^9) ≈ 44721 */
 static int primes[6000];
@@ -120,7 +122,7 @@ seq_t a(idx_t n) {
         if (is_good_value(x, m)) {
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 4;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)m;
         }

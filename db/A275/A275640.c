@@ -10,12 +10,14 @@
  *            are the coefficients of ∏_{j=1..6} (1−q^j)
  * Range:     i8 n <= 31, i16 n <= 619, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 862 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Numerator coefficients for c_n, n = 0..6 */
 static const seq_t NUM_COEFF[7] = {1, -6, 15, -20, 15, -6, 1};
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (n + 1 > cap) {
         size_t new_cap = cap == 0 ? 1 : cap * 2;
         while (new_cap <= n) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap   = new_cap;
     }
 

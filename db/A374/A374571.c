@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 36, i16 n <= 104, i32 n <= 368, i64 n <= 1308,
  *            i128 n <= 4868, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 9078 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
       if n odd :          a(n) = - Σ_{k=0..(n-1)/2} a(k)*a((n-1)/2−k)
    This recurrence follows from A(x) = A(x²) – x*A(x²)².  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         idx_t new_cap = buf_capacity > 0 ? buf_capacity : 1;
         while (new_cap < n + 1) new_cap <<= 1;   /* grow so that new_cap >= n+1 */
 
-        seq_t *tmp = (seq_t *)realloc(buf, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, new_cap);
         if (!tmp) return 0;                       /* allocation failed */
         buf = tmp;
         buf_capacity = new_cap;

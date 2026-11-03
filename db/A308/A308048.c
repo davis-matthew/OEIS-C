@@ -8,12 +8,14 @@
  * Formula:   a(n) = n - nextprime(ceil(n/2) - 1)
  * Range:     i8 n <= 69, i16 n <= 69, i32 n <= 69, i64 n <= 69, i128 n <= 69,
  *            big any n
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
  * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
 
 seq_t a(idx_t n)

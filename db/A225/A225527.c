@@ -10,7 +10,8 @@
  *            dynamic bitset)
  * Range:     u8 n <= 43, u16 n <= 400, u32 n <= 400, u64 n <= 400,
  *            u128 n <= 400, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 377 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Computes a(n) for OEIS sequence A225527.
    seq_t and idx_t are defined by the build environment. */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (processed_n == (idx_t)-1) {
         processed_n = 0;
         cache_capacity = 1;
-        a_cache = (seq_t *)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         a_cache[0] = (seq_t)1;          /* a(0) = 1 (only product 0) */
 
         product_count = (seq_t)1;       /* product 0 seen once */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     /* Grow cache array if needed */
     if ((size_t)n + 1 > cache_capacity) {
         cache_capacity = (size_t)n + 1;
-        a_cache = (seq_t *)realloc(a_cache, cache_capacity * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, cache_capacity);
     }
 
     /* Enumerate new pairs with i + j = k for each k from processed_n+1 to n */

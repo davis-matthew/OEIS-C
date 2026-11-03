@@ -14,13 +14,22 @@
  *            a(8)=62600, a(9)=138360, a(10)=314376. * * This impleme...
  * Range:     u8 none, u16 n <= 8, u32 n <= 20, u64 n <= 44, u128 n <= 91,
  *            big any n
- * Helpers:   add_scaled
+ * Validated: standard, pass, 41 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/add_scaled.h"
+#include "../utils/mem.h"
+
+/* Add v to acc, times times (times ≥ 0).  Works for all seq_t types. */
+static inline seq_t add_scaled(seq_t acc, seq_t v, unsigned int times)
+{
+    while (times--)
+        acc += v;
+    return acc;
+}
 
 static const seq_t init_vals[10] = {
     680,   1112,  1912,  3560,  6856,
@@ -37,7 +46,7 @@ seq_t a(idx_t n)
 
     if (!cache) {
         cache_size = 10;
-        cache = (seq_t *)malloc((cache_size + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_size + 1));
         if (!cache)
             exit(1);              /* out‑of‑memory */
         for (idx_t i = 1; i <= 10; ++i)
@@ -45,7 +54,7 @@ seq_t a(idx_t n)
     }
 
     if (n > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp)
             exit(1);
         cache = tmp;

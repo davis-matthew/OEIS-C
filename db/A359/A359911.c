@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A001055(n) - A359909(n)
- * Range:     u8 n <= 2879, u16 n <= 9329, u32 n <= 9329, u64 n <= 9329,
- *            u128 n <= 9329, big any n
- * Helpers:   bad_partition
+ * Range:     u8 n <= 2879, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 124 terms through n = 9329 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,21 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/bad_partition.h"
+
+/* Helper that tests whether a factor list has mean equal to median.
+   `len` is the number of factors in `factors`; `sum` is their sum. */
+static inline bool bad_partition(const seq_t *factors, size_t len, seq_t sum)
+{
+    if (len & 1) {                /* odd length – median is a single value */
+        size_t mid = len / 2;
+        return sum == (seq_t)len * factors[mid];
+    } else {                      /* even length – median is the average of two middle values */
+        size_t mid1 = len / 2 - 1;
+        size_t mid2 = len / 2;
+        seq_t med_sum = factors[mid1] + factors[mid2];
+        return 2 * sum == (seq_t)len * med_sum;
+    }
+}
 
 /* Recursive enumeration of all multiplicative partitions of `n`.
    `min_factor` enforces non‑decreasing order of factors to avoid duplicates.

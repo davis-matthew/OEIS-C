@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of primes p ≤ n whose exponent in the prime
  *            factorization of n! is odd
- * Range:     u8 n <= 2612, u16 n <= 9764, u32 n <= 9764, u64 n <= 9764,
- *            u128 n <= 9764, big any n
+ * Range:     u8 n <= 2612, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 102 terms through n = 9764 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

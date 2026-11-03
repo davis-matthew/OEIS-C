@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = Σ_{k=1}^{n-1} [is_prime(n-k) && is_prime(n+k)]
- * Range:     u8 n <= 3464, u16 n <= 8849, u32 n <= 8849, u64 n <= 8849,
- *            u128 n <= 8849, big any n
+ * Range:     u8 n <= 3464, u16 n <= 59997, u32 n <= 59997, u64 n <= 59997,
+ *            u128 n <= 59997, big any n
+ * Validated: standard, pass, 114 terms through n = 8849 (2026-11-03)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

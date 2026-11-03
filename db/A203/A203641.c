@@ -9,12 +9,14 @@
  *            the second kind)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 25, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* On first call, initialise storage for n=1 */
     if (max_comp == 0) {
         /* Allocate space for n=1 */
-        cache = (seq_t *)calloc(2, sizeof(seq_t));   /* indices 0 and 1 */
+        cache = mem_new(seq_t, 2);   /* indices 0 and 1 */
         if (!cache) return 0;                       /* out of memory, return 0 */
         prev[1] = 1;                                /* S(1,1) = 1 */
         cache[1] = 1;                               /* a(1) = 1 */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Expand cache and compute new values up to requested n */
     if (n > max_comp) {
         /* Reallocate cache to hold up to n (index 0 unused) */
-        seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) return 0; /* allocation failure -> 0 */
         cache = new_cache;
         /* Initialise new cache entries to 0 */

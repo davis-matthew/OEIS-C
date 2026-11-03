@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Global state for memoisation and DP                                         */
@@ -50,7 +52,7 @@ static seq_t * cache         = NULL;/* array of computed a(n) values */
 static void dp_step(void)
 {
     /* zero the next table */
-    memset(ndp, 0, sizeof(ndp));
+    mem_set(ndp, 0, sizeof(ndp));
 
     /* perform all state transitions */
     for (int m = 0; m <= 6; ++m) {
@@ -75,7 +77,7 @@ static void dp_step(void)
     }
 
     /* copy next table back to dp */
-    memcpy(dp, ndp, sizeof(dp));
+    mem_copy(dp, ndp, sizeof(dp));
     ++current_len;
 }
 
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
      * element must be 0, so we initialise the state after processing
      * the first position. */
     if (current_len == 0) {
-        memset(dp, 0, sizeof(dp));
+        mem_set(dp, 0, sizeof(dp));
         dp[0][0][1] = (seq_t)1;   /* array of length 1: [0] */
         current_len = 1;          /* one position processed */
     }
@@ -114,7 +116,7 @@ seq_t a(idx_t n)
         /* Store the computed value in the cache. */
         if (cache_len >= cache_cap) {
             cache_cap = cache_cap ? cache_cap * 2 : 16;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len] = sum;
         ++cache_len;

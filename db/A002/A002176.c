@@ -12,7 +12,8 @@
  *            = Sum_j x^j Sum_{i>j} p_i n^(i-j)/(i-j), we get C(...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 12, u64 n <= 21, u128 n <= 36,
  *            big any n
- * Helpers:   cz_add, cz_addmul, cz_cmp, cz_divs, cz_leg, cz_mul_small, cz_sub
+ * Validated: standard, pass, 37 terms through n = 95 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +21,105 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/cz_add.h"
-#include "../utils/cz_addmul.h"
-#include "../utils/cz_cmp.h"
-#include "../utils/cz_divs.h"
-#include "../utils/cz_leg.h"
-#include "../utils/cz_mul_small.h"
-#include "../utils/cz_sub.h"
+
+static void cz_add(uint32_t *x, size_t *xl, const uint32_t *y, size_t yl)
+{
+    size_t n = *xl > yl ? *xl : yl, i;
+    uint64_t c = 0;
+    for (i = 0; i < n; i++) {
+        uint64_t t = (uint64_t)x[i] + (i < yl ? y[i] : 0) + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+    if (c) x[n++] = (uint32_t)c;
+    *xl = n;
+}
+
+static void cz_addmul(uint32_t *acc, size_t *al, const uint32_t *x, size_t xl,
+                      const uint32_t *y, size_t yl)
+{
+    size_t i, j, n;
+    if (xl == 0 || yl == 0) return;
+    for (i = 0; i < xl; i++) {
+        uint64_t c = 0, xi = x[i];
+        size_t k;
+        if (!xi) continue;
+        for (j = 0; j < yl; j++) {
+            uint64_t t = xi * y[j] + acc[i + j] + c;
+            acc[i + j] = (uint32_t)t;
+            c = t >> 32;
+        }
+        k = i + yl;
+        while (c) {
+            uint64_t t = (uint64_t)acc[k] + c;
+            acc[k] = (uint32_t)t;
+            c = t >> 32;
+            k++;
+        }
+    }
+    n = (*al > xl + yl ? *al : xl + yl) + 1;
+    while (n > 0 && acc[n - 1] == 0) n--;
+    *al = n;
+}
+
+static int cz_cmp(const uint32_t *x, size_t xl, const uint32_t *y, size_t yl)
+{
+    size_t i;
+    if (xl != yl) return xl < yl ? -1 : 1;
+    for (i = xl; i-- > 0;) {
+        if (x[i] != y[i]) return x[i] < y[i] ? -1 : 1;
+    }
+    return 0;
+}
+
+static uint32_t cz_divs(uint32_t *x, size_t *xl, uint32_t d)
+{
+    uint64_t r = 0;
+    size_t i;
+    for (i = *xl; i-- > 0;) {
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+    while (*xl > 0 && x[*xl - 1] == 0) (*xl)--;
+    return (uint32_t)r;
+}
+
+static uint64_t cz_leg(uint64_t m, uint64_t p)
+{
+    uint64_t s = 0;
+    while (m) { m /= p; s += m; }
+    return s;
+}
+
+static void cz_mul_small(uint32_t *x, size_t *xl, uint32_t m)
+{
+    size_t i;
+    uint64_t c = 0;
+    if (m == 0) {
+        memset(x, 0, (*xl) * sizeof(uint32_t));
+        *xl = 0;
+        return;
+    }
+    for (i = 0; i < *xl; i++) {
+        uint64_t t = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+    if (c) x[(*xl)++] = (uint32_t)c;
+}
+
+static void cz_sub(uint32_t *x, size_t *xl, const uint32_t *y, size_t yl)
+{
+    size_t i;
+    int64_t b = 0;
+    for (i = 0; i < *xl; i++) {
+        int64_t t = (int64_t)x[i] - (i < yl ? (int64_t)y[i] : 0) - b;
+        if (t < 0) { t += ((int64_t)1 << 32); b = 1; } else b = 0;
+        x[i] = (uint32_t)t;
+    }
+    while (*xl > 0 && x[*xl - 1] == 0) (*xl)--;
+}
 
 seq_t a(idx_t n)
 {

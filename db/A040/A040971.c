@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow, next_prime
+ * Validated: standard, pass, 57 terms through n = 927 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,11 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/next_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *good_primes = NULL;   /* array of primes that satisfy the condition */
 static size_t good_primes_cnt = 0;  /* current number of such primes */
@@ -30,7 +34,7 @@ static uint64_t next_candidate = 2; /* next prime to examine */
 static void grow_good_primes(void)
 {
     size_t new_cap = good_primes_cap == 0 ? 16 : good_primes_cap * 2;
-    seq_t *tmp = (seq_t *)realloc(good_primes, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, good_primes, new_cap);
     if (!tmp) exit(EXIT_FAILURE);  /* memory allocation failed */
     good_primes = tmp;
     good_primes_cap = new_cap;
@@ -46,7 +50,7 @@ static void ensure_good_primes(idx_t needed)
         if (p % 5 != 1) continue;                      /* only primes ≡ 1 (mod 5) can fail */
 
         seq_t exp = (seq_t)(p - 1) / 5;                 /* exponent for the test */
-        seq_t res = mod_pow((seq_t)13, (uint64_t)exp, (seq_t)p);
+        seq_t res = powmod((seq_t)13, (uint64_t)exp, (seq_t)p);
 
         if (res != (seq_t)1) {                          /* condition satisfied */
             if (good_primes_cnt == good_primes_cap)

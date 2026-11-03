@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 34, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    This implements the recurrence iteratively, memoising results
    so that calls may arrive in any order. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;      /* memoisation table */
 static size_t cap = 0;        /* allocated capacity of dp   */
@@ -30,7 +32,7 @@ static void ensure_size(idx_t n)
     /* Initialise if this is the first call */
     if (dp == NULL) {
         cap = 7;                      /* indices 0..6 are needed initially */
-        dp = (seq_t *)malloc(cap * sizeof(seq_t));
+        dp = mem_new(seq_t, cap);
         dp[0] = (seq_t)1;
         dp[1] = (seq_t)0;
         dp[2] = (seq_t)1;
@@ -50,7 +52,7 @@ static void ensure_size(idx_t n)
         size_t new_cap = cap;
         while (new_cap <= (size_t)n)
             new_cap *= 2;
-        dp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, new_cap);
         /* Initialise the new slots to zero (not strictly necessary) */
         for (size_t i = cap; i < new_cap; ++i)
             dp[i] = (seq_t)0;

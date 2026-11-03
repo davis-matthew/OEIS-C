@@ -9,6 +9,7 @@
  *            a(1) = 0. popcount(n) = A000120(n) (binary digit sum)
  * Range:     u8 n <= 895, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
+ * Validated: standard, pass, 96 terms through n = 8581 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

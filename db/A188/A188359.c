@@ -12,6 +12,7 @@
  *            Diophantine equation p*x1 + q*x4 = –p*q (p = x2, q...
  * Range:     u8 n <= 2, u16 n <= 38, u32 n <= 135, u64 n <= 135,
  *            u128 n <= 135, big any n
+ * Validated: standard, pass, 55 terms through n = 134 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

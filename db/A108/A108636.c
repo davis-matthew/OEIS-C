@@ -6,9 +6,10 @@
  * Keywords:  nonn, base, look
  * Formula:   a(n) = 2*A036956(n) (semiprimes whose decimal digits are all
  *            even)
- * Range:     u8 n <= 11, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
- *            big any n
- * Helpers:   all_even_digits
+ * Range:     u8 n <= 11, u16 n <= 254, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 65 terms through n = 9438 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/all_even_digits.h"
+
+/* ---------- utility functions ---------- */
+static bool all_even_digits(uint64_t x)
+{
+    if (x == 0) return true;
+    while (x > 0) {
+        int d = x % 10;
+        if (d & 1) return false;          /* odd digit */
+        x /= 10;
+    }
+    return true;
+}
 
 /* ---------- prime sieve ---------- */
 static bool primes_initialized = false;

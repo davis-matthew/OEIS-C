@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} (d^d)' = Sum_{d|n} d^d * d'
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 35 terms through n = 368 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,10 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static idx_t *spf = NULL;          /* smallest prime factor array */
 static size_t spf_size = 0;
@@ -43,7 +47,7 @@ static void ensure_values(idx_t n)
     }
 
     /* extend derivative cache */
-    der_cache = (seq_t *)realloc(der_cache, (n + 1) * sizeof(seq_t));
+    der_cache = mem_resize(seq_t, der_cache, (n + 1));
     der_cache[0] = 0;
     der_cache[1] = 0;
     for (idx_t i = 2; i <= n; ++i) {
@@ -69,11 +73,11 @@ seq_t a(idx_t n)
     for (d = 1; d * d <= n; ++d) {
         if (n % d == 0) {
             idx_t d2 = n / d;
-            seq_t pow_d  = big_pow((seq_t)d,  (seq_t)d);
+            seq_t pow_d  = ipow((seq_t)d,  (seq_t)d);
             sum += pow_d * der_cache[d];
 
             if (d2 != d) {
-                seq_t pow_d2 = big_pow((seq_t)d2, (seq_t)d2);
+                seq_t pow_d2 = ipow((seq_t)d2, (seq_t)d2);
                 sum += pow_d2 * der_cache[d2];
             }
         }

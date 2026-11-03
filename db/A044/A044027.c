@@ -9,7 +9,8 @@
  *            base-10 representation of k but not in k+1
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_juxtaposed
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,25 @@
 /* The function builds the sequence lazily in a static cache. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_juxtaposed.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether a number contains "46" or "64" in its decimal expansion. */
+static bool has_juxtaposed(seq_t x)
+{
+    if (x < 10)                    /* single digit cannot contain two adjacent digits */
+        return false;
+
+    int prev_digit = -1;
+    seq_t t = x;
+    while (t > 0) {
+        int digit = (int)(t % 10);
+        if ((prev_digit == 4 && digit == 6) || (prev_digit == 6 && digit == 4))
+            return true;
+        prev_digit = digit;
+        t /= 10;
+    }
+    return false;
+}
 
 /* Grow cache to accommodate at least need elements. */
 static void grow_cache(size_t need, seq_t **arr, size_t *cap)
@@ -27,7 +46,7 @@ static void grow_cache(size_t need, seq_t **arr, size_t *cap)
     size_t new_cap = *cap ? *cap * 2 : 8;
     while (new_cap < need)
         new_cap *= 2;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 

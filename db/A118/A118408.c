@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 17, i16 n <= 33, i32 n <= 52, i64 n <= 52, i128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    for n≥5:  a(n) = -a(n-1) - a(n-2) + a(n-3) + 2*a(n-5)
    (derived from G.f. = (1+x)^2/((1+x^2)(1+2x+2x^2)(1-x))  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* initialise cache with the 5 initial terms */
     if (cache_len == 0) {
         cache_len = 5;                     /* indices 0..4 */
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return 0;              /* abort gracefully */
 
         cache[0] = 1;                      /* a(0) */
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         if (new_len <= old_len) new_len = old_len + 1; /* safety guard */
     }
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) return 0;                     /* abort gracefully */
     cache = tmp;
     cache_len = new_len;

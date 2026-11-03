@@ -10,13 +10,14 @@
  *            C(a,b)
  * Range:     u8 n <= 23, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Compute the n-th term of OEIS A193862 */
 seq_t a(idx_t n)
@@ -43,7 +44,7 @@ seq_t a(idx_t n)
     idx_t k = n - prefix;              /* column index within the row */
 
     /* w(r,k) = 2^k * binom(r+1, k+1) */
-    seq_t bin = binom(r + 1, k + 1);
+    seq_t bin = binomial(r + 1, k + 1);
     seq_t pow2k = ((seq_t)1) << k;    /* 2^k  (works for 8/16/32/64/128 bits and most bigint types) */
 
     return bin * pow2k;

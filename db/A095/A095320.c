@@ -11,7 +11,8 @@
  *            arithmetic and bitwise operations
  * Range:     u8 n <= 54, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"   /* provides bool is_prime_small(seq_t) */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Helper to count set bits of a seq_t value. */
 static inline unsigned popcount_seq(seq_t x)
@@ -61,7 +63,7 @@ static void ensure_cache(idx_t n)
             candidate++;
 
         /* Test primality.  If not prime, skip to the next iteration. */
-        if (!is_prime_small(candidate))
+        if (!is_prime_seq(candidate))
             continue;
 
         /* Compute popcount and bit length. */
@@ -79,7 +81,7 @@ static void ensure_cache(idx_t n)
             /* Grow the cache array if necessary. */
             if (count == cap) {
                 size_t newcap = (cap == 0) ? 16 : cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp)
                     abort();   /* allocation failed */
                 cache = tmp;

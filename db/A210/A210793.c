@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   seq_alloc_new_array
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,13 @@
 
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/seq_alloc_new_array.h"
+#include <stdint.h>
+#include <string.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 static seq_t **triangle = NULL;     /* pointers to rows */
 static size_t tri_cap  = 0;         /* capacity of triangle array */

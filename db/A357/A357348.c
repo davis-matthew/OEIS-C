@@ -7,15 +7,36 @@
  * Formula:   a(n) = Sum_{k=1..n} (n+3*k)^(k-1) * Stirling2(n, k)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow, mul_small, seq_mul
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"    /* seq_t big_pow(seq_t base, seq_t exp) */
-#include "../utils/mul_small.h"  /* seq_t mul_small(seq_t x, unsigned int m) */
-#include "../utils/seq_mul.h"    /* seq_t seq_mul(seq_t a, seq_t b) */
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Memoised cache of Stirling numbers for the previous row  */
 static seq_t *S_prev = NULL;
@@ -31,11 +52,11 @@ seq_t a(idx_t n)
     /* Initialise the caches on the first call.  */
     if (a_cache_len == 0) {
         a_cache_len = 1;
-        a_cache = (seq_t *)malloc(a_cache_len * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cache_len);
         a_cache[0] = (seq_t)0;                /* a(0) = 0 */
 
         S_prev_len = 1;
-        S_prev = (seq_t *)malloc(S_prev_len * sizeof(seq_t));
+        S_prev = mem_new(seq_t, S_prev_len);
         S_prev[0] = (seq_t)1;                /* S(0,0) = 1 */
     }
 
@@ -47,7 +68,7 @@ seq_t a(idx_t n)
     /* Compute terms from the current cache up to n.  */
     for (idx_t cur = (idx_t)a_cache_len; cur <= n; ++cur) {
         size_t new_len = (size_t)cur + 1;
-        seq_t *S_cur = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *S_cur = mem_new(seq_t, new_len);
         S_cur[0] = (seq_t)0;  /* S(cur,0) = 0 for cur > 0 */
 
         /* Build current Stirling row from previous row.  */
@@ -68,22 +89,21 @@ seq_t a(idx_t n)
         for (idx_t k = 1; k <= cur; ++k) {
             seq_t base  = (seq_t)cur + (seq_t)3 * (seq_t)k;
             seq_t exp   = (seq_t)(k - 1);
-            seq_t power = big_pow(base, exp);
+            seq_t power = ipow(base, exp);
             seq_t term  = seq_mul(S_cur[(size_t)k], power);
             sum += term;
         }
 
         /* Extend the result cache if necessary.  */
         if ((size_t)(cur + 1) > a_cache_len) {
-            seq_t *new_cache = (seq_t *)realloc(
-                                   a_cache, (size_t)(cur + 1) * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, a_cache, (size_t)(cur + 1));
             a_cache = new_cache;
             a_cache_len = (size_t)(cur + 1);
         }
         a_cache[(size_t)cur] = sum;
 
         /* Prepare for next iteration.  */
-        free(S_prev);
+        mem_free(S_prev);
         S_prev     = S_cur;
         S_prev_len = new_len;
     }

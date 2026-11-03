@@ -11,13 +11,14 @@
  *            4^k*binomial(k+4,4), K = n-3: a(n) = 10*c(K) + 122*c(K-1) +...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 25, u128 n <= 54,
  *            big any n
- * Helpers:   a006296_gcd
+ * Validated: standard, pass, 52 terms through n = 951 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a006296_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     idx_t K = n - 3;            /* n >= 4 so K >= 1 */
@@ -27,7 +28,7 @@ seq_t a(idx_t n) {
             /* c = c * 2(2k+9) / k, exactly, without overflowing intermediates */
             uint64_t M = 2 * (2 * (uint64_t)k + 9);
             uint64_t r = (uint64_t)(c % (seq_t)k);
-            uint64_t g = a006296_gcd(r, (uint64_t)k);
+            uint64_t g = gcd_u64(r, (uint64_t)k);
             c /= (seq_t)g;
             c *= (seq_t)(M / ((uint64_t)k / g));
         }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 1558, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_candidate, build_primes_upto, is_prime_small
+ * Validated: standard, pass, 65 terms through n = 9953 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,27 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto */
-#include "../utils/append_candidate.h"   /* append_candidate */
-#include "../utils/is_prime_small.h"     /* is_prime_small */
+#include <stdlib.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 static const idx_t INITIAL_PRIME_LIMIT = 800000;   /* enough for n≈10 000 */
 
@@ -82,7 +101,7 @@ static void ensure_cache(size_t n)
             continue;
 
         seq_t s = sum_for_prime(p);
-        if (is_prime_small(s))
+        if (is_prime_seq(s))
             append_candidate(&cache, &cache_cnt, &cache_cap, (seq_t)p);
     }
 }

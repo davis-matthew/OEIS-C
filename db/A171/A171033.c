@@ -8,7 +8,8 @@
  * Formula:   swap digits 5↔6 of the n‑th prime (n ≥ 1)
  * Range:     u8 n <= 53, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, prime_limit_for_idx, seq_alloc_array
+ * Validated: standard, pass, 72 terms through n = 977 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,28 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/prime_limit_for_idx.h"
+#include <math.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_alloc_array.h"
+#include "../utils/mem.h"
+
+/* utility – estimate an upper bound for the n-th prime (Rosser–Schoenfeld) */
+static idx_t prime_limit_for_idx(idx_t n)
+{
+    if (n < 6)
+        return 12;                               /* prime(6)=13 */
+    double dn   = (double)n;
+    double lgn  = log(dn);
+    double lgln = log(lgn);
+    /* p_n < n(ln n + ln ln n) for n ≥ 6, add a safety margin */
+    double limit = dn * (lgn + lgln) + 3.0;
+    return (idx_t)limit;
+}
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Convert decimal digits: 5 ↔ 6 */
 static seq_t swap_digits(seq_t v)
@@ -59,7 +79,7 @@ static void ensure_cache(idx_t n)
     }
 
     /* Replace old cache (if any) */
-    free(prime_cache);
+    mem_free(prime_cache);
     prime_cache = new_cache;
     prime_cache_max = cnt;
 

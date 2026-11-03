@@ -9,7 +9,8 @@
  *            found ones, so any call order is supported
  * Range:     u8 none, u16 n <= 6, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x) */
-#include "../utils/mod_pow.h"    /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod) */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
             seq_t m = (seq_t)14 * (seq_t)next_candidate + (seq_t)1;
 
             /* Compute 2^p mod m */
-            seq_t r = mod_pow((seq_t)2, (uint64_t)next_candidate, m);
+            seq_t r = powmod((seq_t)2, (uint64_t)next_candidate, m);
 
             /* If r == 1, we have found a qualifying prime */
             if (r == (seq_t)1) {

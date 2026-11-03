@@ -9,12 +9,14 @@
  *            a(0)=1, a(1)=9, a(2)=67, a(3)=501, a(4)=3747
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* base values */
 static const seq_t base[5] = {
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
         cache_cap = 8;
         if (cache_cap < n + 1)
             cache_cap = n + 1;
-        cache = (seq_t *)malloc((size_t)cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_cap);
         if (cache == NULL)
             return;   /* allocation failure – function will return 0 */
         /* store the first five terms */
@@ -49,7 +51,7 @@ static void ensure_cache(idx_t n)
         idx_t new_cap = cache_cap;
         while (new_cap <= n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
         if (tmp == NULL)
             return;   /* allocation failure – leave cache as is */
         cache = tmp;

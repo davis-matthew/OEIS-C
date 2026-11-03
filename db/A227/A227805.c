@@ -7,6 +7,7 @@
  * Formula:   a(n) = n + 4 if n is even, 3 - n if n is odd
  * Range:     i8 n <= 123, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 76 terms through n = 886 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

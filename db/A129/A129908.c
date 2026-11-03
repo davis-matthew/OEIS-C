@@ -8,13 +8,30 @@
  * Formula:   a(n) = concatenated twin prime pair / 3
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 745, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   concat_parts, is_prime
+ * Validated: standard, pass, 50 terms through n = 969 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/concat_parts.h"
+#include "../utils/mem.h"
+
+static seq_t concat_parts(idx_t a, idx_t b)
+{
+    seq_t part_a = (seq_t)a;
+    seq_t part_b = (seq_t)b;
+    seq_t pow = 1;
+    seq_t tmp = part_b;
+    /* pow = 10^(number of decimal digits of b) */
+    while (tmp > 0) {
+        pow *= 10;
+        tmp /= 10;
+    }
+    return part_a * pow + part_b;
+}
 #include <stdlib.h>
 
 /* Computes the n‑th term of OEIS sequence A129908. */
@@ -43,7 +60,7 @@ seq_t a(idx_t n)
                 /* Grow the cache if needed */
                 if (len >= cap) {
                     size_t new_cap = cap ? cap * 2 : 4;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) abort();                 /* allocation failure */
                     cache = tmp;
                     cap   = new_cap;

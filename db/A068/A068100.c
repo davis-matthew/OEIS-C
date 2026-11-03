@@ -7,7 +7,8 @@
  * Formula:   a(1) = 1; a(n+1) = n!*∑_{k|n} a(k)/k! (OEIS A068100)
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 25,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,19 @@
 #include <stdlib.h>            /* free */
 
 /* Utilities for dynamic array allocation */
-#include "../utils/alloc_seq_array.h"   /* seq_t *alloc_seq_array(size_t n); */
-#include "../utils/free_seq_array.h"    /* void free_seq_array(seq_t *p); */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *a_cache   = NULL;   /* cached a(n) values; index 0 unused */
 static seq_t *fact_cache = NULL;  /* cached factorials n!; index 0 = 1 */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   isPrimeTrial
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         } while ((last_checked & 1ULL) == 0);
 
         /* Skip if it is prime */
-        if (isPrimeTrial((seq_t)last_checked)) continue;
+        if (is_prime_seq((seq_t)last_checked)) continue;
 
         /* Sum of prime factors (with multiplicity) */
         uint64_t temp = last_checked;
@@ -59,10 +61,10 @@ seq_t a(idx_t n)
         if (temp > 1) sum += temp;
 
         /* Check if the sum is prime */
-        if (isPrimeTrial((seq_t)sum)) {
+        if (is_prime_seq((seq_t)sum)) {
             if (cache_len >= cache_cap) {
                 size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 cache_cap = new_cap;
             }

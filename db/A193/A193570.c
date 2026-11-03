@@ -11,7 +11,8 @@
  *            20)
  * Range:     u8 n <= 6, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute sum of squares of decimal digits of x. Works for any seq_t
    that supports the operators % and / with 10 and multiplication. */
@@ -67,7 +69,7 @@ static void ensure_terms_capacity(size_t min_cap)
     if (terms_capacity >= min_cap) return;
     size_t new_cap = terms_capacity ? terms_capacity * 2 : 16;
     if (new_cap < min_cap) new_cap = min_cap;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) abort(); /* unrecoverable allocation failure */
     terms = tmp;
     terms_capacity = new_cap;

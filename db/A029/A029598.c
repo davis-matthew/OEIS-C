@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Comparison function for qsort on seq_t values */
 static int cmp_seq_t(const void *p, const void *q)
@@ -52,7 +54,7 @@ static void build_cache(idx_t requested_n, seq_t **cache_ptr,
     while (true) {
         /* total number of triples in current search space */
         size_t total = (size_t)(2 * M + 1) * (2 * M + 1) * (2 * M + 1);
-        seq_t *vals = (seq_t *)malloc(total * sizeof(seq_t));
+        seq_t *vals = mem_new(seq_t, total);
         if (!vals) abort();
 
         size_t cnt = 0;
@@ -77,7 +79,7 @@ static void build_cache(idx_t requested_n, seq_t **cache_ptr,
         }
 
         /* Sort all produced values */
-        qsort(vals, cnt, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(vals, cnt, sizeof(seq_t), cmp_seq_t);
 
         /* Count unique values */
         size_t uniq = 0;
@@ -89,7 +91,7 @@ static void build_cache(idx_t requested_n, seq_t **cache_ptr,
 
         if (uniq >= requested_n) {
             /* Allocate final cache with uniq entries */
-            seq_t *final_cache = (seq_t *)malloc(uniq * sizeof(seq_t));
+            seq_t *final_cache = mem_new(seq_t, uniq);
             if (!final_cache) abort();
             size_t j = 0;
             for (size_t i = 0; i < cnt; ++i) {
@@ -97,9 +99,9 @@ static void build_cache(idx_t requested_n, seq_t **cache_ptr,
                     final_cache[j++] = vals[i];
                 }
             }
-            free(vals);
+            mem_free(vals);
             /* Release previous cache if any */
-            if (prev_cache) free(prev_cache);
+            if (prev_cache) mem_free(prev_cache);
 
             *cache_ptr = final_cache;
             *cache_len = uniq;
@@ -108,8 +110,8 @@ static void build_cache(idx_t requested_n, seq_t **cache_ptr,
         }
 
         /* Not enough unique values yet; enlarge search space and retry. */
-        free(vals);
-        if (prev_cache) free(prev_cache);
+        mem_free(vals);
+        if (prev_cache) mem_free(prev_cache);
         prev_cache = NULL;
         prev_len = 0;
         M *= 2;   /* double the range */

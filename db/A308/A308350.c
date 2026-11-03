@@ -9,12 +9,14 @@
  *            (9*k+7) * 4^k
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 42, u64 n <= 102, u128 n <= 226,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 54 terms through n = 957 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -26,13 +28,13 @@ seq_t a(idx_t n)
 
     switch (r) {
         case 0: {                                 /* a(4*k) */
-            seq_t p = pow_uint(4, k);
+            seq_t p = ipow_u64_idx(4, k);
             return (seq_t)6 * p;
         }
         case 1: {                                 /* a(4*k+1) */
             seq_t t1 = (seq_t)(4 * k + 1);
             seq_t t2 = (seq_t)(2 * k + 1);
-            seq_t p  = pow_uint(4, k - 1);       /* k ≥ 1 because n ≥ 3 */
+            seq_t p  = ipow_u64_idx(4, k - 1);       /* k ≥ 1 because n ≥ 3 */
             seq_t res = p;
             res *= t2;
             res *= t1;
@@ -40,13 +42,13 @@ seq_t a(idx_t n)
             return res;
         }
         case 2: {                                 /* a(4*k+2) */
-            seq_t p = pow_uint(4, k);
+            seq_t p = ipow_u64_idx(4, k);
             return (seq_t)4 * p;
         }
         case 3: {                                 /* a(4*k+3) */
             seq_t t1 = (seq_t)(4 * k + 3);
             seq_t t2 = (seq_t)(9 * k + 7);
-            seq_t p  = pow_uint(4, k);
+            seq_t p  = ipow_u64_idx(4, k);
             seq_t res = p;
             res *= t2;
             res *= t1;

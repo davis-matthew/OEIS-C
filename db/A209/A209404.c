@@ -8,14 +8,17 @@
  * Formula:   a(n) = 2^(n-1)*binomial(n+6,6)*(n+14)/7
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 15, u64 n <= 39, u128 n <= 94,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 42 terms through n = 951 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Note: a(0) = 1 (special case because 2^(n-1) is not defined for n=0) */
 
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Compute binomial coefficient (n+6 choose 6) */
-    seq_t bin = binom(n + 6, 6);
+    seq_t bin = binomial(n + 6, 6);
 
     /* (n+14) as seq_t */
     seq_t mult = (seq_t)(n + 14);

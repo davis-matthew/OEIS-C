@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 10, u16 n <= 3330, u32 n <= 6762, u64 n <= 10000,
- *            u128 n <= 6762, big any n
- * Helpers:   factor_u64, is_prime
+ * Range:     u8 n <= 10, u16 n <= 3330, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 66 terms through n = 9981 (2026-11-03)
+ * Helpers:   factor_u64, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime.h"
 #include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* compare function for qsort (uint64_t ascending) */
 static int cmp_u64(const void *a, const void *b)
@@ -122,10 +124,10 @@ static void ensure_cache(idx_t n)
     /* grow cache capacity if needed */
     if (cache_len == 0) {
         cache_cap = 64;
-        seq_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_cap);
     } else if (cache_len == cache_cap) {
         cache_cap <<= 1;
-        seq_cache = (seq_t *)realloc(seq_cache, cache_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, cache_cap);
     }
 
     /* start searching from the currently known odd composite */
@@ -141,6 +143,12 @@ static void ensure_cache(idx_t n)
 
         /* check the condition */
         if (a365249_term(next_k)) {
+            if (cache_len >= cache_cap) {                 /* grow before storing */
+                cache_cap = cache_cap ? 2 * cache_cap : 16;
+                seq_t *grown_ = mem_resize(seq_t, seq_cache, cache_cap);
+                if (!grown_) abort();
+                seq_cache = grown_;
+            }
             seq_cache[cache_len++] = (seq_t)next_k;
         }
 

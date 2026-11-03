@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 101, u16 n <= 102, u32 n <= 104, u64 n <= 109,
  *            u128 n <= 115, big any n
- * Helpers:   mul_small, seq_alloc_array, seq_one, seq_realloc
+ * Validated: partial, pass, 16 terms through n = 115 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,41 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_one.h"
-#include "../utils/mul_small.h"
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 #define ORDER 100
 

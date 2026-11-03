@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 3316, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* auxiliary: test whether m is square‑free (m ≤ ~2^32 for n ≤ 10 000) */
 static bool squarefree(idx_t m)
@@ -62,7 +64,7 @@ static void append_term(seq_t val)
 {
     if (cache_len >= cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 64 : cache_cap << 1;
-        seq_t *new_buf = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
         if (!new_buf) abort();        /* out of memory */
         cache   = new_buf;
         cache_cap = new_cap;

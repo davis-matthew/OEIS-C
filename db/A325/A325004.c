@@ -9,15 +9,16 @@
  * Formula:   a(n) = A(i,j) where (i,j) are the indices on the descending *
  *            antidiagonals of the array A(n,k) = C( C(k+1,2)+n-1, n ) + C(
  *            C(k,2), n ). * This implements the OEIS A325004 sequence
- * Range:     u8 n <= 17, u16 n <= 48, u32 n <= 143, u64 n <= 325,
+ * Range:     u8 n <= 22, u16 n <= 58, u32 n <= 144, u64 n <= 325,
  *            u128 n <= 325, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 71 terms through n = 314 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Computes a(n) for n >= 1. */
 seq_t a(idx_t n)
@@ -43,7 +44,7 @@ seq_t a(idx_t n)
     idx_t c1 = (idx_t)(((__int128)(j + 1) * j) / 2);   /* C(j+1,2) */
     idx_t c2 = (idx_t)(((__int128)j * (j - 1)) / 2);   /* C(j,2) */
 
-    seq_t term1 = binom(c1 + i - 1, i);
-    seq_t term2 = binom(c2, i);
+    seq_t term1 = binomial(c1 + i - 1, i);
+    seq_t term2 = binomial(c2, i);
     return term1 + term2;
 }

@@ -7,7 +7,8 @@
  * Formula:   a(n) is the nth prime of the form 3*n^3 + 4
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 81, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 1942 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* 64‑bit Miller–Rabin primality test (deterministic for n < 2^64)    */
@@ -117,8 +119,7 @@ static void cache_ensure(idx_t need)
             if (prime_len == prime_cap)
             {
                 size_t new_cap = prime_cap ? prime_cap << 1 : 8;
-                seq_t *tmp = (seq_t *)realloc(prime_cache,
-                                              new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, prime_cache, new_cap);
                 /* realloc may return NULL only if new_cap==0, which
                    never happens here. */
                 prime_cache = tmp;

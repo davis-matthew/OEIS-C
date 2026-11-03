@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 0, u32 n <= 3, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   len_uint64
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   num_digits_u64_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/len_uint64.h"
+#include "../utils/num_digits_u64_to_u32.h"
 
 /* local helpers ----------------------------------------------------- */
 
@@ -114,9 +115,9 @@ seq_t a(idx_t n)
 
     /* concatenate the four primes */
     seq_t r = p1;
-    r = r * pow10_seq(len_uint64(p2)) + p2;
-    r = r * pow10_seq(len_uint64(p3)) + p3;
-    r = r * pow10_seq(len_uint64(p4)) + p4;
+    r = r * pow10_seq(num_digits_u64_to_u32(p2)) + p2;
+    r = r * pow10_seq(num_digits_u64_to_u32(p3)) + p3;
+    r = r * pow10_seq(num_digits_u64_to_u32(p4)) + p4;
 
     return r;
 }

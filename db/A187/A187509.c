@@ -8,6 +8,7 @@
  * Formula:   a(n) = 0 for n = 1 2 for n = 2 21*n^2 - 68*n + 51 for n > 2
  * Range:     u8 n <= 5, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 50 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

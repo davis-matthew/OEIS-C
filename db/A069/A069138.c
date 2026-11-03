@@ -11,7 +11,8 @@
  *            kind
  * Range:     u8 n <= 17, u16 n <= 48, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Initialize s2[0][0] = 1 if not done yet */
     if (maxRow == 0) {
         s2 = (seq_t **)malloc(sizeof(seq_t *));
-        s2[0] = (seq_t *)malloc(sizeof(seq_t));
+        s2[0] = mem_new(seq_t, 1);
         s2[0][0] = 1;
         maxRow = 0;
     }
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         seq_t **new_s2 = (seq_t **)realloc(s2, (r + 1) * sizeof(seq_t *));
         /* Compute new rows */
         for (idx_t i = maxRow + 1; i <= r; ++i) {
-            new_s2[i] = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+            new_s2[i] = mem_new(seq_t, (i + 1));
             new_s2[i][0] = 0;          /* S2(i,0)=0 for i>0 */
             for (idx_t k = 1; k <= i; ++k) {
                 seq_t term1 = (i - 1 >= k) ? (seq_t)k * new_s2[i - 1][k] : 0;

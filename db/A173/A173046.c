@@ -10,14 +10,17 @@
  *            T(r,r) = 1
  * Range:     u8 n <= 22, u16 n <= 59, u32 n <= 196, u64 n <= 643,
  *            u128 n <= 2307, big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 82 terms through n = 4914 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* External utilities */
-#include "../utils/binom.h"   /* seq_t binom(idx_t a, idx_t b); */
-#include "../utils/pow2.h"    /* seq_t pow2(idx_t exp); */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 #include <stdint.h>          /* for __int128 */
 
 static void get_row_col(idx_t n, idx_t *r, idx_t *k)
@@ -47,6 +50,6 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Compute T(r,k,2) as defined */
-    seq_t term = binom(r, k) + pow2(r) * binom(r - 2, k - 1) - (seq_t)1;
+    seq_t term = binomial(r, k) + pow2(r) * binomial(r - 2, k - 1) - (seq_t)1;
     return term;
 }

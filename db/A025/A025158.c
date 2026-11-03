@@ -11,13 +11,15 @@
  *            k parts)
  * Range:     u8 n <= 48, u16 n <= 129, u32 n <= 390, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *partition_table = NULL;   /* 1‑D array storing P[n][k] */
 static idx_t    table_n = 0;            /* current maximum n stored */
@@ -41,7 +43,7 @@ static void ensure_dp(idx_t n)
     idx_t width   = new_m + 1;
     size_t size   = (size_t)(new_n + 1) * width;
 
-    seq_t *new_tbl = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *new_tbl = mem_new(seq_t, size);
     if (!new_tbl)  /* memory allocation failed – abort */
         abort();
 
@@ -64,7 +66,7 @@ static void ensure_dp(idx_t n)
 
     /* free old table and update globals */
     if (partition_table)
-        free(partition_table);
+        mem_free(partition_table);
     partition_table = new_tbl;
     table_n = new_n;
     table_m = new_m;

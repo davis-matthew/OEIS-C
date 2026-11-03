@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   seq_from_str
+ * Validated: standard, pass, 32 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/seq_from_str.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 typedef struct {
     bool neg;   /* sign of the magnitude */
@@ -58,11 +70,11 @@ static void ensure_cache_upto(idx_t n)
 {
     if (n < cache_len) return;          /* already sufficient */
     idx_t new_len = n + 1;               /* allocate array of size new_len */
-    seq_t *new_cache = (seq_t *)malloc((size_t)new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)new_len);
     if (!new_cache) abort();
     if (cache) {
         for (idx_t i = 0; i < cache_len; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_cache;
     cache_len = new_len;
@@ -73,7 +85,7 @@ static void init_cache(void)
 {
     if (cache) return;          /* already initialised */
     cache_len = 17;             /* indices 0..16, index 0 unused */
-    cache = (seq_t *)malloc((size_t)cache_len * sizeof(seq_t));
+    cache = mem_new(seq_t, (size_t)cache_len);
     if (!cache) abort();
 
     /* strings for the first sixteen terms */

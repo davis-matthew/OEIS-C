@@ -10,12 +10,14 @@
  *            a(8)=17155, a(9)=58081
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 36, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         /* Allocate space for indices 0 .. n (size n+1) or at least 10 */
         cap = (size_t)n + 1;
         if (cap < 10) cap = 10;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0; /* allocation failure, unlikely */
         /* Copy the known initial values */
         for (size_t i = 1; i <= 9; ++i) cache[i] = init[i];
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     } else if ((size_t)n >= cap) {
         /* Grow the cache to accommodate index n */
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return cache[0]; /* allocation failure, unlikely */
         cache = tmp;
         cap   = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -40,6 +41,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Numerator coefficients of G(t).  coeff[j] is the coefficient of t^j. */
 static const int coeff[20] = {
@@ -65,7 +67,7 @@ static void ensure_q(idx_t n)
     if (q_cap < new_len) {
         size_t new_cap = (q_cap > 0) ? q_cap * 2 : 16;
         if (new_cap < new_len) new_cap = new_len;
-        seq_t *tmp = (seq_t *)realloc(q_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, q_cache, new_cap);
         if (!tmp) abort();
         q_cache = tmp;
         q_cap   = new_cap;

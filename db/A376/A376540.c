@@ -10,14 +10,32 @@
  *            Computed by incremental search with memoisation
  * Range:     u8 none, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   enters_cycle_4
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/enters_cycle_4.h"
+#include "../utils/mem.h"
+
+static bool enters_cycle_4(idx_t val)
+{
+    /* Check whether repeated squaring of val % 1000 reaches the required cycle. */
+    seq_t y = (seq_t)val % 1000;
+    for (int i = 0; i < 32; ++i) {
+        /* Immediate attractors that do NOT belong to the desired cycle. */
+        if (y == 0 || y == 1 || y == 376 || y == 625)
+            return false;
+        /* One of the desired cycle entries. */
+        if (y == 176 || y == 976 || y == 576 || y == 776)
+            return true;
+        y = (y * y) % 1000;
+    }
+    /* Should never reach here for natural numbers, but keep safe. */
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,7 +48,7 @@ seq_t a(idx_t n)
     /* Initialise the dynamic array on first call. */
     if (terms == NULL) {
         capacity = 8;
-        terms = (seq_t *)malloc(capacity * sizeof(seq_t));
+        terms = mem_new(seq_t, capacity);
         count = 0;
         next_test = 1;
     }
@@ -41,7 +59,7 @@ seq_t a(idx_t n)
             /* Grow the array if necessary. */
             if (count == capacity) {
                 capacity <<= 1;
-                terms = (seq_t *)realloc(terms, capacity * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, capacity);
             }
             terms[count++] = (seq_t)next_test;
         }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper structure to keep a 5‑smooth number and its exponents. */
 typedef struct {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Helper to enlarge an array. */
     if (hum_len == 0) { /* first time: initialise */
         hum_cap = 128;
-        humble = (Number *)malloc(hum_cap * sizeof(Number));
+        humble = mem_new(Number, hum_cap);
         if (!humble) return 0;
         humble[0].val = (seq_t)1;
         humble[0].a   = 0;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     /* Grow sequence array as needed. */
     if (seq_cap == 0) { /* first time */
         seq_cap = 128;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) return 0;
     }
 
@@ -96,8 +98,8 @@ seq_t a(idx_t n)
         /* Append the new humble number. */
         if (hum_len == hum_cap) {
             hum_cap <<= 1;
-            Number *tmp = (Number *)realloc(humble, hum_cap * sizeof(Number));
-            if (!tmp) { free(humble); free(seq); return 0; }
+            Number *tmp = mem_resize(Number, humble, hum_cap);
+            if (!tmp) { mem_free(humble); mem_free(seq); return 0; }
             humble = tmp;
         }
         humble[hum_len].val = next;
@@ -115,8 +117,8 @@ seq_t a(idx_t n)
         if (new_c >= 1 && new_c >= new_a) {
             if (seq_len == seq_cap) {
                 seq_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
-                if (!tmp) { free(humble); free(seq); return 0; }
+                seq_t *tmp = mem_resize(seq_t, seq, seq_cap);
+                if (!tmp) { mem_free(humble); mem_free(seq); return 0; }
                 seq = tmp;
             }
             seq[seq_len++] = next;

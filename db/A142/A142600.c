@@ -9,6 +9,7 @@
  *            15*((n-3)/4) + 6 n % 4 == 0: 144*(n/4)^2 + 24*(n/4) - 3
  * Range:     u8 n <= 5, u16 n <= 85, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 62 terms through n = 4232 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

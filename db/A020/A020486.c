@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 541, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, build_spf, seq_alloc_new_array
+ * Validated: standard, pass, 85 terms through n = 9782 (2026-11-03)
+ * Helpers:   build_spf, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,14 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include <string.h>
+#include <math.h>
 #include "../utils/build_spf.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_alloc_new_array.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 static seq_t *darr      = NULL;   /* divisor count tau(k) */
 static seq_t *sigma2arr = NULL;   /* sum of squares of divisors sigma2(k) */
@@ -91,7 +97,7 @@ static void ensure_limit(idx_t N)
 
         /* sigma_2 for p^exp */
         seq_t denom = (seq_t)p * (seq_t)p - (seq_t)1;
-        seq_t numer = big_pow((seq_t)p, 2 * (exp + 1)) - (seq_t)1;
+        seq_t numer = ipow((seq_t)p, 2 * (exp + 1)) - (seq_t)1;
         seq_t sigma_part = numer / denom;
 
         sigma2arr[i] = sigma2arr[m] * sigma_part;

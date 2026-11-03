@@ -7,12 +7,14 @@
  * Formula:   a(n) = 50*a(n-1) - a(n-2), a(1)=1, a(2)=25
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 12, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, exit */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoization cache  */
 static size_t cache_size = 0;    /* allocated size of cache   */
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
     size_t new_size = cache_size ? cache_size * 2 : 64;
     while (new_size < need) new_size <<= 1;        /* grow power of two */
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) exit(EXIT_FAILURE);                  /* allocation failed   */
 
     /* zero any newly allocated elements */

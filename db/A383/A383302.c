@@ -10,9 +10,10 @@
  *            A276086(A003415(n)), 0 otherwise. The implementation compares
  *            the exponent vectors of the two numbers directly, avoiding
  *            overflow of large intermediate values
- * Range:     u8 n <= 19, u16 n <= 86, u32 n <= 5402, u64 n <= 9978,
- *            u128 n <= 9978, big any n
- * Helpers:   pow_seq
+ * Range:     u8 n <= 19, u16 n <= 86, u32 n <= 5402, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 137 terms through n = 9978 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 /* first thirty primes; enough for primorial representations up to 2^64 */
 static const uint64_t primes[] = {
@@ -55,7 +56,7 @@ static seq_t primorial_from_digits(const seq_t digits[NUM_PRIMES], size_t len)
     for (size_t k = 0; k < len; ++k) {
         seq_t d = digits[k];
         if (d > 0)
-            prod *= pow_seq((seq_t)primes[k], (int)d);
+            prod *= ipow_i32((seq_t)primes[k], (int)d);
     }
     return prod;
 }

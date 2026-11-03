@@ -11,12 +11,14 @@
  *            a(7)=25384, a(8)=64140, a(9)=161819, a(10)=408415
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 20, u64 n <= 43, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base[11] = {
     0ULL,          /* unused placeholder for index 0 */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     size_t required = (size_t)n + 1;   /* indices 0..n inclusive */
     if (required < 11) required = 11;  /* make room for initial 10 terms */
     if (cap < required) {
-        seq_t *tmp = (seq_t *)realloc(cache, required * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, required);
         if (!tmp) exit(EXIT_FAILURE);  /* allocation failed */
         cache = tmp;
         cap   = required;

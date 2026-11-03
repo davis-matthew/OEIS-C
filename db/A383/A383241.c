@@ -8,6 +8,7 @@
  *            k‑th prime
  * Range:     u8 n <= 3, u16 n <= 23, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/build_primes_upto.h"   /* provides build_primes_upto */
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
 
 static uint64_t *prime_cache = NULL;   /* array of primes, 1‑based primes[0] = 2   */
 static size_t  prime_count   = 0;      /* number of primes stored */

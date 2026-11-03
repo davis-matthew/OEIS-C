@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d|n} d * (d!)^(n/d-1) (OEIS A356541)
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 23, u64 n <= 33, u128 n <= 33,
  *            big any n
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

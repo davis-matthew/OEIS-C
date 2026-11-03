@@ -12,6 +12,7 @@
  *            ⌊5·x/2⌋ + (x odd? 2 : 1) (x > 1 or =1). * The...
  * Range:     u8 n <= 21, u16 n <= 78, u32 n <= 300, u64 n <= 1176,
  *            u128 n <= 4753, big any n
+ * Validated: standard, pass, 73 terms through n = 4667 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

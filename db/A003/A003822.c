@@ -13,14 +13,25 @@
  *            C(j)*(4j+2)...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   a003822_cat_next, a003822_gcd
+ * Validated: partial, pass, 23 terms through n = 25 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a003822_cat_next.h"
-#include "../utils/a003822_gcd.h"
+#include "../utils/gcd_u64.h"
+
+/* from C(j) to C(j+1), dividing before multiplying */
+static seq_t a003822_cat_next(seq_t c, idx_t j) {
+    uint64_t d = (uint64_t)j + 2;
+    uint64_t r = (uint64_t)(long long)(c % d);
+    uint64_t g = gcd_u64(r, d);
+    uint64_t q = (4 * (uint64_t)j + 2) / (d / g);
+    c /= g;
+    c *= q;
+    return c;
+}
 
 seq_t a(idx_t n) {
     idx_t m = n - 3, k;

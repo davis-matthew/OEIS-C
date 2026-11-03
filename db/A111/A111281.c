@@ -10,13 +10,15 @@
  *            a(1)=1, a(2)=2
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 48, u128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 2199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* Allocate or extend storage to cover n */
     idx_t needed = n + 1;
-    dp = (seq_t *)realloc(dp, sizeof(seq_t) * needed);
+    dp = mem_resize(seq_t, dp, needed);
     if (!dp)
         abort();                  /* cannot allocate more memory */
 

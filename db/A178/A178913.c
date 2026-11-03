@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* internal state for memoisation */
 static struct {
@@ -36,12 +38,12 @@ static void rebuild(idx_t Nmax)
         return;
 
     /* free previous storage if any */
-    free(state.a_cache);
+    mem_free(state.a_cache);
     free(state.cnt_set);
     free(state.last_seen);
 
     /* allocate new storage */
-    state.a_cache  = (seq_t*)calloc((size_t)Nmax + 1, sizeof(seq_t));
+    state.a_cache  = mem_new(seq_t, (size_t)Nmax + 1);
     state.cnt_set  = (size_t*)calloc((size_t)Nmax + 1, sizeof(size_t));
     state.last_seen = (uint32_t*)calloc((size_t)Nmax + 1, sizeof(uint32_t));
 

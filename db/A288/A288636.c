@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(1) = 0; for n > 1, a(n) = 1 + max{ a(e) | n = b^e with b > 1,
  *            e > 1 }. If n is not an exact power, a(n) = 1
- * Range:     u8 n <= 9779, u16 n <= 9779, u32 n <= 9779, u64 n <= 9779,
- *            u128 n <= 9779, big any n
+ * Range:     u8 n <= 65536, u16 n <= 65536, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 103 terms through n = 9779 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

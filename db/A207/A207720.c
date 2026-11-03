@@ -12,7 +12,8 @@
  *            a(10)=3682876386
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* Constant initial values */
 static const seq_t base_vals[11] = {
@@ -48,7 +50,7 @@ static void ensure_cache(idx_t needed)
 {
     if (cache_cap < needed) {
         size_t new_cap = (size_t)needed + 1;
-        seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
         assert(new_ptr != NULL);
         cache = new_ptr;
         cache_cap = needed;

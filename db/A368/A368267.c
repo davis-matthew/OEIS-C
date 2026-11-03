@@ -7,12 +7,13 @@
  * Formula:   a(n) = n!*Sum_{k=0..n} 2^(n-k)*(n-k+2)^k/k!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 17,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +34,7 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= n; ++k)
     {
         idx_t base = n - k + 2;
-        seq_t pow_base = pow_int((seq_t)base, k);
+        seq_t pow_base = ipow_idx((seq_t)base, k);
 
         sum += pref * binom * pow_base;
 

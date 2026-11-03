@@ -11,7 +11,8 @@
  *            the non‑negative integer m (ignoring hyphens and spaces)
  * Range:     u8 n <= 22, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* --- Letter counting utility ------------------------------------------ */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Letter counts for 0–19 (index 0 is unused). */
 static const unsigned char ones[20] = {
@@ -71,10 +73,8 @@ seq_t a(idx_t n)
 
     if (n > max_n) {
         size_t new_size = (size_t)n + 1;           /* allocate up to n */
-        seq_arr = (seq_t *)realloc(seq_arr,
-                                   new_size * sizeof(seq_t));
-        cum_arr = (seq_t *)realloc(cum_arr,
-                                   new_size * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, seq_arr, new_size);
+        cum_arr = mem_resize(seq_t, cum_arr, new_size);
 
         if (max_n == 0) {                         /* initialise */
             seq_arr[1] = (seq_t)1;

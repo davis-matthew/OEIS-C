@@ -8,6 +8,7 @@
  *            r*(r+1)/2, T(0,0)=3, T(r,0)=1 (r>0), T(r,k)=T(r-1,k)+T(r-1,k-1)
  * Range:     u8 n <= 49, u16 n <= 178, u32 n <= 611, u64 n <= 2307,
  *            u128 n <= 8709, big any n
+ * Validated: standard, pass, 94 terms through n = 9673 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

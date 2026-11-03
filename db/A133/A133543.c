@@ -8,7 +8,8 @@
  *            prime(n+4)^7
  * Range:     u8 none, u16 none, u32 n <= 4, u64 n <= 84, u128 n <= 1000,
  *            big any n
- * Helpers:   _prime_limit_for_idx, seq_pow
+ * Validated: standard, pass, 31 terms through n = 965 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,16 @@
 #include <stdbool.h>
 
 /* Utilities available from the framework */
-#include "../utils/_prime_limit_for_idx.h"
-#include "../utils/seq_pow.h"
+#include <math.h>
+#include "../utils/ipow_idx.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 static uint32_t *primes = NULL;    /* array of primes, 1‑based index */
 static size_t prime_cnt = 0;       /* number of primes stored   */
@@ -88,7 +97,7 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (int i = 0; i < 5; ++i) {
         uint32_t p = primes[n - 1 + i];
-        sum += seq_pow((seq_t)p, (idx_t)7);
+        sum += ipow_idx((seq_t)p, (idx_t)7);
     }
     return sum;
 }

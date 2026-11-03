@@ -12,7 +12,8 @@
  *            efficient
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   build_val
+ * Validated: standard, pass, 47 terms through n = 959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,49 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/build_val.h"
+#include "../utils/mem.h"
+
+static seq_t build_val(const uint8_t *bits, size_t len)
+{
+#ifdef __cplusplus
+    if constexpr (sizeof(seq_t) > 8) {
+        /* For large integral types (e.g. __int128) or arbitrary‑precision classes
+           we accumulate 64 bits at a time to reduce the number of big‑int
+           shift operations. */
+        seq_t val = 0;
+        uint64_t chunk = 0;
+        size_t cnt = 0;
+        for (size_t i = 0; i < len; ++i) {
+            uint8_t b = bits[i];
+            chunk = (chunk << 1) | (uint64_t)b;
+            ++cnt;
+            if (cnt == 64) {
+                val = (val << 64) | (seq_t)chunk;
+                chunk = 0;
+                cnt = 0;
+            }
+        }
+        if (cnt > 0) {
+            val = (val << cnt) | (seq_t)chunk;
+        }
+        return val;
+    } else {
+        /* For small integral types a per–bit shift is safe and efficient. */
+        seq_t val = 0;
+        for (size_t i = 0; i < len; ++i) {
+            val = (val << 1) | bits[i];
+        }
+        return val;
+    }
+#else
+    /* For C11 builds (built‑in integer types) we use per‑bit construction. */
+    seq_t val = 0;
+    for (size_t i = 0; i < len; ++i) {
+        val = (val << 1) | bits[i];
+    }
+    return val;
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +82,7 @@ seq_t a(idx_t n)
     /* initialise */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         /* n = 0, starting row is a single 1 for both automata */
         cur30_len = 1;
         cur30 = (uint8_t*)malloc(cur30_len * sizeof(uint8_t));
@@ -91,7 +134,7 @@ seq_t a(idx_t n)
         /* store the new a(n) value */
         if (cache_len >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len] = aval;
         ++cache_len;

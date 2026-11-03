@@ -13,15 +13,27 @@
  *            c(k)*a(n...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 29, u128 n <= 55,
  *            big any n
- * Helpers:   a151_gcd, a151_width
+ * Validated: standard, pass, 46 terms through n = 1165 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/a151_gcd.h"
-#include "../utils/a151_width.h"
+#include "../utils/gcd.h"
+
+/* bit width of seq_t, or 0 if it is arbitrary precision */
+static int a151_width(void)
+{
+    seq_t x = 1;
+    int w = 0;
+    while (x != 0 && w < 400) {
+        x *= 2;
+        w++;
+    }
+    return (x == 0) ? w : 0;
+}
 
 #define A151_MAXN 10010
 #define A151_FIX 300
@@ -40,7 +52,7 @@ static seq_t a151_fixed(idx_t n)
         for (j = 1; j <= jmax; j++) {
             seq_t d = (seq_t)j;
             seq_t c = C[j - 1];
-            seq_t g = a151_gcd(c, d);
+            seq_t g = gcd(c, d);
             c /= g;
             c *= (m + (seq_t)(j - 1)) / (d / g);
             C[j] = c;

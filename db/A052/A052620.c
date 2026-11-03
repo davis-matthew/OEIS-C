@@ -9,12 +9,14 @@
  *            (1‑3x+x³)·(∑a(n)xⁿ/n!)=(1‑x)²
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static size_t memo_len = 0;
@@ -24,7 +26,7 @@ static void reserve_mem(idx_t needed) {
     if (needed < memo_cap) return;
     size_t new_cap = memo_cap ? memo_cap * 2 : 8;
     while (new_cap <= (size_t)needed) new_cap *= 2;
-    seq_t *new_mem = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, memo, new_cap);
     if (!new_mem) abort();          /* allocation failed */
     memo = new_mem;
     memo_cap = new_cap;

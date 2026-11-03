@@ -12,7 +12,8 @@
  *            p1≤m≤p3≤…≤p6 and p1+p3+…+p6 = n. For a fixed m t...
  * Range:     u8 n <= 29, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   mobius
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/mobius.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* ---------- dynamic programming for multisets of size ≤4 ---------- */
     size_t cols = N + 1;                 /* number of possible sums 0…N   */
     size_t rows = 5;                     /* k = 0…4  (size of multiset)   */
-    seq_t *ways = (seq_t*)calloc(rows * cols, sizeof(seq_t));
+    seq_t *ways = mem_new(seq_t, rows * cols);
     if (ways == NULL) {
         /* memory allocation failed – return 0 as a safe default */
         free(sf);
@@ -72,6 +74,6 @@ seq_t a(idx_t n)
     }
 
     free(sf);
-    free(ways);
+    mem_free(ways);
     return result;
 }

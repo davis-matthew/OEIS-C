@@ -13,12 +13,15 @@
  *            = C(m + ceil(k/2), k) · 2^k * where k is the position with...
  * Range:     u8 n <= 41, u16 n <= 114, u32 n <= 396, u64 n <= 1465,
  *            u128 n <= 5150, big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 94 terms through n = 4980 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
         top = m + ((k + 1) >> 1);          /* ceil(k/2) */
     }
 
-    seq_t bin = binom(top, k);             /* binomial coefficient */
+    seq_t bin = binomial(top, k);             /* binomial coefficient */
     seq_t two = pow2(k);                   /* 2^k */
 
     return bin * two;

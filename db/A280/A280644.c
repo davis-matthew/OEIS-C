@@ -9,13 +9,26 @@
  *            of decimal digits and its middle digit is 4
  * Range:     u8 none, u16 n <= 1, u32 n <= 1503, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, pow10
+ * Validated: standard, pass, 68 terms through n = 9626 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"      /* seq_t pow10(idx_t e); */
-#include "../utils/digit_len.h"  /* int digit_len(seq_t x); */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -27,7 +40,7 @@ seq_t a(idx_t n)
     while (found < n) {
         seq_t cube = k * k * k;         /* compute k³ */
 
-        int digits = digit_len(cube);   /* number of decimal digits */
+        int digits = num_digits(cube);   /* number of decimal digits */
         if (digits % 2 == 1) {          /* odd length? */
             idx_t   mid_pos = (idx_t)((digits - 1) / 2); /* 0‑based */
             seq_t  divisor = pow10(mid_pos);            /* 10^mid_pos */

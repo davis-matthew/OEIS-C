@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 3282, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 71 terms through n = 8847 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,13 +51,13 @@ seq_t a(idx_t n)
             memset(is_comp, 0, (size_t)(sieve_limit + 1));
 
             /* Free previously stored list. */
-            free(mod_primes);
+            mem_free(mod_primes);
             mod_primes = NULL;
             mod_count = 0;
 
             /* Rough estimate for needed capacity. */
             size_t cap = (size_t)(sieve_limit / 10) + 10;
-            mod_primes = (seq_t*)malloc(cap * sizeof(seq_t));
+            mod_primes = mem_new(seq_t, cap);
             if (!mod_primes) {
                 free(is_comp);
                 return 0;
@@ -68,10 +70,10 @@ seq_t a(idx_t n)
                     if ((seq_t)i % 3 == 2) {
                         if (idx == cap) {
                             cap <<= 1;                      /* grow */
-                            seq_t *tmp = (seq_t*)realloc(mod_primes, cap * sizeof(seq_t));
+                            seq_t *tmp = mem_resize(seq_t, mod_primes, cap);
                             if (!tmp) {
                                 free(is_comp);
-                                free(mod_primes);
+                                mem_free(mod_primes);
                                 return 0;
                             }
                             mod_primes = tmp;
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
             free(is_comp);
 
             /* resize array to exact size */
-            seq_t *tmp = (seq_t*)realloc(mod_primes, mod_count * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, mod_primes, mod_count);
             if (tmp || mod_count == 0)
                 mod_primes = tmp;
         }
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
     seq_t candidate = target + 1;
 
     /* Find the next prime after the target. */
-    while (!is_prime_small(candidate))
+    while (!is_prime_seq(candidate))
         ++candidate;
 
     return candidate;

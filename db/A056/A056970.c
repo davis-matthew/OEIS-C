@@ -10,6 +10,7 @@
  *            ≡ 2, 4 or 5 mod 6
  * Range:     u8 n <= 66, u16 n <= 169, u32 n <= 496, u64 n <= 1620,
  *            u128 n <= 5712, big any n
+ * Validated: standard, pass, 87 terms through n = 8715 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

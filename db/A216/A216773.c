@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd64
+ * Validated: standard, pass, 71 terms through n = 905 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* sequence cache ----------------------------------------------- */
 static seq_t *seq_cache = NULL;  /* array of found primes */
@@ -55,7 +57,7 @@ static void seq_grow(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap = new_cap;
 }
 
@@ -104,7 +106,7 @@ static void ensure_n_terms(idx_t n)
             prime_list[prime_len++] = p;
 
             if (p > 2) {  /* skip p=2, it's not a sequence member */
-                uint64_t d   = gcd64(56ULL, p - 1ULL);
+                uint64_t d   = gcd_u64(56ULL, p - 1ULL);
                 uint64_t expo = (p - 1ULL) / d;
                 uint64_t base = (p >= 2) ? (p - 2ULL) : 0ULL;  /* base = -2 mod p */
                 uint64_t pow  = mod_pow_uint64(base, expo, p);

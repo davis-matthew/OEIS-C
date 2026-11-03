@@ -10,8 +10,9 @@
  *            where f(odd m) = odd_part((3*m+1)/2) = ((3*m+1)/2) /
  *            lsb((3*m+1)/2) (lsb = least significant set bit, i.e. highest
  *            power of 2 dividing the number)
- * Range:     u8 n <= 19, u16 n <= 8550, u32 n <= 8551, u64 n <= 8551,
- *            u128 n <= 8551, big any n
+ * Range:     u8 n <= 19, u16 n <= 8550, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 117 terms through n = 8551 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

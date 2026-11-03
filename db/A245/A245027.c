@@ -8,7 +8,8 @@
  *            order
  * Range:     u8 n <= 1, u16 n <= 21, u32 n <= 838, u64 n <= 864,
  *            u128 n <= 864, big any n
- * Helpers:   none
+ * Validated: full, pass, 864 terms through n = 864 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Total number of divisors of 13841287200. */
 #define TOTAL_DIVISORS 864
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         gen_divs(0, (seq_t)1, facs, 7, divisors, &count);
-        qsort(divisors, count, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(divisors, count, sizeof(seq_t), cmp_seq_t);
         initialized = true;
     }
 

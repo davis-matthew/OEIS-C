@@ -7,12 +7,14 @@
  * Formula:   a(n) = coefficient of ∏_{k≥1} (1−x^k)(1+x^k)^4, a(0)=1
  * Range:     u8 n <= 10, u16 n <= 32, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* 1‑D array storing all values up to the current maximum n requested. */
 static seq_t *full = NULL;
@@ -22,10 +24,10 @@ static idx_t max_n = (idx_t)(-1);   /* no data yet */
 static void recompute(idx_t limit)
 {
     /* free old memory if any */
-    free(full);
+    mem_free(full);
 
     /* allocate new array */
-    full = (seq_t *)malloc((size_t)(limit + 1) * sizeof(seq_t));
+    full = mem_new(seq_t, (size_t)(limit + 1));
     if (!full)
         return;  /* allocation failed; caller will handle zero */
 

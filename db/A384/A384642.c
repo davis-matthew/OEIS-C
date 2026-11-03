@@ -8,13 +8,15 @@
  *            a(0)=1, a(1)=2, a(2)=6, a(3)=16
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 45, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Initial values for the first four terms. */
 static const seq_t init_vals[4] = { (seq_t)1, (seq_t)2, (seq_t)6, (seq_t)16 };
@@ -29,11 +31,11 @@ static void grow_cache(size_t needed) {
     if (cached_cap >= needed) return;
     size_t new_cap = cached_cap ? (cached_cap << 1) : 4;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) abort();          /* out of memory */
     for (size_t i = 0; i < cached_len; ++i)
         new_cache[i] = cache[i];
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     cache = new_cache;
     cached_cap = new_cap;
 }

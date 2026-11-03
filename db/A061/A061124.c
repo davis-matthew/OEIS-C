@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   comb_small
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/comb_small.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* ensure array of size at least need+1 (indices 0..need) */
 static void ensure_cap(idx_t need, seq_t **arr, size_t *cap)
@@ -36,9 +38,9 @@ static void ensure_cap(idx_t need, seq_t **arr, size_t *cap)
     if (*cap >= (size_t)need + 1) return;
     size_t new_cap = (size_t)need + 1;
     if (*arr == NULL) {
-        *arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        *arr = mem_new(seq_t, new_cap);
     } else {
-        *arr = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
     }
     *cap = new_cap;
 }
@@ -70,11 +72,11 @@ static void compute_up_to(idx_t n)
         seq_t sum = f[i-1];                                 /* k=1 */
         sum += (seq_t)(i-1) * f[i-2];                       /* k=2 */
         if (i >= 5) {
-            seq_t c = comb_small(i-1, 4);                    /* C(i-1,4) */
+            seq_t c = binomial(i-1, 4);                    /* C(i-1,4) */
             sum += c * FACT4 * f[i-5];
         }
         if (i >= 10) {
-            seq_t c = comb_small(i-1, 9);                    /* C(i-1,9) */
+            seq_t c = binomial(i-1, 9);                    /* C(i-1,9) */
             sum += c * FACT9 * f[i-10];
         }
         f[i] = sum;
@@ -87,7 +89,7 @@ static void compute_up_to(idx_t n)
         /* f5 : {1,5} */
         seq_t sum5 = f5[i-1];
         if (i >= 5) {
-            seq_t c = comb_small(i-1, 4);
+            seq_t c = binomial(i-1, 4);
             sum5 += c * FACT4 * f5[i-5];
         }
         f5[i] = sum5;
@@ -158,11 +160,11 @@ seq_t a(idx_t n)
         seq_t sum = g_f[i-1];
         sum += (seq_t)(i-1) * g_f[i-2];
         if (i >= 5) {
-            seq_t c = comb_small(i-1, 4);
+            seq_t c = binomial(i-1, 4);
             sum += c * FACT4 * g_f[i-5];
         }
         if (i >= 10) {
-            seq_t c = comb_small(i-1, 9);
+            seq_t c = binomial(i-1, 9);
             sum += c * FACT9 * g_f[i-10];
         }
         g_f[i] = sum;
@@ -173,7 +175,7 @@ seq_t a(idx_t n)
 
         seq_t sum5 = g_f5[i-1];
         if (i >= 5) {
-            seq_t c = comb_small(i-1, 4);
+            seq_t c = binomial(i-1, 4);
             sum5 += c * FACT4 * g_f5[i-5];
         }
         g_f5[i] = sum5;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 824 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  *  A(x) = 1 / ((1-4x)(1-x·A(x)^2)).
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state for memoisation */
@@ -34,8 +36,8 @@ seq_t a(idx_t n) {
     if (n + 1 > cap) {
         size_t newcap = (cap == 0) ? 64 : cap * 2;
         while (newcap <= (size_t)n) newcap <<= 1;
-        A  = (seq_t *)realloc(A,  newcap * sizeof(seq_t));
-        C2 = (seq_t *)realloc(C2, newcap * sizeof(seq_t));
+        A  = mem_resize(seq_t, A, newcap);
+        C2 = mem_resize(seq_t, C2, newcap);
         cap = newcap;
     }
 

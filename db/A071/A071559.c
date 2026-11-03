@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 642, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime64
+ * Validated: standard, pass, 93 terms through n = 968 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 /* Computes a(n) = the smallest positive integer k such that
    n + k and n^2 + k^2 are both prime. */
 #include <stdbool.h>
-#include "../utils/is_prime64.h"
+#include <stdint.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         uint64_t nk  = n64 + k64;
         uint64_t nk2 = n64 * n64 + k64 * k64;
 
-        if (is_prime64(nk) && is_prime64(nk2))
+        if (is_prime_u64(nk) && is_prime_u64(nk2))
             return (seq_t)k64;
     }
 }

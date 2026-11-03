@@ -9,13 +9,15 @@
  *            equivalently eta(z)*eta(14z)^11/(eta(2z)^5*eta(7z)^7))
  * Range:     i8 n <= 12, i16 n <= 27, i32 n <= 77, i64 n <= 245,
  *            i128 n <= 849, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *a002509_cache = NULL;
 static idx_t a002509_len = 0;
@@ -23,7 +25,7 @@ static idx_t a002509_len = 0;
 static void a002509_build(idx_t N) {
     idx_t L = N + 1, k, i;
     int t, r;
-    seq_t *f = (seq_t *)calloc((size_t)L, sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (size_t)L);
     for (i = 0; i < L; i++) f[i] = 0;
     f[0] = 1;
     for (k = 1; k <= N; k++) {
@@ -41,7 +43,7 @@ static void a002509_build(idx_t N) {
                 for (i = k; i < L; i++) f[i] += f[i - k];
         }
     }
-    if (a002509_cache) free(a002509_cache);
+    if (a002509_cache) mem_free(a002509_cache);
     a002509_cache = f;
     a002509_len = L;
 }

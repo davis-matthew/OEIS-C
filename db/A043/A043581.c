@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 30, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   comb64, min_length_for
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,26 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/comb64.h"
-#include "../utils/min_length_for.h"
+#include "../utils/mem.h"
+
+/* Binomial coefficient C(n,k) for 0 <= k <= n, n <= 64. */
+static unsigned long long comb64(int n, int k)
+{
+    if (k > n) return 0ULL;
+    if (k > n - k) k = n - k;
+    unsigned long long res = 1ULL;
+    for (int i = 1; i <= k; ++i)
+        res = res * (unsigned long long)(n - k + i) / (unsigned long long)i;
+    return res;
+}
+
+/* Find minimal length L such that at least n numbers with 14 runs exist. */
+static int min_length_for(idx_t n)
+{
+    int L = 14;                     /* minimal possible binary length */
+    while (comb64(L, 14) < n) ++L;
+    return L;
+}
 
 /* Compare two seq_t values for qsort. */
 static int cmp_seq_t(const void *a, const void *b)
@@ -33,7 +52,7 @@ static void generate_all(idx_t n, seq_t **out, size_t *len)
 {
     int Lmax = min_length_for(n);
     *len = (size_t)comb64(Lmax, 14);
-    seq_t *arr = (seq_t *)malloc(*len * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, (*len * sizeof(seq_t)) / sizeof(seq_t));
     if (!arr) abort();
 
     size_t pos = 0;
@@ -73,7 +92,7 @@ static void generate_all(idx_t n, seq_t **out, size_t *len)
     }
 
     /* Sort the array in ascending numeric order. */
-    qsort(arr, *len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(arr, *len, sizeof(seq_t), cmp_seq_t);
     *out = arr;
 }
 
@@ -91,7 +110,7 @@ seq_t a(idx_t n)
         seq_t *new_cache;
         size_t new_len;
         generate_all(n, &new_cache, &new_len);
-        free(cache);         /* free old cache, if any */
+        mem_free(cache);         /* free old cache, if any */
         cache = new_cache;
         cache_len = new_len;
     }

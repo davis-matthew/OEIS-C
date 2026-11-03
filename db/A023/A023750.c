@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 1254, u32 n <= 9000, u64 n <= 9000,
  *            u128 n <= 9000, big any n
- * Helpers:   binom_idx_t, comb128
+ * Validated: standard, pass, 82 terms through n = 8175 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,28 @@
  */
 
 #include <stdint.h>
-#include "../utils/binom_idx_t.h"
-#include "../utils/comb128.h"
+
+/* Compute C(n,k) for 0 <= k <= n, using 128‑bit arithmetic to avoid overflow.
+   n is small (<= 250), k <= 6. Returns the exact binomial coefficient. */
+static inline __uint128_t comb128(unsigned n, unsigned k)
+{
+    if (k > n) return 0;
+    if (k > n - k) k = n - k;
+    __uint128_t r = 1;
+    for (unsigned i = 1; i <= k; ++i) {
+        r = r * (n - k + i);
+        r /= i;
+    }
+    return r;
+}
+
+/* Return the binomial coefficient C(n,6) as idx_t (u64).  For our
+   required n (len+6) this fits in 64 bits. */
+static inline idx_t binom_idx_t(unsigned n)
+{
+    __uint128_t v = comb128(n, 6);
+    return (idx_t)v;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

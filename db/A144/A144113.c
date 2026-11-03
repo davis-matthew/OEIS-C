@@ -11,6 +11,7 @@
  *            the d‑th diagonal), let j = d - i
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
+ * Validated: partial, pass, 101 terms through n = 101 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

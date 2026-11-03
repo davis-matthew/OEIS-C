@@ -8,12 +8,14 @@
  *            (3*q^11+5*q^9+6*q^8+5*q^7+7*q^5)/((1-q)(1-q^2)(1-q^3)(1-q^4)(1-q^5))
  * Range:     u8 n <= 13, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* Allocate array for the partition numbers with parts ≤5. */
     idx_t size = n + 1;                 /* indices 0 … n */
-    seq_t *f = (seq_t *)malloc((size_t)size * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (size_t)size);
     if (!f)                               /* allocation failed */
         return 0;
 
@@ -46,6 +48,6 @@ seq_t a(idx_t n)
     if (n >= 9) result += (seq_t)5 * f[n - 9]; /* 5*q^9 */
     if (n >= 11) result += (seq_t)3 * f[n - 11];/* 3*q^11 */
 
-    free(f);
+    mem_free(f);
     return result;
 }

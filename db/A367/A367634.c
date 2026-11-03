@@ -13,12 +13,14 @@
  *            descending antidiagonals
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* n >= 1 */
 seq_t a(idx_t n) {
@@ -38,20 +40,20 @@ seq_t a(idx_t n) {
     size_t L = (size_t)(d + 1);
 
     /* allocate and initialise row 0 */
-    seq_t *prev = (seq_t *)calloc(L, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, L);
     if (!prev) return (seq_t)0;
     for (size_t j = 0; j < L; ++j) prev[j] = (seq_t)(j + 1);
 
     /* if we only need row 0, return directly */
     if (row == 0) {
         seq_t res = prev[col];
-        free(prev);
+        mem_free(prev);
         return res;
     }
 
     /* row buffer for building next rows */
-    seq_t *cur = (seq_t *)calloc(L, sizeof(seq_t));
-    if (!cur) { free(prev); return (seq_t)0; }
+    seq_t *cur = mem_new(seq_t, L);
+    if (!cur) { mem_free(prev); return (seq_t)0; }
 
     /* build rows 1 .. row */
     for (idx_t i = 1; i <= row; ++i) {
@@ -88,7 +90,7 @@ seq_t a(idx_t n) {
 
     /* prev now holds the desired row */
     seq_t result = prev[col];
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
     return result;
 }

@@ -7,9 +7,10 @@
  * Keywords:  nonn, easy
  * Formula:   a(1)=1; for n>1, a(n)=the smallest m not seen before such that
  *            m^2 + a(n-1)^2 is prime
- * Range:     u8 n <= 10, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
- *            big any n
- * Helpers:   isprime_big
+ * Range:     u8 n <= 10, u16 n <= 236, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 88 terms through n = 9324 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/isprime_big.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t   *seq   = NULL;      /* cached sequence values        */
 static unsigned char *seen = NULL;  /* bitmap of numbers already used */
@@ -52,7 +54,7 @@ ensure_seq(idx_t min_capacity)
     idx_t new_len = seq_len ? seq_len * 2 : 8;
     if (new_len < min_capacity)
         new_len = min_capacity;
-    seq_t *tmp = (seq_t *)realloc(seq, (size_t)new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, (size_t)new_len);
     if (!tmp)
         exit(EXIT_FAILURE);
     seq = tmp;
@@ -86,7 +88,7 @@ a(idx_t n)
             }
             seq_t mm = (seq_t)m;
             seq_t sum_sq = mm * mm + prev * prev;
-            if (isprime_big(sum_sq))
+            if (is_prime_seq(sum_sq))
                 break;
             ++m;
         }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 27, u64 n <= 61, u128 n <= 130,
  *            big any n
- * Helpers:   block_perimeter, ensure_cache, rotl8
+ * Validated: standard, pass, 43 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,58 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/ensure_cache.h"
-#include "../utils/block_perimeter.h"
-#include "../utils/rotl8.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Make sure the cache is large enough */
+static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr) {
+    seq_t *cache = *cache_ptr;
+    size_t cap = *cap_ptr;
+    if (cap <= (size_t)n) {
+        size_t new_cap = cap ? (cap << 1) : 16;
+        while (new_cap <= (size_t)n)
+            new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+        if (!tmp && new_cap > 0) {
+            /* Allocation failed – abort the program. */
+            exit(1);
+        }
+        if (tmp) {
+            /* Initialize newly allocated slots to zero. */
+            if (!cache) {
+                for (size_t i = 0; i < new_cap; ++i)
+                    tmp[i] = 0;
+            } else {
+                for (size_t i = cap; i < new_cap; ++i)
+                    tmp[i] = 0;
+            }
+            *cache_ptr = tmp;
+            *cap_ptr = new_cap;
+        }
+    }
+}
+
+/* Return the 8‑bit pattern of the perimeter of a 3×3 block with rows
+   r1,r2,r3 (5‑bit values) and left column index c (0–2). */
+static inline uint8_t block_perimeter(uint8_t r1, uint8_t r2, uint8_t r3, int c)
+{
+    uint8_t b0 = (r1 >> c)          & 1; /* top‑left     */
+    uint8_t b1 = (r1 >> (c + 1))    & 1; /* top‑middle   */
+    uint8_t b2 = (r1 >> (c + 2))    & 1; /* top‑right    */
+    uint8_t b3 = (r2 >> (c + 2))    & 1; /* right‑middle */
+    uint8_t b4 = (r3 >> (c + 2))    & 1; /* bottom‑right */
+    uint8_t b5 = (r3 >> (c + 1))    & 1; /* bottom‑middle*/
+    uint8_t b6 = (r3 >> c)          & 1; /* bottom‑left  */
+    uint8_t b7 = (r2 >> c)          & 1; /* left‑middle  */
+    return (b0 << 7) | (b1 << 6) | (b2 << 5) | (b3 << 4) |
+           (b4 << 3) | (b5 << 2) | (b6 << 1) | b7;
+}
+
+/* Rotate a byte left by k positions. */
+static inline uint8_t rotl8(uint8_t v, int k)
+{
+    return ((v << k) | (v >> (8 - k))) & 0xFF;
+}
 
 #define ROWS 5
 #define STATES (1 << (ROWS * 2))   /* 5‑bit rows for two consecutive rows */

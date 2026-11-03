@@ -13,7 +13,8 @@
  *            a(n)=a(n-1)+a(n-4) * otherwise : a(n)=a(n-1)+a(n-2)+a(n-3)
  * Range:     u8 n <= 17, u16 n <= 32, u32 n <= 62, u64 n <= 121,
  *            u128 n <= 240, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Handle the base cases */
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
     /* Initialize cache with first four terms if empty */
     if (cache_size == 0) {
         cache_size = 4;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (!cache)
             exit(1);
         cache[0] = cache[1] = cache[2] = cache[3] = (seq_t)1;
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
     /* Ensure there is enough space for all terms up to n */
     if (cache_size <= n) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp)
             exit(1);
         cache = tmp;

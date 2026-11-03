@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 196, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 58 terms through n = 968 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* Computes the n-th prime that is congruent to 4 modulo 37
    by searching numbers of the form 37*k + 4 and testing primality. */
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

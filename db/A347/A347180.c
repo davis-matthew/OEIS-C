@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   digit_counts
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
+#include "../utils/mem.h"
 
 /* The sequence is generated iteratively: given a(n-1), find the smallest
    unused integer a(n) for which the first digit of a(n-1) appears somewhere
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
         /* First call: allocate a tiny cache and initialise a(1)=1. */
         if (cache_len == 0) {
             cache_cap = 8;
-            cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+            cache = mem_new(seq_t, cache_cap);
             if (!cache) abort();          /* no memory -> fatal */
 
             /* Allocate the used table big enough for index 1. */
@@ -106,7 +109,7 @@ seq_t a(idx_t n)
             if (cache_len >= cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
                 seq_t *tmp_cache =
-                    (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    mem_resize(seq_t, cache, new_cap);
                 if (!tmp_cache) abort();
                 cache = tmp_cache;
                 cache_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 6, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ==== Helper hash table for seq_t values ==== */
 typedef struct {
@@ -43,12 +45,12 @@ static void hashset_init(HashSet *hs, size_t expected)
     hs->cap   = c;
     hs->mask  = c - 1;
     hs->count = 0;
-    hs->keys  = (seq_t *)calloc(c, sizeof(seq_t));
+    hs->keys  = mem_new(seq_t, c);
 }
 
 static void hashset_free(HashSet *hs)
 {
-    free(hs->keys);
+    mem_free(hs->keys);
     hs->keys   = NULL;
     hs->cap    = 0;
     hs->mask   = 0;
@@ -73,7 +75,7 @@ static void hashset_insert(HashSet *hs, seq_t key)
     if ((hs->count + 1) * 2 > hs->cap) {
         size_t newcap = hs->cap << 1;
         size_t newmask = newcap - 1;
-        seq_t *newkeys = (seq_t *)calloc(newcap, sizeof(seq_t));
+        seq_t *newkeys = mem_new(seq_t, newcap);
         for (size_t i = 0; i < hs->cap; ++i) {
             if (hs->keys[i]) {
                 size_t h = hash_seq_t(hs->keys[i]) & newmask;
@@ -81,7 +83,7 @@ static void hashset_insert(HashSet *hs, seq_t key)
                 newkeys[h] = hs->keys[i];
             }
         }
-        free(hs->keys);
+        mem_free(hs->keys);
         hs->keys = newkeys;
         hs->cap  = newcap;
         hs->mask = newmask;
@@ -120,7 +122,7 @@ static void build_hept(idx_t K)
 {
     if (hept_cap < K + 1) {
         size_t newcap = K + 1;
-        hept = (seq_t *)realloc(hept, newcap * sizeof(seq_t));
+        hept = mem_resize(seq_t, hept, newcap);
         for (idx_t i = hept_cap; i <= K; ++i) {
             seq_t k = i;
             hept[i] = k * ((seq_t)5 * k - 3) / 2;
@@ -148,7 +150,7 @@ static void ensure_cache(idx_t n)
         results_len = 0;
         if (!results_cap) {
             results_cap = 1024;
-            results = (seq_t *)malloc(results_cap * sizeof(seq_t));
+            results = mem_new(seq_t, results_cap);
         }
 
         /* Hash set to deduplicate sums */
@@ -163,8 +165,7 @@ static void ensure_cache(idx_t n)
                         hashset_insert(&resSet, sum);
                         if (results_len == results_cap) {
                             results_cap <<= 1;
-                            results = (seq_t *)realloc(results,
-                                                        results_cap * sizeof(seq_t));
+                            results = mem_resize(seq_t, results, results_cap);
                         }
                         results[results_len++] = sum;
                     }
@@ -175,7 +176,7 @@ static void ensure_cache(idx_t n)
         hashset_free(&heptSet);
         hashset_free(&resSet);
 
-        qsort(results, results_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(results, results_len, sizeof(seq_t), cmp_seq_t);
 
         if (results_len >= (size_t)n) break;
         /* increase bound and recompute */

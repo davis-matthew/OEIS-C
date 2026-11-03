@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 3203, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   palindrome_from_half
+ * Validated: standard, pass, 73 terms through n = 9998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,21 @@
    stores their pairwise sums, and convolves the pair‑sum array with itself
    to obtain the quadruple count. */
 #include <stdlib.h>
-#include "../utils/palindrome_from_half.h"
+#include "../utils/mem.h"
+
+/* Build a binary palindrome from half (most significant half) and the
+   total bit length.  For odd length the middle bit is not duplicated. */
+static inline idx_t palindrome_from_half(idx_t half, idx_t len)
+{
+    idx_t pal = half;
+    idx_t tmp = (len & 1) ? (half >> 1) : half;    /* skip middle bit if odd */
+    while (tmp)
+    {
+        pal = (pal << 1) | (tmp & 1);
+        tmp >>= 1;
+    }
+    return pal;
+}
 
 /* Return the position of the most significant bit of n (0‑based)
    or 0 if n==0. */
@@ -94,7 +109,7 @@ seq_t a(idx_t n)
 
     /* Allocate pair-sum array */
     size_t arr_size = (size_t)n + 1;
-    seq_t *pair_sum = (seq_t *)calloc(arr_size, sizeof(seq_t));
+    seq_t *pair_sum = mem_new(seq_t, arr_size);
     if (!pair_sum)
     {
         free(pal);
@@ -122,7 +137,7 @@ seq_t a(idx_t n)
         ans += pair_sum[(size_t)s] * pair_sum[(size_t)t];
     }
 
-    free(pair_sum);
+    mem_free(pair_sum);
     free(pal);
 
     return ans;

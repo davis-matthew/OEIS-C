@@ -8,13 +8,26 @@
  *            the digits of i in base 8 (OEIS A053829)
  * Range:     u8 n <= 3, u16 n <= 36, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   octal_digit_sum
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/octal_digit_sum.h"
+#include "../utils/mem.h"
+
+/* Helper: compute the sum of octal digits of v.
+   Returned type is seq_t, which may be any unsigned integer type. */
+static inline seq_t octal_digit_sum(idx_t v)
+{
+    seq_t sum = 0;
+    while (v) {
+        sum += (seq_t)(v & 7);  /* v % 8 */
+        v >>= 3;                /* v /= 8 */
+    }
+    return sum;
+}
 
 /* Memoization buffer for already computed values of the sequence. */
 static seq_t *cache = NULL;   /* sequence values */
@@ -30,7 +43,7 @@ seq_t a(idx_t n)
     /* Extend the cache to hold values up to n. */
     idx_t old_len = cache_len;
     if (n + 1 > cache_len) {
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) {
             /* Allocation failure – return 0 as a safe fallback. */
             return 0;

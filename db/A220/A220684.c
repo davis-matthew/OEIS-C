@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 30,
  *            big any n
- * Helpers:   build_transition_matrix, mul_small
+ * Validated: standard, pass, 32 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,94 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mul_small.h"
-#include "../utils/build_transition_matrix.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+static void build_transition_matrix(unsigned short T[81][81])
+{
+    int s;
+    for (s = 0; s < 81; ++s)
+        for (int t = 0; t < 81; ++t)
+            T[s][t] = 0;
+
+    for (s = 0; s < 81; ++s) {
+        /* decode incoming degrees from previous row (base‑3 representation) */
+        int in_prev[4];
+        int tmp = s;
+        for (int j = 0; j < 4; ++j) {
+            in_prev[j] = tmp % 3;
+            tmp /= 3;
+        }
+
+        /* enumerate horizontal edge choices (3 possible edges) */
+        for (int hm = 0; hm < 8; ++hm) {
+            int d[4];
+            for (int j = 0; j < 4; ++j)
+                d[j] = in_prev[j];
+
+            if (hm & 1) { d[0]++; d[1]++; }   /* edge 0‑1 */
+            if (hm & 2) { d[1]++; d[2]++; }   /* edge 1‑2 */
+            if (hm & 4) { d[2]++; d[3]++; }   /* edge 2‑3 */
+
+            /* enumerate vertical choices (4 edges) */
+            for (int vm = 0; vm < 16; ++vm) {
+                int in_next[4] = {0, 0, 0, 0};
+                int d2[4];
+                for (int j = 0; j < 4; ++j)
+                    d2[j] = d[j];
+
+                for (int j = 0; j < 4; ++j) {
+                    if (vm & (1 << j)) {
+                        d2[j]++;                  /* edge vertical at column j */
+                        in_next[j]++;              /* contributes to next row */
+                    }
+                }
+
+                /* enumerate antidiagonal choices (3 edges) */
+                for (int am = 0; am < 8; ++am) {
+                    int d3[4];
+                    for (int j = 0; j < 4; ++j)
+                        d3[j] = d2[j];
+                    int new_in_next[4] = {in_next[0], in_next[1], in_next[2], in_next[3]};
+
+                    for (int k = 0; k < 3; ++k) {
+                        if (am & (1 << k)) {
+                            int j = k + 1;                /* source column j */
+                            d3[j]++;                       /* edge from (r,j) to (r+1,j-1) */
+                            new_in_next[j-1]++;             /* contributes to next row column j-1 */
+                        }
+                    }
+
+                    /* check validity of edges for current row */
+                    bool ok = true;
+                    for (int j = 0; j < 4; ++j) {
+                        if (d3[j] > 2 || (d3[j] & 1)) { ok = false; break; }
+                    }
+                    if (!ok) continue;
+                    for (int j = 0; j < 4; ++j) {
+                        if (new_in_next[j] > 2) { ok = false; break; }
+                    }
+                    if (!ok) continue;
+
+                    int ns = new_in_next[0] + 3 * new_in_next[1] + 9 * new_in_next[2] + 27 * new_in_next[3];
+                    T[s][ns] += 1;
+                }
+            }
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -54,7 +141,7 @@ seq_t a(idx_t n)
 
     /* enlarge cache if needed */
     if ((size_t)n > a_cache_len) {
-        seq_t *tmp = (seq_t *)realloc(a_cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, (size_t)n);
         if (!tmp) exit(1);
         a_cache = tmp;
         a_cache_len = (size_t)n;

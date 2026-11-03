@@ -11,14 +11,22 @@
  *            sequence up to at least 10 000
  * Range:     u8 n <= 5995, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   leading_digit_uint64
+ * Validated: standard, pass, 94 terms through n = 9924 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/leading_digit_uint64.h"
+
+/* Return the most significant decimal digit of an unsigned integer. */
+static inline int leading_digit_uint64(uint64_t x)
+{
+    if (x == 0) return 0;          /* not used for the sequence, just in case */
+    while (x >= 10) x /= 10;
+    return (int)x;
+}
 
 /* Compute a(n) as defined above. */
 seq_t a(idx_t n)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Static cache for computed terms */
 static seq_t *cache = NULL;       /* dynamically allocated array of seq_t */
@@ -37,7 +40,7 @@ static void push_cache(seq_t val)
 {
     if (cache_size == cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 128 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         /* In the unlikely event realloc fails, the program will terminate,
            which is acceptable for this setting. */
         cache = tmp;
@@ -56,7 +59,7 @@ seq_t a(idx_t n)
         /* Find the next prime greater than last_examined */
         uint64_t p = last_examined + 1;
         for (;;) {
-            if (is_prime(p)) {
+            if (is_prime_u64(p)) {
                 last_examined = p;
                 break;
             }
@@ -69,16 +72,16 @@ seq_t a(idx_t n)
         /* Upward check: 2p+1 or 2p‑1 is prime */
         bool up = false;
         uint64_t up1 = (uint64_t)((unsigned __int128)2 * p + 1);
-        if (is_prime(up1)) up = true;
+        if (is_prime_u64(up1)) up = true;
         uint64_t up2 = (uint64_t)((unsigned __int128)2 * p - 1);
-        if (!up && is_prime(up2)) up = true;
+        if (!up && is_prime_u64(up2)) up = true;
 
         /* Downward check: (p‑1)/2 or (p+1)/2 is prime */
         bool down = false;
         uint64_t d1 = (p - 1) / 2;
         uint64_t d2 = (p + 1) / 2;
-        if (d1 >= 2 && is_prime(d1)) down = true;
-        if (!down && d2 >= 2 && is_prime(d2)) down = true;
+        if (d1 >= 2 && is_prime_u64(d1)) down = true;
+        if (!down && d2 >= 2 && is_prime_u64(d2)) down = true;
 
         if (up && down) {
             push_cache((seq_t)p);

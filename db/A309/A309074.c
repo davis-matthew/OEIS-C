@@ -7,7 +7,8 @@
  * Formula:   a(n) = 4^(number of 0's in binary representation of n)
  * Range:     u8 n <= 15, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"    /* seq_pow(seq_t base, idx_t exp) */
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -29,5 +31,5 @@ seq_t a(idx_t n)
     unsigned ones   = __builtin_popcountll(num);       /* number of 1's */
     unsigned zeros  = bitlen - ones;                   /* number of 0's */
 
-    return seq_pow((seq_t)4, zeros);
+    return ipow_idx((seq_t)4, zeros);
 }

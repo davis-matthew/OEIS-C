@@ -7,19 +7,22 @@
  * Formula:   a(n) = 6144*5^n - 12288*4^n + 7616*3^n - 1472*2^n + 41
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 8, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
-    seq_t pow5 = big_pow((seq_t)5, (seq_t)n);
-    seq_t pow4 = big_pow((seq_t)4, (seq_t)n);
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)n);
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)n);
+    seq_t pow5 = ipow((seq_t)5, (seq_t)n);
+    seq_t pow4 = ipow((seq_t)4, (seq_t)n);
+    seq_t pow3 = ipow((seq_t)3, (seq_t)n);
+    seq_t pow2 = ipow((seq_t)2, (seq_t)n);
 
     seq_t pos = ((seq_t)6144 * pow5) + ((seq_t)7616 * pow3) + (seq_t)41;
     seq_t neg = ((seq_t)12288 * pow4) + ((seq_t)1472 * pow2);

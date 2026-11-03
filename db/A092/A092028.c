@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 257, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 98 terms through n = 9710 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
    whether n^m ≡ 1 (mod m). */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
     /* Search for the smallest m > 1 that satisfies the condition. */
     for (idx_t m = 2; m < n; ++m) {
         /* Compute sn^m mod m using the helper function. */
-        if (mod_pow(sn, m, (seq_t)m) == 1) {
+        if (powmod(sn, m, (seq_t)m) == 1) {
             return (seq_t)m;
         }
     }

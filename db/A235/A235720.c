@@ -9,7 +9,8 @@
  *            whose square has exactly five distinct decimal digits
  * Range:     u8 none, u16 n <= 47, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static bool has_five_distinct_digits(seq_t x) {
     bool seen[10] = {false};
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
         /* Allocate or grow cache */
         if (cache_cnt == cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 128 : cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) { /* allocation failure – abort */
                 exit(1);
             }

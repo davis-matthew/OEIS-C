@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has56or65
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,27 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has56or65.h"
+#include "../utils/mem.h"
+
+/* Check whether x has the adjacent digits 5 and 6 (in any order) in base‑9. */
+static bool has56or65(seq_t x)
+{
+    if (x == (seq_t)0)
+        return false;
+
+    seq_t prev = x % (seq_t)9;   /* least significant digit */
+    x /= (seq_t)9;
+    while (x != (seq_t)0) {
+        seq_t cur = x % (seq_t)9;                     /* next higher digit */
+        /* pattern 56 or 65 – cur is higher digit, prev lower digit */
+        if ((cur == (seq_t)5 && prev == (seq_t)6) ||
+            (cur == (seq_t)6 && prev == (seq_t)5))
+            return true;
+        prev = cur;
+        x /= (seq_t)9;
+    }
+    return false;
+}
 
 /* Ensure a dynamic array is large enough. */
 static void grow_seq(seq_t **arr, size_t *cap, size_t need)
@@ -29,7 +50,7 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t need)
         size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
         if (new_cap < need)
             new_cap = need;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }

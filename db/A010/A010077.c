@@ -10,6 +10,7 @@
  *            with period 24
  * Range:     u8 n <= 9999, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
+ * Validated: standard, pass, 91 terms through n = 8743 (2026-11-01)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,7 @@
 
 #include <stddef.h>        /* for size_t */
 #include <stdbool.h>       /* for bool */
-#include "../utils/digit_sum.h"   /* provides digit_sum(seq_t) */
+#include "../utils/digit_sum.h"
 
 seq_t a(idx_t n)
 {

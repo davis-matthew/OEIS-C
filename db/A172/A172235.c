@@ -10,7 +10,8 @@
  *            first n primes of the form 3k-1 (i.e. ≡2 (mod 3))
  * Range:     u8 n <= 21, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build */
 seq_t a(idx_t n)
@@ -41,11 +43,11 @@ seq_t a(idx_t n)
         prime_list = (uint64_t *)malloc(sizeof(uint64_t) * prime_cap);
 
         sum1_cap = 4;
-        sum1 = (seq_t *)malloc(sizeof(seq_t) * sum1_cap);
+        sum1 = mem_new(seq_t, sum1_cap);
         sum1[0] = 0;                          /* sentinel for sums */
 
         sum2_cap = 4;
-        sum2 = (seq_t *)malloc(sizeof(seq_t) * sum2_cap);
+        sum2 = mem_new(seq_t, sum2_cap);
         sum2[0] = 0;                          /* sentinel */
 
         initialized = true;
@@ -90,14 +92,14 @@ seq_t a(idx_t n)
         if (cand == 3 || cand % 3 == 1) {                /* class 1: 3 or ≡1 (mod 3) */
             if (sum1_cap <= count1 + 1) {
                 sum1_cap <<= 1;
-                sum1 = (seq_t *)realloc(sum1, sizeof(seq_t) * sum1_cap);
+                sum1 = mem_resize(seq_t, sum1, sum1_cap);
             }
             sum1[count1 + 1] = sum1[count1] + (seq_t)cand;
             ++count1;
         } else if (cand % 3 == 2) {                     /* class 2: ≡2 (mod 3) */
             if (sum2_cap <= count2 + 1) {
                 sum2_cap <<= 1;
-                sum2 = (seq_t *)realloc(sum2, sizeof(seq_t) * sum2_cap);
+                sum2 = mem_resize(seq_t, sum2, sum2_cap);
             }
             sum2[count2 + 1] = sum2[count2] + (seq_t)cand;
             ++count2;

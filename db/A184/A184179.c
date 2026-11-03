@@ -12,7 +12,8 @@
  *            numbers)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +21,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Computes the OEIS sequence A184179: number of permutations
  * of {1,…,n} having no isolated fixed points. */
 seq_t a(idx_t n)
 {
     /* derangements d[0..n] */
-    seq_t *d = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *d = mem_new(seq_t, (size_t)(n + 1));
     d[0] = (seq_t)1;
     if (n >= 1)
         d[1] = (seq_t)0;
@@ -47,6 +49,6 @@ seq_t a(idx_t n)
         res += d[n - j] * inner;
     }
 
-    free(d);
+    mem_free(d);
     return res;
 }

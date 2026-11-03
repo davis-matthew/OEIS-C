@@ -11,6 +11,7 @@
  *            is finite; the last term a(208) = 2408
  * Range:     u8 n <= 131, u16 n <= 208, u32 n <= 208, u64 n <= 208,
  *            u128 n <= 208, big any n
+ * Validated: full, pass, 208 terms through n = 208 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  *            z^5 with w a positive integer and x, y, z non‑negative integers
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9866 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Static cache for the number of (w,x) solutions of
    k = w^2 + 3*x^2  (w ≥ 1, x ≥ 0).  The array grows
@@ -58,7 +60,7 @@ static void ensure_f_cache(idx_t max_k)
 
     /* Allocate a larger cache. */
     size_t new_size = (size_t)(max_k + 1);
-    seq_t *new_f = (seq_t *) calloc(new_size, sizeof(seq_t));
+    seq_t *new_f = mem_new(seq_t, new_size);
     if (!new_f) return;                 /* very unlikely on a reasonable machine */
 
     /* Fill the cache up to max_k. */
@@ -77,7 +79,7 @@ static void ensure_f_cache(idx_t max_k)
     }
 
     /* Replace the old cache. */
-    free(f_cache);
+    mem_free(f_cache);
     f_cache = new_f;
     f_size  = max_k;
 }

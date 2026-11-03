@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 40, u32 n <= 3589, u64 n <= 8585,
- *            u128 n <= 8585, big any n
- * Helpers:   digit_len, is_prime, pow10
+ * Range:     u8 n <= 1, u16 n <= 40, u32 n <= 3589, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 57 terms through n = 8585 (2026-11-03)
+ * Helpers:   is_prime, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,20 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
 #include "../utils/is_prime.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n) {
     /* Static cache */
@@ -41,7 +53,7 @@ seq_t a(idx_t n) {
         seq_t sq = m * m;
 
         /* Remove most significant decimal digit */
-        int  dlen   = digit_len(sq);            /* number of digits of sq   */
+        int  dlen   = num_digits(sq);            /* number of digits of sq   */
         seq_t ten   = pow10((idx_t)(dlen - 1)); /* 10^(dlen-1)              */
         seq_t rem   = sq % ten;                 /* remainder after removal   */
 
@@ -49,7 +61,7 @@ seq_t a(idx_t n) {
         if (rem > 1 && is_prime((idx_t)rem)) {
             if (sz == cap) {                   /* grow cache if needed   */
                 cap = cap ? cap * 2 : 8;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[sz++] = sq;                    /* store square           */
         }

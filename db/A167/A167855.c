@@ -10,7 +10,8 @@
  *            n=15: a(15) = 1 + 43*(a(14)+...+a(1)) - 946*a(0)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   mul_small, seq_from_str
+ * Validated: standard, pass, 31 terms through n = 479 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,31 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_from_str.h"   /* seq_t seq_from_str(const char *); */
-#include "../utils/mul_small.h"     /* seq_t mul_small(seq_t, unsigned int); */
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static const char *init_terms_str[15] = {
     "1",
@@ -51,7 +75,7 @@ static void init_cache(void)
         return;
 
     cache_cap = 64;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (cache == NULL)
         abort();
 
@@ -69,7 +93,7 @@ static void ensure_capacity(idx_t n)
         return;
     while (cache_cap <= (size_t)n)
         cache_cap <<= 1;                 /* double capacity */
-    seq_t *newp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, cache_cap);
     if (newp == NULL)
         abort();
     cache = newp;

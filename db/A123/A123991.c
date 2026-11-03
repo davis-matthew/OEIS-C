@@ -8,13 +8,22 @@
  *            (1 - x^2)^4 * (1 - x^3)^4)
  * Range:     u8 n <= 7, u16 n <= 22, u32 n <= 98, u64 n <= 1262,
  *            u128 n <= 9999, big any n
- * Helpers:   binom, seq_alloc_new_array
+ * Validated: standard, pass, 55 terms through n = 9771 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"          /* for binom(idx_t a, idx_t b) */
-#include "../utils/seq_alloc_new_array.h"   /* for seq_alloc_new_array(size_t) */
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 static int  coeff[23];   /* denominator polynomial coefficients d[0..22] */
 static seq_t *cache = NULL;
@@ -86,13 +95,13 @@ static void compute_first_terms(void)
     for (idx_t t = 0; t <= N; ++t)
         f2[t] = 0;
     for (idx_t t = 0; 2 * t <= N; ++t)
-        f2[2 * t] = binom(3 + t, t);
+        f2[2 * t] = binomial(3 + t, t);
 
     /* 1/(1-x^3)^4 */
     for (idx_t t = 0; t <= N; ++t)
         f3[t] = 0;
     for (idx_t t = 0; 3 * t <= N; ++t)
-        f3[3 * t] = binom(3 + t, t);
+        f3[3 * t] = binomial(3 + t, t);
 
     /* conv12 = f1 * f2 */
     for (idx_t i = 0; i <= N; ++i) {

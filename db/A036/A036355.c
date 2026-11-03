@@ -11,12 +11,14 @@
  *            the rows: a(0)=T(0,0), a(1)=T(1,0), a(2)=T(1,1...
  * Range:     u8 n <= 37, u16 n <= 96, u32 n <= 333, u64 n <= 1148,
  *            u128 n <= 4316, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 7318 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* compute the triangular number r*(r+1)/2 using 128‑bit arithmetic to avoid overflow */
 static inline idx_t triangular(idx_t r)
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache if required */
     if (tri == NULL) {
-        tri = (seq_t *)malloc(sizeof(seq_t) * 1);
+        tri = mem_new(seq_t, 1);
         tri[0] = (seq_t)1;
         cached_rows = 0;
         cached_terms = 1;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         size_t new_total = (size_t)(cached_terms + (i + (idx_t)1));
 
         /* Reallocate space for the new row */
-        seq_t *tmp = (seq_t *)realloc(tri, new_total * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, tri, new_total);
         if (tmp == NULL) {
             /* Allocation failed; return 0 as a safe fallback */
             return (seq_t)0;

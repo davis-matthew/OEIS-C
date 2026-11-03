@@ -12,13 +12,15 @@
  *            of pointers. All arithmetic is performed in type...
  * Range:     u8 n <= 6, u16 n <= 21, u32 n <= 57, u64 n <= 159, u128 n <= 478,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1239 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------------- */
 /* Integer square‑root: floor(sqrt(x)) for unsigned 64‑bit integers.           */
@@ -55,7 +57,7 @@ static void ensure_rows_up_to(idx_t r)
     if (rows == NULL) { /* first call – initialise */
         rows_cap = 1;
         rows = (seq_t **)malloc(rows_cap * sizeof(seq_t *));
-        rows[0] = (seq_t *)malloc(sizeof(seq_t));
+        rows[0] = mem_new(seq_t, 1);
         rows[0][0] = pow4_cur; /* 4^0 = 1 */
         max_row_computed = 0;
         pow4_cur = pow4_cur * (seq_t)4; /* now holds 4^1 for the next row */
@@ -71,7 +73,7 @@ static void ensure_rows_up_to(idx_t r)
         }
 
         /* Allocate the new row */
-        rows[new_i] = (seq_t *)malloc((new_i + 1) * sizeof(seq_t));
+        rows[new_i] = mem_new(seq_t, (new_i + 1));
 
         seq_t *prev = rows[new_i - 1];
         seq_t *curr = rows[new_i];

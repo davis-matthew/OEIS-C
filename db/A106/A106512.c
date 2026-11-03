@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 72, u32 n <= 181, u64 n <= 452,
  *            u128 n <= 1159, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 84 terms through n = 1261 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
    antidiagonals (n + k = constant, n increasing from 1). */
 
 /* Required utilities */
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t idx)
 {
@@ -46,7 +49,7 @@ seq_t a(idx_t idx)
     seq_t km1 = (seq_t)(k - 1);
 
     /* Compute (k-1)^n */
-    seq_t pow_term = seq_pow(km1, n);
+    seq_t pow_term = ipow_idx(km1, n);
 
     /* Add or subtract (k-1) depending on parity of n */
     if (n & 1) /* n odd */

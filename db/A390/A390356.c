@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000045(A111035(n))
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   fib
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,16 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/fib.h"   /* fib(idx_t) */
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 /* ----- Modulo multiplication using repeated addition ----- */
 static inline seq_t mod_mul(seq_t a, seq_t b, seq_t mod)

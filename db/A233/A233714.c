@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 11, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 146 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* constant: number of 5‑ary digits per row */
 #define STATES 15625            /* 5^6 */
@@ -214,8 +216,8 @@ static void init(void)
     build_pair_tables();
     build_adjacency();
 
-    dp_cur = (seq_t *)malloc(STATES * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(STATES * sizeof(seq_t));
+    dp_cur = mem_new(seq_t, STATES);
+    dp_next = mem_new(seq_t, STATES);
 
     /* initial row vector: one way for each state */
     for (size_t i = 0; i < STATES; ++i)
@@ -223,7 +225,7 @@ static void init(void)
 
     /* initialise cache */
     cache_cap = 1;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache[0] = (seq_t)0;   /* unused placeholder */
 
     cache_len = 0;         /* no terms computed yet */
@@ -241,7 +243,7 @@ seq_t a(idx_t n)
     /* extend memoised values up to n */
     while (cache_len < (size_t)n) {
         /* clear next DP array */
-        memset(dp_next, 0, STATES * sizeof(seq_t));
+        mem_set(dp_next, 0, STATES * sizeof(seq_t));
         seq_t step_sum = (seq_t)0;
 
         /* propagate counts */
@@ -265,7 +267,7 @@ seq_t a(idx_t n)
         ++cache_len;                          /* cache_len == cache index to store */
         if (cache_len >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len] = step_sum;
 

@@ -8,8 +8,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = 1 iff the alternating digit sum of the primorial base
  *            representation of 6*n is a multiple of 3; otherwise 0
- * Range:     u8 n <= 34, u16 n <= 8987, u32 n <= 9675, u64 n <= 9675,
- *            u128 n <= 9675, big any n
+ * Range:     u8 n <= 34, u16 n <= 8987, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 137 terms through n = 9675 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

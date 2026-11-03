@@ -9,13 +9,27 @@
  *            n>2
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 6, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   digit_prod
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/digit_prod.h"   /* provides static seq_t digit_prod(seq_t) */
+#include <stddef.h>
+#include <stdlib.h>
+
+/* Helper: compute product of non‑zero decimal digits of x */
+static seq_t digit_prod(seq_t x)
+{
+    seq_t prod = 1;
+    while (x != 0) {
+        unsigned int d = (unsigned int)(x % 10);
+        if (d != 0) prod *= d;
+        x /= 10;
+    }
+    return prod;
+}
 
 /* Fast exponentiation for seq_t; exp is non‑negative and small enough to fit in idx_t. */
 static seq_t pow_seq_local(seq_t base, idx_t exp)

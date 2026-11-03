@@ -9,13 +9,15 @@
  *            n%3==0
  * Range:     u8 n <= 15, u16 n <= 30, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Dependencies supplied by the build */
 #include <stdlib.h>   /* for malloc, realloc, abort */
+#include "../utils/mem.h"
 
 /* Cache for memoisation */
 static seq_t *cache = NULL;   /* cache[0] unused, cache[1] = a(1), etc. */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
     size_t old_size = (size_t)cache_size;
     size_t new_size = (size_t)(n + 1);
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) {
         /* Out‑of‑memory: abort the program */
         abort();

@@ -10,54 +10,56 @@
  *            2n – a with inclusion–exclusion on bounded compositions
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 30, u64 n <= 61, u128 n <= 124,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 48 terms through n = 200 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static seq_t count_minmax(idx_t k, idx_t a, idx_t n)
 {
     /* total compositions with parts in [0,n] */
-    seq_t total = binom(a + k - 1, k - 1);
+    seq_t total = binomial(a + k - 1, k - 1);
     if (a >= n + 1) {
         seq_t sub = (seq_t)k *
-                    binom(a - (n + 1) + k - 1, k - 1);
+                    binomial(a - (n + 1) + k - 1, k - 1);
         total -= sub;
     }
 
     /* compositions with no zero part (all parts ≥1) */
     seq_t no0 = 0;
     if (a >= k) {
-        no0 = binom(a - k + k - 1, k - 1);
+        no0 = binomial(a - k + k - 1, k - 1);
     }
     if (a >= k + n) {
         seq_t sub = (seq_t)k *
-                    binom(a - k - n + k - 1, k - 1);
+                    binomial(a - k - n + k - 1, k - 1);
         no0 -= sub;
     }
 
     /* compositions with no n part (all parts ≤ n‑1) */
     seq_t noN = 0;
     if (a >= n) {
-        noN = binom(a + k - 1, k - 1);
+        noN = binomial(a + k - 1, k - 1);
         seq_t sub = (seq_t)k *
-                    binom(a - n + k - 1, k - 1);
+                    binomial(a - n + k - 1, k - 1);
         noN -= sub;
     } else {
         /* a < n cannot occur for a in [n,2n−2], but kept for safety */
-        noN = binom(a + k - 1, k - 1);
+        noN = binomial(a + k - 1, k - 1);
     }
 
     /* compositions with parts in [1,n‑1] (no zeros, no n) */
     seq_t both = 0;
     if (a >= k) {
-        both = binom(a - k + k - 1, k - 1);
+        both = binomial(a - k + k - 1, k - 1);
     }
     if (a >= k + n - 1) {
         seq_t sub = (seq_t)k *
-                    binom(a - k - (n - 1) + k - 1, k - 1);
+                    binomial(a - k - (n - 1) + k - 1, k - 1);
         both -= sub;
     }
 

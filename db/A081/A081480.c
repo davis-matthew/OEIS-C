@@ -12,14 +12,15 @@
  *            rational 1/2. The first term a(1) = 2
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 8, u128 n <= 9,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>               /* for size_t */
 #include <stdint.h>               /* for uintptr_t */
-#include "../utils/seq_gcd.h"     /* seq_gcd() */
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
         seq_t v = p + q;                 /* denominator */
 
         /* Reduce the fraction and store the result for the next step. */
-        seq_t g = seq_gcd(u, v);
+        seq_t g = gcd(u, v);
         p = u / g;
         q = v / g;
     }

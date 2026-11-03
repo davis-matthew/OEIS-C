@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 16, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
+ * Range:     u8 n <= 28, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   divisor_count_u64, sigma_of, sqrt_floor
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   isqrt_seq, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,25 @@
    - sigma_of:        seq_t sigma_of(idx_t n);
    - divisor_count_u64: size_t divisor_count_u64(uint64_t n);
 */
-#include "../utils/sqrt_floor.h"
-#include "../utils/sigma_of.h"
-#include "../utils/divisor_count_u64.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
+#include "../utils/num_divisors.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,12 +49,12 @@ seq_t a(idx_t n)
     for (idx_t m = 2; ; ++m)
     {
         /* skip squares */
-        seq_t r = sqrt_floor((seq_t)m);
+        seq_t r = isqrt_seq((seq_t)m);
         if (r * r == (seq_t)m)
             continue;
 
         seq_t sigma = sigma_of(m);
-        seq_t d = (seq_t)divisor_count_u64(m);
+        seq_t d = (seq_t)num_divisors(m);
         if (sigma % d != 0)
         {
             ++found;

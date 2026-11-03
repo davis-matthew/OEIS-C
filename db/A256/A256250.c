@@ -8,9 +8,10 @@
  * Formula:   a(n) = 1 + 4*A256249(n-1) with A256249(0) = 0 and for i >= 1
  *            A256249(i) = A256249(i-1) + 2*(i - h) + 1, where h = highest
  *            power of two <= i
- * Range:     u8 n <= 14, u16 n <= 232, u32 n <= 9538, u64 n <= 9538,
- *            u128 n <= 9538, big any n
- * Helpers:   none
+ * Range:     u8 n <= 14, u16 n <= 232, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 80 terms through n = 9538 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for A256249 values */
 static seq_t *cache_A249 = NULL;   /* cache_A249[i] == A256249(i) */
@@ -40,7 +42,7 @@ static void ensure_cache_A249(idx_t m)
         return;
 
     size_t new_len = (size_t)(m) + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache_A249, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache_A249, new_len);
     if (!new_cache)   /* allocation failure – leave the old cache intact */
         return;
 

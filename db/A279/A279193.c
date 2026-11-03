@@ -9,12 +9,14 @@
  *            a(1)=1, a(2)=2, a(3)=8, a(4)=28
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[i] = a(i+1) for 0 ≤ i < cache_size */
 static idx_t  cache_size = 0; /* number of elements currently cached */
@@ -27,7 +29,7 @@ ensure_cache(idx_t n)
         return;
 
     size_t new_size = (size_t)n;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache)
         abort(); /* out of memory */
 

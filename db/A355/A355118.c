@@ -12,13 +12,22 @@
  *            mod 3
  * Range:     u8 n <= 15, u16 n <= 30, u32 n <= 61, u64 n <= 121,
  *            u128 n <= 242, big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: standard, pass, 54 terms through n = 913 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +43,7 @@ seq_t a(idx_t n)
     seq_t num = (seq_t)(2 * k * k + 8 * k + 23);
 
     /* Compute 3^(r-3).  For n ≥ 9, r ≥ 3. */
-    seq_t pow_r3 = seq_pow((seq_t)3, (idx_t)(r - 3));
+    seq_t pow_r3 = ipow_idx((seq_t)3, (idx_t)(r - 3));
 
     /* Final result: 3^(r-3) * (2k^2 + 8k + 23) */
     return seq_mul(pow_r3, num);

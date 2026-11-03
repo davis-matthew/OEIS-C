@@ -6,8 +6,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = n mod product of nonzero digits of n expressed in
  *            factorial base
- * Range:     u8 n <= 685, u16 n <= 9630, u32 n <= 9630, u64 n <= 9630,
- *            u128 n <= 9630, big any n
+ * Range:     u8 n <= 685, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 136 terms through n = 9630 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

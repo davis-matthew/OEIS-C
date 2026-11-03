@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   has_06
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
  * substring "06" but the predecessor does not. The function searches
  * sequentially, avoiding a hard-coded table. */
 #include <stdbool.h>
-#include "../utils/has_06.h"
+
+static bool has_06(seq_t x)
+{
+    seq_t prev = 8;               /* sentinel that cannot be a digit */
+    while (x > 0) {
+        seq_t d = x % 8;
+        if (prev == 6 && d == 0) return true;   /* seen "...0 6" */
+        prev = d;
+        x /= 8;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

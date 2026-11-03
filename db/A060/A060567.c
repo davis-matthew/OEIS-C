@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   add_prime
+ * Validated: partial, pass, 76 terms through n = 77 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,20 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/add_prime.h"
+
+/* helper: add or increase exponent of a prime in the factor list */
+static void add_prime(uint64_t p, uint32_t e,
+                      uint64_t *primes, uint32_t *exps, size_t *cnt)
+{
+    for (size_t i = 0; i < *cnt; ++i)
+        if (primes[i] == p) {
+            exps[i] += e;
+            return;
+        }
+    primes[*cnt] = p;
+    exps[*cnt] = e;
+    (*cnt)++;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   largest_divisor_lt
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,23 @@
 #include <stdbool.h>  /* bool */
 #include <stdint.h>   /* uint64_t */
 #include <stdlib.h>   /* malloc, realloc */
-#include "../utils/largest_divisor_lt.h"
+#include "../utils/mem.h"
+
+/* Return the largest divisor of (2*m) that is < m.
+ * The search is performed by scanning all divisors up to sqrt(2*m). */
+static seq_t largest_divisor_lt(uint64_t m, uint64_t two_m)
+{
+    seq_t best = 1;
+    for (uint64_t d = 1; d * d <= two_m; ++d) {
+        if (two_m % d == 0) {
+            uint64_t d1 = d;
+            uint64_t d2 = two_m / d;
+            if (d1 < m && d1 > (uint64_t)best) best = (seq_t)d1;
+            if (d2 < m && d2 > (uint64_t)best) best = (seq_t)d2;
+        }
+    }
+    return best;
+}
 
 #define PRIME_LIMIT 2000000   /* > 2 * maximal m expected for n <= 10000 */
 
@@ -57,7 +74,7 @@ static void ensure_cache_capacity(size_t need)
     if (cache_cap >= need) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 8;
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, term_cache, new_cap);
     term_cache = tmp;
     cache_cap = new_cap;
 }

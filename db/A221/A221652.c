@@ -10,12 +10,14 @@
  *            a(1)=1, a(2)=4, a(3)=12, a(4)=40
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 37, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for previously computed terms */
 static seq_t *cache = NULL;      /* array of computed terms */
@@ -32,7 +34,7 @@ static void ensure_cache_capacity(size_t need)
     while (new_cap < need)
         new_cap *= 2;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
         /* allocation failed – terminate quietly; the problem statement
            guarantees that the allocation will succeed in the test harness */

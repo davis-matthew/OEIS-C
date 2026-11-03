@@ -11,14 +11,31 @@
  *            sequences
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   contains_in_A
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains_in_A.h"
+#include "../utils/mem.h"
+
+/* Binary search in the ascending array arr[0 .. len-1] for value val            */
+static bool contains_in_A(const seq_t *arr, size_t len, seq_t val)
+{
+    size_t lo = 0, hi = len;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (arr[mid] == val)
+            return true;
+        else if (arr[mid] < val)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return false;
+}
 
 /* static state for memoisation ------------------------------------------------- */
 static seq_t *A = NULL;                /* values of a(i)                         */
@@ -38,8 +55,8 @@ static void ensure_capacity(idx_t idx)
     size_t newcap = A_cap ? A_cap * 2 : 4;
     while (newcap <= (size_t)idx)
         newcap <<= 1;
-    A = (seq_t *)realloc(A, newcap * sizeof(seq_t));
-    B = (seq_t *)realloc(B, newcap * sizeof(seq_t));
+    A = mem_resize(seq_t, A, newcap);
+    B = mem_resize(seq_t, B, newcap);
     A_cap = newcap;
 }
 
@@ -51,8 +68,8 @@ static void init(void)
         return;
 
     A_cap = 4;
-    A = (seq_t *)calloc(A_cap, sizeof(seq_t));
-    B = (seq_t *)calloc(A_cap, sizeof(seq_t));
+    A = mem_new(seq_t, A_cap);
+    B = mem_new(seq_t, A_cap);
 
     A[0] = (seq_t)1;
     A[1] = (seq_t)2;

@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=1..n} Catalan(k)^3 (n is 1‑based, a(1) = 1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 13, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 483 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* compute the sum of Cubes of Catalan numbers up to n */
 seq_t a(idx_t n)
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* --- first time: initialise storage and first values --- */
     if (curr == 0) {
         capacity = 2;                         /* indices 0 and 1 */
-        sum = (seq_t *)malloc(capacity * sizeof(seq_t));
+        sum = mem_new(seq_t, capacity);
         if (!sum) return 0;                   /* out of memory */
 
         sum[0] = 0;                           /* not used but convenient */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         while ((size_t)n + 1 > new_cap)
             new_cap = new_cap ? new_cap * 2 : 1;
 
-        seq_t *tmp = (seq_t *)realloc(sum, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, sum, new_cap);
         if (!tmp) return 0;                  /* out of memory */
         sum = tmp;
         capacity = new_cap;

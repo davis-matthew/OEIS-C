@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of digits '6' in the decimal expansion of n!
  * Range:     u8 n <= 1015, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 112 terms through n = 9967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state for incremental factorial evaluation */
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
     /* initialize static buffers on first call */
     if (memo == NULL) {
         memo_cap = 128;
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         /* 0! = 1 and 1! = 1 -> no digit '6' */
         memo[0] = 0;
         memo[1] = 0;
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
     if ((size_t)n + 1 > memo_cap) {
         size_t newcap = memo_cap * 2;
         if (newcap <= (size_t)n + 1) newcap = (size_t)n + 1;
-        memo = (seq_t *)realloc(memo, newcap * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, newcap);
         memo_cap = newcap;
     }
 

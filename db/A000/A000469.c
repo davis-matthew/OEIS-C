@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 103, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_squarefree
+ * Validated: standard, pass, 76 terms through n = 9495 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,18 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_squarefree.h"
+
+static bool is_squarefree(uint64_t n) {
+    if (n <= 1) return n == 1;
+    
+    for (uint64_t i = 2; i <= n / i; i++) {
+        if (n % i == 0) {
+            uint64_t q = n / i;
+            if (q % i == 0) return false;
+        }
+    }
+    return true;
+}
 
 static bool is_prime(uint64_t n) {
     if (n < 2) return false;

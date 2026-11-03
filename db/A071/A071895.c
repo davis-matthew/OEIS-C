@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(n-2) + F(n+1)*a(n-1); a(1)=1, a(2)=3
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 13, u128 n <= 19,
  *            big any n
- * Helpers:   fib
+ * Validated: standard, pass, 34 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,19 @@
 /* N-th term of OEIS A071895 (continued fraction transform of Fibonacci numbers) */
 
 #include <stdlib.h>        /* malloc, realloc */
-#include "../utils/fib.h"  /* fib(idx_t n) */
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 seq_t a(idx_t n)
 {
@@ -27,7 +40,7 @@ seq_t a(idx_t n)
 
     /* initialise cache with the first two terms */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(3 * sizeof(seq_t));
+        cache = mem_new(seq_t, 3);
         if (!cache) return 0;                /* out‑of‑memory (unlikely in tests) */
         cache[0] = 0;                        /* unused slot for 0‑index */
         cache[1] = 1;                        /* a(1) */
@@ -38,7 +51,7 @@ seq_t a(idx_t n)
     /* compute any missing terms up to n */
     if (n > cache_max) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0;                  /* out‑of‑memory */
         cache = tmp;
 

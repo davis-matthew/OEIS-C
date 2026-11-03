@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 22, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Count the number of elements in 'currMask' that violate the rule,
    given the presence of a previous row (hasPrev) and a next row
@@ -112,7 +114,7 @@ seq_t a(idx_t n)
     /* Dynamic programming tables: dp[prev][curr][used_exception] */
     static seq_t dp[16][16][2];
     static seq_t nextdp[16][16][2];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* Initial state: evaluate top row using row 1 and 2. */
     for (int r1 = 0; r1 < 16; ++r1)
@@ -125,7 +127,7 @@ seq_t a(idx_t n)
 
     /* Process rows 3 .. n */
     for (int cur = 3; cur <= n; ++cur) {
-        memset(nextdp, 0, sizeof(nextdp));
+        mem_set(nextdp, 0, sizeof(nextdp));
         for (int prev = 0; prev < 16; ++prev)
             for (int curr = 0; curr < 16; ++curr)
                 for (int used = 0; used < 2; ++used) {
@@ -142,7 +144,7 @@ seq_t a(idx_t n)
                         nextdp[curr][nxt][new_used] += ways;
                     }
                 }
-        memcpy(dp, nextdp, sizeof(dp));
+        mem_copy(dp, nextdp, sizeof(dp));
     }
 
     /* Evaluate bottom row (row n). */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 648, u32 n <= 1001, u64 n <= 1001,
  *            u128 n <= 1001, big any n
- * Helpers:   digit_square_sum, is_prime_u64
+ * Validated: standard, pass, 59 terms through n = 957 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,19 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../utils/is_prime_u64.h"      /* bool is_prime_u64(uint64_t n); */
-#include "../utils/digit_square_sum.h"  /* uint64_t digit_square_sum(uint64_t x); */
+#include "../utils/is_prime_u64.h"
+
+/* Helper: sum of squares of decimal digits of a 64‑bit integer. */
+static uint64_t digit_square_sum(uint64_t x)
+{
+    uint64_t sum = 0;
+    while (x > 0) {
+        uint64_t d = x % 10;
+        sum += d * d;
+        x /= 10;
+    }
+    return sum;
+}
 
 /* Return the n‑th term (a(1) is the first term).  For n==0 the function
  * returns 0; the call site should never use it. */

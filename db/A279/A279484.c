@@ -6,9 +6,10 @@
  * Keywords:  sign
  * Formula:   a(n) = Σ_{S⊆Cubes, sum(S)=n} (-1)^|S|, where Cubes = {1, 8, 27,
  *            64, …} = {k³ | k ≥ 1}
- * Range:     i8 n <= 8533, i16 n <= 8533, i32 n <= 8533, i64 n <= 8533,
- *            i128 n <= 8533, big any n
- * Helpers:   none
+ * Range:     i8 n <= 40130, i16 n <= 100000, i32 n <= 100000, i64 n <= 100000,
+ *            i128 n <= 100000, big any n
+ * Validated: standard, pass, 101 terms through n = 8533 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,11 +22,12 @@
    and for any seq_t type (signed integer or arbitrary‑precision class). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate DP array of length n+1 */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return (seq_t)0;          /* allocation failure → 0 */
 
     /* Initialize */
@@ -45,6 +47,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

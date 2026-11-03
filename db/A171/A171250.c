@@ -9,13 +9,27 @@
  *            or 4 is reached, applying the map at least once
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   digit_square_sum
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digit_square_sum.h"
+#include <stdbool.h>
+#include <stdlib.h>
+
+/* Helper: sum of squares of decimal digits of a 64‑bit integer. */
+static uint64_t digit_square_sum(uint64_t x)
+{
+    uint64_t sum = 0;
+    while (x > 0) {
+        uint64_t d = x % 10;
+        sum += d * d;
+        x /= 10;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

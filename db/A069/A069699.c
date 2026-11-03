@@ -10,7 +10,8 @@
  *            first and last digits possibly different from 7
  * Range:     u8 n <= 15, u16 n <= 21, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   internal_sevens
+ * Validated: full, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,31 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/internal_sevens.h"
+#include "../utils/mem.h"
+
+/* Check whether the internal decimal digits of a number are all '7'.
+   Numbers with 0, 1 or 2 digits satisfy the condition vacuously. */
+static bool internal_sevens(seq_t val)
+{
+    /* For very small numbers the loop is trivial. */
+    if (val < (seq_t)10) return true;
+
+    int digits[32];
+    int len = 0;
+    seq_t tmp = val;
+    while (tmp > (seq_t)0) {
+        digits[len++] = (int)(tmp % (seq_t)10);
+        tmp = tmp / (seq_t)10;
+        if (len >= 32) break;   /* safety for extremely large numbers */
+    }
+    if (len <= 2) return true;  /* no internal digits to check */
+
+    /* digits[0] is least significant; digits[len-1] is most significant. */
+    for (int i = 1; i < len - 1; ++i) {
+        if (digits[len - 1 - i] != 7) return false;
+    }
+    return true;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -33,7 +58,7 @@ seq_t a(idx_t n)
     /* Build the list lazily on the first call. */
     if (!built) {
         size_t cap = 64;
-        terms = (seq_t*)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
         if (!terms) return (seq_t)0;  /* allocation failure – return 0 */
 
         /* Generate triangular numbers T_k = k(k+1)/2 for k = 0,1,2,...,
@@ -47,8 +72,8 @@ seq_t a(idx_t n)
                 /* Grow array if necessary. */
                 if (len == cap) {
                     cap *= 2;
-                    seq_t *newp = (seq_t*)realloc(terms, cap * sizeof(seq_t));
-                    if (!newp) { free(terms); return (seq_t)0; }
+                    seq_t *newp = mem_resize(seq_t, terms, cap);
+                    if (!newp) { mem_free(terms); return (seq_t)0; }
                     terms = newp;
                 }
                 terms[len++] = T;

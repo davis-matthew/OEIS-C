@@ -10,11 +10,13 @@
  *            (when it exists)
  * Range:     u8 n <= 7, u16 n <= 21, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   last_digit
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* ------------------------------------------------------------ */
 /* The build supplies the integer types seq_t and idx_t.  We
    use a static array large enough to hold the terms for n up to
@@ -24,7 +26,12 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/last_digit.h"
+
+/* Get the least significant (last) decimal digit of a non‑negative integer. */
+static int last_digit(seq_t x)
+{
+    return (int)(x % 10);
+}
 
 /* Adjust the size if you expect more than 500 000 terms. */
 #define TERM_CACHE_CAP 500000

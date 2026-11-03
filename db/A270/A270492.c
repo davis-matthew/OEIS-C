@@ -10,14 +10,15 @@
  *            (e≥3). * The function factors n and computes the gcd accordingly
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, pow_int
+ * Validated: standard, pass, 108 terms through n = 9260 (2026-11-01)
+ * Helpers:   gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n <= 2)
@@ -46,7 +47,7 @@ seq_t a(idx_t n) {
                 } else {
                     /* 2^e with e ≥ 3: U(2^e) ≅ C2 × C_{2^{e-2}} */
                     res = gcd(res, (seq_t)2);                /* component of order 2 */
-                    seq_t ord = pow_int((seq_t)2, exp - 2);   /* 2^{e-2} */
+                    seq_t ord = ipow_idx((seq_t)2, exp - 2);   /* 2^{e-2} */
                     res = gcd(res, ord);
                 }
             } else { /* odd prime */

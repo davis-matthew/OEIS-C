@@ -10,14 +10,15 @@
  *            colors (A056344)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   pow_uint_u64
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint_u64.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* ------------------------------------------------------------
  * Möbius function μ(n) for 1 ≤ n ≤ 10000 (works for any n)
@@ -85,23 +86,23 @@ static seq_t bracelets_at_most(idx_t n, uint64_t k)
             idx_t d1 = d;
             idx_t d2 = n / d;
             seq_t phi1 = phi_of(d1);
-            sum += phi1 * pow_uint_u64(k, n / d1);
+            sum += phi1 * ipow_u64_idx(k, n / d1);
             if (d1 != d2)
             {
                 seq_t phi2 = phi_of(d2);
-                sum += phi2 * pow_uint_u64(k, n / d2);
+                sum += phi2 * ipow_u64_idx(k, n / d2);
             }
         }
     }
     /* reflection terms                                       */
     if (n & 1U)         /* n odd */
     {
-        sum += (seq_t)n * pow_uint_u64(k, (n + 1) / 2);
+        sum += (seq_t)n * ipow_u64_idx(k, (n + 1) / 2);
     }
     else                /* n even */
     {
         seq_t term = (seq_t)(n / 2) *
-                     (pow_uint_u64(k, n / 2 + 1) + pow_uint_u64(k, n / 2));
+                     (ipow_u64_idx(k, n / 2 + 1) + ipow_u64_idx(k, n / 2));
         sum += term;
     }
     /* divide by 2n */

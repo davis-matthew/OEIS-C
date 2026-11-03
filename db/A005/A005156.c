@@ -11,15 +11,23 @@
  *            via prime-exponent counting
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   a000248_pow, cnt_ge
+ * Validated: standard, pass, 31 terms through n = 65 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a000248_pow.h"
-#include "../utils/cnt_ge.h"
+#include "../utils/ipow_idx.h"
+
+/* number of k in 1..n with a*k - b >= j */
+static long long cnt_ge(long long n, long long a, long long b, long long j) {
+    long long kmin = (j + b + a - 1) / a;
+    if (kmin < 1) kmin = 1;
+    if (kmin > n) return 0;
+    return n - kmin + 1;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
@@ -48,7 +56,7 @@ seq_t a(idx_t n) {
     seq_t result = 1;
     for (long long p = 2; p <= N; p++) {
         if (spf[p] == p && ex[p] > 0)
-            result *= a000248_pow((seq_t)p, (idx_t)ex[p]);
+            result *= ipow_idx((seq_t)p, (idx_t)ex[p]);
     }
     free(spf);
     free(ex);

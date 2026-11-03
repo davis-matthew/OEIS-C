@@ -6,7 +6,8 @@
  * Keywords:  fini, nonn, full
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 6, u128 n <= 6, big any n
- * Helpers:   floor_sqrt
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,26 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *solutions = NULL;  /* array of the found squares   */
 static size_t   sol_len  = 0;     /* number of stored terms       */
@@ -39,7 +59,7 @@ static void build_cache(void)
     const size_t INIT_CAP = 8;
 
     sol_cap = INIT_CAP;
-    solutions = (seq_t *)malloc(sol_cap * sizeof(seq_t));
+    solutions = mem_new(seq_t, sol_cap);
     if (!solutions)
         abort();
 
@@ -63,7 +83,7 @@ static void build_cache(void)
         /* Store the square, resizing the array if needed. */
         if (sol_len == sol_cap) {
             sol_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(solutions, sol_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, solutions, sol_cap);
             if (!tmp)
                 abort();
             solutions = tmp;

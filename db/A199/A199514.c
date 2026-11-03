@@ -6,8 +6,9 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, frac, easy
  * Formula:   a(n) = μ(n)^2 * n / gcd(n, n - φ(n)) (n ≥ 2)
- * Range:     u8 n <= 256, u16 n <= 9933, u32 n <= 9933, u64 n <= 9933,
- *            u128 n <= 9933, big any n
+ * Range:     u8 n <= 256, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 105 terms through n = 9933 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  *            product)
  * Range:     u8 none, u16 n <= 4, u32 n <= 101, u64 n <= 101, u128 n <= 101,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #if defined(__cplusplus)
 #include <map>
 #endif
+#include "../utils/mem.h"
 
 /* static state --------------------------------------------------------------- */
 static idx_t current_max = 0;          /* largest index processed so far      */
@@ -59,7 +61,7 @@ static void add_term(idx_t idx)
 {
     if (terms_len == terms_cap) {
         terms_cap = terms_cap ? terms_cap * 2 : 16;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof *terms);
+        terms = mem_resize(seq_t, terms, (terms_cap * sizeof *terms) / sizeof(seq_t));
     }
     terms[terms_len++] = (seq_t)idx;
 }

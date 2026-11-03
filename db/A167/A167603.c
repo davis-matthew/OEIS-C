@@ -10,13 +10,15 @@
  *            422809 a(3) = -205297469
  * Range:     i8 n <= 0, i16 n <= 1, i32 n <= 3, i64 n <= 6, i128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values */
 static seq_t *cache = NULL;        /* array holding computed terms       */
@@ -31,12 +33,12 @@ static void ensure_cache(idx_t n)
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr)
         exit(1); /* Allocation failure */
     if (cache) {
-        memcpy(new_arr, cache, cache_cap * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_arr, cache, cache_cap * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_arr;
     cache_cap = new_cap;

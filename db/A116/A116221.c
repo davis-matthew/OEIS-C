@@ -9,15 +9,24 @@
  * Formula:   a(n) = Sum_{j=0..n} (-120)^j*binomial(n,j)*(5*n-5*j)!
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 4, u128 n <= 6,
  *            big any n
- * Helpers:   binomial, seq_mul, seq_pow
+ * Validated: standard, pass, 25 terms through n = 89 (2026-11-03)
+ * Helpers:   binomial, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Memoised factorial table */
 static seq_t *fact_tbl = NULL;
@@ -30,7 +39,7 @@ static void ensure_factorials(idx_t n)
     size_t need = 5 * n + 1;
     if (need <= fact_cap) return;
 
-    seq_t *new_tbl = (seq_t *)realloc(fact_tbl, need * sizeof(seq_t));
+    seq_t *new_tbl = mem_resize(seq_t, fact_tbl, need);
     if (!new_tbl) exit(EXIT_FAILURE);          /* memory exhausted */
     size_t start = fact_cap;
     if (fact_cap == 0) {
@@ -55,7 +64,7 @@ seq_t a(idx_t n)
     for (idx_t j = 0; j <= n; ++j) {
         seq_t bin = binomial(n, j);
         seq_t fact_term = fact_tbl[5 * (n - j)];
-        seq_t pow_val  = seq_pow((seq_t)120, j);
+        seq_t pow_val  = ipow_idx((seq_t)120, j);
         seq_t term = seq_mul(seq_mul(bin, fact_term), pow_val);
 
         if (j & 1) {

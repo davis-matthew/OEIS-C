@@ -8,6 +8,7 @@
  * Formula:   a(n) = Σ_{k=0..n} 3^k · C(k+2,2) · C(4·n+5, n−k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 18, u128 n <= 37,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 923 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

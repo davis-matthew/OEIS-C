@@ -8,7 +8,8 @@
  * Formula:   d(n) computed by Rule 1 with a(1) = 2 and d(1) = 0
  * Range:     i8 n <= 98, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 925 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Standard headers */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of helper function */
 static bool contains_seq(const seq_t *arr, size_t len, seq_t val);
@@ -34,8 +36,8 @@ static void ensure_capacity(size_t need)
     if (need <= seq_cap)
         return;
     size_t new_cap = (need * 2 > 4) ? (need * 2) : 4;
-    a_seq = (seq_t *)realloc(a_seq, new_cap * sizeof(seq_t));
-    d_seq = (seq_t *)realloc(d_seq, new_cap * sizeof(seq_t));
+    a_seq = mem_resize(seq_t, a_seq, new_cap);
+    d_seq = mem_resize(seq_t, d_seq, new_cap);
     seq_cap = new_cap;
 }
 

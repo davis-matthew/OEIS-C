@@ -8,15 +8,17 @@
  * Formula:   a(n) = triangle read by rows, where T(n, k) = coefficient of x^k
  *            in ((2*x^3 - 3*x^2 - x + 1)/(1 - x)^(n + 2)), for n >= 1 and 0
  *            <= k < n. The sequence lists the rows consecutively
- * Range:     u8 n <= 14, u16 n <= 35, u32 n <= 55, u64 n <= 55, u128 n <= 55,
+ * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>    /* for standard integer types */
-#include "../utils/binomial.h" /* provides seq_t binomial(idx_t a, idx_t b); */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

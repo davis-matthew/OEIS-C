@@ -10,6 +10,7 @@
  *            (k²+3k-2)/2 for some k ≥ 1; 0, otherwise. }
  * Range:     i8 n <= 5049, i16 n <= 5049, i32 n <= 5049, i64 n <= 5049,
  *            i128 n <= 5049, big any n
+ * Validated: standard, pass, 107 terms through n = 4774 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

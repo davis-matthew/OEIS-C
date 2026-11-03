@@ -11,6 +11,7 @@
  *            d of n) * offset: 2
  * Range:     i8 n <= 15, i16 n <= 63, i32 n <= 263, i64 n <= 1231,
  *            i128 n <= 2050, big any n
+ * Validated: standard, pass, 70 terms through n = 1768 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

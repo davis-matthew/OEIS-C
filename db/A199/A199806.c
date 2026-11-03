@@ -7,11 +7,13 @@
  * Formula:   a(n) = Σ_{k=1..n} (-1)^(k-1) * lcm(k,n)
  * Range:     i8 n <= 11, i16 n <= 63, i32 n <= 2367, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 66 terms through n = 7202 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

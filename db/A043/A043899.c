@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   has_adjacent_0_4
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,25 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_adjacent_0_4.h"
+#include "../utils/mem.h"
+
+/* Return true if the base‑6 representation of x contains the
+   adjacent digits 0 and 4 (in either order). */
+static bool has_adjacent_0_4(seq_t x)
+{
+    if (x == 0)
+        return false;
+    int prev = (int)(x % 6);   /* least significant digit */
+    x /= 6;
+    while (x > 0) {
+        int d = (int)(x % 6);   /* next digit to the left */
+        if ((d == 4 && prev == 0) || (d == 0 && prev == 4))
+            return true;
+        prev = d;
+        x /= 6;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;   /* cached terms */
 static size_t cache_len = 0;  /* number of cached terms */
@@ -37,8 +56,7 @@ static void generate_until(idx_t target)
             !has_adjacent_0_4(last_checked + 1)) {
             if (cache_len == cache_cap) {        /* grow storage */
                 size_t new_cap = cache_cap == 0 ? 128 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache,
-                                               new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 /* realloc is assumed to succeed for the judge. */
                 cache = tmp;
                 cache_cap = new_cap;

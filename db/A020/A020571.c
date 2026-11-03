@@ -8,12 +8,14 @@
  *            a(2)=325, a(n)=22*a(n-1)-159*a(n-2)+378*a(n-3) (n>2)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 168 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (!cache) {
         /* at least three items: 0,1,2 are defined */
         cache_cap = (target < 3 ? 3 : target + 1);
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)  /* allocation failure – return zero as safe sentinel */
             return (seq_t)0;
 
@@ -48,9 +50,9 @@ seq_t a(idx_t n)
         if (new_len > cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 3;
             if (new_cap < new_len) new_cap = new_len;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) {              /* realloc failed – free and return zero */
-                free(cache);
+                mem_free(cache);
                 cache = NULL;
                 cache_len = cache_cap = 0;
                 return (seq_t)0;

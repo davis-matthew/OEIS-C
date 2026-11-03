@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 106, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   no_equal_digit_counts
+ * Validated: standard, pass, 80 terms through n = 9700 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,24 @@
    The function scans integers in increasing order and selects those whose ternary
    representation contains no two digits that occur the same number of times. */
 #include <stdbool.h>
-#include "../utils/no_equal_digit_counts.h"
+
+static bool no_equal_digit_counts(seq_t x)
+{
+    unsigned cnt[3] = {0,0,0};
+    unsigned seen[3] = {0,0,0};
+    seq_t t = x;
+    while (t != 0)
+    {
+        unsigned d = (unsigned)(t % (seq_t)3);
+        t /= (seq_t)3;
+        ++cnt[d];
+        seen[d] = 1;
+    }
+    if (seen[0] && seen[1] && cnt[0] == cnt[1]) return false;
+    if (seen[0] && seen[2] && cnt[0] == cnt[2]) return false;
+    if (seen[1] && seen[2] && cnt[1] == cnt[2]) return false;
+    return true;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   a(n) = n^2 mod p_n (p_n = the n‑th prime, offset 1)
  * Range:     u8 n <= 15, u16 n <= 1705, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   estimate_prime_interval
+ * Validated: standard, pass, 82 terms through n = 9855 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,18 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/estimate_prime_interval.h"
+
+/* ------------------------------------------------------------------
+ * Rough upper bound for the n-th prime (PNT error bound).
+ * For n >= 6: p_n < n (ln n + ln ln n).
+ * ------------------------------------------------------------------ */
+static idx_t estimate_prime_interval(idx_t n)
+{
+    if (n < 6) return 15;
+    long double dn   = (long double)n;
+    long double bound = dn * (log(dn) + log(log(dn))) + 3.0L;  /* safety margin */
+    return (idx_t)bound;
+}
 
 /* dynamic array of primes (type idx_t) */
 static idx_t  *prime_list  = NULL;     /* array of generated primes   */

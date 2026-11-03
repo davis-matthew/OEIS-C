@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 150, u32 n <= 228, u64 n <= 514,
  *            u128 n <= 954, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9534 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    result is recomputed (and memoised) on demand. */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache[n] holds a(n), 1‑based; cache[0] unused */
 static idx_t  cache_size = 0;        /* number of valid cache entries */
@@ -30,19 +32,18 @@ static void grow_cache(idx_t n)
 {
     if (cache == NULL) {
         cache_size = n + 1;
-        cache = (seq_t *)malloc((size_t)cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_size);
         if (!cache) abort();
-        memset(cache, 0, (size_t)cache_size * sizeof(seq_t));
+        mem_set(cache, 0, (size_t)cache_size * sizeof(seq_t));
         return;
     }
     if (cache_size <= n) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)malloc((size_t)new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)new_size);
         if (!new_cache) abort();
-        memcpy(new_cache, cache, (size_t)cache_size * sizeof(seq_t));
-        memset(new_cache + cache_size, 0, 
-               (size_t)(new_size - cache_size) * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, (size_t)cache_size * sizeof(seq_t));
+        mem_set(new_cache + cache_size, 0, (size_t)(new_size - cache_size) * sizeof(seq_t));
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }

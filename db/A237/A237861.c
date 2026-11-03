@@ -12,13 +12,15 @@
  *            a(n)=252*a(n‑4)+1304*a(n‑6)-1908*a(n‑8)-1312*a(n‑10)+1280*a(n‑12)-2304*a(n‑14)
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 13, u64 n <= 28, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* liveness of cache */
 static seq_t *cache = NULL;   /* 0‑based array, cache[i] = a(i+1) */
@@ -39,7 +41,7 @@ static void init_cache(void)
     if (cache != NULL) return;                /* already initialised */
     cache_cap = 14;
     cache_len = 14;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     for (size_t i = 0; i < cache_len; ++i) cache[i] = init[i];
 }
 
@@ -47,7 +49,7 @@ static void init_cache(void)
 static void ensure_capacity(size_t needed)
 {
     if (needed <= cache_cap) return;
-    seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, needed);
     if (tmp == NULL) {                      /* allocation failure – abort */
         exit(EXIT_FAILURE);
     }

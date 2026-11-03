@@ -10,13 +10,15 @@
  *            the OEIS sequence A173650 via memoised linear recurrence
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 28, u64 n <= 54, u128 n <= 106,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;            /* allocated array of computed values */
 static size_t cache_size = 0;           /* current allocated size of cache */
@@ -30,7 +32,7 @@ static void ensure_cache_capacity(idx_t need)
 
     if (cache == NULL) {                          /* first time: allocate */
         cache_size = need;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) return;                /* memory failure: will be handled by caller */
 
         /* initial terms */
@@ -47,7 +49,7 @@ static void ensure_cache_capacity(idx_t need)
     if ((size_t)need <= cache_size) return;       /* already big enough */
 
     /* resize cache */
-    seq_t *new_cache = (seq_t *)realloc(cache, need * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, need);
     if (new_cache == NULL) return;                /* memory failure: keep old cache */
 
     cache = new_cache;

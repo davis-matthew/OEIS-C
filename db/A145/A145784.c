@@ -11,7 +11,8 @@
  *            * (if m,n are in it, so is m*n)
  * Range:     u8 n <= 68, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9490 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Dynamic array of terms.  The element type is seq_t, supplied by the
  * build system. */
@@ -30,11 +32,11 @@ static size_t terms_cap   = 0;
 static void grow_terms(void)
 {
     size_t new_cap = terms_cap ? terms_cap << 1 : 16;
-    seq_t *new_ptr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_new(seq_t, new_cap);
     if (!new_ptr) abort();
     if (terms) {
-        memcpy(new_ptr, terms, terms_len * sizeof(seq_t));
-        free(terms);
+        mem_copy(new_ptr, terms, terms_len * sizeof(seq_t));
+        mem_free(terms);
     }
     terms      = new_ptr;
     terms_cap  = new_cap;

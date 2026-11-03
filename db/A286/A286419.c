@@ -7,12 +7,31 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   thue_t
+ * Validated: standard, pass, 102 terms through n = 9672 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/thue_t.h"
+/* Compute the nth term of the 0100→1 transformed Thue‑Morse word (OEIS A286419).
+   The algorithm scans the Thue‑Morse sequence, detects every disjoint
+   occurrence of the pattern 0100 and replaces it by a single 1, otherwise
+   keeping the bits unchanged.  Since the pattern does not overlap,
+   the process is linear in the number of output bits.  The Thue‑Morse
+   bit at position k (0‑based) is the parity of the popcount of k, which
+   is obtained by successive XOR‑shifts. */
+static inline uint8_t thue_t(idx_t k)
+{
+    /* parity of popcount(k) using only bitwise operations */
+    uint64_t x = k;
+    x ^= x >> 32;
+    x ^= x >> 16;
+    x ^= x >> 8;
+    x ^= x >> 4;
+    x ^= x >> 2;
+    x ^= x >> 1;
+    return (uint8_t)(x & 1u);
+}
 
 seq_t a(idx_t n)
 {

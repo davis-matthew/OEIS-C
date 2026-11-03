@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   gcd_ll, lcm_ll
+ * Validated: full, pass, 37 terms through n = 36 (2026-11-02)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,12 @@
 
 #include <stdint.h>   /* for size_t */
 #include <string.h>   /* for memcpy */
-#include "../utils/gcd_ll.h"
-#include "../utils/lcm_ll.h"
+#include "../utils/gcd_u64.h"
+
+static unsigned long long lcm_ll(unsigned long long a, unsigned long long b)
+{
+    return a / gcd_u64(a,b) * b;
+}
 
 /* ------------------------------------------------------------------ */
 /*  auxiliary combinatorics                                           */
@@ -122,7 +127,7 @@ seq_t a(idx_t n)
                     int a = PARTS[i].cycles[c1];
                     for (int c2 = 0; c2 < PARTS[j].len; ++c2) {
                         int b = PARTS[j].cycles[c2];
-                        unsigned long long g = gcd_ll((unsigned long long)a, (unsigned long long)b);
+                        unsigned long long g = gcd_u64((unsigned long long)a, (unsigned long long)b);
                         unsigned long long L = lcm_ll((unsigned long long)a, (unsigned long long)b);
 
                         /* multiply poly by (1 + x^L)^g */

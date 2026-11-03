@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n} binomial(d, floor(d/2))
- * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 34, u64 n <= 67, u128 n <= 130,
+ * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 34, u64 n <= 67, u128 n <= 131,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 847 (2026-11-01)
  * Helpers:   binomial, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,8 +15,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/factor_u64.h"
 
 /* Compute binomial(n, n/2) for  n ≤ 67 exactly using 128‑bit arithmetic. */
 static seq_t binom_small(idx_t n)

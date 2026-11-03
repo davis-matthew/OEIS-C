@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 37, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   binom_simple
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,8 @@
 
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <stdint.h>   /* for uint64_t if needed */
-#include "../utils/binom_simple.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Dynamically grow the Bell number array */
 static seq_t *Bell   = NULL;  /* storage for Bell[0..] */
@@ -45,7 +47,7 @@ static void ensure_bell(idx_t up_to)
     if (bell_cap == 0 || up_to + 1 > bell_cap) {
         idx_t new_cap = (bell_cap == 0) ? 16 : bell_cap * 2;
         while (new_cap <= up_to) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(Bell, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, Bell, new_cap);
         Bell = tmp;
         bell_cap = new_cap;
     }
@@ -84,6 +86,6 @@ seq_t a(idx_t n)
     ensure_bell(r);
 
     /* Compute result */
-    seq_t bin = binom_simple(r, c);
+    seq_t bin = binomial(r, c);
     return Bell[r] * bin;
 }

@@ -11,7 +11,8 @@
  *            rules. Uses memoisation so calls may arrive in any order
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* state variables ---------------------------------------------------- */
 
@@ -97,8 +99,8 @@ static void init_state(void) {
     free(temp_cnt);
 
     /* allocate DP buffers */
-    dp_cur = (seq_t *)malloc(num_states * sizeof(seq_t));
-    dp_nxt = (seq_t *)malloc(num_states * sizeof(seq_t));
+    dp_cur = mem_new(seq_t, num_states);
+    dp_nxt = mem_new(seq_t, num_states);
     if (!dp_cur || !dp_nxt) abort();
 
     /* initialise DP for n = 1: each valid mask occurs exactly once */
@@ -110,7 +112,7 @@ static void init_state(void) {
 
     /* initialise cache */
     cache_len = 1;
-    cache_vals = (seq_t *)malloc(sizeof(seq_t));
+    cache_vals = mem_new(seq_t, 1);
     if (!cache_vals) abort();
     cache_vals[0] = total;
 
@@ -126,7 +128,7 @@ seq_t a(idx_t n) {
 
     if (n > cache_len) {          /* grow cache if needed */
         idx_t new_len = n;
-        seq_t *tmp = (seq_t *)realloc(cache_vals, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache_vals, new_len);
         if (!tmp) abort();
         cache_vals = tmp;
         cache_len = new_len;

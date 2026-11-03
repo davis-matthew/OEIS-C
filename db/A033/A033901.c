@@ -10,13 +10,33 @@
  *            dropped)
  * Range:     u8 n <= 5, u16 n <= 19, u32 n <= 61, u64 n <= 326,
  *            u128 n <= 1000, big any n
- * Helpers:   sorted_asc_digits
+ * Validated: standard, pass, 50 terms through n = 996 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/sorted_asc_digits.h"
+
+/* Compute the digits of x sorted ascending and return the resulting integer. */
+static seq_t sorted_asc_digits(seq_t x) {
+    unsigned cnt[10] = {0};
+    seq_t temp = x;
+    /* Count digits of temp */
+    while (temp != (seq_t)0) {
+        unsigned d = (unsigned)(temp % (seq_t)10);
+        cnt[d]++;
+        temp = temp / (seq_t)10;
+    }
+    /* Build the ascending‑digit number */
+    seq_t res = (seq_t)0;
+    for (int d = 0; d < 10; ++d) {
+        for (unsigned k = 0; k < cnt[d]; ++k) {
+            res = res * (seq_t)10 + (seq_t)d;
+        }
+    }
+    return res;
+}
 
 seq_t a(idx_t n) {
     /* a(1) = 21 */

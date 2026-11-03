@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   mulmod_uint64, pow_seq_uint64
+ * Validated: standard, pass, 36 terms through n = 149 (2026-11-01)
+ * Helpers:   ipow_idx, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mulmod_uint64.h"
-#include "../utils/pow_seq_uint64.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mulmod.h"
 
 /* binary modular exponentiation: compute (base^exp) mod mod */
 static uint64_t modpow_uint64(uint64_t base, idx_t exp, uint64_t mod)
@@ -29,8 +30,8 @@ static uint64_t modpow_uint64(uint64_t base, idx_t exp, uint64_t mod)
     uint64_t acc = base % mod;
     while (exp) {
         if (exp & 1u)
-            result = mulmod_uint64(result, acc, mod);
-        acc = mulmod_uint64(acc, acc, mod);
+            result = mulmod(result, acc, mod);
+        acc = mulmod(acc, acc, mod);
         exp >>= 1u;
     }
     return result;
@@ -48,7 +49,7 @@ seq_t a(idx_t n)
     for (uint64_t m = 2; ; ++m) {
         if (modpow_uint64(m, n, mod) == 1u) {
             /* m found: compute k = (m^n - 1) / n exactly */
-            seq_t power = pow_seq_uint64((seq_t)m, n); /* exact m^n  */
+            seq_t power = ipow_idx((seq_t)m, n); /* exact m^n  */
             seq_t numer = power - 1;                   /* m^n – 1   */
             seq_t k = numer / (seq_t)n;                /* exact division */
             return k;

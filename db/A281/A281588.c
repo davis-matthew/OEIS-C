@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 11, i32 n <= 17, i64 n <= 25, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------------------  Helper data --------------------- */
 
@@ -49,9 +51,9 @@ static void ensure_e(idx_t n)
 
     /* Allocate or grow array */
     if (E == NULL) {
-        E = (seq_t*)malloc(sizeof(seq_t) * n);
+        E = mem_new(seq_t, n);
     } else {
-        E = (seq_t*)realloc(E, sizeof(seq_t) * n);
+        E = mem_resize(seq_t, E, n);
     }
 
     /* Compute new elements */

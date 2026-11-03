@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 877 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 /* #include <stdbool.h> is required for the bool type used below. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint32_t *spf = NULL;   /* smallest prime factor for each integer */
 static seq_t *sdp = NULL;      /* sum of distinct prime factors */
@@ -32,11 +34,11 @@ static size_t sieve_limit = 0; /* current maximum index computed */
 static void compute_sieve(size_t new_limit) {
     /* Free previous arrays if any */
     free(spf);
-    free(sdp);
+    mem_free(sdp);
 
     /* Allocate new arrays (one extra for 0..new_limit) */
     spf = (uint32_t *)malloc((new_limit + 1) * sizeof(uint32_t));
-    sdp = (seq_t *)malloc((new_limit + 1) * sizeof(seq_t));
+    sdp = mem_new(seq_t, (new_limit + 1));
     if (!spf || !sdp) { /* in a real program handle allocation failure */
         return;
     }

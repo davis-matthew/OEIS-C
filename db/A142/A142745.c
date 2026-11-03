@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 113, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Prime p with p ≡ 18 (mod 59), a(n) = the n‑th such prime, offset 1 */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static state for incremental sieve */
 static uint64_t *primes_arr   = NULL;
@@ -29,7 +31,7 @@ static void rebuild(uint64_t limit)
 {
     free(sieve);
     free(primes_arr);
-    free(residue_cache);
+    mem_free(residue_cache);
 
     sieve = (char*)malloc((size_t)(limit + 1));
     if (!sieve) return;  /* allocation failure */
@@ -56,14 +58,13 @@ static void rebuild(uint64_t limit)
 
     /* build residue cache */
     size_t cap = primes_cnt / 5 + 1;
-    residue_cache = (seq_t*)calloc(cap, sizeof(seq_t));
+    residue_cache = mem_new(seq_t, cap);
     residue_cnt = 0;
     for (size_t i = 0; i < primes_cnt; ++i) {
         if (primes_arr[i] % 59ULL == 18ULL) {
             if (residue_cnt >= cap) {
                 cap <<= 1;
-                seq_t *tmp = (seq_t*)realloc(residue_cache,
-                                              sizeof(seq_t) * cap);
+                seq_t *tmp = mem_resize(seq_t, residue_cache, cap);
                 if (!tmp) return; /* allocation failure */
                 residue_cache = tmp;
             }

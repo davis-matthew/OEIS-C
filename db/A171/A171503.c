@@ -9,14 +9,17 @@
  *            where phi is Euler's totient function
  * Range:     u8 n <= 14, u16 n <= 231, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   calc_phi
+ * Validated: standard, pass, 63 terms through n = 955 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/calc_phi.h"
+#include <stdint.h>
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Local static cache of computed terms */
@@ -29,9 +32,9 @@ seq_t a(idx_t n) {
         size_t new_cap = (size_t)n + 1;
         seq_t *new_cache = NULL;
         if (cache == NULL) {
-            new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            new_cache = mem_new(seq_t, new_cap);
         } else {
-            new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            new_cache = mem_resize(seq_t, cache, new_cap);
         }
         if (!new_cache) return 0; /* allocation failure → return 0 as fallback */
         cache = new_cache;
@@ -55,7 +58,7 @@ seq_t a(idx_t n) {
         } else if (i == 1) {
             cache[1] = 3;
         } else {
-            seq_t phi_i = calc_phi((seq_t)i);        /* phi(i) in seq_t */
+            seq_t phi_i = totient_seq((seq_t)i);        /* phi(i) in seq_t */
             seq_t addend = 4 * phi_i;                /* 4*phi(i) */
             cache[i] = cache[i - 1] + addend;        /* recurrence */
         }

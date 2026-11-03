@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    Offset: 1
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoization cache */
 static seq_t *cache = NULL;          /* array of computed values, 0‑based index */
@@ -36,7 +38,7 @@ static void ensure_cache(idx_t n)
 
     /* grow the array, add a small extra room to reduce realloc frequency */
     size_t new_size = needed + 16;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) abort();
 
     /* initialise new slots to zero */

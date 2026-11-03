@@ -12,7 +12,8 @@
  *            otherwise it is the sum of the two fractions in...
  * Range:     u8 n <= 60, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/gcd.h"   /* Provides: seq_gcd(seq_t, seq_t) or gcd(seq_t, seq_t) */
-
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 typedef struct Fraction {
     seq_t num;   /* numerator   */
@@ -74,7 +75,7 @@ static size_t cur_row_len = 0;           /* number of fractions in cur_row */
 static void ensure_seq_cap(size_t needed) {
     while (seq_len + needed > seq_cap) {
         size_t new_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
         if (!tmp) abort();          /* allocation failed */
         seq_vals = tmp;
         seq_cap = new_cap;
@@ -88,7 +89,7 @@ static void extend_to(idx_t n) {
     if (!seq_vals) {
         /* First row: 1/1 */
         cur_row_len = 1;
-        cur_row     = (Fraction *)malloc(sizeof(Fraction));
+        cur_row     = mem_new(Fraction, 1);
         cur_row[0]  = make_fraction(one, one);
 
         ensure_seq_cap(2);
@@ -99,7 +100,7 @@ static void extend_to(idx_t n) {
     /* Grow row by row until we have enough terms. */
     while (seq_len < (size_t)n) {
         size_t new_len = cur_row_len + 1;
-        Fraction *next = (Fraction *)malloc(new_len * sizeof(Fraction));
+        Fraction *next = mem_new(Fraction, new_len);
 
         /* Edges: 1/1 */
         next[0] = make_fraction(one, one);
@@ -118,7 +119,7 @@ static void extend_to(idx_t n) {
         }
 
         /* Advance to next row */
-        free(cur_row);
+        mem_free(cur_row);
         cur_row     = next;
         cur_row_len = new_len;
     }

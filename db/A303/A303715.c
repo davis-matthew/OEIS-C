@@ -11,13 +11,15 @@
  *            the cache as needed
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 29, u64 n <= 58, u128 n <= 116,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;  /* buffer holding a(1)..a(n)  (0‑based index) */
 static idx_t   seq_size = 0;     /* number of values currently stored  */
@@ -31,12 +33,12 @@ static void ensure_seq_capacity(idx_t need)
     idx_t new_cap = seq_cap ? seq_cap : 8;
     while (new_cap < need) new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) abort();            /* memory allocation failed */
 
     if (seq_cache) {
-        memcpy(new_cache, seq_cache, seq_size * sizeof(seq_t));
-        free(seq_cache);
+        mem_copy(new_cache, seq_cache, seq_size * sizeof(seq_t));
+        mem_free(seq_cache);
     }
     seq_cache = new_cache;
     seq_cap  = new_cap;

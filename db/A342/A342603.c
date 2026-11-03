@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(0) = 0, a(1) = 1; a(2*n) = a(n); a(2*n+1) = 6*a(n) + a(n+1)
- * Range:     u8 n <= 14, u16 n <= 190, u32 n <= 9967, u64 n <= 9967,
- *            u128 n <= 9967, big any n
+ * Range:     u8 n <= 14, u16 n <= 190, u32 n <= 12286, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 81 terms through n = 9967 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(n) - pi(n) (pi(n) = #primes ≤ n)
  * Range:     u8 n <= 58, u16 n <= 6621, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   estimate_prime_upper_bound
+ * Validated: standard, pass, 76 terms through n = 9887 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,16 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/estimate_prime_upper_bound.h"
+#include <math.h>
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 /* Return the nth term of OEIS sequence A111181.  */
 seq_t a(idx_t n)

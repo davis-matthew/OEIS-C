@@ -12,7 +12,8 @@
  *            larger than the current maximum that does not create a...
  * Range:     u8 n <= 177, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9361 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*--- storage for the produced sequence ----------------------------------*/
 static seq_t *seq_arr  = NULL;   /* array of selected elements */
@@ -31,7 +33,7 @@ static size_t seq_len  = 0;      /* number of elements stored */
 static void grow_seq(void)
 {
     size_t new_cap = seq_cap ? seq_cap << 1 : 16;
-    seq_t *new_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, seq_arr, new_cap);
     if (!new_arr) abort();          /* out of memory */
     seq_arr = new_arr;
     seq_cap = new_cap;

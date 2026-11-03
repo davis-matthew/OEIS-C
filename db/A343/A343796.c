@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 333, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small, sieve_first_n_primes
+ * Validated: standard, pass, 102 terms through n = 8655 (2026-11-01)
+ * Helpers:   is_prime_seq, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/is_prime_seq.h"
 #include "../utils/sieve_first_n_primes.h"
-#include "../utils/is_prime_small.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +51,7 @@ seq_t a(idx_t n)
 
         if (r > 1) {                                  /* ignore 0 and 1 */
             uint32_t rv = (uint32_t)r;                 /* r < p <= max_prime < 2^32 */
-            if (is_prime_small(rv)) {
+            if (is_prime_seq(rv)) {
                 if (!seen[rv]) {
                     seen[rv] = 1;
                     ++distinct;

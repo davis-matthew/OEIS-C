@@ -8,6 +8,7 @@
  *            b⁴ * a(4k+3) = b * a(4k+4) = b³ This reproduces A110650
  * Range:     u8 n <= 13, u16 n <= 61, u32 n <= 1021, u64 n <= 8000,
  *            u128 n <= 8000, big any n
+ * Validated: standard, pass, 74 terms through n = 7836 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

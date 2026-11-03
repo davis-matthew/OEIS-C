@@ -10,7 +10,8 @@
  *            (-1)^k * Catalan(k) * 320^{n-k}
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 3, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/pow_seq.h"   /* seq_t pow_seq(seq_t base, int exp) */
+#include "../utils/ipow_i32.h"
 
 #define MAX_BIGINT_LIMBS 4000   /* enough for n≈10000 (≈2600 limbs) */
 
@@ -165,7 +166,7 @@ seq_t a(idx_t n) {
     uint64_t exp5 = n - v5;       /* n  - v5(P_n) */
 
     /* compute 2^exp2 * 5^exp5 */
-    seq_t res = pow_seq(2, (int)exp2);
-    res *= pow_seq(5, (int)exp5);
+    seq_t res = ipow_i32(2, (int)exp2);
+    res *= ipow_i32(5, (int)exp5);
     return res;
 }

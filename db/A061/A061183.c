@@ -8,7 +8,8 @@
  * Formula:   a(n) = A060921(n+3,3)/4
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 16, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc, realloc, free */
+#include "../utils/mem.h"
 
 static const int _a061183_c[9] = {
     1,   /* c0 */
@@ -46,8 +48,7 @@ static void _ensure_cache(idx_t n)
     if (needed > _a061183_cache_size) {
         size_t new_size = needed > (_a061183_cache_size * 2) ?
                           needed : (_a061183_cache_size * 2);
-        seq_t *ptr = (seq_t *)realloc(_a061183_cache,
-                                      new_size * sizeof(seq_t));
+        seq_t *ptr = mem_resize(seq_t, _a061183_cache, new_size);
         if (!ptr) {
             /* In a real system we would handle OOM, here we abort. */
             exit(1);

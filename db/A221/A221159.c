@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{i=0..n} Stirling2(n,i)*8^i
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function returns the nth term of sequence A221159.
    It keeps a static cache of already computed values, growing the
@@ -36,8 +38,8 @@ seq_t a(idx_t n)
     if (!capacity)                 /* first call: initialise cache  */
     {
         capacity = 16;
-        S = (seq_t *)calloc(capacity, sizeof(seq_t));
-        A = (seq_t *)calloc(capacity, sizeof(seq_t));
+        S = mem_new(seq_t, capacity);
+        A = mem_new(seq_t, capacity);
         if (!S || !A) return 0; /* out‑of‑memory: return 0 as a last resort */
 
         S[0] = (seq_t)1;    /* S(0,0)*8^0 = 1   */
@@ -53,8 +55,8 @@ seq_t a(idx_t n)
             idx_t newcap = capacity;
             while (newcap <= (idx_t)n) newcap <<= 1;
 
-            seq_t *tmpS = (seq_t *)realloc(S, newcap * sizeof(seq_t));
-            seq_t *tmpA = (seq_t *)realloc(A, newcap * sizeof(seq_t));
+            seq_t *tmpS = mem_resize(seq_t, S, newcap);
+            seq_t *tmpA = mem_resize(seq_t, A, newcap);
             if (!tmpS || !tmpA) return 0;
             S = tmpS;
             A = tmpA;

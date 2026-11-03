@@ -9,8 +9,9 @@
  * Keywords:  sign, base
  * Formula:   a(0) = 0; a(5*n) = 3*a(n); a(5*n+1) = 3*a(n)+1; a(5*n+2) =
  *            3*a(n); a(5*n+3) = 3*a(n)-1; a(5*n+4) = 3*a(n);
- * Range:     i8 n <= 3124, i16 n <= 9606, i32 n <= 9606, i64 n <= 9606,
- *            i128 n <= 9606, big any n
+ * Range:     i8 n <= 3124, i16 n <= 15624, i32 n <= 15624, i64 n <= 15624,
+ *            i128 n <= 15624, big any n
+ * Validated: standard, pass, 94 terms through n = 9606 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

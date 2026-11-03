@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   power7
+ * Validated: standard, pass, 57 terms through n = 9585 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,14 @@
 /* Generate all sums of 6 positive 7th powers with bases 1..15, sort, and return the n-th smallest */
 
 #include <stdlib.h>
-#include "../utils/power7.h"
+#include "../utils/mem.h"
+
+static seq_t power7(seq_t x) {
+    seq_t x2 = x * x;
+    seq_t x3 = x2 * x;
+    seq_t x6 = x3 * x3;
+    return x6 * x;
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -35,7 +43,7 @@ static void build_cache(void) {
     
     idx_t max_base = 15;
     idx_t cap = 50000;
-    cache = (seq_t *)malloc(cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cap);
     cache_len = 0;
     
     for (idx_t a = 1; a <= max_base; a++) {
@@ -54,7 +62,7 @@ static void build_cache(void) {
                             
                             if (cache_len >= cap) {
                                 cap *= 2;
-                                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                                cache = mem_resize(seq_t, cache, cap);
                             }
                             cache[cache_len++] = sum;
                         }
@@ -64,7 +72,7 @@ static void build_cache(void) {
         }
     }
     
-    qsort(cache, cache_len, sizeof(seq_t), compare_seq_t);
+    mem_qsort(cache, cache_len, sizeof(seq_t), compare_seq_t);
     
     idx_t out = 0;
     for (idx_t i = 0; i < cache_len; i++) {

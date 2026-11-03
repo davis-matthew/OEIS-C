@@ -9,14 +9,16 @@
  *            a(2)=3, a(3)=1
  * Range:     u8 n <= 15, u16 n <= 48, u32 n <= 126, u64 n <= 505,
  *            u128 n <= 3083, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 59 terms through n = 8061 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;       /* array of computed values, seq[0] unused */
 static size_t   cap  = 0;       /* current capacity (>= len+1) */
@@ -30,7 +32,7 @@ static void ensure_capacity(size_t needed)
     size_t newcap = cap ? cap << 1 : 16;
     while (newcap < needed)
         newcap <<= 1;
-    seq = (seq_t *)realloc(seq, (newcap + 1) * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, (newcap + 1));
     cap = newcap;
 }
 
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         else
         {
             /* recurrence for n >= 4 */
-            unsigned p = floor_log2_uint64((idx_t)i - 2);          /* 2^p < i-1 <= 2^(p+1) */
+            unsigned p = ilog2((idx_t)i - 2);          /* 2^p < i-1 <= 2^(p+1) */
             idx_t power = ((idx_t)1) << (p + 1);                  /* 2^(p+1) */
             idx_t m = ((idx_t)2 * i) - 2 - power;                 /* 2i-2-2^(p+1) */
             seq[i] = seq[i - 1] + seq[m];

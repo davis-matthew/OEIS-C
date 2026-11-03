@@ -9,7 +9,8 @@
  *            1, a(n) = a(n‑1) + 1 + floor(n * log_7(9)) for n ≥ 1 )
  * Range:     u8 n <= 20, u16 n <= 339, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_k_log_ratio
+ * Validated: standard, pass, 70 terms through n = 9297 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
-#include "../utils/floor_k_log_ratio.h"
+#include "../utils/mem.h"
+
+/* Compute floor(k * log_7(9)) using long double precision.
+   log_7(9) = log(9)/log(7) is irrational, but long double
+   (≈ 19 decimal digits) is sufficient to give an exact floor
+   for all k in the required range. */
+static inline uint64_t floor_k_log_ratio(uint64_t k) {
+    static const long double LOG_RATIO = logl(9.0L) / logl(7.0L);
+    /* k is non‑negative; truncation of a positive long double
+       yields the floor. */
+    return (uint64_t)((long double)k * LOG_RATIO);
+}
 
 /* Memoised sequence a(n).  Cache is grown only when a larger
    index is requested. */
@@ -27,7 +39,7 @@ seq_t a(idx_t n) {
 
     /* Initialise cache for n = 0 */
     if (cache_size == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) abort();
         cache[0] = (seq_t)1;
         cache_size = 1;
@@ -36,7 +48,7 @@ seq_t a(idx_t n) {
     /* Grow cache to accommodate the requested index */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();
         cache = tmp;
         /* Compute values for the new indices */

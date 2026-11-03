@@ -9,13 +9,15 @@
  *            It works for all provided seq_t and idx_t types
  * Range:     u8 n <= 170, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9641 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_array = NULL;          /* a[0..k] */
 static idx_t seq_len   = 0;               /* current length of seq_array */
@@ -69,14 +71,14 @@ static void precompute(idx_t n)
         return;
     if (seq_len == 0) {
         seq_len = 2; /* we need indices 0 and 1 at least */
-        seq_array = (seq_t *)malloc(seq_len * sizeof(seq_t));
+        seq_array = mem_new(seq_t, seq_len);
         if (!seq_array) exit(1);
         seq_array[0] = (seq_t)0; /* unused */
         seq_array[1] = (seq_t)0; /* a(1) = 0 */
     }
     if (seq_len <= n) {
         idx_t new_len = n + 1;
-        seq_t *new_seq = (seq_t *)realloc(seq_array, new_len * sizeof(seq_t));
+        seq_t *new_seq = mem_resize(seq_t, seq_array, new_len);
         if (!new_seq) exit(1);
         seq_array = new_seq;
         /* compute missing values */

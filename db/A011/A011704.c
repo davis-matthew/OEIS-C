@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 875 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(0)=0, a(1)=0, a(2)=0, a(3)=0, a(4)=0, a(5)=0, a(6)=0, a(7)=1
    a(n)=a(n-2) XOR a(n-3) XOR a(n-6) XOR a(n-8)   for n≥8 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   /* stores computed values   */
 static size_t cache_cap  = 0;      /* current cache capacity   */
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t target_idx)
 
     /* Grow the cache.  Use realloc so the existing data is preserved. */
     size_t old_cap   = cache_cap;
-    cache          = (seq_t *)realloc(cache, target_cap * sizeof(seq_t));
+    cache          = mem_resize(seq_t, cache, target_cap);
     if (cache == NULL)                     /* allocation failed        */
         return;                           /* caller will fail slow   */
     cache_cap = target_cap;

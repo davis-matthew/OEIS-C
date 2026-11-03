@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 14, i32 n <= 23, i64 n <= 28, i128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(0)=1, a(1)=2, a(2)=2 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute binomial(N,K) using multiplicative formula; N,K are non‑negative.
    The result always fits in seq_t, and the intermediate division is exact. */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (cache == NULL) {
         cap = 8;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;          /* allocation failure */
         cache[0] = 1;
         cache[1] = 2;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         max_n   = 2;
 
         pow_cap = 8;
-        pow2    = (seq_t *)malloc(pow_cap * sizeof(seq_t));
+        pow2    = mem_new(seq_t, pow_cap);
         if (!pow2) return 0;
         pow2[0] = 1;
         pow_max = 0;
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     if (n >= cap) {
         idx_t new_cap = cap;
         while (new_cap <= n) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap = new_cap;
     }
 
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
     if (n >= pow_cap) {
         idx_t new_cap = pow_cap;
         while (new_cap <= n) new_cap <<= 1;
-        pow2 = (seq_t *)realloc(pow2, new_cap * sizeof(seq_t));
+        pow2 = mem_resize(seq_t, pow2, new_cap);
         pow_cap = new_cap;
     }
 

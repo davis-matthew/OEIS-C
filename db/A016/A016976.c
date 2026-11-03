@@ -7,15 +7,18 @@
  * Formula:   a(n) = (6*n+5)^8
  * Range:     u8 none, u16 none, u32 n <= 1, u64 n <= 41, u128 n <= 1000,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 33 terms through n = 978 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     seq_t base = (seq_t)6 * (seq_t)n + (seq_t)5;
-    return big_pow(base, (seq_t)8);
+    return ipow(base, (seq_t)8);
 }

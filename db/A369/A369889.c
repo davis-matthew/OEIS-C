@@ -7,14 +7,36 @@
  * Formula:   a(n) = A048250(A004709(n))
  * Range:     u8 n <= 114, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   squarefree_divisor_sum
+ * Validated: standard, pass, 83 terms through n = 8826 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/squarefree_divisor_sum.h"
+
+/* product (1+p) over distinct primes of a cubefree m (m ≤ UINT64_MAX) */
+static seq_t squarefree_divisor_sum(uint64_t m)
+{
+    seq_t res = (seq_t)1;
+    uint64_t x = m;
+    for (uint64_t p = 2; p * p <= x; ++p)
+    {
+        if ((x % p) == 0)
+        {
+            /* multiply by (1 + p) once for each distinct prime */
+            if (!((p & 1) == 0)) /* odd prime – size little small */
+                ;                /* no special handling needed */
+            while ((x % p) == 0)
+                x /= p;
+            res = res * (seq_t)(1 + p);
+        }
+    }
+    if (x > 1)                   /* remaining prime factor */
+        res = res * (seq_t)(1 + x);
+    return res;
+}
 
 /* ---------- state --------- */
 static uint64_t *cubefree_vals = NULL; /* cubefree integers as uint64_t */

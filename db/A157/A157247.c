@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 22, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[18] = {
     (seq_t)1715, (seq_t)1781, (seq_t)1855, (seq_t)2009, (seq_t)2401,
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary */
     if (cap < (size_t)n + 1) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();        /* allocation failed – stop execution */
         cache = tmp;
         cap   = new_cap;

@@ -9,6 +9,7 @@
  *            a(6)=484704, a(7)=3270240; a(n) = 100*a(n-3) for n > 7
  * Range:     u8 none, u16 n <= 4, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

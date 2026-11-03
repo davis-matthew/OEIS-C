@@ -6,13 +6,15 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 1622, u16 n <= 8823, u32 n <= 8823, u64 n <= 8823,
- *            u128 n <= 8823, big any n
+ * Range:     u8 n <= 1622, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 106 terms through n = 8823 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 /*  OEIS A084360
  *  a(n) = 0, if n = 1,2,3
  *  a(n) = 1, if n is even and n ≥ 4

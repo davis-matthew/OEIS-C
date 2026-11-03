@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 22, u64 n <= 42, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 884 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
    non‑zero decimal digit with it.  After n = 7 the pattern 2,5,2,5,… holds. */
 
 #include <stdlib.h>  /* for malloc, realloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (n > cache_cap) {
         idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap < n) new_cap *= 2;   /* ensure new_cap >= n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {                 /* allocation failed – terminate */
             exit(1);
         }

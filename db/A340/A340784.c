@@ -9,9 +9,10 @@
  *            even; (2) the sum of the exponents of primes whose 1‑based index
  *            in the prime list is odd is even. This is equivalent to the
  *            definition of A340784
- * Range:     u8 n <= 67, u16 n <= 9645, u32 n <= 9645, u64 n <= 9645,
- *            u128 n <= 9645, big any n
- * Helpers:   none
+ * Range:     u8 n <= 67, u16 n <= 16379, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 74 terms through n = 9645 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Prime sieve – pre‑computed up to a fixed limit to avoid repeated
@@ -81,7 +83,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)n > cache_capacity) {
         size_t new_cap = cache_capacity ? cache_capacity * 2 : 256;
         if (new_cap < (size_t)n) new_cap = (size_t)n;
-        seq_cache = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         cache_capacity = new_cap;
     }
 

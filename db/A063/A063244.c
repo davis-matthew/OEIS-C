@@ -9,12 +9,14 @@
  *            a(4)=26, a(5)=34, a(6)=44, a(n)=a(n‑2)+a(n‑3)−a(n‑5) for n ≥ 7
  * Range:     u8 n <= 33, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for memoised values (1-indexed, index 0 unused) */
 static seq_t *memo = NULL;      /* array pointer */
@@ -29,7 +31,7 @@ static void ensure_cap(size_t new_cap) {
     /* simple growth strategy: double until big enough */
     while (new_size < new_cap)
         new_size = new_size * 2 + 1;
-    seq_t *new_mem = (seq_t *)realloc(memo, new_size * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, memo, new_size);
     memo = new_mem;
     memo_cap = new_size;
 }

@@ -9,6 +9,7 @@
  *            n*(n+1)*(n+2)*(n+3)*(n+4)*(2*n+1)*(2*n+3)*(2*n+5)*(2*n+7)*(5*n-2)*(35*n^2-28*n+9)/5443200
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

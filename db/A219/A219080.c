@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* array of computed terms */
 static idx_t  n_cached = 0;     /* number of terms currently stored */
@@ -37,7 +39,7 @@ static void grow_cache(idx_t new_len)
     while (cache_cap < new_len)
         cache_cap *= 2;
     /* realloc with explicit cast so the code is valid in C++ */
-    seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
     cache = tmp;
     /* No need to initialize new slots; they will be overwritten. */
     n_cached = new_len;

@@ -8,8 +8,9 @@
  * Formula:   a(n) = a(floor(n/2)) + 1 if n is an odd prime, else
  *            a(floor(n/2)); a(1) = a(2) = 0. The sequence counts odd primes
  *            in the chain n, floor(n/2), floor(n/4), … , 1
- * Range:     u8 n <= 9968, u16 n <= 9968, u32 n <= 9968, u64 n <= 9968,
- *            u128 n <= 9968, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9968 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

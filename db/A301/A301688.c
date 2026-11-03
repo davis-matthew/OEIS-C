@@ -12,12 +12,14 @@
  *            term vanishes, giving the homogeneous recurrence a...
  * Range:     u8 n <= 58, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for computed terms */
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     if (n >= cache_len) {
         /* Allocate or reallocate the array */
         size_t new_len = (size_t)(n + 1); /* size_t needed for malloc */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) {
             /* Out of memory – abort */
             abort();

@@ -7,12 +7,15 @@
  * Formula:   a(n) = (n-1)^n * n^n
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -21,8 +24,8 @@ seq_t a(idx_t n)
     seq_t base2 = (seq_t)n;              /* n       */
     seq_t exp   = (seq_t)n;              /* exponent n */
 
-    seq_t pow1 = big_pow(base1, exp);    /* (n-1)^n */
-    seq_t pow2 = big_pow(base2, exp);    /* n^n   */
+    seq_t pow1 = ipow(base1, exp);    /* (n-1)^n */
+    seq_t pow2 = ipow(base2, exp);    /* n^n   */
 
     return pow1 * pow2;                  /* (n-1)^n * n^n */
 }

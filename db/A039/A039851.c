@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
       parts ≡ 2 or 3.  The answer is dp1[n] + dp2[n].
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,9 +42,9 @@ seq_t a(idx_t n)
         size_t needed = (size_t)(n + 1);
 
         /* Allocate new arrays. */
-        seq_t *new_base = (seq_t*)malloc(needed * sizeof(seq_t));
-        seq_t *new_dp1  = (seq_t*)malloc(needed * sizeof(seq_t));
-        seq_t *new_dp2  = (seq_t*)malloc(needed * sizeof(seq_t));
+        seq_t *new_base = mem_new(seq_t, needed);
+        seq_t *new_dp1  = mem_new(seq_t, needed);
+        seq_t *new_dp2  = mem_new(seq_t, needed);
 
         /* ------------------------------------------------------------------
            Compute base[n]: partitions using only parts ≡ 1 or 4 (mod 5).
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
 
         /* Snapshot after adding the 2‑mod‑5 part.  Use a temporary array to
            avoid contamination when we add the 3‑mod‑5 part. */
-        seq_t *tmp = (seq_t*)malloc(needed * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, needed);
         for (size_t i = 0; i < needed; ++i) tmp[i] = new_dp1[i];
 
         /* Add a single part ≡ 3 (mod 5) using the snapshot. */
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
                 new_dp1[(size_t)k] += tmp[(size_t)(k - s)];
             }
         }
-        free(tmp);
+        mem_free(tmp);
 
         /* ------------------------------------------------------------------
            Compute dp2[n]: partitions with exactly one part ≡ 0 (mod 5) and no
@@ -102,9 +104,9 @@ seq_t a(idx_t n)
         }
 
         /* Free old arrays if any. */
-        if (base  != NULL) free(base);
-        if (dp1   != NULL) free(dp1);
-        if (dp2   != NULL) free(dp2);
+        if (base  != NULL) mem_free(base);
+        if (dp1   != NULL) mem_free(dp1);
+        if (dp2   != NULL) mem_free(dp2);
 
         /* Store the new arrays and current maximum n. */
         base   = new_base;

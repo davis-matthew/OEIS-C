@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t   *qual_arr   = NULL;   /* stored qualifying indices (1‑based)   */
 static size_t  qual_len    = 0;      /* number of filled elements            */
@@ -85,7 +87,7 @@ static void init_sequence(void)
 
     /* Scan successive pairs and collect qualifying indices */
     size_t qual_cap = QUAL_TARGET * 2;
-    qual_arr = (seq_t*)malloc(qual_cap * sizeof(seq_t));
+    qual_arr = mem_new(seq_t, qual_cap);
 
     for (size_t idx = 0; idx + 1 < sem_cnt; ++idx) {
         idx_t s1 = sem_vals[idx];
@@ -94,7 +96,7 @@ static void init_sequence(void)
         if (sum <= MAX_VAL && is_semiprime[sum]) {
             if (qual_len >= qual_cap) {
                 qual_cap *= 2;
-                qual_arr = (seq_t*)realloc(qual_arr, qual_cap * sizeof(seq_t));
+                qual_arr = mem_resize(seq_t, qual_arr, qual_cap);
             }
             qual_arr[qual_len++] = (seq_t)(idx + 1);  /* 1‑based index of semiprime n */
             if (qual_len >= QUAL_TARGET) break;      /* we have enough terms */

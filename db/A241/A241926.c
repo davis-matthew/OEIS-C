@@ -10,15 +10,55 @@
  *            T(n,k) = (Σ_{d | gcd(n,k)} φ(d)·binomial((n+k)/d, n/d)) / (n+k)
  * Range:     u8 n <= 24, u16 n <= 125, u32 n <= 796, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   binomial, gcd, phi
+ * Validated: standard, pass, 94 terms through n = 1221 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd.h"
-#include "../utils/phi.h"
-#include "../utils/binomial.h"
+#include <stdlib.h>
+
+/* Greatest common divisor for seq_t values. */
+static seq_t gcd(seq_t a, seq_t b)
+{
+    while (b != 0) {
+        seq_t t = a % b;
+        a = b;
+        b = t;
+    }
+    return a;
+}
+
+static seq_t phi(idx_t m)
+{
+    seq_t result = (seq_t)m;
+    idx_t d = 2;
+    for (; d * d <= m; ++d) {
+        if (m % d == 0) {
+            while (m % d == 0) m /= d;
+            result -= result / (seq_t)d;
+        }
+    }
+    if (m > 1) result -= result / (seq_t)m;
+    return result;
+}
+
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
 
 /* Compute T(n,k) from the given formula. */
 static seq_t

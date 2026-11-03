@@ -14,13 +14,14 @@
  *            1. * Then the correspon...
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   ugcd_u64
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/ugcd_u64.h"
+#include "../utils/gcd_idx.h"
 
 /* Simple deterministic primality test for small numbers (≤ 1e6). */
 static inline bool is_prime_idx(idx_t n)
@@ -50,7 +51,7 @@ seq_t a(idx_t n)
     /* Count nonprime numbers coprime to i that are not strong divisors of j. */
     seq_t cnt = 0;
     for (idx_t d = 1; d <= i; ++d) {
-        if (ugcd_u64(d, i) != 1) continue;          /* not coprime to i */
+        if (gcd_idx(d, i) != 1) continue;          /* not coprime to i */
         if (d == 1) { ++cnt; continue; }            /* 1 is always counted */
         if (is_prime_idx(d)) continue;              /* skip primes */
         if (j % d == 0) continue;                  /* strong divisor of k */

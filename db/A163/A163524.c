@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   factorial, floor_sqrt
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,38 @@
 #include <stddef.h>
 #include <stdbool.h>
 /* utils for big integer manipulation (provided by the build system) */
-#include "../utils/factorial.h"      /* factorial utility if needed */
-#include "../utils/floor_sqrt.h"     /* floor_sqrt(seq_t) */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -44,7 +75,7 @@ seq_t a(idx_t n)
             size_t new_cap = term_cap == 0 ? 4 : term_cap * 2;
             seq_t *new_terms = NULL;
             /* realloc handles both C and C++ builds */
-            new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+            new_terms = mem_resize(seq_t, terms, new_cap);
             if (!new_terms) return 0; /* allocation failed; return 0 */
             terms = new_terms;
             term_cap = new_cap;
@@ -64,7 +95,7 @@ seq_t a(idx_t n)
             if (term_count >= term_cap)
             {
                 size_t new_cap = term_cap == 0 ? 4 : term_cap * 2;
-                seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
                 if (!new_terms) return 0;
                 terms = new_terms;
                 term_cap = new_cap;

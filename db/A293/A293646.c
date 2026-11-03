@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 101, u64 n <= 101, u128 n <= 101,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 72 terms through n = 98 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* static cache of sequence values */
 static seq_t *terms = NULL;    /* array of terms */
@@ -82,8 +85,8 @@ static void ensure_terms(idx_t n)
 
     /* build the cache with exactly `target` terms */
     if (terms_cap < target) {
-        free(terms);
-        terms = (seq_t*)calloc(target, sizeof(seq_t));
+        mem_free(terms);
+        terms = mem_new(seq_t, target);
         terms_cap = target;
     }
     size_t idx = 0;

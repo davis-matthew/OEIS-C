@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 1023, u32 n <= 1023, u64 n <= 1023,
  *            u128 n <= 1023, big any n
- * Helpers:   grow_seq_array, is_prime64, reverse_digits_uint64
+ * Validated: standard, pass, 68 terms through n = 946 (2026-11-03)
+ * Helpers:   is_prime_u64, mem, reverse_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,9 +28,22 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime64.h"
-#include "../utils/grow_seq_array.h"
-#include "../utils/reverse_digits_uint64.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/reverse_digits_u64.h"
+#include "../utils/mem.h"
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 /* Main sequence function.  The first term (n==1) is 5. */
 seq_t a(idx_t n)
@@ -49,8 +63,8 @@ seq_t a(idx_t n)
         uint64_t cube = cand * cand;
         cube = cube * cand;          /* compute n^3 as 64‑bit integer */
 
-        uint64_t rev = reverse_digits_uint64(cube);
-        if (is_prime64(rev)) {
+        uint64_t rev = reverse_digits_u64(cube);
+        if (is_prime_u64(rev)) {
             /* Grow the array if necessary. */
             if (terms_len == terms_cap) {
                 size_t new_cap = (terms_cap == 0) ? 16 : terms_cap * 2;

@@ -8,12 +8,14 @@
  *            mod 8
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     
     if (memo == NULL) {
         memo_len = n + 128;
-        memo = (seq_t *)malloc(memo_len * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_len);
         memo[1] = 1;
         memo[2] = 5;
     }
@@ -31,11 +33,11 @@ seq_t a(idx_t n) {
     if (n >= memo_len) {
         idx_t old_len = memo_len;
         memo_len = n + 128;
-        seq_t *new_memo = (seq_t *)malloc(memo_len * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, memo_len);
         for (idx_t i = 0; i < old_len; i++) {
             new_memo[i] = memo[i];
         }
-        free(memo);
+        mem_free(memo);
         memo = new_memo;
     }
     

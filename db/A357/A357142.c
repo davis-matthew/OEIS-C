@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   required_length
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,18 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/required_length.h"
+#include "../utils/mem.h"
+
+/* minimal length required so that the cumulative count of numbers
+   up to that length is at least 'n'.  Count up to length L is
+     9*2^L - 8   (L ≥ 1). */
+static int required_length(idx_t n)
+{
+    int len = 1;
+    while (((9ULL << len) - 8ULL) < (unsigned long long)n)
+        ++len;
+    return len;
+}
 
 static seq_t *seq_cache = NULL;   /* dynamically grown array of values   */
 static size_t seq_len   = 0;       /* number of values currently stored  */
@@ -34,7 +46,7 @@ static void ensure_cap_seq(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 8;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) abort();               /* out‑of‑memory, stop */
     seq_cache = tmp;
     seq_cap   = new_cap;

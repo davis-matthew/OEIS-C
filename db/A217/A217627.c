@@ -8,13 +8,15 @@
  * Formula:   a(n) = sum_{k=1..n} digit_product(k) (OEIS A217627)
  * Range:     u8 n <= 36, u16 n <= 851, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9386 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute the product of the non‑zero decimal digits of x. */
 static seq_t digit_product(idx_t x) {
@@ -44,7 +46,7 @@ static void extend_cache(idx_t need) {
     if (new_cap <= need)
         new_cap = need + 1;
 
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         abort();                     /* allocation failure */
 
@@ -52,7 +54,7 @@ static void extend_cache(idx_t need) {
     if (cache) {
         for (idx_t i = 0; i <= cache_size; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
 
     /* initialise the unused element 0 to 0 (undefined for the sequence) */

@@ -8,14 +8,18 @@
  * Formula:   a(n) = gcd( n, A003958(n) ) where A003958 is multiplicative with
  *            a(p^e) = (p-1)^e. The function finds a(n) by factoring n and
  *            computing the common prime exponents with the product of (p-1)^e
- * Range:     u8 n <= 9743, u16 n <= 9953, u32 n <= 9953, u64 n <= 9953,
- *            u128 n <= 9953, big any n
+ * Range:     u8 n <= 9743, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9953 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

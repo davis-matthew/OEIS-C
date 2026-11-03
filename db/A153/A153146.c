@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 70 terms through n = 997 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 /* Sequence A153146: a(n) = n such that 2*n + 19 and 2*n – 19 are prime.
    Computed by incremental search, caching results. */
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
 
     if (!cache) {
         cap = 128;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     while (len < (size_t)n) {
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
                 /* store result */
                 if (len >= cap) {
                     cap *= 2;
-                    cache = (seq_t*)realloc(cache, cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cap);
                 }
                 cache[len++] = (seq_t)cand;
                 break;

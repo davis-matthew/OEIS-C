@@ -9,7 +9,8 @@
  *            no 2×2 subblock whose four cells sum to less than 6
  * Range:     u8 none, u16 none, u32 n <= 2, u64 n <= 5, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 25 terms through n = 164 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    order of queries.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int pow7[6] = {1, 7, 49, 343, 2401, 16807};
 
@@ -147,14 +149,14 @@ seq_t a(idx_t n)
 
     /* 2. one‑time initialisation */
     if (!initialized) {
-        cnt  = (seq_t*)calloc(N, sizeof(seq_t));
-        dp   = (seq_t*)malloc(N * sizeof(seq_t));
-        t1   = (seq_t*)malloc(N * sizeof(seq_t));
-        t2   = (seq_t*)malloc(N * sizeof(seq_t));
-        t3   = (seq_t*)malloc(N * sizeof(seq_t));
-        t4   = (seq_t*)malloc(N * sizeof(seq_t));
-        t5   = (seq_t*)malloc(N * sizeof(seq_t));
-        memo = (seq_t*)calloc(memo_cap, sizeof(seq_t));
+        cnt  = mem_new(seq_t, N);
+        dp   = mem_new(seq_t, N);
+        t1   = mem_new(seq_t, N);
+        t2   = mem_new(seq_t, N);
+        t3   = mem_new(seq_t, N);
+        t4   = mem_new(seq_t, N);
+        t5   = mem_new(seq_t, N);
+        memo = mem_new(seq_t, memo_cap);
 
         /* Count how many 6‑digit rows map to each 5‑tuple of adjacent sums. */
         for (int r = 0; r < 4096; ++r) {

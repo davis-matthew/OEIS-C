@@ -8,15 +8,33 @@
  * Formula:   a(n) = concat(a(n-2), a(n-1)) for n>2, with a(1)=1, a(2)=10
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   digit_len, pow10, seq_mul
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>            /* malloc, realloc */
-#include "../utils/pow10.h"    /* seq_t pow10(idx_t) */
-#include "../utils/digit_len.h"/* int digit_len(seq_t) */
-#include "../utils/seq_mul.h"  /* seq_t seq_mul(seq_t, seq_t) */
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -29,7 +47,7 @@ seq_t a(idx_t n)
 
     /* initialise cache on first call: indices 1 and 2 */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(3 * sizeof(seq_t)); /* indices 0,1,2 */
+        cache = mem_new(seq_t, 3); /* indices 0,1,2 */
         if (cache == NULL)
             return (seq_t)0; /* allocation failed */
         cache[0] = (seq_t)0; /* unused placeholder */
@@ -43,7 +61,7 @@ seq_t a(idx_t n)
         return cache[n];
 
     /* enlarge cache to hold up to index n */
-    seq_t *tmp = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
     if (tmp == NULL)
         return (seq_t)0; /* allocation failed */
     cache = tmp;
@@ -51,7 +69,7 @@ seq_t a(idx_t n)
     /* compute new terms from computed_limit+1 up to n */
     for (idx_t i = computed_limit + 1; i <= n; ++i) {
         /* length of decimal representation of a(i‑1) */
-        int len = digit_len(cache[i - 1]);
+        int len = num_digits(cache[i - 1]);
 
         /* 10^len as seq_t */
         seq_t pow10_val = pow10((idx_t)len);

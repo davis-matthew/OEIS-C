@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 18, i32 n <= 38, i64 n <= 77, i128 n <= 155,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 972 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(0)=1, a(1)=-1, a(2)=2; for n>=3, a(n)=2*a(n-2)-2*a(n-3) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *arr = NULL;
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     /* Initialize first three terms */
     if (!len) {
         cap = 4;   /* at least 4 to hold 3 terms + space for growth */
-        arr = (seq_t*)malloc(cap * sizeof(seq_t));
+        arr = mem_new(seq_t, cap);
         if (!arr) exit(1);
         arr[0] = (seq_t)1;
         arr[1] = (seq_t)-1;
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
     size_t need = (size_t)n + 1;
     if (need > cap) {
         while (cap < need) cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(arr, cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, arr, cap);
         if (!tmp) exit(1);
         arr = tmp;
     }

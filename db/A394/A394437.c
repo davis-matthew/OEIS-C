@@ -9,7 +9,8 @@
  *            rows: row 0: 1 row r: B_{r,0} … B_{r,r}
  * Range:     u8 n <= 16, u16 n <= 38, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t **tri = NULL;            /* triangular cache */
 static idx_t max_row_alloc = 0;       /* highest row already cached */
@@ -26,7 +28,7 @@ static void ensure_rows_up_to(idx_t r)
 {
     if (tri == NULL) {
         tri = (seq_t**)malloc((r + 1) * sizeof(seq_t*));
-        tri[0] = (seq_t*)malloc(sizeof(seq_t));
+        tri[0] = mem_new(seq_t, 1);
         tri[0][0] = 1;                 /* B_{0,0} */
         max_row_alloc = 0;
     }
@@ -39,7 +41,7 @@ static void ensure_rows_up_to(idx_t r)
 
     /* allocate new rows */
     for (idx_t n = max_row_alloc + 1; n <= r; ++n) {
-        tri[n] = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        tri[n] = mem_new(seq_t, (n + 1));
         for (idx_t k = 0; k <= n; ++k)
             tri[n][k] = 0;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 191, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_prime_factors
+ * Validated: standard, pass, 87 terms through n = 9690 (2026-11-01)
+ * Helpers:   bigomega_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,18 +20,19 @@
  *  is obtained via the helper function count_prime_factors(seq_t).
  */
 
-#include "../utils/count_prime_factors.h"
+#include <stdint.h>
+#include "../utils/bigomega_seq.h"
 
 /* Compute a(n) for n >= 2.  Behaviour for n < 2 is undefined. */
 seq_t a(idx_t n)
 {
     /* Omega(n): number of prime factors of n with multiplicity. */
-    seq_t target = count_prime_factors((seq_t)n);
+    seq_t target = bigomega_seq((seq_t)n);
 
     /* Search for the least integer > n with the same Omega value. */
     for (idx_t m = n + 1; ; ++m)
     {
-        if (count_prime_factors((seq_t)m) == target)
+        if (bigomega_seq((seq_t)m) == target)
             return (seq_t)m;   /* fits in seq_t by requirement */
     }
 }

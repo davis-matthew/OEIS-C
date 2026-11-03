@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 115, u32 n <= 160, u64 n <= 160,
  *            u128 n <= 160, big any n
- * Helpers:   none
+ * Validated: full, pass, 160 terms through n = 160 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;
 static size_t term_count = 0;
@@ -31,7 +33,7 @@ static const size_t INITIAL_CAP = 200;
 static void build_terms(void)
 {
     size_t cap = INITIAL_CAP;
-    terms = (seq_t *)malloc(cap * sizeof(seq_t));
+    terms = mem_new(seq_t, cap);
     term_count = 0;
 
     /* upper bound for k: sqrt(9 999 999 999) < 100 000 */
@@ -79,7 +81,7 @@ static void build_terms(void)
         if (term_count == cap)
         {
             cap *= 2;
-            terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, cap);
         }
         terms[term_count++] = (seq_t)k;
     }

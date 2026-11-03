@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define STATE_COUNT 1024           /* 256 patterns × 4 possible max values */
 
@@ -111,10 +113,9 @@ static void ensure_cache(idx_t n)
 {
     if ((size_t)(n + 1) <= cache_cap) return;
     size_t newcap = (size_t)(n + 1);
-    seq_t *newbuf = (seq_t*)calloc(newcap, sizeof(seq_t));
-    if (cache_vals && cache_len) memcpy(newbuf, cache_vals,
-                                        cache_len * sizeof(seq_t));
-    free(cache_vals);
+    seq_t *newbuf = mem_new(seq_t, newcap);
+    if (cache_vals && cache_len) mem_copy(newbuf, cache_vals, cache_len * sizeof(seq_t));
+    mem_free(cache_vals);
     cache_vals = newbuf;
     cache_cap = newcap;
     cache_len = cache_len > newcap ? newcap : cache_len;

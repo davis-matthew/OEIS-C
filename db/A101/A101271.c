@@ -9,6 +9,7 @@
  *            prime parts (computed by brute‑force search over a<b<c)
  * Range:     u8 n <= 58, u16 n <= 892, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 79 terms through n = 9882 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

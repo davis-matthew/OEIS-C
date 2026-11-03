@@ -11,12 +11,14 @@
  *            coefficient of x^n in G
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,10 +27,10 @@ seq_t a(idx_t n)
 
     if (n + 1 > capacity) {
         idx_t newcap = n + 1;
-        b1 = (seq_t *)realloc(b1, newcap * sizeof(seq_t));
-        b2 = (seq_t *)realloc(b2, newcap * sizeof(seq_t));
-        b3 = (seq_t *)realloc(b3, newcap * sizeof(seq_t));
-        G  = (seq_t *)realloc(G,  newcap * sizeof(seq_t));
+        b1 = mem_resize(seq_t, b1, newcap);
+        b2 = mem_resize(seq_t, b2, newcap);
+        b3 = mem_resize(seq_t, b3, newcap);
+        G  = mem_resize(seq_t, G, newcap);
         for (idx_t i = capacity; i < newcap; ++i) {
             b1[i] = 0;
             b2[i] = 0;

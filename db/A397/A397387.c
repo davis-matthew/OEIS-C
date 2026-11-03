@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 6085, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 74 terms through n = 9100 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"          /* gcd(seq_t, seq_t) */
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 #define MAX_TERMS        20000     /* enough for n <= 10000 */
 #define INITIAL_MAX_K    500000    /* ensures 20000 terms are found */
@@ -88,7 +90,7 @@ static bool is_cyclic(uint64_t k)
 static void init_sequence(void)
 {
     init_phi(INITIAL_MAX_K);
-    terms      = (seq_t *)calloc(MAX_TERMS, sizeof(seq_t));
+    terms      = mem_new(seq_t, MAX_TERMS);
     terms_cnt  = 0;
 
     for (uint32_t k = 1; k <= INITIAL_MAX_K && terms_cnt < MAX_TERMS; ++k) {
@@ -110,7 +112,7 @@ seq_t a(idx_t n)
     if ((size_t)n > terms_cnt) {
         /* safety: grow the array and keep the old count */
         size_t new_cap = terms_cnt * 2;
-        seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
         if (!new_terms) exit(1);
         terms = new_terms;
         /* keep terms_cnt unchanged */

@@ -7,13 +7,21 @@
  * Formula:   a(n) = a(n-1) - floor((a(n-2)+a(n-3))/2), a(0)=0, a(1)=1, a(2)=2
  * Range:     i8 n <= 61, i16 n <= 64, i32 n <= 64, i64 n <= 64, i128 n <= 64,
  *            big any n
- * Helpers:   floor_half
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/floor_half.h"
+#include "../utils/mem.h"
+
+static inline seq_t floor_half(seq_t x)
+{
+    if (x >= 0)
+        return x / 2;
+    return (x - 1) / 2;   /* works for odd and even negative numbers */
+}
 
 static seq_t *cache = NULL;          /* dynamic array holding computed terms */
 static size_t cache_cap = 0;         /* capacity of the array */
@@ -29,7 +37,7 @@ static void ensure_cache(idx_t n)
         size_t new_cap = cache_cap ? cache_cap * 2 : 4;
         while (new_cap < (size_t)n + 1)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* In a production environment you might handle this differently
                (e.g., abort), but for the purposes of the exercise we simply

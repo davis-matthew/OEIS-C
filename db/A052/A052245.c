@@ -8,12 +8,14 @@
  *            in OEIS)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of computed terms and powers of 10 */
 static seq_t *cache = NULL;   /* a(i) values */
@@ -25,8 +27,8 @@ seq_t a(idx_t n)
     /* initialise cache for n==0 */
     if (cached == 0) {
         cached = 1;
-        cache  = (seq_t *)malloc(sizeof(seq_t));
-        pow10  = (seq_t *)malloc(sizeof(seq_t));
+        cache  = mem_new(seq_t, 1);
+        pow10  = mem_new(seq_t, 1);
         cache[0] = (seq_t)0;
         pow10[0] = (seq_t)1;
         if (!cache || !pow10) return (seq_t)0; /* allocation failure – return 0 */
@@ -38,8 +40,8 @@ seq_t a(idx_t n)
     /* grow the arrays to hold entries up to n */
     idx_t newsize = n + 1;
     if (newsize < 2 * cached) newsize = 2 * cached;
-    cache = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
-    pow10 = (seq_t *)realloc(pow10, newsize * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, newsize);
+    pow10 = mem_resize(seq_t, pow10, newsize);
     if (!cache || !pow10) return (seq_t)0; /* allocation failure – return 0 */
 
     /* compute missing entries */

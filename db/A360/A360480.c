@@ -13,22 +13,24 @@
  *            trial division using a small primes sieve up to √n
  * Range:     u8 n <= 436, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, gcd, int_sqrt
+ * Validated: standard, pass, 104 terms through n = 9766 (2026-11-01)
+ * Helpers:   build_primes_upto, gcd, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/gcd.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n) {
     if (n <= 1) return 0;
 
     /* Small primes up to sqrt(n) for factorization */
-    idx_t limit = int_sqrt(n);
+    idx_t limit = isqrt(n);
     uint64_t *smallprimes = NULL;
     size_t smallcnt = 0;
     build_primes_upto(limit, &smallprimes, &smallcnt);

@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = 1 if 6*ceil(n/2)+(-1)^n is prime, otherwise 0
- * Range:     u8 n <= 8762, u16 n <= 8762, u32 n <= 8762, u64 n <= 8762,
- *            u128 n <= 8762, big any n
+ * Range:     u8 n <= 33332, u16 n <= 33332, u32 n <= 33332, u64 n <= 33332,
+ *            u128 n <= 33332, big any n
+ * Validated: standard, pass, 121 terms through n = 8762 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

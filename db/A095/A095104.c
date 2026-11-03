@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 92, u16 n <= 92, u32 n <= 92, u64 n <= 92, u128 n <= 92,
  *            big any n
- * Helpers:   ensure_capacity, jacobi_symbol
+ * Validated: partial, pass, 92 terms through n = 92 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,66 @@
 /* Uses the provided jacobi_symbol util. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/jacobi_symbol.h"
-#include "../utils/ensure_capacity.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 /* Static state for prime generation and memoisation. */
 static idx_t       *all_primes      = NULL;
@@ -82,17 +141,17 @@ static void prepare(idx_t n)
             if (is_prime(next_candidate)) {
                 /* Store the new prime in the complete prime list. */
                 ensure_capacity(all_count + 1, &all_capacity,
-                                (void **)&all_primes, sizeof(idx_t));
+                                OEISC_VPP(&all_primes), sizeof(idx_t));
                 all_primes[all_count++] = next_candidate;
 
                 /* If it is 4k+3, record it and compute its diving index. */
                 if (next_candidate % 4 == 3) {
                     ensure_capacity(p3_count + 1, &p3_capacity,
-                                    (void **)&p3_primes, sizeof(idx_t));
+                                    OEISC_VPP(&p3_primes), sizeof(idx_t));
                     p3_primes[p3_count++] = next_candidate;
 
                     ensure_capacity(dive_count + 1, &dive_capacity,
-                                    (void **)&dives, sizeof(seq_t));
+                                    OEISC_VPP(&dives), sizeof(seq_t));
                     dives[dive_count++] = compute_dive(next_candidate);
                 }
                 next_candidate += 2;   /* advance to the next odd candidate */

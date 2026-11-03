@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9999, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
- *            u128 n <= 9999, big any n
- * Helpers:   factor_u64, gpf
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 116 terms through n = 9999 (2026-11-01)
+ * Helpers:   factor_u64, largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* factor_u64() */
-#include "../utils/gpf.h"          /* gpf() */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/largest_prime_factor.h"
 
 static void dfs_divs(size_t idx, uint64_t current,
                      const uint64_t *pr, const uint64_t *ex,
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     size_t   cnt = 0;
     factor_u64(nn, primes, exps, &cnt);
 
-    uint64_t gpf_val = gpf(nn);   /* greatest prime factor of n */
+    uint64_t gpf_val = largest_prime_factor(nn);   /* greatest prime factor of n */
 
     seq_t result = 0;
     dfs_divs(0, 1, primes, exps, cnt, gpf_val, &result);

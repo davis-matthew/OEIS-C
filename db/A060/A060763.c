@@ -11,7 +11,8 @@
  *            also divisors of n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   rec_generate
+ * Validated: standard, pass, 121 terms through n = 9372 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/rec_generate.h"
+
+static void rec_generate(idx_t curr, size_t idx, idx_t *primes, int *exps,
+                         size_t np, idx_t *divs, size_t *divcnt) {
+    if (idx == np) {
+        divs[(*divcnt)++] = curr;
+        return;
+    }
+    idx_t val = curr;
+    for (int e = 0; e <= exps[idx]; ++e) {
+        rec_generate(val, idx + 1, primes, exps, np, divs, divcnt);
+        if (e < exps[idx]) {
+            val *= primes[idx];
+        }
+    }
+}
 
 static int cmp_idx(const void *a, const void *b) {
     idx_t v1 = *(const idx_t *)a;

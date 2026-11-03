@@ -9,13 +9,24 @@
  *            exponent of the highest power of 7 dividing i
  * Range:     u8 n <= 146, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   v7
+ * Validated: standard, pass, 114 terms through n = 7550 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/v7.h"
+
+static inline int v7(idx_t x)
+{
+    int cnt = 0;
+    while (x % 7 == 0)
+    {
+        ++cnt;
+        x /= 7;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {

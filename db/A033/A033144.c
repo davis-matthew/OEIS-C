@@ -9,12 +9,14 @@
  *            a(3)=64, a(4)=513. (Equivalently, a(n) = round((64/511) * 8^n).)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 22, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 180 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* cache of computed terms, indexed by n (1-based) */
 static size_t  cap    = 0;      /* capacity of the cache array (in terms of n+1)  */
@@ -29,7 +31,7 @@ ensure_cache(idx_t n)
     size_t new_cap = (cap == 0) ? 16 : cap;
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cap   = new_cap;
 }
 

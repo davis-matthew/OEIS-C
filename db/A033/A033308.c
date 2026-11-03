@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 197, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   build_primes, digit_count, get_digits
+ * Validated: standard, pass, 117 terms through n = 1899 (2026-11-01)
+ * Helpers:   build_primes, get_digits, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/digit_count.h"
-#include "../utils/get_digits.h"
+#include <stdbool.h>
+#include <math.h>
 #include "../utils/build_primes.h"
+#include "../utils/get_digits.h"
+#include "../utils/num_digits0.h"
 
 /* static cache of primes and cumulative digit counts */
 static idx_t cached_limit = 0;
@@ -54,7 +57,7 @@ static void rebuild(idx_t new_limit)
     idx_t acc = 0;
     for (size_t i = 0; i < new_cnt; ++i)
     {
-        acc += digit_count((uint64_t)cached_primes[i]);
+        acc += num_digits0((uint64_t)cached_primes[i]);
         cum_digits[i] = acc;
     }
     cum_cnt = new_cnt;

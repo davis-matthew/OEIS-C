@@ -9,13 +9,15 @@
  * Formula:   a(0)=2, a(1)=16, a(2)=129, a(n)=8*a(n-1)+a(n-2)-4*a(n-3) for n>2
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 20, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute the n-th term of OEIS sequence A022018.
  * The function is thread‑unsafe but satisfies the required
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
     /* initialise the cache with the first three terms */
     if (cache_size == 0) {
         cache_size = 3;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0; /* out of memory, return 0 as a sentinel */
         cache[0] = (seq_t)2;
         cache[1] = (seq_t)16;
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
     /* extend the cache up to index n */
     size_t old_size = cache_size;
     cache_size = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cache_size);
     if (!tmp) return 0;               /* allocation failure – same sentinel */
     cache = tmp;
 

@@ -10,7 +10,8 @@
  *            x+1 does not
  * Range:     u8 n <= 5, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_65_base7
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,24 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has_65_base7.h"
+#include "../utils/mem.h"
+
+/* Does the base 7 representation of x contain the substring 6,5?   */
+static bool has_65_base7(seq_t x)
+{
+    if (x == 0) return false;           /* zero has no digits */
+    seq_t prev = x % 7;                  /* least significant digit */
+    x /= 7;
+    while (x > 0)
+    {
+        seq_t curr = x % 7;              /* next more significant digit */
+        if (curr == 6 && prev == 5)      /* 6 5 in base 7 (MSB → LSB) */
+            return true;
+        prev = curr;
+        x /= 7;
+    }
+    return false;
+}
 
 /* -------------------------- memoized search -------------------------- */
 
@@ -33,7 +51,7 @@ static void grow_cache(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     cache = new_ptr;
     cache_cap = new_cap;
 }

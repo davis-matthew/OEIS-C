@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 196, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 841 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    for n>2, if a(n‑2)+a(n‑1) > n then a(n)=|a(n‑2)-a(n‑1)| else a(n)=a(n‑2)+a(n‑1) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (n == 1 || n == 2) {
         if (max_n < 2) {                  /* ensure cache has indices 1,2 */
             idx_t newsize = 2;
-            cache = (seq_t *)realloc(cache, (newsize + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (newsize + 1));
             cache[1] = 1;
             cache[2] = 1;
             max_n = 2;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* extend cache if needed */
     if (n > max_n) {
         idx_t newsize = n;
-        cache = (seq_t *)realloc(cache, (newsize + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (newsize + 1));
 
         /* compute values from max_n + 1 up to n */
         for (idx_t i = max_n + 1; i <= n; ++i) {

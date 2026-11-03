@@ -12,7 +12,8 @@
  *            and difference 0 is first reached, the correspondi...
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 8, u64 n <= 98, u128 n <= 890,
  *            big any n
- * Helpers:   cache_hash, seq_from_str
+ * Validated: standard, pass, 42 terms through n = 729 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/seq_from_str.h"
-#include "../utils/cache_hash.h"
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+static size_t cache_hash(idx_t k) { return (size_t)(k * 11400714819323198485ULL); }
 
 /*---------- local only structures and macros ----------*/
 #define VIS_HASH_SIZE (1U << 20)                /* 1,048,576 entries for visited table */
@@ -85,8 +97,8 @@ static seq_t *cache_lookup(idx_t n) {
 static void cache_insert(idx_t n, seq_t val) {
     if (!cache) {
         cache_cap = CACHE_INIT_CAP;
-        cache = (CacheEntry *)malloc(cache_cap * sizeof(CacheEntry));
-        memset(cache, 0, cache_cap * sizeof(CacheEntry));
+        cache = mem_new(CacheEntry, cache_cap);
+        mem_set(cache, 0, cache_cap * sizeof(CacheEntry));
     }
     size_t h = cache_hash(n) & (cache_cap - 1);
     for (;;) {

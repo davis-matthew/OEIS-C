@@ -10,14 +10,15 @@
  *            the pairs belonging to S
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 #define NUM_EDGES   15
 #define NUM_SUBSETS (1 << NUM_EDGES)
@@ -76,7 +77,7 @@ seq_t a(idx_t n)
     /* Compute base^n for bases 0..64 using big_pow. */
     seq_t exp = (seq_t)n;
     for (int b = 0; b <= 64; ++b) {
-        pow_cache[b] = big_pow((seq_t)b, exp);
+        pow_cache[b] = ipow((seq_t)b, exp);
     }
 
     /* Inclusion‑exclusion over all subsets of edges. */

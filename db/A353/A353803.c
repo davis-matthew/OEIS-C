@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Product_{p^e||n} sigma(sigma(p^e)) - sigma(sigma(n))
- * Range:     u8 n <= 65, u16 n <= 2309, u32 n <= 9682, u64 n <= 9682,
- *            u128 n <= 9682, big any n
- * Helpers:   sigma_of
+ * Range:     u8 n <= 65, u16 n <= 2309, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 107 terms through n = 9682 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
    distinct prime factors and their exponents in an array. */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/sigma_of.h"
+#include <stdlib.h>
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* Factorize n.  For n ≤ 10 000 a fixed buffer is sufficient. */
 static void factor_small(uint64_t n, uint64_t *pr, int *exps, size_t *cnt)

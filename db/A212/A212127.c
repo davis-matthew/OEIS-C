@@ -9,7 +9,8 @@
  *            arithmetic_derivative(m) equals sum_of_proper_divisors(m)
  * Range:     u8 n <= 58, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_uint64_array, free_uint64_array
+ * Validated: standard, pass, 75 terms through n = 985 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,23 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/alloc_uint64_array.h"
-#include "../utils/free_uint64_array.h"
+
+/* -------------------------------------------------------------------------- */
+static uint64_t *alloc_uint64_array(size_t n) {
+#ifdef __cplusplus
+    return new uint64_t[n];
+#else
+    return (uint64_t *)malloc(n * sizeof(uint64_t));
+#endif
+}
+
+static void free_uint64_array(uint64_t *p) {
+#ifdef __cplusplus
+    delete[] p;
+#else
+    free(p);
+#endif
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Helpers for conditional allocation between C and C++                         */

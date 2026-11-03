@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool good(idx_t x)
 {
@@ -60,7 +62,7 @@ static seq_t* init_terms(size_t *out_count)
     }
 
     capacity = 200;                     /* start capacity */
-    list = (seq_t*)malloc(capacity * sizeof(seq_t));
+    list = mem_new(seq_t, capacity);
     if (!list) return NULL;             /* allocation failed */
 
     size_t count = 0;
@@ -68,9 +70,9 @@ static seq_t* init_terms(size_t *out_count)
         if (good(n)) {
             if (count == capacity) {
                 capacity *= 2;
-                seq_t *tmp = (seq_t*)realloc(list, capacity * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, list, capacity);
                 if (!tmp) {
-                    free(list);
+                    mem_free(list);
                     return NULL;
                 }
                 list = tmp;

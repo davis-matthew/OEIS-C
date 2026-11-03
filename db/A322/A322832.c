@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy, look
  * Formula:   For n = m^2 + j with 0 ≤ j ≤ 2m, a(n) = m + j if j < m a(n) = j
  *            otherwise
- * Range:     u8 n <= 8426, u16 n <= 8426, u32 n <= 8426, u64 n <= 8426,
- *            u128 n <= 8426, big any n
+ * Range:     u8 n <= 10200, u16 n <= 10200, u32 n <= 10200, u64 n <= 10200,
+ *            u128 n <= 10200, big any n
+ * Validated: standard, pass, 97 terms through n = 8426 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

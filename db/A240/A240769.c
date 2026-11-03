@@ -10,12 +10,14 @@
  *            2*T(n,1) – 1
  * Range:     u8 n <= 8256, u16 n <= 8256, u32 n <= 8256, u64 n <= 8256,
  *            u128 n <= 8256, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 7729 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **g_rows = NULL;        /* g_rows[i] holds row i+1 */
 static size_t g_rows_cnt = 0;        /* number of rows currently stored */
@@ -26,7 +28,7 @@ static void ensure_rows(idx_t row)
 {
     /* compute the first row if necessary */
     if (g_rows_cnt == 0) {
-        seq_t *row1 = (seq_t*)malloc(sizeof(seq_t));
+        seq_t *row1 = mem_new(seq_t, 1);
         if (!row1) abort();
         row1[0] = (seq_t)1;
         g_rows = (seq_t**)malloc(sizeof(seq_t*));
@@ -42,7 +44,7 @@ static void ensure_rows(idx_t row)
         seq_t *prev = g_rows[old_len-1];
         idx_t new_len = old_len + 1;         /* length of the new row */
 
-        seq_t *new_row = (seq_t*)malloc(new_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_len);
         if (!new_row) abort();
 
         /* Shift the inner part of the row */

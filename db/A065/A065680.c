@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   upper_prime_bound
+ * Validated: standard, pass, 95 terms through n = 939 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/upper_prime_bound.h"
+#include "../utils/mem.h"
+
+/* Estimate an upper bound for the nth prime (Rosser–Schoenfeld). */
+static idx_t upper_prime_bound(idx_t n)
+{
+    if (n < 6) return 15;
+    double dn = (double)n;
+    double l  = log(dn);
+    double ll = log(l);
+    return (idx_t)(dn * (l + ll)) + 3;
+}
 
 /* Shared state between calls */
 static idx_t *primes        = NULL;    /* list of primes */
@@ -50,7 +61,7 @@ static void ensure_sieve(idx_t n)
     size_t new_cap = (size_t)(limit + 1);
     if (primes_cap < new_cap) {
         idx_t  *new_primes      = (idx_t*)realloc(primes, new_cap * sizeof(idx_t));
-        seq_t *new_prefix      = (seq_t*)realloc(prefix_counts, new_cap * sizeof(seq_t));
+        seq_t *new_prefix      = mem_resize(seq_t, prefix_counts, new_cap);
         if (!new_primes || !new_prefix) { free(is_prime); return; }
         primes        = new_primes;
         prefix_counts = new_prefix;

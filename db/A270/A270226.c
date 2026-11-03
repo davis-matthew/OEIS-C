@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* word of symbols {2,3} */
 static size_t cache_len = 0;    /* number of symbols stored */
@@ -36,7 +38,7 @@ static void expand_cache(idx_t min_len)
         if (cache_len == 0)     /* initial word: 2 → 32 */
         {
             new_len = 2;
-            cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+            cache = mem_new(seq_t, new_len);
             if (!cache) return;          /* allocation failed – caller must handle */
             cache[0] = 3;                /* first symbol after one substitution */
             cache[1] = 2;
@@ -44,7 +46,7 @@ static void expand_cache(idx_t min_len)
             continue;
         }
 
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache) return;          /* allocation failed – caller must handle */
 
         size_t i, pos = 0;
@@ -63,7 +65,7 @@ static void expand_cache(idx_t min_len)
             }
         }
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len = pos;
     }

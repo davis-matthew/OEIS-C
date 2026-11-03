@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 7831, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 77 terms through n = 9778 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* sum of divisors of n (uint64_t) */
 static uint64_t sigma_of_u64(uint64_t n)
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cap   = 1024;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* generate terms until we have at least n of them */
@@ -103,9 +105,9 @@ seq_t a(idx_t n)
         if (is_semiprime_uint64(diff)) {
             if (len == cap) {
                 cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cap);
                 if (tmp == NULL) {      /* allocation failed – abort */
-                    free(cache);
+                    mem_free(cache);
                     cache = NULL;
                     return (seq_t)0;
                 }

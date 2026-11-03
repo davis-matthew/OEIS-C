@@ -12,13 +12,17 @@
  *            threshold
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   digit_len
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/digit_len.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +38,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 128;
         while (new_cap < (size_t)n + 1) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 
@@ -46,13 +50,13 @@ seq_t a(idx_t n)
         /* search for the largest k.  The search bound is generous. */
         for (int d = 1; d <= 128; ++d) {
             seq_t cand = base + (seq_t)d;
-            if (digit_len(cand) == d) {
+            if (num_digits(cand) == d) {
                 best = cand;                 /* keep the largest found */
             }
         }
         /* best must be found; the problem guarantees a solution. */
         cache[i] = best;
-        sum_digits += (seq_t)digit_len(best); /* update cumulative digits */
+        sum_digits += (seq_t)num_digits(best); /* update cumulative digits */
     }
     cache_len = n;
     return cache[n];

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   ceil_sqrt
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   isqrt_ceil, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,7 +36,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/ceil_sqrt.h"
+#include "../utils/isqrt_ceil.h"
+#include "../utils/mem.h"
 
 /* ---------- Binomial table ------------------------------------- */
 static seq_t **binom = NULL;
@@ -47,7 +49,7 @@ static void ensure_binom(idx_t n) {
     binom_size = n + 1;
     binom = (seq_t**)realloc(binom, sizeof(seq_t*) * binom_size);
     for (idx_t i = old; i < binom_size; ++i) {
-        binom[i] = (seq_t*)calloc((size_t)i + 1, sizeof(seq_t));
+        binom[i] = mem_new(seq_t, (size_t)i + 1);
         if (i > 0) {
             binom[i][0] = (seq_t)1;
             binom[i][i] = (seq_t)1;
@@ -82,11 +84,11 @@ static void compute_rows_up_to(idx_t r) {
 
         if (anew == 1) {    /* Row 1 */
             newrow.entries_len = 1;
-            newrow.entries = (seq_t*)calloc(1, sizeof(seq_t));
+            newrow.entries = mem_new(seq_t, 1);
             newrow.entries[0] = (seq_t)1;
 
             newrow.poly_len = 4;          /* degree 3 -> indices 0..3 */
-            newrow.poly = (seq_t*)calloc(newrow.poly_len, sizeof(seq_t));
+            newrow.poly = mem_new(seq_t, newrow.poly_len);
             newrow.poly[3] = (seq_t)1;
         } else {
             /* use previous row */
@@ -95,7 +97,7 @@ static void compute_rows_up_to(idx_t r) {
             ensure_binom(degPrev);
 
             /* shifted = P(X+1) */
-            seq_t *shifted = (seq_t*)calloc((size_t)degPrev + 1, sizeof(seq_t));
+            seq_t *shifted = mem_new(seq_t, (size_t)degPrev + 1);
             for (idx_t t = 0; t <= degPrev; ++t) {
                 if (prev->poly[t] == (seq_t)0) continue;
                 for (idx_t k = 0; k <= t; ++k) {
@@ -104,23 +106,23 @@ static void compute_rows_up_to(idx_t r) {
             }
 
             /* diff = shifted - prev */
-            seq_t *diff = (seq_t*)calloc((size_t)degPrev + 1, sizeof(seq_t));
+            seq_t *diff = mem_new(seq_t, (size_t)degPrev + 1);
             for (idx_t k = 0; k <= degPrev; ++k) {
                 diff[k] = shifted[k] - prev->poly[k];
             }
-            free(shifted);
+            mem_free(shifted);
 
             /* new polynomial = X^3 * diff  */
             idx_t newLen = degPrev + 3;     /* degPrev+2 + 1 */
-            seq_t *newPoly = (seq_t*)calloc((size_t)newLen, sizeof(seq_t));
+            seq_t *newPoly = mem_new(seq_t, (size_t)newLen);
             for (idx_t k = 0; k <= degPrev; ++k) {
                 if (k + 3 < newLen) newPoly[k + 3] = diff[k];
             }
-            free(diff);
+            mem_free(diff);
 
             /* Store new row */
             newrow.entries_len = 2 * anew - 1;
-            newrow.entries = (seq_t*)calloc(newrow.entries_len, sizeof(seq_t));
+            newrow.entries = mem_new(seq_t, newrow.entries_len);
             for (idx_t j = 1; j <= newrow.entries_len; ++j) {
                 idx_t exp = 2 + j;   /* exponent of X */
                 if (exp < newLen) {
@@ -143,7 +145,7 @@ static void compute_rows_up_to(idx_t r) {
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;                /* offset 1; n>=1 */
 
-    idx_t r = ceil_sqrt(n);
+    idx_t r = isqrt_ceil(n);
     compute_rows_up_to(r);
 
     idx_t j = n - (r - 1) * (r - 1);            /* 1‑based column */

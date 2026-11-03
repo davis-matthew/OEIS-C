@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 115, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    This implementation generates all such sums up to a sufficient bound,
    stores them sorted and unique, and returns the nth term (1‑based).*/
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int cmp_seq_t_wrapper(const void *p, const void *q)
 {
@@ -43,13 +45,13 @@ seq_t a(idx_t n)
             cube_idx++;
 
         /* Pre‑compute cubes up to cube_idx‑1. */
-        seq_t *cube = (seq_t *)malloc(sizeof(seq_t) * cube_idx);
+        seq_t *cube = mem_new(seq_t, cube_idx);
         for (idx_t i = 0; i < cube_idx; i++)
             cube[i] = (seq_t)i * i * i;
 
         /* Rough capacity estimate for all sums. */
         size_t cap = cube_idx * cube_idx / 2 + 100;
-        seq_t *sums = (seq_t *)malloc(sizeof(seq_t) * cap);
+        seq_t *sums = mem_new(seq_t, cap);
         size_t sums_len = 0;
 
         /* Generate all sums of consecutive non‑negative cubes. */
@@ -60,15 +62,15 @@ seq_t a(idx_t n)
                 if (cur > max_sum) break;
                 if (sums_len == cap) {         /* grow buffer if needed */
                     cap *= 2;
-                    sums = (seq_t *)realloc(sums, sizeof(seq_t) * cap);
+                    sums = mem_resize(seq_t, sums, cap);
                 }
                 sums[sums_len++] = cur;
             }
         }
-        free(cube);
+        mem_free(cube);
 
         /* Sort the sums. */
-        qsort(sums, sums_len, sizeof(seq_t), cmp_seq_t_wrapper);
+        mem_qsort(sums, sums_len, sizeof(seq_t), cmp_seq_t_wrapper);
 
         /* Remove duplicates in place. */
         size_t uniq = 0;
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
                 sums[uniq++] = sums[i];
 
         /* Shrink to actual size. */
-        sums = (seq_t *)realloc(sums, sizeof(seq_t) * uniq);
+        sums = mem_resize(seq_t, sums, uniq);
 
         seq = sums;
         seq_len = uniq;

@@ -8,7 +8,8 @@
  *            / (n-k)! , where P(k) is the partition number (OEIS A000041)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 411 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    R(⋯,k) = R(⋯,k-1) * (n-k+1). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for computed values.  All arrays are zero‑initialised
    when first allocated.  The size is doubled on each expansion to
@@ -49,8 +51,8 @@ static void ensure_capacity(idx_t n)
     while (new_cap <= n)
         new_cap <<= 1;
 
-    a_arr    = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
-    part_arr = (seq_t *)realloc(part_arr, new_cap * sizeof(seq_t));
+    a_arr    = mem_resize(seq_t, a_arr, new_cap);
+    part_arr = mem_resize(seq_t, part_arr, new_cap);
     if (!a_arr || !part_arr) abort();
 
     /* zero‑initialise newly allocated slots */

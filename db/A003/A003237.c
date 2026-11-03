@@ -11,12 +11,14 @@
  *            s(k)*r(m+1-k), s(k) = Sum_{d|k} d*r(d)
  * Range:     u8 n <= 12, u16 n <= 21, u32 n <= 39, u64 n <= 76, u128 n <= 149,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 3528 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A3237_R = 0;
 static seq_t *A3237_S = 0;
@@ -26,9 +28,9 @@ static idx_t A3237_cap = 0;
 static void A3237_build(idx_t N) {
     idx_t M = N / 2 + 3;
     idx_t m, k, j, i;
-    seq_t *R = (seq_t *)calloc(M + 1, sizeof(seq_t));
-    seq_t *S = (seq_t *)calloc(M + 1, sizeof(seq_t));
-    seq_t *A = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *R = mem_new(seq_t, M + 1);
+    seq_t *S = mem_new(seq_t, M + 1);
+    seq_t *A = mem_new(seq_t, N + 1);
     for (m = 0; m <= M; m++) { R[m] = (seq_t)0; S[m] = (seq_t)0; }
     R[1] = (seq_t)1;
     for (m = 1; m < M; m++) {
@@ -47,9 +49,9 @@ static void A3237_build(idx_t N) {
         }
         A[i] = v;
     }
-    if (A3237_R) free(A3237_R);
-    if (A3237_S) free(A3237_S);
-    if (A3237_A) free(A3237_A);
+    if (A3237_R) mem_free(A3237_R);
+    if (A3237_S) mem_free(A3237_S);
+    if (A3237_A) mem_free(A3237_A);
     A3237_R = R;
     A3237_S = S;
     A3237_A = A;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = A001597(n+1) - A001597(n)
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9048 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computes the n-th term of OEIS A053289: first differences of consecutive perfect powers. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static int seq_compare(const void *p, const void *q)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         const idx_t MAX_BASE = 10000;          /* sqrt(LIMIT) */
         size_t capacity = MAX_BASE + MAX_BASE / 2 + 16;  /* rough upper bound */
 
-        powers = (seq_t *)malloc(capacity * sizeof(seq_t));
+        powers = mem_new(seq_t, capacity);
         if (!powers) exit(1);  /* allocation failed */
 
         size_t sz = 0;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort the list */
-        qsort(powers, sz, sizeof(seq_t), seq_compare);
+        mem_qsort(powers, sz, sizeof(seq_t), seq_compare);
 
         /* Remove duplicates (e.g., 64 = 8² = 4³) */
         size_t uniq = 0;

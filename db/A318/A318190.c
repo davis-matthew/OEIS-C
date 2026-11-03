@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 30, i16 n <= 510, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9365 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache for memoization */
 static seq_t *cache = NULL;    /* values */
@@ -31,7 +33,7 @@ static void ensure_cap(idx_t n) {
     if (n < cache_cap) return;
     idx_t new_cap = cache_cap == 0 ? 1 : cache_cap;
     while (new_cap <= n) new_cap <<= 1;
-    cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     used  = (bool*)realloc(used,  new_cap * sizeof(bool));
     /* initialize new entries */
     for (idx_t i = cache_cap; i < new_cap; ++i) used[i] = false;

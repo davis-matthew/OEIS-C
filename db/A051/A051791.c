@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   map_digit
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/map_digit.h"
+
+static int map_digit(int d)
+{
+    switch (d) {
+        case 0: return 0;
+        case 1: return 1;
+        case 8: return 8;
+        case 2: return 7;
+        case 7: return 2;
+        case 6: return 9;
+        case 9: return 6;
+        default: return -1; /* never reached */
+    }
+}
 
 /* 7^e   (e >= 0) - computed in uint64_t */
 static uint64_t pow7(int e)

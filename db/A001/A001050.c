@@ -8,8 +8,9 @@
  *            units nolla..yhdeksän, teens <unit>toista, tens <unit>kymmentä,
  *            sata/<unit>sataa, tuhat/<n>tuhatta, miljoona/<n>miljoonaa,
  *            miljardi/<n>miljardia (ä counts as one letter)
- * Range:     u8 n <= 9889, u16 n <= 9889, u32 n <= 9889, u64 n <= 9889,
- *            u128 n <= 9889, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 83 terms through n = 9889 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

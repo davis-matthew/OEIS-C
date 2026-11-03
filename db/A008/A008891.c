@@ -7,7 +7,8 @@
  * Formula:   a(n+1) = A001065(a(n)), a(0) = 180
  * Range:     u8 n <= 0, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   sigma_of
+ * Validated: full, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,22 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/sigma_of.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* Ensure that sz is sufficient for n+1 elements. */
 static void ensure_capacity(idx_t n, seq_t **p, size_t *cap)
@@ -25,7 +41,7 @@ static void ensure_capacity(idx_t n, seq_t **p, size_t *cap)
     if ((*cap) >= needed) return;
     size_t newcap = (*cap) ? (*cap) * 2 : 1;
     while (newcap < needed) newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(*p, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *p, newcap);
     if (!tmp) { /* allocation failed – abort (sequence cannot be computed) */
         abort();
     }
@@ -45,7 +61,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (!cache) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();             /* cannot proceed without memory */
         cache[0] = (seq_t)180;           /* initial value a(0) */
         max_n = 0;

@@ -11,12 +11,14 @@
  *            k
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 27, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
         return 0;                               /* offset starts at 1 */
 
     /* Pre‑compute powers of two up to 2^n. */
-    seq_t *pow2 = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *pow2 = mem_new(seq_t, (n + 1));
     if (!pow2)
         return 0;
     pow2[0] = 1;
@@ -32,9 +34,9 @@ seq_t a(idx_t n)
         pow2[i] = pow2[i - 1] + pow2[i - 1];     /* double */
 
     /* Temporary array for g(*,k). Reused for all k. */
-    seq_t *g = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *g = mem_new(seq_t, (n + 1));
     if (!g) {
-        free(pow2);
+        mem_free(pow2);
         return 0;
     }
 
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     seq_t nsq   = (seq_t)n * (seq_t)n;           /* n² */
     seq_t result = pow2[n] * nsq - sumTerm;      /* 2^n·n² – Σ(2k+1)·g(n,k) */
 
-    free(pow2);
-    free(g);
+    mem_free(pow2);
+    mem_free(g);
     return result;
 }

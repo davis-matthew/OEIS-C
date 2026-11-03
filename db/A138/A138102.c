@@ -8,6 +8,7 @@
  *            k(k+1)(2k+1)/3 (i.e. n lies in the block of length 2*k^2 )
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
+ * Validated: full, pass, 60 terms through n = 60 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

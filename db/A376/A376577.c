@@ -8,13 +8,16 @@
  *            binomial(n-2*k,k)/(n-2*k)! (OEIS notation)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +31,7 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= kmax; ++k) {
         idx_t m = n - 2 * k;                         /* m = n-2k */
         seq_t bin = binomial(m, k);                  /* binomial(m,k) */
-        seq_t p   = pow_seq((seq_t)(m + 1), (int)(m - 1));   /* (m+1)^(m-1) */
+        seq_t p   = ipow_i32((seq_t)(m + 1), (int)(m - 1));   /* (m+1)^(m-1) */
         seq_t term = bin * p * prod;                 /* term for this k */
         result += term;
 

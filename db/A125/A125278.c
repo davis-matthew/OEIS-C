@@ -12,13 +12,27 @@
  *            * (row0: 1; row1: 1,1; row2: 2,2,1; …)
  * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   _coords
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/_coords.h"
+#include "../utils/mem.h"
+
+/* Map linear index n to triangle coordinates (r,c) */
+static void _coords(idx_t n, idx_t *r, idx_t *c)
+{
+    idx_t row = 0;
+    idx_t tri = 0;
+    while (tri + row + 1 <= n) {
+        row++;
+        tri += row;
+    }
+    *r = row;
+    *c = n - tri;
+}
 
 /* Static cache of computed rows */
 static seq_t **_rows = NULL;
@@ -30,7 +44,7 @@ static void _ensure_rows(idx_t upto)
 {
     while (_row_count <= upto) {
         idx_t r = _row_count;
-        seq_t *row = (seq_t *)malloc((size_t)(r + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)(r + 1));
         if (!row) abort();
 
         if (r == 0) {

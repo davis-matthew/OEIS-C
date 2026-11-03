@@ -12,13 +12,36 @@
  *            n-th tower value (a(0)=1)
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   _compose_sum, big_pow
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
-#include "../utils/_compose_sum.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+static void _compose_sum(idx_t sum, idx_t offset, seq_t *parts, idx_t *len)
+{
+    /* recursively build the composition of `sum` with local offset `offset`
+       (0‑based) into `parts`, updating `len`. */
+    for (idx_t f = sum; f >= 1; --f) {
+        idx_t count;
+        if (sum - f == 0)          /* base case: only the part f itself */
+            count = 1;
+        else                       /* number of compositions of the rest */
+            count = (idx_t)(1ULL << ((sum - f) - 1));
+
+        if (offset < count) {
+            parts[(*len)++] = (seq_t)f;
+            if (sum - f > 0)
+                _compose_sum(sum - f, offset, parts, len);
+            return;
+        } else
+            offset -= count;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +62,7 @@ seq_t a(idx_t n)
     /* evaluate the power tower right‑to‑left: x1^(x2^(...)) */
     seq_t result = parts[len - 1];
     for (int i = (int)len - 2; i >= 0; --i)
-        result = big_pow((seq_t)parts[i], result);
+        result = ipow((seq_t)parts[i], result);
 
     return result;
 }

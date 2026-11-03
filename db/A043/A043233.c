@@ -10,7 +10,8 @@
  *            representation does not
  * Range:     u8 n <= 6, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has23or32
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/has23or32.h"
+
+/* Check if x contains the adjacent digits 23 or 32. */
+static bool has23or32(seq_t x)
+{
+    seq_t prev = 10;               /* sentinel value */
+    while (x > 0)
+    {
+        seq_t last = x % 10;
+        if (prev != 10 &&
+            ((prev == 2 && last == 3) || (prev == 3 && last == 2)))
+            return true;
+        prev = last;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

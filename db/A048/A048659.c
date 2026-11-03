@@ -9,14 +9,22 @@
  *            pronunciation ends with "ee" (rhymes with 'e')
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   rhymes_with_e
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/rhymes_with_e.h"
+
+/* Check whether a phonetic name ends with the substring "ee" */
+static bool rhymes_with_e(const char *name)
+{
+    size_t len = 0;
+    while (name[len] != '\0') len++;
+    return len >= 2 && name[len - 2] == 'e' && name[len - 1] == 'e';
+}
 
 seq_t a(idx_t n)
 {

@@ -9,13 +9,15 @@
  *            for n > 2 where round(x) = ⌊x + ½⌋ (nearest integer)
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 35, u64 n <= 67, u128 n <= 131,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static inline idx_t isqrt_u64(idx_t x) {
     /* Integer floor of sqrt(x); works for all x ≤ UINT64_MAX.
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
     /* Ensure cache has enough space. */
     if (cache_len <= n) {
         idx_t new_len = n + 1;
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         /* Initialize new entries if we are extending. */
         for (idx_t i = cache_len; i < new_len; ++i) {
             if (i <= 2) {

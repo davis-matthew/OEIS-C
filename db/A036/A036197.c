@@ -10,6 +10,7 @@
  *            181 the value is defined as 0
  * Range:     u8 n <= 180, u16 n <= 180, u32 n <= 180, u64 n <= 180,
  *            u128 n <= 180, big any n
+ * Validated: full, pass, 180 terms through n = 180 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

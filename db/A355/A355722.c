@@ -10,12 +10,14 @@
  *            ), where d(m) = ∏_{k=1..m} (2k-1) = (2m-1)!!
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,13 +33,13 @@ seq_t a(idx_t n)
     if (a_cache == NULL) {
         a_cap = n + 1;
         if (a_cap < 16) a_cap = 16;
-        a_cache = (seq_t *)malloc(sizeof(seq_t) * a_cap);
+        a_cache = mem_new(seq_t, a_cap);
         if (a_cache == NULL) abort();          /* in production we would handle this */
         a_max = (idx_t)-1;                     /* not yet set */
     } else if (a_cap < (size_t)(n + 1)) {
         size_t new_cap = a_cap;
         while (new_cap < (size_t)(n + 1)) new_cap <<= 1;
-        a_cache = (seq_t *)realloc(a_cache, sizeof(seq_t) * new_cap);
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         if (a_cache == NULL) abort();
         a_cap = new_cap;
     }
@@ -46,13 +48,13 @@ seq_t a(idx_t n)
     if (b_cache == NULL) {
         b_cap = n + 2;
         if (b_cap < 16) b_cap = 16;
-        b_cache = (seq_t *)malloc(sizeof(seq_t) * b_cap);
+        b_cache = mem_new(seq_t, b_cap);
         if (b_cache == NULL) abort();
         b_max = (idx_t)-1;
     } else if (b_cap < (size_t)(n + 2)) {
         size_t new_cap = b_cap;
         while (new_cap < (size_t)(n + 2)) new_cap <<= 1;
-        b_cache = (seq_t *)realloc(b_cache, sizeof(seq_t) * new_cap);
+        b_cache = mem_resize(seq_t, b_cache, new_cap);
         if (b_cache == NULL) abort();
         b_cap = new_cap;
     }

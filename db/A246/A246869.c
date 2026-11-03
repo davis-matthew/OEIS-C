@@ -9,8 +9,9 @@
  * Formula:   a(n) = minimal maximum absolute part (base of the largest cube)
  *            in a four‑cube partition of n. If no such partition exists, a(n)
  *            = -1
- * Range:     u8 n <= 5169, u16 n <= 8301, u32 n <= 8301, u64 n <= 8301,
- *            u128 n <= 8301, big any n
+ * Range:     u8 n <= 5169, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 101 terms through n = 8301 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

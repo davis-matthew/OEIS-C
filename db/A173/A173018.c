@@ -10,7 +10,8 @@
  *            (k+1)*T(n-1,k)+(n-k)*T(n-1,k-1) for 1≤k<n)
  * Range:     u8 n <= 22, u16 n <= 47, u32 n <= 109, u64 n <= 260,
  *            u128 n <= 643, big any n
- * Helpers:   offset_row
+ * Validated: standard, pass, 82 terms through n = 9869 (2026-11-03)
+ * Helpers:   mem, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,10 @@
  */
 
 #include <stdlib.h>
-#include "../utils/offset_row.h"
+#include <stdint.h>
+#include <math.h>
+#include "../utils/triangular.h"
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* linear array holding all computed terms */
 static idx_t  max_row = (idx_t)-1; /* highest row that has been fully generated */
@@ -32,8 +36,8 @@ static void ensure_row(idx_t r)
         return;
 
     /* new length needed: offset of row r plus (r+1) elements in it */
-    size_t new_len = (size_t)offset_row(r) + (size_t)(r + 1);
-    seq = (seq_t *)realloc(seq, new_len * sizeof(seq_t));
+    size_t new_len = (size_t)triangular(r) + (size_t)(r + 1);
+    seq = mem_resize(seq_t, seq, new_len);
     if (seq == NULL)   /* allocation failure – unlikely in tests */
         return;
 
@@ -45,8 +49,8 @@ static void ensure_row(idx_t r)
     idx_t start = (max_row == (idx_t)-1) ? 1 : (max_row + 1);
 
     for (idx_t i = start; i <= r; ++i) {
-        seq_t *prev = &seq[offset_row(i - 1)];
-        seq_t *curr = &seq[offset_row(i)];
+        seq_t *prev = &seq[triangular(i - 1)];
+        seq_t *curr = &seq[triangular(i)];
 
         /* First entry of the row – stays the same as previous row */
         curr[0] = prev[0];
@@ -69,7 +73,7 @@ seq_t a(idx_t n)
     /* Find the row r that contains index n:
        offset_row(r) <= n < offset_row(r+1) */
     idx_t r = 0;
-    while (offset_row(r + 1) <= n) {
+    while (triangular(r + 1) <= n) {
         ++r;
     }
 
@@ -77,6 +81,6 @@ seq_t a(idx_t n)
     ensure_row(r);
 
     /* Position within the row */
-    idx_t k = n - offset_row(r);
-    return seq[offset_row(r) + k];
+    idx_t k = n - triangular(r);
+    return seq[triangular(r) + k];
 }

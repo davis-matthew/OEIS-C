@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 253, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_to_cache, big_pow, factor_u64
+ * Validated: standard, pass, 65 terms through n = 9833 (2026-11-03)
+ * Helpers:   factor_u64, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 /* Helpers from the utilities repository */
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/big_pow.h"      /* seq_t big_pow(seq_t base, seq_t exp); */
-#include "../utils/append_to_cache.h"
+#include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+static void append_to_cache(seq_t **arr, size_t *cap, size_t *len, seq_t val)
+{
+    if (*len >= *cap) {
+        *cap = (*cap == 0) ? 16 : (*cap << 1);
+        *arr = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
+    }
+    (*arr)[(*len)++] = val;
+}
 
 /* test whether k is a non‑prime‑power and whether σ(k²) % d(k²) == 0 */
 static bool good_k(uint64_t k)
@@ -48,7 +58,7 @@ static bool good_k(uint64_t k)
         uint64_t e  = exps[i];           /* exponent of p in k */
         uint64_t e2 = e * 2;             /* exponent of p in k² */
 
-        seq_t numerator   = big_pow(p, (seq_t)(e2 + 1)) - 1;
+        seq_t numerator   = ipow(p, (seq_t)(e2 + 1)) - 1;
         seq_t denominator = p - 1;
         seq_t part = numerator / denominator;   /* exact division of integers */
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Scaled constants (fixed‑point with 12 decimal digits) */
 static const unsigned long long SCALE = 1000000000000ULL;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
             /* Grow array if necessary */
             if (size >= cap) {
                 idx_t newcap = (cap == 0) ? 16 : cap * 2;
-                seq_t *newptr = (seq_t *)realloc(vals, newcap * sizeof(seq_t));
+                seq_t *newptr = mem_resize(seq_t, vals, newcap);
                 if (!newptr) abort();  /* allocation failed */
                 vals = newptr;
                 cap  = newcap;

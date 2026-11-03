@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 17, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -43,6 +44,7 @@
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static const int coef[15] = {
     1,   /* e0  */
@@ -108,7 +110,7 @@ static void ensure_capacity(size_t sz) {
     if (cache_cap < sz) {
         size_t new_cap = cache_cap ? cache_cap : 16;
         while (new_cap < sz) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 }
@@ -119,7 +121,7 @@ seq_t a(idx_t n) {
     /* lazily allocate cache on first call */
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* initialise base terms if not already done */

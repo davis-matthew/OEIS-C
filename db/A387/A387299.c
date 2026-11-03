@@ -10,6 +10,7 @@
  *            array T(n,k) where T(n,k)=sum_{j=1..k} C(k-1,j-1)*Stirling2(n,j)
  * Range:     u8 n <= 41, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

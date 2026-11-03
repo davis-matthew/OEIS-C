@@ -9,12 +9,14 @@
  *            a(1)=1, a(2)=2, a(3)=4, a(4)=8, a(5)=15
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         while (newcap < n)
             newcap <<= 1;
 
-        cache = (seq_t *)realloc(cache, (size_t)newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)newcap);
         cache_cap = newcap;
 
         /* compute missing terms up to n */

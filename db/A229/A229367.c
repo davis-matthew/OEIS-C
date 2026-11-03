@@ -10,13 +10,15 @@
  *            transfer‑matrix dynamic programming
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool valid_state[27];          /* state is 0..26 (base‑3) */
 static int  state_map[27];            /* map state → index 0..k‑1 (-1 if invalid) */
@@ -90,7 +92,7 @@ static void init_graph(void)
 
     /* allocate initial results array */
     res_cap = 4; /* small initial capacity */
-    res_arr = (seq_t*)malloc(res_cap * sizeof(seq_t));
+    res_arr = mem_new(seq_t, res_cap);
     if (!res_arr) return;
     res_arr[0] = (seq_t)0;
 
@@ -113,7 +115,7 @@ static void ensure_up_to(idx_t n)
     if (needed > res_cap) {
         size_t new_cap = res_cap * 2;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t*)realloc(res_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, res_arr, new_cap);
         if (!tmp) return;
         res_arr = tmp;
         res_cap = new_cap;

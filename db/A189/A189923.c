@@ -7,6 +7,7 @@
  * Formula:   a(n) = Product_{p|n} (1 - p^5), a(1) = 1
  * Range:     i8 n <= 2, i16 n <= 9, i32 n <= 73, i64 n <= 6208,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 46 terms through n = 9774 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

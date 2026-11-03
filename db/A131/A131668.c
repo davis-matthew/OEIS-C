@@ -10,13 +10,15 @@
  *            10
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of computed terms */
 static seq_t *cache = NULL;        /* array of computed values */
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t needed)
         new_alloc = required;
 
     /* cast to seq_t* is required for C++ compatibility */
-    seq_t *new_cache = (seq_t *)malloc(new_alloc * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_alloc);
     if (!new_cache)
         exit(1);   /* allocation failure */
 
@@ -43,7 +45,7 @@ static void ensure_cache(idx_t needed)
         new_cache[i] = cache[i];
 
     if (cache)
-        free(cache);
+        mem_free(cache);
 
     cache = new_cache;
     cache_alloc = new_alloc;

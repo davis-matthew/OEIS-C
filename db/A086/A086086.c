@@ -8,7 +8,8 @@
  *            (computed by searching primes)
  * Range:     u8 n <= 16, u16 n <= 680, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_mul_uint64
+ * Validated: standard, pass, 68 terms through n = 988 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_mul_uint64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* integer square root for 64‑bit numbers */
 static inline uint64_t isqrt_u64(uint64_t n)
@@ -44,8 +46,8 @@ static inline uint64_t mod_pow_uint64(uint64_t a, uint64_t e, uint64_t mod)
     uint64_t res = 1;
     while (e) {
         if (e & 1)
-            res = mod_mul_uint64(res, a, mod);
-        a = mod_mul_uint64(a, a, mod);
+            res = mulmod(res, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return res;
@@ -76,7 +78,7 @@ static bool is_prime_u64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool cont = false;
         for (int r = 1; r < s; ++r) {
-            x = mod_mul_uint64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 cont = true;
                 break;
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
         /* store the found prime */
         if (cache_len >= cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             cache = tmp;
             cache_cap = new_cap;

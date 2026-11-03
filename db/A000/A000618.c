@@ -12,7 +12,8 @@
  *            number of cycles of g on {0,1}^n
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   q618_gcd, q618_phi
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-01)
+ * Helpers:   gcd_u64, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/q618_gcd.h"
-#include "../utils/q618_phi.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/totient_u64.h"
 
 typedef struct { uint32_t *d; size_t len, cap; } q618_bn;
 
@@ -81,21 +82,21 @@ static void q618_proc(void) {
     uint64_t L = 1, d;
     unsigned __int128 cyc = 0;
     for (k = 1; k <= N; k++) {
-        if (q618_pos[k]) L = L / q618_gcd(L, k) * k;
-        if (q618_neg[k]) L = L / q618_gcd(L, 2 * (uint64_t)k) * (2 * (uint64_t)k);
+        if (q618_pos[k]) L = L / gcd_u64(L, k) * k;
+        if (q618_neg[k]) L = L / gcd_u64(L, 2 * (uint64_t)k) * (2 * (uint64_t)k);
     }
     for (d = 1; d <= L; d++) {
         unsigned e = 0; int zero = 0;
         if (L % d) continue;
         for (k = 1; k <= N && !zero; k++) {
-            if (q618_pos[k]) e += q618_pos[k] * (unsigned)q618_gcd(k, d);
+            if (q618_pos[k]) e += q618_pos[k] * (unsigned)gcd_u64(k, d);
             if (q618_neg[k]) {
-                uint64_t g = q618_gcd(k, d);
+                uint64_t g = gcd_u64(k, d);
                 if ((d / g) % 2) zero = 1;
                 else e += q618_neg[k] * (unsigned)g;
             }
         }
-        if (!zero) cyc += (unsigned __int128)q618_phi(L / d) << e;
+        if (!zero) cyc += (unsigned __int128)totient_u64(L / d) << e;
     }
     cyc /= L;
     memcpy(q618_C.d, q618_G.d, q618_G.cap * sizeof(uint32_t));

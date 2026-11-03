@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 40, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   legendre_uint64, min_m_for_prime_power
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,33 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/legendre_uint64.h"
-#include "../utils/min_m_for_prime_power.h"
+#include "../utils/mem.h"
+
+/* Legendre's formula: exponent of prime p in m! */
+static uint32_t legendre_uint64(uint64_t m, uint32_t p)
+{
+    uint32_t e = 0;
+    while (m) {
+        m /= p;
+        e += (uint32_t)m;
+    }
+    return e;
+}
+
+/* minimal m such that p^e divides m! */
+static uint64_t min_m_for_prime_power(uint32_t p, uint32_t e)
+{
+    uint64_t low  = 1;
+    uint64_t high = (uint64_t)e * p;
+    while (low < high) {
+        uint64_t mid = (low + high) >> 1;
+        if (legendre_uint64(mid, p) >= e)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 /* static storage for primes */
 static uint32_t *primes = NULL;
@@ -114,7 +140,7 @@ static void ensure_terms_capacity(size_t min_cap)
     if (terms_cap >= min_cap) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 16;
     if (new_cap < min_cap) new_cap = min_cap;
-    terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, new_cap);
     terms_cap = new_cap;
 }
 

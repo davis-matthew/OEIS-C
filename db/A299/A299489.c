@@ -12,7 +12,8 @@
  *            all n≥0
  * Range:     u8 n <= 188, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 917 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *a_arr  = NULL;      /* a values up to current index     */
 static seq_t *b_arr  = NULL;      /* b values up to current index     */
@@ -52,8 +54,8 @@ ensure_arr_size(idx_t need)
     if (arr_cap <= (size_t)need) {
         size_t new_cap = arr_cap ? arr_cap << 1 : 8;
         if (new_cap <= (size_t)need) new_cap = (size_t)need + 1;
-        seq_t *tmp_a = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
-        seq_t *tmp_b = (seq_t *)realloc(b_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp_a = mem_resize(seq_t, a_arr, new_cap);
+        seq_t *tmp_b = mem_resize(seq_t, b_arr, new_cap);
         if (!tmp_a || !tmp_b) exit(EXIT_FAILURE);               /* out of memory */
         a_arr = tmp_a;
         b_arr = tmp_b;

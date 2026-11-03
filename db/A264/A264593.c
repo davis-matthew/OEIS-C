@@ -14,12 +14,14 @@
  *            array
  * Range:     u8 n <= 56, u16 n <= 129, u32 n <= 350, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 750 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* array of computed a(n) values          */
 static idx_t  cache_size = 0; /* number of values stored in cache       */
@@ -28,8 +30,8 @@ static idx_t  cache_size = 0; /* number of values stored in cache       */
 static void recompute(idx_t N)
 {
     /* allocate temporary arrays */
-    seq_t *a = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *dp = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *dp = mem_new(seq_t, (size_t)(N + 1));
     if (!a || !dp) return;            /* allocation failure - abort */
 
     /* initial partition counts with no part sizes allowed */
@@ -59,10 +61,10 @@ static void recompute(idx_t N)
     }
 
     /* replace the old cache by the new one */
-    free(cache);
+    mem_free(cache);
     cache      = a;
     cache_size = N + 1;
-    free(dp);
+    mem_free(dp);
 }
 
 /* Public entry point – returns a(n). */

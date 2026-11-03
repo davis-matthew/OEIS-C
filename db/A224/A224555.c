@@ -10,12 +10,14 @@
  *            a(4)=286, a(5)=395, a(6)=551, a(7)=749, a(8)=1041
  * Range:     u8 n <= 3, u16 n <= 19, u32 n <= 48, u64 n <= 106, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for computed terms — index 0 is unused. */
 static seq_t *cache = NULL;      /* pointer to array of seq_t */
@@ -31,7 +33,7 @@ static void compute_to(idx_t n)
     if (cache_len == 0) {
         size_t need = (size_t)n + 1;   /* allocate enough for index n */
         if (need < 9) need = 9;        /* at least space for the first 8 terms */
-        cache = (seq_t *)malloc(need * sizeof(seq_t));
+        cache = mem_new(seq_t, need);
         if (!cache) exit(1);           /* allocation failed */
         cache_len = need;
         /* initialise 1‑based indices */
@@ -48,7 +50,7 @@ static void compute_to(idx_t n)
     } else if ((size_t)n + 1 > cache_len) {
         /* grow the cache */
         size_t new_len = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) exit(1);
         cache = tmp;
         cache_len = new_len;

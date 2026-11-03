@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 20, i32 n <= 38, i64 n <= 38, i128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,12 +36,12 @@ seq_t a(idx_t n)
     idx_t N = n;
     /* allocate space for the coefficients of the product up to degree N‑1
        and for the sequence values up to N */
-    seq_t *h = (seq_t *)malloc((size_t)N * sizeof(seq_t));
-    seq_t *a_arr = (seq_t *)malloc((size_t)(N + 1) * sizeof(seq_t));
+    seq_t *h = mem_new(seq_t, (size_t)N);
+    seq_t *a_arr = mem_new(seq_t, (size_t)(N + 1));
     if (!h || !a_arr) {
         /* In case of allocation failure, return 0 as a safe value. */
-        if (h) free(h);
-        if (a_arr) free(a_arr);
+        if (h) mem_free(h);
+        if (a_arr) mem_free(a_arr);
         return (seq_t)0;
     }
 
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_arr[N];
-    free(h);
-    free(a_arr);
+    mem_free(h);
+    mem_free(a_arr);
     return result;
 }

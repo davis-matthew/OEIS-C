@@ -9,11 +9,13 @@
  *            r*(r+1)/2, * T(r,c) = binomial(r,c) * sum_{k=0}^c binomial(r,k)
  * Range:     u8 n <= 17, u16 n <= 58, u32 n <= 178, u64 n <= 611,
  *            u128 n <= 2245, big any n
+ * Validated: standard, pass, 71 terms through n = 4775 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static inline idx_t isqrt_u128(unsigned __int128 x)

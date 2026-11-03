@@ -10,7 +10,8 @@
  *            of x
  * Range:     u8 n <= 159, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9791 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---- Candidate type for sorting ---- */
 typedef struct {
@@ -78,7 +80,7 @@ static void build_cache(void)
     qsort(cand, lim, sizeof(candidate_t), cmp_candidate);
 
     /* Allocate cache and populate it with sorted numbers. */
-    cache = (seq_t *)malloc(lim * sizeof(seq_t));
+    cache = mem_new(seq_t, lim);
     for (size_t i = 0; i < lim; ++i) {
         cache[i] = (seq_t)cand[i].x;   /* wrap if seq_t is smaller than x */
     }
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
         /* If a larger n is requested, extend the cache proportionally. */
         const size_t new_lim = n + 5000;   /* safety margin */
         /* Resize current cache. */
-        cache = (seq_t *)realloc(cache, new_lim * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_lim);
         cache_sz = new_lim;
 
         /* Recompute sigma up to new_lim (slow but rarely used). */

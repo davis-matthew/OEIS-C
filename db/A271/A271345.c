@@ -7,7 +7,8 @@
  * Formula:   Integers n such that (n-1)! is divisible by n^3
  * Range:     u8 n <= 145, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 9697 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const idx_t SIEVE_LIMIT = 20000000u;
 
@@ -116,7 +118,7 @@ seq_t a(idx_t n)
 
     if (terms == NULL)
     {
-        terms = (seq_t*)malloc(sizeof(seq_t));
+        terms = mem_new(seq_t, 1);
         if (!terms)
             return 0;
         terms[0] = (seq_t)1; /* a(1) */
@@ -129,7 +131,7 @@ seq_t a(idx_t n)
             ++next_candidate;
 
         size_t new_len = terms_len + 1;
-        seq_t *tmp = (seq_t*)realloc(terms, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_len);
         if (!tmp)
             return 0;
         terms = tmp;

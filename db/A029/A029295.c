@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,12 +17,13 @@
 /* Computed by simple dynamic programming (coin–change combinations) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate DP array for values 0 .. n */
     size_t len = (size_t)n + 1;
-    seq_t *dp = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, len);
     if (!dp)
         return (seq_t)0;     /* Out of memory – return zero */
 
@@ -42,6 +44,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

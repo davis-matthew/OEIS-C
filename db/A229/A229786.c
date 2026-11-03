@@ -9,7 +9,8 @@
  *            n can be answered in amortised O(1) time
  * Range:     u8 n <= 54, u16 n <= 1900, u32 n <= 1900, u64 n <= 1900,
  *            u128 n <= 1900, big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto
+ * Validated: standard, pass, 130 terms through n = 1715 (2026-11-01)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,17 @@
    They are declared in the corresponding header files. */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_prime_limit_for_idx.h"
+#include <math.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 static uint64_t *prime_cache = NULL;  /* array of the first primes */
 static size_t prime_cache_cnt = 0;     /* number of primes cached */

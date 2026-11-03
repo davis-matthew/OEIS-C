@@ -10,8 +10,9 @@
  *            odd primes pₖ (0‑based index, 2 → index 0), the derivative
  *            follows the quadratic Leibniz rule with prime derivative Fₖ. The
  *            parity of the derivative is odd iff an odd num...
- * Range:     u8 n <= 9946, u16 n <= 9946, u32 n <= 9946, u64 n <= 9946,
- *            u128 n <= 9946, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 138 terms through n = 9946 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

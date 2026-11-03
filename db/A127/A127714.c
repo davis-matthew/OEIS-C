@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,11 +44,11 @@ seq_t a(idx_t n)
     if (!values)
     {
         prev_len = 1;
-        prev_row = (seq_t *)malloc(sizeof(seq_t));
+        prev_row = mem_new(seq_t, 1);
         prev_row[0] = 1;
 
         values_cap = 1;
-        values = (seq_t *)malloc(values_cap * sizeof(seq_t));
+        values = mem_new(seq_t, values_cap);
         values[0] = 1;
         values_len = 1;
     }
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
                           - (size_t)j * (j - 1) / 2;
 
         /* Build raw array with zeros inserted */
-        seq_t *new_row = (seq_t *)malloc(Lnew * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, Lnew);
         size_t z_idx   = 0;
         size_t p_idx   = 0;
         for (size_t i = 0; i < Lnew; ++i)
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
             size_t new_cap = values_cap ? values_cap * 2 : 1;
             while (values_len + Lnew > new_cap)
                 new_cap *= 2;
-            values = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+            values = mem_resize(seq_t, values, new_cap);
             values_cap = new_cap;
         }
 
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
         values_len += Lnew;
 
         /* Prepare for next iteration */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = new_row;
         prev_len = Lnew;
         row_index = next_row;

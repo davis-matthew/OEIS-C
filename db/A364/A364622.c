@@ -8,7 +8,8 @@
  *            binomial(4*k,k) / (3*k+1)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static size_t cache_len = 0;
@@ -33,8 +35,8 @@ static void ensure_cache_cap(size_t n)
     if (cache_cap > n) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap <= n) new_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
-    memset(seq_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
+    mem_set(seq_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
     cache_cap = new_cap;
 }
 
@@ -43,8 +45,8 @@ static void ensure_B_cap(size_t k)
     if (B_cap > k) return;
     size_t new_cap = B_cap ? B_cap << 1 : 16;
     while (new_cap <= k) new_cap <<= 1;
-    B = (seq_t *)realloc(B, new_cap * sizeof(seq_t));
-    memset(B + B_cap, 0, (new_cap - B_cap) * sizeof(seq_t));
+    B = mem_resize(seq_t, B, new_cap);
+    mem_set(B + B_cap, 0, (new_cap - B_cap) * sizeof(seq_t));
     B_cap = new_cap;
 }
 
@@ -53,8 +55,8 @@ static void ensure_C_cap(size_t k)
     if (C_cap > k) return;
     size_t new_cap = C_cap ? C_cap << 1 : 16;
     while (new_cap <= k) new_cap <<= 1;
-    C = (seq_t *)realloc(C, new_cap * sizeof(seq_t));
-    memset(C + C_cap, 0, (new_cap - C_cap) * sizeof(seq_t));
+    C = mem_resize(seq_t, C, new_cap);
+    mem_set(C + C_cap, 0, (new_cap - C_cap) * sizeof(seq_t));
     C_cap = new_cap;
 }
 

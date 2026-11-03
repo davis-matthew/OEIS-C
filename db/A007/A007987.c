@@ -11,6 +11,7 @@
  *            (2k-1)*T(k-1) + 3*(k-1)*T(k-2), T(0) = 1, T(1) = 1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 22, u128 n <= 42,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 975 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

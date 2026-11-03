@@ -8,7 +8,8 @@
  * Formula:   a(n) = 1 + Σ_{k=1}^{n-1} k·(n‑k)!
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  *  For n == 0 the return value is undefined; the function returns 0
  *  for convenience. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;   /* undefined case, return 0 */
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
         size_t new_cap = capacity > 0 ? capacity : 64;
         while (new_cap <= (size_t)need) new_cap <<= 1;  /* double until enough */
         if (new_cap > capacity) {
-            seq_t *tmp = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fact, new_cap);
             if (!tmp) abort();  /* allocation failure */
             fact = tmp;
             capacity = new_cap;

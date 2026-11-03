@@ -9,7 +9,8 @@
  *            4)
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   factor_uint64
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   factor_uint64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,18 +22,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factor_uint64.h"   /* provides factor_uint64(...) */
+#include "../utils/factor_uint64.h"
+#include "../utils/mem.h"
 
 /* Helper to grow the cache array */
 static void ensure_cap(size_t *cap, size_t needed) {
     if (*cap < needed) {
         size_t new_cap = *cap ? *cap << 1 : 16;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(NULL, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, NULL, new_cap);
         /* In the first call realloc(NULL, ...) behaves like malloc. */
         /* The following assignment ensures we keep the previous data. */
         if (*cap) {
-            tmp = (seq_t *)realloc(NULL, new_cap * sizeof(seq_t));
+            tmp = mem_resize(seq_t, NULL, new_cap);
         }
         *cap = new_cap;
     }
@@ -78,7 +80,7 @@ static void extend_cache(size_t target) {
         /* Store the term */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap << 1 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) exit(1);   /* allocation failed */
             cache = tmp;
             cache_cap = new_cap;

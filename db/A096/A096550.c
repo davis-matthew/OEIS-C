@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   modmult
+ * Validated: standard, pass, 41 terms through n = 9733 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,15 @@
  *  This works for any n ≥ 1 and is independent of call order.
  */
 #include <stdint.h>
-#include "../utils/modmult.h"
+
+static seq_t modmult(seq_t a, seq_t b, seq_t mod)
+{
+    /* multiply a and b (≤ 2147483646) modulo mod (≤ 2147483647)
+     * using 64‑bit arithmetic to avoid overflow in seq_t */
+    uint64_t prod = (uint64_t)a * (uint64_t)b;
+    prod %= (uint64_t)mod;
+    return (seq_t)prod;
+}
 
 seq_t a(idx_t n)
 {

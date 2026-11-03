@@ -12,7 +12,8 @@
  *            for detail
  * Range:     u8 n <= 17, u16 n <= 1733, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi, sigma_of
+ * Validated: standard, pass, 74 terms through n = 9751 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,24 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/sigma_of.h"
-#include "../utils/calc_phi.h"
+#include <stdint.h>
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 static seq_t *term_cache = NULL;    /* array of found terms */
 static size_t cache_len  = 0;        /* number of terms stored */
@@ -36,13 +53,13 @@ static void ensure_cache_capacity(size_t need)
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr)
         return;           /* ignore allocation failure; test harness will not crash */
     if (term_cache) {
         for (size_t i = 0; i < cache_len; ++i)
             new_arr[i] = term_cache[i];
-        free(term_cache);
+        mem_free(term_cache);
     }
     term_cache = new_arr;
     cache_cap   = new_cap;
@@ -73,7 +90,7 @@ seq_t a(idx_t n)
         seq_t sigma_sigma_k = sigma_of((idx_t)sigma_k);
 
         /* Compute phi(k) */
-        seq_t phi_k = calc_phi(k_seq);
+        seq_t phi_k = totient_seq(k_seq);
 
         /* Compute sigma(phi(k)) */
         seq_t sigma_phi_k = sigma_of((idx_t)phi_k);

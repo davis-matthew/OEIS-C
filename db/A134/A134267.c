@@ -7,6 +7,7 @@
  * Formula:   a(n) = |A090964(n+1) - A090964(n)|
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
+ * Validated: partial, pass, 89 terms through n = 89 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,13 +8,25 @@
  *            that x + y = n (x ≤ y)
  * Range:     u8 n <= 15, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   seq_cmp
+ * Validated: partial, pass, 92 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_cmp.h"          /* provides int seq_cmp(const void*,const void*) */
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -25,10 +37,10 @@ seq_t a(idx_t n)
 
     /* rebuild cache if we need larger values */
     if (n > pp_max) {
-        if (pp) free(pp);
+        if (pp) mem_free(pp);
         /* temporary buffer for generating perfect powers */
         size_t tmp_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)malloc(tmp_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, tmp_cap);
         if (!tmp) return 0;            /* allocation failure --> zero */
         size_t tmp_sz = 0;
 
@@ -43,7 +55,7 @@ seq_t a(idx_t n)
             while (val <= (seq_t)n) {
                 if (tmp_sz == tmp_cap) {
                     tmp_cap *= 2;
-                    tmp = (seq_t*)realloc(tmp, tmp_cap * sizeof(seq_t));
+                    tmp = mem_resize(seq_t, tmp, tmp_cap);
                     if (!tmp) return 0;
                 }
                 tmp[tmp_sz++] = val;
@@ -52,7 +64,7 @@ seq_t a(idx_t n)
         }
 
         /* sort */
-        qsort(tmp, tmp_sz, sizeof(seq_t), seq_cmp);
+        mem_qsort(tmp, tmp_sz, sizeof(seq_t), seq_cmp);
 
         /* unique (deduplicate) */
         size_t uniq_sz = 0;

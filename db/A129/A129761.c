@@ -8,13 +8,15 @@
  *            is an integer with no consecutive 1s in binary
  * Range:     u8 n <= 87, u16 n <= 6763, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 113 terms through n = 9236 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of the first few Fibbinary numbers. */
 static seq_t *fib_cache      = NULL;   /* array of Fibbinary numbers   */
@@ -27,7 +29,7 @@ static void init_cache(void)
 {
     if (fib_cache == NULL) {
         fib_capacity = 128;
-        fib_cache = (seq_t *)malloc(fib_capacity * sizeof(seq_t));
+        fib_cache = mem_new(seq_t, fib_capacity);
         fib_cache[0] = (seq_t)0;          /* Fibbinary(0) = 0           */
         fib_size   = 1;
         next_candidate = (seq_t)1;
@@ -39,7 +41,7 @@ static void append_fibbinary(seq_t val)
 {
     if (fib_size == fib_capacity) {
         fib_capacity *= 2;
-        fib_cache = (seq_t *)realloc(fib_cache, fib_capacity * sizeof(seq_t));
+        fib_cache = mem_resize(seq_t, fib_cache, fib_capacity);
     }
     fib_cache[fib_size++] = val;
 }

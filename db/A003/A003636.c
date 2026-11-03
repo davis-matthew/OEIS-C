@@ -12,16 +12,40 @@
  *            number of genera)
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   class_number, is_fund, sqfree_ll
+ * Validated: partial, pass, 102 terms through n = 104 (2026-11-01)
+ * Helpers:   is_squarefree_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/class_number.h"
-#include "../utils/is_fund.h"
-#include "../utils/sqfree_ll.h"
+#include "../utils/is_squarefree_i64.h"
+
+static long long class_number(long long m) {
+    long long h = 0, a, b;
+    for (a = 1; 3 * a * a <= m; a++) {
+        for (b = -a + 1; b <= a; b++) {
+            long long num = b * b + m;
+            if (num % (4 * a) != 0) continue;
+            long long c = num / (4 * a);
+            if (c < a) continue;
+            if (b < 0 && a == c) continue;
+            h++;
+        }
+    }
+    return h;
+}
+
+static bool is_fund(long long m) {
+    long long r = m % 4;
+    if (r == 3) return is_squarefree_i64(m);
+    if (r == 0) {
+        long long k = m / 4, s = k % 4;
+        if (s == 1 || s == 2) return is_squarefree_i64(k);
+    }
+    return false;
+}
 
 static int omega_ll(long long m) {
     int t = 0;

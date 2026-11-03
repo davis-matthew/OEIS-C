@@ -12,13 +12,15 @@
  *            internal cache until it contains at least n+1 el...
  * Range:     u8 n <= 61, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Grow an array of seq_t elements to at least 'need' capacity. */
 static void grow_array(seq_t **arr, size_t *cap, size_t need) {
@@ -26,7 +28,7 @@ static void grow_array(seq_t **arr, size_t *cap, size_t need) {
         size_t new_cap = (*cap == 0) ? 8 : *cap * 2;
         while (new_cap < need)
             new_cap *= 2;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }

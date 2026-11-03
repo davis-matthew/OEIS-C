@@ -7,12 +7,14 @@
  * Formula:   a(n) = 22*a(n-1) - 1250*(n-1)*a(n-2) ; a(0)=1, a(1)=22
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 6, i64 n <= 10, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 371 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoization array */
 static idx_t cache_len = 0;   /* number of elements stored */
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache to hold values up to n. */
     idx_t new_len = n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) abort();  /* allocation failure is fatal */
     cache = tmp;
 

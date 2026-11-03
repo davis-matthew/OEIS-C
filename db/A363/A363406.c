@@ -10,15 +10,39 @@
  *            L(j+1) a(n) = j + k remove j and k from L (Offset 1)
  * Range:     u8 n <= 53, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bit_add, bit_find_kth
+ * Validated: standard, pass, 78 terms through n = 9051 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/bit_add.h"
-#include "../utils/bit_find_kth.h"
+
+/* Fenwick Tree helpers ---------------------------------------------------- */
+static void bit_add(int *bit, int size, int idx, int delta)
+{
+    while (idx <= size) {
+        bit[idx] += delta;
+        idx += idx & -idx;
+    }
+}
+
+static int bit_find_kth(const int *bit, int size, int k)
+{
+    int idx = 0;
+    int bitmask = 1;
+    while (bitmask << 1 <= size) bitmask <<= 1;
+    while (bitmask) {
+        int next = idx + bitmask;
+        if (next <= size && bit[next] < k) {
+            idx = next;
+            k -= bit[next];
+        }
+        bitmask >>= 1;
+    }
+    return idx + 1;  /* 1‑based index of the k‑th remaining element */
+}
 
 /* Main sequence function --------------------------------------------------- */
 seq_t a(idx_t n)

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 39, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,8 +33,10 @@
 
 #include <stdint.h>
 #include <math.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 static seq_t LU[512];            /* Lucas numbers */
 static int LU_initialized = 0;
@@ -59,7 +62,7 @@ static seq_t A_mk(idx_t m, idx_t k) {
     seq_t Lk = LU[k];
 
     for (idx_t j = 0; j <= max_j; ++j) {
-        seq_t powL = big_pow(Lk, (m - 1 - 2 * j));
+        seq_t powL = ipow(Lk, (m - 1 - 2 * j));
         seq_t bin  = binomial(m - 1 - j, j);
         __int128 term = (__int128)(m - j);
         term *= ( __int128)bin;

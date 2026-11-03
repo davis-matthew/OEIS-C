@@ -9,13 +9,36 @@
  *            a(1)=a(2)=a(3)=1, a(4)=4, a(5)=3
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t newcap = (*cap == 0) ? 16 : *cap;
+    while (newcap < needed) newcap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (newcap * elem_size) / sizeof(T));
+    if (!tmp) abort();          /* terminate on allocation failure */
+    *ptr = tmp;
+    *cap = newcap;
+}
+#else
 static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if (needed <= *cap) return;
@@ -26,6 +49,7 @@ static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_
     *ptr = tmp;
     *cap = newcap;
 }
+#endif
 
 seq_t a(idx_t n)
 {
@@ -34,7 +58,7 @@ seq_t a(idx_t n)
     static size_t cache_len = 0;   /* highest index that has been computed */
 
     /* Ensure we can address index n. */
-    ensure_capacity((size_t)n + 1, &cache_cap, (void **)&cache, sizeof(seq_t));
+    ensure_capacity((size_t)n + 1, &cache_cap, OEISC_VPP(&cache), sizeof(seq_t));
 
     /* Initialise the first five terms if needed. */
     if (cache_len < 5)

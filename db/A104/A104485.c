@@ -9,7 +9,8 @@
  *            semiprimes
  * Range:     u8 n <= 9, u16 n <= 697, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9404 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static tables and helpers */
 static uint32_t *spf      = NULL;   /* smallest prime factor table */
@@ -77,7 +79,7 @@ static void init(void)
 
     /* build the sequence */
     terms_cap = 2000;  /* start capacity */
-    terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
     terms_len = 0;
 
     for (size_t idx = 0; idx + 1 < prime_cnt; ++idx) {
@@ -86,7 +88,7 @@ static void init(void)
         if (is_semiprime(a + 2U) && is_semiprime(b + 2U)) {
             if (terms_len == terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)a;
         }

@@ -14,13 +14,15 @@
  *            programming over the last two bits and the current bala...
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 36, u64 n <= 69, u128 n <= 135,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 913 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
     seq_t *dp[4];
     seq_t *dp_next[4];
     for (int p = 0; p < 4; ++p) {
-        dp[p]      = (seq_t *)calloc((size_t)max_len, sizeof(seq_t));
-        dp_next[p] = (seq_t *)calloc((size_t)max_len, sizeof(seq_t));
+        dp[p]      = mem_new(seq_t, (size_t)max_len);
+        dp_next[p] = mem_new(seq_t, (size_t)max_len);
     }
 
     /* initial state after two bits: balance 0 for all four possible pairs */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         int newMaxK = maxK + 1;
         /* zero dp_next up to newMaxK inclusive */
         for (int p = 0; p < 4; ++p) {
-            memset(dp_next[p], 0, (size_t)(newMaxK + 1) * sizeof(seq_t));
+            mem_set(dp_next[p], 0, (size_t)(newMaxK + 1) * sizeof(seq_t));
         }
 
         for (int p = 0; p < 4; ++p) {
@@ -93,8 +95,8 @@ seq_t a(idx_t n)
 
     /* free allocated memory */
     for (int p = 0; p < 4; ++p) {
-        free(dp[p]);
-        free(dp_next[p]);
+        mem_free(dp[p]);
+        mem_free(dp_next[p]);
     }
 
     return ans;

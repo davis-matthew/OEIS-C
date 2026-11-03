@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   pow10int
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,15 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/pow10int.h"
+#include "../utils/mem.h"
+
+/* Helper: compute 10ⁿ (n ≥ 0).  Uses seq_t arithmetic. */
+static seq_t pow10int(idx_t n)
+{
+    seq_t r = 1;
+    while (n--) r *= (seq_t)10;
+    return r;
+}
 
 /* Helper: number of decimal digits of a value. */
 static int digit_len(seq_t v)
@@ -59,7 +68,7 @@ static void ensure_cache(idx_t up_to)
 
     /* Grow cache to store indices up to `up_to`. */
     idx_t new_cap = up_to + 1;               /* elements: 0 … up_to */
-    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     cache = new_cache;
 
     /* Initialise first element if required. */

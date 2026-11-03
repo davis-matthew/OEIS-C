@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 11, u64 n <= 25, u128 n <= 51,
  *            big any n
- * Helpers:   compute_sm, vec_mul
+ * Validated: standard, pass, 35 terms through n = 185 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,33 @@
     in that graph by fast matrix exponentiation. */
 
 #include <stdint.h>
-#include "../utils/compute_sm.h"
-#include "../utils/vec_mul.h"
+
+static int compute_sm(const int a, const int b, const int c, const int d)
+{
+    /* compute max + upper – lower – min for four 0..3 elements */
+    int v[4] = { a, b, c, d };
+    /* simple insertion sort for 4 elements */
+    for (int i = 1; i < 4; ++i) {
+        int x = v[i];
+        int j = i - 1;
+        while (j >= 0 && v[j] > x) { v[j + 1] = v[j]; --j; }
+        v[j + 1] = x;
+    }
+    return v[3] + v[2] - v[1] - v[0];  /* value 0 … 6 */
+}
+
+static void vec_mul(const seq_t v[16], const seq_t m[16][16], seq_t res[16])
+{
+    seq_t temp[16];
+    for (int j = 0; j < 16; ++j) temp[j] = 0;
+    for (int i = 0; i < 16; ++i) {
+        if (v[i] == 0) continue;
+        seq_t vi = v[i];
+        for (int j = 0; j < 16; ++j)
+            temp[j] += vi * m[i][j];
+    }
+    for (int j = 0; j < 16; ++j) res[j] = temp[j];
+}
 
 static void mat_mul(const seq_t a[16][16], const seq_t b[16][16], seq_t res[16][16])
 {

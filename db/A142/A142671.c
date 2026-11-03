@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 181, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 59 terms through n = 991 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* a(n) is the n‑th prime congruent to 10 (mod 57) */
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

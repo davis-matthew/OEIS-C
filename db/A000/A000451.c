@@ -8,7 +8,8 @@
  *            computed by an incremental sieve over the triples x<=y<=z
  * Range:     u8 n <= 6, u16 n <= 125, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   s451_isqrt
+ * Validated: standard, pass, 59 terms through n = 190 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/s451_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 static uint32_t *s451_cnt = NULL;
 static uint64_t s451_M = 0;
@@ -34,7 +35,7 @@ static void s451_extend(uint64_t newM) {
             x = 0;
             if (bc < oldM) {
                 uint64_t lo = oldM - bc;
-                x = s451_isqrt(lo);
+                x = isqrt_u64(lo);
                 if (x * x < lo) x++;
             }
             for (; x <= b; x++) {

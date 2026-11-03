@@ -8,12 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 123, u16 n <= 123, u32 n <= 123, u64 n <= 123,
  *            u128 n <= 123, big any n
+ * Validated: partial, pass, 123 terms through n = 123 (2026-11-01)
  * Helpers:   digit_product
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(1)=77; a(n)=digit_product(a(n-1)) for n>1 */
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_product.h"
 
 seq_t a(idx_t n)

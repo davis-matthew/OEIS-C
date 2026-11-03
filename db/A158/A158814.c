@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #define LIMIT 2000000          /* maximum number pre‑computed */
 
@@ -65,7 +67,7 @@ static void init(void)
 
     /* allocate storage for multiples of 10 */
     mul_cap   = 64;
-    multiples = (seq_t*)malloc(mul_cap * sizeof(seq_t));
+    multiples = mem_new(seq_t, mul_cap);
 
     init_done = true;
 }
@@ -121,7 +123,7 @@ static void ekg_next(void)
     if ((next_term % 10) == 0) {
         if (mul_len == mul_cap) {
             mul_cap *= 2;
-            multiples = (seq_t*)realloc(multiples, mul_cap * sizeof(seq_t));
+            multiples = mem_resize(seq_t, multiples, mul_cap);
         }
         multiples[mul_len++] = (seq_t)next_term;
     }

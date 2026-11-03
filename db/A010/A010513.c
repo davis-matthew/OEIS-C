@@ -5,179 +5,154 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, cons
  * Formula:   A010513 – decimal expansion of sqrt(60)
- * Range:     u8 n <= 9595, u16 n <= 9595, u32 n <= 9595, u64 n <= 9595,
- *            u128 n <= 9595, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 115 terms through n = 9595 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include <stdlib.h>
+/* A010513: the decimal digits of sqrt(60), a(1) being the first.
+ *
+ * Digit-by-digit square root in base 10^9 limbs that grow as needed (the
+ * original had a fixed number of limbs and overran it near 18000 digits):
+ * with p the root so far and r = 60 10^(2j) - p^2, each step sets r = 100 r and
+ * takes the largest d with (20 p + d) d <= r. d is estimated from the leading
+ * limbs and corrected, so a digit costs time linear in the length. The state
+ * is kept, so asking for more digits continues where the last call stopped. */
+
 #include <stdint.h>
+#include <stdlib.h>
 
-#define BASE 1000000000U
-#define MAX_LIMBS 1200   /* enough for 10000 decimal digits (~1112 limbs) */
+#define K 60
+#define OFF 1                         /* index of the first digit */
 
-typedef struct {
-    uint32_t d[MAX_LIMBS];
-    size_t sz;
-} BI;
+typedef struct { uint32_t *d; size_t len, cap; } num;   /* little-endian base 10^9 */
 
-/* ---------- Big integer helpers ---------- */
-static void bi_normalize(BI *a) {
-    while (a->sz > 0 && a->d[a->sz - 1] == 0) a->sz--;
+static void reserve(num *x, size_t n)
+{
+    if (n <= x->cap) return;
+    size_t c = x->cap ? x->cap : 16;
+    while (c < n) c *= 2;
+    uint32_t *t = (uint32_t *)realloc(x->d, c * sizeof *t);
+    if (!t) abort();
+    x->d = t;
+    x->cap = c;
 }
 
-static void bi_from_uint(BI *a, uint64_t val) {
-    a->sz = 0;
-    while (val) {
-        a->d[a->sz++] = (uint32_t)(val % BASE);
-        val /= BASE;
+static void trim(num *x)
+{
+    while (x->len && x->d[x->len - 1] == 0) --x->len;
+}
+
+static void mul_small_add(num *x, uint32_t m, uint32_t add)    /* x = x m + add */
+{
+    uint64_t c = add;
+    for (size_t i = 0; i < x->len; ++i) {
+        c += (uint64_t)x->d[i] * m;
+        x->d[i] = (uint32_t)(c % 1000000000u);
+        c /= 1000000000u;
     }
-    bi_normalize(a);
-}
-
-static void bi_copy(BI *dst, const BI *src) {
-    dst->sz = src->sz;
-    for (size_t i = 0; i < src->sz; ++i) dst->d[i] = src->d[i];
-}
-
-static int bi_cmp(const BI *a, const BI *b) {
-    if (a->sz != b->sz) return (a->sz > b->sz) ? 1 : -1;
-    for (size_t i = a->sz; i-- > 0; ) {
-        if (a->d[i] != b->d[i]) return (a->d[i] > b->d[i]) ? 1 : -1;
+    while (c) {
+        reserve(x, x->len + 1);
+        x->d[x->len++] = (uint32_t)(c % 1000000000u);
+        c /= 1000000000u;
     }
+    trim(x);
+}
+
+static int cmp(const num *x, const num *y)
+{
+    if (x->len != y->len) return x->len < y->len ? -1 : 1;
+    for (size_t i = x->len; i-- > 0;)
+        if (x->d[i] != y->d[i]) return x->d[i] < y->d[i] ? -1 : 1;
     return 0;
 }
 
-static void bi_add_small(BI *a, uint32_t val) {
-    size_t i = 0;
-    uint64_t sum = (uint64_t)a->d[0] + val;
-    a->d[0] = (uint32_t)(sum % BASE);
-    uint32_t carry = (uint32_t)(sum / BASE);
-    i = 1;
-    while (carry && i < a->sz) {
-        sum = (uint64_t)a->d[i] + carry;
-        a->d[i] = (uint32_t)(sum % BASE);
-        carry = (uint32_t)(sum / BASE);
-        ++i;
+static void sub(num *x, const num *y)                         /* x -= y, x >= y */
+{
+    int64_t b = 0;
+    for (size_t i = 0; i < x->len; ++i) {
+        int64_t v = (int64_t)x->d[i] - (i < y->len ? y->d[i] : 0) - b;
+        b = v < 0;
+        x->d[i] = (uint32_t)(b ? v + 1000000000 : v);
     }
-    if (carry) {
-        a->d[a->sz++] = carry;
-    }
+    trim(x);
 }
 
-static void bi_mul_small(BI *a, uint32_t val) {
-    uint64_t carry = 0;
-    for (size_t i = 0; i < a->sz; ++i) {
-        uint64_t prod = (uint64_t)a->d[i] * val + carry;
-        a->d[i] = (uint32_t)(prod % BASE);
-        carry = prod / BASE;
-    }
-    if (carry) {
-        a->d[a->sz++] = (uint32_t)carry;
-    }
-    bi_normalize(a);
+static double lead(const num *x, size_t len)  /* x / 10^(9 (len - 3)), roughly */
+{
+    double v = 0;
+    for (size_t i = len; i-- > 0 && i + 3 >= len;) v = v * 1e9 + (i < x->len ? x->d[i] : 0);
+    return v;
 }
 
-static void bi_sub(BI *a, const BI *b) {
-    uint64_t borrow = 0;
-    for (size_t i = 0; i < a->sz; ++i) {
-        uint64_t sub = (uint64_t)a->d[i] - ((i < b->sz) ? b->d[i] : 0) - borrow;
-        if (sub > (uint64_t)0xFFFFFFFF) { /* borrow */
-            a->d[i] = (uint32_t)(sub + BASE);
-            borrow = 1;
-        } else {
-            a->d[i] = (uint32_t)sub;
-            borrow = 0;
+static num P, Rm, T;                        /* root, remainder, scratch */
+static unsigned char *digits = NULL;
+static size_t ndig = 0, dcap = 0;
+
+static void next_digit(void)
+{
+    mul_small_add(&Rm, 100, 0);
+    /* estimate d = r / (20 p) from the leading limbs, then correct */
+    size_t L = Rm.len > P.len + 1 ? Rm.len : P.len + 1;
+    double est = P.len ? lead(&Rm, L) / (20.0 * lead(&P, L)) : 9.0;
+    int d = est >= 9.0 ? 9 : est <= 0 ? 0 : (int)est;
+    for (;; --d) {
+        /* T = (20 p + d) d */
+        reserve(&T, P.len + 2);
+        T.len = P.len;
+        for (size_t i = 0; i < P.len; ++i) T.d[i] = P.d[i];
+        mul_small_add(&T, 20, (uint32_t)d);
+        mul_small_add(&T, (uint32_t)d, 0);
+        if (cmp(&T, &Rm) <= 0 || d == 0) break;
+    }
+    for (;;) {                               /* the estimate may also be low */
+        num U = {0, 0, 0};
+        reserve(&U, P.len + 2);
+        U.len = P.len;
+        for (size_t i = 0; i < P.len; ++i) U.d[i] = P.d[i];
+        mul_small_add(&U, 20, (uint32_t)(d + 1));
+        mul_small_add(&U, (uint32_t)(d + 1), 0);
+        int up = d < 9 && cmp(&U, &Rm) <= 0;
+        if (up) {
+            reserve(&T, U.len);
+            T.len = U.len;
+            for (size_t i = 0; i < U.len; ++i) T.d[i] = U.d[i];
+            ++d;
         }
+        free(U.d);
+        if (!up) break;
     }
-    bi_normalize(a);
+    sub(&Rm, &T);
+    mul_small_add(&P, 10, (uint32_t)d);
+    if (ndig == dcap) {
+        dcap = dcap ? 2 * dcap : 1024;
+        unsigned char *t = (unsigned char *)realloc(digits, dcap);
+        if (!t) abort();
+        digits = t;
+    }
+    digits[ndig++] = (unsigned char)d;
 }
-/* ---------------------------------------- */
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wc++98-compat"   /* for static global initialization */
-
-static seq_t *digit_cache = NULL;
-static size_t cache_cap = 0;
-static size_t cache_len = 0;
-static int initialized = 0;
-
-/* state of the digit calculation */
-static BI S_p;   /* current root (integer part + digits so far) */
-static BI S_rem; /* current remainder */
 
 seq_t a(idx_t n)
 {
-    if (n == 0) return 0;   /* undefined offset; harmless */
-
-    /* initialise on first call */
-    if (!initialized) {
-        /* allocate cache */
-        cache_cap = 128;
-        digit_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
-        cache_len = 0;
-
-        /* integer part */
-        bi_from_uint(&S_p, 7);
-        bi_from_uint(&S_rem, 60);
-        /* rem = 60 - 49 = 11 */
-        BI temp;
-        bi_from_uint(&temp, 49);
-        bi_sub(&S_rem, &temp);
-
-        /* cache first digit (integer part) */
-        if (cache_len == cache_cap) {
-            cache_cap *= 2;
-            digit_cache = (seq_t *)realloc(digit_cache, cache_cap * sizeof(seq_t));
-        }
-        digit_cache[cache_len++] = 7;
-
-        initialized = 1;
+    if (n < OFF) return (seq_t)0;
+    if (ndig == 0) {                         /* the integer part: K < 100, one digit */
+        unsigned s = 0;
+        while ((s + 1) * (s + 1) <= K) ++s;
+        reserve(&P, 1);
+        P.d[0] = s;
+        P.len = s ? 1 : 0;
+        reserve(&Rm, 1);
+        Rm.d[0] = K - s * s;
+        Rm.len = Rm.d[0] ? 1 : 0;
+        reserve(&T, 1);
+        digits = (unsigned char *)malloc(dcap = 1024);
+        if (!digits) abort();
+        digits[ndig++] = (unsigned char)s;
     }
-
-    /* generate digits until we have at least n of them */
-    while (cache_len < (size_t)n) {
-        /* bring down next two decimal digits */
-        bi_mul_small(&S_rem, 100);
-
-        /* factor = p * 20 */
-        BI factor;
-        bi_copy(&factor, &S_p);
-        bi_mul_small(&factor, 20);
-
-        int chosen_digit = 0;
-        for (int d = 9; d >= 0; --d) {
-            BI candidate;
-            bi_copy(&candidate, &factor);
-            bi_add_small(&candidate, (uint32_t)d);
-            bi_mul_small(&candidate, (uint32_t)d);
-            if (bi_cmp(&candidate, &S_rem) <= 0) {
-                chosen_digit = d;
-                break;
-            }
-        }
-
-        /* recompute candidate for the chosen digit to subtract */
-        BI cand;
-        bi_copy(&cand, &factor);
-        bi_add_small(&cand, (uint32_t)chosen_digit);
-        bi_mul_small(&cand, (uint32_t)chosen_digit);
-        bi_sub(&S_rem, &cand);
-
-        /* update p = p * 10 + d */
-        bi_mul_small(&S_p, 10);
-        if (chosen_digit) bi_add_small(&S_p, (uint32_t)chosen_digit);
-
-        /* cache the digit */
-        if (cache_len == cache_cap) {
-            cache_cap *= 2;
-            digit_cache = (seq_t *)realloc(digit_cache, cache_cap * sizeof(seq_t));
-        }
-        digit_cache[cache_len++] = (seq_t)chosen_digit;
-    }
-
-    return digit_cache[n - 1];
+    while (ndig <= (size_t)(n - OFF)) next_digit();
+    return (seq_t)digits[n - OFF];
 }
-#pragma clang diagnostic pop

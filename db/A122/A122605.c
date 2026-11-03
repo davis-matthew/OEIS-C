@@ -9,12 +9,14 @@
  *            a(n-1)+6*a(n-2)-5*a(n-3)-10*a(n-4)+6*a(n-5)+4*a(n-6)-a(n-7)
  * Range:     i8 n <= 13, i16 n <= 21, i32 n <= 38, i64 n <= 39, i128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* enlarge allocation if required */
     if (idx_needed + 1 > cap) {
         size_t newcap = idx_needed + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) return (seq_t)0;                  /* allocation failed */
         cache = tmp;
         /* initialise new cells to 0 (prevent garbage) */

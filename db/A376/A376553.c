@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 129, u32 n <= 362, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   big_pow, build_primes
+ * Validated: standard, pass, 87 terms through n = 996 (2026-11-01)
+ * Helpers:   build_primes, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"      /* big_pow(seq_t, seq_t) */
-#include "../utils/build_primes.h" /* build_primes(idx_t, idx_t**, size_t*) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/build_primes.h"
+#include "../utils/ipow.h"
 
 static idx_t *prime_cache = NULL;
 static size_t prime_cnt = 0;
@@ -90,7 +93,7 @@ seq_t a(idx_t n)
         /* Include only even positive exponents */
         if ((exp & 1u) == 0 && exp > 0)
         {
-            seq_t part = big_pow((seq_t)p, (seq_t)exp);
+            seq_t part = ipow((seq_t)p, (seq_t)exp);
             result *= part;
         }
     }

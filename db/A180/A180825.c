@@ -9,12 +9,14 @@
  *            n) with 2 ≤ xi ≤ n-2
  * Range:     u8 n <= 16, u16 n <= 84, u32 n <= 999, u64 n <= 999,
  *            u128 n <= 999, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 913 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Count unordered pairs (a,b) with product modulo n. */
-    seq_t *cnt = (seq_t*)calloc((size_t)n, sizeof(seq_t));
+    seq_t *cnt = mem_new(seq_t, (size_t)n);
     if (!cnt)
         return 0;   /* allocation failure */
 
@@ -52,6 +54,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(cnt);
+    mem_free(cnt);
     return ans;
 }

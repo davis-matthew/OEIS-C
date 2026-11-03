@@ -7,6 +7,7 @@
  * Formula:   a(n) = the n-th prime congruent to 27 (mod 47) (OEIS A142378)
  * Range:     u8 none, u16 n <= 140, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 57 terms through n = 991 (2026-11-02)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 seq_t a(idx_t n)
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         }
 
         /* Free the sieve array */
-        free((void*)primes);
+        free(primes);
 
         if (result != 0) return result;
 

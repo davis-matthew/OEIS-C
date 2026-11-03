@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 30,
  *            big any n
- * Helpers:   multdiv
+ * Validated: standard, pass, 36 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,24 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/multdiv.h"
+#include "../utils/mem.h"
+
+/* Helper: compute (x * mult) / div exactly.
+ * For seq_t 64‑bit or smaller we use unsigned __int128 for the product.
+ * For larger seq_t (arbitrary precision or 128‑bit) we rely on the
+ * built‑in bigint multiplication and division. */
+static inline seq_t multdiv(seq_t x, unsigned long long mult,
+                            unsigned long long div)
+{
+#if defined(__SIZEOF_INT128__)
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 prod = (unsigned __int128)x * mult;
+        return (seq_t)(prod / div);
+    }
+#endif
+    /* generic or 128‑bit case */
+    return (x * (seq_t)mult) / (seq_t)div;
+}
 
 /* ------------------------------------------------------------ */
 
@@ -41,7 +59,7 @@ static void grow_cache(idx_t needed)
     idx_t new_cap = cache_cap > 0 ? cache_cap * 2 : 2;
     if (new_cap < needed + 1) new_cap = needed + 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();          /* allocation failed */
 
     cache      = new_cache;
@@ -58,7 +76,7 @@ seq_t a(idx_t n)
 
     /* initialise cache on first call */
     if (!cache) {
-        cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (!cache) abort();
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)9;

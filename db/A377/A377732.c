@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 1210, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   best_div_rec, factor_u64, seq_realloc
+ * Validated: standard, pass, 81 terms through n = 9899 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,39 @@
 #include <stdint.h>
 
 /* Utilities provided by the build environment. */
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/seq_realloc.h"  /* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) */
-#include "../utils/best_div_rec.h"
+#include "../utils/factor_u64.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* Recursively find the largest divisor of a factorised number not exceeding limit. */
+static void best_div_rec(const uint64_t *pr, const uint64_t *ex, size_t cnt,
+                         size_t idx, uint64_t cur, uint64_t limit,
+                         uint64_t *best)
+{
+    if (idx == cnt) {
+        if (cur <= limit && cur > *best) *best = cur;
+        return;
+    }
+    uint64_t p = pr[idx];
+    uint64_t e = ex[idx];
+    uint64_t val = cur;
+    for (size_t i = 0; i <= e; ++i) {
+        best_div_rec(pr, ex, cnt, idx + 1, val, limit, best);
+        if (i == e) break;
+        if (val > limit / p) break;   /* prevent overflow */
+        val *= p;
+    }
+}
 
 /* Integer floor square root of an unsigned 64‑bit integer. */
 static inline idx_t floor_isqrt_u64(idx_t n)

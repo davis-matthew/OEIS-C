@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 1665, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega
+ * Validated: standard, pass, 73 terms through n = 9926 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include "../utils/bigomega.h"
+#include "../utils/mem.h"
 
 static seq_t *terms  = NULL;
 static size_t terms_len  = 0;
@@ -28,7 +30,7 @@ static void add_term(idx_t v)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 64;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         terms = tmp;
         terms_cap = new_cap;

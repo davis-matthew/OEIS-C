@@ -9,9 +9,10 @@
  * Formula:   a(n) is obtained by concatenating rows of a triangle. Row[0] =
  *            {2} Row[r+1] = Row[r] ∘ (next_prime_of(reversed(Row[r]))) a(n)
  *            is the n‑th element of this concatenation (0‑based)
- * Range:     u8 n <= 9076, u16 n <= 9076, u32 n <= 9076, u64 n <= 9076,
- *            u128 n <= 9076, big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 16382, u16 n <= 16382, u32 n <= 16382, u64 n <= 16382,
+ *            u128 n <= 16382, big any n
+ * Validated: standard, pass, 115 terms through n = 9076 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* find the next prime after v (v fits in seq_t but may be larger after promotion) */
@@ -47,13 +49,13 @@ static void ensure_row(unsigned int r)
     for (int i = max_row_computed + 1; i <= (int)r; ++i) {
         if (i == 0) {
             /* Row 0 = {2} */
-            rows[0] = (seq_t *)calloc(1, sizeof(seq_t));
+            rows[0] = mem_new(seq_t, 1);
             rows[0][0] = (seq_t)2;
             row_len[0] = 1;
         } else {
             size_t prev_len = row_len[i - 1];
             size_t curr_len = 1ULL << i;          /* 2^i */
-            seq_t *row = (seq_t *)calloc(curr_len, sizeof(seq_t));
+            seq_t *row = mem_new(seq_t, curr_len);
             /* left half – copy previous row */
             for (size_t k = 0; k < prev_len; ++k)
                 row[k] = rows[i - 1][k];

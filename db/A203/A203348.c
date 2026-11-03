@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 17, u64 n <= 38, u128 n <= 79,
  *            big any n
- * Helpers:   bad_pattern
+ * Validated: standard, pass, 40 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,14 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/bad_pattern.h"
+#include "../utils/mem.h"
+
+/* Return true if the 3‑bit sequence a,b,c equals the forbidden
+ * patterns 010 or 101.  Bits a,b,c are 0 or 1. */
+static inline bool bad_pattern(int a, int b, int c)
+{
+    return (a == 0 && b == 1 && c == 0) || (a == 1 && b == 0 && c == 1);
+}
 
 /* ---------- Constants and global storage ---------- */
 
@@ -109,12 +117,12 @@ static void ensure_cache_size(idx_t n)
     if (cache == NULL) {
         /* start with a minimal allocation */
         cache_cap = (size_t)(n + 1);
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = cache_cap * 2;
         if (new_cap <= (size_t)n + 1)
             new_cap = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 }
@@ -137,7 +145,7 @@ seq_t a(idx_t n)
     /* Compute terms up to n, extending from the current `computed` value. */
     for (idx_t step = computed + 1; step <= n; ++step) {
         /* clear next state */
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         /* propagate transitions */
         for (int idx = 0; idx < STATES; ++idx) {
@@ -159,7 +167,7 @@ seq_t a(idx_t n)
         cache[(size_t)step] = total;
 
         /* prepare for next iteration */
-        memcpy(dp_cur, dp_next, sizeof(dp_cur));
+        mem_copy(dp_cur, dp_next, sizeof(dp_cur));
     }
 
     computed = n;

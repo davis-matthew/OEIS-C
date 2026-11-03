@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 193, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Simple open‑addressing hash table for arbitrary seq_t values           */
@@ -47,7 +49,7 @@ static hash_table *hash_create(size_t cap)
     hash_table *t = (hash_table*)malloc(sizeof(hash_table));
     t->cap   = cap;
     t->count = 0;
-    t->keys  = (seq_t*)calloc(cap, sizeof(seq_t));
+    t->keys  = mem_new(seq_t, cap);
     t->used  = (bool*)calloc(cap, sizeof(bool));
     return t;
 }
@@ -55,7 +57,7 @@ static hash_table *hash_create(size_t cap)
 /* destroy a hash table                                               */
 static void hash_destroy(hash_table *t)
 {
-    free(t->keys);
+    mem_free(t->keys);
     free(t->used);
     free(t);
 }
@@ -63,7 +65,7 @@ static void hash_destroy(hash_table *t)
 /* rehash the table to at least 'newcap' (must be power of two)        */
 static void hash_rehash(hash_table *t, size_t newcap)
 {
-    seq_t *new_keys = (seq_t*)calloc(newcap, sizeof(seq_t));
+    seq_t *new_keys = mem_new(seq_t, newcap);
     bool  *new_used = (bool*)calloc(newcap, sizeof(bool));
 
     for (size_t i = 0, n = t->cap; i < n; ++i) {
@@ -75,7 +77,7 @@ static void hash_rehash(hash_table *t, size_t newcap)
             new_used[h] = true;
         }
     }
-    free(t->keys);
+    mem_free(t->keys);
     free(t->used);
     t->keys  = new_keys;
     t->used  = new_used;
@@ -122,8 +124,8 @@ seq_t a(idx_t n)
     if (!a_len) {
         a_cap = 32;
         d_cap = 32;
-        a_arr = (seq_t*)malloc(a_cap * sizeof(seq_t));
-        d_arr = (seq_t*)malloc(d_cap * sizeof(seq_t));
+        a_arr = mem_new(seq_t, a_cap);
+        d_arr = mem_new(seq_t, d_cap);
 
         a_hash = hash_create(64);
         d_hash = hash_create(64);
@@ -156,11 +158,11 @@ seq_t a(idx_t n)
         /* append new a and d */
         if (a_len == a_cap) {
             a_cap *= 2;
-            a_arr = (seq_t*)realloc(a_arr, a_cap * sizeof(seq_t));
+            a_arr = mem_resize(seq_t, a_arr, a_cap);
         }
         if (d_len == d_cap) {
             d_cap *= 2;
-            d_arr = (seq_t*)realloc(d_arr, d_cap * sizeof(seq_t));
+            d_arr = mem_resize(seq_t, d_arr, d_cap);
         }
 
         a_arr[a_len] = a_k + h;

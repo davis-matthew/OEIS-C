@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *runs = NULL;          /* array of run lengths */
 static size_t run_cap = 0;          /* allocated capacity */
@@ -36,7 +38,7 @@ static void ensure_runs_cap(size_t needed)
     size_t new_cap = run_cap ? run_cap << 1 : 8;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(runs, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, runs, new_cap);
     if (!tmp) exit(1);
     runs = tmp;
     run_cap = new_cap;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         ++last_checked;
         if (last_checked < 4) continue;          /* skip 0,1,2,3 */
 
-        bool prime = is_prime_small((seq_t)last_checked);
+        bool prime = is_prime_seq((seq_t)last_checked);
         if (!prime)                             /* it's composite */
         {
             if (prev_composite == 0)            /* first composite encountered */

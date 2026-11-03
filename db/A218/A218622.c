@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2048, u16 n <= 2048, u32 n <= 2048, u64 n <= 2048,
  *            u128 n <= 2048, big any n
- * Helpers:   binom_get, binom_set
+ * Validated: standard, pass, 112 terms through n = 1879 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,8 +34,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/binom_get.h"
-#include "../utils/binom_set.h"
+#include "../utils/mem.h"
+
+static inline uint8_t binom_get(const uint32_t *data, idx_t n, idx_t k)
+{
+    /* linear index of C(n,k) in the packed array */
+    idx_t idx = n * (n + 1) / 2 + k;   /* 0‑based */
+    idx_t word = idx / 10;             /* 10 entries per 32‑bit word */
+    uint8_t shift = (idx % 10) * 3;    /* 3 bits per entry */
+    return (data[word] >> shift) & 0x7;
+}
+
+static inline void binom_set(uint32_t *data, idx_t n, idx_t k, uint8_t val)
+{
+    idx_t idx = n * (n + 1) / 2 + k;
+    idx_t word = idx / 10;
+    uint8_t shift = (idx % 10) * 3;
+    data[word] &= ~(0x7u << shift);           /* clear bits */
+    data[word] |= ((uint32_t)(val & 0x7u) << shift);   /* set new value */
+}
 
 /* ---------- 3‑bit packed Pascal triangle  ----------------- */
 
@@ -77,7 +95,7 @@ seq_t a(idx_t n)
         }
 
         /* Allocate cache for a(n) values ------------------------------------- */
-        a_cache = (seq_t *)malloc((MAXN + 1) * sizeof(seq_t));
+        a_cache = mem_new(seq_t, (MAXN + 1));
         if (!a_cache) exit(1);
         a_cache[0] = 1;
         cache_len = 1;

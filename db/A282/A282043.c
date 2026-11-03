@@ -9,6 +9,7 @@
  *            (mod 8)
  * Range:     u8 n <= 2, u16 n <= 25, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 #if defined(__cplusplus)

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 77, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
- * Helpers:   rec_partitions
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,32 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/rec_partitions.h"
+#include "../utils/mem.h"
+
+/* Recursive generation of partitions of 'rem' into parts <= max_part.
+   All parts are at least 2.  `parts` is the number of parts selected so far,
+   `largest` is the current largest part among those selected.   The
+   generated Dyson rank is added to '*arr'. */
+static void rec_partitions(idx_t rem, idx_t max_part, idx_t parts,
+                           idx_t largest, seq_t **arr,
+                           size_t *len, size_t *cap)
+{
+    if (rem == 0) {                                     /* finished */
+        seq_t rank = (seq_t)largest - (seq_t)parts;
+        if (*len == *cap) {
+            *cap = (*cap ? *cap * 2 : 16);
+            *arr = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
+        }
+        (*arr)[*len] = rank;
+        (*len)++;
+        return;
+    }
+    for (idx_t p = (rem < max_part ? rem : max_part); p >= 2; --p) {
+        rec_partitions(rem - p, p, parts + 1,
+                       (parts == 0 ? p : largest),
+                       arr, len, cap);
+    }
+}
 
 /* Comparator for descending order of seq_t values. */
 static int cmp_desc(const void *pa, const void *pb)
@@ -61,7 +87,7 @@ static void generate_ranks(idx_t n, seq_t **out_arr, size_t *out_len)
     seq_t *arr = NULL;
     size_t len = 0, cap = 0;
     rec_partitions(n, n, 0, 0, &arr, &len, &cap);
-    qsort(arr, len, sizeof(seq_t), cmp_desc);
+    mem_qsort(arr, len, sizeof(seq_t), cmp_desc);
     *out_arr = arr;
     *out_len = len;
 }
@@ -88,7 +114,7 @@ seq_t a(idx_t n)
     while (rows_count == 0 || n > row_cum[rows_count]) {
         idx_t r = rows_count + 1;
         if (r == 1) {                                     /* special first row */
-            seq_t *arr = (seq_t *)malloc(sizeof(seq_t));
+            seq_t *arr = mem_new(seq_t, 1);
             if (!arr) return (seq_t)0;                     /* out of memory */
             arr[0] = (seq_t)0;
             append_row(r, arr, 1);

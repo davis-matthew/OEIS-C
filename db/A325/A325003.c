@@ -9,14 +9,16 @@
  * Formula:   a(n) = binomial(r, c-1) - [c == r+1] where (r,c) is obtained by
  *            reading the triangle T(n,k) = binomial(n, k-1) – [k == n+1]
  *            row‑by‑row. The sequence starts with a(1)
- * Range:     u8 n <= 39, u16 n <= 196, u32 n <= 573, u64 n <= 1325,
+ * Range:     u8 n <= 69, u16 n <= 197, u32 n <= 646, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 93 terms through n = 1220 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

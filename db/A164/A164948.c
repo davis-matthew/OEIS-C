@@ -9,14 +9,16 @@
  *            (-1)^(c-1)*C(r-1,c-1)*3^(r-c), with T(0,0)=1
  * Range:     i8 n <= 15, i16 n <= 46, i32 n <= 172, i64 n <= 600,
  *            i128 n <= 1325, big any n
- * Helpers:   binom, pow3
+ * Validated: standard, pass, 82 terms through n = 1255 (2026-11-01)
+ * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Use binomial and pow3 utilities from ../utils. */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow3.h"
 
 static idx_t row_from_index(idx_t n)
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     seq_t term1 = 0;
     if (c <= r - 1)                     /* otherwise binom = 0, ignore */
     {
-        seq_t bin1 = binom(r - 1, c);
+        seq_t bin1 = binomial(r - 1, c);
         seq_t pow1 = pow3((idx_t)(r - 1 - c));
         term1 = bin1 * pow1;
         if (c & 1)                      /* multiply by (-1)^c */
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     seq_t term2 = 0;
     if (c >= 1)                          /* otherwise binom = 0, ignore */
     {
-        seq_t bin2 = binom(r - 1, c - 1);
+        seq_t bin2 = binomial(r - 1, c - 1);
         seq_t pow2 = pow3((idx_t)(r - c));
         term2 = bin2 * pow2;
         if ((c - 1) & 1)                 /* multiply by (-1)^(c-1) */

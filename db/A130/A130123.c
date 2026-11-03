@@ -9,13 +9,34 @@
  * Formula:   a(n) = 2^k if n = k(k+3)/2 (k ≥ 0); otherwise a(n) = 0
  * Range:     u8 n <= 6, u16 n <= 151, u32 n <= 559, u64 n <= 2143,
  *            u128 n <= 5150, big any n
- * Helpers:   floor_sqrt, pow2
+ * Validated: standard, pass, 107 terms through n = 4704 (2026-11-01)
+ * Helpers:   ipow_i32, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_sqrt.h"   /* provides seq_t floor_sqrt(seq_t x) */
-#include "../utils/pow2.h"         /* provides seq_t pow2(idx_t exp) */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/pow2.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {

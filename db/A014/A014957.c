@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 643, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   mod_pow, seq_alloc, seq_realloc
+ * Validated: standard, pass, 71 terms through n = 1792 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,30 @@
    testing each candidate with modular exponentiation. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/powmod.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Return the n‑th term of the sequence (n ≥ 1). */
 seq_t a(idx_t n)
@@ -43,7 +65,7 @@ seq_t a(idx_t n)
             ok = true;
         else
         {
-            seq_t r = mod_pow((seq_t)16, next_k, k);
+            seq_t r = powmod((seq_t)16, next_k, k);
             if (r == 1)
                 ok = true;
         }

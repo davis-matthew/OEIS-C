@@ -7,8 +7,9 @@
  * Keywords:  nonn, frac
  * Formula:   a(n) = n / gcd(n, A003961(n)) where A003961 is the fully
  *            multiplicative function with a(prime)=next prime
- * Range:     u8 n <= 255, u16 n <= 9962, u32 n <= 9962, u64 n <= 9962,
- *            u128 n <= 9962, big any n
+ * Range:     u8 n <= 255, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 100 terms through n = 9962 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

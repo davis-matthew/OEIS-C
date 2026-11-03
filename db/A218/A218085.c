@@ -12,7 +12,8 @@
  *            5*S_5(floor(n/256)))
  * Range:     i8 n <= 2559, i16 n <= 2559, i32 n <= 2559, i64 n <= 2559,
  *            i128 n <= 2559, big any n
- * Helpers:   S5, base4_parity
+ * Validated: standard, pass, 97 terms through n = 2529 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,41 @@
 /* Where S_5(k) counts the multiples of 5 in [0,k) weighted by parity of base‑4 digit sums. */
 
 #include <stdbool.h>
-#include "../utils/S5.h"
-#include "../utils/base4_parity.h"
+
+/* weighted count of multiples of 5 in [0, n) */
+static seq_t S5(idx_t n)
+{
+    if (n == 0)
+        return 0;
+
+    idx_t limit = (n - 1) / 5;      /* largest k with 5*k < n */
+    seq_t sum = 0;
+    for (idx_t k = 0; k <= limit; ++k)
+    {
+        idx_t m = 5 * k;
+        int p = 0;
+        idx_t t = m;
+        while (t)
+        {
+            p ^= (int)(t & 1);
+            t >>= 2;
+        }
+        sum += (p ? -1 : 1);
+    }
+    return sum;
+}
+
+/* parity of the sum of base‑4 digits of x (0 = even, 1 = odd) */
+static int base4_parity(idx_t x)
+{
+    int p = 0;
+    while (x)
+    {
+        p ^= (int)(x & 1);   /* low base‑4 digit parity is x & 1 */
+        x >>= 2;            /* shift by two bits (divide by 4) */
+    }
+    return p;
+}
 
 seq_t a(idx_t n)
 {

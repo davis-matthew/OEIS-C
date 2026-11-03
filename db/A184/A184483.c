@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* Required headers */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- bitmap for used integers -------------------------------------------- */
 static uint8_t *used_bitmap = NULL;   /* bitset of used integers */
@@ -66,7 +68,7 @@ static inline void ensure_upper_cap(size_t need) {
     if (need <= upper_cap) return;
     size_t new_cap = upper_cap ? (upper_cap << 1) : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(upper_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, upper_cache, new_cap);
     if (!tmp) abort();
     upper_cache = tmp;
     upper_cap   = new_cap;

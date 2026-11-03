@@ -9,14 +9,19 @@
  *            double L until there are at least n terms
  * Range:     u8 n <= 2, u16 n <= 164, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a3376_cmp
+ * Validated: standard, pass, 62 terms through n = 9636 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a3376_cmp.h"
+
+static int a3376_cmp(const void *x, const void *y) {
+    uint64_t u = *(const uint64_t *)x, v = *(const uint64_t *)y;
+    return (u > v) - (u < v);
+}
 
 static uint64_t *a3376_vals = NULL;
 static idx_t a3376_cnt = 0;

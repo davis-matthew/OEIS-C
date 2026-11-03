@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, fini, full
  * Formula:   not stated
- * Range:     u8 n <= 9887, u16 n <= 9887, u32 n <= 9887, u64 n <= 9887,
- *            u128 n <= 9887, big any n
- * Helpers:   none
+ * Range:     u8 n <= 19770, u16 n <= 19770, u32 n <= 19770, u64 n <= 19770,
+ *            u128 n <= 19770, big any n
+ * Validated: full, pass, 19770 terms through n = 19770 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    static array for fast repeated queries. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (!runs) {
         /* allocate a buffer large enough for the known number of runs */
         size_t capacity = 20000;            /* > expected 19770 runs */
-        runs = (seq_t *)malloc(capacity * sizeof(seq_t));
+        runs = mem_new(seq_t, capacity);
         if (!runs) return 0;
 
         run_count = 0;
@@ -95,8 +97,8 @@ seq_t a(idx_t n)
                 } else {
                     if (run_count >= capacity) {
                         capacity *= 2;
-                        seq_t *tmp = (seq_t *)realloc(runs, capacity * sizeof(seq_t));
-                        if (!tmp) { free(runs); return 0; }
+                        seq_t *tmp = mem_resize(seq_t, runs, capacity);
+                        if (!tmp) { mem_free(runs); return 0; }
                         runs = tmp;
                     }
                     runs[run_count++] = cur_len;
@@ -110,8 +112,8 @@ seq_t a(idx_t n)
         if (cur_len > 0) {
             if (run_count >= capacity) {
                 capacity++;
-                seq_t *tmp = (seq_t *)realloc(runs, capacity * sizeof(seq_t));
-                if (!tmp) { free(runs); return 0; }
+                seq_t *tmp = mem_resize(seq_t, runs, capacity);
+                if (!tmp) { mem_free(runs); return 0; }
                 runs = tmp;
             }
             runs[run_count++] = cur_len;

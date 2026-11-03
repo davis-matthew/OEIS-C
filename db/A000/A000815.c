@@ -11,15 +11,16 @@
  *            in B_n} 8^cyc(g), summed over signed cycle types of g
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   a815_gcd, a815_pw
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   gcd_u64, ipow_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a815_gcd.h"
-#include "../utils/a815_pw.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ipow_u64.h"
 
 static uint64_t *a815_mp, *a815_mm;
 static long long a815_n;
@@ -31,16 +32,16 @@ static void a815_leaf(void)
     uint64_t m = 1, j, s = 0, cyc, i;
     seq_t den = 1, size;
     for (k = 1; k <= n; k++) {
-        if (a815_mp[k]) m = m / a815_gcd(m, (uint64_t)k) * (uint64_t)k;
-        if (a815_mm[k]) m = m / a815_gcd(m, 2 * (uint64_t)k) * (2 * (uint64_t)k);
+        if (a815_mp[k]) m = m / gcd_u64(m, (uint64_t)k) * (uint64_t)k;
+        if (a815_mm[k]) m = m / gcd_u64(m, 2 * (uint64_t)k) * (2 * (uint64_t)k);
     }
     for (j = 0; j < m; j++) {
         uint64_t e = 0;
         int ok = 1;
         for (k = 1; k <= n && ok; k++) {
-            if (a815_mp[k]) e += a815_mp[k] * a815_gcd(j, (uint64_t)k);
+            if (a815_mp[k]) e += a815_mp[k] * gcd_u64(j, (uint64_t)k);
             if (a815_mm[k]) {
-                uint64_t g = a815_gcd(j, (uint64_t)k);
+                uint64_t g = gcd_u64(j, (uint64_t)k);
                 if ((((uint64_t)k / g) & 1) && ((j / g) % 2 == 0))
                     e += a815_mm[k] * g;
                 else
@@ -56,7 +57,7 @@ static void a815_leaf(void)
         for (i = 2; i <= a815_mm[k]; i++) den *= (seq_t)i;
     }
     size = a815_total / den;
-    a815_acc += a815_pw((seq_t)8, cyc) * size;
+    a815_acc += ipow_u64((seq_t)8, cyc) * size;
 }
 
 static void a815_rec(long long k, long long rem)

@@ -11,12 +11,14 @@
  *            (Sequence A123351 – Kekulé numbers for certain benzenoids)
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache with the first 8 terms */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(8 * sizeof(seq_t));
+        cache = mem_new(seq_t, 8);
         if (cache == NULL)
             return 0;  /* allocation failure – fallback */
         for (idx_t i = 0; i < 8; ++i)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Grow the cache to accommodate index n */
     size_t new_len = (size_t)(n + 1);
     if (new_len > (size_t)cache_len + 1) {
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp == NULL)
             return 0;      /* allocation failure – fallback */
         cache = tmp;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   append_next_even, num_digits_u64
+ * Validated: partial, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   mem, num_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,20 @@
    C(m) incrementally, and stores all quotients that are integral. */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/append_next_even.h"
 #include "../utils/num_digits_u64.h"
+#include "../utils/mem.h"
+
+/* append the next even number (2*m) to the current concatenation C.
+   C is updated in place.  pow10 is 10^digits(2*m) as a seq_t. */
+static void append_next_even(seq_t *C, uint64_t m)
+{
+    uint64_t next = 2 * m;                   /* next even number */
+    int digits = num_digits_u64(next);      /* digits of next */
+    seq_t pow10 = (seq_t)1;                 /* 10^digits */
+    for (int i = 0; i < digits; ++i)
+        pow10 *= (seq_t)10;
+    *C = (*C) * pow10 + (seq_t)next;        /* C ← C*10^digits + next */
+}
 
 /* main function required by the test harness */
 seq_t a(idx_t n)
@@ -37,9 +50,9 @@ seq_t a(idx_t n)
     /* ensure enough space for future entries */
     if (cache_len + 1 > cache_alloc) {
         size_t new_alloc = cache_alloc ? cache_alloc * 2 : 4;
-        seq_t *tmp = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_alloc);
         if (!tmp) {                         /* allocation failed */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_len = 0;
             cache_alloc = 0;

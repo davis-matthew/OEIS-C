@@ -9,15 +9,17 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = a(n-1)+5*a(n-2)+4*a(n-3)-a(n-5),
  *            a(0)=1,a(1)=1,a(2)=5,a(3)=13,a(4)=42
- * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 26, u128 n <= 26,
+ * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 1944 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* ensure cache has the first five values */
     if (cache_size < 5) {
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * 5);
+        cache = mem_resize(seq_t, cache, 5);
         cache[0] = (seq_t)1;   /* a(0) */
         cache[1] = (seq_t)1;   /* a(1) */
         cache[2] = (seq_t)5;   /* a(2) */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     }
 
     /* extend cache to include requested index */
-    cache = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+    cache = mem_resize(seq_t, cache, (n + 1));
     for (idx_t i = cache_size; i <= n; ++i) {
         /* recurrence valid for i >= 5 */
         seq_t a1 = cache[i - 1];

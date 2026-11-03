@@ -8,12 +8,15 @@
  * Formula:   a(n) = n^d + d^n, where d = A013632(n) = next_prime(n) - n
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 18, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   big_pow, next_prime
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   ipow, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 #include "../utils/next_prime.h"
 
 seq_t a(idx_t n)
@@ -31,8 +34,8 @@ seq_t a(idx_t n)
     seq_t sd = (seq_t)d;
 
     /* compute n^d and d^n */
-    seq_t term1 = big_pow(sn, sd);  /* n^d */
-    seq_t term2 = big_pow(sd, sn);  /* d^n */
+    seq_t term1 = ipow(sn, sd);  /* n^d */
+    seq_t term2 = ipow(sd, sn);  /* d^n */
 
     return term1 + term2;
 }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 662 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
             +531441 a(n‑7)+4782969 a(n‑8)+43046721 a(n‑9)   for n ≥ 10 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* recurrence coefficients for a(n)=a(n‑1)+9 a(n‑2)+ … +43046721 a(n‑9) */
 static const seq_t COEFF[9] = {
@@ -66,7 +68,7 @@ static void ensure_cache(idx_t n)
     idx_t new_size = n + 1;
     if (new_size < CACHE_SIZE) new_size = CACHE_SIZE;
 
-    seq_t *tmp = (seq_t *)realloc(CACHE, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, CACHE, new_size);
     if (!tmp) exit(1);                /* allocation failed */
     CACHE = tmp;
     CACHE_SIZE = new_size;

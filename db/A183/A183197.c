@@ -11,13 +11,26 @@
  *            for the integer cube root
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   floor_cube_root_ull
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_cube_root_ull.h"
+
+static seq_t floor_cube_root_ull(unsigned long long x)
+{
+    unsigned long long low = 0, high = 1;
+    while (high * high * high <= x) high <<= 1;
+    while (high - low > 1) {
+        unsigned long long mid = (low + high) >> 1;
+        unsigned long long cube = mid * mid * mid;
+        if (cube <= x) low = mid;
+        else high = mid;
+    }
+    return (seq_t)low;
+}
 
 seq_t a(idx_t n)
 {

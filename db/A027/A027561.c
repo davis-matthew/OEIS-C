@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   seq_realloc_proxy
+ * Validated: standard, pass, 48 terms through n = 973 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,13 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_realloc_proxy.h"
+#include "../utils/mem.h"
+
+/* Resolve potential clashes with overload resolution in C++. */
+static seq_t *seq_realloc_proxy(seq_t *old, size_t old_cap, size_t new_cap) {
+    /* In C++ realloc returns void*, cast to seq_t*. In C it's already seq_t*. */
+    return mem_resize(seq_t, old, new_cap);
+}
 
 seq_t a(idx_t n)
 {

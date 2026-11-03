@@ -12,7 +12,8 @@
  *            allowed 5‑tuples
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 15, u128 n <= 33,
  *            big any n
- * Helpers:   abs_val
+ * Validated: standard, pass, 31 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,10 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/abs_val.h"
+#include "../utils/mem.h"
+
+/* Absolute value for small integers. */
+static inline int abs_val(int x) { return x < 0 ? -x : x; }
 
 /* Types supplied by the build. */
 extern seq_t a(idx_t);
@@ -113,12 +117,12 @@ seq_t a(idx_t n)
         free(deg); free(cur);
 
         /* DP arrays. */
-        prev_counts = (seq_t *)calloc(NUM_ROWS, sizeof(seq_t));
-        next_counts = (seq_t *)calloc(NUM_ROWS, sizeof(seq_t));
+        prev_counts = mem_new(seq_t, NUM_ROWS);
+        next_counts = mem_new(seq_t, NUM_ROWS);
 
         /* Cache. */
         cache_cap = MAX_N + 1;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
 
         init_done = true;
     }
@@ -127,7 +131,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_cap) {
         size_t new_cap = cache_cap * 2;
         if (new_cap <= (size_t)n) new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) return (seq_t)0; /* allocation failure */
         for (size_t i = cache_cap; i < new_cap; ++i) new_cache[i] = (seq_t)0;
         cache = new_cache;

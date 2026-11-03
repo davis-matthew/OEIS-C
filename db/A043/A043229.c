@@ -9,7 +9,8 @@
  *            k contains the substring "16" or "61" but k-1 does not
  * Range:     u8 n <= 5, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_16_or_61
+ * Validated: standard, pass, 57 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,23 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has_16_or_61.h"
+#include "../utils/mem.h"
+
+/* Return true if the decimal digits of x contain the two‑digit pattern 16 or 61. */
+static bool has_16_or_61(seq_t x)
+{
+    if (x < 10) return false;          /* a single digit cannot contain a two‑digit pattern */
+    unsigned int prev = (unsigned int)(x % 10);
+    x /= 10;
+    while (x > 0) {
+        unsigned int dig = (unsigned int)(x % 10);
+        if ((dig == 1 && prev == 6) || (dig == 6 && prev == 1))
+            return true;
+        prev = dig;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Cached values of the sequence (1‑indexed). */
 static seq_t *cache      = NULL;  /* array of sequence terms */
@@ -31,7 +48,7 @@ static void cache_grow(size_t need)
     if (cache_cap >= need) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }

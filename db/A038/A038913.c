@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   init_good_residues
+ * Validated: standard, pass, 61 terms through n = 924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/init_good_residues.h"
+#include "../utils/mem.h"
+
+/* Helper: build the table of quadratic residues of 37 (non‑zero residues).  */
+static void init_good_residues(bool good[37])
+{
+    const int residues[] = {
+        1, 4, 9, 16, 25, 36,
+        12, 27, 7, 26, 10, 33,
+        21, 11, 3, 34, 30, 28
+    };
+    for (int i = 0; i < 37; ++i) good[i] = false;
+    for (size_t i = 0; i < sizeof(residues)/sizeof(residues[0]); ++i)
+        good[residues[i]] = true;
+    /* 37 itself is a square modulo 37 (zero residue). */
+    good[0] = true;
+}
 
 /* Test whether n (uint64_t) is prime, using the list of already found primes. */
 static bool is_prime_uint64(uint64_t n, const uint64_t *primes, size_t primes_cnt)
@@ -86,7 +102,7 @@ seq_t a(idx_t n)
                     /* Ensure seq_cache has space. */
                     if (seq_cnt == seq_cap) {
                         size_t new_cap = seq_cap == 0 ? 16 : seq_cap * 2;
-                        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
                         if (!tmp) exit(1);
                         seq_cache = tmp;
                         seq_cap = new_cap;

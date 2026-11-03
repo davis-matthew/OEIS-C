@@ -8,12 +8,14 @@
  *            of the second kind)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 15, u64 n <= 25, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 497 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,12 +28,12 @@ seq_t a(idx_t n)
     /* --- initialise for n = 0 ------------------------------------- */
     if (capA == 0) {
         /* a(0) = 1  (only the empty partition) */
-        A = (seq_t*)malloc(sizeof(seq_t));
+        A = mem_new(seq_t, 1);
         A[0] = (seq_t)1;
         capA = 1;
 
         /* S(0,0) = 1 */
-        prev = (seq_t*)malloc(sizeof(seq_t));
+        prev = mem_new(seq_t, 1);
         prev[0] = (seq_t)1;
         prev_len = 1;
     }
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     for (idx_t m = capA; m <= n; ++m) {
         /* Compute Stirling row for n = m  */
         size_t new_len = (size_t)m + 1;          /* S(m,0..m) */
-        seq_t *cur = (seq_t*)malloc(new_len * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, new_len);
 
         /* S(m,0) = 0, S(m,m) = 1,  S(m,k) = k*S(m‑1,k) + S(m‑1,k‑1) */
         for (size_t k = 0; k < new_len; ++k) {
@@ -64,12 +66,12 @@ seq_t a(idx_t n)
 
         /* Resize A if necessary and store a[m] */
         if (capA <= m) {
-            A = (seq_t*)realloc(A, (m + 1) * sizeof(seq_t));
+            A = mem_resize(seq_t, A, (m + 1));
         }
         A[m] = sum;
 
         /* prepare for next iteration */
-        free(prev);
+        mem_free(prev);
         prev = cur;
         prev_len = new_len;
         capA = m + 1;

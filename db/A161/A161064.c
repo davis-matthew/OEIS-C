@@ -9,7 +9,8 @@
  *            x^(2*(2^j-1))/(1 - x^(2^j-1)))
  * Range:     u8 n <= 83, u16 n <= 352, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     size_t N = (size_t)n;
     /* dp[s] – number of valid partitions of s using parts processed so far   */
-    seq_t *dp = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, N + 1);
     if (!dp) return (seq_t)0;
     dp[0] = (seq_t)1;
 
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         idx_t d = pow - 1;
 
         /* prefix[s] = dp[s] + prefix[s-d]  (prefix of length dp[s], dp[s-d], dp[s-2d], ...)  */
-        seq_t *prefix = (seq_t*)calloc(N + 1, sizeof(seq_t));
+        seq_t *prefix = mem_new(seq_t, N + 1);
         for (size_t s = 0; s <= N; ++s) {
             seq_t val = dp[s];
             if (s >= (size_t)d) val += prefix[s - d];
@@ -42,19 +44,19 @@ seq_t a(idx_t n)
         }
 
         /* newdp[s] = prefix[s] - (s>=d ? dp[s-d] : 0)   */
-        seq_t *newdp = (seq_t*)calloc(N + 1, sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, N + 1);
         for (size_t s = 0; s <= N; ++s) {
             seq_t val = prefix[s];
             if (s >= (size_t)d) val -= dp[s - d];
             newdp[s] = val;
         }
 
-        free(dp);
-        free(prefix);
+        mem_free(dp);
+        mem_free(prefix);
         dp = newdp;
     }
 
     seq_t result = dp[N];
-    free(dp);
+    mem_free(dp);
     return result;
 }

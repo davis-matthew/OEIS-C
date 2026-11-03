@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   last_digit_phi
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,29 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/last_digit_phi.h"
+#include "../utils/mem.h"
+
+/* Compute the last decimal digit of φ(k) using 64‑bit arithmetic.
+   Only the result modulo 10 is needed, so no arbitrary‑precision
+   types are required. */
+static unsigned char last_digit_phi(idx_t k)
+{
+    unsigned long long phi = (unsigned long long)k;
+    unsigned long long t   = (unsigned long long)k;
+
+    for (unsigned long long p = 2; p * p <= t; ++p) {
+        if (t % p == 0) {
+            /* Remove factor p completely from t */
+            while (t % p == 0) t /= p;
+            /* Update φ: φ = φ / p * (p-1)   (exact integer arithmetic) */
+            phi = phi / p * (p - 1);
+        }
+    }
+    if (t > 1) {          /* remaining prime factor */
+        phi = phi / t * (t - 1);
+    }
+    return (unsigned char)(phi % 10ULL);
+}
 
 /* Returns the n‑th term of sequence A072585 (1‑based). */
 seq_t a(idx_t n)
@@ -45,10 +68,10 @@ seq_t a(idx_t n)
             /* ensure enough capacity */
             if (count >= cap) {
                 size_t new_cap = cap ? cap * 2 : 16;
-                seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+                seq_t *new_arr = mem_new(seq_t, new_cap);
                 if (!new_arr) return (seq_t)0;           /* allocation failure */
                 for (size_t i = 0; i < count; ++i) new_arr[i] = terms[i];
-                free(terms);
+                mem_free(terms);
                 terms = new_arr;
                 cap   = new_cap;
             }

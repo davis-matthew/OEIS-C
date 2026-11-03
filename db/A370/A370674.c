@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{d|n} (-1)^(d-1) * (d + n/d - 1)! / (d-1)!
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of factorials: fact[i] = i! for i = 0..fact_len-1 */
 static seq_t *fact = NULL;
@@ -30,9 +32,9 @@ static void ensure_factorial(idx_t n)
     seq_t *new_fact = NULL;
 
     if (fact == NULL) {
-        new_fact = (seq_t *)malloc(new_len * sizeof(seq_t));
+        new_fact = mem_new(seq_t, new_len);
     } else {
-        new_fact = (seq_t *)realloc(fact, new_len * sizeof(seq_t));
+        new_fact = mem_resize(seq_t, fact, new_len);
     }
 
     if (new_fact == NULL)

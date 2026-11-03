@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
                 (a(n+1)+a(n))/2   if (a(n+1)+a(n)) ≡ 0 (mod 2)
                 a(n+1)+a(n)        otherwise                     */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* storage for computed terms, 1‑based */
 static idx_t  computed = 0;     /* maximum index that has been computed */
@@ -29,14 +31,14 @@ static void grow_cache(idx_t need)
 {
     if (cache == NULL) {
         size_t sz = (need >= 2 ? need + 1 : 3);
-        cache = (seq_t *)malloc(sizeof(seq_t) * sz);
+        cache = mem_new(seq_t, sz);
         /* initialise base terms once */
         cache[1] = (seq_t)1;
         cache[2] = (seq_t)8;
         computed = 2;
     } else if (need + 1 > computed) { /* we need a larger buffer */
         size_t sz = need + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * sz);
+        seq_t *tmp = mem_resize(seq_t, cache, sz);
         if (tmp != NULL) {
             cache = tmp;
         }

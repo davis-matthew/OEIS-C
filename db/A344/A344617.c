@@ -7,15 +7,16 @@
  * Formula:   a(n) = 0 if n is a perfect square; otherwise a(n) =
  *            (-1)^(Ω(n)-1) where Ω(n) = total number of prime factors of n
  *            with multiplicity (A001222)
- * Range:     i8 n <= 1392, i16 n <= 9958, i32 n <= 9958, i64 n <= 9958,
- *            i128 n <= 9958, big any n
- * Helpers:   count_prime_factors
+ * Range:     i8 n <= 1392, i16 n <= 65536, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 109 terms through n = 9958 (2026-11-01)
+ * Helpers:   bigomega_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_prime_factors.h"
+#include "../utils/bigomega_seq.h"
 
 static inline idx_t isqrt_u64(idx_t n)
 {
@@ -45,7 +46,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* Ω(n): total number of prime factors with multiplicity. */
-    seq_t k = count_prime_factors((seq_t)n);
+    seq_t k = bigomega_seq((seq_t)n);
 
     /* Return +1 if k is odd, -1 if k is even. */
     return (k & (seq_t)1) ? (seq_t)1 : (seq_t)(-1);

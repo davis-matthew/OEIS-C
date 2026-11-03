@@ -7,9 +7,10 @@
  * Formula:   a(n) = the n-th prime p > 1 that can be written as x^2 - x*y +
  *            23*y^2 (equivalently, primes with Legendre symbols (p|7) =
  *            (p|13) = 1)
- * Range:     u8 n <= 12, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 12, u16 n <= 1626, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 65 terms through n = 9842 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- fast modular exponentiation ---------------------------------- */
 static uint64_t mod_pow_uint64(uint64_t base, uint64_t exp, uint64_t mod)
@@ -95,10 +97,10 @@ static void seq_expand(void)
 {
     if (seq_cap == 0) {
         seq_cap = 16;
-        seq_vals = (seq_t *)malloc(seq_cap * sizeof *seq_vals);
+        seq_vals = mem_new(seq_t, (seq_cap * sizeof *seq_vals) / sizeof(seq_t));
     } else {
         seq_cap <<= 1;
-        seq_vals = (seq_t *)realloc(seq_vals, seq_cap * sizeof *seq_vals);
+        seq_vals = mem_resize(seq_t, seq_vals, (seq_cap * sizeof *seq_vals) / sizeof(seq_t));
     }
 }
 

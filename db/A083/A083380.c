@@ -8,12 +8,13 @@
  * Formula:   a(n) = Σ_{d=1..n} (⌊∛(2·10^{d-1} – 1)⌋ – ⌊∛(10^{d-1} – 1)⌋)
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   floor_cube_root_128
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   icbrt_u128_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_cube_root_128.h"
+#include "../utils/icbrt_u128_to_seq.h"
 /*  The following implementation keeps all intermediate arithmetic in 128‑bit
     unsigned integers (a type available in C11/C++17).  This avoids overflow
     for all indices where the result still fits into the regular 64‑bit
@@ -34,11 +35,11 @@ a(idx_t n)
     for (idx_t d = 1; d <= n; ++d) {
         /* lower bound: 10^{d-1} – 1 */
         unsigned __int128 lowB = pow10 - 1;
-        seq_t lowRoot = floor_cube_root_128(lowB);
+        seq_t lowRoot = icbrt_u128_to_seq(lowB);
 
         /* upper bound: 2·10^{d-1} – 1 */
         unsigned __int128 highB = pow10 * 2 - 1;
-        seq_t highRoot = floor_cube_root_128(highB);
+        seq_t highRoot = icbrt_u128_to_seq(highB);
 
         total += highRoot - lowRoot;
 

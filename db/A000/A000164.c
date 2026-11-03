@@ -9,13 +9,14 @@
  *            remainder is a perfect square
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a164_isqrt
+ * Validated: standard, pass, 121 terms through n = 9036 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a164_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +26,7 @@ seq_t a(idx_t n)
     for (k = 0; 3 * k * k <= N; k++) {
         for (j = k; k * k + 2 * j * j <= N; j++) {
             uint64_t rem = N - k * k - j * j;
-            uint64_t i = a164_isqrt(rem);
+            uint64_t i = isqrt_u64(rem);
             if (i * i == rem && i >= j)
                 count++;
         }

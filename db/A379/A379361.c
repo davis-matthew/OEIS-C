@@ -10,7 +10,8 @@
  *            abelian groups of order k
  * Range:     u8 n <= 23, u16 n <= 207, u32 n <= 8182, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 72 terms through n = 9654 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"          /* seq_t gcd(seq_t a, seq_t b) */
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* ---- static helpers ---- */
 
@@ -91,7 +93,7 @@ static seq_t compute_abelian(idx_t n)
 static void ensure_abelian(idx_t n)
 {
     if (abelian_cap > n) return;
-    abelian = (seq_t*)realloc(abelian, (n + 1) * sizeof(seq_t));
+    abelian = mem_resize(seq_t, abelian, (n + 1));
     for (idx_t i = abelian_cap; i <= n; ++i) {
         abelian[i] = compute_abelian(i);
     }

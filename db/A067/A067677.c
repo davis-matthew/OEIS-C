@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   ensure_mem_cap
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,19 @@
     divide the composite. */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/ensure_mem_cap.h"
+
+/* ------------------------------------------------------------------ */
+static void ensure_mem_cap(void **ptr, size_t *cap, size_t needed, size_t elem_size, const char *descr)
+{
+    if (*cap < needed) {
+        size_t new_cap = *cap ? (*cap << 1) : 64;
+        while (new_cap < needed) new_cap <<= 1;
+        void *new_ptr = realloc(*ptr, new_cap * elem_size);
+        if (!new_ptr) exit(1);
+        *ptr = new_ptr;
+        *cap = new_cap;
+    }
+}
 
 /* ------------------------------------------------------------------ */
 /*  Constants and static data                                         */

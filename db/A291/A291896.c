@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 45, u64 n <= 88, u128 n <= 175,
  *            big any n
- * Helpers:   Lmax
+ * Validated: standard, pass, 56 terms through n = 4306 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,17 @@
 #include <math.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/Lmax.h"
+#include "../utils/mem.h"
+
+/* Small helper: floor((sqrt(8*n+1)-1)/2)  */
+static inline idx_t Lmax(idx_t n)
+{
+    /* compute with double, then correct round‑off */
+    idx_t v = (idx_t)((sqrt((double)(8.0 * (double)n + 1.0)) - 1.0) / 2.0);
+    while ((v + 1) * (v + 2) / 2 <= n) ++v;
+    while (v * (v + 1) / 2 > n) --v;
+    return v;
+}
 
 /* Main function required by the build system */
 seq_t a(idx_t n)
@@ -40,7 +51,7 @@ seq_t a(idx_t n)
 
     /* lazy initialisation: prepare for n = 0 */
     if (ans == NULL) {
-        ans = (seq_t *)calloc(1, sizeof(seq_t));
+        ans = mem_new(seq_t, 1);
         ans[0] = 1;                    /* a(0) = 1 */
         dp  = (seq_t **)calloc(1, sizeof(seq_t *));
         last_n = 0;
@@ -49,7 +60,7 @@ seq_t a(idx_t n)
     if (n > last_n) {
         /* enlarge array to size n+1 */
         size_t new_size = (size_t)n + 1;
-        ans = (seq_t *)realloc(ans, new_size * sizeof(seq_t));
+        ans = mem_resize(seq_t, ans, new_size);
         for (size_t i = last_n + 1; i < new_size; ++i) ans[i] = 0;
 
         dp = (seq_t **)realloc(dp, new_size * sizeof(seq_t *));
@@ -58,7 +69,7 @@ seq_t a(idx_t n)
         /* allocate and compute dp for each new sum */
         for (idx_t s = last_n + 1; s <= n; ++s) {
             idx_t maxV = Lmax(s);
-            dp[s] = (seq_t *)calloc((size_t)(maxV + 1), sizeof(seq_t));
+            dp[s] = mem_new(seq_t, (size_t)(maxV + 1));
             if (s == 1) {
                 dp[1][1] = 1;
                 ans[1] = 1;

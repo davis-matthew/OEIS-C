@@ -9,13 +9,15 @@
  *            in increasing order and start with a(1)=0
  * Range:     u8 n <= 70, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 925 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for the precomputed list of terms */
 static seq_t *sequence = NULL;
@@ -46,7 +48,7 @@ static void init_sequence(void)
 
     /* build the sorted list of terms */
     size_t capacity = 128;
-    seq_t *terms = (seq_t*)malloc(capacity * sizeof(seq_t));
+    seq_t *terms = mem_new(seq_t, capacity);
     if (!terms) { free(isPrime); free(isSquare); exit(EXIT_FAILURE); }
 
     size_t cnt = 0;
@@ -54,8 +56,8 @@ static void init_sequence(void)
         if (i == 0 || isPrime[i] || isSquare[i]) {
             if (cnt == capacity) {
                 capacity <<= 1;
-                seq_t *tmp = (seq_t*)realloc(terms, capacity * sizeof(seq_t));
-                if (!tmp) { free(isPrime); free(isSquare); free(terms); exit(EXIT_FAILURE); }
+                seq_t *tmp = mem_resize(seq_t, terms, capacity);
+                if (!tmp) { free(isPrime); free(isSquare); mem_free(terms); exit(EXIT_FAILURE); }
                 terms = tmp;
             }
             terms[cnt++] = (seq_t)i;

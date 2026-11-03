@@ -11,13 +11,15 @@
  *            index in the row)
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute the A174040 term for a given index n. */
 seq_t a(idx_t n)
@@ -35,8 +37,8 @@ seq_t a(idx_t n)
     size_t sz = (size_t)target_n + 1;     /* array length needed */
 
     /* Allocate arrays for two consecutive Eulerian rows. */
-    seq_t *e  = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *ne = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *e  = mem_new(seq_t, sz);
+    seq_t *ne = mem_new(seq_t, sz);
     if (!e || !ne) {                      /* allocation failed */
         return 0;
     }
@@ -60,8 +62,8 @@ seq_t a(idx_t n)
     seq_t e_val = e[m];
 
     /* Free temporary storage. */
-    free(e);
-    free(ne);
+    mem_free(e);
+    mem_free(ne);
 
     /* Pre‑compute powers of 3 up to 3^10 once. */
     static seq_t pow3[11];

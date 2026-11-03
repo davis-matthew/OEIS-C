@@ -7,13 +7,15 @@
  * Formula:   a(n) = sum_{k=1..n} (-1)^floor(k * PI)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9665 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const long double PI = 3.14159265358979323846264338327950288L;
 
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         if (needed > memo_cap) {
             size_t new_cap = memo_cap ? memo_cap * 2 : 1;
             while (new_cap < needed) new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, memo, new_cap);
             memo = tmp;
             memo_cap = new_cap;
         }

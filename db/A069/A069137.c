@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 138, u32 n <= 138, u64 n <= 138,
  *            u128 n <= 138, big any n
- * Helpers:   int_cube_root
+ * Validated: standard, pass, 71 terms through n = 129 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/int_cube_root.h"
+#include <limits.h>
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 /* Shift-or helper:  out |= in << shift.
    The bitset has 'words' 64‑bit words and represents integers

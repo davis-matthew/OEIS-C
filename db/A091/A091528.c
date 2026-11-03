@@ -8,12 +8,14 @@
  * Formula:   a(n) = Sum_{k=1..n} H(k)*k!*(n-k)! mod (n+1)
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* factorial modulo (n+1) for 0..n */
-    seq_t *fact = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (N + 1));
     if (!fact) return 0;           /* fallback if allocation fails */
 
     fact[0] = (seq_t)1 % mod;
@@ -47,6 +49,6 @@ seq_t a(idx_t n)
         A_prev = A_next;
     }
 
-    free(fact);
+    mem_free(fact);
     return sum % mod;
 }

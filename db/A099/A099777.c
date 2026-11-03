@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 9355, u16 n <= 9355, u32 n <= 9355, u64 n <= 9355,
- *            u128 n <= 9355, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 111 terms through n = 9355 (2026-11-01)
  * Helpers:   factor_uint64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_uint64.h"  // provides factor_uint64
+#include "../utils/factor_uint64.h"
 
 seq_t a(idx_t n)
 {

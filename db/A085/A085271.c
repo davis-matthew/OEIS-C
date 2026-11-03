@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----- Integer square root (for 64‑bit numbers) ----------------------------- */
 static uint64_t int_sqrt(uint64_t n)
@@ -111,8 +113,8 @@ static uint64_t composite_candidate = 4; /* next integer to test for composite *
 static void grow_composite_cap(void)
 {
     size_t new_cap = (composite_cap == 0) ? 1 : composite_cap << 1;
-    seq_t *c_tmp = (seq_t *)realloc(composites, new_cap * sizeof(seq_t));
-    seq_t *s_tmp = (seq_t *)realloc(spf_cache, new_cap * sizeof(seq_t));
+    seq_t *c_tmp = mem_resize(seq_t, composites, new_cap);
+    seq_t *s_tmp = mem_resize(seq_t, spf_cache, new_cap);
     if (!c_tmp || !s_tmp) abort();
     composites = c_tmp;
     spf_cache = s_tmp;

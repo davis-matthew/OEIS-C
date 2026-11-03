@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   build_primes_upto, is_smooth_11
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,19 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/is_smooth_11.h"
+#include "../utils/mem.h"
+
+/* Test if n is 11‑smooth: only prime divisors 2,3,5,7,11. */
+static bool is_smooth_11 (seq_t n) {
+    static const seq_t primes[5] = {2,3,5,7,11};
+    for (int i = 0; i < 5; ++i) {
+        seq_t p = primes[i];
+        while (n % p == 0)
+            n /= p;
+        if (n == 1) return true;
+    }
+    return n == 1;
+}
 
 static seq_t *seq = NULL;          /* array of found primes */
 static size_t seq_len = 0;         /* number of primes stored */
@@ -35,9 +48,9 @@ static void rebuild_sequence (idx_t limit) {
     build_primes_upto(limit, &p_arr, &p_cnt);   /* primes <= limit */
 
     /* free previous data if any */
-    if (seq) free(seq);
+    if (seq) mem_free(seq);
     seq_len = 0;
-    seq = (seq_t*)malloc(16384 * sizeof(seq_t));
+    seq = mem_new(seq_t, 16384);
     size_t seq_cap = 16384;
 
     for (size_t i = 0; i < p_cnt; ++i) {
@@ -45,7 +58,7 @@ static void rebuild_sequence (idx_t limit) {
         if (!is_smooth_11(p-1) && !is_smooth_11(p+1)) {
             if (seq_len == seq_cap) {
                 seq_cap <<= 1;
-                seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = p;
         }

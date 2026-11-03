@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 7822, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   prime_is_prime
+ * Validated: standard, pass, 76 terms through n = 9839 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,25 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/prime_is_prime.h"
+
+/* Helper: test whether a candidate number is prime using the already
+   generated primes.  Only trial division up to sqrt(candidate) is
+   performed.  The function is inline for speed and keeps its own static
+   list of primes. */
+static bool prime_is_prime(uint32_t candidate, uint32_t *primes, size_t prime_cnt)
+{
+    if (candidate < 2) return false;
+    if (candidate == 2) return true;
+    if ((candidate & 1) == 0) return false;          /* even numbers are composite */
+
+    /* trial division by known primes only up to sqrt(candidate) */
+    for (size_t i = 0; i < prime_cnt; ++i) {
+        uint32_t p = primes[i];
+        if ((uint64_t)p * p > candidate) break;
+        if (candidate % p == 0) return false;
+    }
+    return true;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

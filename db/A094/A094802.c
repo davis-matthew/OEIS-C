@@ -7,7 +7,8 @@
  * Formula:   a(n) = max_{p ≤ n} k where v_p(k!) ≥ ⌊log_p(n)⌋
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   min_k_for_prime, vp_fac
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,34 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/min_k_for_prime.h"
-#include "../utils/vp_fac.h"
+
+/* exponent of prime p in k! */
+static idx_t vp_fac(idx_t k, idx_t p)
+{
+    idx_t sum = 0;
+    for (idx_t div = p; div <= k; div *= p) {
+        sum += k / div;
+        if (div > k / p) break;   /* prevent overflow of div */
+    }
+    return sum;
+}
+
+/* minimal k with vp_fac(k,p) ≥ e  */
+static idx_t min_k_for_prime(idx_t p, idx_t e)
+{
+    idx_t low  = p;
+    idx_t high = e * p;
+    if (high < low) high = low;   /* safety for very small e */
+
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        if (vp_fac(mid, p) >= e)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 /* static data for prime list */
 static int *s_primes = NULL;

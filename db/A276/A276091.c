@@ -10,6 +10,7 @@
  *            * m! (so a(n) = Σ_{k} bit_k(n)*(k+1)*(k+1)! )
  * Range:     u8 n <= 15, u16 n <= 127, u32 n <= 2047, u64 n <= 8191,
  *            u128 n <= 8191, big any n
+ * Validated: standard, pass, 82 terms through n = 7919 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

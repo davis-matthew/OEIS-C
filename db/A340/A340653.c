@@ -7,9 +7,10 @@
  * Formula:   a(n) = number of ordered factorizations of n into factors >1
  *            such that the length of the factorization equals the maximum
  *            Ω(f) of its factors. The empty factorization is counted for n=1
- * Range:     u8 n <= 9997, u16 n <= 9997, u32 n <= 9997, u64 n <= 9997,
- *            u128 n <= 9997, big any n
- * Helpers:   none
+ * Range:     u8 n <= 30239, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 9997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #else
 #  define CCAST(p, type) ((type)(p))
 #endif
+#include "../utils/mem.h"
 
 /* External types supplied by the build system. */
 extern seq_t a(idx_t n);
@@ -83,7 +85,7 @@ static void ensure_cache(idx_t n)
         return;
 
     idx_t new_cap = n + 1;
-    seq_t *new_vals = CCAST(realloc(cache_vals, new_cap * sizeof(seq_t)), seq_t *);
+    seq_t *new_vals = CCAST(mem_resize(seq_t, cache_vals, new_cap), seq_t *);
     if (!new_vals) exit(1);
     cache_vals = new_vals;
 

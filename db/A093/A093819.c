@@ -11,12 +11,14 @@
  *            n ≥ 1, including the special case n = 4 whe...
  * Range:     u8 n <= 255, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 94 terms through n = 944 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     if (n == 0) return 0;
 
     /* Compute Euler's totient of n. */
-    seq_t phi_n = phi(n);
+    seq_t phi_n = totient(n);
 
     /* Determine gcd(n,8) by examining n mod 8. */
     idx_t r = n & 7;          /* n % 8, since 8 is a power of 2 */

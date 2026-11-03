@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 12, i16 n <= 32, i32 n <= 43, i64 n <= 43, i128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,8 +38,8 @@ seq_t a(idx_t n)
     /* Initial allocation: a[0] = 1, b[0] = 1 */
     if (max_n == (idx_t)-1) {
         max_n = 0;
-        vals = (seq_t *)malloc(1 * sizeof(seq_t));
-        buf  = (seq_t *)malloc(1 * sizeof(seq_t));
+        vals = mem_new(seq_t, 1);
+        buf  = mem_new(seq_t, 1);
         if (!vals || !buf) return (seq_t)0;      /* allocation failed */
         vals[0] = (seq_t)1;
         buf[0]  = vals[0];
@@ -49,10 +51,10 @@ seq_t a(idx_t n)
     /* Grow arrays to accommodate up to n */
     size_t new_size = (size_t)n + 1;
     if (new_size > (size_t)max_n + 1) {
-        seq_t *tmp = (seq_t *)realloc(vals, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, vals, new_size);
         if (!tmp) return (seq_t)0;
         vals = tmp;
-        tmp = (seq_t *)realloc(buf, new_size * sizeof(seq_t));
+        tmp = mem_resize(seq_t, buf, new_size);
         if (!tmp) return (seq_t)0;
         buf  = tmp;
     }

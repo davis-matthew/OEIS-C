@@ -9,19 +9,78 @@
  *            until at least n distinct sums are found
  * Range:     u8 n <= 1, u16 n <= 42, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_zero, heap_sort, pow9_ok, release, seq_is_fixed_width,
- *            sift
+ * Validated: standard, pass, 54 terms through n = 897 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/heap_sort.h"
-#include "../utils/pow9_ok.h"
-#include "../utils/sift.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static void sift(seq_t *v, idx_t root, idx_t end) {
+    while (2 * root + 1 < end) {
+        idx_t c = 2 * root + 1;
+        if (c + 1 < end && v[c] < v[c + 1]) c++;
+        if (v[root] < v[c]) {
+            seq_t t = v[root];
+            v[root] = v[c];
+            v[c] = t;
+            root = c;
+        } else {
+            return;
+        }
+    }
+}
+
+static void heap_sort(seq_t *v, idx_t len) {
+    idx_t i, end;
+    if (len < 2) return;
+    for (i = len / 2; i-- > 0;) sift(v, i, len);
+    for (end = len - 1; end > 0; end--) {
+        seq_t t = v[0];
+        v[0] = v[end];
+        v[end] = t;
+        sift(v, 0, end);
+    }
+}
+
+static bool pow9_ok(idx_t b, seq_t *out) {
+    seq_t p = 1, sb = (seq_t)b;
+    int i;
+    for (i = 0; i < 9; i++) {
+        seq_t q = p * sb;
+        if (q / sb != p) return false;
+        p = q;
+    }
+    *out = p;
+    return true;
+}
 
 static seq_t *cache = 0;
 static idx_t cache_alloc = 0;

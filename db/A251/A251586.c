@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 3, u32 n <= 7, u64 n <= 11, u128 n <= 20,
  *            big any n
- * Helpers:   poly
+ * Validated: standard, pass, 34 terms through n = 301 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,22 @@
  */
 
 #include <stdint.h>
-#include "../utils/poly.h"
+
+/* polynomial part of the formula */
+static seq_t poly(idx_t n)
+{
+    seq_t nn  = (seq_t)n;
+    seq_t nn2 = nn * nn;           /* n^2 */
+    seq_t nn3 = nn2 * nn;          /* n^3 */
+    seq_t nn4 = nn3 * nn;          /* n^4 */
+
+    seq_t res = (seq_t)125 * nn4;   /* 125*n^4 */
+    res += (seq_t)810 * nn3;        /* + 810*n^3 */
+    res += (seq_t)2095 * nn2;       /* + 2095*n^2 */
+    res += (seq_t)2586 * nn;        /* + 2586*n   */
+    res += (seq_t)1296;             /* + 1296     */
+    return res;
+}
 
 /* local power helper: base^exp for unsigned exp via binary exponentiation */
 static seq_t pow_seq_local(seq_t base, idx_t exp)

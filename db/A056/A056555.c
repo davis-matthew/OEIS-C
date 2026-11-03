@@ -7,6 +7,7 @@
  * Formula:   a(n) = ∏_{p|n} p^{(4 - ord_p(n)) mod 4} (multiplicative)
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 1625, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 61 terms through n = 9717 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

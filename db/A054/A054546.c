@@ -10,7 +10,8 @@
  *            their differences
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 897 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The build defines seq_t and idx_t. */
 
@@ -66,11 +68,11 @@ static void ensure_a(idx_t need) {
     /* Grow storage for a_seq */
     if (a_cap == 0) {
         a_cap = 16;
-        a_seq = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_seq = mem_new(seq_t, a_cap);
     }
     while (a_cap < (size_t)need) {
         a_cap *= 2;
-        a_seq = (seq_t *)realloc(a_seq, a_cap * sizeof(seq_t));
+        a_seq = mem_resize(seq_t, a_seq, a_cap);
         if (!a_seq)
             abort();
     }

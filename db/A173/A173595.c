@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 10, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   mulmod_u64, near_repdigit_u64, reverse_u64
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem, mulmod, reverse_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,33 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mulmod_u64.h"
-#include "../utils/near_repdigit_u64.h"
-#include "../utils/reverse_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/reverse_digits_u64.h"
+#include "../utils/mem.h"
+
+/* ---- near‑repdigit test: two distinct digits, one appears n−1 times ---- */
+static bool near_repdigit_u64(uint64_t x)
+{
+    if (x < 100) return false;           /* length < 3 cannot satisfy */
+    int cnt[10] = {0};
+    int distinct = 0, digits = 0;
+    uint64_t t = x;
+    while (t) {
+        int d = t % 10;
+        if (cnt[d]++ == 0) ++distinct;
+        ++digits;
+        t /= 10;
+    }
+    if (distinct != 2) return false;
+    int maxf = 0, minf = 1000;
+    for (int i=0;i<10;i++) {
+        if (cnt[i] > 0) {
+            if (cnt[i] > maxf) maxf = cnt[i];
+            if (cnt[i] < minf) minf = cnt[i];
+        }
+    }
+    return (maxf == digits-1) && (minf == 1);
+}
 
 /* ---- 64‑bit modular multiplication / exponentiation ---- */
 
@@ -32,8 +57,8 @@ static uint64_t mod_pow_u64(uint64_t base, uint64_t exp, uint64_t mod)
 {
     uint64_t res = 1;
     while (exp) {
-        if (exp & 1ULL) res = mulmod_u64(res, base, mod);
-        base = mulmod_u64(base, base, mod);
+        if (exp & 1ULL) res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1ULL;
     }
     return res;
@@ -64,7 +89,7 @@ static bool is_prime_u64(uint64_t n)
         if (x==1ULL || x==n-1) continue;
         bool comp = true;
         for (int r=1;r<s;r++) {
-            x = mulmod_u64(x,x,n);
+            x = mulmod(x,x,n);
             if (x==n-1){ comp=false; break;}
         }
         if (comp) return false;
@@ -83,7 +108,7 @@ static void ensure_capacity(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap*2 : 8;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }
@@ -105,7 +130,7 @@ seq_t a(idx_t n)
         }
 
         if (is_prime_u64(next_candidate) && near_repdigit_u64(next_candidate)) {
-            uint64_t rev = reverse_u64(next_candidate);
+            uint64_t rev = reverse_digits_u64(next_candidate);
             if (rev != next_candidate &&
                 near_repdigit_u64(rev) &&
                 is_prime_u64(rev) &&

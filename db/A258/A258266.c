@@ -9,7 +9,8 @@
  *            minimal number of squares
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
         minC[0] = 0;
         repC[0] = 1;   /* empty sum – one representation */
 
-        idx_t sqrtLim = int_sqrt(LIMIT);
+        idx_t sqrtLim = isqrt(LIMIT);
         for (idx_t a = 1; a <= sqrtLim; ++a)
         {
             idx_t sq = a * a;
@@ -70,7 +73,7 @@ seq_t a(idx_t n)
         }
 
         /* Build the sequence of unique‑representation numbers. */
-        seq_terms = (seq_t *)malloc((LIMIT + 1) * sizeof(seq_t));
+        seq_terms = mem_new(seq_t, (LIMIT + 1));
         if (!seq_terms) {
             free(minC);
             free(repC);

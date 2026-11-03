@@ -8,9 +8,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, fini, full
  * Formula:   not stated
- * Range:     u8 n <= 133, u16 n <= 9915, u32 n <= 9915, u64 n <= 9915,
- *            u128 n <= 9915, big any n
- * Helpers:   llabs_val
+ * Range:     u8 n <= 133, u16 n <= 25108, u32 n <= 25108, u64 n <= 25108,
+ *            u128 n <= 25108, big any n
+ * Validated: full, pass, 25109 terms through n = 25108 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/llabs_val.h"
+#include "../utils/mem.h"
+
+/* helper: absolute value for long long */
+static inline long long llabs_val(long long v) { return v < 0 ? -v : v; }
 
 /* mapping of a square number to its (x,y) coordinates in the spiral.
  * True for the spiral described in OEIS A174344 (origin (0,0)=0, 1 at (1,0),
@@ -89,7 +93,7 @@ static void ensure_seq_cap(size_t needed)
     size_t old = seq_cap;
     seq_cap = 1;
     while (seq_cap <= needed) seq_cap <<= 1;
-    seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, seq_cap);
     pos = (PC *)realloc(pos, seq_cap * sizeof(PC));
 }
 

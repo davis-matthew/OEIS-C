@@ -7,11 +7,13 @@
  * Formula:   a(n) = (1/n) * Σ_{k=1..n} k * 2^gcd(n,k)
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 27, u64 n <= 31, u128 n <= 31,
  *            big any n
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/pow2.h"
 #include <stdint.h>    /* for uint64_t etc., if needed */
 

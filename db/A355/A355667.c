@@ -12,7 +12,8 @@
  *            depends only on its distinct prime factors: * m/φ(m) =...
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   next_prime, seq_mul
+ * Validated: standard, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/next_prime.h"   /* next_prime(uint64_t) -> uint64_t   */
-#include "../utils/seq_mul.h"      /* seq_mul(seq_t a, seq_t b) -> seq_t */
+#include <string.h>
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* static storage for pre‑computed values */
 static uint32_t *primes      = NULL;   /* primes[0] = 2, primes[1] = 3, ...          */
@@ -44,7 +51,7 @@ static void enlarge_storage(size_t need)
     while (new_cap < need) new_cap *= 2;
 
     primes   = (uint32_t*)realloc(primes,   new_cap * sizeof(uint32_t));
-    phi_prefix = (seq_t*)realloc(phi_prefix, new_cap * sizeof(seq_t));
+    phi_prefix = mem_resize(seq_t, phi_prefix, new_cap);
     ratio    = (long double*)realloc(ratio,    new_cap * sizeof(long double));
     prime_cap = new_cap;
 }

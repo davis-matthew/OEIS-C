@@ -7,7 +7,8 @@
  * Formula:   Number of distinct prime divisors of prime(n)+1 and prime(n+1)+1
  * Range:     u8 n <= 53, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, count_distinct_primes, gcd
+ * Validated: standard, pass, 117 terms through n = 1000 (2026-11-01)
+ * Helpers:   build_primes_upto, gcd, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/gcd.h"
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
 
 static uint64_t *prime_list = NULL;
 static size_t   prime_cnt   = 0;
@@ -74,7 +75,7 @@ a(idx_t n)
 
     /* Count distinct prime divisors of the gcd */
     uint64_t g64 = (uint64_t)g;               /* g fits in 64 bits for the required n */
-    seq_t result = (seq_t)count_distinct_primes(g64);
+    seq_t result = (seq_t)omega(g64);
 
     return result;
 }

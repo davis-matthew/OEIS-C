@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 41, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    initial values (offset 1):  a(1)=2, a(2)=5, a(3)=12, a(4)=36, a(5)=107, a(6)=321, a(7)=957, a(8)=2868 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 static const seq_t BASE[9] = { (seq_t)0,          /* unused index 0   */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache on the first call or when needed */
     if (!CACHE) {
         CACHESIZE = n + 1;                 /* allocate indices 0 .. n */
-        CACHE = (seq_t*)malloc((size_t)CACHESIZE * sizeof(seq_t));
+        CACHE = mem_new(seq_t, (size_t)CACHESIZE);
         if (!CACHE)
             return (seq_t)0;              /* allocation failure => 0 */
         /* initialise the first eight terms */
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         COMPUTED_MAX = 8;
     } else if (CACHESIZE <= n) {
         /* grow the array */
-        seq_t *tmp = (seq_t*)realloc(CACHE, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, CACHE, (size_t)(n + 1));
         if (!tmp)
             return (seq_t)0;              /* allocation failure => 0 */
         CACHE = tmp;

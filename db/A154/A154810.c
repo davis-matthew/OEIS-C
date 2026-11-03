@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 21, u32 n <= 961, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_palindrome
+ * Validated: standard, pass, 51 terms through n = 9918 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
  * the helper function is_palindrome(seq_t,x,10).  Adjust the path if
  * necessary. */
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 seq_t a(idx_t n)
 {
@@ -55,7 +56,7 @@ seq_t a(idx_t n)
             }
 
             /* Skip palindromic values. */
-            if (is_palindrome(v, 10)) continue;
+            if (is_palindrome_base(v, 10)) continue;
 
             /* Found another term. */
             ++found;

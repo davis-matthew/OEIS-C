@@ -11,7 +11,8 @@
  *            odd} Phi(k z^k) * Prod_{k=2l} G_k(z^l), where P...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 29,
  *            big any n
- * Helpers:   big_mod, conv_at, log_series, pr_isprime, pw_mod, solve_mod
+ * Validated: standard, pass, 37 terms through n = 170 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,12 +20,123 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/big_mod.h"
-#include "../utils/conv_at.h"
-#include "../utils/log_series.h"
-#include "../utils/pr_isprime.h"
-#include "../utils/pw_mod.h"
-#include "../utils/solve_mod.h"
+
+static uint64_t big_mod(const uint32_t *x, size_t len, uint64_t p) {
+    uint64_t r = 0;
+    size_t i = len;
+    while (i > 0) {
+        i--;
+        r = ((r << 32) + x[i]) % p;
+    }
+    return r;
+}
+
+/* sum_{i=lo}^{hi} x[i]*y[m-i] mod p, values < 2^30 */
+static uint64_t conv_at(const uint64_t *x, const uint64_t *y, idx_t m, idx_t lo, idx_t hi, uint64_t p) {
+    uint64_t s = 0;
+    int cnt = 0;
+    idx_t i;
+    for (i = lo; i <= hi; i++) {
+        s += x[i] * y[m - i];
+        if (++cnt == 15) { s %= p; cnt = 0; }
+    }
+    return s % p;
+}
+
+static void log_series(const uint64_t *F, uint64_t *g, uint64_t *ig, idx_t len,
+                       const uint64_t *inv, uint64_t p) {
+    idx_t m;
+    g[0] = 0;
+    ig[0] = 0;
+    for (m = 1; m < len; m++) {
+        uint64_t S = (m >= 2) ? conv_at(ig, F, m, 1, m - 1, p) : 0;
+        uint64_t v = (m % p) * F[m] % p;
+        ig[m] = (v + p - S) % p;
+        g[m] = ig[m] * inv[m] % p;
+    }
+}
+
+static int pr_isprime(uint64_t x) {
+    uint64_t d;
+    if (x % 2 == 0) return 0;
+    for (d = 3; d * d <= x; d += 2)
+        if (x % d == 0) return 0;
+    return 1;
+}
+
+static uint64_t pw_mod(uint64_t b, uint64_t e, uint64_t p) {
+    uint64_t r = 1;
+    b %= p;
+    while (e) {
+        if (e & 1) r = r * b % p;
+        b = b * b % p;
+        e >>= 1;
+    }
+    return r;
+}
+
+static uint64_t solve_mod(idx_t n, uint64_t p) {
+    idx_t i, j, k, l, c, m;
+    uint64_t *inv = (uint64_t *)malloc((2 * n + 2) * sizeof(uint64_t));
+    uint64_t *F = (uint64_t *)malloc((n + 1) * sizeof(uint64_t));
+    uint64_t *g = (uint64_t *)malloc((n + 1) * sizeof(uint64_t));
+    uint64_t *ig = (uint64_t *)malloc((n + 1) * sizeof(uint64_t));
+    uint64_t *s = (uint64_t *)malloc((n + 1) * sizeof(uint64_t));
+    uint64_t *L = (uint64_t *)calloc(n + 1, sizeof(uint64_t));
+    uint64_t res;
+
+    inv[1] = 1;
+    for (i = 2; i <= 2 * n; i++)
+        inv[i] = (p - (p / i) * inv[p % i] % p) % p;
+
+    /* Phi coefficients and their log */
+    F[0] = 1;
+    for (j = 1; j <= n; j++) {
+        uint64_t o = (2 * j - 1) % p;
+        F[j] = F[j - 1] * o % p * o % p * inv[2 * j] % p;
+    }
+    log_series(F, s, ig, n + 1, inv, p);
+    for (k = 1; k <= n; k += 2) {
+        uint64_t kp = k % p, pw = 1;
+        for (j = 1; j * k <= n; j++) {
+            pw = pw * kp % p;
+            L[j * k] = (L[j * k] + s[j] * pw) % p;
+        }
+    }
+
+    /* even cycle lengths k = 2l */
+    for (l = 1; l <= n; l++) {
+        idx_t len = n / l + 1;
+        uint64_t kk = (2 * l) % p, invk = inv[2 * l];
+        uint64_t t2 = 1, t1 = 1, r = 1;
+        F[0] = 1;
+        for (c = 1; c < len; c++) {
+            uint64_t t;
+            if (c == 1) t = 1;
+            else {
+                t = (t1 + ((c - 1) % p) * kk % p * t2) % p;
+                t2 = t1;
+                t1 = t;
+            }
+            r = r * invk % p * inv[c] % p;
+            F[c] = t * t % p * t % p * r % p;
+        }
+        log_series(F, g, ig, len, inv, p);
+        for (c = 1; c < len; c++)
+            L[l * c] = (L[l * c] + g[c]) % p;
+    }
+
+    /* exp */
+    for (i = 1; i <= n; i++) ig[i] = (i % p) * L[i] % p;
+    ig[0] = 0;
+    F[0] = 1;
+    for (m = 1; m <= n; m++)
+        F[m] = conv_at(ig, F, m, 1, m, p) * inv[m] % p;
+    res = F[n];
+
+    free(inv); free(F); free(g); free(ig); free(s); free(L);
+    return res;
+}
 
 static uint32_t *pr_list = NULL;
 static size_t pr_cnt = 0, pr_cap = 0;

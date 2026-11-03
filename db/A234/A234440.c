@@ -12,7 +12,8 @@
  *            states and runs a standard transfer‑matrix DP
  * Range:     u8 none, u16 n <= 1, u32 n <= 6, u64 n <= 16, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* 3^6 = 729 possible rows of length 6 over {0,1,2}.  */
 #define STATES 729
@@ -115,8 +117,8 @@ static void init(void)
     free(pos);
 
     /* --- Allocate DP buffers --- */
-    cur  = (seq_t *)calloc(STATES, sizeof(seq_t));
-    next = (seq_t *)calloc(STATES, sizeof(seq_t));
+    cur  = mem_new(seq_t, STATES);
+    next = mem_new(seq_t, STATES);
     if (!cur || !next) exit(EXIT_FAILURE);
 
     /* Initial DP vector (height = 1): one way per row. */
@@ -125,7 +127,7 @@ static void init(void)
 
     /* Initialise cache. */
     cache_size = 2;                    /* indices 0 .. 1  */
-    cache      = (seq_t *)calloc(cache_size, sizeof(seq_t));
+    cache      = mem_new(seq_t, cache_size);
     if (!cache) exit(EXIT_FAILURE);
     max_cached = 0;
     current_rows = 1;   /* cur holds arrays of height 1 initially */
@@ -143,7 +145,7 @@ seq_t a(idx_t n)
     size_t needed = (size_t)n + 1;   /* need indices 0..n */
     if (needed > cache_size) {
         cache_size = needed;
-        cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_size);
         if (!cache) exit(EXIT_FAILURE);
     }
 
@@ -154,7 +156,7 @@ seq_t a(idx_t n)
     /* Extend DP from current_rows up to n+1. */
     while (current_rows < n + 1) {
         /* Clear next vector. */
-        memset(next, 0, STATES * sizeof(seq_t));
+        mem_set(next, 0, STATES * sizeof(seq_t));
 
         /* Transition from cur to next. */
         for (int p = 0; p < STATES; ++p) {

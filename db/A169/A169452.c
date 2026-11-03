@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
        computed by the recurrence).  Start with a small capacity if needed. */
     if (!b_arr) {
         b_cap = 64;
-        b_arr = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        b_arr = mem_new(seq_t, b_cap);
         /* initialise b_0 = 1 */
         b_arr[0] = 1;
         b_len = 1;
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         /* grow array if necessary */
         if ((size_t)b_len >= b_cap) {
             size_t new_cap = b_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(b_arr, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, b_arr, new_cap);
             if (!tmp) abort();  /* allocation failure */
             b_arr = tmp;
             b_cap = new_cap;

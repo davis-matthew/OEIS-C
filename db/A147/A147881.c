@@ -10,7 +10,8 @@
  *            - 5449152*n^2 - 2743020*n + 82544280)/40320
  * Range:     u8 none, u16 n <= 5, u32 n <= 8, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   gcd, unsigned_gcd
+ * Validated: partial, pass, 18 terms through n = 22 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/unsigned_gcd.h"
 
 /* Main sequence function */
 seq_t a(idx_t n) {
@@ -32,7 +32,7 @@ seq_t a(idx_t n) {
     /* pref = (n-4)*(n-3)*(n-2)*(n-1)*n with cancellation against denom */
     for (int i = 0; i < 5; ++i) {
         seq_t term = nt - (seq_t)i;
-        seq_t g = unsigned_gcd(term, denom);
+        seq_t g = gcd(term, denom);
         if (g > 1) {
             term /= g;
             denom /= g;
@@ -41,7 +41,7 @@ seq_t a(idx_t n) {
     }
 
     /* further cancel any remaining common factor */
-    seq_t g = unsigned_gcd(pref, denom);
+    seq_t g = gcd(pref, denom);
     if (g > 1) {
         pref /= g;
         denom /= g;

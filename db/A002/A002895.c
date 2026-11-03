@@ -11,15 +11,60 @@
  *            a(1) = 4
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   a002895_fixed_width, a002895_rec, a002895_sum
+ * Validated: standard, pass, 36 terms through n = 754 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a002895_fixed_width.h"
-#include "../utils/a002895_rec.h"
-#include "../utils/a002895_sum.h"
+
+static int a002895_fixed_width(void) {
+    seq_t x = (seq_t)1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return x == 0;
+}
+
+static seq_t a002895_rec(idx_t n) {
+    if (n == 0) return (seq_t)1;
+    if (n == 1) return (seq_t)4;
+    seq_t p2 = (seq_t)1, p1 = (seq_t)4;
+    idx_t i;
+    for (i = 2; i <= n; i++) {
+        seq_t ni = (seq_t)i;
+        seq_t im = ni - 1;
+        seq_t t1 = (seq_t)2 * (2 * ni - 1) * (5 * ni * ni - 5 * ni + 2) * p1;
+        seq_t t2 = (seq_t)64 * im * im * im * p2;
+        seq_t cur = (t1 - t2) / (ni * ni * ni);
+        p2 = p1;
+        p1 = cur;
+    }
+    return p1;
+}
+
+static seq_t a002895_sum(idx_t n) {
+    /* C(n) = binomial(2n, n), built upward */
+    seq_t cm = (seq_t)1;
+    idx_t j, k;
+    for (j = 0; j < n; j++)
+        cm = cm * (seq_t)(2 * (2 * j + 1)) / (seq_t)(j + 1);
+
+    seq_t bnk = (seq_t)1;   /* binomial(n,k) */
+    seq_t ck = (seq_t)1;    /* binomial(2k,k) */
+    seq_t sum = (seq_t)0;
+    for (k = 0; k <= n; k++) {
+        sum += bnk * bnk * cm * ck;
+        if (k == n) break;
+        bnk = bnk * (seq_t)(n - k) / (seq_t)(k + 1);
+        ck = ck * (seq_t)(2 * (2 * k + 1)) / (seq_t)(k + 1);
+        {
+            idx_t m = n - k; /* cm: C(m) -> C(m-1) */
+            cm = cm * (seq_t)m / (seq_t)(2 * (2 * m - 1));
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n) {
     if (a002895_fixed_width()) return a002895_sum(n);

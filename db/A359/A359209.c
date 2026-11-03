@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- global state ---------- */
 static seq_t *safe = NULL;          /* sorted list of known safe numbers */
@@ -49,7 +51,7 @@ static void ensure_capacity(size_t need)
     size_t new_cap = safe_cap ? safe_cap << 1 : 8;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(safe, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, safe, new_cap);
     safe = tmp;
     safe_cap = new_cap;
 }

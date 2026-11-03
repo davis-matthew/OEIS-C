@@ -7,6 +7,7 @@
  * Formula:   a(n) = 736*n^3 - 321*n^2 - 13*n + 1
  * Range:     u8 none, u16 n <= 4, u32 n <= 180, u64 n <= 5000, u128 n <= 5000,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 4881 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

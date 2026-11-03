@@ -10,12 +10,14 @@
  *            48633·a(n-4)·a(n-5)) / a(n-9)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 83 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[10] = {
     1, 1, 1, 1,
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     /* initialise the cache with the known first 10 terms */
     if (cache == NULL) {
         capacity = computed = 10;
-        cache = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        cache = mem_new(seq_t, capacity);
         for (size_t i = 0; i < 10; ++i) cache[i] = init_vals[i];
     }
 
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
     if (needed > capacity) {
         size_t new_cap = capacity ? capacity : 1;
         while (new_cap < needed) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        cache = mem_resize(seq_t, cache, new_cap);
         capacity = new_cap;
     }
 

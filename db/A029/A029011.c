@@ -7,13 +7,15 @@
  * Formula:   a(n) = number of partitions of n into parts 1, 2, 5, 6
  * Range:     u8 n <= 38, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* Initialise table for n = 0 if this is the first call */
     if (dp == NULL)
     {
-        dp = (seq_t *)calloc(1, sizeof(seq_t));
+        dp = mem_new(seq_t, 1);
         if (!dp) return (seq_t)0;          /* allocation failure */
         dp[0] = (seq_t)1;                  /* partition of 0 */
         max_n = 0;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         return dp[n];
 
     /* Allocate a new table large enough for the requested n */
-    seq_t *new_dp = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, n + 1);
     if (!new_dp) return (seq_t)0;          /* allocation failure */
 
     new_dp[0] = (seq_t)1;                  /* base case for all n */
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     }
 
     /* Replace the old table */
-    free(dp);
+    mem_free(dp);
     dp = new_dp;
     max_n = n;
 

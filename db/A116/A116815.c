@@ -11,7 +11,8 @@
  *            function
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 26, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    (coefficients of the numerator).  For n > 11, R_n = 0.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Initial terms a(1) … a(9).  Index 0 is unused. */
 static const seq_t initial[10] = {
@@ -63,7 +65,7 @@ static void ensure_cache(idx_t n)
 
     /* Resize the cache */
     size_t new_size = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) {
         /* In a test environment we can abort; otherwise leave at 0. */
         abort();

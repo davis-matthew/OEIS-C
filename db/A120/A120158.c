@@ -7,6 +7,7 @@
  * Formula:   a(n) = 14 + floor((1 + Sum_{j=1}^{n-1} a(j)) / 3)
  * Range:     u8 n <= 11, u16 n <= 30, u32 n <= 68, u64 n <= 146,
  *            u128 n <= 300, big any n
+ * Validated: standard, pass, 56 terms through n = 995 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,13 +9,14 @@
  *            y² + z² ≤ 2n
  * Range:     u8 n <= 12, u16 n <= 494, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 67 terms through n = 9853 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
 
     /* limit on squared distance and its integer square root */
     idx_t limit2 = (idx_t)2 * n;              /* (2·n) fits easily in idx_t */
-    idx_t r = _floor_isqrt_u64(limit2);       /* floor(sqrt(2·n))   */
+    idx_t r = isqrt(limit2);       /* floor(sqrt(2·n))   */
     int r_int = (int)r;                       /* for signed loop limits */
 
     for (int x = -r_int; x <= r_int; ++x) {
@@ -40,7 +41,7 @@ seq_t a(idx_t n)
 
             int64_t remaining = (int64_t)limit2 - sumxy;
             idx_t rem = (idx_t)remaining;
-            int zmax = (int)_floor_isqrt_u64(rem);
+            int zmax = (int)isqrt(rem);
 
             for (int z = -zmax; z <= zmax; ++z) {
                 if ((z & 1) != parity_xy) continue;

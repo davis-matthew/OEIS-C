@@ -10,7 +10,8 @@
  * Formula:   a(n) = Sum_{k=0..n} k*A181289(n,k)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    ⇒  a_n = 8*a_{n-1} - 20*a_{n-2} + 16*a_{n-3} - 4*a_{n-4}   (n ≥ 5)
    with a_0 = 0, a_1 = 2, a_2 = 11, a_3 = 52, a_4 = 227. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         /* allocate space for at least n+1 elements,
            but always allocate at least 5 to hold the base values. */
         idx_t new_len = (n + 1 >= 5 ? n + 1 : 5);
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache)       /* allocation failure: fall back to zero */
             return (seq_t)0;
         cache = new_cache;

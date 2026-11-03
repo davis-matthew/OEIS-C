@@ -11,7 +11,8 @@
  *            a(n)=n
  * Range:     u8 n <= 66, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   isPrime
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
 
 /* test whether string sub is a subsequence of string full */
 static bool subseq(const char *sub, const char *full)
@@ -37,7 +38,7 @@ static seq_t find_min_composite(idx_t n)
 {
     seq_t base = (seq_t)n;
     /* If n is already composite return it. */
-    if (base > (seq_t)1 && !isPrime((idx_t)base))
+    if (base > (seq_t)1 && !is_prime((idx_t)base))
         return base;
 
     /* convert n to decimal string once */
@@ -45,7 +46,7 @@ static seq_t find_min_composite(idx_t n)
     snprintf(subbuf, sizeof(subbuf), "%llu", (unsigned long long)n);
 
     for (seq_t m = base + 1; ; ++m) {
-        if (m > (seq_t)1 && !isPrime((idx_t)m)) {
+        if (m > (seq_t)1 && !is_prime((idx_t)m)) {
             char buf[32];
             snprintf(buf, sizeof(buf), "%llu", (unsigned long long)m);
             if (subseq(subbuf, buf))

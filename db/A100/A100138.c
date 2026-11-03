@@ -9,12 +9,14 @@
  *            values: a(0)=1, a(1)=2, a(2)=4, a(3)=8, a(4)=16, a(5)=32
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 49, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 938 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* dynamically growing array of computed terms */
 static size_t cache_size = 0;   /* number of elements allocated in cache */
@@ -33,7 +35,7 @@ static void ensure_capacity(idx_t n)
         newsize = 16;           
 
     /* Reallocate the cache */
-    cache = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, newsize);
     if (!cache) {
         /* Allocation failed – aborting as per typical kernel behaviour */
         abort();

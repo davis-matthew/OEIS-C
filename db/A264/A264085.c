@@ -11,12 +11,14 @@
  *            time
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 30, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoised sequence values */
 static idx_t cache_capacity = 0; /* current allocated size (>= needed+1) */
@@ -28,7 +30,7 @@ ensure_cache(idx_t needed)
     if (needed < cache_capacity) return;
     idx_t new_cap = cache_capacity > 0 ? cache_capacity : 64;
     while (new_cap <= needed) new_cap *= 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();               /* allocation failed */
     /* Zero newly allocated entries: works for any seq_t type */
     for (idx_t i = cache_capacity; i < new_cap; ++i) new_cache[i] = 0;

@@ -11,6 +11,7 @@
  *            = e when p = 2 (the number of 1's in the part...
  * Range:     i8 n <= 718, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 107 terms through n = 9184 (2026-11-01)
  * Helpers:   factor_u64, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

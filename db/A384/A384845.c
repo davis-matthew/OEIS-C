@@ -10,12 +10,15 @@
  *            (n+m)^((n-1)*(m-1))
  * Range:     u8 n <= 11, u16 n <= 16, u32 n <= 23, u64 n <= 39, u128 n <= 70,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 52 terms through n = 695 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -45,15 +48,15 @@ seq_t a(idx_t n)
     seq_t result = 1;
 
     if (i >= 2)
-        result *= big_pow((seq_t)i, (seq_t)(i - 2));
+        result *= ipow((seq_t)i, (seq_t)(i - 2));
 
     if (j >= 2)
-        result *= big_pow((seq_t)j, (seq_t)(j - 2));
+        result *= ipow((seq_t)j, (seq_t)(j - 2));
 
     seq_t sum   = (seq_t)i + (seq_t)j;
     idx_t exp   = (i - 1) * (j - 1);
     if (exp != 0)
-        result *= big_pow(sum, (seq_t)exp);
+        result *= ipow(sum, (seq_t)exp);
 
     return result;
 }

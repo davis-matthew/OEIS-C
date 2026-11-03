@@ -7,7 +7,8 @@
  * Formula:   a(n) = n*(n+1)/2 *?
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   binom, factorial, seq_mul
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/binom.h"     /* seq_t binom(idx_t a, idx_t b) */
-#include "../utils/factorial.h" /* seq_t factorial(idx_t n) */
-#include "../utils/seq_mul.h"   /* seq_t seq_mul(seq_t a, seq_t b) */
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static seq_t *fac = NULL;          /* factorial array: fac[i] = i! */
 static size_t fac_cap = 0;          /* capacity of fac */
@@ -38,13 +56,13 @@ static void ensure_factorial(idx_t n)
     while (new_cap <= (size_t)n + 1) new_cap <<= 1;
 
     if (!fac_cap) {
-        fac = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        fac = mem_new(seq_t, new_cap);
         if (!fac) return;
         fac[0] = 1;
         fac_len = 0;
         fac_cap = new_cap;
     } else {
-        fac = (seq_t*)realloc(fac, new_cap * sizeof(seq_t));
+        fac = mem_resize(seq_t, fac, new_cap);
         fac_cap = new_cap;
     }
 
@@ -61,14 +79,14 @@ static void ensure_sequence(idx_t n)
     while (new_cap <= (size_t)n + 1) new_cap <<= 1;
 
     if (!Acap) {
-        A = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        A = mem_new(seq_t, new_cap);
         if (!A) return;
         Acap = new_cap;
         /* initialise first value */
         A[1] = 0;
         Alen = 1;
     } else {
-        A = (seq_t*)realloc(A, new_cap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_cap);
         Acap = new_cap;
     }
 
@@ -86,7 +104,7 @@ static void ensure_sequence(idx_t n)
                 seq_t mult = 1;
                 idx_t remaining = m;
                 while (remaining > 0) {
-                    mult = seq_mul(mult, binom(remaining, d));
+                    mult = seq_mul(mult, binomial(remaining, d));
                     remaining -= d;
                 }
                 /* divide by k */
@@ -104,7 +122,7 @@ static void ensure_sequence(idx_t n)
                 seq_t mult = 1;
                 idx_t remaining = m;
                 while (remaining > 0) {
-                    mult = seq_mul(mult, binom(remaining, d2));
+                    mult = seq_mul(mult, binomial(remaining, d2));
                     remaining -= d2;
                 }
                 seq_t factor = mult / (seq_t)k;

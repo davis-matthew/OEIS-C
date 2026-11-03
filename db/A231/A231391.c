@@ -13,13 +13,15 @@
  *            + 4*a(n-18) * * with the initial values * * a(1)=14, a(2)...
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 19, u64 n <= 40, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* First 18 terms of the sequence (index 0 unused), stored as uint64_t.
    For arbitrary‑precision builds we cast these values to seq_t when
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
        for the allocation size – safe for n up to 10 000 and far beyond. */
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             abort();                 /* out of memory */
         cache = tmp;

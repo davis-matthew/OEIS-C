@@ -9,7 +9,8 @@
  *            111 and vertically 001 and 010
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 11, u64 n <= 24, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAXV 64
 #define MAXS (MAXV*MAXV)
@@ -93,10 +95,10 @@ static void _init_once(void)
     }
 
     /* allocate DP arrays */
-    _cur  = (seq_t*)malloc(_S * sizeof(seq_t));
-    _next = (seq_t*)malloc(_S * sizeof(seq_t));
-    memset(_cur, 0, _S * sizeof(seq_t));
-    memset(_next, 0, _S * sizeof(seq_t));
+    _cur  = mem_new(seq_t, _S);
+    _next = mem_new(seq_t, _S);
+    mem_set(_cur, 0, _S * sizeof(seq_t));
+    mem_set(_next, 0, _S * sizeof(seq_t));
 
     /* initial count for length 2: all pairs valid => 1 each */
     for (int idx = 0; idx < _S; ++idx) _cur[idx] = (seq_t)1;
@@ -104,8 +106,8 @@ static void _init_once(void)
 
     /* allocate cache for sequence terms */
     _cache_cap = 64;
-    _cache = (seq_t*)malloc(_cache_cap * sizeof(seq_t));
-    memset(_cache, 0, _cache_cap * sizeof(seq_t));
+    _cache = mem_new(seq_t, _cache_cap);
+    mem_set(_cache, 0, _cache_cap * sizeof(seq_t));
 
     /* store a(1) and a(2) */
     _cache[1] = (seq_t)_V;       /* number of valid columns */
@@ -118,9 +120,9 @@ static void _ensure_cache_capacity(size_t need)
     if (need < _cache_cap) return;
     size_t new_cap = _cache_cap * 2;
     if (new_cap <= need) new_cap = need + 1;
-    seq_t* new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
-    memcpy(new_cache, _cache, _cache_len * sizeof(seq_t));
-    free(_cache);
+    seq_t* new_cache = mem_new(seq_t, new_cap);
+    mem_copy(new_cache, _cache, _cache_len * sizeof(seq_t));
+    mem_free(_cache);
     _cache = new_cache;
     _cache_cap = new_cap;
 }
@@ -129,7 +131,7 @@ static void _extend_cache_to(size_t n)
 {
     for (size_t step = _cache_len + 1; step <= n; ++step) {
         /* zero _next */
-        memset(_next, 0, _S * sizeof(seq_t));
+        mem_set(_next, 0, _S * sizeof(seq_t));
 
         /* transition */
         for (int idx = 0; idx < _S; ++idx) {

@@ -11,7 +11,8 @@
  *            prime. Results are cached so that calls may be in any order
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small, next_prime
+ * Validated: standard, pass, 115 terms through n = 9579 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/is_prime_seq.h"
 #include "../utils/next_prime.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* Expand cache capacity if necessary. */
     if (size < n && cap < (size_t)n) {
         size_t new_cap = (size_t)n * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cap   = new_cap;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         if (diff <= 2) continue;           /* diff-1 would not be prime */
 
         seq_t cand = (seq_t)(diff - 1);
-        if (is_prime_small(cand)) {
+        if (is_prime_seq(cand)) {
             cache[size++] = cand;
         }
     }

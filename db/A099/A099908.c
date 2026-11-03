@@ -7,7 +7,8 @@
  * Formula:   a(n) = C(2n-1, n-1) mod n^4 (offset 1)
  * Range:     u8 n <= 5, u16 n <= 17, u32 n <= 261, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   vp_fact
+ * Validated: standard, pass, 55 terms through n = 8986 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/vp_fact.h"
+
+/* --------------  helper: exponent of prime p in n! -------------- */
+static uint64_t vp_fact(uint64_t n, uint64_t p)
+{
+    uint64_t exp = 0;
+    while (n) {
+        n /= p;
+        exp += n;
+    }
+    return exp;
+}
 
 /* --------------  helper: modular exponentiation (uint64_t) -------------- */
 static uint64_t powmod64(uint64_t base, uint64_t exp, uint64_t mod)

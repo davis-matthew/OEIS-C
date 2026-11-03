@@ -13,6 +13,7 @@
  *            in increasing order until we find a y where d d...
  * Range:     u8 n <= 8, u16 n <= 34, u32 n <= 514, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 58 terms through n = 1985 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

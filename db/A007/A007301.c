@@ -9,13 +9,27 @@
  *            Sum_{k=0..i, k even} (-1)^(k/2) * binomial(i,k) * A002017(i-k)
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 9, i64 n <= 14, i128 n <= 17,
  *            big any n
- * Helpers:   grow_zero
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/grow_zero.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
 
 static seq_t *g_vals = 0;   /* g_vals[j] = A002017(j) for j < g_len */
 static seq_t *g_row = 0;    /* binomial(g_len-1, k), Pascal row */

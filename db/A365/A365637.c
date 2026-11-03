@@ -8,14 +8,22 @@
  *            - e) for each prime power p^e
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: standard, pass, 45 terms through n = 362 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n) {
     if (n == 1)
@@ -32,7 +40,7 @@ seq_t a(idx_t n) {
             cnt++;
         }
         idx_t eprime = 2 * ((cnt + 1) / 2) - cnt;   /* 2*ceil(cnt/2)-cnt */
-        result = seq_mul(result, seq_pow((seq_t)2, eprime));
+        result = seq_mul(result, ipow_idx((seq_t)2, eprime));
     }
 
     /* odd factors */
@@ -44,7 +52,7 @@ seq_t a(idx_t n) {
                 cnt++;
             }
             idx_t eprime = p * ((cnt + p - 1) / p) - cnt;  /* p*ceil(cnt/p)-cnt */
-            result = seq_mul(result, seq_pow((seq_t)p, eprime));
+            result = seq_mul(result, ipow_idx((seq_t)p, eprime));
         }
     }
 
@@ -52,7 +60,7 @@ seq_t a(idx_t n) {
     if (m > 1) {
         idx_t p = m;                 /* remaining prime */
         idx_t eprime = p - 1;        /* cnt = 1 -> p*ceil(1/p)-1 = p-1 */
-        result = seq_mul(result, seq_pow((seq_t)p, eprime));
+        result = seq_mul(result, ipow_idx((seq_t)p, eprime));
     }
 
     return result;

@@ -9,14 +9,28 @@
  *            factorisation of `n`
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_log_p
+ * Validated: standard, pass, 116 terms through n = 9485 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include needed standard headers */
 #include <stdint.h>
-#include "../utils/floor_log_p.h"
+
+/* Return the integer floor of log base p of n (p >= 2). */
+static idx_t floor_log_p(idx_t n, idx_t p)
+{
+    /* We compute the largest k such that p^k <= n.
+       Use unsigned __int128 to avoid overflow. */
+    unsigned __int128 power = 1;
+    idx_t k = 0;
+    while (power <= (unsigned __int128)n / (unsigned __int128)p) {
+        power = power * (unsigned __int128)p;
+        ++k;
+    }
+    return k;
+}
 
 seq_t a(idx_t n)
 {

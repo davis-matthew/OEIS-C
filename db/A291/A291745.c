@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 1600, u32 n <= 1600, u64 n <= 1600,
  *            u128 n <= 1600, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 74 terms through n = 1470 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    iteratively tests successive numbers 3k+1 for primality
    and counts the nonprimes until the n‑th one is found. */
 
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     idx_t  count = 0;    /* how many nonprimes found so far */
 
     while (1) {
-        if (!is_prime_small(cand)) {
+        if (!is_prime_seq(cand)) {
             ++count;
             if (count == n)
                 return cand;

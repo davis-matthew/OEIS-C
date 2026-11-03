@@ -11,7 +11,8 @@
  *            across calls
  * Range:     u8 n <= 48, u16 n <= 1747, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 7864 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Morse dot and dash counts per decimal digit (0-9). */
 static const uint8_t DOT[10] = {0,1,2,3,4,5,4,3,2,1};
@@ -64,10 +66,10 @@ static void append_cache(seq_t val)
 {
     if (seq_cap == 0) {
         seq_cap = 128;
-        seq_cache = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
     } else if (seq_len == seq_cap) {
         seq_cap <<= 1;
-        seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
     }
     seq_cache[seq_len++] = val;
 }

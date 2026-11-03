@@ -9,13 +9,19 @@
  *            c <= d < n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmpidx
+ * Validated: standard, pass, 112 terms through n = 8836 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/cmpidx.h"
+
+static int cmpidx(const void *p, const void *q) {
+    const idx_t *a = (const idx_t *)p;
+    const idx_t *b = (const idx_t *)q;
+    return (*a < *b) ? -1 : (*a > *b) ? 1 : 0;
+}
 
 seq_t a(idx_t n) {
     if (n <= 1) return (seq_t)0;

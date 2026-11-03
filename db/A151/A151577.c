@@ -9,16 +9,30 @@
  *            binomial(n,3))
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 15, u64 n <= 30, u128 n <= 62,
  *            big any n
- * Helpers:   binomial, pow2, pow3, pow4
+ * Validated: standard, pass, 39 terms through n = 477 (2026-11-01)
+ * Helpers:   binomial, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
-#include "../utils/pow4.h"
-#include "../utils/binomial.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 /* Return the nth term of OEIS A151577 for n ≥ 4.
    Terms for n < 4 are undefined; this implementation simply returns 0. */

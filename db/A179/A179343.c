@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 29, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 376 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define WIDTH (12)
 #define MASK_MAX ((1u << WIDTH) - 1)
@@ -41,12 +43,12 @@ seq_t a(idx_t n) {
 
     if (dp_sz < lim) {
         if (dp) {
-            free(dp);
-            free(ndp);
+            mem_free(dp);
+            mem_free(ndp);
         }
         dp_sz = lim;
-        dp  = (seq_t *)malloc(dp_sz * sizeof(seq_t));
-        ndp = (seq_t *)malloc(dp_sz * sizeof(seq_t));
+        dp  = mem_new(seq_t, dp_sz);
+        ndp = mem_new(seq_t, dp_sz);
     }
 
     zero_seq(dp, dp_sz);

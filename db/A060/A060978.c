@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alt_sum_abs
+ * Validated: standard, pass, 66 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,26 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alt_sum_abs.h"
+#include "../utils/mem.h"
+
+/* Return |alternating sum of digits| for a (positive) integer x (x≥1). */
+static int alt_sum_abs(idx_t x)
+{
+    int digits[20];   /* enough for all 64‑bit numbers */
+    int len = 0;
+    while (x > 0) {
+        digits[len++] = (int)(x % 10);
+        x /= 10;
+    }
+    if (len == 0) return 0;          /* not needed for this sequence */
+    int sum = 0;
+    int sign = (len % 2 == 0) ? -1 : 1;   /* sign of least significant digit */
+    for (int i = 0; i < len; ++i) {
+        sum += sign * digits[i];
+        sign = -sign;
+    }
+    return sum > 0 ? sum : -sum;        /* absolute value */
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +57,7 @@ seq_t a(idx_t n)
             /* grow cache if needed */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, new_cap);
                 cache_cap = new_cap;
             }
             cache[cache_len++] = (seq_t)next_num;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 113, u32 n <= 1023, u64 n <= 1023,
  *            u128 n <= 1023, big any n
- * Helpers:   none
+ * Validated: full, pass, 1023 terms through n = 1023 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static int cmp_seq_t(const void *a, const void *b)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* There are 2^10-1 = 1023 non‑empty subsets of digits 0..9 */
         table_size = ((idx_t)1 << 10) - 1;
-        table = (seq_t *)malloc(table_size * sizeof(seq_t));
+        table = mem_new(seq_t, table_size);
 
         /* Polish alphabetical order of digits */
         const unsigned char order[10] = {4, 2, 9, 1, 8, 5, 6, 7, 3, 0};
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
             table[idx++] = num;
         }
 
-        qsort(table, table_size, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(table, table_size, sizeof(seq_t), cmp_seq_t);
         initialized = true;
     }
 

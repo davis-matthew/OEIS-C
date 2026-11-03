@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of partitions of n into 4 distinct nonnegative
  *            cubes w > x > y > z >= 0 (so w^3 + x^3 + y^3 + z^3 = n)
- * Range:     u8 n <= 1441, u16 n <= 9526, u32 n <= 9526, u64 n <= 9526,
- *            u128 n <= 9526, big any n
+ * Range:     u8 n <= 1441, u16 n <= 12121, u32 n <= 12121, u64 n <= 12121,
+ *            u128 n <= 12121, big any n
+ * Validated: standard, pass, 124 terms through n = 9526 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 155, i16 n <= 600, i32 n <= 1274, i64 n <= 1274,
  *            i128 n <= 1274, big any n
- * Helpers:   isqrt8plus1
+ * Validated: standard, pass, 113 terms through n = 1272 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,25 @@
  */
 
 #include <stdlib.h>   /* malloc, realloc */
-#include "../utils/isqrt8plus1.h"
+#include "../utils/mem.h"
+
+/*----- helper: floor(sqrt(1+8*n)) via binary search -----*/
+static inline idx_t isqrt8plus1(idx_t n)
+{
+    idx_t low = 0, high = 1;
+    /* enlarge high until high*high >= 1+8*n */
+    while (high * high <= 1 + 8 * n) {
+        high <<= 1;
+    }
+    while (low < high) {
+        idx_t mid = (low + high + 1) >> 1;
+        if (mid * mid <= 1 + 8 * n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;              /* floor(sqrt(1+8*n)) */
+}
 
 /*----- static cache of the triangle -----*/
 static seq_t **triangle = (seq_t **)NULL;   /* array of rows */
@@ -59,7 +78,7 @@ seq_t a(idx_t n)
         for (size_t i = cached_rows; i < new_rows; ++i) {
             size_t len = i + 1;
             /* allocate this row */
-            triangle[i] = (seq_t *)malloc(len * sizeof(seq_t));
+            triangle[i] = mem_new(seq_t, len);
             if (triangle[i] == NULL) {
                 /* allocation failed – return 0 */
                 return (seq_t)0;

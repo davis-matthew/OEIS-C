@@ -8,6 +8,7 @@
  *            digit_sum(n * digit_sum(n))
  * Range:     u8 n <= 7, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* Sequence offset: 1  (a(1)=0, a(2)=1, …) */
 
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
 
 seq_t a(idx_t n)

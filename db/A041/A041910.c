@@ -10,6 +10,7 @@
  *            [1,5,3,1,4,10,1,2,2,4,2,2,1,10,4,1,3,5,1,42]. a(n) = p_n
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 17, u64 n <= 36, u128 n <= 73,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 198 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

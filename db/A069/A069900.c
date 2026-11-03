@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 156, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ok_k
+ * Validated: standard, pass, 79 terms through n = 8928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,50 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/ok_k.h"
+#include "../utils/mem.h"
+
+/* Return true iff k satisfies the condition for A069900. */
+static bool ok_k(uint64_t k)
+{
+    if (k < 4)                     /* 4 is the smallest composite, but it fails the test */
+        return false;
+
+    /* Find the smallest prime factor p. */
+    uint64_t p = 0;
+    if ((k & 1) == 0)              /* even */
+        p = 2;
+    else
+        for (uint64_t d = 3; d * d <= k; d += 2)
+            if (k % d == 0) { p = d; break; }
+
+    if (p == 0)                     /* k is prime */
+        return false;
+
+    /* Compute the largest prime factor q of k. */
+    uint64_t q = 0;
+
+    /* Remove all copies of the smallest prime factor to avoid re‑checking it. */
+    uint64_t m = k;
+    while (m % p == 0)
+        m /= p;
+
+    if (m == 1)                     /* k was a prime power */
+        return false;
+
+    uint64_t temp = m;
+    for (uint64_t d = 2; d * d <= temp; d += (d == 2 ? 1 : 2))
+    {
+        if (temp % d == 0)
+        {
+            if (d > q) q = d;
+            while (temp % d == 0) temp /= d;
+        }
+    }
+    if (temp > 1 && temp > q)     /* remainder is a prime factor */
+        q = temp;
+
+    return q >= 2 * p;
+}
 
 /* Return the n-th term (1‑based) of sequence A069900. */
 seq_t a(idx_t n)
@@ -39,7 +83,7 @@ seq_t a(idx_t n)
 
     /* Allocate initial cache space. */
     if (seq == NULL)
-        seq = (seq_t *)malloc(64 * sizeof(seq_t));
+        seq = mem_new(seq_t, 64);
 
     /* Generate terms until we have at least n of them. */
     while (seq_len < (size_t)n)
@@ -52,7 +96,7 @@ seq_t a(idx_t n)
         if (seq_len + 1 >= 64)
         {
             size_t new_cap = (seq_len + 1) * 2;
-            seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, new_cap);
         }
 
         /* Store the term. */

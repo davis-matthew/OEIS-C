@@ -12,7 +12,8 @@
  *            ones. For each new triangular number k, * test th...
  * Range:     u8 n <= 10, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *tri = NULL;         /* all triangular numbers generated */
 static size_t tri_cap = 0;
@@ -39,7 +41,7 @@ static void ensure_tri(idx_t m)
         seq_t val = ((seq_t)tri_len * ((seq_t)tri_len + 1)) / 2;
         if (tri_len == tri_cap) {
             tri_cap = tri_cap ? tri_cap * 2 : 64;
-            tri = (seq_t *)realloc(tri, tri_cap * sizeof(seq_t));
+            tri = mem_resize(seq_t, tri, tri_cap);
         }
         tri[tri_len++] = val;
     }
@@ -52,7 +54,7 @@ static void ensure_tri_up_to(seq_t v)
         seq_t val = ((seq_t)tri_len * ((seq_t)tri_len + 1)) / 2;
         if (tri_len == tri_cap) {
             tri_cap = tri_cap ? tri_cap * 2 : 64;
-            tri = (seq_t *)realloc(tri, tri_cap * sizeof(seq_t));
+            tri = mem_resize(seq_t, tri, tri_cap);
         }
         tri[tri_len++] = val;
     }
@@ -63,7 +65,7 @@ static void ensure_accept(size_t need)
 {
     if (acc_len == acc_cap) {
         acc_cap = acc_cap ? acc_cap * 2 : 64;
-        accepted = (seq_t *)realloc(accepted, acc_cap * sizeof(seq_t));
+        accepted = mem_resize(seq_t, accepted, acc_cap);
     }
 }
 

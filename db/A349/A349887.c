@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* E‑counts for 0‑9  (zero to nine) */
 static const unsigned char unit_e[10] = {
@@ -124,7 +126,7 @@ static void grow_cache(size_t needed)
     if (cache_cap < needed) {
         size_t newcap = cache_cap ? cache_cap * 2 : 16;
         while (newcap < needed) newcap *= 2;
-        seq_cache = (seq_t *)realloc(seq_cache, newcap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, newcap);
         cache_cap = newcap;
     }
 }

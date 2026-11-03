@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of partitions of n with greatest part 9
  * Range:     u8 n <= 26, u16 n <= 62, u32 n <= 285, u64 n <= 4760,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9900 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;      /* dp[s] = number of partitions of s using parts 1..9 */
 static size_t dp_cap = 0;     /* capacity of dp[] (size in elements) */
@@ -28,11 +30,11 @@ static void ensure_dp(size_t target)
         return;
 
     /* Allocate space for all required sums */
-    seq_t *newdp = (seq_t *)realloc(dp, need * sizeof(seq_t));
+    seq_t *newdp = mem_resize(seq_t, dp, need);
     if (!newdp)
         exit(EXIT_FAILURE);
 
-    /* Initialize all entries to 0 and set dp[0] = 1 */
+    /* Initialize all entries to 0 and set newdp[0] = 1 */
     for (size_t i = 0; i < need; ++i)
         newdp[i] = 0;
     newdp[0] = 1;

@@ -10,13 +10,15 @@
  *            starting from 1
  * Range:     u8 n <= 11, u16 n <= 38, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *tri = NULL;     /* flat storage for the triangle */
 static idx_t  max_row = 0;    /* largest row that has been computed */
@@ -29,7 +31,7 @@ static void ensure_rows(idx_t row)
 
     /* Allocate space for all elements up to the new row. */
     size_t new_size = (size_t)row * (row + 1ULL) / 2ULL;
-    tri = (seq_t *)realloc(tri, new_size * sizeof(seq_t));
+    tri = mem_resize(seq_t, tri, new_size);
 
     /* Compute the new rows one after another. */
     for (idx_t r = max_row + 1; r <= row; ++r)

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 23, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build system. */
 
@@ -46,8 +48,8 @@ seq_t a(idx_t n)
     /* Allocate polynomial coefficient arrays.
        cur holds P_{m} and next will hold P_{m+1}. */
     size_t max_deg = (size_t)r;
-    seq_t *cur  = (seq_t*)malloc((max_deg + 1) * sizeof(seq_t));
-    seq_t *next = (seq_t*)malloc((max_deg + 2) * sizeof(seq_t)); /* size m+1 */
+    seq_t *cur  = mem_new(seq_t, (max_deg + 1));
+    seq_t *next = mem_new(seq_t, (max_deg + 2)); /* size m+1 */
 
     cur[0] = 1;                    /* P_0(x) = 1 */
     size_t cur_deg = 0;             /* current polynomial degree */
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = cur[k];
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     return result;
 }

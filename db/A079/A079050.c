@@ -7,14 +7,15 @@
  * Formula:   a(n) = sum of digits of the look‑and‑say expansion of n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sum_digits_uint64
+ * Validated: standard, pass, 100 terms through n = 9681 (2026-11-01)
+ * Helpers:   digit_sum_u64_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/sum_digits_uint64.h"
+#include "../utils/digit_sum_u64_to_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +44,7 @@ seq_t a(idx_t n)
             i--;
             count++;
         }
-        sum += sum_digits_uint64(count) + (seq_t)d;
+        sum += digit_sum_u64_to_seq(count) + (seq_t)d;
     }
     return sum;
 }

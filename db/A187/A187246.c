@@ -11,12 +11,14 @@
  *            can be evaluated in O(n) time with memoisation
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 411 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,11 +30,11 @@ seq_t a(idx_t n)
     /* enlarge cache to hold up to n */
     idx_t old_len   = cache_len;
     idx_t new_len   = (n + 1 > 4 ? n + 1 : 4);   /* at least 4 for base values */
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_len);
+    seq_t *new_cache = mem_new(seq_t, new_len);
     if (!new_cache) return 0;        /* out of memory – should never happen */
     for (idx_t i = 0; i < old_len; i++) new_cache[i] = cache[i];
     for (idx_t i = old_len; i < new_len; i++) new_cache[i] = 0;
-    free(cache);
+    mem_free(cache);
     cache     = new_cache;
     cache_len = new_len;
 

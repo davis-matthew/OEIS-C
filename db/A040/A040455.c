@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Radicand */
 static const idx_t D = 477;
@@ -38,7 +40,7 @@ static void init_period(void)
 
     /* Allocate buffer; the period is < 2*sqrt(D) */
     size_t cap = 32;
-    period_terms = (seq_t *)malloc(cap * sizeof(seq_t));
+    period_terms = mem_new(seq_t, cap);
     if (!period_terms) return;     /* unlikely, but safe */
 
     idx_t m = 0;
@@ -54,7 +56,7 @@ static void init_period(void)
         /* Store the coefficient as seq_t */
         if (period_len == cap) {
             cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(period_terms, cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, period_terms, cap);
             if (!tmp) return;      /* memory failure */
             period_terms = tmp;
         }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 21, i32 n <= 45, i64 n <= 45, i128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root: floor(sqrt(x)) for 0 ≤ x < 2^64.
    Uses a bit‑shifting method that works with 64‑bit arithmetic only. */
@@ -65,11 +67,11 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate two rows of length up to r (index 0 unused). */
-    seq_t *prev = (seq_t *)malloc((r + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (r + 1));
+    seq_t *curr = mem_new(seq_t, (r + 1));
     if (!prev || !curr) {            /* allocation failure */
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return (seq_t)0;
     }
 
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = prev[m];           /* T(r,m) is in prev[m] */
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

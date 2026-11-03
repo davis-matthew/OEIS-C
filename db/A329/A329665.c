@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 33, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* returns the nth term of OEIS A329665 */
 seq_t a(idx_t n)
@@ -31,12 +33,12 @@ seq_t a(idx_t n)
 
     /* arrays are indexed by altitude: 0 .. n */
     size_t N = (size_t)n + 1;
-    seq_t *U_cur = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *H_cur = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *D_cur = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *U_next = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *H_next = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *D_next = (seq_t *)calloc(N, sizeof(seq_t));
+    seq_t *U_cur = mem_new(seq_t, N);
+    seq_t *H_cur = mem_new(seq_t, N);
+    seq_t *D_cur = mem_new(seq_t, N);
+    seq_t *U_next = mem_new(seq_t, N);
+    seq_t *H_next = mem_new(seq_t, N);
+    seq_t *D_next = mem_new(seq_t, N);
 
     /* initial step (length 1) */
     U_cur[1] = 1;
@@ -87,8 +89,8 @@ seq_t a(idx_t n)
     }
 
     /* free allocated memory */
-    free(U_cur); free(H_cur); free(D_cur);
-    free(U_next); free(H_next); free(D_next);
+    mem_free(U_cur); mem_free(H_cur); mem_free(D_cur);
+    mem_free(U_next); mem_free(H_next); mem_free(D_next);
 
     return sum;
 }

@@ -9,13 +9,25 @@
  *            within that row
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 38, u128 n <= 69,
  *            big any n
- * Helpers:   pow28
+ * Validated: standard, pass, 52 terms through n = 1137 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow28.h"
+
+static seq_t pow28(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = (seq_t)28;
+    while (exp) {
+        if (exp & 1) result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

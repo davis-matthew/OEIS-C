@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrime, mod_pow
+ * Validated: standard, pass, 70 terms through n = 947 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrime.h"       /* bool isPrime(idx_t n);          */
-#include "../utils/mod_pow.h"       /* seq_t mod_pow(seq_t b, uint64_t e, seq_t m); */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Return the nth (1‑based) prime with the above property. */
 seq_t a(idx_t n)
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
     /* enlarge the cache when needed */
     while (cache_len < (size_t)n) {
         /* find the next candidate prime */
-        if (!isPrime(candidate)) {
+        if (!is_prime(candidate)) {
             candidate += 2;                /* only odd numbers are needed */
             continue;
         }
@@ -42,11 +45,11 @@ seq_t a(idx_t n)
         seq_t mod = (seq_t)candidate;
 
         /* compare 3^exp and 2^exp modulo p */
-        if (mod_pow((seq_t)3, exp, mod) == mod_pow((seq_t)2, exp, mod)) {
+        if (powmod((seq_t)3, exp, mod) == powmod((seq_t)2, exp, mod)) {
             /* store the prime in the cache */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap == 0 ? 16 : cache_cap << 1;
-                seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) exit(1);           /* allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

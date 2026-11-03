@@ -11,7 +11,8 @@
  *            built once on first call and reused afterwards
  * Range:     u8 none, u16 n <= 30, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   distinct_five_digits, distinct_nine_digits_sq
+ * Validated: full, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,41 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/distinct_five_digits.h"
-#include "../utils/distinct_nine_digits_sq.h"
+#include "../utils/mem.h"
+
+/* Check that a 5‑digit number has all distinct digits */
+static bool distinct_five_digits(idx_t n)
+{
+    unsigned mask = 0;
+    for (int i = 0; i < 5; ++i) {
+        unsigned d = n % 10;
+        unsigned bit = 1u << d;
+        if (mask & bit)
+            return false;
+        mask |= bit;
+        n /= 10;
+    }
+    return true;
+}
+
+/* Check that a 64‑bit integer has exactly nine distinct decimal digits */
+static bool distinct_nine_digits_sq(uint64_t sq)
+{
+    unsigned mask = 0;
+    int distinct = 0;
+    while (sq > 0) {
+        unsigned d = sq % 10;
+        unsigned bit = 1u << d;
+        if (!(mask & bit)) {
+            mask |= bit;
+            ++distinct;
+            if (distinct > 9)
+                return false;
+        }
+        sq /= 10;
+    }
+    return distinct == 9;
+}
 
 static seq_t *cache = NULL;      /* array of found numbers                 */
 static size_t cache_size = 0;    /* how many numbers are stored            */
@@ -34,7 +68,7 @@ static void build_cache(void)
 
     /* Initial capacity: 64, grow by factor 2 if necessary */
     size_t cap = 64;
-    cache = (seq_t*)malloc(cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cap);
     if (!cache) abort();   /* out of memory */
 
     for (idx_t num = 10000; num <= 99999; ++num) {
@@ -48,7 +82,7 @@ static void build_cache(void)
         /* Append to cache */
         if (cache_size == cap) {
             cap *= 2;
-            seq_t *tmp = (seq_t*)realloc(cache, cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cap);
             if (!tmp) abort();
             cache = tmp;
         }

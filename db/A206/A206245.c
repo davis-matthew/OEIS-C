@@ -9,13 +9,15 @@
  *            ≥ 1
  * Range:     u8 n <= 494, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Auxiliary comparator for qsort over idx_t */
 static int cmp_idx_t(const void *a, const void *b) {
@@ -92,7 +94,7 @@ seq_t a(idx_t n) {
     }
 
     /* Allocate new DP array up to max_n. */
-    seq_t *new_dp = (seq_t *)malloc(sizeof(seq_t) * (max_n + 1));
+    seq_t *new_dp = mem_new(seq_t, (max_n + 1));
     for (idx_t i = 0; i <= max_n; ++i) {
         new_dp[i] = (seq_t)0;
     }
@@ -107,7 +109,7 @@ seq_t a(idx_t n) {
     }
 
     /* Replace old cache with the newly computed one. */
-    free(dp);
+    mem_free(dp);
     dp = new_dp;
     dp_len = max_n + 1;
 

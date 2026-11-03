@@ -7,6 +7,7 @@
  * Formula:   a(n) = number of partitions of n into odd semiprimes (A046315)
  * Range:     u8 n <= 152, u16 n <= 333, u32 n <= 846, u64 n <= 2470,
  *            u128 n <= 8020, big any n
+ * Validated: standard, pass, 117 terms through n = 9867 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

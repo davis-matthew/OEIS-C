@@ -9,12 +9,14 @@
  *            -3
  * Range:     i8 n <= 9, i16 n <= 19, i32 n <= 39, i64 n <= 39, i128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Initialise the cache with the first four terms. */
     if (cache == NULL) {
         cache_cap = 4;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return (seq_t)0;          /* allocation failed */
         cache[0] = (seq_t)3;
         cache[1] = (seq_t)-2;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (target + 1 > cache_cap) {
         size_t new_cap = cache_cap * 2;
         if (new_cap < target + 1) new_cap = target + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return (seq_t)0;          /* allocation failed */
         cache = tmp;
         cache_cap = new_cap;

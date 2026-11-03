@@ -8,7 +8,8 @@
  *            889576
  * Range:     u8 n <= 7, u16 n <= 7239, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 8882 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n) {
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
             }
         }
         
-        cache = (seq_t *)malloc((size_t)sum_count * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)sum_count);
         cache_len = 0;
         for (uint64_t i = 1; i <= max_val; i++) {
             if (reachable[i]) {

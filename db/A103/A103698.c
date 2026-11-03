@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  * in the order they appear in this traversal.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* initialise (first call) */
     if (queue == NULL) {
         cap = 16;
-        queue = (seq_t *)malloc(sizeof(seq_t) * cap);
+        queue = mem_new(seq_t, cap);
         queue[0] = (seq_t)0;    /* a(0) = 0 */
         sz   = 1;
         next = 0;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
             seq_t child = (seq_t)6;
             if (sz == cap) {
                 cap = cap * 2;
-                queue = (seq_t *)realloc(queue, sizeof(seq_t) * cap);
+                queue = mem_resize(seq_t, queue, cap);
             }
             queue[sz++] = child;
             continue;
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
             seq_t child = (seq_t)(digits[i] + 6);   /* digit + 6 */
             if (sz == cap) {
                 cap = cap * 2;
-                queue = (seq_t *)realloc(queue, sizeof(seq_t) * cap);
+                queue = mem_resize(seq_t, queue, cap);
             }
             queue[sz++] = child;
         }

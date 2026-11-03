@@ -9,7 +9,8 @@
  *            a(n)=n^6 - sum_{k=2..n} a(floor(n/k))
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 40, u64 n <= 1630,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 9946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Compute A343978.  The function may be called repeatedly with
    arbitrary n; previously computed values are cached. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;      /* cache[0] unused, cache[1] = a(1) */
 static idx_t  cache_cap  = 0;         /* number of allocated slots */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     idx_t old_cap = cache_cap;
     idx_t new_cap = n + 1;
     if (old_cap < new_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)          /* allocation failure – give up */
             return (seq_t)0;
         cache = tmp;

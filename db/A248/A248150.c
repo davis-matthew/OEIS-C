@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 169, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9094 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state for caching results */
 static idx_t   max_processed = 0;   /* largest n that has been sieved */
@@ -32,7 +34,7 @@ static size_t  terms_len     = 0;    /* number of terms stored */
 static void recompute_terms(idx_t limit)
 {
     /* Allocate and zero the σ array */
-    seq_t* new_sigma = (seq_t*)calloc((size_t)(limit + 1), sizeof(seq_t));
+    seq_t* new_sigma = mem_new(seq_t, (size_t)(limit + 1));
     if (!new_sigma) {
         /* In case of allocation failure we simply abort; the test harness
            guarantees sufficient memory for the limits we use. */
@@ -54,9 +56,9 @@ static void recompute_terms(idx_t limit)
     }
 
     /* Allocate terms array */
-    seq_t* new_terms = (seq_t*)malloc(count * sizeof(seq_t));
+    seq_t* new_terms = mem_new(seq_t, count);
     if (!new_terms) {
-        free(new_sigma);
+        mem_free(new_sigma);
         exit(1);
     }
 
@@ -68,8 +70,8 @@ static void recompute_terms(idx_t limit)
     }
 
     /* Replace old caches */
-    free(seq_terms);
-    free(sigma_cache);
+    mem_free(seq_terms);
+    mem_free(sigma_cache);
     seq_terms   = new_terms;
     terms_len   = count;
     sigma_cache = new_sigma;

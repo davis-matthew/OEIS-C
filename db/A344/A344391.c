@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    The function below returns the n‑th element of that flattened sequence. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *flat      = NULL;   /* flattened values */
 static size_t flat_len  = 0;       /* number of stored entries   */
@@ -35,7 +37,7 @@ static void ensure_flat_capacity(size_t need)
     if (need > flat_cap) {
         size_t new_cap = flat_cap ? flat_cap * 2 : 16;
         while (new_cap < need) new_cap <<= 1;
-        flat = (seq_t*)realloc(flat, new_cap * sizeof(seq_t));
+        flat = mem_resize(seq_t, flat, new_cap);
         flat_cap = new_cap;
     }
 }
@@ -45,7 +47,7 @@ static void init(void)
 {
     row_n   = 0;
     row_len = 1;
-    row_cur = (seq_t*)malloc(sizeof(seq_t));
+    row_cur = mem_new(seq_t, 1);
     row_cur[0] = 1;          /* T(0,0) = 1 */
 
     ensure_flat_capacity(1);
@@ -58,7 +60,7 @@ static void next_row(void)
 {
     idx_t  n       = row_n + 1;
     size_t new_len = n / 2 + 1;           /* floor(n/2)+1 terms in the row */
-    seq_t *new_row = (seq_t*)malloc(new_len * sizeof(seq_t));
+    seq_t *new_row = mem_new(seq_t, new_len);
 
     new_row[0] = 1;                       /* T(n,0) = 1 */
 
@@ -91,7 +93,7 @@ static void next_row(void)
     }
 
     /* Prepare for the next iteration. */
-    free(row_cur);
+    mem_free(row_cur);
     row_cur = new_row;
     row_len = new_len;
     row_n   = n;

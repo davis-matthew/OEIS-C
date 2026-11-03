@@ -9,7 +9,8 @@
  *            Initial values: a(0)=0, a(1)=0, a(2)=1, a(3)=3
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 35, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 940 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #if defined(__cplusplus)
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 /* Multiply a seq_t by a small unsigned integer without overflow.
    For integral seq_t we use unsigned __int128. */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary. */
     if (n >= cache_size) {
         size_t need = (size_t)n + 1U;
-        seq_t *p = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, cache, need);
         if (!p) {
             /* Allocation failure: abort. */
             abort();

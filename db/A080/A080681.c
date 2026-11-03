@@ -9,12 +9,14 @@
  *            classic k‑pointer algorithm
  * Range:     u8 n <= 126, u16 n <= 2166, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initial allocation */
     if (seq == NULL) {
         seq_cap = 8;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)1;                /* first 17‑smooth number   */
         seq_len = 1;
     }
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         if (seq_cap < needed) {
             size_t new_cap = seq_cap ? seq_cap * 2 : 8;
             while (new_cap < needed) new_cap <<= 1;
-            seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, new_cap);
             seq_cap = new_cap;
         }
 

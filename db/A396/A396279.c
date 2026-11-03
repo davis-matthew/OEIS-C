@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   floor_log2_uint64, is_prime
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   ilog2, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    (OEIS A396279).  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
 #include "../utils/is_prime.h"
 
 /* Return the smallest prime strictly greater than start. */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     while (1) {
         uint64_t p   = next_prime(k);        /* smallest prime > k   */
         uint64_t gap = p - k;                /* prime gap             */
-        uint64_t l2  = floor_log2_uint64(k); /* floor(log2(k))        */
+        uint64_t l2  = ilog2(k); /* floor(log2(k))        */
 
         if (gap == l2) {                     /* condition met */
             ++found;

@@ -8,7 +8,8 @@
  * Formula:   a(n) = 2*A001187(n) - A006125(n)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   binom, pow2, seq_alloc_new_array, seq_free_array
+ * Validated: standard, pass, 32 terms through n = 50 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,19 @@
           - 2^(n*(n-1)/2).  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* Memoised tables */
 static seq_t *C_tbl = NULL;      /* C_tbl[i] = number of connected graphs on i vertices */
@@ -83,17 +93,17 @@ static void ensure_connected(idx_t n)
     for (idx_t m = (C_max > 1 ? C_max + 1 : 2); m <= n; ++m) {
         seq_t total = pow2_tbl[m];
         seq_t sum   = 0;
-        seq_t binom = 1;              /* binom(m-1, 0) */
+        seq_t binomial = 1;              /* binom(m-1, 0) */
 
         for (idx_t k = 1; k <= m - 1; ++k) {
             seq_t rest_pow2 = pow2_tbl[m - k];
-            seq_t term = binom * C_tbl[k];
+            seq_t term = binomial * C_tbl[k];
             term = term * rest_pow2;
             sum = sum + term;
 
             /* update binom to binom(m-1, k) */
-            binom = binom * (seq_t)(m - k);
-            binom = binom / k;
+            binomial = binomial * (seq_t)(m - k);
+            binomial = binomial / k;
         }
         C_tbl[m] = total - sum;
     }

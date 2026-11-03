@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   divisor_count_u64, gcd
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   gcd, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
 #include "../utils/gcd.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 static seq_t **row_cache = NULL;   /* row_cache[r] points to array of r coprimes */
 static size_t cache_capacity = 0;  /* allocated size of row_cache (0‑indexed) */
@@ -52,11 +54,11 @@ static void build_row(idx_t r)
     if (row_cache[r]) return;   /* already built */
 
     /* Compute τ(r) */
-    uint64_t tau = divisor_count_u64(r);
+    uint64_t tau = num_divisors(r);
     seq_t tau_seq = (seq_t)tau;
 
     /* Allocate space for r elements */
-    seq_t *row = (seq_t *)malloc(r * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, r);
     if (!row) return; /* allocation failed; the caller will get garbage - program aborts */
 
     idx_t cnt = 0;

@@ -11,7 +11,8 @@
  *            programming over successive rows
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 180 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 
@@ -97,8 +99,8 @@ static void _build_tables(void)
     }
 
     /* DP vectors for successive rows */
-    _dp_cur   = (seq_t*)malloc(_S * sizeof(seq_t));
-    _dp_next  = (seq_t*)malloc(_S * sizeof(seq_t));
+    _dp_cur   = mem_new(seq_t, _S);
+    _dp_next  = mem_new(seq_t, _S);
     if (!_dp_cur || !_dp_next) abort();
 
     /* initialize for n = 2: every pair of admissible rows occurs once */
@@ -106,7 +108,7 @@ static void _build_tables(void)
 
     /* answer cache: at least up to n=2 */
     _ans_sz = 3;                        /* indices 0..2 */
-    _ans = (seq_t*)calloc(_ans_sz, sizeof(seq_t));
+    _ans = mem_new(seq_t, _ans_sz);
     if (!_ans) abort();
 
     _ans[1] = (seq_t)_R;                /* a(1) = 61 */
@@ -133,7 +135,7 @@ static inline void _grow_ans(idx_t n)
 {
     if (n + 1 <= _ans_sz) return;
     size_t new_sz = (n + 1) * 2;
-    seq_t *tmp = (seq_t*)realloc(_ans, new_sz * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _ans, new_sz);
     if (!tmp) abort();
     for (size_t i = _ans_sz; i < new_sz; ++i) tmp[i] = (seq_t)0;
     _ans = tmp;

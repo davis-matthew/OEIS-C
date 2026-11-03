@@ -8,12 +8,14 @@
  *            a(p^e) = p^(2e) + p^(2e-2)
  * Range:     u8 n <= 14, u16 n <= 221, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 63 terms through n = 9868 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         e++;
     }
     if (e > 0) {
-        seq_t term = pow_uint(2, 2 * e) + pow_uint(2, 2 * e - 2);
+        seq_t term = ipow_u64_idx(2, 2 * e) + ipow_u64_idx(2, 2 * e - 2);
         res *= term;
     }
 
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
                 t /= p;
                 e++;
             }
-            seq_t term = pow_uint(p, 2 * e) + pow_uint(p, 2 * e - 2);
+            seq_t term = ipow_u64_idx(p, 2 * e) + ipow_u64_idx(p, 2 * e - 2);
             res *= term;
         }
     }
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* remaining prime factor, if any */
     if (t > 1) {
         /* exponent is 1 */
-        seq_t term = pow_uint(t, 2) + 1;
+        seq_t term = ipow_u64_idx(t, 2) + 1;
         res *= term;
     }
 

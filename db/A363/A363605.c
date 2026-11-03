@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 556, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binom4_divisor
+ * Validated: standard, pass, 58 terms through n = 9749 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,14 @@
  *            (equivalently, a(n) = (σ₄(n) + 2σ₃(n) - σ₂(n) - 2σ₁(n)) / 24)
  */
 #include <stdint.h>  /* for uint64_t */
-#include "../utils/binom4_divisor.h"
+
+static inline seq_t binom4_divisor(idx_t d)
+{
+    seq_t ds = (seq_t)d;
+    seq_t res = (ds + 2) * (ds + 1) * ds * (ds - 1);
+    res /= 24;
+    return res;
+}
 
 seq_t a(idx_t n)
 {

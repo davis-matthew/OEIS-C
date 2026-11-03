@@ -8,7 +8,8 @@
  *            (prime(n)-1)/3 if prime(n)≡1 (mod 3), * else a(n) = prime(n)-1
  * Range:     u8 n <= 53, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   _sieve_primes
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,35 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/_sieve_primes.h"
+
+/* Simple sieve of Eratosthenes that returns the primes ≤ limit. */
+static void _sieve_primes(uint64_t limit, uint64_t **primes, size_t *cnt)
+{
+    size_t sz = limit + 1;
+    bool *is_prime = (bool *)malloc(sz * sizeof(bool));
+    if (!is_prime) {               /* allocation failed – abort */
+        exit(1);
+    }
+    for (size_t i = 0; i <= limit; ++i) is_prime[i] = true;
+    if (limit >= 0) {               /* handle small limits */
+        is_prime[0] = is_prime[1] = false;
+    }
+    for (uint64_t i = 2; i * i <= limit; ++i) {
+        if (is_prime[i]) {
+            for (uint64_t j = i * i; j <= limit; j += i) {
+                is_prime[j] = false;
+            }
+        }
+    }
+    size_t prime_cnt = 0;
+    for (uint64_t i = 2; i <= limit; ++i) if (is_prime[i]) ++prime_cnt;
+    *cnt = prime_cnt;
+    *primes = (uint64_t *)malloc(prime_cnt * sizeof(uint64_t));
+    if (!(*primes)) { free(is_prime); exit(1); }
+    size_t idx = 0;
+    for (uint64_t i = 2; i <= limit; ++i) if (is_prime[i]) (*primes)[idx++] = i;
+    free(is_prime);
+}
 
 /* Cached list of primes.  On first call we generate at least the
  * n‑th prime; on later calls we extend the sieve only when needed. */

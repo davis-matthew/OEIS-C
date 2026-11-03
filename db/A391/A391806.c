@@ -9,7 +9,8 @@
  *            divisible by n
  * Range:     u8 n <= 5, u16 n <= 39, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   next_prime
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"   /* provides: uint64_t next_prime(uint64_t start); */
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 static uint64_t *odd_primes = NULL;    /* list of odd primes (3,5,7,11,...) */
 static size_t odd_count   = 0;         /* number of odd primes currently stored */
@@ -36,7 +38,7 @@ static void ensure_prefix_sum(size_t k_needed)
         odd_cap = 8;
         odd_primes = (uint64_t *)malloc(odd_cap * sizeof(uint64_t));
         prefix_cap = odd_cap + 1;
-        prefix_sums = (seq_t *)malloc(prefix_cap * sizeof(seq_t));
+        prefix_sums = mem_new(seq_t, prefix_cap);
         prefix_sums[0] = 0;   /* sum of zero primes */
     }
 
@@ -56,8 +58,7 @@ static void ensure_prefix_sum(size_t k_needed)
                 odd_primes = (uint64_t *)realloc(odd_primes,
                     odd_cap * sizeof(uint64_t));
                 prefix_cap = odd_cap + 1;
-                prefix_sums = (seq_t *)realloc(prefix_sums,
-                    prefix_cap * sizeof(seq_t));
+                prefix_sums = mem_resize(seq_t, prefix_sums, prefix_cap);
             }
 
             odd_primes[odd_count] = new_prime;
@@ -81,8 +82,7 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if (n + 1 > a_cache_size) {
         size_t new_size = (n + 1) * 2;
-        a_cache = (seq_t *)realloc(a_cache,
-            new_size * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_size);
         /* initialize new entries to zero (meaning 'not computed') */
         for (size_t i = a_cache_size; i < new_size; ++i)
             a_cache[i] = 0;

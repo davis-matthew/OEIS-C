@@ -9,6 +9,7 @@
  *            C(n,a)*C(a,u)*C(n-a,b-u)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 35, u128 n <= 67,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 951 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

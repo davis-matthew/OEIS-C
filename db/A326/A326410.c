@@ -8,8 +8,9 @@
  * Formula:   a(n) for A326410 (Minesweeper sequence) Place positive integers
  *            on a square spiral, replace primes by -1, and nonprimes by the
  *            number of primes in the eight adjacent grid cells
- * Range:     i8 n <= 9618, i16 n <= 9618, i32 n <= 9618, i64 n <= 9618,
- *            i128 n <= 9618, big any n
+ * Range:     i8 n <= 10201, i16 n <= 10201, i32 n <= 10201, i64 n <= 10201,
+ *            i128 n <= 10201, big any n
+ * Validated: standard, pass, 97 terms through n = 9618 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

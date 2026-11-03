@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th odd integer m such that 2^m ≡ 32 (mod m)
  * Range:     u8 n <= 11, u16 n <= 844, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow, seq_alloc, seq_realloc
+ * Validated: standard, pass, 72 terms through n = 9972 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,29 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+#include <string.h>
+#include "../utils/powmod.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -40,7 +61,7 @@ seq_t a(idx_t n)
     /* generate terms until we have at least n of them */
     while (cache_len < n) {
         /* compute 2^next_candidate (mod next_candidate) */
-        seq_t rem = mod_pow((seq_t)2, (uint64_t)next_candidate, next_candidate);
+        seq_t rem = powmod((seq_t)2, (uint64_t)next_candidate, next_candidate);
 
         /* target value is 32 mod next_candidate */
         seq_t target = ((seq_t)32) % next_candidate;

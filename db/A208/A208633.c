@@ -10,12 +10,14 @@
  *            a(2)=23, a(3)=71
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 18, u64 n <= 37, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for sequence values (1‑based index) */
 static seq_t *seq_cache = NULL;
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t n)
     {
         /* Allocate for indices 0..3. We ignore index 0. */
         size_t sz = 4;
-        seq_cache = (seq_t *)realloc(seq_cache, sz * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, sz);
         seq_cache[1] = 8;
         seq_cache[2] = 23;
         seq_cache[3] = 71;
@@ -40,7 +42,7 @@ static void ensure_cache(idx_t n)
 
     /* Grow the cache to accommodate index n */
     size_t new_sz = (size_t)n + 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_sz * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_sz);
 
     /* Compute new values using the recurrence */
     for (idx_t i = cache_size + 1; i <= n; ++i)

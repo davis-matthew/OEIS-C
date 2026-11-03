@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6440, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, is_prime_odd
+ * Validated: standard, pass, 116 terms through n = 9518 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,16 @@
 #include <stdbool.h>
 
 /*  Utility to get integer floor(sqrt(x)) for 64‑bit unsigned values  */
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/is_prime_odd.h"
+#include "../utils/isqrt.h"
+
+/*  Helper: test odd number primality using the sieve  */
+static inline bool is_prime_odd(idx_t i, const uint8_t *sieve)
+{
+    if (i == 2) return true;
+    if (i < 2 || (i & 1U) == 0) return false;
+    idx_t oddIdx = i >> 1;                 /* index of odd i in the sieve */
+    return !(sieve[oddIdx >> 3] & (1U << (oddIdx & 7)));
+}
 
 /*  Main sequence function  */
 seq_t a(idx_t n)
@@ -41,7 +50,7 @@ seq_t a(idx_t n)
     if (!sieve) return 0;                    /* recover gracefully */
 
     /*  Eratosthenes sieve for odd numbers up to sqrt(limit)  */
-    idx_t sqrtLimit = _floor_isqrt_u64(limit);
+    idx_t sqrtLimit = isqrt(limit);
     for (idx_t p = 3; p <= sqrtLimit; p += 2)
     {
         if (!is_prime_odd(p, sieve)) continue;
@@ -66,7 +75,7 @@ seq_t a(idx_t n)
         while (k <= n && k * n < i + 2)
         {
             idx_t cnt = twinCnt;
-            seq_t m = (seq_t)_floor_isqrt_u64(cnt);
+            seq_t m = (seq_t)isqrt(cnt);
             if (m * m == cnt && (!found || m < best))
             {
                 best = m;
@@ -84,7 +93,7 @@ seq_t a(idx_t n)
         while (k <= n && k * n == i + 2)
         {
             idx_t cnt = twinCnt;
-            seq_t m = (seq_t)_floor_isqrt_u64(cnt);
+            seq_t m = (seq_t)isqrt(cnt);
             if (m * m == cnt && (!found || m < best))
             {
                 best = m;
@@ -99,7 +108,7 @@ seq_t a(idx_t n)
     while (k <= n && k * n <= limit)
     {
         idx_t cnt = twinCnt;
-        seq_t m = (seq_t)_floor_isqrt_u64(cnt);
+        seq_t m = (seq_t)isqrt(cnt);
         if (m * m == cnt && (!found || m < best))
         {
             best = m;

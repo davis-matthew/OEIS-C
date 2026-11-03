@@ -8,16 +8,34 @@
  *            with a(0) = 0
  * Range:     u8 n <= 17, u16 n <= 41, u32 n <= 117, u64 n <= 344,
  *            u128 n <= 500, big any n
- * Helpers:   a002099_isprime, alloc_zero, grow_zero
+ * Validated: standard, pass, 64 terms through n = 497 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/grow_zero.h"
-#include "../utils/a002099_isprime.h"
+#include <string.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
 
 static seq_t *a002099_c = NULL;
 static idx_t a002099_len = 0;
@@ -32,7 +50,7 @@ static void a002099_build(idx_t N) {
     for (i = 0; i < len; i++) a002099_c[i] = 0;
     a002099_c[0] = 1;
     for (p = 2; p <= N; p++) {
-        if (!a002099_isprime(p)) continue;
+        if (!is_prime_u64(p)) continue;
         for (i = N; i >= p; i--)
             a002099_c[i] += (seq_t)p * a002099_c[i - p];
     }

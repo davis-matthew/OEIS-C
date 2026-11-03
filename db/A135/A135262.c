@@ -7,6 +7,7 @@
  * Formula:   a(3n)=10^n; a(3n+1)=4*10^n; a(3n+2)=7*10^n
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 28, u64 n <= 57, u128 n <= 114,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 929 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,13 +11,15 @@
  *            sequence starts with the segment [3]
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9812 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static storage for the entire sequence and its state */
@@ -32,11 +34,11 @@ seq_t a(idx_t n) {
     /* initialization: first segment [3] */
     if (seq == NULL) {
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq_len = 0;
 
         distinct_cap = 8;
-        distinct = (seq_t *)malloc(distinct_cap * sizeof(seq_t));
+        distinct = mem_new(seq_t, distinct_cap);
         counts = (idx_t *)malloc(distinct_cap * sizeof(idx_t));
         distinct_len = 0;
 
@@ -73,7 +75,7 @@ seq_t a(idx_t n) {
             /* append count */
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)cnt;
 
@@ -83,7 +85,7 @@ seq_t a(idx_t n) {
             if (pos == distinct_len) { /* new distinct number */
                 if (distinct_len == distinct_cap) {
                     distinct_cap *= 2;
-                    distinct = (seq_t *)realloc(distinct, distinct_cap * sizeof(seq_t));
+                    distinct = mem_resize(seq_t, distinct, distinct_cap);
                     counts = (idx_t *)realloc(counts, distinct_cap * sizeof(idx_t));
                 }
                 distinct[distinct_len] = (seq_t)cnt;
@@ -102,7 +104,7 @@ seq_t a(idx_t n) {
             /* append value */
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = val;
 
@@ -112,7 +114,7 @@ seq_t a(idx_t n) {
             if (pos == distinct_len) { /* new distinct number */
                 if (distinct_len == distinct_cap) {
                     distinct_cap *= 2;
-                    distinct = (seq_t *)realloc(distinct, distinct_cap * sizeof(seq_t));
+                    distinct = mem_resize(seq_t, distinct, distinct_cap);
                     counts = (idx_t *)realloc(counts, distinct_cap * sizeof(idx_t));
                 }
                 distinct[distinct_len] = val;

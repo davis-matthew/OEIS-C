@@ -8,6 +8,7 @@
  * Formula:   a(n) = Σ_{k=1}^{⌊n/4⌋} C(⌊(n+2)/3⌋, 3k) * C(n - ⌊(n+2)/3⌋, k)
  * Range:     u8 n <= 16, u16 n <= 30, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* where C(a,b) is the binomial coefficient (a choose b) */
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

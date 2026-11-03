@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 4, u64 n <= 20, u128 n <= 30,
  *            big any n
- * Helpers:   add_edge
+ * Validated: standard, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,19 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/add_edge.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static void add_edge(uint16_t **vec, size_t *len, size_t *cap, uint16_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap) ? (*cap) * 2 : 16;
+        uint16_t *tmp = (uint16_t *)realloc(*vec, newcap * sizeof(uint16_t));
+        *vec = tmp;
+        *cap = newcap;
+    }
+    (*vec)[(*len)++] = val;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Data structures for the adjacency lists                           */
@@ -119,8 +132,8 @@ static void build_adjacency(void)
 static void compute_first_16_terms(seq_t **out_terms)
 {
     /* dp arrays */
-    seq_t *dp_cur = (seq_t *)calloc(_state_cnt, sizeof(seq_t));
-    seq_t *dp_nxt = (seq_t *)calloc(_state_cnt, sizeof(seq_t));
+    seq_t *dp_cur = mem_new(seq_t, _state_cnt);
+    seq_t *dp_nxt = mem_new(seq_t, _state_cnt);
 
     /* initial row counts are all 1 */
     for (size_t i = 0; i < _state_cnt; ++i) dp_cur[i] = (seq_t)1;
@@ -129,7 +142,7 @@ static void compute_first_16_terms(seq_t **out_terms)
     /* Terms[1..16] will be filled */
     for (int step = 1; step <= 16; ++step) {
         /* zero next dp */
-        memset(dp_nxt, 0, _state_cnt * sizeof(seq_t));
+        mem_set(dp_nxt, 0, _state_cnt * sizeof(seq_t));
         /* transition */
         for (size_t prev = 0; prev < _state_cnt; ++prev) {
             seq_t val = dp_cur[prev];
@@ -150,8 +163,8 @@ static void compute_first_16_terms(seq_t **out_terms)
     }
 
     /* free temporary arrays */
-    free(dp_cur);
-    free(dp_nxt);
+    mem_free(dp_cur);
+    mem_free(dp_nxt);
 }
 
 /* ------------------------------------------------------------------ */
@@ -162,10 +175,10 @@ static void ensure_a_capacity(size_t needed)
     if (needed < a_cap) return;
     size_t newcap = a_cap ? a_cap : 16;
     while (newcap <= needed) newcap <<= 1;
-    seq_t *newmem = (seq_t *)realloc(a_cache, (newcap + 1) * sizeof(seq_t));
+    seq_t *newmem = mem_resize(seq_t, a_cache, (newcap + 1));
     /* zero new area if any */
     if (newcap > a_cap)
-        memset(newmem + a_cap + 1, 0, (newcap - a_cap) * sizeof(seq_t));
+        mem_set(newmem + a_cap + 1, 0, (newcap - a_cap) * sizeof(seq_t));
     a_cache = newmem;
     a_cap = newcap;
 }
@@ -211,7 +224,7 @@ seq_t a(idx_t n)
 
         /* Allocate cache for first 16 terms (index 0 unused) */
         a_cap = 16;
-        a_cache = (seq_t *)calloc(a_cap + 1, sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap + 1);
         /* compute first 16 terms */
         compute_first_16_terms(&a_cache);
         a_len = 16;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1 + Σ_{k=2}^{n} floor( log(n!) / log(k!) )
  * Range:     u8 n <= 30, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 72 terms through n = 996 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   digit_cube_sum_idx
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,23 @@
 #include <stdlib.h>   /* malloc, free, calloc */
 #include <stdint.h>   /* uint32_t */
 #include <stdbool.h>  /* bool */
-#include "../utils/digit_cube_sum_idx.h"
+#include "../utils/mem.h"
+
+/* sum of cubes of decimal digits, returns idx_t (safe for indexing) */
+static idx_t digit_cube_sum_idx(idx_t n)
+{
+    static const uint32_t cube[10] = {
+        0u, 1u, 8u, 27u, 64u, 125u, 216u, 343u, 512u, 729u
+    };
+    uint32_t sum = 0u;
+    if (n == 0u) return 0u;
+    while (n != 0u) {
+        uint32_t d = (uint32_t)(n % 10u);
+        sum += cube[d];
+        n /= 10u;
+    }
+    return (idx_t)sum;
+}
 
 static const idx_t MAX_N = 6000;   /* upper bound beyond which no new cycles can appear */
 
@@ -73,7 +90,7 @@ static void build_limit_set(seq_t **out_arr, size_t *out_len)
         if (is_cycle[i]) ++cnt;
 
     /* allocate and fill the result array in ascending order */
-    seq_t *arr = (seq_t *)malloc(cnt * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, cnt);
     size_t pos = 0u;
     for (idx_t i = 0u; i <= MAX_N; ++i)
         if (is_cycle[i])

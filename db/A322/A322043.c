@@ -8,6 +8,7 @@
  * Formula:   a(n) = (429*n^2 - 429*n + 106) / 2
  * Range:     u8 n <= 1, u16 n <= 12, u32 n <= 216, u64 n <= 216,
  *            u128 n <= 216, big any n
+ * Validated: standard, pass, 59 terms through n = 205 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

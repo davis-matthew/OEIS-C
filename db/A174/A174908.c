@@ -9,7 +9,8 @@
  *            precomputes all terms once and answers queries in O(1)
  * Range:     u8 n <= 2, u16 n <= 5832, u32 n <= 5832, u64 n <= 5832,
  *            u128 n <= 5832, big any n
- * Helpers:   none
+ * Validated: full, pass, 5832 terms through n = 5832 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Precomputed fourth powers of digits 0-9 */
 static const seq_t POW4[10] = {0, 1, 16, 81, 256, 625, 1296, 2401, 4096, 6561};
@@ -47,7 +49,7 @@ static void init_cache(void)
 
     /* There are exactly 5832 numbers; allocate a bit more to avoid reallocs */
     cache_cap = 6000;
-    cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) {
         /* Out of memory – abort the program (allowed for build failure) */
         abort();
@@ -59,7 +61,7 @@ static void init_cache(void)
             if (cache_size >= cache_cap) {
                 /* Should not happen with the chosen capacity */
                 cache_cap *= 2;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
                 if (!cache) abort();
             }
             cache[cache_size++] = (seq_t)n;

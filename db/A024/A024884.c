@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   isqrt_u64
+ * Validated: partial, pass, 61 terms through n = 62 (2026-11-03)
+ * Helpers:   isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
 
 /* memoised tables ----------------------------------------------------- */
 
@@ -57,10 +59,10 @@ static void grow_seq_t(seq_t **arr, size_t *sz, size_t *cap)
 {
     if (*cap == 0) {
         *cap = 64;
-        *arr = (seq_t *)malloc(*cap * sizeof(seq_t));
+        *arr = mem_new(seq_t, (*cap * sizeof(seq_t)) / sizeof(seq_t));
     } else {
         *cap <<= 1;
-        *arr = (seq_t *)realloc(*arr, *cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
     }
 }
 

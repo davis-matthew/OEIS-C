@@ -8,9 +8,10 @@
  * Formula:   a(n) = number of distinct values of the arithmetic * derivative
  *            A003415 applied to the divisors of n. For n=1 the * only divisor
  *            is 1 whose derivative is 0, so a(1)=1
- * Range:     u8 n <= 95, u16 n <= 9740, u32 n <= 9740, u64 n <= 9740,
- *            u128 n <= 9740, big any n
- * Helpers:   none
+ * Range:     u8 n <= 95, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 9740 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Factorise 64‑bit integer n.
  * primes[i]  : i‑th distinct prime factor
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
     size_t div_cnt = 1;
     for (int i = 0; i < prime_cnt; ++i) div_cnt *= (size_t)(exps[i] + 1);
 
-    seq_t *derivs = (seq_t *)malloc(div_cnt * sizeof(seq_t));
+    seq_t *derivs = mem_new(seq_t, div_cnt);
     if (!derivs) return 0; /* allocation failure unlikely for small n */
 
     size_t deriv_idx = 0;
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
 
     /* Count distinct derivative values. */
     size_t distinct = 0;
-    seq_t *distinct_vals = (seq_t *)malloc(div_cnt * sizeof(seq_t));
+    seq_t *distinct_vals = mem_new(seq_t, div_cnt);
     for (size_t i = 0; i < div_cnt; ++i) {
         bool unique = true;
         for (size_t j = 0; j < distinct; ++j) {
@@ -118,8 +120,8 @@ seq_t a(idx_t n)
         }
     }
 
-    free(derivs);
-    free(distinct_vals);
+    mem_free(derivs);
+    mem_free(distinct_vals);
 
     return (seq_t)distinct;
 }

@@ -13,12 +13,14 @@
  *            in O(n²) time and uses only integer arithmetic. It w...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*----------------------------------------------------------------------*/
 /*  Compute A150762 for a given n.                                     */
@@ -29,10 +31,10 @@ seq_t a(idx_t n)
 
     /* Pre‑allocate working arrays.  */
     size_t N = (size_t)n;
-    seq_t *pow2 = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *G    = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *T    = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    if (!pow2 || !G || !T) { free(pow2); free(G); free(T); return 0; }
+    seq_t *pow2 = mem_new(seq_t, (N + 1));
+    seq_t *G    = mem_new(seq_t, (N + 1));
+    seq_t *T    = mem_new(seq_t, (N + 1));
+    if (!pow2 || !G || !T) { mem_free(pow2); mem_free(G); mem_free(T); return 0; }
 
     /* 2^i  */
     pow2[0] = (seq_t)1;
@@ -86,8 +88,8 @@ seq_t a(idx_t n)
         }
     }
 
-    free(pow2);
-    free(G);
-    free(T);
+    mem_free(pow2);
+    mem_free(G);
+    mem_free(T);
     return result;
 }

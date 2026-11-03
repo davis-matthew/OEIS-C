@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, build_primes_upto, is_prime
+ * Validated: standard, pass, 76 terms through n = 9663 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime, mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
-#include "../utils/_smallest_prime_factor.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* Cache of found terms. */
 static seq_t *cache = NULL;
@@ -41,7 +43,7 @@ static void append_cache(seq_t val)
 {
     if (cache_cnt == cache_cap) {
         size_t newcap = cache_cap ? cache_cap << 1 : 64;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         cache = tmp;
         cache_cap = newcap;
     }
@@ -71,7 +73,7 @@ static void generate_terms_up_to(idx_t n)
         extend_primes_to(cand / 3);
 
         uint64_t cand64 = (uint64_t)cand;
-        uint64_t spf = _smallest_prime_factor(cand64);
+        uint64_t spf = smallest_prime_factor(cand64);
         if (spf != cand64) {                 /* composite */
             uint64_t q = cand64 / spf;
             if ((spf & 1U) && (q & 1U) && is_prime((idx_t)q)) {

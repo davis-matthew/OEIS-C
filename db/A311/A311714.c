@@ -14,12 +14,14 @@
  *            values (n = 0..22): * a(0)=1, a(1)=4, a(...
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* for malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* buffer holding computed terms */
 static size_t cache_len = 0;  /* number of terms stored (cache_len == n+1) */
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* lazily allocate the initial part */
         cache_len = 23;                         /* indices 0..22 available */
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (cache == NULL) { /* allocation failure, return 0 */
             return (seq_t)0;
         }
@@ -55,7 +57,7 @@ seq_t a(idx_t n) {
 
     /* extend cache up to n */
     size_t new_len = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (tmp == NULL) {
         /* allocation failure */
         return (seq_t)0;

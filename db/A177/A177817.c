@@ -7,14 +7,19 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Numbers k such that k^3 | 17^(k^2)+1 */
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /*------------------------------------------------------------
@@ -31,7 +36,7 @@ seq_t a(idx_t n) {
     /* grow cache as needed */
     if (cap == 0) {
         cap = 128;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
     while (len < (size_t)n) {
         /* next candidate k */
@@ -49,13 +54,13 @@ seq_t a(idx_t n) {
         idx_t exp = (idx_t)e;
 
         /* 17^e mod m */
-        seq_t val = mod_pow(17, exp, m);
+        seq_t val = powmod(17, exp, m);
 
         /* check if val == m-1   (<=> 17^e + 1 ≡ 0 (mod m)) */
         if (val == (m - 1)) {
             if (len == cap) {
                 cap *= 2;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[len++] = last_k;
         }

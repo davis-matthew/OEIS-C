@@ -7,7 +7,8 @@
  * Formula:   a(n) = A002476(A002476(n))
  * Range:     u8 n <= 3, u16 n <= 224, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 9492 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *primes1 = NULL;          /* array of primes  ≡ 1 (mod 6) */
 static size_t primes1_size = 0;        /* number of stored primes */
@@ -64,7 +66,7 @@ static void build_primes1_upto(idx_t limit)
     /* Reallocate array if needed */
     if (count > primes1_cap) {
         size_t new_cap = count * 2;          /* some slack */
-        seq_t *tmp = (seq_t *)realloc(primes1, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, primes1, new_cap);
         if (!tmp) { free(is_prime); return; }
         primes1      = tmp;
         primes1_cap  = new_cap;

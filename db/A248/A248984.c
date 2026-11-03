@@ -12,7 +12,8 @@
  *            a(6)=3606, … (up to a(22)=234886)
  * Range:     u8 none, u16 n <= 17, u32 n <= 57, u64 n <= 135, u128 n <= 210,
  *            big any n
- * Helpers:   idx_max
+ * Validated: standard, pass, 49 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/idx_max.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static inline idx_t idx_max(idx_t a, idx_t b) { return a > b ? a : b; }
 
 static seq_t base_arr[23] = {0};          /* base_arr[1..22] will hold a(1)..a(22) after init */
 static bool base_computed = false;
@@ -132,12 +137,11 @@ seq_t a(idx_t n)
     /* Ensure capacity is large enough for n */
     if ((size_t)n + 1 > arr_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, arr, new_cap);
         if (!tmp && new_cap > 0) return (seq_t)0;   /* allocation failed */
         if (arr_cap) {
             /* Zero the newly allocated part */
-            memset((void *)(tmp + arr_cap), 0,
-                   (new_cap - arr_cap) * sizeof(seq_t));
+            mem_set((tmp + arr_cap), 0, (new_cap - arr_cap) * sizeof(seq_t));
         }
         arr = tmp;
         arr_cap = new_cap;
@@ -145,11 +149,10 @@ seq_t a(idx_t n)
 
     if ((size_t)n + 1 > diff_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(diff, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, diff, new_cap);
         if (!tmp && new_cap > 0) return (seq_t)0;
         if (diff_cap) {
-            memset((void *)(tmp + diff_cap), 0,
-                   (new_cap - diff_cap) * sizeof(seq_t));
+            mem_set((tmp + diff_cap), 0, (new_cap - diff_cap) * sizeof(seq_t));
         }
         diff = tmp;
         diff_cap = new_cap;

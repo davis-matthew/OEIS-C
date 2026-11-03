@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 20, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
  * the time limit for n ≤ 10 000. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build.  They are unsigned integer
  * types of any width; the code uses only integer arithmetic. */
@@ -45,11 +47,11 @@ static void ensure_cache(idx_t n)
     while (new_size <= n)
         new_size *= 2;
 
-    seq_t *newA = (seq_t *)realloc(A, new_size * sizeof(seq_t));
-    seq_t *newB = (seq_t *)realloc(B, new_size * sizeof(seq_t));
-    seq_t *newC = (seq_t *)realloc(C, new_size * sizeof(seq_t));
+    seq_t *newA = mem_resize(seq_t, A, new_size);
+    seq_t *newB = mem_resize(seq_t, B, new_size);
+    seq_t *newC = mem_resize(seq_t, C, new_size);
     if (!newA || !newB || !newC) {
-        free(A); free(B); free(C);
+        mem_free(A); mem_free(B); mem_free(C);
         abort();
     }
     A = newA;

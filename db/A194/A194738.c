@@ -8,13 +8,15 @@
  * Formula:   a(n) = number of 0 ≤ k < n with {k*sqrt(3)} < {n*sqrt(3)}
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Unsigned integer square root for a 128‑bit value.
    Returns the floor of sqrt(x). */
@@ -58,7 +60,7 @@ static void ensure_a_size(size_t new_cap) {
     if (new_cap <= a_size) return;
     size_t old_cap  = a_size;
     size_t new_size = new_cap;
-    seq_t *tmp = (seq_t *)realloc(a_seq, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_seq, new_size);
     if (!tmp) exit(EXIT_FAILURE);
     a_seq = tmp;
     for (size_t n = old_cap; n < new_size; ++n) {

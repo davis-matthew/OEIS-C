@@ -6,9 +6,10 @@
  * Offset:    9    (a(9) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 34, u16 n <= 745, u32 n <= 9964, u64 n <= 9964,
- *            u128 n <= 9964, big any n
- * Helpers:   digits, pow10
+ * Range:     u8 n <= 34, u16 n <= 745, u32 n <= 10009, u64 n <= 10009,
+ *            u128 n <= 10009, big any n
+ * Validated: standard, pass, 128 terms through n = 9964 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,19 @@
            a(n) = n * floor((a(n-1)+h(n))/n)
    All computations are performed with type seq_t; no floating point is used. */
 
-#include "../utils/pow10.h"   /* seq_t pow10(idx_t e); */
-#include "../utils/digits.h"  /* int digits(idx_t x); */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +49,7 @@ seq_t a(idx_t n)
         if (i < 10) {
             h = (seq_t)0;
         } else {
-            int d = digits(i);                 /* number of decimal digits of i */
+            int d = num_digits_idx(i);                 /* number of decimal digits of i */
             h = pow10(d - 1);                  /* 10^(d-1)  */
         }
 

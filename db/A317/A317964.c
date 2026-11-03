@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 4513, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes, build_spf
+ * Validated: standard, pass, 79 terms through n = 7906 (2026-11-03)
+ * Helpers:   build_primes, build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,11 @@
  *  returns the nth prime occurring in S (a(1)=2, a(2)=5, …).  */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_spf.h"
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /* static data structures (computed once) */
 static bool initialized = false;
@@ -60,7 +64,7 @@ static void init_sequence_tables(void)
 
     /* dynamic array for primes that are in S */
     prime_in_S_cap = 64;
-    prime_in_S = (seq_t*)malloc(prime_in_S_cap * sizeof(seq_t));
+    prime_in_S = mem_new(seq_t, prime_in_S_cap);
     prime_in_S_size = 0;
     next_candidate   = 2;
 
@@ -116,8 +120,7 @@ seq_t a(idx_t n)
             if (candidate == spf[candidate]) {
                 if (prime_in_S_size == prime_in_S_cap) {
                     prime_in_S_cap <<= 1;
-                    prime_in_S = (seq_t*)realloc(prime_in_S,
-                                                 prime_in_S_cap * sizeof(seq_t));
+                    prime_in_S = mem_resize(seq_t, prime_in_S, prime_in_S_cap);
                 }
                 prime_in_S[prime_in_S_size++] = (seq_t)candidate;
             }

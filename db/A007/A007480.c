@@ -9,15 +9,16 @@
  *            n the exponent p^v dividing N is found from N mod p^(v_p(L))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 12, u128 n <= 24,
  *            big any n
- * Helpers:   a007480_inv, a007480_mulmod
+ * Validated: standard, pass, 32 terms through n = 192 (2026-11-01)
+ * Helpers:   modinv, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a007480_inv.h"
-#include "../utils/a007480_mulmod.h"
+#include "../utils/modinv.h"
+#include "../utils/mulmod.h"
 
 seq_t a(idx_t n) {
     seq_t result = 1;
@@ -43,10 +44,10 @@ seq_t a(idx_t n) {
         for (uint64_t k = p; k <= n; k += p) {
             uint64_t m = k, j = 0;
             while (m % p == 0) { m /= p; j++; }
-            uint64_t iv = a007480_inv(m, M);
-            uint64_t iv2 = a007480_mulmod(iv, iv, M);
-            uint64_t iv4 = a007480_mulmod(iv2, iv2, M);
-            uint64_t term = a007480_mulmod(p4[aexp - j] % M, iv4, M);
+            uint64_t iv = modinv(m, M);
+            uint64_t iv2 = mulmod(iv, iv, M);
+            uint64_t iv4 = mulmod(iv2, iv2, M);
+            uint64_t term = mulmod(p4[aexp - j] % M, iv4, M);
             S += term;
             if (S >= M) S -= M;
         }

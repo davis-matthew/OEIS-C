@@ -9,13 +9,24 @@
  *            - 1
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 10, u64 n <= 12, u128 n <= 13,
  *            big any n
- * Helpers:   fib_pair, pow10
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   fib_pair
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/fib_pair.h"
-#include "../utils/pow10.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

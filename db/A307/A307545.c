@@ -10,12 +10,14 @@
  *            a(0),a(1),…, with a(1) counted only once (hence a(1)=c(1)-1)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 29, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
     /* Ensure capacity */
     while (cap <= n) {
         size_t new_cap = cap ? cap << 1 : 8; /* double or start with 8 */
-        A = (seq_t*)realloc(A, new_cap * sizeof(seq_t));
-        C = (seq_t*)realloc(C, new_cap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_cap);
+        C = mem_resize(seq_t, C, new_cap);
         cap = new_cap;
     }
 

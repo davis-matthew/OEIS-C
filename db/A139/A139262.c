@@ -8,6 +8,7 @@
  * Formula:   a(n) = ((n + 1) * binom(2n, n) - 4^n) / 2 (OEIS A139262)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 31, u128 n <= 62,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 1574 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

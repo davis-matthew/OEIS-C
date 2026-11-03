@@ -7,13 +7,15 @@
  * Formula:   a(n) = ⌊√n⌋ * 2^(n - ⌊√n⌋) (OEIS A089889)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"   /* declares seq_pow(seq_t, idx_t) */
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* Compute floor(sqrt(n)) for non‑negative n (uint64_t). */
 static uint64_t floor_sqrt_u64(uint64_t n)
@@ -34,6 +36,6 @@ seq_t a(idx_t n)
 
     uint64_t root_u = floor_sqrt_u64((uint64_t)n);
     seq_t root = (seq_t)root_u;                     /* ⌊√n⌋ as seq_t */
-    seq_t pow  = seq_pow((seq_t)2, (idx_t)(n - root_u)); /* 2^(n-⌊√n⌋) */
+    seq_t pow  = ipow_idx((seq_t)2, (idx_t)(n - root_u)); /* 2^(n-⌊√n⌋) */
     return root * pow;                              /* product, exact */
 }

@@ -12,13 +12,15 @@
  *            t...
  * Range:     u8 n <= 0, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cached coefficients of the continued fraction of √696. */
 static seq_t *cf_cache   = NULL;   /* array of coefficients */
@@ -45,7 +47,7 @@ static void cf_ensure_capacity(idx_t need)
     if ((size_t)need < cf_len) return;
     size_t new_cap = cf_cap ? cf_cap : 16;
     while (new_cap <= (size_t)need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cf_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cf_cache, new_cap);
     cf_cache = tmp;
     cf_cap   = new_cap;
 }

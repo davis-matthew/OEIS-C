@@ -9,6 +9,7 @@
  *            with 0 ≤ j_k ≤ k
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 41, u128 n <= 465,
  *            big any n
+ * Validated: full, pass, 466 terms through n = 465 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

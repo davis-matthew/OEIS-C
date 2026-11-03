@@ -12,7 +12,8 @@
  *            2·n on demand, * precomputes the Goldbach counts g(...
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------- 1. Static storage for primes and Goldbach counts ---------- */
 static uint64_t *prime_list = NULL;     /* array of primes up to current limit   */
@@ -71,7 +73,7 @@ ensure_up_to(idx_t n)
         if (new_is_prime[i]) new_prime_list[idx++] = (uint64_t)i;
 
     /* -- goldbach counts for all even m up to needed_lim ----------------- */
-    seq_t *new_gcnt = (seq_t *)malloc((needed_lim + 1) * sizeof(seq_t));
+    seq_t *new_gcnt = mem_new(seq_t, (needed_lim + 1));
     if (!new_gcnt) return;
     for (size_t i = 0; i <= needed_lim; ++i)
         new_gcnt[i] = 0;
@@ -91,7 +93,7 @@ ensure_up_to(idx_t n)
     /* ---- free old data and replace with new ---- */
     free(is_prime);
     free(prime_list);
-    free(gcnt);
+    mem_free(gcnt);
 
     is_prime      = new_is_prime;
     is_prime_cap  = needed_lim + 1;

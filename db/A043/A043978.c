@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_26
+ * Validated: standard, pass, 58 terms through n = 960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_26.h"
+#include "../utils/mem.h"
+
+/* return true iff x's base‑9 representation contains the digits 2 and 6
+ * next to each other (the order can be 26 or 62). */
+static bool has_26(seq_t x)
+{
+    seq_t prev = 10;           /* sentinel that is not a digit (9‑based) */
+    while (x > 0) {
+        seq_t cur = x % 9;
+        if ((prev == 6 && cur == 2) || (prev == 2 && cur == 6))
+            return true;
+        prev = cur;
+        x /= 9;
+    }
+    return false;
+}
 
 /* cache of discovered terms */
 static seq_t *cache = NULL;      /* array of found terms */
@@ -36,7 +52,7 @@ static void grow_cache(size_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     cache = new_ptr;
     cache_cap = new_cap;
 }

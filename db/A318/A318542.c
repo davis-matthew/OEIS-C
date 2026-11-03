@@ -13,13 +13,15 @@
  *            for n>24 * * Initial values: * a(1)=8, a(2)=8, a(3)=26, a...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 19, u64 n <= 39, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* first 24 terms of the sequence (index 0 unused) */
 static const seq_t init24[25] = {
@@ -73,14 +75,14 @@ seq_t a(idx_t n)
     /* enlarge cache if necessary (ensure capacity of at least 25 for first terms) */
     if (n >= cache_cap) {
         size_t new_cap = (size_t)((n < 24) ? 25 : n + 1);
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp) return (seq_t)0;          /* allocation failed */
 
         /* copy old values */
         if (cache) {
             for (size_t i = 0; i < cache_cap; ++i)
                 tmp[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = tmp;
         cache_cap = new_cap;

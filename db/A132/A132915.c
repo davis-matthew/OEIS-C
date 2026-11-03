@@ -7,13 +7,15 @@
  * Formula:   a(0) = 0; a(1) = 1; a(n) = Σ_{k=1..⌊√n⌋} a(n-k) for n ≥ 2
  * Range:     u8 n <= 12, u16 n <= 21, u32 n <= 37, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Compute ⌊√v⌋ for a 64‑bit unsigned integer v.  */
 static idx_t sqrt_u64(idx_t v)
@@ -41,7 +43,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache_size <= n) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();          /* allocation failed */
         cache = tmp;
         cache_size = (idx_t)new_size;

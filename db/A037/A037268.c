@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 1209, u64 n <= 1209,
  *            u128 n <= 1209, big any n
- * Helpers:   none
+ * Validated: full, pass, 1209 terms through n = 1209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Weights = 2520 / digit for digits 2..9 */
 static const int WEIGHTS[10] = {
@@ -44,7 +46,7 @@ static void add_value(seq_t v)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
     seq[seq_len++] = v;
@@ -129,7 +131,7 @@ static void build_sequence(void)
     backtrack(2, 2520, digits, 0);
 
     /* sort the array */
-    qsort(seq, seq_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(seq, seq_len, sizeof(seq_t), cmp_seq);
 
     /* remove duplicates */
     size_t uniq = 0;

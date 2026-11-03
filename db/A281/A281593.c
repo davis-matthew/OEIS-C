@@ -8,14 +8,17 @@
  *            Recurrence used: a(0) = 1, a(n+1) = a(n) + 2*n*Catalan(n)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 66,
  *            big any n
- * Helpers:   catalan
+ * Validated: standard, pass, 43 terms through n = 973 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
 #include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 /* Static cache: a_cache holds computed a(n)  (index 0 .. cached_max-1)
    a_cache_capacity is the allocated size.  a_cache_max is the highest
@@ -36,14 +39,14 @@ ensure_capacity(idx_t n)
     while (new_cap <= n)
         new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         return;                     /* on allocation failure, caller will
                                        get the old cache contents */
 
     if (a_cache) {
-        memcpy(new_cache, a_cache, a_cache_max * sizeof(seq_t));
-        free(a_cache);
+        mem_copy(new_cache, a_cache, a_cache_max * sizeof(seq_t));
+        mem_free(a_cache);
     }
     a_cache = new_cache;
     a_cache_capacity = new_cap;
@@ -57,7 +60,7 @@ a(idx_t n)
     /* Initialise cache with a(0) if not yet done */
     if (!a_cache) {
         a_cache_capacity = 1;
-        a_cache = (seq_t*)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         if (!a_cache)
             return (seq_t)0;          /* memory allocation failed */
         a_cache[0] = (seq_t)1;        /* a(0) = 1 */

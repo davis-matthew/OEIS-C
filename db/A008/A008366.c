@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_17_rough
+ * Validated: standard, pass, 73 terms through n = 8426 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,26 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_17_rough.h"
+#include "../utils/mem.h"
+
+/* Test whether n is 17‑rough.  Only primes < 17 are tested. */
+static bool is_17_rough(uint64_t n) {
+    if (n == 1)    /* 1 has no prime factors, so it is 17‑rough */
+        return true;
+    if ((n & 1) == 0)          /* divisible by 2 */
+        return false;
+    if (n % 3 == 0)            /* divisible by 3 */
+        return false;
+    if (n % 5 == 0)            /* divisible by 5 */
+        return false;
+    if (n % 7 == 0)            /* divisible by 7 */
+        return false;
+    if (n % 11 == 0)           /* divisible by 11 */
+        return false;
+    if (n % 13 == 0)           /* divisible by 13 */
+        return false;
+    return true;
+}
 
 static seq_t *rough_terms = NULL;        /* array of found 17‑rough numbers */
 static size_t rough_capacity = 0;        /* allocated capacity of rough_terms */
@@ -36,7 +56,7 @@ static void ensure_rough_capacity(size_t new_cap) {
     size_t next_cap = rough_capacity ? rough_capacity << 1 : 128;
     if (next_cap < new_cap)
         next_cap = new_cap;
-    seq_t *tmp = (seq_t *)realloc(rough_terms, next_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, rough_terms, next_cap);
     if (!tmp)
         abort();           /* allocation failed */
     rough_terms = tmp;

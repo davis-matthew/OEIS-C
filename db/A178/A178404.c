@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_len, digit_sum
+ * Validated: standard, pass, 73 terms through n = 990 (2026-11-03)
+ * Helpers:   digit_sum, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/digit_sum.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 /* cached terms, 0‑based index */
 static seq_t *terms        = NULL;
@@ -36,7 +39,7 @@ static void ensure_capacity(size_t need)
     if (need <= terms_cap) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 64;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     terms = tmp;
     terms_cap = new_cap;
 }
@@ -45,7 +48,7 @@ static void ensure_capacity(size_t need)
 static bool good(seq_t x)
 {
     seq_t S = digit_sum(x);          /* sum of decimal digits */
-    int    d = digit_len(x);         /* number of decimal digits */
+    int    d = num_digits(x);         /* number of decimal digits */
 
     /* ceil(S / d) = (S + d – 1) / d */
     seq_t k = (S + (seq_t)d - 1) / (seq_t)d;

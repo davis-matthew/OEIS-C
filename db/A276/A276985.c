@@ -11,6 +11,7 @@
  *            = n − r(r−1)/2 − 1. Then a(n)=2^(k+1)·C(r,k+1)
  * Range:     u8 n <= 23, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,8 +19,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow2.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

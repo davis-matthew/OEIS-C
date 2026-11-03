@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 95, u32 n <= 335, u64 n <= 1259,
  *            u128 n <= 5039, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9462 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root (floor) for 64‑bit unsigned values.
    Works for all n ≤ 2⁶⁴−1 without overflow. */
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* Dynamic programming array for the coin‑change counts.
        Size is n+1.  For the intended n (≤ 10 000) this is trivial. */
     size_t dp_size = (size_t)(n + 1);
-    seq_t *dp = (seq_t *)calloc(dp_size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     if (!dp) return (seq_t)0;      /* allocation failure – unlikely */
 
     dp[0] = (seq_t)1;              /* there is exactly one way to make 0 */
@@ -72,6 +74,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

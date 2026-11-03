@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    The offset is 1 (a(1) is the first term). */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (cache == NULL) {
         capacity = 16;                   /* initial capacity */
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (cache == NULL)
             return 0;                    /* allocation failure */
 
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         while (new_capacity <= n)
             new_capacity <<= 1;          /* double until big enough */
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
         if (tmp == NULL)
             return 0;                   /* allocation failure */
 

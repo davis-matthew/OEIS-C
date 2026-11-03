@@ -10,14 +10,21 @@
  *            to be 1
  * Range:     u8 n <= 15, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   digit_len, gcd_any, pow10
+ * Validated: partial, pass, 86 terms through n = 85 (2026-11-01)
+ * Helpers:   gcd, num_digits0_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
-#include "../utils/gcd_any.h"
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/num_digits0_seq.h"
+
+static seq_t pow10(idx_t exp) {
+    seq_t res = 1;
+    for (idx_t i = 0; i < exp; ++i) res *= (seq_t)10;
+    return res;
+}
 
 /* Find the least positive k such that k*n^2 ≡ n (mod 10^d),
    where d is the number of decimal digits of n. */
@@ -28,7 +35,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* 1. number of decimal digits of n */
-    idx_t d = digit_len(n);
+    idx_t d = num_digits0_seq(n);
 
     /* 2. modulus 10^d */
     seq_t mod = pow10(d);
@@ -39,7 +46,7 @@ seq_t a(idx_t n)
     seq_t B  = nn;
 
     /* 4. solve linear congruence A*k ≡ B (mod mod) */
-    seq_t g = gcd_any(A, mod);
+    seq_t g = gcd(A, mod);
     if (B % g != (seq_t)0)          /* no solution */
         return (seq_t)0;
 

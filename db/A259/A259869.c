@@ -9,13 +9,15 @@
  *            Σ_{j=1}^{n-1} a(j)*a(n-j), n > 1 (OEIS A259869)
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 20, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 297 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cache for computed values. */
 static seq_t *A          = NULL;   /* sequence values */
@@ -28,7 +30,7 @@ static void ensure_cap(idx_t n)
     if (n + 1 <= cap) return;
 
     size_t new_cap = (size_t)(n + 1) * 2;
-    seq_t *new_A = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+    seq_t *new_A = mem_resize(seq_t, A, new_cap);
     bool  *new_cmp = (bool  *)realloc(computed, new_cap * sizeof(bool));
     if (!new_A || !new_cmp) abort();  /* allocation failure */
 

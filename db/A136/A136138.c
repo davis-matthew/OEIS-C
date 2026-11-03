@@ -11,13 +11,34 @@
  *            O(1) after the necessary terms have been computed
  * Range:     u8 n <= 6, u16 n <= 26, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   sopfr_seq
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/sopfr_seq.h"
+#include "../utils/mem.h"
+
+/* Sum of prime factors with multiplicity (A001414). */
+static seq_t sopfr_seq(seq_t x)
+{
+    seq_t sum = (seq_t)0;
+    if (x < (seq_t)2)
+        return sum;
+
+    seq_t d = (seq_t)2;
+    while (d <= x / d) {
+        while (x % d == (seq_t)0) {
+            sum += d;
+            x /= d;
+        }
+        d += (seq_t)1;
+    }
+    if (x > (seq_t)1)
+        sum += x;
+    return sum;
+}
 
 static seq_t *cache = NULL;   /* dynamic cache of computed terms */
 static idx_t capacity = 0;    /* current allocated capacity */
@@ -28,7 +49,7 @@ seq_t a(idx_t n)
     /* initialise cache with a(0) = 1 */
     if (size == 0) {
         capacity = (idx_t)1;
-        cache = (seq_t *)realloc(cache, (size_t)capacity * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)capacity);
         cache[0] = (seq_t)1;
         size = (idx_t)1;
     }
@@ -37,7 +58,7 @@ seq_t a(idx_t n)
     while (size <= n) {
         if (size == capacity) {
             capacity = capacity == (idx_t)0 ? (idx_t)1 : capacity * (idx_t)2;
-            cache = (seq_t *)realloc(cache, (size_t)capacity * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (size_t)capacity);
         }
         seq_t prev = cache[size - (idx_t)1];
         seq_t x = (seq_t)4 * prev + (seq_t)1;

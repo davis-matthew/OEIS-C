@@ -12,12 +12,14 @@
  *            the recurrence.)
  * Range:     u8 n <= 96, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* Initialise with the first 15 terms. */
         cache_size = 15;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         for (idx_t i = 0; i < cache_size; ++i)
             cache[i] = base_vals[i];
     }
@@ -41,7 +43,7 @@ static void ensure_cache(idx_t n)
         return;
 
     /* Extend the cache. */
-    seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+    seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
     if (tmp == NULL) {
         /* Allocation failed; terminate to avoid undefined behaviour. */
         abort();

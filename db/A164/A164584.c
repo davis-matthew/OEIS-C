@@ -8,7 +8,8 @@
  *            a(1)=6, a(2)=12, a(3)=136
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 14, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   deallocate_cache
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,16 @@
    index requested, so that any order of calls is handled efficiently. */
 
 #include <stdlib.h>
-#include "../utils/deallocate_cache.h"
+#include <stddef.h>
+
+static void deallocate_cache(seq_t *ptr)
+{
+#ifdef __cplusplus
+    delete[] ptr;
+#else
+    free(ptr);
+#endif
+}
 
 static seq_t *allocate_cache(size_t new_size) {
 #if defined(__cplusplus)

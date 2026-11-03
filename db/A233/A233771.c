@@ -7,13 +7,15 @@
  * Formula:   a(n) = A000041(n) – A025065(n) (non‑palindromic partitions of n)
  * Range:     i8 n <= 14, i16 n <= 39, i32 n <= 47, i64 n <= 47, i128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *p_cache = NULL;      /* partition numbers p(k)      */
 static seq_t *pref_cache = NULL;   /* prefix sums of p(k)          */
@@ -25,8 +27,8 @@ static void ensure_arrays(idx_t n)
     if (n <= max_n) return;
 
     /* Reallocate arrays to hold 0..n */
-    seq_t *new_p   = (seq_t *)realloc(p_cache,  (n + 1) * sizeof(seq_t));
-    seq_t *new_pref= (seq_t *)realloc(pref_cache,(n + 1) * sizeof(seq_t));
+    seq_t *new_p   = mem_resize(seq_t, p_cache, (n + 1));
+    seq_t *new_pref= mem_resize(seq_t, pref_cache, (n + 1));
     if (!new_p || !new_pref) abort();          /* allocation failed */
 
     p_cache   = new_p;

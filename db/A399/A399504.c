@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, tabf, easy
  * Formula:   not stated
- * Range:     i8 n <= 8557, i16 n <= 8557, i32 n <= 8557, i64 n <= 8557,
- *            i128 n <= 8557, big any n
+ * Range:     i8 n <= 10659, i16 n <= 10659, i32 n <= 10659, i64 n <= 10659,
+ *            i128 n <= 10659, big any n
+ * Validated: standard, pass, 100 terms through n = 8557 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

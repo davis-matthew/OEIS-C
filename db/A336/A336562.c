@@ -8,9 +8,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of unordered pairs of maximal prime‑power divisors
  *            p^x, q^y of n for which gcd(sigma(p^x), sigma(q^y)) > 1
- * Range:     u8 n <= 33, u16 n <= 1813, u32 n <= 9755, u64 n <= 9755,
- *            u128 n <= 9755, big any n
- * Helpers:   big_pow, factor_u64, gcd
+ * Range:     u8 n <= 33, u16 n <= 1813, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9755 (2026-11-03)
+ * Helpers:   factor_u64, gcd, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,14 +19,16 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
 #include "../utils/gcd.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Compute σ(p^e) = (p^(e+1) – 1) / (p – 1) for a prime power p^e   */
 static seq_t sigma_prime_power(seq_t p, idx_t e)
 {
-    seq_t num = big_pow(p, (seq_t)(e + 1));
+    seq_t num = ipow(p, (seq_t)(e + 1));
     seq_t den = p - 1;
     return (num - 1) / den;
 }
@@ -45,7 +48,7 @@ seq_t a(idx_t n)
     factor_u64((uint64_t)n, pr, ex, &cnt);
 
     /* Array of σ(p^e) values */
-    seq_t *sigs = (seq_t*)malloc(cnt * sizeof(seq_t));
+    seq_t *sigs = mem_new(seq_t, cnt);
     for (size_t i = 0; i < cnt; ++i) {
         seq_t prime = (seq_t)pr[i];
         idx_t exp   = (idx_t)ex[i];
@@ -64,7 +67,7 @@ seq_t a(idx_t n)
     /* Free temporary storage */
     free(pr);
     free(ex);
-    free(sigs);
+    mem_free(sigs);
 
     /* Convert count to seq_t before returning */
     return (seq_t)pair_cnt;

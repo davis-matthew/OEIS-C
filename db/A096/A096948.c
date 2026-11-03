@@ -8,8 +8,9 @@
  * Formula:   a(n) = t(r)*t(m) where t(x)=x*(x+1)/2, r = smallest integer with
  *            r(r+1)/2 ≥ n (row number), m = n - (r-1)*r/2 (column index
  *            within the row)
- * Range:     u8 n <= 19, u16 n <= 274, u32 n <= 9636, u64 n <= 9636,
- *            u128 n <= 9636, big any n
+ * Range:     u8 n <= 19, u16 n <= 274, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 71 terms through n = 9636 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

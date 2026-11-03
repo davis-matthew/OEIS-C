@@ -9,6 +9,7 @@
  *            8‑term period 1,2,2,6,2,2,1,26
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

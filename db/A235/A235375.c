@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 41, u16 n <= 7487, u32 n <= 9441, u64 n <= 9441,
- *            u128 n <= 9441, big any n
- * Helpers:   none
+ * Range:     u8 n <= 41, u16 n <= 7487, u32 n <= 11196, u64 n <= 11196,
+ *            u128 n <= 11196, big any n
+ * Validated: standard, pass, 76 terms through n = 9441 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static cache for the sequence. */
 static seq_t *seq_cache = NULL;
@@ -101,11 +103,11 @@ static bool t_is_valid(idx_t t)
 static void grow_sequence(void)
 {
     size_t new_cap = seq_cap ? seq_cap << 1 : 128;
-    seq_t *new_ptr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_new(seq_t, new_cap);
     if (!new_ptr) abort();
     if (seq_cache) {
-        memcpy(new_ptr, seq_cache, seq_len * sizeof(seq_t));
-        free(seq_cache);
+        mem_copy(new_ptr, seq_cache, seq_len * sizeof(seq_t));
+        mem_free(seq_cache);
     }
     seq_cache = new_ptr;
     seq_cap   = new_cap;

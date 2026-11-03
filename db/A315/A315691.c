@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* ---------- static cache ---------- */
 static seq_t *cache = NULL;        /* array holding computed values   */
@@ -43,7 +45,7 @@ static void cache_init(void)
         1, 6, 12, 17, 22, 28, 34, 39, 44, 50, 56
     };
     cache_cap = 11;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) exit(EXIT_FAILURE);   /* unrecoverable allocation failure */
     for (size_t i = 0; i < cache_cap; ++i)
         cache[i] = init[i];
@@ -59,7 +61,7 @@ static void ensure_cache(idx_t n)
     }
     if ((size_t)(n + 1) > cache_cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE); /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;

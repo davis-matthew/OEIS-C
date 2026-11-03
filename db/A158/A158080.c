@@ -10,7 +10,8 @@
  *            primes, caching results for repeated calls
  * Range:     u8 n <= 2, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   get_digits, is_prime, largest_even_digit_idx
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   get_digits, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,22 @@
 #include <stdlib.h>
 
 /* Utilities */
-#include "../utils/is_prime.h"
 #include "../utils/get_digits.h"
-#include "../utils/largest_even_digit_idx.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* Helper: largest even digit of an idx_t index */
+static int largest_even_digit_idx(idx_t x)
+{
+    int max = -1;
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if ((d & 1) == 0 && d > max)
+            max = d;
+        x /= 10;
+    }
+    return max;
+}
 
 /* Helper: largest even digit of a seq_t prime */
 static int largest_even_digit_seq(seq_t x)
@@ -112,7 +126,7 @@ seq_t a(idx_t n)
                 /* Store the prime. */
                 if (seq_len == seq_cap) {
                     seq_cap = (seq_cap == 0 ? 128 : seq_cap * 2);
-                    seq_t *tmp = (seq_t*)realloc(seq_cache, seq_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, seq_cache, seq_cap);
                     if (!tmp) abort();
                     seq_cache = tmp;
                 }

@@ -7,14 +7,17 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} (k+1)^(k-1) * binomial(n+2,n-k)/k!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The code evaluates the sum directly, using integer arithmetic only. */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow_i32.h"
 #include <stdbool.h>
 
 /* Helper to compute powers of a small integer base to an integral exponent. */

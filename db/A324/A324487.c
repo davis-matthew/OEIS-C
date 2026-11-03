@@ -11,12 +11,14 @@
  *            a(4)=125, * a(5)=1331, a(6)=4096, a(7)=24389, a(8)...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 30, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 875 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline seq_t mul_word(seq_t a, unsigned int b)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     size_t need = (size_t)n + 1U;
     if (!cache) {
         cache_cap = (need > 64 ? need : 64);
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             return 0;        /* allocation failure: return zero */
         for (size_t i = 0; i < 12 && i < cache_cap; ++i)
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         size_t newcap = cache_cap * 2;
         if (newcap < need)
             newcap = need;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp)
             return 0;        /* allocation failure */
         cache = tmp;

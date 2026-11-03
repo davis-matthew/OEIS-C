@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   mask_from_len
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,17 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/mask_from_len.h"
+#include "../utils/mem.h"
+
+/* Return a mask with the lower 'len' bits set to 1.
+ * For len >= width of seq_t, return all 1s. */
+static seq_t mask_from_len(unsigned len)
+{
+    unsigned width = sizeof(seq_t) * 8;
+    if (len >= width)
+        return (seq_t)-1;
+    return ((seq_t)1 << len) - 1;
+}
 
 /* Auxiliary functions ---------------------------------------------- */
 
@@ -80,7 +91,7 @@ static void seq_grow(void)
 {
     if (seq_len >= seq_cap) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 16;
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp) abort();  /* malloc failure */
         seq  = tmp;
         seq_cap = new_cap;

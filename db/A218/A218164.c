@@ -13,7 +13,8 @@
  *            odd m in [1,127], * k = g^(b·m) (mod p). The sma...
  * Range:     u8 none, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   factorize, is_prime, mod_pow
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   factorize, is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"
+#include <string.h>
 #include "../utils/factorize.h"
-#include "../utils/mod_pow.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 /* ------------------------------------------------------------ */
 /*  Prime cache of the form 1+128*b                              */
@@ -99,7 +101,7 @@ static uint64_t find_primitive_root(uint64_t p)
         bool ok = true;
         for (size_t i = 0; i < qcnt && ok; ++i) {
             uint64_t q = qlist[i];
-            if (mod_pow((seq_t)g, phi / q, (seq_t)p) == (seq_t)1)
+            if (powmod((seq_t)g, phi / q, (seq_t)p) == (seq_t)1)
                 ok = false;
         }
         if (ok) return g;
@@ -129,7 +131,7 @@ seq_t a(idx_t n)
     seq_t min_k = (seq_t)(p - 1);        /* large initial value */
 
     for (uint64_t m = 1; m < 128; m += 2) {
-        seq_t k = mod_pow((seq_t)g, b * m, (seq_t)p);
+        seq_t k = powmod((seq_t)g, b * m, (seq_t)p);
         if (k < min_k)
             min_k = k;
     }

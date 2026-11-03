@@ -7,7 +7,8 @@
  * Formula:   a(n) = 4*3^n - 3*2^n
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 18, u64 n <= 39, u128 n <= 79,
  *            big any n
- * Helpers:   power_of_3
+ * Validated: standard, pass, 44 terms through n = 991 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,14 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/power_of_3.h"
+
+/* Compute 3^n and 2^n iteratively to avoid large const expressions */
+static seq_t power_of_3(idx_t n) {
+    seq_t result = 1;
+    for (idx_t i = 0; i < n; ++i)
+        result *= 3;
+    return result;
+}
 
 static seq_t power_of_2(idx_t n) {
     seq_t result = 1;

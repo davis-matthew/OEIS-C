@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   allowed_digits_for_pos
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,27 @@
    radices defined by the constraints in the definition. */
 
 #include <stdbool.h>
-#include "../utils/allowed_digits_for_pos.h"
+
+/* Return the list of admissible digits for position pos (1‑based).
+   Digits are sorted increasingly.  The count is stored in *out_cnt. */
+static void allowed_digits_for_pos(int pos, int out_digits[9], int *out_cnt)
+{
+    int cnt = 0;
+    for (int d = 1; d <= 9; ++d) {
+        bool ok = false;
+        if (pos % d == 0)          ok = true;   /* divisor of k */
+        else if (d % pos == 0)     ok = true;   /* multiple of k */
+        if (!ok) continue;
+
+        /* 1 is forbidden when k has a single‑digit prime divisor */
+        if (d == 1 &&
+            (pos % 2 == 0 || pos % 3 == 0 || pos % 5 == 0 || pos % 7 == 0))
+            continue;
+
+        out_digits[cnt++] = d;
+    }
+    *out_cnt = cnt;
+}
 
 seq_t a(idx_t n)
 {

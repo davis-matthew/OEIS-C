@@ -7,21 +7,25 @@
  * Formula:   least k ≥ 1 such that gcd(n,10^n - k) = 1
  * Range:     u8 n <= 2102, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, mod_pow
+ * Validated: standard, pass, 115 terms through n = 9068 (2026-11-01)
+ * Helpers:   gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;              /* offset starts at 1, but guard anyway */
 
     seq_t mod = (seq_t)n;               /* modulus n */
-    seq_t r   = mod_pow((seq_t)10, (uint64_t)n, mod);  /* 10^n mod n */
+    seq_t r   = powmod((seq_t)10, (uint64_t)n, mod);  /* 10^n mod n */
 
     seq_t x = r;
     for (idx_t k = 1; k <= n; ++k) {

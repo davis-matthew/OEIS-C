@@ -7,6 +7,7 @@
  * Formula:   a(n) = coefficient of x^(2n) in ((1+x)/(1-x))^47
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 8, u128 n <= 29,
  *            big any n
+ * Validated: standard, pass, 29 terms through n = 9313 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

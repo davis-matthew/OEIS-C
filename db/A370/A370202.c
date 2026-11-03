@@ -9,13 +9,16 @@
  *            = 1
  * Range:     u8 n <= 18, u16 n <= 37, u32 n <= 77, u64 n <= 156,
  *            u128 n <= 313, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 63 terms through n = 890 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* The function implements the recurrence and memoises all
    values that have ever been requested so far.  The cache is
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
         if (new_cap < (size_t)n + 1) new_cap = (size_t)n + 1;
         /* realloc returns void*; cast it so the compiler accepts it
            in both C and C++. */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* Out of memory – terminate with an indeterminate value. */
             return (seq_t)0;

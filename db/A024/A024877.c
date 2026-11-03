@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    where L_m is the m‑th Lucas number (L_0 = 2, L_1 = 1). */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------
  *  Generic helper to grow a dynamic array of seq_t values.
@@ -27,7 +29,7 @@ ensure_seq_cap(seq_t **p, size_t *cap, idx_t required)
     if (*cap < (size_t)required) {
         size_t new_cap = (*cap == 0 ? required : (*cap << 1));
         if (new_cap < (size_t)required) new_cap = required;
-        seq_t *tmp = (seq_t *)realloc(*p, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *p, new_cap);
         if (!tmp) abort();                /* allocation failed */
         *p   = tmp;
         *cap = new_cap;

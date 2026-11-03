@@ -9,12 +9,14 @@
  *            seeds: a(0)=…=a(10)=0, a(11)=1. The sequence is 4095‑periodic
  * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 4980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define PERIOD 4095
 
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     static const size_t period = PERIOD;
 
     if (!cache) {
-        cache = (seq_t *)malloc(period * sizeof(seq_t));
+        cache = mem_new(seq_t, period);
         if (!cache) return 0;  /* allocation failure fallback */
 
         /* initialize seeds */

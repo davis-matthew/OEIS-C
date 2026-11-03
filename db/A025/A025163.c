@@ -9,12 +9,14 @@
  *            (OEIS A025163)
  * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 17, i64 n <= 28, i128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* array holding computed terms */
 static idx_t  cached_n = (idx_t)-1;   /* largest index cached, (idx_t)-1 indicates empty */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     if (cache == NULL || cached_n < n) {
         /* new size needed */
         size_t new_len = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (new_cache == NULL) exit(1); /* allocation failed */
         cache = new_cache;
         /* initialise base values if cache was empty */

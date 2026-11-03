@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ensure_capacity, mod_pow
+ * Validated: standard, pass, 70 terms through n = 962 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,42 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
-#include "../utils/ensure_capacity.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 static seq_t *seq_arr   = NULL; /* array of qualifying primes */
 static size_t seqlen   = 0;     /* number of stored primes */
@@ -49,18 +84,18 @@ static void init_seq(void)
     }
 
     /* reserve space for the resulting sequence */
-    ensure_capacity(60000, &seqlen_cap, (void **)&seq_arr, sizeof(seq_t));
+    ensure_capacity(60000, &seqlen_cap, OEISC_VPP(&seq_arr), sizeof(seq_t));
     seqlen = 0;
 
     /* collect qualifying primes */
     for (uint64_t p = 5; p <= LIMIT; ++p) {      /* start at 5 (prime) */
         if (!is_prime[p]) continue;
         if (p % 3 != 1) continue;                /* only p ≡ 1 (mod 3) */
-        seq_t cube_root_test = mod_pow((seq_t)2, (p - 1) / 3, (seq_t)p);
+        seq_t cube_root_test = powmod((seq_t)2, (p - 1) / 3, (seq_t)p);
         if (cube_root_test != (seq_t)1) {
             if (seqlen >= seqlen_cap) {
                 /* in case the estimate was too low */
-                ensure_capacity(seqlen_cap * 2, &seqlen_cap, (void **)&seq_arr, sizeof(seq_t));
+                ensure_capacity(seqlen_cap * 2, &seqlen_cap, OEISC_VPP(&seq_arr), sizeof(seq_t));
             }
             seq_arr[seqlen++] = (seq_t)p;
         }

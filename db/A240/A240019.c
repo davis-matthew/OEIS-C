@@ -12,20 +12,22 @@
  *            (1–x^{2(k+1)})^{-1} (adds a second copy of par...
  * Range:     u8 n <= 33, u16 n <= 65, u32 n <= 162, u64 n <= 482,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 945 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n < 10) return 0;        /* values below the offset are irrelevant */
 
     idx_t N = (idx_t)n;
-    seq_t *ways = (seq_t *)calloc((size_t)N + 1, sizeof(seq_t));
+    seq_t *ways = mem_new(seq_t, (size_t)N + 1);
     if (!ways) return 0;         /* memory allocation failed – should not happen */
 
     ways[0] = 1;
@@ -70,6 +72,6 @@ seq_t a(idx_t n)
         shift = next_shift;
     }
 
-    free(ways);
+    mem_free(ways);
     return result;
 }

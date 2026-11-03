@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #ifndef USE_BIGINT   /* If this macro is defined the build uses an arbitrary‑precision class */
 #  define USE_BIGINT
 #endif
+#include "../utils/mem.h"
 
 /* ----------  Sieve of Eratosthenes  ---------- */
 #define SIEVE_LIMIT 1000000
@@ -187,7 +189,7 @@ static void ensure_cache(size_t needed)
         new_cap <<= 1;
 
 #ifdef __cplusplus
-    seq_t *new_cache = static_cast<seq_t*>(realloc(cache, new_cap * sizeof(seq_t)));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
 #else
     seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
 #endif

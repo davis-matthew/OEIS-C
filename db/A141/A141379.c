@@ -8,16 +8,18 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = the smallest positive integer d such that gcd(d, n) > 1
  *            and gcd(d, φ(n)) > 1
- * Range:     u8 n <= 130, u16 n <= 8966, u32 n <= 8966, u64 n <= 8966,
- *            u128 n <= 8966, big any n
- * Helpers:   gcd, phi64
+ * Range:     u8 n <= 130, u16 n <= 10002, u32 n <= 10002, u64 n <= 10002,
+ *            u128 n <= 10002, big any n
+ * Validated: standard, pass, 104 terms through n = 8966 (2026-11-01)
+ * Helpers:   gcd, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"
 #include <stdint.h>
-#include "../utils/phi64.h"
+#include "../utils/gcd.h"
+#include "../utils/totient_u64.h"
+#include <stdint.h>
 
 seq_t a(idx_t n) {
     /* For values below the offset we return 0; the sequence is defined
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     if (n < 3) return 0;
 
     seq_t N = (seq_t)n;                 /* cast index to seq_t */
-    seq_t phiN = (seq_t)phi64((uint64_t)n);
+    seq_t phiN = (seq_t)totient_u64((uint64_t)n);
 
     seq_t d = 2;                /* start testing from the smallest d > 1 */
     for (;;) {

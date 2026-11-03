@@ -12,13 +12,15 @@
  *            listing the rows of this triangle from left to right
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* integer square root of a 64‑bit unsigned integer */
 static inline idx_t int_sqrt(idx_t n)
@@ -64,7 +66,7 @@ static void ensure_rows(size_t need)
 
     /* compute missing rows */
     for (size_t r = rows_cap + 1; r <= need; ++r) {
-        seq_t *row = (seq_t*)malloc(r * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, r);
         if (!row) exit(1);
         rows[r] = row;
 

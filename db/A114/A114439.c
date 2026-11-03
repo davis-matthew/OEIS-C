@@ -8,7 +8,8 @@
  *            product of exactly two primes
  * Range:     u8 n <= 29, u16 n <= 1672, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 71 terms through n = 9917 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
 
 #ifdef __cplusplus
 #include <vector>
@@ -57,14 +58,14 @@ seq_t a(idx_t n)
     while (get_size() < n) {
         if (next_k & 1ULL) {
             /* k is odd: P(k) = k * ((3k-1)/2)   */
-            if (is_prime((uint64_t)next_k) &&
-                is_prime((3ULL * next_k - 1) / 2ULL)) {
+            if (is_prime_u64((uint64_t)next_k) &&
+                is_prime_u64((3ULL * next_k - 1) / 2ULL)) {
                 add_val((seq_t)next_k);
             }
         } else {
             /* k is even: P(k) = (k/2) * (3k-1)   */
-            if (is_prime(next_k / 2ULL) &&
-                is_prime(3ULL * next_k - 1ULL)) {
+            if (is_prime_u64(next_k / 2ULL) &&
+                is_prime_u64(3ULL * next_k - 1ULL)) {
                 add_val((seq_t)next_k);
             }
         }

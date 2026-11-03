@@ -8,7 +8,8 @@
  * Keywords:  nonn, easy
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 n <= 27, big any n
- * Helpers:   parse_dec
+ * Validated: standard, pass, 22 terms through n = 4275 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
 */
 
 #include <stdlib.h>
-#include "../utils/parse_dec.h"
+#include "../utils/mem.h"
+
+/* Convert a decimal string to seq_t using only + and * operations */
+static seq_t parse_dec(const char *s) {
+    seq_t x = 0;
+    for (const char *p = s; *p; ++p) {
+        char c = *p;
+        if (c >= '0' && c <= '9') {
+            x = x * (seq_t)10 + (seq_t)(c - '0');
+        }
+    }
+    return x;
+}
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;      /* dynamic array of computed terms */
@@ -32,7 +45,7 @@ seq_t a(idx_t n) {
 
     /* Grow the cache to accommodate up to index n (inclusive) */
     idx_t new_len = n + 1;
-    cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+    cache = mem_resize(seq_t, cache, new_len);
 
     /* Initialise the first two terms if this is the first call */
     if (cache_len == 0) {

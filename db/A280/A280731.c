@@ -12,6 +12,7 @@
  *            a(5)=10, a(6)=18, a(7)=19 * Recurrence for n>7: * a(n)=9*a(n-4)
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 41, u64 n <= 81, u128 n <= 163,
  *            big any n
+ * Validated: standard, pass, 53 terms through n = 943 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,6 +9,7 @@
  *            [1, 1, 2, 4, 8, 1, 3, 1, 30, 1, 3, 1, 8, 4, 2, 1, 1, 62]
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
+ * Validated: partial, pass, 89 terms through n = 88 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

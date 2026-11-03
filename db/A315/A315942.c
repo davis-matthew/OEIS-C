@@ -11,13 +11,15 @@
  *            a(7)=34, a(8)=34, a(9)=54, a(10)=44, a(11)=50, * a(12)=72
  * Range:     u8 n <= 44, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_seq[13] = {
     (seq_t)1,  (seq_t)6,  (seq_t)8,  (seq_t)18, (seq_t)18,
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cap = 13;                     /* initial capacity for a(0)..a(12) */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;         /* abort on allocation failure */
         for (size_t i = 0; i < 13; ++i)
             cache[i] = init_seq[i];
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap;
         while ((size_t)n >= new_cap)
             new_cap = new_cap ? new_cap * 2 : 16;   /* exponential grow */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;                        /* abort on failure */
         cache = tmp;
         cap = new_cap;

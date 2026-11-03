@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, matches_residue
+ * Validated: standard, pass, 66 terms through n = 980 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <assert.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t) */
-#include "../utils/matches_residue.h"
+#include "../utils/is_prime.h"
+
+/* True if n % 19 is 2, 3, 4, or 6. */
+static bool matches_residue(uint64_t n)
+{
+    uint64_t r = n % 19;
+    return (r == 2 || r == 3 || r == 4 || r == 6);
+}
 
 static uint64_t *prime_cache = NULL;   /* cached primes as uint64_t     */
 static idx_t    cache_len   = 0;       /* number of primes stored       */

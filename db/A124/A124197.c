@@ -10,13 +10,15 @@
  *            A060831(k)=number of odd divisors of k
  * Range:     u8 n <= 17, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         if (new_size < 1) new_size = 1; /* defensive for n==0 */
 
         /* allocate / grow the arrays                     */
-        a_cache       = (seq_t *)   realloc(a_cache,       new_size * sizeof(seq_t));
+        a_cache       = mem_resize(seq_t, a_cache, new_size);
         spf_cache     = (idx_t *)   realloc(spf_cache,     new_size * sizeof(idx_t));
         odd_div_cache = (idx_t *)   realloc(odd_div_cache, new_size * sizeof(idx_t));
 

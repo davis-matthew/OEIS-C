@@ -9,13 +9,15 @@
  *            of A(x)
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 12, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Computes the n-th term of sequence A372013. 
    a(0) = 1, a(1) = -1, a(2) = 4, …  */
@@ -23,9 +25,9 @@ seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;
 
     /* Allocate dynamic arrays for coefficients up to n. */
-    seq_t *a_arr   = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    seq_t *b_arr   = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    seq_t *conv2   = (seq_t*)malloc((2 * n + 1) * sizeof(seq_t));
+    seq_t *a_arr   = mem_new(seq_t, (n + 1));
+    seq_t *b_arr   = mem_new(seq_t, (n + 1));
+    seq_t *conv2   = mem_new(seq_t, (2 * n + 1));
 
     /* Initialize arrays to zero. */
     for (idx_t i = 0; i <= n; ++i) {
@@ -72,9 +74,9 @@ seq_t a(idx_t n) {
     seq_t result = a_arr[n];
 
     /* Free allocated memory. */
-    free(a_arr);
-    free(b_arr);
-    free(conv2);
+    mem_free(a_arr);
+    mem_free(b_arr);
+    mem_free(conv2);
 
     return result;
 }

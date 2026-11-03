@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 7, u32 n <= 26, u64 n <= 63, u128 n <= 137,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 208 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

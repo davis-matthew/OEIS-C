@@ -8,13 +8,15 @@
  * Formula:   a(n) = 2*floor(sqrt(n)) - d(n) (d(n) = number of divisors of n)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9597 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root for idx_t (unsigned 64‑bit). */
 static idx_t isqrt_idx(idx_t x)
@@ -47,7 +49,7 @@ static void ensure_divcnt(idx_t n)
         return;
 
     /* Allocate a new array large enough. */
-    seq_t *new_arr = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, (size_t)(n + 1));
     if (!new_arr)   /* allocation failure – abort (should not happen in tests) */
         return;
 
@@ -63,7 +65,7 @@ static void ensure_divcnt(idx_t n)
 
     /* Replace old cache. */
     if (divcnt)
-        free(divcnt);
+        mem_free(divcnt);
     divcnt = new_arr;
     divcnt_size = n;
 }

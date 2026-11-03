@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 35, u32 n <= 66, u64 n <= 120,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,14 +35,14 @@ seq_t a(idx_t n)
     const size_t dim = (size_t)max_d + 1;             /* indices 0 .. max_d            */
 
     /* ------- dynamic memory allocation ------------------------------- */
-    seq_t *cum   = (seq_t*)calloc(dim, sizeof(seq_t));
+    seq_t *cum   = mem_new(seq_t, dim);
     seq_t **ring = (seq_t**)malloc(ringSize * sizeof(seq_t*));
     if (!cum || !ring) return (seq_t)0;
     for (size_t i = 0; i < ringSize; ++i) {
-        ring[i] = (seq_t*)calloc(dim, sizeof(seq_t));
+        ring[i] = mem_new(seq_t, dim);
         if (!ring[i]) return (seq_t)0;
     }
-    seq_t *dp_cur = (seq_t*)calloc(dim, sizeof(seq_t));
+    seq_t *dp_cur = mem_new(seq_t, dim);
     if (!dp_cur) return (seq_t)0;
 
     /* ------- base case: empty array --------------------------------- */
@@ -76,10 +78,10 @@ seq_t a(idx_t n)
     for (size_t d = 1; d < dim; ++d) answer += dp_cur[d];
 
     /* ------- free allocated memory ----------------------------------- */
-    free(dp_cur);
-    for (size_t i = 0; i < ringSize; ++i) free(ring[i]);
+    mem_free(dp_cur);
+    for (size_t i = 0; i < ringSize; ++i) mem_free(ring[i]);
     free(ring);
-    free(cum);
+    mem_free(cum);
 
     return answer;
 }

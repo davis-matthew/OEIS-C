@@ -7,12 +7,14 @@
  * Formula:   number of partitions of n into parts 8k+5 or 8k+6
  * Range:     u8 n <= 86, u16 n <= 202, u32 n <= 557, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,10 +24,10 @@ seq_t a(idx_t n)
 
     if (n > max_n) {
         /* free old cache if any */
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
 
         /* allocate new cache (size n+1, index 0..n) */
-        dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        dp = mem_new(seq_t, (size_t)(n + 1));
         if (!dp) return (seq_t)0;              /* out of memory, return 0 */
 
         /* initialize */

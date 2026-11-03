@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 993, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, mod_pow
+ * Validated: standard, pass, 65 terms through n = 9112 (2026-11-03)
+ * Helpers:   build_primes_upto, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,8 +33,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* static cache for the sequence values */
 static seq_t *seq_cache      = NULL;
@@ -79,8 +82,7 @@ cache_append(seq_t val)
 {
     if (seq_cache_len == seq_cache_cap) {
         size_t new_cap = seq_cache_cap ? seq_cache_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(seq_cache,
-                                      new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp)
             abort();          /* unrecoverable memory failure */
         seq_cache = tmp;
@@ -134,7 +136,7 @@ a(idx_t n)
         for (size_t i = 0; i < nf; ++i) {
             uint64_t q = factor_buf[i];
             uint64_t exp = (p - 1) / q;
-            if (mod_pow((seq_t)3, exp, (seq_t)p) == (seq_t)1) {
+            if (powmod((seq_t)3, exp, (seq_t)p) == (seq_t)1) {
                 primitive = false;
                 break;
             }

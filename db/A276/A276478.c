@@ -10,25 +10,26 @@
  *            - k²)), where m(n) = floor(n*sqrt(3)/2) = floor(isqrt(3*n²))/2
  * Range:     u8 n <= 14, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   sqrt_floor_u64
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sqrt_floor_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)1;          /* base case */
 
     idx_t N = n;
-    idx_t m = sqrt_floor_u64(3ULL * N * N) >> 1;  /* m(n) = floor(isqrt(3*N²))/2 */
+    idx_t m = isqrt(3ULL * N * N) >> 1;  /* m(n) = floor(isqrt(3*N²))/2 */
 
     seq_t sum = 0;
     for (idx_t k = 0; k <= m; ++k) {
         idx_t rem = N * N - k * k;
-        sum += (seq_t)sqrt_floor_u64(rem);
+        sum += (seq_t)isqrt(rem);
     }
 
     seq_t res = 4 * sum;

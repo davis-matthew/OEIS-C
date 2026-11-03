@@ -14,13 +14,15 @@
  *            n≥19:...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Internal cache for memoised values */
 static seq_t *cache = NULL;     /* alloc'd as 1‑based index, cache[0] unused */
@@ -52,13 +54,13 @@ static void ensure_cache(idx_t n)
     while (new_cap < n + 1)
         new_cap <<= 1;         /* grow by factor 2 */
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         exit(1);               /* fatal: out of memory */
 
     /* zero new part for all integer types */
     if (new_cap > cache_cap)
-        memset(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+        mem_set(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
 
     cache = tmp;
     cache_cap = new_cap;

@@ -10,8 +10,8 @@
  *            1‑based), or -1 if no such number exists
  * Range:     i8 n <= 3, i16 n <= 33, i32 n <= 33, i64 n <= 33, i128 n <= 33,
  *            big any n
- * Helpers:   append_buf, append_hundreds, append_teens, append_tens,
- *            append_units, write_below_1000, write_number
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,13 +22,154 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/append_buf.h"
-#include "../utils/append_hundreds.h"
-#include "../utils/append_teens.h"
-#include "../utils/append_tens.h"
-#include "../utils/append_units.h"
-#include "../utils/write_below_1000.h"
-#include "../utils/write_number.h"
+#include "../utils/mem.h"
+
+/* Helper: append a null‑terminated string to buffer at current position. */
+static inline void append_buf(const char *s, char *buf, size_t *pos)
+{
+    size_t l = strlen(s);
+    memcpy(buf + *pos, s, l);
+    *pos += l;
+}
+
+/* Append word for hundreds 200‑999. */
+static inline void append_hundreds(unsigned d, char *buf, size_t *pos)
+{
+    static const char *HUND[10] = {
+        "", "", "doscientos", "trescientos",
+        "cuatrocientos", "quinientos", "seiscientos",
+        "setecientos", "ochocientos", "novecientos"
+    };
+    if (d < 10)
+        append_buf(HUND[d], buf, pos);
+}
+
+/* Append word for 10‑19. */
+static inline void append_teens(unsigned d, char *buf, size_t *pos)
+{
+    static const char *TEENS[10] = {
+        "diez", "once", "doce", "trece", "catorce",
+        "quince", "dieciseis", "diecisiete",
+        "dieciocho", "diecinueve"
+    };
+    if (d < 10)
+        append_buf(TEENS[d], buf, pos);
+}
+
+/* Append word for tens 30‑99. */
+static inline void append_tens(unsigned d, char *buf, size_t *pos)
+{
+    static const char *TENS[10] = {
+        "", "", "", "treinta", "cuarenta", "cincuenta",
+        "sesenta", "setenta", "ochenta", "noventa"
+    };
+    if (d < 10)
+        append_buf(TENS[d], buf, pos);
+}
+
+/* Append word for 1‑9. */
+static inline void append_units(unsigned d, char *buf, size_t *pos)
+{
+    static const char *ONES[10] = {
+        "", "uno", "dos", "tres", "cuatro", "cinco",
+        "seis", "siete", "ocho", "nueve"
+    };
+    if (d < 10)
+        append_buf(ONES[d], buf, pos);
+}
+
+/* Write numbers 1‑999 into buf. */
+static void write_below_1000(idx_t n, char *buf, size_t *pos)
+{
+    if (n == 0)
+        return;
+
+    if (n >= 100) {
+        unsigned h = (unsigned)(n / 100);
+        n %= 100;
+        if (h == 1) { /* 100‑199 */
+            if (n == 0) {
+                append_buf("cien", buf, pos);
+                return;
+            }
+            append_buf("ciento", buf, pos);
+        } else { /* 200‑999 */
+            append_hundreds(h, buf, pos);
+            if (n == 0)
+                return;
+        }
+    }
+
+    if (n >= 20) {
+        if (n < 30) {
+            static const char *VINT2[10] = {
+                "veinte", "veintiuno", "veintidos", "veintitr",
+                "veinticuatro", "veinticinco", "veintiseis",
+                "veintisiete", "veintiocho", "veintinueve"
+            };
+            append_buf(VINT2[n - 20], buf, pos);
+            return;
+        }
+        unsigned t = (unsigned)(n / 10);
+        unsigned u = (unsigned)(n % 10);
+        append_tens(t, buf, pos);
+        if (u != 0) {
+            append_buf("y", buf, pos);
+            append_units(u, buf, pos);
+        }
+        return;
+    }
+
+    if (n >= 10) { /* 10‑19 */
+        append_teens((unsigned)(n - 10), buf, pos);
+        return;
+    }
+
+    /* 1‑9 */
+    append_units((unsigned)n, buf, pos);
+}
+
+/* Main routine: write integer n (>=0) in Spanish, no spaces/hyphens. */
+static void write_number(idx_t n, char *buf, size_t *len_out)
+{
+    size_t pos = 0;
+    if (n == 0) {
+        append_buf("cero", buf, &pos);
+        *len_out = pos;
+        return;
+    }
+
+    /* Millions */
+    if (n >= 1000000) {
+        idx_t millions = n / 1000000;
+        n %= 1000000;
+        if (millions == 1) {
+            append_buf("un", buf, &pos);
+            append_buf("millon", buf, &pos);
+        } else {
+            write_below_1000(millions, buf, &pos);
+            append_buf("millones", buf, &pos);
+        }
+    }
+
+    /* Thousands */
+    if (n >= 1000) {
+        idx_t thousands = n / 1000;
+        n %= 1000;
+        if (thousands == 1) {
+            append_buf("mil", buf, &pos);
+        } else {
+            write_below_1000(thousands, buf, &pos);
+            append_buf("mil", buf, &pos);
+        }
+    }
+
+    /* Remaining <1000 */
+    if (n > 0)
+        write_below_1000(n, buf, &pos);
+
+    *len_out = pos;
+}
 
 /* ---------- Memoised solver ---------- */
 
@@ -46,10 +187,10 @@ static void expand_answers(size_t needed)
     size_t new_cap = answer_cap ? answer_cap * 2 : 64;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(answer_tbl, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, answer_tbl, new_cap);
     if (!tmp)
         return; /* allocation failure – rare */
-    memset(tmp + answer_cap, 0, (new_cap - answer_cap) * sizeof(seq_t));
+    mem_set(tmp + answer_cap, 0, (new_cap - answer_cap) * sizeof(seq_t));
     answer_tbl = tmp;
     answer_cap = new_cap;
 }
@@ -96,7 +237,7 @@ seq_t a(idx_t n)
     /* Initialise memoisation table on first call. */
     if (answer_tbl == NULL) {
         answer_cap = 64;
-        answer_tbl = (seq_t *)calloc(answer_cap, sizeof(seq_t)); /* 0 = unknown */
+        answer_tbl = mem_new(seq_t, answer_cap); /* 0 = unknown */
     }
 
     ensure_answer(n);

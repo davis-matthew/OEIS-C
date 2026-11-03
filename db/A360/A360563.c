@@ -12,6 +12,7 @@
  *            the binomial coefficient that counts the place...
  * Range:     u8 n <= 6, u16 n <= 20, u32 n <= 89, u64 n <= 150, u128 n <= 150,
  *            big any n
+ * Validated: standard, pass, 55 terms through n = 148 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

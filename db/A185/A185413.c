@@ -11,14 +11,41 @@
  *            returns the number assigned to that coordinate b...
  * Range:     u8 n <= 240, u16 n <= 1024, u32 n <= 1024, u64 n <= 1024,
  *            u128 n <= 1024, big any n
- * Helpers:   cw_value
+ * Validated: standard, pass, 80 terms through n = 985 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/cw_value.h"
+
+static inline seq_t cw_value(long long x, long long y) {
+    /* absolute values */
+    long long absx = x >= 0 ? x : -x;
+    long long absy = y >= 0 ? y : -y;
+    long long k = absx > absy ? absx : absy;   /* ring index */
+
+    if (k == 0)         /* the center */
+        return (seq_t)1;
+
+    /* start of the ring */
+    unsigned long long start = (unsigned long long)(2 * k - 1) *
+                               (unsigned long long)(2 * k - 1) + 1;
+
+    unsigned long long offset;
+    if (x == k && y != -k) {                       /* right side (excluding bottom corner) */
+        offset = (unsigned long long)(y + (k - 1));
+    } else if (y == k) {                           /* top side */
+        offset = (unsigned long long)(2 * k + (k - 1 - x));
+    } else if (x == -k) {                          /* left side */
+        offset = (unsigned long long)(4 * k - 1 + (k - y));
+    } else {                                       /* bottom side */
+        offset = (unsigned long long)(6 * k - 1 + (x + k));
+    }
+
+    return (seq_t)(start + offset);
+}
 
 seq_t a(idx_t n) {
     if (n == 0)              /* undefined but guard against underflow */

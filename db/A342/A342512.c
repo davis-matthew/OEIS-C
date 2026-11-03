@@ -12,7 +12,8 @@
  *            the largest k such that the string contains an instance o...
  * Range:     u8 n <= 8191, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   build_pat_rec
+ * Validated: standard, pass, 101 terms through n = 8105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/build_pat_rec.h"
+
+/* Helper to build pattern recursively */
+static void build_pat_rec(int k, int *pat, int *pos)
+{
+    if (k == 1) {
+        pat[(*pos)++] = 0;
+        return;
+    }
+    build_pat_rec(k - 1, pat, pos);
+    pat[(*pos)++] = k - 1;               /* new variable */
+    build_pat_rec(k - 1, pat, pos);
+}
 
 /* Maximum k needed for 64‑bit numbers: 2^k - 1 <= 64  ->  k <= 6 */
 #define MAX_K 6

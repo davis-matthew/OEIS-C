@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = v₂(σ(n)) – v₂(n) where σ(n) is the sum of divisors of n
- * Range:     i8 n <= 48, i16 n <= 9772, i32 n <= 9772, i64 n <= 9772,
- *            i128 n <= 9772, big any n
- * Helpers:   build_primes_upto, floor_sqrt, pow_seq
+ * Range:     i8 n <= 48, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9772 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,26 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/build_primes_upto.h"   // build_primes_upto(limit, uint64_t **out, size_t *cnt)
-#include "../utils/floor_sqrt.h"         // floor_sqrt(x) → seq_t
-#include "../utils/pow_seq.h"            // pow_seq(base, exp) → seq_t
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static uint64_t *primes = NULL;     /* cache of primes */
 static size_t     prime_cnt = 0;
@@ -67,7 +85,7 @@ seq_t a(idx_t n) {
         int e = 0;
         while (m % p == 0) { m /= p; ++e; }
 
-        seq_t numerator   = pow_seq((seq_t)p, e + 1) - 1;
+        seq_t numerator   = ipow_i32((seq_t)p, e + 1) - 1;
         seq_t denominator = (seq_t)p - 1;
         seq_t factor      = numerator / denominator;      /* exact division */
         sigma *= factor;

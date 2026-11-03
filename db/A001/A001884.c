@@ -11,7 +11,8 @@
  *            With q = t-1, F(y) = Sum_n H_n(q) y^n, H_n(q) =...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 24,
  *            big any n
- * Helpers:   a1884_add
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/a1884_add.h"
+#include "../utils/mem.h"
+
+static void a1884_add(seq_t *pos, seq_t *neg, long long c, seq_t v) {
+    if (c > 0) *pos += (seq_t)(uint64_t)c * v;
+    else if (c < 0) *neg += (seq_t)(uint64_t)(-c) * v;
+}
 
 #define A1884_NY 12
 #define A1884_NQ 24
@@ -108,16 +114,16 @@ static void a1884_grow(idx_t need) {
     seq_t *nv, *nw;
     if (nc < need) nc = need;
     if (nc < 64) nc = 64;
-    nv = (seq_t *)malloc((size_t)nc * sizeof(seq_t));
-    nw = (seq_t *)malloc((size_t)nc * sizeof(seq_t));
-    memset(nv, 0, (size_t)nc * sizeof(seq_t));
-    memset(nw, 0, (size_t)nc * sizeof(seq_t));
+    nv = mem_new(seq_t, (size_t)nc);
+    nw = mem_new(seq_t, (size_t)nc);
+    mem_set(nv, 0, (size_t)nc * sizeof(seq_t));
+    mem_set(nw, 0, (size_t)nc * sizeof(seq_t));
     for (i = 0; i < a1884_cnt; i++) {
         nv[i] = a1884_V[i];
         nw[i] = a1884_W[i];
     }
-    free(a1884_V);
-    free(a1884_W);
+    mem_free(a1884_V);
+    mem_free(a1884_W);
     a1884_V = nv;
     a1884_W = nw;
     a1884_cap = nc;

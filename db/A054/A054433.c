@@ -9,14 +9,16 @@
  *            satisfy F_1 = 1, F_2 = 2, F_k = F_{k-1} + F_{k-2}
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 46, u128 n <= 92,
  *            big any n
- * Helpers:   gcd_uint64
+ * Validated: standard, pass, 43 terms through n = 2207 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* --- local cache for Fibonacci numbers --------------------------------- */
 static seq_t *fibs = NULL;
@@ -29,7 +31,7 @@ static void ensure_fibs(size_t up_to)
         return;                      /* already have enough */
 
     size_t new_cap = up_to + 1;       /* indices go from 0 to up_to inclusive */
-    seq_t *tmp = (seq_t*)realloc(fibs, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fibs, new_cap);
     if (!tmp)                       /* allocation failed – leave old array */
         return;
     fibs = tmp;
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
 
     seq_t sum = 0;
     for (idx_t r = 1; r < m; ++r) {
-        if (gcd_uint64(r, m) == 1)   /* r is coprime to 2n */
+        if (gcd_u64(r, m) == 1)   /* r is coprime to 2n */
             sum += fibs[r];         /* add the corresponding Fibonacci number */
     }
     return sum;

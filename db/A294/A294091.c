@@ -8,7 +8,8 @@
  * Formula:   Numbers k such that (k-1)/2 is prime and k ≠ -1 (mod 8)
  * Range:     u8 n <= 15, u16 n <= 1747, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 68 terms through n = 9336 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* One‑time initialization: handle the unique case p = 2 */
     if (!initialized) {
         initialized = true;
-        cache = (seq_t*)realloc(cache, sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, 1);
         if (cache == NULL) return 0;          /* allocation failure */
         cache[0] = (seq_t)2 * (seq_t)2 + 1;   /* k = 5 for p = 2 */
         cache_len = 1;
@@ -49,8 +51,7 @@ seq_t a(idx_t n)
         /* next_prime is now a prime.  We have already processed p = 2 earlier. */
         if ((next_prime & 3) == 1) {           /* p ≡ 1 (mod 4)  */
             seq_t k = (seq_t)2 * (seq_t)next_prime + 1;
-            seq_t *tmp = (seq_t*)realloc(cache,
-                                         (cache_len + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, (cache_len + 1));
             if (tmp == NULL) return 0;         /* allocation failure */
             cache = tmp;
             cache[cache_len++] = k;

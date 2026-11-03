@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n+k-1,k) * (Stirling2(n,k) * k!)^2
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (n >= S_len) {
         /* Ensure S has capacity up to n */
         if (n + 1 > S_cap) {
-            seq_t *tmp = (seq_t *)realloc(S, sizeof(seq_t) * (n + 1));
+            seq_t *tmp = mem_resize(seq_t, S, (n + 1));
             if (!tmp) { /* allocation failure: abort */
                 exit(EXIT_FAILURE);
             }
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
             S[0] = 1;
             S_len = 1;
 
-            Tprev = (seq_t *)malloc(sizeof(seq_t) * 1);
+            Tprev = mem_new(seq_t, 1);
             if (!Tprev) exit(EXIT_FAILURE);
             Tprev[0] = 1;   /* T(0,0) = 1 */
             T_len  = 1;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         /* Compute terms from S_len to n */
         for (idx_t cur_n = S_len; cur_n <= n; ++cur_n) {
             /* Allocate next row of T */
-            seq_t *Tnext = (seq_t *)malloc(sizeof(seq_t) * (cur_n + 1));
+            seq_t *Tnext = mem_new(seq_t, (cur_n + 1));
             if (!Tnext) exit(EXIT_FAILURE);
             Tnext[0] = 0;   /* T(cur_n,0) = 0 for cur_n > 0 */
 
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
             ++S_len;
 
             /* Free the previous row and update pointers */
-            free(Tprev);
+            mem_free(Tprev);
             Tprev = Tnext;
             T_len = cur_n + 1;
         }

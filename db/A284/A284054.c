@@ -10,13 +10,29 @@
  *            > 16 : a(n) = a(n - a(n-1)) + a(n - a(n-2))
  * Range:     u8 n <= 111, u16 n <= 343, u32 n <= 799, u64 n <= 1703,
  *            u128 n <= 3519, big any n
- * Helpers:   grow_seq_array
+ * Validated: standard, pass, 91 terms through n = 8840 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/grow_seq_array.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 static seq_t *cache = NULL;           /* memoization table */
 static idx_t cache_max = 0;           /* largest index computed (inclusive) */

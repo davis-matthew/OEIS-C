@@ -7,6 +7,7 @@
  * Formula:   a(n) = p^7 - p^5 - p^3 - p^2, where p = prime(n)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 9, u64 n <= 21, u128 n <= 21,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

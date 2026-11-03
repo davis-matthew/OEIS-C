@@ -9,7 +9,8 @@
  *            non-integer median
  * Range:     u8 n <= 42, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   sort_int
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/sort_int.h"
+#include "../utils/mem.h"
+
+/* Helper: quicksort for small integer arrays */
+static void sort_int(int *arr, int n)
+{
+    for (int i = 0; i < n - 1; ++i) {
+        for (int j = i + 1; j < n; ++j) {
+            if (arr[i] > arr[j]) {
+                int t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+            }
+        }
+    }
+}
 
 /* Sieve smallest prime factor up to limit */
 static void build_spf(uint32_t **spf, int *limit)
@@ -56,7 +69,7 @@ static void ensure_terms(idx_t n)
     /* Grow terms array if needed */
     if (terms_cap == 0) {
         terms_cap = 1024;
-        terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 
     while (terms_len < (size_t)n) {
@@ -92,7 +105,7 @@ static void ensure_terms(idx_t n)
         if (qualify) {
             if (terms_len == terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)next_candidate;
         }

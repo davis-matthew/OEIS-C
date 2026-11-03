@@ -7,7 +7,8 @@
  * Formula:   a(n) = the least prime p such that p^2 ≡ 1 (mod n)
  * Range:     u8 n <= 46, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_mul, next_prime
+ * Validated: standard, pass, 86 terms through n = 994 (2026-11-03)
+ * Helpers:   mem, mulmod, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mulmod.h"
 #include "../utils/next_prime.h"
-#include "../utils/mod_mul.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
     size_t idx = (size_t)n;
     if (idx >= cache_cap) {
         size_t new_cap = idx + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();               /* out‑of‑memory */
         /* Zero‑initialize new slots; old slots already contain values. */
         for (size_t i = cache_cap; i < new_cap; ++i)
@@ -54,7 +57,7 @@ seq_t a(idx_t n)
     uint64_t mod = (uint64_t)n;
     while (1) {
         uint64_t m = p % mod;
-        uint64_t sq = mod_mul(m, m, mod);  /* (m*m) mod mod  */
+        uint64_t sq = mulmod(m, m, mod);  /* (m*m) mod mod  */
         if (sq == 1) {
             cache[idx] = (seq_t)p;
             return cache[idx];

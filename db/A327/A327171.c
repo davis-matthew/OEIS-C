@@ -7,15 +7,19 @@
  * Keywords:  nonn, easy, mult
  * Formula:   a(n) = ∏_{p^k∥n} (p-1) · p^{(k-1)+(k mod 2)} (i.e. a(n) = φ(n) *
  *            core(n) where core(n) = ∏_{p|n, k odd} p)
- * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 9847, u64 n <= 9847,
- *            u128 n <= 9847, big any n
- * Helpers:   big_pow, factor_u64
+ * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 82 terms through n = 9847 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +43,7 @@ seq_t a(idx_t n)
         /* φ(p^k) = p^{k-1} * (p-1)  (k ≥ 1) */
         seq_t phi_part = (seq_t)(p - 1);
         if (k > 1) {
-            seq_t pow_part = big_pow((seq_t)p, (seq_t)(k - 1));
+            seq_t pow_part = ipow((seq_t)p, (seq_t)(k - 1));
             phi_part *= pow_part;
         }
 

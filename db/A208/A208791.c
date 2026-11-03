@@ -13,12 +13,14 @@
  *            +124*a(n−6)+464*a(n−7)−88*a(n−8)−16*a(n−9)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     /* at least enough space for the nine base terms (indices 1..9) */
     if (size < 10) {
-        seq_t *tmp = (seq_t *)realloc(seq, 10 * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, 10);
         if (!tmp) return 0;          /* allocation failed */
         seq = tmp;
         size = 10;
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* grow storage if necessary */
     if (n + 1 > size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(seq, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_size);
         if (!tmp) return 0;
         seq = tmp;
         size = new_size;

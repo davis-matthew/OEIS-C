@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 17, u64 n <= 36, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    a(6)=14786, a(7)=42850, a(8)=125934, a(9)=374166
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_tbl[9] = {
     110, 270, 694, 1870, 5194, 14786, 42850, 125934, 374166
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     {
         /* start with a capacity that can hold at least 9 terms */
         cap   = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) return 0;    /* allocation failure */
 
         /* copy initial terms safely – use assignment, not memcpy */
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         {
             size_t new_cap = cap * 2;
             if (new_cap < count + 1) new_cap = count + 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (tmp == NULL) return 0;   /* allocation failure */
             cache = tmp;
             cap   = new_cap;

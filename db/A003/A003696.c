@@ -11,6 +11,7 @@
  *            where mu_j = 2 - 2cos(j*Pi/4) are the nonzer...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 24,
  *            big any n
+ * Validated: standard, pass, 30 terms through n = 190 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

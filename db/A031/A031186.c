@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-01)
  * Helpers:   get_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
  * algorithm. */
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/get_digits.h"
 
 /* Sum of 5th powers of the digits 0..9 as a const array. */

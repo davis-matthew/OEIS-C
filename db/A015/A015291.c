@@ -8,12 +8,15 @@
  *            A015291)
  * Range:     u8 none, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 27 terms through n = 289 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +25,7 @@ seq_t a(idx_t n)
     const seq_t primes[4] = {2, 3, 7, 13};
     int remaining[4] = {9, 5, 1, 1};    /* exponents in the denominator 2^9 * 3^5 * 7 * 13 */
 
-    seq_t powCurr = big_pow((seq_t)5, (seq_t)n);   /* 5^n  */
+    seq_t powCurr = ipow((seq_t)5, (seq_t)n);   /* 5^n  */
     seq_t result  = 1;
 
     for (idx_t i = 0; i < 4; ++i) {

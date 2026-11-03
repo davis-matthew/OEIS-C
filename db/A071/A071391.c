@@ -9,7 +9,8 @@
  *            exists
  * Range:     u8 none, u16 n <= 7, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   zalloc
+ * Validated: standard, pass, 108 terms through n = 8070 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/zalloc.h"
+
+/* zero‑initialised allocation helper */
+static void *zalloc(size_t sz) { return calloc(1, sz); }
 
 static const idx_t MAX_M    = 2000000ULL;   /* upper bound for m to sieve */
 static const idx_t MAX_SUM  = 6000000ULL;   /* expected maximal sigma+phi for the above m */

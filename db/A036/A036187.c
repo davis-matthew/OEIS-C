@@ -8,6 +8,7 @@
  *            ≡ 0 (mod 131))
  * Range:     u8 n <= 130, u16 n <= 130, u32 n <= 130, u64 n <= 130,
  *            u128 n <= 130, big any n
+ * Validated: full, pass, 130 terms through n = 130 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

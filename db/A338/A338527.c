@@ -9,12 +9,15 @@
  * Formula:   a(n) = (n + 1)*(2 n + 2)^n*(2 n + 1)^(2 n - 1)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 9,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -22,11 +25,11 @@ seq_t a(idx_t n)
     seq_t result = (seq_t)(N + 1);
 
     seq_t base1 = (seq_t)(2 * N + 2);
-    seq_t pow1  = big_pow(base1, N);
+    seq_t pow1  = ipow(base1, N);
     result *= pow1;
 
     seq_t base2 = (seq_t)(2 * N + 1);
-    seq_t pow2  = big_pow(base2, (seq_t)(2 * N - 1));
+    seq_t pow2  = ipow(base2, (seq_t)(2 * N - 1));
     result *= pow2;
 
     return result;

@@ -8,12 +8,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 /* Recurrence:
    a(0) = 1;
    for 1 ≤ n ≤ 23:  a(n) = 23*∑_{k=1}^{n} a(n−k) + 2;
@@ -21,7 +23,7 @@
    for n ≥ 25:      a(n) = 23*∑_{k=1}^{23} a(n−k) − 276*a(n−24). */
 seq_t a(idx_t n)
 {
-    seq_t *a = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, (size_t)(n + 1));
     if (!a) return (seq_t)0;   /* should not happen */
 
     const seq_t ONE   = (seq_t)1;
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     a[0] = ONE;
     if (n == 0) {
         seq_t r = a[0];
-        free(a);
+        mem_free(a);
         return r;
     }
 
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
 
     if (n <= 24) {
         seq_t r = a[n];
-        free(a);
+        mem_free(a);
         return r;
     }
 
@@ -65,6 +67,6 @@ seq_t a(idx_t n)
     }
 
     seq_t r = a[n];
-    free(a);
+    mem_free(a);
     return r;
 }

@@ -12,14 +12,27 @@
  *            either the left neighbour (j–1) is 0 or th...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   first_row_valid
+ * Validated: standard, pass, 31 terms through n = 178 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #pragma once
 #include <stdbool.h>
-#include "../utils/first_row_valid.h"
+
+/* test whether mask satisfies the first‑row condition */
+static bool first_row_valid(unsigned int mask) {
+    if (mask & 1)                     /* leftmost bit must be 0    */
+        return false;
+    for (int j = 0; j < 5; ++j) {
+        if ((mask >> j) & 1) {
+            if ((mask >> (j + 1)) & 1)   /* no two consecutive 1s   */
+                return false;
+        }
+    }
+    return true;
+}
 
 static bool allowed[64][64];
 static bool allowed_init = false;

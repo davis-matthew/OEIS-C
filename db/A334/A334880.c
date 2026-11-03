@@ -8,15 +8,18 @@
  *            k‑th composite number
  * Range:     u8 n <= 100, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd, is_prime_small
+ * Validated: standard, pass, 78 terms through n = 955 (2026-11-03)
+ * Helpers:   gcd, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Return the n‑th term of OEIS sequence A334880.
    The function stores previously computed terms in a static array
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
         while (new_cap < n)
             new_cap *= 2;
-        terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
         terms_cap = new_cap;
     }
 
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
             continue;
 
         /* if last_i is not prime, it is a composite */
-        if (!is_prime_small((seq_t)last_i)) {
+        if (!is_prime_seq((seq_t)last_i)) {
             comp_cnt++;                     /* this is the k‑th composite */
             if (gcd((seq_t)comp_cnt, (seq_t)last_i) > (seq_t)1)
                 terms[terms_len++] = (seq_t)comp_cnt;

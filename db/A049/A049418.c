@@ -12,15 +12,18 @@
  *            This implements the definition of the 3‑infinitary divisor sum
  * Range:     u8 n <= 16, u16 n <= 1008, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 85 terms through n = 9478 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/seq_pow.h"     /* seq_pow(seq_t base, idx_t exp) */
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
 
 /* Compute a(p^e) for a prime power using the multiplicative formula. */
 static seq_t
@@ -34,8 +37,8 @@ a_prime_power(uint64_t p, uint64_t e)
         e /= 3;
 
         if (d != 0) {
-            seq_t denom = seq_pow((seq_t)p, (idx_t)pow3) - 1;
-            seq_t numer = seq_pow((seq_t)p, (idx_t)(pow3 * (d + 1))) - 1;
+            seq_t denom = ipow_idx((seq_t)p, (idx_t)pow3) - 1;
+            seq_t numer = ipow_idx((seq_t)p, (idx_t)(pow3 * (d + 1))) - 1;
             result *= numer / denom;   /* exact division */
         }
         pow3 *= 3;                /* next power of 3 */

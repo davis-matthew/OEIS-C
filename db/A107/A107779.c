@@ -9,7 +9,8 @@
  *            contains at least one digit from a(n‑1), for n > 1. (Recurrence)
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- auxiliary: digit mask (handles 0 correctly) ---------- */
 static inline uint16_t digit_mask(seq_t x)
@@ -41,7 +43,7 @@ static void ensure_seq_cap(void)
 {
     if (max_n >= seq_cap) {
         size_t new_cap = (seq_cap == 0) ? 16 : seq_cap << 1;
-        seq_t *tmp = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
         if (!tmp) abort();                /* out of memory */
         seq_arr = tmp;
         seq_cap = new_cap;

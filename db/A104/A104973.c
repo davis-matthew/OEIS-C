@@ -10,13 +10,24 @@
  *            first) are coprime
  * Range:     u8 none, u16 none, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   coprime_small
+ * Validated: full, pass, 24 terms through n = 24 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/coprime_small.h"
+
+static bool coprime_small(int a, int b)
+{
+    int x = a, y = b;
+    while (y != 0) {
+        int t = x % y;
+        x = y;
+        y = t;
+    }
+    return x == 1;
+}
 
 static void backtrack(int depth, int cur[6], bool used[7], seq_t *out, idx_t *cnt)
 {

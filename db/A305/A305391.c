@@ -10,14 +10,16 @@
  *            repeatedly applying the morphism f: 1 → 2, 2 → 3, 3 → 1,2,3,
  *            starting with 1 and taking the limit of S[3k+2] (k → ∞). The
  *            word begins 3,1,2,3,2,3,1,2,3,1,2,3,2,3,1,2,3,3,1,2,3,2,3,1,
- * Range:     u8 n <= 9336, u16 n <= 9336, u32 n <= 9336, u64 n <= 9336,
- *            u128 n <= 9336, big any n
- * Helpers:   none
+ * Range:     u8 n <= 13744, u16 n <= 13744, u32 n <= 13744, u64 n <= 13744,
+ *            u128 n <= 13744, big any n
+ * Validated: standard, pass, 106 terms through n = 9336 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *prefix = NULL;
 static size_t prefix_len = 0;
@@ -25,7 +27,7 @@ static size_t prefix_len = 0;
 seq_t a(idx_t n) {
     /* initialise the first prefix S[2] = "3" */
     if (prefix == NULL) {
-        prefix = (seq_t*)malloc(1 * sizeof(seq_t));
+        prefix = mem_new(seq_t, 1);
         prefix[0] = (seq_t)3;
         prefix_len = 1;
     }
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
             }
 
             /* allocate and fill the new word */
-            seq_t *new_prefix = (seq_t*)malloc(new_len * sizeof(seq_t));
+            seq_t *new_prefix = mem_new(seq_t, new_len);
             size_t pos = 0;
             for (size_t i = 0; i < prefix_len; ++i) {
                 seq_t v = prefix[i];
@@ -61,7 +63,7 @@ seq_t a(idx_t n) {
             }
 
             /* replace old word */
-            free(prefix);
+            mem_free(prefix);
             prefix = new_prefix;
             prefix_len = new_len;
         }

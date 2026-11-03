@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 47, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
       a(1)=4, a(2)=5, a(3)=17, a(4)=32, a(5)=77,
       a(6)=207, a(7)=523, a(8)=1304, a(9)=3307, a(10)=8414 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* initialize the cache with the first 10 terms */
     if (!initialized) {
         cache_len = 10;                                   /* highest cached index */
-        cache = (seq_t *)realloc(cache, (cache_len + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (cache_len + 1));
         if (!cache) return 0;                            /* allocation failure */
 
         cache[0] = 0;   /* unused to keep indices matching OEIS */
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* enlarge the cache to at least n */
     size_t old_len = cache_len;
     size_t new_len = (size_t)n;
-    seq_t *tmp = (seq_t *)realloc(cache, (new_len + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (new_len + 1));
     if (!tmp) return 0;                    /* allocation failure */
     cache = tmp;
     cache_len = new_len;

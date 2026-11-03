@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 14, u64 n <= 29, u128 n <= 59,
  *            big any n
- * Helpers:   int_sqrt
+ * Validated: standard, pass, 40 terms through n = 177 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
    fraction coefficients of sqrt(177). */
 
 #include <stdlib.h>
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 static seq_t *cf_terms = NULL;      /* continued‑fraction coefficients */
 static size_t cf_len = 0;           /* number of coefficients stored */
@@ -30,13 +33,13 @@ static void init_cf_terms(void)
 {
     if (cf_terms != NULL) return;
 
-    a0 = int_sqrt((idx_t)177);         /* floor(sqrt(177)) = 13 */
+    a0 = isqrt((idx_t)177);         /* floor(sqrt(177)) = 13 */
     m   = 0;
     d   = 1;
     a_curr = a0;
 
     /* Allocate space for the first coefficient */
-    cf_terms = (seq_t *)malloc(16 * sizeof(seq_t));
+    cf_terms = mem_new(seq_t, 16);
     cf_len   = 1;
     cf_terms[0] = (seq_t)a0;
 }
@@ -50,7 +53,7 @@ static void ensure_cf_terms(idx_t n)
 
     /* Ensure enough room */
     size_t new_cap = (n + 1) * 2;
-    cf_terms = (seq_t *)realloc(cf_terms, new_cap * sizeof(seq_t));
+    cf_terms = mem_resize(seq_t, cf_terms, new_cap);
 
     /* Generate remaining coefficients */
     while (cf_len <= n) {

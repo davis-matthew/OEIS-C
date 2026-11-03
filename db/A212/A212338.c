@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 35, u64 n <= 78, u128 n <= 167,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 4962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* caching of G values: G[k] = A001628(k) */
 static seq_t *G = NULL;      /* pointer to array of G values          */
@@ -31,9 +33,9 @@ static void ensure_G(idx_t upto)
 {
     /* allocate or grow the array */
     if (G == NULL) {
-        G = (seq_t *)malloc((size_t)(upto + 1) * sizeof(seq_t));
+        G = mem_new(seq_t, (size_t)(upto + 1));
     } else if (Glen <= upto) {
-        seq_t *tmp = (seq_t *)realloc(G, (size_t)(upto + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, G, (size_t)(upto + 1));
         if (tmp) G = tmp;
     }
 

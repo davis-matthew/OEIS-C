@@ -8,6 +8,7 @@
  *            6*n^3 + 12*n^2 + 10*n + 3)/32 for n odd
  * Range:     u8 n <= 2, u16 n <= 14, u32 n <= 278, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 58 terms through n = 989 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

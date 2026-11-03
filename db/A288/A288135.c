@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute floor(sqrt(x)) for a 128‑bit integer x (x < 2^128). */
 static inline unsigned long long isqrt128(__uint128_t x)
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= a_cap)
     {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_a = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_cache, new_cap);
         if (!new_a) exit(EXIT_FAILURE);
         a_cache = new_a;
         a_cap   = new_cap;

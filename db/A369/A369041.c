@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = A014963(G(n)) where G(n) = n XOR (n>>1) (binary Gray
  *            code)
- * Range:     u8 n <= 261, u16 n <= 9394, u32 n <= 9394, u64 n <= 9394,
- *            u128 n <= 9394, big any n
+ * Range:     u8 n <= 261, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 113 terms through n = 9394 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

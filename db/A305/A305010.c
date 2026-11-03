@@ -12,13 +12,15 @@
  *            for n > 18 with initial values a(1)=1, a(2)=11, a(...
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 48, u128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Allocate a buffer large enough for at least 64 terms */
         cache_len = 64;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         if (cache == NULL) return 0; /* allocation failed */
 
         /* Raw base values as 64‑bit constants */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_len) {
         size_t new_len = cache_len;
         while (new_len <= (size_t)n) new_len <<= 1;  /* double until big enough */
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp == NULL) return cache[n];          /* cannot grow, return what we have */
         cache = tmp;
         cache_len = new_len;

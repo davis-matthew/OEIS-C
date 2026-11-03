@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} (k+1)^(k-1) * binomial(2*k+2,n-k)/k!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence derived from the exponential generating function */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
 
     /* enlarge caches to hold terms up to n */
     size_t new_size = (size_t)(n + 1);
-    seq_t *new_a = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
-    seq_t *new_e = (seq_t *)realloc(e_cache, new_size * sizeof(seq_t));
+    seq_t *new_a = mem_resize(seq_t, a_cache, new_size);
+    seq_t *new_e = mem_resize(seq_t, e_cache, new_size);
     if (!new_a || !new_e) {
         /* allocation failed – abort the program */
         abort();

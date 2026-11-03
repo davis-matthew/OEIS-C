@@ -7,12 +7,14 @@
  * Formula:   a(n) = n*(n-1)*(n-2)*(27*n^3 - 174*n^2 + 511*n - 552)*n!/48
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact_cache = NULL;
 static idx_t fact_max = 0;
@@ -28,7 +30,7 @@ static void ensure_factorial(idx_t n)
         size_t new_cap = fact_cap ? fact_cap : 1;
         while (new_cap < need)
             new_cap <<= 1;
-        fact_cache = (seq_t *)realloc(fact_cache, new_cap * sizeof(seq_t));
+        fact_cache = mem_resize(seq_t, fact_cache, new_cap);
         fact_cap = new_cap;
     }
 

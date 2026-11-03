@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 194, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
  
 /* Integer square root, floor of sqrt(n).  n fits into idx_t. */
 static int int_sqrt_idx(idx_t n)
@@ -71,7 +73,7 @@ static void build_sequence(size_t need, idx_t *maxN, seq_t **seq, size_t *len)
         if (dp[6][n] >= 5) {
             if (out_len == cap) {
                 cap = cap ? cap * 2 : 256;
-                out_seq = (seq_t *)realloc(out_seq, cap * sizeof(seq_t));
+                out_seq = mem_resize(seq_t, out_seq, cap);
             }
             out_seq[out_len++] = (seq_t)n;
             if (out_len >= need) break;   /* enough terms collected */
@@ -101,7 +103,7 @@ seq_t a(idx_t n)
         seq_t *new_seq = NULL;
         size_t new_len = 0;
         build_sequence(needed, &max_limit, &new_seq, &new_len);
-        if (sequence) free(sequence);
+        if (sequence) mem_free(sequence);
         sequence = new_seq;
         seq_len = new_len;
         /* Increase the limit for the next iteration to avoid frequent

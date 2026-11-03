@@ -9,7 +9,8 @@
  *            s(T_{k+1})
  * Range:     u8 n <= 2, u16 n <= 17, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum, seq_alloc, seq_realloc
+ * Validated: standard, pass, 52 terms through n = 900 (2026-11-01)
+ * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,11 +26,31 @@
 #include <stdbool.h>             /* bool */
 
 /* Utility functions for dynamic allocation of seq_t arrays */
-#include "../utils/seq_alloc.h"     /* seq_alloc(size_t) */ 
-#include "../utils/seq_realloc.h"   /* seq_realloc(seq_t*, size_t, size_t) */
+#include <stdlib.h>
+#include "../utils/digit_sum.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Function that returns the sum of the decimal digits of a seq_t. */
-#include "../utils/digit_sum.h"     /* digit_sum(seq_t) */
 
 static seq_t *cache     = NULL;   /* array of found terms */
 static size_t cache_cap = 0;       /* allocated capacity */

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state for the sequence generation */
 static seq_t *seq_values = NULL;   /* stored terms */
@@ -126,8 +128,7 @@ seq_t a(idx_t n)
         if (is_special(candidate)) {
             if (seq_len == seq_cap) {
                 idx_t new_cap = seq_cap ? seq_cap * 2 : 16;
-                seq_values = (seq_t*)realloc(seq_values,
-                                             (size_t)(new_cap * sizeof(seq_t)));
+                seq_values = mem_resize(seq_t, seq_values, ((size_t)(new_cap * sizeof(seq_t))) / sizeof(seq_t));
                 if (!seq_values) abort();
                 seq_cap = new_cap;
             }

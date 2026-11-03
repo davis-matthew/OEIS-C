@@ -12,7 +12,8 @@
  *            than the previous term that does not create * a len...
  * Range:     u8 n <= 91, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 4846 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static void ensure_capacity(idx_t needed)
 {
@@ -31,7 +33,7 @@ static void ensure_capacity(idx_t needed)
     size_t newcap = cap ? cap * 2 : 16;
     while ((size_t)needed > newcap)
         newcap *= 2;
-    seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, newcap);
     cap = newcap;
 }
 
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
 
     if (!seq) {
         /* first call: initialise storage */
-        seq = (seq_t *)malloc(16 * sizeof(seq_t));
+        seq = mem_new(seq_t, 16);
         cap = 16;
     }
 
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         size_t newcap = cap;
         while ((size_t)n > newcap)
             newcap *= 2;
-        seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, newcap);
         cap = newcap;
     }
 

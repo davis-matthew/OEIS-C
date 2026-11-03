@@ -10,12 +10,14 @@
  *            a(n-1) - Σ_{k=2}^{n-1} k*a(n-k))
  * Range:     i8 n <= 7, i16 n <= 17, i32 n <= 33, i64 n <= 68, i128 n <= 136,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 seq_t a(idx_t n) {
     if (n == 1 || n == 2) return (seq_t)2;
     if (n == 3) return (seq_t)-2;
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
 
     size_t sz = (size_t)n + 1;
     if (sz > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, sz);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = sz;

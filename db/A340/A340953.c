@@ -10,13 +10,15 @@
  *            k*(k+1)/2 with k ≥ 1
  * Range:     u8 n <= 18, u16 n <= 68, u32 n <= 1765, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 8975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Assumes seq_t and idx_t are defined elsewhere. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* For indices below the offset the value is not defined;
@@ -38,8 +40,8 @@ seq_t a(idx_t n) {
 
     /* Dynamic programming: ways[s] = number of ways to reach sum s
        with the current number of summands. */
-    seq_t *ways = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *newWays = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *ways = mem_new(seq_t, N + 1);
+    seq_t *newWays = mem_new(seq_t, N + 1);
     ways[0] = 1;                 /* base case: zero sum with zero summands */
 
     for (size_t step = 0; step < 8; ++step) {
@@ -66,8 +68,8 @@ seq_t a(idx_t n) {
     seq_t result = ways[N];
 
     /* Clean up. */
-    free(ways);
-    free(newWays);
+    mem_free(ways);
+    mem_free(newWays);
     free(tri);
 
     return result;

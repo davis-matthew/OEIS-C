@@ -9,12 +9,14 @@
  *            terms: a(1)=1, a(2)=361, a(3)=6241, a(4)=3463321, a(5)=59923081
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 453 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Base cases for indices 1..5 */
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* Start with capacity at least 10 to reduce reallocs */
         cache_size = target < 10 ? target : 10;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         /* Initialize the cache with the first 5 terms */
         for (size_t i = 0; i < 5; ++i)
             cache[i] = init_vals[i];
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
         size_t new_size = cache_size;
         while (new_size < target)
             new_size *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp)          /* if realloc fails, keep old cache */
             return (seq_t)0;
         cache = tmp;

@@ -9,7 +9,8 @@
  *            x^k)^ceil(k/6)
  * Range:     u8 n <= 18, u16 n <= 41, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,17 +18,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     idx_t N = n;
     /* Allocate working arrays for the series expansion of the denominator.
        dp holds the current series, newdp is used for each multiplication. */
-    seq_t *dp = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *newdp = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (N + 1));
+    seq_t *newdp = mem_new(seq_t, (N + 1));
     if (!dp || !newdp) {
-        free(dp);
-        free(newdp);
+        mem_free(dp);
+        mem_free(newdp);
         return (seq_t)0;
     }
 
@@ -67,8 +69,8 @@ seq_t a(idx_t n)
        c[j] can be negative; we store it in a signed 16 bit array.   */
     int16_t *c = (int16_t *)malloc((N + 1) * sizeof(int16_t));
     if (!c) {
-        free(dp);
-        free(newdp);
+        mem_free(dp);
+        mem_free(newdp);
         return (seq_t)0;
     }
     for (idx_t i = 0; i <= N; ++i) c[i] = 0;
@@ -99,8 +101,8 @@ seq_t a(idx_t n)
     seq_t result = sum_pos - sum_neg;
 
     /* Clean up. */
-    free(dp);
-    free(newdp);
+    mem_free(dp);
+    mem_free(newdp);
     free(c);
 
     return result;

@@ -9,6 +9,7 @@
  * Formula:   a(n) = Sum_{k|n, k <= sqrt(n)} mu(k)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 119 terms through n = 9396 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

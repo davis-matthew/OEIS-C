@@ -10,15 +10,44 @@
  *            12*Sum_{k=1..m} sigma(k)*p(m-k), p(0) = 1
  * Range:     i8 n <= 0, i16 n <= 2, i32 n <= 7, i64 n <= 28, i128 n <= 107,
  *            big any n
- * Helpers:   grow_zero, sigma5
+ * Validated: standard, pass, 39 terms through n = 4888 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/grow_zero.h"
-#include "../utils/sigma5.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static seq_t sigma5(idx_t k)
+{
+    seq_t s = 0;
+    idx_t d;
+    for (d = 1; d * d <= k; d++) {
+        if (k % d == 0) {
+            seq_t t = (seq_t)d;
+            s += t * t * t * t * t;
+            if (d != k / d) {
+                seq_t u = (seq_t)(k / d);
+                s += u * u * u * u * u;
+            }
+        }
+    }
+    return s;
+}
 
 static seq_t *P = NULL;
 static uint64_t *S = NULL;

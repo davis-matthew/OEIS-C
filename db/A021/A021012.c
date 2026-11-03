@@ -10,14 +10,26 @@
  *            C(r,k) row‑by‑row
  * Range:     i8 n <= 11, i16 n <= 28, i32 n <= 67, i64 n <= 174,
  *            i128 n <= 444, big any n
- * Helpers:   binomial, factorial
+ * Validated: standard, pass, 63 terms through n = 1267 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/factorial.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* Find the row index r for a flattened index n using binary search. */
 static idx_t row_index(idx_t n)

@@ -10,7 +10,8 @@
  *            a palindrome but two positions (a pair) are unequal)
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
     types.  No external libraries beyond <stdlib.h> are required. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* local helper: test whether a base‑3 number has exactly one mismatched
    symmetric digit pair. */
@@ -71,8 +73,7 @@ seq_t a(idx_t n) {
             /* store cand */
             if (cache_size == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                seq_t *tmp = (seq_t*)realloc(cache,
-                                new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) { /* allocation failure */
                     /* In production code you might abort or return a
                        sentinel value; here we simply return 0. */

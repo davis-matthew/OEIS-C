@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow, next_prime
+ * Validated: standard, pass, 71 terms through n = 995 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../utils/next_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache[1 .. cached_n] holds a(i) as seq_t */
 static uint64_t *int_cache = NULL;   /* cache of the same values as uint64_t for primality work */
@@ -30,7 +33,7 @@ static void ensure_capacity(idx_t up_to)
 {
     if (cache == NULL) {
         cache_cap = 8;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) abort();
     }
     if (int_cache == NULL) {
@@ -43,7 +46,7 @@ static void ensure_capacity(idx_t up_to)
     if (needed > cache_cap) {
         size_t new_cap = cache_cap;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) abort();
         cache = tmp;
         cache_cap = new_cap;
@@ -72,7 +75,7 @@ seq_t a(idx_t n)
             while (true) {
                 /* Legendre symbol: compute prev_val^((cand-1)/2) mod cand */
                 uint64_t exp = (cand - 1ULL) >> 1;          /* (p-1)/2 */
-                seq_t  r = mod_pow((seq_t)prev_val, exp, (seq_t)cand);
+                seq_t  r = powmod((seq_t)prev_val, exp, (seq_t)cand);
                 if (r == (seq_t)1) break;                  /* quadratic residue */
                 cand = next_prime(cand + 1);
             }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   strip23
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,16 @@
 */
 
 #include <stdint.h>
-#include "../utils/strip23.h"
+
+static inline seq_t strip23(seq_t x)
+{
+    /* If x is 0, stopping tests never fail. Handle 0 separately before calling. */
+    while (x % 2 == 0)
+        x /= 2;
+    while (x % 3 == 0)
+        x /= 3;
+    return x;
+}
 
 seq_t a(idx_t n)
 {

@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl, base
  * Formula:   a(n) = C(r, k) mod 10 where n = r*(r-1)/2 + k, 0 ≤ k ≤ r
- * Range:     u8 n <= 9574, u16 n <= 9574, u32 n <= 9574, u64 n <= 9574,
- *            u128 n <= 9574, big any n
+ * Range:     u8 n <= 11475, u16 n <= 11475, u32 n <= 11475, u64 n <= 11475,
+ *            u128 n <= 11475, big any n
+ * Validated: standard, pass, 115 terms through n = 9574 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

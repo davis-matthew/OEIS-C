@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   A068505
+ * Validated: standard, pass, 78 terms through n = 956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,41 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/A068505.h"
+#include "../utils/mem.h"
+
+/* compute A068505 value of x : interpret decimal digits of x
+ * in base (max_digit+1) and return the resulting integer
+ */
+static seq_t A068505(seq_t x)
+{
+    /* extract decimal digits (least significant first) */
+    int digits[32];
+    int cnt = 0;
+    seq_t tmp = x;
+    if (tmp == 0) {
+        digits[cnt++] = 0;
+    } else {
+        while (tmp != 0) {
+            digits[cnt++] = (int)(tmp % 10);
+            tmp /= 10;
+        }
+    }
+
+    /* find largest digit */
+    int maxd = 0;
+    for (int i = 0; i < cnt; ++i) {
+        if (digits[i] > maxd)
+            maxd = digits[i];
+    }
+    int base = maxd + 1;            /* base is between 1 and 10 */
+
+    /* interpret digits as base-'base' number, most significant first */
+    seq_t val = 0;
+    for (int i = cnt - 1; i >= 0; --i) {
+        val = val * base + (seq_t)digits[i];
+    }
+    return val;
+}
 
 /* singleton cache to avoid recomputing sequence terms */
 static seq_t *cache      = NULL;   /* array of a(k) values */
@@ -39,7 +74,7 @@ static void cache_add(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-        seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
         if (!new_arr)
             exit(EXIT_FAILURE);          /* memory exhausted */
         cache = new_arr;

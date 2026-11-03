@@ -10,7 +10,8 @@
  * Formula:   a(n) = T(floor(sqrt(n)), n - floor(sqrt(n))^2)
  * Range:     u8 n <= 20, u16 n <= 57, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   binomial, floor_sqrt
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-01)
+ * Helpers:   binomial, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,11 +23,11 @@
 
 /* Provided utility: binomial(idx_t N, idx_t K) → seq_t  */
 #include "../utils/binomial.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
-    idx_t row = floor_sqrt(n);
+    idx_t row = isqrt(n);
     idx_t col = n - (unsigned __int128)row * row;
 
     /* Special case T(0,0) = 1 */

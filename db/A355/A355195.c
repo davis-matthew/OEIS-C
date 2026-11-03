@@ -11,15 +11,47 @@
  *            the first call or when a larger n is requested...
  * Range:     u8 n <= 22, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   alloc_seq_array, compute_odd_primes
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/compute_odd_primes.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* ------------------------------------------------------------------ */
+static void compute_odd_primes(idx_t n, bool *oddPrime_arr)
+{
+    size_t sz = (size_t)n + 1;
+    /* marked composites */
+    bool *composite = (bool*)calloc(sz, sizeof(bool));
+    if (!composite) return;    /* allocation failure */
+
+    for (idx_t i = 2; i*i <= n; ++i)
+    {
+        if (!composite[(size_t)i])
+        {
+            for (idx_t j = i*i; j <= n; j += i)
+                composite[(size_t)j] = true;
+        }
+    }
+
+    /* odd primes: odd numbers ≥3 that are not composite */
+    for (idx_t i = 3; i <= n; i += 2)
+        if (!composite[(size_t)i])
+            oddPrime_arr[(size_t)i] = true;
+
+    free(composite);
+}
 
 /* static state for memoisation */
 static seq_t *dp = NULL;            /* table of partition counts */
@@ -43,7 +75,7 @@ static void compute_dp(idx_t n)
     if (!new_dp) return;                /* allocation failure */
 
     /* free previous tables */
-    free(dp);
+    mem_free(dp);
     dp = new_dp;
     dp_cap = sz;
 
@@ -51,7 +83,7 @@ static void compute_dp(idx_t n)
     bool *new_odd = (bool*)calloc(sz, sizeof(bool));
     if (!new_odd)
     {
-        free(dp);
+        mem_free(dp);
         dp = NULL;
         dp_cap = 0;
         return;

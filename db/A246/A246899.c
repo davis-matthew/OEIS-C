@@ -13,13 +13,15 @@
  *            term...
  * Range:     u8 none, u16 n <= 1, u32 n <= 7, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Coefficients of the linear recurrence (a(n-1) .. a(n-18)) */
 static const int coeff[18] = {
@@ -40,7 +42,7 @@ static seq_t compute_small(idx_t n)
     size_t pow3 = pow2 * base;          /* base^3   */
     size_t pow4 = pow3 * base;          /* base^4   */
 
-    seq_t *dp   = (seq_t*)malloc(pow4 * sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, pow4);
     if (!dp) return 0;                  /* allocation failure -> 0 (never happens) */
 
     /* initial state: all 4‑tuples are possible, count = 1 */
@@ -48,8 +50,8 @@ static seq_t compute_small(idx_t n)
 
     /* length 5 .. 11 */
     for (size_t step = 5; step <= 11; ++step) {
-        seq_t *next = (seq_t*)calloc(pow4, sizeof(seq_t));
-        if (!next) { free(dp); return 0; }
+        seq_t *next = mem_new(seq_t, pow4);
+        if (!next) { mem_free(dp); return 0; }
 
         for (size_t idx = 0; idx < pow4; ++idx) {
             seq_t cnt = dp[idx];
@@ -73,14 +75,14 @@ static seq_t compute_small(idx_t n)
                 }
             }
         }
-        free(dp);
+        mem_free(dp);
         dp = next;
     }
 
     /* sum all counts for final length 11 */
     seq_t total = 0;
     for (size_t i = 0; i < pow4; ++i) total += dp[i];
-    free(dp);
+    mem_free(dp);
     return total;
 }
 
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
     /*------------- compute/supply initial 18 terms -------------*/
     if (n <= 18) {
         if (!small_cache) {
-            small_cache = (seq_t*)calloc(18, sizeof(seq_t));
+            small_cache = mem_new(seq_t, 18);
         }
         if (small_n < n) {
             for (idx_t i = small_n; i < n; ++i) {
@@ -107,7 +109,7 @@ seq_t a(idx_t n)
     /*------------- recursive part (n > 18) -------------*/
     /* ensure small terms are available */
     if (!small_cache) {
-        small_cache = (seq_t*)calloc(18, sizeof(seq_t));
+        small_cache = mem_new(seq_t, 18);
     }
     if (small_n < 18) {
         for (idx_t i = small_n; i < 18; ++i) {
@@ -124,7 +126,7 @@ seq_t a(idx_t n)
     if (rec_len < 18) {               /* initialise from small cache */
         rec_cap = (rec_len > 0) ? rec_len << 1 : 32;
         if (rec_cap < 18) rec_cap = 18;
-        rec_cache = (seq_t*)realloc(rec_cache, rec_cap * sizeof(seq_t));
+        rec_cache = mem_resize(seq_t, rec_cache, rec_cap);
         for (unsigned i = 0; i < 18; ++i) rec_cache[i] = small_cache[i];
         rec_len = 18;
     }
@@ -133,7 +135,7 @@ seq_t a(idx_t n)
     while (rec_len < n) {
         if (rec_len >= rec_cap) {      /* grow cache */
             rec_cap <<= 1;
-            rec_cache = (seq_t*)realloc(rec_cache, rec_cap * sizeof(seq_t));
+            rec_cache = mem_resize(seq_t, rec_cache, rec_cap);
         }
 
         seq_t next = 0;

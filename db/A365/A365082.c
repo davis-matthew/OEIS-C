@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 514, u32 n <= 4203, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes
+ * Validated: standard, pass, 74 terms through n = 9734 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/build_primes.h"   /* provides: void build_primes(idx_t, idx_t **, size_t *) */
+#include <stddef.h>
+#include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 static int cmp_seq_t(const void *a, const void *b)
 {
@@ -60,7 +63,7 @@ static void generate_terms_up_to(seq_t numeric_limit)
     /* Rough estimate of capacity; will grow if needed. */
     size_t capacity = prime_cnt * 4;
     if (capacity < 16) capacity = 16;
-    seq_t *tmp = (seq_t *)malloc(sizeof(seq_t) * capacity);
+    seq_t *tmp = mem_new(seq_t, capacity);
     size_t tmp_len = 0;
 
     for (size_t i = 0; i < prime_cnt; ++i) {
@@ -82,7 +85,7 @@ static void generate_terms_up_to(seq_t numeric_limit)
             /* Grow temporary array if necessary. */
             if (tmp_len == capacity) {
                 capacity <<= 1;
-                tmp = (seq_t *)realloc(tmp, sizeof(seq_t) * capacity);
+                tmp = mem_resize(seq_t, tmp, capacity);
             }
             tmp[tmp_len++] = val;
 
@@ -97,8 +100,8 @@ static void generate_terms_up_to(seq_t numeric_limit)
     free(prime_tbl);
 
     /* Sort and store the generated values. */
-    qsort(tmp, tmp_len, sizeof(seq_t), cmp_seq_t);
-    free(terms);
+    mem_qsort(tmp, tmp_len, sizeof(seq_t), cmp_seq_t);
+    mem_free(terms);
     terms      = tmp;
     terms_len  = tmp_len;
     terms_cap  = capacity;

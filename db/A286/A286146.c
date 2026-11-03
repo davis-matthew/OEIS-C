@@ -8,8 +8,9 @@
  *            r*(r+1)/2 >= n (row index) * k = n - r*(r-1)/2 (column index) *
  *            T(r,k) = (1/2)*(2 + ((gcd(r,k)+lcm(r,k))^2) - gcd(r,k) -
  *            3*lcm(r,k))
- * Range:     u8 n <= 13, u16 n <= 208, u32 n <= 8771, u64 n <= 8771,
- *            u128 n <= 8771, big any n
+ * Range:     u8 n <= 13, u16 n <= 208, u32 n <= 10585, u64 n <= 10585,
+ *            u128 n <= 10585, big any n
+ * Validated: standard, pass, 93 terms through n = 8771 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

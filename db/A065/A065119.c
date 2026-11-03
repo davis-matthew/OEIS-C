@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 78, u32 n <= 317, u64 n <= 1280,
  *            u128 n <= 5144, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9214 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,13 @@
 */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#endif
 
 /* buffers containing all generated 3‑smooth numbers (array “all”)
    and the subset that is a multiple of 3 (array “tri”).            */
@@ -36,6 +44,22 @@ static size_t i2 = 0, i3 = 0;
    capacity.  The function is written in a type‑agnostic way, so
    it can be used for the arbitrary‑precision seq_t as well as for
    ordinary integer types. */
+#ifdef __cplusplus
+template <class T>
+static void grow(T **ptr, size_t *len, size_t *cap, size_t needed,
+                 size_t elem_size) /* elem_size: sizeof(T) */
+{
+    if (*cap < needed) {
+        size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+        while (new_cap < needed) new_cap <<= 1;
+        T *tmp = mem_resize(T, *ptr, new_cap);
+        if (!tmp) abort();                    /* out of memory */
+        *ptr = tmp;
+        *cap = new_cap;
+    }
+    *len = needed;                          /* caller guarantees needed */
+}
+#else
 static void grow(void **ptr, size_t *len, size_t *cap, size_t needed,
                  size_t elem_size)
 {
@@ -49,6 +73,7 @@ static void grow(void **ptr, size_t *len, size_t *cap, size_t needed,
     }
     *len = needed;                          /* caller guarantees needed */
 }
+#endif
 
 /* Public sequence routine */
 seq_t a(idx_t n)
@@ -57,7 +82,7 @@ seq_t a(idx_t n)
     if (all == NULL) {
         all_len = 1;
         all_cap = 16;
-        all = (seq_t*)calloc(all_cap, sizeof(seq_t)); /* explicit cast for C++ */
+        all = mem_new(seq_t, all_cap); /* explicit cast for C++ */
         if (!all) abort();
         all[0] = (seq_t)1;          /* the first 3‑smooth number */
     }
@@ -76,12 +101,12 @@ seq_t a(idx_t n)
         if (next == next3) ++i3;
 
         /* Append the new value to the all‑array.                     */
-        grow((void**)&all, &all_len, &all_cap, all_len + 1, sizeof(seq_t));
+        grow(OEISC_VPP(&all), &all_len, &all_cap, all_len + 1, sizeof(seq_t));
         all[all_len - 1] = next;
 
         /* If it is divisible by 3, store it in the tri‑array.      */
         if ((next % (seq_t)3) == (seq_t)0) {
-            grow((void**)&tri, &tri_len, &tri_cap, tri_len + 1, sizeof(seq_t));
+            grow(OEISC_VPP(&tri), &tri_len, &tri_cap, tri_len + 1, sizeof(seq_t));
             tri[tri_len - 1] = next;
         }
     }

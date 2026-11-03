@@ -7,7 +7,8 @@
  * Formula:   A(x) satisfies A(x)^5 = A(x^5) + 5*x
  * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 15, i64 n <= 25, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The following types are supplied by the build environment */
 typedef idx_t idx_t;
@@ -51,11 +53,11 @@ static void ensure_capacity(idx_t n)
     idx_t new_cap = current_cap ? current_cap << 1 : 64;
     while (new_cap <= n) new_cap <<= 1;
 
-    a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
-    c2   = (seq_t *)realloc(c2,   new_cap * sizeof(seq_t));
-    c3   = (seq_t *)realloc(c3,   new_cap * sizeof(seq_t));
-    c4   = (seq_t *)realloc(c4,   new_cap * sizeof(seq_t));
-    c5   = (seq_t *)realloc(c5,   new_cap * sizeof(seq_t));
+    a_arr = mem_resize(seq_t, a_arr, new_cap);
+    c2   = mem_resize(seq_t, c2, new_cap);
+    c3   = mem_resize(seq_t, c3, new_cap);
+    c4   = mem_resize(seq_t, c4, new_cap);
+    c5   = mem_resize(seq_t, c5, new_cap);
 
     /* zero the newly allocated part */
     size_t old_cap = current_cap;

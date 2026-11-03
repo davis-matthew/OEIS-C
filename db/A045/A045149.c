@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
    This function returns the nth term (offset 1) by constructing the
    base‑4 representation digit by digit and counting how many numbers
    start with each possible prefix. */
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 /* seq_t is the build‑specific unsigned integer type;
@@ -37,14 +40,14 @@ seq_t a(idx_t n)
         seq_t cnt_len = 0;
 
         /* first term: 4 * C(L,4) * 2^(L-4) */
-        seq_t term1 = binom(L, 4);
+        seq_t term1 = binomial(L, 4);
         term1 *= pow2(L - 4);
         term1 *= (seq_t)4;
 
         /* second term: 0 for L=4; otherwise 4 * C(L-1,4) * 2^(L-5) */
         seq_t term2 = 0;
         if (L >= 5) {
-            term2 = binom(L - 1, 4);
+            term2 = binomial(L - 1, 4);
             term2 *= pow2(L - 5);
             term2 *= (seq_t)4;
         }
@@ -101,8 +104,8 @@ seq_t a(idx_t n)
             /* number of completions for this prefix:
                choose places for the remaining 3's, then 2's,
                and fill the rest with 0 or 1 (two choices each).        */
-            seq_t c1 = binom(rem_pos, (idx_t)new_r3);
-            seq_t c2 = binom(rem_pos - new_r3, (idx_t)new_r2);
+            seq_t c1 = binomial(rem_pos, (idx_t)new_r3);
+            seq_t c2 = binomial(rem_pos - new_r3, (idx_t)new_r2);
             seq_t c3 = pow2(rem_pos - new_r2 - new_r3);
 
             seq_t cnt_seq = c1 * c2 * c3;

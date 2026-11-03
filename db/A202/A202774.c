@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 23, u64 n <= 62, u128 n <= 141,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* External linkage required by the build. */
 seq_t a(idx_t n);
@@ -106,8 +108,8 @@ static void init_tables(void)
     }
 
     /* Allocate DP arrays. */
-    dp_cur  = (seq_t*)malloc(Nstates * sizeof(seq_t));
-    dp_next = (seq_t*)malloc(Nstates * sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, Nstates);
+    dp_next = mem_new(seq_t, Nstates);
     for (size_t i = 0; i < Nstates; ++i) {
         dp_cur[i]  = 0;
         dp_next[i] = 0;
@@ -132,10 +134,10 @@ static void ensure_results_capacity(idx_t n)
     if (n + 1 <= results_cap) return;
     size_t new_cap = results_cap ? results_cap * 2 : 16;
     while (new_cap <= n) new_cap *= 2;
-    seq_t *new_buf = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_new(seq_t, new_cap);
     if (results) {
         for (idx_t i = 1; i <= max_prepared_n; ++i) new_buf[i] = results[i];
-        free(results);
+        mem_free(results);
     }
     results = new_buf;
     results_cap = new_cap;

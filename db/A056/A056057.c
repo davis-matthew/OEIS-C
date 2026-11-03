@@ -8,7 +8,8 @@
  * Formula:   a(n) = largest square dividing binomial(n, floor(n/2))
  * Range:     u8 n <= 26, u16 n <= 125, u32 n <= 362, u64 n <= 1594,
  *            u128 n <= 6240, big any n
- * Helpers:   build_primes_upto, pow_seq, seq_mul
+ * Validated: standard, pass, 88 terms through n = 9765 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,15 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/pow_seq.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_i32.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Helper: exponent of prime p in m! */
 static idx_t vp_factorial(idx_t m, uint64_t p)
@@ -63,7 +70,7 @@ seq_t a(idx_t n)
         exp &= ~((idx_t)1);              /* keep the even part only */
         if (exp == 0) continue;
 
-        seq_t p_pow = pow_seq((seq_t)p, (int)exp);
+        seq_t p_pow = ipow_i32((seq_t)p, (int)exp);
         seq_t tmp    = seq_mul(result, p_pow);
         result       = tmp;
     }

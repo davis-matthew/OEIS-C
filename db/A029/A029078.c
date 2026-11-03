@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *dp_cache = NULL;  /* cache for computed values */
 static idx_t  cached_max = 0;   /* largest index currently stored */
@@ -27,7 +29,7 @@ static idx_t  cached_max = 0;   /* largest index currently stored */
 static void compute_dp(idx_t n)
 {
     size_t size = (size_t)(n + 1);           /* array length: 0 .. n */
-    seq_t *new_cache = (seq_t*)malloc(size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, size);
     if (!new_cache)
         abort();                             /* allocation failure */
 
@@ -50,7 +52,7 @@ static void compute_dp(idx_t n)
 
     /* Replace old cache with new one */
     if (dp_cache)
-        free(dp_cache);
+        mem_free(dp_cache);
     dp_cache    = new_cache;
     cached_max  = n;
 }

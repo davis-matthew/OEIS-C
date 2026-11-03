@@ -11,7 +11,8 @@
  *            that period, the central remaining term equals 16
  * Range:     u8 none, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   _floor_isqrt_u64, seq_realloc
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/isqrt.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache = NULL;      /* cached terms */
 static size_t  cache_len = 0;    /* number of stored terms */
@@ -65,7 +77,7 @@ static void add_term(seq_t val)
    number of terms returned (p) is stored in *p_ret. */
 static inline bool period_of_sqrt(uint64_t k, uint64_t *terms, size_t *p_ret)
 {
-    uint64_t a0 = _floor_isqrt_u64(k);
+    uint64_t a0 = isqrt(k);
     if (a0 * a0 == k)          /* k is a perfect square */
         return false;
 

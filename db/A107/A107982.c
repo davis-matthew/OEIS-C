@@ -9,7 +9,8 @@
  *            (mod 4). The sequence is sorted increasingly
  * Range:     u8 none, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* internal node for the heap */
 typedef struct {
@@ -125,10 +127,10 @@ static void sift_up(size_t i)
 static void init_heap(void)
 {
     if (!heap) {
-        heap = (Node *)malloc(primes_A_sz * sizeof(Node));
+        heap = mem_new(Node, primes_A_sz);
         if (!heap) exit(1);
     } else {
-        heap = (Node *)realloc(heap, primes_A_sz * sizeof(Node));
+        heap = mem_resize(Node, heap, primes_A_sz);
         if (!heap) exit(1);
     }
     heap_sz = primes_A_sz;
@@ -175,7 +177,7 @@ static void ensure_terms(idx_t n)
         /* append to terms list */
         if (terms_sz == terms_cap) {
             terms_cap = terms_cap ? terms_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
             if (!tmp) exit(1);
             terms = tmp;
         }

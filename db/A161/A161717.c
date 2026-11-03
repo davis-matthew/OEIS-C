@@ -7,6 +7,7 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k=1..8} (1-x^{2k})/(1-x)
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
+ * Validated: full, pass, 65 terms through n = 64 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

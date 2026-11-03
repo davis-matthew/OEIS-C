@@ -9,7 +9,8 @@
  * Formula:   a(n) = min { k > n : d_H(n, k) = R(n) and R(k) > R(n) }
  * Range:     u8 n <= 84, u16 n <= 500, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 81 terms through n = 462 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 /* Count the number of runs in the binary representation of x.
    Runs are maximal groups of identical consecutive bits, ignoring
@@ -31,7 +32,7 @@ static idx_t run_count(seq_t x)
     seq_t prev    = x & (seq_t)1;   /* least significant bit */
     count = 1;
 
-    idx_t len = bitlen_seq_t(x);
+    idx_t len = bit_length(x);
     for (idx_t i = 1; i < len; ++i)
     {
         seq_t b = (x >> i) & (seq_t)1;

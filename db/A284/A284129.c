@@ -10,13 +10,45 @@
  *            T(2,2) = 5,
  * Range:     u8 n <= 22, u16 n <= 106, u32 n <= 466, u64 n <= 1954,
  *            u128 n <= 5050, big any n
- * Helpers:   j_seq
+ * Validated: standard, pass, 73 terms through n = 4543 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/j_seq.h"
+
+/* Compute A014551 (Jacobs–Lucas numbers) for index m (m >= 0). */
+static seq_t j_seq(idx_t m)
+{
+    if (m == 0) return (seq_t)2;
+    if (m == 1) return (seq_t)1;
+
+    idx_t exp = m - 1;          /* exponent for matrix M^(m-1)      */
+    /* Matrix M = [[1, 2], [1, 0]] */
+    seq_t M00 = 1, M01 = 2, M10 = 1, M11 = 0;
+    /* Result matrix starts as identity */
+    seq_t R00 = 1, R01 = 0, R10 = 0, R11 = 1;
+
+    while (exp > 0) {
+        if (exp & 1) {
+            seq_t t00 = R00 * M00 + R01 * M10;
+            seq_t t01 = R00 * M01 + R01 * M11;
+            seq_t t10 = R10 * M00 + R11 * M10;
+            seq_t t11 = R10 * M01 + R11 * M11;
+            R00 = t00; R01 = t01; R10 = t10; R11 = t11;
+        }
+        seq_t t00 = M00 * M00 + M01 * M10;
+        seq_t t01 = M00 * M01 + M01 * M11;
+        seq_t t10 = M10 * M00 + M11 * M10;
+        seq_t t11 = M10 * M01 + M11 * M11;
+        M00 = t00; M01 = t01; M10 = t10; M11 = t11;
+        exp >>= 1;
+    }
+    /* Multiply the result matrix by the vector [a1, a0] = [1, 2]  */
+    seq_t value = R00 * (seq_t)1 + R01 * (seq_t)2;
+    return value;
+}
 
 /* Find the smallest r such that r*(r+1)/2 >= n (1‑based). */
 static idx_t find_row(idx_t n)

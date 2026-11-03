@@ -12,7 +12,8 @@
  *            & ((n-1)-k)) == 0 (Lucas' theorem)
  * Range:     i8 n <= 39, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *cache      = NULL;   /* array of computed a(n) values */
@@ -34,7 +36,7 @@ static void grow_cache(idx_t need)
     size_t new_cap = cache_cap ? cache_cap : 8;
     while (new_cap < (size_t)need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                   /* out of memory */
     cache     = tmp;

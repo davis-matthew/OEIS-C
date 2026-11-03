@@ -8,7 +8,8 @@
  *            T(n,k)=T(n,k-1)+T(n-1,k) (k≥1). a(n)=T(n,n)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,12 +18,13 @@
 
 /* Compatibility macro for C/C++ malloc */
 #ifdef __cplusplus
-#  define MALLOC(sz) static_cast<seq_t*>(malloc(sz))
-#  define REALLOC(ptr,sz) static_cast<seq_t*>(realloc(ptr,sz))
+#  define MALLOC(sz) mem_new(seq_t, (sz) / sizeof(seq_t))
+#  define REALLOC(ptr,sz) mem_resize(seq_t, ptr, (sz) / sizeof(seq_t))
 #else
-#  define MALLOC(sz) ((seq_t*)malloc(sz))
-#  define REALLOC(ptr,sz) ((seq_t*)realloc(ptr,sz))
+#  define MALLOC(sz) (mem_new(seq_t, (sz) / sizeof(seq_t)))
+#  define REALLOC(ptr,sz) (mem_resize(seq_t, ptr, (sz) / sizeof(seq_t)))
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
         cache_len = i + 1;
 
         /* Prepare for next iteration: prev = cur */
-        free(prev);
+        mem_free(prev);
         prev = cur;
         prev_len = i + 1;
     }

@@ -9,7 +9,8 @@
  *            is even
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External integer types provided by the build system */
   /* idx_t  – for indices (unsigned 64‑bit)   */
@@ -40,7 +42,7 @@ static void ensure_factorial(idx_t m)
     size_t needed = (size_t)(m + 1);
     if (fact_len == 0) {
         fact_len = 16;                    /* initial capacity        */
-        fact = (seq_t*)malloc(fact_len * sizeof(seq_t));
+        fact = mem_new(seq_t, fact_len);
         if (!fact) return;                /* allocation failed        */
         fact[0] = (seq_t)1;               /* 0! = 1                   */
         max_fact = 0;
@@ -48,7 +50,7 @@ static void ensure_factorial(idx_t m)
     if (needed > fact_len) {
         size_t newlen = fact_len;
         while (newlen < needed) newlen <<= 1;   /* double size */
-        seq_t* tmp = (seq_t*)realloc(fact, newlen * sizeof(seq_t));
+        seq_t* tmp = mem_resize(seq_t, fact, newlen);
         if (!tmp) return;                   /* handle error */
         fact = tmp;
         fact_len = newlen;

@@ -12,14 +12,17 @@
  *            π(n) for any n. It factors integers via simp...
  * Range:     u8 n <= 5896, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_pi
+ * Validated: standard, pass, 103 terms through n = 9770 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 /* Return the distinct prime factors of x in ascending order.
    `factors` must be able to hold at least 64 elements.  The number of
@@ -63,7 +66,7 @@ seq_t a(idx_t n)
     bool first = true;
     for (size_t i = 0; i < n_cnt; ++i) {
         /* Get the prime index of the prime factor */
-        idx_t m = (idx_t)(seq_t)compute_pi(n_factors[i]);   /* π(p) */
+        idx_t m = (idx_t)(seq_t)prime_pi(n_factors[i]);   /* π(p) */
 
         /* Prime factors of the index */
         uint64_t m_factors[64];

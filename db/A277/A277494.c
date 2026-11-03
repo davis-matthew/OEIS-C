@@ -10,7 +10,8 @@
  *            n+1,…,m. Computed by iteratively building a basis over GF(3)
  * Range:     u8 n <= 130, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 4321 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* --- Constants and global tables ---------------------------- */
@@ -182,7 +184,7 @@ seq_t a(idx_t n)
 
         /* initialise cache */
         cache_size = 4;
-        cache      = (seq_t*)malloc(sizeof(seq_t) * cache_size);
+        cache      = mem_new(seq_t, cache_size);
         cache_done = (bool*)malloc(sizeof(bool)   * cache_size);
         for (size_t i = 0; i < cache_size; ++i) cache_done[i] = false;
     }
@@ -190,7 +192,7 @@ seq_t a(idx_t n)
     /* grow cache if needed */
     if (n >= cache_size) {
         size_t new_sz = (n + 1) * 2;
-        cache      = (seq_t*)realloc(cache,      sizeof(seq_t)  * new_sz);
+        cache      = mem_resize(seq_t, cache, new_sz);
         cache_done = (bool*)realloc(cache_done,  sizeof(bool) * new_sz);
         for (size_t i = cache_size; i < new_sz; ++i) cache_done[i] = false;
         cache_size = new_sz;

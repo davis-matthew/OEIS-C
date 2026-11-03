@@ -11,7 +11,8 @@
  *            patterns of values 0‑4 to enforce the neighbor rules
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_PAT   625      /* 5^4 patterns */
 #define MAX_MASK   16      /* 4‑bit mask for pending vertical requirements */
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     int active_cnt = 0, new_active_cnt = 0;
 
     /* initialise first row */
-    memset(dp_cur, 0, sizeof(dp_cur[0])*STATE_SIZ);
+    mem_set(dp_cur, 0, sizeof(dp_cur[0])*STATE_SIZ);
     for (int pat=0; pat<MAX_PAT; ++pat) {
         if (!pat_valid[pat]) continue;
         int mask = 0;
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
 
     /* process subsequent rows */
     for (idx_t row=2; row<=n; ++row) {
-        memset(dp_next, 0, sizeof(dp_next[0])*STATE_SIZ);
+        mem_set(dp_next, 0, sizeof(dp_next[0])*STATE_SIZ);
         new_active_cnt = 0;
 
         for (int ai=0; ai<active_cnt; ++ai) {

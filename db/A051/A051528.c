@@ -11,12 +11,14 @@
  *            2*a(n-11) + a(n-14) - a(n-15)
  * Range:     u8 n <= 31, u16 n <= 209, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 921 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cap) {
         size_t newcap = cap ? cap * 2 : 16;
         if (newcap <= (size_t)n) newcap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(buf, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, newcap);
         if (!tmp) abort();      /* allocation failed */
         buf = tmp;
         cap = newcap;

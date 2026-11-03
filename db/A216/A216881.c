@@ -8,7 +8,8 @@
  *            has a solution
  * Range:     u8 n <= 46, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow, next_prime
+ * Validated: standard, pass, 73 terms through n = 884 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t start) */
-#include "../utils/mod_pow.h"      /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod) */
+#include <string.h>
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Lazy static cache of qualifying primes */
@@ -37,14 +40,14 @@ seq_t a(idx_t n) {
             ok = true;
         } else {
             /* 7 | p−1, must test 3^((p−1)/7) ≡ 1 (mod p) */
-            seq_t r = mod_pow((seq_t)3, (p - 1) / 7, (seq_t)p);
+            seq_t r = powmod((seq_t)3, (p - 1) / 7, (seq_t)p);
             ok = (r == (seq_t)1);
         }
 
         if (ok) {
             if (qual_cnt == qual_cap) {
                 size_t new_cap = qual_cap == 0 ? 4 : qual_cap * 2;
-                void *tmp = realloc(qual, new_cap * sizeof *qual);
+                void *tmp = mem_resize(seq_t, qual, (new_cap * sizeof *qual) / sizeof(seq_t));
                 if (!tmp) abort();      /* out of memory */
                 qual = (seq_t *)tmp;
                 qual_cap = new_cap;

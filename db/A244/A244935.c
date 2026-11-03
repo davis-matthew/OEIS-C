@@ -11,7 +11,8 @@
  *            S_k − 3 k)² ≤ 15 k. Offset: 1 (a(1) is the first term)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* floor(sqrt(n)) for unsigned 64‑bit n */
 static inline idx_t isqrt_u64(idx_t n)
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
             size_t sz = (size_t)(U - L + 1);
 
             /* new distribution for length k */
-            seq_t *dp_next = (seq_t *)calloc(sz, sizeof(seq_t));
+            seq_t *dp_next = mem_new(seq_t, sz);
             if (!dp_next) return 0;                           /* allocation failure */
 
             if (k == 1) {
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
 
             /* Store a(k) */
             if (aSize < (size_t)k) {
-                seq_t *tmp = (seq_t *)realloc(a_vals, k * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, a_vals, k);
                 if (!tmp) return 0;
                 a_vals = tmp;
                 aSize = k;
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
             a_vals[k - 1] = total;
 
             /* Prepare for next iteration */
-            free(dp_prev);
+            mem_free(dp_prev);
             dp_prev = dp_next;
             dpSize = sz;
             dpL = L;

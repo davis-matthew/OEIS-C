@@ -11,13 +11,15 @@
  *            previous maximum k, storing found terms in a dynamic array
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Lengths of Roman numerals for digits 0..9 in units, tens and hundreds place */
 static const int unit_len[10] = {0, 1, 2, 3, 2, 1, 2, 3, 4, 2};
@@ -62,7 +64,7 @@ static void ensure_terms(idx_t n)
 {
     if (terms == NULL) {
         terms_cap = 128;
-        terms = (seq_t *)malloc(sizeof(seq_t) * terms_cap);
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) exit(1);
     }
 
@@ -80,7 +82,7 @@ static void ensure_terms(idx_t n)
         if (l1 == l2 && l1 == l3 && l1 == l4) {
             if (terms_cnt == terms_cap) {
                 size_t new_cap = terms_cap * 2 + 1;
-                seq_t *tmp = (seq_t *)realloc(terms, sizeof(seq_t) * new_cap);
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) exit(1);
                 terms = tmp;
                 terms_cap = new_cap;

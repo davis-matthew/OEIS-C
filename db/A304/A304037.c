@@ -9,15 +9,18 @@
  *            The OEIS definition gives a(1)=0
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   compute_pi, factor_u64
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-01)
+ * Helpers:   factor_u64, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/compute_pi.h"
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i) {
         /* pi(p) counts primes ≤ p. The helper compute_pi
            returns a seq_t value. */
-        seq_t pi_val = compute_pi(primes[i]);
+        seq_t pi_val = prime_pi(primes[i]);
 
         /* Compute pi_val^exps[i] */
         seq_t power = 1;

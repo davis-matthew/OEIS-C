@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 9213, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   prime_not_in_binomial
+ * Validated: standard, pass, 79 terms through n = 9942 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,23 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/prime_not_in_binomial.h"
+
+/* Return true if prime p does NOT divide binomial(2*m-1, m) */
+static bool prime_not_in_binomial(idx_t m, idx_t p)
+{
+    idx_t pe = p;
+    idx_t exp = 0;
+    idx_t two_m_minus_1 = 2 * m - 1;
+
+    while (pe <= two_m_minus_1) {
+        exp += two_m_minus_1 / pe - m / pe - (m - 1) / pe;
+        if (exp > 0) return false;           /* p actually divides */
+
+        if (pe > (UINT64_MAX / p)) break;    /* avoid overflow */
+        pe *= p;
+    }
+    return true;
+}
 
 #define MAX_SIEVE 500000          /* enough for sqrt of candidates up to ~5e5 */
 

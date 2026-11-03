@@ -10,12 +10,14 @@
  *            528*a(n-4) (n>=4)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 17, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached terms */
 static idx_t cache_size = 0;    /* terms computed so far */
@@ -33,8 +35,8 @@ static void ensure_capacity(idx_t cap)
         cache_cap *= 2;
     /* reallocate memory */
     seq_t *new_cache = (cache == NULL) ? 
-        (seq_t*)malloc(sizeof(seq_t) * cache_cap) :
-        (seq_t*)realloc(cache, sizeof(seq_t) * cache_cap);
+        mem_new(seq_t, cache_cap) :
+        mem_resize(seq_t, cache, cache_cap);
     cache = new_cache;
     /* initialize new slots to zero (not strictly needed) */
     for (idx_t i = cache_size; i < cache_cap; ++i)

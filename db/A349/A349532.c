@@ -8,13 +8,15 @@
  *            a(i)·a(j)·a(n-i-j-1) (n ≥ 2)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are defined by the build environment. */
 
@@ -33,7 +35,7 @@ static void ensure_capacity(seq_t **arr, size_t *cap, size_t need)
     size_t new_cap = (*cap == 0) ? 16 : *cap * 2;
     while (new_cap < need)
         new_cap *= 2;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     /* new slots are uninitialized; zero them */
     for (size_t i = *cap; i < new_cap; ++i)
         (*arr)[i] = 0;

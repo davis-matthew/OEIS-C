@@ -7,13 +7,14 @@
  * Formula:   a(n) = n*(n!)^(2*n-2)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   seq_pow_exp
+ * Validated: standard, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/seq_pow_exp.h"
+#include "../utils/ipow_idx.h"
 
 /* Compute n! for idx_t n */
 static seq_t factorial(idx_t n) {
@@ -29,6 +30,6 @@ seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;              /* below offset, return 0 */
     seq_t fact = factorial(n);
     idx_t exp = 2*n - 2;
-    seq_t power = seq_pow_exp(fact, exp);
+    seq_t power = ipow_idx(fact, exp);
     return (seq_t)n * power;
 }

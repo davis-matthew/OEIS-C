@@ -10,13 +10,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 37 terms through n = 123 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /*
  * Formula: a(0)=1, a(1)=10;
@@ -31,10 +33,10 @@ seq_t a(idx_t n)
         return (seq_t)10;
 
     if ((n & 1U) == 0) {                   /* even n   */
-        seq_t p = big_pow((seq_t)10, (seq_t)(n - 1));
+        seq_t p = ipow((seq_t)10, (seq_t)(n - 1));
         return p * (seq_t)11;
     } else {                                /* odd n    */
-        seq_t p = big_pow((seq_t)10, (seq_t)n);
+        seq_t p = ipow((seq_t)10, (seq_t)n);
         p = p - (seq_t)100;
         return p / (seq_t)900;
     }

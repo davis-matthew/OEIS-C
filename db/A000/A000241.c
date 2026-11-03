@@ -9,13 +9,21 @@
  *            -x^5*(1+x+x^2)/((x+1)^3*(x-1)^5))
  * Range:     u8 n <= 13, u16 n <= 14, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   a241_tri
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a241_tri.h"
+
+/* m*(m-1)/2, computed without overflowing before the division */
+static seq_t a241_tri(seq_t m)
+{
+    if (m % 2 == 0)
+        return (m / 2) * (m - 1);
+    return m * ((m - 1) / 2);
+}
 
 seq_t a(idx_t n)
 {

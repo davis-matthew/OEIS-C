@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   remove_nonunique_digits, seq_mul
+ * Validated: standard, pass, 56 terms through n = 933 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,44 @@
 /* Recurrence: a(1)=86, a(n+1)=remove_nonunique_digits(a(n)^2).  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_mul.h"
-#include "../utils/remove_nonunique_digits.h"
+#include <stdlib.h>
+#include <string.h>
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Remove all digits that occur more than once in the decimal representation
+   of k.  For example 54700816 --> 547816.  */
+static seq_t remove_nonunique_digits(seq_t k)
+{
+    if (k == (seq_t)0) return (seq_t)0;
+
+    /* 100 digits is more than enough for the numbers that appear in this
+       10‑term cycle.  */
+    uint8_t digits[100];
+    int len = 0;
+    while (k > (seq_t)0) {
+        digits[len++] = (uint8_t)(k % (seq_t)10);
+        k /= (seq_t)10;
+    }
+
+    unsigned char freq[10] = {0};
+    for (int i = 0; i < len; ++i) {
+        freq[digits[i]]++;
+    }
+
+    seq_t result = (seq_t)0;
+    /* Build number in original left‑to‑right order. */
+    for (int i = len - 1; i >= 0; --i) {
+        uint8_t d = digits[i];
+        if (freq[d] == 1) {
+            result = result * (seq_t)10 + d;
+        }
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

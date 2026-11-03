@@ -11,12 +11,14 @@
  *            index into that array
  * Range:     u8 none, u16 n <= 1, u32 n <= 26, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *sequence = NULL;          /* Array of summed values */
 static size_t seq_len = 0;               /* Number of distinct sums */
@@ -41,7 +43,7 @@ static void initialize_sequence(void) {
     const idx_t pair_cnt   = odd_count * (odd_count + 1) / 2;
 
     /* Compute all odd cubes. */
-    seq_t *cubes = (seq_t *)malloc(odd_count * sizeof(seq_t));
+    seq_t *cubes = mem_new(seq_t, odd_count);
     if (!cubes) return;  /* Allocation failed – never use sequence. */
     idx_t odd = 1;
     for (idx_t i = 0; i < odd_count; ++i) {
@@ -51,25 +53,25 @@ static void initialize_sequence(void) {
     }
 
     /* Generate all unordered sums x^3 + y^3 (x <= y). */
-    seq_t *sums = (seq_t *)malloc(pair_cnt * sizeof(seq_t));
-    if (!sums) { free(cubes); return; }
+    seq_t *sums = mem_new(seq_t, pair_cnt);
+    if (!sums) { mem_free(cubes); return; }
     size_t idx = 0;
     for (idx_t i = 0; i < odd_count; ++i) {
         for (idx_t j = i; j < odd_count; ++j) {
             sums[idx++] = cubes[i] + cubes[j];
         }
     }
-    free(cubes);
+    mem_free(cubes);
 
     /* Sort the sums. */
-    qsort(sums, pair_cnt, sizeof(seq_t), cmp_seq);
+    mem_qsort(sums, pair_cnt, sizeof(seq_t), cmp_seq);
 
     /* Deduplicate into the final sequence array. */
     seq_len = 0;
     if (pair_cnt > 0) {
-        sequence = (seq_t *)malloc(pair_cnt * sizeof(seq_t));
+        sequence = mem_new(seq_t, pair_cnt);
         if (!sequence) {
-            free(sums);
+            mem_free(sums);
             return;
         }
         seq_t prev = sums[0];
@@ -81,7 +83,7 @@ static void initialize_sequence(void) {
             }
         }
     }
-    free(sums);
+    mem_free(sums);
     initialized = 1;
 }
 

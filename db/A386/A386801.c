@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 159, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 9762 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------  Static auxiliary data  ---------- */
 static uint64_t      last_checked = 0;          /* highest integer already examined   */
@@ -72,7 +74,7 @@ ensure_cache (size_t need)
     size_t new_cap = cache_cap ? cache_cap << 1 : 128;
     if (new_cap < need)
         new_cap = need;
-    seq_t *new_buf = (seq_t *)realloc (cache, new_cap * sizeof (seq_t));
+    seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
     if (!new_buf)
         exit (EXIT_FAILURE);
     cache     = new_buf;

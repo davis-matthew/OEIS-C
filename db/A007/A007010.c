@@ -10,12 +10,21 @@
  *            Sum_{j=0..6} N_j * binomial(t-j+5,5)
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 42, u64 n <= 716, u128 n <= 1000,
  *            big any n
- * Helpers:   a007010_b5
+ * Validated: standard, pass, 47 terms through n = 892 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a007010_b5.h"
+static seq_t a007010_b5(idx_t t) {
+    seq_t r = 1;
+    idx_t i;
+    if (t < 5) return 0;
+    for (i = 1; i <= 5; i++) {
+        r = r * (seq_t)(t - 5 + i) / (seq_t)i;
+    }
+    return r;
+}
 static const unsigned a007010_N[7] = {1, 6, 21, 28, 21, 6, 1};
 
 static seq_t a007010_c(idx_t t) {

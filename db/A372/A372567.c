@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 none, u16 n <= 39, u32 n <= 8813, u64 n <= 8813,
- *            u128 n <= 8813, big any n
- * Helpers:   gcd
+ * Range:     u8 none, u16 n <= 39, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 70 terms through n = 8813 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* --------- Configuration ----------------------------------- */
 #define SIEVE_LIMIT 2000000ULL   /* sufficient for the first 10 000 terms */
@@ -101,7 +103,7 @@ ensure_cache_cap(size_t cap)
 {
     if (cap <= cache_cap) return;
     size_t new_cap = cap ? cap * 2 : 1;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;

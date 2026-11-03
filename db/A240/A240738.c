@@ -11,7 +11,8 @@
  *            number of fixed points (0..3)
  * Range:     u8 n <= 13, u16 n <= 21, u32 n <= 37, u64 n <= 69, u128 n <= 133,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 870 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,11 +30,11 @@ seq_t a(idx_t n)
     /* Allocate two DP arrays: dp_prev and dp_new.
        Each stores values for sums 0..N and fixed-point counts 0..3. */
     const size_t DIM = (size_t)(N + 1) * 4;
-    seq_t *dp_prev = (seq_t *)calloc(DIM, sizeof(seq_t));
-    seq_t *dp_new  = (seq_t *)calloc(DIM, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, DIM);
+    seq_t *dp_new  = mem_new(seq_t, DIM);
     if (!dp_prev || !dp_new) {
-        free(dp_prev);
-        free(dp_new);
+        mem_free(dp_prev);
+        mem_free(dp_new);
         return 0;  /* allocation failure, return 0 as safe fallback */
     }
 
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
         /* dp_new will be overwritten in the next iteration, no need to clear. */
     }
 
-    free(dp_prev);
-    free(dp_new);
+    mem_free(dp_prev);
+    mem_free(dp_new);
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   _find_s
+ * Validated: standard, pass, 66 terms through n = 77 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,22 @@
  */
 
 #include <stdint.h>
-#include "../utils/_find_s.h"
+
+static idx_t _find_s(idx_t n)
+{
+    /* binary search for the smallest S with (S-1)*S/2 ≥ n */
+    idx_t lo = 2, hi = 2;
+    while (((__int128)hi * (hi - 1) / 2) < n)
+        hi <<= 1;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo) / 2;
+        if (((__int128)mid * (mid - 1) / 2) >= n)
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    return lo;
+}
 
 seq_t a(idx_t n)
 {

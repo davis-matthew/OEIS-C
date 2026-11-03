@@ -9,6 +9,7 @@
  *            n (terms appear only when the divisibility conditions hold)
  * Range:     u8 n <= 14, u16 n <= 37, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
+ * Validated: partial, pass, 39 terms through n = 45 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

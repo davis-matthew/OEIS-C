@@ -8,13 +8,39 @@
  * Formula:   not stated
  * Range:     u8 n <= 94, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
- * Helpers:   calc_sigma_seq_t
+ * Validated: partial, pass, 94 terms through n = 94 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/calc_sigma_seq_t.h"
+
+static void calc_sigma_seq_t(seq_t n, seq_t *sigma)
+{
+    *sigma = 1;
+    uint64_t tmp = (uint64_t)n;                 /* n fits in 64 bits */
+    for (uint64_t p = 2; p * p <= tmp; ++p) {
+        if (tmp % p == 0) {
+            int exp = 0;
+            seq_t p_pow = 1;                   /* p^exp as seq_t */
+            while (tmp % p == 0) {
+                tmp /= p;
+                ++exp;
+                p_pow *= (seq_t)p;              /* p_pow = p^exp */
+            }
+            /* geometric sum: (p^(exp+1)-1)/(p-1) */
+            seq_t numerator   = p_pow * (seq_t)p - 1;
+            seq_t denominator = (seq_t)(p - 1);
+            seq_t term = numerator / denominator;
+            *sigma *= term;
+        }
+    }
+    if (tmp > 1) {                             /* remaining prime factor */
+        /* term = 1 + tmp = tmp + 1 */
+        *sigma *= (seq_t)(tmp + 1);
+    }
+}
 
 /* Computation of A176816 – the number of steps needed to reach 0 using
    x → x – τ(σ(x)), where σ is the sum of divisors of x and τ is the

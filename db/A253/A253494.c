@@ -13,12 +13,15 @@
  *            time
  * Range:     u8 none, u16 n <= 3, u32 n <= 17, u64 n <= 37, u128 n <= 78,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 38 terms through n = 141 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -31,8 +34,8 @@ seq_t a(idx_t n)
     }
 
     /* Compute 3^(n-1) and 2^(n-1) using the big integer routine */
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)(n - 1));
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)(n - 1));
+    seq_t pow3 = ipow((seq_t)3, (seq_t)(n - 1));
+    seq_t pow2 = ipow((seq_t)2, (seq_t)(n - 1));
 
     /* Apply the closed‑form formula */
     seq_t result = 49 * pow3;

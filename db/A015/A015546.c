@@ -10,6 +10,7 @@
  *            (x^29-1)(x^53-1). The sequence is periodic with period 1537
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
+ * Validated: standard, pass, 92 terms through n = 1610 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

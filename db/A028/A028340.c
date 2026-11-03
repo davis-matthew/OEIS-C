@@ -7,6 +7,7 @@
  * Formula:   a(n) = coefficient of x^3 in ∏_{k=1..n} (x + (2k-1))
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 17, u128 n <= 28,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 353 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

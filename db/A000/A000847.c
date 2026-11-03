@@ -13,21 +13,66 @@
  *            points since 0 is always fixed), |C(g)| = Prod_f...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   s847_gcd, s847_inv, s847_mulmod, s847_pdeg, s847_pmod,
- *            s847_powx, s847_width
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   gcd_u64, ilog2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/s847_gcd.h"
-#include "../utils/s847_inv.h"
-#include "../utils/s847_mulmod.h"
-#include "../utils/s847_pdeg.h"
-#include "../utils/s847_pmod.h"
-#include "../utils/s847_powx.h"
-#include "../utils/s847_width.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ilog2_u64.h"
+
+static seq_t s847_inv(seq_t p)
+{
+    seq_t y = p;
+    int i;
+    for (i = 0; i < 8; i++) y = 1u * y * (2u - 1u * p * y);
+    return y;
+}
+
+static uint64_t s847_mulmod(uint64_t a, uint64_t b, uint64_t f, int d)
+{
+    uint64_t r = 0;
+    while (b) {
+        if (b & 1) r ^= a;
+        b >>= 1;
+        a <<= 1;
+        if ((a >> d) & 1) a ^= f;
+    }
+    return r;
+}
+
+static uint64_t s847_pmod(uint64_t a, uint64_t g)
+{
+    int dg = ilog2_u64(g), da;
+    while ((da = ilog2_u64(a)) >= dg) a ^= g << (da - dg);
+    return a;
+}
+
+static uint64_t s847_powx(uint64_t e, uint64_t f, int d)
+{
+    uint64_t r = 1, b = 2;
+    if ((b >> d) & 1) b ^= f;
+    while (e) {
+        if (e & 1) r = s847_mulmod(r, b, f, d);
+        b = s847_mulmod(b, b, f, d);
+        e >>= 1;
+    }
+    return r;
+}
+
+static int s847_width(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 300; i++) {
+        x <<= 1;
+        if (x == 0) return i + 1;
+    }
+    return 0;
+}
 
 static int s847_np;
 static uint64_t *s847_poly, *s847_ord;
@@ -133,7 +178,7 @@ static void s847_apply(int q, int newrem, const int *parts, int np,
     nc = (uint64_t *)malloc(sizeof(uint64_t) * (m * nb + 1));
     for (i = 0; i < m; i++)
         for (j = 0; j < nb; j++) {
-            uint64_t l = L[i] / s847_gcd(L[i], bl[j]) * bl[j];
+            uint64_t l = L[i] / gcd_u64(L[i], bl[j]) * bl[j];
             uint64_t c = C[i] * bc[j];
             for (k = 0; k < nm; k++) if (nl[k] == l) break;
             if (k == nm) { nl[nm] = l; nc[nm] = c; nm++; }

@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 17, u64 n <= 37, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(0)=1, a(1)=4, a(2)=20, a(n)=6*a(n-1)-9*a(n-2) for n>2 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* Ensure cache has at least 3 elements so that the base cases exist. */
     if (cache_len < 3) {
         idx_t new_len = 3;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();
         cache = tmp;
         /* initialise the missing base cases */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary and compute missing terms via the recurrence. */
     if (n + 1 > cache_len) {
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();
         cache = tmp;
         for (idx_t i = cache_len; i <= n; ++i) {

@@ -8,7 +8,8 @@
  *            ≥ 2. The sequence is finite: 2, 3, 5, 7, 11, 19, 23
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   isPrimeTrial
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-02)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/isPrimeTrial.h"
+#include <stdlib.h>
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
         for (idx_t cand = 2; cand <= LIMIT; ++cand)
         {
-            if (!isPrimeTrial((seq_t)cand))
+            if (!is_prime_seq((seq_t)cand))
                 continue;
 
             /* dynamic‑programming: is cand a sum of squares ≥ 4? */

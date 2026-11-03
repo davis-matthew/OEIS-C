@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=1..n} (k!)^k
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 25 terms through n = 30 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
     for (idx_t k = 1; k <= n; ++k)
     {
         fact *= (seq_t)k;          // fact = k!
-        sum += pow_seq(fact, k);   // add (k!)^k
+        sum += ipow_idx(fact, k);   // add (k!)^k
     }
 
     return sum;

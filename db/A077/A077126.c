@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum of the first n even-indexed primes
  * Range:     u8 n <= 8, u16 n <= 107, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* (a(1)=2nd prime, a(2)=2nd+4th prime, …)                 */
 
@@ -34,7 +36,7 @@ static void init_arrays(void)
         primes_cap = 16;
         primes = (uint32_t *)malloc(primes_cap * sizeof(uint32_t));
         even_cap = 1;
-        evenSum = (seq_t *)malloc(even_cap * sizeof(seq_t));
+        evenSum = mem_new(seq_t, even_cap);
         evenSum[0] = (seq_t)0;
     }
 }
@@ -53,7 +55,7 @@ static void grow_primes(void)
 static void grow_even(void)
 {
     size_t new_cap = even_cap ? even_cap * 2 : 2;
-    seq_t *tmp = (seq_t *)realloc(evenSum, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, evenSum, new_cap);
     if (!tmp) exit(1);
     evenSum = tmp;
     even_cap = new_cap;

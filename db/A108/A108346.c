@@ -12,13 +12,14 @@
  *            multiplicative order of the indeterminate q modulo P₂(2n+1)
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   bitlen_uint128
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-01)
+ * Helpers:   bit_length_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/bitlen_uint128.h"
+#include "../utils/bit_length_u128.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +33,7 @@ seq_t a(idx_t n)
     /* P₂(1) = 1 ⇒ order always 1 */
     if (mod == 1) return (seq_t)1;
 
-    unsigned deg = bitlen_uint128(mod) - 1;         /* highest degree */
+    unsigned deg = bit_length_u128(mod) - 1;         /* highest degree */
 
     unsigned __int128 curr = 2;                     /* the polynomial q (x) */
     /* initial reduction: ensure degree < deg */

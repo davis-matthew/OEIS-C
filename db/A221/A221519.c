@@ -9,12 +9,14 @@
  *            a(2)=6, a(3)=10, a(4)=36. The recurrence is valid for n ≥ 5
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 43, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Allocate (or grow) the cache if necessary */
     if (cache == NULL) {
         /* first call: allocate enough space for indices 0..n */
-        cache = (seq_t *)malloc((size_t)(n + 1u) * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(n + 1u));
         if (cache == NULL) return 0;          /* allocation failure – unlikely */
         cache_cap = (size_t)(n + 1u);
 
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     }
     else if (cache_cap <= (size_t)n) {
         /* Need more space: reallocate to hold indices 0..n */
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)(n + 1u) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1u));
         if (tmp == NULL) return 0;          /* allocation failure – unlikely */
         cache = tmp;
         cache_cap = (size_t)(n + 1u);

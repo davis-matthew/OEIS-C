@@ -12,12 +12,14 @@
  *            (n>0) Recurrence from OEIS A167872
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 372 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,19 +33,7 @@ seq_t a(idx_t n)
 
     /* Allocate / extend cache to hold n+1 values */
     idx_t new_len = n + 1;
-    if (cache == NULL) {
-#if defined(__cplusplus)
-        cache = static_cast<seq_t*>(::malloc(new_len * sizeof(seq_t)));
-#else
-        cache = (seq_t*)malloc(new_len * sizeof(seq_t));
-#endif
-    } else {
-#if defined(__cplusplus)
-        cache = static_cast<seq_t*>(::realloc(cache, new_len * sizeof(seq_t)));
-#else
-        cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
-#endif
-    }
+    cache = mem_resize(seq_t, cache, new_len);
     if (!cache) {
         /* out of memory – caller should handle */
         return (seq_t)0;

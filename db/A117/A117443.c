@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 11, i64 n <= 19, i128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 425 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* idx_t and seq_t are defined by the build system. */
 typedef uint64_t idx_t;   /* index type */
@@ -49,7 +51,7 @@ ensure_a_size(idx_t n)
     while (new_cap < (size_t)(n + 1u))
         new_cap <<= 1;                    /* double until big enough */
 
-    seq_t *new_ptr = (seq_t *)realloc(a_seq, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, a_seq, new_cap);
     if (!new_ptr) {
         /* minimal error handling – terminate on allocation failure */
         abort();

@@ -8,12 +8,13 @@
  *            B_n(7) = b(7,n) of A003927)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   a003929_ipow
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a003929_ipow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     /* (7^2 - 1)/2 = 24: divide by 2 up front so everything else is exact multiplication */
@@ -23,7 +24,7 @@ seq_t a(idx_t n) {
         t *= 49;
         result *= (t - 1);
     }
-    seq_t p = a003929_ipow((seq_t)7, n);
-    result *= a003929_ipow(p, n);
+    seq_t p = ipow_idx((seq_t)7, n);
+    result *= ipow_idx(p, n);
     return result;
 }

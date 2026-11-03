@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return true if x contains the substring "56" or "65".  Works for any
  * unsigned integer type seq_t. */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
 
     if (cache_cap == 0) {              /* initialise cache */
         cache_cap = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) {                  /* allocation failed; abort */
             abort();
         }
@@ -61,8 +63,7 @@ seq_t a(idx_t n)
         if (has56or65(next_k) && !has56or65(next_k + (seq_t)1)) {
             if (cache_len == cache_cap) {          /* grow cache */
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache,
-                                              sizeof(seq_t) * new_cap);
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();                  /* realloc failed */
                 cache      = tmp;
                 cache_cap  = new_cap;

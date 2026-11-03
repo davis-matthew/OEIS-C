@@ -9,12 +9,13 @@
  *            no intermediate exceeds the final value
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 36,
  *            big any n
- * Helpers:   a001449_gcd_u
+ * Validated: standard, pass, 37 terms through n = 95 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a001449_gcd_u.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     seq_t result = 1;
@@ -22,7 +23,7 @@ seq_t a(idx_t n) {
     for (i = 1; i <= n; i++) {
         idx_t m = 5 * n - i + 1;
         uint64_t r = (uint64_t)(result % (seq_t)i);
-        uint64_t g = a001449_gcd_u(r, (uint64_t)i);
+        uint64_t g = gcd_u64(r, (uint64_t)i);
         uint64_t d = (uint64_t)i / g;
         result = (result / (seq_t)g) * (seq_t)(m / d);
     }

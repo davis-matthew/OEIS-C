@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 25, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   is_palindrome, is_prime
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   is_palindrome_base, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include "../utils/is_palindrome_base.h"
 #include "../utils/is_prime.h"
-#include "../utils/is_palindrome.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -51,11 +53,11 @@ seq_t a(idx_t n)
         seq_t d_val = (seq_t)d_cnt;
 
         /* Check palindromic‑prime property */
-        if (is_palindrome(d_val, 10) && is_prime((idx_t)d_cnt)) {
+        if (is_palindrome_base(d_val, 10) && is_prime((idx_t)d_cnt)) {
             /* Grow cache if necessary */
             if (count == cap) {
                 size_t new_cap = (cap == 0) ? 16 : cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();
                 cache = tmp;
                 cap   = new_cap;

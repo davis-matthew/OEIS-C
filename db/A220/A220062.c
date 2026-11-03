@@ -8,12 +8,14 @@
  * Keywords:  nonn, tabl
  * Formula:   not stated
  * Range:     u8 n <= 112, u16 n <= 292, u32 n <= 934, u64 n <= 2990,
- *            u128 n <= 9620, big any n
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 94 terms through n = 9620 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Sequence A220062:
    Number A(n,k) = number of n‑length words over a k‑ary alphabet
    where consecutive letters are neighbors in the alphabet.

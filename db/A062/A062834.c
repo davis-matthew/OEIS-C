@@ -11,14 +11,29 @@
  *            Σ 1/(k^2 – 1) where k is not a perfect power
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 17, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   gcd, is_perfect_power_uint64
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/is_perfect_power_uint64.h"
+
+static inline bool is_perfect_power_uint64(idx_t n) {
+    /* n < 4 are not perfect powers (2 and 3). */
+    if (n < 4) return false;
+    for (idx_t base = 2; base * base <= n; ++base) {
+        seq_t val = (seq_t)base * base;          /* base^2 */
+        while (val <= n) {
+            if (val == n) return true;          /* found a perfect power */
+            if (base > n / val) break;          /* next multiplication would overflow or exceed n */
+            val *= (seq_t)base;                  /* grow to base^e   */
+        }
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     seq_t sum_num = 0;

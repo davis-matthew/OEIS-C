@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t sieve_limit = 0;            /* current upper bound of the sieve   */
 static bool *is_prime      = NULL;       /* sieve marks: true iff prime       */
@@ -43,7 +45,7 @@ build_sieve(void)
 
     /* Estimate needed capacity for twin_primes. */
     size_t est_cap = sieve_limit / 10 + 10;
-    seq_t *new_twin = (seq_t *)malloc(est_cap * sizeof(seq_t));
+    seq_t *new_twin = mem_new(seq_t, est_cap);
     if (!new_twin) {
         free(new_is_prime);
         return;
@@ -61,7 +63,7 @@ build_sieve(void)
         if (has_twin) {
             if (len == est_cap) {
                 est_cap *= 2;
-                new_twin = (seq_t *)realloc(new_twin, est_cap * sizeof(seq_t));
+                new_twin = mem_resize(seq_t, new_twin, est_cap);
                 if (!new_twin)
                     break;   /* out of memory – keep current list      */
             }
@@ -71,7 +73,7 @@ build_sieve(void)
 
     /* Replace old data. */
     free(is_prime);
-    free(twin_primes);
+    mem_free(twin_primes);
     is_prime     = new_is_prime;
     twin_primes  = new_twin;
     twin_len     = len;

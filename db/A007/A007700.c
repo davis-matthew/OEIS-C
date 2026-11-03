@@ -8,7 +8,8 @@
  *            also prime (for p > 5, p == 11 or 29 (mod 30))
  * Range:     u8 n <= 6, u16 n <= 156, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a7700_isprime, a7700_mulmod, a7700_powmod
+ * Validated: standard, pass, 61 terms through n = 9953 (2026-11-03)
+ * Helpers:   is_prime_u64, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a7700_isprime.h"
-#include "../utils/a7700_mulmod.h"
-#include "../utils/a7700_powmod.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
 
 static uint64_t *a7700_terms = NULL;
 static idx_t a7700_len = 0;
@@ -44,7 +45,7 @@ seq_t a(idx_t n) {
         uint64_t p = a7700_next;
         /* candidates are 11 and 29 mod 30 */
         a7700_next += (p % 30 == 11) ? 18 : 12;
-        if (a7700_isprime(p) && a7700_isprime(2 * p + 1) && a7700_isprime(4 * p + 3))
+        if (is_prime_u64(p) && is_prime_u64(2 * p + 1) && is_prime_u64(4 * p + 3))
             a7700_push(p);
     }
     return (seq_t)a7700_terms[n - 1];

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 4308, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, powmod64
+ * Validated: standard, pass, 73 terms through n = 7966 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/powmod64.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;      /* cached sequence values */
 static size_t terms_cap = 0;     /* capacity of terms array */
@@ -40,12 +42,12 @@ static bool isPrimitiveRoot2(uint64_t p)
         if (n % q == 0) {
             /* divide out all copies of q */
             do { n /= q; } while (n % q == 0);
-            if (powmod64(2, phi / q, p) == 1)
+            if (powmod_u64(2, phi / q, p) == 1)
                 return false;
         }
     }
     if (n > 1) {                /* remaining prime factor */
-        if (powmod64(2, phi / n, p) == 1)
+        if (powmod_u64(2, phi / n, p) == 1)
             return false;
     }
     return true;
@@ -64,8 +66,7 @@ seq_t a(idx_t n)
                 /* resize cache if needed */
                 if (terms_cnt + 1 > terms_cap) {
                     terms_cap = terms_cap ? terms_cap * 2 : 16;
-                    terms = (seq_t *)realloc(terms,
-                                             terms_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, terms_cap);
                 }
                 terms[terms_cnt++] = (seq_t)k;
                 next_k = k + 1;        /* start next search after k */

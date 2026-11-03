@@ -11,7 +11,8 @@
  *            linear recurrence derived from the generati...
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* ------------------------------------------------------------ */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* memoised sequence values          */
 static size_t  a_capacity = 0;  /* allocated size of a_cache         */
@@ -36,7 +38,7 @@ static void grow_to(idx_t n)
     if (a_capacity < needed) {
         size_t new_cap = a_capacity ? a_capacity * 2 : 16;
         if (new_cap < needed) new_cap = needed;
-        seq_t *new_a = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_cache, new_cap);
         if (!new_a) abort();                 /* allocation failed */
         a_cache = new_a;
         a_capacity = new_cap;

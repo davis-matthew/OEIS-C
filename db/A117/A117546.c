@@ -10,12 +10,14 @@
  *            over the set of distinct positive tribonacci values
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 122 terms through n = 7947 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Build the list of distinct positive tribonacci numbers <= n */
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
 
     /* Dynamic programming array: dp[sum] = number of representations
        of 'sum' using the tribonacci numbers considered so far. */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) return 0;               /* allocation failure, return 0 */
 
     for (idx_t i = 0; i <= n; ++i) dp[i] = 0;
@@ -49,6 +51,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

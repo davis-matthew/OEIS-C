@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 36, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External linkage as required */
 seq_t a(idx_t n)
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
     /* Compute rows incrementally up to the required row 'r'. */
     while (max_row < r) {
         size_t k = max_row + 1;                    /* new row index */
-        rows[k] = (seq_t*)malloc(sizeof(seq_t) * (k + 1));
+        rows[k] = mem_new(seq_t, (k + 1));
         if (!rows[k]) return 0;                    /* out of memory */
         rows[k][0] = 0;                            /* unused entry */
 

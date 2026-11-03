@@ -9,14 +9,37 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 22, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   steps
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/steps.h"
+
+/* Computes the number of steps for numerator p until the fraction p/4
+   becomes an integer. If the process would loop indefinitely,
+   returns (idx_t)-1. */
+static inline idx_t steps(seq_t p0) {
+    idx_t step = 0;
+    for (;;) {
+        // If numerator is divisible by 4, we have an integer.
+        if ((p0 % ((seq_t)4)) == 0) {
+            break;
+        }
+        /* ceil(p0 / 4) = (p0 + 3) / 4 for positive integers. */
+        seq_t ceil = (p0 + 3) / 4;
+        /* If ceil == 1 while p0 is not divisible by 4, the value never
+           changes and the loop would be infinite. Treat as infinite. */
+        if (ceil == (seq_t)1) {
+            return (idx_t)-1;
+        }
+        p0 = p0 * ceil;
+        ++step;
+    }
+    return step;
+}
 
 /* Implementation of OEIS sequence A081883: numbers n such that
    the number of steps needed to reach an integer starting with

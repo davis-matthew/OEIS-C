@@ -8,15 +8,27 @@
  * Keywords:  easy, nonn, mult
  * Formula:   a(n) = Sum_{d|n} core(d) where core(d) is the product of primes
  *            in d having odd exponent
- * Range:     u8 n <= 137, u16 n <= 9346, u32 n <= 9346, u64 n <= 9346,
- *            u128 n <= 9346, big any n
- * Helpers:   prime_power_contribution
+ * Range:     u8 n <= 137, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 89 terms through n = 9346 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/prime_power_contribution.h"
+
+/* Helper: contribution of a prime power p^e to a(n). */
+static inline seq_t prime_power_contribution(uint64_t prime, idx_t exp)
+{
+    seq_t p = (seq_t)prime;
+    seq_t e = (seq_t)exp;
+
+    if (exp & 1)          /* odd exponent */
+        return (p + 1) * (e + 1) / 2;
+    else                  /* even exponent */
+        return (p + 1) * e / 2 + 1;
+}
 
 seq_t a(idx_t n)
 {

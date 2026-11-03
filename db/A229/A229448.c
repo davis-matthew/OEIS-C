@@ -11,14 +11,28 @@
  *            a(3)=128, a(4)=324, a(5)=753, a(6)=1609
  * Range:     u8 n <= 3, u16 n <= 13, u32 n <= 119, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   mul_small
+ * Validated: standard, pass, 49 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mul_small.h"   /* provides seq_t mul_small(seq_t, unsigned int) */
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 seq_t a(idx_t n) {
     /* cache of previously computed values; 1‑based indexing */
@@ -30,7 +44,7 @@ seq_t a(idx_t n) {
     /* grow cache if necessary */
     if (n > cache_len) {
         size_t new_size = (size_t)(n + 1);             /* allocate for indices 0..n */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) return (seq_t)0;               /* out of memory, return 0 */
         cache = new_cache;
 

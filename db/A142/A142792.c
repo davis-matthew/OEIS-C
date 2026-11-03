@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 412, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 61 terms through n = 984 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdlib.h>   /* malloc, realloc, abort */
 #include <stdint.h>   /* uint64_t */
 
-#include "../utils/is_prime_small.h"   /* bool is_prime_small(seq_t n); */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Return the n‑th prime congruent to 31 mod 60 (a(1)=31). */
 seq_t a(idx_t n)
@@ -39,11 +41,11 @@ seq_t a(idx_t n)
     /* Extend the cache until at least n primes are known. */
     while (cache_sz < (size_t)n) {
         /* Test the current candidate for primality. */
-        if (is_prime_small((seq_t)next_candidate)) {
+        if (is_prime_seq((seq_t)next_candidate)) {
             /* Grow the cache if needed. */
             if (cache_sz + 1 > cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)
                     abort();          /* allocation failed */
                 cache = tmp;

@@ -12,13 +12,16 @@
  *            within the domain of seq_t
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 30, u128 n <= 62,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 184 (2026-11-01)
  * Helpers:   gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"   /* seq_t gcd(seq_t a, seq_t b) */
-#include "../utils/pow2.h"  /* seq_t pow2(idx_t exp) */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/pow2.h"
 
 /* Compute binomial coefficient C(n, k) for 0 <= k <= n using GCD
    reductions to avoid overflow.  The result is of type seq_t. */

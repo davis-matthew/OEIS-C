@@ -12,17 +12,52 @@
  *            Fixed-width build: the same product expanded w...
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 34, u64 n <= 78, u128 n <= 186,
  *            big any n
- * Helpers:   a2043_c, a2043_from_u128, a2043_inv, a2043_is_fixed
+ * Validated: standard, pass, 49 terms through n = 992 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a2043_c.h"
-#include "../utils/a2043_from_u128.h"
-#include "../utils/a2043_inv.h"
-#include "../utils/a2043_is_fixed.h"
+
+static uint64_t a2043_c(uint64_t k) {
+  uint64_t s = 0, d;
+  for (d = 1; d * d <= k; d++) {
+    if (k % d == 0) {
+      uint64_t e = k / d;
+      s += d * d * (d + 1) / 2;
+      if (e != d) s += e * e * (e + 1) / 2;
+    }
+  }
+  return s;
+}
+
+static seq_t a2043_from_u128(unsigned __int128 v) {
+  uint64_t lo = (uint64_t)v, hi = (uint64_t)(v >> 64);
+  seq_t r = (seq_t)lo;
+  if (hi != 0) {
+    seq_t h = (seq_t)hi;
+    int i;
+    for (i = 0; i < 64; i++) h = h * 2;
+    r += h;
+  }
+  return r;
+}
+
+static unsigned __int128 a2043_inv(unsigned __int128 d) {
+  unsigned __int128 x = d;
+  int i;
+  for (i = 0; i < 8; i++) x = x * (2 - d * x);
+  return x;
+}
+
+static int a2043_is_fixed(void) {
+  seq_t x = 1;
+  int i;
+  for (i = 0; i < 200; i++) x = x * 2;
+  return x == 0;
+}
 
 #define A2043_PMAX 32768
 

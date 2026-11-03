@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   digit_count, pow_int
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   ipow_idx, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/digit_count.h"   /* digit_count(uint64_t) */
-#include "../utils/pow_int.h"       /* pow_int(seq_t base, idx_t exp) */
+#include <math.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/num_digits0.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
         idx_t mod = 0;
         for (idx_t j = 0; j < n; ++j) {
             idx_t num = k - j;
-            int d = digit_count((uint64_t)num);   /* 1‑based digit count */
+            int d = num_digits0((uint64_t)num);   /* 1‑based digit count */
             if (d > MAX_DIG) {          /* not expected for n ≤ 10000 */
                 /* extend pow10mod array if needed */
                 int new_max = d + 5;
@@ -58,8 +61,8 @@ seq_t a(idx_t n)
             seq_t result = 0;
             for (idx_t j = 0; j < n; ++j) {
                 idx_t num = k - j;
-                int d = digit_count((uint64_t)num);
-                seq_t pow10d = pow_int((seq_t)10, d);
+                int d = num_digits0((uint64_t)num);
+                seq_t pow10d = ipow_idx((seq_t)10, d);
                 result = result * pow10d + num;
             }
             return result;

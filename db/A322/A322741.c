@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 84 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const int xs[9] = {0, 1, 2, 3, 4, 12, 17, 18, 18};
 static const int ys[9] = {3, 9, 0,10,11, 2, 11, 1, 4};
@@ -57,7 +59,7 @@ static void init_sequence(void)
             }
 
     /* Sort the 84 distinct doubled areas. */
-    qsort(seq, 84, sizeof(seq_t), compare_seq_t);
+    mem_qsort(seq, 84, sizeof(seq_t), compare_seq_t);
     default_sequence = seq;
 }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,12 +22,12 @@
    i∈[1,r] satisfy the interval condition.  No floating point arithmetic
    is used: the test is performed with integer square roots only. */
 #include <stdint.h>
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* 1. Find the row r such that r·(r+1)/2 ≥ n */
-    idx_t t = int_sqrt(8 * n + 1);        /* floor( sqrt(8n+1) ) */
+    idx_t t = isqrt(8 * n + 1);        /* floor( sqrt(8n+1) ) */
     idx_t r = (t - 1) >> 1;              /* floor( (sqrt(8n+1)-1)/2 ) */
     if ((r * (r + 1)) / 2 < n)
         ++r;                             /* adjust if we undershot */
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
     {
         /* Compute floor( i·√3·r ) without using √3 directly. */
         unsigned __int128 prod = (unsigned __int128)3 * i * i * r * r;
-        idx_t q = int_sqrt((uint64_t)prod);   /* floor( sqrt(3·i²·r²) ) */
+        idx_t q = isqrt((uint64_t)prod);   /* floor( sqrt(3·i²·r²) ) */
 
         if ((q % r) == (k - 1))
             ++count;

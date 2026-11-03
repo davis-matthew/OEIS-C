@@ -11,12 +11,28 @@
  *            by row, starting at i = 3 with j = 1..(2i-4)
  * Range:     u8 n <= 7308, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   K
+ * Validated: standard, pass, 96 terms through n = 9402 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/K.h"
+/* Compute K(i,j) iteratively to avoid recursion depth. */
+static seq_t K(idx_t i, idx_t j)
+{
+    while (1) {
+        if (j >= 2*i - 3) {             /* base case */
+            return (seq_t)i + (seq_t)j - 1;
+        }
+        /* non‑base case – descend one row */
+        if ((j & 1) == 0) {               /* j even */
+            j = i - ((j + 2) / 2);
+        } else {                          /* j odd */
+            j = i + ((j - 1) / 2);
+        }
+        --i;
+    }
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

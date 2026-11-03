@@ -10,11 +10,13 @@
  *            (arbitrary‑precision seq_t)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 35, u128 n <= 69,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 968 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #ifdef __cplusplus
 #include <cstddef>

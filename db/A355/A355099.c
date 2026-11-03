@@ -10,12 +10,14 @@
  *            of calls
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,13 +35,13 @@ seq_t a(idx_t n)
     if (a_cache == NULL) {
         /* a(0) = 1 */
         cap_a = 1;
-        a_cache = (seq_t*)malloc(cap_a * sizeof(seq_t));
+        a_cache = mem_new(seq_t, cap_a);
         a_cache[0] = (seq_t)1;
         len_a = 1;
 
         /* Stirling row for n = 0 : s_prev[0] = 1 */
         cap_s = 1;
-        s_prev = (seq_t*)malloc(cap_s * sizeof(seq_t));
+        s_prev = mem_new(seq_t, cap_s);
         s_prev[0] = (seq_t)1;
         cur_s_n  = 0;
 
@@ -56,8 +58,8 @@ seq_t a(idx_t n)
         /* Ensure Stirling arrays big enough for new_n+1 entries */
         if (cap_s < new_n + 1) {
             size_t new_cap = new_n + 1;
-            seq_t *new_prev = (seq_t*)realloc(s_prev, new_cap * sizeof(seq_t));
-            seq_t *new_curr = (seq_t*)realloc(s_curr, new_cap * sizeof(seq_t));
+            seq_t *new_prev = mem_resize(seq_t, s_prev, new_cap);
+            seq_t *new_curr = mem_resize(seq_t, s_curr, new_cap);
             s_prev = new_prev;
             s_curr = new_curr;
             cap_s  = new_cap;
@@ -85,9 +87,9 @@ seq_t a(idx_t n)
         /* Extend a_cache if needed */
         if (cap_a <= len_a) {
             size_t new_cap = (cap_a == 0) ? 1 : cap_a * 2;
-            seq_t *new_a = (seq_t*)malloc(new_cap * sizeof(seq_t));
-            if (a_cache) memcpy(new_a, a_cache, len_a * sizeof(seq_t));
-            free(a_cache);
+            seq_t *new_a = mem_new(seq_t, new_cap);
+            if (a_cache) mem_copy(new_a, a_cache, len_a * sizeof(seq_t));
+            mem_free(a_cache);
             a_cache = new_a;
             cap_a   = new_cap;
         }

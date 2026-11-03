@@ -9,15 +9,20 @@
  *            anti‑diagonal with sum s, ordered by * increasing i
  * Range:     u8 n <= 41, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   pow_seq, tri_idx
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>          /* for size_t */
 #include <stdint.h>          /* for uint64_t if needed */
-#include "../utils/pow_seq.h"/* pow_seq(seq_t base, int k) */
-#include "../utils/tri_idx.h"
+#include "../utils/ipow_i32.h"
+
+static inline idx_t tri_idx(idx_t s) {
+    /* T(s) = (s+1)(s+2)/2, using 128‑bit to avoid overflow. */
+    return ( ( ( __int128 )(s + 1) * (s + 2) ) / 2 );
+}
 
 seq_t a(idx_t n) {
     /* Find s such that T(s) > n and T(s-1) <= n. */
@@ -30,7 +35,7 @@ seq_t a(idx_t n) {
     idx_t j = s - offset;
 
     /* Compute 2^i. */
-    seq_t pow2 = pow_seq((seq_t)2, (int)i);   /* uses wrapper for arbitrary width */
+    seq_t pow2 = ipow_i32((seq_t)2, (int)i);   /* uses wrapper for arbitrary width */
     /* a = 2^i * (2*j + 1) – 1 */
     seq_t result = pow2 * (seq_t)(2 * j + 1) - 1;
     return result;

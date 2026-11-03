@@ -7,6 +7,7 @@
  * Formula:   a(n) = sum_{d | 2n} d^2 (sigma_2 of 2n)
  * Range:     u8 n <= 7, u16 n <= 107, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 60 terms through n = 9989 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

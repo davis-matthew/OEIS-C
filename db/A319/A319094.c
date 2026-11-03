@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute the smallest row index r such that the index n lies in
  * row r (0‑based).  Each row r has length 6r+1 and the cumulative
@@ -81,7 +83,7 @@ static void build_rows_up_to(idx_t r)
 {
     for (idx_t m = rows_count; m <= r; ++m) {
         size_t len = 6 * m + 1;
-        seq_t *cur = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, len);
         if (!cur) exit(1);               /* allocation failure */
         if (m == 0) {                    /* base row */
             cur[0] = (seq_t)1;

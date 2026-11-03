@@ -9,7 +9,8 @@
  *            ring graph CR(2n,c) with the smallest possible diameter
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* External types defined by the build */
 extern seq_t a(idx_t n);
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
 {
     if (n < cache_cap) return;
     idx_t new_cap = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache_vals, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache_vals, new_cap);
     /* initialize new entries to 0 */
     for (idx_t i = cache_cap; i < new_cap; ++i) new_cache[i] = 0;
     cache_vals = new_cache;

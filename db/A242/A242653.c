@@ -11,6 +11,7 @@
  *            and a(n) = ∏_{i=k+1}^{m} i (product of integers from k+1 to m)
  * Range:     u8 n <= 56, u16 n <= 137, u32 n <= 325, u64 n <= 821,
  *            u128 n <= 2214, big any n
+ * Validated: standard, pass, 107 terms through n = 9968 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

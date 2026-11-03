@@ -7,12 +7,13 @@
  * Formula:   a(n) = 9^Fibonacci(n) (a(0) = 1, a(1) = 9)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 9,
  *            big any n
- * Helpers:   pow_seq_large
+ * Validated: standard, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq_large.h"
+#include "../utils/ipow.h"
 
 /* Compute Fibonacci(n) using seq_t arithmetic.  Fib(0)=0, Fib(1)=1. */
 static seq_t fib_seq(idx_t n)
@@ -32,5 +33,5 @@ seq_t a(idx_t n)
 {
     seq_t base = (seq_t)9;
     seq_t exp  = fib_seq(n);
-    return pow_seq_large(base, exp);
+    return ipow(base, exp);
 }

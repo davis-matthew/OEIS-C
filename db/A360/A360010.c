@@ -8,8 +8,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = smallest m such that (m+2)(m+1)m/6 ≥ n (m is the first
  *            component of the n‑th weakly decreasing triple)
- * Range:     u8 n <= 9130, u16 n <= 9130, u32 n <= 9130, u64 n <= 9130,
- *            u128 n <= 9130, big any n
+ * Range:     u8 n <= 11480, u16 n <= 11480, u32 n <= 11480, u64 n <= 11480,
+ *            u128 n <= 11480, big any n
+ * Validated: standard, pass, 103 terms through n = 9130 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

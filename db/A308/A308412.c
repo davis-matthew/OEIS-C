@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 9404, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 77 terms through n = 9253 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Computes the sequence A308412: indices k such that A174344(k)+i*A274923(k) is a Gaussian prime.
    The function iterates over the counter‑clockwise square spiral, testing each coordinate for Gaussian primality
    using a simple integer primality test. */

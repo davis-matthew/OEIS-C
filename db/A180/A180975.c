@@ -8,13 +8,25 @@
  *            sequence is read by downwards antidiagonals of the array T(n,k)
  * Range:     u8 n <= 86, u16 n <= 316, u32 n <= 1161, u64 n <= 4530,
  *            u128 n <= 5050, big any n
- * Helpers:   binom_mul_div
+ * Validated: standard, pass, 71 terms through n = 4867 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_mul_div.h"
+
+static inline seq_t binom_mul_div(seq_t val, idx_t num, idx_t den)
+{
+#if defined(__SIZEOF_INT128__) && (SIZEOF_SEQ_T <= 8)
+    /* Use 128‑bit arithmetic to avoid overflow for 64‑bit seq_t */
+    unsigned __int128 t = (unsigned __int128)val * (unsigned __int128)num;
+    return (seq_t)(t / den);
+#else
+    /* Fallback: use seq_t arithmetic (sufficient for arbitrary‑precision builds) */
+    return val * (seq_t)num / (seq_t)den;
+#endif
+}
 
 seq_t a(idx_t n)
 {

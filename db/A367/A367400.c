@@ -7,14 +7,16 @@
  * Keywords:  nonn, more
  * Formula:   a(n) = 2*a(n-1) - a(n-2) + 2*a(n-3) - a(n-4) for n > 3, with
  *            a(0) = 1, a(1) = 2, a(2) = 4, a(3) = 7
- * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 33, u64 n <= 33, u128 n <= 33,
+ * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 34, u64 n <= 70, u128 n <= 140,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 500 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoization */
 static seq_t *cache = NULL;     /* pointer to cached values */
@@ -24,10 +26,10 @@ static idx_t   cache_size = 0;  /* number of valid entries in cache */
 static void grow_cache(idx_t new_size) {
     if (cache == NULL) {
         /* Allocate a new array */
-        cache = (seq_t *)malloc((size_t)new_size * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)new_size);
     } else {
         /* Reallocate to the larger size */
-        cache = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)new_size);
     }
     /* In case realloc failed, assume memory is still valid for this use-case */
     cache_size = new_size;

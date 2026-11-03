@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 4906, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *acceptable = NULL;   /* primes that satisfy the residue condition */
 static size_t accept_len = 0, accept_cap = 0;
@@ -34,7 +36,7 @@ static void grow_seq(seq_t **buf, size_t *len, size_t *cap, size_t need)
     if (*cap >= need) return;
     size_t new_cap = (*cap == 0) ? 16 : *cap;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_buf = (seq_t *)realloc(*buf, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, *buf, new_cap);
     *buf = new_buf;
     *cap = new_cap;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 2140, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   check_divisors_rec, contains_digit_6_seq
+ * Validated: standard, pass, 64 terms through n = 9722 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,44 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/check_divisors_rec.h"
-#include "../utils/contains_digit_6_seq.h"
+#include "../utils/mem.h"
+
+/*--- helper: test for digit 6 ------------------------------------------------*/
+static inline bool contains_digit_6_seq(seq_t x)
+{
+    /* terminate for non‑positive values – they should never occur */
+    while (x != (seq_t)0) {
+        if ((x % (seq_t)10) == (seq_t)6)
+            return true;
+        x /= (seq_t)10;
+    }
+    return false;
+}
+
+/* Enumerate all divisors of n, given its prime factorisation.  Return true
+ * iff every divisor > 1 has digit 6. */
+static bool check_divisors_rec(int idx, seq_t curr,
+                               const uint64_t *pf, const int *pe, int pcount)
+{
+    if (idx == pcount)
+        return true;   /* all primes processed */
+
+    uint64_t p = pf[idx];
+    int      e = pe[idx];
+
+    seq_t power = (seq_t)1;
+    for (int exp = 0; exp <= e; ++exp) {
+        seq_t next = curr * power;
+        if (next != (seq_t)1) {
+            if (!contains_digit_6_seq(next))
+                return false;
+        }
+        if (!check_divisors_rec(idx + 1, next, pf, pe, pcount))
+            return false;
+        power *= (seq_t)p;
+    }
+    return true;
+}
 
 /*--- prime sieve -------------------------------------------------------------*/
 static unsigned *prime_list = NULL;    /* array of primes */
@@ -137,7 +174,7 @@ seq_t a(idx_t n)
     /* initialise buffer on first call */
     if (!term_buf) {
         term_cap = 64;                               /* initial capacity */
-        term_buf = (seq_t *)malloc(term_cap * sizeof(seq_t));
+        term_buf = mem_new(seq_t, term_cap);
         if (!term_buf)
             return (seq_t)0;   /* allocation failure */
         term_len = 0;
@@ -157,8 +194,7 @@ seq_t a(idx_t n)
         /* store it */
         if (term_len == term_cap) {
             term_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(term_buf,
-                                          term_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, term_buf, term_cap);
             if (!tmp)
                 return (seq_t)0;   /* allocation failure */
             term_buf = tmp;

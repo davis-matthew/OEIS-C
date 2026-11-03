@@ -10,12 +10,14 @@
  *            S_{k-1} = 1 + q^(2k-1) * S_k / (1+q^k)^2, f = S_0
  * Range:     i8 n <= 16, i16 n <= 54, i32 n <= 192, i64 n <= 699,
  *            i128 n <= 2629, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 4848 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a39_c = NULL;
 static long long a39_len = 0;
@@ -23,7 +25,7 @@ static long long a39_len = 0;
 static void a39_build(long long M)
 {
     long long L = M + 1, i, k, K = 0, s;
-    seq_t *S = (seq_t *)malloc((size_t)L * sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, (size_t)L);
     while ((K + 1) * (K + 1) <= M) K++;
     for (i = 0; i < L; i++) S[i] = 0;
     S[0] = 1;
@@ -38,7 +40,7 @@ static void a39_build(long long M)
         /* add 1 */
         S[0] += 1;
     }
-    if (a39_c) free(a39_c);
+    if (a39_c) mem_free(a39_c);
     a39_c = S;
     a39_len = L;
 }

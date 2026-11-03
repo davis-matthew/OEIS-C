@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 15, i16 n <= 35, i32 n <= 48, i64 n <= 48, i128 n <= 48,
  *            big any n
- * Helpers:   big_pow, binom
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,10 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Integer square‑root (floor) of a 64‑bit unsigned integer. */
 static idx_t isqrt_u64(idx_t n)
@@ -65,17 +68,17 @@ static void ensure_rows(idx_t req_row)
     /* Build rows from max_row_computed up to req_row. */
     for (idx_t r = max_row_computed; r <= req_row; ++r) {
         /* Allocate current row. */
-        T_rows[r] = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));
+        T_rows[r] = mem_new(seq_t, (size_t)(r + 1));
 
         /* Compute the first column: T(r,0) = (-2)^r + sum_{j<r} binom(r,j)*T(j,0). */
         if (r == 0) {
             T_rows[0][0] = (seq_t)1;
         } else {
             seq_t sum = (seq_t)0;
-            seq_t pow_neg2 = big_pow((seq_t)-2, (seq_t)r);
+            seq_t pow_neg2 = ipow((seq_t)-2, (seq_t)r);
             for (idx_t j = 0; j < r; ++j) {
                 /* binom(r,j) in seq_t and T_rows[j][0] are seq_t as well. */
-                sum += binom(r, j) * T_rows[j][0];
+                sum += binomial(r, j) * T_rows[j][0];
             }
             T_rows[r][0] = pow_neg2 + sum;
         }
@@ -85,7 +88,7 @@ static void ensure_rows(idx_t req_row)
             seq_t sum = (seq_t)0;
             for (idx_t j = 0; j < r; ++j) {
                 if (k - 1 <= j)            /* T(j,k-1) exists only when k-1 <= j. */
-                    sum += binom(r, j) * T_rows[j][k - 1];
+                    sum += binomial(r, j) * T_rows[j][k - 1];
             }
             T_rows[r][k] = sum;
         }

@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{k = 1..n} k * mu(k) * floor(n / k)
  * Range:     i8 n <= 48, i16 n <= 2754, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 65 terms through n = 9729 (2026-11-01)
  * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* a(1) = 1, a(2) = 0, a(3) = -2, ...    See OEIS A275205 */
 
+#include <stdint.h>
 #include "../utils/mobius.h"
 
 seq_t a(idx_t n)

@@ -8,12 +8,14 @@
  *            a(k)*a(n-1-k) (n ≥ 1)
  * Range:     i8 n <= 7, i16 n <= 11, i32 n <= 15, i64 n <= 23, i128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 444 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Cached computation of the sequence                                 */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
     if (seq_cache == NULL) {
         cache_cap = n + 1;
         if (cache_cap < 8) cache_cap = 8;
-        seq_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_cap);
         if (seq_cache == NULL) return;  /* allocation failure: caller will crash on the next access */
         seq_cache[0] = (seq_t)1;   /* a(0) = 1 */
         last_computed = 0;
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)n >= cache_cap) {
         size_t new_cap = cache_cap;
         while ((size_t)n >= new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (tmp == NULL) return;  /* allocation failure: caller will crash on the next access */
         seq_cache = tmp;
         cache_cap = new_cap;

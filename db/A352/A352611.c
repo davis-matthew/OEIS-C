@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 18, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  * The function computes a(n) for all n >= 15 using this recurrence.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* allocate DP table: (n+1) rows, columns 0..5 */
     size_t rows = (size_t)(n + 1);
     size_t cols = 6;                 /* indices 0..5, 0 unused */
-    seq_t *dp = (seq_t *)malloc(rows * cols * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, rows * cols);
     if (!dp) return 0;               /* allocation failure (unlikely) */
 
     /* zero initialize */
@@ -56,6 +58,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)n * cols + 5];
-    free(dp);
+    mem_free(dp);
     return result;
 }

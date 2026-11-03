@@ -9,14 +9,17 @@
  *            Σ_{i=0}^{n} binom(n,i) * a(i) - (n≥4 ? binom(n,4) * a(n-4) : 0)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    /* storage for computed a(n) values */
 static size_t cache_cap = 0;   /* current capacity of the cache array */
@@ -29,7 +32,7 @@ static void ensure_cache(idx_t n)
     /* initialise cache if needed */
     if (cache == NULL) {
         cache_cap = 8;                     /* start with a small capacity */
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return;                 /* allocation failed – abort */
         cache[0] = (seq_t)1;                /* a(0) = 1 */
         computed_max = 0;
@@ -43,13 +46,13 @@ static void ensure_cache(idx_t n)
         /* compute S = Σ_{i=0}^{prev} binom(prev,i)*a(i) */
         seq_t sum = (seq_t)0;
         for (size_t i = 0; i <= (size_t)prev; ++i) {
-            seq_t bin = binom(prev, (idx_t)i);
+            seq_t bin = binomial(prev, (idx_t)i);
             sum += cache[(size_t)i] * bin;
         }
 
         /* subtract the forbidden block of size 5 */
         if (prev >= 4) {
-            seq_t bin4 = binom(prev, (idx_t)4);
+            seq_t bin4 = binomial(prev, (idx_t)4);
             sum -= cache[(size_t)(prev - 4)] * bin4;
         }
 
@@ -57,7 +60,7 @@ static void ensure_cache(idx_t n)
         if ((size_t)next + 1 > cache_cap) {
             size_t new_cap = cache_cap * 2;
             if (new_cap < (size_t)next + 1) new_cap = (size_t)next + 1;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (!new_cache) return;             /* allocation failed */
             cache = new_cache;
             cache_cap = new_cap;

@@ -13,8 +13,9 @@
  *            T(n-1,k). For n odd : T(n,k) = T(n-1,k-2) + T(n-1,k-1) +
  *            T(n-1,k). The sequence a(n) is obtained by reading...
  * Range:     u8 n <= 86, u16 n <= 236, u32 n <= 807, u64 n <= 2855,
- *            u128 n <= 9777, big any n
- * Helpers:   none
+ *            u128 n <= 10200, big any n
+ * Validated: standard, pass, 97 terms through n = 9777 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root: floor(sqrt(x)) for 64‑bit unsigned indices. */
 static inline idx_t isqrt_idx(idx_t x) {
@@ -51,11 +53,11 @@ seq_t a(idx_t n) {
 
     /* Allocate two rows that are large enough for all rows up to r. */
     size_t maxlen = (size_t)(2 * r + 1);
-    seq_t *prev = (seq_t *)calloc(maxlen, sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc(maxlen, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, maxlen);
+    seq_t *curr = mem_new(seq_t, maxlen);
     if (!prev || !curr) {
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return (seq_t)0;          /* allocation failure; unlikely */
     }
 
@@ -96,7 +98,7 @@ seq_t a(idx_t n) {
     seq_t result = prev[(size_t)k];
 
     /* Clean up. */
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

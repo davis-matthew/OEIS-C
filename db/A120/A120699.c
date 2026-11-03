@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 121 terms through n = 9795 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    Bell(m) computed via recurrence:
      B(0)=1,
      B(n+1)=∑_{k=0}^{n} C(n,k)*B(k).                                  */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static seq_t bell[32];        /* cache of Bell numbers */
 static idx_t bell_len = 0;    /* number of Bell numbers cached */
@@ -33,7 +35,7 @@ static void compute_bell_upto(idx_t n)
         } else {
             seq_t s = 0;
             for (idx_t k = 0; k < t; ++k)
-                s += binom(t - 1, k) * bell[k];
+                s += binomial(t - 1, k) * bell[k];
             bell[t] = s;
         }
     }

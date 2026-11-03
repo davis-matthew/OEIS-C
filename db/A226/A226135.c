@@ -14,14 +14,17 @@
  *            base^1
  * Range:     u8 n <= 25, u16 n <= 25, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, get_digits
+ * Validated: standard, pass, 99 terms through n = 9758 (2026-11-01)
+ * Helpers:   get_digits, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/get_digits.h"
+#include "../utils/ipow.h"
 
 static seq_t f_transform(seq_t n)
 {
@@ -38,14 +41,14 @@ static seq_t f_transform(seq_t n)
         for (; i > 0; i -= 2) {
             seq_t base = (seq_t)digits[i];
             seq_t exp  = (seq_t)digits[i - 1];
-            seq_t term = (base == 0 && exp == 0) ? (seq_t)1 : big_pow(base, exp);
+            seq_t term = (base == 0 && exp == 0) ? (seq_t)1 : ipow(base, exp);
             sum += term;
         }
     } else {                /* odd number: last digit is base^1 */
         for (; i > 1; i -= 2) {
             seq_t base = (seq_t)digits[i];
             seq_t exp  = (seq_t)digits[i - 1];
-            seq_t term = (base == 0 && exp == 0) ? (seq_t)1 : big_pow(base, exp);
+            seq_t term = (base == 0 && exp == 0) ? (seq_t)1 : ipow(base, exp);
             sum += term;
         }
         /* last single digit as base^1 */

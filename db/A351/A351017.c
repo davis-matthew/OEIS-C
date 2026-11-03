@@ -8,14 +8,23 @@
  *            size k that sum to n) * k!
  * Range:     u8 n <= 12, u16 n <= 29, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   _max_k_for_n
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_max_k_for_n.h"
+#include "../utils/mem.h"
+
+/* Determine maximal possible number of parts in a composition of n with distinct parts.  */
+static idx_t _max_k_for_n(idx_t n)
+{
+    idx_t k = 0;
+    while ((k + 1) * (k + 2) / 2 <= n) ++k;
+    return k;
+}
 
 seq_t a(idx_t n)
 {
@@ -25,7 +34,7 @@ seq_t a(idx_t n)
     idx_t kmax = _max_k_for_n(n);
     size_t cells = (size_t)(n + 1) * (kmax + 1);
 
-    seq_t *dp = (seq_t *)malloc(cells * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, cells);
     if (!dp) abort();
     for (size_t i = 0; i < cells; ++i) dp[i] = 0;
     dp[0] = 1;                                 /* sum 0 with 0 parts */
@@ -44,7 +53,7 @@ seq_t a(idx_t n)
     }
 
     /* Factorials up to kmax. */
-    seq_t *fact = (seq_t *)malloc((kmax + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (kmax + 1));
     if (!fact) abort();
     fact[0] = 1;
     for (idx_t i = 1; i <= kmax; ++i) fact[i] = fact[i - 1] * (seq_t)i;
@@ -57,7 +66,7 @@ seq_t a(idx_t n)
     }
     seq_t ans = sum * 2;
 
-    free(dp);
-    free(fact);
+    mem_free(dp);
+    mem_free(fact);
     return ans;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   swap23
+ * Validated: standard, pass, 72 terms through n = 801 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <stdbool.h>  /* bool */
-#include "../utils/swap23.h"
+
+/* Swap digits 2 and 3 in the decimal representation of x. */
+static seq_t swap23(seq_t x)
+{
+    seq_t res   = 0;
+    seq_t place = 1;
+    while (x != 0) {
+        seq_t d = x % 10;
+        if (d == 2) d = 3;
+        else if (d == 3) d = 2;
+        res   += d * place;
+        place *= 10;
+        x     /= 10;
+    }
+    return res;
+}
 
 static idx_t *prime_list = NULL;   /* list of discovered primes */
 static size_t prime_list_cnt = 0;  /* number of primes stored */

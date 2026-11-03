@@ -8,6 +8,7 @@
  *            +126*n^5 +98*n^6 +24*n^7 +2*n^8)/2640 (OEIS A254643)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 10, u64 n <= 71, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 940 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

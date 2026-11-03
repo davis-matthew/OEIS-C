@@ -9,13 +9,27 @@
  *            = n - r(r+1)/2
  * Range:     u8 n <= 39, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   compute_row_of
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/compute_row_of.h"
+
+static inline idx_t compute_row_of(idx_t n)
+{
+    idx_t low = 0, high = n;
+    while (low <= high) {
+        idx_t mid = low + (high - low) / 2;
+        unsigned __int128 tri = (unsigned __int128)mid * (mid + 1) / 2;
+        if (tri <= n)
+            low = mid + 1;
+        else
+            high = mid - 1;
+    }
+    return high;
+}
 
 seq_t a(idx_t n)
 {

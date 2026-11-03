@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 111, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ok
+ * Validated: standard, pass, 73 terms through n = 984 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,28 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/ok.h"
+
+/* Helper: return true iff x satisfies the sequence condition */
+static bool ok(seq_t x)
+{
+    seq_t prod = (seq_t)1;
+    seq_t sum  = (seq_t)0;
+    seq_t t    = x;
+
+    while (t > (seq_t)0) {
+        seq_t d = t % (seq_t)10;
+        sum += d;
+        prod *= d;
+        t /= (seq_t)10;
+    }
+
+    /* any number containing a zero digit automatically satisfies the inequality */
+    if (prod == (seq_t)0) return true;
+
+    /* check strict inequality prod * sum < x without overflow:
+       prod <= (x-1)/sum  */
+    return prod <= (x - (seq_t)1) / sum;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

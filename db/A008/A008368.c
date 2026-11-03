@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,13 +47,13 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Ensure we can hold at least the first eight terms */
         cache_cap = (need >= 8 ? need : 8);
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) { /* allocation failed – return 0 as a sentinel */
             return (seq_t)0;
         }
     } else if (need > cache_cap) {
         size_t new_cap = (cache_cap * 2 > need) ? cache_cap * 2 : need;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) { /* allocation failed – keep old cache */
             return (seq_t)0;
         }

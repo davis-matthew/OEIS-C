@@ -8,8 +8,9 @@
  * Formula:   a(n) = T(i,j) where T(i,j) = i*j + ⌊φ⋅i⌋·⌈φ⋅j⌉ (i,j ≥ 1) φ =
  *            (1+√5)/2. The sequence is obtained by reading the array T(i,j)
  *            along upward antidiagonals (bottom‑to‑top)
- * Range:     u8 n <= 126, u16 n <= 9906, u32 n <= 9906, u64 n <= 9906,
- *            u128 n <= 9906, big any n
+ * Range:     u8 n <= 126, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 94 terms through n = 9906 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

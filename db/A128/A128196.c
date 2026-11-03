@@ -7,13 +7,16 @@
  * Formula:   a(n) = (2*n - 1) * a(n - 1) + 2^n for n >= 1, a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>            /* malloc, realloc, abort */
-#include "../utils/pow2.h"     /* seq_t pow2(idx_t exp) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +31,7 @@ seq_t a(idx_t n)
         size_t new_cap = n + (size_t)1;
         if (new_cap < 16) new_cap = 16;               /* small start size */
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             abort();                                  /* allocation failure */
 

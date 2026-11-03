@@ -7,7 +7,8 @@
  * Formula:   a(n) = 6*a(n-1) + (2*n-5)*(2*n-1)*a(n-2), a(0)=0, a(1)=1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 149 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache to support arbitrary order of calls */
 static seq_t *cache = NULL;      /* array holding computed values */
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
     while (new_cap <= (size_t)n) new_cap <<= 1;   /* double until enough */
 
     /* realloc may return NULL on allocation failure */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();                            /* terminate on OOM */
 
     /* Zero‑initialize newly allocated slots (works for both arithmetic

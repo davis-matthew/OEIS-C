@@ -10,7 +10,8 @@
  *            a(1)=9, a(2)=81, etc. The DP uses a 16×16 table of big integers
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 16, u64 n <= 35, u128 n <= 73,
  *            big any n
- * Helpers:   is_allowed_row
+ * Validated: standard, pass, 39 terms through n = 183 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,19 @@
    time limit for n≤10000. */
 
 #include <stdbool.h>
-#include "../utils/is_allowed_row.h"
+
+/* Check if a 4‑bit pattern has no horizontal 000 or 101. */
+static bool is_allowed_row(int pat)
+{
+    for (int pos = 0; pos <= 1; pos++) {           /* two 3‑bit windows */
+        int b0 = (pat >> (3 - pos)) & 1;           /* column pos       */
+        int b1 = (pat >> (2 - pos)) & 1;           /* column pos+1     */
+        int b2 = (pat >> (1 - pos)) & 1;           /* column pos+2     */
+        if (b0 == 0 && b1 == 0 && b2 == 0) return false;
+        if (b0 == 1 && b1 == 0 && b2 == 1) return false;
+    }
+    return true;
+}
 
 /* Pre‑computed tables, initialised once. */
 static bool init_done = false;

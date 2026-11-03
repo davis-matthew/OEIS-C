@@ -7,13 +7,17 @@
  * Formula:   a(n) = Sum_{k=0..n} 2^(n-k) * k^n
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache */
@@ -25,8 +29,8 @@ seq_t a(idx_t n) {
     /* first call: initialise */
     if (terms == NULL) {
         capacity = 1;
-        terms   = (seq_t *)malloc(capacity * sizeof(seq_t));
-        a_vals  = (seq_t *)malloc(capacity * sizeof(seq_t));
+        terms   = mem_new(seq_t, capacity);
+        a_vals  = mem_new(seq_t, capacity);
         if (!terms || !a_vals) return 0; /* out of memory: return 0 as fallback */
 
         /* a(0) = 1, term[0] = 2^(0-0)*0^0 = 1 */
@@ -41,8 +45,8 @@ seq_t a(idx_t n) {
             /* ensure capacity */
             if ((size_t)(current + 1) > capacity) {
                 capacity = current + 1;
-                terms   = (seq_t *)realloc(terms, capacity * sizeof(seq_t));
-                a_vals  = (seq_t *)realloc(a_vals, capacity * sizeof(seq_t));
+                terms   = mem_resize(seq_t, terms, capacity);
+                a_vals  = mem_resize(seq_t, a_vals, capacity);
                 if (!terms || !a_vals) return 0; /* out of memory */
             }
 
@@ -53,7 +57,7 @@ seq_t a(idx_t n) {
             }
 
             /* new term for k = current: 2^(current-current)*current^current = 1*current^current */
-            seq_t pow_val = big_pow((seq_t)current, (seq_t)current);
+            seq_t pow_val = ipow((seq_t)current, (seq_t)current);
             terms[current] = pow_val;
 
             /* compute a(current) as sum of terms[0..current] */

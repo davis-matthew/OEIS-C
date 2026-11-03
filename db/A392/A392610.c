@@ -9,8 +9,9 @@
  * Formula:   a(n) = number of non‑zero digits in the primorial base *
  *            representation of n whose corresponding radix prime does not
  *            divide n
- * Range:     u8 n <= 9210, u16 n <= 9210, u32 n <= 9210, u64 n <= 9210,
- *            u128 n <= 9210, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 122 terms through n = 9210 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
 
 /* Computes a(n) for the OEIS sequence A392610. */

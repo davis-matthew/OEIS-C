@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9427 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static int seq_compare(const void *p1, const void *p2)
 {
@@ -50,7 +52,7 @@ static idx_t   max_s      = 0;   /* last processed S value       */
 static void rebuild_cache(idx_t up_to_s)
 {
     /* free old data */
-    free(cache);
+    mem_free(cache);
     cache = NULL;
     cache_len = 0;
     cache_cap = 0;
@@ -69,7 +71,7 @@ static void rebuild_cache(idx_t up_to_s)
             /* store k in temporary array */
             if (cand_len == cand_cap) {
                 size_t new_cap = cand_cap ? cand_cap << 1 : 16;
-                cand = (seq_t *)realloc(cand, new_cap * sizeof(seq_t));
+                cand = mem_resize(seq_t, cand, new_cap);
                 cand_cap = new_cap;
             }
             cand[cand_len++] = k;
@@ -77,7 +79,7 @@ static void rebuild_cache(idx_t up_to_s)
     }
 
     /* sort and deduplicate */
-    qsort(cand, cand_len, sizeof(seq_t), seq_compare);
+    mem_qsort(cand, cand_len, sizeof(seq_t), seq_compare);
 
     size_t uniq = 0;
     for (size_t i = 0; i < cand_len; ++i) {

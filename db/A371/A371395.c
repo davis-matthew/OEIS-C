@@ -11,13 +11,14 @@
  *            sequence a(n) is the row‑major ordering of T(n,k)
  * Range:     u8 n <= 15, u16 n <= 37, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   _prefix_of_row
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_prefix_of_row.h"
+#include "../utils/triangular.h"
 
 /* -------------------------------------------------------------------------- */
 /*  Helper: binomial coefficient (multiplicative)                             */
@@ -48,11 +49,11 @@ static idx_t _find_row(idx_t n)
     idx_t low  = 0;
     idx_t high = 1;
     /* grow high until it exceeds n */
-    while (_prefix_of_row(high) <= n) high <<= 1;
+    while (triangular(high) <= n) high <<= 1;
     /* binary search */
     while (low + 1 < high) {
         idx_t mid = low + (high - low) / 2;
-        if (_prefix_of_row(mid) <= n)
+        if (triangular(mid) <= n)
             low = mid;
         else
             high = mid;
@@ -67,7 +68,7 @@ seq_t a(idx_t n)
 {
     /* locate the row and column (within that row) of the n-th term */
     idx_t r = _find_row(n);
-    idx_t base = _prefix_of_row(r);   /* first index of this row */
+    idx_t base = triangular(r);   /* first index of this row */
     idx_t c = n - base;               /* column index within the row */
 
     /* compute T(r,c) = binom(r+c,c) * binom(2*r - c, r - c) / (r+1) */

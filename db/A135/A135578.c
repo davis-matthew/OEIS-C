@@ -9,7 +9,8 @@
  *            with x, y, z distinct perfect powers (1, 2^2, 2^3, 3^2, ...)
  * Range:     u8 n <= 32, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort on idx_t values */
 static int cmp_idx(const void *a, const void *b)
@@ -107,7 +109,7 @@ static void ensure_terms(idx_t n)
             if (!rep[(size_t)x]) {
                 if (terms_len >= terms_cap) {
                     terms_cap = terms_cap ? terms_cap * 2 : 16;
-                    terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, terms_cap);
                 }
                 terms[terms_len++] = (seq_t)x;
             }

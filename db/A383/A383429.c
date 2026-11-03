@@ -8,7 +8,8 @@
  * Formula:   a(1) = 1; for n > 1, a(n) = concat(a(n-1), digit_len(a(n-1)))
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 15, u128 n <= 24,
  *            big any n
- * Helpers:   digit_len, digit_len_impl
+ * Validated: standard, pass, 34 terms through n = 355 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
     of calls is handled efficiently.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Use the supplied integer types.  */
 extern seq_t a(idx_t n);          /* forward declaration for the build system */
@@ -29,11 +31,12 @@ extern seq_t a(idx_t n);          /* forward declaration for the build system */
     the required helpers ourselves.  */
 
 #if defined(__SIZEOF_INT128__)  /* arbitrary precision build */
-#include "../utils/digit_len.h"
-#include "../utils/digit_len_impl.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/num_digits.h"
 #else
 
-#define digit_len(x) digit_len_impl((x))
+#define num_digits(x) num_digits((x))
 #endif
 
 /*  Compute 10^e as a seq_t value.  This works for all seq_t.  */
@@ -59,7 +62,7 @@ seq_t a(idx_t n)
     /*  Initialise cache lazily.  */
     if (cache == NULL) {
         cache_size = 2;             /* indices 0 and 1 are needed */
-        cache      = (seq_t*)malloc(sizeof(seq_t) * cache_size);
+        cache      = mem_new(seq_t, cache_size);
         if (!cache)
             return (seq_t)0;        /* allocation failure */
         cache[0] = 0;               /* unused placeholder */
@@ -76,7 +79,7 @@ seq_t a(idx_t n)
         idx_t new_size = cache_size * 2;
         if (new_size < n + 1)
             new_size = n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp)
             return (seq_t)0;        /* allocation failure */
         cache = tmp;
@@ -87,8 +90,8 @@ seq_t a(idx_t n)
     for (idx_t i = cache_max + 1; i <= n; ++i) {
         seq_t prev = cache[i - 1];
 
-        int len       = digit_len(prev);                   /* digits of prev   */
-        int len_len   = digit_len((seq_t)len);             /* digits of len    */
+        int len       = num_digits(prev);                   /* digits of prev   */
+        int len_len   = num_digits((seq_t)len);             /* digits of len    */
         seq_t factor  = pow10_exp((unsigned int)len_len);  /* 10^{len_len}     */
 
         cache[i] = prev * factor + (seq_t)len;

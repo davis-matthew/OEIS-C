@@ -10,12 +10,14 @@
  *            a(n);
  * Range:     u8 n <= 17, u16 n <= 36, u32 n <= 73, u64 n <= 148,
  *            u128 n <= 297, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 1739 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Ensure array is at least size n+1, but not less than 2 */
     if (dp == NULL) {
         dp_size = (n + 1 > 2) ? (idx_t)(n + 1) : 2;
-        dp = (seq_t*)malloc((size_t)dp_size * sizeof(seq_t));
+        dp = mem_new(seq_t, (size_t)dp_size);
         for (idx_t i = 0; i < dp_size; ++i) dp[i] = (seq_t)0;
         dp[0] = dp[1] = (seq_t)1;      /* initial values */
         max_n = 1;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         /* Extend the array if necessary */
         if (dp_size <= n) {
             size_t new_size = (size_t)(n + 1);
-            seq_t *tmp = (seq_t*)realloc(dp, new_size * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, dp, new_size);
             if (tmp == NULL) abort();     /* allocation failure */
             dp = tmp;
             for (idx_t i = dp_size; i < new_size; ++i) dp[i] = (seq_t)0;

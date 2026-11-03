@@ -12,7 +12,8 @@
  *            OEIS * entry. The pattern of a subarray is th...
  * Range:     u8 n <= 6, u16 n <= 30, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   cmp_seq_t
+ * Validated: partial, pass, 86 terms through n = 85 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/cmp_seq_t.h"   /* for qsort comparison of seq_t */
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -127,7 +138,7 @@ seq_t a(idx_t n)
     /* ---------- 3. Count unique patterns. ---------- */
     size_t uniqcnt = 0;
     if (patlen > 0) {
-        qsort(patterns, patlen, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(patterns, patlen, sizeof(seq_t), cmp_seq_t);
         uniqcnt = 1;               /* at least one pattern */
         for (size_t i = 1; i < patlen; ++i) {
             if (patterns[i] != patterns[i - 1]) {

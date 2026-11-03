@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 38, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   mod_pow, seq_alloc_new_array, seq_realloc
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,26 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../utils/mod_pow.h"          /* seq_t mod_pow(seq_t base, idx_t exp, seq_t mod); */
-#include "../utils/seq_alloc_new_array.h" /* seq_t *seq_alloc_new_array(size_t cap); */
-#include "../utils/seq_realloc.h"      /* seq_t *seq_realloc(seq_t *old, size_t old_cap, size_t new_cap); */
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static bool is_solution(idx_t cand)
 {
@@ -33,7 +51,7 @@ static bool is_solution(idx_t cand)
     const uint64_t bases[6] = {4, 5, 6, 7, 8, 9};
 
     for (int i = 0; i < 6; ++i) {
-        seq_t term = mod_pow((seq_t)bases[i], cand, (seq_t)cand);
+        seq_t term = powmod((seq_t)bases[i], cand, (seq_t)cand);
         sum += term;
         /* keep sum in [0, cand-1] */
         if (sum >= (seq_t)cand) {

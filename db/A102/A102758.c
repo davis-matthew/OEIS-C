@@ -8,9 +8,10 @@
  *            (i.e. k*10^7+3333333) is prime. The sequence is computed by
  *            testing numbers k in increasing order and keeping those that
  *            yield a prime in the required form
- * Range:     u8 n <= 35, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
- *            big any n
- * Helpers:   is_prime_ull
+ * Range:     u8 n <= 35, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 75 terms through n = 828 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime_ull.h"
+#include "../utils/is_prime_u64.h"
 
 /* ---------- Miller‑Rabin 64‑bit primality test -------------------------------- */
 
@@ -50,7 +51,7 @@ seq_t a(idx_t n)
         uint64_t k;
         for (k = last_tested + 1; ks_size < n; ++k) {
             uint64_t candidate = k * MULT + SUFFIX;
-            if (is_prime_ull(candidate))
+            if (is_prime_u64(candidate))
                 ks[ks_size++] = k;
         }
         last_tested = k - 1;

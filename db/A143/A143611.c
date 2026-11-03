@@ -11,6 +11,7 @@
  *            x/((1-x)^2(1+x-x^3-x^4-x^5-x^6-x^7+x^9+x^10))
  * Range:     u8 n <= 23, u16 n <= 56, u32 n <= 125, u64 n <= 261,
  *            u128 n <= 534, big any n
+ * Validated: standard, pass, 67 terms through n = 815 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

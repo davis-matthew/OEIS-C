@@ -8,11 +8,13 @@
  * Formula:   a(n) = binomial(ceil(n/2),4) * floor(n/2)
  * Range:     u8 n <= 14, u16 n <= 36, u32 n <= 320, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 63 terms through n = 972 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

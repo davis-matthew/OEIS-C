@@ -8,12 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 19, u128 n <= 36,
  *            big any n
- * Helpers:   a151_gcd
+ * Validated: standard, pass, 34 terms through n = 795 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a151_gcd.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/gcd.h"
 
 /* Recurrence: a(n) = 4*(2*n-1)*(2*n+1)*a(n-1) / ((n+2)*(n+1)); a(1) = 1 */
 
@@ -25,11 +28,11 @@ seq_t a(idx_t n) {
         seq_t num = (seq_t)4 * (seq_t)(2*i-1) * (seq_t)(2*i+1);
         seq_t den = (seq_t)(i+2) * (seq_t)(i+1);
         
-        seq_t g = a151_gcd(num, den);
+        seq_t g = gcd(num, den);
         num /= g;
         den /= g;
         
-        g = a151_gcd(result, den);
+        g = gcd(result, den);
         result /= g;
         den /= g;
         

@@ -10,8 +10,9 @@
  *            increasing partition λ that is encoded by n = Π_j
  *            prime(i_j−j+1). * The function reconstructs λ from n and counts
  *            the parking * functions by dynamic programming
- * Range:     u8 n <= 31, u16 n <= 127, u32 n <= 2047, u64 n <= 9977,
- *            u128 n <= 9977, big any n
+ * Range:     u8 n <= 31, u16 n <= 127, u32 n <= 2047, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 81 terms through n = 9977 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 /* small binomial coefficient for n <= 64 */

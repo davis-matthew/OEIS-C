@@ -10,7 +10,8 @@
  *            digits
  * Range:     u8 n <= 23, u16 n <= 23, u32 n <= 23, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   has_at_most_two_digits
+ * Validated: full, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,38 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_at_most_two_digits.h"
+#include "../utils/mem.h"
+
+/* Test whether integer k satisfies the two-digit condition for all bases
+   3 <= b <= k-1. */
+static bool has_at_most_two_digits(seq_t k)
+{
+    if (k < 3)
+        return true;                     /* no basis b in the range */
+
+    /* cast k to idx_t only for loop bounds; k fits in MAX_SCAN anyway */
+    idx_t k_lim = (idx_t)k;
+    for (idx_t b = 3; b <= k_lim - 1; ++b) {
+        seq_t n = k;
+        seq_t d1 = (seq_t)-1;            /* sentinel for first distinct digit */
+        seq_t d2 = (seq_t)-1;            /* sentinel for second distinct digit */
+
+        while (n > 0) {
+            seq_t d = n % (seq_t)b;
+            if (d == d1 || d == d2) {
+                /* already seen this digit */
+            } else if (d1 == (seq_t)-1) {
+                d1 = d;
+            } else if (d2 == (seq_t)-1) {
+                d2 = d;
+            } else {                     /* third distinct digit found */
+                return false;
+            }
+            n /= (seq_t)b;
+        }
+    }
+    return true;
+}
 
 /* maximum number to scan – small enough to fit into any seq_t (uint8_t…128) and
    large enough to cover the known terms of this sequence (last term 43). */
@@ -48,7 +80,7 @@ seq_t a(idx_t n)
         if (has_at_most_two_digits((seq_t)last_k_tested)) {
             if (terms_len == terms_cap) {  /* grow array as needed */
                 terms_cap = terms_cap ? terms_cap * 2 : 4;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)last_k_tested;
         }

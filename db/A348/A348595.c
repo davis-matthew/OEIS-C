@@ -13,14 +13,25 @@
  *            account for the “–u v” term. The sequence a(n) is the tri...
  * Range:     u8 n <= 12, u16 n <= 26, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   linear_to_rc
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/linear_to_rc.h"
+#include "../utils/mem.h"
+
+/* Convert linear index n to (row, col) in the symmetric triangle. */
+static void linear_to_rc(idx_t n, idx_t *row, idx_t *col)
+{
+    idx_t r = 0;
+    /* find largest r such that r*(r+1)/2 ≤ n */
+    while ((r + 1) * (r + 2) / 2 <= n) ++r;
+    *row = r;
+    *col = n - r * (r + 1) / 2;
+}
 
 /* static cache for the current triangle table */
 static seq_t *T = NULL;            /* flattened array of size dim*dim */
@@ -31,7 +42,7 @@ static void compute_table(idx_t R)
 {
     idx_t   newDim = R + 1;
     size_t  sz     = (size_t)newDim * (size_t)newDim;
-    seq_t  *newT   = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t  *newT   = mem_new(seq_t, sz);
     if (!newT) exit(1);              /* out of memory */
 
     for (idx_t i = 0; i < newDim; ++i) {
@@ -53,7 +64,7 @@ static void compute_table(idx_t R)
     }
 
     /* free old table */
-    if (T) free(T);
+    if (T) mem_free(T);
     T   = newT;
     dim = newDim;
 }

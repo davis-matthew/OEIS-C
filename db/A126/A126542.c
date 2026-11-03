@@ -9,7 +9,8 @@
  *            each pair of adjacent digits differs by at most 5
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>   /* for size_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,12 +34,12 @@ seq_t a(idx_t n)
     const idx_t MAX_DIFF  = 5U;     /* allowed absolute difference */
 
     /* Allocate two arrays: one for the current, one for the next DP layer. */
-    seq_t *dp   = (seq_t *)malloc((size_t)DIGITS * sizeof(seq_t));
-    seq_t *next = (seq_t *)malloc((size_t)DIGITS * sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, (size_t)DIGITS);
+    seq_t *next = mem_new(seq_t, (size_t)DIGITS);
     if (!dp || !next) {
         /* Allocation failed; return 0 as a safe fallback. */
-        free(dp);
-        free(next);
+        mem_free(dp);
+        mem_free(next);
         return (seq_t)0U;
     }
 
@@ -82,8 +84,8 @@ seq_t a(idx_t n)
     }
 
     /* Free the allocated arrays. */
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
 
     return result;
 }

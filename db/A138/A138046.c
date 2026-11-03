@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 9653, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9900 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>          /* for uint16_t */
+#include "../utils/mem.h"
 
 /* static state for the sieve and collected terms */
 static idx_t     _A138046_limit = 2000000;  /* initial maximum k to sieve */
@@ -56,9 +58,9 @@ static void _build_terms(idx_t limit)
 
     /* allocate terms array (worst case: all k up to limit are valid)   */
     if (terms) {
-        free(terms);
+        mem_free(terms);
     }
-    terms = (seq_t *)malloc((size_t)limit * sizeof(seq_t));
+    terms = mem_new(seq_t, (size_t)limit);
     if (!terms) {
         exit(1);
     }

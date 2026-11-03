@@ -11,14 +11,24 @@
  *            balance condition holds
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   binom, power4
+ * Validated: standard, pass, 46 terms through n = 258 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"   /* binom(idx_t a, idx_t b) */
-#include "../utils/power4.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+
+/* small helper: 4^exp as seq_t, computed by repeated multiplication */
+static inline seq_t power4(idx_t exp) {
+    seq_t r = 1;
+    for (idx_t i = 0; i < exp; ++i) {
+        r *= 4;
+    }
+    return r;
+}
 
 /* add the contributions of a single divisor m of n (with m ≥ d = n/m) */
 static void add_divisor_contrib(idx_t m, idx_t d, seq_t *res) {
@@ -28,9 +38,9 @@ static void add_divisor_contrib(idx_t m, idx_t d, seq_t *res) {
         idx_t i = k + d;                 /* number of x^m factors      */
         idx_t j = m - 2 * k - d;         /* number of 4  factors       */
         /* number of ways to pick i positions for x^m from m slots */
-        seq_t term = binom(m, i);
+        seq_t term = binomial(m, i);
         /* then pick k positions for x⁻ᵐ from the remaining m‑i slots */
-        term *= binom(m - i, k);
+        term *= binomial(m - i, k);
         /* multiply by 4^j */
         term *= power4(j);
         *res += term;

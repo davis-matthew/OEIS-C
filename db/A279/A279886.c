@@ -7,7 +7,8 @@
  * Formula:   a(n) = A057863(n+1) * Σ_{k=0..n} k!/(2k+1)!!
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
 
 /* Utility for allocating an array of seq_t of arbitrary precision.  */
 #ifndef seq_alloc_new_array
-#define seq_alloc_new_array(n) ((seq_t *)malloc((n)*sizeof(seq_t)))
+#define seq_alloc_new_array(n) (mem_new(seq_t, (n)))
 #endif
+#include "../utils/mem.h"
 
 /* Static state to memoize computed a(n) values */
 static idx_t  cache_max = 0;      /* highest n for which a(n) is stored */
@@ -53,7 +55,7 @@ static void ensure_cache(idx_t n)
     for (size_t i = cache_max+1; i < new_cap; ++i) {
         new_cache[i] = 0;
     }
-    if (a_cache) free(a_cache);
+    if (a_cache) mem_free(a_cache);
     a_cache    = new_cache;
     cache_cap  = new_cap;
 }

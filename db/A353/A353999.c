@@ -8,12 +8,14 @@
  *            with a(0)=1, a(1)=a(2)=a(3)=0
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 14, u64 n <= 23, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of previously computed terms. */
 static seq_t *cache = NULL;
@@ -26,7 +28,7 @@ static void ensure_cache_capacity(idx_t n)
     /* If the cache has never been allocated, create an initial block. */
     if (cache == NULL) {
         cache_cap = (n < 4) ? 4 : (size_t)n + 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();  /* terminate on allocation failure */
 
         /* initialise the first four terms */
@@ -43,7 +45,7 @@ static void ensure_cache_capacity(idx_t n)
         size_t new_cap = cache_cap * 2;
         if (new_cap < (size_t)n + 1)
             new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort();  /* terminate on allocation failure */
         cache = new_cache;
         cache_cap = new_cap;

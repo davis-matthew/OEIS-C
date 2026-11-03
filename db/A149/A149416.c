@@ -11,7 +11,8 @@
  *            The values satisfy a linear recurrence found by Berlekamp–Massey
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   mod_value_seq
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/mod_value_seq.h"
+#include "../utils/mem.h"
+
+static uint64_t mod_value_seq(seq_t v, uint64_t mod) {
+    return (uint64_t)((unsigned __int128)v % mod);
+}
 
 /* ---------- modular arithmetic helper ---------- */
 static uint64_t mod_pow_uint64(uint64_t base, uint64_t exp, uint64_t mod) {
@@ -116,8 +121,8 @@ static void compute_initial_terms(seq_t *out, size_t N) {
     size_t stride = N + 1;
     size_t stride2 = stride * stride;
     size_t size = stride * stride * stride;
-    seq_t *cur = (seq_t*)calloc(size, sizeof(seq_t));
-    seq_t *nxt = (seq_t*)calloc(size, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, size);
+    seq_t *nxt = mem_new(seq_t, size);
     cur[0] = 1;
     out[0] = 1;
 
@@ -127,7 +132,7 @@ static void compute_initial_terms(seq_t *out, size_t N) {
     const int dz[5] = {  1,  0,  1,  1, -1 };
 
     for (size_t step = 0; step < N; step++) {
-        memset(nxt, 0, size * sizeof(seq_t));
+        mem_set(nxt, 0, size * sizeof(seq_t));
         seq_t sum = 0;
         for (int x = 0; x <= (int)step; x++) {
             for (int y = 0; y <= (int)step; y++) {
@@ -160,8 +165,8 @@ static void compute_initial_terms(seq_t *out, size_t N) {
         /* swap cur and nxt */
         seq_t *tmp = cur; cur = nxt; nxt = tmp;
     }
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
 }
 
 /* ---------- Main sequence function ---------- */
@@ -175,7 +180,7 @@ seq_t a(idx_t n) {
 
     if (!initialized) {
         /* compute initial terms */
-        seq_table = (seq_t*)malloc((INIT_N + 1) * sizeof(seq_t));
+        seq_table = mem_new(seq_t, (INIT_N + 1));
         compute_initial_terms(seq_table, INIT_N);
 
         /* find recurrence over small primes */
@@ -225,7 +230,7 @@ seq_t a(idx_t n) {
     if ((size_t)n <= INIT_N) return seq_table[(size_t)n];
 
     size_t k = rec_len;
-    seq_t *buffer = (seq_t*)malloc(k * sizeof(seq_t));
+    seq_t *buffer = mem_new(seq_t, k);
     for (size_t i = 0; i < k; i++) buffer[i] = seq_table[i];
 
     for (size_t i = k; i <= (size_t)n; i++) {
@@ -236,6 +241,6 @@ seq_t a(idx_t n) {
         buffer[i % k] = (seq_t)acc;
     }
     seq_t result = buffer[(size_t)n % k];
-    free(buffer);
+    mem_free(buffer);
     return result;
 }

@@ -12,12 +12,14 @@
  *            arrays tot (for all m) and the accumulated answer a...
  * Range:     u8 n <= 8, u16 n <= 23, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *ans_cache = NULL;   /* cached answers up to current maximum n */
 static idx_t    computed_max = 0;
@@ -26,11 +28,11 @@ static idx_t    computed_max = 0;
 static void compute_up_to(idx_t needed)
 {
     size_t sz = (size_t)needed + 1;
-    seq_t *old_tot = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *new_tot = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *ans_arr = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *old_tot = mem_new(seq_t, sz);
+    seq_t *new_tot = mem_new(seq_t, sz);
+    seq_t *ans_arr = mem_new(seq_t, sz);
     if (!old_tot || !new_tot || !ans_arr) {
-        free(old_tot); free(new_tot); free(ans_arr);
+        mem_free(old_tot); mem_free(new_tot); mem_free(ans_arr);
         return;
     }
 
@@ -63,9 +65,9 @@ static void compute_up_to(idx_t needed)
     }
 
     /* free temporaries and store result */
-    free(old_tot);
-    free(new_tot);
-    free(ans_cache);        /* discard previous cache if any */
+    mem_free(old_tot);
+    mem_free(new_tot);
+    mem_free(ans_cache);        /* discard previous cache if any */
     ans_cache   = ans_arr;  /* new cache */
     computed_max = needed;
 }

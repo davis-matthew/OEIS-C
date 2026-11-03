@@ -9,13 +9,15 @@
  *            as a base-10 integer
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper to compute powers of 5 up to a reasonable bound.
    These are used both as uint64 thresholds for digit counting
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     if (n > cache_size) {
         /* Grow the cache if necessary. */
         idx_t new_size = n;
-        seq_t *new_cache = (seq_t *)realloc(cache, (new_size + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (new_size + 1));
         if (!new_cache) abort();   /* memory allocation failure */
         cache = new_cache;
 

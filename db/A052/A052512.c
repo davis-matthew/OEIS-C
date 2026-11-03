@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=0}^{n-1} n * C(n-1,k) * (n-k-1)^k
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 22, u128 n <= 38,
  *            big any n
- * Helpers:   binomial, pow_seq_mono
+ * Validated: standard, pass, 40 terms through n = 277 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t n, idx_t k) */
-#include "../utils/pow_seq_mono.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 /* OEIS A052512: number of rooted labelled trees of height at most 2 */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     {
         seq_t comb  = binomial(n - 1, k);               /* C(n-1,k)   */
         seq_t base  = (seq_t)(n - k - 1);               /* n-k-1 */
-        seq_t power = pow_seq_mono(base, k);            /* (n-k-1)^k  */
+        seq_t power = ipow_idx(base, k);            /* (n-k-1)^k  */
         seq_t term  = comb * power;                     /* comb * power */
         term *= n_seq;                                  /* * n          */
         sum += term;                                    /* accumulate    */

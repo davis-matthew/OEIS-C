@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
    binomial factors and halving the power of two at each step. */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Compute the nth term of A386863. */
 seq_t a(idx_t n)
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
         return 1;                 /* a(0) = 1 */
 
     /* power2 = 2^n, then halved after each term */
-    seq_t power2 = big_pow((seq_t)2, (seq_t)n);
+    seq_t power2 = ipow((seq_t)2, (seq_t)n);
 
     /* C(3n+1,0) = 1 */
     seq_t b = 1;

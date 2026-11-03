@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of decimal digit ‘3’ in Fibonacci(n)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   add_digits
+ * Validated: standard, pass, 121 terms through n = 9896 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,30 @@
 
 #include <stddef.h>
 #include <string.h>
-#include "../utils/add_digits.h"
+
+/* add two decimal numbers stored in reversed digit arrays
+   a[0] is least significant digit.  The result is written to c.
+   len_a, len_b are the lengths of the operands, len_c will contain
+   the length of the result.  The buffers must be large enough to
+   hold the result. */
+static void add_digits(const unsigned char *a, int len_a,
+                       const unsigned char *b, int len_b,
+                       unsigned char *c, int *len_c)
+{
+    int i, carry = 0;
+    int max_len = (len_a > len_b) ? len_a : len_b;
+    for (i = 0; i < max_len; ++i) {
+        int da = (i < len_a) ? a[i] : 0;
+        int db = (i < len_b) ? b[i] : 0;
+        int sum = da + db + carry;
+        c[i] = (unsigned char)(sum % 10);
+        carry = sum / 10;
+    }
+    if (carry) {
+        c[i++] = (unsigned char)carry;
+    }
+    *len_c = i;
+}
 
 seq_t a(idx_t n)
 {

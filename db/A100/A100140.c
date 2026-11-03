@@ -9,13 +9,14 @@
  *            fraction expansion of any m/n with 1 <= m <= n-1
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 30, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: standard, pass, 56 terms through n = 197 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 /* Calculate a(n) for n >= 2. */
 seq_t a(idx_t n)
@@ -39,7 +40,7 @@ seq_t a(idx_t n)
             seq_t new_den = den * k;
 
             /* reduce the fraction */
-            seq_t g = seq_gcd(new_num, new_den);
+            seq_t g = gcd(new_num, new_den);
             num = new_num / g;
             den = new_den / g;
         }

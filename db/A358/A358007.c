@@ -11,13 +11,15 @@
  *            n < 53 the answer is 0
  * Range:     u8 n <= 140, u16 n <= 140, u32 n <= 140, u64 n <= 140,
  *            u128 n <= 140, big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 140 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* DP table, linearized dp[j][s] */
 static size_t dp_rows = 0;        /* number of rows stored (==8) */
@@ -30,7 +32,7 @@ static void alloc_dp(size_t cols_needed)
     if (dp_cols >= cols_needed + 1)
         return;            /* already large enough */
 
-    seq_t *new_dp = (seq_t *)realloc(dp, required * sizeof(seq_t));
+    seq_t *new_dp = mem_resize(seq_t, dp, required);
     if (!new_dp)
         return;            /* allocation failure – leave dp NULL */
 

@@ -9,9 +9,10 @@
  *            dynamically increasing limit, keeps the primes in sorted order,
  *            and returns the n‑th element. No external sequencing data is
  *            used
- * Range:     u8 none, u16 none, u32 n <= 44, u64 n <= 44, u128 n <= 44,
- *            big any n
- * Helpers:   none
+ * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 60 terms through n = 9744 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------- Prime test (deterministic Miller‑Rabin) ------------- */
 
@@ -102,7 +104,7 @@ static void generate_primes_up_to(uint64_t limit)
     /* temporary dynamic array for the primes found in this pass */
     size_t tmp_cap = 1024;
     size_t tmp_sz = 0;
-    seq_t *tmp = (seq_t *)malloc(tmp_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, tmp_cap);
     if (!tmp) return; /* allocation failure – should never happen */
 
     for (uint64_t y = 0;; ++y) {
@@ -114,9 +116,9 @@ static void generate_primes_up_to(uint64_t limit)
             if (val >= 2 && is_prime_uint64(val)) {
                 if (tmp_sz == tmp_cap) {
                     tmp_cap *= 2;
-                    seq_t *tmp2 = (seq_t *)realloc(tmp, tmp_cap * sizeof(seq_t));
+                    seq_t *tmp2 = mem_resize(seq_t, tmp, tmp_cap);
                     if (!tmp2) { /* allocation failed */
-                        free(tmp);
+                        mem_free(tmp);
                         return;
                     }
                     tmp = tmp2;
@@ -127,7 +129,7 @@ static void generate_primes_up_to(uint64_t limit)
     }
 
     /* sort the temporary array and remove duplicates */
-    qsort(tmp, tmp_sz, sizeof(seq_t), cmp_seq);
+    mem_qsort(tmp, tmp_sz, sizeof(seq_t), cmp_seq);
     size_t uniq = 0;
     for (size_t i = 0; i < tmp_sz; ++i) {
         if (uniq == 0 || tmp[i] != tmp[uniq - 1])
@@ -138,9 +140,9 @@ static void generate_primes_up_to(uint64_t limit)
     /* resize the global array if necessary */
     if (prime_cap < tmp_sz) {
         seq_t *old = prime_vals;
-        seq_t *newarr = (seq_t *)realloc(old, tmp_sz * sizeof(seq_t));
+        seq_t *newarr = mem_resize(seq_t, old, tmp_sz);
         if (!newarr) { /* allocation failure */
-            free(tmp);
+            mem_free(tmp);
             return;
         }
         prime_vals = newarr;
@@ -153,7 +155,7 @@ static void generate_primes_up_to(uint64_t limit)
     prime_count = tmp_sz;
     current_limit = limit;
 
-    free(tmp);
+    mem_free(tmp);
 }
 
 /* ensure that prime_vals contains at least n primes.  If not, increase

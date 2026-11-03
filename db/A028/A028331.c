@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 11, u16 n <= 48, u32 n <= 255, u64 n <= 1055,
+ * Range:     u8 n <= 15, u16 n <= 63, u32 n <= 255, u64 n <= 1055,
  *            u128 n <= 2600, big any n
+ * Validated: standard, pass, 67 terms through n = 2513 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
    and k = n - Σ_{i=0}^{r-1} (floor(i / 2) + 1) (0 ≤ k ≤ floor(r / 2)) */
 
 /* The binomial helper is provided by the build system. */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

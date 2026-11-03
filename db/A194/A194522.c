@@ -7,6 +7,7 @@
  * Formula:   a(n) = 4*n - 5*floor((7*n + 4)/9)
  * Range:     i8 n <= 17, i16 n <= 96, i32 n <= 96, i64 n <= 96, i128 n <= 96,
  *            big any n
+ * Validated: partial, pass, 96 terms through n = 96 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

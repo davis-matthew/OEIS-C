@@ -10,15 +10,18 @@
  *            maximum exponent in the prime factorisation of n
  * Range:     u8 n <= 51, u16 n <= 239, u32 n <= 2367, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 83 terms through n = 9867 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
     seq_t result = 1;
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t newExp = maxExp - exps[i] + 1;      /* exponent for this prime */
-        seq_t powVal = big_pow((seq_t)primes[i], (seq_t)newExp);
+        seq_t powVal = ipow((seq_t)primes[i], (seq_t)newExp);
         result = result * powVal;                    /* exact multiplication */
     }
     return result;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   sqsum
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,11 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sqsum.h"
+
+/* Sum of squares up to n: S(n) = n(n+1)(2n+1)/6 -------------------------------- */
+static inline seq_t sqsum(unsigned int n) {
+    return (seq_t)n * (n + 1) * (2 * n + 1) / 6;
+}
 
 #define MAX_PRIMES 20000
 static unsigned int primes_arr[MAX_PRIMES];

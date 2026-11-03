@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   T_value, binomial_uint64, fact_ratio
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,37 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/T_value.h"
-#include "../utils/binomial_uint64.h"
-#include "../utils/fact_ratio.h"
+#include "../utils/binomial.h"
+
+/* return r! / k! as a seq_t */
+static seq_t fact_ratio(idx_t r, idx_t k)
+{
+    seq_t res = 1;
+    for (idx_t i = k + 1; i <= r; ++i)
+        res *= (seq_t)i;
+    return res;
+}
+
+/* T(r,k) as defined above */
+static seq_t T_value(idx_t r, idx_t k)
+{
+    seq_t res = 1;
+
+    /* binomial part: binomial(r-1, k-1) */
+    if (k > 1)
+        res *= binomial(r - 1, k - 1);
+
+    /* factorial ratio part: r! / k! */
+    if (k < r)
+        res *= fact_ratio(r, k);
+
+    /* power of two part: 2^(r-k) */
+    idx_t exp = r - k;
+    for (idx_t i = 0; i < exp; ++i)
+        res *= 2;
+
+    return res;
+}
 
 /* idx_t and seq_t are defined in the build environment. */
 

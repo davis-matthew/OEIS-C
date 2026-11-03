@@ -8,7 +8,8 @@
  *            / ((2k+1)*k!)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Pre-cached factorials */
 static seq_t *fact_cache      = NULL; /* array of factorials */
@@ -30,7 +32,7 @@ static void ensure_fact_cache(idx_t n)
     if (fact_cache_cap < (size_t)(n + 1)) {
         size_t new_cap = fact_cache_cap ? fact_cache_cap * 2 : 1;
         while (new_cap < (size_t)(n + 1)) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(fact_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact_cache, new_cap);
         fact_cache = tmp;
         fact_cache_cap = new_cap;
     }

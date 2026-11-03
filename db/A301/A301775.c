@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 45, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 */
 
 #include <stdlib.h> /* for malloc, realloc, free */
+#include "../utils/mem.h"
 
 /*--------- static storage for memoisation ----------*/
 static seq_t *cache     = NULL;   /* 1‑based, cache[0] unused */
@@ -38,7 +40,7 @@ static void grow_cache(idx_t need)
     size_t new_size = (cache_size > 0) ? cache_size : 16;
     while (new_size <= (size_t)need) new_size <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) exit(EXIT_FAILURE);
     /* zero‑initialize the newly allocated part */
     for (idx_t i = cache_size; i < new_size; ++i) tmp[i] = 0;

@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Ω(n) * max_index_of_prime_factor_of(n)
- * Range:     u8 n <= 1437, u16 n <= 8556, u32 n <= 8556, u64 n <= 8556,
- *            u128 n <= 8556, big any n
+ * Range:     u8 n <= 1437, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 105 terms through n = 8556 (2026-11-01)
  * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,8 +19,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/factor_u64.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)
 {

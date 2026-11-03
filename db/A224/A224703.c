@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 6773, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 71 terms through n = 9236 (2026-11-01)
  * Helpers:   bigomega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* Computes terms of A224703: numbers n such that n % (2*Ω(n)) == 0. */
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/bigomega.h"
 
 seq_t a(idx_t n)

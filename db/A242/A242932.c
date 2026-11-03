@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 16, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   cmp_seq_t, sieve_primes
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,21 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/sieve_primes.h"   /* provides sieve_primes */
-#include "../utils/cmp_seq_t.h"      /* provides cmp_seq_t */
+#include <stdint.h>
+#include <stddef.h>
+#include <string.h>
+#include "../utils/sieve_primes.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 static seq_t *seq_buf   = NULL;   /* cached sorted, unique terms   */
 static size_t seq_len   = 0;      /* number of cached terms        */
@@ -50,7 +64,7 @@ static void build_sequence(void)
 
     /* Temporary array for all candidate numbers: 3 per prime. */
     size_t tmp_len = 3 * pcount;
-    seq_t *tmp = (seq_t *)malloc(tmp_len * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, tmp_len);
     size_t i = 0;
 
     for (size_t j = 0; j < pcount; ++j) {
@@ -61,8 +75,7 @@ static void build_sequence(void)
     }
 
     /* Sort the temporary array.  cmp_seq_t compares two seq_t values. */
-    qsort(tmp, tmp_len, sizeof(seq_t),
-          (int (*)(const void *, const void *))cmp_seq_t);
+    mem_qsort(tmp, tmp_len, sizeof(seq_t), (int (*)(const void *, const void *))cmp_seq_t);
 
     /* Remove duplicates in a second pass.  We overwrite the beginning
      * of tmp with the unique values and count them. */
@@ -74,14 +87,14 @@ static void build_sequence(void)
     }
 
     /* Allocate exactly enough space for the final sequence */
-    seq_buf = (seq_t *)malloc(uniq * sizeof(seq_t));
+    seq_buf = mem_new(seq_t, uniq);
     for (size_t j = 0; j < uniq; ++j) {
         seq_buf[j] = tmp[j];
     }
     seq_len = uniq;
 
     /* Clean up temporary data */
-    free(tmp);
+    mem_free(tmp);
     free(primes);
 }
 

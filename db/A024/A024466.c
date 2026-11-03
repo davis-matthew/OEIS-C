@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{k=1..floor((n+1)/2)} Fibonacci(k)*A023533(n+1-k)
  * Range:     u8 n <= 32, u16 n <= 58, u32 n <= 102, u64 n <= 212,
  *            u128 n <= 405, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 4732 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* where A023533(m) = 1 if m is a tetrahedral number, otherwise 0. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for Fibonacci numbers: fib_cache[i] = F(i),  i ≥ 0. */
 static seq_t *fib_cache = NULL;
@@ -28,10 +30,10 @@ static void ensure_fib(idx_t max_k)
 
     idx_t new_len = max_k + 1;            /* number of elements needed */
     if (fib_cache == NULL) {
-        fib_cache = (seq_t*)malloc(new_len * sizeof(seq_t));
+        fib_cache = mem_new(seq_t, new_len);
         if (!fib_cache) return;           /* allocation failed; ignore */
     } else {
-        seq_t *tmp = (seq_t*)realloc(fib_cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fib_cache, new_len);
         if (!tmp) return;                 /* allocation failed; ignore */
         fib_cache = tmp;
     }

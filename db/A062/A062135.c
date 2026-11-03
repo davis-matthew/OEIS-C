@@ -12,15 +12,23 @@
  *            (n>=1); for n>=1, m>=1: T(n,m) = T(n-1,m) + Σ_{k=m-1}^{n-...
  * Range:     u8 n <= 48, u16 n <= 125, u32 n <= 387, u64 n <= 1295,
  *            u128 n <= 4791, big any n
- * Helpers:   alloc_seq_array, binomial
+ * Validated: standard, pass, 82 terms through n = 9633 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/alloc_seq_array.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t **triangle = NULL;           /* triangular array storage */
 static size_t rows_capacity = 0;          /* allocated capacity for row pointers */

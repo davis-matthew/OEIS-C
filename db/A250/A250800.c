@@ -10,13 +10,15 @@
  *            a(1)=58, a(2)=180, a(3)=482, a(4)=1190, a(5)=2776
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 24, u64 n <= 56, u128 n <= 120,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* 1‑based cache of computed values   */
 static idx_t cached_n = 0;      /* highest index computed            */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Allocate initial cache if needed */
     if (cache == NULL) {
         capacity = (size_t)n + 10;
-        cache = (seq_t*)malloc((capacity + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (capacity + 1));
         if (cache == NULL) return 0;   /* allocation failure */
 
         /* Initial values a(1)..a(5) */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     if ((size_t)n > capacity) {
         size_t new_cap = (capacity * 3) / 2 + 10;   /* grow by 50% */
         if (new_cap < (size_t)n) new_cap = n + 10;
-        seq_t *tmp = (seq_t*)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (tmp == NULL) return 0;   /* allocation failure */
         cache = tmp;
         capacity = new_cap;

@@ -9,7 +9,8 @@
  *            σᵤ(m) = ∏_{p^e‖m} (1 + p^e)
  * Range:     u8 none, u16 n <= 30, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 79 terms through n = 9288 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Comparison function for qsort on uint128_t or other seq_t types */
 static int cmp_seq(const void *a, const void *b)
@@ -46,7 +49,7 @@ static seq_t usigma_of(idx_t m, uint32_t *spf)
             x /= p;
             ++e;
         }
-        seq_t term = big_pow((seq_t)p, (seq_t)e);
+        seq_t term = ipow((seq_t)p, (seq_t)e);
         prod = prod * (term + (seq_t)1);
     }
     return prod;
@@ -73,7 +76,7 @@ static size_t recompute(idx_t limit,
     }
 
     /* Compute σᵤ(m) for all m <= limit */
-    seq_t *raw = (seq_t *)malloc((size_t)limit * sizeof(seq_t));
+    seq_t *raw = mem_new(seq_t, (size_t)limit);
     if (!raw) abort();
     for (idx_t m = 1; m <= limit; ++m) {
         raw[(size_t)m - 1] = usigma_of(m, spf);
@@ -82,13 +85,13 @@ static size_t recompute(idx_t limit,
     free(spf);
 
     /* Sort raw values */
-    qsort(raw, (size_t)limit, sizeof(seq_t), cmp_seq);
+    mem_qsort(raw, (size_t)limit, sizeof(seq_t), cmp_seq);
 
     /* Deduplicate */
     size_t uniq = 0;
     seq_t *order = NULL;
     if (limit > 0) {
-        order = (seq_t *)malloc((size_t)limit * sizeof(seq_t));
+        order = mem_new(seq_t, (size_t)limit);
         if (!order) abort();
     }
     for (size_t i = 0; i < (size_t)limit; ++i) {
@@ -97,7 +100,7 @@ static size_t recompute(idx_t limit,
         }
     }
 
-    free(raw);
+    mem_free(raw);
 
     *out_order = order;
     *out_size = uniq;
@@ -120,7 +123,7 @@ seq_t a(idx_t n)
     /* Grow table if needed */
     while ((idx_t)order_size < n) {
         curr_limit *= 2;
-        free(order);
+        mem_free(order);
         order_size = recompute(curr_limit, &order, &order_size);
     }
 

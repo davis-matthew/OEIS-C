@@ -13,19 +13,21 @@
  *            The implementation * evaluates all splits O(log₂ n) times
  * Range:     u8 n <= 274, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 101 terms through n = 7474 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n) {
     /* Special case: 0 → 0 */
     if (n == 0) return (seq_t)0;
 
     seq_t sn = (seq_t)n;
-    unsigned k = bitlen_seq_t(sn);   /* number of bits in n */
+    unsigned k = bit_length(sn);   /* number of bits in n */
     seq_t best = sn;                 /* extreme splits give value n */
 
     /* Loop through all internal split positions (1 .. k‑1) */

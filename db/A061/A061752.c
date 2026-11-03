@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 126, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   satisfies_k
+ * Validated: standard, pass, 76 terms through n = 9500 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,36 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/satisfies_k.h"
+#include "../utils/mem.h"
+
+/* ---------- helper: test whether a given k satisfies the condition ---------- */
+static bool satisfies_k(uint64_t k)
+{
+    uint64_t m = k + 1;          /* prime factors of m must be checked   */
+    uint64_t temp = m;
+    for (uint64_t p = 2; p * p <= temp; ++p) {
+        if (temp % p == 0) {
+            unsigned e = 0;
+            while (temp % p == 0) { temp /= p; ++e; }
+
+            /* Legendre's formula: exponent of p in k! */
+            uint64_t count = 0;
+            uint64_t t = k;
+            while (t) { t /= p; count += t; }
+
+            if (count < 4ULL * e) return false;
+        }
+    }
+    if (temp > 1) {                 /* remaining prime factor > sqrt(m)   */
+        uint64_t p = temp;
+        unsigned e = 1;
+        uint64_t count = 0;
+        uint64_t t = k;
+        while (t) { t /= p; count += t; }
+        if (count < 4ULL * e) return false;
+    }
+    return true;
+}
 
 /* ------------------------------ main sequence function ------------------------------ */
 seq_t a(idx_t n)
@@ -51,7 +81,7 @@ seq_t a(idx_t n)
         /* Ensure cache has enough space. */
         if (cache_len == cache_cap) {
             cache_cap = cache_cap ? cache_cap * 2 : 8;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         cache[cache_len++] = (seq_t)k;

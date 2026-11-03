@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial(67, n) (coefficients of (1 + x)^67)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 67, u128 n <= 67,
  *            big any n
+ * Validated: full, pass, 68 terms through n = 67 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

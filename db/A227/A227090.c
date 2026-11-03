@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 60, u32 n <= 1200, u64 n <= 1200,
  *            u128 n <= 1200, big any n
- * Helpers:   reverse_decimal_uint64
+ * Validated: standard, pass, 89 terms through n = 1171 (2026-11-03)
+ * Helpers:   mem, reverse_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/reverse_decimal_uint64.h"
+#include "../utils/reverse_digits_u64.h"
+#include "../utils/mem.h"
 
 /* Local helper: test primality of a 64‑bit unsigned integer (deterministic). */
 static bool is_prime_u64(uint64_t n)
@@ -55,15 +57,15 @@ seq_t a(idx_t n)
         /* Reverse the decimal digits.  Because (k^2+1) is very small
            (for the required n), it safely fits in a 64‑bit unsigned int. */
         uint64_t sq64 = (uint64_t)sq;
-        uint64_t rev64 = reverse_decimal_uint64(sq64);
+        uint64_t rev64 = reverse_digits_u64(sq64);
 
         /* Test primality of the reversed number. */
         if (is_prime_u64(rev64)) {
             /* Expand cache if necessary. */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
-                if (!tmp) { free(cache); exit(1); }   /* allocation failure */
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+                if (!tmp) { mem_free(cache); exit(1); }   /* allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;
             }

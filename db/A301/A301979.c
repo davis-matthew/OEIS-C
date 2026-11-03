@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = A299701(n) - A301957(n)
- * Range:     i8 n <= 8565, i16 n <= 8565, i32 n <= 8565, i64 n <= 8565,
- *            i128 n <= 8565, big any n
- * Helpers:   none
+ * Range:     i8 n <= 16384, i16 n <= 16384, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 103 terms through n = 8565 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----- Prime sieve ----- */
 static uint32_t *prime_list   = NULL;      /* array of primes */
@@ -129,23 +131,38 @@ seq_t a(idx_t n)
         if (reach[s]) ++sum_count;
     free(reach);
 
-    /* ---- Count distinct subset‑products ---- */
-    size_t prod_total = (size_t)1 << parts_len;            /* 2^parts_len  ≤  8192 for n ≤ 10000 */
-    seq_t all_prods[1 << 13];                      /* static array – 8192 elements */
-    for (size_t mask = 0; mask < prod_total; ++mask) {
-        seq_t prod = (seq_t)1;
-        for (size_t i = 0; i < parts_len; ++i)
-            if (mask & ((size_t)1 << i))
-                prod *= (seq_t)parts[i];
-        all_prods[mask] = prod;
+    /* ---- Count distinct subset‑products ----
+       The set S of products starts as {1}; each part v makes it S u vS.
+       S is kept sorted, and vS is too, so a merge with duplicates dropped
+       does it. (This used to list all 2^parts products in a fixed array of
+       8192, which n = 2^13 already filled.) */
+    size_t cnt = 1, scap = 16;
+    seq_t *S = mem_new(seq_t, scap), *T = mem_new(seq_t, 2 * scap);
+    if (!S || !T) abort();
+    S[0] = (seq_t)1;
+    for (size_t i = 0; i < parts_len; ++i) {
+        seq_t v = (seq_t)parts[i];
+        if (2 * cnt > 2 * scap) abort();
+        size_t p = 0, q = 0, m = 0;
+        while (p < cnt || q < cnt) {
+            seq_t x;
+            if (q == cnt || (p < cnt && S[p] < S[q] * v)) x = S[p++];
+            else x = S[q++] * v;
+            if (m == 0 || T[m - 1] != x) T[m++] = x;
+        }
+        if (m > scap) {
+            while (scap < m) scap *= 2;
+            seq_t *s2 = mem_resize(seq_t, S, scap), *t2 = mem_resize(seq_t, T, 2 * scap);
+            if (!s2 || !t2) abort();
+            S = s2;
+            T = t2;
+        }
+        for (size_t k = 0; k < m; ++k) S[k] = T[k];
+        cnt = m;
     }
-
-    qsort(all_prods, prod_total, sizeof(seq_t), cmp_seq_t);
-    size_t uniq = 1;
-    for (size_t i = 1; i < prod_total; ++i)
-        if (all_prods[i] != all_prods[uniq - 1])
-            all_prods[uniq++] = all_prods[i];
-    int prod_count = (int)uniq;
+    int prod_count = (int)cnt;
+    mem_free(S);
+    mem_free(T);
 
     free(parts);
     return (seq_t)sum_count - (seq_t)prod_count;

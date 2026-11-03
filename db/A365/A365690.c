@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..⌊n/2⌋} C(n-k-1, n-2k) * C(n+2k+1, k) / (n+2k+1)
- * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 19, u64 n <= 38, u128 n <= 72,
+ * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 38, u128 n <= 72,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 1544 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 /* Uses the helper functions binomial and gcd from the utils library */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
 

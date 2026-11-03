@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 14, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   has_solution_for_a
+ * Validated: full, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_solution_for_a.h"
+#include "../utils/mem.h"
+
+/* Test whether a given a satisfies the Diophantine condition.
+   For each b in [1..⌊4a/(a−2)⌋] we check whether
+        2ab % (b(a−2)−2a) == 0
+   which ensures that the corresponding c is an integer. */
+static bool has_solution_for_a(idx_t a)
+{
+    idx_t bmax = (4 * a) / (a - 2);          /* upper bound for b    */
+    for (idx_t b = 1; b <= bmax; ++b) {
+        idx_t t = (a - 2) * b - 2 * a;      /* denominator          */
+        if (t <= 0) continue;               /* reject non‑positive  */
+        seq_t num = 2 * (seq_t)a * (seq_t)b;
+        if (num % (seq_t)t == 0) return true;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;      /* memoised sequence values     */
 static idx_t  size  = 0;           /* number of values stored      */
@@ -32,14 +49,14 @@ static void init_cache(void)
     if (cache != NULL) return;              /* already initialised   */
 
     capacity = 20;                          /* initial capacity      */
-    cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+    cache = mem_new(seq_t, capacity);
     size  = 0;
 
     for (idx_t a = 3; a <= 200; ++a) {
         if (has_solution_for_a(a)) {
             if (size == capacity) {         /* grow if needed      */
                 capacity *= 2;
-                cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, capacity);
             }
             cache[size++] = (seq_t)a;
         }

@@ -11,12 +11,14 @@
  *            52 (from the OEIS entry) is used
  * Range:     u8 n <= 213, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9644 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
             }
         }
         /* allocate room for at most LIMIT terms */
-        seq = (seq_t*)malloc((size_t)LIMIT * sizeof(seq_t));
+        seq = mem_new(seq_t, (size_t)LIMIT);
 
         idx_t idx = 0;
         for (idx_t k = 1; k <= LIMIT; ++k) {

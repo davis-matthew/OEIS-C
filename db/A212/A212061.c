@@ -8,7 +8,8 @@
  *            τ(t) is the number of divisors of t
  * Range:     u8 n <= 15, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   count_divs_t2
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,33 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/count_divs_t2.h"
+
+/* Recursive divisor enumeration for t² */
+static void count_divs_t2(int idx,
+                          int prime_cnt,
+                          const uint32_t *primes,
+                          const int *exps,
+                          seq_t cur,
+                          seq_t t2,
+                          seq_t n,
+                          seq_t *cnt)
+{
+    if (idx == prime_cnt) {
+        if (cur <= n && t2 / cur <= n)
+            (*cnt)++;
+        return;
+    }
+
+    uint32_t p = primes[idx];
+    int max_exp = exps[idx] * 2;            /* exponent in t² */
+    seq_t mult = 1;
+    for (int e = 0; e <= max_exp; ++e) {
+        count_divs_t2(idx + 1, prime_cnt,
+                      primes, exps,
+                      cur * mult, t2, n, cnt);
+        mult *= (seq_t)p;
+    }
+}
 
 static uint32_t *spf_cache = NULL;
 static idx_t spf_cache_limit = 0;

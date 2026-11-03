@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   contains_adj_adj01
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,31 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/contains_adj_adj01.h"
+#include "../utils/mem.h"
+
+/* Return true iff the base‑6 representation of x contains the
+   adjacent digits 0 (more significant) followed by 1 (less
+   significant). */
+static bool contains_adj_adj01(seq_t x)
+{
+    if (x == (seq_t)0)
+        return false;
+
+    seq_t prev_digit = (seq_t)6;   /* sentinel > 5 */
+    while (x > (seq_t)0) {
+        seq_t digit = x % (seq_t)6;  /* least significant digit */
+
+        /* Pattern 0 (current) followed by 1 (prev, i.e. less
+           significant) is detected when current digit is 0 and
+           the previously seen digit was 1. */
+        if (digit == (seq_t)0 && prev_digit == (seq_t)1)
+            return true;
+
+        prev_digit = digit;
+        x = x / (seq_t)6;
+    }
+    return false;
+}
 
 /* A number qualifies if its own base‑6 representation contains
    0,1 but the representation of its successor does not. */
@@ -57,7 +82,7 @@ seq_t a(idx_t n)
         if (qualifies(next_val)) {
             if (cache_cnt == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)          /* memory exhausted */
                     return (seq_t)0;
                 cache = tmp;

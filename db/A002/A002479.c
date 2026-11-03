@@ -8,13 +8,47 @@
  *            even exponent
  * Range:     u8 n <= 111, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_in_sequence
+ * Validated: standard, pass, 79 terms through n = 9039 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_in_sequence.h"
+
+static bool is_in_sequence(seq_t m) {
+    if (m == 0) return true;
+    
+    seq_t temp = m;
+    seq_t p;
+    
+    for (p = 2; p * p <= m; p++) {
+        if (temp % p == 0) {
+            if ((p % 8 == 5) || (p % 8 == 7)) {
+                int exp = 0;
+                while (temp % p == 0) {
+                    exp++;
+                    temp /= p;
+                }
+                if (exp % 2 != 0) {
+                    return false;
+                }
+            } else {
+                while (temp % p == 0) {
+                    temp /= p;
+                }
+            }
+        }
+    }
+    
+    if (temp > 1) {
+        if ((temp % 8 == 5) || (temp % 8 == 7)) {
+            return false;
+        }
+    }
+    
+    return true;
+}
 
 seq_t a(idx_t n) {
     idx_t count = 0;

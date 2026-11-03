@@ -8,13 +8,64 @@
  *            letter
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   build_word_0_999
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <string.h>
-#include "../utils/build_word_0_999.h"
+
+static void build_word_0_999(unsigned int n, char *word) {
+    const char *ones[] = {
+        "", "een", "twee", "drie", "vier", "vijf", "zes", "zeven", "acht", "negen",
+        "tien", "elf", "twaalf", "dertien", "veertien", "vijftien", "zestien", "zeventien", "achttien", "negentien"
+    };
+    
+    const char *tens[] = {
+        "", "", "twintig", "dertig", "veertig", "vijftig", "zestig", "zeventig", "tachtig", "negentig"
+    };
+    
+    word[0] = '\0';
+    
+    if (n < 20) {
+        strcpy(word, ones[n]);
+    } else if (n < 100) {
+        int tens_digit = n / 10;
+        int ones_digit = n % 10;
+        
+        if (ones_digit == 0) {
+            strcpy(word, tens[tens_digit]);
+        } else {
+            strcpy(word, ones[ones_digit]);
+            strcat(word, "en");
+            strcat(word, tens[tens_digit]);
+        }
+    } else {
+        int hundreds_digit = n / 100;
+        int rest = n % 100;
+        
+        strcpy(word, ones[hundreds_digit]);
+        strcat(word, "honderd");
+        
+        if (rest > 0) {
+            if (rest < 20) {
+                strcat(word, ones[rest]);
+            } else {
+                int tens_digit = rest / 10;
+                int ones_digit = rest % 10;
+                
+                if (ones_digit == 0) {
+                    strcat(word, tens[tens_digit]);
+                } else {
+                    strcat(word, ones[ones_digit]);
+                    strcat(word, "en");
+                    strcat(word, tens[tens_digit]);
+                }
+            }
+        }
+    }
+}
 
 static seq_t count_letters(const char *word) {
     seq_t count = 0;

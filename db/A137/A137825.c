@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 32,
  *            big any n
- * Helpers:   benefit_of
+ * Validated: standard, pass, 39 terms through n = 354 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,23 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/benefit_of.h"
+#include "../utils/mem.h"
+
+/* Return the benefit of adding one more factor of prime p when the current
+   exponent of p is e.  The benefit is a long double. */
+static long double benefit_of(uint64_t p, unsigned int e)
+{
+    long double pl   = (long double)p;
+    long double p_pow_e = 1.0L;
+    for (unsigned int i = 0; i < e; ++i) p_pow_e *= pl;
+
+    long double p_pow_e1 = p_pow_e * pl;     /* p^(e+1) */
+    long double p_pow_e2 = p_pow_e1 * pl;    /* p^(e+2) */
+
+    long double num = (p_pow_e2 - 1.0L) * p_pow_e;
+    long double den = p_pow_e1 * (p_pow_e1 - 1.0L);
+    return num / den;
+}
 
 /* ---------- Global state ---------- */
 static uint64_t *primes = NULL;      /* array of primes up to LIMIT */
@@ -107,7 +124,7 @@ static void ensure_cache(idx_t n)
     if (n + 1 < cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap <= n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     cache = tmp;
     cache_cap = new_cap;
@@ -155,7 +172,7 @@ static void initialize(void)
         heap_push(heap, &heap_size, n);
     }
 
-    cache = (seq_t *)malloc(16 * sizeof(seq_t));
+    cache = mem_new(seq_t, 16);
     if (!cache) exit(EXIT_FAILURE);
     cache_cap = 16;
     cache_len = 1;

@@ -9,7 +9,8 @@
  *            s(m)=⌊(m+1)·φ⌋ (φ=(1+√5)/2) is read by antidiagonals
  * Range:     u8 n <= 3, u16 n <= 36, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,25 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* helper: compute ⌊(k+1)·φ⌋ for a seq_t argument k  */
 static seq_t floor_phi_mul(seq_t k)

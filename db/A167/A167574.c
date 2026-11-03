@@ -7,6 +7,7 @@
  * Formula:   a(n) = 56*n^3 + 28*n^2 + 98*n - 15
  * Range:     u8 n <= 1, u16 n <= 10, u32 n <= 424, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 50 terms through n = 984 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

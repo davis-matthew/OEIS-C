@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
    interleaved row by row.                     */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Stored rows of the modified Pascal triangle ``S``.
    Each row r contains r+1 elements of type seq_t.  Rows are allocated
@@ -45,7 +47,7 @@ static void ensure_rows(idx_t r)
         S_rows = tmp;
 
         /* allocate the new row */
-        seq_t *row = (seq_t *)malloc((S_rows_used + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (S_rows_used + 1));
         if (!row) abort();
 
         if (S_rows_used == 0) {          /* row 0 */

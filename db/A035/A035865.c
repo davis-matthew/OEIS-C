@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d=1..39} C(40,d) * C(n-1,d-1) * C(39-d+n,n)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 10, u128 n <= 12,
  *            big any n
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

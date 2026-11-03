@@ -8,15 +8,26 @@
  * Formula:   a(n) = (s₃(k) + s₃(m−k) – s₃(m)) / 2, where m = ⌊(√(8·n+1) –
  *            1)/2⌋, k = n – m·(m+1)/2. (s₃(x) is the sum of base‑3 digits of
  *            x.)
- * Range:     u8 n <= 9279, u16 n <= 9279, u32 n <= 9279, u64 n <= 9279,
- *            u128 n <= 9279, big any n
- * Helpers:   sum3
+ * Range:     u8 n <= 10010, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 103 terms through n = 9279 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sum3.h"
+
+/* sum of base‑3 digits of x */
+static inline unsigned int sum3(idx_t x)
+{
+    unsigned int s = 0;
+    while (x) {
+        s += x % 3;
+        x /= 3;
+    }
+    return s;
+}
 
 /* integer square root of an unsigned 64‑bit integer */
 static inline idx_t isqrt_u64(idx_t x)

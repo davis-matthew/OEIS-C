@@ -7,13 +7,15 @@
  * Formula:   a(n) = 1 if n ≤ 2 or n is prime or n is a power of two; n if n
  *            is an odd composite; n with all factors of 2 removed, i.e. the
  *            odd part of n, otherwise
- * Range:     u8 n <= 258, u16 n <= 9746, u32 n <= 9746, u64 n <= 9746,
- *            u128 n <= 9746, big any n
+ * Range:     u8 n <= 258, u16 n <= 65540, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 101 terms through n = 9746 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

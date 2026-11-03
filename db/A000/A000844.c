@@ -12,7 +12,8 @@
  *            number of cycles of g acting on the 2^n points; computed b...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   add_at
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/add_at.h"
+
+static void add_at(uint32_t *S, size_t L, uint64_t v, size_t sh)
+{
+    size_t i = sh / 32;
+    unsigned b = (unsigned)(sh % 32);
+    uint32_t p[3];
+    int t;
+    uint64_t carry = 0;
+    p[0] = (uint32_t)(v << b);
+    p[1] = b ? (uint32_t)(v >> (32 - b)) : (uint32_t)(v >> 32);
+    p[2] = b ? (uint32_t)(v >> (64 - b)) : 0;
+    for (t = 0; t < 3 && i + t < L; t++) {
+        uint64_t s = (uint64_t)S[i + t] + p[t] + carry;
+        S[i + t] = (uint32_t)s;
+        carry = s >> 32;
+    }
+    i += 3;
+    while (carry && i < L) {
+        uint64_t s = (uint64_t)S[i] + carry;
+        S[i] = (uint32_t)s;
+        carry = s >> 32;
+        i++;
+    }
+}
 
 static int g_n;
 static uint32_t *g_S;

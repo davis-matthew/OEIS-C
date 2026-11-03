@@ -10,18 +10,20 @@
  *            Catalan(k+1) = Catalan(k)*(4k+2)/(k+2), Catalan(0) = 1
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 20, u64 n <= 37, u128 n <= 70,
  *            big any n
- * Helpers:   a007123_catalan, a007123_g, binom
+ * Validated: standard, pass, 45 terms through n = 1551 (2026-11-01)
+ * Helpers:   binomial, catalan, gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/a007123_catalan.h"
-#include "../utils/a007123_g.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/catalan.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     idx_t m = n - 1;
-    seq_t c = a007123_catalan(m);
-    seq_t b = binom(m, m / 2);
+    seq_t c = catalan(m);
+    seq_t b = binomial(m, m / 2);
     return c / 2 + b / 2 + (c % 2 + b % 2) / 2;
 }

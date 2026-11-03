@@ -5,14 +5,17 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = 2^A007814(n+1) - 1
- * Range:     u8 n <= 510, u16 n <= 9699, u32 n <= 9699, u64 n <= 9699,
- *            u128 n <= 9699, big any n
- * Helpers:   big_pow
+ * Range:     u8 n <= 510, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 119 terms through n = 9699 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -36,6 +39,6 @@ seq_t a(idx_t n)
     if ( e == 64 && sizeof(seq_t) == 8 )
         return (seq_t)-1;                  /* 2^64 - 1 in 64‑bit unsigned */
 
-    seq_t val = big_pow( (seq_t)2, (seq_t)e ); /* compute 2^e exactly */
+    seq_t val = ipow( (seq_t)2, (seq_t)e ); /* compute 2^e exactly */
     return val - (seq_t)1;
 }

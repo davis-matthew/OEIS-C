@@ -11,7 +11,8 @@
  *            search, caching results across calls
  * Range:     u8 n <= 13, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* static state for memoisation */
 static seq_t *seq_vals   = NULL; /* sequence values a(1), a(2), … */
@@ -32,6 +42,20 @@ static size_t  seen_cap  = 0;
 static idx_t   cand      = 1;    /* next integer to evaluate */
 
 /* Ensure capacity of a dynamic array, doubling as necessary */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed > *cap) {
+        size_t newcap = (*cap == 0) ? 8 : (*cap << 1);
+        while (newcap < needed) newcap <<= 1;
+        T *newptr = mem_resize(T, *ptr, (newcap * elem_size) / sizeof(T));
+        if (!newptr) exit(1);   /* fatal – allocation failed */
+        *ptr = newptr;
+        *cap = newcap;
+    }
+}
+#else
 static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if (needed > *cap) {
@@ -43,6 +67,7 @@ static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_
         *cap = newcap;
     }
 }
+#endif
 
 /* Test whether a value is already in the set of seen maxima */
 static bool seen_contains(seq_t val)
@@ -57,7 +82,7 @@ static bool seen_contains(seq_t val)
 static void add_max_seen(seq_t val)
 {
     if (!seen_contains(val)) {
-        ensure_capacity(seen_len + 1, &seen_cap, (void **)&max_seen, sizeof(seq_t));
+        ensure_capacity(seen_len + 1, &seen_cap, OEISC_VPP(&max_seen), sizeof(seq_t));
         max_seen[seen_len++] = val;
     }
 }
@@ -85,7 +110,7 @@ seq_t a(idx_t n)
         /* Record m if it is highest in its own trajectory and this
            maximum has not appeared for a smaller starting integer. */
         if (cur_max == m && !seen_contains(m)) {
-            ensure_capacity(seq_len + 1, &seq_cap, (void **)&seq_vals, sizeof(seq_t));
+            ensure_capacity(seq_len + 1, &seq_cap, OEISC_VPP(&seq_vals), sizeof(seq_t));
             seq_vals[seq_len++] = m;
         }
 

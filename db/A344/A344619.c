@@ -10,13 +10,46 @@
  *            sum 0. Thus a(1)=0, a(2)=3, a(3)=10,
  * Range:     u8 n <= 50, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   alt_sum_zero
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/alt_sum_zero.h"
+
+/* Determines whether the composition corresponding to k (as
+   described in the OEIS entry) has alternating sum zero. */
+static bool alt_sum_zero(idx_t k)
+{
+    /* Array to hold the part sizes of the composition. */
+    idx_t parts[64];
+    idx_t m = 0;          /* number of parts */
+
+    idx_t x   = k;        /* working copy of k */
+    idx_t pos = 1;        /* position (1‑based) of bit being examined */
+    idx_t prev = 0;       /* previous set‑bit position */
+
+    while (x) {
+        if (x & 1U) {
+            parts[m++] = pos - prev;
+            prev = pos;
+        }
+        ++pos;
+        x >>= 1;
+    }
+
+    /* Compute alternating sum of the reversed parts. */
+    long long sum = 0;
+    for (idx_t i = 0; i < m; ++i) {
+        idx_t p = parts[m - 1 - i];
+        if (i & 1U)
+            sum -= (long long)p;
+        else
+            sum += (long long)p;
+    }
+    return sum == 0;
+}
 
 seq_t a(idx_t n)
 {

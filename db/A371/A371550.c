@@ -7,18 +7,43 @@
  * Formula:   a(0)=1, for n>0 a(n) = Σ_{k squarefree≤n} binom(n,k)*a(n-k)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 20, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   mu_of
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mu_of.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 seq_t a(idx_t n)
 {
     /* dp[s] will hold a(s) for 0 ≤ s ≤ n */
-    seq_t *dp = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)n + 1);
     if (!dp) return 0;               /* allocation failure unlikely */
     dp[0] = 1;
 
@@ -30,7 +55,7 @@ seq_t a(idx_t n)
             if (sq_cnt == sq_cap) {
                 size_t new_cap = sq_cap ? sq_cap * 2 : 4;
                 idx_t *tmp = (idx_t *)realloc(sq, new_cap * sizeof(idx_t));
-                if (!tmp) { free(dp); free(sq); return 0; }
+                if (!tmp) { mem_free(dp); free(sq); return 0; }
                 sq = tmp;
                 sq_cap = new_cap;
             }
@@ -39,8 +64,8 @@ seq_t a(idx_t n)
     }
 
     /* Temporary array for binomial coefficients bin[s] = binom(s,k) */
-    seq_t *bin = (seq_t *)malloc(((size_t)n + 1) * sizeof(seq_t));
-    if (!bin) { free(dp); free(sq); return 0; }
+    seq_t *bin = mem_new(seq_t, ((size_t)n + 1));
+    if (!bin) { mem_free(dp); free(sq); return 0; }
 
     /* Process squarefree sizes in decreasing order to avoid repeated use of the same k */
     for (size_t idx = sq_cnt; idx-- > 0; ) {
@@ -64,8 +89,8 @@ seq_t a(idx_t n)
 
     seq_t result = dp[(size_t)n];
 
-    free(dp);
+    mem_free(dp);
     free(sq);
-    free(bin);
+    mem_free(bin);
     return result;
 }

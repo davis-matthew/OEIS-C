@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 330 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Returns the n-th term of the sequence.
    n must be >= 1, behaviour for n==0 is undefined but returns 0. */
@@ -40,7 +41,7 @@ seq_t a(idx_t n)
 
         /* divisor d1 = i */
         idx_t d1 = i;
-        seq_t term1 = big_pow((seq_t)d1, (seq_t)d1);
+        seq_t term1 = ipow((seq_t)d1, (seq_t)d1);
         if ((n / d1) & 1ULL) {          /* n/d1 is odd → sign = +1 */
             sum_pos += term1;
         } else {                        /* n/d1 is even → sign = -1 */
@@ -50,7 +51,7 @@ seq_t a(idx_t n)
         /* divisor d2 = n / i, if distinct from d1 */
         idx_t d2 = n / i;
         if (d2 != d1) {
-            seq_t term2 = big_pow((seq_t)d2, (seq_t)d2);
+            seq_t term2 = ipow((seq_t)d2, (seq_t)d2);
             if ((n / d2) & 1ULL) {      /* n/d2 is odd → sign = +1 */
                 sum_pos += term2;
             } else {                    /* n/d2 is even → sign = -1 */

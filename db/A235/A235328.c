@@ -8,13 +8,15 @@
  * Formula:   a(n) = Sum_{k=1..n} k! * binom(n,k) * (n*k)^(n-k) (a(0) = 1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 249 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Computes the nth term of OEIS sequence A235328. */
 seq_t a(idx_t n)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         seq_t exp = (seq_t)(n - k);
 
         /* Compute power: base^exp */
-        seq_t power = big_pow(base, exp);
+        seq_t power = ipow(base, exp);
 
         /* Term: k! * C(n, k) * (n*k)^(n-k) */
         seq_t term = fact * binom * power;

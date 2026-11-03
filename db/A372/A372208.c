@@ -10,7 +10,8 @@
  *            k<3 or r<k
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 12, u64 n <= 30, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build.  Some builds may use
  * arbitrary‑precision integer types; any arithmetic defined for that
@@ -43,7 +45,7 @@ ensure_rows(idx_t up_to)
     /* Compute rows one by one. */
     for (size_t r = max_row + 1; r <= (size_t)up_to; ++r) {
         size_t len = r - 2;                   /* number of entries in this row */
-        seq_t *row = (seq_t *)calloc(len, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row)
             abort();
 

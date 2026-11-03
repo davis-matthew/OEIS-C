@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 9742, u16 n <= 9742, u32 n <= 9742, u64 n <= 9742,
- *            u128 n <= 9742, big any n
- * Helpers:   gcd_u64, mulmod_u64, pollard_u64
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9742 (2026-11-01)
+ * Helpers:   gcd_u64, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,30 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/gcd_u64.h"
-#include "../utils/mulmod_u64.h"
-#include "../utils/pollard_u64.h"
+#include "../utils/mulmod.h"
+
+/* --------------------------------------------------------------- */
+static uint64_t pollard_u64(uint64_t n)
+{
+    if (n % 2ULL == 0ULL) return 2ULL;
+    uint64_t c = 1;
+    while (1) {
+        uint64_t x = 2;
+        uint64_t y = 2;
+        uint64_t d = 1;
+        while (d == 1) {
+            x = (mulmod(x, x, n) + c) % n;
+            y = (mulmod(y, y, n) + c) % n;
+            y = (mulmod(y, y, n) + c) % n;
+            uint64_t diff = x > y ? x - y : y - x;
+            d = gcd_u64(diff, n);
+        }
+        if (d != n) return d;
+        ++c;        /* retry with a different constant */
+    }
+}
 
 /* --------------------------------------------------------------- */
 /*  Utility arithmetic on 64‑bit unsigned integers (C/C++ hybrid).  */
@@ -39,8 +61,8 @@ static uint64_t powmod_u64(uint64_t a, uint64_t e, uint64_t mod)
 {
     uint64_t r = 1;
     while (e) {
-        if (e & 1) r = mulmod_u64(r, a, mod);
-        a = mulmod_u64(a, a, mod);
+        if (e & 1) r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return r;
@@ -81,7 +103,7 @@ static int is_prime_u64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         int comp = 1;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mulmod_u64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { comp = 0; break; }
         }
         if (comp) return 0;

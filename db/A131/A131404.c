@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl, easy
  * Formula:   not stated
- * Range:     u8 n <= 47, u16 n <= 158, u32 n <= 575, u64 n <= 1274,
+ * Range:     u8 n <= 47, u16 n <= 159, u32 n <= 576, u64 n <= 1274,
  *            u128 n <= 1274, big any n
+ * Validated: standard, pass, 82 terms through n = 1236 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -28,6 +29,7 @@
  *  Requires utils/binomial.h for the binomial function.
  */
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* integer square root: floor(sqrt(x)) for 64‑bit values */

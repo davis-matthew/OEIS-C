@@ -11,7 +11,8 @@
  *            sliding–window DP is performed
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 42, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 393 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const int W = 9;
 static const unsigned int MASK_ALL = (1U << W) - 1;
@@ -45,8 +47,8 @@ seq_t a(idx_t n)
 
     /* DP arrays (size 512 = 2^9).  They are zeroed each call. */
     seq_t dp[1 << W], dp_next[1 << W];
-    memset(dp, 0, sizeof(dp));
-    memset(dp_next, 0, sizeof(dp_next));
+    mem_set(dp, 0, sizeof(dp));
+    mem_set(dp_next, 0, sizeof(dp_next));
 
     /* Initial state: before processing position 1. */
     dp[invalid[1]] = 1;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     seq_t ans = 0;
 
     for (idx_t pos = 1; pos <= n; ++pos) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         int start = (int)pos - 2;
         unsigned inv_next = (pos < n) ? invalid[pos + 1] : 0;
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
             }
         }
         /* Prepare for the next position. */
-        memcpy(dp, dp_next, sizeof(dp));
+        mem_copy(dp, dp_next, sizeof(dp));
     }
 
     free(invalid);

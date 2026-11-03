@@ -8,6 +8,7 @@
  *            base‑12 number. This is OEIS sequence A031344
  * Range:     u8 n <= 44, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-#include "../utils/is_prime.h"     /* provides bool is_prime(idx_t x); */
+#include "../utils/is_prime.h"
 
 /* Static cache of primes (1‑based indexing). */
 static uint64_t *prime_cache = NULL;

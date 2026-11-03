@@ -8,14 +8,27 @@
  * Formula:   a(n) = 2^n - 2*(tribonacci(n+3) - Fibonacci(n+1))
  * Range:     u8 n <= 10, u16 n <= 17, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   fib, pow2
+ * Validated: standard, pass, 46 terms through n = 491 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
-#include "../utils/fib.h"
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 static seq_t *trib_cache = NULL;
 static idx_t   trib_max   = 0;
@@ -30,9 +43,9 @@ static void ensure_trib(idx_t k)
     seq_t *tmp = NULL;
 
     if (trib_cache == NULL) {
-        trib_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        trib_cache = mem_new(seq_t, new_size);
     } else {
-        tmp = (seq_t *)realloc(trib_cache, new_size * sizeof(seq_t));
+        tmp = mem_resize(seq_t, trib_cache, new_size);
         trib_cache = tmp;
     }
 

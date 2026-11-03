@@ -5,13 +5,15 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, cons
  * Formula:   not stated
- * Range:     u8 n <= 9883, u16 n <= 9883, u32 n <= 9883, u64 n <= 9883,
- *            u128 n <= 9883, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 115 terms through n = 9883 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 /* The nth term is the nth decimal digit of sqrt(88) computed by the
    classical digit‑by‑digit extraction algorithm. */
 

@@ -13,12 +13,14 @@
  *            a(n) for n≥1. Uses memoisation for efficiency
  * Range:     u8 n <= 4, u16 n <= 14, u32 n <= 104, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* initialise cache with first 7 values on first call */
     if (cache_len == 0) {
         cache_len = 7;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return 0;   /* allocation failed – return 0 as a safe fallback */
         cache[0] = 4;
         cache[1] = 17;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
     /* grow cache to hold terms up to n */
     size_t new_len = (size_t)n;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp)          /* allocation failed – return 0 as a safe fallback */
         return 0;
     cache = tmp;

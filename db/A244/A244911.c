@@ -11,14 +11,20 @@
  *            anti-diagonally
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   p_u128
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/p_u128.h"
+
+/* P(m) = count of terms in all anti‑diagonals up to m */
+static inline unsigned __int128 p_u128(idx_t m) {
+    /* (m+1)(m+2)/2 */
+    return (unsigned __int128)(m + 1) * (m + 2) / 2;
+}
 
 /* Auxiliary function: triangular number t(m) = m*(m+1)/2 (unsigned __int128) */
 static inline unsigned __int128 tri_u128(idx_t m) {

@@ -7,7 +7,8 @@
  * Formula:   a(n) = n*A007504(n)/2 = n*(sum of first n primes)/2
  * Range:     u8 n <= 7, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* static state for caching primes and cumulative sums */
 static idx_t   current_limit = 0;
@@ -60,7 +62,7 @@ static void ensure_primes(idx_t n)
 
     /* reallocate primes and cumulative arrays if needed */
     uint64_t *tmp_primes = (uint64_t*)realloc(primes_arr, cnt * sizeof(uint64_t));
-    seq_t *tmp_cum = (seq_t*)realloc(cum_arr, cnt * sizeof(seq_t));
+    seq_t *tmp_cum = mem_resize(seq_t, cum_arr, cnt);
     if (!tmp_primes || !tmp_cum) exit(EXIT_FAILURE);
     primes_arr = tmp_primes;
     cum_arr    = tmp_cum;

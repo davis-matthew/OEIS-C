@@ -7,7 +7,8 @@
  * Formula:   a(n) = PrimePi(A046704(n)) (indices of additive primes)
  * Range:     u8 n <= 136, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9914 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------- Static state ---------------------------------------- */
 static seq_t  *cache = NULL;          /* cache[n-1] = a(n) */
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
                 /* new additive prime: record its index among all primes */
                 if (cache_len == cache_cap) {
                     cache_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                    cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = (seq_t)pcount;
             }

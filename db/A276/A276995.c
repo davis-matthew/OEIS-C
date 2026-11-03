@@ -12,7 +12,8 @@
  *            (D(0)=1, D(1)=0, D(m) = (m-1)*(D(m-1)+D(m-2)) for...
  * Range:     u8 n <= 28, u16 n <= 46, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,16 @@
 /* Standard includes */
 #include <stdlib.h>
 /* Utility functions – these are provided by the build system */
-#include "../utils/big_pow.h"   /* seq_t big_pow(seq_t base, seq_t exp); */
-#include "../utils/seq_mul.h"   /* seq_t seq_mul(seq_t a, seq_t b); */
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Cache for derangement numbers D(m) */
 static seq_t *D_cache   = NULL;  /* pointer to array of D values      */
@@ -35,7 +44,7 @@ static void ensure_D(size_t n)
     if (D_cap <= n) {
         size_t new_cap = D_cap == 0 ? 1 : D_cap * 2;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(D_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, D_cache, new_cap);
         if (!tmp) exit(1);          /* allocation failed */
         D_cache = tmp;
         D_cap   = new_cap;
@@ -76,7 +85,7 @@ seq_t a(idx_t n)
     ensure_D((size_t)m);
 
     /* Compute k^m as a big integer (returns seq_t) */
-    seq_t pow_val = big_pow((seq_t)k, (seq_t)m);
+    seq_t pow_val = ipow((seq_t)k, (seq_t)m);
 
     /* Result is k^m * D(m) */
     return seq_mul(pow_val, D_cache[(size_t)m]);

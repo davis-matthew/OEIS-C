@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 3, u16 n <= 278, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 57 terms through n = 9899 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- small utilities used only in this file ---------- */
 
@@ -114,7 +116,7 @@ static idx_t  seq_cap  = 0;    /* current capacity                      */
 static void add_term(seq_t val) {
     if (seq_size == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 16;
-        seq_t *newp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, seq, new_cap);
         seq = newp;
         seq_cap = (idx_t)new_cap;
     }

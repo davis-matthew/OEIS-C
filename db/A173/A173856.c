@@ -10,13 +10,30 @@
  *            or 1) and next value xₖ₊₁ = φ·(xₖ – dₖ)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   digit_from_pq
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digit_from_pq.h"
+
+/* Helper that decides whether the digit is 1 or 0 from (p,q) representing
+   x = (p + q·φ) / 9  with φ = (1+√5)/2.  The relation x ≥ 1 is equivalent to
+   (2p + q) ≥ 18  or, if that fails and q > 0, to  (18 – (2p+q))² ≤ 5·q².  */
+static int digit_from_pq(int64_t p, int64_t q)
+{
+    int64_t c = 2 * p + q;
+    if (c >= 18)
+        return 1;
+    if (q <= 0)
+        return 0;
+    int64_t t = 18 - c;               /* 0 < t ≤ 17 */
+    /* All intermediate values fit in 64‑bit (t² ≤ 289, q² is small).  */
+    if (t * t <= 5 * q * q)
+        return 1;
+    return 0;
+}
 
 /* Main sequence entry point.  */
 seq_t a(idx_t n)

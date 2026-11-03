@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    take absolute values, sort, and return the n‑th smallest. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper comparison for qsort on seq_t values. */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
             values[count++] = (seq_t)val;                       /* cast to seq_t */
         }
         /* sort the 58 values */
-        qsort(values, count, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(values, count, sizeof(seq_t), cmp_seq_t);
         initialized = 1;
     }
 

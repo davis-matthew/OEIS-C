@@ -12,27 +12,29 @@
  *            division-free (exact binomials via gcd reduction)
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 23, u64 n <= 44, u128 n <= 85,
  *            big any n
- * Helpers:   a001373_sgcd
+ * Validated: standard, pass, 51 terms through n = 486 (2026-11-03)
+ * Helpers:   gcd_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a001373_sgcd.h"
+#include "../utils/gcd_idx.h"
+#include "../utils/mem.h"
 
 static seq_t *a001373_cache = NULL;
 static idx_t a001373_len = 0;
 
 static void a001373_build(idx_t N) {
     idx_t i, j, k;
-    seq_t *t = (seq_t *)calloc((size_t)(N + 2), sizeof(seq_t));
-    seq_t *F = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *B = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *U = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *P = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *H = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *res = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *t = mem_new(seq_t, (size_t)(N + 2));
+    seq_t *F = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *B = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *U = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *P = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *H = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *res = mem_new(seq_t, (size_t)(N + 1));
 
     /* rooted trees: t(k+1) = [x^k] Product (1-x^m)^(-t(m)) */
     F[0] = 1;
@@ -45,7 +47,7 @@ static void a001373_build(idx_t N) {
             /* B[j] = C(t(k)+j-1, j) = B[j-1] * (t(k)+j-1) / j */
             seq_t top = t[k] + (seq_t)(j - 1);
             idx_t r = (idx_t)(long long)(top % (seq_t)j);
-            idx_t g = a001373_sgcd(j, r);
+            idx_t g = gcd_idx(j, r);
             B[j] = (B[j - 1] / (seq_t)(j / g)) * (top / (seq_t)g);
         }
         for (i = N; i >= k; i--) {
@@ -87,8 +89,8 @@ static void a001373_build(idx_t N) {
         res[i] = s;
     }
 
-    free(t); free(F); free(B); free(U); free(P); free(H);
-    if (a001373_cache) free(a001373_cache);
+    mem_free(t); mem_free(F); mem_free(B); mem_free(U); mem_free(P); mem_free(H);
+    if (a001373_cache) mem_free(a001373_cache);
     a001373_cache = res;
     a001373_len = N + 1;
 }

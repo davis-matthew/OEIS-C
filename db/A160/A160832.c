@@ -10,7 +10,8 @@
  *            ∏_{m≥1}(1‑q^m)(1‑q^{2m})(1‑q^{4m})
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,11 +31,12 @@
 #else
   #define ARRAY_SIZE(n) ((size_t)(n)+1)
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate and zero the coefficient array */
-    seq_t *c = (seq_t *)calloc(ARRAY_SIZE(n), sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, ARRAY_SIZE(n));
     if (!c) return 0;          /* allocation failure – return 0 */
     c[0] = 1;                   /* coefficient of q⁰ */
 
@@ -62,6 +64,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = c[n];
-    free(c);
+    mem_free(c);
     return result;
 }

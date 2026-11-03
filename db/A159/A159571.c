@@ -8,6 +8,7 @@
  * Formula:   a(n) = (13*n^4 - 8*n^3 + 119*n^2 - 100*n + 48) / 12
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

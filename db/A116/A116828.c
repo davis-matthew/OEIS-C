@@ -12,7 +12,8 @@
  *            generating function given in the OEIS entry
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 20, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   compute_ranks, equal_ranks
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,23 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/compute_ranks.h"
-#include "../utils/equal_ranks.h"
+#include "../utils/mem.h"
+
+/* Computes for a given quadruple the ranks (0…3) of its elements. */
+static void compute_ranks(const int v[4], int rank[4]) {
+    for (int i = 0; i < 4; ++i) {
+        int r = 0;
+        for (int j = 0; j < 4; ++j)
+            if (v[j] < v[i]) ++r;
+        rank[i] = r;
+    }
+}
+
+static bool equal_ranks(const int rank[4], const int pat[4]) {
+    for (int i = 0; i < 4; ++i)
+        if (rank[i] != pat[i]) return false;
+    return true;
+}
 
 /* ------------------------------------------------------------ */
 /*  Helpers for pattern avoidance (used only for n ≤ 9)          */
@@ -86,7 +102,7 @@ static void ensure_cache_size(size_t n) {
     if (n <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < n) new_cap = n;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) {
         /* In a proper environment this would be handled more gracefully. */
         exit(1);

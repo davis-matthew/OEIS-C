@@ -8,7 +8,8 @@
  *            than 3
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   big_pow, build_primes_upto
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <math.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Cache for computed primes. */
 static uint64_t *prime_buf = NULL;
@@ -71,8 +74,8 @@ seq_t a(idx_t n)
         unsigned __int128 sum = pow4 + pow2 + 1;
         result = (seq_t)(sum / 7);
     } else {
-        seq_t pow4 = big_pow((seq_t)4, (seq_t)p);
-        seq_t pow2 = big_pow((seq_t)2, (seq_t)p);
+        seq_t pow4 = ipow((seq_t)4, (seq_t)p);
+        seq_t pow2 = ipow((seq_t)2, (seq_t)p);
         seq_t sum  = pow4 + pow2 + 1;
         result = sum / 7;
     }

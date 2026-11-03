@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = XOR_{k=1..n} (2k-1)
- * Range:     u8 n <= 128, u16 n <= 7900, u32 n <= 7900, u64 n <= 7900,
- *            u128 n <= 7900, big any n
+ * Range:     u8 n <= 128, u16 n <= 25000, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 111 terms through n = 7900 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

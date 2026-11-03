@@ -9,6 +9,7 @@
  *            point) or enters the 4‑7‑8‑9 cycle. The result is 12 or 4
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

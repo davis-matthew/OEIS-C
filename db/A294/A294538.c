@@ -12,12 +12,14 @@
  *            dynamic memory is freed (the program ends i...
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*--- static data ---------------------------------------------------------*/
 static seq_t *A = NULL;          /* array of a-values   */
@@ -33,7 +35,7 @@ static void ensure_capacity(size_t *Cap, seq_t **Arr, size_t Need)
     if (*Cap < Need) {
         size_t NewCap = *Cap ? *Cap * 2 : 16;
         while (NewCap < Need) NewCap <<= 1;
-        *Arr = (seq_t *)realloc(*Arr, NewCap * sizeof(seq_t));
+        *Arr = mem_resize(seq_t, *Arr, NewCap);
         *Cap = NewCap;
     }
 }

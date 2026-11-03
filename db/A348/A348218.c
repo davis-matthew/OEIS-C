@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 94 terms through n = 93 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #if defined(__cplusplus)
 #  include <new>          /* for placement new */
 #endif
+#include "../utils/mem.h"
 
 /* Storage of memoised terms and state */
 static seq_t *seq = NULL;          /* array of sequence values */
@@ -39,7 +41,7 @@ static idx_t ddiv = 1;             /* divisor for the next term to be generated 
 static void ensure_capacity(idx_t new_sz) {
     if (new_sz <= sz) return;
     /* grow to new_sz elements */
-    seq_t *tmp = (seq_t *)realloc(seq, sizeof(seq_t) * (size_t)new_sz);
+    seq_t *tmp = mem_resize(seq_t, seq, (size_t)new_sz);
     if (!tmp) /* abort on allocation failure */ abort();
     seq = tmp;
 #if defined(__cplusplus)

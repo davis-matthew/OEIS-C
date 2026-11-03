@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 88, i16 n <= 88, i32 n <= 88, i64 n <= 88, i128 n <= 88,
  *            big any n
- * Helpers:   integer_sqrt_u64
+ * Validated: partial, pass, 89 terms through n = 88 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/integer_sqrt_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 static seq_t **coeffs   = NULL;   /* array of coefficient arrays */
 static idx_t   coeffs_size = 0;   /* number of rows already computed */
@@ -54,7 +56,7 @@ static void ensure_rows(idx_t r)
     /* compute missing rows */
     for (idx_t i = coeffs_size; i <= r; ++i) {
         idx_t len = 2 * i + 1;
-        seq_t *arr = (seq_t*)calloc((size_t)len, sizeof(seq_t));
+        seq_t *arr = mem_new(seq_t, (size_t)len);
         if (!arr) abort();
 
         if (i == 0) {
@@ -89,7 +91,7 @@ static void ensure_rows(idx_t r)
 seq_t a(idx_t n)
 {
     /* row number r = floor(sqrt(n)) */
-    idx_t r = integer_sqrt_u64(n);
+    idx_t r = isqrt(n);
     idx_t k = n - r * r;                /* position inside row r */
 
     ensure_rows(r);                     /* make sure the polynomial p(x,r) is computed */

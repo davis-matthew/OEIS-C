@@ -11,13 +11,15 @@
  *            2*a(n-9) + a(n-10) (n>9)
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoisation */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     /* helper to grow cache */
     if (cached_len == 0) {
         cached_len = 32;
-        cache = (seq_t *)calloc(cached_len, sizeof(seq_t));
+        cache = mem_new(seq_t, cached_len);
         /* initial 10 terms */
         cache[0] = 0; cache[1] = 0; cache[2] = 0; cache[3] = 1; cache[4] = 1;
         cache[5] = 1; cache[6] = 1; cache[7] = 2; cache[8] = 3; cache[9] = 4;
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
     if ((size_t)n > cached_len - 1) {
         size_t new_cap = cached_len;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         for (size_t i = cached_len; i < new_cap; ++i) cache[i] = 0;
         cached_len = new_cap;
     }

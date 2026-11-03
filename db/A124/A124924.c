@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: partial, pass, 4 terms through n = 4 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdbool.h>
 
 /* Helper prototypes – the build supplies the actual implementations. */
-#include "../utils/is_prime.h"          /* bool is_prime(idx_t) */
-#include "../utils/mod_pow.h"           /* seq_t mod_pow(seq_t, uint64_t, seq_t) */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 #ifdef __cplusplus
 #include <vector>
@@ -53,12 +55,12 @@ static bool test_prime(idx_t p) {
     seq_t p64 = (seq_t)p;
     seq_t a64 = (seq_t)a;
 
-    seq_t leg = mod_pow(a64, (uint64_t)a, p64);
+    seq_t leg = powmod(a64, (uint64_t)a, p64);
     if (leg != p64 - 1) return false;  /* not a QNR */
 
     /* Compute a^a mod p^2 */
     seq_t modp2 = p64 * p64;
-    seq_t a_pow = mod_pow(a64, (uint64_t)a, modp2);
+    seq_t a_pow = powmod(a64, (uint64_t)a, modp2);
 
     /* u = ((a^a + 1)/p) mod p; must equal 1 */
     seq_t u = (a_pow + 1) / p64;      /* result < p */

@@ -8,7 +8,8 @@
  *            lattice of n
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MAX_FACTORS 64
 
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     for (int i = 0; i < k; ++i) sum_exp += exp[i];
 
     /* Allocate array for sums per level */
-    seq_t *sums = (seq_t *)calloc((size_t)sum_exp + 1, sizeof(seq_t));
+    seq_t *sums = mem_new(seq_t, (size_t)sum_exp + 1);
     if (!sums) return 0;        /* Allocation failure, return 0 as safe fallback */
 
     /* Enumerate all divisors */
@@ -80,6 +82,6 @@ seq_t a(idx_t n)
         if (sums[i] > max_val) max_val = sums[i];
     }
 
-    free(sums);
+    mem_free(sums);
     return max_val;
 }

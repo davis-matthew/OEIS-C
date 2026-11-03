@@ -11,7 +11,8 @@
  *            by saturating repeated prefix sums)
  * Range:     u8 n <= 12, u16 n <= 33, u32 n <= 92, u64 n <= 278,
  *            u128 n <= 874, big any n
- * Helpers:   alloc_zero, grow_zero, irr_count, mobius_small, seq_is_big
+ * Validated: standard, pass, 58 terms through n = 844 (2026-11-03)
+ * Helpers:   mem, mobius_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +20,43 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_is_big.h"
-#include "../utils/grow_zero.h"
-#include "../utils/alloc_zero.h"
-#include "../utils/irr_count.h"
-#include "../utils/mobius_small.h"
+#include <stdint.h>
+#include "../utils/mobius_i64.h"
+#include "../utils/mem.h"
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+/* A001037(d), capped: for d > 60 it is astronomically large */
+static long long irr_count(long long d) {
+    if (d > 60) return (long long)1 << 62;
+    long long s = 0;
+    for (long long e = 1; e <= d; ++e)
+        if (d % e == 0) s += (long long)mobius_i64(d / e) * ((long long)1 << e);
+    return s / d;
+}
 
 static long long *B = NULL;
 static long long *C = NULL;

@@ -8,6 +8,7 @@
  *            +2688*n^5 -70*n^6 -12*n^7 +n^8) / 40320 (for n ≥ 4)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 61, u64 n <= 965,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 47 terms through n = 905 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

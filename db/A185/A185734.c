@@ -8,14 +8,16 @@
  * Formula:   a(n) = T(n',k') where * T(n,k) = binom(k+3,4) * binom(n+2,3) * *
  *            (k*n - n + 3*k + 17) / 20 * enumerated by antidiagonals of the
  *            (n,k)–plane
- * Range:     u8 n <= 10, u16 n <= 82, u32 n <= 682, u64 n <= 1275,
+ * Range:     u8 n <= 16, u16 n <= 82, u32 n <= 682, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 64 terms through n = 1265 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -39,8 +41,8 @@ seq_t a(idx_t n)
     idx_t col = d - pos;          /* k‑coordinate (col)   */
 
     /* compute T(row, col) */
-    seq_t c1 = binom(col + 3, 4);      /* C(col+3,4) */
-    seq_t c2 = binom(row + 2, 3);      /* C(row+2,3) */
+    seq_t c1 = binomial(col + 3, 4);      /* C(col+3,4) */
+    seq_t c2 = binomial(row + 2, 3);      /* C(row+2,3) */
     seq_t m  = (seq_t)col * (seq_t)row
                - (seq_t)row
                + 3 * (seq_t)col + 17;   /* (k*n - n + 3*k + 17) */

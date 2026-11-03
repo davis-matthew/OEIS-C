@@ -13,12 +13,14 @@
  *            another...
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,10 +39,10 @@ seq_t a(idx_t n)
         rows_size = 2;
         rows = (seq_t **)calloc(rows_size + 1, sizeof(seq_t *));
         /* row 1: [1] */
-        rows[1] = (seq_t *)malloc(sizeof(seq_t) * 1);
+        rows[1] = mem_new(seq_t, 1);
         rows[1][0] = (seq_t)1;
         /* row 2: [1, 3] */
-        rows[2] = (seq_t *)malloc(sizeof(seq_t) * 2);
+        rows[2] = mem_new(seq_t, 2);
         rows[2][0] = (seq_t)1;
         rows[2][1] = (seq_t)3;
     } else if (r > rows_size) {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         rows = (seq_t **)realloc(rows, sizeof(seq_t *) * (r + 1));
         for (idx_t i = rows_size + 1; i <= r; ++i) {
             /* Each row i has i coefficients.  Use calloc to zero‑initialize. */
-            seq_t *row = (seq_t *)calloc(i, sizeof(seq_t));
+            seq_t *row = mem_new(seq_t, i);
             if (i >= 3) {
                 /* Contribution from x * u(i-1,x) */
                 for (idx_t j = 1; j < i; ++j)

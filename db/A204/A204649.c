@@ -11,12 +11,14 @@
  *            are given below
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 75, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
 
     /* allocate temporary array to hold values up to n */
     size_t N = (size_t)n;
-    seq_t *f = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (N + 1));
     if (!f) { /* allocation failed */
         /* terminate program, as required by the build environment */
         exit(1);
@@ -60,6 +62,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = f[N];
-    free(f);
+    mem_free(f);
     return result;
 }

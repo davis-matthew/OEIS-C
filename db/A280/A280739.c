@@ -9,7 +9,8 @@
  *            with multiplicity) sum to n (offset 4)
  * Range:     u8 n <= 21, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   sumPrimeFactors64
+ * Validated: partial, pass, 60 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sumPrimeFactors64.h"
+#include "../utils/mem.h"
+
+/* Sum of prime factors with multiplicity for a 64‑bit integer. */
+static uint64_t sumPrimeFactors64(uint64_t n)
+{
+    uint64_t sum = 0;
+    for (uint64_t p = 2ULL; p * p <= n; ++p) {
+        while (n % p == 0ULL) {
+            sum += p;
+            n /= p;
+        }
+    }
+    if (n > 1ULL) sum += n;          /* remaining prime factor */
+    return sum;
+}
 
 /* Simple primality test for 64‑bit integers. */
 static bool isPrime64(uint64_t n)
@@ -40,7 +55,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache_len <= (size_t)n) {
         size_t newlen = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, newlen * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, newlen);
         if (!tmp) exit(EXIT_FAILURE);
         a_cache = tmp;
         for (size_t i = cache_len; i < newlen; ++i) a_cache[i] = (seq_t)0;

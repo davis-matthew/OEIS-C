@@ -10,11 +10,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 43, u32 n <= 102, u64 n <= 252,
  *            u128 n <= 628, big any n
+ * Validated: standard, pass, 75 terms through n = 4352 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
 #include <stdbool.h>
 

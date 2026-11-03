@@ -10,12 +10,14 @@
  *            a(5)=329, a(6)=1158, a(7)=3606, a(8)=10971, a(9)=35601
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 35, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t initial_values[10] = {
     (seq_t)0, (seq_t)0, (seq_t)1, (seq_t)12, (seq_t)75,
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* First time: create cache and fill first 10 terms */
     if (cache_size == 0) {
         cache_cap  = 64;            /* initial capacity > 10 */
-        cache      = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache      = mem_new(seq_t, cache_cap);
         if (!cache) abort();       /* out of memory */
         for (idx_t i = 0; i < 10; ++i) {
             cache[i] = initial_values[i];
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     if (n >= cache_cap) {
         idx_t new_cap = cache_cap ? cache_cap : 64;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
         if (!new_arr) abort();
         cache = new_arr;
         cache_cap = new_cap;

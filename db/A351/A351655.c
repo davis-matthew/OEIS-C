@@ -10,15 +10,33 @@
  *            A000073)
  * Range:     u8 n <= 1023, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, tribonacci
+ * Validated: standard, pass, 103 terms through n = 7833 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/tribonacci.h"
+
+static seq_t tribonacci(uint32_t k)
+{
+    /* tribonacci number T(k) */
+    if (k == 0) return (seq_t)0;
+    if (k == 1) return (seq_t)0;
+    if (k == 2) return (seq_t)1;
+    seq_t t0 = (seq_t)0, t1 = (seq_t)0, t2 = (seq_t)1;
+    for (uint32_t i = 3; i <= k; ++i) {
+        seq_t t3 = t0 + t1 + t2;
+        t0 = t1;
+        t1 = t2;
+        t2 = t3;
+    }
+    return t2;
+}
 
 seq_t a(idx_t n)
 {

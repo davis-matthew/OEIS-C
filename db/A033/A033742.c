@@ -8,7 +8,8 @@
  *            2∑_{k≥1} q^{k²} The divisors of 30 are 1,2,3,5,6,10,15,30
  * Range:     u8 n <= 23, u16 n <= 143, u32 n <= 5519, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 9451 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Required external types: seq_t and idx_t are supplied by the build. */
 #include <stdlib.h>   /* malloc, calloc, free */
 #include <stdint.h>   /* for uint64_t, if needed */
+#include "../utils/mem.h"
 
 #define NUM_DIV 8
 static const idx_t DIVISORS[NUM_DIV] = {1, 2, 3, 5, 6, 10, 15, 30};
@@ -28,11 +30,11 @@ seq_t a(idx_t n)
 
     /* allocate two coefficient arrays of length n+1 */
     size_t len = (size_t)n + 1;
-    seq_t *res = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *res = mem_new(seq_t, len);
     if (!res) return (seq_t)0;
-    seq_t *new_res = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *new_res = mem_new(seq_t, len);
     if (!new_res) {
-        free(res);
+        mem_free(res);
         return (seq_t)0;
     }
 
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
 
     seq_t answer = res[(size_t)n];
 
-    free(res);
-    free(new_res);
+    mem_free(res);
+    mem_free(new_res);
     return answer;
 }

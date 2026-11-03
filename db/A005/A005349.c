@@ -7,8 +7,9 @@
  * Keywords:  nonn, base, nice, easy
  * Formula:   the n-th Niven number (natural number divisible by the sum of
  *            its digits)
- * Range:     u8 n <= 76, u16 n <= 8547, u32 n <= 9819, u64 n <= 9819,
- *            u128 n <= 9819, big any n
+ * Range:     u8 n <= 76, u16 n <= 8547, u32 n <= 11872, u64 n <= 11872,
+ *            u128 n <= 11872, big any n
+ * Validated: standard, pass, 77 terms through n = 9819 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

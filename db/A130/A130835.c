@@ -9,7 +9,8 @@
  *            sum_{k=0}^{⌊n/10⌋} (-1)^k * C(n, k) * C(n + (n-10k) -1, n-10k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 25,
  *            big any n
- * Helpers:   pow10
+ * Validated: standard, pass, 33 terms through n = 602 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,16 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Forward declaration of helper: compute binomial coefficient C(N, K) as seq_t */
 static seq_t binom_nk(idx_t N, idx_t K)

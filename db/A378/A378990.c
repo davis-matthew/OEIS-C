@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(1) = 1, a(n) = -Σ_{d|n, d<n} A000120(n/d) * a(d)
- * Range:     i8 n <= 692, i16 n <= 9387, i32 n <= 9387, i64 n <= 9387,
- *            i128 n <= 9387, big any n
- * Helpers:   none
+ * Range:     i8 n <= 692, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 109 terms through n = 9387 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static cache for already computed values, 1‑indexed. */
 static seq_t *cache = NULL;      /* array of values, cache[0] unused */
@@ -29,9 +31,9 @@ static void ensure_cache(idx_t n)
         return;
     size_t new_cap = (size_t)n + 128;   /* a small buffer to reduce reallocs */
     if (cache == NULL) {
-        cache = (seq_t*)calloc(new_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, new_cap);
     } else {
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         /* zero‑initialise the newly added portion */
         for (size_t i = cache_cap; i < new_cap; ++i)
             cache[i] = 0;

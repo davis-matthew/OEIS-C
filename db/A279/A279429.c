@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 2309, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len_ull, pow10_ull
+ * Validated: standard, pass, 63 terms through n = 8754 (2026-11-03)
+ * Helpers:   mem, num_digits_u64_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,15 @@
    by brute‑force search, caching results for subsequent calls. */
 
 #include <stdlib.h>
-#include "../utils/digit_len_ull.h"
-#include "../utils/pow10_ull.h"
+#include "../utils/num_digits_u64_to_u32.h"
+#include "../utils/mem.h"
+
+static unsigned long long pow10_ull(unsigned int e)
+{
+    unsigned long long p = 1;
+    while (e--) p *= 10;
+    return p;
+}
 
 /*---  static helper tables  --------------------------------------------*/
 
@@ -35,7 +43,7 @@ static void ensure_capacity(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 32;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) exit(EXIT_FAILURE);   /* unrecoverable failure */
     cache = new_cache;
     cache_cap = new_cap;
@@ -56,7 +64,7 @@ seq_t a(idx_t n)
     for (idx_t k = last_k + 1; cache_len < (size_t)n; ++k)
     {
         unsigned long long sq = (unsigned long long)k * (unsigned long long)k;
-        unsigned int digits = digit_len_ull(sq);
+        unsigned int digits = num_digits_u64_to_u32(sq);
 
         if (digits & 1U)                       /* odd number of digits? */
         {

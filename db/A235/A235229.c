@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   get_digits_msf
+ * Validated: standard, pass, 66 terms through n = 1000 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,32 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/get_digits_msf.h"
+
+static void get_digits_msf(seq_t x, uint8_t *digits, size_t *len)
+{
+    size_t pos = 0;
+
+    if (x == 0) {
+        digits[0] = 0;
+        *len = 1;
+        return;
+    }
+
+    /* Collect digits least‑significant first */
+    while (x != 0) {
+        digits[pos++] = (uint8_t)(x % (seq_t)10);
+        x /= (seq_t)10;
+    }
+
+    /* Reverse to most‑significant first */
+    for (size_t i = 0; i < pos / 2; ++i) {
+        uint8_t tmp = digits[i];
+        digits[i] = digits[pos - 1 - i];
+        digits[pos - 1 - i] = tmp;
+    }
+
+    *len = pos;
+}
 
 #define TARGET_SUM 20
 #define MAX_DIGITS 256  /* safe upper bound for the digit length needed */

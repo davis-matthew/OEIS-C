@@ -8,7 +8,8 @@
  *            n > 3 (prime_i is the i‑th prime, starting with 2)
  * Range:     u8 n <= 13, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static storage for primes and cumulative sums */
 static uint32_t *primes = NULL;
@@ -41,8 +43,7 @@ static void ensure_primes(idx_t n)
     primes = tmp_primes;
     primes_cap = new_cap;
 
-    seq_t *tmp_cum = (seq_t *)realloc(cum,
-                                      new_cap * sizeof(seq_t));
+    seq_t *tmp_cum = mem_resize(seq_t, cum, new_cap);
     if (!tmp_cum) abort();
     cum = tmp_cum;
 

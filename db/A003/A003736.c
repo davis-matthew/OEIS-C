@@ -9,12 +9,14 @@
  *            3832, a(4) = 101476, a(5) = 2653176, a(6) = 69537644
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 593 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
     
     if (cache == NULL) {
         cache_len = (n > 100) ? n + 100 : 200;
-        cache = (seq_t *)malloc((cache_len + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_len + 1));
         cache[1] = 4;
         cache[2] = 156;
         cache[3] = 3832;
@@ -41,11 +43,11 @@ seq_t a(idx_t n) {
     } else if (n >= cache_len) {
         idx_t old_len = cache_len;
         cache_len = n + 100;
-        seq_t *new_cache = (seq_t *)malloc((cache_len + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (cache_len + 1));
         for (idx_t i = 0; i <= old_len; i++) {
             new_cache[i] = cache[i];
         }
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
     }
     

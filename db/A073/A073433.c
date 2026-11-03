@@ -9,6 +9,7 @@
  *            prime and c(n) is the n‑th composite (composites start with 4)
  * Range:     u8 n <= 27, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 70 terms through n = 1901 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

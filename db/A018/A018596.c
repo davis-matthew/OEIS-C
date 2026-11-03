@@ -7,12 +7,14 @@
  * Formula:   a(n) = n-th smallest divisor of 693 (1-indexed)
  * Range:     u8 n <= 10, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort when sorting seq_t values */
 static int cmp_seq_t(const void *va, const void *vb)
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
             }
         }
         /* Sort the divisors in increasing order. */
-        qsort(divs, div_cnt, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(divs, div_cnt, sizeof(seq_t), cmp_seq_t);
     }
 
     if (n < 1 || n > div_cnt) return 0;  /* out of bounds */

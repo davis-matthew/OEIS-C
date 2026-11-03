@@ -13,7 +13,8 @@
  *            and memoises results
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 29, u64 n <= 65, u128 n <= 136,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define STATES (1 << 6)
 
@@ -49,8 +51,8 @@ static void init_seq(void) {
 
     /* allocate cache large enough for at least one term */
     cache_cap = 256;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
-    memset(cache, 0, cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
+    mem_set(cache, 0, cache_cap * sizeof(seq_t));
 
     initialized = true;
 }
@@ -60,16 +62,16 @@ static void ensure_cache(size_t idx) {
     if (idx < cache_cap) return;
     size_t newcap = cache_cap;
     while (idx >= newcap) newcap *= 2;
-    seq_t *newc = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *newc = mem_resize(seq_t, cache, newcap);
     if (!newc) abort();   /* memory error */
-    memset(newc + cache_cap, 0, (newcap - cache_cap) * sizeof(seq_t));
+    mem_set(newc + cache_cap, 0, (newcap - cache_cap) * sizeof(seq_t));
     cache = newc;
     cache_cap = newcap;
 }
 
 /* extend DP by one position, update cache if needed */
 static void advance(void) {
-    memset(nextdp, 0, sizeof(nextdp));
+    mem_set(nextdp, 0, sizeof(nextdp));
 
     for (int mask = 0; mask < STATES; ++mask) {
         seq_t val = dp[mask];
@@ -89,7 +91,7 @@ static void advance(void) {
         }
     }
 
-    memcpy(dp, nextdp, sizeof(dp));
+    mem_copy(dp, nextdp, sizeof(dp));
     ++cur_len;    /* now dp represents strings of length cur_len */
 
     /* compute total for this length */

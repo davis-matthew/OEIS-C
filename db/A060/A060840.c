@@ -9,6 +9,7 @@
  *            if a_i = 0 = 3^i if a_i = 1 = 3^i·(3^i+3)/2 if a_i = 2
  * Range:     u8 n <= 22, u16 n <= 70, u32 n <= 403, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 72 terms through n = 882 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

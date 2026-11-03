@@ -9,12 +9,14 @@
  *            (i.e. t(j)=F(j+1)). Offset is 2, a(2) is first term
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* ---------- compute Fibonacci numbers up to F(n+1) ---------------- */
     idx_t fib_len = (idx_t)n + 2;        /* need indices 0 … n+1 inclusive */
-    seq_t *fib = (seq_t *)malloc((size_t)fib_len * sizeof(seq_t));
+    seq_t *fib = mem_new(seq_t, (size_t)fib_len);
     if (!fib)
         return (seq_t)0;               /* allocation failure (unlikely) */
 
@@ -44,6 +46,6 @@ seq_t a(idx_t n)
         result += s_val * t_val;
     }
 
-    free(fib);
+    mem_free(fib);
     return result;
 }

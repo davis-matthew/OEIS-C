@@ -9,7 +9,8 @@
  *            * divisors equals its number of digits in base 5
  * Range:     u8 n <= 51, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   base5_digit_count, divisor_count_u64
+ * Validated: standard, pass, 71 terms through n = 968 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/base5_digit_count.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+/* count base‑5 digits of x */
+static inline unsigned int base5_digit_count(uint64_t x)
+{
+    unsigned int cnt = 0;
+    do
+    {
+        ++cnt;
+        x /= 5;
+    } while (x);
+    return cnt;
+}
 
 /* static storage for memoized terms */
 static seq_t *terms = NULL;
@@ -34,7 +47,7 @@ static void ensure_capacity(size_t n)
     size_t new_cap = terms_cap ? terms_cap * 2 : 128;
     while (new_cap < n)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     terms = tmp;
     terms_cap = new_cap;
 }
@@ -53,7 +66,7 @@ static void compute_terms_upto(idx_t n)
     for (uint64_t i = last_checked + 1; terms_count < target; ++i)
     {
         last_checked = i;
-        uint64_t divc = divisor_count_u64(i);
+        uint64_t divc = num_divisors(i);
         if (divc == (uint64_t)base5_digit_count(i))
         {
             terms[terms_count++] = (seq_t)i;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 248, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   digit_sum_len
+ * Validated: standard, pass, 59 terms through n = 2334 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,29 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>           /* for uint64_t */
-#include "../utils/digit_sum_len.h"
+#include "../utils/mem.h"
+
+/* helper: compute digit sum and digit count of an unsigned 128‑bit
+   integer.  The 128‑bit type is a GNU/C++ extension; it is
+   available on the compilers used for evaluation. */
+static inline void digit_sum_len(unsigned __int128 x,
+                                 unsigned long long *sum,
+                                 unsigned long long *len)
+{
+    *sum = 0;
+    *len = 0;
+    /* 0 is not a square of a positive integer, but guard for completeness */
+    if (x == 0) {
+        *sum = 0;
+        *len = 1;
+        return;
+    }
+    while (x != 0) {
+        *sum += (unsigned long long)(x % 10);
+        *len += 1;
+        x /= 10;
+    }
+}
 
 /* local mutable state for memoisation */
 static seq_t *cache   = NULL;   /* array of found k values          */
@@ -40,7 +63,7 @@ static void grow_cache(size_t min_cap)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < min_cap)
         new_cap = min_cap;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         exit(1);               /* allocation failed – abort */
     cache    = tmp;

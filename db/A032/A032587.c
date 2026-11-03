@@ -9,13 +9,15 @@
  *            5
  * Range:     u8 n <= 9, u16 n <= 1166, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9296 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, free, abort */
+#include "../utils/mem.h"
 
 /* Cached array of numbers that are divisible by 5. */
 static seq_t *div5_cache = NULL;  /* array of the lucky numbers %5==0   */
@@ -32,7 +34,7 @@ static void ensure_div5_cached(size_t need)
 
         /* Generate all lucky numbers up to new_limit. */
         size_t lucky_len = 0;
-        seq_t *lucky = (seq_t *)malloc(((size_t)new_limit + 1) / 2 * sizeof(seq_t));
+        seq_t *lucky = mem_new(seq_t, (((size_t)new_limit + 1) / 2 * sizeof(seq_t)) / sizeof(seq_t));
         if (!lucky) abort();
 
         /*
@@ -69,7 +71,7 @@ static void ensure_div5_cached(size_t need)
                 ++new_div_cnt;
 
         /* Create a new array holding only the divisible lucky numbers. */
-        seq_t *new_div = (seq_t *)malloc(new_div_cnt * sizeof(seq_t));
+        seq_t *new_div = mem_new(seq_t, new_div_cnt);
         if (!new_div) abort();
 
         size_t pos = 0;
@@ -79,12 +81,12 @@ static void ensure_div5_cached(size_t need)
         }
 
         /* Replace the old cache. */
-        free(div5_cache);
+        mem_free(div5_cache);
         div5_cache = new_div;
         div5_cnt   = new_div_cnt;
         last_limit = new_limit;
 
-        free(lucky);
+        mem_free(lucky);
     }
 }
 

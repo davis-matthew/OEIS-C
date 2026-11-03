@@ -8,7 +8,8 @@
  *            in increasing order
  * Range:     u8 n <= 6, u16 n <= 106, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9776 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (prime_cap == 0) {
         size_t init_cap = 16;
         prime_arr = (uint64_t *)realloc(prime_arr, init_cap * sizeof(uint64_t));
-        prefix    = (seq_t *)realloc(prefix,    init_cap * sizeof(seq_t));
+        prefix    = mem_resize(seq_t, prefix, init_cap);
         prime_cap = init_cap;
     }
 
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
             if (prime_cnt == prime_cap) {
                 size_t new_cap = prime_cap * 2;
                 prime_arr = (uint64_t *)realloc(prime_arr, new_cap * sizeof(uint64_t));
-                prefix    = (seq_t *)realloc(prefix,    new_cap * sizeof(seq_t));
+                prefix    = mem_resize(seq_t, prefix, new_cap);
                 prime_cap = new_cap;
             }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    in O(n) time relative to the largest n seen so far. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first four terms if not yet done */
     if (cache_len == 0) {
         cache_len = 4;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         cache[0] = zero;
         cache[1] = one;
         cache[2] = three;
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         return cache[n];
 
     /* extend the cache to hold index n */
-    cache = (seq_t*)realloc(cache, sizeof(seq_t) * (n + 1));
+    cache = mem_resize(seq_t, cache, (n + 1));
 
     /* compute values from the first uncached index up to n */
     for (idx_t i = cache_len; i <= n; ++i) {

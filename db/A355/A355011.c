@@ -8,15 +8,16 @@
  * Formula:   a(n) = T(i,j) where (i,j) is obtained by reading the array
  *            T(n,k) in ascending antidiagonals (offset 2). T(n,k) is defined
  *            by the binomial sum given in the OEIS entry
- * Range:     u8 n <= 70, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
+ * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 78 terms through n = 79 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Local helper that evaluates T(i,j) for i>=2, j>=1. */
 static seq_t T(idx_t i, idx_t j) {
@@ -27,9 +28,9 @@ static seq_t T(idx_t i, idx_t j) {
     seq_t sum = 0;
 
     for (idx_t t = 1; t <= t_max; ++t) {
-        seq_t a1 = binom((j - 1) / 2, (t - 1) / 2);
-        seq_t a2 = binom(j / 2, t / 2);
-        seq_t a3 = binom(i / 2 + j - t, j);
+        seq_t a1 = binomial((j - 1) / 2, (t - 1) / 2);
+        seq_t a2 = binomial(j / 2, t / 2);
+        seq_t a3 = binomial(i / 2 + j - t, j);
 
         seq_t term = a1;
         term *= a2;

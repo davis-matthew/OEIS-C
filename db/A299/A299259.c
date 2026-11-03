@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 156, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 845 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence: a(0)=1, a(1)=5, a(2)=13, a(3)=26, a(4)=45, a(5)=69;
    a(n) = 2*a(n‑1) - a(n‑2) + a(n‑3) - 2*a(n‑4) + a(n‑5)  for n ≥ 6 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 const seq_t INIT_VALUES[6] = { (seq_t)1, (seq_t)5, (seq_t)13, (seq_t)26,
                                (seq_t)45, (seq_t)69 };
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     idx_t required = n + 1;
     if (required > cache_size) {
         /* Allocate or enlarge cache. */
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)required * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)required);
         if (!tmp)
             abort();  /* fatal allocation failure */
         cache = tmp;

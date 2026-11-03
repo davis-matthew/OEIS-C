@@ -13,7 +13,8 @@
  *            until the nth...
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   build_primes_sieve
+ * Validated: partial, pass, 97 terms through n = 97 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,34 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_primes_sieve.h"
+
+/* ---- small helper: sieve of Eratosthenes ---- */
+static void build_primes_sieve(uint64_t limit, uint64_t **primes_out, size_t *cnt_out)
+{
+    bool *is_comp = (bool *)calloc(limit + 1, sizeof(bool));   /* cast for C++ */
+    if (!is_comp) exit(1);
+    size_t cnt = 0;
+    for (uint64_t p = 2; p <= limit; ++p)
+        if (!is_comp[p]) {
+            ++cnt;
+            if (p * p <= limit)
+                for (uint64_t q = p * p; q <= limit; q += p)
+                    is_comp[q] = true;
+        }
+    uint64_t *primes = (uint64_t *)malloc(cnt * sizeof(uint64_t));
+    if (!primes) {
+        free(is_comp);
+        exit(1);
+    }
+    size_t idx = 0;
+    for (uint64_t p = 2; p <= limit; ++p)
+        if (!is_comp[p]) {
+            primes[idx++] = p;
+        }
+    free(is_comp);
+    *primes_out = primes;
+    *cnt_out    = cnt;
+}
 
 /* ---- binary search for the index of a prime (1‑based) in the primes array ---- */
 static size_t prime_index(const uint64_t *primes, size_t cnt, uint64_t p)

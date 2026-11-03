@@ -10,12 +10,14 @@
  *            a(3)=636, a(4)=3900, a(5)=21096, a(6)=119580, a(7)=665892
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 24, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t _init[7] = {
     (seq_t)12,
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (n <= 7) return _init[n-1];
 
     size_t len = (size_t)n;
-    seq_t *arr = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, len);
     if (!arr) return (seq_t)0;           /* allocation failure */
 
     /* copy the initial 7 terms */
@@ -54,6 +56,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n-1];
-    free(arr);
+    mem_free(arr);
     return result;
 }

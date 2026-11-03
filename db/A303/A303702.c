@@ -9,13 +9,14 @@
  *            is a prime, and k,m are nonnegative integers
  * Range:     u8 n <= 537, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 81 terms through n = 9790 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
         while (pow3m <= max_pow3) {
             seq_t sum = pow2k + pow3m;
             seq_t p = target - sum;
-            if (p >= 2 && is_prime_small(p)) {
+            if (p >= 2 && is_prime_seq(p)) {
                 count++;
             }
             /* Prepare next power of 3, guard against overflow */

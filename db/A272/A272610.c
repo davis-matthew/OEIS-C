@@ -9,7 +9,8 @@
  *            a(4)=6 and a(n)=0 for n<=0
  * Range:     u8 n <= 166, u16 n <= 7536, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9609 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static memoisation tables */
 static seq_t *cache = NULL;          /* stores a(n) for n>=1 */
@@ -31,7 +33,7 @@ static void grow_cache(idx_t needed)
     idx_t new_size = needed + 1;      /* include index 0 unused */
     if (new_size < 64) new_size = 64;
 
-    seq_t *tmp_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp_cache = mem_resize(seq_t, cache, new_size);
     unsigned char *tmp_seen = (unsigned char *)realloc(seen,
                                                        new_size * sizeof(unsigned char));
     if (!tmp_cache || !tmp_seen) {

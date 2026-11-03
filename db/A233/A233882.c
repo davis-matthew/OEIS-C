@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   alloc_seq, set_row_digits
+ * Validated: standard, pass, 30 terms through n = 176 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,25 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_seq.h"   /* gives seq_t *alloc_seq(size_t) */
-#include "../utils/set_row_digits.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Convert a state index to its 8 digits (base 3). */
+static void set_row_digits(int state, int *digits)
+{
+    int v = state;
+    for (int j = 0; j < 8; ++j) {
+        digits[j] = v % 3;
+        v /= 3;
+    }
+}
 
 /* 3^8 = 6561 possible rows */
 #define TOTAL_STATES 6561

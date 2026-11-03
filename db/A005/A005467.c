@@ -12,7 +12,8 @@
  *            states of...
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 4, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   binom_u64, sort6, u128_to_seq
+ * Validated: full, pass, 11 terms through n = 10 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,39 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/binom_u64.h"
-#include "../utils/sort6.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static uint64_t binom_u64(int m, int k)
+{
+    uint64_t res = 1;
+    int i;
+    if (k < 0 || k > m) return 0;
+    if (k > m - k) k = m - k;
+    for (i = 1; i <= k; i++) res = res * (uint64_t)(m - k + i) / (uint64_t)i;
+    return res;
+}
+
+static void sort6(int *v)
+{
+    int i, j, t;
+    for (i = 1; i < 6; i++) {
+        t = v[i];
+        j = i - 1;
+        while (j >= 0 && v[j] > t) { v[j + 1] = v[j]; j--; }
+        v[j + 1] = t;
+    }
+}
 
 static int R, Bs;
 static unsigned char *comp;

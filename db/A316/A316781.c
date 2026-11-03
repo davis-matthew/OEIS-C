@@ -12,7 +12,8 @@
  *            ≤ i ≤ n+1 , K(j‑2)⊕1⊕X(n‑j‑1) : 1 ≤ j ≤ n+1...
  * Range:     u8 none, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define MAX_MEX 4096   /* assume Grundy values never exceed this */
 
@@ -68,13 +70,13 @@ static void ensure_capacity(idx_t needed)
 
     /* realloc each array – cast to seq_t* because C++ forbids implicit */
     seq_t *tmp;
-    tmp = (seq_t *)realloc(K_arr, new_cap * sizeof(seq_t));
+    tmp = mem_resize(seq_t, K_arr, new_cap);
     if (!tmp) abort();  K_arr = tmp;
 
-    tmp = (seq_t *)realloc(X_arr, new_cap * sizeof(seq_t));
+    tmp = mem_resize(seq_t, X_arr, new_cap);
     if (!tmp) abort();  X_arr = tmp;
 
-    tmp = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+    tmp = mem_resize(seq_t, a_arr, new_cap);
     if (!tmp) abort();  a_arr = tmp;
 
     cap = new_cap;

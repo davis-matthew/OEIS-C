@@ -7,14 +7,17 @@
  * Formula:   a(n) = n! / ∏_{p | n} p^{∑_{k≥1} ⌊n/p^k⌋}
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 22, u128 n <= 36,
  *            big any n
- * Helpers:   big_pow, build_primes_upto
+ * Validated: standard, pass, 42 terms through n = 188 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     static uint64_t *primes = NULL;
@@ -44,7 +47,7 @@ seq_t a(idx_t n) {
         }
         if (exp == 0) continue;
 
-        seq_t term = big_pow((seq_t)p, (seq_t)exp);
+        seq_t term = ipow((seq_t)p, (seq_t)exp);
         result *= term;
     }
 

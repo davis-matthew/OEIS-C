@@ -8,17 +8,32 @@
  *            symbolically (OEIS A104250). Implementation uses memoised prime
  *            generation; for each n the nth prime is computed once, then its
  *            prime digits are summed
- * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
- *            big any n
- * Helpers:   isPrimeUint64, sumPrimeDigits
+ * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 113 terms through n = 8745 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/isPrimeUint64.h"
-#include "../utils/sumPrimeDigits.h"
+#include "../utils/is_prime_u64.h"
+
+/* Sum the prime digits 2,3,5,7 of a 64‑bit integer.  The sum always
+   fits in 64 bits for the primes up to n ≈ 10 000.                     */
+static uint64_t sumPrimeDigits(uint64_t x)
+{
+    uint64_t sum = 0;
+    while (x)
+    {
+        uint8_t d = (uint8_t)(x % 10);
+        if (d == 2 || d == 3 || d == 5 || d == 7)
+            sum += d;
+        x /= 10;
+    }
+    return sum;
+}
 
 /* ---------- internal static helpers ------------------------------------- */
 
@@ -54,7 +69,7 @@ static uint64_t nthPrime(idx_t n)
     uint64_t cand = primes[primeCnt - 1] + 1;
     while (primeCnt < n)
     {
-        if (isPrimeUint64(cand))
+        if (is_prime_u64(cand))
             addPrime(cand);
         cand++;
     }

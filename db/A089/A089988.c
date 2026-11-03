@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   seq_cmp
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,16 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_cmp.h"
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 /* static storage for the generated sequence */
 static seq_t *seq_array   = NULL;   /* sorted distinct differences */
@@ -47,11 +57,11 @@ static void recompute_sequence(idx_t needed)
         size_t pairs = (size_t)bound * (bound - 1) / 2;
 
         /* allocate temporary array for all differences */
-        seq_t *tmp = (seq_t *)malloc(pairs * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, pairs);
         if (!tmp) abort();
 
         /* precompute T(k) for 1..bound */
-        seq_t *T = (seq_t *)malloc((bound + 1) * sizeof(seq_t));
+        seq_t *T = mem_new(seq_t, (bound + 1));
         if (!T) abort();
         for (idx_t i = 1; i <= bound; ++i) {
             seq_t nn = (seq_t)i;
@@ -65,10 +75,10 @@ static void recompute_sequence(idx_t needed)
             for (idx_t j = 1; j < i; ++j)
                 tmp[pos++] = Ti - T[j];
         }
-        free(T);
+        mem_free(T);
 
         /* sort and deduplicate */
-        qsort(tmp, pairs, sizeof(seq_t), seq_cmp);
+        mem_qsort(tmp, pairs, sizeof(seq_t), seq_cmp);
         size_t uniq = 0;
         for (size_t i = 0; i < pairs; ++i) {
             if (i == 0 || tmp[i] != tmp[i - 1])
@@ -76,11 +86,11 @@ static void recompute_sequence(idx_t needed)
         }
 
         /* shrink to the right size */
-        seq_t *shrink = (seq_t *)realloc(tmp, uniq * sizeof(seq_t));
+        seq_t *shrink = mem_resize(seq_t, tmp, uniq);
         if (!shrink) abort();
 
         /* replace old array */
-        free(seq_array);
+        mem_free(seq_array);
         seq_array = shrink;
         seq_len   = uniq;
         max_n_used = bound;

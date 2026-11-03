@@ -8,6 +8,7 @@
  *            then interpreting that base‑n representation as a decimal number
  * Range:     u8 none, u16 none, u32 none, u64 n <= 15, u128 n <= 15,
  *            big any n
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

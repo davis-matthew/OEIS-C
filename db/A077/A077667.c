@@ -12,7 +12,8 @@
  *            divisible by k
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   gcd_u64
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /*----------------------------------------------------------------------
  * Basic helpers
@@ -64,9 +66,7 @@ static void ensure_cache_capacity(size_t target_len)
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < target_len)
         new_cap <<= 1;
-    void *p = (seq_cache ? realloc(seq_cache, new_cap * sizeof(seq_t))
-                         : malloc(new_cap * sizeof(seq_t)));
-    seq_cache = (seq_t *)p;
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap = new_cap;
 }
 

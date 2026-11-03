@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 9, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cache for previously computed values */
 static seq_t *cache = NULL;
@@ -29,12 +31,12 @@ static void grow_cache(idx_t n)
     size_t needed = (size_t)n + 1;
     if (cache_cap >= needed) return;
 
-    seq_t *new_arr = (seq_t*)malloc(needed * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, needed);
     if (new_arr == NULL) abort();
 
     if (cache != NULL) {
         for (size_t i = 0; i < cache_len; ++i) new_arr[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_arr;
     cache_cap = needed;

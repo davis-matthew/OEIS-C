@@ -8,6 +8,7 @@
  * Formula:   a(n) = (6*n^2 + 8*n + 3 + (-1)^n)/4
  * Range:     u8 n <= 6, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

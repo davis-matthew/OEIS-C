@@ -10,7 +10,8 @@
  *            prime counts so each query runs in O(1)
  * Range:     u8 n <= 2427, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 8878 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static idx_t _sieve_limit = 0;
 static bool   *_sieve_is_prime = NULL;
@@ -31,7 +33,7 @@ static void _ensure_sieve(idx_t limit)
 
     /* Resize arrays */
     bool *new_prime = (bool *)malloc((limit + 1) * sizeof(bool));
-    seq_t *new_pi   = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    seq_t *new_pi   = mem_new(seq_t, (limit + 1));
     if (!new_prime || !new_pi) return;   /* allocation failure; caller checks */
 
     memset(new_prime, 1, (limit + 1) * sizeof(bool));
@@ -50,7 +52,7 @@ static void _ensure_sieve(idx_t limit)
 
     /* Replace old arrays */
     free(_sieve_is_prime);
-    free(_sieve_pi);
+    mem_free(_sieve_pi);
     _sieve_is_prime = new_prime;
     _sieve_pi       = new_pi;
     _sieve_limit    = limit;

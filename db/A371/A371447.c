@@ -12,7 +12,8 @@
  *            accepted
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static uint64_t *prime_list = NULL;     /* primes in ascending order   */
 static size_t    prime_count = 0;        /* number of primes            */
@@ -117,7 +119,7 @@ static void compute_terms_upto(idx_t n)
         ensure_prime_limit(2);    /* at least the first prime 2 */
         if (seq_vals == NULL) {
             seq_cap = (size_t)n + 1;
-            seq_vals = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+            seq_vals = mem_new(seq_t, seq_cap);
             seq_len = 0;
         }
     }
@@ -127,7 +129,7 @@ static void compute_terms_upto(idx_t n)
         size_t new_cap = seq_cap > 0 ? seq_cap * 2 : 16;
         while (new_cap < (size_t)n + 1)
             new_cap *= 2;
-        seq_vals = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+        seq_vals = mem_resize(seq_t, seq_vals, new_cap);
         seq_cap = new_cap;
     }
 

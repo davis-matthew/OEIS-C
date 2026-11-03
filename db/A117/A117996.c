@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   get_digits
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   get_digits, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/get_digits.h"
+#include "../utils/mem.h"
 
 static bool odd_digits(seq_t x)
 {
@@ -57,7 +60,7 @@ seq_t a(idx_t n)
     if (!init_done) {
         init_done = true;
         terms_cap = 32;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) return (seq_t)0;              /* abort on allocation failure */
 
         /* seed the Padovan recurrence with the known initial values 1,1,1 */
@@ -67,7 +70,7 @@ seq_t a(idx_t n)
             if (v != last_output && odd_digits(v)) {
                 if (terms_len >= terms_cap) {
                     terms_cap <<= 1;
-                    terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, terms_cap);
                 }
                 terms[terms_len++] = v;
                 last_output = v;
@@ -89,7 +92,7 @@ seq_t a(idx_t n)
         if (next != last_output && odd_digits(next)) {
             if (terms_len >= terms_cap) {
                 terms_cap <<= 1;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = next;
             last_output = next;

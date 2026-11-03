@@ -8,7 +8,8 @@
  * Formula:   a(n) = 12*a(n-1)-16*a(n-2); a(0)=0, a(1)=1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 972 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    so that repeated calls with arbitrary n are fast. */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #ifdef __cplusplus
 #include <type_traits>
@@ -64,12 +66,12 @@ seq_t a(idx_t n) {
 
     if (cache_size <= n) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return (seq_t)0;     /* out of memory, unlikely */
 
         if (cache) {
-            memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+            mem_free(cache);
         }
 
         /* initialise existing entries if cache was empty */

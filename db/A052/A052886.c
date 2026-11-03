@@ -8,13 +8,27 @@
  *            a(1) = 1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 36 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient C(a,b) using multiplicative formula. */
+static seq_t binom(idx_t a, idx_t b) {
+    if (b > a) return 0;
+    if (b > a - b) b = a - b;          /* use symmetry */
+    seq_t res = 1;
+    for (idx_t i = 1; i <= b; ++i) {
+        res *= (seq_t)(a - b + i);
+        res /= (seq_t)i;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -26,7 +40,7 @@ seq_t a(idx_t n)
     /* lazy initialization: store a(0) and a(1) */
     if (cache_size == 0) {
         cache_size = 2;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         cache[0] = 0;
         cache[1] = 1;
         last    = 1;
@@ -38,7 +52,7 @@ seq_t a(idx_t n)
 
     /* enlarge cache to accommodate indices up to n */
     idx_t new_size = n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * (size_t)new_size);
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_size);
     if (!tmp)          /* allocation failed – return 0 as error */
         return 0;
     cache = tmp;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 26, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   pow_seq_idx, triangular
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   ipow_idx, mem, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,13 +22,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_seq_idx.h"
+#include "../utils/ipow_idx.h"
 #include "../utils/triangular.h"
+#include "../utils/mem.h"
 
 /* Forward declarations for helper routines */
 static idx_t triangular(idx_t p);
 static idx_t find_row(idx_t n);
-static seq_t pow_seq_idx(seq_t base, idx_t exp);
+static seq_t ipow_idx(seq_t base, idx_t exp);
 
 /* Global tables for Stirling numbers and factorials */
 static seq_t **S_global = NULL;    /* S_global[i][k] = S(i,k) */
@@ -59,8 +61,7 @@ static void compute_stirling_global(idx_t nmax)
 #ifdef __cplusplus
     S_global    = reinterpret_cast<seq_t**>(realloc(S_global,
                            sizeof(seq_t*) * (nmax + 1)));
-    fact_global = reinterpret_cast<seq_t*>(realloc(fact_global,
-                           sizeof(seq_t) * (nmax + 1)));
+    fact_global = reinterpret_cast<seq_t*>(mem_resize(seq_t, fact_global, (nmax + 1)));
 #else
     S_global    = (seq_t**)realloc(S_global,
                            sizeof(seq_t*) * (nmax + 1));
@@ -113,7 +114,7 @@ seq_t a(idx_t n)
     compute_stirling_global((idx_t)((p > k) ? p : k));
 
     /* Compute T(p,k) = k^p – k! * S(p,k) */
-    seq_t power   = pow_seq_idx((seq_t)k, p);
+    seq_t power   = ipow_idx((seq_t)k, p);
     seq_t term    = fact_global[k] * S_global[p][k];
     seq_t result  = power - term;
 

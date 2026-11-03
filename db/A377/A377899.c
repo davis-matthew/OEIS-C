@@ -8,18 +8,19 @@
  * Formula:   a(n) = floor((n - pi(n))/2) where pi(n) = number of primes ≤ n
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   count_primes_upto
+ * Validated: partial, pass, 101 terms through n = 101 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/count_primes_upto.h"
+#include "../utils/prime_pi.h"
 
 /* Main sequence function */
 seq_t a(idx_t n)
 {
-    seq_t pi = count_primes_upto(n);
+    seq_t pi = prime_pi(n);
     /* floor((n - pi)/2) – integer division truncates downward */
     return ((seq_t)n - pi) / 2;
 }

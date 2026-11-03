@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 193, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   get_digits, is_palindrome, is_prime, seq_alloc, seq_realloc
+ * Validated: standard, pass, 57 terms through n = 8343 (2026-11-01)
+ * Helpers:   get_digits, is_palindrome_base, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,11 +22,31 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/get_digits.h"      /* get_digits(seq_t x, uint8_t* buf, size_t* len) */
-#include "../utils/is_prime.h"        /* is_prime(idx_t n) */
-#include "../utils/is_palindrome.h"   /* is_palindrome(seq_t x, idx_t base) */
-#include "../utils/seq_alloc.h"       /* seq_alloc(size_t) -> seq_t* */
-#include "../utils/seq_realloc.h"    /* seq_realloc(seq_t*, size_t, size_t) */
+#include <stdint.h>
+#include "../utils/get_digits.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/is_prime.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *balanced_primes = NULL;   /* cached values */
 static size_t bal_count = 0;            /* number of primes cached */
@@ -64,7 +85,7 @@ static void ensure_balanced(idx_t n) {
     while (bal_count < (size_t)n) {
         seq_t cand_seq = (seq_t)next_candidate;
         if (is_prime(next_candidate) &&
-            !is_palindrome(cand_seq, 10) &&
+            !is_palindrome_base(cand_seq, 10) &&
             is_balanced(cand_seq)) {
             balanced_primes[bal_count++] = cand_seq;
         }

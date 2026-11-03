@@ -12,12 +12,14 @@
  *            recurrence and * uses a safe 128‑bit accumul...
  * Range:     i8 n <= 13, i16 n <= 37, i32 n <= 115, i64 n <= 390,
  *            i128 n <= 1399, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 2482 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #if defined(__cplusplus)
     /* In C++ a big‑integer type may be used; treat accumulator as seq_t. */
@@ -39,14 +41,14 @@ seq_t a(idx_t n)
     size_t M = N - 1;                    /* highest f index needed */
 
     /* Allocate arrays of size M+1 (index 0…M). */
-    seq_t *e = (seq_t *)calloc(M + 1, sizeof(seq_t));
+    seq_t *e = mem_new(seq_t, M + 1);
     if (!e) return 0;
-    seq_t *C = (seq_t *)calloc(M + 1, sizeof(seq_t));
-    if (!C) { free(e); return 0; }
-    seq_t *tmp = (seq_t *)calloc(M + 1, sizeof(seq_t));
-    if (!tmp) { free(e); free(C); return 0; }
-    seq_t *f = (seq_t *)calloc(M + 1, sizeof(seq_t));
-    if (!f) { free(e); free(C); free(tmp); return 0; }
+    seq_t *C = mem_new(seq_t, M + 1);
+    if (!C) { mem_free(e); return 0; }
+    seq_t *tmp = mem_new(seq_t, M + 1);
+    if (!tmp) { mem_free(e); mem_free(C); return 0; }
+    seq_t *f = mem_new(seq_t, M + 1);
+    if (!f) { mem_free(e); mem_free(C); mem_free(tmp); return 0; }
 
     /* 1. Compute e[1…M]. */
     for (idx_t idx = 0; idx < 8; ++idx) {
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     }
     for (size_t k = 1; k <= M; ++k)
         C[k] = -tmp[k];
-    free(tmp);
+    mem_free(tmp);
 
     /* 3. Compute f[0…M] with recurrence. */
     f[0] = 1;
@@ -79,8 +81,8 @@ seq_t a(idx_t n)
     seq_t result = f[M];
 
     /* Free temporary storage. */
-    free(e);
-    free(C);
-    free(f);
+    mem_free(e);
+    mem_free(C);
+    mem_free(f);
     return result;
 }

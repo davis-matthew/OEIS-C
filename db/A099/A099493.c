@@ -8,12 +8,14 @@
  *            a(0)=1, a(1)=0, a(2)=1, a(3)=2, a(4)=-1, a(5)=0, offset 0
  * Range:     i8 n <= 19, i16 n <= 35, i32 n <= 48, i64 n <= 48, i128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the OEIS sequence A099493. */
 seq_t a(idx_t n)
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first six terms if needed */
     if (cache == NULL) {
         cache_size = 6;
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) return (seq_t)0; /* fallback on allocation failure */
 
         cache[0] = (seq_t)1;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* extend the cache to hold the requested index */
     size_t old_size = cache_size;
     cache_size = n + 1;
-    seq_t *tmp = (seq_t*)realloc(cache, cache_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cache_size);
     if (tmp == NULL) {
         /* if reallocation fails, keep the old cache and return zero as fallback */
         return (seq_t)0;

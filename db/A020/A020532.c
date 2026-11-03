@@ -7,18 +7,20 @@
  * Formula:   a(n) = 2^n * (3 + 4^(1+n) + 16^n)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 33 terms through n = 644 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
-    seq_t pow2n  = pow_uint(2, n);       /* 2^n */
-    seq_t pow4n1 = pow_uint(4, n + 1);   /* 4^(1+n) */
-    seq_t pow16n = pow_uint(16, n);      /* 16^n */
+    seq_t pow2n  = ipow_u64_idx(2, n);       /* 2^n */
+    seq_t pow4n1 = ipow_u64_idx(4, n + 1);   /* 4^(1+n) */
+    seq_t pow16n = ipow_u64_idx(16, n);      /* 16^n */
 
     seq_t sum = 3;                       /* start with constant 3 */
     sum += pow4n1;                       /* add 4^(1+n) */

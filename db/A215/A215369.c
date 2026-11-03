@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 180, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 809 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime sieve: primes up to LIMIT ---------- */
 static const uint32_t LIMIT = 2000000;   /* should cover all primes needed */
@@ -100,7 +102,7 @@ static void ensure_sequence_upto(idx_t required)
 
     if (!seq_vals) {
         seq_cap = 16;
-        seq_vals = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_vals = mem_new(seq_t, seq_cap);
     }
 
     while (seq_len < required) {
@@ -115,7 +117,7 @@ static void ensure_sequence_upto(idx_t required)
         /* Store the term */
         if (seq_len == seq_cap) {
             seq_cap *= 2;
-            seq_vals = (seq_t*)realloc(seq_vals, seq_cap * sizeof(seq_t));
+            seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
         }
         seq_vals[seq_len++] = (seq_t)last_checked;
         ++last_checked;

@@ -6,13 +6,14 @@
  * Keywords:  nonn
  * Formula:   a(n) = 81 written in base n
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
- * Helpers:   digits_of_uint
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
+ * Helpers:   num_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digits_of_uint.h"
+#include "../utils/num_digits_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +43,7 @@ seq_t a(idx_t n)
     seq_t val = 0;
     for (int i = len - 1; i >= 0; --i) {
         uint8_t d = digits[i];
-        int k = digits_of_uint(d);          /* number of decimal digits in d */
+        int k = num_digits_u64(d);          /* number of decimal digits in d */
         seq_t pow10 = 1;
         for (int j = 0; j < k; ++j) {
             pow10 *= 10;

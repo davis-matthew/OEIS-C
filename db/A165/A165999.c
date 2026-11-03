@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   trinv
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,21 @@
    trinv(n) = floor((1+sqrt(1+8*n))/2) is the inverse triangular
    number.  */
 #include <stdlib.h>
-#include "../utils/trinv.h"
+#include "../utils/mem.h"
+
+static inline idx_t trinv(idx_t n)
+{
+    /* Find the largest k such that k*(k+1)/2 ≤ n. */
+    idx_t k = 0;
+    while (1)
+    {
+        unsigned __int128 prod = (unsigned __int128)(k + 1) * (k + 2) / 2;
+        if (prod > n)
+            break;
+        k++;
+    }
+    return k;
+}
 
 seq_t a(idx_t n)
 {
@@ -46,8 +61,8 @@ seq_t a(idx_t n)
 
     /* Prepare work arrays large enough for the final row. */
     idx_t max_len = trinv(row) + 1;
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t) * max_len);
-    seq_t *curr = (seq_t *)malloc(sizeof(seq_t) * max_len);
+    seq_t *prev = mem_new(seq_t, max_len);
+    seq_t *curr = mem_new(seq_t, max_len);
     if (!prev || !curr)
         return (seq_t)0;   /* allocation failed – unlikely for small n */
 
@@ -74,7 +89,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = prev[col];
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

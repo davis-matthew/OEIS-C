@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 1743 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Sequence: A043505. Numbers having exactly one digit 4 in decimal. */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
         /* Grow the cache if it is full. */
         if (cache_len == cache_cap) {
             idx_t new_cap = cache_cap ? (cache_cap << 1) : 4;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return 0;          /* Allocation failed. */
             cache = tmp;
             cache_cap = new_cap;

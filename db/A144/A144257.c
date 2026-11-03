@@ -11,20 +11,21 @@
  *            … (anti‑diagonals)
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   floor_isqrt_u64
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* Compute the sum s = i + j of the coordinates on the diagonal containing */
     /* position n.  s satisfies (s-2)*(s-1)/2 < n <= (s-1)*s/2.  */
     idx_t x = (idx_t)(((__uint128_t)8 * n) + 1);
-    idx_t sq = floor_isqrt_u64(x);     /* floor(sqrt(x)) */
+    idx_t sq = isqrt(x);     /* floor(sqrt(x)) */
     idx_t t  = (sq - 1) / 2;           /* floor((sqrt(8n+1)-1)/2) */
     idx_t cum = (idx_t)(((__uint128_t)t * (t + 1)) / 2);
     idx_t s;

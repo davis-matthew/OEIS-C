@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n} gcd(tau(d), sigma(d))
- * Range:     u8 n <= 368, u16 n <= 7127, u32 n <= 7127, u64 n <= 7127,
- *            u128 n <= 7127, big any n
- * Helpers:   seq_gcd_builtin
+ * Range:     u8 n <= 368, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 95 terms through n = 7127 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,13 +16,13 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/seq_gcd_builtin.h"
+#include "../utils/gcd.h"
 
 /* Recursive enumeration of all divisors of n given its factorisation. */
 static void dfs_divisors(const uint64_t *pf, const int *exps, int pf_cnt,
                           int idx, seq_t cur_tau, seq_t cur_sigma, seq_t *sum) {
     if (idx == pf_cnt) {
-        *sum += seq_gcd_builtin(cur_tau, cur_sigma);
+        *sum += gcd(cur_tau, cur_sigma);
         return;
     }
     uint64_t p = pf[idx];

@@ -9,7 +9,8 @@
  *            (mod p) has no solution
  * Range:     u8 n <= 1, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   ensure_capacity, factor_u64, mod_pow, next_prime
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   factor_u64, mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,45 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mod_pow.h"
-#include "../utils/ensure_capacity.h"
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 /* Compute gcd of two unsigned 64‑bit integers */
 static inline uint64_t ugcd(uint64_t a, uint64_t b) {
@@ -63,7 +99,7 @@ seq_t a(idx_t n) {
             uint64_t q = pr[i];
             while (ord % q == 0) {
                 seq_t test_exp = ord / q;
-                if (mod_pow((seq_t)2, (idx_t)test_exp, (seq_t)p) == 1)
+                if (powmod((seq_t)2, (idx_t)test_exp, (seq_t)p) == 1)
                     ord /= q;
                 else
                     break;
@@ -79,7 +115,7 @@ seq_t a(idx_t n) {
         /* Check conditions: e1 % ord == 0 and e2 % ord != 0 */
         if ((e1 % ord == 0) && (e2 % ord != 0)) {
             /* Store the prime */
-            ensure_capacity(state.sz + 1, &state.cap, (void **)&state.data,
+            ensure_capacity(state.sz + 1, &state.cap, OEISC_VPP(&state.data),
                             sizeof(seq_t));
             state.data[state.sz++] = (seq_t)p;
         }

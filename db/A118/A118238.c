@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   reverse_decimal, seq_alloc_array, seq_free_array
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,20 @@
  */
 
 #include <stddef.h>
-#include "../utils/reverse_decimal.h"
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* Memoised generation of A118238 */
 seq_t a(idx_t n)
@@ -55,7 +67,7 @@ seq_t a(idx_t n)
             start_index = (size_t)cache_len;
         }
         for (size_t i = start_index; i < needed; ++i) {
-            seq_t next = reverse_decimal(prev) + (seq_t)1;
+            seq_t next = reverse_digits(prev) + (seq_t)1;
             new_cache[i] = next;
             prev = next;
         }

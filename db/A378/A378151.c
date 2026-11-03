@@ -9,13 +9,15 @@
  *            binom(). The sequence is defined for all n ≥ 0
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 26, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>   /* required by the build */
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t n, idx_t k); */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +28,8 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= kmax; ++k)
     {
         idx_t m = n - 3 * k;                     /* n - 3k ≥ 0 */
-        seq_t bin1 = binom(3 * k, m);            /* binomial(3k, n-3k) */
-        seq_t bin2 = binom(3 * k, k);            /* binomial(3k, k)   */
+        seq_t bin1 = binomial(3 * k, m);            /* binomial(3k, n-3k) */
+        seq_t bin2 = binomial(3 * k, k);            /* binomial(3k, k)   */
         seq_t num   = bin1 * bin2;               /* numerator          */
         seq_t den   = (seq_t)(2 * k + 1);        /* denominator = 2k+1 */
         seq_t term  = num / den;                 /* exact division     */

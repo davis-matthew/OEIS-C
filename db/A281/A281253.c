@@ -12,14 +12,25 @@
  *            ascending from 3 to n. In all cases n its...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   digits, pow10
+ * Validated: standard, pass, 33 terms through n = 327 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/digits.h"
+#include <stdint.h>
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -29,7 +40,7 @@ seq_t a(idx_t n)
         /* odds descending from n-1 down to 1 */
         idx_t i = n - 1;
         while (i >= 1) {
-            seq_t p = pow10((idx_t)digits(i));
+            seq_t p = pow10((idx_t)num_digits_idx(i));
             result = result * p + (seq_t)i;
             if (i == 1) break;
             i -= 2;
@@ -37,30 +48,30 @@ seq_t a(idx_t n)
 
         /* evens ascending from 2 to n-2 */
         for (idx_t i = 2; i <= n - 2; i += 2) {
-            seq_t p = pow10((idx_t)digits(i));
+            seq_t p = pow10((idx_t)num_digits_idx(i));
             result = result * p + (seq_t)i;
         }
 
         /* finally n */
-        seq_t p = pow10((idx_t)digits(n));
+        seq_t p = pow10((idx_t)num_digits_idx(n));
         result = result * p + (seq_t)n;
     }
     else {                                 /* n odd */
         /* evens descending from n-1 down to 2 */
         idx_t i = n - 1;
         while (i >= 2) {
-            seq_t p = pow10((idx_t)digits(i));
+            seq_t p = pow10((idx_t)num_digits_idx(i));
             result = result * p + (seq_t)i;
             if (i == 2) break;
             i -= 2;
         }
 
         /* 1 */
-        result = result * pow10((idx_t)digits(1)) + (seq_t)1;
+        result = result * pow10((idx_t)num_digits_idx(1)) + (seq_t)1;
 
         /* odds ascending from 3 to n */
         for (idx_t i = 3; i <= n; i += 2) {
-            seq_t p = pow10((idx_t)digits(i));
+            seq_t p = pow10((idx_t)num_digits_idx(i));
             result = result * p + (seq_t)i;
         }
     }

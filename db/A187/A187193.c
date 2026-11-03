@@ -9,12 +9,14 @@
  *            + 306*binom(n+3,7) + 15*binom(n+4,7) );
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Return the n-th term of sequence A187193 (offset 1). */
 seq_t a(idx_t n)
@@ -27,19 +29,19 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     seq_t t;
 
-    t = binom(n, 7);
+    t = binomial(n, 7);
     sum += (seq_t)44 * t;
 
-    t = binom(n + 1, 7);
+    t = binomial(n + 1, 7);
     sum += (seq_t)503 * t;
 
-    t = binom(n + 2, 7);
+    t = binomial(n + 2, 7);
     sum += (seq_t)812 * t;
 
-    t = binom(n + 3, 7);
+    t = binomial(n + 3, 7);
     sum += (seq_t)306 * t;
 
-    t = binom(n + 4, 7);
+    t = binomial(n + 4, 7);
     sum += (seq_t)15 * t;
 
     return (seq_t)96 * sum;

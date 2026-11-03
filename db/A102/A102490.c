@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 156, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_hex_letters
+ * Validated: standard, pass, 77 terms through n = 9954 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,16 @@
    Computation is done by scanning integers and counting those with hex digits ≥10. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_hex_letters.h"
+
+/* Check if x has any hexadecimal digit >= 10 (i.e. A – F). */
+static inline bool has_hex_letters(idx_t x)
+{
+    while (x > 0) {
+        if ((x & 15ULL) > 9ULL) return true;   /* lowest hex digit > 9 */
+        x >>= 4;                                /* shift to next hex digit */
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

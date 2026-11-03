@@ -8,14 +8,22 @@
  *            4^k*(16*m + 14) [Dickson]
  * Range:     u8 n <= 235, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_representable
+ * Validated: standard, pass, 88 terms through n = 956 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_representable.h"
+
+static bool is_representable(uint64_t k) {
+    if (k == 0) return true;
+    while (k % 4 == 0) {
+        k /= 4;
+    }
+    return (k % 16) != 14;
+}
 
 seq_t a(idx_t n) {
     idx_t count = 0;

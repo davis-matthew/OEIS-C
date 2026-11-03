@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * and each call is O(1) after the first expansion beyond the requested n. */
 
 #include <stdlib.h>   /* for realloc, NULL */
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;      /* dynamic cache of computed terms          */
 static size_t a_cached = 0;        /* number of terms currently stored (size)  */
@@ -30,7 +32,7 @@ static void ensure_a(size_t n)
         return;   /* already computed */
 
     size_t new_size = n + 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_size);
     if (!tmp)
         return;   /* allocation failed; caller will crash silently as per build policy */
 

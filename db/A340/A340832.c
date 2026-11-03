@@ -7,15 +7,32 @@
  * Keywords:  nonn
  * Formula:   number of factorizations of n into factors > 1 with odd least
  *            factor
- * Range:     u8 n <= 9211, u16 n <= 9211, u32 n <= 9211, u64 n <= 9211,
- *            u128 n <= 9211, big any n
- * Helpers:   count_with_min
+ * Range:     u8 n <= 15119, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 124 terms through n = 9211 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_with_min.h"
+
+/* Recursive helper: count factorizations of 'n' where all factors are >= min_factor.
+   The factors are considered in non‑decreasing order to avoid duplicates. */
+static seq_t count_with_min(idx_t n, idx_t min_factor)
+{
+    seq_t total = 0;
+    for (idx_t i = min_factor; i <= n / i; ++i) {
+        if (n % i == 0) {
+            idx_t rest = n / i;          /* rest >= i by loop condition */
+            /* two‑factor factorization [i, rest] */
+            ++total;
+            /* deeper factorizations of 'rest' with new minimal factor 'i' */
+            total += count_with_min(rest, i);
+        }
+    }
+    return total;
+}
 
 seq_t a(idx_t n)
 {

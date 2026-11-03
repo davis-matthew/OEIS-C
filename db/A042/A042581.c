@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 29, u64 n <= 59, u128 n <= 111,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Denominator of the nth convergent of the continued‑fraction expansion of sqrt(819) */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     {
         /* cache for q0 */
         cache_len = 1;
-        cache     = (seq_t*)malloc(sizeof(seq_t));
+        cache     = mem_new(seq_t, 1);
         cache[0]  = (seq_t)1;          /* q0 = 1 */
 
         /* continued‑fraction data for k = 0 */
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
             size_t new_len = cache_len ? cache_len : 1;
             while (new_len <= cur_n + 1)
                 new_len <<= 1;
-            cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_len);
             cache_len = new_len;
         }
         cache[cur_n + 1] = q_next;

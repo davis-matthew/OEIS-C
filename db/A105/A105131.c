@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 23, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 52 terms through n = 995 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 /* Public function required by the framework.
    It searches candidates 512*k + 257 and counts primes
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     while (found < n) {
         uint64_t cand = 512ULL * k + 257ULL;
-        if (is_prime(cand)) {
+        if (is_prime_u64(cand)) {
             ++found;
             if (found == n) return (seq_t)cand;
         }

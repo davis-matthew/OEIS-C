@@ -5,15 +5,17 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = 4*a(n-1) - 3*a(n-3); a(0)=1, a(1)=4, a(2)=16
- * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 26, u128 n <= 26,
+ * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 33, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* memoization storage for computed terms */
 static seq_t *memo = NULL;
@@ -29,7 +31,7 @@ static void ensure_capacity(idx_t need)
     idx_t new_len = memo_len ? memo_len << 1 : 1;
     while (new_len <= need)
         new_len <<= 1;
-    seq_t *new_mem = (seq_t *)realloc(memo, new_len * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, memo, new_len);
     if (!new_mem)
         abort();           /* out of memory; terminate for safety */
     memo = new_mem;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 {
     /* initialize base terms on first call */
     if (!memo) {
-        memo = (seq_t *)malloc(3 * sizeof(seq_t));
+        memo = mem_new(seq_t, 3);
         if (!memo)
             abort();          /* out of memory */
         memo[0] = (seq_t)1;

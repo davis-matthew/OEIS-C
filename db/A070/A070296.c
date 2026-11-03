@@ -9,13 +9,15 @@
  *            A070296) – implemented with a sieve and a counter array
  * Range:     u8 none, u16 none, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 95 terms through n = 94 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The integer types seq_t and idx_t are supplied by the build. */
 seq_t a(idx_t n)
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
 
         /* --- allocate counts array ------------------------------------ */
         counts_size = 128;   /* start small */
-        counts = (seq_t*)calloc((size_t)counts_size, sizeof(seq_t));
+        counts = mem_new(seq_t, (size_t)counts_size);
         if (!counts) return 0;   /* allocation failure */
 
         /* --- count sphi(m) values ------------------------------------- */
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
             if (idx >= counts_size)
             {
                 idx_t new_size = idx + 1;
-                seq_t *tmp = (seq_t*)realloc(counts, (size_t)new_size * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, counts, (size_t)new_size);
                 if (!tmp) return 0;   /* allocation failure */
                 /* zero-initialize the new part */
                 for (idx_t i = counts_size; i < new_size; ++i) tmp[i] = 0;

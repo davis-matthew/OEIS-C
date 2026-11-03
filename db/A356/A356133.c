@@ -9,6 +9,7 @@
  *            2 otherwise. Thus a(n) = 3*n - 1 - parity_of_ones(n-1)
  * Range:     u8 n <= 85, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 75 terms through n = 4979 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

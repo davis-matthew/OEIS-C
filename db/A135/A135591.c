@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 838, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   divisor_count_u64, grow_seq
+ * Validated: standard, pass, 113 terms through n = 957 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,23 @@
 */
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"  /* divisor_count_u64(uint64_t) -> unsigned long long */
-#include "../utils/grow_seq.h"          /* void grow_seq(seq_t **arr, size_t *cap, size_t need) */
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 static seq_t *a_vals = NULL;   /* a_vals[i] = a(i+1), 0‑based */
 static size_t a_len  = 0;      /* number of terms currently stored */
@@ -66,7 +82,7 @@ seq_t a(idx_t n)
         uint64_t idx = (uint64_t)i;
 
         /* Number of proper divisors = τ(i) - 1 */
-        seq_t total_div = divisor_count_u64(idx);
+        seq_t total_div = num_divisors(idx);
         seq_t proper_div = total_div - (seq_t)1;
 
         size_t pdx = (size_t)proper_div;   /* proper_div is small */

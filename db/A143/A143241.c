@@ -10,19 +10,21 @@
  *            except those congruent to 4 modulo 6
  * Range:     i8 n <= 104, i16 n <= 104, i32 n <= 104, i64 n <= 104,
  *            i128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate array for coefficients up to n (include index 0) */
     size_t N = (size_t)n;
-    seq_t *dp = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, N + 1);
     if (!dp) return 0;               /* out of memory; return 0 safely */
 
     dp[0] = 1;                        /* constant term */
@@ -38,6 +40,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[N];
-    free(dp);
+    mem_free(dp);
     return result;
 }

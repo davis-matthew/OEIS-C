@@ -13,12 +13,21 @@
  *            a(6)=7551515197, a(7)=210095323918, a(8)=56321226258...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 12, u128 n <= 26,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: standard, pass, 31 terms through n = 203 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static const seq_t init_vals[11] = {
     (seq_t)40ULL,

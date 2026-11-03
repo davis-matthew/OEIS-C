@@ -8,14 +8,33 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 19, u64 n <= 37, u128 n <= 74,
  *            big any n
- * Helpers:   curr_valid
+ * Validated: standard, pass, 41 terms through n = 180 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/curr_valid.h"
+
+static inline bool curr_valid(unsigned prev, unsigned curr, unsigned next)
+{
+    /* For each 1 in the current row, count its king‑move neighbours
+     * formed by the current, previous and next rows. */
+    for (int col = 0; col < 2; ++col) {
+        if ((curr >> col) & 1u) {
+            unsigned neigh =
+                ((curr >> (1 - col)) & 1u)          /* horizontal neighbour  */
+              + ((prev >> col) & 1u)                /* up, same column      */
+              + ((prev >> (1 - col)) & 1u)          /* up, opposite column  */
+              + ((next >> col) & 1u)                /* down, same column    */
+              + ((next >> (1 - col)) & 1u);         /* down, opposite col   */
+            if (neigh < 2u || neigh > 4u)
+                return false;
+        }
+    }
+    return true;
+}
 
 /* Sequence A296821: Number of n×2 0/1 arrays in which each 1 has
  * between 2 and 4 king‑move neighboring 1s.  The function is

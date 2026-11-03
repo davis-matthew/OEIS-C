@@ -11,7 +11,8 @@
  *            0…r in row‑major order
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 30, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   big_pow, binomial, factorial
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,18 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/factorial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n) {
     /* Find the row r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2. */
@@ -42,7 +53,7 @@ seq_t a(idx_t n) {
         seq_t bin = binomial(2 * c, j);
         int64_t base_int = (int64_t)2 + (int64_t)c - (int64_t)j;
         seq_t base_abs = (base_int >= 0) ? (seq_t)base_int : (seq_t)(-base_int);
-        seq_t pow_val = big_pow(base_abs, (seq_t)(2 * r));
+        seq_t pow_val = ipow(base_abs, (seq_t)(2 * r));
         seq_t term = bin * pow_val;
         if (j & 1) {
             neg += term;

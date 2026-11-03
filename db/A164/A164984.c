@@ -10,13 +10,15 @@
  *            T(n-1,k)+T(n-1,k-1)+2*T(n-2,k)+T(n-2,k-1) for n≥3
  * Range:     u8 n <= 29, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*-----------------  helper to compute floor(sqrt(x)) for uint64_t  --------*/
 static inline idx_t isqrt_u64(idx_t x)
@@ -56,7 +58,7 @@ static void ensure_rows_up_to(idx_t r)
 
     /* new required size */
     idx_t new_size = r*(r+1)/2;
-    seq_t *new_tri = (seq_t*)malloc(new_size * sizeof(seq_t));
+    seq_t *new_tri = mem_new(seq_t, new_size);
     if (!new_tri) return;   /* out of memory – caller will get garbage on failure */
 
     /* copy old data if any */
@@ -64,7 +66,7 @@ static void ensure_rows_up_to(idx_t r)
     {
         idx_t old_size = max_row*(max_row+1)/2;
         for (idx_t i = 0; i < old_size; ++i) new_tri[i] = tri[i];
-        free(tri);
+        mem_free(tri);
     }
     tri = new_tri;
 

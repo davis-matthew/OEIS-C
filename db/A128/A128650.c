@@ -7,6 +7,7 @@
  * Formula:   a(n) = 4*(n-2)/(n-1) * C(2*n-4, n-2)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 34, u128 n <= 66,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 195 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* Computed using multiplicative binomial with on‑the‑fly reductions to avoid overflow */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Compute C(2*k, k) with reductions to keep intermediate values small. */

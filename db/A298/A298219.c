@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 26, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper to extract bit c (0..5) of pattern p */
 static inline int bit(uint64_t p, int c)
@@ -109,10 +111,10 @@ seq_t a(idx_t n)
     static seq_t *tmp  = NULL;
     const size_t SZ = 64 * 64;
     if (!dp) {
-        dp  = (seq_t *)malloc(SZ * sizeof(seq_t));
-        tmp = (seq_t *)malloc(SZ * sizeof(seq_t));
-        memset(dp, 0, SZ * sizeof(seq_t));
-        memset(tmp, 0, SZ * sizeof(seq_t));
+        dp  = mem_new(seq_t, SZ);
+        tmp = mem_new(seq_t, SZ);
+        mem_set(dp, 0, SZ * sizeof(seq_t));
+        mem_set(tmp, 0, SZ * sizeof(seq_t));
     }
 
     /* n==1 special case */
@@ -127,7 +129,7 @@ seq_t a(idx_t n)
     }
 
     /* clear dp */
-    memset(dp, 0, SZ * sizeof(seq_t));
+    mem_set(dp, 0, SZ * sizeof(seq_t));
 
     /* initialisation: first two rows */
     for (uint64_t r0 = 0; r0 < 64; ++r0) {
@@ -142,7 +144,7 @@ seq_t a(idx_t n)
     /* DP over remaining rows (row indices 2 .. n-1) */
     for (idx_t row = 1; row <= n - 2; ++row) {
         /* zero tmp */
-        memset(tmp, 0, SZ * sizeof(seq_t));
+        mem_set(tmp, 0, SZ * sizeof(seq_t));
 
         for (uint64_t prev = 0; prev < 64; ++prev) {
             for (uint64_t cur = 0; cur < 64; ++cur) {

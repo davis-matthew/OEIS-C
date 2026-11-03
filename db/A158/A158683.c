@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1024*n^2 - 32
  * Range:     u8 none, u16 n <= 8, u32 n <= 2048, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 50 terms through n = 9110 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 25, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    where b_k = 2·∑_{d|k, (k/d) odd} p(d)·d.  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache */
 static idx_t  cache_size = 0;            /* max computed index + 1 */
@@ -34,13 +36,13 @@ recompute(idx_t n)
     size_t sz = (size_t)(n + 1);
 
     /* free old cache if any */
-    if (part_arr) free(part_arr);
-    if (b_arr)    free(b_arr);
-    if (g_arr)    free(g_arr);
+    if (part_arr) mem_free(part_arr);
+    if (b_arr)    mem_free(b_arr);
+    if (g_arr)    mem_free(g_arr);
 
-    part_arr = (seq_t *)malloc(sz * sizeof(seq_t));
-    b_arr    = (seq_t *)malloc(sz * sizeof(seq_t));
-    g_arr    = (seq_t *)malloc(sz * sizeof(seq_t));
+    part_arr = mem_new(seq_t, sz);
+    b_arr    = mem_new(seq_t, sz);
+    g_arr    = mem_new(seq_t, sz);
     if (!part_arr || !b_arr || !g_arr)
         return;   /* in case of OOM – caller will return 0 */
 

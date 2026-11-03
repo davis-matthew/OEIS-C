@@ -10,15 +10,17 @@
  *            to n‑1 and count those that divide n. The list of Fibonacci
  *            numbers grows only logarithmically in n, so the routine is O(log
  *            n) per call
- * Range:     u8 n <= 4359, u16 n <= 8584, u32 n <= 8584, u64 n <= 8584,
- *            u128 n <= 8584, big any n
- * Helpers:   none
+ * Range:     u8 n <= 4359, u16 n <= 10946, u32 n <= 10946, u64 n <= 10946,
+ *            u128 n <= 10946, big any n
+ * Validated: standard, pass, 121 terms through n = 8584 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *fib_cache = NULL;   /* array of Fibonacci numbers (>0, unique) */
 static size_t fib_count = 0;      /* number of elements currently stored */
@@ -30,7 +32,7 @@ static void ensure_fibs(idx_t limit)
     /* Initialisation: store 1 and 2 (unique positive Fibonacci values). */
     if (fib_count == 0) {
         fib_cap = 8;
-        fib_cache = (seq_t*)malloc(fib_cap * sizeof(seq_t));
+        fib_cache = mem_new(seq_t, fib_cap);
         if (!fib_cache) return; /* OOM – callers will receive 0 */
         fib_cache[0] = 1;
         fib_cache[1] = 2;
@@ -42,7 +44,7 @@ static void ensure_fibs(idx_t limit)
         /* Expand the array if necessary. */
         if (fib_count == fib_cap) {
             fib_cap *= 2;
-            seq_t *tmp = (seq_t*)realloc(fib_cache, fib_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fib_cache, fib_cap);
             if (!tmp) return; /* OOM */
             fib_cache = tmp;
         }

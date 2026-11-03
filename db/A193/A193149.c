@@ -8,15 +8,19 @@
  *            n-1-j))^{C(2n-1,j)-C(2n-1,j-1)} ] / C(2n-1,n-1)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   big_pow, binom, seq_one
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_one.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 seq_t a(idx_t n)
 {
@@ -25,13 +29,13 @@ seq_t a(idx_t n)
     idx_t k = n;                         /* use k for the graph order */
 
     /* number of vertices of the odd graph O_k */
-    seq_t v = binom(2*k - 1, k - 1);
+    seq_t v = binomial(2*k - 1, k - 1);
 
     seq_t prod = seq_one();
 
     for (idx_t j = 1; j < k; ++j) {
         /* magnitude of the j‑th eigenvalue of the adjacency matrix */
-        seq_t c = binom(k - j, (k - 1) - j);   /* C(k-j, k-1-j) */
+        seq_t c = binomial(k - j, (k - 1) - j);   /* C(k-j, k-1-j) */
 
         seq_t l_j;
         if ((j & 1) == 0) {          /* even j: λ_j = +c, so l_j = k - c */
@@ -41,10 +45,10 @@ seq_t a(idx_t n)
         }
 
         /* multiplicity of this eigenvalue in the Laplacian spectrum */
-        seq_t m_j = binom(2*k - 1, j) - binom(2*k - 1, j - 1);
+        seq_t m_j = binomial(2*k - 1, j) - binomial(2*k - 1, j - 1);
 
         /* multiply by l_j ^ m_j */
-        prod = prod * big_pow(l_j, m_j);
+        prod = prod * ipow(l_j, m_j);
     }
 
     /* divide by the number of vertices to obtain the number of spanning trees */

@@ -11,7 +11,8 @@
  *            [l,n] leaves heads whose nim values XOR together;...
  * Range:     u8 n <= 15, u16 n <= 25, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   bitlen_w, getbit
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/bitlen_w.h"
-#include "../utils/getbit.h"
+
+static int bitlen_w(const uint64_t *v, int nw) {
+    for (int i = nw - 1; i >= 0; i--) {
+        if (v[i]) {
+            int b = 63;
+            while (!((v[i] >> b) & 1)) b--;
+            return i * 64 + b + 1;
+        }
+    }
+    return 0;
+}
+
+static int getbit(const uint64_t *v, int b) {
+    return (int)((v[b >> 6] >> (b & 63)) & 1);
+}
 
 static uint64_t **Gw = NULL;
 static int *Gn = NULL;

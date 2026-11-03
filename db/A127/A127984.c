@@ -7,6 +7,7 @@
  * Formula:   a(n) = ((3*n + 7)*2^(n-1) + (-1)^n)/9
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 29, u64 n <= 60, u128 n <= 122,
  *            big any n
+ * Validated: standard, pass, 48 terms through n = 960 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* (derived from a(n) = (n/3 + 7/9)*2^(n-1) + (-1)^n/9) */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n) {

@@ -8,7 +8,8 @@
  * Formula:   a(n) = the nth positive integer k such that prime(k)+k is prime
  * Range:     u8 n <= 4, u16 n <= 251, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   xmalloc, xrealloc
+ * Validated: standard, pass, 73 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,25 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/xmalloc.h"
-#include "../utils/xrealloc.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Allocate and reallocate helper that works in C and C++ */
+static void *xmalloc(size_t size) { return malloc(size); }
+
+#ifdef __cplusplus
+template <class T>
+static T *xrealloc(T *ptr, size_t size) { return mem_resize(T, ptr, (size) / sizeof(T)); }
+#else
+static void *xrealloc(void *ptr, size_t size) { return realloc(ptr, size); }
+#endif
 
 /* Parameters: sieve limit must cover enough primes for the requested n.
    For n up to 10,000 a bound of 5 000 000 is comfortably large. */
@@ -84,7 +102,7 @@ static void init(void)
 
     /* Build prime list */
     prime_cap = 1024;
-    prime_list = (seq_t *)xmalloc(prime_cap * sizeof(seq_t));
+    prime_list = mem_new(seq_t, prime_cap);
     if (!prime_list) abort();
     prime_len = 0;
     for (idx_t i = 2; i <= SIEVE_LIMIT; ++i) {
@@ -96,7 +114,7 @@ static void init(void)
 
     /* Prepare values cache */
     val_cap = 1024;
-    values = (seq_t *)xmalloc(val_cap * sizeof(seq_t));
+    values = mem_new(seq_t, val_cap);
     if (!values) abort();
     val_len = 0;
 

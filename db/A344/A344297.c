@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   parity_of_two_and_five
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,27 @@
 
 /* Include standard headers for memory management and integer types. */
 #include <stdlib.h>
-#include "../utils/parity_of_two_and_five.h"
+#include "../utils/mem.h"
+
+/* Helper to compute parity of exponent of 2 and 5 in a number. */
+static void parity_of_two_and_five(seq_t n, int *p2, int *p5)
+{
+    seq_t tmp = n;
+    int e2 = 0;
+    while (tmp % (seq_t)2 == (seq_t)0) {
+        tmp /= (seq_t)2;
+        e2++;
+    }
+    *p2 = e2 & 1;
+
+    tmp = n;
+    int e5 = 0;
+    while (tmp % (seq_t)5 == (seq_t)0) {
+        tmp /= (seq_t)5;
+        e5++;
+    }
+    *p5 = e5 & 1;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -37,14 +58,14 @@ seq_t a(idx_t n)
     /* ----- Initialization ----- */
     if (h_len == 0) {
         h_cap = 64;
-        hamming = (seq_t *)malloc(h_cap * sizeof(seq_t));
+        hamming = mem_new(seq_t, h_cap);
         if (!hamming) return (seq_t)0;  /* safety */
         hamming[0] = (seq_t)1;
         h_len = 1;
     }
     if (g_len == 0) {
         g_cap = 64;
-        good = (seq_t *)malloc(g_cap * sizeof(seq_t));
+        good = mem_new(seq_t, g_cap);
         if (!good) return (seq_t)0;  /* safety */
         good[0] = (seq_t)1;         /* the empty partition gives 1 */
         g_len = 1;
@@ -67,7 +88,7 @@ seq_t a(idx_t n)
         /* Grow Hamming array if needed. */
         if (h_len == h_cap) {
             size_t new_cap = h_cap << 1;
-            seq_t *tmp = (seq_t *)realloc(hamming, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, hamming, new_cap);
             if (!tmp) return (seq_t)0;
             hamming = tmp;
             h_cap = new_cap;
@@ -81,7 +102,7 @@ seq_t a(idx_t n)
             /* Add to good array. */
             if (g_len == g_cap) {
                 size_t new_cap = g_cap << 1;
-                seq_t *tmp = (seq_t *)realloc(good, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, good, new_cap);
                 if (!tmp) return (seq_t)0;
                 good = tmp;
                 g_cap = new_cap;

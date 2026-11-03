@@ -7,13 +7,14 @@
  * Formula:   a(n) = (Product_{i=1..7} (n^i + i)) / 7!
  * Range:     u8 none, u16 n <= 1, u32 n <= 2, u64 n <= 6, u128 n <= 32,
  *            big any n
- * Helpers:   _seq_gcd
+ * Validated: standard, pass, 29 terms through n = 969 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/_seq_gcd.h"
+#include "../utils/gcd.h"
 
 /* Local GCD routine for seq_t values */
 
@@ -34,7 +35,7 @@ seq_t a(idx_t n)
 
         /* Cancel any common factor with the remaining divisor */
         if (divrem != (seq_t)1) {
-            seq_t g = _seq_gcd(factor, divrem);
+            seq_t g = gcd(factor, divrem);
             if (g != (seq_t)1) {
                 factor /= g;
                 divrem  /= g;

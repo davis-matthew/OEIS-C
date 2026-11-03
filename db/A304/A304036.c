@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 105 terms through n = 9953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache of the sequence values */
 static seq_t *table = NULL;
@@ -31,11 +33,11 @@ seq_t a(idx_t n)
     /* if a new larger n is requested, recompute the table */
     if ((size_t)n + 1 > table_cap) {
         size_t cap = (size_t)n + 1;
-        seq_t *dp   = (seq_t *)malloc(cap * sizeof(seq_t));
-        seq_t *tmp  = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq_t *dp   = mem_new(seq_t, cap);
+        seq_t *tmp  = mem_new(seq_t, cap);
         if (!dp || !tmp) { /* insufficient memory */
-            if (dp) free(dp);
-            if (tmp) free(tmp);
+            if (dp) mem_free(dp);
+            if (tmp) mem_free(tmp);
             return 0;
         }
 
@@ -77,14 +79,14 @@ seq_t a(idx_t n)
         }
 
         /* discard old table if it existed */
-        if (table) free(table);
+        if (table) mem_free(table);
 
         /* set updated table */
         table = dp;
         table_cap = cap;
 
         /* free the temporary buffer (now contains old dp) */
-        free(tmp);
+        mem_free(tmp);
     }
 
     return table[(size_t)n];

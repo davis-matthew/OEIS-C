@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 17,
  *            big any n
- * Helpers:   digits_of_uint64, pow10_uint
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
+ * Helpers:   num_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,8 +39,20 @@
 
 #include <math.h>
 #include <stddef.h>
-#include "../utils/digits_of_uint64.h"
-#include "../utils/pow10_uint.h"
+#include "../utils/num_digits_u64.h"
+
+/* Static helper: compute 10^e as seq_t (fast exponentiation) */
+static seq_t pow10_uint(int e) {
+    seq_t result = 1;
+    seq_t base = 10;
+    int exp = e;
+    while (exp > 0) {
+        if (exp & 1) result *= base;
+        exp >>= 1;
+        if (exp) base *= base;
+    }
+    return result;
+}
 
 /* Static helper: exponentiation by squaring for seq_t with unsigned exponent */
 static seq_t pow_seq_t(seq_t base, idx_t exp) {
@@ -61,7 +74,7 @@ seq_t a(idx_t n) {
     seq_t B = pow_seq_t((seq_t)n, n);
 
     /* 2. Compute number of digits of n */
-    int L = digits_of_uint64((uint64_t)n);
+    int L = num_digits_u64((uint64_t)n);
 
     /* 3. Compute Lg = n * log10(n) as a double */
     double log10_n = log10((double)n);

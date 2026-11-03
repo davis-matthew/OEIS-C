@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 598, u64 n <= 598, u128 n <= 598,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: full, pass, 598 terms through n = 598 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"   /* provides bool is_prime_small(seq_t n) */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* internal cache of the sequence */
 static seq_t *prime_list = NULL;   /* dynamically allocated array of primes   */
@@ -37,7 +39,7 @@ static void init_primes(void)
 
     /* There are at most 9 * 10^3 candidate numbers */
     const size_t MAX_CANDIDATES = 9000;
-    seq_t *buffer = (seq_t *)malloc(MAX_CANDIDATES * sizeof(seq_t));
+    seq_t *buffer = mem_new(seq_t, MAX_CANDIDATES);
     if (!buffer)
         return;                     /* allocation failed – leave list empty */
 
@@ -61,7 +63,7 @@ static void init_primes(void)
                     val += (seq_t)c * d10s[5];
                     val += (seq_t)d * d10s[6];
 
-                    if (is_prime_small(val))
+                    if (is_prime_seq(val))
                         buffer[idx++] = val;
                 }
             }
@@ -70,7 +72,7 @@ static void init_primes(void)
 
     if (idx > 0) {
         /* shrink the buffer to fit the actual number of primes */
-        seq_t *list = (seq_t *)realloc(buffer, idx * sizeof(seq_t));
+        seq_t *list = mem_resize(seq_t, buffer, idx);
         if (list) {
             prime_list = list;
             prime_count = idx;
@@ -78,7 +80,7 @@ static void init_primes(void)
         }
     }
     /* If realloc failed or no primes found, clean up */
-    free(buffer);
+    mem_free(buffer);
     prime_list = NULL;
     prime_count = 0;
 }

@@ -8,13 +8,15 @@
  *            numbers
  * Range:     u8 n <= 264, u16 n <= 512, u32 n <= 512, u64 n <= 512,
  *            u128 n <= 512, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 504 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     // Generate pentagonal numbers P(k) = k(3k-1)/2 up to n
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     
     // DP: dp[sum * 6 + count] = number of ways to partition sum into exactly count parts
     int n_int = (int)n;
-    seq_t *dp = (seq_t *)calloc((n_int + 1) * 6, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n_int + 1) * 6);
     if (!dp) return 0;
     
     dp[0] = 1; // dp[0][0] = 1 (empty partition)
@@ -55,6 +57,6 @@ seq_t a(idx_t n) {
         result += dp[n_int * 6 + c];
     }
     
-    free(dp);
+    mem_free(dp);
     return result;
 }

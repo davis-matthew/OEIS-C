@@ -12,6 +12,7 @@
  *            2·⌊2n√2⌋ + ⌊n(2+√2)^(3/2)⌋
  * Range:     u8 n <= 12, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,19 +23,19 @@
 seq_t a(idx_t n)
 {
     /* high‑precision constants */
-    static const long double SQRT2 = 1.414213562373095048801688724209698078569671875376948073179L;
-    static const long double W    = SQRT2 + 1.0L;                                     /* √2 + 1 */
-    static const long double V    = sqrtl(4.0L - 2.0L * SQRT2);                        /* √(4‑2√2) */
-    static const long double W3   = sqrtl(20.0L + 14.0L * SQRT2);                       /* (2+√2)^(3/2) = √(20+14√2) */
+    const long double SQRT2 = 1.414213562373095048801688724209698078569671875376948073179L;
+    const long double W    = SQRT2 + 1.0L;                                     /* √2 + 1 */
+    const long double V    = sqrtl(4.0L - 2.0L * SQRT2);                        /* √(4‑2√2) */
+    const long double W3   = sqrtl(20.0L + 14.0L * SQRT2);                       /* (2+√2)^(3/2) = √(20+14√2) */
 
     /* scaling factor for integer arithmetic */
     static const unsigned long long SCALE = 1000000000000000000ULL;   /* 1e18 */
 
     /* integer approximations of constants multiplied by SCALE */
-    static const unsigned long long P_W  = (unsigned long long)(W  * (long double)SCALE);
-    static const unsigned long long P_V  = (unsigned long long)(V  * (long double)SCALE);
-    static const unsigned long long P_S  = (unsigned long long)(SQRT2 * (long double)SCALE);
-    static const unsigned long long P_W3 = (unsigned long long)(W3 * (long double)SCALE);
+    const unsigned long long P_W  = (unsigned long long)(W  * (long double)SCALE);
+    const unsigned long long P_V  = (unsigned long long)(V  * (long double)SCALE);
+    const unsigned long long P_S  = (unsigned long long)(SQRT2 * (long double)SCALE);
+    const unsigned long long P_W3 = (unsigned long long)(W3 * (long double)SCALE);
 
     seq_t sum = 5 * (seq_t)n;          /* 5n */
 

@@ -9,8 +9,9 @@
  *            factors), 0 if 2 divides n exactly once, -2^{k+1} if 2 divides n
  *            at least twice. This follows from a(2)=0, a(2^e)=-2 (e>1) and
  *            a(p^e)=2 for odd primes
- * Range:     i8 n <= 9832, i16 n <= 9832, i32 n <= 9832, i64 n <= 9832,
- *            i128 n <= 9832, big any n
+ * Range:     i8 n <= 20000, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 111 terms through n = 9832 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 #define MAX_PRIMES 64

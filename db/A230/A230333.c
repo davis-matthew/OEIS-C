@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system. */
 extern seq_t _dummy;   /* silence unused warning */
@@ -101,11 +103,11 @@ static void init_tables(void)
     }
 
     /* Allocate DP storage */
-    dp_cur  = (seq_t *)malloc(STATE_COUNT * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(STATE_COUNT * sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, STATE_COUNT);
+    dp_next = mem_new(seq_t, STATE_COUNT);
     if (!dp_cur || !dp_next) abort();
-    memset(dp_cur, 0, STATE_COUNT * sizeof(seq_t));
-    memset(dp_next, 0, STATE_COUNT * sizeof(seq_t));
+    mem_set(dp_cur, 0, STATE_COUNT * sizeof(seq_t));
+    mem_set(dp_next, 0, STATE_COUNT * sizeof(seq_t));
 }
 
 /* --------------------------------------------------------------------- */
@@ -114,7 +116,7 @@ static void ensure_cache_capacity(idx_t needed)
     if (needed <= a_cache_cap) return;
     size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 256;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *new_buf = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, a_cache, new_cap);
     if (!new_buf) abort();
     a_cache = new_buf;
     a_cache_cap = new_cap;
@@ -156,7 +158,7 @@ static void compute_up_to(idx_t target)
 
     /* ----- process remaining rows ----- */
     for (idx_t r = dp_rows_done + 1; r <= target; ++r) {
-        memset(dp_next, 0, STATE_COUNT * sizeof(seq_t));
+        mem_set(dp_next, 0, STATE_COUNT * sizeof(seq_t));
 
         for (int prev_id = 0; prev_id < STATE_COUNT; ++prev_id) {
             seq_t ways = dp_cur[prev_id];

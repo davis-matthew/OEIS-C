@@ -7,12 +7,14 @@
  * Formula:   a(n) = n-th divisor of 2^22 - 1 = 4194303 = 3 × 23 × 89 × 683
  * Range:     u8 n <= 1, u16 n <= 11, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int cmp_seq_t(const void *a, const void *b) {
     seq_t x = *(const seq_t *)a;
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
             divisors[mask] = divisor;
         }
         
-        qsort(divisors, 16, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(divisors, 16, sizeof(seq_t), cmp_seq_t);
         initialized = 1;
     }
     

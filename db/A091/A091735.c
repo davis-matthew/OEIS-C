@@ -8,7 +8,8 @@
  *            1)
  * Range:     u8 n <= 15, u16 n <= 15, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #else
 #define PTR_CAST(T, p) ((T)(p))
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
             size_t new_cap = prime_alloc > 0 ? prime_alloc : 16;
             while (new_cap < k)
                 new_cap <<= 1;
-            seq_t *new_list = PTR_CAST(seq_t *, realloc(prime_list, new_cap * sizeof(seq_t)));
+            seq_t *new_list = PTR_CAST(seq_t *, mem_resize(seq_t, prime_list, new_cap));
             if (!new_list) abort();          /* memory exhausted */
             prime_list = new_list;
             prime_alloc = new_cap;

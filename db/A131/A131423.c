@@ -7,6 +7,7 @@
  * Formula:   a(n) = n*(n+2)*(2*n-1)/3
  * Range:     u8 n <= 6, u16 n <= 45, u32 n <= 1860, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 58 terms through n = 8160 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

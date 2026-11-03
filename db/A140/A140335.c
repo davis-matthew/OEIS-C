@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   gcd
+ * Validated: full, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,9 @@
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
     /* Allocate the array on first use. */
     if (terms == NULL) {
         terms_cap = 32;   /* initial capacity */
-        terms = (seq_t *)malloc((terms_cap + 1) * sizeof(seq_t));
+        terms = mem_new(seq_t, (terms_cap + 1));
     }
 
     /* Generate terms up to the requested index. */
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
             seq_t v = 1;
             if (terms_len + 1 > terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t *)realloc(terms, (terms_cap + 1) * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, (terms_cap + 1));
             }
             terms_len++;
             terms[terms_len] = v;
@@ -77,7 +80,7 @@ seq_t a(idx_t n)
         /* Store the new term. */
         if (terms_len + 1 > terms_cap) {
             terms_cap *= 2;
-            terms = (seq_t *)realloc(terms, (terms_cap + 1) * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, (terms_cap + 1));
         }
         terms_len++;
         terms[terms_len] = candidate;

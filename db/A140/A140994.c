@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 185, u32 n <= 659, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 1242 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build. */
 
@@ -49,7 +51,7 @@ static void ensure_rows(idx_t n)
         if (tri == NULL) return;          /* out of memory */
 
         /* Allocate row 0. */
-        tri[0] = (seq_t*)calloc((size_t)1, sizeof(seq_t));
+        tri[0] = mem_new(seq_t, (size_t)1);
         if (tri[0] == NULL) return;
         tri[0][0] = (seq_t)1;
         maxRow = 0;
@@ -64,7 +66,7 @@ static void ensure_rows(idx_t n)
     }
 
     for (idx_t i = maxRow + 1; i <= n; ++i) {
-        tri[i] = (seq_t*)calloc((size_t)(i + 1), sizeof(seq_t));
+        tri[i] = mem_new(seq_t, (size_t)(i + 1));
         if (tri[i] == NULL) return;
 
         if (i == 0) {

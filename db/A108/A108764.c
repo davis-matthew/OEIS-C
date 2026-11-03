@@ -7,7 +7,8 @@
  * Formula:   Products of exactly two supersingular primes (A108764)
  * Range:     u8 n <= 1, u16 n <= 120, u32 n <= 120, u64 n <= 120,
  *            u128 n <= 120, big any n
- * Helpers:   none
+ * Validated: full, pass, 120 terms through n = 120 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* List of supersingular primes (A002267) */
 static const uint64_t supers[15] = {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
                                     (seq_t)supers[j];
             }
         }
-        qsort(products, 120, sizeof(seq_t), cmp_seq);
+        mem_qsort(products, 120, sizeof(seq_t), cmp_seq);
         ready = true;
     }
     if (n == 0 || n > 120) {

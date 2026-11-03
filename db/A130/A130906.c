@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Sum_{k=0..⌊n/3⌋} 1/(6^k * k!)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build environment.
    We assume seq_t supports + - * / and the usual numeric
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* initialise cache to hold a[0] */
     if (cache_cap == 0) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) exit(EXIT_FAILURE);
         cache[0] = (seq_t)1; /* a(0) = 1   */
     }
@@ -41,9 +43,9 @@ seq_t a(idx_t n)
     /* extend cache up to requested n (if necessary) */
     if (n >= cache_cap) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
-            free(cache);
+            mem_free(cache);
             exit(EXIT_FAILURE);
         }
         cache = tmp;

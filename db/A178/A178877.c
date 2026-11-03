@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    sorted in increasing order. For n > 36 or n < 1,
    the function returns 0. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *p, const void *q)
 {
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         div_count = idx; /* Should be 36. */
 
         /* Sort the divisors in ascending order. */
-        qsort(divs, div_count, sizeof(seq_t), cmp_seq);
+        mem_qsort(divs, div_count, sizeof(seq_t), cmp_seq);
     }
 
     /* Validate index and return the requested divisor. */

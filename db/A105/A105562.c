@@ -9,7 +9,8 @@
  *            n)
  * Range:     u8 n <= 58, u16 n <= 6546, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   max_prime_factor
+ * Validated: standard, pass, 88 terms through n = 9039 (2026-11-01)
+ * Helpers:   largest_prime_factor_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/max_prime_factor.h"   /* seq_t max_prime_factor(idx_t n); */
+#include "../utils/largest_prime_factor_idx.h"
 
 /* Static storage for generated primes (1‑based indexing internally) */
 static uint32_t *primes = NULL;         /* array of primes, primes[0] = 2 */
@@ -68,7 +69,7 @@ seq_t a(idx_t n)
         return (seq_t)2;
 
     /* Step 1: greatest prime factor of n */
-    seq_t lpf_seq = max_prime_factor(n);
+    seq_t lpf_seq = largest_prime_factor_idx(n);
     idx_t lpf = (idx_t)lpf_seq;   /* should fit into idx_t */
 
     /* Safety check – for n > 1 the lpf should be at least 2 */

@@ -10,7 +10,8 @@
  *            ((prime(k+1)-prime(k)) * pi(k)) mod (8*k) < k/2
  * Range:     u8 n <= 1, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* SIEVE_LIMIT must be large enough to provide at least
    1 + the maximum index of primes that may be queried.
@@ -68,7 +70,7 @@ static void build_sieve(void)
 
     /* Count primes to allocate the prime list */
     idx_t estimate = SIEVE_LIMIT / 10 + 1000;   /* rough upper bound */
-    g_primes = (seq_t*)malloc(estimate * sizeof(seq_t));
+    g_primes = mem_new(seq_t, estimate);
     if (!g_primes) return;
 
     /* Record primes into the list */
@@ -77,7 +79,7 @@ static void build_sieve(void)
         if (g_is_prime[v]) {
             if (g_prime_count >= estimate) {
                 estimate <<= 1;
-                seq_t *tmp = (seq_t*)realloc(g_primes, estimate * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, g_primes, estimate);
                 if (!tmp) return;
                 g_primes = tmp;
             }

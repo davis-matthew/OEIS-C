@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build environment. */
 
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
     size_t dp_rows = nn + 1;
     size_t dp_size = dp_rows * K1;
 
-    seq_t *dp = (seq_t *)calloc(dp_size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     if (!dp)
     {
         free(prime_powers);
@@ -106,7 +108,7 @@ seq_t a(idx_t n)
 
     seq_t result = dp[nn * K1 + K];
 
-    free(dp);
+    mem_free(dp);
     free(prime_powers);
 
     return result;

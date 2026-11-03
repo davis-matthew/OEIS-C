@@ -10,9 +10,10 @@
  * Formula:   a(n) is the n‑th term of the flattened triangle * T(m,k) =
  *            divisors of m that appear as decimal substrings of m. * The
  *            triangle is read row by row: a(1) = 1, a(2) = 2, a(3) = 3, …
- * Range:     u8 n <= 560, u16 n <= 8462, u32 n <= 8462, u64 n <= 8462,
- *            u128 n <= 8462, big any n
- * Helpers:   uint_to_str
+ * Range:     u8 n <= 560, u16 n <= 12288, u32 n <= 12288, u64 n <= 12288,
+ *            u128 n <= 12288, big any n
+ * Validated: standard, pass, 92 terms through n = 8462 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "../utils/uint_to_str.h"
+
+/* Convert an unsigned integer to a decimal string.
+ * The buffer must be at least 32 bytes. */
+static void uint_to_str(uint64_t n, char *buf)
+{
+    snprintf(buf, 32, "%llu", (unsigned long long)n);
+}
 
 static int cmp_uint64(const void *p1, const void *p2)
 {

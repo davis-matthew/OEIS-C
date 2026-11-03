@@ -7,13 +7,16 @@
  * Formula:   a(n) = 7^bigomega(n)
  * Range:     u8 n <= 7, u16 n <= 63, u32 n <= 4095, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega, pow_uint
+ * Validated: standard, pass, 66 terms through n = 9468 (2026-11-01)
+ * Helpers:   bigomega, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/bigomega.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -21,5 +24,5 @@ seq_t a(idx_t n)
        (counted with multiplicity).  The result fits in idx_t
        for the values of n we are interested in. */
     idx_t omega = (idx_t)bigomega(n);
-    return pow_uint(7, omega);
+    return ipow_u64_idx(7, omega);
 }

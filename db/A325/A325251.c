@@ -11,7 +11,8 @@
  *            m] for some m
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Prime sieve helpers                                                */
@@ -163,11 +165,10 @@ seq_t a(idx_t n)
     {
         if (is_member(next_candidate))
         {
-            seq_t *tmp = (seq_t *)realloc(seq_cache,
-                                          (seq_cache_len + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, (seq_cache_len + 1));
             if (!tmp)   /* allocation failure */
             {
-                free(seq_cache);
+                mem_free(seq_cache);
                 seq_cache = NULL;
                 seq_cache_len = 0;
                 return (seq_t)0;

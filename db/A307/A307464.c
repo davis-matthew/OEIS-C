@@ -8,7 +8,8 @@
  *            1, a(1) = 1, a(2) = 2
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 29, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* compute a(n), number of Catalan words of length n avoiding the pattern 000 */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* cache of previously computed terms */
 static seq_t *cache = NULL;    /* array of a(i) values */
@@ -35,7 +37,7 @@ ensure_capacity(idx_t need)
         if (req < (idx_t)3)
             req = (idx_t)3;              /* at least space for the base cases */
 
-        cache = (seq_t *)malloc(req * sizeof(seq_t));
+        cache = mem_new(seq_t, req);
         if (!cache)
             abort();                     /* allocation failure */
 
@@ -46,7 +48,7 @@ ensure_capacity(idx_t need)
         cache_cap = req;
         last_computed = (idx_t)2;
     } else {
-        seq_t *tmp = (seq_t *)realloc(cache, req * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, req);
         if (!tmp)
             abort();                     /* allocation failure */
 

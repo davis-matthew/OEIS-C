@@ -8,6 +8,7 @@
  *            first digit of the integer part is a(3))
  * Range:     u8 n <= 107, u16 n <= 107, u32 n <= 107, u64 n <= 107,
  *            u128 n <= 107, big any n
+ * Validated: partial, pass, 105 terms through n = 107 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

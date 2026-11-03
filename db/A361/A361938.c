@@ -7,13 +7,15 @@
  * Formula:   a(0)=1, a(1)=0; a(n)=⌊n/2⌋·(a(n-1)+a(n-2))
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for OEIS sequence A361938.
    The result is cached, so repeated calls (in any order) are fast.
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (!init) {
         /* at least two slots for a(0) and a(1) */
         idx_t newcap = 2;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();
         cache = tmp;
         cap   = newcap;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         while (newcap <= n)
             newcap <<= 1;
         if (newcap != cap) {
-            seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp) abort();
             cache = tmp;
             cap   = newcap;

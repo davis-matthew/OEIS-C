@@ -8,9 +8,10 @@
  * Formula:   a(n) is the (n‑th) term of the flattened irregular triangle *
  *            whose row i (i ≥ 1) consists of all prime powers p^k such that *
  *            p divides i, k ≥ 1, and p^k ≤ i, listed in increasing order
- * Range:     u8 n <= 623, u16 n <= 8842, u32 n <= 8842, u64 n <= 8842,
- *            u128 n <= 8842, big any n
- * Helpers:   _sort_seqt, _unique_prime_factors
+ * Range:     u8 n <= 623, u16 n <= 12747, u32 n <= 12747, u64 n <= 12747,
+ *            u128 n <= 12747, big any n
+ * Validated: standard, pass, 97 terms through n = 8842 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,41 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/_sort_seqt.h"
-#include "../utils/_unique_prime_factors.h"
+
+/* ------------------------------------------------------------------ */
+static void _sort_seqt(seq_t *arr, size_t len)
+{
+    for (size_t i = 1; i < len; ++i) {
+        seq_t key = arr[i];
+        size_t j = i;
+        while (j > 0 && key < arr[j - 1]) {
+            arr[j] = arr[j - 1];
+            --j;
+        }
+        arr[j] = key;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+static size_t _unique_prime_factors(idx_t n, uint64_t *primes, size_t max_cnt)
+{
+    size_t count = 0;
+    if (n <= 1)
+        return 0;
+
+    uint64_t t = (uint64_t)n;
+    for (uint64_t p = 2; p * p <= t; ++p) {
+        if (t % p == 0) {
+            if (count < max_cnt)
+                primes[count++] = p;
+            while (t % p == 0)
+                t /= p;
+        }
+    }
+    if (t > 1 && count < max_cnt)
+        primes[count++] = t;
+    return count;
+}
 
 /* ------------------------------------------------------------------ */
 /* Helper: factor the integer n into its unique prime divisors.      */

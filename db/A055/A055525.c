@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 366, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _sq
+ * Validated: standard, pass, 84 terms through n = 9884 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_sq.h"
+#include "../utils/mem.h"
+
+/* Integer square function using __int128 to avoid overflow. */
+static inline __int128 _sq(idx_t v)
+{
+    return (__int128)v * v;
+}
 
 /* Compute gcd for idx_t values. */
 static inline idx_t _gcd_idx(idx_t a, idx_t b)
@@ -62,7 +69,7 @@ seq_t a(idx_t n)
         idx_t new_max = n;
 
         /* Reallocate array of seq_t; cast required for C++ big integer builds. */
-        seq_t *tmp = (seq_t *)realloc(best, (new_max + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, best, (new_max + 1));
         if (!tmp) exit(1);
         best = tmp;
 

@@ -13,7 +13,8 @@
  *            appear in the sequence. * The sequence terms are produce...
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   build_primes_upto, build_spf
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   build_primes_upto, build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/build_spf.h"
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static lazy initialization ------------------------------------- */
@@ -70,7 +73,7 @@ seq_t a(idx_t n) {
 
         /* sequence array */
         seq_cap = 1024;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = 1;          /* sequence starts with 1 */
         seq_len = 1;
         incl[1] = true;      /* 1 is in the sequence */
@@ -134,7 +137,7 @@ seq_t a(idx_t n) {
             /* Append m to the sequence. */
             if (seq_len >= seq_cap) {
                 seq_cap *= 2;
-                seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)m;
             incl[m] = true;

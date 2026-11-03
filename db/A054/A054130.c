@@ -10,6 +10,7 @@
  *            values for 4 ≤ n ≤ 13 are taken from the sequence definition
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 27, u64 n <= 32, u128 n <= 32,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 32 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

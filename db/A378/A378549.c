@@ -6,14 +6,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n, [not( (n/d is odd) && (omega(n/d) even) )]} d
- * Range:     u8 n <= 167, u16 n <= 8364, u32 n <= 8364, u64 n <= 8364,
- *            u128 n <= 8364, big any n
+ * Range:     u8 n <= 167, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 103 terms through n = 8364 (2026-11-01)
  * Helpers:   bigomega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/bigomega.h"
 
 seq_t a(idx_t n)

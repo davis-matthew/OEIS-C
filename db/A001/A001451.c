@@ -7,15 +7,16 @@
  * Formula:   a(n) = binomial(4*n,n)*binomial(5*n,n)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 19,
  *            big any n
- * Helpers:   a001451_binom
+ * Validated: standard, pass, 31 terms through n = 200 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a001451_binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
-    seq_t b1 = a001451_binom(4 * n, n);
-    seq_t b2 = a001451_binom(5 * n, n);
+    seq_t b1 = binomial(4 * n, n);
+    seq_t b2 = binomial(5 * n, n);
     return b1 * b2;
 }

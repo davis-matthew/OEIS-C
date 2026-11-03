@@ -8,12 +8,14 @@
  * Formula:   a(n) = 2^(2*n+6) * n! * (n+6)!
  * Range:     u8 none, u16 n <= 0, u32 n <= 2, u64 n <= 6, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised factorial array */
 static seq_t *fact = NULL;
@@ -33,7 +35,7 @@ static void init_fact_up_to(idx_t n)
         idx_t new_cap = fact_cap ? fact_cap * 2 : 16;
         while (new_cap < needed)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact, new_cap);
         fact = tmp;
         fact_cap = new_cap;
     }

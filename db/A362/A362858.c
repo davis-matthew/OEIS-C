@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} (-3)^(n-k) * k^k * binomial(n,k)
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 9, i64 n <= 16, i128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,21 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"        /* for big_pow(seq_t, seq_t) */
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Multiply-by-self exponentiation for big exponent (seq_t type) */
+static seq_t big_pow(seq_t base, seq_t exp) {
+    seq_t result = 1;
+    while (exp != 0) {
+        if ((exp % 2) != 0) {
+            result *= base;
+        }
+        base *= base;
+        exp /= 2;
+    }
+    return result;
+}
 
 /* Grow a dynamic array of seq_t values to at least ‘need’ elements. */
 static void grow_seq_cache(seq_t **arr, size_t *cap_p, size_t need)
@@ -28,7 +43,7 @@ static void grow_seq_cache(seq_t **arr, size_t *cap_p, size_t need)
     size_t newcap = (*cap_p == 0) ? 1 : *cap_p * 2;
     while (newcap < need)
         newcap <<= 1;
-    *arr = (seq_t*)realloc(*arr, newcap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, newcap);
     *cap_p = newcap;
 }
 

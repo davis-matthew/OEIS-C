@@ -9,13 +9,15 @@
  *            binomial(4*n-2*k-1,n-2*k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/gcd.h"   /* for gcd(seq_t, seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
 
 static inline seq_t binom_multip(idx_t n, idx_t k)
 {

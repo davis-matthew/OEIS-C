@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   digit_frequencies
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   digit_frequencies, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/digit_frequencies.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
         return cache[n];
 
     size_t new_len = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_len);
     if (!new_cache)
         abort();
 
@@ -94,7 +96,7 @@ seq_t a(idx_t n) {
         new_cache[i] = next;
     }
 
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_len = new_len;
     return cache[n];

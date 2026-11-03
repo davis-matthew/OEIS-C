@@ -8,12 +8,14 @@
  *            binom(4*k,n-4*k)*binom(4*k,k)/(3*k+1)
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 31, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   binom, gcd
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)
@@ -24,8 +26,8 @@ seq_t a(idx_t n)
         idx_t fourk = 4 * k;
         idx_t m = n - fourk;
 
-        seq_t t1 = binom(fourk, m);
-        seq_t t2 = binom(fourk, k);
+        seq_t t1 = binomial(fourk, m);
+        seq_t t2 = binomial(fourk, k);
         seq_t denom = (seq_t)(3 * k + 1);
 
         /* Reduce denominator by gcd with the two binomials,

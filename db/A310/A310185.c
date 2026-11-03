@@ -11,12 +11,14 @@
  *            a(7)=23, a(8)=29, a(9)=30 (0‑based)
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         /* Allocate a minimum of 10 slots, but cover the first requested n. */
         size_t init_cap = 10;
         if ((idx_t)init_cap < n+1) init_cap = (size_t)n + 1;
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (cache == NULL) return 0;   /* unlikely, but safe */
         cache_cap = init_cap;
 
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
             new_cap <<= 1;          /* double capacity until sufficient */
         }
         if (new_cap > cache_cap) {
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (tmp == NULL) return 0;   /* cannot allocate further */
             cache = tmp;
             cache_cap = new_cap;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = binom(55,n)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: full, pass, 56 terms through n = 55 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

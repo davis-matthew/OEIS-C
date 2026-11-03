@@ -8,6 +8,7 @@
  * Formula:   a(n) = n*(n+1)/2 - t*(3*t+5), where t = (n-1)/3
  * Range:     u8 n <= 38, u16 n <= 626, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 66 terms through n = 9684 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

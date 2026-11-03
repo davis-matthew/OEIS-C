@@ -7,13 +7,15 @@
  * Formula:   a(n) = Σ_{i=0}^{n-1} 7^i * a(i) * a(n-1-i) a(0) = 1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Resize an array of seq_t up to 'need' elements.  Caller updates
    *cap when the function returns. */
@@ -22,7 +24,7 @@ static void ensure_capacity(size_t *cap, seq_t **arr, size_t need)
     if (need <= *cap) return;
     size_t new_cap = (*cap) ? (*cap) * 2 : 1;
     while (new_cap < need) new_cap <<= 1;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 

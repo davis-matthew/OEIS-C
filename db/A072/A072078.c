@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, mult
  * Formula:   a(n) = (exponent of 2 in n + 1) * (exponent of 3 in n + 1)
- * Range:     u8 n <= 9842, u16 n <= 9842, u32 n <= 9842, u64 n <= 9842,
- *            u128 n <= 9842, big any n
+ * Range:     u8 n <= 19683, u16 n <= 19683, u32 n <= 19683, u64 n <= 19683,
+ *            u128 n <= 19683, big any n
+ * Validated: standard, pass, 111 terms through n = 9842 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

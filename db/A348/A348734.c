@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, frac
  * Formula:   a(n) = A003959(n)/gcd(A003959(n), A034448(n))
- * Range:     u8 n <= 47, u16 n <= 4095, u32 n <= 9911, u64 n <= 9911,
- *            u128 n <= 9911, big any n
+ * Range:     u8 n <= 47, u16 n <= 4095, u32 n <= 21125, u64 n <= 21125,
+ *            u128 n <= 21125, big any n
+ * Validated: standard, pass, 115 terms through n = 9911 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,8 +16,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 /* Return the numerator of the reduced product
    ∏ ( (p+1)^e / (p^e+1) ) over prime powers of n. */

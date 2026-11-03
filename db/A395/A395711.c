@@ -8,13 +8,14 @@
  * Formula:   a(n) = (n+1) * Sum_{k=0..n} 5^(n-k) * binomial(6*n+6, k)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     /* N = 6*n + 6 for binomial arguments */
@@ -25,7 +26,7 @@ seq_t a(idx_t n) {
     /* Accumulated sum of terms */
     seq_t sum = 0;
     /* Current power of 5: 5^(n-k) with k = 0 initially */
-    seq_t pow5 = pow_uint(5, n);
+    seq_t pow5 = ipow_u64_idx(5, n);
 
     for (idx_t k = 0; k <= n; ++k) {
         /* Add term binom * 5^(n-k) */

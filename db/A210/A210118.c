@@ -10,12 +10,14 @@
  *            a(3)=265 (offset = 1)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the nth term (a(n)) of OEIS A210118.
    The indices and values are defined by the types idx_t and seq_t,
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* First call – allocate at least the three known terms */
     if (cache == NULL) {
         size_t init = (size_t)(n > 3 ? n : 3);      /* space needed now */
-        cache = (seq_t *)malloc(init * sizeof(seq_t));
+        cache = mem_new(seq_t, init);
         if (!cache) return (seq_t)0;                /* out of memory */
 
         /* Initial known values */
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* Subsequent calls – grow the cache if required */
     else if (cache_len < n) {
         size_t new_size = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return (seq_t)0;               /* allocation failure */
         cache = tmp;
 

@@ -12,7 +12,8 @@
  *            the sequence
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------- static state ------------------- */
 static idx_t   SIEVE_LIMIT = 4000000UL;          /* primes up to 4e6 */
@@ -50,7 +52,7 @@ static void push_seq(seq_t val)
     /* grow array if needed */
     if (seq_len >= seq_cap) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 128;
-        seq_t *tmp = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
         if (!tmp) abort();
         seq_arr = tmp;
         seq_cap = new_cap;
@@ -99,7 +101,7 @@ static void init(void)
     initialized = true;
 
     seq_cap = 128;
-    seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_arr = mem_new(seq_t, seq_cap);
     if (!seq_arr) abort();
 
     build_sieve();

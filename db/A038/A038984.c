@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 61 terms through n = 917 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,10 @@
 /* Sequence: primes p such that 94 is a quadratic non‑residue modulo p */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Return true if 94 is a quadratic non‑residue modulo the odd prime p. */
 static bool not_residue(idx_t p)
@@ -23,7 +27,7 @@ static bool not_residue(idx_t p)
     /* Legendre symbol (94|p) = 94^{(p−1)/2} (mod p).
        We return true when the result equals p−1 (i.e., -1). */
     idx_t exp = (p - 1) / 2;
-    seq_t r = mod_pow((seq_t)94, exp, (seq_t)p);
+    seq_t r = powmod((seq_t)94, exp, (seq_t)p);
     return r == (seq_t)p - 1;
 }
 
@@ -67,7 +71,7 @@ seq_t a(idx_t n)
             if (not_residue(cand)) {
                 if (gsize == gcap) {
                     gcap = gcap ? (gcap << 1) : 16;
-                    good = (seq_t *)realloc(good, gcap * sizeof(seq_t));
+                    good = mem_resize(seq_t, good, gcap);
                 }
                 good[gsize++] = (seq_t)cand;
             }

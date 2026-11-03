@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 40, u32 n <= 79, u64 n <= 155,
  *            u128 n <= 308, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 7247 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
      where s_k = k(k+1)(2k+1)/6. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External interface required by the build system */
 seq_t a(idx_t n)
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     /* Ensure base case a(0) is defined */
     if (a_cache == NULL) {
-        a_cache = (seq_t *)calloc(1, sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         a_cache[0] = 1;
         a_cap = 1;
     }
@@ -40,11 +42,11 @@ seq_t a(idx_t n)
     if (n >= a_cap) {
         idx_t old_cap = a_cap;
         idx_t new_cap = n + 1;
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         /* Copy existing values */
         for (idx_t i = 0; i < old_cap; ++i)
             new_cache[i] = a_cache[i];
-        free(a_cache);
+        mem_free(a_cache);
         a_cache = new_cache;
         a_cap = new_cap;
 

@@ -7,15 +7,18 @@
  * Formula:   a(n) = Sum_{p|n, p prime} ( 1 + p^p )
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     for (size_t i = 0; i < cnt; ++i) {
         seq_t p = (seq_t)primes[i];
-        seq_t pp = big_pow(p, p);   /* compute p^p */
+        seq_t pp = ipow(p, p);   /* compute p^p */
         result += pp + 1;            /* add (1 + p^p) */
     }
 

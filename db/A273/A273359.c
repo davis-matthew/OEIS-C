@@ -11,15 +11,27 @@
  *            after that digit, skipping values whose second di...
  * Range:     u8 n <= 1, u16 n <= 30, u32 n <= 5585, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, pow10
+ * Validated: standard, pass, 56 terms through n = 9752 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* cache of computed terms: seq_cache[i] == a(i+1) */
 static seq_t *seq_cache = NULL;
@@ -34,7 +46,7 @@ static void ensure_capacity(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? (seq_cap << 1) : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) abort();
     seq_cache = tmp;
     seq_cap   = new_cap;
@@ -59,7 +71,7 @@ seq_t a(idx_t n)
         seq_t square = (seq_t)square128;     /* fits into seq_t for the
                                                requested n */
 
-        int d = digit_len(square);           /* number of decimal digits */
+        int d = num_digits(square);           /* number of decimal digits */
         if (d < 2) continue;                /* need at least two digits */
 
         seq_t pow10_d1 = pow10((idx_t)d - 1);

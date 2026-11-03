@@ -8,13 +8,19 @@
  *            representations of the odd numbers 1,3,5,7,…
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow4_int
+ * Validated: standard, pass, 106 terms through n = 9948 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow4_int.h"
+
+static inline unsigned __int128 pow4_int(unsigned int e)
+{
+    /* 4^e = 2^(2e) */
+    return ((unsigned __int128)1) << (2 * e);
+}
 
 seq_t a(idx_t n)
 {

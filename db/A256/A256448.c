@@ -9,7 +9,8 @@
  *            (The φ function is implemented with memoisation.)
  * Range:     i8 n <= 29, i16 n <= 564, i32 n <= 564, i64 n <= 564,
  *            i128 n <= 564, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 548 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* ---------  GLOBAL PRIME TABLE (up to prime(10002))  ----------------- */
@@ -110,7 +112,7 @@ static PHIEntry *phi_find(uint64_t x, uint32_t a)
 static void phi_insert(uint64_t x, uint32_t a, seq_t val)
 {
     size_t idx = phi_hash_key(x, a);
-    PHIEntry *e = (PHIEntry *)malloc(sizeof(PHIEntry));
+    PHIEntry *e = mem_new(PHIEntry, 1);
     if (!e) exit(1);
     e->x = x;
     e->a = a;

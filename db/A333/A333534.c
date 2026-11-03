@@ -5,8 +5,9 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = number of k ≤ n whose greatest prime factor is ≤ ⌊log(n)⌋
- * Range:     u8 n <= 4499, u16 n <= 8349, u32 n <= 8349, u64 n <= 8349,
- *            u128 n <= 8349, big any n
+ * Range:     u8 n <= 4499, u16 n <= 65536, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 101 terms through n = 8349 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

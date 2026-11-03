@@ -10,7 +10,8 @@
  *            Offset: 1 (a(1)=42)
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array, has46
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,40 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>                     /* abort() */
-#include "../utils/alloc_seq_array.h"   /* alloc_seq_array()   */
-#include "../utils/free_seq_array.h"    /* free_seq_array()    */
-#include "../utils/has46.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* Return true iff x has the adjacent digits 4,6 in base‑9. */
+static bool has46(seq_t x)
+{
+    if (x == (seq_t)0)
+        return false;
+
+    /* 64‑bit numbers have at most 22 base‑9 digits; use a small fixed array. */
+    uint8_t d[32];
+    int len = 0;
+    seq_t tmp = x;
+    while (tmp != (seq_t)0)
+    {
+        d[len++] = (uint8_t)(tmp % (seq_t)9);
+        tmp /= (seq_t)9;
+    }
+
+    for (int i = len - 1; i > 0; --i)
+        if (d[i] == 4 && d[i - 1] == 6)
+            return true;
+    return false;
+}
 
 /* Static cache of computed terms. */
 static seq_t *cache      = NULL;   /* array of terms */

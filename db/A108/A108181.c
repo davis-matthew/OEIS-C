@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 29, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 29, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 70 terms through n = 932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return true iff x is a semiprime (product of exactly two prime factors). */
 static bool is_semiprime_uint64(uint64_t x)
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     if (n > cap) {
         size_t newcap = cap == 0 ? 16 : cap * 2;
         if (newcap < n) newcap = n;
-        seq_t *tmp = (seq_t *)realloc(list, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, list, newcap);
         list = tmp;
         cap  = (idx_t)newcap;
     }

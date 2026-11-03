@@ -11,7 +11,8 @@
  *            starting at n = 1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9653 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------- */
 /*  Prime sieve and auxiliary data.                               */
@@ -122,7 +124,7 @@ static void ensure_counts(idx_t n)
     if (n + 1 <= counts_size)
         return;
 
-    seq_t *new_counts = (seq_t *)realloc(counts, (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_counts = mem_resize(seq_t, counts, (size_t)(n + 1));
     if (!new_counts) abort();
     counts = new_counts;
 

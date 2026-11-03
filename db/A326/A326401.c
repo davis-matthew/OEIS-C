@@ -7,15 +7,18 @@
  * Formula:   a(n) = Sum_{d|n, n/d==1 (mod 3)} d – Sum_{d|n, n/d==2 (mod 3)} d
  * Range:     u8 n <= 16, u16 n <= 5467, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 86 terms through n = 9390 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -32,14 +35,14 @@ seq_t a(idx_t n)
         seq_t part;
 
         if (primes[i] == 3) {                        /* a(3^e) = 3^e */
-            part = big_pow(p, (seq_t)e);
+            part = ipow(p, (seq_t)e);
         } else if ((primes[i] % 3) == 1) {           /* p ≡ 1 (mod 3) */
-            seq_t pow_  = big_pow(p, (seq_t)(e + 1));
+            seq_t pow_  = ipow(p, (seq_t)(e + 1));
             seq_t numer = pow_ - 1;
             seq_t denom = p - 1;
             part = numer / denom;
         } else { /* p ≡ 2 (mod 3) */
-            seq_t pow_  = big_pow(p, (seq_t)(e + 1));
+            seq_t pow_  = ipow(p, (seq_t)(e + 1));
             seq_t numer;
             if ((e & 1) == 0)                      /* e even: (+1) */
                 numer = pow_ + 1;

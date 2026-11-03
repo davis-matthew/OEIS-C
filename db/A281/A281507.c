@@ -8,13 +8,15 @@
  * Formula:   a(0) = 1186061987030929990 Recurrence: a(n+1) = a(n) + rev(a(n))
  *            (reverse decimal digits)
  * Range:     u8 none, u16 none, u32 none, u64 n <= 4, u128 n <= 56, big any n
- * Helpers:   reverse_decimal
+ * Validated: standard, pass, 27 terms through n = 248 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>                 // malloc, realloc, exit
-#include "../utils/reverse_decimal.h"  // reverse_decimal(seq_t)
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (len == 0) {
         if (cap == 0) {
             cap   = 1;
-            cache = (seq_t *)malloc(cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cap);
             if (!cache) exit(EXIT_FAILURE);
         }
         cache[0] = (seq_t)1186061987030929990ULL;
@@ -40,14 +42,14 @@ seq_t a(idx_t n)
         if (needed > cap) {
             size_t new_cap = cap ? (cap << 1) : 1;
             while (new_cap < needed) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) exit(EXIT_FAILURE);
             cache = tmp;
             cap   = new_cap;
         }
         /* compute missing terms */
         for (idx_t i = (idx_t)len; i <= n; ++i) {
-            seq_t rev = reverse_decimal(cache[i - 1]); /* reverse decimal digits */
+            seq_t rev = reverse_digits(cache[i - 1]); /* reverse decimal digits */
             cache[i] = cache[i - 1] + rev;             /* next term */
         }
         len = needed;

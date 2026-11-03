@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   _tri_u64
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,14 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_tri_u64.h"
+#include "../utils/mem.h"
+
+/* Triangular number as 64‑bit integer (valid for k up to about 3e9). */
+static inline uint64_t _tri_u64(idx_t k)
+{
+    if (k == 0) return 0;
+    return ((uint64_t)k * ((uint64_t)k + 1)) / 2;
+}
 
 /* Utilities -----------------------------------------------------------*/
 static bool _primes_initialized = false;
@@ -85,7 +93,7 @@ static void _append_k(idx_t k)
 {
     if (_cached_len == _cached_cap) {
         size_t new_cap = (_cached_cap == 0) ? 64 : _cached_cap * 2;
-        seq_t *tmp = (seq_t*)realloc(_cached_k, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _cached_k, new_cap);
         if (!tmp) exit(1);
         _cached_k = tmp;
         _cached_cap = new_cap;

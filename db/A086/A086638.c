@@ -8,7 +8,8 @@
  *            binary representation contains no '11' or '000' substrings
  * Range:     u8 n <= 25, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   has_forbidden
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,30 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/has_forbidden.h"
+#include "../utils/mem.h"
+
+static bool has_forbidden(idx_t x)
+{
+    int zero_run = 0;          /* consecutive zeros in the current run */
+    int prev_bit = 0;          /* previous bit seen (0 or 1) */
+
+    if (x == 0) return false;  /* single zero is allowed */
+
+    while (x != 0) {
+        int bit = x & 1ULL;
+        if (bit) { /* current bit is 1 */
+            if (prev_bit == 1) return true;   /* '11' detected */
+            prev_bit = 1;
+            zero_run = 0;
+        } else { /* current bit is 0 */
+            zero_run++;
+            if (zero_run == 3) return true;   /* '000' detected */
+            prev_bit = 0;
+        }
+        x >>= 1;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;           /* dynamically grown cache of terms */
 static idx_t cache_size = 0;          /* number of terms stored */
@@ -30,14 +54,14 @@ static void ensure_cache(idx_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < (size_t)need) new_cap *= 2;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) {
         /* allocation failed; let the program abort */
         abort();
     }
     if (cache) {
-        memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = new_cap;

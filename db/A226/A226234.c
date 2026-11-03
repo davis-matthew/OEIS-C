@@ -9,7 +9,8 @@
  *            S(r-1) ≤ n < S(r) with S(t) = (t+1)(t+2)/2, and k = n - S(r-1)
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 24, u64 n <= 49, u128 n <= 84,
  *            big any n
- * Helpers:   binomial_square
+ * Validated: standard, pass, 61 terms through n = 490 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,33 @@
    fixed‑width integers and arbitrary‑precision types. */
 
 #include <stdint.h>
-#include "../utils/binomial_square.h"
+
+static seq_t binomial_square(idx_t n, idx_t k)
+{
+    idx_t a = n * n;         /* n^2 */
+    idx_t b = k * k;         /* k^2 */
+
+    if (b > a) return 0;     /* should not happen for the triangle */
+
+    /* compute C(a, b) with a reduction to avoid overflow */
+    idx_t m = b;
+    if (m > a - m) m = a - m;   /* use the smaller of k and a-k */
+
+#ifdef __cplusplus
+    seq_t res = 1;
+    for (idx_t i = 1; i <= m; ++i) {
+        res = (res * (a - m + i)) / i;
+    }
+    return res;
+#else
+    seq_t res = 1;
+    for (idx_t i = 1; i <= m; ++i) {
+        unsigned __int128 prod = (unsigned __int128)res * (a - m + i);
+        res = (seq_t)(prod / i);
+    }
+    return res;
+#endif
+}
 
 seq_t a(idx_t n)
 {

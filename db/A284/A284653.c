@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   expand_one
+ * Validated: standard, pass, 102 terms through n = 9884 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,32 @@
  * (even number of iterations) until the prefix of length n stops
  * changing.  */
 #include <stdlib.h>
-#include "../utils/expand_one.h"
+#include "../utils/mem.h"
+
+static void expand_one(const seq_t *in, idx_t inlen, seq_t **out, idx_t *outlen)
+{
+    /* Upper bound on the length after one expansion: 4 × inlen */
+    idx_t est = inlen * 4;
+    seq_t *w = mem_new(seq_t, est);
+    if (w == NULL) {
+        *out = NULL;
+        *outlen = 0;
+        return;
+    }
+    idx_t pos = 0;
+    for (idx_t i = 0; i < inlen; ++i) {
+        if (in[i] == 0) {
+            w[pos++] = (seq_t)1;          /* 0 → 1   */
+        } else {
+            w[pos++] = (seq_t)0;          /* 1 → 0110 */
+            w[pos++] = (seq_t)1;
+            w[pos++] = (seq_t)1;
+            w[pos++] = (seq_t)0;
+        }
+    }
+    *out = w;
+    *outlen = pos;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +57,7 @@ seq_t a(idx_t n)
     /* initialise with the 0‑word (iteration 0) */
     if (even_word == NULL) {
         even_len = 1;
-        even_word = (seq_t *)malloc(sizeof(seq_t) * even_len);
+        even_word = mem_new(seq_t, even_len);
         if (even_word == NULL)
             return 0;                  /* allocation failure – unlikely */
         even_word[0] = (seq_t)0;
@@ -71,8 +97,8 @@ seq_t a(idx_t n)
             }
         }
 
-        free(old_word);
-        free(tmp);
+        mem_free(old_word);
+        mem_free(tmp);
 
         if (same) {                     /* stable prefix reached */
             even_word = next_word;

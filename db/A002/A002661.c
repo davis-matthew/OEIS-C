@@ -7,13 +7,14 @@
  * Formula:   a(n) = ceiling(binomial(n + 1, floor((n + 1) / 2)) / 2)
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 34, u64 n <= 67, u128 n <= 131,
  *            big any n
- * Helpers:   a002661_gcd
+ * Validated: standard, pass, 51 terms through n = 3290 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a002661_gcd.h"
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n) {
     idx_t m = n + 1;
@@ -24,7 +25,7 @@ seq_t a(idx_t n) {
     for (i = 1; i < k; i++) {
         idx_t x = m - k + i;
         idx_t d = i;
-        idx_t g = a002661_gcd(x, d);
+        idx_t g = gcd_idx(x, d);
         x /= g;
         d /= g;
         r = (r / (seq_t)d) * (seq_t)x;
@@ -33,7 +34,7 @@ seq_t a(idx_t n) {
     {
         idx_t x = m;
         idx_t d = k;
-        idx_t g = a002661_gcd(x, d);
+        idx_t g = gcd_idx(x, d);
         seq_t q;
         x /= g;
         d /= g;

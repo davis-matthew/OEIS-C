@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n‑th decimal digit of 1/383 after the decimal point
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Return the n-th decimal digit (0‑based) of the reciprocal 1/383.  */
 seq_t a(idx_t n)
@@ -33,11 +35,11 @@ seq_t a(idx_t n)
     {
         /* allocate a new, larger array and copy previous digits   */
         size_t new_len = target + 1;
-        seq_t *new_digits = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_digits = mem_new(seq_t, new_len);
         if (!new_digits) return (seq_t)0;   /* allocation failure – return 0 */
 
         for (size_t i = 0; i < len; ++i) new_digits[i] = digits[i];
-        if (digits) free(digits);
+        if (digits) mem_free(digits);
 
         /* generate decimal digits from the current position to target */
         for (size_t i = len; i <= target; ++i)

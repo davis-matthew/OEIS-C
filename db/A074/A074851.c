@@ -7,8 +7,9 @@
  * Keywords:  easy, nonn
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 6608, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 6938, big any n
- * Helpers:   none
+ *            u128 n <= 8080, big any n
+ * Validated: standard, pass, 75 terms through n = 9941 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 /* Standard integer types and memory allocation */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---- Prime handling ---------------------------------------------------- */
 
@@ -117,10 +119,10 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if (cache_cap == 0) {
         cache_cap = 128;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (cache_len == cache_cap) {
         cache_cap <<= 1;
-        cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* extend cache until we have at least n terms */

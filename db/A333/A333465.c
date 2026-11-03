@@ -7,11 +7,13 @@
  * Formula:   a(n) = Sum_{k=1..n} ceil(n/k) * gcd(n,k)
  * Range:     u8 n <= 23, u16 n <= 1079, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 76 terms through n = 4537 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

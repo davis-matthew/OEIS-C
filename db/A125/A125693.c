@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 55, u32 n <= 191, u64 n <= 669,
  *            u128 n <= 2494, big any n
- * Helpers:   binom, pow3
+ * Validated: standard, pass, 71 terms through n = 4881 (2026-11-01)
+ * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 #include "../utils/pow3.h"
 
 seq_t a(idx_t n) {
@@ -37,12 +38,12 @@ seq_t a(idx_t n) {
         if (r < k + j) continue;      /* term contributes 0 */
         idx_t exp = r - k - j;
 
-        seq_t t1 = binom(k + 1, j);
+        seq_t t1 = binomial(k + 1, j);
         if (t1 == 0) continue;
 
         idx_t n_minus_j = r - j;
         seq_t t2 = 0;
-        if (k <= n_minus_j) t2 = binom(n_minus_j, k);
+        if (k <= n_minus_j) t2 = binomial(n_minus_j, k);
         if (t2 == 0) continue;
 
         seq_t power = pow3(exp);

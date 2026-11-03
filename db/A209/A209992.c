@@ -8,7 +8,8 @@
  * Formula:   a(n) = # {2×2 matrices with entries in {1,…,n} and det ∈ {0,1}}
  * Range:     u8 n <= 8, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   ceil_div_int64, egcd_idx, floor_div_int64
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,33 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/ceil_div_int64.h"
-#include "../utils/egcd_idx.h"
-#include "../utils/floor_div_int64.h"
+
+static inline uint64_t ceil_div_int64(int64_t a, int64_t b) {
+    /* b > 0 */
+    if (a >= 0) return (uint64_t)((a + b - 1) / b);
+    return (uint64_t)(-((-a) / b));
+}
+
+static inline void egcd_idx(idx_t a, idx_t b, idx_t *x, idx_t *y) {
+    /* Iterative extended GCD: returns x,y such that a*x + b*y = gcd(a,b) */
+    idx_t old_r = a, r = b;
+    idx_t old_s = 1, s = 0;
+    idx_t old_t = 0, t = 1;
+    while (r != 0) {
+        idx_t q = old_r / r;
+        idx_t tmp = old_r - q * r; old_r = r; r = tmp;
+        tmp = old_s - q * s; old_s = s; s = tmp;
+        tmp = old_t - q * t; old_t = t; t = tmp;
+    }
+    *x = old_s;
+    *y = old_t;
+}
+
+static inline uint64_t floor_div_int64(int64_t a, int64_t b) {
+    /* b > 0 */
+    if (a >= 0) return (uint64_t)(a / b);
+    return (uint64_t)(-(( -a + b - 1) / b));
+}
 
 static inline idx_t gcd_idx(idx_t a, idx_t b) {
     while (b) {

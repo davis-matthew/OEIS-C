@@ -10,17 +10,19 @@
  *            a(3)=2, a(4)=2, a(5)=1, a(6)=3, … (OEIS A212306)
  * Range:     u8 n <= 266, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 9550 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;        /* not used, offset starts at 1 */
     /* Allocate array 1 … n (index 0 unused) */
-    seq_t *arr = (seq_t *)malloc((size_t)(n + 1) * sizeof(*arr));
+    seq_t *arr = mem_new(seq_t, (size_t)(n + 1));
     if (!arr) return (seq_t)0;          /* allocation failure */
 
     /* Initialise with the natural numbers */
@@ -47,6 +49,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

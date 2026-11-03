@@ -10,14 +10,59 @@
  *            the substring divisibility and uniqueness constraints
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   dfs_small
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <string.h>
-#include "../utils/dfs_small.h"
+
+/* Recursive search used only for n < 6.  The maximum possible length we
+   need to examine is 2*n.  digits[] holds the current decimal digits.
+   used[] marks which n‑digit windows (interpreted as integers) have
+   already been used. */
+static void dfs_small(int n, int depth, seq_t cur_val,
+                      int *digits, char *used,
+                      seq_t *best_num, size_t *best_len, int max_len)
+{
+    if ((size_t)depth > *best_len || ((size_t)depth == *best_len && cur_val > *best_num))
+    {
+        *best_len = (size_t)depth;
+        *best_num = cur_val;
+    }
+    if (depth == max_len) return;
+
+    for (int d = 9; d >= 0; --d)
+    {
+        if (depth == 0 && d == 0) continue;          /* no leading zero */
+        int win = 0;
+        int valid = 1;
+
+        if (depth + 1 >= n)
+        {
+            /* compute the last n‑digit window formed by the new digit d */
+            for (int i = depth + 1 - n; i < depth + 1; ++i)
+            {
+                int digit = (i == depth) ? d : digits[i];
+                win = win * 10 + digit;
+            }
+            if (win % 64 != 0 || used[win])
+                valid = 0;
+        }
+
+        if (valid)
+        {
+            if (depth + 1 >= n) used[win] = 1;
+            digits[depth] = d;
+            dfs_small(n, depth + 1, cur_val * 10 + d,
+                      digits, used, best_num, best_len, max_len);
+            /* backtrack */
+            if (depth + 1 >= n) used[win] = 0;
+        }
+    }
+}
 
 static seq_t pow10_idx(idx_t e)
 {

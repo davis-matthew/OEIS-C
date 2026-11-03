@@ -5,15 +5,17 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = -Sum_{k=0..n-1} binomial(n+k, n-k-1) * a(k); a(0) = 1
- * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 15, i64 n <= 24, i128 n <= 24,
+ * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 15, i64 n <= 24, i128 n <= 24,
  *            big any n
- * Helpers:   binomial_int
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binomial_int.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* cache for computed values */
 static seq_t *seq_cache = NULL;
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     /* ensure at least n+1 capacity */
     if (cache_cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, seq_cache, new_cap);
         if (!new_cache) return 0;   /* out of memory, return 0 as error */
         seq_cache = new_cache;
         cache_cap = new_cap;
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
         for (idx_t i = cache_max + 1; i <= n; ++i) {
             seq_t sum = 0;
             for (idx_t k = 0; k < i; ++k) {
-                seq_t bin = binomial_int(i + k, i - k - 1);
+                seq_t bin = binomial(i + k, i - k - 1);
                 sum += bin * seq_cache[k];
             }
             seq_cache[i] = -sum;

@@ -12,12 +12,14 @@
  *            values in increasing order
  * Range:     u8 n <= 49, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* comparison function for qsort */
 static int seq_cmp(const void *p1, const void *p2)
@@ -43,7 +45,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = values_cap ? values_cap * 2 : 64;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *new_vals = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+    seq_t *new_vals = mem_resize(seq_t, values, new_cap);
     values = new_vals;
     values_cap = new_cap;
 }
@@ -53,7 +55,7 @@ static void ensure_capacity(size_t needed)
 static void generate_length(idx_t half)
 {
     size_t local_count = (size_t)half * ((size_t)1 << (half - 1));
-    seq_t *local = (seq_t *)malloc(local_count * sizeof(seq_t));
+    seq_t *local = mem_new(seq_t, local_count);
     size_t idx = 0;
     idx_t L = half * 2;
 
@@ -117,7 +119,7 @@ static void generate_length(idx_t half)
     }
 
     /* sort the locally generated values */
-    qsort(local, local_count, sizeof(seq_t), seq_cmp);
+    mem_qsort(local, local_count, sizeof(seq_t), seq_cmp);
 
     /* append to the global array */
     ensure_capacity(values_len + local_count);
@@ -125,7 +127,7 @@ static void generate_length(idx_t half)
         values[values_len + i] = local[i];
     values_len += local_count;
 
-    free(local);
+    mem_free(local);
 }
 
 /* Public function implementing the sequence */

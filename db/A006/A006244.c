@@ -8,12 +8,14 @@
  * Formula:   a(n) = 98*a(n-1) - a(n-2) - 6, a(1) = 1, a(2) = 91
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 465 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     
     if (memo == NULL) {
         memo_len = 16;
-        memo = (seq_t *)malloc(memo_len * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_len);
         memo[1] = 1;
         memo[2] = 91;
         computed_up_to = 2;
@@ -33,11 +35,11 @@ seq_t a(idx_t n) {
     
     while (n >= memo_len) {
         idx_t new_len = memo_len * 2;
-        seq_t *new_memo = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, new_len);
         for (idx_t i = 0; i < memo_len; i++) {
             new_memo[i] = memo[i];
         }
-        free(memo);
+        mem_free(memo);
         memo = new_memo;
         memo_len = new_len;
     }

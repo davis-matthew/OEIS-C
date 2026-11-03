@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 19, u64 n <= 35, u128 n <= 58,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 841 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,6 +24,7 @@
    After the loop S_2 = p/q;  C = 1 / (p/q) = q/p, so the required
    denominator is p.  This algorithm runs in O(n) time with
    arbitrary‑precision arithmetic when required. */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

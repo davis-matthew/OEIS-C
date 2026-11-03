@@ -10,7 +10,8 @@
  *            a(12) = 1264321
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 29, u64 n <= 119, u128 n <= 359,
  *            big any n
- * Helpers:   digit_len_generic, pow10_generic
+ * Validated: standard, pass, 53 terms through n = 9879 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,17 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/digit_len_generic.h"
-#include "../utils/pow10_generic.h"
+#include "../utils/num_digits.h"
+
+/* -----------------------------------------------------------------------
+   Helper: 10^k as seq_t (k >= 0).
+   ----------------------------------------------------------------------- */
+static inline seq_t pow10_generic(int k)
+{
+    seq_t v = 1;
+    for (int i = 0; i < k; ++i) v *= (seq_t)10;
+    return v;
+}
 
 /* -----------------------------------------------------------------------
    Helper: integer square root for uint64_t (floor sqrt).
@@ -59,7 +69,7 @@ seq_t a(idx_t n)
     for (idx_t i = 1; i <= sq; ++i) {
         if (n % i == 0) {
             seq_t d = (seq_t)(n / i);    /* larger divisor */
-            int len = digit_len_generic(d);
+            int len = num_digits(d);
             result = result * pow10_generic(len) + d;
         }
     }
@@ -70,7 +80,7 @@ seq_t a(idx_t n)
         if (n % i == 0) {
             if ((n / i) == i) continue; /* skip duplicate square root */
             seq_t d = (seq_t)i;          /* smaller divisor */
-            int len = digit_len_generic(d);
+            int len = num_digits(d);
             result = result * pow10_generic(len) + d;
         }
     }

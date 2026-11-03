@@ -9,7 +9,8 @@
  *            incongruent modulo k
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   check_distinct
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,36 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/check_distinct.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether the first m Fermat numbers are distinct modulo k.
+   For k == 1 this is true only when m == 1. */
+static bool check_distinct(seq_t k, idx_t m)
+{
+    if (k == (seq_t)1) return m == 1;
+
+    size_t sz = (size_t)k;          /* assume k fits in size_t */
+    static char *seen = NULL;
+    static size_t seen_sz = 0;
+
+    if (sz > seen_sz) {              /* grow buffer if necessary */
+        free(seen);
+        seen = (char *)malloc(sz);
+        if (!seen) return false;    /* treat allocation fail as not distinct */
+        seen_sz = sz;
+    }
+    memset(seen, 0, sz);
+
+    seq_t val = (seq_t)2 % k;        /* 2^(2^0) mod k */
+    for (idx_t i = 0; i < m; ++i) {
+        seq_t r = (val + (seq_t)1) % k;      /* F_i mod k */
+        size_t idx = (size_t)r;              /* assume r fits in size_t */
+        if (seen[idx]) return false;
+        seen[idx] = 1;
+        val = (val * val) % k;               /* next exponent: square */
+    }
+    return true;
+}
 
 /* Main function requested by the OEIS kernel. */
 seq_t a(idx_t n)
@@ -30,7 +60,7 @@ seq_t a(idx_t n)
 
     /* Grow cache if necessary */
     if (n > cache_len) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!tmp) return 0;           /* allocation failure */
         cache = tmp;
         for (size_t i = cache_len + 1; i <= (size_t)n; ++i) cache[i] = 0;

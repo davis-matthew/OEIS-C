@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 351, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_seq, free_seq
+ * Validated: standard, pass, 77 terms through n = 795 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,21 @@
    Computed by dynamic programming with a 1‑dimensional array. */
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/alloc_seq.h"      /* alloc_seq() */
-#include "../utils/free_seq.h"       /* free_seq() */
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {

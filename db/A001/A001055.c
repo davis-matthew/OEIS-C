@@ -9,13 +9,15 @@
  *            memoization
  * Range:     u8 n <= 2879, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 119 terms through n = 9545 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 typedef struct {
   idx_t n;
@@ -42,7 +44,7 @@ static bool lookup_memo(idx_t n, idx_t minDiv, seq_t *out) {
 static void store_memo(idx_t n, idx_t minDiv, seq_t result) {
   if (memo_size >= memo_capacity) {
     memo_capacity = memo_capacity * 2 + 1;
-    memo = (Memo *)realloc(memo, memo_capacity * sizeof(Memo));
+    memo = mem_resize(Memo, memo, memo_capacity);
   }
   memo[memo_size].n = n;
   memo[memo_size].minDiv = minDiv;

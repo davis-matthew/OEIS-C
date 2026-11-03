@@ -8,13 +8,17 @@
  *            n)}
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +30,7 @@ seq_t a(idx_t n)
             /* first divisor i */
             idx_t d1 = i;
             seq_t dmod1 = (seq_t)d1 % (seq_t)n;
-            seq_t pow1  = mod_pow((seq_t)d1, d1, (seq_t)n);
+            seq_t pow1  = powmod((seq_t)d1, d1, (seq_t)n);
             if (pow1 == dmod1)
             {
                 if ((d1 & 1) == 0) /* even divisor */
@@ -46,7 +50,7 @@ seq_t a(idx_t n)
             if (d2 != d1)
             {
                 seq_t dmod2 = (seq_t)d2 % (seq_t)n;
-                seq_t pow2  = mod_pow((seq_t)d2, d2, (seq_t)n);
+                seq_t pow2  = powmod((seq_t)d2, d2, (seq_t)n);
                 if (pow2 == dmod2)
                 {
                     if ((d2 & 1) == 0)

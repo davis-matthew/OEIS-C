@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 21, u32 n <= 54, u64 n <= 135, u128 n <= 377,
  *            big any n
- * Helpers:   _floor_isqrt_u64, big_pow
+ * Validated: standard, pass, 61 terms through n = 9830 (2026-11-01)
+ * Helpers:   ipow, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,14 +28,15 @@
 
 #include <stdint.h>
 #include <assert.h>
-#include "../utils/big_pow.h"   /* provides seq_t big_pow(seq_t base, seq_t exp) */
-#include "../utils/_floor_isqrt_u64.h" /* provides idx_t _floor_isqrt_u64(idx_t n) */
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* Find the row r such that r(r+1)/2 <= n < (r+1)(r+2)/2 */
     idx_t disc   = 1 + 8 * n;                     /* 1+8n fits in 64‑bit for all n used */
-    idx_t sqrt_d = _floor_isqrt_u64(disc);       /* integer sqrt */
+    idx_t sqrt_d = isqrt(disc);       /* integer sqrt */
     idx_t r      = (sqrt_d - 1) / 2;              /* floor((sqrt(1+8n)-1)/2) */
 
     /* Offset within the row */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     idx_t c    = n - prev;                        /* column index */
 
     /* T(r,0) = r^r (with 0^0 treated as 1) */
-    seq_t val = big_pow((seq_t)r, (seq_t)r);
+    seq_t val = ipow((seq_t)r, (seq_t)r);
 
     /* Recurrence to reach column c */
     for (idx_t k = 0; k < c; ++k) {

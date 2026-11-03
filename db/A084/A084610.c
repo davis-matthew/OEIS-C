@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, tabf
  * Formula:   not stated
- * Range:     i8 n <= 66, i16 n <= 263, i32 n <= 923, i64 n <= 1224,
+ * Range:     i8 n <= 87, i16 n <= 268, i32 n <= 924, i64 n <= 1224,
  *            i128 n <= 1224, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 97 terms through n = 1139 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
  */
 
 #include <math.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -39,8 +41,8 @@ seq_t a(idx_t n)
     seq_t sum = 0;
 
     for (idx_t j = j_start; j <= j_end; ++j) {
-        seq_t term = binom(r, k - j);          /* C(r, k-j) */
-        term *= binom(k - j, j);               /* * C(k-j, j) */
+        seq_t term = binomial(r, k - j);          /* C(r, k-j) */
+        term *= binomial(k - j, j);               /* * C(k-j, j) */
         if (j & 1)
             sum -= term;                       /* (-1)^j */
         else

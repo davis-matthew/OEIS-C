@@ -12,8 +12,9 @@
  *            for 1‑based indices: P(a,b) = (a+b-1)*(a+b-2)/2 + a. The array
  *            is read by descending antidiagonals: A(1,1), A(1,2), A(2,1),
  *            A(1,3), A(2,2), A(3,1), … This implementation...
- * Range:     u8 n <= 299, u16 n <= 9612, u32 n <= 9612, u64 n <= 9612,
- *            u128 n <= 9612, big any n
+ * Range:     u8 n <= 299, u16 n <= 10585, u32 n <= 10585, u64 n <= 10585,
+ *            u128 n <= 10585, big any n
+ * Validated: standard, pass, 121 terms through n = 9612 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

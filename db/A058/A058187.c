@@ -5,18 +5,20 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = binomial(floor(n/2)+3, 3)
- * Range:     u8 n <= 13, u16 n <= 142, u32 n <= 880, u64 n <= 880,
+ * Range:     u8 n <= 19, u16 n <= 143, u32 n <= 880, u64 n <= 880,
  *            u128 n <= 880, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 68 terms through n = 873 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     /* floor(n/2) == n >> 1 for unsigned idx_t */
     idx_t k = n >> 1;
-    return binom(k + 3, 3);
+    return binomial(k + 3, 3);
 }

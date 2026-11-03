@@ -11,29 +11,65 @@
  *            mul_small
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   mu_of, mul_small, seq_pow
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mu_of.h"
-#include "../utils/seq_pow.h"
-#include "../utils/mul_small.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /*  Compute A056310(k) = (T_k + T_{ceil(k/2)})/2  */
 static inline seq_t A056310(idx_t k)
 {
     /* T_k = 3^k - 3·2^k + 3 */
-    seq_t t = seq_pow((seq_t)3, k);
-    seq_t twoPow = seq_pow((seq_t)2, k);
+    seq_t t = ipow_idx((seq_t)3, k);
+    seq_t twoPow = ipow_idx((seq_t)2, k);
     t -= mul_small(twoPow, 3);
     t += (seq_t)3;
 
     /* T_{ceil(k/2)} */
     idx_t half = (k + 1) / 2;
-    seq_t h = seq_pow((seq_t)3, half);
-    seq_t twoHalf = seq_pow((seq_t)2, half);
+    seq_t h = ipow_idx((seq_t)3, half);
+    seq_t twoHalf = ipow_idx((seq_t)2, half);
     h -= mul_small(twoHalf, 3);
     h += (seq_t)3;
 

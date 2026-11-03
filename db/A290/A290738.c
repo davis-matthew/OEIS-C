@@ -11,7 +11,8 @@
  *            3731495040)/45
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 14, u128 n <= 20,
  *            big any n
- * Helpers:   gcd, pow_seq
+ * Validated: partial, pass, 16 terms through n = 20 (2026-11-01)
+ * Helpers:   gcd, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,8 @@
 /* Includes: <stdint.h>, "../utils/pow_seq.h", "../utils/gcd.h" */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
 #include "../utils/gcd.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n) {
     /* For n < 5 the value is undefined; return 0. */
@@ -66,8 +67,8 @@ seq_t a(idx_t n) {
 
         /* Denominator: 45 * 2^(12-n) * n^(11-n). */
         seq_t denom = (seq_t)45;
-        denom = denom * pow_seq((seq_t)2, (int)(12 - n));
-        denom = denom * pow_seq(nval, (int)(11 - n));
+        denom = denom * ipow_i32((seq_t)2, (int)(12 - n));
+        denom = denom * ipow_i32(nval, (int)(11 - n));
 
         return numerator / denom;
     }
@@ -89,13 +90,13 @@ seq_t a(idx_t n) {
     den = den / g;
 
     /* Factor 2^(n-12). */
-    seq_t pow2 = pow_seq((seq_t)2, (int)(n - 12));
+    seq_t pow2 = ipow_i32((seq_t)2, (int)(n - 12));
     g = gcd(pow2, den);
     res = res * (pow2 / g);
     den = den / g;
 
     /* Factor n^(n-11). */
-    seq_t pown = pow_seq(nval, (int)(n - 11));
+    seq_t pown = ipow_i32(nval, (int)(n - 11));
     g = gcd(pown, den);
     res = res * (pown / g);
     den = den / g;

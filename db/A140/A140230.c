@@ -9,12 +9,14 @@
  *            values in a 1‑based static array
  * Range:     i8 n <= 8, i16 n <= 23, i32 n <= 52, i64 n <= 115, i128 n <= 206,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold at least the first 4 terms. */
     if (cache == NULL) {
         cap = 5; /* indices 0..4 */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();           /* allocation failure */
         /* Initialise the first four sequence values. */
         cache[1] = (seq_t)1;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Grow the cache if needed. */
     if ((size_t)(n + 1) > cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cap = new_cap;

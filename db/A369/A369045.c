@@ -7,8 +7,9 @@
  * Formula:   a(n) = prime factor of k if k = A054429(n) is a prime power,
  *            otherwise 1. * A054429(n) = 3*2^floor(log2 n) - 1 - n (reversal
  *            within each dyadic block)
- * Range:     u8 n <= 257, u16 n <= 8471, u32 n <= 8471, u64 n <= 8471,
- *            u128 n <= 8471, big any n
+ * Range:     u8 n <= 257, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 113 terms through n = 8471 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

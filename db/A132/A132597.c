@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 8488, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   to_ternary_seq_t
+ * Validated: standard, pass, 90 terms through n = 9958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,28 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/to_ternary_seq_t.h"
+#include "../utils/mem.h"
+
+/* number of digits.                                                   */
+static void to_ternary_seq_t(seq_t val, char *out, size_t *len)
+{
+    if (val == (seq_t)0) {
+        out[0] = '0';
+        *len = 1;
+        return;
+    }
+    seq_t x = val;
+    char tmp[128];
+    size_t pos = 0;
+    while (x != (seq_t)0) {
+        seq_t d = x % (seq_t)3;
+        tmp[pos++] = '0' + (unsigned)d;
+        x /= (seq_t)3;
+    }
+    *len = pos;
+    for (size_t i = 0; i < pos; ++i)
+        out[i] = tmp[pos - 1 - i];
+}
 
 /* convert a seq_t value to a base‑3 string into out[0..len-1]       */
 /* out must have space for at most 128 chars, len receives the       */
@@ -52,12 +74,12 @@ seq_t a(idx_t n)
     /* Ensure values array capacity */
     if (!values) {
         val_cap = 16;
-        values = (seq_t*)calloc(val_cap, sizeof(seq_t));
+        values = mem_new(seq_t, val_cap);
     }
     if ((size_t)n >= val_cap) {
         size_t newcap = val_cap ? val_cap * 2 : 16;
         while (newcap <= (size_t)n) newcap *= 2;
-        values = (seq_t*)realloc(values, newcap * sizeof(seq_t));
+        values = mem_resize(seq_t, values, newcap);
         val_cap = newcap;
     }
 

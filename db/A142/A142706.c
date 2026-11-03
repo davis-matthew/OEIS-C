@@ -9,7 +9,8 @@
  *            r(r-1)/2, and A(i,j) are Eulerian numbers
  * Range:     u8 n <= 11, u16 n <= 30, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Static storage for computed Eulerian rows.  euler_rows[n][k] = A(n,k),
    with k = 0..n-1.  The index 0 row is unused. */
@@ -40,7 +42,7 @@ static void ensure_euler_rows(idx_t n)
 
     /* Base case: row 1 has a single entry A(1,0) = 1 */
     if (max_euler < 1) {
-        euler_rows[1] = (seq_t*)malloc(sizeof(seq_t) * 1);
+        euler_rows[1] = mem_new(seq_t, 1);
         euler_rows[1][0] = (seq_t)1;
         max_euler = 1;
     }
@@ -48,7 +50,7 @@ static void ensure_euler_rows(idx_t n)
     /* Compute successive rows up to n */
     for (idx_t m = max_euler + 1; m <= n; ++m) {
         seq_t *prev = euler_rows[m - 1];
-        seq_t *curr = (seq_t*)malloc(sizeof(seq_t) * m);
+        seq_t *curr = mem_new(seq_t, m);
         for (idx_t k = 0; k < m; ++k) {
             seq_t term1 = 0;
             seq_t term2 = 0;

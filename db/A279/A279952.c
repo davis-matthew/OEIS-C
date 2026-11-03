@@ -8,7 +8,8 @@
  *            index of p in the list of primes is itself a prime
  * Range:     u8 n <= 2038, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   build_primes_upto, is_prime_small
+ * Validated: standard, pass, 136 terms through n = 4592 (2026-11-02)
+ * Helpers:   build_primes_upto, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,8 @@
 #include <stdbool.h>
 
 /* Utilities (provided by the build environment) */
-#include "../utils/is_prime_small.h"   /* bool is_prime_small(seq_t n); */
-#include "../utils/build_primes_upto.h" /* void build_primes_upto(idx_t limit,
-                                        uint64_t **primes_out, size_t *cnt_out); */
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_prime_seq.h"
 
 static bool    primes_initialized = false;
 static size_t  primes_limit = 0;
@@ -68,7 +68,7 @@ seq_t a(idx_t n)
             break;
         if (temp % p == 0) {
             uint32_t idx = prime_index[p];
-            if (is_prime_small((seq_t)idx))
+            if (is_prime_seq((seq_t)idx))
                 ++result;
             while (temp % p == 0)
                 temp /= p;
@@ -76,7 +76,7 @@ seq_t a(idx_t n)
     }
     if (temp > 1) {                     /* remaining prime factor */
         uint32_t idx = prime_index[(uint32_t)temp];
-        if (is_prime_small((seq_t)idx))
+        if (is_prime_seq((seq_t)idx))
             ++result;
     }
     return result;

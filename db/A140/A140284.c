@@ -11,7 +11,8 @@
  *            ≤ d). The sequence is listed row‑wise, offset 1
  * Range:     u8 n <= 39, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Compute the number of terms up to and including row d (row indices start at 0). */
 static inline unsigned __int128 triangular(idx_t d)
@@ -57,7 +58,7 @@ seq_t a(idx_t n)
     seq_t f       = (seq_t)(uint64_t)fval;   /* f fits in 64 bits for our ranges */
 
     /* Binomial coefficient Binomial(d,k) via provided helper. */
-    seq_t bin = binom(d, k);
+    seq_t bin = binomial(d, k);
 
     return f * bin;
 }

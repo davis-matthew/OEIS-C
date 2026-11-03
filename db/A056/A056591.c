@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 21, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 1079 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
 
         table_cap  = 15;
         table_size = 15;
-        table = (seq_t *)malloc(table_cap * sizeof(seq_t));
+        table = mem_new(seq_t, table_cap);
         for (size_t i = 0; i < table_size; ++i) {
             table[i] = init[i];
         }
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
     if (n + 1 > table_cap) {
         size_t new_cap = table_cap * 2;
         if (new_cap < n + 1) new_cap = n + 1;
-        table = (seq_t *)realloc(table, new_cap * sizeof(seq_t));
+        table = mem_resize(seq_t, table, new_cap);
         table_cap = new_cap;
     }
 

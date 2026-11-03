@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    sort the results, and return the n‑th smallest (1‑based). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort – works for numeric types and for a
    class type that overloads operator< (C++). */
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     }
 
     /* Sort the 55 values */
-    qsort(vals, cnt, sizeof(seq_t), cmp_seq);
+    mem_qsort(vals, cnt, sizeof(seq_t), cmp_seq);
 
     /* Return the requested term if it exists */
     if (n - 1 >= cnt) return 0;   /* out of range – undefined */

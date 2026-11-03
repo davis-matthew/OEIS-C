@@ -10,9 +10,10 @@
  *            c = n - (r-1)r/2. T(r,c) counts compositions of r into c parts
  *            avoiding part 6, computed by inclusion–exclusion: T(r,c) =
  *            Σ_{j=0}^{min(c, r/6)} (-1)^j * C(c,j) * C(r-6...
- * Range:     u8 n <= 40, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
+ * Range:     u8 n <= 70, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
-
+#include "../utils/binomial.h"
 
 static idx_t find_row(idx_t n)
 {
@@ -44,7 +44,7 @@ static seq_t T_rc(idx_t n, idx_t k)
     if (max_j > k) max_j = k;
 
     for (idx_t j = 0; j <= max_j; ++j) {
-        seq_t bin1 = binom(k, j);
+        seq_t bin1 = binomial(k, j);
 
         idx_t remaining_sum = n - p * j;
 
@@ -54,7 +54,7 @@ static seq_t T_rc(idx_t n, idx_t k)
             if (remaining_sum == 0) bin2 = 1;
         } else {
             if (remaining_sum >= (k - j)) {
-                bin2 = binom(remaining_sum - 1, k - j - 1);
+                bin2 = binomial(remaining_sum - 1, k - j - 1);
             }
         }
 

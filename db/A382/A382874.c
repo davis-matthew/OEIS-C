@@ -8,12 +8,14 @@
  *            (2*n-1)*(2*n+1)^2*(2*n+3)*(2*n+5)*binom(2*n,n)/15 for n>=1
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 7, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +23,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     // compute binomial coefficient C(2n, n)
-    seq_t c = binom(2*n, n);
+    seq_t c = binomial(2*n, n);
 
     seq_t res = c;
     res *= (seq_t)(2*n - 1);

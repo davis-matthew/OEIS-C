@@ -12,6 +12,7 @@
  *            0,1,4,6,8,9,10,12,14,15,16,18,20,21,22,24,25,26,28,30,31,32,33,35,…)
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 /* Cache of nonprime numbers (0 and 1 included). */

@@ -7,12 +7,20 @@
  * Formula:   a(n) = not (n XOR (n shift 1))
  * Range:     u8 n <= 469, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _bit_mask
+ * Validated: standard, pass, 91 terms through n = 9696 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_bit_mask.h"
+static seq_t _bit_mask(unsigned bits)
+{
+    seq_t mask = 0;
+    for (unsigned i = 0; i < bits; ++i) {
+        mask = (mask << 1) | 1;
+    }
+    return mask;
+}
 
 seq_t a(idx_t n)
 {

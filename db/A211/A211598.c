@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 22, u64 n <= 47, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system; no typedefs here. */
 
@@ -56,7 +58,7 @@ static void ensure_cache(idx_t n)
         size_t new_len = cache_len ? cache_len * 2 : 64;
         if (new_len < (size_t)n + 1)
             new_len = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         cache = tmp;
         cache_len = new_len;
         /* Initialise new slots to zero (cumulative sum may be large). */

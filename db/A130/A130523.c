@@ -13,6 +13,7 @@
  *            remaining sequence. The sequence a(n) is read by an...
  * Range:     u8 n <= 48, u16 n <= 126, u32 n <= 419, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 93 terms through n = 1076 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

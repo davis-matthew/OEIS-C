@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 90, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, pow10, seq_realloc
+ * Validated: standard, pass, 69 terms through n = 9728 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,32 @@
  * form, so the function searches by brute force and memoises the
  * results. */
 #include <stddef.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -43,7 +67,7 @@ seq_t a(idx_t n)
             seq_t kk = (seq_t)k;
             cube = kk * kk * kk;
 
-            len = (unsigned)digit_len(cube);
+            len = (unsigned)num_digits(cube);
             if ((len & 1U) == 0)          /* need odd length */
                 continue;
 

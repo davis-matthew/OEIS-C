@@ -11,13 +11,26 @@
  *            a(1)=2, a(2)=1, a(3)=3, …
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   grow_array
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/grow_array.h"
+#include "../utils/mem.h"
+
+/* Allocate a new array of capacity `cap` and copy the contents of `old`
+ * (which has length `old_len`).  The returned pointer must later be
+ * freed with free().  */
+static seq_t *grow_array(const seq_t *old, idx_t old_len, idx_t cap)
+{
+    seq_t *new_arr = mem_new(seq_t, cap);
+    if (!new_arr) return NULL;          /* failure – caller will ignore */
+    for (idx_t i = 0; i < old_len; ++i)
+        new_arr[i] = old[i];
+    return new_arr;
+}
 
 /* Static storage for the generated word.  The array grows lazily so
  * that a call to a(n) only computes as many symbols as necessary.  */
@@ -28,7 +41,7 @@ static idx_t seq_len = 0;
 static void ensure_len(idx_t n)
 {
     if (seq == NULL) {
-        seq = (seq_t *)malloc(sizeof(seq_t));
+        seq = mem_new(seq_t, 1);
         if (!seq) return;                /* allocation failure */
         seq[0] = (seq_t)1;
         seq_len = 1;
@@ -39,7 +52,7 @@ static void ensure_len(idx_t n)
          * symbols, others stay 1).  Add a small buffer to avoid
          * re‑allocation for every insertion. */
         idx_t new_cap = seq_len * 7 + 5;
-        seq_t *tmp = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp) return;                /* allocation failure */
 
         idx_t pos = 0;
@@ -62,7 +75,7 @@ static void ensure_len(idx_t n)
                 tmp[pos++] = (seq_t)1;
             }
         }
-        free(seq);
+        mem_free(seq);
         seq = tmp;
         seq_len = pos;
     }

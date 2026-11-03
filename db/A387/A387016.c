@@ -9,8 +9,9 @@
  * Formula:   generate the permutation of odd integers ≥ 3 as a(n) = (k -
  *            2^m)·2^m + 1, where k runs over odd integers ≥ 3 in increasing
  *            order and, for each k, m runs over 1 … floor(log2 k)
- * Range:     u8 n <= 52, u16 n <= 1800, u32 n <= 9912, u64 n <= 9912,
- *            u128 n <= 9912, big any n
+ * Range:     u8 n <= 52, u16 n <= 1800, u32 n <= 11703, u64 n <= 11703,
+ *            u128 n <= 11703, big any n
+ * Validated: standard, pass, 75 terms through n = 9912 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

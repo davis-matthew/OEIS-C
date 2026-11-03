@@ -6,10 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 7, u16 n <= 1094, u32 n <= 1094, u64 n <= 10000,
+ * Range:     u8 n <= 118, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, digit_len, int_sqrt, is_prime_big, pow10,
- *            seq_alloc, seq_free
+ * Validated: standard, pass, 76 terms through n = 9884 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime_u64, isqrt, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,13 +24,83 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../utils/is_prime_big.h"      /* bool is_prime_big(seq_t) */
-#include "../utils/pow10.h"            /* seq_t pow10(idx_t) */
-#include "../utils/digit_len.h"        /* int digit_len(seq_t) */
-#include "../utils/build_primes_upto.h"/* void build_primes_upto(idx_t limit, uint64_t **out, size_t *cnt) */
-#include "../utils/int_sqrt.h"        /* idx_t int_sqrt(idx_t) */
-#include "../utils/seq_alloc.h"       /* seq_t *seq_alloc(size_t) */
-#include "../utils/seq_free.h"        /* void seq_free(seq_t *) */
+#include <stddef.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+#include "../utils/is_prime_u64.h"
+
+/* Miller–Rabin primality test for seq_t (supports 8/16/32/64/128/ arbitrary-precision) */
+/* n fits in uint64_t (n >= 0 here) */
+static bool is_prime_big_fits_u64(seq_t v)
+{
+    if (sizeof(seq_t) <= 8) return true;
+    return !((seq_t)UINT64_MAX < v);
+}
+
+static bool is_prime_big(seq_t n) {
+    if (n < 2) return false;
+    /* exact in 64 bits when n fits: the seq_t products below overflow at
+       u64/i64 once n passes 2^32, and are slow under big */
+    if (is_prime_big_fits_u64(n)) return is_prime_u64((uint64_t)n);
+    if (n == 2 || n == 3) return true;
+    if ((n & 1) == 0) return false;
+
+    /* write n-1 as d * 2^s with d odd */
+    seq_t d = n - 1;
+    unsigned s = 0;
+    while ((d & 1) == 0) {
+        d >>= 1;
+        s++;
+    }
+
+    /* deterministic bases covering 128‑bit values */
+    static const int base_list[] = {2,3,5,7,11,13,17,19,23,29,31,37};
+    const int num_bases = sizeof(base_list)/sizeof(base_list[0]);
+
+    for (int i = 0; i < num_bases; i++) {
+        seq_t a = (seq_t)base_list[i];
+        if (a >= n) continue;
+
+        /* compute a^d mod n */
+        seq_t x = 1;
+        seq_t pow = a % n;
+        seq_t exp = d;
+        while (exp > 0) {
+            if (exp & 1) x = (x * pow) % n;
+            pow = (pow * pow) % n;
+            exp >>= 1;
+        }
+
+        if (x == 1 || x == n-1) continue;
+
+        bool cont = false;
+        for (unsigned r = 1; r < s; r++) {
+            x = (x * x) % n;
+            if (x == n-1) { cont = true; break; }
+        }
+        if (!cont) return false;
+    }
+    return true;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+    return mem_new(seq_t, cap);
+}
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 static seq_t      *_terms      = NULL;   /* Cached terms of the sequence */
 static size_t      _terms_cap  = 0;
@@ -47,7 +117,7 @@ static void _ensure_primes_upto(idx_t limit)
 {
     if (limit <= _prime_limit) return;
 
-    if (_prime_list) seq_free((seq_t *)_prime_list);
+    free(_prime_list);
     build_primes_upto(limit, &_prime_list, &_prime_cnt);
     _prime_limit = limit;
 }
@@ -57,9 +127,8 @@ static void _push_term(seq_t val)
 {
     if (_terms_len == _terms_cap) {
         size_t new_cap = (_terms_cap == 0) ? 16 : _terms_cap * 2;
-        seq_t *new_arr = seq_alloc(new_cap);
-        memcpy(new_arr, _terms, _terms_len * sizeof(seq_t));
-        if (_terms) seq_free((seq_t *)_terms);
+        seq_t *new_arr = mem_resize(seq_t, _terms, new_cap);
+        if (!new_arr) abort();
         _terms      = new_arr;
         _terms_cap  = new_cap;
     }
@@ -77,7 +146,7 @@ static bool _check_candidate(uint64_t m)
     size_t   pcnt  = 0;
 
     /* Ensure the prime list covers all possible divisors of m. */
-    idx_t sqrt_m = int_sqrt((idx_t)m);
+    idx_t sqrt_m = isqrt((idx_t)m);
     _ensure_primes_upto(sqrt_m);
 
     /* Trial division using the prime list. */
@@ -92,10 +161,20 @@ static bool _check_candidate(uint64_t m)
 
     if (pcnt <= 1) return false;           /* need at least two distinct primes */
 
-    /* Build the concatenation of the distinct primes. */
+    /* Build the concatenation of the distinct primes: in 64 bits, tested
+       exactly, when it fits (seq_t arithmetic overflows in the squaring of
+       Miller-Rabin once it passes 2^32), else in seq_t. */
+    uint64_t c64 = primes[0];
+    bool fits = true;
+    for (size_t i = 1; i < pcnt && fits; ++i) {
+        uint64_t pw = 1;
+        for (uint64_t q = primes[i]; q; q /= 10) pw *= 10;
+        fits = !__builtin_mul_overflow(c64, pw, &c64) && !__builtin_add_overflow(c64, primes[i], &c64);
+    }
+    if (fits) return !is_prime_u64(c64);
     seq_t concat = (seq_t)primes[0];
     for (size_t i = 1; i < pcnt; ++i) {
-        seq_t pow_val = pow10((idx_t)digit_len((seq_t)primes[i]));
+        seq_t pow_val = pow10((idx_t)num_digits((seq_t)primes[i]));
         concat = concat * pow_val + (seq_t)primes[i];
     }
 

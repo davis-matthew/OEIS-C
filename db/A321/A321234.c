@@ -8,19 +8,22 @@
  * Formula:   a(n) = numerator(binomial(2*n, n) / 4^n) * (2*n + 1)^2
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 #include <stdbool.h>
 
 seq_t a(idx_t n)
 {
     /* Compute binomial(2*n, n) */
-    seq_t b = binom((idx_t)(2 * n), n);
+    seq_t b = binomial((idx_t)(2 * n), n);
 
     /* Count 1-bits in n to know how many factors of 2 are in the binomial */
     idx_t pc = (idx_t)__builtin_popcountll((unsigned long long)n);

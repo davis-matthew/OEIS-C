@@ -8,12 +8,37 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   count_xy_for_k
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count_xy_for_k.h"
+/* Counts the number of ordered pairs (x,y)∈[‑n,n]² such that x*y = ±k
+   (k is given as a non‑negative absolute value).  */
+static inline seq_t count_xy_for_k(idx_t n, uint64_t absK)
+{
+    if (absK == 0) {
+        /* For k = 0 we have 2n+1 choices for each coordinate
+           but double count (0,0).  */
+        return (seq_t)4 * (seq_t)n + (seq_t)1;
+    }
+
+    seq_t cnt = 0;
+    for (uint64_t d = 1; d <= absK / d; ++d) {   /* d ≤ sqrt(absK) */
+        if (absK % d == 0) {
+            uint64_t e = absK / d;
+            if (d <= n && e <= n) {
+                if (d == e) {
+                    cnt += (seq_t)2;            /* (d,d) and (-d,-d) */
+                } else {
+                    cnt += (seq_t)4;            /* (±d,±e) and (±e,±d) */
+                }
+            }
+        }
+    }
+    return cnt;
+}
 /* A182074: number of ordered triples (w,x,y) with w^2 + x*y = n and
    w,x,y ∈ {‑n,…,0,…,n}.  The value is computed by counting, for each
    possible w, all pairs (x,y) whose product equals n – w².  */

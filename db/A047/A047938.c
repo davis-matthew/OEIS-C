@@ -9,12 +9,15 @@
  *            2))/2)) / 4
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 26 terms through n = 25 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -25,9 +28,9 @@ seq_t a(idx_t n)
     seq_t exp2 = (n2 + ((seq_t)3 * mod2)) / 4;
     seq_t exp3 = (n2 + mod2) / 2;
 
-    seq_t val1 = big_pow((seq_t)3, n2);
-    seq_t val2 = big_pow((seq_t)3, exp2);
-    seq_t val3 = big_pow((seq_t)3, exp3);
+    seq_t val1 = ipow((seq_t)3, n2);
+    seq_t val2 = ipow((seq_t)3, exp2);
+    seq_t val3 = ipow((seq_t)3, exp3);
 
     seq_t sum = val1 + val2 * ((seq_t)2) + val3;
     return sum / ((seq_t)4);

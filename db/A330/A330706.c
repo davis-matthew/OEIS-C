@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   _make_primes
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,39 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/_make_primes.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------
+ * Helper: generate all primes ≤ limit.  The array is returned in primes,
+ * and its length in cnt.  The caller must free bases.primes.
+ * -------------------------------------------------------------------- */
+static void _make_primes(idx_t limit, uint64_t **primes_out, size_t *cnt_out)
+{
+    uint8_t *is_prime = (uint8_t *)malloc((size_t)(limit + 1));
+    if (!is_prime) abort();
+    for (idx_t i = 0; i <= limit; ++i) is_prime[i] = 1;
+    if (limit >= 0) is_prime[0] = 0;
+    if (limit >= 1) is_prime[1] = 0;
+    for (idx_t p = 2; p * p <= limit; ++p) {
+        if (is_prime[p]) {
+            for (idx_t m = p * p; m <= limit; m += p)
+                is_prime[m] = 0;
+        }
+    }
+    size_t cnt = 0;
+    for (idx_t i = 2; i <= limit; ++i)
+        if (is_prime[i]) ++cnt;
+
+    uint64_t *primes = (uint64_t *)malloc(cnt * sizeof(uint64_t));
+    if (!primes) abort();
+    size_t k = 0;
+    for (idx_t i = 2; i <= limit; ++i)
+        if (is_prime[i]) primes[k++] = (uint64_t)i;
+
+    free(is_prime);
+    *primes_out = primes;
+    *cnt_out = cnt;
+}
 
 /* --------------------------------------------------------------------
  * Helper: test small integer primality (exponents are small).
@@ -79,7 +112,7 @@ static void _grow_terms(void)
 {
     if (term_cnt < term_cap) return;
     size_t new_cap = term_cap ? term_cap * 2 : 16;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) abort();
     terms = tmp;
     term_cap = new_cap;
@@ -93,7 +126,7 @@ static void _init_terms(void)
 {
     if (terms) return;          /* already initialised */
     term_cap = 16;
-    terms = (seq_t *)malloc(term_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, term_cap);
     if (!terms) abort();
 
     _make_primes(PRIME_LIMIT, &prime_arr, &prime_cnt);

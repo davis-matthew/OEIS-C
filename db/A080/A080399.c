@@ -8,6 +8,7 @@
  * Formula:   a(n) = A007947(A001157(n)) (product of distinct primes of σ₂(n))
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 1857, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 70 terms through n = 9785 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

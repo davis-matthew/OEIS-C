@@ -7,12 +7,14 @@
  * Formula:   a(n) = n!*Pell(n)*H(n) = Pell(n) * sum_{k=1}^n (n!)/k
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return A372210(a(n)) */
 seq_t a(idx_t n)
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     /* lazy allocation / extending of the caches                            */
     if (n > cur) {
         size_t newSize = (size_t)(n + 1);   /* indices 0..n */
-        S = (seq_t *)realloc(S, newSize * sizeof(seq_t));
-        P = (seq_t *)realloc(P, newSize * sizeof(seq_t));
+        S = mem_resize(seq_t, S, newSize);
+        P = mem_resize(seq_t, P, newSize);
 
         if (cur == 0) {                  /* initialise base cases */
             /* indices 0 unused; place zero to avoid undefined behaviour */

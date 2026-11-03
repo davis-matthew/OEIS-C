@@ -9,7 +9,8 @@
  *            primitive Pythagorean triples with a < b < c
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9302 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Euclidean gcd for uint64_t */
 static inline uint64_t gcd_u64(uint64_t a, uint64_t b)
@@ -56,7 +58,7 @@ static void generate_all(void)
 
     /* Reserve a large enough buffer to avoid many reallocs. */
     size_t reserve = (size_t)MMAX * (MMAX - 1) / 4;   /* rough estimate of valid pairs */
-    values = (seq_t *)malloc(reserve * sizeof(seq_t));
+    values = mem_new(seq_t, reserve);
     if (!values) return; /* out of memory */
 
     for (uint64_t m = 2; m <= MMAX; ++m)
@@ -94,7 +96,7 @@ static void generate_all(void)
             if (values_len == reserve)
             {
                 reserve *= 2;
-                seq_t *tmp = (seq_t *)realloc(values, reserve * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, values, reserve);
                 if (!tmp) return; /* allocation failure, abort */
                 values = tmp;
             }
@@ -103,7 +105,7 @@ static void generate_all(void)
     }
 
     /* Sort the array in ascending order */
-    qsort(values, values_len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(values, values_len, sizeof(seq_t), cmp_seq_t);
 }
 
 /* Public function required by the framework */

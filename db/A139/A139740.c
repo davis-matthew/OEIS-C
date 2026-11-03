@@ -8,12 +8,14 @@
  *            13*a(n-1) - 22*a(n-2) for n >= 2
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 293 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (cur_len == 0) {
         /* start with room for two elements */
         size_t new_cap = 2;
-        cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, new_cap);
         if (!cache) return 0;          /* unlikely – guard against OOM */
         cap = new_cap;
         cache[0] = (seq_t)0;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         cur_len = 2;
     } else if (cur_len == 1) {         /* only a(0) stored yet */
         if (cap < 2) {
-            cache = (seq_t *)realloc(cache, 2 * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, 2);
             cap = 2;
         }
         cache[1] = (seq_t)9;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap;
         if (new_cap == 0) new_cap = 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap = new_cap;
     }
 

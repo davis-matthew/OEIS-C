@@ -8,12 +8,14 @@
  * Formula:   a(n) = 2*a(n-1) + 10*a(n-2) + 4*a(n-3), a(0)=1, a(1)=6, a(2)=22
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* Reallocate if necessary (C++ requires a cast, C accepts implicit cast) */
     if (required > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, required * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, required);
         if (!tmp) abort();          /* out–of–memory: aborting is acceptable */
         cache = tmp;
         cache_size = required;

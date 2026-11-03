@@ -8,8 +8,9 @@
  * Keywords:  nonn
  * Formula:   a(n)=1 iff there is exactly one partition of the divisors of n
  *            into two complementary subsets of equal sum; otherwise 0
- * Range:     u8 n <= 4399, u16 n <= 9790, u32 n <= 9790, u64 n <= 9790,
- *            u128 n <= 9790, big any n
+ * Range:     u8 n <= 4399, u16 n <= 101631, u32 n <= 101632, u64 n <= 101632,
+ *            u128 n <= 101632, big any n
+ * Validated: standard, pass, 121 terms through n = 9790 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

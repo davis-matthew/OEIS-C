@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1882 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Helper functions for polynomial arithmetic (coefficients in seq_t)*/
@@ -30,7 +32,7 @@ static seq_t *poly_mul(const seq_t *a, size_t alen,
                        const seq_t *b, size_t blen)
 {
     size_t len = alen + blen - 1;
-    seq_t *res = (seq_t*)calloc(len, sizeof(seq_t));
+    seq_t *res = mem_new(seq_t, len);
     for (size_t i = 0; i < alen; ++i) {
         for (size_t j = 0; j < blen; ++j) {
             res[i + j] += a[i] * b[j];
@@ -44,10 +46,10 @@ static seq_t *poly_div(const seq_t *dividend, size_t dlen,
 {
     /* divisor is monic (leading coefficient 1) */
     size_t qlen = dlen - dl2 + 1;
-    seq_t *q = (seq_t*)calloc(qlen, sizeof(seq_t));
+    seq_t *q = mem_new(seq_t, qlen);
 
-    seq_t *rem = (seq_t*)calloc(dlen, sizeof(seq_t));
-    memcpy(rem, dividend, dlen * sizeof(seq_t));
+    seq_t *rem = mem_new(seq_t, dlen);
+    mem_copy(rem, dividend, dlen * sizeof(seq_t));
 
     for (int64_t i = (int64_t)dlen - 1; i >= (int64_t)dl2 - 1; --i) {
         seq_t coeff = rem[i];
@@ -58,7 +60,7 @@ static seq_t *poly_div(const seq_t *dividend, size_t dlen,
             rem[idx] -= coeff * divisor[j];
         }
     }
-    free(rem);
+    mem_free(rem);
     return q;
 }
 
@@ -77,7 +79,7 @@ static size_t phi_len[NUM_DIVISORS];
 static void compute_phi_polynomials(void)
 {
     /* Φ1(x) = x - 1 */
-    phi[0] = (seq_t*)calloc(2, sizeof(seq_t));
+    phi[0] = mem_new(seq_t, 2);
     phi[0][0] = -1;
     phi[0][1] = 1;
     phi_len[0] = 2;
@@ -86,19 +88,19 @@ static void compute_phi_polynomials(void)
         idx_t d = divisors[idx];
 
         /* dividend : x^d - 1  => coeff array of length d+1 */
-        seq_t *dividend = (seq_t*)calloc((size_t)d + 1, sizeof(seq_t));
+        seq_t *dividend = mem_new(seq_t, (size_t)d + 1);
         dividend[0] = -1;
         dividend[(size_t)d] = 1;          /* coefficient of x^d */
 
         /* divisor : product of Φ_e for all e|d, e<d  */
-        seq_t *prod = (seq_t*)calloc(1, sizeof(seq_t));
+        seq_t *prod = mem_new(seq_t, 1);
         prod[0] = 1;                      /* polynomial "1" */
         size_t prod_len = 1;
 
         for (int j = 0; j < idx; ++j) {
             if (d % divisors[j] == 0) {
                 seq_t *tmp = poly_mul(prod, prod_len, phi[j], phi_len[j]);
-                free(prod);
+                mem_free(prod);
                 prod = tmp;
                 prod_len += phi_len[j] - 1;
             }
@@ -106,8 +108,8 @@ static void compute_phi_polynomials(void)
 
         /* divide dividend by divisor to get Φ_d */
         seq_t *tmp = poly_div(dividend, (size_t)d + 1, prod, prod_len);
-        free(dividend);
-        free(prod);
+        mem_free(dividend);
+        mem_free(prod);
 
         phi[idx] = tmp;
         phi_len[idx] = (size_t)d + 1 - prod_len + 1; /* degree +1 */
@@ -144,9 +146,9 @@ static void init_sequence(void)
 
     /* free resources: phi[0]..phi[NUM_DIVISORS-2] and root */
     for (int i = 0; i < NUM_DIVISORS - 1; ++i) {
-        free(phi[i]);
+        mem_free(phi[i]);
     }
-    free(root);
+    mem_free(root);
 
     initialized = true;
 }

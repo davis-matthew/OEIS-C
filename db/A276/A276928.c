@@ -8,7 +8,8 @@
  * Formula:   a(n) = sum_{i=1..min(8,n)} binom(n,i) * a(n-i), a(0)=1
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 407 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* The caller supplies seq_t and idx_t.  The following helper computes
    binomial coefficients for small k (k ≤ 8). */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         if (new_capacity < (size_t)(n + 1)) {
             new_capacity = (size_t)(n + 1);
         }
-        seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
         if (!tmp) return 0;  /* allocation failure */
         cache = tmp;
         capacity = new_capacity;

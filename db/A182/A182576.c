@@ -7,13 +7,15 @@
  * Formula:   number of 1's in the Zeckendorf representation of n^2
  * Range:     u8 n <= 15, u16 n <= 380, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Lazy Fibonacci cache: F(2)=1, F(3)=2, F(4)=3, ... */
 static seq_t *fibs   = NULL;   /* array of Fibonacci numbers */
@@ -27,7 +29,7 @@ static void ensure_fib_upto(seq_t limit)
     if (fibs == NULL)
     {
         size_t init_cap = 8;
-        fibs = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        fibs = mem_new(seq_t, init_cap);
         if (fibs == NULL) return;          /* unlikely, but safe */
         fibs[0] = (seq_t)1;
         fibs[1] = (seq_t)2;
@@ -42,7 +44,7 @@ static void ensure_fib_upto(seq_t limit)
         if (next < fibs[fib_cnt - 1]) break;
 
         size_t new_cap = fib_cnt * 2;
-        seq_t *tmp = (seq_t *)realloc(fibs, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fibs, new_cap);
         if (tmp == NULL) break;           /* allocation failure – stay short */
         fibs     = tmp;
         fibs[fib_cnt] = next;

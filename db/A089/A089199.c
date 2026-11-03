@@ -7,7 +7,8 @@
  * Formula:   A089199 – primes p such that p+1 is divisible by a cube
  * Range:     u8 n <= 16, u16 n <= 1984, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   int_cube_root, next_prime
+ * Validated: standard, pass, 67 terms through n = 9974 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,24 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include <limits.h>
 #include "../utils/next_prime.h"
-#include "../utils/int_cube_root.h"
+#include "../utils/mem.h"
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 /* static storage for small primes up to 2000 (cube root of 8e9) */
 static bool  small_primes_init   = false;
@@ -61,7 +78,7 @@ seq_t a(idx_t n)
 
     if (cache_cap == 0) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     while (cache_count < (size_t)n) {
@@ -85,7 +102,7 @@ seq_t a(idx_t n)
 
         if (cache_count >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_count++] = (seq_t)p;
     }

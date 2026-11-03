@@ -12,14 +12,29 @@
  *            3^(2k+2j-r) * binomial(r-k,j) * binomial(k-1+j, r-k-1-j)
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   binomial, mul_small, pow3
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial.h"   /* binomial(idx_t n, idx_t k) -> seq_t   */
-#include "../utils/pow3.h"        /* pow3(idx_t exp) -> seq_t             */
-#include "../utils/mul_small.h"   /* mul_small(seq_t x, unsigned int m) -> seq_t */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow3.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static seq_t T_row_col(idx_t r, idx_t k)
 {

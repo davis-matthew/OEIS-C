@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = sum_{d|n, d > 1, all prime exponents in d’s factorization
  *            are prime} d ; a(1) = 1
- * Range:     u8 n <= 199, u16 n <= 9771, u32 n <= 9771, u64 n <= 9771,
- *            u128 n <= 9771, big any n
- * Helpers:   factor_u64, pow_uint, seq_mul
+ * Range:     u8 n <= 199, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 112 terms through n = 9771 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,15 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Small set of prime numbers needed for exponent tests (≤ 61). */
 static const uint8_t _prime_exps[] = {
@@ -48,7 +55,7 @@ static void _dfs(const uint64_t *primes, const uint64_t *exps,
         uint64_t p = _prime_exps[j];
         if (p > exps[idx])
             break;
-        seq_t p_pow = pow_uint(primes[idx], p);
+        seq_t p_pow = ipow_u64_idx(primes[idx], p);
         seq_t new_prod = seq_mul(prod, p_pow);
         _dfs(primes, exps, prime_cnt, idx + 1, new_prod, sum);
     }

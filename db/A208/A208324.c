@@ -12,12 +12,14 @@
  *            for k > 1
  * Range:     u8 n <= 23, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,14 +46,14 @@ seq_t a(idx_t n)
     size_t prev_len = 0;           /* length of previous row */
 
     /* Row 0 */
-    prev = (seq_t *)malloc(sizeof(seq_t) * 1);
+    prev = mem_new(seq_t, 1);
     prev[0] = (seq_t)1;
     prev_len = 1;
 
     /* Compute successive rows up to 'row'. */
     for (idx_t r = 1; r <= row; ++r) {
         size_t curr_len = (size_t)(r + 1);
-        seq_t *curr = (seq_t *)malloc(curr_len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, curr_len);
 
         /* T(r,0) = r+1 */
         curr[0] = (seq_t)(r + 1);
@@ -73,13 +75,13 @@ seq_t a(idx_t n)
         }
 
         /* Free the previous row and move to current. */
-        free(prev);
+        mem_free(prev);
         prev = curr;
         prev_len = curr_len;
     }
 
     /* Retrieve the requested entry and clean up. */
     seq_t result = prev[k];
-    free(prev);
+    mem_free(prev);
     return result;
 }

@@ -12,15 +12,29 @@
  *            mod d)}, with cycles(f) = (1/L) Sum_{j|L} phi(L/j)*Fix(f...
  * Range:     u8 n <= 14, u16 n <= 23, u32 n <= 41, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   x2730_gcd, x2730_mu
+ * Validated: standard, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/x2730_gcd.h"
-#include "../utils/x2730_mu.h"
+#include "../utils/gcd_u64.h"
+
+static int x2730_mu(uint64_t m) {
+    int r = 1;
+    uint64_t q;
+    for (q = 2; q * q <= m; q++) {
+        if (m % q == 0) {
+            m /= q;
+            if (m % q == 0) return 0;
+            r = -r;
+        }
+    }
+    if (m > 1) r = -r;
+    return r;
+}
 
 static uint32_t *x2730_spf = NULL;
 static idx_t x2730_spf_n = 0;
@@ -66,7 +80,7 @@ static seq_t x2730_N(idx_t n) {
     for (a = 1; a < n; a++) {
         uint64_t k, Sk, g, b, kp[64];
         int ke[64], knp = 0;
-        if (x2730_gcd(a, n) != 1) continue;
+        if (gcd_u64(a, n) != 1) continue;
         phin++;
         k = 0; powv[0] = 1; sv[0] = 0;
         do {
@@ -75,11 +89,11 @@ static seq_t x2730_N(idx_t n) {
             k++;
         } while (powv[k] != 1);
         Sk = sv[k];
-        g = x2730_gcd(a - 1, n);
+        g = gcd_u64(a - 1, n);
         x2730_addfac(k, kp, ke, &knp);
         for (b = 0; b < g; b++) {
             uint64_t t = b * Sk % n;
-            uint64_t m = n / x2730_gcd(t, n);
+            uint64_t m = n / gcd_u64(t, n);
             uint64_t p[64], L = k * m, d = 1, sum = 0;
             int E[64], ex[64], np = knp, i;
             for (i = 0; i < knp; i++) { p[i] = kp[i]; E[i] = ke[i]; }
@@ -97,7 +111,7 @@ static seq_t x2730_N(idx_t n) {
                 }
                 A = powv[rr];
                 B = b * (((qq % n) * Sk + sv[rr]) % n) % n;
-                gA = x2730_gcd((A + n - 1) % n, n);
+                gA = gcd_u64((A + n - 1) % n, n);
                 if (B % gA == 0) sum += ph * gA;
                 i = 0;
                 while (i < np) {

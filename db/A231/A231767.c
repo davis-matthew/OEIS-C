@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   column_ok
+ * Validated: standard, pass, 33 terms through n = 194 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,33 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/column_ok.h"
+
+/* Helper: test whether a column 'mid' is admissible when it has
+ * left neighbour 'left' (if left_exists) and right neighbour 'right'
+ * (if right_exists).  Each column is encoded in 4 bits (row 0 is LSB).
+ * Returns true iff for every row the number of 1‑neighbors does not
+ * strictly exceed half of the existing neighbors. */
+static bool column_ok(uint8_t left, bool left_exists,
+                      uint8_t mid, uint8_t right, bool right_exists)
+{
+    for (int r = 0; r < 4; ++r) {
+        unsigned ones = 0, neigh = 0;
+        if (left_exists) {
+            /* left same row */
+            neigh++; ones += (left >> r) & 1;
+            if (r > 0) { neigh++; ones += (left >> (r - 1)) & 1; }
+            if (r < 3) { neigh++; ones += (left >> (r + 1)) & 1; }
+        }
+        if (right_exists) {
+            /* right same row */
+            neigh++; ones += (right >> r) & 1;
+            if (r > 0) { neigh++; ones += (right >> (r - 1)) & 1; }
+            if (r < 3) { neigh++; ones += (right >> (r + 1)) & 1; }
+        }
+        if (ones * 2 > neigh) return false;   /* strict majority */
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   floor_sqrt, next_prime
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   ipow_i32, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,28 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow_i32.h"
 #include "../utils/next_prime.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* --- static storage for primes of the form 1 or 7 mod 8 ------------------- */
 static uint64_t *prime_list   = NULL;      /* primes with p % 8 == 1 or 7   */
@@ -65,7 +86,7 @@ static void ensure_value_capacity(size_t needed)
     }
     size_t new_cap = value_cap ? value_cap * 2 : 16;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(value_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, value_cache, new_cap);
     if (!tmp) abort();
     value_cache = tmp;
     /* initialise new slots to zero so that zero can be used as sentinel */

@@ -9,13 +9,15 @@
  *            reach a single-digit number
  * Range:     u8 n <= 3825, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 116 terms through n = 9644 (2026-11-01)
  * Helpers:   digit_product
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>    /* for bool, not mandatory but harmless */
-#include "../utils/digit_product.h"  /* declares seq_t digit_product(seq_t) */
+#include <stdlib.h>
+#include "../utils/digit_product.h"
 
 seq_t a(idx_t n)
 {

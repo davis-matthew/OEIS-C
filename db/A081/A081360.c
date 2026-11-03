@@ -13,12 +13,14 @@
  *            a(n) is then returned from the cache
  * Range:     i8 n <= 24, i16 n <= 70, i32 n <= 225, i64 n <= 769,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array holding a(0)…a(max_cached) */
 static idx_t  cache_size = 0;        /* number of elements currently stored (== max_cached + 1) */
@@ -26,7 +28,7 @@ static idx_t  cache_size = 0;        /* number of elements currently stored (== 
 /* Build the cache up to “up_to” (inclusive).  All values are recomputed. */
 static void build_cache(idx_t up_to)
 {
-    seq_t *new_cache = (seq_t*)realloc(cache, (up_to + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (up_to + 1));
     if (!new_cache) { /* memory exhausted – abort */
         return;
     }

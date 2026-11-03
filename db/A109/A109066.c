@@ -8,9 +8,10 @@
  *            A109066). The implementation generates primes on demand using a
  *            simple sieve up to an upper bound provided by
  *            estimate_prime_upper_bound
- * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
- *            u128 n <= 105, big any n
- * Helpers:   estimate_prime_upper_bound
+ * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 121 terms through n = 9709 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/estimate_prime_upper_bound.h"
+#include <stdbool.h>
+#include <math.h>
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 extern seq_t a(idx_t n)
 {

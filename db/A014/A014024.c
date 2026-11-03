@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 944 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    Periodic with period 15. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         /* Allocate a safe initial capacity (at least 9 for indices 0..8). */
         size_t init = 16;
         if (init < 9) init = 9;
-        cache = (seq_t*)malloc(init * sizeof(seq_t));
+        cache = mem_new(seq_t, init);
         cap   = init;
         max_n = 8;   /* indices 0..8 are known */
 
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cap) {
         size_t newcap = cap ? cap << 1 : 16;
         while ((size_t)n + 1 > newcap) newcap <<= 1;
-        cache = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         cap   = newcap;
     }
 

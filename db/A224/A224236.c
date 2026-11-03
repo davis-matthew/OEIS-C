@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    (decimal expansion of the speed of light in feet per second) */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
 
         /* allocate storage: integer digits + some room for decimals */
         digits_capacity = lead_digits + 16;
-        digits = (seq_t *)malloc(digits_capacity * sizeof(seq_t));
+        digits = mem_new(seq_t, digits_capacity);
 
         /* store integer part digits from most significant to least */
         t = integer_part;
@@ -72,8 +74,7 @@ seq_t a(idx_t n)
     while (pos > digits_count) {
         if (digits_count >= digits_capacity) {
             digits_capacity *= 2;
-            digits = (seq_t *)realloc(digits,
-                                      digits_capacity * sizeof(seq_t));
+            digits = mem_resize(seq_t, digits, digits_capacity);
         }
 
         /* long division step to obtain next decimal digit */

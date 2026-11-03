@@ -9,13 +9,15 @@
  *            with a(1)=35, a(2)=114, a(3)=313, a(4)=772, a(5)=1775
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 25, u64 n <= 57, u128 n <= 121,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* stored values a(1)...a(cache_size) */
 static size_t cache_size = 0;        /* number of values currently stored */
@@ -38,12 +40,12 @@ static void ensure_cache(idx_t n)
     /* Allocate or grow the cache */
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return;  /* in a full program you handle out‑of‑memory */
     } else if (cache_cap < (size_t)n) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
         while (new_cap < (size_t)n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return;
         cache = tmp;
         cache_cap = new_cap;

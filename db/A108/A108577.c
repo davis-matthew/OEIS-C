@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 151, u32 n <= 5912, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 7772 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const int D[13] = {1, -2, 1, 0, -1, 2, -2, 2, -1, 0, 1, -2, 1};
 
@@ -32,13 +34,13 @@ static void a_ensure(idx_t n)
 {
     if (a_size > n) return;                /* already enough */
     idx_t new_size = n + 1;                 /* we need indices 0..n */
-    seq_t *new_arr = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_size);
     if (!new_arr) return;                   /* allocation failure: leave empty */
 
     /* copy old data if any */
     if (a_cache) {
-        memcpy(new_arr, a_cache, a_size * sizeof(seq_t));
-        free(a_cache);
+        mem_copy(new_arr, a_cache, a_size * sizeof(seq_t));
+        mem_free(a_cache);
     }
     a_cache = new_arr;
     /* compute the newly required entries */

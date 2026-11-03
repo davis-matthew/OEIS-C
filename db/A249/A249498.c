@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 81, u64 n <= 111, u128 n <= 111,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 106 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,9 +42,9 @@ seq_t a(idx_t n)
     /* Allocate tables for dp[0..6][0..maxSum] */
     seq_t *dp[7];
     for (int m = 0; m <= 6; ++m) {
-        dp[m] = (seq_t *)calloc(len, sizeof(seq_t));
+        dp[m] = mem_new(seq_t, len);
         if (!dp[m]) { /* allocation failure – return 0 */
-            for (int x = 0; x < m; ++x) free(dp[x]);
+            for (int x = 0; x < m; ++x) mem_free(dp[x]);
             return 0;
         }
     }
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
     }
 
     /* Free the DP tables */
-    for (int m = 0; m <= 6; ++m) free(dp[m]);
+    for (int m = 0; m <= 6; ++m) mem_free(dp[m]);
 
     return answer;
 }

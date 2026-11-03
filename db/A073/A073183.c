@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 125, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sum_divisors_limit
+ * Validated: standard, pass, 87 terms through n = 9864 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,41 @@
  *          (product of the prime powers p^min(e,2) in the factorization of n)  */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/sum_divisors_limit.h"
+
+/* Recursive summation of all divisors d of n with d ≤ limit.  limit is
+ * a 64‑bit value; any divisor larger than the 64‑bit maximum is automatically
+ * ignored.  The products are performed in 64‑bit arithmetic to avoid overflow. */
+static void sum_divisors_limit(const uint64_t *pr, const uint64_t *exp, size_t cnt,
+                               size_t idx, seq_t cur, uint64_t limit, seq_t *sum)
+{
+    if (idx == cnt) {
+        if ((uint64_t)cur <= limit)
+            *sum += cur;
+        return;
+    }
+    uint64_t prod = 1;                     /* p^e   for current prime */
+    for (uint64_t e = 0; e <= exp[idx]; ++e) {
+        /* cur * prod must not exceed limit.  Use 64‑bit division to test safely. */
+        if ((uint64_t)cur > limit / prod)
+            break;                       /* any larger e would be even larger */
+
+        uint64_t new_val = (uint64_t)cur * prod;
+        if (new_val <= limit)
+            sum_divisors_limit(pr, exp, cnt,
+                               idx + 1, (seq_t)new_val, limit, sum);
+
+        if (e == exp[idx])                 /* no higher exponent possible */
+            break;
+
+        /* Prepare prod for the next exponent, guarding against overflow beyond
+         * the 64‑bit limit.  If prod would exceed limit, future products
+         * (and thus divisors) will all be too large.  */
+        if (prod > limit / pr[idx])
+            prod = limit + 1;
+        else
+            prod *= pr[idx];
+    }
+}
 
 /* --------------------------------------------------------------------- */
 /* Simple trial‑division factorization.  Assumes n > 0.  Prime factors are

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   digit_len, get_digits, seq_mul
+ * Validated: full, pass, 11 terms through n = 11 (2026-11-02)
+ * Helpers:   get_digits, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,16 @@
    of (number of digits of k).  */
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/get_digits.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Store the computed terms in ascending order.  The sequence
    is known to be finite (only the values found by the
@@ -56,7 +64,7 @@ static void compute_terms(void)
     for (int s = 1; s <= 9; ++s) {
         seq_t val = (seq_t)s;          /* s^1 */
         for (idx_t d = 1; d <= 200; ++d) {
-            size_t digits = digit_len(val);
+            size_t digits = num_digits(val);
             if (digits < (size_t)d)      /* will never match again */
                 break;
 

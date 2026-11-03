@@ -7,7 +7,8 @@
  * Formula:   a(n) = least prime p such that both p-6*n and p+6*n are prime
  * Range:     u8 n <= 20, u16 n <= 6551, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small, sieve_primes
+ * Validated: standard, pass, 71 terms through n = 9456 (2026-11-01)
+ * Helpers:   is_prime_seq, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,11 @@
 #include <stdint.h>
 
 /* Utility function to generate all primes up to a bound. */
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/is_prime_seq.h"
 #include "../utils/sieve_primes.h"
 /* Utility function to test prime of 64‑bit integers. */
-#include "../utils/is_prime_small.h"
 
 static idx_t *prime_list = NULL;   /* array of primes */
 static size_t prime_count = 0;     /* number of primes in the array */
@@ -67,7 +70,7 @@ seq_t a(idx_t n)
         uint64_t high = p + offset;
 
         /* All numbers involved are ≤ PRIME_LIMIT for n ≤ 10000. */
-        if (is_prime_small(p) && is_prime_small(low) && is_prime_small(high)) {
+        if (is_prime_seq(p) && is_prime_seq(low) && is_prime_seq(high)) {
             return (seq_t)p;
         }
     }
@@ -75,9 +78,9 @@ seq_t a(idx_t n)
     /* Fallback: if not found within PRIME_LIMIT (unlikely), do a brute force search. */
     /* This code path should never be executed for the expected input range. */
     for (uint64_t p = start; ; p += 2) {
-        if (is_prime_small(p) &&
-            is_prime_small(p - offset) &&
-            is_prime_small(p + offset)) {
+        if (is_prime_seq(p) &&
+            is_prime_seq(p - offset) &&
+            is_prime_seq(p + offset)) {
             return (seq_t)p;
         }
     }

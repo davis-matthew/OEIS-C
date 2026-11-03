@@ -7,8 +7,9 @@
  * Keywords:  nonn, frac, easy
  * Formula:   a(n) = A005117(n) / gcd(A005117(n), φ(A005117(n)))
  * Range:     u8 n <= 157, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 7612, big any n
- * Helpers:   none
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 83 terms through n = 9899 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute GCD of two seq_t values using the Euclidean algorithm */
 static seq_t gcd_seq(seq_t a, seq_t b)
@@ -70,12 +72,18 @@ static seq_t nth_squarefree(idx_t n)
 
     if (!sq) {
         cap = 128;
-        sq = (seq_t*)malloc(cap * sizeof(seq_t));
+        sq = mem_new(seq_t, cap);
     }
     if (cnt < (size_t)n) {
         uint64_t candidate = (cnt == 0) ? 1 : (uint64_t)sq[cnt - 1] + 1;
         while (cnt < (size_t)n) {
             while (!is_squarefree_uint64(candidate)) ++candidate;
+            if (cnt >= cap) {                 /* grow before storing */
+                cap = cap ? 2 * cap : 16;
+                seq_t *grown_ = mem_resize(seq_t, sq, cap);
+                if (!grown_) abort();
+                sq = grown_;
+            }
             sq[cnt++] = (seq_t)candidate;
             candidate = (uint64_t)sq[cnt - 1] + 1;
         }

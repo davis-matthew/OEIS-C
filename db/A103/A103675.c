@@ -10,9 +10,10 @@
  *            otherwise 0. * The function computes this up to n = 5153 (after
  *            which every factorial * contains the pattern) and returns 1 for
  *            all larger n
- * Range:     u8 n <= 8659, u16 n <= 8659, u32 n <= 8659, u64 n <= 8659,
- *            u128 n <= 8659, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10080, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 121 terms through n = 8659 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper macros */
 #define PATTERN 5040u   /* binary string "1001110110000" */
@@ -51,7 +53,7 @@ static void init_state(void)
 
     /* cache[0] = a(0) = 0 */
     cache_cap = 1;
-    cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) exit(EXIT_FAILURE);
     cache[0] = 0;
 
@@ -121,7 +123,7 @@ seq_t a(idx_t n)
             bool present = fact_has_pattern();
             if (cache_cap <= (size_t)i) {
                 size_t new_cap = i + 1;
-                cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, new_cap);
                 if (!cache) exit(EXIT_FAILURE);
                 cache_cap = new_cap;
             }

@@ -8,12 +8,14 @@
  * Formula:   a(n) = smallest h such that (2n+1)*h is a repunit
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 10, u128 n <= 22,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 188 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* If no such h exists, returns 0.                             */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n) {

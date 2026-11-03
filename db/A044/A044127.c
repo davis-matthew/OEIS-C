@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    contains the substring "41" while n‑1 does not. */
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: test whether the base‑6 representation of n contains "41". */
 static bool has41(seq_t n)
@@ -46,7 +48,7 @@ static void append_term(seq_t val)
 {
     if (terms_len == terms_cap) {
         terms_cap = (terms_cap == 0) ? 64 : terms_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
         if (!tmp) exit(1);   /* allocation failed */
         terms = tmp;
     }

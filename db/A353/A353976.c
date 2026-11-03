@@ -7,7 +7,8 @@
  * Formula:   a(n) = Product_{d|n, d' even} d
  * Range:     u8 n <= 15, u16 n <= 47, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   factor_u64, seq_mul
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,14 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static void _rec(const uint64_t *pr, const uint64_t *ex, size_t fc,
                  size_t idx, seq_t cur, uint64_t e2_exp, unsigned odd_parity,

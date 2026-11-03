@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 29, u32 n <= 80, u64 n <= 213,
  *            u128 n <= 601, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1246 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stddef.h>   /* size_t */
 #include <stdint.h>   /* uint64_t */
 #include <stdlib.h>   /* malloc, calloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* ----- initialise cache on first call ------------------------------ */
     if (table == NULL) {
         table = (seq_t**)calloc(1, sizeof(seq_t*));   /* row 0 pointer      */
-        table[0] = (seq_t*)calloc(1, sizeof(seq_t));  /* row 0 contents     */
+        table[0] = mem_new(seq_t, 1);  /* row 0 contents     */
         table[0][0] = (seq_t)1;                       /* T(0,0) = 1         */
         max_row = 0;
     }
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         size_t new_cap = (size_t)r + 1;
         table = (seq_t**)realloc(table, new_cap * sizeof(seq_t*));
         for (size_t i = max_row + 1; i <= (size_t)r; ++i) {
-            table[i] = (seq_t*)calloc(i + 1, sizeof(seq_t));
+            table[i] = mem_new(seq_t, i + 1);
             for (idx_t k = 0; k <= (idx_t)i; ++k) {
                 seq_t val_front = 0;   /* T(i‑1,k) if k≤i‑1            */
                 seq_t val_back  = 0;   /* T(i‑1,k‑1) if k≥1            */

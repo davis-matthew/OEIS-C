@@ -12,6 +12,7 @@
  *            T(n-1,k) (0 < k < n) * T(n,0) = T(n,n) = 1
  * Range:     u8 n <= 22, u16 n <= 38, u32 n <= 81, u64 n <= 142,
  *            u128 n <= 285, big any n
+ * Validated: standard, pass, 71 terms through n = 1216 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

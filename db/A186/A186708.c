@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   count_qr
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,24 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_qr.h"
+
+/* Count quadratic residues of p in [1,(p-1)/2] using the recurrence
+   for squares: r_{i+1} = r_i + 2*i + 1 (mod p).  */
+static seq_t count_qr(uint32_t p)
+{
+    uint32_t m   = (p - 1) >> 1;   /* (p-1)/2 */
+    uint32_t cnt = 0;
+    uint32_t r   = 1;              /* 1^2 mod p = 1 */
+
+    if (r <= m) ++cnt;
+
+    for (uint32_t i = 2; i <= m; ++i) {
+        r += (2 * i - 1);          /* increment by the next odd number */
+        if (r >= p) r -= p;        /* keep r in [0,p-1] */
+        if (r <= m) ++cnt;
+    }
+    return (seq_t)cnt;
+}
 
 /* Grow an array of uint32_t when more capacity is needed. */
 static void grow_uint32(uint32_t **arr, size_t *cap, size_t new_cap)

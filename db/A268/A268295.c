@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 23, u64 n <= 52, u128 n <= 98,
+ * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 28, u64 n <= 52, u128 n <= 98,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 60 terms through n = 876 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
  */
 
 #include <math.h>          /* for sqrt */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static inline idx_t isqrt_u128(uint64_t n)
 {
@@ -48,5 +50,5 @@ a(idx_t n)
     seq_t tri = (seq_t)r * ((seq_t)r + 1) / 2;
     idx_t k = i - (idx_t)tri;
 
-    return binom(r, k);
+    return binomial(r, k);
 }

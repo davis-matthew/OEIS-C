@@ -7,12 +7,14 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} (k+2)^(n-k) * binomial(k+2,2)/(n-k)!
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 /* Helper to grow an array of seq_t */
@@ -23,9 +25,9 @@ static void grow_seq_arr(seq_t **arr, idx_t *cap, idx_t need)
         if (new_cap < need) new_cap = need;
         seq_t *tmp = NULL;
         if (*arr == NULL) {
-            tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            tmp = mem_new(seq_t, new_cap);
         } else {
-            tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+            tmp = mem_resize(seq_t, *arr, new_cap);
         }
         if (tmp == NULL) exit(1); /* allocation failure */
         *arr = tmp;
@@ -46,14 +48,14 @@ seq_t a(idx_t n)
     if (cur_n == (idx_t)(-1)) {
         cur_n = 0;
         f_cap = 1;
-        f_arr = (seq_t *)malloc(f_cap * sizeof(seq_t));
+        f_arr = mem_new(seq_t, f_cap);
         if (f_arr == NULL) exit(1);
         f_arr[0] = (seq_t)1;         /* f_0(0) = 1 */
 
         fact = (seq_t)1;             /* 0! = 1 */
 
         a_cap = 1;
-        a_arr = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_arr = mem_new(seq_t, a_cap);
         if (a_arr == NULL) exit(1);
         a_arr[0] = (seq_t)1;         /* a(0) = 1 */
     }

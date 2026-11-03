@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   _binom_n_k
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_binom_n_k.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* ---------- helpers ---------- */
 
@@ -68,7 +70,7 @@ static void _compute_rows_upto(idx_t target)
     _grow_rows(target);
 
     for (idx_t r = _rows_count; r <= target; ++r) {
-        seq_t *row = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (r + 1));
         if (!row) abort();                    /* allocation failure */
 
         row[0] = 1;                           /* left boundary     */
@@ -81,7 +83,7 @@ static void _compute_rows_upto(idx_t target)
                     idx_t m = j + k;
                     seq_t prev = 0;
                     if (m < r) prev = _rows[r - 1][m];
-                    seq_t bin = _binom_n_k(k, j);
+                    seq_t bin = binomial(k, j);
                     sum += bin * prev;          /* bin*prev fits seq_t if final sum fits */
                 }
                 row[k] = sum;

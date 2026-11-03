@@ -11,15 +11,30 @@
  *            the unique k such that T(k) ≤ n < T(k+1). * Then i = n - T(k), j
  *            = k - i. * The value a(n) is the binary-polynomial product i *
  *            j, * which is obtained by shifting i lef...
- * Range:     u8 n <= 543, u16 n <= 9900, u32 n <= 9900, u64 n <= 9900,
- *            u128 n <= 9900, big any n
- * Helpers:   gf2_mul
+ * Range:     u8 n <= 543, u16 n <= 20300, u32 n <= 20300, u64 n <= 20300,
+ *            u128 n <= 20300, big any n
+ * Validated: standard, pass, 107 terms through n = 9900 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gf2_mul.h"
+
+/* product of two non‑negative integers in GF(2)[X] */
+static seq_t
+gf2_mul(idx_t i, idx_t j)
+{
+    seq_t result = 0;
+    seq_t shifted = (seq_t)i;        /* i shifted by the current bit position */
+    while (j) {
+        if (j & 1)
+            result ^= shifted;       /* XOR addition of the shifted term */
+        shifted <<= 1;               /* next power of X */
+        j >>= 1;
+    }
+    return result;
+}
 
 /* triangular number: T(k) = k*(k+1)/2, computed with 128‑bit arithmetic
  * to avoid overflow for large k. */

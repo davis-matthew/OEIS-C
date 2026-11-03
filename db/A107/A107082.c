@@ -11,15 +11,17 @@
  *            formed from the digits 1..9 in order. For each mask (0..255) the
  *            string “123456789” is split at the bits of the mask; each block
  *            is interpreted as a decimal integer, and the cumulat...
- * Range:     u8 n <= 26, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 26, u16 n <= 239, u32 n <= 1536, u64 n <= 1536,
+ *            u128 n <= 1536, big any n
+ * Validated: full, pass, 1536 terms through n = 1536 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t values[10];   /* 0 + 1..9 digits -> max 10 values (0 plus 9 sums) */
@@ -69,7 +71,7 @@ static void compute_terms(seq_t *out, size_t *total) {
     }
 
     /* Sort lexicographically */
-    qsort(seqs, 256, sizeof(SubSeq), seqcmp);
+    mem_qsort(seqs, 256, sizeof(SubSeq), seqcmp);
 
     /* Flatten into output array */
     size_t pos = 0;

@@ -8,7 +8,8 @@
  *            residue mod p, i.e. Legendre(34, p) = -1
  * Range:     u8 n <= 27, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 62 terms through n = 967 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* modular exponentiation for 64‑bit values */
 static uint64_t modpow64(uint64_t a, uint64_t e, uint64_t mod)
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         if (p <= 2) p = 3;
         else if ((p & 1ULL) == 0) ++p;
 
-        while (!is_prime_small((seq_t)p))
+        while (!is_prime_seq((seq_t)p))
             p += 2;  /* only odd candidates */
 
         last_checked = p + 1;
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
             if (termslen == termscap)
             {
                 termscap = termscap ? termscap * 2 : 8;
-                terms = (seq_t *)realloc(terms, termscap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, termscap);
             }
             terms[termslen++] = (seq_t)p;
         }

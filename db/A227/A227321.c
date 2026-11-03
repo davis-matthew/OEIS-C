@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 267, u16 n <= 1999, u32 n <= 1999, u64 n <= 1999,
  *            u128 n <= 1999, big any n
- * Helpers:   pgonal_value
+ * Validated: standard, pass, 98 terms through n = 1971 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,22 @@
  * matching k is found, r is returned.  */
 
 #include <stdbool.h>
-#include "../utils/pgonal_value.h"
+
+/* r‑gonal number P_r(k) = k((r‑2)k – (r‑4))/2.
+ * Works for all r ≥ 3 and k ≥ 0.  */
+static inline seq_t pgonal_value(idx_t r, idx_t k)
+{
+    if (k == 0)
+        return (seq_t)0;
+
+    /* Signed intermediates avoid under‑flow for r = 3 (r‑4 = –1).  */
+    int64_t rminus2 = (int64_t)r - 2;   /* ≥ 1   */
+    int64_t rminus4 = (int64_t)r - 4;   /* may be –1 for r = 3 */
+
+    int64_t part = rminus2 * (int64_t)k - rminus4;   /* ≥ 0 for k ≥ 0, r ≥ 3 */
+    seq_t val   = (seq_t)k * (seq_t)part / 2;         /* exact division by 2 */
+    return val;
+}
 
 seq_t a(idx_t n)
 {

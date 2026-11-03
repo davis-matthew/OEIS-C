@@ -12,13 +12,15 @@
  *            outside‑range values are 0)
  * Range:     u8 n <= 47, u16 n <= 156, u32 n <= 564, u64 n <= 2150,
  *            u128 n <= 8520, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 9244 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *T = NULL;          /* 2‑D table stored linearly */
 static size_t stride = 0;        /* = current_max_n + 1 */
@@ -42,7 +44,7 @@ static void prepare(idx_t need)
     size_t   new_stride = (size_t)(need + 1);
     size_t   new_size   = new_stride * new_stride;
 
-    seq_t *new_T = (seq_t *)calloc(new_size, sizeof(seq_t)); /* zeroed */
+    seq_t *new_T = mem_new(seq_t, new_size); /* zeroed */
     if (!new_T) abort();      /* out of memory – let the program fail cleanly */
 
     /* copy already computed values */
@@ -53,7 +55,7 @@ static void prepare(idx_t need)
             for (idx_t k = 0; k <= n; ++k)
                 new_T[base_new + k] = T[base_old + k];
         }
-        free(T);
+        mem_free(T);
     }
     T = new_T;
     stride = new_stride;

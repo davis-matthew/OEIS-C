@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 56, u32 n <= 1927, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   decimal_of_binary
+ * Validated: standard, pass, 54 terms through n = 9903 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,30 @@
    the function returns the decimal integer whose decimal digits equal that
    binary representation. */
 #include <stdlib.h>
-#include "../utils/decimal_of_binary.h"
+#include "../utils/mem.h"
+
+/* Convert a binary integer to a decimal integer whose digits are its
+   binary bits (MSB first). */
+static seq_t decimal_of_binary(seq_t x)
+{
+    if (x == (seq_t)0)
+        return (seq_t)0;
+
+    /* Determine number of bits in x */
+    idx_t bits = 0;
+    seq_t tmp = x;
+    while (tmp != (seq_t)0) {
+        tmp >>= 1;
+        bits++;
+    }
+
+    seq_t dec = 0;
+    for (idx_t pos = bits; pos > 0; --pos) {
+        seq_t bit = (x >> (pos - 1)) & 1;
+        dec = dec * 10 + bit;
+    }
+    return dec;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,8 +65,8 @@ seq_t a(idx_t n)
     if (vals_len == 0) {
         vals_cap = 16;
         vals_len = 1;
-        bin_vals = (seq_t *)malloc(vals_cap * sizeof(seq_t));
-        dec_vals = (seq_t *)malloc(vals_cap * sizeof(seq_t));
+        bin_vals = mem_new(seq_t, vals_cap);
+        dec_vals = mem_new(seq_t, vals_cap);
         if (!bin_vals || !dec_vals) abort();
 
         bin_vals[0] = (seq_t)1;
@@ -69,10 +93,10 @@ seq_t a(idx_t n)
         /* Resize arrays if necessary */
         if ((size_t)cur >= vals_cap) {
             size_t new_cap = vals_cap ? vals_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(bin_vals, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, bin_vals, new_cap);
             if (!tmp) abort();
             bin_vals = tmp;
-            tmp = (seq_t *)realloc(dec_vals, new_cap * sizeof(seq_t));
+            tmp = mem_resize(seq_t, dec_vals, new_cap);
             if (!tmp) abort();
             dec_vals = tmp;
             vals_cap = new_cap;

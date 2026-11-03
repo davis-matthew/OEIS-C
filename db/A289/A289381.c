@@ -7,12 +7,14 @@
  * Formula:   a(n) = numerator of sum_{k=1..n} 1/(2*k-1)!! (double factorial)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 28,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 362 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"   /* gcd(seq_t, seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

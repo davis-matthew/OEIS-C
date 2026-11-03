@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = sum_{d|n, 2*phi(d) < d} d
- * Range:     u8 n <= 119, u16 n <= 9207, u32 n <= 9207, u64 n <= 9207,
- *            u128 n <= 9207, big any n
- * Helpers:   factor_u64, phi
+ * Range:     u8 n <= 119, u16 n <= 17639, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 111 terms through n = 9207 (2026-11-01)
+ * Helpers:   factor_u64, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n) {
     if (n <= 1) return 0;                /* a(1) = 0 */
@@ -54,7 +57,7 @@ seq_t a(idx_t n) {
         seq_t d = divs[i];
         if (d <= 1) continue;               /* d = 1 never satisfies the inequality */
 
-        seq_t phi_d = phi((idx_t)d);        /* φ(d) */
+        seq_t phi_d = totient((idx_t)d);        /* φ(d) */
         seq_t lhs   = phi_d + phi_d;        /* 2*φ(d) */
 
         if (lhs < d) sum += d;

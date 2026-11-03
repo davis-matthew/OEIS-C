@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Reverse the binary representation of x.
    Leading zero bits in the reversed number are discarded
@@ -49,7 +51,7 @@ static void grow_cache(idx_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap < 8 ? 8 : cache_cap * 2;
     while (new_cap < (size_t)needed) new_cap *= 2;
-    term_cache = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+    term_cache = mem_resize(seq_t, term_cache, new_cap);
     cache_cap = (idx_t)new_cap;
 }
 

@@ -8,12 +8,14 @@
  *            (-1)^(j+1)/((2*j+1)*((2*j+1)^2-1))
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 22, u128 n <= 46,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 960 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include gcd utility for seq_t */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

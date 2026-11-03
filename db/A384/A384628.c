@@ -7,14 +7,17 @@
  * Formula:   a(n) = Sum_{k=1..n} gcd(n, floor(n/k))
  * Range:     u8 n <= 71, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 77 terms through n = 9951 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -25,11 +28,11 @@ seq_t a(idx_t n) {
     /* Resize cache if needed */
     if (n > cache_cap) {
         idx_t new_cap = n;
-        seq_t *new_arr = (seq_t*)calloc(new_cap + 1, sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap + 1);
         if (!new_arr) return 0;                               /* allocation failure */
         if (cache) {
-            memcpy(new_arr + 1, cache + 1, sizeof(seq_t) * cache_cap);
-            free(cache);
+            mem_copy(new_arr + 1, cache + 1, sizeof(seq_t) * cache_cap);
+            mem_free(cache);
         }
         cache = new_arr;
         cache_cap = new_cap;

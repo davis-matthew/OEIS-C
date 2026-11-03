@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 1800, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrime64
+ * Validated: standard, pass, 74 terms through n = 9834 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/isPrime64.h"   /* provides bool isPrime64(uint64_t) */
+#include "../utils/is_prime_u64.h"
 
 /* static cache of found ks (stored as uint64_t for ease of storage) */
 static uint64_t *k_cache      = NULL;   /* dynamic array of ks   */
@@ -47,7 +48,7 @@ static void ensure_cache(idx_t n)
         uint64_t val1 = (uint64_t)(a - 1);
         uint64_t val2 = (uint64_t)(b - 1);
 
-        if (isPrime64(val1) && isPrime64(val2)) {
+        if (is_prime_u64(val1) && is_prime_u64(val2)) {
             k_cache[k_cache_len++] = k;
         }
     }

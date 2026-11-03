@@ -11,7 +11,8 @@
  *            divides 2^c(L); the odd part is handled by e...
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   a273_gcd
+ * Validated: standard, pass, 31 terms through n = 59 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a273_gcd.h"
+#include "../utils/gcd_i32.h"
 
 typedef unsigned __int128 a273_u128;
 
@@ -33,7 +34,7 @@ static a273_u128 a273_SF;
 static int a273_g(int x, int y)
 {
     if (a273_G) return a273_G[x * (a273_n + 1) + y];
-    return a273_gcd(x, y);
+    return gcd_i32(x, y);
 }
 
 static a273_u128 a273_inv(a273_u128 d)
@@ -99,7 +100,7 @@ seq_t a(idx_t n)
         a273_G = (int *)malloc(sizeof(int) * (size_t)(N + 1) * (size_t)(N + 1));
         for (r = 0; r <= N; r++)
             for (s = 0; s <= N; s++)
-                a273_G[r * (N + 1) + s] = a273_gcd(r, s);
+                a273_G[r * (N + 1) + s] = gcd_i32(r, s);
     }
     if (!a273_fixed) {
         for (i = 2; i <= N; i++) {

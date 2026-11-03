@@ -13,14 +13,38 @@
  *            cannot be represented
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   a001273_height, a001273_small, a001273_ssd
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a001273_height.h"
-#include "../utils/a001273_small.h"
-#include "../utils/a001273_ssd.h"
+static uint64_t a001273_ssd(uint64_t x) {
+    uint64_t s = 0;
+    while (x > 0) {
+        uint64_t d = x % 10;
+        s += d * d;
+        x /= 10;
+    }
+    return s;
+}
+
+static int a001273_height(uint64_t x) {
+    int c = 0;
+    while (x != 1) {
+        x = a001273_ssd(x);
+        c++;
+        if (c > 64) return -1;
+    }
+    return c;
+}
+
+static uint64_t a001273_small(idx_t n) {
+    uint64_t m;
+    for (m = 1; m < 10000000ULL; m++)
+        if (a001273_height(m) == (int)n) return m;
+    return 0;
+}
 
 seq_t a(idx_t n) {
     static const uint64_t kv[] = {79, 3789, 78889, 259, 179, 47, 137, 1128,

@@ -10,13 +10,17 @@
  *            let t=(r‑m)/2 * T(r,m)=(-1)^t * (t+1) * binomial(r‑t+1, t+1)
  * Range:     i8 n <= 47, i16 n <= 90, i32 n <= 90, i64 n <= 90, i128 n <= 90,
  *            big any n
- * Helpers:   binomial, isqrt
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   binomial, isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/isqrt.h"
+#include "../utils/isqrt_u64.h"
 #include <stdint.h>
 #include <stdlib.h>
 

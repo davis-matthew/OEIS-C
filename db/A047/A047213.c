@@ -7,13 +7,18 @@
  * Formula:   a(n) = max_{0 ≤ k < n} (k^4 mod n)
  * Range:     u8 n <= 255, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pow4_mod
+ * Validated: standard, pass, 90 terms through n = 736 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow4_mod.h"
+
+static inline seq_t pow4_mod(seq_t x, seq_t mod) {
+    seq_t sq = (x * x) % mod;
+    return (sq * sq) % mod;
+}
 
 seq_t a(idx_t n)
 {

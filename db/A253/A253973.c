@@ -9,14 +9,17 @@
  *            prime is found
  * Range:     u8 n <= 11, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 66 terms through n = 964 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
     /* Grow cache if it is empty */
     if (cached == 0 && cap == 0) {
         cap = 16;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
     }
 
     /* Extend cache until we have at least n terms */
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
         if ((p + q) % 9 == 0) {              /* p + next_prime(p) divisible? */
             if (cached == cap) {              /* double capacity when needed */
                 cap *= 2;
-                cache = (seq_t*)realloc(cache, sizeof(seq_t) * cap);
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[cached++] = (seq_t)p;      /* store the qualifying prime   */
         }

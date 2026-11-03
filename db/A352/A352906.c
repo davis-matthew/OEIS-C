@@ -8,6 +8,7 @@
  *            A000111(n-2*k)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 22, u128 n <= 24,
  *            big any n
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,7 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t n, idx_t k) */
+#include "../utils/binomial.h"
 
 static seq_t* euler = NULL;        /* Euler up/down numbers A000111 */
 static size_t euler_cap = 0;       /* capacity of allocated array */

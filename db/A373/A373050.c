@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   my_fact
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,13 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/my_fact.h"
+
+/* factorial via simple loop */
+static inline seq_t my_fact(idx_t n) {
+    seq_t res = (seq_t)1;
+    for (idx_t i = 2; i <= n; ++i) res *= (seq_t)i;
+    return res;
+}
 
 /* ---------------------------- local utilities ---------------------------- */
 

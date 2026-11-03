@@ -10,6 +10,7 @@
  *            4))
  * Range:     i8 n <= 4, i16 n <= 14, i32 n <= 216, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 54 terms through n = 999 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,9 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"   /* factor_u64 function prototype */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)
 {

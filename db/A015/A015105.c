@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 5, i64 n <= 7, i128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
     a(n+1) = Σ_{i=0..n} (-8)^i * a(i) * a(n-i)   (q = -8) */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* memoized values of a(n)           */
 static size_t cache_len = 0;      /* number of computed entries          */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_len)
     {
         size_t new_len = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();                       /* allocation failure  */
         cache = tmp;
         for (size_t k = cache_len; k < new_len; ++k)

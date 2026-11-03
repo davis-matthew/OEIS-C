@@ -11,16 +11,52 @@
  *            T(j-1) + (j-1)*q*T(j-2), T(0) = T(1) = 1
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 29,
  *            big any n
- * Helpers:   alpha_s, seq_is_big, u128_to_seq
+ * Validated: standard, pass, 37 terms through n = 194 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_is_big.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/alpha_s.h"
+#include <stdlib.h>
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+/* alpha(p,q) exactly, in seq_t (arbitrary precision build) */
+static seq_t alpha_s(idx_t p, idx_t q) {
+    if (q % 2 == 1) {
+        seq_t r = 1;
+        for (idx_t i = 0; i < p / 2; i++) r *= (seq_t)q;
+        for (idx_t i = 1; i < p; i += 2) r *= (seq_t)i;
+        return r;
+    }
+    seq_t t0 = 1, t1 = 1;
+    for (idx_t j = 2; j <= p; j++) {
+        seq_t t2 = t1 + t0 * (seq_t)((j - 1) * q);
+        t0 = t1;
+        t1 = t2;
+    }
+    return t1;
+}
 
 typedef unsigned __int128 u128_t;
 #define PM ((uint64_t)2305843009213693951ULL) /* 2^61 - 1, prime */

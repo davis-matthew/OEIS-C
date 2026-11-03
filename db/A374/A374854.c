@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 8, u64 n <= 12, u128 n <= 16,
  *            big any n
+ * Validated: partial, pass, 14 terms through n = 16 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
    The implementation uses a divide‑and‑conquer product:
    a(n) = ∏_{k=3}^{n-1} (2^k + 1)      */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 static seq_t prod_range(idx_t l, idx_t r) {

@@ -8,13 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 34, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sequence A100532: a(n) = a(n-1)+a(n-2)+a(n-3)+a(n-4), a(1)=2, a(2)=3, a(3)=5, a(4)=7 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* initialise cache if empty */
     if (memo == NULL) {
         memo_len = 4;
-        memo = (seq_t *)malloc(memo_len * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_len);
         if (memo == NULL) abort();          /* memory failure */
         memo[0] = 2;                         /* a(1) */
         memo[1] = 3;                         /* a(2) */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* grow the array if necessary */
     if (target > memo_len) {
         size_t new_len = target;
-        seq_t *tmp = (seq_t *)realloc(memo, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_len);
         if (tmp == NULL) abort();           /* memory failure */
         memo = tmp;
         memo_len = new_len;

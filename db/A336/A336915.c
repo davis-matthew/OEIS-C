@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   not stated
- * Range:     i8 n <= 66, i16 n <= 7952, i32 n <= 7952, i64 n <= 7952,
- *            i128 n <= 7952, big any n
- * Helpers:   pow2, sigma_odd
+ * Range:     i8 n <= 66, i16 n <= 65536, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 7952 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,8 +35,30 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow2.h"   /* provides seq_t pow2(idx_t exp) */
-#include "../utils/sigma_odd.h"
+#include "../utils/pow2.h"
+
+static seq_t sigma_odd(idx_t n)
+{
+    seq_t result = 1;
+    idx_t temp   = n;
+
+    for (idx_t p = 3; p * p <= temp; p += 2) {
+        if (temp % p == 0) {
+            seq_t term = 1;  /* 1 + p + p^2 + …   */
+            seq_t pow  = 1;
+            while (temp % p == 0) {
+                temp  /= p;
+                pow   *= p;
+                term += pow;
+            }
+            result *= term;
+        }
+    }
+    if (temp > 1) {            /* remaining prime factor */
+        result *= (1 + temp);
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

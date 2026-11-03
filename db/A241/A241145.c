@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   share_digits
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,27 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/share_digits.h"
+#include "../utils/mem.h"
+
+/* Test whether two numbers share at least one decimal digit. */
+static bool share_digits(seq_t a, seq_t b)
+{
+    uint16_t mask = 0;
+    seq_t t = a;
+    while (t != 0) {
+        uint64_t d = (uint64_t)(t % 10);
+        mask |= (1u << d);
+        t /= 10;
+    }
+    seq_t u = b;
+    while (u != 0) {
+        uint64_t d = (uint64_t)(u % 10);
+        if (mask & (1u << d))
+            return true;
+        u /= 10;
+    }
+    return false;
+}
 
 /* Static cache of computed terms. */
 static seq_t *cached_terms = NULL;
@@ -36,7 +57,7 @@ static void ensure_cache_cap(size_t need)
     size_t new_cap = cached_cap ? cached_cap * 2 : INITIAL_CAP;
     if (new_cap < need)
         new_cap = need;
-    seq_t *new_arr = (seq_t *)realloc(cached_terms, new_cap * sizeof(*cached_terms));
+    seq_t *new_arr = mem_resize(seq_t, cached_terms, new_cap);
     if (!new_arr) {
         /* Allocation failed – halt with an abort. */
         abort();

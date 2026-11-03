@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 13, i32 n <= 37, i64 n <= 37, i128 n <= 37,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/binomial.h"          /* provides binomial(idx_t a, idx_t b) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,12 +43,12 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (buf == NULL) {
         buf_cap = 128;
-        buf = (seq_t *)malloc(buf_cap * sizeof(seq_t));
+        buf = mem_new(seq_t, buf_cap);
         if (!buf) return 0;            /* out of memory – hard failure */
 
         /* level 0: N(4;0,x)=1 -> coefficient vector {1} */
-        prev = (seq_t *)malloc(sizeof(seq_t));
-        if (!prev) { free(buf); return 0; }
+        prev = mem_new(seq_t, 1);
+        if (!prev) { mem_free(buf); return 0; }
         prev[0] = 1;
         prev_len = 1;
 
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     while (buf_len <= n) {
         /* current level: m */
         size_t cur_len = 3 * m + 1;
-        seq_t *cur = (seq_t *)malloc(cur_len * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, cur_len);
         if (!cur) return 0;                   /* out of memory */
 
         /* pre‑compute terms that are independent of k */
@@ -88,8 +90,8 @@ seq_t a(idx_t n)
         if (buf_len + cur_len > buf_cap) {
             size_t new_cap = buf_cap * 2;
             if (new_cap < buf_len + cur_len) new_cap = buf_len + cur_len;
-            seq_t *tmp = (seq_t *)realloc(buf, new_cap * sizeof(seq_t));
-            if (!tmp) { free(cur); return 0; }
+            seq_t *tmp = mem_resize(seq_t, buf, new_cap);
+            if (!tmp) { mem_free(cur); return 0; }
             buf = tmp;
             buf_cap = new_cap;
         }
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
         buf_len += cur_len;
 
         /* free previous level and promote current level */
-        free(prev);
+        mem_free(prev);
         prev = cur;
         prev_len = cur_len;
         ++m;                                   /* next level */

@@ -7,14 +7,18 @@
  * Formula:   a(n) = multiplicative order of 4 modulo (2n+1)
  * Range:     u8 n <= 234, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, mod_pow
+ * Validated: standard, pass, 95 terms through n = 974 (2026-11-01)
+ * Helpers:   factor_u64, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 /* Return the smallest k>0 such that 4^k ≡ 1 (mod 2n+1) */
 seq_t a(idx_t n)
@@ -44,7 +48,7 @@ seq_t a(idx_t n)
         uint64_t p = ppr[i];
         while (order % p == 0) {
             uint64_t cand = order / p;
-            seq_t modpow = mod_pow((seq_t)4, cand, (seq_t)M);
+            seq_t modpow = powmod((seq_t)4, cand, (seq_t)M);
             if (modpow == 1)
                 order = cand;
             else

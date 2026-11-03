@@ -12,12 +12,14 @@
  *            numbers are found. This works for the first...
  * Range:     u8 n <= 11, u16 n <= 5166, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 8741 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,12 +31,12 @@ seq_t a(idx_t n)
 
     while (1) {
         /* allocate sigma array */
-        seq_t *sigma = (seq_t *)calloc((size_t)(M + 1), sizeof(seq_t));
+        seq_t *sigma = mem_new(seq_t, (size_t)(M + 1));
         if (!sigma) return 0;      /* allocation failed */
 
         /* allocate seen array */
         char *seen = (char *)calloc((size_t)(M + 1), sizeof(char));
-        if (!seen) { free(sigma); return 0; }
+        if (!seen) { mem_free(sigma); return 0; }
 
         /* compute sigma(i) for 1 <= i <= M */
         for (idx_t i = 1; i <= M; ++i) {
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
 
         /* clean up */
         free(seen);
-        free(sigma);
+        mem_free(sigma);
 
         if (result != 0) return result;   /* success */
 

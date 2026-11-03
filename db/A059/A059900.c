@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,16 @@
     the least significant bit.  The value a(n) is the product of each prime
     raised to its corresponding exponent.  */
 
-#include "../utils/seq_pow.h"     /* for seq_pow   */
-#include "../utils/seq_mul.h"     /* for seq_mul   */
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -71,7 +80,7 @@ seq_t a(idx_t n)
 
         if (exponent != 0) {
             seq_t prime_val = (seq_t)primes[k];
-            seq_t pow_val   = seq_pow(prime_val, exponent);
+            seq_t pow_val   = ipow_idx(prime_val, exponent);
             result = seq_mul(result, pow_val);
         }
     }

@@ -10,14 +10,16 @@
  *            column (1‑based) within that row
  * Range:     u8 n <= 25, u16 n <= 51, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binomial_n_k
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binomial_n_k.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* external integer types supplied by the build */
 extern seq_t a(idx_t n);
@@ -41,7 +43,7 @@ static void ensure_ap(idx_t need) /* need = j+1 for j = k-1 */
 
     if (ap_used == 0) {               /* first allocation */
         ap_cap = 8;
-        ap = (seq_t*)malloc(ap_cap * sizeof(seq_t));
+        ap = mem_new(seq_t, ap_cap);
         if (!ap) return;              /* out of memory – caller will get 0 */
         ap[0] = (seq_t)1;
         ap_used = 1;
@@ -51,7 +53,7 @@ static void ensure_ap(idx_t need) /* need = j+1 for j = k-1 */
     if ((size_t)need > ap_cap) {
         size_t new_cap = ap_cap ? ap_cap : 8;
         while (new_cap < (size_t)need) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(ap, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, ap, new_cap);
         if (!tmp) return;             /* out of memory */
         ap = tmp;
         ap_cap = new_cap;

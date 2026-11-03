@@ -9,7 +9,8 @@
  *            A001160(p^e) = (p^(5e+5)-1)/(p^5-1)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 15, u64 n <= 255, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------
    Parameters
@@ -42,7 +44,7 @@ static void init_cache(void)
     if (initialized) return;
     initialized = 1;
 
-    memset(a_cache, 0, sizeof(a_cache));
+    mem_set(a_cache, 0, sizeof(a_cache));
     memset(spf,     0, sizeof(spf));
 
     /* SPF sieve */

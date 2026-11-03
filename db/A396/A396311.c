@@ -10,12 +10,14 @@
  *            3*a(n-5) + a(n-7) for n ≥ 1, where a(k)=0 for k<0
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values.  */
 static seq_t *cache = NULL;
@@ -31,7 +33,7 @@ static void init_cache(void)
         return;
     /* Initial capacity at least 8.  */
     cap = 8;
-    cache = (seq_t *)malloc(cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cap);
     if (cache == NULL)
         exit(EXIT_FAILURE);  /* memory failed */
     /* First eight terms of the sequence.  */
@@ -50,7 +52,7 @@ static void ensure_capacity(idx_t n)
     idx_t newcap = cap ? cap << 1 : 8;
     while (newcap <= n)
         newcap <<= 1;
-    seq_t *newcache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *newcache = mem_resize(seq_t, cache, newcap);
     if (newcache == NULL)
         exit(EXIT_FAILURE);  /* memory failed */
     /* Zero new elements beyond the previously computed part.  */

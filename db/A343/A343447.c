@@ -12,14 +12,40 @@
  *            everything)
  * Range:     u8 n <= 5, u16 n <= 949, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_small, nth_coprime
+ * Validated: standard, pass, 86 terms through n = 8581 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mul_small.h"
-#include "../utils/nth_coprime.h"
+#include <stdlib.h>
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+static inline seq_t nth_coprime(idx_t n)
+/* Return the n-th positive integer coprime to 10.
+   The sequence of such integers is 1,3,7,9,11,13,17,19,…,
+   which consists of blocks of 4 numbers per block of 10 integers. */
+{
+    idx_t q = (n - 1) / 4;           /* number of full 10‑integer blocks skipped */
+    idx_t r = (n - 1) % 4;           /* position inside the current block   */
+    seq_t base = (seq_t)q * 10;      /* lowest number of the current block  */
+    /* offsets of the coprime numbers inside each block of 10 integers */
+    const seq_t offsets[4] = { (seq_t)1, (seq_t)3, (seq_t)7, (seq_t)9 };
+    return base + offsets[r];
+}
 
 seq_t a(idx_t n)
 {

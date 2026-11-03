@@ -9,12 +9,14 @@
  *            a(7)=11,a(8)=7,a(9)=37,a(10)=30
  * Range:     u8 n <= 12, u16 n <= 22, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;      /* dynamic table of computed values */
 static idx_t dp_size = 0;     /* current capacity (dp_size > n implied) */
@@ -28,14 +30,14 @@ seq_t a(idx_t n)
     /* initial allocation and base values */
     if (!dp) {
         dp_size = 11;                /* indices 0..10 (0 unused) */
-        dp = (seq_t*)malloc(dp_size * sizeof(seq_t));
+        dp = mem_new(seq_t, dp_size);
         if (!dp) return 0;          /* memory error → return 0 */
         for (idx_t i = 1; i < dp_size; ++i) dp[i] = init[i];
     }
 
     /* extend table if necessary */
     if (n >= dp_size) {
-        seq_t *newdp = (seq_t*)realloc(dp, (n + 1) * sizeof(seq_t));
+        seq_t *newdp = mem_resize(seq_t, dp, (n + 1));
         if (!newdp) return 0;        /* memory error → return 0 */
         dp = newdp;
         for (idx_t i = dp_size; i <= n; ++i) {

@@ -11,12 +11,14 @@
  *            function returns a(n) for 1‑based n
  * Range:     u8 n <= 42, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for the triangle */
 static seq_t  *triangle  = NULL;   /* flat array holding all rows */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         /* required capacity for rows 0…r: (r+1)(r+2)/2 elements */
         size_t new_cap = (size_t)((r + 1ULL) * (r + 2ULL) / 2ULL);
         if (triangle_cap < new_cap) {
-            seq_t *tmp = (seq_t *)realloc(triangle, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, triangle, new_cap);
             if (!tmp) abort();      /* memory exhausted */
             triangle = tmp;
             triangle_cap = new_cap;

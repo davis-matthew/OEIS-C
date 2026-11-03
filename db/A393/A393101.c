@@ -9,11 +9,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 117, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 83 terms through n = 909 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdio.h>
 /* Implementation of KMP comparison count for the Champernowne word */
 /* The function returns the number of character comparisons needed
    by the Knuth-Morris-Pratt search to find the first occurrence of

@@ -7,7 +7,8 @@
  * Formula:   primes p such that 87 is a primitive root modulo p (search)
  * Range:     u8 n <= 20, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   grow_seqt, is_prime, mod_pow
+ * Validated: standard, pass, 73 terms through n = 974 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,21 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
-#include "../utils/grow_seqt.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* grow a dynamic array of seq_t */
+static void grow_seqt(seq_t **arr, size_t *len, size_t *cap)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 4 : (*cap << 1);
+        *arr = mem_resize(seq_t, *arr, newcap);
+        *cap = newcap;
+    }
+    (*len)++;
+}
 
 /* grow a dynamic array of uint64_t */
 static void grow_uint64(uint64_t **arr, size_t *len, size_t *cap)
@@ -44,7 +57,7 @@ seq_t a(idx_t n)
     /* initialise once */
     if (!initialized) {
         valid_cap = 16;
-        valid = (seq_t *)malloc(valid_cap * sizeof(seq_t));
+        valid = mem_new(seq_t, valid_cap);
         valid_len = 0;
         primes_cap = 16;
         primes = (uint64_t *)malloc(primes_cap * sizeof(uint64_t));
@@ -76,7 +89,7 @@ seq_t a(idx_t n)
             uint64_t q = primes[i];
             if (rem % q == 0) {
                 /* test 87^( (p-1)/q ) mod p != 1 */
-                seq_t r = mod_pow((seq_t)87, ((uint64_t)(last_checked - 1)) / q, (seq_t)last_checked);
+                seq_t r = powmod((seq_t)87, ((uint64_t)(last_checked - 1)) / q, (seq_t)last_checked);
                 if (r == 1) {
                     ok = false;
                     break;
@@ -86,7 +99,7 @@ seq_t a(idx_t n)
         }
 
         if (ok && rem > 1) {
-            seq_t r = mod_pow((seq_t)87, ((uint64_t)(last_checked - 1)) / rem, (seq_t)last_checked);
+            seq_t r = powmod((seq_t)87, ((uint64_t)(last_checked - 1)) / rem, (seq_t)last_checked);
             if (r == 1) ok = false;
         }
 

@@ -14,13 +14,15 @@
  *            of...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include only the headers required for malloc and size_t. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Sequence array with dynamic memoisation. */
 static seq_t *seq = NULL;     /* memoised terms a(1), a(2), … */
@@ -56,7 +58,7 @@ static void ensure_cache(idx_t n)
     size_t need = (size_t)n;
     if (need > memo_cap) {
         /* Reallocate: increase to maximum of current capacity and need. */
-        seq_t *newp = (seq_t *)realloc(seq, need * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, seq, need);
         if (!newp) abort();  /* In a real program we might handle this. */
         seq = newp;
         memo_cap = need;

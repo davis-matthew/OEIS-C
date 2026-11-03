@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ===== Cache structures ===== */
 static seq_t *cacheA = NULL;            /* a(n) values (primes ≡5 mod12) */
@@ -38,7 +40,7 @@ static uint64_t nextCandidate = 2;      /* next integer to test for primality */
 static void add_cacheA(seq_t value) {
     if (cacheALen == cacheACap) {
         size_t newCap = cacheACap ? cacheACap * 2 : 8;
-        cacheA = (seq_t *)realloc(cacheA, newCap * sizeof(seq_t));
+        cacheA = mem_resize(seq_t, cacheA, newCap);
         cacheACap = newCap;
     }
     cacheA[cacheALen++] = value;

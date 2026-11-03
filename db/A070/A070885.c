@@ -10,6 +10,7 @@
  *            (3/2)*(a(n-1)+1) if a(n-1) odd)
  * Range:     u8 n <= 11, u16 n <= 25, u32 n <= 52, u64 n <= 107,
  *            u128 n <= 216, big any n
+ * Validated: standard, pass, 54 terms through n = 977 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

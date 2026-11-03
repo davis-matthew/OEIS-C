@@ -9,14 +9,16 @@
  *            prime factors, counted with multiplicity)
  * Range:     i8 n <= 5423, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   build_spf
+ * Validated: standard, pass, 76 terms through n = 9099 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/build_spf.h"   /* Provides void build_spf(idx_t limit, idx_t **spf_out); */
+#include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache of partial sums and spf table */
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
     /* Ensure cumulative array covers 1..n */
     if (n > cum_cap) {
         idx_t new_cap = n;
-        seq_t *new_cum = (seq_t *)realloc(cum, (new_cap + 1) * sizeof(seq_t));
+        seq_t *new_cum = mem_resize(seq_t, cum, (new_cap + 1));
         if (!new_cum) exit(1);  /* out of memory */
         cum = new_cum;
         /* Initialize new entries */

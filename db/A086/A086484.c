@@ -8,16 +8,17 @@
  * Formula:   a(n) = next (k+1)‑th power after n minus n where k = gcd of
  *            exponents in the prime factorisation of n (k = 0 for n = 1). For
  *            n = 1, a(1) = 1 because the next 1st power after 1 is 2
- * Range:     u8 n <= 242, u16 n <= 9372, u32 n <= 9372, u64 n <= 9372,
- *            u128 n <= 9372, big any n
- * Helpers:   gcd_uint64
+ * Range:     u8 n <= 242, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 106 terms through n = 9372 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* ---------- helpers ---------- */
 
@@ -85,12 +86,12 @@ seq_t a(idx_t n)
                 ++exp;
             }
             if (first) { k = exp; first = false; }
-            else k = gcd_uint64(k, exp);
+            else k = gcd_u64(k, exp);
         }
     }
     if (temp > 1) {          /* remaining prime factor with exponent 1 */
         if (first) { k = 1; first = false; }
-        else k = gcd_uint64(k, 1);
+        else k = gcd_u64(k, 1);
     }
 
     /* Compute the next (k+1)-th power. */

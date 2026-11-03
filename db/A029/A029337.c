@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 116, u16 n <= 814, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,11 +22,12 @@
     external utilities and is valid C11 and C++17. */
 #include <stddef.h>   /* for NULL */
 #include <stdlib.h>   /* for calloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate array of size n+1, zero‑initialized */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return 0;            /* allocation failed – unlikely for n ≤ 10000 */
 
     dp[0] = 1;                    /* one way to form sum 0 */
@@ -41,6 +43,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, gcd, int_sqrt
+ * Validated: standard, pass, 76 terms through n = 8796 (2026-11-03)
+ * Helpers:   build_primes_upto, gcd, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/gcd.h"            /* seq_t gcd(seq_t, seq_t) */
-#include "../utils/build_primes_upto.h" /* build_primes_upto() */
-#include "../utils/int_sqrt.h"       /* int_sqrt(idx_t) */
+#include "../utils/build_primes_upto.h"
+#include "../utils/gcd.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* ---------- static storage for the sequence ---------- */
 static seq_t *seq_arr   = NULL;   /* array holding the terms          */
@@ -88,7 +90,7 @@ extend_sequence(idx_t n)
 {
     if (seq_arr == NULL) {           /* first initialisation */
         seq_cap = 32;
-        seq_arr = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         ensure_primes_up_to(100);    /* small primes for first tests */
     }
 
@@ -97,7 +99,7 @@ extend_sequence(idx_t n)
         uint64_t start = (prev_val == 0) ? 4ULL : (uint64_t)prev_val + 1ULL;
 
         for (uint64_t cand = start; ; ++cand) {
-            uint64_t sqrt_cand = (uint64_t)int_sqrt(cand) + 1ULL;
+            uint64_t sqrt_cand = (uint64_t)isqrt(cand) + 1ULL;
             ensure_primes_up_to(sqrt_cand);
 
             if (is_semiprime_uint64(cand) &&
@@ -106,7 +108,7 @@ extend_sequence(idx_t n)
                 /* add cand to the sequence */
                 if (seq_len == seq_cap) {
                     seq_cap <<= 1;
-                    seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+                    seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
                 }
                 seq_arr[seq_len++] = (seq_t)cand;
                 prev_val          = (seq_t)cand;

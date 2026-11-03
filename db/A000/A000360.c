@@ -8,13 +8,15 @@
  *            3)
  * Range:     u8 n <= 9555, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 120 terms through n = 9561 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static bool *computed = NULL;
@@ -24,7 +26,7 @@ static void ensure_cached(idx_t n) {
     if (n < cache_len) return;
     
     idx_t new_len = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     bool *new_computed = (bool *)realloc(computed, new_len * sizeof(bool));
     
     if (new_cache == NULL || new_computed == NULL) {

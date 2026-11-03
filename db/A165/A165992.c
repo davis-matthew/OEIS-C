@@ -11,13 +11,23 @@
  *            implementation builds rows on demand and memoises them
  * Range:     u8 n <= 15, u16 n <= 41, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   alloc_seq
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_seq.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t **rows = NULL;      /* array of row pointers (each row is seq_t *) */
 static size_t   rows_capacity = 0;

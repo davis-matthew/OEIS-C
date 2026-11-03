@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 303, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digits_uint64
+ * Validated: standard, pass, 71 terms through n = 970 (2026-11-01)
+ * Helpers:   num_digits_u64_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digits_uint64.h"
+#include "../utils/num_digits_u64_to_u32.h"
 
 /* Internal static storage of primes for incremental generation */
 static uint64_t *primes = NULL;     /* array of primes, 1‑based in logic but 0‑indexed in practice */
@@ -80,7 +81,7 @@ seq_t a(idx_t n)
         if (idx == primes_cnt) ensure_primes(primes_cnt + 1);
 
         uint64_t p = primes[idx];
-        unsigned len = digits_uint64(p);
+        unsigned len = num_digits_u64_to_u32(p);
 
         /* compute 10^len mod m */
         uint64_t pow10 = 1 % m;

@@ -11,14 +11,63 @@
  *            a(9)=23109; a(n) = a(n) for n>9
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 89, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   ensure_capacity, mul_small
+ * Validated: standard, pass, 46 terms through n = 178 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/ensure_capacity.h"
-#include "../utils/mul_small.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static seq_t *cache = NULL;       /* sequence cache (0‑based: cache[0] == a(1)) */
 static size_t cache_cap = 0;      /* allocated capacity of cache */
@@ -30,7 +79,7 @@ seq_t a(idx_t n) {
     /* ensure we have all terms up to n */
     if ((size_t)n > cache_len) {
         size_t new_len = (size_t)n;
-        ensure_capacity(new_len, &cache_cap, (void **)&cache, sizeof(seq_t));
+        ensure_capacity(new_len, &cache_cap, OEISC_VPP(&cache), sizeof(seq_t));
 
         /* initial 9 terms (indices 0..8 correspond to a(1)..a(9)) */
         static const seq_t init[9] = {

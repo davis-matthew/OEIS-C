@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has98
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,18 @@
    not.  This yields OEIS A044430. */
 
 #include <stdbool.h>
-#include "../utils/has98.h"
+
+/* Returns true iff the base‑10 representation of x contains the
+   consecutive digits 9 followed by 8. */
+static inline bool has98(seq_t x)
+{
+    while (x >= 10) {
+        if ((x % 100) == 98)   /* last two digits are 98 */
+            return true;
+        x /= 10;                /* drop the last digit */
+    }
+    return false;
+}
 
 /* Return the n‑th term of the sequence (1‑based indexing). */
 seq_t a(idx_t n)

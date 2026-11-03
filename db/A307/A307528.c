@@ -12,12 +12,14 @@
  *            a(i)*b2(k‑i), b4(k)=∑_{i=0}^{k} a(i)*b3(k‑i)
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 22, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,10 +36,10 @@ seq_t a(idx_t n)
     if (needed > cap) {
         /* allocate one more element for safety */
         size_t new_cap = needed;
-        A   = (seq_t*)realloc(A, new_cap * sizeof(seq_t));
-        B2  = (seq_t*)realloc(B2, new_cap * sizeof(seq_t));
-        B3  = (seq_t*)realloc(B3, new_cap * sizeof(seq_t));
-        B4  = (seq_t*)realloc(B4, new_cap * sizeof(seq_t));
+        A   = mem_resize(seq_t, A, new_cap);
+        B2  = mem_resize(seq_t, B2, new_cap);
+        B3  = mem_resize(seq_t, B3, new_cap);
+        B4  = mem_resize(seq_t, B4, new_cap);
         cap = new_cap;
     }
 

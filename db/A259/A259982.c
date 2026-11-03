@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor(10^(n+1)/2^20) - floor(10^n/2^20)
  * Range:     u8 n <= 19, u16 n <= 19, u32 n <= 19, u64 n <= 19, u128 n <= 19,
  *            big any n
+ * Validated: full, pass, 20 terms through n = 19 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

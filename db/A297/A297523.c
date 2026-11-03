@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define M 32                               /* 2^5 column patterns */
 
@@ -75,8 +77,8 @@ seq_t a(idx_t n)
     }
 
     /* Reset DP tables. */
-    memset(dp, 0, sizeof(dp));
-    memset(ndp, 0, sizeof(ndp));
+    mem_set(dp, 0, sizeof(dp));
+    mem_set(ndp, 0, sizeof(ndp));
 
     /* === case n = 1 === */
     if (n == 1) {
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
 
     /* Process columns 3 … n */
     for (idx_t col = 3; col <= n; ++col) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
         for (int prev = 0; prev < M; ++prev) {
             for (int curr = 0; curr < M; ++curr) {
                 seq_t ways = dp[prev][curr];
@@ -107,7 +109,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     /* === final column validation (right neighbour = 0) === */

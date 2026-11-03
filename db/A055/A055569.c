@@ -9,12 +9,14 @@
  *            but the routine searches up to a sensible upper limit
  * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 19, u64 n <= 19, u128 n <= 19,
  *            big any n
+ * Validated: full, pass, 20 terms through n = 19 (2026-11-02)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
 
 seq_t a(idx_t n)

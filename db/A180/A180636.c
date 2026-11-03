@@ -11,7 +11,8 @@
  *            collected
  * Range:     u8 n <= 77, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 4504 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #else
 #  define PTR_CAST(type, ptr) ((type*)(ptr))
 #endif
+#include "../utils/mem.h"
 
 /* Global state for incremental, memoised sieving */
 static idx_t current_limit = 0;   /* maximum integer already sieved */
@@ -56,7 +58,7 @@ static void recompute(idx_t new_limit)
         if (!bad[m]) ++new_count;
 
     /* Allocate new sequence array and fill it */
-    seq_t *new_seq = PTR_CAST(seq_t, malloc(new_count * sizeof(seq_t)));
+    seq_t *new_seq = PTR_CAST(seq_t, mem_new(seq_t, new_count));
     if (!new_seq) { free(bad); return; }  /* allocation failure */
 
     size_t idx = 0;
@@ -65,7 +67,7 @@ static void recompute(idx_t new_limit)
 
     /* Clean up old data and update global state */
     free(bad);
-    free(seq_arr);
+    mem_free(seq_arr);
     seq_arr = new_seq;
     seq_len = new_count;
     current_limit = new_limit;

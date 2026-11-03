@@ -8,7 +8,8 @@
  * Formula:   a(n) = 2*a(n-1) - a(n-3) (for n ≥ 4), a(1)=13, a(2)=17, a(3)=23
  * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 43, u64 n <= 89, u128 n <= 181,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    seq_t that is compatible with this usage. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoised values, indexed from 1 */
 static idx_t cached_len = 0;  /* highest index currently stored */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         /* allocate space for indices 0..3 (index 0 unused) */
-        cache = (seq_t *)malloc(sizeof(seq_t) * 4);
+        cache = mem_new(seq_t, 4);
         if (!cache) return 0;                /* allocation failure */
 
         cache[0] = 0;                       /* unused */
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
 
     /* grow the cache to hold the new index */
     size_t needed = (size_t)(n + 1);         /* indices 0..n */
-    seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * needed);
+    seq_t *tmp = mem_resize(seq_t, cache, needed);
     if (!tmp) return 0;                     /* allocation failure */
     cache = tmp;
 

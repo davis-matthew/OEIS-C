@@ -13,7 +13,8 @@
  *            for all larger n (n ≤ 10000). The implementatio...
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   precompute_terms
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,59 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/precompute_terms.h"
+#include "../utils/mem.h"
+
+static void precompute_terms(seq_t *out, size_t M)
+{
+    /* M must be <= 70 for memory */
+    size_t dim = M + 1;
+    size_t total = dim * dim * dim;
+    seq_t *dp_prev = mem_new(seq_t, total);
+    seq_t *dp_curr = mem_new(seq_t, total);
+    /* index macro */
+    #define IDX(x,y,z) ((((x)*dim + (y))*dim + (z)))
+
+    dp_prev[IDX(0,0,0)] = (seq_t)1;
+    out[0] = (seq_t)1;
+
+    for (size_t step = 1; step < M; ++step)
+    {
+        mem_set(dp_curr, 0, total * sizeof(seq_t));
+        seq_t sum = 0;
+        size_t lim = step;
+        for (size_t x = 0; x <= lim; ++x)
+            for (size_t y = 0; y <= lim; ++y)
+                for (size_t z = 0; z <= lim; ++z)
+                {
+                    seq_t val = dp_prev[IDX(x,y,z)];
+                    if (!val) continue;
+                    /* step (-1,-1,0) */
+                    if (x && y) dp_curr[IDX(x-1,y-1,z)] += val;
+                    /* step (-1,0,-1) */
+                    if (x && z) dp_curr[IDX(x-1,y,z-1)] += val;
+                    /* step (0,-1,1) */
+                    if (y) dp_curr[IDX(x,y-1,z+1)] += val;
+                    /* step (0,1,0) */
+                    dp_curr[IDX(x,y+1,z)] += val;
+                    /* step (1,-1,0) */
+                    if (y) dp_curr[IDX(x+1,y-1,z)] += val;
+                }
+        /* sum all current states for a[step] */
+        for (size_t x = 0; x <= lim; ++x)
+            for (size_t y = 0; y <= lim; ++y)
+                for (size_t z = 0; z <= lim; ++z)
+                    sum += dp_curr[IDX(x,y,z)];
+        out[step] = sum;
+        /* swap */
+        seq_t *tmp = dp_prev;
+        dp_prev = dp_curr;
+        dp_curr = tmp;
+    }
+
+    mem_free(dp_prev);
+    mem_free(dp_curr);
+    #undef IDX
+}
 
 /* ---------- Helper functions for modular arithmetic ---------- */
 
@@ -177,7 +230,7 @@ seq_t a(idx_t n)
 
     /* Use recurrence for larger n. */
     size_t N = (size_t)n;
-    seq_t *arr = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, N + 1);
     for (size_t i = 0; i < PRE_NUM; ++i) arr[i] = pre[i];
 
     for (size_t i = PRE_NUM; i <= N; ++i)
@@ -195,6 +248,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[N];
-    free(arr);
+    mem_free(arr);
     return result;
 }

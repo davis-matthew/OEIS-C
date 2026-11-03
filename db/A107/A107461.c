@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn, look
  * Formula:   a(n) = Σ_{k≥1, n≥k(k+1)/2, (n−k(k+1)/2) mod k = 0} k!
- * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 62, u64 n <= 62, u128 n <= 62,
- *            big any n
+ * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 90, u64 n <= 230,
+ *            u128 n <= 629, big any n
+ * Validated: standard, pass, 78 terms through n = 9968 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

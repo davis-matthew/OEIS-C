@@ -10,14 +10,15 @@
  *            computed modulo p^e, where p^e <= 2n < p^(e+1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 14, u128 n <= 20,
  *            big any n
- * Helpers:   a007757_inv
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   modinv_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a007757_inv.h"
+#include "../utils/modinv_i64.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +46,7 @@ seq_t a(idx_t n)
         for (m = 1; m <= K; m++) {
             uint64_t mm = m, v = 0, term;
             while (mm % p == 0) { mm /= p; v++; }
-            term = (pows[e - 1 - v] * (uint64_t)a007757_inv((int64_t)(mm % M), (int64_t)M)) % M;
+            term = (pows[e - 1 - v] * (uint64_t)modinv_i64((int64_t)(mm % M), (int64_t)M)) % M;
             T = (T + term) % M;
         }
 

@@ -7,14 +7,16 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) = coefficient [x^n] x^k*(1-x^k)^(k-1)/(1-x)^(k-1) read
  *            row-wise
- * Range:     u8 n <= 50, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
+ * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     /* Find the row r such that r*(r+1)/2 >= n */
@@ -41,9 +43,9 @@ seq_t a(idx_t n) {
     if (max_j > k - 1) max_j = k - 1;
 
     for (idx_t j = 0; j <= max_j; ++j) {
-        seq_t term = binom(k - 1, j);
+        seq_t term = binomial(k - 1, j);
         idx_t m = r - k - j * k;
-        term *= binom(k - 2 + m, k - 2);
+        term *= binomial(k - 2 + m, k - 2);
         if (j & 1)
             odd_sum += term;
         else

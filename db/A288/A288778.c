@@ -8,14 +8,25 @@
  *            n − r(r−1)/2, T(r,c) = (r − c + 1)·c! − (c − 1)!
  * Range:     u8 n <= 20, u16 n <= 43, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   factorial
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  SPDX-License-Identifier: MIT  */
 #include <stdint.h>
-#include "../utils/factorial.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {

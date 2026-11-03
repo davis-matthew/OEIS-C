@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* State of the sequence */
 static seq_t *A = NULL; /* a(n) values */
@@ -43,7 +45,7 @@ static void ensure_a(size_t min)
     if (a_cap >= min) return;
     size_t new_cap = a_cap ? a_cap : 2;
     while (new_cap < min) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, A, new_cap);
     if (!tmp) abort();
     A = tmp;
     a_cap = new_cap;
@@ -55,7 +57,7 @@ static void ensure_b(size_t min)
     if (b_cap >= min) return;
     size_t new_cap = b_cap ? b_cap : 2;
     while (new_cap < min) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(B, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, B, new_cap);
     if (!tmp) abort();
     B = tmp;
     b_cap = new_cap;

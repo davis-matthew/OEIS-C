@@ -12,13 +12,15 @@
  *            of a(n) (converted to idx_t); values are gua...
  * Range:     u8 n <= 3000, u16 n <= 3000, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 2880 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h> /* for uint64_t (idx_t likely defined elsewhere) */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (seq_len == 0) {
         /* start with a modest capacity */
         seq_cap = 8;
-        seq     = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq     = mem_new(seq_t, seq_cap);
         if (!seq) return (seq_t)0;            /* allocation failure */
 
         seq_len = 1;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         /* count array needs indices 0 and 1 */
         cnt_cap = 2;
         cnt     = (idx_t*)malloc(cnt_cap * sizeof(idx_t));
-        if (!cnt) { free(seq); return (seq_t)0; }
+        if (!cnt) { mem_free(seq); return (seq_t)0; }
         cnt[0] = 0;
         cnt[1] = 1;      /* value 1 has occurred once */
 
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
             idx_t new_cap = cnt_cap * 2;
             if (new_cap <= cnt_cap) new_cap = idx_prev + 1; /* overflow guard */
             idx_t *tmp = (idx_t*)realloc(cnt, new_cap * sizeof(idx_t));
-            if (!tmp) { free(seq); free(cnt); return (seq_t)0; }
+            if (!tmp) { mem_free(seq); free(cnt); return (seq_t)0; }
             /* initialise new entries to 0 */
             for (idx_t j = cnt_cap; j < new_cap; ++j) tmp[j] = 0;
             cnt = tmp;
@@ -82,8 +84,8 @@ seq_t a(idx_t n)
         if (seq_len + 1 >= seq_cap) {
             idx_t new_cap = seq_cap * 2;
             if (new_cap <= seq_cap) new_cap = seq_len + 2; /* overflow guard */
-            seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
-            if (!tmp) { free(seq); free(cnt); return (seq_t)0; }
+            seq_t *tmp = mem_resize(seq_t, seq, new_cap);
+            if (!tmp) { mem_free(seq); free(cnt); return (seq_t)0; }
             seq = tmp;
             seq_cap = new_cap;
         }
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
             idx_t new_cap = cnt_cap * 2;
             if (new_cap <= cnt_cap) new_cap = idx_next + 1;
             idx_t *tmp = (idx_t*)realloc(cnt, new_cap * sizeof(idx_t));
-            if (!tmp) { free(seq); free(cnt); return (seq_t)0; }
+            if (!tmp) { mem_free(seq); free(cnt); return (seq_t)0; }
             for (idx_t j = cnt_cap; j < new_cap; ++j) tmp[j] = 0;
             cnt = tmp;
             cnt_cap = new_cap;

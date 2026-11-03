@@ -10,13 +10,15 @@
  *            F_{24m+2} ≡ 1 (mod 24m)
  * Range:     u8 n <= 9, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Fast doubling: returns (F_n, F_{n+1}) modulo mod. */
 static void fib_pair(idx_t n, seq_t mod, seq_t *fn, seq_t *fn1)
@@ -62,7 +64,7 @@ static size_t cache_cap    = 0;        /* allocated capacity              */
 static void grow_cache(void)
 {
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-    seq_t *new_ptr = (seq_t *)realloc(cache_vals, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache_vals, new_cap);
     if (!new_ptr) abort();          /* out of memory */
     cache_vals = new_ptr;
     cache_cap  = new_cap;

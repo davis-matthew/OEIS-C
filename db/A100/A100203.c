@@ -7,15 +7,17 @@
  * Formula:   a(n) = the n‑th prime of the form 37*k+3
  * Range:     u8 n <= 2, u16 n <= 186, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, isprime_big
+ * Validated: standard, pass, 58 terms through n = 801 (2026-11-03)
+ * Helpers:   is_prime_seq, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/isprime_big.h"
+#include <stddef.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -28,9 +30,9 @@ seq_t a(idx_t n)
 
         bool prime;
         if (candidate <= (seq_t)UINT64_MAX) {
-            prime = is_prime((uint64_t)candidate);
+            prime = is_prime_u64((uint64_t)candidate);
         } else {
-            prime = isprime_big(candidate);
+            prime = is_prime_seq(candidate);
         }
 
         if (prime) {

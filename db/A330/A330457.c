@@ -12,12 +12,14 @@
  *            p_distinct, then for a = EulerTransform(s)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 26, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for intermediate sequences */
 static seq_t *p_distinct = NULL;   /* p_distinct[k]  : partitions into distinct parts  */
@@ -38,11 +40,11 @@ static void ensure_size(idx_t n)
     if (new_size > capacity) {
         capacity = new_size;
         size_t sz = capacity * sizeof(seq_t);
-        p_distinct = (seq_t*)realloc(p_distinct, sz);
-        b1          = (seq_t*)realloc(b1,          sz);
-        s           = (seq_t*)realloc(s,           sz);
-        b2          = (seq_t*)realloc(b2,          sz);
-        a_seq       = (seq_t*)realloc(a_seq,       sz);
+        p_distinct = mem_resize(seq_t, p_distinct, (sz) / sizeof(seq_t));
+        b1          = mem_resize(seq_t, b1, (sz) / sizeof(seq_t));
+        s           = mem_resize(seq_t, s, (sz) / sizeof(seq_t));
+        b2          = mem_resize(seq_t, b2, (sz) / sizeof(seq_t));
+        a_seq       = mem_resize(seq_t, a_seq, (sz) / sizeof(seq_t));
         if (!p_distinct || !b1 || !s || !b2 || !a_seq)
             abort();                 /* allocation failed */
     }

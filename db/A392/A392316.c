@@ -9,6 +9,7 @@
  *            binomial(k,3*n-8*k)
  * Range:     u8 n <= 16, u16 n <= 33, u32 n <= 75, u64 n <= 159,
  *            u128 n <= 334, big any n
+ * Validated: standard, pass, 63 terms through n = 876 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

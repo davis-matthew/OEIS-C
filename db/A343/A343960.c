@@ -10,6 +10,7 @@
  *            binomial(r,m-k)*binomial(r,m)
  * Range:     u8 n <= 17, u16 n <= 41, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 /* Uses the helper function binomial(idx_t n, idx_t k) from ../utils/binomial.h */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

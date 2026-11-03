@@ -12,13 +12,16 @@
  *            palindrome appears within 1000 iterations, a(n) = -1
  * Range:     u8 n <= 38, u16 n <= 88, u32 n <= 88, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   reverse
+ * Validated: partial, pass, 98 terms through n = 98 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/reverse.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
 
 static const idx_t MAX_ITER = 1000;
 
@@ -28,7 +31,7 @@ seq_t a(idx_t n)
     idx_t steps = 1;
 
     for (; steps <= MAX_ITER; ++steps) {
-        seq_t rev = reverse(x);
+        seq_t rev = reverse_digits(x);
         if (x == rev)
             return steps;          /* palindrome reached */
         x = x + rev;                /* reverse‑then‑add step */

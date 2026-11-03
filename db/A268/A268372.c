@@ -8,7 +8,8 @@
  *            floor(n/2) }
  * Range:     u8 n <= 825, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrimeTrial
+ * Validated: standard, pass, 102 terms through n = 982 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/isPrimeTrial.h"   /* provides bool isPrimeTrial(seq_t) */
+#include <stdlib.h>
+#include "../utils/is_prime_seq.h"
 
 static bool seen[5001];              /* seen[p] == true ⇔ prime p already counted */
 
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Scan through k = 1 .. floor(n/2) */
     for (idx_t k = 1; k <= half; ++k) {
         const idx_t r = n % k;            /* 0 ≤ r < k ≤ n/2 ≤ 5000 */
-        if (isPrimeTrial((seq_t)r)) {      /* r is a prime? */
+        if (is_prime_seq((seq_t)r)) {      /* r is a prime? */
             if (!seen[(size_t)r]) {        /* not yet counted?  */
                 seen[(size_t)r] = true;
                 ++out;

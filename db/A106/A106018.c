@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 267, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 63 terms through n = 865 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -36,14 +37,14 @@ seq_t a(idx_t n)
     while (cache_sz < n)
     {
         /* Find the next prime candidate. */
-        while (!is_prime(cand))
+        while (!is_prime_u64(cand))
             ++cand;
 
         /* Check the two derived values. */
         uint64_t v1 = 22ULL * cand - 3ULL;
         uint64_t v2 = 22ULL * cand + 3ULL;
 
-        if (is_prime(v1) && is_prime(v2))
+        if (is_prime_u64(v1) && is_prime_u64(v2))
             cache[cache_sz++] = (seq_t)cand;
 
         /* Move on to the following integer. */

@@ -9,12 +9,14 @@
  *            k exists
  * Range:     u8 n <= 44, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
     if (n == 0) return 0;
 
     /* Compute φ(n) once. */
-    seq_t phi_n = phi(n);
+    seq_t phi_n = totient(n);
 
     /* Search bound.  For n ≡ 0 (mod 3) the known solutions can be larger,
        so we allow a larger range.  For the other two residue classes the
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
     if (limit < 1) limit = 1;
 
     for (idx_t k = 1; k <= limit; ++k) {
-        seq_t phi_k  = phi(k);
-        seq_t phi_nk = phi(n + k);
+        seq_t phi_k  = totient(k);
+        seq_t phi_nk = totient(n + k);
 
         if (phi_nk == phi_n + phi_k) {
             return (seq_t)k;   /* cast is safe; overflow indicates k is too large for this build. */

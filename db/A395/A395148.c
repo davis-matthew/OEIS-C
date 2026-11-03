@@ -12,6 +12,7 @@
  *            * ∏_{t=0}^{n-1}(k+2t) / 2^n (n=row, k=col)
  * Range:     u8 n <= 17, u16 n <= 25, u32 n <= 42, u64 n <= 88, u128 n <= 207,
  *            big any n
+ * Validated: standard, pass, 71 terms through n = 9874 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

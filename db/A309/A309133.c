@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -35,7 +37,7 @@ static void compute_cache(void)
     /* Adjustable bound: guarantees > 10000 distinct terms. */
     const int B = 400;   /* |x|, |y| ≤ 400 */
     const size_t max_pairs = (size_t)(2 * B + 1) * (size_t)(2 * B + 1);
-    seq_t *raw = (seq_t *)malloc(max_pairs * sizeof(seq_t));
+    seq_t *raw = mem_new(seq_t, max_pairs);
     if (!raw) return;   /* allocation failure – unlikely in contest setting */
 
     size_t raw_len = 0;
@@ -51,7 +53,7 @@ static void compute_cache(void)
     }
 
     /* Sort and deduplicate */
-    qsort(raw, raw_len, sizeof(seq_t), compare_seq);
+    mem_qsort(raw, raw_len, sizeof(seq_t), compare_seq);
 
     /* Count unique values */
     size_t uniq_len = 0;
@@ -62,7 +64,7 @@ static void compute_cache(void)
     }
 
     /* Resize the array to the exact number of unique values */
-    seq_t *final = (seq_t *)realloc(raw, uniq_len * sizeof(seq_t));
+    seq_t *final = mem_resize(seq_t, raw, uniq_len);
     if (!final) {
         /* On realloc failure, keep the original buffer as an emergency fallback */
         final = raw;

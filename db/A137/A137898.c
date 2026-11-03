@@ -9,12 +9,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Sequence A137898.
  * Start with a[n] = n for all positive n.
@@ -31,7 +33,7 @@ static void _ensure_cap(idx_t idx, seq_t **arr, size_t *cap) {
         size_t new_cap = *cap ? (*cap << 1) : 16;
         while (new_cap <= (size_t)idx)
             new_cap <<= 1;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         for (size_t i = *cap; i < new_cap; ++i)
             (*arr)[i] = (seq_t)i;          /* initialisation a[i] = i */
         *cap = new_cap;
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
     /* first call: initialise table */
     if (table == NULL) {
         table_cap = 16;
-        table = (seq_t *)malloc(table_cap * sizeof(seq_t));
+        table = mem_new(seq_t, table_cap);
         for (size_t i = 0; i < table_cap; ++i)
             table[i] = (seq_t)i;          /* a[i] = i for all i >= 0 */
         table[0] = (seq_t)0;

@@ -12,17 +12,21 @@
  *            tables
  * Range:     u8 n <= 385, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, build_spf, is_prime, mod_pow
+ * Validated: standard, pass, 121 terms through n = 9914 (2026-11-01)
+ * Helpers:   build_primes_upto, build_spf, is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/build_spf.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 static bool initialized = false;
 static idx_t limit = 20000;                /* 2 * 10000, covers all n in the limits */
@@ -62,7 +66,7 @@ seq_t a(idx_t n)
         while (temp > 1) {
             idx_t q = spf[temp];
             if (q != prev_q) {
-                if (mod_pow((seq_t)g, (uint64_t)(phi / q), (seq_t)p) == 1) {
+                if (powmod((seq_t)g, (uint64_t)(phi / q), (seq_t)p) == 1) {
                     is_root = false;
                     break;
                 }

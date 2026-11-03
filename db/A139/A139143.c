@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  *  a(n) is the smallest positive integer not in the set {b(m)}.  */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The build supplies these types. */
 extern seq_t a(idx_t n);
@@ -72,7 +74,7 @@ static void ensure_a(idx_t need) {
     if (need <= aCap) return;
     idx_t newCap = aCap ? aCap << 1 : 2;
     while (newCap < need) newCap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(aSeq, newCap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, aSeq, newCap);
     if (!tmp) abort();
     aSeq = tmp;
     aCap = newCap;

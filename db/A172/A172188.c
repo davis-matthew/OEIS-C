@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum of the first n primes p with p ≡ 2 (mod 3)
  * Range:     u8 n <= 9, u16 n <= 109, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9298 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage as required */
 seq_t a(idx_t n)
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
                     if (sums_len == sums_cap)
                     {
                         sums_cap = sums_cap ? sums_cap * 2 : 4;
-                        sums = (seq_t *)realloc(sums, (sums_cap + 1) * sizeof(seq_t));
+                        sums = mem_resize(seq_t, sums, (sums_cap + 1));
                         sums[0] = (seq_t)0; /* dummy entry for 1‑based indexing */
                     }
                     ++sums_len;

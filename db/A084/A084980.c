@@ -12,6 +12,7 @@
  *            term we compute the product (r+1)*(r+1-m)...
  * Range:     u8 n <= 14, u16 n <= 35, u32 n <= 77, u64 n <= 209,
  *            u128 n <= 594, big any n
+ * Validated: standard, pass, 78 terms through n = 4795 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

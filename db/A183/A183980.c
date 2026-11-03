@@ -12,13 +12,15 @@
  *            subtraction)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 49 terms through n = 189 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -26,19 +28,19 @@ seq_t a(idx_t n)
     if (n == 0) return 0;
 
     /* The power 2^(n-1) is common to all n. */
-    seq_t term2 = seq_pow((seq_t)2, n - 1);
+    seq_t term2 = ipow_idx((seq_t)2, n - 1);
 
     seq_t term1;
     if ((n & 1ULL) == 0) {                 /* even n */
         idx_t e1 = n / 2 - 1;              /* exponent for 2^(n/2-1) */
-        term1 = seq_pow((seq_t)2, e1);     /* 2^(n/2-1) */
+        term1 = ipow_idx((seq_t)2, e1);     /* 2^(n/2-1) */
         term1 = (seq_t)3 * term1;          /* multiplied by 3 */
     } else {                               /* odd n */
         /* For odd n compute ((n-5)/2)+3 safely using signed arithmetic. */
         int64_t temp = (int64_t)n - 5;     /* may be negative when n<5 */
         int64_t e1_signed = temp / 2 + 3;  /* integer division truncates toward 0 */
         idx_t e1 = (idx_t)e1_signed;
-        term1 = seq_pow((seq_t)2, e1);     /* 2^(((n-5)/2)+3) */
+        term1 = ipow_idx((seq_t)2, e1);     /* 2^(((n-5)/2)+3) */
         /* No multiplication for odd n. */
     }
 

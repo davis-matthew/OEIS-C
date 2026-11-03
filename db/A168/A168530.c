@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   build_primes, isPrimeTrial
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   build_primes, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdint.h>
 #include "../utils/build_primes.h"
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* ---------- Helper structures and functions ---------- */
 
@@ -50,7 +53,7 @@ static bool is_semiprime_distinct(seq_t n, const seq_t *primes, size_t pcount)
         if (n % p == 0) {
             seq_t q = n / p;
             if (q == p) return false;          // not distinct
-            return isPrimeTrial(q);            // q must be prime
+            return is_prime_seq(q);            // q must be prime
         }
     }
     return false;   /* no factor found -> n is prime or 1 */
@@ -67,21 +70,21 @@ static void dynarr_init(dynarr_t *a, size_t init_cap)
 {
     a->capacity = init_cap;
     a->size = 0;
-    a->data = (seq_t *)malloc(a->capacity * sizeof(seq_t));
+    a->data = mem_new(seq_t, (a->capacity * sizeof(seq_t)) / sizeof(seq_t));
 }
 
 static void dynarr_append(dynarr_t *a, seq_t value)
 {
     if (a->size >= a->capacity) {
         a->capacity *= 2;
-        a->data = (seq_t *)realloc(a->data, a->capacity * sizeof(seq_t));
+        a->data = mem_resize(seq_t, a->data, (a->capacity * sizeof(seq_t)) / sizeof(seq_t));
     }
     a->data[a->size++] = value;
 }
 
 static void dynarr_free(dynarr_t *a)
 {
-    free(a->data);
+    mem_free(a->data);
     a->data = NULL;
     a->size = a->capacity = 0;
 }
@@ -124,7 +127,7 @@ static void _generate_sequence(void)
     }
 
     /* ----- 3. Sort the semiprime list ----- */
-    qsort(semis.data, semis.size, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(semis.data, semis.size, sizeof(seq_t), cmp_seq_t);
 
     /* ----- 4. Scan consecutive triples and collect qualifying sums ----- */
     dynarr_init(&_ans, max_needed * 2);

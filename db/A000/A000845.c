@@ -12,14 +12,15 @@
  *            has a negative cycle]), where c(sigma) is the number...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   g845
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/g845.h"
+#include "../utils/gcd_u64.h"
 
 static int K845[128], S845[128];
 static int np845;
@@ -35,7 +36,7 @@ static void leaf845(void)
     bool neg = false;
     for (i = 0; i < np845; i++) {
         uint64_t L = (uint64_t)K845[i] * (S845[i] ? 2 : 1);
-        N = N / g845(N, L) * L;
+        N = N / gcd_u64(N, L) * L;
         if (S845[i]) neg = true;
     }
     unsigned __int128 sum = 0;
@@ -45,7 +46,7 @@ static void leaf845(void)
         bool ok = true;
         for (i = 0; i < np845; i++) {
             uint64_t k = (uint64_t)K845[i];
-            uint64_t g = j == 0 ? k : g845(k, j);
+            uint64_t g = j == 0 ? k : gcd_u64(k, j);
             if (S845[i] && ((j / g) & 1)) { ok = false; break; }
             e += g;
         }

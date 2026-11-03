@@ -10,14 +10,16 @@
  *            Fibonacci is computed by fast doubling (O(log n))
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 46, u128 n <= 92,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 46 terms through n = 1000 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
 
 /* Fast doubling to compute Fibonacci pair (F(n), F(n+1)) */
 static inline void fib_pair(idx_t n, seq_t *fn, seq_t *fn1)
@@ -26,7 +28,7 @@ static inline void fib_pair(idx_t n, seq_t *fn, seq_t *fn1)
     seq_t b = 1;           /* F(1) */
 
     /* Process bits from most significant to least significant */
-    for (int i = (int)floor_log2_uint64(n); i >= 0; --i)
+    for (int i = (int)ilog2(n); i >= 0; --i)
     {
         /* d = F(2k) = F(k) * (2*F(k+1) - F(k)) */
         seq_t two_b = b + b;

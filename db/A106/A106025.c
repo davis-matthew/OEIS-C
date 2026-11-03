@@ -9,7 +9,8 @@
  *            are all prime
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   mul_mod
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,15 +18,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul_mod.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* 64‑bit Miller–Rabin primality test (deterministic for n < 2^64) */
 
 static inline uint64_t pow_mod(uint64_t a, uint64_t e, uint64_t mod) {
     uint64_t r = 1;
     while (e) {
-        if (e & 1) r = mul_mod(r, a, mod);
-        a = mul_mod(a, a, mod);
+        if (e & 1) r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return r;
@@ -47,7 +50,7 @@ static inline bool isPrime64(uint64_t n) {
         if (x == 1 || x == n-1) continue;
         bool comp = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mul_mod(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1) { comp = false; break; }
         }
         if (comp) return false;
@@ -67,7 +70,7 @@ static uint64_t candidate = 2;
 static void ensure_terms(idx_t n) {
     if (!terms) {
         term_capacity = 8;
-        terms = (seq_t*)malloc(term_capacity * sizeof(seq_t));
+        terms = mem_new(seq_t, term_capacity);
     }
     while (term_count < n) {
         /* test current candidate */
@@ -86,7 +89,7 @@ static void ensure_terms(idx_t n) {
             if (ok) {
                 if (term_count == term_capacity) {
                     term_capacity *= 2;
-                    terms = (seq_t*)realloc(terms, term_capacity * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, term_capacity);
                 }
                 terms[term_count++] = (seq_t)candidate;
             }

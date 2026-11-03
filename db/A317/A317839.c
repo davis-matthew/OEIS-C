@@ -5,16 +5,19 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = Σ_{d|n} μ(d) · A002487(n/d) (Möbius transform)
- * Range:     i8 n <= 1450, i16 n <= 9939, i32 n <= 9939, i64 n <= 9939,
- *            i128 n <= 9939, big any n
- * Helpers:   mobius
+ * Range:     i8 n <= 1450, i16 n <= 16384, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9939 (2026-11-03)
+ * Helpers:   mem, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mobius.h"   /* provides seq_t mobius(idx_t m) */
+#include <stdint.h>
+#include "../utils/mobius.h"
+#include "../utils/mem.h"
 
 /* ---------- Stern's Diatomic sequence (A002487) ----------------- */
 static seq_t *stern_vals = NULL;   /* memoized values of A002487 */
@@ -27,7 +30,7 @@ static void ensure_stern_capacity(idx_t k)
     if (k < stern_cap) return;
 
     size_t new_cap = (size_t)(k + 1);
-    stern_vals = (seq_t *)realloc(stern_vals, new_cap * sizeof(seq_t));
+    stern_vals = mem_resize(seq_t, stern_vals, new_cap);
     stern_set  = (bool *)realloc(stern_set,  new_cap * sizeof(bool));
 
     for (size_t i = stern_cap; i < new_cap; ++i) stern_set[i] = false;

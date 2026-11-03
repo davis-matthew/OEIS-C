@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   count_coprime_to
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,25 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/count_coprime_to.h"
+#include "../utils/mem.h"
+
+/* count numbers ≤ x that are coprime to the product of primes[0..k-1] */
+static uint64_t count_coprime_to(uint64_t x, uint64_t *primes, size_t k)
+{
+    uint64_t cnt = x;
+    uint64_t subsets = 1ULL << k;
+    for (uint64_t mask = 1; mask < subsets; ++mask) {
+        uint64_t prod = 1ULL;
+        int bits = __builtin_popcountll(mask);
+        for (size_t j = 0; j < k; ++j) {
+            if (mask & (1ULL << j)) prod *= primes[j];
+        }
+        uint64_t term = x / prod;
+        if (bits & 1) cnt -= term;
+        else          cnt += term;
+    }
+    return cnt;
+}
 
 /* smallest prime factor – simple trial division, works for 64‑bit numbers */
 static uint64_t spf_uint64(uint64_t n)
@@ -40,7 +59,7 @@ seq_t a(idx_t n)
     if (cache_cap <= (size_t)n) {
         size_t old_cap = cache_cap;
         cache_cap = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
         for (size_t i = old_cap; i <= (size_t)n; ++i) {
             if (i == 0 || i == 1) {
                 cache[i] = (seq_t)1;

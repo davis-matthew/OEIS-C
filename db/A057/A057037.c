@@ -10,14 +10,40 @@
  *            2,3; 4,5,6; …, i.e. index(i,j) = (i+j-2)(i+j-1)/2 + i
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   diag_of_idx, j_from_index
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/diag_of_idx.h"
-#include "../utils/j_from_index.h"
+
+static uint64_t diag_of_idx(idx_t n)
+{
+    /* Find least t such that t*(t+1)/2 >= n  (n>=1). */
+    uint64_t low = 0, high = 1;
+    /* grow high until it satisfies the condition */
+    while ((unsigned __int128)high * (high + 1) / 2 < (unsigned __int128)n)
+        high <<= 1;
+    /* binary search */
+    while (low + 1 < high) {
+        uint64_t mid = low + (high - low) / 2;
+        if ((unsigned __int128)mid * (mid + 1) / 2 >= (unsigned __int128)n)
+            high = mid;
+        else
+            low = mid;
+    }
+    return high;
+}
+
+static inline seq_t j_from_index(idx_t N)
+{
+    uint64_t t = diag_of_idx(N);                 /* diagonal number */
+    unsigned __int128 prev = (unsigned __int128)(t - 1) * t / 2; /* tri(t-1) */
+    uint64_t offset = N - (idx_t)prev;           /* 1-based offset in diag */
+    uint64_t j = t + 1 - offset;                 /* column index */
+    return (seq_t)j;
+}
 
 seq_t a(idx_t n)
 {

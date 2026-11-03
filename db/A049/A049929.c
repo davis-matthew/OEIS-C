@@ -10,13 +10,15 @@
  *            a(n)=∑_{i=1}^{n-1}a(i)-a(2^⌈log₂(n-1)⌉+2-n)
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 34, u64 n <= 66, u128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 3312 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *val = NULL;       /* values a(1),a(2),… */
 static seq_t *pre = NULL;       /* prefix sums pre[i]=∑_{j=1}^{i}a(j) */
@@ -34,8 +36,8 @@ static void ensure_capacity(idx_t n)
         newcap <<= 1;
 
     /* reallocate val */
-    val = (seq_t*)realloc(val, newcap * sizeof(seq_t));
-    pre = (seq_t*)realloc(pre, newcap * sizeof(seq_t));
+    val = mem_resize(seq_t, val, newcap);
+    pre = mem_resize(seq_t, pre, newcap);
 
     /* zero new entries to avoid garbage during subtraction */
     for (size_t i = cap; i < newcap; ++i) {

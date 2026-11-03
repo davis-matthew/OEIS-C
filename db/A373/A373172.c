@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 1304, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   remove_zero_digits
+ * Validated: standard, pass, 72 terms through n = 9944 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,35 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/remove_zero_digits.h"
+#include "../utils/mem.h"
+
+/* Helper: remove all zero digits from an integer. */
+static seq_t remove_zero_digits(seq_t x)
+{
+    if (x == 0)
+        return 0;  /* By convention, zero becomes zero. */
+
+    /* Collect digits in reverse order. The maximum length needed for
+       the sequence values encountered up to n=10000 is well below 256,
+       so a fixed-size buffer suffices. */
+    unsigned char digits[256];
+    int len = 0;
+    seq_t t = x;
+    while (t != 0) {
+        unsigned d = (unsigned)(t % (seq_t)10);
+        digits[len++] = (unsigned char)d;
+        t /= (seq_t)10;
+    }
+
+    /* Reconstruct the number, skipping zero digits. */
+    seq_t result = 0;
+    for (int i = len - 1; i >= 0; --i) {
+        unsigned d = digits[i];
+        if (d != 0)
+            result = result * (seq_t)10 + (seq_t)d;
+    }
+    return result;
+}
 
 /* Forward declaration of seq_t and idx_t types (supplied by the build). */
 
@@ -37,9 +66,9 @@ seq_t a(idx_t n)
     /* Expand cache if necessary. */
     if (n > computed) {
         size_t new_cap = (size_t)(n + 1);          /* Need indices 0..n. */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {  /* Allocation failed; return 0. */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             computed = 0;
             return 0;

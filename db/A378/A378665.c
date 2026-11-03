@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, changed
  * Formula:   not stated
- * Range:     u8 n <= 255, u16 n <= 8756, u32 n <= 8756, u64 n <= 8756,
- *            u128 n <= 8756, big any n
- * Helpers:   factor_u64, search_divs
+ * Range:     u8 n <= 255, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 100 terms through n = 8756 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,43 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/factor_u64.h"    /* provides factor_u64 */
-#include "../utils/search_divs.h"
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+
+/* Recursive search for the maximum non‑abundant divisor.
+   primes[] and exps[] hold the prime factorisation of n.
+   curr_d      current divisor value (≤ n).
+   curr_sigma  current value of σ(curr_d).
+   best        pointer to the best divisor found so far. */
+static void search_divs(const uint64_t *primes, const uint64_t *exps,
+                        size_t cnt, size_t idx, uint64_t curr_d,
+                        uint64_t curr_sigma, uint64_t *best)
+{
+    if (idx == cnt) {
+        /* At a leaf: test whether d is non‑abundant. */
+        uint64_t limit = curr_d * 2ULL;          /* 2·d  */
+        if (curr_sigma <= limit && curr_d > *best)
+            *best = curr_d;
+        return;
+    }
+
+    uint64_t p   = primes[idx];
+    uint64_t emax = exps[idx];
+    uint64_t pow   = 1;          /* p^e */
+    uint64_t sum_p   = 1;        /* 1 + p + ... + p^e */
+
+    for (uint64_t e = 0; e <= emax; ++e) {
+        /* Recurse with the current exponent e. */
+        search_divs(primes, exps, cnt, idx + 1,
+                    curr_d * pow, curr_sigma * sum_p, best);
+
+        /* Prepare for the next exponent.  Skip update after last loop. */
+        if (e < emax) {
+            pow   *= p;
+            sum_p += pow;
+        }
+    }
+}
 
 /* Public sequence function required by the build system. */
 seq_t a(idx_t n)

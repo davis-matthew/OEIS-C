@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   is_nonprime_digit
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,11 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_nonprime_digit.h"
+
+/* Test if a decimal digit is non‑prime (digits whose value is not 2,3,5,7). */
+static inline bool is_nonprime_digit(int d) {
+    return d==0 || d==1 || d==4 || d==6 || d==8 || d==9;
+}
 
 /* Count the number of non‑prime digits in the base‑10 representation of n. */
 static uint64_t count_nonprime_digits(uint64_t n) {

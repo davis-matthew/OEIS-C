@@ -12,8 +12,9 @@
  *            is a primitive cube root of unity. The w‑part is computed by
  *            accumulating contributions of each digit: – digit 2 contributes
  *            (+1)·(–2)^k to the w‑part, – digit 3 contribute...
- * Range:     i8 n <= 9562, i16 n <= 9562, i32 n <= 9562, i64 n <= 9562,
- *            i128 n <= 9562, big any n
+ * Range:     i8 n <= 16383, i16 n <= 16383, i32 n <= 16383, i64 n <= 16383,
+ *            i128 n <= 16383, big any n
+ * Validated: standard, pass, 92 terms through n = 9562 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

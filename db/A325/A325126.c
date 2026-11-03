@@ -10,9 +10,10 @@
  *            uses a fixed-size cache for all n up to MAX_N, * so that
  *            repeated calls (in any order) are fast. The cache array * is
  *            statically allocated, which works for both standard C...
- * Range:     i8 n <= 128, i16 n <= 9798, i32 n <= 9798, i64 n <= 9798,
- *            i128 n <= 9798, big any n
- * Helpers:   factor_u64, rad
+ * Range:     i8 n <= 128, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 76 terms through n = 9798 (2026-11-01)
+ * Helpers:   factor_u64, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/rad.h"
+#include "../utils/radical.h"
 
 /* --------------------------------------------------------------------- */
 /*  Cache for computed values                                            */
@@ -74,7 +76,7 @@ static seq_t a_compute(idx_t n)
             idx_t d = divisors[i];
             if (d == n)
                 continue;
-            seq_t rad_val = rad((idx_t)(n / d));
+            seq_t rad_val = radical((idx_t)(n / d));
             seq_t a_d = a_compute(d);
             result += rad_val * a_d;
         }

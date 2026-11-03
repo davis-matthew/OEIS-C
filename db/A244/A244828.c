@@ -10,12 +10,14 @@
  *            Sₖ ≤ 2k+t where t = ⌊√(8k)⌋
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root of an unsigned 64‑bit integer.  */
 static inline idx_t isqrt_u64(idx_t x)
@@ -40,10 +42,10 @@ seq_t a(idx_t n)
     idx_t maxSum = 4 * n;
 
     /* allocate two arrays for dynamic programming */
-    seq_t *dp_prev = (seq_t *)calloc(maxSum + 1, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, maxSum + 1);
     if (!dp_prev) return 0;
-    seq_t *dp_curr = (seq_t *)calloc(maxSum + 1, sizeof(seq_t));
-    if (!dp_curr) { free(dp_prev); return 0; }
+    seq_t *dp_curr = mem_new(seq_t, maxSum + 1);
+    if (!dp_curr) { mem_free(dp_prev); return 0; }
 
     dp_prev[0] = 1;                      /* empty prefix has sum 0 */
     idx_t prev_lower = 0, prev_upper = 0;
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
         total += dp_prev[i];
     }
 
-    free(dp_prev);
-    free(dp_curr);
+    mem_free(dp_prev);
+    mem_free(dp_curr);
     return total;
 }

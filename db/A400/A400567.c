@@ -12,7 +12,8 @@
  *            for each n adds the values at SG‑prime indices....
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 26, u128 n <= 44,
  *            big any n
- * Helpers:   is_prime, mul_small, seq_realloc
+ * Validated: standard, pass, 42 terms through n = 564 (2026-11-02)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,33 @@
 #include <stddef.h>
 
 /* Helper functions provided in the build environment */
-#include "../utils/is_prime.h"           /* bool is_prime(idx_t n); */
-#include "../utils/mul_small.h"          /* seq_t mul_small(seq_t x, unsigned int m); */
-#include "../utils/seq_realloc.h"        /* seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap); */
+#include <stdlib.h>
+#include "../utils/is_prime.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {

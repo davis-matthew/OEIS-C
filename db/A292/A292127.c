@@ -9,7 +9,8 @@
  *            non‑perfect‑power number
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   pow_eq
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_eq.h"
+#include "../utils/mem.h"
+
+static bool pow_eq(idx_t x, idx_t k, idx_t n)
+{
+    idx_t prod = 1;
+    for (idx_t i = 0; i < k; ++i) {
+        if (prod > n / x) return false;
+        prod *= x;
+    }
+    return prod == n;
+}
 
 /* ----- integer sqrt for idx_t ------------------------------------- */
 static idx_t isqrt_u64(idx_t n)
@@ -111,8 +122,8 @@ static void ensure_cache_upto(idx_t n)
     if (n < cache_size) return;
 
     idx_t new_size = n + 1;
-    seq_t *new_cache = a_cache ? (seq_t*)realloc(a_cache, new_size * sizeof(seq_t))
-                               : (seq_t*)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = a_cache ? mem_resize(seq_t, a_cache, new_size)
+                               : mem_new(seq_t, new_size);
     if (!new_cache) abort();
 
     if (!a_cache) {

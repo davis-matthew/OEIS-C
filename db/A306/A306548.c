@@ -11,6 +11,7 @@
  *            convention 0^0=0 * is used in the definition of T
  * Range:     u8 n <= 37, u16 n <= 70, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

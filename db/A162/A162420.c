@@ -11,7 +11,8 @@
  *            a(n)*n = Σ_{k=1}^{n} k*b(k)*a(n-k) with b(k)...
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   _floor_isqrt_u64, seq_alloc_array, seq_free
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_alloc_array.h"   /* seq_alloc_array(size_t) -> seq_t* */
-#include "../utils/seq_free.h"          /* seq_free(seq_t *) */
-#include "../utils/_floor_isqrt_u64.h"  /* _floor_isqrt_u64(idx_t) */
+#include <stddef.h>
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 static seq_t *sigma_arr  = NULL;      /* sigma(k) for 1..N       */
 static seq_t *absT_arr  = NULL;      /* |A002129(k)| for 1..N   */
@@ -36,7 +45,7 @@ static void build_tri_flags(idx_t n)
     unsigned char *flags = (unsigned char *)malloc((n + 1) * sizeof(unsigned char));
     for (idx_t i = 0; i <= n; ++i) {
         unsigned long long v = 8ULL * i + 1;
-        unsigned long long r = _floor_isqrt_u64(v);
+        unsigned long long r = isqrt(v);
         flags[i] = (r * r == v) ? 1 : 0;
     }
     free(tri_flag);
@@ -53,7 +62,7 @@ static void build_sigma(idx_t n)
             s[j] = s[j] + (seq_t)i;
         }
     }
-    free(sigma_arr);
+    mem_free(sigma_arr);
     sigma_arr = s;
 }
 
@@ -74,7 +83,7 @@ static void build_absT(idx_t n)
         tmp[m] = val - sum;
         arr[m] = (tmp[m] >= 0) ? (seq_t)tmp[m] : (seq_t)(-tmp[m]);
     }
-    free(absT_arr);
+    mem_free(absT_arr);
     absT_arr = arr;
     free(tmp);
 }
@@ -86,7 +95,7 @@ static void build_b(idx_t n)
     for (idx_t i = 1; i <= n; ++i) {
         b[i] = sigma_arr[i] * absT_arr[i];
     }
-    free(b_arr);
+    mem_free(b_arr);
     b_arr = b;
 }
 
@@ -102,7 +111,7 @@ static void build_a(idx_t n)
         }
         a[i] = sum / (seq_t)i;
     }
-    free(a_arr);
+    mem_free(a_arr);
     a_arr = a;
 }
 

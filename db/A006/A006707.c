@@ -7,12 +7,14 @@
  * Formula:   eta(2z)^11*eta(3z)^13/(eta(z)^7*eta(6z)^17)
  * Range:     i8 n <= 4, i16 n <= 19, i32 n <= 38, i64 n <= 38, i128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t *coeff = NULL;
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     idx_t needed_len = index + 1;
     if (needed_len > coeff_len) {
         idx_t new_len = needed_len + 100;
-        seq_t *new_coeff = (seq_t *)realloc(coeff, (size_t)new_len * sizeof(seq_t));
+        seq_t *new_coeff = mem_resize(seq_t, coeff, (size_t)new_len);
         if (!new_coeff) return 0;
         
         for (idx_t i = coeff_len; i < new_len; i++) {

@@ -7,6 +7,7 @@
  * Formula:   a(n) = 0 for n <= 5; a(2k) = k^2-5k+7; a(2k+1) = (k-2)(k-1)/2
  * Range:     u8 n <= 37, u16 n <= 517, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 68 terms through n = 9248 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

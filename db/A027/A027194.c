@@ -12,13 +12,15 @@
  *            dynamic programming on partitions with parts >= 2
  * Range:     u8 n <= 28, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *dp_even = NULL;          /* partitions into an even number of parts */
@@ -31,10 +33,10 @@ static void compute_dp(idx_t target)
 {
     /* realloc if needed */
     if (target + 1 > dp_size) {
-        free(dp_even);
-        free(dp_odd);
-        dp_even = (seq_t *)malloc((target + 1) * sizeof(seq_t));
-        dp_odd  = (seq_t *)malloc((target + 1) * sizeof(seq_t));
+        mem_free(dp_even);
+        mem_free(dp_odd);
+        dp_even = mem_new(seq_t, (target + 1));
+        dp_odd  = mem_new(seq_t, (target + 1));
         dp_size = target + 1;
         max_computed = 0;   /* will be recomputed below */
     }

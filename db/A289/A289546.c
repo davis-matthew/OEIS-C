@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 40, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   flat_to_rc, seq_mul
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,28 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_mul.h"
-#include "../utils/flat_to_rc.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* convert flattened index n to triangle coordinates (row, col) */
+static void flat_to_rc(idx_t flat, idx_t *row, idx_t *col)
+{
+    idx_t r = 0;
+    idx_t total = 0;
+    /* find smallest r where total + r + 1 > flat */
+    while (total + r + 1 <= flat) {
+        total += r + 1;
+        ++r;
+    }
+    *row = r;
+    *col = flat - total;
+}
 
 /* static storage for Gaussian binomials and flags */
 static seq_t **gbinom_rows = NULL;  /* gbinom_rows[n][k] = GaussianBinom(n,k) */
@@ -45,12 +66,12 @@ static size_t T_rows_cap = 0;   /* number of rows prepared */
 static void ensure_pow2(idx_t upto)
 {
     if (pow2 == NULL) {
-        pow2 = (seq_t*)calloc(1, sizeof(seq_t));
+        pow2 = mem_new(seq_t, 1);
         pow2[0] = (seq_t)1;
         pow2_cap = 1;
     }
     for (idx_t i = pow2_cap; i <= upto; ++i) {
-        pow2 = (seq_t*)realloc(pow2, (size_t)(i + 1) * sizeof(seq_t));
+        pow2 = mem_resize(seq_t, pow2, (size_t)(i + 1));
         pow2[i] = seq_mul(pow2[i - 1], (seq_t)2);
     }
     pow2_cap = upto + 1;
@@ -61,13 +82,13 @@ static void ensure_gbinom(idx_t upto)
 {
     if (gbinom_rows == NULL) {
         gbinom_rows = (seq_t**)calloc(1, sizeof(seq_t*));
-        gbinom_rows[0] = (seq_t*)calloc(1, sizeof(seq_t));
+        gbinom_rows[0] = mem_new(seq_t, 1);
         gbinom_rows[0][0] = (seq_t)1;
         gbinom_rows_cap = 1;
     }
     ensure_pow2(upto);
     for (idx_t n = gbinom_rows_cap; n <= upto; ++n) {
-        seq_t *row = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)n + 1);
         row[0] = (seq_t)1;
         row[n] = (seq_t)1;
         for (idx_t k = 1; k < n; ++k) {
@@ -86,13 +107,13 @@ static void ensure_T(idx_t upto)
 {
     if (T_rows == NULL) {
         T_rows = (seq_t**)calloc(1, sizeof(seq_t*));
-        T_rows[0] = (seq_t*)calloc(1, sizeof(seq_t));
+        T_rows[0] = mem_new(seq_t, 1);
         T_rows[0][0] = (seq_t)1;
         T_rows_cap = 1;
     }
     ensure_gbinom(upto);
     for (idx_t n = T_rows_cap; n <= upto; ++n) {
-        seq_t *row = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)n + 1);
         if (n == 0) {
             row[0] = (seq_t)1;
         } else {

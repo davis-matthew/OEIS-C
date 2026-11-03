@@ -10,7 +10,8 @@
  *            when the next prime found is at most 6 greater
  * Range:     u8 n <= 47, u16 n <= 3097, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9495 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* static storage for the list of qualifying primes */
 static seq_t *qual = NULL;
@@ -65,8 +67,7 @@ seq_t a(idx_t n) {
                     /* Ensure capacity for the qualifying primes array */
                     if (qual_len == qual_cap) {
                         qual_cap = (qual_cap ? qual_cap * 2 : 8);
-                        qual = (seq_t*)realloc(qual,
-                                                qual_cap * sizeof(seq_t));
+                        qual = mem_resize(seq_t, qual, qual_cap);
                     }
                     qual[qual_len++] = (seq_t)prev;
                 }

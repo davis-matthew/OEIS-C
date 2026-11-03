@@ -7,6 +7,7 @@
  * Formula:   a(n) = ∏_{k|n} (n+1-k)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 29, u64 n <= 71, u128 n <= 239,
  *            big any n
+ * Validated: standard, pass, 56 terms through n = 1853 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

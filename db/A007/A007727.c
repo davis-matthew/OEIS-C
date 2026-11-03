@@ -7,14 +7,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n} μ(n/d) * C(2d, d) where μ is the Möbius
  *            function
- * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 15, u64 n <= 24, u128 n <= 24,
+ * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 static int moebius(idx_t n) {
     if (n == 1) return 1;
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
     for (idx_t d = 1; d * d <= n; d++) {
         if (n % d == 0) {
             int mu = moebius(n / d);
-            seq_t binom_coeff = binom(2 * d, d);
+            seq_t binom_coeff = binomial(2 * d, d);
             if (mu > 0) {
                 result += binom_coeff;
             } else if (mu < 0) {
@@ -57,7 +59,7 @@ seq_t a(idx_t n) {
             if (d != n / d) {
                 idx_t d2 = n / d;
                 mu = moebius(n / d2);
-                binom_coeff = binom(2 * d2, d2);
+                binom_coeff = binomial(2 * d2, d2);
                 if (mu > 0) {
                     result += binom_coeff;
                 } else if (mu < 0) {

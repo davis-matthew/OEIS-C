@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n, (n/d) mod 4 == 3} d^4
  * Range:     u8 n <= 11, u16 n <= 47, u32 n <= 767, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   enumerate_divs_rec
+ * Validated: standard, pass, 73 terms through n = 8366 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,34 @@
 /* Uses only standard headers and a simple trial‑division factorization. */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/enumerate_divs_rec.h"
+
+/* Recursively enumerate all divisors of n using the prime factorization
+   stored in arrays 'pr' and 'exp'.  For each divisor d, if the
+   complementary divisor e = n/d satisfies e % 4 == 3, add d^4 to *sum. */
+static void
+enumerate_divs_rec(uint64_t n, uint64_t cur, size_t idx,
+                  const uint64_t *pr, const uint64_t *exp, size_t cnt,
+                  seq_t *sum)
+{
+    if (idx == cnt) {
+        uint64_t e = n / cur;
+        if ((e & 3ULL) == 3ULL) {          /* e % 4 == 3 */
+            seq_t d   = (seq_t)cur;
+            seq_t d2  = d * d;             /* d^2 */
+            seq_t d4  = d2 * d2;           /* d^4 */
+            *sum += d4;
+        }
+        return;
+    }
+
+    uint64_t p = pr[idx];
+    uint64_t mult = 1ULL;
+    for (uint64_t e = 0; e <= exp[idx]; ++e) {
+        enumerate_divs_rec(n, cur * mult, idx + 1,
+                           pr, exp, cnt, sum);
+        mult *= p;
+    }
+}
 
 /* Factor n into primes and exponents in arrays 'pr' and 'exp'.
    The number of distinct prime factors is written to *cnt. */

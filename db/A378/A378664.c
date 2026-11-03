@@ -8,9 +8,10 @@
  * Keywords:  nonn
  * Formula:   Greatest divisor d of n such that sigma(d) <= 2*d < A003961(d),
  *            or 1 if no such divisor exists
- * Range:     u8 n <= 62, u16 n <= 9995, u32 n <= 9995, u64 n <= 9995,
- *            u128 n <= 9995, big any n
- * Helpers:   _smallest_prime_factor, next_prime
+ * Range:     u8 n <= 62, u16 n <= 65534, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 108 terms through n = 9995 (2026-11-01)
+ * Helpers:   next_prime, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 /* Include helper headers */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
 #include "../utils/next_prime.h"
+#include "../utils/smallest_prime_factor.h"
 
 /* Recursive helper to enumerate all divisors of n. */
 static void rec_helper(int idx, seq_t cur_d, seq_t *best_d,
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
 
     if (temp > 1) {
         while (temp > 1) {
-            uint64_t p = _smallest_prime_factor(temp);
+            uint64_t p = smallest_prime_factor(temp);
             int cnt = 0;
             while (temp % p == 0) {
                 temp /= p;

@@ -8,13 +8,15 @@
  *            a(1)=-8, a(2)=20, a(3)=-16, a(4)=2, a(5)=0, a(6)=0, a(7)=0
  * Range:     i8 n <= 10, i16 n <= 14, i32 n <= 22, i64 n <= 39, i128 n <= 70,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 47 terms through n = 1406 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     idx_t r = n - 8;
     idx_t N = 2 * n - 9;
 
-    seq_t bin = binom(N, r);
+    seq_t bin = binomial(N, r);
     seq_t val = (bin * ((seq_t)8)) / ((seq_t)n);
     return -val;
 }

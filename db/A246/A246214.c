@@ -12,7 +12,8 @@
  *            C(n‑1,k‑1) · comp_m(k) · f_m(n‑k), with comp_m(k)...
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 33 terms through n = 197 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,20 +24,23 @@
 #include <string.h>     /* memset, memcpy */
 
 /* Helper function for huge exponentiation:  base^exp  (exp fits in idx_t).  */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Utility: Create an array of seq_t, zero initialized */
 static seq_t *seq_alloc(size_t sz)
 {
-    seq_t *p = (seq_t *)malloc(sz * sizeof(seq_t));
-    if (p) memset(p, 0, sz * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, sz);
+    if (p) mem_set(p, 0, sz * sizeof(seq_t));
     return p;
 }
 
 /* Utility: Reallocate an array of seq_t, extend to new size */
 static seq_t *seq_realloc(seq_t *p, size_t new_sz)
 {
-    return (seq_t *)realloc(p, new_sz * sizeof(seq_t));
+    return mem_resize(seq_t, p, new_sz);
 }
 
 /* Global state for factorials */
@@ -47,8 +51,8 @@ static void ensure_fact(idx_t N)
     if (N <= fact_cap) return;
     seq_t *new_fact = seq_alloc(N + 1);
     if (fact) {
-        memcpy(new_fact, fact, (fact_cap + 1) * sizeof(seq_t));
-        free(fact);
+        mem_copy(new_fact, fact, (fact_cap + 1) * sizeof(seq_t));
+        mem_free(fact);
     }
     new_fact[0] = 1;
     for (idx_t i = 1; i <= N; ++i) {
@@ -72,7 +76,7 @@ static void ensure_comp(comp_state *st, idx_t m, idx_t N)
 {
     if (st->cap >= N && st->m == m) return;
     /* free previous data if any */
-    if (st->arr) free(st->arr);
+    if (st->arr) mem_free(st->arr);
     st->arr = seq_alloc(N + 1);
     st->cap = N;
     st->m = m;
@@ -91,7 +95,7 @@ static void ensure_comp(comp_state *st, idx_t m, idx_t N)
                 /* j! */
                 seq_t term = comb * fact[j];
                 /* power k^{k-j-1} */
-                seq_t powv = big_pow((seq_t)k, (idx_t)(k - j - 1));
+                seq_t powv = ipow((seq_t)k, (idx_t)(k - j - 1));
                 term = term * powv;
                 sum += term;
             } else { /* j == k */
@@ -117,7 +121,7 @@ static void ensure_f(f_state *st, const comp_state *comp, idx_t N)
 {
     if (st->cap >= N && st->m == comp->m) return;
 
-    if (st->arr) free(st->arr);
+    if (st->arr) mem_free(st->arr);
     st->arr = seq_alloc(N + 1);
     st->cap = N;
     st->m = comp->m;

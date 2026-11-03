@@ -6,15 +6,16 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = sigma(n) - d(n) where sigma(n)=sum of divisors,
  *            d(n)=number of divisors
- * Range:     u8 n <= 107, u16 n <= 9709, u32 n <= 9709, u64 n <= 9709,
- *            u128 n <= 9709, big any n
- * Helpers:   seq_pow_uint64
+ * Range:     u8 n <= 107, u16 n <= 17639, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 85 terms through n = 9709 (2026-11-01)
+ * Helpers:   ipow_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow_uint64.h"
+#include "../utils/ipow_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t m = (uint64_t)n;

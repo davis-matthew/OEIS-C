@@ -10,13 +10,15 @@
  *            A001855(m) = sum_{j=1}^{m-1} (floor(log2(j))+1)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
 
 /* popcount for uint64_t using only bitwise ops */
 static int popcount64(uint64_t x) {
@@ -64,7 +66,7 @@ seq_t a(idx_t n) {
     unsigned __int128 before_m = (m == 1) ? 0 : count_terms_upto(m - 1);
 
     /* length of row m */
-    int row_len = floor_log2_uint64(m) + 1;
+    int row_len = ilog2(m) + 1;
 
     /* index offset within row */
     uint64_t k = n - (uint64_t)before_m - 1;   /* k fits in [0,row_len-1] */

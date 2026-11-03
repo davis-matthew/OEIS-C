@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial(27,n)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
+ * Validated: full, pass, 28 terms through n = 27 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

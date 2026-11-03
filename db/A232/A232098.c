@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = the largest m such that m! divides n^2 (A232098)
- * Range:     u8 n <= 7755, u16 n <= 7755, u32 n <= 7755, u64 n <= 7755,
- *            u128 n <= 7755, big any n
+ * Range:     u8 n <= 10080, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 103 terms through n = 7755 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Small prime table for checking primes up to a safe bound (2000). */

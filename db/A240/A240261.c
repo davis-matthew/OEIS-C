@@ -14,7 +14,8 @@
  *            northeast) (all sums mod 4)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 30, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 101 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     static seq_t prev[256];
     static seq_t next[256];
 
-    memset(prev, 0, sizeof(prev));
+    mem_set(prev, 0, sizeof(prev));
 
     /* ---- initial column (col = 0) ---- */
     for (int a0 = 0; a0 < 4; ++a0) {
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
 
     /* ---- process remaining columns (col = 1 … n‑1) ---- */
     for (idx_t col = 1; col < n; ++col) {
-        memset(next, 0, sizeof(next));
+        mem_set(next, 0, sizeof(next));
 
         for (int st = 0; st < 256; ++st) {
             seq_t ways = prev[st];
@@ -115,7 +117,7 @@ seq_t a(idx_t n)
             }
         }
 
-        memcpy(prev, next, sizeof(prev));
+        mem_copy(prev, next, sizeof(prev));
     }
 
     /* ---- final column: NE sum is 0 → bottom cell cannot be 1 ---- */

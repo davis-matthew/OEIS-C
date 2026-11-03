@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   _floor_isqrt_u64, distinct_digits_uint64
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,20 @@
    For n > 10 the value is zero because a decimal number cannot have more
    than ten distinct digits. */
 #include <stdint.h>
-#include "../utils/_floor_isqrt_u64.h"   /* for _floor_isqrt_u64 */
-#include "../utils/distinct_digits_uint64.h"
+#include "../utils/isqrt.h"
+
+static inline int distinct_digits_uint64(uint64_t x)
+{
+    uint16_t mask = 0;
+    while (x) {
+        int d = x % 10;
+        if (mask & (1 << d))
+            return 0;
+        mask |= (1 << d);
+        x /= 10;
+    }
+    return 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,10 +48,10 @@ seq_t a(idx_t n)
             uint64_t lower = pow10[d - 1];
             uint64_t upper = pow10[d] - 1ULL;
 
-            uint64_t start = _floor_isqrt_u64(lower);
+            uint64_t start = isqrt(lower);
             if (start * start < lower)
                 ++start;
-            uint64_t end   = _floor_isqrt_u64(upper);
+            uint64_t end   = isqrt(upper);
 
             seq_t c = 0;
             for (uint64_t m = start; m <= end; ++m) {

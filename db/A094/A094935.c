@@ -5,14 +5,16 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = (8*n+1)*a(n-1) - 64*(n-1)*a(n-2), a(0)=1, a(1)=9
- * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 14,
+ * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 292 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -22,10 +24,10 @@ seq_t a(idx_t n) {
     /* Ensure cache is large enough */
     if (n + 1 > cap) {
         idx_t newcap = n + 1;
-        seq_t *newcache = (seq_t*)malloc(newcap * sizeof(seq_t));
+        seq_t *newcache = mem_new(seq_t, newcap);
         if (!newcache) return 0;          /* unlikely in test harness */
         for (idx_t i = 0; i < cap; ++i) newcache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = newcache;
         cap = newcap;
     }

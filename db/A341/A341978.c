@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 125, u16 n <= 372, u32 n <= 3484, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 89 terms through n = 9655 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,14 +35,14 @@ seq_t a(idx_t n)
     size_t needed_cols = (size_t)n + 1;
     if (needed_cols > dp_cols) {
         size_t new_cols = needed_cols;
-        seq_t *new_dp = (seq_t *)realloc(dp, (K + 1) * new_cols * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, (K + 1) * new_cols);
         if (!new_dp) return 0;                     /* allocation failure */
         dp = new_dp;
         dp_cols = new_cols;
     }
 
     /* Clear the dp array (except dp[0][0]) */
-    memset(dp, 0, (K + 1) * dp_cols * sizeof(seq_t));
+    mem_set(dp, 0, (K + 1) * dp_cols * sizeof(seq_t));
     dp[0 * dp_cols + 0] = 1;                    /* dp[0][0] = 1 */
 
     /* Retrieve all primes up to n (excluding 1) */

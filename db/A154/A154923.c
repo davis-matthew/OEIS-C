@@ -13,13 +13,15 @@
  *            polynomial of degree k
  * Range:     u8 n <= 11, u16 n <= 30, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 static seq_t **_rows  = NULL;  /* array of rows, each row is a seq_t* */
@@ -32,7 +34,7 @@ static void _ensure_rows(idx_t n) {
         idx_t j   = _num_rows;      /* index of new row */
         idx_t len = j + 1;          /* number of coefficients */
 
-        seq_t *row = (seq_t*)calloc(len, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         row[0] = 1;                 /* Q_j[0] = 1 for all j */
 
         if (j > 0) {

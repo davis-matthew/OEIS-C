@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    a(12)=663272676512 */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* pre‑computed initial terms a(1) … a(12) – index 0 unused */
 static const seq_t init[13] = {
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* allocate memory if first use or if we need more space */
     if (!cache) {
         size_t init_cap = (size_t)(12 + 2);                  /* enough for up to index 12 */
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (!cache) return 0;   /* out of memory – unlikely in tests */
         max_cached = 12;
         for (idx_t i = 1; i <= 12; ++i)
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
 
     if (n > max_cached) {
         size_t new_cap = (size_t)(n + 2);                /* allow indexing by n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;   /* out of memory – unlikely */
         cache = tmp;
         for (idx_t i = max_cached + 1; i <= n; ++i) {

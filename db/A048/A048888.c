@@ -9,18 +9,20 @@
  *            F_k(k-1)=1, * F_k(i)=∑_{t=1}^{k} F_k(i-t) for i ≥ k
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;               /* a(0) = 0 */
     seq_t result = 0;
     /* Allocate workspace for a single k‑step Fibonacci sequence */
-    seq_t *f = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (n + 1));
     if (!f) return 0;                  /* fallback on allocation failure */
 
     for (idx_t k = 2; k <= n + 1; ++k) {
@@ -43,6 +45,6 @@ seq_t a(idx_t n) {
         result += f[n];                /* add F_k(n) to answer */
     }
 
-    free(f);
+    mem_free(f);
     return result;
 }

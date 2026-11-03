@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 10, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The integer types seq_t and idx_t are defined by the build. */
 /* static seq_t a(idx_t n) is declared elsewhere; here we provide the definition. */
@@ -58,13 +60,13 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* allocate space for at least n+1 elements, but keep at least 7 */
         cached_cap = (n >= 7) ? (n + 1) : 7;
-        cache = (seq_t *)malloc(cached_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cached_cap);
         if (!cache) exit(1);          /* out of memory */
         for (idx_t i = 0; i < 7; ++i) cache[i] = init7[i];
     } else if (n + 1 > cached_cap) {
         idx_t new_cap = cached_cap * 2;
         if (new_cap < n + 1) new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);
         cache = tmp;
         cached_cap = new_cap;

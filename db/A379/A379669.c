@@ -12,7 +12,8 @@
  *            whenever a larger index is requested. This runs in O(n ·...
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 none,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the recursive enumeration routine. */
 static void dfs_rec(idx_t limit, seq_t *cnt, idx_t min_val, idx_t sum, seq_t prod);
@@ -33,7 +35,7 @@ static void recompute_counts_upto(idx_t N)
 {
     /* Allocate a new zero‑initialised array of size N+1. */
     size_t sz = (size_t)N + 1;
-    seq_t *new_counts = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *new_counts = mem_new(seq_t, sz);
     if (!new_counts)
         return; /* Allocation failure – leave cache empty. */
 
@@ -44,7 +46,7 @@ static void recompute_counts_upto(idx_t N)
     dfs_rec(N, new_counts, (idx_t)2, (idx_t)0, (seq_t)1);
 
     /* Replace the old cached array (freeing it first). */
-    free(cached_counts);
+    mem_free(cached_counts);
 
     cached_counts = new_counts;
     cached_max    = N;

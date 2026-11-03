@@ -10,12 +10,14 @@
  *            where x is a single digit.)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The return type is seq_t, and the index type is idx_t.  Do not modify.
    The following static variables are used for memoising the sequence. */
@@ -28,8 +30,7 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache if necessary.  The array must have
        at least n+1 slots (indices 0..n). */
     if (cache_cap <= (size_t)n) {
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      ((size_t)n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, ((size_t)n + 1));
         if (!tmp) return (seq_t)0;      /* out‑of‑memory; unlikely here   */
         cache     = tmp;
         cache_cap = (size_t)n + 1;

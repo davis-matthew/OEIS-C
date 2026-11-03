@@ -11,7 +11,8 @@
  *            to enforce b ≤ log n₀
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const idx_t ceil_e_pow[45] = {
     1ULL, 3ULL, 8ULL, 21ULL, 55ULL, 149ULL, 404ULL, 1097ULL, 2981ULL, 8104ULL,
@@ -46,7 +48,7 @@ static void ensure_capacity_seq(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap < needed)
         new_cap *= 2;
-    term_cache = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+    term_cache = mem_resize(seq_t, term_cache, new_cap);
     cache_cap = new_cap;
 }
 

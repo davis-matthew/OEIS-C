@@ -8,13 +8,28 @@
  *            inversion of f(d) = ((-2)^d - 1)^2 = 4^d - 2*(-2)^d + 1
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 34, u128 n <= 67,
  *            big any n
- * Helpers:   qr_pow
+ * Validated: standard, pass, 41 terms through n = 884 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/qr_pow.h"
+
+/* floor(b^e / n) in seq_t (wrapping is harmless) and b^e mod n */
+static void qr_pow(idx_t n, long long b, idx_t e, seq_t *q, long long *r)
+{
+    seq_t Q = 0;
+    long long R = 1, nn = (long long)n;
+    idx_t i;
+    for (i = 0; i < e; i++) {
+        R *= b;
+        Q = Q * (seq_t)b + (seq_t)(R / nn);
+        R %= nn;
+    }
+    *q = Q;
+    *r = R;
+}
 
 seq_t a(idx_t n)
 {

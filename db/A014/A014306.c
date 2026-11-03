@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = 0 if n = m(m+1)(m+2)/6 for some m >= 0, otherwise 1
- * Range:     u8 n <= 119, u16 n <= 7561, u32 n <= 7561, u64 n <= 7561,
- *            u128 n <= 7561, big any n
+ * Range:     u8 n <= 119, u16 n <= 7561, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 137 terms through n = 7561 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

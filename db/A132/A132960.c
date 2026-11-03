@@ -7,7 +7,8 @@
  * Formula:   a(n) = n!*Sum_{d|n} (-1)^(d+1)/(d!*(n/d)^d)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 35,
  *            big any n
- * Helpers:   big_pow, build_primes_upto, factor_u64
+ * Validated: standard, pass, 37 terms through n = 423 (2026-11-02)
+ * Helpers:   build_primes_upto, factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,14 +19,10 @@
 #include <stdlib.h>
 
 /* Utilities provided by the build system */
-#include "../utils/big_pow.h"       /* seq_t big_pow(seq_t base, seq_t exp);  */
-#include "../utils/build_primes_upto.h" /* void build_primes_upto(idx_t limit,
-                                               uint64_t **primes_out,
-                                               size_t *cnt_out);   */
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n,
-                                         uint64_t *primes,
-                                         uint64_t *exps,
-                                         size_t *cnt);        */
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 /* Static cache of primes up to the largest n we have seen so far.  */
 static uint64_t *prime_list = NULL;  /* actual prime values */
@@ -150,7 +147,7 @@ seq_t a(idx_t n)
                            - (idx_t)d * exp_in_number(m, p);
 
             if (e > 0)
-                term = term * big_pow((seq_t)p, (seq_t)e);
+                term = term * ipow((seq_t)p, (seq_t)e);
         }
 
         /* Add or subtract the term depending on parity of d */

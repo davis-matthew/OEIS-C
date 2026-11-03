@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 18, i32 n <= 32, i64 n <= 38, i128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
             - ∑_{i=2}^{k-1} a_i * a_{n-i} ) / 2,
    with a_1 = 1. This recursion generates the sequence. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *a = NULL;
@@ -30,14 +32,14 @@ seq_t a(idx_t n) {
 
     /* initialise a[1] */
     if (size < 1) {
-        a = (seq_t *)malloc(2 * sizeof(seq_t));
+        a = mem_new(seq_t, 2);
         a[1] = 1;
         size = 1;
     }
     if (n <= size) return a[n];
 
     /* grow array to contain n+1 entries (index 0 unused) */
-    a = (seq_t *)realloc(a, (n + 1) * sizeof(seq_t));
+    a = mem_resize(seq_t, a, (n + 1));
 
     for (idx_t k = size + 1; k <= n; ++k) {
         idx_t eqN = k + 1;          /* equation index */

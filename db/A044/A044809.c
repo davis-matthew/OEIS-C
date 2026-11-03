@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has96
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,24 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has96.h"
+#include "../utils/mem.h"
+
+/* check whether x (non‑negative) contains the decimal substring 96 */
+static bool has96(seq_t x)
+{
+    if (x < 10)                 /* a single digit cannot contain "96" */
+        return false;
+    seq_t prev = x % 10;        /* least significant digit */
+    x /= 10;
+    while (x != 0) {
+        seq_t cur = x % 10;     /* next digit to the left */
+        if (cur == 9 && prev == 6)   /* forward order "96" (9 then 6) */
+            return true;
+        prev = cur;
+        x /= 10;
+    }
+    return false;
+}
 
 /* sequence generator for A044809 */
 seq_t a(idx_t n)
@@ -42,7 +60,7 @@ seq_t a(idx_t n)
             /* grow cache if needed */
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 64;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = next_k;
         }

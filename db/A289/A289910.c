@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 8, u64 n <= 10, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * a(1)=a(2)=2. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Euclidean GCD for seq_t */
 static seq_t local_gcd(seq_t a, seq_t b)
@@ -48,13 +50,13 @@ seq_t a(idx_t n)
         size_t new_cap = (size_t)n + 1; /* index 0 unused */
         if (num == NULL)
         {
-            num = (seq_t *)calloc(new_cap, sizeof(seq_t));
-            den = (seq_t *)calloc(new_cap, sizeof(seq_t));
+            num = mem_new(seq_t, new_cap);
+            den = mem_new(seq_t, new_cap);
         }
         else
         {
-            num = (seq_t *)realloc(num, new_cap * sizeof(seq_t));
-            den = (seq_t *)realloc(den, new_cap * sizeof(seq_t));
+            num = mem_resize(seq_t, num, new_cap);
+            den = mem_resize(seq_t, den, new_cap);
         }
         /* zero new cells to avoid undefined values if accessed before set */
         for (size_t i = cap; i < new_cap; ++i)

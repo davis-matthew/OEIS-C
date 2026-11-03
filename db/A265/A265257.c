@@ -9,13 +9,15 @@
  *            4), 0 if m≡0 (mod 4)
  * Range:     u8 n <= 16, u16 n <= 41, u32 n <= 120, u64 n <= 394,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static state for cached values */
 static seq_t *p_vec = NULL;           /* partition numbers */
@@ -34,8 +36,8 @@ static void ensure_capacity(idx_t n)
     if (new_cap == 0) new_cap = 1;
     while (new_cap <= n) new_cap <<= 1;
 
-    p_vec = (seq_t *)realloc(p_vec, new_cap * sizeof(seq_t));
-    a_vec = (seq_t *)realloc(a_vec, new_cap * sizeof(seq_t));
+    p_vec = mem_resize(seq_t, p_vec, new_cap);
+    a_vec = mem_resize(seq_t, a_vec, new_cap);
 
     /* initialise new elements */
     for (idx_t i = cap; i < new_cap; ++i) {

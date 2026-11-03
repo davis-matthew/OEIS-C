@@ -9,7 +9,8 @@
  *            be written as a nonnegative linear combination of the others
  * Range:     u8 n <= 59, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   bit_clear
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/bit_clear.h"
+
+static inline void bit_clear(uint64_t *reach, int idx) {
+    reach[idx >> 6] &= ~(1ULL << (idx & 63));
+}
 
 static inline int  bit_get(const uint64_t *reach, int idx) {
     return (reach[idx >> 6] >> (idx & 63)) & 1ULL;

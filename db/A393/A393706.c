@@ -11,8 +11,9 @@
  *            the corresponding * diagonal and position, then find the k-th
  *            integer m in row r such that * the triangular number
  *            T(m)=m(m+1)/2 is a multiple of r
- * Range:     u8 n <= 511, u16 n <= 9491, u32 n <= 9491, u64 n <= 9491,
- *            u128 n <= 9491, big any n
+ * Range:     u8 n <= 511, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 94 terms through n = 9491 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

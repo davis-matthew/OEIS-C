@@ -11,7 +11,8 @@
  *            27*(9*n^2‑12*n‑2)*a(n‑2)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n) {
     /* Allocate space for the base cases if necessary */
     if (cache == NULL) {
         cache_cap = (n >= 2 ? n + 1 : 3);
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) exit(EXIT_FAILURE);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)2;
@@ -42,7 +44,7 @@ static void ensure_cache(idx_t n) {
         if (cache_cap <= (size_t)n) {
             size_t newcap = cache_cap > 0 ? cache_cap : 1;
             while (newcap <= (size_t)n) newcap <<= 1;
-            void *tmp = realloc(cache, newcap * sizeof(seq_t));
+            void *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp) exit(EXIT_FAILURE);
             cache = (seq_t*)tmp;
             cache_cap = newcap;

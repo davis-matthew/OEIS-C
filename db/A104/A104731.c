@@ -10,13 +10,29 @@
  *            r*(r+1)/2 (the column in that row)
  * Range:     u8 n <= 49, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   compute_row
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/compute_row.h"
+
+static inline idx_t compute_row(idx_t n) {
+    idx_t low = 0, high = n, r = 0;
+    while (low <= high) {
+        idx_t mid = low + ((high - low) >> 1);
+        __uint128_t tri = ((__uint128_t)mid * (mid + 1)) / 2;
+        if (tri <= n) {
+            r = mid;
+            low = mid + 1;
+        } else {
+            if (mid == 0) break;
+            high = mid - 1;
+        }
+    }
+    return r;
+}
 
 seq_t a(idx_t n) {
     /* Find row r and column k of the flattened triangle. */

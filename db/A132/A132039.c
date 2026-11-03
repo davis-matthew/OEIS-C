@@ -9,13 +9,15 @@
  *            >= 0 (nonlinear recurrence from OEIS A132039)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *a_seq = NULL;
@@ -27,24 +29,24 @@ seq_t a(idx_t n) {
     /* initial allocation for index 0 */
     if (a_seq == NULL) {
         a_cap = 1;
-        a_seq = (seq_t*)malloc(a_cap * sizeof(seq_t));
+        a_seq = mem_new(seq_t, a_cap);
         a_seq[0] = (seq_t)1;
     }
     if (fact == NULL) {
         fact_cap = 1;
-        fact = (seq_t*)malloc(fact_cap * sizeof(seq_t));
+        fact = mem_new(seq_t, fact_cap);
         fact[0] = (seq_t)1;
     }
 
     /* grow arrays if necessary */
     if ((size_t)n + 1 > a_cap) {
         size_t new_cap = (size_t)n + 1;
-        a_seq = (seq_t*)realloc(a_seq, new_cap * sizeof(seq_t));
+        a_seq = mem_resize(seq_t, a_seq, new_cap);
         a_cap = new_cap;
     }
     if ((size_t)n + 1 > fact_cap) {
         size_t new_cap = (size_t)n + 1;
-        fact = (seq_t*)realloc(fact, new_cap * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, new_cap);
         fact_cap = new_cap;
     }
 

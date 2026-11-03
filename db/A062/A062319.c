@@ -7,6 +7,7 @@
  * Formula:   a(n) = ∏_{p^e‖n} (1 + n·e) (OEIS A062319)
  * Range:     u8 n <= 11, u16 n <= 41, u32 n <= 329, u64 n <= 6929,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 70 terms through n = 9755 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,12 +10,15 @@
  *            integer floor.)
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
     seq_t three = (seq_t)3;
 
     /* 3^(n-2) is needed for all non‑trivial cases. */
-    seq_t pow_base = big_pow(three, (seq_t)(n - 2));
+    seq_t pow_base = ipow(three, (seq_t)(n - 2));
 
     /* When n is a multiple of 3 the correction term is zero. */
     if ((n % 3) == 0)
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
     /* Exponent for the correction term: ⌊(n-2)/2⌋ .
        This is an integer division in idx_t (unsigned). */
     idx_t small_exp = (n - 2) / 2;
-    seq_t pow_small = big_pow(three, (seq_t)small_exp);
+    seq_t pow_small = ipow(three, (seq_t)small_exp);
 
     /* k = ⌊n/3⌋  (integer division). */
     idx_t k = n / 3;

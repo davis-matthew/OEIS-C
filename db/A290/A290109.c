@@ -9,9 +9,10 @@
  * Formula:   a(1) = 1; for n > 1, a(n) = x1^(x2^(x3^(…))) where x1, x2, … are
  *            the exponents of the primes in the factorization of n, listed in
  *            ascending order of the primes
- * Range:     u8 n <= 1295, u16 n <= 8099, u32 n <= 9448, u64 n <= 9448,
- *            u128 n <= 9448, big any n
- * Helpers:   big_pow
+ * Range:     u8 n <= 1295, u16 n <= 8099, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 136 terms through n = 9448 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n <= 1)
@@ -48,7 +50,7 @@ seq_t a(idx_t n) {
     /* Evaluate the exponent tower from right to left. */
     seq_t result = (seq_t)exps[count - 1];
     for (int i = (int)count - 2; i >= 0; --i) {
-        result = big_pow((seq_t)exps[i], result);
+        result = ipow((seq_t)exps[i], result);
     }
     return result;
 }

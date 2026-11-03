@@ -13,6 +13,7 @@
  *            all of which must be positive. For each * triple it evaluate...
  * Range:     u8 n <= 1500, u16 n <= 1500, u32 n <= 1500, u64 n <= 1500,
  *            u128 n <= 1500, big any n
+ * Validated: standard, pass, 116 terms through n = 1411 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

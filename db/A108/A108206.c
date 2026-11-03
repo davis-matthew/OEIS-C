@@ -7,7 +7,8 @@
  * Formula:   a(n) = 3*(n-1)*a(n-1) + (n-1)*a(n-2) with a(0) = 0, a(1) = 1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* The function below caches previously computed terms so that
    subsequent calls with any order of indices remain fast. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* array of computed values */
 static idx_t  cache_len = 0;    /* number of valid entries in cache */
@@ -24,7 +26,7 @@ static void ensure_cache(idx_t idx) {
     if (cache_len > idx) return;
     idx_t new_len = (cache_len == 0) ? 16 : cache_len * 2;
     while (new_len <= idx) new_len *= 2;
-    cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_len);
     cache_len = new_len;
 }
 

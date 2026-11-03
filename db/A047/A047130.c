@@ -15,13 +15,15 @@
  *            y-1) to (x, y) * we have (4*y <= 3*x) OR (4*(y...
  * Range:     u8 n <= 81, u16 n <= 237, u32 n <= 718, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 1208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
      * small (≈140×140 for n≈10000) so this per-call allocation is fine.
      */
     size_t size = (size_t)(s + 1) * (s + 1);
-    seq_t *dp = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, size);
     if (!dp) return (seq_t)0;  /* return 0 on allocation failure */
 
     /* Compute T(h,k) for all 0 <= i,j <= s. */
@@ -76,6 +78,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)h * (s + 1) + k];
-    free(dp);
+    mem_free(dp);
     return result;
 }

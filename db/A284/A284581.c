@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   a(n) = n - A284579(n)
- * Range:     u8 n <= 260, u16 n <= 9625, u32 n <= 9625, u64 n <= 9625,
- *            u128 n <= 9625, big any n
+ * Range:     u8 n <= 260, u16 n <= 10922, u32 n <= 10922, u64 n <= 10922,
+ *            u128 n <= 10922, big any n
+ * Validated: standard, pass, 108 terms through n = 9625 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

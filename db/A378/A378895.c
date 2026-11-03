@@ -14,7 +14,8 @@
  *            recursively
  * Range:     u8 n <= 40, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cache to allow arbitrary‑order calls */
 static seq_t *cache   = NULL;   /* array of computed terms         */
@@ -61,14 +63,14 @@ seq_t a(idx_t n)
     /* Compute terms up to n if necessary */
     if ((idx_t)cache_len < n) {
         /* Allocate space for up to n terms */
-        seq_t *new_cache = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)n);
         if (new_cache == NULL)
             return 0;   /* out of memory -- unlikely for n ≤ 10000 */
 
         /* Copy previously computed terms */
         if (cache_len > 0) {
-            memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = new_cache;
 

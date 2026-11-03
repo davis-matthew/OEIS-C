@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 28, u32 n <= 37, u64 n <= 46, u128 n <= 56,
  *            big any n
- * Helpers:   inc_digits
+ * Validated: standard, pass, 55 terms through n = 97 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,45 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/inc_digits.h"
+#include "../utils/mem.h"
+
+/* increment each digit of x according to the definition */
+static seq_t inc_digits(const seq_t x)
+{
+    if (x == (seq_t)0)
+        return (seq_t)1;   /* 0 -> 1 */
+
+    /* Build reverse digit array */
+    size_t cap = 16;
+    uint8_t *digits = (uint8_t *)malloc(cap);
+    size_t len = 0;
+    seq_t tmp = x;
+
+    /* extract digits LSB first */
+    while (tmp != (seq_t)0)
+    {
+        if (len == cap) {
+            cap <<= 1;
+            digits = (uint8_t *)realloc(digits, cap);
+        }
+        digits[len++] = (uint8_t)(tmp % (seq_t)10);
+        tmp /= (seq_t)10;
+    }
+
+    /* Now process digits from most significant to least */
+    seq_t result = (seq_t)0;
+    for (int i = (int)len - 1; i >= 0; --i)
+    {
+        uint8_t d = digits[i];
+        if (d == 9)
+            result = result * (seq_t)100 + (seq_t)10;   /* append "10" */
+        else
+            result = result * (seq_t)10 + (seq_t)(d + 1);
+    }
+
+    free(digits);
+    return result;
+}
 
 static seq_t *seq_cache = NULL;   /* cache of computed terms */
 static size_t cache_size = 0;     /* number of entries stored */
@@ -35,14 +74,14 @@ seq_t a(idx_t n)
     /* Ensure cache exists and has space for index n */
     if (seq_cache == NULL) {
         cache_size  = 64;
-        seq_cache   = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        seq_cache   = mem_new(seq_t, cache_size);
         seq_cache[0] = (seq_t)0;   /* a(0) = 0 */
     }
     if (n >= (idx_t)cache_size) {
         /* grow cache to accommodate n */
         size_t new_size = cache_size;
         while (n >= (idx_t)new_size) new_size <<= 1;
-        seq_cache = (seq_t *)realloc(seq_cache, new_size * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_size);
         cache_size = new_size;
     }
 

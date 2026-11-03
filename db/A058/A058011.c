@@ -11,15 +11,18 @@
  *            1,4,6,8,27,…
  * Range:     u8 n <= 9, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   gcd, isPrime
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   gcd, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrime.h"   /* bool isPrime(idx_t x);            */
-#include "../utils/gcd.h"       /* seq_t gcd(seq_t a, seq_t b);      */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static storage to memoise results between calls. */
@@ -36,13 +39,13 @@ seq_t a(idx_t n) {
         /* Grow the cache array if it hasn't been allocated yet. */
         if (!cache) {
             cache_cap = 64;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
         }
         /* Extend cache until we have a(n). */
         while (cache_len <= n) {
             /* Find the next non‑prime number. */
             while (true) {
-                if (!isPrime(next_num)) {           /* non‑prime found   */
+                if (!is_prime(next_num)) {           /* non‑prime found   */
                     m_count++;                      /* index of current non‑prime */
                     seq_t val = (seq_t)next_num;
                     seq_t g   = gcd((seq_t)m_count, val);
@@ -50,8 +53,7 @@ seq_t a(idx_t n) {
                     if (g > prev_gcd) {             /* record new maximum */
                         if (cache_len == cache_cap) { /* grow cache */
                             cache_cap <<= 1;
-                            cache = (seq_t *)realloc(cache,
-                                                    cache_cap * sizeof(seq_t));
+                            cache = mem_resize(seq_t, cache, cache_cap);
                         }
                         cache[cache_len++] = val;
                         prev_gcd = g;

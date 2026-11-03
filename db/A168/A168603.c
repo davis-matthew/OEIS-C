@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    where b(k)=∑_{p+q=k} a(p)*a(q).  b is updated incrementally. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Sequence storage (static cache) */
 static seq_t *a_arr   = NULL;   /* a[i]            */
@@ -34,7 +36,7 @@ static void ensure_a(idx_t n)
 {
     if (n < cap_a) return;
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_a = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+    seq_t *new_a = mem_resize(seq_t, a_arr, new_cap);
     if (!new_a) abort();
     a_arr = new_a;
     for (idx_t i = cap_a; i < new_cap; ++i) a_arr[i] = (seq_t)0;
@@ -46,7 +48,7 @@ static void ensure_b(idx_t n)
 {
     if (n < cap_b) return;
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_b = (seq_t *)realloc(b_arr, new_cap * sizeof(seq_t));
+    seq_t *new_b = mem_resize(seq_t, b_arr, new_cap);
     if (!new_b) abort();
     b_arr = new_b;
     for (idx_t i = cap_b; i < new_cap; ++i) b_arr[i] = (seq_t)0;
@@ -58,7 +60,7 @@ static void ensure_pow2(idx_t n)
 {
     if (n < cap_pow) return;
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_pow = (seq_t *)realloc(pow2_arr, new_cap * sizeof(seq_t));
+    seq_t *new_pow = mem_resize(seq_t, pow2_arr, new_cap);
     if (!new_pow) abort();
     pow2_arr = new_pow;
     if (cap_pow == 0) pow2_arr[0] = (seq_t)1;

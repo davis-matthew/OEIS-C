@@ -7,6 +7,7 @@
  * Formula:   a(1)=1; for n>1, factor n=∏p^e, a(n)=∏(7*(p-3))^e; a(3k)=0
  * Range:     i8 n <= 7, i16 n <= 63, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 74 terms through n = 890 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

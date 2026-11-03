@@ -9,13 +9,15 @@
  *            min(b-1, n - b/2) with b = 2^⌊log2(n)⌋
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 27, u64 n <= 51, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 2235 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Finds floor(log2(v)) for v > 0 */
 static inline idx_t floor_log2(idx_t v) {
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
     /* initialize cache for n = 0 */
     if (cache == NULL) {
         cache_len = 1;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return (seq_t)0;   /* out of memory; return 0 */
         cache[0] = (seq_t)1;          /* a(0) = 1 */
         last_computed = 0;
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
         /* enlarge cache if necessary */
         if (n + 1 > cache_len) {
             idx_t new_len = n + 1;
-            seq_t *new_cache = (seq_t*)realloc(cache, sizeof(seq_t) * new_len);
+            seq_t *new_cache = mem_resize(seq_t, cache, new_len);
             if (!new_cache) return (seq_t)0;  /* realloc failed */
             cache = new_cache;
             cache_len = new_len;

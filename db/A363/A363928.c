@@ -7,7 +7,8 @@
  * Formula:   a(n) = (1/5) * Σ_{d|n, d≡3 (mod 5)} (d + 2)
  * Range:     u8 n <= 962, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 117 terms through n = 9234 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for the OEIS sequence A363928 */
 seq_t a(idx_t n)
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i)
         div_cnt *= (exps[i] + 1);
 
-    seq_t *divs = (seq_t *)malloc(div_cnt * sizeof(seq_t));
+    seq_t *divs = mem_new(seq_t, div_cnt);
     if (!divs)
         return 0;   /* allocation failure, unlikely */
 
@@ -98,6 +100,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(divs);
+    mem_free(divs);
     return sum / 5;
 }

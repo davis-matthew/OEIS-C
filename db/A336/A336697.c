@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = gcd(((2n-1)^2 + 1)/2, 1 + sigma((2n-1)^2))
- * Range:     u8 n <= 3, u16 n <= 21, u32 n <= 3781, u64 n <= 9767,
- *            u128 n <= 9767, big any n
- * Helpers:   gcd, pow_uint
+ * Range:     u8 n <= 3, u16 n <= 21, u32 n <= 3781, u64 n <= 16396,
+ *            u128 n <= 16396, big any n
+ * Validated: standard, pass, 121 terms through n = 9767 (2026-11-01)
+ * Helpers:   gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 static bool primes_built = false;
 static uint64_t primes[20000];
@@ -59,7 +60,7 @@ static seq_t sigma_of_odd_square(idx_t n) {
                 ++e;
             }
             /* contribution = (p^(2e+1)-1)/(p-1) */
-            seq_t num = pow_uint(p, 2 * e + 1);
+            seq_t num = ipow_u64_idx(p, 2 * e + 1);
             seq_t denom = p - 1;
             seq_t contrib = (num - 1) / denom;
             sigma *= contrib;
@@ -67,7 +68,7 @@ static seq_t sigma_of_odd_square(idx_t n) {
     }
     if (temp > 1) { /* remaining prime factor */
         uint64_t p = temp;
-        seq_t num = pow_uint(p, 3);          /* 2*1+1 = 3 */
+        seq_t num = ipow_u64_idx(p, 3);          /* 2*1+1 = 3 */
         seq_t denom = p - 1;
         seq_t contrib = (num - 1) / denom;
         sigma *= contrib;

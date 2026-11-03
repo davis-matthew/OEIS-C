@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   compute_divisor_counts
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/compute_divisor_counts.h"
+#include "../utils/mem.h"
+
+/* Compute divisor counts up to N (inclusive).  Returns a malloced
+   array of size N+1; element 0 is unused.  Caller must free it. */
+static uint32_t *compute_divisor_counts(size_t N)
+{
+    uint32_t *d = (uint32_t *)calloc(N + 1, sizeof(uint32_t));
+    if (!d) return NULL;                 /* allocation failure – highly unlikely */
+
+    for (size_t i = 1; i <= N; ++i) {
+        for (size_t j = i; j <= N; j += i) {
+            ++d[j];
+        }
+    }
+    return d;
+}
 
 /* Static cache state */
 static seq_t *cache      = NULL;   /* array of found terms */
@@ -54,7 +70,7 @@ static void ensure_cache(idx_t n)
         }
 
         /* Allocate cache for the newly found terms. */
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * count);
+        seq_t *new_cache = mem_new(seq_t, count);
         if (!new_cache) {
             free(divs);
             return;                      /* allocation failure – unlikely */
@@ -77,9 +93,9 @@ static void ensure_cache(idx_t n)
             limit = new_limit;
         } else {
             /* If we already had a cache, simply append the new terms. */
-            seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * (cache_len + count));
+            seq_t *tmp = mem_resize(seq_t, cache, (cache_len + count));
             if (!tmp) {                    /* allocation failure – unlikely */
-                free(new_cache);
+                mem_free(new_cache);
                 free(divs);
                 return;
             }
@@ -87,7 +103,7 @@ static void ensure_cache(idx_t n)
             for (size_t i = 0; i < count; ++i) {
                 tmp[cache_len + i] = new_cache[i];
             }
-            free(new_cache);
+            mem_free(new_cache);
             cache = tmp;
             cache_len += count;
             if (new_limit > limit) limit = new_limit;

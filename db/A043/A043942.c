@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_adjacent15_oct
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,34 @@
    first tests for adjacency of 1 and 5 in either order. */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_adjacent15_oct.h"
+
+/* Return true if x has two consecutive base‑8 digits 1 and 5
+   in either order (i.e., "15" or "51"). */
+static inline bool has_adjacent15_oct(idx_t x)
+{
+    /* A 64‑bit integer has at most 21 octal digits. */
+    uint8_t digs[32];
+    int len = 0;
+
+    if (x == 0) {
+        digs[0] = 0;
+        len = 1;
+    }
+
+    /* Extract octal digits least significant first. */
+    while (x) {
+        digs[len++] = (uint8_t)(x & 7);   /* x % 8 */
+        x >>= 3;                          /* x /= 8 */
+    }
+
+    /* Scan for “15” or “51”. */
+    for (int i = len - 1; i > 0; --i) {
+        if ((digs[i] == 1 && digs[i - 1] == 5) ||
+            (digs[i] == 5 && digs[i - 1] == 1))
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

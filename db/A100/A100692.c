@@ -7,13 +7,15 @@
  * Keywords:  nonn, easy
  * Formula:   a(0)=1, a(1)=3, a(2)=4; for n>=3: let k=(n-3)/4, r=(n-3)%4. Then
  *            a(4k+3)=4*2^k, a(4k+4)=6*2^k, a(4k+5)=a(4k+6)=10*2^k
- * Range:     u8 n <= 24, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
- *            big any n
+ * Range:     u8 n <= 24, u16 n <= 56, u32 n <= 120, u64 n <= 248,
+ *            u128 n <= 504, big any n
+ * Validated: standard, pass, 68 terms through n = 985 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/pow2.h"
 #include <stdint.h>
 

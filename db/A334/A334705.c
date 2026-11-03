@@ -11,8 +11,9 @@
  *            triangle. The triangle is read by rows; r is the row number and
  *            b the column index (1 ≤ b ≤ r). T(r,b) is computed by T(r,b) =
  *            C(r*b,3) − r·C(b,3) − b·C(r,3) − 2·∑_{dx=1}^{r−1}∑_{...
- * Range:     u8 n <= 8, u16 n <= 34, u32 n <= 55, u64 n <= 55, u128 n <= 55,
+ * Range:     u8 n <= 9, u16 n <= 44, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -30,6 +31,7 @@ static inline idx_t gcd_idx(idx_t a, idx_t b)
 }
 
 /* Include binomial helper */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

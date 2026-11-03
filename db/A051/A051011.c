@@ -12,14 +12,29 @@
  *            remainder is obtained. For example steps(1, 4) = 1, steps(...
  * Range:     u8 n <= 66, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _seq_gcd, _steps
+ * Validated: standard, pass, 80 terms through n = 984 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/_seq_gcd.h"
-#include "../utils/_steps.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+/* --- local auxiliary functions ----------------------------------- */
+static inline seq_t _steps(seq_t a, seq_t b)
+{
+    /* a > b > 0 is guaranteed by the caller. Count Euclidean steps. */
+    seq_t cnt = 0;
+    while (b != 0) {
+        seq_t t = a % b;
+        a = b;
+        b = t;
+        cnt++;
+    }
+    return cnt;
+}
 
 /* --- state for incremental computation --------------------------- */
 static idx_t _max_n = 0;          /* largest n computed so far          */
@@ -30,7 +45,7 @@ static void _extend_to(idx_t n)
 {
     if (n <= _max_n) return;                  /* already done */
 
-    _S = (seq_t *)realloc(_S, (size_t)(n + 1) * sizeof(seq_t));
+    _S = mem_resize(seq_t, _S, (size_t)(n + 1));
     if (_S == NULL) abort();                  /* allocation failure */
 
     /* Compute S for each new n. */
@@ -50,6 +65,6 @@ seq_t a(idx_t n)
     if (n == 0) return 0;                      /* safety for out‑of‑range */
     _extend_to(n);
     seq_t s = _S[n];
-    seq_t g = _seq_gcd(s, (seq_t)n);
+    seq_t g = gcd(s, (seq_t)n);
     return s / g;                              /* numerator of reduced average */
 }

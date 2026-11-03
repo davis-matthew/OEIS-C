@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if the second arithmetic derivative of n is a multiple
  *            of 3, otherwise 0. Edge case: a(0) is defined as 1
- * Range:     u8 n <= 107, u16 n <= 9260, u32 n <= 9260, u64 n <= 9260,
- *            u128 n <= 9260, big any n
+ * Range:     u8 n <= 107, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 144 terms through n = 9260 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

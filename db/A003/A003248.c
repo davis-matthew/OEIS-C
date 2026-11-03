@@ -10,14 +10,19 @@
  *            isqrt(5*y^2)) / 2, computed exactly in integers
  * Range:     u8 n <= 37, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   s3248_isqrt, s3248_lw
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/s3248_isqrt.h"
-#include "../utils/s3248_lw.h"
+#include "../utils/isqrt_u64.h"
+
+/* floor(y * phi) */
+static uint64_t s3248_lw(uint64_t y) {
+    return (y + isqrt_u64(5 * y * y)) / 2;
+}
 
 seq_t a(idx_t n) {
     uint64_t count = 0;

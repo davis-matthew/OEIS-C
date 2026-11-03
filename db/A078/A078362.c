@@ -7,7 +7,8 @@
  * Formula:   a(n) = 13*a(n-1) - a(n-2), a(-1)=0, a(0)=1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 864 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* a(1) = 13*a(0) - a(-1) = 13, then use the recurrence for n ≥ 2 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
         return cache[n];
 
     /* grow cache to hold indices up to n */
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache)                    /* allocation failure – return 0 */
         return (seq_t)0;
     cache = new_cache;

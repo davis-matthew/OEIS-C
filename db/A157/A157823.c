@@ -7,6 +7,7 @@
  * Formula:   a(n) = -2^(n-1) for n >= 1, a(0) = -5
  * Range:     i8 n <= 8, i16 n <= 16, i32 n <= 32, i64 n <= 64, i128 n <= 128,
  *            big any n
+ * Validated: standard, pass, 48 terms through n = 958 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* The sequence is defined by a(0) = -5,  a(1) = -1, and a(n) = 2*a(n-1) for n > 1. */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n) {

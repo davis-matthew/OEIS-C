@@ -11,7 +11,8 @@
  *            palindrome)
  * Range:     u8 n <= 86, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   extract_bits
+ * Validated: standard, pass, 74 terms through n = 9954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,31 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/extract_bits.h"
+#include "../utils/mem.h"
+
+/* Extract the bits of x into an array bits[0..len-1] in MSB‑first order.
+ * Returns the length of the bit string. */
+static size_t
+extract_bits(seq_t x, uint8_t *bits)
+{
+    size_t len = 0;
+    if (x == 0) {
+        bits[0] = 0;
+        return 1;
+    }
+    /* Gather bits LSB‑first first */
+    while (x != 0) {
+        bits[len++] = (uint8_t)(x & 1);
+        x >>= 1;
+    }
+    /* Reverse to MSB‑first */
+    for (size_t i = 0; i < len / 2; ++i) {
+        uint8_t tmp = bits[i];
+        bits[i] = bits[len - 1 - i];
+        bits[len - 1 - i] = tmp;
+    }
+    return len;
+}
 
 /* Maximum number of bits we expect seq_t to support in the tests.
  * This value can be increased if larger numbers are required. */
@@ -76,10 +101,10 @@ seq_t a(idx_t n)
     while (cache_size < n) {
         if (cache_cap == 0) {
             cache_cap = 256;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
         } else if (cache_size == cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         /* Find next term that satisfies the property */
         static seq_t cand = 1;

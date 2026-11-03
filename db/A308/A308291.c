@@ -11,13 +11,38 @@
  *            S_n = n * B_n - Σ_{k=1}^{n-1} S_k * B_{n-k} (2) * wh...
  * Range:     i8 n <= 5, i16 n <= 14, i32 n <= 30, i64 n <= 36, i128 n <= 36,
  *            big any n
- * Helpers:   mu_of
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mu_of.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 seq_t a(idx_t n) {
     /* static cache for S[1..max_n] and B[1..max_n] */
@@ -28,8 +53,8 @@ seq_t a(idx_t n) {
     if (n > max_n) {
         /* expand arrays */
         size_t newsize = n + 1;                    /* 1‑based arrays */
-        S = (seq_t *)realloc(S, newsize * sizeof(seq_t));
-        B = (seq_t *)realloc(B, newsize * sizeof(seq_t));
+        S = mem_resize(seq_t, S, newsize);
+        B = mem_resize(seq_t, B, newsize);
 
         for (idx_t i = max_n + 1; i <= n; ++i) {
             seq_t it   = (seq_t)i;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = XOR of first n primes; a(0) = 0
  * Range:     u8 n <= 54, u16 n <= 6542, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9832 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* initialise the XOR array with a(0) = 0 */
     if (xlen == 0) {
         xcap = 16;
-        xor_arr = (seq_t *)malloc(xcap * sizeof(seq_t));
+        xor_arr = mem_new(seq_t, xcap);
         if (!xor_arr) return (seq_t)0;     /* allocation failure returned as 0 */
         xor_arr[0] = (seq_t)0;
         xlen = 1;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         /* compute and store the new XOR value */
         if (xlen == xcap) {
             size_t newcap = (xcap == 0) ? 16 : xcap * 2;
-            seq_t *tmp = (seq_t *)realloc(xor_arr, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, xor_arr, newcap);
             if (!tmp) return (seq_t)0;
             xor_arr = tmp;
             xcap   = newcap;

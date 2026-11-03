@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of ∏_{k≥1} (1–x^k)/(1–19x^k)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 249 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* idx_t and seq_t are supplied by the build environment. */
 seq_t a(idx_t n)
@@ -24,8 +26,8 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)1;
 
     size_t N = (size_t)n;
-    seq_t *prev = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *cur  = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, N + 1);
+    seq_t *cur  = mem_new(seq_t, N + 1);
     if (!prev || !cur) return (seq_t)0;          /* allocation failed */
 
     prev[0] = (seq_t)1;                          /* only the empty partition */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 1; k <= n; ++k) {
         /* initialise current row to zero */
-        memset(cur, 0, (N + 1) * sizeof(seq_t));
+        mem_set(cur, 0, (N + 1) * sizeof(seq_t));
 
         /* process each residue class modulo k */
         for (idx_t r = 0; r < k; ++r) {
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = prev[N];
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
     return result;
 }

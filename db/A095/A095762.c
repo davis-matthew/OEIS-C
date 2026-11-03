@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   contains_h
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,24 @@
 /* Sequence: numbers whose name in English contains an "h" */
 /* Implementation: brute‑force search using simple linguistic rules */
 #include <stdbool.h>
-#include "../utils/contains_h.h"
+
+static bool contains_h(idx_t n)
+{
+    if (n >= 1000) return true;           /* contains "thousand" */
+    if (n >= 100)  return true;           /* contains "hundred"  */
+
+    if (n < 20) {
+        return (n == 3 || n == 8 || n == 13 || n == 18);
+    }
+
+    /* 20 ≤ n ≤ 99 */
+    idx_t tens  = n / 10;
+    idx_t units = n % 10;
+
+    if (tens == 3 || tens == 8) return true;   /* "thirty", "eighty" */
+    if (units == 3 || units == 8) return true;   /* "three", "eight" */
+    return false;
+}
 
 seq_t a(idx_t n)
 {

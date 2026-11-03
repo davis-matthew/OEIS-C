@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} p(k)*(n-k)^2
  * Range:     u8 n <= 6, u16 n <= 20, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    so no overflow occurs when the value fits into that type. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached data for partitions and their weighted sums. */
 static idx_t max_cached = 0;
@@ -38,15 +40,15 @@ static void extend_cache(idx_t n)
     /* Allocate or resize the arrays. */
     size_t cap = (size_t)(n + 1);
     if (p_arr == NULL) {
-        p_arr   = (seq_t *)malloc(cap * sizeof(seq_t));
-        P_arr   = (seq_t *)malloc(cap * sizeof(seq_t));
-        PK_arr  = (seq_t *)malloc(cap * sizeof(seq_t));
-        PK2_arr = (seq_t *)malloc(cap * sizeof(seq_t));
+        p_arr   = mem_new(seq_t, cap);
+        P_arr   = mem_new(seq_t, cap);
+        PK_arr  = mem_new(seq_t, cap);
+        PK2_arr = mem_new(seq_t, cap);
     } else {
-        p_arr   = (seq_t *)realloc(p_arr,   cap * sizeof(seq_t));
-        P_arr   = (seq_t *)realloc(P_arr,   cap * sizeof(seq_t));
-        PK_arr  = (seq_t *)realloc(PK_arr,  cap * sizeof(seq_t));
-        PK2_arr = (seq_t *)realloc(PK2_arr, cap * sizeof(seq_t));
+        p_arr   = mem_resize(seq_t, p_arr, cap);
+        P_arr   = mem_resize(seq_t, P_arr, cap);
+        PK_arr  = mem_resize(seq_t, PK_arr, cap);
+        PK2_arr = mem_resize(seq_t, PK2_arr, cap);
     }
 
     /* Reset the partition array before recomputation. */

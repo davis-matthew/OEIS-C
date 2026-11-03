@@ -8,7 +8,8 @@
  *            a(n+1) = (4+4*n)*a(n) (n>=1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Computes a(n) from OEIS A052592. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Initialize cache if required */
     if (cache_size == 0) {
         cache_cap = 2;                    /* at least space for a(0) and a(1) */
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) { /* out of memory – abort gracefully */
             abort();
         }
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         if (new_cap < (size_t)(n) + 1) {
             new_cap = (size_t)(n) + 1;
         }
-        cache = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+        cache = mem_resize(seq_t, cache, new_cap);
         if (!cache) { /* out of memory – abort gracefully */
             abort();
         }

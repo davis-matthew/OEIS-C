@@ -7,12 +7,14 @@
  * Formula:   a(n) = number of partitions of n into parts 4, 6, 9 and 12
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* memoised DP table */
 static idx_t dp_size = 0;         /* current allocated size (dp[0 .. dp_size-1]) */
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* Allocate or extend the table to cover index n */
     if (n + 1 > dp_size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_size);
         if (!tmp) return 0;                /* allocation failed: return 0 */
         dp = tmp;
 

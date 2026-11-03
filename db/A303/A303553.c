@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of periodic factorizations of n > 1 into positive
  *            factors > 1; a(1) = 1 by convention
- * Range:     u8 n <= 8929, u16 n <= 8929, u32 n <= 8929, u64 n <= 8929,
- *            u128 n <= 8929, big any n
+ * Range:     u8 n <= 20736, u16 n <= 20736, u32 n <= 20736, u64 n <= 20736,
+ *            u128 n <= 20736, big any n
+ * Validated: standard, pass, 141 terms through n = 8929 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

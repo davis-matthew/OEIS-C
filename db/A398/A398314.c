@@ -8,7 +8,8 @@
  * Formula:   a(n) = n * A002110(pi(gpf(n)))
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 46, u128 n <= 100,
  *            big any n
- * Helpers:   build_primes_upto, gpf
+ * Validated: standard, pass, 55 terms through n = 1999 (2026-11-01)
+ * Helpers:   build_primes_upto, largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,9 @@
 #include <stdbool.h>
 
 /* Utility functions provided by the library */
-#include "../utils/gpf.h"          /* uint64_t gpf(uint64_t) */
-#include "../utils/build_primes_upto.h"   /* build_primes_upto(idx_t, uint64_t**, size_t*) */
+#include <stdlib.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/largest_prime_factor.h"
 
 /* Static state: list of primes and how many we have. */
 static uint64_t *primes = NULL;      /* array of primes */
@@ -50,7 +52,7 @@ a(idx_t n)
     if (n == 0) return 0;                     /* safety guard; offset is 1 */
 
     /* Greatest prime factor of n (unsigned integer). */
-    uint64_t g = gpf((uint64_t)n);
+    uint64_t g = largest_prime_factor((uint64_t)n);
 
     /* Make sure we have all primes up to that factor. */
     ensure_primes_up_to(g);

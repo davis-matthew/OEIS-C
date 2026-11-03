@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 66, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of polynomial coefficient rows */
 static seq_t **coeff_rows = NULL;   /* rows[0]..rows[r] contain P(r,x) */
@@ -44,7 +46,7 @@ static void ensure_coeff_rows(idx_t r_need)
     /* compute new rows sequentially */
     for (idx_t r = coeff_row_count; r <= r_need; ++r) {
         /* row length is r+1: coefficients of x^0 .. x^r */
-        coeff_rows[(size_t)r] = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));
+        coeff_rows[(size_t)r] = mem_new(seq_t, (size_t)(r + 1));
         if (r == 0) {
             coeff_rows[0][0] = 1;                /* P(0,x)=1 */
         } else if (r == 1) {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 17, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* helper: integer exponentiation (base may be negative) */
 static seq_t pow_seq(seq_t base, idx_t exp)
@@ -51,7 +53,7 @@ static void ensure_a_cache(idx_t need)
     idx_t new_cap = a_cap ? a_cap << 1 : 4;
     while (new_cap <= need)
         new_cap <<= 1;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     a_cap   = new_cap;
 }
 
@@ -63,7 +65,7 @@ static void ensure_stirling(idx_t need)
     idx_t new_cap = s_cap ? s_cap << 1 : 4;
     while (new_cap <= need)
         new_cap <<= 1;
-    stirling = (seq_t *)realloc(stirling, new_cap * sizeof(seq_t));
+    stirling = mem_resize(seq_t, stirling, new_cap);
     s_cap    = new_cap;
 }
 

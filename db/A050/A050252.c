@@ -10,14 +10,15 @@
  *            shown)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_count_uint64
+ * Validated: standard, pass, 118 terms through n = 9453 (2026-11-01)
+ * Helpers:   num_digits_idx_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/digit_count_uint64.h"
+#include "../utils/num_digits_idx_to_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -35,25 +36,25 @@ seq_t a(idx_t n)
             m >>= 1;                /* n /= 2 */
             e++;
         }
-        if (e > 1) sum += digit_count_uint64(e);  /* exponent digits */
+        if (e > 1) sum += num_digits_idx_to_seq(e);  /* exponent digits */
     }
 
     /* Factor odd primes. */
     for (idx_t i = 3; i <= m / i; i += 2) {
         if (m % i == 0) {
-            sum += digit_count_uint64(i);  /* prime digits */
+            sum += num_digits_idx_to_seq(i);  /* prime digits */
             idx_t e = 0;
             while (m % i == 0) {
                 m /= i;
                 e++;
             }
-            if (e > 1) sum += digit_count_uint64(e);  /* exponent digits */
+            if (e > 1) sum += num_digits_idx_to_seq(e);  /* exponent digits */
         }
     }
 
     /* If anything remains, it is a prime > sqrt(original n). */
     if (m > 1)
-        sum += digit_count_uint64(m);
+        sum += num_digits_idx_to_seq(m);
 
     return sum;
 }

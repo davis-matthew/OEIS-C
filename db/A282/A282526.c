@@ -10,7 +10,8 @@
  *            using dynamic programming over pairs of rows
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   curr_ok
+ * Validated: standard, pass, 31 terms through n = 203 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,29 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/curr_ok.h"
+
+/* Helper: test whether a row 'curr' is valid given the rows above 'prev' and below 'next'. */
+static bool curr_ok(idx_t prev, idx_t curr, idx_t next)
+{
+    for (int j = 0; j < 6; ++j) {
+        if ((curr >> j) & 1U) {
+            int neighbors = 0;
+            /* vertical neighbors */
+            if ((prev >> j) & 1U) ++neighbors;      /* up */
+            if ((next >> j) & 1U) ++neighbors;      /* down */
+            /* horizontal neighbors */
+            if (j > 0 && (curr >> (j - 1)) & 1U) ++neighbors;   /* left */
+            if (j < 5 && (curr >> (j + 1)) & 1U) ++neighbors;   /* right */
+            /* diagonal neighbors */
+            if (j > 0 && (prev >> (j - 1)) & 1U) ++neighbors;    /* up-left */
+            if (j < 5 && (prev >> (j + 1)) & 1U) ++neighbors;    /* up-right */
+            if (j > 0 && (next >> (j - 1)) & 1U) ++neighbors;    /* down-left */
+            if (j < 5 && (next >> (j + 1)) & 1U) ++neighbors;    /* down-right */
+            if (neighbors > 2) return false;
+        }
+    }
+    return true;
+}
 
 /* DP function */
 seq_t a(idx_t n)

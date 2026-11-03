@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc, abort */
 #include <string.h>   /* memcpy */
+#include "../utils/mem.h"
 
 /* Cached flattened triangle */
 static seq_t *cache      = NULL;
@@ -45,7 +47,7 @@ static void ensure_cache_cap(size_t needed)
     if (needed > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 1;
         while (new_cap < needed) new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();          /* out of memory */
         cache = tmp;
         cache_cap = new_cap;
@@ -56,7 +58,7 @@ static void ensure_cache_cap(size_t needed)
 static void ensure_prev_cap(size_t needed)
 {
     if (needed > prev_len) {
-        seq_t *tmp = (seq_t*)realloc(prev_row, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prev_row, needed);
         if (!tmp) abort();
         prev_row = tmp;
         prev_len = needed;
@@ -68,13 +70,13 @@ seq_t a(idx_t n)
     /* Lazy initialization on the first call. */
     if (!cache) {
         cache_cap = 1;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache[0] = 1;
         cache_len = 1;
 
         prev_len = 1;
-        prev_row = (seq_t*)malloc(prev_len * sizeof(seq_t));
+        prev_row = mem_new(seq_t, prev_len);
         if (!prev_row) abort();
         prev_row[0] = 1;
         last_row = 0;
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
 
         /* Append the new row to the flattened cache. */
         ensure_cache_cap(cache_len + len);
-        memcpy(cache + cache_len, prev_row, len * sizeof(seq_t));
+        mem_copy(cache + cache_len, prev_row, len * sizeof(seq_t));
         cache_len += len;
 
         last_row = r;

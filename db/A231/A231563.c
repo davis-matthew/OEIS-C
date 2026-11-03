@@ -9,15 +9,18 @@
  *            gcd(i,n)=1 else 0
  * Range:     u8 n <= 378, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   gcd, mod_pow
+ * Validated: standard, pass, 98 terms through n = 4729 (2026-11-01)
+ * Helpers:   gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
-
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
 
     for (idx_t i = 1; i <= n; ++i) {
         if (gcd((seq_t)i, n_mod) == 1) {
-            seq_t term = mod_pow((seq_t)i, n, n_mod); /* i^n mod n */
+            seq_t term = powmod((seq_t)i, n, n_mod); /* i^n mod n */
             sum += term;
             if (sum >= n_mod)               /* keep sum small */
                 sum %= n_mod;

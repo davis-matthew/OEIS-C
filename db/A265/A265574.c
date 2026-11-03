@@ -10,117 +10,60 @@
  *            other terms follow from the recurrence above
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   seq_alloc, seq_realloc
+ * Validated: partial, pass, 97 terms through n = 97 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include <stddef.h>   /* size_t */
-#include <stdint.h>   /* uint32_t, uint64_t */
-#include <stdbool.h>  /* bool */
+/* The LCM-transform: a(k) = L(k) / L(k-1) with L(k) = lcm of T(1..k),
+   T(k) = k(k+1)/2; i.e. the product of p^(e - m_p) over the prime powers
+   p^e || T(k) with e above the largest exponent m_p of p so far. The
+   exponents are kept per prime value (all primes of T(k) are <= k + 1) in
+   an array that grows with k, and the terms are cached. (The original passed
+   the new capacity as the old one to its realloc, copying past the old
+   array, and had prime tables only up to 10001.) */
 
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
 
-/* globals ------------------------------------------------------------*/
-
-static seq_t *a_cache = NULL;             /* a values */
-static size_t a_cache_cap = 0;            /* allocated size */
-static idx_t  last_computed = 0;          /* highest n computed so far */
-
-#define PRIME_LIMIT 10001                /* n(n+1)/2 for n ≤ 10000 */
-static int primes[1300];                 /* list of primes ≤ PRIME_LIMIT */
-static int prime_cnt = 0;
-static int prime_index[PRIME_LIMIT + 1];  /* prime → index in primes[] */
-static bool primes_ready = false;
-static int max_exp[1300] = {0};           /* max exponent seen so far for each prime */
-
-/* helper ------------------------------------------------------------*/
-
-/* sieve to generate primes up to PRIME_LIMIT and initialise prime_index */
-static void init_primes(void)
-{
-    if (primes_ready) return;
-    bool is_prime[PRIME_LIMIT + 1];
-    for (int i = 0; i <= PRIME_LIMIT; ++i) is_prime[i] = true;
-    is_prime[0] = is_prime[1] = false;
-    for (int i = 2; i * i <= PRIME_LIMIT; ++i)
-        if (is_prime[i])
-            for (int j = i * i; j <= PRIME_LIMIT; j += i)
-                is_prime[j] = false;
-
-    prime_cnt = 0;
-    for (int i = 2; i <= PRIME_LIMIT; ++i)
-        if (is_prime[i]) primes[prime_cnt++] = i;
-
-    for (int i = 0; i <= PRIME_LIMIT; ++i) prime_index[i] = -1;
-    for (int i = 0; i < prime_cnt; ++i) prime_index[primes[i]] = i;
-
-    primes_ready = true;
-}
-
-/* compute a(n) ------------------------------------------------------*/
 seq_t a(idx_t n)
 {
-    if (n == 0) return 0;          /* offset is 1 – behaviour irrelevant */
-
-    /* initialise primes once */
-    if (!primes_ready) init_primes();
-
-    /* allocate or grow cache */
-    if (a_cache == NULL) {
-        a_cache_cap = (size_t)n + 1;
-        a_cache = seq_alloc(a_cache_cap);
-    } else if ((size_t)n + 1 > a_cache_cap) {
-        a_cache_cap = (size_t)n + 1;
-        a_cache = seq_realloc(a_cache, a_cache_cap, a_cache_cap);
+    static seq_t *A = NULL;
+    static idx_t len = 1, cap = 0;           /* A[1..len) known */
+    static unsigned char *mx = NULL;         /* mx[p] = largest exponent of p so far */
+    static size_t mcap = 0;
+    if (n == 0) return (seq_t)0;
+    if (n + 1 > cap) {
+        idx_t c = cap ? cap : 64;
+        while (c < n + 1) c *= 2;
+        seq_t *t = mem_resize(seq_t, A, c);
+        if (!t) abort();
+        A = t;
+        cap = c;
     }
-
-    /* compute missing values up to n */
-    for (idx_t k = last_computed + 1; k <= n; ++k) {
-        uint64_t kk = (uint64_t)k;
-        uint64_t tn = kk * (kk + 1) / 2;       /* triangular number */
-        uint64_t temp = tn;
-        seq_t a_val = 1;
-
-        /* factor t_n using the pre‑computed primes */
-        for (int pi = 0; pi < prime_cnt &&
-                         (uint64_t)primes[pi] * (uint64_t)primes[pi] <= temp;
-             ++pi) {
-            uint32_t p = primes[pi];
-            unsigned cnt = 0;
-            while (temp % p == 0) {
-                ++cnt;
-                temp /= p;
-            }
-            if (cnt) {
-                unsigned prev = max_exp[pi];
-                if (cnt > prev) {
-                    unsigned delta = cnt - prev;
-                    seq_t pow = 1;
-                    for (unsigned d = 0; d < delta; ++d) pow *= (seq_t)p;
-                    a_val *= pow;
-                    max_exp[pi] = cnt;
-                }
-            }
-        }
-
-        /* remaining prime factor, if any */
-        if (temp > 1) {
-            uint32_t p = (uint32_t)temp;
-            int pi = prime_index[p];          /* p ≤ PRIME_LIMIT */
-            if (pi >= 0) {
-                unsigned prev = max_exp[pi];
-                if ((unsigned)1 > prev) {
-                    a_val *= (seq_t)p;
-                    max_exp[pi] = 1;
-                }
-            }
-        }
-
-        a_cache[(size_t)k] = a_val;
+    if ((size_t)n + 2 > mcap) {
+        size_t c = mcap ? mcap : 64;
+        while (c < (size_t)n + 2) c *= 2;
+        unsigned char *t = (unsigned char *)realloc(mx, c);
+        if (!t) abort();
+        for (size_t i = mcap; i < c; ++i) t[i] = 0;
+        mx = t;
+        mcap = c;
     }
-
-    last_computed = n;
-    return a_cache[(size_t)n];
+    for (; len <= n; ++len) {
+        uint64_t k = len, m = k * (k + 1) / 2;
+        seq_t v = (seq_t)1;
+        for (uint64_t p = 2; p * p <= m; ++p) {
+            if (m % p) continue;
+            unsigned e = 0;
+            while (m % p == 0) { m /= p; ++e; }
+            for (unsigned j = mx[p]; j < e; ++j) v = v * (seq_t)p;
+            if (e > mx[p]) mx[p] = (unsigned char)e;
+        }
+        if (m > 1 && mx[m] < 1) { v = v * (seq_t)m; mx[m] = 1; }
+        A[len] = v;
+    }
+    return A[n];
 }

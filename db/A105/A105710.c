@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   is_prime_uint64
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime_uint64.h"   /* bool is_prime_uint64(uint64_t n); */
+#include "../utils/is_prime_u64.h"
 
 /* seq_t and idx_t are defined by the build script.
    No redeclaration of seq_t is performed here. */
@@ -40,7 +41,7 @@ seq_t a(idx_t n)
     while (cache_size < n) {
         uint64_t candidate = 9973ULL * next_k + 1009ULL;
 
-        if (is_prime_uint64(candidate)) {
+        if (is_prime_u64(candidate)) {
             /* Allocate more space if needed. */
             if (cache_size == cache_capacity) {
                 idx_t new_cap = cache_capacity ? cache_capacity * 2 : 64;

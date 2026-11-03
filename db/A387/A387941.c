@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system. */
 seq_t a(idx_t n)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Ensure cache has room for at least one more term. */
     if (cache_len + 1 > cache_cap) {
         size_t new_cap = (cache_cap ? cache_cap * 2 : 64);
-        seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, cache, new_cap);
         if (p == NULL) abort();
         cache = p;
         cache_cap = new_cap;
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
                 /* Ensure cache is large enough (might need another expansion) */
                 if (cache_len + 1 > cache_cap) {
                     size_t new_cap = (cache_cap ? cache_cap * 2 : 64);
-                    seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *p = mem_resize(seq_t, cache, new_cap);
                     if (p == NULL) abort();
                     cache = p;
                     cache_cap = new_cap;

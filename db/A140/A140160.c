@@ -9,12 +9,14 @@
  *            if n is even. (OEIS A140160)
  * Range:     u8 n <= 4, u16 n <= 14, u32 n <= 132, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build; do not redefine them. */
 
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* Base case: initialise cache for a(1) */
     if (max_n == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return 0;          /* unlikely, but sanity check */
         cache[0] = (seq_t)1;           /* a(1) = 1 */
         max_n = 1;
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
 
     /* If the requested n is beyond the cached range, extend the cache */
     if (n > max_n) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)n);
         if (!new_cache) return 0;      /* allocation failure fallback */
         cache = new_cache;
 

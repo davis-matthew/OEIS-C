@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_adj14
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,26 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_adj14.h"
+#include "../utils/mem.h"
+
+/* Test whether a number has the pattern 1‑4 or 4‑1 in its base‑9 digits. */
+static bool has_adj14(seq_t x)
+{
+    /* A single‑digit number cannot contain two adjacent digits. */
+    if (x < 9)
+        return false;
+
+    seq_t prev = x % 9;
+    x = x / 9;
+    while (x > 0) {
+        seq_t cur = x % 9;
+        if ((cur == 1 && prev == 4) || (cur == 4 && prev == 1))
+            return true;
+        prev = cur;
+        x = x / 9;
+    }
+    return false;
+}
 
 /* ------------------------------------------------------------------ */
 /* Static state for memoisation                                            */
@@ -41,7 +61,7 @@ static void ensure_cache_cap(idx_t new_cap)
     while (new_size < new_cap)
         new_size <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) /* allocation failed – keep the old cache */
         return;
 

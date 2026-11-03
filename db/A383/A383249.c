@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 147, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9524 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    significant digit).  A brute‑force generation is used.  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper that returns true if x satisfies the defining condition. */
 static bool good(idx_t x)
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary. */
     if (cache == NULL) {
         cap = 8;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache)
             abort();
     }
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
             if (count == cap) {
                 /* Double capacity. */
                 size_t newcap = cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp)
                     abort();
                 cache = tmp;

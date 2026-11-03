@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   build_primes_upto, is_palindrome, push_to_seq
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   build_primes_upto, is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,18 @@
 #include <stdlib.h>
 
 #include "../utils/build_primes_upto.h"
-#include "../utils/is_palindrome.h"
-#include "../utils/push_to_seq.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
+
+/* Dynamic array helpers for seq_t */
+static void push_to_seq(seq_t **arr, size_t *cnt, size_t *cap, seq_t val)
+{
+    if (*cnt == *cap) {
+        *cap = (*cap == 0) ? 256 : (*cap * 2);
+        *arr = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
+    }
+    (*arr)[(*cnt)++] = val;
+}
 
 static const idx_t LIMIT = 2000000ULL;          /* primes up to 2,000,000 */
 static seq_t *sums    = NULL;                   /* sorted distinct sums   */
@@ -45,7 +56,7 @@ static void init_seq(void)
     size_t pal_cnt   = 0, pal_cap = 0;
     for (size_t i = 0; i < primes_cnt; ++i) {
         seq_t p = (seq_t)all_primes[i];
-        if (is_palindrome(p, 10)) {
+        if (is_palindrome_base(p, 10)) {
             push_to_seq(&palprimes, &pal_cnt, &pal_cap, p);
         }
     }
@@ -70,7 +81,7 @@ static void init_seq(void)
     }
 
     free(seen);
-    free(palprimes);
+    mem_free(palprimes);
 }
 
 /* External linkage function required by the build system. */

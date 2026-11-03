@@ -9,11 +9,13 @@
  *            of 00100 and 01001 substrings
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 33, u64 n <= 65, u128 n <= 130,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 480 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
 #include <stdbool.h>

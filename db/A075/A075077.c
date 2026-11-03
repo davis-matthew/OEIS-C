@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_bool_capacity, mod_mul_uint64
+ * Validated: standard, pass, 88 terms through n = 9968 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,23 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/ensure_bool_capacity.h"
-#include "../utils/mod_mul_uint64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------
+ * Dynamic boolean array helper (used for seen values and sums)
+ * ------------------------------------------------------------------ */
+static void ensure_bool_capacity(bool **arr, size_t *cap, size_t index)
+{
+    if (index < *cap) return;
+    size_t new_cap = (*cap > 0) ? (*cap << 1) : 1;
+    while (new_cap <= index) new_cap <<= 1;
+    bool *tmp = (bool*)realloc(*arr, new_cap * sizeof(bool));
+    if (!tmp) abort();
+    *arr = tmp;
+    for (size_t i = *cap; i < new_cap; ++i) (*arr)[i] = false;
+    *cap = new_cap;
+}
 
 /* ------------------------------------------------------------------
  * Primality test for 64‑bit integers – used to check that a sum is
@@ -43,8 +59,8 @@ static uint64_t mod_pow_uint64(uint64_t a, uint64_t d, uint64_t mod)
     uint64_t result = 1;
     while (d)
     {
-        if (d & 1) result = mod_mul_uint64(result, a, mod);
-        a = mod_mul_uint64(a, a, mod);
+        if (d & 1) result = mulmod(result, a, mod);
+        a = mulmod(a, a, mod);
         d >>= 1;
     }
     return result;
@@ -72,7 +88,7 @@ static bool is_prime_uint64(uint64_t n)
         bool composite = true;
         for (int r = 1; r < s; ++r)
         {
-            x = mod_mul_uint64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;
@@ -106,7 +122,7 @@ seq_t a(idx_t n)
         if (seq_cap == 0)
         {
             seq_cap = 1;
-            seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+            seq = mem_new(seq_t, seq_cap);
             if (!seq) abort();
         }
         seq[0] = (seq_t)1;
@@ -143,7 +159,7 @@ seq_t a(idx_t n)
             if (seq_len == seq_cap)
             {
                 seq_cap = (seq_cap > 0) ? seq_cap << 1 : 1;
-                seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
                 if (!seq) abort();
             }
             seq[seq_len++] = candV;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = gcd(n, binomial(2*n, n))
  * Range:     u8 n <= 265, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 111 terms through n = 989 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static unsigned long long legendre(long long m, unsigned long long p) {

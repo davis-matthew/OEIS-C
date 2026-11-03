@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 none, u16 none, u32 n <= 24, u64 n <= 24, u128 n <= 24,
+ * Range:     u8 none, u16 none, u32 n <= 6000, u64 n <= 6000, u128 n <= 6000,
  *            big any n
- * Helpers:   digit_sum_uint64, isPrime64
+ * Validated: standard, pass, 40 terms through n = 5974 (2026-11-03)
+ * Helpers:   digit_sum_u64, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,10 @@
 /* a(n) = the nth prime whose decimal digit sum is 56. */
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/isPrime64.h"
-#include "../utils/digit_sum_uint64.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/digit_sum_u64.h"
+#include "../utils/is_prime_u64.h"
 
 /* Buffer large enough to hold the first 20,000 such primes – this covers
    n up to 10,000 comfortably.  The array is statically allocated to avoid
@@ -31,9 +34,9 @@ static void generate_until(idx_t n)
 {
     while (prime_count < n)
     {
-        if (isPrime64(next_candidate))
+        if (is_prime_u64(next_candidate))
         {
-            if (digit_sum_uint64(next_candidate) == 56)
+            if (digit_sum_u64(next_candidate) == 56)
             {
                 primes[prime_count++] = (seq_t)next_candidate;
             }

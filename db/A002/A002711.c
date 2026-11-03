@@ -12,19 +12,47 @@
  *            (rooted ones wi...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 22, u128 n <= 42,
  *            big any n
- * Helpers:   a002711_inv, a002711_isfixed, a002711_mm, a002711_mul,
- *            a002711_val
+ * Validated: standard, pass, 39 terms through n = 432 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/a002711_inv.h"
-#include "../utils/a002711_isfixed.h"
-#include "../utils/a002711_mm.h"
-#include "../utils/a002711_mul.h"
-#include "../utils/a002711_val.h"
+
+static seq_t a002711_mm(seq_t x, seq_t y) {
+    return (seq_t)(x * 1u * y);
+}
+
+static seq_t a002711_inv(seq_t x) {
+    seq_t y = x;
+    int i;
+    for (i = 0; i < 7; i++) y = a002711_mm(y, (seq_t)(2u - a002711_mm(x, y)));
+    return y;
+}
+
+static int a002711_isfixed(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 200; i++) x = (seq_t)(x * 2u);
+    return x == 0;
+}
+
+static void a002711_mul(seq_t *O, long *e, uint64_t v, int div) {
+    seq_t s;
+    while (v % 2 == 0) {
+        v /= 2;
+        if (div) (*e)--; else (*e)++;
+    }
+    s = (seq_t)v;
+    *O = a002711_mm(*O, div ? a002711_inv(s) : s);
+}
+
+static seq_t a002711_val(seq_t O, long e) {
+    for (; e > 0; e--) O = (seq_t)(O * 2u);
+    return O;
+}
 
 seq_t a(idx_t n) {
     if (a002711_isfixed()) {

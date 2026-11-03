@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   factor_u64, is_prime, mod_mul
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   factor_u64, is_prime, mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime.h"      /* bool is_prime(idx_t x);        */
-#include "../utils/factor_u64.h"    /* size_t factor_u64(...);        */
-#include "../utils/mod_mul.h"      /* uint64_t mod_mul(...);         */
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* Fast‑doubling Fibonacci modulo 'mod':
    returns Fn   = F_n   (mod mod)
@@ -43,13 +45,13 @@ static void fib_mod_pair(uint64_t n, uint64_t mod,
     fib_mod_pair(n >> 1, mod, &a, &b);
 
     /* c = a * (2*b - a) mod mod */
-    uint64_t two_b = mod_mul(b, 2, mod);
+    uint64_t two_b = mulmod(b, 2, mod);
     uint64_t temp   = (two_b + mod - a) % mod;          /* (2*b - a) mod */
-    uint64_t c      = mod_mul(a, temp, mod);
+    uint64_t c      = mulmod(a, temp, mod);
 
     /* d = a*a + b*b mod mod */
-    uint64_t aa = mod_mul(a, a, mod);
-    uint64_t bb = mod_mul(b, b, mod);
+    uint64_t aa = mulmod(a, a, mod);
+    uint64_t bb = mulmod(b, b, mod);
     uint64_t d  = (aa + bb) % mod;
 
     if (n & 1) {                    /* n odd */
@@ -117,7 +119,7 @@ seq_t a(idx_t n)
         /* Accept the prime */
         if (seq_len == seq_cap) {
             seq_cap = seq_cap ? seq_cap * 2 : 16;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len++] = (seq_t)p;
     }

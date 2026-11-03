@@ -8,8 +8,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = gcd(A276086(sigma(n)), A276086(3*n))
  * Range:     u8 n <= 16, u16 n <= 65, u32 n <= 475, u64 n <= 6005,
- *            u128 n <= 9975, big any n
- * Helpers:   build_primes_upto, factor_u64, gcd, seq_pow
+ *            u128 n <= 11550, big any n
+ * Validated: standard, pass, 83 terms through n = 9975 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,10 +25,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/gcd.h"
-#include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
 
 /* ---------- Global prime table ---------- */
 static uint64_t *PRIMES = NULL;
@@ -58,7 +59,7 @@ static seq_t sigma_seq(idx_t n)
     seq_t sigma = 1;
     for (size_t i = 0; i < cnt; ++i) {
         seq_t base  = (seq_t)pr[i];
-        seq_t power = seq_pow(base, (idx_t)(ex[i] + 1));
+        seq_t power = ipow_idx(base, (idx_t)(ex[i] + 1));
         seq_t denom = (seq_t)(pr[i] - 1);
         seq_t term  = (power - 1) / denom;
         sigma *= term;
@@ -119,7 +120,7 @@ seq_t a(idx_t n)
     for (size_t j = 0; j <= i; ++j) {
         size_t m = exp_sigma[j] < exp_3n[j] ? exp_sigma[j] : exp_3n[j];
         if (m > 0) {
-            result *= seq_pow((seq_t)PRIMES[j], (idx_t)m);
+            result *= ipow_idx((seq_t)PRIMES[j], (idx_t)m);
         }
     }
 

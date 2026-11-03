@@ -9,8 +9,9 @@
  * Formula:   a(n) = \bop_{d|n,\,n/d\ \text{squarefree}} d^2 where \bop
  *            denotes XOR over all such divisors. This function computes the
  *            sequence a(n) for n >= 1
- * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 9810, u64 n <= 9810,
- *            u128 n <= 9810, big any n
+ * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 66 terms through n = 9810 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

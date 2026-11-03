@@ -11,13 +11,15 @@
  *            elementary symmetric sums of 7,…,14, and initial values a(0)=...
  * Range:     u8 n <= 8, u16 n <= 9, u32 n <= 13, u64 n <= 20, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 269 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         if (new_cap < needed) new_cap = needed;
 
         /* realloc cast is acceptable in both C and C++ */
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (cache == NULL) return 0; /* allocation failure – return 0 as a safe fallback */
 
         /* Initialise base values a(0)..a(7) */

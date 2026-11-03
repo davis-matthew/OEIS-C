@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 214, u32 n <= 1044, u64 n <= 5150,
  *            u128 n <= 5150, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 4682 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline idx_t row_start(idx_t r)
 {
@@ -47,7 +49,7 @@ static void ensure_rows(idx_t r)
 
     /* Allocate space for rows up to r */
     idx_t new_len = (r + 1) * (r + 2) / 2;
-    seq_t *new_tri = (seq_t *)realloc(tri, new_len * sizeof(seq_t));
+    seq_t *new_tri = mem_resize(seq_t, tri, new_len);
     if (!new_tri)
         _Exit(1);
     tri = new_tri;

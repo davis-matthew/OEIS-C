@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 226, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9814 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of function prototypes provided by the
  * build utilities.  No direct use of these prototypes is needed
@@ -87,15 +89,14 @@ seq_t a(idx_t n)
         uint64_t cand = last_checked + 1;
         /* Allocate space for the initial cache if empty. */
         if (cache_seq == NULL) {
-            cache_seq = (seq_t *)malloc(1 * sizeof(seq_t));
+            cache_seq = mem_new(seq_t, 1);
             if (!cache_seq) abort(); /* allocation failure */
         }
 
         while (cache_len < n) {
             if (has_prime_minus_one_exponents(cand)) {
                 /* Append the new term, expanding the array if needed. */
-                seq_t *tmp = (seq_t *)realloc(cache_seq,
-                                              (cache_len + 1) * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache_seq, (cache_len + 1));
                 if (!tmp) abort();         /* allocation failure */
                 cache_seq = tmp;
                 cache_seq[cache_len] = (seq_t) cand;

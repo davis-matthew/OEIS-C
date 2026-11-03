@@ -10,14 +10,17 @@
  *            remainder of x divided by its digit sum are equal
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
             if (len + 1 > cap)
             {
                 size_t new_cap = cap ? cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(data, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, data, new_cap);
                 data = tmp;
                 cap  = new_cap;
             }

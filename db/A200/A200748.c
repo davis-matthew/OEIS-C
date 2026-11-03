@@ -12,6 +12,7 @@
  *            minimal integer by greedy selection of the smalle...
  * Range:     u8 n <= 11, u16 n <= 28, u32 n <= 73, u64 n <= 196,
  *            u128 n <= 561, big any n
+ * Validated: standard, pass, 58 terms through n = 9636 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,8 +8,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = the n-th spiral label that is visible from the center,
  *            i.e. its integer coordinates (x,y) satisfy gcd(|x|,|y|)=1
- * Range:     u8 n <= 159, u16 n <= 9483, u32 n <= 9483, u64 n <= 9483,
- *            u128 n <= 9483, big any n
+ * Range:     u8 n <= 159, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 92 terms through n = 9483 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

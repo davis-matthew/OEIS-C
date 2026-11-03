@@ -8,7 +8,8 @@
  *            solution
  * Range:     u8 n <= 35, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 69 terms through n = 986 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,11 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"   /* mod_pow(seq_t base, uint64_t exp, seq_t mod) */
-#include "../utils/is_prime.h" /* bool is_prime(idx_t x) */
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* static storage for the generated part of the sequence */
 static seq_t *seq = NULL;       /* array where terms are stored          */
@@ -42,7 +46,7 @@ static void ensure_seq_cap(size_t need) {
     if (seq_len >= seq_cap) {
         size_t new_cap = seq_cap == 0 ? 128 : seq_cap * 2;
         /* realloc must not cast in C++ */
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp) {
             /* unlikely to happen with small limits */
             exit(1);
@@ -68,7 +72,7 @@ seq_t a(idx_t n) {
 
         uint64_t d   = u64_gcd(6ULL, p - 1ULL);
         uint64_t exp = (p - 1ULL) / d;
-        seq_t r = mod_pow(5ULL, exp, p);
+        seq_t r = powmod(5ULL, exp, p);
 
         if (r != 1) {              /* 5 is NOT a sixth‑power residue */
             ensure_seq_cap(seq_len + 1);

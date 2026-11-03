@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9348 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * Recurrence as described in the OEIS entry.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return value of OEIS sequence A292077 */
 seq_t a(idx_t n)
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         size_t newcap = (cap == 0 ? 16 : cap * 2);
         while (newcap <= (size_t)(n + 1))
             newcap *= 2;
-        seq_t *newptr = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, cache, newcap);
         if (!newptr) {
             /* Out of memory – in competitive settings this is unlikely. */
             exit(EXIT_FAILURE);

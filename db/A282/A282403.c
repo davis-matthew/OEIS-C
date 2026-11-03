@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1, i16 n <= 1, i32 n <= 3, i64 n <= 8, i128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 912 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Simple convolution of two power series a and b (length n+1).
    The result is written into res, which must have space for n+1
@@ -45,14 +47,14 @@ static void expand(idx_t new_n)
     idx_t L = new_n + 1;   /* array length */
 
     /* Allocate temporary arrays.  The calloc cast is required for C++.   */
-    seq_t *sigma3 = (seq_t *)calloc(L, sizeof(seq_t));
-    seq_t *sigma5 = (seq_t *)calloc(L, sizeof(seq_t));
-    seq_t *E4     = (seq_t *)calloc(L, sizeof(seq_t));
-    seq_t *E6     = (seq_t *)calloc(L, sizeof(seq_t));
-    seq_t *e4_2   = (seq_t *)calloc(L, sizeof(seq_t));
-    seq_t *e6_2   = (seq_t *)calloc(L, sizeof(seq_t));
-    seq_t *e4_4   = (seq_t *)calloc(L, sizeof(seq_t));
-    seq_t *tmp    = (seq_t *)calloc(L, sizeof(seq_t));      /* final result */
+    seq_t *sigma3 = mem_new(seq_t, L);
+    seq_t *sigma5 = mem_new(seq_t, L);
+    seq_t *E4     = mem_new(seq_t, L);
+    seq_t *E6     = mem_new(seq_t, L);
+    seq_t *e4_2   = mem_new(seq_t, L);
+    seq_t *e6_2   = mem_new(seq_t, L);
+    seq_t *e4_4   = mem_new(seq_t, L);
+    seq_t *tmp    = mem_new(seq_t, L);      /* final result */
 
     /* 1. Compute σ₃(n) and σ₅(n) up to new_n. */
     idx_t i, j;
@@ -82,14 +84,14 @@ static void expand(idx_t new_n)
     conv(e4_4, e6_2, new_n, tmp);
 
     /* 5. Free old arrays and store new results. */
-    if (coeff != NULL) free(coeff);
-    free(sigma3);
-    free(sigma5);
-    free(E4);
-    free(E6);
-    free(e4_2);
-    free(e6_2);
-    free(e4_4);
+    if (coeff != NULL) mem_free(coeff);
+    mem_free(sigma3);
+    mem_free(sigma5);
+    mem_free(E4);
+    mem_free(E6);
+    mem_free(e4_2);
+    mem_free(e6_2);
+    mem_free(e4_4);
 
     coeff = tmp;
     size  = L;

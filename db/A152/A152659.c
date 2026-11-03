@@ -12,13 +12,14 @@
  *            function uses the helper binom(n, k) from ../utils/binom.h
  * Range:     u8 n <= 40, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Integer floor square root of a 64‑bit unsigned integer. */
 static inline idx_t floor_sqrt(idx_t n)
@@ -59,12 +60,12 @@ seq_t a(idx_t n)
 
     if (k & 1) {                   /* odd k: k = 2j-1 */
         j = (k + 1) >> 1;          /* j = (k+1)/2 */
-        c1 = binom(r - 1, j - 1);
+        c1 = binomial(r - 1, j - 1);
         result = 2 * c1 * c1;
     } else {                       /* even k: k = 2j   */
         j = k >> 1;                /* j = k/2         */
-        c1 = binom(r - 1, j - 1);
-        c2 = binom(r - 1, j);
+        c1 = binomial(r - 1, j - 1);
+        c2 = binomial(r - 1, j);
         result = 2 * c1 * c2;
     }
     return result;

@@ -8,7 +8,8 @@
  *            non‑zero squares in exactly two distinct unordered ways
  * Range:     u8 n <= 61, u16 n <= 418, u32 n <= 418, u64 n <= 418,
  *            u128 n <= 418, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 406 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Function prototype for external linkage (provided by the build system). */
 seq_t a(idx_t n);
@@ -74,14 +76,14 @@ static void build_terms(uint64_t new_limit)
 
     /* Collect numbers with exactly two representations. */
     size_t estimated = new_limit / 20 + 10;  /* rough lower bound            */
-    seq_t *new_terms = (seq_t*)malloc(estimated * sizeof(seq_t));
+    seq_t *new_terms = mem_new(seq_t, estimated);
     if (!new_terms) { free(cnt); abort(); }
     size_t sz = 0;
     for (uint64_t i = 1; i <= new_limit; ++i) {
         if (cnt[i] == 2) {
             if (sz >= estimated) {           /* grow if needed */
                 estimated *= 2;
-                new_terms = (seq_t*)realloc(new_terms, estimated * sizeof(seq_t));
+                new_terms = mem_resize(seq_t, new_terms, estimated);
                 if (!new_terms) { free(cnt); abort(); }
             }
             new_terms[sz++] = (seq_t)i;
@@ -90,7 +92,7 @@ static void build_terms(uint64_t new_limit)
     free(cnt);
 
     /* Replace old table. */
-    free(terms);
+    mem_free(terms);
     terms = new_terms;
     terms_cnt = sz;
     current_limit = new_limit;

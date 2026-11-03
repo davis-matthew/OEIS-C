@@ -8,13 +8,17 @@
  * Formula:   a(n) = reverse_decimal(a(n-1)) + 53, a(1) = 1
  * Range:     u8 n <= 4, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   reverse_digits
+ * Validated: standard, pass, 67 terms through n = 964 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>                 /* for malloc/realloc, abort */
-#include "../utils/reverse_digits.h"   /* seq_t reverse_digits(seq_t) */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;      /* array of computed terms, 0‑based */
 static idx_t  cache_cap  = 0;        /* capacity in seq_t elements */
@@ -29,7 +33,7 @@ ensure_cache_cap(idx_t n)
     size_t newcap = cache_cap ? cache_cap * 2 : 1;
     while (newcap < (size_t)n)
         newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, newcap);
     if (!tmp)
         abort();                     /* out of memory */
     seq_cache = tmp;

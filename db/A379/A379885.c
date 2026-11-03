@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    Supports arbitrary-precision seq_t (unsigned or wide integers). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of computed values */
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     /* allocate or grow cache */
     if (n + 1 > cache_cap) {
         size_t new_cap = n + 1;
-        seq_t *new_mem = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_mem = mem_resize(seq_t, cache, new_cap);
         if (!new_mem) abort();  /* memory allocation failed */
         cache = new_mem;
         cache_cap = new_cap;

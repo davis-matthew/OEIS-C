@@ -8,15 +8,16 @@
  * Formula:   a(n) = (3n)!/(n!^3*6) + C(3n,n) + 1, for n > 0; a(0)=3
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   binom, gcd
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"   /* binom(idx_t a, idx_t b) */
-#include "../utils/gcd.h"     /* gcd(seq_t a, seq_t b) */
+#include "../utils/binomial.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +28,8 @@ seq_t a(idx_t n)
     idx_t two_n   = 2 * n;
 
     /* Binomial coefficients */
-    seq_t c3n_n = binom(three_n, n);  /* C(3n, n)   */
-    seq_t c2n_n = binom(two_n,   n);  /* C(2n, n)   */
+    seq_t c3n_n = binomial(three_n, n);  /* C(3n, n)   */
+    seq_t c2n_n = binomial(two_n,   n);  /* C(2n, n)   */
 
     /* Compute (c3n_n * c2n_n) / 6 without overflowing:
        cancel all factors of 6 from the product first. */

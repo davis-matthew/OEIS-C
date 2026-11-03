@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 21, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 444 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(n+1) = Σ_{d|n} (-1)^(n/d+1) * d * a(d) */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* dynamically allocated cache of a(n) */
 static idx_t  cache_alloc = 0;       /* size of the allocated array (inclusive of 0) */
@@ -29,7 +31,7 @@ ensure_cache(idx_t max)
     if (max < cache_alloc)
         return;
     size_t new_alloc = (size_t)(max + 1);
-    seq_t *tmp = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_alloc);
     if (!tmp)
         abort();  /* out of memory */
     /* zero the newly allocated part */

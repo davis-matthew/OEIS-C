@@ -13,16 +13,48 @@
  *            Sum_j (-1)^j C(L-j,j) F_k(L-2j) with F_k(m...
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 12, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   a3437_fixed, a3437_phi, a3437_sseq
+ * Validated: standard, pass, 36 terms through n = 299 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
-#include "../utils/a3437_fixed.h"
-#include "../utils/a3437_phi.h"
-#include "../utils/a3437_sseq.h"
+#include "../utils/totient_u64.h"
+
+static int a3437_fixed(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 300; i++) {
+        x = (seq_t)(x * (seq_t)2);
+        if (x == 0) return 1;
+    }
+    return 0;
+}
+
+/* arbitrary precision version */
+static void a3437_sseq(idx_t D, idx_t k, seq_t *o0, seq_t *o1, seq_t *o2) {
+    seq_t w0 = 1, w1 = 0, w2 = 0, w3 = 0, w4 = 0, w5 = 0;
+    int e = (k % 2 == 0);
+    idx_t L;
+    for (L = 1; L <= D; L++) {
+        seq_t pos = 0, neg = 0, nw;
+        if (e) {
+            pos += w0;
+            neg += w4;
+        }
+        if (L >= 2) pos += w1 * (seq_t)(k * (L - 1) - 1);
+        if (L >= 4) pos += w3 * (seq_t)(k * (L - 3) + 1);
+        pos += w5;
+        if (L == 4) neg += 1;
+        nw = pos - neg;
+        w5 = w4; w4 = w3; w3 = w2; w2 = w1; w1 = w0; w0 = nw;
+    }
+    *o0 = w0;
+    *o1 = w1;
+    *o2 = w2;
+}
 
 typedef struct { uint32_t l[8]; } a3437_w;
 
@@ -120,7 +152,7 @@ seq_t a(idx_t n) {
             a3437_wseq(d, k, o);
             if (d == 1) t = o[0];
             else a3437_wsub(&t, &o[0], &o[2]);
-            a3437_wmul(&t, &t, a3437_phi(k));
+            a3437_wmul(&t, &t, totient_u64(k));
             a3437_wadd(&T, &T, &t);
         }
         a3437_wseq(n, 2, o);
@@ -146,7 +178,7 @@ seq_t a(idx_t n) {
             a3437_sseq(d, k, &o0, &o1, &o2);
             if (d == 1) term = o0;
             else term = o0 - o2;
-            T += term * (seq_t)a3437_phi(k);
+            T += term * (seq_t)totient_u64(k);
         }
         a3437_sseq(n, 2, &o0, &o1, &o2);
         T += ((o0 + o2) - o1) * (seq_t)n;

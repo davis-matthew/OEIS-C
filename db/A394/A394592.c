@@ -7,6 +7,7 @@
  * Formula:   a(n) = sum of distinct prime divisors of binomial(5*n, n)
  * Range:     u8 n <= 12, u16 n <= 258, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 66 terms through n = 915 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
 
 static uint64_t *prime_list = NULL;

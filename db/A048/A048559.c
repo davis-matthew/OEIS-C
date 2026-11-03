@@ -9,24 +9,47 @@
  *            a(n) whose decimal representation starts with the decimal
  *            representation of a(n) and whose square root does not end in 0
  *            (the "nontrivial" condition)
- * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 4,
+ * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   pow10, seq_realloc, sqrt_floor
+ * Validated: partial, pass, 7 terms through n = 6 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"     /* pow10(idx_t) */
-#include "../utils/sqrt_floor.h"/* sqrt_floor(seq_t) */
-#include "../utils/seq_realloc.h"/* seq_realloc(seq_t*,size_t,size_t) */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Helper: compute the next term given the previous term. */
 static seq_t next_square(seq_t prev)
 {
     /* lower bound for roots: must be greater than sqrt(prev) */
-    seq_t sqrt_prev = sqrt_floor(prev);
+    seq_t sqrt_prev = isqrt_seq(prev);
     seq_t min_root = sqrt_prev + 1;   /* strict > sqrt(prev) */
 
     seq_t candidate_root = min_root;
@@ -40,7 +63,7 @@ static seq_t next_square(seq_t prev)
         seq_t upper_limit = upper - 1;  /* inclusive upper bound */
 
         /* compute ceil_sqrt(lower) */
-        seq_t s = sqrt_floor(lower);
+        seq_t s = isqrt_seq(lower);
         seq_t root = s;
         if (s * s < lower)
             ++root;          /* ceil */

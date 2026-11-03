@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
    a(n) = |{ m ∈ [1 .. n] : floor(√m · 100) mod 10 == 6 }|. */
 
 #include <stdint.h>
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n) {
     if (n < 1) return 0;          /* undefined below offset, return 0 */
@@ -27,7 +28,7 @@ seq_t a(idx_t n) {
     for (idx_t m = 1; m <= n; ++m) {
         /* compute floor(√m · 100) as floor(√(m * 10 000)) */
         idx_t prod = m * 10000ULL;   /* 10 000 fits in idx_t */
-        idx_t s    = int_sqrt(prod); /* integer part of √(m * 10 000) */
+        idx_t s    = isqrt(prod); /* integer part of √(m * 10 000) */
 
         if ((s % 10) == 6)          /* second decimal digit == 6 */
             ++cnt;

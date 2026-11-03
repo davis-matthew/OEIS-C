@@ -8,15 +8,16 @@
  * Formula:   a(n) = n + ∑_{p ≥ 2, p² | n} φ(p)·(v_p(n)-1) where v_p(n) is the
  *            exponent of p in the factorisation of n and φ is Euler's totient
  *            function
- * Range:     u8 n <= 242, u16 n <= 9434, u32 n <= 9434, u64 n <= 9434,
- *            u128 n <= 9434, big any n
- * Helpers:   phi
+ * Range:     u8 n <= 242, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 87 terms through n = 9434 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
             temp /= p;
         }
         if (e >= 2) {
-            seq_t phi_p = phi(p);
+            seq_t phi_p = totient(p);
             sum += phi_p * (seq_t)(e - 1);
         }
         ++p;

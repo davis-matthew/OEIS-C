@@ -12,14 +12,21 @@
  *            >= 1, a(0) = 0
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 27, u64 n <= 50, u128 n <= 93,
  *            big any n
- * Helpers:   alloc_zero, half_tri
+ * Validated: standard, pass, 48 terms through n = 994 (2026-11-03)
+ * Helpers:   mem, triangular_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/half_tri.h"
+#include "../utils/triangular_seq.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *Bv = 0, *Dv = 0;
 static long long have = 0, cap = 0;
@@ -65,7 +72,7 @@ static void extend(long long N)
         j = have;
         s = 0;
         for (i = 0; 2 * i < j; i++) s += Bv[i] * Bv[j - i];
-        if (j % 2 == 0) s += half_tri(Bv[j / 2]);
+        if (j % 2 == 0) s += triangular_seq(Bv[j / 2]);
         Dv[j] = s;
         have++;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   seq_alloc, seq_free
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,20 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_free.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 /* Return true if base‑9 representation of x contains adjacent digits 4
    and 5 in either order. */

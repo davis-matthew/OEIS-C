@@ -9,7 +9,8 @@
  *            recurrence involving binomial coefficients
  * Range:     i8 n <= 9, i16 n <= 12, i32 n <= 19, i64 n <= 27, i128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term of sequence A326829.
  * The function memoises previously computed values so that calls in any
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Extend the cache if needed */
     if (n >= cache_n) {
         idx_t new_n    = n + 1;                  /* new cache size */
-        seq_t *new_buf = (seq_t *)malloc(new_n * sizeof(seq_t));
+        seq_t *new_buf = mem_new(seq_t, new_n);
 
         /* Copy old values (if any) to the new buffer */
         for (idx_t i = 0; i < cache_n; ++i)
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old cache */
-        free(cache);
+        mem_free(cache);
         cache   = new_buf;
         cache_n = new_n;
     }

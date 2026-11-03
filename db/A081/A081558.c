@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 15, u64 n <= 26, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 /*  NOTE:  seq_t and idx_t are defined by the build system. */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache   = NULL;   /* cache[ i ] = a(i) */
 static idx_t  cache_len = 0;      /* number of stored entries */
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
 
     /* Allocate a larger array.  */
     idx_t new_len = n + 1;
-    seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_len);
     if (!new_cache)
         return;   /* out of memory – the harness will abort */
 
@@ -71,7 +73,7 @@ static void ensure_cache(idx_t n)
     }
 
     /* Release old storage.  */
-    free(a_cache);
+    mem_free(a_cache);
     a_cache   = new_cache;
     cache_len = new_len;
 }

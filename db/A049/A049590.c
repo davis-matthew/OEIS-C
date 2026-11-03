@@ -8,7 +8,8 @@
  *            58‑th power residue)
  * Range:     u8 n <= 24, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _gcd64, is_prime, mod_pow
+ * Validated: standard, pass, 71 terms through n = 973 (2026-11-03)
+ * Helpers:   gcd_u64, is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,12 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime.h"      /* bool is_prime(idx_t x) */
-#include "../utils/mod_pow.h"       /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod) */
-#include "../utils/_gcd64.h"
+#include <string.h>
+#include <math.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static size_t _cache_cap   = 0;
 static size_t _cache_count = 0;
@@ -36,7 +40,7 @@ static void _ensure_cap(size_t needed)
     size_t new_cap = _cache_cap < 8 ? 8 : _cache_cap * 2;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _cache, new_cap);
     if (!tmp)
         abort();
     _cache      = tmp;
@@ -59,9 +63,9 @@ seq_t a(idx_t n)
                 _ensure_cap(_cache_count + 1);
                 _cache[_cache_count++] = (seq_t)candidate;
             } else {
-                uint64_t g    = _gcd64(58ULL, candidate - 1);
+                uint64_t g    = gcd_u64(58ULL, candidate - 1);
                 uint64_t exp  = (candidate - 1) / g;
-                if (mod_pow((seq_t)2, exp, (seq_t)candidate) == (seq_t)1) {
+                if (powmod((seq_t)2, exp, (seq_t)candidate) == (seq_t)1) {
                     _ensure_cap(_cache_count + 1);
                     _cache[_cache_count++] = (seq_t)candidate;
                 }

@@ -10,16 +10,19 @@
  *            be 1
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto, next_prime
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/next_prime.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
+#include "../utils/next_prime.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
     static size_t   prime_cnt    = 0;
     static uint64_t prime_cache_max = 0;
 
-    uint64_t limit = (uint64_t)_floor_isqrt_u64(remaining);
+    uint64_t limit = (uint64_t)isqrt(remaining);
     if (limit > prime_cache_max) {
         /* Rebuild cache with a larger limit. */
         if (prime_cache) free(prime_cache);

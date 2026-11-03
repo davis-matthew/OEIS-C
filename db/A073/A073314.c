@@ -9,13 +9,15 @@
  * Formula:   a(n) = 2*a(n-1) - 2*a(n-3), a(0)=3, a(1)=2, a(2)=4
  * Range:     i8 n <= 12, i16 n <= 22, i32 n <= 51, i64 n <= 99, i128 n <= 201,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 907 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Computes A073314 by memoising earlier results.  */
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         size_t init = 3;               /* need at least three entries */
         if (n + 1 > init)
             init = n + 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * init);
+        cache = mem_new(seq_t, init);
         if (!cache) abort();           /* allocation failure */
 
         cache[0] = (seq_t)3;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* enlarge the cache if required */
     if (n + 1 > cache_len) {
         size_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();
         cache = tmp;
         cache_len = new_len;

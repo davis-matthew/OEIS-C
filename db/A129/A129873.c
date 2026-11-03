@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The external integer types */
 extern seq_t a(idx_t n);
@@ -42,9 +44,9 @@ seq_t a(idx_t n)
     /* Ensure arrays large enough to hold index n */
     if ((size_t)n + 1 > capacity) {
         size_t new_cap = (size_t)n + 1;
-        s  = (seq_t *)realloc(s ,  new_cap * sizeof(seq_t));
-        c2 = (seq_t *)realloc(c2, new_cap * sizeof(seq_t));
-        c3 = (seq_t *)realloc(c3, new_cap * sizeof(seq_t));
+        s  = mem_resize(seq_t, s, new_cap);
+        c2 = mem_resize(seq_t, c2, new_cap);
+        c3 = mem_resize(seq_t, c3, new_cap);
 
         /* If this is the first allocation, initialise the constant term */
         if (capacity == 0) {

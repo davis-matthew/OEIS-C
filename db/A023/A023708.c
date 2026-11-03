@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow3_capped
+ * Validated: standard, pass, 66 terms through n = 9822 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,18 @@
  */
 
 #include <stdint.h>
-#include "../utils/pow3_capped.h"
+
+static inline idx_t pow3_capped(idx_t e)
+{
+    /* Compute 3^e, but cap at UINT64_MAX to avoid overflow. */
+    __int128 r = 1;
+    for (idx_t i = 0; i < e; ++i) {
+        r *= 3;
+        if (r > (__int128)UINT64_MAX)
+            return UINT64_MAX;
+    }
+    return (idx_t)r;
+}
 
 static inline idx_t comb_small(idx_t n, uint8_t k)
 {

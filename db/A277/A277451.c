@@ -8,6 +8,7 @@
  * Formula:   a(0) = 1; a(n) = 30 * 4^(n-1) for n > 0
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 30, u128 n <= 62,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 964 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

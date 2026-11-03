@@ -8,7 +8,8 @@
  * Formula:   a(n) = floor(n^2 / A005185(n))
  * Range:     u8 n <= 15, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for Q(n).  Index 1…n; element 0 unused. */
 static seq_t *q_cache   = NULL;   /* allocated array */
@@ -33,7 +35,7 @@ static void ensure_q(idx_t n)
     if (q_cap <= n) {
         idx_t new_cap = q_cap ? q_cap << 1 : 8;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(q_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, q_cache, new_cap);
         if (!tmp) abort();                /* out of memory */
         q_cache = tmp;
         for (idx_t i = q_cap; i < new_cap; ++i) q_cache[i] = 0;

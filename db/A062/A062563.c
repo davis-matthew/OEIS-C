@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{k=1..n} d(k) * mu(k) (OEIS A062563)
  * Range:     i8 n <= 1105, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 113 terms through n = 9156 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    requirements. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t _max_n = 0;     /* largest n for which tables are valid */
 static int   *_mu    = NULL; /* Möbius values 1.._max_n */
@@ -34,7 +36,7 @@ static void recompute(idx_t n)
     /* Reallocate arrays to accommodate indices 0..n */
     _mu    = (int *)realloc(_mu,  (n + 1) * sizeof(int));
     _d     = (int *)realloc(_d,   (n + 1) * sizeof(int));
-    _pref  = (seq_t *)realloc(_pref,(n + 1) * sizeof(seq_t));
+    _pref  = mem_resize(seq_t, _pref, (n + 1));
     _max_n = n;
 
     /* ----- Möbius function via linear sieve ----- */

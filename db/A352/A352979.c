@@ -8,6 +8,7 @@
  *            263*n^4 - 221*n^3 - * 214*n^2 + 324*n - 112)/13440
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 20, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

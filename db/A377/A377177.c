@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 2506, u32 n <= 3713, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_candidate, factor_u64, is_prime, mod_pow
+ * Validated: standard, pass, 77 terms through n = 9576 (2026-11-03)
+ * Helpers:   factor_u64, is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,10 +23,29 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../utils/is_prime.h"
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mod_pow.h"
-#include "../utils/append_candidate.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 /* Cache of primes already found. */
 static seq_t *seq      = NULL;
@@ -66,7 +86,7 @@ seq_t a(idx_t n)
         bool ok = true;
         for (size_t i = 0; i < cnt && ok; ++i) {
             uint64_t q = primes[i];
-            if (mod_pow(g, (p - 1) / q, (seq_t)p) == 1)
+            if (powmod(g, (p - 1) / q, (seq_t)p) == 1)
                 ok = false;
         }
 

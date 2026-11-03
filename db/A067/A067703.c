@@ -10,14 +10,24 @@
  *            OEIS sequence A067703
  * Range:     u8 none, u16 n <= 3, u32 n <= 18, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   pow10, pow_int
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_int.h"
-#include "../utils/pow10.h"
+#include "../utils/ipow_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -27,7 +37,7 @@ seq_t a(idx_t n)
     }
 
     /* 2^n */
-    seq_t pow2 = pow_int((seq_t)2, n);
+    seq_t pow2 = ipow_idx((seq_t)2, n);
 
     /* 10^k depending on n mod 3 */
     seq_t pow10k;

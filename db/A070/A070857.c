@@ -11,7 +11,8 @@
  *            (integer division)
  * Range:     u8 n <= 0, u16 n <= 8, u32 n <= 16, u64 n <= 33, u128 n <= 66,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 40 terms through n = 882 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"   /* Provides seq_t gcd(seq_t a, seq_t b); */
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,12 +33,12 @@ seq_t a(idx_t n)
     /* ensure cache has room up to max(n, cache_len) */
     if (cache_len==0) {
         cache_cap = n+1;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;   /* a(0) = 1 */
         cache_len = 1;
     } else if (n >= cache_cap) {
         cache_cap = n+1;
-        cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* return cached value if already computed */

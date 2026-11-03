@@ -12,7 +12,8 @@
  *            diagonal 2, etc. Thus if d = ⌊(√(8⋅n+1)-1)/2⌋ (at...
  * Range:     u8 n <= 113, u16 n <= 1509, u32 n <= 5049, u64 n <= 5049,
  *            u128 n <= 5049, big any n
- * Helpers:   log_floor, period_T
+ * Validated: standard, pass, 94 terms through n = 4653 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,50 @@
 /* ------------------------------------------------------------------ */
 
 #include <stdbool.h>
-#include "../utils/log_floor.h"
-#include "../utils/period_T.h"
+
+/* compute largest exponent e such that p^e ≤ nRow */
+static inline idx_t log_floor(idx_t nRow, idx_t p) {
+    if (nRow < p) return 0;
+    idx_t e = 0;
+    idx_t val = p;
+    while (val <= nRow) {
+        ++e;
+        /* avoid overflow */
+        if (val > nRow / p) break;
+        val *= p;
+    }
+    return e;
+}
+
+/* compute T(r,k) according to the multiplicative formula */
+static seq_t period_T(idx_t r, idx_t k) {
+    if (r == 0) return (seq_t)1;
+    seq_t result = (seq_t)k;          /* start with k itself */
+    idx_t tmp = k;
+    /* factorisation of k by trial division */
+    for (idx_t p = 2; p*p <= tmp; ++p) {
+        if (tmp % p != 0) continue;
+        /* remove all copies of p from tmp */
+        while (tmp % p == 0) tmp /= p;
+        /* compute additional exponent */
+        idx_t add = log_floor(r, p);
+        if (add) {
+            seq_t factor = 1;
+            for (idx_t i = 0; i < add; ++i) factor *= (seq_t)p;
+            result *= factor;
+        }
+    }
+    if (tmp > 1) {               /* remaining prime factor */
+        idx_t p = tmp;
+        idx_t add = log_floor(r, p);
+        if (add) {
+            seq_t factor = 1;
+            for (idx_t i = 0; i < add; ++i) factor *= (seq_t)p;
+            result *= factor;
+        }
+    }
+    return result;
+}
 
 /* auxiliary: compute integer square root (floor) */
 static inline idx_t int_isqrt(idx_t x) {

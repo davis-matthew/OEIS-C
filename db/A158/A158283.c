@@ -9,16 +9,23 @@
  *            digits of p)| = 1
  * Range:     u8 n <= 9, u16 n <= 202, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   absdiff_int, digit_sum, is_prime
+ * Validated: standard, pass, 62 terms through n = 991 (2026-11-03)
+ * Helpers:   digit_sum, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <string.h>
 #include "../utils/digit_sum.h"
-#include "../utils/absdiff_int.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+static inline int absdiff_int(int a, int b) {
+    return a > b ? a - b : b - a;
+}
 
 /* Cached values of the sequence. */
 static seq_t *cache   = NULL;   /* array of primes satisfying the property */
@@ -35,7 +42,7 @@ seq_t a(idx_t n)
     if (!cache) {
         cache_cap = 16;
         cache_len = 0;
-        cache     = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache     = mem_new(seq_t, cache_cap);
     }
 
     /* Extend the cache until it contains at least n terms. */
@@ -54,7 +61,7 @@ seq_t a(idx_t n)
             /* Grow the cache if necessary. */
             if (cache_len >= cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = prime;
         }

@@ -12,19 +12,20 @@
  *            Omega values
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   countOmega
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   bigomega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/countOmega.h"
+#include "../utils/bigomega.h"
 
 seq_t a(idx_t n) {
     seq_t result = 0;
     idx_t cur = n;
     while (1) {
-        result += countOmega(cur);
+        result += bigomega(cur);
         if (cur < 10) break;
         cur /= 10;          /* remove the least significant decimal digit */
     }

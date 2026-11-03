@@ -12,13 +12,15 @@
  *            temporary * array. This keeps the implementation...
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 13, u64 n <= 29, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* Allocate an array of n+1 elements (index 0 unused). */
     size_t sz = (size_t)(n + 1);
-    seq_t *arr = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, sz);
     if (!arr)
         return (seq_t)0; /* memory error: return 0 as a sensible fallback */
 
@@ -46,6 +48,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   divides_sigma
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,31 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/divides_sigma.h"
+
+/* Return true iff n divides its sum of divisors σ(n). */
+static bool divides_sigma(uint64_t n)
+{
+    uint64_t sigma = 1;            /* product of (p^{e+1}-1)/(p-1) of each prime power */
+    uint64_t temp   = n;
+
+    for (uint64_t p = 2; p <= temp / p; ++p) {
+        if (temp % p == 0) {
+            uint64_t power = 1;
+            uint64_t term  = 1;
+            while (temp % p == 0) {
+                temp   /= p;
+                power  *= p;
+                term   += power;   /* sum of p^0 + p^1 + … + p^e */
+            }
+            sigma *= term;
+        }
+    }
+
+    if (temp > 1)      /* remaining prime factor */
+        sigma *= (1 + temp);
+
+    return (sigma % n) == 0;
+}
 
 /* External function required by the framework. */
 seq_t a(idx_t n)

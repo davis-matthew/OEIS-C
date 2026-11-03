@@ -12,12 +12,14 @@
  *            > 18. Initial terms for n = 1 … 18 are given in the OEIS entry
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first 18 values (index 0 unused) */
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t *)calloc((size_t)cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_cap);
         if (cache == NULL) exit(EXIT_FAILURE);
 
         static const seq_t init_vals[19] = {
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         idx_t needed = n + 1;
         size_t new_cap = cache_cap;
         while (new_cap < (size_t)needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) exit(EXIT_FAILURE);
         cache = tmp;
         cache_cap = (idx_t)new_cap;

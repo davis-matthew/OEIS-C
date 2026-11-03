@@ -9,7 +9,8 @@
  *            0, a(1) = 1
  * Range:     u8 n <= 22, u16 n <= 1165, u32 n <= 10000, u64 n <= 10000,
  *            u128 none, big any n
- * Helpers:   alloc_seq_array, floor_log2_uint64, free_seq
+ * Validated: standard, pass, 72 terms through n = 9813 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,20 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/floor_log2_uint64.h"
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq.h"
+#include <stdbool.h>
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;
@@ -63,7 +75,7 @@ static seq_t compute_val(idx_t n)
     seq_t left  = compute_val(half);
     seq_t right = compute_val(ceil);
 
-    unsigned log2 = floor_log2_uint64(n);
+    unsigned log2 = ilog2(n);
     seq_t add = (seq_t)n * (seq_t)log2;
     seq_t val = left + right + add;
 

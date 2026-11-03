@@ -8,7 +8,8 @@
  * Formula:   a(n) = n*(n+1)/2
  * Range:     u8 none, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   seq_qsort_cmp
+ * Validated: standard, pass, 74 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,17 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/seq_qsort_cmp.h"
+#include "../utils/mem.h"
+
+/* Helper comparison for qsort */
+static int seq_qsort_cmp(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t*)a;
+    const seq_t *y = (const seq_t*)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return  1;
+    return 0;
+}
 
 /* Allocators that work for both C and C++ */
 #ifdef __cplusplus
@@ -110,7 +121,7 @@ seq_t a(idx_t n)
                 pair[p++] = H[i] + H[j];
             }
         }
-        qsort(pair, pair_len, sizeof(seq_t), seq_qsort_cmp);
+        mem_qsort(pair, pair_len, sizeof(seq_t), seq_qsort_cmp);
 
         /* Min‑heap, one entry per list (fixed H[k]) */
         heap_node *heap = NEW_ARRAY(heap_node, m);

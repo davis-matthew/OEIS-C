@@ -11,15 +11,50 @@
  *            528384*n - 174960)*a(n-2) + 8*(n-2)*(686*n^4 -...
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 20, u64 n <= 37, u128 n <= 70,
  *            big any n
- * Helpers:   a3162_big, a3162_is_big
+ * Validated: standard, pass, 44 terms through n = 945 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
-#include "../utils/a3162_big.h"
-#include "../utils/a3162_is_big.h"
+
+static seq_t a3162_big(idx_t n) {
+    seq_t A0 = 1, A1 = 1, A2 = 1, A3 = 3;
+    idx_t m;
+    if (n == 0) return A0;
+    if (n == 1) return A1;
+    if (n == 2) return A2;
+    if (n == 3) return A3;
+    for (m = 4; m <= n; m++) {
+        seq_t N = (seq_t)m;
+        seq_t M1 = N + 1;
+        seq_t N2 = N * N, N3 = N2 * N, N4 = N3 * N, N5 = N4 * N, N6 = N5 * N;
+        seq_t p = (N3 * 196 + N * 530 + 528) - N2 * 819;
+        seq_t p1 = (M1 * M1 * M1 * 196 + M1 * 530 + 528) - M1 * M1 * 819;
+        seq_t q = (N4 * 1372 + N * 21934) - (N3 * 3633 + N2 * 7455 + 8448);
+        seq_t rr = (N6 * 12740 + N4 * 195310 + N * 528384)
+                   - (N5 * 90867 + N3 * 13277 + N2 * 452690 + 174960);
+        seq_t s = (N4 * 686 + N2 * 1176 + N * 6543) - (N3 * 3010 + 4725);
+        seq_t num = N * 2 * q * A3 + rr * A2 + (N - 2) * 8 * s * A1;
+        seq_t sub = (N - 3) * (N - 3) * (N - 2) * 16 * p1 * A0;
+        seq_t den = N * 4 * M1 * M1 * p;
+        seq_t next = (num - sub) / den;
+        A0 = A1;
+        A1 = A2;
+        A2 = A3;
+        A3 = next;
+    }
+    return A3;
+}
+
+static int a3162_is_big(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 200; i++) x = (seq_t)(x * 2);
+    return x != 0;
+}
 
 #define A3162_LIMBS 16
 #define A3162_FIXED_MAX 150

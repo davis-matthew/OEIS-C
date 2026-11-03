@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 15, u64 n <= 34, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* 5 columns in each row */
 #define COLS 5
@@ -98,10 +100,10 @@ static void init_once(void)
 static void ensure_dp_cap(size_t states)
 {
     if (dp_cap < states) {
-        free(dp_cur);
-        free(dp_next);
-        dp_cur = (seq_t *)malloc(states * sizeof(seq_t));
-        dp_next = (seq_t *)malloc(states * sizeof(seq_t));
+        mem_free(dp_cur);
+        mem_free(dp_next);
+        dp_cur = mem_new(seq_t, states);
+        dp_next = mem_new(seq_t, states);
         dp_cap = states;
     }
 }

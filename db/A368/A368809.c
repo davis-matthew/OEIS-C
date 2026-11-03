@@ -8,12 +8,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recurrence: a(n) = 36*a(n-1) - 413*a(n-2) + 1642*a(n-3)
                  - 2536*a(n-4) + 1152*a(n-5)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first five terms */
     if (!cache) {
         cache_cap = 8;                                    /* spare space */
-        cache = (seq_t *)malloc((size_t)cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_cap);
         if (!cache) return (seq_t)0;                     /* allocation failure */
 
         cache[0] = (seq_t)1;          /* a(1) */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Grow the cache array if the requested term is beyond current capacity */
     if (n > cache_cap) {
         idx_t new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!tmp) return (seq_t)0;     /* realloc failure */
         cache = tmp;
         cache_cap = new_cap;

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = n - pi(2*n) + pi(n-1) + 1 (n > 1)
- * Range:     u8 n <= 302, u16 n <= 9855, u32 n <= 9855, u64 n <= 9855,
- *            u128 n <= 9855, big any n
- * Helpers:   none
+ * Range:     u8 n <= 302, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 89 terms through n = 9855 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache of prime‑count prefix */
 static seq_t *pi_cache = NULL;
@@ -37,7 +39,7 @@ static void build_pi_cache(idx_t limit)
         }
     }
 
-    seq_t *new_cache = (seq_t *)malloc((lim + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (lim + 1));
     if (!new_cache) { free(is_prime); exit(1); }
 
     seq_t count = 0;
@@ -46,7 +48,7 @@ static void build_pi_cache(idx_t limit)
         new_cache[i] = count;
     }
 
-    if (pi_cache) free(pi_cache);
+    if (pi_cache) mem_free(pi_cache);
     pi_cache        = new_cache;
     pi_cache_limit  = lim;
 

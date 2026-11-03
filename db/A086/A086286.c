@@ -11,7 +11,8 @@
  *            numbers is stored in a separate array of type unsigne...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9823 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static size_t max_computed = 0;          /* number of terms already built */
 static size_t capacity   = 0;            /* allocated size of the arrays     */
@@ -45,14 +47,14 @@ static void ensure_capacity(size_t need)
         smooth_vals = (unsigned __int128 *)malloc(newcap * sizeof(unsigned __int128));
     }
     /* allocate/resize spf array */
-    spf_vals = (seq_t *)realloc(spf_vals, newcap * sizeof(seq_t));
+    spf_vals = mem_resize(seq_t, spf_vals, newcap);
 
     /* For arbitrary‑precision seq_t we also keep h_vals for comparison
        (though it is only used when seq_t itself can hold the values). */
     if (h_vals) {
-        h_vals = (seq_t *)realloc(h_vals, newcap * sizeof(seq_t));
+        h_vals = mem_resize(seq_t, h_vals, newcap);
     } else {
-        h_vals = (seq_t *)malloc(newcap * sizeof(seq_t));
+        h_vals = mem_new(seq_t, newcap);
     }
 }
 

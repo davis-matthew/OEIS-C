@@ -9,7 +9,8 @@
  *            all primes p < n
  * Range:     u8 n <= 17, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   mod_pow, sieve_primes
+ * Validated: partial, pass, 87 terms through n = 89 (2026-11-01)
+ * Helpers:   powmod, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,11 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/sieve_primes.h"   /* void sieve_primes(idx_t limit, idx_t **out, size_t *count_out); */
-#include "../utils/mod_pow.h"        /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/sieve_primes.h"
 
 seq_t a(idx_t n)
 {
@@ -50,7 +54,7 @@ seq_t a(idx_t n)
 
         seq_t k = 1;                     /* current exponent */
         while (1) {
-            seq_t r = mod_pow(base, exp, mod);
+            seq_t r = powmod(base, exp, mod);
             if (r == 1) {
                 ++k;                    /* p^(k) divides n^(p-1)-1   */
                 mod *= (seq_t)p;         /* increase modulus to p^(k+1) */

@@ -11,8 +11,9 @@
  *            successive primes and then interpreting the digits as exponents
  *            of the same primes. rad(m) = product of the distinct primes that
  *            divide m. The function returns a(n) for any n ≥ 0
- * Range:     u8 n <= 40, u16 n <= 2578, u32 n <= 8661, u64 n <= 8661,
- *            u128 n <= 8661, big any n
+ * Range:     u8 n <= 40, u16 n <= 2578, u32 n <= 11550, u64 n <= 11550,
+ *            u128 n <= 11550, big any n
+ * Validated: standard, pass, 95 terms through n = 8661 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

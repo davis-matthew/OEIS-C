@@ -13,7 +13,8 @@
  *            antidiagonal * elements. The DP keeps track of the...
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 14, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>   /* for memset */
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Constants                                                     */
@@ -112,8 +114,8 @@ static void init_graph(void)
     free(cursor);
 
     /* Allocate DP arrays and initialise them to 0. */
-    dp_cur  = (seq_t *)calloc(STATES, sizeof(seq_t));
-    dp_next = (seq_t *)calloc(STATES, sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, STATES);
+    dp_next = mem_new(seq_t, STATES);
 
     /* Each row can start a new array: dp_cur[i] = 1. */
     for (uint16_t i = 0; i < STATES; ++i)
@@ -129,12 +131,12 @@ static void ensure_memo_size(idx_t need)
     if (memo_size > need)
         return;
     idx_t new_size = need + 1;
-    seq_t *new_arr = (seq_t *)calloc(new_size, sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_size);
     if (memo_arr != 0) {
         /* Copy existing values. */
         for (idx_t i = 0; i < memo_size; ++i)
             new_arr[i] = memo_arr[i];
-        free(memo_arr);
+        mem_free(memo_arr);
     }
     memo_arr  = new_arr;
     memo_size = new_size;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = n*(10^floor(2*log10(n)+1)+ n)
  * Range:     u8 n <= 3, u16 n <= 31, u32 n <= 999, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 55 terms through n = 8850 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 13, u16 n <= 1939, u32 n <= 9510, u64 n <= 9510,
- *            u128 n <= 9510, big any n
- * Helpers:   append_candidate, gcd, isPrimeTrial
+ * Range:     u8 n <= 13, u16 n <= 1939, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 85 terms through n = 9510 (2026-11-03)
+ * Helpers:   gcd, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,25 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/append_candidate.h"
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 #define LIMIT 5000000     /* upper bound for k to generate many terms */
 
@@ -84,7 +102,7 @@ static uint32_t next_prime_of(uint32_t p)
             return primes[l + 1];
         /* p is the largest precomputed prime; find next by trial */
         uint32_t cand = primes[l] + 1;
-        while (!isPrimeTrial((seq_t)cand))
+        while (!is_prime_seq((seq_t)cand))
             ++cand;
         return cand;
     }

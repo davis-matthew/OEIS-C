@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 343, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   power_of_7
+ * Validated: standard, pass, 102 terms through n = 8904 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
    (equivalently a(n) = Σ_{i=1}^{n-1} (-1)^{i-1} 7^{ν_7(i)}	*/
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/power_of_7.h"
+#include "../utils/mem.h"
+
+/* Compute the largest power of 7 that does not exceed n‑1.
+   n ≥ 2 for which this function is called. */
+static seq_t power_of_7(idx_t n)
+{
+    idx_t pw = 1;                 /* base 7 exponent 0          */
+    while ((uint64_t)pw * 7ULL <= (uint64_t)(n - 1))
+        pw *= 7ULL;
+    return (seq_t)pw;             /* cast to seq_t (small value) */
+}
 
 static seq_t *cache = NULL;      /* memoised values a(1), a(2), …           */
 static idx_t cache_size = 0;     /* number of values currently stored      */
@@ -32,7 +43,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary */
     if (n > cache_size)
     {
-        seq_t *new_cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, n);
         if (!new_cache)           /* allocation failed – return 0 */
             return (seq_t)0;
         cache = new_cache;

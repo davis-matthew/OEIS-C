@@ -7,6 +7,7 @@
  * Formula:   a(4k)=2k+1, a(4k+1)=0, a(4k+2)=-(2k+1), a(4k+3)=1
  * Range:     i8 n <= 255, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 88 terms through n = 9992 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

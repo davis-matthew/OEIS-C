@@ -8,13 +8,15 @@
  *            a(0)=1, a(1)=2, a(2)=3, a(3)=6
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,13 +26,13 @@ seq_t a(idx_t n)
     size_t needed = (size_t)n + 1;          /* number of terms required */
     if (needed > cap) {
         size_t old_cap = cap;
-        seq_t *new_cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, needed);
         if (!new_cache) return (seq_t)0;    /* allocation failure (undefined) */
 
         /* copy previously computed values */
         if (cache) {
-            memcpy(new_cache, cache, old_cap * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, old_cap * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = new_cache;
         cap   = needed;

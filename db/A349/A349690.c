@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 3887, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, sigma_of
+ * Validated: standard, pass, 79 terms through n = 9336 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,22 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/sigma_of.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 static seq_t *terms = NULL;   /* cached sequence values          */
 static size_t terms_len = 0;  /* number of terms stored          */
@@ -36,7 +52,7 @@ static void grow_terms(size_t need)
     size_t new_cap = terms_cap ? terms_cap * 2 : 64;
     if (new_cap < need)
         new_cap = need;
-    seq_t *tmp = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     terms = tmp;
     terms_cap = new_cap;

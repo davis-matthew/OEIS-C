@@ -12,13 +12,24 @@
  *            columns j * and j+1 (j = 0 … 30). This implementa...
  * Range:     u8 n <= 32, u16 n <= 32, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   parity32
+ * Validated: full, pass, 32 terms through n = 32 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/parity32.h"
+
+/* Portable parity for 32‑bit values: returns 0 or 1. */
+static inline uint32_t parity32(uint32_t x)
+{
+    x ^= x >> 16;
+    x ^= x >> 8;
+    x ^= x >> 4;
+    x ^= x >> 2;
+    x ^= x >> 1;
+    return x & 1;
+}
 
 seq_t a(idx_t n)
 {

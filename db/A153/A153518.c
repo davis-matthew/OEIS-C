@@ -12,12 +12,14 @@
  *            obtained by reading the rows of T(n,k) left to right (a...
  * Range:     u8 n <= 12, u16 n <= 49, u32 n <= 179, u64 n <= 683,
  *            u128 n <= 1275, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1214 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;
 static size_t rows_allocated = 0;
@@ -42,7 +44,7 @@ static void ensure_rows(idx_t up_to)
     /* compute rows */
     for (size_t n = rows_used + 1; n <= (size_t)up_to; ++n)
     {
-        seq_t *row = (seq_t*)malloc(n * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, n);
         if (!row) abort();        /* memory allocation failure */
 
         if (n == 1)

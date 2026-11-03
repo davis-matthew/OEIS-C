@@ -6,15 +6,17 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = 1 + Sum_{k=0..n-2} binomial(k, floor(k/2))
- * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 32, u64 n <= 34, u128 n <= 34,
+ * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The binomial helper is provided by the build environment. */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= n-2; ++k)
     {
         /* floor(k/2) fits in idx_t because k <= n-2 <= 9998 for n<=10000 */
-        sum += binom(k, k/2);
+        sum += binomial(k, k/2);
     }
 
     return sum;

@@ -11,13 +11,51 @@
  *            numbers)
  * Range:     u8 none, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   digits_sort_decasc
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digits_sort_decasc.h"
+
+static void digits_sort_decasc(seq_t value, seq_t *asc, seq_t *desc)
+{
+    /* Extract up to 4 digits (with leading zeros). */
+    uint8_t dig[4];
+    int  len = 0;
+    seq_t tmp = value;
+    while (tmp > 0 && len < 4) {
+        dig[len++] = (uint8_t)(tmp % 10);
+        tmp /= 10;
+    }
+    /* Pad with zeros if necessary. */
+    while (len < 4) {
+        dig[len++] = 0;
+    }
+
+    /* Simple insertion sort for the very small array. */
+    for (int i = 1; i < len; ++i) {
+        uint8_t x = dig[i];
+        int j = i - 1;
+        while (j >= 0 && dig[j] > x) {
+            dig[j + 1] = dig[j];
+            --j;
+        }
+        dig[j + 1] = x;
+    }
+
+    /* Build ascending number. */
+    *asc = 0;
+    for (int i = 0; i < len; ++i) {
+        *asc = *asc * 10 + dig[i];
+    }
+    /* Build descending number (reverse). */
+    *desc = 0;
+    for (int i = len - 1; i >= 0; --i) {
+        *desc = *desc * 10 + dig[i];
+    }
+}
 
 seq_t a(idx_t n)
 {

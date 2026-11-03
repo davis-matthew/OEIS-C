@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 207, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 60 terms through n = 979 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *special = NULL;
 static size_t special_cnt = 0;
@@ -30,7 +32,7 @@ static void ensure_capacity(size_t need)
     size_t new_cap = special_cap ? special_cap << 1 : 64;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(special, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, special, new_cap);
     if (!tmp) abort();   /* allocation failed */
     special = tmp;
     special_cap = new_cap;
@@ -40,7 +42,7 @@ static void ensure_special(idx_t n)
 {
     while (special_cnt < (size_t)n)
     {
-        if (is_prime_small((seq_t)next_candidate))
+        if (is_prime_seq((seq_t)next_candidate))
         {
             ensure_capacity(special_cnt + 1);
             special[special_cnt++] = (seq_t)next_candidate;

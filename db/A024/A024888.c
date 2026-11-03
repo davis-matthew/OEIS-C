@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{i=1}^{⌊n/2⌋} s(i) · t(n‑i+1)
  * Range:     u8 n <= 3, u16 n <= 57, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 59 terms through n = 60 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,26 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* ---------- cache for the upper Wythoff sequence t(n) ---------- */
 static seq_t *T = NULL;          /* 1‑based: T[i] = t(i) */
@@ -35,9 +55,9 @@ static void build_t(idx_t n)
     if (Tsize >= n) return;
 
     if (!T)
-        T = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        T = mem_new(seq_t, (n + 1));
     else
-        T = (seq_t *)realloc(T, (n + 1) * sizeof(seq_t));
+        T = mem_resize(seq_t, T, (n + 1));
 
     if (!T) abort();
 

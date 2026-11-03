@@ -10,12 +10,14 @@
  *            expansion sinh(x)*cosh(log(1+x))
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 12, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *S_cache = NULL;   /* cache of S(n) values   */
 static size_t S_size  = 0;      /* allocated length of S_cache */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Ensure cache is long enough.  n+1 because we store S[0..n]. */
     if (n >= S_size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(S_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, S_cache, new_size);
         if (!tmp) return 0;                /* silently fail if OOM */
         S_cache = tmp;
 

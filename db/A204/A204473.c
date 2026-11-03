@@ -9,7 +9,8 @@
  *            81n+45
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 4, u64 n <= 77, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     static idx_t  dp_size = 0;
 
     if (t + 1 > dp_size) {
-        seq_t *tmp = (seq_t *)realloc(dp, (t + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, (t + 1));
         if (!tmp) return (seq_t)0;          /* allocation failed */
         dp       = tmp;
         dp_size  = t + 1;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     /* Initialise dp[0] = 1, others 0 */
     dp[0] = (seq_t)1;
     if (t > 0)
-        memset(dp + 1, 0, t * sizeof(seq_t));
+        mem_set(dp + 1, 0, t * sizeof(seq_t));
 
     /* Apply the q‑binomial product term by term */
     for (idx_t i = 1; i <= 9; ++i) {

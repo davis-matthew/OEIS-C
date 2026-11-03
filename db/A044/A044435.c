@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   has02
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,25 @@
    Compute by sequentially testing each k until the nth one is found. */
 
 #include <stdbool.h>
-#include "../utils/has02.h"
+
+static bool has02(seq_t x)
+{
+    if (x == (seq_t)0)            /* 0 has no digits except a single 0 */
+        return false;
+
+    seq_t temp = x;
+    seq_t three = (seq_t)3;       /* use a seq_t constant for safety */
+    int prev = -1;                /* previous (less significant) digit */
+
+    while (temp > (seq_t)0) {
+        int digit = (int)(temp % three); /* current (more significant) digit */
+        if (prev == 2 && digit == 0)     /* detects the substring 0,2 */
+            return true;
+        prev = digit;
+        temp /= three;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,19 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static int seq_cmp(const void *p1, const void *p2)
 {
@@ -62,7 +74,7 @@ seq_t a(idx_t n)
     }
 
     /* Sort the generated numbers to obtain them in increasing order. */
-    qsort(arr, sz, sizeof(seq_t), seq_cmp);
+    mem_qsort(arr, sz, sizeof(seq_t), seq_cmp);
 
     seq_t result = arr[n - 1];  /* n is 1‑based */
     free_seq_array(arr);

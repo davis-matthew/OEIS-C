@@ -7,22 +7,24 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥1} (1 + x^k/(1+x))
  * Range:     i8 n <= 16, i16 n <= 37, i32 n <= 93, i64 n <= 240,
  *            i128 n <= 500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 493 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)1;
 
     size_t N = (size_t)n;
-    seq_t *old = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *newA = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    if (!old || !newA) { free(old); free(newA); return (seq_t)0; }
+    seq_t *old = mem_new(seq_t, N + 1);
+    seq_t *newA = mem_new(seq_t, N + 1);
+    if (!old || !newA) { mem_free(old); mem_free(newA); return (seq_t)0; }
 
     old[0] = (seq_t)1;                /* a(0) = 1 */
 
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = old[N];
-    free(old);
-    free(newA);
+    mem_free(old);
+    mem_free(newA);
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 1640, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_match_prime
+ * Validated: standard, pass, 73 terms through n = 9540 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,12 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_match_prime.h"
+
+/* Return true iff p is 2 or ≡5 or 23 (mod 24). */
+static inline bool is_match_prime(uint64_t p)
+{
+    return (p == 2) || (p % 24ULL == 5ULL) || (p % 24ULL == 23ULL);
+}
 
 /* Static storage for primes and matching primes. */
 static uint64_t *prime_list   = NULL;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *reachable = NULL;
 static idx_t reachable_size = 0;
@@ -39,7 +41,7 @@ static void precompute(idx_t needed) {
     while (1) {
         /* Allocate/resize reachable array. */
         if (reachable_size < limit + 1) {
-            seq_t *new_r = (seq_t *)realloc(reachable, (limit + 1) * sizeof(seq_t));
+            seq_t *new_r = mem_resize(seq_t, reachable, (limit + 1));
             reachable = new_r;
             reachable_size = limit + 1;
         }
@@ -77,14 +79,14 @@ static void precompute(idx_t needed) {
         /* Collect answers. */
         if (ans_capacity == 0) {
             ans_capacity = 1024;
-            answers = (seq_t *)malloc(ans_capacity * sizeof(seq_t));
+            answers = mem_new(seq_t, ans_capacity);
         }
         idx_t new_count = 0;
         for (idx_t n = 1; n <= limit; ++n) {
             if (reachable[n] == 4) {
                 if (new_count == ans_capacity) {
                     ans_capacity *= 2;
-                    seq_t *tmp = (seq_t *)realloc(answers, ans_capacity * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, answers, ans_capacity);
                     answers = tmp;
                 }
                 answers[new_count++] = (seq_t)n;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global storage for the pre‑computed sequence. */
 static seq_t *g_seq   = NULL;   /* array of sequence terms          */
@@ -48,7 +50,7 @@ static void build_sequence(void)
 
     /* Allocate space for the sequence. */
     size_t cap  = 20000U;                 /* initial capacity, more than enough */
-    seq_t *seq  = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *seq  = mem_new(seq_t, cap);
     if (!seq) abort();
 
     size_t len = 0U;
@@ -64,7 +66,7 @@ static void build_sequence(void)
         if (p >= 6U && sieve[p - 6U]) {          /* p-6 is prime */
             if (len == cap) {                   /* grow the array */
                 cap *= 2;
-                seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, cap);
                 if (!seq) abort();
             }
             seq[len++] = (seq_t)p;

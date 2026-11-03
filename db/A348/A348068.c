@@ -7,7 +7,8 @@
  * Formula:   a(n) = \sum_{k=0}^{n} \binom{n}{k} \, Stirling1(k,5) \, (n-k)!
  * Range:     i8 n <= 7, i16 n <= 9, i32 n <= 13, i64 n <= 21, i128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(n) = n * a(n-1) + Stirling1(n,5)   (for n >= 5) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;           /* cached sequence values */
 static size_t A_cap = 0;          /* allocated capacity for A */
@@ -38,7 +40,7 @@ static void ensure_capacity(idx_t n)
     if ((size_t)(n + 1) > A_cap) {
         size_t new_cap = A_cap ? A_cap * 2 : 16;
         while ((size_t)(n + 1) > new_cap) new_cap *= 2;
-        seq_t *newA = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+        seq_t *newA = mem_resize(seq_t, A, new_cap);
         if (!newA) abort();          /* out of memory */
         /* zero the newly allocated part */
         for (size_t i = A_cap; i < new_cap; ++i) newA[i] = 0;
@@ -52,7 +54,7 @@ static void init_once(void)
 {
     if (!A) {
         A_cap = 16;
-        A = (seq_t *)calloc(A_cap, sizeof(seq_t));
+        A = mem_new(seq_t, A_cap);
         if (!A) abort();            /* out of memory */
 
         /* start with s(0,0)=1, others 0 */

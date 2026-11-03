@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, easy, fini, full
  * Formula:   not stated
- * Range:     u8 none, u16 none, u32 n <= 1907, u64 n <= 6296, u128 n <= 6296,
+ * Range:     u8 none, u16 none, u32 n <= 1837, u64 n <= 6296, u128 n <= 6296,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 6296 terms through n = 6296 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const struct {int from; int to;} edges[21] = {
     {1,1},{1,3},{1,7},{1,9},
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
             dfs(to, init, (1u << i), 1);
         }
         /* sort to provide sequence order */
-        qsort(terms, terms_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(terms, terms_len, sizeof(seq_t), cmp_seq);
         terms_built = true;
     }
 

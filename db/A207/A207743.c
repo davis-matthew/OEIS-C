@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   is_valid_col
+ * Validated: standard, pass, 35 terms through n = 199 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,19 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_valid_col.h"
+
+/* Helper: check whether a 5‑bit column avoids vertical patterns 001 and 100. */
+static bool is_valid_col(uint32_t col)
+{
+    for (int r = 0; r < 3; ++r) {
+        uint32_t b0 = (col >> r) & 1U;
+        uint32_t b1 = (col >> (r + 1)) & 1U;
+        uint32_t b2 = (col >> (r + 2)) & 1U;
+        if (b0 == 0 && b1 == 0 && b2 == 1) return false;
+        if (b0 == 1 && b1 == 0 && b2 == 0) return false;
+    }
+    return true;
+}
 
 /* Count of valid columns and list of them. */
 static int num_valid_cols;

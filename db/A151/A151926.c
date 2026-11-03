@@ -8,13 +8,48 @@
  *            (i.e. A151926 = N \ {A008784, numbers == 0,4,7 mod 8})
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   in_A008784
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/in_A008784.h"
+#include "../utils/mem.h"
+
+/* Test whether n belongs to A008784:
+   numbers for which all odd prime factors are congruent to 1 (mod 4)
+   (including 1 and 2).  Return 1 if n is in A008784, 0 otherwise. */
+static int in_A008784(idx_t n)
+{
+    if (n <= 2)          /* 1 and 2 are in A008784 */
+        return 1;
+
+    /* Remove all factors of 2; only odd prime factors matter */
+    while ((n & 1) == 0)
+        n >>= 1;
+
+    if (n == 1)          /* n was a power of two */
+        return 1;
+
+    /* Now n is odd > 1.  Factor n.  If any odd prime factor is not
+       ≡ 1 (mod 4), then n is NOT in A008784. */
+    idx_t temp = n;
+    for (idx_t p = 3; p <= temp / p; p += 2) {
+        if (temp % p == 0) {
+            if (p % 4 != 1)
+                return 0;          /* found a forbidden prime factor */
+            while (temp % p == 0)
+                temp /= p;
+        }
+    }
+    /* If remaining part > 1, it is an odd prime.  Check it. */
+    if (temp > 1 && temp % 4 != 1)
+        return 0;
+
+    /* All odd prime factors (if any) are ≡ 1 (mod 4) */
+    return 1;
+}
 
 static seq_t *cache = NULL;          /* stored terms of the sequence */
 static size_t cache_used = 0;        /* how many terms are stored */
@@ -41,7 +76,7 @@ seq_t a(idx_t n)
         /* Store the accepted number */
         if (cache_used >= cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 128;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) {
                 /* allocation failed – abort */
                 abort();

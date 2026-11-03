@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* forward declaration of helper functions */
 static unsigned bitlen_seq_t(seq_t x);
@@ -71,7 +73,7 @@ static void grow_cache(idx_t needed)
     if ((size_t)needed <= cache_size) return;
     size_t new_size = cache_size ? cache_size * 2 : 128;
     while (new_size < (size_t)needed) new_size *= 2;
-    seq_t *tmp = (seq_t*)realloc(seq_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_size);
     if (!tmp) abort(); /* out of memory */
     seq_cache = tmp;
     cache_size = new_size;

@@ -12,14 +12,26 @@
  *            row‑wise
  * Range:     i8 n <= 15, i16 n <= 35, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   factorial, pow2
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/factorial.h"   /* factorial(idx_t) */
-#include "../utils/pow2.h"        /* pow2(idx_t) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* compute the matrix index (row, column) corresponding to the
    flattened index n.  Row r satisfies tri(r) <= n < tri(r+1),

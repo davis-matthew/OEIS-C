@@ -7,15 +7,17 @@
  * Formula:   a(n) = (1/2) * Σ_{t=0}^{n} C(5n,3(n‑t)) * C(2n+3t,2t) * 2^{2n+t}
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 6, u128 n <= 13,
  *            big any n
- * Helpers:   binom, pow_seq
+ * Validated: standard, pass, 27 terms through n = 112 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* This counts unordered pairs of orthogonal (-2,3) vectors of length 5*n. */
 
-#include "../utils/binom.h"
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -31,11 +33,11 @@ seq_t a(idx_t n)
         idx_t m = 2 * n + 3 * t;               /* remaining positions count */
 
         /* C(5n, i)   and   C(m, k)   are binomial coefficients. */
-        seq_t c1   = binom(five_n, i);
-        seq_t c2   = binom(m, k);
+        seq_t c1   = binomial(five_n, i);
+        seq_t c2   = binomial(m, k);
 
         /* 2^{2n+t}  multiplication. */
-        seq_t pow2 = pow_seq((seq_t)2, (int)(2 * n + t));
+        seq_t pow2 = ipow_i32((seq_t)2, (int)(2 * n + t));
 
         seq_t term = c1;
         term = term * c2;

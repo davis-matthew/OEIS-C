@@ -10,9 +10,10 @@
  *            a(0)=0, a(1)=1..a(6)=6, a(7)=8, a(8)=7, a(2^(3k)) = 7^k,
  *            a(2^(3k+1)) = 2⋅7^k, a(2^(3k+2)) = 4⋅7^k, for odd primes p≠7:
  *            a(p)=p_{a(index(p))}, and a(u⋅v)=a(u)⋅a(v) for all u,v>1
- * Range:     u8 n <= 195, u16 n <= 9902, u32 n <= 9902, u64 n <= 9902,
- *            u128 n <= 9902, big any n
- * Helpers:   prime_pi, seq_pow
+ * Range:     u8 n <= 195, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 98 terms through n = 9902 (2026-11-01)
+ * Helpers:   ipow_idx, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/ipow_idx.h"
 #include "../utils/prime_pi.h"
-#include "../utils/seq_pow.h"
 
 /* ---------- Prime tables ---------- */
 static const idx_t PRIME_LIMIT = 200000;        /* should be large enough for a(i) in the required range */
@@ -89,7 +90,7 @@ static seq_t power_of_two(idx_t exp)
 {
     idx_t k = exp / 3U;
     idx_t r = exp % 3U;
-    seq_t pow7k = seq_pow((seq_t)7, k);
+    seq_t pow7k = ipow_idx((seq_t)7, k);
 
     switch (r) {
         case 0: return pow7k;                 /* a(2^(3k))   = 7^k          */
@@ -130,9 +131,9 @@ static seq_t a_calc(idx_t n)
 
         seq_t factor;
         if (p == 7)
-            factor = seq_pow((seq_t)8, exp);          /* a(7^e) = 8^e */
+            factor = ipow_idx((seq_t)8, exp);          /* a(7^e) = 8^e */
         else
-            factor = seq_pow(map_prime(p), exp);       /* a(p^e) = a(p)^e */
+            factor = ipow_idx(map_prime(p), exp);       /* a(p^e) = a(p)^e */
 
         result *= factor;
     }

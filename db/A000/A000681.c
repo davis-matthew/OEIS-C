@@ -8,13 +8,15 @@
  * Formula:   a(n) = n^2*a(n-1) - (1/2)*n*(n-1)^2*a(n-2), a(0) = 1, a(1) = 1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 220 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0 || n == 1) return 1;
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     
     if (cache == NULL) {
         cache_capacity = 16;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         cache[0] = 1;
         cache[1] = 1;
         cached_n = 1;
@@ -34,9 +36,9 @@ seq_t a(idx_t n) {
     // Expand cache if needed
     while (n >= cache_capacity) {
         idx_t new_capacity = cache_capacity * 2;
-        seq_t *new_cache = (seq_t *)malloc(new_capacity * sizeof(seq_t));
-        memcpy(new_cache, cache, (cached_n + 1) * sizeof(seq_t));
-        free(cache);
+        seq_t *new_cache = mem_new(seq_t, new_capacity);
+        mem_copy(new_cache, cache, (cached_n + 1) * sizeof(seq_t));
+        mem_free(cache);
         cache = new_cache;
         cache_capacity = new_capacity;
     }

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 127, u16 n <= 9400, u32 n <= 9400, u64 n <= 9400,
- *            u128 n <= 9400, big any n
- * Helpers:   build_primes_upto, seq_pow, sigma_of
+ * Range:     u8 n <= 127, u16 n <= 32767, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9400 (2026-11-02)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,24 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/sigma_of.h"            /* seq_t sigma_of(idx_t n);      */
-#include "../utils/seq_pow.h"             /* seq_t seq_pow(seq_t base, idx_t exp); */
-#include "../utils/build_primes_upto.h"   /* void build_primes_upto(idx_t limit,
-                                          uint64_t **primes_out, size_t *cnt_out); */
+#include <stdlib.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_idx.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* First few primes – enough for all n up to at least 10000. */
 static const uint64_t SMALL_PRIMES[] = {
@@ -91,7 +106,7 @@ seq_t a(idx_t n)
     /* 4. Build the least number with the same prime signature. */
     seq_t result = 1;
     for (size_t i = 0; i < exps_cnt; ++i) {
-        seq_t part = seq_pow((seq_t)SMALL_PRIMES[i], (idx_t)exps[i]);
+        seq_t part = ipow_idx((seq_t)SMALL_PRIMES[i], (idx_t)exps[i]);
         result *= part;
     }
 

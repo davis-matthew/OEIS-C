@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor((2*n^3 + 3*n^2 + n + 21) / 42)
  * Range:     u8 n <= 4, u16 n <= 31, u32 n <= 1613, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 67 terms through n = 5000 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,13 +8,15 @@
  * Formula:   a(n) = 1 for n < 3; a(n) = 2^(n-1)*a(n-1) + a(n-2) + a(n-3)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build environment. */
 
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t needed)
     idx_t new_cap = cache_cap ? cache_cap : 1;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, new_cap);
     if (!newp)
         abort();                 /* memory allocation failure */
     /* Zero-initialize the newly allocated part. */

@@ -8,7 +8,8 @@
  *            δ_p}, where δ_p = 1 if p ∤ v_p(n!), else 0
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 17, u64 n <= 26, u128 n <= 44,
  *            big any n
- * Helpers:   build_primes_upto, seq_mul, seq_pow
+ * Validated: standard, pass, 41 terms through n = 199 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,16 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto */
-#include "../utils/seq_pow.h"             /* seq_pow */
-#include "../utils/seq_mul.h"             /* seq_mul */
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,7 +49,7 @@ seq_t a(idx_t n)
         prime_limit = n;
     }
 
-    seq_t result = seq_pow((seq_t)1, (idx_t)0); /* start with 1 */
+    seq_t result = ipow_idx((seq_t)1, (idx_t)0); /* start with 1 */
 
     for (size_t i = 0; i < prime_count; ++i) {
         uint64_t p = primes[i];
@@ -64,7 +72,7 @@ seq_t a(idx_t n)
         if (exp == 0)
             continue;   /* multiplying by 1 */
 
-        seq_t ppow = seq_pow((seq_t)p, exp);
+        seq_t ppow = ipow_idx((seq_t)p, exp);
         result = seq_mul(result, ppow);
     }
 

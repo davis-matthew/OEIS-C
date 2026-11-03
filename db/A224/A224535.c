@@ -8,7 +8,8 @@
  *            primes
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static uint64_t *primes = NULL;
 static size_t primes_cnt = 0;
@@ -79,10 +81,10 @@ static void extend_terms_to(size_t goal)
         if (can_sum_three_distinct(last_odd_tested)) {
             if (terms_cap == 0) {
                 terms_cap = 16;
-                terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+                terms = mem_new(seq_t, terms_cap);
             } else if (terms_len == terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = last_odd_tested;
         }

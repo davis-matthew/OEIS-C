@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000040(n) - A018252(n)
  * Range:     i8 n <= 42, i16 n <= 3954, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9734 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper buffers (static) */
 static seq_t *g_primes = NULL;
@@ -54,19 +56,19 @@ static void build_limit(void)
             ++prime_est;
 
     /* Free old arrays */
-    free(g_primes);
-    free(g_nonprimes);
+    mem_free(g_primes);
+    mem_free(g_nonprimes);
 
     /* Allocate arrays with exact size */
-    g_primes = (seq_t*)malloc(prime_est * sizeof(seq_t));
+    g_primes = mem_new(seq_t, prime_est);
     /* Nonprime count: 1 (the number 1) + composites */
     g_nonprime_cnt = limit - prime_est;
-    g_nonprimes = (seq_t*)malloc(g_nonprime_cnt * sizeof(seq_t));
+    g_nonprimes = mem_new(seq_t, g_nonprime_cnt);
 
     if (!g_primes || !g_nonprimes) {
         /* Allocation failed – reset to zero */
-        free(g_primes);
-        free(g_nonprimes);
+        mem_free(g_primes);
+        mem_free(g_nonprimes);
         g_primes = g_nonprimes = NULL;
         g_prime_cnt = g_nonprime_cnt = 0;
         free(is_prime);

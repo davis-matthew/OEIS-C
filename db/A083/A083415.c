@@ -13,14 +13,16 @@
  *            a(1),a(2),… is the triangle read row by row. This * i...
  * Range:     u8 n <= 5050, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   isPrime
+ * Validated: standard, pass, 115 terms through n = 4996 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/isPrime.h"
+#include <stdbool.h>
+#include "../utils/is_prime.h"
 
 /* Find minimal r such that r*(r+1)/2 >= n */
 static idx_t triangular_row(idx_t n)
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
 
     seq_t count = 0;
     for (idx_t i = L; i <= R; ++i) {
-        if (isPrime(i))
+        if (is_prime(i))
             ++count;
     }
     return count;

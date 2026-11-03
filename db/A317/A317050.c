@@ -9,8 +9,9 @@
  * Formula:   a(n) = A053985(A003188(n)) A003188(n) = n ^ (n >> 1) (binary
  *            Gray code) a(n) = interpret the Gray bits as a negabinary number
  *            (base -2)
- * Range:     i8 n <= 191, i16 n <= 9808, i32 n <= 9808, i64 n <= 9808,
- *            i128 n <= 9808, big any n
+ * Range:     i8 n <= 191, i16 n <= 16383, i32 n <= 16383, i64 n <= 16383,
+ *            i128 n <= 16383, big any n
+ * Validated: standard, pass, 76 terms through n = 9808 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

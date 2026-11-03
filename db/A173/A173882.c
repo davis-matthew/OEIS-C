@@ -10,14 +10,33 @@
  *            (r−k)/(r−k+1), with T(r,0) = T(r,r) = 1
  * Range:     u8 n <= 7, u16 n <= 38, u32 n <= 96, u64 n <= 310,
  *            u128 n <= 1101, big any n
- * Helpers:   binom, floor_sqrt
+ * Validated: standard, pass, 71 terms through n = 1323 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/binomial.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static inline seq_t gcd_seq_t(seq_t a, seq_t b)
 {
@@ -46,21 +65,21 @@ seq_t a(idx_t n)
     seq_t result = 1;
 
     /* factor 1: binom(r-1,k-1) */
-    seq_t f = binom(r - 1, k - 1);
+    seq_t f = binomial(r - 1, k - 1);
     seq_t g = gcd_seq_t(f, D);
     f /= g;
     D /= g;
     result *= f;
 
     /* factor 2: binom(r,k) */
-    f = binom(r, k);
+    f = binomial(r, k);
     g = gcd_seq_t(f, D);
     f /= g;
     D /= g;
     result *= f;
 
     /* factor 3: binom(r+1,k+1) */
-    f = binom(r + 1, k + 1);
+    f = binomial(r + 1, k + 1);
     g = gcd_seq_t(f, D);
     f /= g;
     D /= g;

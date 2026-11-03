@@ -12,12 +12,14 @@
  *            rhs(5)=rhs(6)=rhs(8)=1 and rhs(n)=0 otherwise....
  * Range:     u8 n <= 12, u16 n <= 44, u32 n <= 129, u64 n <= 129,
  *            u128 n <= 129, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 125 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_buf = NULL;
 static size_t seq_cap = 0;
@@ -30,7 +32,7 @@ static void ensure_capacity(size_t need)
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     if (new_cap < need + 1)
         new_cap = need + 1;
-    seq_buf = (seq_t *)realloc(seq_buf, new_cap * sizeof(seq_t));
+    seq_buf = mem_resize(seq_t, seq_buf, new_cap);
     if (!seq_buf)
         abort(); /* cannot allocate, terminate program */
     /* zero any newly allocated slots */

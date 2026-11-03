@@ -10,14 +10,31 @@
  *            = n – r(r‑1)/2
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   euclidean_steps
+ * Validated: standard, pass, 121 terms through n = 9031 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/euclidean_steps.h"
+
+/* Return the number of divisions in the Euclidean algorithm on (n,k),
+   with n >= k >= 1. */
+static seq_t euclidean_steps(idx_t n, idx_t k)
+{
+    seq_t a = (seq_t)n;
+    seq_t b = (seq_t)k;
+    seq_t steps = 0;
+
+    while (b != 0) {
+        seq_t r = a % b;
+        a = b;
+        b = r;
+        ++steps;
+    }
+    return steps;
+}
 
 /* Compute the minimal r with r*(r+1)/2 >= n.  n >= 1. */
 static idx_t find_row(idx_t n)

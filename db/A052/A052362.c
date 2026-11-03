@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 37, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper tables ------------------------------------------------------- */
 
@@ -175,7 +177,7 @@ seq_t a(idx_t n)
     /* Initialise once */
     if (!records) {
         records_cap = 128;
-        records = (seq_t *)malloc(records_cap * sizeof(seq_t));
+        records = mem_new(seq_t, records_cap);
         next_num = 0;
         curr_max_len = 0;
     }
@@ -188,7 +190,7 @@ seq_t a(idx_t n)
             /* Store the new record index */
             if (records_len == records_cap) {
                 records_cap *= 2;
-                records = (seq_t *)realloc(records, records_cap * sizeof(seq_t));
+                records = mem_resize(seq_t, records, records_cap);
             }
             records[records_len++] = (seq_t)next_num;
             curr_max_len = len;

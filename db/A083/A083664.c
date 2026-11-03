@@ -11,7 +11,8 @@
  *            is a palindrome
  * Range:     u8 n <= 6, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* forward declaration required by the build system */
 seq_t a(idx_t n);
@@ -62,7 +64,7 @@ static void ensure_seq_cap(idx_t n)
     if ((size_t)n >= aseq_cap)
     {
         size_t new_cap = (size_t)n + 1;          /* include index 0    */
-        seq_t *tmp = (seq_t *)realloc(aseq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, aseq, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         aseq     = tmp;
         aseq_cap = new_cap;

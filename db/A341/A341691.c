@@ -11,12 +11,14 @@
  *            generated incrementally and cached
  * Range:     u8 n <= 255, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 8166 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types provided by the build environment */
 extern seq_t a(idx_t n);
@@ -30,7 +32,7 @@ static seq_t *
 grow_cache(size_t new_size)
 {
     /* Reallocate the cache to hold at least new_size elements. */
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) abort();           /* unrecoverable allocation failure */
     cache = tmp;
     return cache;
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache with a(0) on first call. */
     if (cache_size == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) abort();            /* allocation failure */
         cache[0] = 0;
         cache_size = 1;

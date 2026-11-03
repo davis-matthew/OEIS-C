@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define M 26  /* number of 6‑bit columns that avoid 010 and 101 */
 
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
 
     /* iterate over columns 3..n */
     for (idx_t step = 3; step <= n; ++step) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
         for (int a = 0; a < M; ++a) {
             for (int b = 0; b < M; ++b) {
                 if (!allowed[a][b]) continue;
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     /* sum all states to get the total number for length n */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_prime_factors
+ * Validated: standard, pass, 77 terms through n = 864 (2026-11-03)
+ * Helpers:   bigomega_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
    bigomega(m) < bigomega(m+1)   (indexing starts at 1). */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/count_prime_factors.h"
+#include <stdint.h>
+#include "../utils/bigomega_seq.h"
+#include "../utils/mem.h"
 
 /* Static cache for the sequence */
 static seq_t *terms = NULL;      /* array of found terms          */
@@ -34,7 +37,7 @@ static void grow_terms(size_t need)
     size_t new_cap = terms_cap ? terms_cap << 1 : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, new_cap);
     terms_cap = new_cap;
 }
 
@@ -56,8 +59,8 @@ seq_t a(idx_t n)
     while (terms_len < (size_t)n) {
         /* examine the next integer */
         ++checked;
-        seq_t omega_m     = count_prime_factors((seq_t)checked);
-        seq_t omega_mplus = count_prime_factors((seq_t)(checked + 1));
+        seq_t omega_m     = bigomega_seq((seq_t)checked);
+        seq_t omega_mplus = bigomega_seq((seq_t)(checked + 1));
         if (omega_m < omega_mplus)
             add_term(checked);
     }

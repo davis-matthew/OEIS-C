@@ -8,7 +8,8 @@
  *            polynomial whose coefficients are the bits of n
  * Range:     u8 n <= 255, u16 n <= 2047, u32 n <= 2047, u64 n <= 2047,
  *            u128 n <= 2047, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 87 terms through n = 1877 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,11 +18,12 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/bitlen_seq_t.h"   /* bitlen_seq_t(seq_t) */
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 static inline int poly_degree(seq_t x)
 {
-    return (int)bitlen_seq_t(x) - 1;
+    return (int)bit_length(x) - 1;
 }
 
 /* XOR polynomial multiplication (over GF(2)) */
@@ -86,7 +88,7 @@ static void ensure_irreds_up_to_deg(int maxdeg)
             if (is_irred) {
                 if (irred_cnt >= irred_cap) {
                     irred_cap = irred_cap ? irred_cap * 2 : 32;
-                    irreds = (seq_t *)realloc(irreds, irred_cap * sizeof(seq_t));
+                    irreds = mem_resize(seq_t, irreds, irred_cap);
                 }
                 irreds[irred_cnt++] = cand;
             }

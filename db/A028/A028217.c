@@ -8,7 +8,8 @@
  *            A028217, offset 0)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 16, u128 n <= 33,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 35 terms through n = 839 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 
 #if defined(__GNUC__) || defined(__clang__)
   // Helper for arbitrary‑precision bases (used only when seq_t is large)
-  #include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 #endif
 
 static inline unsigned __int128
@@ -59,10 +61,10 @@ seq_t a(idx_t n) {
         /* arbitrary‑precision path: use big_pow and seq_t arithmetic */
         seq_t exp = (seq_t)(n + 3);
 
-        seq_t pow12 = big_pow((seq_t)12, exp);
-        seq_t pow10 = big_pow((seq_t)10, exp);
-        seq_t pow9  = big_pow((seq_t)9,  exp);
-        seq_t pow6  = big_pow((seq_t)6,  exp);
+        seq_t pow12 = ipow((seq_t)12, exp);
+        seq_t pow10 = ipow((seq_t)10, exp);
+        seq_t pow9  = ipow((seq_t)9,  exp);
+        seq_t pow6  = ipow((seq_t)6,  exp);
 
         seq_t tmp1 = (seq_t)2 * pow12 + (seq_t)8 * pow9;
         seq_t tmp2 = (seq_t)9 * pow10 + pow6;

@@ -9,7 +9,8 @@
  *            continued fraction for sqrt(k) is a prime number
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Integer square‑root (floor) using binary search with 128‑bit math.   */
@@ -91,8 +93,8 @@ seq_t a(idx_t n)
         if (is_prime_small((unsigned int)period)) {
             if (cache_size == cache_cap) {
                 size_t newcap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
-                if (!tmp) { free(cache); exit(1); } /* OOM */
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
+                if (!tmp) { mem_free(cache); exit(1); } /* OOM */
                 cache = tmp;
                 cache_cap = newcap;
             }

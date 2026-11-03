@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Prime generator (trial division with growing list)                */
@@ -83,7 +85,7 @@ static idx_t a_cache_size = 0;  /* largest index computed */
 /* initialise cache lazily */
 static void init_cache(void) {
     if (a_cache) return;
-    a_cache = (seq_t *)malloc(2 * sizeof(seq_t));   /* indices 0..1 */
+    a_cache = mem_new(seq_t, 2);   /* indices 0..1 */
     a_cache[0] = (seq_t)0;        /* unused but avoid undefined reference */
     a_cache[1] = (seq_t)2;        /* a(1) = 2 */
     a_cache_size = 1;
@@ -99,7 +101,7 @@ seq_t a(idx_t n) {
 
     if (n > a_cache_size) {
         /* extend the cache up to n */
-        a_cache = (seq_t *)realloc(a_cache, (size_t)(n + 1) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (size_t)(n + 1));
         for (idx_t i = a_cache_size + 1; i <= n; ++i) {
             seq_t prev = a_cache[i - 1];
             idx_t  p   = nth_prime(i);          /* prime(i)          */

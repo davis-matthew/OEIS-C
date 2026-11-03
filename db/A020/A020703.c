@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = m² + (m‑1)² + 1 – n, where m = ceil(√n)
- * Range:     u8 n <= 225, u16 n <= 9361, u32 n <= 9361, u64 n <= 9361,
- *            u128 n <= 9361, big any n
+ * Range:     u8 n <= 225, u16 n <= 11131, u32 n <= 11131, u64 n <= 11131,
+ *            u128 n <= 11131, big any n
+ * Validated: standard, pass, 85 terms through n = 9361 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

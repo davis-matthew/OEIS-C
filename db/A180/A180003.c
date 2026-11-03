@@ -11,13 +11,15 @@
  *            (trivial recurrence with offset 1)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 38, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 857 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The code uses memoisation to compute the sequence quickly. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The external types seq_t and idx_t are defined by the build system. */
 seq_t a(idx_t n)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Helper: extend the cache up to at least index n. */
     if (cache_len < (size_t)n) {
         size_t new_len = (size_t)n;
-        seq_t *new_cache = (seq_t *)realloc(cache, (new_len + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (new_len + 1));
         if (!new_cache) abort(); /* memory exhaustion, stop execution */
         cache = new_cache;
         for (size_t i = cache_len + 1; i <= new_len; ++i) {

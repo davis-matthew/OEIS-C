@@ -8,7 +8,8 @@
  *            number of 1‑bits in the binary representation of n)
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached values a(0..…) */
 static idx_t   cache_len = 0;    /* number of cached entries */
@@ -26,14 +28,14 @@ seq_t a(idx_t n)
     /* Ensure cache is at least one entry (for a(0)). */
     if (cache_len == 0) {
         cache_len = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = 0;
     }
 
     /* Grow cache if necessary. */
     if (n >= cache_len) {
         idx_t new_len = n + 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+        cache = mem_resize(seq_t, cache, new_len);
         /* Compute missing terms.  Use 64‑bit popcount of the index integer. */
         for (idx_t i = cache_len; i <= n; ++i) {
             unsigned int pc = __builtin_popcountll((unsigned long long)i);

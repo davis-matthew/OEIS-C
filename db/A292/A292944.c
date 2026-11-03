@@ -9,8 +9,9 @@
  *            significant 1‑bit, • keep the second most significant 1‑bit
  *            regardless of its left neighbour, • keep any other 1‑bit only if
  *            its immediate left neighbour (the next higher bit) i...
- * Range:     u8 n <= 767, u16 n <= 9097, u32 n <= 9097, u64 n <= 9097,
- *            u128 n <= 9097, big any n
+ * Range:     u8 n <= 767, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 120 terms through n = 9097 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

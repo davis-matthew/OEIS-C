@@ -8,6 +8,7 @@
  * Formula:   a(n) = ∏_{1≤i<j≤n} (⌈i/2⌉² - ⌈i/2⌉·⌈j/2⌉ + ⌈j/2⌉²)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 9,
  *            big any n
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,12 +10,14 @@
  *            neighbours belongs to {0,2,3,5,8}
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 40, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
 
     /* process remaining rows */
     for (idx_t step = 1; step < n; ++step) {
-        memset(newdp, 0, sizeof(newdp));
+        mem_set(newdp, 0, sizeof(newdp));
         for (int p = 0; p < 17; ++p) {
             for (int c = 0; c < 16; ++c) {
                 seq_t cnt = dp[p][c];

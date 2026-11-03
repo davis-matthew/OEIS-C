@@ -8,12 +8,14 @@
  * Formula:   a(n) = Sum_{j=1..n} (-1)^(j+1)*binomial(n,j)*2^(2^(n-j))
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +23,7 @@ seq_t a(idx_t n)
     seq_t p = 2; /* 2^(2^(n-j)), starting at j = n */
     idx_t j;
     for (j = n; j >= 1; j--) {
-        seq_t term = binom(n, j) * p;
+        seq_t term = binomial(n, j) * p;
         if (j % 2 == 1)
             result += term;
         else

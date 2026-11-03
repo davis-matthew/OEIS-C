@@ -7,6 +7,7 @@
  * Formula:   a(n) = # {p prime ≤ n | gcd(p,n)=1 ∧ (n-1) mod p ≠ 0}
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-01)
  * Helpers:   build_primes_upto, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,8 +16,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/gcd.h"
 
 static uint64_t *primes = NULL;   /* array of primes, sorted ascending */
 static size_t primes_cnt = 0;     /* number of primes in the array */

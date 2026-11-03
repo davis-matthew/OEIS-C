@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   cum_floor_half
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,18 @@
 
 /* may use standard headers; seq_t and idx_t are defined by the build */
 #include <stdint.h>
-#include "../utils/cum_floor_half.h"
+
+/* compute  Σ_{k=1..M} floor((k+1)/2) efficiently
+   M >= 0.  For M <= 0 the sum is 0. */
+static inline seq_t cum_floor_half(idx_t M) {
+    if (M == 0) return (seq_t)0;
+    seq_t t = M >> 1; /* floor(M/2) */
+    if ((M & 1ULL) == 0) {          /* M even : 2*t */
+        return t * (t + 1);
+    } else {                         /* M odd : 2*t+1 */
+        return (t + 1) * (t + 1);
+    }
+}
 
 /* ---------- integer square root for 0 <= n < 2^64 ----------
    returns floor(sqrt(n)) using 128‑bit arithmetic to avoid overflow */

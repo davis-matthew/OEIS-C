@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 1619, u16 n <= 9100, u32 n <= 9100, u64 n <= 9100,
- *            u128 n <= 9100, big any n
- * Helpers:   factor_u64, gcd, pow_uint
+ * Range:     u8 n <= 1619, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9100 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,10 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Compute the unitary divisor sum of n (n >= 1). */
 static seq_t usigma_uint64(uint64_t n)
@@ -36,7 +38,7 @@ static seq_t usigma_uint64(uint64_t n)
     seq_t result = 1;
     for (size_t i = 0; i < cnt; ++i)
     {
-        seq_t part = pow_uint(pr[i], ex[i]);  /* 1 + p^a */
+        seq_t part = ipow_u64_idx(pr[i], ex[i]);  /* 1 + p^a */
         part = part + 1;
         result = result * part;
     }

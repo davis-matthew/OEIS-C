@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static state for memoisation */
 static seq_t *triangle_flat = NULL;      /* flattened triangle */
@@ -50,14 +52,14 @@ static void build_table(idx_t max_row)
     size_t new_stride = r + 1;         /* stride for the 2‑D arrays */
 
     /* Allocate / reallocate arrays */
-    Tmat   = (seq_t *)realloc(Tmat,   new_stride * new_stride * sizeof(seq_t));
-    dp_cur = (seq_t *)realloc(dp_cur, new_stride * new_stride * sizeof(seq_t));
-    dp_next= (seq_t *)realloc(dp_next,new_stride * new_stride * sizeof(seq_t));
+    Tmat   = mem_resize(seq_t, Tmat, new_stride * new_stride);
+    dp_cur = mem_resize(seq_t, dp_cur, new_stride * new_stride);
+    dp_next= mem_resize(seq_t, dp_next, new_stride * new_stride);
 
     /* Initialise to zero */
-    if (Tmat)   memset(Tmat,   0, new_stride * new_stride * sizeof(seq_t));
-    if (dp_cur) memset(dp_cur, 0, new_stride * new_stride * sizeof(seq_t));
-    if (dp_next)memset(dp_next,0, new_stride * new_stride * sizeof(seq_t));
+    if (Tmat)   mem_set(Tmat, 0, new_stride * new_stride * sizeof(seq_t));
+    if (dp_cur) mem_set(dp_cur, 0, new_stride * new_stride * sizeof(seq_t));
+    if (dp_next)mem_set(dp_next, 0, new_stride * new_stride * sizeof(seq_t));
 
     stride = new_stride;
 
@@ -70,7 +72,7 @@ static void build_table(idx_t max_row)
     /* Length >= 2 : dynamic programming */
     for (size_t len = 2; len <= r; ++len) {
         /* compute dp_next for sequences of length = len */
-        memset(dp_next, 0, stride * stride * sizeof(seq_t));
+        mem_set(dp_next, 0, stride * stride * sizeof(seq_t));
 
         for (size_t sum = 1; sum <= r; ++sum) {
             for (size_t last = 1; last <= sum; ++last) {
@@ -107,7 +109,7 @@ static void build_table(idx_t max_row)
 
     /* Flatten the triangle into a one‑dimensional array */
     size_t new_flat_len = r * (r + 1) / 2;
-    triangle_flat = (seq_t *)realloc(triangle_flat, new_flat_len * sizeof(seq_t));
+    triangle_flat = mem_resize(seq_t, triangle_flat, new_flat_len);
 
     size_t pos = 0;
     for (size_t sum = 1; sum <= r; ++sum) {

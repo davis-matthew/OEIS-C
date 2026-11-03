@@ -6,17 +6,19 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = (1/n) * Σ_{d|n} μ(d) * A027306(n/d) (OEIS A060172)
- * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 31, u64 n <= 39, u128 n <= 39,
+ * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t exp);  */
-#include "../utils/binom.h" /* seq_t binom(idx_t a, idx_t b); */
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 #define PRIMES_LIMIT 10000   /* sufficient for n ≤ 10 000 */
 
@@ -61,7 +63,7 @@ static seq_t A027306_of(idx_t k) {
     seq_t res = pow2(k - 1);          /* 2^{k-1} */
     if ((k & 1) == 0) {              /* k even */
         idx_t h = k / 2 - 1;          /* k/2 - 1 */
-        res += binom(k - 1, h);       /* + C(k-1, k/2-1) */
+        res += binomial(k - 1, h);       /* + C(k-1, k/2-1) */
     }
     return res;
 }

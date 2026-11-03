@@ -8,13 +8,14 @@
  * Formula:   Numbers m for which φ(m) is not a power of 2
  * Range:     u8 n <= 219, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_power_of_2
+ * Validated: standard, pass, 82 terms through n = 985 (2026-11-01)
+ * Helpers:   is_pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_power_of_2.h"
+#include "../utils/is_pow2.h"
 
 static seq_t compute_phi(seq_t m) {
     seq_t result = m;
@@ -50,7 +51,7 @@ seq_t a(idx_t n) {
     
     while (1) {
         seq_t phi_m = compute_phi(m);
-        if (!is_power_of_2(phi_m)) {
+        if (!is_pow2(phi_m)) {
             count++;
             if (count == target) {
                 return m;

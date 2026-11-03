@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = Sum_{d|n} A003602(n/d) * A023900(d)
- * Range:     i8 n <= 261, i16 n <= 9954, i32 n <= 9954, i64 n <= 9954,
- *            i128 n <= 9954, big any n
- * Helpers:   phi
+ * Range:     i8 n <= 261, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 104 terms through n = 9954 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/phi.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 static seq_t *h = NULL;          /* array of h values, 1-indexed */
 static idx_t h_cap = 0;          /* current capacity-1 of h (max index filled) */
@@ -34,7 +36,7 @@ static void ensure_h(idx_t n)
     if (h_cap > n) return;
 
     idx_t new_cap = n + 1;   /* indices 0..n inclusive (0 unused) */
-    seq_t *new_h = (seq_t *)realloc(h, new_cap * sizeof(seq_t));
+    seq_t *new_h = mem_resize(seq_t, h, new_cap);
     if (!new_h) return;     /* allocation failure ignored – not expected */
     h = new_h;
     for (idx_t i = h_cap; i <= n; ++i) h[i] = 0;
@@ -47,12 +49,12 @@ static void ensure_h(idx_t n)
         for (d = 1; d * d <= i; ++d) {
             if (i % d == 0) {
                 if (d < i) {
-                    seq_t term = phi(i / d) * h[d];
+                    seq_t term = totient(i / d) * h[d];
                     sum += term;
                 }
                 idx_t d2 = i / d;
                 if (d2 != d && d2 < i) {
-                    seq_t term = phi(i / d2) * h[d2];
+                    seq_t term = totient(i / d2) * h[d2];
                     sum += term;
                 }
             }

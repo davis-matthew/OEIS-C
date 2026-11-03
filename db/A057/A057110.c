@@ -10,8 +10,9 @@
  *            is a multiple of n * a(1) = 0 * * The function computes these
  *            two values by trial division of n * and by Legendre’s formula to
  *            find the minimal factorial index * for each prime power
- * Range:     u8 n <= 342, u16 n <= 9226, u32 n <= 9226, u64 n <= 9226,
- *            u128 n <= 9226, big any n
+ * Range:     u8 n <= 342, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9226 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

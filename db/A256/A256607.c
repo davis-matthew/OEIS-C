@@ -7,7 +7,8 @@
  * Formula:   a(n) = A007733(A007733(n))
  * Range:     u8 n <= 585, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sq_mod
+ * Validated: standard, pass, 102 terms through n = 9903 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,11 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/sq_mod.h"
+
+/* Forward declaration of helper for modular squaring */
+static inline seq_t sq_mod(seq_t x, seq_t mod) {
+    return (x * x) % mod;
+}
 
 seq_t a(idx_t n) {
     /* The sequence is defined for n ≥ 1; for n = 0 we simply

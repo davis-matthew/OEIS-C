@@ -12,7 +12,8 @@
  *            triangle row‑by‑row
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   compute_row_max_k
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,15 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stddef.h>
-#include "../utils/compute_row_max_k.h"
+
+/* Return maximum column index k for a given row r. */
+static idx_t compute_row_max_k(idx_t r)
+{
+    /* Compute floor((-1 + sqrt(1 + 8*r))/2) */
+    long double disc = sqrtl((long double)8 * r + 1);
+    idx_t k = (idx_t)((disc - 1) / 2);
+    return k;
+}
 
 seq_t a(idx_t n)
 {

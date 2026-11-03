@@ -9,13 +9,16 @@
  *            * a(n-2*k-1)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 15, u64 n <= 25, u128 n <= 42,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 42 terms through n = 501 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Returns the n-th term of OEIS sequence A352279. */
 seq_t a(idx_t n)
@@ -28,7 +31,7 @@ seq_t a(idx_t n)
     /* Ensure the cache is large enough for index n. */
     if (cap <= (size_t)n) {
         /* expand cache up to n+1 elements */
-        void *tmp = realloc(cache, (n + 1) * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) { /* allocation failed; abort gracefully */
             return (seq_t)0;
         }

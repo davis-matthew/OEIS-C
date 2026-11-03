@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 1132, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, rev
+ * Validated: standard, pass, 70 terms through n = 8292 (2026-11-03)
+ * Helpers:   is_prime, mem, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdlib.h>    /* for malloc, realloc */
 
 /* Utility functions provided by the build system */
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t n); */
-#include "../utils/rev.h"        /* idx_t rev(idx_t x); */
+#include "../utils/is_prime.h"
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
 
 /* Static cache holding already found terms. */
 static seq_t  *terms    = NULL;   /* array of sequence values */
@@ -36,7 +38,7 @@ static void ensure_terms(size_t target)
     /* Lazy allocation of the array on first use. */
     if (!terms) {
         terms_cap = 16;                                 /* initial capacity */
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) { return; }                         /* avoid crash if malloc fails */
     }
 
@@ -44,11 +46,11 @@ static void ensure_terms(size_t target)
     for (; terms_len < target; ++cand_idx) {
         idx_t cur = cand_idx;
         /* Test the reversal of cur and cur+1 for primality. */
-        if (is_prime(rev(cur)) && is_prime(rev(cur + 1))) {
+        if (is_prime(reverse_digits_idx(cur)) && is_prime(reverse_digits_idx(cur + 1))) {
             /* Grow the array if necessary. */
             if (terms_len == terms_cap) {
                 size_t new_cap = terms_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) { return; }                    /* allocation failure */
                 terms = tmp;
                 terms_cap = new_cap;

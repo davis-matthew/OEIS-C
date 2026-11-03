@@ -14,7 +14,8 @@
  *            positive number not yet in the sequence
  * Range:     u8 n <= 71, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9218 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static state: memoised sequence values and presence bitmap */
 static seq_t *seq_vals = NULL; /* 1‑based array a(n) */
@@ -53,7 +55,7 @@ static void extend_seq(idx_t idx)
 {
     if (idx < seq_cap) return;
     idx_t new_cap = idx;
-    void *p = realloc(seq_vals, new_cap * sizeof(seq_t));
+    void *p = mem_resize(seq_t, seq_vals, new_cap);
     if (!p) abort();
     seq_vals = (seq_t *)p;
     seq_cap = new_cap;
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
 
     /* Initialisation on first call */
     if (seq_vals == NULL) {
-        seq_vals = (seq_t *)calloc(2, sizeof(seq_t)); /* indices 0 and 1 */
+        seq_vals = mem_new(seq_t, 2); /* indices 0 and 1 */
         seq_cap  = 2;
         seq_vals[1] = (seq_t)1;                       /* a(1) = 1 */
 

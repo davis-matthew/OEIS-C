@@ -8,7 +8,8 @@
  *            integer square root of 5*4^(3(M-1)), with the result cached
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a004561_geq, a004561_shl, a004561_sub
+ * Validated: standard, pass, 115 terms through n = 8681 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,37 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a004561_geq.h"
-#include "../utils/a004561_shl.h"
-#include "../utils/a004561_sub.h"
+
+static int a004561_geq(const uint32_t *x, const uint32_t *y, size_t len)
+{
+    size_t i;
+    for (i = len; i-- > 0;) {
+        if (x[i] != y[i]) return x[i] > y[i];
+    }
+    return 1;
+}
+
+static void a004561_shl(uint32_t *x, size_t len, int sh, uint32_t in)
+{
+    uint32_t c = in;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        uint32_t v = x[i];
+        x[i] = (v << sh) | c;
+        c = v >> (32 - sh);
+    }
+}
+
+static void a004561_sub(uint32_t *x, const uint32_t *y, size_t len)
+{
+    int64_t borrow = 0;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        int64_t d = (int64_t)x[i] - (int64_t)y[i] - borrow;
+        if (d < 0) { d += ((int64_t)1 << 32); borrow = 1; } else borrow = 0;
+        x[i] = (uint32_t)d;
+    }
+}
 
 static unsigned char *a004561_dig = NULL;
 static idx_t a004561_ndig = 0;

@@ -8,13 +8,15 @@
  *            n-1. That is, a(n) is the first difference of A027424
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 8783 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t            max_n         = 0;      /* largest n processed so far     */
 static size_t           a_cap          = 0;      /* capacity of a_vals (0..max_n) */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if ((uint64_t)n > max_n) {
         /* Resize a_vals array */
         size_t new_cap = (size_t)n + 1;          /* indices 0..n inclusive   */
-        seq_t *new_arr = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, a_vals, new_cap);
         if (!new_arr)
             return 0U;                          /* allocation failure     */
         a_vals = new_arr;

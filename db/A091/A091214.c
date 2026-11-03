@@ -10,17 +10,20 @@
  *            Uses Rabin's test for polynomial irreducibility (over GF(2)):
  *            For a polynomial f(x) of degree d, let g = x. For i = 0 ..
  *            ⌊d/2⌋−1 : g ← g² mod f if gcd(f, g − x) ≠ 1 then f r...
- * Range:     u8 n <= 2, u16 n <= 36, u32 n <= 6995, u64 n <= 9542,
- *            u128 n <= 9542, big any n
- * Helpers:   bitlen_seq_t, is_prime
+ * Range:     u8 n <= 2, u16 n <= 36, u32 n <= 6995, u64 n <= 48410,
+ *            u128 n <= 48410, big any n
+ * Validated: standard, pass, 68 terms through n = 9542 (2026-11-03)
+ * Helpers:   bit_length, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include "../utils/bit_length.h"
 #include "../utils/is_prime.h"
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/mem.h"
 
 /* Polynomial arithmetic over GF(2) – integers represent monic polynomials. */
 
@@ -28,10 +31,10 @@
 static inline seq_t poly_mod(seq_t a, seq_t b)
 {
     if (b == 0) return a;
-    unsigned deg_b = bitlen_seq_t(b) - 1;
+    unsigned deg_b = bit_length(b) - 1;
     seq_t r = a;
-    while (r && (bitlen_seq_t(r) - 1) >= deg_b) {
-        unsigned shift = (bitlen_seq_t(r) - 1) - deg_b;
+    while (r && (bit_length(r) - 1) >= deg_b) {
+        unsigned shift = (bit_length(r) - 1) - deg_b;
         r ^= (b << shift);
     }
     return r;
@@ -58,8 +61,8 @@ static inline seq_t poly_mul_mod(seq_t a, seq_t b, seq_t mod)
         bb >>= 1;
     }
     while (prod) {
-        unsigned deg_prod = bitlen_seq_t(prod) - 1;
-        unsigned deg_mod  = bitlen_seq_t(mod) - 1;
+        unsigned deg_prod = bit_length(prod) - 1;
+        unsigned deg_mod  = bit_length(mod) - 1;
         if (deg_prod < deg_mod) break;
         unsigned shift = deg_prod - deg_mod;
         prod ^= (mod << shift);
@@ -70,7 +73,7 @@ static inline seq_t poly_mul_mod(seq_t a, seq_t b, seq_t mod)
 /* Irreducibility test for a monic polynomial (binary representation). */
 static inline bool is_irreducible(seq_t m)
 {
-    unsigned deg = bitlen_seq_t(m) - 1;    /* degree of m */
+    unsigned deg = bit_length(m) - 1;    /* degree of m */
     if (deg <= 1) return false;            /* degree 0 or 1 cannot be composite */
 
     seq_t g = (seq_t)1 << 1;               /* polynomial x */
@@ -110,7 +113,7 @@ seq_t a(idx_t n)
                 /* Grow the cache if necessary. */
                 if (cache_len >= cache_cap) {
                     cache_cap = cache_cap ? cache_cap * 2 : 64;
-                    seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                     if (!tmp) exit(EXIT_FAILURE);
                     cache = tmp;
                 }

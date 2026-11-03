@@ -10,16 +10,19 @@
  *            1)/(2 p^a) after reducing the fraction
  * Range:     u8 n <= 29, u16 n <= 4181, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gcd, pow_seq
+ * Validated: standard, pass, 78 terms through n = 8692 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/gcd.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n) {
     /* Factor n: primes and exponents. */
@@ -34,13 +37,13 @@ seq_t a(idx_t n) {
     /* Initial denominator = 2^k * n. */
     seq_t denom = (seq_t)n;
     if (k > 0) {
-        denom *= pow_seq((seq_t)2, k);
+        denom *= ipow_i32((seq_t)2, k);
     }
 
     /* Numerator = product over primes of (2 p^a + 1). */
     seq_t numer = 1;
     for (size_t i = 0; i < cnt; ++i) {
-        seq_t p_pow = pow_seq((seq_t)primes[i], (int)exps[i]); /* p^a */
+        seq_t p_pow = ipow_i32((seq_t)primes[i], (int)exps[i]); /* p^a */
         seq_t term = p_pow * (seq_t)2 + 1;                     /* 2 p^a + 1 */
         numer *= term;
     }

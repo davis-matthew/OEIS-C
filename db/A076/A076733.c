@@ -8,7 +8,8 @@
  *            coefficient)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   exp_binom, exp_fact
+ * Validated: standard, pass, 121 terms through n = 9693 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,33 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/exp_binom.h"
-#include "../utils/exp_fact.h"
+
+/* exponent of prime p in C(2n,n) */
+static idx_t exp_binom(idx_t n, idx_t p)
+{
+    idx_t e  = 0;
+    idx_t x  = 2 * n;
+    while (x) {
+        x /= p;
+        e += x;
+    }
+    x = n;
+    while (x) {
+        x /= p;
+        e -= 2 * x;
+    }
+    return e;
+}
+
+/* Legendre function: exponent of `p` in `n!`. */
+static inline idx_t exp_fact(idx_t n, idx_t p) {
+    idx_t e = 0;
+    while (n) {
+        n /= p;
+        e += n;
+    }
+    return e;
+}
 
 /* Prime sieve caching: primes up to the current limit   */
 static uint64_t *prime_list  = NULL;   /* array of primes (uint64_t)   */

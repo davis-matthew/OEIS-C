@@ -7,7 +7,8 @@
  * Formula:   a(n) = 3^prime(n) - 2^prime(n) - 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 12, u128 n <= 22,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 32 terms through n = 314 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdbool.h>
 
 /* Big integer helper */
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* ------------------------------------------------------------------ */
 /* Prime sieve infrastructure: generate primes on demand (1‑based). */
@@ -84,8 +85,8 @@ seq_t a(idx_t n) {
         return 0;
     uint64_t p = get_nth_prime(n);    /* prime(n) as a uint64_t */
 
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)p);   /* 3^p  */
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)p);   /* 2^p  */
+    seq_t pow3 = ipow((seq_t)3, (seq_t)p);   /* 3^p  */
+    seq_t pow2 = ipow((seq_t)2, (seq_t)p);   /* 2^p  */
     seq_t result = pow3 - pow2 - 1;             /* 3^p - 2^p - 1 */
 
     return result;

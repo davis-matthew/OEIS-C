@@ -5,16 +5,18 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) is the n-th integer k such that 11*k - 5 is prime
- * Range:     u8 n <= 6, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
- *            big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 6, u16 n <= 670, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 73 terms through n = 9032 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"  /* defines bool is_prime(uint64_t) */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
     idx_t k = 1;
     while (count < n) {
         seq_t cand = (seq_t)11 * k - 5;
-        if (is_prime((uint64_t)cand)) {
+        if (is_prime_u64((uint64_t)cand)) {
             ++count;
             if (count == n)
                 return (seq_t)k;

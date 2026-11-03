@@ -9,14 +9,27 @@
  *            or 5 (mod 6) using dynamic programming
  * Range:     u8 n <= 34, u16 n <= 88, u32 n <= 258, u64 n <= 838,
  *            u128 n <= 2925, big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: standard, pass, 74 terms through n = 9279 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n) {
     static seq_t *dp = NULL;

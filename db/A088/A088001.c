@@ -8,7 +8,8 @@
  *            A088001)
  * Range:     u8 n <= 119, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_palindrome_uint64
+ * Validated: standard, pass, 89 terms through n = 9221 (2026-11-01)
+ * Helpers:   is_palindrome_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
  */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_palindrome_uint64.h"
+#include "../utils/is_palindrome_u64.h"
 
 /* external linkage as required */
 seq_t a(idx_t n)
@@ -36,11 +37,11 @@ seq_t a(idx_t n)
             uint64_t q = un / d;          /* paired divisor */
 
             /* handle divisor d */
-            if (!is_palindrome_uint64(d))
+            if (!is_palindrome_u64(d))
                 sum += (seq_t)d;
 
             /* handle paired divisor q if distinct */
-            if (q != d && !is_palindrome_uint64(q))
+            if (q != d && !is_palindrome_u64(q))
                 sum += (seq_t)q;
         }
     }

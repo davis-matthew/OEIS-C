@@ -8,13 +8,14 @@
  *            prod_{i=1..k} (m-k+i)/i, m = 2n+1, k = n-2
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 65,
  *            big any n
- * Helpers:   a3516_gcd
+ * Validated: standard, pass, 38 terms through n = 916 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a3516_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
         /* r * (n+3+i) / i is exact; divide out the common factor first */
         uint64_t num = (uint64_t)(n + 3 + i);
         uint64_t rm = (uint64_t)(r % (seq_t)i);
-        uint64_t g = a3516_gcd(rm, (uint64_t)i);
+        uint64_t g = gcd_u64(rm, (uint64_t)i);
         uint64_t d;
         if (g == 0) g = (uint64_t)i;
         r /= (seq_t)g;

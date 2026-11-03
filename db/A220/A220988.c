@@ -9,17 +9,18 @@
  *            = 11^n
  * Range:     u8 none, u16 none, u32 n <= 0, u64 n <= 1, u128 n <= 3,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 6 terms through n = 5 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     /* z = 11^n */
-    seq_t z = pow_int((seq_t)11, n);
+    seq_t z = ipow_idx((seq_t)11, n);
 
     /* Horner evaluation */
     seq_t res = (seq_t)161051;        /* c10 */

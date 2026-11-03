@@ -11,13 +11,14 @@
  *            entry of the difference table of the bits of n
  * Range:     i8 n <= 340, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   _choose
+ * Validated: standard, pass, 89 terms through n = 9849 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_choose.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;
@@ -29,7 +30,7 @@ seq_t a(idx_t n) {
     seq_t sum = 0;
     for (idx_t k = 0; k <= msb; ++k) {
         if (((n >> k) & 1ULL) == 0) continue;   /* skip zero bits */
-        seq_t bin = _choose(msb, k);
+        seq_t bin = binomial(msb, k);
         if ((msb - k) & 1)          /* odd -> negative sign */
             sum -= bin;
         else                        /* even -> positive sign */

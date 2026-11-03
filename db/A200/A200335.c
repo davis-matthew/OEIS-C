@@ -8,12 +8,14 @@
  *            a(1)=137, a(2)=253772063, a(3)=472142416783537
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 24 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;
@@ -22,7 +24,7 @@ static size_t cache_cap = 0;
 static void ensure_capacity(idx_t needed)
 {
     if (needed > cache_cap) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)needed * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)needed);
         if (!new_cache) exit(1);          /* allocation failure */
         cache = new_cache;
         cache_cap = (size_t)needed;

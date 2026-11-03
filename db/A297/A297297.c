@@ -10,7 +10,8 @@
  *            = 50 a(5) = 157 a(6) = 495 a(7) = 1574 a(8) = 5031
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 38, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* dynamic cache of computed values */
 static idx_t  cache_cap = 0;         /* allocated capacity (elements)      */
@@ -31,11 +33,11 @@ static void ensure_cache(idx_t n)
     if (cache_cap <= n) {
         idx_t new_cap = cache_cap == 0 ? 16 : cache_cap;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) exit(1);    /* fatal error if allocation fails */
         if (cache) {
-            memcpy(new_cache, cache, sizeof(seq_t) * cache_len);
-            free(cache);
+            mem_copy(new_cache, cache, sizeof(seq_t) * cache_len);
+            mem_free(cache);
         }
         cache = new_cache;
         cache_cap = new_cap;

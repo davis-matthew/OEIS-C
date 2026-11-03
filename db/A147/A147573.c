@@ -7,7 +7,8 @@
  * Formula:   a(n) = 30030 * A080197(n)
  * Range:     u8 none, u16 n <= 2, u32 n <= 2108, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 9562 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const uint64_t primes[6] = {2, 3, 5, 7, 11, 13};
 
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* Allocate an array to keep the first n Hamming numbers. */
     size_t len = (size_t)n;
-    seq_t *smooth = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *smooth = mem_new(seq_t, len);
     if (!smooth) return 0;          /* allocation failure */
 
     smooth[0] = (seq_t)1;           /* the multiplicative identity */
@@ -59,6 +61,6 @@ seq_t a(idx_t n)
 
     seq_t result = smooth[len - 1] * (seq_t)30030;  /* scale by the fixed factor */
 
-    free(smooth);          /* release the temporary array */
+    mem_free(smooth);          /* release the temporary array */
     return result;
 }

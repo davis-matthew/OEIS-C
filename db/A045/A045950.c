@@ -8,12 +8,14 @@
  * Formula:   a(n) = n*(10*n^2+9*n+1)/2 (via the 4-th order recurrence)
  * Range:     u8 n <= 3, u16 n <= 23, u32 n <= 950, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 883 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External definition required by the tester */
 seq_t a(idx_t n)
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Allocate at least 4 entries for the base values. */
         cache_len = (n >= 3 ? n + 1 : 4);
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[0] = 0;
         cache[1] = 10;
         cache[2] = 59;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     }
     else if (n >= cache_len) {
         /* Grow the array. */
-        cache = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         cache_len = n + 1;
     }
 

@@ -12,7 +12,8 @@
  *            the triangle
  * Range:     u8 n <= 25, u16 n <= 51, u32 n <= 114, u64 n <= 290,
  *            u128 n <= 762, big any n
- * Helpers:   flat_push, push_row
+ * Validated: standard, pass, 82 terms through n = 9862 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,32 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/flat_push.h"
-#include "../utils/push_row.h"
+#include "../utils/mem.h"
+
+/* dynamic array helper: append \a val to array \a arr */
+static void flat_push(seq_t **arr, seq_t val, size_t *size, size_t *cap)
+{
+    if (*size >= *cap) {
+        *cap = (*cap ? *cap * 2 : 16);
+        *arr = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
+    }
+    (*arr)[*size] = val;
+    ++*size;
+}
+
+/* append a triangle row of length len (k = 0..len) to the flat array
+   \a dp is a matrix of size len × len (prev_stride == len) */
+static void push_row(idx_t len, seq_t *dp, seq_t **flat, size_t *flat_size, size_t *flat_cap)
+{
+    flat_push(flat, (seq_t)0, flat_size, flat_cap);   /* k = 0 entry */
+    for (idx_t asc = 0; asc < len; ++asc) {
+        seq_t sum = 0;
+        for (idx_t last = 0; last < len; ++last) {
+            sum += dp[asc * len + last];
+        }
+        flat_push(flat, sum, flat_size, flat_cap);
+    }
+}
 
 /* integer square root of a 64‑bit unsigned integer */
 static idx_t isqrt_u64(idx_t v)
@@ -59,7 +84,7 @@ seq_t a(idx_t n)
         /* Prepare DP for length 1 */
         cur_len = 1;
         prev_stride = 1;
-        prev = (seq_t *)calloc(prev_stride * prev_stride, sizeof(seq_t));
+        prev = mem_new(seq_t, prev_stride * prev_stride);
         prev[0] = (seq_t)1;                 /* sequence [0] */
         /* Store row 1 (k = 0..1) */
         push_row(cur_len, prev, &flat, &flat_size, &flat_cap);
@@ -77,7 +102,7 @@ seq_t a(idx_t n)
     while (r > max_row_computed) {
         /* Transition from length cur_len to cur_len+1 */
         size_t next_stride = cur_len + 1;
-        seq_t *next = (seq_t *)calloc(next_stride * next_stride, sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, next_stride * next_stride);
 
         for (idx_t asc = 0; asc < cur_len; ++asc) {
             /* Compute total of the current asc row */
@@ -98,7 +123,7 @@ seq_t a(idx_t n)
                 next[(asc + 1) * next_stride + y] += sum_change;
             }
         }
-        free(prev);
+        mem_free(prev);
         prev = next;
         prev_stride = next_stride;
         ++cur_len;

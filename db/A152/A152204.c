@@ -7,8 +7,9 @@
  * Keywords:  nonn, tabf, easy
  * Formula:   a(n) = T(r,k) where * r = ⌈√(4(n+1))⌉ – 2, * k = n – ⌊(r+1)²/4⌋
  *            + 1, * T(r,k) = 2 r – 4 k + 5
- * Range:     u8 n <= 4159, u16 n <= 8906, u32 n <= 8906, u64 n <= 8906,
- *            u128 n <= 8906, big any n
+ * Range:     u8 n <= 4159, u16 n <= 10200, u32 n <= 10200, u64 n <= 10200,
+ *            u128 n <= 10200, big any n
+ * Validated: standard, pass, 89 terms through n = 8906 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

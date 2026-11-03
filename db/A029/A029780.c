@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 192, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_counts
+ * Validated: standard, pass, 69 terms through n = 825 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,10 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
+#include "../utils/mem.h"
 
 static unsigned digit_mask(seq_t x)
 {
@@ -50,7 +54,7 @@ seq_t a(idx_t n)
         if ((mask_k & ~mask_k2) == 0 && (mask_k & ~mask_k3) == 0) {
             if (len == cap) {
                 size_t newcap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(values, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, values, newcap);
                 values = tmp;
                 cap = newcap;
             }

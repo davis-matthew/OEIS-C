@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 24, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*------------------------------------   helper data   ------------------------------------*/
 static int valid_rows[16];
@@ -97,7 +99,7 @@ static void ensure_cache(idx_t n)
 {
     if (n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache_seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache_seq, new_cap);
         if (!tmp) abort();
         cache_seq = tmp;
         cache_cap = new_cap;
@@ -109,7 +111,7 @@ static void compute_to(idx_t n)
 {
     int i, s, k, r1, r2, c;
     while (max_computed < n) {
-        memset(next_dp, 0, sizeof(next_dp));
+        mem_set(next_dp, 0, sizeof(next_dp));
         for (s = 0; s < 256; ++s) {
             if (dp[s] == 0) continue;
             r1 = s >> 4;
@@ -127,7 +129,7 @@ static void compute_to(idx_t n)
         cache_seq[max_computed + 1] = sum;
 
         /* prepare for next iteration */
-        memcpy(dp, next_dp, sizeof(dp));
+        mem_copy(dp, next_dp, sizeof(dp));
         ++max_computed;
     }
 }
@@ -142,7 +144,7 @@ seq_t a(idx_t n)
         ensure_cache(2);
         cache_seq[1] = (seq_t)valid_cnt;
         cache_seq[2] = (seq_t)valid_cnt * (seq_t)valid_cnt;
-        memset(dp, 0, sizeof(dp));
+        mem_set(dp, 0, sizeof(dp));
         int i, j;
         for (i = 0; i < valid_cnt; ++i)
             for (j = 0; j < valid_cnt; ++j) {

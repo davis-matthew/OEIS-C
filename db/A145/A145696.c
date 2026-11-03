@@ -7,12 +7,14 @@
  * Formula:   a(n+2) = 590*a(n+1) - a(n) Initial values: a(1) = 7, a(2) = 4137
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 182 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache with the first two terms, if required. */
     if (cache_len == 0) {
-        cache = (seq_t*)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (!cache) return (seq_t)0;
         cache[0] = (seq_t)7;      /* a(1) */
         cache[1] = (seq_t)4137;   /* a(2) */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     /* Extend the cache to contain a(n). */
     size_t new_len = (size_t)n;
-    cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_len);
     if (!cache) return (seq_t)0;
 
     /* Recurrence: a(k) = 590*a(k-1) - a(k-2) */

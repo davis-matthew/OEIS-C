@@ -9,13 +9,15 @@
  *            i)- 3, n - 1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 12, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     for (idx_t i = 0; i <= max_i; ++i) {
         idx_t a = 2 * (n - i) - 3;      /* upper part of the binomial */
-        seq_t term = binom(a, k);
+        seq_t term = binomial(a, k);
         sum += term;                    /* accumulate using seq_t addition */
     }
 

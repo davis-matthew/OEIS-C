@@ -9,13 +9,15 @@
  *            a(n)=5*a(n-1)-10*a(n-2)+11*a(n-3)-5*a(n-4)+a(n-5) for n>5
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 26, u64 n <= 51, u128 n <= 101,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for computed values (1‑based indexing) */
 static seq_t *cache = NULL;          /* array of terms */
@@ -30,14 +32,14 @@ static void ensure_capacity(idx_t n)
     /* initial allocation */
     if (cache == NULL) {
         idx_t init = n > 16 ? n : 16;
-        cache = (seq_t *)calloc((size_t)(init + 1), sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(init + 1));
         cache_cap = init;
     }
     /* grow if needed */
     if (n > cache_cap) {
         idx_t new_cap = cache_cap;
         while (new_cap < n) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, (size_t)(new_cap + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)(new_cap + 1));
         cache_cap = new_cap;
     }
 

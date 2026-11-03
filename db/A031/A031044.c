@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   octal_digits
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,25 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/octal_digits.h"
+
+/* Convert x to base‑8 digits, most significant first.
+   Return the number of digits.  */
+static size_t octal_digits(idx_t x, uint8_t *buf)
+{
+    size_t len = 0;
+    do {
+        buf[len++] = (uint8_t)(x % 8);
+        x /= 8;
+    } while (x > 0);
+
+    /* reverse to most‑significant‑first order */
+    for (size_t i = 0; i < len / 2; ++i) {
+        uint8_t tmp = buf[i];
+        buf[i] = buf[len - 1 - i];
+        buf[len - 1 - i] = tmp;
+    }
+    return len;
+}
 
 /* Main function requested by the build infrastructure. */
 seq_t a(idx_t n)

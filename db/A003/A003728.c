@@ -9,15 +9,34 @@
  *            Sum_{j=1..m-1, j odd} binomial(m-1,j)*G(j)*a(m-j)
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 13, i64 n <= 21, i128 n <= 35,
  *            big any n
- * Helpers:   Gc, grow_zero
+ * Validated: standard, pass, 38 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/grow_zero.h"
-#include "../utils/Gc.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static seq_t Gc(idx_t j) {
+    if ((j & 1) == 0) return (seq_t)0;
+    seq_t v = (seq_t)j;
+    if (((j - 1) / 2) & 1) v = -v;
+    return v;
+}
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 65 terms through n = 973 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 /* Static storage for the generated terms */
 static seq_t g_seq[10000];
@@ -35,16 +37,16 @@ seq_t a(idx_t n)
     while (g_seq_len < n)
     {
         /* Find the next prime number. */
-        while (!is_prime(g_candidate))
+        while (!is_prime_u64(g_candidate))
             g_candidate += 2;          /* stay odd */
 
         seq_t p = (seq_t)g_candidate;
 
         /* Check whether p ± 1000 is also prime. */
         bool ok = false;
-        if (p > 1000 && is_prime((uint64_t)(p - 1000)))
+        if (p > 1000 && is_prime_u64((uint64_t)(p - 1000)))
             ok = true;
-        if (is_prime((uint64_t)(p + 1000)))
+        if (is_prime_u64((uint64_t)(p + 1000)))
             ok = true;
 
         /* Store p if it satisfies the condition. */

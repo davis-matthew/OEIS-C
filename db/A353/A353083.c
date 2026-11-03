@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computation: a(n) = the nth positive integer whose tribonacci representation ends in 10. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Dynamic array of tribonacci numbers (T1 = 1, T2 = 2, T3 = 4, ...). */
 static seq_t *tribs   = NULL;
@@ -25,7 +27,7 @@ static size_t trib_len = 0;
 static void ensure_tribs_leq(seq_t max) {
     if (trib_len == 0) {
         trib_cap = 4;
-        tribs = (seq_t *)malloc(trib_cap * sizeof(seq_t));
+        tribs = mem_new(seq_t, trib_cap);
         tribs[0] = 1;          /* T1 */
         tribs[1] = 2;          /* T2 */
         tribs[2] = 4;          /* T3 */
@@ -34,7 +36,7 @@ static void ensure_tribs_leq(seq_t max) {
     while (trib_len > 0 && tribs[trib_len - 1] <= max) {
         if (trib_len == trib_cap) {
             trib_cap *= 2;
-            tribs = (seq_t *)realloc(tribs, trib_cap * sizeof(seq_t));
+            tribs = mem_resize(seq_t, tribs, trib_cap);
         }
         tribs[trib_len] =
             tribs[trib_len - 1] + tribs[trib_len - 2] + tribs[trib_len - 3];
@@ -77,7 +79,7 @@ seq_t a(idx_t n) {
         if (has_ending10(last_checked)) {
             if (cache_size == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 4;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = last_checked;
         }

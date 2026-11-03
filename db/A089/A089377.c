@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 7100, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mulmod64, seq_grow
+ * Validated: standard, pass, 74 terms through n = 9592 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,23 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/seq_grow.h"     /* includes the seq_grow helper */
-#include "../utils/mulmod64.h"
+#include <stdlib.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
+
+/* Grow the array that stores all discovered nodes.  */
+static void seq_grow(seq_t **seqp, size_t *lenp, size_t *capp)
+{
+    if (*lenp < *capp)
+        return;
+    size_t newcap = (*capp) ? (*capp << 1) : 64,
+           newlen = (*capp) * sizeof(seq_t);
+    seq_t *newseq = mem_resize(seq_t, *seqp, newcap);
+    if (!newseq)
+        abort();
+    *seqp = newseq;
+    *capp = newcap;
+}
 
 static inline uint64_t powmod64(uint64_t base, uint64_t exp, uint64_t mod)
 {
@@ -30,8 +46,8 @@ static inline uint64_t powmod64(uint64_t base, uint64_t exp, uint64_t mod)
     uint64_t b = base % mod;
     while (exp > 0) {
         if (exp & 1U)
-            result = mulmod64(result, b, mod);
-        b = mulmod64(b, b, mod);
+            result = mulmod(result, b, mod);
+        b = mulmod(b, b, mod);
         exp >>= 1;
     }
     return result;
@@ -58,7 +74,7 @@ static bool is_prime64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool cont = false;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mulmod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { cont = true; break; }
         }
         if (!cont) return false;

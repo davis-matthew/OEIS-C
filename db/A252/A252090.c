@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 1040, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, isPrimeGeneric
+ * Validated: standard, pass, 66 terms through n = 8308 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,31 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include <limits.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/isPrimeGeneric.h"
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 static idx_t sieve_limit = 0;           /* current upper bound of sieve */
 static uint64_t *prime_list = NULL;     /* primes up to sieve_limit          */
@@ -36,7 +60,7 @@ static void recompute_pairs(idx_t new_limit)
 {
     /* Free old data, if any. */
     free(prime_list);
-    free(pair_list);
+    mem_free(pair_list);
 
     /* Build list of all primes up to new_limit. */
     uint64_t *pr;   size_t cnt;
@@ -53,7 +77,7 @@ static void recompute_pairs(idx_t new_limit)
     }
 
     /* Allocate and fill the pair list. */
-    pair_list = (seq_t *)malloc(temp * sizeof(seq_t));
+    pair_list = mem_new(seq_t, temp);
     size_t j = 0;
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t p = prime_list[i];

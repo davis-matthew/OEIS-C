@@ -11,13 +11,15 @@
  *            primes can appear, the count is simply the numbe...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 7049 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t  *counts = NULL;   /* a(n) values */
 static uint64_t *values = NULL; /* 7‑smooth numbers */
@@ -31,7 +33,7 @@ static void init(void)
     if (!counts) {
         capacity = 1024;
         values  = (uint64_t *)malloc(sizeof(uint64_t) * capacity);
-        counts  = (seq_t   *)malloc(sizeof(seq_t   ) * capacity);
+        counts  = mem_new(seq_t, capacity);
         values[0] = 1;
         counts[0] = 0;   /* a(1) = 0 */
         size = 1;
@@ -43,7 +45,7 @@ static void grow(void)
 {
     capacity *= 2;
     values = (uint64_t *)realloc(values, sizeof(uint64_t) * capacity);
-    counts = (seq_t   *)realloc(counts, sizeof(seq_t   ) * capacity);
+    counts = mem_resize(seq_t, counts, capacity);
 }
 
 /* generate values up to at least n */

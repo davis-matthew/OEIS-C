@@ -9,13 +9,15 @@
  *            T( r , k ) where n = r(r+1)/2 + k , 0 ≤ k ≤ r
  * Range:     i8 n <= 9, i16 n <= 20, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  Static storage for already‑computed rows of the triangle.
     rows[0] contains {1}.  rows[1] contains the second row, etc.
@@ -47,7 +49,7 @@ static void compute_rows_up_to(idx_t target_row)
 {
     if (!rows) {                      /* first call: create row 0 */
         ensure_rows_capacity(1);
-        rows[0] = (seq_t *)malloc(sizeof(seq_t));
+        rows[0] = mem_new(seq_t, 1);
         rows[0][0] = 1;               /* T(0,0)=1 */
         row_len[0] = 1;
         max_row = 0;
@@ -60,7 +62,7 @@ static void compute_rows_up_to(idx_t target_row)
         idx_t len_curr = len_prev + 1;
 
         ensure_rows_capacity(curr + 1);
-        rows[curr] = (seq_t *)malloc(len_curr * sizeof(seq_t));
+        rows[curr] = mem_new(seq_t, len_curr);
         row_len[curr] = len_curr;
 
         /* (-1)^curr */

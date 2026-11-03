@@ -9,12 +9,14 @@
  *            < m, a(n, 0) = 0, a(1, 1) = 1
  * Range:     u8 n <= 10, u16 n <= 15, u32 n <= 45, u64 n <= 120,
  *            u128 n <= 325, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 1169 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n) {
@@ -31,8 +33,8 @@ seq_t a(idx_t n) {
     idx_t m = n - start + 1;
     
     // Allocate arrays for two consecutive rows
-    seq_t *prev = (seq_t *)malloc((r + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (r + 1));
+    seq_t *curr = mem_new(seq_t, (r + 1));
     
     // Initialize arrays
     for (idx_t j = 0; j <= r; j++) {
@@ -61,8 +63,8 @@ seq_t a(idx_t n) {
     }
     
     seq_t result = prev[m];
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     
     return result;
 }

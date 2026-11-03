@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 5477, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_count, is_prime_small, next_prime
+ * Validated: standard, pass, 73 terms through n = 8365 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, next_prime, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,11 @@
 #include <stdint.h>
 
 /* Utilities (available in the build) */
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t) */
-#include "../utils/digit_count.h"  /* uint64_t digit_count(uint64_t) */
-#include "../utils/is_prime_small.h" /* bool is_prime_small(seq_t) */
+#include <math.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/next_prime.h"
+#include "../utils/num_digits0.h"
+#include "../utils/mem.h"
 
 /* --- Internal cache --------------------------------------------------- */
 static seq_t *prime_cache = NULL;  /* array of primes */
@@ -40,7 +43,7 @@ static void grow_cache(idx_t min_cap)
     while (new_cap < min_cap)
         new_cap *= 2;
 
-    seq_t *tmp = (seq_t *)malloc((size_t)new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, (size_t)new_cap);
     if (!tmp)
         abort();  /* Allocation failed */
 
@@ -48,7 +51,7 @@ static void grow_cache(idx_t min_cap)
     for (idx_t i = 0; i < cache_size; ++i)
         tmp[i] = prime_cache[i];
 
-    free(prime_cache);
+    mem_free(prime_cache);
     prime_cache = tmp;
     cache_cap = new_cap;
 }
@@ -73,8 +76,8 @@ seq_t a(idx_t n)
         last_checked = prime;
 
         /* Count decimal digits and test if that count is prime. */
-        uint64_t digits = digit_count(prime);
-        if (is_prime_small((seq_t)digits)) {
+        uint64_t digits = num_digits0(prime);
+        if (is_prime_seq((seq_t)digits)) {
             /* Store in cache. */
             prime_cache[cache_size++] = prime;
         }

@@ -11,7 +11,8 @@
  *            values, and introduce new symbols in row‑major order
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   build_tables
+ * Validated: standard, pass, 32 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,75 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/build_tables.h"
+#include "../utils/mem.h"
+
+/* precompute tables once */
+static void build_tables(void) {
+    static int initialized = 0;
+    if (initialized) return;
+    initialized = 1;
+
+    /* row values table: rows[64][3] */
+    static unsigned char row_vals[64][3];
+    for (int r = 0; r < 64; ++r) {
+        row_vals[r][0] = (r >> 4) & 3;
+        row_vals[r][1] = (r >> 2) & 3;
+        row_vals[r][2] = r & 3;
+    }
+
+    /* adjacency: adjacency[p][r] = 1 if blocks with rows p,r are ok */
+    static unsigned char adjacency[64][64];
+    for (int p = 0; p < 64; ++p) {
+        for (int r = 0; r < 64; ++r) {
+            unsigned char ok = 1;
+            for (int j = 0; j < 2; ++j) {
+                unsigned mask = (1 << row_vals[p][j]) |
+                                (1 << row_vals[p][j+1]) |
+                                (1 << row_vals[r][j]) |
+                                (1 << row_vals[r][j+1]);
+                unsigned cnt = __builtin_popcount(mask);
+                if (cnt == 3) { ok = 0; break; }
+            }
+            adjacency[p][r] = ok;
+        }
+    }
+
+    /* transition lists: trans_nei[k][p][i] = r, trans_newk[k][p][i] = k_new
+       trans_cnt[k][p]   = number of transitions.  k = values seen so far (0..4)
+    */
+    static unsigned char trans_nei[5][64][64];
+    static unsigned char trans_newk[5][64][64];
+    static unsigned char trans_cnt[5][64];
+    for (int k = 0; k <= 4; ++k) {
+        for (int p = 0; p < 64; ++p) {
+            unsigned cnt = 0;
+            for (int r = 0; r < 64; ++r) {
+                if (!adjacency[p][r]) continue;
+                /* ordering check with initial k */
+                int k_cur = k;
+                int ok = 1;
+                for (int j = 0; j < 3; ++j) {
+                    int v = row_vals[r][j];
+                    if (v < k_cur) continue;
+                    if (v == k_cur) { k_cur++; continue; }
+                    ok = 0; break;
+                }
+                if (!ok) continue;
+                trans_nei[k][p][cnt]   = (unsigned char)r;
+                trans_newk[k][p][cnt] = (unsigned char)k_cur;
+                ++cnt;
+            }
+            trans_cnt[k][p] = cnt;
+        }
+    }
+
+    /* attach tables to static storage */
+    (void)row_vals;
+    (void)adjacency;
+    (void)trans_nei;
+    (void)trans_newk;
+    (void)trans_cnt;
+}
 
 /* global static tables (to satisfy compiler when building in C++) */
 static unsigned char _row_vals[64][3];
@@ -90,7 +159,7 @@ seq_t a(idx_t n) {
     /* dp arrays: dp[k][row] */
     static seq_t dp_prev[5][64];
     static seq_t dp_next[5][64];
-    memset(dp_prev, 0, sizeof(dp_prev));
+    mem_set(dp_prev, 0, sizeof(dp_prev));
     /* initialize first row (row index 0) */
     for (int r = 0; r < 64; ++r) {
         int k = 0;
@@ -108,7 +177,7 @@ seq_t a(idx_t n) {
 
     /* process remaining n rows (total rows = n+1) */
     for (idx_t step = 1; step <= n; ++step) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (int k_prev = 0; k_prev <= 4; ++k_prev) {
             for (int p = 0; p < 64; ++p) {
                 seq_t val = dp_prev[k_prev][p];
@@ -122,7 +191,7 @@ seq_t a(idx_t n) {
             }
         }
         /* swap dp_next into dp_prev */
-        memcpy(dp_prev, dp_next, sizeof(dp_prev));
+        mem_copy(dp_prev, dp_next, sizeof(dp_prev));
     }
 
     /* sum over final states with all 4 values used (k = 4) */

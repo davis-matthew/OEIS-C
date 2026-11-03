@@ -12,12 +12,14 @@
  *            a(n) = g(n) + 40·(a(n-1)+a(n-2)+…+a(n-22))...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of computed values */
 static seq_t *cache = NULL;
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         size_t newsize  = (size_t)n + 1;
 
         /* allocate new cache array */
-        seq_t *newcache = (seq_t *)malloc(newsize * sizeof(seq_t));
+        seq_t *newcache = mem_new(seq_t, newsize);
         if (!newcache) return 0;               /* allocation failed */
 
         /* copy already computed values */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
             newcache[i] = cache[i];
 
         /* free old cache and update pointers */
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache = newcache;
         cache_size = newsize;
 

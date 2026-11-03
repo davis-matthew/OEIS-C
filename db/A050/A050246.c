@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 211, u32 n <= 211, u64 n <= 211,
  *            u128 n <= 211, big any n
- * Helpers:   none
+ * Validated: full, pass, 211 terms through n = 211 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Prefilter all candidates once and keep them in static storage. */
 static seq_t *prime_vals = NULL;   /* array of primes */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 {
     if (!initialized) {
         const size_t MAX_CANDIDATES = 24 * 60;          /* 1440 possible times */
-        prime_vals = (seq_t *)malloc(MAX_CANDIDATES * sizeof(seq_t));
+        prime_vals = mem_new(seq_t, MAX_CANDIDATES);
         if (!prime_vals) return 0;                     /* allocation failed */
 
         size_t len = 0;

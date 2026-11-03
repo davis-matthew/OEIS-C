@@ -11,6 +11,7 @@
  *            * R(t) = (1-6t+9t^2-4t^3+t^4)/((1-4t)(1-2t))
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

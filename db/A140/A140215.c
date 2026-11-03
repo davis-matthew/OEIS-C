@@ -11,13 +11,16 @@
  *            * 5. If k == 1: * • if e1 == 1 return p1; *...
  * Range:     u8 n <= 34, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -66,10 +69,10 @@ seq_t a(idx_t n)
         if (exponent == 1)
             return (seq_t)prod_primes;                  /* p^1 */
         else
-            return seq_pow((seq_t)prod_primes, exponent + 1); /* p^(e+1) */
+            return ipow_idx((seq_t)prod_primes, exponent + 1); /* p^(e+1) */
     }
     else                      /* at least two distinct primes */
     {
-        return seq_pow((seq_t)prod_primes, 2);          /* (∏p)^2 */
+        return ipow_idx((seq_t)prod_primes, 2);          /* (∏p)^2 */
     }
 }

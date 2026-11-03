@@ -7,7 +7,8 @@
  * Formula:   a(n) = Card(k, 0<k<n such that phi(k) divides phi(n-k))
  * Range:     u8 n <= 77, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 8540 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Small prime factorisation cache and phi precomputation */
 static idx_t  phi_cache_len = 0;      /* phi_cache currently valid for indices < phi_cache_len */
@@ -62,9 +64,9 @@ static void ensure_phi_cache(idx_t n)
     if (n + 1 <= phi_cache_len) return;
 
     if (phi_cache == NULL) {
-        phi_cache = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        phi_cache = mem_new(seq_t, (n + 1));
     } else if (phi_cache_len < n + 1) {
-        phi_cache = (seq_t*)realloc(phi_cache, (n + 1) * sizeof(seq_t));
+        phi_cache = mem_resize(seq_t, phi_cache, (n + 1));
     }
 
     ensure_spfs(n);

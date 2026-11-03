@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   _gcd_idx
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   gcd_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdlib.h>   /* malloc, realloc */
 #include <stdbool.h>  /* bool type */
 #include <stdint.h>   /* uint32_t */
-#include "../utils/_gcd_idx.h"
+#include "../utils/gcd_idx.h"
+#include "../utils/mem.h"
 
 /* Prime sieve parameters */
 #define SIEVE_LIMIT 5000000U  /* enough for n up to about 10 000 */
@@ -122,7 +124,7 @@ static inline bool is_good_m(idx_t m)
     /* Pairwise coprime check */
     for (int i = 0; i < len; ++i) {
         for (int j = i + 1; j < len; ++j) {
-            if (_gcd_idx(indices[i], indices[j]) > 1) return false;
+            if (gcd_idx(indices[i], indices[j]) > 1) return false;
         }
     }
     return true;
@@ -138,7 +140,7 @@ static void generate_until(size_t target)
 
     if (cache == NULL) {
         cache_cap = (target > 64) ? target : 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) exit(1);
     }
 
@@ -152,7 +154,7 @@ static void generate_until(size_t target)
         if (is_good_m(current_n)) {
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (tmp == NULL) exit(1);
                 cache = tmp;
             }

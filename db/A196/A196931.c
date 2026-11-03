@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2713, u16 n <= 2713, u32 n <= 2713, u64 n <= 2713,
  *            u128 n <= 2713, big any n
- * Helpers:   count_partitions_min
+ * Validated: standard, pass, 113 terms through n = 2623 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,24 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_partitions_min.h"
+
+/* ------------------------------------------------------------ */
+static uint64_t count_partitions_min(uint64_t rem, uint64_t min_part)
+{
+    if (rem == 0) return 1;
+    if (rem < min_part) return 0;
+    uint64_t *dp = (uint64_t *)calloc(rem + 1, sizeof(uint64_t));
+    if (!dp) return 0;
+    dp[0] = 1;
+    for (uint64_t part = min_part; part <= rem; ++part) {
+        for (uint64_t sum = part; sum <= rem; ++sum) {
+            dp[sum] += dp[sum - part];
+        }
+    }
+    uint64_t res = dp[rem];
+    free(dp);
+    return res;
+}
 
 /* ------------------------------------------------------------ */
 /*  Partition number: p(n) using the pentagonal recurrence.    */

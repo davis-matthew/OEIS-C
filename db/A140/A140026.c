@@ -8,7 +8,8 @@
  *            that p = 35*x^2 + 39*y^2 for some integers x,y
  * Range:     u8 n <= 2, u16 n <= 206, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 9003 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* forward declarations of types supplied by the build system */
 extern seq_t a(idx_t n);
@@ -57,7 +59,7 @@ static inline bool is_repr_form(uint32_t p) {
 static void add_prime(uint32_t p) {
     if (repr_cnt == repr_cap) {
         size_t new_cap = repr_cap ? repr_cap * 2 : 256;
-        repr_primes = (seq_t *)realloc(repr_primes, new_cap * sizeof(seq_t));
+        repr_primes = mem_resize(seq_t, repr_primes, new_cap);
         repr_cap   = new_cap;
     }
     repr_primes[repr_cnt++] = (seq_t)p;
@@ -82,7 +84,7 @@ static void build_for(idx_t need) {
         }
 
         /* rebuild representable-primes array fresh */
-        free(repr_primes);
+        mem_free(repr_primes);
         repr_primes = NULL;
         repr_cnt = 0;
         repr_cap = 0;

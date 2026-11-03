@@ -9,8 +9,9 @@
  *            2^m, then a(n) = m + 1. Otherwise let n = 2^m + 2^e2 + k (0 ≤ k
  *            < 2^e2 < 2^m) then a(n) = (m - e2) - a(2^e2 + k). The recursion
  *            strictly decreases the largest power of two p...
- * Range:     i8 n <= 9051, i16 n <= 9051, i32 n <= 9051, i64 n <= 9051,
- *            i128 n <= 9051, big any n
+ * Range:     i8 n <= 16383, i16 n <= 16383, i32 n <= 16383, i64 n <= 16383,
+ *            i128 n <= 16383, big any n
+ * Validated: standard, pass, 121 terms through n = 9051 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,15 +9,18 @@
  *            3e*(p²-1) + 2*(p²+p+1))
  * Range:     u8 n <= 4, u16 n <= 22, u32 n <= 2370, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 73 terms through n = 9899 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Compute a(p^e) for prime p (uint64_t) and exponent e (idx_t) */
 static seq_t a_prime_power(uint64_t p, idx_t e)
@@ -35,14 +38,14 @@ static seq_t a_prime_power(uint64_t p, idx_t e)
 
     if (e >= 3) {
         /* p^(e-3) with e>=3 */
-        seq_t p_pow = pow_uint((uint64_t)seq_p, e - 3);
+        seq_t p_pow = ipow_u64_idx((uint64_t)seq_p, e - 3);
         seq_t product = p1 * p_pow;
         product *= bracket;
         return product / (seq_t)2;
     } else {
         /* e<3: divide by 2*p^(3-e) */
         idx_t diff = 3 - e;                  /* 3-e is positive here */
-        seq_t denom = (seq_t)2 * pow_uint((uint64_t)seq_p, diff);
+        seq_t denom = (seq_t)2 * ipow_u64_idx((uint64_t)seq_p, diff);
         seq_t product = p1 * bracket;
         return product / denom;
     }

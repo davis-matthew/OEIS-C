@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static uint64_t *primes = NULL;   /* array of primes */
 static size_t primes_cnt = 0;     /* number of primes in the array */
@@ -61,8 +63,7 @@ seq_t a(idx_t n)
                 /* current prime starts a run */
                 if (rcnt == runs_cap) {
                     runs_cap = runs_cap ? runs_cap * 2 : 64;
-                    runs = (seq_t *)realloc(runs,
-                                            runs_cap * sizeof(seq_t));
+                    runs = mem_resize(seq_t, runs, runs_cap);
                 }
                 runs[rcnt++] = (seq_t)primes[i];
 
@@ -81,7 +82,7 @@ seq_t a(idx_t n)
             if (runs_cnt < n) { /* need more runs, increase limit */
                 sieve_limit *= 2;
                 free(primes);
-                free(runs);
+                mem_free(runs);
                 primes = NULL;
                 runs = NULL;
                 runs_cnt = 0;

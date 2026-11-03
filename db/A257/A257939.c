@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 798 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
      a(1)=0,  a(2)=2,  a(3)=116,  a(4)=798,  a(5)=37512. */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* Cached sequence values.  Static so that calls in any order succeed. */
 static seq_t *seq_cache = NULL;
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first five terms on first call. */
     if (seq_cache_size == 0) {
         seq_cache_size = 5;
-        seq_cache = (seq_t *)malloc(sizeof(seq_t) * seq_cache_size);
+        seq_cache = mem_new(seq_t, seq_cache_size);
         if (!seq_cache) return (seq_t)0;   /* allocation failure, return 0 */
 
         seq_cache[0] = (seq_t)0;
@@ -51,8 +53,7 @@ seq_t a(idx_t n)
                   + seq_cache[k-6];                    /* + a(k-5)   */
 
         /* Grow the cache by one element. */
-        seq_t *new_cache = (seq_t *)realloc(seq_cache,
-                                            sizeof(seq_t) * (seq_cache_size + 1));
+        seq_t *new_cache = mem_resize(seq_t, seq_cache, (seq_cache_size + 1));
         if (!new_cache) { /* allocation failure – return current value */
             return seq_cache[seq_cache_size - 1];
         }

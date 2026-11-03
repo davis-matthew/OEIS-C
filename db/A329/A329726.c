@@ -10,7 +10,8 @@
  *            nu(x, 2) is the exponent of the highest power of 2 dividing x
  * Range:     u8 n <= 127, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   exp2, gcd
+ * Validated: standard, pass, 89 terms through n = 9841 (2026-11-01)
+ * Helpers:   ctz_u64_to_u32, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
 /* Required utilities */
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/ctz_u64_to_u32.h"
 #include "../utils/gcd.h"
-#include "../utils/exp2.h"
 
 seq_t a(idx_t n)
 {
@@ -60,7 +61,7 @@ seq_t a(idx_t n)
     }
 
     /* Exponent of 2 in 2*n = exponent of 2 in M-1. */
-    uint32_t expNminus1_2 = 1 + exp2(k);
+    uint32_t expNminus1_2 = 1 + ctz_u64_to_u32(k);
 
     /* Determine min nu(p-1, 2) and whether the odd‑exponent condition
        is satisfied. */
@@ -68,7 +69,7 @@ seq_t a(idx_t n)
     bool oddExponentLower = false;
 
     for (uint32_t i = 0; i < nf; ++i) {
-        uint32_t expPminus1_2 = exp2(primes[i] - 1);
+        uint32_t expPminus1_2 = ctz_u64_to_u32(primes[i] - 1);
         if (expPminus1_2 < minExpPminus1_2)
             minExpPminus1_2 = expPminus1_2;
 

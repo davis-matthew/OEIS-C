@@ -7,23 +7,26 @@
  * Formula:   a(n) = Sum_{d|n} sigma_n(d) = Sum_{d|n} d^n * tau(n/d)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow, factor_u64, pow_uint
+ * Validated: standard, pass, 35 terms through n = 357 (2026-11-01)
+ * Helpers:   factor_u64, ipow, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Recursive helper to accumulate the sum over all divisors of n. */
 static void rec(size_t idx, seq_t cur_d, seq_t tau_rem, seq_t N,
                 seq_t *sum, size_t pc, uint64_t *pr, uint64_t *exps)
 {
     if (idx == pc) {
-        seq_t term = big_pow(cur_d, N);
+        seq_t term = ipow(cur_d, N);
         term = term * tau_rem;
         *sum += term;
         return;

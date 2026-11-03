@@ -8,6 +8,7 @@
  * Formula:   a(n) = 1 if n mod 4 ≠ 0, else 3^(v₃(n/4)+1)
  * Range:     u8 n <= 971, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 111 terms through n = 889 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

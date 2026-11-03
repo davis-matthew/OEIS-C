@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 9325, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 8595 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- State of the suffix automaton --------------------------------- */
 #define MAX_STATES 600000      /* sufficient for n ≤ 10 000 */
@@ -143,7 +145,7 @@ static void cache_grow(Cache *c, size_t need) {
     if (need <= c->cap) return;
     size_t newcap = c->cap ? c->cap * 2 : 8;
     while (newcap < need) newcap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(c->data, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, c->data, newcap);
     if (!tmp) abort();
     c->data = tmp;
     c->cap = newcap;

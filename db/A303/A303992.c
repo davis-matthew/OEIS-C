@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 209, i16 n <= 2248, i32 n <= 9854, i64 n <= 9854,
  *            i128 n <= 9854, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9848 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 /* -------------------------------------------------------------------- */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *coeff_table = NULL;          /* flattened sequence a(n) */
 static size_t coeff_cap   = 0;             /* current capacity of coeff_table */
@@ -36,7 +38,7 @@ static void ensure_coeff_capacity(size_t need)
     if (coeff_len + need <= coeff_cap) return;
     size_t new_cap = coeff_cap ? coeff_cap : 16;
     while (coeff_len + need > new_cap) new_cap <<= 1;
-    coeff_table = (seq_t *)realloc(coeff_table, new_cap * sizeof(seq_t));
+    coeff_table = mem_resize(seq_t, coeff_table, new_cap);
     coeff_cap = new_cap;
 }
 
@@ -48,7 +50,7 @@ static void generate_next_row(void)
     size_t new_size = poly_size + 3 * j;  /* new polynomial size */
 
     /* allocate new polynomial and initialise to zero */
-    seq_t *new_poly = (seq_t *)calloc(new_size, sizeof(seq_t));
+    seq_t *new_poly = mem_new(seq_t, new_size);
 
     /* convolution with (1 - 3x^j + 3x^{2j} - x^{3j}) */
     for (size_t e = 0; e < poly_size; ++e) {
@@ -59,7 +61,7 @@ static void generate_next_row(void)
         new_poly[e + 3*j]    += val * (seq_t)(-1);    /* -1   */
     }
 
-    free(poly);                       /* discard previous row polynomial */
+    mem_free(poly);                       /* discard previous row polynomial */
     poly       = new_poly;
     poly_size  = new_size;
     ++next_row;                       /* increment to next row index (j) */
@@ -80,11 +82,11 @@ seq_t a(idx_t n)
         initialized = 1;
         /* initialize row 0 (empty product) */
         poly_size = 1;
-        poly = (seq_t *)malloc(sizeof(seq_t));
+        poly = mem_new(seq_t, 1);
         poly[0] = (seq_t)1;
 
         coeff_cap = 16;
-        coeff_table = (seq_t *)malloc(coeff_cap * sizeof(seq_t));
+        coeff_table = mem_new(seq_t, coeff_cap);
         coeff_table[coeff_len++] = poly[0];  /* a(0) = 1 */
 
         next_row = 1;          /* next row to generate */

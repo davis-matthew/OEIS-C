@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 223, u32 n <= 1035, u64 n <= 5614,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>      /*  uint64_t  */
 #include <stddef.h>      /*  size_t  */
 #include <string.h>      /*  memset  */
+#include "../utils/mem.h"
 
 #ifdef __cplusplus
 #include <type_traits>
@@ -42,10 +44,10 @@ static void ensure_arrays(idx_t n)
 {
     size_t need = (size_t)n + 1;
     if (dp_size < need) {
-        free(dp);
-        free(dp_next);
-        dp       = (seq_t *)calloc(need, sizeof(seq_t));
-        dp_next  = (seq_t *)calloc(need, sizeof(seq_t));
+        mem_free(dp);
+        mem_free(dp_next);
+        dp       = mem_new(seq_t, need);
+        dp_next  = mem_new(seq_t, need);
         dp_size  = need;
     }
 }
@@ -56,7 +58,7 @@ static void compute_dp(idx_t n)
     ensure_arrays(n);
 
     /*  Initialise dp[0] = 1, others = 0.  */
-    memset(dp, 0, dp_size * sizeof(seq_t));
+    mem_set(dp, 0, dp_size * sizeof(seq_t));
     dp[0] = (seq_t)1;
 
     /*  Iterate over all part sizes m = k(2k-1).  */

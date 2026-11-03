@@ -8,9 +8,10 @@
  * Formula:   a(n) is the n-th integer whose square in long * multiplication
  *            produces no carries, i.e. for the decimal * digits d[i] of n the
  *            convolution sums * e_k = Σ_{i=0..k} d[i] * d[k-i] are all ≤ 9
- * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8777, u64 n <= 8777,
- *            u128 n <= 8777, big any n
- * Helpers:   cmp, get_pow10
+ * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 15275, u64 n <= 15276,
+ *            u128 n <= 15276, big any n
+ * Validated: standard, pass, 69 terms through n = 8777 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,30 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/cmp.h"
-#include "../utils/get_pow10.h"
+#include "../utils/mem.h"
+
+/*  Comparator for qsort – works for built‑in integral types and for
+ *  __int128 and big integer classes that provide operator<.  */
+static int cmp_sort(const void *a, const void *b)
+{
+    seq_t va = *(const seq_t*)a;
+    seq_t vb = *(const seq_t*)b;
+    if (va < vb) return -1;
+    if (va > vb) return 1;
+    return 0;
+}
+
+static const seq_t get_pow10(unsigned int e) {
+    static seq_t power10[32];
+    static bool init = false;
+    if (!init) {
+        power10[0] = (seq_t)1;
+        for (unsigned int i = 1; i < 32; ++i)
+            power10[i] = power10[i-1] * (seq_t)10;
+        init = true;
+    }
+    return power10[e];
+}
 
 #define MAX_LEN 10
 #define MAX_VAL ((seq_t)10000000000ULL)     /* 1e10 is safely above the 10k‑th term */
@@ -78,7 +101,7 @@ seq_t a(idx_t n)
     if (!built) {
         dfs(0);                           /* generate all candidates */
         /* sort and remove duplicates */
-        qsort(results, res_cnt, sizeof(seq_t), cmp);
+        mem_qsort(results, res_cnt, sizeof(seq_t), cmp_sort);
         size_t uniq = 0;
         for (size_t i = 0; i < res_cnt; ++i) {
             if (i && results[i] == results[uniq-1]) continue;

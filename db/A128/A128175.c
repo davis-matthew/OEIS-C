@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 36, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
+ * Range:     u8 n <= 45, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
     The binomial coefficient is obtained from the helper function
     binom() provided in the utils library.                                   */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     idx_t max_i = (r > k) ? (r - k) / 2 : 0;
     for (idx_t i = 0; i <= max_i; ++i) {
         idx_t j = k - 1 + 2 * i;          /* the binomial pick index   */
-        sum += binom(r - 1, j);          /* binom is seq_t returning */
+        sum += binomial(r - 1, j);          /* binom is seq_t returning */
     }
     return sum;
 }

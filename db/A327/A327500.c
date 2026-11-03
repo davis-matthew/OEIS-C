@@ -8,8 +8,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of steps needed to reach 1 by repeatedly dividing
  *            n by the largest divisor whose prime multiplicities are distinct
- * Range:     u8 n <= 9953, u16 n <= 9953, u32 n <= 9953, u64 n <= 9953,
- *            u128 n <= 9953, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9953 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Recursive helper to enumerate all divisors and keep the largest

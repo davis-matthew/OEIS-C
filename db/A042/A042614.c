@@ -11,12 +11,15 @@
  *            of sqrt(836). The partial quotients are g...
  * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 18, u64 n <= 37, u128 n <= 77,
  *            big any n
- * Helpers:   isqrt
+ * Validated: standard, pass, 42 terms through n = 198 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/isqrt.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n)
 {

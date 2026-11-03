@@ -7,13 +7,15 @@
  * Formula:   a(1) = 18; a(n+1) = a(n)^6 - 6·a(n)^4 + 9·a(n)^2 - 2 (n ≥ 1)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 2, u128 n <= 2,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;      /* 1‑based cache (index 0 unused) */
@@ -21,16 +23,16 @@ seq_t a(idx_t n) {
     static size_t used  = 0;         /* last index computed (>=1 if set) */
 
     /* grow cache to accommodate index n */
-    if (n > cap) {
+    if ((size_t)n + 1 > cap) {              /* 1-based: index n is used */
         size_t new_cap = (cap < 2) ? 2 : cap;
-        while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        while (new_cap < (size_t)n + 1) new_cap <<= 1;
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) abort();      /* out of memory */
         if (used > 0) {
             for (size_t i = 0; i <= used; ++i)
                 new_cache[i] = cache[i];
         }
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cap   = new_cap;
     }
@@ -50,7 +52,7 @@ seq_t a(idx_t n) {
         seq_t val = x6 - (seq_t)6 * x4 + (seq_t)9 * x2 - (seq_t)2;
         cache[i] = val;
     }
-    used = (size_t)n;
+    if ((size_t)n > used) used = (size_t)n;
 
     return cache[n];
 }

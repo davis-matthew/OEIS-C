@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 3281, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 71 terms through n = 9361 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"   /* mod_pow(seq_t base, uint64_t exp, seq_t mod) */
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of discovered terms */
 static idx_t cache_cap = 0;          /* capacity of the array            */
@@ -43,7 +46,7 @@ static void ensure_cache_cap(idx_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
     /* cast is required for C++ */
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     cache = new_ptr;
     cache_cap = new_cap;
 }
@@ -61,12 +64,12 @@ static void generate_to(idx_t target)
         seq_t k = tested_up_to;
 
         /* condition 1: 2^(k-1) ≡ 1 (mod k) */
-        if (mod_pow(2, tested_up_to - 1, k) != 1)
+        if (powmod(2, tested_up_to - 1, k) != 1)
             continue;
 
         /* compute the second condition carefully */
-        seq_t big  = mod_pow(2, (3 * tested_up_to - 1) / 2, k);
-        seq_t small = mod_pow(2, (tested_up_to - 1) / 2, k);
+        seq_t big  = powmod(2, (3 * tested_up_to - 1) / 2, k);
+        seq_t small = powmod(2, (tested_up_to - 1) / 2, k);
 
         seq_t diff = big;
         if (diff >= small)

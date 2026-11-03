@@ -5,14 +5,16 @@
  * Offset:    5    (a(5) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = binomial(2*n-4,5)/2 (for n ≥ 5, otherwise 0)
- * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 92, u64 n <= 200, u128 n <= 200,
- *            big any n
- * Helpers:   binom
+ * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 119, u64 n <= 200,
+ *            u128 n <= 200, big any n
+ * Validated: standard, pass, 47 terms through n = 187 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -25,5 +27,5 @@ seq_t a(idx_t n)
 
     /* binom returns a value of type seq_t; the result is always even 
        so the division by 2 is exact. */
-    return binom(m, 5) / 2;
+    return binomial(m, 5) / 2;
 }

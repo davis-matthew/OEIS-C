@@ -7,17 +7,20 @@
  * Formula:   a(n) = 11^n + 7^n - 1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 37,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 958 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
-    seq_t pow11 = big_pow((seq_t)11, (seq_t)n);
-    seq_t pow7  = big_pow((seq_t)7,  (seq_t)n);
+    seq_t pow11 = ipow((seq_t)11, (seq_t)n);
+    seq_t pow7  = ipow((seq_t)7,  (seq_t)n);
     seq_t res   = pow11 + pow7;
     res -= (seq_t)1;
     return res;

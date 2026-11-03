@@ -10,13 +10,30 @@
  *            The division is exact
  * Range:     u8 n <= 10, u16 n <= 11, u32 n <= 13, u64 n <= 18, u128 n <= 29,
  *            big any n
- * Helpers:   mul_cancel
+ * Validated: standard, pass, 30 terms through n = 193 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mul_cancel.h"
+
+/* cancel any 2,3,5,7 factors of `factor` that are still present
+   in the denominator array `denom`, then multiply the result by
+   the remaining part of `factor`.  The denominator array contains
+   the prime factor counts of 2106910310400 (2^18 * 3^8 * 5^2 * 7^2). */
+static inline void mul_cancel(seq_t *prod, seq_t factor, int *denom)
+{
+    static const uint64_t primes[4] = {2ULL, 3ULL, 5ULL, 7ULL};
+    for (int pi = 0; pi < 4; ++pi) {
+        uint64_t p = primes[pi];
+        while (denom[pi] > 0 && (factor % p) == 0) {
+            factor /= p;
+            denom[pi]--;
+        }
+    }
+    *prod *= factor;
+}
 
 seq_t a(idx_t n)
 {

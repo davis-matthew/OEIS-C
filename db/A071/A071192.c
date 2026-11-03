@@ -9,14 +9,37 @@
  *            total number of prime factors of k counted with multiplicity
  * Range:     u8 n <= 251, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   omega_value
+ * Validated: standard, pass, 79 terms through n = 8850 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/omega_value.h"
+
+/* Computes Ω(n) (total prime factor count with multiplicity) */
+static uint32_t omega_value(idx_t n)
+{
+    if (n <= 1) return 0;
+
+    uint32_t count = 0;
+    /* factor 2 */
+    while ((n % 2) == 0) {
+        ++count;
+        n /= 2;
+    }
+    /* factor odd numbers up to sqrt(n) */
+    for (idx_t p = 3; p <= n / p; p += 2) {
+        while ((n % p) == 0) {
+            ++count;
+            n /= p;
+        }
+    }
+    /* if remaining part is a prime > 1 */
+    if (n > 1) ++count;
+    return count;
+}
 
 /* Public sequence function */
 seq_t a(idx_t n)

@@ -10,13 +10,15 @@
  *            is memoised for all n up to 10000
  * Range:     u8 n <= 44, u16 n <= 209, u32 n <= 629, u64 n <= 3464,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 8628 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAXN 10000   /* maximum n that will be asked for */
 
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
                 if (d2 != d1 && (d2 & 1) != 0 && dcnt < 128) divs[dcnt++] = d2;
             }
         }
-        seq_t *dp_large = (seq_t *)calloc((size_t)(k + 1), sizeof(seq_t));
+        seq_t *dp_large = mem_new(seq_t, (size_t)(k + 1));
         dp_large[0] = 1;
         for (size_t j = 0; j < dcnt; ++j) {
             idx_t d = divs[j];
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
                 dp_large[s] = dp_large[s] + dp_large[s - d];
         }
         seq_t res = dp_large[k];
-        free(dp_large);
+        mem_free(dp_large);
         return res;
     }
 

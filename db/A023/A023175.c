@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 486, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9764 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    so 128‑bit arithmetic is used only to avoid overflow. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;          /* stored sequence terms */
 static size_t terms_len = 0;          /* number of terms stored */
@@ -32,7 +34,7 @@ static void ensure_terms_cap(size_t need)
     if (terms_cap < need) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 64;
         if (new_cap < need) new_cap = need;
-        seq_t *p = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, terms, new_cap);
         if (!p) abort();
         terms = p;
         terms_cap = new_cap;

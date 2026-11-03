@@ -10,6 +10,7 @@
  *            defined as 1)
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 20, u64 n <= 34, u128 n <= 57,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 795 (2026-11-01)
  * Helpers:   double_factorial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

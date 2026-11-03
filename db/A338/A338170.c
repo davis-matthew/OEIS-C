@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) is the number of divisors d of n such that τ(d) divides
  *            σ(d)
- * Range:     u8 n <= 18, u16 n <= 1753, u32 n <= 9869, u64 n <= 9869,
- *            u128 n <= 9869, big any n
+ * Range:     u8 n <= 18, u16 n <= 1753, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9869 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Recursive helper that counts arithmetic divisors. */

@@ -12,7 +12,8 @@
  *            29198, 46489
  * Range:     u8 n <= 3, u16 n <= 12, u32 n <= 76, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* Static table of the first 12 terms (index 0 unused). */
 static const seq_t init_vals[13] = {
@@ -52,7 +54,7 @@ static void ensure_cache_size(idx_t need)
         return;
 
     size_t new_len = (size_t)(need + 1);        /* +1 for unused 0 position */
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp)
         abort();
 

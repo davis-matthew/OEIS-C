@@ -13,14 +13,22 @@
  *            A002653(n) - 6*A002656(n)
  * Range:     u8 n <= 5, u16 n <= 93, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   a002706_chi, a002706_isqrt
+ * Validated: standard, pass, 60 terms through n = 2429 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a002706_chi.h"
-#include "../utils/a002706_isqrt.h"
+#include "../utils/isqrt_u64.h"
+
+static int a002706_chi(uint64_t m) {
+    switch (m % 7) {
+        case 1: case 2: case 4: return 1;
+        case 3: case 5: case 6: return -1;
+        default: return 0;
+    }
+}
 
 seq_t a(idx_t n) {
     __int128 S = 0, F = 0, C = 0, r;
@@ -46,7 +54,7 @@ seq_t a(idx_t n) {
         uint64_t rest = m - k * (k + 1) / 2, t, s, j;
         if (rest % 7) continue;
         t = rest / 7;
-        s = a002706_isqrt(8 * t + 1);
+        s = isqrt_u64(8 * t + 1);
         if (s * s != 8 * t + 1) continue;
         j = (s - 1) / 2;
         {

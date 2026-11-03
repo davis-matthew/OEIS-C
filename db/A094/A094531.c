@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
  * the trinomial triangle A027907 row by row.
  */
 
-#include "../utils/binom.h"      /* seq_t binom(idx_t a, idx_t b); */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -46,8 +48,8 @@ seq_t a(idx_t n)
 
     seq_t res = 0;
     for (idx_t j = j_min; j <= j_max; ++j) {
-        seq_t t1 = binom(r, j);
-        seq_t t2 = binom(j, e - j);
+        seq_t t1 = binomial(r, j);
+        seq_t t2 = binomial(j, e - j);
         res += t1 * t2;
     }
     return res;

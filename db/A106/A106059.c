@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 604, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 9909 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- 64‑bit deterministic Miller–Rabin trial ---------- */
 static inline uint64_t mod_mul(uint64_t a, uint64_t b, uint64_t mod) {
@@ -72,7 +74,7 @@ static void ensure_terms_cap(size_t min_cap) {
     if (a_terms_cap < min_cap) {
         size_t new_cap = a_terms_cap ? a_terms_cap * 2 : 128;
         if (new_cap < min_cap) new_cap = min_cap;
-        seq_t *tmp = (seq_t *)realloc(a_terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_terms, new_cap);
         a_terms = tmp;
         a_terms_cap = new_cap;
     }

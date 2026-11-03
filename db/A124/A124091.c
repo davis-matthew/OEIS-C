@@ -6,202 +6,86 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  cons, nonn
  * Formula:   a(n) = decimal digit of the constant Σ 2^{-Fibonacci(i)}
- * Range:     u8 none, u16 n <= 9891, u32 n <= 9891, u64 n <= 9891,
- *            u128 n <= 9891, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9891 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-/* offset = 1 (a(1) = the integer part) */
+/* A124091: the decimal digits of Sum_{i>=0} 2^-F(i) (F the Fibonacci numbers),
+ * a(1) being the integer part (2). The sum is held as a binary fraction of M
+ * bits: N = Sum 2^(M - F(i)) over F(i) <= M, the tail being below 2^(F - M) for
+ * the first F(i) > M, far under the last digit kept. Digits come from
+ * repeatedly multiplying the fraction by 10. M is chosen for the digit asked
+ * for (the original fixed it for 10000 digits) and doubles when needed. */
 
-#include <stddef.h>
 #include <stdint.h>
-#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
-/* Number of decimal digits the pre‑computed constant must support.
-   For 10 000 decimal digits, at least 33220 binary bits are needed.
-   (33220 * log10(2) ≈ 10000)                                      */
-#define M_BITS   33224      /* small safety margin */
+static unsigned char *digits = NULL;      /* digits[0] = integer part */
+static size_t ndig = 0;                   /* digits kept from the last build */
 
-/* Helper constants for 32‑bit words. */
-#define WORD_BITS 32
-#define WORD_MASK 0xffffffffU
-
-/* Number of 32‑bit words required to store M_BITS bits (+2 for carries). */
-#define WORDS ((M_BITS + 31) / WORD_BITS + 3)
-
-/* Global buffers. */
-static uint32_t N[WORDS];          /* numerator bits of the sum   */
-static size_t   N_len;             /* used word count of N        */
-
-static uint32_t R[WORDS];          /* current remainder           */
-static size_t   R_len;             /* used word count of R        */
-
-static seq_t    integer_part;      /* the integer part (a(1))     */
-static unsigned char digits[200001];/* cached decimal digits        */
-static size_t   digits_len = 0;     /* digits generated so far      */
-
-static idx_t    fib[100];          /* Fibonacci numbers up to M   */
-static size_t   fibcnt;            /* number of Fibonacci values  */
-
-static bool initialized = false;   /* lazy initialisation flag    */
-
-/* ------------------------------------------------------------------ */
-/* Add a single bit 1 at position k into an array of 32‑bit words.   */
-/* k = 0 refers to the least significant bit.                       */
-/* ------------------------------------------------------------------ */
-static void add_bit(uint32_t *num, size_t *len, size_t k)
+static void build(size_t want)            /* digits[0..want] */
 {
-    size_t w = k / WORD_BITS;
-    unsigned b = (unsigned)(k % WORD_BITS);
-    uint64_t sum = (uint64_t)num[w] + ((uint64_t)1U << b);
-    num[w] = (uint32_t)(sum & WORD_MASK);
-    uint64_t carry = sum >> WORD_BITS;
-    size_t i = w + 1;
-    while (carry) {
-        uint64_t t = (uint64_t)num[i] + carry;
-        num[i] = (uint32_t)(t & WORD_MASK);
-        carry = t >> WORD_BITS;
-        ++i;
+    size_t M = (size_t)(want * 3.3219280948873623) + 256;     /* bits */
+    size_t W = M / 32 + 2;
+    uint32_t *R = (uint32_t *)calloc(W + 1, sizeof *R);
+    unsigned char *d = (unsigned char *)malloc(want + 1);
+    if (!R || !d) abort();
+    uint64_t f0 = 0, f1 = 1;
+    unsigned ip = 0;                      /* the integer part: F = 0 and two F = 1 */
+    for (;;) {
+        if (f0 <= M) {                    /* add 2^(M - f0) */
+            if (f0 == 0) ++ip;
+            else {
+                size_t k = M - f0, w = k / 32;
+                uint64_t c = (uint64_t)1 << (k % 32);
+                for (size_t i = w; c && i <= W; ++i) {
+                    c += R[i];
+                    R[i] = (uint32_t)c;
+                    c >>= 32;
+                }
+            }
+        } else break;
+        uint64_t t = f0 + f1;
+        f0 = f1;
+        f1 = t;
     }
-    if (i > *len) *len = i;
+    /* bits >= M of R belong to the integer part */
+    const size_t top = M / 32;
+    const unsigned sh = (unsigned)(M % 32);
+    unsigned extra = (unsigned)((((uint64_t)R[top + 1] << 32) | R[top]) >> sh);
+    d[0] = (unsigned char)(ip + extra);
+    R[top] &= (uint32_t)((UINT64_C(1) << sh) - 1);
+    R[top + 1] = 0;
+    for (size_t j = 1; j <= want; ++j) {
+        uint64_t c = 0;
+        for (size_t i = 0; i <= top + 1; ++i) {
+            c += (uint64_t)R[i] * 10;
+            R[i] = (uint32_t)c;
+            c >>= 32;
+        }
+        unsigned dig = (unsigned)((((uint64_t)R[top + 1] << 32) | R[top]) >> sh);
+        d[j] = (unsigned char)dig;
+        R[top] &= (uint32_t)((UINT64_C(1) << sh) - 1);
+        R[top + 1] = 0;
+    }
+    free(R);
+    free(digits);
+    digits = d;
+    ndig = want + 1;
 }
 
-/* ------------------------------------------------------------------ */
-/* Compute all Fibonacci numbers that are needed (≤ M_BITS).          */
-/* ------------------------------------------------------------------ */
-static void compute_fib(void)
-{
-    fib[0] = 0;
-    fib[1] = 1;
-    fibcnt = 2;
-    while (fib[fibcnt-1] <= (idx_t)M_BITS) {
-        idx_t next = fib[fibcnt-1] + fib[fibcnt-2];
-        fib[fibcnt++] = next;
-        if (fibcnt >= sizeof(fib)/sizeof(fib[0])) break; /* safety */
-    }
-}
-
-/* ------------------------------------------------------------------ */
-/* Shift a big integer (array of 32‑bit words) right by s bits.        */
-/* The result is returned as seq_t (fits into the internal type).     */
-/* ------------------------------------------------------------------ */
-static seq_t shift_right(const uint32_t *num, size_t len, idx_t s)
-{
-    size_t word_shift = (size_t)(s / WORD_BITS);
-    int  bit_shift   = (int)(s % WORD_BITS);
-    if (word_shift >= len) return (seq_t)0;
-
-    if (bit_shift == 0) {
-        return (seq_t)num[word_shift];
-    } else {
-        seq_t low  = (seq_t)num[word_shift] >> bit_shift;
-        seq_t high = 0;
-        if (word_shift + 1 < len)
-            high = (seq_t)num[word_shift + 1] << (WORD_BITS - bit_shift);
-        return low | high;
-    }
-}
-
-/* ------------------------------------------------------------------ */
-/* Initialise all static data.                                         */
-/* ------------------------------------------------------------------ */
-static void init(void)
-{
-    compute_fib();
-
-    /* Build the numerator N = Σ 2^{M_BITS - F_i} */
-    for (size_t i = 0; i < WORDS; ++i) N[i] = 0;
-    N_len = 0;
-    for (size_t i = 0; i < fibcnt; ++i) {
-        if (fib[i] > (idx_t)M_BITS) break;
-        add_bit(N, &N_len, M_BITS - (size_t)fib[i]);
-    }
-
-    /* Determine the integer part */
-    integer_part = shift_right(N, N_len, M_BITS);
-
-    /* Initialise the remainder R = N mod 2^{M_BITS} */
-    size_t rem_words = M_BITS / WORD_BITS + 1;
-    for (size_t i = 0; i < rem_words; ++i) R[i] = N[i];
-    R_len = rem_words;
-    size_t last_word = rem_words - 1;
-    uint32_t mask;
-    if ((M_BITS % WORD_BITS) == 0)
-        mask = WORD_MASK;
-    else
-        mask = (1U << (M_BITS % WORD_BITS)) - 1;
-    R[last_word] &= mask;
-
-    digits_len = 0;
-    initialized = true;
-}
-
-/* ------------------------------------------------------------------ */
-/* Multiply the current remainder R by 10 (big integer * 10).          */
-/* ------------------------------------------------------------------ */
-static void mul_rem_by10(void)
-{
-    uint64_t carry = 0;
-    for (size_t i = 0; i < R_len; ++i) {
-        uint64_t prod = (uint64_t)R[i] * 10 + carry;
-        R[i] = (uint32_t)(prod & WORD_MASK);
-        carry = prod >> WORD_BITS;
-    }
-    if (carry) {
-        if (R_len < WORDS)
-            R[R_len++] = (uint32_t)carry;
-        else
-            R[R_len - 1] = (uint32_t)carry;   /* safety fall‑back */
-    }
-}
-
-/* ------------------------------------------------------------------ */
-/* Mask the remainder R to keep only the lowest M_BITS bits (mod 2^M). */
-/* ------------------------------------------------------------------ */
-static void mask_remainder(void)
-{
-    size_t last_word = M_BITS / WORD_BITS;
-    uint32_t mask;
-    if ((M_BITS % WORD_BITS) == 0)
-        mask = WORD_MASK;
-    else
-        mask = (1U << (M_BITS % WORD_BITS)) - 1;
-    R[last_word] &= mask;
-    for (size_t i = last_word + 1; i < R_len; ++i)
-        R[i] = 0;
-    R_len = last_word + 1;
-}
-
-/* ------------------------------------------------------------------ */
-/* Generate decimal digits up to position `pos` (0‑based after the
-   integer part).                                                     */
-/* ------------------------------------------------------------------ */
-static void generate_to(size_t pos)
-{
-    while (digits_len <= pos) {
-        mul_rem_by10();                     /* R := R * 10 */
-        seq_t d = shift_right(R, R_len, M_BITS);
-        digits[digits_len++] = (unsigned char)d;
-        mask_remainder();                   /* keep lower M_BITS bits */
-    }
-}
-
-/* ------------------------------------------------------------------ */
-/* The required sequence function.                                     */
-/* ------------------------------------------------------------------ */
 seq_t a(idx_t n)
 {
-    if (!initialized) init();
-
-    if (n == 1) return integer_part;
-
-    size_t pos = (size_t)(n - 2);           /* 0‑based decimal position */
-    if (pos >= 200001)   /* safety guard for extremely large requests */
-        generate_to(pos);
-    else if (digits_len <= pos)
-        generate_to(pos);
-
-    return (seq_t)digits[pos];
+    if (n < 1) return (seq_t)0;
+    if ((size_t)n > ndig) {
+        size_t want = ndig ? 2 * ndig : 1024;
+        while (want < (size_t)n) want *= 2;
+        build(want);
+    }
+    return (seq_t)digits[n - 1];
 }

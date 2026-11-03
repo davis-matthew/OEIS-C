@@ -10,13 +10,15 @@
  *            2*k^(n*(n+1)/2) + 2*k^(n*(n + n mod 2)/2)) / 8
  * Range:     u8 n <= 17, u16 n <= 24, u32 n <= 39, u64 n <= 60, u128 n <= 98,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 71 terms through n = 860 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Integer square root for unsigned 64‑bit integers. */
 static idx_t floor_isqrt(idx_t x)
@@ -49,11 +51,11 @@ static seq_t compute_T(idx_t n_row, idx_t k_col)
     seq_t e4 = n * (n + 1U) / 2U;
     seq_t e5 = n * (n + nmod2) / 2U;
 
-    seq_t t1 = big_pow(k, e1);
-    seq_t t2 = 2U * big_pow(k, e2);
-    seq_t t3 = big_pow(k, e3);
-    seq_t t4 = 2U * big_pow(k, e4);
-    seq_t t5 = 2U * big_pow(k, e5);
+    seq_t t1 = ipow(k, e1);
+    seq_t t2 = 2U * ipow(k, e2);
+    seq_t t3 = ipow(k, e3);
+    seq_t t4 = 2U * ipow(k, e4);
+    seq_t t5 = 2U * ipow(k, e5);
 
     seq_t sum = t1 + t2 + t3 + t4 + t5;
     return sum / 8U;

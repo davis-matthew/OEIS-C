@@ -9,13 +9,15 @@
  *            square‑free
  * Range:     u8 n <= 31, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes a(n) using prefix sums of square‑free indicators.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root (floor) for idx_t. */
 static inline idx_t floor_sqrt_u64(idx_t n)
@@ -43,8 +45,8 @@ seq_t a(idx_t n)
         idx_t newM = m;
 
         /* Resize arrays. */
-        prefCount = (seq_t *)realloc(prefCount, (newM + 1) * sizeof(seq_t));
-        prefWeight = (seq_t *)realloc(prefWeight, (newM + 1) * sizeof(seq_t));
+        prefCount = mem_resize(seq_t, prefCount, (newM + 1));
+        prefWeight = mem_resize(seq_t, prefWeight, (newM + 1));
         sqf = (unsigned char *)realloc(sqf, (newM + 1) * sizeof(unsigned char));
 
         if (!prefCount || !prefWeight || !sqf)

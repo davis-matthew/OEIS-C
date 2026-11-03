@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 49, i16 n <= 49, i32 n <= 49, i64 n <= 49, i128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build system.  No re‑definition
  * is necessary – they are already typedef'd in an included header.  */
@@ -42,7 +44,7 @@ static void grow_axis(size_t needed)
     size_t new_cap = axis_cap ? axis_cap << 1 : 32;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(axis, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, axis, new_cap);
     if (!tmp) {
         /* Allocation failed – abort the program (behaviour undefined
            for the OEIS test harness but acceptable for simple CP builds).*/

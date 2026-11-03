@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 35, u32 n <= 90, u64 n <= 230,
  *            u128 n <= 594, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9813 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- Integer square‑root for unsigned 64‑bit values ------------------- */
 static idx_t
@@ -68,7 +70,7 @@ ensure_row(idx_t R)
         idx_t n = rows_used;  /* next row to compute */
 
         /* allocate binomial coefficients for row n */
-        seq_t *cur_binom = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        seq_t *cur_binom = mem_new(seq_t, (size_t)(n + 1));
         if (!cur_binom) exit(1);
 
         if (n == 0) {
@@ -81,7 +83,7 @@ ensure_row(idx_t R)
         }
 
         /* allocate values for current triangle row */
-        seq_t *cur_row = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        seq_t *cur_row = mem_new(seq_t, (size_t)(n + 1));
         if (!cur_row) exit(1);
 
         if (n == 0) {
@@ -104,7 +106,7 @@ ensure_row(idx_t R)
         rows[rows_used] = cur_row;
 
         /* prepare state for next iteration */
-        if (prev_binom) free(prev_binom);
+        if (prev_binom) mem_free(prev_binom);
         prev_binom      = cur_binom;
         prev_binom_n    = n;
 

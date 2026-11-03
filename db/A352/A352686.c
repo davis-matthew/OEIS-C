@@ -9,14 +9,16 @@
  *            T(n,k)=(n-1)*Gould(k-1)+Bell(k) for n>=0, k>=1, read by rows
  * Range:     u8 n <= 26, u16 n <= 53, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *bell = NULL;
 static size_t bell_len = 0, bell_cap = 0;
@@ -29,7 +31,7 @@ static void ensure_bell(size_t need)
     if (need + 1 <= bell_len) return;
     size_t new_cap = bell_cap ? bell_cap << 1 : 1;
     while (new_cap <= need + 1) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(bell, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, bell, new_cap);
     if (!tmp) exit(1);
     bell = tmp;
     bell_cap = new_cap;
@@ -39,7 +41,7 @@ static void ensure_bell(size_t need)
         } else {
             seq_t sum = 0;
             for (size_t k = 0; k < i; ++k) {
-                sum += binom((idx_t)(i - 1), (idx_t)k) * bell[k];
+                sum += binomial((idx_t)(i - 1), (idx_t)k) * bell[k];
             }
             bell[i] = sum;
         }
@@ -53,7 +55,7 @@ static void ensure_gould(size_t need)
     if (need + 1 <= gould_len) return;
     size_t new_cap = gould_cap ? gould_cap << 1 : 1;
     while (new_cap <= need + 1) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(gould, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, gould, new_cap);
     if (!tmp) exit(1);
     gould = tmp;
     gould_cap = new_cap;
@@ -63,7 +65,7 @@ static void ensure_gould(size_t need)
         } else {
             seq_t sum = 0;
             for (size_t k = 0; k < i; ++k) {
-                sum += binom((idx_t)(i - 1), (idx_t)k) * gould[k];
+                sum += binomial((idx_t)(i - 1), (idx_t)k) * gould[k];
             }
             gould[i] = gould[i - 1] + sum;
         }

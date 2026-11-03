@@ -11,13 +11,52 @@
  *            condition is met
  * Range:     u8 none, u16 n <= 999, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   find_min_multiple
+ * Validated: standard, pass, 67 terms through n = 9068 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/find_min_multiple.h"
+
+/* Compute the smallest multiple of n satisfying the equal‑frequency
+   property. */
+static seq_t find_min_multiple(idx_t n)
+{
+    seq_t inc = (seq_t)n;   /* step size */
+    seq_t val = inc;        /* current multiple (k = 1) */
+
+    while (true) {
+        unsigned freq[10] = {0};
+        seq_t tmp = val;
+
+        /* Count digits of val */
+        while (tmp > 0) {
+            int d = (int)(tmp % 10);
+            freq[d]++;
+            tmp /= 10;
+        }
+
+        /* Verify that all non‑zero frequencies are equal */
+        unsigned target = 0;
+        bool ok = true;
+        for (int d = 0; d < 10; ++d) {
+            if (freq[d] > 0) {
+                if (target == 0)
+                    target = freq[d];
+                else if (freq[d] != target) {
+                    ok = false;
+                    break;
+                }
+            }
+        }
+
+        if (ok)
+            return val;          /* found the smallest multiple */
+
+        val += inc;             /* next multiple */
+    }
+}
 
 /* External function required by the OEIS framework.  For indices below
    the offset (100) the behavior is irrelevant, so we simply return 0. */

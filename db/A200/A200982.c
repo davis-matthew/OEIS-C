@@ -10,7 +10,8 @@
  *            i^{λ(k)/2} ≡ 0 (mod k), where λ is Carmichael's reduced totient
  * Range:     u8 n <= 114, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd64, lcm64
+ * Validated: standard, pass, 78 terms through n = 9077 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/gcd64.h"
-#include "../utils/lcm64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
+
+static inline uint64_t lcm64(uint64_t a, uint64_t b) {
+    return a / gcd_u64(a, b) * b;
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_cap = 0;
@@ -136,7 +141,7 @@ static inline void ensure_cache(idx_t needed) {
     if (cache_cap < needed) {
         size_t newcap = cache_cap ? cache_cap * 2 : 64;
         while (newcap < needed) newcap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         cache = tmp;
         cache_cap = newcap;
     }

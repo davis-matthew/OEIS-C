@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>   /* for uint64_t, if needed */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     idx_t c = n - ((unsigned __int128)r * (r + 1)) / 2;
 
     /* Allocate array to hold one row of Stirling numbers. */
-    seq_t *S = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, (r + 1));
     if (!S) return (seq_t)0;   /* allocation failure → fallback to 0 */
 
     /* Initialise for row 0 : S[0] = 1 */
@@ -58,6 +60,6 @@ seq_t a(idx_t n)
     /* Result T(r,c) = r^c * S[r][c] */
     seq_t result = pow * S[c];
 
-    free(S);
+    mem_free(S);
     return result;
 }

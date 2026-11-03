@@ -11,14 +11,25 @@
  *            these a_k gives the required sequence
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   _floor_isqrt, _sum_floor_half_plus
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_floor_isqrt.h"
-#include "../utils/_sum_floor_half_plus.h"
+#include "../utils/isqrt.h"
+
+/* Sum_{t=1..N} floor((t+1)/2) in closed form */
+static inline seq_t _sum_floor_half_plus(idx_t N)
+{
+    /* N >= 0 */
+    idx_t m = N >> 1; /* floor(N/2) */
+    if ((N & 1) == 0) /* N even */
+        return (seq_t)m * (m + 1);
+    else              /* N odd */
+        return (seq_t)(m + 1) * (m + 1);
+}
 
 seq_t a(idx_t n)
 {
@@ -32,15 +43,15 @@ seq_t a(idx_t n)
         seq_t term;
         if ((i & 1ULL) == 0ULL)    /* even i */
         {
-            idx_t sqrt1 = _floor_isqrt((idx_t)2 * i - 2);               /* ⌊√(2i – 2)⌋ */
-            idx_t t = _floor_isqrt((idx_t)2 * i - 3) - 1;              /* ⌊√(2i – 3)⌋ – 1 */
+            idx_t sqrt1 = isqrt((idx_t)2 * i - 2);               /* ⌊√(2i – 2)⌋ */
+            idx_t t = isqrt((idx_t)2 * i - 3) - 1;              /* ⌊√(2i – 3)⌋ – 1 */
             seq_t S = _sum_floor_half_plus(t);                         /* sum of floor((t+1)/2) */
 
             term = (seq_t)1 + (seq_t)sqrt1 - (( (seq_t)i - 2 * S ) / 2);
         }
         else                       /* odd i */
         {
-            idx_t t = _floor_isqrt((idx_t)2 * i - 1) - 1;              /* ⌊√(2i – 1)⌋ – 1 */
+            idx_t t = isqrt((idx_t)2 * i - 1) - 1;              /* ⌊√(2i – 1)⌋ – 1 */
             seq_t S = _sum_floor_half_plus(t);
 
             term = ((seq_t)i + 1 - 2 * S) / 2;

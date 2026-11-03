@@ -7,6 +7,7 @@
  * Formula:   a(0)=a(1)=1, for n>=2, a(n) = a(n-1) + a(a(n-2) mod n)
  * Range:     u8 n <= 17, u16 n <= 48, u32 n <= 187, u64 n <= 591,
  *            u128 n <= 2223, big any n
+ * Validated: standard, pass, 66 terms through n = 9332 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

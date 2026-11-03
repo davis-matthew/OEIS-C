@@ -10,12 +10,14 @@
  *            16 (offset 1)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 51, u128 n <= 103,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,9 +33,9 @@ seq_t a(idx_t n)
     if (cap < (size_t)n + 1) {
         size_t new_cap = (size_t)n + 1;
         if (new_cap < 4) new_cap = 4;            /* need space for base values */
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) { /* allocation failed; abort gracefully */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             return (seq_t)0;
         }

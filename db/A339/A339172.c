@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
     /* Allocate a working array of size n+1 for the inner partition DP
        (the type seq_t may be an arbitrary‑precision integer).  */
-    seq_t *c = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, (size_t)n + 1);
     if (!c)
         return 0;                      /* allocation failure – unlikely for typical inputs */
 
@@ -82,6 +84,6 @@ seq_t a(idx_t n)
         fact *= (seq_t)(k + 1);
     }
 
-    free(c);
+    mem_free(c);
     return result;
 }

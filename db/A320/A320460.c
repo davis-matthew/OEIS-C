@@ -9,13 +9,30 @@
  *            a(1) = 1
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 35, u128 n <= 68,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 42 terms through n = 1545 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
 
 /* Memoization table for already computed values */
 static seq_t *memo = NULL;       /* indices 0..memo_cap-1 are valid */
@@ -31,7 +48,7 @@ seq_t a(idx_t n)
     /* Allocate or grow the memo table to hold index n */
     if (memo_cap <= n) {
         idx_t new_cap = n + 1;               /* indices 0 .. n inclusive */
-        seq_t *new_mem = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *new_mem = mem_resize(seq_t, memo, new_cap);
         if (!new_mem)                        /* allocation failed */
             abort();
         memo = new_mem;

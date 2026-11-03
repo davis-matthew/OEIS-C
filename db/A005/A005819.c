@@ -7,13 +7,14 @@
  * Formula:   a(n) = -1 + Sum_{i=1..n} (n-i+1)*phi(i) for n >= 2, a(1) = 1
  * Range:     u8 n <= 12, u16 n <= 85, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   a005819_totient
+ * Validated: standard, pass, 63 terms through n = 87 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a005819_totient.h"
+#include "../utils/totient_u64.h"
 
 seq_t a(idx_t n) {
     if (n == 1) {
@@ -23,7 +24,7 @@ seq_t a(idx_t n) {
     idx_t i;
     for (i = 1; i <= n; i++) {
         seq_t coeff = (seq_t)(n - i + 1);
-        seq_t ph = (seq_t)a005819_totient((uint64_t)i);
+        seq_t ph = (seq_t)totient_u64((uint64_t)i);
         result += coeff * ph;
     }
     result -= 1;

@@ -13,15 +13,35 @@
  *            29872128000*a(n-12) - 16293888000*a(n-13), wit...
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 11, u128 n <= 24,
  *            big any n
- * Helpers:   mul_const, seq_from_str
+ * Validated: standard, pass, 30 terms through n = 183 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_from_str.h"
-#include "../utils/mul_const.h"
+#include <stdlib.h>
+#include <string.h>
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+static inline seq_t mul_const(seq_t x, unsigned long long c)
+{
+    if (sizeof(seq_t) <= 8) {
+        return (seq_t)((__uint128_t)x * c);
+    } else {
+        return x * (seq_t)c;
+    }
+}
 
 seq_t a(idx_t n)
 {

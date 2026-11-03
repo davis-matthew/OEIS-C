@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   idx_of_k
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,18 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/idx_of_k.h"
+#include "../utils/mem.h"
+
+/* Convert (row, k) to array index.  k ∈ [-row, -1] ∪ [1, row].  */
+static inline size_t idx_of_k(int k, int row) {
+    if (k < 0) {
+        /* negative side: -row … -1 */
+        return (size_t)(row + k);          /* k is negative, row+k in [0, row-1] */
+    } else {
+        /* positive side: 1 … row */
+        return (size_t)(row - 1 + k);     /* starts at row (after negative side) */
+    }
+}
 
 /* OEIS sequence A335335 */
 seq_t a(idx_t n) {
@@ -57,14 +69,14 @@ seq_t a(idx_t n) {
     }
 
     /* Allocate the first row (row 1) */
-    seq_t *prev = (seq_t *)malloc(2 * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, 2);
     prev[0] = 1;   /* k = –1 */
     prev[1] = 1;   /* k = +1 */
 
     /* Build rows 2 … m */
     for (int row = 2; row <= (int)m; ++row) {
         size_t curr_len = (size_t)2 * row;
-        seq_t *curr = (seq_t *)malloc(curr_len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, curr_len);
 
         /* Negative k: k = –row … –1 */
         /* T(row, –row) = 0 */
@@ -92,13 +104,13 @@ seq_t a(idx_t n) {
         }
 
         /* Move to next iteration */
-        free(prev);
+        mem_free(prev);
         prev = curr;
     }
 
     /* Retrieve the requested element */
     size_t idx_ans = idx_of_k(k, (int)m);
     seq_t result = prev[idx_ans];
-    free(prev);
+    mem_free(prev);
     return result;
 }

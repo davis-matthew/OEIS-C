@@ -12,14 +12,51 @@
  *            well under two seconds
  * Range:     u8 n <= 31, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   arith_deriv_uint64
+ * Validated: standard, pass, 121 terms through n = 9886 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/arith_deriv_uint64.h"
+
+/* compute the arithmetic derivative of a uint64_t number. */
+static inline seq_t arith_deriv_uint64(uint64_t v)
+{
+    if (v <= 1) return 0;
+    uint64_t orig = v;
+    seq_t result = 0;
+
+    /* handle factor 2 separately */
+    if ((v & 1U) == 0) {
+        int e = 0;
+        while ((v & 1U) == 0) {
+            v >>= 1;
+            ++e;
+        }
+        result += (seq_t)e * (seq_t)(orig / 2);
+    }
+
+    /* odd factors */
+    for (uint64_t p = 3; p <= v / p; p += 2) {
+        if (v % p == 0) {
+            int e = 0;
+            while (v % p == 0) {
+                v /= p;
+                ++e;
+            }
+            result += (seq_t)e * (seq_t)(orig / p);
+        }
+    }
+
+    /* if a prime factor remains */
+    if (v > 1) {
+        result += (seq_t)(orig / v);   /* exponent 1 */
+    }
+
+    return result;
+}
 
 seq_t a(idx_t n)
 {

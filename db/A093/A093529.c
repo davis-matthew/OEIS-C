@@ -10,14 +10,16 @@
  *            removed). Sample values: a(1)=45, a(2)=525,
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;  /* undefined for n=0, return 0 */
@@ -64,7 +66,7 @@ seq_t a(idx_t n) {
 
         int e = e_den - e_num;
         if (e > 0) {
-            seq_t pow = big_pow((seq_t)p, (seq_t)e);
+            seq_t pow = ipow((seq_t)p, (seq_t)e);
             result *= pow;
         }
     }

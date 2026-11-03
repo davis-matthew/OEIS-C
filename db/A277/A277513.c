@@ -13,14 +13,16 @@
  *            listed term
  * Range:     u8 n <= 12, u16 n <= 35, u32 n <= 118, u64 n <= 455,
  *            u128 n <= 1709, big any n
- * Helpers:   binomial, pow_int
+ * Validated: standard, pass, 61 terms through n = 9145 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial.h"   /* binomial(idx_t n, idx_t k) */
-#include "../utils/pow_int.h"    /* pow_int(seq_t base, idx_t exp) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 /* cumulative number of terms up to and including row r (r ≥ 3) */
 static inline idx_t cumulative_terms(idx_t r)
@@ -52,6 +54,6 @@ seq_t a(idx_t n)
     idx_t m = r - 1;                /* choose from m = r‑1 */
     idx_t k2 = 2 * k;               /* 2k */
     seq_t bin = binomial(m, k2);    /* C(m, 2k) */
-    seq_t pow4k = pow_int((seq_t)4, k);  /* 4^k = 2^(2k) */
+    seq_t pow4k = ipow_idx((seq_t)4, k);  /* 4^k = 2^(2k) */
     return bin * pow4k;
 }

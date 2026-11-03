@@ -8,13 +8,15 @@
  *            a(n-k); a(0) = 1
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 12, i64 n <= 18, i128 n <= 1,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Memoization cache for a(n) */
 static seq_t *a_cache   = NULL;
@@ -33,14 +35,14 @@ static void ensure_a(idx_t n)
 {
     if (a_cache == NULL) {            /* first time allocation */
         a_cache_cap = (n > 0) ? n + 1 : 1;
-        a_cache = (seq_t*)malloc(a_cache_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cache_cap);
         if (!a_cache) abort();
         a_cache[0] = 1;
         a_last = 0;
     } else if (a_cache_cap <= n) {    /* grow capacity */
         idx_t new_cap = a_cache_cap ? a_cache_cap : 1;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) abort();
         a_cache = tmp;
         a_cache_cap = new_cap;
@@ -54,7 +56,7 @@ static void ensure_s5(idx_t n)
 
     if (s5_cache == NULL) {           /* first time allocation */
         s5_cap = 1;
-        s5_cache = (seq_t*)malloc(s5_cap * sizeof(seq_t));
+        s5_cache = mem_new(seq_t, s5_cap);
         if (!s5_cache) abort();
         s5_cache[0] = 0;              /* s(0,5) = 0 */
         s_prev[0] = 1;                /* s(0,0) = 1 */
@@ -62,7 +64,7 @@ static void ensure_s5(idx_t n)
     } else if (s5_cap <= n) {         /* grow capacity */
         idx_t new_cap = s5_cap << 1;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(s5_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, s5_cache, new_cap);
         if (!tmp) abort();
         s5_cache = tmp;
         s5_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   a(0)=0, a(1)=0; for n>1, a(n)=BigOmega((2*n^3+n)/3)
  * Range:     u8 n <= 8, u16 n <= 46, u32 n <= 1890, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega_uint64
+ * Validated: standard, pass, 103 terms through n = 8976 (2026-11-01)
+ * Helpers:   bigomega_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 /* BigOmega is the count of prime factors (with multiplicity) of a uint64_t */
 #include <stdint.h>
 #include <limits.h>
-#include "../utils/bigomega_uint64.h"   /* provides seq_t bigomega_uint64(uint64_t) */
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/bigomega_u64.h"
 
 /* compute a(n) */
 seq_t a(idx_t n)
@@ -31,5 +34,5 @@ seq_t a(idx_t n)
     /* for n up to about 10000 the result fits in uint64_t */
     uint64_t val64 = (uint64_t)val;    /* conversion is guaranteed to be exact */
 
-    return bigomega_uint64(val64);    /* number of prime factors with multiplicity */
+    return bigomega_u64(val64);    /* number of prime factors with multiplicity */
 }

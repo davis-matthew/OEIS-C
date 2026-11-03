@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 11, i16 n <= 27, i32 n <= 41, i64 n <= 41, i128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(n) = -2*a(n-1)-a(n-2)+a(n-3)  for n>2 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Ensure the cache covers indices up to n */
     if (n >= size) {
         idx_t newsize = (n + 1 > 3) ? (n + 1) : 3;  /* at least 3 elements for the base */
-        seq_t *tmp = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newsize);
         if (!tmp) return 0;        /* out of memory; return 0 as a fallback */
         cache = tmp;
 

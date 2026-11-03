@@ -11,14 +11,16 @@
  *            the search from the last checked index, achieving...
  * Range:     u8 n <= 16, u16 n <= 880, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 76 terms through n = 1888 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,11 +37,11 @@ seq_t a(idx_t n)
         seq_t val7 = (seq_t)last_checked_k * 6 + 7;
 
         /* If both are prime, store k in cache */
-        if (is_prime_small(val5) && is_prime_small(val7)) {
+        if (is_prime_seq(val5) && is_prime_seq(val7)) {
             /* expand cache if needed */
             if (cache_len >= cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
                     /* On allocation failure, abort (cannot recover) */
                     abort();

@@ -7,11 +7,14 @@
  * Formula:   a(n) = 3^(n-1) * binomial(n+3, 2)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 16, u64 n <= 26, u128 n <= 26,
  *            big any n
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
  * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow3.h"
 

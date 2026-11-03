@@ -9,12 +9,15 @@
  * Formula:   a(n) = 20*2^(n-1) + 4*n^2 + 26*n + 22 (n ≥ 1)
  * Range:     u8 n <= 3, u16 n <= 12, u32 n <= 28, u64 n <= 60, u128 n <= 124,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 45 terms through n = 203 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +25,7 @@ seq_t a(idx_t n)
     seq_t nseq = (seq_t)n;
 
     /* 2^(n-1) – big_pow produces the result in the seq_t type */
-    seq_t pow_term = big_pow((seq_t)2, nseq - (seq_t)1);
+    seq_t pow_term = ipow((seq_t)2, nseq - (seq_t)1);
 
     /* Compute the closed form */
     seq_t result = pow_term * (seq_t)20;          /* 20 * 2^(n-1) */

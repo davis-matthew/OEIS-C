@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pow_mod, simple_sieve
+ * Validated: standard, pass, 72 terms through n = 851 (2026-11-01)
+ * Helpers:   powmod_u64, simple_sieve
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include "../utils/powmod_u64.h"
 #include "../utils/simple_sieve.h"
-#include "../utils/pow_mod.h"
 
 seq_t a(idx_t n)
 {
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
                     if (sq > temp) break;
                     if (temp % q == 0) {
                         uint64_t exp = m / q;
-                        if (pow_mod(a_val, exp, p) == 1ULL) {
+                        if (powmod_u64(a_val, exp, p) == 1ULL) {
                             ok = false; break;
                         }
                         while (temp % q == 0) temp /= q;
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
                 }
                 if (ok && temp > 1) {               /* remaining prime factor */
                     uint64_t exp = m / temp;
-                    if (pow_mod(a_val, exp, p) == 1ULL)
+                    if (powmod_u64(a_val, exp, p) == 1ULL)
                         ok = false;
                 }
                 if (ok) {

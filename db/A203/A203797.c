@@ -8,13 +8,15 @@
  *            Pell(k)=2*Pell(k-1)+Pell(k-2))
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* Allocate array to store Pell numbers up to n */
-    seq_t *P = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *P = mem_new(seq_t, (n + 1));
     if (!P)
         abort();
 
@@ -44,6 +46,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(P);
+    mem_free(P);
     return sum;
 }

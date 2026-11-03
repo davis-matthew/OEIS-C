@@ -5,19 +5,21 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = 1 + binomial(n,2) - binomial(floor(n/2)+1,2)
- * Range:     u8 n <= 16, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
+ * Range:     u8 n <= 26, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
-    seq_t bin_n2 = binom(n, 2);
+    seq_t bin_n2 = binomial(n, 2);
     idx_t half = n >> 1;                /* floor(n/2) */
-    seq_t bin_half_plus1_2 = binom(half + 1, 2);
+    seq_t bin_half_plus1_2 = binomial(half + 1, 2);
     return (seq_t)1 + bin_n2 - bin_half_plus1_2;
 }

@@ -10,13 +10,15 @@
  *            below computes all p_k(n) in O(n·35)
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 43, u64 n <= 142, u128 n <= 222,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 213 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #define K 35          /* maximum number of parts in a nondecreasing sequence */
 
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     size_t rows = (size_t)n + 1;
     size_t cols = K + 1;
     size_t total = rows * cols;
-    seq_t *dp = (seq_t *)calloc(total, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, total);
     if (!dp)
         return 0;   /* allocation failure – unlikely */
 
@@ -71,6 +73,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

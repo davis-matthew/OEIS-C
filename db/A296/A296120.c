@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   Gcalc_large, Scalc_large
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,40 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/Gcalc_large.h"
-#include "../utils/Scalc_large.h"
+#include "../utils/mem.h"
+
+/*  Non‑cached recursion for values larger than MAXN.  Slow but safe. */
+static seq_t Gcalc_large(idx_t n, idx_t minf)
+{
+    if (n < minf || n == 1) return 0;
+    seq_t sum = 1;
+    idx_t lim = (idx_t)floor(sqrt((double)n));
+    for (idx_t f = minf; f <= lim; ++f) {
+        if (n % f == 0) {
+            idx_t g = n / f;
+            if (f <= g) sum += Gcalc_large(g, f + 1);
+        }
+    }
+    return sum;
+}
+
+static seq_t Scalc_large(idx_t n, idx_t minf)
+{
+    if (n == 1) return 1;
+    if (n < minf) return 0;
+    seq_t sum = Gcalc_large(n, 2);
+    idx_t lim = (idx_t)floor(sqrt((double)n));
+    for (idx_t f = minf; f <= lim; ++f) {
+        if (n % f == 0) {
+            idx_t g = n / f;
+            if (f <= g) {
+                seq_t sub = Scalc_large(g, f + 1);
+                sum += Gcalc_large(f, 2) * sub;
+            }
+        }
+    }
+    return sum;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Configuration:  maximum n supported with memoised tables.  The
@@ -58,13 +91,13 @@ static void init(void)
 {
     /* allocate memoisation tables */
     size_t gsize = (MAXN + 1) * WIDTH;
-    Gmem = (seq_t*)malloc(gsize * sizeof(seq_t));
+    Gmem = mem_new(seq_t, gsize);
     Gvis = (bool*)calloc(gsize, sizeof(bool));
 
-    Smem = (seq_t*)malloc(gsize * sizeof(seq_t));
+    Smem = mem_new(seq_t, gsize);
     Svis = (bool*)calloc(gsize, sizeof(bool));
 
-    Anum = (seq_t*)calloc(MAXN + 1, sizeof(seq_t));
+    Anum = mem_new(seq_t, MAXN + 1);
     Avis = (bool*)calloc(MAXN + 1, sizeof(bool));
 }
 

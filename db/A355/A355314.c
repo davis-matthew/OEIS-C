@@ -13,7 +13,8 @@
  *            and thereafter each new cell receives the...
  * Range:     u8 n <= 70, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---- Helper structures ---- */
 
@@ -78,12 +80,12 @@ static void map_init(Map *m) {
     m->cap   = 64;
     m->mask  = m->cap - 1;
     m->sz    = 0;
-    m->table = (KeyVal*)calloc(m->cap, sizeof(KeyVal));
+    m->table = mem_new(KeyVal, m->cap);
 }
 
 static void map_rehash(Map *m) {
     size_t new_cap = m->cap << 1;
-    KeyVal *new_tbl = (KeyVal*)calloc(new_cap, sizeof(KeyVal));
+    KeyVal *new_tbl = mem_new(KeyVal, new_cap);
     size_t new_mask = new_cap - 1;
     for (size_t i = 0; i < m->cap; ++i) {
         if (!m->table[i].used) continue;
@@ -94,7 +96,7 @@ static void map_rehash(Map *m) {
         new_tbl[idx].key  = k;
         new_tbl[idx].val  = m->table[i].val;
     }
-    free(m->table);
+    mem_free(m->table);
     m->table = new_tbl;
     m->cap   = new_cap;
     m->mask  = new_mask;
@@ -166,7 +168,7 @@ static void seq_ensure(size_t needed) {
     if (g_seq_len >= needed) return;
     if (g_seq_cap == 0) g_seq_cap = 64;
     while (g_seq_cap < needed) g_seq_cap <<= 1;
-    g_seq = (seq_t*)realloc(g_seq, g_seq_cap * sizeof(seq_t));
+    g_seq = mem_resize(seq_t, g_seq, g_seq_cap);
 }
 
 static void seq_push(seq_t v) {
@@ -245,7 +247,7 @@ static void compute_up_to(idx_t n) {
         map_init(&g_map);
         diff_init(&g_diff);
         g_seq_cap = 64;
-        g_seq = (seq_t*)malloc(g_seq_cap * sizeof(seq_t));
+        g_seq = mem_new(seq_t, g_seq_cap);
         g_seq_len = 0;
 
         /* first position (0,0) with value 0 */

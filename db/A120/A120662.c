@@ -8,12 +8,14 @@
  *            a(n)=6*a(n-1)+a(n-2)-30*a(n-3)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 26, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;       /* cache of computed terms */
 static idx_t  a_cache_cap = 0;      /* allocated capacity (in elements) */
@@ -29,7 +31,7 @@ static void grow_cache(idx_t n)
     while (a_cache_cap <= n)
         a_cache_cap <<= 1;          /* double until enough */
 
-    seq_t *new_ptr = (seq_t *)realloc(a_cache, a_cache_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, a_cache, a_cache_cap);
     if (!new_ptr)
         abort();                    /* memory exhausted */
     a_cache = new_ptr;

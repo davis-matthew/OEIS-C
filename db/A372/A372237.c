@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 29, u64 n <= 61, u128 n <= 126,
  *            big any n
- * Helpers:   pow2, seq_alloc_new_array
+ * Validated: standard, pass, 49 terms through n = 980 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,14 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_alloc_new_array.h"
+#include <stdint.h>
+#include <math.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 /* Cache for memoised terms. */
 static seq_t *cache      = NULL;  /* array of cached values */
@@ -33,8 +40,8 @@ static void ensure_cache(idx_t n)
     size_t new_cap = (size_t)n + 1;
     seq_t *tmp = seq_alloc_new_array(new_cap);
     if (cache) {
-        memcpy(tmp, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(tmp, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = tmp;
     cache_cap = new_cap;
@@ -69,9 +76,9 @@ seq_t a(idx_t n)
             while (tmp > (seq_t)0) {
                 if (dcnt == dcap) {           /* grow array */
                     size_t newdcap = dcap == 0 ? 8 : dcap * 2;
-                    seq_t *newt = (seq_t *)malloc(newdcap * sizeof(seq_t));
-                    if (dcnt) memcpy(newt, digits, dcnt * sizeof(seq_t));
-                    free(digits);
+                    seq_t *newt = mem_new(seq_t, newdcap);
+                    if (dcnt) mem_copy(newt, digits, dcnt * sizeof(seq_t));
+                    mem_free(digits);
                     digits = newt;
                     dcap   = newdcap;
                 }
@@ -88,7 +95,7 @@ seq_t a(idx_t n)
             res -= (seq_t)1;
             cache[i] = res;
 
-            free(digits);
+            mem_free(digits);
         }
         cache_len = (size_t)n + 1;
     }

@@ -8,7 +8,8 @@
  *            sign(<0)=-1)
  * Range:     u8 n <= 243, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 9934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Implementation uses memoisation: the sequence is computed incrementally up to the
    largest requested index and stored in a static array for future calls. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Ensure the cache contains entries up to index n */
     if (cache_size < n) {
         idx_t new_size = n * 2;         /* grow factor for amortised O(1) per term */
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         if (!cache) abort();           /* out‑of‑memory, best effort */
         /* initialise new entries */
         for (idx_t i = cache_size; i < n; ++i) {

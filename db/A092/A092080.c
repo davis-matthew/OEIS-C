@@ -11,7 +11,8 @@
  *            needed size
  * Range:     u8 n <= 8, u16 n <= 989, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 104 terms through n = 988 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,26 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *partition_cache = NULL;   /* array for p(0)…p(N)          */
 static size_t  partition_cap   = 0;     /* current capacity (N+1)       */
@@ -30,7 +50,7 @@ static size_t  partition_cap   = 0;     /* current capacity (N+1)       */
    Allocation is performed on each call to keep code simple. */
 static void recompute_partitions(idx_t N)
 {
-    seq_t *new_cache = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, N + 1);
     if (!new_cache) exit(1);                 /* allocation failure */
     new_cache[0] = (seq_t)1;                 /* base case: p(0) = 1 */
 
@@ -41,7 +61,7 @@ static void recompute_partitions(idx_t N)
     }
 
     /* Free previous cache and store the new one */
-    free(partition_cache);
+    mem_free(partition_cache);
     partition_cache = new_cache;
     partition_cap   = N + 1;
 }

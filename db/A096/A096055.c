@@ -9,9 +9,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9903, u16 n <= 9903, u32 n <= 9903, u64 n <= 9903,
- *            u128 n <= 9903, big any n
- * Helpers:   none
+ * Range:     u8 n <= 55989, u16 n <= 55989, u32 n <= 55989, u64 n <= 55989,
+ *            u128 n <= 55989, big any n
+ * Validated: standard, pass, 121 terms through n = 9903 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* dynamic array holding the current s(k) */
 static size_t   len = 0;           /* current length of seq */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* Ensure the sequence is initialized. */
     if (!ready) {
         /* start with s(0) = {1}. */
-        seq = (seq_t *)malloc(sizeof(seq_t));
+        seq = mem_new(seq_t, 1);
         if (!seq) exit(1);     /* abort on allocation failure */
         seq[0] = 1;
         len   = 1;
@@ -62,18 +64,18 @@ seq_t a(idx_t n)
         size_t new_len = (ak == 0) ? 2 * old_len : 2 * old_len + 1;
 
         /* Reallocate to the new size. */
-        seq_t *tmp = (seq_t *)realloc(seq, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_len);
         if (!tmp) exit(1);      /* abort on allocation failure */
         seq = tmp;
         len = new_len;
 
         if (ak == 0) {
             /* Append a duplicate of the old array. */
-            memcpy(&seq[old_len], seq, old_len * sizeof(seq_t));
+            mem_copy(&seq[old_len], seq, old_len * sizeof(seq_t));
         } else {
             /* Insert a zero between the two copies. */
             seq[old_len] = 0;
-            memcpy(&seq[old_len + 1], seq, old_len * sizeof(seq_t));
+            mem_copy(&seq[old_len + 1], seq, old_len * sizeof(seq_t));
         }
 
         /* Move to the next stage. */

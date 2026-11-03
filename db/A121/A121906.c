@@ -7,6 +7,7 @@
  * Formula:   a(n) = Min{A014612(n) – p | p prime, 1 < p < A014612(n)}
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
  * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -24,7 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>           /* for size_t */
-#include "../utils/build_spf.h"    /* void build_spf(idx_t limit, idx_t **spf_out); */
+#include "../utils/build_spf.h"
 
 #if defined(__cplusplus)
 /* In C++ we use new/delete for seq_t arrays. */

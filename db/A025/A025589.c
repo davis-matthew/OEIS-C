@@ -10,6 +10,7 @@
  *            up to 24 moves
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
+ * Validated: full, pass, 25 terms through n = 24 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

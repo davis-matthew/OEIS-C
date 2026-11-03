@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 19, u64 n <= 44, u128 n <= 94,
  *            big any n
- * Helpers:   state_enc, tuple_good
+ * Validated: standard, pass, 40 terms through n = 202 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,8 +31,30 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/state_enc.h"
-#include "../utils/tuple_good.h"
+
+/* Encode a quadruple (a,b,c,d) of digits 0..2 into a state 0..80 */
+static inline int state_enc(int a, int b, int c, int d)
+{
+    return ((a * 3 + b) * 3 + c) * 3 + d;
+}
+
+/* Check whether a 5‑tuple satisfies the forbidden condition. */
+static bool tuple_good(int a, int b, int c, int d, int e)
+{
+    int s[5] = { a, b, c, d, e };
+    int total = a + b + c + d + e;
+    /* Enumerate all 10 combinations of 3 indices */
+    for (int i = 0; i < 5; ++i)
+        for (int j = i + 1; j < 5; ++j)
+            for (int k = j + 1; k < 5; ++k)
+            {
+                int sum_sel = s[i] + s[j] + s[k];
+                int sum_oth = total - sum_sel;
+                if (2 * sum_sel == 3 * sum_oth)
+                    return false;  /* forbidden */
+            }
+    return true; /* good */
+}
 
 static bool good5[243];                     /* 3⁵ */
 static int  trans[81][3];                   /* transition table, -1 = forbidden */

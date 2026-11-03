@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = the n‑th prime p such that 80*p‑3 and 80*p+3 are prime
- * Range:     u8 n <= 1, u16 n <= 12, u32 n <= 15, u64 n <= 47, u128 n <= 47,
+ * Range:     u8 n <= 1, u16 n <= 15, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   add_seq, isprime_big, simple_sieve
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, simple_sieve
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,24 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/simple_sieve.h"   /* simple_sieve(uint32_t limit, uint32_t **primes_out, size_t *count_out); */
-#include "../utils/isprime_big.h"    /* bool isprime_big(seq_t n); */
-#include "../utils/add_seq.h"        /* void add_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val); */
+#include <stdint.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/simple_sieve.h"
+#include "../utils/mem.h"
+
+/* enlarge array to store seq_t values */
+static void add_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val) {
+    if (*cap == 0) {
+        *cap  = 4;
+        *arr  = mem_new(seq_t, (*cap));
+    }
+    if (*size == *cap) {
+        *cap <<= 1;
+        *arr  = mem_resize(seq_t, *arr, (*cap));
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
 
 /* Cached data for the sequence. */
 static uint32_t *prime_arr   = NULL;   /* list of primes produced by simple_sieve   */
@@ -57,7 +73,7 @@ static void ensure_sequence(idx_t n)
             seq_t a = p * (seq_t)80 - (seq_t)3;
             seq_t b = a + (seq_t)6; /* 80p+3 = 80p‑3 + 6 */
 
-            if (isprime_big(a) && isprime_big(b))
+            if (is_prime_seq(a) && is_prime_seq(b))
                 add_seq(&seq_vals, &seq_cap, &seq_size, p);
         }
 

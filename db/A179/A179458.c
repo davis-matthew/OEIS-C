@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 2267, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 82 terms through n = 9660 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,10 @@
  */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,8 +53,8 @@ seq_t a(idx_t n)
         seq_t    m = (seq_t)two_k_idx;              /* cast to seq_t */
 
         /* modular powers 2^(2k-1) mod 2k and 2^(2k) mod 2k */
-        seq_t a1 = mod_pow((seq_t)2, (uint64_t)(two_k_idx - 1), m);
-        seq_t a2 = mod_pow((seq_t)2, (uint64_t)(two_k_idx),     m);
+        seq_t a1 = powmod((seq_t)2, (uint64_t)(two_k_idx - 1), m);
+        seq_t a2 = powmod((seq_t)2, (uint64_t)(two_k_idx),     m);
 
         /* compute ((a2 - 1) mod m) */
         seq_t left;
@@ -66,7 +70,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap)
             {
                 size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
-                seq_t *new_mem = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_mem = mem_resize(seq_t, cache, new_cap);
                 if (!new_mem) { /* allocation failed – abort */
                     exit(1);
                 }

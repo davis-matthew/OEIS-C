@@ -11,13 +11,15 @@
  *            a small DP on parts ≤ k and sum over all admissible k
  * Range:     u8 n <= 52, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* integer square‑root floor for 64‑bit values */
 static idx_t isqrt_u64(idx_t x)
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     size_t cols = N + 1;
     size_t rows = K + 1;
 
-    seq_t *dp = (seq_t *)calloc(rows * cols, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, rows * cols);
     if (!dp) return (seq_t)0;              /* allocation failure */
 
     /* base row: k = 0 → only sum 0 has one partition */
@@ -71,6 +73,6 @@ seq_t a(idx_t n)
         result += dp[idx];
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

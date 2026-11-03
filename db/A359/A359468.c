@@ -10,6 +10,7 @@
  *            and k itself is not squarefree)
  * Range:     u8 n <= 88, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 94 terms through n = 9703 (2026-11-01)
  * Helpers:   is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_squarefree.h"   /* bool is_squarefree(seq_t x); */
+#include <stdlib.h>
+#include "../utils/is_squarefree.h"
 
 /* Compute the nth term of A359468.  The sequence starts at n = 1
    (a(1) = 4).  For n == 0 we return 0 for safety, though that value

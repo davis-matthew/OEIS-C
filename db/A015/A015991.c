@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 /* Computation: brute‑force search for numbers that require exactly ten reverse‑and‑add iterations to reach a palindrome. */
 
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 static seq_t rev_decimal(seq_t v)
 {
@@ -49,7 +50,7 @@ seq_t a(idx_t n)
             seq_t rev = rev_decimal(x);
             x = x + rev;
             ++steps;
-            if (is_palindrome(x, 10))
+            if (is_palindrome_base(x, 10))
             {
                 if (steps == 10)
                     palindrome_at_step10 = true;

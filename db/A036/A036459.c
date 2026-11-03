@@ -10,7 +10,8 @@
  *            (A000005). a(1) = 0, a(2) = 0; for n > 2, a(n) = a(d(n)) + 1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 115 terms through n = 8734 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/divisor_count_u64.h"   /* declares uint64_t divisor_count_u64(uint64_t n) */
+#include "../utils/num_divisors.h"
 
 /* Public function */
 seq_t a(idx_t n)
@@ -34,7 +35,7 @@ seq_t a(idx_t n)
 
     /* iterate until the value becomes 1 or 2, but for all n>2 it will hit 2 */
     while (cur > 2) {
-        cur = divisor_count_u64(cur);
+        cur = num_divisors(cur);
         steps++;
     }
     return steps;

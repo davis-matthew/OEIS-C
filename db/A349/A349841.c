@@ -10,7 +10,8 @@
  *            recurrence with T(n,0)=1, T(n,n)=1 when n mod 5 = 0 else 0
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   alloc_seq, free_seq
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/alloc_seq.h"
-#include "../utils/free_seq.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 #ifdef __cplusplus
 /* In C++ use new/delete for proper construction/destruction */

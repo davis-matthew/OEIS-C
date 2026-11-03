@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   isPrimeCandidate
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/isPrimeCandidate.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Cached sequence of primes ending in 21. */
 static seq_t *cache = NULL;
@@ -37,11 +39,11 @@ static void grow_cache(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) abort();      /* Abort on allocation failure. */
     if (cache) {
         for (size_t i = 0; i < cache_len; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = new_cap;
@@ -60,7 +62,7 @@ static void ensure_cache(idx_t n)
 
     while (cache_len < (size_t)n) {
         seq_t cand = (seq_t)100 * (seq_t)next_k + (seq_t)21;
-        if (isPrimeCandidate(cand)) cache[cache_len++] = cand;
+        if (is_prime_seq(cand)) cache[cache_len++] = cand;
         ++next_k;
     }
 }

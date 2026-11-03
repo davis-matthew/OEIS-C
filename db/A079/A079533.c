@@ -9,15 +9,34 @@
  *            number
  * Range:     u8 n <= 44, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt, is_prime
+ * Validated: standard, pass, 95 terms through n = 9967 (2026-11-01)
+ * Helpers:   ipow_i32, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
-#include "../utils/floor_sqrt.h" /* seq_t floor_sqrt(seq_t x); */
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Compute Euler's totient for a 64‑bit integer n.  The result fits in seq_t. */
 static seq_t phi_uint64(uint64_t n)

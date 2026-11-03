@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ----- Prime sieve (cached) ----- */
 static uint32_t *primes = NULL;          /* array of primes */
@@ -137,7 +139,7 @@ static void init(void)
 
     /* Allocate sequence array and insert first term 1. */
     seq_cap  = 16;
-    seq      = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq      = mem_new(seq_t, seq_cap);
     if (!seq) abort();
     seq[0] = (seq_t)1;
     seq_size = 1;
@@ -154,7 +156,7 @@ static void generate_next(void)
         if (admissible(cand)) {
             if (seq_size == seq_cap) {
                 seq_cap <<= 1;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
                 if (!seq) abort();
             }
             seq[seq_size++] = (seq_t)cand;

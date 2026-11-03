@@ -8,14 +8,23 @@
  * Formula:   a(n) = max{ 2^a · 3^b : 10^(n‑1) ≤ 2^a · 3^b < 10^n }
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>                           /* floorl, long double */
-#include "../utils/big_pow.h"               /* seq_t big_pow(seq_t,seq_t) */
-#include "../utils/seq_mul.h"               /* seq_t seq_mul(seq_t,seq_t) */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -63,7 +72,7 @@ seq_t a(idx_t n)
     }
 
     /* Construct the best value. */
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)best_a);
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)best_b);
+    seq_t pow2 = ipow((seq_t)2, (seq_t)best_a);
+    seq_t pow3 = ipow((seq_t)3, (seq_t)best_b);
     return seq_mul(pow2, pow3);
 }

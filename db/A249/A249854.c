@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, fini, full
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 9252, u64 n <= 9252,
- *            u128 n <= 9252, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: full, pass, 100000 terms through n = 100000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    and keeping those that satisfy the Luhn mod‑10 check. */
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for the pre‑computed sequence */
 static seq_t     *seq       = NULL;    /* array of valid numbers   */
@@ -51,7 +53,7 @@ static void push_seq(seq_t v)
 {
     if (seq_len + 1 > seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 1024;
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         seq = tmp;
         seq_cap = new_cap;
     }

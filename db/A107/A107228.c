@@ -8,15 +8,17 @@
  *            uses only Fibonacci numbers whose indices are NOT multiples of 3
  *            * (i.e., no even Fibonacci numbers). The function generates the
  *            * sequence on demand
- * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 63, u64 n <= 63, u128 n <= 63,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 79 terms through n = 9837 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Fibonacci numbers used for Zeckendorf representation.
  * fib[0] = F2 = 1, fib[1] = F3 = 2, fib[2] = F4 = 3, ...  */
@@ -30,7 +32,7 @@ ensure_fib(idx_t needed)
     if (fib_cap >= needed) return;
     size_t new_cap = fib_cap ? fib_cap * 2 : 8;
     while (new_cap < (size_t)needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(fib, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fib, new_cap);
     if (!tmp) abort();
     fib = tmp;
     fib_cap = new_cap;
@@ -101,7 +103,7 @@ ensure_terms(idx_t needed)
     if (term_cap >= needed) return;
     size_t new_cap = term_cap ? term_cap * 2 : 16;
     while (new_cap < (size_t)needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(term, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, term, new_cap);
     if (!tmp) abort();
     term = tmp;
     term_cap = new_cap;

@@ -8,12 +8,14 @@
  *            a(1) = 1 Recurrence is used for n >= 2
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of computed values   */
 static size_t cache_capacity = 0;    /* allocated size of cache    */
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     /* Initialise the cache on first call */
     if (cache == NULL) {
         cache_capacity = 4;                      /* initial capacity */
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         if (!cache) return (seq_t)0;              /* out of memory: give up */
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)1;
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
         if (needed > cache_capacity) {
             size_t new_capacity = cache_capacity;
             while (new_capacity < needed) new_capacity <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
             if (!tmp) return (seq_t)0;           /* out of memory */
             cache = tmp;
             cache_capacity = new_capacity;

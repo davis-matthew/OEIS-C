@@ -7,8 +7,9 @@
  * Formula:   a(n) = 1 if n is a Jacobsthal number (defined by J_0 = 0, J_1 =
  *            1, J_k = J_{k-1} + 2*J_{k-2}) else 0. a(0)=1, a(1)=1, a(2)=0,
  *            a(3)=1,
- * Range:     u8 n <= 9743, u16 n <= 9743, u32 n <= 9743, u64 n <= 9743,
- *            u128 n <= 9743, big any n
+ * Range:     u8 n <= 43692, u16 n <= 43692, u32 n <= 43692, u64 n <= 43692,
+ *            u128 n <= 43692, big any n
+ * Validated: standard, pass, 121 terms through n = 9743 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

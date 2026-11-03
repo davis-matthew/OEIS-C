@@ -11,6 +11,7 @@
  *            array (1, 2+3x).)
  * Range:     u8 n <= 32, u16 n <= 85, u32 n <= 268, u64 n <= 975,
  *            u128 n <= 3546, big any n
+ * Validated: standard, pass, 82 terms through n = 9646 (2026-11-01)
  * Helpers:   binomial, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"

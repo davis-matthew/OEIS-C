@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 48, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   seq_alloc_new_array
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,14 @@
  */
 
 #include <stdlib.h>
-#include "../utils/seq_alloc_new_array.h"
+#include <stdint.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 seq_t a(idx_t n) {
     /* Determine array size: we need indices 0..max(n,9). */
@@ -52,7 +60,7 @@ seq_t a(idx_t n) {
     /* If the requested n is within the precomputed range, finish. */
     if (n < 10) {
         seq_t result = arr[n];
-        free(arr);
+        mem_free(arr);
         return result;
     }
 
@@ -69,6 +77,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

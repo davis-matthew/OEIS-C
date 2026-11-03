@@ -8,7 +8,8 @@
  *            x^p)^(-n)
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 22, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---- prime sieve with caching ------------------------------------------- */
 static uint64_t *prime_list = NULL;     /* array of primes  */
@@ -74,8 +76,8 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;                 /* n as size_t for array indices   */
     size_t sz = N + 1;                    /* array size                     */
 
-    seq_t *dp    = (seq_t*)malloc(sz * sizeof(seq_t));
-    seq_t *newdp = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *dp    = mem_new(seq_t, sz);
+    seq_t *newdp = mem_new(seq_t, sz);
     if (!dp || !newdp) { return (seq_t)0; }  /* memory failure – return 0 */
 
     for (size_t i = 0; i < sz; ++i) dp[i] = (seq_t)0;
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[N];
-    free(dp);
-    free(newdp);
+    mem_free(dp);
+    mem_free(newdp);
     return result;
 }

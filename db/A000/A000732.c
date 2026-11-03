@@ -10,7 +10,8 @@
  *            shifted)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 23, u128 n <= 38,
  *            big any n
- * Helpers:   a306_alloc0, a306_grow, b_isprime
+ * Validated: standard, pass, 38 terms through n = 362 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,23 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a306_alloc0.h"
-#include "../utils/a306_grow.h"
-#include "../utils/b_isprime.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+static seq_t *a306_alloc0(idx_t len)
+{
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *a306_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = a306_alloc0(newlen);
+    for (idx_t i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static uint64_t *b_tab = NULL;
 static idx_t b_len = 0, b_cap = 0;
@@ -40,7 +55,7 @@ static uint64_t b_term(idx_t m) {
 			b_tab = (uint64_t *)realloc(b_tab, sizeof(uint64_t) * b_cap);
 		}
 		uint64_t c = b_tab[b_len - 1] + 1;
-		while (!b_isprime(c)) c++;
+		while (!is_prime_u64(c)) c++;
 		b_tab[b_len++] = c;
 	}
 	return b_tab[m];

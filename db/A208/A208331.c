@@ -12,7 +12,8 @@
  *            of this triangle: a(n) = T(r,k) where r is the uniq...
  * Range:     u8 n <= 25, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;   /* triangle[1..] */
 static size_t triangle_rows = 0;  /* number of rows currently allocated */
@@ -41,7 +43,7 @@ ensure_rows(size_t r)
     /* Build rows from the first unbuilt up to r */
     for (size_t n = triangle_rows + 1; n <= r; ++n) {
         /* Allocate row */
-        triangle[n] = (seq_t *)malloc(n * sizeof(seq_t));
+        triangle[n] = mem_new(seq_t, n);
 
         if (n == 1) {                 /* base case row 1 */
             triangle[n][0] = 1;

@@ -9,14 +9,24 @@
  *            block and zero patterns described in the OEIS entry)
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   init_fib_lucas
+ * Validated: partial, pass, 87 terms through n = 89 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes A356995 */
 #include <stdbool.h>
-#include "../utils/init_fib_lucas.h"
+
+static void init_fib_lucas(idx_t maxk, idx_t *fib, idx_t *lucas) {
+    fib[0] = 0;
+    fib[1] = 1;
+    for (idx_t i = 2; i < maxk; ++i) fib[i] = fib[i-1] + fib[i-2];
+
+    lucas[0] = 2;
+    lucas[1] = 1;
+    for (idx_t i = 2; i < maxk; ++i) lucas[i] = lucas[i-1] + lucas[i-2];
+}
 
 seq_t a(idx_t n) {
     /* offset: a(3) is first term */

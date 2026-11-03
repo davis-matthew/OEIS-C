@@ -13,12 +13,14 @@
  *            16*b(k-2) - 256*b(k-3), k >= 3 where b(k) = a(2k) f...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- Memoisation storage for even indices a(2k) -------------------- */
 static seq_t *even_arr = NULL;   /* array of a(0), a(2), a(4), ...     */
@@ -46,7 +48,7 @@ static void ensure_even(size_t k)
     size_t new_cap = even_cap ? even_cap : 4;
     while (new_cap <= k) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(even_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, even_arr, new_cap);
     if (tmp == NULL) { /* allocation failure – abort to keep behaviour defined */
         abort();
     }
@@ -77,7 +79,7 @@ static void ensure_odd(size_t k)
     size_t new_cap = odd_cap ? odd_cap : 4;
     while (new_cap <= k) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(odd_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, odd_arr, new_cap);
     if (tmp == NULL) { /* allocation failure – abort to keep behaviour defined */
         abort();
     }

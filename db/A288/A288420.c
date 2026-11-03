@@ -8,15 +8,18 @@
  *            odd divisors of m
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 251, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 52 terms through n = 9841 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 static seq_t sigma_odd_of_div(uint64_t m, const uint64_t *primes, size_t cnt)
 {
@@ -30,7 +33,7 @@ static seq_t sigma_odd_of_div(uint64_t m, const uint64_t *primes, size_t cnt)
             m /= p;
         }
         if (exp > 0) {
-            seq_t term = (pow_uint(p, exp + 1) - 1) / (p - 1);
+            seq_t term = (ipow_u64_idx(p, exp + 1) - 1) / (p - 1);
             res *= term;
         }
     }
@@ -46,7 +49,7 @@ static void rec_divs(const uint64_t *primes,
                      seq_t *res)
 {
     if (idx == cnt) {
-        seq_t d4 = pow_uint(curdiv, 4);
+        seq_t d4 = ipow_u64_idx(curdiv, 4);
         uint64_t m = n / curdiv;
         seq_t sigma = sigma_odd_of_div(m, primes, cnt);
         *res += d4 * sigma;

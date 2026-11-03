@@ -11,12 +11,14 @@
  *            calls to a() in any order are fast
  * Range:     u8 n <= 475, u16 n <= 4862, u32 n <= 4862, u64 n <= 4862,
  *            u128 n <= 4862, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 4407 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *catalan = NULL;    /* Catalan numbers C1, C2, ... */
 static size_t cat_len = 0;       /* number of stored Catalan numbers */
@@ -29,7 +31,7 @@ static idx_t  a_len = 0;         /* next free index in a_cache */
 static void ensure_catalan_up_to(seq_t max_val)
 {
     if (cat_len == 0) {
-        catalan = (seq_t*)malloc(sizeof(seq_t));
+        catalan = mem_new(seq_t, 1);
         cat_len  = 1;
         catalan[0] = (seq_t)1;            /* C1 = 1 */
     }
@@ -43,7 +45,7 @@ static void ensure_catalan_up_to(seq_t max_val)
         seq_t next = prev * num / den;            /* C_{k+1}              */
 
         size_t new_cap = cat_len * 2 + 1;
-        seq_t *tmp = (seq_t*)realloc(catalan, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, catalan, new_cap);
         catalan = tmp;
         catalan[cat_len] = next;
         ++cat_len;
@@ -83,7 +85,7 @@ static void ensure_a_cache_upto(idx_t n)
     if (a_cap < (size_t)(n+1)) {
         size_t new_cap = a_cap == 0 ? 16 : a_cap;
         while (new_cap <= (size_t)(n+1)) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         a_cache = tmp;
         a_cap   = new_cap;
     }

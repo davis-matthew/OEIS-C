@@ -8,13 +8,15 @@
  *            16n-4k)
  * Range:     u8 none, u16 n <= 1, u32 n <= 2, u64 n <= 4, u128 n <= 9,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 25 terms through n = 61 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -29,9 +31,9 @@ seq_t a(idx_t n)
 
     for (idx_t k = k_start; k <= k_end; ++k) {
         idx_t t = 16 * n - 4 * k;           /* number of positions with both -3 */
-        seq_t term = binom(m, k);
+        seq_t term = binomial(m, k);
         term *= pow2(k);
-        term *= binom(m - k, t);
+        term *= binomial(m - k, t);
         sum += term;
     }
 

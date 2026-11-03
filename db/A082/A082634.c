@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
             if (isPrime[i]) primes[primeCount++] = (int)i;
 
         /* ---------- 3. Prefix sums of primes ---------- */
-        seq_t *pref = (seq_t *)malloc(sizeof(seq_t) * (primeCount + 1));
+        seq_t *pref = mem_new(seq_t, (primeCount + 1));
         if (!pref) { free(isPrime); free(primes); return 0; }
         pref[0] = 0;
         for (size_t i = 0; i < primeCount; ++i)
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
 
         /* ---------- 4. Determine qualifying sums ---------- */
         unsigned char *qual = (unsigned char *)malloc((size_t)(new_limit + 1));
-        if (!qual) { free(isPrime); free(primes); free(pref); return 0; }
+        if (!qual) { free(isPrime); free(primes); mem_free(pref); return 0; }
         memset(qual, 0, (size_t)(new_limit + 1));
 
         for (size_t start = 0; start < primeCount; ++start)
@@ -78,9 +80,9 @@ seq_t a(idx_t n)
             }
 
         /* ---------- 5. Build the sequence array ---------- */
-        seq_t *new_seq = (seq_t *)malloc(sizeof(seq_t) * (new_limit + 1));
+        seq_t *new_seq = mem_new(seq_t, (new_limit + 1));
         if (!new_seq) {
-            free(isPrime); free(primes); free(pref); free(qual);
+            free(isPrime); free(primes); mem_free(pref); free(qual);
             return 0;
         }
         idx_t new_len = 0;
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
             if (qual[val]) new_seq[new_len++] = (seq_t)val;
 
         /* ---------- 6. Replace old data ---------- */
-        if (seq_vals) free(seq_vals);
+        if (seq_vals) mem_free(seq_vals);
         seq_vals  = new_seq;
         seq_len   = new_len;
         seq_limit = new_limit;
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
         /* ---------- 7. Free temporary arrays ---------- */
         free(isPrime);
         free(primes);
-        free(pref);
+        mem_free(pref);
         free(qual);
     }
 

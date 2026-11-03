@@ -8,13 +8,16 @@
  * Formula:   s(n)+s(n^2)=s(n^3)
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   /* array of found terms                */
 static idx_t  cache_sz   = 0;      /* number of terms currently stored    */
@@ -26,7 +29,7 @@ static void ensure_cap(idx_t need) {
     if (cache_cap >= need) return;
     idx_t newcap = cache_cap ? cache_cap * 2 : 32;
     while (newcap < need) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     cache = tmp;
     cache_cap = newcap;
 }
@@ -34,7 +37,7 @@ static void ensure_cap(idx_t need) {
 /* Initialise the cache once */
 static void init_cache(void) {
     if (cache) return;
-    cache = (seq_t *)malloc(32 * sizeof(seq_t));
+    cache = mem_new(seq_t, 32);
     cache_cap = 32;
     cache_sz = 1;          /* a(1) = 0 */
     cache[0] = 0;

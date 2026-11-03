@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   is_ok
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,34 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_ok.h"
+#include "../utils/mem.h"
+
+static bool is_ok(seq_t n)
+{
+    seq_t t = n;
+
+    /* 1) base‑11 : no digit equal to 10 (the digit ‘A’) */
+    while (t > 0) {
+        seq_t d = t % 11;
+        if (d == 10) {
+            return false;
+        }
+        t /= 11;
+    }
+
+    /* 2) base‑12 : at least one digit 10 or 11 (digits ‘A’ or ‘B’) */
+    t = n;
+    bool has10or11 = false;
+    while (t > 0) {
+        seq_t d = t % 12;
+        if (d >= 10) {
+            has10or11 = true;
+            break;
+        }
+        t /= 12;
+    }
+    return has10or11;
+}
 
 /* ----------- caching the computed terms ----------- */
 
@@ -43,7 +71,7 @@ static void ensure_capacity(size_t need)
     while (new_cap < need) {
         new_cap <<= 1;
     }
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) {
         /* In a real program you might handle this error more gracefully. */
         exit(1);

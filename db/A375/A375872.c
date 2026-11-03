@@ -7,12 +7,14 @@
  * Formula:   a(n) = 4 * Σ_{k=0..n} (3*n+4)^(k-1) * Stirling2(n,k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,18 +35,18 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* cache for sequence values */
         cache_cap  = 1;
-        cache      = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache      = mem_new(seq_t, cache_cap);
         cache[0]   = (seq_t)1;          /* a(0) = 1                    */
         cache_size = 1;
 
         /* Stirling buffer init */
         prev_cap = 1;
-        prev     = (seq_t *)malloc(prev_cap * sizeof(seq_t));
+        prev     = mem_new(seq_t, prev_cap);
         prev[0]  = (seq_t)1;            /* S(0,0) = 1                  */
         prev_len = 1;
 
         cur_cap = 1;
-        cur     = (seq_t *)malloc(cur_cap * sizeof(seq_t));
+        cur     = mem_new(seq_t, cur_cap);
         cur_len = 0;
     }
 
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     /* ------------------- extend cache if needed -------------- */
     if (n >= cache_cap) {
         cache_cap = n + 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* ------------------- compute missing values --------------- */
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         /* ensure cur has room for k+1 elements */
         if (k + 1 > cur_cap) {
             cur_cap = k + 1;
-            cur = (seq_t *)realloc(cur, cur_cap * sizeof(seq_t));
+            cur = mem_resize(seq_t, cur, cur_cap);
         }
 
         cur[0] = (seq_t)0;                   /* S(k,0) = 0 for k>0 */

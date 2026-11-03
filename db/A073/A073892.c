@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 29, i16 n <= 62, i32 n <= 62, i64 n <= 62, i128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Global prime / composite tables (static, lazily built)            */
@@ -102,7 +104,7 @@ static void extend_sequence(idx_t n)
     size_t new_cap = seq_cap ? seq_cap : 1;
     while (new_cap <= (size_t)n) new_cap <<= 1;
     if (new_cap > seq_cap) {
-        seq_cache = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         seq_cap   = new_cap;
     }
 

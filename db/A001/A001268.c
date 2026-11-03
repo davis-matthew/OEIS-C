@@ -12,13 +12,18 @@
  *            7+20t+24t^2+8t^3+t^4 (only coefficients up to t^4 are kept)
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 14, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   a1268_add
+ * Validated: standard, pass, 40 terms through n = 191 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a1268_add.h"
+
+static void a1268_add(seq_t *pos, seq_t *neg, long long c, const seq_t *v) {
+  if (c > 0) *pos += *v * (seq_t)(uint64_t)c;
+  else if (c < 0) *neg += *v * (seq_t)(uint64_t)(-c);
+}
 
 static seq_t a1268_h[4][5];
 static idx_t a1268_cur = 0;

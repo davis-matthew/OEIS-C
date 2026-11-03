@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,26 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/floor_sqrt.h"   /* provides seq_t floor_sqrt(seq_t) */
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *a_cache = NULL;    /* a_cache[0] = a(1) */
 static size_t  a_len   = 0;      /* number of cached terms */
@@ -69,11 +89,11 @@ static void ensure_terms(idx_t n)
     while (a_len < n) {
         /* grow cache if necessary */
         if (a_cache == NULL) {
-            a_cache = (seq_t *)malloc(4 * sizeof(seq_t));
+            a_cache = mem_new(seq_t, 4);
             if (!a_cache) abort();
             a_len = 0;
         } else if (a_len == 4) {
-            seq_t *tmp = (seq_t *)realloc(a_cache, 8 * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_cache, 8);
             if (!tmp) abort();
             a_cache = tmp;
         }

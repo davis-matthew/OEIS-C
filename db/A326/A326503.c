@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{d|n, d==1 (mod 3)} d - Sum_{d|n, d==2 (mod 3)} d
  * Range:     i8 n <= 12, i16 n <= 1092, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 82 terms through n = 9645 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

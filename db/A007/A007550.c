@@ -8,16 +8,28 @@
  *            = 1; Bell numbers via the Bell triangle
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 31,
  *            big any n
- * Helpers:   a7550_pow, alloc_zero, binom, release
+ * Validated: standard, pass, 36 terms through n = 199 (2026-11-03)
+ * Helpers:   binomial, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/binom.h"
-#include "../utils/a7550_pow.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 static seq_t *a7550_bells(idx_t n) {
     seq_t *bells = alloc_zero(n + 1);
@@ -50,8 +62,8 @@ seq_t a(idx_t n) {
     idx_t k;
 
     for (k = 0; k <= n; k++) {
-        seq_t power = a7550_pow((seq_t)k, n - k);
-        seq_t term = power * binom(n, k);
+        seq_t power = ipow_idx((seq_t)k, n - k);
+        seq_t term = power * binomial(n, k);
         term *= bells[k];
         result += term;
     }

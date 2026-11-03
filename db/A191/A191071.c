@@ -9,7 +9,8 @@
  *            p∤46
  * Range:     u8 n <= 23, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   legendre_2
+ * Validated: standard, pass, 70 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/legendre_2.h"
+#include "../utils/mem.h"
+
+/* Legendre symbol (p|2). */
+static int legendre_2(uint64_t p)
+{
+    int mod8 = p & 7;
+    return (mod8 == 1 || mod8 == 7) ? 1 : -1;
+}
 
 /* ---------- static state ---------- */
 static seq_t *seq_cache  = NULL;   /* cache of valid primes  */
@@ -89,7 +97,7 @@ static void add_prime(uint64_t p)
     if (s2 != s23) {                  /* (p|2)*(p|23)==-1 */
         if (seq_len >= seq_cap) {
             size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
             if (!tmp) abort();
             seq_cache = tmp;
             seq_cap   = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 231, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_valid_idx
+ * Validated: standard, pass, 84 terms through n = 9530 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,27 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>   /* for size_t */
-#include "../utils/is_valid_idx.h"
+#include "../utils/mem.h"
+
+/* Test whether a natural number k satisfies the condition. */
+static bool is_valid_idx(idx_t k)
+{
+    idx_t n = k;
+    /* trial division by all integers up to √n */
+    for (idx_t p = 2; p * p <= n; ++p) {
+        if (n % p == 0) {
+            unsigned int cnt = 0;
+            while (n % p == 0) {
+                n /= p;
+                ++cnt;
+            }
+            if (cnt % 4 == 3)   /* exponent 3 (mod 4) → not cubefree quotient */
+                return false;
+        }
+    }
+    /* Remaining factor n ≤ original k, if >1 its exponent is 1 ≡ 1 (mod 4) */
+    return true;
+}
 
 /* Cached sequence values */
 static seq_t *cache      = NULL;   /* dynamic array of values */
@@ -43,7 +64,7 @@ static void grow_cache(idx_t new_cap)
         else
             cache_cap <<= 1;
     }
-    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
 }
 
 /* External function required by the framework */

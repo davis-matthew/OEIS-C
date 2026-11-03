@@ -8,6 +8,7 @@
  * Formula:   a(n) = least k such that k/phi(k) >= n (sequential search)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 8,
  *            big any n
+ * Validated: standard, pass, 15 terms through n = 15 (2026-11-01)
  * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

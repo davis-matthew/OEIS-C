@@ -7,14 +7,30 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 896, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   sigma_of
+ * Validated: standard, pass, 65 terms through n = 920 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes A015915: numbers k such that sigma(k) + 8 = sigma(k+8). */
 #include <stdlib.h>
-#include "../utils/sigma_of.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +53,7 @@ seq_t a(idx_t n)
             /* Store found term */
             if (found >= cap) {
                 cap = cap ? cap * 2 : 64;
-                list = (seq_t *)realloc(list, cap * sizeof(seq_t));
+                list = mem_resize(seq_t, list, cap);
             }
             list[found++] = (seq_t)current;
         }

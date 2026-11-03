@@ -13,7 +13,8 @@
  *            s...
  * Range:     u8 n <= 11, u16 n <= 292, u32 n <= 1180, u64 n <= 1180,
  *            u128 n <= 1180, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 1129 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const idx_t SIEVE_LIMIT = 2000000;   /* sufficient for n ≤ 10 000 */
 
@@ -58,7 +60,7 @@ static void add_term(seq_t val)
 {
     if (terms_len == terms_cap) {
         idx_t new_cap = (terms_cap == 0) ? 32 : terms_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) exit(1);      /* out of memory */
         terms = tmp;
         terms_cap = new_cap;

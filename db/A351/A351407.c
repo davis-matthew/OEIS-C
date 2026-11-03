@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     i8 n <= 35, i16 n <= 54, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(1) = 1; a(n+1) = ∑_{d|n} (-1)^(n/d) * a(d) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build system */
 typedef seq_t seq_t;
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
     /* First allocation */
     if (!cache) {
         size_t init_cap = 64;
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         /* cache[1] = a(1) */
         cache[0] = 0;                    /* dummy, never used */
         cache[1] = (seq_t)1;
@@ -44,7 +46,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = cache_cap;
         while ((size_t)n + 1 > new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);   /* allocation failed */
         cache     = tmp;
         cache_cap = new_cap;

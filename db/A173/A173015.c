@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 9387, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9806 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* grow_array – grow *arr to contain at least need elements.   */
 static void grow_array(void **arr, size_t *cap, size_t elem_size, size_t need)
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         /* allocate (or enlarge) the σ array                         */
         grow_array((void **)&sigma, &sigma_cap, sizeof(seq_t),
                    (size_t)new_limit + 1);
-        memset(sigma, 0, (size_t)(new_limit + 1) * sizeof(seq_t));
+        mem_set(sigma, 0, (size_t)(new_limit + 1) * sizeof(seq_t));
 
         /* compute σ(m) for 1 ≤ m ≤ new_limit                           */
         for (idx_t d = 1; d <= new_limit; ++d) {

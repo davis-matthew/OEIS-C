@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 510, u16 n <= 9434, u32 n <= 9434, u64 n <= 9434,
- *            u128 n <= 9434, big any n
- * Helpers:   floor_log2_uint64
+ * Range:     u8 n <= 510, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 90 terms through n = 9434 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 /* Formula (OEIS A309776):
    a(n) = sum_{i: bit_i(n)=1} binom(L-1, i), where  L = floor_log2(n)+1
    (bits are indexed from 0 as the least significant bit) */
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* number of bits in the binary representation of n  */
-    idx_t bits = floor_log2_uint64(n) + 1;
+    idx_t bits = ilog2(n) + 1;
 
     unsigned long long binom = 1ULL; /* binom(L-1,0) */
     unsigned long long result = 0ULL;

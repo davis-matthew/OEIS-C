@@ -7,6 +7,7 @@
  * Formula:   a(n) = Product_{d>1, d|n} (d-1) (OEIS A377484)
  * Range:     u8 n <= 11, u16 n <= 29, u32 n <= 59, u64 n <= 239,
  *            u128 n <= 719, big any n
+ * Validated: standard, pass, 71 terms through n = 9731 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Recursively visit all divisors of n.  'cur' is the divisor built so far

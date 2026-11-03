@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 263, i16 n <= 263, i32 n <= 263, i64 n <= 263,
  *            i128 n <= 263, big any n
- * Helpers:   powmod64
+ * Validated: standard, pass, 100 terms through n = 254 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
           0  if 263 | n   */
 
 #include <stdint.h>
-#include "../utils/powmod64.h"
+#include <stdbool.h>
+#include "../utils/powmod_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (r == 0) return 0;              /* 263 | n  → 0 */
 
     /* Euler's criterion: (n|p) = n^((p-1)/2) mod p  */
-    uint64_t res = powmod64(r, 131ULL, p);  /* 131 = (p-1)/2 */
+    uint64_t res = powmod_u64(r, 131ULL, p);  /* 131 = (p-1)/2 */
 
     if (res == p - 1)                  /* p-1 ≡ -1 (mod p) */
         return (seq_t)-1;

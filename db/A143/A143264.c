@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   to_bin_str_uint64
+ * Validated: standard, pass, 79 terms through n = 9601 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,32 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/to_bin_str_uint64.h"
+
+/* Convert a 64‑bit number to a binary string (most significant bit first). */
+static void to_bin_str_uint64(uint64_t x, char *buf)
+{
+    int i = 0;
+    if (x == 0)
+    {
+        buf[i++] = '0';
+    }
+    else
+    {
+        while (x)
+        {
+            buf[i++] = (x & 1) ? '1' : '0';
+            x >>= 1;
+        }
+    }
+    /* reverse */
+    for (int j = 0; j < i / 2; ++j)
+    {
+        char t = buf[j];
+        buf[j] = buf[i - 1 - j];
+        buf[i - 1 - j] = t;
+    }
+    buf[i] = '\0';
+}
 
 /* Count divisors of a 64‑bit integer. */
 static uint64_t divisor_count_uint64(uint64_t k)

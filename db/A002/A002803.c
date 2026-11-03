@@ -7,13 +7,14 @@
  * Formula:   a(n) = a(n-1) * 2*(n+2)*(2*n+3) / (n*(n+1)), a(0) = 1
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 26, u128 n <= 57,
  *            big any n
- * Helpers:   a2803_small_gcd
+ * Validated: standard, pass, 39 terms through n = 184 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a2803_small_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     seq_t result = (seq_t)1;
@@ -21,7 +22,7 @@ seq_t a(idx_t n) {
     for (k = 1; k <= n; k++) {
         uint64_t num = (uint64_t)2 * (uint64_t)(k + 2) * (uint64_t)(2 * k + 3);
         uint64_t den = (uint64_t)k * (uint64_t)(k + 1);
-        uint64_t g = a2803_small_gcd(num, den);
+        uint64_t g = gcd_u64(num, den);
         num /= g;
         den /= g;
         /* den is coprime to num and divides result*num, so it divides result */

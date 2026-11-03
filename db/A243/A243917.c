@@ -7,14 +7,28 @@
  * Formula:   a(n) = number of non‑twin divisors of n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   add_non_twin
+ * Validated: standard, pass, 112 terms through n = 8720 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/add_non_twin.h"
+
+/* Helper: test whether a divisor k of n is a non‑twin divisor. */
+static inline void add_non_twin(uint64_t k, uint64_t n, seq_t *count)
+{
+    bool twin = false;
+    /* k - 2 > 0 is equivalent to k > 2 */
+    if (k > 2 && n % (k - 2) == 0)
+        twin = true;
+    /* test k + 2, guarding against overflow */
+    if (!twin && k <= UINT64_MAX - 2 && n % (k + 2) == 0)
+        twin = true;
+    if (!twin)
+        (*count)++;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

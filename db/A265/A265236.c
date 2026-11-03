@@ -9,11 +9,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 1471, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binary_find
+ * Validated: standard, pass, 82 terms through n = 9675 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* OEIS A265236
  * a(n) = #{(A,B,C) | A·B = C,  A,B,C are (contiguous) substrings of binary(n)}
  * with substrings allowed to be zero.
@@ -27,7 +29,19 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/binary_find.h"
+
+/* binary search in a sorted array of unique uint64_t values */
+static int binary_find(uint64_t x, const uint64_t *arr, size_t n) {
+    size_t lo = 0, hi = n ? n - 1 : 0;
+    while (lo <= hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (arr[mid] == x) return 1;
+        if (arr[mid] < x) lo = mid + 1;
+        else if (mid == 0) break;
+        else hi = mid - 1;
+    }
+    return 0;
+}
 
 /* compute floor(log2(v)) for v>0; returns 0 when v==0  */
 static inline idx_t floor_log2_uint64(idx_t v) {

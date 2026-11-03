@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 18, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,23 +22,24 @@
  *  is used.
  */
 
-#include "../utils/pow_uint.h"   /* provides seq_t pow_uint(uint64_t base, idx_t exp) */
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
     /* If seq_t is at most 64 bits, perform the computation
        using a larger intermediate type. */
     if (sizeof(seq_t) <= sizeof(uint64_t)) {
-        uint64_t p3   = (uint64_t)pow_uint(3, n);
-        uint64_t p2   = (uint64_t)pow_uint(2, n + 2);
+        uint64_t p3   = (uint64_t)ipow_u64_idx(3, n);
+        uint64_t p2   = (uint64_t)ipow_u64_idx(2, n + 2);
         uint64_t res  = 10ULL * p3 - 3ULL * p2 + 3ULL;
         return (seq_t)res;   /* res fits into seq_t because the exact a(n) fits */
     }
 
     /* For larger seq_t, rely on seq_t arithmetic (or overloaded
        operators for arbitrary‑precision types). */
-    seq_t p3 = pow_uint(3, n);      /* 3^n */
-    seq_t p2 = pow_uint(2, n + 2);  /* 2^(n+2) */
+    seq_t p3 = ipow_u64_idx(3, n);      /* 3^n */
+    seq_t p2 = ipow_u64_idx(2, n + 2);  /* 2^(n+2) */
     seq_t res = 10 * p3;            /* 10*3^n  */
     res -= 3 * p2;                  /* -3*2^(n+2) */
     res += 3;                       /* +3 */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Test whether x satisfies the property in base 11.  The function
    returns true if the numbers of 0's and 3's in the base‑11 expansion
@@ -57,7 +59,7 @@ static void grow_cache(size_t need)
     while (new_cap < need)
         new_cap <<= 1;
 
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr)
         exit(1);   /* out of memory */
 
@@ -65,7 +67,7 @@ static void grow_cache(size_t need)
     for (size_t i = 0; i < cache_len; ++i)
         new_arr[i] = cache[i];
 
-    free(cache);
+    mem_free(cache);
     cache      = new_arr;
     cache_cap  = new_cap;
 }

@@ -8,7 +8,8 @@
  *            divisors)
  * Range:     i8 n <= 38, i16 n <= 76, i32 n <= 76, i64 n <= 76, i128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static size_t max_n = 0;          /* largest n for which we have computed */
 static int8_t  *mu      = NULL;   /* Möbius values, signed */
@@ -30,8 +32,8 @@ static void expand_and_compute(size_t limit) {
     else          mu      = (int8_t *)realloc(mu,      (limit + 1) * sizeof(int8_t));
     if (sigma   == NULL) sigma   = (uint64_t *)malloc((limit + 1) * sizeof(uint64_t));
     else          sigma   = (uint64_t *)realloc(sigma,   (limit + 1) * sizeof(uint64_t));
-    if (prefix  == NULL) prefix  = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
-    else          prefix  = (seq_t *)realloc(prefix,  (limit + 1) * sizeof(seq_t));
+    if (prefix  == NULL) prefix  = mem_new(seq_t, (limit + 1));
+    else          prefix  = mem_resize(seq_t, prefix, (limit + 1));
 
     /* --- Compute Möbius via linear sieve --- */
     for (i = 0; i <= limit; ++i) mu[i] = 0;

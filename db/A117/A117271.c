@@ -12,12 +12,14 @@
  *            C(n-1,k) * b(k) * a(n-k) * for n>=1. The arrays...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
     /* Allocate or grow storage if necessary */
     if (n >= capacity) {
         size_t new_cap = (size_t)(n + 1);
-        b = (seq_t *)realloc(b, new_cap * sizeof(seq_t));
-        arr_a = (seq_t *)realloc(arr_a, new_cap * sizeof(seq_t));
+        b = mem_resize(seq_t, b, new_cap);
+        arr_a = mem_resize(seq_t, arr_a, new_cap);
         capacity = new_cap;
         if (computed == 0) {      /* initialise base case once */
             b[0] = 1;

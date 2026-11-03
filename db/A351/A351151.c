@@ -8,13 +8,15 @@
  *            binomial(n-2,k) * 5^k * a(n-2-k)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 21, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Ensure cache has room for index n */
     size_t need_cache = (size_t)n + 1;
     if (need_cache > cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, need_cache * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need_cache);
         if (!tmp) return (seq_t)0;            /* OOM fallback: 0 */
         cache = tmp;
         cap   = need_cache;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Ensure pow5 can provide 5^k up to k = n-2 (i.e. up to size n) */
     size_t need_pow = (size_t)n;             /* we need indices 0 .. n-1 */
     if (need_pow > pow_cap) {
-        seq_t *tmp = (seq_t *)realloc(pow5, need_pow * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow5, need_pow);
         if (!tmp) return (seq_t)0;
         pow5 = tmp;
 

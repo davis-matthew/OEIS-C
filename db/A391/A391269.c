@@ -9,7 +9,8 @@
  *            until 3 is reached; a(n) = -1 if 3 is not reached
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 99 terms through n = 9988 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 /* Implementation: direct simulation using the provided gpf function. */
 
 #include <stdint.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
         if (tmp > (unsigned __int128)UINT64_MAX)   /* too large for gpf */
             return (seq_t)-1;
 
-        cur = gpf((uint64_t)tmp);
+        cur = largest_prime_factor((uint64_t)tmp);
         ++cnt;
     }
 

@@ -10,12 +10,14 @@
  *            requested to handle arbitrary call order efficiently
  * Range:     u8 n <= 15, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,8 +38,8 @@ seq_t a(idx_t n)
             cap <<= 1;                       /* double until sufficient */
         }
 
-        a_vals = (seq_t *)realloc(a_vals, cap * sizeof(seq_t));
-        s_vals = (seq_t *)realloc(s_vals, cap * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, cap);
+        s_vals = mem_resize(seq_t, s_vals, cap);
 
         /* Initialise the first element of the cumulative sum array */
         if (max_n == 0) {

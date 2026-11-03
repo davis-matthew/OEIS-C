@@ -10,6 +10,7 @@
  *            \sum_{k=1}^{24}k = 300
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 13, u64 n <= 60, u128 n <= 300,
  *            big any n
+ * Validated: full, pass, 301 terms through n = 300 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

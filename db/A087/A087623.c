@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, tabl
  * Formula:   not stated
- * Range:     u8 n <= 9961, u16 n <= 9961, u32 n <= 9961, u64 n <= 9961,
- *            u128 n <= 9961, big any n
- * Helpers:   find_s
+ * Range:     u8 n <= 22155, u16 n <= 22155, u32 n <= 22155, u64 n <= 22155,
+ *            u128 n <= 22155, big any n
+ * Validated: standard, pass, 121 terms through n = 9961 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,22 @@
  */
 
 #include <stdint.h>
-#include "../utils/find_s.h"
+
+/* Find the smallest s such that s*(s-1)/2 ≥ n  (s ≥ 2). */
+static idx_t find_s(idx_t n)
+{
+    idx_t low = 2, high = n * 2 + 2;          /* high is certainly enough   */
+    while (low < high) {
+        idx_t mid = (low + high) / 2;
+        unsigned __int128 t = (unsigned __int128)mid * (mid - 1) / 2;
+        if (t >= n) {
+            high = mid;
+        } else {
+            low = mid + 1;
+        }
+    }
+    return low;
+}
 
 /* Independent Euler phi for unsigned 64‑bit numbers.
  *  Works for all k ≤ 2^64-1 and returns a value that fits in seq_t. */

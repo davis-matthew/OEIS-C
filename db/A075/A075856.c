@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   estimate_row
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,16 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/estimate_row.h"
+#include "../utils/mem.h"
+
+/* Find the smallest r such that r(r+1)/2 ≥ n. */
+static idx_t estimate_row(idx_t n)
+{
+    idx_t r = 1;
+    while ((idx_t)r * (r + 1u) / 2u < n)
+        ++r;
+    return r;
+}
 
 /* static storage for the computed triangle */
 static seq_t **rows   = NULL;   /* rows[1..maxRow] each points to an array of length r+1 */
@@ -52,7 +62,7 @@ static void ensure_rows_up_to(idx_t r)
     /* Compute the new rows. */
     for (idx_t cur = maxRow + 1; cur <= r; ++cur) {
         /* Allocate space for the cur‑th row: indices 1..cur . */
-        seq_t *curRow = (seq_t*)malloc((cur + 1) * sizeof(seq_t));
+        seq_t *curRow = mem_new(seq_t, (cur + 1));
         if (!curRow) abort();
         rows[cur] = curRow;
 

@@ -7,6 +7,7 @@
  * Formula:   a(n) = (1/5)*(2*n^5 - 5*n^4 + 20*n^3 - 25*n^2 + 23*n - 10)
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

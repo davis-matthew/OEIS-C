@@ -11,17 +11,34 @@
  *            A118195 with memoisation
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   power5
+ * Validated: standard, pass, 31 terms through n = 74 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 #include <stddef.h>
 #include <stdlib.h>
 #ifdef __cplusplus
 #include <cstring>
 #endif
-#include "../utils/power5.h"
+#include <stdint.h>
+#include <stdbool.h>
+
+static inline seq_t power5(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = 5;
+    while (exp)
+    {
+        if (exp & 1)
+            result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
 
 static seq_t *cache       = NULL;   /* stored values a(0)…a(k)   */
 static size_t cache_cap   = 0;       /* allocated cache capacity   */

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 455, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_product
+ * Validated: standard, pass, 96 terms through n = 9888 (2026-11-03)
+ * Helpers:   digit_product, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
    Initial values a(1)=0, a(2)=0, a(3)=1, a(4)=0, a(5)=2, a(6)=0, a(7)=2,
    a(8)=2, a(9)=1, a(10)=6. */
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_product.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
     /* Ensure we can store up to n terms */
     if (seq == NULL) {
         cap = 16;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
         if (!seq) return 0;          /* out‑of‑memory: return 0 as a safe fallback */
         seq[0] = 0;                  /* a(1) = 0 */
         last = 1;
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
     if ((size_t)n > cap) {
         size_t new_cap = cap;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         if (!seq) return 0;          /* out‑of‑memory */
         cap = new_cap;
     }

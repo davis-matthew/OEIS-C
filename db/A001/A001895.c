@@ -12,7 +12,8 @@
  *            and the result is then converted to seq_t
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 36, u128 n <= 69,
  *            big any n
- * Helpers:   a1895_catalan, a1895_divsm, a1895_mulsm
+ * Validated: standard, pass, 41 terms through n = 188 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,41 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/a1895_catalan.h"
-#include "../utils/a1895_divsm.h"
-#include "../utils/a1895_mulsm.h"
+
+static void a1895_divsm(uint32_t *x, size_t *len, uint32_t d) {
+    uint64_t r = 0;
+    size_t i;
+    for (i = *len; i-- > 0;) {
+        r = (r << 32) | x[i];
+        x[i] = (uint32_t)(r / d);
+        r %= d;
+    }
+    while (*len > 1 && x[*len - 1] == 0) (*len)--;
+}
+
+static void a1895_mulsm(uint32_t *x, size_t *len, uint32_t m) {
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < *len; i++) {
+        c += (uint64_t)x[i] * m;
+        x[i] = (uint32_t)c;
+        c >>= 32;
+    }
+    while (c) {
+        x[(*len)++] = (uint32_t)c;
+        c >>= 32;
+    }
+}
+
+static void a1895_catalan(idx_t k, uint32_t *x, size_t *len) {
+    idx_t j;
+    x[0] = 1;
+    *len = 1;
+    for (j = 0; j < k; j++) {
+        a1895_mulsm(x, len, (uint32_t)(2 * (2 * j + 1)));
+        a1895_divsm(x, len, (uint32_t)(j + 2));
+    }
+}
 
 seq_t a(idx_t n) {
     idx_t K = n + 1, m;

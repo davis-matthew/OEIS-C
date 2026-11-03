@@ -9,11 +9,13 @@
  * Formula:   a(n) = ceil(((largest prime ≤ n with 2n-p prime)^2)/n)
  * Range:     u8 n <= 21, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
+ * Validated: partial, pass, 88 terms through n = 89 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n) {

@@ -7,6 +7,7 @@
  * Formula:   a(n+2) = 590*a(n+1)-a(n)+294, a(1)=3, a(2)=2068
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 13,
  *            big any n
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

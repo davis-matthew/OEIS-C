@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Divisor‑count cache ----------------------------------------------------- */
 static seq_t *divs = NULL;      /* divisor counts up to the current limit     */
@@ -37,9 +39,9 @@ static void ensure_divisors(idx_t limit)
     if (limit <= max_div) return;                 /* already built */
 
     /* Allocate or resize */
-    divs = (seq_t *)realloc(divs, (limit + 1) * sizeof(seq_t));
+    divs = mem_resize(seq_t, divs, (limit + 1));
     /* Zero all entries – we will recompute them from scratch   */
-    memset(divs, 0, (limit + 1) * sizeof(seq_t));
+    mem_set(divs, 0, (limit + 1) * sizeof(seq_t));
 
     /* Classic sieve: for each i, add 1 to every multiple j of i */
     for (idx_t i = 1; i <= limit; ++i) {
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
     /* Initialise the sequence cache on first use. */
     if (seq_len == 0) {
         seq_cap = 64;
-        seq     = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+        seq     = mem_new(seq_t, seq_cap);
         seq[0]   = (seq_t)0;          /* a(0) = 0 */
         seq_len  = 1;
     }
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
     if (seq_len <= (size_t)n) {
         size_t new_cap = seq_cap;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 

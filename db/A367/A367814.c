@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   ldist4, seq_to_str
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,64 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
-#include "../utils/seq_to_str.h"   /* seq_to_str(seq_t, char*, size_t*) */
-#include "../utils/ldist4.h"
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
+
+/* --- Levenshtein distance with early exit for distances > 4 --- */
+static int ldist4(const char *s, int ns, const char *t, int nt)
+{
+    /* Quick rejection when length difference exceeds 4 */
+    if (ns > nt) {
+        if (ns - nt > 4) return 5;
+    } else {
+        if (nt - ns > 4) return 5;
+    }
+
+    /* Two rows of the DP table; values larger than 5 are treated as 5 */
+    static int dp[2][256];
+    int cur = 0, prev = 1;
+    dp[prev][0] = 0;
+    for (int j = 1; j <= nt; ++j) dp[prev][j] = j;
+
+    for (int i = 1; i <= ns; ++i) {
+        dp[cur][0] = i;
+        int min_here = dp[cur][0];
+        for (int j = 1; j <= nt; ++j) {
+            int cost = (s[i-1] == t[j-1]) ? 0 : 1;
+            int v = dp[prev][j] + 1;            /* deletion */
+            int alt = dp[cur][j-1] + 1;          /* insertion */
+            if (alt < v) v = alt;
+            alt = dp[prev][j-1] + cost;          /* substitution */
+            if (alt < v) v = alt;
+            if (v > 5) v = 5; /* clamp, keeps numbers small */
+            dp[cur][j] = v;
+            if (v < min_here) min_here = v;
+        }
+        if (min_here > 4) return 5;             /* early exit */
+        int tmp = cur; cur = prev; prev = tmp;
+    }
+    int res = dp[prev][nt];
+    return (res > 4) ? 5 : res;
+}
 
 /* --- Cache for the sequence values --- */
 static seq_t *seq_cache = NULL;
@@ -40,10 +96,10 @@ static void seq_ensure(size_t need)
     if (seq_cap >= need) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 64;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, new_cap);
     if (seq_cache) {
-        memcpy(arr, seq_cache, seq_len * sizeof(seq_t));
-        free(seq_cache);
+        mem_copy(arr, seq_cache, seq_len * sizeof(seq_t));
+        mem_free(seq_cache);
     }
     seq_cache = arr;
     seq_cap   = new_cap;

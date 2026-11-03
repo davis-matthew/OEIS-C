@@ -8,7 +8,8 @@
  *            square‑free and has exactly 4 distinct prime factors
  * Range:     u8 none, u16 n <= 42, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes, count_prime_factors
+ * Validated: standard, pass, 51 terms through n = 9262 (2026-11-03)
+ * Helpers:   bigomega_seq, mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/count_distinct_primes.h"
-#include "../utils/count_prime_factors.h"
+#include "../utils/bigomega_seq.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* Build a palindrome from the first half (half) and total length (len). */
 static seq_t
@@ -74,7 +76,7 @@ ensure_cache_space(void)
     if (cache_sz < cache_cap)
         return;
     cache_cap = cache_cap ? cache_cap << 1 : 128;
-    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
     if (!cache)
         exit(EXIT_FAILURE);
 }
@@ -89,7 +91,7 @@ generate_next_term(void)
            sequence values that fit in seq_t for n ≤ 10000 are all
            ≤ 2⁶⁴‑1, so the cast is safe.  */
         uint64_t v = (uint64_t)pal;
-        if (count_distinct_primes(v) == 4 && count_prime_factors(pal) == 4) {
+        if (omega(v) == 4 && bigomega_seq(pal) == 4) {
             ensure_cache_space();
             cache[cache_sz++] = pal;
             return;

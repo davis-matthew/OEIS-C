@@ -12,7 +12,8 @@
  *            Primes up to 200 000 are generated once and us...
  * Range:     u8 n <= 73, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Prime generation (up to 200 000) – executed once on first call    */
@@ -97,7 +99,7 @@ static void ensure_terms(idx_t n)
 
     if (!term_cache) {
         term_cap = 1000U;
-        term_cache = (seq_t*)malloc(term_cap * sizeof(seq_t));
+        term_cache = mem_new(seq_t, term_cap);
         if (!term_cache) return; /* memory error */
     }
 
@@ -110,7 +112,7 @@ static void ensure_terms(idx_t n)
             /* add to cache */
             if (term_size == term_cap) {
                 term_cap <<= 1;   /* double capacity */
-                seq_t *tmp = (seq_t*)realloc(term_cache, term_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, term_cache, term_cap);
                 if (!tmp) return;
                 term_cache = tmp;
             }

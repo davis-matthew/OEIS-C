@@ -9,17 +9,19 @@
  *            j + 1)^2
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Precompute Catalan numbers C[0 .. n+1] */
-    seq_t *C = (seq_t *)malloc((size_t)(n + 2) * sizeof(seq_t));
+    seq_t *C = mem_new(seq_t, (size_t)(n + 2));
     if (!C)
         return (seq_t)0;               /* unlikely, but avoid crash */
 
@@ -56,6 +58,6 @@ seq_t a(idx_t n)
         f = (f * b) / denom2;          /* exact division */
     }
 
-    free(C);
+    mem_free(C);
     return sum_pos - sum_neg;
 }

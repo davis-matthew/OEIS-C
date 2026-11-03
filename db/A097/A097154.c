@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 101, i16 n <= 127, i32 n <= 127, i64 n <= 127,
  *            i128 n <= 127, big any n
- * Helpers:   maxdigit_seq_t, reverse_seq_t
+ * Validated: partial, pass, 127 terms through n = 127 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,19 @@
    The sequence is defined for n ≥ 1 (a(1) is the first term).  */
 
 #include <stddef.h>
-#include "../utils/maxdigit_seq_t.h"
-#include "../utils/reverse_seq_t.h"
+#include "../utils/reverse_digits.h"
+
+static int maxdigit_seq_t(seq_t x)
+{
+    int maxd = 0;
+    if (x == (seq_t)0) return 0;
+    while (x > (seq_t)0) {
+        int d = (int)(x % (seq_t)10);
+        if (d > maxd) maxd = d;
+        x /= (seq_t)10;
+    }
+    return maxd;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,7 +48,7 @@ seq_t a(idx_t n)
     size_t visited_cnt = 0;
 
     while (1) {
-        seq_t rev = reverse_seq_t(x);
+        seq_t rev = reverse_digits(x);
         int maxd = maxdigit_seq_t(x);
         seq_t y = rev - (seq_t)maxd;
 

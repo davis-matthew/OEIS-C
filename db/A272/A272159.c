@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 184, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_mod512, pow_mod512
+ * Validated: standard, pass, 83 terms through n = 9050 (2026-11-03)
+ * Helpers:   mem, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mul_mod512.h"
-#include "../utils/pow_mod512.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /* ---------------------------------------------------------------------- */
 /* 64‑bit deterministic Miller–Rabin primality test                       */
@@ -54,11 +56,11 @@ static bool is_prime_uint64(uint64_t n)
     for (size_t i = 0; i < sizeof(bases)/sizeof(bases[0]); ++i) {
         uint64_t a = bases[i] % n;
         if (a == 0) continue;
-        uint64_t x = pow_mod512(a, d, n);
+        uint64_t x = powmod_u64(a, d, n);
         if (x == 1 || x == n - 1) continue;
         bool cont = false;
         for (unsigned r = 1; r < s; ++r) {
-            x = mul_mod512(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 cont = true;
                 break;
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
             /* Grow the cache if necessary. */
             if (count >= cap) {
                 size_t new_cap = (cap == 0) ? 16 : cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) return 0;   /* allocation failure: return 0 as fallback */
                 cache = tmp;
                 cap   = new_cap;

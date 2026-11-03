@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 1015, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   s3366_shor
+ * Validated: standard, pass, 64 terms through n = 9850 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/s3366_shor.h"
+
+static void s3366_shor(uint64_t *dst, const uint64_t *src, size_t W, uint64_t s)
+{
+    size_t ws = (size_t)(s >> 6);
+    unsigned bs = (unsigned)(s & 63);
+    size_t i;
+    if (ws >= W) return;
+    for (i = W; i-- > ws;) {
+        uint64_t v = src[i - ws] << bs;
+        if (bs && i - ws > 0) v |= src[i - ws - 1] >> (64 - bs);
+        dst[i] |= v;
+    }
+}
 
 static uint64_t *s3366_terms = NULL;
 static idx_t s3366_count = 0;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∏_{p prime ≤ n} p^{⌊log_p n⌋ – 2·⌊log_p ⌊√n⌋⌋}
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 30, u64 n <= 58, u128 n <= 106,
  *            big any n
- * Helpers:   int_sqrt
+ * Validated: standard, pass, 51 terms through n = 1962 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +33,7 @@ seq_t a(idx_t n)
     if (!is_comp)
         return 0; /* unlikely on small n, but defensive */
 
-    idx_t q = int_sqrt(n);          /* floor(sqrt(n)) */
+    idx_t q = isqrt(n);          /* floor(sqrt(n)) */
 
     seq_t result = 1;
 

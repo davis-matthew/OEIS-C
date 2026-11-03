@@ -11,13 +11,14 @@
  *            factorizations n = (z-x)(z+x); points with x, y >...
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   a5794_isqrt
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a5794_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t N = (uint64_t)n;
@@ -36,7 +37,7 @@ seq_t a(idx_t n) {
     for (y = 1; 2 * y <= N; y++) {
         for (x = 1; 2 * x * y <= N; x++) {
             uint64_t s = N + x * x + y * y;
-            uint64_t z = a5794_isqrt(s);
+            uint64_t z = isqrt_u64(s);
             if (z * z != s) continue;
             if (z < x + y) continue;
             if (z == x + y && x < y) continue;

@@ -12,13 +12,32 @@
  *            by T(r,k)=U_{r-k}(k) and a(n) is its * row‑by‑row enumeration
  * Range:     i8 n <= 22, i16 n <= 47, i32 n <= 123, i64 n <= 305,
  *            i128 n <= 827, big any n
- * Helpers:   chebyshev_U
+ * Validated: standard, pass, 82 terms through n = 5116 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/chebyshev_U.h"
+
+/* Calculate U_m(x) with m >= 0   */
+static seq_t chebyshev_U(idx_t m, seq_t x)
+{
+    if (m == 0)
+        return (seq_t)1;
+    if (m == 1)
+        return (seq_t)2 * x;
+
+    seq_t u0 = (seq_t)1;         /* U_0(x)   */
+    seq_t u1 = (seq_t)2 * x;     /* U_1(x)   */
+    seq_t u2;
+    for (idx_t i = 2; i <= m; ++i) {
+        u2 = (seq_t)2 * x * u1 - u0;
+        u0 = u1;
+        u1 = u2;
+    }
+    return u1;
+}
 
 /* Find row r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2   */
 static idx_t find_row(idx_t n)

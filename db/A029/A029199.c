@@ -8,13 +8,15 @@
  *            + ((5*n^3+4*n^2+3*n+4) mod 7)/7)
  * Range:     u8 n <= 83, u16 n <= 592, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Number of partitions of n into parts 2,5,7,8 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (cap <= N) {
         size_t newcap = (cap == 0 ? 1 : cap);
         while (newcap <= N) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(dp, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, newcap);
         if (!tmp) exit(1);         /* allocation failure */
         /* Initialise the new entries to zero. */
         for (size_t i = cap; i < newcap; ++i) tmp[i] = 0;

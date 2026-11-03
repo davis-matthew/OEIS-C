@@ -8,6 +8,7 @@
  *            36+64*(n/4) if n mod 4 == 2 * 29+36*(n/4) if n mod 4 == 3
  * Range:     u8 n <= 17, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

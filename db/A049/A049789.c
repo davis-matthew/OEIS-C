@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{j=1..n-8} mod(n-4, floor((n-8)/j))
  * Range:     u8 n <= 170, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 81 terms through n = 955 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,15 +11,18 @@
  *            n is even U = (φ/2) / gcd( n , m ) * if...
  * Range:     u8 n <= 18, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   gcd, seq_pow
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
+ * Helpers:   gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* External utilities provided by the build system */
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -56,7 +59,7 @@ seq_t a(idx_t n)
                 U = (phi >> 1) / g;  /* φ/2 */
         } else {
             /* φ = p^{k-1} * (p-1) */
-            seq_t p_pow = seq_pow((seq_t)p, k - 1);  /* p^{k-1} */
+            seq_t p_pow = ipow_idx((seq_t)p, k - 1);  /* p^{k-1} */
             seq_t phi   = p_pow * (seq_t)(p - 1);
             seq_t g     = gcd((seq_t)n, phi);
             U = phi / g;

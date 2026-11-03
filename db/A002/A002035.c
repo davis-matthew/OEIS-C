@@ -8,13 +8,32 @@
  *            exponents
  * Range:     u8 n <= 182, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_all_odd_exponents
+ * Validated: standard, pass, 86 terms through n = 988 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_all_odd_exponents.h"
+
+static bool has_all_odd_exponents(seq_t m) {
+    if (m == 1) return false;
+    
+    seq_t remaining = m;
+    
+    for (seq_t p = 2; p <= m / p; p++) {
+        int exponent = 0;
+        while (remaining % p == 0) {
+            exponent++;
+            remaining /= p;
+        }
+        if (exponent > 0 && exponent % 2 == 0) {
+            return false;
+        }
+    }
+    
+    return true;
+}
 
 seq_t a(idx_t n) {
     seq_t target = (seq_t)n;

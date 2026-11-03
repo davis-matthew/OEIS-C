@@ -10,7 +10,8 @@
  *            a(3)=11486 (For n≥4 this linear recurrence holds.)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Assume seq_t and idx_t are defined by the build. */
 seq_t a(idx_t n)
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (!cache) {
         cap = 16;                                 /* start capacity */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return (seq_t)0;             /* allocation failed */
 
         /* dummy entry for index 0 */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         size_t need = (size_t)n + 1;          /* +1 because indices start at 0 */
         if (need > cap) {
             while (cap < need) cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cap);
             if (!tmp) return (seq_t)0;       /* allocation failed */
             cache = tmp;
         }

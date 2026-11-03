@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_uint64
+ * Validated: standard, pass, 70 terms through n = 9960 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* ------------------------------------------------------------------ */
 /* Basic helper functions (all operate on 64‑bit integers).             */
@@ -198,7 +199,7 @@ static void search_min(int idx, uint64_t curr_mod, uint64_t curr_res,
         /* Special handling for 2^k (k >= 2).  Here m = 2^(2e). */
         uint64_t k_power = 2 * e; /* exponent of modulus */
         uint64_t ord = (k_power <= 2) ? 1 : 1ULL << (k_power - 2); /* order of group generator 5 */
-        uint64_t g2   = gcd_uint64(ord, n_minus1);
+        uint64_t g2   = gcd_u64(ord, n_minus1);
         int b_options = (n_minus1 & 1) ? 1 : 2; /* (-1)^b allowed only if n-1 even */
 
         uint64_t step = ord / g2;
@@ -217,7 +218,7 @@ static void search_min(int idx, uint64_t curr_mod, uint64_t curr_res,
         /* Odd prime power */
         uint64_t primitive = find_primitive_root(p, 2 * e);
         uint64_t phi = m - m / p;
-        uint64_t g   = gcd_uint64(phi, n_minus1);
+        uint64_t g   = gcd_u64(phi, n_minus1);
         uint64_t step = phi / g;
         for (uint64_t t = 0; t < g; ++t) {
             uint64_t r = powmod_uint64(primitive, t * step, m);

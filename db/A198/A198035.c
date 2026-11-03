@@ -10,7 +10,8 @@
  *            both perfect squares, - neither block may have leading zeros
  * Range:     u8 n <= 1, u16 n <= 12, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   digit_len, floor_sqrt, pow10
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   ipow_i32, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,37 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Test whether v is a perfect square (strictly >0). */
 static bool is_square(seq_t v)
@@ -37,7 +66,7 @@ static bool is_valid_candidate(idx_t n)
     if ((n % 10) == 0) return false;
 
     seq_t sq = (seq_t)n * n;
-    int len = digit_len(sq);
+    int len = num_digits(sq);
     if (len < 2) return false;          /* cannot split into two nonempty parts */
 
     for (int split = 1; split < len; ++split) {
@@ -70,10 +99,10 @@ seq_t a(idx_t n)
         if (is_valid_candidate(candidate)) {
             if (terms_cap == 0) {
                 terms_cap = 8;
-                terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+                terms = mem_new(seq_t, terms_cap);
             } else if (terms_len == terms_cap) {
                 terms_cap <<= 1;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)candidate;
         }

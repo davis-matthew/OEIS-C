@@ -9,7 +9,8 @@
  *            T(n,k) = number of partitions of n into distinct parts ≤ k
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* --- implementation ----------------------------------------- */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence (1‑based indexing) */
 static seq_t *seq      = NULL;          /* array of computed a(i)  */
@@ -33,7 +35,7 @@ static void append_seq(seq_t value)
 {
     if (seq_len == seq_cap) {
         size_t newcap = seq_cap ? (seq_cap << 1) : 64;
-        seq_t *newptr = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, seq, newcap);
         if (!newptr) abort();      /* out of memory fatal */
         seq = newptr;
         seq_cap = newcap;
@@ -45,7 +47,7 @@ static void append_seq(seq_t value)
 static void ensure_dp_cap(idx_t n)
 {
     if (dp_cap < (idx_t)(n + 1)) {
-        seq_t *newptr = (seq_t *)realloc(dp, (n + 1) * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, dp, (n + 1));
         if (!newptr) abort();
         dp = newptr;
         dp_cap = n + 1;

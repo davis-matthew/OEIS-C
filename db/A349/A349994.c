@@ -9,6 +9,7 @@
  *            largest odd squarefree semiprime less than p_n
  * Range:     u8 n <= 54, u16 n <= 7064, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 105 terms through n = 9169 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
 
 seq_t a(idx_t n) {

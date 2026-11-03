@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,21 @@
 
 /* Include the allocation utilities for seq_t arrays (handles
    constructor/destructor for big‑int builds). */
-#include "../utils/alloc_seq_array.h"   /* alloc_seq_array(idx_t) returns seq_t* */
-#include "../utils/free_seq_array.h"    /* free_seq_array(seq_t*) */
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache = NULL;      /* array of computed values */
 static idx_t cache_size = 0;     /* number of elements stored in cache */

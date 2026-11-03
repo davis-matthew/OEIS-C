@@ -7,6 +7,7 @@
  * Formula:   a(n) = product_{i=1}^{n-1} (2^n-2^i) / (n-1)!; a(1) = 1
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 9, u128 n <= 13,
  *            big any n
+ * Validated: standard, pass, 30 terms through n = 92 (2026-11-01)
  * Helpers:   gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,8 +16,10 @@
 /* --------------------------------------------------------------------- */
 /* --------------------------------------------------------------------- */
 
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t exp);               */
-#include "../utils/gcd.h"    /* seq_t gcd(seq_t a, seq_t b);         */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

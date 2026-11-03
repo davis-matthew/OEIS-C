@@ -11,13 +11,15 @@
  *            (0≤m≤n-2), a(n) = E_{n-1} (for n>0), a(0)=1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 259 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build environment */
 seq_t a(idx_t n)
@@ -26,12 +28,12 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate arrays */
-    seq_t *B = (seq_t *)calloc((size_t)n + 2, sizeof(seq_t));
-    seq_t *E = (seq_t *)calloc((size_t)n,     sizeof(seq_t));
+    seq_t *B = mem_new(seq_t, (size_t)n + 2);
+    seq_t *E = mem_new(seq_t, (size_t)n);
     if (!B || !E) {
         /* In case of memory failure, return 0 (unlikely in tests) */
-        free(B);
-        free(E);
+        mem_free(B);
+        mem_free(E);
         return (seq_t)0;
     }
 
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = E[n - 1];
-    free(B);
-    free(E);
+    mem_free(B);
+    mem_free(E);
     return result;
 }

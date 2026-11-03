@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 1995, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_isqrt_u64
+ * Validated: standard, pass, 78 terms through n = 9887 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/floor_isqrt_u64.h"   /* floor_isqrt_u64() */
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* array of terms (a[0] …) */
 static size_t seq_len   = 0;      /* number of terms stored */
@@ -56,11 +58,11 @@ static void ensure_hashset_cap(size_t needed)
 {
     if (used_set.cap == 0) {
         used_set.cap = 8;
-        used_set.keys = (seq_t *)calloc(used_set.cap, sizeof(seq_t));
+        used_set.keys = mem_new(seq_t, used_set.cap);
     }
     while (used_set.cap < needed * 2) {
         size_t new_cap = used_set.cap << 1;
-        seq_t *new_keys = (seq_t *)calloc(new_cap, sizeof(seq_t));
+        seq_t *new_keys = mem_new(seq_t, new_cap);
 
         /* rehash existing keys */
         for (size_t i = 0; i < used_set.cap; ++i) {
@@ -71,7 +73,7 @@ static void ensure_hashset_cap(size_t needed)
                 new_keys[h] = k;
             }
         }
-        free(used_set.keys);
+        mem_free(used_set.keys);
         used_set.keys = new_keys;
         used_set.cap  = new_cap;
     }
@@ -125,7 +127,7 @@ static void ensure_primes(size_t n)
 
     while (prime_cnt < n) {
         if (candidate < 2) candidate = 2;
-        uint64_t lim   = floor_isqrt_u64(candidate);
+        uint64_t lim   = isqrt(candidate);
         bool is_prime = true;
         for (size_t i = 0; i < prime_cnt && prime_arr[i] <= lim; ++i) {
             if (candidate % prime_arr[i] == 0) { is_prime = false; break; }
@@ -148,11 +150,11 @@ static void ensure_seq_cap(size_t needed)
 {
     if (seq_cap == 0) {
         seq_cap = 16;
-        seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
     }
     while (seq_cap < needed) {
         seq_cap <<= 1;
-        seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
     }
 }
 
@@ -177,7 +179,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (seq_len == 0) {
         seq_cap   = 16;
-        seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
         seq_len   = 1;
         seq_cache[0] = (seq_t)1;
         hashset_insert((seq_t)1);

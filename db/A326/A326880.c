@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 180, u16 n <= 9084, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bii_valid
+ * Validated: standard, pass, 84 terms through n = 9200 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,61 @@
 
 #include <stddef.h>   /* size_t */
 #include <stdbool.h>  /* bool */
-#include "../utils/bii_valid.h"
+
+/* Helper: test a single integer for the BII property. */
+static bool bii_valid(idx_t x)
+{
+    /* Special case m = 0: empty set-system, trivially closed. */
+    if (x == 0)
+        return true;
+
+    /* positions of set bits in m */
+    idx_t pos[64];
+    size_t k = 0;
+    idx_t temp = x;
+    idx_t bit = 1;
+    while (temp) {
+        if (temp & 1)
+            pos[k++] = bit;
+        temp >>= 1;
+        bit++;
+    }
+
+    /* masks for the binary indices of each position */
+    idx_t masks[64];
+    size_t msize = 0;
+    for (size_t i = 0; i < k; i++) {
+        idx_t p = pos[i];
+        idx_t mask = 0;
+        idx_t field = p;
+        idx_t b = 1;
+        while (field) {
+            if (field & 1)
+                mask |= ((idx_t)1) << (b - 1);
+            field >>= 1;
+            b++;
+        }
+        masks[msize++] = mask;
+    }
+
+    /* closure under non‑empty intersection */
+    for (size_t i = 0; i < msize && true; i++) {
+        for (size_t j = i + 1; j < msize; j++) {
+            idx_t inter = masks[i] & masks[j];
+            if (inter) {
+                bool found = false;
+                for (size_t t = 0; t < msize; t++)
+                    if (masks[t] == inter) {
+                        found = true;
+                        break;
+                    }
+                if (!found)
+                    return false;
+            }
+        }
+    }
+    return true;
+}
 
 /* The sequence function.  Results are cached up to n=10000. */
 seq_t a(idx_t n)

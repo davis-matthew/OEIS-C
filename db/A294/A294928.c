@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 523, u16 n <= 9511, u32 n <= 9511, u64 n <= 9511,
- *            u128 n <= 9511, big any n
- * Helpers:   none
+ * Range:     u8 n <= 523, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9511 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration */
 seq_t a(idx_t n);
@@ -44,8 +46,7 @@ ensure_limit(idx_t limit)
         return;                /* already sufficient */
 
     /* enlarge sigma table */
-    seq_t *new_sigma = (seq_t *)realloc(sigma_tbl,
-                                        (size_t)(limit + 1) * sizeof(seq_t));
+    seq_t *new_sigma = mem_resize(seq_t, sigma_tbl, (size_t)(limit + 1));
     if (!new_sigma) exit(EXIT_FAILURE);
     sigma_tbl = new_sigma;
 

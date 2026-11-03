@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  *  used (n≈10 000).  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* 1‑based indices:  Pscaled[d] = round( log10(1+1/d) * 10^12 )  */
 static const uint64_t Pscaled[10] = {
@@ -52,7 +54,7 @@ ensure_cache_capacity(idx_t n)
     if (need <= cachecap) return;
     size_t newcap = cachecap? cachecap * 2 : 16;
     while (need > newcap) newcap *= 2;
-    seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp) { /* out of memory – abort */
         abort();
     }

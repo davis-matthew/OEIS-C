@@ -9,14 +9,17 @@
  *            binomial(n,k)*b(k)*2^{(n-k)*(n-k-1)/2}
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   binomial, pow2
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *a_vals = NULL;      /* a[0..] */
 static seq_t *b_vals = NULL;      /* b[0..] */
@@ -32,7 +35,7 @@ static void ensure_capacity(size_t *cap, seq_t **arr, size_t need)
         size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
         while (new_cap < need)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) abort();           /* allocation failure – let abort */
         *arr = tmp;
         *cap = new_cap;

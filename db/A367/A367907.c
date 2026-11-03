@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 134, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9806 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: depth‑first search to find an augmenting path in the bipartite
  * graph.  left vertices are 0..m-1, right vertices are 1..maxRight.
@@ -116,8 +118,7 @@ extern seq_t a(idx_t n)
         if (has_no_sdr(next_candidate)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap == 0 ? 64 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache,
-                                                new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
                     /* allocation failure – abort */
                     return 0;

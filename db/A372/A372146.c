@@ -9,7 +9,8 @@
  *            digitally balanced numbers in base 3 (OEIS A372146)
  * Range:     u8 n <= 2, u16 n <= 10, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   is_balanced
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/is_balanced.h"
+#include "../utils/mem.h"
+
+/* Test if x is a digitally balanced number in base 3. */
+static bool is_balanced(uint64_t x)
+{
+    unsigned char cnt[3] = {0,0,0};
+    while (x) {
+        cnt[x % 3]++;
+        x /= 3;
+    }
+    return cnt[0] == cnt[1] && cnt[1] == cnt[2];
+}
 
 /* Types defined by the build system. */
 typedef idx_t idx_t;   /* unsigned integer type for indices   */
@@ -49,10 +61,10 @@ static void ensure_ans_cap(idx_t need)
 {
     while (need >= (idx_t)ans_cap) {
         size_t new_cap = ans_cap == 0 ? 8 : ans_cap * 2;
-        seq_t *p = (seq_t *)realloc(answers, new_cap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, answers, new_cap);
         if (!p) exit(EXIT_FAILURE);
         /* zero‐initialize new slots */
-        memset(p + ans_cap, 0, (new_cap - ans_cap) * sizeof(seq_t));
+        mem_set(p + ans_cap, 0, (new_cap - ans_cap) * sizeof(seq_t));
         answers = p;
         ans_cap  = new_cap;
     }

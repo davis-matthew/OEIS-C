@@ -9,6 +9,7 @@
  *            first terms give * a(0) = 1, a(1) = 17, a(2) = 145, …
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 29, u64 n <= 481, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 910 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

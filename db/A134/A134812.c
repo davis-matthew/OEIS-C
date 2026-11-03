@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 11, i16 n <= 19, i32 n <= 35, i64 n <= 60, i128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(0) = 0, a(1) = 1, a(2) = -1, a(3) = 1 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function keeps a static cache so that any order of calls works. */
 seq_t a(idx_t n)
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     {
         seq_cap = 4;
         seq_len = 4;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) exit(1);
         seq[0] = (seq_t)0;
         seq[1] = (seq_t)1;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     {
         size_t new_cap = seq_cap * 2;
         if (new_cap < need) new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp) exit(1);
         seq = tmp;
         seq_cap = new_cap;

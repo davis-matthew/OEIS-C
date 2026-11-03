@@ -8,14 +8,23 @@
  *            exactly four 0's
  * Range:     u8 none, u16 n <= 31, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   pow6_exp
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow6_exp.h"
+
+/* 6^e  (e <= 64 is safe for our purposes) */
+static inline idx_t pow6_exp(idx_t e)
+{
+    idx_t r = 1;
+    for (idx_t i = 0; i < e; ++i)
+        r *= 6ULL;
+    return r;
+}
 
 /* ---------- helpers ---------- */
 

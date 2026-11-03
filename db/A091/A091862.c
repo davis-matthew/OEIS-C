@@ -9,8 +9,9 @@
  * Formula:   a(n) = 1 if the bitwise OR of the exponents in the prime
  *            factorisation of n equals the sum of those exponents (no carries
  *            when adding them in base 2), 0 otherwise
- * Range:     u8 n <= 9444, u16 n <= 9444, u32 n <= 9444, u64 n <= 9444,
- *            u128 n <= 9444, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9444 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,9 +7,10 @@
  * Formula:   a(n) = Dirichlet coeffs of Product_{k>=2} 1/(1 - k^{-s})^C(k)
  *            where C(k)=binom(k+6,7). The function computes a(n) by dynamic
  *            programming using the multiplicative expansion of each factor
- * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 35, u64 n <= 35, u128 n <= 35,
+ * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,17 +20,18 @@
 // Note: `idx_t` and `seq_t` are provided by the build system.
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 1) return 1;                 /* offset 1 */
 
     /* Allocate two arrays of seq_t for DP */
-    seq_t *prev = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (n + 1));
+    seq_t *curr = mem_new(seq_t, (n + 1));
     if (!prev || !curr) {                 /* unlikely, but guard */
-        if (prev) free(prev);
-        if (curr) free(curr);
+        if (prev) mem_free(prev);
+        if (curr) mem_free(curr);
         return 0;
     }
 
@@ -77,8 +79,8 @@ seq_t a(idx_t n)
     seq_t result = prev[n];
 
     /* Free allocated memory */
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
 
     return result;
 }

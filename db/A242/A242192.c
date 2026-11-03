@@ -12,6 +12,7 @@
  *            is 10000, so n⁴ < 10¹⁶ < 2⁶⁴)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 102 terms through n = 9434 (2026-11-01)
  * Helpers:   icbrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,11 +7,13 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/3)} (-1)^k * binomial(n,3*k)^2
  * Range:     i8 n <= 5, i16 n <= 10, i32 n <= 18, i64 n <= 35, i128 n <= 69,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 1576 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

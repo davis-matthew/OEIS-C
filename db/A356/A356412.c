@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9977, u16 n <= 9977, u32 n <= 9977, u64 n <= 9977,
  *            u128 n <= 9977, big any n
- * Helpers:   none
+ * Validated: standard, pass, 104 terms through n = 9889 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    by the build environment. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----- static storage for memoised happy numbers ----- */
 static seq_t *happy_cache = NULL;   /* array of happy numbers */
@@ -35,7 +37,7 @@ static void ensure_cache_cap(size_t min_cap)
     size_t new_cap = happy_cap ? happy_cap * 2 : 16;
     if (new_cap < min_cap)
         new_cap = min_cap;
-    seq_t *tmp = (seq_t *)realloc(happy_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, happy_cache, new_cap);
     happy_cache = tmp;
     happy_cap   = new_cap;
 }

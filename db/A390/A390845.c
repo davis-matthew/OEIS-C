@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 18, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
      a(n) = (n‑1)(n‑2)/2 * a(n‑3) + (n‑1)(n‑2)(n‑3)/6 * a(n‑4)   (n≥4) */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external integer types:
    idx_t – unsigned integer for indices (uint64_t)
@@ -37,7 +39,7 @@ static void ensure_cache_cap(idx_t n)
     {
         size_t new_cap = cache_cap ? cache_cap : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *newptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, cache, new_cap);
         if (!newptr) abort();  /* out of memory */
         cache = newptr;
         cache_cap = new_cap;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     {
         /* First allocation large enough for the required index. */
         size_t sz = (n > 3) ? (size_t)n + 1 : 4;
-        cache = (seq_t *)malloc(sz * sizeof(seq_t));
+        cache = mem_new(seq_t, sz);
         if (!cache) abort();
         cache_cap = sz;
 

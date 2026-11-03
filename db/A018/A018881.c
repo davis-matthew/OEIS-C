@@ -11,17 +11,29 @@
  *            base m is < 200 on average
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 18, u128 n <= 919,
  *            big any n
- * Helpers:   big_pow, digit_len, digits, pow10
+ * Validated: standard, pass, 33 terms through n = 8722 (2026-11-01)
+ * Helpers:   ipow, num_digits, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 
-#include "../utils/big_pow.h"      /* seq_t big_pow(seq_t base, seq_t exp); */
-#include "../utils/pow10.h"        /* seq_t pow10(idx_t e); */
-#include "../utils/digit_len.h"    /* int digit_len(seq_t x); */
-#include "../utils/digits.h"       /* int digits(idx_t n); */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/ipow.h"
+#include "../utils/num_digits.h"
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,15 +42,15 @@ seq_t a(idx_t n)
         return 0;
 
     /* Number of decimal digits of the index n. */
-    int d = digits(n);
+    int d = num_digits_idx(n);
 
     /* Search base m starting from 1 upwards. */
     for (idx_t m = 1; ; ++m) {
         /* Compute m^10 exactly. */
-        seq_t val = big_pow((seq_t)m, (seq_t)10);
+        seq_t val = ipow((seq_t)m, (seq_t)10);
 
         /* Determine the first d digits of val. */
-        int len = digit_len(val);          /* number of digits of val */
+        int len = num_digits(val);          /* number of digits of val */
         seq_t leading;
         if (len <= d) {
             /* If value has fewer than d digits, the whole value is the prefix. */

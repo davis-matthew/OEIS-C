@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 31, u128 n <= 61,
  *            big any n
- * Helpers:   col_value
+ * Validated: standard, pass, 39 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,12 @@
 
 #include <stdbool.h>
 #include <stddef.h> /* for size_t */
-#include "../utils/col_value.h"
+
+/* index of a row pattern: col0 + 4·col1, 0 ≤ col0, col1 ≤ 3  */
+static inline int col_value(int pat, int c)
+{
+    return (pat >> (2 * c)) & 3;   /* 0 or 1 for c=0, 1 or 2 for c=1 */
+}
 
 #define DUMMY 16  /* index used for the nonexistent previous row */
 

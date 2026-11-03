@@ -13,7 +13,8 @@
  *            placed at index n, or 0 if no knight occupies that cell
  * Range:     i8 n <= 409, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   idx_to_xy
+ * Validated: standard, pass, 87 terms through n = 9555 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,38 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/idx_to_xy.h"
+#include "../utils/mem.h"
+
+/* Convert spiral index n into (x,y); works for n ≤ MAX_N --------------------- */
+static void idx_to_xy(idx_t n, int32_t *x, int32_t *y)
+{
+    if (n == 0) { *x = 0; *y = 0; return; }
+
+    /* Find layer k: (2k+1)^2 > n ≥ (2k-1)^2 */
+    idx_t k = 0;
+    while ((idx_t)((2LL*k+1)*(2LL*k+1)) <= n) ++k;
+
+    idx_t side = 2*k;                            /* side length of this layer   */
+    idx_t prev = (idx_t)((2*k-1)*(2*k-1));      /* last index of inner layer   */
+    idx_t offset = n - prev;                    /* position along the layer    */
+
+    if (offset < side) {                         /* right side: moving up      */
+        *x = (int32_t)k;
+        *y = (int32_t)(-k + 1 + offset);
+    } else if (offset < 2*side) {                /* top side: moving left      */
+        idx_t t = offset - side;
+        *x = (int32_t)(k - (t + 1));
+        *y = (int32_t)k;
+    } else if (offset < 3*side) {                /* left side: moving down     */
+        idx_t t = offset - 2*side;
+        *x = (int32_t)(-k);
+        *y = (int32_t)(k - (t + 1));
+    } else {                                     /* bottom side: moving right   */
+        idx_t t = offset - 3*side;
+        *x = (int32_t)(-k + (t + 1));
+        *y = (int32_t)(-k);
+    }
+}
 
 #define MAX_N 40000                            /* highest index that will be simulated */
 #define BUF   200                              /* half‑width of the coordinate grid */
@@ -62,7 +94,7 @@ static void init(void)
     if (init_done) return;
 
     /* clear arrays */
-    memset(seq_arr,    0, sizeof(seq_arr));
+    mem_set(seq_arr, 0, sizeof(seq_arr));
     memset(occupied,   0, sizeof(occupied));
     memset(attacked_red,   0, sizeof(attacked_red));
     memset(attacked_black, 0, sizeof(attacked_black));

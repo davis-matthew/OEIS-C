@@ -9,12 +9,14 @@
  *            + 24 - 2*a(n-1) - 2*a(n-2)) / 2 for n ≥ 2
  * Range:     u8 n <= 5, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Initial values for n < 5. */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     /* Initialize cache with first five terms on first call. */
     if (cache == NULL) {
         cap = 5;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         for (size_t i = 0; i < 5; ++i) cache[i] = init[i];
         size = 5;
     }
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
     /* Grow cache if necessary. */
     if ((size_t)n + 1 > cap) {
         cap = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
     }
 
     /* Compute terms up to n if not already computed. */

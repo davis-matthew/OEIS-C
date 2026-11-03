@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_mul
+ * Validated: standard, pass, 74 terms through n = 937 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_mul.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* Forward declaration of the entry point expected by the build system. */
 seq_t a(idx_t n);
@@ -35,8 +37,8 @@ static uint64_t mod_pow(uint64_t base, uint64_t exp, uint64_t mod)
     base %= mod;
     while (exp) {
         if (exp & 1)
-            result = mod_mul(result, base, mod);
-        base = mod_mul(base, base, mod);
+            result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -72,7 +74,7 @@ static bool is_prime_uint64(uint64_t n)
             continue;
         bool composite = true;
         for (int r = 1; r < s; ++r) {
-            x = mod_mul(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 composite = false;
                 break;
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
     if (sz < n) {
         if (cap == 0) {
             cap = 16;
-            cache = (seq_t *)malloc(cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cap);
             if (!cache)
                 return 0;  /* allocation failure – return 0 as placeholder */
         }
@@ -119,9 +121,9 @@ seq_t a(idx_t n)
                 /* Grow cache if needed */
                 if (sz >= cap) {
                     cap *= 2;
-                    seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, cap);
                     if (!tmp) {
-                        free(cache);
+                        mem_free(cache);
                         cache = NULL;
                         return 0;
                     }

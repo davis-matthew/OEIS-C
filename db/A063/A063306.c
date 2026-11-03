@@ -12,7 +12,8 @@
  *            returns 0
  * Range:     i8 n <= 6, i16 n <= 47, i32 n <= 47, i64 n <= 47, i128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -31,13 +33,13 @@ static void ensure_cache(idx_t n)
     if (cache_len > required)
         return;
 
-    seq_t *new_cache = (seq_t *)malloc(required * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, required);
     if (!new_cache)
         return; /* allocation failure unlikely for n <= 10000 */
 
     /* Copy already computed values. */
     if (cache)
-        memcpy(new_cache, cache, cache_len * sizeof(seq_t));
+        mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
 
     /* Initialize remaining entries to 0. */
     for (size_t i = cache_len; i < required; ++i)
@@ -64,7 +66,7 @@ static void ensure_cache(idx_t n)
 
     /* Replace old cache. */
     if (cache)
-        free(cache);
+        mem_free(cache);
     cache = new_cache;
     cache_len = required;
 }

@@ -7,13 +7,17 @@
  * Formula:   a(n) = Sum_{d|n} (n/d)^n * binomial(d+n,n) [offset 1]
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 34 terms through n = 382 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 static inline idx_t floor_sqrt_u64(idx_t x)
 {
@@ -38,12 +42,12 @@ seq_t a(idx_t n)
             idx_t d1 = d;
             idx_t d2 = n / d;
 
-            seq_t term1 = big_pow((seq_t)(n / d1), (seq_t)n) * binomial(d1 + n, n);
+            seq_t term1 = ipow((seq_t)(n / d1), (seq_t)n) * binomial(d1 + n, n);
             sum += term1;
 
             if (d1 != d2)
             {
-                seq_t term2 = big_pow((seq_t)(n / d2), (seq_t)n) * binomial(d2 + n, n);
+                seq_t term2 = ipow((seq_t)(n / d2), (seq_t)n) * binomial(d2 + n, n);
                 sum += term2;
             }
         }

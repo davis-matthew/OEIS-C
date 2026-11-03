@@ -9,13 +9,28 @@
  *            binomial(d+4,4)
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 14, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   binom_dplus4_4
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom_dplus4_4.h"
+#include "../utils/mem.h"
+
+/* Compute binomial(d+4,4) for d>=1 using seq_t arithmetic. */
+static seq_t binom_dplus4_4(idx_t d)
+{
+    seq_t a = (seq_t)(d + 1);
+    seq_t b = (seq_t)(d + 2);
+    seq_t c = (seq_t)(d + 3);
+    seq_t d4 = (seq_t)(d + 4);
+    seq_t prod = a * b;
+    prod = prod * c;
+    prod = prod * d4;
+    /* divide by 24 (4! = 24) */
+    return prod / (seq_t)24;
+}
 
 /* Main sequence member function. */
 seq_t a(idx_t n)
@@ -24,16 +39,16 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Pre‑compute A174002(d) = d * binom(d+4,4) for 1..n. */
-    seq_t *A = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, (n + 1));
     if (!A)
         return (seq_t)0;
     for (idx_t d = 1; d <= n; ++d)
         A[d] = (seq_t)d * binom_dplus4_4(d);
 
     /* Compute S[1..n] = sum_{d|k} (-1)^(k/d+1) * A[d] (non‑negative). */
-    seq_t *S = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, (n + 1));
     if (!S) {
-        free(A);
+        mem_free(A);
         return (seq_t)0;
     }
     for (idx_t k = 1; k <= n; ++k) {
@@ -64,12 +79,12 @@ seq_t a(idx_t n)
         /* pos ≥ neg, so subtraction is safe */
         S[k] = pos - neg;
     }
-    free(A);
+    mem_free(A);
 
     /* Compute the sequence via the recurrence. */
-    seq_t *seq = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, (n + 1));
     if (!seq) {
-        free(S);
+        mem_free(S);
         return (seq_t)0;
     }
     seq[0] = (seq_t)1;
@@ -81,7 +96,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[n];
-    free(S);
-    free(seq);
+    mem_free(S);
+    mem_free(seq);
     return result;
 }

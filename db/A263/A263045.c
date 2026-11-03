@@ -9,12 +9,14 @@
  *            - a(n-1) (recurrence)
  * Range:     u8 n <= 10, u16 n <= 12, u32 n <= 14, u64 n <= 15, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised storage of the sequence.  The array is one-based in logic
    (a(1) stored at index 0). */
@@ -33,7 +35,7 @@ static void a_ensure(idx_t n)
     size_t new_cap = a_cap ?: 1;
     while (new_cap < (size_t)n) new_cap *= 2;
 
-    seq_t *new_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_cap);
     a_cache = new_cache;
     a_cap   = new_cap;
 

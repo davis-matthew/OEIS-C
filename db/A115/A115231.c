@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 822, u32 n <= 9885, u64 n <= 9885,
- *            u128 n <= 9885, big any n
- * Helpers:   none
+ * Range:     u8 n <= 3, u16 n <= 822, u32 n <= 11532, u64 n <= 11532,
+ *            u128 n <= 11532, big any n
+ * Validated: standard, pass, 62 terms through n = 9885 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* -------------------- static data -------------------- */
 static bool   *is_prime        = NULL;   /* sieve of Eratosthenes */
@@ -90,7 +92,7 @@ static void init(void)
 
     /* ---- build the sequence terms ---- */
     seq_terms_cap = 16384;
-    seq_terms = (seq_t *)malloc(seq_terms_cap * sizeof(seq_t));
+    seq_terms = mem_new(seq_t, seq_terms_cap);
     if (!seq_terms) abort();
 
     for (size_t pi = 0; pi < prime_count; ++pi) {
@@ -112,8 +114,7 @@ static void init(void)
         if (!representable) {
             if (seq_terms_size == seq_terms_cap) {
                 seq_terms_cap <<= 1;
-                seq_terms = (seq_t *)realloc(seq_terms,
-                                             seq_terms_cap * sizeof(seq_t));
+                seq_terms = mem_resize(seq_t, seq_terms, seq_terms_cap);
                 if (!seq_terms) abort();
             }
             seq_terms[seq_terms_size++] = (seq_t)p;

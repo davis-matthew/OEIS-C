@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 506, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 9726 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Count distinct decimal digits of a value. */
 static int count_distinct_digits(seq_t x)
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Grow the array if necessary (dynamic array with exponentiation). */
     if (capacity < 64) {
         capacity = 64;
-        values = (seq_t *)malloc(capacity * sizeof(seq_t));
+        values = mem_new(seq_t, capacity);
     }
 
     /* Build the sequence until we have at least n elements. */
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         if (count_distinct_digits(candidate) == 9) {
             if (current_size >= capacity) {
                 capacity *= 2;
-                values = (seq_t *)realloc(values, capacity * sizeof(seq_t));
+                values = mem_resize(seq_t, values, capacity);
             }
             values[current_size++] = candidate;
         }

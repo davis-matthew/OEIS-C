@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /*  type definitions provided by the build system */
 extern seq_t a(idx_t n);
@@ -67,7 +69,7 @@ static void rebuild_up_to(size_t new_limit)
     }
 
     /* Reallocate storage for odd‑digit primes */
-    free(odd_primes);
+    mem_free(odd_primes);
     odd_primes = NULL;
     odd_cap    = 0;
     odd_count  = 0;
@@ -81,7 +83,7 @@ static void rebuild_up_to(size_t new_limit)
 
         if (odd_count >= odd_cap) {
             odd_cap = odd_cap ? odd_cap * 2 : 64;
-            odd_primes = (seq_t*)realloc(odd_primes, odd_cap * sizeof(seq_t));
+            odd_primes = mem_resize(seq_t, odd_primes, odd_cap);
             if (!odd_primes) exit(1);
         }
         odd_primes[odd_count++] = (seq_t)p;

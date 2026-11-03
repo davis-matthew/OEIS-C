@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache of computed terms */
 static seq_t *cache      = NULL;
@@ -38,7 +40,7 @@ static void push_value(seq_t val)
 {
     if (cache_len >= cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 64 : cache_cap << 1;
-        seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, cache, new_cap);
         cache = newp;
         cache_cap = new_cap;
     }

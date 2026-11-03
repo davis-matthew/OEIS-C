@@ -9,7 +9,8 @@
  *            reaches a fixed point (a prime), after which a(n) is constant
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   mulmod_u64, u128_to_seq
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,15 +18,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/mulmod_u64.h"
+#include "../utils/mulmod.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
 
 static uint64_t powmod_u64(uint64_t b, uint64_t e, uint64_t m) {
     uint64_t r = 1 % m;
     b %= m;
     while (e) {
-        if (e & 1) r = mulmod_u64(r, b, m);
-        b = mulmod_u64(b, b, m);
+        if (e & 1) r = mulmod(r, b, m);
+        b = mulmod(b, b, m);
         e >>= 1;
     }
     return r;
@@ -47,7 +59,7 @@ static bool mr_prime(uint64_t n) {
         bool ok = false;
         if (x == 1 || x == n - 1) continue;
         for (r = 1; r < s; r++) {
-            x = mulmod_u64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { ok = true; break; }
         }
         if (!ok) return false;
@@ -66,9 +78,9 @@ static uint64_t rho(uint64_t n) {
     for (c = 1;; c++) {
         uint64_t x = 2, y = 2, d = 1;
         while (d == 1) {
-            x = (mulmod_u64(x, x, n) + c) % n;
-            y = (mulmod_u64(y, y, n) + c) % n;
-            y = (mulmod_u64(y, y, n) + c) % n;
+            x = (mulmod(x, x, n) + c) % n;
+            y = (mulmod(y, y, n) + c) % n;
+            y = (mulmod(y, y, n) + c) % n;
             d = gcd_u64(x > y ? x - y : y - x, n);
         }
         if (d != n) return d;

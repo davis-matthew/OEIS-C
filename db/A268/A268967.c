@@ -9,12 +9,15 @@
  * Formula:   a(n) = 16 * 3^(2*n-3) * (8*n+3) for n >= 2; a(1) = 60
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 18, u128 n <= 38,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 32 terms through n = 206 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"   /* provides big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
     idx_t exp = (idx_t)2 * n - (idx_t)3;
 
     /* compute 3^(2*n-3) */
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)exp);
+    seq_t pow3 = ipow((seq_t)3, (seq_t)exp);
 
     /* term = 8*n + 3 */
     seq_t term = (seq_t)((idx_t)8 * n + (idx_t)3);

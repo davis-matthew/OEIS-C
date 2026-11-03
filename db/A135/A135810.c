@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{j=0..n} ((-1)^(n-j))*binomial(n,j)*(j!)^4
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 12,
  *            big any n
+ * Validated: standard, pass, 28 terms through n = 133 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

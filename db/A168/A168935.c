@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 16,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,15 @@
 
 /*  Include the allocation routine for the type seq_t.  */
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -63,7 +72,7 @@ static void ensure_terms(idx_t n)
 
     /* free old cache */
     if (cache)
-        free(cache);      /* safe for primitive types; adapted builds use this routine */
+        mem_free(cache);      /* safe for primitive types; adapted builds use this routine */
 
     cache     = new_arr;
     cache_len = new_len;

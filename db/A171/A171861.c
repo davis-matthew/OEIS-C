@@ -8,6 +8,7 @@
  *            a(4)=6 (OEIS offset 1)
  * Range:     u8 n <= 15, u16 n <= 35, u32 n <= 75, u64 n <= 153,
  *            u128 n <= 311, big any n
+ * Validated: standard, pass, 61 terms through n = 962 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

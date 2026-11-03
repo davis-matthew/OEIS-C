@@ -8,6 +8,7 @@
  * Formula:   a(n) = (n^2)/2 - 1 for n even, a(n) = (n^2-n)/2 - 1 for n odd
  * Range:     u8 n <= 23, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 53 terms through n = 54 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

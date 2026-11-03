@@ -9,6 +9,7 @@
  *            (i.e., a(n) = A003961(2*n) )
  * Range:     u8 n <= 23, u16 n <= 767, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 90 terms through n = 9590 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
 
 /* Computes a(n) for the OEIS sequence A249734. */

@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{0<=i<j<k<=n} L(i)*L(j)*L(k) (Lucas numbers)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 30, u128 n <= 61,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 496 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

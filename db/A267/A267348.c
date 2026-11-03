@@ -11,13 +11,15 @@
  *            which returns base^exp as seq_t
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 8, u128 n <= 9,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     seq_t e = r * (seq_t)3;
 
     /* compute 2^e */
-    seq_t pow2e = big_pow((seq_t)2, e);
+    seq_t pow2e = ipow((seq_t)2, e);
 
     /* a(n) = 6 * (pow2e - 1) / 7 */
     seq_t result = (pow2e - (seq_t)1) * (seq_t)6 / (seq_t)7;

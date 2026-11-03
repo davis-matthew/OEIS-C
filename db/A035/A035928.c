@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 8660 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +21,14 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper to push a value into a dynamic array. */
 static void push_back(seq_t **arr, size_t *len, size_t *cap, seq_t val)
 {
     if (*len == *cap) {
         size_t newcap = (*cap == 0) ? 64 : (*cap << 1);
-        *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
     (*arr)[*len] = val;
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         idx_t count = 1ULL << (k - 1);
 
         /* temporary array for the current length. */
-        seq_t *tmp = (seq_t *)malloc((size_t)count * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, (size_t)count);
 
         for (idx_t mask = 0; mask < count; ++mask) {
             seq_t val = (seq_t)1 << (len - 1);   /* leading 1 */
@@ -77,13 +79,13 @@ seq_t a(idx_t n)
         }
 
         /* Sort the numbers of this length. */
-        qsort(tmp, (size_t)count, sizeof(seq_t), seq_cmp);
+        mem_qsort(tmp, (size_t)count, sizeof(seq_t), seq_cmp);
 
         /* Append to the global sequence. */
         for (size_t i = 0; i < (size_t)count; ++i)
             push_back(&seq, &seq_len, &seq_cap, tmp[i]);
 
-        free(tmp);
+        mem_free(tmp);
         next_len += 2;           /* next even length */
     }
 

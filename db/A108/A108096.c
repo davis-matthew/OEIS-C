@@ -11,14 +11,29 @@
  *            - Sum_{k=1}^{n-1} a(k)*a(n-k) ) / 2
  * Range:     i8 n <= 1, i16 n <= 4, i32 n <= 8, i64 n <= 15, i128 n <= 29,
  *            big any n
- * Helpers:   odd_divisor_sum
+ * Validated: standard, pass, 36 terms through n = 619 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/odd_divisor_sum.h"
+#include "../utils/mem.h"
+
+/* fn used by the sequence */
+static inline seq_t odd_divisor_sum(idx_t n)
+{
+    seq_t sum = 0;
+    for (idx_t d = 1; d * d <= n; ++d)
+        if (n % d == 0)
+        {
+            if (d & 1) sum += (seq_t)d;
+            idx_t e = n / d;
+            if (e != d && (e & 1)) sum += (seq_t)e;
+        }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +46,7 @@ seq_t a(idx_t n)
     if (arr == NULL)
     {
         capacity = 1;
-        arr = (seq_t *)malloc(sizeof(seq_t) * (capacity + 1));
+        arr = mem_new(seq_t, (capacity + 1));
         if (!arr) exit(1);
         arr[0] = (seq_t)1;
         max_computed = 0;
@@ -42,11 +57,11 @@ seq_t a(idx_t n)
     {
         idx_t new_cap = capacity ? capacity : 1;
         while (new_cap < n) new_cap <<= 1;
-        seq_t *new_arr = (seq_t *)malloc(sizeof(seq_t) * (new_cap + 1));
+        seq_t *new_arr = mem_new(seq_t, (new_cap + 1));
         if (!new_arr) exit(1);
-        memcpy(new_arr, arr, sizeof(seq_t) * (max_computed + 1));
+        mem_copy(new_arr, arr, sizeof(seq_t) * (max_computed + 1));
         for (idx_t i = max_computed + 1; i <= new_cap; ++i) new_arr[i] = 0;
-        free(arr);
+        mem_free(arr);
         arr = new_arr;
         capacity = new_cap;
     }

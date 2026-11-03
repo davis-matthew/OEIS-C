@@ -13,25 +13,27 @@
  *            C(n‑i,i)·C(n...
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 444 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* ---------- factorials ------------------------------------------------ */
-    seq_t *fact = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (size_t)n + 1);
     fact[0] = (seq_t)1;
     for (idx_t i = 1; i <= n; ++i)
         fact[i] = fact[i - 1] * ((seq_t)i);
 
     /* ---------- matchings for one component ----------------------------- */
     idx_t kmax = n / 2;                 /* maximum size of a matching in one component */
-    seq_t *g    = (seq_t*)calloc((size_t)kmax + 1, sizeof(seq_t)); /* g[i] = C(n-i,i) */
+    seq_t *g    = mem_new(seq_t, (size_t)kmax + 1); /* g[i] = C(n-i,i) */
     g[0] = (seq_t)1;
     for (idx_t i = 1; i <= kmax; ++i) {
         /* g[i] = g[i-1] * (n-2*i+2)*(n-2*i+1) / (i*(n-i+1)) */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
 
     /* ---------- convolution g*g -> total matchings --------------------- */
     idx_t kk   = 2 * kmax;                     /* maximum total matching size */
-    seq_t *C   = (seq_t*)calloc((size_t)kk + 1, sizeof(seq_t));
+    seq_t *C   = mem_new(seq_t, (size_t)kk + 1);
     for (idx_t i = 0; i <= kmax; ++i) {
         for (idx_t j = 0; j <= kmax; ++j) {
             seq_t prod = g[i] * g[j];
@@ -67,9 +69,9 @@ seq_t a(idx_t n)
     seq_t result = fact[n] - b;   /* desired a(n) */
 
     /* ---------- clean up ------------------------------------------------- */
-    free(fact);
-    free(g);
-    free(C);
+    mem_free(fact);
+    mem_free(g);
+    mem_free(C);
 
     return result;
 }

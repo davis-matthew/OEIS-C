@@ -10,13 +10,36 @@
  *            are O(1)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   fact_to_base9_seq
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/fact_to_base9_seq.h"
+#include "../utils/mem.h"
+
+/* ---------------------------------------------------------------------- */
+static seq_t fact_to_base9_seq(const seq_t *p_fact)
+{
+    /* Buffer large enough for n ≤ 10 000 (≈ 38 000 base‑9 digits).  */
+    static uint8_t digits[50000];
+    size_t dlen = 0;
+    seq_t temp = *p_fact;
+    if (temp == 0) { digits[0] = 0; dlen = 1; }
+    while (temp != 0) {
+        seq_t rem = temp % (seq_t)9;   /* 0 .. 8 */
+        digits[dlen++] = (uint8_t)(rem);
+        temp = temp / (seq_t)9;
+    }
+
+    seq_t result = 0;
+    /* digits are in reverse order; build decimal number forwards. */
+    for (size_t i = dlen; i-- > 0; ) {
+        result = result * (seq_t)10 + (seq_t)digits[i];
+    }
+    return result;
+}
 
 /* The build supplies seq_t and idx_t.  seq_t may be an arbitrary‑precision
  * integer class when compiled as C++.  All operations used below are legal
@@ -44,7 +67,7 @@ static void ensure_factorials(idx_t n)
 {
     if (fact_cache == NULL) {
         fact_cap   = 4;
-        fact_cache = (seq_t *)realloc(NULL, fact_cap * sizeof(seq_t));
+        fact_cache = mem_resize(seq_t, NULL, fact_cap);
         if (!fact_cache) exit(1);
         fact_cache[0] = (seq_t)1;     /* 0! = 1 */
         fact_size    = 1;
@@ -53,7 +76,7 @@ static void ensure_factorials(idx_t n)
 
     if (n >= fact_cap) {
         while (fact_cap <= (size_t)n) fact_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(fact_cache, fact_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact_cache, fact_cap);
         if (!tmp) exit(1);
         fact_cache = tmp;
     }
@@ -74,7 +97,7 @@ static void ensure_sequence(idx_t n)
 {
     if (seq_cache == NULL) {
         seq_cap   = 4;
-        seq_cache = (seq_t *)realloc(NULL, seq_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, NULL, seq_cap);
         if (!seq_cache) exit(1);
         seq_size  = 0;
     }
@@ -82,7 +105,7 @@ static void ensure_sequence(idx_t n)
 
     if (n >= seq_cap) {
         while (seq_cap <= (size_t)n) seq_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, seq_cap);
         if (!tmp) exit(1);
         seq_cache = tmp;
     }

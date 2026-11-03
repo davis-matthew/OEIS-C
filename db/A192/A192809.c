@@ -8,7 +8,8 @@
  * Formula:   a(n) = 7*a(n-1) - 12*a(n-2) + 8*a(n-3)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 29, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 906 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /*  Initial values: a(0)=0, a(1)=0, a(2)=2                      */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for already computed terms. */
 static seq_t *cache = NULL;          /* array of terms */
@@ -32,7 +34,7 @@ static void ensure_cache_capacity(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)                     /* allocation failed – keep old cache */
         return;
 

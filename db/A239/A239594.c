@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 49, u32 n <= 101, u64 n <= 206,
  *            u128 n <= 210, big any n
- * Helpers:   seq_alloc_new_array, seq_realloc
+ * Validated: standard, pass, 67 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,23 @@
    and runs in O(n) time for computing up to the maximum requested n. */
 
 #include <stdlib.h>                 /* for abort() */
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_realloc.h"
+#include <stdint.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+    /* one allocation scheme for every width (the C++ branch here used
+       new[]/delete[] on memory from mem_new) */
+    (void)old_cap;
+    seq_t *p = mem_resize(seq_t, old, new_cap ? new_cap : 1);
+    if (!p) abort();
+    return p;
+}
 
 seq_t a(idx_t n)
 {
@@ -45,7 +61,8 @@ seq_t a(idx_t n)
         cache = tmp;
         /* Fill newly allocated entries. */
         for (size_t i = sz; i < new_sz; ++i) {
-            if (i == 1)          cache[i] = (seq_t)4;
+            if (i == 0)          cache[i] = (seq_t)0;   /* unused (was cache[-2] + cache[-5]) */
+            else if (i == 1)     cache[i] = (seq_t)4;
             else if (i == 2)     cache[i] = (seq_t)3;
             else if (i == 3)     cache[i] = (seq_t)4;
             else if (i == 4)     cache[i] = (seq_t)4;

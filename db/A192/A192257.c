@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 26, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    by direct iteration.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int d_coeff[10] = { 1, -5,  6,  6, -13, -3, 10,  2, -3, -1 };
 static const int n_coeff[10] = { 0,  0,  8, -5,  36, -19, 12, -1,  0,  0 };
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         return 0;                     /* a(0) and a(1) are 0 */
 
     /* Allocate space for the sequence up to n.  */
-    seq_t *s = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *s = mem_new(seq_t, (size_t)(n + 1));
     if (!s) return 0;                  /* allocation failure -> 0 */
 
     s[0] = 0;
@@ -61,6 +63,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = s[n];
-    free(s);
+    mem_free(s);
     return result;
 }

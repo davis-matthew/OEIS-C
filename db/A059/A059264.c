@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 4903, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   gcd64, next_prime, powmod64
+ * Validated: standard, pass, 73 terms through n = 4622 (2026-11-03)
+ * Helpers:   gcd_u64, mem, next_prime, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/gcd64.h"
-#include "../utils/powmod64.h"
+#include "../utils/gcd_u64.h"
 #include "../utils/next_prime.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /* Static cache of qualifying primes. */
 static seq_t  *cache   = NULL;   /* array of stored primes          */
@@ -38,9 +40,9 @@ static bool p_has_no_solution(uint64_t p)
     /* For odd prime p, a solution to x^12 ≡ 2 exists iff
        2^((p-1)/gcd(12,p-1)) ≡ 1 (mod p).  Thus no solution when
        the above congruence fails. */
-    uint64_t g   = gcd64(12ULL, p - 1ULL);
+    uint64_t g   = gcd_u64(12ULL, p - 1ULL);
     uint64_t exp = (p - 1ULL) / g;
-    return powmod64(2ULL, exp, p) != 1ULL;
+    return powmod_u64(2ULL, exp, p) != 1ULL;
 }
 
 /* Add a new qualifying prime p to the cache. */
@@ -48,7 +50,7 @@ static void add_prime(uint64_t p)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 4 : cache_cap * 2;
-        seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
         if (!new_arr) exit(EXIT_FAILURE);   /* allocation failed */
         cache = new_arr;
         cache_cap = new_cap;

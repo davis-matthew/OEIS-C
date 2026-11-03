@@ -12,13 +12,15 @@
  *            values b(0)=0, b(1)=1, b(2)=5, b(3)=21, b(4)=88
  * Range:     u8 n <= 15, u16 n <= 45, u32 n <= 153, u64 n <= 529,
  *            u128 n <= 2017, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 7004 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static storage for the b(n) sequence */
 static seq_t *b_values = NULL;   /* array of computed b(n) values   */
@@ -31,7 +33,7 @@ static void ensure_b(idx_t n)
     /* Allocate initial array if not yet allocated */
     if (b_values == NULL) {
         b_size = 5;                                 /* indices 0..4 are known */
-        b_values = (seq_t *)malloc(b_size * sizeof(seq_t));
+        b_values = mem_new(seq_t, b_size);
         if (!b_values) return;  /* allocation failure – caller will tolerate */
         b_values[0] = 0;
         b_values[1] = 1;
@@ -46,7 +48,7 @@ static void ensure_b(idx_t n)
     /* Grow the array if necessary */
     if ((size_t)(n + 1) > b_size) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(b_values, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, b_values, new_size);
         if (!tmp) return;  /* allocation failure – caller will tolerate */
         b_values = tmp;
         b_size = new_size;

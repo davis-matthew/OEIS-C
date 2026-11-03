@@ -10,13 +10,15 @@
  *            = 3, L_3 = 4, …). 0 is included as the smallest element
  * Range:     u8 n <= 5, u16 n <= 18, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* minimal comparator for seq_t */
 static int cmp_seq_t(const void *a, const void *b)
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (seq_len < (size_t)n) {
         /* allocate vector for Lucas numbers */
         size_t i_max = MAX_IDX;
-        seq_t *lucas = (seq_t *)malloc(sizeof(seq_t) * (i_max + 1));
+        seq_t *lucas = mem_new(seq_t, (i_max + 1));
         if (!lucas) return (seq_t)0;  /* out of memory, fallback */
 
         /* L_0 = 2, L_1 = 1; we use 1-based indices only */
@@ -52,8 +54,8 @@ seq_t a(idx_t n)
 
         /* estimate upper bound for number of candidates */
         size_t cand_cap = i_max * i_max * 2 + 5;
-        seq_t *cand = (seq_t *)malloc(sizeof(seq_t) * cand_cap);
-        if (!cand) { free(lucas); return (seq_t)0; }
+        seq_t *cand = mem_new(seq_t, cand_cap);
+        if (!cand) { mem_free(lucas); return (seq_t)0; }
 
         size_t cand_len = 0;
         for (size_t i = 1; i <= i_max; ++i) {
@@ -69,10 +71,10 @@ seq_t a(idx_t n)
         /* Always include 0 as the first element */
         cand[cand_len++] = (seq_t)0;
 
-        free(lucas);
+        mem_free(lucas);
 
         /* sort and deduplicate */
-        qsort(cand, cand_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(cand, cand_len, sizeof(seq_t), cmp_seq_t);
         size_t unique_len = 0;
         for (size_t i = 0; i < cand_len; ++i) {
             if (i == 0 || cand[i] != cand[i - 1])
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
         }
 
         /* replace old sequence */
-        free(seq);
+        mem_free(seq);
         seq = cand;
         seq_len = unique_len;
     }

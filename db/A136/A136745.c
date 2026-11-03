@@ -12,12 +12,14 @@
  *            row‑major order
  * Range:     i8 n <= 107, i16 n <= 107, i32 n <= 107, i64 n <= 107,
  *            i128 n <= 107, big any n
- * Helpers:   none
+ * Validated: partial, pass, 108 terms through n = 107 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root: floor(sqrt(n)) for 0 ≤ n < 2⁶⁴. */
 static inline idx_t floor_isqrt(idx_t n) {
@@ -55,7 +57,7 @@ seq_t a(idx_t n) {
     /* Compute any missing rows up to r. */
     for (idx_t i = rows_cnt; i <= r; ++i) {
         idx_t len = 2 * i + 1;
-        seq_t *row = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) return 0;                /* out‑of‑memory; caller handles */
 
         if (i == 0) {

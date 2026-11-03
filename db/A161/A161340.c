@@ -12,14 +12,24 @@
  *            so that arbitrary order of calls is supported e...
  * Range:     u8 n <= 3, u16 n <= 27, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pow7_of_exp
+ * Validated: standard, pass, 56 terms through n = 922 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/pow7_of_exp.h"
+#include "../utils/mem.h"
+
+/* Helper: compute 7^exp for small exp */
+static seq_t pow7_of_exp(idx_t exp)
+{
+    seq_t res = 1;
+    while (exp--)
+        res *= (seq_t)7;
+    return res;
+}
 
 /* Helper: floor of binary logarithm for idx_t (uint64_t) */
 static inline idx_t floor_log2_uint64(idx_t n)
@@ -40,7 +50,7 @@ seq_t a(idx_t n)
 
     /* Ensure the cache is initialized for at least index 0 */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) abort();       /* allocation failed */
         cache[0] = (seq_t)0;
         cache_max = 0;
@@ -49,7 +59,7 @@ seq_t a(idx_t n)
     /* Extend the cache if needed */
     if (n > cache_max) {
         size_t new_len = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) abort();    /* allocation failed */
         cache = new_cache;
 

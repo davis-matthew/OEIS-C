@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 24, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   gcd, pow_seq
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   gcd, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,8 @@
 */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
 #include "../utils/gcd.h"
+#include "../utils/ipow_i32.h"
 
 /* Return the n-th term of A327321 (1‑based index) */
 seq_t a(idx_t n)
@@ -46,7 +47,7 @@ seq_t a(idx_t n)
     idx_t pos = n - start - 1;   /* 0‑based position in row */
 
     /* 2. Pre‑compute 3^r */
-    seq_t pow3_r = pow_seq((seq_t)3, r);
+    seq_t pow3_r = ipow_i32((seq_t)3, r);
 
     /* 3. Iterate over j = 0 … r-1, computing e_j and the gcd */
     seq_t binom = 1;             /* C(r,0) */

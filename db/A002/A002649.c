@@ -10,7 +10,8 @@
  *            at least n terms
  * Range:     u8 n <= 3, u16 n <= 25, u32 n <= 2321, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   q_cmp, q_mulmod
+ * Validated: standard, pass, 51 terms through n = 9739 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,15 +19,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/q_cmp.h"
-#include "../utils/q_mulmod.h"
+#include "../utils/mulmod.h"
+
+static int q_cmp(const void *p, const void *q) {
+    uint64_t u = *(const uint64_t *)p, v = *(const uint64_t *)q;
+    return (u > v) - (u < v);
+}
 
 static uint64_t q_powmod(uint64_t b, uint64_t e, uint64_t m) {
     uint64_t r = 1;
     b %= m;
     while (e) {
-        if (e & 1) r = q_mulmod(r, b, m);
-        b = q_mulmod(b, b, m);
+        if (e & 1) r = mulmod(r, b, m);
+        b = mulmod(b, b, m);
         e >>= 1;
     }
     return r;
@@ -49,7 +54,7 @@ static bool q_isprime(uint64_t n) {
         int r;
         bool comp = true;
         for (r = 1; r < s; r++) {
-            x = q_mulmod(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { comp = false; break; }
         }
         if (comp) return false;

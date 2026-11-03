@@ -13,7 +13,8 @@
  *            duplicates removed
  * Range:     u8 none, u16 none, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------------*/
 /*  Data structures                                                  */
@@ -44,7 +46,7 @@ static inline void push_heap(Node n)
 {
     if (heap_size == heap_cap) {
         size_t new_cap = heap_cap ? heap_cap << 1 : 8;
-        Node *tmp = (Node *)realloc(heap, new_cap * sizeof(Node));
+        Node *tmp = mem_resize(Node, heap, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         heap = tmp;
         heap_cap = new_cap;
@@ -96,7 +98,7 @@ static inline void ensure_values_capacity(size_t needed)
     if (values_cap >= needed) return;
     size_t new_cap = values_cap ? values_cap << 1 : 8;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, values, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     values = tmp;
     values_cap = new_cap;
@@ -128,7 +130,7 @@ static void initialize_heap(void)
 {
     heap_size = 0;
     heap_cap  = 0;
-    free(heap);
+    mem_free(heap);
     heap = NULL;
 
     for (uint64_t a = 1; a <= MAX_A; ++a) {

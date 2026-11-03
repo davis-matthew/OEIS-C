@@ -8,13 +8,15 @@
  * Formula:   a(n) = 16*a(n-1) - a(n-2) + 1 with a(0)=1, a(1)=17
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 793 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* dynamic cache for already computed terms */
 static size_t cache_len = 0;  /* number of entries currently stored (cache_len-1 = max n cached) */
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t n)
     size_t new_len = cache_len ? cache_len : 1;
     while (new_len < needed_len) new_len <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) abort();
     cache = tmp;
 

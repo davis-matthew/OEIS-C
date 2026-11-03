@@ -9,13 +9,15 @@
  *            3*k
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The function relies only on the standard library.
    It keeps static caches for primes and partial products
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
         /* Allocate fresh buffers for the new size. */
         if (sieve_buf) {
-            free((void*)sieve_buf);
+            free(sieve_buf);
         }
         sieve_buf = (uint8_t*)malloc((needed_limit + 1) * sizeof(uint8_t));
         if (!sieve_buf) exit(EXIT_FAILURE);
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
 
         /* Build array of largest prime ≤ i. */
         if (largest_prime_le) {
-            free((void*)largest_prime_le);
+            free(largest_prime_le);
         }
         largest_prime_le = (uint16_t*)malloc((needed_limit + 1) * sizeof(uint16_t));
         if (!largest_prime_le) exit(EXIT_FAILURE);
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
         /* Ensure enough capacity for cached_prod. */
         size_t new_cap = (size_t)(n + 1);   /* indices 0..n, 0 unused */
         if (new_cap > prod_cap) {
-            seq_t *new_arr = (seq_t*)realloc((void*)cached_prod, new_cap * sizeof(seq_t));
+            seq_t *new_arr = mem_resize(seq_t, cached_prod, new_cap);
             if (!new_arr) exit(EXIT_FAILURE);
             cached_prod = new_arr;
             prod_cap    = new_cap;

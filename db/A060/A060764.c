@@ -8,9 +8,10 @@
  * Formula:   a(n) = number of divisors of n that are not equal to any
  *            difference of consecutive divisors of n (divisors listed in
  *            increasing order)
- * Range:     u8 n <= 9977, u16 n <= 9977, u32 n <= 9977, u64 n <= 9977,
- *            u128 n <= 9977, big any n
- * Helpers:   binary_search_uint64, factor_and_divisor_count, generate_divs
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9977 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,73 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binary_search_uint64.h"
-#include "../utils/factor_and_divisor_count.h"
-#include "../utils/generate_divs.h"
+
+/* Binary search for a 64‑bit value in a sorted array.  Return 1 if
+   found, 0 otherwise. */
+static int binary_search_uint64(const uint64_t *arr, size_t len, uint64_t target)
+{
+    size_t low = 0, high = len;
+    while (low < high) {
+        size_t mid = (low + high) >> 1;
+        if (arr[mid] < target)
+            low = mid + 1;
+        else if (arr[mid] > target)
+            high = mid;
+        else
+            return 1;
+    }
+    return 0;
+}
+
+/* Factorise `n` into prime factors stored in `pr` and exponents in
+   `exp`.  `cnt` will contain the number of distinct prime factors.
+   All arrays must be large enough (we use 32 entries).  The function
+   returns the product of (exponent+1) = number of divisors. */
+static uint64_t factor_and_divisor_count(uint64_t n, uint64_t *pr, uint64_t *exp, size_t *cnt)
+{
+    *cnt = 0;
+    uint64_t tau = 1;
+    for (uint64_t p = 2; p * p <= n; ++p) {
+        if (n % p == 0) {
+            uint64_t e = 0;
+            while (n % p == 0) {
+                n /= p;
+                ++e;
+            }
+            pr[(*cnt)] = p;
+            exp[(*cnt)] = e;
+            tau *= (e + 1);
+            (*cnt)++;
+        }
+    }
+    if (n > 1) {                     /* remaining prime factor */
+        pr[(*cnt)] = n;
+        exp[(*cnt)] = 1;
+        tau *= 2;
+        (*cnt)++;
+    }
+    return tau;
+}
+
+/* Generate all divisors given the prime factorisation.  The array
+   `divs` must have space for at least `tau` elements (tau = number of
+   divisors).  `cnt` is the number of distinct prime factors. */
+static void generate_divs(uint64_t cur, size_t idx, uint64_t *divs, size_t *pos,
+                          const uint64_t *pr, const uint64_t *exp, size_t cnt)
+{
+    if (idx == cnt) {
+        divs[*pos] = cur;
+        (*pos)++;
+        return;
+    }
+    uint64_t p = pr[idx];
+    uint64_t e = exp[idx];
+    uint64_t value = cur;
+    for (uint64_t k = 0; k <= e; ++k) {
+        generate_divs(value, idx + 1, divs, pos, pr, exp, cnt);
+        value *= p;
+    }
+}
 
 /* ------------------------------------------------------------------ */
 

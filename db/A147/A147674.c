@@ -8,6 +8,7 @@
  *            a(3)=27, a(4)=27, a(5)=9, a(6)=27, a(7)=81, a(8)=9
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

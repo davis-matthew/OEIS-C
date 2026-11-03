@@ -7,14 +7,18 @@
  * Formula:   a(n) = # of s ∈ [0, n) such that s^s ≡ -(-s)^n (mod n)
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   mul_mod64
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mul_mod64.h"   /* uint64_t mul_mod64(uint64_t a, uint64_t b, uint64_t mod) */
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 static inline uint64_t mod_pow_u64(uint64_t base, idx_t exp, uint64_t mod)
 {
@@ -23,8 +27,8 @@ static inline uint64_t mod_pow_u64(uint64_t base, idx_t exp, uint64_t mod)
     while (exp > 0)
     {
         if (exp & 1U)
-            result = mul_mod64(b, result, mod);
-        b = mul_mod64(b, b, mod);
+            result = mulmod(b, result, mod);
+        b = mulmod(b, b, mod);
         exp >>= 1U;
     }
     return result;
@@ -43,7 +47,7 @@ static void grow_cache(size_t new_cap)
     size_t new_cap2 = cache_cap ? cache_cap * 2 : 16;
     if (new_cap2 < new_cap)
         new_cap2 = new_cap;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap2 * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap2);
     if (!tmp) abort();   /* out of memory */
     cache = tmp;
     cache_cap = new_cap2;

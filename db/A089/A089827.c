@@ -8,7 +8,8 @@
  *            a(n-1)*3/2) else a(n-1)*2 Initial values: a(1)=2, a(2)=4
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (cache_size < n + 1) {
         idx_t new_size = cache_size ? cache_size * 2 : 16;
         while (new_size <= n) new_size <<= 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         if (cache == NULL) abort();  /* OOM */
         for (idx_t i = cache_size; i < new_size; ++i) cache[i] = 0;
         cache_size = new_size;

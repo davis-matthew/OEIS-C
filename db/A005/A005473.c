@@ -8,7 +8,8 @@
  *            form k^2 + 4 (deterministic Miller-Rabin test)
  * Range:     u8 n <= 6, u16 n <= 44, u32 n <= 4431, u64 n <= 4600,
  *            u128 n <= 4600, big any n
- * Helpers:   mr_isprime, mulmod_u64, powmod_u64
+ * Validated: standard, pass, 55 terms through n = 4330 (2026-11-03)
+ * Helpers:   is_prime_u64, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mr_isprime.h"
-#include "../utils/mulmod_u64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
 #include "../utils/powmod_u64.h"
 
 static uint64_t *kcache = NULL;
@@ -36,7 +37,7 @@ static void ensure_cache(idx_t n) {
     while (kcache_len < n) {
         uint64_t k = next_k;
         next_k += 2;
-        if (mr_isprime(k * k + 4)) kcache[kcache_len++] = k;
+        if (is_prime_u64(k * k + 4)) kcache[kcache_len++] = k;
     }
 }
 

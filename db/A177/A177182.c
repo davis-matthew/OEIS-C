@@ -11,12 +11,14 @@
  *            and l = -1, giving the above recurrence.)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         /* first call: ensure space for at least n+1 elements */
         size_t init_size = (size_t)n + 1;
         if (init_size < 2) init_size = 2;       /* we need at least a(0) and a(1) */
-        cache = (seq_t *)malloc(init_size * sizeof(seq_t));
+        cache = mem_new(seq_t, init_size);
         if (!cache) abort();
         /* base values */
         cache[0] = (seq_t)1;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     } else if (n + 1 > cache_size) {
         /* grow to accommodate index n */
         size_t newsize = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newsize);
         if (!tmp) abort();
         cache = tmp;
         /* compute missing terms from cache_size up to n */

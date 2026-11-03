@@ -9,7 +9,8 @@
  *            integer such that a(n-1)+a(n) contains the digit 7 (in decimal)
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Check if a value contains the digit 7 in base 10. */
 static inline bool has_seven(seq_t x)
@@ -37,7 +39,7 @@ static void ensure_seq_cap(idx_t need, seq_t **arr, size_t *cap)
     if ((size_t)need < *cap) return;
     size_t newcap = *cap ? *cap : 1;
     while ((size_t)need >= newcap) newcap <<= 1;
-    void *tmp = realloc(*arr, newcap * sizeof(seq_t));
+    void *tmp = mem_resize(seq_t, *arr, newcap);
     if (!tmp) abort();           /* out of memory */
     *arr = (seq_t*)tmp;
     *cap = newcap;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = least prime divisor of n*(n+11)/2
  * Range:     u8 n <= 502, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 116 terms through n = 9819 (2026-11-01)
  * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

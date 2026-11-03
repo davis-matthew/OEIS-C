@@ -11,7 +11,8 @@
  *            bound for the n‑th prime
  * Range:     u8 n <= 3, u16 n <= 13, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Cache for primes and their prefix sums */
 static uint64_t *prime_cache   = NULL;   /* array of primes */
@@ -77,7 +79,7 @@ static void ensure_primes(idx_t n)
 
     /* Allocate new arrays */
     uint64_t *new_primes = (uint64_t*)malloc(count * sizeof(uint64_t));
-    seq_t    *new_sums   = (seq_t*)malloc(count * sizeof(seq_t));
+    seq_t    *new_sums   = mem_new(seq_t, count);
     if (!new_primes || !new_sums) {
         free(is_composite);
         abort();
@@ -99,7 +101,7 @@ static void ensure_primes(idx_t n)
 
     /* Replace old caches with the new ones */
     free(prime_cache);
-    free(sum_prefix);
+    mem_free(sum_prefix);
     prime_cache   = new_primes;
     sum_prefix    = new_sums;
     prime_count   = count;

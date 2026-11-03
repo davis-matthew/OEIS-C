@@ -8,6 +8,7 @@
  * Formula:   a(0)=3, a(1)=8, a(2)=22; a(n)=3*a(n-1)+a(n-2)-4*a(n-3) for n>=3
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 19, u128 n <= 19,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

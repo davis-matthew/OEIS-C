@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   _gcd_idx, _lcm_idx
+ * Validated: full, pass, 56 terms through n = 56 (2026-11-02)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,15 @@
 /* Required includes for C/C++ dual compilation */
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/_gcd_idx.h"
-#include "../utils/_lcm_idx.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/gcd_idx.h"
+
+/* Helper: lcm of two idx_t values */
+static idx_t _lcm_idx(idx_t a, idx_t b)
+{
+    return a / gcd_idx(a, b) * b;
+}
 
 /* Helper: Euclidean gcd for idx_t */
 

@@ -13,7 +13,8 @@
  *            μ(t) * ⌊k/t⌋^m * μ(t) is the Möbius function. The func...
  * Range:     u8 n <= 7, u16 n <= 25, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   binomial, mu_of, pow_seq
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,31 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mu_of.h"          /* int mu_of(idx_t) */
-#include "../utils/binomial.h"       /* seq_t binomial(idx_t n, idx_t k) */
-#include "../utils/pow_seq.h"        /* seq_t pow_seq(seq_t base, int exp) */
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_i32.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 #define MAX_SZ 256  /* enough for n up to about 10^5 */
 
@@ -42,7 +65,7 @@ static seq_t get_M(int m, int k)
         if (mu == 0) continue;
 
         int div = k / t;
-        seq_t pow = pow_seq((seq_t)div, m);
+        seq_t pow = ipow_i32((seq_t)div, m);
         if (mu > 0) pos += pow;
         else        neg += pow;
     }
@@ -60,7 +83,7 @@ static seq_t get_T(int k, int d)
     seq_t sum = 0;
     for (int j = 1; j <= n; ++j) {
         seq_t bin = binomial((idx_t)n, (idx_t)j);
-        seq_t pow2 = pow_seq((seq_t)2, j);
+        seq_t pow2 = ipow_i32((seq_t)2, j);
         seq_t Mval = get_M(j, k);
         seq_t term = bin;
         term *= pow2;

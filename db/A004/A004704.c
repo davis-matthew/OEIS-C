@@ -8,13 +8,15 @@
  *            a(n-k), a(0) = 1
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 9, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 172 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;    /* A[0..len-1] computed terms */
 static seq_t *row = NULL;  /* Pascal row len-1: row[0..len-1] */
@@ -23,11 +25,11 @@ static seq_t pw[7];
 static idx_t len = 0, cap = 0;
 
 static seq_t *grow_copy(seq_t *old, idx_t oldlen, idx_t newcap) {
-    seq_t *p = (seq_t *)malloc((size_t)newcap * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (size_t)newcap);
     idx_t i;
     for (i = 0; i < newcap; i++) p[i] = 0;
     for (i = 0; i < oldlen; i++) p[i] = old[i];
-    if (old) free(old);
+    if (old) mem_free(old);
     return p;
 }
 

@@ -11,12 +11,14 @@
  *            described above
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 123 terms through n = 9792 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* array holding the current generated prefix */
 static idx_t cache_len = 0;       /* number of elements stored in cache */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 {
     /* initial cache for the single starting symbol 'a' (0) */
     if (cache_len == 0) {
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0;           /* fallback on allocation failure */
         cache[0] = 0;
         cache_len = 1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         }
 
         /* allocate space for the expanded sequence */
-        seq_t *new_cache = (seq_t*)malloc(sizeof(seq_t) * new_len);
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache) return (seq_t)0;  /* allocation failure */
 
         /* perform the expansion */
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         }
 
         /* replace old cache with the new one */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len = new_len;
     }

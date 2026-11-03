@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 9032, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_zeros_ones
+ * Validated: standard, pass, 70 terms through n = 9668 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
    number of 0's and 1's; computed by brute‑force search with memoization. */
 
 #include <stdlib.h>
-#include "../utils/count_zeros_ones.h"
+#include "../utils/mem.h"
+
+/* Count the digits 0 and 1 in the base‑9 representation of x. */
+static void count_zeros_ones(idx_t x, idx_t *cnt0, idx_t *cnt1)
+{
+    *cnt0 = *cnt1 = 0;
+    while (x > 0) {
+        idx_t d = x % 9;
+        if (d == 0) ++(*cnt0);
+        else if (d == 1) ++(*cnt1);
+        x /= 9;
+    }
+}
 
 static seq_t *seq = NULL;          /* stored terms */
 static size_t seq_cap = 0;         /* allocation capacity */
@@ -30,7 +43,7 @@ static void ensure_capacity(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     seq = tmp;
     seq_cap = new_cap;

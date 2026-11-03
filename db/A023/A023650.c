@@ -8,14 +8,16 @@
  *            is the k-th composite number (4,6,8,9,10,…) and odd(m) = 2*m-1
  * Range:     u8 n <= 6, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /*--------------------------------------------------------------------
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
                                      : comps[comps_sz - 1] + 1;
         /* skip to next composite */
         while (true) {
-            if (cand >= (seq_t)4 && !is_prime_small(cand))
+            if (cand >= (seq_t)4 && !is_prime_seq(cand))
                 break;
             cand++;
         }
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
         /* grow buffer if needed */
         if (comps_sz == comps_cap) {
             size_t new_cap = comps_cap == 0 ? 16 : comps_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(comps, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, comps, new_cap);
             if (!tmp) { /* allocation failure – terminate */ abort(); }
             comps = tmp;
             comps_cap = new_cap;
@@ -70,7 +72,7 @@ seq_t a(idx_t n) {
         /* grow cache buffer if needed */
         if (cache_sz == cache_cap) {
             size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) { /* allocation failure – terminate */ abort(); }
             cache = tmp;
             cache_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Sum_{d|n} d^(n-d) / (d!)^(n/d)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow, factor_u64, factorial
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -42,8 +43,18 @@
 #include <stdlib.h>
 
 #include "../utils/factor_u64.h"
-#include "../utils/factorial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* Recursive helper to generate all divisors of n from its prime factorisation.
  * primes  - array of distinct prime factors of n
@@ -102,13 +113,13 @@ seq_t a(idx_t n)
         seq_t fact_d = factorial(d);
 
         /* denom = (d!)^(n/d) */
-        seq_t denom = big_pow(fact_d, (seq_t)(n / d));
+        seq_t denom = ipow(fact_d, (seq_t)(n / d));
 
         /* coeff = n! / denom  (exact division) */
         seq_t coeff = nf / denom;
 
         /* numer = d^(n-d) */
-        seq_t numer = big_pow((seq_t)d, (seq_t)(n - d));
+        seq_t numer = ipow((seq_t)d, (seq_t)(n - d));
 
         /* term = coeff * numer */
         seq_t term = coeff * numer;

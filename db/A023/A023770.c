@@ -9,13 +9,15 @@
  *            function enumerates the sequence combinatorially
  * Range:     u8 n <= 137, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 78 terms through n = 865 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     unsigned int m = 1;
     seq_t cum = (seq_t)0;      /* cumulative count of lengths < m */
     for (;;) {
-        seq_t count_m = binom((idx_t)(m + 14), (idx_t)14) - (seq_t)1;
+        seq_t count_m = binomial((idx_t)(m + 14), (idx_t)14) - (seq_t)1;
         if (cum + count_m > target) {
             break;
         }
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         unsigned int digit;
 
         for (digit = min_digit; digit <= max_digit; ++digit) {
-            seq_t cnt = binom((idx_t)(remaining - 1 + digit), (idx_t)digit);
+            seq_t cnt = binomial((idx_t)(remaining - 1 + digit), (idx_t)digit);
             if (k < cnt) {
                 /* Select this digit. */
                 value = value * (seq_t)15 + (seq_t)digit;

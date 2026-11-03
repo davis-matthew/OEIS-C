@@ -8,7 +8,8 @@
  *            a(n-4k-1) (n ≥ 1)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 17, u64 n <= 28, u128 n <= 46,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 41 terms through n = 484 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t, idx_t) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Optional: include <stdbool.h> if needed elsewhere but not used here. */
 
@@ -35,7 +37,7 @@ static void ensure_capacity(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();   /* Allocation failure */
 

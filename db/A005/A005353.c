@@ -9,14 +9,40 @@
  *            matrices mod n with zero determinant
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 256, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   sum_gcd_divisor_sum
+ * Validated: standard, pass, 50 terms through n = 980 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sum_gcd_divisor_sum.h"
+
+static uint64_t sum_gcd_divisor_sum(uint64_t g) {
+  uint64_t result = 1;
+  uint64_t temp = g;
+  
+  for (uint64_t p = 2; p * p <= temp; p++) {
+    if (temp % p == 0) {
+      uint64_t a = 0;
+      while (temp % p == 0) {
+        a++;
+        temp /= p;
+      }
+      uint64_t p_pow = 1;
+      for (uint64_t i = 0; i < a - 1; i++) p_pow *= p;
+      uint64_t factor = p_pow * (a * p - a + p);
+      result *= factor;
+    }
+  }
+  
+  if (temp > 1) {
+    uint64_t p = temp;
+    result *= (2 * p - 1);
+  }
+  
+  return result;
+}
 
 static uint64_t phi(uint64_t n) {
   uint64_t result = n;

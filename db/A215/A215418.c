@@ -8,6 +8,7 @@
  * Formula:   a(1)=1, a(2)=-1, a(3)=9, a(4)=16, a(n)=3 for n>=5
  * Range:     i8 n <= 66, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

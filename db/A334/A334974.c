@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 1741, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 71 terms through n = 9955 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 /* Static cache of discovered sequence terms. */
 static seq_t *cache = NULL;
@@ -41,7 +43,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed)
         new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -85,7 +87,7 @@ static bool is_inf_admirable(uint64_t k)
         int      e = exps[i];
         for (int j = 0; e >> j; ++j) {
             if (e & (1 << j)) {
-                seq_t term = (seq_t)1 + pow_uint(p, 1ULL << j);
+                seq_t term = (seq_t)1 + ipow_u64_idx(p, 1ULL << j);
                 isigma *= term;
             }
         }

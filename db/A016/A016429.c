@@ -11,7 +11,8 @@
  *            μ(1785/d)=−1, and keeping the remaining factors with μ=+...
  * Range:     i8 n <= 768, i16 n <= 768, i32 n <= 768, i64 n <= 768,
  *            i128 n <= 768, big any n
- * Helpers:   multiply_by_factor
+ * Validated: full, pass, 769 terms through n = 768 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/multiply_by_factor.h"
+#include "../utils/mem.h"
+
+/* Multiply a polynomial poly[0..len-1] by (x^d – 1).
+   Result has length len+d and is returned in newly allocated memory.  */
+static seq_t *multiply_by_factor(const seq_t *poly, size_t len, uint64_t d)
+{
+    size_t new_len = len + (size_t)d;
+    seq_t *res = mem_new(seq_t, new_len);
+    for (size_t i = 0; i < len; ++i) {
+        seq_t val = poly[i];
+        res[i]       -= val;                 /* minus 1 * x^0 */
+        res[i + d]   += val;                 /* plus 1 * x^d */
+    }
+    return res;
+}
 
 /* Return Möbius μ(m) for 1≤m≤1785.  */
 static int mobius_small(uint64_t m)
@@ -44,7 +59,7 @@ static void poly_divide(const seq_t *num, size_t num_len,
 {
     size_t deg_num = num_len - 1;
     size_t deg_den = den_len - 1;
-    seq_t *rem = (seq_t*)malloc(num_len * sizeof(seq_t));
+    seq_t *rem = mem_new(seq_t, num_len);
     for (size_t i = 0; i < num_len; ++i) rem[i] = num[i];
 
     for (int i = (int)deg_num; i >= (int)deg_den; --i) {
@@ -56,7 +71,7 @@ static void poly_divide(const seq_t *num, size_t num_len,
             rem[shift + j] -= coeff * den[j];
         }
     }
-    free(rem);
+    mem_free(rem);
 }
 
 /* Cached coefficients of Φ1785(x).  */
@@ -83,23 +98,23 @@ seq_t a(idx_t n)
         }
 
         /* Build numerator polynomial = Π (x^d – 1) for μ = +1 */
-        seq_t *num = (seq_t*)calloc(1, sizeof(seq_t));   /* polynomial 1 */
+        seq_t *num = mem_new(seq_t, 1);   /* polynomial 1 */
         num[0] = 1;
         size_t num_len = 1;
         for (size_t i = 0; i < poscnt; ++i) {
             seq_t *tmp = multiply_by_factor(num, num_len, pos_d[i]);
-            free(num);
+            mem_free(num);
             num      = tmp;
             num_len += (size_t)pos_d[i];
         }
 
         /* Build denominator polynomial = Π (x^d – 1) for μ = –1 */
-        seq_t *den = (seq_t*)calloc(1, sizeof(seq_t));   /* polynomial 1 */
+        seq_t *den = mem_new(seq_t, 1);   /* polynomial 1 */
         den[0] = 1;
         size_t den_len = 1;
         for (size_t i = 0; i < negcnt; ++i) {
             seq_t *tmp = multiply_by_factor(den, den_len, neg_d[i]);
-            free(den);
+            mem_free(den);
             den      = tmp;
             den_len += (size_t)neg_d[i];
         }
@@ -108,11 +123,11 @@ seq_t a(idx_t n)
         size_t deg_num = num_len - 1;
         size_t deg_den = den_len - 1;
         coeff_len = deg_num - deg_den + 1;        /* φ(1785) = 769 */
-        coeffs = (seq_t*)calloc(coeff_len, sizeof(seq_t));
+        coeffs = mem_new(seq_t, coeff_len);
         poly_divide(num, num_len, den, den_len, coeffs);
 
-        free(num);
-        free(den);
+        mem_free(num);
+        mem_free(den);
     }
 
     if ((idx_t)n >= coeff_len) return 0;

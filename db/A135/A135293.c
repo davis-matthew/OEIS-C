@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 76, u32 n <= 251, u64 n <= 901,
  *            u128 n <= 1274, big any n
- * Helpers:   pow3
+ * Validated: standard, pass, 71 terms through n = 1210 (2026-11-03)
+ * Helpers:   mem, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,9 @@
  */
 
 #include <stdlib.h>
-#include "../utils/pow3.h"          /* seq_t pow3(idx_t); */
+#include <stdint.h>
+#include "../utils/pow3.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
 
     /* begin with row 1: 2 2 */
     size_t cur_len = 2;
-    seq_t *cur = (seq_t *)malloc(cur_len * sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, cur_len);
     cur[0] = (seq_t)2;
     cur[1] = (seq_t)2;
 
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
      * preceding row (r ≥ 1).  The recurrence works for all such rows. */
     while (offset + (idx_t)cur_len <= n) {
         size_t old_len = cur_len;
-        seq_t *next = (seq_t *)malloc((old_len + 1) * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, (old_len + 1));
 
         /* compute sum of previous row */
         seq_t sum_cur = cur[0];
@@ -67,7 +70,7 @@ seq_t a(idx_t n)
         /* last element of new row */
         next[old_len] = sum_cur + cur[old_len - 1];
 
-        free(cur);
+        mem_free(cur);
         cur = next;
         cur_len = old_len + 1;
         offset += old_len;            /* next row starts here */
@@ -82,6 +85,6 @@ seq_t a(idx_t n)
     else
         result = (seq_t)2 * pow3(col - 1); /* 2 * 3^{col-1} */
 
-    free(cur);
+    mem_free(cur);
     return result;
 }

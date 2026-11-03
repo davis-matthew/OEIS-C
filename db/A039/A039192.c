@@ -9,14 +9,27 @@
  *            4's and 8's
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   same4and8
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/same4and8.h"
+#include "../utils/mem.h"
+
+static bool same4and8(seq_t x) {
+    long long c4 = 0, c8 = 0;
+    seq_t y = x;
+    while (y > 0) {
+        int d = (int)(y % 11);
+        if (d == 4) ++c4;
+        else if (d == 8) ++c8;
+        y /= 11;
+    }
+    return c4 == c8;
+}
 
 static seq_t *cache = NULL;
 static size_t cap  = 0;
@@ -30,7 +43,7 @@ seq_t a(idx_t n) {
         if (same4and8(candidate)) {
             if (len == cap) {
                 size_t new_cap = cap == 0 ? 16 : cap * 2;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (!new_cache) exit(EXIT_FAILURE); /* out of memory */
                 cache = new_cache;
                 cap = new_cap;

@@ -13,7 +13,8 @@
  *            parts in all compositions of n. Then F[0] = 1, A[0]...
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 31, u64 n <= 64, u128 n <= 132,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: standard, pass, 49 terms through n = 1987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,18 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* External type definitions (supplied by the build system) */
 extern seq_t *alloc_seq_array(size_t n);

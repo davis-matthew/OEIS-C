@@ -9,7 +9,8 @@
  *            prime factors of n (excluding the empty subset)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_subset
+ * Validated: standard, pass, 104 terms through n = 8651 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,17 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/cmp_subset.h"
+#include "../utils/mem.h"
+
+/* Comparator for qsort – does not conflict with any provided helper. */
+static int cmp_subset(const void *a, const void *b)
+{
+    seq_t v1 = *(const seq_t *)a;
+    seq_t v2 = *(const seq_t *)b;
+    if (v1 < v2) return -1;
+    if (v1 > v2) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -65,7 +76,7 @@ seq_t a(idx_t n)
     }
 
     /* Sort sums to collapse duplicates. */
-    qsort(sums, scnt, sizeof(seq_t), cmp_subset);
+    mem_qsort(sums, scnt, sizeof(seq_t), cmp_subset);
 
     /* Count distinct values. */
     seq_t count = 0;

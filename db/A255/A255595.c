@@ -7,13 +7,15 @@
  * Formula:   a(0) = 2; a(n) = a(n-1)^2 - a(n-1) + 1 (mod 109)
  * Range:     u8 n <= 3, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,9 +31,9 @@ seq_t a(idx_t n)
         seq_t *tmp;
 
         if (!cache)
-            tmp = (seq_t *)malloc(new_size * sizeof(seq_t));
+            tmp = mem_new(seq_t, new_size);
         else
-            tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+            tmp = mem_resize(seq_t, cache, new_size);
 
         if (!tmp)                /* allocation failed */
             exit(1);

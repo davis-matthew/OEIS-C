@@ -8,10 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 /* Computation of A295050 via column‑by‑column DP over all feasible
    7‑row binary column patterns.  The transition graph is built once
@@ -107,12 +110,12 @@ seq_t a(idx_t n)
 
     /* Allocate DP arrays; use calloc so they start zeroed (works for
        both integer and big‑int seq_t). */
-    seq_t *curr = (seq_t *)calloc(state_cnt, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(state_cnt, sizeof(seq_t));
+    seq_t *curr = mem_new(seq_t, state_cnt);
+    seq_t *next = mem_new(seq_t, state_cnt);
     curr[0] = 1;                    /* start from the empty left border */
 
     for (idx_t col = 1; col <= n; ++col) {
-        memset(next, 0, state_cnt * sizeof(seq_t));
+        mem_set(next, 0, state_cnt * sizeof(seq_t));
         for (int s = 0; s < state_cnt; ++s) {
             seq_t val = curr[s];
             if (val == 0) continue;
@@ -131,7 +134,7 @@ seq_t a(idx_t n)
         if (state_req[s] == 0) result += curr[s];
     }
 
-    free(curr);
-    free(next);
+    mem_free(curr);
+    mem_free(next);
     return result;
 }

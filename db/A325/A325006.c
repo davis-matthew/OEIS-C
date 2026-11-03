@@ -11,14 +11,16 @@
  *            A(n,k)=binom(binomial(k,2),n) along descending antidiagonals:
  *            find the smallest d such that (d-1)d/2 ≥ n, let offset = n -
  *            (d-2)(d-1)/2 - 1, then n = offset + 1 and k = d - offset - 1
- * Range:     u8 n <= 23, u16 n <= 58, u32 n <= 161, u64 n <= 325,
+ * Range:     u8 n <= 30, u16 n <= 70, u32 n <= 178, u64 n <= 325,
  *            u128 n <= 325, big any n
+ * Validated: standard, pass, 94 terms through n = 291 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

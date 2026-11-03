@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 282, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_generic
+ * Validated: standard, pass, 60 terms through n = 972 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/is_prime_generic.h"   /* provides bool is_prime_generic(idx_t) */
+#include <stdint.h>
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,14 +38,14 @@ seq_t a(idx_t n)
     {
         idx_t cand = next_candidate;
         /* Skip until we hit the next prime ≡ 2 (mod 35). */
-        while (!is_prime_generic(cand))
+        while (!is_prime(cand))
             cand += 35;                     /* same residue class */
 
         /* Expand the storage if necessary. */
         if (len == cap)
         {
             size_t new_cap = (cap == 0) ? 4 : cap << 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp)             /* allocation failed – give up */
                 return (seq_t)0;
             cache = tmp;

@@ -9,7 +9,8 @@
  *            primes congruent to 3 (mod 4)
  * Range:     u8 n <= 64, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, isPrimeGeneric
+ * Validated: standard, pass, 96 terms through n = 9706 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime_u128, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,31 @@
 #include <stdlib.h>
 
 /* Utility functions from the common library */
-#include "../utils/isPrimeGeneric.h"
+#include <stddef.h>
+#include <limits.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 /*
  * Compute a(n).  The function works for any integer type seq_t and

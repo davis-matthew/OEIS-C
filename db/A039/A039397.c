@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The tests provide get_digits in utils, but we implement digit counting
    directly to avoid any external dependency. */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         if (zeros > 0 && zeros == fives) {
             if (size == cap) {
                 cap = cap ? cap * 2 : 32;     /* grow cache if needed */
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
                 if (!cache) abort();          /* allocation failed */
             }
             cache[size++] = (seq_t)cand;       /* store the valid term   */

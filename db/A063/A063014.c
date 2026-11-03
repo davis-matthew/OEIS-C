@@ -9,13 +9,15 @@
  *            with non‑decreasing coordinates
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 119 terms through n = 8648 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root for 64‑bit values, implemented without extra
    helpers to avoid overflow. */
@@ -69,7 +71,7 @@ static void ensure_cache(idx_t n)
     while (cap < needed) cap <<= 1;
 
     if (cap > cache_len) {
-        a_cache = (seq_t *)realloc(a_cache, cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, cap);
     }
 
     for (idx_t i = cache_len; i <= n; ++i) {

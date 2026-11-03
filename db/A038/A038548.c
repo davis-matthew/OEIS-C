@@ -7,6 +7,7 @@
  * Formula:   a(n) = ceil(d(n)/2) where d(n) = number of divisors of n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 121 terms through n = 9984 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,9 @@
    of divisors ≤ sqrt(n).  It works for any idx_t ≥ 1. */
 
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* provides factor_u64 */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)
 {

@@ -10,7 +10,8 @@
  *            functions is_prime(idx_t) and mod_pow(seq_t, uint64_t, seq_t)
  * Range:     u8 n <= 44, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 73 terms through n = 988 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Euclidean GCD for 64‑bit unsigned integers. */
 static inline idx_t gcd_u64(idx_t a, idx_t b) {
@@ -37,7 +40,7 @@ static inline void grow_primes(size_t needed, seq_t **arr, size_t *cap) {
     if (*cap < needed) {
         size_t new_cap = (*cap == 0) ? 16 : (*cap) * 2;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) abort();            /* out of memory */
         *arr = tmp;
         *cap = new_cap;
@@ -58,7 +61,7 @@ seq_t a(idx_t n) {
         if (is_prime(candidate)) {
             idx_t g   = gcd_u64(60, candidate - 1);
             idx_t exp = (candidate - 1) / g;
-            seq_t res = mod_pow((seq_t)2, exp, (seq_t)candidate);
+            seq_t res = powmod((seq_t)2, exp, (seq_t)candidate);
             if (res != (seq_t)1) {
                 grow_primes(primes_cnt + 1, &primes, &primes_cap);
                 primes[primes_cnt++] = (seq_t)candidate;

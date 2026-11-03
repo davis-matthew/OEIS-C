@@ -11,7 +11,8 @@
  *            classes (signed cycle types), a(-1) = 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   ms_gcd
+ * Validated: standard, pass, 12 terms through n = 10 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/ms_gcd.h"
+#include "../utils/gcd_u64.h"
 
 #define MS_CAP 4096
 
@@ -46,7 +47,7 @@ static void ms_mul(const ms_t *x, const ms_t *y, ms_t *out) {
   out->sz = 0;
   for (int i = 0; i < x->sz; i++)
     for (int j = 0; j < y->sz; j++) {
-      uint64_t g = ms_gcd(x->len[i], y->len[j]);
+      uint64_t g = gcd_u64(x->len[i], y->len[j]);
       ms_add(out, x->len[i] / g * y->len[j], x->cnt[i] * y->cnt[j] * g);
     }
 }

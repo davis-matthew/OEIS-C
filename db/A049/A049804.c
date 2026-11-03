@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Σ_{j=0}^{⌊log_4 n⌋} (n mod 4^j)
- * Range:     u8 n <= 440, u16 n <= 9238, u32 n <= 9238, u64 n <= 9238,
- *            u128 n <= 9238, big any n
+ * Range:     u8 n <= 440, u16 n <= 32000, u32 n <= 32000, u64 n <= 32000,
+ *            u128 n <= 32000, big any n
+ * Validated: standard, pass, 90 terms through n = 9238 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,13 +9,23 @@
  *            / k!
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   factorial_impl
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/factorial_impl.h"
+
+/* Compute n! as a seq_t. */
+static seq_t factorial_impl(idx_t n)
+{
+    if (n == 0) return (seq_t)1;
+    seq_t res = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        res = res * (seq_t)i;   /* multiplication may wrap for very small types */
+    return res;
+}
 
 /* Compute binomial coefficient C(n,k) as a seq_t using multiplicative formula.
    Assumes 0 <= k <= n. */

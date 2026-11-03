@@ -9,6 +9,7 @@
  * Formula:   a(1)=0, a(2)=1, a(n)=n*(n-1)*(n^2+n+36)*2^(n-8)/3 for n>=3
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 23, u64 n <= 50, u128 n <= 110,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 444 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

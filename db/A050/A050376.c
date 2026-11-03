@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 6604, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 77 terms through n = 9390 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"  /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t val;
@@ -33,13 +35,13 @@ static size_t cache_size = 0, cache_cap = 0;
 /* ---------- Min‑heap operations ---------- */
 static void heap_init(void) {
     heap_cap = 64;
-    heap = (HeapNode *)malloc(heap_cap * sizeof(HeapNode));
+    heap = mem_new(HeapNode, heap_cap);
     heap_size = 0;
 }
 
 static void heap_resize(void) {
     heap_cap *= 2;
-    heap = (HeapNode *)realloc(heap, heap_cap * sizeof(HeapNode));
+    heap = mem_resize(HeapNode, heap, heap_cap);
 }
 
 static void heap_push(seq_t value) {
@@ -88,13 +90,13 @@ static void ensure_cache(size_t n) {
     if (cache_size >= n) return;
     if (!cache) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     while (cache_size + (cache_cap - cache_size) < n) {
         cache_cap *= 2;
     }
     if (cache_cap > cache_size) {
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     while (cache_size < n) {

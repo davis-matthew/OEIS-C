@@ -6,8 +6,9 @@
  * Keywords:  nonn, cofr, easy
  * Formula:   a(0) = 0, a(1) = 8; for n >= 2: if n is even then a(n) = 1 if n
  *            is odd then a(n) = 9*n - 2
- * Range:     u8 n <= 28, u16 n <= 7282, u32 n <= 9458, u64 n <= 9458,
- *            u128 n <= 9458, big any n
+ * Range:     u8 n <= 28, u16 n <= 7282, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 90 terms through n = 9458 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

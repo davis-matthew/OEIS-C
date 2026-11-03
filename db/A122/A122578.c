@@ -9,13 +9,15 @@
  *            a(n) = a(n-1) - (n-2)*a(n-2) if n is odd
  * Range:     i8 n <= 11, i16 n <= 19, i32 n <= 33, i64 n <= 38, i128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;           /* memoisation array */
 static idx_t  cached_n = 0;           /* highest index computed */
@@ -30,7 +32,7 @@ ensure_capacity(idx_t n)
     if (needed <= cache_cap)
         return;                      /* already large enough */
 
-    seq_t *new_arr = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, needed);
     if (!new_arr)
         abort();                     /* out of memory */
 

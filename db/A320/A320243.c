@@ -12,13 +12,15 @@
  *            0, ±1, ±2, … The result contains the counts * for every...
  * Range:     u8 n <= 4, u16 n <= 30, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* cached distribution of weighted sums */
 static seq_t *dp = NULL;
@@ -30,7 +32,7 @@ static void compute_dp(idx_t n)
 {
     idx_t max_sum = 3 * n;
     /* allocate new array */
-    seq_t *new_dp = (seq_t*)calloc((size_t)(max_sum + 1), sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, (size_t)(max_sum + 1));
     if (!new_dp) abort();
     new_dp[0] = (seq_t)1;           /* zero sum – one empty solution */
 
@@ -38,8 +40,8 @@ static void compute_dp(idx_t n)
     for (idx_t k = 1; k <= 8; ++k)
     {
         /* temporary array for the convolution */
-        seq_t *tmp = (seq_t*)calloc((size_t)(max_sum + 1), sizeof(seq_t));
-        if (!tmp) { free(new_dp); abort(); }
+        seq_t *tmp = mem_new(seq_t, (size_t)(max_sum + 1));
+        if (!tmp) { mem_free(new_dp); abort(); }
 
         /* perform the convolution */
         for (idx_t s = 0; s <= max_sum; ++s)
@@ -60,12 +62,12 @@ static void compute_dp(idx_t n)
             }
         }
 
-        free(new_dp);
+        mem_free(new_dp);
         new_dp = tmp;
     }
 
     /* store the result */
-    free(dp);
+    mem_free(dp);
     dp       = new_dp;
     dp_max_sum = max_sum;
 }

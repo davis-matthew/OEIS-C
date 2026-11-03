@@ -11,12 +11,14 @@
  *            2*p(n)*q(n) + 2*q(n)
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 8, u64 n <= 9, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *p_arr = NULL;
 static seq_t *q_arr = NULL;
@@ -37,8 +39,8 @@ seq_t a(idx_t n)
     /* Lazy initialization of p/q arrays for n >= 5 */
     if (p_max < 5) {
         /* Allocate space for indices 0..5 */
-        p_arr = (seq_t*)malloc(6 * sizeof(seq_t));
-        q_arr = (seq_t*)malloc(6 * sizeof(seq_t));
+        p_arr = mem_new(seq_t, 6);
+        q_arr = mem_new(seq_t, 6);
         if (!p_arr || !q_arr) abort();
 
         /* Base values for recurrence */
@@ -50,10 +52,10 @@ seq_t a(idx_t n)
     /* Extend the arrays up to the requested n */
     if (n > p_max) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t*)realloc(p_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, p_arr, new_cap);
         if (!tmp) abort();
         p_arr = tmp;
-        tmp = (seq_t*)realloc(q_arr, new_cap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, q_arr, new_cap);
         if (!tmp) abort();
         q_arr = tmp;
 

@@ -8,13 +8,35 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 125, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   largest_prime_factor
+ * Validated: standard, pass, 75 terms through n = 970 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/largest_prime_factor.h"
+
+static seq_t largest_prime_factor(seq_t n) {
+    seq_t largest = 0;
+    
+    while (n % 2 == 0) {
+        largest = 2;
+        n /= 2;
+    }
+    
+    for (seq_t i = 3; i * i <= n; i += 2) {
+        while (n % i == 0) {
+            largest = i;
+            n /= i;
+        }
+    }
+    
+    if (n > 1) {
+        largest = n;
+    }
+    
+    return largest;
+}
 
 /* Numbers k: largest prime factor of k^2 + 1 < 2*k */
 

@@ -7,15 +7,32 @@
  * Formula:   a(n) = the least Fibonacci number >= 2^n
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   pow2, seq_free, seq_realloc
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow2.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/seq_free.h"
+#include "../utils/mem.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 static seq_t *fib_cache = NULL;  /* array of Fibonacci numbers */
 static size_t fib_len  = 0;      /* number of elements stored (next free index) */

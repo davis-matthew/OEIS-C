@@ -8,12 +8,14 @@
  *            binomial(3*k,k) / (2*k+1)
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 24, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -27,10 +29,10 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= maxk; ++k) {
         /* C(n-1, n-3k) = binom(n-1, n-3k) */
-        seq_t term1 = binom(n - 1, n - 3 * k);
+        seq_t term1 = binomial(n - 1, n - 3 * k);
 
         /* C(3k, k)                     */
-        seq_t term2 = binom(3 * k, k);
+        seq_t term2 = binomial(3 * k, k);
 
         seq_t denom = (seq_t)(2 * k + 1);
 

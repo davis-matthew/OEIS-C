@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = (1/(n+1)) * Σ_{k=0}^{n} binom(4*k-3*n-1 , n-k) * *
  *            binom(n+1 , 5*k-4*n)
- * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 29, u64 n <= 53, u128 n <= 100,
+ * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 29, u64 n <= 53, u128 n <= 100,
  *            big any n
- * Helpers:   binom, gcd
+ * Validated: standard, pass, 50 terms through n = 997 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
  * divisor (n+1) term‑wise.  This keeps intermediate values bounded
  * and works correctly for all supplied seq_t types. */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)
@@ -42,11 +44,11 @@ seq_t a(idx_t n)
         if (bottom1 > top1)   /* binom would be zero */
             continue;
 
-        seq_t b1 = binom(top1, bottom1);
+        seq_t b1 = binomial(top1, bottom1);
 
         /*----- second binomial: binom(n+1 , 5*k-4*n) -----*/
         idx_t bottom2 = 5*k - 4*n;            /* always >= 0 for k >= kmin */
-        seq_t b2 = binom(n + 1, bottom2);
+        seq_t b2 = binomial(n + 1, bottom2);
 
         /* Cancel the common divisor (n+1) before forming the product.
          * After this cancellation each term equals

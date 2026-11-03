@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 37, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,10 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Cached sequence values (1‑based indexing). */
 static seq_t *cache = NULL;
@@ -32,7 +36,7 @@ static void ensure_cache_cap(size_t need)
     size_t new_cap = cache_cap ? cache_cap << 1 : 8;
     while (new_cap < need) new_cap <<= 1;
 
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     if (!new_arr) exit(1);            /* OOM – terminate */
     cache = new_arr;
     cache_cap = new_cap;
@@ -55,8 +59,8 @@ seq_t a(idx_t n)
         idx_t k = next_k++;
         seq_t modk = (seq_t)k;
 
-        seq_t pow8 = mod_pow((seq_t)8, k, modk);
-        seq_t pow6 = mod_pow((seq_t)6, k, modk);
+        seq_t pow8 = powmod((seq_t)8, k, modk);
+        seq_t pow6 = powmod((seq_t)6, k, modk);
 
         seq_t sum = pow8 + pow6;
         if (sum >= modk) sum -= modk;

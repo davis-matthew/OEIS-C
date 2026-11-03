@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 30, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   pow_uint, seq_mul
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/seq_mul.h"
-#include "../utils/pow_uint.h"
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* ------------------------------------------------------------------ */
 /* Table of small primes – sufficient for the search range used.       */
@@ -69,7 +77,7 @@ static void dfs(int idx, int last_exp,
         seq_t fNew  = newP - sub;
         if (fNew > (seq_t)limit) break;          /* larger e → larger fNew */
 
-        seq_t pow_e = pow_uint(primes[idx], e);
+        seq_t pow_e = ipow_u64_idx(primes[idx], e);
         seq_t newK  = seq_mul(cur_k, pow_e);
 
         dfs(idx + 1, e, newK, newP, newS, newt, limit);
@@ -81,7 +89,7 @@ static void dfs(int idx, int last_exp,
 static void precompute(idx_t limit)
 {
     /* Allocate array big enough for indices 0…limit.                 */
-    best_vals = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    best_vals = mem_new(seq_t, (limit + 1));
     if (!best_vals) abort();
     for (idx_t i = 0; i <= limit; ++i) best_vals[i] = (seq_t)0;
 
@@ -98,7 +106,7 @@ static void precompute(idx_t limit)
         seq_t fNew = P - sub;
         if (fNew > (seq_t)limit) break;
 
-        seq_t K    = pow_uint(primes[0], e);
+        seq_t K    = ipow_u64_idx(primes[0], e);
         dfs(1, e, K, P, S, t, limit);
     }
 

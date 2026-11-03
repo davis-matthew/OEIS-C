@@ -7,7 +7,8 @@
  * Formula:   a(1) = 1; a(n+1) = Sum_{d|n, n/d odd} a(d)
  * Range:     u8 n <= 57, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;      /* dynamic array of known a(n) values      */
 static size_t  cache_size = 0;     /* current allocated size (indices 0..size-1) */
@@ -24,12 +26,12 @@ static idx_t   last_computed = 1;  /* index of the last a(n) that has been compu
 static void ensure_cache_size(idx_t n) {
     if (cache_size <= (size_t)n) {
         size_t new_size = (size_t)n + 1;          /* need indices 0..n      */
-        seq_t *tmp = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_size);
         /* copy old data */
         for (size_t i = 0; i < cache_size; ++i) tmp[i] = a_cache[i];
         /* initialize new slots to 0 */
         for (size_t i = cache_size; i < new_size; ++i) tmp[i] = 0;
-        free(a_cache);
+        mem_free(a_cache);
         a_cache = tmp;
         cache_size = new_size;
     }
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
     /* Initialize the cache on first use. */
     if (a_cache == NULL) {
         cache_size = 2;                    /* indices 0 and 1 */
-        a_cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        a_cache = mem_new(seq_t, cache_size);
         a_cache[0] = 0;
         a_cache[1] = 1;                    /* a(1) = 1 */
         last_computed = 1;

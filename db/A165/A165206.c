@@ -7,6 +7,7 @@
  * Formula:   a(n) = (3-4*n)*F(2*n-2) + (4-7*n)*F(2*n-1)
  * Range:     i8 n <= 3, i16 n <= 7, i32 n <= 18, i64 n <= 40, i128 n <= 85,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 968 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

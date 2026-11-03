@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9524 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ----------  data structures  ---------- */
 typedef struct {
@@ -59,7 +61,7 @@ static void ensure_semis_cap(size_t needed)
     if (semis_cap >= needed) return;
     size_t new_cap = semis_cap ? semis_cap * 2 : 16;
     if (new_cap < needed) new_cap = needed;
-    Semi *tmp = (Semi *)realloc(semis, new_cap * sizeof(Semi));
+    Semi *tmp = mem_resize(Semi, semis, new_cap);
     if (!tmp) abort();
     semis = tmp;
     semis_cap = new_cap;
@@ -144,7 +146,7 @@ static void generate_up_to(uint64_t needed)
             }
         }
 
-        qsort(semis, semis_cnt, sizeof(Semi), cmp_semis);
+        mem_qsort(semis, semis_cnt, sizeof(Semi), cmp_semis);
 
         if (semis_cnt >= needed) break;
         upper *= 2;   /* not enough; double the search bound */

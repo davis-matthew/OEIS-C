@@ -7,12 +7,14 @@
  * Formula:   a(n) = numerator of (1 - (n^2 - n + 2)/2^n)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-02)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;               /* safe guard, although n ≥ 1 by spec */
@@ -21,7 +23,7 @@ seq_t a(idx_t n) {
     seq_t A = (seq_t)n * (seq_t)n - (seq_t)n + (seq_t)2;
 
     /* p = 2^n */
-    seq_t p = pow_seq((seq_t)2, (int)n);
+    seq_t p = ipow_i32((seq_t)2, (int)n);
 
     /* numerator = 2^n - A */
     seq_t num = p - A;

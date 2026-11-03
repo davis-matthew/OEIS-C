@@ -8,7 +8,8 @@
  * Formula:   a(n) = least semiprime divisor of rev(n) (or 0 if none)
  * Range:     u8 n <= 102, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   rev
+ * Validated: standard, pass, 94 terms through n = 9546 (2026-11-01)
+ * Helpers:   reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,12 +17,12 @@
 /* Implementation uses trial‑division factorization of rev(n) */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/rev.h"
+#include "../utils/reverse_digits_idx.h"
 
 seq_t a(idx_t n)
 {
     /* reverse the decimal representation of n */
-    idx_t rev_n = rev(n);
+    idx_t rev_n = reverse_digits_idx(n);
     if (rev_n <= 1) return 0;          /* no non‑trivial divisor */
 
     uint64_t m = (uint64_t)rev_n;      /* work in native uint64_t */

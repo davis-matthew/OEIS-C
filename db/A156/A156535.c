@@ -12,7 +12,8 @@
  *            by rows, with offset 1
  * Range:     i8 n <= 18, i16 n <= 26, i32 n <= 51, i64 n <= 88, i128 n <= 166,
  *            big any n
- * Helpers:   seq_alloc_array
+ * Validated: standard, pass, 71 terms through n = 1194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,14 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_alloc_array.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {

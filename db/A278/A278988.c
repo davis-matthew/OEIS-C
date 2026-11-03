@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 21, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * remembers computed values so calls in any order are handled correctly. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (cache_capacity == 0) {
         /* initial allocation with capacity 10 for the base values */
         cache_capacity = 10;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         if (!cache) return (seq_t)0;     /* allocation failed, safe return */
         /* initialise base values up to n = 9 */
         cache[0] = (seq_t)0;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         idx_t new_cap = cache_capacity;
         /* double until sufficient */
         while (n >= new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;  /* allocation failed, safe return */
         cache = tmp;
         cache_capacity = new_cap;

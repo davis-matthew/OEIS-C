@@ -6,15 +6,26 @@
  * Keywords:  nonn
  * Formula:   a(n) = smallest m such that Σ_{i=1}^m i⁴ ≥ n (the integer m
  *            appears m⁴ times in the sequence)
- * Range:     u8 n <= 9785, u16 n <= 9785, u32 n <= 9785, u64 n <= 9785,
- *            u128 n <= 9785, big any n
- * Helpers:   sum_i4
+ * Range:     u8 n <= 15333, u16 n <= 15333, u32 n <= 15333, u64 n <= 15333,
+ *            u128 n <= 15333, big any n
+ * Validated: standard, pass, 103 terms through n = 9785 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sum_i4.h"
+
+static unsigned __int128 sum_i4(idx_t m)
+{
+    /* Compute m*(m+1)*(2*m+1)*(3*m*m+3*m-1)/30 using 128-bit
+       intermediate to avoid overflow. */
+    unsigned __int128 mm = m;
+    unsigned __int128 term = mm * (mm + 1) * (2 * mm + 1);
+    unsigned __int128 poly = 3 * mm * mm + 3 * mm - 1;
+    term = term * poly / 30;
+    return term;
+}
 
 seq_t a(idx_t n)
 {

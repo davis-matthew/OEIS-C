@@ -7,12 +7,14 @@
  * Formula:   a(n) = -a(n-1) + 20*a(n-2), a(0) = 1, a(1) = -4
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 13, i64 n <= 27, i128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Need to extend the cache up to index n (inclusive) */
     size_t new_len = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) {
         /* Allocation failure – abort, as this is unexpected in the test harness */
         abort();

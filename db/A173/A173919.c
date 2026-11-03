@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 107, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 83 terms through n = 980 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* Sequence: integers k such that k or k+1 is prime (offset 1) */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"   /* provides: bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Initialise on first call */
     if (cache_size == 0) {
         cache_cap = 64;                      /* initial capacity */
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;                /* allocation failed */
         cache[0] = (seq_t)1;                 /* a(1) = 1  (1+1 is prime) */
         cache_size = 1;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
             /* Grow the cache array if necessary */
             if (cache_size == cache_cap) {
                 cache_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) return 0;        /* allocation failed */
                 cache = tmp;
             }

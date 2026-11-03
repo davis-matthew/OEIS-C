@@ -11,7 +11,8 @@
  *            (2^m - 1)*B_m/m == -2^(m-1) * Sum_{k=1..(p-1)/2} k^((m...
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 13, i64 n <= 17, i128 n <= 29,
  *            big any n
- * Helpers:   a2427_isprime, a2427_powm
+ * Validated: standard, pass, 38 terms through n = 308 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/a2427_isprime.h"
-#include "../utils/a2427_powm.h"
+#include "../utils/is_prime_u64.h"
+
+static uint64_t a2427_powm(uint64_t b, uint64_t e, uint64_t p) {
+    uint64_t r = 1 % p;
+    b %= p;
+    while (e) {
+        if (e & 1) r = r * b % p;
+        b = b * b % p;
+        e >>= 1;
+    }
+    return r;
+}
 
 static uint32_t *a2427_spf = NULL;
 static uint64_t a2427_spf_lim = 0;
@@ -49,7 +60,7 @@ seq_t a(idx_t n) {
     double lg = 2.0 + log2((double)(m + 1)) - (double)m * log2(2.0 * 3.14159265358979323846);
     for (uint64_t k = 2; k <= m; k++) lg += log2((double)k);
     for (uint64_t d = 1; d <= m; d++) {
-        if (m % d != 0 || !a2427_isprime(d + 1)) continue;
+        if (m % d != 0 || !is_prime_u64(d + 1)) continue;
         if (nd == capd) {
             capd = capd ? 2 * capd : 16;
             dq = (uint64_t *)realloc(dq, capd * sizeof(uint64_t));

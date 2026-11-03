@@ -8,14 +8,37 @@
  *            2^(omega(A005117(n)) - 1)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   A001832_pow2, count_distinct_primes
+ * Validated: standard, pass, 121 terms through n = 966 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/A001832_pow2.h"
-#include "../utils/count_distinct_primes.h"
+
+static seq_t A001832_pow2(idx_t e) {
+    seq_t r = 1, b = 2;
+    while (e) {
+        if (e & 1) r *= b;
+        e >>= 1;
+        if (e) b *= b;
+    }
+    return r;
+}
+
+static int count_distinct_primes(uint64_t n) {
+    if (n <= 1) return 0;
+    
+    int count = 0;
+    for (uint64_t p = 2; p * p <= n; p++) {
+        if (n % p == 0) {
+            count++;
+            while (n % p == 0) n /= p;
+        }
+    }
+    if (n > 1) count++;
+    return count;
+}
 
 static int is_squarefree(uint64_t n) {
     if (n <= 1) return n == 1;

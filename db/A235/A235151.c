@@ -7,14 +7,15 @@
  * Formula:   a(n) = nth positive integer whose decimal digit sum is 12
  * Range:     u8 n <= 20, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum_seqT
+ * Validated: standard, pass, 68 terms through n = 943 (2026-11-01)
+ * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/digit_sum_seqT.h"
+#include "../utils/digit_sum.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +26,7 @@ seq_t a(idx_t n)
 
     while (count < n) {
         ++current;                   /* next integer to test */
-        if (digit_sum_seqT(current) == 12) {
+        if (digit_sum(current) == 12) {
             ++count;                 /* found the nth term */
         }
     }

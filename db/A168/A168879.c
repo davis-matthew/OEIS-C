@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static buffer holding the sequence up to the largest n already computed */
 static seq_t *cache      = NULL; /* array of terms */
@@ -47,7 +49,7 @@ static void _ensure_cache(idx_t n)
     if (cache_len < 21) {
         /* allocate space for at least 21 terms */
         if (cache_cap < 21) {
-            cache = (seq_t *)realloc(cache, 21 * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, 21);
             cache_cap = 21;
         }
 
@@ -73,7 +75,7 @@ static void _ensure_cache(idx_t n)
      ------------------------------------------------------------------ */
     if (n + 1 > cache_cap) {
         /* enlarge the allocation */
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         cache_cap = n + 1;
     }
 

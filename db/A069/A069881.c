@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 6, u16 n <= 92, u32 n <= 3133, u64 n <= 9235,
- *            u128 n <= 9235, big any n
- * Helpers:   is_palindrome, pow10
+ * Range:     u8 n <= 6, u16 n <= 92, u32 n <= 3133, u64 n <= 15636,
+ *            u128 n <= 15636, big any n
+ * Validated: standard, pass, 61 terms through n = 9235 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_palindrome.h"
-#include "../utils/pow10.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Helper that constructs a palindrome from the given half and total length. */
 static seq_t make_pal(seq_t half, int len)
@@ -48,13 +59,13 @@ seq_t a(idx_t n)
 
     if (cache_cap == 0) {          /* one-time allocation */
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* grow cache when needed */
     if (cache_len == cache_cap) {
         cache_cap <<= 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* generate terms until we reach the requested index */
@@ -86,11 +97,11 @@ seq_t a(idx_t n)
         }
 #endif
         seq_t twice = cand * 2 + 1;
-        if (is_palindrome(twice, 10)) {          /* cand is already a palindrome */
+        if (is_palindrome_base(twice, 10)) {          /* cand is already a palindrome */
             /* cache the term */
             if (cache_len == cache_cap) {         /* grow cache if full */
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = cand;
         }

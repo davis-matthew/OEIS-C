@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 4166, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alt_sum_is_three
+ * Validated: standard, pass, 69 terms through n = 8957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,32 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alt_sum_is_three.h"
+#include "../utils/mem.h"
+
+/* Check whether a number has alternating digit sum 3.  Operates on seq_t
+   so it works for 8, 16, 32, 64‑bit or arbitrary‑precision builds. */
+static inline int alt_sum_is_three(seq_t x)
+{
+    if (x == 0) return 0;          /* 0 is not in the sequence */
+
+    /* Count digits */
+    seq_t tmp = x;
+    int   digits = 0;
+    while (tmp > 0) { ++digits; tmp /= 10; }
+
+    /* Sign for the least‑significant digit: + if number of digits is odd,
+       otherwise -.  Then alternate the sign while iterating from right to left. */
+    int sign = (digits & 1) ? 1 : -1;   /* leftmost digit positive */
+    int sum  = 0;
+    while (x > 0)
+    {
+        int d = (int)(x % 10);
+        sum += sign * d;
+        x   /= 10;
+        sign = -sign;
+    }
+    return sum == 3;
+}
 
 /* External types supplied by the build environment */
 extern seq_t _dummy;  /* placeholder to force inclusion of seq_t type */
@@ -36,7 +62,7 @@ static void ensure_capacity(idx_t needed)
     if (needed <= cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap < needed) new_cap *= 2;
-    term_cache = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+    term_cache = mem_resize(seq_t, term_cache, new_cap);
     cache_cap  = new_cap;
 }
 

@@ -8,15 +8,35 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 88, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_sqrt, is_prime_small
+ * Validated: standard, pass, 104 terms through n = 969 (2026-11-01)
+ * Helpers:   ipow_i32, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes A360821: number of primes p = k^2+1 with n^2 < p < 2*n^2 */
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"   /* floor_sqrt(seq_t) */
-#include "../utils/is_prime_small.h" /* is_prime_small(seq_t) */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime_seq.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,7 +50,7 @@ seq_t a(idx_t n)
     {
         seq_t p = (seq_t)k * k + 1;            /* k^2 + 1   */
         /* p is automatically < 2*n2 by choice of maxk */
-        if (is_prime_small(p))
+        if (is_prime_seq(p))
             ++count;
     }
     return count;

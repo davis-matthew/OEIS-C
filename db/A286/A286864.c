@@ -12,13 +12,25 @@
  *            a(n) = (10^m – 1)/9 × 10^zeros
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   floor_log2_uint64, pow10
+ * Validated: standard, pass, 36 terms through n = 108 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
-#include "../utils/pow10.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -28,7 +40,7 @@ seq_t a(idx_t n)
         return (seq_t)10;
 
     /* n ≥ 2: compute block size m = 2^{⌊log₂(n)⌋ – 1} */
-    idx_t k = floor_log2_uint64(n) - 1;
+    idx_t k = ilog2(n) - 1;
     idx_t m = 1ULL << k;                /* m fits in idx_t */
 
     idx_t zeros = (n + 1) - m;          /* number of trailing zeros */

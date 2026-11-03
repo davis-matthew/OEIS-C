@@ -10,7 +10,8 @@
  *            multiplicative order of 10 modulo p.)
  * Range:     u8 n <= 57, u16 n <= 6920, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 92 terms through n = 9939 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
 
 /* Prime storage --------------------------------------------------------- */
 static uint64_t *prime_list = NULL;   /* array of discovered primes   */
@@ -118,7 +120,7 @@ a(idx_t n)
         /* Reduce the order as long as the test passes. */
         while (ord % q == 0) {
             uint64_t test = ord / q;
-            if (mod_pow((seq_t)10, test, (seq_t)p) == (seq_t)1)
+            if (powmod((seq_t)10, test, (seq_t)p) == (seq_t)1)
                 ord = test;
             else
                 break;

@@ -13,7 +13,8 @@
  *            mean is then Π(1 + p_i^{e_i}) / 2^{k}
  * Range:     u8 n <= 420, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 9903 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Smallest prime factor sieve -------------------------------- */
 
@@ -97,7 +99,7 @@ static void ensure_memo_cap(size_t new_cap)
     if (memo_cap >= new_cap) return;
     size_t new_size = memo_cap ? memo_cap * 2 : 16;
     while (new_size < new_cap) new_size <<= 1;
-    seq_t *new_mem = (seq_t *)realloc(memo, new_size * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, memo, new_size);
     if (new_mem == NULL) abort();
     memo   = new_mem;
     memo_cap = new_size;

@@ -9,14 +9,16 @@
  * Formula:   a(0) = 1, a(1) = 0. For even n (n = 2*k, k ≥ 1): a(n) = C(2*k-2,
  *            k-1). For odd n (n = 2*k+1, k ≥ 2): a(n) = C(2*k-1, k-2). For
  *            odd n with k < 2 (i.e., n = 1 or 3) the value is 0
- * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 38, u128 n <= 38,
+ * Range:     u8 n <= 12, u16 n <= 20, u32 n <= 37, u64 n <= 38, u128 n <= 38,
  *            big any n
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

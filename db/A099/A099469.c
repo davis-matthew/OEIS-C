@@ -7,18 +7,20 @@
  * Formula:   a(n) = lcm(n, digit_sum(n))
  * Range:     u8 n <= 28, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   digit_sum, gcd_seq_t
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   digit_sum, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
-#include "../utils/gcd_seq_t.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
     seq_t num = (seq_t)n;            /* convert index to seq_t */
     seq_t sum = digit_sum(num);      /* digit sum of n */
-    seq_t g   = gcd_seq_t(num, sum); /* gcd of n and its digit sum */
+    seq_t g   = gcd(num, sum); /* gcd of n and its digit sum */
     return num / g * sum;            /* lcm(n, sum) */
 }

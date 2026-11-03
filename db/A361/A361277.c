@@ -11,7 +11,8 @@
  *            i = n - S(S+1)/2, j = S - i. Then a(n) = T(i,j)
  * Range:     u8 n <= 26, u16 n <= 53, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binomial, factorial, triangular_limit
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,35 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/factorial.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/triangular_limit.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
+
+/* Largest S with S*(S+1)/2 <= n.  Uses integer arithmetic only. */
+static idx_t triangular_limit(idx_t n)
+{
+    idx_t lo = 0, hi = 1;
+    while ((__int128)hi * (hi + 1) / 2 <= n)
+        hi <<= 1;                     /* find an upper bound */
+    while (lo < hi) {
+        idx_t mid = (lo + hi) >> 1;
+        if ((__int128)mid * (mid + 1) / 2 <= n)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;                     /* lo-1 is the desired S */
+}
 
 /* Compute T(n,k) using the definition via summation. */
 static seq_t compute_T(idx_t n, idx_t k)

@@ -7,13 +7,22 @@
  * Formula:   a(n) = Sum_{k=1..n} (n-k+1)^(k-1) * k^(n-k)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 32,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: standard, pass, 35 terms through n = 402 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -27,12 +36,12 @@ seq_t a(idx_t n)
         /* Compute (n - k + 1)^(k - 1) */
         seq_t base1 = (seq_t)(n - k + 1);
         seq_t exp1  = (seq_t)(k - 1);
-        seq_t term1 = big_pow(base1, exp1);
+        seq_t term1 = ipow(base1, exp1);
 
         /* Compute k^(n - k) */
         seq_t base2 = (seq_t)k;
         seq_t exp2  = (seq_t)(n - k);
-        seq_t term2 = big_pow(base2, exp2);
+        seq_t term2 = ipow(base2, exp2);
 
         /* Multiply the two powers and add to the running total */
         seq_t term = seq_mul(term1, term2);

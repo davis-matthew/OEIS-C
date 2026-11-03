@@ -11,13 +11,18 @@
  *            binomial(n,k)*E(n-k)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 13, u64 n <= 22, u128 n <= 37,
  *            big any n
- * Helpers:   alloc_seq
+ * Validated: standard, pass, 38 terms through n = 387 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_seq.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
 
 static seq_t *eul = NULL;     /* eul[0..have-1] = Euler zigzag numbers */
 static seq_t *erow = NULL;    /* Entringer row have-1 */
@@ -38,9 +43,9 @@ static void ensure(idx_t m) {
             ne[i] = eul[i];
             nr[i] = erow[i];
         }
-        free(eul);
-        free(erow);
-        free(etmp);
+        mem_free(eul);
+        mem_free(erow);
+        mem_free(etmp);
         eul = ne;
         erow = nr;
         etmp = nt;

@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../utils/build_primes_upto.h"   /* provides build_primes_upto */
+#include <stdlib.h>
+#include "../utils/build_primes_upto.h"
 
 /* cache of the smaller primes in the admissible pairs  */
 static uint64_t pair_primes[2311];

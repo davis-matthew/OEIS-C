@@ -9,12 +9,14 @@
  *            -2, a(9) = 3 , a(10)= 2 , a(11)= -1, a(12)= 0
  * Range:     i8 n <= 96, i16 n <= 96, i32 n <= 96, i64 n <= 96, i128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 96 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[12] = {
     -1, -2, 3, 2, 1, 0, -1, -2, 3, 2, -1, 0
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
        Use dynamic allocation so the function works for any n
        without pre‑allocating large static arrays. */
     size_t len = (size_t)n;                /* number of elements needed */
-    seq_t *seq = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, len);
     if (!seq) return 0;                    /* out of memory – unlikely for n ≤ 10000 */
 
     /* copy the initial 12 values */
@@ -48,6 +50,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[len - 1];
-    free(seq);
+    mem_free(seq);
     return result;
 }

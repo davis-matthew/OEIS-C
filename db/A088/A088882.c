@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 712, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, pow10, reverse_decimal
+ * Validated: standard, pass, 68 terms through n = 9968 (2026-11-01)
+ * Helpers:   num_digits, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,14 +17,24 @@
 /* OEIS A088882: Nontrivial palindromes in base‑10 */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow10.h"
-#include "../utils/reverse_decimal.h"
-#include "../utils/digit_len.h"
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+#include "../utils/reverse_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Helper: check if a number consists of a single repeated digit */
 static bool is_repdigit(seq_t x) {
     if (x == 0) return true;
-    int len = digit_len(x);
+    int len = num_digits(x);
     seq_t pow10_len_minus1 = pow10(len - 1);
     seq_t first_digit = x / pow10_len_minus1;
     seq_t tmp = x;
@@ -40,9 +51,9 @@ static seq_t build_pal(idx_t prefix, int total_len, bool odd) {
     seq_t p = prefix;
     seq_t rev;
     if (odd) {
-        rev = reverse_decimal(p / 10);
+        rev = reverse_digits(p / 10);
     } else {
-        rev = reverse_decimal(p);
+        rev = reverse_digits(p);
     }
     seq_t factor = pow10(total_len / 2);
     return p * factor + rev;

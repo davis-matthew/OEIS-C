@@ -9,21 +9,23 @@
  *            a(n)=26·∑_{j=1}^{19} a(n−j) − 351·a(n−20)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate temporary tables for the terms and their prefix sums. */
     size_t sz = (size_t)n + 1;           /* need indices 0…n */
-    seq_t *a   = (seq_t*)malloc(sz * sizeof(seq_t));
-    seq_t *ps  = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *a   = mem_new(seq_t, sz);
+    seq_t *ps  = mem_new(seq_t, sz);
     if (!a || !ps) {                     /* allocation failed – return 0 */
-        free(a); free(ps);
+        mem_free(a); mem_free(ps);
         return (seq_t)0;
     }
 
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a[n];
-    free(a);
-    free(ps);
+    mem_free(a);
+    mem_free(ps);
     return result;
 }

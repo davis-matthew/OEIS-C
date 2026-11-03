@@ -11,7 +11,8 @@
  *            Narayana numbers. The sequence a(n) lists the ele...
  * Range:     u8 n <= 32, u16 n <= 62, u32 n <= 147, u64 n <= 369,
  *            u128 n <= 977, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 4831 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,7 +36,7 @@ isqrt_u64(idx_t n)
 
 /* Forward declarations of helper functions supplied by the build.
    They must be available from "../utils/...". */
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 #ifndef __cplusplus
 /* 64‑bit C implementation: use a tight loop with overflow checks. */
@@ -62,8 +63,8 @@ seq_t a(idx_t n)
     const unsigned __int128 limit = (unsigned __int128)((seq_t)-1); /* max seq_t */
 
     for (idx_t k = 1; k <= j; ++k) {
-        seq_t binom_jk      = binom(j, k);
-        seq_t binom_jk_minus = binom(j, k - 1);
+        seq_t binom_jk      = binomial(j, k);
+        seq_t binom_jk_minus = binomial(j, k - 1);
         unsigned __int128 bin1 = (unsigned __int128)binom_jk;
         unsigned __int128 bin2 = (unsigned __int128)binom_jk_minus;
 
@@ -152,8 +153,8 @@ seq_t a(idx_t n)
         const unsigned __int128 limit = (unsigned __int128)((seq_t)-1);
 
         for (idx_t k = 1; k <= j; ++k) {
-            seq_t binom_jk      = binom(j, k);
-            seq_t binom_jk_minus = binom(j, k - 1);
+            seq_t binom_jk      = binomial(j, k);
+            seq_t binom_jk_minus = binomial(j, k - 1);
             unsigned __int128 bin1 = (unsigned __int128)binom_jk;
             unsigned __int128 bin2 = (unsigned __int128)binom_jk_minus;
 
@@ -192,8 +193,8 @@ seq_t a(idx_t n)
         seq_t res   = 0;
 
         for (idx_t k = 1; k <= j; ++k) {
-            seq_t binom_jk      = binom(j, k);
-            seq_t binom_jk_minus = binom(j, k - 1);
+            seq_t binom_jk      = binomial(j, k);
+            seq_t binom_jk_minus = binomial(j, k - 1);
             seq_t product = binom_jk * binom_jk_minus;   /* exact */
             seq_t termCoef = product / (seq_t)j;         /* integer division */
             seq_t term = termCoef * power;

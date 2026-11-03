@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum of decimal digits of all binomial(n,k), 0 ≤ k ≤ n
  * Range:     u8 n <= 17, u16 n <= 263, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum_array, div_small
+ * Validated: standard, pass, 67 terms through n = 914 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,27 @@
    precision) and any idx_t.  */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/digit_sum_array.h"
-#include "../utils/div_small.h"
+
+static inline seq_t digit_sum_array(const uint8_t *a, size_t size)
+{
+    seq_t sum = 0;
+    for (size_t i = 0; i < size; ++i)
+        sum += a[i];
+    return sum;
+}
+
+static inline void div_small(uint8_t *a, size_t *size, unsigned int d)
+{
+    unsigned int carry = 0;
+    for (size_t i = *size; i-- > 0;) {
+        unsigned int tmp = carry * 10 + a[i];
+        a[i] = tmp / d;
+        carry = tmp % d;
+    }
+    /* trim leading zeros */
+    while (*size > 1 && a[*size - 1] == 0)
+        --(*size);
+}
 
 #define DIGIT_CAP 5000  /* Enough for n up to about 20000 */
 

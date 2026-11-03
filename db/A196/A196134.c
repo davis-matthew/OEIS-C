@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 23, u64 n <= 46, u128 n <= 92,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define PATTERN_COUNT 625   /* 5^4 */
 #define MASK_BITS     4
@@ -114,9 +116,9 @@ seq_t a(idx_t n)
     static size_t dp_size = 0;
 
     if (dp_size < STATE_COUNT) {
-        free(dp_cur); free(dp_next);
-        dp_cur   = (seq_t*)malloc(STATE_COUNT * sizeof(seq_t));
-        dp_next  = (seq_t*)malloc(STATE_COUNT * sizeof(seq_t));
+        mem_free(dp_cur); mem_free(dp_next);
+        dp_cur   = mem_new(seq_t, STATE_COUNT);
+        dp_next  = mem_new(seq_t, STATE_COUNT);
         dp_size = STATE_COUNT;
     }
     for (size_t i = 0; i < STATE_COUNT; ++i) {

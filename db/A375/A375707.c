@@ -11,7 +11,8 @@
  *            so that calls can arrive in any order. It us...
  * Range:     u8 n <= 613, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_squarefree
+ * Validated: standard, pass, 103 terms through n = 8637 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 static seq_t *nsf = NULL;        /* cache of nonsquarefree numbers (0‑based) */
 static size_t nsf_len = 0;       /* number of cached elements                */
@@ -31,10 +33,10 @@ seq_t a(idx_t n) {
         for (idx_t m = next_candidate; ; ++m) {
             if (!is_squarefree((seq_t)m)) {
                 /* Store the new nonsquarefree number */
-                seq_t *tmp = (seq_t *)realloc(nsf, (nsf_len + 1) * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, nsf, (nsf_len + 1));
                 if (!tmp) {
                     /* Out of memory – return 0 as a safe fallback */
-                    if (nsf) free(nsf);
+                    if (nsf) mem_free(nsf);
                     nsf = NULL;
                     nsf_len = 0;
                     return (seq_t)0;

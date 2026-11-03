@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_isqrt_u64
+ * Validated: standard, pass, 102 terms through n = 922 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,12 +22,13 @@
  * uses at most four terms).
  */
 
-#include "../utils/floor_isqrt_u64.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
 
 static idx_t largest_quarter_square_le(idx_t x)
 {
     /* largest integer k with k² ≤ 4·x + 3 */
-    idx_t k = floor_isqrt_u64(4ULL * x + 3ULL);
+    idx_t k = isqrt(4ULL * x + 3ULL);
     /* compute ⌊k²/4⌋ without overflow */
     unsigned __int128 prod = (unsigned __int128)k * k;
     return (idx_t)(prod >> 2);          /* prod / 4 */

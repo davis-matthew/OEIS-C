@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 1276, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ok_digit
+ * Validated: standard, pass, 77 terms through n = 9907 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/ok_digit.h"
+
+/* quickly test whether two digits differ by > 1 */
+static inline bool ok_digit(int prev, int next) {
+    int diff = prev > next ? prev - next : next - prev;
+    return diff > 1;
+}
 
 /* Precomputed DP tables (size sufficient for 64‑bit indices). */
 #define MAXLEN 200

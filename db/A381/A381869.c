@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 3289, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 89 terms through n = 9778 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *primes = NULL;      /* list of primes */
 static size_t prime_cap = 0, prime_cnt = 0;
@@ -37,7 +40,7 @@ static void ensure_capacity(size_t need)
     if (need <= prime_cap) return;
     size_t newcap = prime_cap ? prime_cap << 1 : 16;
     while (newcap < need) newcap <<= 1;
-    primes = (seq_t*)realloc(primes, newcap * sizeof(seq_t));
+    primes = mem_resize(seq_t, primes, newcap);
     pref_mod10 = (uint8_t*)realloc(pref_mod10, (newcap + 1) * sizeof(uint8_t));
     prime_cap = newcap;
     pref_cap = newcap + 1;

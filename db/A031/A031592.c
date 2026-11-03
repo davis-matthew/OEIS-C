@@ -13,7 +13,8 @@
  *            last term of the period, the central term equals 94
  * Range:     u8 none, u16 n <= 33, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,26 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *terms = NULL;  /* cached terms (0‑based) */
 static idx_t  terms_cap = 0; /* capacity of terms array          */

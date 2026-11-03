@@ -9,12 +9,18 @@
  *            = 406731, a(5) = 14683587, a(6) = 532938234
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   mk3
+ * Validated: standard, pass, 32 terms through n = 611 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mk3.h"
+static seq_t mk3(unsigned a, unsigned b, unsigned c) {
+    seq_t r = (seq_t)a;
+    r = r * 1000 + b;
+    r = r * 1000 + c;
+    return r;
+}
 
 seq_t a(idx_t n) {
     seq_t v[6];

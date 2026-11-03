@@ -13,7 +13,8 @@
  *            for arbitrary n. All operations on seq_t ar...
  * Range:     u8 n <= 3, u16 n <= 12, u32 n <= 30, u64 n <= 66, u128 n <= 138,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Transition tables: 49 = 7*7 possible last‑two pairs. */
 static int transition_nexts[49][7];
@@ -61,7 +63,7 @@ static void reallocate_cache_if_needed(idx_t n)
 {
     if (cache_cap < (size_t)n + 1) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) {
             /* In a full implementation you might abort or return an error. */
             return;
@@ -70,7 +72,7 @@ static void reallocate_cache_if_needed(idx_t n)
         for (size_t i = 0; i < cache_cap; ++i) new_cache[i] = cache[i];
         /* Zero new slots. */
         for (size_t i = cache_cap; i < new_cap; ++i) new_cache[i] = (seq_t)0;
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

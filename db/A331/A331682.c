@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Utilities for prime generation and gcd.  The implementation
    below uses its own simple integer gcd; no external utility
@@ -105,7 +107,7 @@ static void ensure_seq_cap(size_t needed)
     if (seq_cap >= needed) return;
     size_t newcap = seq_cap ? seq_cap << 1 : 16;
     while (newcap < needed) newcap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(seq_arr, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_arr, newcap);
     if (!tmp) return; /* keep old array on failure */
     seq_arr = tmp;
     seq_cap = newcap;

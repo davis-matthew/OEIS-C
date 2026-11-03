@@ -9,14 +9,34 @@
  *            y2, y3) with y1² + y2² + y3² = 8·n + 3. This is equivalent to
  *            the number of ordered ways of writing n as the sum of three
  *            triangular numbers T_k = k(k+1)/2
- * Range:     u8 n <= 7, u16 n <= 1782, u32 n <= 8609, u64 n <= 8609,
- *            u128 n <= 8609, big any n
- * Helpers:   floor_sqrt
+ * Range:     u8 n <= 7, u16 n <= 1782, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 95 terms through n = 8609 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {

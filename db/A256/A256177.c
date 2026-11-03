@@ -7,14 +7,17 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Search: primes congruent to 8,13,18,23 modulo 25 (OEIS A256177) */
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +32,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (!vals) {
         vals_cap = 128;
-        vals = (seq_t *)malloc(vals_cap * sizeof(seq_t));
+        vals = mem_new(seq_t, vals_cap);
     }
 
     /* Expand cache until it holds at least n primes */
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
             if (is_prime(next_candidate)) {       /* from utils */
                 if (vals_len >= vals_cap) {
                     vals_cap <<= 1;           /* double capacity */
-                    vals = (seq_t *)realloc(vals, vals_cap * sizeof(seq_t));
+                    vals = mem_resize(seq_t, vals, vals_cap);
                 }
                 vals[vals_len++] = (seq_t)next_candidate;
             }

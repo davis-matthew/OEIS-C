@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/4)} Stirling2(n - 3*k, n - 4*k)
  * Range:     u8 n <= 13, u16 n <= 21, u32 n <= 36, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* cache for computed values */
 static seq_t *a_cache = NULL;
@@ -23,9 +25,9 @@ static idx_t cache_max = 0;
 static void compute_a_up_to(idx_t max_n)
 {
     /* allocate arrays */
-    seq_t *new_a = (seq_t *)malloc((size_t)(max_n + 1) * sizeof(seq_t));
-    seq_t *prev   = (seq_t *)malloc((size_t)(max_n + 1) * sizeof(seq_t));
-    seq_t *curr   = (seq_t *)malloc((size_t)(max_n + 1) * sizeof(seq_t));
+    seq_t *new_a = mem_new(seq_t, (size_t)(max_n + 1));
+    seq_t *prev   = mem_new(seq_t, (size_t)(max_n + 1));
+    seq_t *curr   = mem_new(seq_t, (size_t)(max_n + 1));
 
     if (!new_a || !prev || !curr) {
         /* allocation failure – abort (the test harness guarantees enough memory) */
@@ -68,12 +70,12 @@ static void compute_a_up_to(idx_t max_n)
     }
 
     /* free temporary arrays not part of cache */
-    free(curr);
-    free(prev);
+    mem_free(curr);
+    mem_free(prev);
 
     /* replace old cache */
     if (a_cache != NULL) {
-        free(a_cache);
+        mem_free(a_cache);
     }
     a_cache = new_a;
     cache_max = max_n;

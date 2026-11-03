@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 23, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static state for on‑demand generation of the polynomials */
 static size_t   poly_count = 0;       /* number of polynomials stored      */
@@ -61,14 +63,14 @@ ensure_initialised(void)
     cum_len = (size_t*)malloc(poly_cap * sizeof(size_t));
 
     /* ----------  polynomial u0  ---------- */
-    polys[0] = (seq_t*)malloc(sizeof(seq_t));
+    polys[0] = mem_new(seq_t, 1);
     polys[0][0] = (seq_t)1;
     len[0] = 1;
     cum_len[0] = 1;
     poly_count = 1;
 
     /* ----------  polynomial u1  ---------- */
-    polys[1] = (seq_t*)malloc(2 * sizeof(seq_t));
+    polys[1] = mem_new(seq_t, 2);
     polys[1][0] = (seq_t)1;
     polys[1][1] = (seq_t)2;
     len[1] = 2;
@@ -96,7 +98,7 @@ generate_next(void)
     }
 
     /* allocate new polynomial */
-    seq_t *poly = (seq_t*)malloc(new_len * sizeof(seq_t));
+    seq_t *poly = mem_new(seq_t, new_len);
     for (size_t i = 0; i < new_len; ++i) poly[i] = 0;
 
     /* u_{k+1} = 2 * (u_k)^2 + 1 */

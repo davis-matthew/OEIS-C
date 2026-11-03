@@ -9,12 +9,14 @@
  *            A000166)
  * Range:     u8 n <= 13, u16 n <= 15, u32 n <= 19, u64 n <= 26, u128 n <= 39,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 33 terms through n = 173 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Return the k-th derangement number.  Works for any seq_t that
    supports +, -, *, and integer casting from (idx_t). */
@@ -44,6 +46,6 @@ seq_t a(idx_t n)
 
     idx_t k = n - 11;                     /* size of non‑fixed part   */
     seq_t der = derangement(k);           /* derangement of k elements */
-    seq_t bin = binom(n, 11);             /* choose the 11 fixed points */
+    seq_t bin = binomial(n, 11);             /* choose the 11 fixed points */
     return bin * der;                     /* total permutations          */
 }

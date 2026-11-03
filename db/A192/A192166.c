@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 25, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Sequence A192166: sort nonnegative differences 7^i − 4^j
    for 0 ≤ i ≤ 40, j ≥ 0 (offset 1). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* comparison function for qsort */
 static int cmp_seq(const void *a, const void *b)
@@ -41,7 +43,7 @@ static void init_sequence(void)
 
     /* Start with a generous capacity; we only need ~1200 elements. */
     size_t cap = 1024;
-    values = (seq_t *)malloc(cap * sizeof(seq_t));
+    values = mem_new(seq_t, cap);
     if (!values) exit(EXIT_FAILURE);
 
     /* base = 7^i, incrementally computed until overflow or i==40. */
@@ -54,7 +56,7 @@ static void init_sequence(void)
                 /* store the nonnegative difference */
                 if (num_values >= cap) {
                     cap *= 2;
-                    values = (seq_t *)realloc(values, cap * sizeof(seq_t));
+                    values = mem_resize(seq_t, values, cap);
                     if (!values) exit(EXIT_FAILURE);
                 }
                 values[num_values++] = base - pow4;
@@ -72,7 +74,7 @@ static void init_sequence(void)
     }
 
     /* Sort the collected values and keep only the unique ones. */
-    qsort(values, num_values, sizeof(seq_t), cmp_seq);
+    mem_qsort(values, num_values, sizeof(seq_t), cmp_seq);
     size_t uniq = 0;
     for (size_t i = 0; i < num_values; ++i) {
         if (i == 0 || values[i] != values[uniq - 1]) {

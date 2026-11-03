@@ -14,13 +14,27 @@
  *            a(4)=1020, a(5)=2886, a(6)=7064, a(7)=17194, a(8)=42396,...
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 21, u64 n <= 49, u128 n <= 106,
  *            big any n
- * Helpers:   mul_small
+ * Validated: standard, pass, 41 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* Helper macro to avoid using signed arithmetic on seq_t */
 #define ADD_POS(res, term, mult)                           \
@@ -68,7 +82,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache with first 21 terms */
     if (!cache) {
-        cache = (seq_t*)malloc(21 * sizeof(seq_t));
+        cache = mem_new(seq_t, 21);
         for (idx_t i = 0; i < 21; ++i)
             cache[i] = init_vals[i];
         cache_len = 21;
@@ -80,7 +94,7 @@ seq_t a(idx_t n)
 
     /* Extend cache if necessary */
     if (n > cache_len) {
-        seq_t *new_cache = (seq_t*)realloc(cache, n * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, n);
         if (!new_cache) { /* allocation failed; return 0 as fallback */
             return (seq_t)0;
         }

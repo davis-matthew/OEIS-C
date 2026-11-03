@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 523, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 97 terms through n = 9877 (2026-11-01)
  * Helpers:   build_spf, digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,8 +22,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../utils/build_spf.h"   /* build_spf(idx_t limit, idx_t **spf_out) */
-#include "../utils/digit_sum.h"   /* digit_sum(seq_t v) */
+#include "../utils/build_spf.h"
+#include "../utils/digit_sum.h"
 
 /* Cache state */
 static idx_t max_needed = 0;                /* largest n that has been generated */

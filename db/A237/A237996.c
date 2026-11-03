@@ -9,12 +9,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 47, u32 n <= 106, u64 n <= 254,
  *            u128 n <= 632, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9897 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* a(n) = entry of the triangle read by rows.  
    The triangle entry T(r,k) is the number of even permutations of
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (rows == NULL) {
         rows = (seq_t **)malloc(sizeof(seq_t *));
         rows_cap = 1;
-        rows[0] = (seq_t *)malloc(sizeof(seq_t));
+        rows[0] = mem_new(seq_t, 1);
         rows[0][0] = 1;           /* |s(0,0)| = 1  */
         max_row = 0;
     }
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
 
         /* Compute new rows from max_row+1 up to r. */
         for (idx_t rr = max_row + 1; rr <= r; ++rr) {
-            rows[rr] = (seq_t *)malloc((size_t)(rr + 1) * sizeof(seq_t));
+            rows[rr] = mem_new(seq_t, (size_t)(rr + 1));
             for (idx_t kk = 0; kk <= rr; ++kk)
                 rows[rr][kk] = 0;
             if (rr == 0) {          /* base case already set above */

@@ -8,7 +8,8 @@
  * Formula:   a(n) = the n‑th integer m such that A000224(m) = ceil((m+1)/3)
  * Range:     u8 n <= 28, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   count_odd_power, count_pow2_pow
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,44 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/count_odd_power.h"
-#include "../utils/count_pow2_pow.h"
+#include "../utils/mem.h"
+
+/* -------------- count squares for odd prime power ---------------- */
+static inline seq_t count_odd_power(uint64_t p, uint64_t a)
+{
+    seq_t sum = 0;
+    /* φ(p^a) = p^(a-1)*(p-1) */
+    seq_t phi = 1;
+    for (uint64_t i = 0; i < a - 1; ++i) phi *= (seq_t)p;
+    phi *= (seq_t)(p - 1);
+
+    for (uint64_t b = a; ; b -= 2) {
+        sum += phi / 2;
+        if (b <= 1) break;
+        /* divide by p^2 to get φ(p^(b-2)) */
+        phi /= (seq_t)p;
+        phi /= (seq_t)p;
+    }
+    /* zero residue */
+    sum += 1;
+    return sum;
+}
+
+/* -------------- count squares for power of 2 --------------------- */
+static inline seq_t count_pow2_pow(idx_t k)
+{
+    if (k == 0) return 1;
+    if (k == 1) return 2;
+    if (k == 2) return 2;
+    seq_t f_prev2 = 2;   /* f(1) */
+    seq_t f_prev1 = 2;   /* f(2) */
+    for (idx_t i = 3; i <= k; ++i) {
+        seq_t f = f_prev2 + ((seq_t)1 << (i - 3));
+        f_prev2 = f_prev1;
+        f_prev1 = f;
+    }
+    return f_prev1;
+}
 
 /* ------------ small prime sieve --------------------------------- */
 static uint64_t *primes = NULL;
@@ -106,7 +143,7 @@ seq_t a(idx_t n)
         if (satisfies(checked)) {
             if (seq_len >= seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 16;
-                seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)checked;
         }

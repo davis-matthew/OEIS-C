@@ -13,12 +13,14 @@
  *            a(5)=5889851392, a(6)=522106961920, a(7)=47175115472896
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Base values for n = 1..7.  cache[0] is unused. */
 static const seq_t init_vals[8] = {
@@ -43,7 +45,7 @@ static void ensure_cache_size(idx_t n)
     if (cache_size > 0 && cache_size > (size_t)n + 1) return;
     size_t new_size = (cache_size < 16) ? 16 : cache_size;
     while (new_size <= (size_t)n + 1) new_size <<= 1;
-    seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) abort();          /* allocation failure – stop execution */
     cache = tmp;
     cache_size = new_size;

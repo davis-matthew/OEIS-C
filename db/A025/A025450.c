@@ -11,14 +11,31 @@
  *            an * unbounded‑coin DP counting combination...
  * Range:     u8 n <= 107, u16 n <= 107, u32 n <= 107, u64 n <= 107,
  *            u128 n <= 107, big any n
- * Helpers:   int_cube_root
+ * Validated: partial, pass, 108 terms through n = 107 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/int_cube_root.h"
+#include <stdint.h>
+#include <limits.h>
+#include "../utils/mem.h"
 
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +48,7 @@ seq_t a(idx_t n)
     size_t rows = 7;                 /* indices 0..6 */
     size_t cols = (size_t)n + 1;
     size_t total = rows * cols;
-    seq_t *dp = (seq_t *)calloc(total, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, total);
     if (!dp)
         return 0;    /* allocation failure */
 
@@ -62,6 +79,6 @@ seq_t a(idx_t n)
         result += dp[n_idx + k];
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -9,9 +9,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 57, u16 n <= 9551, u32 n <= 9551, u64 n <= 9551,
- *            u128 n <= 9551, big any n
- * Helpers:   coord_from_index, pack_coord
+ * Range:     u8 n <= 57, u16 n <= 19999, u32 n <= 19999, u64 n <= 19999,
+ *            u128 n <= 19999, big any n
+ * Validated: standard, pass, 88 terms through n = 9551 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,47 @@
 #include <stdbool.h>
 #include <math.h>
 #include <string.h>
-#include "../utils/coord_from_index.h"
-#include "../utils/pack_coord.h"
+
+/* From OEIS A308884: obtain (x,y) from spiral index n */
+static void coord_from_index(idx_t n, int *x, int *y) {
+    if (n == 0) { *x = 0; *y = 0; return; }
+
+    double d = sqrt((double)(n + 1));
+    int ring = (int)ceil((d - 1.0) / 2.0);
+    unsigned long long side = 2ULL * ring + 1ULL;
+    unsigned long long maxIdx = side * side - 1ULL;
+    unsigned long long diff = maxIdx - n;
+    unsigned long long edge = side - 1ULL;
+
+    int xi, yi;
+    if (diff < edge) {                     /* bottom side, moving left */
+        xi = ring - (int)diff;
+        yi = -ring;
+    } else if (diff < 2ULL * edge) {       /* left side, moving up */
+        unsigned long long d2 = diff - edge;
+        xi = -ring;
+        yi = -ring + (int)d2;
+    } else if (diff < 3ULL * edge) {       /* top side, moving right */
+        unsigned long long d3 = diff - 2ULL * edge;
+        xi = -ring + (int)d3;
+        yi = ring;
+    } else {                               /* right side, moving down */
+        unsigned long long d4 = diff - 3ULL * edge;
+        xi = ring;
+        yi = ring - (int)d4;
+    }
+    *x = xi;
+    *y = yi;
+}
+
+/* Pack signed 32‑bit coordinates into a 64‑bit key so that no key equals
+ * the empty marker HASHSET_EMPTY.  Flip the sign bit to avoid the
+ * sentinel value. */
+static inline uint64_t pack_coord(int x, int y) {
+    uint32_t ux = ((uint32_t)x) ^ 0x80000000U;
+    uint32_t uy = ((uint32_t)y) ^ 0x80000000U;
+    return ((uint64_t)ux << 32) | uy;
+}
 
 /* --------------------------------------------------------------------- */
 /* Hash set for 64‑bit keys (attacked squares)                           */

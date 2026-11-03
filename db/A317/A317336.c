@@ -6,8 +6,9 @@
  * Keywords:  sign
  * Formula:   a(1) = -7 For n > 1: if n is even: a(n) = -7 if n % 4 == 0 a(n)
  *            = -10 if n % 4 == 2 if n is odd: a(n) = a((n + 1) / 2)
- * Range:     i8 n <= 9155, i16 n <= 9155, i32 n <= 9155, i64 n <= 9155,
- *            i128 n <= 9155, big any n
+ * Range:     i8 n <= 20000, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 80 terms through n = 9155 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

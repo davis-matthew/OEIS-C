@@ -10,12 +10,14 @@
  *            J(0)=0, J(1)=1, J(k)=J(k-1)+2·J(k-2)
  * Range:     i8 n <= 7, i16 n <= 15, i32 n <= 31, i64 n <= 34, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (J_cap <= need) {
         idx_t new_cap = J_cap ? J_cap << 1 : 4;
         while (new_cap <= need) new_cap <<= 1;
-        J = (seq_t *)realloc(J, new_cap * sizeof(seq_t));
+        J = mem_resize(seq_t, J, new_cap);
         J_cap = new_cap;
     }
 

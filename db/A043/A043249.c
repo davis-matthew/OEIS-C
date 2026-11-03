@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   contains_adj48or84
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,23 @@
    base‑10 representation of k but not of k-1. Computed by scanning
    integers and testing the adjacency condition. */
 #include <stdbool.h>
-#include "../utils/contains_adj48or84.h"
+
+static bool contains_adj48or84(seq_t x)
+{
+    seq_t prev = 10;  /* sentinel for no previous digit */
+    while (x > 0)
+    {
+        seq_t d = x % 10;
+        if (prev != 10)
+        {
+            if ((prev == 4 && d == 8) || (prev == 8 && d == 4))
+                return true;
+        }
+        prev = d;
+        x = x / 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

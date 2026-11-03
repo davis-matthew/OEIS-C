@@ -11,7 +11,8 @@
  *            number of trees whose polynomial is shared with...
  * Range:     u8 n <= 12, u16 n <= 18, u32 n <= 19, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   next_level
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/next_level.h"
+
+static bool next_level(int *L, int len)
+{
+    int p = len - 1, q, i;
+    while (p > 0 && L[p] == 1) p--;
+    if (p <= 0) return false;
+    q = p - 1;
+    while (L[q] != L[p] - 1) q--;
+    for (i = p; i < len; i++) L[i] = L[i - (p - q)];
+    return true;
+}
 
 #define MAXN 48
 #define MAXK (MAXN / 2 + 2)

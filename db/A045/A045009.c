@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   choose_u64
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
    the property (which is 81 in decimal). */
 
 #include <stdbool.h>
-#include "../utils/choose_u64.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -29,13 +30,13 @@ seq_t a(idx_t n)
     idx_t L = 5;
     while (true)
     {
-        seq_t c = choose_u64(L, 5);      /* C(L,5) = sum_{k=5}^{L} C(k-1,4) */
+        seq_t c = binomial(L, 5);      /* C(L,5) = sum_{k=5}^{L} C(k-1,4) */
         if (c >= n_seq) break;
         ++L;
     }
 
     /* 2. How many numbers have length < L?  */
-    seq_t cntPrev = choose_u64(L - 1, 5);
+    seq_t cntPrev = binomial(L - 1, 5);
     seq_t offset = n_seq - cntPrev;     /* 1‑based offset within length L */
 
     /* 3. Unrank the offset‑th combination of 4 zeros among positions 1..L-1. */
@@ -50,7 +51,7 @@ seq_t a(idx_t n)
         idx_t max_cand = (idx_t)(L - 1 - remaining + 1);
         for (idx_t cand = start; cand <= max_cand; ++cand)
         {
-            seq_t cnt = choose_u64((L - 1) - cand, remaining - 1);
+            seq_t cnt = binomial((L - 1) - cand, remaining - 1);
             if (off < cnt)
             {
                 zeros[4 - remaining] = cand;

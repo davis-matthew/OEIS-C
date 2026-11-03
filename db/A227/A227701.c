@@ -8,6 +8,7 @@
  * Formula:   a(n) = 22323 + 2^n*(9018 + 2664*n) + 4^n*(216 + 432*n)
  * Range:     u8 none, u16 n <= 1, u32 n <= 9, u64 n <= 25, u128 n <= 56,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 999 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

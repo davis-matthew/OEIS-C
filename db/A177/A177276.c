@@ -12,7 +12,8 @@
  *            row to form the sequence a(n)
  * Range:     u8 n <= 55, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
    function binom(idx_t, idx_t).  It does not rely on any floating‑point
    arithmetic or external libraries. */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Integer square‑root (floor of √n) using binary search.  This is
    portable to both C11 and C++17. */
@@ -48,11 +50,11 @@ seq_t a(idx_t n)
 
     if ((k & 1U) == 0) {            /* even k → only the (1+x²)^r part */
         idx_t m = k >> 1;           /* m = k/2 */
-        return binom(r, m);
+        return binomial(r, m);
     } else {                          /* odd k → the 2*r*x*(1+x²)^(r-1) part */
         /* For r = 0 we cannot have an odd k, so this block is safe. */
         idx_t m = (k - 1) >> 1;     /* m = (k-1)/2 */
-        seq_t c = binom(r - 1, m);
+        seq_t c = binomial(r - 1, m);
         seq_t mult = (seq_t)(2 * r); /* 2*r fits into idx_t for all n ≤ 2^64-1 */
         return c * mult;
     }

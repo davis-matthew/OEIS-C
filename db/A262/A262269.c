@@ -11,13 +11,15 @@
  *            divisible by 5
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* 5‑bit row patterns whose integer value is divisible by 5 */
 static const unsigned short PAT_BITS[7][5] = {
@@ -74,8 +76,8 @@ seq_t a(idx_t n)
     /* initialise DP buffers once */
     if (!DP_INIT) {
         size_t sz = (size_t)STATES * sizeof(seq_t);
-        DP[0] = (seq_t*)malloc(sz);
-        DP[1] = (seq_t*)malloc(sz);
+        DP[0] = mem_new(seq_t, (sz) / sizeof(seq_t));
+        DP[1] = mem_new(seq_t, (sz) / sizeof(seq_t));
         DP_INIT = 1;
     }
 

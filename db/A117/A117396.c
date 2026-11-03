@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 45, u32 n <= 105, u64 n <= 231,
  *            u128 n <= 630, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 1215 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Find the row index r such that r*(r+1)/2 ≤ n < (r+1)*(r+2)/2 */
 static idx_t
@@ -51,7 +53,7 @@ a(idx_t n)
 
     /* Allocate space for the row; r is small (≈√(2n)), so the allocation is
        cheap and freed immediately after use. */
-    seq_t *row = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (size_t)(r + 1));
     if (!row)
         return (seq_t)0;                         /* fallback on allocation failure */
 
@@ -64,6 +66,6 @@ a(idx_t n)
     }
 
     seq_t result = row[c];
-    free(row);
+    mem_free(row);
     return result;
 }

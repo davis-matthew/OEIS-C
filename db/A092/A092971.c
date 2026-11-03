@@ -9,6 +9,7 @@
  *            A092971 (Row 6 of A288580)
  * Range:     i8 n <= 8, i16 n <= 14, i32 n <= 26, i64 n <= 33, i128 n <= 33,
  *            big any n
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

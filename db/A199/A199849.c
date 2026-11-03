@@ -12,12 +12,14 @@
  *            memoizes results so repeated calls are O(1)
  * Range:     u8 n <= 4, u16 n <= 26, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static memoization buffer */
 static seq_t *cache     = NULL;  /* array of cached values, 1‑based */
@@ -38,7 +40,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* First allocation: enough for 12 terms and up to n. */
         cache_sz = (n > 12 ? n : 12) + 1;
-        cache = (seq_t *)malloc(cache_sz * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_sz);
         if (!cache) return;  /* malloc failure – return 0 later */
         /* Fill known initial terms */
         for (idx_t i = 1; i <= 12; ++i) cache[i] = init_vals[i];
@@ -46,7 +48,7 @@ static void ensure_cache(idx_t n)
     } else if (n + 1 > cache_sz) {
         /* Grow the buffer */
         cache_sz = n + 1;
-        cache = (seq_t *)realloc(cache, cache_sz * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_sz);
         /* new slots will be filled when needed */
     }
     /* If cache already big enough – nothing to do */

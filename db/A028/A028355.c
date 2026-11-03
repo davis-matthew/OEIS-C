@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 25, u64 n <= 49, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 2465 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Sequence digit sequence: 1,2,3,4,3,2,1,2,3,4,3,2,1,…  */
 static const uint8_t cycle[6] = { 2, 3, 4, 3, 2, 1 };
@@ -51,7 +53,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = cache_cap == 0 ? 64 : cache_cap * 2;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }

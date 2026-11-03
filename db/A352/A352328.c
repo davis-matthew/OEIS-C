@@ -9,12 +9,14 @@
  *            of n
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *pell = NULL;   /* P_0, P_1, P_2, … */
 static size_t pell_cap = 0;  /* allocated length */
@@ -25,7 +27,7 @@ ensure_pell_sz(size_t need)
 {
     if (need <= pell_cap)
         return;
-    seq_t *ptr = (seq_t *)realloc(pell, need * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, pell, need);
     if (!ptr)
         abort();                 /* memory exhausted – abort is safe */
     pell = ptr;

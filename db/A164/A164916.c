@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 11, i32 n <= 25, i64 n <= 56, i128 n <= 119,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 892 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
  *   if n % 4 == 3: -4 * (8*(n/4) + 6) * 16^(n/4)
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

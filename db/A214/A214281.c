@@ -13,13 +13,22 @@
  *            s(t-i-1) / s(i-1) for 1 ≤ i < t The algorithm builds r...
  * Range:     u8 n <= 49, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   base_s
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/base_s.h"
+#include "../utils/mem.h"
+
+/* base sequence s(k) for k ≥ 0:
+   if k is even: s(k) = k + 1
+   if k is odd : s(k) = (k + 1) / 2 */
+static inline seq_t base_s(idx_t k)
+{
+    return (k & 1) ? (seq_t)((k + 1) / 2) : (seq_t)(k + 1);
+}
 
 /* static cache for the flattened triangle */
 static seq_t *cache = NULL;          /* pointer to cached values      */
@@ -35,7 +44,7 @@ static inline void grow_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                      /* unrecoverable memory failure */
     cache = tmp;

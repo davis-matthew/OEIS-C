@@ -9,15 +9,20 @@
  *            a(2)=1
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 30, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   rev
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The digit reversal function R is provided in ../utils/rev.h. */
-#include "../utils/rev.h"
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/reverse_digits.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/mem.h"
 
 /* Memoised computation of the sequence. */
 seq_t a(idx_t n)
@@ -30,7 +35,7 @@ seq_t a(idx_t n)
     /* Helper to grow the storage. */
     if (seq == NULL) {
         capacity = 4;
-        seq = (seq_t *)realloc(NULL, capacity * sizeof(seq_t));
+        seq = mem_resize(seq_t, NULL, capacity);
         if (!seq) return 0;          /* out‑of‑memory – unlikely in tests */ 
         /* initialise the known first three values */
         seq[0] = 0;
@@ -38,7 +43,7 @@ seq_t a(idx_t n)
         seq[2] = 1;
     } else if (n + 1 > capacity) {
         while (capacity <= n) capacity <<= 1;
-        seq = (seq_t *)realloc(seq, capacity * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, capacity);
         if (!seq) return 0;
     }
 
@@ -47,9 +52,9 @@ seq_t a(idx_t n)
 
     /* Extend the table up to n, computing new terms. */
     for (idx_t i = last + 1; i <= n; ++i) {
-        seq_t rev_prev2 = rev(seq[i - 2]);           /* R(a(i-2)) */
+        seq_t rev_prev2 = reverse_digits(seq[i - 2]);           /* R(a(i-2)) */
         seq_t sum = seq[i - 1] + rev_prev2 + seq[i - 3]; /* a(i-1)+R(a(i-2))+a(i-3) */
-        seq[i] = rev(sum);                           /* a(i) = R(sum) */
+        seq[i] = reverse_digits(sum);                           /* a(i) = R(sum) */
     }
     last = n;
     return seq[n];

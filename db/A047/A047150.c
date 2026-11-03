@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
    (h,y) to (h,y+1) does not intersect the line in its interior. */
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return true iff the up‑step from (h,y) to (h,y+1) does not cross the line y=5x/3.
    The step is forbidden only when the line passes strictly inside the segment,
@@ -54,12 +56,12 @@ seq_t a(idx_t n)
     /* First call: initialise cache and diagonal 0. */
     if (cache_len == 0) {
         cache_cap = 128;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;      /* a(0) = T(0,0) */
         cache_len = 1;
 
         diag_prev_len = 1;
-        diag_prev = (seq_t *)calloc(diag_prev_len, sizeof(seq_t));
+        diag_prev = mem_new(seq_t, diag_prev_len);
         diag_prev[0] = (seq_t)1;  /* T(0,0) */
         current_diag = 0;
     }
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         idx_t d = current_diag + 1;          /* next diagonal index */
         size_t new_len = d + 1;              /* cells on this diagonal, h=0..d */
 
-        seq_t *diag_cur = (seq_t *)calloc(new_len, sizeof(seq_t));
+        seq_t *diag_cur = mem_new(seq_t, new_len);
 
         for (idx_t h = 0; h < new_len; ++h) {
             idx_t k = d - h;                 /* k = d-h so that h+k=d */
@@ -88,12 +90,12 @@ seq_t a(idx_t n)
             /* Append the value to the global cache. */
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = val;
         }
 
-        free(diag_prev);
+        mem_free(diag_prev);
         diag_prev     = diag_cur;
         diag_prev_len = new_len;
         current_diag  = d;

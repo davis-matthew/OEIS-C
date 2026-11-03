@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 34, u64 n <= 66, u128 n <= 131,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 480 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    DP over the last two bits and the current difference (#001 – #110) is used. */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,11 +34,11 @@ seq_t a(idx_t n)
     seq_t *cur[4];
     seq_t *nxt[4];
     for (int t = 0; t < 4; ++t) {
-        cur[t] = (seq_t *)malloc(sz * sizeof(seq_t));
-        nxt[t] = (seq_t *)malloc(sz * sizeof(seq_t));
+        cur[t] = mem_new(seq_t, sz);
+        nxt[t] = mem_new(seq_t, sz);
         if (!cur[t] || !nxt[t]) {           /* allocation failed */
             for (int i = 0; i <= t; ++i) {
-                free(cur[i]); free(nxt[i]);
+                mem_free(cur[i]); mem_free(nxt[i]);
             }
             return (seq_t)0;
         }
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* Initially length = 2: all four pairs, diff = 0 */
     size_t mid = offset;                   /* index for diff = 0 */
     for (int s = 0; s < 4; ++s) {
-        memset(cur[s], 0, sz * sizeof(seq_t));
+        mem_set(cur[s], 0, sz * sizeof(seq_t));
         cur[s][mid] = (seq_t)1;
     }
 
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     for (idx_t len = 2; len < n; ++len) {
         /* clear next layer */
         for (int t = 0; t < 4; ++t)
-            memset(nxt[t], 0, sz * sizeof(seq_t));
+            mem_set(nxt[t], 0, sz * sizeof(seq_t));
 
         /* transitions */
         for (int last = 0; last < 4; ++last) {
@@ -91,8 +93,8 @@ seq_t a(idx_t n)
 
     /* free memory */
     for (int t = 0; t < 4; ++t) {
-        free(cur[t]);
-        free(nxt[t]);
+        mem_free(cur[t]);
+        mem_free(nxt[t]);
     }
 
     return ans;

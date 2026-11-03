@@ -10,6 +10,7 @@
  * Formula:   a(n) = (11*n*n - 23*n + 16)/2 for n>2; * a(1) = 6, a(2) = 11
  * Range:     u8 n <= 5, u16 n <= 80, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
+ * Validated: standard, pass, 61 terms through n = 201 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

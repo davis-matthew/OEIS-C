@@ -8,13 +8,15 @@
  *            prime factor of k (with A006530(1)=1)
  * Range:     u8 n <= 31, u16 n <= 672, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 921 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,14 +34,14 @@ seq_t a(idx_t n)
         size_t new_max = (size_t)n;                 /* safe for n <= 10000 */
 
         /* Reallocate the sum array.  C++ requires an explicit cast. */
-        seq_t *new_sum = (seq_t*)realloc(sum, (new_max + 1) * sizeof(seq_t));
+        seq_t *new_sum = mem_resize(seq_t, sum, (new_max + 1));
         if (new_sum == NULL)
             return 0;  /* allocation failed – honour the contract by aborting */
 
         sum = new_sum;
 
         /* Allocate array for the largest prime factor of each number. */
-        seq_t *lpf = (seq_t*)calloc(new_max + 1, sizeof(seq_t));
+        seq_t *lpf = mem_new(seq_t, new_max + 1);
         if (lpf == NULL)
             return 0;  /* allocation failed */
 
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
             sum[i] = sum[i-1] + lpf[i];
 
         /* Clean up */
-        free(lpf);
+        mem_free(lpf);
         max_n = new_max;
     }
 

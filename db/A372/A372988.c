@@ -7,14 +7,17 @@
  * Formula:   a(n) = (2*n)!/(n!*a(n-2)) with a(0) = 1, a(1) = 1
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;          /* array holding a(0)..a(max) */
 static size_t a_cache_capacity = 0;    /* currently allocated length   */
@@ -28,9 +31,9 @@ static void ensure_a_cache(idx_t n)
         return;
 
     /* reallocates the cache, keeping existing values */
-    seq_t *tmp = (seq_t *)realloc(a_cache, need * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, need);
     if (!tmp) {
-        free(a_cache);
+        mem_free(a_cache);
         abort();          /* allocation failed */
     }
     /* old data is already copied by realloc */

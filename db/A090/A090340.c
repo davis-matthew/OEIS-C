@@ -9,13 +9,39 @@
  *            factors of k counted with multiplicity
  * Range:     i8 n <= 86, i16 n <= 86, i32 n <= 86, i64 n <= 86, i128 n <= 86,
  *            big any n
- * Helpers:   sopfr_uint64
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sopfr_uint64.h"
+
+/* Computes the sum of prime factors of v with multiplicity.
+   v is treated as an unsigned 64 bit integer. */
+static seq_t sopfr_uint64(uint64_t v)
+{
+    seq_t sum = 0;
+    if (v < 2) return sum;            /* sopfr(0) = sopfr(1) = 0 */
+
+    while ((v & 1ULL) == 0) {          /* factor out 2's */
+        sum += (seq_t)2;
+        v >>= 1;
+    }
+
+    for (uint64_t p = 3; p * p <= v; p += 2) {
+        while (v % p == 0) {
+            sum += (seq_t)p;
+            v /= p;
+        }
+    }
+
+    if (v > 1) {                      /* remaining prime factor */
+        sum += (seq_t)v;
+    }
+
+    return sum;
+}
 
 /* OEIS sequence A090340: difference between sopfr(n) and sopfr(n+1). */
 seq_t a(idx_t n)

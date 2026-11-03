@@ -8,12 +8,15 @@
  * Formula:   a(n) = 28^n - (6*n + 1)*7^n + 3*n*(6*n + 1)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 32 terms through n = 470 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -21,8 +24,8 @@ seq_t a(idx_t n)
     seq_t n_seq = (seq_t)n;
 
     /* compute 28^n and 7^n using the utility function */
-    seq_t pow28 = big_pow((seq_t)28, n_seq);
-    seq_t pow7  = big_pow((seq_t)7, n_seq);
+    seq_t pow28 = ipow((seq_t)28, n_seq);
+    seq_t pow7  = ipow((seq_t)7, n_seq);
 
     /* intermediate values */
     seq_t six_n  = (seq_t)6 * n_seq;          /* 6*n */

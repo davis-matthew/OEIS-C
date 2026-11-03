@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 0, i16 n <= 1, i32 n <= 3, i64 n <= 7, i128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 869 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External linkage as required */
 extern seq_t a(idx_t n);
@@ -54,12 +56,12 @@ extern seq_t a(idx_t n)
         while (new_cap < need) new_cap <<= 1;
 
         /* Temporary arrays */
-        seq_t *sigma5 = (seq_t *)calloc(new_cap, sizeof(seq_t));
-        seq_t *x      = (seq_t *)calloc(new_cap, sizeof(seq_t));
-        seq_t *xpow2  = (seq_t *)calloc(new_cap, sizeof(seq_t));
-        seq_t *xpow3  = (seq_t *)calloc(new_cap, sizeof(seq_t));
-        seq_t *xpow4  = (seq_t *)calloc(new_cap, sizeof(seq_t));
-        seq_t *xpow5  = (seq_t *)calloc(new_cap, sizeof(seq_t));
+        seq_t *sigma5 = mem_new(seq_t, new_cap);
+        seq_t *x      = mem_new(seq_t, new_cap);
+        seq_t *xpow2  = mem_new(seq_t, new_cap);
+        seq_t *xpow3  = mem_new(seq_t, new_cap);
+        seq_t *xpow4  = mem_new(seq_t, new_cap);
+        seq_t *xpow5  = mem_new(seq_t, new_cap);
 
         if (!sigma5 || !x || !xpow2 || !xpow3 || !xpow4 || !xpow5) {
             abort();  /* memory allocation failure */
@@ -86,7 +88,7 @@ extern seq_t a(idx_t n)
         const seq_t binom[6] = {1, 5, 10, 10, 5, 1};
 
         /* Assemble new cache */
-        seq_t *new_cache = (seq_t *)calloc(new_cap, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) abort();
 
         new_cache[0] = 1;  /* constant term from (1)^5 */
@@ -100,13 +102,13 @@ extern seq_t a(idx_t n)
         }
 
         /* Clean up temporaries */
-        free(sigma5);
-        free(x);
-        free(xpow2);
-        free(xpow3);
-        free(xpow4);
-        free(xpow5);
-        free(cache);
+        mem_free(sigma5);
+        mem_free(x);
+        mem_free(xpow2);
+        mem_free(xpow3);
+        mem_free(xpow4);
+        mem_free(xpow5);
+        mem_free(cache);
 
         cache      = new_cache;
         cache_cap  = new_cap;

@@ -9,16 +9,17 @@
  *            m*(m+1)
  * Range:     i8 n <= 50, i16 n <= 1950, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 76 terms through n = 9198 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n) {
-    idx_t m = _floor_isqrt_u64(n);          /* m = floor(sqrt(n)) */
+    idx_t m = isqrt(n);          /* m = floor(sqrt(n)) */
     seq_t mm = (seq_t)m;
     seq_t m_mul = mm * (mm + 1);           /* m*(m+1) */
     seq_t N = (seq_t)n;

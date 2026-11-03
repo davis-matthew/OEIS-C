@@ -9,7 +9,8 @@
  *            cototient of φ(m) (i.e. φ(m)−φ(φ(m))) is not a power of 2
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   is_power_of_two, is_prime, phi
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   is_pow2, is_prime, mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/is_pow2.h"
 #include "../utils/is_prime.h"
-#include "../utils/is_power_of_two.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,24 +44,24 @@ seq_t a(idx_t n)
             continue;
 
         /* Compute φ(m) */
-        seq_t phi_m  = phi((idx_t)last_checked);
+        seq_t phi_m  = totient((idx_t)last_checked);
 
         /* Compute φ(φ(m)) */
-        seq_t phi_phi_m = phi((idx_t)phi_m);
+        seq_t phi_phi_m = totient((idx_t)phi_m);
 
         /* Cototient of φ(m) */
         seq_t cototient = phi_m - phi_phi_m;
 
         /* Accept if cototient is not a power of two */
-        if (!is_power_of_two(cototient)) {
+        if (!is_pow2(cototient)) {
             /* Grow cache if necessary */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_new(seq_t, new_cap);
                 if (!tmp) { abort(); }  /* allocation failure – halt */
                 if (cache) {
-                    memcpy(tmp, cache, cache_len * sizeof(seq_t));
-                    free(cache);
+                    mem_copy(tmp, cache, cache_len * sizeof(seq_t));
+                    mem_free(cache);
                 }
                 cache = tmp;
                 cache_cap = new_cap;

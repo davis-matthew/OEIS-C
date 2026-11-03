@@ -11,14 +11,19 @@
  *            splits into two irreducibles of degree dim/2. So...
  * Range:     u8 n <= 18, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   a3864_cmp
+ * Validated: full, pass, 18 terms through n = 18 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a3864_cmp.h"
+
+static int a3864_cmp(const void *x, const void *y) {
+    long long u = *(const long long *)x, v = *(const long long *)y;
+    return (u > v) - (u < v);
+}
 
 #define A3864_N 9
 

@@ -9,13 +9,28 @@
  *            decimal digits
  * Range:     u8 n <= 32, u16 n <= 169, u32 n <= 809, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_two_digits
+ * Validated: standard, pass, 89 terms through n = 9539 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_two_digits.h"
+
+/* Helper: return true if v has exactly two different decimal digits. */
+static inline bool has_two_digits(seq_t v) {
+    bool seen[10] = {0};
+    int cnt = 0;
+    while (v != 0) {
+        int d = (int)(v % 10);
+        if (!seen[d]) {
+            seen[d] = true;
+            if (++cnt > 2) return false;
+        }
+        v /= 10;
+    }
+    return cnt == 2;
+}
 
 /* Entry point: a(n) */
 seq_t a(idx_t n) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 10, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   digit_len
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +21,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 /* Check whether the octagonal number satisfies the cyclops property. */
 static bool is_cyclops_octagonal(seq_t x)
 {
-    int d = digit_len(x);
+    int d = num_digits(x);
     if ((d & 1) == 0)          /* even number of digits → reject */
         return false;
     int mid = d / 2;           /* position of the middle digit (0‑based) */
@@ -54,7 +56,7 @@ static idx_t next_i = 0;      /* index for the next octagonal number to test */
 static void grow_cache(void)
 {
     size_t new_cap = cache_cap ? cache_cap * 2 : 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort(); /* memory allocation failed */
     cache = tmp;

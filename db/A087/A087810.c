@@ -6,8 +6,9 @@
  * Keywords:  sign, easy, mult
  * Formula:   a(n) = 1 if n mod 4 ≠ 0 * a(n) = 1 – T(v₂(n) – 1) if n mod 4 =
  *            0, * where T(k) = k*(k+1)/2 and v₂(n) is the exponent of 2 in n
- * Range:     i8 n <= 8985, i16 n <= 8985, i32 n <= 8985, i64 n <= 8985,
- *            i128 n <= 8985, big any n
+ * Range:     i8 n <= 16385, i16 n <= 16385, i32 n <= 16385, i64 n <= 16385,
+ *            i128 n <= 16385, big any n
+ * Validated: standard, pass, 108 terms through n = 8985 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

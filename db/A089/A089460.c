@@ -10,20 +10,23 @@
  *            T(r,r) = 1)
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 54, u64 n <= 152, u128 n <= 405,
  *            big any n
- * Helpers:   binomial, floor_isqrt_u64, pow_seq
+ * Validated: standard, pass, 71 terms through n = 1151 (2026-11-01)
+ * Helpers:   binomial, ipow_i32, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_isqrt_u64.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* Compute row index r */
     idx_t tmp = 8ULL * n + 1ULL;
-    idx_t r   = (floor_isqrt_u64(tmp) - 1) / 2;
+    idx_t r   = (isqrt(tmp) - 1) / 2;
 
     /* Compute column index k */
     idx_t start = r * (r + 1) / 2;
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     idx_t d   = r - k;
     seq_t base    = (seq_t)(d + 2);
     int   exp     = (int)(d - 1);                 /* d >= 1 here */
-    seq_t power   = pow_seq(base, exp);
+    seq_t power   = ipow_i32(base, exp);
     seq_t binom   = binomial(r, k);
 
     /* Combine */

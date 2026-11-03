@@ -7,7 +7,8 @@
  * Formula:   a(n) = (1/(n+1)!) * Sum_{k=0..n} 2^k * (n+k)! * Stirling2(n,k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build. */
 extern seq_t seq_mul(seq_t a, seq_t b);  /* Optional helper; not used here. */
@@ -40,7 +42,7 @@ static void ensure_cap(seq_t **arr, size_t *cap, size_t new_cap)
     if (new_cap <= *cap) return;
     size_t new_cap2 = (*cap == 0) ? 64 : (*cap * 2);
     while (new_cap2 < new_cap) new_cap2 *= 2;
-    seq_t *tmp = (seq_t*)realloc(*arr, new_cap2 * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap2);
     if (!tmp) abort();            /* allocation failure */
     *arr = tmp;
     *cap = new_cap2;

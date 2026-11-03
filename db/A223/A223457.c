@@ -11,7 +11,8 @@
  *            divisor‑chain condition
  * Range:     u8 none, u16 n <= 3, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   divisor_count_u64, is_prime
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   is_prime, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 
 #include "../utils/is_prime.h"
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* Static storage for memoized terms */
 static seq_t *terms = NULL;   /* array of found terms   */
@@ -42,19 +44,19 @@ seq_t a(idx_t n) {
             continue;
 
         /* First level: proper divisor count of cand. */
-        seq_t tau_cand = divisor_count_u64(cand);
+        seq_t tau_cand = num_divisors(cand);
         uint64_t d1 = (uint64_t)tau_cand - 1;
         if (d1 <= 1)            /* composite guarantees d1 ≥ 2, but guard anyway */
             continue;
 
         /* Second level: proper divisor count of d1. */
-        seq_t tau_d1 = divisor_count_u64(d1);
+        seq_t tau_d1 = num_divisors(d1);
         uint64_t d2 = (uint64_t)tau_d1 - 1;
         if (d2 <= 1)
             continue;
 
         /* Third level: proper divisor count of d2. */
-        seq_t tau_d2 = divisor_count_u64(d2);
+        seq_t tau_d2 = num_divisors(d2);
         uint64_t d3 = (uint64_t)tau_d2 - 1;
 
         /* d3 must be a prime number. */
@@ -63,7 +65,7 @@ seq_t a(idx_t n) {
             if (terms_len == terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 8;
                 seq_t *new_terms =
-                    (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                    mem_resize(seq_t, terms, new_cap);
                 if (!new_terms)     /* allocation failure – abort */
                     return (seq_t)0;
                 terms = new_terms;

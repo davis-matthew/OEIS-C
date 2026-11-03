@@ -11,13 +11,15 @@
  *            a(16)=2832150095, a(17)=3531940102, a(18)=9896030299, a(19)...
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -36,7 +38,7 @@ static void ensure_cache(idx_t n)
     if (cache_len >= new_len)
         return;
 
-    seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_len);
     if (!new_cache)
         exit(1);       /* allocation failure */
 
@@ -51,7 +53,7 @@ static void ensure_cache(idx_t n)
             new_cache[i] = (seq_t)999700 * new_cache[i-10] - new_cache[i-20];
     }
 
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_len = new_len;
 }

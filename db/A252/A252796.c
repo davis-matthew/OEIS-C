@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 200, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Limit of the sieve – big enough for n up to 10 000 (p_10000≈104 729). */
 static const idx_t LIMIT = 200000;
@@ -70,7 +72,7 @@ static void init(void)
     last_seen = (uint32_t*)calloc(prime_cnt, sizeof(uint32_t));
 
     /* Allocate memoisation array (index 0 unused). */
-    cache = (seq_t*)malloc(sizeof(seq_t));
+    cache = mem_new(seq_t, 1);
     cache[0] = (seq_t)0;
     cache_size = 1;
 
@@ -122,7 +124,7 @@ seq_t a(idx_t n)
         while (!window_has_n_primes(start, k)) ++start;
 
         /* Resize cache to hold a(k). */
-        cache = (seq_t*)realloc(cache, (k + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (k + 1));
         cache[k] = (seq_t)start;
         cache_size = k + 1;
         last_start = start;

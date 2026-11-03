@@ -10,18 +10,19 @@
  *            enumerating x, y and solving for z
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a005884_isqrt
+ * Validated: standard, pass, 91 terms through n = 973 (2026-11-01)
+ * Helpers:   isqrt_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a005884_isqrt.h"
+#include "../utils/isqrt_i64.h"
 
 seq_t a(idx_t n) {
     seq_t count = 0;
     long long N = 4 * (long long)n + 2;
-    long long U = a005884_isqrt(N) + 2;
+    long long U = isqrt_i64(N) + 2;
     long long u, v;
     for (u = -U; u <= U; u++) {
         long long uu, x;
@@ -37,7 +38,7 @@ seq_t a(idx_t n) {
             rem = N - uu - vv;
             if (rem % 4 != 0) continue;
             r = rem / 4;
-            z = a005884_isqrt(r);
+            z = isqrt_i64(r);
             if (z * z != r) continue;
             y = (v + 1) / 2;
             if ((x + y + z) % 2 == 0) {

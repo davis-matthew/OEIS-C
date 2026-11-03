@@ -8,7 +8,8 @@
  *            5 ≤ n-1), * then a(n)=w(n)-a(n-w(n))
  * Range:     u8 n <= 625, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   w_of
+ * Validated: standard, pass, 103 terms through n = 9764 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,19 @@
 /* Allow both C11 and C++17 builds */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/w_of.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static idx_t w_of(idx_t n)
+{
+    /* called only with n >= 2 */
+    idx_t w = 1;
+    /* multiply by 5 while the next multiplication would not exceed n‑1 */
+    while (w <= (n - 1) / 5) {
+        w *= 5;
+    }
+    return w;
+}
 
 /* Forward declarations used only by this file */
 static idx_t w_of(idx_t n);
@@ -43,7 +56,7 @@ seq_t a(idx_t n)
     /* Make sure the cache is large enough */
     if (n > cache_sz) {
         idx_t new_sz = n + 1;    /* need indices 0..n; 0 unused */
-        seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_sz);
         if (!tmp) {              /* allocation failed – unlikely in tests */
             return (seq_t)0;
         }

@@ -12,12 +12,14 @@
  *            a(i)·a(n-i))/2⌋, c(n)=2·a(n)+∑_{i=1}^{n-1} a(i)·a(n-i)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
     /* initial allocation and first term */
     if (!computed) {
         capacity = 8;
-        a_seq = (seq_t*)malloc(capacity * sizeof(seq_t));
-        c_seq = (seq_t*)malloc(capacity * sizeof(seq_t));
+        a_seq = mem_new(seq_t, capacity);
+        c_seq = mem_new(seq_t, capacity);
         a_seq[0] = (seq_t)1;
         c_seq[0] = a_seq[0] * a_seq[0];   /* c(0)=1 */
         computed = 1;                     /* next term to compute is 1 */
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
     if (n >= capacity) {
         size_t newcap = capacity;
         while (n >= newcap) newcap <<= 1;     /* double until large enough */
-        a_seq = (seq_t*)realloc(a_seq, newcap * sizeof(seq_t));
-        c_seq = (seq_t*)realloc(c_seq, newcap * sizeof(seq_t));
+        a_seq = mem_resize(seq_t, a_seq, newcap);
+        c_seq = mem_resize(seq_t, c_seq, newcap);
         capacity = newcap;
     }
 

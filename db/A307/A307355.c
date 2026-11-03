@@ -8,13 +8,15 @@
  *            binomial(n-1,k-1) * a(k) * n!/k!
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 18, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* local helper: multiplicative binomial(n,k) for seq_t */
 static inline seq_t _binom(idx_t n, idx_t k)
@@ -45,11 +47,11 @@ seq_t a(idx_t n)
     if (fact_cache == NULL || fact_max < n) {
         idx_t new_max = n;
         if (fact_cache == NULL) {
-            fact_cache = (seq_t *)realloc(NULL, (new_max+1) * sizeof(seq_t));
+            fact_cache = mem_resize(seq_t, NULL, (new_max+1));
             fact_cache[0] = (seq_t)1;
             fact_max = 0;
         } else {
-            fact_cache = (seq_t *)realloc(fact_cache, (new_max+1) * sizeof(seq_t));
+            fact_cache = mem_resize(seq_t, fact_cache, (new_max+1));
         }
         if (fact_cache == NULL) return (seq_t)0;   /* out of memory */
         for (idx_t i = fact_max + 1; i <= new_max; ++i) {
@@ -62,9 +64,9 @@ seq_t a(idx_t n)
     if (a_cache == NULL || a_max < n) {
         idx_t new_max = n;
         if (a_cache == NULL) {
-            a_cache = (seq_t *)realloc(NULL, (new_max+1) * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, NULL, (new_max+1));
         } else {
-            a_cache = (seq_t *)realloc(a_cache, (new_max+1) * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, (new_max+1));
         }
         if (a_cache == NULL) return (seq_t)0;   /* out of memory */
 

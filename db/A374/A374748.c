@@ -13,7 +13,8 @@
  *            sufficient for all indices used (n ≤ 1...
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>      /* malloc, memset */
 #include <stdint.h>      /* for uint64_t    */
 #include <math.h>        /* sqrtl for 64‑bit */
+#include "../utils/mem.h"
 
 #define MAX_ROW 200     /* enough for all requested n (≈141)    */
 static seq_t *dp = NULL;         /* 3‑D memoisation table              */
@@ -88,10 +90,10 @@ static void compute_triangle(void)
     dp_dim = (size_t)(MAX_ROW + 1);
     size_t sz = dp_dim * dp_dim * dp_dim;
 
-    dp  = (seq_t *)malloc(sz * sizeof(seq_t));
+    dp  = mem_new(seq_t, sz);
     vis = (bool  *)malloc(sz * sizeof(bool));
     if (!dp || !vis) {         /* allocation failure: abort gracefully */
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
         if (vis) free(vis);
         triangle_ready = false;
         return;

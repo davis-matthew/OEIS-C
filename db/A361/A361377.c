@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 107, u16 n <= 156, u32 n <= 156, u64 n <= 156,
  *            u128 n <= 156, big any n
- * Helpers:   gcd
+ * Validated: full, pass, 156 terms through n = 156 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Convert (x,y) coordinates on the Ulam spiral to the board number. */
 static seq_t coord_to_num(long long x, long long y)
@@ -83,7 +85,7 @@ static void ensure_seq_capacity(size_t need)
     size_t new_cap = seq_cap ? seq_cap : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
     if (!tmp)
         exit(1);
     seq_arr = tmp;

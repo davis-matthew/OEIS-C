@@ -8,7 +8,8 @@
  * Formula:   a(n) = A000966(n+1) - A000966(n)
  * Range:     u8 n <= 85, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         size_t new_cap = b_cap ? b_cap * 2 : 16;
         while (new_cap < target + 2)
             new_cap <<= 1;
-        b = (seq_t *)realloc(b, new_cap * sizeof(seq_t));
+        b = mem_resize(seq_t, b, new_cap);
         b_cap = new_cap;
     }
 

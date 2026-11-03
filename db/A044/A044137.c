@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 1700, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9401 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Check whether the base‑6 representation of x contains "55". */
 static bool has_55(seq_t x)
@@ -45,7 +47,7 @@ static void add_term(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, cache, new_cap);
         if (!newp) exit(1);     /* memory exhausted – abort */
         cache  = newp;
         cache_cap = new_cap;

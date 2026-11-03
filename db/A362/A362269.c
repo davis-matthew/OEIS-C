@@ -9,6 +9,7 @@
  *            n if n mod 3 = 0, a(n-1) * n if n mod 3 = 1
  * Range:     i8 n <= 9, i16 n <= 15, i32 n <= 27, i64 n <= 45, i128 n <= 78,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 1094 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,6 +10,7 @@
  *            concatenating the decimal representations of these digits is
  *            returned
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

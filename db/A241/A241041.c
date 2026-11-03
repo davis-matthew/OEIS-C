@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 3282, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, mod_pow, next_prime
+ * Validated: standard, pass, 82 terms through n = 9111 (2026-11-03)
+ * Helpers:   factor_u64, mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,11 +23,13 @@
 
 /* Dependencies ------------------------------------------------------- */
 /* next_prime(uint64_t start) → first prime ≥ start (works for big ints) */
-#include "../utils/next_prime.h"
-/* factor_u64(uint64_t n, uint64_t prime[64], uint64_t exp[64], size_t *cnt) */
+#include <string.h>
 #include "../utils/factor_u64.h"
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+/* factor_u64(uint64_t n, uint64_t prime[64], uint64_t exp[64], size_t *cnt) */
 /* mod_pow(seq_t base, seq_t exp, seq_t mod) → (base^exp mod mod) */
-#include "../utils/mod_pow.h"
 
 /* Helper to test whether g is a primitive root modulo p (p a prime). */
 static bool is_primitive_root(uint64_t p, uint64_t g)
@@ -42,7 +45,7 @@ static bool is_primitive_root(uint64_t p, uint64_t g)
     {
         uint64_t q   = primes[i];
         uint64_t exp = phi / q;
-        if (mod_pow((seq_t)g, exp, (seq_t)p) == (seq_t)1)
+        if (powmod((seq_t)g, exp, (seq_t)p) == (seq_t)1)
             return false;   /* order divides phi / q */
     }
     return true;
@@ -83,7 +86,7 @@ static void grow_cache(idx_t n_qual)
             if (diff_cnt >= diff_cap)
             {
                 size_t new_cap = diff_cap == 0 ? 16 : diff_cap << 1;
-                seq_t *tmp = (seq_t *)realloc(diffs, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, diffs, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 diffs = tmp;
                 diff_cap = new_cap;

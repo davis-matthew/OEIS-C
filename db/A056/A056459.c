@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{d|n} μ(d) * 3^{ceil((n/d)/2)}
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   power_of_three
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/power_of_three.h"
+#include "../utils/pow3.h"
 
 /* Recursive enumeration of all square‑free divisors of n.  For each
    divisor d the Möbius value is (-1)^{ω(d)} where ω(d) is the number
@@ -37,7 +38,7 @@ static void dfs(uint64_t idx,
     if (idx == pcnt) {
         idx_t t = n / d;
         idx_t k = (t + 1) >> 1;                 /* ceil(t/2) */
-        seq_t val = power_of_three(k);
+        seq_t val = pow3(k);
         if (sign > 0)
             *pos += val;
         else

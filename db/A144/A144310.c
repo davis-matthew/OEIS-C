@@ -14,7 +14,8 @@
  *            divisible by 4 the result is multiplied by 2
  * Range:     u8 n <= 60, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   get_prime, rad
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,62 @@
 /* Include required utilities */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/rad.h"
-#include "../utils/get_prime.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/radical.h"
+#include "../utils/mem.h"
+
+/* Return the k‑th prime (k ≥ 1).  On first call the prime list
+   is built incrementally using trial division.  The list is
+   stored in a static array which is expanded as necessary.   */
+static uint32_t get_prime(idx_t k)
+{
+    static uint32_t *pr = NULL;     /* array of primes */
+    static size_t sz   = 0;         /* number of primes stored */
+    static size_t cap  = 0;         /* allocated capacity */
+    static uint32_t cand = 3;       /* candidate after 2 */
+
+    /* initialise the prime table on first use */
+    if (sz == 0) {
+        cap = 8;
+        pr = (uint32_t *)realloc(pr, cap * sizeof(uint32_t));
+        if (!pr) abort();
+        sz = 0;
+    }
+
+    /* grow the array until we have at least k primes */
+    while (sz < (size_t)k) {
+        if (sz == 0) {                /* add the first prime */
+            pr[sz++] = 2;
+            continue;
+        }
+
+        /* find the next prime candidate */
+        uint32_t p = cand;
+        bool ok = true;
+        for (size_t i = 0; i < sz; ++i) {
+            uint32_t prime = pr[i];
+            if ((uint64_t)prime * prime > (uint64_t)p) break;
+            if (p % prime == 0) { ok = false; break; }
+        }
+
+        if (!ok) {                    /* not prime – keep searching */
+            cand += 2;                /* only odd numbers remain */
+            continue;
+        }
+
+        /* prime found – store it, grow table if needed */
+        if (sz == cap) {
+            cap <<= 1;
+            pr = (uint32_t *)realloc(pr, cap * sizeof(uint32_t));
+            if (!pr) abort();
+        }
+        pr[sz++] = p;
+        cand = p + 2;
+    }
+
+    return pr[(size_t)k - 1];
+}
 
 static seq_t **triangle_tbl = NULL;   /* array of pointers to each row */
 static size_t  rows_count  = 0;        /* how many rows have been built */
@@ -34,7 +89,7 @@ static void build_next_row(void)
 {
     size_t cur_row = rows_count + 1;                 /* 1‑based row index */
     size_t len     = cur_row;                       /* number of columns */
-    seq_t  *row    = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t  *row    = mem_new(seq_t, len);
     if (!row) abort();                               /* allocation failure */
 
     for (size_t col = 0; col < len; ++col) {
@@ -45,7 +100,7 @@ static void build_next_row(void)
             val = (seq_t)get_prime(cur_row - 1);
         } else {                                      /* interior */
             seq_t sum = triangle_tbl[rows_count-1][col-1] + triangle_tbl[rows_count-1][col];
-            seq_t rad_val = rad((idx_t)sum);
+            seq_t rad_val = radical((idx_t)sum);
             if ((sum & 3) == 0) rad_val *= 2;          /* multiply by 2 if 4 divides the sum */
             val = rad_val;
         }

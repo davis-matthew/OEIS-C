@@ -7,7 +7,8 @@
  * Formula:   a(n) = (18*n)!*(5*n)!*(3*n)! / ((10*n)!*(9*n)!*(6*n)!*n!)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 4, u128 n <= 9,
  *            big any n
- * Helpers:   build_primes, seq_pow
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-01)
+ * Helpers:   build_primes, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
  * for n ≤ 10 000. */
 
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/build_primes.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 static idx_t *prime_list = NULL;
 static size_t prime_cnt  = 0;
@@ -72,7 +75,7 @@ seq_t a(idx_t n)
 
         if (e > 0) {
             /* Multiply the prime^e into the result.  */
-            result *= seq_pow((seq_t)p, e);
+            result *= ipow_idx((seq_t)p, e);
         }
     }
 

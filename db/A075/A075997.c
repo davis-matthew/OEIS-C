@@ -8,6 +8,7 @@
  * Formula:   a(n) = Σ_{k=2}^{∞} (-1)^k ⌊n/k⌋ (for n ≥ 0, n=0 gives 0)
  * Range:     u8 n <= 815, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 96 terms through n = 1900 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

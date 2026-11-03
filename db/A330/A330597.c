@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 1690, u64 n <= 1690,
  *            u128 n <= 1690, big any n
- * Helpers:   is_squarefree, seq_cmp
+ * Validated: full, pass, 1690 terms through n = 1690 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,18 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "../utils/is_squarefree.h"
-#include "../utils/seq_cmp.h"
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 #define MAX_TERMS 2000   /* a(1690) = 77377717, but a small over‑estimate is safe. */
 
@@ -114,7 +125,7 @@ static void generate_all(void)
     }
 
     /* Sort the terms in ascending order. */
-    qsort(_seq, _seq_len, sizeof(seq_t), seq_cmp);
+    mem_qsort(_seq, _seq_len, sizeof(seq_t), seq_cmp);
     _seq_ready = true;
 }
 

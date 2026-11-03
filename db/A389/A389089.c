@@ -8,16 +8,19 @@
  * Formula:   a(n) = A048250(n)/gcd(sigma(n), A048250(n)) where A048250(n) is
  *            the sum of squarefree divisors of n, sigma(n) is the sum of all
  *            divisors of n
- * Range:     u8 n <= 1232, u16 n <= 9297, u32 n <= 9297, u64 n <= 9297,
- *            u128 n <= 9297, big any n
+ * Range:     u8 n <= 1232, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9297 (2026-11-01)
  * Helpers:   build_primes_upto, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/gcd.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/gcd.h"
 
 static bool init_primes = false;
 static uint64_t *prime_list = NULL;

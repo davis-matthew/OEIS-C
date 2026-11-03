@@ -8,12 +8,14 @@
  *            number)
  * Range:     u8 n <= 85, u16 n <= 710, u32 n <= 7006, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9745 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,13 +30,13 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache if necessary                        */
     if (smooth == NULL) {
         cache_size = n > 16 ? n : 16;
-        smooth = (seq_t *)malloc(cache_size * sizeof(seq_t));
-        phi    = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        smooth = mem_new(seq_t, cache_size);
+        phi    = mem_new(seq_t, cache_size);
     } else if (n > cache_size) {
         idx_t new_size = cache_size * 2;
         if (new_size < n) new_size = n;
-        smooth = (seq_t *)realloc(smooth, new_size * sizeof(seq_t));
-        phi    = (seq_t *)realloc(phi,    new_size * sizeof(seq_t));
+        smooth = mem_resize(seq_t, smooth, new_size);
+        phi    = mem_resize(seq_t, phi, new_size);
         cache_size = new_size;
     }
 

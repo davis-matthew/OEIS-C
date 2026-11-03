@@ -7,6 +7,7 @@
  * Formula:   a(n) = (ceil (sqrt(n)))!
  * Range:     u8 n <= 25, u16 n <= 64, u32 n <= 144, u64 n <= 400,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 69 terms through n = 967 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  *            a(2)=1+3=4, a(3)=1+3+5=9, …)
  * Range:     u8 n <= 13, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
 
     if (!init) {
         capacity = 8;                            /* initial allocation size */
-        primes   = (seq_t *)malloc(capacity * sizeof(seq_t));
-        cum_sum  = (seq_t *)malloc((capacity + 1) * sizeof(seq_t));
+        primes   = mem_new(seq_t, capacity);
+        cum_sum  = mem_new(seq_t, (capacity + 1));
         if (!primes || !cum_sum) exit(1);        /* allocation failure */
         cum_sum[0] = (seq_t)0;
         primes_cnt = 0;
@@ -62,10 +64,10 @@ seq_t a(idx_t n)
         /* Ensure capacity for the new prime and cumulative sum. */
         if (primes_cnt + 1 > capacity) {
             size_t new_cap = capacity << 1;    /* double the capacity */
-            seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, primes, new_cap);
             if (!tmp) exit(1);
             primes = tmp;
-            tmp = (seq_t *)realloc(cum_sum, (new_cap + 1) * sizeof(seq_t));
+            tmp = mem_resize(seq_t, cum_sum, (new_cap + 1));
             if (!tmp) exit(1);
             cum_sum = tmp;
             capacity = new_cap;

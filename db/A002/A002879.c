@@ -13,14 +13,39 @@
  *            flush hands: 4 suits * suited-rank sets F (|F| >= 5) * of...
  * Range:     u8 none, u16 n <= 1, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   a002879_rankcat, a002879_straight
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a002879_rankcat.h"
-#include "../utils/a002879_straight.h"
+
+static int a002879_straight(unsigned mask) {
+    int lo;
+    for (lo = 0; lo <= 8; lo++)
+        if (((mask >> lo) & 0x1Fu) == 0x1Fu) return 1;
+    if ((mask & 0x100Fu) == 0x100Fu) return 1; /* wheel 5432A */
+    return 0;
+}
+
+static int a002879_rankcat(const int *c) {
+    unsigned mask = 0;
+    int quads = 0, trips = 0, pairs = 0, r;
+    for (r = 0; r < 13; r++) {
+        if (c[r] > 0) mask |= 1u << r;
+        if (c[r] == 4) quads++;
+        else if (c[r] == 3) trips++;
+        else if (c[r] == 2) pairs++;
+    }
+    if (quads) return 2;
+    if (trips >= 2 || (trips && pairs)) return 3;
+    if (a002879_straight(mask)) return 5;
+    if (trips) return 6;
+    if (pairs >= 2) return 7;
+    if (pairs) return 8;
+    return 9;
+}
 
 static long long a002879_cnt[10];
 static int a002879_done = 0;

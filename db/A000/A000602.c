@@ -12,13 +12,34 @@
  *            of size <= floor((n-1)/2), of total size n-1, p...
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 30, u64 n <= 52, u128 n <= 97,
  *            big any n
- * Helpers:   q602_mc
+ * Validated: standard, pass, 49 terms through n = 915 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/q602_mc.h"
+#include "../utils/mem.h"
+
+/* C(b+j-1, j) for j <= 4: divide the factors before multiplying, so no
+   intermediate value is larger than the result */
+static seq_t q602_mc(seq_t b, int j) {
+    seq_t f[4];
+    int i, used2 = -1;
+    seq_t r = 1;
+    for (i = 0; i < j; i++) f[i] = b + (seq_t)i;
+    if (j >= 3) {
+        for (i = 0; i < j; i++) if (f[i] % 3 == 0) { f[i] /= 3; break; }
+    }
+    if (j == 4) {
+        for (i = 0; i < j; i++) if (f[i] % 4 == 0) { f[i] /= 4; used2 = i; break; }
+    }
+    if (j >= 2) {
+        for (i = 0; i < j; i++) if (i != used2 && f[i] % 2 == 0) { f[i] /= 2; break; }
+    }
+    for (i = 0; i < j; i++) r *= f[i];
+    return r;
+}
 
 static seq_t *q602_ans = 0;
 static idx_t q602_N = 0;
@@ -28,8 +49,8 @@ static void q602_build(idx_t N) {
     seq_t *ans;
     idx_t t, m, k;
     int j;
-    for (k = 0; k < 5; k++) M[k] = (seq_t *)calloc((size_t)(N + 2), sizeof(seq_t));
-    ans = (seq_t *)calloc((size_t)(N + 2), sizeof(seq_t));
+    for (k = 0; k < 5; k++) M[k] = mem_new(seq_t, (size_t)(N + 2));
+    ans = mem_new(seq_t, (size_t)(N + 2));
     M[0][0] = 1;
     ans[0] = 1;
     if (N >= 1) ans[1] = 1;
@@ -61,8 +82,8 @@ static void q602_build(idx_t N) {
             ans[2 * t + 2] = s + q602_mc(R2, 2);
         }
     }
-    for (k = 0; k < 5; k++) free(M[k]);
-    if (q602_ans) free(q602_ans);
+    for (k = 0; k < 5; k++) mem_free(M[k]);
+    if (q602_ans) mem_free(q602_ans);
     q602_ans = ans;
     q602_N = N;
 }

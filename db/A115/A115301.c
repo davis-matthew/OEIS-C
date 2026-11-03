@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 816, u64 n <= 816, u128 n <= 816,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: full, pass, 816 terms through n = 816 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"   /* bool is_prime_small(seq_t) */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Forward declarations */
 static void recurse(int pos);
@@ -44,7 +46,7 @@ static void recurse(int pos)
         int g3 = perm_digits[6]*100
               + perm_digits[7]*10
               + perm_digits[8];
-        if (!is_prime_small(g3))
+        if (!is_prime_seq(g3))
             return;                         /* last block not prime */
 
         /* Build the 9‑digit number */
@@ -55,7 +57,7 @@ static void recurse(int pos)
         /* Ensure cache has space and store value */
         if (seq_used == seq_cap) {
             size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-            seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, new_cap);
             seq_cap = new_cap;
         }
         seq_cache[seq_used++] = val;
@@ -73,7 +75,7 @@ static void recurse(int pos)
                 int g1 = perm_digits[0]*100
                        + perm_digits[1]*10
                        + perm_digits[2];
-                if (!is_prime_small(g1)) {
+                if (!is_prime_seq(g1)) {
                     used_digit[d] = false;
                     continue;
                 }
@@ -82,7 +84,7 @@ static void recurse(int pos)
                 int g2 = perm_digits[3]*100
                        + perm_digits[4]*10
                        + perm_digits[5];
-                if (!is_prime_small(g2)) {
+                if (!is_prime_seq(g2)) {
                     used_digit[d] = false;
                     continue;
                 }

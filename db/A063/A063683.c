@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* own 64‑bit gcd – no external header required */
 static uint64_t gcd_uint64(uint64_t a, uint64_t b)
@@ -42,7 +44,7 @@ static void ensure_fib(idx_t need)
     /* grow the array to accommodate indices up to `need` */
     size_t new_size = (size_t)need + 1; /* indices 0..need (index 0 unused) */
     if (fib_cache == NULL) {
-        fib_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        fib_cache = mem_new(seq_t, new_size);
         if (!fib_cache) return;   /* allocation failure – leave cache empty */
         /* initialise first two Fibonacci numbers */
         fib_cache[0] = 0;            /* unused */
@@ -50,7 +52,7 @@ static void ensure_fib(idx_t need)
         fib_cache[2] = 1;            /* Fib(2) */
         fib_cache_len = 2;
     } else {
-        fib_cache = (seq_t *)realloc(fib_cache, new_size * sizeof(seq_t));
+        fib_cache = mem_resize(seq_t, fib_cache, new_size);
         if (!fib_cache) return; /* allocation failure – leave cache as is */
     }
 

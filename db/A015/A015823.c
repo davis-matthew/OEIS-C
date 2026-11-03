@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 21, u16 n <= 609, u32 n <= 3000, u64 n <= 3000,
+ * Range:     u8 n <= 21, u16 n <= 1095, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   calc_phi, sigma_of
+ * Validated: standard, pass, 71 terms through n = 2903 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,24 @@
    the results are cached for repeated calls. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/calc_phi.h"   /* seq_t calc_phi(seq_t m); */
-#include "../utils/sigma_of.h"   /* seq_t sigma_of(idx_t n); */
+#include <stdint.h>
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* Cache of found terms.  Cached terms are stored in the order in
    which they occur. */
@@ -36,7 +53,7 @@ static void grow_cache(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 128;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) return;                 /* ignore failure – subsequent
                                         * calls will continue from
                                         * where they left off */
@@ -55,7 +72,7 @@ seq_t a(idx_t n)
         /* Compute sigma(k) and phi(k+7).  The helper functions use
            seq_t internally, so no type conversions are required. */
         seq_t sigma = sigma_of(next_k);
-        seq_t phi   = calc_phi((seq_t)(next_k + 7));
+        seq_t phi   = totient_seq((seq_t)(next_k + 7));
 
         /* If phi divides sigma, store the term. */
         if (phi != (seq_t)0 && sigma % phi == (seq_t)0) {

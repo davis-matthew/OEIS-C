@@ -8,13 +8,20 @@
  * Formula:   a(n) = ∏_{p^e‖n} (p%3==2 ? ⌊e/2⌋+1 : e+1)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   loeschian_factor_value
+ * Validated: standard, pass, 104 terms through n = 9332 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/loeschian_factor_value.h"
+
+static inline seq_t loeschian_factor_value(uint64_t prime, uint64_t exp) {
+    if (prime % 3 == 2) /* prime ≡ 2 (mod 3) */
+        return (seq_t)(exp / 2 + 1);
+    else                /* prime ≡ 0 or 1 (mod 3)  */
+        return (seq_t)(exp + 1);
+}
 
 seq_t a(idx_t n) {
     uint64_t m = (uint64_t)n;

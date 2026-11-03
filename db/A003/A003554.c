@@ -8,6 +8,7 @@
  *            division, build every product of prime powers, then sort
  * Range:     u8 n <= 7, u16 n <= 28, u32 n <= 93, u64 n <= 128, u128 n <= 128,
  *            big any n
+ * Validated: full, pass, 128 terms through n = 128 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

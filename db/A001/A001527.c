@@ -8,14 +8,27 @@
  *            C(M,j)*(M-j)/(j+1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   a001527_big, a001527_inv
+ * Validated: standard, pass, 30 terms through n = 29 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001527_big.h"
-#include "../utils/a001527_inv.h"
+
+static int a001527_big(void) {
+    seq_t x = 1;
+    int k;
+    for (k = 0; k < 200; k++) x = x + x;
+    return x != 0;
+}
+
+static unsigned __int128 a001527_inv(unsigned __int128 d) {
+    unsigned __int128 x = d;
+    int k;
+    for (k = 0; k < 8; k++) x = x * (2 - d * x);
+    return x;
+}
 
 seq_t a(idx_t n) {
     if (a001527_big()) {

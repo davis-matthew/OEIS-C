@@ -9,17 +9,39 @@
  *            (n >= 0) (C is the binomial coefficient)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   binom_n_k, pow2, seq_alloc, seq_realloc
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/binom_n_k.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* static cache for computed terms */
 static seq_t *cache = NULL;
@@ -61,7 +83,7 @@ seq_t a(idx_t n)
             for (idx_t k = 0; k <= maxk; ++k) {
                 seq_t term = cache[(size_t)k];
                 term *= pow2(k);
-                seq_t bin = binom_n_k(ni + 1, 2 * k + 1);
+                seq_t bin = binomial(ni + 1, 2 * k + 1);
                 term *= bin;
                 sum += term;
             }

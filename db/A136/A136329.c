@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 31, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,9 +43,9 @@ seq_t a(idx_t n)
     /* Allocate temporary arrays.  Size r_len+2 is enough for all polynomials up
        to degree r_len-1. */
     idx_t sz   = r_len + 2;
-    seq_t *prevprev = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *prev     = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *curr     = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *prevprev = mem_new(seq_t, sz);
+    seq_t *prev     = mem_new(seq_t, sz);
+    seq_t *curr     = mem_new(seq_t, sz);
     if (!prevprev || !prev || !curr) return 0;   /* allocation failure */
 
     /* Initialise p_0 and p_1 */
@@ -80,9 +82,9 @@ seq_t a(idx_t n)
     /* Result is the k-th coefficient of the polynomial in 'prev' */
     seq_t result = prev[k];
 
-    free(prevprev);
-    free(prev);
-    free(curr);
+    mem_free(prevprev);
+    mem_free(prev);
+    mem_free(curr);
 
     return result;
 }

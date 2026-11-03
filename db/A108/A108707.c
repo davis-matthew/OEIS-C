@@ -9,8 +9,9 @@
  *            the minimal leg for every odd integer h that can occur as the
  *            hypotenuse of a primitive triple. For general n, it considers
  *            all divisors d of n such that n/d is odd and use...
- * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
- *            big any n
+ * Range:     u8 n <= 387, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 106 terms through n = 9832 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

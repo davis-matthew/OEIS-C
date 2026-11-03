@@ -12,15 +12,35 @@
  *            = -Sum_{k=1..n} E_k a(n-k), computed exactly mod 2^128
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 33, u128 n <= 66,
  *            big any n
- * Helpers:   a001559_fixed_mode, u128_to_seq
+ * Validated: standard, pass, 42 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/a001559_fixed_mode.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static int a001559_fixed_mode(void) {
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 200; i++) t = t * 2;
+    return t == 0;
+}
 
 static seq_t a001559_fixed(idx_t n) {
     typedef unsigned __int128 u128;
@@ -72,7 +92,7 @@ seq_t a(idx_t n) {
 
     if (cache == NULL) {
         cap = 64;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         for (i = 0; i < cap; i++) cache[i] = 0;
         cache[0] = 1;
         cache[1] = 4;
@@ -83,10 +103,10 @@ seq_t a(idx_t n) {
         idx_t nc = cap;
         seq_t *nb;
         while (nc <= n) nc *= 2;
-        nb = (seq_t *)malloc(nc * sizeof(seq_t));
+        nb = mem_new(seq_t, nc);
         for (i = 0; i < nc; i++) nb[i] = 0;
         for (i = 0; i < filled; i++) nb[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = nb;
         cap = nc;
     }

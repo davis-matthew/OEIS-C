@@ -8,9 +8,10 @@
  * Formula:   a(n) = denominator of B_n(-1/2) in lowest terms, where B_n(x) is
  *            the Stern polynomial defined by B_0 = 0, B_1 = 1, B_{2n} = x *
  *            B_n, B_{2n+1} = B_n + B_{n+1}
- * Range:     u8 n <= 255, u16 n <= 9546, u32 n <= 9546, u64 n <= 9546,
- *            u128 n <= 9546, big any n
- * Helpers:   pow_seq
+ * Range:     u8 n <= 255, u16 n <= 16385, u32 n <= 16385, u64 n <= 16385,
+ *            u128 n <= 16385, big any n
+ * Validated: standard, pass, 109 terms through n = 9546 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
 
 static seq_t *num_cache = NULL;   /* numerator of f_n */
 static idx_t *exp_cache = NULL;   /* exponent of the denominator 2^exp */
@@ -39,7 +41,7 @@ ensure_size(idx_t idx)
 {
     size_t new_size = idx + 1;
     if (cache_size < new_size) {
-        num_cache   = (seq_t *)realloc(num_cache,  new_size * sizeof(seq_t));
+        num_cache   = mem_resize(seq_t, num_cache, new_size);
         exp_cache   = (idx_t *)realloc(exp_cache,  new_size * sizeof(idx_t));
         computed    = (bool  *)realloc(computed,   new_size * sizeof(bool));
         for (size_t i = cache_size; i < new_size; ++i)
@@ -122,5 +124,5 @@ a(idx_t n)
     if (num_cache[n] == (seq_t)0)
         return (seq_t)1;          /* denominator of 0 is 1 */
 
-    return pow_seq((seq_t)2, (int)exp_cache[n]);
+    return ipow_i32((seq_t)2, (int)exp_cache[n]);
 }

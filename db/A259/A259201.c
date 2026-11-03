@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 197, u32 n <= 1213, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9818 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------- Helpers for prime generation ----------------------------------- */
 static void build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out)
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
     /* we need at least 'n'; if larger than previously computed we grow */
     if (n > max_n) {
         /* allocate new DP table */
-        seq_t *new_dp = (seq_t*)calloc((size_t)(11 * (n + 1)), sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, (size_t)(11 * (n + 1)));
         if (!new_dp)   /* allocation failure – return zero */
             return (seq_t)0;
 
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
         }
 
         /* free old data */
-        if (dp_arr)   free(dp_arr);
+        if (dp_arr)   mem_free(dp_arr);
         if (primes)   free(primes);
 
         /* store new state */

@@ -9,12 +9,14 @@
  *            H_{n+1}(x)=2xH_n(x)-2nH_{n-1}(x) with x=2
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 16, i64 n <= 27, i128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 721 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* initialise cache with first two values */
     if (!cache) {
-        seq_t *p = (seq_t *)realloc(NULL, sizeof(seq_t) * 2);
+        seq_t *p = mem_resize(seq_t, NULL, 2);
         if (!p) return (seq_t)0; /* out‑of‑memory fallback */
         cache = p;
         cache[0] = (seq_t)1; /* H_0(2) */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* grow cache to hold a(n) */
     idx_t new_size = n + 1;
-    seq_t *p = (seq_t *)realloc(cache, sizeof(seq_t) * (size_t)new_size);
+    seq_t *p = mem_resize(seq_t, cache, (size_t)new_size);
     if (!p) return (seq_t)0;          /* out‑of‑memory fallback */
     cache = p;
     /* compute values from the old size up to n inclusive */

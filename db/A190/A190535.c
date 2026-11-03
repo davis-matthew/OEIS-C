@@ -9,12 +9,14 @@
  *            number)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Thread‑safe static cache of computed terms */
 static idx_t a_cached   = 0;   /* highest n computed so far */
@@ -31,7 +33,7 @@ static void ensure_fib(idx_t need)
     if (fib_len > need) return;
 
     idx_t new_len = need + 1; /* indices 0..need */
-    fib_arr = (seq_t *)realloc(fib_arr, new_len * sizeof(seq_t));
+    fib_arr = mem_resize(seq_t, fib_arr, new_len);
     if (fib_arr == NULL) exit(1); /* allocation failed */
 
     /* Initialise first two Fibonacci numbers if needed */
@@ -54,7 +56,7 @@ static void ensure_a(idx_t n)
     if (n <= a_cached) return;
 
     idx_t new_len = n + 1; /* indices 0..n */
-    a_cache = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_len);
     if (a_cache == NULL) exit(1);
 
     /* Initialise first term if necessary */

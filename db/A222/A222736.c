@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 56, u32 n <= 139, u64 n <= 419,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_partitions, free_partitions
+ * Validated: standard, pass, 66 terms through n = 976 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,30 @@
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, free */
 #include <stdint.h>   /* uint64_t */
-#include "../utils/alloc_partitions.h"
-#include "../utils/free_partitions.h"
+
+/* Allocate a new array of seq_t, zero‑initialized.  Handle C++ constructors. */
+static seq_t *alloc_partitions(size_t n)
+{
+#ifdef __cplusplus
+    seq_t *p = new seq_t[n];
+    for (size_t i = 0; i < n; ++i) p[i] = (seq_t)0;
+    return p;
+#else
+    seq_t *p = (seq_t*)malloc(sizeof(seq_t)*n);
+    for (size_t i = 0; i < n; ++i) p[i] = (seq_t)0;
+    return p;
+#endif
+}
+
+/* Free an array allocated by alloc_partitions. */
+static void free_partitions(seq_t *p)
+{
+#ifdef __cplusplus
+    delete[] p;
+#else
+    free(p);
+#endif
+}
 
 static seq_t *partitions = NULL;     /* array of partition numbers */
 static size_t part_capacity = 0;     /* allocated size of array */

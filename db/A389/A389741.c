@@ -12,15 +12,16 @@
  *            sum constraint and the positivity bounds
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   gcd64, pow2
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
+ * Helpers:   gcd_u64, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/gcd_u64.h"
 #include "../utils/pow2.h"
-#include "../utils/gcd64.h"
 
 /* 64‑bit absolute GCD */
 
@@ -80,7 +81,7 @@ seq_t a(idx_t n) {
     uint64_t un = (uint64_t)n;
     for (uint64_t k = 2; k <= un; ++k) {
         uint64_t s = k * (k - 1) / 2;        /* sum coefficient */
-        uint64_t g = gcd64(s, k);
+        uint64_t g = gcd_u64(s, k);
         if (un % g != 0) continue;          /* no integer solution for d */
 
         uint64_t kp = k / g;                 /* modulus for d */

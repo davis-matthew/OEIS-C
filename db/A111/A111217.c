@@ -8,6 +8,7 @@
  * Formula:   a(n) = ∏_{p^e || n} binomial(e+6,6) (OEIS A111217)
  * Range:     u8 n <= 23, u16 n <= 1439, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 84 terms through n = 9415 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

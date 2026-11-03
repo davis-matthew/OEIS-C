@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 1189, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 79 terms through n = 9962 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,27 @@
 /* Computes a(n) by testing integers for the hydropronic property. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Returns 1 if m is a hydropronic number, 0 otherwise. */
 static bool is_hydropronic(idx_t m)
@@ -79,7 +100,7 @@ seq_t a(idx_t n)
             if (hydro_len >= hydro_cap) {
                 /* increase capacity: at least 16, then double */
                 hydro_cap = hydro_cap ? hydro_cap * 2 : 16;
-                hydropronic = (seq_t*)realloc(hydropronic, hydro_cap * sizeof(seq_t));
+                hydropronic = mem_resize(seq_t, hydropronic, hydro_cap);
             }
             hydropronic[hydro_len++] = (seq_t)next_candidate;
         }

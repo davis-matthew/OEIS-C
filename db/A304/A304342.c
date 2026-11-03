@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 41, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Initial 16 terms of the sequence (offset 1). */
 static const seq_t init_vals[16] = {
@@ -54,7 +56,7 @@ static void ensure_cache(idx_t n)
     size_t new_cap = (cache_cap == 0) ? 32 : cache_cap;
     while (new_cap < (size_t)n)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     cache = new_cache;
     cache_cap = new_cap;
 }

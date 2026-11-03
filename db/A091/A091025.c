@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   crt_3_5_7, modinv_small, modpow2
+ * Validated: full, pass, 12 terms through n = 11 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,58 @@
 */
 
 #include <stdint.h>
-#include "../utils/crt_3_5_7.h"
-#include "../utils/modinv_small.h"
-#include "../utils/modpow2.h"
+
+/* small modular exponentiation, result < 1000 */
+static uint64_t modpow2(uint64_t base, uint64_t exp, uint64_t mod)
+{
+    uint64_t res = 1 % mod;
+    base %= mod;
+    while (exp) {
+        if (exp & 1ULL) res = (res * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1ULL;
+    }
+    return res;
+}
+
+/* Fermat inverse for a prime modulus p (< uint64_t) */
+static uint64_t modinv_small(uint64_t a, uint64_t p)
+{
+    /* a^(p-2) mod p */
+    return modpow2(a, p - 2ULL, p);
+}
+
+/*
+   Combine congruences r_i mod m_i (m_i prime) using Garner's algorithm.
+   The moduli are 3, 5, 7, product 105.
+*/
+static uint64_t crt_3_5_7(uint64_t r3, uint64_t r5, uint64_t r7)
+{
+    uint64_t m1 = 3, m2 = 5, m3 = 7;
+    uint64_t x, inv, t;
+    uint64_t res = 0;
+    uint64_t prod = 1;
+
+    /* first modulus 3 */
+    res = r3;
+    prod = m1;
+
+    /* second modulus 5 */
+    inv = modinv_small(prod % m2, m2);
+    t   = (r5 + m2 - res % m2) % m2;
+    t   = (t * inv) % m2;
+    res += t * prod;
+    prod *= m2;
+
+    /* third modulus 7 */
+    inv = modinv_small(prod % m3, m3);
+    t   = (r7 + m3 - res % m3) % m3;
+    t   = (t * inv) % m3;
+    res += t * prod;
+    prod *= m3;
+
+    return res % prod;           /* product = 105 */
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

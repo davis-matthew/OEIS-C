@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 20, u64 n <= 43, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    efficient. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const uint32_t D_CONST = 314U;
 static const uint32_t A0_CONST = 17U;  /* floor(sqrt(314)) */
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
         if (new_cap == 0) new_cap = 1;
         while (new_cap <= (size_t)n)
             new_cap <<= 1;
-        numerators = (seq_t *)realloc(numerators, sizeof(seq_t) * new_cap);
+        numerators = mem_resize(seq_t, numerators, new_cap);
         num_cap = new_cap;
 
         /* Compute missing convergents up to index n */

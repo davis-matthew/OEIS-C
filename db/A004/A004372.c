@@ -7,12 +7,13 @@
  * Formula:   a(n) = C(7n, n-4) = Product_{i=1..n-4} (6n+4+i)/i
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 22,
  *            big any n
- * Helpers:   a004372_gcd
+ * Validated: partial, pass, 19 terms through n = 22 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a004372_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     idx_t k = n - 4;
@@ -22,7 +23,7 @@ seq_t a(idx_t n) {
     for (i = 1; i <= k; i++) {
         seq_t num = base + (seq_t)i;
         seq_t den = (seq_t)i;
-        seq_t g = a004372_gcd(r, den);
+        seq_t g = gcd(r, den);
         r = r / g;
         den = den / g;
         r = r * (num / den);

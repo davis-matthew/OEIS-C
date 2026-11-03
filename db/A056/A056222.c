@@ -11,12 +11,14 @@
  *            theorem, memoized for reuse across calls
  * Range:     i8 n <= 10, i16 n <= 24, i32 n <= 62, i64 n <= 164,
  *            i128 n <= 494, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 9976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for realloc, exit */
+#include "../utils/mem.h"
 
 static seq_t *part_cache = NULL;   /* memoized partition values */
 static idx_t  part_cache_len = 0;   /* number of entries currently stored */
@@ -28,7 +30,7 @@ static void ensure_partitions(idx_t up_to)
         return;
 
     size_t new_len = (size_t)(up_to + 1);
-    seq_t *tmp = (seq_t *)realloc(part_cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, part_cache, new_len);
     if (!tmp)
         exit(EXIT_FAILURE);          /* insufficient memory */
 

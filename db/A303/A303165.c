@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{i=1..⌊(n-1)/2⌋} (n−2i)·μ(n−2i)²
  * Range:     u8 n <= 36, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static memoisation state ------------------------------------------------- */
 
@@ -82,10 +84,10 @@ static void extend_to(size_t new_limit)
     free(prime_list);
 
     /* Resize prefix sum arrays. */
-    seq_t *tmp2 = (seq_t *)realloc(odd_sum,  new_size * sizeof(seq_t));
+    seq_t *tmp2 = mem_resize(seq_t, odd_sum, new_size);
     if (tmp2 == NULL) abort();
     odd_sum = tmp2;
-    tmp2 = (seq_t *)realloc(even_sum, new_size * sizeof(seq_t));
+    tmp2 = mem_resize(seq_t, even_sum, new_size);
     if (tmp2 == NULL) abort();
     even_sum = tmp2;
 

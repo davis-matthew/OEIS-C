@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digits, is_prime_seq, pow10_idx
+ * Validated: standard, pass, 73 terms through n = 888 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/digits.h"
-#include "../utils/pow10_idx.h"
 #include "../utils/is_prime_seq.h"
+#include "../utils/num_digits_idx.h"
+#include "../utils/mem.h"
+
+static seq_t pow10_idx(idx_t exp)
+{
+    seq_t res = 1;
+    for (idx_t i = 0; i < exp; ++i)
+        res *= 10;
+    return res;
+}
 
 /* Cached values of a(n).  terms[i] holds a(i+1). */
 static seq_t *terms      = NULL;
@@ -39,7 +48,7 @@ static idx_t last_k = 0;
    which fits into seq_t for any k that is checked. */
 static seq_t make_N(idx_t k)
 {
-    unsigned int d = digits(k);        /* number of decimal digits of k */
+    unsigned int d = num_digits_idx(k);        /* number of decimal digits of k */
     seq_t pow10 = pow10_idx(d + 3);    /* 10^(d+3) */
     seq_t N = (seq_t)100 * pow10;      /* 100 * 10^(d+3) */
     N += (seq_t)k * (seq_t)1000;       /* + k * 1000 */
@@ -61,7 +70,7 @@ seq_t a(idx_t n)
             /* Grow the cache if necessary. */
             if (terms_len >= terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) {              /* allocation failed – give up */
                     return (seq_t)0;
                 }

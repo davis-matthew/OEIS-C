@@ -11,19 +11,22 @@
  *            at least two 1's
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 48 terms through n = 965 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate a temporary dp array large enough for the requested n
        (n <= 10000 is typical in tests). */
-    seq_t *dp = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return (seq_t)0;   /* out of memory, return 0 */
 
     for (idx_t i = 0; i <= n; ++i)
@@ -41,6 +44,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

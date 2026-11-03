@@ -11,13 +11,15 @@
  *            below
  * Range:     u8 none, u16 n <= 7, u32 n <= 41, u64 n <= 200, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[10] = {
     539ULL, 1513ULL, 3461ULL, 7307ULL, 14767ULL,
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* If no cache yet build it with at least the first 10 values */
     if (cache_len == 0) {
         cache_cap = n > 10 ? (size_t)n : 10;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         for (size_t i = 0; i < 10; ++i) cache[i] = init_vals[i];
         cache_len = 10;
     }
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     if (cache_cap < (size_t)n) {
         size_t new_cap = cache_cap;
         while (new_cap < (size_t)n) new_cap = new_cap ? new_cap * 2 : 10;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

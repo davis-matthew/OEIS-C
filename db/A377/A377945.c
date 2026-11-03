@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 21, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   itos, reaches_next, step
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,34 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/itos.h"
-#include "../utils/reaches_next.h"
-#include "../utils/step.h"
+#include "../utils/mem.h"
+
+/* Convert an index to the underlying integer type used for sequence values.  */
+static inline seq_t itos(idx_t n) {
+    return (seq_t)n;
+}
+
+/* Apply one step of the 3x-1 map.  */
+static inline seq_t step(seq_t x) {
+    if ((x & 1) == 0) /* even */
+        return x >> 1;
+    else            /* odd */
+        return x * 3 - 1;
+}
+
+/* Test whether the trajectory of k ever reaches k+1.  */
+static bool reaches_next(seq_t k) {
+    const unsigned MAX_STEPS = 2000;          /* limit to avoid infinite loops */
+    seq_t target = k + 1;
+    seq_t x = k;
+    unsigned steps = 0;
+    while (steps < MAX_STEPS) {
+        if (x == target) return true;
+        x = step(x);
+        ++steps;
+    }
+    return false;
+}
 
 /* Simple dynamic array of seq_t values.  */
 static seq_t *cache     = NULL;
@@ -30,7 +56,7 @@ static idx_t  next_test = 1;        /* next integer to test for membership */
 /* Grow the cache to accommodate more elements.  */
 static void grow_cache(void) {
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;

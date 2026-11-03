@@ -12,7 +12,8 @@
  *            index at which it occurred; when the same res...
  * Range:     u8 n <= 7, u16 n <= 28, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>   /* for calloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,12 +35,12 @@ seq_t a(idx_t n)
 
     /* Arrays to store the exact values of s(j) and to remember the last
      * index at which each residue appeared.  Index 0 of svals is unused. */
-    seq_t *svals = (seq_t *)malloc((jmax + 1) * sizeof(seq_t));
+    seq_t *svals = mem_new(seq_t, (jmax + 1));
     if (!svals)
         return 0;
     idx_t *last   = (idx_t *)calloc(n, sizeof(idx_t));   /* 0 = not seen yet */
     if (!last) {
-        free(svals);
+        mem_free(svals);
         return 0;
     }
 
@@ -80,6 +82,6 @@ seq_t a(idx_t n)
     }
 
     free(last);
-    free(svals);
+    mem_free(svals);
     return min_diff;
 }

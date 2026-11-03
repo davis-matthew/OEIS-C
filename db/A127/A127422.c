@@ -7,7 +7,8 @@
  * Formula:   a(n) = concatenate the integers n, n+1, n+2 (no leading zeros)
  * Range:     i8 n <= 1, i16 n <= 8, i32 n <= 39, i64 n <= 39, i128 n <= 39,
  *            big any n
- * Helpers:   pow10
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,16 @@
 /* where d(x) is the number of decimal digits of x (d(0)=1). */
 
 #include <stdint.h>
-#include "../utils/pow10.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static inline idx_t digit_count_seq(seq_t x)
 {

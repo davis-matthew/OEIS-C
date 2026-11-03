@@ -8,6 +8,7 @@
  *            = 0 if n is a multiple of 137
  * Range:     u8 n <= 136, u16 n <= 136, u32 n <= 136, u64 n <= 136,
  *            u128 n <= 136, big any n
+ * Validated: full, pass, 136 terms through n = 136 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

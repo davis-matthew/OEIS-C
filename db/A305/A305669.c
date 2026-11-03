@@ -14,26 +14,29 @@
  *            + x) / 10**d where division is integer division
  * Range:     u8 n <= 24, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   digit_len, digit_sum, pow_uint
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   digit_sum, ipow_u64_idx, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
 #include <stdbool.h>  /* bool */
+#include <stdint.h>
 #include "../utils/digit_sum.h"
-#include "../utils/digit_len.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 /* Next value of the digit‑sum‑left transformation. */
 static inline seq_t next_in_cycle(seq_t n)
 {
     seq_t sum = digit_sum(n);
-    int    k   = digit_len(n);
-    int    d   = digit_len(sum);
+    int    k   = num_digits(n);
+    int    d   = num_digits(sum);
 
-    seq_t pow_k = pow_uint(10, (idx_t)k);
-    seq_t pow_d = pow_uint(10, (idx_t)d);
+    seq_t pow_k = ipow_u64_idx(10, (idx_t)k);
+    seq_t pow_d = ipow_u64_idx(10, (idx_t)d);
 
     return (sum * pow_k + n) / pow_d;
 }
@@ -78,8 +81,7 @@ seq_t a(idx_t n)
             /* Make sure there is room for another element. */
             if (cache_size == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 4;
-                seq_t *tmp = (seq_t *)realloc(cache,
-                                               new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort(); /* allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

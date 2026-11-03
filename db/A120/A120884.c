@@ -12,13 +12,35 @@
  *            * first two coordinates and using a moving...
  * Range:     u8 n <= 7, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   count_triples
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/count_triples.h"
+#include "../utils/mem.h"
+
+/* Count of triples (u, v, w) with u(v)+v(v)+w(w) ≤ M. */
+static seq_t count_triples(idx_t Kmax, const seq_t *t, seq_t M)
+{
+    seq_t ans = 0;
+    for (idx_t i = 0; i <= Kmax; ++i) {
+        const seq_t t1 = t[i];
+        if (t1 > M) break;
+        const seq_t remaining = M - t1;
+
+        idx_t r = Kmax;
+        for (idx_t j = 0; j <= Kmax; ++j) {
+            const seq_t t2 = t[j];
+            if (t2 > remaining) break;
+
+            while (r > 0 && t2 + t[r] > remaining) --r;
+            ans += (seq_t)(r + 1);
+        }
+    }
+    return ans;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -38,7 +60,7 @@ seq_t a(idx_t n)
     idx_t Kmax = k - 1;
 
     /* Allocate array of t[k] = k(k+1). */
-    seq_t *t = (seq_t *)malloc((Kmax + 1) * sizeof(seq_t));
+    seq_t *t = mem_new(seq_t, (Kmax + 1));
     if (!t) return 0;  /* unlikely, but safe */
     t[0] = 0;
     for (idx_t i = 1; i <= Kmax; ++i)
@@ -46,6 +68,6 @@ seq_t a(idx_t n)
 
     /* Count triples and free temporary array. */
     seq_t result = count_triples(Kmax, t, M);
-    free(t);
+    mem_free(t);
     return result;
 }

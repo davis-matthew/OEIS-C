@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* Include required headers */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----- Letter sum tables ----- */
 
@@ -126,7 +128,7 @@ seq_t a(idx_t n)
     /* Ensure cache capacity */
     if (cap < count + 1) {
         size_t newcap = cap ? cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, newcap);
         if (!tmp) exit(1);
         terms = tmp;
         cap   = newcap;

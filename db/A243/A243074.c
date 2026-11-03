@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = n / p^(k-1), where p is the largest prime dividing n and
  *            p^k is the highest power of p dividing n
- * Range:     u8 n <= 255, u16 n <= 9591, u32 n <= 9591, u64 n <= 9591,
- *            u128 n <= 9591, big any n
+ * Range:     u8 n <= 255, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 97 terms through n = 9591 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

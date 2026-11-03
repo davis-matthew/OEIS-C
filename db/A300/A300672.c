@@ -9,7 +9,8 @@
  *            number of prime factors of k counted with multiplicity)
  * Range:     u8 n <= 12, u16 n <= 22, u32 n <= 43, u64 n <= 84, u128 n <= 165,
  *            big any n
- * Helpers:   bigomega
+ * Validated: standard, pass, 58 terms through n = 1964 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/bigomega.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* grow the cache so that it contains at least a[0 … n] */
     if (n + 1 > cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;                 /* memory failure */
         cache = tmp;
         for (size_t i = cap; i < new_cap; ++i) cache[i] = 0; /* initialise */

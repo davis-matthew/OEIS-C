@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The following types are supplied by the build environment */
 extern seq_t *alloc_cache(idx_t n); /* unused, keeps compiler from warning */
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first 13 terms */
     if (!cache) {
         cache_cap = 14;                     /* need indices 0..13, 0 unused */
-        cache = (seq_t *)calloc((size_t)cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_cap);
         if (!cache) return (seq_t)0;        /* allocation failure (should not happen) */
         for (idx_t i = 1; i <= 13; ++i)
             cache[i] = init_vals[i - 1];
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_cap) {
         cache_cap = n + 1;
         seq_t *new_cache =
-            (seq_t *)realloc(cache, (size_t)cache_cap * sizeof(seq_t));
+            mem_resize(seq_t, cache, (size_t)cache_cap);
         if (!new_cache) return (seq_t)0;    /* allocation failure */
         cache = new_cache;
     }

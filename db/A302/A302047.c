@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 8073, u16 n <= 8073, u32 n <= 8073, u64 n <= 8073,
- *            u128 n <= 8073, big any n
- * Helpers:   build_primes_upto, compute_pi, is_prime
+ * Range:     u8 n <= 66013, u16 n <= 66013, u32 n <= 66013, u64 n <= 66013,
+ *            u128 n <= 66013, big any n
+ * Validated: standard, pass, 136 terms through n = 8073 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"
-#include "../utils/compute_pi.h"
+#include <stddef.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
+#include "../utils/prime_pi.h"
 
 /* Global cache of primes */
 static uint64_t *primes = NULL;
@@ -88,8 +90,8 @@ seq_t a(idx_t n)
     if (!is_prime((idx_t)q)) return 0;    /* q must also be prime */
 
     /* Compute prime indices of p and q. */
-    seq_t pi_p = compute_pi((idx_t)p);
-    seq_t pi_q = compute_pi((idx_t)q);
+    seq_t pi_p = prime_pi((idx_t)p);
+    seq_t pi_q = prime_pi((idx_t)q);
 
     /* Compare indices; diff = |pi_p - pi_q|. */
     seq_t diff = (pi_p > pi_q) ? (pi_p - pi_q) : (pi_q - pi_p);

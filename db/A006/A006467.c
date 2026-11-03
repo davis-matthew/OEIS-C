@@ -9,9 +9,10 @@
  *            algorithm on the exact partial sum S_K = N_K/3^(2^K), where N_0
  *            = 1 and N_{i+1} = N_i*3^(2^i) + (-1)^(i+1). Only the first half
  *            of the quotients of S_K are used, because thos...
- * Range:     u8 n <= 9354, u16 n <= 9354, u32 n <= 9354, u64 n <= 9354,
- *            u128 n <= 9354, big any n
- * Helpers:   bn_trim
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9354 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
-#include "../utils/bn_trim.h"
+
+static size_t bn_trim(const uint32_t *a, size_t la) {
+    while (la > 0 && a[la - 1] == 0) la--;
+    return la;
+}
 
 static unsigned int *cf_terms = NULL;
 static size_t cf_trust = 0;

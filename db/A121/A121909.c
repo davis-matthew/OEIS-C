@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 7 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
       r_{t+1}(i) = r_t(i+1) + (-1)^i * r_t(i)
    where r_0(i) = i!   (i ≥ 0).  The first element of r_n is a(n). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage */
 seq_t a(idx_t n)
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
     size_t array_len = (size_t)(max_idx + 1);   /* indices 0 .. n+1  */
 
     /* Allocate two working rows */
-    seq_t *cur = (seq_t *)malloc(array_len * sizeof(seq_t));
-    seq_t *nxt = (seq_t *)malloc(array_len * sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, array_len);
+    seq_t *nxt = mem_new(seq_t, array_len);
 
     /* Compute factorials */
     cur[0] = (seq_t)1;
@@ -60,8 +62,8 @@ seq_t a(idx_t n)
     seq_t result = cur[0];
 
     /* Clean up */
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
 
     return result;
 }

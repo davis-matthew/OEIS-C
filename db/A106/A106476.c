@@ -10,13 +10,14 @@
  *            described in A106476
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   phi_simple
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/phi_simple.h"
+#include "../utils/totient.h"
 
 /* Compute integer square root of an unsigned __int128 value. */
 static unsigned long long isqrt128(unsigned __int128 x)
@@ -58,5 +59,5 @@ seq_t a(idx_t n)
     idx_t k = n - row_start;                /* column */
     idx_t m = r - k + 1;                    /* argument of phi */
 
-    return phi_simple(m);
+    return totient(m);
 }

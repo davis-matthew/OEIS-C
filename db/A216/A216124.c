@@ -9,7 +9,8 @@
  *            == p
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 91, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_sqrt, next_prime, prev_prime
+ * Validated: standard, pass, 64 terms through n = 944 (2026-11-03)
+ * Helpers:   ipow_i32, is_prime, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,39 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/prev_prime.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime.h"
 #include "../utils/next_prime.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/mem.h"
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *seq = NULL;          /* memoized terms */
 static size_t seq_len = 0;         /* number of terms stored */
@@ -35,7 +66,7 @@ seq_t a(idx_t n)
     /* one‑time allocation of the memoization array */
     if (!seq) {
         seq_cap = 64;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq_len = 0;
     }
 
@@ -61,7 +92,7 @@ seq_t a(idx_t n)
         if (rounded == (seq_t)p) {                      /* p satisfies the condition */
             if (seq_len == seq_cap) {                    /* grow the array if needed */
                 seq_cap *= 2;
-                seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)p;
         }

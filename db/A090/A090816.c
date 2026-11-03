@@ -7,7 +7,8 @@
  * Formula:   a(n) = (3*n+1)!/((2*n)! * n!)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   gcd_seq
+ * Validated: standard, pass, 38 terms through n = 960 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 /* Implementation uses a multiplicative binomial computation:
    a(n) = (2*n+1) * binom(3*n+1, n) */
 #include <stdint.h>
-#include "../utils/gcd_seq.h"
+#include "../utils/gcd.h"
 
 #ifdef __SIZEOF_INT128__
 #define HAVE_INT128 1
@@ -34,11 +35,11 @@ seq_t a(idx_t n) {
         seq_t den = (seq_t)i;
 
         /* Reduce gcd with current result to keep values small */
-        seq_t g1 = gcd_seq(result, den);
+        seq_t g1 = gcd(result, den);
         result /= g1;
         den /= g1;
 
-        seq_t g2 = gcd_seq(num, den);
+        seq_t g2 = gcd(num, den);
         num /= g2;
         den /= g2;   /* should become 1 */
 

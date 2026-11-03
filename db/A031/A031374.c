@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 817, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, uint64_to_seq
+ * Validated: standard, pass, 60 terms through n = 879 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,16 @@
 #include <stddef.h>
 
 /* utilities for prime generation */
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/uint64_to_seq.h"
+#include "../utils/mem.h"
+
+/* convert uint64_t to seq_t (works for arbitrary‑precision seq_t) */
+static inline seq_t uint64_to_seq(uint64_t v)
+{
+    /* direct cast works for all supported seq_t types */
+    return (seq_t)v;
+}
 
 /* a(n) = 8n‑th prime offset by –1 */
 seq_t a(idx_t n)
@@ -52,14 +61,14 @@ seq_t a(idx_t n)
             build_primes_upto(limit, &raw_primes, &raw_cnt);
 
             /* convert to seq_t and store in new cache */
-            seq_t *new_primes = (seq_t *)malloc(raw_cnt * sizeof(seq_t));
+            seq_t *new_primes = mem_new(seq_t, raw_cnt);
             for (size_t i = 0; i < raw_cnt; ++i) {
                 new_primes[i] = uint64_to_seq(raw_primes[i]);
             }
 
             /* replace old cache, free raw array */
             free(raw_primes);
-            free(primes);
+            mem_free(primes);
             primes = new_primes;
             primes_cnt = raw_cnt;
 

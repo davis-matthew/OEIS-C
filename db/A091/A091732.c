@@ -6,8 +6,9 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = Π_{p^e||n} Π_{j: 2^j bit of e is 1} (p^(2^j) - 1) That
  *            is, a(n) = product of (q – 1) for each distinct i-divisor q of n
- * Range:     u8 n <= 256, u16 n <= 9958, u32 n <= 9958, u64 n <= 9958,
- *            u128 n <= 9958, big any n
+ * Range:     u8 n <= 256, u16 n <= 21011, u32 n <= 21011, u64 n <= 21011,
+ *            u128 n <= 21011, big any n
+ * Validated: standard, pass, 91 terms through n = 9958 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

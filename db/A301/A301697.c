@@ -10,12 +10,14 @@
  *            (n≥7)
  * Range:     u8 n <= 47, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 942 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *tab = NULL;
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
 
     if (sz == 0) {
         sz = 7;
-        tab = (seq_t*)malloc(sz * sizeof(seq_t));
+        tab = mem_new(seq_t, sz);
         if (tab == NULL) abort();
         tab[0] = (seq_t)1;
         tab[1] = (seq_t)5;
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
 
     if (n < sz) return tab[n];
 
-    seq_t *newtab = (seq_t*)realloc(tab, (n + 1) * sizeof(seq_t));
+    seq_t *newtab = mem_resize(seq_t, tab, (n + 1));
     if (newtab == NULL) abort();
     tab = newtab;
 

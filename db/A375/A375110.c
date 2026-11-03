@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 9434 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Dynamic array of bit‑sets (one per possible next value m)         */
@@ -86,8 +88,7 @@ ensure_seq_cap(size_t req)
     if (new_cap < req) new_cap = req;
     while (new_cap < req) new_cap <<= 1;
 
-    seq_t *new_seq = (seq_t *)realloc(seq,
-                                      new_cap * sizeof(seq_t));
+    seq_t *new_seq = mem_resize(seq_t, seq, new_cap);
     if (!new_seq) abort();
     seq = new_seq;
     seq_cap = new_cap;

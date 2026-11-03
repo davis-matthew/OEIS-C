@@ -8,12 +8,14 @@
  *            mod 12
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Returns the partition number a(n).  The function keeps a static DP
  * array up to the maximum argument seen so far, so repeated calls are
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* If the cache is uninitialized or too small, reallocate and recompute. */
     if (n + 1 > dp_size) {
         idx_t new_size = n + 1;
-        seq_t *new_dp = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, new_size);
         if (!new_dp) {
             /* Allocation failed – return 0 as a safe fallback. */
             return (seq_t)0;
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old table. */
-        free(dp);
+        mem_free(dp);
         dp = new_dp;
         dp_size = new_size;
     }

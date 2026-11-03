@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    The array is 1‑based; a[0] is unused. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* dynamic array of cached values */
 static idx_t  cache_max = 0;         /* highest index currently cached */
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
     /* Initial allocation: ensure indices 1..5 exist */
     if (cache == NULL) {
         size_t init_size = 6;               /* indices 0..5 */
-        cache = (seq_t *)malloc(sizeof(seq_t) * init_size);
+        cache = mem_new(seq_t, init_size);
         if (!cache) return;                 /* allocation failure: will crash later */
 
         /* Initialize base cases */
@@ -51,7 +53,7 @@ static void ensure_cache(idx_t n)
         if (new_size < (size_t)(n + 1))
             new_size = n + 1;                 /* at least n+1 elements */
 
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) return;                 /* allocation failure: will crash later */
         cache = new_cache;
 

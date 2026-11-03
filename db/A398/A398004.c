@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 142, u32 n <= 543, u64 n <= 990,
  *            u128 n <= 990, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *table = NULL;          /* 1‑based 2‑D array stored linearly    */
 static size_t table_size = 0;        /* current maximum row/column index     */
@@ -45,7 +47,7 @@ static void ensure_size(size_t new_size)
     /* Allocate new contiguous block with (new_size+1)² elements
        (index 0 is unused) */
     size_t alloc = (new_size + 1) * (new_size + 1);
-    seq_t *new_table = (seq_t *)malloc(alloc * sizeof(seq_t));
+    seq_t *new_table = mem_new(seq_t, alloc);
     if (!new_table) abort();
 
     /* Compute all entries in the new table using the recurrence */
@@ -68,7 +70,7 @@ static void ensure_size(size_t new_size)
     }
 
     /* Release old storage and store the new one */
-    free(table);
+    mem_free(table);
     table      = new_table;
     table_size = new_size;
 }

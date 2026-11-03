@@ -8,12 +8,14 @@
  *            a(n-k-3) for n ≥ 3 (OEIS A346503)
  * Range:     u8 n <= 13, u16 n <= 22, u32 n <= 39, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* dynamic array holding a(0 .. max_needed) */
 static seq_t *cache = NULL;
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
         capacity = 16;
         if (n + 1 > capacity)
             capacity = n + 1;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache)
             abort();
         for (size_t i = 0; i < capacity; ++i)
@@ -38,7 +40,7 @@ static void ensure_cache(idx_t n)
         size_t new_cap = capacity;
         while (new_cap <= (size_t)n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             abort();
         /* initialize new entries */

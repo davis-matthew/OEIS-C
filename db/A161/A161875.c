@@ -7,6 +7,7 @@
  * Formula:   a(n) is the coefficient of x^n in ∏_{k=1..15} (1–x^(2k))/(1–x)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 23, u64 n <= 225, u128 n <= 225,
  *            big any n
+ * Validated: full, pass, 226 terms through n = 225 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

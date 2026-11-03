@@ -7,12 +7,15 @@
  * Formula:   a(n) = 3^(n^2+2n+1) * Product_{j=1..n} (9^j – 1)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 5,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"   /* for big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
 
     /* Compute 3^( (n+1)^2 ) */
     seq_t exp = (seq_t)(n + 1) * (seq_t)(n + 1);  /* (n+1)^2 */
-    seq_t pow3 = big_pow((seq_t)3, exp);
+    seq_t pow3 = ipow((seq_t)3, exp);
 
     /* Final result */
     return prod * pow3;

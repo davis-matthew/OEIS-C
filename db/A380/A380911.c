@@ -9,8 +9,9 @@
  * Formula:   Triangular array read by rows; row n is the initial segment
  *            [1..n] sorted lexicographically by the binary representation of
  *            the terms. a(n) is the n‑th element of the flattened array
- * Range:     u8 n <= 9515, u16 n <= 9515, u32 n <= 9515, u64 n <= 9515,
- *            u128 n <= 9515, big any n
+ * Range:     u8 n <= 11325, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 94 terms through n = 9515 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,12 +7,14 @@
  * Formula:   a(n) = 4*a(n-1) - 18*(n-1)*a(n-2) with a(0)=1, a(1)=4
  * Range:     i8 n <= 2, i16 n <= 5, i32 n <= 9, i64 n <= 18, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 426 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h> /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 /* Memoisation array: holds a(0)..a(current_max). */
 static seq_t *cache = NULL;
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap < target) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 2;
         if (new_cap < target) new_cap = target;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();                /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;

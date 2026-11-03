@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   int_cube_root
+ * Validated: standard, pass, 72 terms through n = 894 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/int_cube_root.h"
+#include <limits.h>
+#include "../utils/mem.h"
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 static seq_t *seq = NULL;          /* sequence values */
 static size_t seq_len = 0;         /* number of terms stored */
@@ -33,7 +50,7 @@ static void ensure_capacity(size_t min_cap)
     if (seq_cap < min_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 64;
         if (new_cap < min_cap) new_cap = min_cap;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 }
@@ -46,7 +63,7 @@ static void compute_sequence(void)
     const idx_t maxCube = int_cube_root(UPPER);
 
     /* Allocate cubes (1‑based). */
-    seq_t *cube = (seq_t *)malloc((maxCube + 1) * sizeof(seq_t));
+    seq_t *cube = mem_new(seq_t, (maxCube + 1));
     for (idx_t i = 1; i <= maxCube; ++i)
         cube[i] = (seq_t)i * (seq_t)i * (seq_t)i;
 
@@ -114,7 +131,7 @@ static void compute_sequence(void)
     }
 
     /* Clean up temporary allocations. */
-    free(cube);
+    mem_free(cube);
     free(seen1);
     free(seen2);
     free(seen3);

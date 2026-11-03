@@ -9,7 +9,8 @@
  *            where a(1)=1, a(2)=2, … (no closed formula)
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *cache = NULL;          /* the generated values */
@@ -54,7 +56,7 @@ static void ensure_cache(size_t required)
     if (required > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap : 64;
         while (new_cap < required) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();             /* out of memory */
         cache = tmp;
         cache_cap = new_cap;
@@ -67,7 +69,7 @@ static void ensure_states(State **arr, size_t *len, size_t *cap, size_t required
     if (required > *cap) {
         size_t new_cap = *cap ? *cap : 16;
         while (new_cap < required) new_cap <<= 1;
-        State *tmp = (State *)realloc(*arr, new_cap * sizeof(State));
+        State *tmp = mem_resize(State, *arr, new_cap);
         if (!tmp) abort();
         *arr = tmp;
         *cap = new_cap;
@@ -111,7 +113,7 @@ static void generate_next_length(void)
     }
 
     /* discard old states */
-    free(states_prev);
+    mem_free(states_prev);
     states_prev = states_curr;
     states_prev_len = states_curr_len;
     states_prev_cap = states_curr_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 638, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* global state ---------------------------------------------------------- */
 
@@ -144,7 +146,7 @@ seq_t a(idx_t n)
             continue;                   /* cumulative not refactorable */
 
         /* store the found term */
-        seq_t *tmp = (seq_t *)realloc(terms, (terms_size + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, (terms_size + 1));
         if (!tmp) exit(EXIT_FAILURE);
         terms = tmp;
         terms[terms_size++] = (seq_t)last_checked;

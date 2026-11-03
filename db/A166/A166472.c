@@ -10,13 +10,23 @@
  *            number
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   seq_alloc
+ * Validated: standard, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/seq_alloc.h"
+#include <stdlib.h>
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache = NULL;        /* array of computed terms, 1‑based */
 static idx_t  cache_cap = 0;       /* current allocated size (indices 0..cache_cap-1) */

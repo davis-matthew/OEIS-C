@@ -12,13 +12,15 @@
  *            that set a new record for the period length
  * Range:     u8 n <= 22, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square root: floor(sqrt(x)) for 0 <= x < 2^64. */
 static idx_t isqrt_u64(idx_t x)
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
     /* Initialise only once */
     if (qual_len == 0) {
         qual_cap = 4;
-        qual = (seq_t *)malloc(qual_cap * sizeof(seq_t));
+        qual = mem_new(seq_t, qual_cap);
         qual[0] = (seq_t)1;             /* a(1) = 1 */
         qual_len = 1;
         current_max_period = 0;         /* period of 1 is 0 */
@@ -91,8 +93,7 @@ seq_t a(idx_t n)
             if (qual_len == qual_cap) {            /* expand storage      */
                 size_t new_cap = qual_cap << 1;
                 if (new_cap == 0) new_cap = 8;
-                seq_t *tmp = (seq_t *)realloc(qual,
-                                               new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, qual, new_cap);
                 if (!tmp) abort();                 /* allocation failed   */
                 qual = tmp;
                 qual_cap = new_cap;

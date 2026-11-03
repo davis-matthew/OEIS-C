@@ -7,13 +7,15 @@
  * Formula:   a(n) = (n!)^6
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*
  * Computes a(n) = (n!)^6.
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* initial allocation */
     if (fac == NULL) {
         fac_cap = 1;
-        fac = (seq_t *)malloc(fac_cap * sizeof(seq_t));
+        fac = mem_new(seq_t, fac_cap);
         if (fac == NULL) return (seq_t)0;   /* allocation failure */
         fac[0] = (seq_t)1;                  /* 0! = 1 */
         fac_max = 0;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* grow cache if needed */
     if ((size_t)n + 1 > fac_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(fac, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fac, new_cap);
         if (tmp == NULL) return (seq_t)0;   /* allocation failure */
         fac = tmp;
         fac_cap = new_cap;

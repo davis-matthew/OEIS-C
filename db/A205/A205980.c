@@ -10,13 +10,15 @@
  *            8004, 33504, 140802, 591336, 2482596, 10425528, 43778766
  * Range:     u8 none, u16 n <= 4, u32 n <= 12, u64 n <= 27, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base_terms[9] = {
     423ULL, 1980ULL, 8004ULL,
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
     size_t new_cap = cache_cap ? cache_cap * 2 : 32;
     while (new_cap < (size_t)n)
         new_cap <<= 1;
-    seq_t *newc = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+    seq_t *newc = mem_resize(seq_t, cache, new_cap);
     if (!newc)
         abort();                      /* memory allocation failure */
     cache = newc;

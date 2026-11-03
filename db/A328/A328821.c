@@ -13,14 +13,16 @@
  *            left‑to‑right: * a(n) = T(r,k) where r is the unique int...
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"   /* seq_t binom(idx_t a, idx_t b); */
-#include "../utils/pow2.h"    /* seq_t pow2(idx_t exp);     */
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 static seq_t binom_multiplicative(idx_t n, idx_t k)
 {

@@ -10,15 +10,36 @@
  *            a(7)=1876, a(8)=3538, a(9)=6622, a(10)=12200
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 23, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   seq_alloc, seq_realloc
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/seq_alloc.h"     /* declares seq_alloc(size_t)   */
-#include "../utils/seq_realloc.h"   /* declares seq_realloc(seq_t*,size_t,size_t) */
+#include <stdlib.h>
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static const seq_t init_vals[11] = {
     (seq_t)0,   /* unused 0‑th position for easier indexing */

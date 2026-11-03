@@ -12,6 +12,7 @@
  *            k‑1. For odd rows (r = 2*k+1) the elements ar...
  * Range:     i8 n <= 2550, i16 n <= 2550, i32 n <= 2550, i64 n <= 2550,
  *            i128 n <= 2550, big any n
+ * Validated: standard, pass, 88 terms through n = 2466 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

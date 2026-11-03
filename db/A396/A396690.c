@@ -9,13 +9,15 @@
  *            values are computed with factorials stored in a static cache
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cached factorial table. */
 static seq_t *fact = NULL;          /* pointer to factorial array */
@@ -28,7 +30,7 @@ static void ensure_factorials(idx_t n)
     idx_t needed = n + 3;                       /* indices 0 .. n+2 inclusive */
     if (fact_cap < (size_t)needed) {
         fact_cap = (size_t)needed;
-        seq_t *tmp = (seq_t *)realloc(fact, fact_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact, fact_cap);
         fact = tmp;                            /* realloc may move the array */
     }
     if (fact_len == 0) {

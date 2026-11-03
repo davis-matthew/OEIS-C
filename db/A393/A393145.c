@@ -9,6 +9,7 @@
  * Formula:   a(n) = n*(n^2 + 8)/6 - (15 - 3*(-1)^n)/12, with a(1) = 1
  * Range:     u8 n <= 11, u16 n <= 73, u32 n <= 1846, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 70 terms through n = 8826 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

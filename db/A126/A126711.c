@@ -8,7 +8,8 @@
  *            factors (counted with multiplicity)
  * Range:     u8 n <= 4, u16 n <= 1052, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 9785 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const size_t MAX_LIMIT = 12000000;          /* Upper bound for sieve (≈12 million). */
 static uint32_t *spf = NULL;                      /* Smallest prime factor array. */
@@ -110,7 +112,7 @@ static void ensure_cache(idx_t target)
         if (bigomega_uint32(p - 2) == 4) {
             if (cache_size == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) abort();
                 cache = tmp;
             }

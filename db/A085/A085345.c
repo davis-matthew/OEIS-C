@@ -12,7 +12,8 @@
  *            in O(1) after a one‑time O(limit) sieve
  * Range:     u8 n <= 29, u16 n <= 3283, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Parameters.  The limit must be large enough for all n that may
@@ -107,9 +109,9 @@ static void init_sieve(void)
     }
 
     /* Allocate and initialise aVals array */
-    aVals = (seq_t*)malloc((MAX_N + 1) * sizeof(seq_t));
+    aVals = mem_new(seq_t, (MAX_N + 1));
     if (aVals) {
-        memset(aVals, 0, (MAX_N + 1) * sizeof(seq_t));
+        mem_set(aVals, 0, (MAX_N + 1) * sizeof(seq_t));
         /* Fill aVals: record first x with each difference d (1 .. MAX_N) */
         size_t found = 0;
         for (i = 2; i <= MAX_LIMIT; ++i) {

@@ -7,7 +7,8 @@
  * Formula:   a(n) = n-th integer such that 6n-1, 6n+1 and 6n+5 are all prime
  * Range:     u8 n <= 21, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Deterministic Miller–Rabin for 64‑bit integers */
 static inline uint64_t mod_mul64(uint64_t a, uint64_t b, uint64_t mod)
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
                 /* accept m */
                 if (cache_sz == cache_cap) {
                     cache_cap = cache_cap ? cache_cap * 2 : 4;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_sz++] = (seq_t)m;
                 last_checked = m + 1;

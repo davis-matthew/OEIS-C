@@ -7,16 +7,54 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, ensure_capacity, mod_pow
+ * Validated: standard, pass, 61 terms through n = 948 (2026-11-03)
+ * Helpers:   build_primes_upto, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sequence A040150: primes p such that the congruence x^4 ≡ 21 (mod p) has no solution */
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/ensure_capacity.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 seq_t a(idx_t n) {
     /* Static state to cache computed terms and primes */
@@ -59,9 +97,9 @@ seq_t a(idx_t n) {
         }
 
         /* If 21 is NOT a fourth power residue modulo p, add prime to cache */
-        if (mod_pow(a_val, (uint64_t)exp, mod) != (seq_t)1) {
+        if (powmod(a_val, (uint64_t)exp, mod) != (seq_t)1) {
             ensure_capacity(cache_count + 1, &cache_cap,
-                            (void **)&cache, sizeof(seq_t));
+                            OEISC_VPP(&cache), sizeof(seq_t));
             cache[cache_count++] = mod;
         }
     }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor(((n+15)*(n+20) - 2*(n mod 5)*(n+10))/250)
  * Range:     u8 none, u16 n <= 299, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 81 terms through n = 966 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

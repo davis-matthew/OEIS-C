@@ -8,12 +8,14 @@
  * Formula:   a(n) = a(n-3) - 5*a(n-2) + 5*a(n-1), a(0)=1, a(1)=3, a(2)=10
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 33, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for previously computed values.
    cache[i] stores a(i) for i < cached_upto.*/
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Initialise the cache with the first three terms if not done yet. */
     if (cache == NULL) {
         cache_size = 3;
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) {
             /* Allocation failed – return 0 as a fallback (should not happen). */
             return (seq_t)0;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     if ((idx_t)(n + 1) > cache_size) {
         idx_t newsize = cache_size * 2;
         if (newsize < n + 1) newsize = n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newsize);
         if (tmp == NULL) {
             /* Realloc failed – return 0 as a fallback. */
             return (seq_t)0;

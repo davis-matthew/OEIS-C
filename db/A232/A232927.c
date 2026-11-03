@@ -9,7 +9,8 @@
  *            multiplicative group modulo n (OEIS A232927)
  * Range:     u8 n <= 120, u16 n <= 120, u32 n <= 120, u64 n <= 120,
  *            u128 n <= 120, big any n
- * Helpers:   gcd_int
+ * Validated: partial, pass, 118 terms through n = 120 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/gcd_int.h"
+#include "../utils/gcd_i32.h"
 
 /* local prime table – enough primes up to 20000 for n ≤ 10000 */
 static uint32_t primes[2262];
@@ -75,7 +76,7 @@ seq_t a(idx_t n) {
     for (size_t pi = 0; group_len < phi && pi < prime_cnt; ++pi) {
         uint32_t p = primes[pi];
         ++k;                         /* count this prime in k regardless of coprimality */
-        if (gcd_int((int)p, (int)n) != 1) continue; /* not coprime, no effect on group */
+        if (gcd_i32((int)p, (int)n) != 1) continue; /* not coprime, no effect on group */
 
         /* Expand the existing subgroup with this new prime p */
         size_t i = 0;

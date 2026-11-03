@@ -11,12 +11,14 @@
  *            a(10)=53
  * Range:     u8 n <= 47, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* for malloc, realloc, free */
+#include "../utils/mem.h"
 
 static const seq_t _a_init[11] = {
     (seq_t)1, (seq_t)5, (seq_t)10, (seq_t)16, (seq_t)22,
@@ -41,7 +43,7 @@ static void _a_ensure_cache(idx_t n)
         _a_cap = need * 2;
         if (_a_cap < need)               /* guard against overflow */
             _a_cap = need;
-        _a_cache = (seq_t *)malloc(_a_cap * sizeof(seq_t));
+        _a_cache = mem_new(seq_t, _a_cap);
         if (_a_cache == NULL)
             exit(1);                      /* allocation failed */
 
@@ -53,7 +55,7 @@ static void _a_ensure_cache(idx_t n)
         _a_cap = need * 2;
         if (_a_cap < need)               /* guard against overflow */
             _a_cap = need;
-        _a_cache = (seq_t *)realloc(_a_cache, _a_cap * sizeof(seq_t));
+        _a_cache = mem_resize(seq_t, _a_cache, _a_cap);
         if (_a_cache == NULL)
             exit(1);                      /* reallocation failed */
     }

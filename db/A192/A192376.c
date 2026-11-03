@@ -9,13 +9,15 @@
  *            a(n)=2*a(n-1)+6*a(n-2)+2*a(n-3)-a(n-4) for n>=5
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static cache for previously computed terms.
    cache_p[i] holds a(i+1).  cache_len is the number of valid entries.
@@ -34,7 +36,7 @@ static void ensure_cache(size_t needed)
     while (new_alloc < needed)
         new_alloc <<= 1;          /* double until enough */
 
-    seq_t *tmp = (seq_t *)realloc(cache_p, new_alloc * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache_p, new_alloc);
     if (!tmp)
         abort();                  /* out of memory */
 

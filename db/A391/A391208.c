@@ -9,7 +9,8 @@
  *            binomial(3*n-2, n-1-k)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 26, u128 n <= 49,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 41 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,23 @@
 /* include the binomial routine */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
 
 /* Cache for previously computed terms */
 static seq_t *cache = NULL;       /* array of a(i) */
@@ -86,7 +103,7 @@ seq_t a(idx_t n)
     /* Initialise cache lazily */
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL)
             return 0;
         cache[0] = 1;          /* a(0) */
@@ -98,7 +115,7 @@ seq_t a(idx_t n)
         idx_t new_cap = cache_cap;
         while (new_cap <= n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL)
             return 0;
         cache = tmp;

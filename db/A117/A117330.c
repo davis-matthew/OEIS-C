@@ -9,6 +9,7 @@
  *            9 consecutive primes starting with the n-th prime
  * Range:     i8 n <= 7, i16 n <= 95, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 64 terms through n = 946 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
 /* Includes for prime generation and standard utilities */
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 /* External linkage as required */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 442, u32 n <= 3684, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 7496 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    This function builds the sequence up to the requested index n on demand. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* initialise with the first element S(0) = {1} */
     if (len == 0) {
         cap = 1;
-        buf = (seq_t *)malloc(sizeof(seq_t) * cap);
+        buf = mem_new(seq_t, cap);
         buf[0] = 1;
         len = 1;
     }
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         /* grow the buffer if necessary */
         if (new_len > cap) {
             cap = new_len;
-            buf = (seq_t *)realloc(buf, sizeof(seq_t) * cap);
+            buf = mem_resize(seq_t, buf, cap);
         }
 
         /* compute partial sums of the current S(k) and append them */

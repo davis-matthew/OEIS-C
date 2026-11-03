@@ -9,12 +9,14 @@
  *            a(2)=1, a(3)=6, a(4)=2, a(5)=2, a(6)=10
  * Range:     u8 n <= 191, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array holding a(1)...a(k) at indices 0..k-1   */
 static idx_t cache_alloc = 0;        /* current capacity of cache in terms              */
@@ -25,7 +27,7 @@ static void ensure_cache_alloc(idx_t n)
 {
     if (n <= cache_alloc)
         return;
-    seq_t *new_cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, n);
     if (!new_cache)
         abort();                      /* out‑of‑memory: terminate */
     cache = new_cache;

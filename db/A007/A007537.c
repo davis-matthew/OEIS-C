@@ -8,23 +8,36 @@
  *            (-1)^k*C(n,k)*2^(2^(n-k)-1) + (-1)^n - 2^(2^n-2)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   binom, pw2, seq_is_fixed_width
+ * Validated: standard, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/pw2.h"
-#include "../utils/seq_is_fixed_width.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 static seq_t a7537_p2(idx_t e) {
     if (seq_is_fixed_width()) {
         if (e >= (idx_t)(8 * sizeof(seq_t))) return (seq_t)0;
         return ((seq_t)1) << e;
     }
-    return pw2(e);
+    return pow2(e);
 }
 
 seq_t a(idx_t n) {
@@ -36,7 +49,7 @@ seq_t a(idx_t n) {
     for (k = 0; k < n; k++) {
         idx_t m = n - k;
         idx_t e = (((idx_t)1) << m) - 1;
-        seq_t term = binom(n, k) * a7537_p2(e);
+        seq_t term = binomial(n, k) * a7537_p2(e);
         if (k % 2 == 0) pos += term; else neg += term;
     }
     if (n % 2 == 0) pos += (seq_t)1; else neg += (seq_t)1;

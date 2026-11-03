@@ -8,7 +8,8 @@
  *            reduced to lowest terms
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 28, u64 n <= 52, u128 n <= 100,
  *            big any n
- * Helpers:   gcd_seq_internal
+ * Validated: standard, pass, 48 terms through n = 851 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/gcd_seq_internal.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Static state for memoisation and incremental computation */
 static seq_t *numerators = NULL;          /* array of numerators for each n */
@@ -72,7 +74,7 @@ static void extend_to(idx_t n)
             seq_t new_den = current_den * p_seq;
 
             /* reduce to lowest terms */
-            seq_t g = gcd_seq_internal(new_num, new_den);
+            seq_t g = gcd(new_num, new_den);
             current_num = new_num / g;
             current_den = new_den / g;
         }
@@ -81,8 +83,7 @@ static void extend_to(idx_t n)
             size_t new_sz = (numerators_size == 0) ? 64 : numerators_size << 1;
             while (new_sz < (size_t)i)
                 new_sz <<= 1;
-            seq_t *tmp = (seq_t *)realloc(numerators,
-                                          new_sz * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, numerators, new_sz);
             numerators = tmp;
             numerators_size = new_sz;
         }

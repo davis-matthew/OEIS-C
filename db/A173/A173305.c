@@ -6,12 +6,15 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 224, u16 n <= 1599, u32 n <= 8419, u64 n <= 8419,
- *            u128 n <= 8419, big any n
- * Helpers:   none
+ * Range:     u8 n <= 224, u16 n <= 1599, u32 n <= 10301, u64 n <= 10301,
+ *            u128 n <= 10301, big any n
+ * Validated: standard, pass, 97 terms through n = 8419 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 /* A173305: Triangle by columns, A000009 in every column shifted down twice for k > 0.
    The sequence is obtained by writing the triangle
@@ -34,7 +37,7 @@ static void init_dp(void)
 {
     if (dp != NULL)
         return;
-    dp = (seq_t *)malloc((MAX_M + 1) * sizeof(seq_t));
+    dp = mem_new(seq_t, (MAX_M + 1));
     if (!dp)
         exit(1); /* allocation failure */
     /* initialise to zero */
@@ -74,7 +77,7 @@ seq_t a(idx_t n)
         /* In case n is much larger than expected, extend DP dynamically */
         idx_t old_max = MAX_M;
         idx_t new_max = m + 100; /* add a safety margin */
-        seq_t *new_dp = (seq_t *)realloc(dp, (new_max + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, (new_max + 1));
         if (!new_dp)
             exit(1);
         dp = new_dp;

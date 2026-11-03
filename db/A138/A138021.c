@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of positive divisors k of 2n such that |k -
  *            (2n/k)| divides 2n
- * Range:     u8 n <= 663, u16 n <= 8399, u32 n <= 8399, u64 n <= 8399,
- *            u128 n <= 8399, big any n
+ * Range:     u8 n <= 663, u16 n <= 99999, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 8399 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

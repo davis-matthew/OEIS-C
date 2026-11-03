@@ -10,13 +10,14 @@
  *            binomial(n,j)*Bernoulli(n-j)*Bernoulli(j)
  * Range:     u8 n <= 11, u16 n <= 35, u32 n <= 179, u64 n <= 719,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd_seq
+ * Validated: standard, pass, 77 terms through n = 989 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/gcd_seq.h"
+#include "../utils/gcd.h"
 
 /* Greatest common divisor for seq_t, works for built‑in and arbitrary‑precision types. */
 
@@ -68,11 +69,11 @@ seq_t a(idx_t n) {
 
     if ((n & 1) == 1) {                  /* odd n > 1 */
         seq_t d = denom_arr[(int)(n - 1)];          /* denom of B_{n-1} */
-        seq_t g = gcd_seq(d, (seq_t)n);           /* simplify by factor n */
+        seq_t g = gcd(d, (seq_t)n);           /* simplify by factor n */
         return d / g;
     } else {                              /* even n ≥ 4 */
         seq_t d = denom_arr[(int)n];              /* denom of B_n */
-        seq_t g = gcd_seq(d, (seq_t)(n - 1));      /* simplify by factor n‑1 */
+        seq_t g = gcd(d, (seq_t)(n - 1));      /* simplify by factor n‑1 */
         return d / g;
     }
 }

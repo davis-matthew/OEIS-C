@@ -8,13 +8,15 @@
  *            a(1)=1, a(2)=3, a(3)=2, a(4)=-2, a(5)=-1 Offset: 1
  * Range:     i8 n <= 62, i16 n <= 62, i32 n <= 62, i64 n <= 62, i128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cache for computed terms: cache[i] holds a(i+1). */
 static seq_t *cache = NULL;      /* dynamic array */
@@ -28,7 +30,7 @@ static void grow_cache(size_t needed)
     {
         size_t new_cap = cache_cap ? cache_cap << 1 : needed;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

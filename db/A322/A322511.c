@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #define CAST_CONST_SEQ_T(p) ((const seq_t*)(p))
 #define CAST_SEQ_T(p) ((seq_t*)(p))
 #endif
+#include "../utils/mem.h"
 
 /* Compare two seq_t values for qsort. */
 static int seq_cmp(const void *p1, const void *p2) {
@@ -78,7 +80,7 @@ static void build_sequence(void) {
     }
 
     /* Sort and deduplicate */
-    qsort(temp, temp_len, sizeof(seq_t), seq_cmp);
+    mem_qsort(temp, temp_len, sizeof(seq_t), seq_cmp);
 
     seq_len = 0;
     for (size_t k = 0; k < temp_len; ++k) {

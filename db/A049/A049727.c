@@ -11,7 +11,8 @@
  *            (k+1)(k+2)/2, set i = n - k(k+1)/2, j = k - i
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   gcd, triangular128
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/triangular128.h"
+
+static inline __uint128_t triangular128(idx_t x)
+{
+    return (__uint128_t)x * (x + 1) / 2;
+}
 
 seq_t a(idx_t n)
 {

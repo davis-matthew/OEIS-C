@@ -10,12 +10,14 @@
  *            the signed Stirling numbers of the first kind
  * Range:     i8 n <= 17, i16 n <= 40, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Private cache of signed Stirling numbers of the first kind. */
 static seq_t **stirling_cache = NULL; /* array of row pointers */
@@ -36,7 +38,7 @@ static void build_stirling(idx_t limit)
 
     /* Initialise row 0 if starting from scratch. */
     if (max_cached == 0 && limit >= 0) {
-        stirling_cache[0] = (seq_t*)malloc(sizeof(seq_t));
+        stirling_cache[0] = mem_new(seq_t, 1);
         if (!stirling_cache[0])
             abort();
         stirling_cache[0][0] = 1;    /* s(0,0) = 1 */
@@ -45,7 +47,7 @@ static void build_stirling(idx_t limit)
     /* Compute rows from (max_cached+1) up to 'limit'. */
     for (idx_t i = max_cached + 1; i <= limit; ++i) {
         /* Allocate row i (size i+1, indices 0..i). */
-        stirling_cache[i] = (seq_t*)calloc((size_t)(i + 1), sizeof(seq_t));
+        stirling_cache[i] = mem_new(seq_t, (size_t)(i + 1));
         if (!stirling_cache[i])
             abort();
 

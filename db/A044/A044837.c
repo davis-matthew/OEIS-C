@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   more_even_runs
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,42 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/more_even_runs.h"
+#include "../utils/mem.h"
+
+/* Return true if x has more base‑11 runs of even length than of odd length. */
+static bool more_even_runs(seq_t x)
+{
+    int even = 0, odd = 0;
+    int prev = -1;
+    int run_len = 0;
+
+    while (x > 0) {
+        int d = (int)(x % (seq_t)11);  /* digit in [0,10] */
+        if (d == prev) {
+            run_len++;
+        } else {
+            if (prev != -1) {
+                if ((run_len & 1) == 0)
+                    even++;
+                else
+                    odd++;
+            }
+            prev = d;
+            run_len = 1;
+        }
+        x = x / (seq_t)11;
+    }
+
+    /* account for the last run */
+    if (prev != -1) {
+        if ((run_len & 1) == 0)
+            even++;
+        else
+            odd++;
+    }
+
+    return even > odd;
+}
 
 /* Cached sequence terms */
 static seq_t *cache = NULL;      /* array of found terms */
@@ -39,11 +75,11 @@ static void grow_cache(size_t need)
         new_cap <<= 1;
 
     /* allocate new array and copy existing terms */
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (cache_cap) {
         for (size_t i = 0; i < cache_len; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = new_cap;

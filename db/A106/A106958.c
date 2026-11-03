@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 699, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mulmod64
+ * Validated: standard, pass, 61 terms through n = 9941 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/mulmod64.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
 
 /* multiply modulo 64‑bit integer without overflow – used only in Miller–Rabin */
 
@@ -31,8 +33,8 @@ static uint64_t powmod64(uint64_t a, uint64_t e, uint64_t mod)
     uint64_t r = 1;
     while (e)
     {
-        if (e & 1) r = mulmod64(r, a, mod);
-        a = mulmod64(a, a, mod);
+        if (e & 1) r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return r;
@@ -63,7 +65,7 @@ static bool isPrime64(uint64_t n)
         bool composite = true;
         for (unsigned r = 1; r < s; ++r)
         {
-            x = mulmod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 23, u32 n <= 23, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   sopf64
+ * Validated: full, pass, 23 terms through n = 23 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,34 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/sopf64.h"
+
+/* ----------  helper: sum of prime factors with multiplicity  ----------
+   The numbers that appear in this sequence are all < 10^6, so a simple
+   trial‑division factorisation fits easily in 64 bit.  The function
+   returns a 64‑bit value; it is then cast to seq_t when stored.          */
+static uint64_t sopf64(uint64_t n)
+{
+    uint64_t sum = 0;
+
+    /* factor 2 */
+    while ((n & 1ULL) == 0) {
+        sum += 2;
+        n >>= 1;
+    }
+
+    /* factor odd primes */
+    for (uint64_t p = 3; p * p <= n; p += 2) {
+        while (n % p == 0) {
+            sum += p;
+            n /= p;
+        }
+    }
+
+    if (n > 1)   /* remaining prime factor */
+        sum += n;
+
+    return sum;
+}
 
 #define CYCLE_LEN 23
 

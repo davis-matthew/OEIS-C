@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 578, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _digit_sum, _is_prime
+ * Validated: standard, pass, 64 terms through n = 9770 (2026-11-03)
+ * Helpers:   digit_sum, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_digit_sum.h"   /* seq_t _digit_sum(seq_t v); */
-#include "../utils/_is_prime.h"    /* bool _is_prime(uint64_t n); */
+#include <stddef.h>
+#include "../utils/digit_sum.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* static cache state -----------------------------------------------------*/
 static seq_t *cache    = NULL;      /* terms found so far           */
@@ -37,7 +40,7 @@ static idx_t  last_checked = 0;     /* last integer examined        */
 static void grow_cache(void)
 {
     size_t new_cap = (cache_cap ? cache_cap * 2 : 8);
-    seq_t *ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, cache, new_cap);
     if (!ptr) abort();                 /* allocation failed */
     cache = ptr;
     cache_cap = new_cap;
@@ -56,10 +59,10 @@ seq_t a(idx_t n)
             continue;
 
         /* check digit sums using helper routines */
-        if (!_is_prime((uint64_t)_digit_sum((seq_t)last_checked)))
+        if (!is_prime_u64((uint64_t)digit_sum((seq_t)last_checked)))
             continue;
 
-        if (!_is_prime((uint64_t)_digit_sum((seq_t)(last_checked + 1))))
+        if (!is_prime_u64((uint64_t)digit_sum((seq_t)(last_checked + 1))))
             continue;
 
         /* store the found term */

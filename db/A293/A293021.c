@@ -7,19 +7,21 @@
  * Formula:   a(n) = n! * [x^n] exp(n*sin(x))
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 10, i64 n <= 16, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 1;
 
-    seq_t *A = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, (n + 1));
     if (!A) return 0; /* out‑of‑memory, should not happen */
 
     A[0] = 1;
@@ -50,6 +52,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = A[n];
-    free(A);
+    mem_free(A);
     return result;
 }

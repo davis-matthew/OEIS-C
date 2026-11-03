@@ -7,10 +7,13 @@
  * Formula:   not stated
  * Range:     i8 n <= 2, i16 n <= 7, i32 n <= 16, i64 n <= 35, i128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 906 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 /* OEIS A168072
    Expansion of (1-27x^2-108x^3)/((1-3x)^2*(1+3x+9x^2)).
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
     if (!init) {
         /* start with space for 4 values */
         capacity = 4;
-        cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, capacity);
         /* initial terms */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)3;
@@ -53,7 +56,7 @@ seq_t a(idx_t n)
             new_cap <<= 1;
         /* if still insufficient, cap at max */
         if (new_cap <= n) new_cap = n + 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         capacity = new_cap;
     }
 

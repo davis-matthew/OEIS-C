@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #else
 #  define REINTERPRET_CAST(type,ptr) ((type)(ptr))
 #endif
+#include "../utils/mem.h"
  
 /* ------------------------------------------------------------------ */
 /* Partition cache: p_cache[i] = p(i)                                  */
@@ -48,9 +50,9 @@ static inline void ensure_cache_capacity(idx_t needed)
     while ((idx_t)(new_cap - 1) < needed)
         new_cap <<= 1;                    /* double until big enough */
 
-    seq_t *tmp = REINTERPRET_CAST(seq_t*,realloc(p_cache,new_cap*sizeof(seq_t)));
+    seq_t *tmp = REINTERPRET_CAST(seq_t*,mem_resize(seq_t, p_cache, new_cap));
     if (tmp == NULL) {                     /* allocation failure */
-        free(p_cache);
+        mem_free(p_cache);
         exit(EXIT_FAILURE);
     }
     p_cache = tmp;

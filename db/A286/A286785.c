@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 37, u32 n <= 108, u64 n <= 358,
  *            u128 n <= 1289, big any n
- * Helpers:   build_primes, int_prime_exp, seq_pow
+ * Validated: standard, pass, 83 terms through n = 7168 (2026-11-01)
+ * Helpers:   build_primes, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,22 @@
  */
 
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
-#include "../utils/int_prime_exp.h"
+#include "../utils/ipow_idx.h"
+
+/* exponent of prime p in integer n (n > 0) */
+static idx_t int_prime_exp(idx_t n, idx_t p)
+{
+    idx_t e = 0;
+    while (n % p == 0)
+    {
+        ++e;
+        n /= p;
+    }
+    return e;
+}
 
 /* exponent of prime p in n! (Legendre's formula) */
 static idx_t factorial_prime_exp(idx_t n, idx_t p)
@@ -102,7 +116,7 @@ seq_t a(idx_t n)
 
         if (e)
         {
-            seq_t pe = seq_pow((seq_t)p, e);
+            seq_t pe = ipow_idx((seq_t)p, e);
             value *= pe;
         }
     }

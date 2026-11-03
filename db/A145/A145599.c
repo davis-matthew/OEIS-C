@@ -10,15 +10,24 @@
  *            binomial(r+1,k+4) * binomial(r+1,k-1) with 1 ≤ k ≤ r-3, r ≥ 4
  * Range:     u8 n <= 9, u16 n <= 26, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   binomial, seq_mul
+ * Validated: partial, pass, 47 terms through n = 50 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* ---------------------------------   include utils   -------------------------------- */
 
-#include "../utils/binomial.h"   /* binomial(idx_t a, idx_t b) → seq_t */
-#include "../utils/seq_mul.h"    /* seq_mul(seq_t a, seq_t b) → seq_t */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/binomial.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* ---------------------------------   implementation   -------------------------------- */
 

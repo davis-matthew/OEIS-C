@@ -10,7 +10,8 @@
  *            a(3)=2 (p=3), a(4)=4 (p=5),
  * Range:     u8 n <= 26, u16 n <= 2445, u32 n <= 3605, u64 n <= 3605,
  *            u128 n <= 3605, big any n
- * Helpers:   incr_seq_cap, incr_uint64_cap
+ * Validated: standard, pass, 73 terms through n = 3209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,35 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/incr_seq_cap.h"
-#include "../utils/incr_uint64_cap.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------
+   Utility: resize a dynamic array of type seq_t.
+   -------------------------------------------------------------------- */
+static void incr_seq_cap(seq_t **array, size_t *cap, size_t needed)
+{
+    if (*cap >= needed) return;
+    size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+    if (new_cap < needed) new_cap = needed;
+    seq_t *tmp = mem_resize(seq_t, *array, new_cap);
+    if (!tmp) abort();
+    *array = tmp;
+    *cap   = new_cap;
+}
+
+/* --------------------------------------------------------------------
+   Utility: resize a dynamic array of 64‑bit integers.
+   -------------------------------------------------------------------- */
+static void incr_uint64_cap(uint64_t **array, size_t *cap, size_t needed)
+{
+    if (*cap >= needed) return;
+    size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+    if (new_cap < needed) new_cap = needed;
+    uint64_t *tmp = (uint64_t *)realloc(*array, new_cap * sizeof(uint64_t));
+    if (!tmp) abort();
+    *array = tmp;
+    *cap   = new_cap;
+}
 
 /* Prime storage ----------------------------------------------- */
 static uint64_t *prime_list = NULL;     /* list of primes found so far */

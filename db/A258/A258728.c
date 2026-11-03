@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 17, u64 n <= 42, u128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stddef.h>
 #include <string.h>   /* for memset */
+#include "../utils/mem.h"
 
 #define STATE_BITS   5
 #define STATE_MASK   ((1 << STATE_BITS) - 1)   /* 0x1f */
@@ -41,13 +43,13 @@ seq_t a(idx_t n)
 
     /* initialise dp for a single element (no pairs yet) */
     int cur = 0, nxt = 1;
-    memset(dp[cur], 0, sizeof(dp[cur]));
+    mem_set(dp[cur], 0, sizeof(dp[cur]));
     for (int val = 0; val < 4; ++val)
         dp[cur][0][val] = 1;    /* mask 0 – no downsteps seen yet */
 
     /* iterate over the remaining elements */
     for (idx_t step = 1; step < length; ++step) {
-        memset(dp[nxt], 0, sizeof(dp[nxt]));
+        mem_set(dp[nxt], 0, sizeof(dp[nxt]));
         for (int mask = 0; mask < (1 << STATE_BITS); ++mask) {
             for (int last = 0; last < 4; ++last) {
                 seq_t cur_cnt = dp[cur][mask][last];

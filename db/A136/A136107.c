@@ -9,8 +9,9 @@
  *            2*n, u < v, u and v of opposite parity, and v - u >= 3.
  *            Equivalently, the number of representations of n as the
  *            difference of two positive triangular numbers
- * Range:     u8 n <= 9181, u16 n <= 9181, u32 n <= 9181, u64 n <= 9181,
- *            u128 n <= 9181, big any n
+ * Range:     u8 n <= 54000, u16 n <= 54000, u32 n <= 54000, u64 n <= 54000,
+ *            u128 n <= 54000, big any n
+ * Validated: standard, pass, 121 terms through n = 9181 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

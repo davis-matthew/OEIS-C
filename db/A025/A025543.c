@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 14, u32 n <= 24, u64 n <= 61, u128 n <= 126,
  *            big any n
- * Helpers:   gcd, is_prime, seq_mul
+ * Validated: standard, pass, 46 terms through n = 998 (2026-11-03)
+ * Helpers:   gcd, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,16 @@
 #include <stdint.h>   /* uint64_t */
 #include <stdlib.h>   /* malloc, realloc, abort */
 
-#include "../utils/is_prime.h"
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/seq_mul.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Static cache for already computed values */
 static seq_t *cache      = NULL;
@@ -35,7 +43,7 @@ ensure_cache(size_t need)
 {
     if (need > cache_cap) {
         size_t new_cap = (cache_cap == 0) ? need + 1 : cache_cap * 2 + 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;
@@ -49,7 +57,7 @@ seq_t a(idx_t n)
     if (!cache) {
         cache_cap  = 1;
         cache_size = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache[0] = (seq_t)1;          /* a(0) = 1 by definition */
     }

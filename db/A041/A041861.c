@@ -12,10 +12,13 @@
  *            2408706...
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 15, u64 n <= 30, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 #ifndef _SEQ_A041861_H_
 #define _SEQ_A041861_H_
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
     /* Allocate and initialise the cache on first call.  */
     if (cache == NULL) {
         cache_size = (idx_t)20;          /* Allocate space for a(0)…a(19).  */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) return 0;     /* Allocation failed; return 0.  */
         for (idx_t i = 0; i < cache_size; ++i) {
             cache[i] = init[i];
@@ -53,7 +56,7 @@ seq_t a(idx_t n)
     /* Expand cache if necessary.  */
     if (n + 1 > cache_size) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (new_cache == NULL) return 0;      /* Allocation failed.  */
         cache = new_cache;
         cache_size = new_size;

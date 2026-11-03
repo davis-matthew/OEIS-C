@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  * largest index requested. */
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;    /* cached sequence values */
 static size_t cache_cap = 0;     /* allocated capacity */
@@ -39,7 +41,7 @@ static void ensure_cache_capacity(size_t n)
     if (cache_cap >= n) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < n) new_cap *= 2;
-    seq_t *new_ptr = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, a_cache, new_cap);
     a_cache = new_ptr;
     cache_cap = new_cap;
 }

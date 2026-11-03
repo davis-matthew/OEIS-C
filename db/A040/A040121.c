@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 61 terms through n = 931 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 /* Cached primes that satisfy the property, stored as 64‑bit values. */
 static uint64_t *cached_primes = NULL;
@@ -55,7 +57,7 @@ static void test_and_store(uint64_t p)
     uint64_t exp = (p - 1) / g;
 
     /* Compute 10^exp mod p. */
-    seq_t val = mod_pow((seq_t)10, exp, (seq_t)p);
+    seq_t val = powmod((seq_t)10, exp, (seq_t)p);
     if (val != (seq_t)1) {
         ensure_capacity(cached_len + 1);
         cached_primes[cached_len++] = p;

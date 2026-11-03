@@ -9,12 +9,14 @@
  *            a(5)=44
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 27, u64 n <= 54, u128 n <= 109,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache: length of filled entries, capacity, and array pointer */
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     /* initialize cache on first call */
     if (cache == NULL) {
         cap = 16;                /* initial capacity */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;    /* allocation failed; return 0 as fallback */
 
         /* store the first six terms */
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
     if (n + 1 > cap) {
         size_t new_cap = cap ? cap << 1 : 16;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (!cache) return 0;    /* allocation failed; fall back */
         cap = new_cap;
     }

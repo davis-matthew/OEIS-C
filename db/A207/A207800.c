@@ -7,7 +7,8 @@
  * Formula:   a(n) = A066884(A209268(A065190(n)))
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
    (2^(m‑1) – 1) (k ≥ 1).  The even positions (m = 1) are simply the
    powers of two.  The following code implements this directly. */
 #include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/binom.h"
 
 /* Return the k‑th (1‑based) positive integer having exactly m ones in
    its binary expansion.  The result is given in increasing numeric order. */
@@ -34,12 +36,12 @@ static seq_t kth_popcount(idx_t m, idx_t k)
         idx_t c = i;
         while (true)
         {
-            seq_t bin = binom(c, i);
+            seq_t bin = binomial(c, i);
             if (bin > (seq_t)r) break;
             ++c;
         }
         --c;                    /* largest c with bin ≤ r */
-        seq_t bin = binom(c, i);
+        seq_t bin = binomial(c, i);
         r -= (idx_t)bin;        /* r fits in idx_t (k ≤ 10⁴ here) */
         result |= pow2(c);
     }

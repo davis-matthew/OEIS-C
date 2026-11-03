@@ -8,8 +8,9 @@
  * Formula:   a(n) = 1 if the base‑3 representation of n contains no digit 1,
  *            otherwise 0. (Characteristic function of the Cantor middle‑third
  *            set)
- * Range:     u8 n <= 9097, u16 n <= 9097, u32 n <= 9097, u64 n <= 9097,
- *            u128 n <= 9097, big any n
+ * Range:     u8 n <= 59048, u16 n <= 59048, u32 n <= 59048, u64 n <= 59048,
+ *            u128 n <= 59048, big any n
+ * Validated: standard, pass, 121 terms through n = 9097 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

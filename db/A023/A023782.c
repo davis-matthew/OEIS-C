@@ -8,6 +8,7 @@
  *            increasing (0 is a(1)). The sequence is finite: 8192 terms
  * Range:     u8 n <= 113, u16 n <= 1587, u32 n <= 7759, u64 n <= 8192,
  *            u128 n <= 8192, big any n
+ * Validated: full, pass, 8192 terms through n = 8192 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

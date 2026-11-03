@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of prime factors of the nth odd squarefree number
  * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 4896 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static idx_t cache_size = 0;       /* number of computed terms (1‑based) */
@@ -43,7 +45,7 @@ static void rebuild(idx_t new_limit)
     }
 
     /* rebuild cache: collect odd squarefree numbers up to new_limit */
-    seq_t *new_cache = (seq_t *)calloc((size_t)new_limit + 1, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)new_limit + 1);
     if (new_cache == NULL) abort();
 
     idx_t cnt = 0;
@@ -71,7 +73,7 @@ static void rebuild(idx_t new_limit)
     }
 
     /* replace old cache */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_size = cnt;
     limit = new_limit;

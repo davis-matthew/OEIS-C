@@ -9,8 +9,9 @@
  *            decreasing list (with repetition) of the prime factors of n. *
  *            (Indices 1‑based; e.g., for 108 = 3^3·2^2, the list is
  *            (3,3,3,2,2); * even‑indexed primes are (3,2), so a(108)=6.)
- * Range:     u8 n <= 9379, u16 n <= 9379, u32 n <= 9379, u64 n <= 9379,
- *            u128 n <= 9379, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9379 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

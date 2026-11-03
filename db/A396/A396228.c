@@ -5,15 +5,17 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(1) = 1; a(n) = -∑_{k=1}^{n-1} (-1)^k * a(k) * floor((n-1)/k)
- * Range:     i8 n <= 80, i16 n <= 80, i32 n <= 80, i64 n <= 80, i128 n <= 80,
- *            big any n
- * Helpers:   none
+ * Range:     i8 n <= 261, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
+ *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 96 terms through n = 9769 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static idx_t cache_cap = 0;   /* allocated capacity of cache[] */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t need)
     while (new_cap < need)
         new_cap <<= 1;               /* grow geometrically */
 
-    seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
     if (!tmp)
         abort();                     /* allocation failed */
 

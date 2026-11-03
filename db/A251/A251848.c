@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 14, u128 n <= 30,
  *            big any n
- * Helpers:   is_prime_sum
+ * Validated: standard, pass, 30 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_sum.h"
+#include "../utils/mem.h"
+
+/* check whether a 3‑term sum is one of the primes 2,3,5,7 */
+static inline bool is_prime_sum(int s)
+{
+    return (s == 2 || s == 3 || s == 5 || s == 7);
+}
 
 /* main function required by the harness */
 seq_t a(idx_t n)
@@ -134,8 +141,8 @@ seq_t a(idx_t n)
         }
 
         /* ---- DP arrays --------------------------------------------------- */
-        dp1 = (seq_t *)calloc(M, sizeof(seq_t));
-        dp2 = (seq_t *)calloc(M, sizeof(seq_t));
+        dp1 = mem_new(seq_t, M);
+        dp2 = mem_new(seq_t, M);
 
         built = true;
     }

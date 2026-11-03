@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   expansion, seq_realloc, to_val
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,43 @@
  */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_realloc.h"
-#include "../utils/expansion.h"
-#include "../utils/to_val.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* return the fixed length‑3 expansion of a letter as a string literal */
+static inline const char *
+expansion(char c)
+{
+    switch (c) {
+        case 'a': return "abc";
+        case 'b': return "dab";
+        case 'c': return "efg";
+        case 'd': return "hcd";
+        case 'e': return "cda";
+        case 'f': return "bef";
+        case 'g': return "ghc";
+        case 'h': return "dab";
+        default : return "";   /* never reached */
+    }
+}
+
+/* mapping from a letter to 1 or 2.  Assumes input is one of
+ * 'a'..'h'. */
+static inline char
+to_val(char c)
+{
+    return (c=='a'||c=='b'||c=='e'||c=='f') ? 1 : 2;
+}
 
 seq_t a(idx_t n)
 {

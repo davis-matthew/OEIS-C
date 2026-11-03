@@ -11,7 +11,8 @@
  *            Σ_{i=1}^{21} a(22-i) – 171 * a(0) + 1
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* cache of computed values */
 static seq_t *cache = NULL;
@@ -32,13 +34,13 @@ static void ensure_cache(idx_t n)
         return;
 
     idx_t new_size = n + 1;
-    seq_t *tmp = (seq_t *)calloc(new_size, sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_size);
     if (!tmp)
         exit(1);
 
     if (cache) {
-        memcpy(tmp, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(tmp, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = tmp;
     cache_size = new_size;

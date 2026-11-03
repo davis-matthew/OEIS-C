@@ -8,12 +8,14 @@
  * Formula:   a(n) = Sum_{i+j=n, i,j >= 1} tau(i)*sigma(j)
  * Range:     u8 n <= 12, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute A191831 value for given n (n >= 1) */
 seq_t a(idx_t n)
@@ -22,8 +24,8 @@ seq_t a(idx_t n)
     idx_t limit = n;
 
     /* Allocate arrays for tau and sigma */
-    seq_t *tau   = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
-    seq_t *sigma = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    seq_t *tau   = mem_new(seq_t, (limit + 1));
+    seq_t *sigma = mem_new(seq_t, (limit + 1));
     if (!tau || !sigma) return 0;   /* fallback, should not happen */
 
     for (idx_t i = 0; i <= limit; ++i) {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         total += tau[i] * sigma[j];
     }
 
-    free(tau);
-    free(sigma);
+    mem_free(tau);
+    mem_free(sigma);
     return total;
 }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 32, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;      /* a(n) values, 1‑based */
 static seq_t *S = NULL;      /* cumulative sums sum_{i=1}^{k} a(i) */
@@ -38,8 +40,8 @@ seq_t a(idx_t n)
     /* Grow cache if necessary */
     if (cache_size <= n) {
         idx_t new_size = n + 1; /* index 0 unused */
-        A = (seq_t *)realloc(A, new_size * sizeof(seq_t));
-        S = (seq_t *)realloc(S, new_size * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_size);
+        S = mem_resize(seq_t, S, new_size);
 
         /* Compute terms from the first missing index up to n */
         idx_t start = (cache_size > 0) ? cache_size : 1;

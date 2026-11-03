@@ -8,13 +8,14 @@
  * Formula:   a(r,k) = 2^k-1 if k divides r, else 0 (triangle read by rows)
  * Range:     u8 n <= 36, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
 
     if (r % k == 0)                            /* k divides r? */
     {
-        seq_t val = pow_seq((seq_t)2, (int)k);  /* 2^k (big or 64-bit)   */
+        seq_t val = ipow_i32((seq_t)2, (int)k);  /* 2^k (big or 64-bit)   */
         return val - (seq_t)1;                 /* 2^k - 1 */
     }
     else

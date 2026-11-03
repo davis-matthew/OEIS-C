@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 343, u32 n <= 343, u64 n <= 343, u128 n <= 343,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 291 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The required interface ---------------------------------------------------- */
 seq_t a(idx_t n);
@@ -78,7 +80,7 @@ static void recompute_terms(size_t maxS)
 
     /* Collect all sums having exactly eight representations. */
     size_t cap = 128;
-    seq_t *newTerms = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *newTerms = mem_new(seq_t, cap);
     if (!newTerms) { free(dp); abort(); }
 
     size_t len = 0;
@@ -88,8 +90,8 @@ static void recompute_terms(size_t maxS)
         if (row7[s] == 8) {
             if (len == cap) {
                 cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(newTerms, cap * sizeof(seq_t));
-                if (!tmp) { free(newTerms); free(dp); abort(); }
+                seq_t *tmp = mem_resize(seq_t, newTerms, cap);
+                if (!tmp) { mem_free(newTerms); free(dp); abort(); }
                 newTerms = tmp;
             }
             newTerms[len++] = (seq_t)s;
@@ -99,7 +101,7 @@ static void recompute_terms(size_t maxS)
     free(dp);
 
     /* Replace the old cache with the new one. */
-    free(terms);
+    mem_free(terms);
     terms      = newTerms;
     terms_len  = len;
     current_maxS = maxS;

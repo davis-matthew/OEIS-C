@@ -8,7 +8,8 @@
  *            periodic [1, 28, 1, 58] starting at n = 1
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 11, u64 n <= 23, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Periodic partial quotients for sqrt(898). */
 static const seq_t period[4] = { (seq_t)1, (seq_t)28, (seq_t)1, (seq_t)58 };
@@ -36,7 +38,7 @@ static void ensure_capacity(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(den, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, den, new_cap);
     if (!tmp) abort();   /* allocation failure – unlikely in test harness */
 
     den = tmp;

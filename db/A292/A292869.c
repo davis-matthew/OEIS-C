@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 52, i16 n <= 70, i32 n <= 70, i64 n <= 70, i128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* OEIS A292869: Coefficients of the power series of
    1 / (1 + x + x^2 + x^3/(1 + x^4 + x^5 + x^6/(1 + x^7 + x^8 + x^9/(1 + ...)))). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* For n = 0 return the constant term immediately. */
@@ -30,9 +32,9 @@ seq_t a(idx_t n) {
        computation.  T_next holds the current sub‑fraction,
        inv holds the inverse of T_next, and T_curr is the series for the
        higher‑level fraction. */
-    seq_t *T_next = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *inv    = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *T_curr = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *T_next = mem_new(seq_t, sz);
+    seq_t *inv    = mem_new(seq_t, sz);
+    seq_t *T_curr = mem_new(seq_t, sz);
 
     if (!T_next || !inv || !T_curr) {
         /* Allocation failed – return 0 as a safe fallback. */
@@ -100,9 +102,9 @@ seq_t a(idx_t n) {
     seq_t result = inv[N];
 
     /* Free temporary memory. */
-    free(T_next);
-    free(inv);
-    free(T_curr);
+    mem_free(T_next);
+    mem_free(inv);
+    mem_free(T_curr);
 
     return result;
 }

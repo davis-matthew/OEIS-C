@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   is_prime_uint64
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/is_prime_uint64.h"
+#include <stdbool.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +32,7 @@ seq_t a(idx_t n)
     /* Grow capacity as needed */
     if (term_cap == 0) {
         term_cap = 16;
-        terms = (seq_t *)malloc(sizeof(seq_t) * term_cap);
+        terms = mem_new(seq_t, term_cap);
     }
 
     /* Generate terms until we have the nth one */
@@ -40,10 +43,10 @@ seq_t a(idx_t n)
         seq_t p = (seq_t)(prod - 9973);
 
         /* Check for primality (p fits in uint64_t for the required range) */
-        if (is_prime_uint64((uint64_t)p)) {
+        if (is_prime_u64((uint64_t)p)) {
             if (term_count == term_cap) {
                 term_cap <<= 1;
-                terms = (seq_t *)realloc(terms, sizeof(seq_t) * term_cap);
+                terms = mem_resize(seq_t, terms, term_cap);
             }
             terms[term_count++] = (seq_t)last_k;
         }

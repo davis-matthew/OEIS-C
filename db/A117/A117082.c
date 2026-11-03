@@ -10,14 +10,34 @@
  *            digit_sum(O_k) * is again an octagonal number
  * Range:     u8 n <= 1, u16 n <= 15, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum, floor_sqrt
+ * Validated: standard, pass, 50 terms through n = 952 (2026-11-01)
+ * Helpers:   digit_sum, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/digit_sum.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Test whether x is an octagonal number:  x = k(3k‑2) for some k ≥ 0 */
 static bool is_octagonal(seq_t x)

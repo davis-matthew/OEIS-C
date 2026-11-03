@@ -10,14 +10,16 @@
  *            are the antidiagonal coordinates of n
  * Range:     u8 n <= 38, u16 n <= 70, u32 n <= 142, u64 n <= 284,
  *            u128 n <= 541, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 84 terms through n = 9640 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* Integer square‑root for 64‑bit values (floor). */
 static inline idx_t isqrt_u64(idx_t n)
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     for (idx_t t = 1; t <= i; ++t)
     {
         /* Exponent e = t^k. */
-        seq_t e = seq_pow((seq_t)t, k);
+        seq_t e = ipow_idx((seq_t)t, k);
 
         /* Highest power of x needed from this factor: t * q <= i. */
         idx_t tmax = i / t;

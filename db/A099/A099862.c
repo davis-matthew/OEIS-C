@@ -7,7 +7,8 @@
  * Formula:   a(n) = the (2*n)-th composite number
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for composites and primes. */
 static seq_t *composites = NULL;      /* array of composite seq_t values   */
@@ -45,7 +47,7 @@ static void grow_composites(size_t new_cnt)
     if (composites_size + new_cnt > composites_cap) {
         size_t new_cap = (composites_cap == 0) ? 1024 : composites_cap * 2;
         while (new_cap < composites_size + new_cnt) new_cap *= 2;
-        composites = (seq_t *)realloc(composites, new_cap * sizeof(seq_t));
+        composites = mem_resize(seq_t, composites, new_cap);
         composites_cap = new_cap;
         if (composites == NULL) exit(1);
     }

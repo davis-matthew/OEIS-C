@@ -11,12 +11,14 @@
  *            from 1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* array of computed terms, 1‑based */
 static idx_t cached_max = 0;  /* largest n currently stored */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
         return;
 
     /* resize cache array to hold indices 0..n */
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache)
         abort(); /* cannot allocate more memory */
 

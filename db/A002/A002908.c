@@ -15,17 +15,46 @@
  *            2x/...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   A_grow, a2908_fixed, a2908_mulu, a2908_prefix
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/A_grow.h"
-#include "../utils/a2908_fixed.h"
-#include "../utils/a2908_mulu.h"
-#include "../utils/a2908_prefix.h"
+#include "../utils/mem.h"
+
+static seq_t *A_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < newlen; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
+
+static int a2908_fixed(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 200; i++) x *= 2;
+    return x == 0;
+}
+
+static void a2908_prefix(seq_t *T, idx_t L) {
+    idx_t k;
+    for (k = 1; k < L; k++) T[k] += T[k - 1];
+}
+
+static void a2908_mulu(seq_t *T, idx_t L) {
+    idx_t k;
+    int r;
+    for (k = L; k-- > 2;) T[k] = T[k - 2];
+    T[0] = 0;
+    if (L > 1) T[1] = 0;
+    for (r = 0; r < 4; r++) a2908_prefix(T, L);
+}
 
 /* ---------- arbitrary precision: holonomic recurrence ---------- */
 static seq_t *a2908_H = NULL;
@@ -70,10 +99,10 @@ static idx_t a2908_Fn = 0;
 
 static void a2908_fixed_compute(idx_t L) {
     idx_t M = (L - 1) / 2, m, r, k;
-    seq_t *c = (seq_t *)malloc((size_t)(M + 1) * sizeof(seq_t));
-    seq_t *P = (seq_t *)malloc((size_t)(2 * M + 2) * sizeof(seq_t));
-    seq_t *T = (seq_t *)malloc((size_t)L * sizeof(seq_t));
-    seq_t *E = (seq_t *)malloc((size_t)L * sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, (size_t)(M + 1));
+    seq_t *P = mem_new(seq_t, (size_t)(2 * M + 2));
+    seq_t *T = mem_new(seq_t, (size_t)L);
+    seq_t *E = mem_new(seq_t, (size_t)L);
 
     for (k = 0; k < 2 * M + 2; k++) P[k] = 0;
     P[0] = 1;
@@ -105,16 +134,16 @@ static void a2908_fixed_compute(idx_t L) {
         E[k] = e;
     }
 
-    if (a2908_F) free(a2908_F);
-    a2908_F = (seq_t *)malloc((size_t)L * sizeof(seq_t));
+    if (a2908_F) mem_free(a2908_F);
+    a2908_F = mem_new(seq_t, (size_t)L);
     a2908_F[0] = 0;
     for (k = 1; k < L; k++) a2908_F[k] = E[k] + E[k - 1];
     a2908_Fn = L;
 
-    free(c);
-    free(P);
-    free(T);
-    free(E);
+    mem_free(c);
+    mem_free(P);
+    mem_free(T);
+    mem_free(E);
 }
 
 seq_t a(idx_t n) {

@@ -9,6 +9,7 @@
  * Formula:   a(n) = round(950*n/(9*n + 50)) for n >= 0
  * Range:     u8 n <= 0, u16 n <= 68, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
+ * Validated: full, pass, 101 terms through n = 100 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

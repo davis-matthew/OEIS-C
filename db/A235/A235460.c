@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   pow10
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow10.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Extract decimal digits of x into buf (MSD first).
    len is set to the number of digits. */
@@ -59,7 +70,7 @@ seq_t a(idx_t n)
 
     if (!init) {
         cap = 2;                    /* indices 0 and 1 */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = 0;               /* unused */
         cache[1] = 2;               /* a(1) */
         max_cached = 1;
@@ -68,7 +79,7 @@ seq_t a(idx_t n)
 
     if ((size_t)n >= cap) {
         size_t newcap = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         cap = newcap;
     }
 

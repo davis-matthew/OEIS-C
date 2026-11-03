@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 20, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * All arrays are filled incrementally.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;
 static seq_t *b_cache = NULL;
@@ -32,9 +34,9 @@ seq_t a(idx_t n)
     if (a_cache == NULL)
     {
         cache_size = 1;                 /* we already know a[0] */
-        a_cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
-        b_cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
-        c_cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        a_cache = mem_new(seq_t, cache_size);
+        b_cache = mem_new(seq_t, cache_size);
+        c_cache = mem_new(seq_t, cache_size);
 
         /* base values for index 0 */
         a_cache[0] = 1;
@@ -46,9 +48,9 @@ seq_t a(idx_t n)
     if ((idx_t)cache_size <= n)
     {
         size_t new_size = (size_t)(n + 1);
-        a_cache = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
-        b_cache = (seq_t *)realloc(b_cache, new_size * sizeof(seq_t));
-        c_cache = (seq_t *)realloc(c_cache, new_size * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_size);
+        b_cache = mem_resize(seq_t, b_cache, new_size);
+        c_cache = mem_resize(seq_t, c_cache, new_size);
 
         /* compute values for new indices */
         for (idx_t i = (idx_t)cache_size; i <= n; ++i)

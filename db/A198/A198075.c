@@ -7,14 +7,16 @@
  * Formula:   a(n) = Round((n + 1/n)^10)
  * Range:     u8 none, u16 n <= 2, u32 n <= 9, u64 n <= 84, u128 n <= 439,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 9966 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -41,8 +43,8 @@ seq_t a(idx_t n)
         /* seq_t is an arbitrary‑precision type.  Use big_pow for safety. */
         seq_t N   = (seq_t)n;
         seq_t base = N * N + 1;
-        seq_t num = big_pow(base, (seq_t)10);
-        seq_t den = big_pow(N,    (seq_t)10);
+        seq_t num = ipow(base, (seq_t)10);
+        seq_t den = ipow(N,    (seq_t)10);
         seq_t half = den >> 1;                      /* den/2 */
         seq_t sum  = num + half;                    /* (num + den/2) */
         return sum / den;                           /* rounded value */

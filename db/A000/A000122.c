@@ -8,19 +8,20 @@
  * Formula:   a(0) = 1; for n > 0, a(n) = 2 if n is a square, else 0
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a122_isqrt
+ * Validated: standard, pass, 121 terms through n = 8968 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a122_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n)
 {
     uint64_t r;
     if (n == 0) return (seq_t)1;
-    r = a122_isqrt((uint64_t)n);
+    r = isqrt_u64((uint64_t)n);
     if (r * r == (uint64_t)n) return (seq_t)2;
     return (seq_t)0;
 }

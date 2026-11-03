@@ -8,6 +8,7 @@
  * Formula:   a(n) = 6*(n/6) + [3,2,1,0,5,4][n%6]
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

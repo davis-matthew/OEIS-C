@@ -12,7 +12,8 @@
  *            order, testing primality with a deterministic Mi...
  * Range:     u8 n <= 12, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mul_mod64
+ * Validated: standard, pass, 68 terms through n = 938 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mul_mod64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* --------------------------------- helpers --------------------------------- */
 
@@ -33,8 +35,8 @@ static inline uint64_t pow_mod64(uint64_t a, uint64_t e, uint64_t mod)
     uint64_t r = 1;
     a %= mod;
     while (e) {
-        if (e & 1) r = mul_mod64(r, a, mod);
-        a = mul_mod64(a, a, mod);
+        if (e & 1) r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return r;
@@ -68,7 +70,7 @@ static bool isPrime64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (int r = 1; r < s; ++r) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 composite = false;
                 break;
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if (n > cache_cap) {
         cache_cap = n;
-        cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* extend cache until we have at least n terms */

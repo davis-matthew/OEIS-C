@@ -7,13 +7,15 @@
  * Formula:   decimal expansion of sqrt(165); a(2) = 1 (first integer digit),
  *            a(3) = 2 (second integer digit), a(4) = 8 (first decimal digit),
  *            etc
- * Range:     u8 n <= 8524, u16 n <= 8524, u32 n <= 8524, u64 n <= 8524,
- *            u128 n <= 8524, big any n
+ * Range:     u8 n <= 10001, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 121 terms through n = 8524 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
 

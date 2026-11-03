@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 45, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*  Static tables for powers of 2 and 3.  The tables are grown as
     needed and are retained across calls. */
@@ -46,8 +48,8 @@ static void ensure_powers(idx_t need)
         new_cap <<= 1;
 
     /* Allocate or reallocate arrays. */
-    pow2 = (seq_t *)realloc(pow2, new_cap * sizeof(seq_t));
-    pow3 = (seq_t *)realloc(pow3, new_cap * sizeof(seq_t));
+    pow2 = mem_resize(seq_t, pow2, new_cap);
+    pow3 = mem_resize(seq_t, pow3, new_cap);
     if (!pow2 || !pow3) {
         exit(1);                     /* memory allocation failed */
     }

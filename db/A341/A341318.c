@@ -12,8 +12,9 @@
  *            pair (i,j) where i = ⌈(√(1+8k)-1)/2⌉ j = k - (i-1)*i/2. The
  *            product of (i1,j1) and (i2,j2) is (i1*i2, j1*j2), whose label
  *            i...
- * Range:     u8 n <= 76, u16 n <= 9874, u32 n <= 9874, u64 n <= 9874,
- *            u128 n <= 9874, big any n
+ * Range:     u8 n <= 76, u16 n <= 18507, u32 n <= 20300, u64 n <= 20300,
+ *            u128 n <= 20300, big any n
+ * Validated: standard, pass, 94 terms through n = 9874 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

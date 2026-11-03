@@ -13,13 +13,15 @@
  *            runtim...
  * Range:     u8 n <= 212, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 109 terms through n = 9445 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
             if (cached >= (idx_t)cap)
             {
                 size_t newcap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc((void *)cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp)
                 {
                     /* In a contest environment memory failure is unlikely;

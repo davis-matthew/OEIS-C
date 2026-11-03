@@ -11,14 +11,15 @@
  *            contains a nondecimal digit
  * Range:     u8 n <= 13, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   a004684_isprime
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/a004684_isprime.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     idx_t count = 0;
@@ -28,7 +29,7 @@ seq_t a(idx_t n) {
         uint64_t t;
         bool ok = true;
 
-        if (!a004684_isprime(p)) continue;
+        if (!is_prime_u64(p)) continue;
 
         for (t = p; t > 0; t /= 11) {
             if (t % 11 > 9) { ok = false; break; }

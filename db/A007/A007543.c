@@ -9,16 +9,17 @@
  *            floor(floor(2*sqrt(n))^2/4)
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   a007543_isqrt
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a007543_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
-    uint64_t s = a007543_isqrt(n);
+    uint64_t s = isqrt_u64(n);
     uint64_t fl2, f, ce2, u, v;
     seq_t res;
 
@@ -26,7 +27,7 @@ seq_t a(idx_t n) {
         return (seq_t)2 * (seq_t)n;
     }
 
-    fl2 = a007543_isqrt(4 * n);          /* floor(2*sqrt(n)) */
+    fl2 = isqrt_u64(4 * n);          /* floor(2*sqrt(n)) */
     f = (fl2 * fl2) / 4;
     ce2 = (fl2 * fl2 == 4 * n) ? fl2 : fl2 + 1; /* ceiling(2*sqrt(n)) */
 

@@ -9,8 +9,9 @@
  *            otherwise a(n)=0. Here ω(n) is the number of distinct prime
  *            factors of n (counting 3 if it appears as 3²). For n=1, a(1)=0.
  *            This implements the definition of OEIS A343023
- * Range:     u8 n <= 9661, u16 n <= 9661, u32 n <= 9661, u64 n <= 9661,
- *            u128 n <= 9661, big any n
+ * Range:     u8 n <= 16000, u16 n <= 16000, u32 n <= 16000, u64 n <= 16000,
+ *            u128 n <= 16000, big any n
+ * Validated: standard, pass, 116 terms through n = 9661 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stddef.h>   /* for size_t */
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

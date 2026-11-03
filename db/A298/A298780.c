@@ -10,7 +10,8 @@
  *            value. (OEIS A298780)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 27, u128 n <= 53,
  *            big any n
- * Helpers:   is_valid_row
+ * Validated: standard, pass, 39 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,39 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/is_valid_row.h"
+#include "../utils/mem.h"
+
+/* Compare cur row with its neighbours.  hasPrev/hasNext indicate
+   whether prev/next rows are present.  prev/next are ignored
+   when the respective flag is false. */
+static inline bool is_valid_row(uint8_t cur, uint8_t prev, uint8_t next,
+                                bool hasPrev, bool hasNext)
+{
+    for (int c = 0; c < 6; ++c) {
+        int curbit = (cur >> c) & 1;
+        int cnt = 0;
+
+        /* same row */
+        if (c > 0 && ((cur >> (c - 1)) & 1) == curbit) ++cnt;
+        if (c < 5 && ((cur >> (c + 1)) & 1) == curbit) ++cnt;
+
+        if (hasPrev) {
+            if (((prev >> c) & 1) == curbit) ++cnt;
+            if (c > 0 && ((prev >> (c - 1)) & 1) == curbit) ++cnt;
+            if (c < 5 && ((prev >> (c + 1)) & 1) == curbit) ++cnt;
+        }
+
+        if (hasNext) {
+            if (((next >> c) & 1) == curbit) ++cnt;
+            if (c > 0 && ((next >> (c - 1)) & 1) == curbit) ++cnt;
+            if (c < 5 && ((next >> (c + 1)) & 1) == curbit) ++cnt;
+        }
+
+        if (!(cnt == 0 || cnt == 3 || cnt == 4 || cnt == 5 || cnt == 8))
+            return false;
+    }
+    return true;
+}
 
 static uint8_t topNext[64][64],   /* next rows valid for a top row cur */
                middleNext[64][64][64]; /* next rows valid for a middle row cur given prev */
@@ -80,7 +113,7 @@ seq_t a(idx_t n)
     seq_t (*curr)[64] = dp1;
     seq_t (*next)[64] = dp2;
 
-    memset(curr, 0, sizeof dp1);
+    mem_set(curr, 0, sizeof dp1);
 
     /* Initial two rows.  prev = row0, cur = row1. */
     for (int r0 = 0; r0 < 64; ++r0) {
@@ -102,7 +135,7 @@ seq_t a(idx_t n)
 
     /* Process rows 3 … n.  Each step adds one more row. */
     for (idx_t step = 2; step <= n - 1; ++step) {
-        memset(next, 0, sizeof dp2);
+        mem_set(next, 0, sizeof dp2);
         for (int prev = 0; prev < 64; ++prev)
             for (int cur = 0; cur < 64; ++cur) {
                 seq_t val = curr[prev][cur];

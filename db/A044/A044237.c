@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has62_oct
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has62_oct.h"
+#include "../utils/mem.h"
+
+/* Return true iff x (in base 8) contains the adjacent digits 2 then 6
+ * (most significant digit first). */
+static bool has62_oct(seq_t x)
+{
+    bool seen_two = false;
+    while (x) {
+        unsigned int d = (unsigned int)(x % 8);
+        if (seen_two && d == 6)
+            return true;
+        seen_two = (d == 2);
+        x /= 8;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -47,7 +63,7 @@ seq_t a(idx_t n)
             if (!has62_oct(prev)) {
                 if (term_len == term_cap) {
                     size_t new_cap = term_cap ? term_cap * 2 : 64;
-                    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                     if (!tmp) { /* allocation failure */
                         exit(EXIT_FAILURE);
                     }

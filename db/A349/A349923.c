@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    ∏_{k≥2}(1+2k^{-s}) without storing the factorisation of every n. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External prototypes provided by the build system */
 extern seq_t a(idx_t n);
@@ -33,7 +35,7 @@ static idx_t cache_size = 0;    /* maximum n for which cache is valid */
 static void recompute(idx_t need)
 {
     /* Resize cache */
-    cache = (seq_t *)realloc(cache, (need + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (need + 1));
     /* Base case a(1) = 1 */
     cache[1] = (seq_t)1;
     /* Initialise rest to zero */

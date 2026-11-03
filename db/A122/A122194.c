@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-2) + a(n-4) + 1 (n>4) a(1)=3, a(2)=5, a(3)=6, a(4)=9
  * Range:     u8 n <= 17, u16 n <= 41, u32 n <= 87, u64 n <= 179,
  *            u128 n <= 363, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;   /* offset starts at 1 */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     /* Ensure allocated capacity covers index n */
     if (capacity < idx + 1) {
         size_t new_cap = idx + 1;
-        seq_t *newbuf = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *newbuf = mem_resize(seq_t, cache, new_cap);
         if (!newbuf) exit(1);          /* allocation failure */
         /* zero newly allocated entries */
         for (size_t i = capacity; i < new_cap; ++i)

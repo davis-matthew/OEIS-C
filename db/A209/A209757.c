@@ -11,7 +11,8 @@
  *            non‑zero coefficients of v(n,x) row‑by‑row
  * Range:     u8 n <= 24, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cached data ------------------------------------------------------------- */
 static seq_t *v_cache = NULL;      /* sequence values a(1), a(2), …          */
@@ -36,7 +38,7 @@ static void ensure_cache_capacity(size_t need)
     {
         size_t new_cap = (cache_cap == 0) ? 1 : cache_cap;
         while (new_cap < need) new_cap <<= 1;
-        v_cache = (seq_t *)realloc(v_cache, new_cap * sizeof(seq_t));
+        v_cache = mem_resize(seq_t, v_cache, new_cap);
         cache_cap = new_cap;
     }
 }
@@ -44,8 +46,8 @@ static void ensure_cache_capacity(size_t need)
 /* Heap allocation for polynomial arrays of given length. */
 static void init_polynomial_arrays(size_t len)
 {
-    u_cur = (seq_t *)malloc(len * sizeof(seq_t));
-    v_cur = (seq_t *)malloc(len * sizeof(seq_t));
+    u_cur = mem_new(seq_t, len);
+    v_cur = mem_new(seq_t, len);
 }
 
 /* Main function ----------------------------------------------------------- */
@@ -72,8 +74,8 @@ seq_t a(idx_t n)
         size_t next_len = cur_len + 1;  /* new row length */
 
         /* Allocate arrays for the next row. */
-        seq_t *u_next = (seq_t *)malloc(next_len * sizeof(seq_t));
-        seq_t *v_next = (seq_t *)malloc(next_len * sizeof(seq_t));
+        seq_t *u_next = mem_new(seq_t, next_len);
+        seq_t *v_next = mem_new(seq_t, next_len);
 
         /* Compute first coefficient of the new row. */
         u_next[0] = 1;
@@ -99,8 +101,8 @@ seq_t a(idx_t n)
         }
 
         /* Free previous row arrays and move to the new row. */
-        free(u_cur);
-        free(v_cur);
+        mem_free(u_cur);
+        mem_free(v_cur);
         u_cur = u_next;
         v_cur = v_next;
         cur_len = next_len;

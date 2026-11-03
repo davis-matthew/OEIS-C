@@ -10,7 +10,8 @@
  *            DP processes the grid row by row
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define WIDTH 7
 #define MASK_ALL ((1u << WIDTH) - 1)
@@ -122,7 +124,7 @@ seq_t a(idx_t n)
     seq_t (*cur)[1 << WIDTH] = dp1;
     seq_t (*nxt)[1 << WIDTH] = dp2;
 
-    memset(cur, 0, sizeof(dp1));
+    mem_set(cur, 0, sizeof(dp1));
 
     /* Initial row (row 1) */
     for (int mask = 0; mask <= MASK_ALL; ++mask) {
@@ -136,7 +138,7 @@ seq_t a(idx_t n)
 
     /* Process remaining rows */
     for (idx_t row = 2; row <= n; ++row) {
-        memset(nxt, 0, sizeof(dp2));
+        mem_set(nxt, 0, sizeof(dp2));
         for (int prevMask = 0; prevMask <= MASK_ALL; ++prevMask) {
             for (int prevSat = 0; prevSat <= MASK_ALL; ++prevSat) {
                 seq_t val = cur[prevMask][prevSat];

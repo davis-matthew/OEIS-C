@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 49, i32 n <= 49, i64 n <= 49, i128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
         a(2) = –1, a(3) = 19, a(4) = 44, a(5) = 67,
         a(6) = 94, a(7) = 117, a(8) = 144. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* constants – the array dimensions must be integer compile‑time constants */
 #define OFFSET     2          /* a(2) is the first defined term */
@@ -43,7 +45,7 @@ static void ensure_capacity(size_t need)
     size_t old_cap = cap;
     if (cap == 0) cap = 8;
     while (cap < need) cap <<= 1;
-    seq_t *new_tab = (seq_t *)realloc(tab, cap * sizeof(seq_t));
+    seq_t *new_tab = mem_resize(seq_t, tab, cap);
     if (!new_tab) exit(1);          /* allocation failure – stop */
     if (old_cap < cap) {
         for (size_t i = old_cap; i < cap; ++i) new_tab[i] = 0;

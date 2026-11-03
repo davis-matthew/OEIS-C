@@ -10,7 +10,8 @@
  *            product over prime factors p^e of n of 4 if e <= 2 e+1 if e >= 3
  * Range:     u8 n <= 209, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, floor_isqrt_u64
+ * Validated: standard, pass, 89 terms through n = 9885 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     static idx_t prime_limit = 0;
 
     /* Ensure primes up to sqrt(n). */
-    idx_t limit = floor_isqrt_u64(n) + 1;
+    idx_t limit = isqrt(n) + 1;
     if (limit > prime_limit) {
         if (prime_table)
             free(prime_table);

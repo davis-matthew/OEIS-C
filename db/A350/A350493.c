@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor(sqrt(prime(n)))^2 mod n
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-02)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_floor_isqrt_u64.h"   /* idx_t _floor_isqrt_u64(idx_t n)   */
-#include "../utils/build_primes_upto.h" /* void build_primes_upto(idx_t limit,
-                                         uint64_t **out, size_t *cnt_out); */
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
 
 /* ------------------------------------------------------------------ */
 /* Prime caching utilities                                            */
@@ -70,7 +71,7 @@ seq_t a(idx_t n)
 
     /* Compute floor(sqrt(p)) using the helper that works on 64‑bit
        integers. */
-    idx_t k = _floor_isqrt_u64(p);
+    idx_t k = isqrt(p);
 
     /* Square the integer square root. */
     uint64_t sq = (uint64_t)k * (uint64_t)k;

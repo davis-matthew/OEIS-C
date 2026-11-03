@@ -7,15 +7,41 @@
  * Formula:   a(n) = n! * Sum_{d|n} 1 / d^(n/d - 1)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   free_seq_array, mul_small, seq_alloc_new_array, seq_pow
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
-#include "../utils/mul_small.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {
@@ -69,7 +95,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < div_count; ++i) {
         idx_t d   = divs[i];
         idx_t exp = n / d - 1;
-        seq_t pow = seq_pow((seq_t)d, exp);
+        seq_t pow = ipow_idx((seq_t)d, exp);
         seq_t term = fact_n / pow;
         sum += term;
     }

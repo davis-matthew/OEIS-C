@@ -10,7 +10,8 @@
  *            brute‑force enumeration of primes, testing runs directly
  * Range:     u8 n <= 3, u16 n <= 2280, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen, is_prime
+ * Validated: standard, pass, 64 terms through n = 9864 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,18 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/bitlen.h"
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+
+/* Computes the number of bits needed to represent x:
+   0 has length 1. */
+static idx_t bitlen(idx_t x)
+{
+    if (x == 0) return 1;
+    idx_t len = 0;
+    while (x) { ++len; x >>= 1; }
+    return len;
+}
 
 /* Count the number of runs of consecutive identical bits in x.
    The most significant bit is the first run. */
@@ -50,7 +61,7 @@ seq_t a(idx_t n)
     uint64_t candidate = 2;   /* start with the first prime */
 
     while (1) {
-        if (is_prime(candidate) && count_runs_uint64(candidate) == 7) {
+        if (is_prime_u64(candidate) && count_runs_uint64(candidate) == 7) {
             ++found;
             if (found == n) {
                 return (seq_t)candidate;

@@ -13,14 +13,15 @@
  *            2*n*(q+1)^(n-1) * else: A = 2*(q+1)^(n-r-1)*(q+2)^(r-1)*(n*q +
  *            2*n - r)
  * Range:     u8 n <= 70, u16 n <= 310, u32 n <= 1448, u64 n <= 6364,
- *            u128 n <= 9718, big any n
- * Helpers:   pow_seq
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 82 terms through n = 9718 (2026-11-02)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t idx)
 {
@@ -53,11 +54,11 @@ seq_t a(idx_t idx)
     idx_t r = kLayers % nDim;
 
     if (r == 0) {
-        seq_t powv = pow_seq((seq_t)(q + 1), (int)(nDim - 1));
+        seq_t powv = ipow_i32((seq_t)(q + 1), (int)(nDim - 1));
         return 2 * (seq_t)nDim * powv;
     } else {
-        seq_t pow1 = pow_seq((seq_t)(q + 1), (int)(nDim - r - 1));
-        seq_t pow2 = pow_seq((seq_t)(q + 2), (int)(r - 1));
+        seq_t pow1 = ipow_i32((seq_t)(q + 1), (int)(nDim - r - 1));
+        seq_t pow2 = ipow_i32((seq_t)(q + 2), (int)(r - 1));
         seq_t factor = (seq_t)nDim * (seq_t)q + (seq_t)(2 * nDim - r);
         return 2 * pow1 * pow2 * factor;
     }

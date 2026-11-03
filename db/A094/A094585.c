@@ -10,14 +10,16 @@
  *            that r(r+1)/2 ≥ n, * and c = n - r(r-1)/2 is the column position
  *            in that row
  * Range:     u8 n <= 57, u16 n <= 235, u32 n <= 994, u64 n <= 4100,
- *            u128 n <= 9473, big any n
- * Helpers:   none
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 82 terms through n = 9473 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;          /* undefined for n = 0, return 0 */
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
     idx_t need = r + 3;                /* we need F(0) … F(r+3) */
     if (need >= fib_cap) {
         idx_t new_cap = need + 16;
-        seq_t *tmp = (seq_t *)realloc(fib, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fib, new_cap);
         if (!tmp) abort();            /* allocation failed */
         fib = tmp;
         fib_cap = new_cap;

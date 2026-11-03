@@ -14,7 +14,8 @@
  *            for repeated calls
  * Range:     u8 none, u16 n <= 968, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_log2_uint64, is_prime
+ * Validated: standard, pass, 59 terms through n = 9457 (2026-11-03)
+ * Helpers:   ilog2, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,15 +26,16 @@
 #include <stddef.h>
 
 /* Utility functions supplied by the build system */
+#include "../utils/ilog2.h"
 #include "../utils/is_prime.h"
-#include "../utils/floor_log2_uint64.h"
+#include "../utils/mem.h"
 
 /* Check whether an odd composite n satisfies the XOR partner condition
  * in its interval and all recursively halved intervals that contain n. */
 static bool valid_candidate(idx_t n)
 {
     /* Locate the interval [L,R] that contains n */
-    unsigned i = floor_log2_uint64(n - 1);
+    unsigned i = ilog2(n - 1);
     idx_t L = ((idx_t)1 << i) + 1;
     idx_t R = ((idx_t)1 << (i + 1)) - 1;
 
@@ -86,8 +88,8 @@ seq_t a(idx_t n)
             /* Grow cache if needed */
             if (len == cap) {
                 size_t new_cap = (cap == 0) ? 64 : cap << 1;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
-                if (!tmp) { free(cache); cache = NULL; cap = 0; len = 0; return 0; }
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+                if (!tmp) { mem_free(cache); cache = NULL; cap = 0; len = 0; return 0; }
                 cache = tmp;
                 cap = new_cap;
             }

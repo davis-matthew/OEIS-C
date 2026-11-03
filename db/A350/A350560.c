@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *num = NULL;
 static seq_t *den = NULL;
@@ -44,8 +46,8 @@ static void ensure_capacity(idx_t n)
     if (size < n + 1) {
         idx_t new_size = size ? size * 2 : 16;
         if (new_size < n + 1) new_size = n + 1;
-        num = (seq_t*)realloc(num, new_size * sizeof(seq_t));
-        den = (seq_t*)realloc(den, new_size * sizeof(seq_t));
+        num = mem_resize(seq_t, num, new_size);
+        den = mem_resize(seq_t, den, new_size);
         size = new_size;
     }
 }

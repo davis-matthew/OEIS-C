@@ -8,13 +8,15 @@
  * Formula:   a(n) = n^(n-1) - (n-1)! * Σ_{d|n, d<n} d * (a(d)/d!)^(n/d)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ----- small helper: integer power by squaring --------------------------------- */
 static seq_t pow_seq(seq_t base, idx_t exp)
@@ -43,13 +45,13 @@ static void ensure_capacity(idx_t n)
     if (needed <= capA) return;
 
     size_t new_cap = needed * 2;
-    seq_t *tmp = (seq_t*)realloc(A, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, A, new_cap);
     if (!tmp) abort();
     for (size_t i = capA; i < new_cap; ++i) tmp[i] = (seq_t)0;
     A = tmp;
     capA = new_cap;
 
-    tmp = (seq_t*)realloc(Fact, new_cap * sizeof(seq_t));
+    tmp = mem_resize(seq_t, Fact, new_cap);
     if (!tmp) abort();
     for (size_t i = capFact; i < new_cap; ++i) tmp[i] = (seq_t)0;
     Fact = tmp;

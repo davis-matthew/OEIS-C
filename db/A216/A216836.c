@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi, digit_sum
+ * Validated: standard, pass, 62 terms through n = 9604 (2026-11-03)
+ * Helpers:   digit_sum, mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,11 @@
 /* Sequence: Numbers n such that the sum of decimal digits of n divides φ(n).
    Compute by scanning integers and caching the results. */
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
-#include "../utils/calc_phi.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 /* Static cache for the terms found so far. */
 static seq_t *cache = NULL;      /* cached terms */
@@ -32,7 +36,7 @@ static void append_term(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 128;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return;          /* realloc failed – ignore, caller will
                                        not get more terms */
         cache = tmp;
@@ -53,7 +57,7 @@ seq_t a(idx_t n)
 
         seq_t cand = (seq_t)next_candidate;
         seq_t s    = digit_sum(cand);    /* sum of decimal digits of cand */
-        seq_t ph   = calc_phi(cand);     /* Euler's totient of cand */
+        seq_t ph   = totient_seq(cand);     /* Euler's totient of cand */
 
         if (ph % s == 0) append_term(cand);
 

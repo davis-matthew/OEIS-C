@@ -8,14 +8,15 @@
  *            n - k*(k+1)/2
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 104, u64 n <= 405,
  *            u128 n <= 1594, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 61 terms through n = 4943 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 static idx_t triangular_inverse(idx_t n)
 {
@@ -37,8 +38,8 @@ seq_t a(idx_t n)
     idx_t k = triangular_inverse(n);
     idx_t l = n - (k * (k + 1)) / 2;
 
-    seq_t term_k = pow_uint(5, k);
-    seq_t term_l = pow_uint(5, l);
+    seq_t term_k = ipow_u64_idx(5, k);
+    seq_t term_l = ipow_u64_idx(5, l);
 
     return term_k + term_l;
 }

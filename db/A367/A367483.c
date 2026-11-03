@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   by definition * a(n) = Sum_{d|n, d>1, gcd(n, d')=1} d', * where
  *            d' = d * SUM_{p|d} (exp_p(d)/p)
- * Range:     u8 n <= 209, u16 n <= 9355, u32 n <= 9355, u64 n <= 9355,
- *            u128 n <= 9355, big any n
+ * Range:     u8 n <= 209, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 107 terms through n = 9355 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t, uint64_t*, uint64_t*, size_t*) */
-#include "../utils/gcd.h"          /* gcd(seq_t, seq_t) */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 static void gen_divs(int pos, seq_t cur_d, int *exp_d,
                      const uint64_t *pr, const int *exps, int pcnt,

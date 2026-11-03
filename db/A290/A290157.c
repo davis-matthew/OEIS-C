@@ -9,6 +9,7 @@
  *            a(n) = a(n-1) + a(n-2) + a(n-3) for n > 2
  * Range:     u8 none, u16 none, u32 none, u64 n <= 29, u128 n <= 102,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 3194 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

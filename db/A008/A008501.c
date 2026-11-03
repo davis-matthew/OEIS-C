@@ -7,6 +7,7 @@
  * Formula:   a(n) = binom(n+8,8) – binom(n,8)
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 58, u64 n <= 1419,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 43 terms through n = 9958 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

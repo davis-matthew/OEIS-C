@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper macros for bit‑set primality test */
 #define BITSET_SET(arr, n)      ((arr)[(n)>>3] &= ~(1u<<((n)&7)))
@@ -33,7 +35,7 @@ static size_t seq_cap  = 0;   /* allocated capacity of seq */
 static void build_seq_upto(idx_t limit)
 {
     /* Free any previous sequence data */
-    if (seq) { free(seq); seq = NULL; }
+    if (seq) { mem_free(seq); seq = NULL; }
     seq_len = seq_cap = 0;
 
     /* Allocate bitset: one bit per odd integer up to limit
@@ -73,7 +75,7 @@ static void build_seq_upto(idx_t limit)
         if (found) {
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 16;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)p;
         }

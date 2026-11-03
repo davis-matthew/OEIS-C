@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 13,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 30 terms through n = 286 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
    (seq_t gcd(seq_t, seq_t)) is used. */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* static cache for previously computed terms */
 static seq_t *cache = NULL;    /* pointer to array of seq_t */
@@ -83,7 +86,7 @@ seq_t a(idx_t n)
 
     /* grow cache to hold up to index n */
     size_t needed = (size_t)(n + 1);          /* array size needed */
-    seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * needed);
+    seq_t *tmp = mem_resize(seq_t, cache, needed);
     if (!tmp) {
         /* allocation failure – return 0 as a sentinel (won't happen in tests) */
         return (seq_t)0;

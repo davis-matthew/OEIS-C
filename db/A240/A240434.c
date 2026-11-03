@@ -8,13 +8,15 @@
  * Formula:   a(n) = (2^(n-1) * n * (5 + 6*n + n^2)) / 3
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 19, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n == 0) {
@@ -22,7 +24,7 @@ seq_t a(idx_t n) {
     }
     seq_t nt = (seq_t)n;
     /* 2^(n-1) */
-    seq_t two_pow = big_pow((seq_t)2, (seq_t)(n - 1));
+    seq_t two_pow = ipow((seq_t)2, (seq_t)(n - 1));
     /* n * (5 + 6*n + n^2) */
     seq_t poly = nt * ((seq_t)5 + (seq_t)6 * nt + nt * nt);
     seq_t prod = two_pow * poly;

@@ -12,12 +12,14 @@
  *            RHS = 0 if...
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 15, u64 n <= 24, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 101 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* allocate/extend cache if necessary */
     if (n + 1 > E_len) {
         /* enlarge array */
-        seq_t *tmp = (seq_t *)realloc(E, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, E, (n + 1));
         if (!tmp) abort();
         E = tmp;
 

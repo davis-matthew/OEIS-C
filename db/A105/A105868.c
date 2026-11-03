@@ -8,13 +8,29 @@
  *            (such that r(r+1)/2 ≤ n < (r+1)(r+2)/2), k = n - r(r+1)/2
  * Range:     u8 n <= 40, u16 n <= 98, u32 n <= 314, u64 n <= 1062,
  *            u128 n <= 1274, big any n
- * Helpers:   binomial, row_of_index
+ * Validated: standard, pass, 96 terms through n = 1083 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/row_of_index.h"
+
+static inline idx_t row_of_index(idx_t n)
+{
+    /* Binary search for the largest r with r*(r+1)/2 <= n. */
+    idx_t low = 0, high = n, mid, tri;
+    idx_t r = 0;
+    while (low <= high)
+    {
+        mid = low + (high - low) / 2;
+        tri = mid * (mid + 1) / 2;
+        if (tri <= n) { r = mid; low = mid + 1; }
+        else           high = mid - 1;
+    }
+    return r;
+}
 
 seq_t a(idx_t n)
 {

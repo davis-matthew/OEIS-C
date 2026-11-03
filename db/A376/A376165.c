@@ -11,12 +11,14 @@
  *            each time
  * Range:     u8 n <= 10, u16 n <= 109, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 76 terms through n = 9852 (2026-11-01)
  * Helpers:   digit_frequencies
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/digit_frequencies.h"   /* for digit_frequencies() */
+#include <stdbool.h>
+#include "../utils/digit_frequencies.h"
 
 static inline unsigned int count_ones(seq_t x) {
     unsigned int freq[10];

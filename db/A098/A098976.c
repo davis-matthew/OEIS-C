@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 145, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 53 terms through n = 2039 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;      /* memoised sequence values   */
 static size_t terms_len = 0;      /* number of terms stored     */
@@ -40,13 +42,13 @@ static void ensure_terms(idx_t n)
         initialized = true;
         last_prime = 0;                      /* start from before first prime */
         terms_cap = 64;                      /* initial capacity              */
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 
     /* Grow array if necessary */
     if (terms_len < n && terms_len == terms_cap) {
         terms_cap *= 2;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
 
     /* Generate primes until we have `n` terms */
@@ -57,7 +59,7 @@ static void ensure_terms(idx_t n)
         if (curr - prev == 22U) {
             if (terms_len == terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)curr;   /* record upper prime of 22-gap */
         }

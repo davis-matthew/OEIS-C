@@ -11,13 +11,15 @@
  *            126, a(12) = 141, a(13) = 154
  * Range:     i8 n <= 11, i16 n <= 51, i32 n <= 51, i64 n <= 51, i128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>   /* for memcpy */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* dynamic array of computed terms */
 static size_t cache_cap = 0;       /* allocated capacity */
@@ -47,16 +49,16 @@ static void ensure_cache_up_to(idx_t n)
     /* Lazy allocation on first call */
     if (cache == NULL) {
         cache_cap = (size_t)n + 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;     /* nothing filled yet */
     }
 
     /* Expand storage if necessary */
     if (cache_cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        seq_t *new_cache = mem_new(seq_t, new_cap);
+        mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

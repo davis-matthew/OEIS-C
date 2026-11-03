@@ -10,13 +10,15 @@
  *            of calls, and allocates the cache dynamically
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 29, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL; /* array holding the terms */
 static size_t cache_size   = 0; /* allocated size of cache   */
@@ -28,11 +30,11 @@ ensure_capacity(idx_t n)
 {
     if (cache == NULL) {                          /* first allocation        */
         cache_size = (size_t)n + 1;
-        cache = (seq_t *)malloc(cache_size * sizeof (seq_t));
+        cache = mem_new(seq_t, cache_size);
     } else if (cache_size <= (size_t)n) {          /* grow if needed          */
         size_t new_size = cache_size ? cache_size * 2 : 4;
         while (new_size <= (size_t)n) new_size <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof (seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         cache = tmp;
         cache_size = new_size;
     }

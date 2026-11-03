@@ -9,13 +9,16 @@
  *            coefficient)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 30,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 750 (2026-11-01)
  * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow3.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/pow3.h"
 
 #if defined(__cplusplus)
 #include <type_traits>

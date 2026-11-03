@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 912 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Maximum sum considered; enough to contain the first ten thousand terms. */
 static const idx_t LIMIT_SUM = 5000000ULL;
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
             if (freq[i] == 1) ++list_len;
         }
 
-        list = (seq_t *)malloc(list_len * sizeof(seq_t));
+        list = mem_new(seq_t, list_len);
         if (!list)
         {
             free(freq);

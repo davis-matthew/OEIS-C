@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 216, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---- internal cache structure ---------------------------------------- */
 static struct {
@@ -31,7 +33,7 @@ static struct {
 static void _recompute_cache(idx_t limit)
 {
     if (_a_cache.seq) {
-        free(_a_cache.seq);
+        mem_free(_a_cache.seq);
         _a_cache.seq = NULL;
         _a_cache.seq_len = 0;
     }
@@ -81,7 +83,7 @@ static void _recompute_cache(idx_t limit)
     }
 
     /* Build the sequence array. */
-    seq_t *seq = (seq_t *)malloc(count * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, count);
     if (!seq) {
         free(dp);
         return;  /* allocation failure */

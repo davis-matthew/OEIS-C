@@ -10,14 +10,36 @@
  *            memoisation
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has12_base8
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has12_base8.h"
+#include "../utils/mem.h"
+
+/* true if base‑8 digits of x contain the substring 1,2 */
+static inline bool has12_base8(seq_t x)
+{
+    if (x == (seq_t)0)
+        return false;
+
+    seq_t digs[128];
+    int d = 0;
+    const seq_t base8 = (seq_t)8;
+
+    while (x != (seq_t)0) {
+        digs[d++] = x % base8;
+        x = x / base8;
+    }
+    for (int i = 0; i + 1 < d; ++i) {
+        if (digs[i] == (seq_t)2 && digs[i + 1] == (seq_t)1)
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,7 +54,7 @@ seq_t a(idx_t n)
         /* Ensure there is room for another term */
         if (cache_size >= cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp)               /* allocation failed */
                 return (seq_t)0;
             cache = tmp;

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 14, u16 n <= 1230, u32 n <= 9797, u64 n <= 9797,
- *            u128 n <= 9797, big any n
- * Helpers:   none
+ * Range:     u8 n <= 14, u16 n <= 1230, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 107 terms through n = 9797 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Test whether the decimal representation of x contains the digit 7. */
 static bool has_digit_7(seq_t x)
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* Lazy initialization on first call. */
     if (!seq) {
         seq_cap = 64;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) exit(EXIT_FAILURE);
     }
     if (!used) {
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
         /* Store the value in the sequence array. */
         if (seq_len >= seq_cap) {
             size_t new_cap = seq_cap ? seq_cap * 2 : 64;
-            seq_t *p = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq_t *p = mem_resize(seq_t, seq, new_cap);
             if (!p) exit(EXIT_FAILURE);
             seq = p;
             seq_cap = new_cap;

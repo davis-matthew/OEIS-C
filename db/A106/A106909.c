@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 5, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
- *            big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 5, u16 n <= 506, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 59 terms through n = 9737 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Compute floor(sqrt(x)) for 0 <= x <= 2^128-1. */
 static inline uint64_t isqrt_uint128(unsigned __int128 x)
@@ -73,7 +76,7 @@ seq_t a(idx_t n)
 
     while (cache_size < n) {
         ++last_checked;
-        if (!is_prime(last_checked))
+        if (!is_prime_u64(last_checked))
             continue;                  /* skip composite numbers */
         if (!is_repr_prime(last_checked))
             continue;                  /* not of the required form */
@@ -81,7 +84,7 @@ seq_t a(idx_t n)
         /* add prime to cache */
         if (cache_size >= cache_cap) {
             size_t newcap = (cache_cap == 0) ? 8 : (size_t)cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp) exit(1);        /* allocation failed */
             cache = tmp;
             cache_cap = (idx_t)newcap;

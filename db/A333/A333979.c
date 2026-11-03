@@ -11,7 +11,8 @@
  *            2, where T(i,k) = floor(i/k) + k·T(floor(i/k),k)
  * Range:     u8 n <= 4751, u16 n <= 5049, u32 n <= 5049, u64 n <= 5049,
  *            u128 n <= 5049, big any n
- * Helpers:   digital_derivative
+ * Validated: standard, pass, 94 terms through n = 5022 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
    increasing i+k (the antidiagonals of the infinite table). */
 
 #include <stddef.h>  /* for size_t if needed */
-#include "../utils/digital_derivative.h"
+
+/* Recursive computation of the digital derivative T(n,k). */
+static seq_t digital_derivative(idx_t n, idx_t k)
+{
+    if (n < k)               /* base case: no higher digits */
+        return 0;
+
+    idx_t m        = n / k;                     /* floor(n/k)   */
+    seq_t sub      = digital_derivative(m, k);   /* T(floor(n/k),k) */
+    seq_t m_seq    = (seq_t)m;
+    seq_t k_seq    = (seq_t)k;
+
+    return m_seq + k_seq * sub;                  /* T(n,k) = m + k*T(m,k) */
+}
 
 /* Main entry point: returns a(n). */
 seq_t a(idx_t idx)

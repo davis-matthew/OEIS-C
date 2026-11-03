@@ -11,9 +11,10 @@
  *            For a given flattened index n the corresponding row r and column
  *            k are r = floor( (sqrt(8*n+1) - 1)/2 ) k = n - r*(r+1)/2 . The
  *            function returns T(r,k)
- * Range:     u8 n <= 497, u16 n <= 1654, u32 n <= 5996, u64 n <= 8571,
- *            u128 n <= 8571, big any n
- * Helpers:   none
+ * Range:     u8 n <= 497, u16 n <= 1654, u32 n <= 5996, u64 n <= 20300,
+ *            u128 n <= 20300, big any n
+ * Validated: standard, pass, 107 terms through n = 8571 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the public function */
 seq_t a(idx_t n);
@@ -41,9 +43,9 @@ static void ensure_rows(idx_t row)
     size_t old_cap = (size_t)(max_row + 1) * (max_row + 2) / 2;
 
     if (tri == NULL) {
-        tri = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        tri = mem_new(seq_t, new_cap);
     } else {
-        tri = (seq_t *)realloc(tri, new_cap * sizeof(seq_t));
+        tri = mem_resize(seq_t, tri, new_cap);
     }
 
     /* Build rows from max_row+1 up to row */

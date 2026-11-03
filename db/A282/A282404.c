@@ -10,7 +10,8 @@
  *            exponent 3 and 5
  * Range:     i8 n <= 0, i16 n <= 1, i32 n <= 3, i64 n <= 8, i128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    5. a[n] = e6four[n] + 240 Σ_{i=1}^{n} σ₃[i] * e6four[n-i].   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,14 +32,14 @@ seq_t a(idx_t n)
 
     /* Allocate arrays of length n+1 (indices 0 .. n). */
     size_t sz = (size_t)(n + 1);
-    seq_t *sigma3 = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *sigma5 = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *h      = (seq_t*)calloc(sz, sizeof(seq_t));      /* -504*σ₅ */
-    seq_t *h2     = (seq_t*)calloc(sz, sizeof(seq_t));      /* h*h      */
-    seq_t *h3     = (seq_t*)calloc(sz, sizeof(seq_t));      /* h*h²     */
-    seq_t *h4     = (seq_t*)calloc(sz, sizeof(seq_t));      /* h²*h²    */
-    seq_t *e6four = (seq_t*)calloc(sz, sizeof(seq_t));      /* E_6^4    */
-    seq_t *a_val  = (seq_t*)calloc(sz, sizeof(seq_t));      /* final seq*/
+    seq_t *sigma3 = mem_new(seq_t, sz);
+    seq_t *sigma5 = mem_new(seq_t, sz);
+    seq_t *h      = mem_new(seq_t, sz);      /* -504*σ₅ */
+    seq_t *h2     = mem_new(seq_t, sz);      /* h*h      */
+    seq_t *h3     = mem_new(seq_t, sz);      /* h*h²     */
+    seq_t *h4     = mem_new(seq_t, sz);      /* h²*h²    */
+    seq_t *e6four = mem_new(seq_t, sz);      /* E_6^4    */
+    seq_t *a_val  = mem_new(seq_t, sz);      /* final seq*/
 
     /* ------------------------------------------------------------------ */
     /* 1. Divisor sums σ₃ and σ₅ */
@@ -113,14 +115,14 @@ seq_t a(idx_t n)
 
     /* ------------------------------------------------------------------ */
     /* Clean up */
-    free(sigma3);
-    free(sigma5);
-    free(h);
-    free(h2);
-    free(h3);
-    free(h4);
-    free(e6four);
-    free(a_val);
+    mem_free(sigma3);
+    mem_free(sigma5);
+    mem_free(h);
+    mem_free(h2);
+    mem_free(h3);
+    mem_free(h4);
+    mem_free(e6four);
+    mem_free(a_val);
 
     return result;
 }

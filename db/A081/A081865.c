@@ -7,13 +7,19 @@
  * Formula:   a(n) = sigma_7(2n-1) (sum of 7th powers of all divisors of 2n-1)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 12, u64 n <= 283,
  *            u128 n <= 10000, big any n
- * Helpers:   pow7
+ * Validated: standard, pass, 39 terms through n = 9996 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow7.h"
+
+static seq_t pow7(seq_t x) {
+    seq_t r = 1;
+    r *= x; r *= x; r *= x; r *= x; r *= x; r *= x; r *= x;
+    return r;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;                /* offset is 1; undefined below, return 0 */

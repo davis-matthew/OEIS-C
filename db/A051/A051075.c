@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd_uint64, grow_uint64, powmod_uint64
+ * Validated: standard, pass, 69 terms through n = 983 (2026-11-01)
+ * Helpers:   gcd_u64, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd_uint64.h"
-#include "../utils/grow_uint64.h"
-#include "../utils/powmod_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/powmod_u64.h"
+
+/* Helper: grow an array of uint64_t (used for primes and qualifying primes) */
+static void grow_uint64(uint64_t **arr, size_t *cap, size_t *used, size_t new_used) {
+    if (*cap < new_used) {
+        size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
+        while (new_cap < new_used) new_cap <<= 1;
+        uint64_t *tmp = (uint64_t*)realloc(*arr, new_cap * sizeof(*(*arr)));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+    *used = new_used;
+}
 
 /* Helper: integer GCD for uint64_t */
 
@@ -73,10 +86,10 @@ seq_t a(idx_t n) {
         if (cand == 2) {
             ok = true;
         } else {
-            uint64_t d = gcd_uint64(12ULL, cand - 1ULL);
+            uint64_t d = gcd_u64(12ULL, cand - 1ULL);
             uint64_t exp = (cand - 1ULL) / d;
             uint64_t base = cand - 2ULL;
-            if (powmod_uint64(base, exp, cand) == 1ULL) ok = true;
+            if (powmod_u64(base, exp, cand) == 1ULL) ok = true;
         }
 
         if (ok) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   has35or53
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,21 @@
 
 /* include for bool type and literal */
 #include <stdbool.h>
-#include "../utils/has35or53.h"
+
+/* Test whether the base‑7 digits of x contain either "35" or "53". */
+static bool has35or53(seq_t x)
+{
+    unsigned int prev = 7;          /* sentinel larger than any base‑7 digit */
+    while (x != 0)
+    {
+        unsigned int d = (unsigned int)(x % 7);
+        if ((prev == 5 && d == 3) || (prev == 3 && d == 5))
+            return true;
+        x = x / 7;
+        prev = d;
+    }
+    return false;
+}
 
 /* Return the n‑th term of the sequence (offset 1). */
 seq_t a(idx_t n)

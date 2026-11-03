@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 5363, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   one_one_ternary
+ * Validated: standard, pass, 72 terms through n = 9620 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/one_one_ternary.h"
+#include "../utils/mem.h"
+
+/* Return true  iff  x  has exactly one digit equal to 1 in base 3. */
+static bool one_one_ternary(seq_t x)
+{
+    unsigned count = 0;
+    while (x > 0) {
+        if (x % 3 == 1) {
+            ++count;
+            if (count > 1)
+                return false;
+        }
+        x /= 3;
+    }
+    return count == 1;
+}
 
 /* Static cache of computed sequence values. */
 static seq_t *cache      = NULL;
@@ -35,13 +51,13 @@ static void ensure_cache(idx_t n)
     /* Allocate or grow the cache as needed. */
     if (cache == NULL) {
         cache_cap = 64;
-        cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
     }
     else if (cache_len + 1 > cache_cap) {
         /* Double capacity until it fits the new item. */
         while (cache_len + 1 > cache_cap)
             cache_cap <<= 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* Scan integers until we have enough values. */
@@ -49,7 +65,7 @@ static void ensure_cache(idx_t n)
         if (one_one_ternary(next_candidate)) {
             if (cache_len + 1 > cache_cap) {   /* grow if needed */
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = next_candidate;
         }

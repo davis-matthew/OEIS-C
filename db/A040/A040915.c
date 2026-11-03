@@ -7,7 +7,8 @@
  * Formula:   continued fraction for sqrt(946) computed by standard algorithm
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Public sequence function */
 seq_t a(idx_t n)
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Build the period once */
     if (!period) {
         size_t cap = 32;           /* initial capacity */
-        period = (seq_t *)malloc(cap * sizeof(seq_t));
+        period = mem_new(seq_t, cap);
         if (!period) return (seq_t)0;   /* safety on allocation failure */
 
         uint32_t m = 0, d = 1, a = A0;
@@ -46,8 +48,8 @@ seq_t a(idx_t n)
             /* Resize if necessary */
             if (len == cap) {
                 cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(period, cap * sizeof(seq_t));
-                if (!tmp) { free(period); return (seq_t)0; }
+                seq_t *tmp = mem_resize(seq_t, period, cap);
+                if (!tmp) { mem_free(period); return (seq_t)0; }
                 period = tmp;
             }
 

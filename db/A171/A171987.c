@@ -11,6 +11,7 @@
  * Formula:   a(n) = (2^k-1)*2^l + 2^m, k≥0, l>m≥0, sorted increasingly
  * Range:     u8 n <= 64, u16 n <= 695, u32 n <= 5063, u64 n <= 5489,
  *            u128 n <= 5489, big any n
+ * Validated: standard, pass, 91 terms through n = 5465 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

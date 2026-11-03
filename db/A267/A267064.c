@@ -12,6 +12,7 @@
  *            a(7)=−18412926914112, a(8)=−858719581400084
  * Range:     i8 n <= 0, i16 n <= 1, i32 n <= 4, i64 n <= 10, i128 n <= 21,
  *            big any n
+ * Validated: standard, pass, 31 terms through n = 485 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 21, i32 n <= 70, i64 n <= 248, i128 n <= 912,
  *            big any n
- * Helpers:   divide_by_plus_one, multiply_by_plus_one
+ * Validated: standard, pass, 53 terms through n = 2238 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,23 @@
    The implementation builds a memoized linear‑time series using array
    arithmetic. */
 #include <stdlib.h>
-#include "../utils/divide_by_plus_one.h"
-#include "../utils/multiply_by_plus_one.h"
+#include "../utils/mem.h"
+
+static void divide_by_plus_one(seq_t *a, idx_t N, idx_t r)
+{
+    for (idx_t i = r; i <= N; ++i) {
+        seq_t old = a[i];
+        a[i] = old - a[i - r];
+    }
+}
+
+static void multiply_by_plus_one(seq_t *a, idx_t N, idx_t r)
+{
+    for (idx_t i = N; i >= r; --i) {
+        a[i] += a[i - r];
+        if (i == r) break;  /* avoid unsigned wrap‑around */
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -30,7 +46,7 @@ seq_t a(idx_t n)
     if (cache == NULL || n > cached_n) {
         /* Allocate space for coefficients 0..n */
         size_t cap = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, cap);
         if (!new_cache) return 0;  /* allocation failed – return 0 */
 
         /* Initialise all to 0, except a[0] = 1 */
@@ -56,7 +72,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old cache (if any) */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cached_n = n;
     }

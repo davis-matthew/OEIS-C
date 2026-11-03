@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *seq_values = NULL;   /* table of found terms   */
@@ -29,7 +31,7 @@ static int    initialized = 0;     /* flag indicating that the table has been bu
 static void grow_seq(idx_t new_cap)
 {
     if (new_cap <= seq_cap) return;
-    seq_t *p = (seq_t *)realloc(seq_values, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, seq_values, new_cap);
     if (!p) exit(1);
     seq_values = p;
     seq_cap = new_cap;
@@ -62,7 +64,7 @@ static void build_sequence(void)
         if (!cnt) exit(1);
 
         /* pre‑compute cubes 1..root */
-        seq_t *cube = (seq_t *)malloc((root + 1) * sizeof(seq_t));
+        seq_t *cube = mem_new(seq_t, (root + 1));
         if (!cube) { free(cnt); exit(1); }
         for (size_t i = 1; i <= root; ++i) cube[i] = (seq_t)i * (seq_t)i * (seq_t)i;
 
@@ -83,7 +85,7 @@ static void build_sequence(void)
                 }
             }
         }
-        free(cube);
+        mem_free(cube);
 
         /* store numbers that have exactly two representations */
         for (idx_t val = 1; val <= Nmax; ++val) {

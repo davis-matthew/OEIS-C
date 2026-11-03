@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 141, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_prime_factors
+ * Validated: standard, pass, 58 terms through n = 953 (2026-11-03)
+ * Helpers:   bigomega_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/count_prime_factors.h"
+#include "../utils/bigomega_seq.h"
+#include "../utils/mem.h"
 
 /* Powers of ten up to 10^19 (enough for any 64‑bit value).  Used to
    initialise palindrome half ranges. */
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
         /* Apply the required filters. */
         if ((cand & 1ULL) == 0)            /* must be odd */
             continue;
-        uint64_t omega = (uint64_t)count_prime_factors((seq_t)cand);
+        uint64_t omega = (uint64_t)bigomega_seq((seq_t)cand);
         if (omega <= 1)                    /* must be composite (omega>1) */
             continue;
         if ((omega & 1ULL) == 0)           /* odd number of prime factors */
@@ -120,12 +122,12 @@ seq_t a(idx_t n)
         /* Store the candidate in the cache. */
         if (cache_len >= cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *newp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_t *newp = mem_new(seq_t, new_cap);
             if (!newp) exit(1);          /* abort on allocation failure */
             if (cache) {
                 for (size_t i = 0; i < cache_len; ++i)
                     newp[i] = cache[i];
-                free(cache);
+                mem_free(cache);
             }
             cache = newp;
             cache_cap = new_cap;

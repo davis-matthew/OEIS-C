@@ -12,7 +12,8 @@
  *            consecutive rows. The dynamic programme counts how...
  * Range:     u8 none, u16 none, u32 n <= 3, u64 n <= 9, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 123 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* constants for 9‑bit patterns */
 #define MAX_ROWS 512          /* 2^9 */
@@ -113,8 +115,8 @@ static void init_sequence(void)
     }
 
     /* 3. allocate DP tables and zero them */
-    dp = (seq_t *)malloc(pairs * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(pairs * sizeof(seq_t));
+    dp = mem_new(seq_t, pairs);
+    dp_next = mem_new(seq_t, pairs);
     for (size_t i = 0; i < pairs; ++i) {
         dp[i] = (seq_t)0;
         dp_next[i] = (seq_t)0;

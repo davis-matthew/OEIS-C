@@ -8,13 +8,16 @@
  * Formula:   a(0) = 1; a(n) = phi(n + a(n-1)), for n >= 1
  * Range:     u8 n <= 115, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   calc_phi
+ * Validated: standard, pass, 86 terms through n = 932 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/calc_phi.h"
+#include <stdint.h>
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
     if ((idx_t)cache_len <= n) {
         size_t new_len = (size_t)n + 1;
         /* realloc/malloc return void*, cast to seq_t* for C++ */
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp && new_len) {
             abort();  /* allocation failed – terminate safely */
         }
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
             } else {
                 /* n + a(n‑1) – cast idx_t to seq_t before adding */
                 seq_t sum = (seq_t)i + cache[i - 1];
-                cache[i] = calc_phi(sum);
+                cache[i] = totient_seq(sum);
             }
         }
         cache_len = new_len;

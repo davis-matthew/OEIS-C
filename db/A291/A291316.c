@@ -9,12 +9,14 @@
  *            x^7*(1-x)*(1-x^3)/(1-x^5) +
  * Range:     i8 n <= 79, i16 n <= 79, i32 n <= 79, i64 n <= 79, i128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,11 +24,11 @@ seq_t a(idx_t n)
         return 0;                       /* offset is 1 */
 
     size_t N = (size_t)n + 1;            /* array size */
-    seq_t *coeff = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *f     = (seq_t *)calloc(N, sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, N);
+    seq_t *f     = mem_new(seq_t, N);
     if (!coeff || !f) {
-        free(coeff);
-        free(f);
+        mem_free(coeff);
+        mem_free(f);
         return 0;                       /* allocation failed */
     }
 
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = coeff[n];
-    free(coeff);
-    free(f);
+    mem_free(coeff);
+    mem_free(f);
     return result;
 }

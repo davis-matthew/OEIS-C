@@ -12,17 +12,73 @@
  *            Sum_{i=0..6} e_i * theta3^(27-4i) * h^i with e = 1, -54...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 9, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   alloc_zero, mulPsi2, mulT, mulc, mulh2, shiftq
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/alloc_zero.h"
-#include "../utils/mulPsi2.h"
-#include "../utils/mulT.h"
-#include "../utils/mulc.h"
-#include "../utils/mulh2.h"
-#include "../utils/shiftq.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+/* f *= psi(q^2) (in place) */
+static void mulPsi2(seq_t *f, idx_t L)
+{
+    idx_t m;
+    for (m = L; m-- > 0;) {
+        seq_t s = f[m];
+        idx_t k;
+        for (k = 1; k * (k + 1) <= m; k++) s += f[m - k * (k + 1)];
+        f[m] = s;
+    }
+}
+
+/* f *= theta3 (in place) */
+static void mulT(seq_t *f, idx_t L)
+{
+    idx_t m;
+    for (m = L; m-- > 0;) {
+        seq_t s = 0;
+        idx_t k;
+        for (k = 1; k * k <= m; k++) s += f[m - k * k];
+        f[m] += s;
+        f[m] += s;
+    }
+}
+
+static seq_t mulc(seq_t x, unsigned long c)
+{
+    seq_t r = 0;
+    while (c) {
+        if (c & 1) r += x;
+        x += x;
+        c >>= 1;
+    }
+    return r;
+}
+
+static void shiftq(seq_t *f, idx_t L, idx_t s)
+{
+    idx_t m;
+    for (m = L; m-- > 0;) {
+        if (m >= s) f[m] = f[m - s];
+        else f[m] = (seq_t)0;
+    }
+}
+
+/* f *= h^2 = q^2 * psi(q^2)^8 */
+static void mulh2(seq_t *f, idx_t L)
+{
+    int i;
+    for (i = 0; i < 8; i++) mulPsi2(f, L);
+    shiftq(f, L, 2);
+}
 
 static seq_t *A_memo = 0;
 static idx_t A_cap = 0;

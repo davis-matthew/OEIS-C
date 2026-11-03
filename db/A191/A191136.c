@@ -10,13 +10,15 @@
  *            allow arbitrary order of calls
  * Range:     u8 n <= 12, u16 n <= 575, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----- heap helpers ----- */
 typedef struct {
@@ -28,7 +30,7 @@ typedef struct {
 static void heap_grow(minheap_t *h)
 {
     size_t newcap = h->cap ? h->cap * 2 : 8;
-    seq_t *tmp = (seq_t *)realloc(h->data, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, h->data, newcap);
     if (!tmp) abort();                  /* memory failure */
     h->data = tmp;
     h->cap = newcap;
@@ -80,10 +82,10 @@ seq_t a(idx_t n)
 
     /* initialisation */
     if (cache_len == 0 && heap.len == 0) {
-        heap.cap = 8; heap.data = (seq_t *)malloc(heap.cap * sizeof(seq_t));
+        heap.cap = 8; heap.data = mem_new(seq_t, heap.cap);
         if (!heap.data) abort();
         heap_push(&heap, (seq_t)1);
-        cache_cap = 8; cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache_cap = 8; cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
     }
 
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
         seq_t x = heap_pop(&heap);
         if (cache_len == cache_cap) {
             size_t newcap = cache_cap ? cache_cap * 2 : 8;
-            seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp) abort();
             cache = tmp;
             cache_cap = newcap;

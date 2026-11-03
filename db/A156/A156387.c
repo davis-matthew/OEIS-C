@@ -12,7 +12,8 @@
  *            + f = n * f + 2d + e + c = n * 2b + 2e + g = n * Th...
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         is_sq[(size_t)sqs[i]] = true;
 
     /* --------------------- precompute pair sums of square values --------------------- */
-    seq_t *pairSum = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *pairSum = mem_new(seq_t, (size_t)(N + 1));
     if (!pairSum) { free(is_sq); return 0; }
     for (size_t i = 0; i < sqCnt; ++i) {
         for (size_t j = 0; j < sqCnt; ++j) {
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
 
     /* free allocated memory */
     free(is_sq);
-    free(pairSum);
+    mem_free(pairSum);
 
     return count;
 }

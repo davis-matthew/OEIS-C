@@ -12,14 +12,28 @@
  *            dp12 – partitions using any allowed part * The desir...
  * Range:     u8 n <= 50, u16 n <= 133, u32 n <= 407, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_seq_array, free_seq
+ * Validated: standard, pass, 82 terms through n = 958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>                     /* size_t */
-#include "../utils/alloc_seq_array.h"   /* alloc_seq_array(size_t n) -> seq_t* */
-#include "../utils/free_seq.h"          /* free_seq(seq_t *p) */
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Comparator for qsort. Works for both built‑in integral types and
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         size_t max_pairs = grid_size * grid_size;
 
         /* Allocate array for all non‑negative values found. */
-        seq_t *vals = (seq_t *)malloc(max_pairs * sizeof(seq_t));
+        seq_t *vals = mem_new(seq_t, max_pairs);
         if (!vals) /* allocation failed – give up (should not happen). */
             return (seq_t)0;
 
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort the values so duplicates become adjacent. */
-        qsort(vals, len, sizeof(seq_t), cmp_seq);
+        mem_qsort(vals, len, sizeof(seq_t), cmp_seq);
 
         /* Remove duplicates in‑place. */
         size_t uniq = 0;
@@ -80,12 +82,12 @@ seq_t a(idx_t n)
         /* Does the current list contain the requested n‑th element? */
         if (uniq >= n) {
             seq_t result = vals[n - 1];   /* 1‑based → 0‑based index */
-            free(vals);
+            mem_free(vals);
             return result;
         }
 
         /* Not enough values – enlarge the search grid.  Double the limit. */
-        free(vals);
+        mem_free(vals);
         if (limit > SIZE_MAX / 2) {
             /* Prevent overflow – stop at maximum representable limit. */
             limit = SIZE_MAX / 2;

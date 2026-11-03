@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 28, u32 n <= 57, u64 n <= 115,
  *            u128 n <= 230, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 489 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache of computed values */
 static seq_t *cache = NULL;      /* cache[0] unused, cache[1..] valid */
@@ -38,7 +40,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* start with room for 14 entries (index 1..14) */
         size_t init_cap = n > 14 ? n + 1 : 15;
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (cache == NULL) { /* allocation failed – abort */
             return;
         }
@@ -65,7 +67,7 @@ static void ensure_cache(idx_t n)
     size_t new_cap = n + 1;
     if (new_cap <= last_computed) return;  /* nothing to do */
 
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     if (cache == NULL) return;  /* allocation failed – abort */
 
     /* compute missing terms from last_computed+1 up to n */

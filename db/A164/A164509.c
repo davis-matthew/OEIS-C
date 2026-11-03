@@ -12,6 +12,7 @@
  *            Transition from state s by appending bit...
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 40, u64 n <= 81, u128 n <= 163,
  *            big any n
+ * Validated: standard, pass, 53 terms through n = 1980 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

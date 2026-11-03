@@ -8,7 +8,8 @@
  * Formula:   a(n) = coefficient of x^n in exp(sech(x)*arctanh(x)), times n!
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 13, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   binomial, gcd
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   binomial, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"      /* seq_gcd is available */
-#include "../utils/binomial.h" /* binomial(idx_t n, idx_t k) returns seq_t */
+#include "../utils/binomial.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,14 +28,14 @@ seq_t a(idx_t n)
 
     /* ---------- basic integer arrays ---------- */
     size_t N = (size_t)n;
-    seq_t *fact   = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *euler  = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *pk     = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *A      = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *fact   = mem_new(seq_t, (N + 1));
+    seq_t *euler  = mem_new(seq_t, (N + 1));
+    seq_t *pk     = mem_new(seq_t, (N + 1));
+    seq_t *A      = mem_new(seq_t, (N + 1));
 
     if (!fact || !euler || !pk || !A) {
         /* allocation failed */
-        free(fact); free(euler); free(pk); free(A);
+        mem_free(fact); mem_free(euler); mem_free(pk); mem_free(A);
         return 0;
     }
 
@@ -94,9 +96,9 @@ seq_t a(idx_t n)
 
     seq_t result = A[n];
     /* free memory */
-    free(fact);
-    free(euler);
-    free(pk);
-    free(A);
+    mem_free(fact);
+    mem_free(euler);
+    mem_free(pk);
+    mem_free(A);
     return result;
 }

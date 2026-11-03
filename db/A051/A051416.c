@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 40, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, max_seq_t_val
+ * Validated: standard, pass, 57 terms through n = 7364 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,13 @@
 #include <stdint.h>
 
 #include "../utils/is_prime.h"
-#include "../utils/max_seq_t_val.h"
+#include "../utils/mem.h"
+
+/* Compute the maximum value representable in seq_t (works for all unsigned types). */
+static inline uint64_t max_seq_t_val(void)
+{
+    return (uint64_t)(~(seq_t)0);   /* cast all bits to seq_t, then to uint64_t */
+}
 
 /* Cache for found primes.  All values fit in seq_t when stored. */
 static seq_t *prime_cache = NULL;
@@ -41,7 +48,7 @@ static inline void add_prime(idx_t value)
 
     if (prime_cnt >= prime_cap) {
         size_t new_cap = prime_cap ? prime_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(prime_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prime_cache, new_cap);
         if (!tmp) abort();
         prime_cache = tmp;
         prime_cap   = new_cap;

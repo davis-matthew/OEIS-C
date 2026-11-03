@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 8126, u16 n <= 9484, u32 n <= 9484, u64 n <= 9484,
- *            u128 n <= 9484, big any n
- * Helpers:   none
+ * Range:     u8 n <= 8126, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 94 terms through n = 9484 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Allocate or grow an array of seq_t* (row pointers) */
 static seq_t **_row_ptrs = NULL;  /* indexed 1.._max_row; _row_ptrs[0] unused */
@@ -53,16 +55,16 @@ static void _ensure_rows(size_t need)
 
     /* base rows */
     if (_row_ptrs[1] == NULL) {
-        _row_ptrs[1] = (seq_t*)malloc(sizeof(seq_t));
+        _row_ptrs[1] = mem_new(seq_t, 1);
         _row_ptrs[1][0] = 1;
     }
     if (_row_ptrs[2] == NULL) {
-        _row_ptrs[2] = (seq_t*)malloc(2 * sizeof(seq_t));
+        _row_ptrs[2] = mem_new(seq_t, 2);
         _row_ptrs[2][0] = 1;
         _row_ptrs[2][1] = 2;
     }
     if (_row_ptrs[3] == NULL) {
-        _row_ptrs[3] = (seq_t*)malloc(3 * sizeof(seq_t));
+        _row_ptrs[3] = mem_new(seq_t, 3);
         _row_ptrs[3][0] = 3;
         _row_ptrs[3][1] = 4;
         _row_ptrs[3][2] = 5;
@@ -71,7 +73,7 @@ static void _ensure_rows(size_t need)
     /* construct remaining rows */
     size_t start = (_max_row < 4) ? 4 : _max_row + 1;
     for (size_t r = start; r <= need; ++r) {
-        seq_t *row = (seq_t*)malloc(r * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, r);
         const seq_t *prev2 = _row_ptrs[r - 2];
         const seq_t *prev1 = _row_ptrs[r - 1];
         size_t taken = 0;

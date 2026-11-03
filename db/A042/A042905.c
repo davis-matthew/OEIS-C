@@ -11,12 +11,14 @@
  *            a(16)=53460607, a(17)=131964232, a(18)=185424839, a(19)=50...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 19, u64 n <= 39, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for arbitrary‑order calls */
 static seq_t *cache = NULL;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         cache_cap = n + 1;
         if (cache_cap < 32)          /* protect against tiny n */
             cache_cap = 32;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) { abort(); }
         for (idx_t i = 0; i < init_len; ++i)
             cache[i] = init_terms[i];
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         idx_t new_cap = cache_cap;
         while (new_cap <= n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) { abort(); }
         cache = tmp;
         cache_cap = new_cap;

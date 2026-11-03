@@ -8,12 +8,14 @@
  * Formula:   a(n) = Σ_{i=1}^{⌊n/2⌋} i * F(n-i+2) (F(0)=0, F(1)=1)
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fib_cache = NULL;   /* Fibonacci cache  [0 .. fib_cache_len-1] */
 static idx_t fib_cache_len = 0;   /* number of initialized elements */
@@ -27,13 +29,13 @@ static void ensure_fib(idx_t upto)
     seq_t *new_arr;
 
     if (fib_cache == NULL) {
-        new_arr = (seq_t *)malloc(new_len * sizeof(seq_t));
+        new_arr = mem_new(seq_t, new_len);
         if (!new_arr) exit(1);
         new_arr[0] = (seq_t)0;
         if (upto >= 1) new_arr[1] = (seq_t)1;
         fib_cache_len = 2;
     } else {
-        new_arr = (seq_t *)realloc(fib_cache, new_len * sizeof(seq_t));
+        new_arr = mem_resize(seq_t, fib_cache, new_len);
         if (!new_arr) exit(1);
     }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   matches_pattern
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/matches_pattern.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether a composition parts[0..len-1] matches (1,1,2) */
+static bool matches_pattern(const seq_t *parts, size_t len)
+{
+    if (len < 3) return false;
+    for (size_t i = 0; i + 2 < len; ++i) {
+        for (size_t j = i + 1; j + 1 < len; ++j) {
+            if (parts[i] == parts[j]) {
+                for (size_t k = j + 1; k < len; ++k) {
+                    if (parts[k] > parts[i]) return true;
+                }
+            }
+        }
+    }
+    return false;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -37,7 +54,7 @@ seq_t a(idx_t n)
     if (n > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 32;
         if (new_cap < (size_t)n) new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();  /* allocation failed */
         cache = tmp;
         cache_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   row_and_offset, seq_alloc_new_array
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,31 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/row_and_offset.h"
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+/* Compute the row number and zero‑based position m inside that row
+   for a given flat index idx (1‑based).  The results are stored
+   in *row and *m. */
+static void row_and_offset(idx_t idx, idx_t *row, idx_t *m)
+{
+    idx_t cum = 0;
+    idx_t r   = 0;
+    while (cum < idx) {
+        r++;
+        /* length of row r is 2^(r-1)+1 */
+        cum += ((idx_t)1 << (r-1)) + 1;
+    }
+    idx_t len   = ((idx_t)1 << (r-1)) + 1;
+    idx_t before = cum - len;          /* number of elements before this row */
+    *row = r;
+    *m   = idx - before - 1;           /* zero‑based offset within the row */
+}
 
 /* Cache for all complete rows that have been built so far.
    row_cache[1] … row_cache[cache_rows] contain pointers to the

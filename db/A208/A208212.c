@@ -8,13 +8,15 @@
  *            a(2) = 1
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 10 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache to memoise computed terms.
    cache_len : number of terms currently stored (first n terms, n == cache_len)
@@ -31,7 +33,7 @@ static void ensure_cache_cap(size_t needed)
     size_t new_cap = cache_cap == 0 ? 8 : cache_cap * 2;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) { /* fall back to abort */ abort(); }
     cache = new_ptr;
     cache_cap = new_cap;

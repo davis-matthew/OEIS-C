@@ -10,13 +10,15 @@
  *            equivalent to a(n)=n!*[n(n-1)/4+1/1+1/2+...+1/n]
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *fact_cache = NULL; /* factorial values fact[i]=i!      */
 static seq_t *a_cache   = NULL; /* a(n) values                     */
@@ -30,8 +32,8 @@ grow_cache_to(idx_t n)
     if (cache_cap <= (size_t)n) {
         size_t new_cap = cache_cap? cache_cap*2 : 8;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        fact_cache = (seq_t *)realloc(fact_cache, new_cap * sizeof(seq_t));
-        a_cache   = (seq_t *)realloc(a_cache,   new_cap * sizeof(seq_t));
+        fact_cache = mem_resize(seq_t, fact_cache, new_cap);
+        a_cache   = mem_resize(seq_t, a_cache, new_cap);
         cache_cap = new_cap;
     }
 

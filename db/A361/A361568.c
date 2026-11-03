@@ -10,7 +10,8 @@
  *            (3*a(n-3)+12*(n-3)*a(n-4)+15*(n-3)*(n-4)*a(n-5)+6*(n-3)*(n-4)*(n-5)*a(n-6))
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 22, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ==== Memoisation cache ==== */
 static seq_t *cache = NULL;    /* holds a(0)…a(curr-1)  */
@@ -33,7 +35,7 @@ static void ensure_size(idx_t n)
     if (new_cap == 0) new_cap = 8;
     while (new_cap <= (size_t)n) new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) return;            /* allocation failure ignored – caller will fail */
 
     cache = new_cache;

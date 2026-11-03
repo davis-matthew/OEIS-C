@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 28, u64 n <= 52, u128 n <= 102,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --- helper for computing powers of seq_t -------------------------------- */
 static seq_t pow_seq(seq_t base, unsigned int exp)
@@ -57,7 +59,7 @@ static void ensure_capacity(size_t need)
     while (new_cap < need)
         new_cap *= 2;
     prime_list   = (uint64_t*)realloc(prime_list,   new_cap * sizeof(uint64_t));
-    primorial_tbl = (seq_t*)realloc(primorial_tbl, new_cap * sizeof(seq_t));
+    primorial_tbl = mem_resize(seq_t, primorial_tbl, new_cap);
     prime_cap    = new_cap;
 }
 

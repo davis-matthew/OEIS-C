@@ -9,19 +9,21 @@
  *            of 10 (parts 1,10,100,1000,…)
  * Range:     u8 n <= 65, u16 n <= 677, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     idx_t m = n * 10ULL;                      /* m = 10*n */
 
     /* Allocate DP array for counting partitions up to m. */
-    seq_t *dp = (seq_t *)calloc((size_t)(m + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(m + 1));
     if (!dp)
         return (seq_t)0;                      /* allocation failure – unlikely for n ≤ 10000 */
 
@@ -40,6 +42,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[m];
-    free(dp);
+    mem_free(dp);
     return result;
 }

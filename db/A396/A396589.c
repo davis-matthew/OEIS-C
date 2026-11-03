@@ -9,14 +9,17 @@
  *            binomial(n,k)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Computes sequence A396589. */
 seq_t a(idx_t n)
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
         if (k == n) {
             /* k = n : term = binomial * (2k+1)^(k-1) ;  (k+1) cancels with (2n-k+1)^(-1) */
             if (k > 0) {
-                seq_t pow1 = big_pow((seq_t)(2 * k + 1), (seq_t)(k - 1));
+                seq_t pow1 = ipow((seq_t)(2 * k + 1), (seq_t)(k - 1));
                 term *= pow1;
             }
             /* For k==0 (which implies n==0) already handled above */
@@ -41,11 +44,11 @@ seq_t a(idx_t n)
             term *= (seq_t)(k + 1);
 
             if (k > 0) {
-                seq_t pow1 = big_pow((seq_t)(2 * k + 1), (seq_t)(k - 1));
+                seq_t pow1 = ipow((seq_t)(2 * k + 1), (seq_t)(k - 1));
                 term *= pow1;
             }
 
-            seq_t pow2 = big_pow((seq_t)(2 * n - k + 1), (seq_t)(n - k - 1));
+            seq_t pow2 = ipow((seq_t)(2 * n - k + 1), (seq_t)(n - k - 1));
             term *= pow2;
         }
 

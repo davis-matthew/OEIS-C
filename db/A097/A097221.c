@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Maximum sieve size.  5×10⁷ bits ≈ 6.3 MB.  This covers more than enough
    values to produce the first ten thousand terms. */
@@ -83,7 +85,7 @@ static inline void add_term(idx_t n)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-        seq_t *new_arr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, terms, new_cap);
         if (!new_arr) exit(1);
         terms = new_arr;
         terms_cap = new_cap;

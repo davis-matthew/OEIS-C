@@ -8,6 +8,7 @@
  * Formula:   T(n,k) = C(n,k) * C(2^k * 3^(n-k), n) (triangle read row‑by‑row)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
  * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,9 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t exp)       */
-#include "../utils/pow3.h"   /* seq_t pow3(idx_t exp)       */
+#include <stdint.h>
+#include "../utils/pow2.h"
+#include "../utils/pow3.h"
 
 /* Return binomial coefficient C(N,k) where N is a big integer (seq_t) and
    k is a small integer (idx_t).  Assumes k ≤ N (in value).  The result

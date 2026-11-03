@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n‑th prime p with p mod 6 == p mod 8 (offset 1)
  * Range:     u8 n <= 13, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   grow_seq_t
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,17 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/grow_seq_t.h"
+#include "../utils/mem.h"
+
+static void grow_seq_t(seq_t **arr, size_t *cap, size_t need)
+{
+    if (need <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+    while (new_cap < need) new_cap <<= 1;
+    *arr = mem_resize(seq_t, *arr, new_cap);
+    if (!*arr) abort();
+    *cap = new_cap;
+}
 
 /* Growing utilities for arrays */
 static void grow_uint64(uint64_t **arr, size_t *cap, size_t need)

@@ -9,7 +9,8 @@
  *            p[n]*n are all 2‑less (contain no decimal digit 2)
  * Range:     u8 n <= 4, u16 n <= 19, u32 n <= 999, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_2less
+ * Validated: standard, pass, 71 terms through n = 1000 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_2less.h"
+
+/* ---- 2‑less test ---- */
+static bool is_2less(seq_t x)
+{
+    while (x > 0) {
+        if (x % 10 == 2) return false;
+        x /= 10;
+    }
+    return true;
+}
 
 /* ---- prime generator ---- */
 static uint64_t *prime_arr = NULL;

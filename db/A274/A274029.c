@@ -8,12 +8,15 @@
  *            where s = Σ popcount(exponent of each prime in n). a(1) = 1
  * Range:     u8 n <= 17, u16 n <= 23, u32 n <= 119, u64 n <= 263,
  *            u128 n <= 839, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 71 terms through n = 9553 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -55,5 +58,5 @@ seq_t a(idx_t n)
 
     /* compute n^exp */
     seq_t base = (seq_t)n;
-    return big_pow(base, (seq_t)exp);
+    return ipow(base, (seq_t)exp);
 }

@@ -12,14 +12,29 @@
  *            arithmetic is used
  * Range:     i8 n <= 37, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   binom_small, row_of_index
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/row_of_index.h"
-#include "../utils/binom_small.h"
+#include "../utils/binomial.h"
+
+static inline idx_t row_of_index(idx_t n)
+{
+    /* Binary search for the largest r with r*(r+1)/2 <= n. */
+    idx_t low = 0, high = n, mid, tri;
+    idx_t r = 0;
+    while (low <= high)
+    {
+        mid = low + (high - low) / 2;
+        tri = mid * (mid + 1) / 2;
+        if (tri <= n) { r = mid; low = mid + 1; }
+        else           high = mid - 1;
+    }
+    return r;
+}
 
 static seq_t w_value(idx_t p, idx_t c)
 {
@@ -27,7 +42,7 @@ static seq_t w_value(idx_t p, idx_t c)
     if (c > p) return 0;
     seq_t sum = 0;
     for (idx_t i = 0; i <= (p < c ? p : c); ++i) {
-        seq_t bin = binom_small(p - i, c - i);
+        seq_t bin = binomial(p - i, c - i);
         seq_t term = bin;
         term *= (seq_t)(i + 1);
         term *= (seq_t)(p - i + 1);

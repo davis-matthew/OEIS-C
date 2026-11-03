@@ -8,13 +8,15 @@
  * Formula:   a(n) = n * (number of partitions of n into 8 square‑free parts)
  * Range:     u8 n <= 17, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* test if x is square–free */
 static inline bool is_squarefree(idx_t x)
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 {
     /* dp[k][m] is number of partitions of m into k square‑free parts */
     idx_t stride = n + 1;
-    seq_t *dp = (seq_t *)calloc(9 * stride, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, 9 * stride);
     if (!dp)
         return 0;           /* out of memory – should not happen in tests */
 
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* build list of square‑free numbers up to n */
     idx_t *sqfree = (idx_t *)malloc(stride * sizeof(idx_t));
     if (!sqfree) {
-        free(dp);
+        mem_free(dp);
         return 0;
     }
     size_t sf_cnt = 0;
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     seq_t count  = dp[8 * stride + n];
     seq_t result = (seq_t)n * count;
 
-    free(dp);
+    mem_free(dp);
     free(sqfree);
     return result;
 }

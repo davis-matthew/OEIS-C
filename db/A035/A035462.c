@@ -8,13 +8,15 @@
  *            G.f.: 1 / ∏_{j≥1} (1 – x^(4j–1))
  * Range:     u8 n <= 78, u16 n <= 190, u32 n <= 535, u64 n <= 1697,
  *            u128 n <= 5873, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 9802 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes a(n) – see the comment above for the formula.  */
 seq_t a(idx_t n)
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* First call – initialise */
     if (dp == NULL) {
         size   = 1;                /* hold a(0) only */
-        dp     = (seq_t *)malloc(sizeof(seq_t));
+        dp     = mem_new(seq_t, 1);
         if (dp == NULL) return (seq_t)0;   /* allocation failure – unlikely in tests */
         dp[0]  = (seq_t)1;        /* a(0) = 1 */
         cur_max = 0;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* If n is beyond the current cache, recompute up to n from scratch. */
     if (n > cur_max) {
         /* Re‑allocate the array to hold values up to n.  */
-        seq_t *tmp = (seq_t *)realloc(dp, ((size_t)n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, ((size_t)n + 1));
         if (tmp == NULL) return (seq_t)0;  /* allocation failure */
         dp   = tmp;
         size = (size_t)n + 1;

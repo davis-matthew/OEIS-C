@@ -12,14 +12,16 @@
  *            = m * (m+1-j)^(m-1-j); in those cases the value is...
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   big_pow, binom
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"     /* provides static seq_t binom(idx_t a, idx_t b) */
-#include "../utils/big_pow.h"   /* provides seq_t big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -45,14 +47,14 @@ seq_t a(idx_t n)
 
     for (idx_t j = k; j <= m; ++j) {
         /* binomial coefficient */
-        seq_t bin = binom(m - 1, j - 1);
+        seq_t bin = binomial(m - 1, j - 1);
 
         /* j^(j-2), with convention 1^(-1)=1 for j=1 */
         seq_t pow1;
         if (j <= 1) {
             pow1 = 1;
         } else {
-            pow1 = big_pow((seq_t)j, (seq_t)(j - 2));
+            pow1 = ipow((seq_t)j, (seq_t)(j - 2));
         }
 
         /* (m+1-j)^(m-1-j), with convention 1^(-1)=1 for j=m */
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         if (j >= m) {
             pow2 = 1;
         } else {
-            pow2 = big_pow((seq_t)(m + 1 - j), (seq_t)(m - 1 - j));
+            pow2 = ipow((seq_t)(m + 1 - j), (seq_t)(m - 1 - j));
         }
 
         /* term = bin * pow1 * pow2 * m */

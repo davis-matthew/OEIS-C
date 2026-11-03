@@ -10,7 +10,8 @@
  *            numerator(∑_{k=1}^{n-1} (-1)^{k+1}/k) (in lowest terms)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 21, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   gcd, seq_alloc_new_array, seq_free_array
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,16 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/gcd.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* Compute a(n) using the alternat­ing harmonic sum representation. */
 seq_t a(idx_t n)

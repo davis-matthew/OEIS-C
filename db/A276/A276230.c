@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   int_sqrt, is_prime
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   is_prime, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
    where each prime p occurs twice and each square of a prime p² occurs once.
    This gives the index of n in the A106490 sequence. */
 
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
         }
         else
         {
-            uint64_t r = int_sqrt(num);
+            uint64_t r = isqrt(num);
             if (r * r == num && is_prime(r))
             {
                 /* square of a prime appears once */

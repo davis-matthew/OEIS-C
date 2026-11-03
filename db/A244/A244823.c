@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 6, u64 n <= 103, u128 n <= 103,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 103 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state */
 static seq_t *digits = NULL;     /* cached digits, index 0 = a(-1) */
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         /* Grow the cache when needed.  */
         if (digits_len == digits_cap) {
             digits_cap = digits_cap ? digits_cap * 2 : 64;
-            seq_t *newptr = (seq_t *)realloc(digits, digits_cap * sizeof(seq_t));
+            seq_t *newptr = mem_resize(seq_t, digits, digits_cap);
             if (!newptr)
                 abort();                      /* allocation failed */
             digits = newptr;

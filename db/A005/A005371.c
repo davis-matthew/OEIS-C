@@ -7,12 +7,23 @@
  * Formula:   a(n) = L(L(n)), where L(n) are Lucas numbers
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 9, u128 n <= 10,
  *            big any n
- * Helpers:   matrix_mult
+ * Validated: standard, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/matrix_mult.h"
+static void matrix_mult(seq_t a[2][2], seq_t b[2][2], seq_t result[2][2]) {
+    seq_t temp[2][2];
+    temp[0][0] = a[0][0] * b[0][0] + a[0][1] * b[1][0];
+    temp[0][1] = a[0][0] * b[0][1] + a[0][1] * b[1][1];
+    temp[1][0] = a[1][0] * b[0][0] + a[1][1] * b[1][0];
+    temp[1][1] = a[1][0] * b[0][1] + a[1][1] * b[1][1];
+    result[0][0] = temp[0][0];
+    result[0][1] = temp[0][1];
+    result[1][0] = temp[1][0];
+    result[1][1] = temp[1][1];
+}
 
 static seq_t lucas(seq_t n) {
     if (n == 0) return (seq_t)2;

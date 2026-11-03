@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
         a(n)=18*a(n-1)-141*a(n-2)+630*a(n-3)-1767*a(n-4)+3222*a(n-5)
              -3815*a(n-6)+2826*a(n-7)-1188*a(n-8)+216*a(n-9) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static idx_t max_n = 8;          /* highest index computed so far */
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
         if (cap == 0) {
             /* first allocation – reserve at least 9 elements and initialise them */
             cap = new_cap;
-            buf = (seq_t *)malloc(cap * sizeof(seq_t));
+            buf = mem_new(seq_t, cap);
             buf[0] = 1;
             buf[1] = 18;
             buf[2] = 183;
@@ -56,7 +58,7 @@ seq_t a(idx_t n) {
             max_n = 8;
         } else {
             /* grow the buffer */
-            buf = (seq_t *)realloc(buf, new_cap * sizeof(seq_t));
+            buf = mem_resize(seq_t, buf, new_cap);
             cap = new_cap;
         }
     }

@@ -8,13 +8,15 @@
  *            a(3)=444
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Ensure the cache is large enough. */
     idx_t needed = (n >= 3) ? (n + 1) : 4;
     if (needed > cap) {
-        seq_t *tmp = (seq_t*)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp && needed > 0) { /* allocation failed */
             return (seq_t)0; /* caller will not use this in tests */
         }
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         /* Extend the cache if necessary. */
         needed = n + 1;
         if (needed > cap) {
-            seq_t *tmp = (seq_t*)realloc(cache, needed * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, needed);
             if (!tmp && needed > 0) { /* allocation failed */
                 return (seq_t)0;
             }

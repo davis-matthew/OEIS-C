@@ -9,9 +9,10 @@
  * Formula:   a(n) = largest positive integer whose binary representation
  *            appears as a contiguous substring in both row and column numbers
  *            of the triangle described in A175488
- * Range:     u8 n <= 8706, u16 n <= 8706, u32 n <= 8706, u64 n <= 8706,
- *            u128 n <= 8706, big any n
- * Helpers:   highest_bit_uint64
+ * Range:     u8 n <= 10011, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 121 terms through n = 8706 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,13 @@
 #include <string.h>
 #include <math.h>
 #include <stddef.h>
-#include "../utils/highest_bit_uint64.h"
+
+/* Highest set bit (0‑based) of a non‑zero uint64_t. */
+static inline int highest_bit_uint64(uint64_t x) {
+    int pos = 0;
+    while (x >>= 1) ++pos;
+    return pos;
+}
 
 #define WORDS 256               /* 256 * 64 = 16384 bits (covers 2^14 numbers) */
 

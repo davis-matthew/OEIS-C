@@ -8,7 +8,8 @@
  *            (nonprime meaning 1 or composite)
  * Range:     u8 n <= 47, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Function ----------------------------------------------------------- */
 seq_t a(idx_t n)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
        Use a flat array of length 8*(n+1)
        ---------------------------------------------------------------- */
     size_t total = 8 * Nplus;
-    seq_t *dp = (seq_t*)calloc(total, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, total);
     if (!dp) {
         free(is_prime);
         return 0;
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
     seq_t result = dp[7 * Nplus + n];
 
     /* Clean up */
-    free(dp);
+    mem_free(dp);
     free(is_prime);
 
     return result;

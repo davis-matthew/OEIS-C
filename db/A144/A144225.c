@@ -8,16 +8,17 @@
  *            zeros); otherwise a(n) = binom(m+n-4, m-2); where (m,n) are the
  *            row and column indices of the anti‑diagonal enumeration of the
  *            Pascal rectangle R(i,j) = C(i+j-2, i-1)
- * Range:     u8 n <= 60, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
+ * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t a, idx_t b) */
+#include "../utils/binomial.h"
 
 /* Find the minimal t such that t*(t+1)/2 >= n */
 static idx_t triangular_index(idx_t n)
@@ -52,5 +53,5 @@ seq_t a(idx_t n)
         return (seq_t)0;                     /* border zeros */
 
     /* For interior positions: w(m,p) = C(m+p-4, m-2) */
-    return binom(m + p - 4, m - 2);
+    return binomial(m + p - 4, m - 2);
 }

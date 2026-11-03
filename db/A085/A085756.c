@@ -10,7 +10,8 @@
  *            (unrestricted) parts
  * Range:     u8 n <= 33, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *part_table = NULL;          /* flattened 2D table: part[k][n] */
 static size_t global_cols = 0;            /* number of n columns in table */
@@ -38,7 +40,7 @@ static void recompute(idx_t N)
     global_cols = cols;
 
     /* allocate new table and zero it */
-    seq_t *new_table = (seq_t*)calloc(rows * cols, sizeof(seq_t));
+    seq_t *new_table = mem_new(seq_t, rows * cols);
     if (!new_table) return; /* out of memory – caller will get 0 */
 
     /* base case: partition of 0 into 0 parts is 1 */
@@ -55,7 +57,7 @@ static void recompute(idx_t N)
     }
 
     /* free old table and replace */
-    free(part_table);
+    mem_free(part_table);
     part_table = new_table;
     global_Kmax = new_Kmax;
     global_max_n = N;

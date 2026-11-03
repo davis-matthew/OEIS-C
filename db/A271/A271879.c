@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 21, u32 n <= 78, u64 n <= 276, u128 n <= 990,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9859 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* external types supplied by the build system */
 typedef uint64_t idx_t;
@@ -53,11 +55,11 @@ seq_t a(idx_t n)
     idx_t max_k = r;
 
     /* --- compute r_k for k = 1 .. max_k using the recurrence --- */
-    seq_t *rk = (seq_t *)calloc((size_t)(max_k + 1), sizeof(seq_t));
-    seq_t *B  = (seq_t *)calloc((size_t)(max_k + 1), sizeof(seq_t));
+    seq_t *rk = mem_new(seq_t, (size_t)(max_k + 1));
+    seq_t *B  = mem_new(seq_t, (size_t)(max_k + 1));
     if (!rk || !B) {
-        free(rk);
-        free(B);
+        mem_free(rk);
+        mem_free(B);
         return 0;            /* allocation failure */
     }
 
@@ -80,21 +82,21 @@ seq_t a(idx_t n)
     }
 
     /* free B – no longer needed */
-    free(B);
+    mem_free(B);
 
     /* --- pre‑compute binomials C_k[c] = binomial(rk[k]+c−1 , c) --- */
     seq_t **C = (seq_t **)malloc((size_t)(max_k + 1) * sizeof(seq_t *));
     if (!C) {
-        free(rk);
+        mem_free(rk);
         return 0;
     }
     for (idx_t k = 1; k <= max_k; ++k) {
         size_t sz = (size_t)(max_k + 1);
-        C[k] = (seq_t *)calloc(sz, sizeof(seq_t));
+        C[k] = mem_new(seq_t, sz);
         if (!C[k]) {
-            for (idx_t x = 1; x < k; ++x) free(C[x]);
+            for (idx_t x = 1; x < k; ++x) mem_free(C[x]);
             free(C);
-            free(rk);
+            mem_free(rk);
             return 0;
         }
         C[k][0] = 1;
@@ -108,14 +110,14 @@ seq_t a(idx_t n)
     size_t M = (size_t)max_k;
     size_t stride = M + 1;
     size_t cells  = stride * stride;
-    seq_t *dp    = (seq_t *)calloc(cells, sizeof(seq_t));
-    seq_t *newdp = (seq_t *)calloc(cells, sizeof(seq_t));
+    seq_t *dp    = mem_new(seq_t, cells);
+    seq_t *newdp = mem_new(seq_t, cells);
     if (!dp || !newdp) {
-        free(rk);
-        for (idx_t k = 1; k <= max_k; ++k) free(C[k]);
+        mem_free(rk);
+        for (idx_t k = 1; k <= max_k; ++k) mem_free(C[k]);
         free(C);
-        free(dp);
-        free(newdp);
+        mem_free(dp);
+        mem_free(newdp);
         return 0;
     }
     dp[0] = 1;   /* empty forest */
@@ -147,11 +149,11 @@ seq_t a(idx_t n)
     seq_t result = dp[(size_t)r * stride + (size_t)t];
 
     /* free memory */
-    free(dp);
-    free(newdp);
-    for (idx_t k = 1; k <= max_k; ++k) free(C[k]);
+    mem_free(dp);
+    mem_free(newdp);
+    for (idx_t k = 1; k <= max_k; ++k) mem_free(C[k]);
     free(C);
-    free(rk);
+    mem_free(rk);
 
     return result;
 }

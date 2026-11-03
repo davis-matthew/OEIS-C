@@ -10,13 +10,31 @@
  *            3 are given explicitly
  * Range:     i8 n <= 11, i16 n <= 20, i32 n <= 20, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   a306_grow
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a306_grow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *a306_alloc0(idx_t len)
+{
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *a306_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = a306_alloc0(newlen);
+    for (idx_t i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static seq_t *res_tab = 0;   /* res_tab[m] = f(m,1) */
 static seq_t *row_prev = 0;  /* row m-1 of f */

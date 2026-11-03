@@ -10,7 +10,8 @@
  *            so that out‑of‑order calls are handled efficiently
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 72 terms through n = 942 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x) */
-#include "../utils/mod_pow.h"    /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod) */
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x) */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Test whether 54 is a primitive root modulo a prime p.  p must
    be > 3 and coprime to 54. */
@@ -43,7 +45,7 @@ static bool has_primitive_root_54(uint64_t p)
         if (m % d == 0ULL) {
             /* Test the exponent (p‑1)/d. */
             uint64_t exp = (p - 1ULL) / d;
-            if (mod_pow(base, exp, mod) == one) return false;
+            if (powmod(base, exp, mod) == one) return false;
 
             while (m % d == 0ULL) m /= d;
         }
@@ -54,7 +56,7 @@ static bool has_primitive_root_54(uint64_t p)
     /* Remaining prime factor greater than √m (if any). */
     if (m > 1ULL) {
         uint64_t exp = (p - 1ULL) / m;
-        if (mod_pow(base, exp, mod) == one) return false;
+        if (powmod(base, exp, mod) == one) return false;
     }
 
     return true;
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
             if (capacity <= count) {
                 capacity = capacity ? (capacity * 2) : 4;
                 if (capacity < count + 1) capacity = count + 1;
-                found = (seq_t *)realloc(found, capacity * sizeof(seq_t));
+                found = mem_resize(seq_t, found, capacity);
             }
             found[count++] = (seq_t)next_candidate;
         }

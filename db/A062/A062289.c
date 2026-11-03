@@ -7,15 +7,22 @@
  * Keywords:  nonn
  * Formula:   a(n) = the n‑th integer ≥2 that is NOT of the form 2^k‑1 (i.e.
  *            its binary representation contains the substring “10”)
- * Range:     u8 n <= 247, u16 n <= 8297, u32 n <= 8297, u64 n <= 8297,
- *            u128 n <= 8297, big any n
- * Helpers:   has_all_ones
+ * Range:     u8 n <= 247, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 87 terms through n = 8297 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_all_ones.h"
+
+static inline bool has_all_ones(seq_t v)
+{
+    /* v is of the form 2^k‑1  <=>  (v & (v+1)) == 0  */
+    seq_t w = v + (seq_t)1;
+    return (v & w) == (seq_t)0;
+}
 
 seq_t a(idx_t n)
 {

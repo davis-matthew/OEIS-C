@@ -9,13 +9,14 @@
  *            divisors, phi = Euler's totient
  * Range:     u8 n <= 23, u16 n <= 317, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   totient_u64
+ * Validated: standard, pass, 74 terms through n = 997 (2026-11-01)
+ * Helpers:   totient_u64_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/totient_u64.h"
+#include "../utils/totient_u64_to_seq.h"
 
 /* auxiliary functions for computing tau(n) and phi(n) by trial division */
 static uint64_t divisor_count_u64(uint64_t n)
@@ -46,7 +47,7 @@ seq_t a(idx_t n)
     uint64_t n64   = (uint64_t)n;
     seq_t    tn    = (seq_t)n64;
     uint64_t tau   = divisor_count_u64(n64);
-    seq_t    phi   = totient_u64(n64);
+    seq_t    phi   = totient_u64_to_seq(n64);
 
     seq_t diff1 = tn - (seq_t)tau;
     seq_t diff2 = tn - phi;

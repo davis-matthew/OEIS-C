@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 1738, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, next_prime, seq_alloc
+ * Validated: standard, pass, 62 terms through n = 9916 (2026-11-01)
+ * Helpers:   is_prime, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,18 @@
 /* Sequence: primes p such that none of p±6 or p±12 is also a prime. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/next_prime.h"
+#include <stdint.h>
 #include "../utils/is_prime.h"
-#include "../utils/seq_alloc.h"
+#include "../utils/next_prime.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {

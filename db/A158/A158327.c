@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 0 for odd n; for even n set n = 2^v * m with m odd, then
  *            a(n) = 2 * ∏_{p^e || m} T_{e+1} where T_k = k*(k+1)/2
- * Range:     u8 n <= 5669, u16 n <= 9841, u32 n <= 9841, u64 n <= 9841,
- *            u128 n <= 9841, big any n
+ * Range:     u8 n <= 5669, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 115 terms through n = 9841 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

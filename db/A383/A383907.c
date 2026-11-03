@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   digits_of, largest_prime_factor, next_prime, pow10
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem, next_prime, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/next_prime.h"
 #include "../utils/largest_prime_factor.h"
-#include "../utils/pow10.h"
-#include "../utils/digits_of.h"
+#include "../utils/next_prime.h"
+#include "../utils/num_digits_idx.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* static cache for the sequence values */
 static seq_t *cache_vals = NULL;
@@ -39,7 +50,7 @@ static void grow_cache(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ?: 64;
     while (new_cap < needed) new_cap *= 2;
-    cache_vals = (seq_t *)realloc(cache_vals, new_cap * sizeof(seq_t));
+    cache_vals = mem_resize(seq_t, cache_vals, new_cap);
     cache_cap = new_cap;
 }
 
@@ -58,7 +69,7 @@ static void ensure_cache(idx_t n)
         uint64_t g = largest_prime_factor(p - 1);
 
         /* compute 10^digits(g) */
-        idx_t exp = digits_of(g);
+        idx_t exp = num_digits_idx(g);
         seq_t pow10v = pow10(exp);
 
         /* suffix of p with length exp */

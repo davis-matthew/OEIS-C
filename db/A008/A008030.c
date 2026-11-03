@@ -7,12 +7,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 211, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recurrence (coefficients from the denominator of the generating function):
    a(0)=1, a(1)=4, a(2)=9, a(3)=16, a(4)=23, a(5)=34, a(6)=57, a(7)=82,
@@ -46,13 +48,13 @@ static void grow_cache(idx_t n)
     if (!cache) {
         cap = 32;
         if (cap < want) cap = want;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) exit(1);
         for (int i = 0; i < 16; ++i) cache[i] = FIRST[i];
         clen = 16;
     } else if (cap < want) {
         while (cap < want) cap <<= 1;
-        cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
         if (!cache) exit(1);
     }
 

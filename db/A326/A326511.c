@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 32, u32 n <= 90, u64 n <= 772,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 7911 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -41,6 +42,7 @@
  *   when n == 10.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Number of zeros we are interested in */
 #define TARGET_ZEROS   10
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     idx_t *sz = (idx_t *)malloc((n + 2) * sizeof(idx_t));
     if (!sz) return 0;                /* allocation failed */
 
-    dp_t *dp = (dp_t *)malloc((n + 2) * sizeof(dp_t));
+    dp_t *dp = mem_new(dp_t, (n + 2));
     if (!dp) { free(sz); return 0; }
 
     /* Compute subtree sizes in bottom‑up order */
@@ -130,7 +132,7 @@ seq_t a(idx_t n)
         ans += 1;        /* root zero contributes exactly n zeros */
 
     /* Clean up */
-    free(dp);
+    mem_free(dp);
     free(sz);
 
     return ans;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 280, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_palindrome
+ * Validated: standard, pass, 96 terms through n = 9382 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 static idx_t max_pre = 0;                 /* largest n processed so far */
 static unsigned char *is_pal = NULL;      /* is_pal[x] == 1 if x is a binary palindrome */
@@ -62,7 +63,7 @@ static void ensure_pal_until(idx_t n) {
 
     /* Expand the tables up to n. */
     for (idx_t x = max_pre + 1; x <= n; ++x) {
-        is_pal[x] = is_palindrome((seq_t)x, 2) ? 1 : 0;
+        is_pal[x] = is_palindrome_base((seq_t)x, 2) ? 1 : 0;
         if (is_pal[x]) {
             pal_list[pal_count++] = x;
         }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 12, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   cube_has_separated_digits
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,25 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/cube_has_separated_digits.h"
+#include "../utils/mem.h"
+
+static bool cube_has_separated_digits(seq_t cube)
+{
+    seq_t x = cube;
+    int last[10];
+    for (int d = 0; d < 10; ++d)
+        last[d] = -1;
+    int pos = 0;
+    while (x > (seq_t)0) {
+        int d = (int)(x % (seq_t)10);
+        if (last[d] != -1 && pos - last[d] > 1)
+            return true;
+        last[d] = pos;
+        ++pos;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 static seq_t *a_cache = NULL;
 static idx_t a_cache_size = 0;
@@ -36,7 +55,7 @@ static void grow_cache(idx_t needed)
     idx_t new_cap = a_cache_cap ? a_cache_cap * 2 : 4;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_arr = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, a_cache, new_cap);
     if (!new_arr)
         exit(EXIT_FAILURE); /* allocation failure */
     a_cache = new_arr;

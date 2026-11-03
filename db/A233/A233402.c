@@ -8,6 +8,7 @@
  * Formula:   a(n) = (n^2*(11-(-1)^n) + n*(50-6*(-1)^n) + (62-14*(-1)^n)) / 16
  * Range:     u8 n <= 2, u16 n <= 83, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
+ * Validated: standard, pass, 67 terms through n = 203 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

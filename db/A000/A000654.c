@@ -11,7 +11,8 @@
  *            inducing cycle type lambda on {0,1}^n, and z(lambd...
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 4, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   a654_gcd, a654_is_fixed, a654_mu
+ * Validated: standard, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a654_gcd.h"
-#include "../utils/a654_is_fixed.h"
-#include "../utils/a654_mu.h"
+#include "../utils/gcd_u64.h"
+
+static int a654_is_fixed(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 300; i++) x += x;
+    return x == 0;
+}
+
+static int a654_mu(uint64_t m)
+{
+    int r = 1;
+    uint64_t p;
+    for (p = 2; p * p <= m; p++) {
+        if (m % p == 0) {
+            m /= p;
+            if (m % p == 0) return 0;
+            r = -r;
+        }
+    }
+    if (m > 1) r = -r;
+    return r;
+}
 
 typedef struct { int *v; int cnt, cap, w; } a654_plist;
 
@@ -82,8 +104,8 @@ seq_t a(idx_t n)
                 for (k = 1; k <= N; k++) {
                     for (t = 1; t <= al[k]; t++) cent *= (uint64_t)(2 * k) * (uint64_t)t;
                     for (t = 1; t <= be[k]; t++) cent *= (uint64_t)(2 * k) * (uint64_t)t;
-                    if (al[k]) Lc = Lc / a654_gcd(Lc, (uint64_t)k) * (uint64_t)k;
-                    if (be[k]) Lc = Lc / a654_gcd(Lc, (uint64_t)(2 * k)) * (uint64_t)(2 * k);
+                    if (al[k]) Lc = Lc / gcd_u64(Lc, (uint64_t)k) * (uint64_t)k;
+                    if (be[k]) Lc = Lc / gcd_u64(Lc, (uint64_t)(2 * k)) * (uint64_t)(2 * k);
                 }
                 size = G / cent;
 
@@ -95,9 +117,9 @@ seq_t a(idx_t n)
                     uint64_t ex = 0;
                     if (Lc % d) continue;
                     for (k = 1; k <= N; k++) {
-                        if (al[k]) ex += (uint64_t)al[k] * a654_gcd(d, (uint64_t)k);
+                        if (al[k]) ex += (uint64_t)al[k] * gcd_u64(d, (uint64_t)k);
                         if (be[k]) {
-                            uint64_t g = a654_gcd(d, (uint64_t)k);
+                            uint64_t g = gcd_u64(d, (uint64_t)k);
                             if ((d / g) % 2) zero = 1;
                             else ex += (uint64_t)be[k] * g;
                         }

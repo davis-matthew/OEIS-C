@@ -12,15 +12,25 @@
  *            codes)
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 12, u64 n <= 19, u128 n <= 31,
  *            big any n
- * Helpers:   a000272_ipow, binom, seq_is_big
+ * Validated: standard, pass, 38 terms through n = 398 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/a000272_ipow.h"
-#include "../utils/seq_is_big.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
 
 seq_t a(idx_t n) {
     if (n == 1) return 1;
@@ -30,9 +40,9 @@ seq_t a(idx_t n) {
     seq_t c = 1;      /* C(n-1,k), maintained incrementally in the big build */
     seq_t half_fact = 0;
     for (idx_t k = 0; k + 2 <= n; k++) {
-        seq_t cb = big ? c : binom(n - 1, k);
+        seq_t cb = big ? c : binomial(n - 1, k);
         seq_t term = f * cb;
-        term = term * a000272_ipow((seq_t)(n + 1 - k), (idx_t)(n - 2 - k));
+        term = term * ipow_idx((seq_t)(n + 1 - k), (idx_t)(n - 2 - k));
         if (k % 2 == 0) pos += term; else neg += term;
         if (k + 2 == n) half_fact = f;   /* n!/2 */
         f = f * (seq_t)(n - k);

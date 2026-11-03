@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 25, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stddef.h>   /* for size_t */
 #include <stdbool.h>  /* for bool */
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 /* Function prototype (to be provided by the build system) */
 static void seq_free(seq_t *p);
@@ -97,7 +99,7 @@ static void extend_cache(idx_t n)
         for (int i = 0; i < 56; ++i) dp_cur[i] = (seq_t)1;
         /* no terms stored yet (answer_cache[0] unused) */
         cache_cap   = 16;
-        answer_cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        answer_cache = mem_new(seq_t, cache_cap);
         cache_used  = 0;
         initialized = true;
     }
@@ -130,7 +132,7 @@ static void extend_cache(idx_t n)
         if (current_n >= cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
             while (new_cap <= current_n) new_cap *= 2;
-            seq_t *tmp = (seq_t*)realloc(answer_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, answer_cache, new_cap);
             answer_cache = tmp;
             cache_cap = new_cap;
         }

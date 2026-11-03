@@ -9,12 +9,14 @@
  *            a(1)=a(2)=1
  * Range:     u8 n <= 17, u16 n <= 28, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* memoised implementation of OEIS sequence A024722 */
 seq_t a(idx_t n)
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     static idx_t cache_max = 0;    /* largest index already computed */
 
     if (need > cache_sz) {
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp) return 0;       /* allocation failed */
         cache = tmp;
         cache_sz = need;

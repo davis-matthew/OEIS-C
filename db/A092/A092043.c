@@ -8,12 +8,14 @@
  *            (n-1)!/n for composite n>4, and 3 for n=4)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 14, u64 n <= 22, u128 n <= 35,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 170 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 /*

@@ -12,12 +12,14 @@
  *            a(10)=47, a(11)=52, a(12)=55, a(13)=60, a(14)=65
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (dp == NULL) {
         dp_size = (size_t)(n + 1);
         if (dp_size < 15) dp_size = 15;
-        dp = (seq_t *)malloc(dp_size * sizeof(seq_t));
+        dp = mem_new(seq_t, dp_size);
         if (!dp) return (seq_t)0; /* allocation failed */
 
         /* Initialize the first 15 terms. */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         for (size_t i = 15; i < dp_size; ++i) dp[i] = (seq_t)0;
     } else if ((size_t)(n + 1) > dp_size) {
         dp_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(dp, dp_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, dp_size);
         if (!tmp) return (seq_t)0; /* allocation failed */
         dp = tmp;
         for (size_t i = 15; i < dp_size; ++i) dp[i] = (seq_t)0;

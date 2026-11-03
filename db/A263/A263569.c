@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = |{ p prime divisor of 2n : lpf(2n - p) = p }|
- * Range:     u8 n <= 9834, u16 n <= 9834, u32 n <= 9834, u64 n <= 9834,
- *            u128 n <= 9834, big any n
- * Helpers:   lpf
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9834 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,15 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/lpf.h"   /* provides idx_t lpf(idx_t n) */
+
+/* Return the smallest prime factor of n   (n > 1) */
+static inline idx_t lpf(idx_t n)
+{
+    if (n % 2 == 0) return 2;
+    for (idx_t i = 3; i <= n / i; i += 2)
+        if (n % i == 0) return i;
+    return n;   /* n itself is prime – should not be called for primes */
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   _squarefree, alloc_seq, floor_sqrt
+ * Validated: full, pass, 85 terms through n = 85 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,41 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/alloc_seq.h"
-#include "../utils/floor_sqrt.h"
-#include "../utils/_squarefree.h"
+#include <stdlib.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+static bool _squarefree(uint64_t n) {
+    if (n % 4 == 0) return false;
+    for (uint64_t p = 3; p * p <= n; p += 2) {
+        if (n % (p * p) == 0) return false;
+    }
+    return true;
+}
 
 static seq_t _classnumber(long long D) {
     /* D is negative */

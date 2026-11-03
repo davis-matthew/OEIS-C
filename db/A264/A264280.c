@@ -9,13 +9,15 @@
  *            a(1)=8, a(2)=32, a(3)=132
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 30, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* For the OEIS offset a(1)=8, a(0) is undefined but we return 0 for safety. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage specified by the exercise */
 seq_t a(idx_t n)
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Ensure cache at least covers the first three terms */
         cache_size = (n > 3) ? n + 1 : 4;          /* indices 0 .. n */
-        cache       = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache       = mem_new(seq_t, cache_size);
         if (!cache)
             exit(1);                               /* allocation failure */
 
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     }
     /* Subsequent calls that request a larger n */
     else if (n >= cache_size) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache)
             exit(1);                               /* allocation failure */
 

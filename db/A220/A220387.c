@@ -14,13 +14,15 @@
  *            -4*a(n-20) +4*a(n-22) * with initial values a(1) … a(...
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 36, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* 1‑based array of values */
 static idx_t  capacity = 0;   /* size of allocated array minus 1 */
@@ -32,12 +34,12 @@ static void ensure_capacity(idx_t n)
     if (n <= capacity)
         return;
     idx_t new_cap = n + 1;            /* indices 0 … n */
-    seq_t *new_cache = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)            /* out of memory – terminate */
         abort();
     if (cache) {
-        memcpy(new_cache, cache, (capacity + 1) * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, (capacity + 1) * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_cache;
     capacity = new_cap - 1;

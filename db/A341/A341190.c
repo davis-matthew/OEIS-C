@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 771, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 58 terms through n = 9794 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
    demand, caching the found terms. */
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* Static cache for the sequence values */
 static seq_t *cache = NULL;
@@ -34,7 +37,7 @@ static void ensure_cache(size_t needed)
         size_t new_cap = cache_cap ? cache_cap << 1 : 8;
         while (new_cap < needed) new_cap <<= 1;
         /* Cast to seq_t* to satisfy C++ compilers */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

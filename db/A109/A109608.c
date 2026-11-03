@@ -10,7 +10,8 @@
  *            prime factors (each occurrence counted separately)
  * Range:     u8 n <= 100, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_digits, digit_len, push_seq
+ * Validated: standard, pass, 77 terms through n = 9618 (2026-11-03)
+ * Helpers:   mem, num_digits0_seq, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,21 @@
 #include <stdint.h>
 
 /* Utility function prototypes (provided by the build environment). */
-#include "../utils/count_digits.h"   /* int count_digits(idx_t x);          */
-#include "../utils/digit_len.h"      /* idx_t digit_len(seq_t x);            */
-#include "../utils/push_seq.h"       /* void push_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val); */
+#include "../utils/num_digits0_seq.h"
+#include "../utils/num_digits_idx.h"
+#include "../utils/mem.h"
+
+/* Dynamic array helpers. */
+static void push_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val)
+{
+    if (*size >= *cap) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        *arr = mem_resize(seq_t, *arr, new_cap);
+        *cap = new_cap;
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
 
 #define MAX_PRIME_LIMIT 200000          /* Upper bound for sieve; large enough for the needed terms. */
 #define MAX_PRIMES       18000          /* Roughly the number of primes ≤ 200000. */
@@ -52,7 +65,7 @@ static void init_primes(void)
 /* Test if a given integer n satisfies the sequence property. */
 static bool is_term(idx_t n)
 {
-    int ndig = count_digits(n);
+    int ndig = num_digits_idx(n);
     idx_t m = n;
     seq_t sum = 0;
     for (size_t i = 0; i < prime_count && (uint64_t)primes[i] * primes[i] <= m; ++i) {
@@ -60,12 +73,12 @@ static bool is_term(idx_t n)
         if (m % p == 0) {
             while (m % p == 0) {
                 m /= p;
-                sum += digit_len((seq_t)p);
+                sum += num_digits0_seq((seq_t)p);
             }
         }
     }
     if (m > 1) {
-        sum += digit_len((seq_t)m);   /* m itself is a prime > sqrt(n) */
+        sum += num_digits0_seq((seq_t)m);   /* m itself is a prime > sqrt(n) */
     }
     return ((idx_t)sum) == ndig;
 }

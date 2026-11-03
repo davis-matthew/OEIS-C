@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 196, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 99 terms through n = 9867 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* static storage for memoisation */
 static seq_t *seq = NULL;          /* sequence values */
@@ -42,7 +44,7 @@ static void ensure_seq_cap(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) abort();
     seq = tmp;
     seq_cap = new_cap;

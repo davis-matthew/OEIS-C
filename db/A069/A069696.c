@@ -11,7 +11,8 @@
  *            with all internal digits equal to 4 are chosen
  * Range:     u8 n <= 14, u16 n <= 17, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   internal_digits_all4
+ * Validated: full, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,38 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/internal_digits_all4.h"
+#include "../utils/mem.h"
+
+/* Test whether a decimal number has all internal digits equal to 4.
+   Numbers with fewer than three digits are accepted automatically. */
+static bool internal_digits_all4(seq_t x)
+{
+    /* 1‑ or 2‑digit numbers: no internal digits. */
+    if (x < (seq_t)10) return true;
+    if (x < (seq_t)100) return true;
+
+    /* Count digits of x. */
+    idx_t d = 0;
+    seq_t tmp = x;
+    while (tmp > 0) {
+        tmp /= 10;
+        ++d;
+    }
+
+    /* d >= 3 here. Compute 10^(d-1) to isolate the internal part. */
+    seq_t pow10 = 1;
+    for (idx_t i = 1; i < d; ++i) pow10 *= 10;
+
+    /* Remove the first and last digits. */
+    seq_t internal = (x / 10) % (pow10 / 10);   /* 10^(d-2) */
+
+    /* Check all d‑2 internal digits, including zeros. */
+    for (idx_t i = 0; i < d - 2; ++i) {
+        if ((internal % 10) != 4) return false;
+        internal /= 10;
+    }
+    return true;
+}
 
 /* Dynamic array holding the pre‑computed terms. */
 static seq_t *terms      = NULL;
@@ -31,7 +63,7 @@ static void add_term(seq_t v)
 {
     if (terms_size == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) exit(1);            /* graceful abort on OOM */
         terms      = tmp;
         terms_cap  = new_cap;

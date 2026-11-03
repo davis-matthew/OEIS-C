@@ -9,13 +9,15 @@
  *            Fibonacci number (F_0 = 0, F_1 = 1)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 129,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 3052 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Computes a(n) for A130711.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *c_arr = NULL;   /* c[d] = 2^(d-1)-F_{d-1}   */
 static seq_t *a_arr = NULL;   /* a[n] = Σ_{d|n} c[d]      */
@@ -28,10 +30,10 @@ seq_t a(idx_t n)
 
     if (N >= a_size) { /* need to expand the tables */
         size_t new_size = N + 1;   /* index 0 unused */
-        seq_t *new_c = (seq_t*)calloc(new_size, sizeof(seq_t));
-        seq_t *new_a = (seq_t*)calloc(new_size, sizeof(seq_t));
-        seq_t *pow2  = (seq_t*)calloc(new_size, sizeof(seq_t));
-        seq_t *fib   = (seq_t*)calloc(new_size, sizeof(seq_t));
+        seq_t *new_c = mem_new(seq_t, new_size);
+        seq_t *new_a = mem_new(seq_t, new_size);
+        seq_t *pow2  = mem_new(seq_t, new_size);
+        seq_t *fib   = mem_new(seq_t, new_size);
 
         /* Fibonacci numbers: F_0 = 0, F_1 = 1 */
         fib[0] = 0;
@@ -59,16 +61,16 @@ seq_t a(idx_t n)
         }
 
         /* Free old memory */
-        free(c_arr);
-        free(a_arr);
+        mem_free(c_arr);
+        mem_free(a_arr);
 
         /* Adopt new tables */
         c_arr   = new_c;
         a_arr   = new_a;
         a_size  = new_size;
 
-        free(pow2);
-        free(fib);
+        mem_free(pow2);
+        mem_free(fib);
     }
 
     return a_arr[N];

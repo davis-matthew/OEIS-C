@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 9, u64 n <= 25, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MAX_STATE 16807          /* 7^5 possible 5‑digit suffixes */
 #define BASE      7
@@ -103,7 +105,7 @@ static void ensure_cache(idx_t n)
 {
     if (n + 1 < cache_len) return;
     idx_t new_len = (n + 8) * 2;
-    seq_t *new_cache = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_len);
     if (!new_cache) exit(EXIT_FAILURE);
     a_cache = new_cache;
     cache_len = new_len;
@@ -117,15 +119,15 @@ seq_t a(idx_t n)
 
     /* Initialise DP buffers on first call */
     if (!dp_cur) {
-        dp_cur  = (seq_t *)calloc(MAX_STATE, sizeof(seq_t));
-        dp_next = (seq_t *)calloc(MAX_STATE, sizeof(seq_t));
+        dp_cur  = mem_new(seq_t, MAX_STATE);
+        dp_next = mem_new(seq_t, MAX_STATE);
         if (!dp_cur || !dp_next) exit(EXIT_FAILURE);
         for (uint32_t i = 0; i < MAX_STATE; ++i) dp_cur[i] = (seq_t)1;
     }
 
     /* Initialise cache on first call */
     if (!a_cache) {
-        a_cache = (seq_t *)calloc(16, sizeof(seq_t));
+        a_cache = mem_new(seq_t, 16);
         if (!a_cache) exit(EXIT_FAILURE);
         a_cache[0] = 0;  /* unused sentinel */
     }
@@ -139,7 +141,7 @@ seq_t a(idx_t n)
         idx_t next_len = current_length + 1;   /* new sequence length */
         idx_t k = next_len - 5;                /* index for a(k) */
 
-        memset(dp_next, 0, MAX_STATE * sizeof(seq_t));
+        mem_set(dp_next, 0, MAX_STATE * sizeof(seq_t));
 
         for (uint32_t s = 0; s < MAX_STATE; ++s) {
             seq_t val = dp_cur[s];

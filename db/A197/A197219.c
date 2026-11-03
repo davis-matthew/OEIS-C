@@ -7,13 +7,16 @@
  * Formula:   a(0) = 2, a(n) = Lucas(phi(n)) for n > 0 (Lucas: L0=2, L1=1)
  * Range:     u8 n <= 12, u16 n <= 28, u32 n <= 52, u64 n <= 96, u128 n <= 190,
  *            big any n
- * Helpers:   phi
+ * Validated: standard, pass, 63 terms through n = 187 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 static seq_t *lucas = NULL;
 static idx_t lucas_cap = 0;
@@ -25,7 +28,7 @@ static void ensure_lucas(idx_t need)
     if (lucas_cap <= need) {
         idx_t new_cap = lucas_cap ? lucas_cap * 2 : 4;
         while (new_cap <= need) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(lucas, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, lucas, (size_t)new_cap);
         lucas = tmp;
         lucas_cap = new_cap;
     }
@@ -47,8 +50,8 @@ static void ensure_lucas(idx_t need)
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)2;
-    seq_t phi_val = phi(n);
-    idx_t phi = (idx_t)phi_val;   /* φ(n) ≤ n‑1 for n>1 */
-    ensure_lucas(phi);
-    return lucas[phi];
+    seq_t phi_val = totient(n);
+    idx_t totient = (idx_t)phi_val;   /* φ(n) ≤ n‑1 for n>1 */
+    ensure_lucas(totient);
+    return lucas[totient];
 }

@@ -8,9 +8,10 @@
  * Formula:   a(n) = number of partitions of n into distinct parts that are
  *            Fibonacci numbers > 1. Implemented by a standard
  *            unbounded‑knapsack DP with each Fibonacci coin used at most once
- * Range:     u8 n <= 9520, u16 n <= 9520, u32 n <= 9520, u64 n <= 9520,
- *            u128 n <= 9520, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10946, u16 n <= 10946, u32 n <= 10946, u64 n <= 10946,
+ *            u128 n <= 10946, big any n
+ * Validated: standard, pass, 103 terms through n = 9520 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *dp      = NULL; /* dp[0..max_n] */
@@ -45,7 +47,7 @@ static void grow_dp(size_t new_cap)
     if (dp_cap >= new_cap) return;
     size_t new_size = dp_cap == 0 ? 8 : (dp_cap << 1);
     if (new_size < new_cap) new_size = new_cap;
-    seq_t *tmp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, dp, new_size);
     if (tmp == NULL) exit(1);
     dp = tmp;
     dp_cap = new_size;

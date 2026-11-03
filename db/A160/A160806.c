@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 842 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Function prototype to compute a(n).  Types seq_t and idx_t are supplied by the build environment. */
 seq_t a(idx_t n)
@@ -41,17 +43,17 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         /* Allocate space for the coefficient arrays.  All entries are small integers. */
-        coeffA = (seq_t *)calloc(MAX_N + 1, sizeof(seq_t));
-        coeffB = (seq_t *)calloc(MAX_N + 1, sizeof(seq_t));
+        coeffA = mem_new(seq_t, MAX_N + 1);
+        coeffB = mem_new(seq_t, MAX_N + 1);
         if (!coeffA || !coeffB) return 0;  /* allocation failed: return 0 as fallback */
 
         /* ---- Helper to generate sparse array of product (1 - q^{d*k}) ---- */
         /* array base[d] will receive the coefficients up to MAX_N; 0 means no contribution. */
         seq_t *base_d1, *base_d7, *base_d4, *base_d28;
-        base_d1  = (seq_t *)calloc(MAX_N + 1, sizeof(seq_t));
-        base_d7  = (seq_t *)calloc(MAX_N + 1, sizeof(seq_t));
-        base_d4  = (seq_t *)calloc(MAX_N + 1, sizeof(seq_t));
-        base_d28 = (seq_t *)calloc(MAX_N + 1, sizeof(seq_t));
+        base_d1  = mem_new(seq_t, MAX_N + 1);
+        base_d7  = mem_new(seq_t, MAX_N + 1);
+        base_d4  = mem_new(seq_t, MAX_N + 1);
+        base_d28 = mem_new(seq_t, MAX_N + 1);
         if (!base_d1 || !base_d7 || !base_d4 || !base_d28) return 0;
 
         /* constant term 1 for all products */
@@ -128,10 +130,10 @@ seq_t a(idx_t n)
         }
 
         /* Free temporary arrays */
-        free(base_d1);
-        free(base_d7);
-        free(base_d4);
-        free(base_d28);
+        mem_free(base_d1);
+        mem_free(base_d7);
+        mem_free(base_d4);
+        mem_free(base_d28);
 
         initialized = true;
     }

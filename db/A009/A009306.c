@@ -8,13 +8,15 @@
  *            a(0)=0, a(1)=1 (Recurrence from OEIS A009306)
  * Range:     i8 n <= 6, i16 n <= 10, i32 n <= 15, i64 n <= 23, i128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache of computed terms */
 static seq_t *cache = NULL;   /* array a[0 … cache_cap-1] */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Ensure the cache is large enough */
     if ((size_t)n >= cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         /* Fill missing terms */
         for (size_t i = cache_cap; i < new_cap; ++i) {
             if (i == 0) {

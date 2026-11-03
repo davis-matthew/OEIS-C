@@ -11,7 +11,8 @@
  *            a(2)=1512, a(3)=13068, a(4)=113592, a(5)=992088
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    provided seq_t supports the arithmetic operations used here. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache: cache[1] holds a(1), cache[0] unused */
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
     /* initialise cache with the first 5 terms */
     if (capacity == 0) {
         capacity = 6;   /* 0..5 indices */
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache) return (seq_t)0;   /* allocation failure */
         cache[1] = (seq_t)194;
         cache[2] = (seq_t)1512;
@@ -44,13 +46,12 @@ seq_t a(idx_t n) {
     /* extend cache if necessary */
     if ((size_t)n >= capacity) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) return (seq_t)0;  /* allocation failure */
         /* compute new terms using recurrence */
         for (idx_t i = capacity; i <= n; ++i) {
             /* For i<=5 we already have the initial values */
             if (i <= 5) {
-                new_cache[i] = cache[i];
                 continue;
             }
             /* a(i) = 72*a(i-2) + 48*a(i-3) - 112*a(i-4) */

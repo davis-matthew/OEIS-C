@@ -11,15 +11,17 @@
  *            2 and e is odd a(p^e) = (-1)^(e/2) if p > 2 and e is even The
  *            Dirichlet inverse of A359549 is therefore the product of these
  *            local factors
- * Range:     i8 n <= 8867, i16 n <= 8867, i32 n <= 8867, i64 n <= 8867,
- *            i128 n <= 8867, big any n
- * Helpers:   _smallest_prime_factor
+ * Range:     i8 n <= 100000, i16 n <= 100000, i32 n <= 100000,
+ *            i64 n <= 100000, i128 n <= 100000, big any n
+ * Validated: standard, pass, 137 terms through n = 8867 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     idx_t x = n;
 
     while (x > 1) {
-        uint64_t p = _smallest_prime_factor((uint64_t)x);
+        uint64_t p = smallest_prime_factor((uint64_t)x);
         if (p == 0)          /* n is prime */
             p = x;
 

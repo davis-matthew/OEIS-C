@@ -10,12 +10,14 @@
  *            2(n-1)(2n-1)(2n-3)a(n-2) = 0
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 237 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 static seq_t *cache = NULL;       /* memoized values */
 static idx_t cache_len = 0;       /* highest index stored */
 
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* allocate or extend cache as needed */
     if (!cache || n > cache_len) {
         idx_t new_len = (n > cache_len + 16) ? n : cache_len + 16;
-        cache = (seq_t*)realloc(cache, (new_len + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (new_len + 1));
         if (!cache) return (seq_t)0;    /* out of memory – caller can abort */
 
         /* initialise newly allocated entries if we grew from 0 */

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   seq_alloc_array, seq_free_array, seq_mul, seq_realloc
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,10 +25,34 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/seq_free_array.h"
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 typedef struct { __int128 num, den; } Rat;
 
@@ -129,13 +154,13 @@ static void compute_initial_terms(idx_t N, seq_t *seq)
     seq_t *dp_next = seq_alloc_array(sz);
     if (!dp_cur || !dp_next) return;
 
-    memset(dp_cur, 0, sz * sizeof(seq_t));
-    memset(dp_next, 0, sz * sizeof(seq_t));
+    mem_set(dp_cur, 0, sz * sizeof(seq_t));
+    mem_set(dp_next, 0, sz * sizeof(seq_t));
     dp_cur[0] = 1;
     seq[0] = 1;
 
     for (idx_t step = 1; step <= N; ++step) {
-        memset(dp_next, 0, sz * sizeof(seq_t));
+        mem_set(dp_next, 0, sz * sizeof(seq_t));
         int max = (int)step;
         for (int x = 0; x <= max; ++x) {
             for (int y = 0; y <= max; ++y) {

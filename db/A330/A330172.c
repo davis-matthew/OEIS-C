@@ -8,21 +8,23 @@
  * Formula:   a(n) = n + floor(n*(3-2*sqrt(2))) + floor(n*(2-sqrt(2)))
  * Range:     u8 n <= 5, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* equivalent: a(n) = 6*n - floor(2*n*sqrt(2)) - floor(n*sqrt(2)) - 2 */
 
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 /* Integer square root: floor(sqrt(x)) for seq_t */
 static seq_t isqrt_seq_t(seq_t x)
 {
     if (x == 0) return 0;
     seq_t left  = 0;
-    seq_t right = (seq_t)1 << ((bitlen_seq_t(x) + 1) / 2);
+    seq_t right = (seq_t)1 << ((bit_length(x) + 1) / 2);
     while (left < right) {
         seq_t mid   = (left + right) >> 1;
         seq_t mid2  = mid * mid;

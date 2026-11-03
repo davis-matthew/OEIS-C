@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 #include <stdint.h>
 
 /* Utility prototypes provided by the build environment.  */
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Forward declaration of the helper that generates the numbers. */
 static void generate_numbers(uint64_t limit, seq_t **out, size_t *out_count);
@@ -60,7 +63,7 @@ seq_t a(idx_t n)
         generate_numbers(new_lim, &new_vals, &new_count);
 
         /* Replace the old cache with the new one. */
-        free(cache);
+        mem_free(cache);
         cache       = new_vals;
         cache_size  = new_count;
         cache_lim   = new_lim;
@@ -86,7 +89,7 @@ static void generate_numbers(uint64_t limit, seq_t **out, size_t *out_count)
 
     /* 2. Temporary buffer for results. */
     size_t cap = 256;
-    seq_t *vals = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *vals = mem_new(seq_t, cap);
     size_t len  = 0;
 
     /* 3. Enumerate admissible pairs (p,q). */
@@ -108,7 +111,7 @@ static void generate_numbers(uint64_t limit, seq_t **out, size_t *out_count)
                         /* Append product */
                         if (len == cap) {
                             cap <<= 1;
-                            vals = (seq_t *)realloc(vals, cap * sizeof(seq_t));
+                            vals = mem_resize(seq_t, vals, cap);
                         }
                         vals[len++] = (seq_t)(p_pow * q_pow);
                     }
@@ -128,7 +131,7 @@ static void generate_numbers(uint64_t limit, seq_t **out, size_t *out_count)
     free(primes);
 
     /* 4. Sort the collected numbers. */
-    qsort(vals, len, sizeof(seq_t), seq_compare);
+    mem_qsort(vals, len, sizeof(seq_t), seq_compare);
 
     *out = vals;
     *out_count = len;

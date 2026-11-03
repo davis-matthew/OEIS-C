@@ -11,7 +11,8 @@
  *            derivative (1, 1/4, 7/120, 41/3024, ...)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   x2701_add, x2701_div, x2701_mod, x2701_mul
+ * Validated: partial, pass, 22 terms through n = 23 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,56 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/x2701_add.h"
-#include "../utils/x2701_div.h"
-#include "../utils/x2701_mod.h"
-#include "../utils/x2701_mul.h"
+
+static void x2701_add(uint32_t *x, size_t *xl, const uint32_t *y, size_t yl) {
+    uint64_t c = 0;
+    size_t L = (*xl > yl) ? *xl : yl;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)x[i] + (i < yl ? y[i] : 0) + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+    if (c) x[L++] = (uint32_t)c;
+    *xl = L;
+}
+
+static void x2701_div(const uint32_t *x, size_t len, uint32_t d, uint32_t *q, size_t *qlen) {
+    uint64_t r = 0;
+    size_t i = len;
+    while (i > 0) {
+        i--;
+        uint64_t cur = (r << 32) | x[i];
+        q[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+    *qlen = len;
+    while (*qlen > 0 && q[*qlen - 1] == 0) (*qlen)--;
+}
+
+static uint32_t x2701_mod(const uint32_t *x, size_t len, uint32_t d) {
+    uint64_t r = 0;
+    size_t i = len;
+    while (i > 0) {
+        i--;
+        r = ((r << 32) | x[i]) % d;
+    }
+    return (uint32_t)r;
+}
+
+static void x2701_mul(uint32_t *x, size_t *len, uint32_t m) {
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < *len; i++) {
+        uint64_t t = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+    while (c) {
+        x[(*len)++] = (uint32_t)c;
+        c >>= 32;
+    }
+}
 
 seq_t a(idx_t n) {
     idx_t k = n - 1;

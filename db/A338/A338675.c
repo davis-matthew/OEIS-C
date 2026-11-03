@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum_{k=0..n} p(n,k) * 6^(n-k)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * iteration.  The algorithm is O(n^2) time and O(n) memory. */
 
 #include <stdlib.h>  /* malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate array for DP.  size_t is guaranteed to fit n+1 for n up to 10k. */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp)
         return (seq_t)0;  /* caller may handle allocation failure */
 
@@ -44,6 +46,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

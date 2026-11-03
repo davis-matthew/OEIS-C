@@ -9,7 +9,8 @@
  *            a(0)…a(n-1))
  * Range:     u8 n <= 21, u16 n <= 361, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for computed terms */
 static seq_t *seq_cache = NULL;      /* allocated array of terms      */
@@ -41,7 +43,7 @@ static bool contains(const seq_t *arr, size_t len, seq_t val) {
 static void append_term(seq_t value) {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-        seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         seq_cap = new_cap;
     }
     seq_cache[seq_len++] = value;

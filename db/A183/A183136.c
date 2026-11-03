@@ -10,13 +10,15 @@
  *            floor(k/φ) = floor((floor(k·sqrt(5)) – k)/2)
  * Range:     u8 n <= 29, u16 n <= 460, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9730 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache to make calls order‑independent */
 static seq_t *cache = NULL;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     if (n <= cache_size) return cache[n - 1];
 
     /* expand cache as needed */
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * n);
+    seq_t *new_cache = mem_resize(seq_t, cache, n);
     if (!new_cache) exit(EXIT_FAILURE);
     cache = new_cache;
 

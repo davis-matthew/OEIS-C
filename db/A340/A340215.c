@@ -11,13 +11,15 @@
  *            a(4)=5, a(5)=8
  * Range:     u8 n <= 11, u16 n <= 21, u32 n <= 42, u64 n <= 84, u128 n <= 167,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 862 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* realloc, abort */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* indexed by n, cache[0] unused */
 static idx_t cache_size = 0;  /* highest n that has been filled in cache */
@@ -33,7 +35,7 @@ static void ensure_cache(idx_t n)
 
     seq_t *tmp = NULL;
 #ifdef __cplusplus
-    tmp = reinterpret_cast<seq_t *>(realloc(cache, (size_t)new_size * sizeof(seq_t)));
+    tmp = reinterpret_cast<seq_t *>(mem_resize(seq_t, cache, (size_t)new_size));
 #else
     tmp = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
 #endif

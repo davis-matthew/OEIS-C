@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 15, u64 n <= 33, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Check if a 4‑bit row contains a horizontal run 000 or 111. */
 static inline bool row_is_valid(uint8_t r) {
@@ -73,7 +75,7 @@ seq_t a(idx_t n) {
 
     /* Process rows 3..rows. */
     for (idx_t r = 3; r <= rows; ++r) {
-        memset(nxt, 0, sizeof(dp1));
+        mem_set(nxt, 0, sizeof(dp1));
         for (int state = 0; state < 256; ++state) {
             seq_t ways = cur[state];
             if (!ways) continue;

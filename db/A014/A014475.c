@@ -7,13 +7,15 @@
  * Keywords:  nonn, tabf
  * Formula:   a(n) = the n-th odd binomial coefficient C(r,k) with r ≥ 1 and k
  *            > r/2, enumerated by increasing r, then increasing k
- * Range:     u8 n <= 18, u16 n <= 51, u32 n <= 62, u64 n <= 62, u128 n <= 62,
+ * Range:     u8 n <= 22, u16 n <= 55, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

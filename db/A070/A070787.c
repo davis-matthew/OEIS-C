@@ -12,7 +12,8 @@
  *            * and must be a perfect square; moreover that squar...
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   is_square_uint64
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 /* Include the minimal headers required for math and integer types. */
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/is_square_uint64.h"
+
+/* Helper: integer square detection for uint64_t values. */
+static bool is_square_uint64(uint64_t v, uint64_t *root)
+{
+    uint64_t r = (uint64_t)sqrt((long double)v);
+    /* Adjust possible rounding errors. */
+    while ((r + 1) * (r + 1) <= v) ++r;
+    while (r * r > v) --r;
+    if (r * r == v) {
+        if (root) *root = r;
+        return true;
+    }
+    return false;
+}
 
 /* Main sequence accessor. */
 seq_t a(idx_t n)

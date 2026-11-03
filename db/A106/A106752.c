@@ -9,16 +9,27 @@
  *            when no such k exists
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega_uint64, estimate_prime_upper_bound, simple_sieve
+ * Validated: standard, pass, 66 terms through n = 9671 (2026-11-01)
+ * Helpers:   bigomega_u64, simple_sieve
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <math.h>
+#include "../utils/bigomega_u64.h"
 #include "../utils/simple_sieve.h"
-#include "../utils/estimate_prime_upper_bound.h"
-#include "../utils/bigomega_uint64.h"
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 static uint32_t *prime_list = NULL;   /* array of generated primes (uint32_t) */
 static size_t prime_count = 0;       /* number of primes stored */
@@ -86,5 +97,5 @@ seq_t a(idx_t n)
         return 0;    /* no suitable k found */
 
     /* count number of prime factors (with multiplicity) of k */
-    return bigomega_uint64(best_k);
+    return bigomega_u64(best_k);
 }

@@ -7,16 +7,18 @@
  * Formula:   a(n) = Sum_{d|n} d^d * binomial(d + n/d - 1, d)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow, binomial, factor_u64
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial, factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 static void _sum_divisors(idx_t pi, idx_t curr, const uint64_t *pr, const uint64_t *ex,
                           size_t cnt, seq_t *sum, idx_t n)
@@ -24,7 +26,7 @@ static void _sum_divisors(idx_t pi, idx_t curr, const uint64_t *pr, const uint64
     if (pi == cnt) {
         idx_t d = curr;
         seq_t dseq = (seq_t)d;
-        seq_t d_pow = big_pow(dseq, dseq);
+        seq_t d_pow = ipow(dseq, dseq);
         idx_t n_div_d = n / d;
         idx_t val = d + n_div_d - 1;
         seq_t bin = binomial(val, d);

@@ -8,12 +8,14 @@
  *            into parts of the form 7k+4 or 7k+6 (OEIS A035439)
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;      /* DP array: number of partitions for each n */
 static idx_t cur_max = 0;     /* Largest n for which dp has been computed */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Otherwise recompute dp up to n.  For simplicity we recompute from scratch. */
     idx_t new_max = n;
     /* Allocate a new DP array, zero‑initialized. */
-    seq_t *new_dp = (seq_t *)calloc((size_t)(new_max + 1), sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, (size_t)(new_max + 1));
     if (!new_dp) {
         /* Allocation failed; abort to avoid undefined behavior. */
         abort();
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     }
 
     /* Replace the old DP array with the new one and free the old memory. */
-    free(dp);
+    mem_free(dp);
     dp = new_dp;
     cur_max = new_max;
 

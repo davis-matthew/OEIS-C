@@ -11,12 +11,14 @@
  *            * The sequence starts: * a(0)=1, a(1)=1, a(2)=1, a(3)=1, a...
  * Range:     u8 n <= 13, u16 n <= 33, u32 n <= 64, u64 n <= 151,
  *            u128 n <= 404, big any n
+ * Validated: standard, pass, 82 terms through n = 4825 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* integer square root for a 64‑bit unsigned integer */

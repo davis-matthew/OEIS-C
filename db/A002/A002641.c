@@ -8,7 +8,8 @@
  *            (k^2+k+1)/7 is prime (Miller-Rabin test)
  * Range:     u8 n <= 29, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a002641_isprime, a002641_mulmod, a002641_powmod
+ * Validated: standard, pass, 72 terms through n = 988 (2026-11-03)
+ * Helpers:   is_prime_u64, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a002641_isprime.h"
-#include "../utils/a002641_mulmod.h"
-#include "../utils/a002641_powmod.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
 
 static uint64_t *a002641_terms = NULL;
 static idx_t a002641_cnt = 0;
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
         for (j = 0; j < 2; j++) {
             uint64_t k = cands[j];
             uint64_t q = (k * k + k + 1) / 7;
-            if (a002641_isprime(q)) {
+            if (is_prime_u64(q)) {
                 if (a002641_cnt == a002641_cap) {
                     idx_t nc = a002641_cap ? a002641_cap * 2 : 1024;
                     a002641_terms = (uint64_t *)realloc(a002641_terms, (size_t)nc * sizeof(uint64_t));

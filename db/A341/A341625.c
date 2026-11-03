@@ -6,14 +6,17 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 1 if A003415(n) < n, otherwise 0
- * Range:     u8 n <= 7596, u16 n <= 7596, u32 n <= 7596, u64 n <= 7596,
- *            u128 n <= 7596, big any n
+ * Range:     u8 n <= 65539, u16 n <= 65539, u32 n <= 65539, u64 n <= 65539,
+ *            u128 n <= 65539, big any n
+ * Validated: standard, pass, 122 terms through n = 7596 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

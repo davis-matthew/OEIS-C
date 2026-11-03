@@ -7,7 +7,8 @@
  * Formula:   Numbers k such that gcd(k, sigma(k)) > log(log(k))
  * Range:     u8 n <= 149, u16 n <= 8474, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, sigma_of
+ * Validated: standard, pass, 82 terms through n = 9972 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,22 @@
 #include <stdbool.h>
 #include <math.h>
 #include "../utils/gcd.h"
-#include "../utils/sigma_of.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,7 +51,7 @@ seq_t a(idx_t n)
     /* Allocate the array on first use. */
     if (terms == NULL) {
         terms_cap = 16;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 
     /* Extend the array progressively until we have at least n terms. */
@@ -66,7 +82,7 @@ seq_t a(idx_t n)
             /* Grow the array if necessary. */
             if (terms_len == terms_cap) {
                 terms_cap = (terms_cap == 0) ? 16 : terms_cap * 2;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)next_k;
         }

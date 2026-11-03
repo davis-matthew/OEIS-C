@@ -8,8 +8,9 @@
  *            -⌊e/2 + 1⌋ for odd e, a(2^e) = -⌊(e-1)/2⌋ for even e, a(p^e) =
  *            ⌊e/2 + 1⌋ for odd primes p. Then a(n*m)=a(n)*a(m) when
  *            gcd(n,m)=1
- * Range:     i8 n <= 9073, i16 n <= 9073, i32 n <= 9073, i64 n <= 9073,
- *            i128 n <= 9073, big any n
+ * Range:     i8 n <= 11025, i16 n <= 11025, i32 n <= 11025, i64 n <= 11025,
+ *            i128 n <= 11025, big any n
+ * Validated: standard, pass, 111 terms through n = 9073 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

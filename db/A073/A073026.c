@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   factorize, next_prime, seq_pow
+ * Validated: standard, pass, 60 terms through n = 923 (2026-11-01)
+ * Helpers:   factorize, ipow_idx, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,10 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"
+#include <stdlib.h>
 #include "../utils/factorize.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/next_prime.h"
 
 /* Test whether a prime p satisfies the sequence condition. */
 static bool is_valid_prime(uint64_t p)
@@ -35,7 +37,7 @@ static bool is_valid_prime(uint64_t p)
     seq_t half = ((seq_t)n) / 2;
 
     /* p^3 as a seq_t value, for comparison with q^4. */
-    seq_t p3 = seq_pow((seq_t)p, 3);
+    seq_t p3 = ipow_idx((seq_t)p, 3);
 
     for (size_t i = 0; i < cnt; ++i) {
         seq_t q = (seq_t)primes[i];
@@ -45,7 +47,7 @@ static bool is_valid_prime(uint64_t p)
             continue;
 
         /* Need q > p^(3/4) ⇔ q^4 > p^3. */
-        if (seq_pow(q, 4) > p3)
+        if (ipow_idx(q, 4) > p3)
             return true;
     }
     return false;

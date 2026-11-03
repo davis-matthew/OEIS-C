@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 26, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helpers for caching factorials */
 static seq_t *fact = NULL;      /* fact[i] = i!   */
@@ -33,7 +35,7 @@ static void ensure_fact(idx_t up_to)
 {
     if (up_to < fact_cap) return;
     size_t new_cap = (size_t)(up_to + 1);
-    seq_t *tmp = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fact, new_cap);
     if (tmp == NULL) abort();
     fact = tmp;
     if (fact_cap == 0) fact[0] = (seq_t)1;
@@ -52,7 +54,7 @@ static void ensure_pow2(idx_t up_to)
 {
     if (up_to < p2_cap) return;
     size_t new_cap = (size_t)(up_to + 1);
-    seq_t *tmp = (seq_t *)realloc(p2, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, p2, new_cap);
     if (tmp == NULL) abort();
     p2 = tmp;
     if (p2_cap == 0) p2[0] = (seq_t)1;

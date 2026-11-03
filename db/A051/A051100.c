@@ -8,7 +8,8 @@
  *            p) has a solution
  * Range:     u8 n <= 26, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _gcd_u64, append_candidate, mod_pow, next_prime
+ * Validated: standard, pass, 99 terms through n = 908 (2026-11-03)
+ * Helpers:   gcd_u64, mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,29 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/append_candidate.h"
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/gcd_u64.h"
 #include "../utils/next_prime.h"
-#include "../utils/_gcd_u64.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 /* Euclidean algorithm for uint64_t */
 
@@ -45,10 +65,10 @@ seq_t a(idx_t n)
             /* x^62 = -2 mod 2 is always solvable (x=0 gives 0 = 0) */
             ok = true;
         } else {
-            uint64_t g   = _gcd_u64(62ULL, p - 1);
+            uint64_t g   = gcd_u64(62ULL, p - 1);
             uint64_t exp = (p - 1) / g;         /* exponent for the power test */
             seq_t  base = (seq_t)(p - 2);      /* -2 modulo p */
-            seq_t  res  = mod_pow(base, exp, (seq_t)p);
+            seq_t  res  = powmod(base, exp, (seq_t)p);
             ok = (res == (seq_t)1);
         }
 

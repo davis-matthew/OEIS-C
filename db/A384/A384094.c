@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 40, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   digit_sum128
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/digit_sum128.h"
+#include "../utils/mem.h"
+
+/* Helper: digit sum of an unsigned __int128 value */
+static uint8_t digit_sum128(unsigned __int128 x)
+{
+    uint8_t sum = 0;
+    while (x) {
+        sum += (uint8_t)(x % 10);
+        x /= 10;
+    }
+    return sum;
+}
 
 /* Cache of already found terms. */
 static seq_t *cache   = NULL; /* pointer to array of seq_t */
@@ -30,11 +42,11 @@ static idx_t next_candidate = 3;
 static void grow_cache(void)
 {
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) abort(); /* out of memory */
     if (cache) {
-        memcpy(new_arr, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_arr, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
     }
     cache     = new_arr;
     cache_cap = new_cap;

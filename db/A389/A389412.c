@@ -10,7 +10,8 @@
  *            numbers on demand and test each sum for squarefreeness
  * Range:     u8 n <= 239, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_squarefree
+ * Validated: standard, pass, 106 terms through n = 9008 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 static seq_t *sq = NULL;        /* array of generated squarefree numbers */
 static size_t sq_cap = 0;       /* allocated capacity of the array */
@@ -32,7 +34,7 @@ static void ensure_squarefree_at(idx_t need)
     if (sq_cnt == 0) {
         if (sq_cap == 0) {
             sq_cap = 16;
-            sq = (seq_t *)malloc(sq_cap * sizeof(seq_t));
+            sq = mem_new(seq_t, sq_cap);
         }
         sq[0] = 1;
         sq_cnt = 1;
@@ -45,9 +47,9 @@ static void ensure_squarefree_at(idx_t need)
         if (is_squarefree(cand)) {
             if (sq_cnt >= sq_cap) {
                 size_t new_cap = sq_cap << 1;
-                seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
-                memcpy(tmp, sq, sq_cnt * sizeof(seq_t));
-                free(sq);
+                seq_t *tmp = mem_new(seq_t, new_cap);
+                mem_copy(tmp, sq, sq_cnt * sizeof(seq_t));
+                mem_free(sq);
                 sq = tmp;
                 sq_cap = new_cap;
             }

@@ -7,13 +7,17 @@
  * Formula:   a(n) = \sum_{k=1}^{n} binomial(n,k) * n^k * k^n
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +30,8 @@ seq_t a(idx_t n)
         seq_t bin = binomial(n, k);
 
         /* n^k and k^n */
-        seq_t npow = big_pow((seq_t)n, (seq_t)k);
-        seq_t kpow = big_pow((seq_t)k, (seq_t)n);
+        seq_t npow = ipow((seq_t)n, (seq_t)k);
+        seq_t kpow = ipow((seq_t)k, (seq_t)n);
 
         /* product */
         seq_t term = bin * npow * kpow;

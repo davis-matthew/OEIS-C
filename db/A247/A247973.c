@@ -12,6 +12,7 @@
  *            * w(k) = v(2k+2), * w(1) = 3/2 and w(k) = w(k-1)*...
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

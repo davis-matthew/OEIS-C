@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 343, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9082 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stddef.h>    /* size_t */
 #include <stdlib.h>    /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* dynamic arrays storing a(i) and the prefix sums sum_{k=1}^{i} a(k) */
 static seq_t *a_arr  = NULL; /* a terms, 0-based */
@@ -46,8 +48,8 @@ ensure_capacity(idx_t n)
     while (newcap < n)
         newcap <<= 1;
 
-    a_arr   = (seq_t *)realloc(a_arr,   newcap * sizeof(seq_t));
-    sum_arr = (seq_t *)realloc(sum_arr, newcap * sizeof(seq_t));
+    a_arr   = mem_resize(seq_t, a_arr, newcap);
+    sum_arr = mem_resize(seq_t, sum_arr, newcap);
     cap_ = newcap;
 }
 

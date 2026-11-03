@@ -9,12 +9,14 @@
  *            of a(n)
  * Range:     u8 n <= 23, u16 n <= 165, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 10000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* lazy allocation: at least enough for the requested n */
     if (cache == NULL) {
-        cache = (seq_t *)malloc((n + 2) * sizeof(seq_t)); /* +2 to keep 1‑based */
+        cache = mem_new(seq_t, (n + 2)); /* +2 to keep 1‑based */
         if (!cache) return (seq_t)0;          /* allocation failure: not expected */
         cache[0] = 0;                         /* unused */
         cache[1] = (seq_t)1;                  /* a(1) */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* extend cache if we haven't computed up to n yet */
     if (n > cache_size) {
         size_t new_len = (size_t)n + 2;       /* +2 for 1‑based safety */
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return (seq_t)0;           /* allocation failure: not expected */
         cache = tmp;
         /* compute missing terms */

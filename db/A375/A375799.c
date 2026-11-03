@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Memoised computation of A375799 */
 seq_t a(idx_t n)
@@ -36,8 +38,8 @@ seq_t a(idx_t n)
     /* Allocate or grow storage if necessary */
     if (cap <= n) {
         idx_t new_cap = (idx_t)(n + 1);
-        seq_t *new_fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
-        seq_t *new_arr  = (seq_t *)realloc(arr,  new_cap * sizeof(seq_t));
+        seq_t *new_fact = mem_resize(seq_t, fact, new_cap);
+        seq_t *new_arr  = mem_resize(seq_t, arr, new_cap);
         if (!new_fact || !new_arr) return (seq_t)0;   /* allocation failed */
         fact = new_fact;
         arr  = new_arr;
@@ -51,8 +53,8 @@ seq_t a(idx_t n)
         /* ensure we have space for n=1,2 */
         if (cap < 3) {
             idx_t new_cap = 3;
-            seq_t *new_fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
-            seq_t *new_arr  = (seq_t *)realloc(arr,  new_cap * sizeof(seq_t));
+            seq_t *new_fact = mem_resize(seq_t, fact, new_cap);
+            seq_t *new_arr  = mem_resize(seq_t, arr, new_cap);
             if (!new_fact || !new_arr) return (seq_t)0;
             fact = new_fact;
             arr  = new_arr;

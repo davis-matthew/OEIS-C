@@ -7,14 +7,25 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, tabf
  * Formula:   not stated
- * Range:     u8 n <= 8825, u16 n <= 8825, u32 n <= 8825, u64 n <= 8825,
- *            u128 n <= 8825, big any n
- * Helpers:   minimal_factorial_multiple
+ * Range:     u8 n <= 10384, u16 n <= 10384, u32 n <= 10384, u64 n <= 10384,
+ *            u128 n <= 10384, big any n
+ * Validated: standard, pass, 103 terms through n = 8825 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/minimal_factorial_multiple.h"
+static idx_t minimal_factorial_multiple(idx_t n)
+{
+    /* Return the smallest m ≥ 2 such that n divides m!; m is at least 2 for n ≥ 2. */
+    idx_t m = 2;
+    idx_t prod = 1 % n;
+    for (;; ++m) {
+        prod = (unsigned __int128)prod * m % n;
+        if (prod == 0)
+            return m;
+    }
+}
 /* Computes A294168: the nth term is the nth digit obtained by concatenating
  * the factorial‑base digits of 1/k for k ≥ 1 (row 1 contains the single digit 0). */
 

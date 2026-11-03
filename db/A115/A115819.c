@@ -8,7 +8,8 @@
  *            5, a(3) = 10,
  * Range:     u8 n <= 21, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   satisfies_uint64
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,15 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/satisfies_uint64.h"
+
+/* Test the defining condition using 64‑bit arithmetic. */
+static inline bool satisfies_uint64(uint64_t n)
+{
+    uint64_t four     = n * 4ULL;
+    uint64_t fifteen  = n * 15ULL;
+    uint64_t nineteen = n * 19ULL;
+    return (four ^ fifteen) == nineteen;
+}
 
 #define MAX_CACHE 200000   /* sufficient for the first 10000-ish terms */
 

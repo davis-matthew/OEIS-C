@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   mul_idx, pow_idx, precompute_powers
+ * Validated: standard, pass, 70 terms through n = 1869 (2026-11-01)
+ * Helpers:   ipow_idx_to_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,28 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/mul_idx.h"
-#include "../utils/pow_idx.h"
-#include "../utils/precompute_powers.h"
+#include "../utils/ipow_idx_to_idx.h"
+
+/* seq_t and idx_t are provided by the build system.  The following
+   helper multiplies an idx_t value by a small unsigned integer. */
+static inline idx_t mul_idx(idx_t a, unsigned int b)
+{
+    return a * (idx_t)b;
+}
+
+/* Precomputes powers of 5 and 6 up to a given maximum exponent.
+   The powers are returned via the supplied arrays.  The arrays must
+   have space for at least max_exp+1 elements. */
+static void precompute_powers(idx_t max_exp, idx_t *pow5, idx_t *pow6)
+{
+    pow5[0] = 1;
+    pow6[0] = 1;
+    for (idx_t i = 1; i <= max_exp; ++i)
+    {
+        pow5[i] = pow5[i - 1] * (idx_t)5;
+        pow6[i] = pow6[i - 1] * (idx_t)6;
+    }
+}
 
 /* The main sequence function. */
 seq_t a(idx_t n)
@@ -38,8 +58,8 @@ seq_t a(idx_t n)
        d <= 20 is safe. */
     for (max_digits = 1; ; ++max_digits)
     {
-        idx_t pow6d_1 = pow_idx((idx_t)6, max_digits - 1);
-        idx_t pow5d_1 = pow_idx((idx_t)5, max_digits - 1);
+        idx_t pow6d_1 = ipow_idx_to_idx((idx_t)6, max_digits - 1);
+        idx_t pow5d_1 = ipow_idx_to_idx((idx_t)5, max_digits - 1);
         idx_t cnt_d = 5 * pow6d_1 - 4 * pow5d_1;   /* 5*6^(d-1) - 4*5^(d-1) */
         if (cum + cnt_d >= n)
         {

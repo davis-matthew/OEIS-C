@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 21, i16 n <= 84, i32 n <= 364, i64 n <= 1540,
  *            i128 n <= 4960, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 4769 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static tables for on‑demand row construction */
 static seq_t **poly_rows   = NULL;   /* poly_rows[i] points to row i coefficients */
@@ -61,7 +63,7 @@ static void ensure_rows_up_to(size_t r)
     /* Build rows sequentially from the first missing row up to r */
     for (size_t i = rows_used; i <= r; ++i) {
         if (i == 0) {                            /* row 0: coefficient 1 */
-            poly_rows[0] = (seq_t *)malloc(sizeof(seq_t));
+            poly_rows[0] = mem_new(seq_t, 1);
             poly_rows[0][0] = (seq_t)1;
             row_len[0]   = 1;
             row_start[0] = (idx_t)0;
@@ -69,7 +71,7 @@ static void ensure_rows_up_to(size_t r)
         } else {
             size_t prev_len = row_len[i-1];
             size_t cur_len  = prev_len + i;          /* maximal length before trimming */
-            seq_t *cur = (seq_t *)malloc(cur_len * sizeof(seq_t));
+            seq_t *cur = mem_new(seq_t, cur_len);
 
             for (size_t k = 0; k < cur_len; ++k) {
                 seq_t a_k   = (k < prev_len)            ? poly_rows[i-1][k] : 0;
@@ -82,7 +84,7 @@ static void ensure_rows_up_to(size_t r)
             size_t last = cur_len;
             while (last > 0 && cur[last-1] == 0) --last;
             if (last == 0) last = 1;
-            cur = (seq_t *)realloc(cur, last * sizeof(seq_t));
+            cur = mem_resize(seq_t, cur, last);
 
             poly_rows[i] = cur;
             row_len[i]   = last;

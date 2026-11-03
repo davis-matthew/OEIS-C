@@ -9,12 +9,14 @@
  *            floor(n/2))
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 22, u128 n <= 23,
  *            big any n
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

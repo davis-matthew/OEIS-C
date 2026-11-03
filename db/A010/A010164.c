@@ -7,8 +7,9 @@
  * Formula:   a(0) = ⌊√93⌋ = 9. For n > 0 the coefficients are the periodic
  *            continued‑fraction terms of √93, repeating with period
  *            [1,1,1,4,6,4,1,1,1,18]
- * Range:     u8 n <= 9207, u16 n <= 9207, u32 n <= 9207, u64 n <= 9207,
- *            u128 n <= 9207, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 94 terms through n = 9207 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

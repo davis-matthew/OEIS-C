@@ -12,7 +12,8 @@
  *            smallest prime factor array, and collect those that sa...
  * Range:     u8 n <= 37, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static arrays for caching the sequence and the prime sieve */
 static seq_t *seq_vals   = NULL;   /* stored sequence values */
@@ -40,7 +42,7 @@ static void append_seq_val(seq_t v)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 64;
-        seq_t *tmp = (seq_t*)realloc(seq_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
         if (!tmp) exit(1);
         seq_vals = tmp;
         seq_cap  = new_cap;

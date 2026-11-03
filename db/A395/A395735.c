@@ -7,13 +7,26 @@
  * Formula:   a(n) = Sum_{k=0..n} 4^k * binomial(k+2,2) * binomial(5*n+3, n-k)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   binomial_k2
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial_k2.h"
+
+/* binomial(k+2,2) = (k+2)*(k+1)/2. */
+static inline seq_t binomial_k2(idx_t k)
+{
+#if defined(__SIZEOF_INT128__)
+    unsigned __int128 tmp = (unsigned __int128)(k + 2) *
+                            (unsigned __int128)(k + 1);
+    tmp /= (unsigned __int128)2;
+    return (seq_t)tmp;
+#else
+    return (seq_t)(k + 2) * (seq_t)(k + 1) / 2;
+#endif
+}
 
 /* Multiplicative binomial coefficient using 128‑bit intermediates when
    available. The result is guaranteed to be the exact binomial((uint64_t)n,(uint64_t)k). */

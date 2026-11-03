@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 42, i16 n <= 44, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   binom_saturated
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,24 @@
    1, 2, 3, 4, 5, 6, 7, 12, 13, 14, 18, 19, 20, 21, 24, 25, ... */
 
 #include <stdint.h>
-#include "../utils/binom_saturated.h"
+
+/* Compute binomial coefficient C(n,k).  If the intermediate result
+   would exceed ``limit`` the function returns ``limit+1`` to avoid
+   overflow.  The multiplication and division are performed in
+   unsigned __int128 to guarantee correct results for the sizes used
+   by this algorithm. */
+static uint64_t binom_saturated(uint64_t n, uint64_t k, uint64_t limit)
+{
+    if (k > n) return 0;
+    if (k > n - k) k = n - k;
+    unsigned __int128 res = 1;
+    for (uint64_t i = 1; i <= k; ++i) {
+        res = res * (n - k + i);
+        res /= i;
+        if (res > limit) return limit + 1;
+    }
+    return (uint64_t)res;
+}
 
 seq_t a(idx_t n)
 {

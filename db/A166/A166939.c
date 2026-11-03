@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
    reduced to lowest terms.  The sequence is OEIS A166939. */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *num_cache = NULL;   /* numerators of H_n    */
 static seq_t *den_cache = NULL;   /* denominators of H_n  */
@@ -34,9 +37,9 @@ seq_t a(idx_t n)
     /* Initialise caches for the base case H_0 = 0/1, S_0 = 0. */
     if (cache_size == 0) {
         cache_size = 1;
-        num_cache = (seq_t *)malloc(sizeof(seq_t));
-        den_cache = (seq_t *)malloc(sizeof(seq_t));
-        a_cache   = (seq_t *)malloc(sizeof(seq_t));
+        num_cache = mem_new(seq_t, 1);
+        den_cache = mem_new(seq_t, 1);
+        a_cache   = mem_new(seq_t, 1);
         if (!num_cache || !den_cache || !a_cache)
             return 0;                      /* allocation failure */
 
@@ -48,9 +51,9 @@ seq_t a(idx_t n)
     /* Extend the cache up to the requested index n. */
     if (cache_size <= (size_t)n) {
         size_t new_size = (size_t)n + 1;
-        num_cache = (seq_t *)realloc(num_cache, new_size * sizeof(seq_t));
-        den_cache = (seq_t *)realloc(den_cache, new_size * sizeof(seq_t));
-        a_cache   = (seq_t *)realloc(a_cache,   new_size * sizeof(seq_t));
+        num_cache = mem_resize(seq_t, num_cache, new_size);
+        den_cache = mem_resize(seq_t, den_cache, new_size);
+        a_cache   = mem_resize(seq_t, a_cache, new_size);
         if (!num_cache || !den_cache || !a_cache)
             return 0;                      /* allocation failure */
 

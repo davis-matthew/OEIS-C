@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache for already computed a(n) */
 static idx_t cache_size = 0;         /* current free size (max index + 1) */
@@ -30,7 +32,7 @@ static idx_t cache_size = 0;         /* current free size (max index + 1) */
 /* compute a(k) for all k in [old_size, upto] */
 static void compute_upto(idx_t upto) {
     /* extend cache */
-    seq_t *new_cache = (seq_t *)realloc(cache, (upto + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (upto + 1));
     if (!new_cache) return; /* allocation failure, but problem spec assumes success */
     cache = new_cache;
     /* compute new values */

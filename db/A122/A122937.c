@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 265, u32 n <= 265, u64 n <= 265,
  *            u128 n <= 265, big any n
- * Helpers:   none
+ * Validated: full, pass, 265 terms through n = 265 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------------ */
 /* Helper: compute ⌊n^(1/4)⌋ using binary search and 128‑bit arithmetic.    */
@@ -94,7 +96,7 @@ seq_t a(idx_t n) {
     /* Initialise cache on first call. */
     if (cap == 0) {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* Expand cache until we have at least n terms. */
@@ -103,7 +105,7 @@ seq_t a(idx_t n) {
         if (is_3_round(last_checked)) {
             if (size == cap) {
                 cap <<= 1;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[size++] = (seq_t)last_checked;
         }

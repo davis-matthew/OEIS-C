@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *dp_cur = NULL;
 static seq_t *dp_next = NULL;
@@ -41,8 +43,8 @@ seq_t a(idx_t n)
         const size_t STATES = MASKS * 16;
 
         /* Allocate two tables for one‑step DP */
-        dp_cur   = (seq_t *)malloc(STATES * sizeof(seq_t));
-        dp_next  = (seq_t *)malloc(STATES * sizeof(seq_t));
+        dp_cur   = mem_new(seq_t, STATES);
+        dp_next  = mem_new(seq_t, STATES);
         if (!dp_cur || !dp_next) return (seq_t)0;
 
         /* Zero the tables.  Use size_t for loop bounds. */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
            has bit 0 set. */
         dp_cur[ ((size_t)1U << 4) + 0 ] = 1;   /* mask 1 << 0 = 1 */
         ans_len = 1;
-        seq_ans = (seq_t *)malloc(ans_len * sizeof(seq_t));
+        seq_ans = mem_new(seq_t, ans_len);
         seq_ans[0] = (seq_t)1;
 
         /* Generate successive layers until no paths remain. */
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
             }
 
             /* Store count for this length */
-            seq_ans = (seq_t *)realloc(seq_ans, (ans_len + 1) * sizeof(seq_t));
+            seq_ans = mem_resize(seq_t, seq_ans, (ans_len + 1));
             seq_ans[ans_len++] = sum;
 
             /* If no paths remain, break.  The next count will be zero. */

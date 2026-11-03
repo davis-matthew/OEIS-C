@@ -11,7 +11,8 @@
  *            = round(p * γ) = (p*P + Q/2)/Q using only integer arithmetic
  * Range:     u8 n <= 13, u16 n <= 710, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 66 terms through n = 857 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/is_prime.h"     /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Constants for the rational approximation of Euler's constant */
 static const unsigned long long P = 5772156649ULL;   /* γ ≈ P / 10^10 */
@@ -39,7 +41,7 @@ static idx_t prime_candidate = 1;  /* will be incremented to 2 on first use */
 /* Grow the terms array when necessary */
 static void grow_terms(void) {
     size_t new_cap = (terms_cap == 0) ? 16 : terms_cap * 2;
-    seq_t *new_ptr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, terms, new_cap);
     if (!new_ptr) abort();
     terms = new_ptr;
     terms_cap = new_cap;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 36, i16 n <= 54, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Ensure a buffer can hold at least 'needed' elements */
 static void ensure_cap(seq_t **p, size_t *cap, size_t needed)
@@ -33,7 +35,7 @@ static void ensure_cap(seq_t **p, size_t *cap, size_t needed)
         size_t newcap = (*cap == 0) ? 64 : *cap;
         while (newcap < needed)
             newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*p, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
         if (!tmp)
             exit(1);
         *p = tmp;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         seq_len = 1;
 
         prev_len = 1;
-        prev = (seq_t *)malloc(prev_len * sizeof(seq_t));
+        prev = mem_new(seq_t, prev_len);
         if (!prev) exit(1);
         prev[0] = (seq_t)1;
 
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
         idx_t next_row = cur_row + 1;                      /* new row index   */
         size_t cur_len = (size_t)(next_row + 1);           /* number of terms */
 
-        seq_t *cur = (seq_t *)malloc(cur_len * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, cur_len);
         if (!cur) exit(1);
 
         /* Compute the new row from the two previous rows. */
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
 
         /* Prepare for next iteration. */
         if (prev_prev)
-            free(prev_prev);
+            mem_free(prev_prev);
         prev_prev = prev;
         prev_prev_len = prev_len;
 

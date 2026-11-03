@@ -7,16 +7,19 @@
  * Formula:   a(n) = numerator of Sum_{d^2 | n} 1/d^2
  * Range:     u8 n <= 24, u16 n <= 3467, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64, gcd
+ * Validated: standard, pass, 101 terms through n = 9735 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
 #include "../utils/gcd.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -35,14 +38,14 @@ seq_t a(idx_t n)
         uint64_t  M  = e / 2;                    /* floor(e/2) */
 
         seq_t seq_p      = (seq_t)p;
-        seq_t pow_upper  = big_pow(seq_p, (seq_t)(2 * (M + 1)));   /* p^{2(M+1)} */
+        seq_t pow_upper  = ipow(seq_p, (seq_t)(2 * (M + 1)));   /* p^{2(M+1)} */
         seq_t numeratorA = pow_upper - (seq_t)1;                    /* p^{2(M+1)} - 1 */
         seq_t denomA     = seq_p * seq_p - (seq_t)1;               /* p^2 - 1 */
         seq_t A          = numeratorA / denomA;                    /* exact division */
 
         num = num * A;
 
-        seq_t powM2 = big_pow(seq_p, (seq_t)(2 * M));               /* p^{2M} */
+        seq_t powM2 = ipow(seq_p, (seq_t)(2 * M));               /* p^{2M} */
         den = den * powM2;
     }
 

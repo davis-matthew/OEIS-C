@@ -9,12 +9,14 @@
  *            L(0)=2, L(1)=1, L(k)=L(k-1)+L(k-2))
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 46, u128 n <= 92,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 45 terms through n = 985 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 /* fast doubling Fibonacci: returns F(n) in *fn, F(n+1) in *fn1 */
 static void fib_fast(idx_t n, seq_t *fn, seq_t *fn1)
@@ -43,7 +45,7 @@ static void fib_fast(idx_t n, seq_t *fn, seq_t *fn1)
 seq_t a(idx_t n)
 {
     /* 2^n */
-    seq_t pow2 = pow_uint((uint64_t)2, n);
+    seq_t pow2 = ipow_u64_idx((uint64_t)2, n);
 
     /* compute Fibonacci numbers for k = 2*n */
     idx_t k = n << 1;                 /* k = 2*n */

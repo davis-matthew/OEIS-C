@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 15, u64 n <= 35, u128 n <= 73,
  *            big any n
- * Helpers:   build_allowed_masks
+ * Validated: standard, pass, 38 terms through n = 190 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,32 @@
    consecutive rows; the recurrence itself is not explicit. */
 
 #include <stdint.h>
-#include "../utils/build_allowed_masks.h"
+
+/* ------------------------------------------------------------------
+   Generate all allowed 8‑bit perimeter masks:
+      * all zeros,
+      * any rotation of 00000001,
+      * any rotation of 00010101
+   ------------------------------------------------------------------ */
+static void build_allowed_masks(uint8_t *allowed)
+{
+    for (int i = 0; i < 256; ++i) allowed[i] = 0;
+
+    /* all zeros */
+    allowed[0] = 1;
+
+    /* rotations of 00000001 (0x01) */
+    for (int r = 0; r < 8; ++r) {
+        uint8_t m = (uint8_t)((0x01 << r) | (0x01 >> (8 - r))) & 0xFF;
+        allowed[m] = 1;
+    }
+
+    /* rotations of 00010101 (0x15) */
+    for (int r = 0; r < 8; ++r) {
+        uint8_t m = (uint8_t)((0x15 << r) | (0x15 >> (8 - r))) & 0xFF;
+        allowed[m] = 1;
+    }
+}
 
 static int transitions_built = 0;
 

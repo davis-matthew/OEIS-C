@@ -12,11 +12,13 @@
  *            coefficient of each row ranging from x⁰ up to xⁿ⁻¹. The s...
  * Range:     u8 n <= 38, u16 n <= 138, u32 n <= 442, u64 n <= 666,
  *            u128 n <= 666, big any n
+ * Validated: standard, pass, 89 terms through n = 614 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 #ifdef __cplusplus
 #include <new>
 #include <cstddef>

@@ -7,7 +7,8 @@
  * Formula:   a(n) = n*(n+1)*(n+2)*(1 + 11*n + 8*n^2)/120
  * Range:     u8 n <= 3, u16 n <= 13, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(n) = a(n-1) + n^2*(n+1)*(2*n+1)/6
    The result is memoised so each n is computed only once. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Ensure the cache contains the base value a(0). */
     if (cache_len == 0) {
         cache_len = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) abort();       /* out of memory */
         cache[0] = 0;
     }
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* Extend the cache if necessary. */
     if (n >= cache_len) {
         size_t new_len = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) abort();   /* out of memory */
         /* Compute new entries starting from the first missing index. */
         for (size_t i = cache_len; i < new_len; ++i) {

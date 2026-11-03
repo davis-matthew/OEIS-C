@@ -11,16 +11,20 @@
  *            numerator after cancelling common factors
  * Range:     u8 n <= 14, u16 n <= 325, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gcd, seq_one, seq_pow
+ * Validated: standard, pass, 66 terms through n = 9470 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/seq_pow.h"     /* seq_t seq_pow(seq_t base, idx_t exp); */
-#include "../utils/gcd.h"         /* seq_t gcd(seq_t a, seq_t b); */
-#include "../utils/seq_one.h"     /* seq_t seq_one(void); */
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 seq_t a(idx_t n) {
     /* factor n into primes and exponents */
@@ -37,7 +41,7 @@ seq_t a(idx_t n) {
         idx_t e = (idx_t)exps[i];
 
         /* compute p^(e+1) + 1 */
-        seq_t num = seq_pow(p, e + 1);
+        seq_t num = ipow_idx(p, e + 1);
         num += (seq_t)1;
         /* compute p + 1 */
         seq_t den = p + (seq_t)1;

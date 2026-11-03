@@ -9,7 +9,8 @@
  *            popcount(n)%2}
  * Range:     u8 n <= 159, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 8356 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: compute parity of the popcount of an integer of type seq_t.
    Returns 1 if the number of 1-bits is odd (odious), 0 otherwise. */
@@ -43,7 +45,7 @@ static void ensure_cache(idx_t new_cap)
     size_t new_capacity = cache_cap ? cache_cap * 2 : 8;
     while (new_capacity < (size_t)new_cap)
         new_capacity *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
     if (!tmp) abort();  /* out of memory */
     cache = tmp;
     cache_cap = new_capacity;

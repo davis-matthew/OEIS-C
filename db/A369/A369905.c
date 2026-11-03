@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{p|n, p prime} n^omega(n/p)
  * Range:     u8 n <= 17, u16 n <= 59, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   _smallest_prime_factor, count_distinct_primes, pow_int
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   ipow_idx, omega, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,12 @@
       pow_int(seq_t base, idx_t exp)
    which are available in the utils directory. */
 
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/count_distinct_primes.h"
-#include "../utils/pow_int.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/omega.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -37,17 +41,17 @@ seq_t a(idx_t n)
     /* factor n, collecting distinct prime divisors */
     while (tmp > 1)
     {
-        uint64_t p = _smallest_prime_factor(tmp);
+        uint64_t p = smallest_prime_factor(tmp);
         /* skip repeated factors */
         while (tmp % p == 0)
             tmp /= p;
 
         /* compute exponent: omega(n/p) */
         uint64_t m = (uint64_t)n / p;          /* n/p fits in uint64_t */
-        seq_t exp = count_distinct_primes(m);  /* omega(m) */
+        seq_t exp = omega(m);  /* omega(m) */
 
         /* compute term: n^exp using integer exponentiation */
-        seq_t term = pow_int((seq_t)n, (idx_t)exp);
+        seq_t term = ipow_idx((seq_t)n, (idx_t)exp);
         sum += term;
     }
 

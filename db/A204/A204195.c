@@ -12,7 +12,8 @@
  *            over rows. a(1) = 13, a(2) = 338, a(3) = 639,
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 12, u64 n <= 25, u128 n <= 51,
  *            big any n
- * Helpers:   good_transition
+ * Validated: standard, pass, 36 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,27 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/good_transition.h"
+#include "../utils/mem.h"
+
+/* helper to test if transition from rows a,b to row c is valid */
+static bool good_transition(int a, int b, int c)
+{
+    /* vertical triples */
+    for (int col = 0; col < 6; ++col) {
+        int va = (a >> col) & 1;
+        int vb = (b >> col) & 1;
+        int vc = (c >> col) & 1;
+        if (va == vb && vb == vc) return false;
+    }
+    /* NW‑SE diagonal triples */
+    for (int col = 2; col < 6; ++col) {
+        int va = (a >> (col - 2)) & 1;
+        int vb = (b >> (col - 1)) & 1;
+        int vc = (c >> col) & 1;
+        if (va == vb && vb == vc) return false;
+    }
+    return true;
+}
 
 static unsigned char valid_rows[64];           /* all 6‑bit rows that avoid 000 or 111 */
 static int m;                                 /* number of valid rows */
@@ -77,8 +98,8 @@ static void init_tables(void)
     /* size of DP tables */
     dp_size = (size_t)m * (size_t)m;
 
-    dp_cur = (seq_t *)calloc(dp_size, sizeof(seq_t));
-    dp_next = (seq_t *)calloc(dp_size, sizeof(seq_t));
+    dp_cur = mem_new(seq_t, dp_size);
+    dp_next = mem_new(seq_t, dp_size);
 
     /* precompute transitions */
     for (int i2 = 0; i2 < m; ++i2) {
@@ -109,7 +130,7 @@ static void init_tables(void)
 
     /* initialize cache: a(1) and a(2) */
     results_cap = 4;                     /* enough for indices 0..3 */
-    results = (seq_t *)malloc(results_cap * sizeof(seq_t));
+    results = mem_new(seq_t, results_cap);
     results[1] = (seq_t)m0;              /* a(1) */
     results[2] = (seq_t)m0 * (seq_t)m;   /* a(2) */
     cache_max_n = 2;
@@ -143,7 +164,7 @@ static void extend_to(idx_t n_target)
         if (n >= results_cap) {
             size_t new_cap = results_cap * 2;
             if (new_cap < (size_t)(n + 1)) new_cap = n + 1;
-            results = (seq_t *)realloc(results, new_cap * sizeof(seq_t));
+            results = mem_resize(seq_t, results, new_cap);
             results_cap = new_cap;
         }
         results[n] = sum;

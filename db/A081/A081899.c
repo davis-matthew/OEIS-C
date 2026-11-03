@@ -7,6 +7,7 @@
  * Formula:   a(n) = 4^n*(n^4 + 58*n^3 + 971*n^2 + 5114*n + 6144)/6144
  * Range:     u8 none, u16 n <= 5, u32 n <= 13, u64 n <= 27, u128 n <= 57,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 987 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

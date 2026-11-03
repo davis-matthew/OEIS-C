@@ -8,8 +8,9 @@
  * Formula:   a(n) = binomial(b+1,3) + binomial(c+1,2) where n = binomial(b,2)
  *            + c, b > c >= 0 b is the largest integer with binomial(b,2) <= n
  *            c = n - binomial(b,2)
- * Range:     u8 n <= 62, u16 n <= 2665, u32 n <= 8094, u64 n <= 8094,
- *            u128 n <= 8094, big any n
+ * Range:     u8 n <= 62, u16 n <= 2665, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 82 terms through n = 8094 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

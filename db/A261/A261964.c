@@ -12,15 +12,27 @@
  *            Σ_{i=1}^{n-1} binom(m*n-2, i*m-1) * A(m,i) * A(m,...
  * Range:     u8 n <= 11, u16 n <= 16, u32 n <= 23, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   binom, factorial
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/factorial.h"   /* factorial(idx_t) -> seq_t */
-#include "../utils/binom.h"       /* binom(idx_t a, idx_t b) -> seq_t */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 static seq_t *A = NULL;      /* flat 2‑D table: A[m*(R+1)+n]  (1‑based)      */
 static idx_t  maxR = 0;      /* current maximum row/column computed          */
@@ -30,7 +42,7 @@ static void compute_table(idx_t R)
 {
     idx_t stride = R + 1;                     /* array dimension           */
     size_t sz = (size_t)stride * stride * sizeof(seq_t);
-    seq_t *newA = (seq_t *)malloc(sz);        /* cast for C++ compatibility */
+    seq_t *newA = mem_new(seq_t, (sz) / sizeof(seq_t));        /* cast for C++ compatibility */
     if (!newA) return;                        /* allocation failure         */
 
     /* Base case A(1,j) and A(j,1) = (j-1)!                               */
@@ -48,7 +60,7 @@ static void compute_table(idx_t R)
 
             /* First sum over i = 1 .. m-1                                 */
             for (idx_t i = 1; i < m; ++i) {
-                seq_t coeff = binom(total, i * n - 1);
+                seq_t coeff = binomial(total, i * n - 1);
                 seq_t prod  = newA[i * stride + n];
                 prod *= newA[(m - i) * stride + n];
                 prod *= coeff;
@@ -57,7 +69,7 @@ static void compute_table(idx_t R)
 
             /* Second sum over j = 1 .. n-1                                 */
             for (idx_t j = 1; j < n; ++j) {
-                seq_t coeff = binom(total, j * m - 1);
+                seq_t coeff = binomial(total, j * m - 1);
                 seq_t prod  = newA[m * stride + j];
                 prod *= newA[m * stride + (n - j)];
                 prod *= coeff;
@@ -68,7 +80,7 @@ static void compute_table(idx_t R)
         }
     }
 
-    free(A);            /* discard old table if any                         */
+    mem_free(A);            /* discard old table if any                         */
     A     = newA;
     maxR  = R;
 }

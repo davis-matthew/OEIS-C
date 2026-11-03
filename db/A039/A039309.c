@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   has_equal_zeros_twos
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_equal_zeros_twos.h"
+
+/* Helper: test whether a number has equal non‑zero counts of 0 and 2
+ * in its base‑7 representation. The number is given as seq_t. */
+static bool has_equal_zeros_twos(seq_t number)
+{
+    unsigned int zeros = 0, twos = 0;
+    seq_t temp = number;                   /* copy for division loop */
+
+    while (temp != (seq_t)0) {
+        seq_t digit = temp % (seq_t)7;
+        if (digit == (seq_t)0)
+            ++zeros;
+        else if (digit == (seq_t)2)
+            ++twos;
+        temp = temp / (seq_t)7;
+    }
+    return zeros > 0 && zeros == twos;
+}
 
 /* Grow the cache array to at least 'need' elements.
  * Works both in C (using realloc) and C++ (using new/delete). */

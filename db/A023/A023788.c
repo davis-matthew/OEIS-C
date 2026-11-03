@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   cmpfunc
+ * Validated: full, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/cmpfunc.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmpfunc(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 static seq_t seq[64];
 static bool ready = false;
@@ -39,7 +50,7 @@ static void init_seq(void)
         seq[idx++] = val;
     }
     /* after this, idx == 63 */
-    qsort(seq, (size_t)idx, sizeof(seq_t), cmpfunc);
+    mem_qsort(seq, (size_t)idx, sizeof(seq_t), cmpfunc);
     ready = true;
 }
 

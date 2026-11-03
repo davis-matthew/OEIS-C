@@ -14,15 +14,41 @@
  *            memoising previously computed terms and primes
  * Range:     u8 n <= 16, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   gcd, isPrimeGeneric
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   gcd, is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"           /* gcd(seq_t, seq_t) */
-#include "../utils/isPrimeGeneric.h" /* isPrimeGeneric(seq_t) */
+#include <stddef.h>
+#include <stdint.h>
+#include <limits.h>
+#include "../utils/gcd.h"
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 seq_t a(idx_t n) {
     /* Static cache for computed a(n) values (1‑based). */
@@ -39,7 +65,7 @@ seq_t a(idx_t n) {
     if (n + 1 > a_cap) {
         size_t new_cap = a_cap ? a_cap * 2 : 8;
         while (new_cap < n + 1) new_cap <<= 1;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         a_cap = new_cap;
     }
 
@@ -78,8 +104,7 @@ seq_t a(idx_t n) {
                 /* Store the new prime difference. */
                 if (diff_len == diff_cap) {
                     size_t d_new_cap = diff_cap ? diff_cap * 2 : 8;
-                    diff_cache = (seq_t *)realloc(diff_cache,
-                                                   d_new_cap * sizeof(seq_t));
+                    diff_cache = mem_resize(seq_t, diff_cache, d_new_cap);
                     diff_cap = d_new_cap;
                 }
                 diff_cache[diff_len++] = diff;

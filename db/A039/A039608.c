@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/alloc_seq_array.h"   /* for alloc_seq_array */
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *cache = NULL;          /* array of found values          */
 static size_t cache_size = 0;        /* number of values currently stored */
@@ -54,7 +62,7 @@ static void ensure_capacity(size_t need)
         return;  /* allocation failed – keep existing cache */
     if (cache)
     {
-        memcpy(new_p, cache, cache_size * sizeof *cache);
+        mem_copy(new_p, cache, cache_size * sizeof *cache);
         /* Do not free the old buffer: it may contain objects that
            require explicit deletion (e.g. arbitrary‑precision
            sequences).  A small memory leak is acceptable for the

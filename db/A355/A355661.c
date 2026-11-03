@@ -8,7 +8,8 @@
  * Formula:   a(n) = max(bigomega(n), {a(primepi(p)) | p prime factor of n})
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega
+ * Validated: standard, pass, 103 terms through n = 9619 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/bigomega.h"
+#include "../utils/mem.h"
 
 /* Cached data structures */
 static seq_t       *a_cache   = NULL;   /* a(0)..a(n) */
@@ -67,7 +69,7 @@ static void ensure_cache(idx_t n)
     if (sieve_limit < n) build_sieve(n);
 
     /* enlarge a_cache array */
-    a_cache = (seq_t *)realloc(a_cache, (n + 1) * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, (n + 1));
     if (cache_upto == 0) {                     /* first run */
         a_cache[0] = 0;
         a_cache[1] = 0;

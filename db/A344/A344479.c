@@ -11,7 +11,8 @@
  *            T(n,k)=∑_{j=1..n} φ(j)⋅⌊n/j⌋^k by antidiagonals (OEIS A344479)
  * Range:     u8 n <= 24, u16 n <= 58, u32 n <= 157, u64 n <= 412,
  *            u128 n <= 1092, big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 82 terms through n = 9412 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_seq.h"   /* seq_t pow_seq(seq_t a, int k); */
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
 
 static idx_t  max_phi   = 0;        /* highest n for which tables exist     */
 static uint64_t *phi_tbl = NULL;   /* φ[i] for 0..max_phi                  */
@@ -33,11 +35,11 @@ ensure_phi(idx_t n)
 
     /* Free old tables */
     free(phi_tbl);
-    free(pref_tbl);
+    mem_free(pref_tbl);
 
     /* Allocate new tables */
     phi_tbl = (uint64_t *)malloc((n + 1) * sizeof(uint64_t));
-    pref_tbl = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    pref_tbl = mem_new(seq_t, (n + 1));
 
     /* Initialise φ[i] = i */
     for (idx_t i = 0; i <= n; ++i) phi_tbl[i] = i;
@@ -87,7 +89,7 @@ a(idx_t n)
         idx_t d   = row / l;                 /* common value of ⌊row/j⌋ for j in [l,r]  */
         idx_t r   = row / d;                 /* last j with this value                  */
         seq_t sum_phi = pref_tbl[r] - pref_tbl[l - 1];
-        seq_t pow_d   = pow_seq((seq_t)d, (int)col);
+        seq_t pow_d   = ipow_i32((seq_t)d, (int)col);
         result += sum_phi * pow_d;
         l = r + 1;
     }

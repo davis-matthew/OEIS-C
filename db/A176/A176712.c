@@ -7,6 +7,7 @@
  * Formula:   a(n) = 16*n^4 + 256*n^3 + 1160*n^2 + 1088*n + 285
  * Range:     u8 none, u16 n <= 4, u32 n <= 124, u64 n <= 1000, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 965 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

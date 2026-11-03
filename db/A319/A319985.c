@@ -9,15 +9,18 @@
  *            prime(3)=5, …, prime(11)=31)
  * Range:     u8 n <= 39, u16 n <= 1279, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 95 terms through n = 9811 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
         uint64_t e = exps[i];
         uint64_t r = p % 12ULL;
         seq_t base   = map[r];
-        seq_t power  = seq_pow(base, e);
+        seq_t power  = ipow_idx(base, e);
         result = result * power;
     }
 

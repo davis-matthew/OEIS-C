@@ -7,6 +7,7 @@
  * Formula:   a(n) = n * a(n-4), a(0) = 1, a(1) = 1, a(2) = 2, a(3) = 3
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 32, u64 n <= 55, u128 n <= 96,
  *            big any n
+ * Validated: standard, pass, 53 terms through n = 1447 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

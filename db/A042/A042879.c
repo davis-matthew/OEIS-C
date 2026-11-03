@@ -8,7 +8,8 @@
  *            = 24959613572660 * a(n-22) – a(n-44) for n > 43
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 16, u64 n <= 32, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static cache to store computed denominators. */
 static seq_t *denom = NULL;
@@ -39,7 +41,7 @@ static void ensure_denoms(idx_t n)
     /* Allocate initial storage if necessary. */
     if (denom == NULL) {
         denom_cap = 64;
-        denom = (seq_t *)realloc(denom, denom_cap * sizeof(seq_t));
+        denom = mem_resize(seq_t, denom, denom_cap);
     }
 
     /* Grow storage to accommodate index n */
@@ -48,7 +50,7 @@ static void ensure_denoms(idx_t n)
         if (new_cap == 0) new_cap = 64;
         while ((size_t)n + 1 > new_cap)
             new_cap <<= 1;
-        denom = (seq_t *)realloc(denom, new_cap * sizeof(seq_t));
+        denom = mem_resize(seq_t, denom, new_cap);
         denom_cap = new_cap;
     }
 

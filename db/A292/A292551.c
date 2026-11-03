@@ -8,6 +8,7 @@
  * Formula:   a(n) = (2*n^3 - 2*n^2 + (-1)^n*(2*n^2 - 11*n - 6) - 5*n + 6)/16
  * Range:     i8 n <= 4, i16 n <= 25, i32 n <= 1190, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 67 terms through n = 9448 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

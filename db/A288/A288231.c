@@ -9,7 +9,8 @@
  *            floor((k+1)*4^(1/3))*(-x)^k)
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 32, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* integer cube‑root floor for uint64_t arguments */
 static uint64_t icbrt(uint64_t x) {
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     /* initialise cache for n = 0 */
     if (cache_size == 0) {
         cache_size = 1;
-        g = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        g = mem_new(seq_t, cache_size);
         a_coeff = (uint64_t *)malloc(cache_size * sizeof(uint64_t));
         if (!g || !a_coeff) return 0; /* allocation failure, return 0 */
         g[0] = (seq_t)1;                      /* g(0) */
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     if ((idx_t)n >= cache_size) {
         size_t new_size = cache_size * 2;
         while ((idx_t)new_size <= n) new_size <<= 1;
-        g = (seq_t *)realloc(g, new_size * sizeof(seq_t));
+        g = mem_resize(seq_t, g, new_size);
         a_coeff = (uint64_t *)realloc(a_coeff, new_size * sizeof(uint64_t));
         if (!g || !a_coeff) return 0; /* allocation failure */
         for (size_t i = cache_size; i < new_size; ++i) {

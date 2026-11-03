@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3000, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 2962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* maximum index M that we pre‑compute.
  * Chosen large enough that a(n) for n ≤ 10 000 lies in the range. */
@@ -58,7 +60,7 @@ static void init(void)
         pi[i] = pi[i-1] + (uint32_t)is_prime[i];
 
     /* 3. Allocate g array */
-    g = (seq_t*)malloc((size_t)(MAXM + 2) * sizeof(seq_t));
+    g = mem_new(seq_t, (size_t)(MAXM + 2));
     if (!g) { free(is_prime); free(pi); return; }
 
     /* 4. Compute f(k) = π(10k)-π(9k-1) and tail minima */

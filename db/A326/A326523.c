@@ -8,7 +8,8 @@
  * Formula:   a(n) = n * A326522(n)
  * Range:     u8 n <= 17, u16 n <= 46, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Integer square root for unsigned 64‑bit values. */
 static inline idx_t int_sqrt(idx_t v)
@@ -42,17 +44,17 @@ seq_t a(idx_t n)
     if (data == NULL || n > curMax)
     {
         /* Free old tables if they exist.      */
-        if (data) free(data);
+        if (data) mem_free(data);
         if (rows) free(rows);
 
         /* Allocate new tables.                 */
         idx_t maxN = n;
         size_t total = (size_t)(maxN + 1) * 10; /* 10 rows of size maxN+1 */
-        data = (seq_t *)malloc(total * sizeof(seq_t));
+        data = mem_new(seq_t, total);
         rows = (seq_t **)malloc(10 * sizeof(seq_t *));
         if (!data || !rows)    /* allocation failure */
         {
-            free(data); free(rows);
+            mem_free(data); free(rows);
             return 0;
         }
 
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         if (!is_prime || !sqfree)
         {
             free(is_prime); free(sqfree);
-            free(data); free(rows);
+            mem_free(data); free(rows);
             return 0;
         }
 
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
         int *sq_list = (int *)malloc((maxN + 1) * sizeof(int));
         if (!sq_list) {
             free(is_prime); free(sqfree);
-            free(data); free(rows);
+            mem_free(data); free(rows);
             return 0;
         }
         int sq_len = 0;

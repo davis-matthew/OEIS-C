@@ -8,7 +8,8 @@
  * Formula:   a(n) = 2 + Σ_{k=1..n} min(k, 2^(n+2-k) - 2)
  * Range:     u8 n <= 24, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   floor_log2_uint64, pow2
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-01)
+ * Helpers:   ilog2, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,10 @@
      let b_n = ⌊log₂(n+4 - ⌊log₂(n+4)⌋)⌋
      a(n) = C(n+2-b_n, 2) + 2(2^b_n - b_n) */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -29,9 +33,9 @@ seq_t a(idx_t n)
 
     /* Compute b_n */
     idx_t tmp = n + 4;                       /* n+4 */
-    unsigned L1v = floor_log2_uint64(tmp);   /* ⌊log₂(n+4)⌋ */
+    unsigned L1v = ilog2(tmp);   /* ⌊log₂(n+4)⌋ */
     idx_t tmp2 = tmp - L1v;                  /* n+4 - ⌊log₂(n+4)⌋ */
-    unsigned b_n = floor_log2_uint64(tmp2);  /* ⌊log₂(n+4 - ⌊log₂(n+4)⌋)⌋ */
+    unsigned b_n = ilog2(tmp2);  /* ⌊log₂(n+4 - ⌊log₂(n+4)⌋)⌋ */
 
     /* binomial part: C(n+2-b_n, 2) */
     seq_t m = (seq_t)(n + 2 - b_n);

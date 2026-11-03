@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 none, u16 none, u32 n <= 9300, u64 n <= 9300, u128 n <= 9300,
- *            big any n
- * Helpers:   none
+ * Range:     u8 none, u16 none, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 63 terms through n = 9300 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Compute a^4 using seq_t arithmetic */
 static inline seq_t fourth_power(idx_t a) {
@@ -48,7 +50,7 @@ static void build_sequence(void)
         max_i--;                                /* last valid i */
 
         /* Pre‑compute fourth powers up to max_i. */
-        seq_t *pow4 = (seq_t *)malloc((size_t)(max_i + 1) * sizeof(seq_t));
+        seq_t *pow4 = mem_new(seq_t, (size_t)(max_i + 1));
         if (!pow4) return;                     /* allocation failure – give up */
         pow4[0] = 0;
         for (idx_t i = 1; i <= max_i; ++i) pow4[i] = fourth_power(i);
@@ -56,7 +58,7 @@ static void build_sequence(void)
         /* Count the number of unordered quadruples for each sum. */
         unsigned char *cnt = (unsigned char *)
             malloc((size_t)(limit + 1) * sizeof(unsigned char));
-        if (!cnt) { free(pow4); return; }
+        if (!cnt) { mem_free(pow4); return; }
         memset(cnt, 0, (size_t)(limit + 1));
 
         for (idx_t a = 1; a <= max_i; ++a) {
@@ -82,8 +84,8 @@ static void build_sequence(void)
             if (cnt[s] == 2) {
                 if (len >= cap) {
                     cap = cap ? cap * 2 : 1024;
-                    seq_t *new_tmp = (seq_t *)realloc(tmp, cap * sizeof(seq_t));
-                    if (!new_tmp) { free(tmp); free(cnt); free(pow4); return; }
+                    seq_t *new_tmp = mem_resize(seq_t, tmp, cap);
+                    if (!new_tmp) { mem_free(tmp); free(cnt); mem_free(pow4); return; }
                     tmp = new_tmp;
                 }
                 tmp[len++] = (seq_t)s;
@@ -91,7 +93,7 @@ static void build_sequence(void)
         }
 
         free(cnt);
-        free(pow4);
+        mem_free(pow4);
 
         if (len >= TARGET_TERMS) {
             global_seq = tmp;
@@ -99,7 +101,7 @@ static void build_sequence(void)
             built = true;
             break;
         } else {
-            free(tmp);                       /* not enough terms; enlarge limit */
+            mem_free(tmp);                       /* not enough terms; enlarge limit */
             limit <<= 1;                     /* double the limit */
         }
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   is_prime_uint64
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_uint64.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -37,13 +38,13 @@ seq_t a(idx_t n)
     while (cacheCount < n) {
         /* Find the next prime p starting from nextCandidate. */
         uint64_t p = nextCandidate;
-        while (!is_prime_uint64(p))
+        while (!is_prime_u64(p))
             p += 2;        /* skip even numbers */
 
         /* Test the required condition: both 10p+7 and 7p+10 must be prime. */
         uint64_t v1 = 10ULL * p + 7ULL;
         uint64_t v2 = 7ULL *  p + 10ULL;
-        if (is_prime_uint64(v1) && is_prime_uint64(v2)) {
+        if (is_prime_u64(v1) && is_prime_u64(v2)) {
             /* Store the qualifying prime.  The cache size is fixed, so
                we simply assume the required n will not exceed CACHE_CAP. */
             cache[cacheCount++] = (seq_t)p;

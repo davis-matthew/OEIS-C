@@ -12,7 +12,8 @@
  *            (a(0)=T(0,0), a(1)=T(1,0), a(2)=T(1,1), a(3)=T(2,0), …)
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,14 +39,14 @@ seq_t a(idx_t n)
     idx_t k = n - r * (r + 1) / 2;
 
     /* Allocate row 0:  T(0,0)=1   */
-    seq_t *prev = (seq_t*)malloc(sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, 1);
     if (!prev) return (seq_t)0;          /* allocation failure */
     prev[0] = (seq_t)1;
 
     /* Build subsequent rows up to r   */
     for (idx_t row = 1; row <= r; ++row) {
-        seq_t *cur = (seq_t*)malloc((row + 1) * sizeof(seq_t));
-        if (!cur) { free(prev); return (seq_t)0; }
+        seq_t *cur = mem_new(seq_t, (row + 1));
+        if (!cur) { mem_free(prev); return (seq_t)0; }
 
         cur[0] = (seq_t)1;                        /* T(row,0)=1 */
 
@@ -57,11 +59,11 @@ seq_t a(idx_t n)
 
         cur[row] = cur[row - 1];                  /* T(row,row)=T(row,row-1) */
 
-        free(prev);
+        mem_free(prev);
         prev = cur;
     }
 
     seq_t result = prev[k];
-    free(prev);
+    mem_free(prev);
     return result;
 }

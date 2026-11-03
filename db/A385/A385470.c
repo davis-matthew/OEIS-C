@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Sum_{odd t=1..n} [ a(n-t) * 2 * C(n, t) * (t-1)! ]
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   zero_new_elements
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,14 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/zero_new_elements.h"
+#include "../utils/mem.h"
+
+/* Helper: set new elements in an array to 0 after realloc. */
+static void zero_new_elements(seq_t *arr, size_t old_cap, size_t new_cap)
+{
+    for (size_t i = old_cap; i < new_cap; ++i)
+        arr[i] = 0;
+}
 
 static seq_t *a_vals = NULL;          /* a[n] values */
 static seq_t *binom  = NULL;          /* binomial coefficients for current n: C(n, t) */
@@ -31,9 +39,9 @@ static void ensure_initialised(idx_t n)
 {
     if (next_index != 0) return;            /* already initialised */
     capacity = 1;
-    a_vals = (seq_t *)calloc(capacity, sizeof(seq_t));
-    binom  = (seq_t *)calloc(capacity, sizeof(seq_t));
-    fact   = (seq_t *)calloc(capacity, sizeof(seq_t));
+    a_vals = mem_new(seq_t, capacity);
+    binom  = mem_new(seq_t, capacity);
+    fact   = mem_new(seq_t, capacity);
     /* base values */
     a_vals[0] = (seq_t)1;    /* a(0) = 1 */
     binom[0]  = (seq_t)1;    /* binom[0] = C(0,0) = 1 */
@@ -49,9 +57,9 @@ static void grow_arrays_if_needed(idx_t n)
     capacity = capacity == 0 ? 1 : capacity * 2;
     while ((size_t)n >= capacity)
         capacity *= 2;
-    a_vals = (seq_t *)realloc(a_vals, capacity * sizeof(seq_t));
-    binom  = (seq_t *)realloc(binom,  capacity * sizeof(seq_t));
-    fact   = (seq_t *)realloc(fact,   capacity * sizeof(seq_t));
+    a_vals = mem_resize(seq_t, a_vals, capacity);
+    binom  = mem_resize(seq_t, binom, capacity);
+    fact   = mem_resize(seq_t, fact, capacity);
     zero_new_elements(a_vals, old_cap, capacity);
     zero_new_elements(binom,  old_cap, capacity);
     zero_new_elements(fact,   old_cap, capacity);

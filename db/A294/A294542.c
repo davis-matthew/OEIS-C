@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage used for memoisation across calls */
 static seq_t *a_cache = NULL;       /* array holding a(0)...a(len-1)          */
@@ -51,7 +53,7 @@ static void ensure_cap(idx_t *cap, seq_t **buf, idx_t need)
 {
     if (*cap < need) {
         idx_t new_cap = (need > 4) ? need * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(*buf, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *buf, new_cap);
         if (!tmp) abort();      /* abort on allocation failure */
         *buf = tmp;
         *cap = new_cap;

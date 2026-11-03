@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 30, u32 n <= 49, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   antidiag_index, factorial, seq_gcd, seq_pow
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-01)
+ * Helpers:   gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,38 @@
     and ascending k within each antidiagonal.  */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_pow.h"   /* seq_pow(seq_t base, idx_t exp)   */
-#include "../utils/seq_gcd.h"   /* seq_gcd(seq_t a, seq_t b)       */
-#include "../utils/factorial.h" /* factorial(idx_t n)               */
-#include "../utils/antidiag_index.h"
+#include <stdlib.h>
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
+
+/*  Convert a sequence index to the corresponding (r,k) pair
+    by unfolding the antidiagonal enumeration.   */
+static void antidiag_index(idx_t idx, idx_t *r, idx_t *k) {
+    /* Find the smallest diagonal S such that S*(S+1)/2 > idx
+       The number of terms up to diagonal S is T(S) = S*(S+1)/2   */
+    idx_t S = 1;
+    idx_t tri = 1;            /* T(1) = 1 */
+    while (tri <= idx) {
+        ++S;
+        tri = (S * (S + 1)) / 2;
+    }
+    /* Number of terms before this diagonal: T(S-1) = (S-1)*S/2   */
+    idx_t prev = ((S - 1) * S) / 2;
+    idx_t pos  = idx - prev;     /* 0‑based position in the diagonal   */
+    *k = pos + 1;                /* k ranges from 1 to S              */
+    *r = S - *k;                 /* n in the original notation        */
+}
 
 /*  Compute a(n) for the OEIS A255009 sequence.   */
 seq_t a(idx_t n) {
@@ -42,15 +71,15 @@ seq_t a(idx_t n) {
     /* Accumulate the sum Σ_{i=1}^{k-1} 1 / i^{r+1} in rational form.  */
     idx_t exp = r + 1;
     for (idx_t i = 1; i < k; ++i) {
-        seq_t term_den = seq_pow((seq_t)i, exp);          /* i^{r+1}  */
-        seq_t g1 = seq_gcd(H_den, term_den);
+        seq_t term_den = ipow_idx((seq_t)i, exp);          /* i^{r+1}  */
+        seq_t g1 = gcd(H_den, term_den);
         seq_t lcm = (H_den / g1) * term_den;              /* lcm(den, term_den) */
 
         seq_t num1 = H_num * (lcm / H_den);
         seq_t num2 = (seq_t)1 * (lcm / term_den);
         seq_t new_num = num1 + num2;                      /* new numerator */
 
-        seq_t g2 = seq_gcd(new_num, lcm);                 /* reduce fraction */
+        seq_t g2 = gcd(new_num, lcm);                 /* reduce fraction */
         H_num = new_num / g2;
         H_den = lcm / g2;
     }
@@ -60,6 +89,6 @@ seq_t a(idx_t n) {
     seq_t num = nfac * H_num;
 
     /* Reduce fraction num / H_den and return the denominator.   */
-    seq_t g = seq_gcd(num, H_den);
+    seq_t g = gcd(num, H_den);
     return H_den / g;
 }

@@ -8,7 +8,8 @@
  *            x^(4k+1))
  * Range:     u8 n <= 31, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /*  Include only standard headers that are guaranteed to be
     available on all supported compilers.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Cached values of the sequence.  */
 static seq_t *dp = NULL;          /* array holding coefficients up to the largest n computed  */
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
     /*  Need to compute up to a new maximum index.  */
     size_t new_max = n;
     /*  Allocate temporary working arrays.  */
-    seq_t *dp_old = (seq_t *)calloc(new_max + 1, sizeof(seq_t));
-    seq_t *dp_new = (seq_t *)calloc(new_max + 1, sizeof(seq_t));
+    seq_t *dp_old = mem_new(seq_t, new_max + 1);
+    seq_t *dp_new = mem_new(seq_t, new_max + 1);
     if (dp_old == NULL || dp_new == NULL) {
         /*  In a real system we would handle allocation failures.  */
         exit(EXIT_FAILURE);
@@ -62,11 +64,11 @@ seq_t a(idx_t n)
 
     /*  Free the previous global cache (if any).  */
     if (dp != NULL)
-        free(dp);
+        mem_free(dp);
     /*  Store the new cache – dp_old contains the final data.  */
     dp = dp_old;
     /*  dp_new now holds the old temporary array; free it.  */
-    free(dp_new);
+    mem_free(dp_new);
     max_n_computed = new_max;
 
     return dp[n];

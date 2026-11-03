@@ -9,6 +9,7 @@
  *            (0-based indexing)
  * Range:     u8 n <= 12, u16 n <= 33, u32 n <= 102, u64 n <= 349,
  *            u128 n <= 1324, big any n
+ * Validated: standard, pass, 71 terms through n = 4152 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

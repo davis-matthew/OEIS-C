@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 82, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_and_compute_sum
+ * Validated: standard, pass, 82 terms through n = 9348 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,37 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_and_compute_sum.h"
+#include "../utils/mem.h"
+
+/*  compute sum of coreful divisors of x (excluding x) and whether x
+ *  is nonsquarefree.  The function returns the sum; the out_nonsq flag
+ *  indicates if x has an exponent ≥ 2 (i.e. is nonsquarefree).               */
+static seq_t factor_and_compute_sum(uint64_t x, bool *out_nonsq)
+{
+    seq_t prod = 1;
+    bool nonsq = false;
+    uint64_t t = x;
+    for (uint64_t p = 2; p * p <= t; ++p) {
+        if (t % p == 0) {
+            int   exp = 0;
+            seq_t pe  = 1;   /* p^exp */
+            seq_t Si  = 0;   /* Σ_{k=1}^{exp} p^k */
+            while (t % p == 0) {
+                t   /= p;
+                exp++;
+                pe  *= (seq_t)p;
+                Si  += pe;
+                if (exp >= 2) nonsq = true;
+            }
+            prod *= Si;
+        }
+    }
+    if (t > 1) {              /* remaining prime factor with exponent 1 */
+        prod *= (seq_t)t;     /* Σ_{k=1}^{1} t^k = t */
+    }
+    *out_nonsq = nonsq;
+    return prod - (seq_t)x;   /* exclude the number itself (aliquot sum) */
+}
 
 /* static state ----------------------------------------------------------*/
 
@@ -44,7 +75,7 @@ static void ensure_cache(size_t need)
     if (need <= a_cache_cap) return;
     size_t new_cap = a_cache_cap ? a_cache_cap * 2ULL : 16ULL;
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) abort();        /* out of memory in both C and C++ */
     a_cache = tmp;
     a_cache_cap = new_cap;

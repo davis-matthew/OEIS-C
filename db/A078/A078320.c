@@ -8,20 +8,23 @@
  * Formula:   a(n) = sum of prime factors of n*rad(n)+1, where rad is A007947
  * Range:     u8 n <= 25, u16 n <= 313, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, rad
+ * Validated: standard, pass, 76 terms through n = 9317 (2026-11-01)
+ * Helpers:   factor_u64, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/rad.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/radical.h"
 
 seq_t a(idx_t n)
 {
     /* rad(n) returns the squarefree kernel as seq_t */
-    seq_t radn = rad(n);
+    seq_t radn = radical(n);
     uint64_t n64 = (uint64_t)n;
     uint64_t r64 = (uint64_t)radn;
 

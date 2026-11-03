@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 34, u32 n <= 700, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,12 +48,12 @@ seq_t a(idx_t n)
     if (buf == NULL) {
         /* Ensure at least space for the base values */
         capacity = (n > 12 ? n : 12);
-        buf = (seq_t *)malloc(capacity * sizeof(seq_t));
+        buf = mem_new(seq_t, capacity);
         if (!buf)
             abort();
     } else if (n > capacity) {
         capacity = n;
-        seq_t *tmp = (seq_t *)realloc(buf, capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, capacity);
         if (!tmp)
             abort();
         buf = tmp;

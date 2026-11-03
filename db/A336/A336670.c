@@ -14,14 +14,27 @@
  *            converts each to a decimal integer (starting at...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 28, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   cmp_seq_t
+ * Validated: full, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/cmp_seq_t.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 static seq_t *seqs   = NULL;   /* array of terms, sorted ascending */
 static idx_t seq_cap = 0;
@@ -34,7 +47,7 @@ static void push_seq(seq_t val)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? seq_cap * 2 : 4;
-        seqs = (seq_t *)realloc(seqs, seq_cap * sizeof(seq_t));
+        seqs = mem_resize(seq_t, seqs, seq_cap);
     }
     seqs[seq_len++] = val;
 }
@@ -81,7 +94,7 @@ static void compute_sequence(void)
     }
 
     /* sort terms and remove duplicates */
-    qsort(seqs, seq_len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(seqs, seq_len, sizeof(seq_t), cmp_seq_t);
     idx_t uniq = 0;
     for (idx_t i = 0; i < seq_len; ++i) {
         if (uniq == 0 || seqs[i] != seqs[uniq - 1]) {

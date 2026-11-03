@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 /* Utility for counting prime factors of a 64‑bit integer. */
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* --- Helper: create a palindrome from a "half" number ------- */
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
         curr_half  = start_half;
         /* allocate initial capacity for terms */
         terms_cap = 64;
-        terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         initialized = true;
     }
 
@@ -121,8 +123,7 @@ seq_t a(idx_t n)
                 /* store the term */
                 if (terms_len >= terms_cap) {
                     terms_cap = terms_cap * 2;
-                    terms = (seq_t*)realloc(terms,
-                                            terms_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, terms_cap);
                 }
                 terms[terms_len++] = candidate;
             }

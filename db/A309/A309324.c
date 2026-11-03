@@ -9,7 +9,8 @@
  *            Π_{p|d} (1 + 1/p) (Dedekind psi function)
  * Range:     u8 n <= 104, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf, psi_of
+ * Validated: standard, pass, 87 terms through n = 9394 (2026-11-01)
+ * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,23 @@
 #include <stdlib.h>
 
 /* Utility provided by the framework */
-#include "../utils/build_spf.h"   /* void build_spf(idx_t limit, idx_t **spf_out); */
-#include "../utils/psi_of.h"
+#include "../utils/build_spf.h"
+
+/* Find the nth Dedekind psi value for a given divisor d.
+   Uses the precomputed smallest prime factor array `spf` supplied by the caller. */
+static seq_t psi_of(idx_t d, const idx_t *spf)
+{
+    seq_t psi = d;
+    idx_t x = d;
+    while (x > 1) {
+        idx_t p = spf[x];
+        /* skip all occurrences of this prime */
+        do { x /= p; } while (x % p == 0);
+        /* multiply by (p + 1) / p */
+        psi = psi * ((seq_t)p + 1) / p;
+    }
+    return psi;
+}
 
 /* Trivial integer square‑root (floor) – fast enough for n <= 10 000. */
 static idx_t isqrt(idx_t n)

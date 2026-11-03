@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * recursively with O(n) memory usage.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache of unsigned Stirling numbers of the first kind
  * for k=3 (c(n,3)).  Index 0..last_computed inclusive are valid. */
@@ -39,7 +41,7 @@ static void extend_stirling_cache(idx_t n)
         return;
 
     size_t new_cap = n + 1;                /* indices 0..n inclusive */
-    seq_t *tmp = (seq_t *)realloc(stirling3, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, stirling3, new_cap);
     if (!tmp)
         return;   /* allocation failure – unlikely on this platform */
     stirling3 = tmp;
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
 
     /* initialise cache if first use */
     if (stirling3 == NULL) {
-        stirling3 = (seq_t *)malloc(3 * sizeof(seq_t));    /* indices 0..2 */
+        stirling3 = mem_new(seq_t, 3);    /* indices 0..2 */
         if (!stirling3)
             return 0;   /* unlikely */
         stirling3[0] = stirling3[1] = stirling3[2] = 0;

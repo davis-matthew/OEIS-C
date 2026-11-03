@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 28, u16 n <= 4370, u32 n <= 9591, u64 n <= 9591,
- *            u128 n <= 9591, big any n
- * Helpers:   none
+ * Range:     u8 n <= 28, u16 n <= 4370, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 71 terms through n = 9591 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The library supplies the typedefs seq_t and idx_t. */
 
@@ -53,7 +55,7 @@ static void init_sieve(void)
 
     /* allocate initial cache */
     cache_cap = 64;
-    cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) exit(1);
     cache_len = 0;
 
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
             /* store this term */
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
                 if (!cache) exit(1);
             }
             cache[cache_len] = (seq_t)current_candidate;

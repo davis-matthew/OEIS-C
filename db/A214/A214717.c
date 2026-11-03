@@ -11,14 +11,18 @@
  *            and the remainder. The first m that yields gcd = 1...
  * Range:     u8 n <= 368, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd, mod_pow
+ * Validated: standard, pass, 103 terms through n = 981 (2026-11-01)
+ * Helpers:   gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +34,7 @@ seq_t a(idx_t n)
         seq_t d = (seq_t)diff;        /* |n - m| */
 
         /* r = 4^n mod d  */
-        seq_t r = mod_pow((seq_t)4, (uint64_t)n, d);
+        seq_t r = powmod((seq_t)4, (uint64_t)n, d);
 
         /* (4^n - m) mod d = (r - (m mod d)) mod d */
         seq_t mmod = (seq_t)(m % diff);

@@ -7,6 +7,7 @@
  * Formula:   a(n) = n / gcd(Fibonacci(n), n) (n ≥ 1)
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 91 terms through n = 9919 (2026-11-01)
  * Helpers:   gcd, gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,9 @@
    quotient cast to seq_t. */
 
 #include <stdint.h>
-#include "../utils/gcd.h"   /* for seq_t and idx_t types */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/gcd.h"
 #include "../utils/gcd_u64.h"
 
 static inline uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t mod)

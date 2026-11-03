@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   equal_sig, signature
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,58 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/equal_sig.h"
-#include "../utils/signature.h"
+
+/* Test two signatures for equality. */
+static bool equal_sig(const uint8_t a[32], uint8_t la,
+                      const uint8_t b[32], uint8_t lb)
+{
+    if (la != lb) return false;
+    return memcmp(a, b, la) == 0;
+}
+
+/* Compute the multiset of prime‑factor exponents of m,
+   sorted non‑decreasingly in sig[0..len-1]. */
+static void signature(uint64_t m, uint8_t sig[32], uint8_t *len)
+{
+    *len = 0;
+    uint64_t t = m;
+    uint8_t e;
+
+    /* factor 2 */
+    e = 0;
+    while ((t & 1ULL) == 0) {
+        t >>= 1;
+        ++e;
+    }
+    if (e) sig[(*len)++] = e;
+
+    /* odd factors */
+    for (uint64_t p = 3; p * p <= t; p += 2) {
+        if (t % p == 0) {
+            e = 0;
+            while (t % p == 0) {
+                t /= p;
+                ++e;
+            }
+            sig[(*len)++] = e;
+        }
+    }
+    if (t > 1) {
+        /* remaining prime factor has exponent 1 */
+        sig[(*len)++] = 1;
+    }
+
+    /* insertion sort to have the exponents in ascending order */
+    for (int i = 1; i < *len; ++i) {
+        uint8_t key = sig[i];
+        int j = i - 1;
+        while (j >= 0 && sig[j] > key) {
+            sig[j + 1] = sig[j];
+            --j;
+        }
+        sig[j + 1] = key;
+    }
+}
 
 seq_t a(idx_t n)
 {

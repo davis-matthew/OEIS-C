@@ -7,17 +7,20 @@
  * Formula:   a(n) = 2^(n-1) mod n^2
  * Range:     u8 n <= 15, u16 n <= 256, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 71 terms through n = 9062 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
     seq_t mod = (seq_t)n * (seq_t)n;
-    return mod_pow((seq_t)2, n - 1, mod);
+    return powmod((seq_t)2, n - 1, mod);
 }

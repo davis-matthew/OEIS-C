@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   digit_counts, digit_product, digit_sum
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-03)
+ * Helpers:   digit_counts, digit_product, digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/digit_sum.h"
-#include "../utils/digit_product.h"
 #include "../utils/digit_counts.h"
+#include "../utils/digit_product.h"
+#include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* Memoisation state */
 static seq_t *seq = NULL;        /* stored sequence terms */
@@ -42,7 +44,7 @@ static void ensure_seq_capacity(size_t n)
     size_t cap = seq_cap ? seq_cap * 2 : 64;
     while (cap < n)
         cap *= 2;
-    seq_t *new_seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+    seq_t *new_seq = mem_resize(seq_t, seq, cap);
     if (!new_seq) abort();
     seq = new_seq;
     seq_cap = cap;

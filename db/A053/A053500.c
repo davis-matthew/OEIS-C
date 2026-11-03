@@ -7,14 +7,17 @@
  * Formula:   a(n) = ∑_{l∈{1,2,5,10}} binom(n‑1, l‑1)·(l‑1)!·a(n‑l)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 22, u128 n <= 36,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 40 terms through n = 183 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *dp_cache = NULL;      /* cache of computed values          */
 static size_t dp_cap   = 0;         /* current allocated capacity        */
@@ -34,7 +37,7 @@ static void ensure_capacity(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;                     /* double until large enough */
 
-    seq_t *new_buf = (seq_t *)realloc(dp_cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, dp_cache, new_cap);
     if (!new_buf)                           /* allocation failure   */
         return;
 
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
 {
     /* Initialize cache on first call */
     if (!dp_cache) {
-        dp_cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        dp_cache = mem_new(seq_t, 2);
         if (!dp_cache)                     /* allocation failure   */
             return (seq_t)0;
         dp_cap = 2;
@@ -71,7 +74,7 @@ seq_t a(idx_t n)
                 if (l > k)
                     continue;
 
-                seq_t comb  = binom(k - 1, l - 1);    /* C(k-1, l-1) */
+                seq_t comb  = binomial(k - 1, l - 1);    /* C(k-1, l-1) */
                 seq_t term  = comb * fact_val[i];     /* * (l-1)!  */
                 term       *= dp_cache[k - l];        /* * a(k-l)  */
                 sum        += term;

@@ -9,12 +9,13 @@
  *            p^{k-1}⌋ where φ is Euler's totient function
  * Range:     u8 n <= 168, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   phi_val
+ * Validated: standard, pass, 93 terms through n = 967 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi_val.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +49,7 @@ seq_t a(idx_t n)
             }
             if (overflowed || p_pow > n_seq) break;   /* p^exp > n */
 
-            seq_t phi = phi_val(p);
+            seq_t phi = totient(p);
             seq_t term = phi * (n_seq / p_pow);
             result += term;
         }

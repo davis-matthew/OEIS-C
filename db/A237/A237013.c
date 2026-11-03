@@ -12,13 +12,15 @@
  *            + 165888·a(n‑15) with initial values a(1)...
  * Range:     u8 none, u16 n <= 1, u32 n <= 13, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache[0] unused, cache[i] = a(i) */
 static size_t cache_cap = 0;          /* allocated size of cache (>= cached_n+1) */
@@ -31,7 +33,7 @@ static void init_cache(void)
         return;                       /* already initialised */
 
     cache_cap = 16;                   /* indices 0..15 (0 unused) */
-    cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache)
         abort();
 
@@ -65,7 +67,7 @@ static void grow_cache(size_t needed)
     while (new_cap <= needed)
         new_cap *= 2;                 /* exponential growth */
 
-    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         abort();
 

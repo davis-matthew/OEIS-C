@@ -11,11 +11,13 @@
  *            returns the current index i
  * Range:     u8 n <= 86, u16 n <= 6441, u32 n <= 6441, u64 n <= 6441,
  *            u128 n <= 6441, big any n
+ * Validated: standard, pass, 103 terms through n = 6292 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

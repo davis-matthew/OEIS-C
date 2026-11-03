@@ -11,13 +11,15 @@
  *            contribution 3·Πpᵢ if S < n → k = n − S + 1...
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 25, u64 n <= 57, u128 n <= 121,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Fermat primes and the exponents of 2 in p−1 (3,5,17,257,65537) */
 static const uint64_t fermat_primes[5] = {3ULL,5ULL,17ULL,257ULL,65537ULL};
@@ -56,7 +58,7 @@ static void ensure_pow2(idx_t up_to)
     if (pow2_len > up_to) return;          /* already computed */
 
     size_t new_len = up_to + 1;            /* up to and including up_to */
-    seq_t *new_pow = (seq_t*)realloc(pow2, new_len * sizeof(seq_t));
+    seq_t *new_pow = mem_resize(seq_t, pow2, new_len);
     if (!new_pow) return;                  /* out of memory – results may be wrong */
 
     pow2 = new_pow;

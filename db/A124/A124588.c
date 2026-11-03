@@ -8,7 +8,8 @@
  *            p ≤ 2
  * Range:     u8 n <= 18, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   alloc_seq_array, build_primes_upto, free_seq
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,21 @@
 #include <stdint.h>
 
 /* Utility functions provided by the build system */
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* cache for the sequence values */
 static seq_t *terms   = NULL;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 11, i64 n <= 17, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Local helper: fast exponentiation of integer bases */
 static seq_t pow_big(seq_t base, idx_t exp) {
@@ -44,7 +46,7 @@ static void ensure_factorial(idx_t n) {
         return;
     size_t old_size = fact_size;
     size_t new_size = (size_t)(n + 1);
-    fact_cache = (seq_t *)realloc(fact_cache, new_size * sizeof(seq_t));
+    fact_cache = mem_resize(seq_t, fact_cache, new_size);
     if (old_size == 0) {
         fact_cache[0] = 1;
         old_size = 1;

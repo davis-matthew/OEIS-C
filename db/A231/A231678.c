@@ -7,14 +7,25 @@
  * Formula:   a(n) = Sum_{i=0..n} (digit_sum_base_7(i))^3
  * Range:     u8 n <= 5, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   digsum_7
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/digsum_7.h"
+
+/* Computes the sum of the base‑7 digits of x. */
+static seq_t digsum_7(idx_t x)
+{
+    seq_t sum = 0;
+    while (x > 0) {
+        sum += (seq_t)(x % 7);
+        x /= 7;
+    }
+    return sum;
+}
 
 /* Returns a(n) for the OEIS sequence A231678. */
 seq_t a(idx_t n)

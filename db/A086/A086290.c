@@ -8,7 +8,8 @@
  *            the n-th 7‑smooth number (with a(1)=0 for the number 1)
  * Range:     u8 n <= 76, u16 n <= 806, u32 n <= 9465, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9466 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static size_t cache_capacity = 0;          /* capacity of the arrays (1‑based) */
 static seq_t *a_cache = NULL;              /* a(n) values, 1‑based */
@@ -43,8 +45,8 @@ static void ensure_capacity(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    a_cache     = (seq_t *)realloc(a_cache,     new_cap * sizeof(seq_t));
-    smooth_vals = (seq_t *)realloc(smooth_vals, new_cap * sizeof(seq_t));
+    a_cache     = mem_resize(seq_t, a_cache, new_cap);
+    smooth_vals = mem_resize(seq_t, smooth_vals, new_cap);
     exp2        = (uint16_t *)realloc(exp2,        new_cap * sizeof(uint16_t));
     exp3        = (uint16_t *)realloc(exp3,        new_cap * sizeof(uint16_t));
     exp5        = (uint16_t *)realloc(exp5,        new_cap * sizeof(uint16_t));

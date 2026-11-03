@@ -11,7 +11,8 @@
  *            of that list
  * Range:     u8 n <= 40, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------ primality test for 64‑bit numbers ------------------ */
 static bool is_prime_64(uint64_t n)
@@ -67,7 +69,7 @@ static void ensure_capacity(size_t needed, size_t *cap, seq_t **arr)
     if (*cap >= needed) return;
     size_t new_cap = (*cap) ? (*cap) << 1 : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp) abort();   /* out of memory */
     *arr = tmp;
     *cap = new_cap;

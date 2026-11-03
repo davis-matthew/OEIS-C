@@ -11,6 +11,7 @@
  *            (1-x)^2*(1-x-x^2-x^3)^3 of the conjectured g.f.; the li...
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 27, u64 n <= 29, u128 n <= 29,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

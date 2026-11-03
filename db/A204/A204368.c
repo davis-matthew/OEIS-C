@@ -12,13 +12,15 @@
  *            a(6)=4856, a(7)=9272, a(8)=19880, a(9)=50056
  * Range:     u8 none, u16 n <= 9, u32 n <= 20, u64 n <= 42, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* computed values, index 0 unused */
 static idx_t cache_capacity = 0; /* allocated size (including index 0) */
@@ -33,7 +35,7 @@ static const seq_t init_vals[10] = {
 static void ensure_capacity(idx_t needed)
 {
     if (cache_capacity >= needed) return;
-    seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * needed);
+    seq_t *tmp = mem_resize(seq_t, cache, needed);
     if (!tmp) return;                       /* allocation failed – keep old cache */
     cache = tmp;
     cache_capacity = needed;

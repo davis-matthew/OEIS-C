@@ -9,7 +9,8 @@
  *            Σ_{d=0}^{n-k} C(n,d)*S₂(n-d,k)*63^{n-d-k}
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 28, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   flat_index_row
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,26 @@
 /* basic includes */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/flat_index_row.h"
+#include "../utils/mem.h"
+
+/* helper: find the row r such that r*(r+1)/2 <= idx < (r+1)*(r+2)/2 */
+static inline idx_t flat_index_row(idx_t idx)
+{
+    idx_t low = 0, high = 1;
+    /* grow high until the triangular number exceeds idx */
+    while (((__int128)high * (high + 1) / 2) <= idx) {
+        high <<= 1;
+    }
+    /* binary search between low and high */
+    while (low < high) {
+        idx_t mid = low + (high - low + 1) / 2;
+        if (((__int128)mid * (mid + 1) / 2) <= idx)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 /* main sequence function */
 seq_t a(idx_t n_index)
@@ -41,7 +61,7 @@ seq_t a(idx_t n_index)
     }
 
     /* 4. allocate and initialise Stirling array for t = k */
-    seq_t *S = (seq_t *)malloc((k + 1) * sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, (k + 1));
     if (!S)
         return (seq_t)0;     /* memory failure, unlikely */
 
@@ -76,6 +96,6 @@ seq_t a(idx_t n_index)
         ++m;
     }
 
-    free(S);
+    mem_free(S);
     return sum;
 }

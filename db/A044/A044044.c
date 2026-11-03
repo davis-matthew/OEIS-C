@@ -11,18 +11,20 @@
  *            only integer arithmetic and the provided type s...
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 31, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Special case: a(0) = 0, handled naturally by the algorithm */
     size_t N = (size_t)n;                 /* index up to N */
     size_t maxAbs = (N + 2) / 2 + 1;      /* number of abs_s terms needed */
-    seq_t *abs_s = (seq_t *)malloc((maxAbs + 1) * sizeof(seq_t));
+    seq_t *abs_s = mem_new(seq_t, (maxAbs + 1));
     if (!abs_s) return 0;                 /* allocation fail: return 0 */
 
     /* abs_s[0] represents |s_0| = 1 (though not used in sums)           */
@@ -44,8 +46,8 @@ seq_t a(idx_t n) {
     size_t maxU = N / 2;                 /* floor(N/2) */
     seq_t *u = NULL;
     if (maxU >= 1) {
-        u = (seq_t *)malloc((maxU + 1) * sizeof(seq_t));
-        if (!u) { free(abs_s); return 0; }
+        u = mem_new(seq_t, (maxU + 1));
+        if (!u) { mem_free(abs_s); return 0; }
         for (size_t k = 1; k <= maxU; ++k) {
             u[k] = abs_s[k + 1] / 2;
         }
@@ -53,8 +55,8 @@ seq_t a(idx_t n) {
 
     /* Compute v terms (coefficients of V(z)).  v[0] = 0 */
     size_t maxV = N + 1;                 /* need v up to index N+1 for V(z)/z term */
-    seq_t *v = (seq_t *)malloc((maxV + 1) * sizeof(seq_t));
-    if (!v) { free(abs_s); free(u); return 0; }
+    seq_t *v = mem_new(seq_t, (maxV + 1));
+    if (!v) { mem_free(abs_s); mem_free(u); return 0; }
     v[0] = 0;
     for (size_t k = 1; k <= maxV; ++k) {
         seq_t mk = 0;
@@ -82,8 +84,8 @@ seq_t a(idx_t n) {
     if (term3 != 0) ans -= term3;
     if (N == 0) ans -= 1;
 
-    free(abs_s);
-    free(u);
-    free(v);
+    mem_free(abs_s);
+    mem_free(u);
+    mem_free(v);
     return ans;
 }

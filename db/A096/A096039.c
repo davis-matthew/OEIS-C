@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 21, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   floor_isqrt_u64, gcd
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   gcd, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,8 @@
 */
 
 #include <stdint.h>
-#include "../utils/floor_isqrt_u64.h"   /* floor_isqrt_u64 */
-#include "../utils/gcd.h"              /* gcd */
+#include "../utils/gcd.h"
+#include "../utils/isqrt.h"
 
 static seq_t binom_idx(idx_t n, idx_t k)
 {
@@ -65,7 +66,7 @@ seq_t a(idx_t n)
 {
     /* Find row r: largest r with r*(r-1)/2 < n */
     idx_t t  = 1 + 8 * n;
-    idx_t sq = floor_isqrt_u64(t);   /* floor sqrt */
+    idx_t sq = isqrt(t);   /* floor sqrt */
     idx_t r  = (sq - 1) / 2;
     while ((unsigned __int128)r * (r + 1) / 2 < n) ++r;
 

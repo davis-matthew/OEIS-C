@@ -11,14 +11,35 @@
  *            constructing its base‑5 * digits from most to least signi...
  * Range:     u8 n <= 24, u16 n <= 96, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   _count_len, _pow_idx
+ * Validated: standard, pass, 61 terms through n = 96 (2026-11-01)
+ * Helpers:   ipow_idx_to_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_count_len.h"
-#include "../utils/_pow_idx.h"
+#include "../utils/ipow_idx_to_idx.h"
+
+/* Count of length L numbers having exactly four distinct base-5 digits
+ * (no leading zero).  Formula derived via inclusion–exclusion. */
+static idx_t _count_len(idx_t L) {
+    /* T = total 4‑digit strings over 4 digits containing all 4 digits
+     * (no leading restriction). */
+    idx_t p4 = ipow_idx_to_idx(4, L);
+    idx_t p3 = ipow_idx_to_idx(3, L);
+    idx_t p2 = ipow_idx_to_idx(2, L);
+    idx_t T = p4 - 4*p3 + 6*p2 - 4;
+
+    /* A = number of 4‑digit strings over 0‑3 digits that contain all
+     * three non‑zero digits (derived for leading‑zero subsets). */
+    idx_t p4r = ipow_idx_to_idx(4, L-1);
+    idx_t p3r = ipow_idx_to_idx(3, L-1);
+    idx_t p2r = ipow_idx_to_idx(2, L-1);
+    idx_t A = p4r - 3*p3r + 3*p2r - 1;
+
+    /* Total count = 5*T − 4*A. */
+    return 5*T - 4*A;
+}
 
 /* small binomial coefficients up to 5 */
 static const int _C[6][6] = {
@@ -41,7 +62,7 @@ static idx_t _count_suffix(int mask, idx_t rem) {
     if (rem == 0) return (used == 4) ? 1 : 0;
 
     if (used == 4) /* already have all four digits */
-        return _pow_idx(4, rem);
+        return ipow_idx_to_idx(4, rem);
 
     int need = 4 - used;                 /* new digits still required */
     int missing_mask = (~mask) & 0x1F;    /* available digits that are missing */
@@ -57,7 +78,7 @@ static idx_t _count_suffix(int mask, idx_t rem) {
      * already used digits have no restriction). */
     idx_t F = 0;
     for (int j = 0; j <= need; ++j) {
-        idx_t term = _pow_idx(4 - j, rem);
+        idx_t term = ipow_idx_to_idx(4 - j, rem);
         if ((j & 1) == 0)
             F += (idx_t)_C[need][j] * term;
         else

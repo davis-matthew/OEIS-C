@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} prime(k)^11 (OEIS A234740)
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 16, u128 n <= 350,
  *            big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto, pow_uint
+ * Validated: standard, pass, 32 terms through n = 863 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/_prime_limit_for_idx.h"
+#include <math.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 /* Returns the n-th term of the sequence, with n >= 1.
  * The function is memoised and works for calls in any order. */
@@ -49,7 +60,7 @@ seq_t a(idx_t n)
     if (cum_cap < needed) {
         size_t new_cap = cum_cap ? cum_cap * 2 : 16;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t*)realloc(cumulative, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cumulative, new_cap);
         if (!tmp) abort();
         cumulative = tmp;
         cum_cap = new_cap;
@@ -60,7 +71,7 @@ seq_t a(idx_t n)
     if (n > max_n) {
         for (idx_t i = max_n + 1; i <= n; ++i) {
             uint64_t p = primes[(size_t)(i - 1)];   /* primes are 0‑based */
-            seq_t p_pow = pow_uint(p, 11);
+            seq_t p_pow = ipow_u64_idx(p, 11);
             cumulative[(size_t)i] = cumulative[(size_t)(i - 1)] + p_pow;
         }
         max_n = n;

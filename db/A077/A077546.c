@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 2124, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 70 terms through n = 4999 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* cache of found primes */
 static seq_t *prime_vals = NULL;
@@ -32,7 +35,7 @@ static void ensure_primes(idx_t n)
     if (prime_cnt == prime_cap)
     {
         prime_cap = prime_cap ? prime_cap << 1U : 16U;
-        prime_vals = (seq_t *)realloc(prime_vals, prime_cap * sizeof(seq_t));
+        prime_vals = mem_resize(seq_t, prime_vals, prime_cap);
     }
 
     /* Precise integer representation of π: ⌊π·10¹⁸⌋ and the scale */
@@ -56,7 +59,7 @@ static void ensure_primes(idx_t n)
             if (prime_cnt == prime_cap)            /* grow if needed */
             {
                 prime_cap <<= 1U;
-                prime_vals = (seq_t *)realloc(prime_vals, prime_cap * sizeof(seq_t));
+                prime_vals = mem_resize(seq_t, prime_vals, prime_cap);
             }
             prime_vals[prime_cnt++] = val;
         }

@@ -12,7 +12,8 @@
  *            T(3,0),T(3,1),T(3,2); … * This generates the sequen...
  * Range:     u8 n <= 25, u16 n <= 84, u32 n <= 266, u64 n <= 931,
  *            u128 n <= 1275, big any n
- * Helpers:   flat_index_to_rc
+ * Validated: standard, pass, 82 terms through n = 1093 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 /* Standard headers (both C and C++). */
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/flat_index_to_rc.h"
+
+/* Convert the 1‑based flat index n into (row, col) coordinates
+ * of the triangular array.  Row and col are 1‑based and 0‑based
+ * respectively. */
+static void flat_index_to_rc(idx_t n, idx_t *row, idx_t *col)
+{
+    idx_t idx = n - 1;                     /* 0‑based */
+    long double approx = sqrtl((long double)(8.0L * idx + 1.0L));
+    idx_t r = (idx_t)((approx - 1.0L) / 2.0L);   /* 0‑based row index */
+
+    /* Correct possible rounding errors. */
+    while ((r + 1) * (r + 2) / 2 <= idx) ++r;
+    while (r * (r + 1) / 2 > idx) --r;
+
+    *row = r + 1;                          /* 1‑based row */
+    *col = idx - r * (r + 1) / 2;          /* 0‑based column */
+}
 
 /* Memoised storage for the polynomials u(n,·) and v(n,·). */
 static seq_t **urows = NULL;   /* urows[1] .. urows[max_row] */

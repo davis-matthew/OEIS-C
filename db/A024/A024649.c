@@ -11,6 +11,7 @@
  *            then interpreted in base 10 to produce the result
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 79, u64 n <= 367,
  *            u128 n <= 4927, big any n
+ * Validated: standard, pass, 63 terms through n = 7816 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

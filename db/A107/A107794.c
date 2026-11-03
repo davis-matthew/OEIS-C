@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   is_prime, leading_digit_of_uint64
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,18 @@
 /* The function returns the nth term (1‑based) of this sequence. */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/leading_digit_of_uint64.h"
-#include "../utils/is_prime.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* Return the most significant decimal digit of a 64‑bit integer */
+static unsigned long long leading_digit_of_uint64(unsigned long long v)
+{
+    while (v >= 10) v /= 10;
+    return v;
+}
 
 static seq_t *terms = NULL;
 static idx_t terms_cap = 0;
@@ -29,7 +40,7 @@ static void add_term(seq_t val)
 {
     if (terms_cnt == terms_cap) {
         terms_cap = terms_cap ? 2 * terms_cap : 64;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
     terms[terms_cnt++] = val;
 }
@@ -41,7 +52,7 @@ seq_t a(idx_t n)
     while (terms_cnt < n) {
         uint64_t f = leading_digit_of_uint64(cur);
         if (cur > f) { /* ensure n-f >= 1 */
-            if (is_prime(cur + f) && is_prime(cur - f)) {
+            if (is_prime_u64(cur + f) && is_prime_u64(cur - f)) {
                 add_term((seq_t)cur);
             }
         }

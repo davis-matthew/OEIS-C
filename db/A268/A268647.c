@@ -11,15 +11,42 @@
  *            T(r,k) is the coefficient of y^k in (r + y)∏_{i=1}^{2r}(i + y)
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 42, u64 n <= 109,
  *            u128 n <= 305, big any n
- * Helpers:   max_r, poly_mul_by_linear
+ * Validated: standard, pass, 88 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Standard headers  */
 #include <stdlib.h>
-#include "../utils/max_r.h"
-#include "../utils/poly_mul_by_linear.h"
+#include "../utils/mem.h"
+
+/*  Find the largest r with r(r+1) ≤ n, using binary search.  */
+static idx_t max_r(idx_t n)
+{
+    idx_t low = 0, high = (idx_t)1 << 32;          /* high > sqrt(2^64-1) */
+    while (low < high) {
+        idx_t mid = low + (high - low + 1) / 2;
+        if ((__uint128_t)mid * (mid + 1) <= n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
+
+/*  Multiply a polynomial P of degree d by (i + y) and return the new polynomial.  */
+static seq_t *poly_mul_by_linear(const seq_t *P, size_t d, unsigned int i)
+{
+    size_t new_len = d + 2;
+    seq_t *Q = mem_new(seq_t, new_len);
+    if (!Q) return NULL;
+    for (size_t j = 0; j <= d; ++j) {
+        Q[j]     += P[j] * (seq_t)i;   /* coefficient of y^j from i*P[j]  */
+        Q[j + 1] += P[j];               /* coefficient of y^(j+1) from P[j] */
+    }
+    return Q;
+}
 
 /*  Maximum index of a precomputed row.  */
 static idx_t cached_rows = 0;          /* number of rows stored (max index + 1) */
@@ -29,13 +56,13 @@ static seq_t **row_cache = NULL;       /* array of pointers to rows */
 static seq_t *build_row(idx_t r)
 {
     /* Polynomial P = ∏_{i=1}^{2r} (i + y), degree 2r.  */
-    seq_t *P = (seq_t *)calloc(1, sizeof(seq_t));
+    seq_t *P = mem_new(seq_t, 1);
     if (!P) return NULL;
     P[0] = (seq_t)1;
     size_t deg = 0;
     for (idx_t i = 1; i <= 2 * r; ++i) {
         seq_t *Q = poly_mul_by_linear(P, deg, (unsigned int)i);
-        free(P);
+        mem_free(P);
         if (!Q) return NULL;
         P = Q;
         ++deg;          /* degree increased by 1 */
@@ -43,9 +70,9 @@ static seq_t *build_row(idx_t r)
 
     /* Compute T(r,k) = (r + y) * P.  */
     size_t lenT = 2 * r + 2;                /* indices 0 … 2r+1 */
-    seq_t *T = (seq_t *)malloc(lenT * sizeof(seq_t));
+    seq_t *T = mem_new(seq_t, lenT);
     if (!T) {
-        free(P);
+        mem_free(P);
         return NULL;
     }
 
@@ -55,7 +82,7 @@ static seq_t *build_row(idx_t r)
         T[k] = sr * P[(size_t)k] + P[(size_t)k - 1];
     }
     T[2 * r + 1] = P[2 * r];
-    free(P);
+    mem_free(P);
     return T;
 }
 

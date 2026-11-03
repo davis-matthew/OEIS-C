@@ -11,12 +11,14 @@
  *            q_15 = 6, q_16 = 1, q_17 = 1, q_18 = 1, q_1...
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 37, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t PERIOD[20] = { 1, 1, 1, 1, 6, 1, 14, 4,
                                   1, 21, 1, 4, 14, 1, 6, 1,
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (!cache) {
         /* Allocate an initial small capacity; will grow as needed. */
         cache_capacity = (n + 1 > 4) ? n + 1 : 4;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         if (!cache) exit(1);
     }
 
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_capacity ? cache_capacity : 1;
         while (new_cap < (size_t)n + 1)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);
         cache = tmp;
         cache_capacity = new_cap;

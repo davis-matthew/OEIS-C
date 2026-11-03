@@ -8,8 +8,9 @@
  *            Equivalently, a(n) = 1 if n is not divisible by 3 or if n is
  *            divisible by 9. a(n) = 1 if (n % 3 != 0) || (n % 9 == 0);
  *            otherwise a(n) = 0
- * Range:     u8 n <= 9391, u16 n <= 9391, u32 n <= 9391, u64 n <= 9391,
- *            u128 n <= 9391, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 137 terms through n = 9391 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

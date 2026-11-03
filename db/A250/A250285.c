@@ -9,9 +9,10 @@
  *            iff i ≡ 0 (mod 8). The computation is performed by dynamic
  *            programming over the blocks of length 8 separated by these
  *            required descents
- * Range:     u8 n <= 10, u16 n <= 15, u32 n <= 23, u64 n <= 33, u128 n <= 51,
+ * Range:     u8 n <= 11, u16 n <= 16, u32 n <= 23, u64 n <= 33, u128 n <= 51,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 47 terms through n = 499 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -40,7 +41,9 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/binom.h"   /* binom(idx_t a, idx_t b) */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -65,8 +68,8 @@ seq_t a(idx_t n)
         pref[i + 1] = pref[i] + s[i];
 
     /* Dynamic programming arrays for even/odd parity of group count */
-    seq_t *dp_even = (seq_t *)malloc((B + 1) * sizeof(seq_t));
-    seq_t *dp_odd  = (seq_t *)malloc((B + 1) * sizeof(seq_t));
+    seq_t *dp_even = mem_new(seq_t, (B + 1));
+    seq_t *dp_odd  = mem_new(seq_t, (B + 1));
     for (idx_t i = 0; i <= B; ++i) {
         dp_even[i] = 0;
         dp_odd[i]  = 0;
@@ -79,7 +82,7 @@ seq_t a(idx_t n)
         for (idx_t j = 0; j < i; ++j) {
             idx_t group_size = pref[i] - pref[j];
             idx_t tot_j      = pref[j];
-            seq_t bin = binom(tot_j + group_size, group_size);
+            seq_t bin = binomial(tot_j + group_size, group_size);
             if (dp_odd[j] != 0) {
                 val_even += dp_odd[j] * bin;   /* from odd to even */
             }
@@ -104,7 +107,7 @@ seq_t a(idx_t n)
 
     free(s);
     free(pref);
-    free(dp_even);
-    free(dp_odd);
+    mem_free(dp_even);
+    mem_free(dp_odd);
     return result;
 }

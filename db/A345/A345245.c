@@ -8,12 +8,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recurrence:  a(1)=1, a(2)=1
     a(n+2) = (4/n) * Σ_{k=1..n} ( Σ_{d|k} (-1)^{k/d+1} * d * a(d) ) * a(n-k+2)   */
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
     /* allocate initial space for indices 0,1,2 */
     if (a_vals == NULL) {
         cap = 3;
-        a_vals = (seq_t *)malloc(cap * sizeof(seq_t));
-        inner   = (seq_t *)malloc(cap * sizeof(seq_t));
+        a_vals = mem_new(seq_t, cap);
+        inner   = mem_new(seq_t, cap);
 
         a_vals[1] = (seq_t)1;
         a_vals[2] = (seq_t)1;
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
     /* extend storage if needed and compute missing terms */
     if ((size_t)n >= cap) {
         size_t new_cap = (size_t)n + 1;        /* use 0…n inclusive */
-        a_vals = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
-        inner   = (seq_t *)realloc(inner,   new_cap * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, new_cap);
+        inner   = mem_resize(seq_t, inner, new_cap);
         for (size_t i = cap; i < new_cap; ++i) {
             a_vals[i] = (seq_t)0;
             inner[i]  = (seq_t)0;

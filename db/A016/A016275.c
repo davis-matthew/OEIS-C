@@ -11,7 +11,8 @@
  *            roots of unity, the resulting sequence is periodic w...
  * Range:     i8 n <= 3000, i16 n <= 3000, i32 n <= 3000, i64 n <= 3000,
  *            i128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 2590 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Internal polynomial representation */
 typedef struct {
@@ -32,7 +34,7 @@ static Poly poly_mul(const Poly *a, const Poly *b)
 {
     Poly r;
     r.len = a->len + b->len - 1;
-    r.coef = (seq_t *)calloc(r.len, sizeof(seq_t));
+    r.coef = mem_new(seq_t, r.len);
     for (size_t i = 0; i < a->len; ++i) {
         for (size_t j = 0; j < b->len; ++j)
             r.coef[i + j] += a->coef[i] * b->coef[j];
@@ -45,8 +47,8 @@ static Poly poly_div(const Poly *num, const Poly *den)
 {
     size_t n = num->len, d = den->len;
     size_t qlen = n - d + 1;
-    seq_t *q = (seq_t *)calloc(qlen, sizeof(seq_t));
-    seq_t *tmp = (seq_t *)calloc(n, sizeof(seq_t));
+    seq_t *q = mem_new(seq_t, qlen);
+    seq_t *tmp = mem_new(seq_t, n);
     for (size_t i = 0; i < n; ++i) tmp[i] = num->coef[i];
 
     for (int i = (int)n - 1; i >= (int)d - 1; --i) {
@@ -57,7 +59,7 @@ static Poly poly_div(const Poly *num, const Poly *den)
         for (size_t j = 0; j < d; ++j)
             tmp[qpos + j] -= coeff * den->coef[j];
     }
-    free(tmp);
+    mem_free(tmp);
 
     Poly r;
     r.len = qlen;
@@ -87,7 +89,7 @@ static Poly* compute_phi_divisors(void)
         uint64_t d = g_divs[idx];
         if (d == 1) {   /* Φ_1(x) = x-1 */
             phi[idx].len = 2;
-            phi[idx].coef = (seq_t *)malloc(2 * sizeof(seq_t));
+            phi[idx].coef = mem_new(seq_t, 2);
             phi[idx].coef[0] = -1;
             phi[idx].coef[1] =  1;
             continue;
@@ -96,28 +98,28 @@ static Poly* compute_phi_divisors(void)
         /* numerator x^d - 1 */
         Poly numer;
         numer.len = d + 1;
-        numer.coef = (seq_t *)calloc(d + 1, sizeof(seq_t));
+        numer.coef = mem_new(seq_t, d + 1);
         numer.coef[0] = -1;
         numer.coef[d] =  1;
 
         /* product of Φ_f for proper divisors f of d */
         Poly prod;
         prod.len = 1;
-        prod.coef = (seq_t *)malloc(sizeof(seq_t));
+        prod.coef = mem_new(seq_t, 1);
         prod.coef[0] = 1;   /* monic 1 */
 
         for (size_t j = 0; j < idx; ++j) {   /* divisors in ascending order */
             if (d % g_divs[j] == 0) {
                 Poly mul = poly_mul(&prod, &phi[j]);
-                free(prod.coef);
+                mem_free(prod.coef);
                 prod = mul;
             }
         }
 
         /* divide numerator by product */
         Poly quot = poly_div(&numer, &prod);
-        free(numer.coef);
-        free(prod.coef);
+        mem_free(numer.coef);
+        mem_free(prod.coef);
 
         phi[idx] = quot;
     }
@@ -156,7 +158,7 @@ seq_t a(idx_t n)
 
         /* free temporary polynomials */
         for (size_t i = 0; i < 8; ++i)
-            free(phi_d[i].coef);
+            mem_free(phi_d[i].coef);
         free(phi_d);
 
         computed = true;

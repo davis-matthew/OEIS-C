@@ -8,6 +8,7 @@
  *            coefficient C(n,⌊n/2⌋)
  * Range:     u8 n <= 120, u16 n <= 120, u32 n <= 120, u64 n <= 120,
  *            u128 n <= 120, big any n
+ * Validated: standard, pass, 115 terms through n = 120 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 static uint64_t *primes = NULL;     /* prime list, up to current limit */

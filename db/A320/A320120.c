@@ -11,7 +11,8 @@
  *            n. * The algorithm runs in O(n²) time, easily fa...
  * Range:     i8 n <= 37, i16 n <= 59, i32 n <= 59, i64 n <= 59, i128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Assume seq_t, idx_t are defined by the build.  seq_t supports +, -, *,
  *  and assignment operators.  idx_t is an unsigned integer type. */
@@ -36,11 +38,11 @@ seq_t a(idx_t n) {
     size_t len = N + 1;                     /* length of arrays                */
 
     /* Allocate two working arrays of size len. */
-    seq_t *a_cur = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *a_next = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *a_cur = mem_new(seq_t, len);
+    seq_t *a_next = mem_new(seq_t, len);
     if (!a_cur || !a_next) {                /* Abort on allocation failure   */
-        if (a_cur) free(a_cur);
-        if (a_next) free(a_next);
+        if (a_cur) mem_free(a_cur);
+        if (a_next) mem_free(a_next);
         /* In a real program we might abort or return an error code. */
         return (seq_t)0;
     }
@@ -74,11 +76,11 @@ seq_t a(idx_t n) {
     }
 
     /* (3) Store the computed values in the cache. */
-    seq_t *new_cache = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, len);
     if (!new_cache) {
         /* Allocation failure: clean up and return zero. */
-        free(a_cur);
-        free(a_next);          /* a_next is the old array after final swap   */
+        mem_free(a_cur);
+        mem_free(a_next);          /* a_next is the old array after final swap   */
         return (seq_t)0;
     }
     for (size_t i = 0; i < len; ++i) {
@@ -86,9 +88,9 @@ seq_t a(idx_t n) {
     }
 
     /* Free old cache and working array that is no longer needed. */
-    if (cache) free(cache);
-    free(a_cur);
-    free(a_next);                 /* a_next holds the discarded array          */
+    if (cache) mem_free(cache);
+    mem_free(a_cur);
+    mem_free(a_next);                 /* a_next holds the discarded array          */
 
     cache = new_cache;
     cache_cap = (idx_t)len;       /* new number of stored elements            */

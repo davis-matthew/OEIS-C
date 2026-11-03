@@ -9,13 +9,15 @@
  *            for n > 3 (OEIS A046701)
  * Range:     u8 n <= 263, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 9733 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of computed terms (1‑based)   */
 static size_t cache_cap = 0;         /* allocated size of cache            */
@@ -26,7 +28,7 @@ static void _ensure_cache(idx_t n)
 {
     if (cache == NULL) {
         cache_cap = n + 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) exit(EXIT_FAILURE);
         for (size_t i = 0; i < cache_cap; ++i) cache[i] = 0;
         cache[1] = cache[2] = cache[3] = (seq_t)1;
@@ -34,7 +36,7 @@ static void _ensure_cache(idx_t n)
     } else if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = cache_cap * 2;
         if (new_cap < (size_t)n + 1) new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) exit(EXIT_FAILURE);
         cache = tmp;
         for (size_t i = cache_cap; i < new_cap; ++i) cache[i] = 0;

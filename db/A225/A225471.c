@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,8 @@
 #include <stdint.h>
 
 /* Helpers provided by the build environment.  */
-#include "../utils/binomial.h"   /* binomial(idx_t a, idx_t b) returns seq_t */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /*  Static cache of computed sequence values.  */
 static seq_t *g_cache       = NULL;   /* pointer to cached values          */
@@ -44,7 +46,7 @@ static void ensure_cache_capacity(size_t required)
     size_t new_cap = g_cache_cap ? g_cache_cap * 2 : 64;
     while (new_cap < required)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(g_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, g_cache, new_cap);
     g_cache = tmp;
     g_cache_cap = new_cap;
 }
@@ -55,12 +57,12 @@ seq_t a(idx_t n)
     if (g_cache_size == 0) {
         /* initialise the cache */
         g_cache_cap = 64;
-        g_cache = (seq_t *)malloc(g_cache_cap * sizeof(seq_t));
+        g_cache = mem_new(seq_t, g_cache_cap);
         g_cache_size = 0;
 
         /* initialise the first row: [1]  */
         g_prev_len = 1;
-        g_prev_row = (seq_t *)malloc(g_prev_len * sizeof(seq_t));
+        g_prev_row = mem_new(seq_t, g_prev_len);
         g_prev_row[0] = (seq_t)1;
 
         /* store first value in cache */
@@ -74,17 +76,17 @@ seq_t a(idx_t n)
         size_t new_len = g_prev_len + 1;          /* length of newly generated row */
         size_t prev_len = g_prev_len;             /* length of previous row        */
         /* Allocate array for the new row.  */
-        seq_t *curr_row = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *curr_row = mem_new(seq_t, new_len);
 
         /*  Pre‑compute powers of 4 up to prev_len-1.  */
-        seq_t *pow4 = (seq_t *)malloc(prev_len * sizeof(seq_t));
+        seq_t *pow4 = mem_new(seq_t, prev_len);
         pow4[0] = (seq_t)1;
         for (size_t d = 1; d < prev_len; ++d) {
             pow4[d] = pow4[d - 1] * ((seq_t)4);
         }
 
         /*  Compute intermediate array B[t] = Σ_{j=t}^{prev_len-1} A[j] * C(j,t) * 4^{j-t}.  */
-        seq_t *B = (seq_t *)malloc(prev_len * sizeof(seq_t));
+        seq_t *B = mem_new(seq_t, prev_len);
         for (size_t t = 0; t < prev_len; ++t) {
             seq_t sum = (seq_t)0;
             for (size_t j = t; j < prev_len; ++j) {
@@ -104,9 +106,9 @@ seq_t a(idx_t n)
         }
 
         /*  Clean up temporary arrays.  */
-        free(g_prev_row);
-        free(pow4);
-        free(B);
+        mem_free(g_prev_row);
+        mem_free(pow4);
+        mem_free(B);
 
         /*  Append the new row to the cache.  */
         for (size_t i = 0; i < new_len; ++i) {

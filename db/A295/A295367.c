@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* binary search: return true if val is present in sorted array arr[0..len-1] */
 static inline bool binary_search(const seq_t *arr, size_t len, seq_t val) {
@@ -63,8 +65,8 @@ seq_t a(idx_t n) {
     if (!initialized) {
         a_cap = 4;
         b_cap = 4;
-        a_seq = (seq_t *)malloc(a_cap * sizeof(seq_t));
-        b_seq = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        a_seq = mem_new(seq_t, a_cap);
+        b_seq = mem_new(seq_t, b_cap);
         if (!a_seq || !b_seq) abort();  /* allocation failure */
 
         a_seq[0] = (seq_t)1;   /* a(0) */
@@ -90,7 +92,7 @@ seq_t a(idx_t n) {
         /* ensure capacity for a_seq */
         if (a_len == a_cap) {
             a_cap = a_cap ? a_cap << 1 : 4;
-            seq_t *tmp = (seq_t *)realloc(a_seq, a_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_seq, a_cap);
             if (!tmp) abort();
             a_seq = tmp;
         }
@@ -103,7 +105,7 @@ seq_t a(idx_t n) {
         /* ensure capacity for b_seq */
         if (b_len == b_cap) {
             b_cap = b_cap ? b_cap << 1 : 4;
-            seq_t *tmp = (seq_t *)realloc(b_seq, b_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, b_seq, b_cap);
             if (!tmp) abort();
             b_seq = tmp;
         }

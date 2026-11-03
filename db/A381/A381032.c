@@ -9,8 +9,9 @@
  *            primorial base expansion of n, or 1 if there is no such digit.
  *            The radix prime is the (position+1)-th prime where the position
  *            is counted from 1 for the least significant digit
- * Range:     u8 n <= 9976, u16 n <= 9976, u32 n <= 9976, u64 n <= 9976,
- *            u128 n <= 9976, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 125 terms through n = 9976 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

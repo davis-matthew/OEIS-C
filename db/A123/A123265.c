@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- static cache for the triangular array -------------------------------- */
 static seq_t **T = NULL;            /* array of pointers to each row      */
@@ -35,7 +37,7 @@ static void ensure_rows(idx_t r)
     if (!cache_inited) {
         T = (seq_t**)malloc(sizeof(seq_t*));
         if (!T) abort();
-        T[0] = (seq_t*)malloc(sizeof(seq_t));
+        T[0] = mem_new(seq_t, 1);
         if (!T[0]) abort();
         T[0][0] = (seq_t)2;         /* T(0,0)=2 */
         max_row = 0;
@@ -49,7 +51,7 @@ static void ensure_rows(idx_t r)
         T = newT;
 
         for (idx_t i = max_row + 1; i <= r; ++i) {
-            T[i] = (seq_t*)malloc((size_t)(i + 1) * sizeof(seq_t));
+            T[i] = mem_new(seq_t, (size_t)(i + 1));
             if (!T[i]) abort();
 
             /* compute T(i,0) */

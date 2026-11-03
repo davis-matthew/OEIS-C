@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state for memoisation */
@@ -39,8 +41,8 @@ seq_t a(idx_t n) {
         /* arrays for a() and b() up to index 2 */
         a_cap = 3;
         b_cap = 3;
-        a_arr = (seq_t*)malloc(a_cap * sizeof(seq_t));
-        b_arr = (seq_t*)malloc(b_cap * sizeof(seq_t));
+        a_arr = mem_new(seq_t, a_cap);
+        b_arr = mem_new(seq_t, b_cap);
 
         /* initial terms of a() */
         a_arr[0] = (seq_t)2;
@@ -87,12 +89,12 @@ seq_t a(idx_t n) {
         /* grow a() and b() arrays */
         if (a_cap <= (size_t)n) {
             size_t new_cap = 2 * (n + 1);
-            a_arr = (seq_t*)realloc(a_arr, new_cap * sizeof(seq_t));
+            a_arr = mem_resize(seq_t, a_arr, new_cap);
             a_cap = new_cap;
         }
         if (b_cap <= (size_t)n) {
             size_t new_cap = 2 * (n + 1);
-            b_arr = (seq_t*)realloc(b_arr, new_cap * sizeof(seq_t));
+            b_arr = mem_resize(seq_t, b_arr, new_cap);
             b_cap = new_cap;
         }
 

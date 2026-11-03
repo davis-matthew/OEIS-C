@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 368, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   seq_alloc_new_array
+ * Validated: standard, pass, 84 terms through n = 919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,14 @@
 
 /* The following utilities are available in the build environment.
  * We use seq_alloc_new_array for a dynamic array of seq_t values. */
-#include "../utils/seq_alloc_new_array.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 static seq_t *cache = NULL;          /* a_cache[i-1] = a(i) */
 static size_t cache_cap = 0;         /* allocated capacity of cache      */

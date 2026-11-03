@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
  * Helpers:   factor_u64, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,8 @@
    (sum_of_prime_factors_mult(n) = Σ p_i * e_i for n = Π p_i^e_i) */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/is_prime.h"
 

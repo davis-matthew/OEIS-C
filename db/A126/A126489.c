@@ -10,7 +10,8 @@
  *            n‑digit numbers ending with digit d
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache   = NULL;     /* cache of a(n) values, allocated dynamically   */
 static size_t cache_cap = 0;        /* current capacity of a_cache                  */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* allocate enough space for indices 0 and 1 */
         cache_cap = 4;
-        a_cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, cache_cap);
         if (!a_cache) abort();
 
         a_cache[0] = (seq_t)1;                 /* a(0) */
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         if (next_len >= cache_cap) {
             size_t new_cap = cache_cap;
             while (next_len >= new_cap) new_cap *= 2;
-            seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
             if (!tmp) abort();
             a_cache = tmp;
             cache_cap = new_cap;

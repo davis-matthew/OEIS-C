@@ -8,12 +8,14 @@
  *            recurrence generates sequence A106328
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 26, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 944 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Initialize the cache on first call. */
     if (cache == NULL) {
         cache_size = 2;
-        cache = (seq_t *)malloc((size_t)(cache_size + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(cache_size + 1));
         if (cache == NULL) return (seq_t)0;  /* allocation failed */
         cache[1] = (seq_t)0;
         cache[2] = (seq_t)3;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary. */
     if (cache_size < n) {
         idx_t new_size = n;
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)(new_size + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)(new_size + 1));
         if (new_cache == NULL) return (seq_t)0;  /* allocation failed */
         cache = new_cache;
         /* Compute missing terms using the recurrence. */

@@ -9,6 +9,7 @@
  *            a(n) = 4*a(n-1) - 2*a(n-2) - 2*a(n-3) - 5*a(n-4) + 6*a(n-5)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 41, u128 n <= 81,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 871 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

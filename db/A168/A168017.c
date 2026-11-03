@@ -8,8 +8,9 @@
  * Keywords:  nonn, look, tabf
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 175, u32 n <= 644, u64 n <= 2581,
- *            u128 n <= 9108, big any n
- * Helpers:   none
+ *            u128 n <= 10367, big any n
+ * Validated: standard, pass, 90 terms through n = 9108 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  * The function is memoised and works for any of the builds
  * (fixed‑size unsigned or arbitrary‑precision integer classes). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static arrays used for memoisation */
 static seq_t *partitions = NULL;      /* partitions[0] = 1   */
@@ -83,7 +85,7 @@ static void precompute_until(idx_t target_index)
     if (capacity == 0)
     {
         capacity = 16;
-        partitions = (seq_t *)malloc(capacity * sizeof(seq_t));
+        partitions = mem_new(seq_t, capacity);
         cumulative = (idx_t *)malloc(capacity * sizeof(idx_t));
         if (!partitions || !cumulative) abort();
         partitions[0] = (seq_t)1;   /* p(0) = 1 */
@@ -101,7 +103,7 @@ static void precompute_until(idx_t target_index)
         {
             size_t new_cap = capacity ? capacity * 2 : 8;
             if (new_cap <= next) new_cap = next + 1;
-            seq_t   *tmp_p = (seq_t *)realloc(partitions,   new_cap * sizeof(seq_t));
+            seq_t   *tmp_p = mem_resize(seq_t, partitions, new_cap);
             idx_t   *tmp_c = (idx_t *)realloc(cumulative, new_cap * sizeof(idx_t));
             if (!tmp_p || !tmp_c) abort();
             partitions = tmp_p;

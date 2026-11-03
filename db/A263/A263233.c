@@ -9,9 +9,10 @@
  *            partitions of r that have k perfect square parts. The sequence
  *            is obtained by reading the triangle row‑by‑row: a(0)=T(0,0),
  *            a(1)=T(1,0), a(2)=T(1,1), a(3)=T(2,0), …
- * Range:     u8 n <= 325, u16 n <= 1712, u32 n <= 9175, u64 n <= 9175,
- *            u128 n <= 9175, big any n
- * Helpers:   none
+ * Range:     u8 n <= 325, u16 n <= 1712, u32 n <= 12250, u64 n <= 20300,
+ *            u128 n <= 20300, big any n
+ * Validated: standard, pass, 107 terms through n = 9175 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <string.h>
 #include <math.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* Dynamic programming for partitions with square‑part counts. */
     size_t dim = (size_t)(r + 1);           /* number of possible sums/k counts */
     size_t size = dim * dim;
-    seq_t *dp = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, size);
     if (!dp) return (seq_t)0;               /* allocation failure (unlikely) */
 
     dp[0] = (seq_t)1;                       /* dp[0][0] = 1, empty partition */
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[r * dim + k];
-    free(dp);
+    mem_free(dp);
     free(isSq);
     return result;
 }

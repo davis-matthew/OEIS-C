@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static int cmp_seq_t(const void *p1, const void *p2)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
             }
             divisors[count++] = prod;
         }
-        qsort(divisors, count, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(divisors, count, sizeof(seq_t), cmp_seq_t);
         initialized = true;
     }
 

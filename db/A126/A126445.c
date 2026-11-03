@@ -9,6 +9,7 @@
  *            – C(k+2,3), r – k ), read by rows, offset 0
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 27, u64 n <= 65, u128 n <= 170,
  *            big any n
+ * Validated: standard, pass, 61 terms through n = 1222 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

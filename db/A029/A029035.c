@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 340, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    and memoised between calls. */
 
 #include <stdlib.h>  /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         idx_t newsize = n + 1;
 
         /* reallocate memory */
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)newsize);
         if (tmp == NULL)
             return 0;           /* out of memory → return 0 as a safe guard */
 

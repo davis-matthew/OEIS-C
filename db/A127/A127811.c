@@ -8,9 +8,10 @@
  *            (1-x)^10*(1+x)^2*(x^2+x+1)^4 = 1 + q1 x + q2 x^2 + ... + q20
  *            x^20. * With a(0)=0, a(1)=1. For n > 0: * a(n) = - (q1 a(n-1)+q2
  *            a(n-2)+…+q20 a(n-20)) + (n==1?1:0)
- * Range:     u8 n <= 3, u16 n <= 18, u32 n <= 36, u64 n <= 36, u128 n <= 36,
+ * Range:     u8 n <= 6, u16 n <= 18, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* coefficients of the recurrence, qk is the coefficient of x^k in
    (1-x)^10*(1+x)^2*(x^2+x+1)^4, stored as int32_t */
@@ -47,7 +49,7 @@ static void init_coef(void)
     /* (1 - x)^10 : binomial with alternating signs */
     int32_t p1[21] = {0};
     for (int k = 0; k <= 10; ++k) {
-        seq_t c = binom(10, k);            /* binomial coefficient */
+        seq_t c = binomial(10, k);            /* binomial coefficient */
         int32_t v = (int32_t)c;            /* small enough for int32 */
         if (k & 1)
             v = -v;
@@ -84,13 +86,13 @@ static void ensure_cache(idx_t n)
 {
     if (cache == NULL) {
         cap = (n >= 20 ? n + 1 : 21);
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
         cache[0] = 0;           /* a(0) = 0 */
     } else if ((idx_t)cap <= n) {
         size_t newcap = cap;
         while ((idx_t)newcap <= n)
             newcap <<= 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * newcap);
+        cache = mem_resize(seq_t, cache, newcap);
         cap = newcap;
     }
 }

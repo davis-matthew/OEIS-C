@@ -10,13 +10,15 @@
  *            n and j + k prime
  * Range:     u8 n <= 45, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- static state for sieving and prefix sums ---------- */
 static unsigned char *is_prime = NULL;   /* 1 = prime, 0 = composite */
@@ -80,14 +82,14 @@ static void ensure_cum(idx_t n)
 
     /* initialise cumulative array if first time */
     if (!cum_arr) {
-        cum_arr = (seq_t *)malloc(sizeof(seq_t));   /* size 1 */
+        cum_arr = mem_new(seq_t, 1);   /* size 1 */
         if (!cum_arr) abort();
         cum_arr[0] = (seq_t)0;
         cum_size = 0;
     }
 
     /* grow cumulative array to size n+1 */
-    seq_t *tmp = (seq_t *)realloc(cum_arr, (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cum_arr, (size_t)(n + 1));
     if (!tmp) abort();
     cum_arr = tmp;
     /* initialise new slots to zero – they will be overwritten below */

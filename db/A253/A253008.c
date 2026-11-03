@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 19, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ----  constants ----------------------------------------------------- */
 #define BASE      12          /* one more than the largest value that can
@@ -106,8 +108,8 @@ seq_t a(idx_t n)
         if (!decode_inited) init_decode();
 
         /* allocate arrays for current and next row counts */
-        seq_t *cur  = (seq_t *)calloc(CODE_SIZE, sizeof(seq_t));
-        seq_t *next = (seq_t *)calloc(CODE_SIZE, sizeof(seq_t));
+        seq_t *cur  = mem_new(seq_t, CODE_SIZE);
+        seq_t *next = mem_new(seq_t, CODE_SIZE);
 
         /* ----------  initialise first row  ------------------------ */
         for (int code = 0; code < CODE_SIZE; ++code) {
@@ -122,7 +124,7 @@ seq_t a(idx_t n)
 
         /* ----------  process remaining rows  --------------------- */
         for (idx_t row = 2; row <= n; ++row) {
-            memset(next, 0, CODE_SIZE * sizeof(seq_t));
+            mem_set(next, 0, CODE_SIZE * sizeof(seq_t));
             for (int code = 0; code < CODE_SIZE; ++code) {
                 seq_t cnt = cur[code];
                 if (!cnt) continue;
@@ -140,7 +142,7 @@ seq_t a(idx_t n)
             if (decode_vec[code][4] == target) result += cnt;
         }
 
-        free(cur); free(next);
+        mem_free(cur); mem_free(next);
         return result;
     }
 

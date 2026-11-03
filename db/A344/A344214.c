@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   leads_to_five
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,31 @@
    reach 5 before any other single‑digit number. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/leads_to_five.h"
+#include "../utils/mem.h"
+
+/* Computes whether a given starting value k reaches a single‑digit 5
+   before any other single‑digit (or enters the known 65‑122‑26 cycle). */
+static bool leads_to_five(seq_t k) {
+    seq_t m = k;
+    /* We iterate until we meet a single digit or detect the
+       65–122–26 cycle. A safety iteration cap prevents infinite loops. */
+    for (int step = 0; step < 1000; ++step) {
+        if (m < 10)                    /* reached a single digit */
+            return m == 5;             /* success only if it is 5 */
+        if (m == 65 || m == 122 || m == 26)
+            return false;             /* will loop forever elsewhere */
+
+        /* compute digsum(m) */
+        seq_t s = 0;
+        seq_t t = m;
+        while (t > 0) {
+            s += t % 10;
+            t /= 10;
+        }
+        m = s * s + 1;
+    }
+    return false;                     /* fallback – should not happen */
+}
 
 /* cache of found sequence values */
 static seq_t *cache = NULL;
@@ -37,7 +62,7 @@ seq_t a(idx_t n) {
         if (leads_to_five(val)) {
             if (cached_len == cached_cap) {
                 size_t new_cap = cached_cap ? cached_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) return 0;                 /* allocation failed */
                 cache = tmp;
                 cached_cap = new_cap;

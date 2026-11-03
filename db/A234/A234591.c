@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -43,6 +44,7 @@ static const int trans[10][2] = {
 #endif
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Memoisation cache: cache[i] = a(i).  cache_len = number of entries.  */
 static seq_t *cache = NULL;
@@ -55,10 +57,10 @@ static void init_cache(void)
 {
     /* Allocate space for a(0).  */
     cache_len = 1;
-    cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+    cache = mem_new(seq_t, cache_len);
     if (!cache) abort();
 #ifdef __cplusplus
-    new (cache) seq_t(1);    /* construct a(0) = 1 */
+    *(cache) = (seq_t)(1);    /* construct a(0) = 1 */
 #else
     cache[0] = (seq_t)1;
 #endif
@@ -101,14 +103,14 @@ seq_t a(idx_t n)
 
         /* Reallocate cache for the new entry.  */
         size_t old_len = cache_len;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * (old_len + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, (old_len + 1));
         if (!tmp) abort();
         cache = tmp;
         ++cache_len;
 
         /* Construct the new element if seq_t is a class type.  */
 #ifdef __cplusplus
-        new (cache + old_len) seq_t(sum);
+        *(cache + old_len) = (seq_t)(sum);
 #else
         cache[old_len] = sum;
 #endif

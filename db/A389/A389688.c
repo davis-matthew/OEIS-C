@@ -8,12 +8,14 @@
  *            k-1) * a(n-k)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 22, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A_cache = NULL;        /* memoised a(n) values */
 static size_t A_cap   = 0;           /* current allocated capacity */
@@ -25,7 +27,7 @@ static void ensure(idx_t n)
     /* Allocate space for a(0) on first use */
     if (A_cache == NULL) {
         A_cap   = 1;
-        A_cache = (seq_t *)realloc(A_cache, A_cap * sizeof(seq_t));
+        A_cache = mem_resize(seq_t, A_cache, A_cap);
         if (A_cache == NULL) abort();
         A_cache[0] = (seq_t)1;
         A_last     = 0;
@@ -37,7 +39,7 @@ static void ensure(idx_t n)
     size_t new_cap = A_cap;
     while (new_cap <= (size_t)n) new_cap <<= 1;
     if (new_cap > A_cap) {
-        seq_t *tmp = (seq_t *)realloc(A_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A_cache, new_cap);
         if (tmp == NULL) abort();
         A_cache = tmp;
         A_cap   = new_cap;

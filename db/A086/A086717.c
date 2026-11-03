@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 23, u32 n <= 83, u64 n <= 313,
  *            u128 n <= 1221, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 8908 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- static data ---------------------------------- */
 
@@ -82,10 +84,10 @@ static void ensure_partitions(idx_t n)
 
     /* expand cache array */
     if (p_cache == NULL) {
-        p_cache = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+        p_cache = mem_new(seq_t, (n + 1));
         if (!p_cache) abort();
     } else if (p_cached + 1 <= n) {
-        seq_t *tmp = (seq_t *)realloc(p_cache, sizeof(seq_t) * (n + 1));
+        seq_t *tmp = mem_resize(seq_t, p_cache, (n + 1));
         if (!tmp) abort();
         p_cache = tmp;
     }

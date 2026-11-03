@@ -12,12 +12,14 @@
  *            7, a(13) = -7
  * Range:     i8 n <= 87, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 938 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;
 static idx_t dp_size = 0;
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* initialise base cases once */
     if (dp == NULL) {
         dp_size = 14;                            /* indices 0..13 */
-        dp = (seq_t *)malloc(dp_size * sizeof(seq_t));
+        dp = mem_new(seq_t, dp_size);
         if (!dp) return 0;                       /* allocation failed */
         dp[0]  = (seq_t)(-1);
         dp[1]  = (seq_t)1;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* extend table if needed */
     if (n + 1 > dp_size) {
         idx_t new_size = n + 1;
-        seq_t *new_dp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, new_size);
         if (!new_dp) return 0;                    /* allocation failed */
         dp = new_dp;
         /* compute new entries using the recurrence */

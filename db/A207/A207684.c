@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 23, u64 n <= 50, u128 n <= 104,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* dynamic programming arrays (static global to survive multiple calls) */
 static bool initialized = false;
@@ -113,7 +115,7 @@ seq_t a(idx_t n)
 
         /* cache first two terms */
         cache_cap = 20;  /* small initial capacity */
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         for (size_t i = 0; i < cache_cap; ++i) cache[i] = 0;
         cache[1] = (seq_t)9;   /* a(1) = 9 admissible columns */
         cache[2] = (seq_t)81;  /* a(2) = 9^2 */
@@ -134,9 +136,9 @@ seq_t a(idx_t n)
     /* ensure cache capacity */
     size_t needed = (size_t)n + 1;
     if (needed > cache_cap) {
-        seq_t *new_cache = (seq_t*)malloc(needed * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, needed);
         for (size_t i = 0; i <= cache_len; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = needed;
     }

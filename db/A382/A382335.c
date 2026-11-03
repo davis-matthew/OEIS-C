@@ -11,19 +11,21 @@
  *            This recurrence generates the OEIS sequence A38...
  * Range:     i8 n <= 6, i16 n <= 13, i32 n <= 24, i64 n <= 30, i128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static void ensure_cap(size_t *cap, seq_t **arr, size_t needed) {
     if (*cap >= needed) return;
     size_t new_cap = (*cap == 0) ? 1 : *cap * 2;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     *arr = tmp;
     *cap = new_cap;
 }

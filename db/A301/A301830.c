@@ -12,7 +12,8 @@
  *            c times
  * Range:     u8 n <= 191, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   dfs_large
+ * Validated: standard, pass, 93 terms through n = 9844 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,38 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/dfs_large.h"
+
+/* recursion for numbers > MAX_N (trial division) */
+static void dfs_large(uint64_t n, uint64_t min_factor,
+                      seq_t weight, uint64_t last_factor,
+                      uint8_t last_count, seq_t *res)
+{
+    if (n == 1) {
+        if (last_count > 0) weight *= (seq_t)(last_count + 1);
+        *res += weight;
+        return;
+    }
+    for (uint64_t d = min_factor; d <= n / d; ++d) {
+        if (n % d) continue;
+        if (d == last_factor) {
+            dfs_large(n / d, d, weight, last_factor,
+                      last_count + 1, res);
+        } else {
+            seq_t new_weight = weight * (seq_t)(last_count + 1);
+            dfs_large(n / d, d, new_weight, d, 1, res);
+        }
+    }
+    /* handle the factor n itself (if allowed) */
+    if (min_factor <= n) {
+        if (n == last_factor) {
+            dfs_large(1, n, weight, last_factor,
+                      last_count + 1, res);
+        } else {
+            seq_t new_weight = weight * (seq_t)(last_count + 1);
+            dfs_large(1, n, new_weight, n, 1, res);
+        }
+    }
+}
 
 /* ------------------------------------------------------------------ */
 /* Pre‑compute divisors for numbers ≤ MAX_N (used for small n). */

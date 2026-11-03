@@ -9,15 +9,31 @@
  *            digit sums are six distinct primes
  * Range:     u8 none, u16 none, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   add_seq, is_prime_uint64
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/add_seq.h"
-#include "../utils/is_prime_uint64.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* enlarge array to store seq_t values */
+static void add_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val) {
+    if (*cap == 0) {
+        *cap  = 4;
+        *arr  = mem_new(seq_t, (*cap));
+    }
+    if (*size == *cap) {
+        *cap <<= 1;
+        *arr  = mem_resize(seq_t, *arr, (*cap));
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
 
 /* Check whether an integer up to 100 is a prime.  Only needed for digit sums. */
 static bool isPrimeSmall(uint64_t x)
@@ -75,7 +91,7 @@ seq_t a(idx_t n)
         uint64_t candidate = last_checked + 1;
         if (candidate > 2 && (candidate & 1ULL) == 0ULL)
             ++candidate;                      /* make odd */
-        while (!is_prime_uint64(candidate))
+        while (!is_prime_u64(candidate))
             candidate += 2;                   /* only test odds */
         last_checked = candidate;
 

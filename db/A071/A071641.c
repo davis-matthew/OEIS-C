@@ -9,13 +9,15 @@
  *            k < 4
  * Range:     u8 n <= 17, u16 n <= 32, u32 n <= 62, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *f_cache   = NULL;   /* cache for f(0)..f(n)   */
 static idx_t  f_size    = 0;      /* number of elements computed  */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Expand the cache if needed */
     if (n >= f_capacity) {
         idx_t new_cap = (n + 1) * 2;            /* grow twice as fast */
-        seq_t *tmp = (seq_t *)realloc(f_cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, f_cache, new_cap);
         if (!tmp) abort();                     /* allocation failure */
         f_cache    = tmp;
         f_capacity = new_cap;

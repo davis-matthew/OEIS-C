@@ -13,7 +13,8 @@
  *            condition with a depth‑first search
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   can_partition
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,27 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/can_partition.h"
+#include "../utils/mem.h"
+
+/* Recursive test whether s[0..len-1] can be partitioned into numbers
+   whose sum equals rem. */
+static bool can_partition(const char *s, int len, int pos, unsigned int rem)
+{
+    if (pos == len)
+        return rem == 0;
+    if (rem == 0)
+        return false;
+
+    unsigned int value = 0;
+    for (int i = pos; i < len; ++i) {
+        value = value * 10 + (unsigned)(s[i] - '0');
+        if (value > rem)
+            break;
+        if (can_partition(s, len, i + 1, rem - value))
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -77,7 +98,7 @@ seq_t a(idx_t n)
         if (can_partition(buf, len, 0, pi_cnt)) {
             if (seq_sz == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 16;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_sz++] = (seq_t)cur;
         }

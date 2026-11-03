@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  * further ones on demand.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *peaks = NULL;      /* array of stored peak values       */
@@ -65,7 +67,7 @@ seq_t a(idx_t n) {
                     peaks_cap = 16;
                 else
                     peaks_cap <<= 1;
-                peaks = (seq_t*)realloc(peaks, peaks_cap * sizeof(seq_t));
+                peaks = mem_resize(seq_t, peaks, peaks_cap);
             }
             peaks[peaks_len++] = peak;
         }

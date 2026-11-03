@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 72 terms through n = 997 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static inline uint64_t gcd_u64(uint64_t a, uint64_t b)
 {
@@ -96,12 +98,12 @@ seq_t a(idx_t n)
         /* test the condition */
         uint64_t d   = gcd_u64(40ULL, p - 1ULL);
         uint64_t exp = (p - 1ULL) / d;
-        seq_t modpow = mod_pow((seq_t)2, exp, (seq_t)p);
+        seq_t modpow = powmod((seq_t)2, exp, (seq_t)p);
         if (modpow != (seq_t)1) {
             /* append to results */
             if (results_len == results_cap) {
                 size_t newcap = results_cap ? results_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(results, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, results, newcap);
                 if (!tmp) abort();
                 results = tmp;
                 results_cap = newcap;

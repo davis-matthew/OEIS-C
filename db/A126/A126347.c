@@ -12,14 +12,23 @@
  *            is read by rows; row r has r*(r-1)/2+1 coefficients. The
  *            sequence a(n) is obtained by concatenating the rows
  * Range:     u8 n <= 70, u16 n <= 244, u32 n <= 863, u64 n <= 3379,
- *            u128 n <= 9347, big any n
- * Helpers:   alloc_seq_array
+ *            u128 n <= 14446, big any n
+ * Validated: standard, pass, 95 terms through n = 9347 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/alloc_seq_array.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 #define MAX_ROWS 256
 

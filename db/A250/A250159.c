@@ -13,6 +13,7 @@
  *            126595*n^4 + 99120*n^3 + 33722*n^2 + 1018*n + 420)
  * Range:     u8 none, u16 n <= 2, u32 n <= 9, u64 n <= 106, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 198 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

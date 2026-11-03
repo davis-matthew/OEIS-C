@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * sum_{k=1..⌊n/3⌋} (-1)^k * C(n-2k-1, k-1) / k!
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 12, i64 n <= 20, i128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 428 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Sequence A293118 (OEIS) defined by the EGF exp(x^3/(x-1)) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* internal factorial cache */
 static seq_t *fact = NULL;               /* array of factorials */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         if (needed > fact_alloc) {
             size_t newsize = fact_alloc ? fact_alloc : 1;
             while (newsize < needed) newsize <<= 1;
-            fact = (seq_t *)realloc(fact, newsize * sizeof(seq_t));
+            fact = mem_resize(seq_t, fact, newsize);
             fact_alloc = newsize;
         }
         if (fact_computed == 0) {

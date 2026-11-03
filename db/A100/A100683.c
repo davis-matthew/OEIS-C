@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-1) + a(n-2) + a(n-3); a(0) = -1, a(1) = 2, a(2) = 2
  * Range:     i8 n <= 8, i16 n <= 17, i32 n <= 36, i64 n <= 72, i128 n <= 145,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 943 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size  = 0;   // number of terms stored (max index + 1)
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Initialisation on first call */
     if (cache == NULL) {
         cache_cap = 3;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;            /* allocation failed */
         cache[0] = (seq_t)-1;
         cache[1] = (seq_t)2;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (cache_cap <= n) {
         idx_t new_cap = cache_cap;
         while (new_cap <= n) new_cap <<= 1;   /* double until large enough */
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;                  /* reallocation failed */
         cache = tmp;
         cache_cap = new_cap;

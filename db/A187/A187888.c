@@ -7,15 +7,18 @@
  * Formula:   a(n) = a(row, col) of the Riordan triangle with
  *            a(row,0)=C(2*row,row) and a(row,k)=a(row-1,k)+a(row-1,k-1). row
  *            = floor((sqrt(8*n+1)-1)/2), col = n - row*(row+1)/2
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"      /* binom(idx_t a, idx_t b) */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,11 +42,11 @@ seq_t a(idx_t n)
 
         /* Build new rows */
         for (idx_t i = rows_allocated; i <= r; ++i) {
-            triangle[i] = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+            triangle[i] = mem_new(seq_t, (i + 1));
             if (!triangle[i]) return 0;
 
             /* Column 0: central binomial coefficient */
-            triangle[i][0] = binom(2 * i, i);
+            triangle[i][0] = binomial(2 * i, i);
 
             /* Remaining columns by recurrence a(i,k)=a(i-1,k)+a(i-1,k-1) */
             for (idx_t k = 1; k <= i; ++k) {

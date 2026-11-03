@@ -7,7 +7,8 @@
  * Formula:   a(n) = H_n(4,3) where H_n is the n‑th hyperoperator
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 3, u64 n <= 3, u128 n <= 3,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 5 terms through n = 4 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
       n==2 -> 0
       n>=3 -> 1
 */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static seq_t hyper(idx_t n, seq_t x, seq_t y)
 {
@@ -46,7 +49,7 @@ static seq_t hyper(idx_t n, seq_t x, seq_t y)
     if (n == 2)
         return x * y;
     if (n == 3)
-        return big_pow(x, y);
+        return ipow(x, y);
 
     /* Recurrence for higher levels */
     seq_t t = hyper(n, x, y - 1);

@@ -11,12 +11,14 @@
  *            recurrence using memoised arrays
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 19, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static storage for values up to the largest n seen so far */
@@ -26,8 +28,8 @@ seq_t a(idx_t n) {
 
     if (n >= max_n) {
         idx_t new_size = n + 1;      /* need indices 0..n */
-        B = (seq_t*)realloc(B, new_size * sizeof(seq_t));
-        E = (seq_t*)realloc(E, new_size * sizeof(seq_t));
+        B = mem_resize(seq_t, B, new_size);
+        E = mem_resize(seq_t, E, new_size);
         /* initialise new entries to 0 */
         for (idx_t i = 1; i <= n; ++i)
             B[i] = 0;

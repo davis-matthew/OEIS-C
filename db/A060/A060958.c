@@ -9,6 +9,7 @@
  *            for year n
  * Range:     u8 n <= 2066, u16 n <= 2066, u32 n <= 2066, u64 n <= 2066,
  *            u128 n <= 2066, big any n
+ * Validated: partial, pass, 66 terms through n = 2066 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

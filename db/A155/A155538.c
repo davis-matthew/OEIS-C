@@ -6,13 +6,15 @@
  * Keywords:  nonn
  * Formula:   a(n) = 2^⌊256 / 2^(n-1)⌋ (take square root of previous term)
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -32,5 +34,5 @@ seq_t a(idx_t n)
 
     /* Return 2^e.  big_pow handles arbitrary precision seq_t
        correctly, and truncation occurs naturally for small seq_t types. */
-    return big_pow((seq_t)2, (seq_t)e);
+    return ipow((seq_t)2, (seq_t)e);
 }

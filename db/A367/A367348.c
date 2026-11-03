@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 7, u16 n <= 1391, u32 n <= 9870, u64 n <= 9870,
- *            u128 n <= 9870, big any n
- * Helpers:   none
+ * Range:     u8 n <= 7, u16 n <= 1391, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 65 terms through n = 9870 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    for n >= 2:  a(n+1) = a(n) + first_digit(a(n)) + 10 * last_digit(a(n)). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t _a_cache_nmax = 0;
 static seq_t * _a_cache = NULL;
@@ -30,12 +32,12 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache to hold index n */
     if (_a_cache == NULL) {
         _a_cache_cap = 8;                     /* arbitrary small start */
-        _a_cache = (seq_t *)malloc(_a_cache_cap * sizeof(seq_t));
+        _a_cache = mem_new(seq_t, _a_cache_cap);
         if (!_a_cache) abort();
     }
     if (_a_cache_cap <= n) {
         size_t new_cap = (size_t)(n + 2);      /* leave space for index 0 unused */
-        _a_cache = (seq_t *)realloc(_a_cache, new_cap * sizeof(seq_t));
+        _a_cache = mem_resize(seq_t, _a_cache, new_cap);
         if (!_a_cache) abort();
         _a_cache_cap = new_cap;
     }

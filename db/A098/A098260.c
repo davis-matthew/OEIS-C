@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 6, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * performed with the type seq_t, so the code works with 8‑, 16‑, 32‑,
  * 64‑, and 128‑bit integers as well as arbitrary‑precision implementations. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (n >= cache_size)
     {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache)
             return 0;  /* out of memory – unlikely in the test harness */
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         }
 
         cache_size = new_size;
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
     }
 

@@ -11,14 +11,24 @@
  *            blocks to obtain the binary representation of a(n)
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   bitlen
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/bitlen.h"
+
+/* Computes the number of bits needed to represent x:
+   0 has length 1. */
+static idx_t bitlen(idx_t x)
+{
+    if (x == 0) return 1;
+    idx_t len = 0;
+    while (x) { ++len; x >>= 1; }
+    return len;
+}
 
 seq_t a(idx_t n)
 {

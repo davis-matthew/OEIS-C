@@ -10,14 +10,27 @@
  *            index i = n-1 and a(0)=1 (corresponding to a(1))
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 10, i64 n <= 16, i128 n <= 2,
  *            big any n
- * Helpers:   mul128
+ * Validated: standard, pass, 36 terms through n = 240 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdalign.h>
-#include "../utils/mul128.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication using 128‑bit intermediate when
+   available and seq_t is a built‑in integer.  For arbitrary‑precision
+   types the plain * operator is used. */
+static inline seq_t mul128(seq_t a, seq_t b)
+{
+#if defined(__SIZEOF_INT128__) && !defined(__cplusplus)
+    return (seq_t)((unsigned __int128)(unsigned long long)a * b);
+#else
+    return a * b;
+#endif
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -34,7 +47,7 @@ seq_t a(idx_t n)
     if (idx + 1 > cache_size)
     {
         idx_t new_size = idx + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache)               /* allocation failure – abort */
             return 0;
         cache = new_cache;

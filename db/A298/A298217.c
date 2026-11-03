@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 36, u128 n <= 73,
  *            big any n
- * Helpers:   allowcnt
+ * Validated: standard, pass, 40 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/allowcnt.h"
+#include "../utils/mem.h"
+
+/* allowed number of same‑valued king‑move neighbours (0,1,2,4,5) */
+static inline bool allowcnt(int cnt) { return cnt==0||cnt==1||cnt==2||cnt==4||cnt==5; }
 
 #define WIDTH 4
 #define PAT  (1 << WIDTH)          /* 16 patterns */
@@ -112,7 +116,7 @@ static void ensure_cache(size_t n)
 {
     if (n+1 <= cache_cap) return;
     size_t new_cap = (n+1) * 2;
-    seq_t *tmp = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) return;                /* allocation failure – keep old cache */
     seq_cache = tmp;
     cache_cap = new_cap;

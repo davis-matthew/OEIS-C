@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sieve_terms
+ * Validated: standard, pass, 69 terms through n = 9895 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,57 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/sieve_terms.h"
+
+/*---------------------------------------------------------------*/
+static void sieve_terms(uint64_t bound, uint64_t **out_terms, size_t *out_len)
+{
+    uint8_t *is_prime = (uint8_t*)calloc(bound + 1, 1);
+    uint8_t *cnt      = (uint8_t*)calloc(bound + 1, 1);
+    uint8_t *sqfree   = (uint8_t*)calloc(bound + 1, 1);
+    if (!is_prime || !cnt || !sqfree) abort();
+
+    /* init all numbers as square‑free, except 0 and 1 */
+    memset(is_prime, 1, bound + 1);
+    is_prime[0] = is_prime[1] = 0;
+    memset(sqfree, 1, bound + 1);
+    sqfree[0] = sqfree[1] = 0;
+
+    /* Eratosthenes sieve to find primes */
+    for (uint64_t p = 2; p * p <= bound; ++p) {
+        if (is_prime[p]) {
+            for (uint64_t j = p * p; j <= bound; j += p)
+                is_prime[j] = 0;
+        }
+    }
+
+    /* Count distinct prime factors and mark non‑square‑free numbers */
+    for (uint64_t p = 2; p <= bound; ++p) {
+        if (!is_prime[p]) continue;
+        for (uint64_t j = p; j <= bound; j += p)
+            cnt[j]++;
+
+        uint64_t sq = p * p;
+        if (sq <= bound) {
+            for (uint64_t j = sq; j <= bound; j += sq)
+                sqfree[j] = 0;
+        }
+    }
+
+    /* Collect qualifying terms */
+    *out_len = 0;
+    *out_terms = (uint64_t*)malloc((bound + 1) * sizeof(uint64_t));
+    if (!*out_terms) abort();
+
+    for (uint64_t i = 2; i <= bound; ++i) {
+        if (sqfree[i] && cnt[i] >= 3)
+            (*out_terms)[(*out_len)++] = i;
+    }
+
+    /* Free temporaries */
+    free(is_prime);
+    free(cnt);
+    free(sqfree);
+}
 
 static uint64_t *terms   = NULL; /* cached terms, stored as 64‑bit values   */
 static size_t  terms_len = 0;    /* number of cached terms                  */

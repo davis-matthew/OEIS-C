@@ -9,14 +9,16 @@
  *            * (sum_of_digits(k))^2) == 0 and * k % 10 != 0
  * Range:     u8 n <= 0, u16 n <= 119, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum_seq_t
+ * Validated: standard, pass, 55 terms through n = 909 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/digit_sum_seq_t.h"
+#include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* static cache of the sequence terms */
 static seq_t *cache  = NULL;     /* array of terms */
@@ -30,7 +32,7 @@ static void ensure_cache_capacity(size_t needed)
     if (needed <= cap) return;
     size_t newcap = (cap > 0) ? cap * 2 : 16;
     while (newcap < needed) newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp) exit(1); /* out of memory */
     cache = tmp;
     cap = newcap;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         seq_t x = start;
         start++;  /* increment start for next candidate */
 
-        seq_t s = digit_sum_seq_t(x);           /* sum of digits */
+        seq_t s = digit_sum(x);           /* sum of digits */
         seq_t divisor = (seq_t)2 * s * s;       /* 2 * (sum)^2 */
         /* check divisibility by divisor and exclude multiples of 10 */
         if (divisor != 0 && (x % divisor) == 0 && (x % (seq_t)10) != 0) {

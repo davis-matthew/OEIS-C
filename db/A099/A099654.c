@@ -9,6 +9,7 @@
  * Formula:   a(n) = binomial(6,n) + binomial(4,n) for n>1, a(1)=5
  * Range:     u8 n <= 131, u16 n <= 131, u32 n <= 131, u64 n <= 131,
  *            u128 n <= 131, big any n
+ * Validated: partial, pass, 131 terms through n = 131 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

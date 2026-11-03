@@ -7,7 +7,8 @@
  * Formula:   a(n) = d(d(d(n!)))
  * Range:     u8 n <= 285, u16 n <= 6193, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   add_factors
+ * Validated: standard, pass, 92 terms through n = 9280 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,28 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/add_factors.h"
+
+/* Adds the prime factor exponents of 'v' into array 'exp'.
+   exp is indexed via the 'prime_idx' mapping. */
+static void add_factors(uint64_t v,
+                        const uint32_t *primes,
+                        size_t pcount,
+                        uint64_t *exp,
+                        const int *prime_idx)
+{
+    for (size_t j = 0; j < pcount &&
+                      (uint64_t)primes[j] * (uint64_t)primes[j] <= v; ++j) {
+        uint32_t p = primes[j];
+        if (v % p == 0) {
+            uint64_t c = 0;
+            while (v % p == 0) { v /= p; ++c; }
+            exp[prime_idx[p]] += c;
+        }
+    }
+    if (v > 1) {                     /* remaining prime factor */
+        exp[prime_idx[v]] += 1;
+    }
+}
 
 /* Simple sieve that returns all primes up to 'limit' (inclusive). */
 static void simple_sieve(uint64_t limit, uint32_t **primes_out, size_t *cnt_out)

@@ -8,12 +8,14 @@
  *            r(m+1) = (1/m) * Sum_{k=1..m} (Sum_{d|k} d*r(d)) * r(m-k+1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *R = 0;   /* R[i] = A000081(i) */
 static seq_t *C = 0;   /* C[i] = Sum_{d|i} d*R[d] */
@@ -25,8 +27,8 @@ static void ensure(idx_t m) {
         idx_t nc = cap * 2;
         if (nc < m + 1) nc = m + 1;
         if (nc < 64) nc = 64;
-        seq_t *nr = (seq_t *)malloc(nc * sizeof(seq_t));
-        seq_t *ncc = (seq_t *)malloc(nc * sizeof(seq_t));
+        seq_t *nr = mem_new(seq_t, nc);
+        seq_t *ncc = mem_new(seq_t, nc);
         for (idx_t i = 0; i < nc; i++) {
             nr[i] = 0;
             ncc[i] = 0;
@@ -35,8 +37,8 @@ static void ensure(idx_t m) {
             nr[i] = R[i];
             ncc[i] = C[i];
         }
-        free(R);
-        free(C);
+        mem_free(R);
+        mem_free(C);
         R = nr;
         C = ncc;
         cap = nc;

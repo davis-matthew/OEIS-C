@@ -8,7 +8,8 @@
  *            a(n)=2*a(n-1)-a(n-3)+a(n-5)-a(n-6) for n>=6
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 38, u64 n <= 79, u128 n <= 163,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>   /* for abort() */
+#include "../utils/mem.h"
 
 /* Static cache of computed values. */
 static seq_t *seq_cache = NULL;
@@ -31,7 +33,7 @@ static inline void ensure_cache_capacity(size_t need) {
     while (new_cap <= need)
         new_cap <<= 1;
     /* realloc may fail; in that case abort because we cannot continue. */
-    seq_t *ptr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, seq_cache, new_cap);
     if (!ptr)
         abort();
     seq_cache = ptr;

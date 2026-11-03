@@ -12,13 +12,16 @@
  *            T(r,m)
  * Range:     i8 n <= 105, i16 n <= 105, i32 n <= 105, i64 n <= 105,
  *            i128 n <= 105, big any n
- * Helpers:   compute_pi
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -37,9 +40,9 @@ seq_t a(idx_t n)
     idx_t m = n - prev_tri;        /* 1 ≤ m ≤ r */
 
     /* Evaluate T(r,m) = pi(r*m) – pi(r)*pi(m) */
-    seq_t pi_r  = compute_pi(r);
-    seq_t pi_m  = compute_pi(m);
-    seq_t pi_rm = compute_pi(r * m);
+    seq_t pi_r  = prime_pi(r);
+    seq_t pi_m  = prime_pi(m);
+    seq_t pi_rm = prime_pi(r * m);
 
     return pi_rm - pi_r * pi_m;
 }

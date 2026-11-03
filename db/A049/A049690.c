@@ -9,7 +9,8 @@
  *            function
  * Range:     u8 n <= 24, u16 n <= 401, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9790 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * which is fast enough for n up to a few thousand and uses only
  * integer arithmetic with the provided `seq_t` type. */
 #include <stdlib.h>  /* for malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) {
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
 
     /* Compute totient values up to 2*n */
     idx_t limit = 2 * n;
-    seq_t *phi = (seq_t*)malloc((limit + 1U) * sizeof(seq_t));
+    seq_t *phi = mem_new(seq_t, (limit + 1U));
     if (!phi) {
         return 0; /* Allocation failed, give up */
     }
@@ -54,6 +56,6 @@ seq_t a(idx_t n) {
         sum += phi[2 * k];
     }
 
-    free(phi);
+    mem_free(phi);
     return sum;
 }

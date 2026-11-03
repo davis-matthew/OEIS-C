@@ -7,7 +7,8 @@
  * Formula:   a(n) = exponent of 2 in prime(n)^2 - 1 (OEIS A091282)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   prime_upper_bound
+ * Validated: standard, pass, 121 terms through n = 9514 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/prime_upper_bound.h"
+
+/* Estimate an upper bound for the n-th prime (Rosser).  The estimate
+   is safe for n >= 2.  For small n we return a tiny constant.           */
+static uint64_t prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15U;
+    double dn = (double)n;
+    double ub = dn * (log(dn) + log(log(dn)));
+    return (uint64_t)(ub + 3.0);
+}
 
 static uint64_t *prime_list = NULL;   /* array of primes */
 static size_t   prime_cap  = 0;       /* number of stored primes   */

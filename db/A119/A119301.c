@@ -8,14 +8,16 @@
  *            1)/2) (the row index), c = n - r*(r+1)/2 (the column offset).
  *            The returned value is the flattening of the triangle T(n,k) =
  *            binomial(3*n-k, n-k) by rows
- * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 50, u64 n <= 50, u128 n <= 50,
+ * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial.h"   /* provides binomial(idx_t,idx_t) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

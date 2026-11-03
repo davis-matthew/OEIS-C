@@ -11,7 +11,8 @@
  *            T(r,k) = binomial(k, r‑k) · 2^{2k‑r} We compute t...
  * Range:     u8 n <= 42, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 static inline idx_t row_of(idx_t n)
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     idx_t m = r - k;                     /* m = r – k = n – 2k */
     if (k < m) return 0;
 
-    seq_t bin   = binom(k, m);           /* binomial(k, m) */
+    seq_t bin   = binomial(k, m);           /* binomial(k, m) */
     seq_t pow   = pow2((idx_t)(2 * k - r));  /* 2^{2k‑r}          */
     return bin * pow;
 }

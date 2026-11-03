@@ -9,24 +9,27 @@
  *            24*n^12)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 1, u128 n <= 2,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 6 terms through n = 5 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     seq_t N = (seq_t)n;
 
     /* compute each power once */
-    seq_t p12  = big_pow(N, 12);
-    seq_t p20  = big_pow(N, 20);
-    seq_t p24  = big_pow(N, 24);
-    seq_t p40  = big_pow(N, 40);
-    seq_t p60  = big_pow(N, 60);
-    seq_t p120 = big_pow(N, 120);
+    seq_t p12  = ipow(N, 12);
+    seq_t p20  = ipow(N, 20);
+    seq_t p24  = ipow(N, 24);
+    seq_t p40  = ipow(N, 40);
+    seq_t p60  = ipow(N, 60);
+    seq_t p120 = ipow(N, 120);
 
     /* accumulate weighted sum */
     seq_t res = p120;

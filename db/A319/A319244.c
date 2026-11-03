@@ -11,24 +11,26 @@
  *            6×10^7 elementary operations, well within...
  * Range:     i8 n <= 76, i16 n <= 76, i32 n <= 76, i64 n <= 76, i128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build system.  Do not define them. */
 seq_t a(idx_t n)
 {
     /* Allocate DP arrays.  n ≤ 10 000 (typical), memory is modest. */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *tmp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *tmp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp || !tmp)
     {
-        if (dp) free(dp);
-        if (tmp) free(tmp);
+        if (dp) mem_free(dp);
+        if (tmp) mem_free(tmp);
         /* memory error – return 0 */
         return (seq_t)0;
     }
@@ -85,8 +87,8 @@ seq_t a(idx_t n)
     seq_t result = dp[n];
 
     /* Clean up */
-    free(dp);
-    free(tmp);
+    mem_free(dp);
+    mem_free(tmp);
 
     return result;
 }

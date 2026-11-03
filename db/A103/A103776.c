@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 9, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
- *            big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 9, u16 n <= 659, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 66 terms through n = 957 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache of found terms */
@@ -37,7 +40,7 @@ seq_t a(idx_t n) {
             /* Grow cache if needed */
             if (cap == 0) {
                 cap = 16;
-                terms = (seq_t*)malloc(cap * sizeof(seq_t));
+                terms = mem_new(seq_t, cap);
                 if (!terms) exit(EXIT_FAILURE);
             }
             terms[sz++] = (seq_t)2;
@@ -48,7 +51,7 @@ seq_t a(idx_t n) {
 
         /* Find the next prime p >= next_candidate */
         uint64_t p = next_candidate;
-        while (!is_prime(p)) {
+        while (!is_prime_u64(p)) {
             p += 2;          /* skip even numbers */
         }
 
@@ -62,11 +65,11 @@ seq_t a(idx_t n) {
         /* If q fits in 64 bits, test primality */
         if (tmp <= (__int128)UINT64_MAX) {
             uint64_t q = (uint64_t)tmp;
-            if (is_prime(q)) {
+            if (is_prime_u64(q)) {
                 /* Grow cache if necessary */
                 if (sz == cap) {
                     cap = cap ? cap * 2 : 16;
-                    seq_t *tmpbuf = (seq_t*)realloc(terms, cap * sizeof(seq_t));
+                    seq_t *tmpbuf = mem_resize(seq_t, terms, cap);
                     if (!tmpbuf) exit(EXIT_FAILURE);
                     terms = tmpbuf;
                 }

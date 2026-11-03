@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 94, u32 n <= 216, u64 n <= 573,
  *            u128 n <= 1618, big any n
- * Helpers:   T_n_k
+ * Validated: standard, pass, 94 terms through n = 7511 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,30 @@
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/T_n_k.h"
+
+/* Compute T(n,k) according to the closed‐form formula,
+ * using only integer arithmetic in seq_t. */
+static inline seq_t
+T_n_k(idx_t n, idx_t k)
+{
+    if (k > n / 2) return 0;
+
+    /* binomial coefficient  C(n, 2k) */
+    idx_t m = 2 * k;
+    seq_t bin = 1;
+    for (idx_t i = 1; i <= m; ++i) {
+        bin = bin * (seq_t)(n - m + i);
+        bin = bin / (seq_t)i;
+    }
+
+    /* odd double factorial (2k-1)!! = product_{i=1}^{k} (2i-1) */
+    seq_t odd = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        odd = odd * (seq_t)(2 * i - 1);
+    }
+
+    return bin * odd;
+}
 
 seq_t
 a(idx_t n)

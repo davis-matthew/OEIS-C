@@ -11,7 +11,8 @@
  *            computes a(n)
  * Range:     i8 n <= 20, i16 n <= 52, i32 n <= 52, i64 n <= 52, i128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static state --------------------------------------------------- */
 static bool *prime_sieve = NULL;          /* sieve of Eratosthenes */
@@ -53,7 +55,7 @@ static void build_twin_primes(void)
 
     /* allocate initial capacity for twin primes */
     twin_capacity = 10000U;          /* rough initial estimate */
-    twin_primes   = (seq_t *)malloc(twin_capacity * sizeof(seq_t));
+    twin_primes   = mem_new(seq_t, twin_capacity);
     if (!twin_primes) abort();
 
     twin_count = 0;
@@ -62,8 +64,7 @@ static void build_twin_primes(void)
         if ((p >= 3 && prime_sieve[p - 2]) || prime_sieve[p + 2]) {
             if (twin_count == twin_capacity) {
                 twin_capacity *= 2;
-                seq_t *tmp = (seq_t *)realloc(twin_primes,
-                                              twin_capacity * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, twin_primes, twin_capacity);
                 if (!tmp) abort();
                 twin_primes = tmp;
             }
@@ -88,7 +89,7 @@ seq_t a(idx_t n)
     const size_t m = (size_t)n * 2;
     if (m > twin_count) {
         /* unlikely for n ≤ 10000, but re‑build with larger limit if needed */
-        free(twin_primes);
+        mem_free(twin_primes);
         twin_primes = NULL;
         /* double the limit until sufficient */
         size_t new_limit = sieve_limit * 2;
@@ -105,7 +106,7 @@ seq_t a(idx_t n)
                 }
             }
             twin_capacity = 10000U;
-            twin_primes   = (seq_t *)malloc(twin_capacity * sizeof(seq_t));
+            twin_primes   = mem_new(seq_t, twin_capacity);
             if (!twin_primes) abort();
             twin_count = 0;
             for (size_t p = 3; p <= sieve_limit; p += 2) {
@@ -113,8 +114,7 @@ seq_t a(idx_t n)
                 if ((p >= 3 && prime_sieve[p - 2]) || prime_sieve[p + 2]) {
                     if (twin_count == twin_capacity) {
                         twin_capacity *= 2;
-                        seq_t *tmp = (seq_t *)realloc(twin_primes,
-                                                      twin_capacity * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, twin_primes, twin_capacity);
                         if (!tmp) abort();
                         twin_primes = tmp;
                     }

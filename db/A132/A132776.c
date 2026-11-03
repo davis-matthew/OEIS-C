@@ -10,12 +10,14 @@
  *            * (Pascal) triangular matrices.)
  * Range:     u8 n <= 29, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -27,11 +29,11 @@ seq_t a(idx_t n)
     idx_t tri = r * (r + 1) / 2;   /* triangular number of row r */
     idx_t c   = n - tri;           /* column within the row */
 
-    seq_t bin_rc = binom(r, c);
+    seq_t bin_rc = binomial(r, c);
 
     seq_t bin_r_minus1_c = 0;
     if (r > 0 && c <= r - 1)
-        bin_r_minus1_c = binom(r - 1, c);
+        bin_r_minus1_c = binomial(r - 1, c);
 
     seq_t term1 = bin_rc * (seq_t)(r + 1);
     seq_t term2 = bin_r_minus1_c * (seq_t)r;

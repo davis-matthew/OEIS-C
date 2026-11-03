@@ -9,7 +9,8 @@
  *            n-1-k)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 23, u128 n <= 43,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 38 terms through n = 988 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 /* a(1) = 1 */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 #ifdef __cplusplus
 #include <type_traits>
@@ -37,16 +38,16 @@ seq_t a(idx_t n)
 #if defined(__cplusplus)
     if constexpr (use_bigint) {
         for (idx_t k = 0; k <= m; ++k) {
-            seq_t b1 = binom(m + k, k);
-            seq_t b2 = binom(2 * m + k + 2, m - k);
+            seq_t b1 = binomial(m + k, k);
+            seq_t b2 = binomial(2 * m + k + 2, m - k);
             seq_t prod = b1 * b2;
             seq_t term = prod / (seq_t)n;
             sum += term;
         }
     } else {
         for (idx_t k = 0; k <= m; ++k) {
-            seq_t b1 = binom(m + k, k);
-            seq_t b2 = binom(2 * m + k + 2, m - k);
+            seq_t b1 = binomial(m + k, k);
+            seq_t b2 = binomial(2 * m + k + 2, m - k);
             unsigned __int128 prod = (unsigned __int128)b1 * (unsigned __int128)b2;
             unsigned __int128 term = prod / (unsigned __int128)n;
             sum += (seq_t)term;
@@ -54,8 +55,8 @@ seq_t a(idx_t n)
     }
 #else
     for (idx_t k = 0; k <= m; ++k) {
-        seq_t b1 = binom(m + k, k);
-        seq_t b2 = binom(2 * m + k + 2, m - k);
+        seq_t b1 = binomial(m + k, k);
+        seq_t b2 = binomial(2 * m + k + 2, m - k);
         unsigned __int128 prod = (unsigned __int128)b1 * (unsigned __int128)b2;
         unsigned __int128 term = prod / (unsigned __int128)n;
         sum += (seq_t)term;

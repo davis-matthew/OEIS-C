@@ -8,7 +8,8 @@
  * Formula:   a(n) = coefficient of x^n in
  * Range:     u8 n <= 17, u16 n <= 38, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache is re‑computed when asked for a larger index        */
@@ -27,10 +29,10 @@ seq_t a(idx_t n) {
 
     if (!cache || n > cached_n) {
         /* free old cache if any */
-        free(cache);
+        mem_free(cache);
 
         /* allocate new cache, zeroed */
-        cache = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(n + 1));
         if (!cache) return (seq_t)0; /* fallback on OOM */
 
         /* base case a(0) = 1 */
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
         /* divisor counts d[1..n] */
         idx_t *d = (idx_t*)calloc((size_t)(n + 1), sizeof(idx_t));
         if (!d) {
-            free(cache); cache = NULL; return (seq_t)0;
+            mem_free(cache); cache = NULL; return (seq_t)0;
         }
         /* simple O(n log n) sieve for divisor counts */
         for (idx_t i = 1; i <= n; ++i) {

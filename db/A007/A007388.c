@@ -7,12 +7,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recurrence: a(n) = a(n-2) + a(n-7) for n >= 13. Base cases: a(1)=0, a(n)=2 for even n <= 12, a(n)=n for odd n, 3 <= n <= 12 */
 
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     
     if (cache == NULL) {
         cache_alloc = 13;
-        cache = (seq_t *)malloc(cache_alloc * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_alloc);
         cache[1] = 0;
         cache[2] = 2;
         for (idx_t i = 3; i <= 12; i++) {
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
     
     while (n >= cache_alloc) {
         cache_alloc *= 2;
-        cache = (seq_t *)realloc(cache, cache_alloc * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_alloc);
     }
     
     while (cache_computed <= n) {

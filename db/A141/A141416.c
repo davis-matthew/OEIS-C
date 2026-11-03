@@ -9,12 +9,14 @@
  *            sequence A141416
  * Range:     i8 n <= 17, i16 n <= 33, i32 n <= 65, i64 n <= 129,
  *            i128 n <= 257, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cached values of the sequence */
 static idx_t cache_size = 0;  /* number of values currently cached, equal to cache_size */
@@ -25,7 +27,7 @@ static void ensure_cache_upto(idx_t n)
     if (n < cache_size) return;          /* nothing to do */
 
     idx_t new_size = n + 1;               /* number of elements needed */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) exit(EXIT_FAILURE);   /* abort on allocation failure */
     cache = new_cache;
 

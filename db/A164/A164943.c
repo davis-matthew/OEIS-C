@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   _bitlen_seq_t
+ * Validated: standard, pass, 33 terms through n = 373 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,14 +17,14 @@
 /* Sequence: a(n) = decimal value of the binary concatenation of the first n odd numbers. */
 
 #include <stdint.h>   /* seq_t and idx_t are provided externally */
-#include "../utils/_bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
     seq_t result = 0;
     for (idx_t k = 1; k <= n; ++k) {
         seq_t odd = ((seq_t)k << 1) - 1;           /* 2k-1 */
-        unsigned int w = _bitlen_seq_t(odd);      /* bit‑length of odd */
+        unsigned int w = bit_length(odd);      /* bit‑length of odd */
         result = (result << (unsigned long)w) + odd;
     }
     return result;

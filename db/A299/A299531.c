@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *a_arr = NULL;     /* values of a[n] */
 static seq_t *b_arr = NULL;     /* values of b[n] */
@@ -76,7 +78,7 @@ grow_array(seq_t **arr, size_t *cap, size_t len)
     if (len >= *cap) {
         size_t new_cap = (*cap == 0) ? 4 : *cap;
         while (len >= new_cap) new_cap <<= 1;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         if (*arr == NULL) exit(EXIT_FAILURE);
         *cap = new_cap;
     }

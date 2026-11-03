@@ -9,12 +9,14 @@
  *            (period 20, last coefficient 48)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 22, u64 n <= 48, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Continued‑fraction coefficients after the integer part 24.
    c[1] corresponds to a_1, c[2] to a_2, …  */
@@ -37,7 +39,7 @@ static void ensure_capacity(size_t need)
     size_t new_cap = cap ? cap : 1;
     while (new_cap < need)
         new_cap <<= 1;               /* double until enough */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                      /* fatal error on allocation failure */
     cache = tmp;

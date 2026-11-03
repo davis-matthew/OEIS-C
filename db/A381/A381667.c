@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     /* Build an array of the remaining persons */
     size_t len = (size_t)r;
-    seq_t *arr = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, len);
     if (!arr) return 0;            /* allocation failure (should not happen) */
     for (size_t i = 0; i < len; ++i) arr[i] = (seq_t)(i + 1);
 
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         idx = (idx + 2) % len;          /* skip two people */
         seq_t removed = arr[idx];
         if (elim == col) {
-            free(arr);
+            mem_free(arr);
             return removed;
         }
         /* Remove the element by shifting the tail left */
@@ -61,6 +63,6 @@ seq_t a(idx_t n)
         if (len == 0) break;           /* safety, should not occur */
     }
 
-    free(arr);
+    mem_free(arr);
     return 0;                           /* unreachable */
 }

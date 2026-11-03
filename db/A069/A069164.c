@@ -11,7 +11,8 @@
  *            on demand, caching results for future calls
  * Range:     u8 n <= 6, u16 n <= 31, u32 n <= 3814, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_gcd
+ * Validated: standard, pass, 72 terms through n = 7766 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Precompute the harmonic numbers H_m = 1 + 1/2 + ... + 1/m as reduced
    fractions.  We need H_{e+1} for exponents e occurring in k. */
@@ -39,7 +41,7 @@ static void precompute_h(void)
         /* H_m = H_{m-1} + 1/m = (prev_num* m + prev_den) / (prev_den * m) */
         seq_t new_num = prev_num * (seq_t)m + prev_den;
         seq_t new_den = prev_den * (seq_t)m;
-        seq_t g = seq_gcd(new_num, new_den);
+        seq_t g = gcd(new_num, new_den);
         h_num[m] = new_num / g;
         h_den[m] = new_den / g;
     }
@@ -86,7 +88,7 @@ static bool qualifies(idx_t k)
         seq_t h_d = h_den[e + 1];
         num = num * h_n;
         den = den * h_d;
-        seq_t g = seq_gcd(num, den);
+        seq_t g = gcd(num, den);
         num /= g;
         den /= g;
     }
@@ -110,7 +112,7 @@ seq_t a(idx_t n)
         precompute_h();
         build_spf();
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Generate values up to the requested index. */
@@ -119,7 +121,7 @@ seq_t a(idx_t n)
         if (qualifies(last_checked)) {
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)last_checked;
         }

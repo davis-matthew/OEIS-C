@@ -14,12 +14,14 @@
  *            a(4)=44832, a(5)=500516, a(6)=5809256,...
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static size_t memo_size = 0;
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     if (n == 0) return 0; /* Undefined for n<1, but returns 0. */
     /* Ensure memo contains at least first 13 terms. */
     if (memo_size == 0) {
-        memo = (seq_t *)malloc(13 * sizeof(seq_t));
+        memo = mem_new(seq_t, 13);
         if (!memo) return 0;
         memo[0] = (seq_t)16;
         memo[1] = (seq_t)312;
@@ -50,7 +52,7 @@ seq_t a(idx_t n) {
     idx_t target = n;
     if (target > (idx_t)memo_size) {
         size_t new_size = (size_t)target;
-        seq_t *tmp = (seq_t *)realloc(memo, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_size);
         if (!tmp) return 0;
         memo = tmp;
         /* Compute terms from memo_size up to target-1. */

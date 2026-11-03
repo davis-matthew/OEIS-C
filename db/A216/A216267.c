@@ -11,7 +11,8 @@
  *            (here 1 000 000) finds all solutions; the sequence is finite
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root of a 64‑bit unsigned value (floor(sqrt(x))).  */
 static uint64_t isqrt_uint64(uint64_t x)
@@ -51,7 +53,7 @@ static void init_solutions(void)
     const idx_t LIMIT = 1000000;
 
     size_t capacity = 8;
-    solutions = (seq_t *)malloc(capacity * sizeof(seq_t));
+    solutions = mem_new(seq_t, capacity);
     if (!solutions) return;             /* allocation failure – nothing to do */
 
     sol_count = 0;
@@ -72,8 +74,8 @@ static void init_solutions(void)
 
             if (sol_count == capacity) {             /* grow array if needed */
                 capacity *= 2;
-                seq_t *tmp = (seq_t *)realloc(solutions, capacity * sizeof(seq_t));
-                if (!tmp) { free(solutions); solutions = NULL; sol_count = 0; return; }
+                seq_t *tmp = mem_resize(seq_t, solutions, capacity);
+                if (!tmp) { mem_free(solutions); solutions = NULL; sol_count = 0; return; }
                 solutions = tmp;
             }
             solutions[sol_count++] = val;
@@ -82,7 +84,7 @@ static void init_solutions(void)
 
     /* Shrink to fit actual number of solutions. */
     if (sol_count < capacity) {
-        seq_t *tmp = (seq_t *)realloc(solutions, sol_count * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, solutions, sol_count);
         if (tmp) solutions = tmp;
     }
 }

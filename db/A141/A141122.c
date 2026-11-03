@@ -7,13 +7,16 @@
  * Formula:   a(n) = the nth prime of the form 12k+1
  * Range:     i8 n <= 6, i16 n <= 14, i32 n <= 14, i64 n <= 14, i128 n <= 14,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +32,7 @@ seq_t a(idx_t n)
     if (!init) {
         init = 1;
         cap  = 16;                        /* initial allocation */
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* If the requested index is already cached, return it. */
@@ -37,10 +40,10 @@ seq_t a(idx_t n)
 
     /* Generate primes until we have at least n of them. */
     while (sz < n) {
-        if (is_prime_small(next)) {
+        if (is_prime_seq(next)) {
             if (sz == cap) {              /* grow the cache */
                 cap *= 2;
-                cache = (seq_t*)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[sz++] = next;
         }

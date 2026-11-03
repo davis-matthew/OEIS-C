@@ -8,8 +8,9 @@
  * Formula:   a(n) = Sum{ a(d) : d^2 divides n } which makes a(n) a
  *            multiplicative function with a(p^e) = f[e] where f[0] = 1 and
  *            f[e] = Σ_{k=0}^{⌊e/2⌋} f[k] for all e ≥ 1
- * Range:     u8 n <= 9381, u16 n <= 9381, u32 n <= 9381, u64 n <= 9381,
- *            u128 n <= 9381, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 9381 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

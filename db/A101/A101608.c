@@ -11,13 +11,49 @@
  *            f(a(2k+1)), a(4k+4) = f(a(2k+2)), where f(1)=1, f(2)=3, f(3)=2
  * Range:     u8 n <= 102, u16 n <= 102, u32 n <= 102, u64 n <= 102,
  *            u128 n <= 102, big any n
- * Helpers:   a_rec, f_seq
+ * Validated: partial, pass, 102 terms through n = 102 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a_rec.h"
-#include "../utils/f_seq.h"
+static inline seq_t f_seq(seq_t v)
+{
+    return (v == 1) ? (seq_t)1
+         : (v == 2) ? (seq_t)3
+                      : (seq_t)2;
+}
+
+static seq_t a_rec(idx_t n)
+{
+    if (n <= 4) {
+        switch (n) {
+            case 1: return (seq_t)1;
+            case 2: return (seq_t)2;
+            case 3: return (seq_t)1;
+            case 4: return (seq_t)3;
+        }
+    }
+    switch (n & 3U) {                      /* n % 4 */
+        case 1U: {                         /* a(4k+1) */
+            idx_t k = (n - 1) >> 2;        /* (n-1)/4 */
+            return (seq_t)((k % 3) + 1);
+        }
+        case 2U: {                         /* a(4k+2) */
+            idx_t k = (n - 2) >> 2;        /* (n-2)/4 */
+            return (seq_t)(((k + 1) % 3) + 1);
+        }
+        case 3U: {                         /* a(4k+3) */
+            idx_t k = (n - 3) >> 2;        /* (n-3)/4 */
+            return f_seq(a_rec((idx_t)((seq_t)2 * k + (seq_t)1)));
+        }
+        case 0U: {                         /* a(4k+4) */
+            idx_t k = (n - 4) >> 2;        /* (n-4)/4 */
+            return f_seq(a_rec((idx_t)((seq_t)2 * k + (seq_t)2)));
+        }
+        default: return (seq_t)0;          /* unreachable */
+    }
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 13, u64 n <= 29, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Return the k-th continued‑fraction coefficient for sqrt(490) (k >= 0) */
 static seq_t cf_coeff(idx_t k)
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap * 2 : 1;
         while (new_cap < nsize + 1)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cached_terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cached_terms, new_cap);
         if (tmp == NULL) {
             /* Allocation failed – terminate the program as the sequence
                cannot be computed. */

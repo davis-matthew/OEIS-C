@@ -7,6 +7,7 @@
  * Formula:   a(n) = (1/6)*(38*n^3 - 48*n^2 + 16*n)
  * Range:     u8 n <= 2, u16 n <= 12, u32 n <= 558, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 54 terms through n = 4987 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

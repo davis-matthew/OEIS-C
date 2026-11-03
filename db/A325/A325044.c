@@ -9,7 +9,8 @@
  *            parts is greater than or equal to their product
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  seq_t and idx_t are defined by the build.  Do NOT redefine them.  */
 
@@ -129,7 +131,7 @@ static void generate_upto(idx_t n)
 
     if (!cache) {
         cache_cap = 64;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     if (!cache) exit(1);
 
@@ -139,7 +141,7 @@ static void generate_upto(idx_t n)
         if (is_heinz(val)) {
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                seq_t *new_arr = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *new_arr = mem_resize(seq_t, cache, cache_cap);
                 if (!new_arr) exit(1);
                 cache = new_arr;
             }

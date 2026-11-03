@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Utility: grow an array of seq_t if needed. */
 static seq_t *grow_seq(seq_t *ptr, size_t *cap, size_t needed)
@@ -32,7 +34,7 @@ static seq_t *grow_seq(seq_t *ptr, size_t *cap, size_t needed)
     size_t new_cap = *cap ? *cap * 2 : 1;
     while (new_cap < needed)
         new_cap *= 2;
-    ptr = (seq_t *)realloc(ptr, new_cap * sizeof(seq_t));
+    ptr = mem_resize(seq_t, ptr, new_cap);
     *cap = new_cap;
     return ptr;
 }

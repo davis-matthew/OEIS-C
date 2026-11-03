@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 181, u16 n <= 924, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pow10_mod
+ * Validated: standard, pass, 80 terms through n = 966 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,15 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow10_mod.h"
+
+/* Helper to compute 10^exp mod n, where exp is small (≤ 64). */
+static seq_t pow10_mod(idx_t exp, idx_t n)
+{
+    seq_t res = 1 % n;
+    for (idx_t i = 0; i < exp; ++i)
+        res = (res * 10) % n;
+    return res;
+}
 
 /* Helper to compute the number of decimal digits of an idx_t value. */
 static int digits_idx(idx_t x)

@@ -8,7 +8,8 @@
  * Formula:   a(n) = product_{1<=i<j<=n} (ceil(i/2)^2 + ceil(j/2)^2)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 /* The sequence is the Vandermonde product of the numbers
    1,1,2,2,3,3,…,⌊n/2⌋, where the last value occurs once if n is odd. */
 
-#include "../utils/pow_seq.h"   /* provides seq_t pow_seq(seq_t a, int k) */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         {
             /* base = v² + w², exponent = 4 (two copies of v, two copies of w) */
             seq_t b = (seq_t)((seq_t)v * v + (seq_t)w * w);
-            result *= pow_seq(b, 4);
+            result *= ipow_i32(b, 4);
         }
     }
 
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         {
             /* base = v² + L², exponent = 2 (two copies of v, one copy of L) */
             seq_t b = (seq_t)((seq_t)v * v + (seq_t)L * L);
-            result *= pow_seq(b, 2);
+            result *= ipow_i32(b, 2);
         }
     }
 

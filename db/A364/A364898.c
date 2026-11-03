@@ -9,13 +9,15 @@
  *            the first digit of the integer part (a(2)=1)
  * Range:     u8 n <= 2, u16 none, u32 n <= 2, u64 n <= 100, u128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The reduced rational value of 0.45359237/(0.3048^3) is
    28349523125 / 1769802912. */
@@ -39,7 +41,7 @@ static void ensure_capacity(idx_t need)
     idx_t new_size = cache_size ? cache_size * 2 : 8;
     if (new_size <= need)
         new_size = need + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache)
         abort();   /* out of memory */
     cache = new_cache;

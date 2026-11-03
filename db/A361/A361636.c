@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{k=0..⌊n/4⌋} (n+k)!/(k!^5 * (n-4*k)!)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 24, u128 n <= 45,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 954 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"          /* provides seq_t gcd(seq_t a, seq_t b) */
+#include "../utils/gcd.h"
 
 /* Multiply cur by the next term’s numerators and divide by the denominators
    using GCD reductions to avoid overflow.  Works for any seq_t implementation

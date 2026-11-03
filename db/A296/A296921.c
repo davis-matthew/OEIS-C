@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 3244, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 76 terms through n = 7900 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"     /* bool is_prime(idx_t x); */
-#include "../utils/mod_pow.h"     /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_cache = NULL;   /* cached primes */
 static size_t   cache_len  = 0;     /* number of cached primes */
@@ -34,7 +37,7 @@ static void ensure_cap(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = (cache_cap < 16 ? 16 : cache_cap << 1);
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(prime_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prime_cache, new_cap);
     if (tmp == NULL) abort();            /* out of memory */
     prime_cache = tmp;
     cache_cap   = new_cap;
@@ -50,7 +53,7 @@ static void generate_up_to(idx_t n)
     while (cache_len < (size_t)n) {
         if (candidate == 2 || (candidate & 1ULL)) {          /* odd candidates + 2 */
             if (is_prime(candidate)) {
-                seq_t residue = mod_pow((seq_t)candidate, (uint64_t)81, (seq_t)163);
+                seq_t residue = powmod((seq_t)candidate, (uint64_t)81, (seq_t)163);
                 if (residue == (seq_t)1) {
                     ensure_cap(cache_len + 1);
                     prime_cache[cache_len++] = (seq_t)candidate;

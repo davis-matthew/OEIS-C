@@ -11,14 +11,28 @@
  *            median is the same
  * Range:     u8 none, u16 none, u32 n <= 3, u64 n <= 9, u128 n <= 21,
  *            big any n
- * Helpers:   compute_f
+ * Validated: standard, pass, 28 terms through n = 88 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/compute_f.h"
+
+/* Compute f(a,b,c,d) = max + upper median + min – lower median. */
+static uint8_t compute_f(int a, int b, int c, int d)
+{
+    /* Sort the four values.  We use a simple sorting network. */
+    int t;
+    if (a > b) { t = a; a = b; b = t; }
+    if (c > d) { t = c; c = d; d = t; }
+    if (a > c) { t = a; a = c; c = t; }
+    if (b > d) { t = b; b = d; d = t; }
+    if (b > c) { t = b; b = c; c = t; }
+    /* Now a ≤ b ≤ c ≤ d.  Return the required combination. */
+    return (uint8_t)(a + c + d - b);
+}
 
 typedef struct {
     uint16_t *data;

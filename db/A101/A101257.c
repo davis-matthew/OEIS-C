@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look
  * Formula:   a(n) = A033677(n) mod A033676(n)
- * Range:     u8 n <= 3302, u16 n <= 9623, u32 n <= 9623, u64 n <= 9623,
- *            u128 n <= 9623, big any n
- * Helpers:   integer_sqrt
+ * Range:     u8 n <= 3302, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9623 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/integer_sqrt.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Floor of sqrt(n).  integer_sqrt returns an unsigned integer. */
-    idx_t s = integer_sqrt(n);
+    idx_t s = isqrt(n);
 
     /* Largest divisor ≤ √n is found by checking the numbers in
        descending order until a divisor is found.  For composite n

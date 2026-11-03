@@ -11,7 +11,8 @@
  *            * edge and diagonal differences equal to 18
  * Range:     u8 none, u16 n <= 2, u32 n <= 9, u64 n <= 21, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 140 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>   /* for abs() */
+#include "../utils/mem.h"
 
 #define MAX_ROWS 16807   /* 7^5 different rows (5 cells, base‑7 encoding) */
 
@@ -64,12 +66,12 @@ static void ensure_a_capacity(idx_t needed)
     idx_t new_cap = a_values_capacity ? a_values_capacity * 2 : 64;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_arr = (seq_t *)malloc((new_cap + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, (new_cap + 1));
     if (!new_arr)
         exit(1);
     if (a_values) {
-        memcpy(new_arr, a_values, (a_values_capacity + 1) * sizeof(seq_t));
-        free(a_values);
+        mem_copy(new_arr, a_values, (a_values_capacity + 1) * sizeof(seq_t));
+        mem_free(a_values);
     }
     a_values = new_arr;
     a_values_capacity = new_cap;
@@ -194,10 +196,10 @@ static void init(void)
     dp_next = dp2;
     for (int i = 0; i < MAX_ROWS; ++i)
         dp_cur[i] = (seq_t)1;
-    memset(dp_next, 0, MAX_ROWS * sizeof(seq_t));
+    mem_set(dp_next, 0, MAX_ROWS * sizeof(seq_t));
 
     a_values_capacity = 64;
-    a_values = (seq_t *)malloc((a_values_capacity + 1) * sizeof(seq_t));
+    a_values = mem_new(seq_t, (a_values_capacity + 1));
     if (!a_values)
         exit(1);
     a_values[0] = (seq_t)0;          /* unused, offset is 1 */
@@ -238,7 +240,7 @@ static void step_compute(void)
     dp_next = tmp;
     ++current_max_n;
 
-    memset(dp_next, 0, MAX_ROWS * sizeof(seq_t));
+    mem_set(dp_next, 0, MAX_ROWS * sizeof(seq_t));
 }
 
 /* ----------------------------------------------------------------------

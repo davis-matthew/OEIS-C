@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 29, u64 n <= 119, u128 n <= 359,
  *            big any n
- * Helpers:   digits_of, pow10
+ * Validated: standard, pass, 54 terms through n = 9826 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,16 +22,25 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/digits_of.h"
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Comparator for sorting divisors to minimize concatenation */
 static int cmp_divisors(const void *va, const void *vb)
 {
     uint64_t a = *(const uint64_t *)va;
     uint64_t b = *(const uint64_t *)vb;
-    int la = digits_of(a);
-    int lb = digits_of(b);
+    int la = num_digits_idx(a);
+    int lb = num_digits_idx(b);
     seq_t val1 = (seq_t)a * pow10((idx_t)lb) + (seq_t)b;
     seq_t val2 = (seq_t)b * pow10((idx_t)la) + (seq_t)a;
     if (val1 < val2) return -1;
@@ -71,7 +81,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     for (idx_t k = 0; k < count; ++k) {
         uint64_t d = divs[k];
-        int len = digits_of(d);
+        int len = num_digits_idx(d);
         result = result * pow10((idx_t)len) + (seq_t)d;
     }
 

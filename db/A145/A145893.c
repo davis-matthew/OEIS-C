@@ -11,15 +11,27 @@
  *            T(n,k)=0 for odd k
  * Range:     u8 n <= 22, u16 n <= 48, u32 n <= 108, u64 n <= 258,
  *            u128 n <= 641, big any n
- * Helpers:   binomial, factorial
+ * Validated: standard, pass, 82 terms through n = 9122 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factorial.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* Return the entry of the triangle for row n and column k. */
 static seq_t triangle_T(idx_t n, idx_t k)

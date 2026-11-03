@@ -12,6 +12,7 @@
  *            accumulation array, T, of A000027.)
  * Range:     u8 n <= 5, u16 n <= 58, u32 n <= 796, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 87 terms through n = 1235 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

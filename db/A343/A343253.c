@@ -14,16 +14,28 @@
  *            such power)
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   cmp_seq_t, factor_u64, pow_uint
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"   // factor_u64(n, primes, exps, &cnt)
-#include "../utils/pow_uint.h"    // pow_uint(base, exp)
-#include "../utils/cmp_seq_t.h"   // cmp_seq_t(const void*, const void*)
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* Return the a(n) value as defined above. */
 seq_t a(idx_t n) {
@@ -43,7 +55,7 @@ seq_t a(idx_t n) {
         if (primes[i] == 11) {      /* ignore 11 */
             continue;
         }
-        seq_t term = pow_uint(primes[i], (idx_t)exps[i]);   /* p^e */
+        seq_t term = ipow_u64_idx(primes[i], (idx_t)exps[i]);   /* p^e */
         if (cmp_seq_t(&term, &best) > 0) {
             best = term;
         }

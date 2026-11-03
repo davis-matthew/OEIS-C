@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,10 @@
  */
 
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +38,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 1; k <= limit; ++k) {
         /* r = k^5 mod n  (r < n) */
-        seq_t r = mod_pow((seq_t)k, 5ULL, (seq_t)n);
+        seq_t r = powmod((seq_t)k, 5ULL, (seq_t)n);
         idx_t res = (idx_t)r;           /* safe cast: r < n */
 
         if (first[res] != 0) {          /* a previous j exists */

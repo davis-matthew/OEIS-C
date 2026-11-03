@@ -7,7 +7,8 @@
  * Formula:   a(n) = 9*a(n-1) + a(n-2), a(0)=2, a(1)=9
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 923 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache       = NULL;   /* dynamically increasing cache */
 static idx_t  cache_size  = 0;      /* number of valid elements in cache  */
@@ -28,13 +30,13 @@ static void ensure_cache_cap(idx_t need)
         return;
     idx_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) { /* allocation failed – abort */
         abort();
     }
     if (!cache) {
         /* First allocation – initialise memory to zero for safety. */
-        memset(new_ptr, 0, new_cap * sizeof(seq_t));
+        mem_set(new_ptr, 0, new_cap * sizeof(seq_t));
     }
     cache      = new_ptr;
     cache_cap  = new_cap;

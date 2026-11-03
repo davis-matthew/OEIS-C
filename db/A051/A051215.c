@@ -9,13 +9,15 @@
  *            the list is sorted ascending
  * Range:     u8 n <= 32, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Counts and stores the sequence values.  The cache is built on
    first use and reused for later calls. */
@@ -83,7 +85,7 @@ static void build_cache(void)
     }
 
     /* Allocate final cache and copy values as seq_t. */
-    cache = (seq_t *)malloc(uniq * sizeof(seq_t));
+    cache = mem_new(seq_t, uniq);
     if (!cache) { free(tmp_vals); tmp_vals = NULL; cache_len = 0; return; }
     for (size_t i = 0; i < uniq; ++i) {
         cache[i] = (seq_t)tmp_vals[i];

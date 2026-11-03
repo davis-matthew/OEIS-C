@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 173, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sopfr_u
+ * Validated: standard, pass, 90 terms through n = 9604 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sopfr_u.h"
+#include "../utils/mem.h"
+
+/*--- helper: compute sopfr(n) using a pre‑computed spf array ----------------*/
+static inline seq_t sopfr_u(idx_t n, const uint32_t *spf)
+{
+    seq_t sum = 0;
+    while (n > 1) {
+        uint32_t p = spf[n];
+        sum += p;
+        n /= p;
+    }
+    return sum;
+}
 
 /*--- global storage for the sequence -----------------------------------*/
 static seq_t *terms = NULL;      /* array of discovered k's */
@@ -33,7 +46,7 @@ static void grow_terms(size_t new_cap)
 {
     if (new_cap <= terms_cap) return;
     if (new_cap == 0) new_cap = 16;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) abort();
     terms = tmp;
     terms_cap = new_cap;

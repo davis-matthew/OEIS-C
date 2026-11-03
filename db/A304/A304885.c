@@ -11,19 +11,21 @@
  *            a(n)=∑_{m∈S, m≤n} a(n‑m) where S={m | m%3==1 or m%6==5}
  * Range:     u8 n <= 31, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)1;
 
     idx_t size = n + 1;
-    seq_t *dp = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, size);
     if (!dp) return (seq_t)0;           /* allocation failure -> 0 */
 
     for (idx_t i = 0; i < size; ++i) dp[i] = (seq_t)0;
@@ -38,6 +40,6 @@ seq_t a(idx_t n)
     }
 
     seq_t res = dp[n];
-    free(dp);
+    mem_free(dp);
     return res;
 }

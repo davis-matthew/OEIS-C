@@ -8,13 +8,15 @@
  *            binomial(4,3) = 1)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   binomial, pow_int
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -24,6 +26,6 @@ seq_t a(idx_t n)
     /* binomial(n+4,3) is the combinatorial factor */
     seq_t bin = binomial(n + 4, 3);
     /* 4^(n-1) computed as 4^(n-1) = 2^(2*(n-1)) */
-    seq_t pw  = pow_int((seq_t)4, n - 1);
+    seq_t pw  = ipow_idx((seq_t)4, n - 1);
     return bin * pw;
 }

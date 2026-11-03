@@ -7,9 +7,10 @@
  * Formula:   a(n) = number of unordered factorizations of n into distinct
  *            primes or semiprimes. Computation uses a 0‑1 DP over all primes
  *            and semiprimes ≤ n
- * Range:     u8 n <= 9693, u16 n <= 9693, u32 n <= 9693, u64 n <= 9693,
- *            u128 n <= 9693, big any n
- * Helpers:   none
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 9693 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;                 /* DP table up to current max n */
 static idx_t max_n_computed = 0;         /* Largest n for which dp was built */
@@ -63,7 +65,7 @@ static void build_tables(idx_t n)
     for (idx_t i = 2; i <= n; ++i) if (is_factor[i]) factors[pos++] = i;
 
     /* 4. Allocate and initialise DP table */
-    seq_t *newdp = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *newdp = mem_new(seq_t, (n + 1));
     for (idx_t i = 0; i <= n; ++i) newdp[i] = 0;
     newdp[1] = 1;                 /* empty factorisation of 1 */
 
@@ -81,7 +83,7 @@ static void build_tables(idx_t n)
     free(is_factor);
     free(is_prime);
     free(factors);
-    if (dp) free(dp);
+    if (dp) mem_free(dp);
     dp = newdp;
     max_n_computed = n;
 }

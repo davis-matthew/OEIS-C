@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9295 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    expanded until it covers the requested position.
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;      /* prefix of the infinite word   */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
 
     /* initialise with the seed word "1" */
     if (cache_len == 0) {
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) abort();
         cache[0] = (seq_t)1;   /* a(1) = 1 */
         cache_len = 1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
 
         /* allocate space for the expanded word */
         size_t new_len_sz = (size_t)new_len;
-        seq_t *new_cache = (seq_t*)malloc(new_len_sz * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len_sz);
         if (!new_cache) abort();
 
         /* perform the expansion according to the morphism */
@@ -58,7 +60,7 @@ seq_t a(idx_t n) {
         }
 
         /* drop the old buffer and remember the new one */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len = new_len;
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    For each k < n all triples (i,j,k) with i<j<k, j-i=k-j and
    a(i),a(j),a(k) in arithmetic progression are counted. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;   /* cache[i] = a(i) for computed i */
@@ -27,9 +29,9 @@ seq_t a(idx_t n) {
     idx_t new_len = n + 1;
     size_t new_cap = (size_t)new_len;
     if (!cache) {                                 /* first allocation */
-        cache = (seq_t*)calloc(new_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, new_cap);
     } else if (new_len > cache_len) {             /* grow cache */
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
     }
 
     /* Compute a(0) if not yet done */

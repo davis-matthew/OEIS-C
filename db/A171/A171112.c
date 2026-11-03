@@ -7,6 +7,7 @@
  * Formula:   a(n) = (9*n^4 - 36*n^3 + 12*n^2 + 81*n - 66) / 2
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 6, i64 n <= 6, i128 n <= 6,
  *            big any n
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

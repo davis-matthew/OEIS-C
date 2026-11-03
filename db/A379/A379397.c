@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   alloc_or_realloc, int_cube_root
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,62 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <memory.h>
-#include "../utils/int_cube_root.h"
-#include "../utils/alloc_or_realloc.h"
+#include <limits.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
+
+#ifdef __cplusplus
+template <class T>
+static T *alloc_or_realloc(T *ptr, size_t *cap, size_t needed, size_t elem_size)
+{
+    if (needed <= *cap) return ptr;
+    size_t new_cap = (*cap == 0) ? 8 : *cap;
+    while (new_cap < needed) new_cap <<= 1;
+    if (ptr) {
+        T *tmp = mem_resize(T, ptr, (new_cap * elem_size) / sizeof(T));
+        if (!tmp) return ptr; /* keep old on failure */
+        return tmp;
+    } else {
+        return mem_new(T, (new_cap * elem_size) / sizeof(T));
+    }
+}
+#else
+static void *alloc_or_realloc(void *ptr, size_t *cap, size_t needed, size_t elem_size)
+{
+    if (needed <= *cap) return ptr;
+    size_t new_cap = (*cap == 0) ? 8 : *cap;
+    while (new_cap < needed) new_cap <<= 1;
+    if (ptr) {
+        void *tmp = realloc(ptr, new_cap * elem_size);
+        if (!tmp) return ptr; /* keep old on failure */
+        return tmp;
+    } else {
+        return malloc(new_cap * elem_size);
+    }
+}
+#endif
 
 static void compute_up_to(idx_t limit, seq_t **out_seq, idx_t *out_len)
 {
@@ -86,7 +141,7 @@ seq_t a(idx_t n)
         seq_t *new_seq = NULL;
         idx_t new_len = 0;
         compute_up_to(max_limit, &new_seq, &new_len);
-        if (sequence) free(sequence);
+        if (sequence) mem_free(sequence);
         sequence = new_seq;
         seq_len = new_len;
     }

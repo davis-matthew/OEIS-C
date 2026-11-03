@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ------------------ prime list (dynamic) -------------------- */
 static uint32_t *prime_list   = NULL;   /* holds primes in order, 1‑based */
@@ -84,7 +86,7 @@ static size_t heap_cap = 0;
 static void heap_grow(void)
 {
     size_t new_cap = (heap_cap == 0) ? 256 : heap_cap * 2;
-    Node *new_heap = (Node *)realloc(heap, new_cap * sizeof(Node));
+    Node *new_heap = mem_resize(Node, heap, new_cap);
     if (!new_heap) exit(EXIT_FAILURE);
     heap = new_heap;
     heap_cap = new_cap;
@@ -138,7 +140,7 @@ static size_t seq_cap  = 0;
 static void seq_grow(void)
 {
     size_t new_cap = (seq_cap == 0) ? 256 : seq_cap * 2;
-    seq_t *new_seq = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_seq = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_seq) exit(EXIT_FAILURE);
     seq_cache = new_seq;
     seq_cap = new_cap;

@@ -12,8 +12,8 @@
  *            directly with exact binomials
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 23, u64 n <= 42, u128 n <= 79,
  *            big any n
- * Helpers:   alloc_zero, ecomp, gcd_seq, grow_zero, release,
- *            seq_is_fixed_width, wstep
+ * Validated: standard, pass, 47 terms through n = 1775 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,13 +21,72 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/grow_zero.h"
-#include "../utils/release.h"
-#include "../utils/gcd_seq.h"
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/ecomp.h"
-#include "../utils/wstep.h"
+#include <string.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static void ecomp(seq_t *u, idx_t m, seq_t *P, seq_t *Ng)
+{
+    idx_t d;
+    seq_t p = 0, q = 0;
+    for (d = 1; d * d <= m; d++) {
+        if (m % d == 0) {
+            idx_t e = m / d;
+            seq_t v = (seq_t)d * u[d];
+            if (e & 1) p += v; else q += v;
+            if (e != d) {
+                v = (seq_t)e * u[e];
+                if (d & 1) p += v; else q += v;
+            }
+        }
+    }
+    P[m] = p; Ng[m] = q;
+}
+
+static seq_t wstep(seq_t *w, seq_t *P, seq_t *Ng, idx_t m)
+{
+    seq_t sp = 0, sn = 0;
+    idx_t k;
+    for (k = 1; k <= m; k++) {
+        if (P[k] != 0) sp += P[k] * w[m - k];
+        if (Ng[k] != 0) sn += Ng[k] * w[m - k];
+    }
+    return (sp - sn) / (seq_t)m;
+}
 
 /* P(x) *= (1+x^k)^m, truncated at degree N */
 static void mulfac(seq_t *P, idx_t N, idx_t k, seq_t m, seq_t *bin)
@@ -39,7 +98,7 @@ static void mulfac(seq_t *P, idx_t N, idx_t k, seq_t m, seq_t *bin)
         if (zero || m < (seq_t)j) { zero = true; bin[j] = 0; continue; }
         {
             seq_t C = bin[j - 1];
-            seq_t g = gcd_seq(C, (seq_t)j);
+            seq_t g = gcd(C, (seq_t)j);
             seq_t q = (seq_t)j / g;
             bin[j] = (C / g) * ((m - (seq_t)j + 1) / q);
         }

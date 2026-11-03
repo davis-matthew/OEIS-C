@@ -8,18 +8,21 @@
  *            2*(2^(n+1)-1)/((n+1)*(n+2))
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 30, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* Compute 2^(n+1) */
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)(n + 1));
+    seq_t pow2 = ipow((seq_t)2, (seq_t)(n + 1));
 
     /* Numerator N = 2*(2^(n+1)-1) */
     seq_t N = (pow2 - (seq_t)1) * (seq_t)2;

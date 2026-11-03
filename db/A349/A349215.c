@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = τ(n) + Σ_{p|n} (p−1) (sum over distinct prime divisors p
  *            of n)
- * Range:     u8 n <= 256, u16 n <= 9844, u32 n <= 9844, u64 n <= 9844,
- *            u128 n <= 9844, big any n
+ * Range:     u8 n <= 256, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 91 terms through n = 9844 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

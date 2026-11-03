@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2025*n^2 + n
  * Range:     u8 none, u16 n <= 5, u32 n <= 1456, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 46 terms through n = 9258 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

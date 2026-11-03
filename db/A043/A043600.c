@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Recursive generation of 9‐digit base‑4 numbers with no repeated
    neighbouring digits and a leading digit of 1, 2 or 3. */
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         initialized = true;
-        table = (seq_t *)malloc(MAX_TERMS * sizeof(seq_t));
+        table = mem_new(seq_t, MAX_TERMS);
         if (!table) return 0;             /* allocation failure */
 
         size_t cnt = 0;
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         table_size = cnt;
 
         /* Sort to guarantee increasing order. */
-        qsort(table, table_size, sizeof(seq_t), cmp_seq);
+        mem_qsort(table, table_size, sizeof(seq_t), cmp_seq);
     }
 
     if ((idx_t)n > table_size) return 0;   /* request beyond precomputed list */

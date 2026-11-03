@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 87, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 97 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *dp_cache = NULL;      /* cache of computed partition counts */
 static idx_t   dp_size  = 0;        /* number of entries in dp_cache (max n + 1) */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* If cache is empty or n exceeds current cached size, rebuild */
     if (dp_cache == NULL || n >= dp_size) {
         /* allocate new cache big enough for indices 0..n */
-        seq_t *new_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (n + 1));
         if (new_cache == NULL)
             return (seq_t)0;   /* error: cannot allocate memory */
 
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
 
         /* free old cache if it existed */
         if (dp_cache != NULL)
-            free(dp_cache);
+            mem_free(dp_cache);
 
         dp_cache = new_cache;
         dp_size  = n + 1;

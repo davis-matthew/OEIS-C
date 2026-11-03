@@ -7,6 +7,7 @@
  * Formula:   a(n) = smallest k such that Σ_{i=1}^{k} ⌊(i+1)²/4⌋ ≥ n
  * Range:     u8 n <= 497, u16 n <= 3000, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
+ * Validated: standard, pass, 103 terms through n = 2971 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

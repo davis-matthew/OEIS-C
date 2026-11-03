@@ -9,14 +9,16 @@
  *            multiplicity
  * Range:     u8 n <= 15, u16 n <= 15, u32 n <= 26, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Return the smallest prime factor of m (m ≥ 2). */
 static uint64_t _smallest_factor(uint64_t m)
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
        then apply successive larger bases. */
     seq_t result = (seq_t)factors[0];
     for (size_t i = 1; i < cnt; ++i) {
-        result = big_pow((seq_t)factors[i], result);
+        result = ipow((seq_t)factors[i], result);
     }
 
     return result;

@@ -8,6 +8,7 @@
  * Formula:   a(n) = floor(n*e) + floor(n*e/(e-1))
  * Range:     u8 n <= 1, u16 none, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

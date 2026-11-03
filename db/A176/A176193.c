@@ -8,7 +8,8 @@
  *            semiprimes in the list of composite numbers)
  * Range:     u8 n <= 102, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_seq, free_seq
+ * Validated: standard, pass, 80 terms through n = 9918 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_seq.h"
-#include "../utils/free_seq.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 static size_t current_limit = 0;   /* maximum number considered in the sieve   */
 static size_t sem_count    = 0;     /* number of semiprime positions found     */

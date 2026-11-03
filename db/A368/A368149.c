@@ -14,13 +14,15 @@
  *            n, and the sequence a is obtained by concatenating...
  * Range:     u8 n <= 30, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (cache_len + (size_t)n > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
         while (new_cap < cache_len + (size_t)n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) { /* allocation failure – return 0 as a fallback */
             return (seq_t)0;
         }
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Generate triangle rows until the cache holds at least n terms */
     while (cache_len < (size_t)n) {
         idx_t row_len = rows_done + 1;          /* current row number = rows_done + 1 */
-        seq_t *row_curr = (seq_t *)malloc((size_t)row_len * sizeof(seq_t));
+        seq_t *row_curr = mem_new(seq_t, (size_t)row_len);
         if (!row_curr) return (seq_t)0;        /* allocation failure */
 
         if (row_len == 1) {
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
         }
 
         /* Shift row pointers: current becomes previous row, etc. */
-        if (row_prev2) free(row_prev2);
+        if (row_prev2) mem_free(row_prev2);
         row_prev2 = row_prev1;
         prev2_len = prev1_len;
 

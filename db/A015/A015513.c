@@ -9,6 +9,7 @@
  *            Σ_{k=1}^{n-1} ((11^k - 1)/10)*a(k)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 10,
  *            big any n
+ * Validated: standard, pass, 27 terms through n = 45 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

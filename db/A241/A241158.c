@@ -10,13 +10,31 @@
  *            sequence starts with a(1)=0
  * Range:     u8 n <= 227, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_distinct_leading_digits
+ * Validated: standard, pass, 118 terms through n = 9909 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_distinct_leading_digits.h"
+
+static bool has_distinct_leading_digits(seq_t x)
+{
+    /* numbers with fewer than two digits always satisfy the condition */
+    if (x < 10)
+        return true;
+
+    seq_t pow = 1;
+    /* find the largest power of 10 that is <= x */
+    while (pow <= (x / 10))
+        pow *= 10;
+
+    /* first two most significant digits of x */
+    seq_t first  = x / pow;
+    seq_t second = (x / (pow / 10)) % 10;
+
+    return first != second;
+}
 
 seq_t a(idx_t n)
 {

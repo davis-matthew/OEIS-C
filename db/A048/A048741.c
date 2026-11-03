@@ -7,7 +7,8 @@
  * Formula:   a(n) = A007956(A002808(n))
  * Range:     u8 n <= 9, u16 n <= 23, u32 n <= 64, u64 n <= 186, u128 n <= 590,
  *            big any n
- * Helpers:   factor_u64, int_sqrt, is_prime, seq_pow
+ * Validated: standard, pass, 65 terms through n = 9942 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx, is_prime, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,11 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/int_sqrt.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/is_prime.h"
+#include "../utils/isqrt.h"
 
 /* cache of composite numbers */
 static idx_t *composite_cache = NULL;
@@ -62,11 +64,11 @@ static seq_t product_of_aliquot_divisors(idx_t m) {
 
     if ((tau & 1) == 0) {                 /* τ is even */
         idx_t exp = tau / 2 - 1;
-        return seq_pow((seq_t)n_val, exp);
+        return ipow_idx((seq_t)n_val, exp);
     } else {                               /* τ odd → m is a perfect square */
         idx_t e_int = (tau - 3) / 2;       /* integer part of the exponent */
-        seq_t part  = seq_pow((seq_t)n_val, e_int);
-        seq_t sqrt  = (seq_t)int_sqrt(n_val);  /* exact square root */
+        seq_t part  = ipow_idx((seq_t)n_val, e_int);
+        seq_t sqrt  = (seq_t)isqrt(n_val);  /* exact square root */
         return part * sqrt;
     }
 }

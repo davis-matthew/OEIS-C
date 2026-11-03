@@ -8,12 +8,14 @@
  *            k²·(k+1)! )
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 441 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the nth term of OEIS sequence A280556. */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Ensure the a(0) value is initialized. */
     if (current_max == 0 && terms == NULL) {
         terms_cap = 1;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (terms == NULL) return 0;          /* allocation failure, return 0 */
         terms[0] = 0;                         /* a(0) = 0 */
         f = (seq_t)2;                         /* 2! for k = 1 */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Raise capacity if necessary. */
     if (n + 1 > terms_cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
         if (new_terms == NULL) return 0;      /* allocation failure, return 0 */
         terms = new_terms;
         terms_cap = new_cap;

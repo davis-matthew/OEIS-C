@@ -8,6 +8,7 @@
  * Formula:   a(n) = 256*n^8 - 3584*n^6 + 13440*n^4 - 13440*n^2 + 1680
  * Range:     i8 none, i16 n <= 2, i32 n <= 7, i64 n <= 117, i128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 737 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 123, u16 n <= 1001, u32 n <= 1001, u64 n <= 1001,
  *            u128 n <= 1001, big any n
- * Helpers:   ensure_used
+ * Validated: standard, pass, 78 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,14 +30,27 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/ensure_used.h"
+#include "../utils/mem.h"
+
+/* Ensure that the used bitset can address index 'need' (inclusive).  */
+static void ensure_used(idx_t need, unsigned char **used, idx_t *cap)
+{
+    while (*cap <= need) {
+        idx_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        unsigned char *tmp = (unsigned char *)realloc(*used, new_cap);
+        if (!tmp) exit(1);
+        memset(tmp + *cap, 0, new_cap - *cap);
+        *used = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* Ensure that an array of seq_t can address index 'need' (inclusive).  */
 static void ensure_arr(idx_t need, seq_t **arr, idx_t *cap)
 {
     while (*cap <= need) {
         idx_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) exit(1);
         *arr = tmp;
         *cap = new_cap;
@@ -62,7 +76,7 @@ seq_t a(idx_t n)
         used[1] = used[2] = used[3] = 1;
         candidate = 4;
 
-        a_arr = (seq_t *)calloc(1, sizeof(seq_t));
+        a_arr = mem_new(seq_t, 1);
         if (!a_arr) exit(1);
         a_cap = 1;
         a_arr[0] = (seq_t)1;

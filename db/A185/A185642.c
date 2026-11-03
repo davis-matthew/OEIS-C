@@ -7,6 +7,7 @@
  * Formula:   a(n) = round(A008472(n)/A001221(n))
  * Range:     u8 n <= 256, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 94 terms through n = 935 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,9 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* for factor_u64 */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 /* Computes the nearest integer to the average of the distinct prime
    factors of n.  For prime n this returns n. */

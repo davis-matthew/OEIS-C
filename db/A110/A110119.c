@@ -12,7 +12,8 @@
  *            n ≥ 1
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t   *perm   = NULL;      /* permutation table (index → value) */
 static size_t  perm_cap = 0;        /* allocated capacity of perm array   */
@@ -34,11 +36,11 @@ static bool    initialized = false;
 static void ensure_capacity(size_t req)
 {
     if (perm_cap < req) {
-        seq_t *tmp = (seq_t*)realloc(perm, req * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, perm, req);
         if (!tmp) abort();          /* allocation error */
         /* Zero the new part of the array. */
         if (req > perm_cap)
-            memset(tmp + perm_cap, 0, (req - perm_cap) * sizeof(seq_t));
+            mem_set(tmp + perm_cap, 0, (req - perm_cap) * sizeof(seq_t));
         perm = tmp;
         perm_cap = req;
     }
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
 
         /* Initial small capacity and zero the table. */
         ensure_capacity(16);
-        memset(perm, 0, perm_cap * sizeof(seq_t));
+        mem_set(perm, 0, perm_cap * sizeof(seq_t));
 
         last_k = 0;
         initialized = true;

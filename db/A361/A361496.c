@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
      0, 1, 0, 1, ...  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_arr = NULL;   /* flattened sequence */
 static idx_t seq_len  = 0;      /* number of stored terms */
@@ -34,7 +36,7 @@ static void grow_row(void)
     idx_t old_len = seq_len;
     idx_t new_len = old_len * 2;
 
-    seq_arr = (seq_t *)realloc(seq_arr, sizeof(seq_t) * new_len);
+    seq_arr = mem_resize(seq_t, seq_arr, new_len);
     if (!seq_arr) abort(); /* memory allocation failed */
 
     idx_t write = old_len;   /* position to write new terms */
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
 {
     /* initialise with the first term if needed */
     if (seq_len == 0) {
-        seq_arr = (seq_t *)malloc(sizeof(seq_t));
+        seq_arr = mem_new(seq_t, 1);
         if (!seq_arr) abort();
         seq_arr[0] = 0;
         seq_len  = 1;

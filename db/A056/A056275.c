@@ -8,13 +8,15 @@
  * Formula:   a(n) = Sum_{d|n} mu(d)*A007581(n/d-1) (OEIS A056275)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* -------------- global static data -------------------- */
 static idx_t          precomp_max = 0;           /* largest n pre‑computed   */
@@ -38,10 +40,10 @@ static void precompute_arrays(idx_t max_n)
     if (is_comp)      free(is_comp);
     if (mu_arr)       free(mu_arr);
     if (primes)       free(primes);
-    if (c_arr)        free(c_arr);
+    if (c_arr)        mem_free(c_arr);
     if (S_arr) {
         for (size_t i = 0; i < 5; ++i)
-            if (S_arr[i]) free(S_arr[i]);
+            if (S_arr[i]) mem_free(S_arr[i]);
         free(S_arr);
     }
 
@@ -49,10 +51,10 @@ static void precompute_arrays(idx_t max_n)
     is_comp = (bool *)calloc((size_t)(max_n + 1), sizeof(bool));
     mu_arr  = (int  *)malloc((size_t)(max_n + 1) * sizeof(int));
     primes  = (idx_t*)malloc((size_t)(max_n + 1) * sizeof(idx_t));   /* enough space */
-    c_arr   = (seq_t*)malloc((size_t)(max_n + 1) * sizeof(seq_t));
+    c_arr   = mem_new(seq_t, (size_t)(max_n + 1));
     S_arr   = (seq_t**)malloc(5 * sizeof(seq_t*));
     for (size_t k = 0; k < 5; ++k)
-        S_arr[k] = (seq_t*)calloc((size_t)(max_n + 1), sizeof(seq_t));
+        S_arr[k] = mem_new(seq_t, (size_t)(max_n + 1));
 
     /* linear sieve for primes and μ */
     mu_arr[0] = 0;

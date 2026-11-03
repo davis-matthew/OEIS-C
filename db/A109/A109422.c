@@ -10,7 +10,8 @@
  *            an integer
  * Range:     u8 n <= 54, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   factor_tau_omega
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,32 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/factor_tau_omega.h"
+#include "../utils/mem.h"
+
+/* Compute the divisor count tau(n) and the bigomega(n)
+   (the total number of prime factors counted with multiplicity) */
+static void factor_tau_omega(uint64_t n, uint64_t *tau, uint64_t *omega)
+{
+    *tau   = 1;
+    *omega = 0;
+    uint64_t m = n;
+
+    for (uint64_t p = 2; p * p <= m; ++p) {
+        if (m % p == 0) {
+            uint64_t exp = 0;
+            while (m % p == 0) {
+                m /= p;
+                ++exp;
+            }
+            *omega += exp;
+            *tau   *= (exp + 1);
+        }
+    }
+    if (m > 1) {          /* m itself is a prime factor */
+        *tau   *= 2;
+        *omega += 1;
+    }
+}
 /* External types are defined by the build system: seq_t and idx_t */
 
 /* Non‑static external function required by the test harness
@@ -43,7 +69,7 @@ seq_t a(idx_t n)
             /* Grow the cache if necessary */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? (cache_cap << 1) : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();        /* memory allocation failure */
                 cache = tmp;
                 cache_cap = (idx_t)new_cap;

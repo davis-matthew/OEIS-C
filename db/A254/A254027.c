@@ -8,13 +8,14 @@
  *            where d = ⌊(√(8n+1)-1)/2⌋, t = n - d(d+1)/2, k = d - t
  * Range:     i8 n <= 14, i16 n <= 54, i32 n <= 209, i64 n <= 819,
  *            i128 n <= 3320, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 82 terms through n = 5116 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +45,7 @@ seq_t a(idx_t n)
     idx_t t = n - (idx_t)tri;   /* exponent of 2   */
     idx_t k = d - t;           /* exponent of 3   */
 
-    seq_t pow_k = pow_uint(3, k);
-    seq_t pow_t = pow_uint(2, t);
+    seq_t pow_k = ipow_u64_idx(3, k);
+    seq_t pow_t = ipow_u64_idx(2, t);
     return pow_k - pow_t;
 }

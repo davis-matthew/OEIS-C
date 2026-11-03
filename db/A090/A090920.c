@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 57, u32 n <= 4316, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_count
+ * Validated: standard, pass, 63 terms through n = 9431 (2026-11-01)
+ * Helpers:   num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -70,7 +71,8 @@ static inline seq_t pow10_seq(idx_t e) {
 }
 
 /* digit count provided by the utilities */
-#include "../utils/digit_count.h"
+#include <math.h>
+#include "../utils/num_digits0.h"
 
 seq_t a(idx_t n)
 {
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
     idx_t m = 0;
     while (true) {
         idx_t k = 1 + m * n;           /* k ≡ 1 (mod n) */
-        uint64_t exp = digit_count((uint64_t)k);   /* number of decimal digits of k */
+        uint64_t exp = num_digits0((uint64_t)k);   /* number of decimal digits of k */
         seq_t cand = (seq_t)n * pow10_seq(exp) + (seq_t)k;
         uint64_t cand64 = (uint64_t)cand;  /* fits in 64 bit for n ≤ 10 000 */
         if (is_prime_uint64(cand64)) return cand;

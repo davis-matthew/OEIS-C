@@ -10,16 +10,25 @@
  *            signature as n, a(a(n)) = n, and a(n) ≠ n, except a(1)=1
  * Range:     u8 n <= 63, u16 n <= 2047, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   hash_str
+ * Validated: standard, pass, 88 terms through n = 9812 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/hash_str.h"
+#include "../utils/mem.h"
+
+static uint64_t hash_str(const char *s)
+{
+    uint64_t h = 5381;
+    while (*s) h = ((h << 5) + h) + (uint64_t)(unsigned char)*s++;
+    return h;
+}
 
 /* --------------------------------------------------------------- */
 /* Small dynamic vector of unsigned 32‑bit integers for grouping   */
@@ -98,7 +107,7 @@ static void init_precomputation(void)
 
     /* Allocate cache */
     cache = (seq_t *)xmalloc((PRECOMP_LIMIT + 1) * sizeof(seq_t));
-    memset(cache, 0, (PRECOMP_LIMIT + 1) * sizeof(seq_t));
+    mem_set(cache, 0, (PRECOMP_LIMIT + 1) * sizeof(seq_t));
 
     /* Allocate spf array */
     spf = (uint32_t *)xmalloc((PRECOMP_LIMIT + 1) * sizeof(uint32_t));

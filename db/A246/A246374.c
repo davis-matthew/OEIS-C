@@ -8,8 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 1785, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, build_primes_upto, factor_u64, is_prime, seq_cmp,
- *            seq_mul
+ * Validated: standard, pass, 76 terms through n = 9453 (2026-11-03)
+ * Helpers:   build_primes_upto, factor_u64, ipow, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,12 +24,26 @@
 #include <stdlib.h>
 
 /* utilities provided by the build */
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/is_prime.h"
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_cmp.h"
+#include "../utils/ipow.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 /* -------------------------------------------------------------------- */
 /* static data: sieve of primes                                 */
@@ -101,7 +115,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < fac_cnt; ++i) {
             uint64_t q = fac_pr[i];
             uint64_t e = fac_ex[i];
-            seq_t  pow_val = big_pow((seq_t)prev_prime_of(q), (seq_t)e);
+            seq_t  pow_val = ipow((seq_t)prev_prime_of(q), (seq_t)e);
             rhs = seq_mul(rhs, pow_val);
         }
 
@@ -111,7 +125,7 @@ seq_t a(idx_t n)
             /* add to cache */
             if (cache_cap <= cache_len) {
                 cache_cap = cache_cap ? cache_cap * 2 : 4;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = p_seq;
         }

@@ -10,7 +10,8 @@
  *            == 1 where the sum is over distinct prime divisors p of k
  * Range:     u8 n <= 106, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, gcd, seq_alloc_new_array, seq_free_array
+ * Validated: standard, pass, 77 terms through n = 9257 (2026-11-03)
+ * Helpers:   build_primes_upto, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,15 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/gcd.h"
+#include <math.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* prime data (computed once) */
 static uint64_t *primes = NULL;    /* pointers to primes */
@@ -50,7 +56,7 @@ static void ensure_terms_cap(idx_t need)
     if (!new_terms) abort();
 
     if (terms) {
-        memcpy(new_terms, terms, (size_t)terms_len * sizeof(seq_t));
+        mem_copy(new_terms, terms, (size_t)terms_len * sizeof(seq_t));
         seq_free_array(terms);
     }
     terms = new_terms;

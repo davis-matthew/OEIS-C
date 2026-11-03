@@ -11,13 +11,15 @@
  *            T(n-k,k) otherwise
  * Range:     u8 n <= 28, u16 n <= 120, u32 n <= 496, u64 n <= 2016,
  *            u128 n <= 8128, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9807 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>  // for size_t
 #include <stdlib.h>  // for malloc, free
+#include "../utils/mem.h"
 
 /* Find the row number r such that r(r+1)/2 >= n. */
 static inline idx_t find_row(idx_t n)
@@ -39,7 +41,7 @@ static inline idx_t find_row(idx_t n)
 static inline seq_t compute_T(idx_t r, idx_t k)
 {
     size_t R = (size_t)r;
-    seq_t *dp = (seq_t *)malloc((R + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (R + 1));
     /* base case for t <= k : T(t,k) = t+1 */
     size_t max_base = (k > R) ? R : (size_t)k;
     for (size_t t = 0; t <= max_base; ++t)
@@ -48,7 +50,7 @@ static inline seq_t compute_T(idx_t r, idx_t k)
     for (size_t t = max_base + 1; t <= R; ++t)
         dp[t] = dp[t - 1] + dp[t - k];
     seq_t result = dp[R];
-    free(dp);
+    mem_free(dp);
     return result;
 }
 

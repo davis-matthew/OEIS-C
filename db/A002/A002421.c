@@ -8,13 +8,14 @@
  *            a(n)*(4*n-6)/(n+1), a(0) = 1, a(1) = -6, a(2) = 6
  * Range:     i8 n <= 7, i16 n <= 12, i32 n <= 21, i64 n <= 38, i128 n <= 71,
  *            big any n
- * Helpers:   a002421_gcd_u
+ * Validated: standard, pass, 46 terms through n = 990 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a002421_gcd_u.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
@@ -26,7 +27,7 @@ seq_t a(idx_t n) {
         uint64_t num = (uint64_t)(4 * k - 6);
         uint64_t den = (uint64_t)(k + 1);
         uint64_t rm = (uint64_t)(long long)(r % (seq_t)den);
-        uint64_t g = a002421_gcd_u(den, rm);
+        uint64_t g = gcd_u64(den, rm);
         uint64_t h = den / g;
         r = r / (seq_t)g;
         r = r * (seq_t)(num / h);

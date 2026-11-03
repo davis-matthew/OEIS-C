@@ -9,16 +9,20 @@
  * Formula:   a(n) is the Dirichlet inverse of A341529(n) where A341529(n) =
  *            sigma(n) * A003961(n) and A003961 is multiplicative with
  *            A003961(p) = nextprime(p)
- * Range:     i8 n <= 5, i16 n <= 69, i32 n <= 9902, i64 n <= 9902,
- *            i128 n <= 9902, big any n
+ * Range:     i8 n <= 5, i16 n <= 69, i32 n <= 12389, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 74 terms through n = 9902 (2026-11-01)
  * Helpers:   factor_u64, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>           /* size_t */
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
 
 /* Helper: next prime after x */
 static idx_t next_prime_idx(idx_t x)

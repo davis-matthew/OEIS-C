@@ -11,11 +11,13 @@
  *            (-1)^k*binomial(k,2)^3*binomial(n,k)^3
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 9, i64 n <= 21, i128 n <= 26,
  *            big any n
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

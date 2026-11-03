@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2, i16 n <= 6, i32 n <= 18, i64 n <= 46, i128 n <= 107,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 883 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    intermediate is used to avoid overflow; for arbitrary‑precision
    types the normal multiplication is used. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline seq_t mul_small(seq_t a, int m)
 {
@@ -37,8 +39,7 @@ static idx_t cache_len = 0;
 static void ensure_cache(idx_t n)
 {
     if (n + 1 <= cache_len) return;
-    seq_t *tmp = (seq_t *)realloc(cache,
-                                  ((size_t)n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, ((size_t)n + 1));
     if (!tmp) exit(1);                      /* allocation failure */
     cache = tmp;
     cache_len = n + 1;

@@ -10,17 +10,19 @@
  * Formula:   a(n) = 2*(n+1) - phi(n+2)
  * Range:     u8 n <= 147, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   calc_phi
+ * Validated: standard, pass, 86 terms through n = 996 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/calc_phi.h"
+#include <stdint.h>
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
     seq_t sn = (seq_t)n;
-    seq_t phi_val = calc_phi(sn + 2);
+    seq_t phi_val = totient_seq(sn + 2);
     seq_t result = (seq_t)2 * (sn + 1) - phi_val;
     return result;
 }

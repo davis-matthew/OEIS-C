@@ -9,6 +9,7 @@
  *            for n = 3k; a(n) = (k^3+7k^2+16k+12)^3 for n ≡ 2 (mod 3)
  * Range:     u8 none, u16 n <= 5, u32 n <= 30, u64 n <= 210, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 194 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

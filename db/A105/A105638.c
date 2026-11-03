@@ -5,8 +5,9 @@
  * Offset:    3    (a(3) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = n*(n-3)/2 if n is odd, n*(n-4)/2 + 1 if n is even
- * Range:     u8 n <= 24, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
- *            big any n
+ * Range:     u8 n <= 24, u16 n <= 364, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 70 terms through n = 9851 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

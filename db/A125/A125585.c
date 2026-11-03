@@ -9,8 +9,9 @@
  *            difference is k = min { m | m(m+1)/2 ≥ i }, and the first term
  *            is t = i – k(k−1)/2. The entry at column j is then a_{i,j} = t +
  *            (j−1)k. The n‑th term is the (i,j) with i+j = s,...
- * Range:     u8 n <= 1748, u16 n <= 8217, u32 n <= 8217, u64 n <= 8217,
- *            u128 n <= 8217, big any n
+ * Range:     u8 n <= 1748, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 94 terms through n = 8217 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

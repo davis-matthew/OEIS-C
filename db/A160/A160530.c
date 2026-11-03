@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 2583, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 76 terms through n = 9905 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,13 +22,14 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* Return true if all runs of consecutive 0’s or 1’s in x have odd length. */
 static bool odd_runs(seq_t x)
 {
     /* x > 0 is guaranteed by construction */
-    size_t bits = bitlen_seq_t(x);
+    size_t bits = bit_length(x);
     if (bits <= 1)
         return true;
 
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         cache_cap = 128;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
         candidate = (seq_t)1;
         initialized = true;
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
         /* Grow cache if necessary. */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (!new_cache) abort();      /* allocation failure */
             cache = new_cache;
             cache_cap = new_cap;

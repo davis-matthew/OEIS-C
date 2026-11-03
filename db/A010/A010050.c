@@ -7,7 +7,8 @@
  * Formula:   a(n) = (2n)!
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 178 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,11 +29,11 @@ seq_t a(idx_t n)
     if ((size_t)(n + 1) > cache_capacity) {
         size_t new_cap = cache_capacity ? cache_capacity * 2 : 16;
         while (new_cap <= (size_t)n + 1) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp) return (seq_t)0; /* allocation failed */
         if (cache) {
-            memcpy(tmp, cache, cache_size * sizeof(seq_t));
-            free(cache);
+            mem_copy(tmp, cache, cache_size * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = tmp;
         cache_capacity = new_cap;

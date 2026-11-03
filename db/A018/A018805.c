@@ -6,15 +6,17 @@
  * Keywords:  nonn, nice
  * Formula:   a(n) = 2 * Sum_{k=1..n} phi(k) - 1 where phi(k) is Euler's
  *            totient function
- * Range:     u8 n <= 20, u16 n <= 328, u32 n <= 8973, u64 n <= 8973,
- *            u128 n <= 8973, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20, u16 n <= 328, u32 n <= 84052, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 69 terms through n = 8973 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *phi_cache = NULL;
 static idx_t phi_alloc = 0;
@@ -23,8 +25,8 @@ seq_t a(idx_t n)
 {
     /* Ensure cache is large enough */
     if (n + 1 > phi_alloc) {
-        if (phi_cache) free((void *)phi_cache);
-        phi_cache = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        if (phi_cache) mem_free(phi_cache);
+        phi_cache = mem_new(seq_t, (size_t)(n + 1));
         if (!phi_cache) return 0; /* allocation failed */
         phi_alloc = n + 1;
     }

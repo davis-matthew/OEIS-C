@@ -9,15 +9,30 @@
  *            positions (0‑based from the least significant bit)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, popcount_evenbits
+ * Validated: standard, pass, 103 terms through n = 9612 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/popcount_evenbits.h"
+
+/* Count 1‑bits of e in the even indices of its binary expansion.       */
+static unsigned popcount_evenbits(uint64_t e)
+{
+    const uint64_t MASK = 0x5555555555555555ULL;   /* 0101… in binary */
+    uint64_t x = e & MASK;
+    unsigned cnt = 0;
+    while (x) {
+        cnt += (unsigned)(x & 1u);
+        x >>= 1;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {

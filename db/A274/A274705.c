@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 11, i16 n <= 23, i32 n <= 32, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t **row_cache = NULL;      /* row_cache[m] -> array of R(m,*)   */
 static size_t *row_len_arr = NULL;    /* length of each cached row        */
@@ -56,7 +58,7 @@ static seq_t *ensure_row(idx_t m, idx_t max_j)
 
     /* Create the row if it does not exist yet. */
     if (row_cache[m] == NULL) {
-        row_cache[m]   = (seq_t *)calloc(1, sizeof(seq_t));   /* R(m,0)=1   */
+        row_cache[m]   = mem_new(seq_t, 1);   /* R(m,0)=1   */
         row_len_arr[m] = 1;
         row_cache[m][0] = (seq_t)1;
     }
@@ -67,7 +69,7 @@ static seq_t *ensure_row(idx_t m, idx_t max_j)
 
     /* Extend the row up to max_j. */
     size_t old_len = row_len_arr[m];
-    row_cache[m] = (seq_t *)realloc(row_cache[m], (size_t)(max_j + 1) * sizeof(seq_t));
+    row_cache[m] = mem_resize(seq_t, row_cache[m], (size_t)(max_j + 1));
 
     for (idx_t i = (idx_t)old_len; i <= max_j; ++i) {
         if (i == 0) continue;          /* R(m,0)=1 already set */

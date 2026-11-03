@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   build_primes_upto, cmp_seq_t, seq_mul
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,9 +30,24 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/build_primes_upto.h"   /* build_primes_upto */
-#include "../utils/seq_mul.h"            /* seq_mul */
-#include "../utils/cmp_seq_t.h"          /* cmp_seq_t */
+#include <string.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 #define MAX_M          200000      /* generate Heinz numbers for 1 … MAX_M */
 #define PRIME_NUMERIC_LIMIT 4000000 /* numeric upper bound for prime generation */
@@ -59,7 +75,7 @@ static void init_sequence(void)
 
     init_primes();
 
-    heinz_nums = (seq_t *)malloc(MAX_M * sizeof(seq_t));
+    heinz_nums = mem_new(seq_t, MAX_M);
     if (!heinz_nums)
         return;                       /* allocation failure – unlikely in tests */
 
@@ -105,7 +121,7 @@ static void init_sequence(void)
     heinz_len = MAX_M;
 
     /* sort the array to produce the OEIS order */
-    qsort(heinz_nums, heinz_len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(heinz_nums, heinz_len, sizeof(seq_t), cmp_seq_t);
 }
 
 /* ------------------------------------------------------------------ */

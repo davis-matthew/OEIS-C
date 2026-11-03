@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   digits_count, sum_digits
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   digit_sum_u64_to_u32, num_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,8 @@
    numbers needed (roughly n / average_digit_count). */
 
 #include <stdint.h>
-#include "../utils/digits_count.h"
-#include "../utils/sum_digits.h"
+#include "../utils/digit_sum_u64_to_u32.h"
+#include "../utils/num_digits_u64.h"
 
 static unsigned long long pow10[20] = {
     1ULL,
@@ -67,11 +68,11 @@ seq_t a(idx_t n) {
     idx_t remaining = n;              /* digits still needed */
 
     while (remaining > 0) {
-        int d = digits_count(current); /* digits in current number */
+        int d = num_digits_u64(current); /* digits in current number */
 
         if ((idx_t)d <= remaining) {
             /* whole number contributes */
-            total += (seq_t)sum_digits(current);
+            total += (seq_t)digit_sum_u64_to_u32(current);
             remaining -= (idx_t)d;
             current += 2ULL;           /* move to next even */
         } else {

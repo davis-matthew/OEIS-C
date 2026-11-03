@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,12 +27,13 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* The function header as required by the build system */
 seq_t a(idx_t n)
 {
     /* Allocate an array to store the sequence values up to n. */
-    seq_t *seq = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, (size_t)(n + 1));
     if (!seq) /* Allocation failure: return 0 as a safe fallback. */
         return 0;
 
@@ -85,6 +87,6 @@ seq_t a(idx_t n)
 
     /* Result at index n.  Free the temporary array. */
     seq_t result = seq[n];
-    free(seq);
+    mem_free(seq);
     return result;
 }

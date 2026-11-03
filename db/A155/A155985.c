@@ -9,7 +9,8 @@
  *            the last digit of a(n‑1)
  * Range:     u8 n <= 6, u16 n <= 35, u32 n <= 9620, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_to_str
+ * Validated: standard, pass, 62 terms through n = 9959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,29 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_to_str.h"   /* provides seq_to_str(seq_t v, char *buf, size_t *len) */
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 static seq_t *vec[10] = {0};
 static size_t vec_len[10] = {0};
@@ -28,7 +51,7 @@ static idx_t  global_k = 1;               /* next integer to square */
 static void push_vec(int d, seq_t val) {
     if (vec_len[d] >= vec_cap[d]) {
         size_t newcap = vec_cap[d] ? vec_cap[d] * 2 : 16;
-        seq_t *newp = (seq_t *)realloc(vec[d], newcap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, vec[d], newcap);
         vec[d] = newp;
         vec_cap[d] = newcap;
     }
@@ -79,7 +102,7 @@ static void ensure_cache_size(idx_t n) {
     if (cache_cap < (size_t)n) {
         size_t newcap = cache_cap ? cache_cap * 2 : 16;
         while (newcap < (size_t)n) newcap *= 2;
-        seq_t *newp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, cache, newcap);
         /* Zero out the new area to use 0 as "uncomputed" sentinel */
         memset((char *)newp + cache_cap * sizeof(seq_t),
                0,

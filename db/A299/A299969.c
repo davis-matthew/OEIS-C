@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 163, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   ensure_used_flag, sum_has_9
+ * Validated: standard, pass, 107 terms through n = 1904 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,8 +37,32 @@
  */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/ensure_used_flag.h"
-#include "../utils/sum_has_9.h"
+#include "../utils/mem.h"
+
+/* Ensure that used_flag can index up to idx (inclusive) */
+static void ensure_used_flag(idx_t idx, bool **flag_ptr, size_t *cap_ptr)
+{
+    size_t cap = *cap_ptr;
+    if (cap > idx) return;
+    size_t new_cap = cap ? cap << 1 : 16;
+    while (new_cap <= (size_t)idx) new_cap <<= 1;
+    bool *new_flag = (bool *)realloc(*flag_ptr, new_cap * sizeof(bool));
+    /* Initialize the newly allocated portion to false.  realloc
+       may leave garbage in the new memory, so we clear it. */
+    for (size_t i = cap; i < new_cap; ++i) new_flag[i] = false;
+    *flag_ptr = new_flag;
+    *cap_ptr  = new_cap;
+}
+
+/* true iff decimal representation of sum contains the digit 9 */
+static bool sum_has_9(seq_t sum)
+{
+    while (sum > (seq_t)0) {
+        if ((sum % (seq_t)10) == (seq_t)9) return true;
+        sum /= (seq_t)10;
+    }
+    return false;
+}
 
 /* Ensure that seq_cache has capacity for indices 0..n  */
 static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr)
@@ -46,7 +71,7 @@ static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr)
     if (cap > n) return;
     size_t new_cap = cap ? cap << 1 : 16;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(*cache_ptr, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, *cache_ptr, new_cap);
     *cache_ptr = new_cache;
     *cap_ptr   = new_cap;
 }

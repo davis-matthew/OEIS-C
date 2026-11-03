@@ -9,9 +9,10 @@
  * Formula:   a(n) = 1 if A023900(n) > 0 and phi(A023900(n)) ==
  *            A023900(phi(n)), otherwise a(n) = 0. A023900 is the Dirichlet
  *            inverse of Euler's totient function
- * Range:     u8 n <= 6452, u16 n <= 9628, u32 n <= 9628, u64 n <= 9628,
- *            u128 n <= 9628, big any n
- * Helpers:   phi
+ * Range:     u8 n <= 6452, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 136 terms through n = 9628 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/phi.h"   /* provides seq_t phi(idx_t m) */
+#include "../utils/totient.h"
 
 /* Cache for the Dirichlet inverse of phi.  The values can be negative,
    so we store them in a signed 64‑bit integer. */
@@ -48,12 +49,12 @@ static void build_to(idx_t limit)
                 idx_t d2 = n / d;
 
                 /* d1 < n always holds here, so we add its contribution. */
-                seq_t phi_d2 = phi(d2);
+                seq_t phi_d2 = totient(d2);
                 sum += (int64_t)new_a[d1] * (int64_t)phi_d2;
 
                 /* d2 is distinct from d1 and < n (since n > d2). */
                 if (d2 != d1) {
-                    seq_t phi_d1 = phi(d1);
+                    seq_t phi_d1 = totient(d1);
                     sum += (int64_t)new_a[d2] * (int64_t)phi_d1;
                 }
             }
@@ -81,10 +82,10 @@ seq_t a(idx_t n)
     if (inv_n <= 0)
         return 0;      /* A023900(n) must be positive */
 
-    seq_t phi_inv_n = phi((idx_t)inv_n);
+    seq_t phi_inv_n = totient((idx_t)inv_n);
 
     /* φ(n) is guaranteed to be <= n, so its inverse is already cached. */
-    seq_t phi_n_seq = phi(n);
+    seq_t phi_n_seq = totient(n);
     idx_t phi_n = (idx_t)phi_n_seq;
 
     if (phi_n > a_size)

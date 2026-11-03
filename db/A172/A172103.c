@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k=1..n} [is_prime(6*k-1)] (0‑based boolean sum)
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     if (n > cache_N) {
         /* grow cache to hold terms up to n */
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
         if (!tmp) return (seq_t)0;         /* allocation failure – unlikely */
 
         cache = tmp;

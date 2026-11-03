@@ -11,14 +11,15 @@
  *            circle x^2 + y^2 = n) / 4
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   uint_sqrt
+ * Validated: standard, pass, 106 terms through n = 9113 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/uint_sqrt.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
     
     idx_t count = 0;               /* number of qualifying squares */
     idx_t radius2 = n;             /* radius squared */
-    idx_t r = uint_sqrt(radius2);  /* floor(sqrt(n)) */
+    idx_t r = isqrt(radius2);  /* floor(sqrt(n)) */
     
     long long min = -(long long)r - 1;   /* inclusive lower bound */
     long long max =  (long long)r - 1;   /* inclusive upper bound */

@@ -9,12 +9,14 @@
  *            j)*j^(n - k)*2^j
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 26, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 562 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* helper: binary exponentiation for non‑negative exponent */
 static seq_t seq_pow_uint(seq_t base, idx_t exp)
@@ -32,10 +34,10 @@ static seq_t seq_pow_uint(seq_t base, idx_t exp)
 seq_t a(idx_t n)
 {
     /* allocate arrays; cast void* from calloc for C++ */
-    seq_t *binom = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *binom = mem_new(seq_t, (size_t)n + 1);
     if (!binom) return 0;
-    seq_t *pow2 = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
-    if (!pow2) { free(binom); return 0; }
+    seq_t *pow2 = mem_new(seq_t, (size_t)n + 1);
+    if (!pow2) { mem_free(binom); return 0; }
 
     binom[0] = 1;
     pow2[0] = 1;
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(binom);
-    free(pow2);
+    mem_free(binom);
+    mem_free(pow2);
     return result;
 }

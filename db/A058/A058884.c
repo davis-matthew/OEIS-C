@@ -15,12 +15,14 @@
  *            S(n-1); it then returns S(n-1) - p(n)
  * Range:     i8 n <= 12, i16 n <= 32, i32 n <= 104, i64 n <= 363,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) {
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     }
 
     /* Allocate array to hold partition numbers p[0..n] */
-    seq_t *p = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (size_t)(n + 1));
     if (!p) {
         return (seq_t)-1;               /* allocation failure (should not occur) */
     }
@@ -59,6 +61,6 @@ seq_t a(idx_t n) {
 
     seq_t result = cum - p[n];
 
-    free(p);
+    mem_free(p);
     return result;
 }

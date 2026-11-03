@@ -7,7 +7,8 @@
  * Formula:   a(n) = Number of factorizations of n into factors > 1 of 6 kinds
  * Range:     u8 n <= 1, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   binom_group
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,16 @@
 #include <stddef.h>   /* size_t */
 #include <stdint.h>   /* uint64_t */
 #include <stdbool.h>
-#include "../utils/binom_group.h"
+
+/* helper: compute binomial(m+5,5) for multiplicity m of a repeated factor */
+static seq_t binom_group(idx_t m)
+{
+    seq_t res = 1;
+    for (int i = 0; i < 5; ++i) {
+        res = res * (seq_t)(m + 5 - i);
+    }
+    return res / (seq_t)120;   /* 5! == 120 */
+}
 
 /* recursive enumerator of unordered factorizations */
 static seq_t dfs(idx_t n, idx_t min_factor)

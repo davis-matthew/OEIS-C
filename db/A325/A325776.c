@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, base
  * Formula:   not stated
- * Range:     i8 n <= 98, i16 n <= 7998, i32 n <= 9563, i64 n <= 9563,
- *            i128 n <= 9563, big any n
- * Helpers:   displacement
+ * Range:     i8 n <= 98, i16 n <= 7998, i32 n <= 12000, i64 n <= 12000,
+ *            i128 n <= 12000, big any n
+ * Validated: standard, pass, 108 terms through n = 9563 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,24 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/displacement.h"
+
+/* Compute the displacement of a number. */
+static seq_t displacement(seq_t x)
+{
+    seq_t sum = 0;
+    if (x == 0)    /* single digit 0 contributes +1 */
+        return 1;
+    while (x > 0)  /* process decimal digits from least to most significant */
+    {
+        int d = (int)(x % 10);
+        if ((d & 1) == 0)          /* even digit: right move (positive) */
+            sum += (seq_t)d + 1;
+        else                       /* odd digit: left move (negative) */
+            sum -= (seq_t)d + 1;
+        x /= 10;
+    }
+    return sum;
+}
 
 #define OFFSET 2000  /* ensures all needed displacements are covered */
 

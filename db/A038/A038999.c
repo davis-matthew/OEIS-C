@@ -8,16 +8,19 @@
  *            (multiplicative, a(1)=1)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 51, u128 n <= 2735,
  *            big any n
- * Helpers:   factor_u64, gcd, pow_seq
+ * Validated: standard, pass, 36 terms through n = 9641 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_seq.h"
 #include "../utils/gcd.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -37,9 +40,9 @@ seq_t a(idx_t n)
 
         /* Build the 11 numerators and denominators */
         for (uint64_t k = 1; k <= 11; ++k) {
-            num[k - 1] = pow_seq(p, e + k);
+            num[k - 1] = ipow_i32(p, e + k);
             num[k - 1] -= 1;
-            den[k - 1] = pow_seq(p, k);
+            den[k - 1] = ipow_i32(p, k);
             den[k - 1] -= 1;
         }
 

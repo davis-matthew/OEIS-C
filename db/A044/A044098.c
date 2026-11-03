@@ -8,11 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#ifdef __cplusplus
+#include <vector>
+#endif
 /* This function returns the n‑th element of OEIS A044098:  
    numbers k such that the base‑5 representation of k contains the substring
    "41" while the representation of k‑1 does not.  

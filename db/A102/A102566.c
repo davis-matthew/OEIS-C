@@ -9,13 +9,15 @@
  *            1) / 2^r and r is the highest exponent of 2 dividing (m + 1)
  * Range:     u8 n <= 54, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: apply the function f to a value */
 static seq_t f_val(seq_t x) {
@@ -49,7 +51,7 @@ static void build_sieve(idx_t limit) {
     /* Count primes and allocate list */
     idx_t cnt = 0;
     for (idx_t i = 2; i <= limit; ++i) if (is_prime[i]) ++cnt;
-    seq_t *p_list = (seq_t *)malloc(cnt * sizeof(seq_t));
+    seq_t *p_list = mem_new(seq_t, cnt);
     if (!p_list) {
         free(is_prime);
         return;
@@ -59,7 +61,7 @@ static void build_sieve(idx_t limit) {
 
     /* Replace old structures */
     free(is_prime_arr);
-    free(prime_list);
+    mem_free(prime_list);
     is_prime_arr = is_prime;
     prime_list   = p_list;
     prime_count  = cnt;

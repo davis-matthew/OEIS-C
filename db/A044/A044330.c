@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 889, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 972 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return true iff the base‑9 representation of x contains
  * the consecutive digits 8,7. */
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         if (now && !prev) {
             if (count == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
                 if (!new_ptr) abort();          /* memory exhaustion */
                 cache = new_ptr;
                 cache_cap = new_cap;

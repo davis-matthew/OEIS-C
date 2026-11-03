@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy, nice
  * Formula:   sieve -- mark every a^3+b^3+c^3 with 1 <= a <= b <= c up to a
  *            limit (doubled as needed), then a(n) is the n-th marked number
- * Range:     u8 n <= 35, u16 n <= 7151, u32 n <= 9363, u64 n <= 9363,
- *            u128 n <= 9363, big any n
+ * Range:     u8 n <= 35, u16 n <= 7151, u32 n <= 12955, u64 n <= 12955,
+ *            u128 n <= 12955, big any n
+ * Validated: standard, pass, 74 terms through n = 9363 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,14 +9,56 @@
  *            = A001359)
  * Range:     u8 n <= 3, u16 n <= 17, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   _sieve
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_sieve.h"
+
+/* Sieve of Eratosthenes: returns array of all primes <= limit and sets *cnt_out */
+static void _sieve(idx_t limit, idx_t **primes_out, size_t *cnt_out)
+{
+    unsigned char *is_comp = (unsigned char*)calloc((size_t)(limit + 1), 1);
+    if (!is_comp) {
+        *primes_out = NULL;
+        *cnt_out   = 0;
+        return;
+    }
+
+    /* Mark composites */
+    for (idx_t i = 2; i * i <= limit; ++i)
+        if (!is_comp[i])
+            for (idx_t j = i * i; j <= limit; j += i)
+                is_comp[j] = 1;
+
+    /* Count primes */
+    size_t cnt = 0;
+    for (idx_t i = 2; i <= limit; ++i)
+        if (!is_comp[i])
+            ++cnt;
+
+    /* Allocate primes array */
+    idx_t *primes = (idx_t*)malloc(cnt * sizeof(idx_t));
+    if (!primes) {
+        free(is_comp);
+        *primes_out = NULL;
+        *cnt_out   = 0;
+        return;
+    }
+
+    /* Store primes */
+    size_t idx = 0;
+    for (idx_t i = 2; i <= limit; ++i)
+        if (!is_comp[i])
+            primes[idx++] = i;
+
+    free(is_comp);
+    *primes_out = primes;
+    *cnt_out   = cnt;
+}
 
 /* Global state for twin primes */
 static idx_t *twin_prime = NULL;

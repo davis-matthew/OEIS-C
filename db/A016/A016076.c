@@ -11,13 +11,15 @@
  *            by indexing into the cached array
  * Range:     i8 n <= 3000, i16 n <= 3000, i32 n <= 3000, i64 n <= 3000,
  *            i128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 2785 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper: polynomial long division of a monic divisor.
    dividend: coefficients (low → high) of dividend, degree dividend_deg
@@ -28,7 +30,7 @@ static void poly_divide(const seq_t *dividend, size_t dividend_deg,
                         seq_t *quotient)
 {
     /* Work on a copy of the dividend */
-    seq_t *rem = (seq_t *)calloc(dividend_deg + 1, sizeof(seq_t));
+    seq_t *rem = mem_new(seq_t, dividend_deg + 1);
     for (size_t i = 0; i <= dividend_deg; ++i)
         rem[i] = dividend[i];
 
@@ -44,7 +46,7 @@ static void poly_divide(const seq_t *dividend, size_t dividend_deg,
         }
     }
     /* Remainder is expected to be zero; it is discarded. */
-    free(rem);
+    mem_free(rem);
 }
 
 /* Compute the period coefficients and store them in the supplied array. */
@@ -70,7 +72,7 @@ static void compute_period(seq_t *period)
 
         /* Start with x^d - 1 */
         size_t poly_deg = (size_t)d;
-        seq_t *poly = (seq_t *)calloc(poly_deg + 1, sizeof(seq_t));
+        seq_t *poly = mem_new(seq_t, poly_deg + 1);
         poly[0] = (seq_t)(-1);        /* constant term -1 */
         poly[poly_deg] = (seq_t)1;    /* coefficient of x^d is +1 */
 
@@ -88,9 +90,9 @@ static void compute_period(seq_t *period)
             struct Poly *div_poly = &polys[ej];
 
             size_t q_deg = poly_deg - div_poly->deg;
-            seq_t *q = (seq_t *)calloc(q_deg + 1, sizeof(seq_t));
+            seq_t *q = mem_new(seq_t, q_deg + 1);
             poly_divide(poly, poly_deg, div_poly->coeff, div_poly->deg, q);
-            free(poly);
+            mem_free(poly);
             poly = q;
             poly_deg = q_deg;
         }
@@ -105,14 +107,14 @@ static void compute_period(seq_t *period)
     struct Poly *phi = &polys[N_idx];
 
     /* 5. Build the recurrence coefficients: φ_k for k>=1. */
-    seq_t *S = (seq_t *)calloc(PERIOD_LEN, sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, PERIOD_LEN);
     S[0] = (seq_t)1;                     /* constant term of Φ_N */
     size_t max_k = phi->deg < (PERIOD_LEN - 1) ? phi->deg : (PERIOD_LEN - 1);
     for (size_t k = 1; k <= max_k; ++k)
         S[k] = phi->coeff[k];
 
     /* 6. Compute a[0..PERIOD_LEN-1] using the linear recurrence. */
-    seq_t *a = (seq_t *)calloc(PERIOD_LEN, sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, PERIOD_LEN);
     a[0] = (seq_t)1;
     for (size_t n = 1; n < PERIOD_LEN; ++n) {
         seq_t sum = 0;
@@ -127,10 +129,10 @@ static void compute_period(seq_t *period)
         period[i] = a[i];
 
     /* 8. Free temporaries. */
-    free(a);
-    free(S);
+    mem_free(a);
+    mem_free(S);
     for (size_t i = 0; i < div_cnt; ++i)
-        free(polys[i].coeff);
+        mem_free(polys[i].coeff);
     free(polys);
 }
 
@@ -141,7 +143,7 @@ seq_t a(idx_t n)
     const size_t PERIOD_LEN = 2067;
 
     if (period == NULL) {
-        period = (seq_t *)calloc(PERIOD_LEN, sizeof(seq_t));
+        period = mem_new(seq_t, PERIOD_LEN);
         compute_period(period);
     }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 8, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static inline uint64_t mod_mul(uint64_t a, uint64_t b, uint64_t m)
 {
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
         if (cap < needed) {
             if (cap == 0) cap = 64;
             while (cap < needed) cap <<= 1;
-            seq = (seq_t *)realloc(seq, sizeof(seq_t) * cap);
+            seq = mem_resize(seq_t, seq, cap);
         }
 
         /* Generate more terms until we have n elements.  */

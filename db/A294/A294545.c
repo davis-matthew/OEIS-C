@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Helper binary search ---------- */
 static bool seq_contains(const seq_t *arr, size_t len, seq_t val)
@@ -68,7 +70,7 @@ static void grow_array(seq_t **arr, size_t *cap, size_t new_len)
     size_t new_cap = (*cap > 0) ? (*cap << 1) : 1;
     while (new_cap < new_len)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp) abort();           /* insufficient memory */
     *arr = tmp;
     *cap = new_cap;
@@ -81,8 +83,8 @@ static void init_cache(void)
 
     /* initial allocation */
     a_cap = 16; b_cap = 16;
-    a_cache = (seq_t*)malloc(a_cap * sizeof(seq_t));
-    b_cache = (seq_t*)malloc(b_cap * sizeof(seq_t));
+    a_cache = mem_new(seq_t, a_cap);
+    b_cache = mem_new(seq_t, b_cap);
     if (!a_cache || !b_cache) abort();
 
     /* set fixed initial terms */

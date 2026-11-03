@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 428, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /*  seq_t and idx_t are typedef'd by the build system */
 static seq_t *prime_arr    = NULL; /* 1-indexed array of primes */
@@ -66,7 +68,7 @@ ensure_primes(idx_t needed)
         if (is_prime[i]) ++cnt;
 
     /* Allocate / reallocate primes array (1‑indexed) */
-    seq_t *new_arr = (seq_t *)malloc((cnt + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, (cnt + 1));
     if (!new_arr) abort();
 
     size_t idx = 0;
@@ -80,7 +82,7 @@ ensure_primes(idx_t needed)
     free(is_prime);
 
     if (prime_arr)
-        free(prime_arr);
+        mem_free(prime_arr);
 
     prime_arr   = new_arr;
     prime_count = idx;

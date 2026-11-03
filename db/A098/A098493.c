@@ -11,13 +11,15 @@
  *            rows T(0,0) = 1, T(1,0) = 0, T(1,1) = -1
  * Range:     i8 n <= 73, i16 n <= 73, i32 n <= 73, i64 n <= 73, i128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square root: floor(sqrt(x)) for unsigned 64‑bit values. */
 static inline uint64_t floor_sqrt_u64(uint64_t x)
@@ -55,9 +57,9 @@ seq_t a(idx_t n)
 
     /* Allocate three rows of size r+1 (extra space for indices up to r) */
     size_t sz = (size_t)(r + 1);
-    seq_t *prev2 = (seq_t *)calloc(sz, sizeof(seq_t));  /* row i-2 */
-    seq_t *prev1 = (seq_t *)calloc(sz, sizeof(seq_t));  /* row i-1 */
-    seq_t *curr  = (seq_t *)calloc(sz, sizeof(seq_t));  /* row i  */
+    seq_t *prev2 = mem_new(seq_t, sz);  /* row i-2 */
+    seq_t *prev1 = mem_new(seq_t, sz);  /* row i-1 */
+    seq_t *curr  = mem_new(seq_t, sz);  /* row i  */
 
     /* Initialize row 0 and row 1 */
     prev2[0] = (seq_t)1;           /* T(0,0) */
@@ -89,9 +91,9 @@ seq_t a(idx_t n)
     seq_t result = prev1[k];
 
     /* Free allocated memory */
-    free(prev2);
-    free(prev1);
-    free(curr);
+    mem_free(prev2);
+    mem_free(prev1);
+    mem_free(curr);
 
     return result;
 }

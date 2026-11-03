@@ -11,12 +11,14 @@
  *            avoiding pattern 231 and mesh pattern (12,281)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 seq_t a(idx_t n) {
     static seq_t *Catalan = NULL;
     static seq_t *Prefix  = NULL;
@@ -27,10 +29,10 @@ seq_t a(idx_t n) {
     /* first call – initialise arrays for up to n (or at least 0) */
     if (Catalan == NULL) {
         size_t init = (n > 0 ? n + 1 : 1);
-        Catalan = (seq_t*)malloc(init * sizeof(seq_t));
-        Prefix  = (seq_t*)malloc(init * sizeof(seq_t));
-        W       = (seq_t*)malloc(init * sizeof(seq_t));
-        A       = (seq_t*)malloc(init * sizeof(seq_t));
+        Catalan = mem_new(seq_t, init);
+        Prefix  = mem_new(seq_t, init);
+        W       = mem_new(seq_t, init);
+        A       = mem_new(seq_t, init);
         if (!Catalan || !Prefix || !W || !A) return (seq_t)0;   /* out of memory */
 
         Catalan[0] = (seq_t)1;
@@ -43,10 +45,10 @@ seq_t a(idx_t n) {
     /* extend precomputation if necessary */
     if ((size_t)n > maxn) {
         size_t newsize = (size_t)n + 1;
-        Catalan = (seq_t*)realloc(Catalan, newsize * sizeof(seq_t));
-        Prefix  = (seq_t*)realloc(Prefix,  newsize * sizeof(seq_t));
-        W       = (seq_t*)realloc(W,       newsize * sizeof(seq_t));
-        A       = (seq_t*)realloc(A,       newsize * sizeof(seq_t));
+        Catalan = mem_resize(seq_t, Catalan, newsize);
+        Prefix  = mem_resize(seq_t, Prefix, newsize);
+        W       = mem_resize(seq_t, W, newsize);
+        A       = mem_resize(seq_t, A, newsize);
         if (!Catalan || !Prefix || !W || !A) return (seq_t)0;   /* out of memory */
 
         for (size_t i = maxn + 1; i <= (size_t)n; ++i) {

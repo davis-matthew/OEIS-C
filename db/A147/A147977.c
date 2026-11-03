@@ -8,7 +8,8 @@
  *            ≥ 2, a(1) = -4
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 13, i64 n <= 21, i128 n <= 21,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
    to avoid overflow for the arbitrary‑precision build. */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -29,11 +31,11 @@ seq_t a(idx_t n)
     /* Exponent for n ≥ 2 is (n‑1) */
     seq_t exp = (seq_t)(n - 1);
 
-    seq_t p6 = big_pow((seq_t)6, exp);
-    seq_t p5 = big_pow((seq_t)5, exp);
-    seq_t p4 = big_pow((seq_t)4, exp);
-    seq_t p3 = big_pow((seq_t)3, exp);
-    seq_t p2 = big_pow((seq_t)2, exp);
+    seq_t p6 = ipow((seq_t)6, exp);
+    seq_t p5 = ipow((seq_t)5, exp);
+    seq_t p4 = ipow((seq_t)4, exp);
+    seq_t p3 = ipow((seq_t)3, exp);
+    seq_t p2 = ipow((seq_t)2, exp);
 
     return p6 - p5 - p4 - p3 - p2 - (seq_t)1;
 }

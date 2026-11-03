@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* comparison function for qsort on seq_t */
 static int seq_compare(const void *p1, const void *p2) {
@@ -45,14 +47,14 @@ static void compute_sequence(void) {
         size_t combos = (N * (N - 1) * (N - 2) * (N - 3)) / 24;   /* C(N,4) */
 
         /* pre‑compute the first N positive cubes */
-        seq_t *cubes = (seq_t *)malloc(N * sizeof(seq_t));
+        seq_t *cubes = mem_new(seq_t, N);
         for (size_t i = 0; i < N; ++i) {
             seq_t v = (seq_t)(i + 1);
             cubes[i] = v * v * v;
         }
 
         /* generate all sums of 4 distinct cubes */
-        seq_t *sums = (seq_t *)malloc(combos * sizeof(seq_t));
+        seq_t *sums = mem_new(seq_t, combos);
         size_t idx = 0;
         for (size_t i = 0; i <= N - 4; ++i)
             for (size_t j = i + 1; j <= N - 3; ++j)
@@ -62,10 +64,10 @@ static void compute_sequence(void) {
                     }
 
         /* sort the sums to enable frequency counting */
-        qsort(sums, combos, sizeof(seq_t), seq_compare);
+        mem_qsort(sums, combos, sizeof(seq_t), seq_compare);
 
         /* collect sums that occur exactly 3 times */
-        seq_t *results = (seq_t *)malloc(1024 * sizeof(seq_t));
+        seq_t *results = mem_new(seq_t, 1024);
         size_t res_cap = 1024;
         size_t res_len = 0;
 
@@ -78,15 +80,15 @@ static void compute_sequence(void) {
             if (cnt == 3) {
                 if (res_len == res_cap) {
                     res_cap *= 2;
-                    results = (seq_t *)realloc(results, res_cap * sizeof(seq_t));
+                    results = mem_resize(seq_t, results, res_cap);
                 }
                 results[res_len++] = val;
             }
             p = q;
         }
 
-        free(cubes);
-        free(sums);
+        mem_free(cubes);
+        mem_free(sums);
 
         if (res_len >= TARGET) {          /* enough terms produced */
             seq_vals = results;
@@ -95,7 +97,7 @@ static void compute_sequence(void) {
         }
 
         /* not enough terms – discard and try again with a larger limit */
-        free(results);
+        mem_free(results);
         cube_limit += 20;                  /* increase the cube limit */
     }
 }

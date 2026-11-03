@@ -11,42 +11,45 @@
  *            matrices over GF(3) modulo the dihedral group D4)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 26 terms through n = 25 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     seq_t sq = (seq_t)n * (seq_t)n;          /* n^2 */
-    seq_t term = big_pow((seq_t)3, sq);      /* 3^(n^2) */
+    seq_t term = ipow((seq_t)3, sq);      /* 3^(n^2) */
     seq_t sum = term;
 
     if ((n & 1) == 0) {                     /* n is even */
         seq_t e2 = sq / 4;                   /* n^2/4 */
-        seq_t t2 = big_pow((seq_t)3, e2);
+        seq_t t2 = ipow((seq_t)3, e2);
         sum += 2 * t2;                       /* 2*3^(n^2/4) */
 
         seq_t e3 = sq / 2;                   /* n^2/2 */
-        seq_t t3 = big_pow((seq_t)3, e3);
+        seq_t t3 = ipow((seq_t)3, e3);
         sum += 3 * t3;                       /* 3*3^(n^2/2) */
 
         seq_t e4 = (sq + n) / 2;             /* (n^2+n)/2 */
-        seq_t t4 = big_pow((seq_t)3, e4);
+        seq_t t4 = ipow((seq_t)3, e4);
         sum += 2 * t4;                       /* 2*3^((n^2+n)/2) */
     } else {                                 /* n is odd */
         seq_t e2 = (sq + 3) / 4;             /* (n^2+3)/4 */
-        seq_t t2 = big_pow((seq_t)3, e2);
+        seq_t t2 = ipow((seq_t)3, e2);
         sum += 2 * t2;                       /* 2*3^((n^2+3)/4) */
 
         seq_t e3 = (sq + 1) / 2;             /* (n^2+1)/2 */
-        seq_t t3 = big_pow((seq_t)3, e3);
+        seq_t t3 = ipow((seq_t)3, e3);
         sum += t3;                           /* 3^((n^2+1)/2) */
 
         seq_t e4 = (sq + n) / 2;             /* (n^2+n)/2 */
-        seq_t t4 = big_pow((seq_t)3, e4);
+        seq_t t4 = ipow((seq_t)3, e4);
         sum += 4 * t4;                       /* 4*3^((n^2+n)/2) */
     }
 

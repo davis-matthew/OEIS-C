@@ -14,12 +14,15 @@
  *            (k = (n‑2)/4) - For n%4==3 : reverse of the above (k =...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   reverse
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/reverse.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
 
 static seq_t block_concat0 = 0;          /* 5247 repeated (k‑1) for residue 0 */
 static seq_t pow10_block_len0 = 1;       /* 10^(4*(k‑1)) for residue 0 */
@@ -88,7 +91,7 @@ seq_t a(idx_t n)
             seq_t part2 = block_concat2 * 1000;
             base = part1 + part2 + 384;
         }
-        val = reverse(base);
+        val = reverse_digits(base);
     }
 
     return val;

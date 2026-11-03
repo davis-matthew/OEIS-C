@@ -10,7 +10,8 @@
  * Formula:   a(n) = min{ a(n-1)+1, a(n/d) | 2 <= d <= sqrt(n), d | n }
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 103 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* External linkage: seq_t a(idx_t n) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation */
 static seq_t *cache = NULL;
@@ -36,7 +38,7 @@ ensure_cache(idx_t n)
         idx_t new_cap = cache_cap ? cache_cap * 2 : 64;
         if (new_cap < n + 1)
             new_cap = n + 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
     if (!cache) {
         cache_cap  = 64;
         cache_size = 3;               /* indices 0,1,2 are defined immediately */
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = cache[1] = cache[2] = 0;   /* a(2)=0 is set explicitly */
     }
 

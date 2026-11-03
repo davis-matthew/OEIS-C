@@ -7,13 +7,17 @@
  * Formula:   a(n) = (concatenation of n*d for each decimal digit d of n) / n
  * Range:     u8 n <= 10, u16 n <= 33, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   digits, seq_pow
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   ipow_idx, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
-#include "../utils/digits.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/num_digits_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -61,7 +65,7 @@ seq_t a(idx_t n)
             lenp = 1;
 
         /* 10^lenp as seq_t */
-        seq_t p10 = seq_pow((seq_t)10, (idx_t)lenp);
+        seq_t p10 = ipow_idx((seq_t)10, (idx_t)lenp);
 
         /* Append prod to the concatenated value */
         concat = concat * p10 + prod;

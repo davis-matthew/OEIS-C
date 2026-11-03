@@ -10,7 +10,8 @@
  *            8, 10 …)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9883 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@ seq_t a(idx_t n);
 /* ---------- Standard library headers ---------- */
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Helper: integer square root (uint64_t) ---------- */
 static inline uint64_t isqrt_ull(uint64_t v)
@@ -106,11 +108,11 @@ static void ensure_cache_capacity(size_t size)
 
     if (cache_capacity == 0) {
         cache_capacity = 32;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
     } else {
         while (cache_capacity < size) cache_capacity <<= 1;
     }
-    cache = (seq_t *)realloc(cache, cache_capacity * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_capacity);
 }
 
 /* ---------- The required function ---------- */

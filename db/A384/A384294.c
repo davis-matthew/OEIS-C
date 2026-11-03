@@ -8,12 +8,14 @@
  * Formula:   a(n) = 2*Lucas(n) - 2 + 2*n*[Mod(n,3)==2]
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 44, u64 n <= 90, u128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for Lucas numbers */
 static seq_t *lucas = NULL;
@@ -28,7 +30,7 @@ static seq_t lucas_n(idx_t n)
 
     /* Initialise cache if necessary */
     if (lucas == NULL) {
-        lucas = (seq_t *)malloc(2 * sizeof(seq_t));
+        lucas = mem_new(seq_t, 2);
         if (!lucas) return (seq_t)0; /* allocation failed – return 0 */
         lucas[0] = (seq_t)2;
         lucas[1] = (seq_t)1;
@@ -39,7 +41,7 @@ static seq_t lucas_n(idx_t n)
     if ((idx_t)lucas_size <= n) {
         size_t old_size = (size_t)lucas_size;
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(lucas, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, lucas, new_size);
         if (!tmp) return (seq_t)0; /* allocation failed – return 0 */
         lucas = tmp;
         lucas_size = (idx_t)new_size;

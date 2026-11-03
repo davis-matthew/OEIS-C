@@ -10,13 +10,15 @@
  *            a(6)=1964, a(7)=4499 (OEIS A259636)
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 23, u64 n <= 50, u128 n <= 103,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache   = NULL;   /* cache array, indices 0..max_computed */
 static idx_t  cache_cap   = 0;      /* allocated size-1 (max index that fits) */
@@ -43,7 +45,7 @@ static void ensure_capacity(idx_t n)
 
     /* Allocate new space for indices 0..n  */
     size_t new_size = (size_t)(n + 1);            /* number of elements */
-    seq_t *new_cache = (seq_t *)realloc(seq_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, seq_cache, new_size);
     if (!new_cache)
         return;              /* allocation failure – caller will handle */
 

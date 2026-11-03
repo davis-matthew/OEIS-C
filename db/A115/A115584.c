@@ -12,23 +12,25 @@
  *            O(n·√n) time and O(n) memory
  * Range:     u8 n <= 49, u16 n <= 140, u32 n <= 475, u64 n <= 1877,
  *            u128 n <= 8411, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9421 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate DP array for sums up to n */
-    seq_t *dp = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)n + 1);
     if (!dp) return (seq_t)0; /* allocation failure – unlikely */
     dp[0] = (seq_t)1; /* empty partition */
 
     /* Temporary array to accumulate contributions that use part k at least k+1 times */
-    seq_t *add = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
-    if (!add) { free(dp); return (seq_t)0; }
+    seq_t *add = mem_new(seq_t, (size_t)n + 1);
+    if (!add) { mem_free(dp); return (seq_t)0; }
 
     for (idx_t k = 1; ; ++k)
     {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(add);
-    free(dp);
+    mem_free(add);
+    mem_free(dp);
     return result;
 }

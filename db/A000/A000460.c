@@ -8,17 +8,18 @@
  * Formula:   a(n) = 3^n - (n+1)*2^n + n*(n+1)/2
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   a460_pow
+ * Validated: standard, pass, 42 terms through n = 979 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a460_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
-  seq_t pow3 = a460_pow((seq_t)3, n);
-  seq_t pow2 = a460_pow((seq_t)2, n);
+  seq_t pow3 = ipow_idx((seq_t)3, n);
+  seq_t pow2 = ipow_idx((seq_t)2, n);
   seq_t term2 = ((seq_t)n + 1) * pow2;
   seq_t term3;
   if (n % 2 == 0)

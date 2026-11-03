@@ -8,13 +8,15 @@
  *            a(1) = 5, a(2) = 11, a(3) = 21, a(4) = 35
  * Range:     u8 n <= 11, u16 n <= 197, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 878 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* array that holds computed terms     */
 static size_t cap   = 0;      /* total capacity (number of elements) */
@@ -26,7 +28,7 @@ static void ensure_cap(size_t n)
     if (cap <= n) {
         size_t new_cap = (cap > 0 ? cap * 2 : 8);
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();          /* allocation failed */
         cache = tmp;
         cap   = new_cap;

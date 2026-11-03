@@ -10,7 +10,8 @@
  *            binary * representation of n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   contains_bin, to_bin
+ * Validated: standard, pass, 117 terms through n = 7706 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,45 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/contains_bin.h"
-#include "../utils/to_bin.h"
+
+static void to_bin(uint64_t x, char *buf, int *len)
+{
+    /* Convert x to binary string in buf[0..*len-1] (no leading zeros),
+     * buf is assumed large enough (at least 65). */
+    if (x == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    int p = 0;
+    while (x) {
+        buf[p++] = (x & 1U) ? '1' : '0';
+        x >>= 1;
+    }
+    /* Reverse to get most significant bit first */
+    for (int i = 0; i < p / 2; ++i) {
+        char t = buf[i];
+        buf[i] = buf[p - 1 - i];
+        buf[p - 1 - i] = t;
+    }
+    *len = p;
+}
+
+static bool contains_bin(uint64_t d, const char *n_bin, int n_len)
+{
+    /* Check whether binary string of d is a substring of n_bin. */
+    char d_bin[65];
+    int d_len, i, j, k;
+    to_bin(d, d_bin, &d_len);
+    if (d_len > n_len) return false;
+    for (i = 0; i <= n_len - d_len; ++i) {
+        for (j = 0; j < d_len; ++j) {
+            if (n_bin[i + j] != d_bin[j]) break;
+        }
+        if (j == d_len) return true;
+    }
+    return false;
+}
 
 /* Determine a(n) for n >= 1 */
 seq_t a(idx_t n)

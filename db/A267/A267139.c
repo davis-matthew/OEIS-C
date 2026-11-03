@@ -12,12 +12,14 @@
  *            cellular automaton starting with a single ON cell
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 942 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[11] = {
     1ULL,    /* a(0) */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         return init[n];
 
     /* Allocate an array to hold all terms up to n. */
-    seq_t *buf = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, (n + 1));
     if (!buf) abort();            /* simple error handling */
 
     /* Initialise with the known first 11 terms. */
@@ -57,6 +59,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = buf[n];
-    free(buf);
+    mem_free(buf);
     return result;
 }

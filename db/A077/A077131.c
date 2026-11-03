@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{k=1..n} p_{2k-1} (sum of the odd‑indexed primes)
  * Range:     u8 n <= 9, u16 n <= 107, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 63 terms through n = 9858 (2026-11-01)
  * Helpers:   sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/sieve_primes.h"
 
 /* Cached prime data */

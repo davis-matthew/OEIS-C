@@ -7,8 +7,9 @@
  * Formula:   a(n) = n - A318921(n) where A318921(n) is obtained by shortening
  *            each run of equal consecutive bits in the binary representation
  *            of n by one bit
- * Range:     u8 n <= 255, u16 n <= 8264, u32 n <= 8264, u64 n <= 8264,
- *            u128 n <= 8264, big any n
+ * Range:     u8 n <= 255, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 113 terms through n = 8264 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

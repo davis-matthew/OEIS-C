@@ -10,8 +10,9 @@
  *            1..r the four numbers are: 2*i, 4r - 2*i + 1, 4r - 2*i + 2, 2*i
  *            - 1. The sequence is the concatenation of all such rows,
  *            1-indexed
- * Range:     u8 n <= 8066, u16 n <= 9608, u32 n <= 9608, u64 n <= 9608,
- *            u128 n <= 9608, big any n
+ * Range:     u8 n <= 8066, u16 n <= 20200, u32 n <= 20200, u64 n <= 20200,
+ *            u128 n <= 20200, big any n
+ * Validated: standard, pass, 100 terms through n = 9608 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

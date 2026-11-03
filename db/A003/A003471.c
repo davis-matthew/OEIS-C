@@ -8,6 +8,7 @@
  *            even, (1, 2) if n odd; a(0) = 1, a(1) = a(2) = a(3) = 0
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 199 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

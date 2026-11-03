@@ -9,13 +9,15 @@
  *            a(3)=-7
  * Range:     i8 n <= 7, i16 n <= 15, i32 n <= 32, i64 n <= 34, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache for computed terms */
 static seq_t *cache = NULL;
@@ -28,7 +30,7 @@ static void ensure_capacity(size_t needed)
     if (needed <= cap) return;
     size_t new_cap = cap > 0 ? cap << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();            /* memory exhausted */
     cache = tmp;
     cap   = new_cap;

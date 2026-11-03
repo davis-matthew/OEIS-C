@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 55, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   build_spf
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     if (!spf) return (seq_t)0;               /* allocation failure */
 
     /* Prefix product array */
-    seq_t *pref = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+    seq_t *pref = mem_new(seq_t, (r + 1));
     if (!pref) { free(spf); return (seq_t)0; }
     pref[0] = (seq_t)1;
 
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
     seq_t denom  = pref[k] * pref[r - k];
     seq_t result = pref[r] / denom;
 
-    free(pref);
+    mem_free(pref);
     free(spf);
     return result;
 }

@@ -11,7 +11,8 @@
  *            power
  * Range:     u8 n <= 27, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   divisor_count_u64, next_prime
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem, next_prime, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/divisor_count_u64.h"  /* divisor_count_u64 */
-#include "../utils/next_prime.h"        /* next_prime */
+#include "../utils/next_prime.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 static inline bool is_prime_power_uint64(uint64_t x)
 {
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         uint64_t max_tau = 0;
 
         for (uint64_t k = p + 1; k < q; ++k) {
-            uint64_t tau = divisor_count_u64(k);
+            uint64_t tau = num_divisors(k);
             if (tau < 3) continue;                /* skip primes (tau=2) */
             if (tau > max_tau) max_tau = tau;
         }
@@ -70,8 +72,7 @@ seq_t a(idx_t n)
             /* Store the prime p in the cache. */
             if (term_cnt == term_cap) {
                 size_t new_cap = term_cap ? term_cap * 2 : 8;
-                term_cache = (seq_t *)realloc(term_cache,
-                                               new_cap * sizeof(seq_t));
+                term_cache = mem_resize(seq_t, term_cache, new_cap);
                 term_cap = new_cap;
             }
             term_cache[term_cnt++] = (seq_t)p;

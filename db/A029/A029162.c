@@ -8,13 +8,15 @@
  *            function 1/((1-x^2)(1-x^3)(1-x^8)(1-x^10)))
  * Range:     u8 n <= 77, u16 n <= 561, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 9595 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         }
 
         /* Reallocate cache and recompute from scratch. */
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (!cache)               /* out of memory – return zero */
             return (seq_t)0;
 

@@ -7,12 +7,14 @@
  * Formula:   a(0) = 1; for n > 0, a(n) = 3*a(n-1) + C(n+3,3)
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 18, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h> /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cached values */
 static idx_t cache_len = 0;   /* number of elements cached */
@@ -24,7 +26,7 @@ static void ensure_cache(idx_t n)
         return;
 
     idx_t new_len = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (new_cache == NULL)
         abort();               /* allocation failed */
 

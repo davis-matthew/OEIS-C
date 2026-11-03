@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 17, u64 n <= 35, u128 n <= 71,
  *            big any n
- * Helpers:   check_edge, check_interior
+ * Validated: standard, pass, 40 terms through n = 200 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,8 +36,32 @@
  */
 
 #include <stdbool.h>
-#include "../utils/check_edge.h"
-#include "../utils/check_interior.h"
+
+/* Edge rule: for a pair of rows (row, neigh), ensure that
+ * for every cell in 'row' not both its horizontal neighbour
+ * and the cell below it are strictly less. */
+static inline bool check_edge(int row, int neigh) {
+    int a  = row / 3,      b  = row % 3;
+    int a2 = neigh / 3,    b2 = neigh % 3;
+    if ((b < a) && (a2 < a)) return false;   /* cell (0,0) */
+    if ((a < b) && (b2 < b)) return false;   /* cell (0,1) */
+    return true;
+}
+
+/* Interior rule: for three consecutive rows (up, prev, down),
+ * ensure that the middle row 'prev' is not less than a strict
+ * majority of its 3 neighbours. */
+static inline bool check_interior(int up, int prev, int down) {
+    int a   = prev / 3,    b   = prev % 3;
+    int a_up   = up   / 3, b_up   = up   % 3;
+    int a_dn   = down / 3, b_dn   = down % 3;
+
+    int cnt0 = (a_up   < a) + (a_dn   < a) + (b   < a);
+    if (cnt0 > 1) return false;
+    int cnt1 = (b_up   < b) + (b_dn   < b) + (a   < b);
+    if (cnt1 > 1) return false;
+    return true;
+}
 
 /* Encode a row (a,b) with 0≤a,b≤2 as an integer 0..8. */
 static inline int encode_row(int a, int b) { return a * 3 + b; }

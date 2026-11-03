@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   If n = 3k-1 then a(n) = a(k), otherwise a(n) = n
- * Range:     u8 n <= 255, u16 n <= 9881, u32 n <= 9881, u64 n <= 9881,
- *            u128 n <= 9881, big any n
+ * Range:     u8 n <= 255, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 107 terms through n = 9881 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

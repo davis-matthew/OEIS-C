@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Precomputed factorials up to 9! (as seq_t to avoid overflow). */
 static seq_t fact[10];
@@ -48,7 +50,7 @@ static void append_value(seq_t v)
 {
     if (value_count == value_capacity) {
         value_capacity = value_capacity ? value_capacity * 2 : 1024;
-        values = (seq_t *)realloc(values, value_capacity * sizeof(seq_t));
+        values = mem_resize(seq_t, values, value_capacity);
     }
     values[value_count++] = v;
 }

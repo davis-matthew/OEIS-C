@@ -9,7 +9,8 @@
  *            (decimal digit reverse)
  * Range:     u8 n <= 8, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   reverse_decimal
+ * Validated: standard, pass, 77 terms through n = 9687 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
    and uses the provided reverse_decimal helper. */
 
 #include <stdlib.h>
-#include "../utils/reverse_decimal.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* zero‑based cache, cache[0] == a(1) */
 static idx_t  cache_len = 0;  /* number of terms currently stored */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Extend cache if we don't have this many terms yet */
     if (n > cache_len) {
         size_t new_len = (size_t)n;
-        seq_t *tmp = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp)            /* allocation failed – return 0 (unlikely at n<=10000) */
             return (seq_t)0;
         cache = tmp;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
             if (i == 0) {
                 cache[0] = (seq_t)1;           /* a(1) */
             } else {
-                cache[i] = reverse_decimal(cache[i-1] + (seq_t)4);
+                cache[i] = reverse_digits(cache[i-1] + (seq_t)4);
             }
         }
         cache_len = n;

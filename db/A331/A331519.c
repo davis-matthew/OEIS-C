@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 28, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* cache for already computed values */
 static seq_t *cache = NULL;  /* pointer to an array of values */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
 
     idx_t new_cap = n + 1;
     /* allocate a new array (C-style cast required for C++ compilation) */
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         abort();                   /* out of memory */
 
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n)
     if (cache) {
         for (idx_t i = 0; i < cache_cap; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     for (idx_t i = cache_cap; i < new_cap; ++i)
         new_cache[i] = (seq_t)0;

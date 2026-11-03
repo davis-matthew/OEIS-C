@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 20, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   binomial, ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* binomial(idx_t a, idx_t b) -> seq_t   */
-#include "../utils/pow_uint.h"   /* pow_uint(uint64_t base, idx_t exp) -> seq_t */
+#include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 static seq_t *A_arr = NULL;   /* cache for A(m) values   */
 static idx_t   A_len = 0;     /* number of stored A values (next free index) */
@@ -38,7 +40,7 @@ static void ensure_A(idx_t max_n)
     if (A_len > max_n) return;                     /* already enough */
 
     /* Allocate or grow the array.  realloc(NULL, size) is equivalent to malloc. */
-    seq_t *new_arr = (seq_t *)realloc(A_arr, (size_t)(max_n + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, A_arr, (size_t)(max_n + 1));
     if (!new_arr) exit(1);                          /* fatal allocation failure */
     A_arr = new_arr;
 
@@ -48,7 +50,7 @@ static void ensure_A(idx_t max_n)
         if (n == 0) {
             val = (seq_t)1;                          /* A(0)=1 */
         } else {
-            seq_t total = pow_uint(2, (idx_t)n * (idx_t)n); /* 2^(n^2) */
+            seq_t total = ipow_u64_idx(2, (idx_t)n * (idx_t)n); /* 2^(n^2) */
             seq_t sum   = 0;
             for (idx_t j = 0; j < n; ++j) {
                 seq_t bin  = binomial(n, j);

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 1754, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 83 terms through n = 9863 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,7 +37,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* Check whether an integer x (seq_t) is in the sequence.
  * 0 is always accepted.  For x>0 we remove trailing zeros
@@ -53,7 +56,7 @@ static bool in_sequence(seq_t x)
         y >>= 1;
 
     /* y is odd (last bit 1).  Test palindrome. */
-    unsigned len = bitlen_seq_t(y);
+    unsigned len = bit_length(y);
     unsigned i, j;
     for (i = 0, j = len - 1; i < j; ++i, --j) {
         if ( ((y >> i) & (seq_t)1) != ((y >> j) & (seq_t)1) )
@@ -80,7 +83,7 @@ static void ensure_cache(idx_t n)
     /* Initialize the cache if it is empty.  The very first term is 0. */
     if (cached == 0) {
         capacity = 16;               /* start with a small capacity */
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         cache[0] = (seq_t)0;         /* a(1) */
         cached = 1;
         last_x  = (seq_t)0;
@@ -98,7 +101,7 @@ static void ensure_cache(idx_t n)
         /* Append the new term. */
         if (cached >= capacity) {
             capacity = capacity * 2 + 16;
-            cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, capacity);
         }
         cache[cached] = candidate;
         ++cached;

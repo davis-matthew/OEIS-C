@@ -12,14 +12,17 @@
  *            reduced numerator is N(n) divided by all 2’...
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 11,
  *            big any n
- * Helpers:   catalan
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary */
     if ((idx_t)Nlen <= n) {
         size_t newlen = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(N, newlen * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, N, newlen);
         if (!tmp) return 0;          /* allocation failure – return 0 safely */
         N = tmp;
 

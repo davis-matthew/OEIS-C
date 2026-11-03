@@ -10,7 +10,8 @@
  *            values: a(1)=5, a(2)=6, a(3)=9, a(4)=13, a(5)=24
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 31, u64 n <= 61, u128 n <= 121,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache          = NULL;  /* array of computed terms, cache[0] unused */
 static idx_t  cache_capacity = 0;      /* allocated size (including index 0) */
@@ -30,18 +32,16 @@ static void ensure_capacity(idx_t n)
         return;                          /* already enough storage */
 
     size_t new_cap = (size_t)(n + 1);    /* +1 to keep index 0 usable */
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (cache) {
-        memcpy(new_cache, cache,
-               (size_t)cache_capacity * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, (size_t)cache_capacity * sizeof(seq_t));
+        mem_free(cache);
     }
     /* zero any new elements so that subtraction on uninitialized data
        would be safe – they will be overwritten before use. */
     if (cache_capacity < new_cap) {
         size_t unused = new_cap - cache_capacity;
-        memset(new_cache + cache_capacity, 0,
-               unused * sizeof(seq_t));
+        mem_set(new_cache + cache_capacity, 0, unused * sizeof(seq_t));
     }
     if (cache_capacity == 0)            /* ensure cache[0] == 0 */
         new_cache[0] = (seq_t)0;

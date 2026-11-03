@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 34, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;
@@ -33,12 +35,12 @@ static void ensure_cache(size_t needed_cap)
     if (required < 5) required = 5;            /* we need space for the 5 base terms */
 
     if (cache_cap < required) {
-        seq_t *new_cache = (seq_t*)malloc(required * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, required);
         if (new_cache == NULL) return;         /* allocation failure → return */
 
         if (cache != NULL) {
-            memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = new_cache;
         cache_cap = required;

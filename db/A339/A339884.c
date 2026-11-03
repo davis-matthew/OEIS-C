@@ -12,14 +12,20 @@
  *            size
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   triangular_idx
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/triangular_idx.h"
+
+static idx_t triangular_idx(idx_t r, __int128 *prod) {
+    __int128 p = (__int128)r * (r + 1) / 2;
+    if (prod) *prod = p;
+    return (idx_t)p;
+}
 
 seq_t a(idx_t n) {
     if (n < 1) return 0;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;       /* offset begins at 1; n=0 not used */
@@ -28,7 +31,7 @@ seq_t a(idx_t n) {
             idx_t d = i;
             idx_t m = n / d;
             if (d < n) {
-                if (mod_pow((seq_t)d, (uint64_t)(d - 1), (seq_t)m) == 1)
+                if (powmod((seq_t)d, (uint64_t)(d - 1), (seq_t)m) == 1)
                     ++count;
             }
 
@@ -37,7 +40,7 @@ seq_t a(idx_t n) {
             if (j != i && j < n) {
                 idx_t d2 = j;
                 idx_t m2 = n / d2;   /* equals i */
-                if (mod_pow((seq_t)d2, (uint64_t)(d2 - 1), (seq_t)m2) == 1)
+                if (powmod((seq_t)d2, (uint64_t)(d2 - 1), (seq_t)m2) == 1)
                     ++count;
             }
         }

@@ -7,12 +7,15 @@
  * Formula:   a(n) = Sum_{d^2|n} d^3
  * Range:     u8 n <= 48, u16 n <= 1599, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 96 terms through n = 9214 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static seq_t pow3(seq_t base) {

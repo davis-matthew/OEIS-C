@@ -9,6 +9,7 @@
  *            prime(n)^5
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 23, u64 n <= 914, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 952 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,9 @@
    only when a larger prime index is requested. */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
 
 static uint32_t *prime_cache = NULL;

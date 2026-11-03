@@ -7,7 +7,8 @@
  * Formula:   a(n) = (n-th semiprime) mod 9
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   ensure_seq_cap, ensure_uint32_cap
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,31 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/ensure_seq_cap.h"
-#include "../utils/ensure_uint32_cap.h"
+#include "../utils/mem.h"
+
+/* Ensure capacity of a dynamic array of seq_t objects. */
+static void ensure_seq_cap(seq_t **arr, size_t *cap, size_t req)
+{
+    if (req <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+    while (new_cap < req) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) exit(EXIT_FAILURE);
+    *arr = tmp;
+    *cap = new_cap;
+}
+
+/* Ensure capacity of a dynamic array of uint32_t primitives. */
+static void ensure_uint32_cap(uint32_t **arr, size_t *cap, size_t req)
+{
+    if (req <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+    while (new_cap < req) new_cap <<= 1;
+    uint32_t *tmp = (uint32_t *)realloc(*arr, new_cap * sizeof(uint32_t));
+    if (!tmp) exit(EXIT_FAILURE);
+    *arr  = tmp;
+    *cap  = new_cap;
+}
 
 /* Return the n-th semiprime modulo 9.  n is 1‑based. */
 seq_t a(idx_t n)

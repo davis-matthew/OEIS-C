@@ -7,6 +7,7 @@
  * Formula:   a(n) = n-th divisor of 2^15 - 1 = 32767 = 7 * 31 * 151
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

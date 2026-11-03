@@ -10,13 +10,15 @@
  *            a(2)=40, a(3)=68
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 29, u64 n <= 61, u128 n <= 125,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;
 static idx_t a_cache_len = 0;
@@ -27,7 +29,7 @@ static void a_grow(idx_t needed)
     if (needed <= a_cache_cap) return;
     idx_t new_cap = a_cache_cap ? a_cache_cap * 2 : 4;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) exit(1);          /* memory allocation failed */
     a_cache    = tmp;
     a_cache_cap = new_cap;

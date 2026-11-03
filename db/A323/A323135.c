@@ -11,19 +11,20 @@
  *            never
  * Range:     u8 n <= 525, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 97 terms through n = 9479 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gpf.h"   /* gpf(uint64_t) returns the largest prime factor */
+#include "../utils/largest_prime_factor.h"
 
 static bool is_prime_power(uint64_t v)
 {
     if (v <= 1) return true;                     /* 1 is considered a prime power */
-    uint64_t p = gpf(v);
+    uint64_t p = largest_prime_factor(v);
     while (v % p == 0) v /= p;
     return v == 1;
 }
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
     while (1) {
         if (is_prime_power(x))
             return (seq_t)steps;
-        uint64_t g = gpf(x);
+        uint64_t g = largest_prime_factor(x);
         x += g;
         ++steps;
         /* safety guard: stop after a reasonable number of steps */

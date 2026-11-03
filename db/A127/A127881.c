@@ -10,7 +10,8 @@
  *            (OEIS A127881, offset 1)
  * Range:     u8 none, u16 none, u32 n <= 9, u64 n <= 774, u128 n <= 5000,
  *            big any n
- * Helpers:   value_for_x
+ * Validated: standard, pass, 34 terms through n = 4771 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/value_for_x.h"
+#include "../utils/mem.h"
+
+/* Compute the polynomial value for a given x */
+static seq_t value_for_x(idx_t x)
+{
+    unsigned __int128 xm = (unsigned __int128)x;
+    unsigned __int128 numerator =
+        xm * xm * xm * xm * xm          /* x^5  */
+        + 5 * xm * xm * xm * xm         /* 5x^4 */
+        + 20 * xm * xm * xm              /* 20x^3 */
+        + 60 * xm * xm                   /* 60x^2 */
+        + 120 * xm                       /* 120x */
+        + 120;                           /* +120 */
+    return (seq_t)(numerator / 120);
+}
 
 /* Cache for memoisation of computed values */
 static seq_t *seq_cache = NULL;
@@ -53,7 +68,7 @@ static void ensure_cache_capacity(void)
     if (cache_len < cache_cap)
         return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
-    seq_t *ptr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, seq_cache, new_cap);
     if (!ptr)
         abort();          /* out of memory */
     seq_cache = ptr;

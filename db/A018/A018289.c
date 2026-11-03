@@ -7,13 +7,15 @@
  * Formula:   a(n) = the n-th smallest divisor of 112
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *p, const void *q) {
     const seq_t *a = (const seq_t *)p;
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
                 divs[idx++] = val;
             }
         }
-        qsort(divs, 10, sizeof(seq_t), cmp_seq);
+        mem_qsort(divs, 10, sizeof(seq_t), cmp_seq);
         inited = true;
     }
     if (n == 0 || n > 10) return 0;

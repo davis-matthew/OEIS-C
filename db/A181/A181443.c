@@ -11,12 +11,14 @@
  *            memoizes computed values so that any order of calls is s...
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* stored sequence values */
 static size_t cache_len = 0;       /* number of values currently stored */
@@ -35,7 +37,7 @@ static void grow_cache_until(idx_t n)
         return;                     /* already present */
 
     size_t new_len = (size_t)n + 1;
-    cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_len);
     if (!cache) abort();            /* allocation failed */
 
     /* initialise new entries */
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (!cache)
     {
-        cache = (seq_t *)malloc(12 * sizeof(seq_t));
+        cache = mem_new(seq_t, 12);
         if (!cache) abort();        /* allocation failed */
         for (size_t i = 0; i < 12; ++i)
             cache[i] = init[i];

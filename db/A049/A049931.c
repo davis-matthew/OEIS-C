@@ -10,7 +10,8 @@
  *            a(m), where m = 2*n - 2 - 2^(p+1) and 2^p < n-1 <= 2^(p+1)
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* floor(log2(v)) for unsigned 64‑bit integer v >= 1 */
 static inline idx_t log2_floor(idx_t v)
@@ -43,8 +45,8 @@ seq_t a(idx_t n)
     if (n > last) {
         size_t new_cap = (size_t)n + 1;
         if (new_cap > cap) {
-            a_val = (seq_t *)realloc(a_val, new_cap * sizeof(seq_t));
-            pref  = (seq_t *)realloc(pref,  new_cap * sizeof(seq_t));
+            a_val = mem_resize(seq_t, a_val, new_cap);
+            pref  = mem_resize(seq_t, pref, new_cap);
             if (!a_val || !pref)
                 abort();            /* out of memory */
 

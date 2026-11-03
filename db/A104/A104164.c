@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   is_prime_uint64
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     while (results_cnt < n) {
         /* Find next prime p */
         uint64_t p = next_prime_candidate;
-        while (!is_prime_uint64(p))
+        while (!is_prime_u64(p))
             ++p;
         next_prime_candidate = p + 1;     /* next candidate for following iteration */
 
@@ -42,11 +44,11 @@ seq_t a(idx_t n)
         seq_t candidate = ((seq_t)5 * (seq_t)p - 1) / 2;
 
         /* If candidate is prime, store it as the next sequence term */
-        if (is_prime_uint64((uint64_t)candidate)) {
+        if (is_prime_u64((uint64_t)candidate)) {
             /* grow array if needed */
             if (results_cnt >= results_cap) {
                 size_t new_cap = results_cap ? results_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(results, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, results, new_cap);
                 if (!tmp)
                     exit(EXIT_FAILURE);   /* allocation failed */
                 results = tmp;

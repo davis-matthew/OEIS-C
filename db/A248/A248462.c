@@ -11,12 +11,14 @@
  *            DP to handle any ordering of calls
  * Range:     u8 n <= 5, u16 n <= 39, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external linkage as requested ------------------------------------------ */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* ensure we have room for n (1‑based indexing) ---------------------------------- */
     if (n > cache_n) {
         size_t new_size = n + 1;     /* index 0 unused, store at cache[i] for i>=1 */
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         /* initialise new entries */
         for (idx_t i = cache_n + 1; i <= n; ++i) {
             if (i == 1) cache[i] = (seq_t)6;

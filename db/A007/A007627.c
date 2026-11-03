@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 324, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   A7627_cmp, A7627_gcd, A7627_push
+ * Validated: standard, pass, 61 terms through n = 8817 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/A7627_cmp.h"
-#include "../utils/A7627_gcd.h"
-#include "../utils/A7627_push.h"
+#include "../utils/gcd_u64.h"
+
+static int A7627_cmp(const void *p, const void *q) {
+    uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+    return (x > y) - (x < y);
+}
+
+static void A7627_push(uint64_t **buf, size_t *len, size_t *cap, uint64_t v) {
+    if (*len == *cap) {
+        *cap = *cap ? *cap * 2 : 1024;
+        *buf = (uint64_t *)realloc(*buf, *cap * sizeof(uint64_t));
+    }
+    (*buf)[(*len)++] = v;
+}
 
 static uint64_t *A7627_list = NULL;
 static size_t A7627_cnt = 0;
@@ -54,7 +66,7 @@ static void A7627_build(int m) {
                 if (amax > amax_lim) amax = amax_lim;
                 uint64_t aa;
                 for (aa = 1; aa <= amax; aa++) {
-                    if (A7627_gcd(aa, b) != 1) continue;
+                    if (gcd_u64(aa, b) != 1) continue;
                     uint64_t v = aa * P + b;
                     if (v < L) A7627_push(&buf, &len, &cap, v);
                 }

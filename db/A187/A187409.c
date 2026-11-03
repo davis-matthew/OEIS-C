@@ -7,12 +7,14 @@
  * Formula:   a(n) = n^2 + nextprime(n^2)
  * Range:     u8 n <= 11, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
  * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
 
 seq_t a(idx_t n)

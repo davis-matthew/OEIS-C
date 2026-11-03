@@ -11,13 +11,37 @@
  *            flattening the triangle)
  * Range:     u8 n <= 34, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   row_from_flat
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>  /* for uint64_t in idx_t */
-#include "../utils/row_from_flat.h"
+
+/* Return the row number r for a flattened index n:
+ *   r(r+1)/2 <= n < (r+1)(r+2)/2
+ * Uses binary search with 128‑bit arithmetic to avoid overflow. */
+static inline idx_t row_from_flat(idx_t n)
+{
+    idx_t low  = 0;
+    idx_t high = 1;
+
+    /* Expand high until it exceeds the target row. */
+    while (((unsigned __int128)high * (high + 1)) / 2 <= n)
+        high <<= 1;
+
+    /* Binary search between low and high. */
+    while (low + 1 < high)
+    {
+        idx_t mid = low + (high - low) / 2;
+        if (((unsigned __int128)mid * (mid + 1)) / 2 <= n)
+            low = mid;
+        else
+            high = mid;
+    }
+    return low;
+}
 
 /* Compute sum of squares 0^2+1^2+...+x^2 = x*(x+1)*(2*x+1)/6
  * Uses __int128 to avoid overflow for any x that fits in seq_t. */

@@ -12,7 +12,8 @@
  *            divisors of n in increasing order and grouping adjacent...
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   cmp_uint64
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/cmp_uint64.h"
+#include <stdbool.h>
+
+/* ---------- Helper for sorting divisors ---------- */
+static int cmp_uint64(const void *p1, const void *p2)
+{
+    uint64_t a = *(const uint64_t *)p1;
+    uint64_t b = *(const uint64_t *)p2;
+    return (a < b) ? -1 : (a > b);
+}
 
 /* compare function for qsort with uint64_t arguments */
 

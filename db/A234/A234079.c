@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 6, u64 n <= 14, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 178 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* use the types supplied by the build system (idx_t, seq_t) */
 #define DIGITS 5                     /* width of each row */
@@ -125,10 +127,10 @@ static void initialise(void)
     /* initialise DP arrays: one way per starting row */
     for (int i = 0; i < ROWS; ++i)
         dp[i] = (seq_t)1;
-    memset(newdp, 0, sizeof(newdp));
+    mem_set(newdp, 0, sizeof(newdp));
 
     /* allocate results array (indices 0..1) */
-    results = (seq_t *)malloc(2 * sizeof(seq_t));
+    results = mem_new(seq_t, 2);
     results[0] = (seq_t)0;   /* unused */
     results[1] = (seq_t)0;   /* placeholder for a(1) */
     max_n = 0;               /* no value computed yet */
@@ -149,7 +151,7 @@ seq_t a(idx_t n)
     if (n > max_n) {
         /* enlarge results array if necessary */
         if ((size_t)(n + 1) > (size_t)max_n + 1) {
-            seq_t *tmp = (seq_t *)realloc(results, (n + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, results, (n + 1));
             if (!tmp) abort();
             results = tmp;
         }
@@ -173,8 +175,8 @@ seq_t a(idx_t n)
             }
 
             /* prepare for next step */
-            memcpy(dp, newdp, sizeof(dp));
-            memset(newdp, 0, sizeof(newdp));
+            mem_copy(dp, newdp, sizeof(dp));
+            mem_set(newdp, 0, sizeof(newdp));
 
             results[step] = total;
         }

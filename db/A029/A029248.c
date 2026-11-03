@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 606, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    Computed by dynamic programming and memoized for successive calls. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* array of computed values */
 static idx_t  max_n = 0;          /* largest n that has been computed */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (!dp || n > max_n) {
         size_t new_len = (size_t)n + 1;
 
-        seq_t *new_dp = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, new_len);
         if (!new_dp)            /* allocation failed – return 0 as a safe fallback */
             return (seq_t)0;
 
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
                 new_dp[i] += new_dp[i - part];
         }
 
-        free(dp);               /* discard old table */
+        mem_free(dp);               /* discard old table */
         dp     = new_dp;
         max_n  = n;              /* new maximum index */
     }

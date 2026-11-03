@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 21, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   digit_count
+ * Validated: full, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,9 @@
 #include <string.h>
 
 /* utilities provided by the harness */
-#include "../utils/digit_count.h"
+#include <math.h>
+#include "../utils/num_digits0.h"
+#include "../utils/mem.h"
 
 /* --- auxiliary utilities ------------------------------------------------ */
 
@@ -62,13 +65,13 @@ seq_t a(idx_t n)
     if (seq_len == 0) {
         /* allocate sequence array */
         seq_cap = TARGET;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) return 0;                          /* unlikely   */
 
         /* allocate spf array */
         spf = (uint32_t *)calloc(MAX_LIMIT + 1U, sizeof(uint32_t));
         if (!spf) {
-            free(seq); seq = NULL; return 0;
+            mem_free(seq); seq = NULL; return 0;
         }
 
         /* classic Eratosthenes sieve that also records the smallest prime
@@ -112,7 +115,7 @@ seq_t a(idx_t n)
             const size_t q = pcnt;              /* number of distinct primes */
 
             /* require number of digits to equal q */
-            uint64_t d = digit_count(k);
+            uint64_t d = num_digits0(k);
             if (d != q)
                 continue;
 
@@ -148,7 +151,7 @@ seq_t a(idx_t n)
             if (numer % lcm == 0U) { /* integer condition satisfied */
                 if (seq_len >= seq_cap) {
                     seq_cap *= 2;
-                    seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, seq_cap);
                     if (!seq) return 0; /* allocation failure */
                 }
                 seq[seq_len++] = (seq_t)k;

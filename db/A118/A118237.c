@@ -8,7 +8,8 @@
  * Formula:   a(1) = 14, a(n) = rev_decimal(a(n-1)) + 1 (n > 1)
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   reverse_digits
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/reverse_digits.h"   /* seq_t reverse_digits(seq_t x) */
+#include <stdbool.h>
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     /* Allocate or resize the cache array if needed */
     size_t needed = (size_t)n + 1;
     if (needed > cap) {
-        seq_t *new_cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, needed);
         if (!new_cache) return 0;            /* allocation failed; return zero */
         cache = new_cache;
         cap   = needed;

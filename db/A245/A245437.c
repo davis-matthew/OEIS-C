@@ -8,13 +8,15 @@
  *            a(0)=0, a(1)=0, a(2)=0, a(3)=0, a(4)=0, a(5)=1
  * Range:     u8 n <= 16, u16 n <= 26, u32 n <= 46, u64 n <= 88, u128 n <= 170,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cached sequence storage */
 static seq_t *cache = NULL;    /* dynamic array of computed terms   */
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         cache_cap = 64;                   /* arbitrary starting capacity */
         cache_len = 6;                    /* we have 6 predefined values */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         for (size_t i = 0; i < 6; ++i) {
             cache[i] = base_values[i];
         }
@@ -43,7 +45,7 @@ static void ensure_cache(idx_t n)
         if (cache_len == cache_cap) {
             /* double the capacity */
             size_t new_cap = cache_cap * 2;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (new_cache == NULL) {
                 /* In a real application we might handle the error; here we just abort */
                 abort();

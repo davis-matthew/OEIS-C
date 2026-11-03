@@ -9,8 +9,9 @@
  *            the sum of the distinct prime factors of n and A001221(n) is the
  *            number of distinct prime factors of n. (Denominator of the
  *            reduced fraction.)
- * Range:     u8 n <= 9614, u16 n <= 9614, u32 n <= 9614, u64 n <= 9614,
- *            u128 n <= 9614, big any n
+ * Range:     u8 n <= 65539, u16 n <= 65539, u32 n <= 65539, u64 n <= 65539,
+ *            u128 n <= 65539, big any n
+ * Validated: standard, pass, 121 terms through n = 9614 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  *            * P(m) = 2*P(m-1) + P(m-2) for m >= 2 * Offset: a(1) = 1
  * Range:     u8 n <= 28, u16 n <= 91, u32 n <= 351, u64 n <= 1326,
  *            u128 n <= 5151, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9757 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for Pell numbers. */
 static seq_t *pell = 0;          /* pointer to the cache array */
@@ -34,14 +36,14 @@ ensure_pell(idx_t n)
 
     seq_t *new_pell;
     if (pell == 0) {
-        new_pell = (seq_t *)malloc(new_len * sizeof(seq_t));
+        new_pell = mem_new(seq_t, new_len);
         if (new_pell == 0) return;     /* allocation failed */
 
         new_pell[0] = (seq_t)0;
         if (new_len > 1)
             new_pell[1] = (seq_t)1;
     } else {
-        new_pell = (seq_t *)realloc(pell, new_len * sizeof(seq_t));
+        new_pell = mem_resize(seq_t, pell, new_len);
         if (new_pell == 0) return;     /* allocation failed */
     }
 

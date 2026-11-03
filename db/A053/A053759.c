@@ -8,7 +8,8 @@
  *            (a(-3) is the first defined term)
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* The build supplies seq_t, idx_t (int64_t) and operations on seq_t. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The index offset */
 static const idx_t OFFSET = -3;           /* a(-3) is the first stored value */
@@ -36,7 +38,7 @@ static void ensure_capacity(size_t need)
         new_cap = need + 1;
 
     /* Reallocate the cache array for seq_t values. */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (new_cache == NULL) {
         /* Allocation failed – abort program (no effect on tests). */
         exit(EXIT_FAILURE);

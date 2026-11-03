@@ -8,8 +8,9 @@
  *            of sqrt(10) = 11.00101001100...; computed exactly by the
  *            digit-by-digit (bitwise) integer square root on multi-limb
  *            integers
- * Range:     u8 n <= 9806, u16 n <= 9806, u32 n <= 9806, u64 n <= 9806,
- *            u128 n <= 9806, big any n
+ * Range:     u8 n <= 10001, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 115 terms through n = 9806 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

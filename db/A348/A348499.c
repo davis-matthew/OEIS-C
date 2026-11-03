@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 162, u16 n <= 9089, u32 n <= 9089, u64 n <= 9089,
- *            u128 n <= 9089, big any n
- * Helpers:   add_exponent, build_primes_upto, int_sqrt
+ * Range:     u8 n <= 162, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 93 terms through n = 9089 (2026-11-03)
+ * Helpers:   build_primes_upto, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,24 @@
 #include <stdbool.h>
 
 #include "../utils/build_primes_upto.h"
-#include "../utils/int_sqrt.h"
-#include "../utils/add_exponent.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* Add 'add' to the exponent of prime 'p' in exp_arr.  */
+static void
+add_exponent(uint64_t *exp_prime, uint64_t *exp_val, size_t *exp_len,
+             uint64_t p, uint64_t add)
+{
+    for (size_t i = 0; i < *exp_len; ++i) {
+        if (exp_prime[i] == p) {
+            exp_val[i] += add;
+            return;
+        }
+    }
+    exp_prime[*exp_len] = p;
+    exp_val[*exp_len]   = add;
+    ++(*exp_len);
+}
 
 /* ----- global prime list for factorisation ----- */
 static uint64_t *prime_list = NULL;  /* array of primes */
@@ -104,7 +121,7 @@ good_k(idx_t k)
         if (e > 1) {          /* (p+1)^(e-1) contributes exponents */
             uint64_t pp = p + 1;
             /* ensure primes up to sqrt(p+1) */
-            ensure_primes_upto((idx_t)int_sqrt(pp) + 1);
+            ensure_primes_upto((idx_t)isqrt(pp) + 1);
 
             uint64_t pp_factors[64], pp_exp[64];
             size_t  pp_cnt;
@@ -150,7 +167,7 @@ seq_t a(idx_t n)
     /* Initialise cache on the first call */
     if (term_len == 0) {
         term_cap = 16;
-        terms = (seq_t *)malloc(term_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, term_cap);
         if (!terms)
             return 0;
         terms[0] = (seq_t)1;
@@ -163,14 +180,14 @@ seq_t a(idx_t n)
     /* Extend cache until we have n terms */
     while (term_len < (size_t)n) {
         /* Ensure primes sufficient for factorisation of k and k+1 */
-        ensure_primes_upto((idx_t)int_sqrt(next_k) + 1);
-        ensure_primes_upto((idx_t)int_sqrt(next_k + 1) + 1);
+        ensure_primes_upto((idx_t)isqrt(next_k) + 1);
+        ensure_primes_upto((idx_t)isqrt(next_k + 1) + 1);
 
         if (good_k(next_k)) {
             /* grow array if needed */
             if (term_len >= term_cap) {
                 term_cap = term_cap * 2 + 16;
-                seq_t *tmp = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, term_cap);
                 if (!tmp)
                     return 0;
                 terms = tmp;

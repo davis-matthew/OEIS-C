@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{s=0..⌊(n-1)/2⌋} binomial(n-1-s, s) * (n+1)^s
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* Computes A083860: first subdiagonal of the generalized Fibonacci array A083856. */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t n, idx_t k); */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* cache of computed values */
 static idx_t cache_len = 0;     /* how many entries are valid (indexes 0 .. cache_len-1) */
@@ -28,7 +30,7 @@ static void extend_cache(idx_t n)
     if (needed <= cache_cap)
         return;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, needed * sizeof(*new_cache));
+    seq_t *new_cache = mem_resize(seq_t, cache, needed);
     if (!new_cache) {
         /* allocation failed – abort; the harness expects correctness only. */
         exit(1);

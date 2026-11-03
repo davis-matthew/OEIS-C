@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
+ * Validated: partial, pass, 71 terms through n = 72 (2026-11-01)
  * Helpers:   sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,9 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/sieve_primes.h"
 
 static idx_t *prime_cache = NULL;   /* array of primes, allocated by sieve_primes */

@@ -9,13 +9,15 @@
  *            a(2)=11, a(3)=11, a(4)=29
  * Range:     u8 n <= 9, u16 n <= 21, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* store values a[i] for 1 ≤ i ≤ cache_len */
 static idx_t cache_len = 0;   /* largest index computed so far */
@@ -28,7 +30,7 @@ static void ensure_cache_up_to(idx_t n)
     /* Allocate at least 5 elements to hold the first four terms plus a dummy 0 index */
     size_t new_len = (n > 4) ? (size_t)(n + 1) : 5;
     if (!cache) {
-        cache = (seq_t *)realloc(NULL, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, new_len);
         if (!cache) abort();             /* allocation failure */
         /* initialise first four terms */
         cache[1] = (seq_t)4;
@@ -36,7 +38,7 @@ static void ensure_cache_up_to(idx_t n)
         cache[3] = (seq_t)11;
         cache[4] = (seq_t)29;
     } else {
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         if (!cache) abort();
     }
 

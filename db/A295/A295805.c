@@ -11,7 +11,8 @@
  *            the tables on demand
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* DP tables for k=0..7. dp[k][v] = number of ways to represent v
    as a sum of k positive squares (unordered). */
@@ -109,7 +111,7 @@ static void expand_sieve(idx_t new_limit) {
         if (!term_seen[v] && dp[7][v] == 8) {
             if (terms_len == terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap << 1 : 1;
-                seq_t *newt = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *newt = mem_resize(seq_t, terms, new_cap);
                 if (!newt) exit(1);
                 terms = newt;
                 terms_cap = new_cap;

@@ -9,6 +9,7 @@
  *            T(r,k)=r!*C(r,k)
  * Range:     u8 n <= 15, u16 n <= 29, u32 n <= 68, u64 n <= 174,
  *            u128 n <= 446, big any n
+ * Validated: standard, pass, 61 terms through n = 479 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

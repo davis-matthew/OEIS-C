@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   count_distinct_primes
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
         if (n > cap) {
             size_t new_cap = cap ? cap << 1 : 64;
             while (new_cap < n) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();              /* allocation failure */
             cache = tmp;
             cap   = new_cap;
@@ -48,9 +51,9 @@ seq_t a(idx_t n)
             /* For n=2, nxt-1 = 1; count_distinct_primes(1) works
              * (returns 0).  We only accept numbers where all three
              * consecutive integers have >=3 distinct prime factors. */
-            if (count_distinct_primes(nxt - 1) >= 3 &&
-                count_distinct_primes(nxt)     >= 3 &&
-                count_distinct_primes(nxt + 1) >= 3)
+            if (omega(nxt - 1) >= 3 &&
+                omega(nxt)     >= 3 &&
+                omega(nxt + 1) >= 3)
             {
                 cache[size++] = (seq_t)nxt;
             }

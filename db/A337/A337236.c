@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   is_prime, mul64
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   is_prime, mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 
 #include "../utils/is_prime.h"
-#include "../utils/mul64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* Compute A001076(n) modulo mod.
    A001076 is the Lucas sequence with a = 4, b = -1:
@@ -39,18 +41,18 @@ static uint64_t A001076_mod(uint64_t n, uint64_t mod)
     {
         if (exp & 1)
         {
-            uint64_t c00 = (mul64(a00, b00, mod) + mul64(a01, b10, mod)) % mod;
-            uint64_t c01 = (mul64(a00, b01, mod) + mul64(a01, b11, mod)) % mod;
-            uint64_t c10 = (mul64(a10, b00, mod) + mul64(a11, b10, mod)) % mod;
-            uint64_t c11 = (mul64(a10, b01, mod) + mul64(a11, b11, mod)) % mod;
+            uint64_t c00 = (mulmod(a00, b00, mod) + mulmod(a01, b10, mod)) % mod;
+            uint64_t c01 = (mulmod(a00, b01, mod) + mulmod(a01, b11, mod)) % mod;
+            uint64_t c10 = (mulmod(a10, b00, mod) + mulmod(a11, b10, mod)) % mod;
+            uint64_t c11 = (mulmod(a10, b01, mod) + mulmod(a11, b11, mod)) % mod;
             a00 = c00; a01 = c01; a10 = c10; a11 = c11;
         }
 
         /* Square the base matrix */
-        uint64_t c00 = (mul64(b00, b00, mod) + mul64(b01, b10, mod)) % mod;
-        uint64_t c01 = (mul64(b00, b01, mod) + mul64(b01, b11, mod)) % mod;
-        uint64_t c10 = (mul64(b10, b00, mod) + mul64(b11, b10, mod)) % mod;
-        uint64_t c11 = (mul64(b10, b01, mod) + mul64(b11, b11, mod)) % mod;
+        uint64_t c00 = (mulmod(b00, b00, mod) + mulmod(b01, b10, mod)) % mod;
+        uint64_t c01 = (mulmod(b00, b01, mod) + mulmod(b01, b11, mod)) % mod;
+        uint64_t c10 = (mulmod(b10, b00, mod) + mulmod(b11, b10, mod)) % mod;
+        uint64_t c11 = (mulmod(b10, b01, mod) + mulmod(b11, b11, mod)) % mod;
         b00 = c00; b01 = c01; b10 = c10; b11 = c11;
 
         exp >>= 1;
@@ -81,10 +83,10 @@ seq_t a(idx_t n)
 
         /* Compute A001076(m) modulo m and test the congruence */
         uint64_t val = A001076_mod(m, m);
-        if (mul64(val, val, m) == 1)
+        if (mulmod(val, val, m) == 1)
         {
             /* Append to cache */
-            seq_t *tmp = (seq_t *)realloc(cache, (cache_len + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, (cache_len + 1));
             if (!tmp)
                 abort();   /* allocation failure */
             cache = tmp;

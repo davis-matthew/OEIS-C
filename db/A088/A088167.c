@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 671, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 9245 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* Note: this implementation works for all supported seq_t/idx_t types. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache: cache[i-1] = a(i) as seq_t.  ui_cache holds the same values as
    idx_t to speed up the divisibility test. */
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t needed)
     /* realloc may return NULL – ignore errors here; the caller will
        terminate if memory is exhausted which is acceptable for an
        algorithmic problem. */
-    seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_len);
     cache = tmp;
     idx_t *tmp_ui = (idx_t *)realloc(ui_cache, (size_t)new_len * sizeof(idx_t));
     ui_cache = tmp_ui;

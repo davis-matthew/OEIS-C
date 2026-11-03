@@ -11,13 +11,15 @@
  *            binomial(k,j) * (3*n-2-2*j) * T(n-1-j,k) (with T(m,k)=0 for m<0)
  * Range:     i8 n <= 8, i16 n <= 19, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* helper: binomial for small non‑negative integers using seq_t */
 static seq_t binom_small(idx_t n, idx_t k) {
@@ -44,7 +46,7 @@ static idx_t antidiag(idx_t n) {
 /* dynamically build T up to dimension 'dim' (dim = t_max+1) */
 static void build_T(size_t dim, seq_t **storage) {
     /* allocate new storage */
-    seq_t *buf = (seq_t *)calloc(dim * dim, sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, dim * dim);
     if (!buf) return; /* allocation failure: nothing to do */
 
     /* base row n = 0 */
@@ -82,7 +84,7 @@ seq_t a(idx_t n) {
     size_t required = (size_t)(t + 1); /* dimension needed */
     if (required > T_dim) {
         /* rebuild table for new dimension */
-        free(T_storage);
+        mem_free(T_storage);
         build_T(required, &T_storage);
         T_dim = required;
     }

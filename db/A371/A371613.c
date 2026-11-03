@@ -8,7 +8,8 @@
  *            / (3*(n-k)+1) (a(0)=1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Compute A371613 by memoised summation and the provided binomial routine. */
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Grow the cache to hold terms up to n */
     if (n + 1 > cache_size) {
         idx_t newsize = n + 1;
-        cache = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newsize);
         for (idx_t i = cache_size; i < newsize; ++i) {
             seq_t sum = (seq_t)0;
             if (i == 0) {                /* already handled above, but kept for safety */

@@ -11,14 +11,16 @@
  *            Here a(n)/((n+1)! lcm(1..n+2)) is the coeffic...
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 7, i64 n <= 14, i128 n <= 24,
  *            big any n
- * Helpers:   a002404_isprime
+ * Validated: standard, pass, 35 terms through n = 94 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a002404_isprime.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 	long long deg = 0, i, m;
 	uint64_t p, top = (uint64_t)n + 2;
 	seq_t L = 1, sum = 0, res;
-	seq_t *c = (seq_t *)calloc((size_t)(N + 3), sizeof(seq_t));
+	seq_t *c = mem_new(seq_t, (size_t)(N + 3));
 
 	/* coefficients of P_n(u) = prod_{i=0..n+1, i != n} (u + i) */
 	c[0] = 1;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
 	/* L = lcm(1..n+2) */
 	for (p = 2; p <= top; p++) {
-		if (a002404_isprime(p)) {
+		if (is_prime_u64(p)) {
 			uint64_t pk = p;
 			while (pk * p <= top) pk *= p;
 			L *= (seq_t)pk;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
 	for (m = 0; m <= deg; m++)
 		sum += c[m] * (L / (seq_t)(m + 1));
 
-	free(c);
+	mem_free(c);
 	res = sum * ((seq_t)n + 1);
 	if (n & 1) res = -res;
 	return res;

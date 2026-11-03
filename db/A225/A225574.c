@@ -10,7 +10,8 @@
  *            returns the n‑th smallest (1‑based)
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_seq_t
+ * Validated: standard, pass, 77 terms through n = 9197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/cmp_seq_t.h"   // int cmp_seq_t(const void *, const void *);
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 static seq_t *seq = NULL;          /* sorted list of sigma values   */
 static size_t seq_len = 0;         /* number of values in seq       */
@@ -67,7 +79,7 @@ static void init_sequence(void)
 
     /* Temporary array that will be sorted and deduplicated. */
     size_t cap = 200000;               /* initial capacity for sequence */
-    seq = (seq_t*)malloc(cap * sizeof(seq_t));
+    seq = mem_new(seq_t, cap);
     if (!seq) exit(EXIT_FAILURE);
 
     for (idx_t m = 1; m <= LIMIT; ++m) {
@@ -75,7 +87,7 @@ static void init_sequence(void)
         if (m == 1) {          /* 1 is practical by definition */
             if (seq_len == cap) {
                 cap <<= 1;
-                seq = (seq_t*)realloc(seq, cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, cap);
                 if (!seq) exit(EXIT_FAILURE);
             }
             seq[seq_len++] = (seq_t)1;
@@ -118,7 +130,7 @@ static void init_sequence(void)
         if (practical) {
             if (seq_len == cap) {
                 cap <<= 1;
-                seq = (seq_t*)realloc(seq, cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, cap);
                 if (!seq) exit(EXIT_FAILURE);
             }
             seq[seq_len++] = sigma;
@@ -126,7 +138,7 @@ static void init_sequence(void)
     }
 
     /* Sort the collected sigma values.  */
-    qsort(seq, seq_len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(seq, seq_len, sizeof(seq_t), cmp_seq_t);
 
     /* Remove duplicates (though unlikely). */
     size_t uniq = 0;

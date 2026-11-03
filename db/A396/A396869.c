@@ -7,7 +7,8 @@
  * Formula:   a(n) = 4*q - floor(2*sqrt(q))^2, where q = A246655(n)
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 94 terms through n = 9087 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *prime_powers = NULL;
 static size_t pp_count = 0;
@@ -55,7 +75,7 @@ static void init_prime_powers(void) {
 
     /* Allocate array large enough for all prime powers up to the limit. */
     size_t cap = limit;               /* safe upper bound */
-    prime_powers = (seq_t *)malloc(cap * sizeof(seq_t));
+    prime_powers = mem_new(seq_t, cap);
     if (!prime_powers) exit(1);
     pp_count = 0;
 
@@ -71,7 +91,7 @@ static void init_prime_powers(void) {
     }
     free(is_prime);
 
-    qsort(prime_powers, pp_count, sizeof(seq_t), cmp_seq);
+    mem_qsort(prime_powers, pp_count, sizeof(seq_t), cmp_seq);
     pp_initialized = true;
 }
 

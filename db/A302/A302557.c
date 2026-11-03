@@ -8,7 +8,8 @@
  *            (the k‑th derangement) a(n) = Σ_{k=1..n} D(k) * a(n-k)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,12 +19,13 @@
    with seq_t operators, which work for 8/16/32/64‑bit integers, __int128,
    and arbitrary‑precision types (the latter provided by the build). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate space for derangements and a-sequence */
-    seq_t *der   = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    seq_t *aseq  = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *der   = mem_new(seq_t, (n + 1));
+    seq_t *aseq  = mem_new(seq_t, (n + 1));
 
     if (!der || !aseq)        /* allocation failure – return 0 */
         return (seq_t)0;
@@ -54,8 +56,8 @@ seq_t a(idx_t n)
     seq_t result = aseq[n];
 
     /* Clean up */
-    free(der);
-    free(aseq);
+    mem_free(der);
+    mem_free(aseq);
 
     return result;
 }

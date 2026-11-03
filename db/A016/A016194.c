@@ -9,13 +9,15 @@
  *            polynomial). The * sequence is periodic with period length 2185
  * Range:     i8 n <= 3000, i16 n <= 3000, i32 n <= 3000, i64 n <= 3000,
  *            i128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 2398 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define PERIOD_LEN 2185
 
@@ -24,7 +26,7 @@ static int initialized = 0;
 
 static void init_period(void)
 {
-    seq_t *cur = (seq_t *)calloc(PERIOD_LEN, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, PERIOD_LEN);
     cur[0] = 1;
 
     /* Positive exponent factors: (1 - x^d) with d = 1, 95, 115, 437.
@@ -58,7 +60,7 @@ static void init_period(void)
     for (size_t i = 0; i < PERIOD_LEN; ++i)
         period[i] = cur[i];
 
-    free(cur);
+    mem_free(cur);
     initialized = 1;
 }
 

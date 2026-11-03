@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 27, u64 n <= 57, u128 n <= 119,
  *            big any n
+ * Validated: standard, pass, 48 terms through n = 178 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -24,7 +25,8 @@
 
 /* Helper: compute 2^exp; exp is non‑negative and fits in idx_t */
 #ifdef __cplusplus
-#include "../utils/pow2.h"   /* assumes pow2(idx_t) exists */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 #else
 /* In C, pow2 may be provided; if not, a simple loop works */
 static seq_t my_pow2(idx_t exp)

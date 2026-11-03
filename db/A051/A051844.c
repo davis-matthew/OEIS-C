@@ -7,12 +7,13 @@
  * Formula:   a(n) = lcm_{k=0..n} (2^k + 1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   gcd_local
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd_local.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +23,7 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= n; ++k)
     {
         seq_t term = pow2 + 1;          /* 2^k + 1 */
-        seq_t g    = gcd_local(lcm, term);
+        seq_t g    = gcd(lcm, term);
         lcm        = (lcm / g) * term;  /* update LCM */
         pow2       = pow2 * 2;          /* prepare next power of two */
     }

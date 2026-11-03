@@ -7,8 +7,9 @@
  * Keywords:  nonn, base, easy
  * Formula:   a(1)=1, a(2)=2; a(n+2) = a(n) + first_digit(a(n+1)), where
  *            first_digit(x) is the most significant decimal digit of x
- * Range:     u8 n <= 294, u16 n <= 8820, u32 n <= 8820, u64 n <= 8820,
- *            u128 n <= 8820, big any n
+ * Range:     u8 n <= 294, u16 n <= 10002, u32 n <= 10002, u64 n <= 10002,
+ *            u128 n <= 10002, big any n
+ * Validated: standard, pass, 87 terms through n = 8820 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

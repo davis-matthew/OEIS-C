@@ -7,18 +7,21 @@
  * Formula:   a(n) = (n^n - 1)(n^n + 1)/(n + 1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* All computations are performed in seq_t to preserve precision. */
     seq_t sn = (seq_t)n;                      /* convert index to seq_t */
-    seq_t x  = big_pow(sn, sn);               /* x = n^n */
+    seq_t x  = ipow(sn, sn);               /* x = n^n */
 
     /* Since n ≡ -1 (mod n+1), one of (x-1) or (x+1) is divisible by n+1.
        Divide first to avoid overflow: */

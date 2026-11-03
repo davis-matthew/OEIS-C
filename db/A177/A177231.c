@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 27, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   no_two
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,19 @@
  */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/no_two.h"
+#include "../utils/mem.h"
+
+/* Helper: return true if x has no digit 2. */
+static inline bool no_two(seq_t x)
+{
+    if (x == 0) return true; /* 0 does not contain a 2 */
+    while (x != 0)
+    {
+        if (x % (seq_t)10 == (seq_t)2) return false;
+        x /= (seq_t)10;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -42,7 +55,7 @@ seq_t a(idx_t n)
     if (!initialized)
     {
         cache_cap = 32;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         initialized = true;
     }
 
@@ -58,7 +71,7 @@ seq_t a(idx_t n)
                 if (cache_len == cache_cap)
                 {
                     size_t new_cap = cache_cap * 2;
-                    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) return 0; /* Allocation failure: return 0 as fallback */
                     cache = tmp;
                     cache_cap = new_cap;

@@ -9,13 +9,26 @@
  *            The sequence enumerates i, j alternately for each such pair
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   terms_up_to_sum
+ * Validated: partial, pass, 98 terms through n = 98 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/terms_up_to_sum.h"
+
+/* Helper: total number of terms up to and including sum s (s >= 3) */
+static inline uint64_t terms_up_to_sum(uint64_t s) {
+    if (s < 3)
+        return 0;
+    uint64_t p = s >> 1;                     /* p = floor(s/2) */
+    __int128 val;
+    if ((s & 1) == 0)                        /* s even */
+        val = (__int128)2 * p * (p - 1);
+    else                                     /* s odd */
+        val = (__int128)2 * p * p;
+    return (uint64_t)val;
+}
 
 /* Main function required by the build */
 seq_t a(idx_t n) {

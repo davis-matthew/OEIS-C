@@ -7,6 +7,7 @@
  * Formula:   a(n) = digital root of n*(n+1)*(n+2)/2
  * Range:     u8 n <= 117, u16 n <= 117, u32 n <= 117, u64 n <= 117,
  *            u128 n <= 117, big any n
+ * Validated: partial, pass, 118 terms through n = 117 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

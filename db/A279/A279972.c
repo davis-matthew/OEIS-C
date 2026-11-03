@@ -12,12 +12,14 @@
  *            n > 10. Initial values a(1) .. a(10) are given below
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 30, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* grow the cache if needed */
     if (cache_cap < n) {
         /* allocate or resize the buffer */
-        seq_t *newp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, cache, (n + 1));
         cache = newp;
 
         /* fill in any missing terms up to n */

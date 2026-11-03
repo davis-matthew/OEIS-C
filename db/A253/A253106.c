@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, seq_local_cmp
+ * Validated: standard, pass, 73 terms through n = 9213 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,19 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_local_cmp.h"
+#include "../utils/mem.h"
+
+/* Local comparison function for qsort on seq_t */
+static int seq_local_cmp(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 /* Static cache for the sequence */
 static seq_t *seq_cache = NULL;
@@ -40,7 +52,7 @@ static void generate_sequence(size_t need)
 
         /* Allocate temporary array for candidate values */
         size_t tmp_cap = 2 * prime_cnt + 10;
-        seq_t *tmp = (seq_t *)malloc(tmp_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, tmp_cap);
         size_t tmp_len = 0;
 
         for (size_t i = 0; i < prime_cnt; ++i) {
@@ -51,7 +63,7 @@ static void generate_sequence(size_t need)
         free(primes);
 
         /* Sort the values */
-        qsort(tmp, tmp_len, sizeof(seq_t), seq_local_cmp);
+        mem_qsort(tmp, tmp_len, sizeof(seq_t), seq_local_cmp);
 
         /* Remove duplicates */
         size_t uniq = 0;
@@ -62,7 +74,7 @@ static void generate_sequence(size_t need)
         }
 
         /* Replace the cached sequence */
-        free(seq_cache);
+        mem_free(seq_cache);
         seq_cache = tmp;
         seq_len = uniq;
 

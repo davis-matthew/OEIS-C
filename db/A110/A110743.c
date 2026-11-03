@@ -8,13 +8,21 @@
  *            the decimal digits of n reversed (ignoring leading zeros)
  * Range:     u8 n <= 14, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   isprime_big, pow10
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/isprime_big.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
+
+static seq_t pow10(idx_t exp) {
+    seq_t res = 1;
+    for (idx_t i = 0; i < exp; ++i) res *= (seq_t)10;
+    return res;
+}
 #include <stdbool.h>
 
 seq_t a(idx_t n)
@@ -41,7 +49,7 @@ seq_t a(idx_t n)
         }
 
         while (cand <= high) {
-            if (isprime_big(cand)) {
+            if (is_prime_seq(cand)) {
                 return cand;
             }
             cand += 2;

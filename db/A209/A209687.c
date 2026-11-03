@@ -10,12 +10,14 @@
  *            OEIS sequence a(n) is the flattened triangle read row by row
  * Range:     u8 n <= 33, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached rows of the triangle.  rows[i] points to an array of i
  * seq_t values representing T(i,0..i-1).
@@ -43,16 +45,16 @@ static void ensure_rows(idx_t r)
     /* Compute each missing row. */
     for (idx_t i = rows_cap + 1; i <= r; ++i) {
         if (i == 1) {
-            rows[1] = (seq_t *)malloc(sizeof(seq_t) * 1);
+            rows[1] = mem_new(seq_t, 1);
             rows[1][0] = (seq_t)1;
         } else if (i == 2) {
-            rows[2] = (seq_t *)malloc(sizeof(seq_t) * 2);
+            rows[2] = mem_new(seq_t, 2);
             rows[2][0] = (seq_t)0;
             rows[2][1] = (seq_t)2;
         } else {
             seq_t *prev    = rows[i - 1];
             seq_t *preprev = rows[i - 2];
-            seq_t *cur     = (seq_t *)malloc(sizeof(seq_t) * i);
+            seq_t *cur     = mem_new(seq_t, i);
             seq_t two = (seq_t)2;
 
             for (idx_t j = 0; j < i; ++j) {

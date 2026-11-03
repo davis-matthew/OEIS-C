@@ -7,6 +7,7 @@
  * Formula:   a(0)=1; a(1)=-1; a(2n+1) = -1; a(2n) = 4*a(n-1)+1 (n≥1)
  * Range:     i8 n <= 29, i16 n <= 509, i32 n <= 1024, i64 n <= 1024,
  *            i128 n <= 1024, big any n
+ * Validated: standard, pass, 87 terms through n = 965 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

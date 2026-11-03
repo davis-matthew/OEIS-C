@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* The start of the period (a0) */
 static const seq_t a0 = 31;
@@ -46,7 +48,7 @@ static void init_period(void)
 
     /* Allocate an initial buffer; the period for sqrt(989) has length 32. */
     size_t cap = 32;                /* an upper bound is fine */
-    period = (seq_t *)malloc(cap * sizeof(seq_t));
+    period = mem_new(seq_t, cap);
     if (!period)
         return; /* out of memory; caller will get garbage */
     period_len = 0;
@@ -65,8 +67,8 @@ static void init_period(void)
         /* Store the new term in the period array. */
         if (period_len == cap) {
             cap <<= 1;                      /* double the buffer */
-            seq_t *tmp = (seq_t *)realloc(period, cap * sizeof(seq_t));
-            if (!tmp) { free(period); period = NULL; period_len = 0; return; }
+            seq_t *tmp = mem_resize(seq_t, period, cap);
+            if (!tmp) { mem_free(period); period = NULL; period_len = 0; return; }
             period = tmp;
         }
         period[period_len++] = a;

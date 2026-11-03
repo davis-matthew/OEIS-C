@@ -7,12 +7,14 @@
  * Formula:   a(n) = L(n)*L(n+1) - 2
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 45, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *lucas = NULL;
 static idx_t lucas_len = 0;
@@ -21,14 +23,14 @@ static void compute_lucas(idx_t up_to) {
     if (lucas_len > up_to) return;
     
     idx_t new_len = (up_to + 1 < 100) ? 100 : up_to + 10;
-    seq_t *new_lucas = (seq_t *)malloc(sizeof(seq_t) * new_len);
+    seq_t *new_lucas = mem_new(seq_t, new_len);
     
     idx_t start = 0;
     if (lucas) {
         for (idx_t i = 0; i < lucas_len; i++) {
             new_lucas[i] = lucas[i];
         }
-        free(lucas);
+        mem_free(lucas);
         start = lucas_len;
     } else {
         new_lucas[0] = 2;

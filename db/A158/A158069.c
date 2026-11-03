@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   digit_sum, is_prime, is_prime_small
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   digit_sum, is_prime, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
 #include "../utils/digit_sum.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;  /* stored sequence values */
 static size_t cache_cap  = 0;     /* allocated capacity of cache   */
@@ -35,7 +37,7 @@ static void grow_cache(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();                 /* allocation failure */
     cache     = tmp;
     cache_cap = new_cap;
@@ -49,7 +51,7 @@ static bool good_prime(idx_t p)
     seq_t   first = val;
     while (first >= 10) first /= 10;    /* extract the leading digit */
     seq_t   diff = sum - first;         /* difference (may be 0) */
-    return !is_prime_small(diff);       /* diff must NOT be prime */
+    return !is_prime_seq(diff);       /* diff must NOT be prime */
 }
 
 seq_t a(idx_t n)

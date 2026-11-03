@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1325, u16 n <= 1325, u32 n <= 1325, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   _ij_from_n
+ * Validated: standard, pass, 107 terms through n = 1307 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,29 @@
    obtained from n via the standard mapping n = i(i+1)/2 + j.  */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/_ij_from_n.h"
+
+/* Helper: compute i (row) and j (column) from flattened index n */
+static void _ij_from_n(idx_t n, idx_t *ip, idx_t *jp)
+{
+    /* Find i such that i(i+1)/2 ≤ n < (i+1)(i+2)/2 */
+    idx_t low = 0, high = 1;
+    /* double high until it surpasses n */
+    while (( (__int128)high * (high + 1) ) >> 1 <= n)
+        high <<= 1;
+    /* binary search */
+    while (low < high) {
+        idx_t mid = low + (high - low + 1) / 2;
+        if (( (__int128)mid * (mid + 1) ) >> 1 <= n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    idx_t i = low;
+    idx_t start = (idx_t)(((__int128)i * (i + 1)) >> 1);
+    idx_t j = n - start;
+    *ip = i;
+    *jp = j;
+}
 
 /* Compute triangle entry T(i,j) (i≥j) */
 static seq_t _T(idx_t i, idx_t j)

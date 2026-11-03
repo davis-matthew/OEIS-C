@@ -9,13 +9,20 @@
  *            by (1-x^k) for k=1..4
  * Range:     u8 n <= 8, u16 n <= 25, u32 n <= 82, u64 n <= 300,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_zero
+ * Validated: standard, pass, 56 terms through n = 872 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 seq_t a(idx_t n) {
     idx_t N = n + 1;
@@ -40,6 +47,6 @@ seq_t a(idx_t n) {
         }
     }
     seq_t result = p[n];
-    free(p);
+    mem_free(p);
     return result;
 }

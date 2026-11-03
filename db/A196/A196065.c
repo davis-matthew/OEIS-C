@@ -12,7 +12,8 @@
  *            big‑omega function)
  * Range:     u8 n <= 14, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   bigomega, build_primes, build_spf
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   bigomega, build_primes, build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/bigomega.h"
 #include "../utils/build_primes.h"
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /* Global cache and helper data (static to keep state between calls) */
 static seq_t *cache = NULL;          /* computed a(n) values   */
@@ -49,7 +52,7 @@ static void ensure_cache_size(idx_t n)
     if ((size_t)n + 1 <= cache_size) return;
 
     size_t new_size = (size_t)n + 1;
-    cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
     computed = (bool *)realloc(computed, new_size * sizeof(bool));
     for (size_t i = cache_size; i < new_size; ++i) {
         computed[i] = false;

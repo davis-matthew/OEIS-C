@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static inline bool good(idx_t x)
 {
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) exit(EXIT_FAILURE);   /* allocation failed */
         cache[0] = (seq_t)1;                     /* a(1) = 1 */
         cache_len = 1;
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap)
             {
                 cache_cap <<= 1;                 /* double capacity */
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (tmp == NULL) exit(EXIT_FAILURE);
                 cache = tmp;
             }

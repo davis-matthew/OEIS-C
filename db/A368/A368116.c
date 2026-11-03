@@ -11,7 +11,8 @@
  *            (m=0,n=0),(m=0,n=1),(m=1,n=0),(m=0,n=2),(m=1,n=1),(m=2,n=0),…
  * Range:     u8 n <= 17, u16 n <= 31, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   prime_val_in, seq_mul, seq_pow
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,9 +31,25 @@
 #include <math.h>
 
 /* Utility functions from the build environment */
-#include "../utils/seq_mul.h"   /* seq_mul(seq_t a, seq_t b) */
-#include "../utils/seq_pow.h"   /* seq_pow(seq_t base, idx_t exp) */
-#include "../utils/prime_val_in.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Helper: exponent of prime p in integer x */
+static inline int prime_val_in(unsigned long long x, unsigned long long p)
+{
+    int v = 0;
+    while (x % p == 0) {
+        ++v;
+        x /= p;
+    }
+    return v;
+}
 
 /* ------------------------------------------------------------ */
 /* Prime sieve – static, executed once                           */
@@ -123,7 +140,7 @@ seq_t a(idx_t n)
 
         int exp = dp[(int)k];
         if (exp > 0) {
-            seq_t powp = seq_pow((seq_t)p, (idx_t)exp);
+            seq_t powp = ipow_idx((seq_t)p, (idx_t)exp);
             result = seq_mul(result, powp);
         }
     }

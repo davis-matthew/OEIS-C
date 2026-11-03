@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 431, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 4889 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    call order.
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* dp[i] = number of partitions of i */
 static idx_t  dp_max = 0;         /* highest index computed so far */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 {
     if (!dp || n > dp_max) {
         idx_t new_max = n;
-        seq_t *tmp = (seq_t *)realloc(dp, (new_max + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, (new_max + 1));
         if (!tmp) exit(1);           /* allocation failure */
         dp = tmp;
 

@@ -11,12 +11,14 @@
  *            a(n)=6*a(n-1)+10*a(n-2)-7*a(n-3)-64*a(n-4)-51*a(n-5) * }
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of computed terms */
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
     /* Create cache on first use */
     if (cache == NULL) {
         cap = 32;                 /* start with some spare space */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         /* initialise the first 7 entries */
         for (idx_t i = 1; i <= 7; ++i) {
             cache[i] = init[i - 1];
@@ -56,11 +58,11 @@ seq_t a(idx_t n) {
         while ((idx_t)new_cap <= n) {
             new_cap *= 2;
         }
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         for (idx_t i = 1; i <= sz; ++i) {
             new_cache[i] = cache[i];
         }
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cap = new_cap;
     }

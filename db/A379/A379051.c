@@ -10,9 +10,10 @@
  *            that n is a member of the sequence (i.e., appears as a value) *
  *            iff a(n) is composite. The construction below implements this *
  *            by repeatedly assigning the smallest unused admissible number
- * Range:     u8 n <= 225, u16 n <= 8358, u32 n <= 8358, u64 n <= 8358,
- *            u128 n <= 8358, big any n
- * Helpers:   none
+ * Range:     u8 n <= 225, u16 n <= 62114, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 83 terms through n = 8358 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are provided by the build environment */
 extern seq_t  a(idx_t n);      /* forward declaration */
@@ -119,7 +121,7 @@ static void ensure_capacity(idx_t n) {
     if (seq_cap >= (size_t)n) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 128;
     while (new_cap < (size_t)n) new_cap <<= 1;
-    seq_vals = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_vals = mem_resize(seq_t, seq_vals, new_cap);
     if (!seq_vals) abort();
     seq_cap = new_cap;
 }

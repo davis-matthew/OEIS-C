@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 891, u64 n <= 1208,
  *            u128 n <= 1208, big any n
- * Helpers:   none
+ * Validated: full, pass, 1208 terms through n = 1208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #define N_CONST 4108830350625ULL
 
@@ -82,14 +84,14 @@ static void init_sequence(void) {
     size_t max_divs = 1;
     for (int i = 0; i < prime_cnt; ++i)
         max_divs *= (size_t)(exp_global[i] + 1);
-    divs_global   = (seq_t *)malloc(max_divs * sizeof(seq_t));
+    divs_global   = mem_new(seq_t, max_divs);
     divcnt_global = 0;
 
     /* generate all divisors */
     gen_divs_rec(0, 1u);
 
     /* build k list from divisors d ≥ 15 */
-    k_vals_global = (seq_t *)malloc(divcnt_global * sizeof(seq_t));
+    k_vals_global = mem_new(seq_t, divcnt_global);
     kcnt_global   = 0;
     for (idx_t i = 0; i < divcnt_global; ++i) {
         uint64_t d = (uint64_t)divs_global[i];
@@ -97,7 +99,7 @@ static void init_sequence(void) {
             k_vals_global[kcnt_global++] = ((seq_t)d - 15) / 2;
         }
     }
-    free(divs_global);
+    mem_free(divs_global);
     divs_global = NULL;
 
     /* simple insertion sort (small data set) */

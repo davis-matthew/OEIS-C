@@ -11,13 +11,22 @@
  *            tail of the binomial coefficients of orde...
  * Range:     u8 n <= 19, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   prefixCount
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>   /* sqrt() for estimating search range */
-#include "../utils/prefixCount.h"
+
+static idx_t prefixCount(idx_t r)
+{
+    idx_t m = r >> 1;               /* r/2  */
+    if (r & 1)                      /* r odd  */
+        return (m + 1) * (m + 2);
+    else                             /* r even */
+        return (m + 1) * (m + 1);
+}
 
 /* Binomial coefficient C(n,k)  (0 ≤ k ≤ n)  using multiplicative formula.
    The computations are performed in the seq_t type to avoid overflow. */

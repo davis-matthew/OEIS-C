@@ -8,7 +8,8 @@
  * Formula:   a(n) = 2^ω(n) * ∏p partition(exp_p(n))
  * Range:     u8 n <= 6911, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   int_sqrt
+ * Validated: standard, pass, 114 terms through n = 9347 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
    and partition(k) is the number of integer partitions of k. */
 
 #include <stdint.h>
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 /* Precomputed partition numbers p(k) for k=0..64 */
 static const seq_t PARTITION[65] = {
@@ -108,7 +109,7 @@ seq_t a(idx_t n)
     }
 
     /* Remaining odd factors */
-    idx_t limit = int_sqrt(temp);
+    idx_t limit = isqrt(temp);
     for (idx_t p = 3; p <= limit; p += 2) {
         if (temp % p == 0) {
             idx_t exp = 0;
@@ -118,7 +119,7 @@ seq_t a(idx_t n)
             }
             result <<= 1;            /* unitary factor contribution */
             if (exp <= 64) result *= PARTITION[exp];
-            limit = int_sqrt(temp);
+            limit = isqrt(temp);
         }
     }
 

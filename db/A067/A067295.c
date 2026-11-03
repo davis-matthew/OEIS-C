@@ -11,12 +11,14 @@
  *            C(n+3)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *catalan = NULL;     /* array of Catalan numbers C(0),C(1),… */
 static idx_t max_computed = 0;    /* largest index currently stored (C(max_computed) exists) */
@@ -30,13 +32,13 @@ static void ensure_catalan(idx_t upto)
     /* allocate or grow storage */
     if (!catalan) {
         /* first call: allocate space for upto+1 entries */
-        catalan = (seq_t *)malloc((upto + 1) * sizeof(seq_t));
+        catalan = mem_new(seq_t, (upto + 1));
         if (!catalan)                /* allocation failed – caller will fail too */
             return;
         catalan[0] = 1;              /* C(0) = 1 */
         max_computed = 0;
     } else if (upto + 1 > (idx_t)0) {
-        seq_t *tmp = (seq_t *)realloc(catalan, (upto + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, catalan, (upto + 1));
         if (!tmp) return;            /* allocation failed – caller will fail too */
         catalan = tmp;
     }

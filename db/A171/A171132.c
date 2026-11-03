@@ -10,6 +10,7 @@
  *            found by a simple search
  * Range:     u8 none, u16 none, u32 none, u64 n <= 10, u128 n <= 10,
  *            big any n
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-02)
  * Helpers:   get_digits, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,9 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/pow2.h"
+#include <stdint.h>
 #include "../utils/get_digits.h"
+#include "../utils/pow2.h"
 
 /* Maximum number of digits we expect in 2^k for k up to some modest bound.
    2^1000 has 302 digits, so 512 is safely large for the exponents needed

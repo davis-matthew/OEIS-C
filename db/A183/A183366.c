@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   init_tables
+ * Validated: standard, pass, 42 terms through n = 181 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,71 @@
    of its horizontal and vertical neighbors. */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/init_tables.h"
+
+static void init_tables(bool horiz_valid[16],
+                        bool pair_up_valid[16][16],
+                        bool pair_down_valid[16][16],
+                        bool triple_valid[16][16][16])
+{
+    /* horizontal validity for a single row */
+    for (int state = 0; state < 16; ++state) {
+        bool ok = true;
+        for (int j = 0; j < 4 && ok; ++j) {
+            int left  = (j > 0)     ? ((state >> (j-1)) & 1) : 0;
+            int right = (j < 3)     ? ((state >> (j+1)) & 1) : 0;
+            int horiz_sum = left + right;
+            int val = (state >> j) & 1;
+            if (val == (horiz_sum % 3)) ok = false;
+        }
+        horiz_valid[state] = ok;
+    }
+
+    /* pair validity when prev is the top row (no upper neighbor) */
+    for (int prev = 0; prev < 16; ++prev) {
+        for (int curr = 0; curr < 16; ++curr) {
+            bool ok = true;
+            for (int j = 0; j < 4 && ok; ++j) {
+                int left  = (j > 0)     ? ((prev >> (j-1)) & 1) : 0;
+                int right = (j < 3)     ? ((prev >> (j+1)) & 1) : 0;
+                int horiz_sum = left + right;
+                int down = (curr >> j) & 1;
+                int val = (prev >> j) & 1;
+                if (val == ((horiz_sum + down) % 3)) ok = false;
+            }
+            pair_up_valid[prev][curr] = ok;
+
+            ok = true;
+            for (int j = 0; j < 4 && ok; ++j) {
+                int left  = (j > 0)     ? ((curr >> (j-1)) & 1) : 0;
+                int right = (j < 3)     ? ((curr >> (j+1)) & 1) : 0;
+                int horiz_sum = left + right;
+                int up  = (prev >> j) & 1;
+                int val = (curr >> j) & 1;
+                if (val == ((horiz_sum + up) % 3)) ok = false;
+            }
+            pair_down_valid[prev][curr] = ok;
+        }
+    }
+
+    /* triple validity for middle row */
+    for (int prev = 0; prev < 16; ++prev) {
+        for (int curr = 0; curr < 16; ++curr) {
+            for (int next = 0; next < 16; ++next) {
+                bool ok = true;
+                for (int j = 0; j < 4 && ok; ++j) {
+                    int left  = (j > 0)     ? ((curr >> (j-1)) & 1) : 0;
+                    int right = (j < 3)     ? ((curr >> (j+1)) & 1) : 0;
+                    int horiz_sum = left + right;
+                    int up  = (prev >> j) & 1;
+                    int down = (next >> j) & 1;
+                    int val = (curr >> j) & 1;
+                    if (val == ((horiz_sum + up + down) % 3)) ok = false;
+                }
+                triple_valid[prev][curr][next] = ok;
+            }
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {

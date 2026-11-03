@@ -10,12 +10,14 @@
  *            The recurrence is valid for all n ≥ 0. The first term a(0) = 1
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term of OEIS sequence A170680. */
 seq_t a(idx_t n)
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Initial allocation and first term. */
     if (cache == NULL) {
         cap = 64;                       /* start with a modest size */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = (seq_t)1;            /* a(0) */
         len = 1;
     }
@@ -37,13 +39,13 @@ seq_t a(idx_t n)
         size_t new_cap = cap ? cap * 2 : 64;
         while (new_cap <= (size_t)n + 1)
             new_cap *= 2;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (new_cache == NULL) { /* allocation failed – abort */
             abort();
         }
         for (size_t i = 0; i < len; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cap   = new_cap;
     }

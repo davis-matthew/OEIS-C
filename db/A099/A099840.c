@@ -7,12 +7,19 @@
  * Formula:   a(0) = 1, a(1) = -6, a(n) = 20 * a(n-2) for n >= 2
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 14, i64 n <= 28, i128 n <= 58,
  *            big any n
- * Helpers:   pow20
+ * Validated: standard, pass, 40 terms through n = 950 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow20.h"
+static seq_t pow20(idx_t k) {
+    seq_t res = (seq_t)1;
+    for (idx_t i = 0; i < k; ++i) {
+        res *= (seq_t)20;
+    }
+    return res;
+}
 
 seq_t a(idx_t n) {
     if (n == 0u) return (seq_t)1;

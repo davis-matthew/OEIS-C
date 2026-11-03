@@ -8,12 +8,14 @@
  *            a(2)=3, a(3)=4, a(4)=7, a(5)=10
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 49, u64 n <= 100,
  *            u128 n <= 201, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 748 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* cache[n-1] holds a(n) for n >= 1 */
 static idx_t cache_len = 0;       /* number of entries currently stored */
@@ -26,7 +28,7 @@ static void ensure_capacity(idx_t new_cap) {
             cache_cap = 8;
         while (cache_cap < new_cap)
             cache_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (!tmp) {
             /* on allocation failure, abort. This should never happen in the judge. */
             abort();

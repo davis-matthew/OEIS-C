@@ -9,7 +9,8 @@
  *            gcd(t,2n-1)=gcd(1-t,2n-1)=1 }
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   factor_u64, gcd, mod_pow
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   factor_u64, gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,9 @@
 #include <string.h>
 
 /* Required utilities */
-#include "../utils/factor_u64.h"            /* factor_u64 */
-#include "../utils/gcd.h"                   /* gcd */
-#include "../utils/mod_pow.h"               /* mod_pow */
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/powmod.h"
 
 static int cmp_uint64(const void *a, const void *b)
 {
@@ -91,7 +92,7 @@ seq_t a(idx_t n)
         seq_t ord = 0;
         for (size_t k = 0; k < div_cnt; ++k) {
             uint64_t d = divs[k];
-            if (mod_pow((seq_t)t, d, (seq_t)m) == (seq_t)1) {
+            if (powmod((seq_t)t, d, (seq_t)m) == (seq_t)1) {
                 ord = (seq_t)d;
                 break;
             }

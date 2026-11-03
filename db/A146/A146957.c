@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 45, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-01)
  * Helpers:   binomial, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,8 @@
    p(x,n) = (x + 1)^n
         + 2^(n-2) * Σ_{m=1}^{n-1} (3^(m-1) + 2m - 1) * x^m * (1 + x^(n-2m))  */
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"

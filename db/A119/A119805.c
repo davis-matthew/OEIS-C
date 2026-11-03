@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* compute A119805(n) for any n ≥ 1, memoising across calls */
 seq_t a(idx_t n)
@@ -40,10 +42,10 @@ seq_t a(idx_t n)
     {
         size_t needed = (size_t)n;
         if (!seq) {
-            seq = (seq_t *)calloc(needed, sizeof(seq_t));
+            seq = mem_new(seq_t, needed);
             if (!seq) abort();
         } else if (needed > seq_len) {
-            seq = (seq_t *)realloc(seq, needed * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, needed);
             if (!seq) abort();
         }
     }
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* --- initialise counts array for the first few values ------------------ */
     if (!counts) {
         counts_len = 2; /* we will need indices 0 and 1 at least */
-        counts = (seq_t *)calloc(counts_len, sizeof(seq_t));
+        counts = mem_new(seq_t, counts_len);
         if (!counts) abort();
     }
 
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
                 size_t new_len = k + 1;
                 while (new_len <= (size_t)k) new_len <<= 1;   /* double until enough */
 
-                seq_t *tmp = (seq_t *)realloc(counts, new_len * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, counts, new_len);
                 if (!tmp) abort();
                 /* initialise new entries to 0 */
                 for (size_t j = counts_len; j < new_len; ++j) tmp[j] = 0;
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
             size_t new_len = (size_t)value + 1;
             while (new_len <= (size_t)value) new_len <<= 1;
 
-            seq_t *tmp = (seq_t *)realloc(counts, new_len * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, counts, new_len);
             if (!tmp) abort();
             for (size_t j = counts_len; j < new_len; ++j) tmp[j] = 0;
             counts = tmp;

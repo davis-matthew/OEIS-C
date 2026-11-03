@@ -9,12 +9,13 @@
  *            relatively prime to n
  * Range:     u8 n <= 10, u16 n <= 72, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   seq_gcd
+ * Validated: standard, pass, 91 terms through n = 920 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 static seq_t tetrahedral(idx_t i) {
     seq_t a = (seq_t)i;
@@ -46,7 +47,7 @@ seq_t a(idx_t n) {
     
     for (idx_t i = 1; i <= n; i++) {
         seq_t b_i = tetrahedral(i);
-        if (seq_gcd(b_i, n_seq) == 1) {
+        if (gcd(b_i, n_seq) == 1) {
             count++;
         }
     }

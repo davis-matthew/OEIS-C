@@ -9,8 +9,9 @@
  * Formula:   a(n) = n if n % 3 == 0 * a(n) = a(5*⌊n/3⌋ + (n%3) + 3) otherwise
  *            * Return -1 (represented as the maximum value of seq_t) if no
  *            multiple of 3 is ever reached
- * Range:     u8 n <= 1, u16 n <= 361, u32 n <= 9848, u64 n <= 9848,
- *            u128 n <= 9848, big any n
+ * Range:     u8 n <= 1, u16 n <= 361, u32 n <= 19683, u64 n <= 19683,
+ *            u128 n <= 19683, big any n
+ * Validated: standard, pass, 80 terms through n = 9848 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

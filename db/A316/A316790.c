@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1 + Σ_{n = x^y, y > 1} binomial(a(x)+y-1, y)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 103 terms through n = 9989 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 #include <stdint.h>
 #include <stddef.h>
 /* helper: factorization of n as prime powers */
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Euclidean gcd for unsigned integers */

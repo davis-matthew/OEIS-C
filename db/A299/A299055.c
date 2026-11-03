@@ -13,12 +13,14 @@
  *            a(8)=111861,a(9)=578509,a(10)=3007390,a(11)=15688017, a(1...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 27, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int coeff[14] = { 5,  9, -31, -62,  46,  78, -36, 53, 101, -86, -14, -26, -28,  6 };
 static const seq_t init[16] = { 1ULL, 13ULL, 38ULL, 199ULL, 864ULL, 4366ULL,
@@ -33,14 +35,14 @@ seq_t a(idx_t n)
     if (n < 1) return 0; /* undefined, but guard */
     size_t target = (size_t)n;
     if (!cache) {
-        cache = (seq_t*)malloc(16 * sizeof(seq_t));
+        cache = mem_new(seq_t, 16);
         for (size_t i = 0; i < 16; ++i) cache[i] = init[i];
         cache_len = 16;
     }
     if (target <= cache_len) return cache[target - 1];
 
     /* Extend cache up to target */
-    cache = (seq_t*)realloc(cache, target * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, target);
     for (size_t idx = cache_len; idx < target; ++idx) {
         seq_t pos = 0;
         seq_t neg = 0;

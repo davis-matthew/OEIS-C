@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 73 terms through n = 993 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 #define SMALL_PRIME_LIMIT 100000   /* enough for all primes needed up to 10 000 terms */
 
@@ -64,14 +67,14 @@ static bool primitive_root_17(uint64_t p)
         uint64_t q = small_primes[i];
         if (remaining % q == 0) {
             /* Test the condition for this prime factor q. */
-            seq_t r = mod_pow((seq_t)17, (uint64_t)(phi / q), (seq_t)p);
+            seq_t r = powmod((seq_t)17, (uint64_t)(phi / q), (seq_t)p);
             if (r == (seq_t)1) return false;
             while (remaining % q == 0) remaining /= q;
         }
     }
     if (remaining > 1) {
         /* remaining is now the last prime factor of phi (p-1). */
-        seq_t r = mod_pow((seq_t)17, (uint64_t)(phi / remaining), (seq_t)p);
+        seq_t r = powmod((seq_t)17, (uint64_t)(phi / remaining), (seq_t)p);
         if (r == (seq_t)1) return false;
     }
     return true;

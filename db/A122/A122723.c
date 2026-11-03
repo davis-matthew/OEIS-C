@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state to cache the sequence */
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
     if (!initialized) {
         /* Allocate space for the resulting sequence (estimate). */
         seq_cap = 20000;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) return 0; /* out of memory – never expected */
 
         /* Sieve of Eratosthenes */
@@ -78,7 +80,7 @@ seq_t a(idx_t n) {
             if (is_prime[(size_t)i] && sum_flag[(size_t)i]) {
                 if (seq_len == seq_cap) {
                     seq_cap *= 2;
-                    seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, seq_cap);
                 }
                 seq[seq_len++] = (seq_t)i;
                 if (seq_len >= 100000) break;   /* enough for all tests */

@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 13,
  *            big any n
- * Helpers:   digit_frequencies
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   digit_frequencies, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/digit_frequencies.h"
+#include "../utils/mem.h"
 
 /* return a(n) for n ≥ 1; a(0) is undefined and returns 0 */
 seq_t a(idx_t n)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* lazy initialisation */
     if (last == 0) {
         cap   = 1;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
         if (!terms)
             return 0;                 /* allocation failure – unlikely in tests */
         terms[0] = (seq_t)3;           /* a(1) */
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
         /* resize cache if necessary */
         if (last >= cap) {
             cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, cap);
             if (!tmp)   /* allocation failure – return what we have */
                 return terms[last - 1];
             terms = tmp;

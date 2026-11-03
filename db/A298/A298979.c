@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   digit_frequencies
+ * Validated: partial, pass, 89 terms through n = 89 (2026-11-03)
+ * Helpers:   digit_frequencies, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/digit_frequencies.h"
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* array of sequence values          */
 static size_t seq_len = 0;         /* number of terms computed          */
@@ -40,7 +42,7 @@ static void grow_seq(size_t new_cap)
     while (seq_cap < new_cap)
         seq_cap <<= 1;
 
-    seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, seq_cap);
 }
 
 /* Ensure used has at least new_cap slots.  */

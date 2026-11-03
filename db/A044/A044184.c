@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has64
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/has64.h"
+#include "../utils/mem.h"
+
+static bool has64(seq_t x) {
+    seq_t prev = 7;              /* sentinel greater than any base-7 digit */
+    while (x > 0) {
+        seq_t cur = x % 7;
+        if (cur == 6 && prev == 4)
+            return true;
+        prev = cur;
+        x = x / 7;
+    }
+    return false;
+}
 
 /* Cached terms */
 static seq_t      *terms = NULL;
@@ -39,7 +52,7 @@ static void ensure_terms_capacity(idx_t needed) {
     size_t new_cap = terms_cap == 0 ? 8 : terms_cap;
     while ((idx_t)new_cap < needed)
         new_cap *= 2;
-    seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
     if (!new_terms)
         exit(1); /* allocation failed */
     terms = new_terms;

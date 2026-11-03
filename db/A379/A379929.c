@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 9894, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_prime_factors, runs_in_decimal
+ * Validated: standard, pass, 83 terms through n = 8932 (2026-11-03)
+ * Helpers:   bigomega_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,14 +23,32 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/count_prime_factors.h" /* helper for Ω(k) */
-#include "../utils/runs_in_decimal.h"
+#include "../utils/bigomega_seq.h"
+#include "../utils/mem.h"
+
+/* Count the number of runs (maximal consecutive blocks of equal
+   decimal digits) in a positive seq_t number. */
+static unsigned int runs_in_decimal(seq_t x)
+{
+    seq_t temp = x;
+    unsigned int runs = 0;
+    unsigned int last_digit = 10;        /* sentinel value */
+    while (temp > (seq_t)0) {
+        unsigned int digit = (unsigned int)(temp % (seq_t)10);
+        if (digit != last_digit) {
+            runs++;
+            last_digit = digit;
+        }
+        temp /= (seq_t)10;
+    }
+    return runs;
+}
 
 /* Determine whether a candidate k satisfies Ω(k) == runs(k). */
 static bool matches_idx(idx_t k)
 {
     seq_t kk = (seq_t)k;
-    seq_t omega = count_prime_factors(kk);
+    seq_t omega = bigomega_seq(kk);
     unsigned int runs = runs_in_decimal(kk);
     return omega == (seq_t)runs;
 }
@@ -48,7 +67,7 @@ static void grow_seq_capacity(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_vals = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_vals = mem_resize(seq_t, seq_vals, new_cap);
     seq_cap  = new_cap;
 }
 
@@ -60,7 +79,7 @@ seq_t a(idx_t n)
     if (!seq_initialized) {                     /* lazy initialization */
         seq_initialized = true;
         seq_cap   = 16;
-        seq_vals  = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_vals  = mem_new(seq_t, seq_cap);
         seq_len   = 0;
         seq_last_found = 0;
     }

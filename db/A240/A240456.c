@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 29, u128 n <= 58,
  *            big any n
- * Helpers:   decode_state
+ * Validated: standard, pass, 38 terms through n = 205 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -46,7 +47,15 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/decode_state.h"
+
+/* Decode a state index into components */
+static inline void decode_state(size_t idx, uint8_t *s0, uint8_t *s1, uint8_t *p0)
+{
+    *s0 = (uint8_t)(idx / 16);
+    uint8_t rem = (uint8_t)(idx % 16);
+    *s1 = rem / 4;
+    *p0 = rem % 4;
+}
 
 #define N_STATES 64
 

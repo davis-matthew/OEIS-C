@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(floor((n+2)/3)) + floor(n/3), a(1)=0
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* OEIS sequence A189641: Partial sums of A189640 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static idx_t seq_cache_max = 0;
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     /* Initialize the cache on first call */
     if (seq_cache == NULL) {
         seq_cache_cap = 2;                       /* indices 0 and 1 */
-        seq_cache = (seq_t*)malloc(seq_cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cache_cap);
         if (seq_cache == NULL) return 0;         /* allocation failure */
         seq_cache[0] = 0;                        /* unused */
         seq_cache[1] = 0;                        /* a(1) = 0 */
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     /* Grow the cache if the requested index is beyond current capacity */
     if ((idx_t)seq_cache_cap <= n) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (tmp == NULL) return 0;               /* allocation failure */
         seq_cache = tmp;
         seq_cache_cap = new_cap;

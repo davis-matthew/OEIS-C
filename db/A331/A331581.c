@@ -9,7 +9,8 @@
  *            reverse‑lexicographic order
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   next_partition
+ * Validated: partial, pass, 97 terms through n = 97 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,31 @@
 /* (direct computation, no external utilities used) */
 
 #include <stdlib.h>
-#include "../utils/next_partition.h"
+#include "../utils/mem.h"
+
+/* modifies p[0..*len-1]; if no further partition, *len becomes 0 */
+static void next_partition(idx_t *len, seq_t *p) {
+    if (p[0] == 1) {          /* last partition of this sum reached */
+        *len = 0;
+        return;
+    }
+    seq_t rem_val = 0;
+    while (*len > 0 && p[*len - 1] == 1) {
+        rem_val += p[*len - 1];
+        (*len)--;
+    }
+    p[*len - 1]--;            /* decrease the rightmost part > 1 */
+    rem_val++;
+
+    /* redistribute the remainder to the right */
+    while (rem_val > p[*len - 1]) {
+        p[*len] = p[*len - 1];
+        rem_val -= p[*len];
+        (*len)++;
+    }
+    p[*len] = rem_val;
+    (*len)++;
+}
 
 static seq_t *cache = NULL;                 /* array of computed values */
 static size_t cache_capacity = 0;           /* allocated size of cache    */
@@ -34,7 +59,7 @@ static void ensure_cache_capacity(idx_t size) {
     if ((size_t)size <= cache_capacity) return;
     size_t new_cap = cache_capacity ? cache_capacity : 8;
     while (new_cap < (size_t)size) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) exit(EXIT_FAILURE);      /* allocation failure */
     cache = new_cache;
     cache_capacity = new_cap;

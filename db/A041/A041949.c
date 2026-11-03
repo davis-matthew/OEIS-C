@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 15, u64 n <= 30, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Constants for the continued fraction of sqrt(497) */
 static const seq_t D     = (seq_t)497;   /* D = 497 */
@@ -43,7 +45,7 @@ static void ensure_denom_cap(size_t needed)
     if (needed <= denom_cap) return;
     size_t new_cap = denom_cap ? denom_cap : 1;
     while (new_cap < needed) new_cap *= 2;
-    denom = (seq_t *)realloc(denom, new_cap * sizeof(seq_t));
+    denom = mem_resize(seq_t, denom, new_cap);
     denom_cap = new_cap;
 }
 

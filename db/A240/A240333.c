@@ -12,6 +12,7 @@
  *            m*(m-1)*(m-2)*(m-3)*(m-4) / 120 for m ≥ 5, 0 otherwise
  * Range:     u8 n <= 4, u16 n <= 17, u32 n <= 166, u64 n <= 210,
  *            u128 n <= 210, big any n
+ * Validated: standard, pass, 50 terms through n = 202 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

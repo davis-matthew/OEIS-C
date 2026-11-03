@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 121, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 79 terms through n = 9576 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* Small helper: primality test for 64‑bit integers. */
 static bool is_prime_uint64(uint64_t n)
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap)
             {
                 cache_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) abort();                /* allocation failure → terminate */
                 cache = tmp;
             }

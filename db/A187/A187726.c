@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 14, u128 n <= 30,
  *            big any n
- * Helpers:   blocks_commute, get_block
+ * Validated: standard, pass, 31 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,34 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/blocks_commute.h"
-#include "../utils/get_block.h"
+#include "../utils/mem.h"
+
+/* are two 2×2 binary matrices (4‑bit) commuting under integer multiplication? */
+static inline bool blocks_commute(uint8_t A, uint8_t B)
+{
+    int a00 =  A       & 1;
+    int a01 = (A >> 1) & 1;
+    int a10 = (A >> 2) & 1;
+    int a11 = (A >> 3) & 1;
+    int b00 =  B       & 1;
+    int b01 = (B >> 1) & 1;
+    int b10 = (B >> 2) & 1;
+    int b11 = (B >> 3) & 1;
+
+    return  (a00 * b00 + a01 * b10)  == (b00 * a00 + b01 * a10) &&
+            (a00 * b01 + a01 * b11)  == (b00 * a01 + b01 * a11) &&
+            (a10 * b00 + a11 * b10)  == (b10 * a00 + b11 * a10) &&
+            (a10 * b01 + a11 * b11)  == (b10 * a01 + b11 * a11);
+}
+
+/* extract the 2×2 block defined by two rows and left column j          */
+static inline uint8_t get_block(uint8_t r0, uint8_t r1, uint8_t j)
+{
+    return ((r0 >> j) & 1) |
+           (((r0 >> (j + 1)) & 1) << 1) |
+           (((r1 >> j) & 1) << 2) |
+           (((r1 >> (j + 1)) & 1) << 3);
+}
 
 #define WIDTH 7
 #define ROWS 128
@@ -123,7 +150,7 @@ seq_t a(idx_t n)
     size_t actCnt = 0, nextCntAct = 0;
 
     /* initialise current DP with all horizontally valid pairs */
-    memset(dpCur, 0, sizeof(dpCur));
+    mem_set(dpCur, 0, sizeof(dpCur));
     for (size_t i = 0; i < initStateCnt; ++i)
     {
         uint32_t idx = initStates[i];
@@ -134,7 +161,7 @@ seq_t a(idx_t n)
     /* iterate over remaining rows (total n+1 rows => n steps) */
     for (idx_t step = 1; step <= n - 1; ++step)
     {
-        memset(dpNext, 0, sizeof(dpNext));
+        mem_set(dpNext, 0, sizeof(dpNext));
         memset(visited, 0, sizeof(visited));
         nextCntAct = 0;
 
@@ -160,7 +187,7 @@ seq_t a(idx_t n)
         }
 
         /* prepare for next iteration */
-        memcpy(dpCur, dpNext, sizeof(dpCur));
+        mem_copy(dpCur, dpNext, sizeof(dpCur));
         memcpy(actIdx, nextActIdx, nextCntAct * sizeof(uint32_t));
         actCnt = nextCntAct;
     }

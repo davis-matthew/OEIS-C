@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* --- Smallest‑prime‑factor sieve ------------------------------------- */
 static uint32_t *spf = NULL;          /* spf[i] = smallest prime factor of i   */
@@ -110,13 +121,13 @@ seq_t a(idx_t n)
         seq_t sigma = sigma2_uint64((uint64_t)next_candidate);
 
         /* Last‑digit test: σ₂ modulo 10^d == next_candidate */
-        idx_t d = digit_len((seq_t)next_candidate);  /* number of decimal digits */
+        idx_t d = num_digits((seq_t)next_candidate);  /* number of decimal digits */
         seq_t mod = pow10(d);                       /* 10^d  */
         if (sigma % mod == (seq_t)next_candidate) {
             /* Store this term */
             if (terms_len >= terms_cap) {
                 terms_cap = terms_cap ? terms_cap * 2 : 16;
-                terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)next_candidate;
         }

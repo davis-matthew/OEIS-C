@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 123, u32 n <= 368, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,14 +44,14 @@ seq_t a(idx_t n)
     if (n > current_max)
     {
         /* Allocate new tables and initialise them to zero. */
-        seq_t *na = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-        seq_t *nb = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-        seq_t *nc = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        seq_t *na = mem_new(seq_t, (size_t)(n + 1));
+        seq_t *nb = mem_new(seq_t, (size_t)(n + 1));
+        seq_t *nc = mem_new(seq_t, (size_t)(n + 1));
 
         /* Free old tables. */
-        free(dp_all);
-        free(dpA);
-        free(dpB);
+        mem_free(dp_all);
+        mem_free(dpA);
+        mem_free(dpB);
 
         dp_all = na;
         dpA   = nb;

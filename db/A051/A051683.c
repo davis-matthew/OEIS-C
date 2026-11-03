@@ -8,7 +8,8 @@
  *            and k = n – r(r‑1)/2 (1 ≤ k ≤ r)
  * Range:     u8 n <= 12, u16 n <= 29, u32 n <= 74, u64 n <= 197,
  *            u128 n <= 562, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9555 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Find the row r such that r(r+1)/2 ≥ n */
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
 
     if (fact_len <= r) {
         idx_t new_len = r + 1;   /* need indices 0..r inclusive */
-        seq_t *tmp = (seq_t *)realloc(fact, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact, new_len);
         if (!tmp) {             /* allocation failed – return 0 (unlikely in contest) */
             return 0;
         }

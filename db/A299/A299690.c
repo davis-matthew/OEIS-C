@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 4291, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_product, get_digits
+ * Validated: standard, pass, 81 terms through n = 9543 (2026-11-03)
+ * Helpers:   digit_product, get_digits, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "../utils/get_digits.h"
 #include "../utils/digit_product.h"
+#include "../utils/get_digits.h"
+#include "../utils/mem.h"
 
 static seq_t *cache    = NULL;  /* cached values of the sequence */
 static size_t cache_len  = 0;   /* number of values stored */
@@ -42,7 +44,7 @@ ensure_capacity(size_t need)
     size_t newcap = cache_cap ? cache_cap * 2 : 8;
     if (newcap < need)
         newcap = need;
-    seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * newcap);
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp) abort();   /* allocation failed */
     cache = tmp;
     cache_cap = newcap;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* initial allocation */
         cache_cap = 8;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache_len = 0;
         next_candidate = 0;

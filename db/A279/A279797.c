@@ -8,6 +8,7 @@
  * Formula:   a(n) = number of Kangxi radicals whose stroke count equals n
  * Range:     u8 n <= 17, u16 n <= 17, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

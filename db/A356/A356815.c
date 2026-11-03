@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} (-1)^k * (2*k-1)^(n-k) * binomial(n,k)
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 21, i128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 457 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Internal static storage */
 static seq_t *cache = NULL;          /* memoised sequence values */
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t need)
     size_t new_cap = need + 1;
     if (new_cap > cache_cap) {
         cache_cap = new_cap + new_cap / 2 + 16;   /* grow by 1.5x + 16 */
-        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (!tmp) {
             /* Out of memory – terminate */
             abort();
@@ -48,7 +50,7 @@ static void ensure_cache(idx_t need)
     /* Expand pow array if necessary */
     if (new_cap > pow_cap) {
         pow_cap = new_cap + new_cap / 2 + 16;
-        seq_t *tmp = (seq_t *)realloc(pow_arr, pow_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow_arr, pow_cap);
         if (!tmp) {
             abort();
         }

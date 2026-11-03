@@ -10,7 +10,8 @@
  *            of Euler's phi with prime-shift function)
  * Range:     u8 n <= 23, u16 n <= 719, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, next_prime, phi
+ * Validated: standard, pass, 84 terms through n = 9638 (2026-11-01)
+ * Helpers:   factor_u64, next_prime, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,10 @@
 #include <stdlib.h>
 
 /* Utilities provided by the framework */
-#include "../utils/factor_u64.h"   /* factor_u64 */
-#include "../utils/next_prime.h"   /* next_prime */
-#include "../utils/phi.h"          /* seq_t phi(idx_t) */
+#include <stdbool.h>
+#include "../utils/factor_u64.h"
+#include "../utils/next_prime.h"
+#include "../utils/totient.h"
 
 /* ------------------------------------------------------------------ */
 /* Compute A003961(m): replace each prime factor p^e by nextprime(p)^e */
@@ -112,7 +114,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < div_cnt; ++i)
     {
         uint64_t d     = divs_buf[i];
-        seq_t phi_d    = phi(d);
+        seq_t phi_d    = totient(d);
         seq_t val      = A003961((uint64_t)n / d);
         sum += phi_d * val;
     }

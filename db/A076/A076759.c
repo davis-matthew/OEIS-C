@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 788, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega
+ * Validated: standard, pass, 59 terms through n = 9563 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/bigomega.h"
+#include "../utils/mem.h"
 
 /* Dynamically resized array holding the discovered 2‑apexes. */
 static seq_t *apexes = NULL;   /* array of found apex values */
@@ -43,7 +45,7 @@ static void ensure_more(void)
     if (count < cap)
         return;
     size_t newcap = (cap == 0) ? 64 : cap * 2;
-    seq_t *tmp = (seq_t *)realloc(apexes, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, apexes, newcap);
     if (!tmp)  /* out of memory – abort silently */
         return;
     apexes = tmp;

@@ -8,7 +8,8 @@
  *            the n‑th composite number (4,6,8,9,10,12,…)
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /*--- minimal deterministic primality test for 64‑bit values ---*/
 static inline bool is_prime_uint64(idx_t v)
@@ -30,6 +40,18 @@ static inline bool is_prime_uint64(idx_t v)
 }
 
 /*--- ensure capacity helper: doubles size or sets to needed ---*/
+#ifdef __cplusplus
+template <class T>
+static void ensure_cap(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (*cap >= needed) return;
+    size_t new_cap = (*cap > 0) ? (*cap * 2) : needed;
+    if (new_cap < needed) new_cap = needed;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
 static void ensure_cap(size_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if (*cap >= needed) return;
@@ -39,6 +61,7 @@ static void ensure_cap(size_t needed, size_t *cap, void **ptr, size_t elem_size)
     *ptr = tmp;
     *cap = new_cap;
 }
+#endif
 
 /*--- global state for composites and the sequence ---*/
 static idx_t composites_cnt = 0;       /* number of stored composites (1‑based) */
@@ -59,7 +82,7 @@ static void ensure_composites(idx_t n)
 
         /* store it (1‑based indexing) */
         ensure_cap(composites_cnt + 2, &composites_cap,
-                   (void **)&composites, sizeof(seq_t));
+                   OEISC_VPP(&composites), sizeof(seq_t));
         composites[composites_cnt + 1] = (seq_t)next_check;
         ++composites_cnt;
     }
@@ -76,7 +99,7 @@ seq_t a(idx_t n)
     /* Expand the cache if we need higher entries. */
     if (a_cache_len < n) {
         ensure_cap(n + 1, &a_cache_cap,
-                   (void **)&a_cache, sizeof(seq_t));
+                   OEISC_VPP(&a_cache), sizeof(seq_t));
 
         for (idx_t i = a_cache_len + 1; i <= n; ++i) {
             if (i == 1) {

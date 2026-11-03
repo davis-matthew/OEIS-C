@@ -10,12 +10,14 @@
  *            a(5)=20546803, a(6)=535404487, a(7)=13951571713
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 468 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t _A_init[8] = {
     (seq_t)1,
@@ -37,7 +39,7 @@ static void _A_ensure_cache(idx_t n)
     /* Allocate or grow the cache if needed. */
     if (_A_cache == NULL) {
         _A_cache_size = (n + 1 > 8) ? (n + 1) : 8;
-        _A_cache = (seq_t*)malloc(_A_cache_size * sizeof(seq_t));
+        _A_cache = mem_new(seq_t, _A_cache_size);
         if (_A_cache == NULL) return;          /* out of memory – unlikely in tests */
         for (idx_t i = 0; i < 8; ++i)
             _A_cache[i] = _A_init[i];
@@ -46,7 +48,7 @@ static void _A_ensure_cache(idx_t n)
         size_t new_size = _A_cache_size * 2;
         if ((size_t)n + 1 > new_size)
             new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(_A_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _A_cache, new_size);
         if (tmp == NULL) return;              /* out of memory – unlikely */
         _A_cache = tmp;
         _A_cache_size = new_size;

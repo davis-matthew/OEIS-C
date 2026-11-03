@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 71, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   max_k_for_sq
+ * Validated: standard, pass, 54 terms through n = 859 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/max_k_for_sq.h"
+#include "../utils/mem.h"
+
+/* return the maximum k that can be squared without overflow for the
+   given seq_t type; UINT64_MAX for arbitrary-precision types. */
+static uint64_t max_k_for_sq(void) {
+    static uint64_t mk = 0;
+    static bool init = false;
+    if (!init) {
+        init = true;
+        if (sizeof(seq_t) == 1)       mk = 15;            /* 15² = 225 < 256 */
+        else if (sizeof(seq_t) == 2)  mk = 255;           /* 255² < 65535 */
+        else if (sizeof(seq_t) == 4)  mk = 65535;         /* 65535² < 2³² */
+        else if (sizeof(seq_t) == 8)  mk = 4294967295ULL; /* 2³²‑1² < 2⁶⁴ */
+        else                          mk = UINT64_MAX;   /* arbitrary-precision */
+    }
+    return mk;
+}
 
 /* static cache for generated terms */
 static seq_t *cache = NULL;
@@ -31,7 +48,7 @@ static idx_t last_k = 1;          /* next integer whose square we examine */
 static void push_cache(seq_t val) {
     if (cache_cnt >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
     cache[cache_cnt++] = val;

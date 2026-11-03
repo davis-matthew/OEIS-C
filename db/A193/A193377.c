@@ -10,12 +10,14 @@
  *            which yields the real/imag parts update below
  * Range:     i8 n <= 8, i16 n <= 14, i32 n <= 27, i64 n <= 32, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* memoized arrays for real (r) and imaginary (s) parts of c_n */
 static seq_t *r = NULL;      /* r[n] = Re(c_n) */
@@ -28,8 +30,8 @@ static int   ready  = 0;     /* 0 = not initialized yet */
 static void init(void)
 {
     capacity = 1;
-    r = (seq_t *)malloc(capacity * sizeof(seq_t));
-    s = (seq_t *)malloc(capacity * sizeof(seq_t));
+    r = mem_new(seq_t, capacity);
+    s = mem_new(seq_t, capacity);
     r[0] = 1;   s[0] = 0;
     last = 0;
     ready = 1;
@@ -45,8 +47,8 @@ static void grow_to(idx_t n)
     if ((size_t)n >= capacity) {
         size_t new_cap = capacity;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        r = (seq_t *)realloc(r, new_cap * sizeof(seq_t));
-        s = (seq_t *)realloc(s, new_cap * sizeof(seq_t));
+        r = mem_resize(seq_t, r, new_cap);
+        s = mem_resize(seq_t, s, new_cap);
         /* initialise new slots to zero */
         for (size_t i = capacity; i < new_cap; ++i) {
             r[i] = 0;

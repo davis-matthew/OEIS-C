@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum_{d|n} sum_{e|n} mu(d)*mu(e)*2^(n^2/(d*e))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 28 terms through n = 57 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 static inline void get_divisors(idx_t n, idx_t *divs, size_t *cnt)
 {
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
             if (mu_e == 0) continue;
             seq_t de = ((seq_t)d) * ((seq_t)e);
             seq_t exp = n_sq / de;
-            seq_t term = big_pow((seq_t)2, exp);
+            seq_t term = ipow((seq_t)2, exp);
             if (mu_d * mu_e > 0)
                 pos += term;
             else

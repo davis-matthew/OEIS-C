@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 16, u64 n <= 36, u128 n <= 78,
  *            big any n
- * Helpers:   ok_vertical
+ * Validated: standard, pass, 38 terms through n = 199 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,19 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/ok_vertical.h"
+
+/* Helper: check if three rows a,b,c satisfy vertical constraints
+   for all four columns. */
+static int ok_vertical(int a, int b, int c) {
+    for (int col = 0; col < 4; ++col) {
+        int aBit = (a >> col) & 1;
+        int bBit = (b >> col) & 1;
+        int cBit = (c >> col) & 1;
+        if (aBit == 0 && bBit == 0 && cBit == 0) return 0;
+        if (aBit == 1 && bBit == 0 && cBit == 1) return 0;
+    }
+    return 1;
+}
 
 static const int rowbits[9] = {2, 3, 4, 6, 7, 9, 12, 14, 15};
 

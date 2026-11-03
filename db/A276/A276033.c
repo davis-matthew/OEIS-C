@@ -9,7 +9,8 @@
  *            Σ_{i=1}^{k+1} C_i – C_k (C_1=1, C_2=2, C_3=5, …)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* external helper */
 extern seq_t catalan(idx_t k);
@@ -37,16 +39,16 @@ static void compute_up_to(idx_t k_needed)
     if (cats == NULL)
     {
         array_cap = k_needed + 2;          /* +2 to avoid repeated re‑alloc */
-        cats  = (seq_t*)malloc(sizeof(seq_t) * array_cap);
-        sums  = (seq_t*)malloc(sizeof(seq_t) * array_cap);
+        cats  = mem_new(seq_t, array_cap);
+        sums  = mem_new(seq_t, array_cap);
         if (cats == NULL || sums == NULL) return;   /* allocation failure */
 
 #ifdef __cplusplus
         /* construct the objects (C++ only) */
         for (size_t i = 0; i < array_cap; ++i)
         {
-            new(&cats[i]) seq_t();
-            new(&sums[i]) seq_t();
+            *(&cats[i]) = (seq_t)0;
+            *(&sums[i]) = (seq_t)0;
         }
 #endif
         cats[0] = (seq_t)1;   /* C_0 = 1, unused but needed for recurrence */
@@ -58,15 +60,15 @@ static void compute_up_to(idx_t k_needed)
     if ((size_t)(k_needed + 1) > array_cap)
     {
         size_t new_cap = k_needed + 2;
-        cats = (seq_t*)realloc(cats, sizeof(seq_t) * new_cap);
-        sums = (seq_t*)realloc(sums, sizeof(seq_t) * new_cap);
+        cats = mem_resize(seq_t, cats, new_cap);
+        sums = mem_resize(seq_t, sums, new_cap);
         if (cats == NULL || sums == NULL) return;   /* allocation failure */
 #ifdef __cplusplus
         /* construct new elements (C++ only) */
         for (size_t i = array_cap; i < new_cap; ++i)
         {
-            new(&cats[i]) seq_t();
-            new(&sums[i]) seq_t();
+            *(&cats[i]) = (seq_t)0;
+            *(&sums[i]) = (seq_t)0;
         }
 #endif
         array_cap = new_cap;

@@ -10,12 +10,14 @@
  *            10) * Initial values: a(0) … a(9) given below
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t _base[10] = {
     (seq_t)1ULL,
@@ -39,7 +41,7 @@ static void _ensure_cache(idx_t n)
 {
     if (_cache_cap == 0) {   /* first allocation */
         _cache_cap = 16;                   /* arbitrary initial size */
-        _cache     = (seq_t*)malloc(_cache_cap * sizeof(seq_t));
+        _cache     = mem_new(seq_t, _cache_cap);
         if (!_cache) abort();
         /* initialise the first ten terms */
         for (idx_t i = 0; i < 10; ++i) _cache[i] = _base[i];
@@ -52,7 +54,7 @@ static void _ensure_cache(idx_t n)
     if (_cache_cap <= n) {
         size_t new_cap = _cache_cap;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _cache, new_cap);
         if (!tmp) abort();
         _cache     = tmp;
         _cache_cap = new_cap;

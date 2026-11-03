@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 104, i16 n <= 104, i32 n <= 104, i64 n <= 104,
  *            i128 n <= 104, big any n
- * Helpers:   mu_of
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,31 @@
 
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/mu_of.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 static seq_t col0[1] = { (seq_t)1 };   /* column 0 */
 static seq_t col1[1] = { (seq_t)-1 };  /* column 1 */
@@ -43,7 +68,7 @@ static size_t cols_cap = 0;   /* current capacity of cols */
    coefficients of 1/Φ_j(x).  */
 static seq_t *compute_col(idx_t j)
 {
-    seq_t *c = (seq_t*)calloc((size_t)j, sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, (size_t)j);
     if (!c) return NULL;   /* undefined behaviour if allocation fails */
     c[0] = 1;              /* 1/(1−x^m) starts with 1 */
 

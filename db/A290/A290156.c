@@ -9,7 +9,8 @@
  * Formula:   a(n) = a(n-1)+a(n-2)+a(n-3) a(0)=99202581681909167232,
  *            a(1)=67600144946390082339, a(2)=139344212815127987596
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 n <= 71, big any n
- * Helpers:   seq_from_str, seq_realloc
+ * Validated: standard, pass, 26 terms through n = 3309 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,31 @@
    128‑bit unsigned integers or an arbitrary‑precision integer class). */
 
 #include <stddef.h>
-#include "../utils/seq_from_str.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n) {
     /* static cache: values already computed */

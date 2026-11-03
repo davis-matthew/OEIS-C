@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 7, i32 n <= 16, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  * a(n)=3*a(n-1)+27*a(n-3)-81*a(n-4)   for n>=4
  * this implements a(n)=3^n*A168053(n)   */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (buf == NULL) {
         cap  = 4;                   /* store the four initial values */
         size = 4;
-        buf = (seq_t *)malloc(sizeof(seq_t) * cap);
+        buf = mem_new(seq_t, cap);
         if (buf == NULL) return 0;  /* fall back if allocation fails */
         buf[0] =  1;
         buf[1] =  3;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if (n+1 > cap) {
         idx_t newcap = cap;
         while (n+1 > newcap) newcap <<= 1;          /* double until big enough */
-        seq_t *tmp = (seq_t *)realloc(buf, sizeof(seq_t) * newcap);
+        seq_t *tmp = mem_resize(seq_t, buf, newcap);
         if (tmp == NULL) return 0;                  /* abort on failure */
         buf = tmp;
         cap = newcap;

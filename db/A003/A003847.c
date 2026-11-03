@@ -7,6 +7,7 @@
  * Formula:   a(n) = D(A000961(n+1),8) = q^56*(q^8-1)*Prod_{i=1..7}(q^(2i)-1),
  *            q = A000961(n+1)
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 n <= 1, big any n
+ * Validated: standard, pass, 10 terms through n = 10 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

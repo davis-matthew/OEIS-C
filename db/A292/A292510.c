@@ -11,14 +11,26 @@
  *            sums. By the OEIS data a(n) ≤ 7 for all n ≥ 3
  * Range:     u8 n <= 16, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   pentagonal_number
+ * Validated: partial, pass, 88 terms through n = 90 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pentagonal_number.h"
+
+/* Compute the nth n‑gonal number p(n,m) using signed arithmetic
+   to avoid unsigned underflow when n < 4. */
+static inline seq_t pentagonal_number(idx_t n, idx_t m)
+{
+    /* Work in signed 64‑bit to prevent overflow. */
+    int64_t nm1 = (int64_t)n - 2;   /* (n‑2) */
+    int64_t nm2 = (int64_t)n - 4;   /* (n‑4) */
+    int64_t m_val = (int64_t)m;
+    int64_t num = nm1 * m_val * m_val - nm2 * m_val;
+    return (seq_t)(num / 2);
+}
 
 seq_t a(idx_t n)
 {

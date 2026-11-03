@@ -8,7 +8,8 @@
  * Formula:   a(n) = nth positive integer k such that φ(k) ≡ 10 (mod 12)
  * Range:     u8 n <= 21, u16 n <= 2529, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 8540 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------------------------------------------------- */
 /* Global state for the sequence and prime tables.     */
@@ -79,7 +81,7 @@ static void grow_terms(size_t new_len)
     size_t new_cap = terms_cap ? terms_cap * 2 : 16;
     while (new_cap < new_len)
         new_cap *= 2;
-    terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, new_cap);
     terms_cap = new_cap;
 }
 

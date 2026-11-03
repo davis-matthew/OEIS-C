@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} C(n,k)^4 * Sum_{j=0..k} C(k,j)^4
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 493 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static void ensure_cap(seq_t **arr, size_t *cap, size_t need)
 {
@@ -21,7 +23,7 @@ static void ensure_cap(seq_t **arr, size_t *cap, size_t need)
     size_t new_cap = (*cap > 0 ? *cap * 2 : 1);
     while (new_cap < need)
         new_cap <<= 1;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 

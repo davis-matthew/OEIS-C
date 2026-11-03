@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 95, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   big_pow, factor_u64, seq_mul
+ * Validated: standard, pass, 58 terms through n = 968 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,16 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -47,7 +55,7 @@ seq_t a(idx_t n)
         /* exponent = e */
         seq_t exp  = (seq_t)exps[i];
 
-        seq_t term = big_pow(base, exp);
+        seq_t term = ipow(base, exp);
 
         result = seq_mul(result, term);
     }

@@ -9,6 +9,7 @@
  *            k, or 0 if no such k exists (i.e. n = 1 or n-1 is nonsquarefree)
  * Range:     u8 n <= 11, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 101 terms through n = 9091 (2026-11-01)
  * Helpers:   is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 #include <stdint.h>
 
 /* External utility for testing squarefreeness: */
+#include <stdlib.h>
 #include "../utils/is_squarefree.h"
 
 seq_t a(idx_t n)

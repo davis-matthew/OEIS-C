@@ -9,7 +9,8 @@
  *            is a prime power)}
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cache for g(m) values */
 static seq_t *g_cache = NULL;      /* g_cache[i] holds g(i) */
@@ -47,7 +49,7 @@ static void ensure_g(idx_t need)
 {
     if (need + 1 <= (idx_t)g_cap) return;   /* already enough */
     size_t new_cap = (size_t)need + 2;      /* indexes 0 … need */
-    seq_t *tmp = (seq_t *)realloc(g_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, g_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);          /* allocation failure */
     g_cache = tmp;
 

@@ -11,6 +11,7 @@
  *            the OEIS indexing (offset 2) the first term is a(2,2)=1
  * Range:     u8 n <= 8, u16 n <= 26, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 46 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

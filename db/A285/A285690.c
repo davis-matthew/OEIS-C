@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 690, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, next_prime
+ * Validated: standard, pass, 59 terms through n = 9918 (2026-11-03)
+ * Helpers:   factor_u64, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < (size_t)n)
         new_cap *= 2;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

@@ -11,16 +11,50 @@
  *            conditions, * and caches found terms
  * Range:     u8 none, u16 n <= 1, u32 n <= 18, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   floor_sqrt, grow_seq, pow_int
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   ipow_i32, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/grow_seq.h"
-#include "../utils/pow_int.h"       /* pow_int(seq_t base, idx_t exp)   */
-#include "../utils/floor_sqrt.h"    /* floor_sqrt(seq_t x)             */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *cache     = NULL;  /* array of terms */
 static size_t cache_cap = 0;     /* allocated capacity */
@@ -59,7 +93,7 @@ seq_t a(idx_t n)
         uint64_t d = digit_count(y);
 
         /* pow10d = 10^d as seq_t */
-        seq_t pow10d = pow_int((seq_t)10, (idx_t)d);
+        seq_t pow10d = ipow_idx((seq_t)10, (idx_t)d);
         /* pow10_2d = (10^d)^2 */
         seq_t pow10_2d = pow10d * pow10d;
 

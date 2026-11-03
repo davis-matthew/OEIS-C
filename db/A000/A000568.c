@@ -11,7 +11,8 @@
  *            2^{t_j} exactly and then divides by n!. A fixed...
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 11, u64 n <= 14, u128 n <= 19,
  *            big any n
- * Helpers:   a568_gcd, a568_inv
+ * Validated: standard, pass, 36 terms through n = 74 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a568_gcd.h"
-#include "../utils/a568_inv.h"
+#include "../utils/gcd_idx.h"
+
+static unsigned __int128 a568_inv(unsigned __int128 q) {
+    unsigned __int128 x = q;
+    int i;
+    for (i = 0; i < 7; i++) x *= (unsigned __int128)2 - q * x;
+    return x;
+}
 
 static int g568_fixed;
 static idx_t *g568_P;
@@ -53,7 +60,7 @@ static void a568_rec(idx_t rem, long long maxk, idx_t depth, uint64_t t, uint64_
         seq_t Dj = D;
         idx_t i, j;
         if (uk > rem) continue;
-        for (i = 0; i < depth; i++) cross += a568_gcd(uk, g568_P[i]) * g568_M[i];
+        for (i = 0; i < depth; i++) cross += gcd_idx(uk, g568_P[i]) * g568_M[i];
         for (j = 1; j * uk <= rem; j++) {
             idx_t jo = j;
             uint64_t tj;

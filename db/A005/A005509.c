@@ -13,7 +13,8 @@
  *            p = (n+3)...
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 130,
  *            big any n
- * Helpers:   seq_is_fixed_width
+ * Validated: standard, pass, 50 terms through n = 432 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
+#include "../utils/mem.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 static void binoms(int cnt, const long long *M, const long long *K, seq_t *out)
 {
@@ -34,7 +47,7 @@ static void binoms(int cnt, const long long *M, const long long *K, seq_t *out)
             out[i] = 0;
             if (M[i] > mx) mx = M[i];
         }
-        row = (seq_t *)malloc(sizeof(seq_t) * (size_t)(mx + 1));
+        row = mem_new(seq_t, (size_t)(mx + 1));
         row[0] = 1;
         for (r = 0; r <= mx; r++) {
             if (r > 0) {
@@ -44,7 +57,7 @@ static void binoms(int cnt, const long long *M, const long long *K, seq_t *out)
             for (i = 0; i < cnt; i++)
                 if (M[i] == r && K[i] >= 0 && K[i] <= r) out[i] = row[K[i]];
         }
-        free(row);
+        mem_free(row);
     } else {
         for (i = 0; i < cnt; i++) {
             long long m = M[i], k = K[i], j;

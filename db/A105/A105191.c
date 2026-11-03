@@ -7,13 +7,14 @@
  * Formula:   a(n) = number of divisors of (n * 10^12 + 100000000001)
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   count_divisors
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-01)
+ * Helpers:   num_divisors_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_divisors.h"  /* assumed available utility */
+#include "../utils/num_divisors_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -26,5 +27,5 @@ seq_t a(idx_t n)
     unsigned long long N = (unsigned long long)(prod + S);
 
     /* use the bundled divisor count routine */
-    return count_divisors(N);
+    return num_divisors_idx(N);
 }

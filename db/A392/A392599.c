@@ -6,16 +6,25 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   a(n) = A276087(A276087(n)) mod 360
- * Range:     u8 n <= 9, u16 n <= 58, u32 n <= 928, u64 n <= 9538,
- *            u128 n <= 9538, big any n
- * Helpers:   pow_mod360
+ * Range:     u8 n <= 9, u16 n <= 58, u32 n <= 928, u64 n <= 30030,
+ *            u128 n <= 30030, big any n
+ * Validated: standard, pass, 86 terms through n = 9538 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* A276087: primorial base exp-function */
 #include <stddef.h>
-#include "../utils/pow_mod360.h"
+
+/* exponentiation modulo 360 for small exponents */
+static uint64_t pow_mod360(idx_t base, unsigned int exp)
+{
+    uint64_t r = 1;
+    uint64_t b = base % 360;
+    while (exp--) r = (r * b) % 360;
+    return r;
+}
 
 /* first primes used for the primorial base */
 static const idx_t primes[] = {

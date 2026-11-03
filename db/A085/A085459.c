@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper structure for generating 2^i * 5^j numbers with i,j>0. */
 static struct HammingGen {
@@ -41,7 +43,7 @@ static seq_t get_next_hamming2_5(void)
     if (!hamming_inited) {
         hamming_gen = (struct HammingGen *)malloc(sizeof(*hamming_gen));
         hamming_gen->cap  = 128;
-        hamming_gen->values = (seq_t *)malloc(hamming_gen->cap * sizeof(seq_t));
+        hamming_gen->values = mem_new(seq_t, (hamming_gen->cap * sizeof(seq_t)) / sizeof(seq_t));
         hamming_gen->len   = 1;
         hamming_gen->values[0] = (seq_t)1;   /* start with 1 */
         hamming_gen->i2 = hamming_gen->i5 = 0;
@@ -61,8 +63,7 @@ static seq_t get_next_hamming2_5(void)
             if (hamming_gen->len == hamming_gen->cap) {
                 hamming_gen->cap <<= 1;
                 hamming_gen->values =
-                    (seq_t *)realloc(hamming_gen->values,
-                                     hamming_gen->cap * sizeof(seq_t));
+                    mem_resize(seq_t, hamming_gen->values, (hamming_gen->cap * sizeof(seq_t)) / sizeof(seq_t));
             }
             hamming_gen->values[hamming_gen->len++] = nxt;
         }
@@ -110,8 +111,7 @@ seq_t a(idx_t n)
         /* store the next term */
         if (merged_len == merged_cap) {
             merged_cap = merged_cap ? merged_cap << 1 : 128;
-            merged = (seq_t *)realloc(merged,
-                                      merged_cap * sizeof(seq_t));
+            merged = mem_resize(seq_t, merged, merged_cap);
         }
         merged[merged_len++] = next;
     }

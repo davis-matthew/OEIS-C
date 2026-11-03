@@ -9,6 +9,7 @@
  * Formula:   a(n) = prime_pi(n) - omega(binomial(n, floor(n/2)))
  * Range:     u8 n <= 6092, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 121 terms through n = 9413 (2026-11-01)
  * Helpers:   prime_pi, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,8 +21,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/sieve_primes.h"
+#include <string.h>
 #include "../utils/prime_pi.h"
+#include "../utils/sieve_primes.h"
 
 /* Static cache of primes up to the maximum n requested. */
 static idx_t primes_max = 0;

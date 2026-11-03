@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 45, u32 n <= 190, u64 n <= 219,
  *            u128 n <= 219, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
     /* allocate a square table (max_dim+1)×(max_dim+1); index 0 row/column unused */
     size_t size = (size_t)(max_dim + 1) * (size_t)(max_dim + 1);
-    seq_t *tbl = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *tbl = mem_new(seq_t, size);
     if (!tbl) return (seq_t)0;                  /* allocation failure (unlikely) */
 
     /* linear index macro (row-major) */
@@ -95,6 +97,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = tbl[IDX(i, j)];
-    free(tbl);
+    mem_free(tbl);
     return result;
 }

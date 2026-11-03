@@ -13,14 +13,15 @@
  *            piece index within the row (0‑based), c = coeff...
  * Range:     i8 n <= 40, i16 n <= 113, i32 n <= 346, i64 n <= 1416,
  *            i128 n <= 6633, big any n
- * Helpers:   binom_n_k
+ * Validated: standard, pass, 67 terms through n = 9986 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom_n_k.h"
+#include "../utils/binomial.h"
 
 static seq_t pow_seq(seq_t base, idx_t exp)
 {
@@ -89,6 +90,6 @@ seq_t a(idx_t N)
         }
     }
 
-    seq_t binom_n1_c = binom_n_k(r - 1, coeff_idx);
+    seq_t binom_n1_c = binomial(r - 1, coeff_idx);
     return binom_n1_c * sum;
 }

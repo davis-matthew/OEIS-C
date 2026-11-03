@@ -10,12 +10,14 @@
  *            binom(m‑1,i‑1)·S(m‑i,≤k)
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 16, u64 n <= 26, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 478 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a5 = NULL;   /* S(·,≤5) */
 static seq_t *a6 = NULL;   /* S(·,≤6) */
@@ -28,8 +30,8 @@ static void ensure_capacity(idx_t n)
         return;
 
     size_t new_size = (size_t)n + 1;
-    seq_t *new_a5 = (seq_t *)realloc(a5, new_size * sizeof(seq_t));
-    seq_t *new_a6 = (seq_t *)realloc(a6, new_size * sizeof(seq_t));
+    seq_t *new_a5 = mem_resize(seq_t, a5, new_size);
+    seq_t *new_a6 = mem_resize(seq_t, a6, new_size);
     if (!new_a5 || !new_a6) abort();  /* failure, terminate */
 
     a5 = new_a5;

@@ -13,13 +13,15 @@
  *            T(⌊(√(1+8n)-1)/2⌋ , n-⌊(⌊(√(1+8n)-1)/2⌋)(⌊(√(1...
  * Range:     u8 n <= 17, u16 n <= 39, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build system */
 extern seq_t a(idx_t n)
@@ -51,12 +53,12 @@ extern seq_t a(idx_t n)
         for (size_t i = old + 1; i <= newmax; ++i) {
             if (i == 1 || i == 2 || i == 3) {
                 len[i] = 1;
-                poly[i] = (seq_t *)malloc(sizeof(seq_t));
+                poly[i] = mem_new(seq_t, 1);
                 poly[i][0] = (seq_t)1;
             } else {
                 size_t deg = i - 3;              /* degree of a_i */
                 len[i] = deg + 1;
-                poly[i] = (seq_t *)malloc(len[i] * sizeof(seq_t));
+                poly[i] = mem_new(seq_t, len[i]);
 
                 seq_t mult = (seq_t)(i - 3);     /* coefficient of x inside ((i-3)*x+2) */
 

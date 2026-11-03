@@ -8,6 +8,7 @@
  * Formula:   a(1)=0, a(2)=0, a(3)=28, a(n)=56*n^2-280*n+360 for n>3
  * Range:     u8 n <= 4, u16 n <= 35, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

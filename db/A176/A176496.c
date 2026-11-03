@@ -8,7 +8,8 @@
  *            nonprime integer (1,4,6,8,9,10,12,14,...)
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 20, u64 n <= 45, u128 n <= 96,
  *            big any n
- * Helpers:   is_prime, pow2
+ * Validated: standard, pass, 44 terms through n = 455 (2026-11-03)
+ * Helpers:   is_prime, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <string.h>
 #include "../utils/is_prime.h"
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -51,11 +53,11 @@ seq_t a(idx_t n)
             if (cum_len == cum_cap)
             {
                 size_t new_cap = cum_cap ? cum_cap * 2 : 4;
-                seq_t *new_arr = (seq_t *)calloc(new_cap, sizeof(seq_t));
+                seq_t *new_arr = mem_new(seq_t, new_cap);
                 if (!new_arr) abort();
                 if (cum_len)
-                    memcpy(new_arr, cum, cum_len * sizeof(seq_t));
-                free(cum);
+                    mem_copy(new_arr, cum, cum_len * sizeof(seq_t));
+                mem_free(cum);
                 cum     = new_arr;
                 cum_cap = new_cap;
             }

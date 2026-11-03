@@ -12,12 +12,14 @@
  *            of u(n,x)
  * Range:     u8 n <= 30, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for precomputed rows of u and v */
 static seq_t **uRows = NULL;
@@ -42,8 +44,8 @@ static void build_to_row(size_t target)
 {
     for (size_t r = rowsComputed + 1; r <= target; ++r) {
         size_t len = r;
-        seq_t *newU = (seq_t*)malloc(len * sizeof(seq_t));
-        seq_t *newV = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *newU = mem_new(seq_t, len);
+        seq_t *newV = mem_new(seq_t, len);
 
         if (r == 1) {
             newU[0] = (seq_t)1;

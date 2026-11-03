@@ -10,11 +10,14 @@
  *            M(i,j)=gcd(2^i-1, 2^j-1) along antidiagonals
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-01)
  * Helpers:   gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 #include "../utils/pow2.h"
 

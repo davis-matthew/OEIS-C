@@ -11,13 +11,16 @@
  *            with 0/1 knapsack over all squarefree integers ≤ n
  * Range:     u8 n <= 51, u16 n <= 133, u32 n <= 397, u64 n <= 1312,
  *            u128 n <= 4659, big any n
- * Helpers:   is_squarefree
+ * Validated: standard, pass, 80 terms through n = 4639 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
         return 1;
 
     /* Allocate DP array dp[0…n] of type seq_t */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp)
         return 0;   /* allocation failed; returned value is irrelevant */
 
@@ -44,7 +47,7 @@ seq_t a(idx_t n)
     /* Allocate temporary array of squarefree integers */
     uint64_t *sf = (uint64_t *)malloc(sf_cnt * sizeof(uint64_t));
     if (!sf) {
-        free(dp);
+        mem_free(dp);
         return 0;
     }
 
@@ -66,6 +69,6 @@ seq_t a(idx_t n)
 
     /* Clean up */
     free(sf);
-    free(dp);
+    mem_free(dp);
     return result;
 }

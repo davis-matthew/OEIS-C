@@ -9,13 +9,15 @@
  *            partitions of k (A000041)
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Partition numbers are cached in a static array, computed once per run. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* part[k] = p(k) for k = 0 .. part_len-1   */
 static seq_t *part = NULL;
@@ -28,7 +30,7 @@ static void ensure_partitions(idx_t max_n)
         return;                       /* already have enough values */
 
     size_t new_len = (size_t)(max_n + 1);
-    part = (seq_t *)realloc(part, new_len * sizeof(seq_t));
+    part = mem_resize(seq_t, part, new_len);
 
     /* initialize first element if array was empty */
     if (part_len == 0) {

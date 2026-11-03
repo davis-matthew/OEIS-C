@@ -9,9 +9,10 @@
  *            where A109395(k) = k / gcd(k,phi(k)). | * Computation: maintain
  *            cumulative counts of each value seen so far * while extending
  *            the cache up to the required n
- * Range:     u8 n <= 468, u16 n <= 9653, u32 n <= 9653, u64 n <= 9653,
- *            u128 n <= 9653, big any n
- * Helpers:   gcd, phi
+ * Range:     u8 n <= 468, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9653 (2026-11-03)
+ * Helpers:   gcd, mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 #include <stdlib.h>
 #include <stddef.h>
 
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/phi.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 /* Cache of a(n) values.  Index 0 is unused to keep a(1) at a_cache[1].  */
 static seq_t *a_cache   = NULL;
@@ -44,7 +47,7 @@ static void ensure_capacity(size_t n)
 
     /* Resize a_cache.  */
     size_t new_cap = n;
-    seq_t *tmp_a = (seq_t *)realloc(a_cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp_a = mem_resize(seq_t, a_cache, (new_cap + 1));
     if (!tmp_a) exit(1);
     a_cache = tmp_a;
     a_cap   = new_cap;
@@ -80,7 +83,7 @@ seq_t a(idx_t n)
 
         /* Compute A109395(k) for each new k and update frequency and a_cache.  */
         for (size_t k = current_max_n + 1; k <= N; ++k) {
-            seq_t phi_k   = phi((idx_t)k);
+            seq_t phi_k   = totient((idx_t)k);
             seq_t denom   = gcd((seq_t)k, phi_k);
             seq_t val_k   = (seq_t)k / denom;
             size_t v      = (size_t)val_k;   /* val_k <= k <= N <= 2^64 */

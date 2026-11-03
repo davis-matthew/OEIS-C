@@ -7,6 +7,7 @@
  * Formula:   a(n) = Im(∏_{k=1..n} (k + (n-k+1)i))
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 9, i64 n <= 16, i128 n <= 28,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 391 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

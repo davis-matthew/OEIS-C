@@ -10,16 +10,27 @@
  *            extraction of E.g.f. Product_{m>=1} (1+x^m/m!)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 17, u64 n <= 29, u128 n <= 49,
  *            big any n
- * Helpers:   A7837_gcd, alloc_zero, release
+ * Validated: standard, pass, 44 terms through n = 654 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/A7837_gcd.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 static seq_t *A7837_cache = NULL;
 static idx_t A7837_len = 0; /* number of valid entries: indices 0..len-1 */
@@ -35,7 +46,7 @@ static void A7837_build(idx_t N) {
         for (i = m + 1; i <= N; i++) {
             /* C(i,m) = C(i-1,m) * i / (i-m) */
             uint64_t d = i - m;
-            uint64_t g = A7837_gcd(i, d);
+            uint64_t g = gcd_u64(i, d);
             seq_t t = c[i - 1] / (seq_t)(d / g);
             c[i] = t * (seq_t)(i / g);
         }

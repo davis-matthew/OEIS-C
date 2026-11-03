@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 103, u16 n <= 103, u32 n <= 103, u64 n <= 103,
  *            u128 n <= 103, big any n
+ * Validated: partial, pass, 103 terms through n = 103 (2026-11-01)
  * Helpers:   is_prime, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -26,8 +27,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"    /* bool is_prime(idx_t) */
-#include "../utils/next_prime.h"  /* uint64_t next_prime(uint64_t) */
+#include "../utils/is_prime.h"
+#include "../utils/next_prime.h"
 
 /* Return the n‑th term of OEIS A053542.  For n == 0 the function
  * returns 0 (undefined for the sequence). */

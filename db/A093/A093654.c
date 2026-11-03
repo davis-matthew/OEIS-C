@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   square
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,7 +36,24 @@
  */
 
 #include <stdlib.h>
-#include "../utils/square.h"
+#include "../utils/mem.h"
+
+/* Multiply two lower‑triangular matrices (src) and accumulate the result
+ * into dest.  All matrices are stored row‑major in a flattened array.
+ * The multiplication is performed using the property that entries
+ * above the diagonal are zero.  dest must be zeroed before calling. */
+static void square(const seq_t *src, seq_t *dest, idx_t s)
+{
+    for (idx_t i = 0; i < s; ++i) {
+        for (idx_t k = 0; k <= i; ++k) {
+            seq_t aik = src[i * s + k];
+            if (!aik) continue;
+            for (idx_t j = 0; j <= k; ++j) {
+                dest[i * s + j] += aik * src[k * s + j];
+            }
+        }
+    }
+}
 
 static seq_t *M = NULL;      /* current matrix (flat, row‑major)   */
 static idx_t  Msize = 0;     /* current matrix size = 2^k (power of 2) */
@@ -46,7 +64,7 @@ static idx_t  Msize = 0;     /* current matrix size = 2^k (power of 2) */
  * matrix and Msize is updated. */
 static void build_matrix(idx_t newsize)
 {
-    seq_t *newM = (seq_t *)calloc((size_t)newsize * newsize, sizeof(seq_t));
+    seq_t *newM = mem_new(seq_t, (size_t)newsize * newsize);
     if (!newM) return; /* out of memory – caller will fail silently          */
 
     if (Msize == 0) {                     /* base case M(0) = [1] */
@@ -64,9 +82,9 @@ static void build_matrix(idx_t newsize)
     }
 
     /* compute M(n)^2 into a temporary buffer */
-    seq_t *sq = (seq_t *)calloc((size_t)Msize * Msize, sizeof(seq_t));
+    seq_t *sq = mem_new(seq_t, (size_t)Msize * Msize);
     if (!sq) {
-        free(newM);
+        mem_free(newM);
         return;
     }
     square(M, sq, Msize);
@@ -79,8 +97,8 @@ static void build_matrix(idx_t newsize)
         }
     }
 
-    free(M);
-    free(sq);
+    mem_free(M);
+    mem_free(sq);
     M = newM;
     Msize = newsize;
 }

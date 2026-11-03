@@ -9,7 +9,8 @@
  *            equals n
  * Range:     u8 n <= 33, u16 n <= 3498, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 10000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Upper bounds chosen to compute a(n) for n up to 20000 (covering the required n≈10000). */
 #define MAX_N        20000
@@ -63,7 +65,7 @@ static void init_sequence(void)
     }
 
     /* 2. Compute φ(x) for x ≤ LIMIT_X via the standard sieve. */
-    seq_t *phi = (seq_t *)malloc((size_t)(LIMIT_X + 1) * sizeof(seq_t));
+    seq_t *phi = mem_new(seq_t, (size_t)(LIMIT_X + 1));
     if (!phi) exit(EXIT_FAILURE);
     for (size_t i = 0; i <= (size_t)LIMIT_X; ++i) phi[i] = (seq_t)i;
 
@@ -75,7 +77,7 @@ static void init_sequence(void)
     }
 
     /* 3. Compute σ(x) for x ≤ LIMIT_X by summing divisors. */
-    seq_t *sigma = (seq_t *)malloc((size_t)(LIMIT_X + 1) * sizeof(seq_t));
+    seq_t *sigma = mem_new(seq_t, (size_t)(LIMIT_X + 1));
     if (!sigma) exit(EXIT_FAILURE);
     for (size_t i = 0; i <= (size_t)LIMIT_X; ++i) sigma[i] = (seq_t)0;
 
@@ -86,7 +88,7 @@ static void init_sequence(void)
     }
 
     /* 4. Allocate result array and fill it. */
-    res_arr = (seq_t *)malloc((size_t)(MAX_N + 1) * sizeof(seq_t));
+    res_arr = mem_new(seq_t, (size_t)(MAX_N + 1));
     if (!res_arr) exit(EXIT_FAILURE);
     for (size_t i = 0; i <= (size_t)MAX_N; ++i) res_arr[i] = (seq_t)0;
 
@@ -109,8 +111,8 @@ static void init_sequence(void)
     free(is_prime);
     free(primes);
     free(pi);
-    free(phi);
-    free(sigma);
+    mem_free(phi);
+    mem_free(sigma);
 
     init_done = true;
 }

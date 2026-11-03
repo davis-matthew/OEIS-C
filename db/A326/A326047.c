@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = gcd(n - A050449(n), n - A050452(n))
- * Range:     u8 n <= 261, u16 n <= 9436, u32 n <= 9436, u64 n <= 9436,
- *            u128 n <= 9436, big any n
+ * Range:     u8 n <= 261, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9436 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 /* A050449(n): sum of divisors of n congruent to 1 mod 4 */
 /* A050452(n): sum of divisors of n congruent to 3 mod 4 */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

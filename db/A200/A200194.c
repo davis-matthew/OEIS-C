@@ -12,12 +12,14 @@
  *            a(9)=14974, a(10)=23094, a(11)=34120
  * Range:     u8 n <= 3, u16 n <= 12, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -47,14 +49,13 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         if (needed < 12) needed = 12;
         cache_size   = needed;
-        cache        = (seq_t *)malloc((size_t)cache_size * sizeof(seq_t));
+        cache        = mem_new(seq_t, (size_t)cache_size);
         if (cache == NULL) return 0;   /* allocation failure */
         for (idx_t i = 0; i < cache_size; ++i) cache[i] = 0;
         for (idx_t i = 1; i <= 11; ++i) cache[i] = init_vals[i];
         computed_up_to = 11;
     } else if (needed > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      (size_t)needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)needed);
         if (tmp == NULL) return 0;   /* allocation failure */
         cache = tmp;
         /* initialise the newly allocated slots */

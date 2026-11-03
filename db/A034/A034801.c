@@ -10,14 +10,26 @@
  *            array. The output is the Fibonomial coefficient at that position
  * Range:     u8 n <= 16, u16 n <= 30, u32 n <= 58, u64 n <= 110,
  *            u128 n <= 217, big any n
- * Helpers:   fib, gcd
+ * Validated: standard, pass, 71 terms through n = 4725 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd.h"   /* provides the helper gcd(seq_t, seq_t) */
-#include "../utils/fib.h"   /* provides the helper fib(idx_t) */
+#include <stdbool.h>
+#include "../utils/gcd.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 seq_t a(idx_t n)
 {

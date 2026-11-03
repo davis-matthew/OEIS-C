@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,15 +47,15 @@ seq_t a(idx_t n)
     for (idx_t r = 1; ; ++r) {            /* current row number */
         /* Allocate arrays for this row */
         size_t sz = (size_t)r + 1;        /* indices 0..r used */
-        seq_t *dp = (seq_t *)calloc(sz, sizeof(seq_t));
+        seq_t *dp = mem_new(seq_t, sz);
         if (!dp) return 0;               /* malloc failure, safe exit */
-        seq_t *mul = (seq_t *)calloc(sz, sizeof(seq_t));
-        if (!mul) { free(dp); return 0; }
+        seq_t *mul = mem_new(seq_t, sz);
+        if (!mul) { mem_free(dp); return 0; }
 
         /* Compute multiplicity of each part k */
         for (idx_t k = 1; k <= r; ++k) {
             /* reset dp for this k */
-            memset(dp, 0, sz * sizeof(seq_t));
+            mem_set(dp, 0, sz * sizeof(seq_t));
             dp[0] = 1;                    /* empty subset */
 
             for (idx_t t = 1; t <= r; ++t) {
@@ -73,21 +75,21 @@ seq_t a(idx_t n)
             seq_t offset = target - cumulative - 1;   /* zero‑based offset in the row */
             for (idx_t k = 1; k <= r; ++k) {
                 if (offset < mul[k]) {
-                    free(dp);
-                    free(mul);
+                    mem_free(dp);
+                    mem_free(mul);
                     return (seq_t)k;     /* part value at the position */
                 }
                 offset -= mul[k];
             }
             /* Should never reach here */
-            free(dp);
-            free(mul);
+            mem_free(dp);
+            mem_free(mul);
             return 0;
         }
 
         /* Target is further; continue to next row */
         cumulative += row_len;
-        free(dp);
-        free(mul);
+        mem_free(dp);
+        mem_free(mul);
     }
 }

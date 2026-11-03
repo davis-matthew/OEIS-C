@@ -8,6 +8,7 @@
  *            a(n) = 1 + Σ_{k=1..⌊log₂ n⌋} π(⌊n¹Ꮤ/k⌋) (π = prime counting)
  * Range:     u8 n <= 1432, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 89 terms through n = 9718 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

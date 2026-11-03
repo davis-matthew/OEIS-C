@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 none, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   isPrimeGeneric
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,32 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrimeGeneric.h"   /* function: bool isPrimeGeneric(seq_t n); */
+#include <stddef.h>
+#include <stdint.h>
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 /* Constant from the definition of the sequence. */
 static const seq_t CONST_VAL = (seq_t)712329866165608771ULL;
@@ -34,11 +60,11 @@ static void grow_cache(size_t new_cap)
     if (new_cap <= cache_cap) return;
     size_t cap = cache_cap ? cache_cap << 1 : 8;
     while (cap < new_cap) cap <<= 1;
-    seq_t *new_ptr = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_new(seq_t, cap);
     if (!new_ptr) exit(1);          /* allocation failure */
     if (cache) {
         for (size_t i = 0; i < cache_len; ++i) new_ptr[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_ptr;
     cache_cap = cap;

@@ -12,13 +12,30 @@
  *            along antidiagonals: * first (1,1), then (1,2),(...
  * Range:     u8 n <= 120, u16 n <= 3240, u32 n <= 3240, u64 n <= 3240,
  *            u128 n <= 3240, big any n
- * Helpers:   conv_T
+ * Validated: standard, pass, 86 terms through n = 3218 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>  /* for uint64_t if needed */
-#include "../utils/conv_T.h"
+
+static seq_t conv_T(idx_t row, idx_t col)
+{
+    /* Computes T(row,col) for row>=1, col>=1 using the convolution definition. */
+    seq_t sum = 0;
+    for (idx_t h = 1; h <= col; ++h)
+    {
+        /* b(h) = 1 + floor(h/2)  → 1 + (h>>1) */
+        seq_t bh = (seq_t)(1 + (h >> 1));
+
+        /* c(j-h+1) = floor( (row + (col - h + 1)) / 2 )  → (row + (col - h + 1)) >> 1 */
+        seq_t ch = (seq_t)((row + (col - h + 1)) >> 1);
+
+        sum += bh * ch;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

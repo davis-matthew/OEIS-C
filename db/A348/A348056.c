@@ -8,14 +8,22 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   seqcmp
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/seqcmp.h"
+#include "../utils/mem.h"
+
+/* comparison for qsort */
+static int seqcmp(const void *a, const void *b) {
+    seq_t va = *(const seq_t *)a;
+    seq_t vb = *(const seq_t *)b;
+    return (va < vb) ? -1 : (va > vb) ? 1 : 0;
+}
 
 /* Sequence: Numbers k where the d(j)-th digit is j for j>0 and
  * d(j) = 0 iff j is not a digit of k.
@@ -33,11 +41,11 @@ static size_t global_cap = 0;
 static void push_seq(seq_t val) {
     if (global_seq == NULL) {
         global_cap = 1024;
-        global_seq = (seq_t *)malloc(global_cap * sizeof(seq_t));
+        global_seq = mem_new(seq_t, global_cap);
         if (!global_seq) exit(1);
     } else if (global_len == global_cap) {
         global_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(global_seq, global_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, global_seq, global_cap);
         if (!tmp) exit(1);
         global_seq = tmp;
     }
@@ -109,7 +117,7 @@ static void init_sequence(void) {
 
     for (int N = 1; N <= 9; ++N) generate_for_n(N);
 
-    qsort(global_seq, global_len, sizeof(seq_t), seqcmp);
+    mem_qsort(global_seq, global_len, sizeof(seq_t), seqcmp);
 
     /* deduplicate (duplicates are extremely unlikely but safe) */
     size_t write = 0;

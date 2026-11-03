@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   mod_mul64
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_mul64.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ------ Simple 64‑bit modular arithmetic utilities ------ */
 
@@ -32,8 +35,8 @@ static uint64_t mod_pow64(uint64_t base, uint64_t exp, uint64_t mod)
 {
     uint64_t res = 1;
     while (exp) {
-        if (exp & 1) res = mod_mul64(res, base, mod);
-        base = mod_mul64(base, base, mod);
+        if (exp & 1) res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return res;
@@ -92,7 +95,7 @@ static void add_term(seq_t v)
 {
     if (terms_cnt == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 4;
-        terms = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
         terms_cap = new_cap;
     }
     terms[terms_cnt++] = v;
@@ -103,7 +106,7 @@ static void init_sequence_cache(void)
 {
     if (terms == NULL) {
         terms_cap = 4;
-        terms = (seq_t*)calloc(terms_cap, sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         terms_cnt = 0;
     }
 }

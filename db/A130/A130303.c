@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system. */
 seq_t a(idx_t n)
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
 
         /* Compute each new row */
         for (idx_t cur = max_row + 1; cur <= r; ++cur) {
-            seq_t *row = (seq_t*)malloc((size_t)(cur + 1) * sizeof(seq_t));
+            seq_t *row = mem_new(seq_t, (size_t)(cur + 1));
             /* first element (odd number) */
             row[1] = (seq_t)2 * cur - 1;
             /* last element is always 1 */

@@ -7,7 +7,8 @@
  * Formula:   a(n) = 5*5^n/8 + 3*3^n/4 - 3/8 (OEIS A087439)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 921 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /*  Recurrence: a(0)=1, a(1)=5, a(2)=22, a(n)=9*a(n-1)-23*a(n-2)+15*a(n-3) for n≥3. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* array holding computed terms */
 static idx_t  len   = 0;      /* number of terms stored */
@@ -32,7 +34,7 @@ static void ensure_up_to(idx_t n)
         while ((size_t)n + 1 > new_cap)
             new_cap <<= 1;            /* double until enough */
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             abort();                  /* out of memory */
         cache = tmp;

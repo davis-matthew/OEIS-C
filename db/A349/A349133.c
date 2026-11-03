@@ -9,8 +9,9 @@
  * Formula:   a(n) = Sum_{d|n} A003415(d) * A003958(n/d) where A003415 is the
  *            arithmetic derivative and A003958 is fully multiplicative with
  *            A003958(p) = p-1
- * Range:     u8 n <= 47, u16 n <= 2879, u32 n <= 9097, u64 n <= 9097,
- *            u128 n <= 9097, big any n
+ * Range:     u8 n <= 47, u16 n <= 2879, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 96 terms through n = 9097 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,13 +12,15 @@
  *            to answer calls in any order
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of computed values */
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
     /* first call: allocate cache and copy base values */
     if (!cache) {
         cache_cap = 64;                    /* initial capacity */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;              /* allocation failed */
         for (size_t i = 0; i < 11; ++i) {
             cache[i] = init[i];
@@ -54,7 +56,7 @@ seq_t a(idx_t n) {
     if (cache_cap <= nn) {
         size_t new_cap = cache_cap;
         while (new_cap <= nn) { new_cap <<= 1; } /* double until big enough */
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;          /* allocation failed */
         cache = tmp;
         cache_cap = new_cap;

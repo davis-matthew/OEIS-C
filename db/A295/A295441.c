@@ -7,15 +7,28 @@
  * Formula:   a(n) = (9*n)!*n! / ((5*n)!*(3*n)!*(2*n)!)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 6, u128 n <= 12,
  *            big any n
- * Helpers:   _prime_exp, build_primes_upto, pow_uint
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/pow_uint.h"
-#include "../utils/_prime_exp.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* compute exponent of prime p in m! using Legendre's formula */
+static inline idx_t _prime_exp(idx_t m, idx_t p)
+{
+    idx_t e = 0;
+    while (m) {
+        m /= p;
+        e += m;
+    }
+    return e;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,7 +54,7 @@ seq_t a(idx_t n)
                   - _prime_exp(two, p);
         if (e == 0)
             continue;
-        seq_t p_pow = pow_uint((uint64_t)p, e);
+        seq_t p_pow = ipow_u64_idx((uint64_t)p, e);
         result *= p_pow;
     }
 

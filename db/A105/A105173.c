@@ -10,14 +10,17 @@
  *            are considered.)
  * Range:     u8 n <= 8, u16 n <= 607, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrime_uint64
+ * Validated: standard, pass, 73 terms through n = 9018 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/isPrime_uint64.h"
+#include <stdint.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,16 +49,16 @@ seq_t a(idx_t n)
         /* Test primality of t-1 and t+1; the helpers only accept uint64_t. */
         bool ok = false;
         uint64_t tt = (uint64_t)t;     /* t stays within 64‑bit for the tested range */
-        if (tt > 1 && isPrime_uint64(tt - 1))
+        if (tt > 1 && is_prime_u64(tt - 1))
             ok = true;
-        if (isPrime_uint64(tt + 1))
+        if (is_prime_u64(tt + 1))
             ok = true;
 
         if (ok) {
             /* Grow the array if necessary. */
             if (sz == cap) {
                 size_t newCap = (cap == 0) ? 16 : cap * 2;
-                seq_t *tmp = (seq_t *)realloc(vec, newCap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, vec, newCap);
                 if (!tmp)
                     exit(1);   /* allocation failure */
                 vec = tmp;

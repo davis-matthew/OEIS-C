@@ -8,12 +8,14 @@
  * Formula:   a(n) = 43 + reverse_decimal(a(n-1)), a(1) = 1
  * Range:     u8 n <= 5, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Reverse the decimal digits of a seq_t value */
 static seq_t reverse_decimal(seq_t x)
@@ -41,14 +43,14 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_size = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache)
             return 0;    /* allocation failed */
         cache[0] = 1;     /* a(1) */
     }
     else if (cache_size < n)
     {
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp)
             return 0;    /* allocation failed */
         cache = tmp;

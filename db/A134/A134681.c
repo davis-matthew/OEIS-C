@@ -8,7 +8,8 @@
  *            divisors of n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_count, factor_u64
+ * Validated: standard, pass, 112 terms through n = 9914 (2026-11-01)
+ * Helpers:   factor_u64, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,11 @@
 #include <stdint.h>
 #include <stddef.h>
 /* helpers from the utils library */
+#include <math.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/digit_count.h"
+#include "../utils/num_digits0.h"
 
 /* recursive helper to enumerate all divisors and accumulate their digit counts */
 static void
@@ -25,7 +29,7 @@ dfs(const uint64_t *pr, const uint64_t *ex, size_t cnt,
     size_t idx, uint64_t cur, seq_t *sum)
 {
     if (idx == cnt) {
-        *sum += (seq_t)digit_count(cur);
+        *sum += (seq_t)num_digits0(cur);
         return;
     }
     uint64_t p = pr[idx];

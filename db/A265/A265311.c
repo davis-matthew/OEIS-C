@@ -11,14 +11,43 @@
  *            (n‑1)/3) For n ≡ 2 (mod 3) : a(n) = ∏_{i=k+1}^{...
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 18, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   mulandreduce
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mulandreduce.h"
+
+static seq_t mulandreduce(seq_t res, seq_t mult,
+                          idx_t *need2, idx_t *need3)
+{
+    /* cancel as many 2's and 3's from the multiplier as possible */
+    while (*need2 && (mult & 1) == 0) {
+        mult >>= 1;
+        (*need2)--;
+    }
+    while (*need3 && mult % 3 == 0) {
+        mult /= 3;
+        (*need3)--;
+    }
+
+    /* multiply */
+    res *= mult;
+
+    /* reduce the running product by any remaining powers of 2/3 */
+    while (*need2 && res % 2 == 0) {
+        res /= 2;
+        (*need2)--;
+    }
+    while (*need3 && res % 3 == 0) {
+        res /= 3;
+        (*need3)--;
+    }
+
+    return res;
+}
 
 seq_t a(idx_t n)
 {

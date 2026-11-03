@@ -9,14 +9,44 @@
  *            / 768
  * Range:     u8 n <= 4, u16 n <= 15, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   _sigma, _sigma_pow
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_sigma.h"
-#include "../utils/_sigma_pow.h"
+
+/* Sum of the k‑th powers of divisors of m, where k is 1 or 3. */
+static seq_t _sigma_pow(idx_t m, unsigned k)
+{
+    seq_t sum = 0;
+    for (idx_t d = 1; d * d <= m; ++d) {
+        if (m % d == 0) {
+            seq_t dd = d;
+            seq_t pd = (seq_t)m / d; /* second divisor */
+            if (k == 1) {
+                sum += dd;
+                if (pd != dd)
+                    sum += pd;
+            } else /* k == 3 */ {
+                seq_t term1 = dd * dd * dd;
+                sum += term1;
+                if (pd != dd) {
+                    seq_t term2 = pd * pd * pd;
+                    sum += term2;
+                }
+            }
+        }
+    }
+    return sum;
+}
+
+/* Sum of divisors (k = 1) is a special case of _sigma_pow. */
+static seq_t _sigma(idx_t m)
+{
+    return _sigma_pow(m, 1);
+}
 
 seq_t a(idx_t n)
 {

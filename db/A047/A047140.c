@@ -15,14 +15,28 @@
  *            = T(0,0) * a(1) = T(0,1) * a(2) = T(1,0) * a(3)...
  * Range:     u8 n <= 71, u16 n <= 219, u32 n <= 720, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   up_allowed
+ * Validated: standard, pass, 89 terms through n = 1318 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/up_allowed.h"
+
+/* helper: check if an up–step from y to y+1 at a given x = h
+ * is allowed under the crossing condition.
+ */
+static bool up_allowed(int h, int y_start)
+{
+    /* floor(4h/3) */
+    int f = (4 * h) / 3;
+    /* ceil(4h/3) */
+    int s = (4 * h + 2) / 3;
+    if (f == s) return true;            /* line is at a lattice point, all ups safe */
+    /* crossing only if start is at f and target is at s (i.e., f < line < s) */
+    return !(y_start == f && y_start + 1 == s);
+}
 
 #define MAXS 300   /* max diagonal index needed for all tested n (n <= 10000) */
 

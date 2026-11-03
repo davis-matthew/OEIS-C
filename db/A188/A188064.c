@@ -8,6 +8,7 @@
  * Formula:   a(n) = sum_{k=0}^n wt(k)! where wt(k) is the Hamming weight of k
  * Range:     u8 n <= 30, u16 n <= 253, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 78 terms through n = 948 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

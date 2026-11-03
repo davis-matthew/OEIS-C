@@ -10,13 +10,15 @@
  *            a(n). This implements the OEIS definition of A081130
  * Range:     u8 n <= 40, u16 n <= 84, u32 n <= 200, u64 n <= 454,
  *            u128 n <= 1207, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 94 terms through n = 1302 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Find the largest integer d such that d*(d+1)/2 <= n.
    Uses a binary search; all arithmetic that can overflow is performed
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     seq_t bin = (seq_t)i * (seq_t)(i - 1) / 2;
 
     /* Compute j^(i-2).  big_pow works with seq_t arguments. */
-    seq_t pwr = big_pow((seq_t)j, (seq_t)(i - 2));
+    seq_t pwr = ipow((seq_t)j, (seq_t)(i - 2));
 
     return pwr * bin;
 }

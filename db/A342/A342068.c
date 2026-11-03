@@ -11,7 +11,8 @@
  *            π(x-1), with π(0)=0)
  * Range:     u8 n <= 1865, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9837 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc, abort */
 #include <stdint.h>   /* uint64_t */
+#include "../utils/mem.h"
 
 /* Prime count cache ------------------------------------------------------------- */
 static seq_t *pi_cache = NULL; /* array of π values for indices 0 .. pi_cap-1 */
@@ -53,7 +55,7 @@ ensure_sieve(idx_t limit)
     }
 
     /* Extend the prime‑count cache */
-    seq_t *new_pi = (seq_t *)realloc(pi_cache, new_cap * sizeof(seq_t));
+    seq_t *new_pi = mem_resize(seq_t, pi_cache, new_cap);
     if (!new_pi)
         abort();
     pi_cache = new_pi;

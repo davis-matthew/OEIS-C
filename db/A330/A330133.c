@@ -7,6 +7,7 @@
  * Formula:   a(n) = (5 + (-1)^(1+n) - 4*cos(n*Pi/2) + 10*n^2) / 16
  * Range:     u8 n <= 4, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

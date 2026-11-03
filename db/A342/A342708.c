@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, tabl
  * Formula:   not stated
- * Range:     i8 n <= 2289, i16 n <= 9753, i32 n <= 9753, i64 n <= 9753,
- *            i128 n <= 9753, big any n
- * Helpers:   none
+ * Range:     i8 n <= 2289, i16 n <= 11628, i32 n <= 11628, i64 n <= 11628,
+ *            i128 n <= 11628, big any n
+ * Validated: standard, pass, 94 terms through n = 9753 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*=== static storage for the running triangle ===*/
 static seq_t *tri = NULL;      /* array of all computed entries        */
@@ -39,7 +41,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = tri_cap ? tri_cap * 2 : 64;
     while (new_cap < needed) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(tri, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, tri, new_cap);
     if (!tmp) abort();          /* memory error */
     tri       = tmp;
     tri_cap   = new_cap;

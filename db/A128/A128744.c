@@ -11,7 +11,8 @@
  *            T(r-1,k-1) + Σ_{i=0}^{r-k} A002212(i) * T(r-1-i,k-1)
  * Range:     u8 n <= 21, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Types are supplied by the build system.  Do not #define them. */
 static seq_t *g = NULL;           /* holds A002212 sequence, index 0.. */
@@ -33,7 +35,7 @@ static idx_t triangle_rows = 0;   /* number of rows currently stored */
 
 static void ensure_g(idx_t size_needed) {
     if (g_size >= size_needed) return;
-    seq_t *new_g = (seq_t *)realloc(g, sizeof(seq_t) * size_needed);
+    seq_t *new_g = mem_resize(seq_t, g, size_needed);
     if (!new_g) abort();          /* allocation error */
     g = new_g;
     /* initialise new elements */
@@ -62,7 +64,7 @@ static void ensure_triangle(idx_t rows_needed) {
     triangle = new_rows;
     /* compute missing rows */
     for (idx_t r = triangle_rows + 1; r <= rows_needed; ++r) {
-        triangle[r] = (seq_t *)malloc(sizeof(seq_t) * r);
+        triangle[r] = mem_new(seq_t, r);
         if (!triangle[r]) abort();
         /* row r has indices 1..r, stored at 0..r-1 */
         if (r == 1) {

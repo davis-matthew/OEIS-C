@@ -11,7 +11,8 @@
  *            primes in order of the integers that possess...
  * Range:     u8 n <= 184, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 85 terms through n = 9495 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/gcd.h"  /* for any auxiliary utilities if needed */
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* We need a fast integer square‑root.  Use the helper. */
-#include "../utils/gcd.h"  /* same header contains _floor_isqrt_u64 */
 
 #define SIEVE_LIMIT 500000U  /* limits for sieve – enough for n up to many thousands */
 
@@ -57,7 +58,7 @@ static idx_t processed_up_to = 1;  /* last m for which we have examined */
 static void append_seq(seq_t v) {
     if (seq_len >= seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 64;
-        seq_t *p = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, seq, new_cap);
         if (!p) exit(EXIT_FAILURE);
         seq = p;
         seq_cap = new_cap;

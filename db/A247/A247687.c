@@ -9,7 +9,8 @@
  *            a prime (≥ 3) and 0 ≤ k ≤ ⌊log2(p)⌋ − 1
  * Range:     u8 none, u16 none, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   cmp_seq_t, floor_log2_uint64, pow2
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   ilog2, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow2.h"          /* seq_t pow2(idx_t exp); */
-#include "../utils/floor_log2_uint64.h" /* idx_t floor_log2_uint64(idx_t n); */
-#include "../utils/cmp_seq_t.h"     /* int cmp_seq_t(const void*, const void*); */
+#include <stddef.h>
+#include "../utils/ilog2.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -56,13 +68,13 @@ seq_t a(idx_t n)
         size_t term_cnt = 0;
         for (size_t i = 0; i < primes_cnt; ++i) {
             idx_t p = prime_idx[i];
-            idx_t kmax = floor_log2_uint64(p) - 1;
+            idx_t kmax = ilog2(p) - 1;
             if (kmax < 0) continue;
             term_cnt += (size_t)(kmax + 1);
         }
 
         /* Allocate array for all terms. */
-        seq_t *terms = (seq_t *)malloc(term_cnt * sizeof(seq_t));
+        seq_t *terms = mem_new(seq_t, term_cnt);
         if (!terms) return 0; /* allocation failure */
 
         /* Generate terms. */
@@ -70,7 +82,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < primes_cnt; ++i) {
             seq_t p = (seq_t)prime_idx[i];
             seq_t p2 = p * p;
-            idx_t kmax = floor_log2_uint64((idx_t)p) - 1;
+            idx_t kmax = ilog2((idx_t)p) - 1;
             for (idx_t k = 0; k <= kmax; ++k) {
                 seq_t term = pow2(k) * p2;
                 terms[pos++] = term;
@@ -78,7 +90,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort the terms ascending. */
-        qsort(terms, term_cnt, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(terms, term_cnt, sizeof(seq_t), cmp_seq_t);
 
         /* Store in static cache and clean up temporary data. */
         free(prime_idx);

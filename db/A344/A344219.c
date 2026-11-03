@@ -9,7 +9,8 @@
  *            ((p^(4e)-1)/(p^4-1)) ] (multiplicative; a(1)=1)
  * Range:     u8 n <= 3, u16 n <= 13, u32 n <= 197, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_seq
+ * Validated: standard, pass, 53 terms through n = 9529 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 /* The implementation uses the provided factor_u64 and pow_seq utilities. */
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 /* Computes a(idx_t n).  Assumes n >= 1.  */
 seq_t a(idx_t n)
@@ -50,10 +52,10 @@ seq_t a(idx_t n)
         }
 
         /* denom2 = p^4 - 1. */
-        seq_t denom2 = pow_seq(p_seq, 4) - (seq_t)1;
+        seq_t denom2 = ipow_i32(p_seq, 4) - (seq_t)1;
 
         /* numerator2 = p^(4e) - 1. */
-        seq_t numerator2 = pow_seq(p_seq, 4 * e) - (seq_t)1;
+        seq_t numerator2 = ipow_i32(p_seq, 4 * e) - (seq_t)1;
 
         /* t2 = numerator2 / denom2.  Exact division by construction. */
         seq_t t2 = numerator2 / denom2;

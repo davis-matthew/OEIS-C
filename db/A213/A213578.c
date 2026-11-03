@@ -8,13 +8,15 @@
  *            Offset: 1
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 36, u64 n <= 80, u128 n <= 171,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 431 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------
    Memoized computation of A213578 using the linear recurrence
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     size_t need = (n + 1 > 7) ? (n + 1) : 7;   /* include index 0 */
 
     if (cache == NULL) {
-        cache = (seq_t *)malloc(need * sizeof(seq_t));
+        cache = mem_new(seq_t, need);
         if (!cache) return 0;                 /* allocation failure */
         cap = need;
         /* initialise first six terms */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         cache[6] = (seq_t)174;
         upto = 6;
     } else if (need > cap) {                  /* grow array if required */
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp) return 0;                 /* allocation failure */
         cache = tmp;
         cap = need;

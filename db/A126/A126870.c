@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Helper: sum of distinct prime divisors of n (1‑based index) */
 static seq_t sum_distinct_prime_divisors(idx_t n)
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* Extend cache if necessary */
     if (needed > cache_size) {
         /* Cast realloc return to avoid C++ implicit conversion error */
-        seq_t *new_cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, needed);
         if (!new_cache)  /* allocation failure – abort silently */
             exit(EXIT_FAILURE);
         cache = new_cache;

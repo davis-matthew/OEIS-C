@@ -10,6 +10,7 @@
  *            different digit (without leading zeros)
  * Range:     u8 n <= 1, u16 n <= 33, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
  * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,10 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
 
 static uint64_t *prime_list = NULL;
 static size_t prime_count = 0;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   mul_plus_four
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,20 @@
 #include <stdbool.h>
 #include <limits.h>
 #include <stdlib.h>
-#include "../utils/mul_plus_four.h"
+#include "../utils/mem.h"
+
+/* compute a * b + 4, detecting overflow for unsigned integer case */
+static inline bool mul_plus_four(seq_t a, seq_t b, seq_t *out)
+{
+#ifdef __cplusplus
+    *out = a * b + 4;
+    return false;               /* no overflow handling for big‑int build */
+#else
+    unsigned __int128 tmp = (unsigned __int128)a * b + 4;
+    *out = (seq_t)tmp;
+    return (tmp >> (sizeof(seq_t) * CHAR_BIT)) != 0;
+#endif
+}
 
 /* internal node used in the candidate heap */
 struct Node {
@@ -53,7 +67,7 @@ static void grow_cache(void)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 2;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();               /* out of memory */
         cache = tmp;
         cache_cap = new_cap;
@@ -65,7 +79,7 @@ static void grow_heap(void)
 {
     if (heap_size == heap_cap) {
         size_t new_cap = heap_cap ? heap_cap * 2 : 2;
-        struct Node *tmp = (struct Node*)realloc(heap, new_cap * sizeof(struct Node));
+        struct Node *tmp = mem_resize(struct Node, heap, new_cap);
         if (!tmp) abort();               /* out of memory */
         heap = tmp;
         heap_cap = new_cap;
@@ -127,7 +141,7 @@ static struct Node heap_pop(void)
 static void init_sequence(void)
 {
     cache_cap = 1;
-    cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) abort();                 /* out of memory */
     cache[0] = (seq_t)2;
     cache_len = 1;
@@ -135,7 +149,7 @@ static void init_sequence(void)
     last_val_set = true;
 
     heap_cap = 4;
-    heap = (struct Node*)malloc(heap_cap * sizeof(struct Node));
+    heap = mem_new(struct Node, heap_cap);
     if (!heap) abort();                  /* out of memory */
     heap_size = 0;
     heap_push(0, 0);                     /* first candidate 2*2+4 = 8 */

@@ -12,13 +12,15 @@
  *            brute‑force enumeration
  * Range:     u8 n <= 2, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* local gcd for the generic unsigned type seq_t */
 static seq_t gcd_local(seq_t a, seq_t b)
@@ -67,10 +69,10 @@ static void grow_seq(void)
 {
     if (cap == 0) {
         cap = 64;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
     } else {
         cap <<= 1;
-        seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, cap);
     }
 }
 

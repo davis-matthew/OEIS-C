@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 5, i64 n <= 9, i128 n <= 14,
  *            big any n
- * Helpers:   gcd, pow3
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   gcd, mem, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 #include "../utils/pow3.h"
+#include "../utils/mem.h"
 
 /* Rational numbers for Bernoulli numbers */
 typedef struct {
@@ -54,7 +57,7 @@ static void ensure_B_capacity(size_t need)
     if (need < B_cap)
         return;
     size_t newcap = need + 64;   /* some slack */
-    Rat *tmp = (Rat *)realloc(B_cache, newcap * sizeof(Rat));
+    Rat *tmp = mem_resize(Rat, B_cache, newcap);
     if (!tmp)
         abort();
     B_cache = tmp;

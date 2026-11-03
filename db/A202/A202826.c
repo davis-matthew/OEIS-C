@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 408 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    where (n)_k = n·(n-1)·…·(n-k+1) (falling factorial).
    All intermediate values stay integers. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *A = NULL;
@@ -28,12 +30,12 @@ seq_t a(idx_t n) {
     /* Allocate or grow cache */
     if (A == NULL) {
         cap = 1;
-        A = (seq_t *)malloc(cap * sizeof(seq_t));
+        A = mem_new(seq_t, cap);
         A[0] = (seq_t)1;           /* a(0) = 1 */
     } else if (n >= cap) {
         size_t new_cap = cap;
         while (new_cap <= n) new_cap <<= 1;
-        A = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_cap);
         cap = new_cap;
     }
 

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} (n+3*k-2)!/(n+2*k-1)! * |Stirling1(n,k)|
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,15 +35,15 @@ seq_t a(idx_t n)
     if (A_len == 0) {
         /* sequence cache */
         A_cap  = 16;
-        A      = (seq_t *)malloc(A_cap * sizeof(seq_t));
+        A      = mem_new(seq_t, A_cap);
         if (!A) return (seq_t)0;
         A[0] = (seq_t)0;           /* a(0) = 0 */
         A_len = 1;
 
         /* Stirling row for n = 0 : s(0,0) = 1 */
         arrays_cap = 1;
-        prev = (seq_t *)malloc(arrays_cap * sizeof(seq_t));
-        cur  = (seq_t *)malloc(arrays_cap * sizeof(seq_t));
+        prev = mem_new(seq_t, arrays_cap);
+        cur  = mem_new(seq_t, arrays_cap);
         if (!prev || !cur) return (seq_t)0;
         prev[0] = (seq_t)1;
         prev_len = 1;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         if ((size_t)n >= A_cap) {
             size_t new_cap = A_cap ? A_cap << 1 : 16;
             while (new_cap <= (size_t)n) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, A, new_cap);
             if (!tmp) return (seq_t)0;
             A = tmp;  A_cap = new_cap;
         }
@@ -64,8 +66,8 @@ seq_t a(idx_t n)
         if ((size_t)n >= arrays_cap) {
             size_t new_cap = arrays_cap ? arrays_cap << 1 : 16;
             while (new_cap <= (size_t)n) new_cap <<= 1;
-            seq_t *tmp  = (seq_t *)realloc(prev, new_cap * sizeof(seq_t));
-            seq_t *tmp2 = (seq_t *)realloc(cur , new_cap * sizeof(seq_t));
+            seq_t *tmp  = mem_resize(seq_t, prev, new_cap);
+            seq_t *tmp2 = mem_resize(seq_t, cur, new_cap);
             if (!tmp || !tmp2) return (seq_t)0;
             prev = tmp;  cur = tmp2;  arrays_cap = new_cap;
         }

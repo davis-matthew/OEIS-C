@@ -7,7 +7,8 @@
  * Formula:   number of partitions of n into 6 distinct nonprime parts
  * Range:     u8 n <= 70, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     const int K = 6;                     /* number of parts required */
     size_t rows = (size_t)N + 1;
     size_t cols = K + 1;
-    seq_t *dp = (seq_t *)calloc(rows * cols, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, rows * cols);
     if (!dp) {
         free(isPrime);
         return 0;                      /* allocation failure fallback */
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
 
     /* 3. Clean up dynamically allocated memory. */
     free(isPrime);
-    free(dp);
+    mem_free(dp);
 
     return result;
 }

@@ -7,13 +7,15 @@
  * Formula:   a(n) = ceiling((3n+1/n)^n)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 13,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 33 terms through n = 289 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
-
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -46,8 +48,8 @@ seq_t a(idx_t n)
        the calculation using the provided seq_pow helper which handles
        large integers correctly. */
     seq_t base = (seq_t)3 * (seq_t)n * (seq_t)n + (seq_t)1; /* 3n²+1 */
-    seq_t num  = seq_pow(base, n);                          /* (3n²+1)^n */
-    seq_t den  = seq_pow((seq_t)n, n);                      /* n^n */
+    seq_t num  = ipow_idx(base, n);                          /* (3n²+1)^n */
+    seq_t den  = ipow_idx((seq_t)n, n);                      /* n^n */
     seq_t tmp  = num + den - (seq_t)1;                      /* numerator + denominator -1 */
     return tmp / den;                                       /* ceil division */
 }

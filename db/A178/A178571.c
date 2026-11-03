@@ -9,6 +9,7 @@
  *            non‑multiple of 3 in [2..44]
  * Range:     u8 n <= 8, u16 n <= 29, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
+ * Validated: full, pass, 29 terms through n = 29 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

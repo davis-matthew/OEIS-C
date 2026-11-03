@@ -10,13 +10,15 @@
  *            …
  * Range:     u8 n <= 41, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*   Static arrays holding intermediate values
     part[n]   = number of partitions of n
@@ -31,9 +33,9 @@ static size_t cap = 0;         /* current allocated size */
 /* Recompute all data up to new_cap elements */
 static void recompute(size_t new_cap)
 {
-    seq_t *p = (seq_t *)malloc(new_cap * sizeof(seq_t));
-    seq_t *s = (seq_t *)malloc(new_cap * sizeof(seq_t));
-    seq_t *a = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, new_cap);
+    seq_t *s = mem_new(seq_t, new_cap);
+    seq_t *a = mem_new(seq_t, new_cap);
     if (!p || !s || !a) abort();
 
     for (size_t i = 0; i < new_cap; ++i) {
@@ -63,9 +65,9 @@ static void recompute(size_t new_cap)
     }
 
     /* free old arrays and replace */
-    free(part);
-    free(sigma);
-    free(A);
+    mem_free(part);
+    mem_free(sigma);
+    mem_free(A);
     part = p;
     sigma = s;
     A    = a;

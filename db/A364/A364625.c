@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    (derived from the functional equation A(x) = 1/(1-x)^3 + x^2*A(x)^2) */
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* stored values a(0..len-1)          */
 static idx_t  cache_len = 0;     /* number of elements stored          */
@@ -28,7 +30,7 @@ static void grow_cache(idx_t needed)
     size_t newcap = cache_cap ? cache_cap * 2 : 16;
     while (newcap <= (size_t)needed)
         newcap *= 2;
-    seq_t *newptr = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, cache, newcap);
     cache = newptr;
     cache_cap = newcap;
 }

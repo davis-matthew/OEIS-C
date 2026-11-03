@@ -12,33 +12,34 @@
  *            ((p^2)^(e+1)-(-1)^(e+1))/(p^2+1) if p≡5 (mod 6)
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 508, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 67 terms through n = 1797 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 static seq_t a_prime_power(uint64_t p, unsigned e)
 {
     if (p == 3u) {
-        return pow_int((seq_t)9, e);
+        return ipow_idx((seq_t)9, e);
     }
     if (p == 2u) {
-        seq_t t1 = pow_int((seq_t)4, e + 1);
+        seq_t t1 = ipow_idx((seq_t)4, e + 1);
         seq_t numerator = (((e + 1) & 1) == 0) ? t1 + (seq_t)9
                                                 : t1 - (seq_t)9;
         return numerator / (seq_t)5;
     }
     seq_t p_sq = (seq_t)p * (seq_t)p;
     if (p % 6u == 1u) {
-        seq_t pow_val = pow_int(p_sq, e + 1);
+        seq_t pow_val = ipow_idx(p_sq, e + 1);
         seq_t numerator = pow_val - (seq_t)1;
         seq_t denominator = p_sq - (seq_t)1;
         return numerator / denominator;
     } else { /* p % 6 == 5 */
-        seq_t pow_val = pow_int(p_sq, e + 1);
+        seq_t pow_val = ipow_idx(p_sq, e + 1);
         seq_t numerator = (((e + 1) & 1) == 0) ? pow_val - (seq_t)1
                                                 : pow_val + (seq_t)1;
         seq_t denominator = p_sq + (seq_t)1;

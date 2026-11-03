@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 44, u16 n <= 2379, u32 n <= 10000, u64 n <= 10000,
+ * Range:     u8 n <= 69, u16 n <= 2711, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 79 terms through n = 9137 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    where b = floor((sqrt(8*n+1)+1)/2) */
 
 /* Required helper for binomial coefficients. */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Integer square root for idx_t (uint64_t) values. */
 static inline idx_t isqrt_u64(idx_t v)
@@ -46,8 +48,8 @@ seq_t a(idx_t n)
     idx_t s   = isqrt_u64(t);
     idx_t b   = (s + 1) / 2;                    /* b is still an idx_t */
 
-    seq_t bin3 = binom(b, 3);                  /* C(b,3) */
-    seq_t bin2 = binom(b, 2);                  /* C(b,2) */
+    seq_t bin3 = binomial(b, 3);                  /* C(b,3) */
+    seq_t bin2 = binomial(b, 2);                  /* C(b,2) */
 
     seq_t term1 = bin3;
 

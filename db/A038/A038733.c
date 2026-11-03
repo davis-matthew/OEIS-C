@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 23, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    binom(m,6)=m!/(6!(m-6)!).  Equivalently,
    a(n) = coefficient of x^n in   x^4 / ((1-3x+x^2)(1-x)^7). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *ak_table = NULL;  /* a_k = F_{2k+2} */
 static size_t ak_len   = 0;     /* number of a_k already computed */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     /* grow a_k table if necessary */
     if (need > ak_len) {
-        seq_t *tmp = (seq_t *)realloc(ak_table, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, ak_table, need);
         if (!tmp) abort();                /* malloc failure – allowed */
 
         /* fill any new entries using the recurrence a_k = 3*a_{k-1} - a_{k-2} */

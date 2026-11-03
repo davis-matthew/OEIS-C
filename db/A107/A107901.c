@@ -8,7 +8,8 @@
  *            (a(n) = A107898(n) - 1)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cf_length, isPrime64
+ * Validated: standard, pass, 121 terms through n = 9608 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,19 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/isPrime64.h"
-#include "../utils/cf_length.h"
+#include <stdbool.h>
+#include "../utils/is_prime_u64.h"
+
+static seq_t cf_length(uint64_t a, uint64_t b) {
+    uint64_t len = 0;
+    while (b != 0) {
+        ++len;
+        uint64_t r = a % b;
+        a = b;
+        b = r;
+    }
+    return (seq_t)len;
+}
 
 static uint64_t *prime_list = NULL;
 static size_t prime_cap   = 0;
@@ -42,7 +54,7 @@ static void ensure_primes(size_t n) {
             cand++;
             continue;
         }
-        if (isPrime64(cand)) {
+        if (is_prime_u64(cand)) {
             if (prime_cnt >= prime_cap) {
                 prime_cap *= 2;
                 prime_list = (uint64_t*)realloc(prime_list, prime_cap * sizeof(uint64_t));

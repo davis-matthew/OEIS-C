@@ -10,14 +10,16 @@
  *            (permutations of m with exactly k descents)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 20, u128 n <= 45,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 34 terms through n = 100 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t, idx_t); */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* static storage for Eulerian numbers A(n,k) for k = 0..4; */
 static seq_t *euler_arr = NULL;
@@ -29,7 +31,7 @@ static void ensure_euler(idx_t max_n)
     if (max_n <= euler_max_n) return;
 
     size_t new_size = (size_t)(max_n + 1) * 5;
-    seq_t *new_arr = (seq_t *)realloc(euler_arr, new_size * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, euler_arr, new_size);
     if (!new_arr) return; /* allocation failed – subsequent use will crash naturally */
 
     euler_arr = new_arr;

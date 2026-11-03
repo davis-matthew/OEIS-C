@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 6, i64 n <= 12, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 414 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External linkage required by the build system */
 seq_t a(idx_t n)
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (buf == NULL) {
         /* start with capacity 2 to hold a(0) and a(1) */
         buf_cap = (n >= 1) ? 2 : 1;
-        buf = (seq_t *)malloc(buf_cap * sizeof(seq_t));
+        buf = mem_new(seq_t, buf_cap);
         if (buf == NULL) return 0;   /* malloc failure → return 0 */
 
         buf[0] = 1;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         size_t new_cap = buf_cap;
         if (new_cap == 0) new_cap = 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(buf, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, new_cap);
         if (tmp == NULL) return 0;   /* realloc failure → return 0 */
         buf = tmp;
         buf_cap = new_cap;

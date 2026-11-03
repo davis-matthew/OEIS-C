@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9588 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *count_cache = NULL;  /* array of a(0)..a(max_computed) */
 static idx_t   cache_size  = 0;    /* number of elements currently stored */
@@ -29,7 +31,7 @@ static void recompute_cache(idx_t limit)
 {
     /* allocate/resize the cache */
     size_t new_size = (size_t)limit + 1;
-    count_cache = (seq_t *)realloc(count_cache, new_size * sizeof(seq_t));
+    count_cache = mem_resize(seq_t, count_cache, new_size);
     if (!count_cache) exit(EXIT_FAILURE);
 
     /* initialise all entries to zero */

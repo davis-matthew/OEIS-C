@@ -7,14 +7,18 @@
  * Formula:   a(n) = (1/4) * Sum_{k=1..n} phi(5*k)
  * Range:     u8 n <= 13, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   build_primes
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 /* static cache for Euler's totient values */
 static seq_t *phi_cache = NULL;
@@ -46,7 +50,7 @@ static void build_phi_up_to(idx_t N) {
         return;
 
     /* allocate new buffer */
-    seq_t *new_phi = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *new_phi = mem_new(seq_t, (size_t)(N + 1));
     if (!new_phi)
         return;                      /* allocation failed, abort silently */
 
@@ -65,7 +69,7 @@ static void build_phi_up_to(idx_t N) {
     }
 
     /* free old cache and replace */
-    free(phi_cache);
+    mem_free(phi_cache);
     phi_cache = new_phi;
     phi_cache_len = N;
 }

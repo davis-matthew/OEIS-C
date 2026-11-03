@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     i8 n <= 12, i16 n <= 147, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 86 terms through n = 9477 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* 
    Computation of OEIS sequence A030212
    Glaisher's chi_4(n).

@@ -7,12 +7,14 @@
  * Formula:   a(n) = A000110(n) * A000166(n)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *bell = NULL;
 static seq_t *der  = NULL;
@@ -24,8 +26,8 @@ static void ensure_cache(idx_t n)
     if (n + 1 <= cap) return;                /* already have enough */
 
     /* Reallocate larger arrays.  Cast to seq_t* for C++ compatibility. */
-    seq_t *new_bell = (seq_t *)realloc(bell, (size_t)(n + 1) * sizeof(seq_t));
-    seq_t *new_der  = (seq_t *)realloc(der,  (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_bell = mem_resize(seq_t, bell, (size_t)(n + 1));
+    seq_t *new_der  = mem_resize(seq_t, der, (size_t)(n + 1));
     if (!new_bell || !new_der) {
         /* Allocation failure – abort the program. */
         exit(1);

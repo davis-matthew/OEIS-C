@@ -9,6 +9,7 @@
  *            of fifth powers of divisors of n
  * Range:     i8 n <= 0, i16 n <= 2, i32 n <= 21, i64 n <= 1775,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 41 terms through n = 9929 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

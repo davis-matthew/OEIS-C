@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 19,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,7 @@
  */
 
 #include <stdint.h>
-#include "../utils/pow3.h"    /* pow3(idx_t exp) -> seq_t */
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {

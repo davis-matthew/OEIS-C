@@ -9,14 +9,15 @@
  *            Catalan(i)*(4i+2)/(i+2)
  * Range:     u8 n <= 15, u16 n <= 25, u32 n <= 41, u64 n <= 75, u128 n <= 141,
  *            big any n
- * Helpers:   gcd_ull
+ * Validated: standard, pass, 54 terms through n = 857 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd_ull.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
         {
             unsigned long long num = 4 * i + 2;
             unsigned long long den = i + 2;
-            unsigned long long g = gcd_ull(num, den);
+            unsigned long long g = gcd_u64(num, den);
             num /= g;
             den /= g;
             c /= den;     /* exact: den is coprime to num and divides c*num */

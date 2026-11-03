@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} (-n)^(d-1)
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 16, i128 n <= 19,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Recursive helper: accumulate the sum of base^(divisor-1) for all divisors
  * generated from the prime factorisation. */
@@ -31,7 +34,7 @@ static void sum_div_terms(idx_t idx,
 {
     if (idx == pf_cnt) {
         /* curr is a divisor of the original n */
-        seq_t term = big_pow(base, (seq_t)(curr - 1));
+        seq_t term = ipow(base, (seq_t)(curr - 1));
         *result += term;
         return;
     }

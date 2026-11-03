@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * found terms so that calls with arbitrary n are answered in O(1) after the
  * required terms have been generated. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline idx_t count_runs(idx_t x)
 {
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         if (count_runs(last_checked) % 7 == 6) {
             if (cache_size == cache_capacity) {
                 size_t new_cap = cache_capacity == 0 ? 64 : cache_capacity * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
                     /* In a real build, handle out‑of‑memory appropriately. */
                     abort();

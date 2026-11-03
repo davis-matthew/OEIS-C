@@ -10,6 +10,7 @@
  * Formula:   a(n) = 9^(2^(n-1))*b(n) where b(1)=1/9 and b(n+1)=b(n)-b(n)^2
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

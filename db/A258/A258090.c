@@ -9,13 +9,26 @@
  *            -2, -4) (period 6), with a(0)=1
  * Range:     i8 n <= 15, i16 n <= 635, i32 n <= 2500, i64 n <= 2500,
  *            i128 n <= 2500, big any n
- * Helpers:   seq_realloc
+ * Validated: standard, pass, 89 terms through n = 2393 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* periodic exponents e(n) used in the transform */
 static const seq_t e_mod[6] = { (seq_t)-2, (seq_t)-2, (seq_t)0,

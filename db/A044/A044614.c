@@ -8,14 +8,28 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   oct_has56
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Finds the nth integer that contains the octal substring "56" but whose successor does not. */
 #include <stdbool.h>
-#include "../utils/oct_has56.h"
+
+static inline bool oct_has56(seq_t x)
+{
+    seq_t prev = 8;                     /* sentinel value */
+    while (x > (seq_t)0)
+    {
+        seq_t cur = x % (seq_t)8;
+        if (prev == (seq_t)6 && cur == (seq_t)5)
+            return true;
+        prev = cur;
+        x /= (seq_t)8;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

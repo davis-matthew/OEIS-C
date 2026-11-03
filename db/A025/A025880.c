@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 399, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   alloc_seq
+ * Validated: standard, pass, 93 terms through n = 4638 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,14 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {
@@ -68,7 +76,7 @@ seq_t a(idx_t n)
 
     /* Replace old cache */
     if (cache) {
-        free(cache);
+        mem_free(cache);
     }
     cache = newcache;
     cache_size = needed;

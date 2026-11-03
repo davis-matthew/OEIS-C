@@ -9,13 +9,15 @@
  *            a(n-5-k) (empty sum = 0)
  * Range:     u8 n <= 15, u16 n <= 27, u32 n <= 48, u64 n <= 89, u128 n <= 169,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
         if (cache == NULL) {
             /* Initial allocation */
-            new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+            new_cache = mem_new(seq_t, new_size);
             if (!new_cache) exit(EXIT_FAILURE);
             for (size_t i = 0; i < new_size; ++i)
                 new_cache[i] = (seq_t)0;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         } else {
             /* Grow the array */
             size_t old_size = cache_size;
-            new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+            new_cache = mem_resize(seq_t, cache, new_size);
             if (!new_cache) exit(EXIT_FAILURE);
             for (size_t i = old_size; i < new_size; ++i)
                 new_cache[i] = (seq_t)0;

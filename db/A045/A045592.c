@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 14, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,11 @@
 
 #include <stddef.h>   /* size_t */
 #include <stdint.h>   /* uint64_t */
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +39,7 @@ seq_t a(idx_t n)
     /* initialise cache with first term a(1)=1 */
     if (list_size == 0) {
         list_cap = 16;
-        list = (seq_t *)realloc(NULL, list_cap * sizeof(seq_t));
+        list = mem_resize(seq_t, NULL, list_cap);
         if (!list) return 0;
         list[0] = (seq_t)1;
         list_size = 1;
@@ -46,8 +51,8 @@ seq_t a(idx_t n)
         idx_t k = 11 * ((idx_t)2 * next_mult + (idx_t)1);
 
         /* compute 7^k mod k and 4^k mod k */
-        seq_t pow7 = mod_pow((seq_t)7, (uint64_t)k, k);
-        seq_t pow4 = mod_pow((seq_t)4, (uint64_t)k, k);
+        seq_t pow7 = powmod((seq_t)7, (uint64_t)k, k);
+        seq_t pow4 = powmod((seq_t)4, (uint64_t)k, k);
 
         /* compute (pow7 + pow4) mod k without overflow */
         seq_t rem;
@@ -60,7 +65,7 @@ seq_t a(idx_t n)
         if (rem == 0) {            /* test succeeded: k divides 7^k + 4^k */
             if (list_size >= list_cap) {
                 size_t new_cap = list_cap ? list_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(list, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, list, new_cap);
                 if (!tmp) return 0;
                 list = tmp;
                 list_cap = new_cap;

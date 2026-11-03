@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 64 terms through n = 901 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,11 @@
    storing the ones that satisfy the congruence. */
 
 #include <stdlib.h>
-#include "../utils/mod_pow.h"   /* provides seq_t mod_pow(seq_t, uint64_t, seq_t) */
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;      /* cached terms */
 static size_t seq_len = 0;     /* number of cached terms */
@@ -30,7 +35,7 @@ static void ensure_cap(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 8;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     seq = tmp;
     seq_cap = new_cap;
@@ -53,7 +58,7 @@ seq_t a(idx_t n)
         seq_t cand_s = (seq_t)next_candidate;
 
         /* Compute 2^cand mod cand. */
-        seq_t left = mod_pow((seq_t)2, (uint64_t)next_candidate, cand_s);
+        seq_t left = powmod((seq_t)2, (uint64_t)next_candidate, cand_s);
 
         /* Compute 1024 mod cand. */
         seq_t right = (seq_t)(1024 % (uint64_t)cand_s);

@@ -10,14 +10,28 @@
  *            fib(0)=0, fib(1)=1, fib(k)=fib(k-1)+fib(k-2)
  * Range:     u8 n <= 34, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   Q_term
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/Q_term.h"
+
+static seq_t Q_term(idx_t k)
+{
+    if (k <= 1) return (seq_t)1;
+    seq_t p2 = (seq_t)1; /* Q(0) */
+    seq_t p1 = (seq_t)1; /* Q(1) */
+    seq_t cur;
+    for (idx_t i = 2; i <= k; ++i) {
+        cur = 3 * p1 - (seq_t)1;
+        p2 = p1;
+        p1 = cur;
+    }
+    return p1;
+}
 
 static seq_t fib_n(idx_t m)
 {

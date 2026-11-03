@@ -9,6 +9,7 @@
  *            A005117(n) is the n‑th square‑free integer (offset 1)
  * Range:     u8 n <= 157, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 87 terms through n = 9972 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/gcd.h"          /* for seq_t gcd(seq_t, seq_t) */
+#include "../utils/gcd.h"
 
 /* ------------------------------------------------------------ */
 /* Pre‑computed prime table (enough for n ≤ 10 000).            */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    for arbitrary index access. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* heap used to hold admissible numbers */
 typedef struct {
@@ -38,7 +40,7 @@ static void heap_init(Heap *h)
 {
     h->size = 0;
     h->cap  = 8;
-    h->data = (seq_t *)malloc(h->cap * sizeof(seq_t));
+    h->data = mem_new(seq_t, (h->cap * sizeof(seq_t)) / sizeof(seq_t));
 }
 
 /* bubble the new element up to maintain min‑heap property */
@@ -46,7 +48,7 @@ static void heap_push(Heap *h, seq_t v)
 {
     if (h->size == h->cap) {
         h->cap *= 2;
-        h->data = (seq_t *)realloc(h->data, h->cap * sizeof(seq_t));
+        h->data = mem_resize(seq_t, h->data, (h->cap * sizeof(seq_t)) / sizeof(seq_t));
     }
     size_t i = h->size++;
     h->data[i] = v;
@@ -96,7 +98,7 @@ static void ensure_cache_capacity(idx_t n)
     if ((size_t)n < cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while ((size_t)n >= new_cap) new_cap *= 2;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -110,7 +112,7 @@ static void init_sequence(void)
     heap_push(&heap_start9, (seq_t)9);
 
     cache_cap = 64;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache[0] = (seq_t)0;          /* a(0) */
     cache_size = 1;
     last_digit = 0;

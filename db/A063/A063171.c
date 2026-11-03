@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  base, nonn
  * Formula:   a(n) = A071152(n)/2 (Dyck words interpreted as binary numbers)
- * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 64, u64 n <= 9970,
- *            u128 n <= 9970, big any n
+ * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 64, u64 n <= 23713,
+ *            u128 n <= 23713, big any n
+ * Validated: standard, pass, 44 terms through n = 9970 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 25, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   decode_code, encode_counts
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,8 +35,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/decode_code.h"
-#include "../utils/encode_counts.h"
+#include "../utils/mem.h"
+
+static inline void decode_code(size_t code, unsigned char o[4]) {
+    o[0] = (unsigned char)(code / 125); code %= 125;
+    o[1] = (unsigned char)(code / 25);  code %= 25;
+    o[2] = (unsigned char)(code / 5);   code %= 5;
+    o[3] = (unsigned char)code;
+}
+
+/* bitmask to encode/decode counts into a single integer 0..624 */
+static inline size_t encode_counts(const unsigned char c[4]) {
+    return ((size_t)c[0] * 125) + ((size_t)c[1] * 25) + ((size_t)c[2] * 5) + (size_t)c[3];
+}
 
 /* constants */
 #define ROWS     625          /* 5⁴ */
@@ -185,11 +197,11 @@ seq_t a(idx_t n)
     if (n > computed) {
         /* if first time, allocate buffers */
         if (dp == NULL) {
-            dp  = (seq_t*)calloc(STATES, sizeof(seq_t));
-            ndp = (seq_t*)calloc(STATES, sizeof(seq_t));
+            dp  = mem_new(seq_t, STATES);
+            ndp = mem_new(seq_t, STATES);
         }
         /* allocate answer array */
-        ans = (seq_t*)realloc(ans, sizeof(seq_t) * n);
+        ans = mem_resize(seq_t, ans, n);
         /* first row initialization if we have not computed anything yet */
         if (computed == 0) {
             /* initialise dp with first row states */
@@ -222,7 +234,7 @@ seq_t a(idx_t n)
         /* iterate to compute up to n */
         for (idx_t cur = computed + 1; cur <= n; ++cur) {
             /* clear ndp */
-            memset(ndp, 0, sizeof(seq_t) * STATES);
+            mem_set(ndp, 0, sizeof(seq_t) * STATES);
 
             /* transition from dp to ndp */
             for (size_t s = 0; s < STATES; ++s) {

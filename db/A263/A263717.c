@@ -9,13 +9,15 @@
  *            excluded)
  * Range:     u8 n <= 402, u16 n <= 999, u32 n <= 999, u64 n <= 999,
  *            u128 n <= 999, big any n
- * Helpers:   none
+ * Validated: standard, pass, 115 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort on uint64_t items */
 static int cmp_uint64(const void *a, const void *b)
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
 
     /* ---- 2. Unbounded‑knapsack DP to count partitions ---- */
     size_t size = (size_t)n + 1;
-    seq_t *dp = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, size);
     if (!dp)
     {
         free(powers);
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     free(powers);
     return result;
 }

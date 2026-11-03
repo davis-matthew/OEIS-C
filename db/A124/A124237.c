@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   binom_n_k
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
         a(n) = T(r,k) where
         T(r,k) = Σ_{j=0}^{r-k} C(r-j,k) * C(r+k,j)   (C is binomial coefficient)
 */
-#include "../utils/binom_n_k.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -37,12 +39,12 @@ seq_t a(idx_t n)
     idx_t k = n - row_start;             /* column in row r */
 
     /* Compute T(r,k) via the explicit sum.  All arithmetic is in seq_t. */
-    seq_t sum = binom_n_k(r, k);          /* j = 0 term */
+    seq_t sum = binomial(r, k);          /* j = 0 term */
     idx_t maxj = r - k;                   /* upper limit of j */
 
     for (idx_t j = 1; j <= maxj; ++j) {
-        seq_t c1 = binom_n_k(r - j, k);
-        seq_t c2 = binom_n_k(r + k, j);
+        seq_t c1 = binomial(r - j, k);
+        seq_t c2 = binomial(r + k, j);
         sum += c1 * c2;
     }
     return sum;

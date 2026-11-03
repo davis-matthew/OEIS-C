@@ -9,14 +9,27 @@
  *            decimal representation of x but not in x+1
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains79
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/contains79.h"
+
+static inline bool contains79(seq_t x)
+{
+    if (x < 10) return false;
+    seq_t d1 = x % 10;
+    while (x >= 10) {
+        x /= 10;
+        seq_t d2 = x % 10;
+        if (d1 == 9 && d2 == 7) return true;
+        d1 = d2;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

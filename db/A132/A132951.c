@@ -7,6 +7,7 @@
  * Formula:   a(n) = [1, 3, 1, -1, -3, -1][n mod 6]
  * Range:     i8 n <= 107, i16 n <= 107, i32 n <= 107, i64 n <= 107,
  *            i128 n <= 107, big any n
+ * Validated: partial, pass, 108 terms through n = 107 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

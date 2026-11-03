@@ -9,15 +9,21 @@
  *            with k*(9k+11)/2 >= n, * prev(k) = k*(9k+11)/2 (cumulative
  *            length after block k). * This computes sequence A137439
  *            (concatenation of S_k)
- * Range:     u8 n <= 140, u16 n <= 9922, u32 n <= 9922, u64 n <= 9922,
- *            u128 n <= 9922, big any n
- * Helpers:   cum_k
+ * Range:     u8 n <= 140, u16 n <= 45550, u32 n <= 45550, u64 n <= 45550,
+ *            u128 n <= 45550, big any n
+ * Validated: standard, pass, 77 terms through n = 9922 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/cum_k.h"
+
+/* Helper that computes the cumulative number of terms after block k. */
+static inline __uint128_t cum_k(idx_t k)
+{
+    return (__uint128_t)k * (9*k + 11) / 2;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,6 +8,7 @@
  *            7n+4 * a(7n+4) = 49n+21 * a(7n+5) = 7n+6 * a(7n+6) = 49n+35
  * Range:     u8 n <= 38, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 80 terms through n = 956 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

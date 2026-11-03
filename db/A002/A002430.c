@@ -11,7 +11,8 @@
  *            (j-k+2)*T[j], then reduced by removing common primes of (2n-1)!
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 15, u128 n <= 25,
  *            big any n
- * Helpers:   a2430_bitlen
+ * Validated: standard, pass, 34 terms through n = 268 (2026-11-01)
+ * Helpers:   bit_length_u64_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a2430_bitlen.h"
+#include "../utils/bit_length_u64_to_u32.h"
 
 static uint32_t **a2430_T = NULL;
 static size_t *a2430_L = NULL;
@@ -38,8 +39,8 @@ static void a2430_build(idx_t N) {
     a2430_T[0] = NULL;
     a2430_L[0] = 0;
     for (k = 1; k <= N; k++) {
-        if (2 * k - 2 >= 2) bits += a2430_bitlen(2 * k - 2);
-        bits += a2430_bitlen(2 * k - 1);
+        if (2 * k - 2 >= 2) bits += bit_length_u64_to_u32(2 * k - 2);
+        bits += bit_length_u64_to_u32(2 * k - 1);
         size_t cap = (size_t)(bits / 32) + 3;
         a2430_T[k] = (uint32_t *)calloc(cap, sizeof(uint32_t));
         a2430_L[k] = 1;

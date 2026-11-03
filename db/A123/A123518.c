@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{k=0..n} k*A046741(n,k)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 35, u128 n <= 73,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 968 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

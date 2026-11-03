@@ -11,13 +11,16 @@
  *            periodic sequence (123…n)*
  * Range:     u8 n <= 16, u16 n <= 20, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   mod_mul
+ * Validated: partial, pass, 19 terms through n = 20 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/mod_mul.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mulmod.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
         /* power and 11 are < n ≤ 2^64-1, so we can safely cast to uint64_t
            and use the provided mod_mul routine to avoid overflow.          */
         uint64_t p   = (uint64_t)power;
-        uint64_t nxt = mod_mul(p, 11, (uint64_t)n);
+        uint64_t nxt = mulmod(p, 11, (uint64_t)n);
         power = (seq_t)nxt;
         order++;
     }

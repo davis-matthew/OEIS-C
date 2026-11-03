@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9884 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  *        a(n-2k) * a(n-k) != x  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *A = NULL;   /* 1‑based array of computed terms */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
 
     if (n > size) {
         idx_t new_size = n;
-        A = (seq_t *)realloc(A, (new_size + 1) * sizeof(seq_t));
+        A = mem_resize(seq_t, A, (new_size + 1));
         if (!A) exit(1);      /* memory allocation failed */
 
         /* Compute missing terms from (size+1) up to n */

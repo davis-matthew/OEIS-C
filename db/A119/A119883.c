@@ -9,12 +9,14 @@
  *            -∑_{j=0}^{k-1} C(2k,2j) * E_{2j} (E₀ = 1)
  * Range:     i8 n <= 6, i16 n <= 10, i32 n <= 14, i64 n <= 24, i128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 480 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of Euler numbers at even indices:
    e[m] holds EulerE(2*m). Only even indices are stored. */
@@ -28,7 +30,7 @@ static void ensure_even_euler(idx_t m_needed)
         return;
 
     /* Grow the array to accommodate the new entries. */
-    seq_t *new_e = (seq_t *)realloc(e, (m_needed + 1) * sizeof(seq_t));
+    seq_t *new_e = mem_resize(seq_t, e, (m_needed + 1));
     if (!new_e)
         return;                     /* allocation failed – sequence end‑of‑file */
     e = new_e;

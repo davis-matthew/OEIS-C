@@ -12,13 +12,15 @@
  *            used.)
  * Range:     u8 n <= 16, u16 n <= 37, u32 n <= 79, u64 n <= 192,
  *            u128 n <= 529, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 4757 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
        up to row r‑1.  us1[i][j] holds S1(i,j).  */
     seq_t **us1 = (seq_t **)malloc(r * sizeof(seq_t *));
     for (idx_t i = 0; i < r; ++i) {
-        us1[i] = (seq_t *)calloc(i + 1, sizeof(seq_t));
+        us1[i] = mem_new(seq_t, i + 1);
     }
     us1[0][0] = 1; /* S1(0,0) = 1 */
     for (idx_t i = 1; i < r; ++i) {
@@ -51,8 +53,8 @@ seq_t a(idx_t n)
     }
 
     /* Compute Stirling numbers of the second kind for row r.  */
-    seq_t *prev = (seq_t *)calloc(r + 1, sizeof(seq_t)); /* S2(0,0) = 1 */
-    seq_t *curr = (seq_t *)calloc(r + 1, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, r + 1); /* S2(0,0) = 1 */
+    seq_t *curr = mem_new(seq_t, r + 1);
     prev[0] = 1;
     for (idx_t row = 1; row <= r; ++row) {
         curr[0] = 0;
@@ -77,11 +79,11 @@ seq_t a(idx_t n)
 
     /* Free temporary memory.  */
     for (idx_t i = 0; i < r; ++i) {
-        free(us1[i]);
+        mem_free(us1[i]);
     }
     free(us1);
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
 
     return result;
 }

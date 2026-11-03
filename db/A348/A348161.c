@@ -9,19 +9,21 @@
  *            divisors of n)
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0)   /* offset is 1, behaviour below offset is irrelevant */
         return 0;
 
-    seq_t tau = divisor_count_u64(n);           /* tau(n) */
+    seq_t tau = num_divisors(n);           /* tau(n) */
     if (tau <= 2)
         return 1;                               /* handles n=1 and n with exactly two divisors */
 

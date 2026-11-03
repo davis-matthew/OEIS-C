@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, is_squarefree, pow10
+ * Validated: standard, pass, 71 terms through n = 8885 (2026-11-01)
+ * Helpers:   is_squarefree, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,19 @@
 /* Computes the nth term of A077378 by brute‑force search. */
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/is_squarefree.h"
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n) {
     seq_t count = 0;          /* how many terms we have found so far */
@@ -27,7 +38,7 @@ seq_t a(idx_t n) {
     while (true) {
         /* Only squarefree numbers can be candidates */
         if (is_squarefree(m)) {
-            int d = digit_len(m);        /* number of decimal digits */
+            int d = num_digits(m);        /* number of decimal digits */
             if (d >= 3) {                /* at least 3 digits → internal part exists */
                 seq_t pow10_first = pow10((idx_t)(d - 1));
                 seq_t first = m / pow10_first;

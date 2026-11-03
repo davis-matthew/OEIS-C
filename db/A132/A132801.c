@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache for a(0..max_computed) */
 static idx_t max_computed = (idx_t)(-1);   /* no values computed yet */
@@ -37,7 +40,7 @@ static idx_t max_computed = (idx_t)(-1);   /* no values computed yet */
 static void init_cache(void)
 {
     if (cache == NULL) {
-        cache = (seq_t*)calloc(1, sizeof(seq_t));  /* cast for C++ */
+        cache = mem_new(seq_t, 1);  /* cast for C++ */
         cache[0] = (seq_t)1;
         max_computed = 0;
     }
@@ -48,7 +51,7 @@ static void extend_cache(idx_t n)
 {
     if (max_computed >= n) return;
 
-    cache = (seq_t*)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (size_t)(n + 1));
 
     for (idx_t i = max_computed + 1; i <= n; ++i) {
         seq_t sum = (seq_t)0;

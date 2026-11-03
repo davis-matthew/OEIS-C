@@ -11,13 +11,14 @@
  *            multiplies them together. It works for any size of...
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 84, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mul_pow_seq_t
+ * Validated: standard, pass, 48 terms through n = 937 (2026-11-01)
+ * Helpers:   ipow_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mul_pow_seq_t.h"
+#include "../utils/ipow_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
 
             uint64_t exp1 = 5ULL * e;
             uint64_t exp2 = 5ULL * (e - 1);
-            seq_t term = mul_pow_seq_t((seq_t)p, exp1) - mul_pow_seq_t((seq_t)p, exp2);
+            seq_t term = ipow_u64((seq_t)p, exp1) - ipow_u64((seq_t)p, exp2);
             ans *= term;
         }
     }
@@ -50,7 +51,7 @@ seq_t a(idx_t n)
     if (m > 1)
     {
         /* e == 1  →  a(p) = p^5 – 1 */
-        seq_t term = mul_pow_seq_t((seq_t)m, 5ULL) - 1;
+        seq_t term = ipow_u64((seq_t)m, 5ULL) - 1;
         ans *= term;
     }
 

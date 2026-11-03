@@ -11,14 +11,16 @@
  *            that m^n ≡ n (mod n*(n-1)/2)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"   /* for seq_pow(seq_t, idx_t) */
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 static uint64_t mod_pow_uint(uint64_t base, uint64_t exp, uint64_t mod)
 {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         if (mod_pow_uint(m, n, M) != target) continue;
 
         /* Exact n-th power of m. */
-        seq_t S = seq_pow((seq_t)m, n);
+        seq_t S = ipow_idx((seq_t)m, n);
 
         /* Ensure the power is at least n (so the arithmetic progression
            has positive difference). */

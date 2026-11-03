@@ -9,8 +9,9 @@
  * Formula:   a(n) = sum of segment counts for each decimal digit of n, where
  *            the 7‑segment mapping is: 0→6, 1→2, 2→5, 3→5, 4→4, 5→5, 6→6,
  *            7→3, 8→7, 9→5
- * Range:     u8 n <= 9847, u16 n <= 9847, u32 n <= 9847, u64 n <= 9847,
- *            u128 n <= 9847, big any n
+ * Range:     u8 n <= 50000, u16 n <= 50000, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 93 terms through n = 9847 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

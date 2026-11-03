@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 69, u128 n <= 1000,
  *            big any n
- * Helpers:   sigma_prime_power
+ * Validated: standard, pass, 36 terms through n = 978 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/sigma_prime_power.h"
+
+/*--- Sum of the 9th–power divisor function for a prime power ---------*/
+static seq_t sigma_prime_power(int p, int e)
+{
+    seq_t pow9 = 1;
+    for (int i = 0; i < 9; ++i)  /* compute p^9 */
+        pow9 *= (seq_t)p;
+
+    seq_t sum = 1;     /* term for i = 0 (p^0) */
+    seq_t term = 1;
+    for (int i = 1; i <= e; ++i) {
+        term *= pow9;          /* p^(i*9) */
+        sum += term;
+    }
+    return sum;
+}
 
 /*--- Prime table -----------------------------------------------------------*/
 static int  primes[20000];

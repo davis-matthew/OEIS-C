@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 55, u32 n <= 105, u64 n <= 253,
  *            u128 n <= 666, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 4985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;          /* array of pointers to each row */
 static idx_t rows_computed = 0;          /* number of rows already allocated */
@@ -36,7 +38,7 @@ static void ensure_rows(idx_t needed_row)
     {
         idx_t n = rows_computed;
         /* allocate row n (length n+1) */
-        seq_t *row = (seq_t*)calloc((n + 1), sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (n + 1));
         if (!row) return; /* allocation failure – abort quietly */
 
         /* base cases */

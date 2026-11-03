@@ -9,14 +9,31 @@
  *            (2k+1) q^(k(k+1)/2)
  * Range:     i8 n <= 5, i16 n <= 31, i32 n <= 850, i64 n <= 850,
  *            i128 n <= 850, big any n
- * Helpers:   from_i128, w_zeros
+ * Validated: standard, pass, 57 terms through n = 841 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/from_i128.h"
-#include "../utils/w_zeros.h"
+#include <string.h>
+
+static seq_t from_i128(__int128 v)
+{
+    if (v >= -(__int128)4000000000000000000LL && v <= (__int128)4000000000000000000LL)
+        return (seq_t)(long long)v;
+    {
+        __int128 q = v / ((__int128)1 << 32);
+        long long rem = (long long)(v - q * ((__int128)1 << 32));
+        return from_i128(q) * (seq_t)4294967296LL + (seq_t)rem;
+    }
+}
+
+static __int128 *w_zeros(idx_t len) {
+    __int128 *p = (__int128 *)malloc((size_t)(len ? len : 1) * sizeof(__int128));
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static __int128 *W_cache = NULL;
 static idx_t W_len = 0;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 95, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 78 terms through n = 7931 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Build a list of primes up to ‘limit’.  The returned array must be
    freed with free() when no longer needed.  */
@@ -118,14 +120,14 @@ static void ensure_cache(idx_t n)
 
     if (!cache) {
         cache_cap = 1024;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
     }
     if (cache_len < (size_t)n && cache_cap < (size_t)n) {
         size_t new_cap = cache_cap;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
-        if (!tmp) { free(cache); abort(); }
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+        if (!tmp) { mem_free(cache); abort(); }
         cache = tmp;
         cache_cap = new_cap;
     }

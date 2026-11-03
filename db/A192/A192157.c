@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   cmp_values
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,18 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/cmp_values.h"
+#include "../utils/mem.h"
+
+/* Compare two seq_t values for qsort.  Works for built‑in integer types
+   and for arbitrary‑precision types that overload < and >. */
+static int cmp_values(const void *p1, const void *p2)
+{
+    const seq_t *a = (const seq_t *)p1;
+    const seq_t *b = (const seq_t *)p2;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 /* Static tables for the powers of 3, all differences,
    and the unique sorted list (max 441 entries). */
@@ -50,7 +62,7 @@ static void init(void)
     }
 
     /* Sort and deduplicate. */
-    qsort(values, cnt, sizeof(seq_t), cmp_values);
+    mem_qsort(values, cnt, sizeof(seq_t), cmp_values);
     uniq_len = 0;
     if (cnt > 0) {
         uniq[uniq_len++] = values[0];

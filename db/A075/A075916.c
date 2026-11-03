@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 14, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build environment   */
 
@@ -34,9 +36,9 @@ static void ensure_powers(idx_t n)
     if (pow_cap < needed) {
         size_t new_cap = pow_cap ? pow_cap * 2 : 1;
         if (new_cap < needed) new_cap = needed;
-        pow6  = (seq_t *)realloc(pow6,  new_cap * sizeof(seq_t));
-        pow12 = (seq_t *)realloc(pow12, new_cap * sizeof(seq_t));
-        pow18 = (seq_t *)realloc(pow18, new_cap * sizeof(seq_t));
+        pow6  = mem_resize(seq_t, pow6, new_cap);
+        pow12 = mem_resize(seq_t, pow12, new_cap);
+        pow18 = mem_resize(seq_t, pow18, new_cap);
         if (!pow6 || !pow12 || !pow18) abort();
 
         /* initialise new entries */

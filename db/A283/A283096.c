@@ -12,14 +12,47 @@
  *            A283096)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   violations, violations_last
+ * Validated: standard, pass, 34 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/violations.h"
-#include "../utils/violations_last.h"
+
+/* Helper to compute the number of 1‑neighbour violations caused by a row q
+ * when the row above is p and the row below is r. */
+static inline int violations(uint16_t p, uint16_t q, uint16_t r)
+{
+    int v = 0;
+    for (int j = 0; j < 4; ++j) {
+        if (q & (1u << j)) {
+            int cnt = 0;
+            if (j > 0 && (q & (1u << (j - 1)))) ++cnt;  /* left */
+            if (j < 3 && (q & (1u << (j + 1)))) ++cnt;  /* right */
+            if (p & (1u << j)) ++cnt;                    /* up   */
+            if (r & (1u << j)) ++cnt;                    /* down */
+            if (cnt > 1) ++v;                            /* violation */
+        }
+    }
+    return v;
+}
+
+/* Helper for the final row (no row below). */
+static inline int violations_last(uint16_t p, uint16_t q)
+{
+    int v = 0;
+    for (int j = 0; j < 4; ++j) {
+        if (q & (1u << j)) {
+            int cnt = 0;
+            if (j > 0 && (q & (1u << (j - 1)))) ++cnt;
+            if (j < 3 && (q & (1u << (j + 1)))) ++cnt;
+            if (p & (1u << j)) ++cnt;
+            if (cnt > 1) ++v;
+        }
+    }
+    return v;
+}
 
 /* Pre‑computed tables of violations. */
 static struct {

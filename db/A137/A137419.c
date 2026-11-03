@@ -9,12 +9,14 @@
  *            a(a(n-2)))/2 Initial values: a(1)=1, a(2)=2, a(3)=2, a(4)=1
  * Range:     i8 n <= 132, i16 n <= 132, i32 n <= 132, i64 n <= 132,
  *            i128 n <= 132, big any n
- * Helpers:   none
+ * Validated: full, pass, 132 terms through n = 132 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* memoisation cache for a(n) */
 static seq_t *cache = NULL;          /* cache[0] holds a(1), cache[1] holds a(2), … */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialise cache with first four terms if not already done */
     if (cache_size < 4) {
         cache_size = 4;
-        cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_size);
         cache[0] = (seq_t)1;  /* a(1) */
         cache[1] = (seq_t)2;  /* a(2) */
         cache[2] = (seq_t)2;  /* a(3) */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
     /* extend cache up to n and compute new terms */
     size_t new_sz = (size_t)n;
-    seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_sz);
     if (!tmp) return 0; /* unrecoverable allocation failure; unlikely in tests */
     cache = tmp;
 

@@ -11,18 +11,20 @@
  *            (complete binary tree with nodes 1..n)
  * Range:     u8 n <= 12, u16 n <= 26, u32 n <= 53, u64 n <= 108,
  *            u128 n <= 216, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 5547 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate array for f[i] with indices 1..n.
        Use idx_t for indices – unsigned – so loop terminates correctly.   */
-    seq_t *f = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (n + 1));
     if (!f) return 0;    /* memory failure – unlikely but safe */
 
     seq_t ans = 0;
@@ -43,6 +45,6 @@ seq_t a(idx_t n)
         ans  += f[i];
     }
 
-    free(f);
+    mem_free(f);
     return ans;
 }

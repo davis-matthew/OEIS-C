@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* comparison function for qsort */
 static int cmp_seq(const void *p1, const void *p2)
@@ -36,7 +38,7 @@ static void generate_len(size_t len)
 {
     /* Estimate number of candidates roughly */
     size_t temp_cap = 18 * (1ULL << len);
-    seq_t *temp = (seq_t *)malloc(temp_cap * sizeof(seq_t));
+    seq_t *temp = mem_new(seq_t, temp_cap);
     size_t temp_cnt = 0;
 
     for (int a = 0; a < 7; ++a) {
@@ -75,7 +77,7 @@ static void generate_len(size_t len)
     }
 
     /* sort the new numbers */
-    qsort(temp, temp_cnt, sizeof(seq_t), cmp_seq);
+    mem_qsort(temp, temp_cnt, sizeof(seq_t), cmp_seq);
 
     /* static cache variables (initialized on first use) */
     static seq_t *cache = NULL;
@@ -86,7 +88,7 @@ static void generate_len(size_t len)
     /* dynamic reallocation if needed */
     if (cache_len + temp_cnt > cache_cap) {
         size_t new_cap = (cache_len + temp_cnt) * 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) {
             /* Out of memory; terminate */
             abort();
@@ -105,7 +107,7 @@ static void generate_len(size_t len)
     /* store cache back in static storage for future calls */
     /* Use static variables so that the data persists across calls */
     /* The cache pointer is static, so it's retained automatically. */
-    free(temp);
+    mem_free(temp);
 
     /* Update the next length pointer for future generation */
     ++next_len_generated;
@@ -122,7 +124,7 @@ static void ensure_generated(idx_t n)
     /* Allocate initial cache storage if needed */
     if (!cache) {
         cache_cap = 1024;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache_len = 0;
     }
@@ -131,7 +133,7 @@ static void ensure_generated(idx_t n)
     while (cache_len < n) {
         /* generate numbers of length next_len_generated */
         size_t temp_cap = 18 * (1ULL << next_len_generated);
-        seq_t *temp = (seq_t *)malloc(temp_cap * sizeof(seq_t));
+        seq_t *temp = mem_new(seq_t, temp_cap);
         size_t temp_cnt = 0;
 
         /* Generate all numbers of the current length (as in generate_len) */
@@ -166,12 +168,12 @@ static void ensure_generated(idx_t n)
                 }
             }
         }
-        qsort(temp, temp_cnt, sizeof(seq_t), cmp_seq);
+        mem_qsort(temp, temp_cnt, sizeof(seq_t), cmp_seq);
 
         /* Ensure cache capacity */
         if (cache_len + temp_cnt > cache_cap) {
             size_t new_cap = (cache_len + temp_cnt) * 2;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (!new_cache) abort();
             cache = new_cache;
             cache_cap = new_cap;
@@ -181,7 +183,7 @@ static void ensure_generated(idx_t n)
             cache[cache_len + i] = temp[i];
         }
         cache_len += temp_cnt;
-        free(temp);
+        mem_free(temp);
         ++next_len_generated;
     }
 }
@@ -198,7 +200,7 @@ seq_t a(idx_t n)
     /* Initial allocation */
     if (!cache) {
         cache_cap = 1024;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
     }
 
@@ -207,7 +209,7 @@ seq_t a(idx_t n)
         /* generate numbers of length next_len_generated */
         size_t len = next_len_generated;
         size_t temp_cap = 18 * (1ULL << len);
-        seq_t *temp = (seq_t *)malloc(temp_cap * sizeof(seq_t));
+        seq_t *temp = mem_new(seq_t, temp_cap);
         size_t temp_cnt = 0;
 
         for (int a = 0; a < 7; ++a) {
@@ -240,11 +242,11 @@ seq_t a(idx_t n)
                 }
             }
         }
-        qsort(temp, temp_cnt, sizeof(seq_t), cmp_seq);
+        mem_qsort(temp, temp_cnt, sizeof(seq_t), cmp_seq);
 
         if (cache_len + temp_cnt > cache_cap) {
             size_t new_cap = (cache_len + temp_cnt) * 2;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (!new_cache) abort();
             cache = new_cache;
             cache_cap = new_cap;
@@ -254,7 +256,7 @@ seq_t a(idx_t n)
             cache[cache_len + i] = temp[i];
         }
         cache_len += temp_cnt;
-        free(temp);
+        mem_free(temp);
         ++next_len_generated;
     }
 

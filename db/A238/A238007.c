@@ -11,12 +11,14 @@
  *            case)
  * Range:     u8 n <= 29, u16 n <= 78, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     if (dp == NULL || n > dpmax) {
         /* allocate or extend the table */
-        dp = (seq_t *)realloc(dp, (size_t)(n + 1) * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, (size_t)(n + 1));
         if (dp == NULL) return (seq_t)0;   /* allocation failure */
 
         /* reset and recompute from scratch for the new maximum */

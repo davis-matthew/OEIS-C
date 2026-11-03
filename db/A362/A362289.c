@@ -8,11 +8,13 @@
  * Formula:   a(n) = A050210(n*(n+1), 2*n+1)
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 21, u64 n <= 31, u128 n <= 36,
  *            big any n
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

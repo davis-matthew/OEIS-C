@@ -10,7 +10,8 @@
  *            non‑decreasing order
  * Range:     u8 n <= 11, u16 n <= 15, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compare function for qsort: returns negative if *a < *b, zero otherwise. */
 static int cmp_seq(const void *a, const void *b)
@@ -48,7 +50,7 @@ static void build_sequence(idx_t n, seq_t **out, size_t *len)
 
     /* Free old cache if it exists; we will rebuild anew. */
     if (cache) {
-        free(cache);
+        mem_free(cache);
         cache = NULL;
         cache_len = 0;
     }
@@ -59,7 +61,7 @@ static void build_sequence(idx_t n, seq_t **out, size_t *len)
     while (1) {
         /* Allocate Fibonacci numbers up to fib_limit. */
         size_t fl = fib_limit;
-        seq_t *fibs = (seq_t *)malloc((fl + 1) * sizeof(seq_t));
+        seq_t *fibs = mem_new(seq_t, (fl + 1));
         if (!fibs) exit(1);
         fibs[0] = 1;              /* unused, but convenient */
         fibs[1] = 1;
@@ -68,8 +70,8 @@ static void build_sequence(idx_t n, seq_t **out, size_t *len)
 
         /* Estimate number of candidate differences: at most 2*fl^2. */
         size_t cap = 2 * fl * fl + 16;
-        seq_t *tmp = (seq_t *)malloc(cap * sizeof(seq_t));
-        if (!tmp) { free(fibs); exit(1); }
+        seq_t *tmp = mem_new(seq_t, cap);
+        if (!tmp) { mem_free(fibs); exit(1); }
         size_t cnt = 0;
         seq_t zero = 0;
 
@@ -79,8 +81,8 @@ static void build_sequence(idx_t n, seq_t **out, size_t *len)
                 if (t1 >= zero) {
                     if (cnt == cap) {
                         cap *= 2;
-                        tmp = (seq_t *)realloc(tmp, cap * sizeof(seq_t));
-                        if (!tmp) { free(fibs); exit(1); }
+                        tmp = mem_resize(seq_t, tmp, cap);
+                        if (!tmp) { mem_free(fibs); exit(1); }
                     }
                     tmp[cnt++] = t1;
                 }
@@ -88,17 +90,17 @@ static void build_sequence(idx_t n, seq_t **out, size_t *len)
                 if (t2 >= zero) {
                     if (cnt == cap) {
                         cap *= 2;
-                        tmp = (seq_t *)realloc(tmp, cap * sizeof(seq_t));
-                        if (!tmp) { free(fibs); exit(1); }
+                        tmp = mem_resize(seq_t, tmp, cap);
+                        if (!tmp) { mem_free(fibs); exit(1); }
                     }
                     tmp[cnt++] = t2;
                 }
             }
         }
-        free(fibs);
+        mem_free(fibs);
 
         /* Sort the array. */
-        qsort(tmp, cnt, sizeof(seq_t), cmp_seq);
+        mem_qsort(tmp, cnt, sizeof(seq_t), cmp_seq);
 
         /* Deduplicate in place. */
         size_t uniq = 0;
@@ -117,7 +119,7 @@ static void build_sequence(idx_t n, seq_t **out, size_t *len)
         }
 
         /* Not enough values: free temp and extend Fibonacci limit. */
-        free(tmp);
+        mem_free(tmp);
         fib_limit *= 2;
     }
 }

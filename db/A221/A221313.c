@@ -10,6 +10,7 @@
  *            values: a(1)=1, a(2)=4, a(3)=9, a(4)=23, a(5)=57
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

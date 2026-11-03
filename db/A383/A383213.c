@@ -7,6 +7,7 @@
  * Formula:   a(n) = number of distinct prime factors of binomial(2n, n+1)
  * Range:     u8 n <= 1284, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 86 terms through n = 9197 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 static uint64_t *primes = NULL;

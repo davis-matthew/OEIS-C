@@ -9,13 +9,14 @@
  *            n. Counts obtuse integer triangles with integral inradius
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   ull_isqrt
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/ull_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t nn = (uint64_t)n;
@@ -36,13 +37,13 @@ seq_t a(idx_t n) {
                 if (y == 0 || z == 0 || w == 0) continue; /* zero area */
 
                 uint64_t area2 = s * y * z * w;            /* <= 6.25e14 */
-                uint64_t sqrt_area = ull_isqrt(area2);
+                uint64_t sqrt_area = isqrt_u64(area2);
                 if (sqrt_area * sqrt_area != area2) continue;
                 if (sqrt_area % s != 0) continue;          /* r not integer */
             } else { /* odd perimeter, use integer formula */
                 uint64_t Q = nn * (nn - 2 * a) * (nn - 2 * b) * (nn - 2 * c);
                 if (Q == 0) continue;
-                uint64_t sqrtQ = ull_isqrt(Q);
+                uint64_t sqrtQ = isqrt_u64(Q);
                 if (sqrtQ * sqrtQ != Q) continue;
                 if (sqrtQ % (2 * nn) != 0) continue;      /* r not integer */
             }

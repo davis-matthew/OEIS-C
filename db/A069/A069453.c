@@ -11,7 +11,8 @@
  *            immediately before p, • the prime immediately afte...
  * Range:     u8 n <= 12, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
         free(is_comp);
         free(primes);
-        free(lonely);
+        mem_free(lonely);
 
         /* Sieve of Eratosthenes up to new_limit */
         is_comp = (uint8_t*)malloc(new_limit + 1);
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         primes_cnt = cnt;
 
         /* extract lonely twin primes */
-        seq_t *local = (seq_t*)malloc(primes_cnt * 2 * sizeof(seq_t));
+        seq_t *local = mem_new(seq_t, primes_cnt * 2);
         if (!local) return 0;
         size_t lcnt = 0;
 

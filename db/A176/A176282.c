@@ -9,6 +9,7 @@
  *            (row index) * k = n - r*(r+1)/2 (column index within that row)
  * Range:     u8 n <= 58, u16 n <= 2108, u32 n <= 5150, u64 n <= 5150,
  *            u128 n <= 5150, big any n
+ * Validated: standard, pass, 82 terms through n = 4853 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

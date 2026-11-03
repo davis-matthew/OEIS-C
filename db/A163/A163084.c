@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static cache for already computed terms */
 static seq_t *cache = NULL;       /* array of computed a(n) values      */
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n)
        values.  The memory is zeroed; base values will be filled below. */
     if (cache == NULL) {
         cache_size = (n + 1 > 5) ? (n + 1) : 5;
-        cache = (seq_t *)calloc((size_t)cache_size, sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_size);
         if (cache == NULL) return;   /* allocation failed */
 
         /* initialise the first few known terms */
@@ -55,10 +57,10 @@ static void ensure_cache(idx_t n)
     else if (n >= cache_size) {
         idx_t new_size = cache_size;
         while (new_size <= n) new_size <<= 1;
-        seq_t *new_cache = (seq_t *)calloc((size_t)new_size, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)new_size);
         if (new_cache == NULL) return;   /* allocation failed */
-        memcpy(new_cache, cache, (size_t)cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, (size_t)cache_size * sizeof(seq_t));
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }

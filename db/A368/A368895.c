@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/3)} (-n)^k * binomial(n-2*k, k)
  * Range:     i8 n <= 7, i16 n <= 12, i32 n <= 20, i64 n <= 28, i128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

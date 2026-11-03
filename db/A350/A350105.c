@@ -9,6 +9,7 @@
  * Formula:   a(n) = 2^n - ( 2 + Σ_{d=1}^{n-1} floor((n-1)/d) )
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 3254 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 /* for n >= 0, with a(0) = 0 */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

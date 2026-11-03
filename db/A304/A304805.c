@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 9361, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9835 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- dynamic integer array helpers ---------- */
 static void grow_seq(seq_t **arr, size_t *cap, size_t need)
@@ -32,7 +34,7 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t need)
     if (*cap >= need) return;
     size_t c = *cap ? *cap << 1 : 64;
     while (c < need) c <<= 1;
-    *arr = (seq_t *)realloc(*arr, c * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, c);
     if (!*arr) abort();
     *cap = c;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 129, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 4993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root of a 64‑bit value (floor) using Newton's method. */
 static uint64_t isqrt_u64(uint64_t n) {
@@ -84,7 +86,7 @@ seq_t a(idx_t n) {
             /* Ensure capacity of cache. */
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap * 3 / 2 + 16;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)last_m;
         }

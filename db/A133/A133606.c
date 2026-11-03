@@ -10,13 +10,15 @@
  *            number, and no other non‑zero digit divides the number
  * Range:     u8 n <= 3, u16 n <= 17, u32 n <= 116, u64 n <= 116,
  *            u128 n <= 116, big any n
- * Helpers:   none
+ * Validated: full, pass, 116 terms through n = 116 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* dynamic array for the sequence */
 static seq_t *valid = NULL;
@@ -37,7 +39,7 @@ static void add_val(seq_t v)
 {
     if (valid_cnt == valid_cap) {
         size_t new_cap = valid_cap ? valid_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(valid, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, valid, new_cap);
         if (!tmp) { valid_cap = 0; return; }
         valid = tmp;
         valid_cap = new_cap;
@@ -94,7 +96,7 @@ static void init_sequence(void)
         permute(0, k, digits, used, 0, mask);
     }
     if (valid_cnt > 0)
-        qsort(valid, valid_cnt, sizeof(seq_t), cmp_seq);
+        mem_qsort(valid, valid_cnt, sizeof(seq_t), cmp_seq);
     initialized = true;
 }
 

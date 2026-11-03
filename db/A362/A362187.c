@@ -7,13 +7,25 @@
  * Formula:   a(n) = (n^2 - n)! (offset 0)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   seq_from_uint64
+ * Validated: standard, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_from_uint64.h"
+#include "../utils/mem.h"
+
+static seq_t seq_from_uint64(idx_t x)
+{
+    /* Use a trivial construction path that works for both integer and
+       arbitrary‑precision seq_t types. */
+#if defined(__cplusplus)
+    return seq_t(x);            /* class constructor in C++ */
+#else
+    return (seq_t)x;            /* cast for integer types in C */
+#endif
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_cap = 0;
@@ -25,7 +37,7 @@ static void ensure_cache(idx_t n)
     idx_t new_cap = (n + 1) * 2;
     /* Interpret realloc result as a pointer to seq_t.  Works in C++ with
        reinterpret_cast and in C with a C‑style cast. */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) exit(1);
     cache = new_cache;
     cache_cap = new_cap;

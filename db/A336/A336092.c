@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   divisor_count_u64, next_pow2
+ * Validated: full, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,17 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <limits.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/next_pow2.h"
+#include <stddef.h>
+#include <math.h>
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+/* power of two >= n */
+static size_t next_pow2(size_t n) {
+    size_t p = 1;
+    while (p < n) p <<= 1;
+    return p;
+}
 
 /* Simple open‑addressing hash set for 64‑bit keys   */
 typedef struct {
@@ -119,7 +129,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* initial allocation for the sequence array */
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)1;          /* a(1) = 1 */
         seq_len = 1;
 
@@ -146,7 +156,7 @@ seq_t a(idx_t n)
                 long long ny = cur_y + dy;
                 uint64_t num = coord_to_num(nx, ny);
                 if (hs_find(&visited, num)) continue;
-                uint64_t d = divisor_count_u64(num);
+                uint64_t d = num_divisors(num);
                 if (d < best_divs || (d == best_divs && num > best_num)) {
                     best_divs = d;
                     best_num  = num;
@@ -162,7 +172,7 @@ seq_t a(idx_t n)
         /* ensure enough space in the sequence array */
         if (seq_len == seq_cap) {
             seq_cap <<= 1;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len] = (seq_t)best_num;  /* casting may truncate, but is OK
                                            * for terms that fit in seq_t */

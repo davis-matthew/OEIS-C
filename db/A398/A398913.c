@@ -11,14 +11,17 @@
  *            k+1) * n^(n - k - 1) (k < n) * T(n,n) = 1
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 55, u64 n <= 153,
  *            u128 n <= 406, big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 71 terms through n = 9930 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* Handle the offset (n==0) */
@@ -44,7 +47,7 @@ seq_t a(idx_t n) {
     /* Compute T(r,k) for k < r */
     seq_t bin = binomial(r + 1, k + 1);
     seq_t exp = (seq_t)(r - k - 1);
-    seq_t pow = big_pow((seq_t)r, exp);
+    seq_t pow = ipow((seq_t)r, exp);
 
     seq_t result = (seq_t)k;
     result = result * bin;

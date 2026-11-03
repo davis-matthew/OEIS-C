@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum of distinct prime divisors of prime(n)+3
  * Range:     u8 n <= 54, u16 n <= 7804, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factorize, is_prime_small
+ * Validated: standard, pass, 85 terms through n = 9799 (2026-11-01)
+ * Helpers:   factorize, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
 #include "../utils/factorize.h"
+#include "../utils/is_prime_seq.h"
 
 static uint32_t *prime_list = NULL;
 static size_t prime_list_cap = 0;
@@ -36,7 +37,7 @@ static void ensure_nprimes(size_t n)
     }
 
     while (prime_list_cnt < n) {
-        if (is_prime_small((seq_t)next_candidate)) {
+        if (is_prime_seq((seq_t)next_candidate)) {
             if (prime_list_cnt >= prime_list_cap) {
                 prime_list_cap *= 2;
                 prime_list = (uint32_t *)realloc(prime_list,

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 32, u32 n <= 48, u64 n <= 99, u128 n <= 207,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 59 terms through n = 935 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     /* initialise cache with first two terms */
     if (!cache) {
         cache_cap = 4;                                /* start with small capacity */
-        cache = (seq_t*)calloc(cache_cap, sizeof(seq_t)); /* cast works in C and C++ */
+        cache = mem_new(seq_t, cache_cap); /* cast works in C and C++ */
         if (!cache) abort();
         cache[0] = 1;
         cache[1] = 1;
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
     if ((size_t)n >= cache_cap) {
         size_t new_cap = cache_cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t)); /* cast works in C and C++ */
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap); /* cast works in C and C++ */
         if (!tmp) abort();
         /* initialise new slots */
         for (size_t i = cache_cap; i < new_cap; ++i) tmp[i] = 0;

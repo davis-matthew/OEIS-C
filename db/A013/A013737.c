@@ -7,17 +7,20 @@
  * Formula:   a(n) = 5^(3*n + 2)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 8, u128 n <= 17,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 31 terms through n = 92 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 /* Computes a(n) = 5^(3*n + 2) */
 seq_t a(idx_t n)
 {
     seq_t base = (seq_t)5;
     idx_t exp = 3*n + 2;
-    return seq_pow(base, exp);
+    return ipow_idx(base, exp);
 }

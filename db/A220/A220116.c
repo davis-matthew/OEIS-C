@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 7634, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9302 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Fenwick helpers -------------------------------------------------------- */
 static seq_t *fib      = NULL;
@@ -32,7 +34,7 @@ ensure_fib_upto(seq_t val)
     /* initialise with F2=1, F3=2 if not yet done */
     if (fib_len == 0) {
         fib_cap = 4;
-        fib = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+        fib = mem_new(seq_t, fib_cap);
         fib[0] = (seq_t)1;
         fib[1] = (seq_t)2;
         fib_len = 2;
@@ -42,7 +44,7 @@ ensure_fib_upto(seq_t val)
         /* grow array if necessary */
         if (fib_len == fib_cap) {
             fib_cap = fib_cap ? fib_cap * 2 : 4;
-            fib = (seq_t *)realloc(fib, fib_cap * sizeof(seq_t));
+            fib = mem_resize(seq_t, fib, fib_cap);
         }
         fib[fib_len] = fib[fib_len-1] + fib[fib_len-2];
         ++fib_len;
@@ -91,7 +93,7 @@ ensure_seq_capacity(idx_t min_cap)
         size_t new_cap = seq_cap ? seq_cap * 2 : 64;
         while (new_cap < (size_t)min_cap)
             new_cap *= 2;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 }

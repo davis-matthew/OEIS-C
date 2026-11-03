@@ -8,7 +8,8 @@
  * Formula:   a(n) = (A000271(n) + (-1)^(n-1) * floor((n-1)/2))/2
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* A000271(n) is the number of permutations of {1,…,n} avoiding p(i)=i and p(i)=i+1. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* persistent factorial cache */
@@ -25,13 +27,13 @@ seq_t a(idx_t n) {
     /* initialize factorial cache if necessary */
     if (fact == NULL) {
         fact_cap = 1;
-        fact = (seq_t *)malloc(sizeof(seq_t));
+        fact = mem_new(seq_t, 1);
         fact[0] = 1;
     }
 
     /* extend factorial table up to n if required */
     if (n >= fact_cap) {
-        fact = (seq_t *)realloc(fact, (n + 1) * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, (n + 1));
         for (idx_t i = fact_cap; i <= n; ++i) {
             fact[i] = fact[i - 1] * (seq_t)i;
         }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 37, u32 n <= 79, u64 n <= 173,
  *            u128 n <= 409, big any n
- * Helpers:   tri_floor
+ * Validated: standard, pass, 82 terms through n = 4760 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,30 @@
    Then the position in the array is (row = n - k*(k+1)/2,
    col = k - (n - k*(k+1)/2)).  The value is T(row,col).   */
 #include <stdint.h>
-#include "../utils/tri_floor.h"
+
+/* Find the largest k such that k*(k+1)/2 <= n. */
+static idx_t tri_floor(idx_t n)
+{
+    idx_t low = 0;
+    idx_t high = 1;
+    /* Increase high until the triangular number exceeds n. */
+    while (1) {
+        __uint128_t val = (__uint128_t)high * (high + 1) / 2;
+        if (val > n) break;
+        high <<= 1;
+    }
+    low = high >> 1;
+    /* Binary search between low and high. */
+    while (low < high) {
+        idx_t mid = low + ((high - low) >> 1);
+        __uint128_t val = (__uint128_t)mid * (mid + 1) / 2;
+        if (val <= n)
+            low = mid + 1;
+        else
+            high = mid;
+    }
+    return low - 1;
+}
 
 seq_t a(idx_t n)
 {

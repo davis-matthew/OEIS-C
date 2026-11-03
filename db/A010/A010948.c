@@ -7,6 +7,7 @@
  * Formula:   a(n) = C(32, n)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 12, u64 n <= 32, u128 n <= 32,
  *            big any n
+ * Validated: full, pass, 33 terms through n = 32 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

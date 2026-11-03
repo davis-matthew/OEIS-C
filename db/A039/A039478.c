@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   has_equal_56
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
  * supports the usual arithmetic and comparison operators. */
 
 #include <stdbool.h>   /* for bool in C */
-#include "../utils/has_equal_56.h"
+
+static bool has_equal_56(seq_t x)
+{
+    unsigned c5 = 0, c6 = 0;
+    seq_t tmp = x;
+    while (tmp) {
+        seq_t d = tmp % (seq_t)11;
+        if (d == (seq_t)5)
+            ++c5;
+        else if (d == (seq_t)6)
+            ++c6;
+        tmp /= (seq_t)11;
+    }
+    return (c5 == c6) && (c5 > 0);
+}
 
 seq_t a(idx_t n)
 {

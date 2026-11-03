@@ -10,6 +10,7 @@
  *            Σ_{j=0}^{r-k} binomial(3+j,3) * binomial(r+1, r-(j+k))
  * Range:     u8 n <= 9, u16 n <= 54, u32 n <= 275, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 71 terms through n = 1316 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* --- helper: integer square root for 64‑bit unsigned value ---------------- */

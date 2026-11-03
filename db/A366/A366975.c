@@ -7,14 +7,16 @@
  * Formula:   a(n) = Sum_{d|n} binomial(d + n/d - 3, d) for n > 1. a(1) = 0,
  *            a(2) = 0. The function uses the provided binomial routine from
  *            ../utils/binomial.h. It runs in O(√n) time
- * Range:     u8 n <= 27, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
+ * Range:     u8 n <= 29, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

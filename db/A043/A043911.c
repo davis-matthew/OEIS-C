@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   has_adjacent_zero_one
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,26 @@
    contains the digits 0 and 1 adjacent (in either order) but whose base-7
    representation of k+1 does not.  The n-th such k is returned. */
 #include <stdbool.h>
-#include "../utils/has_adjacent_zero_one.h"
+
+static bool has_adjacent_zero_one(seq_t x)
+{
+    seq_t temp = x;
+    if (temp == 0)
+        return false;                     /* 0 has no digits 0 and 1 side by side */
+
+    seq_t prev = 7;                       /* sentinel digit outside 0..6 */
+
+    while (temp > 0) {
+        seq_t d = temp % 7;               /* least significant digit */
+        if ((prev == 0 && d == 1) ||
+            (prev == 1 && d == 0))
+            return true;                  /* adjacency found */
+
+        prev = d;
+        temp /= 7;                        /* shift right by one digit */
+    }
+    return false;                         /* no adjacency found */
+}
 
 seq_t a(idx_t n)
 {

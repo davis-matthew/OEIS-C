@@ -9,14 +9,15 @@
  *            row) * a(n) = (r-k)^r
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   pow_seq_inner
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/pow_seq_inner.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -42,5 +43,5 @@ seq_t a(idx_t n)
     if (base == 1)
         return 1;
 
-    return pow_seq_inner(base, r);
+    return ipow_idx(base, r);
 }

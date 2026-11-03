@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 38, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * a(1) = 0, a(2) = 4, a(3) = 4, a(4) = 16, a(5) = 64, a(6) = 196
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Ensure cache is large enough and initialize base cases when needed */
     if (cache_size == 0) {
         /* Allocate space for the first seven valid indices (0..6) */
-        cache = (seq_t *)malloc(7 * sizeof(seq_t));
+        cache = mem_new(seq_t, 7);
         if (!cache) return (seq_t)0;   /* Out‑of‑memory: return 0 (unlikely) */
         cache[0] = (seq_t)0;          /* unused, placeholder */
         cache[1] = (seq_t)0;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* If the requested index is beyond the current cache, extend it */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) return (seq_t)0;   /* Out‑of‑memory: return 0 (unlikely) */
         cache = new_cache;
         /* Compute missing terms up to index n */

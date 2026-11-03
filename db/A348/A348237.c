@@ -11,12 +11,14 @@
  *            a(n‑3) + a(n‑5) – a(n‑6) + a(n‑7) – a(n‑8)
  * Range:     u8 n <= 90, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9854 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
 
     if (n >= len) {
         size_t new_len = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) abort();            /* allocation failed */
 
         for (size_t i = len; i < new_len; ++i) {

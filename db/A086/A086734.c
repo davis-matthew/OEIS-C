@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k=1}^{n} prime(k) * φ(n+1-k)
  * Range:     u8 n <= 9, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------- static storage ------------------------------------------- */
 static idx_t  max_n_phi  = 0;  /* maximum n for which φ[0..n] are known   */
@@ -84,7 +86,7 @@ static void ensure_phi(idx_t upto)
         return;
 
     /* Resize the φ array. */
-    seq_t *new_phi = (seq_t *)realloc(phi_arr, (upto + 1) * sizeof(seq_t));
+    seq_t *new_phi = mem_resize(seq_t, phi_arr, (upto + 1));
     if (!new_phi) return;           /* allocation failure, unlikely */
 
     /* Initialize φ(i)=i and φ(0)=0, φ(1)=1. */

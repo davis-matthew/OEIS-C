@@ -7,6 +7,7 @@
  * Formula:   a(n) = number of partitions of n into odd parts ≤ 19
  * Range:     u8 n <= 29, u16 n <= 88, u32 n <= 416, u64 n <= 5419,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 71 terms through n = 8941 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

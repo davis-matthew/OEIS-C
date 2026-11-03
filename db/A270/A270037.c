@@ -10,13 +10,15 @@
  *            value for each n ≥ 3, caching results for efficiency
  * Range:     u8 n <= 156, u16 n <= 618, u32 n <= 618, u64 n <= 618,
  *            u128 n <= 618, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 618 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Checks whether integer m (in seq_t) has no digit 0 in any base from 3 up to n. */
 static inline bool ok(seq_t m, idx_t n)
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
 
     /* Grow cache if necessary. */
     if (n + 1 > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) return 0;                 /* allocation error */
         cache = tmp;
         for (idx_t i = cache_size; i <= n; ++i) {

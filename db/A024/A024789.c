@@ -7,6 +7,7 @@
  * Formula:   a(n) = number of 5’s in all partitions of n (OEIS A024789)
  * Range:     u8 n <= 20, u16 n <= 45, u32 n <= 125, u64 n <= 400,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 65 terms through n = 968 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

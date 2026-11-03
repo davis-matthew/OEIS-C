@@ -8,14 +8,32 @@
  * Formula:   a(n) = replace digits 3 ↔ 8 in the n‑th prime number
  * Range:     u8 n <= 50, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   replace_digits
+ * Validated: standard, pass, 72 terms through n = 952 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/replace_digits.h"
+
+/* Replace every digit 3 with 8 and every 8 with 3 in a decimal integer x. */
+static seq_t replace_digits(seq_t x)
+{
+    idx_t tmp = (idx_t)x;
+    seq_t result = 0;
+    seq_t factor  = 1;
+
+    while (tmp > 0) {
+        seq_t digit = tmp % 10;
+        tmp /= 10;
+        if (digit == 3) digit = 8;
+        else if (digit == 8) digit = 3;
+        result += digit * factor;
+        factor *= 10;
+    }
+    return result;
+}
 
 /* Maximum number of primes that will be generated.
    n ≤ 10000 in the tests, so 20000 is safely large. */

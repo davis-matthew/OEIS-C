@@ -9,7 +9,8 @@
  *            (p‑1)/12.)
  * Range:     u8 n <= 1, u16 n <= 72, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 52 terms through n = 9050 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"      /* bool is_prime(idx_t) */
-#include "../utils/mod_pow.h"       /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod) */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Check whether p (a prime) satisfies ord_10(p) = (p-1)/12. */
 static bool has_order_twelve(seq_t p)
@@ -26,7 +29,7 @@ static bool has_order_twelve(seq_t p)
     idx_t t = ((idx_t)p - 1) / 12;        /* t = (p-1)/12 */
 
     /* First, 10^t must be 1 mod p. */
-    if (mod_pow((seq_t)10, (uint64_t)t, p) != (seq_t)1)
+    if (powmod((seq_t)10, (uint64_t)t, p) != (seq_t)1)
         return false;
 
     /* Ensure that no proper divisor of t yields 1. */
@@ -37,13 +40,13 @@ static bool has_order_twelve(seq_t p)
             while (temp % q == 0)
                 temp /= q;
             /* If 10^(t/q) == 1, then order < t. */
-            if (mod_pow((seq_t)10, (uint64_t)(t / q), p) == (seq_t)1)
+            if (powmod((seq_t)10, (uint64_t)(t / q), p) == (seq_t)1)
                 return false;
         }
     }
     /* Remaining prime factor. */
     if (temp > 1) {
-        if (mod_pow((seq_t)10, (uint64_t)(t / temp), p) == (seq_t)1)
+        if (powmod((seq_t)10, (uint64_t)(t / temp), p) == (seq_t)1)
             return false;
     }
     return true;
@@ -75,9 +78,9 @@ seq_t a(idx_t n)
         /* Append the found prime to the cache. */
         if (cache_len >= cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) {              /* allocation failed – clear state and bail */
-                free(cache);
+                mem_free(cache);
                 cache = NULL;
                 cache_cap = 0;
                 cache_len = 0;

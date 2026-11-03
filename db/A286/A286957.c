@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 83, u16 n <= 314, u32 n <= 1302, u64 n <= 6632,
  *            u128 n <= 9869, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 9658 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* public interface ---------------------------------------------------- */
 seq_t a(idx_t n);
@@ -42,12 +44,12 @@ static inline idx_t antidiag(idx_t n)
 static void recompute_dp(idx_t new_size)
 {
     /* free old table if present */
-    if (dp_table) free(dp_table);
+    if (dp_table) mem_free(dp_table);
 
     /* allocate fresh table: (new_size+1) × (new_size+1) entries */
     size_t stride   = (size_t)new_size + 1;
     size_t total    = stride * stride;
-    dp_table = (seq_t *)calloc(total, sizeof(seq_t));
+    dp_table = mem_new(seq_t, total);
     if (!dp_table) return;          /* allocation failed: crash on use is OK */
 
     dp_table[0] = (seq_t)1;         /* dp[0][0] = 1 */

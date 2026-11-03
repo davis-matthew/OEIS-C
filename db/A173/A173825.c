@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    ascending within each row before being appended to the global list. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t  *seq_cache   = NULL;  /* storage for generated terms   */
 static size_t  cache_cap   = 0;     /* allocated capacity           */
@@ -35,7 +37,7 @@ ensure_cache_cap(size_t needed)
         while (new_cap - cache_len < needed) {
             new_cap *= 2;
         }
-        seq_cache = (seq_t *)realloc(seq_cache, sizeof(seq_t) * new_cap);
+        seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         cache_cap = new_cap;
     }
 }
@@ -58,7 +60,7 @@ generate_next_row(void)
     /* Prepare local array for this row.  Size <= 2*r+1. */
     size_t len = 0;
     size_t maxlen = 2 * r + 1;
-    seq_t *row = (seq_t *)malloc(sizeof(seq_t) * maxlen);
+    seq_t *row = mem_new(seq_t, maxlen);
 
     seq_t m1 = (seq_t)6 * r + 1;
     seq_t m2 = r > 0 ? (seq_t)6 * r - 1 : 0;   /* 0 marks non‑existent */
@@ -96,7 +98,7 @@ generate_next_row(void)
     }
 
     append_row(row, len);
-    free(row);
+    mem_free(row);
     ++next_row;
 }
 

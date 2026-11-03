@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   get_digits, is_prime_small
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-02)
+ * Helpers:   get_digits, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime_small.h"
+#include <stdint.h>
 #include "../utils/get_digits.h"
+#include "../utils/is_prime_seq.h"
 
 /* Return true iff p is a prime and all its decimal substrings and
  * the reversals of those substrings are also primes. */
@@ -41,7 +43,7 @@ static bool substrings_all_prime(seq_t p)
                 rev = rev * 10 + buf[k];
             }
 
-            if (!is_prime_small(val) || !is_prime_small(rev))
+            if (!is_prime_seq(val) || !is_prime_seq(rev))
                 return false;
         }
     }
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     if (filled == 0) {
         seq_t cand = 2;
         while (filled < 7) {
-            if (is_prime_small(cand) && substrings_all_prime(cand))
+            if (is_prime_seq(cand) && substrings_all_prime(cand))
                 cache[filled++] = cand;
             ++cand;
         }

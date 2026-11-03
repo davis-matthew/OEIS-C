@@ -9,12 +9,14 @@
  * Formula:   integers n such that e(n)<=o(n), listed in increasing order
  * Range:     u8 n <= 163, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cacheSize = 0;
@@ -25,7 +27,7 @@ static void ensure_cap(size_t needed) {
     if (needed <= cacheCap) return;
     size_t newCap = cacheCap ? cacheCap * 2 : 64;
     while (newCap < needed) newCap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, newCap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newCap);
     cache = tmp;
     cacheCap = newCap;
 }

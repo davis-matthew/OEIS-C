@@ -8,6 +8,7 @@
  *            ⌊n / p^k⌋ is the exponent of prime p in n!
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 17, u64 n <= 29, u128 n <= 47,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 578 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
 
 seq_t a(idx_t n)

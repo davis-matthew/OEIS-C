@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 134, u16 n <= 9841, u32 n <= 9841, u64 n <= 9841,
  *            u128 n <= 9841, big any n
- * Helpers:   cmp_idx, compute_runs, in_set
+ * Validated: standard, pass, 84 terms through n = 8444 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,9 +30,66 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/cmp_idx.h"
-#include "../utils/compute_runs.h"
-#include "../utils/in_set.h"
+
+/* compare two idx_t values for qsort */
+static int cmp_idx(const void *a, const void *b)
+{
+    idx_t va = *(const idx_t *)a;
+    idx_t vb = *(const idx_t *)b;
+    if (va < vb) return -1;
+    if (va > vb) return 1;
+    return 0;
+}
+
+/* Compute the run‑length signature of n.
+   The signature is stored in 'runs', with 'run_cnt' the number of runs. */
+static void compute_runs(idx_t n, int *runs, int *run_cnt)
+{
+    if (n == (idx_t)0) {
+        runs[0] = 1;
+        *run_cnt = 1;
+        return;
+    }
+
+    int digits[64];
+    int dcnt = 0;
+    idx_t x = n;
+    while (x > (idx_t)0) {
+        int rem = (int)(x % (idx_t)3);
+        x /= (idx_t)3;
+        int d;
+        if (rem == 0)        d = 0;
+        else if (rem == 1)   d = 1;
+        else {               d = -1;   /* rem == 2 */
+                            x += (idx_t)1; }
+        digits[dcnt++] = d;                     /* least significant first */
+    }
+
+    int prev = digits[dcnt - 1];
+    int runlen = 1;
+    *run_cnt = 0;
+    for (int i = dcnt - 2; i >= 0; --i) {
+        int cur = digits[i];
+        if (cur == prev)
+            ++runlen;
+        else {
+            runs[(*run_cnt)++] = runlen;
+            prev = cur;
+            runlen = 1;
+        }
+    }
+    runs[(*run_cnt)++] = runlen; /* last run */
+}
+
+/* Determine whether x belongs to A003462 – sum of distinct powers of 3. */
+static bool in_set(idx_t x)
+{
+    while (x) {
+        if (x % 3 == 2) return false;
+        x /= 3;
+    }
+    return true;
+}
 
 /* Recursive generation of all non‑negative integers sharing a given signature.
    The generated values are stored in 'out', and *cnt receives the number

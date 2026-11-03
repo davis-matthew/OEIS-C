@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 29, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    with a(0) = 1, a(1) = 0, a(2) = 1, a(3) = 1, a(4) = 2, a(5) = 2.  This counts
    compositions of n into the parts {2,3,4,6}. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *dp   = NULL;      /* memoisation array   */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     if (dp == NULL) {
         /* start with room for a few terms */
         cap = 64;
-        dp  = (seq_t*)malloc(cap * sizeof(seq_t));
+        dp  = mem_new(seq_t, cap);
         if (dp == NULL) exit(1);
         /* initialise all entries to 0 */
         for (size_t i = 0; i < cap; ++i) dp[i] = 0;
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
     if (need >= cap) {
         size_t newcap = cap;
         while (newcap <= need) newcap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(dp, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, newcap);
         if (tmp == NULL) exit(1);
         /* zero any newly allocated entries */
         for (size_t i = cap; i < newcap; ++i) tmp[i] = 0;

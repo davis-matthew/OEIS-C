@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 111, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 78 terms through n = 9792 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Cached sequence values. */
 static seq_t   *cache      = NULL;
@@ -47,7 +49,7 @@ static void grow_cache(void)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 32;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();      /* fatal: out of memory */
         cache      = tmp;
         cache_cap  = new_cap;
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         uint64_t v = (uint64_t)next_candidate;
 
         /* Check compositeness: primes are excluded. */
-        bool composite = (v >= 4) && !is_prime_small((seq_t)v);
+        bool composite = (v >= 4) && !is_prime_seq((seq_t)v);
 
         /* Evil: an even number of 1‑bits. */
         bool evil = ((popcount_u64(v) & 1U) == 0U);

@@ -10,7 +10,8 @@
  *            sum of divisors of k and tau(k) = number of divisors of k
  * Range:     u8 n <= 11, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   _floor_isqrt_u64, divisor_count_u64, gcd, sigma_of
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   gcd, isqrt, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,16 +19,31 @@
 #include <stdint.h>
 #include <stdbool.h>
 /* Utility headers ---------------------------------------------------------- */
-#include "../utils/_floor_isqrt_u64.h"   /* idx_t _floor_isqrt_u64(idx_t n); */
-#include "../utils/divisor_count_u64.h"  /* uint64_t divisor_count_u64(uint64_t n); */
-#include "../utils/sigma_of.h"          /* seq_t sigma_of(idx_t n); */
-#include "../utils/gcd.h"               /* seq_t gcd(seq_t a, seq_t b); */
+#include <stdlib.h>
+#include "../utils/gcd.h"
+#include "../utils/isqrt.h"
+#include "../utils/num_divisors.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* helper to add the contribution of a single divisor d to the running sum */
 static inline void add_divisor(idx_t d, seq_t *sum_num, seq_t *sum_den)
 {
     seq_t sigma_d = sigma_of(d);
-    seq_t tau_d   = (seq_t)divisor_count_u64(d);   /* tau(d) >= 1 */
+    seq_t tau_d   = (seq_t)num_divisors(d);   /* tau(d) >= 1 */
 
     /* new_num = (*sum_num) * tau_d + sigma_d * (*sum_den) */
     seq_t new_num = (*sum_num) * tau_d + sigma_d * (*sum_den);
@@ -48,7 +64,7 @@ seq_t a(idx_t n)
     seq_t sum_den = 1;   /* denominator of current sum */
 
     /* iterate over all divisors of n */
-    idx_t root = _floor_isqrt_u64(n);
+    idx_t root = isqrt(n);
     for (idx_t i = 1; i <= root; ++i) {
         if (n % i == 0) {
             idx_t d1 = i;

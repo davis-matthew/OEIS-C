@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 9761 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    Computed by dynamic programming over fourth‑power coins. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* build the list of terms up to a given numeric limit.
    The function fills *out_seq with a dynamically allocated array of all
@@ -70,13 +72,13 @@ static void build_sequence(idx_t limit, seq_t **out_seq, size_t *out_len)
     /* collect all sums that have at least three representations */
     seq_t *terms = NULL;
     size_t terms_cap = 1024, terms_cnt = 0;
-    terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
 
     for (idx_t s = 1; s <= limit; ++s) {
         if (dp[9][s] >= 3) {
             if (terms_cnt == terms_cap) {
                 terms_cap <<= 1;
-                terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_cnt++] = (seq_t)s;
         }
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
     /* if requested index exceeds cached terms, grow the limit and rebuild */
     while (n > global_len) {
         current_limit <<= 1;          /* double the limit */
-        free(global_terms);
+        mem_free(global_terms);
         global_terms = NULL;
         global_len   = 0;
         build_sequence(current_limit, &global_terms, &global_len);

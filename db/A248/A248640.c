@@ -12,7 +12,8 @@
  *            (a(i),a(i+d),a(i+2d),a(i+3d),a(i+4d))
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 92 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* array of computed terms */
 static size_t   cache_cap  = 0;    /* total allocated slots          */
@@ -36,7 +38,7 @@ static void ensure_cache(idx_t n)
     if (new_cap < need)
         new_cap = need;
 
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp)
         abort();                  /* out of memory */
 

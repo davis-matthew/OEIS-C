@@ -11,14 +11,15 @@
  *            n. The resulting palindrome is returned
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   pow3k
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-01)
+ * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow3k.h"
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {
@@ -70,7 +71,7 @@ seq_t a(idx_t n)
 
     /* if no smaller prefix, the best palindrome has one digit less */
     if (!has_lower) {
-        seq_t max_short = pow3k(len - 1) - 1;   /* 3^(len‑1) – 1 */
+        seq_t max_short = pow3(len - 1) - 1;   /* 3^(len‑1) – 1 */
         return max_short;
     }
 
@@ -94,6 +95,6 @@ seq_t a(idx_t n)
     }
 
     /* choose the larger of the two candidates */
-    seq_t max_short = pow3k(len - 1) - 1;
+    seq_t max_short = pow3(len - 1) - 1;
     return (cand2 > max_short) ? cand2 : max_short;
 }

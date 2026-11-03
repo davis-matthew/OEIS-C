@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 6133, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_prime_factors
+ * Validated: standard, pass, 70 terms through n = 9919 (2026-11-03)
+ * Helpers:   bigomega_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/count_prime_factors.h"
+#include <stdint.h>
+#include "../utils/bigomega_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
         if (terms_len + 1 > terms_cap)
         {
             terms_cap = (terms_cap == 0) ? 16 : terms_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
             if (!tmp)
             {
                 /* In a real project, handle out‑of‑memory gracefully. */
@@ -51,7 +54,7 @@ seq_t a(idx_t n)
         /* Check the property for the current candidate. */
         seq_t m_minus = next_even - 2;
         seq_t m_plus  = next_even + 2;
-        if (count_prime_factors(m_minus) == count_prime_factors(m_plus))
+        if (bigomega_seq(m_minus) == bigomega_seq(m_plus))
         {
             /* Store the candidate as the next term. */
             terms[terms_len++] = next_even;

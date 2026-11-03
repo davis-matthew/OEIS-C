@@ -12,14 +12,15 @@
  *            s with s(s+1)/2 ≤ n < (s+1)(s+2)/2. Then k = n – s...
  * Range:     u8 n <= 30, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Find the largest s such that s*(s+1)/2 ≤ n. */
 static inline idx_t triangular_inverse(idx_t n)
@@ -47,7 +48,7 @@ static inline seq_t T(idx_t n, idx_t k)
     seq_t falling = 1;                   /* (k)_0 = 1 */
 
     for (idx_t j = 0; j <= m; ++j) {
-        sum += binom(2 * n, j) * falling;
+        sum += binomial(2 * n, j) * falling;
         if (j < m)
             falling *= (seq_t)(k - j);    /* (k)_{j+1} = (k)_j * (k-j) */
     }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = 24*a(n-1) - 2*(n-1)*a(n-2), a(0)=1, a(1)=24
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 6, i64 n <= 13, i128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 681 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* array holding computed terms */
 static size_t  cache_cap = 0;      /* current allocated capacity in elements */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap *= 2;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache && new_cap > 0)
         abort();                     /* allocation failed – terminate */
 

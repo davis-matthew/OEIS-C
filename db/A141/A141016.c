@@ -7,12 +7,14 @@
  * Formula:   a(0) = 0, a(1) = 1, a(2) = 2, a(n) = 2*a(n-1) + a(n-3) for n ≥ 3
  * Range:     i8 n <= 7, i16 n <= 14, i32 n <= 15, i64 n <= 15, i128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     if (idx >= cache_len)            /* extend cache if necessary */
     {
         size_t new_len = idx + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache)             /* allocation failure – unlikely for test set */
             return (seq_t)0;
 

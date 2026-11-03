@@ -9,14 +9,17 @@
  *            4n−3, 4n−9
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 13,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         /* grow cache to hold indices 0..n */
         size_t new_size = (size_t)(n + 1);
-        seq_t *larger = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *larger = mem_resize(seq_t, cache, new_size);
         if (!larger) return (seq_t)0;      /* out of memory – unlikely in tests */
 
         /* initialise new entries */

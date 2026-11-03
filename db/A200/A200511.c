@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   bigomega, count_distinct_primes
+ * Validated: standard, pass, 76 terms through n = 889 (2026-11-03)
+ * Helpers:   bigomega, mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,12 +25,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/bigomega.h"
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* Test whether a given 64‑bit integer satisfies the condition. */
 static bool qualifies(uint64_t x)
 {
-    return (count_distinct_primes(x) == 2) && (bigomega(x) > (seq_t)2);
+    return (omega(x) == 2) && (bigomega(x) > (seq_t)2);
 }
 
 /* Dynamic array to store the generated terms. */
@@ -43,10 +45,10 @@ static void grow_terms(void)
 {
     if (terms_cap == 0) {
         terms_cap = 8;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     } else if (terms_len == terms_cap) {
         size_t new_cap = terms_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();            /* out of memory */
         terms = tmp;
         terms_cap = new_cap;

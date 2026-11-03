@@ -8,23 +8,25 @@
  *            factors removed
  * Range:     u8 n <= 998, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi, factor_u64, powmod64
+ * Validated: standard, pass, 117 terms through n = 9422 (2026-11-01)
+ * Helpers:   factor_u64, powmod_u64, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/calc_phi.h"
-#include "../utils/powmod64.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/totient_seq.h"
 
 /* Compute multiplicative order of 10 modulo d (d>1).  For d==1 returns 1. */
 static seq_t ord10(uint64_t d)
 {
     if (d == 1) return (seq_t)1;
     /* phi(d) */
-    seq_t phi_seq = calc_phi((seq_t)d);
+    seq_t phi_seq = totient_seq((seq_t)d);
     uint64_t phi = (uint64_t)phi_seq;
     /* factor phi */
     uint64_t primes[20], exps[20];
@@ -35,7 +37,7 @@ static seq_t ord10(uint64_t d)
         uint64_t p = primes[i];
         while (ord % p == 0) {
             uint64_t candidate = ord / p;
-            if (powmod64(10, candidate, d) == 1ULL)
+            if (powmod_u64(10, candidate, d) == 1ULL)
                 ord = candidate;
             else
                 break;
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     for (size_t i = 0; i < divcnt; ++i) {
         uint64_t d = divs[i];
-        seq_t phi_d = calc_phi((seq_t)d);
+        seq_t phi_d = totient_seq((seq_t)d);
         seq_t ord_d = ord10(d);
         result += phi_d / ord_d;
     }

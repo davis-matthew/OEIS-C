@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 33, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    a(n)=T(row_of(n), n-row_start(row_of(n))), with row_start(r)=r*(r+1)/2.
    A000566(m)=m*(5*m-3)/2. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for the triangle: triangle[i] points to array of i+1 T(i,k). */
 static seq_t **triangle = NULL;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
 
     /* Build any missing rows up to r. */
     for (size_t i = triangle_rows; i <= (size_t)r; ++i) {
-        seq_t *row = (seq_t*)malloc((i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (i + 1));
         if (!row) abort();
 
         row[0] = (seq_t)1;  /* T(i,0) = 1 */

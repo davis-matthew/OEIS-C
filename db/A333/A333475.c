@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 81, u32 n <= 209, u64 n <= 209,
  *            u128 n <= 209, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 73 terms through n = 204 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,26 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "../utils/floor_sqrt.h"   /* floor_sqrt(seq_t) */
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -51,7 +71,7 @@ seq_t a(idx_t n)
         digits_len = 1;
         digit_sum  = 1;                        /* digit sum of 1 */
         cache_cap  = 16;
-        k_cache    = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        k_cache    = mem_new(seq_t, cache_cap);
 
         /* k = 0 satisfies the condition (digit sum = 1) */
         k_cache[0] = (seq_t)0;
@@ -90,7 +110,7 @@ seq_t a(idx_t n)
         if (r * r == sum) {              /* perfect square */
             if (cache_len >= cache_cap) { /* grow cache */
                 cache_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(k_cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, k_cache, cache_cap);
                 if (tmp == NULL) exit(EXIT_FAILURE);
                 k_cache = tmp;
             }

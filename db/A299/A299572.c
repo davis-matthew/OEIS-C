@@ -11,7 +11,8 @@
  *            transfer‑matrix DP with state = pair of successive rows
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 26, u128 n <= 52,
  *            big any n
- * Helpers:   row_id_valid
+ * Validated: standard, pass, 37 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,42 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>   /* for memset */
-#include "../utils/row_id_valid.h"
+#include "../utils/mem.h"
+
+/* Count same‑valued king‑move neighbours for a row 'cur'
+ * given the (optional) rows above 'prev' and below 'nxt'.
+ * 'hasPrev' and 'hasNext' indicate whether these rows exist. */
+static int row_id_valid(unsigned char prev, unsigned char cur, unsigned char nxt,
+                        int hasPrev, int hasNext)
+{
+    for (int j = 0; j < 6; ++j) {
+        int v = (cur >> j) & 1;   /* value of the current cell */
+        int cnt = 0;
+
+        /* left & right neighbours on the same row */
+        if (j > 0 && ((cur >> (j-1)) & 1) == v) cnt++;
+        if (j < 5 && ((cur >> (j+1)) & 1) == v) cnt++;
+
+        /* neighbours in the row above */
+        if (hasPrev) {
+            if (j > 0 && ((prev >> (j-1)) & 1) == v) cnt++;
+            if (j < 5 && ((prev >> (j+1)) & 1) == v) cnt++;
+            if (((prev >> j) & 1) == v) cnt++;
+        }
+
+        /* neighbours in the row below */
+        if (hasNext) {
+            if (j > 0 && ((nxt >> (j-1)) & 1) == v) cnt++;
+            if (j < 5 && ((nxt >> (j+1)) & 1) == v) cnt++;
+            if (((nxt >> j) & 1) == v) cnt++;
+        }
+
+        /* allowed neighbour counts */
+        if (!(cnt==1 || cnt==2 || cnt==4 || cnt==5 || cnt==7 || cnt==8))
+            return 0;
+    }
+    return 1;
+}
 
 /* Dimensions for a 6×n grid */
 #define ROWS 6
@@ -68,7 +104,7 @@ seq_t a(idx_t n)
     }
 
     /* Initialise dp with all valid (row0, row1) pairs */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     for (int row0 = 0; row0 < MAX_ROW; ++row0) {
         if ((row0 & 1) != 0) continue; /* upper‑left 0 */
         for (int row1 = 0; row1 < MAX_ROW; ++row1) {
@@ -82,7 +118,7 @@ seq_t a(idx_t n)
     /* Transition through remaining rows */
     idx_t steps = n - 2;  /* number of additional rows beyond the first two */
     for (idx_t s = 0; s < steps; ++s) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
         for (int idx = 0; idx < 4096; ++idx) {
             seq_t cur_count = dp[idx];
             if (cur_count == (seq_t)0) continue;
@@ -96,7 +132,7 @@ seq_t a(idx_t n)
                 ndp[new_idx] += cur_count;
             }
         }
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     /* Sum over final states where the last row satisfies constraints */

@@ -9,13 +9,15 @@
  *            T(n,k)=2*k*T(n-1,k)+(2*k-1)*T(n-1,k-1)
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 51, u64 n <= 143,
  *            u128 n <= 368, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1270 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n <= 0) return (seq_t)0;          /* out of range, return 0 */
@@ -34,10 +36,10 @@ seq_t a(idx_t n) {
 
     /* Dynamic programming: keep two rows */
     /* Allocate arrays size (r+1) to use 1-based indexing */
-    seq_t *prev = (seq_t*)calloc((size_t)(r + 1), sizeof(seq_t));
-    seq_t *curr = (seq_t*)calloc((size_t)(r + 1), sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)(r + 1));
+    seq_t *curr = mem_new(seq_t, (size_t)(r + 1));
     if (!prev || !curr) { /* allocation failure, return 0 */
-        free(prev); free(curr);
+        mem_free(prev); mem_free(curr);
         return (seq_t)0;
     }
 
@@ -59,7 +61,7 @@ seq_t a(idx_t n) {
 
     seq_t result = prev[c];
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

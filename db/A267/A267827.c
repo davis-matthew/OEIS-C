@@ -9,12 +9,14 @@
  *            (6*k+2)*a(k)*a(n-1-k), for n>=2
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 302 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;       /* stores a(n) values */
 static seq_t *b_cache = NULL;       /* stores (6*i+2)*a(i) values */
@@ -29,8 +31,8 @@ static void ensure_cache(idx_t n)
     if (n + 1 > cache_capacity) {
         size_t new_cap = cache_capacity ? cache_capacity * 2 : 16;
         while (new_cap <= n + 1) new_cap <<= 1;
-        seq_t *new_a = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-        seq_t *new_b = (seq_t *)realloc(b_cache, new_cap * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_cache, new_cap);
+        seq_t *new_b = mem_resize(seq_t, b_cache, new_cap);
         a_cache = new_a;
         b_cache = new_b;
         cache_capacity = new_cap;

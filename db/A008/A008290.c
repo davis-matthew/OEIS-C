@@ -10,7 +10,8 @@
  *            yields the flattened triangle of rencontres numbers
  * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 104, u64 n <= 230,
  *            u128 n <= 629, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 8697 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     static seq_t *D = NULL;
     static size_t dcap = 0;
     if (dcap <= (size_t)m) {
-        seq_t *tmp = (seq_t *)realloc(D, (size_t)(m + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, D, (size_t)(m + 1));
         if (!tmp)
             return 0;   /* allocation failure – unlikely for the bounds of this problem */
         D = tmp;
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     }
 
     /* --- compute the answer as product of binomial and derangement --- */
-    seq_t bin = binom(m, k);
+    seq_t bin = binomial(m, k);
     seq_t res = bin * D[(size_t)(m - k)];
     return res;
 }

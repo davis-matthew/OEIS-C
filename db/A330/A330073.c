@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   f_next
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,14 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/f_next.h"
+
+/* compute f(n) according to the definition */
+static seq_t f_next(seq_t v) {
+    if ((v % 5u) == 0u)
+        return v / 5u;
+    else
+        return 5u * (v / 5u + v + 1u);
+}
 
 /* forward */
 static idx_t row_length(idx_t n);

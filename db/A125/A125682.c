@@ -8,12 +8,14 @@
  *            a(1) = 3 a(n) = 6*a(n-1) + 3 for n ≥ 2
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 25, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 885 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[1] holds a(1) */
 static idx_t  cache_max = 0;  /* highest index cached */
@@ -25,14 +27,14 @@ ensure_cache(idx_t n)
 
     if (cache == NULL) {
         /* allocate space for indices 0..n (index 0 unused) */
-        cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (n + 1));
         cache[1] = (seq_t)3;
         cache_max = 1;
     }
 
     if (n > cache_max) {
         /* grow the cache to hold up to n */
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         for (idx_t i = cache_max + 1; i <= n; ++i) {
             cache[i] = (seq_t)6 * cache[i - 1] + (seq_t)3;
         }

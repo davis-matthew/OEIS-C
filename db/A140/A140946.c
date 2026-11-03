@@ -12,13 +12,15 @@
  *            auxiliary sequence b(m) defined by b(1) = 1, b(2)...
  * Range:     i8 n <= 28, i16 n <= 59, i32 n <= 59, i64 n <= 59, i128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t pow_minus2(idx_t exp) {
     seq_t result = 1;
@@ -42,7 +44,7 @@ static void ensure_b_cache(idx_t max_m) {
     if (b_len > max_m) return;
     size_t new_len = b_len ? b_len : 16;
     while (new_len <= (size_t)max_m) new_len <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(b_cache, new_len * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, b_cache, new_len);
     if (!new_arr) exit(1);
     b_cache = new_arr;
     /* Fill missing values */

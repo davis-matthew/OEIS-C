@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 192, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gcd, phi, pow2
+ * Validated: standard, pass, 81 terms through n = 9638 (2026-11-01)
+ * Helpers:   factor_u64, gcd, pow2, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,10 +26,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../utils/gcd.h"           /* seq_t gcd(seq_t, seq_t) */
-#include "../utils/pow2.h"          /* seq_t pow2(idx_t)          */
-#include "../utils/factor_u64.h"    /* void factor_u64(uint64_t, uint64_t*, uint64_t*, size_t*) */
-#include "../utils/phi.h"           /* seq_t phi(idx_t)          */   /* optional, not used */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/pow2.h"
+#include "../utils/totient.h"
 
 static inline seq_t pow_uint64(uint64_t base, unsigned int exp)
 {
@@ -47,7 +49,7 @@ static bool is_good_k(uint64_t k)
     size_t cnt = 0;
     factor_u64(k, primes, exps, &cnt);
 
-    seq_t phi = (seq_t)1;   /* φ(k) */
+    seq_t totient = (seq_t)1;   /* φ(k) */
     seq_t lam = (seq_t)1;   /* λ(k) as lcm of prime-powers' λ */
 
     size_t odd_prime_cnt = 0;  /* number of odd prime factors */
@@ -70,7 +72,7 @@ static bool is_good_k(uint64_t k)
                 lam_i = pow2(exp - 2);        /* 2^(exp-2) */
             /* φ(2^exp) = 2^(exp-1) */
             seq_t phi_mult = pow_uint64(2, exp - 1);
-            phi *= phi_mult;
+            totient *= phi_mult;
             /* lcm step */
             seq_t g = gcd(lam, lam_i);
             lam = lam / g * lam_i;
@@ -80,7 +82,7 @@ static bool is_good_k(uint64_t k)
             /* φ(p^exp) = p^(exp-1)*(p-1) */
             seq_t p_pow = pow_uint64(p, exp - 1);
             seq_t phi_mult = p_pow * ((seq_t)p - 1);
-            phi *= phi_mult;
+            totient *= phi_mult;
             /* λ(p^exp) = φ(p^exp) for odd primes */
             seq_t lam_i = phi_mult;
             seq_t g = gcd(lam, lam_i);
@@ -96,7 +98,7 @@ static bool is_good_k(uint64_t k)
         r += 2;          /* exp2 == 0 or 1 contribute 0 */
 
     /* φ(k)/λ(k) must be integer; compute it */
-    seq_t phi_over_lam = phi / lam;
+    seq_t phi_over_lam = totient / lam;
 
     return phi_over_lam == (seq_t)r;
 }

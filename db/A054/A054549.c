@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 29, u64 n <= 183, u128 n <= 1000,
  *            big any n
- * Helpers:   small_binom
+ * Validated: standard, pass, 46 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,19 @@
    lazily with O(21) work per term.  This satisfies all requirements. */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/small_binom.h"
+#include "../utils/mem.h"
+
+/* Small binomial coefficients (they fit in int64_t). */
+static int64_t small_binom(int n, int k)
+{
+    if (k < 0 || k > n) return 0;
+    if (k > n - k) k = n - k;
+    int64_t res = 1;
+    for (int i = 1; i <= k; ++i) {
+        res = res * (n - k + i) / i;
+    }
+    return res;
+}
 
 /* Pre‑computed recurrence coefficients d[0..21].  d[0] == 1. */
 static int64_t dcoeff[22];
@@ -66,7 +79,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         idx_t old = cache_size;
         idx_t newsize = n + 1;
-        seq_t *newcache = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *newcache = mem_resize(seq_t, cache, newsize);
         if (!newcache) { /* Allocation failure – abort if unexpected. */
             abort();
         }

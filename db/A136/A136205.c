@@ -12,15 +12,26 @@
  *            = sum_{i=1..m} H(k-1,i)
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 18, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   factorial, gcd_seq
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/factorial.h"
-#include "../utils/gcd_seq.h"
+#include "../utils/gcd.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 typedef struct { seq_t num; seq_t den; } rat_t;
 
@@ -30,7 +41,7 @@ typedef struct { seq_t num; seq_t den; } rat_t;
 static inline void rat_set(rat_t *r, seq_t num, seq_t den)
 {
     if (den == 0) { r->num = 0; r->den = 0; return; }
-    seq_t g = gcd_seq(num, den);
+    seq_t g = gcd(num, den);
     r->num = num / g;
     r->den = den / g;
 }

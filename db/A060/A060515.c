@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 8970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- global state ---------- */
 static size_t primes_cnt = 0;
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
 
             if (ok) {
                 /* append i to the cache */
-                cache = (seq_t*)realloc(cache, (cache_len + 1) * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, (cache_len + 1));
                 cache[cache_len++] = (seq_t)i;
                 break;                  /* move on to fill the next cache slot */
             }

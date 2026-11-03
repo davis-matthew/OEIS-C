@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_sqrt, grow_u64, mod_pow
+ * Validated: standard, pass, 69 terms through n = 912 (2026-11-03)
+ * Helpers:   ipow_i32, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,39 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
-#include "../utils/floor_sqrt.h"
-#include "../utils/grow_u64.h"
+#include <string.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Grow a dynamically allocated array of uint64_t. */
+static void grow_u64(uint64_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        *arr = (uint64_t*)realloc(*arr, new_cap * sizeof(uint64_t));
+        *cap = new_cap;
+    }
+}
 
 /* Grow a dynamically allocated array of seq_t. */
 static void grow_array(seq_t **arr, size_t *cap, size_t need)
@@ -31,7 +62,7 @@ static void grow_array(seq_t **arr, size_t *cap, size_t need)
     if (*cap < need) {
         size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
         while (new_cap < need) new_cap <<= 1;
-        *arr = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }
@@ -102,7 +133,7 @@ seq_t a(idx_t n)
         uint64_t exp = (p - 1ULL) / g;
         seq_t base = (seq_t)(p - 2ULL);   /* -2 mod p for odd p */
         seq_t mod  = (seq_t)p;
-        seq_t r = mod_pow(base, exp, mod);
+        seq_t r = powmod(base, exp, mod);
 
         if (r != (seq_t)1) {
             /* This prime satisfies the condition; store it. */

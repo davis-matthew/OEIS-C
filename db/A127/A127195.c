@@ -8,12 +8,33 @@
  * Formula:   a(n) = Tribonacci(floor((n+1)/2)+3) * 2^floor(n/2)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   trib
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/trib.h"
+static seq_t trib(idx_t k)
+{
+    /* Tribonacci numbers: T(0)=0, T(1)=0, T(2)=1. */
+    if (k == 0 || k == 1)
+        return (seq_t)0;
+    if (k == 2)
+        return (seq_t)1;
+
+    seq_t t0 = (seq_t)0;   /* T(i-3)   */
+    seq_t t1 = (seq_t)0;   /* T(i-2)   */
+    seq_t t2 = (seq_t)1;   /* T(i-1)   */
+    seq_t t3;
+
+    for (idx_t i = 3; i <= k; ++i) {
+        t3 = t2 + t1 + t0; /* T(i)     */
+        t0 = t1;
+        t1 = t2;
+        t2 = t3;
+    }
+    return t2; /* T(k) */
+}
 
 seq_t a(idx_t n)
 {

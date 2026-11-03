@@ -7,13 +7,15 @@
  * Formula:   a(n) = n! * Σ_{k=0..⌊n/3⌋} binomial(3k, n-3k)/k!
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 32,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 38 terms through n = 423 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,12 +24,12 @@ seq_t a(idx_t n)
     static size_t fac_size = 0;   /* number of factorials stored   */
 
     if (fac == NULL) {                /* First call: allocate slot for 0!   */
-        fac = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        fac = mem_new(seq_t, (n + 1));
         if (!fac) return (seq_t)0;    /* OOM guard                      */
         fac[0] = 1;
         fac_size = 1;
     } else if (fac_size <= n) {       /* Grow factorial array if needed   */
-        fac = (seq_t*)realloc(fac, (n + 1) * sizeof(seq_t));
+        fac = mem_resize(seq_t, fac, (n + 1));
         if (!fac) return (seq_t)0;    /* OOM guard                      */
         for (idx_t i = fac_size; i <= n; ++i)
             fac[i] = fac[i - 1] * (seq_t)i;
@@ -39,11 +41,11 @@ seq_t a(idx_t n)
     static size_t cache_size = 0;    /* largest index computed + 1    */
 
     if (cache == NULL) {             /* First call: allocate cache    */
-        cache = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (n + 1));
         if (!cache) return (seq_t)0; /* OOM guard                      */
         cache_size = 0;
     } else if (cache_size < n + 1) {  /* Grow cache if needed          */
-        cache = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         if (!cache) return (seq_t)0; /* OOM guard                      */
     }
 

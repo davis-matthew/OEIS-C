@@ -8,13 +8,22 @@
  * Formula:   a(n) = n*((n-1)!^n)*(n!^n)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Compute factorial(n) using seq_mul, where n >= 0 */
 static seq_t factorial(idx_t n)
@@ -34,8 +43,8 @@ seq_t a(idx_t n)
     seq_t fn = seq_mul(f1, (seq_t)n);     /* n! = n * (n-1)! */
 
     /* powers */
-    seq_t pow_f1 = seq_pow(f1, n);
-    seq_t pow_fn = seq_pow(fn, n);
+    seq_t pow_f1 = ipow_idx(f1, n);
+    seq_t pow_fn = ipow_idx(fn, n);
 
     /* multiply all together: n * pow_f1 * pow_fn */
     seq_t result = (seq_t)n;

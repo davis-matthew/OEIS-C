@@ -9,16 +9,44 @@
  *            Offset: 0 (so a(0)=0)
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 23, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   build_primes_upto, largest_prime_divisor, seq_mul
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-01)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_mul.h"          /* seq_mul */
-#include "../utils/build_primes_upto.h"/* build_primes_upto */
-#include "../utils/largest_prime_divisor.h"/* largest_prime_divisor */
+#include <stdint.h>
+#include <string.h>
+#include "../utils/build_primes_upto.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Return the largest prime divisor of m (m >= 2). */
+static uint64_t largest_prime_divisor(uint64_t m)
+{
+    uint64_t largest = 0;
+    /* factor 2 */
+    while ((m & 1ULL) == 0) {
+        largest = 2;
+        m >>= 1;
+    }
+    /* odd factors */
+    for (uint64_t f = 3; f <= m / f; f += 2) {
+        if (m % f == 0) {
+            largest = f;
+            while (m % f == 0)
+                m /= f;
+        }
+    }
+    if (m > 1)            /* remaining m is prime */
+        largest = m;
+    return largest;
+}
 
 static idx_t *prime_cache = NULL;    /* 0‑based array of primes */
 static size_t prime_cnt  = 0;         /* number of primes cached */

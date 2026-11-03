@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 126, u16 n <= 500, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
+ * Validated: standard, pass, 76 terms through n = 499 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* a(n) = the smallest m > 2n-2 such that m is prime or a power of two */
 
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

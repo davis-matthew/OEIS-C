@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computation: generate all divisors of 1900, sort them, and return the n‑th one. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The key value to compute divisors for: 1900 = 2^2 * 5^2 * 19^1. */
 static const int EXP_2 = 2;
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
             }
         }
         /* idx should now be 18.  Sort the array. */
-        qsort(divisors, 18, sizeof(seq_t), compare_seq);
+        mem_qsort(divisors, 18, sizeof(seq_t), compare_seq);
         initialized = 1;
     }
 

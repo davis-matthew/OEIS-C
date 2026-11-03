@@ -7,14 +7,15 @@
  * Formula:   a(n) = Sum_{d|n} d^(n-d) * (n/d)^d
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 15, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -34,14 +35,14 @@ seq_t a(idx_t n)
         idx_t d2 = n / d;                 /* complementary divisor */
 
         /* contribution for divisor d */
-        seq_t part1 = big_pow((seq_t)d, (seq_t)(n - d));
-        seq_t part2 = big_pow((seq_t)d2, (seq_t)d);
+        seq_t part1 = ipow((seq_t)d, (seq_t)(n - d));
+        seq_t part2 = ipow((seq_t)d2, (seq_t)d);
         result += part1 * part2;
 
         /* contribution for divisor d2 if distinct from d */
         if (d2 != d) {
-            seq_t part1b = big_pow((seq_t)d2, (seq_t)(n - d2));
-            seq_t part2b = big_pow((seq_t)d, (seq_t)d2);
+            seq_t part1b = ipow((seq_t)d2, (seq_t)(n - d2));
+            seq_t part2b = ipow((seq_t)d, (seq_t)d2);
             result += part1b * part2b;
         }
     }

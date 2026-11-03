@@ -12,7 +12,8 @@
  *            the row, and returns the element at the reques...
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   gcd64
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
 
 /* greatest common divisor for 64‑bit unsigned integers */
 
@@ -88,7 +89,7 @@ seq_t a(idx_t n)
     /* collect the first "row" positive integers coprime to "row" */
     idx_t cnt = 0;
     for (uint64_t i = 1; cnt < row; i++) {
-        if (gcd64(i, (uint64_t)row) == 1) {
+        if (gcd_u64(i, (uint64_t)row) == 1) {
             row64[cnt++] = i;
         }
     }

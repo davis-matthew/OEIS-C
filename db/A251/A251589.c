@@ -11,13 +11,16 @@
  *            19414368*n + 4782969)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 11, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 33 terms through n = 250 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* (All operations are exact, handling negative exponents by dividing the final result.) */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -54,14 +57,14 @@ seq_t a(idx_t n)
     seq_t powN1_neg = (seq_t)1;
 
     if (e1 >= 0)
-        pow9_pos = big_pow((seq_t)9, (seq_t)e1);
+        pow9_pos = ipow((seq_t)9, (seq_t)e1);
     else
-        pow9_neg = big_pow((seq_t)9, (seq_t)(-e1));
+        pow9_neg = ipow((seq_t)9, (seq_t)(-e1));
 
     if (e2 >= 0)
-        powN1_pos = big_pow(n_seq + (seq_t)1, (seq_t)e2);
+        powN1_pos = ipow(n_seq + (seq_t)1, (seq_t)e2);
     else
-        powN1_neg = big_pow(n_seq + (seq_t)1, (seq_t)(-e2));
+        powN1_neg = ipow(n_seq + (seq_t)1, (seq_t)(-e2));
 
     /* Build numerator and denominator */
     seq_t numerator   = P * pow9_pos * powN1_pos;

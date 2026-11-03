@@ -5,64 +5,48 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = the n-th positive integer k such that 2^k == 2 (mod k)
- * Range:     u8 n <= 55, u16 n <= 6607, u32 n <= 9162, u64 n <= 9162,
- *            u128 n <= 9162, big any n
- * Helpers:   mod_pow
+ * Range:     u8 n <= 55, u16 n <= 6607, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 91 terms through n = 9162 (2026-11-03)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+/* A015919: positive k with 2^k == 2 (mod k), tested in order with exact 64-bit
+ * modular exponentiation. Even k are tested too: 161038 is the first even
+ * term (the original skipped them, and lost it and later even terms). */
+
+#include <stdint.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#include "../utils/mod_pow.h"
 
-static seq_t *terms    = NULL; /* stored sequence values */
-static size_t  terms_len = 0;   /* number of values currently stored */
-static size_t  terms_cap = 0;   /* allocated capacity of the array */
-static uint64_t next_candidate = 1; /* candidate to test next */
-
-static void grow_terms(size_t new_len)
+static uint64_t pow2_mod(uint64_t e, uint64_t m)
 {
-    if (new_len <= terms_cap)
-        return;
-    size_t new_cap = terms_cap ? terms_cap << 1 : 16;
-    while (new_cap < new_len)
-        new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
-    if (!tmp && new_cap > 0) {
-        free(terms);
-        exit(EXIT_FAILURE);
+    uint64_t r = 1 % m, b = 2 % m;
+    for (; e; e >>= 1) {
+        if (e & 1) r = (uint64_t)((unsigned __int128)r * b % m);
+        b = (uint64_t)((unsigned __int128)b * b % m);
     }
-    terms = tmp;
-    terms_cap = new_cap;
+    return r;
 }
+
+static uint64_t *terms = NULL;
+static size_t term_len = 0, term_cap = 0;
+static uint64_t next_k = 1;
 
 seq_t a(idx_t n)
 {
-    /* Ensure the storage is initialised */
-    if (terms_len == 0 && terms_cap == 0) {
-        terms = NULL;
-    }
-
-    /* Generate terms until we have at least n of them */
-    while (terms_len < n) {
-        /* Skip even candidates greater than 2 – they can never satisfy 2^k ≡ 2 (mod k) */
-        if (next_candidate > 2 && !(next_candidate & 1ULL)) {
-            ++next_candidate;
-            continue;
+    if (n < 1) return (seq_t)0;
+    while (term_len < (size_t)n) {
+        uint64_t k = next_k++;
+        if (pow2_mod(k, k) != 2 % k) continue;
+        if (term_len == term_cap) {
+            term_cap = term_cap ? 2 * term_cap : 1024;
+            uint64_t *t = (uint64_t *)realloc(terms, term_cap * sizeof *t);
+            if (!t) abort();
+            terms = t;
         }
-
-        seq_t cand = (seq_t)next_candidate;
-        seq_t rhs  = (seq_t)(2 % next_candidate);
-        seq_t powmod = mod_pow((seq_t)2, next_candidate, cand);
-
-        if (powmod == rhs) {
-            grow_terms(terms_len + 1);
-            terms[terms_len++] = cand;
-        }
-
-        ++next_candidate;
+        terms[term_len++] = k;
     }
-
-    return terms[n - 1];
+    return (seq_t)terms[n - 1];
 }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   digit_sum_balanced
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,24 @@
 /* a(n) = least value in the orbit of n under the map
    f(x) = x + sum of the balanced ternary digits of x.  */
 #include <stdint.h>
-#include "../utils/digit_sum_balanced.h"
+
+static inline long long digit_sum_balanced(seq_t v)
+{
+    long long sum = 0;
+    while (v != 0) {
+        seq_t rem = v % 3;
+        if (rem == 2) {
+            /* digit -1 */
+            sum -= 1;
+            v = v / 3 + 1;
+        } else {
+            /* digit 0 or 1 */
+            sum += (long long)rem;
+            v = v / 3;
+        }
+    }
+    return sum;
+}
 
 static inline seq_t f_val(seq_t v)
 {

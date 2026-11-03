@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} (-1)^(n-k) * k^n * floor(n/k)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow, mul_small
+ * Validated: standard, pass, 36 terms through n = 995 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,23 @@
  * non‑negative.  All arithmetic is performed with the seq_t type
  * supplied by the build; utils provide big_pow and mul_small. */
 
-#include "../utils/big_pow.h"
-#include "../utils/mul_small.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/ipow.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +49,7 @@ seq_t a(idx_t n)
     for (idx_t d = 1; d <= n; ++d)
     {
         /* d^n (using exponentiation by squaring)      */
-        seq_t d_pow = big_pow((seq_t)d, (seq_t)n);
+        seq_t d_pow = ipow((seq_t)d, (seq_t)n);
 
         /* multiply by floor(n/d) (small integer)      */
         unsigned int factor = (unsigned)(n / d);

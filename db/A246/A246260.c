@@ -11,14 +11,17 @@
  *            result is 1 iff the number of prime factors p with *
  *            nextprime(p) ≡ 3 (mod 4) that occur with odd exponent in n * is
  *            even. This computation factors n, checks each prime factor,...
- * Range:     u8 n <= 9717, u16 n <= 9717, u32 n <= 9717, u64 n <= 9717,
- *            u128 n <= 9717, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 9717 (2026-11-01)
  * Helpers:   factor_u64, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/next_prime.h"
 

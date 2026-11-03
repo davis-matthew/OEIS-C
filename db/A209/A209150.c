@@ -10,18 +10,30 @@
  *            v(n‑1,x) + 1, * with u(1,x)=1, v(1,x)=1. * a(n) is the
  *            flattening of the triangular array of the coefficients of * the
  *            polynomials u(n,x): 1; 2,1; 4,4,1; 7,10,5,1; … * * The r...
- * Range:     u8 n <= 38, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
+ * Range:     u8 n <= 38, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
+
+/* the code below runs in wide_t: 128 bits at the fixed widths (never narrower
+   than seq_t), seq_t itself for big, so values that pass 2^64 on the way to a
+   term that fits stay exact; a() returns the term in seq_t */
+#ifdef __cplusplus
+typedef seq_t wide_t;
+#else
+typedef __typeof__((seq_t)0 + (__int128)0) wide_t;
+#endif
+#define seq_t wide_t
 
 /* Forward declarations – the build provides seq_t and idx_t. */
-extern seq_t a(idx_t n);
+extern seq_t a_wide(idx_t n);
 
 /* Internal state – memoised data. */
 static seq_t   *triangle = NULL;   /* flattened sequence of u‑coefficients */
@@ -39,7 +51,7 @@ static void ensure_tri_cap(size_t need)
     size_t new_cap = tri_cap ? tri_cap : 32;
     while (new_cap < need) new_cap <<= 1;
     tri_cap = new_cap;
-    seq_t *tmp = (seq_t *)realloc(triangle, tri_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, triangle, tri_cap);
     if (!tmp) abort();               /* out of memory */
     triangle = tmp;
 }
@@ -49,8 +61,8 @@ static void ensure_prev_cap(idx_t need)
 {
     if (need <= prev_len) return;
     idx_t new_cap = need;
-    seq_t *tmp_u = (seq_t *)realloc(prev_u, new_cap * sizeof(seq_t));
-    seq_t *tmp_v = (seq_t *)realloc(prev_v, new_cap * sizeof(seq_t));
+    seq_t *tmp_u = mem_resize(seq_t, prev_u, new_cap);
+    seq_t *tmp_v = mem_resize(seq_t, prev_v, new_cap);
     if (!tmp_u || !tmp_v) abort();
     prev_u = tmp_u;
     prev_v = tmp_v;
@@ -64,8 +76,8 @@ static void generate_next_row(void)
     ensure_prev_cap(n);
 
     /* Temporary arrays for the new row. */
-    seq_t *next_u = (seq_t *)malloc(n * sizeof(seq_t));
-    seq_t *next_v = (seq_t *)malloc(n * sizeof(seq_t));
+    seq_t *next_u = mem_new(seq_t, n);
+    seq_t *next_v = mem_new(seq_t, n);
     if (!next_u || !next_v) abort();
 
     for (idx_t i = 0; i < n; ++i) {
@@ -92,8 +104,8 @@ static void generate_next_row(void)
     }
 
     /* Discard the old previous row arrays. */
-    free(prev_u);
-    free(prev_v);
+    mem_free(prev_u);
+    mem_free(prev_v);
     /* Make the new row the current previous row. */
     prev_u = next_u;
     prev_v = next_v;
@@ -101,7 +113,7 @@ static void generate_next_row(void)
 }
 
 /* Public entry point. */
-seq_t a(idx_t n)
+seq_t a_wide(idx_t n)
 {
     if (n == 0) return 0;   /* not defined; guard against underflow */
 
@@ -119,4 +131,10 @@ seq_t a(idx_t n)
     while (tri_len < n) generate_next_row();
 
     return triangle[n - 1];
+}
+
+#undef seq_t
+seq_t a(idx_t n)
+{
+    return (seq_t)a_wide(n);
 }

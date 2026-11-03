@@ -10,13 +10,15 @@
  *            (∑_{k∈ℤ} x^{2k²}) / Π_{k>0}(1‑x^k)
  * Range:     u8 n <= 13, u16 n <= 37, u32 n <= 115, u64 n <= 390,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The build supplies these types: seq_t, idx_t */
 static seq_t *partitions = NULL;   /* cache of p[0..N] */
@@ -29,7 +31,7 @@ static void ensure_partitions(idx_t n)
     if (n + 1 <= part_size) return;          /* already available */
 
     idx_t new_size = n + 1;
-    seq_t *new_partitions = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_partitions = mem_new(seq_t, new_size);
     if (!new_partitions) return;             /* memory error: leave cache unchanged */
 
     /* copy old values */
@@ -59,7 +61,7 @@ static void ensure_partitions(idx_t n)
     }
 
     /* replace old cache */
-    free(partitions);
+    mem_free(partitions);
     partitions = new_partitions;
     part_size  = new_size;
 }

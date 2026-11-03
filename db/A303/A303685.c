@@ -12,12 +12,14 @@
  *            a(9)=1261, a(10)=3503, a(11)=8019, a(12)=20956, a(13)=49932,...
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 50, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    /* dynamic cache for terms, index starts at 1 */
 static idx_t max_n = 0;        /* highest n that has been computed */
@@ -31,7 +33,7 @@ static void ensure_capacity(idx_t n)
     if (new_cap <= (size_t)n) new_cap = (size_t)n + 1;
 
     /* realloc with an explicit cast so this compiles as C++ too */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) exit(EXIT_FAILURE);/* allocation failure */
 
     cache = new_cache;

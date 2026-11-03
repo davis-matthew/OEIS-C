@@ -8,7 +8,8 @@
  * Formula:   a(n) = coefficient of q^n in ∏_{k>0} (1 + q^{5k})/(1 + q^k)
  * Range:     i8 n <= 69, i16 n <= 192, i32 n <= 588, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    performing the required convolution.  The function is memoised and
    recomputed only when larger indices are requested.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* cached values a[0..a_cap-1] */
 static size_t   a_cap   = 0;     /* size of the cache (highest index + 1) */
@@ -29,10 +31,10 @@ static seq_t *compute_up_to(idx_t N)
     size_t size = (size_t)N + 1;
 
     /* temporary arrays */
-    seq_t *A = (seq_t*)calloc(size, sizeof(seq_t));   /* A[n]: partitions into distinct multiples of 5 */
-    seq_t *B = (seq_t*)calloc(size, sizeof(seq_t));   /* B[n]: coefficients of 1 / ∏(1+q^k)          */
-    seq_t *P = (seq_t*)calloc(size, sizeof(seq_t));   /* P[n]: partitions into distinct parts         */
-    seq_t *a = (seq_t*)calloc(size, sizeof(seq_t));   /* final sequence                           */
+    seq_t *A = mem_new(seq_t, size);   /* A[n]: partitions into distinct multiples of 5 */
+    seq_t *B = mem_new(seq_t, size);   /* B[n]: coefficients of 1 / ∏(1+q^k)          */
+    seq_t *P = mem_new(seq_t, size);   /* P[n]: partitions into distinct parts         */
+    seq_t *a = mem_new(seq_t, size);   /* final sequence                           */
 
     /* --- Partitions into distinct parts:  P[n] --- */
     P[0] = 1;
@@ -71,9 +73,9 @@ static seq_t *compute_up_to(idx_t N)
     }
 
     /* free temporary arrays */
-    free(A);
-    free(B);
-    free(P);
+    mem_free(A);
+    mem_free(B);
+    mem_free(P);
 
     return a;
 }
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
     /* Need to recompute up to n */
     seq_t *new_cache = compute_up_to(n);
 
-    free(a_cache);
+    mem_free(a_cache);
     a_cache = new_cache;
     a_cap   = (size_t)n + 1;
 

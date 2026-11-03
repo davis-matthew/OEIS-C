@@ -7,7 +7,8 @@
  * Formula:   primes congruent to 1 (mod 420)
  * Range:     u8 none, u16 n <= 60, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 54 terms through n = 896 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Static cache of found primes */
 static seq_t *primes     = NULL; /* array of primes of the form 420k+1 */
@@ -29,7 +31,7 @@ static void ensure_primes_capacity(size_t needed)
         size_t new_cap = primes_cap == 0 ? 128 : (primes_cap << 1);
         while (new_cap < needed)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, primes, new_cap);
         if (!tmp)
             abort(); /* allocation failed */
         primes      = tmp;

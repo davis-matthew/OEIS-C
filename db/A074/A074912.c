@@ -11,13 +11,15 @@
  *            a(n) on demand, caching generated rows for future calls
  * Range:     u8 n <= 59, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Euler's totient φ(n) for n ≥ 1.  Uses a simple trial division
    algorithm and fits in seq_t. */
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
     for (idx_t k = rows_used + 1; k <= r; ++k)
     {
         /* Allocate one‑based array of size k+1 (ignore index 0) */
-        seq_t *row = (seq_t *)malloc((k + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (k + 1));
         if (!row) exit(EXIT_FAILURE);
         /* First and last entries are φ(k) */
         seq_t phi_k = phi(k);

@@ -7,9 +7,10 @@
  * Formula:   digits of floor(phi*10^m) = floor((10^m +
  *            floor(sqrt(5*10^(2m))))/2); sqrt(5) computed digit by digit
  *            (exact integer square root), a(n) = n-th digit
- * Range:     u8 n <= 9003, u16 n <= 9003, u32 n <= 9003, u64 n <= 9003,
- *            u128 n <= 9003, big any n
- * Helpers:   phi_cmp
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 9003 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/phi_cmp.h"
+
+static int phi_cmp(const uint32_t *a, const uint32_t *b, size_t L) {
+    for (size_t i = L; i > 0; i--) {
+        if (a[i - 1] < b[i - 1]) return -1;
+        if (a[i - 1] > b[i - 1]) return 1;
+    }
+    return 0;
+}
 
 #define PHI_BASE 1000000000u
 

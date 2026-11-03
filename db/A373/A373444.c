@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 72, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Fixed limit that safely contains the first 10 000 terms (the largest such
    integer conjecturally is 79445 < 2·10⁶). */
@@ -105,13 +107,13 @@ static void build_cache(seq_t **seq_ptr, size_t *seq_len_ptr){
 
     /* 5. build the sequence of non‑representable numbers */
     size_t cap = 128;
-    seq_t *seq = (seq_t*)malloc(cap * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, cap);
     size_t seq_len = 0;
     for (uint32_t k = 1; k <= LIMIT; ++k){
         if (!rep[(size_t)k]){
             if (seq_len == cap){
                 cap <<= 1;
-                seq = (seq_t*)realloc(seq, cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, cap);
             }
             seq[seq_len++] = (seq_t)k;
         }

@@ -8,7 +8,8 @@
  * Formula:   a(n) = #{ m < n : bigomega(m) > bigomega(n) }
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   build_spf
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 /* Build smallest prime factor table up to n */
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 static idx_t   a_cap = 0;        /* size of a_arr               */
 static seq_t *a_arr = NULL;     /* cached sequence values       */
@@ -29,7 +32,7 @@ static void recompute_up_to(idx_t limit)
     if (limit == 0) return;
 
     /* allocate array for Omega values (bigomega) */
-    seq_t *omega = (seq_t*)calloc((size_t)(limit + 1), sizeof(seq_t));
+    seq_t *omega = mem_new(seq_t, (size_t)(limit + 1));
     if (!omega) return;                      /* allocation failed */
 
     /* build smallest prime factor table */
@@ -51,9 +54,9 @@ static void recompute_up_to(idx_t limit)
     free(spf);
 
     /* allocate new a_arr */
-    seq_t *new_a = (seq_t*)calloc((size_t)(limit + 1), sizeof(seq_t));
+    seq_t *new_a = mem_new(seq_t, (size_t)(limit + 1));
     if (!new_a) {
-        free(omega);
+        mem_free(omega);
         return;
     }
 
@@ -72,11 +75,11 @@ static void recompute_up_to(idx_t limit)
     }
 
     /* free old array and replace */
-    free(a_arr);
+    mem_free(a_arr);
     a_arr = new_a;
     a_cap = limit;
 
-    free(omega);
+    mem_free(omega);
 }
 
 /* Public sequence function */

@@ -9,7 +9,8 @@
  *            a(p)=p*(p+2))
  * Range:     u8 n <= 7, u16 n <= 63, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 62 terms through n = 967 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stddef.h>
 
 /* helper prototypes provided by the build */
-#include "../utils/factor_u64.h"  /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/seq_pow.h"    /* seq_t seq_pow(seq_t base, idx_t exp); */
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
         uint64_t p   = primes[i];
         uint64_t e   = exps[i];
         seq_t  base  = (seq_t)p * ((seq_t)p + 2);
-        seq_t  term  = seq_pow(base, (idx_t)e);   /* (p*(p+2))^e */
+        seq_t  term  = ipow_idx(base, (idx_t)e);   /* (p*(p+2))^e */
         result *= term;
     }
 

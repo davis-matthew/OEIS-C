@@ -8,13 +8,50 @@
  *            Multiplicative form: a(p^e) = (p^(2e+1)+1)/(p+1)
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   rec_divisor_sum
+ * Validated: standard, pass, 68 terms through n = 9594 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/rec_divisor_sum.h"
+
+/* Recursive helper: enumerate all divisors of n using its factorisation
+   and accumulate d*phi(d) into *sum.
+*/
+static void rec_divisor_sum(size_t  idx,
+                            seq_t   d,
+                            seq_t   phi,
+                            const idx_t *primes,
+                            const int   *exps,
+                            size_t       pc,
+                            seq_t        *sum)
+{
+    if (idx == pc) {
+        *sum += d * phi;
+        return;
+    }
+
+    idx_t p   = primes[idx];
+    int   emax = exps[idx];
+
+    /* divisor with this prime raised to power 0 */
+    rec_divisor_sum(idx + 1, d, phi, primes, exps, pc, sum);
+
+    seq_t d_cur  = d;      /* current divisor multiplied by p^e */
+    seq_t phi_cur = phi;   /* phi for current divisor */
+
+    for (int e = 1; e <= emax; ++e) {
+        d_cur = d_cur * (seq_t)p;           /* increase power of p */
+
+        if (e == 1)
+            phi_cur = phi * (seq_t)(p - 1);  /* first power of p */
+        else
+            phi_cur = phi_cur * (seq_t)p;    /* add another p */
+
+        rec_divisor_sum(idx + 1, d_cur, phi_cur, primes, exps, pc, sum);
+    }
+}
 
 seq_t a(idx_t n)
 {

@@ -7,11 +7,13 @@
  * Formula:   a(n) = 3*(-1)^(n+1)*2^n - 1
  * Range:     i8 n <= 5, i16 n <= 13, i32 n <= 29, i64 n <= 61, i128 n <= 125,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 972 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

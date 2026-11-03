@@ -10,7 +10,8 @@
  *            generating function incrementally
  * Range:     i8 n <= 49, i16 n <= 74, i32 n <= 74, i64 n <= 74, i128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Utility: smallest‑prime‑factor sieve ---------- */
 static void build_spf(idx_t limit, uint64_t **out)
@@ -42,26 +44,26 @@ static void build_spf(idx_t limit, uint64_t **out)
 seq_t a(idx_t n)
 {
     /* Allocate arrays for coefficients. */
-    seq_t   *A = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
-    seq_t   *B = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
-    if (!A || !B) { free(A); free(B); return 0; }
+    seq_t   *A = mem_new(seq_t, (size_t)n + 1);
+    seq_t   *B = mem_new(seq_t, (size_t)n + 1);
+    if (!A || !B) { mem_free(A); mem_free(B); return 0; }
 
     A[0] = (seq_t)1;            /* constant term */
 
     /* Special case n = 0.  Nothing else to do. */
     if (n == 0) {
         seq_t res = A[0];
-        free(A); free(B);
+        mem_free(A); mem_free(B);
         return res;
     }
 
     /* Compute Liouville λ(k) for k = 1 … n. */
     uint64_t *spf = 0;
     build_spf(n, &spf);
-    if (!spf) { free(A); free(B); return 0; }
+    if (!spf) { mem_free(A); mem_free(B); return 0; }
 
     int8_t *lam = (int8_t *)malloc((size_t)n + 1);
-    if (!lam) { free(A); free(B); free(spf); return 0; }
+    if (!lam) { mem_free(A); mem_free(B); free(spf); return 0; }
 
     lam[1] = 1;
     for (idx_t i = 2; i <= n; ++i) {
@@ -91,8 +93,8 @@ seq_t a(idx_t n)
     seq_t result = A[n];
 
     /* Clean up */
-    free(A);
-    free(B);
+    mem_free(A);
+    mem_free(B);
     free(spf);
     free(lam);
 

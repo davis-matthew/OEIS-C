@@ -7,12 +7,14 @@
  * Formula:   a(n) = (a(n-1) XOR n) + n, with a(0) = 1
  * Range:     u8 n <= 27, u16 n <= 349, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9222 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Allocate cache on first invocation */
     if (cache == NULL) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Store the initial value */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         if (needed > cache_cap) {
             idx_t new_cap = cache_cap;
             while (new_cap < needed) new_cap <<= 1;   /* multiply by 2 */
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
 

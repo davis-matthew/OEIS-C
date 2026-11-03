@@ -12,11 +12,15 @@
  *            most one such neighbor
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 181 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#ifdef __cplusplus
+#include <vector>
+#endif
 #include <stdint.h>
 #ifndef __cplusplus
 #include <stdlib.h>

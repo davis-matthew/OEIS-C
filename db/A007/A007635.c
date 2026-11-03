@@ -8,7 +8,8 @@
  *            primes m^2+m+17
  * Range:     u8 n <= 15, u16 n <= 122, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 64 terms through n = 9497 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     static uint64_t *ms = NULL;
@@ -26,7 +27,7 @@ seq_t a(idx_t n) {
 
     while (found < n) {
         uint64_t v = next_m * next_m + next_m + 17;
-        if (is_prime(v)) {
+        if (is_prime_u64(v)) {
             if (found == cap) {
                 idx_t nc = cap ? cap * 2 : 256;
                 ms = (uint64_t *)realloc(ms, (size_t)nc * sizeof(uint64_t));

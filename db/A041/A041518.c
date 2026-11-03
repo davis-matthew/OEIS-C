@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 25, u64 n <= 53, u128 n <= 107,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* One–time storage of the periodic part of the continued fraction. */
 static seq_t *period = NULL;     /* a_1 … a_period_len */
@@ -54,7 +56,7 @@ static void init_period(void)
 
     /* dynamic array for the periodic partial quotients a_1, a_2, … */
     size_t cap = 8;
-    period = (seq_t *)malloc(cap * sizeof(seq_t));
+    period = mem_new(seq_t, cap);
     size_t len = 0;
 
     while (1) {
@@ -64,7 +66,7 @@ static void init_period(void)
 
         if (len == cap) {
             cap <<= 1;
-            period = (seq_t *)realloc(period, cap * sizeof(seq_t));
+            period = mem_resize(seq_t, period, cap);
         }
         period[len++] = (seq_t)a;
 

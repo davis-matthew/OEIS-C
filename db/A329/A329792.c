@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, look, base
  * Formula:   not stated
- * Range:     i8 n <= 801, i16 n <= 9730, i32 n <= 9730, i64 n <= 9730,
- *            i128 n <= 9730, big any n
- * Helpers:   seq_from_str
+ * Range:     i8 n <= 801, i16 n <= 19801, i32 n <= 25000, i64 n <= 25000,
+ *            i128 n <= 25000, big any n
+ * Validated: standard, pass, 107 terms through n = 9730 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_from_str.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 seq_t a(idx_t n)
 {

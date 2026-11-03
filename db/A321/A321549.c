@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d|n} (-1)^(d-1) * d^10
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 8, i64 n <= 78, i128 n <= 6654,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 9520 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,9 @@
    satisfies the requirements. */
 
 #include <stdint.h>
-#include "../utils/factor_u64.h"  /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 /* Static storage for the factorisation used by the recursive helper.
    As long as calls are serial (which they are in the test harness),

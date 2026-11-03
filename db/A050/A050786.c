@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   has_consecutive_equal, mod_mul_seq
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem, mulmod_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,24 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/has_consecutive_equal.h"
-#include "../utils/mod_mul_seq.h"
+#include "../utils/mulmod_seq.h"
+#include "../utils/mem.h"
+
+/* ---------- check if n contains at least one pair of consecutive equal digits ---------- */
+static bool has_consecutive_equal(seq_t n)
+{
+    if (n < 10) return false;   /* single‑digit numbers cannot have repeated digits */
+    uint8_t prev = (uint8_t)(n % 10);
+    n /= 10;
+    while (n > 0)
+    {
+        uint8_t d = (uint8_t)(n % 10);
+        if (d == prev) return true;
+        prev = d;
+        n /= 10;
+    }
+    return false;
+}
 
 /* ---------- small primes used for trial division ---------- */
 static const uint64_t SMALL_PRIMES[] =
@@ -61,8 +78,8 @@ static seq_t mod_pow_seq(seq_t base, seq_t exp, seq_t mod)
     while (exp > 0)
     {
         if (exp & 1)
-            result = mod_mul_seq(result, base, mod);
-        base = mod_mul_seq(base, base, mod);
+            result = mulmod_seq(result, base, mod);
+        base = mulmod_seq(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -103,7 +120,7 @@ static bool isPrime(seq_t n)
         bool passed = false;
         for (unsigned r = 1; r < s; ++r)
         {
-            x = mod_mul_seq(x, x, n);
+            x = mulmod_seq(x, x, n);
             if (x == n - (seq_t)1)
             {
                 passed = true;
@@ -135,7 +152,7 @@ static void generate_up_to(size_t target)
     if (cache_cap < target)
     {
         cache_cap = target * 2;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* initialise generator on first call */

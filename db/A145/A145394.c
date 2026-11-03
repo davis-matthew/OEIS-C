@@ -10,16 +10,17 @@
  *            divisors of n, χ(d) = Dirichlet character modulo 3: χ(d)= 0 if
  *            3|d, χ(d)= 1 if d ≡ 1 (mod 3), χ(d)= –1 if d ≡ 2 (mod 3). The
  *            expression is integer for all n ≥ 1
- * Range:     u8 n <= 16, u16 n <= 1164, u32 n <= 7977, u64 n <= 7977,
- *            u128 n <= 7977, big any n
- * Helpers:   pow_uint
+ * Range:     u8 n <= 16, u16 n <= 1164, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 96 terms through n = 7977 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +32,7 @@ seq_t a(idx_t n)
     unsigned e2 = 0;
     while ((N & 1ULL) == 0) { N >>= 1; e2++; }
     if (e2) {
-        seq_t pwr = pow_uint(2, e2 + 1);
+        seq_t pwr = ipow_u64_idx(2, e2 + 1);
         sigma *= (pwr - 1);          /* 2^(e2+1) – 1 */
         if (chi_sum && (e2 & 1U))
             chi_sum = 0;             /* odd exponent makes χ_sum zero */
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
     unsigned e3 = 0;
     while (N % 3ULL == 0) { N /= 3; e3++; }
     if (e3) {
-        seq_t pwr = pow_uint(3, e3 + 1);
+        seq_t pwr = ipow_u64_idx(3, e3 + 1);
         sigma *= (pwr - 1);
         sigma /= 2;                  /* divide by (3‑1) */
         /* χ(3)=0, but any power still contributes 1 to the product */
@@ -52,7 +53,7 @@ seq_t a(idx_t n)
         if (N % p == 0) {
             unsigned e = 0;
             while (N % p == 0) { N /= p; e++; }
-            seq_t pwr = pow_uint(p, e + 1);
+            seq_t pwr = ipow_u64_idx(p, e + 1);
             sigma *= (pwr - 1);
             sigma /= (p - 1);
             if (chi_sum) {
@@ -68,7 +69,7 @@ seq_t a(idx_t n)
 
     /* any remaining prime factor > sqrt(original n) */
     if (N > 1) {
-        seq_t pwr = pow_uint(N, 2);   /* N^(1+1) */
+        seq_t pwr = ipow_u64_idx(N, 2);   /* N^(1+1) */
         sigma *= (pwr - 1);
         sigma /= (N - 1);
         if (chi_sum) {

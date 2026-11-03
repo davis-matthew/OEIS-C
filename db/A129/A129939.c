@@ -10,12 +10,14 @@
  *            a(3)=3, a(4)=1, a(5)=19
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 33, u64 n <= 65, u128 n <= 131,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 819 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first five terms on first call */
     if (cache == NULL) {
         cache_cap = 6; /* indices 1..5 used, leave index 0 unused */
-        cache = (seq_t *)malloc((size_t)cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_cap);
         cache[1] = (seq_t)12;
         cache[2] = (seq_t)21;
         cache[3] = (seq_t)3;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         /* ensure the array is large enough (grow factor 2 for amortised O(1)) */
         if ((idx_t)(cache_cap) <= n) {
             idx_t new_cap = (n + 1) * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
             if (tmp == NULL) { /* allocation failed – cannot proceed */
                 /* In a real library we might handle this error */
                 return (seq_t)0;

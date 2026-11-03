@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 431, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 64 terms through n = 985 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Static storage for already produced terms.                            */
@@ -42,7 +44,7 @@ static void _ensure_capacity(size_t space)
     size_t new_cap = result_cap ? result_cap * 2 : 16;
     while (new_cap - result_len < space)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(result_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, result_arr, new_cap);
     if (!tmp)
         abort();                      /* memory allocation failure */
     result_arr = tmp;

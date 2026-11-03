@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   pow_seq_small
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,7 @@
  */
 
 #include <stdbool.h>
-#include "../utils/pow_seq_small.h"
+#include "../utils/ipow_idx.h"
 
 /* Integer square root with floor: floor(sqrt(n)) for idx_t n. */
 static inline idx_t floor_isqrt_u64(idx_t n)
@@ -67,8 +68,8 @@ seq_t a(idx_t n)
         seq_t binom = 1;                     /* C(k,k) */
         for (idx_t m = k; m <= r - 1; ++m) {
             idx_t exp = m - k;
-            seq_t pow1 = pow_seq_small((seq_t)(r - m), exp);
-            seq_t pow2 = pow_seq_small((seq_t)(r - 1 - m), exp);
+            seq_t pow1 = ipow_idx((seq_t)(r - m), exp);
+            seq_t pow2 = ipow_idx((seq_t)(r - 1 - m), exp);
             seq_t diff = pow1 - pow2;
             result += binom * diff;
 

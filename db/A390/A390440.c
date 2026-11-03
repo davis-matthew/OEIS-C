@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 163, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf
+ * Validated: standard, pass, 83 terms through n = 9924 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static idx_t sieve_limit = 200000;          /* enough for n up to ~10000   */
@@ -40,7 +42,7 @@ static void init(void)
 
     /* start with a modest cache capacity */
     cache_cap = 1024;
-    cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+    cache = mem_new(seq_t, cache_cap);
     cache_size = 0;
 
     initialized = true;
@@ -72,7 +74,7 @@ static void ensure_cache(idx_t n)
     while (cache_size < n) {
         if (cache_size == cache_cap) {
             cache_cap <<= 1;
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         if (good_exponents(current)) {
             cache[cache_size++] = (seq_t)current;

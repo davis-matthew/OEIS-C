@@ -8,13 +8,15 @@
  *            binomial(n,k) * a(n-k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *a_vals  = NULL;     /* a[0..n]                           */
 static seq_t *pow3    = NULL;     /* 3^i for i = 0..n                 */
@@ -27,9 +29,9 @@ static void ensure(idx_t n)
     /* First time: allocate a minimal array for n = 0.  */
     if (a_vals == NULL) {
         size_t init = 1;                     /* store indices 0 .. 1 */
-        a_vals = (seq_t *)malloc((init + 1) * sizeof(seq_t));
-        pow3   = (seq_t *)malloc((init + 1) * sizeof(seq_t));
-        fact   = (seq_t *)malloc((init + 1) * sizeof(seq_t));
+        a_vals = mem_new(seq_t, (init + 1));
+        pow3   = mem_new(seq_t, (init + 1));
+        fact   = mem_new(seq_t, (init + 1));
         if (!a_vals || !pow3 || !fact) {
             /* Allocation failed – leave arrays NULL, caller will abort. */
             return;
@@ -44,9 +46,9 @@ static void ensure(idx_t n)
     if (need <= max_n) return;               /* everything already available */
 
     /* Grow the arrays to accommodate indices up to need.  */
-    a_vals = (seq_t *)realloc(a_vals, (need + 1) * sizeof(seq_t));
-    pow3   = (seq_t *)realloc(pow3,   (need + 1) * sizeof(seq_t));
-    fact   = (seq_t *)realloc(fact,   (need + 1) * sizeof(seq_t));
+    a_vals = mem_resize(seq_t, a_vals, (need + 1));
+    pow3   = mem_resize(seq_t, pow3, (need + 1));
+    fact   = mem_resize(seq_t, fact, (need + 1));
     if (!a_vals || !pow3 || !fact) {
         /* Allocation failed – leave as is; subsequent calls will fail. */
         return;

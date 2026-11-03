@@ -12,13 +12,15 @@
  *            +4*a(n-21). Initial values: a(1)=5, a(2)=22, a(3)=83, a(4)=34...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 30, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_CACHE 20000  /* safe for n up to about 10000 */
 
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
     /* Initialize cache with the first 21 terms once */
     if (cache_size == 0) {
-        memcpy(cache, init_terms, 21 * sizeof(seq_t));
+        mem_copy(cache, init_terms, 21 * sizeof(seq_t));
         cache_size = 21;
     }
 

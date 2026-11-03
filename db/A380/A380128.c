@@ -9,13 +9,15 @@
  *            m*(m+1)/2; T(m,c) = Σ_{i=0}^{m-c} (-1)^i * binomial(2*m-2*c,
  *            m-c-i) * binomial(c+i, i). The triangle T(n,k) is read
  *            row‑by‑row to form the sequence
- * Range:     i8 n <= 9, i16 n <= 35, i32 n <= 77, i64 n <= 77, i128 n <= 77,
+ * Range:     i8 n <= 20, i16 n <= 54, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

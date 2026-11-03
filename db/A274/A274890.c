@@ -12,13 +12,15 @@
  *            a(10)=5121
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 26, u64 n <= 53, u128 n <= 107,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include the standard memory allocation header. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Ensure cache is initialized. */
     if (cache == NULL) {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         /* In the unlikely event malloc fails, return 0. */
         if (cache == NULL) return (seq_t)0;
     }
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         size_t newcap = cap;
         while ((size_t)(n + 1) > newcap)
             newcap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (tmp == NULL) return (seq_t)0;
         cache = tmp;
         cap = newcap;

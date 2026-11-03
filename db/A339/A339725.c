@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   jacobi_mod13
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,26 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/jacobi_mod13.h"
+#include "../utils/mem.h"
+
+/* Legendre symbol (m|13), returns 0, 1 or -1 */
+static int jacobi_mod13(uint64_t m)
+{
+    uint64_t r = m % 13ULL;
+    if (r == 0) return 0;
+    /* compute r^6 mod 13 (Euler's criterion) */
+    int exp = 6;
+    int res = 1;
+    int base = r % 13;
+    while (exp) {
+        if (exp & 1) res = (res * base) % 13;
+        base = (base * base) % 13;
+        exp >>= 1;
+    }
+    if (res == 1) return 1;
+    if (res == 12) return -1; /* 12 ≡ -1 (mod 13) */
+    return 0; /* never reached */
+}
 
 /* Helper for 64‑bit modular multiplication */
 static inline uint64_t mulmod64(uint64_t a, uint64_t b, uint64_t mod)
@@ -174,10 +194,10 @@ static void grow_cache(void)
 {
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else {
         cache_cap <<= 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 }
 

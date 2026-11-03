@@ -10,7 +10,8 @@
  *            neighbour 2×2‑block constraint described in A237900
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 15, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Constant parameters chosen to cover all possibilities of a 2×2 block. */
 #define ROWS   64          /* 4^3 possible rows written in base‑4 */
@@ -135,9 +137,9 @@ static void precompute(void)
     }
 
     /* Allocate DP arrays. */
-    base_counts = (seq_t*)malloc(sizeof(seq_t) * STATES);
-    cur         = (seq_t*)malloc(sizeof(seq_t) * STATES);
-    nxt         = (seq_t*)malloc(sizeof(seq_t) * STATES);
+    base_counts = mem_new(seq_t, STATES);
+    cur         = mem_new(seq_t, STATES);
+    nxt         = mem_new(seq_t, STATES);
     for (int i = 0; i < STATES; ++i) base_counts[i] = 0;
 
     /* Initialise base_counts for n == 1 (two rows). */

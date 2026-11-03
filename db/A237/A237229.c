@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 14, u64 n <= 34, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cached = NULL;        /* array of values, cached[0] unused */
 static idx_t cached_len = 0;       /* number of stored elements (index+1) */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on first use. */
     if (cached_len == 0) {
         cached_len = 14;  /* indices 0..13 */
-        cached = (seq_t *)malloc(sizeof(seq_t) * cached_len);
+        cached = mem_new(seq_t, cached_len);
         if (!cached)
             exit(1);
         for (idx_t i = 0; i < cached_len; ++i)
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* Extend the cache if necessary. */
     if (cached_len <= n) {
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cached, sizeof(seq_t) * new_len);
+        seq_t *tmp = mem_resize(seq_t, cached, new_len);
         if (!tmp)
             exit(1);
         cached = tmp;

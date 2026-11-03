@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   ceil_sqrt_seq
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,27 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/ceil_sqrt_seq.h"
+
+/* Ceil(sqrt(v)) for uint64_t or arbitrary‑precision seq_t.
+   Returns the smallest integer k such that k^2 ≥ v. */
+static inline seq_t ceil_sqrt_seq(seq_t v)
+{
+    if (v == (seq_t)0) return (seq_t)0;
+    seq_t lo = (seq_t)1, hi = v, ans = v;
+    while (lo <= hi) {
+        seq_t mid = (lo + hi) / (seq_t)2;
+        seq_t sq  = mid * mid;
+        if (sq == v) return mid;
+        if (sq < v) {
+            lo = mid + (seq_t)1;
+        } else {
+            ans = mid;
+            if (mid == (seq_t)0) break;
+            hi = mid - (seq_t)1;
+        }
+    }
+    return ans;
+}
 
 /* Node used in the min‑heap: the current value together with its
    exponent y and the current x for this y. */

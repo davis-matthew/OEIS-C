@@ -11,7 +11,8 @@
  *            where h is the largest divisor of o with ord_h(2...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   addf, seq_is_big
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/seq_is_big.h"
-#include "../utils/addf.h"
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static void addf(seq_t p, seq_t *lst, int *cnt, int cap) {
+    if (*cnt < cap) lst[(*cnt)++] = p;
+}
 
 static seq_t sg(seq_t x, seq_t y) {
     while (y != 0) { seq_t t = x % y; x = y; y = t; }

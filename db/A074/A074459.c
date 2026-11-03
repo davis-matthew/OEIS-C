@@ -10,14 +10,15 @@
  *            segment counts of A074458 (6,4,5 for 6,7,9)
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   popcnt8
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-01)
+ * Helpers:   popcount_u8
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/popcnt8.h"
+#include "../utils/popcount_u8.h"
 
 /* 7‑segment bit patterns for digits 0‑9 with the variant
    (0=63, 1=6, 2=91, 3=79, 4=102, 5=109, 6=125, 7=71, 8=127, 9=103). */
@@ -75,7 +76,7 @@ seq_t a(idx_t n)
     for (idx_t i = 0; i < maxlen; ++i) {
         uint8_t mask1 = (i < len_n) ? seg[digits_n[i]] : 0;  /* blank => 0 */
         uint8_t mask2 = (i < len_m) ? seg[digits_m[i]] : 0;
-        total += (seq_t)popcnt8(mask1 ^ mask2);
+        total += (seq_t)popcount_u8(mask1 ^ mask2);
     }
 
     return total;

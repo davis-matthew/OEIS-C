@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, easy
  * Formula:   not stated
- * Range:     i8 n <= 6572, i16 n <= 9473, i32 n <= 9473, i64 n <= 9473,
- *            i128 n <= 9473, big any n
+ * Range:     i8 n <= 6572, i16 n <= 10077, i32 n <= 10077, i64 n <= 10077,
+ *            i128 n <= 10077, big any n
+ * Validated: standard, pass, 91 terms through n = 9473 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
    the counter reaches the n-th prime the current y–coordinate
    is returned. */
 
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

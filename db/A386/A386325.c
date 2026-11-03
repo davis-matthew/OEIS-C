@@ -8,7 +8,8 @@
  *            A386325)
  * Range:     u8 n <= 33, u16 n <= 2578, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrimeTrial
+ * Validated: standard, pass, 72 terms through n = 8939 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 
 /* Assume utils functions are available; we use isPrimeTrial for simplicity */
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Static cache for memoization */
 static seq_t *cache = NULL;          /* array of found primes */
@@ -51,11 +53,11 @@ seq_t a(idx_t n)
             last_candidate++;
 
         /* primality test */
-        if (isPrimeTrial((seq_t)last_candidate)) {
+        if (is_prime_seq((seq_t)last_candidate)) {
             /* grow cache if needed */
             if (cache_cnt >= cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) { /* allocation failed – abort */
                     abort();
                 }

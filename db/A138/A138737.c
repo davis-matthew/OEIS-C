@@ -12,15 +12,29 @@
  *            function condition of A138737
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow, seq_realloc
+ * Validated: standard, pass, 34 terms through n = 295 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -51,7 +65,7 @@ seq_t a(idx_t n)
     /* compute new values */
     for (idx_t i = computed_n + 1; i <= n; ++i) {
         /* rhs = (i+1)^(i-1) (big number) */
-        seq_t rhs = big_pow((seq_t)(i + 1), (seq_t)(i >= 1 ? i - 1 : 0));
+        seq_t rhs = ipow((seq_t)(i + 1), (seq_t)(i >= 1 ? i - 1 : 0));
 
         /* accumulate sum = Σ_{k=1}^i (-1)^k·n^k·binom(n,k)·a(i-k) */
         seq_t sum_pos = 0, sum_neg = 0;          /* positive and negative parts separately */

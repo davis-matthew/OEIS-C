@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_fewer_rises_than_falls
+ * Validated: standard, pass, 73 terms through n = 9254 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,38 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_fewer_rises_than_falls.h"
+
+/* Return true if the base‑5 representation of val has more
+   falling adjacent pairs than rising ones.  */
+static bool has_fewer_rises_than_falls(seq_t val)
+{
+    /* The largest number we will encounter for n≈10000 is far below
+       5^200, so a statically sized buffer is sufficient.  */
+    const size_t MAX_DIGITS = 256;
+    uint8_t d[MAX_DIGITS];
+    size_t len = 0;
+
+    /* Extract base‑5 digits (least significant first).  */
+    seq_t tmp = val;
+    while (tmp > (seq_t)0) {
+        /* Cast the remainder to an unsigned char.  */
+        d[len++] = (uint8_t)(tmp % (seq_t)5);
+        tmp /= (seq_t)5;
+        if (len == MAX_DIGITS) break;  /* safety, should never happen */
+    }
+
+    /* Numbers with one or zero digits cannot have rises or falls. */
+    if (len <= 1) return false;
+
+    size_t rise = 0, fall = 0;
+    for (size_t i = 0; i + 1 < len; ++i) {
+        uint8_t a = d[len - 1 - i];      /* more significant digit */
+        uint8_t b = d[len - 2 - i];      /* less significant digit */
+        if (a < b) ++rise;
+        else if (a > b) ++fall;
+    }
+    return fall > rise;
+}
 
 /* A simple cache for the computed terms.  The exact capacity is
    not critical; 200 000 comfortably covers n up to 10 000.  */

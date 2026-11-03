@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 74 terms through n = 897 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;        /* array of sequence values          */
 static size_t seq_cap = 0;       /* current capacity                  */
@@ -38,7 +41,7 @@ static uint64_t last_checked = 1; /* last integer tested for primality */
 static void ensure_seq_cap(void) {
     if (seq_len + 1 > seq_cap) {
         size_t new_cap = (seq_cap == 0) ? 128 : seq_cap * 2;
-        seq_t *new_buf = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *new_buf = mem_resize(seq_t, seq, new_cap);
         seq = new_buf;
         seq_cap = new_cap;
     }
@@ -91,7 +94,7 @@ static bool fails_congruence(uint64_t p) {
     else d = 2;               /* p-1 always even for odd primes */
     uint64_t exp = (p - 1) / d;
     seq_t base = (seq_t)(p - 2);          /* -2 mod p */
-    seq_t val = mod_pow(base, exp, (seq_t)p);
+    seq_t val = powmod(base, exp, (seq_t)p);
     return val != (seq_t)1;              /* unsolvable => include */
 }
 

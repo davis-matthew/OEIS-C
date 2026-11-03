@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    The function returns that j.  The algorithm stores the first occurrence of
    each pentagonal residue modulo n and stops when a residue repeats.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* memoised a(n) values, index 0 unused */
 static idx_t cache_size = 0;    /* current cache capacity (in terms of n) */
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache_size <= n) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(*new_cache));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) {
             new_cache = cache;       /* keep old cache on failure */
             return;

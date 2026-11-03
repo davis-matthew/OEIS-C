@@ -11,8 +11,9 @@
  *            where A(i,j) = number of ways to choose two distinct integers
  *            from 1..i whose sum is divisible by j. Here n is the position in
  *            the antidiagonal sequence (offset 1)
- * Range:     u8 n <= 299, u16 n <= 9059, u32 n <= 9059, u64 n <= 9059,
- *            u128 n <= 9059, big any n
+ * Range:     u8 n <= 299, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 98 terms through n = 9059 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = sigma(n) + psi(n) - 2*n where sigma is the sum of
  *            divisors and psi the Dedekind psi function
- * Range:     u8 n <= 48, u16 n <= 9858, u32 n <= 9858, u64 n <= 9858,
- *            u128 n <= 9858, big any n
+ * Range:     u8 n <= 48, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 99 terms through n = 9858 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

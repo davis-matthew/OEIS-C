@@ -10,12 +10,14 @@
  *            n=0,2,4 and 0 otherwise
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (n + 1 > computed) {
         idx_t new_size = n + 1;
         /* shrink or enlarge as necessary */
-        seq_t *tmp = (seq_t *)realloc(buf, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, new_size);
         if (!tmp) return (seq_t)0; /* allocation failure – should never happen */
         buf = tmp;
 

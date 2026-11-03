@@ -11,12 +11,14 @@
  *            a(7) = 53
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 44, u64 n <= 90, u128 n <= 183,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of computed terms, index 1..cache_len */
 static idx_t  cache_len = 0;     /* highest index for which cache[i] is defined */
@@ -29,9 +31,9 @@ static void ensure(idx_t n)
     /* allocate or grow the cache */
     seq_t *new_cache = NULL;
     if (cache == NULL) {
-        new_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        new_cache = mem_new(seq_t, (n + 1));
     } else {
-        new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        new_cache = mem_resize(seq_t, cache, (n + 1));
     }
     if (new_cache == NULL) {
         /* allocation failed – abort the process as no other recovery

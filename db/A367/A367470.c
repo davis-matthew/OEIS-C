@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} 2^k * (k+1)! * Stirling2(n,k)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* supported seq_t types, including big-integer builds.           */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,19 +29,19 @@ seq_t a(idx_t n)
     /* factorial[0..n+1], pow2[0..n], S[0..n] (two copies), a[0..n]   */
     size_t N = (size_t)n;
 
-    seq_t *fact = (seq_t *)malloc((N + 2) * sizeof(seq_t));
-    seq_t *pow2 = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *S_prev = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *S_curr = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *seq = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (N + 2));
+    seq_t *pow2 = mem_new(seq_t, (N + 1));
+    seq_t *S_prev = mem_new(seq_t, (N + 1));
+    seq_t *S_curr = mem_new(seq_t, (N + 1));
+    seq_t *seq = mem_new(seq_t, (N + 1));
 
     if (!fact || !pow2 || !S_prev || !S_curr || !seq) {
         /* Allocation failed – abort. */
-        free(fact);
-        free(pow2);
-        free(S_prev);
-        free(S_curr);
-        free(seq);
+        mem_free(fact);
+        mem_free(pow2);
+        mem_free(S_prev);
+        mem_free(S_curr);
+        mem_free(seq);
         exit(1);
     }
 
@@ -82,11 +84,11 @@ seq_t a(idx_t n)
     seq_t result = seq[n];
 
     /* Free allocation. */
-    free(fact);
-    free(pow2);
-    free(S_prev);
-    free(S_curr);
-    free(seq);
+    mem_free(fact);
+    mem_free(pow2);
+    mem_free(S_prev);
+    mem_free(S_curr);
+    mem_free(seq);
 
     return result;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    recomputes the lucky numbers and the partition table whenever a
    larger n is requested. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of helper functions */
 static void recompute_lucky(idx_t limit);
@@ -72,8 +74,8 @@ static void recompute_lucky(idx_t limit)
 static seq_t *compute_partitions(idx_t limit)
 {
     /* free old dp if it exists */
-    if (dp) free(dp);
-    dp = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    if (dp) mem_free(dp);
+    dp = mem_new(seq_t, (limit + 1));
     dp_size = limit + 1;
     if (!dp) return NULL;  /* failed allocation */
 

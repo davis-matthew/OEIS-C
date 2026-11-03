@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   build_primes_upto, mod_pow
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   build_primes_upto, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 /* --------------------------------------------------------------------- */
 #define SMALL_PRIME_LIMIT 2000      /* used for factorisation of φ(p)   */
@@ -79,7 +81,7 @@ static bool isFullReptendPrime(uint64_t p)
     /* Test whether the order of 10 modulo p equals φ(p) */
     for (size_t i = 0; i < pfCnt; ++i) {
         uint64_t q = primeFactors[i];
-        seq_t pow = mod_pow((seq_t)10, (uint64_t)(phi / q), (seq_t)p);
+        seq_t pow = powmod((seq_t)10, (uint64_t)(phi / q), (seq_t)p);
         if (pow == (seq_t)1) return false;    /* order divides φ(p)/q */
     }
     return true;                                 /* 10 is a primitive root */

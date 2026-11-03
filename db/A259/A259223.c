@@ -10,13 +10,16 @@
  *            coefficients
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 13, u64 n <= 23, u128 n <= 35,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: standard, pass, 40 terms through n = 422 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Compute the summand for a particular divisor d of n.  If d < n/d the
    binomial coefficient vanishes, so the function returns 0 in that case. */
@@ -26,7 +29,7 @@ static inline seq_t term_d(idx_t n, idx_t d)
     if (d < nd) return 0;            /* binomial(d, nd) == 0 */
 
     /* 2^(d - nd) */
-    seq_t term = pow_uint(2, d - nd);
+    seq_t term = ipow_u64_idx(2, d - nd);
 
     /* binomial(d, nd) */
     term *= binomial(d, nd);

@@ -9,6 +9,7 @@
  * Formula:   a(n) = ∏_{i=1}^{3} ∏_{j=1}^{5} (i + j + n - 1)/(i + j - 1)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 11, u64 n <= 22, u128 n <= 22,
  *            big any n
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

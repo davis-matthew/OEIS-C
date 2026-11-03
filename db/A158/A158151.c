@@ -11,12 +11,14 @@
  *            required nondecreasing sequences
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 51, u64 n <= 282, u128 n <= 363,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 346 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MAX_K 16
 
@@ -35,7 +37,7 @@ static void ensure_table(idx_t n)
 {
     if (table_data == NULL)
     {
-        table_data = (seq_t *)malloc((MAX_K + 1) * sizeof(seq_t));
+        table_data = mem_new(seq_t, (MAX_K + 1));
         if (!table_data) return;
         /* initialise row 0 : p(0,0)=1, p(0,k>0)=0 */
         for (idx_t k = 0; k <= MAX_K; ++k)
@@ -48,7 +50,7 @@ static void ensure_table(idx_t n)
     /* extend the array */
     size_t new_rows = (size_t)(n + 1);
     size_t new_size = new_rows * (MAX_K + 1);
-    seq_t *new_data = (seq_t *)realloc(table_data, new_size * sizeof(seq_t));
+    seq_t *new_data = mem_resize(seq_t, table_data, new_size);
     if (!new_data) return;            /* allocation failure – cannot extend */
     table_data = new_data;
 

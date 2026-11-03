@@ -7,8 +7,9 @@
  * Keywords:  easy, core, nonn, nice, mult
  * Formula:   a(n) = Product_{p^e || n} (p^(e+1)-1)/(p-1), computed as Product
  *            (1 + p + ... + p^e)
- * Range:     u8 n <= 107, u16 n <= 9709, u32 n <= 9709, u64 n <= 9709,
- *            u128 n <= 9709, big any n
+ * Range:     u8 n <= 107, u16 n <= 17639, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 86 terms through n = 9709 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

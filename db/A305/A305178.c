@@ -13,13 +13,15 @@
  *            a(16)=22105, a(17)=42831, a...
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 34, u64 n <= 68, u128 n <= 135,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         idx_t new_cap = capacity ? capacity * 2 : 32;
         if (new_cap <= n) new_cap = n + 1;
         if (new_cap < 19) new_cap = 19;           /* need room for the first 18 terms */
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!tmp) return 0;                       /* out of memory – return zero as a sane fallback */
         cache = tmp;
         capacity = new_cap;

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   mul128, row_of, seq_malloc, seq_realloc
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,10 +31,62 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/row_of.h"
-#include "../utils/seq_malloc.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/mul128.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdalign.h>
+#include "../utils/mem.h"
+
+static inline idx_t
+row_of(idx_t n)                 /* return r with r(r+1)/2 ≤ n < (r+1)(r+2)/2 */
+{
+    idx_t low  = 0;
+    idx_t high = 1;
+    /* exponential search to find an upper bound */
+    while ((unsigned __int128)high * (high + 1) / 2 <= n) {
+        low  = high;
+        high <<= 1;              /* double high */
+    }
+    /* binary search between low (inclusive) and high (inclusive) */
+    while (low < high) {
+        idx_t mid = low + ((high - low) >> 1) + 1; /* upper mid to avoid infinite loop */
+        if ((unsigned __int128)mid * (mid + 1) / 2 <= n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+static inline seq_t *seq_realloc(seq_t *p, idx_t n)
+{
+#ifdef __cplusplus
+    return mem_resize(seq_t, p, n);
+#else
+    return (seq_t *)realloc(p, n * sizeof(seq_t));
+#endif
+}
+
+/* Helper: safe multiplication using 128‑bit intermediate when
+   available and seq_t is a built‑in integer.  For arbitrary‑precision
+   types the plain * operator is used. */
+static inline seq_t mul128(seq_t a, seq_t b)
+{
+#if defined(__SIZEOF_INT128__) && !defined(__cplusplus)
+    return (seq_t)((unsigned __int128)(unsigned long long)a * b);
+#else
+    return a * b;
+#endif
+}
 
 seq_t a(idx_t n)
 {

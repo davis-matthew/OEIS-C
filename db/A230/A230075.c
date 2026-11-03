@@ -7,6 +7,7 @@
  * Formula:   a(n) = [2,1,0,1,-2,-1,0,-1][n mod 8] with offset 0
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
+ * Validated: standard, pass, 126 terms through n = 1989 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

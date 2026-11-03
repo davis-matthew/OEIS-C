@@ -9,7 +9,8 @@
  *            multiplicative and for primes p satisfies a(p)=a(p-1)+4
  * Range:     u8 n <= 14, u16 n <= 127, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9027 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for previously computed values.  The array is 1‑based; cache[0]
    is unused.  cache[i] is zero iff a(i) has not yet been computed. */
@@ -36,7 +38,7 @@ static void ensure_cache_size(idx_t n)
     else
         new_cap <<= 1;                 /* grow by factor 2 */
 
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         return;                       /* allocation failed – keep the old cache  */
 
@@ -47,7 +49,7 @@ static void ensure_cache_size(idx_t n)
     for (size_t i = cache_cap; i < new_cap; ++i)
         new_cache[i] = 0;
 
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_cap = new_cap;
 }
@@ -112,7 +114,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (!cache) {
         cache_cap = 8;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             return 0;                       /* out of memory – unlikely in test harness */
         for (size_t i = 0; i < cache_cap; ++i)

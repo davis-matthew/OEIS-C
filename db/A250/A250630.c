@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 9, u64 n <= 60, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define STATES 2187   /* 3^7 */
 
@@ -119,7 +121,7 @@ static void init(void)
 
     /* Initialise cache */
     a_cache_cap = 1024;
-    a_cache = (seq_t *)malloc(a_cache_cap * sizeof(seq_t));
+    a_cache = mem_new(seq_t, a_cache_cap);
     a_cache[0] = (seq_t)0;   /* dummy entry for index 0 */
     computed_steps = 0;
     initialized = 1;
@@ -158,8 +160,7 @@ static void ensure_computed(idx_t n)
         /* grow cache if necessary */
         if ((size_t)computed_steps >= a_cache_cap) {
             a_cache_cap *= 2;
-            a_cache = (seq_t *)realloc(a_cache,
-                                       a_cache_cap * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, a_cache_cap);
         }
         a_cache[computed_steps] = sum;
     }

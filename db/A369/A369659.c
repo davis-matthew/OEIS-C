@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 49, u16 n <= 9581, u32 n <= 9581, u64 n <= 9581,
- *            u128 n <= 9581, big any n
- * Helpers:   none
+ * Range:     u8 n <= 49, u16 n <= 14042, u32 n <= 33911, u64 n <= 33911,
+ *            u128 n <= 33911, big any n
+ * Validated: standard, pass, 83 terms through n = 9581 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* sequence values */
 static size_t cache_len = 0;         /* number of stored terms */
@@ -91,7 +93,7 @@ static void ensure_cache(idx_t N)
         /* extend cache capacity if needed */
         if (cache_len >= cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) exit(1);
             cache = tmp;
             cache_cap = new_cap;

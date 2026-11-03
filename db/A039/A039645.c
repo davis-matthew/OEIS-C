@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sieve_to_limit
+ * Validated: standard, pass, 118 terms through n = 9726 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,43 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sieve_to_limit.h"
+
+/* sieve \(1\dots limit\), returning the primes and their count */
+static void sieve_to_limit(idx_t limit, uint64_t **out, size_t *cnt)
+{
+    bool *composite = (bool*)calloc((size_t)limit + 1, sizeof(bool));
+    if (!composite) { *out = NULL; *cnt = 0; return; }
+
+    size_t estimated = (size_t)(limit / 2) + 10;
+    uint64_t *tmp_primes = (uint64_t*)malloc(estimated * sizeof(uint64_t));
+    if (!tmp_primes) { free(composite); *out = NULL; *cnt = 0; return; }
+    size_t pc = 0;
+
+    for (size_t i = 2; i <= (size_t)limit; ++i) {
+        if (!composite[i]) {
+            if (pc == estimated) {
+                estimated = estimated * 3 / 2 + 10;
+                uint64_t *newbuf = (uint64_t*)realloc(tmp_primes, estimated * sizeof(uint64_t));
+                if (!newbuf) { free(tmp_primes); free(composite); *out = NULL; *cnt = 0; return; }
+                tmp_primes = newbuf;
+            }
+            tmp_primes[pc++] = (uint64_t)i;
+
+            if (i * i <= (size_t)limit) {
+                for (uint64_t j = i * i; j <= (size_t)limit; j += i)
+                    composite[j] = true;
+            }
+        }
+    }
+
+    free(composite);
+
+    uint64_t *pr = (uint64_t*)realloc(tmp_primes, pc * sizeof(uint64_t));
+    if (!pr) { free(tmp_primes); *out = NULL; *cnt = 0; return; }
+
+    *out = pr;
+    *cnt = pc;
+}
 
 /* static cache of primes */
 static uint64_t *prime_tbl = NULL;

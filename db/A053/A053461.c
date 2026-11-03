@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 239, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   contains
+ * Validated: standard, pass, 66 terms through n = 9559 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
           otherwise a(n) = a(n-1) + n² */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains.h"
+#include "../utils/mem.h"
+
+/* Check whether `val` already appears among the first `len` cached terms. */
+static inline bool contains(const seq_t *arr, idx_t len, seq_t val)
+{
+    for (idx_t i = 0; i < len; ++i)
+        if (arr[i] == val) return true;
+    return false;
+}
 
 /* Static cache for already computed terms (grows on demand). */
 static seq_t *cache = NULL;     /* array of a(0) .. a(k-1) when cache_size == k   */
@@ -31,7 +40,7 @@ static inline void ensure_cache_capacity(idx_t need)
     if (need <= cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

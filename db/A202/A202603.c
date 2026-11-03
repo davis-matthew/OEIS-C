@@ -14,13 +14,15 @@
  *            implementation uses only t...
  * Range:     i8 n <= 65, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         /* ensure the cache can hold at least n+1 elements */
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) return 0;           /* out of memory: impossible for test cases */
         cache = new_cache;
         cache_cap = new_cap;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         size_t row_len = (size_t)next_row + 1;
 
         /* allocate buffer for the new row */
-        seq_t *curr = (seq_t *)malloc(row_len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, row_len);
         if (!curr) return 0; /* unlikely in tests */
 
         /* compute each entry of the new row */
@@ -80,8 +82,8 @@ seq_t a(idx_t n)
             size_t needed = cache_len + row_len;
             size_t new_cap = cache_cap ? cache_cap * 2 : 64;
             while (new_cap < needed) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
-            if (!tmp) { free(curr); return 0; }
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+            if (!tmp) { mem_free(curr); return 0; }
             cache = tmp;
             cache_cap = new_cap;
         }
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
         cache_len += row_len;
 
         /* ------ prepare for next iteration: shift rows ----- */
-        free(prev_prev_row);            /* free the row that is now two steps behind */
+        mem_free(prev_prev_row);            /* free the row that is now two steps behind */
         prev_prev_row = prev_row;
         prev_prev_len = prev_len;
 

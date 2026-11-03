@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} (-1)^k * (k+1)^5 * Stirling1(n,k)
  * Range:     i8 n <= 1, i16 n <= 4, i32 n <= 9, i64 n <= 17, i128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 267 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *c_table = NULL;          /* table of unsigned Stirling numbers of the first kind */
 static idx_t pre_max = 0;              /* highest n computed (n values 0..pre_max-1 present) */
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     if (target >= pre_max)
     {
         idx_t new_max = target + 1;                 /* compute up to target */
-        seq_t *new_tbl = (seq_t *)realloc(c_table, new_max * 7 * sizeof(seq_t));
+        seq_t *new_tbl = mem_resize(seq_t, c_table, new_max * 7);
         if (!new_tbl) exit(1);                      /* memory error */
 
         /* Initialize newly allocated entries to zero */

@@ -8,7 +8,8 @@
  *            largest decimal digit of the prime
  * Range:     u8 n <= 16, u16 n <= 717, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   first_digit_equals_largest
+ * Validated: standard, pass, 72 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,24 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/first_digit_equals_largest.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether the first digit of a decimal number equals the
+   largest decimal digit of the number. */
+static bool first_digit_equals_largest(uint64_t v)
+{
+    uint8_t max_digit = 0;
+    uint64_t t = v;
+    while (t) {
+        uint8_t d = t % 10;
+        if (d > max_digit) max_digit = d;
+        t /= 10;
+    }
+    /* get first (most significant) digit */
+    t = v;
+    while (t >= 10) t /= 10;
+    return (uint8_t)t == max_digit;
+}
 
 /* Helper: test whether x is prime using the list of primes discovered
    so far. */
@@ -46,7 +64,7 @@ seq_t a(idx_t n)
         if (cache_size < (size_t)n) {
             size_t new_cap = cache_size ? cache_size * 2 : 8;
             while (new_cap < (size_t)n) new_cap *= 2;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_size = new_cap;
         }
 

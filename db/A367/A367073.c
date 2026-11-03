@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 27, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* external types:
    seq_t   – integer type for sequence values (e.g. uint64_t,
@@ -47,27 +49,27 @@ static void ensure_cache(idx_t N)
     /* Allocate or grow A */
     if (a_cap == 0) {
         a_cap = 32;
-        A = (seq_t *)calloc(a_cap, sizeof(seq_t));
+        A = mem_new(seq_t, a_cap);
     } else if (needed_a > a_cap) {
         size_t new_cap = a_cap;
         while (new_cap < needed_a) new_cap <<= 1;
-        A = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_cap);
         /* zero the newly allocated part */
         if (new_cap > a_cap)
-            memset(A + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
+            mem_set(A + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
         a_cap = new_cap;
     }
 
     /* Allocate or grow B */
     if (b_cap == 0) {
         b_cap = 64;
-        B = (seq_t *)calloc(b_cap, sizeof(seq_t));
+        B = mem_new(seq_t, b_cap);
     } else if (needed_b > b_cap) {
         size_t new_cap = b_cap;
         while (new_cap < needed_b) new_cap <<= 1;
-        B = (seq_t *)realloc(B, new_cap * sizeof(seq_t));
+        B = mem_resize(seq_t, B, new_cap);
         if (new_cap > b_cap)
-            memset(B + b_cap, 0, (new_cap - b_cap) * sizeof(seq_t));
+            mem_set(B + b_cap, 0, (new_cap - b_cap) * sizeof(seq_t));
         b_cap = new_cap;
     }
 

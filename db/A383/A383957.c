@@ -9,13 +9,16 @@
  * Formula:   a(n) = 2*(Catalan(n))^2 + 4*Catalan(n) + 1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 19, u128 n <= 22,
  *            big any n
- * Helpers:   catalan
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/catalan.h"    /* provides seq_t catalan(idx_t k) */
+#include <stddef.h>
+#include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 /* Compute a(n) for OEIS A383957 */
 seq_t a(idx_t n)
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary */
     if (cat_cache == NULL || n > cat_max) {
         idx_t new_len = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cat_cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cat_cache, new_len);
         if (!new_cache) abort();       /* unlikely, but safe */
         cat_cache = new_cache;
 

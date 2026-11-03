@@ -10,8 +10,9 @@
  *            floor(log2(n+1)), and * A(n, k) = Σ_{i=0}^{r-1} (B_i(k) mod 2) *
  *            2^i, * B_0(k) = k, B_{i+1}(x) = x/2 if x even * = (3x+1)/2 if x
  *            odd. * This implements OEIS A339694
- * Range:     u8 n <= 511, u16 n <= 9117, u32 n <= 9117, u64 n <= 9117,
- *            u128 n <= 9117, big any n
+ * Range:     u8 n <= 511, u16 n <= 16382, u32 n <= 16382, u64 n <= 16382,
+ *            u128 n <= 16382, big any n
+ * Validated: standard, pass, 90 terms through n = 9117 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

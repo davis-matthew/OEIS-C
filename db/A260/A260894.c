@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum_{m>=0} (-1)^m * p(n - 3*m*(m+1)/2)
  * Range:     u8 n <= 18, u16 n <= 46, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* where p(k) is the partition function (p(0)=1, p(k)=0 for k<0) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for partition numbers p(0) … p(max) */
 static seq_t *partitions = NULL;   /* array of partition values */
@@ -32,9 +34,9 @@ static void ensure_partitions(idx_t n)
     /* allocate or grow the array: indices 0 … n inclusive */
     size_t newsize = (size_t)n + 1;
     if (partitions == NULL)
-        partitions = (seq_t *)malloc(newsize * sizeof(seq_t));
+        partitions = mem_new(seq_t, newsize);
     else
-        partitions = (seq_t *)realloc(partitions, newsize * sizeof(seq_t));
+        partitions = mem_resize(seq_t, partitions, newsize);
 
     if (partitions == NULL)   /* allocation failed – let the caller crash */
         return;

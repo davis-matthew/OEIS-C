@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) + a(n-2), a(0) = 1, a(1) = 31
  * Range:     u8 n <= 6, u16 n <= 17, u32 n <= 40, u64 n <= 86, u128 n <= 178,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache of computed terms */
 static idx_t cache_size = 0;  /* number of terms stored (cache_size >= 2 after init) */
@@ -21,7 +23,7 @@ seq_t a(idx_t n)
 {
     /* lazily initialise the cache with the first two terms */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (!cache)
             return (seq_t)0; /* allocation failure */
         cache[0] = (seq_t)1;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* enlarge the cache to hold terms up to n */
     idx_t new_size = n + 1u;          /* +1 because indices start at 0 */
     if (new_size > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp)
             return (seq_t)0; /* allocation failure */
         cache = tmp;

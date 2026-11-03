@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 37 terms through n = 409 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* binomial() is provided by the utilities package. */
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Cache to memoise previously computed values.  */
 static seq_t  *cache     = NULL;   /* array of computed a(i) values          */
@@ -37,7 +39,7 @@ ensure_capacity(size_t n)
     while (new_cap <= n)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();   /* out of memory */
 
@@ -56,7 +58,7 @@ a(idx_t n)
     /* Initialise cache and base case a(0)=1 on first call. */
     if (cap == 0) {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache)
             abort();
         for (size_t i = 0; i < cap; ++i)

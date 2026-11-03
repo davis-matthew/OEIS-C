@@ -8,13 +8,15 @@
  *            * a(k) * s(n-k), where s(m) = 1 if m is odd, else 0
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* includes */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of already computed terms */
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     /* on first call: allocate and set a(0)=1 */
     if (A == NULL) {
         cap = 1;
-        A = (seq_t *)malloc(cap * sizeof(seq_t));
+        A = mem_new(seq_t, cap);
         if (A == NULL) return (seq_t)0;   /* allocation failed – return 0 */
         A[0] = (seq_t)1;
     }
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     /* ensure the cache is large enough */
     if ((idx_t)cap <= n) {
         size_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, new_cap);
         if (tmp == NULL)
             return (seq_t)0;   /* allocation failed – return 0 */
         A = tmp;

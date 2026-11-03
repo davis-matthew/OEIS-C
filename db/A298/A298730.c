@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 23, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,16 +25,17 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     idx_t N = n;
     /* allocate arrays for r_k and a_k */
-    seq_t *r = (seq_t*)malloc((size_t)(N + 1) * sizeof(seq_t));
-    seq_t *a_arr = (seq_t*)malloc((size_t)(N + 1) * sizeof(seq_t));
+    seq_t *r = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *a_arr = mem_new(seq_t, (size_t)(N + 1));
     if (!r || !a_arr) {
-        if (r) free(r);
-        if (a_arr) free(a_arr);
+        if (r) mem_free(r);
+        if (a_arr) mem_free(a_arr);
         return (seq_t)0;  /* allocation failed */
     }
 
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_arr[N];
-    free(r);
-    free(a_arr);
+    mem_free(r);
+    mem_free(a_arr);
     return result;
 }

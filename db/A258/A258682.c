@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, get_digits, remove_leftmost
+ * Validated: standard, pass, 73 terms through n = 9485 (2026-11-01)
+ * Helpers:   get_digits, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,23 @@
 #include <string.h>
 #include <stddef.h>
 
-#include "../utils/digit_len.h"
+#include <stdbool.h>
 #include "../utils/get_digits.h"
-#include "../utils/remove_leftmost.h"
+#include "../utils/num_digits.h"
+
+/* Helper: remove the leftmost occurrence of digit d from the array
+ * `digits` of length *len.  The array is modified in place. */
+static void remove_leftmost(uint8_t *digits, int *len, uint8_t d)
+{
+    for (int i = 0; i < *len; ++i) {
+        if (digits[i] == d) {
+            /* Shift left to overwrite the found digit. */
+            memmove(&digits[i], &digits[i + 1], (size_t)(*len - i - 1));
+            --(*len);
+            break;
+        }
+    }
+}
 
 /* Reverse an array of uint8_t in place. */
 static void reverse(uint8_t *arr, int len)
@@ -69,7 +84,7 @@ seq_t a(idx_t n)
     seq_t sq = (seq_t)n * (seq_t)n;
 
     /* Step 2: get decimal digits of n² in MSB‑first order */
-    int lenSq = digit_len(sq);
+    int lenSq = num_digits(sq);
     uint8_t *sqDigits = (uint8_t *)malloc((size_t)lenSq * sizeof(uint8_t));
     if (!sqDigits) {
         /* Memory failure fallback: return 0 (acceptable for this sequence). */

@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in (∑_{k=0}^{∞} x^{k^2})^8
  * Range:     u8 n <= 229, u16 n <= 2519, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 8982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /*   Count of partitions of n into exactly 8 squares (0 allowed). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp[9];          /* dp[k][s] = number of ways to write s as sum of k non‑zero squares */
 static idx_t max_n = (idx_t)-1; /* largest n for which tables are built */
@@ -24,14 +26,14 @@ static void recompute(idx_t N)
 {
     /* Free any previous tables */
     for (int k = 0; k < 9; ++k) {
-        free(dp[k]);
+        mem_free(dp[k]);
         dp[k] = NULL;
     }
 
     /* Allocate new tables, zeroed */
     size_t len = (size_t)(N + 1);
     for (int k = 0; k < 9; ++k) {
-        dp[k] = (seq_t*)calloc(len, sizeof(seq_t));
+        dp[k] = mem_new(seq_t, len);
         if (!dp[k]) return;   /* abort on allocation failure */
     }
 

@@ -9,12 +9,14 @@
  *            a(1)=0, a(2)=0, a(3)=1, a(4)=2, a(5)=3, a(6)=4, a(7)=6, a(8)=8
  * Range:     u8 n <= 41, u16 n <= 661, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;         /* Cached terms 0 .. cache_size-1   */
 static size_t cache_size = 0;            /* Number of terms currently stored */
@@ -35,9 +37,9 @@ ensure_capacity(idx_t n)
         newcap <<= 1;                        /* grow geometrically */
 
     if (cache == NULL)
-        cache = (seq_t *)calloc(newcap, sizeof(seq_t));
+        cache = mem_new(seq_t, newcap);
     else
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
 
     cache_cap = newcap;
 }

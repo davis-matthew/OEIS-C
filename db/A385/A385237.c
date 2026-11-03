@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Sequence A385237: a(n) = smallest x such that x³ + y³ = A004999(n) */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t sum;
@@ -81,13 +83,13 @@ static void extend_terms_to(idx_t n)
 {
     if (!initialized) {
         /* pre‑compute cube values */
-        cube_arr = (seq_t *)malloc(MAX_X * sizeof(seq_t));
+        cube_arr = mem_new(seq_t, MAX_X);
         for (idx_t i = 0; i < MAX_X; ++i) {
             seq_t ii = (seq_t)i;
             cube_arr[i] = ii * ii * ii;
         }
         /* initialise the heap with x = y = 0…MAX_X‑1 */
-        heap = (HeapNode *)malloc(MAX_X * sizeof(HeapNode));
+        heap = mem_new(HeapNode, MAX_X);
         heap_size = 0;
         for (idx_t x = 0; x < MAX_X; ++x) {
             HeapNode node;

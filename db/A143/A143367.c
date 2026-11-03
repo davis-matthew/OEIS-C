@@ -8,17 +8,20 @@
  * Formula:   a(n) = 3636*2^n + 1324 + 720*n*4^n + 1560*n*2^n - 1296*4^n
  * Range:     u8 none, u16 n <= 2, u32 n <= 9, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* 2^n and 4^n (4^n is simply (2^n)^2). */
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)n);
+    seq_t pow2 = ipow((seq_t)2, (seq_t)n);
     seq_t pow4 = pow2 * pow2;   /* equivalently 4^n */
 
     /* Individual terms from the closed‑form expression. */

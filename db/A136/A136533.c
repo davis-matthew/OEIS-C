@@ -12,7 +12,8 @@
  *            (n+2)!/2*P(x,n)
  * Range:     i8 n <= 6, i16 n <= 16, i32 n <= 46, i64 n <= 46, i128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -52,12 +54,12 @@ seq_t a(idx_t n)
 
     /* Allocate three coefficient arrays of size r+1 */
     size_t sz = (size_t)(r + 1);
-    seq_t *p0 = (seq_t *)calloc(sz, sizeof(seq_t)); /* Q_{k-2} */
-    seq_t *p1 = (seq_t *)calloc(sz, sizeof(seq_t)); /* Q_{k-1} */
-    seq_t *p2 = (seq_t *)calloc(sz, sizeof(seq_t)); /* Q_k (temporary) */
+    seq_t *p0 = mem_new(seq_t, sz); /* Q_{k-2} */
+    seq_t *p1 = mem_new(seq_t, sz); /* Q_{k-1} */
+    seq_t *p2 = mem_new(seq_t, sz); /* Q_k (temporary) */
     if (!p0 || !p1 || !p2) {
         /* memory allocation failed – return 0 as fallback */
-        free(p0); free(p1); free(p2);
+        mem_free(p0); mem_free(p1); mem_free(p2);
         return 0;
     }
 
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
     seq_t result = prev[p];
 
     /* Free allocated arrays */
-    free(p0); free(p1); free(p2);
+    mem_free(p0); mem_free(p1); mem_free(p2);
 
     return result;
 }

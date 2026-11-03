@@ -7,13 +7,15 @@
  * Formula:   a(n) = 13 + Sum_{j=4}^{n+3} j! (OEIS A147615)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 413 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static state for memoisation */
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
     /* Initialisation */
     if (!initialized) {
         fact_cap = 4;                         /* need factorials 0..3 */
-        fact_cache = (seq_t *)malloc(fact_cap * sizeof(seq_t));
+        fact_cache = mem_new(seq_t, fact_cap);
         fact_cache[0] = (seq_t)1;
         fact_cache[1] = (seq_t)1;
         fact_cache[2] = (seq_t)2;
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
 
         running_sum = (seq_t)0;               /* nothing added yet          */
         sum_cap = 1;                          /* only a[0] known            */
-        sum_cache = (seq_t *)malloc(sum_cap * sizeof(seq_t));
+        sum_cache = mem_new(seq_t, sum_cap);
         sum_cache[0] = (seq_t)13;             /* a(0) = 13                  */
         max_n = 0;
 
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
             if (new_cap < (size_t)(j + 1))
                 new_cap = j + 1;
             fact_cap = new_cap;
-            fact_cache = (seq_t *)realloc(fact_cache, fact_cap * sizeof(seq_t));
+            fact_cache = mem_resize(seq_t, fact_cache, fact_cap);
         }
 
         /* Compute next factorial */
@@ -76,7 +78,7 @@ seq_t a(idx_t n) {
                 if (new_cap < (size_t)(n_val + 1))
                     new_cap = n_val + 1;
                 sum_cap = new_cap;
-                sum_cache = (seq_t *)realloc(sum_cache, sum_cap * sizeof(seq_t));
+                sum_cache = mem_resize(seq_t, sum_cache, sum_cap);
             }
             sum_cache[n_val] = (seq_t)13 + running_sum;
             if (n_val > max_n)

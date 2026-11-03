@@ -8,6 +8,7 @@
  *            every digit at most once
  * Range:     u8 n <= 93, u16 n <= 261, u32 n <= 261, u64 n <= 261,
  *            u128 n <= 261, big any n
+ * Validated: full, pass, 261 terms through n = 261 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

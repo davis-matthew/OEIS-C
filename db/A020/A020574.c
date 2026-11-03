@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   cmp_seq_t, factor_u64
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,19 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/cmp_seq_t.h"    /* int cmp_seq_t(const void *p1, const void *p2); */
+#include <stdint.h>
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 static seq_t *closed_set = NULL;   /* sorted sequence of primes in the minimal set */
 static size_t set_len   = 0u;       /* number of elements in closed_set */
@@ -37,7 +49,7 @@ init_closed_set(void)
 
     /* start with p = 3, the smallest prime that can be in a closed set */
     size_t cap     = 8u;
-    closed_set     = (seq_t *)malloc(cap * sizeof(seq_t));
+    closed_set     = mem_new(seq_t, cap);
     set_len        = 0u;
     closed_set[set_len++] = (seq_t)3;
 
@@ -62,7 +74,7 @@ init_closed_set(void)
             if (!present) {
                 if (set_len == cap) {
                     cap *= 2;
-                    closed_set = (seq_t *)realloc(closed_set, cap * sizeof(seq_t));
+                    closed_set = mem_resize(seq_t, closed_set, cap);
                 }
                 closed_set[set_len++] = r;
             }
@@ -70,7 +82,7 @@ init_closed_set(void)
     }
 
     /* sort the set increasingly */
-    qsort(closed_set, set_len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(closed_set, set_len, sizeof(seq_t), cmp_seq_t);
 }
 
 /* Return the nth element of the sequence (1‑based index).  If n is out

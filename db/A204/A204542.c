@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor(15*n/4) - ((n + 1) mod 4)
  * Range:     u8 n <= 17, u16 n <= 4965, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 76 terms through n = 4966 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,12 +8,14 @@
  * Formula:   a(n) = 123*a(n-1) - a(n-2), a(0) = 1, a(1) = 122
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 453 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache for computed values   */
 static idx_t cache_size = 0;     /* number of entries stored   */
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* allocate at least two entries for a(0) and a(1) */
         idx_t init_size = (n < 1 ? 2 : n + 1);
-        cache = (seq_t *)malloc(init_size * sizeof(seq_t));
+        cache = mem_new(seq_t, init_size);
         cache[0] = (seq_t)1;         /* a(0) */
         if (init_size > 1) cache[1] = (seq_t)122;  /* a(1) */
         cache_size = (init_size > 1 ? 2 : 1);
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* Extend the cache up to n (inclusive) */
     idx_t new_size = n + 1;
-    cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
     if (new_size > cache_size) {
         /* For indices 0 and 1 we already have values.
            New indices start from cache_size up to n. */

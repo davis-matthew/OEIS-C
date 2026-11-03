@@ -9,7 +9,8 @@
  *            next(p) – p < log(p)
  * Range:     u8 n <= 9, u16 n <= 2278, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 68 terms through n = 9742 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static seq_t *good = NULL;     /* array of qualifying primes */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         build_primes_upto((idx_t)LIMIT, &primes, &prime_cnt);
 
         /* Reserve space for at most prime_cnt-2 qualifying primes. */
-        seq_t *tmp = (seq_t *)malloc((prime_cnt > 2 ? prime_cnt - 2 : 0) * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, (prime_cnt > 2 ? prime_cnt - 2 : 0));
         size_t tmp_cnt = 0;
 
         /* Scan each inner prime and test the two gap conditions. */
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         }
 
         /* Shrink the array to its true size. */
-        good = (seq_t *)malloc(tmp_cnt * sizeof(seq_t));
+        good = mem_new(seq_t, tmp_cnt);
         if (good != NULL) {
             for (size_t i = 0; i < tmp_cnt; ++i) {
                 good[i] = tmp[i];
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
         good_len = tmp_cnt;
 
         /* Clean up temporary storage. */
-        free(tmp);
+        mem_free(tmp);
         free(primes);
 
         initialized = true;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   alloc_state, free_state
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,28 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alloc_state.h"
-#include "../utils/free_state.h"
+
+/* allocate an array of seq_t of length (len) and initialise to zero
+ * in C++ the constructor value-initialises elements to zero.
+ * In C malloc zero‑initialisation is performed by calloc. */
+static seq_t *alloc_state(size_t len)
+{
+#ifdef __cplusplus
+    return new seq_t[len]();          /* value‑initialise */
+#else
+    return calloc(len, sizeof(seq_t));/* zero initialise */
+#endif
+}
+
+/* free one array, using C or C++ delete as appropriate */
+static void free_state(seq_t *p)
+{
+#ifdef __cplusplus
+    delete[] p;
+#else
+    free(p);
+#endif
+}
 
 static seq_t *state[4] = {0, 0, 0, 0};
 static idx_t max_computed = 0;

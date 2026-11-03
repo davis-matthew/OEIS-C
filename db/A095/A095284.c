@@ -12,7 +12,8 @@
  *            satisfied
  * Range:     u8 n <= 5, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t n); */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
             /* Grow cache if necessary.  Use exponential growth. */
             if (len == cap) {
                 cap = (cap == 0) ? 8 : cap * 2;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[len++] = prime;
         }

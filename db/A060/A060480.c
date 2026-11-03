@@ -12,14 +12,38 @@
  *            values
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   mu_of, pow2, pow_seq
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-01)
+ * Helpers:   ipow_i32, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mu_of.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ipow_i32.h"
 #include "../utils/pow2.h"
-#include "../utils/pow_seq.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 seq_t a(idx_t n) {
     seq_t posSum = 0;      /* Σ μ(d)=1 terms * b(n/d)             */
@@ -40,7 +64,7 @@ seq_t a(idx_t n) {
             int v3 = 0;
             idx_t t = k;
             while (t % 3 == 0) { v3++; t /= 3; }
-            seq_t pow3 = pow_seq((seq_t)3, 1 + v3);  /* 3^(1+v3) */
+            seq_t pow3 = ipow_i32((seq_t)3, 1 + v3);  /* 3^(1+v3) */
             bk /= pow3;                 /* exact division */
         }
 
@@ -58,7 +82,7 @@ seq_t a(idx_t n) {
             if ((k2 & 1) == 0) {
                 int v3 = 0; idx_t t2 = k2;
                 while (t2 % 3 == 0) { v3++; t2 /= 3; }
-                seq_t pow3 = pow_seq((seq_t)3, 1 + v3);
+                seq_t pow3 = ipow_i32((seq_t)3, 1 + v3);
                 bk2 /= pow3;
             }
             if (mu_d2 > 0) posSum += bk2;

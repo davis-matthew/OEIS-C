@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +21,13 @@
    supplied by the build. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* DP array of size n+1 */
     size_t sz = (size_t)(n + 1);
-    seq_t *dp = (seq_t*)malloc(sizeof(seq_t) * sz);
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp) return (seq_t)0;                    /* fallback */
 
     /* initialize */
@@ -51,6 +53,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

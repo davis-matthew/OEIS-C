@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 142, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   odd_runs
+ * Validated: standard, pass, 76 terms through n = 8333 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,22 @@
    This implementation returns the nth such number by a simple linear search. */
 
 #include <stdbool.h>
-#include "../utils/odd_runs.h"
+
+static inline bool odd_runs(idx_t x)
+{
+    idx_t prev = x % 10;
+    x /= 10;
+    int runs = 1;
+    while (x > 0)
+    {
+        idx_t d = x % 10;
+        if (d != prev)
+            ++runs;
+        prev = d;
+        x /= 10;
+    }
+    return (runs & 1) != 0;
+}
 
 seq_t a(idx_t n)
 {

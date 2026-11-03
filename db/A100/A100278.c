@@ -11,14 +11,30 @@
  *            clump sum is just larger than the previous clump sum
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   clump_sum
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/clump_sum.h"
+#include "../utils/mem.h"
+
+/* Compute a single clump sum. */
+static inline seq_t clump_sum(idx_t start_index, seq_t prev_sum,
+                               idx_t *current_index)
+{
+    seq_t sum = 0;
+    while (sum <= prev_sum) {
+        /* value of A001511 at position 'current_index' */
+        idx_t v = *current_index;
+        seq_t term = (seq_t)1 + (seq_t)__builtin_ctzll((unsigned long long)v);
+        sum += term;
+        (*current_index)++;
+    }
+    return sum;
+}
 
 /* Memoized storage of already computed clump sums. */
 static seq_t *clumps = NULL;
@@ -33,7 +49,7 @@ static void ensure_capacity(size_t needed)
         size_t new_cap = clumps_cap ? clumps_cap * 2 : 16;
         while (new_cap < needed)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(clumps, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, clumps, new_cap);
         if (!tmp) abort();
         clumps = tmp;
         clumps_cap = new_cap;

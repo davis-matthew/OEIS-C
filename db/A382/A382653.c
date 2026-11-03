@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 /* The build supplies the types seq_t and idx_t (unsigned integer).  */
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- static state used for memoisation --- */
 static seq_t *terms = NULL;           /* stored non-constructible k's */
@@ -93,7 +95,7 @@ static void grow_terms(size_t need)
         size_t newcap = terms_cap ? terms_cap * 2 : 16;
         if (newcap < need)
             newcap = need;
-        terms = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, newcap);
         terms_cap = newcap;
     }
 }

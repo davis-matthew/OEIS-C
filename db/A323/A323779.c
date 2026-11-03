@@ -10,15 +10,29 @@
  *            number of divisors of d, and sigma(d) = sum of divisors of d
  * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   build_spf, gcd, sigma_term
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   build_spf, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/gcd.h"
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/build_spf.h"
-#include "../utils/sigma_term.h"
+#include "../utils/gcd.h"
+
+/* Sum of powers p^0 + p^1 + … + p^e (all in seq_t). */
+static seq_t sigma_term(seq_t p, int e)
+{
+    seq_t sum = 1;          /* p^0 */
+    seq_t pow = 1;          /* current p^k */
+    for (int k = 1; k <= e; ++k) {
+        pow *= p;
+        sum += pow;
+    }
+    return sum;
+}
 
 /* Pre‑computed smallest prime factor table up to spf_limit. */
 static idx_t *spf = NULL;

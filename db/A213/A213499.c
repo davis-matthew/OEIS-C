@@ -10,13 +10,15 @@
  *            a(3)=47, a(4)=96, a(5)=176, a(6)=286, a(7)=439
  * Range:     u8 n <= 5, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache, its current size and last computed index */
 static seq_t *cache = NULL;
@@ -32,12 +34,12 @@ static void enlarge_cache(idx_t need)
     size_t newcap = cap ? cap * 2 : 64;
     while (newcap < (size_t)need + 1) newcap <<= 1;
 
-    seq_t *newp = (seq_t *)malloc(newcap * sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, newcap);
     if (!newp) abort();   /* allocation failure */
 
     /* copy old data */
     for (size_t i = 0; i < cap; ++i) newp[i] = cache[i];
-    free(cache);
+    mem_free(cache);
     cache = newp;
     cap = newcap;
 }

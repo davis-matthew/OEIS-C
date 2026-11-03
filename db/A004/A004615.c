@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 2153, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   all_primes_1_mod_5
+ * Validated: standard, pass, 60 terms through n = 9631 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,19 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/all_primes_1_mod_5.h"
+
+static bool all_primes_1_mod_5(uint64_t n) {
+    uint64_t p;
+    if (n == 1) return true;
+    for (p = 3; p * p <= n; p += 2) {
+        if (n % p == 0) {
+            if (p % 5 != 1) return false;
+            while (n % p == 0) n /= p;
+        }
+    }
+    if (n > 1) return n % 5 == 1;
+    return true;
+}
 
 static uint64_t *terms = NULL;
 static idx_t nterms = 0, capterms = 0;

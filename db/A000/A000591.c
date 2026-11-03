@@ -12,15 +12,27 @@
  *            The sum runs over cycle types, is computed...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 13,
  *            big any n
- * Helpers:   a591_isprime, a591_pw
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a591_isprime.h"
-#include "../utils/a591_pw.h"
+#include "../utils/is_prime_u64.h"
+
+static uint64_t a591_pw(uint64_t b, uint64_t e, uint64_t p)
+{
+    uint64_t r = 1 % p;
+    b %= p;
+    while (e) {
+        if (e & 1) r = r * b % p;
+        b = b * b % p;
+        e >>= 1;
+    }
+    return r;
+}
 
 static int a591_K;
 static long long a591_N;
@@ -97,7 +109,7 @@ seq_t a(idx_t n)
     a591_P = (uint64_t *)malloc(sizeof(uint64_t) * (size_t)a591_K);
     c = 2147483647ULL;
     for (j = 0; j < a591_K; c -= 2) {
-        if (a591_isprime(c)) a591_P[j++] = c;
+        if (is_prime_u64(c)) a591_P[j++] = c;
     }
     a591_fac = (uint64_t *)malloc(sizeof(uint64_t) * (size_t)a591_K * (size_t)(N + 1));
     for (j = 0; j < a591_K; j++) {

@@ -9,11 +9,14 @@
  *            9
  * Range:     u8 n <= 6, u16 n <= 17, u32 n <= 37, u64 n <= 77, u128 n <= 157,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 899 (2026-11-01)
  * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
 

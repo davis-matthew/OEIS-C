@@ -9,6 +9,7 @@
  * Formula:   a(n) = k with Ω(k)=Ω(k+1)+Ω(k+2)+Ω(k+3)+Ω(k+4)
  * Range:     u8 none, u16 n <= 58, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 51 terms through n = 9482 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -74,7 +75,7 @@ static void init_sequence(void)
     terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
     if (!terms) {
         free(spf);  free(omega_arr);
-        spf = omega_arr = NULL;
+        spf = NULL; omega_arr = NULL;
         return;
     }
     terms_cnt = 0;
@@ -93,7 +94,7 @@ static void init_sequence(void)
                 seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
                 if (!tmp) {
                     free(spf);  free(omega_arr); free(terms);
-                    spf = omega_arr = terms = NULL;
+                    spf = NULL; omega_arr = NULL; terms = NULL;
                     return;
                 }
                 terms = tmp;

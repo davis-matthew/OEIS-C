@@ -8,6 +8,7 @@
  * Formula:   a(n) = -74142 + 2^n*(241658-45756*n)+4^n*(115320*n-167090)
  * Range:     u8 none, u16 n <= 0, u32 n <= 6, u64 n <= 20, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

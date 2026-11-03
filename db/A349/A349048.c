@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 12, i16 n <= 23, i32 n <= 45, i64 n <= 81, i128 n <= 156,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  *            a(n)=a(n-1)-Σ_{k=0}^{n-4} a(k)*a(n-4-k)   for n≥5
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     /* Initialization: store the first five terms */
     if (!initialized) {
         cache_capacity = 8;                /* initial capacity */
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         if (!cache) return (seq_t)0;       /* out‑of‑memory guard */
 
         cache[0] = (seq_t)1;
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
     if (n + 1 > cache_capacity) {
         idx_t new_cap = cache_capacity ? cache_capacity << 1 : 8;
         while (new_cap <= n + 1) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;          /* out‑of‑memory guard */
         cache = tmp;
         cache_capacity = new_cap;

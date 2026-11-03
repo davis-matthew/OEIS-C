@@ -11,15 +11,17 @@
  *            , n) - Sum_{m=2}^{k} (-1)^{k-m} * binom(k,m) *
  *            binom(binomial(m,2), n) This implements the definition of
  *            A325011
- * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 52, u64 n <= 132, u128 n <= 132,
+ * Range:     u8 n <= 9, u16 n <= 28, u32 n <= 69, u64 n <= 132, u128 n <= 132,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 72 terms through n = 118 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static seq_t compute_T(idx_t n, idx_t k)
 {
@@ -29,8 +31,8 @@ static seq_t compute_T(idx_t n, idx_t k)
     /* first summation : i = 1 .. k */
     for (idx_t i = 1; i <= k; ++i) {
         idx_t mirr = k - i;                      /* parity for the sign */
-        seq_t term = binom(k, i) *
-                     binom(n + (i + 1) * i / 2 - 1, n);
+        seq_t term = binomial(k, i) *
+                     binomial(n + (i + 1) * i / 2 - 1, n);
         if (mirr & 1U)
             sum1_neg += term;
         else
@@ -40,8 +42,8 @@ static seq_t compute_T(idx_t n, idx_t k)
     /* second summation : m = 2 .. k (m = k-j) */
     for (idx_t m = 2; m <= k; ++m) {
         idx_t mirr = k - m;                      /* parity for the sign */
-        seq_t term = binom(k, m) *
-                     binom(m * (m - 1) / 2, n);
+        seq_t term = binomial(k, m) *
+                     binomial(m * (m - 1) / 2, n);
         if (mirr & 1U)
             sum2_neg += term;
         else

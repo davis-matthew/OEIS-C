@@ -8,8 +8,9 @@
  * Keywords:  nonn, easy, nice
  * Formula:   a(n) = 2*(Sum_{i=1..floor(sqrt(n))} floor(n/i)) -
  *            floor(sqrt(n))^2
- * Range:     u8 n <= 59, u16 n <= 7247, u32 n <= 9774, u64 n <= 9774,
- *            u128 n <= 9774, big any n
+ * Range:     u8 n <= 59, u16 n <= 7247, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 76 terms through n = 9774 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

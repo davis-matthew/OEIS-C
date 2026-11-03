@@ -9,6 +9,7 @@
  *            = x ^ (x >> 1) and ⌊log2(m)⌋ = 63 - __builtin_clzll(m) for m>0
  * Range:     u8 n <= 424, u16 n <= 1022, u32 n <= 1022, u64 n <= 1022,
  *            u128 n <= 1022, big any n
+ * Validated: standard, pass, 99 terms through n = 918 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

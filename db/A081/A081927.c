@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 37, u32 n <= 81, u64 n <= 169,
  *            u128 n <= 342, big any n
- * Helpers:   build_minimal_digits, next_number_same_sum
+ * Validated: standard, pass, 61 terms through n = 8894 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,67 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_minimal_digits.h"
-#include "../utils/next_number_same_sum.h"
+
+/* Helper: create the smallest number of given length 'len' whose digits
+   sum to 'sum'.  If len equals the minimal possible length
+   (ceil(sum/9)), the leading digit may be 0; otherwise the leading
+   digit is forced to be 1 to keep the number valid. */
+static void build_minimal_digits(int len, int sum, int minimal_len, int *digits)
+{
+    int remaining = sum;
+    if (len == minimal_len) {
+        /* Use right‑to‑left filling: largest digits on the right,
+           so that the leftmost digit is the smallest possible. */
+        for (int i = len - 1; i >= 0; --i) {
+            int d = remaining >= 9 ? 9 : remaining;
+            digits[i] = d;
+            remaining -= d;
+        }
+    } else {
+        /* Leading digit must be ≥1.  Assign 1 and distribute the rest
+           to the rightmost positions. */
+        digits[0] = 1;
+        remaining = sum - 1;
+        for (int i = len - 1; i >= 1; --i) {
+            int d = remaining >= 9 ? 9 : remaining;
+            digits[i] = d;
+            remaining -= d;
+        }
+    }
+}
+
+/* Helper: compute the next larger number with the same digit sum.
+   The function modifies the digit array in place.  It returns true
+   if a next number exists within the same length, otherwise false. */
+static bool next_number_same_sum(int len, int *digits, int sum)
+{
+    int sum_suffix = 0;            /* sum of digits to the right of i */
+    for (int i = len - 1; i >= 0; --i) {
+        int cur = digits[i];
+        int left_sum = sum - sum_suffix - cur;
+        int right_positions = len - 1 - i;
+        int max_suffix = 9 * right_positions;
+
+        /* Try to increase this digit. */
+        for (int d = cur + 1; d <= 9; ++d) {
+            int rem = sum - (left_sum + d);
+            if (rem < 0 || rem > max_suffix)
+                continue;                     /* impossible to fill suffix */
+
+            /* Build the smallest suffix with sum 'rem'. */
+            digits[i] = d;
+            int rem_sum = rem;
+            for (int k = len - 1; k > i; --k) {
+                int dig = rem_sum >= 9 ? 9 : rem_sum;
+                digits[k] = dig;
+                rem_sum -= dig;
+            }
+            return true;
+        }
+        sum_suffix += cur;
+    }
+    return false;   /* no larger number of this length */
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

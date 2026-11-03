@@ -9,13 +9,15 @@
  *            (1-x^k)/(1-x)
  * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 45, u64 n <= 94, u128 n <= 194,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const int Q[18] = {
     /*  q0 ... q17  */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if (cache_size <= n) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort();
         cache = new_cache;
 

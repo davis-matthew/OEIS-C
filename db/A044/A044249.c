@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_substring_76
+ * Validated: standard, pass, 56 terms through n = 951 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
  * term is found.  It works for any seq_t and idx_t defined by the build.
  */
 #include <stdbool.h>
-#include "../utils/has_substring_76.h"
+
+/* Return true if the base‑8 representation of x contains the substring 76. */
+static inline bool has_substring_76(seq_t x)
+{
+    if (x == (seq_t)0) return false;
+    int prev = (int)(x % (seq_t)8);
+    x /= (seq_t)8;
+    while (x > (seq_t)0) {
+        int curr = (int)(x % (seq_t)8);
+        if (curr == 7 && prev == 6) return true;
+        prev = curr;
+        x /= (seq_t)8;
+    }
+    return false;
+}
 
 /* Return the n‑th term of A044249 (1‑based index). */
 seq_t a(idx_t n)

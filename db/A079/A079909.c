@@ -8,6 +8,7 @@
  * Formula:   a(n) = 1 (n=0), 5 (n=1), n^4 – 2n^3 + 9n^2 – 8n + 6 (n>=2)
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 256, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 50 terms through n = 871 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

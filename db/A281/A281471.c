@@ -11,7 +11,8 @@
  *            a(5) = 57, a(6) = 87, a(7) = 145, a(8) = 241
  * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 39, u64 n <= 81, u128 n <= 165,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* dynamically grow‑able array of terms */
 static idx_t cache_size = 0;         /* allocated size (number of elements) */
@@ -39,7 +41,7 @@ static void ensure_cache_size(idx_t new_cap)
     size_t cap = cache_size < 16 ? 16 : cache_size;
     while (cap < new_cap)
         cap *= 2;
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+    seq_t *new_cache = mem_new(seq_t, cap);
     if (new_cache == NULL) {
         /* Out of memory – abort the program (no I/O allowed). */
         abort();
@@ -47,7 +49,7 @@ static void ensure_cache_size(idx_t new_cap)
     if (cache != NULL) {
         for (idx_t i = 0; i < cache_size; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_cache;
     cache_size = cap;

@@ -5,14 +5,21 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, look
  * Formula:   a(n) = XOR_{k=n}^{2n} k
- * Range:     u8 n <= 127, u16 n <= 9867, u32 n <= 9867, u64 n <= 9867,
- *            u128 n <= 9867, big any n
- * Helpers:   xor_upto
+ * Range:     u8 n <= 127, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 82 terms through n = 9867 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/xor_upto.h"
+static inline seq_t xor_upto(seq_t m) {
+    seq_t mod = m & (seq_t)3;
+    if (mod == (seq_t)0) return m;                 /* m % 4 == 0 -> m          */
+    if (mod == (seq_t)1) return (seq_t)1;          /* m % 4 == 1 -> 1          */
+    if (mod == (seq_t)2) return m + (seq_t)1;      /* m % 4 == 2 -> m + 1      */
+    return (seq_t)0;                               /* m % 4 == 3 -> 0          */
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;

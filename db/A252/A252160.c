@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 7, u32 n <= 24, u64 n <= 57, u128 n <= 122,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ----------  Global state  ------------------------------------------- */
 static bool initialized = false;   /* do we have the transition graph? */
@@ -127,8 +129,8 @@ static void init_tables(void)
     }
 
     /* Allocate DP arrays */
-    cur = (seq_t *)calloc(4096, sizeof(seq_t));
-    next_arr = (seq_t *)calloc(4096, sizeof(seq_t));
+    cur = mem_new(seq_t, 4096);
+    next_arr = mem_new(seq_t, 4096);
 
     /* Initialise cur for arrays of height 3 (i.e. n=1) .
        For each valid triple (a,b,c), increment state (b,c) */
@@ -161,7 +163,7 @@ static void init_tables(void)
 
     /* Initialise cache */
     cache_cap = 16;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache[0] = first_term;
     cache_len = 1;
     current_n = 1;
@@ -170,7 +172,7 @@ static void init_tables(void)
 /* ----------  Advance DP by one row  --------------------------------- */
 static seq_t advance_and_get_new_value(void)
 {
-    memset(next_arr, 0, 4096 * sizeof(seq_t));
+    mem_set(next_arr, 0, 4096 * sizeof(seq_t));
 
     for (int s = 0; s < 4096; ++s) {
         seq_t val = cur[s];
@@ -210,7 +212,7 @@ seq_t a(idx_t n)
         seq_t val = advance_and_get_new_value();
         if (cache_len == cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = val;
         current_n++;

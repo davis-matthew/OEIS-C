@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 555, u16 n <= 555, u32 n <= 555, u64 n <= 555,
  *            u128 n <= 555, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 518 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,13 +20,14 @@
    position k of the already built sequence. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;                  /* safety, not used by OEIS */
     /* start with the first term */
     size_t capacity = (size_t)n * 2 + 10;   /* generous initial capacity */
-    seq_t *seq = (seq_t*)malloc(capacity * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, capacity);
     if (!seq) return 0;                     /* allocation failure – unlikely */
     seq[0] = (seq_t)1;                      /* a(1) */
     size_t seq_len = 1;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         if (seq_len + needed > capacity)
         {
             capacity = seq_len + needed + 10;
-            seq = (seq_t*)realloc(seq, capacity * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, capacity);
             if (!seq) return 0;           /* allocation failure */
         }
 
@@ -57,6 +59,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[n - 1];
-    free(seq);
+    mem_free(seq);
     return result;
 }

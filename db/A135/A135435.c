@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 84, u32 n <= 171, u64 n <= 342,
  *            u128 n <= 685, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 905 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    with a(0)=7, a(1)=0, a(2)=0, a(3)=0, a(4)=4, a(5)=0, a(6)=0   */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   /* cached values                     */
 static idx_t cache_len   = 0;      /* number of allocated elements      */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
     if (need < 7) need = 7;               /* at least 7 elements */
 
     if (cache_len < need) {                /* enlarge buffer if required */
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)need);
         if (!tmp) {                        /* allocation failure – abort */
             abort();
         }
@@ -41,7 +43,7 @@ static void ensure_cache(idx_t n)
     /* initial values only once                         */
     if (last_done == (idx_t)-1) {
         static const seq_t init[7] = {7, 0, 0, 0, 4, 0, 0};
-        memcpy(cache, init, sizeof(init));
+        mem_copy(cache, init, sizeof(init));
         last_done = 6;                     /* indices 0..6 are now valid*/
     }
 

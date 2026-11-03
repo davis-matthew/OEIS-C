@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial(n,51) = (n choose 51)
  * Range:     u8 n <= 52, u16 n <= 54, u32 n <= 59, u64 n <= 74, u128 n <= 139,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 9840 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
  * overflow as much as possible.  For any smaller n the function
  * returns 0 (the sequence is not defined there). */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

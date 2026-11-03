@@ -8,6 +8,7 @@
  *            70*251^n - 56*250^n + 28*249^n - 8*248^n + 247^n)
  * Range:     u8 n <= 8, u16 n <= 9, u32 n <= 11, u64 n <= 14, u128 n <= 20,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 416 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

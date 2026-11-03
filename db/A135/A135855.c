@@ -10,13 +10,15 @@
  *            read row‑by‑row (row 0 first, then row 1, …)
  * Range:     u8 n <= 37, u16 n <= 141, u32 n <= 449, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 71 terms through n = 1310 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Computes the index (row r, column c) of the flattened triangle element n */
 static void row_col(idx_t n, idx_t *r, idx_t *c)
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     }
 
     /* General case: use the explicit formula */
-    seq_t bin = binom(r, c);
+    seq_t bin = binomial(r, c);
 
     seq_t r_s = (seq_t)r;
     seq_t c_s = (seq_t)c;

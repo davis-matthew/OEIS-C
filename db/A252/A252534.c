@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 15, u32 n <= 39, u64 n <= 87, u128 n <= 183,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t BASE[10] = {
     595, 337, 341, 462, 706, 1000, 1468, 2420, 3480, 5240
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         return BASE[n - 1];
 
     /* allocate array [0..n] – index 0 is unused */
-    seq_t *arr = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, (n + 1));
     if (!arr)  /* allocation failure – not expected in tests */
         return 0;
 
@@ -47,6 +49,6 @@ seq_t a(idx_t n)
         arr[i] = (seq_t)6 * arr[i - 3] - (seq_t)8 * arr[i - 6];
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

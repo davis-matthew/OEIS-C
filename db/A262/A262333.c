@@ -10,13 +10,15 @@
  *            initial values a(1)=2, a(2)=4, a(3)=8, a(4)=15, a(5)=29
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the sequence A262333, defined for n >= 1. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Initial allocation and seed the first five terms. */
     if (!c) {
         cap = 128;                                 /* arbitrary starting size */
-        c = (seq_t *)malloc((cap + 1) * sizeof(seq_t));
+        c = mem_new(seq_t, (cap + 1));
         if (!c) return 0;                          /* allocation failure */
         c[1] = (seq_t)2;
         c[2] = (seq_t)4;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     while (len < n) {
         if (cap <= len) {
             cap = cap * 2 + 16;
-            c = (seq_t *)realloc(c, (cap + 1) * sizeof(seq_t));
+            c = mem_resize(seq_t, c, (cap + 1));
             if (!c) return 0;                      /* allocation failure */
         }
         idx_t k = len + 1;

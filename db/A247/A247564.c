@@ -8,12 +8,14 @@
  * Formula:   a(n) = 3*a(n-2) - 4*a(n-4), a(0)=2, a(1)=1, a(2)=3, a(3)=1
  * Range:     i8 n <= 15, i16 n <= 31, i32 n <= 61, i64 n <= 127,
  *            i128 n <= 253, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
         while (new_size <= (size_t)n + 1) {
             new_size *= 2;
         }
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();      /* allocation failed */
         cache = tmp;
         cache_size = new_size;

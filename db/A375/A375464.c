@@ -9,7 +9,8 @@
  *            j}
  * Range:     u8 n <= 515, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_qr_mod_2pow, jacobi_symbol
+ * Validated: standard, pass, 87 terms through n = 9326 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,48 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/jacobi_symbol.h"   /* provides: int jacobi_symbol(uint64_t a, uint64_t n); */
-#include "../utils/is_qr_mod_2pow.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
+
+/* Test whether a (0 ≤ a < 2^e) is a quadratic residue modulo 2^e.  */
+static bool is_qr_mod_2pow(idx_t a, idx_t e)
+{
+    if (a == 0) return true;               /* 0 is always a square */
+    if (e == 0) return true;               /* modulo 1: trivially square */
+    if (e == 1) return true;               /* modulo 2 */
+    if (e == 2) return (a % 4 == 0 || a % 4 == 1);
+
+    /* e >= 3 */
+    if (a % 4 == 0) {
+        /* divide by 4 and reduce exponent by 2 */
+        return is_qr_mod_2pow(a / 4, e - 2);
+    } else {
+        /* odd a: must be ≡ 1 (mod 8) */
+        return (a % 8 == 1);
+    }
+}
 
 static uint64_t *spf = NULL;          /* smallest prime factor array */
 static idx_t spf_limit = 0;           /* size of the array (last index filled) */

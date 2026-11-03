@@ -7,12 +7,14 @@
  * Formula:   a(n) = A000041(n)^3
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 24, u64 n <= 66, u128 n <= 206,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 4567 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the partition number p(n) for n >= 0 and returns p(n) ^ 3. */
 seq_t a(idx_t n)
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* Ensure the cache array is allocated and contains at least part[0] */
     if (part == NULL) {
-        part = (seq_t *)malloc(sizeof(seq_t));
+        part = mem_new(seq_t, 1);
         if (part == NULL) return 0;          /* allocation failure -> zero */
         part[0] = (seq_t)1;                  /* p(0) = 1 */
         current_max = 0;
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     /* Extend the cache if necessary */
     if (n > current_max) {
-        seq_t *tmp = (seq_t *)realloc(part, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, part, (size_t)(n + 1));
         if (tmp == NULL) return 0;          /* allocation failure -> zero */
         part = tmp;
         /* Compute partition numbers for indices current_max+1 .. n */

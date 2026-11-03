@@ -8,14 +8,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of k ≥ 0 such that n - F(k)*F(k+1) > 0 and n -
  *            F(k)*F(k+1) is squarefree, where F is the Fibonacci sequence
- * Range:     u8 n <= 687, u16 n <= 8968, u32 n <= 8968, u64 n <= 8968,
- *            u128 n <= 8968, big any n
+ * Range:     u8 n <= 687, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 116 terms through n = 8968 (2026-11-01)
  * Helpers:   is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/is_squarefree.h"
 
 /* External linkage as required. */

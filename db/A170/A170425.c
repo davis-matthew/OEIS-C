@@ -9,7 +9,8 @@
  *            N(0)=1, N(1..43)=2, N(44)=1, N(n>44)=0
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    in the generating function. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* allocate and initialise cache if first call */
     if (cache == NULL) {
-        cache = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(n + 1));
         if (cache == NULL) return 0;          /* out of memory – fail quietly */
         cache[0] = (seq_t)1;                 /* a(0) = 1 */
         max_computed = 0;
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* if needed, grow cache and compute missing terms */
     else if (n > max_computed) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) return 0;          /* out of memory – fail quietly */
         cache = tmp;
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   is_prime, sigma_of
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/sigma_of.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -44,7 +60,7 @@ seq_t a(idx_t n)
                     /* Grow the cache if necessary */
                     if (seq_len == seq_cap) {
                         seq_cap = seq_cap ? seq_cap * 2 : 64;
-                        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                        seq = mem_resize(seq_t, seq, seq_cap);
                     }
                     seq[seq_len++] = (seq_t)cand;
                     break;                      /* next term found */

@@ -8,12 +8,27 @@
  *            exactly one digit 2
  * Range:     u8 n <= 85, u16 n <= 6144, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_single_two
+ * Validated: standard, pass, 78 terms through n = 9235 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/has_single_two.h"
+static int has_single_two(seq_t x)
+{
+    idx_t twos = 0;
+    while (x)
+    {
+        if ((x % (seq_t)3) == (seq_t)2)
+        {
+            ++twos;
+            if (twos > 1)
+                return 0;
+        }
+        x /= (seq_t)3;
+    }
+    return twos == 1;
+}
 
 seq_t a(idx_t n)
 {

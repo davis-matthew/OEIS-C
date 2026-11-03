@@ -9,6 +9,7 @@
  *            triangle T(n,k)=C(2n−k,k)*(n−k)! by rows)
  * Range:     u8 n <= 20, u16 n <= 36, u32 n <= 90, u64 n <= 230,
  *            u128 n <= 595, big any n
+ * Validated: standard, pass, 71 terms through n = 1279 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

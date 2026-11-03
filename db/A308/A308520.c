@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 22, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,12 +38,12 @@ seq_t a(idx_t n)
     /* initialise for the first call */
     if (cached_max == (idx_t)-1) {
         prev_len = 1;
-        prev_row = (seq_t *)malloc(sizeof(seq_t));
+        prev_row = mem_new(seq_t, 1);
         if (!prev_row) return 0;          /* out of memory */
         prev_row[0] = 1;                  /* A000124(0) */
 
         cache_size = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return 0;
         cache[0] = prev_row[0];           /* a(0) */
         cached_max = 0;
@@ -53,10 +55,10 @@ seq_t a(idx_t n)
     /* grow the cache array if necessary */
     if (cache_size <= (size_t)n) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return 0;
-        memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     /* compute rows up to n */
     for (idx_t m = cached_max + 1; m <= n; ++m) {
         size_t curr_len = (size_t)m + 1;
-        seq_t *curr = (seq_t *)malloc(curr_len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, curr_len);
         if (!curr) return 0;
 
         /* base value: A000124(m) = m*(m+1)/2 + 1 */
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
         cache[m] = curr[m];
 
         /* advance to next row */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = curr;
         prev_len = curr_len;
         cached_max = m;

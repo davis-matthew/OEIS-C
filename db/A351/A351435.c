@@ -8,7 +8,8 @@
  * Formula:   a(n) = ∏_{p^k∥n} (p+1)^(k+1)
  * Range:     u8 n <= 9, u16 n <= 137, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 69 terms through n = 9774 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
  * multiplied with the normal `*` operator.               */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -35,14 +37,14 @@ seq_t a(idx_t n)
                 temp /= p;
                 ++cnt;
             }
-            seq_t factor = big_pow((seq_t)(p + 1), (seq_t)(cnt + 1));
+            seq_t factor = ipow((seq_t)(p + 1), (seq_t)(cnt + 1));
             result *= factor;
         }
     }
 
     /* Remaining prime factor, if any. */
     if (temp > 1) {
-        seq_t factor = big_pow((seq_t)(temp + 1), (seq_t)2);
+        seq_t factor = ipow((seq_t)(temp + 1), (seq_t)2);
         result *= factor;
     }
 

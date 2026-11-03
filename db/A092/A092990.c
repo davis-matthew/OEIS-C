@@ -8,8 +8,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = least a*b for a+b=n that has the maximal divisor count
  *            τ(a*b)
- * Range:     u8 n <= 34, u16 n <= 519, u32 n <= 8364, u64 n <= 8364,
- *            u128 n <= 8364, big any n
+ * Range:     u8 n <= 34, u16 n <= 519, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 74 terms through n = 8364 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

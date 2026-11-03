@@ -10,12 +10,18 @@
  * Formula:   T(m,n) = n*(m-1)*((m-1)*(2n-1)+1)/2, read by antidiagonals
  * Range:     u8 n <= 31, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   _diag_cum
+ * Validated: partial, pass, 66 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_diag_cum.h"
+static inline unsigned __int128 _diag_cum(idx_t s)
+{
+    unsigned __int128 a = (unsigned __int128)(s - 2);
+    unsigned __int128 b = (unsigned __int128)(s - 1);
+    return (a * b) >> 1;            /* (s-2)(s-1)/2 */
+}
 
 seq_t a(idx_t idx)
 {

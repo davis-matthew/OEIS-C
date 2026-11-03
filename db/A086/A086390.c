@@ -9,7 +9,8 @@
  *            m)
  * Range:     u8 n <= 5, u16 n <= 38, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_prime_small, seq_mul
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/seq_mul.h"
+#include <string.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Fast‑doubling Fibonacci modulo `mod`.  All arithmetic is performed in
  * seq_t so the routine works for both builtin‑type targets and
@@ -79,13 +86,13 @@ seq_t a(idx_t n)
 
     if (cap == 0) {
         cap = 64;
-        hits = (seq_t *)malloc(cap * sizeof(seq_t));
+        hits = mem_new(seq_t, cap);
     }
 
     /* Generate hits until we have at least n of them */
     while (len < n) {
         /* test only composites */
-        if (!is_prime_small((seq_t)cur)) {
+        if (!is_prime_seq((seq_t)cur)) {
             /* compute k = cur^2 + 1 (fits in 128‑bit for cur < 10^9) */
             idx_t k = (idx_t)((__uint128_t)cur * cur + 1ULL);
 
@@ -94,7 +101,7 @@ seq_t a(idx_t n)
                 /* store hit */
                 if (len + 1 > cap) {
                     cap <<= 1;
-                    hits = (seq_t *)realloc(hits, cap * sizeof(seq_t));
+                    hits = mem_resize(seq_t, hits, cap);
                 }
                 hits[len++] = (seq_t)cur;
             }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 75, u32 n <= 750, u64 n <= 750,
  *            u128 n <= 750, big any n
- * Helpers:   isPrimeGeneric, rev
+ * Validated: standard, pass, 57 terms through n = 730 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, mem, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,32 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/isPrimeGeneric.h"
-#include "../utils/rev.h"
+#include <stdint.h>
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 /* small power of 10 using seq_t arithmetic */
 static inline seq_t pow10_seq(unsigned int e)
@@ -66,9 +91,9 @@ seq_t a(idx_t n)
 
             seq_t rev_part;
             if (L % 2 == 0)
-                rev_part = (seq_t)rev(i);
+                rev_part = (seq_t)reverse_digits_idx(i);
             else
-                rev_part = (seq_t)rev(i / 10);
+                rev_part = (seq_t)reverse_digits_idx(i / 10);
 
             seq_t pal = left + rev_part;   /* p + 1 */
 
@@ -81,7 +106,7 @@ seq_t a(idx_t n)
                 if (cache_len >= cache_cap)
                 {
                     cache_cap = cache_cap ? cache_cap * 2 : 4;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = p;
             }

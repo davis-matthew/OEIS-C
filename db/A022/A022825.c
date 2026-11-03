@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{k=2..n} a(⌊n/k⌋), a(1) = 1
  * Range:     u8 n <= 59, u16 n <= 1439, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 7824 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>   /* malloc, realloc, abort */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 /* the build provides the following types */
  /* idx_t and seq_t are defined in the build configuration, e.g.:
@@ -38,7 +40,7 @@ static size_t _ensure_cache(size_t n)
     if (n + 1 <= cap)                  /* already large enough */
         return cap;
     size_t new_cap = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         abort();                /* allocation failure */
     cache = new_cache;
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (!cache) {
         cap = 2;                    /* indices 0 and 1 needed */
-        cache = (seq_t *)calloc(cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache)
             abort();
         cache[1] = (seq_t)1;        /* a(1) = 1, cache[0] stays 0 */

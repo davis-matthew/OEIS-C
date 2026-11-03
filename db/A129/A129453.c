@@ -11,7 +11,8 @@
  *            flattened row‑wise starting from row 0
  * Range:     u8 n <= 21, u16 n <= 38, u32 n <= 57, u64 n <= 111,
  *            u128 n <= 216, big any n
- * Helpers:   exp_gcd_product, flattened_to_row_col, seq_pow
+ * Validated: standard, pass, 71 terms through n = 1230 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,41 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
-#include "../utils/exp_gcd_product.h"
-#include "../utils/flattened_to_row_col.h"
+#include "../utils/ipow_idx.h"
+
+/* ------------------------------------------------------------------ 
+   Utility: exponent of prime p in A092287(n) 
+   e(n,p) = Σ_{t≥1} floor(n / p^t)^2
+-------------------------------------------------------------------*/
+static idx_t exp_gcd_product(idx_t n, uint32_t p)
+{
+    idx_t exp = 0;
+    idx_t div = n / p;
+    while (div > 0) {
+        exp += div * div;
+        div /= p;
+    }
+    return exp;
+}
+
+/* ------------------------------------------------------------------ 
+   Convert flattened index n to (row, col) in the triangle.
+-------------------------------------------------------------------*/
+static void flattened_to_row_col(idx_t idx, idx_t *row, idx_t *col)
+{
+    idx_t low = 0, high = idx;
+    while (low <= high) {
+        idx_t mid = (low + high) >> 1;
+        idx_t tri = mid * (mid + 1) / 2;
+        if (tri <= idx) {
+            low = mid + 1;
+            *row = mid;
+        } else {
+            high = mid - 1;
+        }
+    }
+    *col = idx - (*row) * ((*row) + 1) / 2;
+}
 
 /* ------------------------------------------------------------------ 
    Generate all primes <= limit using a simple sieve.
@@ -85,7 +118,7 @@ static seq_t compute_T(idx_t r, idx_t k)
         idx_t eRk  = exp_gcd_product(r - k, p);
         idx_t exp  = eR - eK - eRk;
         if (exp > 0) {
-            seq_t mult = seq_pow((seq_t)p, (idx_t)exp);
+            seq_t mult = ipow_idx((seq_t)p, (idx_t)exp);
             result *= mult;
         }
     }

@@ -11,7 +11,8 @@
  *            subblock sum by more than one
  * Range:     u8 none, u16 none, u32 n <= 3, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         Np = idCount;
 
         pVals = (int (*)[4])calloc(Np, sizeof(*pVals));
-        mult  = (seq_t *)calloc(Np, sizeof(*mult));
+        mult  = mem_new(seq_t, Np);
         for (size_t i = 0; i < Np; ++i) {
             pVals[i][0] = tempP[i][0];
             pVals[i][1] = tempP[i][1];
@@ -127,8 +129,8 @@ seq_t a(idx_t n)
     if (R < 2U) return 0; /* should not occur for n>=1 */
 
     size_t totalStates = Np * Np;
-    seq_t *arrA = (seq_t *)calloc(totalStates, sizeof(seq_t));
-    seq_t *arrB = (seq_t *)calloc(totalStates, sizeof(seq_t));
+    seq_t *arrA = mem_new(seq_t, totalStates);
+    seq_t *arrB = mem_new(seq_t, totalStates);
     size_t *usedA = (size_t *)malloc(totalStates * sizeof(size_t));
     size_t *usedB = (size_t *)malloc(totalStates * sizeof(size_t));
     if (!arrA || !arrB || !usedA || !usedB) return (seq_t)0; /* allocation failure */
@@ -184,8 +186,8 @@ seq_t a(idx_t n)
     seq_t result = total / (seq_t)2; /* sequence gives half the count */
 
     /* free memory */
-    free(arrA);
-    free(arrB);
+    mem_free(arrA);
+    mem_free(arrB);
     free(usedA);
     free(usedB);
 

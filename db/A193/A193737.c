@@ -10,7 +10,8 @@
  *            + T(n-2,k) for n ≥ 3 and 0 ≤ k ≤ n
  * Range:     u8 n <= 46, u16 n <= 124, u32 n <= 414, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   row_col_of
+ * Validated: standard, pass, 94 terms through n = 1252 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 #include <stdlib.h>
 #include <math.h>
 #include <assert.h>
-#include "../utils/row_col_of.h"
+#include "../utils/mem.h"
+
+/* Compute row r and column k for linear index n */
+static void row_col_of(idx_t n, idx_t *out_r, idx_t *out_k)
+{
+    /* Solve r(r+1)/2 ≤ n < (r+1)(r+2)/2 */
+    double d = sqrt(8.0 * (double)n + 1.0);
+    idx_t r = (idx_t)((d - 1.0) / 2.0);
+
+    /* Fix possible floating‑point errors */
+    while ((r + 1) * (r + 2) / 2 <= n) ++r;
+    while (r * (r + 1) / 2 > n) --r;
+
+    *out_r = r;
+    *out_k = n - r * (r + 1) / 2;
+}
 
 /* Thread‑local triangle storage */
 static seq_t **triangle = NULL;       /* array of pointers to rows          */
@@ -45,7 +61,7 @@ static void ensure_triangle(idx_t needed)
     /* Compute missing rows, starting after the last allocated one */
     for (idx_t n = rows_allocated; n <= needed; ++n) {
         size_t len = (size_t)(n + 1);
-        seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         assert(row != NULL);
         triangle[n] = row;
 

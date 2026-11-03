@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_per_prime
+ * Validated: standard, pass, 107 terms through n = 9487 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,19 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/count_per_prime.h"
+
+/* count of exponents b for a prime power p^e satisfying
+ * (b & (e - b)) even.  e ≥ 0.                                      */
+static inline seq_t count_per_prime(int e)
+{
+    seq_t cnt = 0;
+    for (int b = 0; b <= e; ++b) {
+        int x = b & (e - b);         /* intersection exponent */
+        if ((x & 1) == 0)            /* even? */
+            ++cnt;
+    }
+    return cnt;
+}
 
 /* main function for the sequence                                                        */
 seq_t a(idx_t n)

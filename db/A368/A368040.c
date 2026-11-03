@@ -8,13 +8,15 @@
  *            nonsquarefree integer
  * Range:     u8 n <= 98, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9803 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t last_checked = 1;   /* last integer examined (1‑based)   */
 static idx_t count_nofsq = 0;    /* amount of nonsquarefree numbers
@@ -28,7 +30,7 @@ static void ensure_cache_cap(idx_t needed)
     if ((size_t)needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while ((size_t)needed > new_cap) new_cap *= 2;
-    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();
     cache = new_cache;
     cache_cap = new_cap;

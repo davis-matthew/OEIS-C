@@ -12,14 +12,15 @@
  *            search up to the known last term (349199) and caches the results
  * Range:     u8 none, u16 n <= 61, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   local_digits
+ * Validated: full, pass, 63 terms through n = 63 (2026-11-02)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/local_digits.h"
+#include "../utils/num_digits_idx.h"
 
 /* Local primality test (fast enough for numbers ≤ 350000). */
 static bool local_is_prime(idx_t n)
@@ -48,7 +49,7 @@ seq_t a(idx_t n)
             if (!local_is_prime(candidate)) continue;
 
             /* Extract digits into array most significant first. */
-            int len = local_digits(candidate);
+            int len = num_digits_idx(candidate);
             unsigned char digs[20];   /* 20 > enough for any number in range. */
             idx_t temp = candidate;
             for (int i = len - 1; i >= 0; --i) {

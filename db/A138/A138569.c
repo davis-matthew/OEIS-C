@@ -8,12 +8,14 @@
  *            a(0)=0, a(1)=1, a(2)=0, a(3)=1, a(4)=0, a(5)=1, a(6)=1, a(7)=0
  * Range:     i8 n <= 19, i16 n <= 35, i32 n <= 52, i64 n <= 52, i128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     // static cache for computed terms
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     /* Allocate the cache on the first call that needs more than 8 terms. */
     if (!cache) {
         cache_cap = 16;                 /* start with some spare capacity */
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         for (size_t i = 0; i < 8; ++i) {
             cache[i] = init[i];
         }
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
         if (n >= cache_cap) {
             size_t new_cap = cache_cap * 2;
             while (new_cap <= (size_t)n) new_cap *= 2;
-            seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             cache = new_cache;
             cache_cap = new_cap;
         }

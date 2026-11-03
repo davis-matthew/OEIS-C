@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 25, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of sieve (implemented below) */
 static void build_primes_and_sums(void);
@@ -90,7 +92,7 @@ static void build_primes_and_sums(void)
     /* Gather primes, stop when we have 10000 primes (enough for our range) */
     const idx_t needed = 10000;
     primes_arr = (idx_t *)malloc((needed + 1) * sizeof(idx_t)); /* 1‑based */
-    sumsq_arr  = (seq_t *)malloc((needed + 1) * sizeof(seq_t));
+    sumsq_arr  = mem_new(seq_t, (needed + 1));
     primes_cnt = 0;
     sumsq_arr[0] = 0;
     for (idx_t i = 2; i <= limit && primes_cnt < needed; ++i)

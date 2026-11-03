@@ -10,6 +10,7 @@
  *            = p² + n prime, * or 0 if no such m exists
  * Range:     u8 n <= 23, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

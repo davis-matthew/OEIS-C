@@ -12,16 +12,18 @@
  *            number of terms up to diagonal s-1 is less t...
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"   /* big_pow(seq_t base, seq_t exp) */
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* external types supplied by the build system */
-extern seq_t big_pow(seq_t base, seq_t exp);
+extern seq_t ipow(seq_t base, seq_t exp);
 
 seq_t a(idx_t n)
 {
@@ -50,5 +52,5 @@ seq_t a(idx_t n)
     seq_t base = (seq_t)(prod + 1);
 
     /* Result = base^i  (numerator of (1+1/(j*i))^i). */
-    return big_pow(base, (seq_t)i);
+    return ipow(base, (seq_t)i);
 }

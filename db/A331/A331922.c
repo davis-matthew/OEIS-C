@@ -8,7 +8,8 @@
  * Formula:   a(n) = sum_{S ⊆ Lucas numbers, distinct, sum S = n} (|S|)!
  * Range:     u8 n <= 43, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Special case: a(0) = 1 */
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
     size_t rows = (size_t)n + 1;
     size_t cols = K + 1;
     size_t total = rows * cols;
-    seq_t *dp = (seq_t *)calloc(total, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, total);
     if (!dp) { /* allocation failure: return 0 as error code */
         return (seq_t)0;
     }
@@ -84,6 +86,6 @@ seq_t a(idx_t n) {
         }
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

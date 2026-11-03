@@ -10,6 +10,7 @@
  *            the (n−2)th element in this triangle (n ≥ 2)
  * Range:     i8 n <= 25, i16 n <= 46, i32 n <= 46, i64 n <= 46, i128 n <= 46,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 46 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

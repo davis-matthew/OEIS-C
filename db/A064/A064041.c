@@ -8,7 +8,8 @@
  *            number of distinct prime factors is a prime number
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 113 terms through n = 855 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Maximum number of terms that we precompute.  The tests use n up to ~10 000,
    so 50 000 is safely above that. */
@@ -56,7 +58,7 @@ static void precompute(void)
     if (!spf)
         build_spf();
 
-    div_counts = (seq_t*)malloc((MAX_TERMS + 1) * sizeof(seq_t));
+    div_counts = mem_new(seq_t, (MAX_TERMS + 1));
     div_counts[0] = 0;                    /* unused; a(0) not defined */
 
     /* Prime table for distinct‑prime counts up to 20 (more than we ever need). */

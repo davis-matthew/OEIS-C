@@ -9,15 +9,18 @@
  *            p divides e, otherwise p^(e+1)
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 71 terms through n = 9609 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
         uint64_t p = primes[i];
         uint64_t e = exps[i];
         uint64_t exp = (e % p == 0) ? e + 1 - p : e + 1;
-        seq_t term = pow_uint(p, exp);
+        seq_t term = ipow_u64_idx(p, exp);
         res = res * term;
     }
     return res;

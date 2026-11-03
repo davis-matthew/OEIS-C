@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, look
  * Formula:   not stated
- * Range:     u8 n <= 20, u16 n <= 48, u32 n <= 586, u64 n <= 9707,
- *            u128 n <= 9707, big any n
- * Helpers:   pow10
+ * Range:     u8 n <= 20, u16 n <= 48, u32 n <= 586, u64 n <= 16496,
+ *            u128 n <= 16496, big any n
+ * Validated: standard, pass, 74 terms through n = 9707 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
    and the residue 0 class yields 2^(L‑1) numbers
    formed by a leading 9 followed by L‑1 digits 0 or 9. */
 
-#include "../utils/pow10.h"   /* provides seq_t pow10(idx_t) */
+#include <stdint.h>
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

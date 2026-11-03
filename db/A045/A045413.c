@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 759 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *primes        = NULL;   /* all primes generated so far   */
 static size_t primes_cap   = 0;
@@ -35,7 +37,7 @@ static void grow_array(seq_t **arr, size_t *cap, size_t *cnt, size_t need) {
     if (*cap >= need) return;
     size_t newcap = (*cap == 0) ? 2 : (*cap << 1);
     while (newcap < need) newcap <<= 1;
-    *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, newcap);
     *cap = newcap;
 }
 

@@ -10,13 +10,15 @@
  *            antidiagonals with k ≥ 1. For a given n we find the * unique
  *            pair (i,k) such that i + k = d and the element is the * n-th in
  *            the antidiagonal ordering. Then a(n) = A(i,k)
- * Range:     u8 n <= 13, u16 n <= 43, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 26, u16 n <= 64, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

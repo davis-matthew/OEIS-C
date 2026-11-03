@@ -8,7 +8,8 @@
  * Formula:   a(n) = 3^m where m = number of prime exponents ≡ 1 or 2 (mod 4)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, seq_pow
+ * Validated: standard, pass, 116 terms through n = 9292 (2026-11-01)
+ * Helpers:   ipow_idx, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,15 +17,17 @@
 /* a(n) is multiplicative with a(p^e) = 1 + (e mod 4) * (3 - (e mod 4)) */
 
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stddef.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n) {
     /* Count exponents with e mod 4 == 1 or 2 */
     idx_t k = 0;
     uint64_t m = n;
     while (m > 1) {
-        uint64_t p = _smallest_prime_factor(m);
+        uint64_t p = smallest_prime_factor(m);
         idx_t e = 0;
         while (m % p == 0) {
             m /= p;
@@ -34,5 +37,5 @@ seq_t a(idx_t n) {
         if (r == 1 || r == 2) ++k;
     }
     /* Return 3^k */
-    return seq_pow((seq_t)3, k);
+    return ipow_idx((seq_t)3, k);
 }

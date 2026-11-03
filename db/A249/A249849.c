@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 11, u64 n <= 138, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #if defined(__SIZEOF_INT128__)
 typedef unsigned __int128 wid_t;  /* wider type for intermediate arithmetic */
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* allocate space for first 20 elements or up to n+1 if larger */
         cache_size = (n > 20 ? n + 1 : 21);
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) return (seq_t)0; /* allocation failed */
         for (idx_t i = 0; i < cache_size; ++i) cache[i] = 0;
     }
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     /* grow cache if needed */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) return (seq_t)0; /* reallocation failed */
         cache = tmp;
         for (idx_t i = cache_size; i < new_size; ++i)

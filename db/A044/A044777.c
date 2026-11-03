@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains64
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,23 @@
    "64" but n+1 does not. Computation by a linear search. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/contains64.h"
+#include "../utils/mem.h"
+
+/* Return true if x contains the adjacent digits 6 followed by 4. */
+static bool contains64(seq_t x)
+{
+    if (x == 0)
+        return false;
+    seq_t prev = 0;
+    while (x > 0) {
+        seq_t cur = x % 10;
+        if (cur == 6 && prev == 4)
+            return true;
+        prev = cur;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +51,7 @@ seq_t a(idx_t n)
         if (contains64(cur) && !contains64(cur + 1)) {
             if (cache_cnt >= cache_cap) {
                 idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();          /* allocation failed – abort */
                 cache = tmp;
                 cache_cap = new_cap;

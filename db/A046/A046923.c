@@ -8,13 +8,15 @@
  *            prime and a >= 0
  * Range:     u8 n <= 98, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 115 terms through n = 9324 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Use the small-prime test provided by the utilities. */
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
         seq_t p = m - s;                 /* candidate prime */
         if (p < 2u) break;
-        if (is_prime_small(p))
+        if (is_prime_seq(p))
             ++count;
     }
 

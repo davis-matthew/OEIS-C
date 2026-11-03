@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 159, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9638 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *b_vals = NULL;   /* stored b-values */
 static idx_t  b_len  = 0;      /* number of stored b-values   */
@@ -44,7 +46,7 @@ static void grow_b(idx_t need)
     size_t new_cap = b_cap > 0 ? (size_t)b_cap << 1 : 1;
     while ((idx_t)new_cap <= need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(b_vals, new_cap * sizeof(*b_vals));
+    seq_t *tmp = mem_resize(seq_t, b_vals, new_cap);
     if (!tmp) return;      /* allocation failure – caller will treat as 0 */
     b_vals = tmp;
     b_cap  = (idx_t)new_cap;

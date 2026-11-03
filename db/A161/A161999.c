@@ -9,7 +9,8 @@
  *            a(1)=0, a(2)=1, a(3)=1, a(4)=10
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 38, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 898 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,10 +29,10 @@ seq_t a(idx_t n)
         size_t need = (size_t)n;
         if (cap < need) {
             size_t newCap = need * 2;
-            seq_t *newCache = (seq_t *)malloc(newCap * sizeof(seq_t));
+            seq_t *newCache = mem_new(seq_t, newCap);
             if (cache) {
-                memcpy(newCache, cache, sz * sizeof(seq_t));
-                free(cache);
+                mem_copy(newCache, cache, sz * sizeof(seq_t));
+                mem_free(cache);
             }
             cache = newCache;
             cap   = newCap;

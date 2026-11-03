@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   divisor_count_u64, pow_uint
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* ----------  Sequence cache  ---------- */
 static seq_t *seq_cache   = NULL;
@@ -40,7 +42,7 @@ static void ensure_seq_cache(idx_t n) {
     if (n < seq_cache_cap) return;
     size_t new_cap = seq_cache_cap ? seq_cache_cap * 2 : 16;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     /* zero‑initialise the new slots */
     for (size_t i = seq_cache_cap; i < new_cap; ++i) seq_cache[i] = 0;
     seq_cache_cap = new_cap;
@@ -74,7 +76,7 @@ static void dfs(const idx_t *primes, size_t prime_idx, idx_t max_exp,
         idx_t factor = exp + 1;
         if (rem_k % factor != 0) continue;
 
-        seq_t pwr = pow_uint(primes[prime_idx], exp);
+        seq_t pwr = ipow_u64_idx(primes[prime_idx], exp);
         if (pwr == 0) continue;          /* overflow in pow_uint */
 
         if (*best && cur > *best / pwr) continue; /* would overflow best */
@@ -93,7 +95,7 @@ static seq_t minimal_with_divisors(idx_t k) {
     if (div_cache_cap <= (size_t)k) {
         size_t new_cap = div_cache_cap ? div_cache_cap * 2 : 16;
         while (new_cap <= (size_t)k) new_cap <<= 1;
-        div_cache = (seq_t *)realloc(div_cache, new_cap * sizeof(seq_t));
+        div_cache = mem_resize(seq_t, div_cache, new_cap);
         for (size_t i = div_cache_cap; i < new_cap; ++i) div_cache[i] = 0;
         div_cache_cap = new_cap;
     }
@@ -115,7 +117,7 @@ seq_t a(idx_t n) {
     for (idx_t i = 2; i <= n; ++i) {
         if (seq_cache[i] != 0) continue;
         uint64_t prev = (uint64_t)seq_cache[i - 1];
-        idx_t d = divisor_count_u64(prev);
+        idx_t d = num_divisors(prev);
         seq_t inc = minimal_with_divisors(d);
         seq_cache[i] = seq_cache[i - 1] + inc;
     }

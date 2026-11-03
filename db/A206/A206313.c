@@ -12,6 +12,7 @@
  *            programming on the 256 possible rows
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 10, u128 n <= 22,
  *            big any n
+ * Validated: standard, pass, 29 terms through n = 210 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

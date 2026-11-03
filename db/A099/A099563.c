@@ -10,8 +10,9 @@
  * Formula:   a(n) = floor(n / (2·3·…·k)) where k is the largest integer such
  *            that 2·3·…·k ≤ n. This equals the most significant digit in the
  *            factorial base representation of n. a(0) = 0
- * Range:     u8 n <= 9398, u16 n <= 9398, u32 n <= 9398, u64 n <= 9398,
- *            u128 n <= 9398, big any n
+ * Range:     u8 n <= 10080, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 122 terms through n = 9398 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"  /* for divisor_count_u64(uint64_t) */
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,19 +47,19 @@ seq_t a(idx_t n)
     /* Grow the result array as needed. */
     if (cap == 0) {
         cap = 4;
-        seq = (seq_t*)realloc(seq, cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, cap);
     }
 
     /* Generate terms until we have at least n of them. */
     while (len < n) {
-        uint64_t d   = divisor_count_u64(cand);      /* number of divisors */
+        uint64_t d   = num_divisors(cand);      /* number of divisors */
         uint64_t gray  = cand ^ (cand >> 1);         /* Gray code of cand */
         uint64_t pop   = __builtin_popcountll(gray); /* number of 1's */
 
         if (d == pop) {
             if (len == cap) {            /* need more space */
                 cap *= 2;
-                seq = (seq_t*)realloc(seq, cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, cap);
             }
             seq[len++] = (seq_t)cand;    /* store the qualifying number */
         }

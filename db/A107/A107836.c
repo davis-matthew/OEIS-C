@@ -10,14 +10,18 @@
  *            memoised so that multiple calls with arbitrary n are fast
  * Range:     u8 n <= 54, u16 n <= 6543, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 74 terms through n = 9567 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoisation array */
 static idx_t cache_len = 0;      /* number of terms stored */
@@ -39,8 +43,8 @@ seq_t a(idx_t n)
     if (n > cache_len) {
         size_t newcap = n;
         seq_t *tmp = (cache == NULL) ?
-            (seq_t *)malloc(newcap * sizeof(seq_t)) :
-            (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            mem_new(seq_t, newcap) :
+            mem_resize(seq_t, cache, newcap);
         if (!tmp) return 0; /* allocation failure – return 0 (unused) */
         cache = tmp;
 
@@ -51,7 +55,7 @@ seq_t a(idx_t n)
             while (1) {
                 seq_t fd = first_digit(cand);
                 uint64_t sum = (uint64_t)cand + (uint64_t)fd;
-                if (is_prime(sum)) break;
+                if (is_prime_u64(sum)) break;
                 ++cand;
             }
             cache[i] = cand;

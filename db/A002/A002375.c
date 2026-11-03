@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy, look, nice
  * Formula:   a(n) = #{(p,q): p <= q odd primes, p + q = 2n}; computed by
  *            sieving primes up to 2n and counting pairs
- * Range:     u8 n <= 3464, u16 n <= 9280, u32 n <= 9280, u64 n <= 9280,
- *            u128 n <= 9280, big any n
+ * Range:     u8 n <= 3464, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 114 terms through n = 9280 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

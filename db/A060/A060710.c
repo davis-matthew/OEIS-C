@@ -10,21 +10,24 @@
  *            number of positive divisors of k
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _divisor_count_u64
+ * Validated: standard, pass, 99 terms through n = 980 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_divisor_count_u64.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
     /* tau(n) */
-    seq_t tau_n = _divisor_count_u64(n);
+    seq_t tau_n = num_divisors(n);
     /* double it */
     seq_t result = tau_n + tau_n;
     /* if n is even add tau(n/2) */
     if ((n & 1u) == 0u)
-        result += _divisor_count_u64(n / 2);
+        result += num_divisors(n / 2);
     return result;
 }

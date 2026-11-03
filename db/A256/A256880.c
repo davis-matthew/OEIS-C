@@ -7,12 +7,14 @@
  * Formula:   a(n) = n*n!/round(n/2)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact_cache = NULL;   /* factorial cache: fact_cache[i] = i! */
 static idx_t fact_cache_size = 0;  /* allocated size (indices 0 .. size-1) */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* initialise cache if needed */
     if (fact_cache == NULL) {
         fact_cache_size = 1;
-        fact_cache     = (seq_t*)malloc(sizeof(seq_t));
+        fact_cache     = mem_new(seq_t, 1);
         if (!fact_cache) abort();
         fact_cache[0] = (seq_t)1;   /* 0! = 1 */
     }
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
                           ? (n + 1)
                           : fact_cache_size * 2;
 
-        seq_t *tmp = (seq_t*)realloc(fact_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact_cache, new_size);
         if (!tmp) abort();
 
         for (idx_t i = fact_cache_size; i < new_size; ++i)

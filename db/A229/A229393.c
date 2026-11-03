@@ -11,13 +11,16 @@
  *            subtree sizes in a balanced 8‑ary tree
  * Range:     u8 n <= 10, u16 n <= 12, u32 n <= 18, u64 n <= 83, u128 n <= 98,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 45 terms through n = 576 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t size = 0;
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
         idx_t new_cap = n + 1;
         if (cap == 0) new_cap = n + 1;
         else if (new_cap < 2 * cap) new_cap = 2 * cap;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap = new_cap;
     }
 
@@ -50,9 +53,9 @@ seq_t a(idx_t n)
             idx_t q = m / 8;
             idx_t r = m % 8;
 
-            seq_t prod = seq_pow(cache[q], 8 - r);
+            seq_t prod = ipow_idx(cache[q], 8 - r);
             if (r > 0)
-                prod = prod * seq_pow(cache[q + 1], r);
+                prod = prod * ipow_idx(cache[q + 1], r);
 
             prod = prod * (seq_t)C8[r];
             cache[i] = prod;

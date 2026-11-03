@@ -9,13 +9,15 @@
  *            odd * Initial values: a(0) = 0, a(1) = 1
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 46, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 871 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global cache for previously computed terms */
 static seq_t *cache = NULL;
@@ -30,13 +32,13 @@ static void ensure_cache_capacity(size_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp)
         return; /* allocation failure – caller will get 0 */
     if (cache) {
         for (size_t i = 0; i < cache_size; ++i)
             tmp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = tmp;
     cache_cap = new_cap;

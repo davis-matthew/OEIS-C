@@ -13,13 +13,15 @@
  *            for n > 23, with initial values a(0)..a(23) given in the OEIS...
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* initialise memo with the first 24 terms */
     if (!memo) {
         memo_cap = 24;
-        memo = (seq_t*)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         for (size_t i = 0; i < 24; ++i) memo[i] = init[i];
         memo_len = 24;
     }
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= memo_cap) {
         size_t new_cap = memo_cap;
         while ((size_t)n >= new_cap) new_cap *= 2;
-        memo = (seq_t*)realloc(memo, new_cap * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, new_cap);
         memo_cap = new_cap;
     }
 

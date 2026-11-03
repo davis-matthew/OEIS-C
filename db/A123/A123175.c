@@ -14,7 +14,8 @@
  *            0≤m≤s, n = s-m for each s = 0,1,2,…
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,9 @@
  *  calls in sub‑quadratic (O(n²)) time for n up to about 10⁴. */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
     /* allocate initial storage */
     if (!vals) {
         cap = 16;
-        vals = (seq_t *)malloc(cap * sizeof(seq_t));
+        vals = mem_new(seq_t, cap);
         ms   = (idx_t *)malloc(cap * sizeof(idx_t));
         ns   = (idx_t *)malloc(cap * sizeof(idx_t));
         if (!vals || !ms || !ns) abort();
@@ -78,7 +81,7 @@ seq_t a(idx_t n)
             /* enlarge storage if necessary */
             if (len >= cap) {
                 size_t new_cap = cap ? cap << 1 : 16;
-                seq_t *new_vals = (seq_t *)realloc(vals, new_cap * sizeof(seq_t));
+                seq_t *new_vals = mem_resize(seq_t, vals, new_cap);
                 idx_t *new_ms   = (idx_t *)realloc(ms,   new_cap * sizeof(idx_t));
                 idx_t *new_ns   = (idx_t *)realloc(ns,   new_cap * sizeof(idx_t));
                 if (!new_vals || !new_ms || !new_ns) abort();

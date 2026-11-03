@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9912 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int cmp_seq_t(const void *a, const void *b)
 {
@@ -62,7 +64,7 @@ static void ensure_sequence(idx_t need)
 {
     while (global_len < need) {
         size_t num_sums = comb((size_t)global_M + 6, 7);
-        seq_t *sums = (seq_t *)malloc(num_sums * sizeof(seq_t));
+        seq_t *sums = mem_new(seq_t, num_sums);
         if (!sums) abort();
 
         /* powers of the first `global_M` bases */
@@ -76,10 +78,10 @@ static void ensure_sequence(idx_t need)
         rec_gen(0, 0, (seq_t)0, sums, &sum_idx, pow5, (int)global_M);
 
         /* sort all sums */
-        qsort(sums, sum_idx, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(sums, sum_idx, sizeof(seq_t), cmp_seq_t);
 
         /* extract unique sums */
-        seq_t *uniques = (seq_t *)malloc(sum_idx * sizeof(seq_t));
+        seq_t *uniques = mem_new(seq_t, sum_idx);
         if (!uniques) abort();
         size_t uniq_cnt = 0;
         for (size_t i = 0; i < sum_idx; ) {
@@ -90,8 +92,8 @@ static void ensure_sequence(idx_t need)
             i = j;
         }
 
-        free(sums);
-        free(global_unique);
+        mem_free(sums);
+        mem_free(global_unique);
         global_unique = uniques;
         global_len    = uniq_cnt;
 

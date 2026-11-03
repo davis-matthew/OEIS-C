@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 239, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #ifndef __cplusplus
 /* In C we can use plain malloc/free for simple integer types. */
@@ -46,14 +48,14 @@ static seq_t   last_k      = 0;       /* last checked k                         
    (C++ only). */
 static void grow_terms(size_t new_cap)
 {
-    seq_t* new_ptr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t* new_ptr = mem_new(seq_t, new_cap);
     if (!new_ptr) abort();
 
     if (terms) {
         /* Copy existing elements to new array. */
         for (size_t i = 0; i < term_cnt; ++i) {
 #ifdef __cplusplus
-            new(&new_ptr[i]) seq_t(terms[i]);  /* placement new */
+            *(&new_ptr[i]) = (seq_t)(terms[i]);  /* placement new */
 #else
             new_ptr[i] = terms[i];
 #endif
@@ -61,10 +63,10 @@ static void grow_terms(size_t new_cap)
         /* Destroy old objects (C++ only). */
 #ifdef __cplusplus
         for (size_t i = 0; i < term_cnt; ++i) {
-            terms[i].~seq_t();
+(void)0;  /* mem_free destroys the elements */
         }
 #endif
-        free(terms);
+        mem_free(terms);
     }
     terms    = new_ptr;
     term_cap = new_cap;

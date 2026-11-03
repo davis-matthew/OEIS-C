@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 34, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* 9 possible row states: (col0,col1) with values 0..2. */
 static const int state_vals[9][2] = {
@@ -123,7 +125,7 @@ seq_t a(idx_t n)
     /* DP arrays: dp[prev][cur] holds counts for last two rows */
     static seq_t dp[9][9];
     static seq_t next_dp[9][9];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* initialise for first two rows */
     for (int prev = 0; prev < 9; ++prev)
@@ -143,7 +145,7 @@ seq_t a(idx_t n)
 
     /* rows 3 .. n */
     for (idx_t i = 3; i <= n; ++i) {
-        memset(next_dp, 0, sizeof(next_dp));
+        mem_set(next_dp, 0, sizeof(next_dp));
         for (int prev = 0; prev < 9; ++prev) {
             for (int cur = 0; cur < 9; ++cur) {
                 seq_t ways = dp[prev][cur];
@@ -156,7 +158,7 @@ seq_t a(idx_t n)
             }
         }
         /* copy next_dp into dp */
-        memcpy(dp, next_dp, sizeof(dp));
+        mem_copy(dp, next_dp, sizeof(dp));
     }
 
     /* final sum: last row must satisfy bottom condition */

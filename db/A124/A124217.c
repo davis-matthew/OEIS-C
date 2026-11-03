@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 27, u64 n <= 53, u128 n <= 105,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    a(n)=2*a(n‑1)+a(n‑2)−a(n‑4)   for n≥4   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of already computed terms – grows on demand. */
 static seq_t *seq_cache = NULL;      /* buffer of cached values          */
@@ -36,7 +38,7 @@ ensure_cache(idx_t n)
     size_t new_cap = (size_t)n + 1;
 
     /* realloc may be used with a NULL pointer; cast is needed for C++. */
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) abort();
     seq_cache = tmp;
 

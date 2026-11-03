@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 8978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    requested index.  It works for all n ≥ 1. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;
 static size_t seq_len = 0;
@@ -38,7 +40,7 @@ ensure_len(idx_t target)
     if (seq_len == 0)
     {
         seq_len = 2;
-        seq = (seq_t *)malloc(seq_len * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_len);
         seq[0] = 0;
         seq[1] = 0;
     }
@@ -62,7 +64,7 @@ ensure_len(idx_t target)
         }
         new_len += (cur_len & 1);      /* leftover single bit */
 
-        seq_t *new_buf = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_buf = mem_new(seq_t, new_len);
         size_t pos = 0;
         for (size_t i = 0; i + 1 < cur_len; i += 2)
         {
@@ -91,7 +93,7 @@ ensure_len(idx_t target)
         if (cur_len & 1)                    /* copy leftover bit */
             new_buf[pos++] = seq[cur_len - 1];
 
-        free(seq);
+        mem_free(seq);
         seq = new_buf;
         seq_len = new_len;
     }

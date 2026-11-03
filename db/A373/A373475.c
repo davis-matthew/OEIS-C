@@ -12,8 +12,9 @@
  *            also a multiple of 3. * * The sequence starts
  *            1,8,14,20,26,35,38,44,… as given in OEIS. * * Computation:
  *            iterate...
- * Range:     u8 n <= 49, u16 n <= 9909, u32 n <= 9909, u64 n <= 9909,
- *            u128 n <= 9909, big any n
+ * Range:     u8 n <= 49, u16 n <= 14042, u32 n <= 33911, u64 n <= 33911,
+ *            u128 n <= 33911, big any n
+ * Validated: standard, pass, 83 terms through n = 9909 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,7 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/gcd.h"   /* provides seq_t gcd(seq_t, seq_t) */
+#include "../utils/gcd.h"
 
 /* factorise n into distinct primes and their exponents
  * primes[] and exps[] must be allocated with large enough space

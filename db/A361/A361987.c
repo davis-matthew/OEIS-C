@@ -10,12 +10,13 @@
  *            1: a(p^e) = 0. The product over prime power factors gives a(n)
  * Range:     i8 n <= 7, i16 n <= 63, i32 n <= 2047, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   pow2_small
+ * Validated: standard, pass, 70 terms through n = 8351 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2_small.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
     if (n == 1) return 1;
@@ -31,7 +32,7 @@ seq_t a(idx_t n) {
     }
     if (exp2 > 0) {
         /* 2^(3*exp2 - 1) */
-        result *= pow2_small(3 * exp2 - 1);
+        result *= pow2(3 * exp2 - 1);
     }
 
     /* factor odd primes */

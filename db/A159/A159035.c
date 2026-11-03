@@ -7,14 +7,16 @@
  * Keywords:  easy, nonn, changed
  * Formula:   a(n+3) = 4*a(n+2) - 4*a(n+1) + 2*a(n) with a(0) = 1, a(1) = 1,
  *            a(2) = 2, a(3) = 5
- * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 27, u128 n <= 27,
+ * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n)
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (!cache) {
         size_t init_cap = 8;
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (!cache) exit(1);          /* allocation failure */
         cap  = init_cap;
         len  = 4;                     /* we will store the first 4 terms */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
             new_cap *= 2;
             if (new_cap < 8) new_cap = 8; /* safety guard */
         }
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);             /* allocation failure */
         cache = tmp;
         cap   = new_cap;

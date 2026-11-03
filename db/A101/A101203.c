@@ -8,7 +8,8 @@
  *            sum of primes ≤ n)
  * Range:     u8 n <= 26, u16 n <= 398, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Computes a(n) = Σ_{k=0..n, k not prime} k   (OEIS A101203) */
 seq_t a(idx_t n)
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (n >= max_cached)
     {
         idx_t new_size = n + 1;       /* indices 0 … n inclusive          */
-        seq_t *new_arr = (seq_t *)malloc((size_t)new_size * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, (size_t)new_size);
         if (!new_arr)
             return 0;   /* Allocation failed – return 0 as an arbitrary value */
 
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         unsigned char *is_prime = (unsigned char *)malloc((size_t)new_size);
         if (!is_prime)
         {
-            free(new_arr);
+            mem_free(new_arr);
             return 0;
         }
 
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
 
         /* Replace old cache if it exists */
         if (prime_sum)
-            free(prime_sum);
+            mem_free(prime_sum);
 
         prime_sum   = new_arr;
         max_cached  = new_size;

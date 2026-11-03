@@ -13,13 +13,15 @@
  *            answer queries in O(n) time per call (using me...
  * Range:     i8 n <= 59, i16 n <= 9999, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 9109 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global state ------------------------------------------------------- */
 static idx_t      _max_n  = 0;      /* largest n for which σ is known       */
@@ -37,7 +39,7 @@ static void __ensure_precompute(idx_t n)
         return;
 
     /* Allocate new tables -------------------------------------------- */
-    seq_t *new_sigma = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *new_sigma = mem_new(seq_t, (n + 1));
     bool  *new_seen  = (bool *)calloc((n + 1), sizeof(bool));
     if (!new_sigma || !new_seen) {        /* allocation failed           */
         /* In a real build we would handle the error; here we assume success */
@@ -60,7 +62,7 @@ static void __ensure_precompute(idx_t n)
     }
 
     /* Replace old tables */
-    free(_sigma);
+    mem_free(_sigma);
     free(_seen);
     _sigma  = new_sigma;
     _seen   = new_seen;

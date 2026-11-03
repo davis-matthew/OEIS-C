@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, look
  * Formula:   not stated
- * Range:     i8 n <= 40, i16 n <= 2216, i32 n <= 9567, i64 n <= 9567,
- *            i128 n <= 9567, big any n
+ * Range:     i8 n <= 40, i16 n <= 2216, i32 n <= 15000, i64 n <= 15000,
+ *            i128 n <= 15000, big any n
+ * Validated: standard, pass, 74 terms through n = 9567 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

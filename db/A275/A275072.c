@@ -12,12 +12,14 @@
  *            = Σ_{k=0}^{n} C(n,k)·B(k) (0‑based). The binomial coeffic...
  * Range:     u8 n <= 12, u16 n <= 17, u32 n <= 26, u64 n <= 41, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 648 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of Bell numbers */
 static seq_t *bell = NULL;   /* bell[0..size-1] */
@@ -30,7 +32,7 @@ static void compute_bell_upto(idx_t up_to)
         return;
 
     /* grow or allocate the array */
-    bell = (seq_t*)realloc(bell, (up_to + 1) * sizeof(seq_t));
+    bell = mem_resize(seq_t, bell, (up_to + 1));
 
     /* initialise B(0)=1 if this is the very first call */
     if (bell_size == 0) {

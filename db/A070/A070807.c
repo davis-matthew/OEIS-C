@@ -11,7 +11,8 @@
  *            4,6,8,9,10,12,14,15,16,18,20,21,24,26,28,30,32,34,35,36,39,40,42,45,
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   is_power_of_two, phi
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   is_pow2, mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/phi.h"          /* Provides seq_t phi(idx_t n) */
-#include "../utils/is_power_of_two.h"
+#include "../utils/is_pow2.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* Cache of found sequence terms */
 static size_t cache_len = 0;  /* Number of terms stored */
@@ -32,7 +34,7 @@ static void init_cache(void)
 {
     if (!cache) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 }
 
@@ -41,7 +43,7 @@ static void cache_append(seq_t val)
 {
     if (cache_len == cache_cap) {
         cache_cap <<= 1;                       /* double the capacity */
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     cache[cache_len++] = val;
 }
@@ -59,15 +61,15 @@ seq_t a(idx_t n)
     /* Generate terms until we have at least n of them */
     while (cache_len < n) {
         /* phi(n) */
-        seq_t phi_n = phi(next_n);
+        seq_t phi_n = totient(next_n);
 
         /* Composite test: φ(n) == n-1 only for prime n (and 2). */
         if (phi_n != (seq_t)(next_n - 1)) {
             /* cototient of φ(n)  = φ(n) – φ(φ(n)) */
-            seq_t phi_phi = phi((idx_t)phi_n);
+            seq_t phi_phi = totient((idx_t)phi_n);
             seq_t cot = phi_n - phi_phi;
 
-            if (is_power_of_two(cot))
+            if (is_pow2(cot))
                 cache_append(next_n);
         }
         ++next_n;

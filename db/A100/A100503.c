@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = (4*n^3 + 5*n + 3)/3
- * Range:     u8 n <= 5, u16 n <= 36, u32 n <= 39, u64 n <= 39, u128 n <= 39,
- *            big any n
+ * Range:     u8 n <= 5, u16 n <= 36, u32 n <= 1476, u64 n <= 5000,
+ *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 56 terms through n = 4440 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

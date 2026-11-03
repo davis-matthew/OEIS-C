@@ -12,14 +12,31 @@
  *            splits the other vertices into C/R (no H-edge between C and R...
  * Range:     u8 n <= 16, u16 n <= 27, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   sg_reach
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sg_reach.h"
+
+static uint64_t sg_reach(const uint64_t *h, uint64_t allowed, int s)
+{
+    uint64_t reached = (uint64_t)1 << s, fr = reached;
+    while (fr) {
+        uint64_t nf = 0;
+        while (fr) {
+            int x = __builtin_ctzll(fr);
+            fr &= fr - 1;
+            nf |= h[x];
+        }
+        nf &= allowed & ~reached;
+        reached |= nf;
+        fr = nf;
+    }
+    return reached;
+}
 
 static int sg_n, sg_m, sg_v;
 static uint64_t sg_L[64][64];

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 42, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 858 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* DP states:
    0 = even number of peaks, last step not U
@@ -41,12 +43,12 @@ seq_t a(idx_t n)
     /* Ensure res array can hold up to n. */
     if (n + 1 > resCap) {
         idx_t newCap = n + 1;
-        res = (seq_t*)realloc(res, newCap * sizeof(seq_t));
+        res = mem_resize(seq_t, res, newCap);
         resCap = newCap;
         /* Initially all entries are 0 because realloc does not clear memory.  */
         if (maxComputed == 0) {
             /* Still need to clear the new region explicitly. */
-            memset(res, 0, newCap * sizeof(seq_t));
+            mem_set(res, 0, newCap * sizeof(seq_t));
         }
     }
 
@@ -54,11 +56,11 @@ seq_t a(idx_t n)
     if (n + 1 > dpCap) {
         idx_t newCap = n + 1;
         for (int s = 0; s < 4; ++s) {
-            cur[s]  = (seq_t*)realloc(cur[s],  newCap * sizeof(seq_t));
-            nxt[s]  = (seq_t*)realloc(nxt[s],  newCap * sizeof(seq_t));
+            cur[s]  = mem_resize(seq_t, cur[s], newCap);
+            nxt[s]  = mem_resize(seq_t, nxt[s], newCap);
             /* Zero the newly added elements. */
-            memset(cur[s] + dpCap, 0, (newCap - dpCap) * sizeof(seq_t));
-            memset(nxt[s] + dpCap, 0, (newCap - dpCap) * sizeof(seq_t));
+            mem_set(cur[s] + dpCap, 0, (newCap - dpCap) * sizeof(seq_t));
+            mem_set(nxt[s] + dpCap, 0, (newCap - dpCap) * sizeof(seq_t));
         }
         dpCap = newCap;
     }
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
 
         /* Zero next state for all heights that may be reached in this step. */
         for (int s = 0; s < 4; ++s)
-            memset(nxt[s], 0, (step + 1) * sizeof(seq_t));
+            mem_set(nxt[s], 0, (step + 1) * sizeof(seq_t));
 
         for (idx_t h = 0; h <= maxPrevHeight; ++h) {
             seq_t c0 = cur[0][h]; /* even, last not U */

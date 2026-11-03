@@ -14,12 +14,14 @@
  *            a(1)…a(16) as listed in the OEIS entry
  * Range:     u8 none, u16 n <= 6, u32 n <= 21, u64 n <= 48, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t _init[16] = {
     2554ULL, 4514ULL, 7810ULL, 14702ULL, 27218ULL,
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first 16 terms if needed. */
     if (cache == NULL) {
         cache_size = 16;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache)
             return (seq_t)0;  /* Allocation failure. */
         for (idx_t i = 0; i < 16; ++i)
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
 
     /* Grow cache if requested index is beyond current size. */
     if (cache_size < n) {
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp)
             return (seq_t)0;  /* Allocation failure. */
         cache = tmp;

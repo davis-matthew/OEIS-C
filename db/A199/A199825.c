@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 66, u128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MAX_N   10000             /* assumed maximum n needed */
 #define MAX_LEN (MAX_N + 2)       /* maximum array length L = n+2   */
@@ -82,7 +84,7 @@ static void init(void)
     }
 
     /* Allocate cache for a(n) values */
-    aCache = (seq_t *)calloc(MAX_N + 1, sizeof(seq_t));
+    aCache = mem_new(seq_t, MAX_N + 1);
 }
 
 /*---------------------------------------------------------------------*/

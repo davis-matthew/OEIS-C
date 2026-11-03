@@ -9,15 +9,17 @@
  *            of Langton's ant, starting from an all‑white grid, turning right
  *            on a white cell and left on a black cell. This implementation
  *            simulates the ant step by step and memoises the sequence values
- * Range:     u8 n <= 2769, u16 n <= 8153, u32 n <= 8153, u64 n <= 8153,
- *            u128 n <= 8153, big any n
- * Helpers:   none
+ * Range:     u8 n <= 2769, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 88 terms through n = 8153 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* ---------- initialize cache ---------- */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)0;        /* a(0) = 0  */
     }
 
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         size_t newcap = cache_cap ? cache_cap * 2 : 16;
         while ((size_t)n + 1 > newcap)
             newcap *= 2;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         cache_cap = newcap;
     }
 

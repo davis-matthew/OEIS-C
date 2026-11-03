@@ -10,7 +10,8 @@
  *            a(0)=1 and for n≥1 a(n) = (1/n)·Σ_{k=1}^{n} S(k)·a(n−k)
  * Range:     i8 n <= 10, i16 n <= 123, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* period‑6 sequence b(k) */
 static inline int b_of(idx_t d)
@@ -64,8 +66,8 @@ seq_t a(idx_t n)
     if (N + 1 > a_cap || N + 1 > S_cap)
     {
         size_t new_cap = (N + 1) * 2;
-        a_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
-        S_cache = (seq_t*)realloc(S_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
+        S_cache = mem_resize(seq_t, S_cache, new_cap);
         a_cap   = new_cap;
         S_cap   = new_cap;
     }

@@ -12,6 +12,7 @@
  *            f∈{0,1,2} we * build a transition graph of allowed...
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 15, u128 n <= 33,
  *            big any n
+ * Validated: standard, pass, 31 terms through n = 194 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,6 +9,7 @@
  *            2^n*(13104*n^2-50682*n-1250685)+48039
  * Range:     u8 none, u16 none, u32 n <= 5, u64 n <= 18, u128 n <= 49,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 292 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

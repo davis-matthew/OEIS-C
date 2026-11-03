@@ -10,13 +10,14 @@
  *            1 (i.e., a(n) = A006530(A007088(n)))
  * Range:     u8 n <= 10, u16 n <= 46, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   gpf
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -40,5 +41,5 @@ seq_t a(idx_t n)
     if (val <= 1)
         return (seq_t)1;       /* greatest prime factor of 1 is 1 */
 
-    return (seq_t)gpf(val);    /* gpf from utils: greatest prime factor */
+    return (seq_t)largest_prime_factor(val);    /* gpf from utils: greatest prime factor */
 }

@@ -8,12 +8,14 @@
  *            positive divisors of n
  * Range:     u8 n <= 7, u16 n <= 39, u32 n <= 1439, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9218 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t sigma_of(idx_t n)
 {
@@ -23,7 +25,7 @@ static seq_t sigma_of(idx_t n)
     if (n <= max_n) return cache[n];
 
     /* enlarge cache */
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) exit(1);      /* abort on memory failure */
     cache = new_cache;
 

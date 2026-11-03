@@ -11,7 +11,8 @@
  *            column index, 1 ≤ k ≤ r)
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   fusc
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/fusc.h"
+
+/* Helper: Stern's diatomic series (fusc) */
+static seq_t fusc(idx_t n)
+{
+    if (n == 0) return 0;
+    if (n == 1) return 1;
+    if ((n & 1) == 0) {
+        return fusc(n >> 1);
+    } else {
+        return fusc((n - 1) >> 1) + fusc((n + 1) >> 1);
+    }
+}
 
 /* Helper: triangular number r*(r+1)/2 using 128‑bit to avoid overflow */
 static inline __int128 triangular(idx_t r)

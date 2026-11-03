@@ -9,7 +9,8 @@
  *            6t^33 + 21t^34)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,11 +18,12 @@
 /* a(n) satisfies a_n = N_n + 6 * Σ_{k=1}^{min(n,33)} a_{n-k} - 21 * a_{n-34} (a_{m}=0 for m<0)  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate space for a[0..n] */
-    seq_t *a = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, (n + 1));
     if (!a) return 0;   /* fallback on allocation failure */
 
     for (idx_t i = 0; i <= n; ++i)
@@ -51,6 +53,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a[n];
-    free(a);
+    mem_free(a);
     return result;
 }

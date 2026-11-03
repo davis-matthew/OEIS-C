@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 17,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,7 +38,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t a, idx_t b) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 typedef uint64_t idx_t;   /* supplied by the build */
 
@@ -57,7 +59,7 @@ ensure_capacity(seq_t **arr, size_t *cap, size_t needed)
     if (*cap < needed) {
         size_t new_cap = (*cap == 0) ? 16 : *cap;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         *arr = tmp;
         *cap = new_cap;
     }
@@ -70,7 +72,7 @@ ensure_f(idx_t n)
     if (n <= f_max) return;          /* already up to date */
     ensure_capacity(&f_cache, &f_cap, n + 1);
     for (idx_t k = f_max + 1; k <= n; ++k) {
-        seq_t bin = binom(7 * k - 2, k);          /* binomial(7k-2,k) */
+        seq_t bin = binomial(7 * k - 2, k);          /* binomial(7k-2,k) */
         seq_t denom = (seq_t)(6 * k - 1);          /* 6k-1 */
         f_cache[k] = bin / denom;                 /* exact division */
     }

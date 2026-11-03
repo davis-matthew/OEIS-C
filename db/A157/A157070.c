@@ -9,12 +9,14 @@
  *            binomial(n+1,i)*binomial(20,i-1)*binomial(n-i+21,21)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 19, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* Pre‑compute the binomial factor binomial(n-i+21,21)
        for all i = 1..n  ->  for m = 21 .. n+20   */
     size_t sz = (size_t)n;
-    seq_t *binom_m = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *binom_m = mem_new(seq_t, sz);
     if (!binom_m) return 0;              /* allocation failure (unlikely) */
 
     seq_t cur = 1;                       /* binom(21,21) */
@@ -49,6 +51,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(binom_m);
+    mem_free(binom_m);
     return sum;
 }

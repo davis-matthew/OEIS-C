@@ -9,6 +9,7 @@
  *            1725*n^3 + 2272*n^2 + 1990*n + 21
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 10, u64 n <= 137, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 979 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

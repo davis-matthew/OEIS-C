@@ -10,13 +10,15 @@
  *            part sizes
  * Range:     u8 n <= 22, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,13 +26,13 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;       /* cast to size_t for array indices */
 
     /* allocate four arrays of size N+1 */
-    seq_t *f     = (seq_t*)malloc((N + 1) * sizeof(seq_t));
-    seq_t *g     = (seq_t*)malloc((N + 1) * sizeof(seq_t));
-    seq_t *new_f = (seq_t*)malloc((N + 1) * sizeof(seq_t));
-    seq_t *new_g = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *f     = mem_new(seq_t, (N + 1));
+    seq_t *g     = mem_new(seq_t, (N + 1));
+    seq_t *new_f = mem_new(seq_t, (N + 1));
+    seq_t *new_g = mem_new(seq_t, (N + 1));
 
     if (!f || !g || !new_f || !new_g) {
-        free(f); free(g); free(new_f); free(new_g);
+        mem_free(f); mem_free(g); mem_free(new_f); mem_free(new_g);
         return 0;
     }
 
@@ -79,6 +81,6 @@ seq_t a(idx_t n)
 
     seq_t result = g[N];
 
-    free(f); free(g); free(new_f); free(new_g);
+    mem_free(f); mem_free(g); mem_free(new_f); mem_free(new_g);
     return result;
 }

@@ -10,7 +10,8 @@
  *            unchanged)
  * Range:     u8 n <= 46, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <string.h>
 #include <math.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *prime_cache      = NULL; /* cached primes, type seq_t */
 static size_t prime_cache_cap  = 0;     /* allocated capacity of the cache   */
@@ -62,8 +64,7 @@ static void ensure_primes_upto(idx_t n)
             if (!is_composite[i]) {
                 if (count >= prime_cache_cap) {
                     prime_cache_cap = prime_cache_cap ? prime_cache_cap * 2 : 16;
-                    prime_cache = (seq_t *)realloc(prime_cache,
-                                                   prime_cache_cap * sizeof(seq_t));
+                    prime_cache = mem_resize(seq_t, prime_cache, prime_cache_cap);
                 }
                 prime_cache[count++] = (seq_t)i;
                 if ((seq_t)i * (seq_t)i <= (seq_t)limit) {

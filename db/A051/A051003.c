@@ -9,7 +9,8 @@
  *            contains the substring "666" (a(1)=666)
  * Range:     u8 none, u16 n <= 119, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_666
+ * Validated: standard, pass, 53 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_666.h"
+#include "../utils/mem.h"
+
+/* Check if x contains the decimal substring 666. */
+static bool has_666(seq_t x)
+{
+    while (x >= 666)
+    {
+        if (x % 1000 == 666)
+            return true;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +50,7 @@ seq_t a(idx_t n)
             size_t new_cap = cache_cap ? cache_cap * 2 : 64;
             if (new_cap < needed)
                 new_cap = needed;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp)
             {
                 /* Allocation failed – return 0 as a sentinel. */

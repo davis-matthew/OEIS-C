@@ -10,7 +10,8 @@
  *            a(1)=3, a(2)=17, a(3)=95
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   ensure_cache_size
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/ensure_cache_size.h"
+#include "../utils/mem.h"
+
+/* Resize a static cache to hold at least 'needed' elements. */
+static void ensure_cache_size(idx_t needed, seq_t **arr, size_t *cap)
+{
+    if (*cap < (size_t)needed) {
+        size_t new_cap = (*cap > 0) ? (*cap << 1) : needed;
+        if (new_cap < (size_t)needed) new_cap = needed;
+        seq_t *buf = mem_new(seq_t, new_cap);
+        if (!buf) exit(EXIT_FAILURE);                 /* cannot recover */
+        if (*arr) {
+            mem_copy(buf, *arr, (*cap) * sizeof(seq_t));
+            mem_free(*arr);
+        }
+        *arr = buf;
+        *cap = new_cap;
+    }
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * ≥ 1. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for the triangle.  triangle[r] points to an array of
  * (r-1) entries for r ≥ 2, and a single entry for r == 1.  The array
@@ -57,7 +59,7 @@ static void ensure_rows(idx_t need)
 
     for (idx_t r = max_row + 1; r <= need; ++r) {
         idx_t len = (r == 1) ? 1 : r - 1;            /* number of entries in row r */
-        seq_t *row = (seq_t*) malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
 
         if (r == 1) {
             row[0] = (seq_t)2;

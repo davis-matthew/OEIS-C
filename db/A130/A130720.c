@@ -10,15 +10,37 @@
  *            decimal * representation of n as a substring
  * Range:     u8 n <= 14, u16 n <= 99, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   to_str_idx, to_str_seq
+ * Validated: standard, pass, 65 terms through n = 9921 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/to_str_idx.h"
-#include "../utils/to_str_seq.h"
+
+/* convert an idx_t value to a decimal string.
+   buf must be large enough (at least 25 bytes for 128‑bit values). */
+static void to_str_idx(idx_t v, char *buf, size_t *len)
+{
+    if (v == 0) { buf[0] = '0'; *len = 1; return; }
+    size_t pos = 0;
+    while (v > 0) { unsigned d = (unsigned)(v % 10); buf[pos++] = '0' + d; v /= 10; }
+    for (size_t i = 0; i < pos / 2; ++i) { char t = buf[i]; buf[i] = buf[pos-1-i]; buf[pos-1-i] = t; }
+    *len = pos;
+}
+
+/* convert a seq_t value to a decimal string.
+   buf must be large enough (use >2000 bytes for 128‑bit values). */
+static void to_str_seq(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) { buf[0] = '0'; *len = 1; return; }
+    size_t pos = 0;
+    while (v > 0) { unsigned d = (unsigned)(v % 10); buf[pos++] = '0' + d; v /= 10; }
+    for (size_t i = 0; i < pos / 2; ++i) { char t = buf[i]; buf[i] = buf[pos-1-i]; buf[pos-1-i] = t; }
+    *len = pos;
+}
 
 /* simple substring test on two character buffers. */
 static bool contains(const char *s, size_t slen, const char *pat, size_t plen)

@@ -9,7 +9,8 @@
  *            distinct s with n < s ≤ k and r,s have the same prime signature
  * Range:     u8 n <= 27, u16 n <= 500, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
- * Helpers:   sort_exps, swap_uint8
+ * Validated: standard, pass, 73 terms through n = 498 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,20 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/sort_exps.h"
-#include "../utils/swap_uint8.h"
+
+/* ---- utility functions ------------------------------------------------ */
+static void swap_uint8(uint8_t *a, uint8_t *b)
+{
+    uint8_t t = *a; *a = *b; *b = t;
+}
+
+static void sort_exps(uint8_t *exps, size_t n)
+{
+    for (size_t i = 0; i + 1 < n; ++i)
+        for (size_t j = i + 1; j < n; ++j)
+            if (exps[j] < exps[i])
+                swap_uint8(&exps[i], &exps[j]);
+}
 
 /* ---- configuration ---------------------------------------------------- */
 #define LMAX 200000

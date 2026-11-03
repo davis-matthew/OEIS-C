@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   not stated
- * Range:     i8 n <= 59, i16 n <= 8992, i32 n <= 8992, i64 n <= 8992,
- *            i128 n <= 8992, big any n
- * Helpers:   g_squarefree_inv_prime_power, g_unitary_inv_prime_power
+ * Range:     i8 n <= 59, i16 n <= 12209, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 88 terms through n = 8992 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,57 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/g_squarefree_inv_prime_power.h"
-#include "../utils/g_unitary_inv_prime_power.h"
+
+/* Dirichlet inverse of σ_sf(p^k) where σ_sf(p^k)=1+p for k≥1 (square‑free sum) */
+static seq_t g_squarefree_inv_prime_power(seq_t p, idx_t e)
+{
+    seq_t f[32];
+    seq_t g[32];
+
+    f[0] = 1;   /* σ_sf(1) = 1 */
+    g[0] = 1;   /* g(1) = 1 */
+
+    seq_t fp1 = 1 + p;                /* σ_sf(p^k) for k≥1 */
+    for (idx_t k = 1; k <= e; ++k) {
+        f[k] = fp1;
+    }
+
+    for (idx_t k = 1; k <= e; ++k) {
+        seq_t sum = f[k];
+        for (idx_t i = 1; i < k; ++i) {
+            sum += g[i] * f[k - i];
+        }
+        g[k] = -sum;
+    }
+    return g[e];
+}
+
+/* Dirichlet inverse of σ^*(p^k) where σ^*(p^k)=1+p^k (unitary sum) */
+static seq_t g_unitary_inv_prime_power(seq_t p, idx_t e)
+{
+    /* Arrays hold values for 0..e (e <= 30 for n <= 10000) */
+    seq_t pow_p[32];
+    seq_t f[32];
+    seq_t g[32];
+
+    pow_p[0] = 1;
+    f[0]    = 1;   /* σ^*(1) = 1 */
+    g[0]    = 1;   /* g(1) = 1 */
+
+    for (idx_t k = 1; k <= e; ++k) {
+        pow_p[k] = pow_p[k - 1] * (seq_t)p;
+        f[k]     = pow_p[k] + 1;      /* 1 + p^k */
+    }
+
+    for (idx_t k = 1; k <= e; ++k) {
+        seq_t sum = f[k];
+        for (idx_t i = 1; i < k; ++i) {
+            sum += g[i] * f[k - i];
+        }
+        g[k] = -sum;
+    }
+    return g[e];
+}
 
 /* Simple trial division factorisation into primes and exponents. */
 static void factorize_uint64(idx_t n, uint64_t primes[], idx_t exps[], size_t *cnt)

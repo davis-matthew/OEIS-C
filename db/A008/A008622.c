@@ -10,12 +10,14 @@
  *            a(8)=1,a(9)=0,a(10)=1,a(11)=1,a(12)=2,a(13)=1,a(14)=2,a(15)=1,a(16)=2,a(17)=1
  * Range:     u8 n <= 281, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for sequence values */
 static seq_t *cache = NULL;
@@ -27,7 +29,7 @@ static void cache_init(void)
 {
     size_t init_cap = 64; /* initial allocation size, must be >= 18 */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (cache == NULL) return;                /* allocation failure – caller may ignore */
         for (size_t i = 0; i < init_cap; ++i) cache[i] = 0;
         cache[0] = 1;
@@ -60,7 +62,7 @@ static void cache_ensure(idx_t n)
     if ((size_t)n + 1 <= cache_cap) return;        /* already big enough */
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     if (new_cap <= (size_t)n) new_cap = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (tmp == NULL) return;                      /* ignore failure */
     for (size_t i = cache_cap; i < new_cap; ++i) tmp[i] = 0;
     cache = tmp;

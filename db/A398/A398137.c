@@ -8,12 +8,14 @@
  *            a(3)=29, a(4)=126 (order‑4 linear recurrence)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t mul_const(seq_t x, unsigned int c)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     /* extend cache to index n (inclusive) */
     idx_t new_size = n + 1;                   /* include index 0, unused */
-    cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
     if (!cache) exit(EXIT_FAILURE);           /* allocation failure */
 
     /* fill new entries */

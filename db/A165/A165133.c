@@ -7,6 +7,7 @@
  * Formula:   a(n) = (2^(n+4)-1)*(2^n+1)
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 13, u64 n <= 22, u128 n <= 22,
  *            big any n
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

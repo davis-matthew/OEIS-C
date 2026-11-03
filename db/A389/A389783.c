@@ -7,14 +7,16 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} (k+1)^(k-1) * binomial(2*k-1, n-k) / k!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: standard, pass, 35 terms through n = 307 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Compute terms for k = n .. 1 */
     for (idx_t k = n; k >= 1; k--) {
-        seq_t pow_val = pow_uint((uint64_t)(k + 1), k - 1);      /* (k+1)^(k-1) */
+        seq_t pow_val = ipow_u64_idx((uint64_t)(k + 1), k - 1);      /* (k+1)^(k-1) */
         seq_t binom   = binomial(2 * k - 1, n - k);              /* C(2k-1, n-k) */
 
         seq_t term = ratio;

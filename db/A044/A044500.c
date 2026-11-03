@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   has25
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
    nth such number is returned. */
 
 #include <stdbool.h>
-#include "../utils/has25.h"
+
+/* Test whether a number contains the substring 25 in its base‑6 representation. */
+static inline bool has25(seq_t x)
+{
+    if (x < (seq_t)2) return false;
+    idx_t prev = (idx_t)-1;
+    while (x > (seq_t)0) {
+        idx_t d = (idx_t)(x % (seq_t)6);
+        if (prev == (idx_t)5 && d == (idx_t)2) return true;
+        prev = d;
+        x /= (seq_t)6;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

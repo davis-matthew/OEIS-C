@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,27 @@
 #include <stdbool.h>
 #include <string.h>
 #include <limits.h>
-#include "../utils/floor_sqrt.h"   /* floor_sqrt(seq_t) returns ⌊√x⌋ */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* static state shared by all calls of a() */
 static seq_t *seq = NULL;          /* array of sequence values        */
@@ -61,7 +82,7 @@ static void add_term(seq_t val)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 16;
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp) abort();
         seq = tmp;
         seq_cap = new_cap;
@@ -94,7 +115,7 @@ seq_t a(idx_t n)
     /* initialize on first call */
     if (!seq) {
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) abort();
         seq_len = 0;
         can_len = 0;

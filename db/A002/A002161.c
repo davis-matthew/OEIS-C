@@ -8,9 +8,10 @@
  *            Pi = 16*arctan(1/5) - 4*arctan(1/239); 1/sqrt(Pi) by Newton
  *            iteration y <- y*(3 - Pi*y^2)/2, in base-10^9 fixed-point
  *            arithmetic; a(n) = n-th digit
- * Range:     u8 n <= 8381, u16 n <= 8381, u32 n <= 8381, u64 n <= 8381,
- *            u128 n <= 8381, big any n
- * Helpers:   q_zero
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 116 terms through n = 8381 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/q_zero.h"
+
+static int q_zero(const uint32_t *x, size_t L) {
+    size_t i;
+    for (i = 0; i < L; i++) if (x[i]) return 0;
+    return 1;
+}
 
 #define Q_BASE 1000000000ULL
 

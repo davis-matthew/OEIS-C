@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 30, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   calc_phi
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/calc_phi.h"
+#include <stdint.h>
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;   /* cache of primitive terms */
 static size_t terms_len = 0;  /* number of terms stored      */
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first term 4 (k = 2·2) */
     if (terms == NULL) {
         terms_cap = 32;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) abort();
         terms[0] = (seq_t)4;
         terms_len = 1;
@@ -45,15 +48,15 @@ seq_t a(idx_t n)
         next_m += 2;                         /* prepare next odd m      */
 
         seq_t two_m  = (seq_t)2 * m;         /* k = 2*m                  */
-        seq_t phi_m  = calc_phi(two_m);      /* φ(2m)                   */
+        seq_t phi_m  = totient_seq(two_m);      /* φ(2m)                   */
         seq_t t      = two_m + phi_m;        /* 2m + φ(2m)               */
-        seq_t phi_t  = calc_phi(t);          /* φ(2m + φ(2m))           */
+        seq_t phi_t  = totient_seq(t);          /* φ(2m + φ(2m))           */
 
         if (phi_t == phi_m) {
             /* ensure capacity for new term */
             if (terms_len == terms_cap) {
                 terms_cap = terms_cap ? terms_cap * 2 : 32;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
                 if (!terms) abort();
             }
             terms[terms_len++] = two_m;

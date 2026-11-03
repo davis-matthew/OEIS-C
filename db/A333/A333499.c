@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* OEIS A333499: Number of numbers the sum of whose digits' factorials equals n. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const unsigned int fact[10] = {1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880};
 
@@ -29,7 +31,7 @@ static void compute_up_to(idx_t n)
     if (dp_size <= (size_t)n) {
         size_t old_size = dp_size;
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_size);
         if (!tmp) exit(1);
         dp = tmp;
 

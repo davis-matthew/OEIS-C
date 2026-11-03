@@ -8,15 +8,28 @@
  *            derivatives of all integers from 2 to n)
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 17, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   build_spf, seq_realloc
+ * Validated: partial, pass, 24 terms through n = 25 (2026-11-01)
+ * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/build_spf.h"
-#include "../utils/seq_realloc.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Static cache of already computed a(k) values.  The array is indexed
    by k, with prod_cache[1] = 1 as the empty product.  prod_cache[n] holds

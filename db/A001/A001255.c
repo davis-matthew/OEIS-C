@@ -7,26 +7,28 @@
  * Formula:   a(n) = A000041(n)^2
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 43, u64 n <= 127, u128 n <= 416,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *partitions = NULL;
 static idx_t max_computed = 0;
 
 static void compute_partition_up_to(idx_t n) {
     if (partitions == NULL) {
-        partitions = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        partitions = mem_new(seq_t, (n + 1));
         if (partitions == NULL) return;
         partitions[0] = 1;
         max_computed = 0;
     } else if (n <= max_computed) {
         return;
     } else {
-        seq_t *temp = (seq_t *)realloc(partitions, (n + 1) * sizeof(seq_t));
+        seq_t *temp = mem_resize(seq_t, partitions, (n + 1));
         if (temp == NULL) return;
         partitions = temp;
     }

@@ -10,15 +10,36 @@
  *            desired index is found
  * Range:     u8 n <= 6, u16 n <= 623, u32 n <= 2107, u64 n <= 2107,
  *            u128 n <= 2107, big any n
- * Helpers:   is_prime, swap16_uint64
+ * Validated: standard, pass, 61 terms through n = 2089 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/swap16_uint64.h"
+
+/* Swap the digits 1 and 6 in a 64‑bit integer.
+   Digits other than 1 or 6 remain unchanged. */
+static uint64_t swap16_uint64(uint64_t x)
+{
+    uint64_t y   = 0;
+    uint64_t pow = 1;
+    while (x > 0)
+    {
+        uint64_t d = x % 10;
+        if (d == 1)
+            d = 6;
+        else if (d == 6)
+            d = 1;
+        y += d * pow;
+        pow *= 10;
+        x  /= 10;
+    }
+    return y;
+}
 
 /* Return the nth term of A180529.
    n is 1‑based; a(1) is 17. */

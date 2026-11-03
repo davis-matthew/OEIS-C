@@ -7,7 +7,8 @@
  * Formula:   a(n) = - (n-1)! * Σ_{k=1..min(4,n)} a(n-k)/(n-k)! (a(0)=1)
  * Range:     i8 n <= 7, i16 n <= 10, i32 n <= 16, i64 n <= 25, i128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 482 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function uses static memory so that repeated calls are fast
    and the sequence is memoised.  It works for any seq_t type supplied
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (cache == NULL) {
         cap   = 1;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) return 0;   /* allocation failed: give up */
         cache[0] = 1;                  /* a(0) = 1 */
         last = 0;                      /* only index 0 computed so far */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cap) {
         size_t newcap = cap;
         while (newcap <= (size_t)n) newcap *= 2;
-        seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (tmp == NULL) return 0;  /* allocation failed */
         cache = tmp;
         cap   = newcap;

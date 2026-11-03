@@ -13,7 +13,8 @@
  *            exact count in seq_t
  * Range:     u8 none, u16 n <= 6, u32 n <= 18, u64 n <= 42, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 
 #define STATES (64)              /* column states: 3 digits each 0..3  */
@@ -92,11 +94,11 @@ seq_t a(idx_t n)
     /* Initialize on first call. */
     if (!initialized) {
         init();
-        dp_prev = (seq_t*)calloc(PAIRS, sizeof(seq_t));
-        dp_curr = (seq_t*)calloc(PAIRS, sizeof(seq_t));
+        dp_prev = mem_new(seq_t, PAIRS);
+        dp_curr = mem_new(seq_t, PAIRS);
         for (size_t i = 0; i < PAIRS; ++i) dp_prev[i] = 1;   /* all 2‑column prefixes */
         a_cap   = 16;
-        a_vals  = (seq_t*)calloc(a_cap, sizeof(seq_t));
+        a_vals  = mem_new(seq_t, a_cap);
         initialized = true;
     }
 
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
     if (n >= a_cap) {
         size_t new_cap = a_cap * 2;
         while (new_cap <= n) new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(a_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
         if (!tmp) exit(1);
         for (size_t i = a_cap; i < new_cap; ++i) tmp[i] = 0;
         a_vals = tmp;
@@ -113,7 +115,7 @@ seq_t a(idx_t n)
 
     /* Advance DP up to the required n. */
     while (steps_done < n) {
-        memset(dp_curr, 0, PAIRS * sizeof(seq_t));
+        mem_set(dp_curr, 0, PAIRS * sizeof(seq_t));
 
         for (size_t idx = 0; idx < PAIRS; ++idx) {
             seq_t val = dp_prev[idx];

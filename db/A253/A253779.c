@@ -8,6 +8,7 @@
  * Formula:   a(n) = m(m^2-1)(m^2+2)/6 where m = n + floor((n-1)/2)
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 80, u64 n <= 6804,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 49 terms through n = 6994 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

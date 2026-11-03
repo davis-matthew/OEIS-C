@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = n - 2*A003415(n) (arithmetic derivative of n)
- * Range:     i8 n <= 47, i16 n <= 4095, i32 n <= 8741, i64 n <= 8741,
- *            i128 n <= 8741, big any n
+ * Range:     i8 n <= 47, i16 n <= 4095, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 90 terms through n = 8741 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,7 +16,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* provides void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
+#include <stdbool.h>
+#include "../utils/factor_u64.h"
 
 static seq_t derivative_u64(uint64_t n)
 {

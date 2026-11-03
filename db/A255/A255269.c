@@ -7,16 +7,25 @@
  * Formula:   a(n) = ∏_{k=1..n} k!^k
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   seq_mul, seq_one, seq_pow
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_one.h"
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 static seq_t *cache = NULL;      /* cached a(k) for k >= 1 */
 static size_t cache_len = 0;     /* number of cached elements */
@@ -27,7 +36,7 @@ seq_t a(idx_t n) {
 
     /* Extend the cache if necessary */
     if (cache_len < (size_t)n) {
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
 
@@ -38,7 +47,7 @@ seq_t a(idx_t n) {
             current_fact = seq_mul(current_fact, (seq_t)k);
 
             /* Compute (k!)^k */
-            seq_t power_k = seq_pow(current_fact, k);
+            seq_t power_k = ipow_idx(current_fact, k);
 
             /* a(k) = a(k-1) * (k!)^k */
             seq_t new_val = seq_mul(prev_val, power_k);

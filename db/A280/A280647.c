@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 854, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cube_middle_is7
+ * Validated: standard, pass, 68 terms through n = 9957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,28 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/cube_middle_is7.h"
+#include "../utils/mem.h"
+
+/* return true if k^3 has an odd number of digits and the middle digit is 7 */
+static bool cube_middle_is7(idx_t k)
+{
+    seq_t cube = (seq_t)k * k * k;      /* k³ */
+
+    /* extract decimal digits from least significant to most */
+    unsigned char digs[128];
+    unsigned len = 0;
+    seq_t t = cube;
+    while (t != 0) {
+        digs[len++] = (unsigned char)(t % 10);
+        t /= 10;
+    }
+    if (len == 0) return false;   /* only k = 0 would reach this */
+
+    if ((len & 1u) == 0) return false;   /* even number of digits */
+
+    /* middle digit from the left equals digit at index len/2 from the right */
+    return digs[len >> 1] == 7u;
+}
 
 /* static state for caching */
 static seq_t *cache = NULL;     /* array of found k's */
@@ -39,8 +61,7 @@ seq_t a(idx_t n)
     while (cache_sz < (size_t)n) {
         if (cube_middle_is7(next_k)) {
             /* grow cache by one element */
-            seq_t *new_cache = (seq_t *)realloc(cache,
-                                                (cache_sz + 1) * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, (cache_sz + 1));
             cache = new_cache;                /* may be NULL; let caller handle */
             cache[cache_sz++] = (seq_t)next_k; /* store found k */
         }

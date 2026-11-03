@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 11, i64 n <= 21, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
    memoising computed terms so that calls in any order remain fast. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_a = NULL;   /* a[n] */
 static seq_t *seq_c = NULL;   /* C_n = Σ a(k)·a(n-k)  */
@@ -42,9 +44,9 @@ static idx_t  max_computed = (idx_t)-1;   /* last index computed */
 static void compute_terms(idx_t n)
 {
     if (seq_a == NULL) { /* initialise to size n+1 */
-        seq_a = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
-        seq_c = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
-        seq_d = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        seq_a = mem_new(seq_t, (size_t)(n + 1));
+        seq_c = mem_new(seq_t, (size_t)(n + 1));
+        seq_d = mem_new(seq_t, (size_t)(n + 1));
         for (idx_t i = 0; i <= n; ++i) {
             seq_a[i] = (seq_t)0;
             seq_c[i] = (seq_t)0;
@@ -58,9 +60,9 @@ static void compute_terms(idx_t n)
     } else if (n > max_computed) {   /* grow existing arrays */
         size_t old_cap = (size_t)(max_computed + 1);
         size_t new_cap = (size_t)(n + 1);
-        seq_a = (seq_t *)realloc(seq_a, new_cap * sizeof(seq_t));
-        seq_c = (seq_t *)realloc(seq_c, new_cap * sizeof(seq_t));
-        seq_d = (seq_t *)realloc(seq_d, new_cap * sizeof(seq_t));
+        seq_a = mem_resize(seq_t, seq_a, new_cap);
+        seq_c = mem_resize(seq_t, seq_c, new_cap);
+        seq_d = mem_resize(seq_t, seq_d, new_cap);
         for (idx_t i = old_cap; i <= n; ++i) {
             seq_a[i] = (seq_t)0;
             seq_c[i] = (seq_t)0;

@@ -9,13 +9,16 @@
  *            else a(n)=a(n-1)+1
  * Range:     u8 n <= 19, u16 n <= 53, u32 n <= 131, u64 n <= 311,
  *            u128 n <= 719, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 66 terms through n = 768 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
     seq_t a_n = 1;             /* current a(k) */
 
     for (idx_t k = 3; k <= n; ++k) {
-        if (is_prime((uint64_t)(k - 1)))
+        if (is_prime_u64((uint64_t)(k - 1)))
             a_n = a_nm1 + a_nm2;
         else
             a_n = a_nm1 + 1;

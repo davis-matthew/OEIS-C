@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   in_F
+ * Validated: standard, pass, 87 terms through n = 9998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/in_F.h"
+#include "../utils/mem.h"
+
+static inline bool in_F(idx_t x)
+{
+    if (x % 7 == 0) return true;
+    while (x > 0) {
+        if (x % 10 == 7) return true;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Cache of already computed a values; cache[0] is unused. */
 static seq_t *cache       = NULL;
@@ -32,8 +43,7 @@ seq_t a(idx_t n)
 
     if (n > max_computed) {
         idx_t new_max = n;
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      (new_max + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_max + 1));
         if (!tmp) abort();                /* allocation failed */
         cache = tmp;
 

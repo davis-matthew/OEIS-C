@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{i=0}^{n-1} LP(i, i+1)
  * Range:     u8 n <= 115, u16 n <= 115, u32 n <= 115, u64 n <= 115,
  *            u128 n <= 115, big any n
- * Helpers:   _prefix_overlap
+ * Validated: partial, pass, 115 terms through n = 115 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,30 @@
     The dictionary is ordered by increasing numeric value. */
 
 #include <stdint.h>
-#include "../utils/_prefix_overlap.h"
+
+static unsigned _prefix_overlap(idx_t a)
+{
+    /* Count trailing 9's in a */
+    unsigned trailing9 = 0;
+    idx_t tmp = a;
+    while (tmp % 10 == 9) {
+        ++trailing9;
+        tmp /= 10;
+    }
+
+    /* Count total digits of a */
+    unsigned digits = 0;
+    tmp = a;
+    do {
+        ++digits;
+        tmp /= 10;
+    } while (tmp);
+
+    /* If a consists only of 9's, the next number has more digits
+       and shares no common prefix. Otherwise the overlap equals
+       number of unchanged left‑hand digits. */
+    return (trailing9 == digits) ? 0 : digits - trailing9 - 1;
+}
 
 seq_t a(idx_t n)
 {

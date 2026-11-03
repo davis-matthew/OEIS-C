@@ -8,6 +8,7 @@
  * Formula:   a(n) = 0 for n ≥ 5; a(1)=0, a(2)=2, a(3)=17, a(4)=5
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

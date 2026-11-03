@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 13, i16 n <= 253, i32 n <= 299, i64 n <= 299,
  *            i128 n <= 299, big any n
- * Helpers:   cell_count, pow4_u64
+ * Validated: standard, pass, 70 terms through n = 289 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,25 @@
 */
 
 #include <stdint.h>
-#include "../utils/cell_count.h"
-#include "../utils/pow4_u64.h"
+
+/* compute 4^e as seq_t (e <= 64); uses simple multiplication to support
+   arbitrary-precision seq_t */
+static seq_t pow4_u64(idx_t e)
+{
+    seq_t r = 1;
+    for (idx_t i = 0; i < e; ++i) r *= 4;
+    return r;
+}
+
+/* number of ON cells after stage n */
+static seq_t cell_count(idx_t n)
+{
+    idx_t pc = __builtin_popcountll(n);      /* popcount of n */
+    if (n & 1)                               /* odd n */
+        return 5 * pow4_u64(pc - 1);          /* pc>=1 for odd n */
+    else                                      /* even n */
+        return pow4_u64(pc);
+}
 
 /* main sequence function */
 seq_t a(idx_t n)

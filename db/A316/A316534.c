@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn
  * Formula:   not stated
- * Range:     u8 n <= 4, u16 n <= 49, u32 n <= 4546, u64 n <= 9931,
- *            u128 n <= 9931, big any n
- * Helpers:   digit_len, pow10, seq_alloc_new_array, seq_free_array
+ * Range:     u8 n <= 4, u16 n <= 49, u32 n <= 4546, u64 n <= 40000,
+ *            u128 n <= 40000, big any n
+ * Validated: standard, pass, 86 terms through n = 9931 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,10 +36,24 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <math.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* ---------- cache for already computed terms -------------------- */
 static seq_t *cache = NULL;      /* array of found k's          */
@@ -79,7 +94,7 @@ static bool qualifies(idx_t k)
     for (int step = 0; step < 500; ++step)
     {
         /* number of decimal digits of b                       */
-        int b_digits = digit_len(b);
+        int b_digits = num_digits(b);
         if (b_digits < 0)
             return false;       /* unlikely, but safety */
 

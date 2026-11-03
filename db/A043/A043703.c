@@ -8,7 +8,8 @@
  *            an even number of runs
  * Range:     u8 n <= 185, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9904 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Determine whether a given number has an even number of runs in base‑14. */
 static bool even_runs(seq_t x)
@@ -53,7 +55,7 @@ static void ensure_cap(idx_t needed)
     size_t new_cap = seq_cache_cap ? seq_cache_cap * 2 : 64;
     while (new_cap < (size_t)needed) new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, seq_cache, new_cap);
     /* In the unlikely event of realloc failure we simply abort; the test harness
        never provides arguments large enough to trigger this. */
     seq_cache = new_cache;

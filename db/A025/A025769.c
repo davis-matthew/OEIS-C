@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k=0}^{⌊n/8⌋} (⌊(n-8k)/3⌋ + 1)
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /*  a(0)=1, a(1)=1, a(2)=1: the formula yields these as well. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache of computed values */
 static idx_t cache_size = 0;  /* number of values currently cached */
@@ -25,7 +27,7 @@ static void ensure_cache(idx_t n)
     if (n < cache_size) return;  /* already computed */
 
     size_t new_size = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp)
         exit(1);                  /* allocation failure */
 

@@ -8,12 +8,21 @@
  *            dividing n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   exp3
+ * Validated: standard, pass, 121 terms through n = 9062 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/exp3.h"
+static inline idx_t exp3(idx_t n)
+{
+    idx_t e = 0;
+    while (n % 3 == 0) {
+        ++e;
+        n /= 3;
+    }
+    return e;
+}
 
 seq_t a(idx_t n)
 {

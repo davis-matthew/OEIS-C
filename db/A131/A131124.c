@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 24, i16 n <= 76, i32 n <= 268, i64 n <= 968,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -53,11 +55,11 @@ seq_t a(idx_t n)
     if (need > max_n) {
         /* allocate new arrays */
         size_t sz = (size_t)need;
-        f = (seq_t *)calloc(sz, sizeof(seq_t));
-        g = (seq_t *)calloc(sz, sizeof(seq_t));
+        f = mem_new(seq_t, sz);
+        g = mem_new(seq_t, sz);
         if (!f || !g) { /* allocation failed */
-            if (f) free(f);
-            if (g) free(g);
+            if (f) mem_free(f);
+            if (g) mem_free(g);
             return (seq_t)0;
         }
         max_n = need;

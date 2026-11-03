@@ -14,7 +14,8 @@
  *            a(9)=2...
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 16, u64 n <= 33, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 /* This implementation uses memoisation to allow out‑of‑order calls. */
 
 #include <stdlib.h>   /* malloc, realloc, free, abort */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache[i] holds a(i+1) */
 static idx_t cache_len = 0;          /* number of allocated cache entries */
@@ -67,7 +69,7 @@ static void ensure_cache(idx_t n)
     size_t new_cap = (size_t)n;
     if (new_cap < 64) new_cap = 64;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();
 
     /* zero newly allocated part if any */

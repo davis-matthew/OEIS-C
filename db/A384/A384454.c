@@ -8,6 +8,7 @@
  * Formula:   A(n,k) = ∏_{j=1..n} (1-(-k)^j)/(1+k) (OEIS A384454)
  * Range:     i8 n <= 31, i16 n <= 49, i32 n <= 61, i64 n <= 65, i128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

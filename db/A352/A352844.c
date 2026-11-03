@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 1138, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9581 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static size_t const LIMIT = 600000;                     /* pre‑compute up to this limit – enough for n ≤ 100 000 */
 static uint32_t *spf = NULL;                            /* smallest prime factor array */
@@ -43,7 +45,7 @@ static void init(void)
 
     /* Allocate arrays */
     spf      = (uint32_t*)malloc((LIMIT + 1) * sizeof(uint32_t));
-    sop      = (seq_t*)   malloc((LIMIT + 1) * sizeof(seq_t));
+    sop      = mem_new(seq_t, (LIMIT + 1));
     tau_arr  = (uint32_t*)malloc((LIMIT + 1) * sizeof(uint32_t));
     if (!spf || !sop || !tau_arr) abort();              /* out of memory */
 

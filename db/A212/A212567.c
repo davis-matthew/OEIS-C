@@ -10,12 +10,19 @@
  *            ? (s-1) : (2*n - s + 1)
  * Range:     u8 n <= 10, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   count_pairs
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count_pairs.h"
+static inline seq_t count_pairs(idx_t sum, idx_t n)
+{
+    if (sum <= n + 1ULL)
+        return (seq_t)sum - 1;
+    else
+        return (seq_t)2 * (seq_t)n - sum + 1;
+}
 
 seq_t a(idx_t n)
 {

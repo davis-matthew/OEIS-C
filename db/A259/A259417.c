@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 35, u64 n <= 473, u128 n <= 473,
  *            big any n
- * Helpers:   build_primes_upto, cmp_seq_t, seq_mul
+ * Validated: standard, pass, 60 terms through n = 449 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,24 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_mul.h"
-#include "../utils/cmp_seq_t.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 typedef struct {
     seq_t value;   /* current power p^(2k) */
@@ -45,7 +61,7 @@ static void heap_push(Node node)
 {
     if (heap_size == heap_cap) {
         heap_cap = (heap_cap > 0) ? heap_cap * 2 : 64;
-        heap = (Node *)realloc(heap, heap_cap * sizeof(Node));
+        heap = mem_resize(Node, heap, heap_cap);
     }
     size_t i = heap_size++;
     while (i > 0) {
@@ -103,7 +119,7 @@ static void init_static(void)
 
     /* Initialise heap with p² for each odd prime. */
     heap_cap = prime_cnt;
-    heap = (Node *)malloc(heap_cap * sizeof(Node));
+    heap = mem_new(Node, heap_cap);
     heap_size = 0;
 
     for (size_t i = 1; i < cnt; ++i) {          /* skip 2 */
@@ -117,7 +133,7 @@ static void init_static(void)
 
     /* Initialise cache with a(1) = 1. */
     cache_cap = 1024;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache[0] = (seq_t)1;
     cache_size = 1;
 }
@@ -135,7 +151,7 @@ seq_t a(idx_t n)
         /* Grow cache if necessary. */
         if (cache_size == cache_cap) {
             cache_cap <<= 1;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_size++] = cur.value;
 

@@ -8,7 +8,8 @@
  *            where π(x) is the number of primes ≤ x
  * Range:     u8 n <= 38, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The helper types seq_t and idx_t are provided by the build system. */
 seq_t a(idx_t n)
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         initialized = true;
         /* allocate minimal space for the cache */
         cache_size = 1;
-        cache = (seq_t *)calloc(cache_size, sizeof(seq_t)); /* cache[0] unused */
+        cache = mem_new(seq_t, cache_size); /* cache[0] unused */
         if (!cache) return 0; /* allocation failure, return 0 as a sentinel */
     }
 
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if (n > max_needed) {
         /* enlarge the cache */
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) return 0; /* allocation failure */
         /* zero‑initialize the new part */
         for (size_t i = cache_size; i < new_size; ++i)

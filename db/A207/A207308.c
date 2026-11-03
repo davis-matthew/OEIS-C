@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 17, u64 n <= 36, u128 n <= 75,
  *            big any n
- * Helpers:   horizontal_allowed
+ * Validated: standard, pass, 39 terms through n = 206 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,20 @@
    then uses an O(n⋅M³) DP where M = 10.  No lookup table is used. */
 
 #include <stdbool.h>
-#include "../utils/horizontal_allowed.h"
+
+/* Check whether a horizontal triple of columns a,b,c is allowed
+   (no per‑row 000 or 101).  Row 0 is the LSB. */
+static inline bool horizontal_allowed(int a, int b, int c)
+{
+    for (int r = 0; r < 5; ++r) {
+        int tri = ((a >> r) & 1) |
+                  (((b >> r) & 1) << 1) |
+                  (((c >> r) & 1) << 2);
+        if (tri == 0 || tri == 5)        /* 000 or 101 */
+            return false;
+    }
+    return true;
+}
 
 /* --- Transition tables (initialized on first call) --- */
 static bool ready = false;          /* whether the tables are ready    */

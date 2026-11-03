@@ -12,7 +12,8 @@
  *            gaps: p1<p2<p3<p4 and (p2‑p1) > (p3‑p2) > (p4‑p3)
  * Range:     u8 n <= 4, u16 n <= 900, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9382 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <string.h>
 #include <math.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global data – keep separate from the function to allow
    static initialization on first call.                     */
@@ -84,8 +86,7 @@ static void generate_next_prime(void)
             /* store the fourth prime of the quartet */
             if (term_count >= term_cap) {
                 term_cap = (term_cap == 0) ? 32 : term_cap * 2;
-                term_list = (seq_t *)realloc(term_list,
-                                             term_cap * sizeof(seq_t));
+                term_list = mem_resize(seq_t, term_list, term_cap);
             }
             term_list[term_count++] = (seq_t)prime_list[i];
         }
@@ -122,7 +123,7 @@ static void init_sequence(void)
     prime_cap = 700000;
     prime_list = (uint64_t *)malloc(prime_cap * sizeof(uint64_t));
     term_cap   = 200000;
-    term_list  = (seq_t *)malloc(term_cap * sizeof(seq_t));
+    term_list  = mem_new(seq_t, term_cap);
 
     /* --- 2. collect primes from the sieve --- */
     for (unsigned int i = 2; i <= LIMIT; ++i) {
@@ -147,8 +148,7 @@ static void init_sequence(void)
         if (g1 > g2 && g2 > g3) {
             if (term_count >= term_cap) {
                 term_cap *= 2;
-                term_list = (seq_t *)realloc(term_list,
-                                             term_cap * sizeof(seq_t));
+                term_list = mem_resize(seq_t, term_list, term_cap);
             }
             term_list[term_count++] = (seq_t)prime_list[i+3];
         }

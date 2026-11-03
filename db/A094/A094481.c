@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 14, i32 n <= 14, i64 n <= 14, i128 n <= 14,
  *            big any n
- * Helpers:   rebuild_primes
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,32 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/rebuild_primes.h"
+#include "../utils/mem.h"
+
+/* Sieve of Eratosthenes – builds all primes up to limit */
+static void rebuild_primes(uint32_t limit, uint32_t **primes_out, size_t *cnt_out)
+{
+    char *comp = (char*)calloc(limit + 1, 1);   /* 0 = prime, 1 = composite */
+    size_t cap = limit/10 + 16;
+    uint32_t *pr = (uint32_t*)malloc(cap * sizeof(uint32_t));
+    size_t cnt = 0;
+    for (uint32_t i = 2; i <= limit; ++i) {
+        if (!comp[i]) {
+            if (cnt >= cap) {
+                cap <<= 1;
+                pr = (uint32_t*)realloc(pr, cap * sizeof(uint32_t));
+            }
+            pr[cnt++] = i;
+            if ((uint64_t)i * i <= limit) {
+                for (uint32_t j = i*i; j <= limit; j += i) comp[j] = 1;
+            }
+        }
+    }
+    free(comp);
+    free(*primes_out);
+    *primes_out = pr;
+    *cnt_out = cnt;
+}
 
 /* Deterministic Miller–Rabin for 64‑bit integers */
 static inline uint64_t mod_mul(uint64_t a, uint64_t b, uint64_t m)
@@ -81,7 +107,7 @@ static void grow_cache(size_t needed)
     if (cache_cap >= needed) return;
     size_t newcap = cache_cap ? cache_cap : 64;
     while (newcap < needed) newcap <<= 1;
-    cache = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, newcap);
     cache_cap = newcap;
 }
 

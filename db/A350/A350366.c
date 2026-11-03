@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  * (OEIS A350366)
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes a(n) for OEIS A350366.  Works for any seq_t/idx_t pair
  * provided by the build.  All operations are purely integral. */
@@ -29,11 +31,11 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;                     /* maximum degree needed   */
     /* Allocate two arrays of length N+1 to hold current coefficients
        and the intermediate result after multiplying by (1 + k*x). */
-    seq_t *coeff = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *temp   = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, (N + 1));
+    seq_t *temp   = mem_new(seq_t, (N + 1));
     if (!coeff || !temp) {                /* allocation failure */
-        free(coeff);
-        free(temp);
+        mem_free(coeff);
+        mem_free(temp);
         return (seq_t)0;
     }
 
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = coeff[N];                 /* coefficient of x^n          */
-    free(coeff);
-    free(temp);
+    mem_free(coeff);
+    mem_free(temp);
     return result;
 }

@@ -7,18 +7,24 @@
  * Formula:   a(n) = least k>0 such that φ(n) divides φ(n+k)
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 104 terms through n = 9846 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Compute the Euler totient φ for a given integer m.  The build supplies
    a fast implementation in utils/phi.h. */
-#include "../utils/phi.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/totient.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Pre‑compute totients up to LIMIT in an array cache. */
 #define LIMIT 500000U
@@ -31,7 +37,7 @@ static void init_phi_cache(void)
     if (phi_cache_initialised) return;
 
     phi_cache_len = LIMIT + 1;
-    phi_cache = (seq_t *)calloc(phi_cache_len, sizeof(seq_t));
+    phi_cache = mem_new(seq_t, phi_cache_len);
     if (phi_cache == NULL) exit(EXIT_FAILURE);
 
     /* Initialise φ(n) = n for all n. */
@@ -57,13 +63,13 @@ seq_t a(idx_t n)
     if (!phi_cache_initialised) init_phi_cache();
 
     /* φ(n) : use cache if possible, otherwise the generic φ() function. */
-    seq_t phi_n = (n <= LIMIT) ? phi_cache[(size_t)n] : phi((idx_t)n);
+    seq_t phi_n = (n <= LIMIT) ? phi_cache[(size_t)n] : totient((idx_t)n);
 
     /* Search for the smallest k>0 such that φ(n+k) % φ(n) == 0. */
     for (seq_t k = 1; ; ++k)
     {
         idx_t m = n + (idx_t)k;            /* m = n + k */
-        seq_t phi_m = (m <= LIMIT) ? phi_cache[(size_t)m] : phi((idx_t)m);
+        seq_t phi_m = (m <= LIMIT) ? phi_cache[(size_t)m] : totient((idx_t)m);
         if (phi_m % phi_n == 0) return k;
     }
 }

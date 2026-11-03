@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* global cache for Lucas numbers */
 static seq_t *lucas_cache = NULL;
@@ -46,7 +48,7 @@ static void ensure_lucas_up_to(idx_t idx)
 
     /* initial allocation if necessary */
     if (lucas_cache_len == 0) {
-        lucas_cache = (seq_t *)calloc(2, sizeof(seq_t));
+        lucas_cache = mem_new(seq_t, 2);
         lucas_cache[0] = (seq_t)2;   /* L0 = 2 */
         lucas_cache[1] = (seq_t)1;   /* L1 = 1 */
         lucas_cache_len = 2;
@@ -55,7 +57,7 @@ static void ensure_lucas_up_to(idx_t idx)
     /* extend to the requested index */
     size_t new_len = (size_t)idx + 1;
     if (lucas_cache_len < new_len) {
-        lucas_cache = (seq_t *)realloc(lucas_cache, new_len * sizeof(seq_t));
+        lucas_cache = mem_resize(seq_t, lucas_cache, new_len);
         for (idx_t i = lucas_cache_len; i <= idx; ++i) {
             lucas_cache[i] = lucas_cache[i-1] + lucas_cache[i-2];
         }
@@ -75,7 +77,7 @@ static void init_nonlucas_data(void)
 {
     if (lucas_cache == NULL) {                 /* create Lucas cache for small values */
         lucas_cache_len = 2;
-        lucas_cache    = (seq_t *)malloc(2 * sizeof(seq_t));
+        lucas_cache    = mem_new(seq_t, 2);
         lucas_cache[0] = (seq_t)2;
         lucas_cache[1] = (seq_t)1;
     }
@@ -99,8 +101,7 @@ static void init_nonlucas_data(void)
             if (next > LIMIT)
                 break;
             if (lucas_cache_len == i) {   /* expand cache if needed */
-                lucas_cache = (seq_t *)realloc(lucas_cache,
-                                               (i + 1) * sizeof(seq_t));
+                lucas_cache = mem_resize(seq_t, lucas_cache, (i + 1));
                 lucas_cache_len = i + 1;
             }
             lucas_cache[i] = next;
@@ -112,7 +113,7 @@ static void init_nonlucas_data(void)
     /* non‑Lucas array initial capacity */
     if (nonlucas_arr == NULL) {
         nonlucas_cap = 32;
-        nonlucas_arr = (seq_t *)malloc(nonlucas_cap * sizeof(seq_t));
+        nonlucas_arr = mem_new(seq_t, nonlucas_cap);
     }
 }
 
@@ -125,7 +126,7 @@ static void grow_nonlucas_arr(size_t need)
     size_t new_cap = nonlucas_cap * 2;
     while (new_cap < need)
         new_cap *= 2;
-    nonlucas_arr = (seq_t *)realloc(nonlucas_arr, new_cap * sizeof(seq_t));
+    nonlucas_arr = mem_resize(seq_t, nonlucas_arr, new_cap);
     nonlucas_cap = new_cap;
 }
 

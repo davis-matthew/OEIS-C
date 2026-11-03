@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 18, i16 n <= 51, i32 n <= 74, i64 n <= 74, i128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -68,16 +70,16 @@ seq_t a(idx_t n)
         size_t r_usize = (size_t)r;            /* for array dimensions      */
 
         if (r == 0) {                          /* H_0 = 1                     */
-            cur = (seq_t*)malloc(sizeof(seq_t));
+            cur = mem_new(seq_t, 1);
             cur[0] = (seq_t)1;
         }
         else if (r == 1) {                     /* H_1 = x                     */
-            cur = (seq_t*)malloc(2 * sizeof(seq_t));
+            cur = mem_new(seq_t, 2);
             cur[0] = (seq_t)0;
             cur[1] = (seq_t)1;
         }
         else {                                 /* recurrence for m ≥ 2        */
-            cur = (seq_t*)malloc((r_usize + 1) * sizeof(seq_t));
+            cur = mem_new(seq_t, (r_usize + 1));
             /* zero-initialize */
             for (size_t i = 0; i <= r_usize; ++i)
                 cur[i] = (seq_t)0;
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
             size_t new_cap = val_cap ? (val_cap << 1) : 64;
             while (new_cap < val_len + q_len)
                 new_cap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(values, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, values, new_cap);
             values = tmp;
             val_cap = new_cap;
         }

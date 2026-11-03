@@ -8,8 +8,9 @@
  * Formula:   a(3k+1) = 2*(v2(k+1)+1), a(3k) = a(3k+1) - 1, a(3k+2) = a(3k+1)
  *            - 1 where v2(n) is the exponent of the highest power of two
  *            dividing n
- * Range:     u8 n <= 9301, u16 n <= 9301, u32 n <= 9301, u64 n <= 9301,
- *            u128 n <= 9301, big any n
+ * Range:     u8 n <= 12287, u16 n <= 12287, u32 n <= 12287, u64 n <= 12287,
+ *            u128 n <= 12287, big any n
+ * Validated: standard, pass, 118 terms through n = 9301 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

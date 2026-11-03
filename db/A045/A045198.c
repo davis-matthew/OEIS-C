@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Search for numbers whose base‑5 representation contains exactly two 0's and three 3's. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of found terms */
 static size_t cache_size = 0;    /* number of terms stored so far */
@@ -30,7 +32,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2u : 128u;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) {
         /* Out of memory – terminate since the test harness will not continue. */
         abort();

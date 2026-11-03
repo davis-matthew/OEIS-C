@@ -8,15 +8,18 @@
  * Formula:   a(n) = ∑_{d|n} μ(n/d) * 2^{⌊d/2⌋}
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 65, u64 n <= 129, u128 n <= 200,
  *            big any n
+ * Validated: standard, pass, 60 terms through n = 200 (2026-11-01)
  * Helpers:   factor_u64, mobius, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 #include "../utils/mobius.h"
 #include "../utils/pow2.h"
-#include "../utils/factor_u64.h"
 
 /* Recursively generate all divisors of n from its factorisation. */
 static void

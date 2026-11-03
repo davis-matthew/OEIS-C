@@ -13,14 +13,23 @@
  *            C(d−1) ≤ n < C(d), and k = d−2·(n−C(d−1)). Reference: OEIS...
  * Range:     i8 n <= 6, i16 n <= 15, i32 n <= 32, i64 n <= 32, i128 n <= 32,
  *            big any n
- * Helpers:   binom, mul_seq_t
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/mul_seq_t.h"
+#include "../utils/binomial.h"
+
+static inline seq_t mul_seq_t(seq_t a, seq_t b)
+{
+#if defined(__SIZEOF_INT128__)
+    return (seq_t)((__int128)a * b);
+#else
+    return a * b;      /* may overflow for large values – fine for 64‑bit build */
+#endif
+}
 
 /* Return the n‑th term of the sequence */
 seq_t a(idx_t n)
@@ -45,7 +54,7 @@ seq_t a(idx_t n)
         fact = mul_seq_t(fact, (seq_t)t);
 
     /* binomial(d+1, k) */
-    seq_t bin = binom(d+1, k);
+    seq_t bin = binomial(d+1, k);
 
     /* coefficient before sign */
     seq_t coeff = mul_seq_t(fact, bin);

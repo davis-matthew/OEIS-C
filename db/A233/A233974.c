@@ -12,13 +12,15 @@
  *            a(8)=89161440, a(9)=581609344, a(10)=3804770496
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 21, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Memoisation table for a(n) (0‑based index) */
 static seq_t *cache = NULL;
@@ -54,7 +56,7 @@ static void init_sequence(void)
 
     /* Reserve a generous initial capacity */
     cache_cap = 64;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) exit(EXIT_FAILURE);
 
     init_adjacency();
@@ -106,7 +108,7 @@ seq_t a(idx_t n)
 
         if (computed >= cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) exit(EXIT_FAILURE);
             cache = tmp;
             cache_cap = new_cap;

@@ -11,12 +11,14 @@
  *            a_i · c_{n-i}
  * Range:     i8 n <= 7, i16 n <= 19, i32 n <= 36, i64 n <= 36, i128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *P = NULL;          /* partition numbers A000041 */
 static seq_t *Q = NULL;          /* distinct‑partitions A000009 */
@@ -31,11 +33,11 @@ static void ensure_size(idx_t n)
     if (n + 1 <= Max) return;          /* already big enough */
 
     idx_t sz = n + 1;
-    P = (seq_t *)realloc(P, sz * sizeof(seq_t));
-    Q = (seq_t *)realloc(Q, sz * sizeof(seq_t));
-    B = (seq_t *)realloc(B, sz * sizeof(seq_t));
-    C = (seq_t *)realloc(C, sz * sizeof(seq_t));
-    A = (seq_t *)realloc(A, sz * sizeof(seq_t));
+    P = mem_resize(seq_t, P, sz);
+    Q = mem_resize(seq_t, Q, sz);
+    B = mem_resize(seq_t, B, sz);
+    C = mem_resize(seq_t, C, sz);
+    A = mem_resize(seq_t, A, sz);
 
     /* reset all entries */
     for (idx_t i = 0; i < sz; ++i) {

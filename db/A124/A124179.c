@@ -8,7 +8,8 @@
  * Formula:   a(n) = prime( reverse_decimal( prime(n) ) )
  * Range:     u8 n <= 6, u16 n <= 168, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   rev_decimal
+ * Validated: standard, pass, 65 terms through n = 8057 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/rev_decimal.h"
+#include <stdint.h>
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_list = NULL;
 static idx_t prime_count = 0;
@@ -55,7 +58,7 @@ static void init_sieve(void)
     for (idx_t i = 2; i <= LIMIT; ++i)
         if (!is_comp[i]) ++cnt;
 
-    prime_list = (seq_t *)malloc(cnt * sizeof(seq_t));
+    prime_list = mem_new(seq_t, cnt);
     if (!prime_list) {
         free(is_comp);
         exit(1);
@@ -88,7 +91,7 @@ seq_t a(idx_t n)
     seq_t p = prime_list[n - 1];
 
     /* Reverse decimal digits of p.  */
-    seq_t rev = rev_decimal(p);
+    seq_t rev = reverse_digits(p);
 
     /* Convert the reversed number to an index.  */
     idx_t rev_idx = (idx_t)rev;

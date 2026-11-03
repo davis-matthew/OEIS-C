@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   build_spf, is_practical
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
+ * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,54 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/build_spf.h"
-#include "../utils/is_practical.h"
+
+static bool is_practical(const uint16_t *exp, const idx_t *primes,
+                         size_t pcnt, seq_t maxPrime)
+{
+    bool practical = true;
+    bool hasPrime2 = false;   /* true when the first non‑zero prime seen is 2 */
+    seq_t sigma_prev = 1;     /* product of σ(pᵃ) of primes processed so far */
+    const seq_t lim = maxPrime + 1;
+
+    for (size_t i = 0; i < pcnt; ++i) {
+        uint16_t e = exp[i];
+        if (e == 0)
+            continue;
+
+        idx_t p = primes[i];
+
+        if (!hasPrime2) {            /* first prime seen */
+            if (p != 2) {
+                practical = false;
+                break;
+            }
+            hasPrime2 = true;
+        }
+
+        if (p > sigma_prev + 1) {    /* practical condition fails */
+            practical = false;
+            break;
+        }
+
+        /* compute σ(pᵃ) = 1 + p + … + pᵉ , but cap at lim */
+        seq_t s = 1;
+        seq_t term = 1;
+        for (uint16_t j = 1; j <= e; ++j) {
+            term *= p;
+            s += term;
+            if (s > lim) {
+                s = lim;
+                break;
+            }
+        }
+        sigma_prev *= s;
+        if (sigma_prev > lim)
+            sigma_prev = lim;
+    }
+
+    /* All exponents zero (C(n,0) or C(n,n)) are considered practical. */
+    return practical;
+}
 
 seq_t a(idx_t n)
 {

@@ -10,12 +10,35 @@
  *            with P = largest_prime_factor(n). a(1) = 1
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   greatest_prime_factor
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/greatest_prime_factor.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+/* Greatest prime factor of an unsigned integer */
+static seq_t greatest_prime_factor(seq_t value)
+{
+    seq_t max_factor = 1;
+    seq_t n = value;
+
+    for (seq_t d = 2; d <= n / d; ++d) {
+        if (n % d == 0) {
+            max_factor = d;
+            while (n % d == 0) {
+                n /= d;
+            }
+        }
+    }
+    if (n > 1) {
+        max_factor = n;
+    }
+    return max_factor;
+}
 
 seq_t a(idx_t n) {
     if (n == 1)

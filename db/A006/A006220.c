@@ -8,12 +8,14 @@
  *            recurrence
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     // Precomputed sequence values
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     // Initialize cache
     if (cache == NULL) {
         cache_size = (n < 128) ? 128 : ((n + 63) & ~63);
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         for (idx_t i = 0; i < known_len; i++) {
             cache[i] = values[i];
         }
@@ -45,11 +47,11 @@ seq_t a(idx_t n) {
     // Extend cache if needed
     while (cache_size <= n) {
         idx_t new_size = cache_size * 2;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         for (idx_t i = 0; i < cache_size; i++) {
             new_cache[i] = cache[i];
         }
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }

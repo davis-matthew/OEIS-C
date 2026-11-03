@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *intersect = NULL;      /* sorted unique numbers found so far */
 static idx_t  intersect_len = 0;     /* length of 'intersect' (thread‑unsafe) */
@@ -35,7 +37,7 @@ static void recompute_up_to(idx_t L)
 {
     /* free previous result */
     if (intersect != NULL) {
-        free(intersect);
+        mem_free(intersect);
         intersect = NULL;
         intersect_len = 0;
     }
@@ -68,7 +70,7 @@ static void recompute_up_to(idx_t L)
 
     /* Build the intersection vector, expanding it as necessary */
     size_t cap = 128;
-    intersect = (seq_t*)malloc(cap * sizeof(seq_t));
+    intersect = mem_new(seq_t, cap);
     if (intersect == NULL) {
         free(sum_sq);
         free(form6);
@@ -79,7 +81,7 @@ static void recompute_up_to(idx_t L)
         if (sum_sq[x] && form6[x]) {
             if (intersect_len == cap) {
                 cap <<= 1;
-                intersect = (seq_t*)realloc(intersect, cap * sizeof(seq_t));
+                intersect = mem_resize(seq_t, intersect, cap);
                 if (intersect == NULL) {
                     free(sum_sq);
                     free(form6);

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static seq_t *unique_sums = NULL;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         for (int k = 1; k <= 4; ++k)
             comb_cnt = comb_cnt * (size_t)(max_f + k) / (size_t)k;
 
-        seq_t *combs = (seq_t *)malloc(comb_cnt * sizeof(seq_t));
+        seq_t *combs = mem_new(seq_t, comb_cnt);
         if (!combs)
             exit(1);
 
@@ -74,10 +76,10 @@ seq_t a(idx_t n)
         /* idx should equal comb_cnt */
 
         /* --- sort the sums --- */
-        qsort(combs, comb_cnt, sizeof(seq_t), compare_seq);
+        mem_qsort(combs, comb_cnt, sizeof(seq_t), compare_seq);
 
         /* --- deduplicate --- */
-        unique_sums = (seq_t *)malloc(comb_cnt * sizeof(seq_t));
+        unique_sums = mem_new(seq_t, comb_cnt);
         if (!unique_sums)
             exit(1);
 
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        free(combs);
+        mem_free(combs);
         initialized = true;
     }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 180, u32 n <= 1030, u64 n <= 1030,
  *            u128 n <= 1030, big any n
- * Helpers:   gcd_seq
+ * Validated: standard, pass, 59 terms through n = 997 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
    terms on demand and caches them for subsequent calls.  No external
    utilities are required. */
 #include <stdlib.h>
-#include "../utils/gcd_seq.h"
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t reverse_seq(seq_t n)
 {
@@ -58,7 +61,7 @@ seq_t a(idx_t n)
             continue;
 
         /* compute and test the gcd */
-        seq_t g = gcd_seq(k, revk);
+        seq_t g = gcd(k, revk);
         if (g != (seq_t)27)
             continue;   /* not a term */
 
@@ -66,7 +69,7 @@ seq_t a(idx_t n)
         if (used >= cap)
         {
             size_t newcap = cap == 0 ? 32 : cap * 2;
-            seq_t *tmp = (seq_t*)realloc(terms, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, newcap);
             if (!tmp) /* allocation failure */
                 exit(1);
             terms = tmp;

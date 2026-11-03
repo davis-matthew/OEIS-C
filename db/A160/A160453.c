@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 228, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, has_div1_rec
+ * Validated: standard, pass, 86 terms through n = 9757 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,28 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/has_div1_rec.h"
+#include "../utils/mem.h"
+
+/* Recursively test whether any divisor >1 of t satisfies
+   (divisor % p == 1).  `pr` and `ex` are factorization arrays.  */
+static bool has_div1_rec(const uint64_t pr[], const uint64_t ex[],
+                         size_t cnt, size_t idx, uint64_t cur, uint64_t p)
+{
+    if (idx == cnt)
+    {
+        return (cur > 1 && cur % p == 1);
+    }
+    uint64_t val = 1;
+    /* try each exponent for the current prime */
+    for (uint64_t e = 0; e <= ex[idx]; ++e)
+    {
+        uint64_t next = cur * val;
+        if (has_div1_rec(pr, ex, cnt, idx + 1, next, p))
+            return true;
+        val *= pr[idx];
+    }
+    return false;
+}
 
 /* Return true iff t has any divisor >1 that is ≡ 1 (mod p). */
 static bool has_div1(uint64_t t, uint64_t p)
@@ -79,7 +101,7 @@ seq_t a(idx_t n)
     if (!cache)
     {
         cap = 64;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* extend cache until we have at least n terms */
@@ -91,9 +113,9 @@ seq_t a(idx_t n)
             if (len == cap)
             {
                 size_t new_cap = cap * 2;
-                seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
-                memcpy(new_cache, cache, len * sizeof(seq_t));
-                free(cache);
+                seq_t *new_cache = mem_new(seq_t, new_cap);
+                mem_copy(new_cache, cache, len * sizeof(seq_t));
+                mem_free(cache);
                 cache = new_cache;
                 cap = new_cap;
             }

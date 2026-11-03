@@ -8,13 +8,27 @@
  * Formula:   a(n) = Sum_{k=0..n} C(3*k, n-k) * C(4*n-3*k, k)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 38 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient C(a,b) using multiplicative formula. */
+static seq_t binom(idx_t a, idx_t b) {
+    if (b > a) return 0;
+    if (b > a - b) b = a - b;          /* use symmetry */
+    seq_t res = 1;
+    for (idx_t i = 1; i <= b; ++i) {
+        res *= (seq_t)(a - b + i);
+        res /= (seq_t)i;
+    }
+    return res;
+}
 
 static seq_t *cache = NULL;       /* sequence cache */
 static size_t cache_len = 0;     /* number of cached values */
@@ -26,7 +40,7 @@ static void ensure_cache(idx_t n)
         return;
 
     size_t new_len = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp)
         exit(1);               /* fatal error if memory cannot be allocated */
     cache = tmp;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 172, u16 n <= 529, u32 n <= 1831, u64 n <= 6904,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 9837 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #else
     #define PLACEHOLDEREVAL(ptr, type) ((void)0)
 #endif
+#include "../utils/mem.h"
 
 /* Integer square root: floor(sqrt(v)) for unsigned 64‑bit v */
 static idx_t isqrt_u64(idx_t v)
@@ -68,7 +70,7 @@ static void ensure_rows(idx_t need_row)
     size_t new_cap   = old_cap + new_terms;
 
     /* Allocate a new array and copy existing elements */
-    seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) abort();
 
     for (size_t i = 0; i < old_cap; ++i) {
@@ -80,7 +82,7 @@ static void ensure_rows(idx_t need_row)
     }
 
     /* Free old array */
-    free(cache);
+    mem_free(cache);
     cache      = new_cache;
     cached_terms = new_cap;
 

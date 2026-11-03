@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = |{ v ≥ 0 : A258851(v) = n }| (pi‑based arithmetic
  *            derivative)
- * Range:     u8 none, u16 none, u32 n <= 9951, u64 n <= 9951, u128 n <= 9951,
- *            big any n
- * Helpers:   none
+ * Range:     u8 none, u16 none, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 122 terms through n = 9951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *counts = NULL;
 static size_t max_D_global = 0;
@@ -26,7 +28,7 @@ static void init(void)
     const size_t LIMIT = 2000000;          /* sufficient for n up to ~1.5e5, well beyond 10000 */
     uint32_t *spf = (uint32_t*)malloc((LIMIT + 1) * sizeof(uint32_t));
     uint32_t *pi   = (uint32_t*)malloc((LIMIT + 1) * sizeof(uint32_t));
-    seq_t    *D    = (seq_t*)malloc((LIMIT + 1) * sizeof(seq_t));
+    seq_t    *D    = mem_new(seq_t, (LIMIT + 1));
 
     if (!spf || !pi || !D) {
         /* allocation failure – abort to avoid undefined behaviour */
@@ -79,7 +81,7 @@ static void init(void)
     }
 
     /* build frequency table */
-    seq_t *freq = (seq_t*)calloc(max_D + 1, sizeof(seq_t));
+    seq_t *freq = mem_new(seq_t, max_D + 1);
     if (!freq) abort();
 
     for (size_t v = 0; v <= LIMIT; ++v) {
@@ -94,7 +96,7 @@ static void init(void)
     /* free temporary arrays */
     free(spf);
     free(pi);
-    free(D);
+    mem_free(D);
     free(primes);
 }
 

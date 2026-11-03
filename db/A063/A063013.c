@@ -10,6 +10,7 @@
  *            a(n) is either 0 or k
  * Range:     u8 n <= 3, u16 n <= 31, u32 n <= 511, u64 n <= 511,
  *            u128 n <= 511, big any n
+ * Validated: full, pass, 512 terms through n = 511 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

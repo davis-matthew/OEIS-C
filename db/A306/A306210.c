@@ -8,13 +8,15 @@
  * Formula:   * a(n) = T(i,j) = C(i+j,i) - C(i+⌊j/2⌋,i) + 1 * where (i,j) are
  *            the unique non‑negative integers satisfying * i+j = s, s =
  *            ⌊(√(8n+1) – 1)/2⌋, * and i = n – s(s+1)/2
- * Range:     u8 n <= 39, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
+ * Range:     u8 n <= 69, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Compute the n-th term of A306210 */

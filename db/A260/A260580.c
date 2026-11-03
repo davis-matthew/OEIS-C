@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 245, u16 n <= 7895, u32 n <= 7895, u64 n <= 7895,
  *            u128 n <= 7895, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 82 terms through n = 7649 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/is_prime.h"   /* is_prime(idx_t x) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* --- prime cache ---------------------------------------------------- */
 static uint64_t *prime_list = NULL;   /* prime_list[0] = 2, prime_list[1] = 3, … */
@@ -75,7 +77,7 @@ static void append_seq(seq_t v)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? seq_cap << 1 : 16;
-        seq_values = (seq_t *)realloc(seq_values, seq_cap * sizeof(seq_t));
+        seq_values = mem_resize(seq_t, seq_values, seq_cap);
     }
     seq_values[seq_len++] = v;
 }
@@ -113,7 +115,7 @@ static void mark_used(seq_t v)
                 return;
         if (used_vec_len == used_vec_cap) {
             used_vec_cap = used_vec_cap ? used_vec_cap << 1 : 16;
-            used_vec = (seq_t *)realloc(used_vec, used_vec_cap * sizeof(seq_t));
+            used_vec = mem_resize(seq_t, used_vec, used_vec_cap);
         }
         used_vec[used_vec_len++] = v;
     }

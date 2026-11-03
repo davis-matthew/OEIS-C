@@ -12,12 +12,14 @@
  *            p_i^{e_i}. H = (2^k) / [∑ 1/d] = (2^k * ∏ p_i^...
  * Range:     u8 n <= 41, u16 n <= 4549, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_seq
+ * Validated: standard, pass, 89 terms through n = 8398 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd_seq.h"
+#include <stdbool.h>
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
     seq_t denominator = prod_den;
 
     /* reduce fraction */
-    seq_t g = gcd_seq(numerator, denominator);
+    seq_t g = gcd(numerator, denominator);
     numerator /= g;
 
     return numerator;

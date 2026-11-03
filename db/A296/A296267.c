@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 39, u64 n <= 85, u128 n <= 177,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 937 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
    arbitrary‑precision).  No floating point or external libraries
    are used.  Time complexity is O(n). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_vals   = NULL;   /* array for a(n) values           */
 static seq_t *b_vals   = NULL;   /* array for b(n) values           */
@@ -41,16 +43,16 @@ static void ensure_capacity(size_t need)
     size_t new_cap = a_cap ? a_cap << 1 : 64;
     if (new_cap < need) new_cap = need;
 
-    seq_t *new_a = (seq_t *)malloc(new_cap * sizeof(seq_t));
-    seq_t *new_b = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_a = mem_new(seq_t, new_cap);
+    seq_t *new_b = mem_new(seq_t, new_cap);
     if (!new_a || !new_b) abort();
 
     for (size_t i = 0; i < a_cnt; ++i) {
         new_a[i] = a_vals[i];
         new_b[i] = b_vals[i];
     }
-    free(a_vals);
-    free(b_vals);
+    mem_free(a_vals);
+    mem_free(b_vals);
     a_vals = new_a;
     b_vals = new_b;
     a_cap  = new_cap;

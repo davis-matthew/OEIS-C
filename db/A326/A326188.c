@@ -8,8 +8,9 @@
  * Keywords:  sign
  * Formula:   a(n) = A001065(n) - A003557(n) (sum of proper divisors of n)
  *            minus (n divided by its largest squarefree divisor)
- * Range:     i8 n <= 12, i16 n <= 682, i32 n <= 9361, i64 n <= 9361,
- *            i128 n <= 9361, big any n
+ * Range:     i8 n <= 12, i16 n <= 682, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 107 terms through n = 9361 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

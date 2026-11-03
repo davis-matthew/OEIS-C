@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains_37
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,21 @@
    but (n-1) does not contain it. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/contains_37.h"
+#include "../utils/mem.h"
+
+/* Return true iff decimal representation of x contains the adjacent digits 3,7. */
+static inline bool contains_37(idx_t x)
+{
+    int prev = -1;
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (d == 3 && prev == 7)
+            return true;
+        prev = d;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +48,7 @@ seq_t a(idx_t n)
     if (cache_len < n) {
         if (cache_cap == 0) {
             cache_cap = 64;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
         }
         while (cache_len < n) {
             idx_t x = tested + 1;
@@ -42,7 +57,7 @@ seq_t a(idx_t n)
             if (contains_37(x) && !contains_37(x - 1)) {
                 if (cache_len == cache_cap) {
                     cache_cap *= 2;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = (seq_t)x;
             }

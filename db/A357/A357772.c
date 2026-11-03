@@ -9,7 +9,8 @@
  *            not_smooth_7)
  * Range:     u8 n <= 45, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   digit_sum, not_smooth_7
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/digit_sum.h"
-#include "../utils/not_smooth_7.h"
+
+/* Helper: return true if x is NOT 7‑smooth, i.e. not of the form
+   2^a · 3^b · 5^c · 7^d. */
+static bool not_smooth_7(uint64_t x)
+{
+    if (x <= 1) return false;          /* 0 and 1 are 7‑smooth */
+    while (x % 2 == 0) x /= 2;
+    while (x % 3 == 0) x /= 3;
+    while (x % 5 == 0) x /= 5;
+    while (x % 7 == 0) x /= 7;
+    return x != 1;
+}
 
 seq_t a(idx_t n)
 {

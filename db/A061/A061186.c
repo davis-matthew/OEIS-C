@@ -12,24 +12,26 @@
  *            coefficients of p0, p1, p2, … in order
  * Range:     i8 n <= 14, i16 n <= 45, i32 n <= 45, i64 n <= 45, i128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate the first two polynomials p0 and p1 */
     size_t lenPrevPrev = 1;
-    seq_t *pPrevPrev = (seq_t *)calloc(lenPrevPrev, sizeof(seq_t));
+    seq_t *pPrevPrev = mem_new(seq_t, lenPrevPrev);
     if (!pPrevPrev) return 0;
     pPrevPrev[0] = (seq_t)1;            /* p0(x) = 1 */
 
     size_t lenPrev = 2;
-    seq_t *pPrev = (seq_t *)calloc(lenPrev, sizeof(seq_t));
-    if (!pPrev) { free(pPrevPrev); return 0; }
+    seq_t *pPrev = mem_new(seq_t, lenPrev);
+    if (!pPrev) { mem_free(pPrevPrev); return 0; }
     pPrev[0] = (seq_t)1;                /* p1(x) = 1 + x */
     pPrev[1] = (seq_t)1;
 
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         if (cur_index == n)
         {
             seq_t ret = pPrevPrev[j];
-            free(pPrevPrev); free(pPrev);
+            mem_free(pPrevPrev); mem_free(pPrev);
             return ret;
         }
         ++cur_index;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         if (cur_index == n)
         {
             seq_t ret = pPrev[j];
-            free(pPrevPrev); free(pPrev);
+            mem_free(pPrevPrev); mem_free(pPrev);
             return ret;
         }
         ++cur_index;
@@ -64,8 +66,8 @@ seq_t a(idx_t n)
     while (cur_index <= n)
     {
         size_t lenCur = (size_t)i + (size_t)(i / 2) + 1;
-        seq_t *pCur = (seq_t *)calloc(lenCur, sizeof(seq_t));
-        if (!pCur) { free(pPrevPrev); free(pPrev); return 0; }
+        seq_t *pCur = mem_new(seq_t, lenCur);
+        if (!pCur) { mem_free(pPrevPrev); mem_free(pPrev); return 0; }
 
         for (size_t j = 0; j < lenCur; ++j)
         {
@@ -87,14 +89,14 @@ seq_t a(idx_t n)
             if (cur_index == n)
             {
                 seq_t ret = pCur[j];
-                free(pPrevPrev); free(pPrev); free(pCur);
+                mem_free(pPrevPrev); mem_free(pPrev); mem_free(pCur);
                 return ret;
             }
             ++cur_index;
         }
 
         /* Prepare for next iteration */
-        free(pPrevPrev);
+        mem_free(pPrevPrev);
         pPrevPrev = pPrev;           /* pPrev becomes the new p_{i-2} */
         lenPrevPrev = lenPrev;
 

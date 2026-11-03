@@ -9,13 +9,28 @@
  *            runs in O(log n) using binary exponentiation
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 65,
  *            big any n
- * Helpers:   power_of_15
+ * Validated: standard, pass, 43 terms through n = 942 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/power_of_15.h"
+
+/* Compute 15^exp in seq_t. */
+static seq_t power_of_15(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = 15;
+    while (exp > 0)
+    {
+        if (exp & 1U)
+            result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
 
 /* Public sequence function. */
 seq_t a(idx_t n)

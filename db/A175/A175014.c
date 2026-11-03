@@ -7,12 +7,14 @@
  * Formula:   a(n) = 178*a(n-1) - a(n-2), a(1) = 0, a(2) = 12
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Cache for memoization. Indexes are 1-based. */
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* Ensure room for indices 0..2 (we ignore 0). */
         allocated = 4;
-        cache = (seq_t *)calloc(allocated, sizeof(seq_t));
+        cache = mem_new(seq_t, allocated);
         cache[1] = (seq_t)0;
         cache[2] = (seq_t)12;
         highest = 2;
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
             new_alloc = 4;
         while (new_alloc <= (size_t)n)
             new_alloc <<= 1;
-        cache = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_alloc);
         allocated = (idx_t)new_alloc;
     }
 

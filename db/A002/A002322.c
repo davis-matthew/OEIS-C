@@ -12,14 +12,18 @@
  *            of lambda(p^e), a(1) = 1
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a002322_gcd_u, a002322_lcm_u
+ * Validated: standard, pass, 97 terms through n = 9803 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a002322_gcd_u.h"
-#include "../utils/a002322_lcm_u.h"
+#include "../utils/gcd_u64.h"
+
+static uint64_t a002322_lcm_u(uint64_t x, uint64_t y) {
+    return x / gcd_u64(x, y) * y;
+}
 
 seq_t a(idx_t n_idx) {
     uint64_t n = (uint64_t)n_idx;

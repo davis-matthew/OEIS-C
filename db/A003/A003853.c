@@ -7,7 +7,8 @@
  * Formula:   a(n) = d(A000961(n+1),7), where d(q,7) =
  *            q^42*(q^7-1)*Prod_{i=1..6}(q^(2i)-1)/gcd(4,q^7-1)
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 n <= 1, big any n
- * Helpers:   pow_q
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_q.h"
+#include "../utils/ipow_i32.h"
 
 static uint64_t *pp_list = NULL;   /* prime powers > 1, ascending */
 static size_t pp_count = 0;
@@ -62,11 +63,11 @@ seq_t a(idx_t n) {
     if (q % 2 == 0) g = 1;
     else if (q % 4 == 1) g = 4;
     else g = 2;
-    r = pow_q(qs, 42);
-    f = pow_q(qs, 7) - 1;
+    r = ipow_i32(qs, 42);
+    f = ipow_i32(qs, 7) - 1;
     f /= g;
     r *= f;
     for (i = 1; i <= 6; i++)
-        r *= pow_q(qs, 2 * i) - 1;
+        r *= ipow_i32(qs, 2 * i) - 1;
     return r;
 }

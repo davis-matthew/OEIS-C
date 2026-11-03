@@ -13,15 +13,36 @@
  *            Σ_{i≥1} a_i,T(n,m-i), ** where a_i are the...
  * Range:     i8 n <= 28, i16 n <= 45, i32 n <= 45, i64 n <= 45, i128 n <= 45,
  *            big any n
- * Helpers:   grow_seq, seq_alloc_array
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_alloc_array.h"
-#include "../utils/grow_seq.h"
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* --------------------------------------------------------------------- */
 struct Row {

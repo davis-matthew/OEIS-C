@@ -10,13 +10,15 @@
  *            binomial interpreted as 0 when the lower index is not an integer
  *            or out of bounds). The indices r, c are defined by n = r(r+1)/2
  *            + c, 0 ≤ c ≤ r
- * Range:     i8 n <= 35, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
+ * Range:     i8 n <= 54, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

@@ -10,14 +10,28 @@
  *            start from 0)
  * Range:     u8 n <= 128, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   even_even_bits_parity
+ * Validated: standard, pass, 67 terms through n = 8993 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/even_even_bits_parity.h"
+
+/* Test whether the number of set bits in even positions of x is even */
+static bool even_even_bits_parity(seq_t x) {
+    unsigned parity = 0;
+    seq_t t = x;
+    uint8_t pos = 0;
+    while (t != 0) {
+        if ((pos & 1) == 0 && (t & 1))
+            parity ^= 1;
+        t >>= 1;
+        pos++;
+    }
+    return parity == 0;
+}
 
 seq_t a(idx_t n) {
     /* n is 1-based: a(1) is the first term (0) */

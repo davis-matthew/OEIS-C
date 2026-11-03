@@ -12,14 +12,16 @@
  *            counts colorings fixed by reflections * (see code comments)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Includes required for helper binom and standard types */
 #include <stddef.h>                /* for size_t */
-#include "../utils/binom.h"        /* binom(idx_t a, idx_t b) */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* ---------- Euler's totient (small values) ---------- */
 static seq_t phi(idx_t m)
@@ -42,8 +44,8 @@ static seq_t count_zero(idx_t t)
 {
     seq_t total = (seq_t)0;
     for (idx_t a = 0; a <= t / 2; ++a) {
-        seq_t c1 = binom(t, a);
-        seq_t c2 = binom(t - a, a);
+        seq_t c1 = binomial(t, a);
+        seq_t c2 = binomial(t - a, a);
         total += c1 * c2;
     }
     return total;
@@ -60,8 +62,8 @@ static seq_t count_sum(idx_t m, int s)
         idx_t x = (idx_t)xv;
         if (x > m) continue;
         if (x + y > m) continue;                /* ensures z≥0 */
-        seq_t c1 = binom(m, x);
-        seq_t c2 = binom(m - x, y);
+        seq_t c1 = binomial(m, x);
+        seq_t c2 = binomial(m - x, y);
         total += c1 * c2;
     }
     return total;

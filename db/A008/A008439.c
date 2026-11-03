@@ -10,12 +10,14 @@
  *            triangular‑indicator
  * Range:     u8 n <= 21, u16 n <= 852, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 8847 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,10 +26,10 @@ seq_t a(idx_t n)
         return 1;
 
     size_t sz = (size_t)n + 1;
-    seq_t *dp   = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *next = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, sz);
+    seq_t *next = mem_new(seq_t, sz);
     if (!dp || !next) {
-        free(dp); free(next);
+        mem_free(dp); mem_free(next);
         return 0; /* allocation failure – unlikely */
     }
 
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
 
     seq_t result = dp[n];
 
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return result;
 }

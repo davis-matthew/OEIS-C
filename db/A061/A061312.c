@@ -8,8 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 35, u32 n <= 77, u64 n <= 209,
  *            u128 n <= 594, big any n
- * Helpers:   index_to_row_col, seq_alloc_new_array, seq_alloc_new_ptr_array,
- *            seq_free_array, seq_free_ptr_array
+ * Validated: standard, pass, 60 terms through n = 5098 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,11 +28,29 @@
 #include <string.h>
 #include <stddef.h>
 #include <math.h>
-#include "../utils/index_to_row_col.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_alloc_new_ptr_array.h"
-#include "../utils/seq_free_array.h"
-#include "../utils/seq_free_ptr_array.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------
+   Helper: compute row index (n*(n+1)/2) offset and column for linear index
+   ------------------------------------------------------------------ */
+static void index_to_row_col(idx_t n, idx_t* row, idx_t* col)
+{
+    /* Simple linear search – fast enough for n <= 10000 */
+    idx_t r = 0;
+    while ( ( ( (__int128)r * (r + 1) ) / 2 ) <= n ) r++;
+    r--;                                /* r is now the correct row */
+    *row = r;
+    *col = n - ( ( (__int128)r * (r + 1) ) / 2 );
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static seq_t** seq_alloc_new_ptr_array(size_t n) { return (seq_t**)malloc(n * sizeof(seq_t*)); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
+
+static void seq_free_ptr_array(seq_t** p)     { free(p); }
 
 #ifdef __cplusplus
 

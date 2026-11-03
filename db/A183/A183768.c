@@ -8,12 +8,14 @@
  * Formula:   a(n) = 2^(2n+1) * binom(10n, 5n)
  * Range:     u8 none, u16 n <= 1, u32 n <= 2, u64 n <= 5, u128 n <= 10,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 25 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     }
 
     /* compute binomial coefficient binom(10n, 5n) */
-    seq_t bin = binom(10 * n, 5 * n);
+    seq_t bin = binomial(10 * n, 5 * n);
 
     /* return the product */
     return pow2 * bin;

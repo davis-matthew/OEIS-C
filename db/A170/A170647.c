@@ -12,12 +12,14 @@
  *            - … - 12t + 1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n);
 
@@ -35,8 +37,8 @@ static void ensure_cache(idx_t n)
     if (cache_len > n) return;          /* already available */
 
     size_t new_len = (size_t)n + 1;
-    a_cache = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
-    pref    = (seq_t *)realloc(pref,    new_len * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_len);
+    pref    = mem_resize(seq_t, pref, new_len);
 
     for (idx_t i = cache_len; i <= n; ++i)
     {

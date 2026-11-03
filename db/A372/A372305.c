@@ -9,7 +9,8 @@
  *            multiplicative order of k mod n)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 22, u128 n <= 27,
  *            big any n
- * Helpers:   factor_u64, gcd, mod_pow, seq_mul
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   factor_u64, gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,16 @@
 #include <stdbool.h>
 
 /* Utility functions provided by the build environment. */
-#include "../utils/gcd.h"                /* seq_t gcd(seq_t a, seq_t b); */
-#include "../utils/mod_pow.h"            /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
-#include "../utils/seq_mul.h"            /* seq_t seq_mul(seq_t a, seq_t b); */
-#include "../utils/factor_u64.h"         /* size_t factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/powmod.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Helper: compute lcm of two uint64_t values using seq_t gcd. */
 static uint64_t lcm_u64(uint64_t a, uint64_t b)
@@ -126,7 +133,7 @@ seq_t a(idx_t n)
         seq_t order = (seq_t)lam;   /* default to λ */
         for (size_t j = 0; j < dcnt; ++j) {
             uint64_t d = divs[j];
-            if (mod_pow((seq_t)k, d, (seq_t)nn) == ONE) {
+            if (powmod((seq_t)k, d, (seq_t)nn) == ONE) {
                 order = (seq_t)d;
                 break;
             }

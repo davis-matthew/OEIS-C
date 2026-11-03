@@ -12,13 +12,17 @@
  *            first few terms are * 1,1,1,1,1,2,1,1,4,3,1,1,8,9,5,1,1,16...
  * Range:     u8 n <= 32, u16 n <= 59, u32 n <= 111, u64 n <= 200,
  *            u128 n <= 391, big any n
- * Helpers:   fib_u64, seq_pow
+ * Validated: standard, pass, 82 terms through n = 4293 (2026-11-01)
+ * Helpers:   fibonacci, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/fib_u64.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/fibonacci.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -42,6 +46,6 @@ seq_t a(idx_t n)
     idx_t j = d - i;
 
     /* Compute Fib(j)^i using the provided utilities. */
-    seq_t fib_j = fib_u64(j);
-    return seq_pow(fib_j, i);
+    seq_t fib_j = fibonacci(j);
+    return ipow_idx(fib_j, i);
 }

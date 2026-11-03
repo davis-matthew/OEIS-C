@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..floor(n/3)} p_{≤2k}(n-3k)
  * Range:     u8 n <= 22, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* where p_{≤m}(t) is the number of partitions of t using parts ≤ m.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached data for the largest n already processed. */
 static seq_t *dp = NULL;          /* dp[s] = partitions of s using parts ≤ current max. */
@@ -25,10 +27,10 @@ static idx_t curMaxN = 0;         /* largest n processed so far. */
 static void recompute(idx_t Nmax)
 {
     /* Allocate new arrays. */
-    free(dp);
-    free(ans);
-    dp  = (seq_t *)malloc((Nmax + 1) * sizeof(seq_t));
-    ans = (seq_t *)malloc((Nmax + 1) * sizeof(seq_t));
+    mem_free(dp);
+    mem_free(ans);
+    dp  = mem_new(seq_t, (Nmax + 1));
+    ans = mem_new(seq_t, (Nmax + 1));
 
     /* Initialise to zero. */
     for (idx_t i = 0; i <= Nmax; ++i) {

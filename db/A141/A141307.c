@@ -9,12 +9,14 @@
  *            permutations)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,10 +30,10 @@ seq_t a(idx_t n)
     /* Allocate or grow storage if needed */
     if (fact == NULL) {
         cap = (size_t)n + 1;
-        fact   = (seq_t *)malloc(cap * sizeof(seq_t));
-        pow2   = (seq_t *)malloc(cap * sizeof(seq_t));
-        c_cache= (seq_t *)malloc(cap * sizeof(seq_t));
-        a_cache= (seq_t *)malloc(cap * sizeof(seq_t));
+        fact   = mem_new(seq_t, cap);
+        pow2   = mem_new(seq_t, cap);
+        c_cache= mem_new(seq_t, cap);
+        a_cache= mem_new(seq_t, cap);
         /* base definitions */
         fact[0]    = (seq_t)1;
         pow2[0]    = (seq_t)1;
@@ -41,10 +43,10 @@ seq_t a(idx_t n)
     }
     if ((size_t)n + 1 > cap) {
         size_t new_cap = (size_t)n + 1;
-        fact   = (seq_t *)realloc(fact,   new_cap * sizeof(seq_t));
-        pow2   = (seq_t *)realloc(pow2,   new_cap * sizeof(seq_t));
-        c_cache= (seq_t *)realloc(c_cache,new_cap * sizeof(seq_t));
-        a_cache= (seq_t *)realloc(a_cache,new_cap * sizeof(seq_t));
+        fact   = mem_resize(seq_t, fact, new_cap);
+        pow2   = mem_resize(seq_t, pow2, new_cap);
+        c_cache= mem_resize(seq_t, c_cache, new_cap);
+        a_cache= mem_resize(seq_t, a_cache, new_cap);
         cap = new_cap;
     }
 

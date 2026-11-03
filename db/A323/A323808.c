@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, walk
  * Formula:   a(n) = A323809(n-1) + 1 (continuous extension)
- * Range:     u8 n <= 117, u16 n <= 9629, u32 n <= 9629, u64 n <= 9629,
- *            u128 n <= 9629, big any n
- * Helpers:   none
+ * Range:     u8 n <= 117, u16 n <= 50348, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 85 terms through n = 9629 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Knight step offsets */
 static const long long KD[8] = { 1,  1,  2,  2, -1, -1, -2, -2 };
@@ -42,7 +44,7 @@ static void ensure_seq_cap(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 1024;
     while (new_cap < need) new_cap *= 2;
-    seq_vals = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_vals = mem_resize(seq_t, seq_vals, new_cap);
     seq_cap = new_cap;
 }
 
@@ -97,7 +99,7 @@ static void init_sequence(void)
     if (seq_len > 0) return;          /* already initialized */
     /* initial capacities */
     seq_cap = 1024;
-    seq_vals = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_vals = mem_new(seq_t, seq_cap);
 
     path_cap = 64;
     path_x = (long long *)malloc(path_cap * sizeof(long long));

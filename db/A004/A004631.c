@@ -8,6 +8,7 @@
  * Formula:   a(n) = (n+1)² written in base 16, then interpreted as decimal
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

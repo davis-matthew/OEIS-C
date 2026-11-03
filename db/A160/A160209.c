@@ -9,12 +9,14 @@
  *            a(4)=2353, a(5)=4685, a(6)=9437
  * Range:     u8 none, u16 n <= 9, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,9 +31,9 @@ seq_t a(idx_t n)
     if (n > max_index) {
         size_t new_size = (size_t)(n + 1);          /* index 0 unused */
         if (!cache) {
-            cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+            cache = mem_new(seq_t, new_size);
         } else if (new_size > (size_t)max_index + 1) {
-            cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_size);
         }
         /* fill missing entries */
         if (max_index < 6) {

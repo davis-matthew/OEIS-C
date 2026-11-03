@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    sorted list.  a(1)=0. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort */
 static int seq_cmp(const void *p1, const void *p2)
@@ -41,10 +43,10 @@ static void build_sequence(void)
     const idx_t N = 2000;
 
     /* Allocate arrays for hexagonal numbers and their prefix sums. */
-    seq_t *hex  = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *pref = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *hex  = mem_new(seq_t, (N + 1));
+    seq_t *pref = mem_new(seq_t, (N + 1));
     if (!hex || !pref) {
-        free(hex); free(pref);
+        mem_free(hex); mem_free(pref);
         return;
     }
 
@@ -59,9 +61,9 @@ static void build_sequence(void)
     /* Number of interval sums plus the empty sum (0). */
     size_t total = (size_t)N * (N + 1) / 2 + 1;
 
-    seq_t *all = (seq_t *)malloc(total * sizeof(seq_t));
+    seq_t *all = mem_new(seq_t, total);
     if (!all) {
-        free(hex); free(pref);
+        mem_free(hex); mem_free(pref);
         return;
     }
 
@@ -75,12 +77,12 @@ static void build_sequence(void)
     }
 
     /* Sort and remove duplicates. */
-    qsort(all, total, sizeof(seq_t), seq_cmp);
+    mem_qsort(all, total, sizeof(seq_t), seq_cmp);
 
     /* Allocate the unique list. */
-    terms = (seq_t *)malloc(total * sizeof(seq_t));
+    terms = mem_new(seq_t, total);
     if (!terms) {
-        free(all); free(hex); free(pref);
+        mem_free(all); mem_free(hex); mem_free(pref);
         return;
     }
 
@@ -92,9 +94,9 @@ static void build_sequence(void)
     }
     terms_cnt = uniq;
 
-    free(all);
-    free(hex);
-    free(pref);
+    mem_free(all);
+    mem_free(hex);
+    mem_free(pref);
 }
 
 /* Return the n‑th term of the sequence (a(1) = 0). */

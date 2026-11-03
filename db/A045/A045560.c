@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 3299, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_mod2, seq_realloc
+ * Validated: standard, pass, 59 terms through n = 9823 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,32 @@
 /* Sequence: Numbers whose factorial has “48” as its final two digits before the trailing zeros. */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_realloc.h"
-#include "../utils/pow_mod2.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* Helper: fast modular exponentiation for small modulus */
+static seq_t pow_mod2(int exp) {
+    seq_t base = 2;
+    seq_t result = 1;
+    int e = exp;
+    while (e > 0) {
+        if (e & 1)
+            result = (result * base) % 100;
+        base = (base * base) % 100;
+        e >>= 1;
+    }
+    return result;
+}
 
 static size_t cache_len = 0;
 static size_t cache_cap = 0;

@@ -12,18 +12,69 @@
  *            30*[q^(n-1)](theta_3^7*theta_4^4*psi(q^2)...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   alloc_zero, mul_psi2, mul_theta3, mul_theta4, release
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/mul_psi2.h"
-#include "../utils/mul_theta3.h"
-#include "../utils/mul_theta4.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+/* f <- f * psi(q^2) = f * Sum_{k>=0} q^(k(k+1)) */
+static void mul_psi2(seq_t *f, idx_t L) {
+    idx_t i = L;
+    while (i-- > 0) {
+        seq_t s = f[i];
+        idx_t k;
+        for (k = 1; k * (k + 1) <= i; k++) s += f[i - k * (k + 1)];
+        f[i] = s;
+    }
+}
+
+/* f <- f * theta_3(q), in place, high index to low */
+static void mul_theta3(seq_t *f, idx_t L) {
+    idx_t i = L;
+    while (i-- > 0) {
+        seq_t s = f[i];
+        idx_t k;
+        for (k = 1; k * k <= i; k++) s += 2 * f[i - k * k];
+        f[i] = s;
+    }
+}
+
+/* (P - M) <- (P - M) * theta_4(q), theta_4 = 1 + 2*Sum (-1)^k q^(k^2) */
+static void mul_theta4(seq_t *P, seq_t *M, idx_t L) {
+    idx_t i = L;
+    while (i-- > 0) {
+        seq_t sp = P[i];
+        seq_t sm = M[i];
+        idx_t k;
+        for (k = 1; k * k <= i; k++) {
+            if (k & 1) {
+                sp += 2 * M[i - k * k];
+                sm += 2 * P[i - k * k];
+            } else {
+                sp += 2 * P[i - k * k];
+                sm += 2 * M[i - k * k];
+            }
+        }
+        P[i] = sp;
+        M[i] = sm;
+    }
+}
 
 static seq_t *S_arr = 0;   /* theta_3^15 */
 static seq_t *P_arr = 0;   /* positive part of theta_3^7*theta_4^4*psi(q^2)^4 */

@@ -11,6 +11,7 @@
  *            possible and the loser to lose as slowly as possi...
  * Range:     u8 n <= 372, u16 n <= 999, u32 n <= 999, u64 n <= 999,
  *            u128 n <= 999, big any n
+ * Validated: standard, pass, 69 terms through n = 933 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

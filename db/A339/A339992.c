@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *p1, const void *p2)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         const size_t total_pairs = odd_count * (odd_count - 1) / 2;
 
         /* Allocate and compute odd cubes. */
-        seq_t *cubes = (seq_t*)malloc(odd_count * sizeof(seq_t));
+        seq_t *cubes = mem_new(seq_t, odd_count);
         if (!cubes) { return 0; }            /* allocation failure */
 
         for (size_t i = 0; i < odd_count; ++i) {
@@ -55,8 +57,8 @@ seq_t a(idx_t n)
         }
 
         /* Allocate array for all pair sums. */
-        seq_t *sums = (seq_t*)malloc(total_pairs * sizeof(seq_t));
-        if (!sums) { free(cubes); return 0; }
+        seq_t *sums = mem_new(seq_t, total_pairs);
+        if (!sums) { mem_free(cubes); return 0; }
 
         /* Compute sums of distinct odd cubes. */
         size_t k = 0;
@@ -67,11 +69,11 @@ seq_t a(idx_t n)
         }
 
         /* Sort the sums. */
-        qsort(sums, total_pairs, sizeof(seq_t), cmp_seq);
+        mem_qsort(sums, total_pairs, sizeof(seq_t), cmp_seq);
 
         /* Deduplicate into a new array. */
-        seq_t *uniq = (seq_t*)malloc(total_pairs * sizeof(seq_t));
-        if (!uniq) { free(cubes); free(sums); return 0; }
+        seq_t *uniq = mem_new(seq_t, total_pairs);
+        if (!uniq) { mem_free(cubes); mem_free(sums); return 0; }
 
         size_t uniq_count = 0;
         for (size_t i = 0; i < total_pairs; ++i) {
@@ -81,8 +83,8 @@ seq_t a(idx_t n)
         }
 
         /* Clean up temporary arrays. */
-        free(cubes);
-        free(sums);
+        mem_free(cubes);
+        mem_free(sums);
 
         /* Store the unique sorted sequence in the cache. */
         cache = uniq;

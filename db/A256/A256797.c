@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 93 terms through n = 931 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
    This follows from the recurrence R(n) = m² – R(r) and that the nonpositive
    part of R(n) equals the positive part of R(r) = r + a(r). */
 
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 static seq_t A256797_rec(idx_t n)
 {
@@ -35,7 +36,7 @@ static seq_t A256797_rec(idx_t n)
         return 2;
 
     /* compute ceil(sqrt(n)) safely */
-    idx_t m = _floor_isqrt_u64(n);
+    idx_t m = isqrt(n);
     if (m * m < n)
         m++;
 

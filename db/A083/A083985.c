@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   gcd, has_two_nonzero_distinct_digits
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,26 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"   /* seq_t gcd(seq_t a, seq_t b) */
-#include "../utils/has_two_nonzero_distinct_digits.h"
+#include "../utils/gcd.h"
+
+static bool has_two_nonzero_distinct_digits(uint64_t x)
+{
+    int used[10] = {0};
+    int distinct = 0;
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (d == 0)
+            return false;
+        if (!used[d]) {
+            used[d] = 1;
+            ++distinct;
+            if (distinct > 2)
+                return false;
+        }
+        x /= 10;
+    }
+    return distinct == 2;
+}
 
 static seq_t self_complement(seq_t k)
 {

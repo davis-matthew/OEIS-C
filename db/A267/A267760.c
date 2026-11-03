@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 999, u32 n <= 999, u64 n <= 999,
  *            u128 n <= 999, big any n
- * Helpers:   contains_sum
+ * Validated: standard, pass, 103 terms through n = 931 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,28 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/contains_sum.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether `cand` contains the decimal substring
+   representing `sum` (0 ≤ sum ≤ 18). */
+static inline bool contains_sum(uint64_t cand, int sum)
+{
+    if (sum < 10) {                 /* single digit */
+        if (cand == (uint64_t)sum) return true;
+        for (uint64_t t = cand; t; t /= 10)
+            if ((int)(t % 10) == sum) return true;
+        return false;
+    } else {                        /* two digits: d1 d2 (sum = 10…18) */
+        int d1 = sum / 10, d2 = sum % 10;
+        int prev = -1;
+        for (uint64_t t = cand; t; t /= 10) {
+            int d = t % 10;
+            if (prev != -1 && d == d1 && prev == d2) return true;
+            prev = d;
+        }
+        return false;
+    }
+}
 
 /* Helper: take most significant digit of a non‑negative integer. */
 static inline uint8_t msd(uint64_t x)
@@ -63,7 +85,7 @@ static void ensure_cache_cap(size_t i)
     if (i >= cache_cap) {
         size_t new_cap = (cache_cap ? cache_cap * 2 : 16);
         if (new_cap <= i) new_cap = i + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);
         cache = tmp;
         cache_cap = new_cap;
@@ -75,7 +97,7 @@ seq_t a(idx_t n)
 {
     /* Lazy initialization of cache and used array. */
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(16 * sizeof(seq_t));
+        cache = mem_new(seq_t, 16);
         if (!cache) exit(1);
         cache_cap = 16;
         cache_len = 1;

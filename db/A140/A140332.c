@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 41, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9739 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- Palindrome generator (0 … 999,999) ----------------------- */
 static seq_t *pal = NULL;      /* array of palindromes (sorted ascending)    */
@@ -41,7 +43,7 @@ static idx_t  pal_cnt = 0;     /* number of palindromes                      */
 static void generate_palindromes(void)
 {
     const seq_t LIMIT = 999999;
-    pal = (seq_t *)malloc(PAL_ESTIMATE * sizeof(seq_t));
+    pal = mem_new(seq_t, PAL_ESTIMATE);
     if (!pal) return;               /* allocation failure -> empty list */
 
     idx_t c = 0;
@@ -157,7 +159,7 @@ static void seq_reserve(size_t new_cap)
     if (new_cap <= seq_cap) return;
     size_t old_cap = seq_cap;
     seq_cap = (new_cap > old_cap * 2) ? new_cap : old_cap * 2;
-    seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, seq_cap);
 }
 
 static void seq_push(seq_t val)

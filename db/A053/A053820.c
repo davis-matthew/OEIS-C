@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=1..n, gcd(n,k)=1} k^4
  * Range:     u8 n <= 4, u16 n <= 14, u32 n <= 120, u64 n <= 9850,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 47 terms through n = 8870 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* Direct enumeration: for each k in [1..n] test gcd(k,n)=1 and add k^4. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

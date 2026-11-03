@@ -8,15 +8,17 @@
  * Formula:   a(n) = Σ_{k=1}^{min(L,⌊(n−L)/4⌋)} C(L, k)·C(n−L, 4k) where L =
  *            ⌊(n−4)/2⌋. Each term counts subsets having exactly k elements ≤
  *            L and 4k elements > L. Only non‑empty subsets are counted
- * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 33, u64 n <= 33, u128 n <= 33,
+ * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
 
     seq_t ans = 0;
     for (idx_t k = 1; k <= maxk; ++k) {
-        seq_t part1 = binom(L, k);
-        seq_t part2 = binom(remaining, 4 * k);
+        seq_t part1 = binomial(L, k);
+        seq_t part2 = binomial(remaining, 4 * k);
         ans += part1 * part2;
     }
     return ans;

@@ -8,14 +8,16 @@
  *            60*(2n)!/(n!*(n+3)!)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 21, u64 n <= 38, u128 n <= 72,
  *            big any n
- * Helpers:   g_u64
+ * Validated: standard, pass, 46 terms through n = 1574 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/g_u64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t computed = 0; /* number of valid entries */
@@ -25,10 +27,10 @@ seq_t a(idx_t n) {
     if (n >= cap) {
         idx_t newcap = cap ? cap : 16;
         while (newcap <= n) newcap *= 2;
-        seq_t *nc = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *nc = mem_new(seq_t, newcap);
         if (nc == NULL) return 0;
         for (idx_t i = 0; i < computed; i++) nc[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = nc;
         cap = newcap;
     }
@@ -42,9 +44,9 @@ seq_t a(idx_t n) {
         uint64_t den = (uint64_t)i + 3;
         uint64_t mul = 2 * (2 * (uint64_t)i - 1);
         uint64_t r = (uint64_t)(prev % (seq_t)den);
-        uint64_t g = g_u64(den, r); /* gcd(prev, den) */
+        uint64_t g = gcd_u64(den, r); /* gcd(prev, den) */
         uint64_t d2 = den / g;
-        uint64_t g2 = g_u64(mul, d2);
+        uint64_t g2 = gcd_u64(mul, d2);
         mul /= g2;
         d2 /= g2;
         /* d2 should now be 1 since the result is an integer */

@@ -9,9 +9,10 @@
  *            (1+√5)/2. The terms are produced in increasing order by
  *            examining the primes p in ascending order and testing both the
  *            floor and the ceil of p*φ
- * Range:     u8 n <= 4, u16 n <= 21, u32 n <= 36, u64 n <= 36, u128 n <= 36,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 4, u16 n <= 21, u32 n <= 1078, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 52 terms through n = 9744 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 #define SIEVE_LIMIT 8000000ULL       /* Large enough for n ≤ 10000 */
 
@@ -74,7 +76,7 @@ static void ensure_golden(idx_t n)
     if (!initialized) {
         build_sieve();
         golden_cap = 128;
-        golden = (seq_t*)malloc(golden_cap * sizeof(seq_t));
+        golden = mem_new(seq_t, golden_cap);
         if (!golden) exit(1);
         initialized = true;
     }
@@ -96,8 +98,7 @@ static void ensure_golden(idx_t n)
             seq_t val = (seq_t)p * (seq_t)q_floor;
             if (golden_size >= golden_cap) {
                 golden_cap *= 2;
-                golden = (seq_t*)realloc(golden,
-                                         golden_cap * sizeof(seq_t));
+                golden = mem_resize(seq_t, golden, golden_cap);
                 if (!golden) exit(1);
             }
             golden[golden_size++] = val;
@@ -110,8 +111,7 @@ static void ensure_golden(idx_t n)
             seq_t val = (seq_t)p * (seq_t)q_ceil;
             if (golden_size >= golden_cap) {
                 golden_cap *= 2;
-                golden = (seq_t*)realloc(golden,
-                                         golden_cap * sizeof(seq_t));
+                golden = mem_resize(seq_t, golden, golden_cap);
                 if (!golden) exit(1);
             }
             golden[golden_size++] = val;

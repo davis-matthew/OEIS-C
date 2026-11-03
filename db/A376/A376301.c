@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 21, i16 n <= 65, i32 n <= 106, i64 n <= 222, i128 none,
  *            big any n
- * Helpers:   seqt_max
+ * Validated: standard, pass, 85 terms through n = 9459 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seqt_max.h"
+#include "../utils/mem.h"
+
+/* maximum value representable by seq_t (used for overflow checks) */
+static seq_t seqt_max(void)
+{
+    if (sizeof(seq_t) == 8) {
+        return (seq_t)0x7fffffffffffffffLL;
+    } else if (sizeof(seq_t) == 4) {
+        return (seq_t)0x7fffffff;
+    } else if (sizeof(seq_t) == 2) {
+        return (seq_t)0x7fff;
+    } else {
+        return (seq_t)0x7f;
+    }
+}
 
 #define MAX_D 6                               /* maximum number of suffix digits handled */
 #define MOD   1000000u                        /* 10^MAX_D */
@@ -58,7 +73,7 @@ static void heap_push(node_t n)
 {
     if (heap_size == heap_cap) {
         size_t new_cap = heap_cap ? heap_cap * 2 : 16;
-        heap = (node_t *)realloc(heap, new_cap * sizeof(node_t));
+        heap = mem_resize(node_t, heap, new_cap);
         heap_cap = new_cap;
     }
     size_t i = heap_size++;
@@ -100,14 +115,14 @@ static seq_t *ans_table = NULL;            /* flattened answer table: [d][n] -> 
 static void init_tables(void)
 {
     /* allocate tables */
-    min_val   = (seq_t *)malloc(MOD * sizeof(seq_t));
+    min_val   = mem_new(seq_t, MOD);
     known     = (bool *)calloc(MOD, sizeof(bool));
-    ans_table = (seq_t *)malloc((MAX_D + 1) * MOD * sizeof(seq_t));
+    ans_table = mem_new(seq_t, (MAX_D + 1) * MOD);
 
 #ifdef __cplusplus
     /* value‑initialize seq_t elements in C++ */
-    for (size_t i = 0; i < MOD; ++i)       new(&min_val[i]) seq_t();
-    for (size_t i = 0; i < (MAX_D + 1) * MOD; ++i) new(&ans_table[i]) seq_t();
+    for (size_t i = 0; i < MOD; ++i)       *(&min_val[i]) = (seq_t)0;
+    for (size_t i = 0; i < (MAX_D + 1) * MOD; ++i) *(&ans_table[i]) = (seq_t)0;
 #endif
 
     /* mark all answers as -1 */

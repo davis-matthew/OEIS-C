@@ -7,7 +7,8 @@
  * Formula:   a(n) = 37*a(n-3)+37*a(n-6)-a(n-9) (n ≥ 10)
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 19, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /*       a(6) =  900, a(7) = 1333, a(8) = 17760, a(9) = 34188    */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n);
 
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* ensure cache large enough for term n */
     if (n > cache_len) {
         idx_t new_len = n;
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * (size_t)new_len);
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_len);
         if (!new_cache) return (seq_t)0;   /* allocation failed */
 
         /* initialise new entries */

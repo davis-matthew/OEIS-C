@@ -8,13 +8,15 @@
  *            values: a(0)=0, a(1)=1, a(2)=-1
  * Range:     i8 n <= 8, i16 n <= 16, i32 n <= 32, i64 n <= 64, i128 n <= 128,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 3234 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache to store already computed terms */
 static seq_t *cache = NULL;           /* array of terms */
@@ -30,13 +32,13 @@ static void compute_up_to(idx_t n)
     /* initial allocation if necessary */
     if (cache_capacity == 0) {
         cache_capacity = 4;           /* start small, grow as needed */
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
     }
 
     /* grow the allocation to store at least n+1 elements */
     if (cache_capacity <= n) {
         while (cache_capacity <= n) cache_capacity <<= 1;
-        cache = (seq_t *)realloc(cache, cache_capacity * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_capacity);
     }
 
     /* initialise the first terms if this is the first run */

@@ -13,7 +13,8 @@
  *            all p^(q-1) up to a dynamic limit, sorts them, and...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 121 terms through n = 9794 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 typedef struct { uint64_t v; seq_t q; } Node;
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         size_t buffer_cap = base_cnt * exp_cnt;
         if ((buffer_cap == 0) || (buffer_cap > 2000000)) /* safety cap */
             buffer_cap = 2000000;
-        Node *nodes = (Node *)malloc(buffer_cap * sizeof(Node));
+        Node *nodes = mem_new(Node, buffer_cap);
         if (!nodes) { free(base_primes); free(exp_primes); return 0; }
 
         size_t nodes_len = 0;
@@ -92,9 +94,9 @@ seq_t a(idx_t n)
                 {
                     /* extend buffer if needed */
                     size_t new_cap = buffer_cap * 2;
-                    Node *tmp = (Node *)realloc(nodes, new_cap * sizeof(Node));
+                    Node *tmp = mem_resize(Node, nodes, new_cap);
                     if (!tmp) { /* on failure free and return */
-                        free(nodes);
+                        mem_free(nodes);
                         free(base_primes);
                         free(exp_primes);
                         return 0;
@@ -113,13 +115,13 @@ seq_t a(idx_t n)
 
         if (nodes_len >= (size_t)n)
         {
-            qsort(nodes, nodes_len, sizeof(Node), cmp_nodes);
+            mem_qsort(nodes, nodes_len, sizeof(Node), cmp_nodes);
             seq_t result = nodes[n - 1].q;
-            free(nodes);
+            mem_free(nodes);
             return result;
         }
 
-        free(nodes);
+        mem_free(nodes);
         /* not enough values, enlarge search range and try again */
         limit *= 2ULL;
         if (limit == 0) limit = UINT64_MAX; /* guard against overflow */

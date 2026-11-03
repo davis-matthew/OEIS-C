@@ -12,6 +12,7 @@
  *            between 0 and 7. That number is computed by inclusion–e...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 10,
  *            big any n
+ * Validated: standard, pass, 27 terms through n = 48 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 
 /* Utilities from the evaluation harness */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Return the number of solutions of

@@ -10,13 +10,16 @@
  *            symmetric sum of degree s of the set {n, n+1, …, 2n-2}
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 20,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
     for (idx_t r = 0; 2 * r <= M; ++r) {
         idx_t b = M - 2 * r;                     /* s = n-1-2r   */
         seq_t comb = binomial(2 * r, r);         /* C(2r, r)     */
-        seq_t npow = seq_pow((seq_t)n, 2 * r);   /* n^{2r}       */
+        seq_t npow = ipow_idx((seq_t)n, 2 * r);   /* n^{2r}       */
         seq_t term = comb * npow * e[b];
         result = result + term;
     }

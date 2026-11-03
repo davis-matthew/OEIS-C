@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* dynamic storage for the sequences and the used‑value bitset        */
@@ -78,9 +80,9 @@ seq_t a(idx_t n)
     /* -------- initialisation -------------------------------------- */
     if (!initialized) {
         a_cap = 4;
-        a_arr = (seq_t *)calloc(a_cap, sizeof(seq_t));
+        a_arr = mem_new(seq_t, a_cap);
         b_cap = 4;
-        b_arr = (seq_t *)calloc(b_cap, sizeof(seq_t));
+        b_arr = mem_new(seq_t, b_cap);
 
         /* known initial values */
         a_arr[0] = (seq_t)1;
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
     /* -------- ensure capacity for a_arr ---------------------------- */
     if (a_cap == 0) a_cap = 4;
     while (a_cap <= (size_t)n) a_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_arr, a_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_arr, a_cap);
     if (!tmp) return (seq_t)0;           /* allocation failure */
     a_arr = tmp;
 
@@ -121,8 +123,7 @@ seq_t a(idx_t n)
             if (b_cap == 0) b_cap = 4;
             if (b_len == b_cap) {
                 b_cap <<= 1;
-                seq_t *btmp = (seq_t *)realloc(b_arr,
-                                              b_cap * sizeof(seq_t));
+                seq_t *btmp = mem_resize(seq_t, b_arr, b_cap);
                 if (!btmp) return (seq_t)0;   /* allocation failure */
                 b_arr = btmp;
             }

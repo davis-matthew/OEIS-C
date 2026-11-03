@@ -9,7 +9,8 @@
  *            for 10!
  * Range:     u8 none, u16 none, u32 n <= 291, u64 n <= 291, u128 n <= 291,
  *            big any n
- * Helpers:   _sqrt_uint64
+ * Validated: standard, pass, 55 terms through n = 287 (2026-11-03)
+ * Helpers:   isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/_sqrt_uint64.h"
+#include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
 
 static bool _initialized = false;
 static seq_t *_steps = NULL;
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         char *is_prime = (char *)malloc(N + 1);
         for (uint64_t i = 0; i <= N; ++i) is_prime[i] = 1;
         is_prime[0] = is_prime[1] = 0;
-        uint64_t limit = _sqrt_uint64(N);
+        uint64_t limit = isqrt_u64(N);
         for (uint64_t i = 2; i <= limit; ++i) {
             if (is_prime[i]) {
                 for (uint64_t j = i * i; j <= N; j += i)
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
 
         /* Prepare storage for removal counts per prime */
         _steps_len = primes_cnt;
-        _steps = (seq_t *)malloc(_steps_len * sizeof(seq_t));
+        _steps = mem_new(seq_t, _steps_len);
 
         /* Mark composites as they are crossed off */
         char *removed = (char *)calloc(N + 1, 1);  /* 0 = not removed, 1 = removed */

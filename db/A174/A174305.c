@@ -8,14 +8,16 @@
  * Formula:   a(n) = ( (n mod 4) == 3 ? -(n^(n^2)) : n^(n^2) ) + 1
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 3, i64 n <= 5, i128 n <= 6,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 25 terms through n = 26 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Here n^(n^2) is computed with big_pow.                                             */
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     idx_t exp_idx = n * n;                     /* n^2 fits in idx_t for all n < 2^32 */
     seq_t exp   = (seq_t)exp_idx;              /* exponent as seq_t */
 
-    seq_t val = big_pow(base, exp);            /* val = n^(n^2) */
+    seq_t val = ipow(base, exp);            /* val = n^(n^2) */
 
     /* Apply the sign for n ≡ 3 (mod 4) */
     if ((n % 4) == 3)

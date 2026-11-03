@@ -9,7 +9,8 @@
  *            prime(d) and prime(d) is the d‑th prime (1‑based)
  * Range:     u8 n <= 12, u16 n <= 36, u32 n <= 150, u64 n <= 658,
  *            u128 n <= 2422, big any n
- * Helpers:   build_primes
+ * Validated: standard, pass, 72 terms through n = 9555 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 static idx_t *primes_arr   = NULL;   /* all primes up to a fixed upper bound  */
 static size_t primes_cnt   = 0;      /* number of primes in primes_arr      */
@@ -36,7 +38,7 @@ static void init_global(void)
 
     /* Allocate and compute A275700 values.  */
     A275_size = primes_cnt + 1;                /* index 0 unused, indices 1..primes_cnt */
-    A275_arr  = (seq_t *)malloc(A275_size * sizeof(seq_t));
+    A275_arr  = mem_new(seq_t, A275_size);
     if (A275_arr == NULL) {                    /* OOM: abort silently                 */
         exit(1);
     }

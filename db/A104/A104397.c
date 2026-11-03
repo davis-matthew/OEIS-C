@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   cmp_seq
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/cmp_seq.h"
+#include "../utils/mem.h"
+
+/* Comparator for qsort on seq_t values. */
+static int cmp_seq(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 /* Precompute all sums of 7 distinct pentatope numbers for k = 1..30.
    The number of combinations is C(30,7) = 2,035,800. */
@@ -27,7 +38,7 @@ static void build_sums(seq_t **sums, idx_t *count)
 {
     const idx_t MAX_K = 30U;
     const size_t CAPACITY = 2035800U;
-    seq_t *arr = (seq_t *)malloc(CAPACITY * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, CAPACITY);
     if (!arr) return;               /* allocation failure – unlikely */
 
     /* Pentatope numbers Ptop(k) = binomial(k+3,4) */

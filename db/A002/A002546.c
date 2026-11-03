@@ -9,16 +9,36 @@
  *            of p is max(0, v_p((n+2)!) - v_p(6*|Stirling1(n+2,3)|))
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 17, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   a2546_is_big, a2546_legendre, a2546_sieve
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a2546_is_big.h"
-#include "../utils/a2546_legendre.h"
-#include "../utils/a2546_sieve.h"
+
+static int a2546_is_big(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 200; i++) x *= 2;
+    return x != 0;
+}
+
+static idx_t a2546_legendre(idx_t m, idx_t p) {
+    idx_t e = 0;
+    while (m) { m /= p; e += m; }
+    return e;
+}
+
+static unsigned char *a2546_sieve(idx_t m) {
+    unsigned char *comp = (unsigned char *)calloc((size_t)m + 1, 1);
+    idx_t i, j;
+    for (i = 2; i * i <= m; i++)
+        if (!comp[i])
+            for (j = i * i; j <= m; j += i) comp[j] = 1;
+    return comp;
+}
 
 seq_t a(idx_t n) {
     idx_t m = n + 2, p, i, k;

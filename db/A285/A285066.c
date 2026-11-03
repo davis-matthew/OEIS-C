@@ -10,13 +10,15 @@
  *            (1+4*m)*T(r-1,m) for r ≥ 1, 0 ≤ m ≤ r
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 40, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* forward declarations of types provided by the build system */
 /* (no typedefs here – they are defined elsewhere) */
@@ -43,7 +45,7 @@ static void _compute_rows_up_to(idx_t target)
     for (idx_t r = _rows_allocated; r <= target; ++r)
     {
         /* Allocate memory for row r (indices 0..r). */
-        seq_t *row = (seq_t *)malloc(sizeof(seq_t) * (r + 1));
+        seq_t *row = mem_new(seq_t, (r + 1));
         _rows[r] = row;
 
         /* Base case: first row. */

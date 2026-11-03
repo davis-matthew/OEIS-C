@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 258, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 69 terms through n = 8576 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,8 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
 
 static uint32_t *primes = NULL;   /* primes[0] = 2 = p₁, primes[i‑1] = p_i for i ≥ 1 */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 6623, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 79 terms through n = 8914 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Test whether k divides 3^k - 2^k - 1.
    Uses 128-bit arithmetic to avoid overflow of intermediate
@@ -31,8 +34,8 @@
 static inline bool test_k(idx_t k)
 {
     seq_t mod   = (seq_t)k;
-    seq_t a = mod_pow(3, k, mod);
-    seq_t b = mod_pow(2, k, mod);
+    seq_t a = powmod(3, k, mod);
+    seq_t b = powmod(2, k, mod);
 
     uint64_t a64 = (uint64_t)a;
     uint64_t b64 = (uint64_t)b;
@@ -56,7 +59,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         cap  = 128;
         sat  = 0;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* extend cache until we have at least n terms */
@@ -64,7 +67,7 @@ seq_t a(idx_t n)
         if (test_k(cur_k)) {
             if (sat == cap) {
                 cap *= 2;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[sat++] = (seq_t)cur_k;
         }

@@ -13,7 +13,8 @@
  *            i.e. for a(k) with k ≥ 11
  * Range:     u8 n <= 29, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 /* --------------------------------------------------------------------- */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of prefix sums of floor(i*(i+4)/4) */
 static seq_t *psum = NULL;      /* psum[i] = Σ_{k=1..i} floor(k*(k+4)/4) */
@@ -32,7 +34,7 @@ static void ensure_psum(idx_t m)
     if (m < psum_size) return;          /* already available */
 
     idx_t new_size = m + 1;              /* we need indices 0..m */
-    seq_t *new_psum = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_psum = mem_new(seq_t, new_size);
     if (!new_psum) return;               /* out of memory; caller fails */
 
     /* Initialize the new array.  Index 0 holds the zero sum. */
@@ -56,7 +58,7 @@ static void ensure_psum(idx_t m)
     }
 
     /* Replace the old array. */
-    if (psum) free(psum);
+    if (psum) mem_free(psum);
     psum = new_psum;
     psum_size = new_size;
 }

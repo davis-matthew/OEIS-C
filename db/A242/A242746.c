@@ -7,6 +7,7 @@
  * Formula:   a(n) = smallest k > 0 such that (k! + n!)/(k + n) is an integer
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 105 terms through n = 964 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,13 +7,15 @@
  * Formula:   a(n) = max { k : n % k == phi(k) }
  * Range:     u8 n <= 71, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 8714 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define LIMIT_K 200000 /* maximum k considered, enough for n ≤ 10000 */
 #define LIMIT_N 200000 /* maximum n precomputed for */
@@ -73,7 +75,7 @@ static void init_phi(void)
 static void init_cache(void)
 {
     init_phi();
-    a_cache = (seq_t*)calloc((LIMIT_N + 1) * sizeof(seq_t), 1);
+    a_cache = mem_new(seq_t, ((LIMIT_N + 1) * sizeof(seq_t)) * (1) / sizeof(seq_t));
     if (!a_cache) return;
 
     for (idx_t k = 2; k <= LIMIT_K; ++k) {

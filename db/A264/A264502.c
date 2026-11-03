@@ -10,13 +10,15 @@
  *            a(4)=1224, a(5)=7177, a(6)=41622, a(7)=241432
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* allocate and initialise the first 7 terms once */
     if (!initialized) {
         cap = 8;                     /* enough for indices 0..7 */
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
         seq[1] = (seq_t)6;
         seq[2] = (seq_t)38;
         seq[3] = (seq_t)211;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         idx_t newcap = cap * 2;
         if (newcap < n + 1)
             newcap = n + 1;
-        seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, newcap);
         cap = newcap;
     }
 

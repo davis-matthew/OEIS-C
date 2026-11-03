@@ -10,14 +10,24 @@
  *            digit (n mod 10)
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   contains_digit_uint64
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/contains_digit_uint64.h"
+
+/* Check whether the decimal expansion of x contains the digit d. */
+static bool contains_digit_uint64(uint64_t x, int d) {
+    if (x == 0) return d == 0;   /* keep 0 as a trivial case */
+    while (x > 0) {
+        if ((x % 10) == (uint64_t)d) return true;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Basic prime test for numbers that fit in 64 bits.
    It is adequate because the primes we search for are very small. */

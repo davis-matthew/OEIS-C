@@ -14,7 +14,8 @@
  *            where P[n] is the polynomial ∑_{k} T(n,k) t^k....
  * Range:     u8 n <= 63, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,14 +43,14 @@ seq_t a(idx_t n)
         cum  = (uint64_t*)malloc(rows_cap * sizeof(uint64_t));
 
         /*  Row 0: T(0,0) = 1  */
-        seq_t *p0 = (seq_t*)calloc(1, sizeof(seq_t));
+        seq_t *p0 = mem_new(seq_t, 1);
         p0[0] = 1;
         rows[0]  = p0;
         lens[0]  = 1;
         cum[0]   = 0;                 /* cumulative entries before row 0 */
 
         /*  Row 1: T(1,0) = 1  */
-        seq_t *p1 = (seq_t*)calloc(1, sizeof(seq_t));
+        seq_t *p1 = mem_new(seq_t, 1);
         p1[0] = 1;
         if (rows_cnt + 1 >= rows_cap) {
             rows_cap <<= 1;
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         uint64_t len_next = 1 + (next * next) / 4;          /* floor(n^2/4)+1 */
 
         /*  allocate and zero‑initialise the new row  */
-        seq_t *pn = (seq_t*)calloc(len_next, sizeof(seq_t));
+        seq_t *pn = mem_new(seq_t, len_next);
 
         /*  PN ← PN + P[n-1] + P[n-2]  */
         size_t len_prev1 = lens[next-1];

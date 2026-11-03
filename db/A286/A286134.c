@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 9571 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    (offset 0, so a(0)=0). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* Recompute the product up to 'target' if necessary. */
     if (target + 1 > prod_size) {
         /* Allocate new array, initialize to 0. */
-        seq_t *new_arr = (seq_t *)malloc((target + 1) * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, (target + 1));
         for (idx_t i = 0; i <= target; ++i) new_arr[i] = 0;
         new_arr[0] = 1;                  /* product of empty set is 1 */
 
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
                 new_arr[i] -= new_arr[i - d];
 
         /* Replace old array (if any). */
-        free(prod);
+        mem_free(prod);
         prod      = new_arr;
         prod_size = target + 1;
     }

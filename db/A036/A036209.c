@@ -8,6 +8,7 @@
  *            250, such that 6^e ≡ n (mod 251)
  * Range:     u8 n <= 250, u16 n <= 250, u32 n <= 250, u64 n <= 250,
  *            u128 n <= 250, big any n
+ * Validated: full, pass, 250 terms through n = 250 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

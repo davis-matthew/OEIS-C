@@ -8,12 +8,13 @@
  * Formula:   a(n) = denominator of Σ_{k=1..n} H(k)/k^2 where H(k)=1+1/2+…+1/k
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 30,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: standard, pass, 34 terms through n = 754 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -35,13 +36,13 @@ seq_t a(idx_t n)
         seq_t term_num   = Hnum;                   /* Hnum        */
 
         /* Add term to S: S = S + term_num/term_den  */
-        seq_t g1   = seq_gcd(Sden, term_den);
+        seq_t g1   = gcd(Sden, term_den);
         seq_t lcm  = Sden / g1 * term_den;
         seq_t a1   = Snum * (term_den / g1);
         seq_t a2   = term_num * (Sden / g1);
         seq_t num  = a1 + a2;
 
-        seq_t g2   = seq_gcd(num, lcm);
+        seq_t g2   = gcd(num, lcm);
         Snum = num / g2;
         Sden = lcm / g2;
 
@@ -50,7 +51,7 @@ seq_t a(idx_t n)
         seq_t nk    = (seq_t)nextk;
         seq_t hnum  = Hnum * nk + Hden;
         seq_t hden  = Hden * nk;
-        seq_t g3    = seq_gcd(hnum, hden);
+        seq_t g3    = gcd(hnum, hden);
         Hnum = hnum / g3;
         Hden = hden / g3;
     }

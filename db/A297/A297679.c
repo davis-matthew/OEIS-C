@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   count_valid_neighbors
+ * Validated: standard, pass, 32 terms through n = 168 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,20 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/count_valid_neighbors.h"
+
+static inline int count_valid_neighbors(int prev, int curr, int nxt, int col)
+{
+    int cnt = 0;
+    /* horizontal neighbours */
+    if (col > 0  && (curr & (1u << (col-1)))) cnt++;
+    if (col < 4  && (curr & (1u << (col+1)))) cnt++;
+    /* diagonal / antidiagonal neighbours */
+    if (col > 0  && (prev & (1u << (col-1)))) cnt++;   /* up‑left   */
+    if (col > 0  && (nxt  & (1u << (col-1)))) cnt++;   /* down‑left */
+    if (col < 4  && (prev & (1u << (col+1)))) cnt++;   /* up‑right  */
+    if (col < 4  && (nxt  & (1u << (col+1)))) cnt++;   /* down‑right*/
+    return cnt;
+}
 
 static inline int valid_row(int prev, int curr, int nxt)
 {

@@ -8,13 +8,15 @@
  * Formula:   a(n) = rev_decimal(a(n-1)+a(n-2)); a(1)=1; a(2)=11
  * Range:     u8 n <= 14, u16 n <= 18, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper to reverse decimal digits of a seq_t value */
 static seq_t rev_digits(seq_t v) {
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
     if (cache_cap < needed) {
         size_t newcap = cache_cap ? cache_cap * 2 : 2;
         if (newcap < needed) newcap = needed;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) return 0;              /* allocation failure (unlikely) */
         cache = tmp;
         cache_cap = newcap;

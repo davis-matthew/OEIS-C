@@ -13,13 +13,14 @@
  *            p_1..p_k and miss p_{k+1}..p_n
  * Range:     u8 none, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   g24_pop
+ * Validated: full, pass, 45 terms through n = 44 (2026-11-02)
+ * Helpers:   popcount_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/g24_pop.h"
+#include "../utils/popcount_u32.h"
 
 static int g24_ready = 0;
 static long long g24_tab[9][9];
@@ -33,9 +34,9 @@ static void g24_init(void) {
         uint32_t c = 0;
         for (i = 0; i < 12; i++)
             if (m & (1u << i)) c ^= g << i;
-        if (g24_pop(c) & 1) c |= 1u << 23;
+        if (popcount_u32(c) & 1) c |= 1u << 23;
         cw[m] = c;
-        if (!octad && g24_pop(c) == 8) octad = c;
+        if (!octad && popcount_u32(c) == 8) octad = c;
     }
     for (i = 0; i < 24; i++)
         if (octad & (1u << i)) pts[np++] = (uint32_t)1 << i;
@@ -47,7 +48,7 @@ static void g24_init(void) {
             for (j = k; j < n; j++) out |= pts[j];
             for (m = 0; m < 4096; m++) {
                 uint32_t c = cw[m];
-                if (g24_pop(c) != 12) continue;
+                if (popcount_u32(c) != 12) continue;
                 if ((c & in) == in && (c & out) == 0) cnt++;
             }
             g24_tab[n][k] = cnt;

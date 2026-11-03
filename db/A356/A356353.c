@@ -10,13 +10,48 @@
  *            …
  * Range:     u8 n <= 20, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   gcd_run_lengths, gcd_seq
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd_run_lengths.h"
-#include "../utils/gcd_seq.h"
+#include <stdint.h>
+#include "../utils/gcd.h"
+
+static inline seq_t gcd_run_lengths(seq_t k) {
+    /* Return the gcd of the run lengths in the binary representation of k.
+       For k = 0 the value 0 is returned (so that 0 is treated specially). */
+    if (k == 0) return 0;
+
+    seq_t gcd_val = 0;
+    seq_t prev_bit = k & 1;
+    seq_t len = 1;
+    k >>= 1;
+
+    while (k != 0) {
+        seq_t cur_bit = k & 1;
+        if (cur_bit == prev_bit) {
+            len++;
+        } else {
+            if (gcd_val == 0)
+                gcd_val = len;
+            else
+                gcd_val = gcd(gcd_val, len);
+            prev_bit = cur_bit;
+            len = 1;
+        }
+        k >>= 1;
+    }
+
+    /* account for the last run */
+    if (gcd_val == 0)
+        gcd_val = len;
+    else
+        gcd_val = gcd(gcd_val, len);
+
+    return gcd_val;
+}
 
 seq_t a(idx_t n) {
     if (n == 1) return 0;   /* offset 1: a(1) = 0 */

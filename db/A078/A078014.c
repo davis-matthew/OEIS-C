@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 15, i16 n <= 31, i32 n <= 63, i64 n <= 127,
  *            i128 n <= 255, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 936 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(n)=a(n-1)-2*a(n-3)  for n>=3
    This is obtained from (1-x)/(1-x+2x^3). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* You may include stdlib for malloc/realloc; no other headers needed. */
 
@@ -28,8 +30,7 @@ seq_t a(idx_t n) {
     if (n >= cache_len) {
         idx_t new_len = n + 1;
         /* realloc: new_len * sizeof(seq_t) bytes */
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      (size_t)new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_len);
         if (!tmp) {
             /* allocation failed – terminate as no graceful fallback can be provided */
             abort();

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
  */
 
 #include <stddef.h>          /* for size_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,8 +46,8 @@ seq_t a(idx_t n)
     if (n >= max_n) {
         idx_t new_cap = n + 1;
         /* Use realloc in a portable way */
-        values  = (seq_t *) realloc(values, new_cap * sizeof(seq_t));
-        prefix  = (seq_t *) realloc(prefix, new_cap * sizeof(seq_t));
+        values  = mem_resize(seq_t, values, new_cap);
+        prefix  = mem_resize(seq_t, prefix, new_cap);
         /* For newly allocated slots, zero the prefix sum (will be set later) */
         max_n = new_cap;
     }

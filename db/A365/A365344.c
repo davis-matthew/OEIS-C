@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 144, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 9098 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*  integer square root, floor – used only for ring computation  */
 static inline unsigned int _isqrt_idx(idx_t n)
@@ -99,7 +101,7 @@ static void _ensure_capacity(idx_t n)
     if (_cap <= (size_t)n) {
         size_t newcap = _cap ? _cap * 2 : 16;
         if (newcap <= (size_t)n) newcap = (size_t)n + 1;
-        _aval = (seq_t *)realloc(_aval, newcap * sizeof(seq_t));
+        _aval = mem_resize(seq_t, _aval, newcap);
         _xarr = (int   *)realloc(_xarr, newcap * sizeof(int));
         _yarr = (int   *)realloc(_yarr, newcap * sizeof(int));
         _cap  = newcap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   alloc_array, digit_sum, free_array, is_prime
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   digit_sum, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_sum.h"      /* digit_sum(seq_t)       */
-#include "../utils/is_prime.h"       /* is_prime(idx_t)       */
-#include "../utils/alloc_array.h"    /* alloc_array(size_t)   */
-#include "../utils/free_array.h"     /* free_array(seq_t*)    */
+#include "../utils/digit_sum.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* C: use malloc/free */
+static inline seq_t* alloc_array(size_t count) { return mem_new(seq_t, count); }
+
+static inline void free_array(seq_t* ptr) { mem_free(ptr); }
 
 seq_t a(idx_t n)
 {

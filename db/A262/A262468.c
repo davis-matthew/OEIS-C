@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 20, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 176 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------------------
  * Helper: encode a vector of 5 residues (0..4) into a state index
@@ -97,11 +99,10 @@ static void ensure_cache_capacity(idx_t n)
 {
     size_t need = (size_t)(n + 1);
     if (memo_cache == NULL || need > memo_cap) {
-        seq_t *new_cache = (seq_t*)calloc(need, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, need);
         if (memo_cache != NULL) {
-            memcpy(new_cache, memo_cache,
-                   (size_t)(memo_max_n + 1) * sizeof(seq_t));
-            free(memo_cache);
+            mem_copy(new_cache, memo_cache, (size_t)(memo_max_n + 1) * sizeof(seq_t));
+            mem_free(memo_cache);
         }
         memo_cache = new_cache;
         memo_cap   = need;
@@ -114,8 +115,8 @@ static void ensure_cache_capacity(idx_t n)
 static void ensure_dp_arrays(void)
 {
     if (dp_cur == NULL) {
-        dp_cur = (seq_t*)calloc(3125, sizeof(seq_t));
-        dp_next = (seq_t*)calloc(3125, sizeof(seq_t));
+        dp_cur = mem_new(seq_t, 3125);
+        dp_next = mem_new(seq_t, 3125);
         dp_cur[0] = (seq_t)1;    /* start with all column residues 0 */
         rows_done = 0;
     }
@@ -133,7 +134,7 @@ static void compute_up_to(idx_t need_n)
     for (idx_t target_rows = rows_done + 1; target_rows <= need_n + 1;
          ++target_rows) {
 
-        memset(dp_next, 0, 3125 * sizeof(seq_t));
+        mem_set(dp_next, 0, 3125 * sizeof(seq_t));
 
         for (unsigned s = 0; s < 3125; ++s) {
             seq_t cur_val = dp_cur[s];

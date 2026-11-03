@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   is_prime_fast
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,19 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/is_prime_fast.h"
+
+/* ---------- prime test using cache of earlier primes ---------- */
+static bool is_prime_fast(uint32_t x, uint32_t *pr, size_t pc) {
+    if (x < 2)             return false;
+    if (x == 2)            return true;
+    if (x % 2 == 0)        return false;
+    for (size_t i = 0; i < pc; ++i) {
+        uint32_t p = pr[i];
+        if ((uint64_t)p * p > x) break;
+        if (x % p == 0)    return false;
+    }
+    return true;
+}
 
 /* ---------- small prime test (≤ 2^31) ---------- */
 static bool is_prime_small(uint32_t x) {

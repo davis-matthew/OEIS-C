@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 6807, u32 n <= 6807, u64 n <= 6807,
  *            u128 n <= 6807, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 6651 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,14 +45,14 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* first row {1,1} */
         cache_cap = 4;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return (seq_t)0;
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)1;
         cache_len = 2;
 
         row_len = 2;
-        row_prev = (seq_t *)malloc(row_len * sizeof(seq_t));
+        row_prev = mem_new(seq_t, row_len);
         if (row_prev == NULL) return (seq_t)0;
         row_prev[0] = (seq_t)1;
         row_prev[1] = (seq_t)1;
@@ -70,14 +72,14 @@ seq_t a(idx_t n)
             size_t new_cap = cache_cap ? cache_cap << 1 : 1;
             while (new_cap < needed)
                 new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (tmp == NULL) return (seq_t)0;
             cache = tmp;
             cache_cap = new_cap;
         }
 
         /* allocate storage for the new row */
-        seq_t *new_row = (seq_t *)malloc(next_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, next_len);
         if (new_row == NULL) return (seq_t)0;
 
         /* produce the next row and append its values to the cache */
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
         }
 
         /* replace the old row with the new one */
-        free(row_prev);
+        mem_free(row_prev);
         row_prev = new_row;
         row_len  = next_len;
     }

@@ -10,14 +10,34 @@
  *            (a(n)-1) does not
  * Range:     u8 n <= 3, u16 n <= 890, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has67_idx
+ * Validated: standard, pass, 55 terms through n = 969 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has67_idx.h"
+
+/* return true iff unsigned integer x has the substring "67" in its
+   base‑9 representation (i.e. a 6 digit followed by a 7 digit). */
+static bool has67_idx(idx_t x)
+{
+    if (x == 0) return false;
+    /* process digits from least significant to most significant */
+    idx_t prev = x % 9;     /* least significant digit */
+    x /= 9;
+    /* if number has only one digit, it cannot contain "67" */
+    if (x == 0) return false;
+
+    while (x > 0) {
+        idx_t d = x % 9;   /* next more significant digit */
+        x /= 9;
+        if (d == 6 && prev == 7) return true;
+        prev = d;
+    }
+    return false;
+}
 
 /* OEIS A044312: numbers n such that base‑9 representation of n
    contains "67" but base‑9 representation of n-1 does not. */

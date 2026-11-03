@@ -12,15 +12,54 @@
  *            is * a(1) = 8 * a(2) = 64 * for n ≥ 3: a(n) = Σ...
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 18, u64 n <= 40, u128 n <= 82,
  *            big any n
- * Helpers:   _a_sdp_transition_ok, _a_sdp_vertical_valid
+ * Validated: standard, pass, 41 terms through n = 206 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/_a_sdp_transition_ok.h"
-#include "../utils/_a_sdp_vertical_valid.h"
+
+/* Check that a transition from two previous columns (a,b) to a new
+   column c is allowed.  The previous two columns are assumed to be
+   vertically valid; only the horizontal patterns must be checked
+   across rows. */
+static int
+_a_sdp_transition_ok(unsigned char a, unsigned char b, unsigned char c)
+{
+    /* For each of the 4 rows, check the horizontal triple (a,r),(b,r),(c,r). */
+    for (int r = 0; r < 4; ++r) {
+        unsigned char x = (a >> r) & 1;
+        unsigned char y = (b >> r) & 1;
+        unsigned char z = (c >> r) & 1;
+        if (x == 0 && y == 0 && z == 0) return 0;   /* forbidden 0 0 0 */
+        if (x == 1 && y == 0 && z == 1) return 0;   /* forbidden 1 0 1 */
+    }
+    return 1;
+}
+
+/* Check that a single column (4 bits) satisfies the vertical
+   constraints (no 0 0 1 or 1 1 0 in any 3 consecutive rows). */
+static int
+_a_sdp_vertical_valid(unsigned char s)
+{
+    /* rows: 0 (LSB) ... 3 (MSB) */
+    unsigned char b0 = (s >> 0) & 1;
+    unsigned char b1 = (s >> 1) & 1;
+    unsigned char b2 = (s >> 2) & 1;
+    unsigned char b3 = (s >> 3) & 1;
+
+    /* triple rows 0‑1‑2 */
+    if (b0 == 0 && b1 == 0 && b2 == 1) return 0;
+    if (b0 == 1 && b1 == 1 && b2 == 0) return 0;
+
+    /* triple rows 1‑2‑3 */
+    if (b1 == 0 && b2 == 0 && b3 == 1) return 0;
+    if (b1 == 1 && b2 == 1 && b3 == 0) return 0;
+
+    return 1;
+}
 
 /* Static helper data for the transfer matrix (computed once). */
 static int          _a_sdp_initialized = 0;

@@ -10,11 +10,13 @@
  *            p such that exponent of p in C(2n,n) equals 1)
  * Range:     u8 n <= 1311, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 94 terms through n = 1920 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
 

@@ -11,9 +11,10 @@
  *            antisigma value). The routine pre‑computes antisigma(m) for all
  *            m ≤ 5000 and records which n values occur. For any n beyond the
  *            table size it returns 0. This covers all n needed for th...
- * Range:     u8 none, u16 n <= 21, u32 n <= 9077, u64 n <= 9077,
- *            u128 n <= 9077, big any n
- * Helpers:   pow_uint
+ * Range:     u8 none, u16 n <= 21, u32 n <= 20197, u64 n <= 20197,
+ *            u128 n <= 20197, big any n
+ * Validated: standard, pass, 122 terms through n = 9077 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Constant: maximal m for which antisigma values are precomputed. */
 static const idx_t LIMIT    = 5000;
@@ -66,7 +67,7 @@ static seq_t sigma_of_m(idx_t m)
             t /= p;
             ++exp;
         }
-        seq_t term = pow_uint(p, exp + 1);               /* p^(exp+1)   */
+        seq_t term = ipow_u64_idx(p, exp + 1);               /* p^(exp+1)   */
         term -= 1;                                      /* (p^(exp+1)-1) */
         term /= (seq_t)(p - 1);                         /* / (p-1)     */
         sigma *= term;

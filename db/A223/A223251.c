@@ -13,7 +13,8 @@
  *            over row states
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Adjacent matrix for the graph (rows, columns). */
 static const unsigned char adj_matrix[5][5] = {
@@ -54,7 +56,7 @@ static void ensure_cache_capacity(idx_t needed)
 {
     if ((size_t)needed <= cache_size) return;
     size_t newsize = (size_t)needed;
-    seq_t *tmp = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newsize);
     if (!tmp) abort();
     /* initialise new entries to zero */
     for (size_t i = cache_size; i < newsize; ++i) tmp[i] = 0;
@@ -95,15 +97,15 @@ static void init_sequence(void)
     }
 
     /* Allocate DP arrays. */
-    dp_cur = (seq_t *)malloc(rows_count * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(rows_count * sizeof(seq_t));
+    dp_cur = mem_new(seq_t, rows_count);
+    dp_next = mem_new(seq_t, rows_count);
     if (!dp_cur || !dp_next) abort();
 
     /* For n = 1, every row state is allowed. */
     for (size_t i = 0; i < rows_count; ++i) dp_cur[i] = (seq_t)1;
 
     /* Initialise cache with a(1). */
-    cache = (seq_t *)malloc(sizeof(seq_t));
+    cache = mem_new(seq_t, 1);
     if (!cache) abort();
     cache_size = 1;
     cache[0] = (seq_t)rows_count;   /* a(1) = number of valid row states */

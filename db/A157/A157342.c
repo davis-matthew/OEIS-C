@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 5000, u64 n <= 5000, u128 n <= 5000,
  *            big any n
- * Helpers:   build_primes_upto, compare_seq_t, is_prime
+ * Validated: standard, pass, 67 terms through n = 4895 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,16 @@
 
 #include "../utils/build_primes_upto.h"
 #include "../utils/is_prime.h"
-#include "../utils/compare_seq_t.h"
+#include "../utils/mem.h"
+
+static int compare_seq_t(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 static seq_t *cache = NULL;      /* cached list of semiprimes */
 static size_t cache_len = 0;     /* number of cached terms          */
@@ -50,7 +60,7 @@ static void recompute(idx_t need)
         size_t nsg_cnt = 0;
         if (prime_cnt > 0)
         {
-            nsg = (seq_t *)malloc(prime_cnt * sizeof(seq_t));
+            nsg = mem_new(seq_t, prime_cnt);
             for (size_t i = 0; i < prime_cnt; ++i)
             {
                 uint64_t p = primes[i];
@@ -66,14 +76,14 @@ static void recompute(idx_t need)
         if (semis == 0)
         {
             /* No non‑Sophie Germain primes: increase limit and retry. */
-            free(nsg);
+            mem_free(nsg);
             free(primes);
             prime_limit *= 2;
             continue;
         }
 
         /* generate all semiprimes */
-        seq_t *sem = (seq_t *)malloc(semis * sizeof(seq_t));
+        seq_t *sem = mem_new(seq_t, semis);
         size_t k = 0;
         for (size_t i = 0; i < nsg_cnt; ++i)
         {
@@ -84,23 +94,23 @@ static void recompute(idx_t need)
         }
 
         /* sort the list */
-        qsort(sem, semis, sizeof(seq_t), compare_seq_t);
+        mem_qsort(sem, semis, sizeof(seq_t), compare_seq_t);
 
         /* check if we have enough terms */
         if (semis >= (size_t)need)
         {
             /* replace old cache */
-            free(cache);
+            mem_free(cache);
             cache     = sem;
             cache_len = semis;
-            free(nsg);
+            mem_free(nsg);
             free(primes);
             return;
         }
 
         /* not enough – free memory and double the limit */
-        free(sem);
-        free(nsg);
+        mem_free(sem);
+        mem_free(nsg);
         free(primes);
         prime_limit *= 2;
     }

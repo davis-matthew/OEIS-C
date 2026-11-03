@@ -12,12 +12,14 @@
  *            s*(s+1)/2 then a(n) = T(offset, s - offset)
  * Range:     i8 n <= 17, i16 n <= 39, i32 n <= 85, i64 n <= 203,
  *            i128 n <= 552, big any n
+ * Validated: standard, pass, 71 terms through n = 9564 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Integer square root for 64‑bit unsigned */

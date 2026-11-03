@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{j=0..n} binomial(2*n,j) * Bell(j)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 372 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* where Bell(0)=1 and Bell(m+1)=sum_{k=0..m} binomial(m,k)*Bell(k)   */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *bell = NULL;
 static idx_t bell_len = 0;
@@ -22,7 +24,7 @@ static idx_t bell_len = 0;
 static void ensure_bell(idx_t n)
 {
     if (bell_len == 0) {
-        bell = (seq_t *)malloc(sizeof(seq_t));
+        bell = mem_new(seq_t, 1);
         if (!bell) exit(1);
         bell[0] = 1;
         bell_len = 1;
@@ -36,7 +38,7 @@ static void ensure_bell(idx_t n)
             if (k == m - 1) break;
             binom = (binom * ((m - 1) - k)) / (k + 1);
         }
-        seq_t *tmp = (seq_t *)realloc(bell, (bell_len + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, bell, (bell_len + 1));
         if (!tmp) exit(1);
         bell = tmp;
         bell[bell_len] = sum;

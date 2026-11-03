@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 486, u16 n <= 9845, u32 n <= 9845, u64 n <= 9845,
- *            u128 n <= 9845, big any n
- * Helpers:   lpf
+ * Range:     u8 n <= 486, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 100 terms through n = 9845 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/lpf.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Return the smallest prime factor of n   (n > 1) */
+static inline idx_t lpf(idx_t n)
+{
+    if (n % 2 == 0) return 2;
+    for (idx_t i = 3; i <= n / i; i += 2)
+        if (n % i == 0) return i;
+    return n;   /* n itself is prime – should not be called for primes */
+}
 
 seq_t a(idx_t n)
 {
@@ -32,8 +43,8 @@ seq_t a(idx_t n)
     /* initialise */
     if (!ekg) {
         ekg_cap = 64;
-        ekg = (seq_t*)malloc(ekg_cap * sizeof(seq_t));
-        lpf_arr = (seq_t*)malloc(ekg_cap * sizeof(seq_t));
+        ekg = mem_new(seq_t, ekg_cap);
+        lpf_arr = mem_new(seq_t, ekg_cap);
 
         ekg[0] = (seq_t)1;
         ekg[1] = (seq_t)2;
@@ -108,8 +119,8 @@ seq_t a(idx_t n)
         /* grow the EKG and lpf arrays if needed */
         if (ekg_len >= ekg_cap) {
             ekg_cap *= 2;
-            ekg = (seq_t*)realloc(ekg, ekg_cap * sizeof(seq_t));
-            lpf_arr = (seq_t*)realloc(lpf_arr, ekg_cap * sizeof(seq_t));
+            ekg = mem_resize(seq_t, ekg, ekg_cap);
+            lpf_arr = mem_resize(seq_t, lpf_arr, ekg_cap);
         }
     }
 

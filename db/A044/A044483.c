@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_double_zero
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,23 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_double_zero.h"
+#include "../utils/mem.h"
+
+/* Forward declaration of helper: checks if a number has two consecutive
+   zeros in its base‑6 representation. */
+static bool has_double_zero(seq_t x)
+{
+    int prev = -1;          /* previous digit, -1 indicates none yet */
+    seq_t t = x;
+    while (t > 0) {
+        int d = (int)(t % 6);   /* digit in base‑6 */
+        if (prev == 0 && d == 0)
+            return true;
+        prev = d;
+        t = t / 6;
+    }
+    return false;
+}
 
 /* Cache of previously found terms */
 static seq_t *cache = NULL;
@@ -50,7 +67,7 @@ seq_t a(idx_t n)
                 /* Ensure sufficient capacity */
                 if (cache_len == cache_cap) {
                     size_t new_cap = (cache_cap == 0) ? 4 : cache_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) {               /* allocation failed */
                         /* In a real library we'd handle this, but for
                            the purposes of the sequence generator we

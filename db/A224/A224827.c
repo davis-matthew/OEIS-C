@@ -8,7 +8,8 @@
  *            prime with k = floor(p/10)+p%10
  * Range:     u8 none, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static uint64_t *prime_array = NULL;
 static size_t prime_count = 0;
@@ -51,8 +53,7 @@ seq_t a(idx_t n)
                 /* Append p to the sequence */
                 if (terms_count == terms_cap) {
                     size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-                    seq_t *new_terms = (seq_t *)realloc(terms,
-                                                        new_cap * sizeof(seq_t));
+                    seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
                     if (!new_terms) {
                         /* Allocation failed; abort */
                         return (seq_t)0;

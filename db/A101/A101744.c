@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 none, u16 n <= 1, u32 n <= 27, u64 n <= 27, u128 n <= 27,
- *            big any n
- * Helpers:   none
+ * Range:     u8 none, u16 n <= 1, u32 n <= 1478, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 43 terms through n = 9819 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Upper bound for k used in the sieve (enough for ~10 000 terms). */
 static const idx_t SIEVE_MAX_K = 8000000;
@@ -77,7 +79,7 @@ static void append_seq(seq_t val)
 {
     if (seq_len >= seq_cap) {
         idx_t new_cap = (seq_cap == 0) ? 128 : seq_cap * 2;
-        seq_t *new_arr = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, seq_vals, new_cap);
         if (!new_arr) exit(1);
         seq_vals = new_arr;
         seq_cap  = new_cap;

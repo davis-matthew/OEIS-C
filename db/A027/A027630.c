@@ -11,12 +11,23 @@
  *            a(2)=135, a(3)=870, …
  * Range:     u8 n <= 0, u16 n <= 6, u32 n <= 38, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binom_n7
+ * Validated: standard, pass, 45 terms through n = 995 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom_n7.h"
+static seq_t binom_n7(idx_t m) /* m >= 7 */
+{
+    seq_t r = 1;
+    /* compute m choose 7 = m*(m-1)*…*(m-6)/7! */
+    for (int i = 0; i < 7; ++i)
+    {
+        r *= (seq_t)(m - i);
+        r /= (seq_t)(i + 1);            /* division is exact */
+    }
+    return r;
+}
 
 seq_t a(idx_t n)
 {

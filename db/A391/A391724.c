@@ -9,12 +9,14 @@
  *            binomial(2*(n-3k),2k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 23, u128 n <= 52,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 989 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* local power function using binary exponentiation */

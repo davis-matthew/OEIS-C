@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _has_property
+ * Validated: standard, pass, 72 terms through n = 893 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,40 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/_has_property.h"
+
+/* Test whether a given number satisfies the defining property.
+   Works for any unsigned integer type used for seq_t. */
+static inline bool _has_property(seq_t v)
+{
+    seq_t n = v;
+    seq_t orig = v;
+
+    /* Handle factor 2 separately (p=2, p+1=3). */
+    if ((n & 1u) == 0) {              /* v is even */
+        if (orig % (seq_t)3 == 0)      /* 3 divides v */
+            return true;
+        while ((n & 1u) == 0)          /* strip factor 2 */
+            n >>= 1;
+    }
+
+    /* Test odd prime factors up to sqrt(orig). */
+    for (seq_t p = 3; (p * p) <= orig; p += 2)
+    {
+        if (n % p == 0)
+        {
+            if (orig % (p + (seq_t)1) == 0)
+                return true;
+            while (n % p == 0)
+                n /= p;
+        }
+    }
+
+    /* Remaining factor n > 1 is prime. */
+    if (n > 1 && orig % (n + (seq_t)1) == 0)
+        return true;
+
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,13 +9,15 @@
  *            a(6)=10, a(7)=20, a(8)=28
  * Range:     u8 n <= 13, u16 n <= 30, u32 n <= 67, u64 n <= 143,
  *            u128 n <= 298, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 933 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Fixed‑size cache for n up to 10 000.  It is 1‑indexed. */
 static seq_t  static_cache[10001];
@@ -44,7 +46,7 @@ static void init_static(void)
 static void init_dynamic(void)
 {
     if (dyn_cache != NULL) return;
-    dyn_cache = (seq_t *)malloc(sizeof(seq_t) * 9);   /* indices 0..8 */
+    dyn_cache = mem_new(seq_t, 9);   /* indices 0..8 */
     dyn_cache[0] = 0;                                 /* unused */
     dyn_cache[1] = (seq_t)2;
     dyn_cache[2] = (seq_t)1;
@@ -89,7 +91,7 @@ static void ensure_cache(idx_t n)
         }
         if (n >= dyn_cached) {
             seq_t *new_ptr =
-                (seq_t *)realloc(dyn_cache, sizeof(seq_t) * (size_t)(n + 1));
+                mem_resize(seq_t, dyn_cache, (size_t)(n + 1));
             if (new_ptr == NULL)       /* allocation failed */
                 return;
             dyn_cache = new_ptr;

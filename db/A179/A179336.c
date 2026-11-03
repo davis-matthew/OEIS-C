@@ -8,14 +8,26 @@
  *            that is itself prime (2, 3, 5, or 7)
  * Range:     u8 n <= 43, u16 n <= 6140, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_prime_digit, is_prime
+ * Validated: standard, pass, 73 terms through n = 9675 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/has_prime_digit.h"
+
+static bool has_prime_digit(idx_t x)
+{
+    while (x > 0)
+    {
+        uint8_t d = (uint8_t)(x % 10);
+        if (d == 2 || d == 3 || d == 5 || d == 7)
+            return true;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 39,
  *            big any n
- * Helpers:   _binom_idx, _gcd_idx
+ * Validated: standard, pass, 37 terms through n = 962 (2026-11-01)
+ * Helpers:   binomial, gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,10 @@
  */
 
 #include <stdint.h>
-#include "../utils/_binom_idx.h"
-#include "../utils/_gcd_idx.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/gcd_idx.h"
 
 /* Greatest‑common‑divisor for idx_t values */
 
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     {
         idx_t N = 4 * n + 4 * k;         /* upper argument of binomial */
         idx_t K = n - k;                 /* lower argument          */
-        sum += _binom_idx(N, K);
+        sum += binomial(N, K);
     }
     return sum;
 }

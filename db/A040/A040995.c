@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd, mod_pow, next_prime, seq_realloc
+ * Validated: standard, pass, 67 terms through n = 946 (2026-11-01)
+ * Helpers:   gcd, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,10 +27,23 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* static cache of qualifying primes */
 static seq_t *cache   = NULL;   /* array of primes satisfying the condition */
@@ -53,7 +67,7 @@ seq_t a(idx_t n)
         uint64_t exp = p_minus_1 / g;
 
         /* Test whether 3 is a sixth‑power residue modulo p */
-        seq_t residue = mod_pow((seq_t)3, exp, (seq_t)last_prime);
+        seq_t residue = powmod((seq_t)3, exp, (seq_t)last_prime);
 
         /* If residue ≠ 1, the prime satisfies the condition */
         if (residue != (seq_t)1)

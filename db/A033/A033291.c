@@ -9,13 +9,14 @@
  *            ceil((sqrt(1+8*n)-1)/2). Indexing starts at 1
  * Range:     u8 n <= 43, u16 n <= 1699, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   integer_sqrt_uint128
+ * Validated: standard, pass, 80 terms through n = 4936 (2026-11-01)
+ * Helpers:   isqrt_u128_to_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/integer_sqrt_uint128.h"
+#include "../utils/isqrt_u128_to_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +24,7 @@ seq_t a(idx_t n)
 
     /* Compute q(n) = ceil((sqrt(1+8*n)-1)/2). */
     __uint128_t val = (__uint128_t)8 * n + 1;        /* 1 + 8n */
-    idx_t s = integer_sqrt_uint128(val);            /* floor sqrt */
+    idx_t s = isqrt_u128_to_idx(val);            /* floor sqrt */
     idx_t q = (s > 0) ? (s - 1) / 2 : 0;            /* floor((s-1)/2) */
 
     /* Ensure q satisfies q*(q+1)/2 >= n. */

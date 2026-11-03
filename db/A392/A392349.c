@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 36, u64 n <= 72, u128 n <= 143,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 878 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
                      a(5)=9, a(6)=18, a(7)=36 */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Local base values for n < 8 */
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
     /* Initial allocation and seed with base values */
     if (!cache) {
         cache_cap = 16;  /* start with small capacity, will grow if needed */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;         /* out of memory: return 0 (unlikely) */
         for (idx_t i = 0; i < 8; ++i) cache[i] = base[i];
         cache_size = 8;
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
     if (n >= cache_cap) {
         idx_t new_cap = cache_cap;
         while (n >= new_cap) new_cap <<= 1; /* double until enough */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) return 0;          /* realloc failed */
         cache = new_cache;
         cache_cap = new_cap;

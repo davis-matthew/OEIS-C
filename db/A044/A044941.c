@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy, base, easy
  * Formula:   a(n) = number of runs of even length in base-10 representation
  *            of n
- * Range:     u8 n <= 7492, u16 n <= 7492, u32 n <= 7492, u64 n <= 7492,
- *            u128 n <= 7492, big any n
+ * Range:     u8 n <= 65536, u16 n <= 65536, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 106 terms through n = 7492 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

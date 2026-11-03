@@ -8,13 +8,21 @@
  *            binom(⌈n/2⌉, ⌈n/2⌉/2) * binom(⌊n/2⌋, ⌈n/2⌉/2)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 14, u64 n <= 22, u128 n <= 28,
  *            big any n
- * Helpers:   _fact_n
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_fact_n.h"
+
+static seq_t _fact_n(idx_t n)
+{
+    seq_t res = 1;
+    for (idx_t i = 1; i <= n; ++i)
+        res = res * (seq_t)i;
+    return res;
+}
 
 static seq_t _binom(idx_t n, idx_t k)
 {

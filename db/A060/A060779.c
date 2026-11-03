@@ -7,13 +7,14 @@
  * Formula:   a(n) = lcm(tau(n), tau(n+1))
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 105 terms through n = 934 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 /* Small Euclidean GCD for seq_t */
 static seq_t _gcd_seq(seq_t a, seq_t b)
@@ -32,8 +33,8 @@ seq_t a(idx_t n)
 {
     if (n == 0)
         return 0;  /* undefined offset, but harmless */
-    seq_t tau_n   = divisor_count_u64(n);
-    seq_t tau_np1 = divisor_count_u64(n + 1);
+    seq_t tau_n   = num_divisors(n);
+    seq_t tau_np1 = num_divisors(n + 1);
     seq_t g = _gcd_seq(tau_n, tau_np1);
     return (tau_n / g) * tau_np1;
 }

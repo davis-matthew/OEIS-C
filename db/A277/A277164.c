@@ -10,15 +10,17 @@
  *            each n, the smallest candidate c that does not create a suffix
  *            of length 17t whose first 10t elements equal the following 7t
  *            elements (for any t ≥ 1) is chosen
- * Range:     u8 n <= 9548, u16 n <= 9548, u32 n <= 9548, u64 n <= 9548,
- *            u128 n <= 9548, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 136 terms through n = 9548 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (len == 0) {
         cap = 64;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
     }
 
     /* extend cache until it contains a(n) */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
             /* ensure storage is large enough for this candidate */
             if (len >= cap) {
                 cap *= 2;
-                seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, cap);
             }
             seq[len] = cand;            /* tentatively append candidate */
 

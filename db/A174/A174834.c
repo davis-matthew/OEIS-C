@@ -9,13 +9,15 @@
  *            the triangle read by rows, with a(0)=1
  * Range:     i8 n <= 11, i16 n <= 29, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,11 +34,11 @@ seq_t a(idx_t n)
     idx_t k = n - r * (r + 1) / 2;
 
     /* Allocate two rows for Stirling numbers of the first kind */
-    seq_t *prev = (seq_t *)malloc((r + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (r + 1));
+    seq_t *curr = mem_new(seq_t, (r + 1));
     if (!prev || !curr) {
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return (seq_t)0;          /* allocation failure – return 0 */
     }
 
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     seq_t bin  = binomial(r, k);
     seq_t result = sum * bin;
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

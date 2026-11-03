@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 6733, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bin_str, exists_substring
+ * Validated: standard, pass, 71 terms through n = 9334 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,38 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/bin_str.h"
-#include "../utils/exists_substring.h"
+#include "../utils/mem.h"
+
+/* ---------- binary conversion ---------- */
+static size_t bin_str(seq_t x, char *buf)
+{
+    size_t pos = 0;
+    seq_t tmp = x;
+    while (tmp != 0)
+    {
+        buf[pos++] = (tmp & 1) ? '1' : '0';
+        tmp >>= 1;
+    }
+    /* reverse into correct order */
+    for (size_t i = 0; i < pos / 2; ++i)
+    {
+        char t = buf[i];
+        buf[i] = buf[pos - 1 - i];
+        buf[pos - 1 - i] = t;
+    }
+    return pos;
+}
+
+/* ---------- substring check ---------- */
+static bool exists_substring(const char *big, size_t blen,
+                             const char *pat, size_t plen)
+{
+    if (plen == 0 || plen > blen) return false;
+    for (size_t i = 0; i + plen <= blen; ++i)
+        if (memcmp(big + i, pat, plen) == 0)
+            return true;
+    return false;
+}
 
 /* ---------- helper tables ---------- */
 static const uint64_t PRIME_LIMIT   = 100000;           /* enough for 10k terms       */
@@ -102,7 +133,7 @@ seq_t a(idx_t n)
         init_primes();                          /* primes for factorisation   */
 
         cache_cap = 8;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* grow cache if needed */
@@ -115,7 +146,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap)
             {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = val;
         }

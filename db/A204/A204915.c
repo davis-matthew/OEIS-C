@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   mod_square, next_prime
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/next_prime.h"
-#include "../utils/mod_square.h"
+
+/* ------------------------------------------------------------ */
+static inline uint64_t mod_square(uint64_t x, uint64_t mod)
+{
+    return (uint64_t)(((__uint128_t)x * x) % mod);
+}
 
 /* ------------------------------------------------------------ */
 /*  Prime sequence generation, cached across calls               */

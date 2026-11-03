@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 17, u128 n <= 24,
  *            big any n
- * Helpers:   digit_counts, seq_one
+ * Validated: standard, pass, 33 terms through n = 103 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,11 @@
 #include <stddef.h>
 
 /* Provided utilities */
-#include "../utils/digit_counts.h"   /* void digit_counts(seq_t x, unsigned char cnt[10]) */
-#include "../utils/seq_one.h"        /* seq_t seq_one(void) */
+#include <stdint.h>
+#include "../utils/digit_counts.h"
+#include "../utils/mem.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 /* Check whether x has the same number of odd as even digits. */
 static inline bool has_equal_odd_even_digits(seq_t x)
@@ -64,7 +68,7 @@ seq_t a(idx_t n)
             if (found_len == found_cap)
             {
                 size_t new_cap = found_cap ? found_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(found, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, found, new_cap);
                 if (!tmp) abort();       /* memory exhausted */
                 found     = tmp;
                 found_cap = new_cap;

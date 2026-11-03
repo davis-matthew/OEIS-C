@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 3969, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi, sigma_of
+ * Validated: standard, pass, 81 terms through n = 9850 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,23 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/sigma_of.h"   /* seq_t sigma_of(idx_t n); */
-#include "../utils/phi.h"        /* seq_t phi(idx_t m); */
+#include "../utils/totient.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* Test whether the orbit of start eventually hits a 2‑cycle.
  * We keep a small history of seen values (up to 4096 steps) to
@@ -55,7 +71,7 @@ static bool ends_in_two_cycle(uint64_t start)
 
         /* compute next value: f(x) = phi(sigma(x)) */
         seq_t s = sigma_of((idx_t)x);
-        seq_t f = phi((idx_t)s);
+        seq_t f = totient((idx_t)s);
         x = (uint64_t)f;
         ++step;
     }
@@ -82,10 +98,9 @@ seq_t a(idx_t n)
             /* Grow storage if needed */
             if (found_size == found_cap) {
                 size_t new_cap = (found_cap == 0 ? 8 : found_cap * 2);
-                seq_t *tmp = (seq_t *)realloc(found,
-                                               new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, found, new_cap);
                 if (!tmp) {                      /* allocation failed */
-                    free(found);
+                    mem_free(found);
                     found = NULL;
                     found_cap = found_size = 0;
                     return 0;

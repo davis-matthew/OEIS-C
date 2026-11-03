@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, mod_pow
+ * Validated: standard, pass, 74 terms through n = 938 (2026-11-03)
+ * Helpers:   factor_u64, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/factor_u64.h"   /* factor_u64 */
-#include "../utils/mod_pow.h"     /* mod_pow */
+#include <string.h>
+#include "../utils/factor_u64.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Check whether 3 is a primitive root modulo an odd prime p. */
 static bool is_primitive_root_mod_prime(uint64_t p)
@@ -42,7 +45,7 @@ static bool is_primitive_root_mod_prime(uint64_t p)
 
     for (size_t i = 0; i < cnt; ++i) {
         seq_t exp = phi / (seq_t)primes[i];
-        if (mod_pow((seq_t)3, (uint64_t)exp, mod) == (seq_t)1)
+        if (powmod((seq_t)3, (uint64_t)exp, mod) == (seq_t)1)
             return false;
     }
     return true;
@@ -86,14 +89,14 @@ seq_t a(idx_t n)
     if (!cache) {                  /* first call: allocate cache */
         cache_cap = 16;
         cache_size = 0;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
 
     while (cache_size < n) {
         if (is_primitive_root_3(next)) {
             if (cache_size == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t*)realloc(cache, sizeof(seq_t) * cache_cap);
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = (seq_t)next;
         }

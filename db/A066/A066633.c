@@ -7,9 +7,10 @@
  * Keywords:  easy, nonn, tabl, changed
  * Formula:   a(n) enumerates the triangle T(row,col), where T(n,k) =
  *            Σ_{j=1..⌊n/k⌋} P(n−j·k)
- * Range:     u8 n <= 78, u16 n <= 595, u32 n <= 5886, u64 n <= 7825,
- *            u128 n <= 7825, big any n
- * Helpers:   none
+ * Range:     u8 n <= 78, u16 n <= 595, u32 n <= 5886, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 107 terms through n = 7825 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* external types provided by the build */
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* static storage for partition numbers */
 static seq_t *partitions = NULL;
@@ -29,7 +31,7 @@ static void ensure_partitions(idx_t N)
         return;
 
     /* allocate/reallocate array */
-    seq_t *tmp = (seq_t *)realloc(partitions, (N + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, partitions, (N + 1));
     if (!tmp)
         exit(1);                       /* out of memory */
     partitions = tmp;

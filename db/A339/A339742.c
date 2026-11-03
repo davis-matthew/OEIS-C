@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 2969, u16 n <= 9246, u32 n <= 9246, u64 n <= 9246,
- *            u128 n <= 9246, big any n
- * Helpers:   count_distinct_primes, is_prime, is_squarefree
+ * Range:     u8 n <= 2969, u16 n <= 69300, u32 n <= 69300, u64 n <= 69300,
+ *            u128 n <= 69300, big any n
+ * Validated: standard, pass, 121 terms through n = 9246 (2026-11-01)
+ * Helpers:   is_prime, is_squarefree, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,10 @@
     It uses recursion without memoisation – the search space is small for n ≤ 10000. */
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/count_distinct_primes.h"
 #include "../utils/is_squarefree.h"
+#include "../utils/omega.h"
 
 static seq_t rec(uint64_t n, uint64_t min_factor)
 {
@@ -30,7 +32,7 @@ static seq_t rec(uint64_t n, uint64_t min_factor)
 
     /* single‑factor case: allowed only if n itself is a prime or a semiprime */
     if (is_prime((idx_t)n) ||
-        (is_squarefree((seq_t)n) && count_distinct_primes(n) == 2))
+        (is_squarefree((seq_t)n) && omega(n) == 2))
         total += 1;
 
     /* integer sqrt of n, computed by integer loop */
@@ -43,7 +45,7 @@ static seq_t rec(uint64_t n, uint64_t min_factor)
         if (f <= 1) continue;
         /* f must be a prime or a squarefree semiprime */
         if (!(is_prime((idx_t)f) ||
-              (is_squarefree((seq_t)f) && count_distinct_primes(f) == 2)))
+              (is_squarefree((seq_t)f) && omega(f) == 2)))
             continue;
         uint64_t q = n / f;
         if (q < f + 1) continue;          /* ensures distinctness */

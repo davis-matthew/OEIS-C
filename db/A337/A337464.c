@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 8, i16 n <= 34, i32 n <= 131, i64 n <= 369,
  *            i128 n <= 1066, big any n
+ * Validated: standard, pass, 71 terms through n = 9407 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,6 +24,7 @@
     the above sum.  Special‐case k==0 (only the j==n term survives).  */
 /* Uses binomial from ../utils/binomial.h */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* external linkage function required by the test harness */

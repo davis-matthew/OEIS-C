@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 130, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   swap_int
+ * Validated: standard, pass, 59 terms through n = 9380 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/swap_int.h"
+#include "../utils/mem.h"
+
+static inline void swap_int(int *a, int *b)
+{
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
 
 /* deterministic 64‑bit Miller‑Rabin primality test */
 static uint64_t mulmod_uint64(uint64_t a, uint64_t b, uint64_t mod) {
@@ -120,7 +128,7 @@ seq_t a(idx_t n) {
             seq_t val = (seq_t)sq64;
             if (cnt == capacity) {
                 size_t newcap = capacity ? capacity * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(items, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, items, newcap);
                 if (!tmp) {
                     /* allocation failed; return 0 for safety */
                     return 0;

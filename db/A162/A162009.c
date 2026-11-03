@@ -11,13 +11,15 @@
  *            a(5)=18598875760, a(6)=1002968825344, a(7)=5188263875...
  * Range:     u8 none, u16 n <= 2, u32 n <= 4, u64 n <= 10, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* 1‑indexed cache, cache[0] unused */
 static idx_t  cache_up_to = 0;    /* highest n computed so far */
@@ -30,7 +32,7 @@ static void init_cache(void)
 
     /* allocate a little more space for future growth */
     cache_cap = 32;
-    cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) return;              /* silently abort on OOM – caller never expects this */
 
     /* first 10 terms, cast from integer literals */
@@ -57,7 +59,7 @@ static void ensure_capacity(idx_t n)
 
     size_t new_cap = cache_cap;
     while ((size_t)(n + 1) > new_cap) new_cap *= 2;
-    cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

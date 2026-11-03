@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   primes of the form 10*n^3-9
- * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 28, u64 n <= 28, u128 n <= 28,
- *            big any n
- * Helpers:   is_prime_seq
+ * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 118, u64 n <= 3000,
+ *            u128 n <= 3000, big any n
+ * Validated: standard, pass, 44 terms through n = 2908 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t  *prime_list  = NULL;
 static idx_t   prime_cnt   = 0;
@@ -34,7 +36,7 @@ ensure_primes(idx_t needed)
             if (prime_cnt >= prime_cap)
             {
                 prime_cap = (prime_cap == 0) ? 8 : prime_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(prime_list, sizeof(seq_t) * prime_cap);
+                seq_t *tmp = mem_resize(seq_t, prime_list, prime_cap);
                 if (!tmp) exit(1);
                 prime_list = tmp;
             }

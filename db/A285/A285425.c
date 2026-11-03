@@ -12,12 +12,14 @@
  *            anti‑diagonals
  * Range:     u8 n <= 38, u16 n <= 70, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   pow_seq_local
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq_local.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 /* Helper: binary exponentiation for seq_t */
 
 seq_t a(idx_t N) {
@@ -46,11 +48,11 @@ seq_t a(idx_t N) {
     seq_t total = 0;
     for (idx_t d1 = 1; d1 <= m / d1; d1 += 2) {
         if (m % d1 == 0) {
-            seq_t term = pow_seq_local((seq_t)d1, (int)k_col);
+            seq_t term = ipow_i32((seq_t)d1, (int)k_col);
             total += term;
             idx_t q = m / d1;
             if (q != d1 && (q & 1u)) {
-                seq_t term2 = pow_seq_local((seq_t)q, (int)k_col);
+                seq_t term2 = ipow_i32((seq_t)q, (int)k_col);
                 total += term2;
             }
         }

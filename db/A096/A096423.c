@@ -7,12 +7,14 @@
  * Formula:   a(n) = (a(n-1)+1)*(a(n-2)+1), a(1)=a(2)=1
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 8, u64 n <= 10, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[i] holds a(i+1) */
 static idx_t capacity = 0;    /* allocated array size */
@@ -26,7 +28,7 @@ static void ensure_capacity(idx_t needed)
     idx_t new_cap = capacity == 0 ? needed : capacity * 2;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         exit(EXIT_FAILURE);     /* allocation failure */
     cache = tmp;

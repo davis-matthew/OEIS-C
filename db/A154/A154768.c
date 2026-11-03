@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 3000, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   good_digits
+ * Validated: standard, pass, 69 terms through n = 2982 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/good_digits.h"
+
+/* ---------- Digit test ---------- */
+static bool good_digits(uint64_t p)
+{
+    unsigned min_d = 9, max_d = 0;
+    while (p)
+    {
+        unsigned d = p % 10;
+        if (d < min_d) min_d = d;
+        if (d > max_d) max_d = d;
+        p /= 10;
+    }
+    return ((min_d & 1) == 0) && ((max_d & 1) == 0);
+}
 
 /* ---------- Prime generation ---------- */
 static uint64_t *prime_vals = NULL;   /* array of found primes (1‑based) */

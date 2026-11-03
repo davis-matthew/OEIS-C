@@ -7,6 +7,7 @@
  * Formula:   a(n) = Product_{k=0..n} (k^9 + (n-k)^9)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 5,
  *            big any n
+ * Validated: standard, pass, 25 terms through n = 58 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

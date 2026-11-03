@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 27, u64 n <= 55, u128 n <= 109,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 47 terms through n = 925 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* initialise base case */
     if (n == 1) {
         if (cache_size < 1) {
-            cache = (seq_t *)realloc(cache, sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, 1);
             cache[0] = (seq_t)1;
             cache_size = 1;
         }
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     /* grow cache if necessary */
     if (n > cache_size) {
-        seq_t *new_cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, n);
         if (!new_cache)  /* allocation failed; fall back to zero */
             new_cache = cache;
         cache = new_cache;
@@ -56,11 +58,11 @@ seq_t a(idx_t n)
             seq_t delta;
             if ((i & 1u) == 0) {          /* even i */
                 idx_t exp = i / 2u - 1u;   /* p^(i/2-1) */
-                seq_t pow = pow_uint(P, exp);
+                seq_t pow = ipow_u64_idx(P, exp);
                 delta = Pm1 * pow;        /* (p-1)*p^(i/2-1) */
             } else { /* odd i */
                 idx_t exp = (i - 1u) / 2u; /* p^((i-1)/2) */
-                delta = pow_uint(P, exp);
+                delta = ipow_u64_idx(P, exp);
             }
             cache[i - 1] = cache[i - 2] + delta;
         }

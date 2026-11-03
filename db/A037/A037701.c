@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    pattern 1,2,3,0 repeated indefinitely.  This generates
    the decimal expansion of the sequence A037701. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const unsigned char DIGIT[4] = {1, 2, 3, 0};
 
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if (n > cached_up_to) {
         idx_t new_cap   = n;
-        seq_t *new_cache = (seq_t *)malloc((new_cap + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (new_cap + 1));
         if (!new_cache) return (seq_t)0; /* out of memory */
 
         /* copy existing values if any */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
             for (idx_t i = 1; i <= cached_up_to; ++i) {
                 new_cache[i] = cache[i];
             }
-            free(cache);
+            mem_free(cache);
         }
         cache = new_cache;
 

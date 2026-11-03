@@ -12,13 +12,15 @@
  *            ranges from 0 to s-1). The binomial coefficients are computed
  *            exactly by the helper function binomial(a,b), returning a
  *            seq_t...
- * Range:     u8 n <= 34, u16 n <= 151, u32 n <= 559, u64 n <= 1325,
+ * Range:     u8 n <= 43, u16 n <= 151, u32 n <= 559, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 94 terms through n = 1244 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static idx_t int_sqrt(idx_t v)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 21, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 37 terms through n = 44 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Cached results up to the largest n that has been computed. */
 static seq_t *cache       = NULL;
@@ -78,10 +81,10 @@ static void recompute(idx_t limit)
        Allocate / resize DP arrays.
        ------------------------------------------------------------------ */
     if (dp_cap < (size_t)(limit + 1)) {
-        free(dp_prev);
-        free(dp_curr);
-        dp_prev = (seq_t*)malloc((limit + 1) * sizeof(seq_t));
-        dp_curr = (seq_t*)malloc((limit + 1) * sizeof(seq_t));
+        mem_free(dp_prev);
+        mem_free(dp_curr);
+        dp_prev = mem_new(seq_t, (limit + 1));
+        dp_curr = mem_new(seq_t, (limit + 1));
         dp_cap  = limit + 1;
     }
 
@@ -107,8 +110,8 @@ static void recompute(idx_t limit)
     /* ------------------------------------------------------------------
        Store the computed values in the cache array.
        ------------------------------------------------------------------ */
-    if (cache) free(cache);
-    cache = (seq_t*)malloc((limit + 1) * sizeof(seq_t));
+    if (cache) mem_free(cache);
+    cache = mem_new(seq_t, (limit + 1));
     /* Sequence is defined from n = 8 onward; values below 8 are set to 0. */
     for (idx_t i = 0; i < 8 && i <= limit; ++i) cache[i] = 0;
     for (idx_t i = 8; i <= limit; ++i) cache[i] = dp_prev[i];

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 22, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external types supplied by the framework */
 extern seq_t a(idx_t n);
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     /* Resize the result cache if necessary */
     if (cache_size <= n) {
         size_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp)
             return (seq_t)0;          /* allocation failure */
         cache = tmp;
@@ -71,8 +73,8 @@ seq_t a(idx_t n)
     /* Ensure DP arrays are large enough for level 0 … 2 + n */
     idx_t needed_size = n + 3;   /* 2 + n + 1 for safety */
     if (dp_size < needed_size) {
-        seq_t *tmp_cur  = (seq_t *)realloc(dp_cur,  needed_size * sizeof(seq_t));
-        seq_t *tmp_next = (seq_t *)realloc(dp_next, needed_size * sizeof(seq_t));
+        seq_t *tmp_cur  = mem_resize(seq_t, dp_cur, needed_size);
+        seq_t *tmp_next = mem_resize(seq_t, dp_next, needed_size);
         if (!tmp_cur || !tmp_next) {
             /* fall back to recompute from scratch */
             return (seq_t)0;

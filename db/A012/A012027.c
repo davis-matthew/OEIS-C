@@ -11,12 +11,14 @@
  *            –16*(n‑3)*(n‑2)^2*(n‑1)*(2*n‑5)*(2*n‑3) * a(n‑3)
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 6, i64 n <= 10, i128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build environment. */
 
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     size_t new_size = (size_t)(n + 1);
     size_t old_size = cache_size;               /* old capacity */
     if (new_size > cache_size) {
-        seq_t* tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t* tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) {                     /* allocation failure – abort */
             exit(1);
         }

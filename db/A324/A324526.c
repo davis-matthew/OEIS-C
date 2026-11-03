@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   build_primes_upto, floor_sqrt, gcd, mod_pow
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   build_primes_upto, gcd, ipow_i32, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,10 +23,30 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
-#include "../utils/floor_sqrt.h"
+#include <string.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static uint64_t *primes = NULL;
 static size_t primes_cnt = 0;
@@ -78,10 +99,10 @@ static bool passes(uint64_t m)
     seq_t pod_mod;
 
     if (tau % 2 == 0) {
-        pod_mod = mod_pow(base, tau / 2, sigma_t);
+        pod_mod = powmod(base, tau / 2, sigma_t);
     } else {
         seq_t sqrt_m   = floor_sqrt((seq_t)m);
-        seq_t part     = mod_pow(base, (tau - 1) / 2, sigma_t);
+        seq_t part     = powmod(base, (tau - 1) / 2, sigma_t);
         seq_t sqrt_mod = sqrt_m % sigma_t;
         pod_mod = (seq_t)(((__uint128_t)part * sqrt_mod) % sigma_t);
     }
@@ -108,7 +129,7 @@ seq_t a(idx_t n)
         if (passes(current_m)) {
             if (seq_len >= seq_cap) {
                 seq_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)current_m;
         }

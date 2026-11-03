@@ -12,12 +12,14 @@
  *            ≥ 6
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (A == NULL) {
         /* First call – allocate exactly (n+1) slots.  */
         A_alloc = n + 1;
-        A = (seq_t *)malloc(A_alloc * sizeof(seq_t));
+        A = mem_new(seq_t, A_alloc);
         if (!A) return 0;   /* allocation failed – return 0 as sentinel */
         /* Set the known base values.   */
         if (A_alloc > 0)   A[0] = 0;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
 
     /* Grow the array if necessary.  The size is increased exactly to (n+1). */
     if (n + 1 > A_alloc) {
-        A = (seq_t *)realloc(A, (n + 1) * sizeof(seq_t));
+        A = mem_resize(seq_t, A, (n + 1));
         if (!A) return 0;   /* allocation failed – return 0 as sentinel */
         A_alloc = n + 1;
     }

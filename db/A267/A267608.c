@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 19,
  *            big any n
- * Helpers:   rule182
+ * Validated: standard, pass, 31 terms through n = 997 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,15 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/rule182.h"
+
+/* Helper: return 1 if the 3‑bit neighbourhood produces a 1 under Rule 182. */
+static int rule182(uint8_t left, uint8_t center, uint8_t right)
+{
+    /* 111→1, 110→0, 101→1, 100→1, 011→0, 010→1, 001→1, 000→0 */
+    uint8_t pat = (left << 2) | (center << 1) | right;
+    return (pat == 0b111 || pat == 0b101 || pat == 0b100 ||
+            pat == 0b010 || pat == 0b001);
+}
 
 seq_t a(idx_t n)
 {

@@ -9,14 +9,28 @@
  *            divisors of n} m
  * Range:     u8 n <= 41, u16 n <= 1469, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _factor_distinct
+ * Validated: standard, pass, 84 terms through n = 9862 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_factor_distinct.h"
+
+/* The number of distinct factors is returned in `cnt`.              */
+static void _factor_distinct(idx_t n, uint64_t *primes, size_t *cnt)
+{
+    *cnt = 0;
+    idx_t temp = n;
+    for (idx_t p = 2; p * p <= temp; ++p) {
+        if (temp % p == 0) {
+            primes[(*cnt)++] = p;
+            while (temp % p == 0) temp /= p;
+        }
+    }
+    if (temp > 1) primes[(*cnt)++] = temp;
+}
 
 /* Find the distinct prime factors of n and store them in `primes`.  */
 

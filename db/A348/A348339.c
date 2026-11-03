@@ -10,12 +10,29 @@
  *            Initial values: a(1)=3, a(2)=6, a(3)=9, a(4)=12
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   ceil_log5_term
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/ceil_log5_term.h"
+static inline seq_t ceil_log5_term(idx_t n)
+{
+    /* For small n the value is 0.  The loop is tiny (≤10 iterations)
+       even for 64‑bit arguments. */
+    if (n <= 5)
+        return 0;
+    idx_t y = n - 1;        /* (n‑1) */
+    if (y <= 16)
+        return 0;
+    idx_t prod = 16;        /* 16 * 5^(t‑1) */
+    idx_t t = 0;
+    while (y > prod) {
+        prod *= 5;
+        ++t;
+    }
+    return (seq_t)t;
+}
 
 seq_t a(idx_t n)
 {

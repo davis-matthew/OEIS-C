@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
       -5304*(n-2)*(n-3)*a(n-4)=0   (n ≥ 4)   */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* cache for memoization – zero‑initialised */
 static seq_t *cache = NULL;     /* cached a(0)…a(k) */
@@ -32,7 +34,7 @@ ensure_cache(idx_t n)
     /* one‑time initialisation: set base cases a(0)…a(3) */
     if (cache == NULL) {
         cache_size = 8;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) exit(EXIT_FAILURE);
 
         cache[0] = (seq_t)1;
@@ -46,7 +48,7 @@ ensure_cache(idx_t n)
     if ((size_t)(n + 1) > cache_size) {
         size_t new_sz = cache_size;
         while ((size_t)(n + 1) > new_sz) new_sz <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_sz);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         cache_size = new_sz;

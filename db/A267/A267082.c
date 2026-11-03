@@ -10,7 +10,8 @@
  *            90*a(n-2) - 350*a(n-3) + 90*a(n-4) + 14*a(n-5) - a(n-6);
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,13 +34,13 @@ seq_t a(idx_t n)
         /* Size for the first 8 terms */
         const idx_t init_size = 8;
         /* Allocate raw memory */
-        cache = (seq_t *)malloc(init_size * sizeof(seq_t));
+        cache = mem_new(seq_t, init_size);
         if (!cache) return (seq_t)0;   /* allocation failure */
 
         /* Construct the objects if needed (C++ only) */
         for (idx_t i = 0; i < init_size; ++i) {
 #if defined(__cplusplus)
-            new (&cache[i]) seq_t();
+            *(&cache[i]) = (seq_t)0;
 #endif
         }
 
@@ -63,13 +65,13 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary */
     idx_t new_size = n + 1;
     if (new_size > cached_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return (seq_t)0;   /* allocation failure */
 
         /* Construct any new objects (C++ only) */
         for (idx_t i = cached_size; i < new_size; ++i) {
 #if defined(__cplusplus)
-            new (&tmp[i]) seq_t();
+            *(&tmp[i]) = (seq_t)0;
 #endif
         }
 

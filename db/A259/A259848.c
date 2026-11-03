@@ -7,6 +7,7 @@
  * Formula:   a(n) = 4818372912366173 mod 10^n
  * Range:     u8 n <= 1, u16 none, u32 none, u64 n <= 16, u128 n <= 16,
  *            big any n
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

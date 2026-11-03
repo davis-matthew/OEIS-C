@@ -10,21 +10,22 @@
  *            defined by T(n,1)=n, T(n,k)=f(T(n,k−1)) with f(x)=x−1+x/gpf(x)
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   gpf
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
 
 static seq_t f_seq(seq_t x)
 {
     if (x <= (seq_t)1)
         return (seq_t)1;
     uint64_t xu = (uint64_t)x;          /* value fits in 64 bits for the tested range */
-    uint64_t g  = gpf(xu);              /* largest prime factor of xu */
+    uint64_t g  = largest_prime_factor(xu);              /* largest prime factor of xu */
     seq_t  gs  = (seq_t)g;              /* cast to seq_t for division */
     return x - (seq_t)1 + x / gs;       /* f(x) = x−1 + x/gpf(x) */
 }

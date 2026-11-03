@@ -11,8 +11,8 @@
  *            Sum_{k=1..t-1} c_h(k)*R_{h+1}(t-k), R_{h+1}(1)...
  * Range:     u8 n <= 13, u16 n <= 18, u32 n <= 33, u64 n <= 67, u128 n <= 139,
  *            big any n
- * Helpers:   a306_alloc0, a306_divsum, a306_fx_level, a306_grow,
- *            a306_inv_odd, a306_mul
+ * Validated: standard, pass, 48 terms through n = 4403 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +20,98 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a306_alloc0.h"
-#include "../utils/a306_divsum.h"
-#include "../utils/a306_fx_level.h"
-#include "../utils/a306_grow.h"
-#include "../utils/a306_inv_odd.h"
-#include "../utils/a306_mul.h"
+#include "../utils/mem.h"
+
+static seq_t *a306_alloc0(idx_t len)
+{
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t a306_divsum(const seq_t *L, idx_t k)
+{
+    seq_t s = 0;
+    for (idx_t d = 1; d * d <= k; d++) {
+        if (k % d) continue;
+        s += L[d] * d;
+        idx_t e = k / d;
+        if (e != d) s += L[e] * e;
+    }
+    return s;
+}
+
+static seq_t a306_mul(seq_t x, seq_t y)
+{
+    return (seq_t)(x * 1u * y);
+}
+
+/* inverse of an odd value modulo 2^w (fixed-width only) */
+static seq_t a306_inv_odd(seq_t q)
+{
+    seq_t x = q;
+    for (int i = 0; i < 7; i++) x = a306_mul(x, (seq_t)(2u - a306_mul(q, x)));
+    return x;
+}
+
+/* Given f[0..N] (f[0] = 0), return R[0..N] with R[t] = [x^(t-1)] MSET(f). */
+static seq_t *a306_fx_level(const seq_t *f, idx_t N, int w)
+{
+    idx_t M = N - 1;
+    seq_t *F = a306_alloc0(M + 1);
+    seq_t *C = a306_alloc0(M + 1);
+    F[0] = 1;
+    for (idx_t k = 1; k <= M; k++) {
+        seq_t m = f[k];
+        if (m == 0) continue;
+        idx_t J = M / k;
+        C[0] = 1;
+        seq_t P = 1;          /* odd part of C(m+j-1, j) mod 2^w */
+        long long v = 0;      /* 2-adic valuation */
+        for (idx_t j = 1; j <= J; j++) {
+            seq_t u = (seq_t)(m + (seq_t)(j - 1));
+            if (u == 0) v += 100000;
+            else {
+                while (u % 2u == 0) { u = (seq_t)(u / 2u); v++; }
+                P = a306_mul(P, u);
+            }
+            idx_t d = j;
+            while (d % 2 == 0) { d /= 2; v--; }
+            P = a306_mul(P, a306_inv_odd((seq_t)d));
+            seq_t c = 0;
+            if (v < w) {
+                c = P;
+                for (long long i = 0; i < v; i++) c = (seq_t)(c * 2u);
+            }
+            C[j] = c;
+        }
+        for (idx_t t = M; t >= k; t--) {
+            seq_t acc = 0;
+            idx_t s = t - k;
+            idx_t j = 1;
+            for (;;) {
+                acc = (seq_t)(acc + a306_mul(C[j], F[s]));
+                if (s < k) break;
+                s -= k;
+                j++;
+            }
+            F[t] = (seq_t)(F[t] + acc);
+        }
+    }
+    seq_t *R = a306_alloc0(N + 1);
+    for (idx_t t = 1; t <= N; t++) R[t] = F[t - 1];
+    mem_free(F);
+    mem_free(C);
+    return R;
+}
+
+static seq_t *a306_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = a306_alloc0(newlen);
+    for (idx_t i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static int a306_w = -1; /* bit width of seq_t, 0 for arbitrary precision */
 
@@ -55,12 +141,12 @@ static void a306_fx_extend(idx_t n, int w)
     seq_t *r0 = a306_alloc0(N + 1);
     r0[1] = 1;
     seq_t *r1 = a306_fx_level(r0, N, w);
-    free(r0);
+    mem_free(r0);
     seq_t *r2 = a306_fx_level(r1, N, w);
-    free(r1);
+    mem_free(r1);
     seq_t *r3 = a306_fx_level(r2, N, w);
     seq_t *r4 = a306_fx_level(r3, N, w);
-    if (a306_fR2) { free(a306_fR2); free(a306_fR3); free(a306_fR4); }
+    if (a306_fR2) { mem_free(a306_fR2); mem_free(a306_fR3); mem_free(a306_fR4); }
     a306_fR2 = r2;
     a306_fR3 = r3;
     a306_fR4 = r4;

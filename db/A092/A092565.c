@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 149, u32 n <= 454, u64 n <= 1626,
  *            u128 n <= 5988, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9260 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  Compute ⌊√x⌋ for unsigned 64‑bit values.  The estimation by
     sqrt((double)x) is corrected with 128‑bit integer arithmetic.  */
@@ -51,7 +53,7 @@ static seq_t triangle_T(idx_t n, idx_t k)
     const idx_t size = rows * cols;
 
     /*  Allocate and zero the table.  */
-    seq_t *dp = (seq_t *)calloc((size_t)size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)size);
     if (!dp)
         return (seq_t)0;               /* graceful out‑of‑memory */
 
@@ -77,7 +79,7 @@ static seq_t triangle_T(idx_t n, idx_t k)
     }
 
     seq_t result = dp[n * cols + k];
-    free(dp);
+    mem_free(dp);
     return result;
 }
 

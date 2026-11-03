@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 11, u32 n <= 23, u64 n <= 47, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 165 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state for memoisation */
@@ -33,8 +35,8 @@ seq_t a(idx_t n) {
     if (!initialised) {
         p_len = 1;
         p_cap = 1;
-        p  = (seq_t*)malloc(sizeof(seq_t)*p_cap);
-        a_ = (seq_t*)malloc(sizeof(seq_t)*p_cap);
+        p  = mem_new(seq_t, p_cap);
+        a_ = mem_new(seq_t, p_cap);
         p[0]   = a0;        /* a(0) */
         a_[0]  = a0;
         cur_m = 0;
@@ -53,8 +55,8 @@ seq_t a(idx_t n) {
         /* Resize if necessary */
         if (p_len >= p_cap) {
             p_cap = p_cap ? p_cap * 2 : 1;
-            p  = (seq_t*)realloc(p,  sizeof(seq_t) * p_cap);
-            a_ = (seq_t*)realloc(a_, sizeof(seq_t) * p_cap);
+            p  = mem_resize(seq_t, p, p_cap);
+            a_ = mem_resize(seq_t, a_, p_cap);
         }
 
         a_[p_len] = a_next;

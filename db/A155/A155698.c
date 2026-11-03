@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(n-1) + a(n-2)^a(n-3); Initial values: a(1)=a(2)=a(3)=1;
  * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 9, u64 n <= 9, u128 n <= 10,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* array of computed terms, 1‑based */
 static size_t cache_cap = 0;    /* allocated size of cache (bytes/1) */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
 
     /* Extend storage if needed */
     if (cache_cap < (size_t)(n + 1)) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!tmp) abort();           /* allocation failure */
         cache = tmp;
         cache_cap = (size_t)(n + 1);
@@ -42,7 +44,7 @@ static void ensure_cache(idx_t n)
             cache[i] = 1;            /* base cases */
         } else {
             /* use big_pow to raise a(i-2) to the power a(i-3) */
-            seq_t term = big_pow(cache[i - 2], cache[i - 3]);
+            seq_t term = ipow(cache[i - 2], cache[i - 3]);
             cache[i] = cache[i - 1] + term;
         }
     }

@@ -9,12 +9,14 @@
  *            a(8)=15, a(9)=12, a(10)=19, a(11)=23
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* Allocate or extend cache to accommodate up to n */
     if (cache_len <= n) {
         cache_len = n + 1;
-        cache = (seq_t *)realloc(cache, cache_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_len);
         /* Initialize base values if this is the first allocation */
         if (!cache || cache_len == n + 1) {
             for (idx_t i = 0; i < 12; ++i) {

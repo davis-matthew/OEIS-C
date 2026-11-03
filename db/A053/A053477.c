@@ -10,13 +10,14 @@
  *            compute d(k)
  * Range:     u8 n <= 233, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   local_divisor_count
+ * Validated: standard, pass, 87 terms through n = 9225 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/local_divisor_count.h"
+#include "../utils/num_divisors.h"
 
 /* Public function required by the problem. */
 seq_t a(idx_t n)
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
 
     /* Iterate divisor counts until the fixed point 2 is reached. */
     while (cur != 2) {
-        cur = local_divisor_count(cur);
+        cur = num_divisors(cur);
         sum += (seq_t)cur;
     }
 

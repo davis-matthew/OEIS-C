@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   is_lattice, popcount_u64
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem, popcount
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,15 +21,36 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_lattice.h"
-#include "../utils/popcount_u64.h"
+#include "../utils/popcount.h"
+#include "../utils/mem.h"
+
+/* Check whether an array arr[0..m-1] is strictly less than all of its
+   non‑trivial cyclic rotations (if strict_less is true) or strictly
+   greater than all rotations (if strict_less is false). */
+static bool is_lattice(const seq_t *arr, size_t m, bool strict_less) {
+    for (size_t shift = 1; shift < m; ++shift) {
+        int cmp = 0;                       /* -1 : arr < rot, 1 : arr > rot, 0 : equal */
+        for (size_t i = 0; i < m; ++i) {
+            seq_t left  = arr[i];
+            seq_t right = arr[(i + shift) % m];
+            if (left < right) { cmp = -1; break; }
+            if (left > right) { cmp = 1;  break; }
+        }
+        if (strict_less) {
+            if (cmp != -1) return false;   /* not strictly less */
+        } else {
+            if (cmp != 1)  return false;   /* not strictly greater */
+        }
+    }
+    return true;
+}
 
 /* Count set bits of a 64‑bit integer (used for popcount). */
 
 /* Return true if k has a composition that satisfies both
    reversed‑Lyndon and co‑Lyndon conditions. */
 static bool qualifies(idx_t k) {
-    int r = popcount_u64((uint64_t)k);        /* number of parts in composition */
+    int r = popcount((uint64_t)k);        /* number of parts in composition */
     if (r == 0) return true;                 /* empty composition qualifies */
 
     seq_t orig[64];                          /* differences between successive positions */
@@ -71,8 +93,7 @@ seq_t a(idx_t n) {
                 if (cache_size == cache_cap) {
                     size_t new_cap = cache_cap ? cache_cap << 1 : 64;
                     if (new_cap < target) new_cap = target;
-                    seq_t *tmp = (seq_t *)realloc(cache,
-                                                  new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     cache = tmp;
                     cache_cap = new_cap;
                 }

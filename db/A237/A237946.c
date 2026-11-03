@@ -12,12 +12,14 @@
  *            it by exactly one. Computed by dynamic programming over rows
  * Range:     u8 none, u16 n <= 4, u32 n <= 10, u64 n <= 22, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 175 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
        row 'row', with the value of the last subblock being 'v' (0..9). */
     static seq_t dp_prev[16][10];
     static seq_t dp_cur[16][10];
-    memset(dp_prev, 0, sizeof(dp_prev));
+    mem_set(dp_prev, 0, sizeof(dp_prev));
 
     /* Base case: pick first two rows arbitrarily. */
     for (idx_t r0 = 0; r0 < 16; ++r0) {
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
 
     /* Iterate for rows 2..n. */
     for (idx_t step = 2; step < n + 1; ++step) {
-        memset(dp_cur, 0, sizeof(dp_cur));
+        mem_set(dp_cur, 0, sizeof(dp_cur));
         for (idx_t prev_row = 0; prev_row < 16; ++prev_row) {
             for (idx_t vprev = 0; vprev < 10; ++vprev) {
                 seq_t ways = dp_prev[prev_row][vprev];

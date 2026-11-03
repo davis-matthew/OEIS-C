@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 114, u16 n <= 2497, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_to_str
+ * Validated: standard, pass, 82 terms through n = 9783 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,28 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_to_str.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 /* mapping of digit -> its position in the Polish alphabetical order
    4 _ cztery, 2 _ dwa, 9 _ dziewięć, 1 _ jeden, 8 _ osiem,
@@ -53,7 +75,7 @@ seq_t a(idx_t n)
 {
     if (cache == NULL) {
         cap = 128;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* generate terms until we have at least n entries */
@@ -63,7 +85,7 @@ seq_t a(idx_t n)
 
         if (sz == cap) {                    /* grow the cache */
             cap <<= 1;
-            cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
         }
 
         cache[sz++] = cur_val;              /* store the valid term */

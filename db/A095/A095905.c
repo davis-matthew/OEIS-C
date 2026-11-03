@@ -8,13 +8,15 @@
  * Formula:   a(n) = 15*a(n-1) + 18*a(n-2), a(1) = 1, a(2) = 21
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*
  * Compute the n-th term of OEIS sequence A095905.
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         /* allocate room for indices 1 and 2 (index 0 unused) */
         cache_size = 2;
         /* malloc returns void*, cast to seq_t* for C++ compatibility */
-        cache = (seq_t*)malloc((cache_size + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_size + 1));
         if (!cache)          /* unlikely, but guard against failure */
             return (seq_t)0;
         /* set initial values */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     /* Grow cache to accommodate up to index n */
     if (n > cache_size) {
         /* realloc handles freeing old memory; cast its result */
-        seq_t *new_cache = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache)          /* allocation failed */
             return (seq_t)0;
         cache = new_cache;

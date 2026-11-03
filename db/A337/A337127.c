@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 53, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* forward declaration of user supplied types */
 extern seq_t factorial(idx_t);
@@ -42,13 +44,13 @@ static void ensure_s2(idx_t n)
 {
     if (!s2_table) {                     /* first call */
         s2_cap = n + 1;
-        s2_table = (seq_t *)calloc((size_t)s2_cap * 11, sizeof(seq_t));
+        s2_table = mem_new(seq_t, (size_t)s2_cap * 11);
         if (!s2_table) exit(EXIT_FAILURE);
         s2_table[0 * 11 + 0] = 1;         /* S2(0,0) = 1 */
         s2_max_n = 0;
     } else if (n >= s2_cap) {            /* need to grow */
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(s2_table, (size_t)new_cap * 11 * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, s2_table, (size_t)new_cap * 11);
         if (!tmp) exit(EXIT_FAILURE);
         s2_table = tmp;
         for (idx_t i = s2_cap; i < new_cap; ++i)

@@ -7,13 +7,34 @@
  * Formula:   a(0) = 1; a(n) = a(n‑1) + floor(sqrt( Sum_{i=0}^{n‑1} a(i) ))
  * Range:     u8 n <= 7, u16 n <= 37, u32 n <= 51, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 68 terms through n = 9251 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Memoised storage for the sequence and its prefix sums.
    seq  [i]   = a(i)
@@ -35,8 +56,8 @@ static void ensure_capacity(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
 
-    seq  = (seq_t *)realloc(seq,  new_cap * sizeof(seq_t));
-    pref = (seq_t *)realloc(pref, (new_cap + 1) * sizeof(seq_t));
+    seq  = mem_resize(seq_t, seq, new_cap);
+    pref = mem_resize(seq_t, pref, (new_cap + 1));
 
     /* Initialise the newly allocated part of pref.  Do NOT touch
        pref indices that already contain valid prefix sums. */

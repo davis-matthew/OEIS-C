@@ -11,7 +11,8 @@
  *            vanish. Computed modulo several NTT primes and recombin...
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 3, u64 n <= 7, u128 n <= 26,
  *            big any n
- * Helpers:   is_prime, mod_ll, pw64, ser4_mul
+ * Validated: standard, pass, 29 terms through n = 972 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,33 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/mod_ll.h"
-#include "../utils/pw64.h"
-#include "../utils/ser4_mul.h"
+#include "../utils/is_prime_u64.h"
+
+static uint32_t mod_ll(long long v, uint32_t p)
+{
+    long long r = v % (long long)p;
+    if (r < 0) r += p;
+    return (uint32_t)r;
+}
+
+static uint64_t pw64(uint64_t b, uint64_t e, uint64_t p)
+{
+    uint64_t r = 1;
+    b %= p;
+    while (e) { if (e & 1) r = r * b % p; b = b * b % p; e >>= 1; }
+    return r;
+}
+
+static void ser4_mul(long long *r, const long long *x, const long long *y)
+{
+    long long t[4];
+    int i, j;
+    for (i = 0; i < 4; i++) {
+        t[i] = 0;
+        for (j = 0; j <= i; j++) t[i] += x[j] * y[i - j];
+    }
+    for (i = 0; i < 4; i++) r[i] = t[i];
+}
 
 static uint32_t MP, MNP, MR2;
 
@@ -103,7 +127,7 @@ static void build(idx_t N)
     for (c = ((((uint64_t)1 << 31) - 2) / L); c >= 1 && have < need && k < MAXPR; c--) {
         uint64_t p = c * L + 1;
         int b = 0;
-        if (!is_prime(p)) continue;
+        if (!is_prime_u64(p)) continue;
         PR[k++] = (uint32_t)p;
         while ((p >> (b + 1)) != 0) b++;
         have += b;

@@ -10,8 +10,9 @@
  *            a(1)=T(1,1), a(2)=T(2,1), a(3)=T(2,2), a(4)=T(3,1), … Hence, for
  *            each n we interpret it as the (row = r, column = c) position in
  *            the triangle where r(r+1)/2 ≥ n > (r-1)r/2
- * Range:     u8 n <= 284, u16 n <= 9865, u32 n <= 9865, u64 n <= 9865,
- *            u128 n <= 9865, big any n
+ * Range:     u8 n <= 284, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 96 terms through n = 9865 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

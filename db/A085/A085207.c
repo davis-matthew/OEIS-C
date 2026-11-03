@@ -12,14 +12,15 @@
  *            represented by an empty string
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   floor_sqrt128
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/floor_sqrt128.h"
+#include "../utils/isqrt_u128.h"
 
 static inline size_t bitlen_seq(seq_t v) {
     size_t len = 0;
@@ -32,7 +33,7 @@ static inline size_t bitlen_seq(seq_t v) {
 
 seq_t a(idx_t n) {
     /* compute s = floor((sqrt(8*n+1)-1)/2) */
-    unsigned __int128 sq = floor_sqrt128((unsigned __int128)n * 8 + 1);
+    unsigned __int128 sq = isqrt_u128((unsigned __int128)n * 8 + 1);
     unsigned __int128 s128 = (sq - 1) / 2;
     idx_t s = (idx_t)s128;                    /* diagonal index */
 

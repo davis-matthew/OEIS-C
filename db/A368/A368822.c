@@ -10,13 +10,15 @@
  *            divides m. Thus c(n) = 1 iff (n % d(n)) != 0
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system and are integer types.
  * No assumption about which exact type is used.  The code below uses only
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
         idx_t newN = n;
         /* Reallocate arrays to accommodate up to newN (index 0 unused) */
         divcnt = (idx_t *)realloc(divcnt, (newN + 1) * sizeof(idx_t));
-        c      = (seq_t *)realloc(c,      (newN + 1) * sizeof(seq_t));
+        c      = mem_resize(seq_t, c, (newN + 1));
 
         /* Compute divisor counts for 1..newN */
         for (idx_t i = 1; i <= newN; ++i) divcnt[i] = 0;

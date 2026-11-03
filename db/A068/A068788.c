@@ -13,12 +13,14 @@
  *            which yields an O(n) DP over the 16 (t,s) states
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* handle n < 1 defensively (offset is 1) */
@@ -44,14 +46,14 @@ seq_t a(idx_t n) {
     /* extend vals array if needed */
     if (vals == NULL) {
         alloc_cap = (n >= 16 ? n : 16);
-        vals = (seq_t *)malloc(alloc_cap * sizeof(seq_t));
+        vals = mem_new(seq_t, alloc_cap);
     }
     while (alloc_cap <= n) {
         idx_t new_cap = alloc_cap * 2;
         if (new_cap <= alloc_cap) new_cap = alloc_cap + 1024; /* avoid overflow */
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         for (idx_t i = 0; i < current_max; ++i) tmp[i] = vals[i];
-        free(vals);
+        mem_free(vals);
         vals = tmp;
         alloc_cap = new_cap;
     }

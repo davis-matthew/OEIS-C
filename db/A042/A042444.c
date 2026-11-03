@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 20, u64 n <= 45, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /*=====================================================================*/
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Main function required by the build system */
 seq_t a(idx_t n)
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
 
         /* initialise cache for numerators */
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
 
         initialized = 1;
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
         if (need > cache_cap) {
             size_t new_cap = cache_cap;
             while (new_cap < need) new_cap <<= 1;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
 

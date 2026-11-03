@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   has_odd_zero_run
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,36 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_odd_zero_run.h"
+#include "../utils/mem.h"
+
+/* Return true if `num` has a run of consecutive zeros of odd length
+   in its binary representation. */
+static bool has_odd_zero_run(uint64_t num)
+{
+    bool in_zero = false;
+    unsigned zero_len = 0;
+
+    while (num != 0) {
+        if (num & 1ULL) {                 /* bit is 1 */
+            if (in_zero) {
+                if (zero_len & 1U) return true;   /* odd length found */
+                zero_len = 0;
+                in_zero = false;
+            }
+        } else {                          /* bit is 0 */
+            if (!in_zero) {
+                in_zero = true;
+                zero_len = 1;
+            } else {
+                ++zero_len;
+            }
+        }
+        num >>= 1;
+    }
+
+    if (in_zero && (zero_len & 1U)) return true;
+    return false;
+}
 
 static seq_t *cache = NULL;          /* cached a(n) values */
 static size_t cache_size = 0;        /* number of values stored in cache */
@@ -39,7 +69,7 @@ seq_t a(idx_t n)
             /* ensure space */
             if (cache_size == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) exit(1); /* allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

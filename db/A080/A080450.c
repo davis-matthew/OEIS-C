@@ -11,13 +11,25 @@
  *            * divisible by 10. a(1) = 6
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   pow10
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,13 +42,13 @@ seq_t a(idx_t n)
     /* Lazy allocation of the terms array */
     if (terms == NULL) {
         cap = 16;
-        terms = (seq_t*)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
     }
     /* Ensure we have enough capacity for the requested index */
     if (cap <= n) {
         size_t new_cap = cap ? cap : 16;
         while (new_cap <= n) new_cap <<= 1;
-        terms = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
         cap = new_cap;
     }
 

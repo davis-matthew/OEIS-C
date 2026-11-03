@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    O(n) time and uses O(n) memory. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     size_t stride = 6;  /* states for difference 0..5 */
 
     /* allocate DP table: (maxs+1) layers, each with 6 entries */
-    seq_t *dp = (seq_t *)malloc((maxs + 1) * stride * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (maxs + 1) * stride);
     if (!dp) return 0;  /* out of memory – caller should handle */
 
     /* initialise all entries to 0 */
@@ -62,6 +64,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[maxs * stride + 0];
-    free(dp);
+    mem_free(dp);
     return result;
 }

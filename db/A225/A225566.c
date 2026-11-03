@@ -13,13 +13,15 @@
  *            2*x/((1-x)^4*(1+x+x^2)^2) Cache on demand; O(n) per call
  * Range:     u8 n <= 16, u16 n <= 117, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Off‑by‑zero: a(1) is first element; index 0 unused */
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     /* First call: allocate and initialize first 8 terms. */
     if (cache == NULL) {
         capacity = (n > 8 ? n + 1 : 9);          /* slots 0..capacity-1 */
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (cache == NULL) return (seq_t)0;     /* allocation failure */
 
         /* Initialize 1..8 */
@@ -50,9 +52,9 @@ seq_t a(idx_t n) {
     /* Extend allocation if larger argument arrives */
     if (n >= capacity) {
         capacity = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, capacity);
         if (tmp == NULL) {
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             capacity = 0;
             cache_size = 0;

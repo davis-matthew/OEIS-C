@@ -8,10 +8,10 @@
  *            = 2^(-1/3), computed by the division-free Newton iteration y <-
  *            y + y*(1 - 2*y^3)/3 in multi-limb fixed-point arithmetic; the
  *            decimal digits are read off by repeatedly multiplying by 10
- * Range:     u8 n <= 9714, u16 n <= 9714, u32 n <= 9714, u64 n <= 9714,
- *            u128 n <= 9714, big any n
- * Helpers:   a002580_add, a002580_cmp, a002580_div3, a002580_iszero,
- *            a002580_mulfx, a002580_shl1, a002580_sub
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 124 terms through n = 9714 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,13 +19,77 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a002580_add.h"
-#include "../utils/a002580_cmp.h"
-#include "../utils/a002580_div3.h"
-#include "../utils/a002580_iszero.h"
-#include "../utils/a002580_mulfx.h"
-#include "../utils/a002580_shl1.h"
-#include "../utils/a002580_sub.h"
+
+static void a002580_add(uint32_t *r, const uint32_t *x, size_t L) {
+    uint64_t carry = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t cur = (uint64_t)r[i] + x[i] + carry;
+        r[i] = (uint32_t)cur;
+        carry = cur >> 32;
+    }
+}
+
+static int a002580_cmp(const uint32_t *x, const uint32_t *y, size_t L) {
+    size_t i = L;
+    while (i-- > 0) {
+        if (x[i] != y[i]) return x[i] < y[i] ? -1 : 1;
+    }
+    return 0;
+}
+
+static void a002580_div3(uint32_t *x, size_t L) {
+    uint64_t rem = 0;
+    size_t i = L;
+    while (i-- > 0) {
+        uint64_t cur = (rem << 32) | x[i];
+        x[i] = (uint32_t)(cur / 3);
+        rem = cur % 3;
+    }
+}
+
+static int a002580_iszero(const uint32_t *x, size_t L) {
+    size_t i;
+    for (i = 0; i < L; i++) if (x[i]) return 0;
+    return 1;
+}
+
+static void a002580_mulfx(uint32_t *out, const uint32_t *x, const uint32_t *y,
+                          size_t W, uint32_t *tmp) {
+    size_t L = W + 1, i, j;
+    memset(tmp, 0, 2 * L * sizeof(uint32_t));
+    for (i = 0; i < L; i++) {
+        uint64_t carry = 0;
+        if (x[i] == 0) continue;
+        for (j = 0; j < L; j++) {
+            uint64_t cur = (uint64_t)x[i] * y[j] + tmp[i + j] + carry;
+            tmp[i + j] = (uint32_t)cur;
+            carry = cur >> 32;
+        }
+        tmp[i + L] = (uint32_t)carry;
+    }
+    for (i = 0; i < L; i++) out[i] = tmp[W + i];
+}
+
+static void a002580_shl1(uint32_t *x, size_t L) {
+    uint32_t carry = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint32_t nc = x[i] >> 31;
+        x[i] = (x[i] << 1) | carry;
+        carry = nc;
+    }
+}
+
+static void a002580_sub(uint32_t *r, const uint32_t *x, const uint32_t *y, size_t L) {
+    int64_t borrow = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        int64_t cur = (int64_t)x[i] - y[i] - borrow;
+        if (cur < 0) { cur += ((int64_t)1 << 32); borrow = 1; } else borrow = 0;
+        r[i] = (uint32_t)cur;
+    }
+}
 
 static unsigned char *a002580_dig = NULL;
 static idx_t a002580_cap = 0;

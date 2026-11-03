@@ -10,14 +10,15 @@
  *            Sum_{r=1..n} phi(k*r)
  * Range:     u8 n <= 146, u16 n <= 6398, u32 n <= 9870, u64 n <= 9870,
  *            u128 n <= 9870, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 94 terms through n = 9095 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +40,7 @@ seq_t a(idx_t n)
     unsigned __int128 sum = 0;
     for (idx_t t = 1; t <= i; ++t) {
         idx_t prod = j * t;               /* j*t fits in idx_t for given bounds */
-        sum += (unsigned __int128)phi((idx_t)prod);
+        sum += (unsigned __int128)totient((idx_t)prod);
     }
 
     return (seq_t)sum;

@@ -9,12 +9,14 @@
  *            integers not in a)
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* dynamic arrays for a(n) and its complement c(k) */
 static seq_t *a_seq   = NULL;      /* a_seq[1..] holds the sequence values */
@@ -29,11 +31,11 @@ static void ensure_a_capacity(size_t cap) {
     if (cap <= a_cap) return;
     size_t new_cap = a_cap ? a_cap : 16;
     while (new_cap < cap) new_cap <<= 1;
-    seq_t *buf = (seq_t *)realloc(a_seq, new_cap * sizeof(seq_t));
+    seq_t *buf = mem_resize(seq_t, a_seq, new_cap);
     if (!buf) exit(EXIT_FAILURE);
     /* zero the new part so that binary search behaves correctly */
     if (max_a_n + 1 < new_cap)
-        memset(buf + max_a_n + 1, 0, (new_cap - max_a_n - 1) * sizeof(seq_t));
+        mem_set(buf + max_a_n + 1, 0, (new_cap - max_a_n - 1) * sizeof(seq_t));
     a_seq  = buf;
     a_cap  = new_cap;
 }
@@ -43,11 +45,11 @@ static void ensure_c_capacity(size_t cap) {
     if (cap <= c_cap) return;
     size_t new_cap = c_cap ? c_cap : 16;
     while (new_cap < cap) new_cap <<= 1;
-    seq_t *buf = (seq_t *)realloc(c_seq, new_cap * sizeof(seq_t));
+    seq_t *buf = mem_resize(seq_t, c_seq, new_cap);
     if (!buf) exit(EXIT_FAILURE);
     /* zero the new part for safety */
     if (max_c_k + 1 < new_cap)
-        memset(buf + max_c_k + 1, 0, (new_cap - max_c_k - 1) * sizeof(seq_t));
+        mem_set(buf + max_c_k + 1, 0, (new_cap - max_c_k - 1) * sizeof(seq_t));
     c_seq  = buf;
     c_cap  = new_cap;
 }

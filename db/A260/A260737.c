@@ -10,14 +10,26 @@
  *            prime factors of n with multiplicity
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bits_xor
+ * Validated: standard, pass, 136 terms through n = 9692 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/bits_xor.h"
+
+/* popcount of the XOR of two numbers – the Hamming distance of their binaries */
+static unsigned int bits_xor(uint64_t a, uint64_t b)
+{
+    uint64_t x = a ^ b;
+    unsigned int c = 0;
+    while (x) {
+        x &= x - 1;
+        c++;
+    }
+    return c;
+}
 
 static uint64_t _pf[64];   /* buffer for prime factors of the current n */
 

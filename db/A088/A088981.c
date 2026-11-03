@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  * Initial terms: a(0) = 7, a(1) = 11
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Ensure the two base values are stored */
     if (cache_size < 2) {
-        seq_t *tmp = (seq_t *)realloc(cache, 2 * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, 2);
         if (!tmp) return (seq_t)0;      /* out of memory – abort silently */
         cache = tmp;
         cache[0] = 7;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         return cache[n];
 
     /* Grow the cache to fit the requested index */
-    seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
     if (!tmp) return (seq_t)0;          /* out of memory – abort silently */
     cache = tmp;
 

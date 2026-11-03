@@ -9,6 +9,7 @@
  *            sequentially from 0 up to n (O(n) time, O(1) memory)
  * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 14, i64 n <= 23, i128 n <= 41,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 535 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

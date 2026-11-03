@@ -11,12 +11,14 @@
  *            tribonacci(n+2)-tribonacci(n-2)
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 37, u64 n <= 73, u128 n <= 146,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* 1‑based cache: cache[i] = a(i)   */
 static idx_t cache_size = 0;    /* size of allocated memory (>=1 when cache!=NULL) */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
     size_t new_size = (size_t)(n + 1);       /* need indices 0 … n        */
 
     if (new_size > cache_size) {
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return;                    /* allocation failure        */
         cache = tmp;
         cache_size = new_size;

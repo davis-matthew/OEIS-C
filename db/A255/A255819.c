@@ -9,7 +9,8 @@
  *            y(0)=1 and y(n)=(1/n)∑_{k=0}^{n‑1}(n‑k)^4y(k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 25,
  *            big any n
- * Helpers:   ensure
+ * Validated: standard, pass, 35 terms through n = 246 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,34 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/ensure.h"
+
+/* enlarge A to hold at least indices 0..needed */
+static void ensure(size_t *cap, seq_t **arr, idx_t needed)
+{
+    if (*cap <= (size_t)needed) {
+        size_t new_cap = (*cap == 0) ? 1 : *cap;
+        while (new_cap <= (size_t)needed) new_cap <<= 1;
+#ifndef __cplusplus
+        seq_t *new_arr = malloc(new_cap * sizeof(seq_t));
+        if (!new_arr) exit(1);
+        if (*arr) {
+            memcpy(new_arr, *arr, (*cap) * sizeof(seq_t));
+            free(*arr);
+        }
+        /* initialise new slots to zero */
+        memset(new_arr + (*cap), 0, (new_cap - (*cap)) * sizeof(seq_t));
+#else
+        seq_t *new_arr = new seq_t[new_cap];
+        if (*arr) {
+            for (size_t i = 0; i < *cap; ++i) new_arr[i] = (*arr)[i];
+            delete[] *arr;
+        }
+        /* elements beyond old capacity are default‑constructed (zero) */
+#endif
+        *arr = new_arr;
+        *cap = new_cap;
+    }
+}
 
 static seq_t *A      = NULL;   /* cache of a(n)   */
 static size_t capA   = 0;      /* current capacity of A   */

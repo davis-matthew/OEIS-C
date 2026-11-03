@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 97 terms through n = 9757 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,10 @@
     O(log n) time per call. */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 static seq_t sum_prime_powers(uint64_t m)
 {
@@ -38,7 +41,7 @@ static seq_t sum_prime_powers(uint64_t m)
     factor_u64(m, primes, exps, &cnt);
     seq_t sum = 0;
     for (size_t i = 0; i < cnt; ++i) {
-        sum += pow_uint(primes[i], exps[i]); /* q^e */
+        sum += ipow_u64_idx(primes[i], exps[i]); /* q^e */
     }
     return sum;
 }
@@ -67,7 +70,7 @@ seq_t a(idx_t n)
                 result += 2; /* a(4) */
             } else {
                 /* a(2^k) = 2 + 2^(k-2)  for k ≥ 3 */
-                result += 2 + pow_uint(2, (idx_t)(e - 2));
+                result += 2 + ipow_u64_idx(2, (idx_t)(e - 2));
             }
             continue;
         }

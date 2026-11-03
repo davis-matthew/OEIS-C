@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 11, i64 n <= 19, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  * (Stirling numbers of the second kind are computed recursively.)
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* memoized a(0..max_n), a(0)=0   */
 static seq_t *s_prev = NULL;    /* Stirling(n-1, k) for current n-1  */
@@ -31,18 +33,18 @@ seq_t a(idx_t n)
 
         /* Allocate or grow a_cache */
         if (a_cache == NULL) {
-            a_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+            a_cache = mem_new(seq_t, new_cap);
         } else {
-            a_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, new_cap);
         }
 
         /* Allocate or grow Stirling rows */
         if (s_prev == NULL || s_curr == NULL) {
-            s_prev = (seq_t*)malloc(new_cap * sizeof(seq_t));
-            s_curr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+            s_prev = mem_new(seq_t, new_cap);
+            s_curr = mem_new(seq_t, new_cap);
         } else {
-            s_prev = (seq_t*)realloc(s_prev, new_cap * sizeof(seq_t));
-            s_curr = (seq_t*)realloc(s_curr, new_cap * sizeof(seq_t));
+            s_prev = mem_resize(seq_t, s_prev, new_cap);
+            s_curr = mem_resize(seq_t, s_curr, new_cap);
         }
 
         /* Initialise new entries to zero */

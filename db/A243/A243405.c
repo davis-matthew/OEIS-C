@@ -9,34 +9,36 @@
  *            (gpf) to avoid iterating over all divisors
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 63, u64 n <= 127,
  *            u128 n <= 242, big any n
- * Helpers:   big_pow, gpf
+ * Validated: standard, pass, 69 terms through n = 1595 (2026-11-01)
+ * Helpers:   ipow, largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gpf.h"
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
     if (n == 1) return (seq_t)1;
 
-    uint64_t g = gpf(n);                 /* largest prime factor of n   */
+    uint64_t g = largest_prime_factor(n);                 /* largest prime factor of n   */
 
     if (g > 3)                            /* prime factor > 3 dominates   */
     {
         idx_t exp = n / g;                /* exponent is n / g            */
-        return big_pow((seq_t)g, (seq_t)exp);
+        return ipow((seq_t)g, (seq_t)exp);
     }
 
     /* g <= 3 */
     if ((n & 1) == 0)                     /* n is even → 2^(n/2) is smallest */
     {
         idx_t exp = n / 2;
-        return big_pow((seq_t)2, (seq_t)exp);
+        return ipow((seq_t)2, (seq_t)exp);
     }
     /* n is odd and g <= 3 → g must be 3 */
     idx_t exp = n / 3;
-    return big_pow((seq_t)3, (seq_t)exp);
+    return ipow((seq_t)3, (seq_t)exp);
 }

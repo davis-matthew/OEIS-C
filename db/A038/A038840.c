@@ -9,10 +9,10 @@
  *            (a(1) = 27) is returned as seq_t. The implementation checks
  *            cubes of consecutive integers for the concatenation property
  *            using a dynamic programming splitter. The sequence is sto...
- * Range:     u8 n <= 1, u16 n <= 15, u32 n <= 27, u64 n <= 36, u128 n <= 36,
+ * Range:     u8 n <= 1, u16 n <= 15, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   digit_len, is_prime_big, seq_alloc_new_array, seq_free_array,
- *            seq_pow, seq_to_str
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   ipow_idx, is_prime_u64, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,12 +22,92 @@
 #include <stdint.h>
 
 /* ---------- utility headers ---------- */
-#include "../utils/is_prime_big.h"    /* bool is_prime_big(seq_t n); */
-#include "../utils/seq_to_str.h"     /* seq_t seq_to_str(seq_t x, char*buf, size_t*len); */
-#include "../utils/seq_pow.h"        /* seq_t seq_pow(seq_t base, idx_t exp); */
-#include "../utils/digit_len.h"      /* int digit_len(seq_t x); */
-#include "../utils/seq_alloc_new_array.h" /* seq_t* seq_alloc_new_array(size_t n); */
-#include "../utils/seq_free_array.h"      /* void seq_free_array(seq_t* p); */
+#include <stddef.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+#include "../utils/is_prime_u64.h"
+
+/* Miller–Rabin primality test for seq_t (supports 8/16/32/64/128/ arbitrary-precision) */
+/* n fits in uint64_t (n >= 0 here) */
+static bool is_prime_big_fits_u64(seq_t v)
+{
+    if (sizeof(seq_t) <= 8) return true;
+    return !((seq_t)UINT64_MAX < v);
+}
+
+static bool is_prime_big(seq_t n) {
+    if (n < 2) return false;
+    /* exact in 64 bits when n fits: the seq_t products below overflow at
+       u64/i64 once n passes 2^32, and are slow under big */
+    if (is_prime_big_fits_u64(n)) return is_prime_u64((uint64_t)n);
+    if (n == 2 || n == 3) return true;
+    if ((n & 1) == 0) return false;
+
+    /* write n-1 as d * 2^s with d odd */
+    seq_t d = n - 1;
+    unsigned s = 0;
+    while ((d & 1) == 0) {
+        d >>= 1;
+        s++;
+    }
+
+    /* deterministic bases covering 128‑bit values */
+    static const int base_list[] = {2,3,5,7,11,13,17,19,23,29,31,37};
+    const int num_bases = sizeof(base_list)/sizeof(base_list[0]);
+
+    for (int i = 0; i < num_bases; i++) {
+        seq_t a = (seq_t)base_list[i];
+        if (a >= n) continue;
+
+        /* compute a^d mod n */
+        seq_t x = 1;
+        seq_t pow = a % n;
+        seq_t exp = d;
+        while (exp > 0) {
+            if (exp & 1) x = (x * pow) % n;
+            pow = (pow * pow) % n;
+            exp >>= 1;
+        }
+
+        if (x == 1 || x == n-1) continue;
+
+        bool cont = false;
+        for (unsigned r = 1; r < s; r++) {
+            x = (x * x) % n;
+            if (x == n-1) { cont = true; break; }
+        }
+        if (!cont) return false;
+    }
+    return true;
+}
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* ---------- static cache ---------- */
 static seq_t *cache = NULL;          /* array of found cubes */
@@ -57,7 +137,7 @@ static void resize_cache(void)
 static bool cube_is_concatenation(seq_t cube)
 {
     /* Convert cube to decimal string */
-    int digit_count = digit_len(cube);          /* number of decimal digits */
+    int digit_count = num_digits(cube);          /* number of decimal digits */
     if (digit_count <= 0) return false;         /* safety */
     size_t bufsize = (size_t)digit_count + 1;
     char *buf = (char *)malloc(bufsize);
@@ -106,7 +186,7 @@ seq_t a(idx_t n)          /* n >= 1 */
     /* Grow cache until it contains at least n terms */
     while (cache_size < (size_t)n) {
         ++current_base;                         /* try next integer */
-        seq_t cube = seq_pow((seq_t)current_base, 3);
+        seq_t cube = ipow_idx((seq_t)current_base, 3);
         if (cube_is_concatenation(cube)) {
             if (cache_size == cache_cap) {
                 resize_cache();

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_adj68or86
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,35 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adj68or86.h"
+#include "../utils/mem.h"
+
+/* Check if a number contains the adjacent digits 68 or 86. */
+static bool has_adj68or86(seq_t n)
+{
+    if (n < 10)          /* less than two digits – impossible */
+        return false;
+
+    seq_t prev = n % 10; /* ones digit */
+    n /= 10;             /* remove ones digit */
+
+    /* Process all subsequent digit pairs */
+    while (n >= 10) {
+        seq_t cur = n % 10;          /* current digit (tens place) */
+        if ((cur == (seq_t)6 && prev == (seq_t)8) ||
+            (cur == (seq_t)8 && prev == (seq_t)6))
+            return true;
+        prev = cur;
+        n /= 10;
+    }
+
+    /* Remaining pair: the leading single digit (now in n) and prev */
+    /* (n is now a single digit) */
+    if ((n == (seq_t)6 && prev == (seq_t)8) ||
+        (n == (seq_t)8 && prev == (seq_t)6))
+        return true;
+
+    return false;
+}
 
 seq_t a(idx_t n)          /* n ≥ 1 */
 {
@@ -39,9 +68,9 @@ seq_t a(idx_t n)          /* n ≥ 1 */
                 /* Store k */
                 if (cache_len == cache_cap) {
                     size_t new_cap = cache_cap == 0 ? 8 : cache_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) { /* allocation failure – unwind to caller */
-                        free(cache);
+                        mem_free(cache);
                         cache = NULL;
                         cache_len = cache_cap = 0;
                         return (seq_t)0; /* will not happen in built tests */

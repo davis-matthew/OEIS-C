@@ -8,6 +8,7 @@
  *            3, where b = A002065: b(0)=0, b(k+1) = b(k)^2 + b(k) + 1
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 8, u128 n <= 9,
  *            big any n
+ * Validated: standard, pass, 13 terms through n = 12 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

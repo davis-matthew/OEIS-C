@@ -11,7 +11,8 @@
  *            smallest‑prime‑factor table for fast sphenic detection
  * Range:     u8 none, u16 n <= 95, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf, is_sphenic_idx
+ * Validated: standard, pass, 57 terms through n = 9880 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,27 @@
 
 /* utilities */
 #include "../utils/build_spf.h"
-#include "../utils/is_sphenic_idx.h"
+#include "../utils/mem.h"
+
+/* Inlined helper: check whether a number is sphenic using spf table   */
+static inline bool is_sphenic_idx(idx_t x, const idx_t *spf_arr)
+{
+    if (x < 30) return false;           /* minimal sphenic is 2*3*5 = 30  */
+    idx_t val = x;
+    size_t distinct = 0;
+    while (val > 1) {
+        idx_t p = spf_arr[val];
+        size_t exp = 0;
+        while (val % p == 0) {
+            val /= p;
+            ++exp;
+        }
+        if (exp > 1) return false;      /* repeated prime factor        */
+        ++distinct;
+        if (distinct > 3) return false; /* more than three distinct     */
+    }
+    return distinct == 3;
+}
 
 /* types provided by the build */
 extern seq_t a(idx_t n);
@@ -61,7 +82,7 @@ static void ensure_init(void)
 
     /* --- sequence cache initialization --- */
     terms_cap = 128;
-    terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
     if (!terms) { abort(); }
     terms_len = 0;
     scan_pos = 2;
@@ -83,7 +104,7 @@ seq_t a(idx_t n)
                 /* store term */
                 if (terms_len == terms_cap) {
                     terms_cap <<= 1;
-                    terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, terms_cap);
                     if (!terms) { abort(); }
                 }
                 terms[terms_len++] = (seq_t)k;

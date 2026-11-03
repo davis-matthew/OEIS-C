@@ -9,13 +9,15 @@
  * Formula:   a(n) = C(n,4) * ( 1 + 7*2^(n-4) + 6*3^(n-4) + 4^(n-4) )
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 28, u128 n <= 58,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 38 terms through n = 983 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -23,9 +25,9 @@ seq_t a(idx_t n)
 
     /* compute j^(n-4) for j = 2,3,4 */
     seq_t exp = (seq_t)(n - 4);
-    seq_t pow2 = big_pow((seq_t)2, exp);
-    seq_t pow3 = big_pow((seq_t)3, exp);
-    seq_t pow4 = big_pow((seq_t)4, exp);
+    seq_t pow2 = ipow((seq_t)2, exp);
+    seq_t pow3 = ipow((seq_t)3, exp);
+    seq_t pow4 = ipow((seq_t)4, exp);
 
     /* sum = 1 + 7*2^(n-4) + 6*3^(n-4) + 4^(n-4) */
     seq_t sum = (seq_t)1;

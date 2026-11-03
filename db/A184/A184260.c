@@ -10,13 +10,15 @@
  *            with sliding windows
  * Range:     u8 n <= 12, u16 n <= 52, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,12 +31,12 @@ seq_t a(idx_t n)
     size_t len = (size_t)(maxsum + 1);
 
     /* Allocate DP arrays (zero‑initialized) */
-    seq_t *dp   = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *newdp= (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, len);
+    seq_t *newdp= mem_new(seq_t, len);
     if (!dp || !newdp) {
         /* Allocation failure – return 0 (unlikely with expected limits) */
-        if (dp) free(dp);
-        if (newdp) free(newdp);
+        if (dp) mem_free(dp);
+        if (newdp) mem_free(newdp);
         return 0;
     }
 
@@ -63,12 +65,12 @@ seq_t a(idx_t n)
         dp = newdp;
         newdp = tmp;
         /* Zero the array that will be reused next iteration */
-        memset(newdp, 0, len * sizeof(seq_t));
+        mem_set(newdp, 0, len * sizeof(seq_t));
     }
 
     seq_t result = dp[target];
 
-    free(dp);
-    free(newdp);
+    mem_free(dp);
+    mem_free(newdp);
     return result;
 }

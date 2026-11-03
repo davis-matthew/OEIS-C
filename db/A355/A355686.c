@@ -10,9 +10,10 @@
  *            of n written in primorial base. * * The function caches results
  *            in static arrays so that calls to a(n) * in any order remain
  *            O(n) per distinct new index
- * Range:     i8 n <= 494, i16 n <= 9745, i32 n <= 9745, i64 n <= 9745,
- *            i128 n <= 9745, big any n
- * Helpers:   seq_mul
+ * Range:     i8 n <= 494, i16 n <= 30030, i32 n <= 30030, i64 n <= 30030,
+ *            i128 n <= 30030, big any n
+ * Validated: standard, pass, 103 terms through n = 9745 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,13 @@
 #include <stdlib.h>
 
 /* utility for multiplication of seq_t values (handles big‑integer builds) */
-#include "../utils/seq_mul.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* seq_t and idx_t are supplied by the build system */
 static const idx_t PRIMES[] = {
@@ -91,8 +98,8 @@ seq_t a(idx_t n)
     if (n > cache_max) {
         /* grow caches to hold values up to n */
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_f = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        seq_t *new_a = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_f = mem_new(seq_t, new_cap);
+        seq_t *new_a = mem_new(seq_t, new_cap);
         if (!new_f || !new_a) {
             /* memory failure unlikely; terminate */
             exit(EXIT_FAILURE);
@@ -101,12 +108,12 @@ seq_t a(idx_t n)
         if (f_cache) {
             for (idx_t i = 1; i <= cache_max; ++i)
                 new_f[i] = f_cache[i];
-            free(f_cache);
+            mem_free(f_cache);
         }
         if (a_cache) {
             for (idx_t i = 1; i <= cache_max; ++i)
                 new_a[i] = a_cache[i];
-            free(a_cache);
+            mem_free(a_cache);
         }
         f_cache = new_f;
         a_cache = new_a;

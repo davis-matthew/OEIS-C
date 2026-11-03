@@ -13,12 +13,14 @@
  *            8396067527, 67135955941, 536827099717. The sequence is...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Sequence type and index type are defined by the build. */
 extern seq_t a(idx_t n)
@@ -47,7 +49,7 @@ extern seq_t a(idx_t n)
     /* Ensure cache holds at least the first 13 terms */
     if (cache_size < 13) {
         idx_t new_size = 13;
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * (new_size + 1));
+        seq_t *new_cache = mem_resize(seq_t, cache, (new_size + 1));
         if (!new_cache)
             return (seq_t)0;   /* out of memory: will never happen in tests */
         cache = new_cache;
@@ -78,7 +80,7 @@ extern seq_t a(idx_t n)
     };
 
     /* Extend cache to required size */
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache)
         return (seq_t)0;   /* out of memory: will never happen in tests */
     cache = new_cache;

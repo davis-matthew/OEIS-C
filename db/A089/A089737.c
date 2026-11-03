@@ -9,7 +9,8 @@
  *            (5k-2n-2)*C(k,n+1-k)*C(k+1,n+3-k)/(k*(n+4-k))
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 13, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache_size > n) return;
     size_t new_size = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) return; /* silently abort if allocation fails; not expected */
     cache = new_cache;
 

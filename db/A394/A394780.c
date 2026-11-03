@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 292 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Global cache for computed sequence terms and convolution with itself */
 static seq_t *cache      = NULL;   /* a[0..cache_len-1]           */
@@ -37,13 +39,13 @@ static void ensure_cache(idx_t n)
     /* Initialisation of a(0) and b(0) */
     if (cache_len == 0) {
         size_t init_cap = 1;
-        cache = (seq_t *)realloc(cache, init_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, init_cap);
         if (!cache) abort();
         cache[0] = (seq_t)1;
         cache_len = 1;
 
         b_len = 1;
-        b_cache = (seq_t *)malloc(sizeof(seq_t));
+        b_cache = mem_new(seq_t, 1);
         if (!b_cache) abort();
         b_cache[0] = cache[0] * cache[0]; /* b[0] = a0*a0 = 1 */
     }
@@ -55,10 +57,10 @@ static void ensure_cache(idx_t n)
     if (cache_len <= n) {
         size_t new_cap = cache_len ? cache_len * 2 : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache && new_cap > 0) abort();
         cache = new_cache;
-        memset(&cache[cache_len], 0, (new_cap - cache_len) * sizeof(seq_t));
+        mem_set(&cache[cache_len], 0, (new_cap - cache_len) * sizeof(seq_t));
     }
 
     /* Main loop: compute terms from current cache_len up to n */
@@ -89,9 +91,9 @@ static void ensure_cache(idx_t n)
         if (b_len < needed_b) {
             size_t new_b = b_len ? b_len * 2 : 4;
             if (new_b < needed_b) new_b = needed_b;
-            seq_t *tmp = (seq_t *)realloc(b_cache, new_b * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, b_cache, new_b);
             if (!tmp) abort();
-            memset(tmp + b_len, 0, (new_b - b_len) * sizeof(seq_t));
+            mem_set(tmp + b_len, 0, (new_b - b_len) * sizeof(seq_t));
             b_cache = tmp;
             b_len = new_b;
         }

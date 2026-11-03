@@ -9,12 +9,27 @@
  * Formula:   a(n) = denominator(2*(1-1/2^n)/n)
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 28, u64 n <= 60, u128 n <= 122,
  *            big any n
- * Helpers:   powmod2_mod
+ * Validated: standard, pass, 48 terms through n = 3127 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/powmod2_mod.h"
+static idx_t powmod2_mod(idx_t exp, idx_t mod)
+{
+    if (mod == 1)
+        return 0;
+    idx_t res = 1 % mod;
+    idx_t base = 2 % mod;
+    while (exp > 0)
+    {
+        if (exp & 1)
+            res = (res * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1;
+    }
+    return res;
+}
 static idx_t gcd_idx(idx_t a, idx_t b)
 {
     while (b != 0)

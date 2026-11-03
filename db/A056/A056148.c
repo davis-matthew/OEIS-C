@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 719, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 101 terms through n = 9620 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    time and uses O(n) memory. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,14 +38,14 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* cache for a(0) */
         cache_sz  = 1;
-        cache = (seq_t *)malloc(cache_sz * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_sz);
         if (!cache) return (seq_t)0;          /* allocation failed */
         cache[0] = (seq_t)1;                  /* a(0) = 1 */
         current_max = 0;
 
         /* frequency array starts with capacity 2: indices 0 and 1 */
         freq_sz = 2;
-        freq = (seq_t *)malloc(freq_sz * sizeof(seq_t));
+        freq = mem_new(seq_t, freq_sz);
         if (!freq) return (seq_t)0;
         freq[0] = (seq_t)0;                   /* a(k) never 0 */
         freq[1] = (seq_t)1;                   /* one occurrence of value 1 (a(0)) */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_sz) {
         size_t new_sz = cache_sz ? cache_sz : 1;
         while ((size_t)n >= new_sz) new_sz <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_sz);
         if (!tmp) return (seq_t)0;          /* allocation failed */
         cache = tmp;
         cache_sz = new_sz;
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
             if (v >= freq_sz) {
                 size_t new_sz = freq_sz ? freq_sz : 1;
                 while (new_sz <= v) new_sz <<= 1;
-                seq_t *tmp = (seq_t *)realloc(freq, new_sz * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, freq, new_sz);
                 if (!tmp) return (seq_t)0; /* allocation failed */
                 /* initialise newly allocated portion to 0 */
                 for (size_t i = freq_sz; i < new_sz; ++i) tmp[i] = (seq_t)0;

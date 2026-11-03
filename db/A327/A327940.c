@@ -12,12 +12,14 @@
  *            (m-1)*(m-2)*...*(m-k+1)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- static storage for memoisation ---------- */
 static seq_t *a_cache = NULL;      /* a(n) values */
@@ -36,11 +38,11 @@ static void ensure_size(idx_t n)
     if (sz <= a_cap) return;            /* already done */
 
     /* --- extend a_cache --- */
-    a_cache = (seq_t *)realloc(a_cache, sz * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, sz);
     if (!a_cache) abort();
 
     /* --- extend b_cache --- */
-    b_cache = (seq_t *)realloc(b_cache, sz * sizeof(seq_t));
+    b_cache = mem_resize(seq_t, b_cache, sz);
     if (!b_cache) abort();
 
     /* --- extend spf_cache --- */

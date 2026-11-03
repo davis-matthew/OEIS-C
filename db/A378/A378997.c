@@ -7,8 +7,9 @@
  * Formula:   a(1) = 1; For n > 1: a(n) = -∑_{d|n, d<n} A057723(n/d) * a(d)
  *            where A057723(p^k) = p + p^2 + … + p^k (k ≥ 1) and is
  *            multiplicative
- * Range:     i8 n <= 128, i16 n <= 9295, i32 n <= 9295, i64 n <= 9295,
- *            i128 n <= 9295, big any n
+ * Range:     i8 n <= 128, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 91 terms through n = 9295 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

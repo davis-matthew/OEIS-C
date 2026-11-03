@@ -15,7 +15,8 @@
  *            a(6)=18662, a(7)=46226, a(8)=13...
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 18, u64 n <= 38, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #ifndef SEQ_T_DEFINED
 /* The build will provide a definition for seq_t and idx_t; do not redefine here. */
 #endif
+#include "../utils/mem.h"
 
 /* Initial 14 terms (index 0 unused). */
 static const seq_t _init[15] = {
@@ -57,7 +59,7 @@ static void _ensure_cache(idx_t n)
 {
     if (_cache == NULL) {
         /* Allocate space for at least the first 15 indices (0..14). */
-        _cache = (seq_t*)malloc(sizeof(seq_t) * 15);
+        _cache = mem_new(seq_t, 15);
         if (_cache == NULL) {
             /* Out of memory: signal error by returning 0 (undefined). */
             return;
@@ -77,7 +79,7 @@ static void _ensure_cache(idx_t n)
     size_t new_cap = _cache_size + 1;
     while (new_cap <= n)
         new_cap <<= 1;
-    seq_t *new_cache = (seq_t*)realloc(_cache, sizeof(seq_t) * new_cap);
+    seq_t *new_cache = mem_resize(seq_t, _cache, new_cap);
     if (new_cache == NULL) {
         /* Realloc failed: retain old pointer and lose ability to grow. */
         return;

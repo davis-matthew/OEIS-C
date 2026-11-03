@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 22, u128 n <= 46,
  *            big any n
- * Helpers:   smooth_sum
+ * Validated: standard, pass, 34 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,24 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/smooth_sum.h"
+
+/* Return the sum of min, upper median, and max of four values.
+ * The values a,b,c,d are in {0,1,2}. */
+static int smooth_sum(int a, int b, int c, int d)
+{
+    int v[4] = { a, b, c, d };
+    /* Simple insertion sort for four elements */
+    for (int i = 0; i < 4; ++i)
+        for (int j = i + 1; j < 4; ++j)
+            if (v[i] > v[j]) {
+                int t = v[i];
+                v[i] = v[j];
+                v[j] = t;
+            }
+    /* v[0] = min, v[1] = lower median, v[2] = upper median, v[3] = max
+     * required sum is min + upper median + max = v[0] + v[2] + v[3] */
+    return v[0] + v[2] + v[3];
+}
 
 /* Transition tables: next_cnt[C][r] is the number of rows s such that
  * the pair (r, s) has a 2×2 subblock sum equal to C (0 ≤ C ≤ 6).

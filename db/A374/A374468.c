@@ -6,8 +6,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = parity (even=0, odd=1) of the digit sum of n in factorial
  *            base
- * Range:     u8 n <= 9917, u16 n <= 9917, u32 n <= 9917, u64 n <= 9917,
- *            u128 n <= 9917, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 137 terms through n = 9917 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

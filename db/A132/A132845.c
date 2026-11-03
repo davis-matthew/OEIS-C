@@ -13,14 +13,24 @@
  *            implementation computes the triangle increment...
  * Range:     u8 n <= 14, u16 n <= 35, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   global_index_to_rc
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/global_index_to_rc.h"
+#include "../utils/mem.h"
+
+/* Compute the row index and column index inside that row for a global index n */
+static void global_index_to_rc(idx_t n, idx_t *row, idx_t *col) {
+    idx_t r = 0;
+    while ((r + 1) * (r + 2) / 2 <= n)
+        ++r;                           /* r will be the row containing n */
+    *row = r;
+    *col = n - r * (r + 1) / 2;
+}
 
 static seq_t **T_triangle = NULL;   /* triangular array of T values */
 static idx_t  triangle_rows = 0;    /* number of rows currently computed (0 means none) */
@@ -40,13 +50,13 @@ static void ensure_rows(idx_t max_row) {
     /* Compute new rows sequentially */
     for (idx_t n = triangle_rows; n <= max_row; ++n) {
         /* Allocate space for the new row (n+1 elements) */
-        seq_t *row = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (n + 1));
         for (idx_t j = 0; j <= n; ++j)
             row[j] = 0;          /* initialize all to zero */
 
         /* DP arrays for computing (A^n)(n, *) */
-        seq_t *cur  = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-        seq_t *nxt  = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *cur  = mem_new(seq_t, (n + 1));
+        seq_t *nxt  = mem_new(seq_t, (n + 1));
         for (idx_t j = 0; j <= n; ++j) {
             cur[j] = 0;
             nxt[j] = 0;
@@ -86,8 +96,8 @@ static void ensure_rows(idx_t max_row) {
             row[k] = cur[k];
 
         /* Clean up temporary arrays */
-        free(cur);
-        free(nxt);
+        mem_free(cur);
+        mem_free(nxt);
 
         /* Store computed row */
         T_triangle[n] = row;

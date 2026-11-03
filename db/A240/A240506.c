@@ -7,12 +7,14 @@
  * Formula:   a(n) = 3^n - 2^n + 2 for n>0, a(0) = 1
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 44 terms through n = 997 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -21,8 +23,8 @@ seq_t a(idx_t n)
         return 1;
     }
 
-    seq_t pow3 = pow_uint((uint64_t)3, n);
-    seq_t pow2 = pow_uint((uint64_t)2, n);
+    seq_t pow3 = ipow_u64_idx((uint64_t)3, n);
+    seq_t pow2 = ipow_u64_idx((uint64_t)2, n);
 
     return pow3 - pow2 + (seq_t)2;
 }

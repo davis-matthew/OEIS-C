@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 115 terms through n = 4824 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Rule 30 transition table: pattern (left<<2 | center<<1 | right) -> next state */
 static const uint8_t RULE30[8] = {0,1,1,1,1,0,0,0};
@@ -79,13 +81,13 @@ seq_t a(idx_t n)
     /* Allocate or grow the a_vals array. */
     if (a_vals == NULL) {
         a_len = (size_t)n + 1;
-        a_vals = (seq_t*)malloc(a_len * sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_len);
         if (!a_vals) return (seq_t)0;
         a_vals[0] = 0;
         a_max = 0;
     } else if (a_len <= (size_t)n) {
         a_len = (size_t)n + 1;
-        a_vals = (seq_t*)realloc(a_vals, a_len * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, a_len);
         if (!a_vals) return (seq_t)0;
     }
 

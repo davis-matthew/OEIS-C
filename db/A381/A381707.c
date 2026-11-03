@@ -12,15 +12,17 @@
  *            floor(n*log2(3)) + 1 - n )
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 41, u128 n <= 80,
  *            big any n
- * Helpers:   bitlen_seq_t, pow2
+ * Validated: standard, pass, 46 terms through n = 120 (2026-11-01)
+ * Helpers:   bit_length, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/pow2.h"   /* provides seq_t pow2(idx_t) */
-#include "../utils/bitlen_seq_t.h" /* provides unsigned bitlen_seq_t(seq_t) */
+#include <stdbool.h>
+#include "../utils/bit_length.h"
+#include "../utils/pow2.h"
 
 static const long double LOG2_3 = 1.5849625007211560907679L;
 

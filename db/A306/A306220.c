@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_prime, powmod64
+ * Validated: standard, pass, 103 terms through n = 9560 (2026-11-01)
+ * Helpers:   next_prime, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/next_prime.h"
-#include "../utils/powmod64.h"
+#include "../utils/powmod_u64.h"
 
 /* Legendre symbol (a|p) for odd prime p.
  * Returns 1 if a is a quadratic residue mod p,
@@ -34,7 +35,7 @@ static int legendre_symbol(uint64_t a, uint64_t p)
     if (mod == 0)
         return 0;
     uint64_t exp = (p - 1) >> 1;                 /* (p-1)/2 */
-    uint64_t r   = powmod64(mod, exp, p);        /* Euler's criterion */
+    uint64_t r   = powmod_u64(mod, exp, p);        /* Euler's criterion */
     if (r == 1)
         return 1;
     if (r == p - 1)

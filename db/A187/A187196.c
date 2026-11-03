@@ -9,7 +9,8 @@
  *            (eta(q)*eta(q^3)/(eta(q^4)*eta(q^12)))^2
  * Range:     i8 n <= 18, i16 n <= 60, i32 n <= 208, i64 n <= 738,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function returns the nth term of sequence A187196
    for n >= -1.  Each call may request any n, and the
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (req >= len)    /* enlarge and recompute up to the new maximum */
     {
         /* Allocate new storage */
-        seq_t *newcoeff = (seq_t*)malloc((req + 1) * sizeof(seq_t));
+        seq_t *newcoeff = mem_new(seq_t, (req + 1));
         if (!newcoeff) exit(1);
 
         /* initialise coefficients to zero */
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old array */
-        free(coeff);
+        mem_free(coeff);
         coeff = newcoeff;
         len   = req + 1;
     }

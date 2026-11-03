@@ -9,13 +9,16 @@
  *            where pi is the prime‑index function
  * Range:     u8 n <= 797, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_pi
+ * Validated: standard, pass, 91 terms through n = 9817 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* This function uses the provided compute_pi helper to obtain pi(p). */
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -32,14 +35,14 @@ seq_t a(idx_t n)
             while (m % p == 0)
                 m /= p;
 
-            seq_t pi_val = compute_pi(p);          /* pi(p) */
+            seq_t pi_val = prime_pi(p);          /* pi(p) */
             ans *= (pi_val + (seq_t)1);
         }
     }
 
     /* remaining prime factor > sqrt(original n) */
     if (m > 1) {
-        seq_t pi_val = compute_pi(m);
+        seq_t pi_val = prime_pi(m);
         ans *= (pi_val + (seq_t)1);
     }
 

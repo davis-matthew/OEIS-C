@@ -11,19 +11,41 @@
  *            φ(n), otherwise m = φ(n) mod d(n)
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   divisor_count_u64, factor_u64, gen_divs_u, phi
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
+ * Helpers:   factor_u64, num_divisors, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The following utilities are provided by the build system. */
-#include "../utils/divisor_count_u64.h"
-#include "../utils/phi.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/totient.h"
+
+/* Generate all divisors of n from its prime factorisation.
+   primes[i] ^ exps[i] are the prime powers. */
+static void gen_divs_u(size_t idx, uint64_t cur,
+                       const uint64_t *primes, const uint64_t *exps,
+                       size_t cnt, uint64_t *divs, size_t *pos)
+{
+    if (idx == cnt) {
+        divs[(*pos)++] = cur;
+        return;
+    }
+    uint64_t p = primes[idx];
+    uint64_t cur_pow = 1;
+    for (uint64_t e = 0; e <= exps[idx]; ++e) {
+        gen_divs_u(idx + 1, cur * cur_pow,
+                   primes, exps, cnt, divs, pos);
+        cur_pow *= p;
+    }
+}
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/gen_divs_u.h"
 
 /* Comparator for qsort on uint64_t values. */
 static int cmp_uint64(const void *a, const void *b)
@@ -36,11 +58,11 @@ static int cmp_uint64(const void *a, const void *b)
 seq_t a(idx_t n)
 {
     /* Number of divisors */
-    uint64_t d64 = divisor_count_u64((uint64_t)n);
+    uint64_t d64 = num_divisors((uint64_t)n);
     seq_t D   = (seq_t)d64;            /* d(n) as seq_t */
 
     /* Euler's totient */
-    seq_t P   = phi((idx_t)n);         /* φ(n) as seq_t */
+    seq_t P   = totient((idx_t)n);         /* φ(n) as seq_t */
 
     /* Compute m */
     seq_t m;

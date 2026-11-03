@@ -7,7 +7,8 @@
  * Formula:   a(n) = A006530( n + A000720(n) )
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   greatest_prime_factor
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,28 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/greatest_prime_factor.h"
+#include <stddef.h>
+#include <stdint.h>
+
+/* Greatest prime factor of an unsigned integer */
+static seq_t greatest_prime_factor(seq_t value)
+{
+    seq_t max_factor = 1;
+    seq_t n = value;
+
+    for (seq_t d = 2; d <= n / d; ++d) {
+        if (n % d == 0) {
+            max_factor = d;
+            while (n % d == 0) {
+                n /= d;
+            }
+        }
+    }
+    if (n > 1) {
+        max_factor = n;
+    }
+    return max_factor;
+}
 
 static uint64_t max_sieve = 0;
 static uint32_t *pi_table = NULL;      /* prefix prime counts: pi_table[i] = π(i) */

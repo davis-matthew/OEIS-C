@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   _is_excluded
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,12 @@
    the nth positive integer that is not equal to 1, 2, 4 or 351.  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_is_excluded.h"
+
+static inline bool _is_excluded(idx_t x)
+{
+    /* The only excluded natural numbers are 1, 2, 4 and 351. */
+    return (x == 1) || (x == 2) || (x == 4) || (x == 351);
+}
 
 seq_t a(idx_t n)
 {

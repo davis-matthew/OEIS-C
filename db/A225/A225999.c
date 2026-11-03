@@ -7,14 +7,17 @@
  * Formula:   a(n) = (1/2) * Σ_{k=0}^{n} C(8n, n+7k) * C(n+7k, k) * 2^{n+6k}
  * Range:     u8 none, u16 n <= 1, u32 n <= 2, u64 n <= 4, u128 n <= 8,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 24 terms through n = 57 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  (C denotes the binomial coefficient.)  */
 
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -27,8 +30,8 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= n; ++k)
     {
         idx_t r1 = n + (idx_t)7 * k;      /* upper index for first binomial */
-        seq_t term1 = binom(L, r1);       /* C(8n, n+7k) */
-        seq_t term2 = binom(r1, k);       /* C(n+7k, k) */
+        seq_t term1 = binomial(L, r1);       /* C(8n, n+7k) */
+        seq_t term2 = binomial(r1, k);       /* C(n+7k, k) */
         idx_t exp  = n + (idx_t)6 * k;    /* exponent for 2^(n+6k) */
         seq_t term3 = pow2(exp);          /* 2^(n+6k) */
 

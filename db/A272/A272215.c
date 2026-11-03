@@ -12,15 +12,36 @@
  *            permutations
  * Range:     u8 n <= 122, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   permute_dig, trailing_zeros_seq
+ * Validated: standard, pass, 99 terms through n = 9790 (2026-11-01)
+ * Helpers:   ctz_seq_to_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/permute_dig.h"
-#include "../utils/trailing_zeros_seq.h"
+#include "../utils/ctz_seq_to_i32.h"
+
+static void permute_dig(int pos, seq_t cur, int len,
+                        unsigned short *cnt,
+                        seq_t *best_val, int *best_exp)
+{
+    if (pos == len) {
+        int exp = ctz_seq_to_i32(cur);
+        if (exp > *best_exp || (exp == *best_exp && cur < *best_val)) {
+            *best_exp = exp;
+            *best_val = cur;
+        }
+        return;
+    }
+    for (int d = 0; d < 10; d++) {
+        if (cnt[d] == 0) continue;
+        if (pos == 0 && d == 0 && len > 1) continue; /* no leading zero */
+        cnt[d]--;
+        permute_dig(pos + 1, cur * 10 + d, len, cnt, best_val, best_exp);
+        cnt[d]++; /* backtrack */
+    }
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   a(n) = (2*n + 1)*7^n
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 945 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *pow7_cache = NULL;      /* 7^i stored for i = 0 .. cache_len-1 */
 static size_t   cache_len  = 0;       /* number of elements currently valid */
@@ -31,8 +33,7 @@ ensure_cache_capacity(size_t needed)
     size_t new_cap = cache_cap ? cache_cap : 1;
     while (new_cap <= needed)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc((void *)pow7_cache,
-                                  new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, pow7_cache, new_cap);
     /* If realloc failed we keep the old pointer; in this simple
        implementation we simply abort (caller is expected to have enough
        memory). */

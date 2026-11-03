@@ -12,13 +12,15 @@
  *            numbers ≤ n (≈20 for n≤10⁴)
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,18 +34,18 @@ seq_t a(idx_t n)
     /* Arrays of length n+1 for DP values.  We allocate using malloc
        as the harness does not provide alloc_seq_array(). */
     size_t len = (size_t)n + 1;
-    seq_t *dp_prev = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *dp_curr = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, len);
+    seq_t *dp_curr = mem_new(seq_t, len);
     if (!dp_prev || !dp_curr) {
-        free(dp_prev);
-        free(dp_curr);
+        mem_free(dp_prev);
+        mem_free(dp_curr);
         return (seq_t)0;                         /* allocation failure */
     }
 
     /* Initialise dp_prev[0] = 1; others are zeroed by memset. */
-    memset(dp_prev, 0, len * sizeof(seq_t));
+    mem_set(dp_prev, 0, len * sizeof(seq_t));
     dp_prev[0] = (seq_t)1;
-    memset(dp_curr, 0, len * sizeof(seq_t));
+    mem_set(dp_curr, 0, len * sizeof(seq_t));
 
     /* Fibonacci numbers (single type of 1) up to n.  Up to ~20 numbers
        for n≤10⁴, static array of 64 suffices. */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     /* DP over number of parts k = 1..4. */
     for (size_t k = 1; k <= 4; ++k) {
         /* Zero dp_curr for this k. */
-        memset(dp_curr, 0, len * sizeof(seq_t));
+        mem_set(dp_curr, 0, len * sizeof(seq_t));
 
         /* Transition: add one part of size f. */
         for (size_t fi = 0; fi < fibcnt; ++fi) {
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
         dp_curr = tmp;
     }
 
-    free(dp_prev);
-    free(dp_curr);
+    mem_free(dp_prev);
+    mem_free(dp_curr);
     return answer;
 }

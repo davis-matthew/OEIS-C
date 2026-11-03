@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 6, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Small prime table (primes up to 1 000 000). */
 #define SMALL_PRIME_LIMIT 1000000
@@ -82,7 +84,7 @@ static void ladder_reserve(size_t new_cap) {
     if (ladder_cap >= new_cap) return;
     size_t cap = ladder_cap == 0 ? 16 : ladder_cap * 2;
     if (cap < new_cap) cap = new_cap;
-    seq_t *tmp = (seq_t *)realloc(ladder, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, ladder, cap);
     ladder = tmp;
     ladder_cap = cap;
 }

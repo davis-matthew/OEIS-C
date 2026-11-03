@@ -14,15 +14,39 @@
  *            -1130112*a(n-11)+1975104*a(n-12)-373248*a(n-13) For n<1 return 0
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 10, u128 n <= 21,
  *            big any n
- * Helpers:   mul_small, seq_from_str
+ * Validated: standard, pass, 29 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>          /* malloc, realloc, size_t */
 #include <stdbool.h>         /* bool */
-#include "../utils/mul_small.h"   /* mul_small(seq_t, unsigned int) */
-#include "../utils/seq_from_str.h"/* seq_from_str(const char*) */
+#include <string.h>
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 seq_t a(idx_t n)
 {
@@ -45,7 +69,7 @@ seq_t a(idx_t n)
         cap = 16;
     while (cap < idx)
         cap <<= 1;
-    cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cap);
 
     /* Initial known terms (first 13) parsed once */
     static const char *init_str[13] = {

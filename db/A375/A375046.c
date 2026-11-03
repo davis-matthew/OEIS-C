@@ -13,14 +13,17 @@
  *            a(3)=A[1][0], … * For a given n, find the uniqu...
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 typedef uint64_t idx_t;   /* will be replaced by the build system */
 typedef unsigned __int128 u128; /* for internal 128‑bit arithmetic */
@@ -38,7 +41,7 @@ static void ensure_rows_up_to(size_t k)
     for (i = rows_len; i <= k; ++i)
     {
         size_t len = i + 2;          /* row length */
-        seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) return;           /* OOM, return without incrementing heap */
 
         if (i == 0)                  /* base row: 3, 1 */

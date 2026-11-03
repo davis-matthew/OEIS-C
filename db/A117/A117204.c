@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_squarefree
+ * Validated: standard, pass, 79 terms through n = 9996 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,14 +34,14 @@ seq_t a(idx_t n)
     /* ensure we have an array ready */
     if (terms == NULL) {
         capacity = 16;
-        terms = (seq_t*)realloc(NULL, capacity * sizeof(seq_t));
+        terms = mem_resize(seq_t, NULL, capacity);
     }
 
     /* extend array if needed */
     if ((size_t)(n - 1 + 1) > capacity) {
         while (capacity < (size_t)(n))
             capacity *= 2;
-        terms = (seq_t*)realloc(terms, capacity * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, capacity);
     }
 
     /* generate new terms until we have at least n terms */

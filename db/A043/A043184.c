@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_adjacent_05
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,22 @@
  */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adjacent_05.h"
+#include "../utils/mem.h"
+
+/* Test whether an integer x (in decimal) contains adjacent digits 0 and 5
+ * in its base‑9 representation (in either order). */
+static bool has_adjacent_05(idx_t x)
+{
+    int prev = -1;
+    while (x > 0) {
+        int digit = x % 9;
+        if ((prev == 5 && digit == 0) || (prev == 0 && digit == 5))
+            return true;
+        prev = digit;
+        x /= 9;
+    }
+    return false;
+}
 
 /* Dynamic cache for the sequence. */
 static seq_t *cache   = NULL;
@@ -39,7 +55,7 @@ static void ensure_capacity(size_t need)
     size_t new_cap = (cap == 0) ? 4 : cap * 2;
     if (new_cap < need)
         new_cap = need;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) abort(); /* handle allocation failure */
     cache = new_ptr;
     cap   = new_cap;

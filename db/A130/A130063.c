@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 1619, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 66 terms through n = 9529 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <assert.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
 
     /* allocate table on first invocation */
     if (table == NULL) {
-        table = (seq_t *)malloc(sizeof(seq_t));
+        table = mem_new(seq_t, 1);
         assert(table != NULL);
     }
 
@@ -47,8 +50,8 @@ seq_t a(idx_t n)
         uint64_t exp = (candidate + 1) >> 1;   /* (p+1)/2 */
 
         /* compute a3 = 3^exp (mod p) and a2 = 2^exp (mod p) */
-        seq_t a3 = mod_pow((seq_t)3, exp, (seq_t)candidate);
-        seq_t a2 = mod_pow((seq_t)2, exp, (seq_t)candidate);
+        seq_t a3 = powmod((seq_t)3, exp, (seq_t)candidate);
+        seq_t a2 = powmod((seq_t)2, exp, (seq_t)candidate);
 
         /* check whether p divides 3^exp - 2^exp - 1 */
         seq_t diff = a3;
@@ -62,7 +65,7 @@ seq_t a(idx_t n)
             if (count == 0) {
                 table[0] = (seq_t)candidate;
             } else {
-                seq_t *tmp = (seq_t *)realloc(table, sizeof(seq_t) * (count + 1));
+                seq_t *tmp = mem_resize(seq_t, table, (count + 1));
                 assert(tmp != NULL);
                 table = tmp;
                 table[count] = (seq_t)candidate;

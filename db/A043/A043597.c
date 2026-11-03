@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   alloc_seq, ncr5
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,22 @@
 /* Numbers whose base-4 representation has exactly six runs. */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/alloc_seq.h"
-#include "../utils/ncr5.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* number of ways to choose 5 cut positions among (L‑1) slots */
+static size_t ncr5(size_t m)
+{
+    /* m >= 5 for the lengths used; product fits in 64‑bit */
+    return (m * (m-1) * (m-2) * (m-3) * (m-4)) / 120;
+}
 
 static seq_t *seq_array = NULL;
 static size_t seq_count = 0;
@@ -79,7 +94,7 @@ static void precompute_seq(void)
     }
 
     /* sort the list */
-    qsort(seq_array, seq_count, sizeof(seq_t), cmp_seq);
+    mem_qsort(seq_array, seq_count, sizeof(seq_t), cmp_seq);
     seq_precomputed = 1;
 }
 

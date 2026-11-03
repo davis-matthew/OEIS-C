@@ -11,21 +11,42 @@
  *            consecutively: (a_0,a_1),(a_2,a_3),…
  * Range:     u8 n <= 254, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   POPCOUNT64, n_choose_k, unrank_with_popcount
+ * Validated: standard, pass, 87 terms through n = 9570 (2026-11-01)
+ * Helpers:   binomial_idx, popcount_idx_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/POPCOUNT64.h"
-#include "../utils/n_choose_k.h"
-#include "../utils/unrank_with_popcount.h"
+#include "../utils/binomial_idx.h"
+#include "../utils/popcount_idx_to_u32.h"
+
+/* unrank: return the number with popcount k that has the given rank r
+   (0‑based) among all numbers with popcount k. */
+static inline seq_t unrank_with_popcount(unsigned k, idx_t r)
+{
+    seq_t value = 0;
+    unsigned remaining = k;
+    /* find minimal pos such that C(pos, remaining) > r */
+    idx_t pos = 0;
+    while (binomial_idx((idx_t)pos, remaining) <= r)
+        pos++;
+    for (int p = (int)pos; p >= 0 && remaining; --p) {
+        idx_t cnt = binomial_idx((idx_t)p, remaining);
+        if (cnt <= r) {
+            value |= ((seq_t)1 << p);
+            r -= cnt;
+            remaining--;
+        }
+    }
+    return value;
+}
 
 /* population count for idx_t using a compiler builtin,
    with a portable fallback if needed. */
 #if defined(__GNUC__) || defined(__clang__)
-# define POPCOUNT64(n)   __builtin_popcountll(n)
+# define popcount_idx_to_u32(n)   __builtin_popcountll(n)
 #else
 
 #endif
@@ -47,7 +68,7 @@ static inline idx_t rank_with_popcount(idx_t n, unsigned k)
             idx_t remaining_bits = pos;
             unsigned needed = k - ones;
             if (needed <= remaining_bits)
-                rank += n_choose_k(remaining_bits, needed);
+                rank += binomial_idx(remaining_bits, needed);
             ones++;
         }
     }
@@ -57,7 +78,7 @@ static inline idx_t rank_with_popcount(idx_t n, unsigned k)
 /* required public function */
 seq_t a(idx_t n)
 {
-    unsigned k = POPCOUNT64(n);
+    unsigned k = popcount_idx_to_u32(n);
     idx_t r   = rank_with_popcount(n, k);
     idx_t partner_r = r ^ 1U;          /* toggle last bit of rank */
     return unrank_with_popcount(k, partner_r);

@@ -9,7 +9,8 @@
  *            + a(n-2)
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 9, u64 n <= 10, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Recurrence alternative: a(n)+2 = (1/2)*(a(n-1)+2)*(a(n-2)+2) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values: index i stores a(i+1)   (0‑based) */
 static seq_t *cache = NULL;
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     /* Allocate the initial cache if needed */
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (!cache) return (seq_t)0;                 /* allocation failure – unlikely in tests */
         cache[0] = (seq_t)1;                        /* a(1) */
         cache[1] = (seq_t)2;                        /* a(2) */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     }
 
     /* Extend the cache to hold up to n */
-    seq_t *new_cache = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)n);
     if (!new_cache) return (seq_t)0; /* allocation failure */
     cache = new_cache;
 

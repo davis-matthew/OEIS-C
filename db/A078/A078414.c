@@ -9,12 +9,19 @@
  *            dividing a(n-1)+a(n-2); a(1)=1, a(2)=1
  * Range:     u8 n <= 19, u16 n <= 90, u32 n <= 133, u64 n <= 255,
  *            u128 n <= 513, big any n
- * Helpers:   divide_by_max_power_of_7
+ * Validated: standard, pass, 68 terms through n = 3834 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/divide_by_max_power_of_7.h"
+/* Divide val by the greatest power of 7 that divides it. */
+static seq_t divide_by_max_power_of_7(seq_t val)
+{
+    while ((val % 7) == 0)
+        val /= 7;
+    return val;
+}
 static seq_t seq[20001];       /* indices 0 … 20000, a[0] unused */
 static idx_t seq_len = 0;      /* highest index that has been computed */
 

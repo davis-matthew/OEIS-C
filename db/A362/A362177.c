@@ -7,12 +7,14 @@
  * Formula:   a(0)=1, a(1)=1, a(n)=a(n-1)-6*(n-1)*a(n-2) for n>1
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 12, i64 n <= 22, i128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 557 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for computed terms */
 static seq_t *cache = NULL;     /* pointer to array of a(0)..a(n) */
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
         /* initialise with at least two slots */
         cache_cap = n + 1;
         if (cache_cap < 2) cache_cap = 2;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) abort();          /* fatal error if malloc fails */
 
         cache[0] = (seq_t)1;                 /* a(0) */
@@ -36,7 +38,7 @@ static void ensure_cache(idx_t n)
         /* grow the buffer (double strategy) */
         idx_t new_cap = cache_cap * 2;
         if (new_cap <= n) new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) abort();            /* fatal error if realloc fails */
         cache = tmp;
         cache_cap = new_cap;

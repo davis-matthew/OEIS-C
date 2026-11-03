@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   contains_123_generic, contains_123_uint128
+ * Validated: standard, pass, 43 terms through n = 2409 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,48 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/contains_123_generic.h"
-#include "../utils/contains_123_uint128.h"
+#include "../utils/mem.h"
+
+/* Return true iff the decimal representation of v contains the
+   substring "123".  The algorithm works for any integral type that
+   supports / and % 10. */
+static bool contains_123_generic( /* generic integer type */ unsigned long long val )
+{
+    /* a value < 123 cannot contain the pattern */
+    if (val < 123ULL) return false;
+
+    /* digits are processed from least significant to most significant;
+       we look for the reversed pattern 3,2,1. */
+    unsigned char digs[40];   /* up to 39 decimal digits for 128‑bit */
+    int len = 0;
+
+    while (val > 0) {
+        digs[len++] = (unsigned char)(val % 10ULL);
+        val /= 10ULL;
+    }
+
+    for (int i = 0; i + 2 < len; ++i)
+        if (digs[i] == 3 && digs[i+1] == 2 && digs[i+2] == 1)
+            return true;
+    return false;
+}
+
+static bool contains_123_uint128( unsigned __int128 val )
+{
+    if (val < 123ULL) return false;
+
+    unsigned char digs[40];
+    int len = 0;
+    while (val > 0) {
+        digs[len++] = (unsigned char)(val % 10ULL);
+        val /= 10ULL;
+    }
+
+    for (int i = 0; i + 2 < len; ++i)
+        if (digs[i] == 3 && digs[i+1] == 2 && digs[i+2] == 1)
+            return true;
+    return false;
+}
 
 /* For 128‑bit types we reimplement the same routine to avoid overflow
    when casting to 64‑bit. */
@@ -66,7 +107,7 @@ seq_t a(idx_t n)
         if (seq_len + 1 > seq_cap) {
             size_t new_cap = seq_cap ? seq_cap * 2 : 64;
             if (new_cap < seq_len + 1) new_cap = seq_len + 1;
-            seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, new_cap);
             if (!tmp) return 0; /* allocation failure – unlikely */
             seq = tmp;
             seq_cap = new_cap;

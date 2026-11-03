@@ -9,7 +9,8 @@
  *            factorials of odd numbers
  * Range:     u8 n <= 8, u16 n <= 28, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,11 +19,12 @@
    (3!! = 3, 5!! = 15, 7!! = 105, …) and a Hamming‑style algorithm. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Dynamic array for the first n terms */
-    seq_t *seq = (seq_t *)malloc(n * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, n);
     if (!seq) return 0;          /* allocation failure – should not occur */
     seq[0] = 1;
     size_t seq_len = 1;           /* number of terms stored */
@@ -92,6 +94,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[n - 1];
-    free(seq);
+    mem_free(seq);
     return result;
 }

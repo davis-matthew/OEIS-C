@@ -11,13 +11,14 @@
  *            to the smallest
  * Range:     u8 n <= 197, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_digits
+ * Validated: standard, pass, 105 terms through n = 9650 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_digits.h"
+#include "../utils/num_digits_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +28,7 @@ seq_t a(idx_t n)
 
     for (idx_t i = n; ; ++i) {
         idx_t j = i - n;                     /* column index (0 = units) */
-        int  d = count_digits(i);            /* number of decimal digits of i */
+        int  d = num_digits_idx(i);            /* number of decimal digits of i */
         if (j >= (idx_t)d)                   /* no more numbers on this diagonal */
             break;
 

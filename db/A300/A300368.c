@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 25, u64 n <= 47, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define ROWS 17            /* 0..15 real rows, 16 = none */
 #define NONE 16
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
     static seq_t dp[ROWS][ROWS];
     static seq_t nxt[ROWS][ROWS];
     /* clear dp */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* First row: only rows with upper‑left element 0 are allowed,
        and there is no previous row (NONE). */
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
 
     /* Process rows 2 … n */
     for (idx_t row = 2; row <= n; ++row) {
-        memset(nxt, 0, sizeof(nxt));
+        mem_set(nxt, 0, sizeof(nxt));
         for (uint8_t p = 0; p < ROWS; ++p) {
             for (uint8_t c = 0; c < ROWS; ++c) {
                 seq_t w = dp[p][c];
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
             }
         }
         /* copy nxt back to dp */
-        memcpy(dp, nxt, sizeof(dp));
+        mem_copy(dp, nxt, sizeof(dp));
     }
 
     /* Final row: its lower neighbours are missing (NONE). */

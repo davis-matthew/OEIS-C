@@ -7,7 +7,8 @@
  * Formula:   Numbers that are the sum of ten cubes in exactly three ways
  * Range:     u8 n <= 4, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for the precomputed terms of the sequence. */
 static seq_t *global_terms   = NULL;
@@ -70,10 +72,10 @@ static void compute_terms(uint64_t limit)
         if (dp[10 * stride + (size_t)s] == 3) {
             if (terms_len == terms_cap) {
                 terms_cap = (terms_cap == 0 ? 1024 : terms_cap * 2);
-                seq_t *new_terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                seq_t *new_terms = mem_resize(seq_t, terms, terms_cap);
                 if (!new_terms) {                /* allocation failed, clean up */
                     free(dp);
-                    free(terms);
+                    mem_free(terms);
                     global_terms = NULL;
                     global_len   = 0;
                     return;
@@ -86,7 +88,7 @@ static void compute_terms(uint64_t limit)
 
     free(dp);
     /* Replace old global storage with the new one */
-    free(global_terms);
+    mem_free(global_terms);
     global_terms = terms;
     global_len   = terms_len;
     global_limit = limit;

@@ -8,8 +8,9 @@
  * Keywords:  sign
  * Formula:   a(n) = prime(k(n)) ? ((k(n) mod 4 == 1) ? 1 : -1) : 0, where
  *            k(n) = 4*ceil(n/2) + (-1)^n (i.e., k(n) = 4*((n+1)/2) ± 1)
- * Range:     i8 n <= 9539, i16 n <= 9539, i32 n <= 9539, i64 n <= 9539,
- *            i128 n <= 9539, big any n
+ * Range:     i8 n <= 49999, i16 n <= 49999, i32 n <= 49999, i64 n <= 49999,
+ *            i128 n <= 49999, big any n
+ * Validated: standard, pass, 111 terms through n = 9539 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

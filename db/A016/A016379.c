@@ -9,6 +9,7 @@
  *            ∏_{d|n} (x^d‑1)^{μ(n/d)}
  * Range:     i8 n <= 120, i16 n <= 120, i32 n <= 120, i64 n <= 120,
  *            i128 n <= 120, big any n
+ * Validated: full, pass, 121 terms through n = 120 (2026-11-02)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 #define MAX_POLY 500   /* Maximum degree needed when multiplying (350 is enough) */

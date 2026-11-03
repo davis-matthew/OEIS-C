@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, int_sqrt
+ * Validated: standard, pass, 72 terms through n = 9951 (2026-11-03)
+ * Helpers:   build_primes_upto, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/build_primes_upto.h"   /* build_primes_upto(idx_t, uint64_t**, size_t*) */
-#include "../utils/int_sqrt.h"            /* int_sqrt(idx_t) returns ⌊√x⌋ */
+#include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 static uint64_t *prime_list = NULL;   /* primes ≤ prime_limit */
 static size_t      prime_count = 0;
@@ -78,13 +80,13 @@ static bool qualifies(uint64_t n)
 static void generate_next(void)
 {
     while (true) {
-        uint64_t limit = (uint64_t)int_sqrt(candidate) + 1;
+        uint64_t limit = (uint64_t)isqrt(candidate) + 1;
         if (limit > prime_limit) ensure_primes_upto(limit);
 
         if (qualifies(candidate)) {
             if (seq_len == seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap * 2 : 8;
-                seq_t *tmp = (seq_t*)realloc(seq_arr, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
                 if (!tmp) { seq_arr = NULL; seq_cap = seq_len = 0; return; }
                 seq_arr = tmp; seq_cap = new_cap;
             }

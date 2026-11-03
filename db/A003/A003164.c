@@ -11,17 +11,57 @@
  *            rationals; a(n) = numerator(r(n)). Fixed-width builds...
  * Range:     i8 n <= 9, i16 n <= 15, i32 n <= 19, i64 n <= 31, i128 n <= 49,
  *            big any n
- * Helpers:   A_grow, from_i128, seq_is_big, vdp_gcd, vdp_gcd128
+ * Validated: standard, pass, 44 terms through n = 200 (2026-11-03)
+ * Helpers:   gcd_i128, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/A_grow.h"
-#include "../utils/seq_is_big.h"
-#include "../utils/from_i128.h"
-#include "../utils/vdp_gcd.h"
-#include "../utils/vdp_gcd128.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/gcd_i128.h"
+#include "../utils/mem.h"
+
+static seq_t *A_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < newlen; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static seq_t from_i128(__int128 v)
+{
+    if (v >= -(__int128)4000000000000000000LL && v <= (__int128)4000000000000000000LL)
+        return (seq_t)(long long)v;
+    {
+        __int128 q = v / ((__int128)1 << 32);
+        long long rem = (long long)(v - q * ((__int128)1 << 32));
+        return from_i128(q) * (seq_t)4294967296LL + (seq_t)rem;
+    }
+}
+
+static seq_t vdp_gcd(seq_t x, seq_t y) {
+  if (x < 0) x = -x;
+  if (y < 0) y = -y;
+  while (y != 0) {
+    seq_t t = x % y;
+    x = y;
+    y = t;
+  }
+  return x;
+}
 
 static seq_t *vdp_num = NULL;
 static seq_t *vdp_den = NULL;
@@ -107,27 +147,27 @@ static __int128 vdp_fixed(idx_t n) {
     for (j = 1; j <= m; j++) {
       __int128 cn, cd, g, N, D, g1, g2, an, bd, t, g3, gc;
       /* C = binomial(m, j), kept exact */
-      gc = vdp_gcd128(C, (__int128)j);
+      gc = gcd_i128(C, (__int128)j);
       C = (C / gc) * ((__int128)(m - j + 1) / ((__int128)j / gc));
       N = vf_num[m - j];
       if (N == 0) continue;
       D = vf_den[m - j];
       cn = C * 6;
       cd = (__int128)(j + 2) * (__int128)(j + 3);
-      g = vdp_gcd128(cn, cd);
+      g = gcd_i128(cn, cd);
       cn /= g;
       cd /= g;
-      g1 = vdp_gcd128(cn, D);
-      g2 = vdp_gcd128(N, cd);
+      g1 = gcd_i128(cn, D);
+      g2 = gcd_i128(N, cd);
       an = (cn / g1) * (N / g2);
       bd = (cd / g2) * (D / g1);
-      g = vdp_gcd128(Q, bd);
+      g = gcd_i128(Q, bd);
       t = P * (bd / g) + an * (Q / g);
       if (t == 0) {
         P = 0;
         Q = 1;
       } else {
-        g3 = vdp_gcd128(t, g);
+        g3 = gcd_i128(t, g);
         P = t / g3;
         Q = (Q / g) * (bd / g3);
       }

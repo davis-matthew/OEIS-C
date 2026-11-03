@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   all_even_digits, digit_frequencies, digit_len
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   digit_frequencies, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,25 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/all_even_digits.h"
+#include <stdint.h>
 #include "../utils/digit_frequencies.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Test whether all decimal digits of x are even. */
+static inline bool all_even_digits(seq_t x)
+{
+    if (x == 0)           /* 0 is considered to have only even digits */
+        return true;
+
+    while (x != 0) {
+        seq_t dig   = x % 10;     /* least significant decimal digit   */
+        if ((dig % 2) != 0)       /* odd digit found                    */
+            return false;
+        x /= 10;                  /* move to next digit                  */
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -46,7 +63,7 @@ seq_t a(idx_t n)
         else {
             unsigned int freq[10] = {0};
             digit_frequencies(x, freq);
-            int len = digit_len(x);
+            int len = num_digits(x);
             int distinct = 0;
             for (int d = 0; d < 10; ++d)
                 if (freq[d] > 0) {
@@ -66,7 +83,7 @@ seq_t a(idx_t n)
         if (ok) {
             if (cache_len >= cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 16;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
                 if (!cache)
                     abort();
             }

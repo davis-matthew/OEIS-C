@@ -11,7 +11,8 @@
  *            no solution for any x∈{0,…,m−1}
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,11 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
-
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* caches for composites and the computed a-values */
 static idx_t *composites = NULL;
@@ -49,7 +52,7 @@ static void grow_a_cache(size_t nmin)
     if (a_cache_cap < nmin) {
         size_t new_cap = a_cache_cap ? a_cache_cap * 2 : nmin;
         while (new_cap < nmin) new_cap *= 2;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         a_cache_cap = new_cap;
     }
 }
@@ -58,12 +61,12 @@ static void grow_a_cache(size_t nmin)
 static seq_t compute_a_for_m(seq_t m)
 {
     idx_t m_idx = (idx_t)m;                    /* loop bounds fit in idx_t */
-    seq_t *pow_base = (seq_t *)malloc(m_idx * sizeof(seq_t));
+    seq_t *pow_base = mem_new(seq_t, m_idx);
     if (!pow_base) return 0;                    /* unlikely */
 
     /* pre‑compute x^m (mod m) for all x */
     for (idx_t x = 0; x < m_idx; ++x) {
-        pow_base[x] = mod_pow((seq_t)x, (uint64_t)m, m);
+        pow_base[x] = powmod((seq_t)x, (uint64_t)m, m);
     }
 
     /* test k from 1 upward */
@@ -83,12 +86,12 @@ static seq_t compute_a_for_m(seq_t m)
             }
         }
         if (!found) {
-            free(pow_base);
+            mem_free(pow_base);
             return k;
         }
     }
 
-    free(pow_base);
+    mem_free(pow_base);
     return m;   /* should never be reached for composite m */
 }
 

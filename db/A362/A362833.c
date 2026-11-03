@@ -8,11 +8,13 @@
  * Formula:   a(n) = Sum_{k=1..floor((n-1)/2)} [mu(k)=mu(n-k)]
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-01)
  * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/mobius.h"
 
 seq_t a(idx_t n)

@@ -9,7 +9,8 @@
  *            min digit of k) (offset 1)
  * Range:     u8 n <= 28, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   digit_diff
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/digit_diff.h"
+#include "../utils/mem.h"
+
+/* helper: difference between greatest and least decimal digit of x */
+static inline seq_t digit_diff(idx_t x)
+{
+    unsigned int least = 9, greatest = 0;
+    do {
+        unsigned int d = (unsigned int)(x % 10ull);
+        if (d < least) least = d;
+        if (d > greatest) greatest = d;
+        x /= 10ull;
+    } while (x);
+    return (seq_t)(greatest - least);
+}
 
 seq_t a(idx_t n)
 {
@@ -33,10 +47,10 @@ seq_t a(idx_t n)
     if (n >= cache_sz) {
         idx_t new_sz = (cache_sz ? cache_sz << 1 : 64);
         while (new_sz <= n) new_sz <<= 1;
-        seq_t *new_cache = (seq_t*)malloc(new_sz * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_sz);
         if (!new_cache) return (seq_t)0;   /* allocation failure -> 0 */
         for (idx_t i = 0; i < cache_sz; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_sz = new_sz;
     }

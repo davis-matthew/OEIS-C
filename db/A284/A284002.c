@@ -8,6 +8,7 @@
  *            (number of 1-bits in n) and A072411(k) = lcm(1,2,…,k)
  * Range:     u8 n <= 106, u16 n <= 106, u32 n <= 106, u64 n <= 106,
  *            u128 n <= 106, big any n
+ * Validated: partial, pass, 107 terms through n = 106 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

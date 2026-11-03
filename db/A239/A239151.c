@@ -13,7 +13,8 @@
  *            n=1…14): 2, 2, 55, 208, 2778, 17050, 166531, 1221727, 10652...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 22, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define STATES_PER_MAX 512          /* 8 (unsat) * 64 (row bits) */
 #define MAX_STATE  (4 * STATES_PER_MAX)   /* 4 possible maxSeen values */
@@ -129,7 +131,7 @@ seq_t a(idx_t n)
     static seq_t cur[MAX_STATE];
     static seq_t nxt[MAX_STATE];
 
-    memset(cur, 0, sizeof(cur));
+    mem_set(cur, 0, sizeof(cur));
 
     /* --- Initialise for row 0 ------------------------------------ */
     /* Only two possible first rows: (0,1,0) and (0,1,2) */
@@ -141,7 +143,7 @@ seq_t a(idx_t n)
 
     /* --- Process remaining rows (total rows = n+1, so n further rows) */
     for (unsigned r = 1; r <= n; ++r) {
-        memset(nxt, 0, sizeof(nxt));
+        mem_set(nxt, 0, sizeof(nxt));
         for (unsigned s = 0; s < MAX_STATE; ++s) {
             if (cur[s] == 0) continue;
             for (unsigned t = 0; t < trans_used[s]; ++t) {
@@ -150,7 +152,7 @@ seq_t a(idx_t n)
             }
         }
         /* swap cur and nxt */
-        memcpy(cur, nxt, sizeof(cur));
+        mem_copy(cur, nxt, sizeof(cur));
     }
 
     /* --- Sum states with unsatisfied vertical mask == 0 (last row satisfied) */

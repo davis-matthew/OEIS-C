@@ -8,13 +8,15 @@
  * Formula:   a(n) = n-th decimal digit of 2^61/(3^32*993) (offset 1)
  * Range:     u8 none, u16 none, u32 none, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 146 terms through n = 9926 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
 
         /* Allocate cache for digits, start with capacity 16 */
         capacity = 16;
-        digits = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        digits = mem_new(seq_t, capacity);
         if (!digits)
             exit(1);                    /* allocation failure */
 
@@ -57,9 +59,9 @@ seq_t a(idx_t n)
     while (len < (size_t)n) {
         if (len == capacity) {          /* double the storage when full */
             capacity *= 2;
-            seq_t *tmp = (seq_t *)realloc(digits, sizeof(seq_t) * capacity);
+            seq_t *tmp = mem_resize(seq_t, digits, capacity);
             if (!tmp) {
-                free(digits);
+                mem_free(digits);
                 exit(1);                /* reallocation failure */
             }
             digits = tmp;

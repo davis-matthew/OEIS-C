@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,17 +23,18 @@
  */
  
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate two DP tables of size n+1 */
     size_t len = (size_t)(n + 1);
-    seq_t *dp    = (seq_t*)malloc(len * sizeof(seq_t));
-    seq_t *newdp = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *dp    = mem_new(seq_t, len);
+    seq_t *newdp = mem_new(seq_t, len);
     if (dp == NULL || newdp == NULL) {
         /* memory allocation failed; return 0 as a safe fallback */
-        if (dp) free(dp);
-        if (newdp) free(newdp);
+        if (dp) mem_free(dp);
+        if (newdp) mem_free(newdp);
         return (seq_t)0;
     }
 
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
     /* result is dp[n] */
     seq_t result = dp[n];
 
-    free(dp);
-    free(newdp);
+    mem_free(dp);
+    mem_free(newdp);
     return result;
 }

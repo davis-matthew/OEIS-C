@@ -7,6 +7,7 @@
  * Formula:   a(n) = greatest 4th‑power‑free divisor of n!
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 38, u128 n <= 73,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 976 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 /* Equivalent: a(n) = ∏_{p≤n} p^{(∑_{k≥1} ⌊n / p^k⌋) mod 4}  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
 
 /* Lazy static cache of primes up to the largest n requested. */

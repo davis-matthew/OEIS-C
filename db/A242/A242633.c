@@ -12,13 +12,15 @@
  *            the DP on the automaton described in the OEIS entry
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define ST 55   /* total number of states (j=1..10, run 1..j) */
 
@@ -40,8 +42,8 @@ static void init(void)
     if (dp != NULL) return;             /* already initialised */
 
     /* allocate DP buffers */
-    dp    = (seq_t *)calloc(ST, sizeof(seq_t));
-    newdp = (seq_t *)calloc(ST, sizeof(seq_t));
+    dp    = mem_new(seq_t, ST);
+    newdp = mem_new(seq_t, ST);
 
     /* build state mapping and letter offsets */
     offset[1] = 0;
@@ -56,7 +58,7 @@ static void init(void)
 
     /* allocate answer array with initial capacity */
     ansCap = 1;                       /* holds index 0 */
-    ans    = (seq_t *)calloc(ansCap, sizeof(seq_t));
+    ans    = mem_new(seq_t, ansCap);
 
     /* base values */
     ans[0] = (seq_t)1;                /* a(0) = 1 */
@@ -69,7 +71,7 @@ static void ensure_ans_capacity(idx_t n)
     if (n < ansCap) return;
     size_t newCap = ansCap ? ansCap : 1;
     while (newCap <= n) newCap <<= 1;
-    ans = (seq_t *)realloc(ans, newCap * sizeof(seq_t));
+    ans = mem_resize(seq_t, ans, newCap);
     ansCap = newCap;
 }
 

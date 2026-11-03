@@ -9,19 +9,21 @@
  *            number of partitions of k with parts ≤ m
  * Range:     u8 n <= 20, u16 n <= 51, u32 n <= 147, u64 n <= 461,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n < 4) return 0;
 
     /* Allocate DP array for partitions with parts ≤ current m. */
     idx_t N = n + 1;
-    seq_t *dp = (seq_t *)malloc((size_t)N * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)N);
     if (!dp) return 0;                     /* out‑of‑memory guard */
     for (size_t i = 0; i < (size_t)N; ++i) dp[i] = 0;
 
@@ -44,6 +46,6 @@ seq_t a(idx_t n) {
         }
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

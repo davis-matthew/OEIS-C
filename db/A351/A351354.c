@@ -9,12 +9,14 @@
  *            a(2)=3, a(3)=7, a(4)=45, a(5)=117
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* 1‑based cache, cache[0] unused */
 static size_t cache_size = 0;    /* capacity of cache (number of slots) */
@@ -27,7 +29,7 @@ static void ensure_capacity(idx_t n)
     if (needed <= cache_size) return;
 
     size_t new_size = needed * 2; /* over‑allocate a bit for future growth */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) abort(); /* fail fast on OOM */
     cache = new_cache;
     cache_size = new_size;
@@ -40,7 +42,7 @@ static void init_base_terms(void)
     /* Ensure we have space for indices 0..5 */
     if (cache_size < 6) {
         cache_size = 6;
-        cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_size);
         if (!cache) abort();
     }
     cache[1] = (seq_t)1;

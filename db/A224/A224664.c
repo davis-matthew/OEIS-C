@@ -11,12 +11,14 @@
  *            values and returns the correct term for any n ≥ 1...
  * Range:     u8 n <= 3, u16 n <= 12, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* 1‑based storage, index 0 unused */
 static size_t cache_size = 0; /* largest index computed */
@@ -27,7 +29,7 @@ static void init_cache(void)
     if (cache != NULL)
         return;
     cache_cap = 16;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache[1] = 8;
     cache[2] = 32;
     cache[3] = 200;
@@ -46,7 +48,7 @@ static void ensure_capacity(size_t need)
 {
     while (cache_cap <= need) {
         size_t new_cap = cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

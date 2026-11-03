@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{d|n} (2^d-1)*(phi(n/d)-mu(n/d))/n
  * Range:     u8 n <= 13, u16 n <= 29, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   phi_mu_from_n, pow2
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,39 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/pow2.h"
-#include "../utils/phi_mu_from_n.h"
+
+/* Compute Euler's totient phi(k) and Möbius function mu(k) */
+static void phi_mu_from_n(idx_t k, seq_t *phi_out, int *mu_out)
+{
+    seq_t phi = (seq_t)k;
+    int mu   = 1;
+    idx_t x  = k;
+
+    for (idx_t p = 2; p * p <= x; ++p) {
+        if (x % p == 0) {
+            int exp = 0;
+            while (x % p == 0) {
+                x /= p;
+                ++exp;
+            }
+            /* adjust phi for this prime factor */
+            phi -= phi / (seq_t)p;
+            if (exp > 1) {
+                mu = 0;           /* square factor → mu = 0 */
+            } else {
+                mu = -mu;         /* odd exponent → flip sign */
+            }
+        }
+    }
+    if (x > 1) {                 /* remaining prime factor */
+        phi -= phi / (seq_t)x;
+        if (mu != 0)             /* only flip sign if mu not already 0 */
+            mu = -mu;
+    }
+
+    *phi_out = phi;
+    *mu_out  = mu;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

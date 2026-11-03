@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 865, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9725 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for computed terms */
 static seq_t *seq = NULL;
@@ -53,7 +55,7 @@ static void ensure_terms(idx_t n)
         }
 
         /* Precompute fourth powers */
-        seq_t *pow4 = (seq_t*)malloc((size_t)(maxM + 1) * sizeof(seq_t));
+        seq_t *pow4 = mem_new(seq_t, (size_t)(maxM + 1));
         if (!pow4) {
             free(s1); free(s2); free(s3); free(s4);
             return;
@@ -97,7 +99,7 @@ static void ensure_terms(idx_t n)
             }
         }
 
-        free(pow4);
+        mem_free(pow4);
 
         /* Count values obtainable by 4 fourth powers but not by 1–3 */
         idx_t count = 0;
@@ -107,7 +109,7 @@ static void ensure_terms(idx_t n)
         }
 
         if (count >= n) {
-            seq_t *new_seq = (seq_t*)malloc((size_t)count * sizeof(seq_t));
+            seq_t *new_seq = mem_new(seq_t, (size_t)count);
             if (!new_seq) {
                 free(s1); free(s2); free(s3); free(s4);
                 return;
@@ -119,7 +121,7 @@ static void ensure_terms(idx_t n)
                     new_seq[pos++] = (seq_t)i;
             }
 
-            free(seq);
+            mem_free(seq);
             seq = new_seq;
             seq_len = count;
 

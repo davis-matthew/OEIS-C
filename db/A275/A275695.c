@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 10, u32 n <= 11, u64 n <= 13, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 */
 
 #include <stdlib.h>  /* for realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Initialise cache for the first seven terms (indices 0..6). */
     if (cache_len == 0) {
         cache_len = 7;
-        cache = (seq_t *)realloc(NULL, cache_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_len);
         for (size_t i = 0; i < cache_len; ++i) {
             cache[i] = (seq_t)1;
         }
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     if (required > cache_len) {
         /* Preserve old length for later loop. */
         size_t old_len = cache_len;
-        seq_t *tmp = (seq_t *)realloc(cache, required * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, required);
         if (tmp == NULL) {
             /* realloc failed; keep the old cache and return 0.  This
                situation should never occur under normal build

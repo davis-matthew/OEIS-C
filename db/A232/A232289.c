@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 28, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    Initial values: a(1)=3, a(2)=15, a(3)=73 */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* allocate and initialise cache on first call (at least 3 elements) */
     if (cap < 3) {
         size_t new_cap = 3;
-        seq_t *ptr = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *ptr = mem_resize(seq_t, cache, new_cap);
         if (!ptr) {
             /* Allocation failure; in the context of sequence generation
                this is a fatal error – aborting is acceptable since the
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     /* Extend the cache if needed */
     if (cap < (size_t)n) {
         size_t new_cap = (size_t)n;
-        seq_t *ptr = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *ptr = mem_resize(seq_t, cache, new_cap);
         if (!ptr) abort();
         cache = ptr;
         cap   = new_cap;

@@ -10,13 +10,15 @@
  *            T(1,1) = 1 * T(r,r) = 1 * T(r+1,k) = T(r,k‑1) + k*(k+1)*T(r,k+1)
  * Range:     u8 n <= 21, u16 n <= 46, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
         /* Allocate new rows and compute them */
         for (idx_t row = maxRow + 1; row <= r; ++row) {
-            T[row] = (seq_t*)malloc((row + 1) * sizeof(seq_t));   /* index 0 unused */
+            T[row] = mem_new(seq_t, (row + 1));   /* index 0 unused */
             if (T[row] == NULL) return (seq_t)0;                 /* should never happen */
             for (idx_t col = 1; col <= row; ++col) {
                 if (col == row) {

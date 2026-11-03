@@ -9,9 +9,10 @@
  *            Sequence a(n) gives the n‑th decimal digit of this 6005‑digit
  *            number. Offset: a(6002) is the most‑significant digit (the first
  *            listed term)
- * Range:     u8 n <= 9845, u16 n <= 9845, u32 n <= 9845, u64 n <= 9845,
- *            u128 n <= 9845, big any n
- * Helpers:   append_uint32_to_buffer
+ * Range:     u8 n <= 12003, u16 n <= 12003, u32 n <= 12003, u64 n <= 12003,
+ *            u128 n <= 12003, big any n
+ * Validated: full, pass, 6002 terms through n = 12003 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,30 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdio.h>
-#include "../utils/append_uint32_to_buffer.h"
+
+/* Helper: convert uint32_t word to decimal with optional leading zeroes   */
+static void append_uint32_to_buffer(uint32_t v, char *buf, size_t *pos,
+                                    unsigned width)
+{
+    char tmp[10];
+    int len = 0;
+    if (v == 0) {
+        /* Special case: fill with zeros */
+        for (unsigned i = 0; i < width; ++i)
+            tmp[len++] = '0';
+    } else {
+        while (v) {
+            tmp[len++] = '0' + (v % 10);
+            v /= 10;
+        }
+        /* Pad with zeros to required width */
+        while (len < width)
+            tmp[len++] = '0';
+    }
+    /* Write in reverse order to buf */
+    for (int i = len - 1; i >= 0; --i)
+        buf[(*pos)++] = tmp[i];
+}
 
 /* Big integer base 1,000,000,000; enough for 6005 decimal digits
    6005 / 9 ≈ 667, so allocate a little more.                     */

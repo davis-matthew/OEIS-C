@@ -8,14 +8,17 @@
  *            ((k+1)*(n-k)!)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   binomial, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binomial.h"    /* binomial(idx_t a, idx_t b) */
-#include "../utils/seq_pow.h"     /* seq_pow(seq_t base, idx_t exp) */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache of factorials and sequence values */
@@ -26,7 +29,7 @@ seq_t a(idx_t n) {
 
     /* Ensure factorial array covers 0..n */
     if (n + 1 > fact_cap) {
-        seq_t *new_fact = (seq_t *)realloc(fact, (n + 1) * sizeof(seq_t));
+        seq_t *new_fact = mem_resize(seq_t, fact, (n + 1));
         if (!new_fact) return 0; /* allocation fail, return 0 */
         fact = new_fact;
         if (fact_cap == 0) {
@@ -41,7 +44,7 @@ seq_t a(idx_t n) {
 
     /* Ensure value cache covers 0..n */
     if (n + 1 > cache_cap) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) return 0;
         cache = new_cache;
         /* Compute new terms from old cache_cap up to n */
@@ -56,7 +59,7 @@ seq_t a(idx_t n) {
                 if (k == 0) {
                     pow_term = (m == 0) ? 1 : 0;
                 } else {
-                    pow_term = seq_pow((seq_t)k, m - k);
+                    pow_term = ipow_idx((seq_t)k, m - k);
                 }
 
                 /* binomial(4*k+4, k) */

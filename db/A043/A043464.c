@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 31, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    found elements so that calls in any order are efficient. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper to count the number of digit 2 in the base-9 representation
    of a number.  Works for all supported seq_t types. */
@@ -44,7 +46,7 @@ static void cache_push(seq_t val)
 {
     if (cache_size == cache_cap) {
         size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
-        void *tmp = realloc(cache, new_cap * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, cache, new_cap);
         cache = (seq_t *)tmp;
         cache_cap = new_cap;
     }

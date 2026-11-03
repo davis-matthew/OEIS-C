@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 164, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   balanced_in_base9
+ * Validated: standard, pass, 85 terms through n = 9913 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,29 @@
    The function returns the n‑th such number (1‑based indexing, a(1)=0). */
 
 #include <stdbool.h>          /* for bool */
-#include "../utils/balanced_in_base9.h"
+
+/* Helper: true iff the base‑9 digits of 'value' have the same count of 6 and 8 */
+static bool balanced_in_base9(idx_t value)
+{
+    /* 0 has no 6's or 8's – counts are equal. */
+    if (value == 0) {
+        return true;
+    }
+
+    idx_t tmp   = value;
+    idx_t c6 = 0, c8 = 0;
+
+    while (tmp != 0) {
+        int digit = tmp % 9;          /* digit is 0…8, isolated with % 9 */
+        if (digit == 6) {
+            ++c6;
+        } else if (digit == 8) {
+            ++c8;
+        }
+        tmp /= 9;
+    }
+    return c6 == c8;
+}
 
 /* External function required by the framework */
 seq_t a(idx_t n)

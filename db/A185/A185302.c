@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} d * sigma(n/d)^d where sigma(m) = Sum_{k|m} k
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 35, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Fast exponentiation for seq_t base:  base^exp  (exp is idx_t) */
 static seq_t pow_seq(seq_t base, idx_t exp)
@@ -47,7 +49,7 @@ static void compute_sigma_up_to(idx_t n)
         return;
 
     /* Allocate (or reallocate) the cache to size n+1 */
-    seq_t *new_cache = (seq_t *)realloc(sigma_cache, (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, sigma_cache, (size_t)(n + 1));
     if (!new_cache)
         exit(1);                  /* out‑of‑memory; termination is fine */
     sigma_cache = new_cache;

@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 163, u16 n <= 9065, u32 n <= 9065, u64 n <= 9065,
- *            u128 n <= 9065, big any n
- * Helpers:   none
+ * Range:     u8 n <= 163, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 82 terms through n = 9065 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Ensure 'used' has room for indices up to m (inclusive). */
 static void ensure_used_capacity(idx_t m, uint8_t **used, size_t *usedCap)
@@ -48,7 +50,7 @@ static void append_value(seq_t val, seq_t **arr, size_t *len, size_t *cap)
 {
     if (*len >= *cap) {
         size_t newCap = (*cap > 0) ? (*cap << 1) : 8;
-        seq_t *tmp = (seq_t *)realloc(*arr, newCap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, newCap);
         if (!tmp) exit(1);
         *arr = tmp;
         *cap = newCap;
@@ -63,7 +65,7 @@ static void ensure_capacity(size_t need, seq_t **arr, size_t *cap)
     if (need >= *cap) {
         size_t newCap = (*cap > 0) ? (*cap << 1) : 4;
         while (newCap <= need) newCap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, (newCap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, (newCap + 1));
         if (!tmp) exit(1);
         *arr = tmp;
         *cap = newCap;

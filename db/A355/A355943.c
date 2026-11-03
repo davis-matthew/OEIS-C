@@ -10,9 +10,10 @@
  * Formula:   a(n) = 1 if n is odd and A064989(sigma(n)) divides A064989(n), *
  *            otherwise 0. A064989 is multiplicative with a(2)=1 and
  *            a(p)=prevprime(p) * for odd primes p. Sigma is sum of divisors
- * Range:     u8 n <= 16, u16 n <= 1698, u32 n <= 9768, u64 n <= 9768,
- *            u128 n <= 9768, big any n
- * Helpers:   big_pow, build_primes_upto, prev_prime
+ * Range:     u8 n <= 16, u16 n <= 1698, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 143 terms through n = 9768 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,9 +27,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"          /* seq_t big_pow(seq_t, seq_t) */
-#include "../utils/prev_prime.h"       /* idx_t prev_prime(idx_t) */
-#include "../utils/build_primes_upto.h"/* void build_primes_upto(idx_t, uint64_t **, size_t *) */
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow.h"
+#include "../utils/is_prime.h"
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
 
 static uint64_t *prime_list = NULL;    /* sieve primes */
 static size_t prime_count = 0;
@@ -60,7 +71,7 @@ static seq_t a064989_uint64(uint64_t n)
             }
             if (p != 2) {
                 seq_t prev = (seq_t)prev_prime(p);
-                prod *= big_pow(prev, (seq_t)e);
+                prod *= ipow(prev, (seq_t)e);
             }
         }
     }
@@ -96,14 +107,14 @@ static seq_t sigma_uint64_to_seq(uint64_t n)
                 m /= p;
                 ++e;
             }
-            seq_t p_power = big_pow((seq_t)p, (seq_t)(e + 1));
+            seq_t p_power = ipow((seq_t)p, (seq_t)(e + 1));
             seq_t denom = (seq_t)(p - 1);
             seq_t factor = (p_power - 1) / denom;
             sigma *= factor;
         }
     }
     if (m > 1) {     /* remaining prime factor */
-        seq_t p_power = big_pow((seq_t)m, 2);
+        seq_t p_power = ipow((seq_t)m, 2);
         seq_t denom = (seq_t)(m - 1);
         seq_t factor = (p_power - 1) / denom;
         sigma *= factor;

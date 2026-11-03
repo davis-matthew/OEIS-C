@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 36, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 1486 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(n)=4*a(n-1)-4*a(n-2)+4*a(n-3)+8*a(n-4)-4*a(n-6)  (n≥6) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[6] = { 1, 4, 12, 36, 120, 416 };
 static seq_t *cache = NULL;          /* dynamically growing cache */
@@ -29,7 +31,7 @@ static void grow_cache(size_t new_len)
     if (new_len <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap : 1;
     while (new_cap < new_len) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }

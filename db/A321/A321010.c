@@ -11,7 +11,8 @@
  *            brute‑force testing successive integers
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 4, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   filter_once
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,48 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/filter_once.h"
+#include "../utils/mem.h"
+
+/* Return the number obtained by keeping only digits that occur
+ * exactly once in n. */
+static seq_t filter_once(seq_t n)
+{
+    uint8_t *digits = NULL;
+    size_t len = 0, cap = 0;
+    unsigned int count[10] = {0};
+
+    /* Special case for 0: its representation is a single zero digit. */
+    if (n == 0) {
+        count[0] = 1;
+    } else {
+        seq_t tmp = n;
+        while (tmp) {
+            /* Grow buffer if needed. */
+            if (len == cap) {
+                cap = cap ? cap * 2 : 64;
+                uint8_t *new_buf = (uint8_t *)realloc(digits, cap);
+                if (!new_buf) abort();
+                digits = new_buf;
+            }
+            /* Extract least‑significant decimal digit. */
+            uint8_t d = (uint8_t)( (unsigned long long)(tmp % 10) );
+            digits[len++] = d;
+            count[d]++;
+            tmp /= 10;
+        }
+    }
+
+    seq_t res = 0;
+    for (int i = (int)len - 1; i >= 0; --i) {
+        unsigned int d = digits[i];
+        if (count[d] == 1) {
+            res = res * 10 + d;
+        }
+    }
+
+    free(digits);
+    return res;
+}
 
 static seq_t *seq_cache = NULL;
 static size_t seq_len = 0;
@@ -33,7 +75,7 @@ static void ensure_cap(size_t need)
     if (seq_cap < need) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 8;
         while (new_cap < need) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) abort();
         seq_cache = tmp;
         seq_cap = new_cap;

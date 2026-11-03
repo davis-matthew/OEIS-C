@@ -11,12 +11,13 @@
  *            (A007947)
  * Range:     u8 n <= 432, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   rad
+ * Validated: standard, pass, 104 terms through n = 9868 (2026-11-01)
+ * Helpers:   radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/rad.h"
+#include "../utils/radical.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +28,7 @@ seq_t a(idx_t n)
     seq_t z = 1;
 
     while (m < n) {
-        seq_t r_seq = rad(y);          /* squarefree kernel of y */
+        seq_t r_seq = radical(y);          /* squarefree kernel of y */
         idx_t r = (idx_t)r_seq;
 
         if (r == y) {                  /* y is squarefree */

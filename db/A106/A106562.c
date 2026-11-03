@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
             good = false;
         else {                              /* odd square: check if m-2 is composite */
             uint64_t val = (uint64_t)(m - 2);  /* m fits in 64 bits for our range */
-            good = !is_prime(val);
+            good = !is_prime_u64(val);
         }
 
         if (good) {

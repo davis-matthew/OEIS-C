@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   append_int, seq_from_str
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,31 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_from_str.h"
-#include "../utils/append_int.h"
+#include <string.h>
+#include <stdbool.h>
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+static void append_int(char *buf, size_t *pos, int val)
+{
+    /* val > 0 */
+    char tmp[32];
+    int len = 0;
+    do {
+        tmp[len++] = '0' + (val % 10);
+        val /= 10;
+    } while (val > 0);
+    for (int i = len - 1; i >= 0; --i)
+        buf[(*pos)++] = tmp[i];
+}
 
 seq_t a(idx_t n)
 {

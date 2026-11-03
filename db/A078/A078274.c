@@ -12,7 +12,8 @@
  *            numbers (A019519(n)) with its reverse (A038395(n))
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 7, u128 n <= 12,
  *            big any n
- * Helpers:   digit_count
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
-#include "../utils/digit_count.h"
+#include <math.h>
+#include "../utils/num_digits0.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     uint64_t two_n_minus1 = (uint64_t)2 * (uint64_t)n - 1;
     size_t len_asc = 0;
     for (uint64_t m = 1; m <= two_n_minus1; m += 2)
-        len_asc += (size_t)digit_count(m);
+        len_asc += (size_t)num_digits0(m);
     size_t len_rev = len_asc;          /* same number of digits */
 
     /* Allocate arrays to hold the digits in order from most significant

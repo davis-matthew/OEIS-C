@@ -8,6 +8,7 @@
  *            positive cubes
  * Range:     u8 n <= 114, u16 n <= 142, u32 n <= 142, u64 n <= 142,
  *            u128 n <= 142, big any n
+ * Validated: full, pass, 142 terms through n = 142 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

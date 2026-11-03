@@ -9,7 +9,8 @@
  *            connecting top–bottom or left–right) / 2 (OEIS A069448)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   encode_state
+ * Validated: partial, pass, 17 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,21 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/encode_state.h"
+#include "../utils/mem.h"
+
+static inline uint32_t encode_state(uint8_t bits,
+                                    uint8_t comp[3],
+                                    uint8_t flags[3])
+{
+    uint32_t key = (uint32_t)bits;               /* bits 0‑2          */
+    key |= ((uint32_t)comp[0] & 3) << 3;         /* comp0  3‑4         */
+    key |= ((uint32_t)comp[1] & 3) << 5;         /* comp1  5‑6         */
+    key |= ((uint32_t)comp[2] & 3) << 7;         /* comp2  7‑8         */
+    key |= ((uint32_t)flags[0] & 15) << 9;       /* flags0 9‑12        */
+    key |= ((uint32_t)flags[1] & 15) << 13;      /* flags1 13‑16       */
+    key |= ((uint32_t)flags[2] & 15) << 17;      /* flags2 17‑20       */
+    return key;
+}
 
 /* --------------------------------------------------------------------- */
 /*  State representation and hash table                                 */
@@ -329,8 +344,8 @@ seq_t a(idx_t n)
     if (!initialized) init();
 
     size_t S = (size_t)state_count;
-    seq_t *dp  = (seq_t *)malloc(S * sizeof(seq_t));
-    seq_t *ndp = (seq_t *)malloc(S * sizeof(seq_t));
+    seq_t *dp  = mem_new(seq_t, S);
+    seq_t *ndp = mem_new(seq_t, S);
     for (size_t i = 0; i < S; ++i) dp[i] = (seq_t)0;
 
     /* Count initial column arrays */
@@ -362,6 +377,6 @@ seq_t a(idx_t n)
     /* Final required answer is half of total */
     seq_t result = total / (seq_t)2;
 
-    free(dp); free(ndp);
+    mem_free(dp); mem_free(ndp);
     return result;
 }

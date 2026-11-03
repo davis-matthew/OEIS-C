@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- deterministic Miller–Rabin for 64‑bit ---------- */
 static bool isPrime64(uint64_t n)
@@ -123,7 +125,7 @@ static void ensure_fail_cap(size_t need)
     if (fail_cap >= need) return;
     size_t new_cap = fail_cap ? fail_cap << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(fail_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fail_arr, new_cap);
     if (!tmp) exit(1);
     fail_arr = tmp;
     fail_cap = new_cap;

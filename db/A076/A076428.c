@@ -9,6 +9,7 @@
  *            the superfactorial base divides k
  * Range:     u8 n <= 49, u16 n <= 1503, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 76 terms through n = 9748 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

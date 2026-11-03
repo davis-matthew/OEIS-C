@@ -10,7 +10,8 @@
  *            condition
  * Range:     u8 n <= 4, u16 n <= 20, u32 n <= 878, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Dynamic arrays for primes and for the sequence terms.            */
@@ -61,7 +63,7 @@ static inline void add_prime(seq_t p)
 {
     if (prime_count == prime_cap) {
         prime_cap = prime_cap ? prime_cap * 2 : 128;
-        prime_list = (seq_t*)realloc(prime_list, prime_cap * sizeof(seq_t));
+        prime_list = mem_resize(seq_t, prime_list, prime_cap);
         if (!prime_list) abort();
     }
     prime_list[prime_count++] = p;
@@ -74,7 +76,7 @@ static inline void add_term(seq_t p)
 {
     if (term_count == term_cap) {
         term_cap = term_cap ? term_cap * 2 : 128;
-        term_list = (seq_t*)realloc(term_list, term_cap * sizeof(seq_t));
+        term_list = mem_resize(seq_t, term_list, term_cap);
         if (!term_list) abort();
     }
     term_list[term_count++] = p;

@@ -9,7 +9,8 @@
  *            the decimal digits of 2*n-1, * or 0 if no such number exists
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 40, u64 n <= 4090,
  *            u128 n <= 4090, big any n
- * Helpers:   digit_count, find_palindrome_solution, rev, seq_from_str
+ * Validated: standard, pass, 56 terms through n = 4054 (2026-11-01)
+ * Helpers:   num_digits0, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,10 +33,67 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../utils/rev.h"
-#include "../utils/digit_count.h"
-#include "../utils/seq_from_str.h"
-#include "../utils/find_palindrome_solution.h"
+#include <math.h>
+#include <stdlib.h>
+#include "../utils/num_digits0.h"
+#include "../utils/reverse_digits_idx.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+/* find the smallest palindrome of length m satisfying the congruence */
+static bool find_palindrome_solution(uint64_t k, uint64_t revk,
+                                     uint64_t pow10c_mod_k, size_t max_m,
+                                     char *mid_out, size_t *m_len_out) {
+    uint64_t revk_mod_k = revk % k;
+    for (size_t m = 1; m <= max_m; ++m) {
+        size_t half = (m + 1) / 2;
+        /* maximum value for the upper half (with leading zeros) */
+        uint64_t limit = 1;
+        for (size_t i = 0; i < half; ++i) limit *= 10ULL;
+        for (uint64_t y = 0; y < limit; ++y) {
+            /* extract half digits, padded with leading zeros */
+            uint8_t half_digits[32];
+            uint64_t tmp = y;
+            for (size_t i = half; i-- > 0;) {
+                half_digits[i] = tmp % 10;
+                tmp /= 10;
+            }
+            /* build full digits of m-length palindrome */
+            uint8_t digits[64];
+            for (size_t i = 0; i < half; ++i) digits[i] = half_digits[i];
+            if (m % 2 == 0) {
+                for (size_t i = 0; i < half; ++i)
+                    digits[half + i] = half_digits[half - 1 - i];
+            } else {
+                for (size_t i = 0; i < half - 1; ++i)
+                    digits[half + i] = half_digits[half - 2 - i];
+            }
+            /* compute X modulo k */
+            uint64_t X_mod = 0;
+            for (size_t i = 0; i < m; ++i)
+                X_mod = (X_mod * 10 + digits[i]) % k;
+            /* check modular condition */
+            uint64_t lhs = (X_mod * pow10c_mod_k + revk_mod_k) % k;
+            if (lhs == 0) {
+                /* build the middle string */
+                for (size_t i = 0; i < m; ++i)
+                    mid_out[i] = digits[i] + '0';
+                mid_out[m] = '\0';
+                *m_len_out = m;
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 /* local gcd for uint64_t -------------------------------------------- */
 static uint64_t gcd_u64(uint64_t a, uint64_t b) {
@@ -53,9 +111,9 @@ seq_t a(idx_t n) {
 
     /* k = 2*n - 1 */
     uint64_t k_u = 2ULL * (uint64_t)n - 1ULL;
-    uint64_t revk_u = rev(k_u);
+    uint64_t revk_u = reverse_digits_idx(k_u);
     /* number of digits of k */
-    uint64_t c = digit_count(k_u);
+    uint64_t c = num_digits0(k_u);
 
     /* if k itself is palindrome, return k */
     seq_t k_seq = (seq_t)k_u;
@@ -66,12 +124,12 @@ seq_t a(idx_t n) {
     bool k_is_pal = true;
     {
         uint64_t temp = k_u;
-        uint64_t rev = 0;
+        uint64_t reverse_digits_idx = 0;
         while (temp > 0) {
-            rev = rev * 10 + temp % 10;
+            reverse_digits_idx = reverse_digits_idx * 10 + temp % 10;
             temp /= 10;
         }
-        if (rev != k_u) k_is_pal = false;
+        if (reverse_digits_idx != k_u) k_is_pal = false;
     }
     if (k_is_pal) return k_seq;
 

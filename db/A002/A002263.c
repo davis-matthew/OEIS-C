@@ -9,7 +9,8 @@
  *            Proth's test with base 3)
  * Range:     u8 n <= 14, u16 n <= 25, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   s2263_cmp, s2263_small_prime, s2263_sub
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,24 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/s2263_cmp.h"
-#include "../utils/s2263_small_prime.h"
-#include "../utils/s2263_sub.h"
+#include "../utils/is_prime_u64.h"
+
+static int s2263_cmp(const uint64_t *x, const uint64_t *y, size_t L) {
+    for (size_t i = L; i-- > 0;) {
+        if (x[i] != y[i]) return x[i] < y[i] ? -1 : 1;
+    }
+    return 0;
+}
+
+static void s2263_sub(uint64_t *x, const uint64_t *y, size_t L) {
+    uint64_t br = 0;
+    for (size_t i = 0; i < L; i++) {
+        uint64_t yi = y[i];
+        uint64_t t = x[i] - yi - br;
+        br = (x[i] < yi || (x[i] == yi && br)) ? 1 : 0;
+        x[i] = t;
+    }
+}
 
 #define S2263_LIMIT 1000000u
 
@@ -163,7 +179,7 @@ static void s2263_advance(void) {
     bool prime;
     if (s2263_k <= 10) {
         uint64_t N = 25ull * (1ull << (2 * s2263_k)) + 1;
-        prime = s2263_small_prime(N);
+        prime = is_prime_u64(N);
     } else {
         prime = !composite && s2263_proth(2 * s2263_k);
     }

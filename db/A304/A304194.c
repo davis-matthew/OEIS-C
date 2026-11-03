@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 33, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Types supplied by the build.  */
 extern seq_t pow_seq(seq_t a, int k);   /* not used, here only to keep the build happy */
@@ -84,7 +86,7 @@ static void generate_sequence(void) {
        numbers up to MAX_LIMIT.  Allocate a still huge capacity
        to avoid reallocations. */
     term_cap = 100000;
-    terms = (seq_t *)malloc(term_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, term_cap);
 
     for (int k = 1; k <= MAX_LIMIT; ++k) {
         unsigned long long prod = 1ULL;
@@ -106,13 +108,13 @@ static void generate_sequence(void) {
         if (prod == (unsigned long long)k) {
             if (term_cnt == term_cap) {
                 term_cap <<= 1;
-                terms = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, term_cap);
             }
             terms[term_cnt++] = (seq_t)k;
         }
     }
     /* shrink array to actual size */
-    terms = (seq_t *)realloc(terms, term_cnt * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, term_cnt);
 }
 
 /* ------------------------------------------------------------------ */

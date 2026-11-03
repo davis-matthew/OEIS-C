@@ -7,6 +7,7 @@
  * Formula:   a(n) = (0^n + 4^n * binomial(2*n,n))/2
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 33,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 822 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* For n=0 this gives 1; for n>0 the term reduces to 2^(2*n-1) * binomial(2*n,n) */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 227, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 900 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of helper to obtain distinct prime factors. */
 static void factor_distinct(uint64_t n, uint64_t *pf, size_t *cnt);
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
         return;
 
     /* Allocate new cache of the required size. */
-    seq_t *new_cache = (seq_t *)malloc(n * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, n);
     if (!new_cache)
         return; /* allocation failed – caller will handle 0 result */
 
@@ -85,7 +87,7 @@ static void ensure_cache(idx_t n)
     }
 
     /* Replace the old cache and free its memory. */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_len = n;
 }

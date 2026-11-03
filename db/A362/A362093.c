@@ -11,7 +11,8 @@
  *            |a(n-1)-a(n-2)|
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_arr   = NULL;   /* cached terms, 0‑based: a(1)=seq_arr[0] */
 static size_t seq_len   = 0;      /* number of terms stored          */
@@ -33,7 +35,7 @@ static void ensure_seq_cap(size_t needed)
     if (seq_cap >= needed) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 1;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *p = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, seq_arr, new_cap);
     if (!p) abort();
     seq_arr = p;
     seq_cap = new_cap;

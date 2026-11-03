@@ -13,6 +13,7 @@
  *            if r is even: T(r,c) = (c < (r+2)/2) ? T(r‑1,c...
  * Range:     u8 n <= 224, u16 n <= 692, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 107 terms through n = 1163 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

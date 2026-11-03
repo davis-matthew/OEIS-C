@@ -9,14 +9,36 @@
  *            adjacency matrix with * A[i][j] = 1 if |i−j| ≤ 5, otherwise 0
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   mat_mul_out
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include standard headers needed for idx_t/seq_t operations */
 #include <stddef.h>
-#include "../utils/mat_mul_out.h"
+
+/* out = A * B  (both are 10×10 matrices) */
+static void mat_mul_out(seq_t out[10][10], const seq_t A[10][10], const seq_t B[10][10]) {
+    seq_t tmp[10][10];
+    /* zero the temporary matrix */
+    for (idx_t i = 0; i < 10; ++i)
+        for (idx_t j = 0; j < 10; ++j)
+            tmp[i][j] = 0;
+    /* standard O(n³) multiplication, n = 10 */
+    for (idx_t i = 0; i < 10; ++i) {
+        for (idx_t k = 0; k < 10; ++k) {
+            if (A[i][k] == 0) continue;
+            seq_t aik = A[i][k];
+            for (idx_t j = 0; j < 10; ++j)
+                tmp[i][j] += aik * B[k][j];
+        }
+    }
+    /* copy result back to out */
+    for (idx_t i = 0; i < 10; ++i)
+        for (idx_t j = 0; j < 10; ++j)
+            out[i][j] = tmp[i][j];
+}
 
 /* INTERNAL: matrix multiplication returning the result in `out` */
 

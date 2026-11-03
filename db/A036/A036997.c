@@ -10,7 +10,8 @@
  *            coprime to n
  * Range:     u8 n <= 329, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes, phi, prime_pi
+ * Validated: standard, pass, 100 terms through n = 9567 (2026-11-01)
+ * Helpers:   omega, prime_pi, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/phi.h"                    /* seq_t phi(idx_t m) */
-#include "../utils/prime_pi.h"                /* seq_t prime_pi(idx_t limit) */
-#include "../utils/count_distinct_primes.h"   /* int count_distinct_primes(uint64_t n) */
+#include <stdlib.h>
+#include "../utils/omega.h"
+#include "../utils/prime_pi.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (n < 1) return (seq_t)0;
 
     /* φ(n) – counts all integers 1..n coprime with n. */
-    seq_t phi_n = phi(n);
+    seq_t phi_n = totient(n);
 
     /* π(n) – counts all primes ≤ n.  Subtract those primes that divide n
        (counted by count_distinct_primes).  The remainder are the primes
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     seq_t pi_n = prime_pi(n);
 
     /* ω(n) – number of distinct prime factors of n. */
-    int distinct = count_distinct_primes((uint64_t)n);
+    int distinct = omega((uint64_t)n);
     seq_t distinct_seq = (seq_t)distinct;
 
     /* a(n) = φ(n) - π(n) + ω(n) - 1 (subtract 1 for the number 1, which is

@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k divides n} (n/k)^k
  * Range:     u8 n <= 11, u16 n <= 29, u32 n <= 59, u64 n <= 122,
  *            u128 n <= 242, big any n
+ * Validated: standard, pass, 60 terms through n = 963 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

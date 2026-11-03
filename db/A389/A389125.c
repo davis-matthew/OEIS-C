@@ -8,11 +8,13 @@
  *            n-3*k)
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 27, u64 n <= 51, u128 n <= 99,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 988 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

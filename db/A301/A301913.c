@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 3765, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow, prime_trial
+ * Validated: standard, pass, 71 terms through n = 9027 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,10 +23,40 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
-#include "../utils/prime_trial.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Trial‑division primality test using a growing list of primes. */
+static bool prime_trial(uint64_t n, uint64_t *primes, size_t prime_cnt)
+{
+    if (n < 2) return false;
+    for (size_t i = 0; i < prime_cnt && primes[i] * primes[i] <= n; ++i)
+        if (n % primes[i] == 0) return false;
+    return true;
+}
 
 /* Dynamically grow/extend a buffer on demand. */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(T **ptr, size_t *cap, size_t needed, size_t elem_size)
+{
+    if (*cap < needed) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        while (new_cap < needed) new_cap <<= 1;
+        *ptr = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+        *cap = new_cap;
+    }
+}
+#else
 static void ensure_capacity(void **ptr, size_t *cap, size_t needed, size_t elem_size)
 {
     if (*cap < needed) {
@@ -35,6 +66,7 @@ static void ensure_capacity(void **ptr, size_t *cap, size_t needed, size_t elem_
         *cap = new_cap;
     }
 }
+#endif
 
 /* Compute the multiplicative order of base 3 modulo prime p
    (p is odd and p != 3).  The prime factors of p-1 are supplied
@@ -51,7 +83,7 @@ static uint64_t order_3_mod_prime(uint64_t p, uint64_t *primes, size_t prime_cnt
         /* Reduce order by q as long as 3^(order/q) ≡ 1 (mod p). */
         while (order % q == 0) {
             uint64_t cand = order / q;
-            if (mod_pow((seq_t)3, cand, (seq_t)p) == 1)
+            if (powmod((seq_t)3, cand, (seq_t)p) == 1)
                 order = cand;
             else
                 break;
@@ -65,7 +97,7 @@ static uint64_t order_3_mod_prime(uint64_t p, uint64_t *primes, size_t prime_cnt
         uint64_t q = rem;
         while (order % q == 0) {
             uint64_t cand = order / q;
-            if (mod_pow((seq_t)3, cand, (seq_t)p) == 1)
+            if (powmod((seq_t)3, cand, (seq_t)p) == 1)
                 order = cand;
             else
                 break;
@@ -81,7 +113,7 @@ static bool has_property(uint64_t p, uint64_t *primes, size_t prime_cnt)
     if (p == 3) return false;        /* 3 never divides 3^k+2 */
     uint64_t ord3 = order_3_mod_prime(p, primes, prime_cnt);
     /* If ord(-2) divides ord(3), then (-2)^ord3 ≡ 1 (mod p). */
-    return mod_pow((seq_t)(p - 2), ord3, (seq_t)p) == 1;
+    return powmod((seq_t)(p - 2), ord3, (seq_t)p) == 1;
 }
 
 /* Main sequence function as required by the problem statement. */
@@ -97,7 +129,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         /* Prime list starts with 2 and 3. */
-        ensure_capacity((void**)&prime_list, &prime_cap, 2, sizeof(uint64_t));
+        ensure_capacity(OEISC_VPP(&prime_list), &prime_cap, 2, sizeof(uint64_t));
         prime_list[0] = 2;
         prime_list[1] = 3;
         prime_len = 2;
@@ -105,14 +137,14 @@ seq_t a(idx_t n)
     }
 
     /* Grow the sequence cache to at least n elements. */
-    ensure_capacity((void**)&seq, &seq_cap, (size_t)n, sizeof(seq_t));
+    ensure_capacity(OEISC_VPP(&seq), &seq_cap, (size_t)n, sizeof(seq_t));
 
     /* Generate more terms until we have n of them. */
     while (seq_len < (size_t)n) {
         /* Test primality of the current candidate. */
         if (prime_trial(next_prime, prime_list, prime_len)) {
             /* Add the new prime to the list. */
-            ensure_capacity((void**)&prime_list, &prime_cap, prime_len + 1, sizeof(uint64_t));
+            ensure_capacity(OEISC_VPP(&prime_list), &prime_cap, prime_len + 1, sizeof(uint64_t));
             prime_list[prime_len++] = next_prime;
 
             /* If it satisfies the property, store it in the sequence. */

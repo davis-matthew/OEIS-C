@@ -10,12 +10,14 @@
  *            [1,3,3,-4,10,-4,3,3,1] for n in [6,14]
  * Range:     u8 n <= 9, u16 n <= 21, u32 n <= 161, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_capacity = 0;
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     
     if (n >= cache_capacity) {
         idx_t new_capacity = n + 1024;
-        cache = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_capacity);
         cache_capacity = new_capacity;
     }
     

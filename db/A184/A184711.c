@@ -9,13 +9,15 @@
  *            that Σ i·x[i] = 11·n
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 20, u64 n <= 129, u128 n <= 129,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 125 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,22 +26,22 @@ seq_t a(idx_t n)
     size_t len = (size_t)S + 1;
 
     /* dp holds counts for current weight, next for next iteration */
-    seq_t *dp = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *next = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, len);
+    seq_t *next = mem_new(seq_t, len);
     if (!dp || !next) {
         /* allocation failure: return 0 as safe fallback */
-        free(dp);
-        free(next);
+        mem_free(dp);
+        mem_free(next);
         return (seq_t)0;
     }
 
-    memset(dp, 0, len * sizeof(seq_t));
-    memset(next, 0, len * sizeof(seq_t));
+    mem_set(dp, 0, len * sizeof(seq_t));
+    mem_set(next, 0, len * sizeof(seq_t));
     dp[0] = (seq_t)1;   /* one way to reach sum 0 with no variables */
 
     for (idx_t weight = 1; weight <= 11; ++weight) {
         /* reset next array */
-        memset(next, 0, len * sizeof(seq_t));
+        mem_set(next, 0, len * sizeof(seq_t));
 
         /* sliding window size: (n+1)*weight */
         idx_t window = (n + (idx_t)1) * weight;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
 
     seq_t result = dp[S];
 
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return result;
 }

@@ -10,7 +10,8 @@
  *            nonprime square‑free integer
  * Range:     u8 none, u16 none, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   build_primes_upto, build_spf, is_prime
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   build_primes_upto, build_spf, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include "../utils/build_primes_upto.h"
 #include "../utils/build_spf.h"
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /*------------------------------------*/
 /* Build the set of allowed primes    */
@@ -81,7 +83,7 @@ static void init_static(void)
     build_spf(prime_limit, &g_spf);
 
     /* 3. collect allowed primes */
-    g_allowed_primes = (seq_t *)malloc(sizeof(seq_t) * g_all_prime_cnt);
+    g_allowed_primes = mem_new(seq_t, g_all_prime_cnt);
     if (!g_allowed_primes) abort();  /* allocation failure */
     g_allowed_cnt = 0;
     for (size_t i = 0; i < g_all_prime_cnt; ++i) {
@@ -106,7 +108,7 @@ seq_t a(idx_t n)
     init_static();
 
     /* Allocate sequence array: a[0] = 1 (virtual), then a[1..n] are terms */
-    seq_t *seq = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, (size_t)n + 1);
     if (!seq)
         return (seq_t)0;                     /* allocation failed */
 
@@ -115,14 +117,14 @@ seq_t a(idx_t n)
     /* Pointers into seq for each allowed prime */
     idx_t *ptr = (idx_t *)calloc(g_allowed_cnt, sizeof(idx_t));
     if (!ptr) {
-        free(seq);
+        mem_free(seq);
         return (seq_t)0;
     }
 
     /* Current candidates: next[i] = seq[ptr[i]] * msg_allowed_primes[i] */
-    seq_t *cand = (seq_t *)calloc(g_allowed_cnt, sizeof(seq_t));
+    seq_t *cand = mem_new(seq_t, g_allowed_cnt);
     if (!cand) {
-        free(seq);
+        mem_free(seq);
         free(ptr);
         return (seq_t)0;
     }
@@ -155,8 +157,8 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[n];
-    free(seq);
+    mem_free(seq);
     free(ptr);
-    free(cand);
+    mem_free(cand);
     return result;
 }

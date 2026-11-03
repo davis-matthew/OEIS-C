@@ -11,7 +11,8 @@
  *            commuting constraints
  * Range:     u8 none, u16 n <= 6, u32 n <= 22, u64 n <= 52, u128 n <= 112,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>     /* malloc, free */
 #include <string.h>     /* memset */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -107,8 +109,8 @@ seq_t a(idx_t n)
             }
         }
         /* 5. allocate DP arrays */
-        dp_curr = (seq_t*)malloc(valid_cnt * sizeof(seq_t));
-        dp_next = (seq_t*)malloc(valid_cnt * sizeof(seq_t));
+        dp_curr = mem_new(seq_t, valid_cnt);
+        dp_next = mem_new(seq_t, valid_cnt);
         if (!dp_curr || !dp_next) {
             /* allocation failure – fall back to zero */
             return 0;
@@ -125,7 +127,7 @@ seq_t a(idx_t n)
         /* 7. iteratively build arrays up to n = 14 */
         for (int rows = 2; rows <= 14; ++rows) {
             /* clear next DP */
-            memset(dp_next, 0, valid_cnt * sizeof(seq_t));
+            mem_set(dp_next, 0, valid_cnt * sizeof(seq_t));
             for (int idx = 0; idx < valid_cnt; ++idx) {
                 seq_t cnt = dp_curr[idx];
                 if (cnt == S(0)) continue;

@@ -8,6 +8,7 @@
  * Formula:   a(n) = 8 * sum_{k=1..n} phi(k) - 3
  * Range:     u8 n <= 10, u16 n <= 163, u32 n <= 334, u64 n <= 334,
  *            u128 n <= 334, big any n
+ * Validated: standard, pass, 63 terms through n = 321 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

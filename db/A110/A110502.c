@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_square_block
+ * Validated: standard, pass, 69 terms through n = 9740 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,44 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_square_block.h"
+#include "../utils/mem.h"
+
+/* Helper: return true iff x has a maximal run of zeros whose length
+   is a perfect square greater than 1. */
+static bool has_square_block(seq_t x)
+{
+    if (x == 0)
+        return false;
+
+    seq_t tmp = x;
+    while (tmp) {
+        /* Skip trailing ones to find the start of a zero run. */
+        while ((tmp & 1) && tmp) {
+            tmp >>= 1;
+            if (!tmp)
+                return false;      /* number ended with ones only */
+        }
+        if (!tmp)                 /* no zeros left */
+            break;
+
+        /* Count consecutive zeros. */
+        unsigned long long run = 0;
+        while (!(tmp & 1) && tmp) {
+            ++run;
+            tmp >>= 1;
+        }
+
+        /* Check whether the run length is a non‑trivial square. */
+        if (run >= 4) {           /* smallest square > 1 is 4 */
+            unsigned long long s = 0;
+            while ((s + 1) * (s + 1) <= run)
+                ++s;
+            if (s * s == run)
+                return true;
+        }
+    }
+    return false;
+}
 
 /* Cached results of the sequence.  cache_size holds the number of
    already computed terms; cache_cap is the allocated capacity. */
@@ -41,7 +79,7 @@ static void ensure_cache_capacity(size_t needed_capacity)
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < needed_capacity)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         abort();   /* allocation failed */
     cache = new_cache;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 602, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 9779 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* comparison function for qsort */
 static int cmp_seq(const void *p1, const void *p2)
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         powcnt = exp + 1;          /* number of powers 0..exp */
 
         /* Allocate and compute powers of 3. */
-        seq_t *powers = (seq_t *)malloc(powcnt * sizeof(seq_t));
+        seq_t *powers = mem_new(seq_t, powcnt);
         if (!powers) return (seq_t)0;            /* allocation failure */
         powers[0] = (seq_t)1;
         for (size_t i = 1; i < powcnt; ++i) {
@@ -70,9 +72,9 @@ seq_t a(idx_t n)
         }
 
         /* Allocate array for all sums. */
-        vals = (seq_t *)malloc(total * sizeof(seq_t));
+        vals = mem_new(seq_t, total);
         if (!vals) {
-            free(powers);
+            mem_free(powers);
             return (seq_t)0;                     /* allocation failure */
         }
 
@@ -86,10 +88,10 @@ seq_t a(idx_t n)
             }
         }
 
-        free(powers);
+        mem_free(powers);
 
         /* Sort ascending. */
-        qsort(vals, total, sizeof(seq_t), cmp_seq);
+        mem_qsort(vals, total, sizeof(seq_t), cmp_seq);
 
         count = total;
         init  = true;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 115 terms through n = 9043 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Euclidean GCD for idx_t */
 static inline idx_t gcd_idx(idx_t a, idx_t b)
@@ -43,8 +45,8 @@ seq_t a(idx_t n)
     if (n > max_alloc) {
         /* Allocate new array */
         idx_t new_max = n;
-        if (counts) free(counts);
-        counts = (seq_t *)calloc((size_t)new_max + 1, sizeof(seq_t));
+        if (counts) mem_free(counts);
+        counts = mem_new(seq_t, (size_t)new_max + 1);
         if (!counts) return (seq_t)0;  /* allocation failure – unlikely for small n */
 
         /* Generate all primitive Pythagorean triples with at least one side ≤ new_max */

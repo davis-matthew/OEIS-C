@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,15 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 static seq_t *h = NULL;        /* all numbers 2^a·5^b in increasing order, starting with 1 */
 static size_t hcap = 0, hlen = 0; /* capacity and current length of h            */
@@ -28,6 +38,19 @@ static idx_t i2 = 0, i5 = 0;        /* indices for next multiples of 2 and 5    
 static seq_t *divs = NULL;     /* numbers divisible by 5 (the sequence values) */
 static size_t dcap = 0, dlen = 0; /* capacity and current length of divs           */
 
+#ifdef __cplusplus
+template <class T>
+static void grow(T **ptr, size_t *cap, size_t needed, size_t elem_size)
+{
+    if (needed <= *cap)
+        return;
+    size_t newcap = (*cap == 0) ? 16 : *cap << 1;
+    if (newcap < needed)
+        newcap = needed;
+    *ptr = mem_resize(T, *ptr, (newcap * elem_size) / sizeof(T));
+    *cap = newcap;
+}
+#else
 static void grow(void **ptr, size_t *cap, size_t needed, size_t elem_size)
 {
     if (needed <= *cap)
@@ -38,6 +61,7 @@ static void grow(void **ptr, size_t *cap, size_t needed, size_t elem_size)
     *ptr = realloc(*ptr, newcap * elem_size);
     *cap = newcap;
 }
+#endif
 
 seq_t a(idx_t n)
 {
@@ -48,20 +72,20 @@ seq_t a(idx_t n)
 
     /* --- initialise containers on first call -------------------------------- */
     if (h == NULL) {
-        grow((void **)&h, &hcap, 1, sizeof(seq_t));
+        grow(OEISC_VPP(&h), &hcap, 1, sizeof(seq_t));
         h[0] = (seq_t)1;           /* 1 = 2^0·5^0, the starting point */
         hlen = 1;
         i2 = i5 = 0;
     }
     if (divs == NULL) {
-        grow((void **)&divs, &dcap, 1, sizeof(seq_t));
+        grow(OEISC_VPP(&divs), &dcap, 1, sizeof(seq_t));
         dlen = 0;
     }
 
     /* --- generate numbers until we have the requested amount of divs --------*/
     while (dlen < target) {
         /* ensure space for next Hamming number */
-        grow((void **)&h, &hcap, hlen + 1, sizeof(seq_t));
+        grow(OEISC_VPP(&h), &hcap, hlen + 1, sizeof(seq_t));
 
         seq_t next2 = h[i2] * (seq_t)2;
         seq_t next5 = h[i5] * (seq_t)5;
@@ -69,7 +93,7 @@ seq_t a(idx_t n)
         h[hlen++] = next;               /* store the new number */
 
         if ((next % (seq_t)5) == 0) {    /* store if divisible by 5 */
-            grow((void **)&divs, &dcap, dlen + 1, sizeof(seq_t));
+            grow(OEISC_VPP(&divs), &dcap, dlen + 1, sizeof(seq_t));
             divs[dlen++] = next;
         }
 

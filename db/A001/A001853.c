@@ -11,17 +11,79 @@
  *            m*R_h(m+1) = Sum_{k=1..m} (Sum_{d|k} d*R_{h-1}(d)) * R...
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 23, u64 n <= 44, u128 n <= 86,
  *            big any n
- * Helpers:   a1853_mod_run, a1853_powm, a1853_width, a1853_zero
+ * Validated: standard, pass, 46 terms through n = 283 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a1853_mod_run.h"
-#include "../utils/a1853_powm.h"
-#include "../utils/a1853_width.h"
-#include "../utils/a1853_zero.h"
+#include "../utils/mem.h"
+
+static uint64_t a1853_mod_run(idx_t N, uint64_t p) {
+    uint64_t *T = (uint64_t *)calloc(N + 2, sizeof(uint64_t));
+    uint64_t *P = (uint64_t *)calloc(N + 2, sizeof(uint64_t));
+    uint64_t *R = (uint64_t *)calloc(N + 2, sizeof(uint64_t));
+    uint64_t *c = (uint64_t *)calloc(N + 2, sizeof(uint64_t));
+    uint64_t *inv = (uint64_t *)calloc(N + 2, sizeof(uint64_t));
+    idx_t m, k, d, h, j;
+    uint64_t tot;
+    inv[1] = 1;
+    for (m = 2; m <= N; m++) inv[m] = (p - (p / m) * inv[p % m] % p) % p;
+    T[1] = 1;
+    for (m = 1; m < N; m++) {
+        for (k = m; k <= N; k += m) c[k] = (c[k] + T[m] * (m % p)) % p;
+        uint64_t s = 0;
+        for (k = 1; k <= m; k++) s = (s + c[k] * T[m + 1 - k]) % p;
+        T[m + 1] = s * inv[m] % p;
+    }
+    for (m = 0; m <= N; m++) P[m] = 0;
+    P[1] = 1;
+    tot = (N >= 2) ? T[N] : 0;
+    for (h = 1; h + 2 <= N; h++) {
+        for (k = 0; k <= N; k++) c[k] = 0;
+        for (d = 1; d <= N; d++) {
+            uint64_t v = P[d] * (d % p) % p;
+            for (k = d; k <= N; k += d) c[k] = (c[k] + v) % p;
+        }
+        for (j = 1; j <= h + 1; j++) R[j] = T[j];
+        for (m = h + 1; m < N; m++) {
+            uint64_t s = 0;
+            for (k = 1; k <= m; k++) s = (s + c[k] * R[m + 1 - k]) % p;
+            R[m + 1] = s * inv[m] % p;
+        }
+        tot = (tot + T[N] + p - R[N]) % p;
+        uint64_t *tmp = P; P = R; R = tmp;
+    }
+    free(T); free(P); free(R); free(c); free(inv);
+    return tot;
+}
+
+static uint64_t a1853_powm(uint64_t b, uint64_t e, uint64_t p) {
+    uint64_t r = 1;
+    b %= p;
+    while (e) {
+        if (e & 1) r = r * b % p;
+        b = b * b % p;
+        e >>= 1;
+    }
+    return r;
+}
+
+static int a1853_width(void) {
+    seq_t x = 1;
+    int w = 0;
+    while (x != 0 && w < 400) { x <<= 1; w++; }
+    return w;
+}
+
+static seq_t *a1853_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, len);
+    idx_t i;
+    for (i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *a1853_tot = NULL;
 static idx_t a1853_N = 0;
@@ -56,8 +118,8 @@ static void a1853_big_compute(idx_t N) {
         for (j = h + 2; j <= N; j++) tot[j] += T[j] - R[j];
         seq_t *tmp = P; P = R; R = tmp;
     }
-    free(T); free(P); free(R); free(c);
-    if (a1853_tot) free(a1853_tot);
+    mem_free(T); mem_free(P); mem_free(R); mem_free(c);
+    if (a1853_tot) mem_free(a1853_tot);
     a1853_tot = tot;
     a1853_N = N;
 }

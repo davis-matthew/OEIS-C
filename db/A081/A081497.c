@@ -6,16 +6,18 @@
  * Keywords:  dead
  * Formula:   a(n) = binom(2n, n) + binom(2n-2, n-1) (with binom(m,k) =
  *            C(m,k))
- * Range:     i8 n <= 3, i16 n <= 7, i32 n <= 13, i64 n <= 13, i128 n <= 13,
+ * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 13, i64 n <= 13, i128 n <= 13,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* This sequence is A028270 in the OEIS. */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     idx_t two_n  = n * 2;                /* 2·n  */
-    seq_t term1 = binom(two_n, n);       /* C(2n, n)   */
-    seq_t term2 = binom(two_n - 2, n - 1);/* C(2n-2, n-1) */
+    seq_t term1 = binomial(two_n, n);       /* C(2n, n)   */
+    seq_t term2 = binomial(two_n - 2, n - 1);/* C(2n-2, n-1) */
     return term1 + term2;
 }

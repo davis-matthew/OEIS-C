@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 3011, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   fnv1a_64
+ * Validated: standard, pass, 76 terms through n = 9857 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,18 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/fnv1a_64.h"
+#include "../utils/mem.h"
+
+/* --- Helper: compute FNV‑1a hash of a byte string ----------------- */
+static uint64_t fnv1a_64(const uint8_t *buf, size_t len)
+{
+    uint64_t h = 14695981039346656037ULL;
+    for (size_t i = 0; i < len; ++i) {
+        h ^= (uint64_t)buf[i];
+        h *= 1099511628211ULL;
+    }
+    return h;
+}
 
 /* ------------------------------------------------------------------ */
 /* --- Static storage ------------------------------------------------ */
@@ -230,7 +242,7 @@ seq_t a(idx_t n)
     /* Initialise on first call */
     if (!seq_arr) {
         seq_cap = 16;
-        seq_arr = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         if (!seq_arr) abort();
 
         primes_init();
@@ -262,7 +274,7 @@ seq_t a(idx_t n)
             /* new pattern found – store this number */
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq_arr = (seq_t*)realloc(seq_arr, seq_cap * sizeof(seq_t));
+                seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
                 if (!seq_arr) abort();
             }
             seq_arr[seq_len++] = (seq_t)last_scanned;

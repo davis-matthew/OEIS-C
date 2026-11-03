@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 19, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
           r(n)   = s2(n) + a(n)                           for n>1
    a(0)=0. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *r = NULL;        /* R coefficients */
 static seq_t *s2 = NULL;       /* coefficients of R^2 */
@@ -31,17 +33,17 @@ static void ensure_capacity(idx_t n) {
     /* allocate or grow arrays to size n+1 */
     size_t sz = (size_t)n + 1;
     if (r == NULL) {
-        r = (seq_t *)calloc(sz, sizeof(seq_t));
-        s2 = (seq_t *)calloc(sz, sizeof(seq_t));
-        a_arr = (seq_t *)calloc(sz, sizeof(seq_t));
+        r = mem_new(seq_t, sz);
+        s2 = mem_new(seq_t, sz);
+        a_arr = mem_new(seq_t, sz);
         if (r == NULL || s2 == NULL || a_arr == NULL) {
             /* allocation failed; abort rather than continue */
             abort();
         }
     } else if (sz > (size_t)(max_computed + 1)) {
-        r = (seq_t *)realloc(r, sz * sizeof(seq_t));
-        s2 = (seq_t *)realloc(s2, sz * sizeof(seq_t));
-        a_arr = (seq_t *)realloc(a_arr, sz * sizeof(seq_t));
+        r = mem_resize(seq_t, r, sz);
+        s2 = mem_resize(seq_t, s2, sz);
+        a_arr = mem_resize(seq_t, a_arr, sz);
         if (r == NULL || s2 == NULL || a_arr == NULL) abort();
     }
     /* r[0]=0 and r[1]=1 are needed for all n>=1 */

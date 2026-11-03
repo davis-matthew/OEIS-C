@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 71, i16 n <= 1024, i32 n <= 1024, i64 n <= 1024,
  *            i128 n <= 1024, big any n
- * Helpers:   none
+ * Validated: standard, pass, 137 terms through n = 1016 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- helpers ---------- */
 
@@ -52,7 +54,7 @@ static void ensure_a_capacity(idx_t N)
 {
     if (N + 1 > A_cap) {
         size_t new_cap = N + 1;
-        A = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_cap);
         A_cap = new_cap;
         /* initialise the new slot at index 0 */
         if (A != NULL) A[0] = 0;

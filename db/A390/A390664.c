@@ -9,7 +9,8 @@
  *            (p^(ceil(e/3)+1)-1)/(p-1)
  * Range:     u8 n <= 16, u16 n <= 3315, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 85 terms through n = 9926 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
             ++e;
         }
         uint64_t t = (e + 2) / 3;    /* ceil(e/3) */
-        seq_t pow = big_pow((seq_t)2, (seq_t)(t + 1));
+        seq_t pow = ipow((seq_t)2, (seq_t)(t + 1));
         seq_t factor = (pow - 1) / (seq_t)(2 - 1);
         res *= factor;
     }
@@ -52,7 +53,7 @@ seq_t a(idx_t n)
                 ++e;
             }
             uint64_t t = (e + 2) / 3;   /* ceil(e/3) */
-            seq_t pow = big_pow((seq_t)p, (seq_t)(t + 1));
+            seq_t pow = ipow((seq_t)p, (seq_t)(t + 1));
             seq_t factor = (pow - 1) / ((seq_t)p - 1);
             res *= factor;
         }
@@ -62,7 +63,7 @@ seq_t a(idx_t n)
     if (m > 1) {
         uint64_t e = 1;                /* exponent is 1 */
         uint64_t t = (e + 2) / 3;     /* ceil(1/3) = 1 */
-        seq_t pow = big_pow((seq_t)m, (seq_t)(t + 1));
+        seq_t pow = ipow((seq_t)m, (seq_t)(t + 1));
         seq_t factor = (pow - 1) / ((seq_t)m - 1);
         res *= factor;
     }

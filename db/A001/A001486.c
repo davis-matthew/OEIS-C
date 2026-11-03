@@ -10,13 +10,15 @@
  *            so Q^8 is built by 7 sparse multiplications
  * Range:     i8 n <= 13, i16 n <= 176, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9699 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *a001486_cache = NULL;
 static idx_t a001486_cap = 0;
@@ -40,10 +42,10 @@ static void a001486_build(idx_t N) {
         ex[j] = e; sg[j] = s;
     }
 
-    seq_t *cur = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *nxt = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    memset(cur, 0, (N + 1) * sizeof(seq_t));
-    memset(nxt, 0, (N + 1) * sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, (N + 1));
+    seq_t *nxt = mem_new(seq_t, (N + 1));
+    mem_set(cur, 0, (N + 1) * sizeof(seq_t));
+    mem_set(nxt, 0, (N + 1) * sizeof(seq_t));
     for (idx_t i = 0; i <= N; i++) cur[i] = 0;
     for (idx_t t = 0; t < nt; t++) {
         if (sg[t] > 0) cur[ex[t]] = 1; else cur[ex[t]] = -1;
@@ -61,10 +63,10 @@ static void a001486_build(idx_t N) {
         seq_t *tmp = cur; cur = nxt; nxt = tmp;
     }
 
-    free(nxt);
+    mem_free(nxt);
     free(ex);
     free(sg);
-    if (a001486_cache) free(a001486_cache);
+    if (a001486_cache) mem_free(a001486_cache);
     a001486_cache = cur;
     a001486_cap = N;
 }

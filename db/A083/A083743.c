@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 1069, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrimeTrial
+ * Validated: standard, pass, 76 terms through n = 8983 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    for n > 1: a(n) = a(n-1)+n if a(n-1)+n is prime, otherwise a(n-1). */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* 1‑based array of computed terms */
 static idx_t cache_len = 0;   /* number of terms stored (>=0) */
@@ -32,7 +34,7 @@ static void grow_cache(idx_t needed)
     idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
     if (!tmp)
         abort();
     cache = tmp;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         grow_cache(n);
         for (idx_t i = cache_len + 1; i <= n; ++i) {
             seq_t cand = cache[i - 1] + (seq_t)i;
-            if (isPrimeTrial(cand))
+            if (is_prime_seq(cand))
                 cache[i] = cand;
             else
                 cache[i] = cache[i - 1];

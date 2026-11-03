@@ -13,7 +13,8 @@
  *            coefficients, the first being k and...
  * Range:     u8 n <= 31, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,14 +50,14 @@ seq_t a(idx_t n)
     idx_t offset = n - (idx_t)prev_tri - 1;
 
     /* Allocate arrays of maximum needed size k */
-    seq_t *Uprev = (seq_t *)malloc(sizeof(seq_t) * k);
-    seq_t *Vprev = (seq_t *)malloc(sizeof(seq_t) * k);
-    seq_t *Ucurr = (seq_t *)malloc(sizeof(seq_t) * k);
-    seq_t *Vcurr = (seq_t *)malloc(sizeof(seq_t) * k);
+    seq_t *Uprev = mem_new(seq_t, k);
+    seq_t *Vprev = mem_new(seq_t, k);
+    seq_t *Ucurr = mem_new(seq_t, k);
+    seq_t *Vcurr = mem_new(seq_t, k);
     if (!Uprev || !Vprev || !Ucurr || !Vcurr)
     {
         /* Allocation failed – return 0 (should not happen in test harness) */
-        free(Uprev); free(Vprev); free(Ucurr); free(Vcurr);
+        mem_free(Uprev); mem_free(Vprev); mem_free(Ucurr); mem_free(Vcurr);
         return (seq_t)0;
     }
 
@@ -90,6 +92,6 @@ seq_t a(idx_t n)
     seq_t result = Uprev[offset];
 
     /* Free memory */
-    free(Uprev); free(Vprev); free(Ucurr); free(Vcurr);
+    mem_free(Uprev); mem_free(Vprev); mem_free(Ucurr); mem_free(Vcurr);
     return result;
 }

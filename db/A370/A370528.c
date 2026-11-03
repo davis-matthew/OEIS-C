@@ -8,6 +8,7 @@
  * Formula:   a(n) = (1/2) * Sum_{k=0..floor(n/3)-2} (-1)^k * (n-2k-4)! / k!
  * Range:     u8 n <= 9, u16 n <= 12, u32 n <= 16, u64 n <= 24, u128 n <= 38,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 431 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

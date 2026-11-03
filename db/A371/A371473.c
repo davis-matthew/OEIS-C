@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 9714, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_capacity, is_squarefree, rad
+ * Validated: standard, pass, 76 terms through n = 9847 (2026-11-03)
+ * Helpers:   is_squarefree, mem, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,45 @@
    factors.) */
 
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/is_squarefree.h"
-#include "../utils/rad.h"
-#include "../utils/ensure_capacity.h"
+#include "../utils/radical.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 static seq_t *seq_cache = NULL;   /* 1‑based cache of computed terms */
 static size_t seq_cap   = 0;      /* current capacity of cache */
@@ -39,7 +76,7 @@ seq_t a(idx_t n)
     if (n > seq_len) {
         /* Increase cache size if necessary */
         size_t new_cap = (size_t)n + 1; /* 1‑based indexing, keep room for n */
-        ensure_capacity(new_cap, &seq_cap, (void **)&seq_cache,
+        ensure_capacity(new_cap, &seq_cap, OEISC_VPP(&seq_cache),
                         sizeof(seq_t));
 
         /* Compute missing terms */
@@ -48,7 +85,7 @@ seq_t a(idx_t n)
             if (is_squarefree(prev))
                 seq_cache[i] = prev + (seq_t)i;
             else
-                seq_cache[i] = rad((idx_t)prev);
+                seq_cache[i] = radical((idx_t)prev);
         }
         seq_len = n;
     }

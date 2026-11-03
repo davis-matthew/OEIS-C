@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   satisfies_all
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,18 @@
 /* Required for bool and dynamic allocation */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/satisfies_all.h"
+#include "../utils/mem.h"
+
+/* Helper that checks the condition for all d from 1 to n. */
+static bool satisfies_all(idx_t n, seq_t m)
+{
+    for (idx_t d = 1; d <= n; ++d) {
+        seq_t q = m / (seq_t)d;
+        seq_t r = m % (seq_t)d;
+        if (r > q) return false;
+    }
+    return true;
+}
 
 /* Static cache for already computed values.
    cache[0] is unused (set to 0) to keep indices 1‑based. */
@@ -36,7 +48,7 @@ seq_t a(idx_t n)
     if (n > cache_max_n) {
         /* Allocate or expand storage */
         idx_t new_size = n + 1;               /* indices 0 … n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) {                    /* allocation failure */
             /* In a real application you might handle this differently */
             abort();

@@ -13,13 +13,14 @@
  *            shu...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   a006439_bn
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a006439_bn.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -31,13 +32,13 @@ seq_t a(idx_t n)
         c = c * (seq_t)(2 * (2 * k + 1));
         c /= (seq_t)(k + 2);
     }
-    total = (seq_t)10 * a006439_bn(2 * m + 6, 6) * c;
+    total = (seq_t)10 * binomial(2 * m + 6, 6) * c;
 
     T = c; /* T = Cat(u)*Cat(m-u) */
     for (u = 0; u <= m; u++) {
         idx_t v = m - u;
-        seq_t w = (seq_t)5 * a006439_bn(2 * v + 5, 5)
-                + (seq_t)(2 * v + 1) * a006439_bn(2 * u + 4, 4);
+        seq_t w = (seq_t)5 * binomial(2 * v + 5, 5)
+                + (seq_t)(2 * v + 1) * binomial(2 * u + 4, 4);
         B += T * w;
         if (u < m) {
             T = T * (seq_t)(2 * u + 1);

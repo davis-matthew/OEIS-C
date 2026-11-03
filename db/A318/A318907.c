@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Dynamic array helpers ----------------------------------------------------- */
 static void *seq_alloc(size_t size)
@@ -88,8 +90,12 @@ seq_t a(idx_t n)
 
         if (trip != (seq_t)0 && (halving % trip) == (seq_t)0) {
             /* Store the term in the cache. */
-            ensure_capacity(cache_len + 1, &cache_cap,
-                            (void **)&cache, sizeof(seq_t));
+            if (cache_len + 1 > cache_cap) {      /* seq_t: grown with mem_resize */
+                size_t new_cap = cache_cap ? cache_cap << 1 : 8;
+                cache = mem_resize(seq_t, cache, new_cap);
+                if (!cache) abort();
+                cache_cap = new_cap;
+            }
             cache[cache_len++] = m;
         }
 

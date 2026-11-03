@@ -7,14 +7,15 @@
  * Keywords:  nonn
  * Formula:   a(n) = i(n^3) = n^3 - ((d-1)d)/2, where * d =
  *            ceil((sqrt(8n^3+1)-1)/2) is the diagonal containing n^3
- * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 31, u64 n <= 10000,
+ * Range:     u8 n <= 3, u16 n <= 20, u32 n <= 991, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_isqrt_seq
+ * Validated: standard, pass, 71 terms through n = 8430 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_isqrt_seq.h"
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +23,7 @@ seq_t a(idx_t n)
     seq_t k     = nseq * nseq * nseq;           /* k = n^3 */
 
     seq_t t     = (k << 3) + 1;                 /* 8*k + 1 */
-    seq_t s     = floor_isqrt_seq(t);           /* floor sqrt(8k+1) */
+    seq_t s     = isqrt_seq(t);           /* floor sqrt(8k+1) */
 
     seq_t d     = (s - 1) / 2;                  /* tentative diagonal */
 

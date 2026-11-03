@@ -9,7 +9,8 @@
  *            Fibonacci number F_k is 3}
  * Range:     u8 n <= 2037, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 111 terms through n = 9637 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Precomputed constants for the logarithms needed. */
 static const long double LOG10_PHI = log10l((1.0l + sqrtl(5.0l)) / 2.0l);
@@ -45,14 +47,14 @@ seq_t a(idx_t n)
     /* Ensure we have entries up to n. */
     if (pref_len == 0) {
         /* Allocate first entry for k = 0. */
-        pref = (seq_t *)malloc(sizeof(seq_t));
+        pref = mem_new(seq_t, 1);
         pref[0] = (seq_t)0;
         pref_len = 1;
     }
 
     if (n >= pref_len) {
         /* Grow the array to hold indices up to n. */
-        seq_t *newpref = (seq_t *)realloc(pref, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *newpref = mem_resize(seq_t, pref, (size_t)(n + 1));
         if (!newpref) { /* allocation failure: return zero as a safe fallback */
             return (seq_t)0;
         }

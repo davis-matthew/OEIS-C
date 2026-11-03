@@ -7,6 +7,7 @@
  * Formula:   a(n) = 60516*n^2 - 61008*n + 2481403
  * Range:     u8 none, u16 none, u32 n <= 266, u64 n <= 1000, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 974 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  *            0)
  * Range:     u8 n <= 11, u16 n <= 115, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t val;   /* current value 5·x² + 7·y² */
@@ -48,7 +50,7 @@ seq_t a(idx_t n) {
        we keep one entry per y, starting with y = 0 … n‑1.
        For n ≤ 10000 this is tiny. */
     int heap_sz = (int)n;          /* guaranteed n ≥ 1 */
-    Node *h = (Node *)malloc(heap_sz * sizeof(Node));
+    Node *h = mem_new(Node, heap_sz);
     if (!h) return (seq_t)0;       /* allocation error – unlikely */
 
     /* Initial population of the heap: f_y(0) = 7·y² */
@@ -90,6 +92,6 @@ seq_t a(idx_t n) {
         sift_down(0, heap_sz, h);
     }
 
-    free(h);
+    mem_free(h);
     return result;
 }

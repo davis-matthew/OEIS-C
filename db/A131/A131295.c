@@ -8,7 +8,8 @@
  * Formula:   a(n)=ds_4(a(n-1))+ds_4(a(n-2)), a(0)=0, a(1)=1
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 117 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* ds_4 = digital sum in base 4 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline seq_t digit_sum_base4(seq_t v)
 {
@@ -28,11 +30,11 @@ static inline seq_t digit_sum_base4(seq_t v)
 }
 
 #ifdef __cplusplus
-#  define ALLOC(type, count) reinterpret_cast<type*>(malloc(sizeof(type)*(count)))
-#  define REALLOC(ptr, type, count) reinterpret_cast<type*>(realloc(ptr, sizeof(type)*(count)))
+#  define ALLOC(type, count) mem_new(type, (count))
+#  define REALLOC(ptr, type, count) mem_resize(type, ptr, (count))
 #else
-#  define ALLOC(type, count) ((type*)malloc(sizeof(type)*(count)))
-#  define REALLOC(ptr, type, count) ((type*)realloc(ptr, sizeof(type)*(count)))
+#  define ALLOC(type, count) (mem_new(type, (count)))
+#  define REALLOC(ptr, type, count) (mem_resize(type, ptr, (count)))
 #endif
 
 static seq_t *cache = NULL;

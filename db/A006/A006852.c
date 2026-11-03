@@ -8,8 +8,9 @@
  *            starting at p = n. At step i: if p == i, n is expelled and a(n)
  *            = i; if i < p < 2i then p -> 2(p-i)-1; if p < i then p ->
  *            2(i-p); if p >= 2i then p -> p-1
- * Range:     u8 n <= 18, u16 n <= 39, u32 n <= 3329, u64 n <= 9968,
- *            u128 n <= 9968, big any n
+ * Range:     u8 n <= 18, u16 n <= 39, u32 n <= 3329, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 66 terms through n = 9968 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

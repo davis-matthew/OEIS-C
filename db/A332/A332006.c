@@ -11,7 +11,8 @@
  *            that subset
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Types seq_t and idx_t are supplied by the build.  */
 
@@ -29,7 +31,7 @@ static idx_t  cached_max_n = 0;   /* largest n for which cached_A is valid */
 static void recompute(idx_t new_max)
 {
     /* Free previously cached data.  */
-    if (cached_A) { free(cached_A); cached_A = NULL; }
+    if (cached_A) { mem_free(cached_A); cached_A = NULL; }
 
     /* 1. Compute all centered square numbers <= new_max.  */
     size_t cs_cap = 16;
@@ -47,7 +49,7 @@ static void recompute(idx_t new_max)
 
     /* 2. Pre‑compute factorials up to cs_cnt.  */
     size_t fact_cap = cs_cnt + 1;
-    seq_t *fact = (seq_t*)calloc(fact_cap, sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, fact_cap);
     fact[0] = (seq_t)1;
     for (size_t i = 1; i < fact_cap; ++i)
         fact[i] = fact[i-1] * (seq_t)i;
@@ -55,7 +57,7 @@ static void recompute(idx_t new_max)
     /* 3. DP: ways[sum][k] = number of subsets of size k summing to sum.  */
     size_t rows = (size_t)new_max + 1;   /* sums 0..new_max            */
     size_t cols = cs_cnt + 1;            /* sizes 0..cs_cnt            */
-    seq_t *ways = (seq_t*)calloc(rows * cols, sizeof(seq_t));
+    seq_t *ways = mem_new(seq_t, rows * cols);
     ways[0] = (seq_t)1;                  /* ways[0][0] = 1             */
 
     for (size_t idx = 0; idx < cs_cnt; ++idx) {
@@ -75,7 +77,7 @@ static void recompute(idx_t new_max)
     }
 
     /* 4. Assemble final a(n) from the subset counts and factorials.  */
-    seq_t *A = (seq_t*)calloc(rows, sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, rows);
     for (size_t n = 0; n <= new_max; ++n) {
         seq_t total = (seq_t)0;
         for (size_t k = 0; k <= cs_cnt; ++k) {
@@ -90,8 +92,8 @@ static void recompute(idx_t new_max)
     cached_max_n = new_max;
 
     free(centered);
-    free(fact);
-    free(ways);
+    mem_free(fact);
+    mem_free(ways);
 }
 
 /* Public sequence function requested by the build.  */

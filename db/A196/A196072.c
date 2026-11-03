@@ -10,13 +10,15 @@
  *            a(2)=1, a(3)=2, a(4)=0, a(5)=6 Recurrence valid for n≥6
  * Range:     u8 n <= 16, u16 n <= 29, u32 n <= 56, u64 n <= 111,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary */
     if (cap <= n) {
         idx_t new_cap = n + 1;          /* need indices 0..n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cap = new_cap;
     }

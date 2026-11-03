@@ -12,17 +12,18 @@
  *            even, p(2r-1) if r is odd; a(n) = 1 if n is a square
  * Range:     u8 n <= 12, u16 n <= 52, u32 n <= 108, u64 n <= 276,
  *            u128 n <= 1020, big any n
- * Helpers:   a2350_isqrt
+ * Validated: standard, pass, 80 terms through n = 9323 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a2350_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t N = (uint64_t)n;
-    uint64_t a0 = a2350_isqrt(N);
+    uint64_t a0 = isqrt_u64(N);
     if (a0 * a0 == N) return (seq_t)1;
 
     uint64_t m = 0, d = 1, ak = a0;

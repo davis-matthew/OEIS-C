@@ -9,12 +9,13 @@
  *            intermediates never exceed the result
  * Range:     u8 n <= 13, u16 n <= 14, u32 n <= 17, u64 n <= 24, u128 n <= 29,
  *            big any n
- * Helpers:   a004393_gcd
+ * Validated: partial, pass, 18 terms through n = 29 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a004393_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     idx_t k = n - 12;
@@ -23,7 +24,7 @@ seq_t a(idx_t n) {
     idx_t i;
     for (i = 1; i <= k; i++) {
         seq_t si = (seq_t)i;
-        seq_t g = a004393_gcd(r, si);
+        seq_t g = gcd(r, si);
         seq_t num = (seq_t)(base + i);
         r /= g;
         r *= num / (si / g);

@@ -8,6 +8,7 @@
  * Formula:   a(n) = n^13*(n^2 + 1)*(n^10 - n^8 + n^6 - n^4 + n^2 + 1)/4
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 6, u128 n <= 36,
  *            big any n
+ * Validated: standard, pass, 29 terms through n = 971 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

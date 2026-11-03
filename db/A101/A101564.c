@@ -11,14 +11,25 @@
  *            n+1 and j = k+1 dividing m
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   pow10_seq
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow10_seq.h"
+
+/* return 10^exp as seq_t */
+static seq_t pow10_seq(idx_t exp)
+{
+    seq_t res = (seq_t)1;
+    while (exp != 0) {
+        res *= 10;
+        --exp;
+    }
+    return res;
+}
 
 /* Compute a(n) for any n >= 0. */
 seq_t a(idx_t n)

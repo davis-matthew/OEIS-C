@@ -10,12 +10,14 @@
  *            coefficients of exp(x) + x*exp(x) - x)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 23, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A_memo = NULL;   /* A_memo[i] = a(i), i < A_len */
 static seq_t *R_row = NULL;    /* R_row[k] = binomial(A_len-1, k) */
@@ -27,14 +29,14 @@ static void grow_to(idx_t need) {
     idx_t i;
     seq_t *na, *nr;
     while (newcap < need) newcap *= 2;
-    na = (seq_t *)calloc((size_t)newcap, sizeof(seq_t));
-    nr = (seq_t *)calloc((size_t)newcap, sizeof(seq_t));
+    na = mem_new(seq_t, (size_t)newcap);
+    nr = mem_new(seq_t, (size_t)newcap);
     for (i = 0; i < A_len; i++) {
         na[i] = A_memo[i];
         nr[i] = R_row[i];
     }
-    if (A_memo) free(A_memo);
-    if (R_row) free(R_row);
+    if (A_memo) mem_free(A_memo);
+    if (R_row) mem_free(R_row);
     A_memo = na;
     R_row = nr;
     A_cap = newcap;

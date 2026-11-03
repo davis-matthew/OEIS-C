@@ -7,19 +7,21 @@
  * Formula:   a(n) = phi(n)*tau(n) - 2*n
  * Range:     i8 n <= 71, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   divisor_count_u64, phi
+ * Validated: standard, pass, 102 terms through n = 1904 (2026-11-01)
+ * Helpers:   num_divisors, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include "../utils/num_divisors.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n) {
     /* compute φ(n) */
-    seq_t phi_n = phi(n);
+    seq_t phi_n = totient(n);
     /* compute τ(n) */
-    seq_t tau_n = (seq_t)divisor_count_u64((uint64_t)n);
+    seq_t tau_n = (seq_t)num_divisors((uint64_t)n);
     /* compute 2*n in seq_t */
     seq_t two_n = (seq_t)2 * (seq_t)n;
     /* return φ(n)*τ(n) - 2*n */

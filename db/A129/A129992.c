@@ -9,12 +9,14 @@
  *            a(3)=308, a(4)=381, a(5)=468, a(6)=2117
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 32, u64 n <= 68, u128 n <= 143,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_cap = 0;
@@ -25,8 +27,8 @@ seq_t a(idx_t n)
 
     /* ensure we have storage for indices 0..n */
     if (n + 1 > cache_cap) {
-        if (cache) free(cache);
-        cache = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+        if (cache) mem_free(cache);
+        cache = mem_new(seq_t, (size_t)(n + 1));
         if (!cache) return (seq_t)0;          /* out of memory */
         cache_cap = n + 1;
     }

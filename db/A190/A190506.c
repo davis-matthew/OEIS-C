@@ -7,12 +7,13 @@
  * Formula:   a(n) = 3*n - 1 + floor(n*sqrt(5)/5)
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   _int128_isqrt
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-01)
+ * Helpers:   isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_int128_isqrt.h"
+#include "../utils/isqrt_u128.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +24,7 @@ seq_t a(idx_t n)
     unsigned __int128 n128 = (unsigned __int128)n;
     unsigned __int128 prod = 5 * n128 * n128;      /* 5*n^2  (fits 128 bits for all n <= 2^64-1) */
 
-    unsigned __int128 sqrt_prod = _int128_isqrt(prod);   /* floor(sqrt(5*n^2))   */
+    unsigned __int128 sqrt_prod = isqrt_u128(prod);   /* floor(sqrt(5*n^2))   */
 
     unsigned __int128 term = sqrt_prod / 5;               /* floor(n*sqrt5/5) */
 

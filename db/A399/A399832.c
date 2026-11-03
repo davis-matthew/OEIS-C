@@ -9,15 +9,17 @@
  *            a(2^e) = e+1 if e odd a(p^e) = e+1 for odd prime p
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, int_sqrt
+ * Validated: standard, pass, 106 terms through n = 9011 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/int_sqrt.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     idx_t x = n;
     seq_t ans = (seq_t)1;
-    idx_t limit = int_sqrt(n);
+    idx_t limit = isqrt(n);
 
     /* regenerate primes list if needed */
     if (primes_cnt == 0 || primes[primes_cnt - 1] < limit) {

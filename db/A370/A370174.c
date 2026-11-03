@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   idx_flat
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,13 @@
 /* Recurrence: T(n,k) = T(n-1,k) + T(n-1,k-1) + T(n-2,k) + T(n-2,k-1) with
    T(n,0)=1 and T(n,k)=0 when k>n. */
 #include <stdlib.h>
-#include "../utils/idx_flat.h"
+#include "../utils/mem.h"
+
+/* convert (row, col) into flat array index */
+static inline size_t idx_flat(idx_t row, idx_t col)
+{
+    return (size_t)row * ((size_t)row + 1ULL) / 2ULL + col;
+}
 
 static seq_t *triangle = NULL;   /* flat storage of all computed rows */
 static idx_t  max_row   = 0;      /* highest row that has been computed */
@@ -28,7 +35,7 @@ seq_t a(idx_t n)
     /* lazy initialization of the very first entry (row 0, col 0) */
     if (triangle == NULL)
     {
-        triangle = (seq_t *)malloc(sizeof(seq_t));
+        triangle = mem_new(seq_t, 1);
         triangle[0] = (seq_t)1;  /* T(0,0) */
         max_row   = 0;
     }
@@ -46,7 +53,7 @@ seq_t a(idx_t n)
     {
         /* new capacity needed for rows 0..r */
         size_t new_size = (size_t)(r + 1ULL) * (r + 2ULL) / 2ULL;
-        triangle = (seq_t *)realloc(triangle, new_size * sizeof(seq_t));
+        triangle = mem_resize(seq_t, triangle, new_size);
 
         /* Compute rows from max_row+1 up to r */
         for (idx_t i = max_row + 1; i <= r; ++i)

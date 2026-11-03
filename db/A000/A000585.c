@@ -12,8 +12,8 @@
  *            lambda_f with Sum deg(f)*|lambda_f| = n), |C| = |G|...
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   bn_div32, bn_mul32, deg64, gcd64u, irreducible, pgcd, pmulmod,
- *            porder, ppow
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-01)
+ * Helpers:   gcd_u64, ilog2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,15 +21,95 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/bn_div32.h"
-#include "../utils/bn_mul32.h"
-#include "../utils/deg64.h"
-#include "../utils/gcd64u.h"
-#include "../utils/irreducible.h"
-#include "../utils/pgcd.h"
-#include "../utils/pmulmod.h"
-#include "../utils/porder.h"
-#include "../utils/ppow.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ilog2_u64.h"
+
+static void bn_div32(uint32_t *x, size_t L, uint32_t dv)
+{
+    uint64_t r = 0;
+    size_t i = L;
+    while (i-- > 0) {
+        uint64_t v = (r << 32) | x[i];
+        x[i] = (uint32_t)(v / dv);
+        r = v % dv;
+    }
+}
+
+static void bn_mul32(uint32_t *x, size_t L, uint32_t m)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t v = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)v;
+        c = v >> 32;
+    }
+}
+
+static uint64_t pgcd(uint64_t a, uint64_t b)
+{
+    while (b) {
+        int db = ilog2_u64(b);
+        while (a && ilog2_u64(a) >= db) a ^= b << (ilog2_u64(a) - db);
+        { uint64_t t = a; a = b; b = t; }
+    }
+    return a;
+}
+
+static uint64_t pmulmod(uint64_t a, uint64_t b, uint64_t f, int d)
+{
+    uint64_t r = 0;
+    int i;
+    for (i = d - 1; i >= 0; i--) {
+        r <<= 1;
+        if ((r >> d) & 1) r ^= f;
+        if ((b >> i) & 1) r ^= a;
+    }
+    return r;
+}
+
+static int irreducible(uint64_t f, int d, uint64_t xr)
+{
+    uint64_t y = xr;
+    int k, p, m;
+    for (k = 0; k < d; k++) y = pmulmod(y, y, f, d);
+    if (y != xr) return 0;
+    m = d;
+    for (p = 2; p <= m; p++) {
+        if (m % p) continue;
+        while (m % p == 0) m /= p;
+        y = xr;
+        for (k = 0; k < d / p; k++) y = pmulmod(y, y, f, d);
+        if (pgcd(f, y ^ xr) != 1) return 0;
+    }
+    return 1;
+}
+
+static uint64_t ppow(uint64_t b, uint64_t e, uint64_t f, int d)
+{
+    uint64_t r = (d == 0) ? 0 : 1;
+    while (e) {
+        if (e & 1) r = pmulmod(r, b, f, d);
+        b = pmulmod(b, b, f, d);
+        e >>= 1;
+    }
+    return r;
+}
+
+static uint64_t porder(uint64_t f, int d, uint64_t xr)
+{
+    uint64_t o = (1ULL << d) - 1, m = o, p;
+    for (p = 2; p * p <= m; p++) {
+        if (m % p) continue;
+        while (m % p == 0) m /= p;
+        while (o % p == 0 && ppow(xr, o / p, f, d) == 1) o /= p;
+    }
+    if (m > 1) {
+        p = m;
+        while (o % p == 0 && ppow(xr, o / p, f, d) == 1) o /= p;
+    }
+    return o;
+}
 
 #define MAPCAP 65536
 
@@ -98,7 +178,7 @@ static void leaf(void)
             while ((1 << t) < j) t++;
             ln = (j == 0) ? 1 : (g_po[i] << t);
             for (k = 0; k < K; k++) {
-                uint64_t L2 = g_mL[k] / gcd64u(g_mL[k], ln) * ln;
+                uint64_t L2 = g_mL[k] / gcd_u64(g_mL[k], ln) * ln;
                 uint64_t C2 = g_mC[k] * ce;
                 int q;
                 for (q = 0; q < NK; q++) if (g_nL[q] == L2) break;

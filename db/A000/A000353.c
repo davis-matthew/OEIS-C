@@ -8,13 +8,14 @@
  *            (mod 40) with (p-1)/2 also prime
  * Range:     u8 n <= 6, u16 n <= 226, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 62 terms through n = 995 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     idx_t count = 0;
@@ -23,8 +24,8 @@ seq_t a(idx_t n) {
     while (1) {
         seq_t mod = candidate % 40;
         if ((mod == 7 || mod == 19 || mod == 23) &&
-            is_prime((uint64_t)candidate) && 
-            is_prime((uint64_t)((candidate - 1) / 2))) {
+            is_prime_u64((uint64_t)candidate) && 
+            is_prime_u64((uint64_t)((candidate - 1) / 2))) {
             count++;
             if (count == n) {
                 return candidate;

@@ -11,6 +11,7 @@
  *            0 and a(p) = index of prime p
  * Range:     u8 n <= 1618, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 99 terms through n = 9490 (2026-11-01)
  * Helpers:   factor_u64, is_prime, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,9 +20,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 #include "../utils/is_prime.h"
 #include "../utils/prime_pi.h"
-#include "../utils/factor_u64.h"
 
 /* Return the OEIS A241917 sequence value for index n. */
 seq_t a(idx_t n)

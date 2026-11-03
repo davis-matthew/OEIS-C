@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = prime p with (2p+1)/3 also prime (p > 0)
- * Range:     u8 n <= 6, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
- *            big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 6, u16 n <= 423, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 64 terms through n = 973 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Sequence generator for OEIS A104163 */
 seq_t a(idx_t n)
@@ -33,13 +36,13 @@ seq_t a(idx_t n)
         /* Initialise the array if needed */
         if (terms == NULL) {
             term_cap = 64;
-            terms = (seq_t *)malloc(term_cap * sizeof(seq_t));
+            terms = mem_new(seq_t, term_cap);
         }
 
         /* Find terms until we have at least n of them */
         while (term_cnt < n) {
             /* Scan forward until we hit a prime p */
-            do { next_trial++; } while (!is_prime((uint64_t)next_trial));
+            do { next_trial++; } while (!is_prime_u64((uint64_t)next_trial));
 
             seq_t p = (seq_t)next_trial;
 
@@ -48,12 +51,12 @@ seq_t a(idx_t n)
             if ((two_p_plus_one % (seq_t)3) != 0) continue;
 
             seq_t q = two_p_plus_one / (seq_t)3;
-            if (!is_prime((uint64_t)q)) continue;     /* q must be prime */
+            if (!is_prime_u64((uint64_t)q)) continue;     /* q must be prime */
 
             /* Store the found prime p */
             if (term_cnt == term_cap) {
                 term_cap <<= 1;
-                terms = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, term_cap);
             }
             terms[term_cnt++] = p;
         }

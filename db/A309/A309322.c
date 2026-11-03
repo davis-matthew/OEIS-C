@@ -8,14 +8,16 @@
  * Formula:   a(n) = Sum_{d|n} phi(n/d) * d * (d + 1)/2
  * Range:     u8 n <= 17, u16 n <= 263, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 71 terms through n = 9939 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Uses divisor enumeration; phi from utils. */
 
-#include "../utils/phi.h"   /* provides seq_t phi(idx_t m); */
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         {
             /* first divisor d */
             idx_t q1 = n / d;                    /* n/d */
-            seq_t phi_q1 = phi(q1);              /* phi(n/d) */
+            seq_t phi_q1 = totient(q1);              /* phi(n/d) */
             seq_t term1 = phi_q1 * (seq_t)d * ((seq_t)d + 1) / 2;
             result += term1;
 
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
             if (d2 != d)
             {
                 idx_t q2 = n / d2;               /* n/(n/d) = d  */
-                seq_t phi_q2 = phi(q2);          /* phi(n/(n/d)) = phi(d) */
+                seq_t phi_q2 = totient(q2);          /* phi(n/(n/d)) = phi(d) */
                 seq_t term2 = phi_q2 * (seq_t)d2 * ((seq_t)d2 + 1) / 2;
                 result += term2;
             }

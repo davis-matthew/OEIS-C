@@ -10,12 +10,14 @@
  *            16892, 143224, 1250228, 11091536, * 99371772, 895878604
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* holds a(1)...a(k) in cache[0]..cache[k-1] */
 static size_t cache_size = 0; /* number of terms currently stored */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* initialise cache on first use */
     if (cache_size == 0) {
         cache_size = 9;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) abort(); /* memory exhaustion is fatal */
         for (size_t i = 0; i < 9; ++i) cache[i] = base_terms[i];
     }
@@ -57,10 +59,10 @@ seq_t a(idx_t n)
         /* enlarge cache if necessary */
         if (cache_size == 0) { /* should not happen after init */
             cache_size = 1;
-            cache = (seq_t *)malloc(sizeof(seq_t));
+            cache = mem_new(seq_t, 1);
             if (!cache) abort();
         }
-        seq_t *tmp = (seq_t *)realloc(cache, (cache_size + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (cache_size + 1));
         if (!tmp) abort();
         cache = tmp;
         cache[cache_size] = val;

@@ -8,7 +8,8 @@
  *            k*(k+1)*(k+2)/6 and a(0) = 1
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* compute the k‑th tetrahedral number T_k = binom(k+2,3) */
 static inline seq_t tetrahedral(idx_t k)
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n, seq_t **p, size_t *cap)
 {
     size_t need = (size_t)n + 1;
     if (!*p || *cap < need) {
-        void *tmp = realloc(*p, need * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, *p, need);
         if (!tmp) abort();           /* out of memory */
         *p   = (seq_t *)tmp;
         *cap = need;

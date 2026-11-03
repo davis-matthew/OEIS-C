@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 19, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *df   = NULL;   /* df[i] = i!!          */
 static seq_t *sums = NULL;   /* sums[i] = a(i)       */
@@ -32,11 +34,11 @@ static void ensure_capacity(idx_t new_cap) {
     if ((size_t)new_cap <= alloc_cap) return;
 
     if (alloc_cap == 0) {
-        df   = (seq_t*)malloc(new_cap * sizeof(seq_t));
-        sums = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        df   = mem_new(seq_t, new_cap);
+        sums = mem_new(seq_t, new_cap);
     } else {
-        df   = (seq_t*)realloc(df,   new_cap * sizeof(seq_t));
-        sums = (seq_t*)realloc(sums, new_cap * sizeof(seq_t));
+        df   = mem_resize(seq_t, df, new_cap);
+        sums = mem_resize(seq_t, sums, new_cap);
     }
     if (!df || !sums) {
         /* Allocation failed – terminate, as the sequence cannot continue. */

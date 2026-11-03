@@ -7,12 +7,14 @@
  * Formula:   a(n) = 9^(3*n + 2) (a(0)=81, a(n)=729*a(n-1))
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 6, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,9 +26,9 @@ seq_t a(idx_t n)
     {
         idx_t new_cap = n + 1;
         if (memo == NULL)
-            memo = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            memo = mem_new(seq_t, new_cap);
         else
-            memo = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+            memo = mem_resize(seq_t, memo, new_cap);
 
         /* Initialize the first element if this is the first allocation */
         if (memo_cap == 0)

@@ -10,16 +10,35 @@
  *            number i * such that i divides the carryless base‑2 product of n
  *            and i) by descending * antidiagonals. The code computes a(n) for
  *            any n ≥ 1. * * Sequence definition from OEIS A391735
- * Range:     u8 n <= 204, u16 n <= 3500, u32 n <= 8981, u64 n <= 8981,
- *            u128 n <= 8981, big any n
- * Helpers:   diagonal_from_index
+ * Range:     u8 n <= 204, u16 n <= 3500, u32 n <= 10440, u64 n <= 10440,
+ *            u128 n <= 10440, big any n
+ * Validated: standard, pass, 107 terms through n = 8981 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/diagonal_from_index.h"
+
+/* Locate the diagonal (sum n+k) that contains the given index idx (>=1).
+ * The cumulative number of terms up to diagonal s is s*(s-1)/2.
+ * We find the smallest s with s*(s-1)/2 ≥ idx. */
+static idx_t diagonal_from_index(idx_t idx)
+{
+    idx_t lo = 2, hi = 2;
+    while ((unsigned __int128)hi * (hi - 1) / 2 < idx)
+        hi <<= 1;                     /* exponential search for upper bound */
+
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo) / 2;
+        if ((unsigned __int128)mid * (mid - 1) / 2 >= idx)
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    return lo;
+}
 
 /* Compute the carryless base‑2 product of odd_n and candidate.
  * odd_n is the odd part of the row index (all 2‑powers removed).

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 507, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9891 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Prime table – dynamically grow as needed.                         */
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
     /* Lazy initialization of term cache. */
     if (terms_len == 0 && terms_cap == 0) {
         terms_cap = 16;
-        cached_terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        cached_terms = mem_new(seq_t, terms_cap);
     }
 
     /* Grow cache until we have at least n terms. */
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
                 /* Store term. */
                 if (terms_len == terms_cap) {
                     terms_cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(cached_terms, terms_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cached_terms, terms_cap);
                     cached_terms = tmp;
                 }
                 cached_terms[terms_len++] = (seq_t)next_candidate;

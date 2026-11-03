@@ -8,7 +8,8 @@
  *            f(n−k) * Then a(n) = f(n) + n · f(n−1) * (For n=0 a(0)=1)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,19 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 extern seq_t a(idx_t n);
 
@@ -38,7 +50,7 @@ ensure_f(idx_t n)
         seq_t *new_cache = alloc_seq_array(n + 1);
         /* Copy existing data */
         if (f_cache != NULL) {
-            memcpy(new_cache, f_cache, f_capacity * sizeof(seq_t));
+            mem_copy(new_cache, f_cache, f_capacity * sizeof(seq_t));
             free_seq_array(f_cache);
         }
         /* initialize new entries to zero */

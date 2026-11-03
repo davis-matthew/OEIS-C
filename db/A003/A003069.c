@@ -11,7 +11,8 @@
  *            k-1 for k == 0 (mod 4), and k' = k/gcd(k,2)....
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 11, u64 n <= 14, u128 n <= 19,
  *            big any n
- * Helpers:   a3069_divs, a3069_gcd, a3069_self
+ * Validated: standard, pass, 34 terms through n = 36 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a3069_divs.h"
-#include "../utils/a3069_gcd.h"
-#include "../utils/a3069_self.h"
+#include "../utils/gcd_u64.h"
+
+static void a3069_divs(uint32_t *x, size_t L, uint32_t d)
+{
+    uint64_t r = 0;
+    size_t i = L;
+    while (i-- > 0) {
+        r = (r << 32) | x[i];
+        x[i] = (uint32_t)(r / d);
+        r %= d;
+    }
+}
+
+static uint64_t a3069_self(int k)
+{
+    return (k % 2 == 1) ? (uint64_t)(k - 1) / 2 : (uint64_t)(k - 1);
+}
 
 static int g_n;
 static int *g_parts;
@@ -36,7 +51,7 @@ static uint64_t a3069_G(int a, int k)
     if (g_tab) return (uint64_t)g_tab[(size_t)a * (size_t)(g_n + 1) + (size_t)k];
     ap = (a % 2 == 0) ? (uint64_t)a / 2 : (uint64_t)a;
     kp = (k % 2 == 0) ? (uint64_t)k / 2 : (uint64_t)k;
-    g = a3069_gcd(ap, kp);
+    g = gcd_u64(ap, kp);
     return (uint64_t)a * (uint64_t)k / (ap / g * kp);
 }
 
@@ -109,7 +124,7 @@ seq_t a(idx_t n)
             for (y = 1; y <= N; y++) {
                 uint64_t ap = (x % 2 == 0) ? (uint64_t)x / 2 : (uint64_t)x;
                 uint64_t kp = (y % 2 == 0) ? (uint64_t)y / 2 : (uint64_t)y;
-                uint64_t g = a3069_gcd(ap, kp);
+                uint64_t g = gcd_u64(ap, kp);
                 g_tab[(size_t)x * (size_t)(N + 1) + (size_t)y] =
                     (int)((uint64_t)x * (uint64_t)y / (ap / g * kp));
             }

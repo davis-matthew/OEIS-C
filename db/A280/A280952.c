@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of partitions of n into centered pentagonal
  *            numbers (parts of the form 5*k*(k+1)/2 + 1, k >= 0)
- * Range:     u8 n <= 121, u16 n <= 451, u32 n <= 2071, u64 n <= 9935,
- *            u128 n <= 9935, big any n
+ * Range:     u8 n <= 121, u16 n <= 451, u32 n <= 2071, u64 n <= 11284,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 105 terms through n = 9935 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

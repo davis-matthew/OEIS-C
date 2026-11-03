@@ -9,13 +9,15 @@
  *            d(d+1)/2
  * Range:     u8 n <= 39, u16 n <= 84, u32 n <= 200, u64 n <= 482,
  *            u128 n <= 1207, big any n
- * Helpers:   a000248_pow
+ * Validated: standard, pass, 94 terms through n = 1250 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/a000248_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     // Find diagonal d using the quadratic formula
@@ -29,5 +31,5 @@ seq_t a(idx_t n) {
     idx_t p = n - start;
     
     // Compute (d-p)^p
-    return a000248_pow((seq_t)(d - p), p);
+    return ipow_idx((seq_t)(d - p), p);
 }

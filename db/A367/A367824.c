@@ -10,17 +10,18 @@
  *            is obtained by reading the array “A(n,k)” * by ascending
  *            antidiagonals – for each d = n + k the entries * are taken in
  *            the order (d,0),(d‑1,1),…,(0,d)
- * Range:     i8 n <= 5355, i16 n <= 9677, i32 n <= 9677, i64 n <= 9677,
- *            i128 n <= 9677, big any n
- * Helpers:   rev, seq_gcd
+ * Range:     i8 n <= 5355, i16 n <= 11475, i32 n <= 11475, i64 n <= 11475,
+ *            i128 n <= 11475, big any n
+ * Validated: standard, pass, 94 terms through n = 9677 (2026-11-01)
+ * Helpers:   gcd, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/rev.h"          /* reverse decimal digits of an idx_t */
-#include "../utils/seq_gcd.h"      /* seq_gcd(seq_t a, seq_t b) */
+#include "../utils/gcd.h"
+#include "../utils/reverse_digits_idx.h"
 
 /* Compute the (n,k) coordinates from the linear index i.  */
 static void coords_from_index(idx_t i, idx_t *n_coord, idx_t *k_coord) {
@@ -41,10 +42,10 @@ seq_t a(idx_t n) {
     idx_t r, c;                 /* (n,k) coordinates */
     coords_from_index(n, &r, &c);
 
-    idx_t rev_r = rev(r);                    /* rev(r) fits in idx_t   */
+    idx_t rev_r = reverse_digits_idx(r);                    /* rev(r) fits in idx_t   */
     seq_t num = (seq_t)rev_r - (seq_t)c;     /* numerator               */
     seq_t den = (seq_t)r + (seq_t)c;         /* denominator             */
 
-    seq_t g = seq_gcd(num >= 0 ? num : -num, den);
+    seq_t g = gcd(num >= 0 ? num : -num, den);
     return num / g;
 }

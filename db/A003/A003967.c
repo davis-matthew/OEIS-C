@@ -6,8 +6,9 @@
  * Keywords:  nonn, mult, easy
  * Formula:   Multiplicative with a(p^e) = e+1 if p = 2; ((p-1)^(e+1)-1)/(p-2)
  *            if p > 2
- * Range:     u8 n <= 256, u16 n <= 8250, u32 n <= 8250, u64 n <= 8250,
- *            u128 n <= 8250, big any n
+ * Range:     u8 n <= 256, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 89 terms through n = 8250 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

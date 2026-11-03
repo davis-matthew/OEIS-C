@@ -11,15 +11,19 @@
  *            for even primitive roots
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   gcd, mod_pow
+ * Validated: partial, pass, 99 terms through n = 100 (2026-11-01)
+ * Helpers:   gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/powmod.h"
 
 /* factorise m into distinct prime factors returned in pr[],
    number of primes stored in *cnt. */
@@ -61,11 +65,11 @@ primroot_mod_prime_power(idx_t n, idx_t p, size_t e)
     for (idx_t g = 2; g < n; ++g) {
         if (gcd((seq_t)g, (seq_t)n) != 1)
             continue;
-        if (mod_pow((seq_t)g, (uint64_t)phi, (seq_t)n) != 1)
+        if (powmod((seq_t)g, (uint64_t)phi, (seq_t)n) != 1)
             continue;
         int ok = 1;
         for (size_t i = 0; i < pf_cnt; ++i) {
-            if (mod_pow((seq_t)g,
+            if (powmod((seq_t)g,
                         (uint64_t)(phi / prime_factors[i]),
                         (seq_t)n) == 1) {
                 ok = 0;

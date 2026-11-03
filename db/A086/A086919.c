@@ -9,16 +9,70 @@
  *            digit‑difference palindrome)
  * Range:     i8 n <= 11, i16 n <= 146, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   count_pal_len, pal_digits, power10_int
+ * Validated: standard, pass, 66 terms through n = 9718 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_pal_len.h"
-#include "../utils/pal_digits.h"
-#include "../utils/power10_int.h"
+
+static uint64_t power10_int(int e)
+{
+    uint64_t r = 1;
+    while (e--) r *= 10ULL;
+    return r;
+}
+
+static uint64_t count_pal_len(int len)
+{
+    if (len == 1) return 10ULL;                 /* 0..9 */
+    int half = (len - 1) / 2;
+    return 9ULL * power10_int(half);            /* 9*10^{half} */
+}
+
+/* Return the decimal digits of the k‑th (0‑based) A002113 palindrome.
+   The digits are stored most‑significant first in out[0..len‑1].  */
+static void pal_digits(uint64_t k, int out[], int *len)
+{
+    uint64_t r = k;
+    int l = 1;
+    while (1) {
+        uint64_t cnt = count_pal_len(l);
+        if (r < cnt) break;
+        r -= cnt;
+        ++l;
+    }
+    *len = l;
+
+    if (l == 1) {
+        out[0] = (int)r;          /* 0..9 */
+        return;
+    }
+
+    int half = (l + 1) / 2;          /* number of free digits */
+    uint64_t base = power10_int(half - 1);
+    uint64_t first_half = base + r;  /* value of the free digits */
+
+    int first[20];
+    for (int i = half - 1; i >= 0; --i) {
+        first[i] = (int)(first_half % 10ULL);
+        first_half /= 10ULL;
+    }
+
+    /* copy the first half */
+    for (int i = 0; i < half; ++i) out[i] = first[i];
+
+    /* mirror the first half appropriately */
+    if (l % 2 == 0) {    /* even length: mirror whole first half */
+        for (int i = 0; i < half; ++i)
+            out[half + i] = first[half - 1 - i];
+    } else {             /* odd length: mirror excluding middle digit */
+        for (int i = 0; i < half - 1; ++i)
+            out[half + i] = first[half - 2 - i];
+    }
+}
 
 seq_t a(idx_t n)
 {

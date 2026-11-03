@@ -10,13 +10,15 @@
  *            1 the function * returns 0
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 27, u64 n <= 52, u128 n <= 102,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* 1‑based cache: cache[1] holds a(1), etc.  cache[0] unused. */
 static seq_t *cache = NULL;
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* First time: allocate cache for indices 1..5 and set base values. */
     if (cache == NULL) {
         /* Allocate space for at least 6 entries (index 0 unused). */
-        cache = (seq_t *)malloc(sizeof(seq_t) * 6);
+        cache = mem_new(seq_t, 6);
         if (!cache) return (seq_t)0; /* allocation failure */
 
         cache[1] = (seq_t)0;    /* a(1) */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* If the requested n is not yet cached, grow the cache and compute. */
     if (n > max_computed) {
         /* Grow cache to hold indices up to n (1‑based). */
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) return (seq_t)0; /* allocation failure */
         cache = tmp;
 

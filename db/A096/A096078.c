@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>   /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (cacheSize <= (size_t)n) {
         size_t newCap = cacheCap ? cacheCap : 1;
         while (newCap <= (size_t)n) newCap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, newCap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newCap);
         if (!tmp) return (seq_t)0;            /* allocation failure */
         cache = tmp;
         cacheCap = newCap;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         cache[0] = (seq_t)1;                  /* T(0,0) = 1 */
 
         prevSize = 1;
-        prevRow  = (seq_t*)malloc(sizeof(seq_t));
+        prevRow  = mem_new(seq_t, 1);
         if (!prevRow) return (seq_t)0;
         prevRow[0] = (seq_t)1;                /* row 0 */
 
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     /* build successive rows until the requested index is cached */
     for (idx_t r = prevIdx + 1; ; ++r) {
         size_t currSize = (size_t)(r + 1);   /* number of elements in row r */
-        seq_t *currRow = (seq_t*)malloc(currSize * sizeof(seq_t));
+        seq_t *currRow = mem_new(seq_t, currSize);
         if (!currRow) return (seq_t)0;
 
         for (idx_t k = 0; k <= r; ++k) {
@@ -82,15 +84,15 @@ seq_t a(idx_t n)
         if (cacheSize > cacheCap) {          /* grow cache if necessary */
             size_t newCap = cacheCap;
             while (newCap < cacheSize) newCap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(cache, newCap * sizeof(seq_t));
-            if (!tmp) { free(currRow); return (seq_t)0; }
+            seq_t *tmp = mem_resize(seq_t, cache, newCap);
+            if (!tmp) { mem_free(currRow); return (seq_t)0; }
             cache = tmp;
             cacheCap = newCap;
         }
         for (size_t i = 0; i < currSize; ++i) cache[start + i] = currRow[i];
 
         /* free the previous row and store the current one for the next iteration */
-        free(prevRow);
+        mem_free(prevRow);
         prevRow   = currRow;
         prevSize  = currSize;
         prevIdx   = r;

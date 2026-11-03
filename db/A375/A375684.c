@@ -7,12 +7,14 @@
  * Formula:   a(0)=1; a(1)=0; a(n) = -n! * Σ_{k=2..n} a(n-k)/(n-k)!/(k-1)
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 12, i64 n <= 20, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_values      = NULL;  /* stores a(n) */
 static seq_t *term_values     = NULL;  /* stores temporary terms for the recurrence */
@@ -27,8 +29,8 @@ static void ensure_capacity(idx_t n)
 
     /* Allocate new buffers */
     size_t newsize = (size_t)required;
-    seq_t *new_seq  = (seq_t*)malloc(newsize * sizeof(seq_t));
-    seq_t *new_term = (seq_t*)malloc(newsize * sizeof(seq_t));
+    seq_t *new_seq  = mem_new(seq_t, newsize);
+    seq_t *new_term = mem_new(seq_t, newsize);
     if (!new_seq || !new_term) {
         /* Allocation failed – terminate the program (not expected in the judge environment). */
         exit(1);
@@ -54,8 +56,8 @@ static void ensure_capacity(idx_t n)
     }
 
     /* Free old buffers and update globals */
-    free(seq_values);
-    free(term_values);
+    mem_free(seq_values);
+    mem_free(term_values);
     seq_values  = new_seq;
     term_values = new_term;
     cache_size  = newsize;

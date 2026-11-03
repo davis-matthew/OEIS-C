@@ -11,7 +11,8 @@
  *            1154, a(9) = 2223, a(10) = 5600, a(11) = 782...
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 20, u64 n <= 41, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root (floor).  Only used once for a0 = floor(sqrt(692)). */
 static idx_t _isqrt_u64(idx_t n) {
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
     if (n >= cache_cap) {
         size_t newcap = cache_cap ? cache_cap << 1 : 32;
         while (newcap <= (size_t)n) newcap <<= 1;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         cache_cap = newcap;
     }
 

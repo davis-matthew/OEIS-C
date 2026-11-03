@@ -9,7 +9,8 @@
  *            is the greatest prime factor of k
  * Range:     u8 n <= 20, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   gpf
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* Static cache of computed terms */
 static seq_t *cache = NULL;      /* pointer to cached terms */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache to hold at least n terms. */
     if ((size_t)n > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
         if (!tmp) return 0;          /* allocation failed – fall back to 0 */
         cache = tmp;
         cache_cap = (size_t)n;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Fill missing terms up to index n. */
     while (cache_len < n) {
         seq_t prev  = cache[cache_len - 1];
-        uint64_t gpf_val = gpf((uint64_t)prev);
+        uint64_t gpf_val = largest_prime_factor((uint64_t)prev);
         seq_t    inc = ((seq_t)2) * (seq_t)gpf_val;
         cache[cache_len] = prev + inc;
         ++cache_len;

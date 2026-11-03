@@ -9,9 +9,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 23, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 31, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binomial, floor_isqrt_u64
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,14 +37,16 @@
 */
 
 /* Include the required utilities */
-#include "../utils/floor_isqrt_u64.h"  /* floor_isqrt_u64() */
-#include "../utils/binomial.h"        /* binomial(idx_t n, idx_t k) */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* Determine row r such that r*(r+1)/2 ≤ n < (r+1)*(r+2)/2.
        r = floor((√(8n+1) – 1)/2).                                         */
-    idx_t s = floor_isqrt_u64(8 * n + 1);
+    idx_t s = isqrt(8 * n + 1);
     idx_t r = (s - 1) / 2;      /* row index (0‑based) */
 
     /* Offset of the first element of row r in the linearized array.   */

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 1704, u16 n <= 9837, u32 n <= 9837, u64 n <= 9837,
- *            u128 n <= 9837, big any n
- * Helpers:   factor_u64, odd_part, phi
+ * Range:     u8 n <= 1704, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9837 (2026-11-01)
+ * Helpers:   factor_u64, odd_part, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,13 +18,16 @@
    number of divisors of m.  It uses the helpers `phi`, `odd_part`
    and `factor_u64` provided in the usual utility headers. */
 
-#include "../utils/phi.h"
-#include "../utils/odd_part.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/odd_part.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n) {
     /* Compute φ(n) */
-    seq_t phi_n = phi(n);
+    seq_t phi_n = totient(n);
 
     /* Extract the odd part of φ(n) */
     seq_t odd = odd_part(phi_n);

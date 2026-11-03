@@ -9,7 +9,8 @@
  *            with initial values a(1)=1, a(2)=2, a(3)=13, a(4)=52
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 29, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    128‑bit unsigned integer, or an arbitrary‑precision integer type. */
 
 #include <stdlib.h>    /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* cache[1..last] */
 static idx_t  last  = 0;          /* largest n already computed */
@@ -35,9 +37,9 @@ grow_cache(idx_t need)
     seq_t * new_ptr;
 
     if (cache == NULL) {
-        new_ptr = (seq_t *)malloc(byte_size);
+        new_ptr = mem_new(seq_t, (byte_size) / sizeof(seq_t));
     } else {
-        new_ptr = (seq_t *)realloc(cache, byte_size);
+        new_ptr = mem_resize(seq_t, cache, (byte_size) / sizeof(seq_t));
     }
     if (!new_ptr) {
         abort();          /* allocation failure */

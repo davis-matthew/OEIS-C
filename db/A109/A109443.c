@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{i=1..n} A031218(i) (largest prime power ≤ i)
  * Range:     u8 n <= 22, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* forward declaration of the helper to build the SPF array */
 static void compute_spf(idx_t n, uint32_t **spf_ptr, idx_t *cap);
@@ -75,8 +77,8 @@ seq_t a(idx_t n)
 
         /* allocate or grow the arrays */
         idx_t new_cap = n + 1;
-        cum  = (seq_t*)realloc(cum,  new_cap * sizeof(seq_t));
-        best = (seq_t*)realloc(best, new_cap * sizeof(seq_t));
+        cum  = mem_resize(seq_t, cum, new_cap);
+        best = mem_resize(seq_t, best, new_cap);
 
         /* starting values for the extension loop */
         seq_t last_best = (max_computed == 0 ? (seq_t)0 : best[max_computed]);

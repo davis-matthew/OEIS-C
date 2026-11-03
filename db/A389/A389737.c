@@ -10,12 +10,14 @@
  *            including the empty set)
  * Range:     u8 n <= 14, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,13 +32,13 @@ seq_t a(idx_t n)
     /* Initialise and compute up to index n-1 if needed */
     if (cap == 0) {
         /* start with capacity 1 to store pre[0] */
-        pre = (seq_t *)malloc(sizeof(seq_t));
+        pre = mem_new(seq_t, 1);
         pre[0] = 0;
         cap = 1;
     }
 
     if (cap <= n) {                          /* need indices 0 .. n-1   */
-        seq_t *new_pre = (seq_t *)realloc(pre, n * sizeof(seq_t));
+        seq_t *new_pre = mem_resize(seq_t, pre, n);
         if (!new_pre) return 0;              /* allocation failure      */
         pre = new_pre;
 

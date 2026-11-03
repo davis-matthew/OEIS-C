@@ -8,12 +8,14 @@
  * Formula:   a(n+1) = (a(n-1) < a(n)) ? a(n-a(n)) : 2*a(n); a(1) = a(2) = 1
  * Range:     u8 n <= 436, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9845 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t *cache = NULL;
@@ -22,7 +24,7 @@ static idx_t  cache_size = 0;
 static void ensure_cache(idx_t n) {
     if (n <= cache_size) return;
     idx_t needed = n + 1;                 /* allocate indices 0 .. n (0 unused) */
-    seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, needed);
     if (!tmp) exit(EXIT_FAILURE);
     cache = tmp;
 

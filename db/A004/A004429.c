@@ -11,13 +11,19 @@
  *            ties because the right-hand side is even and (2m...
  * Range:     u8 n <= 107, u16 n <= 107, u32 n <= 107, u64 n <= 107,
  *            u128 n <= 107, big any n
- * Helpers:   a004429_upow
+ * Validated: partial, pass, 108 terms through n = 107 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a004429_upow.h"
+
+static unsigned __int128 a004429_upow(unsigned __int128 b, int e) {
+    unsigned __int128 r = 1;
+    while (e-- > 0) r *= b;
+    return r;
+}
 
 seq_t a(idx_t n) {
     idx_t t = n;

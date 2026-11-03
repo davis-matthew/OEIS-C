@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 26, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: full, pass, 26 terms through n = 26 (2026-11-02)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,11 @@
 /* Sequence: Nonsquares mod 53
    a(n) is the nth positive integer whose remainder modulo 53 is a
    quadratic non‑residue (i.e. Legendre symbol (a|53) = –1). */
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +32,7 @@ seq_t a(idx_t n)
         init = 1;
         idx_t cnt = 0;
         for (idx_t i = 1; i < 53; ++i) {
-            seq_t r = mod_pow((seq_t)i, 26, (seq_t)53); /* i^((53-1)/2) mod 53 */
+            seq_t r = powmod((seq_t)i, 26, (seq_t)53); /* i^((53-1)/2) mod 53 */
             if (r == (seq_t)1)           /* quadratic residue, skip */
                 continue;
             /* For prime 53, the only remaining non‑zero symbol is 52 (= –1) */

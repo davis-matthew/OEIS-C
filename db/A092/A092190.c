@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 51, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 4665 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static unsigned *primes = NULL;
 static size_t primes_len = 0;
@@ -90,7 +92,7 @@ static void ensure_terms_capacity(idx_t n)
     if (term_capacity < (size_t)n) {
         size_t new_cap = term_capacity ? term_capacity * 2 : 16;
         while (new_cap < (size_t)n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(term_array, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, term_array, new_cap);
         if (!tmp) abort();
         term_array = tmp;
         term_capacity = new_cap;

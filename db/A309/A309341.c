@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{j=1}^{n(n-1)} (n*j mod (n+j))
  * Range:     u8 n <= 5, u16 n <= 21, u32 n <= 339, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 57 terms through n = 1860 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

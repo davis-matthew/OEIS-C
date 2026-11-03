@@ -8,14 +8,16 @@
  *            A139391(n) is the reduced Collatz step: • If n is even,
  *            A139391(n) = odd part of n (n >> v2(n)). • If n is odd,
  *            A139391(n) = (3*n + 1) / 2^e where e = v2(3*n + 1)
- * Range:     i8 n <= 42, i16 n <= 9316, i32 n <= 9316, i64 n <= 9316,
- *            i128 n <= 9316, big any n
- * Helpers:   bitlen_seq_t
+ * Range:     i8 n <= 42, i16 n <= 16384, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 89 terms through n = 9316 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
             ++v2;
         }
         seq_t next = (seq_t)(n >> v2); /* odd part of n */
-        unsigned len_next = bitlen_seq_t(next);
-        unsigned len_n    = bitlen_seq_t((seq_t)n);
+        unsigned len_next = bit_length(next);
+        unsigned len_n    = bit_length((seq_t)n);
         return (seq_t)len_next - (seq_t)len_n;
     } else {                           /* odd n */
         seq_t n_seq = (seq_t)n;
@@ -38,8 +40,8 @@ seq_t a(idx_t n)
         while ((val & 1) == 0) {
             val >>= 1;
         }
-        unsigned len_val = bitlen_seq_t(val);
-        unsigned len_n   = bitlen_seq_t(n_seq);
+        unsigned len_val = bit_length(val);
+        unsigned len_n   = bit_length(n_seq);
         return (seq_t)len_val - (seq_t)len_n;
     }
 }

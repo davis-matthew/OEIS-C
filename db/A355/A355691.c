@@ -9,8 +9,9 @@
  *            Multiplicative with a(2^e) = A010892(e+2), a(p) = -2, a(p²) = 1,
  *            a(p^e)= 0 for e>2. Computes multiplicatively using the
  *            recurrence described above
- * Range:     i8 n <= 9709, i16 n <= 9709, i32 n <= 9709, i64 n <= 9709,
- *            i128 n <= 9709, big any n
+ * Range:     i8 n <= 100000, i16 n <= 100000, i32 n <= 100000,
+ *            i64 n <= 100000, i128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 9709 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

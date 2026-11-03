@@ -12,14 +12,16 @@
  *            digit p is that p + (k‑1) is also prime. The n‑th term...
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 74, u64 n <= 251, u128 n <= 828,
  *            big any n
- * Helpers:   isPrimeSmall
+ * Validated: standard, pass, 54 terms through n = 976 (2026-11-03)
+ * Helpers:   is_prime_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/isPrimeSmall.h"
+#include "../utils/is_prime_i32.h"
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *a, const void *b)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
             int pd = primeDigits[pi];
 
             /* Check whether p + (len-1) is prime */
-            if (!isPrimeSmall((int)(len - 1 + pd)))
+            if (!is_prime_i32((int)(len - 1 + pd)))
                 continue;
 
             for (idx_t pos = 0; pos < len; ++pos)
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         if (cand_cnt == 0)
             continue;   /* no admissible numbers of this length */
 
-        qsort(cand, cand_cnt, sizeof(seq_t), cmp_seq);
+        mem_qsort(cand, cand_cnt, sizeof(seq_t), cmp_seq);
 
         for (size_t i = 0; i < cand_cnt; ++i)
         {

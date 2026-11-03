@@ -8,13 +8,30 @@
  *            2: a(2)=2)
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _lpf_uint64
+ * Validated: standard, pass, 72 terms through n = 996 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_lpf_uint64.h"
+
+static inline seq_t _lpf_uint64(uint64_t n) {
+    if (n < 2) return 0;
+    seq_t maxp = 0;
+    while ((n & 1) == 0) {          /* factor 2 */
+        maxp = 2;
+        n >>= 1;
+    }
+    for (uint64_t d = 3; d <= n / d; d += 2) {
+        if (n % d == 0) {
+            maxp = d;
+            while (n % d == 0) n /= d;
+        }
+    }
+    if (n > 1) maxp = n;            /* remaining prime > sqrt(original) */
+    return maxp;
+}
 
 seq_t a(idx_t n) {
     if (n < 2) return 0;            /* behaviour below offset is irrelevant */

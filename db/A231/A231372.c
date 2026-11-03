@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 1711, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 63 terms through n = 9322 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Forward declaration of a helper that rebuilds the table up to a
    specified limit. */
@@ -75,13 +77,13 @@ static void build_table_upto(size_t limit,
              ++j) {
             uint32_t q = primes[j];
             if (tmp % q == 0) {
-                seq_t t = mod_pow((seq_t)10, m / q, (seq_t)p);
+                seq_t t = powmod((seq_t)10, m / q, (seq_t)p);
                 if (t == (seq_t)1) { ok = false; break; }
                 while (tmp % q == 0) tmp /= q;
             }
         }
         if (ok && tmp > 1) {
-            seq_t t = mod_pow((seq_t)10, m / tmp, (seq_t)p);
+            seq_t t = powmod((seq_t)10, m / tmp, (seq_t)p);
             if (t == (seq_t)1) ok = false;
         }
         full_flag[p] = ok ? 1 : 0;
@@ -92,7 +94,7 @@ static void build_table_upto(size_t limit,
 
     /* Build the sequence array. */
     size_t seq_cap = 1024;
-    seq_t *seq_array = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+    seq_t *seq_array = mem_new(seq_t, seq_cap);
     size_t seq_len = 0;
 
     for (size_t x = 2; x <= limit; ++x) {
@@ -119,7 +121,7 @@ static void build_table_upto(size_t limit,
         /* Store the found number. */
         if (seq_len == seq_cap) {
             seq_cap <<= 1;
-            seq_array = (seq_t*)realloc(seq_array, seq_cap * sizeof(seq_t));
+            seq_array = mem_resize(seq_t, seq_array, seq_cap);
         }
         seq_array[seq_len++] = (seq_t)x;
     }
@@ -147,7 +149,7 @@ static void ensure_terms(idx_t n)
     if (global_seq_len >= (size_t)n) return;   /* already enough */
 
     /* Release any old table. */
-    if (global_seq_array) free(global_seq_array);
+    if (global_seq_array) mem_free(global_seq_array);
     global_seq_array = NULL;
     global_seq_len   = 0;
     global_seq_cap   = 0;

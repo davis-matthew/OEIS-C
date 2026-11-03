@@ -11,12 +11,14 @@
  *            d. The integer * a(n) = V_n / 2^n is store...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 28, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 1293 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised cache of the sequence terms */
 static seq_t *cache      = NULL;   /* cache[n-1] holds a(n)          */
@@ -35,12 +37,12 @@ ensure_cache(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 1;
     while (new_cap < need) new_cap *= 2;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) abort();               /* allocation failure is fatal */
     if (cache) {
         for (size_t i = 0; i < cache_len; ++i)
             new_arr[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_arr;
     cache_cap = new_cap;

@@ -8,13 +8,15 @@
  * Formula:   a(n) = binomial(r-m, r - binomial(m, floor(m/2))), where (r,m)
  *            are obtained from the flattened triangle: row r has floor(r/2)+1
  *            entries
- * Range:     u8 n <= 60, u16 n <= 200, u32 n <= 489, u64 n <= 1527,
+ * Range:     u8 n <= 76, u16 n <= 201, u32 n <= 489, u64 n <= 1527,
  *            u128 n <= 2549, big any n
+ * Validated: standard, pass, 88 terms through n = 2194 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

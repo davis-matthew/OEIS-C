@@ -12,6 +12,7 @@
  *            p_i^{k_i-1} * b(p_i) for m=2n-1 (which is always...
  * Range:     u8 n <= 94, u16 n <= 500, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
+ * Validated: standard, pass, 78 terms through n = 432 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

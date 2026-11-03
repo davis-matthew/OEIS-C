@@ -7,12 +7,14 @@
  * Formula:   a(n) = 3 - (n+1)! (offset 2)
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 11, i64 n <= 19, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 406 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* initialise the table with 0! and 1! on first call */
     if (fact == NULL) {
         fact_len = 2;                            /* hold indices 0 and 1 */
-        fact = (seq_t *)malloc(fact_len * sizeof(seq_t));
+        fact = mem_new(seq_t, fact_len);
         fact[0] = (seq_t)1;   /* 0! = 1 */
         fact[1] = (seq_t)1;   /* 1! = 1 */
     }
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (need >= fact_len) {
         /* enlarge the array to accommodate need */
         idx_t new_len = need + 1;                 /* indices 0..need inclusive */
-        seq_t *tmp = (seq_t *)realloc(fact, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact, new_len);
         if (!tmp) return (seq_t)0;                /* out of memory: return zero as a safe fallback */
         fact = tmp;
         /* compute missing factorials */

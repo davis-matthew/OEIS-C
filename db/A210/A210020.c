@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache of all solutions. */
 static seq_t *solutions = NULL;
@@ -66,10 +68,10 @@ static void ensure_cap(size_t needed) {
     size_t newcap = sol_cap ? sol_cap * 2 : 16;
     while (newcap < needed)
         newcap *= 2;
-    seq_t *newarr = (seq_t *)malloc(newcap * sizeof(seq_t));
+    seq_t *newarr = mem_new(seq_t, newcap);
     if (solutions) {
-        memcpy(newarr, solutions, sol_len * sizeof(seq_t));
-        free(solutions);
+        mem_copy(newarr, solutions, sol_len * sizeof(seq_t));
+        mem_free(solutions);
     }
     solutions = newarr;
     sol_cap   = newcap;
@@ -122,7 +124,7 @@ static int cmp_seq(const void *a, const void *b) {
 static void initialize(void) {
     int digits[9];
     backtrack(0, 0, digits);
-    qsort(solutions, sol_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(solutions, sol_len, sizeof(seq_t), cmp_seq);
     initialized = 1;
 }
 

@@ -7,14 +7,17 @@
  * Formula:   a(n) = 2*a(n-1) + (5^(n-1) - 1)*a(n-2), a(0) = 1, a(1) = 2
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   a000248_pow
+ * Validated: standard, pass, 29 terms through n = 74 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a000248_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;
@@ -23,7 +26,7 @@ static idx_t computed_up_to = 0;
 seq_t a(idx_t n) {
     if (memo == NULL) {
         memo_len = (n < 10) ? 10 : n + 1;
-        memo = (seq_t *)malloc(memo_len * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_len);
         memo[0] = 1;
         computed_up_to = 0;
     }
@@ -31,9 +34,9 @@ seq_t a(idx_t n) {
     if (n >= memo_len) {
         idx_t new_len = memo_len;
         while (n >= new_len) new_len *= 2;
-        seq_t *new_memo = (seq_t *)malloc(new_len * sizeof(seq_t));
-        memcpy(new_memo, memo, memo_len * sizeof(seq_t));
-        free(memo);
+        seq_t *new_memo = mem_new(seq_t, new_len);
+        mem_copy(new_memo, memo, memo_len * sizeof(seq_t));
+        mem_free(memo);
         memo = new_memo;
         memo_len = new_len;
     }
@@ -44,7 +47,7 @@ seq_t a(idx_t n) {
     }
     
     if (n >= 2 && n > computed_up_to) {
-        seq_t pow5 = a000248_pow((seq_t)5, computed_up_to);
+        seq_t pow5 = ipow_idx((seq_t)5, computed_up_to);
         for (idx_t i = computed_up_to + 1; i <= n; i++) {
             memo[i] = 2 * memo[i - 1] + (pow5 - 1) * memo[i - 2];
             pow5 *= 5;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 666, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sigma1
+ * Validated: standard, pass, 70 terms through n = 9413 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sigma1.h"  /* seq_t sigma1(idx_t n) */
+#include "../utils/mem.h"
+
+static inline seq_t sigma1(idx_t n) {
+    /* Sum of positive divisors of n. n fits in idx_t. */
+    seq_t sum = 0;
+    for (idx_t i = 1; i * i <= n; ++i) {
+        if (n % i == 0) {
+            sum += (seq_t)i;
+            idx_t j = n / i;
+            if (j != i)
+                sum += (seq_t)j;
+        }
+    }
+    return sum;
+}
 
 /* Return the n-th term of A107913.  Calls may occur in arbitrary order. */
 seq_t a(idx_t n)
@@ -52,7 +67,7 @@ seq_t a(idx_t n)
                     if (count == capacity)
                     {
                         capacity = (capacity == 0) ? 32 : capacity * 2;
-                        seq_t *tmp = (seq_t *)realloc(terms, capacity * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, terms, capacity);
                         if (!tmp) return 0;           /* allocation failed */
                         terms = tmp;
                     }

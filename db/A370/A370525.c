@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/3)-1} (-1)^k * (n-2k-2)! / k!
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 14, u64 n <= 22, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 398 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of required types.  These are supplied by the build
    environment (seq.h or similar).  Do not define them here. */
@@ -36,14 +38,14 @@ static void ensure_factorial_cache(idx_t n)
     /* If the cache exists, enlarge it; otherwise create it. */
     size_t new_size = (size_t)(n + 1);
     if (fact == NULL) {
-        fact = (seq_t *)calloc(new_size, sizeof(seq_t));
+        fact = mem_new(seq_t, new_size);
         if (!fact) { /* allocation failure: abort program, but in a
                           real environment this should be handled differently */
             abort();
         }
         fact[0] = (seq_t)1;           /* 0! == 1 */
     } else {
-        fact = (seq_t *)realloc(fact, new_size * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, new_size);
         if (!fact) abort();
     }
 

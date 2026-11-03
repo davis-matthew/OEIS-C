@@ -9,15 +9,24 @@
  *            binomial(3*n+1,3)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   big_pow, binom, seq_mul
+ * Validated: standard, pass, 33 terms through n = 159 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Required utility functions */
-#include "../utils/big_pow.h"     /* seq_t big_pow(seq_t base, seq_t exp); */
-#include "../utils/binom.h"      /* seq_t binom(idx_t n, idx_t k); */
-#include "../utils/seq_mul.h"    /* seq_t seq_mul(seq_t a, seq_t b); */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -26,14 +35,14 @@ seq_t a(idx_t n)
         return 0;
 
     /* Powers */
-    seq_t pow20 = big_pow((seq_t)20, (seq_t)n);
-    seq_t pow10 = big_pow((seq_t)10, (seq_t)n);
-    seq_t pow4  = big_pow((seq_t)4,  (seq_t)n);
+    seq_t pow20 = ipow((seq_t)20, (seq_t)n);
+    seq_t pow10 = ipow((seq_t)10, (seq_t)n);
+    seq_t pow4  = ipow((seq_t)4,  (seq_t)n);
 
     /* Binomial coefficients */
     idx_t t = 3*n + 1;
-    seq_t binom2 = binom(t, 2);
-    seq_t binom3 = binom(t, 3);
+    seq_t binom2 = binomial(t, 2);
+    seq_t binom3 = binomial(t, 3);
 
     /* Intermediate terms using only seq_t arithmetic */
     seq_t term2 = seq_mul(pow10, (seq_t)t);   /* (3*n+1)*10^n */

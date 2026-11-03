@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 46, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   antidiagonal_offset, seq_pow
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-01)
+ * Helpers:   ipow_idx, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,8 +33,9 @@
  */
 
 #include <stdint.h>                 /* for __uint128_t, if available */
-#include "../utils/seq_pow.h"        /* seq_pow(seq_t, idx_t) */
-#include "../utils/antidiagonal_offset.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/triangular.h"
 
 static inline idx_t antidiagonal_idx(idx_t n)
 {
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     idx_t d = antidiagonal_idx(n);
 
     /* 2. Compute offset of that diagonal */
-    idx_t off = antidiagonal_offset(d);
+    idx_t off = triangular(d);
 
     /* 3. Coordinates within the diagonal */
     idx_t j = n - off;          /* column index */
@@ -69,5 +71,5 @@ seq_t a(idx_t n)
     seq_t base = (seq_t)(2 * j + 1);
 
     /* 5. Compute (2*j+1)^i using the utility seq_pow   */
-    return seq_pow(base, i);
+    return ipow_idx(base, i);
 }

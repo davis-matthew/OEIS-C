@@ -9,8 +9,9 @@
  *            alphabet {1,…,9} that is in standard order (every letter i>1
  *            appears only after i-1) and contains at least one repeated
  *            letter, represented by concatenating its digits
- * Range:     u8 n <= 5, u16 n <= 70, u32 n <= 9720, u64 n <= 9720,
- *            u128 n <= 9720, big any n
+ * Range:     u8 n <= 5, u16 n <= 70, u32 n <= 142407, u64 n <= 142407,
+ *            u128 n <= 142407, big any n
+ * Validated: standard, pass, 62 terms through n = 9720 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

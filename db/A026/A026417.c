@@ -9,13 +9,15 @@
  *            as a product a(i)*a(j) for 1 ≤ i < j ≤ n-1; a(1)=1, a(2)=3
  * Range:     u8 n <= 110, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Computes the OEIS sequence A026417.  The sequence is stored in a
    static array so that the function may be called in arbitrary order.
@@ -34,13 +36,13 @@ seq_t a(idx_t n)
     /* Ensure we have storage for at least n terms. */
     if (cap == 0) {
         cap = 8;
-        seq = (seq_t *)malloc((size_t)cap * sizeof(seq_t));
+        seq = mem_new(seq_t, (size_t)cap);
         if (!seq) return (seq_t)0;   /* out of memory */
     }
     if (cap < n) {
         idx_t new_cap = cap;
         while (new_cap < n) new_cap <<= 1;
-        seq = (seq_t *)realloc(seq, (size_t)new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, (size_t)new_cap);
         if (!seq) return (seq_t)0;
         cap = new_cap;
     }

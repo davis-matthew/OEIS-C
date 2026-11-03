@@ -7,12 +7,14 @@
  * Formula:   a(n) = Σ_{k=0..n} binomial(4*n+1,k) * binomial(2*n-k,n-k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
 
     /* start values of the two binomial sequences */
     seq_t c1 = 1;                                 /* binom(4*n+1,0)   */
-    seq_t c2 = binom(2 * n, n);                  /* binom(2*n,   n)  */
+    seq_t c2 = binomial(2 * n, n);                  /* binom(2*n,   n)  */
 
     seq_t sum = 0;
 

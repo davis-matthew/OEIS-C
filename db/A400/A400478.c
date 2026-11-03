@@ -8,14 +8,17 @@
  * Formula:   a(n) = (a(n-1)-a(n-2))*sumDigits(a(n-1)+a(n-2)), a(1)=1, a(2)=2
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 12, u64 n <= 18, u128 n <= 27,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 38 terms through n = 322 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* Helper to compute the sum of decimal digits of a seq_t value. */
 
@@ -28,7 +31,7 @@ static size_t  capacity = 0;    /* allocated capacity of cache */
 static void ensure_capacity(idx_t n)
 {
     if ((idx_t)capacity >= n) return;
-    seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
     if (!tmp) abort();           /* out of memory */
     cache = tmp;
     capacity = (size_t)n;

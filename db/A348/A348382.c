@@ -11,14 +11,17 @@
  *            compositions with adjacent equal parts
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
         idx_t new_lim = n;
 
         /* resize B array */
-        B = (seq_t *)realloc(B, (new_lim + 1) * sizeof(seq_t));
+        B = mem_resize(seq_t, B, (new_lim + 1));
         /* resize T array */
         T = (int *)realloc(T, (new_lim + 1) * sizeof(int));
 

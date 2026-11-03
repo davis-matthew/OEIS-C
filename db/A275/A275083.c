@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>   /* malloc, free, realloc, memset */
 #include <stdint.h>   /* uint32_t, uint8_t, etc.          */
 #include <stdbool.h>  /* bool, true, false                */
+#include "../utils/mem.h"
 
 /*---------------------------------------------------------------------*/
 /* Prime table – used for the sum‑of‑two‑squares test.                 */
@@ -132,7 +134,7 @@ static void ensure_seq_size(idx_t n)
             /* store as a new term */
             if (seq_size == seq_cap) {
                 seq_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
-                seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+                seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
                 if (!seq_arr) return;   /* allocation failed */
             }
             seq_arr[seq_size++] = m;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 46, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
     }
 
     /* ----- unbounded coin change DP ----- */
-    seq_t *dp = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, size);
     dp[0] = 1;                                 /* empty partition */
 
     for (size_t part = 1; part < size; ++part) {
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
     free(is_prime);
     free(primes);
     free(allowed);
-    free(dp);
+    mem_free(dp);
 
     return result;
 }

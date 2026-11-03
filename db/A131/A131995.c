@@ -8,13 +8,15 @@
  *            (1-x)/∏_{k≥0} (1-x^{2^k})(1-x^{3^k})
  * Range:     u8 n <= 22, u16 n <= 79, u32 n <= 417, u64 n <= 3660,
  *            u128 n <= 9999, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9535 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Global cache for the dynamic programming array */
 static seq_t *dp = NULL;          /* array of partition counts */
@@ -26,9 +28,9 @@ static void ensure_dp_cap(idx_t n)
     if ((idx_t)(dp_cap) <= n)
     {
         dp_cap = (size_t)((n + 1) * 2);   /* a little extra to reduce reallocs */
-        seq_t *tmp = (seq_t *)malloc(dp_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, dp_cap);
         if (!tmp) exit(1);
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
         dp = tmp;
     }
 }
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     ensure_dp_cap(n);
 
     /* initialize dp[0..n] to 0, set dp[0] = 1 */
-    memset(dp, 0, (n + 1) * sizeof(seq_t));
+    mem_set(dp, 0, (n + 1) * sizeof(seq_t));
     dp[0] = 1;
 
     /* usual coin‑change DP */

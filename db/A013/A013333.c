@@ -8,7 +8,8 @@
  * Formula:   a(n) = coefficient of x^n in sinh(exp(x)-sec(x))
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 12, i64 n <= 21, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Sequence A013333: a(0)=0, a(1)=1, a(2)=0, a(3)=2, a(4)=-4, a(5)=12, ... */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,12 +33,12 @@ seq_t a(idx_t n)
     if (n + 1 > size_cached) {
         /* enlarge all arrays to new_size = n+1 */
         idx_t new_size = n + 1;
-        cache      = (seq_t *)realloc(cache,      new_size * sizeof(seq_t));
-        coeff_a    = (seq_t *)realloc(coeff_a,    new_size * sizeof(seq_t));
-        coeff_b    = (seq_t *)realloc(coeff_b,    new_size * sizeof(seq_t));
-        coeff_d    = (seq_t *)realloc(coeff_d,    new_size * sizeof(seq_t));
-        exp_series = (seq_t *)realloc(exp_series, new_size * sizeof(seq_t));
-        exp_neg    = (seq_t *)realloc(exp_neg,    new_size * sizeof(seq_t));
+        cache      = mem_resize(seq_t, cache, new_size);
+        coeff_a    = mem_resize(seq_t, coeff_a, new_size);
+        coeff_b    = mem_resize(seq_t, coeff_b, new_size);
+        coeff_d    = mem_resize(seq_t, coeff_d, new_size);
+        exp_series = mem_resize(seq_t, exp_series, new_size);
+        exp_neg    = mem_resize(seq_t, exp_neg, new_size);
 
         /* initialise base case if first time */
         if (size_cached == 0) {

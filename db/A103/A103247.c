@@ -12,13 +12,24 @@
  *            = n – r(r+1)/2 (column index in the r‑th row of the triangle)
  * Range:     i8 n <= 15, i16 n <= 56, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   binom, pow_neg2
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/pow_neg2.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
+
+/* Return (-2)^e as seq_t.  */
+static inline seq_t
+pow_neg2 (idx_t e)
+{
+  seq_t p = 1;               /* seq_t type can hold 1.          */
+  for (idx_t i = 0; i < e; ++i)
+    p *= (seq_t)(-2);
+  return p;
+}
 
 /* Return row index r for flat index n (0‑based).  */
 static inline idx_t
@@ -51,13 +62,13 @@ seq_t a (idx_t n)
 
   /* part1 = binom(r‑1, k‑1) * (-2)^{r‑k} */
   {
-    seq_t bin = binom (r - 1, k - 1);
+    seq_t bin = binomial (r - 1, k - 1);
     part1 = bin * pow_neg2 (r - k);
   }
 
   /* part2 = (r+2) * binom(r‑1, k) * (-2)^{r‑1‑k} */
   {
-    seq_t bin = binom (r - 1, k);
+    seq_t bin = binomial (r - 1, k);
     part2 = bin * pow_neg2 (r - 1 - k);
     part2 *= (seq_t)(r + 2);
   }

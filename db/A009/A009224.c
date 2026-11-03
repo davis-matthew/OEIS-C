@@ -10,12 +10,14 @@
  *            coefficient sequence of exp(sinh(x)) * x
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 17, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *c = NULL;        /* memoised c_m values, indexed 0 … N-1 */
 static size_t cache_size = 0;  /* number of elements currently stored */
@@ -29,10 +31,10 @@ seq_t a(idx_t n)
     /* Ensure we have c[0 … n-1] available. */
     if (cache_size < (size_t)n) {
         size_t new_size = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(c, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, c, new_size);
         if (!tmp) {
             /* Allocation failed – return 0 as a safe value.  */
-            free(c);
+            mem_free(c);
             c = NULL;
             cache_size = 0;
             return 0;

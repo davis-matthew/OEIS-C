@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 /* Sequence A046217: numerators of the 1/2‑Pascal triangle (row by row), excluding fractions with numerator 1. */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t num;
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
     /* The first two rows of the triangle produce no terms (all numerators are 1). */
     /* Start with row 2: 1/1 1/2 1/1 */
     size_t prev_len = 3;
-    frac_t *prev = (frac_t *)malloc(prev_len * sizeof(frac_t));
+    frac_t *prev = mem_new(frac_t, prev_len);
     if (!prev) return 0;   /* allocation failure */
 
     prev[0].num = 1; prev[0].den = 1;
@@ -54,8 +57,8 @@ seq_t a(idx_t n)
 
     for (size_t row = 3; ; ++row) {          /* generate rows 3,4,5,… */
         size_t curr_len = row + 1;
-        frac_t *curr = (frac_t *)malloc(curr_len * sizeof(frac_t));
-        if (!curr) { free(prev); return 0; }
+        frac_t *curr = mem_new(frac_t, curr_len);
+        if (!curr) { mem_free(prev); return 0; }
 
         /* first and last fractions are always 1/1 */
         curr[0].num = 1; curr[0].den = 1;
@@ -74,15 +77,15 @@ seq_t a(idx_t n)
                 ++collected;
                 if (collected == n) {
                     seq_t result = curr[i].num;
-                    free(curr);
-                    free(prev);
+                    mem_free(curr);
+                    mem_free(prev);
                     return result;
                 }
             }
         }
 
         /* prepare for next iteration */
-        free(prev);
+        mem_free(prev);
         prev = curr;
     }
 }

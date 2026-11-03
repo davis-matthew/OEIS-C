@@ -8,13 +8,15 @@
  *            Σ_{k=0}^n a(k)a(n‑k) (recurrence from OEIS)
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 26, u64 n <= 47, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* dynamic cache of previously computed terms */
 static seq_t *cache = NULL;           /* array holding the terms             */
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t need)
     idx_t new_cap = cache_cap ? cache_cap : 1;    /* start at 1 if empty */
     while (new_cap <= need) new_cap <<= 1;        /* grow to power of two */
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();                     /* out of memory */
     cache = new_cache;
     cache_cap = new_cap;

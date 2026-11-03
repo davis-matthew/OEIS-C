@@ -9,7 +9,8 @@
  *            number (>= 2), otherwise k = 2. a(n) = 3*a(n-1) - k*a(n-2)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #ifdef __cplusplus
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------------
    Helper to multiply by 3 and by 2, using a wider type where
@@ -110,12 +112,12 @@ static void ensure_cache(idx_t n)
     /* Resize cache if needed */
     if (seq_cache == NULL) {
         size_t init_cap = (n >= 1) ? (size_t)n+1 : 2;
-        seq_cache = (seq_t*)malloc(init_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, init_cap);
         if (!seq_cache) exit(1);
         seq_cache[0] = (seq_t)1;
         if (init_cap > 1) seq_cache[1] = (seq_t)2;
     } else if ((size_t)n + 1 > (size_t)last_index + 1) {
-        seq_cache = (seq_t*)realloc(seq_cache, ((size_t)n+1) * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, ((size_t)n+1));
         if (!seq_cache) exit(1);
     }
 

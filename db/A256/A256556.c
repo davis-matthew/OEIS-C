@@ -7,6 +7,7 @@
  * Formula:   a(n) = n * (⌊n/10⌋)^(n mod 10) for n ≥ 10, a(n) = 0 for n < 10
  * Range:     u8 n <= 23, u16 n <= 36, u32 n <= 88, u64 n <= 678,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 69 terms through n = 9461 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

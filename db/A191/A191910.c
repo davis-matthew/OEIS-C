@@ -10,6 +10,7 @@
  *            if r % k == 0 return k-1; * else return -1
  * Range:     i8 n <= 91, i16 n <= 91, i32 n <= 91, i64 n <= 91, i128 n <= 91,
  *            big any n
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

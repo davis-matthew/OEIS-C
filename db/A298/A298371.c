@@ -9,12 +9,14 @@
  *            a(5)=17, a(6)=40, a(7)=90
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 31, u64 n <= 64, u128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 765 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     if (n >= sz) {
         size_t new_sz = n + 1;                /* size needed to store index n */
-        seq_t *newbuf = (seq_t *)realloc(buf, new_sz * sizeof(seq_t));
+        seq_t *newbuf = mem_resize(seq_t, buf, new_sz);
         if (!newbuf) return 0;                /* memory error: return 0 as fallback */
         buf = newbuf;
         for (size_t i = sz; i <= n; ++i) {

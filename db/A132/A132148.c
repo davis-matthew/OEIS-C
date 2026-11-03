@@ -8,12 +8,14 @@
  *            (row number), k = n - r(r+1)/2 (column index)
  * Range:     u8 n <= 37, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Iterative computation of the Lucas numbers.  Lucas(0)=2, Lucas(1)=1. */
 static seq_t lucas(idx_t n)
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     __int128 tri = (__int128)r * (r + 1) / 2;
     idx_t k = n - (idx_t)tri;             /* column index in row r */
 
-    seq_t bin = binom(r, k);              /* C(r, k) */
+    seq_t bin = binomial(r, k);              /* C(r, k) */
     seq_t luc = lucas(r - k);             /* Lucas(r-k) */
 
     return bin * luc;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- Configuration ---------- */
 #define LIMIT      20000000U          /* upper bound for the sieve   */
@@ -52,7 +54,7 @@ static void init_sequence(void)
                 isprime[j] = 0;
 
     /* Allocate array for the sequence */
-    seq = (seq_t*)malloc(SEQ_CAP * sizeof(seq_t));
+    seq = mem_new(seq_t, SEQ_CAP);
     if (!seq) { free(isprime); isprime = NULL; return; }
 
     /* Compute half‑differences of consecutive primes */

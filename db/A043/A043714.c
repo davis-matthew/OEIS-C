@@ -8,12 +8,14 @@
  *            (OEIS A043714)
  * Range:     u8 n <= 52, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global cache for computed terms */
 static seq_t *cache = NULL;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
             if (runs & 1) {
                 if (cache_len == cache_cap) {
                     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                    seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *newp = mem_resize(seq_t, cache, new_cap);
                     if (!newp) exit(1);
                     cache = newp;
                     cache_cap = new_cap;

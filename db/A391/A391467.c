@@ -11,13 +11,15 @@
  *            a(4)=1, a(5)=0, a(6)=0, * a(7)=1, a(8)=4,
  * Range:     u8 n <= 41, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Helper: triangular number: start index of row r in a linear array of rows */
 static inline idx_t tri_start(idx_t r) {
@@ -37,9 +39,9 @@ static void ensure_rows(idx_t up_to) {
     size_t needed = (size_t)( (up_to + 1) * (up_to + 2) / 2 );
     if (triangle_capacity < needed) {
         if (triangle == NULL)
-            triangle = (seq_t *)malloc(needed * sizeof(seq_t));
+            triangle = mem_new(seq_t, needed);
         else
-            triangle = (seq_t *)realloc(triangle, needed * sizeof(seq_t));
+            triangle = mem_resize(seq_t, triangle, needed);
         if (!triangle) abort();          /* allocation failed */
         triangle_capacity = needed;
     }

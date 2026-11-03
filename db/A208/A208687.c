@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 25, u128 n <= 54,
  *            big any n
- * Helpers:   pat_ok
+ * Validated: standard, pass, 35 terms through n = 198 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,18 @@
  */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pat_ok.h"
+
+static inline int pat_ok(uint8_t pat) {
+    /* check horizontal patterns 000 and 001 */
+    for (int i = 0; i <= 4; ++i) {
+        int a = (pat >> i) & 1;
+        int b = (pat >> (i + 1)) & 1;
+        int c = (pat >> (i + 2)) & 1;
+        if (a == 0 && b == 0 && c == 0) return 0;
+        if (a == 0 && b == 0 && c == 1) return 0;
+    }
+    return 1;
+}
 
 static uint8_t H[42];                 /* horizontal‑valid rows */
 static int8_t row_to_idx[128];        /* mapping from pattern to index in H or -1 */

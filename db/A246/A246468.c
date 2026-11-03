@@ -12,7 +12,8 @@
  *            search
  * Range:     u8 n <= 17, u16 n <= 142, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* first 31 primes */
 static const uint64_t SMALL_PRIMES[] = {
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
 
     if (!cache) {
         cache_cap = 128;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     while (cache_cnt < n) {
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
             if (good_uint64(v)) {
                 if (cache_cnt == cache_cap) {
                     cache_cap <<= 1;
-                    cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_cnt++] = (seq_t)v;
                 ++next_val;

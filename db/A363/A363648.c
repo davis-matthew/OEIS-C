@@ -7,16 +7,18 @@
  * Formula:   a(n) = Sum_{d|n} (n/d)^n * binomial(d+3,3)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow, binomial, factor_u64
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial, factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/binomial.h"    /* binomial(idx_t a, idx_t b) */
-#include "../utils/big_pow.h"     /* big_pow(seq_t base, seq_t exp) */
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 /* generate all divisors of n given its prime factorisation */
 static void gen_divisors(const uint64_t *pf, const uint64_t *exp, size_t cnt,
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < divlen; ++i) {
         idx_t d = divs[i];
         seq_t base = (seq_t)(n / d);                     /* (n/d) */
-        seq_t powd = big_pow(base, (seq_t)n);            /* (n/d)^n */
+        seq_t powd = ipow(base, (seq_t)n);            /* (n/d)^n */
         seq_t bin = binomial(d + 3, 3);                  /* binomial(d+3,3) */
         result += powd * bin;
     }

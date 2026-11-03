@@ -9,12 +9,14 @@
  *            2, 1, 1; 1, 4, 2; 1, 2, 4 ], divided by 2
  * Range:     u8 n <= 10, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of sequence values */
 static seq_t *cache = NULL;      /* sorted, unique values */
@@ -40,7 +42,7 @@ static void recalc_cache(int B)
     if (B <= 0) B = 1;
     size_t dim = (size_t)(2 * B + 1);
     size_t N = dim * dim * dim;        /* number of triples */
-    seq_t *tmp = (seq_t *)malloc(N * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, N);
     if (!tmp) {
         /* memory allocation failed; leave cache unchanged */
         return;
@@ -64,10 +66,10 @@ static void recalc_cache(int B)
         }
     }
 
-    qsort(tmp, N, sizeof(seq_t), cmp_seq);
+    mem_qsort(tmp, N, sizeof(seq_t), cmp_seq);
 
     /* Free previous cache if any */
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     cache = NULL;
     cache_cap = 0;
     cache_cnt = 0;
@@ -77,11 +79,11 @@ static void recalc_cache(int B)
         if (i == 0 || tmp[i] != tmp[i - 1]) {
             if (cache_cnt == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 4096;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (!new_cache) {
                     /* realloc failed; clean up and exit */
-                    free(tmp);
-                    if (cache) free(cache);
+                    mem_free(tmp);
+                    if (cache) mem_free(cache);
                     cache = NULL;
                     cache_cap = 0;
                     cache_cnt = 0;
@@ -94,7 +96,7 @@ static void recalc_cache(int B)
         }
     }
 
-    free(tmp);
+    mem_free(tmp);
     last_B = B;
 }
 

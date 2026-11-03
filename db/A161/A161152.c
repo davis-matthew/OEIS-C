@@ -10,15 +10,26 @@
  *            itself
  * Range:     u8 n <= 162, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd, nonleading_zeros
+ * Validated: standard, pass, 85 terms through n = 982 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/nonleading_zeros.h"
+
+/* Count the number of zeros after the most‑significant 1 bit
+   in the binary representation of x (x >= 1). */
+static inline unsigned int nonleading_zeros(idx_t x)
+{
+    unsigned long long ux = (unsigned long long)x;
+    unsigned int bits   = 64 - __builtin_clzll(ux);          /* number of bits used */
+    unsigned int ones   = __builtin_popcountll(ux);          /* number of 1 bits    */
+    return bits - 1 - (ones - 1); /* zeros after the MSB */
+}
 
 /* Return the n-th term of the sequence (n >= 1). */
 seq_t a(idx_t n)

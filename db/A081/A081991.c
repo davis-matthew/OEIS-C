@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 33, u32 n <= 4529, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   next_perm
+ * Validated: standard, pass, 53 terms through n = 4953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,25 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/next_perm.h"
+#include "../utils/mem.h"
+
+/* next permutation in lexicographic order.  Returns true if a next
+   permutation exists, false if the array is at its last permutation.   */
+static bool next_perm(int *a, int n) {
+    int i = n - 2;
+    while (i >= 0 && a[i] >= a[i + 1]) --i;
+    if (i < 0) return false;
+
+    int j = n - 1;
+    while (a[j] <= a[i]) --j;
+
+    int tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+
+    for (int l = i + 1, r = n - 1; l < r; ++l, --r) {
+        tmp = a[l]; a[l] = a[r]; a[r] = tmp;
+    }
+    return true;
+}
 
 /*  seq_t  and  idx_t  are supplied by the build system.  */
 
@@ -43,7 +62,7 @@ static void ensure_seq_cap(size_t needed) {
     if (seq_cap < needed) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
         while (new_cap < needed) new_cap <<= 1;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 }

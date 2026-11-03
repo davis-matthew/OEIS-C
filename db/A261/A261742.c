@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 20, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Return binomial(k+7,7) as a seq_t.  The calculation is done
    multiplicatively so that it works for all seq_t sizes. */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Ensure we have an array large enough.  N+1 entries are needed. */
     if ((size_t)n + 1 > dp_cap) {
         size_t new_cap = ((size_t)n + 1);
-        seq_t *new_dp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, new_cap);
         if (!new_dp) {   /* allocation failure – return zero as safe default */
             return (seq_t)0;
         }

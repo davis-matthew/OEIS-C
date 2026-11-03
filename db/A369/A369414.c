@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf, easy
  * Formula:   not stated
- * Range:     u8 n <= 64, u16 n <= 9863, u32 n <= 9863, u64 n <= 9863,
- *            u128 n <= 9863, big any n
- * Helpers:   ilog2_u64
+ * Range:     u8 n <= 64, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 81 terms through n = 9863 (2026-11-01)
+ * Helpers:   ilog2_u64_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,7 @@
  */
 
 #include <stdint.h>
-#include "../utils/ilog2_u64.h"
+#include "../utils/ilog2_u64_to_u32.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
     if (n == 2) return (seq_t)4;
 
     /* compute row number r (r ≥ 3) */
-    unsigned int r = ilog2_u64((uint64_t)n - 1) + 2;
+    unsigned int r = ilog2_u64_to_u32((uint64_t)n - 1) + 2;
 
     /* 2^r and 2^(r‑2) as seq_t values (shifts done on int) */
     seq_t pow2    = (seq_t)(1 << r);

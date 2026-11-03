@@ -7,12 +7,14 @@
  * Formula:   a(n) = 4*(n-1)*a(n-1)+3*(n-1)! (a(1)=1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t *A = NULL;
@@ -26,7 +28,7 @@ static idx_t fact_max = 0;
 static void ensure_cap(idx_t *size, seq_t **arr, idx_t needed)
 {
     if (*size < needed) {
-        seq_t *tmp = (seq_t *)realloc(*arr, sizeof(seq_t) * needed);
+        seq_t *tmp = mem_resize(seq_t, *arr, needed);
         if (!tmp) abort();
         *arr = tmp;
         *size = needed;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     if (A == NULL) {
         A_size = 2;
-        A = (seq_t *)malloc(sizeof(seq_t) * A_size);
+        A = mem_new(seq_t, A_size);
         if (!A) abort();
         A[0] = (seq_t)0;
         A[1] = (seq_t)1;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
     if (fact == NULL) {
         fact_size = 1;
-        fact = (seq_t *)malloc(sizeof(seq_t) * fact_size);
+        fact = mem_new(seq_t, fact_size);
         if (!fact) abort();
         fact[0] = (seq_t)1;
         fact_max = 0;

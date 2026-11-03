@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 41, u16 n <= 250, u32 n <= 250, u64 n <= 250,
+ * Range:     u8 n <= 48, u16 n <= 250, u32 n <= 250, u64 n <= 250,
  *            u128 n <= 250, big any n
- * Helpers:   catalan
+ * Validated: standard, pass, 78 terms through n = 236 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* Allocate DP array for sums up to n */
     size_t dp_size = (size_t)n + 1;
-    seq_t *dp = (seq_t *)malloc(dp_size * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     if (!dp)
         return (seq_t)0; /* allocation failure – unlikely in this context */
 
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     size_t part_cap = 16;
     idx_t *parts = (idx_t *)malloc(part_cap * sizeof(idx_t));
     if (!parts) {
-        free(dp);
+        mem_free(dp);
         return (seq_t)0;
     }
     size_t part_cnt = 0;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
             part_cap <<= 1;
             idx_t *tmp = (idx_t *)realloc(parts, part_cap * sizeof(idx_t));
             if (!tmp) {
-                free(dp);
+                mem_free(dp);
                 free(parts);
                 return (seq_t)0;
             }
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     free(parts);
     return result;
 }

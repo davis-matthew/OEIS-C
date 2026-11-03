@@ -7,7 +7,8 @@
  * Formula:   a(n) = binomial(n+2,2) + ∑_{k=0}^{n-1} k * a(k) * a(n-1-k)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,12 +29,12 @@ seq_t a(idx_t n)
         size_t oldcap = cap;
         size_t newcap = n + 1;                 /* need indices 0..n */
 
-        seq_t *newcache = (seq_t*)malloc(newcap * sizeof(seq_t));
+        seq_t *newcache = mem_new(seq_t, newcap);
         if (!newcache) abort();                /* allocation failure */
 
         if (cache) {
-            memcpy(newcache, cache, oldcap * sizeof(seq_t));
-            free(cache);
+            mem_copy(newcache, cache, oldcap * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = newcache;
         cap   = newcap;

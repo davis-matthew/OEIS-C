@@ -7,7 +7,8 @@
  * Formula:   a(n) = 26*a(n-1) - 722*(n-1)*a(n-2), a(0) = 1, a(1) = 26
  * Range:     i8 n <= 2, i16 n <= 2, i32 n <= 5, i64 n <= 11, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     static idx_t cache_size = 0;  /* next index to be computed */
 
     if (cache == NULL) {                          /* first call */
-        cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (n + 1));
         if (!cache) exit(1);                      /* allocation failed */
 
         cache[0] = 1;                             /* a(0) */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     /* extend cache to include index n */
     idx_t old_size = cache_size;
-    cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (n + 1));
     if (!cache) exit(1);
 
     for (idx_t i = old_size; i <= n; ++i) {

@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{k=1..n} k*lcm(k,k')/gcd(k,k')
  * Range:     u8 n <= 6, u16 n <= 32, u32 n <= 529, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 57 terms through n = 9842 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 /* Requires the gcd(seq_t,seq_t) function from utils/gcd.h */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -53,7 +56,7 @@ seq_t a(idx_t n)
     if (n > pref_size)
     {
         size_t newsize = (size_t)(n + 1);
-        seq_t *newpref = (seq_t *)realloc(pref, newsize * sizeof(seq_t));
+        seq_t *newpref = mem_resize(seq_t, pref, newsize);
         if (!newpref) /* allocation failure – safest return */
             return 0;
         pref = newpref;

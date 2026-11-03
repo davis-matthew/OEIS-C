@@ -8,12 +8,14 @@
  *            a(1) = 2, a(2) = 5. The recurrence applies for n ≥ 3
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 45, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 1749 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     seq_t *tmp;
 
     if (cache == NULL) { /* first allocation */
-        tmp = (seq_t *)malloc(sizeof(seq_t) * new_sz);
+        tmp = mem_new(seq_t, new_sz);
         if (!tmp) return (seq_t)0;          /* allocation failed */
         tmp[0] = (seq_t)1;
         if (new_sz > 1) tmp[1] = (seq_t)2;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         cache_sz = new_sz;
     } else {
         /* Resize existing array. */
-        tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_sz);
+        tmp = mem_resize(seq_t, cache, new_sz);
         if (!tmp) return (seq_t)0;          /* allocation failed */
         /* If we are extending, compute only the new entries. */
         for (idx_t k = cache_sz; k < new_sz; ++k) {

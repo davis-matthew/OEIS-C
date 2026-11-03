@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 788, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 86 terms through n = 4998 (2026-11-01)
  * Helpers:   bigomega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* Algorithm: Computes a(n) as the number of iterations required to reach
    1 under the map f(m) = m - bigomega(m), where bigomega(m) is the
    total number of prime factors of m (counted with multiplicity). */
+#include <stdlib.h>
 #include "../utils/bigomega.h"
 
 seq_t a(idx_t n)

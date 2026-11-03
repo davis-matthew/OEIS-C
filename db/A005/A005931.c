@@ -8,15 +8,34 @@
  *            phi(q) = Sum_{k} q^(k^2), psi(q) = Sum_{k>=0} q^(k(k+1)/2)
  * Range:     u8 n <= 0, u16 n <= 10, u32 n <= 952, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_zero, mul_phi, release
+ * Validated: standard, pass, 49 terms through n = 9447 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/mul_phi.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+/* in place: A <- A * phi(q) = A * (1 + 2*Sum_{k>=1} q^(k^2)) */
+static void mul_phi(seq_t *A, idx_t L) {
+    for (idx_t i = L; i-- > 0;) {
+        seq_t t = 0;
+        for (idx_t k = 1; k * k <= i; k++) t += A[i - k * k];
+        A[i] = A[i] + t * 2;
+    }
+}
 
 /* in place: A <- A * psi(q^2) = A * Sum_{k>=0} q^(k(k+1)), truncated to L terms */
 static void mul_psi2(seq_t *A, idx_t L) {

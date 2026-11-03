@@ -9,13 +9,15 @@
  *            complementary
  * Range:     u8 n <= 33, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* check whether value v appears in the first len elements of array a */
 static bool a_contains(const seq_t *a, idx_t len, seq_t v)
@@ -38,12 +40,12 @@ seq_t a(idx_t n)
     size_t a_len = (size_t)n + 1;     /* indices 0 .. n */
     size_t b_len = (size_t)n + 2;     /* indices 0 .. n+1 */
 
-    seq_t *a_vals = (seq_t*)malloc(a_len * sizeof(seq_t));
-    seq_t *b_vals = (seq_t*)malloc(b_len * sizeof(seq_t));
+    seq_t *a_vals = mem_new(seq_t, a_len);
+    seq_t *b_vals = mem_new(seq_t, b_len);
     if (!a_vals || !b_vals) {
         /* memory allocation failed – return zero */
-        if (a_vals) free(a_vals);
-        if (b_vals) free(b_vals);
+        if (a_vals) mem_free(a_vals);
+        if (b_vals) mem_free(b_vals);
         return (seq_t)0;
     }
 
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_vals[n];
-    free(a_vals);
-    free(b_vals);
+    mem_free(a_vals);
+    mem_free(b_vals);
     return result;
 }

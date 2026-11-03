@@ -8,7 +8,8 @@
  *            fifth power
  * Range:     u8 none, u16 n <= 3, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   build_primes_upto, required_prime_count
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,21 @@
 #include <stddef.h>
 #include <math.h>
 
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/required_prime_count.h"
+#include "../utils/mem.h"
+
+/* required number of distinct primes so that (p choose 2) >= n */
+static size_t required_prime_count(idx_t n)
+{
+    /* Solve p*(p-1)/2 >= n -> p ≈ ceil((1+√(1+8n))/2) */
+    double dn = (double)n;
+    double root = sqrt(1.0 + 8.0 * dn);
+    size_t p = (size_t)((1.0 + root) * 0.5);
+    if ((seq_t)p * (seq_t)(p - 1) / 2 < n) ++p;
+    return p;
+}
 
 /* comparison for qsort on seq_t */
 static int cmp_seq(const void *a, const void *b)
@@ -63,7 +77,7 @@ static void grow_cache(idx_t n)
 
     /* compute p^5 for each prime */
     size_t m = primes_cnt;
-    seq_t *p5 = (seq_t *)malloc(m * sizeof(seq_t));
+    seq_t *p5 = mem_new(seq_t, m);
     for (size_t i = 0; i < m; ++i) {
         seq_t p = (seq_t)primes[i];
         seq_t t = p;
@@ -76,7 +90,7 @@ static void grow_cache(idx_t n)
 
     /* generate all unordered distinct sums of two fifth powers */
     size_t pair_cnt = m * (m - 1) / 2;
-    seq_t *sums = (seq_t *)malloc(pair_cnt * sizeof(seq_t));
+    seq_t *sums = mem_new(seq_t, pair_cnt);
     size_t idx = 0;
     for (size_t i = 0; i < m - 1; ++i) {
         seq_t pi5 = p5[i];
@@ -86,7 +100,7 @@ static void grow_cache(idx_t n)
     }
 
     /* sort the sums */
-    qsort(sums, pair_cnt, sizeof(seq_t), cmp_seq);
+    mem_qsort(sums, pair_cnt, sizeof(seq_t), cmp_seq);
 
     /* deduplicate to obtain the sequence terms */
     size_t new_len = 0;
@@ -97,7 +111,7 @@ static void grow_cache(idx_t n)
                 ++new_len;
     }
 
-    seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_len);
     if (pair_cnt > 0) {
         new_cache[0] = sums[0];
         size_t dst = 1;
@@ -107,9 +121,9 @@ static void grow_cache(idx_t n)
     }
 
     /* free temporary data */
-    free(cache);
-    free(sums);
-    free(p5);
+    mem_free(cache);
+    mem_free(sums);
+    mem_free(p5);
     free(primes);
 
     /* store the new cache */

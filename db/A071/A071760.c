@@ -10,15 +10,38 @@
  *            1
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   gcd, mu_of
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/mu_of.h"
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 /* Static caches for record denominators and current sum */
 static seq_t *rec_vals = NULL;    /* denominators of record minima */
@@ -40,7 +63,7 @@ static void grow_rec(size_t need)
     size_t new_cap = rec_cap ? rec_cap * 2 : 16;
     while (new_cap < need)
         new_cap *= 2;
-    rec_vals = (seq_t *)realloc(rec_vals, new_cap * sizeof(seq_t));
+    rec_vals = mem_resize(seq_t, rec_vals, new_cap);
     rec_cap = new_cap;
 }
 

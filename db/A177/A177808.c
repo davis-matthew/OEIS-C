@@ -8,14 +8,16 @@
  *            satisfying row*(row+1)/2 <= n < (row+1)*(row+2)/2 * and col = n
  *            - row*(row+1)/2 (i.e. reading the triangle * T(r,c) =
  *            binomial(4*r,4*c) by rows)
- * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 39, u64 n <= 54, u128 n <= 54,
+ * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 48, u64 n <= 54, u128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

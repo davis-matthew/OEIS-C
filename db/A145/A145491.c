@@ -10,12 +10,15 @@
  *            7 : a(n) = 2^n – 2
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -26,12 +29,12 @@ seq_t a(idx_t n)
         return (seq_t)90;
     }
     if (n <= 5) {                 /* 2 ≤ n ≤ 5  */
-        seq_t val = seq_pow((seq_t)2, n + 1);
+        seq_t val = ipow_idx((seq_t)2, n + 1);
         val -= (seq_t)2;
         return val;
     }
     /* n ≥ 7  */
-    seq_t val = seq_pow((seq_t)2, n);
+    seq_t val = ipow_idx((seq_t)2, n);
     val -= (seq_t)2;
     return val;
 }

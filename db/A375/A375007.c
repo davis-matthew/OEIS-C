@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 38, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static idx_t  sieve_limit   = 0;   /* current sieve upper bound          */
 static uint8_t *valid_table  = NULL;/* 0 = not a valid term, 1 = valid   */
@@ -46,7 +48,7 @@ static void rebuild(idx_t limit)
 {
     /* Free any existing data. */
     free(valid_table);
-    free(terms);
+    mem_free(terms);
 
     /* Allocate the validity table. */
     valid_table = (uint8_t *)calloc((size_t)(limit + 1), 1);
@@ -74,7 +76,7 @@ static void rebuild(idx_t limit)
 
     /* Build the terms array from the validity table. */
     terms_cap = (size_t)limit + 1;      /* enough space for all valid t */
-    terms = (seq_t *)calloc(terms_cap, sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
     if (!terms) abort();
     terms_len = 0;
 
@@ -82,7 +84,7 @@ static void rebuild(idx_t limit)
         if (valid_table[t]) {
             if (terms_len >= terms_cap) {
                 terms_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                 if (!tmp) abort();
                 terms = tmp;
             }

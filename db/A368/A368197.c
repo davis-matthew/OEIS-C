@@ -11,14 +11,17 @@
  *            x,y,z <= n and gcd(x^2 + y^2 - z^2 , n) = k
  * Range:     u8 n <= 21, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *terms = NULL;          /* flattened triangle values   */
@@ -35,10 +38,10 @@ seq_t a(idx_t n) {
         size_t r_usize = (size_t)r;
 
         /* Count array for the current row (1..r) */
-        seq_t *cnt = (seq_t*)calloc(r_usize + 1, sizeof(seq_t));
-        seq_t *sq  = (seq_t*)calloc(r_usize + 1, sizeof(seq_t));
+        seq_t *cnt = mem_new(seq_t, r_usize + 1);
+        seq_t *sq  = mem_new(seq_t, r_usize + 1);
         if (!cnt || !sq) {              /* allocation failure    */
-            free(cnt); free(sq);
+            mem_free(cnt); mem_free(sq);
             return 0;
         }
 
@@ -70,7 +73,7 @@ seq_t a(idx_t n) {
         if (terms_len + r > terms_cap) {
             size_t newcap = terms_cap ? terms_cap << 1 : 32;
             while (newcap < terms_len + r) newcap <<= 1;
-            terms = (seq_t*)realloc(terms, newcap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, newcap);
             terms_cap = newcap;
         }
 
@@ -78,8 +81,8 @@ seq_t a(idx_t n) {
         for (size_t k = 1; k <= r_usize; ++k)
             terms[terms_len++] = cnt[(size_t)k];
 
-        free(cnt);
-        free(sq);
+        mem_free(cnt);
+        mem_free(sq);
     }
 
     return terms[(size_t)(n - 1)];

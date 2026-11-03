@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   modpow_seq
+ * Validated: standard, pass, 72 terms through n = 986 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/modpow_seq.h"
+#include "../utils/powmod.h"
 
 /* helper: binary GCD for uint64_t */
 static inline uint64_t ugcd(uint64_t a, uint64_t b) {
@@ -82,7 +83,7 @@ seq_t a(idx_t n) {
         if (p == 2) continue;     /* skip 2 – trivial solution exists */
         uint64_t d = ugcd(32ULL, (uint64_t)p - 1ULL);
         uint64_t exp = ((uint64_t)p - 1ULL) / d;
-        seq_t rem = modpow_seq((seq_t)2, exp, (seq_t)p);
+        seq_t rem = powmod((seq_t)2, exp, (seq_t)p);
         if (rem != (seq_t)1) {    /* 2 is not a 32nd power residue mod p */
             ++found;
             if (found == (size_t)n)

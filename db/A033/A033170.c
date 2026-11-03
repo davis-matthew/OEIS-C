@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 830, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 9148 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* Find the maximum value that can be represented by seq_t.
    Values larger than this are ignored, because they cannot be stored in the cache. */
@@ -56,7 +58,7 @@ _grow_cache(size_t needed)
     if (_cache_cap >= needed) return;
     size_t new_cap = _cache_cap ? (_cache_cap * 2) : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _cache, new_cap);
     if (!tmp) abort();           /* out of memory */
     _cache = tmp;
     _cache_cap = new_cap;

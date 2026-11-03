@@ -9,12 +9,16 @@
  *            the decimal digits of its argument in nondecreasing order)
  * Range:     u8 n <= 8, u16 n <= 21, u32 n <= 52, u64 n <= 107, u128 n <= 224,
  *            big any n
+ * Validated: standard, pass, 55 terms through n = 940 (2026-11-01)
  * Helpers:   digit_counts
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
 
 seq_t a(idx_t n)

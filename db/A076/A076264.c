@@ -8,7 +8,8 @@
  *            a(2)=9
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 41, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    already-computed terms so calls in arbitrary order
    take time proportional to the largest n requested.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* initialise with the first three terms */
     if (cache == NULL) {
         cache_cap = 3;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0; /* out of memory – unlikely in tests */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)3;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     if ((idx_t)(n + 1) > cache_cap) {
         size_t new_cap = cache_cap;
         while (new_cap < (size_t)(n + 1)) new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;            /* out of memory, should not happen */
         cache = tmp;
         cache_cap = new_cap;

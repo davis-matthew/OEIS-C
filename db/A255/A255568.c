@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   not stated
- * Range:     u8 n <= 8, u16 n <= 3927, u32 n <= 9802, u64 n <= 9802,
- *            u128 n <= 9802, big any n
- * Helpers:   _binom_uint32
+ * Range:     u8 n <= 8, u16 n <= 3927, u32 n <= 16303, u64 n <= 16303,
+ *            u128 n <= 16303, big any n
+ * Validated: standard, pass, 67 terms through n = 9802 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
    Within that block we construct the (rem‑th) integer by choosing the positions 
    of the required zeros in lexicographic (numeric) order. */
 #include <stdint.h>
-#include "../utils/_binom_uint32.h"
+
+static inline seq_t _binom_uint32(uint32_t n, uint32_t k) {
+    if (k > n) return 0;
+    if (k > n - k) k = n - k;
+    seq_t res = 1;
+    for (uint32_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res /= (seq_t)i;
+    }
+    return res;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;   /* offset starts at 1 */

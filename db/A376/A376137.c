@@ -9,7 +9,8 @@
  *            a(n-k-1); offset 0
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 8, i64 n <= 12, i128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    and for the arbitrary‑precision types supplied by the build. */
 
 #include <stdlib.h>   /* for realloc, exit, size_t */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of computed terms */
 static size_t cache_cap = 0;     /* allocated size */
@@ -30,7 +32,7 @@ static void ensure_cache(size_t needed)
 {
     if (needed <= cache_cap)
         return;
-    seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, needed);
     if (!tmp && needed != 0)
         exit(EXIT_FAILURE);   /* out of memory */
     cache = tmp;

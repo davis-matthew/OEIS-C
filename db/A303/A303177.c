@@ -13,12 +13,14 @@
  *            17*a(n-6) - 26*a(n-7) + 52*a(n-8) - 8*a(n-1...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 34, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 180 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -52,7 +54,7 @@ static void ensure_cache(idx_t new_size)
     if (new_size <= cache_size)
         return;
     size_t new_cap = (size_t)(new_size + 1);   /* indices 0..new_size */
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) {
         /* fatal error: out of memory */
         exit(EXIT_FAILURE);

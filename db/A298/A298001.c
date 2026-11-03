@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9492 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of helper functions. */
 static void init(void);
@@ -51,7 +53,7 @@ static void ensure_a(size_t n) {
     if (n < a_cap) return;
     size_t new_cap = a_cap ? a_cap * 2 : 16;
     while (new_cap <= n) new_cap *= 2;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     a_cap = new_cap;
 }
 
@@ -60,7 +62,7 @@ static void ensure_b(size_t n) {
     if (n < b_cap) return;
     size_t new_cap = b_cap ? b_cap * 2 : 16;
     while (new_cap <= n) new_cap *= 2;
-    b_cache = (seq_t *)realloc(b_cache, new_cap * sizeof(seq_t));
+    b_cache = mem_resize(seq_t, b_cache, new_cap);
     b_cap = new_cap;
 }
 
@@ -94,8 +96,8 @@ static void init(void) {
     initialized = true;
 
     /* allocate initial capacities */
-    a_cap = 16; a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
-    b_cap = 16; b_cache = (seq_t *)malloc(b_cap * sizeof(seq_t));
+    a_cap = 16; a_cache = mem_new(seq_t, a_cap);
+    b_cap = 16; b_cache = mem_new(seq_t, b_cap);
 
     /* base values */
     a_cache[0] = 1; a_cache[1] = 2; a_len = 2;

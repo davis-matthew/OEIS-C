@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 33, u16 n <= 5364, u32 n <= 9862, u64 n <= 9862,
- *            u128 n <= 9862, big any n
- * Helpers:   none
+ * Range:     u8 n <= 33, u16 n <= 5364, u32 n <= 10946, u64 n <= 10946,
+ *            u128 n <= 10946, big any n
+ * Validated: standard, pass, 89 terms through n = 9862 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Fibonacci table (1‑based, fib[1]=1, fib[2]=1). */
 static seq_t *fib   = NULL;  /* array of seq_t */
@@ -38,7 +40,7 @@ static void ensure_fib(idx_t target_n)
 {
     if (!fib) {
         fib_cap = 16;
-        fib = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+        fib = mem_new(seq_t, fib_cap);
         if (!fib) exit(EXIT_FAILURE);
         fib[0] = 0;            /* dummy */
         fib[1] = 1;
@@ -51,8 +53,8 @@ static void ensure_fib(idx_t target_n)
     while (fib_len <= target_n + 1 || fib[fib_len-1] <= (seq_t)target_n) {
         if (fib_len >= fib_cap) {
             fib_cap <<= 1;
-            seq_t *p = (seq_t *)realloc(fib, fib_cap * sizeof(seq_t));
-            if (!p) { free(fib); exit(EXIT_FAILURE); }
+            seq_t *p = mem_resize(seq_t, fib, fib_cap);
+            if (!p) { mem_free(fib); exit(EXIT_FAILURE); }
             fib = p;
         }
         fib[fib_len] = fib[fib_len-1] + fib[fib_len-2];
@@ -66,8 +68,8 @@ static void ensure_memo(idx_t n)
     if (!memo || memo_cap <= n) {
         size_t new_cap = memo_cap ? memo_cap : 1;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *p = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
-        if (!p) { free(memo); exit(EXIT_FAILURE); }
+        seq_t *p = mem_resize(seq_t, memo, new_cap);
+        if (!p) { mem_free(memo); exit(EXIT_FAILURE); }
         if (!memo) {
             for (size_t i = 0; i < new_cap; ++i) p[i] = 0;
         } else {

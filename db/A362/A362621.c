@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* smallest prime factor array and its current upper bound */
 static uint32_t *spf = NULL;
@@ -112,8 +114,8 @@ seq_t a(idx_t n)
         if (qualifies) {
             if (cache_length == cache_capacity) {
                 size_t new_cap = cache_capacity == 0 ? 64 : cache_capacity * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
-                if (!tmp) { free(cache); cache = NULL; cache_capacity = 0; cache_length = 0; return 0; }
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+                if (!tmp) { mem_free(cache); cache = NULL; cache_capacity = 0; cache_length = 0; return 0; }
                 cache = tmp;
                 cache_capacity = new_cap;
             }

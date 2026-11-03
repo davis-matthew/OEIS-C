@@ -8,15 +8,26 @@
  * Formula:   a(n) = Numerator[(n^3*(n+1)^2)/(2*n!)]
  * Range:     u8 n <= 9, u16 n <= 57, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   exp_in_factorial, factor_uint64, pow_seq
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   factor_uint64, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
-#include "../utils/exp_in_factorial.h"
 #include "../utils/factor_uint64.h"
+#include "../utils/ipow_i32.h"
+
+/* exponent of prime p in n! (Legendre's formula) */
+static int exp_in_factorial(uint64_t n, uint64_t p)
+{
+    int e = 0;
+    while (n) {
+        n /= p;
+        e += n;
+    }
+    return e;
+}
 
 /* sequence value */
 seq_t a(idx_t n)
@@ -37,7 +48,7 @@ seq_t a(idx_t n)
         int exp_D    = exp_in_factorial((uint64_t)n, p) + (p == 2 ? 1 : 0); /* exponent in 2*n! */
         int exp_res  = exp_N - exp_D;
         if (exp_res > 0)
-            result *= pow_seq((seq_t)p, exp_res);
+            result *= ipow_i32((seq_t)p, exp_res);
     }
 
     /* factor n+1 */
@@ -52,7 +63,7 @@ seq_t a(idx_t n)
         int exp_D    = exp_in_factorial((uint64_t)n, p) + (p == 2 ? 1 : 0);
         int exp_res  = exp_N - exp_D;
         if (exp_res > 0)
-            result *= pow_seq((seq_t)p, exp_res);
+            result *= ipow_i32((seq_t)p, exp_res);
     }
 
     return result;

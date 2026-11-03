@@ -9,12 +9,14 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 16, u32 n <= 61, u64 n <= 151, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Empirical recurrence: 
    a(n) = 2*a(n-1) - a(n-2) + a(n-4) - 2*a(n-5) + a(n-6) + a(n-8) - a(n-9)
@@ -42,7 +44,7 @@ static void ensure_upto(idx_t n)
         size_t newcap = cache_cap ? cache_cap : 16;
         while (newcap < (size_t)n)
             newcap <<= 1;
-        seq_t *p = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, cache, newcap);
         cache     = p;
         cache_cap = newcap;
     }

@@ -9,7 +9,8 @@
  *            decimal palindromes (n ≥ 8)
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 593, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   generate_palindromes_u64
+ * Validated: standard, pass, 53 terms through n = 8250 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,47 @@
    with the set of palindromes ≤ n.  */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/generate_palindromes_u64.h"
+
+/* ---------- Palindrome generation for uint64_t limits ---------- */
+static void
+generate_palindromes_u64(uint64_t limit, uint64_t **pals, size_t *len)
+{
+    size_t cap = 128;
+    size_t sz  = 0;
+    uint64_t *arr = (uint64_t*)malloc(cap * sizeof(uint64_t));
+    if (!arr) { *pals = NULL; *len = 0; return; }
+
+    /* Determine number of decimal digits of limit. */
+    int max_digits = 0;
+    uint64_t d = limit;
+    do { ++max_digits; d /= 10ULL; } while(d);
+
+    for (int digits = 1; digits <= max_digits; ++digits) {
+        int half = (digits + 1) >> 1;
+        uint64_t start = 1;
+        for (int i = 1; i < half; ++i) start *= 10ULL;
+        uint64_t end = start * 10ULL;       /* exclusive */
+        for (uint64_t pref = start; pref < end; ++pref) {
+            uint64_t pal = pref;
+            uint64_t rev  = pref;
+            if (digits & 1) rev /= 10ULL;    /* skip middle digit for odd length */
+            while (rev > 0) {
+                pal = pal * 10ULL + (rev % 10ULL);
+                rev /= 10ULL;
+            }
+            if (pal > limit) break;
+            if (sz >= cap) {
+                cap <<= 1;
+                uint64_t *tmp = (uint64_t*)realloc(arr, cap * sizeof(uint64_t));
+                if (!tmp) { free(arr); *pals = NULL; *len = 0; return; }
+                arr = tmp;
+            }
+            arr[sz++] = pal;
+        }
+    }
+    *pals = arr;
+    *len  = sz;
+}
 
 /* ---------- Helper to create/index arrays of seq_t ---------- */
 #ifdef __cplusplus

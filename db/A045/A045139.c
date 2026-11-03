@@ -9,14 +9,34 @@
  *            and one digit 3
  * Range:     u8 n <= 48, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   has_one_2_and_one_3
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_one_2_and_one_3.h"
+#include "../utils/mem.h"
+
+/* Helper: determine if a number has exactly one '2' and one '3' in base‑4 */
+static bool has_one_2_and_one_3(seq_t n)
+{
+    int c2 = 0, c3 = 0;
+    seq_t val = n;
+    while (val > (seq_t)0) {
+        unsigned int d = (unsigned int)(val % (seq_t)4);
+        if (d == 2) {
+            ++c2;
+            if (c2 > 1) return false;
+        } else if (d == 3) {
+            ++c3;
+            if (c3 > 1) return false;
+        }
+        val /= (seq_t)4;
+    }
+    return (c2 == 1) && (c3 == 1);
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +51,7 @@ seq_t a(idx_t n)
     /* initialise cache */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;    /* allocation failure */
     }
 
@@ -45,7 +65,7 @@ seq_t a(idx_t n)
         /* expand cache if needed */
         if (cache_len >= cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return (seq_t)0;    /* allocation failure */
             cache = tmp;
             cache_cap = new_cap;

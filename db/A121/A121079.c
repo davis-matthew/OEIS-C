@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{i=0..n} C(n,i)^2 * i! * 4^i + 2^n * n!
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 23,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 345 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

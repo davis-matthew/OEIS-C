@@ -7,13 +7,30 @@
  * Formula:   a(n) = Sum_{d|n} binomial(d+4,5)
  * Range:     u8 n <= 5, u16 n <= 21, u32 n <= 217, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binom_d_plus_4_choose_5
+ * Validated: standard, pass, 53 terms through n = 9762 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_d_plus_4_choose_5.h"
+
+/* Compute binomial(d+4,5) using a multiplicative scheme that stays within
+ * the range of seq_t for all n that fit the output.
+ * The intermediate product is cast to unsigned __int128 to avoid overflow
+ * when seq_t is 64‑bit. The final result is guaranteed to fit in seq_t
+ * if the sequence value itself fits.
+ */
+static seq_t binom_d_plus_4_choose_5(idx_t d) {
+    seq_t result = 1;
+    for (int k = 1; k <= 5; ++k) {
+        /* (d + 5 - k) is the current numerator */
+        idx_t numer = d + 5 - k;
+        unsigned __int128 prod = (unsigned __int128)result * numer;
+        result = (seq_t)(prod / k);  /* division is exact */
+    }
+    return result;
+}
 
 /* Main function required by the build.  It uses only integer arithmetic
  * on seq_t and idx_t and does not depend on any external utilities.

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 5, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
- *            big any n
- * Helpers:   isPrime64
+ * Range:     u8 n <= 5, u16 n <= 728, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 59 terms through n = 9690 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/isPrime64.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 /* integer square root of a 128‑bit value */
 static unsigned long long isqrt128(unsigned __int128 n)
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     uint64_t candidate = 2;
 
     while (1) {
-        if (isPrime64(candidate)) {
+        if (is_prime_u64(candidate)) {
             if (representable(candidate)) {
                 ++count;
                 if (count == n)

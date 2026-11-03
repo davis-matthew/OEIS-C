@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 3659, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9722 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t *primes = NULL;
 static size_t primes_len = 0, primes_cap = 0;
@@ -48,7 +50,7 @@ static void ensure_cache_cap(size_t need)
     if (cache_cap < need) {
         size_t newcap = cache_cap ? cache_cap * 2 : 8;
         if (newcap < need) newcap = need;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) exit(1);
         cache = tmp;
         cache_cap = newcap;
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
         primes_len = 0;
         add_prime(2);             /* include 2 for factor tests */
         cache_cap = 8;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
     }
 

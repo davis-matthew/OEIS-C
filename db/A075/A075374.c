@@ -7,7 +7,8 @@
  * Formula:   a(n+2) = n*a(n+1) - a(n); a(1)=1, a(2)=2
  * Range:     i8 n <= 8, i16 n <= 10, i32 n <= 15, i64 n <= 23, i128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 378 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computes A075374 using an iterative recurrence with memoisation. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Initialise cache with base cases if first call */
     if (cache_size == 0) {
         cache_size = 2;                  /* we need indices 1 and 2 */
-        cache = (seq_t *)malloc((cache_size + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_size + 1));
         if (!cache) return 0;            /* out of memory: return 0 as a fallback */
         cache[1] = 1;
         cache[2] = 2;
@@ -38,8 +40,7 @@ seq_t a(idx_t n)
     /* Expand cache to accommodate n */
     if (n > cache_size) {
         idx_t new_size = n;
-        seq_t *new_cache = (seq_t *)realloc(cache,
-                                            (new_size + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (new_size + 1));
         if (!new_cache) return 0;        /* out of memory: fallback */
         cache = new_cache;
         /* Compute new terms using recurrence */

@@ -12,7 +12,8 @@
  *            a(1)=T(1,0), a(2)=T(2,0), a(3)=T(2,1), a(4)=T(3,0), …
  * Range:     i8 n <= 91, i16 n <= 91, i32 n <= 91, i64 n <= 91, i128 n <= 91,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* Comparator for qsort (ascending order). */
 static int seq_cmp(const void *p, const void *q)
@@ -40,7 +42,7 @@ static seq_t row_sum_divisors(idx_t n, idx_t k)
     for (i = 1; i * i <= (uint64_t)n; ++i)
         if (n % i == 0) est += (i == n / i) ? 1 : 2;
 
-    seq_t *divs = (seq_t *)malloc(est * sizeof(seq_t));
+    seq_t *divs = mem_new(seq_t, est);
     size_t dlen = 0;
     for (i = 1; i * i <= (uint64_t)n; ++i) {
         if (n % i == 0) {
@@ -50,7 +52,7 @@ static seq_t row_sum_divisors(idx_t n, idx_t k)
         }
     }
     /* Sort divisors ascending. */
-    qsort(divs, dlen, sizeof(seq_t), seq_cmp);
+    mem_qsort(divs, dlen, sizeof(seq_t), seq_cmp);
 
     /* Step 2: iterate the difference table until row k is reached. */
     seq_t sum = 0;
@@ -60,21 +62,21 @@ static seq_t row_sum_divisors(idx_t n, idx_t k)
         for (size_t idx = 0; idx < dlen; ++idx)
             sum += divs[idx];
         if (step == k) {
-            free(divs);
+            mem_free(divs);
             return sum;
         }
 
         /* Compute next row (differences). */
-        seq_t *next = (seq_t *)malloc((dlen - 1) * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, (dlen - 1));
         for (size_t idx = 0; idx + 1 < dlen; ++idx)
             next[idx] = divs[idx + 1] - divs[idx];
-        free(divs);
+        mem_free(divs);
         divs = next;
         dlen--;
     }
 
     /* Should never reach here for valid k. */
-    free(divs);
+    mem_free(divs);
     return 0;
 }
 
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     /* The sequence is obtained by concatenating rows of the triangle. */
     idx_t cum = 0;          /* cumulative number of terms processed. */
     for (idx_t r = 1; ; ++r) {
-        idx_t t = divisor_count_u64(r);   /* τ(r) */
+        idx_t t = num_divisors(r);   /* τ(r) */
         if (cum + t >= n) {               /* the desired term is in row r */
             idx_t k = n - cum - 1;         /* column index (0‑based) */
             return row_sum_divisors(r, k);

@@ -13,7 +13,8 @@
  *            this by * a DP with 64 states; see the implementa...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   idx_from_residues
+ * Validated: standard, pass, 32 terms through n = 193 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,13 @@
    It assumes that `seq_t` and `idx_t` are defined by the caller. */
 
 #include <stdlib.h>   /* for size_t */
-#include "../utils/idx_from_residues.h"
+
+/* Helper: encode a triple of residues into a single state index.
+   l1 is the high‑order residue for row 0, l2 for row 1, l3 for row 2. */
+static inline unsigned idx_from_residues(unsigned l1, unsigned l2, unsigned l3)
+{
+    return (l1 << 4) | (l2 << 2) | l3;
+}
 
 /* Number of states: each row has a residue 0..3 of the sum of elements
    to its left; 3 rows => 4^3 = 64 states. */

@@ -12,7 +12,8 @@
  *            210 = 7#, 223092870 = 23#, 109#, ... Blocks 1-...
  * Range:     u8 n <= 22, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   c2038_bitlen, c2038_cmp
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   bit_length_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/c2038_bitlen.h"
-#include "../utils/c2038_cmp.h"
+#include "../utils/bit_length_u64.h"
+
+static int c2038_cmp(const void *p, const void *q) {
+  uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+  return x < y ? -1 : (x > y ? 1 : 0);
+}
 
 static uint64_t *c2038 = 0;
 static size_t c2038_len = 0, c2038_cap = 0;
@@ -53,7 +58,7 @@ static void c2038_init(void) {
   for (i = 1; i <= 3; i++) {
     uint64_t *divs;
     size_t nd = 1, sel = 0, t;
-    k = c2038_bitlen(P) + 1;
+    k = bit_length_u64(P) + 1;
     Q = 1;
     for (j = 0; j < k; j++) Q *= (uint64_t)c2038_primes[j];
     divs = (uint64_t *)malloc(((size_t)1 << k) * sizeof(uint64_t));
@@ -68,7 +73,7 @@ static void c2038_init(void) {
     free(divs);
     P = Q;
   }
-  c2038_k = c2038_bitlen(P) + 1;
+  c2038_k = bit_length_u64(P) + 1;
   c2038_next_lo = P + 1;
 }
 

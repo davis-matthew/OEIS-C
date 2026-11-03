@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 72 terms through n = 949 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Helper function: test if x is prime using a small prime table up to 2000. */
 static inline bool is_prime_uint64(uint64_t x, const uint32_t *primes, size_t primes_cnt)
@@ -70,10 +72,10 @@ seq_t a(idx_t n)
             /* Append to cache */
             if (cache_len >= cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *newp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *newp = mem_resize(seq_t, cache, new_cap);
                 if (!newp) {
                     /* Allocation failed – return 0 as an error indicator. */
-                    free(cache);
+                    mem_free(cache);
                     cache = NULL;
                     cache_len = cache_cap = 0;
                     return 0;

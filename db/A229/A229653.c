@@ -7,8 +7,9 @@
  * Keywords:  sign, eigen, look
  * Formula:   a(3*n) = a(n), a(3*n+1) = a(n+1) - a(n), a(3*n+2) = a(n+2) -
  *            2*a(n+1) + a(n), with a(n)=0 for n<2 and a(2)=1
- * Range:     i8 n <= 364, i16 n <= 9909, i32 n <= 9909, i64 n <= 9909,
- *            i128 n <= 9909, big any n
+ * Range:     i8 n <= 364, i16 n <= 19683, i32 n <= 19683, i64 n <= 19683,
+ *            i128 n <= 19683, big any n
+ * Validated: standard, pass, 88 terms through n = 9909 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

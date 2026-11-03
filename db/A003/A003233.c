@@ -11,16 +11,27 @@
  *            exactly using integer square roots
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   r3233_a1950, r3233_a3231, r3233_isqrt, r3233_s
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/r3233_a1950.h"
-#include "../utils/r3233_a3231.h"
-#include "../utils/r3233_isqrt.h"
-#include "../utils/r3233_s.h"
+#include "../utils/isqrt_u64.h"
+
+static uint64_t r3233_s(uint64_t m) {
+    /* floor(sqrt(5*m^2)) */
+    return isqrt_u64(5 * m * m);
+}
+
+static uint64_t r3233_a1950(uint64_t m) {
+    return (3 * m + r3233_s(m)) / 2;
+}
+
+static uint64_t r3233_a3231(uint64_t m) {
+    return (5 * m + r3233_s(m)) / 2;
+}
 
 seq_t a(idx_t n) {
     idx_t count = 0;

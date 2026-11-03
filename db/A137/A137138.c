@@ -9,7 +9,8 @@
  *            digits {3,6,8,9})
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Return true iff every decimal digit of x belongs to {3,6,8,9}. */
 static bool digits_allowed(seq_t x)
@@ -45,7 +47,7 @@ static void gen_len_recurse(idx_t pos, idx_t len, seq_t cur,
             if (*cnt >= *cap)
             {
                 *cap = (*cap == 0) ? 8 : (*cap << 1);
-                *out = (seq_t*)realloc(*out, *cap * sizeof(seq_t));
+                *out = mem_resize(seq_t, *out, (*cap * sizeof(seq_t)) / sizeof(seq_t));
             }
             (*out)[*cnt] = cur;
             (*cnt)++;

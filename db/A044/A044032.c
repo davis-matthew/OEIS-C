@@ -10,7 +10,8 @@
  *            adjacent digit pairs
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has57or75
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,21 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has57or75.h"
+#include "../utils/mem.h"
+
+/* Test whether decimal expansion of x contains the substring 57 or 75. */
+static inline bool has57or75(seq_t x)
+{
+    seq_t t = x;
+    while (t >= 10) {
+        seq_t d1 = t % 10;  /* least significant digit */
+        t /= 10;
+        seq_t d0 = t % 10;  /* next digit to the left */
+        if ((d0 == 5 && d1 == 7) || (d0 == 7 && d1 == 5))
+            return true;
+    }
+    return false;
+}
 
 /* Cached state for incremental generation. */
 static idx_t              computed_terms = 0;   /* how many terms have been stored */
@@ -36,7 +51,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_capacity ? cache_capacity * 2 : 16;
         if (new_cap < (size_t)n)
             new_cap = (size_t)n;
-        seq_t* new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t* new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache)   /* allocation failed – abort */
             abort();
         cache          = new_cache;

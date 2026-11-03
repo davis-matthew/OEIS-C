@@ -9,13 +9,15 @@
  *            rad(n)^{2^{ω(n)-1}}, and a(1) = 1
  * Range:     u8 n <= 20, u16 n <= 29, u32 n <= 209, u64 n <= 329,
  *            u128 n <= 1000, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 74 terms through n = 742 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -42,5 +44,5 @@ seq_t a(idx_t n)
     seq_t rad_s = rad;                   /* cast to result type */
     seq_t exp   = ((seq_t)1) << (d - 1); /* 2^(d-1) */
 
-    return big_pow(rad_s, exp);          /* rad_s ^ exp */
+    return ipow(rad_s, exp);          /* rad_s ^ exp */
 }

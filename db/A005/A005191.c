@@ -10,14 +10,28 @@
  *            (1-x^5)^n/(1-x)^n); a(0) = 1
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 29, u128 n <= 57,
  *            big any n
- * Helpers:   seq_is_fixed_width
+ * Validated: standard, pass, 41 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     idx_t K, k, m, r, i, j, M;
@@ -29,9 +43,9 @@ seq_t a(idx_t n) {
         /* exact modulo 2^w via Pascal's triangle (additions only) */
         seq_t *row, *cn, *cm;
         M = 3 * n - 1;
-        row = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
-        cn = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
-        cm = (seq_t *)malloc((size_t)(M + 1) * sizeof(seq_t));
+        row = mem_new(seq_t, (size_t)(n + 1));
+        cn = mem_new(seq_t, (size_t)(n + 1));
+        cm = mem_new(seq_t, (size_t)(M + 1));
         for (j = 0; j <= n; j++) { row[j] = 0; cn[j] = 0; }
         row[0] = 1;
         for (m = 0; m <= M; m++) {
@@ -47,7 +61,7 @@ seq_t a(idx_t n) {
             seq_t t = cn[k] * cm[M - 5 * k];
             if (k & 1) neg += t; else pos += t;
         }
-        free(row); free(cn); free(cm);
+        mem_free(row); mem_free(cn); mem_free(cm);
     } else {
         seq_t cnk = 1, cb = 1;
         m = 3 * n - 1;

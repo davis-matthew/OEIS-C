@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = p if n = floor(p/2) * p^e for some prime p and e > 0,
  *            else 1
- * Range:     u8 n <= 3855, u16 n <= 9735, u32 n <= 9735, u64 n <= 9735,
- *            u128 n <= 9735, big any n
+ * Range:     u8 n <= 3855, u16 n <= 100948, u32 n <= 100949, u64 n <= 100949,
+ *            u128 n <= 100949, big any n
+ * Validated: standard, pass, 121 terms through n = 9735 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

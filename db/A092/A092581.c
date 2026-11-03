@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow, next_prime, seq_realloc
+ * Validated: standard, pass, 73 terms through n = 803 (2026-11-01)
+ * Helpers:   next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,21 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../utils/next_prime.h"
-#include "../utils/mod_pow.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/powmod.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache = NULL;   /* cached terms a(1)... */
 static size_t cache_size = 0; /* number of stored terms */
@@ -52,7 +65,7 @@ static void compute_next(void)
     {
         /* Legendre symbol test: a^( (p-1)/2 ) mod p == p-1  =>  a is a non‑residue mod p */
         uint64_t exp = (p - 1) >> 1;
-        seq_t res = mod_pow(prev, exp, (seq_t)p);
+        seq_t res = powmod(prev, exp, (seq_t)p);
         if (res == (seq_t)(p - 1))
             break;                     /* found the least prime with the property */
         p = next_prime(p);             /* next prime > p */

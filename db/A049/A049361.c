@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 140, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_combination_mask
+ * Validated: standard, pass, 56 terms through n = 9802 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,18 @@
    generated incrementally and cached for subsequent calls. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/next_combination_mask.h"
+#include "../utils/mem.h"
+
+/* Compute the next combination with the same number of set bits. */
+static idx_t next_combination_mask(idx_t v)
+{
+    if (v == 0) return 0;
+    idx_t lowest = v & -v;          /* lowest set bit               */
+    idx_t next   = v + lowest;      /* add that bit, clears low 1s  */
+    idx_t changes = v ^ next;       /* bits that changed           */
+    changes = (changes >> 2) / lowest;
+    return next | changes;
+}
 
 static bool balanced_ternary(seq_t x)
 {
@@ -46,7 +58,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         cache_cap = 256;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         initialized = true;
     }
 
@@ -58,7 +70,7 @@ seq_t a(idx_t n)
         if (balanced_ternary(val)) {
             if (cache_len == cache_cap) {
                 size_t newcap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp) abort();           /* allocation failed */
                 cache = tmp;
                 cache_cap = newcap;

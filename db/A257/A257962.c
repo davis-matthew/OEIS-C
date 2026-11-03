@@ -10,8 +10,9 @@
  * Formula:   a(n) = permutation obtained by reversing the Zeckendorf * digits
  *            of (n - cum[m-1]) inside its block m, where m is minimal * with
  *            cum[m-1] ≤ n < cum[m] and cum[k] = Σ_{i=1..k} F(i)
- * Range:     u8 n <= 611, u16 n <= 9427, u32 n <= 9427, u64 n <= 9427,
- *            u128 n <= 9427, big any n
+ * Range:     u8 n <= 611, u16 n <= 121402, u32 n <= 317808, u64 n <= 317808,
+ *            u128 n <= 317808, big any n
+ * Validated: standard, pass, 93 terms through n = 9427 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

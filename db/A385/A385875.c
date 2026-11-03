@@ -8,13 +8,21 @@
  *            Initial value: a(0) = 1
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   binom_k2_3
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom_k2_3.h"
+#include "../utils/mem.h"
+
+/* Compute binomial(k+2,3) = (k+2)*(k+1)*k/6.
+   The result fits in 32‑bit for all k up to 10000. */
+static inline uint64_t binom_k2_3(idx_t k)
+{
+    return ((uint64_t)(k + 2) * (k + 1) * k) / 6;
+}
 
 /* Cache for memoisation */
 static seq_t *cache = NULL;          /* array of computed values */
@@ -27,7 +35,7 @@ static void ensure_cache(idx_t n)
     size_t need = (size_t)n + 1;
     if (need <= cache_cap) return;
 
-    seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, need);
     if (!tmp) /* allocation failed – abort; the test harness will not
                  exercise this case. */
         abort();

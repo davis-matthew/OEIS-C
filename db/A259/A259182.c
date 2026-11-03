@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(n) if n is prime, otherwise 1
  * Range:     u8 n <= 58, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   is_idx_prime
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_idx_prime.h"
+#include "../utils/is_prime.h"
 
 /* -------------  Prime storage  ------------- */
 static size_t         g_limit      = 0;      /* current sieve limit           */
@@ -75,7 +76,7 @@ seq_t a(idx_t n)
 {
     if (n < 1) return (seq_t)0;          /* undefined for n<1 */
 
-    if (!is_idx_prime(n)) return (seq_t)1; /* composite index */
+    if (!is_prime(n)) return (seq_t)1; /* composite index */
 
     build_primes_upto_n(n);              /* ensure nth prime is available */
     return (seq_t)g_primes[n - 1];       /* primes stored 0‑based */

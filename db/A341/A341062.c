@@ -7,7 +7,8 @@
  * Formula:   a(n) = τ(n) − τ(n−1) for n > 1, a(1)=1
  * Range:     i8 n <= 90, i16 n <= 90, i32 n <= 90, i64 n <= 90, i128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Global state ---------- */
 static uint64_t *spf = NULL;      /* smallest prime factor array          */
@@ -68,7 +70,7 @@ static void init_tau(void)
 {
     if (tau_cap != 0) return;                /* already initialized */
     size_t new_cap = 2;                       /* at least space for index 1 */
-    tau = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    tau = mem_new(seq_t, new_cap);
     if (!tau) return;                        /* allocation failure */
     tau[0] = 0;
     tau[1] = 1;
@@ -101,7 +103,7 @@ static void ensure_tau(idx_t n)
     if (n < tau_cap) return;                /* already computed */
 
     size_t new_cap = (size_t)(n + 1);
-    seq_t *new_tau = (seq_t *)realloc(tau, new_cap * sizeof(seq_t));
+    seq_t *new_tau = mem_resize(seq_t, tau, new_cap);
     if (!new_tau) return;                   /* allocation failure */
     tau = new_tau;
 

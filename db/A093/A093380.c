@@ -7,6 +7,7 @@
  * Formula:   a(0) = 1; for n > 0, a(n) = 2 + 4*(2^(n+1) + (-1)^n)/3
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

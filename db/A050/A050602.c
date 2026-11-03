@@ -6,14 +6,27 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl, nice
  * Formula:   not stated
- * Range:     u8 n <= 8454, u16 n <= 8454, u32 n <= 8454, u64 n <= 8454,
- *            u128 n <= 8454, big any n
- * Helpers:   A_calc
+ * Range:     u8 n <= 33152, u16 n <= 33152, u32 n <= 33152, u64 n <= 33152,
+ *            u128 n <= 33152, big any n
+ * Validated: standard, pass, 136 terms through n = 8454 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/A_calc.h"
+/* Compute A(x,y) according to the recurrence; result fits in seq_t */
+static seq_t A_calc(idx_t x, idx_t y)
+{
+    seq_t cnt = 0;
+    while ((x & y) != 0) {
+        cnt++;
+        idx_t new_x = x ^ y;
+        idx_t new_y = (x & y) << 1;
+        x = new_x;
+        y = new_y;
+    }
+    return cnt;
+}
 /*   
  * Sequence A050602 – longest carry propagation length in binary addition.
  * a(n) is obtained by reading the symmetric square array A(x,y) by

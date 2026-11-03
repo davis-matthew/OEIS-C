@@ -8,12 +8,14 @@
  *            a(2)=2.Equivalent: a(n)= -2*a(n-1)-2*a(n-2)+2*a(n-3)
  * Range:     i8 n <= 7, i16 n <= 16, i32 n <= 34, i64 n <= 70, i128 n <= 142,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;          /* previously computed terms */
@@ -21,7 +23,7 @@ seq_t a(idx_t n) {
 
     if (n >= cached) {
         size_t newsize = (size_t)(n + 1);
-        cache = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newsize);
         if (!cache) exit(EXIT_FAILURE);
 
         for (size_t i = cached; i < newsize; ++i) {

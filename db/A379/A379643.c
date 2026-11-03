@@ -11,7 +11,8 @@
  * Formula:   a(n) = pi_{8,3}(prime_n) - pi_{8,7}(prime_n)
  * Range:     i8 n <= 86, i16 n <= 86, i32 n <= 86, i64 n <= 86, i128 n <= 86,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* static state shared across calls for memoisation */
 static idx_t   *primes = NULL;  /* array of primes, 0‑indexed */
@@ -38,7 +40,7 @@ static void grow_capacity(size_t size)
     }
     /* realloc must be cast in C++ */
     primes  = (idx_t*)realloc(primes, cap * sizeof(idx_t));
-    cumul   = (seq_t*)realloc(cumul,  cap * sizeof(seq_t));
+    cumul   = mem_resize(seq_t, cumul, cap);
 }
 
 /* public function required by the build */

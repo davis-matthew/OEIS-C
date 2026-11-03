@@ -13,12 +13,14 @@
  *            a(10)=57664692
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 12, u64 n <= 22, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* realloc, abort */
+#include "../utils/mem.h"
 
 #define INIT_TERMS 10
 
@@ -42,10 +44,10 @@ static void ensure_cache(idx_t n)
     if (n <= cache_cap) return;               /* already allocated */
 
     idx_t new_cap = n;
-    seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
     if (!tmp) abort();                       /* out of memory */
 
-    /* Zero new slots (cache[0] unused). */
+    /* Zero new slots (tmp[0] unused). */
     for (idx_t i = cache_cap + 1; i <= new_cap; ++i) tmp[i] = 0;
 
     cache = tmp;

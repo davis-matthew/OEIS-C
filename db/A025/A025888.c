@@ -11,12 +11,14 @@
  *            filled. Only integer arithmetic and standard libr...
  * Range:     u8 n <= 429, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 4042 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for already computed terms.  The cache is indexed by `n`. */
 static seq_t *cache = NULL;      /* Pointer to the array of computed values */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if (cache_cap < (size_t)(n + 1)) {
         size_t new_cap = (size_t)(n + 1);
         /* Use a cast to avoid C++ conversion error. */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* Allocation failed – abort the program. */
             abort();

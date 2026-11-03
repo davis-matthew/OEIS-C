@@ -10,6 +10,7 @@
  *            6*k + 5 where k = ⌊n/6⌋
  * Range:     u8 n <= 9, u16 n <= 39, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
+ * Validated: standard, pass, 74 terms through n = 180 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 115, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 56 terms through n = 999 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <assert.h>
 #include <stdint.h>
 
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t start); */
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cached primes */
 static size_t cap   = 0;      /* capacity of cache */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (!init) {
         cap   = 32;
-        cache = (seq_t *)malloc(cap * sizeof(*cache));
+        cache = mem_new(seq_t, cap);
         assert(cache != NULL);
         init = true;
     }
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
             /* grow the cache if necessary */
             if (len == cap) {
                 size_t newcap = cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(*cache));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 assert(tmp != NULL);
                 cache = tmp;
                 cap   = newcap;

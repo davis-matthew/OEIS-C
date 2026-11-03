@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 115, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 82 terms through n = 9712 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* Cached list of computed terms. */
 static seq_t *terms      = NULL;   /* array of sequence values    */
@@ -38,7 +41,7 @@ static void append_term(seq_t val)
 {
     if (terms_count >= terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-        seq_t *new_arr = (seq_t *)realloc(terms, new_cap * sizeof(*terms));
+        seq_t *new_arr = mem_resize(seq_t, terms, new_cap);
         if (!new_arr) abort(); /* out of memory – terminate */
         terms = new_arr;
         terms_cap = new_cap;
@@ -55,8 +58,8 @@ static void ensure_terms(idx_t need)
         ++last_checked;                     /* next candidate */
         if (last_checked < 3) continue;     /* skip 0,1,2 */
 
-        int omega_minus = count_distinct_primes((uint64_t)(last_checked - 1));
-        int omega_plus  = count_distinct_primes((uint64_t)(last_checked + 1));
+        int omega_minus = omega((uint64_t)(last_checked - 1));
+        int omega_plus  = omega((uint64_t)(last_checked + 1));
         if (omega_minus == omega_plus) {
             append_term((seq_t)last_checked);
         }

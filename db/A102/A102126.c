@@ -8,6 +8,7 @@
  * Formula:   a(n) = n for n > 5; a(1) = 1, a(2)=a(3)=a(4)=4, a(5)=6
  * Range:     u8 n <= 29, u16 n <= 29, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 114, u16 n <= 114, u32 n <= 114, u64 n <= 114,
  *            u128 n <= 114, big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 114 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
 
         /* Allocate minimal initial capacity */
         cap = 16;
-        digits = (seq_t *)malloc(sizeof(seq_t) * cap);
+        digits = mem_new(seq_t, cap);
         digits[0] = (seq_t)intpart;
         len = 1;
         initialized = 1;
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap * 2;
         if ((size_t)idx >= new_cap)
             new_cap = (size_t)idx + 1;
-        seq_t *new_ptr = (seq_t *)realloc(digits, sizeof(seq_t) * new_cap);
+        seq_t *new_ptr = mem_resize(seq_t, digits, new_cap);
         if (!new_ptr) { /* allocation failed – return 0 (unlikely) */
             return 0;
         }

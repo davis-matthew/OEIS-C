@@ -9,12 +9,14 @@
  *            number of divisors of x
  * Range:     u8 n <= 10, u16 n <= 46, u32 n <= 1281, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 65 terms through n = 9928 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

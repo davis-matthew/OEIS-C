@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   expand_array
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,18 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/expand_array.h"
+#include "../utils/mem.h"
+
+/* ensure we have at least 'need' capacity in array ptr */
+static void expand_array(seq_t **ptr, size_t *cap, size_t *size)
+{
+    if (*size >= *cap) {
+        size_t newCap = (*cap == 0) ? 4 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *ptr, newCap);
+        *ptr = tmp;
+        *cap = newCap;
+    }
+}
 
 /* static state shared between calls */
 static seq_t *A = NULL;          /* a-values */

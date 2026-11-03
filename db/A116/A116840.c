@@ -11,7 +11,8 @@
  *            a(6)=256, a(7)=826, a(8)=2535, a(9)=7474
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #else
 #  define USE_INT128 0
 #endif
+#include "../utils/mem.h"
 
 /* Static cache for computed terms.  cache[1] … cache[max_computed] */
 static seq_t *cache = NULL;
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
     if (!cache) {
         size_t cap = (size_t)n + 1;
         if (cap < 10) cap = 10;               /* we need first 9 terms */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return;                   /* allocation failed – undefined */
         for (size_t i = 0; i < cap; ++i) cache[i] = 0;
         /* initialise the first 9 terms (values that fit in seq_t are correct) */
@@ -55,7 +57,7 @@ static void ensure_cache(idx_t n)
     } else if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
         if (new_cap < 10) new_cap = 10;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return;                     /* allocation failed – undefined */
         cache = tmp;
         for (size_t i = cache_cap; i < new_cap; ++i) cache[i] = 0;

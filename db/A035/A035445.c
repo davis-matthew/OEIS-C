@@ -11,12 +11,14 @@
  *            is requested
  * Range:     u8 n <= 89, u16 n <= 211, u32 n <= 581, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* dp[i] = a(i) for i <= max_computed */
 static size_t dp_size = 0;        /* current allocated size in elements */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > dp_size) {
         size_t new_size = (dp_size > 0) ? dp_size : 1;
         while (new_size <= (size_t)n) new_size <<= 1;
-        seq_t *tmp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_size);
         if (!tmp) abort();          /* allocation failure */
         dp = tmp;
         /* initialise the newly allocated entries to 0 */

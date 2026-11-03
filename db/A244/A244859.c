@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 16, u64 n <= 22, u128 n <= 46,
  *            big any n
- * Helpers:   factor_u64, mod_pow, pow10
+ * Validated: standard, pass, 45 terms through n = 996 (2026-11-01)
+ * Helpers:   factor_u64, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,20 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mod_pow.h"
-#include "../utils/pow10.h"
+#include "../utils/powmod.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -62,7 +74,7 @@ seq_t a(idx_t n)
             idx_t p = primes_phi[i];
             while (order % p == 0) {
                 idx_t cand = order / p;
-                if (mod_pow(10, cand, (seq_t)mod) == 1)
+                if (powmod(10, cand, (seq_t)mod) == 1)
                     order = cand;
                 else
                     break;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{i^2 + j^2 = n, i>0, j>0} i^2 · j^2
  * Range:     u8 n <= 24, u16 n <= 324, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 107 terms through n = 9527 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

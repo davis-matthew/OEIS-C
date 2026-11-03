@@ -10,13 +10,15 @@
  *            = Σ_{i+j=n} f(i)·g(j) is additive convolution
  * Range:     u8 n <= 1, u16 n <= 11, u32 n <= 407, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,9 +28,9 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* Allocate arrays for σ₁, σ₃, σ₅ */
-    seq_t *sigma1 = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *sigma3 = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *sigma5 = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *sigma1 = mem_new(seq_t, N + 1);
+    seq_t *sigma3 = mem_new(seq_t, N + 1);
+    seq_t *sigma5 = mem_new(seq_t, N + 1);
 
     /* Compute divisor sums */
     for (size_t d = 1; d <= N; ++d) {
@@ -45,9 +47,9 @@ seq_t a(idx_t n)
     }
 
     /* Additive convolution arrays: (σ₁·σ₁), (σ₁·σ₃), and (σ₁·σ₁·σ₁) */
-    seq_t *s2   = (seq_t *)calloc(N + 1, sizeof(seq_t));  /* σ₁·σ₁ */
-    seq_t *s13  = (seq_t *)calloc(N + 1, sizeof(seq_t));  /* σ₁·σ₃ */
-    seq_t *s3   = (seq_t *)calloc(N + 1, sizeof(seq_t));  /* σ₁·σ₁·σ₁ */
+    seq_t *s2   = mem_new(seq_t, N + 1);  /* σ₁·σ₁ */
+    seq_t *s13  = mem_new(seq_t, N + 1);  /* σ₁·σ₃ */
+    seq_t *s3   = mem_new(seq_t, N + 1);  /* σ₁·σ₁·σ₁ */
 
     for (size_t i = 1; i <= N; ++i) {
         for (size_t j = 1; i + j <= N; ++j) {
@@ -73,12 +75,12 @@ seq_t a(idx_t n)
     seq_t result   = term_pos - term_neg;   /* the combination is guaranteed non‑negative */
 
     /* Free temporary allocations */
-    free(sigma1);
-    free(sigma3);
-    free(sigma5);
-    free(s2);
-    free(s13);
-    free(s3);
+    mem_free(sigma1);
+    mem_free(sigma3);
+    mem_free(sigma5);
+    mem_free(s2);
+    mem_free(s13);
+    mem_free(s3);
 
     return result;
 }

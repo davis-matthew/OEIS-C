@@ -10,7 +10,8 @@
  *            √193)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 38, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache of the continued‑fraction coefficients of √193. */
 static uint32_t *period = NULL;   /* coefficients a1 … a_k      */
@@ -73,7 +75,7 @@ static void ensure_denoms_capacity(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;            /* grow geometrically */
 
-    seq_t *tmp = (seq_t *)realloc(denoms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, denoms, new_cap);
     if (!tmp) exit(1);
     denoms = tmp;
     den_cap = new_cap;
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
         init_period();
 
         den_cap = 4;
-        denoms  = (seq_t *)malloc(den_cap * sizeof(seq_t));
+        denoms  = mem_new(seq_t, den_cap);
         if (!denoms) exit(1);
 
         denoms[0] = (seq_t)1;          /* q0 */

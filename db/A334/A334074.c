@@ -8,6 +8,7 @@
  * Formula:   a(n) = numerator( Σ_{p prime ≤ n, binom(2n,n) % p > 0} 1/p )
  * Range:     u8 n <= 12, u16 n <= 22, u32 n <= 40, u64 n <= 86, u128 n <= 175,
  *            big any n
+ * Validated: standard, pass, 58 terms through n = 3248 (2026-11-01)
  * Helpers:   build_primes_upto, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

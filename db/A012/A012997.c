@@ -12,12 +12,14 @@
  *            : 0) The tangent numbers t_k are defined by t_0 = 0,...
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 13, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>           /* malloc, realloc, exit */
+#include "../utils/mem.h"
 
 /* Static storage for factorials, tangent numbers and sequence a(n). */
 static seq_t *fact_arr = NULL;
@@ -34,7 +36,7 @@ static void ensure_fact(idx_t n)
 {
     if (fact_cap > n) return;
     size_t new_cap = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(fact_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fact_arr, new_cap);
     if (!tmp) exit(1);
     for (idx_t i = fact_cap; i <= n; ++i) {
         if (i == 0)
@@ -52,7 +54,7 @@ static void ensure_tan(idx_t n)
 {
     if (tan_cap > n) return;
     size_t new_cap = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(tan_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, tan_arr, new_cap);
     if (!tmp) exit(1);
     if (tan_cap == 0) {
         tmp[0] = 0;
@@ -88,7 +90,7 @@ static void ensure_a(idx_t n)
 {
     if (a_cap > n) return;
     size_t new_cap = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_arr, new_cap);
     if (!tmp) exit(1);
     if (a_cap == 0) {
         tmp[0] = 1;      /* a(0) = 1 */

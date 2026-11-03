@@ -8,12 +8,14 @@
  *            a(k) (Stirling numbers of the second kind, S(n,k))
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build environment. */
 static seq_t *a_arr = NULL;
@@ -28,9 +30,9 @@ static void ensure_capacity(idx_t n)
     if ((size_t)n + 2 <= capacity)
         return;
     size_t newcap = (size_t)n + 2;
-    a_arr  = (seq_t *)realloc(a_arr, newcap * sizeof(seq_t));
-    s_prev = (seq_t *)realloc(s_prev, newcap * sizeof(seq_t));
-    s_cur  = (seq_t *)realloc(s_cur,  newcap * sizeof(seq_t));
+    a_arr  = mem_resize(seq_t, a_arr, newcap);
+    s_prev = mem_resize(seq_t, s_prev, newcap);
+    s_cur  = mem_resize(seq_t, s_cur, newcap);
     capacity = newcap;
 }
 

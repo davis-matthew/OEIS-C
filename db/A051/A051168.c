@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 39, u16 n <= 142, u32 n <= 653, u64 n <= 1274,
+ * Range:     u8 n <= 69, u16 n <= 290, u32 n <= 758, u64 n <= 1274,
  *            u128 n <= 1274, big any n
- * Helpers:   binomial, idx_to_row_col
+ * Validated: standard, pass, 110 terms through n = 1190 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,8 +32,22 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/idx_to_row_col.h"
+#include "../utils/binomial.h"
+
+/* Convert linear index to triangle coordinates (h,k)              */
+static void idx_to_row_col(idx_t n, idx_t *h, idx_t *k)
+{
+    /* solve  h*(h+1)/2 ≤ n < (h+1)*(h+2)/2   */
+    if (n == 0) { *h = 0; *k = 0; return; }
+
+    unsigned long long t = 8ull * n + 1ull;
+    unsigned long long s = (unsigned long long)sqrt((long double)t);
+    /* Correct possible rounding errors */
+    while ((s + 1) * (s + 1) <= t) ++s;
+    while (s * s > t) --s;
+    *h = (s - 1) / 2;
+    *k = n - (*h) * (*h + 1) / 2;
+}
 
 /* gcd for 64‑bit unsigned integers                               */
 static uint64_t gcd64(uint64_t a, uint64_t b)

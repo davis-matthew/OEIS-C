@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 69, i16 n <= 69, i32 n <= 69, i64 n <= 69, i128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* public function */
 seq_t a(idx_t n);
@@ -58,7 +60,7 @@ static void fl_ensure(size_t needed)
     if (needed > fl_cap) {
         size_t cap = (fl_cap ? fl_cap * 2 : 16);
         while (cap < needed) cap <<= 1;
-        fl_flat = (seq_t *)realloc(fl_flat, cap * sizeof(seq_t));
+        fl_flat = mem_resize(seq_t, fl_flat, cap);
         fl_cap = cap;
     }
 }
@@ -76,7 +78,7 @@ static seq_t *poly_even(const seq_t *P, size_t lenP,
                         const seq_t *Q, size_t lenQ, size_t *out_len)
 {
     size_t new_len = (lenP > lenQ ? lenP : lenQ) + 1;
-    seq_t *res = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *res = mem_new(seq_t, new_len);
     for (size_t i = 0; i < new_len; ++i) res[i] = 0;
 
     /* x·P  → shift left by 1 */
@@ -95,7 +97,7 @@ static seq_t *poly_even(const seq_t *P, size_t lenP,
     if (trimmed == 0) trimmed = 1;                /* safety; should not happen */
 
     if (trimmed != new_len) {
-        seq_t *tmp = (seq_t *)realloc(res, trimmed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, res, trimmed);
         if (tmp) res = tmp;
         new_len = trimmed;
     }
@@ -108,7 +110,7 @@ static seq_t *poly_odd(const seq_t *P, size_t lenP,
                        const seq_t *Q, size_t lenQ, size_t *out_len)
 {
     size_t new_len = (lenP > lenQ + 1 ? lenP : lenQ + 1);
-    seq_t *res = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *res = mem_new(seq_t, new_len);
     for (size_t i = 0; i < new_len; ++i) res[i] = 0;
 
     /* P (no shift) */
@@ -127,7 +129,7 @@ static seq_t *poly_odd(const seq_t *P, size_t lenP,
     if (trimmed == 0) trimmed = 1;                /* safety */
 
     if (trimmed != new_len) {
-        seq_t *tmp = (seq_t *)realloc(res, trimmed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, res, trimmed);
         if (tmp) res = tmp;
         new_len = trimmed;
     }
@@ -149,7 +151,7 @@ static void build_next(idx_t n)
 
     fl_append(poly, new_len);
 
-    free(poly_prev2);
+    mem_free(poly_prev2);
     poly_prev2 = poly_prev;
     len_prev2 = len_prev;
     poly_prev = poly;
@@ -163,14 +165,14 @@ seq_t a(idx_t n)
     /* first‑time initialization */
     if (fl_flat == NULL) {
         /* N3(0) = [1] */
-        seq_t *p0 = (seq_t *)malloc(sizeof(seq_t));
+        seq_t *p0 = mem_new(seq_t, 1);
         p0[0] = (seq_t)1;
         fl_append(p0, 1);
         poly_prev2 = p0;
         len_prev2 = 1;
 
         /* N3(1) = [1] */
-        seq_t *p1 = (seq_t *)malloc(sizeof(seq_t));
+        seq_t *p1 = mem_new(seq_t, 1);
         p1[0] = (seq_t)1;
         fl_append(p1, 1);
         poly_prev = p1;

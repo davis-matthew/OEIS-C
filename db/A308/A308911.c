@@ -12,7 +12,8 @@
  *            number of partitions of s into exactly k squa...
  * Range:     u8 n <= 19, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
 
     /* ---------- DP table: dp[sum*6 + k]  (k = 0..5) ---------- */
     size_t dp_size = (size_t)(N + 1) * 6;
-    seq_t *dp = (seq_t*)calloc(dp_size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     if (!dp) { free(sf); return (seq_t)0; }
     dp[0] = 1;          /* dp[0][0] = 1 */
 
@@ -75,6 +77,6 @@ seq_t a(idx_t n)
     }
 
     free(sf);
-    free(dp);
+    mem_free(dp);
     return result;
 }

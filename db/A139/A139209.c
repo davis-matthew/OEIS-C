@@ -8,12 +8,14 @@
  *            a(n)=5*a(n-1)-7*a(n-2)+2*a(n-3) (n≥3)
  * Range:     i8 n <= 6, i16 n <= 11, i32 n <= 23, i64 n <= 29, i128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
        three terms of the sequence                                            */
     if (cache == NULL) {
         cache_len = (n + 1 > 3 ? n + 1 : 3);
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (cache == NULL)          /* allocation failed; give up            */
             return 0;
         cache[0] = -1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
     /* if we later need more space, grow the cache */
     if (n + 1 > cache_len) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (tmp == NULL)
             return 0;
         cache = tmp;

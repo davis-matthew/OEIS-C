@@ -10,13 +10,15 @@
  *            values: a(1)=13, a(2)=35, a(3)=96, a(4)=265
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 20, u64 n <= 42, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,18 +33,18 @@ seq_t a(idx_t n)
     /* Resize the cache if necessary. */
     if (cache == NULL) {
         alloc = (n > 4 ? n * 2 : 8);
-        cache = (seq_t *)malloc((alloc + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (alloc + 1));
         if (cache == NULL)
             return 0;
         computed = 0;
     } else if (n + 1 > alloc) {
         idx_t new_alloc = alloc * 2;
         if (new_alloc < n + 1) new_alloc = n + 1;
-        seq_t *new_cache = (seq_t *)malloc((new_alloc + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (new_alloc + 1));
         if (new_cache == NULL)
             return 0;
-        memcpy(new_cache, cache, (alloc + 1) * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, (alloc + 1) * sizeof(seq_t));
+        mem_free(cache);
         cache = new_cache;
         alloc = new_alloc;
     }

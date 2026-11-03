@@ -9,12 +9,14 @@
  *            seq_t as long as the built‑in integer types allow it
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 46, u128 n <= 92,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoisation cache */
 static seq_t *cache = NULL;
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t needed)
     while (new_cap <= (size_t)needed)
         new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         abort();                     /* unrecoverable memory allocation failure */
 

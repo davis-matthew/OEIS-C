@@ -7,7 +7,8 @@
  * Formula:   a(n+1) = a(|n - a(n)*a(n-1)|) + 1; a(0) = 0
  * Range:     u8 n <= 96, u16 n <= 96, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 97 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Memoised cache for previously computed values */
 static seq_t *cache = NULL;
@@ -33,7 +35,7 @@ static void ensure_cache(idx_t n)
     while (new_cap < needed)
         new_cap *= 2;
 
-    seq_t *new_buf = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
     if (!new_buf)
         exit(1);          /* abort on allocation failure */
 

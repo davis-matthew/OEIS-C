@@ -11,6 +11,7 @@
  *            a(n)=189*a(n-1)-2572*a(n-2)+8272*a(n-3)-9984*a(n-4)+4096*a(n-5)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 9, u128 n <= 18,
  *            big any n
+ * Validated: standard, pass, 28 terms through n = 197 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

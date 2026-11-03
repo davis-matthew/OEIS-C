@@ -8,7 +8,8 @@
  *            Φ175(x)
  * Range:     i8 n <= 120, i16 n <= 120, i32 n <= 120, i64 n <= 120,
  *            i128 n <= 120, big any n
- * Helpers:   none
+ * Validated: full, pass, 121 terms through n = 120 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,12 +19,13 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper for multiplying two polynomials over seq_t. */
 static seq_t *poly_mul(const seq_t *a, size_t na, const seq_t *b, size_t nb, size_t *nres)
 {
     size_t nc = na + nb - 1;
-    seq_t *c = (seq_t *)malloc(sizeof(seq_t) * nc);
+    seq_t *c = mem_new(seq_t, nc);
     if (!c) return NULL;
     for (size_t i = 0; i < nc; ++i) c[i] = 0;
     for (size_t i = 0; i < na; ++i)
@@ -45,13 +47,13 @@ static seq_t *poly_div(const seq_t *num, size_t nnum, const seq_t *den, size_t n
     }
     size_t qdeg = deg_num - deg_den;
     size_t qlen = qdeg + 1;
-    seq_t *q = (seq_t *)malloc(sizeof(seq_t) * qlen);
+    seq_t *q = mem_new(seq_t, qlen);
     if (!q) return NULL;
     for (size_t i = 0; i < qlen; ++i) q[i] = 0;
 
     /* remainder starts as copy of dividend */
-    seq_t *rem = (seq_t *)malloc(sizeof(seq_t) * nnum);
-    if (!rem) { free(q); return NULL; }
+    seq_t *rem = mem_new(seq_t, nnum);
+    if (!rem) { mem_free(q); return NULL; }
     for (size_t i = 0; i < nnum; ++i) rem[i] = num[i];
 
     for (int i = (int)qdeg; i >= 0; --i) {
@@ -63,7 +65,7 @@ static seq_t *poly_div(const seq_t *num, size_t nnum, const seq_t *den, size_t n
         }
     }
     /* remainder should all be zero; ignore check */
-    free(rem);
+    mem_free(rem);
     *nres = qlen;
     return q;
 }
@@ -82,7 +84,7 @@ static void compute_phi175(seq_t *coeff)
     size_t len[divs_cnt];
 
     /* Compute Φ1 = x - 1. */
-    poly[0] = (seq_t *)malloc(2 * sizeof(seq_t));
+    poly[0] = mem_new(seq_t, 2);
     poly[0][0] = -1;  /* constant term */
     poly[0][1] = 1;   /* x term */
     len[0] = 2;
@@ -92,20 +94,20 @@ static void compute_phi175(seq_t *coeff)
         idx_t d = divs[idx];
         /* Numerator polynomial: x^d - 1. */
         size_t numer_len = d + 1;
-        seq_t *numer = (seq_t *)malloc(sizeof(seq_t) * numer_len);
+        seq_t *numer = mem_new(seq_t, numer_len);
         for (size_t i = 0; i < numer_len; ++i) numer[i] = 0;
         numer[0] = -1;
         numer[d] = 1;
 
         /* Denominator polynomial: product of all Φj for j|d, j<d. */
-        seq_t *den = (seq_t *)malloc(sizeof(seq_t) * 1);
+        seq_t *den = mem_new(seq_t, 1);
         den[0] = 1;
         size_t den_len = 1;
         for (size_t j = 0; j < idx; ++j) {
             if (d % divs[j] == 0) {
                 size_t new_len;
                 seq_t *tmp = poly_mul(den, den_len, poly[j], len[j], &new_len);
-                free(den);
+                mem_free(den);
                 den = tmp;
                 den_len = new_len;
             }
@@ -116,8 +118,8 @@ static void compute_phi175(seq_t *coeff)
         poly[idx] = res;
         len[idx] = res_len;
 
-        free(numer);
-        free(den);
+        mem_free(numer);
+        mem_free(den);
     }
 
     /* Φ175 is the last polynomial.  Copy into coeff array. */
@@ -129,7 +131,7 @@ static void compute_phi175(seq_t *coeff)
 
     /* Free intermediate polynomials. */
     for (size_t k = 0; k < divs_cnt; ++k)
-        free(poly[k]);
+        mem_free(poly[k]);
 }
 
 seq_t a(idx_t n)

@@ -12,13 +12,40 @@
  *            unitary divisors that are not squarefree)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_distinct_exponents
+ * Validated: standard, pass, 121 terms through n = 9564 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/factor_distinct_exponents.h"
+
+static inline void factor_distinct_exponents(idx_t n, idx_t *omega, idx_t *r)
+{
+    idx_t x = n;
+    *omega = 0;
+    *r = 0;
+    for (idx_t p = 2; p * p <= x; ++p)
+    {
+        if (x % p == 0)
+        {
+            ++(*omega);
+            idx_t exp = 0;
+            while (x % p == 0)
+            {
+                x /= p;
+                ++exp;
+            }
+            if (exp == 1)
+                ++(*r);
+        }
+    }
+    if (x > 1) /* remaining prime factor */
+    {
+        ++(*omega);
+        ++(*r);   /* exponent is 1 */
+    }
+}
 #ifndef NULL
 #define NULL ((void*)0)
 #endif

@@ -12,13 +12,15 @@
  *            triangle is taken row by row, row n has n entries (coefficien...
  * Range:     u8 n <= 25, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *a_values = NULL;      /* flattened triangle values */
 static size_t a_len   = 0;           /* number of values stored */
@@ -36,7 +38,7 @@ static void ensure_a_capacity(size_t need)
     {
         size_t cap = a_cap ? a_cap * 2 : 1024;
         while (cap < need) cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(a_values, cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_values, cap);
         a_values = tmp;
         a_cap = cap;
     }
@@ -53,13 +55,13 @@ seq_t a(idx_t n)
         /* Row 1 */
         last_row   = 1;
         prev_size  = 1;
-        prevU = (seq_t *)malloc(sizeof(seq_t));
-        prevV = (seq_t *)malloc(sizeof(seq_t));
+        prevU = mem_new(seq_t, 1);
+        prevV = mem_new(seq_t, 1);
         prevU[0] = (seq_t)1;
         prevV[0] = (seq_t)1;
 
         a_cap   = 1024;
-        a_values = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_values = mem_new(seq_t, a_cap);
         a_len = 1;
         a_values[0] = (seq_t)1;
     }
@@ -71,8 +73,8 @@ seq_t a(idx_t n)
         size_t new_size = (size_t)new_row;        /* number of coeffs in new row */
 
         /* allocate arrays for the new row */
-        seq_t *curU = (seq_t *)malloc(new_size * sizeof(seq_t));
-        seq_t *curV = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *curU = mem_new(seq_t, new_size);
+        seq_t *curV = mem_new(seq_t, new_size);
 
         for (size_t j = 0; j < new_size; ++j)
         {
@@ -101,8 +103,8 @@ seq_t a(idx_t n)
         a_len += new_size;
 
         /* prepare for next iteration */
-        free(prevU);
-        free(prevV);
+        mem_free(prevU);
+        mem_free(prevV);
         prevU = curU;
         prevV = curV;
         prev_size = new_size;

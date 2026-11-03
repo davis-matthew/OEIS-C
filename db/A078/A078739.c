@@ -12,21 +12,23 @@
  *            sequence a(n) is the nth element of the str...
  * Range:     u8 n <= 11, u16 n <= 27, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   idx_isqrt
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/idx_isqrt.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;        /* undefined, but no query for n<1 */
 
     /* --- compute the row and column of the nth flattened element --- */
-    idx_t r = idx_isqrt(n - 1) + 1;          /* row index (1‑based)   */
+    idx_t r = isqrt(n - 1) + 1;          /* row index (1‑based)   */
     idx_t prev_sq = (r - 1) * (r - 1);      /* number of terms before this row */
     idx_t pos = n - prev_sq;                /* position in this row (1‑based)  */
     idx_t k = pos + 1;                      /* column in the triangle (2 … 2r) */
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
         rows = (seq_t **)malloc(sizeof(seq_t *) * 2);  /* indices 0 … 1 */
         rows[0] = NULL;
         idx_t size = 2 * 1 + 1;            /* indices 0 … 2 */
-        seq_t *row1 = (seq_t *)malloc(sizeof(seq_t) * size);
-        memset(row1, 0, sizeof(seq_t) * size);
+        seq_t *row1 = mem_new(seq_t, size);
+        mem_set(row1, 0, sizeof(seq_t) * size);
         row1[2] = (seq_t)1;
         rows[1] = row1;
         max_row = 1;
@@ -52,8 +54,8 @@ seq_t a(idx_t n)
         idx_t new_row = max_row + 1;
         idx_t prev_max = 2 * max_row;          /* last valid index of previous row */
         idx_t new_size = 2 * new_row + 1;
-        seq_t *curr = (seq_t *)malloc(sizeof(seq_t) * new_size);
-        memset(curr, 0, sizeof(seq_t) * new_size);
+        seq_t *curr = mem_new(seq_t, new_size);
+        mem_set(curr, 0, sizeof(seq_t) * new_size);
 
         seq_t *prev = rows[max_row];           /* previous row */
 

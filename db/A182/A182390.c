@@ -7,13 +7,15 @@
  * Formula:   a(0) = 0, a(n) = (a(n-1) * n) XOR n (bitwise exclusive-OR)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 436 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* External integer types definition is provided by the build system. */
 static seq_t *cache = NULL;      /* dynamically grown cache of values */
@@ -28,7 +30,7 @@ ensure_cache_capacity(idx_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 1;
     while (new_cap <= need) new_cap <<= 1;  /* grow until large enough */
 
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) {                       /* out of memory */
         /* In a real project you would handle this properly.
            For the purposes of this sequence generator we abort. */
@@ -36,8 +38,8 @@ ensure_cache_capacity(idx_t need)
     }
 
     if (cache) {
-        memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
 
     cache = new_cache;

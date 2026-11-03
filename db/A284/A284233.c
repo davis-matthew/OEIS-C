@@ -7,13 +7,15 @@
  * Formula:   a(n) = sum of all odd prime power divisors of n (excluding 1)
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
        divides n, add sum_{k=1..e} p^k to the total. */
     while (tmp > 1)
     {
-        uint64_t p = _smallest_prime_factor(tmp);
+        uint64_t p = smallest_prime_factor(tmp);
         uint64_t e = 0;
 
         /* Count the exponent of p in tmp. */

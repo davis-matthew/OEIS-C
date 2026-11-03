@@ -9,12 +9,14 @@
  *            a(i)*a(k‑i), and C(‑1)=C(‑2)=0
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 15, i64 n <= 24, i128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build */
 extern seq_t a(idx_t n);
@@ -32,8 +34,8 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = cap ? (cap << 1) : 4;
     while (new_cap <= (size_t)n) new_cap <<= 1;
 
-    seq_t *new_a = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
-    seq_t *new_c = (seq_t *)realloc(c_arr, new_cap * sizeof(seq_t));
+    seq_t *new_a = mem_resize(seq_t, a_arr, new_cap);
+    seq_t *new_c = mem_resize(seq_t, c_arr, new_cap);
     if (!new_a || !new_c) abort();
 
     /* Initialize newly allocated elements to zero. */

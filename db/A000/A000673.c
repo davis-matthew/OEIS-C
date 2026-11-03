@@ -12,23 +12,32 @@
  *            unordered pair of such rooted trees of equal height...
  * Range:     u8 n <= 13, u16 n <= 21, u32 n <= 34, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   a673_sym2, a673_tri2
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem, triangular_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a673_sym2.h"
-#include "../utils/a673_tri2.h"
+#include "../utils/triangular_seq.h"
+#include "../utils/mem.h"
+
+/* [x^k] (P(x)^2 + P(x^2))/2 restricted to parts of size >= lo */
+static seq_t a673_sym2(const seq_t *P, idx_t k, idx_t lo) {
+    seq_t s = 0;
+    for (idx_t i = lo; i + i < k; i++) s += P[i] * P[k - i];
+    if (k % 2 == 0 && k / 2 >= lo) s += triangular_seq(P[k / 2]);
+    return s;
+}
 
 static seq_t *a673_res = NULL;
 static idx_t a673_have = 0;
 
 static void a673_build(idx_t N) {
-    seq_t *G = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *F = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *E = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *R = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *G = mem_new(seq_t, N + 1);
+    seq_t *F = mem_new(seq_t, N + 1);
+    seq_t *E = mem_new(seq_t, N + 1);
+    seq_t *R = mem_new(seq_t, N + 1);
     idx_t k, m;
     for (k = 0; k <= N; k++) { G[k] = 0; F[k] = 0; E[k] = 0; R[k] = 0; }
     for (idx_t h = 0; 2 * (h + 1) <= N; h++) {
@@ -46,8 +55,8 @@ static void a673_build(idx_t N) {
         for (m = 2 * (h + 1); m <= N; m++) R[m] += a673_sym2(E, m, h + 1);
         seq_t *t = G; G = F; F = t;
     }
-    free(G); free(F); free(E);
-    if (a673_res) free(a673_res);
+    mem_free(G); mem_free(F); mem_free(E);
+    if (a673_res) mem_free(a673_res);
     a673_res = R;
     a673_have = N + 1;
 }

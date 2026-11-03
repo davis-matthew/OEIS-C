@@ -12,13 +12,15 @@
  *            (x+1)*u(n-1,x) + (x+1)*v(n-1,x) + 1 u(1,x) = 1, v(1,x)...
  * Range:     u8 n <= 30, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Space to hold previously computed rows */
@@ -48,8 +50,8 @@ seq_t a(idx_t n) {
 
         for (size_t i = rows + 1; i <= rsize; ++i) {
             size_t len = i;   /* row i has i coefficients */
-            seq_t *u_new = (seq_t *)malloc(sizeof(seq_t) * len);
-            seq_t *v_new = (seq_t *)malloc(sizeof(seq_t) * len);
+            seq_t *u_new = mem_new(seq_t, len);
+            seq_t *v_new = mem_new(seq_t, len);
             if (!u_new || !v_new) return 0;   /* allocation failure */
 
             if (i == 1) {

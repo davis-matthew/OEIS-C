@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    all tests up to n ≈ 10 000). */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MAX_M 200000ULL /* upper bound for precomputation */
 
@@ -28,8 +30,8 @@ seq_t a(idx_t n) {
     static seq_t *best = NULL;
     static idx_t  max_phi = 0; /* maximum φ value precomputed */
     if (!phi) { /* first call, allocate and compute */
-        phi  = (seq_t *)malloc((MAX_M + 1) * sizeof(seq_t));
-        best = (seq_t *)malloc((MAX_M + 1) * sizeof(seq_t));
+        phi  = mem_new(seq_t, (MAX_M + 1));
+        best = mem_new(seq_t, (MAX_M + 1));
         if (!phi || !best) return 0; /* allocation failure */
 
         /* initialise φ[i] = i */

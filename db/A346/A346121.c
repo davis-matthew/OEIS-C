@@ -8,7 +8,8 @@
  *            of n
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 433 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;
@@ -68,7 +70,7 @@ seq_t a(idx_t n) {
 
         /* DP array: f[k] = number of permutations of k elements
            whose cycle lengths are all allowed. */
-        seq_t *f = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        seq_t *f = mem_new(seq_t, (size_t)(n + 1));
         f[0] = (seq_t)1;
 
         for (idx_t k = 1; k <= n; ++k) {
@@ -89,7 +91,7 @@ seq_t a(idx_t n) {
         if ((bits & 1) == 0) sumEven += term;
         else                 sumOdd  += term;
 
-        free(f);
+        mem_free(f);
         free(allowed);
     }
 

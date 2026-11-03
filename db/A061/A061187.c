@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 37, i32 n <= 42, i64 n <= 42, i128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Representation of one polynomial: an array of coefficients. */
 typedef struct {
@@ -82,7 +84,7 @@ static void ensure_polys_upto(idx_t target)
     if (polys_used == 0) {
         polys_ensure_capacity(2);
         polys[0].len   = 2;
-        polys[0].coeff = (seq_t*)malloc(sizeof(seq_t)*2);
+        polys[0].coeff = mem_new(seq_t, 2);
         polys[0].coeff[0] = (seq_t)3;
         polys[0].coeff[1] = (seq_t)(-2);
         polys_used = 1;
@@ -90,7 +92,7 @@ static void ensure_polys_upto(idx_t target)
     if (polys_used == 1) {
         polys_ensure_capacity(2);
         polys[1].len   = 3;
-        polys[1].coeff = (seq_t*)malloc(sizeof(seq_t)*3);
+        polys[1].coeff = mem_new(seq_t, 3);
         polys[1].coeff[0] = (seq_t)6;
         polys[1].coeff[1] = (seq_t)2;
         polys[1].coeff[2] = (seq_t)(-4);
@@ -104,7 +106,7 @@ static void ensure_polys_upto(idx_t target)
 
         /* (1+x) * prev1, then multiplied by 2 */
         idx_t t1_len = prev1->len + 1;
-        seq_t *temp1 = (seq_t*)malloc(sizeof(seq_t)*t1_len);
+        seq_t *temp1 = mem_new(seq_t, t1_len);
         temp1[0] = 2 * prev1->coeff[0];
         for (idx_t i = 1; i < prev1->len; ++i)
             temp1[i] = 2 * (prev1->coeff[i] + prev1->coeff[i-1]);
@@ -112,7 +114,7 @@ static void ensure_polys_upto(idx_t target)
 
         /* (1-7x+13x^2-4x^3) * prev2 */
         idx_t t2_len = prev2->len + 3;          /* deg(prev2)+3 +1 */
-        seq_t *temp2 = (seq_t*)calloc(t2_len, sizeof(seq_t));   /* zeroed */
+        seq_t *temp2 = mem_new(seq_t, t2_len);   /* zeroed */
         const seq_t Bcoeff[4] = { (seq_t)1, (seq_t)(-7), (seq_t)13, (seq_t)(-4) };
         for (idx_t i = 0; i < prev2->len; ++i) {
             seq_t a = prev2->coeff[i];
@@ -124,7 +126,7 @@ static void ensure_polys_upto(idx_t target)
 
         /* new polynomial: temp1 - temp2 */
         idx_t new_len = t1_len > t2_len ? t1_len : t2_len;
-        seq_t *new_coeff = (seq_t*)malloc(sizeof(seq_t)*new_len);
+        seq_t *new_coeff = mem_new(seq_t, new_len);
         for (idx_t i = 0; i < new_len; ++i) {
             seq_t v = 0;
             if (i < t1_len) v += temp1[i];
@@ -132,8 +134,8 @@ static void ensure_polys_upto(idx_t target)
             new_coeff[i] = v;
         }
 
-        free(temp1);
-        free(temp2);
+        mem_free(temp1);
+        mem_free(temp2);
 
         polys_ensure_capacity(polys_used + 1);
         polys[polys_used].len = new_len;

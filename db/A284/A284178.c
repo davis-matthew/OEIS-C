@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 126,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 120 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
         1,0,4,0,20,0,84,16,292,64,1172,272,4644,1344,19092,5392,76324,21824
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if (!cache) {
         /* Pre‑allocate enough space for the first 18 terms */
         cap = 64;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
 
         /* initialise all entries to 0 */
         for (size_t i = 0; i < cap; ++i)
@@ -61,12 +63,12 @@ seq_t a(idx_t n)
         while (new_cap < (size_t)n + 1)
             new_cap *= 2;
 
-        seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         for (size_t i = 0; i < cap; ++i)
             new_arr[i] = cache[i];
         for (size_t i = cap; i < new_cap; ++i)
             new_arr[i] = 0;
-        free(cache);
+        mem_free(cache);
         cache = new_arr;
         cap   = new_cap;
     }

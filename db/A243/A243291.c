@@ -9,12 +9,16 @@
  *            the largest prime factor of n (prime 2 has index 1)
  * Range:     u8 n <= 263, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
+ * Validated: standard, pass, 85 terms through n = 7400 (2026-11-01)
  * Helpers:   largest_prime_factor, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/largest_prime_factor.h"
 #include "../utils/sieve_primes.h"
 

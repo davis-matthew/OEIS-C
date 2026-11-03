@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 none, u16 none, u32 n <= 26, u64 n <= 26, u128 n <= 26,
+ * Range:     u8 none, u16 none, u32 n <= 3960, u64 n <= 3960, u128 n <= 3960,
  *            big any n
- * Helpers:   mulmod64
+ * Validated: standard, pass, 42 terms through n = 3925 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mulmod64.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* Local dynamic array for cached primes */
 static seq_t *prime_cache = NULL;
@@ -35,7 +38,7 @@ static void ensure_cache_capacity(idx_t min_cap) {
     if (prime_capacity >= min_cap) return;
     idx_t new_cap = prime_capacity == 0 ? 8 : prime_capacity * 2;
     while (new_cap < min_cap) new_cap *= 2;
-    seq_t *new_arr = (seq_t *)realloc(prime_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, prime_cache, new_cap);
     prime_cache = new_arr;
     prime_capacity = new_cap;
 }
@@ -51,8 +54,8 @@ static void append_prime(seq_t value) {
 static uint64_t powmod64(uint64_t a, uint64_t e, uint64_t mod) {
     uint64_t r = 1 % mod;
     while (e) {
-        if (e & 1) r = mulmod64(r, a, mod);
-        a = mulmod64(a, a, mod);
+        if (e & 1) r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return r;
@@ -82,7 +85,7 @@ static bool is_prime_uint64(uint64_t n) {
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mulmod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;

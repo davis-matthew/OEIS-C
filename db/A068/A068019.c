@@ -9,15 +9,16 @@
  *            are prime
  * Range:     u8 n <= 49, u16 n <= 4190, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, phi
+ * Validated: standard, pass, 73 terms through n = 9723 (2026-11-01)
+ * Helpers:   is_prime, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/phi.h"
 #include "../utils/is_prime.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;            /* the sequence is defined for n ≥ 1 */
@@ -28,11 +29,11 @@ seq_t a(idx_t n) {
         /* Skip primes – we need only composite n. */
         if (!is_prime(m)) {
             /* Compute φ(n).  For the sizes we need φ will fit in 64 bits. */
-            seq_t phi_val = phi(m);
-            uint64_t phi = (uint64_t)phi_val;
+            seq_t phi_val = totient(m);
+            uint64_t totient = (uint64_t)phi_val;
 
             /* Check the twin‑prime condition on φ(n). */
-            if (is_prime(phi - 1) && is_prime(phi + 1)) {
+            if (is_prime(totient - 1) && is_prime(totient + 1)) {
                 ++count;
                 if (count == n)
                     return (seq_t)m;      /* nth desired composite */

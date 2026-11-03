@@ -11,13 +11,23 @@
  *            y
  * Range:     u8 n <= 21, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   pow3v
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow3v.h"
+
+static inline seq_t pow3v(idx_t v) {
+    /* compute 3^v */
+    seq_t r = 1;
+    while (v > 0) {
+        r *= 3;
+        --v;
+    }
+    return r;
+}
 
 static inline seq_t odd_part(seq_t x) {
     /* return the odd part of x (x / 2^v(x)) */

@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -32,7 +33,7 @@
 #ifndef __cplusplus
 # define ALLOC_SEQ_T(dst, sz) \
     ((dst) = (seq_t*)calloc((size_t)(sz), sizeof(seq_t)))
-# define FREE_SEQ_T(ptr) free((void*)(ptr))
+# define FREE_SEQ_T(ptr) free((ptr))
 # define ALLOC_SEQ_T_ZERO(dst, sz) \
     ((dst) = (seq_t*)calloc((size_t)(sz), sizeof(seq_t)))
 #else

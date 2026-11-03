@@ -12,9 +12,10 @@
  *            a(1)=1 and for n>1, a(n) = - Σ_{d|n, d<n} a(d) * f(n/d). This
  *            implementation uses an incremental O(n log n) divisor‐sieving
  *            ap...
- * Range:     i8 n <= 31, i16 n <= 431, i32 n <= 9542, i64 n <= 9542,
- *            i128 n <= 9542, big any n
- * Helpers:   none
+ * Range:     i8 n <= 31, i16 n <= 431, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 94 terms through n = 9542 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MAX_N 200000      /* covers n up to about 10 000 easily */
 #define PRIME_BOUND (MAX_N + 2000)  /* allows lookup of next prime */
@@ -114,7 +116,7 @@ static void init_sequence(void)
     }
 
     /* ---------- allocate g_arr ---------- */
-    g_arr = (seq_t *)calloc(MAX_N + 1, sizeof(seq_t));
+    g_arr = mem_new(seq_t, MAX_N + 1);
     if (!g_arr) {
         /* memory error – abort (unlikely in contests) */
         abort();

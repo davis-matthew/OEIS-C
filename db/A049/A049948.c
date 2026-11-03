@@ -11,13 +11,15 @@
  *            Initial values: a(1)=1, a(2)=2, a(3)=1
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache   = NULL; /* a[1]..a[max]   */
 static seq_t *cum_cache = NULL; /* cum[0]=0; cum[i]=Σ_{k=1}^{i} a[k] */
@@ -31,8 +33,8 @@ static void ensure_capacity(idx_t n)
     idx_t new_size = cache_size ? cache_size * 2 : 8;
     while (new_size < n) new_size <<= 1;
 
-    a_cache    = (seq_t *)realloc(a_cache,    (new_size + 1) * sizeof(seq_t));
-    cum_cache  = (seq_t *)realloc(cum_cache,  (new_size + 1) * sizeof(seq_t));
+    a_cache    = mem_resize(seq_t, a_cache, (new_size + 1));
+    cum_cache  = mem_resize(seq_t, cum_cache, (new_size + 1));
 
     if (cache_size == 0) {
         cum_cache[0] = (seq_t)0;          /* sum of zero terms */

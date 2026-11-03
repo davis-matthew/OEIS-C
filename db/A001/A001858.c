@@ -8,13 +8,15 @@
  *            1
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 10, u64 n <= 17, u128 n <= 28,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 37 terms through n = 363 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
     if (n >= memo_len) {
         idx_t new_len = (n + 1) * 2;
         if (new_len < 1000) new_len = 1000;
-        seq_t *new_memo = (seq_t *)realloc(memo, new_len * sizeof(seq_t));
+        seq_t *new_memo = mem_resize(seq_t, memo, new_len);
         for (idx_t i = memo_len; i < new_len; i++) {
             new_memo[i] = 0;
         }
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
     seq_t result = 0;
     
     for (idx_t j = 0; j < n; j++) {
-        seq_t binom_val = binom(n - 1, j);
+        seq_t binom_val = binomial(n - 1, j);
         seq_t power_val = (j == 0) ? 1 : power((seq_t)(j + 1), j - 1);
         seq_t a_val = a(n - 1 - j);
         result += binom_val * power_val * a_val;

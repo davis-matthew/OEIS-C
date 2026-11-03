@@ -8,14 +8,16 @@
  *            perfect square, where d = number of decimal digits of T
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 19, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   isqrt
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   isqrt_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isqrt.h"
+#include "../utils/isqrt_seq.h"
+#include "../utils/mem.h"
 
 /* Compute the n-th term (n ≥ 1). */
 seq_t a(idx_t n)
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Initialise the powers-of-10 table once. */
     if (pow_cnt == 0) {
         pow_cap = 16;
-        pow10 = (seq_t *)malloc(pow_cap * sizeof(seq_t));
+        pow10 = mem_new(seq_t, pow_cap);
         pow_cnt = 1;               /* pow10[0] = 1 (=10^0) */
         pow10[0] = (seq_t)1;
     }
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         while (T >= pow10[pow_cnt - 1]) {
             if (pow_cnt == pow_cap) {
                 pow_cap <<= 1;
-                pow10 = (seq_t *)realloc(pow10, pow_cap * sizeof(seq_t));
+                pow10 = mem_resize(seq_t, pow10, pow_cap);
             }
             pow10[pow_cnt] = pow10[pow_cnt - 1] * (seq_t)10;
             ++pow_cnt;
@@ -60,12 +62,12 @@ seq_t a(idx_t n)
         seq_t comp = p10 - T;
 
         /* Is the complement a perfect square? */
-        seq_t s = isqrt(comp);
+        seq_t s = isqrt_seq(comp);
         if (s * s == comp) {
             /* Store the qualifying triangular number. */
             if (terms_cnt == terms_cap) {
                 terms_cap = terms_cap ? terms_cap * 2 : 16;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_cnt++] = T;
         }

@@ -9,13 +9,15 @@
  *            Initial values: a(1)=0, a(2)=10, a(3)=200, a(4)=3040, a(5)=43320
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache holding the pre‑computed terms
    cache[0] = a(1), cache[1] = a(2), ... */
@@ -31,7 +33,7 @@ static void ensure_cache_capacity(idx_t need)
     size_t new_cap = capacity ? capacity * 2 : 5;
     while (new_cap < (size_t)need)
         new_cap *= 2;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     capacity = new_cap;
 }
 

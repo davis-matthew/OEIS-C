@@ -7,14 +7,16 @@
  * Formula:   a(n) = max(1, ceil(log₂(n / SOD(n))) )
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   bitlen_seq_t, digit_sum
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   bit_length, digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include "../utils/bit_length.h"
 #include "../utils/digit_sum.h"
-#include "../utils/bitlen_seq_t.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     seq_t r = (n_seq + s - 1) / s;          /* r >= 2 */
 
     /* Compute ceil(log₂(r)) using bit length of r-1 */
-    seq_t k = (seq_t)bitlen_seq_t(r - 1);    /* k >= 1 */
+    seq_t k = (seq_t)bit_length(r - 1);    /* k >= 1 */
 
     return k;
 }

@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 299, u16 n <= 9351, u32 n <= 9351, u64 n <= 9351,
- *            u128 n <= 9351, big any n
- * Helpers:   _pair
+ * Range:     u8 n <= 299, u16 n <= 10585, u32 n <= 10585, u64 n <= 10585,
+ *            u128 n <= 10585, big any n
+ * Validated: standard, pass, 136 terms through n = 9351 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,14 @@
  */
 
 #include <stdbool.h>
-#include "../utils/_pair.h"
+
+/* Cantor pairing function for a≥1, b≥0, returning seq_t. */
+static inline seq_t _pair(idx_t a, idx_t b)
+{
+    unsigned __int128 s = (unsigned __int128)a + (unsigned __int128)b;
+    unsigned __int128 t = s * (s + 1) / 2 - b;
+    return (seq_t)t;
+}
 
 /* Euler's totient φ(k) for a 64‑bit integer k, returned as seq_t. */
 static seq_t _phi(idx_t k)

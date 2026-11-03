@@ -12,12 +12,14 @@
  *            distinct-part partition into a partition of n'...
  * Range:     u8 n <= 35, u16 n <= 48, u32 n <= 82, u64 n <= 204,
  *            u128 n <= 677, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 892 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_arr = NULL;   /* accumulated answer for each n */
 static seq_t *p_prev = NULL;  /* p(n,k-1) values */
@@ -38,10 +40,10 @@ static void compute_to(idx_t N)
     while ((new_k + 1) * (new_k + 2) / 2 <= new_n) new_k++;
 
     /* allocate new tables */
-    seq_t *a_new   = (seq_t*)calloc(new_n + 1, sizeof(seq_t));
-    seq_t *p1_new  = (seq_t*)calloc(new_n + 1, sizeof(seq_t));
-    seq_t *p2_new  = (seq_t*)calloc(new_n + 1, sizeof(seq_t));
-    seq_t *e_new   = (seq_t*)calloc(new_k + 1, sizeof(seq_t));
+    seq_t *a_new   = mem_new(seq_t, new_n + 1);
+    seq_t *p1_new  = mem_new(seq_t, new_n + 1);
+    seq_t *p2_new  = mem_new(seq_t, new_n + 1);
+    seq_t *e_new   = mem_new(seq_t, new_k + 1);
 
     /* ---------- Eulerian numbers <k,6> ---------- */
     seq_t e_prev[7] = {0}, e_cur[7] = {0};
@@ -94,10 +96,10 @@ static void compute_to(idx_t N)
     }
 
     /* free old tables */
-    if (a_arr)   free(a_arr);
-    if (p_prev)  free(p_prev);
-    if (p_curr)  free(p_curr);
-    if (e_arr)   free(e_arr);
+    if (a_arr)   mem_free(a_arr);
+    if (p_prev)  mem_free(p_prev);
+    if (p_curr)  mem_free(p_curr);
+    if (e_arr)   mem_free(e_arr);
 
     /* adopt new tables */
     a_arr = a_new;

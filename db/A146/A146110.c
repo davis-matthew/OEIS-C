@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9942 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    modulo 9372 on subsequent calls. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         /* Allocate storage for one full period of values. */
-        table = (seq_t *)malloc(PERIOD * sizeof(seq_t));
+        table = mem_new(seq_t, PERIOD);
         /* Temporary arrays for the Bell triangle rows. */
         unsigned int *prev = (unsigned int *)malloc((PERIOD + 1) * sizeof(unsigned int));
         unsigned int *curr = (unsigned int *)malloc((PERIOD + 1) * sizeof(unsigned int));

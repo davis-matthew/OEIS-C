@@ -10,18 +10,19 @@
  *            the mapping to all n ≥ 0
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bit_reverse_seq_t
+ * Validated: standard, pass, 54 terms through n = 9576 (2026-11-01)
+ * Helpers:   reverse_bits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/bit_reverse_seq_t.h"
+#include "../utils/reverse_bits.h"
 
 seq_t a(idx_t n)
 {
     seq_t x   = (seq_t)n + (seq_t)65536;  /* n + 2^16 */
-    seq_t rev = bit_reverse_seq_t(x);      /* reverse bits */
+    seq_t rev = reverse_bits(x);      /* reverse bits */
     return rev >> 1;                       /* divide by 2 */
 }

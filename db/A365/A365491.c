@@ -9,14 +9,21 @@
  *            is divisible by n. Multiplicative: a(p^e) = ceil(e/4)+1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   part_from_exponent
+ * Validated: standard, pass, 103 terms through n = 9240 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/part_from_exponent.h"
+
+/* Helper: compute the local contribution for a prime exponent e. */
+static seq_t part_from_exponent(idx_t e)
+{
+    /* ceil(e/4)+1 = (e+3)/4 + 1 */
+    return (seq_t)((e + 3) / 4 + 1);
+}
 
 /* Main function. */
 seq_t a(idx_t n)

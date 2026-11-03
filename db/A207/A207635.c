@@ -12,13 +12,15 @@
  *            The triangle is read row by row: constant term first...
  * Range:     u8 n <= 23, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -51,10 +53,10 @@ seq_t a(idx_t n)
     size_t max_len_u = (size_t)(r > 2 ? r - 1 : 1);
     size_t max_len_v = (size_t)(r + 1);  /* one more than max u length */
 
-    seq_t *U  = (seq_t *)calloc(max_len_u, sizeof(seq_t));
-    seq_t *V  = (seq_t *)calloc(max_len_v, sizeof(seq_t));
-    seq_t *Nu = (seq_t *)calloc(max_len_u, sizeof(seq_t));
-    seq_t *Nv = (seq_t *)calloc(max_len_v, sizeof(seq_t));
+    seq_t *U  = mem_new(seq_t, max_len_u);
+    seq_t *V  = mem_new(seq_t, max_len_v);
+    seq_t *Nu = mem_new(seq_t, max_len_u);
+    seq_t *Nv = mem_new(seq_t, max_len_v);
 
     /* Initialise row 1: u = v = 1. */
     U[0] = (seq_t)1;
@@ -98,10 +100,10 @@ seq_t a(idx_t n)
     seq_t result = U[pos];
 
     /* Free temporary storage. */
-    free(U);
-    free(V);
-    free(Nu);
-    free(Nv);
+    mem_free(U);
+    mem_free(V);
+    mem_free(Nu);
+    mem_free(Nv);
 
     return result;
 }

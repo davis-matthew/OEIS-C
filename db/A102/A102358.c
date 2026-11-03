@@ -10,7 +10,8 @@
  *            and records the step numbers at which the origin is visited
  * Range:     u8 n <= 9, u16 n <= 29, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   hash_int64
+ * Validated: full, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/hash_int64.h"
+#include "../utils/mem.h"
+
+/* 64‑bit multiplicative hash for int64_t */
+static inline uint64_t hash_int64(int64_t v) {
+    uint64_t x = (uint64_t)v;
+    x ^= x >> 33;
+    x *= 0xff51afd7ed558ccdULL;
+    x ^= x >> 33;
+    x *= 0xc4ceb9fe1a85ec53ULL;
+    x ^= x >> 33;
+    return x;
+}
 
 /* If the compiler is C++, cast malloc/calloc to the required pointer type. */
 #ifndef VALGRIND
@@ -93,7 +105,7 @@ static void insert_or_toggle(int64_t x, int64_t y, unsigned char current_color) 
 static void ensure_visits_cap(void) {
     if (visits_size >= visits_cap) {
         idx_t new_cap = visits_cap == 0 ? 64 : visits_cap << 1;
-        seq_t *new_visits = (seq_t *)realloc(visits, new_cap * sizeof(seq_t));
+        seq_t *new_visits = mem_resize(seq_t, visits, new_cap);
         visits = new_visits;
         visits_cap = new_cap;
     }
@@ -108,7 +120,7 @@ seq_t a(idx_t n) {
     /* Initialise visits array on first call */
     if (visits_size == 0) {
         visits_cap = 64;
-        visits = (seq_t *)malloc(visits_cap * sizeof(seq_t));
+        visits = mem_new(seq_t, visits_cap);
         visits_size = 1;          /* first visit at step 0 */
         visits[1] = (seq_t)0;
     }

@@ -12,13 +12,15 @@
  *            sequence starting from the integer i, i.e. T(i,j) wher...
  * Range:     u8 n <= 28, u16 n <= 91, u32 n <= 302, u64 n <= 1035,
  *            u128 n <= 4007, big any n
- * Helpers:   reverse_decimal
+ * Validated: standard, pass, 82 terms through n = 9391 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/reverse_decimal.h"
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (j == 1) return x;                   /* first term is the number itself */
 
     for (idx_t step = 2; step <= j; ++step) {
-        seq_t rev = reverse_decimal(x);
+        seq_t rev = reverse_digits(x);
         x = x + rev;
     }
 

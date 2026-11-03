@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 34, u64 n <= 70, u128 n <= 144,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define STATES 59049          /* 3^10 */
 
@@ -134,15 +136,15 @@ static void ensure_init(void)
     initialized = 1;
 
     /* allocate DP state arrays */
-    cur   = (seq_t *)calloc(STATES, sizeof(seq_t));
-    next  = (seq_t *)calloc(STATES, sizeof(seq_t));
+    cur   = mem_new(seq_t, STATES);
+    next  = mem_new(seq_t, STATES);
 
     /* initial state: all sums 0, count 1 */
     cur[0] = 1;
 
     /* allocate sequence storage */
     seq_cap = 64;                    /* initial capacity */
-    seqarr = (seq_t *)malloc(sizeof(seq_t) * seq_cap);
+    seqarr = mem_new(seq_t, seq_cap);
     seqarr[0] = 0;                   /* unused for offset 0 */
 
     /* build state transition tables once */
@@ -180,7 +182,7 @@ static void extend_sequence(idx_t n)
         /* store the new term */
         if (seq_len == seq_cap) {            /* grow array if needed */
             seq_cap *= 2;
-            seqarr = (seq_t *)realloc(seqarr, seq_cap * sizeof(seq_t));
+            seqarr = mem_resize(seq_t, seqarr, seq_cap);
         }
         seqarr[seq_len] = total;
         ++seq_len;

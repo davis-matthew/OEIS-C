@@ -8,19 +8,20 @@
  *            binomial(2*n+1,n)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 34,
  *            big any n
- * Helpers:   a891_binom, a891_gcd
+ * Validated: standard, pass, 34 terms through n = 100 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a891_binom.h"
-#include "../utils/a891_gcd.h"
+#include "../utils/binomial.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
-    seq_t c = a891_binom(2 * n, n);
+    seq_t c = binomial(2 * n, n);
     seq_t den = (seq_t)n + 1;
     seq_t cat = c / den;
-    seq_t b = a891_binom(2 * n + 1, n);
+    seq_t b = binomial(2 * n + 1, n);
     return cat * b;
 }

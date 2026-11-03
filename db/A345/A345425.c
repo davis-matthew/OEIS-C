@@ -10,14 +10,35 @@
  *            treated specially: u=0, v=1)
  * Range:     i8 n <= 33, i16 n <= 56, i32 n <= 56, i64 n <= 56, i128 n <= 56,
  *            big any n
- * Helpers:   extgcd, round_div
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/extgcd.h"
-#include "../utils/round_div.h"
+
+/* Extended Euclid: returns gcd and sets *x,*y so that a*x + b*y = gcd(a,b) */
+static inline int64_t extgcd(int64_t a, int64_t b, int64_t *x, int64_t *y) {
+    int64_t x0 = 1, y0 = 0, x1 = 0, y1 = 1;
+    while (b) {
+        int64_t q = a / b;
+        int64_t t = a % b;  a = b; b = t;
+        t = x0 - q * x1;   x0 = x1; x1 = t;
+        t = y0 - q * y1;   y0 = y1; y1 = t;
+    }
+    *x = x0;
+    *y = y0;
+    return a;
+}
+
+/* round N/den to nearest integer */
+static inline int64_t round_div(__int128 N, __int128 den) {
+    if (N >= 0)
+        return (int64_t)((N + den/2) / den);
+    else
+        return -(int64_t)((-N + den/2) / den);
+}
 
 /* Euclidean gcd on int64_t */
 static inline int64_t my_gcd(int64_t a, int64_t b) {

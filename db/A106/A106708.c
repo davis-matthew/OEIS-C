@@ -7,12 +7,21 @@
  * Formula:   a(n) is the concatenation of the non‑trivial divisors of n
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 47, u64 n <= 119,
  *            u128 n <= 419, big any n
- * Helpers:   pow10_local
+ * Validated: standard, pass, 67 terms through n = 4950 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10_local.h"
+static seq_t pow10_local(idx_t exp)
+{
+    seq_t r = 1;
+    while (exp) {
+        r *= 10;
+        exp--;
+    }
+    return r;
+}
 static idx_t num_digits(idx_t x)
 {
     idx_t d = 0;

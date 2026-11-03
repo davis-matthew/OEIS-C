@@ -10,14 +10,15 @@
  *            (p+1)·p^(e-1) otherwise
  * Range:     u8 n <= 242, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, pow_uint
+ * Validated: standard, pass, 87 terms through n = 9078 (2026-11-01)
+ * Helpers:   gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 static inline seq_t exp_prime_power(uint64_t p, uint64_t e)
 {
@@ -25,9 +26,9 @@ static inline seq_t exp_prime_power(uint64_t p, uint64_t e)
         if (e == 1) return (seq_t)2;
         if (e <= 2) return (seq_t)4;        /* e==2 */
         if (e <= 4) return (seq_t)4;        /* e==3 or 4 */
-        return pow_uint(2, e - 2);          /* e≥5 */
+        return ipow_u64_idx(2, e - 2);          /* e≥5 */
     }
-    seq_t p_pow = pow_uint(p, e - 1);
+    seq_t p_pow = ipow_u64_idx(p, e - 1);
     if (p % 4 == 1)
         return ((seq_t)(p - 1)) * p_pow;
     else

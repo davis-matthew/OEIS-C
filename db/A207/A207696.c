@@ -11,7 +11,8 @@
  *            a(2)=169
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 17, u64 n <= 37, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -82,15 +84,15 @@ seq_t a(idx_t n)
         }
 
         /* ----------  allocate DP arrays  ---------- */
-        cur  = (seq_t*)malloc(M * sizeof(seq_t));
-        next = (seq_t*)malloc(M * sizeof(seq_t));
+        cur  = mem_new(seq_t, M);
+        next = mem_new(seq_t, M);
 
         /* ----------  DP for n = 2  (all states count as 1)  ---------- */
         for (size_t i = 0; i < M; ++i) cur[i] = (seq_t)1;
 
         /* ----------  store initial terms  ---------- */
         ans_len = 2;                     /* terms 1 and 2 */
-        ans = (seq_t*)malloc(ans_len * sizeof(seq_t));
+        ans = mem_new(seq_t, ans_len);
         ans[0] = (seq_t)SIZE_S;
         ans[1] = (seq_t)SIZE_S * (seq_t)SIZE_S;
 
@@ -127,7 +129,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < M; ++i) total += next[i];
 
         /* append to answer array */
-        ans = (seq_t*)realloc(ans, (ans_len + 1) * sizeof(seq_t));
+        ans = mem_resize(seq_t, ans, (ans_len + 1));
         ans[ans_len] = total;
         ++ans_len;
 

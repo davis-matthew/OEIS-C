@@ -10,6 +10,7 @@
  *            lexicographically, sequences grouped by length)
  * Range:     u8 n <= 5120, u16 n <= 5120, u32 n <= 5120, u64 n <= 5120,
  *            u128 n <= 5120, big any n
+ * Validated: full, pass, 5120 terms through n = 5120 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,9 +7,10 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = Σ_{d|n} Σ_{k|(n/d)} μ(d) μ(k) p(n/(d*k)) where p(m) is
  *            the ordinary partition function and μ is the Möbius function
- * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 47, u64 n <= 47, u128 n <= 47,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 127, u64 n <= 416,
+ *            u128 n <= 1458, big any n
+ * Validated: standard, pass, 64 terms through n = 9407 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static idx_t max_n = 0;
 static seq_t *pArr = NULL;   /* partition numbers */
@@ -29,7 +31,7 @@ static void ensure_up_to(idx_t N)
     if (N <= max_n) return;
 
     /* Allocate temporary arrays */
-    seq_t *new_p = (seq_t*)malloc((N+1) * sizeof(seq_t));
+    seq_t *new_p = mem_new(seq_t, (N+1));
     int *new_mu = (int*)malloc((N+1) * sizeof(int));
     if (!new_p || !new_mu) return; /* allocation failure, but still safe */
 
@@ -69,7 +71,7 @@ static void ensure_up_to(idx_t N)
     free(prime_list);
 
     /* Free old arrays */
-    free(pArr);
+    mem_free(pArr);
     free(muArr);
 
     /* Store new arrays */

@@ -7,12 +7,25 @@
  * Formula:   a(n) = smallest multiple of 4 with digit sum 4^n
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   pow4
+ * Validated: partial, pass, 6 terms through n = 5 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow4.h"          /* pow4(idx_t) computes 4^n as seq_t */
+#include <stdbool.h>
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 #include <stdbool.h>                /* for bool type */
 
 /* compute the smallest multiple of 4 whose digit sum equals 4^n */

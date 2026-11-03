@@ -6,15 +6,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   a(n) = min(n, 3*2^floor(log2(n)) - 1 - n)
- * Range:     u8 n <= 255, u16 n <= 9210, u32 n <= 9210, u64 n <= 9210,
- *            u128 n <= 9210, big any n
- * Helpers:   floor_log2_ull
+ * Range:     u8 n <= 255, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 98 terms through n = 9210 (2026-11-01)
+ * Helpers:   ilog2_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_log2_ull.h"
+#include "../utils/ilog2_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +23,7 @@ seq_t a(idx_t n)
         return (seq_t)0;                  /* undefined for n < 1, return 0 */
 
     /* Find the block index k such that 2^k <= n < 2^(k+1). */
-    idx_t k     = floor_log2_ull(n);
+    idx_t k     = ilog2_idx(n);
     idx_t pow2k = (idx_t)1 << k;          /* 2^k */
 
     /* Offset of n within its block. */

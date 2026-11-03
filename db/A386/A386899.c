@@ -9,14 +9,17 @@
  *            binomial(2*n-k,n-k)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 13, u128 n <= 17,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 /* Multiply by mul and divide by div using a 128‑bit intermediate when
    seq_t is a built‑in integral type; otherwise rely on built‑in big‑int

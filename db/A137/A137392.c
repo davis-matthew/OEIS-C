@@ -8,6 +8,7 @@
  *            Fibonacci(2)=1 (i.e. standard Fibonacci with F0=0)
  * Range:     i8 n <= 11, i16 n <= 18, i32 n <= 31, i64 n <= 31, i128 n <= 31,
  *            big any n
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

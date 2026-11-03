@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = #{ i | 1 ≤ i ≤ ⌊n/2⌋ and n divides 2*i*(n-i) }
- * Range:     u8 n <= 23, u16 n <= 524, u32 n <= 9412, u64 n <= 9412,
- *            u128 n <= 9412, big any n
+ * Range:     u8 n <= 23, u16 n <= 524, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 114 terms through n = 9412 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,8 +10,9 @@
  *            computed by enumerating all 8‑subsets of the * set
  *            {1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181,6765}
  *            * and counting their sums
- * Range:     u8 n <= 9736, u16 n <= 9736, u32 n <= 9736, u64 n <= 9736,
- *            u128 n <= 9736, big any n
+ * Range:     u8 n <= 10086, u16 n <= 10086, u32 n <= 10086, u64 n <= 10086,
+ *            u128 n <= 10086, big any n
+ * Validated: standard, pass, 100 terms through n = 9736 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

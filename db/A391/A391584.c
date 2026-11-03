@@ -12,15 +12,40 @@
  *            over GF(2)
  * Range:     u8 n <= 38, u16 n <= 1786, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_u128, divisible128
+ * Validated: standard, pass, 84 terms through n = 9948 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/bitlen_u128.h"
-#include "../utils/divisible128.h"
+
+/* Number of bits needed to represent x (x > 0).  */
+static inline int bitlen_u128(__uint128_t x)
+{
+    if (x == 0) return 0;
+    unsigned long long hi = (unsigned long long)(x >> 64);
+    if (hi != 0)
+        return 64 + 64 - (__builtin_clzll(hi));
+    else
+        return 64 - (__builtin_clzll((unsigned long long)x));
+}
+
+/* Test whether k divides r (both in GF(2) polynomials).  */
+static bool divisible128(__uint128_t k, __uint128_t r)
+{
+    int deg_k = bitlen_u128(k) - 1;
+    if (k == 0) return false;
+
+    while (r != 0) {
+        int deg_r = bitlen_u128(r) - 1;
+        if (deg_r < deg_k) return false;
+        int shift = deg_r - deg_k;
+        r ^= k << shift;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

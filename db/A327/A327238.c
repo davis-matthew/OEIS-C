@@ -7,14 +7,23 @@
  * Formula:   a(n) = Σ_{d|n} (n/d)^d * binomial(n/d, d)
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 76, u64 n <= 215, u128 n <= 650,
  *            big any n
- * Helpers:   big_pow, binomial, seq_mul
+ * Validated: standard, pass, 59 terms through n = 8299 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -25,7 +34,7 @@ seq_t a(idx_t n)
         if (n % d == 0) {
             /* divisor d */
             idx_t m1 = n / d;                         /* n/d */
-            seq_t pow1 = big_pow((seq_t)m1, (seq_t)d);/* (n/d)^d */
+            seq_t pow1 = ipow((seq_t)m1, (seq_t)d);/* (n/d)^d */
             seq_t bin1 = binomial(m1, d);             /* binomial(n/d, d) */
             seq_t term1 = seq_mul(pow1, bin1);        /* product */
             total = total + term1;
@@ -34,7 +43,7 @@ seq_t a(idx_t n)
             idx_t d2 = n / d;
             if (d2 != d) {
                 idx_t m2 = n / d2;                   /* = d */
-                seq_t pow2 = big_pow((seq_t)m2, (seq_t)d2);/* (n/(n/d))^d2 = d^d2 */
+                seq_t pow2 = ipow((seq_t)m2, (seq_t)d2);/* (n/(n/d))^d2 = d^d2 */
                 seq_t bin2 = binomial(m2, d2);        /* binomial(d, n/d) */
                 seq_t term2 = seq_mul(pow2, bin2);
                 total = total + term2;

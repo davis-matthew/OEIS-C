@@ -12,12 +12,14 @@
  *            a(7)=1375080, a(8)=3281544
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 23, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached sequence values, index = n */
 static idx_t  cache_size = 0;        /* highest n stored, 0 if none */
@@ -33,7 +35,7 @@ static void ensure_cache(idx_t n)
 
     if (cache == NULL) {
         /* first allocation: pre-fill the initial terms. */
-        cache = (seq_t *)malloc((need + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (need + 1));
         if (!cache) abort();
         cache[0] = (seq_t)0;                     /* unused sentinel */
         cache[1] = (seq_t)21;
@@ -47,7 +49,7 @@ static void ensure_cache(idx_t n)
         cache_size = 8;
     } else {
         /* grow the array if required. */
-        cache = (seq_t *)realloc(cache, (need + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (need + 1));
         if (!cache) abort();
     }
 

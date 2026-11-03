@@ -8,13 +8,16 @@
  * Formula:   a(n) = C(2*2^n + 2*n, n)*2^n/(2^n + n)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-01)
  * Helpers:   gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/pow2.h"
 
 /* compute binomial coefficient C(N,k) for a large N (seq_t) and small k (idx_t) */
 static seq_t binom_large(seq_t N, idx_t k)

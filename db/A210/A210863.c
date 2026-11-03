@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n‑th element (1‑based) of the sequence A210863.  */
 seq_t a(idx_t n)
@@ -53,11 +55,11 @@ seq_t a(idx_t n)
 
     /* Allocate coefficient arrays for u and v of the current row. */
     size_t cur_size = 1;               /* size of u and v for row 1 */
-    seq_t *u = (seq_t *)malloc(cur_size * sizeof(seq_t));
-    seq_t *v = (seq_t *)malloc(cur_size * sizeof(seq_t));
+    seq_t *u = mem_new(seq_t, cur_size);
+    seq_t *v = mem_new(seq_t, cur_size);
     if (!u || !v) {                    /* allocation failed */
-        if (u) free(u);
-        if (v) free(v);
+        if (u) mem_free(u);
+        if (v) mem_free(v);
         return (seq_t)0;
     }
 
@@ -68,12 +70,12 @@ seq_t a(idx_t n)
     /* Iteratively construct rows 2 … r */
     for (idx_t row = 2; row <= r; ++row) {
         size_t new_size = (size_t)row;                /* length of next row */
-        seq_t *u_next = (seq_t *)malloc(new_size * sizeof(seq_t));
-        seq_t *v_next = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *u_next = mem_new(seq_t, new_size);
+        seq_t *v_next = mem_new(seq_t, new_size);
         if (!u_next || !v_next) {                     /* allocation failed */
-            free(u); free(v);
-            if (u_next) free(u_next);
-            if (v_next) free(v_next);
+            mem_free(u); mem_free(v);
+            if (u_next) mem_free(u_next);
+            if (v_next) mem_free(v_next);
             return (seq_t)0;
         }
 
@@ -98,8 +100,8 @@ seq_t a(idx_t n)
         }
 
         /* Free the previous row and move to the new one. */
-        free(u);
-        free(v);
+        mem_free(u);
+        mem_free(v);
         u = u_next;
         v = v_next;
         cur_size = new_size;
@@ -107,7 +109,7 @@ seq_t a(idx_t n)
 
     /* Retrieve the requested coefficient and clean up. */
     seq_t result = v[j];
-    free(u);
-    free(v);
+    mem_free(u);
+    mem_free(v);
     return result;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 28, i32 n <= 41, i64 n <= 41, i128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    The function memoises computed terms and grows the buffer lazily.
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,12 +34,12 @@ seq_t a(idx_t n)
 
     /* Helper to grow the cache, zeroing new entries */
     if (terms == NULL) {
-        terms = (seq_t *)realloc(terms, (n + 1) * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, (n + 1));
         for (idx_t i = 0; i <= n; i++)
             terms[i] = (seq_t)0;  /* a(0)=0 is already 0 */
         last_computed = 0;
     } else if (n > last_computed) {
-        terms = (seq_t *)realloc(terms, (n + 1) * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, (n + 1));
     } else if (n <= last_computed)
         return terms[n];
 

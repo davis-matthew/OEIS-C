@@ -10,13 +10,36 @@
  *            = 0, a(2) = 1, a(3) = 2, …
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   equal_8_9
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/equal_8_9.h"
+
+/* Return true iff x has equal numbers of 8′s and 9′s in its base‑10
+   representation. */
+static inline bool equal_8_9(seq_t x)
+{
+    int c8 = 0;
+    int c9 = 0;
+
+    /* 0 contains no 8s and no 9s – it is a valid member. */
+    if (x == 0)
+        return true;
+
+    seq_t y = x;
+    while (y > 0) {
+        int d = (int)(y % 10);
+        if (d == 8)
+            c8++;
+        else if (d == 9)
+            c9++;
+        y = y / 10;
+    }
+    return c8 == c9;
+}
 
 /* External‑linkage function requested by the build. */
 seq_t a(idx_t n)

@@ -11,14 +11,16 @@
  *            k+1)*(n/2+1)/(n/2) if n is even
  * Range:     u8 n <= 38, u16 n <= 114, u32 n <= 351, u64 n <= 1241,
  *            u128 n <= 4588, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 89 terms through n = 8612 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Utility function: binom(a,b) returns \binom{a}{b},
    defined in the utilities. */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -46,16 +48,16 @@ seq_t a(idx_t n)
 
     if ((N & 1) == 0) { /* even N: N = 2m */
         idx_t m = N >> 1; /* m = N/2 */
-        seq_t c1 = binom(m, k);      /* C(m, k)   */
-        seq_t c2 = binom(m, k + 1);  /* C(m, k+1) */
+        seq_t c1 = binomial(m, k);      /* C(m, k)   */
+        seq_t c2 = binomial(m, k + 1);  /* C(m, k+1) */
         seq_t prod = c1 * c2;        /* product */
         prod = prod / (idx_t)m;      /* divide by m  (exact) */
         prod = prod * (seq_t)(m + 1);/* multiply by (m+1) */
         return prod;
     } else { /* odd N: N = 2m+1, let L = (N+1)/2 = m+1 */
         idx_t L = (N + 1) >> 1; /* L = (N+1)/2 */
-        seq_t c1 = binom(L, k + 1);   /* C(L, k+1)   */
-        seq_t c2 = binom(L - 1, k);   /* C(L-1, k)   */
+        seq_t c1 = binomial(L, k + 1);   /* C(L, k+1)   */
+        seq_t c2 = binomial(L - 1, k);   /* C(L-1, k)   */
         return c1 * c2;
     }
 }

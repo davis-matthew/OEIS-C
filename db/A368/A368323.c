@@ -7,7 +7,8 @@
  * Formula:   a(n) = 3^n + 3 * Sum_{k=1..n} binomial(n,k) * a(n-k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     {
         /* enlarge cache */
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) {
             /* allocation failed – abort */
             abort();
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
                 continue;
             }
 
-            seq_t pow3 = pow_uint((uint64_t)3, i);   /* 3^i */
+            seq_t pow3 = ipow_u64_idx((uint64_t)3, i);   /* 3^i */
             seq_t sum   = 0;
             seq_t bin   = 1;                          /* C(i,0) */
 

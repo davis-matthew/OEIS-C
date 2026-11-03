@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
    x < y, gcd(x,y)=1 and x+y odd in the standard triangular order
    (index of pair (y,x) is (y-1)*y/2 + x).  Return the index of the
    nth such pair. */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

@@ -11,7 +11,8 @@
  *            which runs in O(n) time and uses only integer arithmetic
  * Range:     u8 n <= 21, u16 n <= 68, u32 n <= 245, u64 n <= 929,
  *            u128 n <= 3621, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9891 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* The function has external linkage */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     const size_t N = (size_t)n;          /* number of terms to generate */
 
     /* Allocate an array to hold the first N numbers of the form 2^i*5^j */
-    seq_t *seq = (seq_t *)malloc(N * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, N);
     if (!seq)
         abort();  /* allocation failure */
 
@@ -54,6 +56,6 @@ seq_t a(idx_t n)
     /* The required term is the (n‑1)th element minus 1 */
     seq_t result = seq[N - 1] - (seq_t)1;
 
-    free(seq);
+    mem_free(seq);
     return result;
 }

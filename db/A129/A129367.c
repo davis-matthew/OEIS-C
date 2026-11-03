@@ -9,6 +9,7 @@
  *            offset(r)+k, offset(r)=r*(r+1)/2, 0≤k≤r
  * Range:     u8 n <= 2, u16 n <= 48, u32 n <= 1325, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 61 terms through n = 1242 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

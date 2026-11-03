@@ -9,13 +9,15 @@
  *            has multiplicity 4
  * Range:     u8 n <= 43, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 /* seq_t and idx_t are provided by the build system */
 
 #pragma warning(disable:4996) /* Suppress MSVC inlining warnings if any */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
 
     /* maximum half‑sum we will ever need */
     idx_t halfMax = n / 2;
-    seq_t *dp = (seq_t *)calloc((size_t)halfMax + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)halfMax + 1);
     if (!dp) return result;          /* out of memory guard */
     dp[0] = (seq_t)1;                /* empty partition */
 
@@ -65,6 +67,6 @@ seq_t a(idx_t n) {
         }
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

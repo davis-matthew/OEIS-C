@@ -12,13 +12,15 @@
  *            unordered sums that achieve n. The algorithm...
  * Range:     u8 n <= 77, u16 n <= 241, u32 n <= 250, u64 n <= 250,
  *            u128 n <= 250, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 250 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* comparison function for qsort on idx_t values */
 static int cmp_idx_t(const void *a, const void *b)
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
      * dp[i] holds the number of ways to write i as a sum of the collected products.
      * Iterate over each distinct product (coin) and update dp accordingly. */
     size_t dp_size = (size_t)n + 1;
-    seq_t *dp = (seq_t *)calloc(dp_size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     if (!dp) { free(products); return (seq_t)0; }
     dp[0] = (seq_t)1;   /* one way to sum to zero (empty sum) */
 
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     free(products);
     return result;
 }

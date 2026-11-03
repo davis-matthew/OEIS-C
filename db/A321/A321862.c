@@ -7,7 +7,8 @@
  * Formula:   a(n) = -∑_{i=1..n} Legendre(prime(i),5)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9701 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Computing a(n) for A321862
    (sequence defined by the sum of Legendre symbols of the first n primes) */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (computed == 0) {
         /* a array */
         arr_cap = 16;
-        arr = (seq_t *)calloc(arr_cap, sizeof(seq_t));
+        arr = mem_new(seq_t, arr_cap);
 
         /* primes array */
         prime_cap = 16;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     if (n > arr_cap) {
         size_t new_cap = arr_cap;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, arr, new_cap);
         if (!tmp) abort();          /* allocation failure – abort */
         arr = tmp;
         arr_cap = new_cap;

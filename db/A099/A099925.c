@@ -10,12 +10,14 @@
  *            of calls is efficient
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 46, u64 n <= 92, u128 n <= 184,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* initial cache setup */
     if (cache == NULL) {
         cache_len = (idx_t) (3 > n ? 3 : n+1); /* ensure at least n+1 */
-        cache = (seq_t *)malloc((size_t)cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_len);
         if (!cache) return 0; /* allocation failure, return 0 as sentinel */
 
         cache[0] = (seq_t)3;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if (n > max_cached) {
         idx_t new_len = n + 1;
         if (new_len > cache_len) {
-            seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_len * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_len);
             if (!tmp) return 0; /* allocation failure */
             cache = tmp;
             cache_len = new_len;

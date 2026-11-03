@@ -8,12 +8,14 @@
  *            binomial(2*k,k)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 4, u128 n <= 5,
  *            big any n
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial.h"   /* binomial(idx_t a, idx_t b) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 #include <stdlib.h>              /* malloc, realloc, free */
 
 #ifdef __cplusplus

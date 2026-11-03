@@ -9,12 +9,14 @@
  *            x^(3*k*(k+1)/2+1))
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 106 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     idx_t limit = n;
 
     /* Allocate array for dynamic programming */
-    seq_t *dp = (seq_t*)malloc((limit + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (limit + 1));
     if (!dp) return (seq_t)0;  /* allocation failure */
 
     /* Initialize dp array */
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     }
 
     /* Replace previous cache with newly computed values */
-    free(cache);
+    mem_free(cache);
     cache = dp;
     cached_max = limit;
 

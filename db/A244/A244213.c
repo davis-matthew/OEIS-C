@@ -9,6 +9,7 @@
  *            given for sequence A244213
  * Range:     i8 n <= 10, i16 n <= 21, i32 n <= 44, i64 n <= 90, i128 n <= 182,
  *            big any n
+ * Validated: standard, pass, 55 terms through n = 942 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

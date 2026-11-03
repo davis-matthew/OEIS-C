@@ -12,13 +12,21 @@
  *            satisfies * * r(r+1)/2 <= n < (r+1)(r+2)...
  * Range:     u8 n <= 16, u16 n <= 39, u32 n <= 96, u64 n <= 263,
  *            u128 n <= 759, big any n
- * Helpers:   pow_4
+ * Validated: standard, pass, 82 terms through n = 1248 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_4.h"
+
+static seq_t pow_4(idx_t e)
+{
+    seq_t r = 1;
+    for (idx_t i = 0; i < e; ++i)
+        r *= (seq_t)4;
+    return r;
+}
 
 static idx_t row_of_index(idx_t idx)
 {

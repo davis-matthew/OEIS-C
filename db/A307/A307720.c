@@ -9,9 +9,10 @@
  * Formula:   Lexicographically earliest sequence of positive integers such
  *            that for each k ≥ 1 exactly k consecutive pairs have product k
  *            (OEIS A307720)
- * Range:     u8 n <= 9445, u16 n <= 9445, u32 n <= 9445, u64 n <= 9445,
- *            u128 n <= 9445, big any n
- * Helpers:   seq_alloc_cap, seq_realloc_cap, seq_setzero
+ * Range:     u8 n <= 28445, u16 n <= 28446, u32 n <= 28446, u64 n <= 28446,
+ *            u128 n <= 28446, big any n
+ * Validated: standard, pass, 155 terms through n = 9445 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,36 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc_cap.h"
-#include "../utils/seq_realloc_cap.h"
-#include "../utils/seq_setzero.h"
+
+static inline seq_t *seq_alloc_cap(size_t cap)
+{
+#if defined(__cplusplus)
+    return new seq_t[cap];
+#else
+    return (seq_t *)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static inline seq_t *seq_realloc_cap(seq_t *old, size_t old_cap, size_t new_cap)
+{
+#if defined(__cplusplus)
+    seq_t *tmp = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i) tmp[i] = old[i];
+    delete [] old;
+    return tmp;
+#else
+    return (seq_t *)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+static inline void seq_setzero(seq_t *arr, size_t start, size_t end)
+{
+#if defined(__cplusplus)
+    for (size_t i = start; i < end; ++i) arr[i] = (seq_t)0;
+#else
+    memset(arr + start, 0, (end - start) * sizeof(seq_t));
+#endif
+}
 
 /* Helpers that work with both C integer types and C++ big‑integer classes */
 

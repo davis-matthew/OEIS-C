@@ -9,13 +9,15 @@
  *            the n‑th prime ≡ 1 (mod 3)
  * Range:     u8 n <= 56, u16 n <= 6162, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9364 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*--- Modular exponentiation ------------------------------------------------*/
 static inline uint64_t pow_mod_uint64(uint64_t base, uint64_t exp, uint64_t mod)
@@ -120,7 +122,7 @@ static void _grow_cache(size_t min_cap)
     if (_cache_cap >= min_cap) return;
     size_t new_cap = _cache_cap ? _cache_cap * 2 : 16;
     while (new_cap < min_cap) new_cap *= 2;
-    _cache_vals = (seq_t *)realloc(_cache_vals, new_cap * sizeof(seq_t));
+    _cache_vals = mem_resize(seq_t, _cache_vals, new_cap);
     _cache_cap = new_cap;
 }
 

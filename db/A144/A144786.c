@@ -9,14 +9,25 @@
  *            a(k) where k = # of oblong numbers ≤ n
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   count_oblong
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/count_oblong.h"
+
+/* Count the number of oblong numbers m*(m+1) with 1 ≤ m*(m+1) ≤ n. */
+static inline idx_t count_oblong(idx_t n) {
+    if (n < 2) return 0;
+    idx_t m = (idx_t)sqrt((double)n);          /* approximate root */
+    /* Adjust downwards if necessary */
+    while (m > 0 && m > n / (m + 1)) --m;
+    /* Adjust upwards if necessary */
+    while ((m + 1) <= n / (m + 2)) ++m;
+    return m;
+}
 
 seq_t a(idx_t n) {
     while (true) {

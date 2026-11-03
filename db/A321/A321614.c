@@ -11,12 +11,14 @@
  *            a(5)=1939, a(6)=7618, a(7)=28703, a(8)=105112, a(9)=375597
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 16, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static const seq_t init_vals[10] =
@@ -29,7 +31,7 @@ static idx_t last_computed = 0;  /* highest index stored in cache */
 /* Initialise the cache with the first 10 terms. */
 static void init_cache(void) {
     cache_size = 10;
-    cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+    cache = mem_new(seq_t, cache_size);
     for (size_t i = 0; i < 10; ++i) cache[i] = init_vals[i];
     last_computed = 9;
 }
@@ -40,7 +42,7 @@ static void ensure_capacity(idx_t limit) {
     if ((size_t)(limit + 1) <= cache_size) return;
     size_t new_size = cache_size ? cache_size : 1;
     while (new_size <= (size_t)(limit + 1)) new_size <<= 1;
-    seq_t *p = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+    seq_t *p = mem_resize(seq_t, cache, new_size);
     if (!p) exit(1);
     cache = p;
     cache_size = new_size;

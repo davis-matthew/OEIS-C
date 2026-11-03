@@ -13,20 +13,23 @@
  *            deck where i appears i times
  * Range:     u8 n <= 11, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n <= 1) return 0;
 
     size_t sz = (size_t)n;
-    seq_t *h = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *h = mem_new(seq_t, sz);
     if (!h) return 0;    /* allocation failure – not expected */
 
     /* initialise heap with weights 1..n */
@@ -87,6 +90,6 @@ seq_t a(idx_t n)
     seq_t g = gcd(sum, total);
     seq_t numer = sum / g;
 
-    free(h);
+    mem_free(h);
     return numer;
 }

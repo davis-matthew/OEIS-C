@@ -8,6 +8,7 @@
  * Formula:   a(n) = 4*a(n-1) + a(n-2) - 10*a(n-3) - 4*a(n-4)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

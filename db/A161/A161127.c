@@ -12,13 +12,15 @@
  *            n-(r-1)^2
  * Range:     u8 n <= 18, u16 n <= 40, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer floor square root for unsigned 64‑bit values */
 static idx_t _floor_isqrt_u64(idx_t n)
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
 
     /* Allocate space for the previous and current rows */
     idx_t prev_size = 1;
-    seq_t *prev = (seq_t *)malloc(prev_size * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, prev_size);
     if (!prev) return (seq_t)0;
     prev[0] = (seq_t)1;               /* T(1,1) */
 
@@ -61,9 +63,9 @@ seq_t a(idx_t n)
 
     for (idx_t cur_n = 2; cur_n <= r; ++cur_n) {
         idx_t cur_size = 2 * cur_n - 1;
-        curr = (seq_t *)malloc(cur_size * sizeof(seq_t));
+        curr = mem_new(seq_t, cur_size);
         if (!curr) {
-            free(prev);
+            mem_free(prev);
             return (seq_t)0;
         }
 
@@ -97,12 +99,12 @@ seq_t a(idx_t n)
             curr[kp - 1] = (term1 + term2 + term3) / denom;
         }
 
-        free(prev);
+        mem_free(prev);
         prev = curr;
         prev_size = cur_size;
     }
 
     seq_t result = prev[k - 1];
-    free(prev);
+    mem_free(prev);
     return result;
 }

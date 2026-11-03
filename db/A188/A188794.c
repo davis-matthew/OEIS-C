@@ -6,9 +6,10 @@
  * Offset:    4    (a(4) is the first term)
  * Keywords:  nonn, look
  * Formula:   not stated
- * Range:     u8 n <= 9964, u16 n <= 9964, u32 n <= 9964, u64 n <= 9964,
- *            u128 n <= 9964, big any n
- * Helpers:   count_congruent_divisors
+ * Range:     u8 n <= 20004, u16 n <= 20004, u32 n <= 20004, u64 n <= 20004,
+ *            u128 n <= 20004, big any n
+ * Validated: standard, pass, 127 terms through n = 9964 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,35 @@
  * of such divisors and take the minimal k giving the maximum count. */
 
 #include <stdint.h>
-#include "../utils/count_congruent_divisors.h"
+
+/* Count divisors d>1 of N such that k | (n-d), where N = n-k. */
+static seq_t count_congruent_divisors(idx_t N, idx_t k)
+{
+    if (N <= 1) return 0;
+
+    seq_t count = 0;
+
+    /* Divisors greater than 1 are either the divisor N itself,
+       or a divisor d with 2 <= d <= sqrt(N) and its co‑divisor N/d. */
+    for (idx_t d = 2; d * d <= N; ++d)
+    {
+        if (N % d == 0)
+        {
+            /* divisor d */
+            if ((N - d) % k == 0) ++count;
+
+            /* corresponding co‑divisor N/d */
+            idx_t co = N / d;
+            if (co != d && co > 1)
+                if ((N - co) % k == 0) ++count;
+        }
+    }
+
+    /* Include divisor N itself (always satisfies N - N = 0). */
+    ++count;
+
+    return count;
+}
 
 /* integer square‑root floor (compatible with C11 and C++17) */
 static idx_t floor_isqrt_u64(idx_t n)

@@ -8,7 +8,8 @@
  * Formula:   a(n) = |A034386(n)-A049614(n)|
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 17, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Static state to memoize cumulative products. */
 static seq_t *primProd = NULL;      /* product of primes ≤ k */
@@ -37,11 +39,11 @@ ensure_capacity(idx_t n)
         newCap <<= 1;
 
     if (primProd == NULL) {
-        primProd = (seq_t *)malloc(newCap * sizeof(seq_t));
-        compProd = (seq_t *)malloc(newCap * sizeof(seq_t));
+        primProd = mem_new(seq_t, newCap);
+        compProd = mem_new(seq_t, newCap);
     } else {
-        primProd = (seq_t *)realloc(primProd, newCap * sizeof(seq_t));
-        compProd = (seq_t *)realloc(compProd, newCap * sizeof(seq_t));
+        primProd = mem_resize(seq_t, primProd, newCap);
+        compProd = mem_resize(seq_t, compProd, newCap);
     }
 
     /* Initialise the first element (index 0) to 1 for both products. */

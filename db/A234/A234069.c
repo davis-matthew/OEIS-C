@@ -11,7 +11,8 @@
  *            dynamic programming over the columns
  * Range:     u8 none, u16 none, u32 n <= 3, u64 n <= 9, u128 n <= 20,
  *            big any n
- * Helpers:   col_val
+ * Validated: standard, pass, 28 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/col_val.h"
+#include "../utils/mem.h"
+
+static inline uint8_t col_val(uint8_t row, uint8_t s)  /* row 0..2 */
+{
+    return (s >> (2 * row)) & 3U;
+}
 
 /* Auxiliary: number of bits required to store a 64‑bit integer. */
 #ifndef UINT64_MAX
@@ -100,7 +106,7 @@ seq_t a(idx_t n)
     static bool dp_init = false;
     if (!dp_init) {
         for (uint16_t i = 0; i < PAIR_COUNT; ++i) cur[i] = (seq_t)1;
-        memset(next, 0, sizeof next);
+        mem_set(next, 0, sizeof next);
         dp_init = true;
         cache_max = 0;
     }
@@ -108,7 +114,7 @@ seq_t a(idx_t n)
     /* extend cache up to requested n */
     while (cache_max < n) {
         /* one DP step: add a new column */
-        memset(next, 0, sizeof next);
+        mem_set(next, 0, sizeof next);
         for (uint16_t p = 0; p < PAIR_COUNT; ++p) {
             seq_t val = cur[p];
             if (val == 0) continue;
@@ -119,7 +125,7 @@ seq_t a(idx_t n)
             }
         }
         /* copy next to cur (now cur holds state after width+1 columns) */
-        memcpy(cur, next, sizeof cur);
+        mem_copy(cur, next, sizeof cur);
 
         /* compute total for this n */
         seq_t total = 0;
@@ -129,7 +135,7 @@ seq_t a(idx_t n)
         if (cache_max + 1 > cache_cap) {
             size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
             while (new_cap <= cache_max + 1) new_cap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) exit(EXIT_FAILURE);
             cache = tmp;
             cache_cap = new_cap;

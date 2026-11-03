@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 8010, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_prime_factors, digit_len
+ * Validated: standard, pass, 77 terms through n = 9516 (2026-11-03)
+ * Helpers:   bigomega_seq, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,14 +22,12 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/count_prime_factors.h"   /* seq_t count_prime_factors(seq_t) */
-#include "../utils/digit_len.h"            /* int digit_len(seq_t) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/bigomega_seq.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
-#if defined(__cplusplus)
-#   define REALLOC(type, ptr, size) reinterpret_cast<type>(realloc((ptr), (size)))
-#else
-#   define REALLOC(type, ptr, size) ((type)realloc((ptr), (size)))
-#endif
 
 seq_t a(idx_t n)
 {
@@ -42,13 +41,13 @@ seq_t a(idx_t n)
     while (cache_size < (size_t)n)
     {
         /* test candidate */
-        if (count_prime_factors(cand) == (seq_t)digit_len(cand))
+        if (bigomega_seq(cand) == (seq_t)num_digits(cand))
         {
             /* grow cache if necessary */
             if (cache_size >= cache_cap)
             {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = REALLOC(seq_t *, cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();                /* allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

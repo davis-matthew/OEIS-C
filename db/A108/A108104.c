@@ -5,14 +5,16 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = a(n-2) + a(n-6), with a(0)=a(1)=a(2)=a(3)=a(4)=a(5)=1
- * Range:     u8 n <= 31, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 31, u16 n <= 61, u32 n <= 119, u64 n <= 235,
+ *            u128 n <= 467, big any n
+ * Validated: standard, pass, 72 terms through n = 958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* first call: allocate and set the first six terms */
     if (dp == NULL) {
         cap = 64;                             /* initial capacity */
-        dp = (seq_t*)malloc(cap * sizeof(seq_t));
+        dp = mem_new(seq_t, cap);
         if (dp == NULL) return (seq_t)0;     /* allocation error */
         for (idx_t i = 0; i < 6; ++i) dp[i] = (seq_t)1;
         size = 6;                          /* number of computed terms */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* grow storage if necessary */
     while (n >= cap) {
         idx_t newcap = cap * 2;
-        seq_t *tmp = (seq_t*)realloc(dp, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, newcap);
         if (tmp == NULL) return (seq_t)0;   /* allocation error */
         dp = tmp;
         cap = newcap;

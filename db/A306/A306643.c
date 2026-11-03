@@ -10,7 +10,8 @@
  *            is divisible by at least two of those integers
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   pow10
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,26 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Memoized cache of computed terms */
 static seq_t *cache      = NULL;
@@ -37,6 +57,17 @@ static int num_digits(idx_t v) {
 }
 
 /* Simple reallocation helper from the utils. */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size) {
+    if (needed > *cap) {
+        size_t new_cap = (*cap) ? (*cap) * 2 : 8;
+        while (new_cap < needed) new_cap *= 2;
+        *ptr = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+        *cap = new_cap;
+    }
+}
+#else
 static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size) {
     if (needed > *cap) {
         size_t new_cap = (*cap) ? (*cap) * 2 : 8;
@@ -45,6 +76,7 @@ static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_
         *cap = new_cap;
     }
 }
+#endif
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* undefined for offset 1, but harmless */
@@ -69,7 +101,7 @@ seq_t a(idx_t n) {
         if (N % (seq_t)(last_x + 2)    == 0) ++cnt;
 
         if (cnt >= 2) {               /* store if condition satisfied */
-            ensure_capacity(cache_len + 1, &cache_cap, (void**)&cache, sizeof(seq_t));
+            ensure_capacity(cache_len + 1, &cache_cap, OEISC_VPP(&cache), sizeof(seq_t));
             cache[cache_len++] = N;
         }
     }

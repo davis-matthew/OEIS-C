@@ -9,16 +9,18 @@
  *            , k) + binom(r*(r-k)*k , r-k) along its rows. The terms are
  *            listed by rows, starting with r=0. Each row r has r+1 entries
  *            (k=0..r)
- * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 37, u64 n <= 92, u128 n <= 232,
+ * Range:     u8 n <= 15, u16 n <= 21, u32 n <= 45, u64 n <= 92, u128 n <= 233,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 61 terms through n = 4324 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The helper function `binom` is assumed to be available via
    "../utils/binom.h". */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     idx_t m = r * (r - k) * k;
 
     /* T(r,k) = binom(m, k) + binom(m, r-k) */
-    seq_t term1 = binom(m, k);
-    seq_t term2 = binom(m, r - k);
+    seq_t term1 = binomial(m, k);
+    seq_t term2 = binomial(m, r - k);
     return term1 + term2;
 }

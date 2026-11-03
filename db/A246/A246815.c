@@ -9,7 +9,8 @@
  *            Ramanujan theta functions
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 875 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    and b_m = Σ_{i,j: t_i+t_j = m} s_i·s_j.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of computed values. */
 static seq_t *a_cache = NULL;   /* a_cache[0..len-1] holds a(0)…a(len-1) */
@@ -53,7 +55,7 @@ static void recompute_cache(size_t N)
     }
 
     /* --- 2. Compute ψ(-x²)² coefficients up to N. --- */
-    seq_t *b = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *b = mem_new(seq_t, N + 1);
 
     for (size_t a = 0; a < cnt; ++a) {
         size_t t_a = t_arr[a];
@@ -69,7 +71,7 @@ static void recompute_cache(size_t N)
     }
 
     /* --- 3. Compute a(n) for 0..N. --- */
-    seq_t *new_cache = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, N + 1);
 
     for (size_t n = 0; n <= N; ++n) {
         seq_t sum = 0;
@@ -90,14 +92,14 @@ static void recompute_cache(size_t N)
     }
 
     /* --- 4. Replace the old cache. --- */
-    free(a_cache);
+    mem_free(a_cache);
     a_cache = new_cache;
     a_len   = N + 1;
 
     /* --- 5. Clean temporary arrays. --- */
     free(t_arr);
     free(s_arr);
-    free(b);
+    mem_free(b);
 }
 
 /* Public function: return a(n) for any n ≥ 0. */

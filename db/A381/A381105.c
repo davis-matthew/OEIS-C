@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n-1} binomial(n,k) * |Stirling1(k,2)|
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   alloc_seq, free_seq
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,22 @@
 /* a(0) = 0, a(1) = 0, a(2) = 0 */
 
 #include <stddef.h>
-#include "../utils/alloc_seq.h"
-#include "../utils/free_seq.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* ---------- Stirling1(k,2) (unsigned) ---------- */
 static seq_t *S = NULL;        /* S[k] = |Stirling1(k,2)|, k >= 0 */

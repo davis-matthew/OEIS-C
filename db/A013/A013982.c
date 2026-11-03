@@ -8,12 +8,14 @@
  *            a(1)=0, a(2)=1, a(3)=1, a(4)=2, a(5)=3
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 54, u64 n <= 106,
  *            u128 n <= 209, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached sequence values */
 static idx_t cache_size = 0;     /* number of entries in cache */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* initial size at least 6 to hold base cases */
         cache_size = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) return 0;   /* allocation failed */
 
         /* explicit base values */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         /* allocate larger array */
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_size);
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (new_cache == NULL) return 0;   /* allocation failed */
 
         /* copy existing values */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         for (idx_t i = cache_size; i < new_size; ++i)
             new_cache[i] = (seq_t)0;
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }

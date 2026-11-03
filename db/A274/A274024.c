@@ -10,7 +10,8 @@
  *            b(k+1,n)=2^b(k,n) (mod n) until the first repetition
  * Range:     u8 n <= 419, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 99 terms through n = 9935 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
 
 /* n is an unsigned 64‑bit index type, seq_t is an unsigned integer type
    (possibly arbitrary precision).  The implementation uses a boolean
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     while (1) {
         /* next value: 2^val mod n   (val ≤ n‑1 < 2^64) */
-        val = mod_pow((seq_t)2, (uint64_t)val, (seq_t)n);
+        val = powmod((seq_t)2, (uint64_t)val, (seq_t)n);
 
         /* index into the seen array */
         idx_t idx = (idx_t)val;               /* val fits into 64 bits */

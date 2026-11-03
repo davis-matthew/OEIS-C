@@ -11,18 +11,20 @@
  *            = 1
  * Range:     u8 n <= 8, u16 n <= 27, u32 n <= 94, u64 n <= 339,
  *            u128 n <= 1278, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 8582 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     long long N = (long long)n;
     long long m, k, i;
-    seq_t *p = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (size_t)(N + 1));
     seq_t result;
 
     p[0] = 1;
@@ -50,6 +52,6 @@ seq_t a(idx_t n)
         if (i < 2) break;
     }
 
-    free(p);
+    mem_free(p);
     return result;
 }

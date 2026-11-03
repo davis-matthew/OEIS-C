@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 10, u32 n <= 20, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 
 #include <stddef.h>     /* size_t, NULL */
 #include <stdlib.h>     /* malloc, realloc */
-#include "../utils/digit_sum.h"   /* seq_t digit_sum(seq_t) */
+#include <stdbool.h>
+#include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
 
     /* Allocate cache on first use */
     if (!cache) {
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* Generate terms until we have at least n of them */
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
                 /* Grow cache if full */
                 if (len == cap) {
                     cap *= 2;
-                    cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cap);
                 }
                 cache[len++] = kseq;   /* store term */
             }

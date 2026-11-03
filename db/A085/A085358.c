@@ -12,13 +12,15 @@
  *            ~(3k)) == 0
  * Range:     u8 n <= 53, u16 n <= 92, u32 n <= 92, u64 n <= 92, u128 n <= 92,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 93 terms through n = 92 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
                 /* store finished run */
                 if (cache_size == cache_cap) {
                     cache_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_size++] = cur_run;
                 cur_run = 0;

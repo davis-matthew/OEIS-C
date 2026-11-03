@@ -11,6 +11,7 @@
  *            set of smaller primes already covered. a(n) is th...
  * Range:     u8 n <= 46, u16 n <= 156, u32 n <= 299, u64 n <= 299,
  *            u128 n <= 299, big any n
+ * Validated: standard, pass, 87 terms through n = 288 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

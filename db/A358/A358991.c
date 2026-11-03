@@ -12,7 +12,8 @@
  *            in the decimal representation
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Digits array (little‑endian decimal digits)                            */
@@ -70,7 +72,7 @@ static idx_t cur_odd = 1;                /* starts at 1 */
 static void grow_a_cache(size_t new_cap)
 {
     if (new_cap <= a_cap) return;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) abort();
     a_cache = tmp;
     a_cap   = new_cap;
@@ -88,7 +90,7 @@ static void init_state(void)
     digits_len = 1;
 
     a_cap   = 16;                     /* small start */
-    a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+    a_cache = mem_new(seq_t, a_cap);
     if (!a_cache) abort();
     a_cache[0] = (seq_t)0;            /* a(0) = 0 */
     a_len    = 1;

@@ -6,8 +6,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = ∏_{runs r of 1-bits in binary(n)} (⌊len(r)/2⌋ + 1) Here
  *            a(0) = 1 by convention (empty set of runs)
- * Range:     u8 n <= 9654, u16 n <= 9654, u32 n <= 9654, u64 n <= 9654,
- *            u128 n <= 9654, big any n
+ * Range:     u8 n <= 16383, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 137 terms through n = 9654 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

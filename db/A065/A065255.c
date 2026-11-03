@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 63, u32 n <= 249, u64 n <= 249,
  *            u128 n <= 249, big any n
- * Helpers:   cache_append
+ * Validated: standard, pass, 57 terms through n = 243 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/cache_append.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------- */
+static void cache_append(seq_t val, seq_t **cache, size_t *len, size_t *cap)
+{
+    if (*len >= *cap) {                     /* enlarge if needed */
+        size_t new_cap = *cap ? *cap * 2 : 64;
+        *cache = mem_resize(seq_t, *cache, new_cap);
+        *cap   = new_cap;
+    }
+    (*cache)[(*len)++] = val;
+}
 
 /* forward declarations */
 static seq_t sigma_of_uint64(idx_t n, uint32_t *spf);
@@ -63,7 +75,7 @@ seq_t a(idx_t n)
         /* Allocate an empty cache if necessary. */
         if (seq_cache == NULL) {
             seq_cap  = 64;
-            seq_cache = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+            seq_cache = mem_new(seq_t, seq_cap);
         }
 
         /* Keep extending until we have at least n terms. */

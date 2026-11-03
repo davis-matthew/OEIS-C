@@ -12,13 +12,15 @@
  *            1678 (the recurrence would give 1624)
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 31, u64 n <= 111, u128 n <= 391,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1153 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,19 +43,19 @@ seq_t a(idx_t n)
     }
 
     /* Row 1 array (size 2, index 1 only) */
-    seq_t *r1 = (seq_t *)calloc(2, sizeof(seq_t));
+    seq_t *r1 = mem_new(seq_t, 2);
     if (!r1) return 0;          /* allocation failure */
     r1[1] = (seq_t)2;
 
     /* Row 2 array (size 3, indices 1 and 2) */
-    seq_t *r2 = (seq_t *)calloc(3, sizeof(seq_t));
-    if (!r2) { free(r1); return 0; }
+    seq_t *r2 = mem_new(seq_t, 3);
+    if (!r2) { mem_free(r1); return 0; }
     r2[1] = r2[2] = prime10;
 
     if (r == 2) {
         seq_t val = (k == 1) ? r2[1] : r2[2];
-        free(r1);
-        free(r2);
+        mem_free(r1);
+        mem_free(r2);
         return val;
     }
 
@@ -63,8 +65,8 @@ seq_t a(idx_t n)
     seq_t *cur      = NULL;
 
     for (idx_t i = 3; i <= r; ++i) {
-        cur = (seq_t *)calloc((size_t)(i + 1), sizeof(seq_t));
-        if (!cur) { free(prevprev); free(prev); return 0; }
+        cur = mem_new(seq_t, (size_t)(i + 1));
+        if (!cur) { mem_free(prevprev); mem_free(prev); return 0; }
 
         for (idx_t j = 1; j <= i; ++j) {
             if (j == 1 || j == i) {
@@ -79,14 +81,14 @@ seq_t a(idx_t n)
         }
 
         /* shift rows for next iteration */
-        free(prevprev);
+        mem_free(prevprev);
         prevprev = prev;
         prev = cur;
     }
 
     /* prev now points to the desired row r */
     seq_t result = prev[k];
-    free(prevprev);
-    free(prev);
+    mem_free(prevprev);
+    mem_free(prev);
     return result;
 }

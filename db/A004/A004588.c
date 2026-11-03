@@ -9,7 +9,8 @@
  *            multi-precision limbs
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmpbig, growz, subbig
+ * Validated: standard, pass, 115 terms through n = 9659 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,32 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/cmpbig.h"
-#include "../utils/growz.h"
-#include "../utils/subbig.h"
+
+static int cmpbig(const uint32_t *x, size_t xl, const uint32_t *y, size_t yl) {
+    size_t i;
+    if (xl != yl) return xl < yl ? -1 : 1;
+    for (i = xl; i-- > 0;) {
+        if (x[i] != y[i]) return x[i] < y[i] ? -1 : 1;
+    }
+    return 0;
+}
+
+static uint32_t *growz(uint32_t *old, size_t oldc, size_t newc) {
+    uint32_t *r = (uint32_t *)realloc(old, newc * sizeof(uint32_t));
+    memset(r + oldc, 0, (newc - oldc) * sizeof(uint32_t));
+    return r;
+}
+
+static void subbig(uint32_t *x, size_t *xl, const uint32_t *y, size_t yl) {
+    int64_t borrow = 0;
+    size_t i;
+    for (i = 0; i < *xl; i++) {
+        int64_t v = (int64_t)x[i] - borrow - (i < yl ? (int64_t)y[i] : 0);
+        if (v < 0) { v += ((int64_t)1 << 32); borrow = 1; } else borrow = 0;
+        x[i] = (uint32_t)v;
+    }
+    while (*xl > 0 && x[*xl - 1] == 0) (*xl)--;
+}
 
 static uint32_t *P = NULL, *C = NULL, *T = NULL;
 static size_t pl = 0, cl = 0, cap = 0;

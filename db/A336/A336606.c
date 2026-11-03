@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! - Σ_{k=1..n} (-1)^k * binom(n,k)^2 * a(n-k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* a(0) = 1                                                            */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,13 +33,13 @@ seq_t a(idx_t n)
     /* enlarge cache if necessary */
     if (cache_cap <= n) {
         cache_cap = n + 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* enlarge factorial array if necessary */
     if (fact_cap <= n) {
         fact_cap = n + 1;
-        fact = (seq_t *)realloc(fact, sizeof(seq_t) * fact_cap);
+        fact = mem_resize(seq_t, fact, fact_cap);
     }
 
     /* pre‑compute all terms up to n (if not already done) */

@@ -9,7 +9,8 @@
  *            of primes <= p
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   _smallest_prime_factor, compute_pi
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-01)
+ * Helpers:   prime_pi, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/compute_pi.h"
+#include "../utils/prime_pi.h"
+#include "../utils/smallest_prime_factor.h"
 
 /* Comparator for qsort on idx_t */
 static int cmp_idx(const void *a, const void *b)
@@ -42,11 +43,11 @@ seq_t a(idx_t n)
 
     uint64_t temp = (uint64_t)n;
     while (temp > 1 && cnt < sizeof(idx_buf)/sizeof(idx_buf[0])) {
-        uint64_t p = _smallest_prime_factor(temp);
+        uint64_t p = smallest_prime_factor(temp);
         /* Count multiplicity */
         while (temp % p == 0) {
             if (cnt >= sizeof(idx_buf)/sizeof(idx_buf[0])) break;
-            idx_t pi = (idx_t)compute_pi(p); /* index of prime p */
+            idx_t pi = (idx_t)prime_pi(p); /* index of prime p */
             idx_buf[cnt++] = pi;
             temp /= p;
         }

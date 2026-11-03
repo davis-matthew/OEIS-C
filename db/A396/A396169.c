@@ -12,7 +12,8 @@
  *            by the third player, where n ≥ 1
  * Range:     u8 n <= 17, u16 n <= 4848, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   raw_key_from_xy
+ * Validated: standard, pass, 69 terms through n = 9892 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/raw_key_from_xy.h"
+#include "../utils/mem.h"
+
+static inline uint64_t raw_key_from_xy(int64_t x, int64_t y)
+{
+    /* shift both coordinates into the positive range and pack them */
+    return (((uint64_t)(x + (1LL << 31)) << 32) |
+            (uint64_t)(y + (1LL << 31)));
+}
 
 /* ---------- Integer square root (floor) for 64‑bit values ---------- */
 static uint64_t isqrt64(uint64_t x)
@@ -143,7 +151,7 @@ static void init_state(void)
 {
     if (seq_buf) return;          /* already initialized */
     seq_cap = 65536;              /* initial capacity */
-    seq_buf = (seq_t *)malloc(sizeof(seq_t) * seq_cap);
+    seq_buf = mem_new(seq_t, seq_cap);
     for (int p = 1; p <= 7; ++p) cur_pos[p] = 0;
     hash_init();
     turn_counter = 1;
@@ -155,7 +163,7 @@ static void ensure_seq_capacity(void)
 {
     if (seq_len < seq_cap) return;
     size_t new_cap = seq_cap * 2;
-    seq_t *new_buf = (seq_t *)realloc(seq_buf, sizeof(seq_t) * new_cap);
+    seq_t *new_buf = mem_resize(seq_t, seq_buf, new_cap);
     if (!new_buf) exit(1);      /* out of memory */
     seq_buf = new_buf;
     seq_cap = new_cap;

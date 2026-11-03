@@ -10,14 +10,17 @@
  *            r(r+1)/2 ≤ n ), k = n - r(r+1)/2
  * Range:     u8 n <= 23, u16 n <= 50, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +48,7 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (idx_t m = 1; m <= k; ++m) {
         seq_t bin = binomial(k - 1, m - 1);
-        seq_t pw  = big_pow((seq_t)(m + 1), (seq_t)(r - m));
+        seq_t pw  = ipow((seq_t)(m + 1), (seq_t)(r - m));
         sum += bin * pw;
     }
     return sum;

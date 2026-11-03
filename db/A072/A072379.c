@@ -9,12 +9,14 @@
  *            of k
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 1624, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 9986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *sigma = NULL;   /* σ(1..N) */
 static seq_t *pref  = NULL;   /* prefix sums Σ σ(i)^2 */
@@ -25,12 +27,12 @@ seq_t a(idx_t n) {
 
     if (n > cached) {
         /* free old buffers if any */
-        free(sigma);
-        free(pref);
+        mem_free(sigma);
+        mem_free(pref);
 
         /* allocate new buffers (1-based indexing, +1 for dummy 0) */
-        sigma = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
-        pref  = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+        sigma = mem_new(seq_t, (size_t)(n + 1));
+        pref  = mem_new(seq_t, (size_t)(n + 1));
         if (!sigma || !pref) {
             /* allocation failure – should never happen in tests */
             return 0;

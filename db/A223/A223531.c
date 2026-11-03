@@ -12,13 +12,16 @@
  *            of the operator 6^((n-1)/2)*(x^(1/6)d/dx)^n wh...
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 29, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial.h"   // seq_t binomial(idx_t n, idx_t k);
-#include "../utils/pow_uint.h"   // seq_t pow_uint(uint64_t base, idx_t exp);
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
     seq_t result = binomial(r - 1, k - 1);
 
     /* Multiply by 6^(k-1) */
-    result *= pow_uint(6, k - 1);
+    result *= ipow_u64_idx(6, k - 1);
 
     /* Multiply by the product of (6*i + 1) for i = k … r-1 */
     for (idx_t i = k; i <= r - 1; ++i)

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k=0..⌊n/2⌋} 3^{n‑k} * Stirling2(n, 2k)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /*              idx_t  – type for indices (provided in the build, uint64_t)   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,9 +32,9 @@ seq_t a(idx_t n)
     /* Initialisation: create arrays of initial capacity 16.            */
     if (S == NULL) {
         cap = 16;
-        S       = (seq_t *)malloc(cap * sizeof(seq_t));
-        pow3    = (seq_t *)malloc(cap * sizeof(seq_t));
-        a_cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        S       = mem_new(seq_t, cap);
+        pow3    = mem_new(seq_t, cap);
+        a_cache = mem_new(seq_t, cap);
         if (!S || !pow3 || !a_cache) return (seq_t)0; /* allocation failure */
 
         /* base values: n = 0 */
@@ -46,9 +48,9 @@ seq_t a(idx_t n)
     if (n >= cap) {
         idx_t old_cap = cap;
         do { cap <<= 1; } while (cap <= n);
-        S       = (seq_t *)realloc(S,       cap * sizeof(seq_t));
-        pow3    = (seq_t *)realloc(pow3,    cap * sizeof(seq_t));
-        a_cache = (seq_t *)realloc(a_cache, cap * sizeof(seq_t));
+        S       = mem_resize(seq_t, S, cap);
+        pow3    = mem_resize(seq_t, pow3, cap);
+        a_cache = mem_resize(seq_t, a_cache, cap);
         if (!S || !pow3 || !a_cache) return (seq_t)0; /* allocation failure */
 
         for (idx_t i = old_cap; i < cap; ++i) {

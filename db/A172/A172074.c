@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Surd constants */
 static const uint64_t D = 12500ull;     /* the integer under the square root */
@@ -45,7 +47,7 @@ static void ensure_cached(idx_t n) {
     /* Lazy allocation of the cache array. */
     if (len == 0) {
         cap = 8;
-        cached = (seq_t *)malloc(cap * sizeof(seq_t));
+        cached = mem_new(seq_t, cap);
     }
 
     /* Generate terms until the requested index is filled. */
@@ -56,7 +58,7 @@ static void ensure_cached(idx_t n) {
         /* Grow the cache array if necessary. */
         if (len == cap) {
             size_t new_cap = cap << 1;
-            seq_t *tmp = (seq_t *)realloc(cached, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cached, new_cap);
             cached = tmp;
             cap = new_cap;
         }

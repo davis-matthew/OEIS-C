@@ -8,14 +8,16 @@
  * Formula:   a(n) = Sum_{j=0..i} binom(i,j) * binom(k*i+j,j) where (i,k) are
  *            obtained by reading the square array A(i,k) by antidiagonals.
  *            This implements OEIS A387934
- * Range:     u8 n <= 18, u16 n <= 40, u32 n <= 54, u64 n <= 54, u128 n <= 54,
+ * Range:     u8 n <= 18, u16 n <= 41, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (idx_t j = 0; j <= row; ++j)
     {
-        seq_t bj = binom(row, j);
-        seq_t bk = binom((idx_t)((__uint128_t)col * row + j), j);
+        seq_t bj = binomial(row, j);
+        seq_t bk = binomial((idx_t)((__uint128_t)col * row + j), j);
         sum += bj * bk;
     }
     return sum;

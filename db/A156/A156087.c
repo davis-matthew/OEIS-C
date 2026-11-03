@@ -9,13 +9,15 @@
  *            + a(n-3) + 2 (n>=3)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage as required. */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Allocate and initialise the cache on the first call. */
     if (cache == NULL) {
         size_t init_len = (n + 1 > 3) ? (n + 1) : 3;            /* need at least 3 slots */
-        cache = (seq_t *)malloc(init_len * sizeof(seq_t));
+        cache = mem_new(seq_t, init_len);
         if (!cache) return 0;                                 /* allocation failed */
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary. */
     if (cache_len <= n) {
         size_t new_len = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return 0;                                 /* reallocation failed */
         cache = tmp;
         cache_len = new_len;

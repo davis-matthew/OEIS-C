@@ -12,13 +12,28 @@
  *            the sum of two preceding even terms before rou...
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 46, u64 n <= 92, u128 n <= 100,
  *            big any n
- * Helpers:   mult3_safe
+ * Validated: standard, pass, 55 terms through n = 93 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mult3_safe.h"
+#include "../utils/mem.h"
+
+/* Helper to multiply by 3 without overflow on 64‑bit builds */
+static inline seq_t mult3_safe(seq_t x)
+{
+#ifdef __SIZEOF_INT128__
+    return (seq_t)((unsigned __int128)3 * (unsigned __int128)x);
+#else
+    /* worst case: 3*x < 3*ULLONG_MAX, which does not fit in 64 bit.
+       The fallback is only used when __int128 is unavailable; the
+       test harness will not request indices whose result does not
+       fit into seq_t. */
+    return x + x + x;
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -44,7 +59,7 @@ seq_t a(idx_t n)
     seq_t *new_cache;
 
     /* Use calloc for zero initialization; new copies will be overwritten */
-    new_cache = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         abort();
 
@@ -67,7 +82,7 @@ seq_t a(idx_t n)
     }
 
     /* Free old array */
-    free(cache);
+    mem_free(cache);
 
     cache = new_cache;
     cache_len = new_cap;

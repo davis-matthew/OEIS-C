@@ -10,12 +10,14 @@
  *            a(10)=40 Offset: n ≥ 2
  * Range:     u8 n <= 13, u16 n <= 25, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n);  /* pre-declaration for clarity */
 
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     if (req < 11) req = 11;            /* reserve space for indices 2..10 */
     if (req > cap) {
         size_t newcap = req;
-        seq_t *newptr = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, cache, newcap);
         if (!newptr) abort();          /* out of memory */
         /* Initialize newly allocated slots to zero (uncomputed). */
         for (size_t i = cap; i < newcap; ++i) newptr[i] = 0;

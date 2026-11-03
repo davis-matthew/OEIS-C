@@ -11,7 +11,8 @@
  *            (0,1,1), (1,0,0), (1,0,1) }
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Modular exponentiation (uint64_t version). */
 static uint64_t mod_pow_uint64(uint64_t a, uint64_t e, uint64_t mod)
@@ -124,10 +126,10 @@ seq_t a(idx_t n)
         /* Dynamic programming to compute the prefix. */
         seq_t *dp[2];
         size_t SZ = DIM * DIM;
-        dp[0] = (seq_t*)calloc(SZ, sizeof(seq_t));
-        dp[1] = (seq_t*)calloc(SZ, sizeof(seq_t));
+        dp[0] = mem_new(seq_t, SZ);
+        dp[1] = mem_new(seq_t, SZ);
         if (!dp[0] || !dp[1]) {
-            free(dp[0]); free(dp[1]);
+            mem_free(dp[0]); mem_free(dp[1]);
             return (seq_t)0;
         }
 
@@ -136,7 +138,7 @@ seq_t a(idx_t n)
 
         for (size_t step = 0; step < PREFIX; ++step) {
             size_t cur = step & 1, nxt = cur ^ 1;
-            memset(dp[nxt], 0, SZ * sizeof(seq_t));
+            mem_set(dp[nxt], 0, SZ * sizeof(seq_t));
 
             for (size_t x = 0; x <= step; ++x) {
                 for (size_t y = 0; y <= step; ++y) {
@@ -163,7 +165,7 @@ seq_t a(idx_t n)
             base[step + 1] = sum;
         }
 
-        free(dp[0]); free(dp[1]);
+        mem_free(dp[0]); mem_free(dp[1]);
 
         /* ---------- 2. Determine recurrence via Berlekamp-Massey ---------- */
         const uint64_t primes[3] = {1000003ULL, 1000033ULL, 1000037ULL};
@@ -203,7 +205,7 @@ seq_t a(idx_t n)
         return base[(size_t)n];
 
     size_t sz = (size_t)n + 1;
-    seq_t *arr = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, sz);
     if (!arr) return (seq_t)0;
 
     for (size_t i = 0; i < K; ++i)
@@ -217,6 +219,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

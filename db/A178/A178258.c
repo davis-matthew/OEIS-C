@@ -11,13 +11,14 @@
  *            that line
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 37 terms through n = 37 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 static inline idx_t gcd_idx(idx_t a, idx_t b) {
     while (b) {
@@ -32,7 +33,7 @@ seq_t a(idx_t n) {
     if (n < 6) return 0;
 
     /* contribution from horizontal and vertical lines */
-    seq_t lines_per_axis = binom(n, 6);   /* C(n,6) */
+    seq_t lines_per_axis = binomial(n, 6);   /* C(n,6) */
     seq_t total = lines_per_axis * (seq_t)(2 * n);  /* 2 axes, each with n lines */
 
     /* iterate over primitive direction vectors (dx>0, dy>0) */
@@ -75,7 +76,7 @@ seq_t a(idx_t n) {
                                     cnt_at_least_L - cnt_at_least_L1 : 0;
                 if (!lines_exact) continue;
 
-                seq_t ways = binom(L, 6);         /* C(L,6) */
+                seq_t ways = binomial(L, 6);         /* C(L,6) */
                 contrib += ways * (seq_t)lines_exact;
             }
 

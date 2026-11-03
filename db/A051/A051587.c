@@ -9,23 +9,25 @@
  *            5^n
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 33 terms through n = 812 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
-    seq_t p16 = pow_uint(16, n);
-    seq_t p12 = pow_uint(12, n);
-    seq_t p10 = pow_uint(10, n);
-    seq_t p9  = pow_uint(9,  n);
-    seq_t p8  = pow_uint(8,  n);
-    seq_t p7  = pow_uint(7,  n);
-    seq_t p6  = pow_uint(6,  n);
-    seq_t p5  = pow_uint(5,  n);
+    seq_t p16 = ipow_u64_idx(16, n);
+    seq_t p12 = ipow_u64_idx(12, n);
+    seq_t p10 = ipow_u64_idx(10, n);
+    seq_t p9  = ipow_u64_idx(9,  n);
+    seq_t p8  = ipow_u64_idx(8,  n);
+    seq_t p7  = ipow_u64_idx(7,  n);
+    seq_t p6  = ipow_u64_idx(6,  n);
+    seq_t p5  = ipow_u64_idx(5,  n);
 
     /* Sum of positive terms */
     seq_t sum_pos = p16;

@@ -9,7 +9,8 @@
  *            == digit_count_base8(k)
  * Range:     u8 n <= 17, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digits_base8
+ * Validated: standard, pass, 71 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/digits_base8.h"
+#include "../utils/mem.h"
+
+/* Number of digits of n in base 8. */
+static int
+digits_base8(uint64_t n)
+{
+    int d = 0;
+    do
+    {
+        ++d;
+        n /= 8;
+    } while (n > 0);
+    return d;
+}
 
 static uint32_t primes[3000];
 static size_t primes_len = 0;
@@ -96,7 +110,7 @@ append_cache(seq_t val)
     if (cache_len == cache_capacity)
     {
         size_t new_cap = cache_capacity == 0 ? 8 : cache_capacity * 2;
-        seq_t *new_ptr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, seq_cache, new_cap);
         if (!new_ptr) abort(); /* In production, handle error. */
         seq_cache = new_ptr;
         cache_capacity = new_cap;

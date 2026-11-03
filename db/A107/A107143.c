@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 6, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
- *            big any n
- * Helpers:   seq_isqrt
+ * Range:     u8 n <= 6, u16 n <= 540, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 59 terms through n = 8623 (2026-11-03)
+ * Helpers:   isqrt_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_isqrt.h"
+#include "../utils/isqrt_seq.h"
+#include "../utils/mem.h"
 
 /* ---------- Prime sieve for trial division ---------- */
 static uint32_t *prime_small = NULL;   /* array of primes up to prime_small_cap */
@@ -138,20 +140,20 @@ static void ensure_prime_list(idx_t n)
     while (prime_list_used < (size_t)n) {
         if (isprime_seq(next_candidate)) {
             /* test if next_candidate == 2*x^2 + 19*y^2 */
-            seq_t y_max = seq_isqrt(next_candidate / (seq_t)19);
+            seq_t y_max = isqrt_seq(next_candidate / (seq_t)19);
             bool ok = false;
             for (seq_t y = 0; y <= y_max; ++y) {
                 seq_t py = (seq_t)19 * y * y;
                 seq_t rem = next_candidate - py;
                 if ((rem & (seq_t)1) != 0) continue;  /* must be even */
                 seq_t half = rem / (seq_t)2;
-                seq_t x = seq_isqrt(half);
+                seq_t x = isqrt_seq(half);
                 if (x * x == half) { ok = true; break; }
             }
             if (ok) {
                 if (prime_list_used == prime_list_cap) {
                     size_t new_cap = prime_list_cap == 0 ? 64 : prime_list_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(prime_list, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, prime_list, new_cap);
                     if (!tmp) abort();
                     prime_list = tmp;
                     prime_list_cap = new_cap;

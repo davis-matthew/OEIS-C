@@ -8,7 +8,8 @@
  * Formula:   a(n) = n * A001156(n) (partitions of n into squares)
  * Range:     u8 n <= 20, u16 n <= 89, u32 n <= 493, u64 n <= 3172,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 8291 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
     using a dynamic programming approach and returns n multiplied by that count. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;      /* working array for partition counts */
 static size_t  dp_cap = 0;    /* current capacity of dp[ ] */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Ensure dp has space for indices 0..n */
     size_t size = (size_t)n + 1;
     if (size > dp_cap) {
-        seq_t *tmp = (seq_t *)realloc(dp, size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, size);
         if (!tmp) return (seq_t)0;   /* allocation failure → 0 */
         dp = tmp;
         dp_cap = size;

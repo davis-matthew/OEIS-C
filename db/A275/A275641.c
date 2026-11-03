@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of q^n in (1-q)^7 / ∏_{j=1..7}(1-q^j)
  * Range:     i8 n <= 30, i16 n <= 614, i32 n <= 5000, i64 n <= 5000,
  *            i128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 4677 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration - the required function */
 seq_t a(idx_t n);
@@ -53,7 +55,7 @@ static void init_sequence(void)
 
     /* Allocate cache, compute first 28 terms */
     cache_cap = 30;
-    cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+    cache = mem_new(seq_t, cache_cap);
 
     for (size_t n = 0; n < 28; n++) {
         seq_t sum = 0;
@@ -76,7 +78,7 @@ static void ensure_cache(idx_t n)
 
     if (req > cache_cap) {
         size_t new_cap = req * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return;            /* allocation failed */
         cache = tmp;
         cache_cap = new_cap;

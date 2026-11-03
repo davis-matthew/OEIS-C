@@ -12,12 +12,14 @@
  *            a(7)=6842284, a(8)=19692165, a(9)=50724037, a(10)=119421753
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 15, u64 n <= 191, u128 n <= 207,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     if (!cache) {
         /* allocate space for the first 10 terms plus a dummy 0 field */
         size_t init_size = 11;
-        cache = (seq_t*)malloc(sizeof(seq_t) * init_size);
+        cache = mem_new(seq_t, init_size);
         if (!cache)
             return 0;                     /* allocation failed */
         /* copy the known initial terms */
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
 
     /* enlarge the cache to hold up to n */
     size_t new_size = n + 1;
-    seq_t *new_cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache)
         return 0;                         /* allocation failed */
     cache = new_cache;

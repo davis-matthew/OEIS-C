@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 83, i16 n <= 83, i32 n <= 83, i64 n <= 83, i128 n <= 83,
  *            big any n
- * Helpers:   liouville
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,24 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/liouville.h"
+
+/* Liouville's function λ(k) = (-1)^{Ω(k)} */
+static inline seq_t liouville(idx_t k)
+{
+    if (k <= 1)
+        return (seq_t)1;          /* λ(1) = 1 */
+    int parity = 0;               /* parity of Ω(k) */
+    idx_t m = k;
+    for (idx_t p = 2; p * p <= m; ++p) {
+        while (m % p == 0) {
+            parity ^= 1;          /* toggle parity for each prime factor */
+            m /= p;
+        }
+    }
+    if (m > 1)                    /* remaining prime factor */
+        parity ^= 1;
+    return parity ? (seq_t)-1 : (seq_t)1;
+}
 
 seq_t a(idx_t n)
 {

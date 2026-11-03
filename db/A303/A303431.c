@@ -10,14 +10,17 @@
  *            themselves aperiodic tree numbers
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   gcd_int
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   gcd_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd_int.h"
+#include <stddef.h>
+#include "../utils/gcd_i32.h"
+#include "../utils/mem.h"
 
 /* Global data for incremental sieve and aperiodic number table */
 static int      *spf          = NULL; /* smallest prime factor */
@@ -56,7 +59,7 @@ static void init_once(void) {
 
     /* aperiodic table: only 1 so far */
     ap_cap = 1;
-    ap_vals = (seq_t *)realloc(ap_vals, ap_cap * sizeof(seq_t));
+    ap_vals = mem_resize(seq_t, ap_vals, ap_cap);
     ap_vals[0] = (seq_t)1;
     ap_cnt = 1;
 
@@ -138,7 +141,7 @@ static void extend_to(size_t new_limit) {
 
         /* check perfect power: gcd of exponents > 1 means perfect power */
         int g = exp[0];
-        for (int i = 1; i < cnt; ++i) g = gcd_int(g, exp[i]);
+        for (int i = 1; i < cnt; ++i) g = gcd_i32(g, exp[i]);
         if (g > 1) continue;            /* not aperiodic */
 
         /* verify all prime indices are aperiodic */
@@ -152,7 +155,7 @@ static void extend_to(size_t new_limit) {
         is_ap[n] = 1;
         if (ap_cnt == ap_cap) {
             ap_cap = ap_cap ? ap_cap * 2 : 4;
-            ap_vals = (seq_t *)realloc(ap_vals, ap_cap * sizeof(seq_t));
+            ap_vals = mem_resize(seq_t, ap_vals, ap_cap);
         }
         ap_vals[ap_cnt++] = (seq_t)n;
     }

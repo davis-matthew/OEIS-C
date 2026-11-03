@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 216, u32 n <= 672, u64 n <= 2284,
  *            u128 n <= 8257, big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: standard, pass, 91 terms through n = 9845 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,28 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdint.h>
+#include <stdbool.h>
+
+/* Allocate an array of seq_t, compatible with C and C++ */
+static inline seq_t *alloc_seq_array(size_t cap)
+{
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t *)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+/* Free an array of seq_t, compatible with C and C++ */
+static inline void free_seq_array(seq_t *ptr)
+{
+#ifdef __cplusplus
+    delete [] ptr;
+#else
+    free(ptr);
+#endif
+}
 
 static seq_t *dp = NULL;   /* DP array holding a(0) … a(max) */
 static idx_t  dp_max = 0;  /* largest n for which dp has been computed */

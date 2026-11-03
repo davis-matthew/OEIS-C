@@ -8,12 +8,15 @@
  * Formula:   a(n) = 3^n - (2^(n-3))*(n^2 + 3*n + 8) for n ≥ 0
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 46 terms through n = 965 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -22,10 +25,10 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* 3^n using the generic power helper */
-    seq_t pow3 = seq_pow((seq_t)3, n);
+    seq_t pow3 = ipow_idx((seq_t)3, n);
 
     /* 2^(n-3) using the same helper */
-    seq_t pow2 = seq_pow((seq_t)2, n - 3);
+    seq_t pow2 = ipow_idx((seq_t)2, n - 3);
 
     /* Polynomial n^2 + 3*n + 8 */
     seq_t ns   = (seq_t)n;

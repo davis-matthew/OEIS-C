@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* simple deterministic prime test suitable for values up to ~2^64   */
 static bool is_prime_uint64(uint64_t n)
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     if (n > perm_cap) {
         size_t new_cap = perm_cap ? perm_cap : 1;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(perm, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, perm, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         perm = tmp;
         perm_cap = new_cap;

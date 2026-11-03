@@ -12,13 +12,15 @@
  *            (-1)^j * C(k-1,j) * (k-j)^(n-k)
  * Range:     u8 n <= 31, u16 n <= 58, u32 n <= 113, u64 n <= 261,
  *            u128 n <= 635, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 79 terms through n = 9319 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
 
     for (idx_t j = 0; j < k; ++j) {
         seq_t base   = (seq_t)(k - j);
-        seq_t pow_val = big_pow(base, (seq_t)exp);
+        seq_t pow_val = ipow(base, (seq_t)exp);
         seq_t term = binom * pow_val;
 
         if ((j & 1) == 0)

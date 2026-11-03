@@ -9,12 +9,14 @@
  *            ≤4)
  * Range:     u8 n <= 14, u16 n <= 103, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;
 static idx_t precomp_max = (idx_t)-1;  /* invalid initial value */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Allocate or resize the DP table if necessary.  We recompute
        the entire table each time m increases to avoid double counting. */
     if (dp == NULL || m > precomp_max) {
-        seq_t *newdp = (seq_t *)realloc(dp, (size_t)(m + 1) * sizeof(seq_t));
+        seq_t *newdp = mem_resize(seq_t, dp, (size_t)(m + 1));
         if (!newdp) return (seq_t)0;     /* out‑of‑memory fallback */
         dp = newdp;
 

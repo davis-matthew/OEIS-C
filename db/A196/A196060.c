@@ -12,7 +12,8 @@
  *            n into primes to get child indices. Me...
  * Range:     u8 n <= 54, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   build_primes
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 /* Utility functions available from the build. */
 #include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 /* Static storage for recursion results. */
 static idx_t cache_max = 0;
@@ -72,20 +74,20 @@ static void ensure_cache(idx_t n) {
     if (cache_max >= n) return;
 
     /* free old cache if present */
-    if (N)     free(N);
-    if (D)     free(D);
-    if (D2)    free(D2);
-    if (S)     free(S);
-    if (S2)    free(S2);
+    if (N)     mem_free(N);
+    if (D)     mem_free(D);
+    if (D2)    mem_free(D2);
+    if (S)     mem_free(S);
+    if (S2)    mem_free(S2);
     if (computed) free(computed);
 
     size_t sz = (size_t)(n + 1);   /* 0…n inclusive */
 
-    N = (seq_t *)calloc(sz, sizeof(seq_t));
-    D = (seq_t *)calloc(sz, sizeof(seq_t));
-    D2 = (seq_t *)calloc(sz, sizeof(seq_t));
-    S = (seq_t *)calloc(sz, sizeof(seq_t));
-    S2 = (seq_t *)calloc(sz, sizeof(seq_t));
+    N = mem_new(seq_t, sz);
+    D = mem_new(seq_t, sz);
+    D2 = mem_new(seq_t, sz);
+    S = mem_new(seq_t, sz);
+    S2 = mem_new(seq_t, sz);
     computed = (uint8_t *)calloc(sz, sizeof(uint8_t));
 
     /* base case: one‑vertex tree (n = 1) */

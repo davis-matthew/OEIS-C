@@ -11,13 +11,19 @@
  *            a(2)=T(1,2), a(3)=T(2,1), a(4)=T(1,3),
  * Range:     u8 n <= 243, u16 n <= 9870, u32 n <= 9870, u64 n <= 9870,
  *            u128 n <= 9870, big any n
- * Helpers:   antidiag_start
+ * Validated: standard, pass, 83 terms through n = 9415 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/antidiag_start.h"
+
+/* start index of antidiagonal t  (t >= 0) */
+static inline idx_t antidiag_start(idx_t t)
+{
+    return ( ( ( (__int128) t * (t + 1) ) / 2 ) ) + 1;
+}
 
 /* find t such that antidiag_start(t) <= n < antidiag_start(t+1) */
 static inline idx_t find_t(idx_t n)

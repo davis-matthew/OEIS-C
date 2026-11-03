@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 7, u64 n <= 17, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -44,6 +45,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper tables – static, global */
 static uint8_t diffMask[32][32];          /* difference mask of a row pair      */
@@ -104,7 +106,7 @@ static void init_globals(void)
                 sum += dp_cur[r][m];
     }
 
-    a_cache = (seq_t *)malloc( (size_t)2 * sizeof(seq_t) );
+    a_cache = mem_new(seq_t, (size_t)2);
     a_cache[0] = (seq_t)0;    /* unused, offset 1 */
     a_cache[1] = sum;
     cache_cap  = 2;
@@ -116,7 +118,7 @@ static void ensure_cache(idx_t n)
 {
     if (n >= cache_cap) {
         size_t newcap = (size_t)n + 1;
-        a_cache = (seq_t *)realloc(a_cache, newcap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, newcap);
         cache_cap = newcap;
     }
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 98, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   alloc_seq_array, divisor_count_u64
+ * Validated: standard, pass, 77 terms through n = 1889 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,15 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/alloc_seq_array.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *terms = NULL;        /* array of found terms */
 static const size_t TERMS_CAPACITY = 20000; /* enough for n up to ~10000 */
@@ -50,9 +58,9 @@ seq_t a(idx_t n)
         ++last_checked;   /* move to the next integer */
 
         /* Compute d(last_checked) and d(last_checked + d(last_checked)). */
-        uint64_t d_n = divisor_count_u64(last_checked);
+        uint64_t d_n = num_divisors(last_checked);
         uint64_t m   = last_checked + d_n;
-        uint64_t d_m = divisor_count_u64(m);
+        uint64_t d_m = num_divisors(m);
 
         if (d_m > d_n) {
             /* Store the term.  The cast is safe for all supported seq_t. */

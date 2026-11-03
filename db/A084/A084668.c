@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   _smallest_prime_factor, digit_len, digit_sum
+ * Validated: full, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   digit_sum, mem, num_digits, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,16 +22,16 @@
    memoisation.  The function may be called in any order; terms are
    stored in a static cache that is expanded only when needed.  */
 
-
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 
 /* Utilities */
-#include "../utils/digit_sum.h"   /* seq_t digit_sum(seq_t) */
-#include "../utils/digit_len.h"   /* int digit_len(seq_t) */
-#include "../utils/_smallest_prime_factor.h"  /* uint64_t _smallest_prime_factor(uint64_t) */
-
+#include <stddef.h>
+#include "../utils/digit_sum.h"
+#include "../utils/num_digits.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -62,22 +63,22 @@ seq_t a(idx_t n)
         }
 
         /* 2. Semiprime with exactly two prime factors. */
-        uint64_t p = _smallest_prime_factor(cand64);
+        uint64_t p = smallest_prime_factor(cand64);
         if (p == cand64)                 /* candidate itself is prime */
         {
             ++next_candidate;
             continue;
         }
         uint64_t q = cand64 / p;
-        if (_smallest_prime_factor(q) != q)   /* q not prime -> more than two factors */
+        if (smallest_prime_factor(q) != q)   /* q not prime -> more than two factors */
         {
             ++next_candidate;
             continue;
         }
 
         /* 3. Prime factors must have the same decimal length. */
-        int dl_p = digit_len((seq_t)p);
-        int dl_q = digit_len((seq_t)q);
+        int dl_p = num_digits((seq_t)p);
+        int dl_q = num_digits((seq_t)q);
         if (dl_p != dl_q)
         {
             ++next_candidate;
@@ -88,7 +89,7 @@ seq_t a(idx_t n)
         if (cache_len == cache_cap)
         {
             size_t new_cap = cache_cap ? cache_cap << 1 : 4;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();          /* allocation failure – stop the program */
             cache      = tmp;
             cache_cap  = new_cap;

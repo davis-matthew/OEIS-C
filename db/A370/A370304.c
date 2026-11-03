@@ -9,12 +9,14 @@
  *            (G.f.: (1 - x + x² + x³)/(1 - x - x²)³)
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Initialise cache with first 6 terms */
     if (cache == NULL) {
         cache_size = 6;
-        cache = (seq_t *)malloc((size_t)cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_size);
         if (!cache) return 0;          /* allocation failed */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)2;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
     /* Enlarge cache to accommodate up to index n */
     idx_t new_size = n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_size);
     if (!tmp) return 0;          /* allocation failed */
     cache = tmp;
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------- */
 /*  Global data                                              */
@@ -63,7 +65,7 @@ static void ensure_f_coeff(idx_t e)
     if (e < f_size) return;               /* already computed */
 
     size_t new_size = e + 1;
-    seq_t *tmp = (seq_t *)realloc(f_coeff, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, f_coeff, new_size);
     if (!tmp && new_size > 0) abort();    /* allocation failed */
     f_coeff = tmp;
 
@@ -93,7 +95,7 @@ static void recompute_powers(idx_t r)
     /* free previous tables   */
     if (pow_arr) {
         for (idx_t p = 4; p <= pow_max_pow; ++p)
-            free(pow_arr[p]);
+            mem_free(pow_arr[p]);
         free(pow_arr);
     }
 
@@ -105,23 +107,23 @@ static void recompute_powers(idx_t r)
     ensure_f_coeff(r);
 
     /* temporary arrays for intermediate powers */
-    seq_t *f2 = (seq_t *)calloc(r + 1, sizeof(seq_t));
+    seq_t *f2 = mem_new(seq_t, r + 1);
     poly_mul(f_coeff, f_coeff, r, f2);
 
-    seq_t *f3 = (seq_t *)calloc(r + 1, sizeof(seq_t));
+    seq_t *f3 = mem_new(seq_t, r + 1);
     poly_mul(f2, f_coeff, r, f3);
 
-    seq_t *f4 = (seq_t *)calloc(r + 1, sizeof(seq_t));
+    seq_t *f4 = mem_new(seq_t, r + 1);
     poly_mul(f3, f_coeff, r, f4);
     pow_arr[4] = f4;                      /* store f^4 */
 
-    free(f2);
-    free(f3);
+    mem_free(f2);
+    mem_free(f3);
 
     /* successive powers f^5, f^6, ... , f^(pmax) */
     for (idx_t p = 5; p <= pmax; ++p) {
         seq_t *prev  = pow_arr[p - 1];
-        seq_t *next  = (seq_t *)calloc(r + 1, sizeof(seq_t));
+        seq_t *next  = mem_new(seq_t, r + 1);
         poly_mul(prev, f_coeff, r, next);
         pow_arr[p] = next;
     }

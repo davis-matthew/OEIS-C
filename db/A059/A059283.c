@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 51, u32 n <= 133, u64 n <= 430,
  *            u128 n <= 1427, big any n
- * Helpers:   compute_row
+ * Validated: standard, pass, 75 terms through n = 7221 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,7 +36,21 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/compute_row.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static idx_t compute_row(idx_t n)
+{
+    /* initial estimate from the quadratic formula */
+    double d     = sqrt((double)(8.0 * (double)n + 1.0));
+    idx_t   r     = (idx_t)((d - 1.0) * 0.5);
+    /* adjust up or down with exact 128‑bit arithmetic              */
+    while (((unsigned __int128)(r + 1) * (r + 2)) / 2 <= n)
+        r++;
+    while (((unsigned __int128)r * (r + 1)) / 2 > n)
+        r--;
+    return r;
+}
 
 /* ------------------------------------------------------------------ */
 /* Internal storage – dynamically grown arrays                       */
@@ -64,7 +79,7 @@ static void init_once(void)
 
     /* initial capacity for tri – will grow as needed            */
     tri_cap = 16;
-    tri = (seq_t *)malloc((size_t)tri_cap * sizeof(seq_t));
+    tri = mem_new(seq_t, (size_t)tri_cap);
     if (!tri)
         exit(EXIT_FAILURE);
     tri[0] = (seq_t)1; /* T(0,0) = 1 */
@@ -105,7 +120,7 @@ static void ensure_rows(idx_t r)
             size_t new_cap = tri_cap ? (size_t)tri_cap * 2 : 16;
             while (new_cap < need)
                 new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(tri, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, tri, new_cap);
             if (!tmp)
                 exit(EXIT_FAILURE);
             tri = tmp;

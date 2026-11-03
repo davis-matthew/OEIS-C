@@ -7,7 +7,8 @@
  * Formula:   a(n) = smallest m! such that the decimal representation of
  * Range:     u8 none, u16 none, u32 n <= 2, u64 n <= 2, u128 n <= 5,
  *            big any n
- * Helpers:   digit_frequencies, mul_small
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   digit_frequencies
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,21 @@
 /*---------------------------------------------------------------------*/
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/mul_small.h"
+#include <stdlib.h>
 #include "../utils/digit_frequencies.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 #define MAX_N_FOR_CACHING 20000   /* enough for the test range */
 

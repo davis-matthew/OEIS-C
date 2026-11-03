@@ -8,13 +8,15 @@
  * Formula:   a(n) = binom(n+3,4) - Σ_{j=2..n} a(floor(n/j)) (A015634)
  * Range:     u8 n <= 2, u16 n <= 14, u32 n <= 576, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9772 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values.  cache[0] is unused. */
 static seq_t *cache = NULL;
@@ -29,13 +31,13 @@ static void ensure_cache_size(idx_t n)
 {
     if (cache_size > (size_t)n) return;          /* already large enough */
     size_t new_size = (size_t)n + 1;              /* indices 0..n */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) abort();                     /* allocation failure */
     cache = new_cache;
     /* initialise any newly allocated part to zero */
     if (new_size > cache_size) {
         size_t diff = new_size - cache_size;
-        memset(cache + cache_size, 0, diff * sizeof(seq_t));
+        mem_set(cache + cache_size, 0, diff * sizeof(seq_t));
     }
     cache_size = new_size;
 }

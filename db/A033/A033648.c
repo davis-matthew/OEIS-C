@@ -7,7 +7,8 @@
  * Formula:   a(0) = 3; a(n+1) = a(n) + reverse_decimal(a(n))
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 42, u128 n <= 86,
  *            big any n
- * Helpers:   reverse_decimal
+ * Validated: standard, pass, 46 terms through n = 977 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/reverse_decimal.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache to store computed terms up to the largest requested index. */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = cache_cap == 0 ? 1 : cache_cap * 2;
         while ((size_t)n + 1 > new_cap) new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* In a real implementation we would handle allocation failure. */
             return 0;
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
     /* Compute terms up to index n if they are not yet cached. */
     for (size_t i = cache_len; i <= (size_t)n; ++i) {
         seq_t prev = cache[i - 1];
-        seq_t rev  = reverse_decimal(prev);
+        seq_t rev  = reverse_digits(prev);
         cache[i] = prev + rev;
     }
     cache_len = (size_t)n + 1;   /* now we have terms 0..n */

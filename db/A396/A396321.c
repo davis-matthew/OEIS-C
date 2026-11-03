@@ -9,19 +9,20 @@
  *            96*C(n,4)^2
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 12, u64 n <= 100, u128 n <= 100,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 42 terms through n = 99 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
-    seq_t c5 = binom(n,5);
-    seq_t c4 = binom(n,4);
-    seq_t c3 = binom(n,3);
+    seq_t c5 = binomial(n,5);
+    seq_t c4 = binomial(n,4);
+    seq_t c3 = binomial(n,3);
 
     seq_t term1 = (seq_t)2040 * c5 * c5;
     seq_t term2 = (seq_t)1440 * c5 * c4;

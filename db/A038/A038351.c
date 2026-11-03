@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   has_equal_nonzero_ones_fives
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_equal_nonzero_ones_fives.h"
+#include "../utils/mem.h"
+
+/* Return true iff x contains the same positive number of 1's and 5's
+   in its base‑6 representation. */
+static bool has_equal_nonzero_ones_fives(seq_t x)
+{
+    seq_t t = x;
+    int c1 = 0, c5 = 0;
+    while (t != 0) {
+        seq_t d = t % 6;
+        if (d == (seq_t)1) ++c1;
+        else if (d == (seq_t)5) ++c5;
+        t /= 6;
+    }
+    return (c1 == c5) && (c1 > 0);
+}
 
 seq_t a(idx_t n)
 {
@@ -30,7 +46,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (!cache) {
         cache_capacity = 16;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
     }
 
     /* quick response if we already know the answer */
@@ -43,7 +59,7 @@ seq_t a(idx_t n)
             /* grow cache if necessary */
             if (cache_size >= cache_capacity) {
                 cache_capacity <<= 1;
-                cache = (seq_t *)realloc(cache, cache_capacity * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_capacity);
             }
             cache[cache_size++] = candidate;
         }

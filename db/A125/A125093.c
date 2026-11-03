@@ -10,6 +10,7 @@
  *            the term is 0
  * Range:     i8 n <= 109, i16 n <= 109, i32 n <= 109, i64 n <= 109,
  *            i128 n <= 109, big any n
+ * Validated: partial, pass, 109 terms through n = 109 (2026-11-01)
  * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Number of partitions of n into parts 6, 9, 11, and 12
    (unbounded coin–change DP). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (n >= dp_len) {
         /* Allocate a new array of length n+1 */
         idx_t new_len = n + 1;
-        seq_t *newdp = (seq_t *)malloc((size_t)new_len * sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, (size_t)new_len);
         if (!newdp) return 0;           /* allocation failure */
 
         /* Initialise : one way to make 0, none otherwise */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old cache */
-        free(dp);
+        mem_free(dp);
         dp     = newdp;
         dp_len = new_len;
     }

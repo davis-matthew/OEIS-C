@@ -8,13 +8,15 @@
  *            |Stirling1(k,4*k-n)|
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 11, u64 n <= 17, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,12 +39,12 @@ seq_t a(idx_t n)
 
     /* Allocate temporary arrays for Stirling numbers */
     size_t sz = (size_t)k_max + 1;
-    seq_t *prev = (seq_t*)malloc(sz * sizeof(seq_t));
-    seq_t *curr = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, sz);
+    seq_t *curr = mem_new(seq_t, sz);
     if (!prev || !curr) {
         /* Allocation failed – return 0 as a safe fallback */
-        if (prev) free(prev);
-        if (curr) free(curr);
+        if (prev) mem_free(prev);
+        if (curr) mem_free(curr);
         return 0;
     }
 
@@ -86,8 +88,8 @@ seq_t a(idx_t n)
         curr = tmp;
     }
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
 
     /* Final division by (n+1) – the result is guaranteed to be exact */
     return sum / (n + 1);

@@ -7,17 +7,19 @@
  * Formula:   a(n) = coefficient of x^n in 1/((1-x^7)(1-x^8)(1-x^9)(1-x^11))
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(n) counts non‑negative integer solutions of 7a+8b+9c+11d = n */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     size_t N = (size_t)n;                  /* array size */
-    seq_t *dp = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (N + 1));
     if (!dp) return 0;                     /* allocation failed */
 
     for (size_t i = 0; i <= N; ++i) dp[i] = 0;
@@ -35,6 +37,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[N];
-    free(dp);
+    mem_free(dp);
     return result;
 }

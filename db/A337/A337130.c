@@ -9,11 +9,13 @@
  * Formula:   a(n) = 3*binomial(n+1,4) - n for n>=3, a(1)=a(2)=a(3)=0
  * Range:     u8 n <= 7, u16 n <= 27, u32 n <= 431, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 56 terms through n = 9472 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Compute C(N,4) with safe intermediate operations */

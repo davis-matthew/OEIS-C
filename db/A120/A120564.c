@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   digit_counts
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,10 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/digit_counts.h"      /* digit_counts */
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/digit_counts.h"
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL; /* found terms */
 static size_t cache_size = 0;     /* number of terms stored */
@@ -58,7 +62,7 @@ static bool term_has_all_digits(seq_t m)
 static void grow_cache(void)
 {
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort(); /* out of memory */
     cache      = tmp;
     cache_cap  = new_cap;

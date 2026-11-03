@@ -8,7 +8,8 @@
  *            sum_{b=0}^{⌊(n-3-2d)/2⌋} binom(n-1-2d, b+2) * binom(n-3-2d-b, b)
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 18, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   binom_small
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #define INCLUDED_A106050
 
 /* Required helper: binom_small(idx_t N, idx_t K) is provided by the build. */
-#include "../utils/binom_small.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     for (idx_t d = 0; d <= max_d; ++d)
     {
         /* binomial coefficient binom(n-1-d, d) */
-        seq_t binom_nd = binom_small(n - 1 - d, d);
+        seq_t binom_nd = binomial(n - 1 - d, d);
 
         /* parameters for inner sum */
         idx_t M     = n - 3 - 2 * d;        /* n-3-2d  */

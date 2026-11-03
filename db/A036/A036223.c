@@ -8,11 +8,14 @@
  * Formula:   a(n) = 3^n * binomial(n+9, 9)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 24, u128 n <= 58,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 396 (2026-11-01)
  * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow3.h"
 

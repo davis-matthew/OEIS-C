@@ -7,15 +7,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of k, 1 <= k <= n, with A033879(k) = A033879(n)
  *            where A033879(n) = deficiency(n) = 2n - sigma(n)
- * Range:     u8 n <= 2433, u16 n <= 9552, u32 n <= 9552, u64 n <= 9552,
- *            u128 n <= 9552, big any n
- * Helpers:   none
+ * Range:     u8 n <= 2433, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9552 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static idx_t max_n = 0;          /* largest n processed so far                 */
 static seq_t *a_array = NULL;    /* a(n) values, 1-indexed                     */
@@ -44,7 +46,7 @@ static inline void grow_deficiency_arrays(void)
     if (def_size == def_cap) {
         size_t new_cap = def_cap ? def_cap * 2 : 4;
         def_keys = (int64_t *)realloc(def_keys, new_cap * sizeof(int64_t));
-        def_counts = (seq_t *)realloc(def_counts, new_cap * sizeof(seq_t));
+        def_counts = mem_resize(seq_t, def_counts, new_cap);
         def_cap = new_cap;
     }
 }
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     /* Ensure we have enough space for a_array */
     if (n > max_n) {
         size_t new_cap = (size_t)n + 1;
-        a_array = (seq_t *)realloc(a_array, new_cap * sizeof(seq_t));
+        a_array = mem_resize(seq_t, a_array, new_cap);
         /* Process new indices */
         for (idx_t k = max_n + 1; k <= n; ++k) {
             seq_t sigma = sigma_of(k);

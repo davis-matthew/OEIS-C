@@ -11,7 +11,8 @@
  *            36m(m-1)(2m-1)^4 G(m-1), and a(n) = D(n)/gcd(D(n), G(n))
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 13,
  *            big any n
- * Helpers:   g_div, g_mod, g_mulsm, g_spow, g_vG, g_vfact
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-01)
+ * Helpers:   ipow_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,12 +20,64 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/g_div.h"
-#include "../utils/g_mod.h"
-#include "../utils/g_mulsm.h"
-#include "../utils/g_spow.h"
-#include "../utils/g_vG.h"
-#include "../utils/g_vfact.h"
+#include "../utils/ipow_i64.h"
+
+static void g_div(uint64_t *x, size_t *len, uint64_t M)
+{
+    uint64_t r = 0, c, qh, ql;
+    size_t i;
+    for (i = *len; i-- > 0;) {
+        c = (r << 32) | (x[i] >> 32);
+        qh = c / M; r = c % M;
+        c = (r << 32) | (x[i] & 0xffffffffULL);
+        ql = c / M; r = c % M;
+        x[i] = (qh << 32) | ql;
+    }
+    while (*len > 1 && x[*len - 1] == 0) (*len)--;
+}
+
+static uint64_t g_mod(const uint64_t *x, size_t len, uint64_t M)
+{
+    uint64_t r = 0;
+    size_t i;
+    for (i = len; i-- > 0;) {
+        r = ((r << 32) | (x[i] >> 32)) % M;
+        r = ((r << 32) | (x[i] & 0xffffffffULL)) % M;
+    }
+    return r;
+}
+
+static void g_mulsm(uint64_t *x, size_t *len, uint64_t m)
+{
+    unsigned __int128 c = 0;
+    size_t i;
+    for (i = 0; i < *len; i++) {
+        c += (unsigned __int128)x[i] * m;
+        x[i] = (uint64_t)c;
+        c >>= 64;
+    }
+    if (c) x[(*len)++] = (uint64_t)c;
+}
+
+static long long g_vG(const uint64_t *G, size_t len, uint64_t *w, uint64_t p, long long e)
+{
+    size_t wl = len;
+    long long cnt = 0;
+    memcpy(w, G, len * sizeof(uint64_t));
+    while (cnt < e) {
+        if (g_mod(w, wl, p) != 0) break;
+        g_div(w, &wl, p);
+        cnt++;
+    }
+    return cnt;
+}
+
+static long long g_vfact(uint64_t m, uint64_t p)
+{
+    long long s = 0;
+    while (m) { m /= p; s += (long long)m; }
+    return s;
+}
 
 static uint64_t *gb[4];
 static size_t glen[4];
@@ -107,7 +160,7 @@ seq_t a(idx_t n)
             while (!(x & 1)) { x >>= 1; tz++; }
         }
         v = tz < e ? tz : e;
-        res *= g_spow((seq_t)2, e - v);
+        res *= ipow_i64((seq_t)2, e - v);
     }
 
     /* odd primes up to max(2n, 3): 3 always divides D(n) */
@@ -136,7 +189,7 @@ seq_t a(idx_t n)
             if (e <= 0) continue;
             v = 0;
             if (r % p == 0) v = g_vG(G, len, w, p, e);
-            res *= g_spow((seq_t)p, e - v);
+            res *= ipow_i64((seq_t)p, e - v);
         }
     }
 

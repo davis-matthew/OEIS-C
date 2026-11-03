@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 355, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 83 terms through n = 9892 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../utils/build_primes_upto.h"    /* function build_primes_upto() */
+#include <stdlib.h>
+#include "../utils/build_primes_upto.h"
 
 /* Helper to reverse the decimal digits of a seq_t value. */
 static seq_t reverse_digits(seq_t n)

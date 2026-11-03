@@ -8,8 +8,9 @@
  *            a(0)=1, a(1)=0, a(2)=1; for n>2, if n is odd → a(n) =
  *            a((n‑1)/2); else if n % 4 == 0 → a(n) = a(n/4); otherwise → a(n)
  *            = 0
- * Range:     u8 n <= 9866, u16 n <= 9866, u32 n <= 9866, u64 n <= 9866,
- *            u128 n <= 9866, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 145 terms through n = 9866 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

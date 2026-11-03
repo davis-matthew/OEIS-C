@@ -7,6 +7,7 @@
  * Formula:   a(n) = lesser prime factor of the n-th semiprime (OEIS A084126)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 116 terms through n = 945 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,7 +16,8 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/build_primes.h"  /* provides build_primes */
+#include <stdint.h>
+#include "../utils/build_primes.h"
 
 static idx_t *primes     = NULL;   /* list of primes up to PRIMES_LIMIT */
 static size_t primes_cnt = 0;      /* number of generated primes   */

@@ -9,16 +9,18 @@
  * Formula:   a(n) = T(i,j) where T(n,k) = Σ_{j=0..n} (-1)^(n-j) *
  *            binomial(2*j,j) * binomial(k*j,n-j), read by antidiagonals
  *            downwards; a(0) = 1, a(1) = 1,
- * Range:     i8 n <= 13, i16 n <= 43, i32 n <= 65, i64 n <= 65, i128 n <= 65,
+ * Range:     i8 n <= 19, i16 n <= 53, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* triangular number: d*(d+1)/2, result fits in idx_t for d up to sqrt(2*n) */
 static inline idx_t tri(idx_t d)
@@ -52,9 +54,9 @@ seq_t a(idx_t n)
     /* 3. compute T(i,j) by definition */
     seq_t sum = 0;
     for (idx_t t = 0; t <= i; ++t) {
-        seq_t b1 = binom(2 * t, t);               /* binomial(2*t, t) */
+        seq_t b1 = binomial(2 * t, t);               /* binomial(2*t, t) */
         idx_t jt = j * t;                         /* j*t */
-        seq_t b2 = binom(jt, i - t);              /* binomial(j*t, i-t) */
+        seq_t b2 = binomial(jt, i - t);              /* binomial(j*t, i-t) */
 
         /* product and sign */
         seq_t term = b1 * b2;

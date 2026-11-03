@@ -9,7 +9,8 @@
  *            to at least the second power
  * Range:     u8 n <= 34, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   ull_sqrt
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/ull_sqrt.h"
+#include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
 
 /* ---------- prime table utilities ---------- */
 static uint64_t *primes = NULL;
@@ -40,7 +42,7 @@ static void ensure_prime_limit(uint64_t limit)
         is_comp[i] = false;
     is_comp[0] = is_comp[1] = true;
 
-    uint64_t sqrt_lim = ull_sqrt(new_limit);
+    uint64_t sqrt_lim = isqrt_u64(new_limit);
     for (uint64_t i = 2; i <= sqrt_lim; ++i) {
         if (!is_comp[i]) {
             for (uint64_t j = i * i; j <= new_limit; j += i)
@@ -110,7 +112,7 @@ seq_t a(idx_t n)
     while (cache_len < (size_t)n) {
         uint64_t m = next_candidate++;
 
-        uint64_t lim = ull_sqrt(m);
+        uint64_t lim = isqrt_u64(m);
         ensure_prime_limit(lim);
 
         size_t r = 0, b = 0;
@@ -119,7 +121,7 @@ seq_t a(idx_t n)
         if ((r == 3 && b == 0) || (r == 2 && b == 2)) {
             if (cache_len + 1 > cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)          /* allocation failure – return 0 as sentinel */
                     return 0;
                 cache = tmp;

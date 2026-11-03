@@ -8,7 +8,8 @@
  *            composed k times with a^0(x) = x
  * Range:     u8 n <= 282, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
   static seq_t *memo = NULL;
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
   
   if (memo == NULL) {
     memo_len = 1024;
-    memo = (seq_t *)malloc(memo_len * sizeof(seq_t));
+    memo = mem_new(seq_t, memo_len);
     computed = (bool *)malloc(memo_len * sizeof(bool));
     if (memo == NULL || computed == NULL) return 0;
     memset(computed, false, memo_len * sizeof(bool));
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
   
   if (n >= memo_len) {
     idx_t newlen = ((n / 1024) + 1) * 1024;
-    seq_t *newmemo = (seq_t *)realloc(memo, newlen * sizeof(seq_t));
+    seq_t *newmemo = mem_resize(seq_t, memo, newlen);
     bool *newcomputed = (bool *)realloc(computed, newlen * sizeof(bool));
     if (newmemo == NULL || newcomputed == NULL) return 0;
     memo = newmemo;

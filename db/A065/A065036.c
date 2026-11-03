@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 947 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime generation ---------- */
 static uint32_t *primes = NULL;   /* array of primes */
@@ -80,7 +82,7 @@ static void heap_init(void)
         return;          /* already initialised */
 
     heap_cap = primes_cnt;
-    heap = (struct HeapNode *)malloc(heap_cap * sizeof(struct HeapNode));
+    heap = mem_new(struct HeapNode, heap_cap);
     if (heap == NULL)
         exit(EXIT_FAILURE);
 
@@ -124,7 +126,7 @@ static void cache_init(void)
         return;          /* already init */
 
     cache_cap = 64;      /* initial capacity */
-    seq_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, cache_cap);
     if (seq_cache == NULL)
         exit(EXIT_FAILURE);
     cache_size = 0;
@@ -145,7 +147,7 @@ seq_t a(idx_t n)
         /* Grow cache if needed. */
         if (cache_size == cache_cap) {
             size_t new_cap = cache_cap << 1;
-            seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
             if (tmp == NULL)
                 exit(EXIT_FAILURE);
             seq_cache = tmp;

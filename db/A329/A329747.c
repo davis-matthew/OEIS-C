@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9783, u16 n <= 9783, u32 n <= 9783, u64 n <= 9783,
- *            u128 n <= 9783, big any n
- * Helpers:   u64_sqrt
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 9783 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/u64_sqrt.h"
+#include "../utils/isqrt_u64.h"
 
 /* ------------------------------------------------------------------ */
 /* Prime sieve (dynamic) – 1‑based indices needed for prime_index().   */
@@ -36,7 +37,7 @@ static void ensure_primes(uint64_t limit)
     for (uint64_t cand = prime_limit + 1; cand <= limit; ++cand) {
         if (cand < 2) continue;
         bool is_prime = true;
-        uint64_t sq = u64_sqrt(cand);
+        uint64_t sq = isqrt_u64(cand);
         for (size_t i = 0; i < prime_cnt && prime_list[i] <= sq; ++i) {
             if (cand % prime_list[i] == 0) { is_prime = false; break; }
         }
@@ -78,7 +79,7 @@ seq_t a(idx_t n)
     size_t    idx_len = 0, idx_cap = 0;
 
     /* trial division using primes up to sqrt(v) */
-    ensure_primes(u64_sqrt(v));
+    ensure_primes(isqrt_u64(v));
 
     for (size_t i = 0; i < prime_cnt; ++i) {
         uint32_t p = prime_list[i];

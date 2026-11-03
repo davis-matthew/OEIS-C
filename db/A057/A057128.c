@@ -10,7 +10,8 @@
  *            and no factor 3^k with k≥2
  * Range:     u8 n <= 80, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 920 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ----- Small prime sieve for factorisation ----- */
 #define SPF_LIMIT 2000000   /* upper bound for the smallest‑prime‑factor table */
@@ -114,7 +116,7 @@ static void ensure_cache(idx_t n)
     if (cache_size == 0) {
         /* initialise cache with first term 1 */
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return;
         cache[0] = (seq_t)1;
         cache_size = 1;
@@ -125,7 +127,7 @@ static void ensure_cache(idx_t n)
         if (ok_for_sequence(candidate)) {
             if (cache_size == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = (seq_t)candidate;
         }

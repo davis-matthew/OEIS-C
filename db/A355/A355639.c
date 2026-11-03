@@ -9,14 +9,39 @@
  *            k*n * has an equal number of positive and negative trits
  * Range:     u8 n <= 18, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   balanced_zero_sum
+ * Validated: partial, pass, 84 terms through n = 83 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/balanced_zero_sum.h"
+
+/* Return true iff the balanced ternary expansion of m contains the same
+ * number of +1 trits as -1 trits.  The digit 0 trits are ignored. */
+static bool balanced_zero_sum(seq_t m)
+{
+    seq_t temp = m;
+    int pos = 0, neg = 0;
+
+    /* Balanced ternary is obtained by repeatedly dividing by 3.
+     * Remainders 0,1,2 correspond to digits 0,+1,-1 respectively.
+     * A remainder of 2 is treated as -1 with a carry of +1. */
+    while (temp != (seq_t)0) {
+        seq_t rem = temp % (seq_t)3;
+        temp /= (seq_t)3;
+
+        if (rem == (seq_t)1) {
+            ++pos;
+        } else if (rem == (seq_t)2) {    /* rem == -1 digit with carry */
+            temp += (seq_t)1;
+            ++neg;
+        }
+        /* rem == 0 contributes nothing */
+    }
+    return pos == neg;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,6 +8,7 @@
  *            sum_{i=0..e} (i+1)*p^(2i)
  * Range:     u8 n <= 7, u16 n <= 71, u32 n <= 7559, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 66 terms through n = 9481 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

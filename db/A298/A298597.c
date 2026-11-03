@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 /* Flat sequence of triangle T(n,k)
    where T(n,k) = n*binomial(n-1,k-1)*k^(k-2)*(n+1-k)^(n-1-k)   */
 
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 /* Compute one triangle entry T(n,k) */
 static seq_t
@@ -29,11 +32,11 @@ triangle_T(idx_t n, idx_t k)
 
     /* k^(k-2) – if k<2, treat as 1 */
     if (k >= 2)
-        result *= seq_pow((seq_t)k, k - 2);
+        result *= ipow_idx((seq_t)k, k - 2);
 
     /* (n+1-k)^(n-1-k) – if n-1-k<0, treat as 1 */
     if (n - 1 >= k)
-        result *= seq_pow((seq_t)(n + 1 - k), n - 1 - k);
+        result *= ipow_idx((seq_t)(n + 1 - k), n - 1 - k);
 
     return result;
 }

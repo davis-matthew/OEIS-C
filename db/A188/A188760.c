@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static uint8_t  validRows[64];
 static int      validCount;
@@ -107,15 +109,15 @@ seq_t a(idx_t n)
     size_t matrixSize = V * V;
 
     /* allocate DP arrays */
-    seq_t *dpPrev = (seq_t*)malloc(matrixSize * sizeof(seq_t));
-    seq_t *dpCur  = (seq_t*)malloc(matrixSize * sizeof(seq_t));
+    seq_t *dpPrev = mem_new(seq_t, matrixSize);
+    seq_t *dpCur  = mem_new(seq_t, matrixSize);
     if (!dpPrev || !dpCur) { /* allocation failure; return 0 */
-        free(dpPrev);
-        free(dpCur);
+        mem_free(dpPrev);
+        mem_free(dpCur);
         return (seq_t)0;
     }
-    memset(dpPrev, 0, matrixSize * sizeof(seq_t));
-    memset(dpCur, 0, matrixSize * sizeof(seq_t));
+    mem_set(dpPrev, 0, matrixSize * sizeof(seq_t));
+    mem_set(dpCur, 0, matrixSize * sizeof(seq_t));
 
     /* initialise for length 2: each pair of rows is allowed once */
     for (size_t idx = 0; idx < matrixSize; ++idx) {
@@ -123,7 +125,7 @@ seq_t a(idx_t n)
     }
 
     for (idx_t step = 3; step <= n; ++step) {
-        memset(dpCur, 0, matrixSize * sizeof(seq_t));
+        mem_set(dpCur, 0, matrixSize * sizeof(seq_t));
 
         for (size_t i = 0; i < V; ++i) {
             for (size_t j = 0; j < V; ++j) {
@@ -152,7 +154,7 @@ seq_t a(idx_t n)
         sum += dpPrev[idx];
     }
 
-    free(dpPrev);
-    free(dpCur);
+    mem_free(dpPrev);
+    mem_free(dpCur);
     return sum;
 }

@@ -12,6 +12,7 @@
  *            triangle (1; 0,1; 1,0,1; 0,1,0,1; ...) is read row by row
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

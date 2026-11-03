@@ -8,19 +8,24 @@
  *            the decimal point)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 122 terms through n = 994 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
     /* Modulus 10*9899 = 98990, fits easily in seq_t  */
     seq_t mod = 98990;
     /* Compute 10^(n+1) mod mod */
-    seq_t rem = mod_pow(10, n + 1, mod);
+    seq_t rem = powmod(10, n + 1, mod);
     /* The digit is floor(rem / 9899) because rem < 10*9899 */
     return rem / 9899;
 }

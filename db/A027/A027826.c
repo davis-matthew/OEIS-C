@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 49, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
           0      if n is odd  .
    Using these equations we solve for a(n) iteratively. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t  *cache = NULL;   /* sequence cache */
 static idx_t  cache_last = 0;  /* last index stored in cache */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (cache_cap <= n) {
         idx_t new_cap = cache_cap == 0 ? 2 : cache_cap << 1;
         while (new_cap <= n) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

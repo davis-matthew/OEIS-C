@@ -8,7 +8,8 @@
  *            for n>=4 a(n) = 2*a(n-1) - a(n-2)
  * Range:     u8 n <= 127, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 944 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache[1..] stores a(k) */
 static size_t cache_cap = 0;     /* allocated capacity (cache_cap>=1) */
@@ -30,10 +32,10 @@ static void ensure_cache(idx_t n)
     /* Allocate or grow storage */
     size_t new_cap = (size_t)(n + 1);
     if (new_cap > cache_cap) {
-        seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (cache && cache_cap > 0)
-            memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
-        free(cache);
+            mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

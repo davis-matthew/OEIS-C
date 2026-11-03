@@ -11,14 +11,23 @@
  *            determining the binary length L that contains...
  * Range:     u8 n <= 29, u16 n <= 121, u32 n <= 497, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pow2_u128
+ * Validated: standard, pass, 69 terms through n = 929 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow2_u128.h"
+
+/* 2^exp for exp <= 127 using __int128, no shift by large amounts. */
+static unsigned __int128 pow2_u128(idx_t exp)
+{
+    unsigned __int128 r = 1;
+    for (idx_t i = 0; i < exp; ++i)
+        r <<= 1;
+    return r;
+}
 
 /* Integer square root: floor(sqrt(n)) for n <= 2^64-1. */
 static idx_t isqrt_u64(idx_t n)

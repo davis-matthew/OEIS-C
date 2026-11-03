@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 63, u32 n <= 132, u64 n <= 270,
  *            u128 n <= 546, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 853 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Computation: a(n) is the n‑th element of the sorted, distinct set
  * { 2*F - 2, 2*F - 1, 2*F | F is a positive Fibonacci number }  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* initialise cache */
     if (!cache) {
         cap   = 128;                     /* initial capacity */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         /* assume allocation succeeds in tests */
     }
 
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
             if (len == 0 || val > cache[len - 1]) {
                 if (len == cap) {           /* grow storage if needed */
                     cap <<= 1;
-                    cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cap);
                 }
                 cache[len++] = val;
             }

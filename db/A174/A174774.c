@@ -9,13 +9,15 @@
  * Formula:   a(n) = Sum_{k=0..[n/2]} k^3 * n! / ((n-2*k)! * 2^k * k!)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Function computing the OEIS sequence A174774 */
 seq_t a(idx_t n)
@@ -34,15 +36,15 @@ seq_t a(idx_t n)
         size_t new_cap = need > cap * 2 ? need : cap * 2;
         if (new_cap < need) new_cap = need;
         if (cap == 0) {
-            I   = (seq_t *)malloc(new_cap * sizeof(seq_t));
-            S1  = (seq_t *)malloc(new_cap * sizeof(seq_t));
-            S2  = (seq_t *)malloc(new_cap * sizeof(seq_t));
-            S3  = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            I   = mem_new(seq_t, new_cap);
+            S1  = mem_new(seq_t, new_cap);
+            S2  = mem_new(seq_t, new_cap);
+            S3  = mem_new(seq_t, new_cap);
         } else {
-            I   = (seq_t *)realloc(I,   new_cap * sizeof(seq_t));
-            S1  = (seq_t *)realloc(S1,  new_cap * sizeof(seq_t));
-            S2  = (seq_t *)realloc(S2,  new_cap * sizeof(seq_t));
-            S3  = (seq_t *)realloc(S3,  new_cap * sizeof(seq_t));
+            I   = mem_resize(seq_t, I, new_cap);
+            S1  = mem_resize(seq_t, S1, new_cap);
+            S2  = mem_resize(seq_t, S2, new_cap);
+            S3  = mem_resize(seq_t, S3, new_cap);
         }
         /* Initialise newly allocated slots if this is the first allocation */
         if (cap == 0) {

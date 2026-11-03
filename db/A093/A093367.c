@@ -12,15 +12,69 @@
  *            build) the summation uses the arbitrary‑precision * ari...
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 37, u64 n <= 70, u128 n <= 134,
  *            big any n
- * Helpers:   accumulate_small, big_pow, factorize_n
+ * Validated: standard, pass, 53 terms through n = 941 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/accumulate_small.h"
-#include "../utils/factorize_n.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
+
+/*--------------  Recursion for small seq_t (≤64 bits)  -------------*/
+static void
+accumulate_small(idx_t idx, idx_t curr_d, seq_t curr_phi,
+                 const idx_t primes[], const uint8_t exps[],
+                 int k, idx_t orig_n, __int128 *sum)
+{
+    if (idx == k) {
+        idx_t exp = orig_n / curr_d;
+        __int128 pw = 1;
+        for (idx_t i = 0; i < exp; ++i) pw *= 2;
+        *sum += (__int128)curr_phi * pw;
+        return;
+    }
+    idx_t p = primes[idx];
+    uint8_t e = exps[idx];
+    idx_t powp = 1;
+    seq_t phi_factor = 1; /* φ(p^0) = 1 */
+
+    /* exponent 0 */
+    accumulate_small(idx + 1, curr_d * powp, curr_phi * phi_factor,
+                     primes, exps, k, orig_n, sum);
+
+    for (uint8_t exp = 1; exp <= e; ++exp) {
+        powp *= p;                                /* p^exp */
+        phi_factor = (powp / p) * (p - 1);        /* φ(p^exp) */
+        accumulate_small(idx + 1, curr_d * powp, curr_phi * phi_factor,
+                         primes, exps, k, orig_n, sum);
+    }
+}
+
+/*--------------  Factorisation helpers  --------------------------*/
+static void factorize_n(idx_t n, idx_t *primes, uint8_t *exps, int *cnt)
+{
+    idx_t tmp = n;
+    if (tmp % 2 == 0) {
+        uint8_t e = 0;
+        while (tmp % 2 == 0) { tmp /= 2; ++e; }
+        primes[(*cnt)++] = 2;
+        exps[(*cnt)-1] = e;
+    }
+    for (idx_t p = 3; p * p <= tmp; p += 2) {
+        if (tmp % p == 0) {
+            uint8_t e = 0;
+            while (tmp % p == 0) { tmp /= p; ++e; }
+            primes[(*cnt)++] = p;
+            exps[(*cnt)-1] = e;
+        }
+    }
+    if (tmp > 1) {
+        primes[(*cnt)++] = tmp;
+        exps[(*cnt)-1] = 1;
+    }
+}
 
 /*--------------  Recursion for big seq_t (arbitrary‑precision)  -----*/
 static void
@@ -30,7 +84,7 @@ accumulate_big(idx_t idx, idx_t curr_d, seq_t curr_phi,
 {
     if (idx == k) {
         idx_t exp = orig_n / curr_d;
-        seq_t pw = big_pow((seq_t)2, (seq_t)exp);
+        seq_t pw = ipow((seq_t)2, (seq_t)exp);
         *sum = *sum + (curr_phi * pw);
         return;
     }

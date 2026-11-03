@@ -9,7 +9,8 @@
  *            of the n‑th semiprime
  * Range:     u8 none, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   build_primes_upto, gcd
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   build_primes_upto, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include "../utils/build_primes_upto.h"
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Pair of semiprime value and its denominator. */
 typedef struct {
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         /* Allocate an initial buffer for semiprimes. */
         pair_cap   = 20000;
         pair_count = 0;
-        pairs = (sempair_t *)malloc(pair_cap * sizeof(sempair_t));
+        pairs = mem_new(sempair_t, pair_cap);
 
         /* Generate semiprimes (p_j * p_k  with j ≤ k) up to the limit. */
         for (size_t i = 0; i < prime_cnt; ++i) {
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
                 /* Grow buffer if necessary. */
                 if (pair_count == pair_cap) {
                     pair_cap *= 2;
-                    pairs = (sempair_t *)realloc(pairs, pair_cap * sizeof(sempair_t));
+                    pairs = mem_resize(sempair_t, pairs, pair_cap);
                 }
 
                 pairs[pair_count].value = prod;
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
         free(primes);
 
         /* Sort semiprimes by value. */
-        qsort(pairs, pair_count, sizeof(sempair_t), cmp_pair);
+        mem_qsort(pairs, pair_count, sizeof(sempair_t), cmp_pair);
 
         initialized = true;
     }

@@ -10,13 +10,22 @@
  *            sequence a(n) is obtained by reading T(n,m) by antidiagonals
  * Range:     u8 n <= 171, u16 n <= 1830, u32 n <= 1830, u64 n <= 1830,
  *            u128 n <= 1830, big any n
- * Helpers:   floor_ld
+ * Validated: standard, pass, 83 terms through n = 1758 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_ld.h"
+
+/* Helper: floor of a long double expressed as long long.
+   Works for negative numbers as well. */
+static inline long long floor_ld(long double x)
+{
+    long long iv = (long long)x;          /* truncate toward zero */
+    if (x < 0 && iv > x) iv--;            /* correct truncation for negatives */
+    return iv;
+}
 
 seq_t a(idx_t n)
 {

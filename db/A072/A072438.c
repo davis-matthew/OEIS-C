@@ -8,7 +8,8 @@
  *            (mod 4). Equivalently, remove every factor p^k with p≡1 (mod 4)
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto
+ * Validated: standard, pass, 98 terms through n = 9868 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
     static size_t prime_cnt = 0;
     static idx_t  prime_limit = 0;
 
-    idx_t limit = _floor_isqrt_u64(n);
+    idx_t limit = isqrt(n);
     if (limit > prime_limit) {
         if (primes)
             free(primes);

@@ -13,7 +13,8 @@
  *            keeping the value of the * left 2×2 block (f...
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 15, u128 n <= 32,
  *            big any n
- * Helpers:   one_seq, sign_from_bit, zero_seq
+ * Validated: standard, pass, 31 terms through n = 194 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,13 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/one_seq.h"
-#include "../utils/sign_from_bit.h"
-#include "../utils/zero_seq.h"
+
+static inline seq_t one_seq(void)  { return (seq_t)1; }
+
+/* convert sign bit to integer +1 / –1 */
+static inline int sign_from_bit(uint8_t b) { return b ? 1 : -1; }
+
+static inline seq_t zero_seq(void) { return (seq_t)0; }
 
 /* helper: evaluate max+lower median−min for four values */
 static inline uint8_t block_value(uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3)

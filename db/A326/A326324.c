@@ -9,14 +9,31 @@
  *            This implements the recurrence from OEIS A326324
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,8 +47,8 @@ seq_t a(idx_t n)
     /* initialise the first element(s) on the first call */
     if (!initialized) {
         cap = 1;
-        a_cache = (seq_t *)calloc(cap, sizeof(seq_t));
-        pow_cache = (seq_t *)calloc(cap, sizeof(seq_t));
+        a_cache = mem_new(seq_t, cap);
+        pow_cache = mem_new(seq_t, cap);
         if (!a_cache || !pow_cache) return (seq_t)0;   /* allocation failed */
         a_cache[0] = (seq_t)1;     /* a(0) = 1 */
         pow_cache[0] = (seq_t)1;   /* 4^0 = 1 */
@@ -44,11 +61,11 @@ seq_t a(idx_t n)
         size_t new_cap = (size_t)n + 1;
         seq_t *tmp;
 
-        tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) return (seq_t)0; /* allocation failure */
         a_cache = tmp;
 
-        tmp = (seq_t *)realloc(pow_cache, new_cap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, pow_cache, new_cap);
         if (!tmp) return (seq_t)0;
         pow_cache = tmp;
 

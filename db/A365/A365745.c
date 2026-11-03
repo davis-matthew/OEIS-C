@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 12, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   build_spf, cmp_seq_t, is_prime, seq_mul, seq_pow
+ * Validated: standard, pass, 60 terms through n = 9918 (2026-11-03)
+ * Helpers:   build_spf, ipow_idx, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +20,27 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
+#include <stddef.h>
 #include "../utils/build_spf.h"
+#include "../utils/ipow_idx.h"
 #include "../utils/is_prime.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/cmp_seq_t.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 typedef struct {
     seq_t val;        /* current power value */
@@ -49,13 +66,13 @@ static inline void heap_swap(Node *a, Node *b)
 static void heap_expand(Heap *h)
 {
     size_t nc = h->cap * 2 + 1;
-    Node *nd = (Node*)realloc(h->data, nc * sizeof(Node));
+    Node *nd = mem_resize(Node, h->data, nc);
     if (!nd) abort();
     h->data = nd; h->cap = nc;
 }
 static void heap_init(Heap *h, size_t cap)
 {
-    h->data = (Node*)malloc(cap * sizeof(Node));
+    h->data = mem_new(Node, cap);
     if (!h->data) abort();
     h->size = 0; h->cap = cap;
 }
@@ -182,7 +199,7 @@ static void initialize_sequence(void)
     /* 5. Initialize heap with first power (exponent 2) of every base. */
     heap_init(&global_heap, bcnt);
     for (size_t i = 0; i < bcnt; ++i) {
-        seq_t first = seq_pow((seq_t)bases[i], (idx_t)2);
+        seq_t first = ipow_idx((seq_t)bases[i], (idx_t)2);
         Node nd = { first, bases[i], 2 };
         heap_push(&global_heap, nd);
     }
@@ -206,7 +223,7 @@ seq_t a(idx_t n)
     if (n > cache_cap) {
         size_t newcap = cache_cap ? cache_cap * 2 : 64;
         if (n > newcap) newcap = n;
-        seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();
         cache = tmp; cache_cap = newcap;
     }

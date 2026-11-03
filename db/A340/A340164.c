@@ -9,7 +9,8 @@
  *            is allowed as the first term
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   alloc_cache, valid_square_uint128
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,31 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/alloc_cache.h"
-#include "../utils/valid_square_uint128.h"
+#include "../utils/mem.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Test whether the 128‑bit integer sq is a valid square for the sequence. */
+static bool valid_square_uint128(__uint128_t sq)
+{
+    if (sq == 0)                 /* 0 is a valid first term */
+        return true;
+    if ((sq % 10) == 0)          /* no trailing zero allowed */
+        return false;
+
+    while (sq > 0) {
+        uint8_t d = (uint8_t)(sq % 10);
+        /* Check if d is one of the allowed digits. */
+        if (d != 0 && d != 1 && d != 6 && d != 8 && d != 9)
+            return false;
+        sq /= 10;
+    }
+    return true;
+}
 
 static const uint8_t ALLOWED_DIGITS[5] = {0, 1, 6, 8, 9};
 

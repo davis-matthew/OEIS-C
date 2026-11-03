@@ -12,7 +12,8 @@
  *            – l + 1)/2 ≥ 1, where s = 2k/l
  * Range:     u8 n <= 24, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   compute_A204217
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,48 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/compute_A204217.h"
+#include "../utils/mem.h"
+
+/* Compute A204217(k): total number of parts in all partitions of k into consecutive parts. */
+static seq_t
+compute_A204217(idx_t k)
+{
+    idx_t two_k = k * 2;
+    seq_t sum = 0;
+
+    for (idx_t d = 1; d * d <= two_k; ++d) {
+        if (two_k % d != 0) continue;
+
+        /* first divisor l = d */
+        {
+            idx_t l  = d;
+            idx_t s  = two_k / l;
+            if (s > l) {
+                idx_t a_num = s - l + 1;
+                if ((a_num & 1u) == 0) {
+                    idx_t a_val = a_num >> 1;
+                    if (a_val >= 1) sum += (seq_t)l;
+                }
+            }
+        }
+
+        /* second divisor l = two_k / d, if distinct */
+        idx_t other = two_k / d;
+        if (other != d) {
+            idx_t l  = other;
+            idx_t s  = d;  /* since s = two_k / l */
+            if (s > l) {
+                idx_t a_num = s - l + 1;
+                if ((a_num & 1u) == 0) {
+                    idx_t a_val = a_num >> 1;
+                    if (a_val >= 1) sum += (seq_t)l;
+                }
+            }
+        }
+    }
+
+    return sum;
+}
 
 /* static state for memoised records */
 static seq_t *records   = NULL;  /* record values a(1), a(2), ...   */
@@ -36,7 +78,7 @@ ensure_capacity(size_t needed)
     if (record_cap >= needed) return;
     record_cap = (record_cap == 0) ? 1 : record_cap * 2;
     while (record_cap < needed) record_cap *= 2;
-    records = (seq_t *)realloc(records, record_cap * sizeof(seq_t));
+    records = mem_resize(seq_t, records, record_cap);
 }
 
 /* Public function: returns the n-th record value of A204217(k). */

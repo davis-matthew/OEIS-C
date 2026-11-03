@@ -7,6 +7,7 @@
  * Formula:   a(0) = -4, a(n+1) = 2*a(n) + period[n % 4] (period = 6,1,2,5)
  * Range:     i8 n <= 10, i16 n <= 18, i32 n <= 34, i64 n <= 66, i128 n <= 130,
  *            big any n
+ * Validated: standard, pass, 53 terms through n = 936 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

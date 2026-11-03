@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n} d * [Ω(d) even] (Ω(d) = total number of prime
  *            factors of d, counted with multiplicity)
- * Range:     u8 n <= 195, u16 n <= 9491, u32 n <= 9491, u64 n <= 9491,
- *            u128 n <= 9491, big any n
+ * Range:     u8 n <= 195, u16 n <= 32759, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 108 terms through n = 9491 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

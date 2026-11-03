@@ -9,12 +9,14 @@
  *            partition number A000041
  * Range:     u8 n <= 152, u16 n <= 989, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static table of partition numbers */
 static seq_t *part = NULL;
@@ -31,7 +33,7 @@ static void _ensure_partition(idx_t needed)
     /* Grow the table if necessary */
     if ((size_t)(needed + 1) > part_cap) {
         size_t new_cap = (size_t)(needed + 1);
-        seq_t *tmp = (seq_t *)realloc(part, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, part, new_cap);
         if (!tmp) return;          /* allocation failure – caller may fail */
         part      = tmp;
         part_cap  = new_cap;

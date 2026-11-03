@@ -11,14 +11,23 @@
  *            s(k)*t(m-k+1), s(k) = Sum_{d|k} d*t(d). G.f.: B(x)^4
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 24, u64 n <= 45, u128 n <= 87,
  *            big any n
- * Helpers:   zalloc_s
+ * Validated: standard, pass, 44 terms through n = 497 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/zalloc_s.h"
+#include "../utils/mem.h"
+
+static seq_t *zalloc_s(idx_t n)
+{
+    seq_t *p = mem_new(seq_t, (size_t)n);
+    idx_t i;
+    for (i = 0; i < n; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *T = 0;   /* A000081: T[1..have] */
 static seq_t *S = 0;   /* S[k] = Sum_{d|k} d*T[d], k = 1..have */

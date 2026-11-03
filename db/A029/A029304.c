@@ -7,12 +7,14 @@
  * Formula:   a(n) = number of partitions of n into parts 3, 6, 10, 12
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n)
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
        to avoid overflow on the size value.  All indices are handled as
        idx_t, which is unsigned 64‑bit. */
     size_t sz = (size_t)(n + 1);
-    seq_t *dp = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp) {
         /* In an unlikely allocation failure, return 0.  The harness
            does not expect the function to abort. */
@@ -44,6 +46,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

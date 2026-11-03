@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 102 terms through n = 101 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +33,7 @@ seq_t a(idx_t n)
 
     /* n ≡ 5 (mod 6) */
     for (uint64_t p = 5ULL; ; p += 2) {
-        if (!is_prime_small(p)) continue;   /* skip non‑primes */
+        if (!is_prime_seq(p)) continue;   /* skip non‑primes */
 
         uint64_t n_mod_p = n64 % p;
 

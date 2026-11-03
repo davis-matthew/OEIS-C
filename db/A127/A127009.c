@@ -9,7 +9,8 @@
  *            \sum_{k=1}^{n-1, gcd(a(k),n)=1} 1/a(k)
  * Range:     u8 n <= 8, u16 n <= 9, u32 n <= 10, u64 n <= 11, u128 n <= 12,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 /* Dependencies */
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* 0‑indexed array of computed terms     */
 static size_t cache_len = 0;     /* number of terms currently stored      */
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
     /* Grow the cache if needed. */
     if ((size_t)n > cache_len) {
         size_t new_len = (size_t)n;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache)           /* Memory exhaustion – abort */
             exit(EXIT_FAILURE);
         cache = new_cache;

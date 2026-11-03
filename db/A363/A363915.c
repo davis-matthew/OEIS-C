@@ -9,8 +9,9 @@
  *            is a prime divisor of i (i.e. j prime and j | i), otherwise
  *            T(i,j) = 0. The triangle is read row‑by‑row, so a(n) = T(i,j)
  *            for the unique i,j with n = i*(i+1)/2 + j, 0 ≤ j ≤ i
- * Range:     u8 n <= 9569, u16 n <= 9569, u32 n <= 9569, u64 n <= 9569,
- *            u128 n <= 9569, big any n
+ * Range:     u8 n <= 11475, u16 n <= 11475, u32 n <= 11475, u64 n <= 11475,
+ *            u128 n <= 11475, big any n
+ * Validated: standard, pass, 107 terms through n = 9569 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

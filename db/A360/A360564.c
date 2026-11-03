@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  frac, nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 9659, u16 n <= 9659, u32 n <= 9659, u64 n <= 9659,
- *            u128 n <= 9659, big any n
- * Helpers:   gcd
+ * Range:     u8 n <= 10052, u16 n <= 10052, u32 n <= 10052, u64 n <= 10052,
+ *            u128 n <= 10052, big any n
+ * Validated: standard, pass, 105 terms through n = 9659 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Helper: integer gcd for idx_t (uint64_t)                           */
@@ -104,7 +106,7 @@ static void ensure_cache_cap(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = (cache_cap == 0) ? 64 : cache_cap;
     while (need > new_cap) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     seq_cache = tmp;
     cache_cap = new_cap;
 }

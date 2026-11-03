@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   rev_alt_gt_one
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,24 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/rev_alt_gt_one.h"
+
+/* Return true iff the reverse-alternating product of a nondecreasing factor
+   sequence fac[0 .. len-1] is greater than 1.
+   The product is defined by: product = ∏i fac[i]^( (-1)^(len-1-i) ).
+   We accumulate numerator and denominator using seq_t and compare them. */
+static bool rev_alt_gt_one(const uint64_t *fac, size_t len)
+{
+    seq_t num = 1;
+    seq_t den = 1;
+    for (size_t i = 0; i < len; ++i) {
+        size_t dist = len - 1 - i;            /* distance from the right end */
+        if ((dist & 1) == 0)                  /* even distance -> exponent +1 */
+            num *= (seq_t)fac[i];
+        else                                  /* odd distance -> exponent -1 */
+            den *= (seq_t)fac[i];
+    }
+    return num > den;
+}
 
 /* Recursive enumeration of all nondecreasing factorizations of rem.
    start is the smallest factor allowed.  fac holds the current factor

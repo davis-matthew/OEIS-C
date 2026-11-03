@@ -8,13 +8,15 @@
  * Formula:   a(n) = 2*a(n-1) + 2*a(n-2), with a(1)=9, a(2)=18
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 21, u64 n <= 43, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* allocate or grow the cache to reach n+1 entries (index 0 unused) */
     if (n + 1 > cache_cap) {
         size_t new_cap = (size_t)(n) + 2;          /* include index 0 and one spare */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) return (seq_t)0;          /* allocation failure (unlikely) */
         cache = new_cache;
         cache_cap = new_cap;

@@ -11,14 +11,18 @@
  *            repeated calls for any n are answered in O(1)...
  * Range:     u8 n <= 102, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sqr
+ * Validated: standard, pass, 82 terms through n = 8770 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/sqr.h"
+#include "../utils/mem.h"
+
+/* Ensure square‑root multiplier for unsigned 64‑bit arithmetic */
+static inline uint64_t sqr(uint64_t x) { return x*x; }
 
 /* Local dynamic arrays for the sequence values and the list of primes */
 static seq_t *SEQ = NULL;            /* Holds a(1),a(2),... */
@@ -32,7 +36,7 @@ static void ensure_seq(size_t new_cap) {
     if (SEQ_CAP < new_cap) {
         size_t cap = SEQ_CAP ? SEQ_CAP * 2 : 8;
         while (cap < new_cap) cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(SEQ, cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, SEQ, cap);
         if (!tmp) exit(1);
         SEQ = tmp;
         SEQ_CAP = cap;

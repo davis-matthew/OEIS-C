@@ -8,14 +8,17 @@
  *            incremental prime search using next_prime
  * Range:     u8 none, u16 n <= 99, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 56 terms through n = 9240 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *res_list = NULL; /* primes congruent to 1 mod 128 */
 static size_t res_cap  = 0;
@@ -28,7 +31,7 @@ static uint64_t cur_start = 3;
 static void grow_res(void)
 {
     size_t new_cap = res_cap ? res_cap * 2 : 64;
-    seq_t *tmp = (seq_t *)realloc(res_list, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, res_list, new_cap);
     if (!tmp) abort();           /* fatal allocation failure */
     res_list = tmp;
     res_cap = new_cap;

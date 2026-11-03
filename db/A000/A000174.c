@@ -9,21 +9,21 @@
  *            e found by integer square root)
  * Range:     u8 n <= 1098, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sq5_isqrt, sq5_isqrt_fast
+ * Validated: standard, pass, 117 terms through n = 9780 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sq5_isqrt.h"
-#include "../utils/sq5_isqrt_fast.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n)
 {
     uint64_t N = (uint64_t)n;
     uint64_t count = 0;
     uint64_t p, q, r, s;
-    (void)sq5_isqrt;
+    (void)isqrt_u64;
     for (p = 0; 5 * p * p <= N; p++) {
         uint64_t s1 = p * p;
         for (q = p; s1 + 4 * q * q <= N; q++) {
@@ -32,7 +32,7 @@ seq_t a(idx_t n)
                 uint64_t s3 = s2 + r * r;
                 for (s = r; s3 + 2 * s * s <= N; s++) {
                     uint64_t rem = N - s3 - s * s;
-                    uint64_t e = sq5_isqrt_fast(rem);
+                    uint64_t e = isqrt_u64(rem);
                     if (e * e == rem && e >= s) count++;
                 }
             }

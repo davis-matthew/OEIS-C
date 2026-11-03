@@ -11,13 +11,15 @@
  *            (offset 0)
  * Range:     i8 n <= 65, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---- Stern's diatomic sequence ------------------------------------- */
 static seq_t *f_cache = NULL;
@@ -28,7 +30,7 @@ static seq_t stern_f(idx_t k)
     /* Lazy initialization */
     if (f_cache == NULL) {
         f_cache_size = 3;
-        f_cache = (seq_t *)calloc(f_cache_size, sizeof(seq_t));
+        f_cache = mem_new(seq_t, f_cache_size);
         if (!f_cache) { /* malloc failure: abort computation */
             abort();
         }
@@ -40,7 +42,7 @@ static seq_t stern_f(idx_t k)
     /* Grow cache if necessary */
     if (k >= f_cache_size) {
         idx_t new_size = k + 1;
-        seq_t *tmp = (seq_t *)realloc(f_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, f_cache, new_size);
         if (!tmp) {
             abort();
         }

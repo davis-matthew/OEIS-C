@@ -8,6 +8,7 @@
  * Formula:   a(n) = n*9^floor(log_9(n)+1) + n
  * Range:     u8 n <= 8, u16 n <= 89, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 62 terms through n = 9636 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

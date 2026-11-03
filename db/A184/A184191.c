@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for memoisation */
 static seq_t *cache = NULL;          /* array of computed terms */
@@ -55,7 +57,7 @@ ensure_initialised(void)
     /* allocate at least ten slots */
     if (cache_cap < 11) {
         idx_t new_cap = 11;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {   /* allocation failed – abort with undef behaviour */
             exit(1);
         }
@@ -77,7 +79,7 @@ grow_cache(idx_t n)
 
     if (cache_cap < n + 1) {
         idx_t new_cap = (n + 1) * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);          /* memory error – aborting */
         cache = tmp;
         cache_cap = new_cap;

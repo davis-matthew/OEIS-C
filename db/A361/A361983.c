@@ -7,7 +7,8 @@
  * Formula:   a(n) = 1 + Sum_{k=2..n} (-1)^k * k^2 * a(floor(n/k))
  * Range:     i8 n <= 7, i16 n <= 55, i32 n <= 2047, i64 n <= 8191,
  *            i128 n <= 8191, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 7269 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cache for already computed values.  The array indices correspond
    directly to the sequence index (a(1) is stored at a_cache[1]).  */
@@ -33,14 +35,14 @@ static void ensure_cache_capacity(idx_t n)
     while (new_cap <= (size_t)n + 1)
         new_cap *= 2;
 
-    a_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     a_flag  = (unsigned char*)realloc(a_flag,  new_cap * sizeof(unsigned char));
 
     if (a_cache && a_flag)
     {
         if (a_cap < new_cap)
         {
-            memset(&a_cache[a_cap], 0, (new_cap - a_cap) * sizeof(seq_t));
+            mem_set(&a_cache[a_cap], 0, (new_cap - a_cap) * sizeof(seq_t));
             memset(&a_flag [a_cap], 0, (new_cap - a_cap) * sizeof(unsigned char));
         }
         a_cap = new_cap;

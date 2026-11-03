@@ -9,12 +9,14 @@
  *            g_j = j(3j-1)/2)
  * Range:     u8 n <= 15, u16 n <= 38, u32 n <= 115, u64 n <= 384,
  *            u128 n <= 1378, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 9841 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *partition_cache = NULL;   /* p[0..m] */
 static idx_t partition_cache_size = 0;  /* size stored in partition_cache, >=0 */
@@ -27,7 +29,7 @@ static void ensure_partitions(idx_t n)
 
     /* Allocate or expand the cache. */
     idx_t new_size = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(partition_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, partition_cache, new_size);
     if (!new_cache) {
         /* Allocation failed – abort. */
         abort();

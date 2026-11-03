@@ -8,8 +8,9 @@
  * Formula:   a(n) = A163327(A163333(A163327(n))) --- ternary-digit rule
  *            Computes the self‑inverse permutation A163332. Uses only integer
  *            arithmetic, no external helpers
- * Range:     u8 n <= 242, u16 n <= 9833, u32 n <= 9833, u64 n <= 9833,
- *            u128 n <= 9833, big any n
+ * Range:     u8 n <= 242, u16 n <= 59048, u32 n <= 59048, u64 n <= 59048,
+ *            u128 n <= 59048, big any n
+ * Validated: standard, pass, 88 terms through n = 9833 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

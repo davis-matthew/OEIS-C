@@ -9,13 +9,26 @@
  *            ⌊m/k⌋, k = 1 … m
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sum_distinct_floor
+ * Validated: standard, pass, 101 terms through n = 8675 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/sum_distinct_floor.h"
+
+static seq_t sum_distinct_floor(idx_t n)
+{
+    seq_t sum = 0;
+    for (idx_t i = 1; i <= n; )
+    {
+        idx_t q   = n / i;               /* quotient ⌊n/i⌋, fits in idx_t */
+        sum += (seq_t)q;                 /* add the distinct value once   */
+        idx_t next = n / q + 1;          /* first i that yields a smaller quotient */
+        i = next;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

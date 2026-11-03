@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 672, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 96 terms through n = 9749 (2026-11-01)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,7 +16,8 @@
 /* Sequence A118503: sum of the digit sums of the prime factors of n (with multiplicity) */
 
 #include <stdint.h>
-#include "../utils/digit_sum.h"   /* declares seq_t digit_sum(seq_t v) */
+#include <stdbool.h>
+#include "../utils/digit_sum.h"
 
 seq_t a(idx_t n)
 {

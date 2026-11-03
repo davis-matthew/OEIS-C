@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 21, i16 n <= 54, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    otherwise a(n)=n – a(n-1).  Index n is 0‑based. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Memoisation buffer.  All functions below use only these globals.  */
@@ -40,7 +42,7 @@ static void ensure_capacity(size_t need)
     while (cache_cap < need)
         cache_cap <<= 1;   /* grow by factor of two */
 
-    seq_t *new_mem = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, cache, cache_cap);
     if (!new_mem)          /* realloc failed */
         abort();
     cache = new_mem;

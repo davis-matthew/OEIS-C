@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 4, u64 n <= 12, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define R (16384)          /* 4⁷ */
 
@@ -161,10 +163,10 @@ static void initialize(void)
 
     build_adjacency();
 
-    state_cur  = (seq_t *)malloc(R * sizeof(seq_t));
-    state_nxt  = (seq_t *)malloc(R * sizeof(seq_t));
+    state_cur  = mem_new(seq_t, R);
+    state_nxt  = mem_new(seq_t, R);
     cache_len  = 2;                    /* indices 0 and 1 */
-    cache      = (seq_t *)malloc(cache_len * sizeof(seq_t));
+    cache      = mem_new(seq_t, cache_len);
     cache[0]   = (seq_t)0;             /* a(0) not used but defined */
     steps_done = 0;
 
@@ -185,7 +187,7 @@ seq_t a(idx_t n)
     /* enlarge cache if necessary */
     if ((size_t)n + 1 > cache_len) {
         size_t new_len = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();   /* allocation failure */
         cache = tmp;
         cache_len = new_len;
@@ -194,7 +196,7 @@ seq_t a(idx_t n)
     /* compute a(n) if it hasn't been computed yet */
     while (steps_done < (size_t)n) {
         /* clear next vector */
-        memset(state_nxt, 0, R * sizeof(seq_t));
+        mem_set(state_nxt, 0, R * sizeof(seq_t));
 
         /* one step of the transfer matrix */
         for (size_t prev = 0; prev < R; ++prev) {

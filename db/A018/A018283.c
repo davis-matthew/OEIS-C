@@ -7,13 +7,29 @@
  * Formula:   a(n) = 2^((n-1) mod 3) * 5^floor((n-1)/3)
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   pow2, power5
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-02)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow2.h"
-#include "../utils/power5.h"
+
+static inline seq_t power5(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = 5;
+    while (exp)
+    {
+        if (exp & 1)
+            result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

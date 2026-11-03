@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_37
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
  * demand and caches all found values so that later calls are fast. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_37.h"
+#include "../utils/mem.h"
+
+/* Helper: does seq_t x contain the octal substring 3,7? */
+static inline bool has_37(seq_t x)
+{
+    seq_t t = x;
+    while (t != (seq_t)0) {
+        int d = (int)(t % ((seq_t)8));          /* least significant digit */
+        seq_t higher = t / ((seq_t)8);
+        if (higher != (seq_t)0) {
+            int h = (int)(higher % ((seq_t)8)); /* next more significant digit */
+            if (d == 7 && h == 3)
+                return true;
+        }
+        t = higher;
+    }
+    return false;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -44,7 +62,7 @@ seq_t a(idx_t n)
                     /* store the new term */
                     if (cache_len == cache_cap) {
                         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                         cache = tmp;
                         cache_cap = new_cap;
                     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* ---------- static state ------------------------------------------------- */
 static idx_t        g_limit      = 2000000;     /* current prime bound     */
@@ -38,7 +40,7 @@ static void recompute(void)
 {
     /* free existing buffers */
     if (g_primes) free(g_primes);
-    if (g_seq)    free(g_seq);
+    if (g_seq)    mem_free(g_seq);
 
     /* build primes up to g_limit */
     build_primes_upto(g_limit, &g_primes, &g_prime_cnt);
@@ -55,8 +57,8 @@ static void recompute(void)
     size_t sums6_len = g_prime_cnt - 5;
 
     /* temporary buffers for the sums */
-    seq_t *sums4 = (seq_t*)malloc(sizeof(seq_t) * sums4_len);
-    seq_t *sums6 = (seq_t*)malloc(sizeof(seq_t) * sums6_len);
+    seq_t *sums4 = mem_new(seq_t, sums4_len);
+    seq_t *sums6 = mem_new(seq_t, sums6_len);
     if (!sums4 || !sums6) {
         /* allocation failure – keep previous state */
         return;
@@ -79,10 +81,10 @@ static void recompute(void)
 
     /* reserve space for the intersection – its size ≤ min(...) */
     g_seq_cap = sums4_len < sums6_len ? sums4_len : sums6_len;
-    g_seq = (seq_t*)malloc(sizeof(seq_t) * g_seq_cap);
+    g_seq = mem_new(seq_t, g_seq_cap);
     if (!g_seq) {
-        free(sums4);
-        free(sums6);
+        mem_free(sums4);
+        mem_free(sums6);
         return;
     }
     g_seq_cnt = 0;
@@ -103,8 +105,8 @@ static void recompute(void)
     }
 
     /* clean up temporary buffers */
-    free(sums4);
-    free(sums6);
+    mem_free(sums4);
+    mem_free(sums6);
 }
 
 /* ---------- public routine ------------------------------------------------ */

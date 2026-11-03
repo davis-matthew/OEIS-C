@@ -10,14 +10,17 @@
  *            x(k+1) = (x(k)^2+1) mod n
  * Range:     u8 n <= 78, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 93 terms through n = 9061 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
 
     /* Allocate array for x[0] .. x[2*n] */
     size_t size = (size_t)(2 * n + 1);
-    seq_t *x = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *x = mem_new(seq_t, size);
     if (!x)
         return 0;                      /* out of memory; caller may handle */
 
@@ -47,12 +50,12 @@ seq_t a(idx_t n)
         seq_t diff = (x[k] >= x[2 * k]) ? (x[k] - x[2 * k]) : (x[2 * k] - x[k]);
         seq_t d = gcd(diff, mod);
         if (d > 1) {
-            free(x);
+            mem_free(x);
             return d;
         }
     }
 
     /* Should never reach here for n >= 2, but fall back to n */
-    free(x);
+    mem_free(x);
     return (seq_t)n;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Divisors of 140: generate ordered list of all divisors of 140. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Comparison function for qsort on seq_t */
 static int cmp_seq_t(const void *p, const void *q)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
                     divs[div_cnt++] = x / (seq_t)i;
             }
         }
-        qsort(divs, div_cnt, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(divs, div_cnt, sizeof(seq_t), cmp_seq_t);
     }
 
     if (n <= div_cnt)

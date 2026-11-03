@@ -11,14 +11,21 @@
  *            a(1)=1, a(2)=16, a(3)=8, a(4)=118,…
  * Range:     u8 n <= 6, u16 n <= 36, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   d_mul
+ * Validated: standard, pass, 57 terms through n = 209 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/d_mul.h"
+
+/* Helper: multiplication in 128-bit to avoid overflow when computing
+   diagonal bounds, but cast back to idx_t which is 64‑bit unsigned. */
+static inline idx_t d_mul(idx_t a, idx_t b)
+{
+    return (idx_t)((unsigned __int128)a * b);
+}
 
 /* Return a(n) as defined by the OEIS sequence A213558.  */
 seq_t a(idx_t n)

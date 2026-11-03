@@ -7,6 +7,7 @@
  * Formula:   a(n) = 5^n*(n+4)*(n+3)*(n+2)*(n+1)
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 7, u64 n <= 19, u128 n <= 45,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 997 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  *            (x^19 d/dx)^n, are concatenated row by row
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 21, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define R 19
 /* r_minus_1 is used repeatedly in the inner loop. */
@@ -48,10 +50,10 @@ seq_t a(idx_t n) {
     idx_t max_rows = n;
 
     /* Allocate four arrays of size max_rows. */
-    seq_t *prev_c = (seq_t *)malloc(max_rows * sizeof(seq_t));
-    seq_t *prev_e = (seq_t *)malloc(max_rows * sizeof(seq_t));
-    seq_t *next_c = (seq_t *)malloc(max_rows * sizeof(seq_t));
-    seq_t *next_e = (seq_t *)malloc(max_rows * sizeof(seq_t));
+    seq_t *prev_c = mem_new(seq_t, max_rows);
+    seq_t *prev_e = mem_new(seq_t, max_rows);
+    seq_t *next_c = mem_new(seq_t, max_rows);
+    seq_t *next_e = mem_new(seq_t, max_rows);
     if (!prev_c || !prev_e || !next_c || !next_e) {
         /* Allocation failed: handle as zero (unlikely with limits). */
         return (seq_t)0;
@@ -70,10 +72,10 @@ seq_t a(idx_t n) {
             idx_t idx_in_row = n - cumulative - 1;   /* zero‑based */
             seq_t result = prev_c[idx_in_row];
             /* Free allocated memory */
-            free(prev_c);
-            free(prev_e);
-            free(next_c);
-            free(next_e);
+            mem_free(prev_c);
+            mem_free(prev_e);
+            mem_free(next_c);
+            mem_free(next_e);
             return result;
         }
 

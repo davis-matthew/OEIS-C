@@ -8,14 +8,19 @@
  * Formula:   a(n) = Sum_{k=1..n, gcd(k,n) is in A007310} k
  * Range:     u8 n <= 22, u16 n <= 364, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is5rough
+ * Validated: standard, pass, 73 terms through n = 9755 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is5rough.h"
+
+/* Return true if x has no prime factor 2 or 3 (i.e., is 5‑rough). */
+static inline bool is5rough(uint64_t x) {
+    return (x & 1ULL) && (x % 3ULL != 0);
+}
 
 /* Euler’s totient for 64‑bit integers. */
 static inline uint64_t phi_u64(uint64_t n) {

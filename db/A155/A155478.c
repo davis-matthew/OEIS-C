@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   smallest_digit_seq
+ * Validated: standard, pass, 75 terms through n = 955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,23 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/smallest_digit_seq.h"
+#include "../utils/mem.h"
+
+/* Helper: smallest decimal digit of a value. */
+static int smallest_digit_seq(seq_t x)
+{
+    if (x == 0) return 0;
+    int min = 9;
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (d < min) {
+            min = d;
+            if (min == 0) break;
+        }
+        x /= 10;
+    }
+    return min;
+}
 
 /* Prime storage and generation */
 static seq_t *primes = NULL;
@@ -33,7 +50,7 @@ static void init_primes(void)
 {
     if (!primes) {
         primes_cap = 8;
-        primes = (seq_t *)malloc(sizeof(seq_t) * primes_cap);
+        primes = mem_new(seq_t, primes_cap);
         primes[0] = 2;
         primes[1] = 3;
         prime_cnt = 2;
@@ -58,7 +75,7 @@ static void ensure_primes_at_least(idx_t need)
         if (is_prime) {
             if (prime_cnt == primes_cap) {
                 primes_cap = primes_cap * 2;
-                primes = (seq_t *)realloc(primes, sizeof(seq_t) * primes_cap);
+                primes = mem_resize(seq_t, primes, primes_cap);
             }
             primes[prime_cnt++] = p;
         }
@@ -83,7 +100,7 @@ static void ensure_answer(idx_t target)
         if (min_digit_candidate > min_digit_prime) {
             if (ans_cnt == ans_cap) {
                 ans_cap = ans_cap ? ans_cap * 2 : 8;
-                answers = (seq_t *)realloc(answers, sizeof(seq_t) * ans_cap);
+                answers = mem_resize(seq_t, answers, ans_cap);
             }
             answers[ans_cnt++] = (seq_t)next_candidate;
         }

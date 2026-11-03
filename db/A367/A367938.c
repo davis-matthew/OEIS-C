@@ -8,7 +8,8 @@
  *            C(n‑1,k‑1)*3^k*a(n‑k)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 21,
  *            big any n
- * Helpers:   grow_buffer
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,15 @@
 /* --- includes -------------------------------------------------------- */
 #include <stddef.h>  /* size_t */
 #include <stdlib.h>  /* malloc, realloc, free */
-#include "../utils/grow_buffer.h"
+#include "../utils/mem.h"
+
+/* --- helper: grow a buffer ------------------------------------- */
+static void grow_buffer(seq_t **buf, size_t *cap, size_t new_cap) {
+    if (*cap >= new_cap) return;
+    seq_t *tmp = mem_resize(seq_t, *buf, new_cap);
+    *buf = tmp;
+    *cap = new_cap;
+}
 
 /* --- global cache ---------------------------------------------- */
 static seq_t *cache = NULL;      /* computed a(n) values            */
@@ -31,14 +40,14 @@ static idx_t  pow3_max = 0;      /* highest index pre‑computed    */
 static void ensure_pow3(idx_t n) {
     if (pow3 == NULL) {                   /* first allocation */
         pow3_cap = 1;
-        pow3 = (seq_t *)malloc(pow3_cap * sizeof(seq_t));
+        pow3 = mem_new(seq_t, pow3_cap);
         pow3[0] = (seq_t)1;                /* 3^0 = 1 */
         pow3_max = 0;
     }
     if (pow3_cap < (size_t)(n + 1)) {
         size_t new_cap = pow3_cap * 2;
         while (new_cap < (size_t)(n + 1)) new_cap <<= 1;
-        pow3 = (seq_t *)realloc(pow3, new_cap * sizeof(seq_t));
+        pow3 = mem_resize(seq_t, pow3, new_cap);
         pow3_cap = new_cap;
     }
     for (idx_t i = pow3_max + 1; i <= n; ++i) {
@@ -51,14 +60,14 @@ static void ensure_pow3(idx_t n) {
 static void ensure_cache(idx_t n) {
     if (cache == NULL) {                  /* first allocation */
         cache_cap = 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;              /* a(0) = 1 */
         cache_max = 0;
     }
     if (cache_cap < (size_t)(n + 1)) {
         size_t new_cap = cache_cap * 2;
         while (new_cap < (size_t)(n + 1)) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 }

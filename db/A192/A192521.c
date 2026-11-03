@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Node used in the min‑heap */
 typedef struct {
@@ -61,7 +63,7 @@ static void st_ensure_seq(size_t need)
     if (need <= st.seq_cap) return;
     size_t newcap = st.seq_cap ? st.seq_cap * 2 : 4;
     while (newcap < need) newcap <<= 1;
-    st.seq = (seq_t*)realloc(st.seq, newcap * sizeof(seq_t));
+    st.seq = mem_resize(seq_t, st.seq, newcap);
     st.seq_cap = newcap;
 }
 
@@ -71,7 +73,7 @@ static void st_ensure_heap(size_t need)
     if (need <= st.heap_cap) return;
     size_t newcap = st.heap_cap ? st.heap_cap * 2 : 16;
     while (newcap < need) newcap <<= 1;
-    st.heap = (HeapNode*)realloc(st.heap, newcap * sizeof(HeapNode));
+    st.heap = mem_resize(HeapNode, st.heap, newcap);
     st.heap_cap = newcap;
 }
 
@@ -164,7 +166,7 @@ static void st_init(void)
 
     /* Initialise heap and push the first pair (0,0) */
     st.heap_cap = 16;
-    st.heap = (HeapNode*)malloc(st.heap_cap * sizeof(HeapNode));
+    st.heap = mem_new(HeapNode, st.heap_cap);
     st.heap_len = 0;
     heap_push((HeapNode){ .val = f_val(0,0), .i = 0, .j = 0 });
 

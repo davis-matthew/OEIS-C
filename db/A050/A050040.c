@@ -11,7 +11,8 @@
  *            values: a(1)=1, a(2)=2, a(3)=1
  * Range:     u8 n <= 25, u16 n <= 59, u32 n <= 197, u64 n <= 771,
  *            u128 n <= 3649, big any n
- * Helpers:   alloc_memory, ensure_cache
+ * Validated: standard, pass, 63 terms through n = 7844 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,47 @@
 #include <stddef.h>
 #include <stdarg.h>
 #include <assert.h>
-#include "../utils/alloc_memory.h"   /* for allocate_row, etc. */
-#include "../utils/ensure_cache.h" /* ensures cache capacity */
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* ---------- dynamic allocation helpers (C / C++) ---------- */
+static void *alloc_memory(size_t sz) {
+#ifdef __cplusplus
+    return ::operator new(sz);
+#else
+    return malloc(sz);
+#endif
+}
+
+/* Make sure the cache is large enough */
+static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr) {
+    seq_t *cache = *cache_ptr;
+    size_t cap = *cap_ptr;
+    if (cap <= (size_t)n) {
+        size_t new_cap = cap ? (cap << 1) : 16;
+        while (new_cap <= (size_t)n)
+            new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+        if (!tmp && new_cap > 0) {
+            /* Allocation failed – abort the program. */
+            exit(1);
+        }
+        if (tmp) {
+            /* Initialize newly allocated slots to zero. */
+            if (!cache) {
+                for (size_t i = 0; i < new_cap; ++i)
+                    tmp[i] = 0;
+            } else {
+                for (size_t i = cap; i < new_cap; ++i)
+                    tmp[i] = 0;
+            }
+            *cache_ptr = tmp;
+            *cap_ptr = new_cap;
+        }
+    }
+}
 
 /* Forward declaration of helper to compute the floor of log2 */
 static inline int floor_log2_idx(idx_t x)

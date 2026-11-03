@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   digit_count, is_prime, pow10
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   is_prime, mem, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
 #include "../utils/is_prime.h"
-#include "../utils/pow10.h"
-#include "../utils/digit_count.h"
+#include "../utils/num_digits0.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* The cache holds the sequence values found so far. */
 static seq_t *cache = NULL;
@@ -34,7 +46,7 @@ static void push_back(seq_t val)
 {
     if (cache_len >= cache_cap) {
         size_t new_cap = cache_cap == 0 ? 32 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort(); /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;
@@ -50,7 +62,7 @@ seq_t a(idx_t n)
     /* Find terms until we have at least n of them. */
     while (cache_len < n) {
         if (is_prime(current)) {
-            idx_t digits = (idx_t)digit_count(current);
+            idx_t digits = (idx_t)num_digits0(current);
             if (digits >= 2) {
                 seq_t pow10_val = pow10(digits - 2);   /* 10^(digits-2) */
                 idx_t divisor = (idx_t)pow10_val;

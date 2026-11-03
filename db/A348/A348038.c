@@ -7,15 +7,18 @@
  * Keywords:  nonn
  * Formula:   a(n) = A003968(n) / gcd(n, A003968(n)) where A003968 is
  *            multiplicative with A003968(p^e) = p * (p+1)^(e-1)
- * Range:     u8 n <= 63, u16 n <= 4095, u32 n <= 9382, u64 n <= 9382,
- *            u128 n <= 9382, big any n
- * Helpers:   _smallest_prime_factor, gcd
+ * Range:     u8 n <= 63, u16 n <= 4095, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 117 terms through n = 9382 (2026-11-01)
+ * Helpers:   gcd, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/gcd.h"
-#include "../utils/_smallest_prime_factor.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
     seq_t n_seq = (seq_t)n;        /* for gcd computation */
 
     while (temp > 1) {
-        uint64_t p = _smallest_prime_factor(temp);
+        uint64_t p = smallest_prime_factor(temp);
         if (p == 0) /* safety: treat remaining as prime */
             p = temp;
 

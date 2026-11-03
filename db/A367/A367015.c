@@ -8,6 +8,7 @@
  * Formula:   a(n) = (9*n^4 - 12*n^3 + 15*n^2 + 4)/4
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 208, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 54 terms through n = 9818 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

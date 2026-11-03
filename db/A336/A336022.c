@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 14, u32 n <= 19, u64 n <= 28, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 386 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *A        = NULL;  /* cached a-values */
 static size_t Acap    = 0;
@@ -40,8 +42,8 @@ static void grow_stir_cap(idx_t need)
     if (Scap <= need) {
         size_t new_cap = Scap ? Scap << 1 : 1;
         while (new_cap <= (size_t)need) new_cap <<= 1;
-        S_prev = (seq_t*)realloc(S_prev, new_cap * sizeof(seq_t));
-        S_cur  = (seq_t*)realloc(S_cur,  new_cap * sizeof(seq_t));
+        S_prev = mem_resize(seq_t, S_prev, new_cap);
+        S_cur  = mem_resize(seq_t, S_cur, new_cap);
         Scap = new_cap;
     }
 }
@@ -55,15 +57,15 @@ static void ensure_a(idx_t n)
     if (Acap <= (size_t)n) {
         size_t new_cap = Acap ? Acap << 1 : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        A = (seq_t*)realloc(A, new_cap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_cap);
         Acap = new_cap;
     }
 
     /* Initialize Stirling if not yet done */
     if (S_prev == NULL) {
         Scap = 1;
-        S_prev = (seq_t*)malloc(Scap * sizeof(seq_t));
-        S_cur  = (seq_t*)malloc(Scap * sizeof(seq_t));
+        S_prev = mem_new(seq_t, Scap);
+        S_cur  = mem_new(seq_t, Scap);
         S_prev[0] = (seq_t)1;      /* S(0,0) = 1 */
         Sm = 0;                    /* current m */
     }

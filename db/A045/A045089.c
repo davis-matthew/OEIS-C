@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* convert a candidate to base‑4 and check the condition */
 static bool valid_base4(seq_t x) {
@@ -43,11 +45,11 @@ static seq_t  next_candidate = (seq_t)1;  /* integer to test next */
 static void grow_cache(void) {
     if (cache_size == 0) {
         cache_size = 16;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) exit(1);   /* out of memory */
     } else if (cache_count == cache_size) {
         cache_size *= 2;
-        cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_size);
         if (!cache) exit(1);
     }
 }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = the decimal integer formed by the digits of 59 in base n
  *            (with the special case n = 1 giving 59 ones)
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

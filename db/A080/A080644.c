@@ -10,13 +10,15 @@
  *            (mod 6)
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static memoization table for computed values */
 static seq_t *memo = NULL;
@@ -31,7 +33,7 @@ static void ensure(idx_t n)
     if (n + 1 > memo_sz) {
         idx_t new_sz = memo_sz ? memo_sz * 2 : 1;
         while (new_sz < n + 1) new_sz <<= 1;
-        seq_t *tmp = (seq_t *)realloc(memo, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_sz);
         if (!tmp) {
             /* allocation failed; abort */
             exit(1);

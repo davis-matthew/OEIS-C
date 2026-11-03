@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign
  * Formula:   not stated
- * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 15, i64 n <= 24, i128 n <= 29,
+ * Range:     i8 n <= 6, i16 n <= 10, i32 n <= 15, i64 n <= 24, i128 n <= 29,
  *            big any n
- * Helpers:   catalan
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <stddef.h>
 #include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;        /* array of a(n) values */
 static idx_t capA = 0;         /* current allocated size of A   */
@@ -32,10 +35,10 @@ static void grow_seq_array(seq_t **arr, idx_t *cap, idx_t needed)
 {
     if (needed <= *cap)
         return;
-    seq_t *newarr = (seq_t*)malloc(needed * sizeof(seq_t));
+    seq_t *newarr = mem_new(seq_t, needed);
     if (*cap) {
-        memcpy(newarr, *arr, (*cap) * sizeof(seq_t));
-        free(*arr);
+        mem_copy(newarr, *arr, (*cap) * sizeof(seq_t));
+        mem_free(*arr);
     }
     *arr  = newarr;
     *cap  = needed;

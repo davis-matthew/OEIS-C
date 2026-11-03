@@ -10,12 +10,14 @@
  *            the logarithm of the egf: log( Σ_{n≥0} 3^{C(n,2)} x^n/n! )
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of function as required by the specification */
 seq_t a(idx_t n);
@@ -35,8 +37,8 @@ static void ensure_up_to(idx_t n) {
     /* Allocate or re‑allocate arrays as needed.  */
     size_t new_cap = (size_t)n + 1;
     if (new_cap > capacity) {
-        T        = (seq_t *)realloc(T,        new_cap * sizeof(seq_t));
-        a_table  = (seq_t *)realloc(a_table,  new_cap * sizeof(seq_t));
+        T        = mem_resize(seq_t, T, new_cap);
+        a_table  = mem_resize(seq_t, a_table, new_cap);
         capacity = new_cap;
     }
 

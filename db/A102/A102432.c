@@ -8,7 +8,8 @@
  * Formula:   a(n) = A102431(n) - n + 2
  * Range:     u8 n <= 30, u16 n <= 155, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 925 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;            /* not required by problem, but safe */
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     idx_t sqrt_n = (idx_t)floor(sqrt((long double)n));
 
     /* Preallocate a DP array once; its size fits n+1. */
-    seq_t *ways = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *ways = mem_new(seq_t, (n + 1));
     if (!ways) return 0;             /* in case of allocation failure */
 
     /* Bases up to sqrt(n) – use DP. */
@@ -67,7 +69,7 @@ seq_t a(idx_t n) {
         sumR += (seq_t)(n / b) + (seq_t)1;
     }
 
-    free(ways);
+    mem_free(ways);
 
     /* Final result: a(n) = sumR - n + 2. */
     seq_t result = sumR - (seq_t)n + (seq_t)2;

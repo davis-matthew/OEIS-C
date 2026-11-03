@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
  
 /* ---------- suffix automaton for binary strings ---------- */
 struct SAState {
@@ -116,7 +118,7 @@ seq_t a(idx_t n)
     static idx_t next_num = 0;          /* next natural number to process */
     if (early == NULL) {
         early_cap = 16;
-        early = (seq_t *)malloc(early_cap * sizeof(seq_t));
+        early = mem_new(seq_t, early_cap);
     }
     if (sa == NULL) sa_init();
  
@@ -139,7 +141,7 @@ seq_t a(idx_t n)
         if (sa_contains(bits, len)) {
             if (early_cnt == early_cap) {
                 early_cap <<= 1;
-                early = (seq_t *)realloc(early, early_cap * sizeof(seq_t));
+                early = mem_resize(seq_t, early, early_cap);
             }
             early[early_cnt++] = (seq_t)next_num;
         }

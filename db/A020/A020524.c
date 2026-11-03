@@ -7,18 +7,20 @@
  * Formula:   a(n) = 2^n - 2^(1+3*n) + 16^n, n >= 0
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 36 terms through n = 743 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
-    seq_t p2n  = pow_uint(2, n);                  /* 2^n          */
-    seq_t p1p3n = pow_uint(2, 1 + 3*n);           /* 2^(1+3n)     */
-    seq_t p16n = pow_uint(16, n);                 /* 16^n         */
+    seq_t p2n  = ipow_u64_idx(2, n);                  /* 2^n          */
+    seq_t p1p3n = ipow_u64_idx(2, 1 + 3*n);           /* 2^(1+3n)     */
+    seq_t p16n = ipow_u64_idx(16, n);                 /* 16^n         */
 
     return p2n - p1p3n + p16n;
 }

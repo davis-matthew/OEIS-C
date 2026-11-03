@@ -10,12 +10,35 @@
  *            solutions to x^2 - 10*y^2 = -6 with x > y > 0
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 48,
  *            big any n
- * Helpers:   mul38
+ * Validated: standard, pass, 38 terms through n = 870 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mul38.h"
+/* Helper: multiply by 38 with safe intermediate type */
+static inline seq_t mul38(seq_t x) {
+#ifdef __cplusplus
+    /* C++ implementation: use larger integer when seq_t is integral */
+    if constexpr (std::is_integral<seq_t>::value) {
+#if defined(__SIZEOF_INT128__)
+        return (seq_t)(((__uint128_t)38 * (unsigned long long)x));
+#else
+        return 38 * x;   /* may overflow if no 128‑bit type available */
+#endif
+    } else {
+        /* seq_t is a big‑integer class */
+        return 38 * x;
+    }
+#else
+    /* C implementation: assume seq_t is an unsigned integer */
+#if defined(__SIZEOF_INT128__)
+    return (seq_t)(((__uint128_t)38 * (unsigned long long)x));
+#else
+    return 38 * x;
+#endif
+#endif
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

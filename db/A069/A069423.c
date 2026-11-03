@@ -10,14 +10,46 @@
  *            1‑components and 0‑components)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   state_meets_criteria
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
-#include "../utils/state_meets_criteria.h"
+#include "../utils/mem.h"
+
+/* Return true if frontier state satisfies
+ * 1‑component connects top and bottom and
+ * no 0‑component connects top and bottom. */
+static inline int state_meets_criteria(int code) {
+    int mask   = code & 0x7;
+    int comp[3] = { (code >> 3) & 3,
+                    (code >> 5) & 3,
+                    (code >> 7) & 3 };
+    int top[3]  = { (code >> 9) & 1,
+                    (code >>10) & 1,
+                    (code >>11) & 1 };
+
+    int has1 = 0;
+    int zero_block = 1;
+    for (int id = 0; id < 3; id++) {
+        if (!top[id]) continue;
+        /* Does this component touch the bottom row? */
+        int present = 0;
+        int val = -1;
+        for (int c = 0; c < 3; c++) if (comp[c] == id) {
+            present = 1;
+            val = (mask >> c) & 1;
+            break;
+        }
+        if (!present) continue;               /* component no longer reaches bottom */
+        if (val == 1) has1 = 1;
+        else zero_block = 0;
+    }
+    return has1 && zero_block;
+}
 
 /* Helper to perform union–find operations on 0..5 indices */
 static inline int uf_find(int *parent, int x) {
@@ -167,7 +199,7 @@ seq_t a(idx_t n) {
 
     /* Allocate cache if this is the first call. */
     if (!cache) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache_size = 0;
     }
 
@@ -175,7 +207,7 @@ seq_t a(idx_t n) {
     if (n <= cache_size) return cache[n];
 
     /* Expand cache to accommodate up to n. */
-    cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (n + 1));
     for (idx_t i = cache_size + 1; i <= n; i++) cache[i] = (seq_t)0;
     cache_size = n;
 
@@ -185,9 +217,9 @@ seq_t a(idx_t n) {
 
     /* Initialize DP if first call. */
     if (processed_rows == 0) {
-        cur = (seq_t *)malloc(4096 * sizeof(seq_t));
-        nxt = (seq_t *)malloc(4096 * sizeof(seq_t));
-        memset(cur, 0, 4096 * sizeof(seq_t));
+        cur = mem_new(seq_t, 4096);
+        nxt = mem_new(seq_t, 4096);
+        mem_set(cur, 0, 4096 * sizeof(seq_t));
 
         /* First row: all 8 masks. */
         for (int mask = 0; mask < 8; mask++) {
@@ -207,7 +239,7 @@ seq_t a(idx_t n) {
     /* Extend DP to reach required n. */
     while (processed_rows < n) {
         /* Transition to next row. */
-        memset(nxt, 0, 4096 * sizeof(seq_t));
+        mem_set(nxt, 0, 4096 * sizeof(seq_t));
         for (int code = 0; code < 4096; code++) {
             seq_t cnt = cur[code];
             if (!cnt) continue;

@@ -8,15 +8,33 @@
  *            <= n}, j = n - i*(i+1)/2
  * Range:     u8 n <= 6, u16 n <= 17, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   binomial, pow10, pow3, seq_mul
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
+ * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
 #include "../utils/pow3.h"
-#include "../utils/pow10.h"
-#include "../utils/seq_mul.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Find the row index i for a given global index n.
    It satisfies i*(i+1)/2 <= n < (i+1)*(i+2)/2.       */

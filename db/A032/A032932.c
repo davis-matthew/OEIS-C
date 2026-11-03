@@ -8,6 +8,7 @@
  *            and 2 (i.e. all base‑12 strings over {1,2} in ascending order)
  * Range:     u8 n <= 10, u16 n <= 62, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 56 terms through n = 943 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

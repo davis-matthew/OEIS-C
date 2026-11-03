@@ -7,8 +7,9 @@
  * Keywords:  easy, sign
  * Formula:   a(n) = (-1)^A034968(n-1) (A034968 = # of 1’s in the factorial
  *            base of n‑1)
- * Range:     i8 n <= 9804, i16 n <= 9804, i32 n <= 9804, i64 n <= 9804,
- *            i128 n <= 9804, big any n
+ * Range:     i8 n <= 40320, i16 n <= 40320, i32 n <= 40320, i64 n <= 40320,
+ *            i128 n <= 40320, big any n
+ * Validated: standard, pass, 88 terms through n = 9804 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   divisible_by_n, resize_a_cache, resize_used_k
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,48 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/divisible_by_n.h"
-#include "../utils/resize_a_cache.h"
-#include "../utils/resize_used_k.h"
+#include "../utils/mem.h"
+
+/* Test whether the k‑th triangular number is a multiple of n. */
+static inline bool divisible_by_n(idx_t k, idx_t n)
+{
+    __int128 product = (__int128)k * (k + 1);          /* k*(k+1) */
+    __int128 denom   = (__int128)2 * n;                /* 2*n               */
+    return (product % denom) == 0;
+}
+
+/* Resize a seq_t array to accommodate at least 'needed' elements. */
+static void resize_a_cache(size_t *len, seq_t **arr, size_t needed)
+{
+    if (*len >= needed)
+        return;
+    size_t newlen = *len ? *len : 16;
+    while (newlen < needed)
+        newlen <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, newlen);
+    if (!tmp)
+        abort();
+    *arr = tmp;
+    *len = newlen;
+}
+
+/* Resize a boolean array to accommodate at least 'needed' indices. */
+static void resize_used_k(size_t *len, bool **arr, size_t needed)
+{
+    if (*len >= needed)
+        return;
+    size_t newlen = *len ? *len : 16;
+    while (newlen < needed)
+        newlen <<= 1;
+    bool *tmp = (bool *)realloc(*arr, newlen * sizeof(bool));
+    if (!tmp)
+        abort();
+    /* Initialise new entries to false. */
+    for (size_t i = *len; i < newlen; ++i)
+        tmp[i] = false;
+    *arr = tmp;
+    *len = newlen;
+}
 
 /* Cached values of a(n), bookkeeping of used triangular indices,
    and the largest n that has been computed. */

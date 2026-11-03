@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 7099, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_palindrome_impl, odd_nonzero_digits
+ * Validated: standard, pass, 65 terms through n = 9567 (2026-11-03)
+ * Helpers:   is_palindrome, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,8 +34,32 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_palindrome_impl.h"
-#include "../utils/odd_nonzero_digits.h"
+#include "../utils/is_palindrome.h"
+#include "../utils/mem.h"
+
+/* Count the number of digits that appear an odd number of times
+ * among the digits 1..9.  Zeroes are ignored because they can be
+ * dropped from the front.  Returns the odd count.
+ */
+static unsigned int odd_nonzero_digits(seq_t x)
+{
+    unsigned int cnt[10] = {0};
+    seq_t tmp = x;
+    while (tmp != (seq_t)0) {
+        unsigned int d = (unsigned int)(tmp % (seq_t)10);
+        ++cnt[d];
+        tmp /= (seq_t)10;
+    }
+
+    unsigned int odd = 0;
+    for (unsigned int d = 1; d <= 9; ++d) {
+        if (cnt[d] & 1U) {
+            ++odd;
+            if (odd > 1) break;          /* early exit */
+        }
+    }
+    return odd;
+}
 
 /* ---------- Local helper functions ----------------------------------- */
 
@@ -55,13 +80,13 @@ seq_t a(idx_t n)
         seq_t cand = last_checked + (seq_t)1;   /* next candidate */
 
         /* not a palindrome itself */
-        if (!is_palindrome_impl(cand)) {
+        if (!is_palindrome(cand)) {
             /* does it satisfy the digit condition? */
             if (odd_nonzero_digits(cand) <= 1U) {
                 /* store the term */
                 if (cache_len == cache_cap) {
                     size_t new_cap = cache_cap ? cache_cap * 2U : 16U;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (tmp == NULL) {
                         /* allocation failure – abort with zero */
                         return (seq_t)0;

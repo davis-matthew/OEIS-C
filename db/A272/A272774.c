@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 58, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    boundary T(n,n)=1, and T(n,k)=0 for k<0 or k>n. 
    a(n) is the nth entry when the triangle is read row‑by‑row starting at n=0. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,11 +29,11 @@ seq_t a(idx_t n)
     idx_t k = n - r * (r + 1) / 2;
 
     /* Base triangle row 0: T(0,0)=1 */
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, 1);
     prev[0] = (seq_t)1;
 
     for (idx_t i = 1; i <= r; ++i) {
-        seq_t *curr = (seq_t *)malloc(sizeof(seq_t) * (i + 1));
+        seq_t *curr = mem_new(seq_t, (i + 1));
         for (idx_t j = 0; j <= i; ++j) {
             if (j == i) {
                 curr[j] = (seq_t)1;
@@ -42,11 +44,11 @@ seq_t a(idx_t n)
                 curr[j] = val;
             }
         }
-        free(prev);
+        mem_free(prev);
         prev = curr;
     }
 
     seq_t result = prev[k];
-    free(prev);
+    mem_free(prev);
     return result;
 }

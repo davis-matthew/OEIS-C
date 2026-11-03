@@ -10,14 +10,16 @@
  *            binom(L‑1, ⌊(L‑1)/2⌋)
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 35, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
-
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Catalan numbers and their convolutions. */
 static idx_t cat_size = 0;         /* number of Catalan entries stored */
@@ -35,15 +37,15 @@ static void ensure_precompute(idx_t n)
     size_t newSize = maxM + 1;
 
     /* Resize arrays. */
-    cat  = (seq_t *)realloc(cat,  newSize * sizeof(seq_t));
-    cat2 = (seq_t *)realloc(cat2, newSize * sizeof(seq_t));
-    cat3 = (seq_t *)realloc(cat3, newSize * sizeof(seq_t));
+    cat  = mem_resize(seq_t, cat, newSize);
+    cat2 = mem_resize(seq_t, cat2, newSize);
+    cat3 = mem_resize(seq_t, cat3, newSize);
     if (!cat || !cat2 || !cat3) abort();
 
     /* Compute new Catalan numbers. */
     for (size_t k = cat_size; k < newSize; ++k) {
         idx_t kk = (idx_t)k;
-        seq_t val = binom(2 * kk, kk);   /* (2k choose k) */
+        seq_t val = binomial(2 * kk, kk);   /* (2k choose k) */
         cat[k] = val / (seq_t)(kk + 1);  /* Catalan(k)    */
     }
 
@@ -71,7 +73,7 @@ static seq_t zero_avoiding_tail(idx_t L)
     if (L == 0) return (seq_t)1;
     idx_t L1 = L - 1;                     /* steps after the first one */
     idx_t half = L1 / 2;
-    seq_t bin = binom(L1, half);
+    seq_t bin = binomial(L1, half);
     return bin * (seq_t)2;
 }
 

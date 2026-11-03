@@ -11,18 +11,48 @@
  *            permutation of cycle type lambda acting on {0,1}^m
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 18, u128 n <= 45,
  *            big any n
- * Helpers:   alloc_zero, gcd_i, release, seq_is_big, u128_to_seq
+ * Validated: standard, pass, 35 terms through n = 890 (2026-11-03)
+ * Helpers:   gcd_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/seq_is_big.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/gcd_i.h"
+#include <string.h>
+#include "../utils/gcd_i32.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
 
 typedef unsigned __int128 u128;
 
@@ -47,7 +77,7 @@ static void store_part(int m, const int *cur, int k) {
     pw[np] = (m == 7) ? fact / z : 7 * (fact / z);
     for (e = 1; e <= MAXD; e++) {
         int s = 0;
-        for (i = 0; i < k; i++) s += gcd_i(cur[i], e);
+        for (i = 0; i < k; i++) s += gcd_i32(cur[i], e);
         fix[e] = 1LL << s;
     }
     for (d = 1; d <= MAXD; d++) {

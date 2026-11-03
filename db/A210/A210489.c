@@ -9,14 +9,16 @@
  *            obtained by reading the table of T in ascending antidiagonals:
  *            let t = ⌊(√(8n+1)-1)/2⌋, off = n - t(t+1)/2, then i = t - off, j
  *            = off + 1
- * Range:     u8 n <= 81, u16 n <= 305, u32 n <= 1140, u64 n <= 1325,
+ * Range:     u8 n <= 81, u16 n <= 306, u32 n <= 1141, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 94 terms through n = 1260 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t T(idx_t n, idx_t m)

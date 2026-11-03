@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_two_fives
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,25 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_two_fives.h"
+#include "../utils/mem.h"
+
+/* Test whether a number contains exactly two digits '5' in base 9. */
+static bool has_two_fives(seq_t x)
+{
+    unsigned count = 0;
+    seq_t y = x;
+    while (y != (seq_t)0)
+    {
+        seq_t d = y % (seq_t)9;
+        if (d == (seq_t)5)
+        {
+            ++count;
+            if (count > 2) return false;
+        }
+        y = y / (seq_t)9;
+    }
+    return count == 2;
+}
 
 /* Global cache for previously found terms */
 static seq_t *cache   = NULL;   /* array of found terms */
@@ -30,7 +49,7 @@ static void ensure_capacity(size_t need)
     if (cap >= need) return;
     size_t newcap = cap ? cap * 2 : 16;
     while (newcap < need) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     cache = tmp;
     cap   = newcap;
 }

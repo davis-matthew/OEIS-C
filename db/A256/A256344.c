@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 2470, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_mul, seq_realloc
+ * Validated: standard, pass, 73 terms through n = 9791 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,13 +20,26 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/mod_mul.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/mulmod.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Compute f(x) = (x^2 + 1) mod m, avoiding overflow by modular multiplication. */
 static uint64_t f_func(uint64_t x, uint64_t m)
 {
-    uint64_t t = mod_mul(x, x, m);
+    uint64_t t = mulmod(x, x, m);
     t += 1;
     if (t >= m) t -= m;
     return t;

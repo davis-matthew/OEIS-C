@@ -7,6 +7,7 @@
  * Formula:   a(n) = 3^n represented in base 6, with digits read as base 10
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 31, u128 n <= 63,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 981 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

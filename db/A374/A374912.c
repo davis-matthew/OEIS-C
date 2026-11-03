@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 440, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 67 terms through n = 9909 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
     /* one‑time initialisation */
     if (cache_len == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)3;
         cache_len = 1;
         last_checked = 3;
@@ -52,12 +55,12 @@ seq_t a(idx_t n)
         seq_t mod  = (seq_t)(2ULL * (uint64_t)last_checked - 1ULL);
 
         /* compute (p-1)^p mod (2p-1) */
-        seq_t val = mod_pow(base, (uint64_t)last_checked, mod);
+        seq_t val = powmod(base, (uint64_t)last_checked, mod);
 
         if (val == (seq_t)last_checked) { /* condition satisfied */
             if (cache_len == cache_cap) {  /* grow cache dynamically */
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)last_checked;
         }

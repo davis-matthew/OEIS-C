@@ -7,12 +7,13 @@
  * Formula:   a(n) = floor(log2(4*(n+2)/3)) - floor(log2(n+2))
  * Range:     u8 n <= 313, u16 n <= 1021, u32 n <= 1021, u64 n <= 1021,
  *            u128 n <= 1021, big any n
- * Helpers:   floor_log2_seq_t
+ * Validated: standard, pass, 115 terms through n = 983 (2026-11-01)
+ * Helpers:   ilog2_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_seq_t.h"
+#include "../utils/ilog2_seq.h"
 /*  For each index n, a(n) equals 0 if n lies in a zero‑run, otherwise 1. */
 
 seq_t a(idx_t n)
@@ -21,7 +22,7 @@ seq_t a(idx_t n)
     seq_t v = (seq_t)n + 2;
 
     /* s = floor(log2(v))  */
-    unsigned s = floor_log2_seq_t(v);
+    unsigned s = ilog2_seq(v);
 
     /* pair index k = floor(log2(v)) – 1   (k ≥ 0) */
     unsigned k = s - 1;

@@ -6,8 +6,9 @@
  * Offset:    3    (a(3) is the first term)
  * Keywords:  nonn, tabf, changed
  * Formula:   not stated
- * Range:     u8 n <= 9334, u16 n <= 9334, u32 n <= 9334, u64 n <= 9334,
- *            u128 n <= 9334, big any n
+ * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
+ *            big any n
+ * Validated: partial, pass, 86 terms through n = 88 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

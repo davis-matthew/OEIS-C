@@ -8,11 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 /* Sequence: A191515
    a(n) = number of vertices of outdegree ≥ 2 in the rooted tree
    having Matula–Goebel number n.

@@ -9,7 +9,8 @@
  *            is a triangular number, otherwise t(m) = 1
  * Range:     u8 n <= 45, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   is_zero_t
+ * Validated: partial, pass, 63 terms through n = 64 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,14 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_zero_t.h"
+
+/* t(n) is 0 only when 8*n + 9 is a perfect square.  */
+static inline bool is_zero_t(idx_t n)
+{
+    uint64_t v = 8ULL * n + 9ULL;
+    uint64_t r = (uint64_t)(sqrt((long double)v) + 0.5L);
+    return ( (__int128)r * r == v );
+}
 
 seq_t a(idx_t n)
 {

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 31,
  *            big any n
- * Helpers:   valid_center
+ * Validated: standard, pass, 33 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -44,7 +45,31 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/valid_center.h"
+#include "../utils/mem.h"
+
+static inline bool
+valid_center(uint64_t left, uint64_t center, uint64_t right,
+             bool left_present, bool right_present)
+{
+    for (int r = 0; r < 6; ++r) {
+        int same = 0;
+        uint8_t b = (center >> r) & 1U;
+
+        if (left_present) {
+            if (((left >> r) & 1U) == b) ++same;
+            if (r > 0          && (((left >> (r - 1)) & 1U) == b)) ++same;
+            if (r < 5          && (((left >> (r + 1)) & 1U) == b)) ++same;
+        }
+        if (right_present) {
+            if (((right >> r) & 1U) == b) ++same;
+            if (r > 0          && (((right >> (r - 1)) & 1U) == b)) ++same;
+            if (r < 5          && (((right >> (r + 1)) & 1U) == b)) ++same;
+        }
+        if (!(same == 0 || same == 2 || same == 3 || same == 4))
+            return false;
+    }
+    return true;
+}
 
 static bool init_done = false;
 static uint8_t  rights_set[64][64][64];
@@ -98,7 +123,7 @@ seq_t a(idx_t n)
 
     static seq_t dp[64][64];
     static seq_t nxt[64][64];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* initial two columns: first column must satisfy its only neighbour rule */
     for (int first = 0; first < 64; ++first) {
@@ -113,7 +138,7 @@ seq_t a(idx_t n)
 
     /* DP over remaining columns */
     for (idx_t col = 2; col < n; ++col) {
-        memset(nxt, 0, sizeof(nxt));
+        mem_set(nxt, 0, sizeof(nxt));
         for (int left = 0; left < 64; ++left) {
             for (int mid = 0; mid < 64; ++mid) {
                 seq_t val = dp[left][mid];
@@ -126,7 +151,7 @@ seq_t a(idx_t n)
             }
         }
         /* swap dp and nxt */
-        memcpy(dp, nxt, sizeof(dp));
+        mem_copy(dp, nxt, sizeof(dp));
     }
 
     /* final column must satisfy its only left neighbour rule */

@@ -10,19 +10,31 @@
  *            function computes terms on demand, memoising all previous values
  *            up to the requested index. The implementation runs in O(n²) time
  *            and O(n) memory, suitable for n ≤ 10 000
- * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 8, u128 n <= 13,
+ * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 8, u128 n <= 1,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
-seq_t a(idx_t n)
+/* the code below runs in wide_t: 128 bits at the fixed widths (never narrower
+   than seq_t), seq_t itself for big, so values that pass 2^64 on the way to a
+   term that fits stay exact; a() returns the term in seq_t */
+#ifdef __cplusplus
+typedef seq_t wide_t;
+#else
+typedef __typeof__((seq_t)0 + (__int128)0) wide_t;
+#endif
+#define seq_t wide_t
+
+seq_t a_wide(idx_t n)
 {
     /* static cache for the sequence values */
-    static seq_t *a_cache   = NULL;   /* a_cache[i] = a(i) */
+    static seq_t *a_cache   = NULL;   /* a_cache[i] = a_wide(i) */
     static size_t a_cap     = 0;       /* capacity of a_cache    */
     static idx_t  a_len     = 0;       /* number of values stored */
 
@@ -32,27 +44,27 @@ seq_t a(idx_t n)
 
     /* initialise on first call */
     if (a_len == 0) {
-        /* a(0) = 1 */
+        /* a_wide(0) = 1 */
         a_cap = 1;
-        a_cache = (seq_t*)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         a_cache[0] = 1;
         a_len = 1;
 
         /* S(0,0) = 1 */
         S_cap = 1;
-        S = (seq_t*)malloc(S_cap * sizeof(seq_t));
+        S = mem_new(seq_t, S_cap);
         S[0] = 1;
     }
 
     /* grow the caches to accommodate values up to n */
     while (a_len <= n) {
-        idx_t cur = a_len;              /* compute next value a(cur) */
+        idx_t cur = a_len;              /* compute next value a_wide(cur) */
 
         /*-- Update Stirling numbers to row cur --------------------------------*/
         if (cur + 1 > S_cap) {
             size_t new_cap = S_cap ? S_cap * 2 : 4;
             while (new_cap < cur + 1) new_cap <<= 1;
-            S = (seq_t*)realloc(S, new_cap * sizeof(seq_t));
+            S = mem_resize(seq_t, S, new_cap);
             S_cap = new_cap;
         }
 
@@ -62,7 +74,7 @@ seq_t a(idx_t n)
         }
         S[0] = 0;   /* S(cur,0) = 0 for cur > 0 */
 
-        /*-- Compute a(cur) ---------------------------------------------*/
+        /*-- Compute a_wide(cur) ---------------------------------------------*/
         seq_t sum = 0;
         seq_t pow2 = 1;   /* 2^0 */
         for (idx_t k = 1; k <= cur; ++k) {
@@ -78,7 +90,7 @@ seq_t a(idx_t n)
         if (cur + 1 > a_cap) {
             size_t new_cap = a_cap ? a_cap * 2 : 4;
             while (new_cap < cur + 1) new_cap <<= 1;
-            a_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, new_cap);
             a_cap = new_cap;
         }
         a_cache[cur] = sum;
@@ -86,4 +98,10 @@ seq_t a(idx_t n)
     }
 
     return a_cache[n];
+}
+
+#undef seq_t
+seq_t a(idx_t n)
+{
+    return (seq_t)a_wide(n);
 }

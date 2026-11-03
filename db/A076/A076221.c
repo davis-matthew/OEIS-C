@@ -8,8 +8,9 @@
  * Formula:   a(n) = |{1 ≤ x ≤ r | gcd(x,k)=1, x≠k}| where * r = ceil( (-1 +
  *            sqrt(1+8n)) / 2 ) (row index) * k = n - r*(r-1)/2 (column index)
  *            * For the triangle read by rows of A(n,k)
- * Range:     u8 n <= 9723, u16 n <= 9723, u32 n <= 9723, u64 n <= 9723,
- *            u128 n <= 9723, big any n
+ * Range:     u8 n <= 10011, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 107 terms through n = 9723 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

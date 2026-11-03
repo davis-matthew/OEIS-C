@@ -11,7 +11,8 @@
  *            5 icosahedron)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   count_graph, dfs_directed
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,35 @@
 #include <stdint.h>
 #include <math.h>
 #include <float.h>
-#include "../utils/count_graph.h"
-#include "../utils/dfs_directed.h"
+
+/* Count directed Hamiltonian paths starting from vertex cur.
+   mask stores already visited vertices; allMask is mask with all bits set. */
+static inline seq_t dfs_directed(int cur, uint32_t mask,
+                                 uint32_t allMask,
+                                 int nverts,
+                                 const uint32_t *adj)
+{
+    if ((mask & allMask) == allMask)
+        return (seq_t)1;
+
+    seq_t total = 0;
+    uint32_t avail = adj[cur] & (~mask) & allMask;
+    while (avail) {
+        int v = __builtin_ctz(avail);
+        avail &= avail - 1;
+        total += dfs_directed(v, mask | (1u << v), allMask, nverts, adj);
+    }
+    return total;
+}
+
+static seq_t count_graph(int nverts, const uint32_t *adj)
+{
+    seq_t total = 0;
+    uint32_t allMask = (nverts == 32) ? 0xFFFFFFFFu : ((1u << nverts) - 1);
+    for (int start = 0; start < nverts; ++start)
+        total += dfs_directed(start, 1u << start, allMask, nverts, adj);
+    return total;
+}
 
 static uint32_t adj_tetra[4];
 static uint32_t adj_cube[8];

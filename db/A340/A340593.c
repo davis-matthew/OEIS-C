@@ -14,13 +14,15 @@
  *            a(n-1) - step; else a(n) = a(n-1) + step;
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- dynamic storage for the sequence ---------- */
 static seq_t *seq_vals = NULL;    /* values a(0)..a(k) */
@@ -43,7 +45,7 @@ static void seq_ensure_cap(idx_t need)
     if (need <= seq_cap) return;
     idx_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap <= need) new_cap <<= 1;
-    seq_vals = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_vals = mem_resize(seq_t, seq_vals, new_cap);
     if (!seq_vals) abort();
     seq_cap = new_cap;
 }
@@ -54,7 +56,7 @@ static void map_ensure_cap(size_t need)
     if (need <= map_cap) return;
     size_t new_cap = map_cap ? map_cap * 2 : 16;
     while (new_cap <= need) new_cap <<= 1;
-    map_entries = (node_t *)realloc(map_entries, new_cap * sizeof(node_t));
+    map_entries = mem_resize(node_t, map_entries, new_cap);
     if (!map_entries) abort();
     map_cap = new_cap;
 }

@@ -11,13 +11,15 @@
  *            a(16)=11516826227, a(17)=25318126862, a(18)=36834953089, a(1...
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 15, u64 n <= 30, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Allocate initial storage if needed */
     if (cache == NULL) {
         cache_size = 20; /* at least enough for the init terms */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) return (seq_t)0; /* out of memory – shouldn't happen */
         for (size_t i = 0; i < 20; ++i) cache[i] = init[i];
         last_computed = 19;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         size_t new_size = cache_size;
         while (new_size <= n) new_size <<= 1; /* double until large enough */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) return (seq_t)0; /* out of memory – shouldn't happen */
         cache = tmp;
         cache_size = new_size;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = 8*a(n-1) - 242*(n-1)*a(n-2) with a(0)=1, a(1)=8
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 6, i64 n <= 12, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 419 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence relation from OEIS A159326 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     {
         cache_cap = n + 1;          /* at least store up to n */
         if (cache_cap < 2) cache_cap = 2;   /* need room for a(1) when n>=1 */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;        /* allocation failure – return 0 as a fallback */
 
         /* seed initial values */
@@ -39,14 +41,14 @@ seq_t a(idx_t n)
     /* --- grow the cache if the requested index is outside current bounds --- */
     else if (n + 1 > cache_cap)
     {
-        seq_t *new_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (n + 1));
         if (!new_cache) return 0;    /* allocation failure – fallback to 0 */
 
         /* copy the already computed part */
         for (idx_t i = 0; i <= last_idx; ++i)
             new_cache[i] = cache[i];
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = n + 1;
     }

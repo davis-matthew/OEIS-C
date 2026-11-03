@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Persistent state -------------------------------------------------------- */
 static seq_t *seq_cache = NULL;
@@ -87,7 +89,7 @@ static void ensure_cache_capacity(size_t needed)
     if (cache_len >= needed) return;
     if (cache_cap < needed) {
         cache_cap = cache_cap ? cache_cap * 2 : 64;
-        seq_cache = (seq_t *)realloc(seq_cache, cache_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, cache_cap);
     }
 }
 
@@ -97,7 +99,7 @@ static void ensure_used_capacity(size_t needed)
     if (used_len >= needed) return;
     if (used_cap < needed) {
         used_cap = used_cap ? used_cap * 2 : 64;
-        used_vals = (seq_t *)realloc(used_vals, used_cap * sizeof(seq_t));
+        used_vals = mem_resize(seq_t, used_vals, used_cap);
     }
 }
 
@@ -149,10 +151,10 @@ seq_t a(idx_t n)
     /* Initialize static state on first call. */
     if (cache_len == 0) {
         cache_cap = 64;
-        seq_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_cap);
 
         used_cap = 64;
-        used_vals = (seq_t *)malloc(used_cap * sizeof(seq_t));
+        used_vals = mem_new(seq_t, used_cap);
 
         parity_cap = 64;
         parity_tab = (unsigned char *)malloc(parity_cap * sizeof(unsigned char));

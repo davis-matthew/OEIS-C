@@ -9,7 +9,8 @@
  *            exactly k parts. a(0) = 1
  * Range:     u8 n <= 30, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: compute the largest k with k(k+1)/2 ≤ n.
    Works for all n that can be represented in idx_t. */
@@ -45,7 +47,7 @@ static void free_dp(void)
 {
     if (!dp) return;
     for (idx_t i = 0; i <= dp_nmax; ++i)
-        free(dp[i]);
+        mem_free(dp[i]);
     free(dp);
     dp = NULL;
     dp_nmax = 0;
@@ -66,7 +68,7 @@ static void ensure_dp(idx_t n)
     dp = (seq_t **)malloc((dp_nmax + 1) * sizeof(seq_t *));
     for (idx_t i = 0; i <= dp_nmax; ++i)
     {
-        dp[i] = (seq_t *)calloc(dp_kmax + 1, sizeof(seq_t)); /* zero‑init */
+        dp[i] = mem_new(seq_t, dp_kmax + 1); /* zero‑init */
     }
 
     /* Base case */

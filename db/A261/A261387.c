@@ -13,7 +13,8 @@
  *            factors; the search loops over k ≤ (n-1)/2 for each n
  * Range:     u8 n <= 2208, u16 n <= 3000, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   mod_pow_64
+ * Validated: standard, pass, 86 terms through n = 2941 (2026-11-03)
+ * Helpers:   mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow_64.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /* Types supplied by the build */
 typedef uint64_t idx_t;   /* index type */
@@ -42,7 +44,7 @@ static bool is_primitive_root(uint64_t g, uint64_t p) {
         uint64_t q = spf[(size_t)x];
         if (q == 0) q = x;                 /* prime itself */
         if (q != prev_q) {                 /* distinct prime factor only */
-            if (mod_pow_64(g, phi / q, p) == 1) return false;
+            if (powmod_u64(g, phi / q, p) == 1) return false;
             prev_q = q;
         }
         while (x % q == 0) x /= q;
@@ -94,7 +96,7 @@ seq_t a(idx_t n) {
     if (n == 0) return 0;   /* safety for index 0                */
 
     if (n + 1 > cache_size) {
-        seq_t *new_cache = (seq_t*)realloc(a_cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, a_cache, (n + 1));
         if (!new_cache) exit(1);        /* allocation failure */
         a_cache = new_cache;
         for (idx_t i = cache_size; i <= n; ++i)

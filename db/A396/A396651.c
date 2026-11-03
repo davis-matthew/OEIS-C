@@ -13,12 +13,14 @@
  *            highest power) and concatenating the rows
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,10 +37,10 @@ seq_t a(idx_t n)
     if (r == 1) return k == 0 ? (seq_t)0 : (seq_t)4; /* row 1: [0,4]           */
 
     /* Allocate row 0 (P(0,x)) and row 1 (P(1,x)) */
-    seq_t *prev2 = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *prev2 = mem_new(seq_t, 1);
     prev2[0] = (seq_t)1;                          /* P(0,x) */
 
-    seq_t *prev1 = (seq_t *)malloc(2 * sizeof(seq_t));
+    seq_t *prev1 = mem_new(seq_t, 2);
     prev1[0] = (seq_t)0;
     prev1[1] = (seq_t)4;                          /* P(1,x) */
 
@@ -46,19 +48,19 @@ seq_t a(idx_t n)
      *   coeff(n,k) = coeff(n-1,k-1) + coeff(n-2,k)
      * with out‑of‑range coefficients treated as 0. */
     for (idx_t i = 2; i <= r; ++i) {
-        seq_t *newrow = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        seq_t *newrow = mem_new(seq_t, (i + 1));
         for (idx_t j = 0; j <= i; ++j) {
             seq_t a = (j > 0) ? prev1[j - 1] : (seq_t)0;
             seq_t b = (j <= i - 2) ? prev2[j] : (seq_t)0;
             newrow[j] = a + b;
         }
-        free(prev2);          /* free the oldest row */
+        mem_free(prev2);          /* free the oldest row */
         prev2 = prev1;        /* shift rows */
         prev1 = newrow;
     }
 
     seq_t result = prev1[k];
-    free(prev2);
-    free(prev1);
+    mem_free(prev2);
+    mem_free(prev1);
     return result;
 }

@@ -12,12 +12,14 @@
  *            a(8)=5187181, a(9)=40522052, a(10)=316707721
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence.  cache[0] holds a(1), cache[1] holds a(2), … */
 static seq_t *cache = NULL;
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         size_t needed = (size_t)n;
         if (needed > cache_cap) {
             cache_cap = needed;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
             /* No error handling required for the judge environment */
         }
 

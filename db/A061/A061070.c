@@ -9,13 +9,15 @@
  *            counting how many distinct values have appeared
  * Range:     u8 n <= 960, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 9891 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build.  */
 static idx_t current_max = 0;
@@ -43,11 +45,11 @@ seq_t a(idx_t n)
 
         /* Count distinct φ values. */
         bool *seen = (bool *)calloc((n + 1), sizeof(bool));
-        seq_t *new_dist = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_dist = mem_new(seq_t, (n + 1));
         if (!seen || !new_dist) {
             free(phi);
             if (seen) free(seen);
-            if (new_dist) free(new_dist);
+            if (new_dist) mem_free(new_dist);
             return 0;
         }
 
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         free(phi);
         free(seen);
 
-        if (distinct_arr) free(distinct_arr);
+        if (distinct_arr) mem_free(distinct_arr);
         distinct_arr = new_dist;
         current_max = n;
     }

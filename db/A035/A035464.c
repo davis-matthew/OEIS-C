@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of partitions of n into parts 8k+4 or 8k+6
  * Range:     u8 n <= 71, u16 n <= 177, u32 n <= 515, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computation performed by a simple DP over the allowed part sizes. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,9 +27,9 @@ seq_t a(idx_t n)
     idx_t len = n + 1;
     if (!dp || cap < len) {
         /* grow table if necessary */
-        seq_t *newdp = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, len);
         if (!newdp) return (seq_t)0;          /* out of memory – return zero */
-        free(dp);
+        mem_free(dp);
         dp = newdp;
         cap = len;
     }

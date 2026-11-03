@@ -8,6 +8,7 @@
  *            +7700*n -15576) / 24 for n >= 4 a(n) = 0 for n < 4
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 25, u64 n <= 381, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 1000 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

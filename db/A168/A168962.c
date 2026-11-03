@@ -10,12 +10,14 @@
  *            for n ≥ 22 : a(n) = 43 * (a(n-1)+...+a(n-21)) – 946 * a(n-22)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* allocate enough space for indices up to n */
     if ((size_t)(n + 1) > cache_len) {
         size_t new_len = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache) return (seq_t)0;        /* allocation failed */
 
         /* copy already computed values */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         for (size_t i = cache_len; i < new_len; ++i)
             new_cache[i] = (seq_t)0;
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len = new_len;
     }

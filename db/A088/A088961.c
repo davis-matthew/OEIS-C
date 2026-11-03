@@ -9,14 +9,16 @@
  *            Let r = n – Σ_{t=1}^{m‑1} t²; 1 ≤ r ≤ m². Write r in row‑major
  *            order: i = (r‑1)/m + 1, j = (r‑1)%m + 1. Then a(n) =
  *            binomial(2m, m + j – i) – binomial(2m, m + i + j) if m...
- * Range:     u8 n <= 14, u16 n <= 273, u32 n <= 1783, u64 n <= 9455,
+ * Range:     u8 n <= 48, u16 n <= 274, u32 n <= 1784, u64 n <= 9455,
  *            u128 n <= 9455, big any n
+ * Validated: standard, pass, 71 terms through n = 8554 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static inline unsigned __int128 sum_squares(idx_t t)

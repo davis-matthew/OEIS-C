@@ -11,13 +11,15 @@
  *            a(8)=1722, a(9)=3360, a(10)=6512, * a(11)=12642
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 30, u64 n <= 63, u128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* A cache that grows as needed.  The element at index i holds a(i). */
 static seq_t *cache = NULL;          /* cache array (index 0 unused) */
@@ -49,7 +51,7 @@ static void ensure_min_cache(idx_t min_needed)
     if (cache_size >= need)
         return;                          /* already sufficient */
 
-    seq_t *new_cache = (seq_t *)malloc((need + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (need + 1));
     if (!new_cache)
         return;                          /* allocation failure keeps old cache */
 
@@ -62,7 +64,7 @@ static void ensure_min_cache(idx_t min_needed)
     for (size_t i = cache_size + 1; i <= need; ++i)
         new_cache[i] = 0;
 
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_size = need;
 }

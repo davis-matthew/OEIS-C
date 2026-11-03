@@ -11,19 +11,21 @@
  *            regenerating the required values up to n on each call
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n < 1) return 0;          /* out of bounds guard */
 
     /* allocate array up to n (index 1..n) */
-    seq_t *seq = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, (size_t)(n + 1));
     if (!seq) return 0;           /* allocation failure guard */
 
     /* initialise all to 2; then set a(1)=1 */
@@ -45,6 +47,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[n];
-    free(seq);
+    mem_free(seq);
     return result;
 }

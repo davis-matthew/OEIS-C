@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, cofr, easy
  * Formula:   continued fraction expansion of sqrt(229)
- * Range:     u8 none, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
+ * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   sqrt_floor
+ * Validated: partial, pass, 85 terms through n = 84 (2026-11-03)
+ * Helpers:   isqrt_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/sqrt_floor.h"
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
+#include "../utils/mem.h"
 
 /* Computes the n-th term of the sequence A040213. */
 seq_t a(idx_t n)
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
          *  only once and cache it for subsequent calls.
          * --------------------------------------------------------------- */
         const seq_t D = (seq_t)229;   /* radicand */
-        a0 = sqrt_floor(D);            /* floor(sqrt(229)) = 15 */
+        a0 = isqrt_seq(D);            /* floor(sqrt(229)) = 15 */
 
         seq_t m = 0;                  /* initial m */
         seq_t d = 1;                  /* initial d */
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
 
         /* Build the period array dynamically. */
         size_t cap = 4;
-        period = (seq_t *)malloc(cap * sizeof(seq_t));
+        period = mem_new(seq_t, cap);
         period_len = 0;
 
         /* Iterative continued‑fraction algorithm.  All terms after
@@ -56,7 +59,7 @@ seq_t a(idx_t n)
             /* Store the term. */
             if (period_len == cap) {
                 cap *= 2;
-                period = (seq_t *)realloc(period, cap * sizeof(seq_t));
+                period = mem_resize(seq_t, period, cap);
             }
             period[period_len++] = a_val;
 

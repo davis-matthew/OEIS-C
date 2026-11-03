@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 169, u16 n <= 4951, u32 n <= 4951, u64 n <= 4951,
  *            u128 n <= 4951, big any n
- * Helpers:   gcd64
+ * Validated: standard, pass, 96 terms through n = 4715 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
    smallest prime factors. */
 
 #include <stdint.h>
-#include "../utils/gcd64.h"
+#include <stdbool.h>
+#include "../utils/gcd_u64.h"
 
 /* integer square root of an unsigned __int128, floor value */
 static unsigned long long isqrt128(unsigned __int128 v) {
@@ -74,7 +76,7 @@ seq_t a(idx_t n) {
     unsigned long long c = pos + 2;          /* column (>=2) */
 
     /* compute the triangle entry */
-    uint64_t g = gcd64(m, c);
+    uint64_t g = gcd_u64(m, c);
     if (g > 1) {
         return (seq_t)spf_uint64(g);
     } else {

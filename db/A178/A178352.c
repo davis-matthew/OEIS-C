@@ -10,12 +10,14 @@
  *            support)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -23,11 +25,11 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* compute needed powers */
-    seq_t pow8  = pow_seq((seq_t)8,  (int)n);
-    seq_t pow6  = pow_seq((seq_t)6,  (int)n);
-    seq_t pow12 = pow_seq((seq_t)12, (int)n);
-    seq_t pow18 = pow_seq((seq_t)18, (int)n);
-    seq_t pow10 = pow_seq((seq_t)10, (int)n);
+    seq_t pow8  = ipow_i32((seq_t)8,  (int)n);
+    seq_t pow6  = ipow_i32((seq_t)6,  (int)n);
+    seq_t pow12 = ipow_i32((seq_t)12, (int)n);
+    seq_t pow18 = ipow_i32((seq_t)18, (int)n);
+    seq_t pow10 = ipow_i32((seq_t)10, (int)n);
 
     /* positive part of the formula */
     seq_t pos = ((seq_t)2 * pow8) + pow12 + pow10 + (pow18 / (seq_t)2);

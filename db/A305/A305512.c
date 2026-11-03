@@ -11,12 +11,14 @@
  *            749, 1719, 3710, 8182, 18453, 40666, 90453, 201921
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 29, u64 n <= 57, u128 n <= 112,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Reserve a bit more to avoid frequent reallocs */
         cache_cap = 32;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return 0;    /* out of memory */
 
         cache[0]  = 2;
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     if ((size_t)n > cache_cap) {
         size_t new_cap = cache_cap;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return 0;      /* out of memory */
         cache = tmp;
         cache_cap = new_cap;

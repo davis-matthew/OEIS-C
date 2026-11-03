@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} mu(k) * k
  * Range:     i8 n <= 72, i16 n <= 2650, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9510 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static idx_t max_n = 0;
 static int8_t *mu_arr = NULL;
@@ -30,7 +32,7 @@ static void ensure_up_to(idx_t n)
 
     /* Allocate new arrays.  (A realloc would also work.) */
     int8_t  *new_mu = (int8_t *)malloc(sizeof(int8_t) * (n + 1));
-    seq_t   *new_cum = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+    seq_t   *new_cum = mem_new(seq_t, (n + 1));
     if (!new_mu || !new_cum) {
         /* In a real program you'd handle this better. */
         exit(1);
@@ -69,7 +71,7 @@ static void ensure_up_to(idx_t n)
 
     /* Replace old arrays with the new ones. */
     free(mu_arr);
-    free(cum_arr);
+    mem_free(cum_arr);
     mu_arr = new_mu;
     cum_arr = new_cum;
     max_n = n;

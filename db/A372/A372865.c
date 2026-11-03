@@ -7,7 +7,8 @@
  * Formula:   a(n) = (∑_{k = 1..n-1} k*a(k)) (mod n), a(1) = 1
  * Range:     u8 n <= 12, u16 n <= 73, u32 n <= 2960, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9913 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /*  O(n) incremental computation with memoization. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types provided by the build: idx_t and seq_t. */
 static seq_t *a_cache = NULL;    /* array of computed a(n), 1‑based */
@@ -28,7 +30,7 @@ static void ensure_cache_cap(idx_t n)
     if ((size_t)n < cache_cap) return;          /* already enough */
     size_t new_cap = cache_cap ? cache_cap * 2 : 4;
     if ((size_t)n + 1 > new_cap) new_cap = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_cap);
     if (!new_cache) abort();                    /* allocation failure */
     /* zero‑initialize new slots if any */
     if (new_cap > cache_cap)

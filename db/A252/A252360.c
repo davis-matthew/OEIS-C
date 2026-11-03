@@ -9,6 +9,7 @@
  *            483*a(n-2) + a(n-3) for n >= 4
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 14,
  *            big any n
+ * Validated: standard, pass, 28 terms through n = 341 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

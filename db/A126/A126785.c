@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 92, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 79 terms through n = 9880 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Returns the nth element of sequence A126785, starting at a(1). */
 seq_t a(idx_t n)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         /* Grow array if necessary. */
         if (cache_size == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) {
                 /* Allocation failed – abort gracefully. */
                 exit(EXIT_FAILURE);

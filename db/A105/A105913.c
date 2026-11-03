@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, pow_mod
+ * Validated: standard, pass, 73 terms through n = 918 (2026-11-03)
+ * Helpers:   is_prime_u64, mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"
-#include "../utils/pow_mod.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /* Test whether -41 is a primitive root modulo prime p */
 static bool is_minus41_primitive_root(uint64_t p)
@@ -36,13 +38,13 @@ static bool is_minus41_primitive_root(uint64_t p)
     while (d <= m / d) {
         if (m % d == 0) {
             /* If base^(phi/d) ≡ 1 (mod p), then d divides the order */
-            if (pow_mod(base, phi / d, p) == 1) return false;
+            if (powmod_u64(base, phi / d, p) == 1) return false;
             while (m % d == 0) m /= d;
         }
         d = (d == 2) ? 3 : d + 2;   /* test only 2 and odd divisors */
     }
     if (m > 1) {                      /* remaining prime factor of phi */
-        if (pow_mod(base, phi / m, p) == 1) return false;
+        if (powmod_u64(base, phi / m, p) == 1) return false;
     }
     return true;
 }
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         uint64_t p = next;
 
         /* Find the next prime starting from p */
-        while (!is_prime(p)) {
+        while (!is_prime_u64(p)) {
             if (p == 2)
                 p = 3;
             else
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
             /* store the term */
             if (count >= cap) {
                 size_t new_cap = (cap == 0) ? 8 : cap * 2;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) {          /* allocation failure – cannot recover */
                     return 0;
                 }

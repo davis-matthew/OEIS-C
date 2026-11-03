@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 33, u64 n <= 66, u128 n <= 134,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 1433 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <string.h>   /* for memcpy */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* first time: allocate enough space for at least the first 4 terms */
     if (!cache) {
         idx_t size = (n > 4 ? n : 4);        /* allocate up to max(n,4) */
-        cache = (seq_t *)malloc(sizeof(seq_t) * (size + 1));
+        cache = mem_new(seq_t, (size + 1));
         if (!cache) return (seq_t)0;         /* allocation failed, return 0 */
 
         /* base values */
@@ -48,11 +50,11 @@ seq_t a(idx_t n)
     if (n > cached) {
         /* reallocate larger array */
         idx_t newsize = n;
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * (newsize + 1));
+        seq_t *new_cache = mem_new(seq_t, (newsize + 1));
         if (!new_cache) return (seq_t)0;      /* allocation failed, return 0 */
 
-        memcpy(new_cache, cache, sizeof(seq_t) * (cached + 1));
-        free(cache);
+        mem_copy(new_cache, cache, sizeof(seq_t) * (cached + 1));
+        mem_free(cache);
         cache = new_cache;
 
         /* compute new terms iteratively */

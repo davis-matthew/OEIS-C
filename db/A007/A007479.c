@@ -6,8 +6,9 @@
  * Keywords:  easy, nonn, nice
  * Formula:   a(0) = 0, a(2*n) = 2*a(n), a(6*n+1) = 6*n+3, a(6*n+3) = 6*n+5,
  *            a(6*n+5) = 12*n+2
- * Range:     u8 n <= 127, u16 n <= 9059, u32 n <= 9059, u64 n <= 9059,
- *            u128 n <= 9059, big any n
+ * Range:     u8 n <= 127, u16 n <= 19999, u32 n <= 19999, u64 n <= 19999,
+ *            u128 n <= 19999, big any n
+ * Validated: standard, pass, 80 terms through n = 9059 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

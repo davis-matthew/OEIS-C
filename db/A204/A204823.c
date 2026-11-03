@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, changed
  * Formula:   a(n) = σ( dₙ ) where dₙ is the n‑th deficient number (A005100)
- * Range:     u8 n <= 102, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Range:     u8 n <= 81, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 82 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    number is found. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *sigma_arr = NULL;   /* array of σ values */
 static size_t sigma_cap = 0;      /* allocated size of sigma_arr */
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
 
     /* Allocate or resize the σ array when needed. */
     if (new_cap > sigma_cap) {
-        free(sigma_arr);
-        sigma_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        mem_free(sigma_arr);
+        sigma_arr = mem_new(seq_t, new_cap);
         sigma_cap = new_cap;
 
         /* initialise array */
@@ -64,8 +66,8 @@ seq_t a(idx_t n)
     while (count < n) {
         limit = limit * 2 + 100;
         new_cap = (size_t)limit + 1;
-        free(sigma_arr);
-        sigma_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        mem_free(sigma_arr);
+        sigma_arr = mem_new(seq_t, new_cap);
         sigma_cap = new_cap;
 
         for (size_t i = 0; i < sigma_cap; ++i) sigma_arr[i] = 0;

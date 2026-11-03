@@ -10,8 +10,9 @@
  *            * with the sum of its odd singletons equal to k, read in
  *            row-major order * of the triangle defined by the OEIS entry
  *            A276422
- * Range:     u8 n <= 252, u16 n <= 1484, u32 n <= 9987, u64 n <= 9987,
- *            u128 n <= 9987, big any n
+ * Range:     u8 n <= 252, u16 n <= 1484, u32 n <= 12402, u64 n <= 20300,
+ *            u128 n <= 20300, big any n
+ * Validated: standard, pass, 121 terms through n = 9987 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

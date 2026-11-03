@@ -7,13 +7,33 @@
  * Formula:   a(n) = Σ_{d|n} μ(d) * C((n/d)-1,5)
  * Range:     u8 n <= 11, u16 n <= 26, u32 n <= 224, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   _mobius
+ * Validated: standard, pass, 53 terms through n = 4896 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_mobius.h"
+
+/* compute the Möbius function μ(d) */
+static int _mobius(uint64_t d) {
+    if (d == 1) return 1;
+    int mu = 1;
+    uint64_t m = d;
+    for (uint64_t p = 2; p * p <= m; ++p) {
+        if (m % p == 0) {
+            int exp = 0;
+            while (m % p == 0) {
+                m /= p;
+                ++exp;
+            }
+            if (exp > 1) return 0;   /* square factor */
+            mu = -mu;
+        }
+    }
+    if (m > 1) mu = -mu;               /* remaining prime factor */
+    return mu;
+}
 
 /* compute gcd of two unsigned integers */
 static inline uint64_t _gcd_u64(uint64_t a, uint64_t b) {

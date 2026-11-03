@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Variant of even lucky numbers – sieve algorithm. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 /*    n * 200 + 100 evens are enough to keep at least n survivors after sieving. */
     size_t initial = (size_t)n * 200 + 100;
 
-    seq_t *arr = (seq_t *)malloc(initial * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, initial);
     if (!arr) return (seq_t)0;               /* allocation failure */
 
     for (size_t i = 0; i < initial; ++i)
@@ -47,6 +49,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n - 1];              /* zero‑based index */
-    free(arr);
+    mem_free(arr);
     return result;
 }

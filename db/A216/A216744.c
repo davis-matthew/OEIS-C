@@ -11,7 +11,8 @@
  *            memoisation * so calls in any order are fast
  * Range:     u8 n <= 29, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 72 terms through n = 1000 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Euclidean gcd for uint64_t */
 static idx_t gcd_u64(idx_t a, idx_t b)
@@ -45,7 +48,7 @@ seq_t a(idx_t n)
     /* initialise array on first call */
     if (cap == 0) {
         cap = 16;
-        list = (seq_t *)malloc(cap * sizeof(seq_t));
+        list = mem_new(seq_t, cap);
         if (!list) exit(1);      /* guaranteed enough memory for test harness */
     }
 
@@ -63,12 +66,12 @@ seq_t a(idx_t n)
         seq_t base = (seq_t)(p - 2);            /* -2 mod p */
         seq_t mod  = (seq_t)p;
 
-        seq_t res = mod_pow(base, (idx_t)exp, mod);
+        seq_t res = powmod(base, (idx_t)exp, mod);
 
         if (res != (seq_t)1) {                /* prime satisfies the condition */
             if (len == cap) {                 /* grow array if needed */
                 cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(list, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, list, cap);
                 if (!tmp) exit(1);
                 list = tmp;
             }

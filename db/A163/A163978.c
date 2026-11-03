@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2*a(n-2) for n > 2; a(1) = 3, a(2) = 4
  * Range:     u8 n <= 13, u16 n <= 29, u32 n <= 61, u64 n <= 125,
  *            u128 n <= 253, big any n
+ * Validated: standard, pass, 57 terms through n = 1990 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2.h"   /* provides seq_t pow2(idx_t exp); */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

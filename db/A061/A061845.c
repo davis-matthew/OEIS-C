@@ -5,9 +5,10 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  base, easy, nice, nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 10, u16 n <= 252, u32 n <= 7953, u64 n <= 7953,
- *            u128 n <= 7953, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10, u16 n <= 252, u32 n <= 40320, u64 n <= 40320,
+ *            u128 n <= 40320, big any n
+ * Validated: standard, pass, 66 terms through n = 7953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper to store the generated numbers in a dynamic array. */
 static seq_t *cache     = NULL; /* sorted array of generated terms          */
@@ -53,7 +55,7 @@ static void append_value(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap == 0 ? 8 : cache_cap * 2;
-        seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, cache, new_cap);
         if (!newp) abort();
         cache = newp;
         cache_cap = new_cap;
@@ -107,7 +109,7 @@ seq_t a(idx_t n)
         cumulative += fact[last_generated_base - 1];
         /* Keep the cache sorted.  The size is small (< 50 000), so a single
          * qsort is inexpensive. */
-        qsort(cache, cache_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(cache, cache_len, sizeof(seq_t), cmp_seq_t);
     }
     /* Return the desired element (offset 2 → cache index 0). */
     return cache[n - 2];

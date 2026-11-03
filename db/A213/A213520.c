@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ceil_eps
+ * Validated: standard, pass, 72 terms through n = 883 (2026-11-03)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,13 @@
 #include <stdint.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/ceil_eps.h"
+
+/* --------------------------------------------------------------------- */
+static inline idx_t ceil_eps(double val)
+{
+    const double eps = 1e-12;
+    return (idx_t)ceil(val - eps);
+}
 
 /* --------------------------------------------------------------------- */
 /* Configuration parameters                                            */
@@ -44,7 +51,7 @@
 static inline void *safe_malloc(size_t size)
 {
 #ifdef __cplusplus
-    return ::malloc(size);
+    return malloc(size);
 #else
     return malloc(size);
 #endif

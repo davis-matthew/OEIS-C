@@ -11,7 +11,8 @@
  *            containing n+2 coefficients
  * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 106, u64 n <= 301,
  *            u128 n <= 905, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9917 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;
 static size_t rows_count = 0;
@@ -44,7 +46,7 @@ static void ensure_rows_up_to(size_t target)
     while (rows_count <= target) {
         size_t n      = rows_count;
         size_t len    = n + 2;          /* number of coefficients in this row */
-        seq_t *row    = (seq_t*)calloc(len, sizeof(seq_t));
+        seq_t *row    = mem_new(seq_t, len);
         if (!row) abort();
 
         if (n == 0) {

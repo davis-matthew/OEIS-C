@@ -8,7 +8,8 @@
  *            (starting k = 0) for which 2^k − 1 is not prime
  * Range:     u8 n <= 244, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9824 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Constants: known exponents that generate Mersenne primes               */
@@ -62,7 +64,7 @@ static void ensure_cache_cap(size_t min_cap)
     if (cache_cap < min_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
         if (new_cap < min_cap) new_cap = min_cap;
-        seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, cache, new_cap);
         if (!newp) abort();
         cache = newp;
         cache_cap = new_cap;

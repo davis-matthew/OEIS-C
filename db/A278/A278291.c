@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 9139, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 80 terms through n = 9826 (2026-11-01)
  * Helpers:   bigomega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
    number of prime factors (with multiplicity) as n.
    The function implements a linear search for the nth such number. */
 
+#include <stdlib.h>
 #include "../utils/bigomega.h"
 
 seq_t a(idx_t n)

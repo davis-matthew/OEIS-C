@@ -8,7 +8,8 @@
  *            a(floor(sqrt(n-1)))
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* 1‑based cache of computed a(n) values */
 static idx_t  cache_capacity = 0; /* allocated size (>= needed index) */
@@ -38,7 +40,7 @@ static void ensure_capacity(idx_t n) {
     if (n <= cache_capacity) return;
     idx_t new_cap = (cache_capacity < 8) ? 8 : cache_capacity;
     while (new_cap < n) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_cap + 1));
     if (!new_cache) abort();         /* out of memory */
     cache = new_cache;
     cache_capacity = new_cap;

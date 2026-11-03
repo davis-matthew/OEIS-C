@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 21, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const int d[13] = {        /* coefficients of D(x), d[0] unused */
     0,   /* k=0 */
@@ -81,12 +83,12 @@ seq_t a(idx_t n)
     if (!cache || cache_size <= (size_t)n) {
         size_t new_size = (size_t)(n + 1);
         if (!cache) {
-            cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+            cache = mem_new(seq_t, new_size);
             if (!cache) return (seq_t)0;   /* allocation failure */
             for (size_t i = 0; i < new_size; ++i) cache[i] = (seq_t)0;
             cache_size = new_size;
         } else {
-            seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_size);
             if (!tmp) return (seq_t)0;   /* allocation failure */
             for (size_t i = cache_size; i < new_size; ++i) tmp[i] = (seq_t)0;
             cache = tmp;

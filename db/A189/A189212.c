@@ -11,20 +11,22 @@
  *            explicit construction of OEIS A189212
  * Range:     u8 n <= 135, u16 n <= 135, u32 n <= 135, u64 n <= 135,
  *            u128 n <= 135, big any n
- * Helpers:   none
+ * Validated: partial, pass, 135 terms through n = 135 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate arrays up to n (inclusive) */
-    seq_t *seq   = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *seq   = mem_new(seq_t, (n + 1));
     unsigned char *vis = (unsigned char *)malloc((n + 1) * sizeof(unsigned char));
     if (!seq || !vis) {
-        free(seq);
+        mem_free(seq);
         free(vis);
         return (seq_t)0;               /* failure fallback */
     }
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[n];
-    free(seq);
+    mem_free(seq);
     free(vis);
     return result;
 }

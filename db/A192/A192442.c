@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 31, u64 n <= 59, u128 n <= 115,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 52 terms through n = 193 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
  * Formula: a(n) = Σ_{j = ⌊n/4⌋}^{⌊n/3⌋} binom(j, n-3j) * binom(n, j)
  * This computes the coefficient of x^n in (1 + x^3 + x^4)^n.
  */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +28,8 @@ seq_t a(idx_t n)
 
     for (idx_t j = lo; j <= hi; ++j) {
         idx_t k = n - 3 * j;          /* n - 3*j  */
-        seq_t t1 = binom(j, k);       /* binom(j, n-3j)   */
-        seq_t t2 = binom(n, j);       /* binom(n, j)      */
+        seq_t t1 = binomial(j, k);       /* binom(j, n-3j)   */
+        seq_t t2 = binomial(n, j);       /* binom(n, j)      */
         result += t1 * t2;
     }
     return result;

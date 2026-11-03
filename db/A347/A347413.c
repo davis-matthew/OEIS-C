@@ -9,7 +9,8 @@
  *            mod (sum of first n semiprimes)
  * Range:     u8 n <= 13, u16 n <= 219, u32 n <= 1057, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, is_prime
+ * Validated: standard, pass, 84 terms through n = 9861 (2026-11-03)
+ * Helpers:   is_prime, mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
 #include "../utils/is_prime.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* cached lists of semiprimes, their cumulative sums */
 static uint64_t *semirlist   = NULL;   /* list of semiprimes */
@@ -48,7 +51,7 @@ static void ensure_semiprimes(idx_t n)
     if (prefixcap < (size_t)n) {
         size_t newcap = prefixcap ? prefixcap * 2 : 64;
         if (newcap < (size_t)n) newcap = n;
-        seq_t *p = (seq_t *)realloc(prefix, newcap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, prefix, newcap);
         if (!p) abort();
         prefix = p;
         prefixcap = newcap;
@@ -58,7 +61,7 @@ static void ensure_semiprimes(idx_t n)
     static uint64_t last_checked = 1;    /* start after 1 */
     while (semicount < n) {
         ++last_checked;                     /* next integer to test */
-        uint64_t p = _smallest_prime_factor(last_checked);
+        uint64_t p = smallest_prime_factor(last_checked);
         if (p == 0)                         /* not composite */
             continue;
         uint64_t q = last_checked / p;

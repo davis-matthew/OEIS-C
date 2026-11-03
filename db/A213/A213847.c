@@ -9,6 +9,7 @@
  *            (4*i-1)(2n+2m-2i-1)
  * Range:     u8 n <= 15, u16 n <= 465, u32 n <= 465, u64 n <= 465,
  *            u128 n <= 465, big any n
+ * Validated: standard, pass, 63 terms through n = 442 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

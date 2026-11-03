@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   has_adjacent_06_60
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,28 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/has_adjacent_06_60.h"
+
+/* Return true if x contains the adjacent digits 0 and 6 (in either order)
+   in its base‑7 representation. */
+static bool has_adjacent_06_60(seq_t x)
+{
+    if (x == 0)
+        return false;
+    /* A few dozen digits are enough for the required range. */
+    unsigned digits[64];
+    size_t len = 0;
+    seq_t tmp = x;
+    while (tmp > 0) {
+        digits[len++] = (unsigned)(tmp % 7);
+        tmp /= 7;
+    }
+    for (size_t i = 0; i + 1 < len; ++i) {
+        if ((digits[i] == 6 && digits[i + 1] == 0) ||
+            (digits[i] == 0 && digits[i + 1] == 6))
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

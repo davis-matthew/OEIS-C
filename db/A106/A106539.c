@@ -8,12 +8,14 @@
  * Formula:   a(n) = n*a(n-1) - 2*(n-2)*a(n-2) with a(1)=1, a(2)=1
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 14, i64 n <= 22, i128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 384 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[1] .. cache[cache_cap-1] */
 static size_t cache_cap = 0;  /* number of allocated entries (>=3 after init) */
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* reserve indices 0..2; we will use 1 and 2 */
         cache_cap = 3;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache[1] = (seq_t)1;
         cache[2] = (seq_t)1;
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     /* grow cache to hold index n */
     if ((idx_t)cache_cap <= n) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

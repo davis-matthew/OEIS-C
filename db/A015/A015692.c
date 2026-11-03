@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1826 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------------- Helper polynomial routines ---------------- */
 
@@ -44,7 +46,7 @@ static void poly_div(const seq_t *num, size_t nd,
                      seq_t *out)
 {
     size_t qdeg = nd - dd;
-    seq_t *tmp = (seq_t *)calloc(nd + 1, sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, nd + 1);
     for (size_t i = 0; i <= nd; ++i) tmp[i] = num[i];
 
     for (size_t i = 0; i <= qdeg; ++i) out[i] = 0;
@@ -63,7 +65,7 @@ static void poly_div(const seq_t *num, size_t nd,
         }
     }
 
-    free(tmp);
+    mem_free(tmp);
 }
 
 /* ----------------- Main sequence implementation ----------------- */
@@ -100,7 +102,7 @@ static void init_period(void)
         if (d == 1) {
             /* Φ_1(x) = x - 1 */
             polys[i].deg = 1;
-            polys[i].coef = (seq_t *)malloc(2 * sizeof(seq_t));
+            polys[i].coef = mem_new(seq_t, 2);
             polys[i].coef[0] = (seq_t)-1;
             polys[i].coef[1] = (seq_t)1;
             continue;
@@ -108,12 +110,12 @@ static void init_period(void)
 
         /* Build numerator: x^d - 1 */
         size_t num_deg = (size_t)d;
-        seq_t *num = (seq_t *)calloc(num_deg + 1, sizeof(seq_t));
+        seq_t *num = mem_new(seq_t, num_deg + 1);
         num[0] = (seq_t)-1;
         num[num_deg] = (seq_t)1;
 
         /* Build denominator: product_{e|d, e<d} Φ_e */
-        seq_t *den = (seq_t *)malloc(sizeof(seq_t));
+        seq_t *den = mem_new(seq_t, 1);
         den[0] = (seq_t)1;
         size_t den_deg = 0;
 
@@ -121,10 +123,10 @@ static void init_period(void)
             idx_t e = divisors[eidx];
             if (d % e == 0) {
                 size_t new_deg = den_deg + polys[eidx].deg;
-                seq_t *new_den = (seq_t *)calloc(new_deg + 1, sizeof(seq_t));
+                seq_t *new_den = mem_new(seq_t, new_deg + 1);
                 poly_mult(den, den_deg, polys[eidx].coef,
                           polys[eidx].deg, new_den);
-                free(den);
+                mem_free(den);
                 den = new_den;
                 den_deg = new_deg;
             }
@@ -132,11 +134,11 @@ static void init_period(void)
 
         /* Divide numerator by denominator to get Φ_d. */
         size_t quo_deg = num_deg - den_deg;
-        seq_t *quo = (seq_t *)calloc(quo_deg + 1, sizeof(seq_t));
+        seq_t *quo = mem_new(seq_t, quo_deg + 1);
         poly_div(num, num_deg, den, den_deg, quo);
 
-        free(num);
-        free(den);
+        mem_free(num);
+        mem_free(den);
 
         polys[i].deg = quo_deg;
         polys[i].coef = quo;
@@ -163,7 +165,7 @@ static void init_period(void)
 
     /* Free all temporary polynomials. */
     for (size_t i = 0; i < ndiv; ++i) {
-        free(polys[i].coef);
+        mem_free(polys[i].coef);
     }
 
     period_initialized = true;

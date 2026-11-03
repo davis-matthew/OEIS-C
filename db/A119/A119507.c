@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* static cache for generated terms of the subsequence */
 static bool      initialized = false;   /* have we seeded the sequence?          */
@@ -37,7 +39,7 @@ ensure_val_capacity(size_t needed)
     size_t newcap = val_cap ? val_cap * 2 : 1;
     while (newcap < needed)
         newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(vals_cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, vals_cache, newcap);
     vals_cache = tmp;
     val_cap = newcap;
 }

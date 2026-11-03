@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 7981, u16 n <= 7981, u32 n <= 7981, u64 n <= 7981,
- *            u128 n <= 7981, big any n
+ * Range:     u8 n <= 32000, u16 n <= 32000, u32 n <= 32000, u64 n <= 32000,
+ *            u128 n <= 32000, big any n
+ * Validated: standard, pass, 96 terms through n = 7981 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

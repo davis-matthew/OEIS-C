@@ -7,13 +7,15 @@
  * Formula:   a(n) = 11 * A051038(n)
  * Range:     u8 n <= 19, u16 n <= 423, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9590 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  A051038 is the 11‑smooth numbers (primes 2,3,5,7,11).  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage as required */
 seq_t a(idx_t n)
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* Allocate array for the first n 11‑smooth numbers */
     size_t sz = (size_t)n;
-    seq_t *smooth = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *smooth = mem_new(seq_t, sz);
     if (!smooth)
         return 0; /* unlikely failure */
 
@@ -54,6 +56,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = smooth[sz - 1] * (seq_t)11;
-    free(smooth);
+    mem_free(smooth);
     return result;
 }

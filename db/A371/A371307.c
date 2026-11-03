@@ -9,7 +9,8 @@
  *            same set of prime divisors as its digit reversal in base n
  * Range:     u8 n <= 9, u16 n <= 41, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
- * Helpers:   is_palindrome, rad
+ * Validated: standard, pass, 79 terms through n = 469 (2026-11-01)
+ * Helpers:   is_palindrome_base, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/rad.h"
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/radical.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
 
     while (1) {
         /* Skip palindromes in base n */
-        if (is_palindrome((seq_t)x, base)) {
+        if (is_palindrome_base((seq_t)x, base)) {
             x++;
             continue;
         }
@@ -53,7 +54,7 @@ seq_t a(idx_t n)
 
         /* Compare rad(x) and rad(rev) – equal iff the two numbers have
            exactly the same prime divisors. */
-        if (rad((idx_t)x) == rad((idx_t)rev))
+        if (radical((idx_t)x) == radical((idx_t)rev))
             return (seq_t)x;
 
         x++;

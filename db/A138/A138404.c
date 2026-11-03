@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(n)^5 - prime(n)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 23, u64 n <= 200, u128 n <= 200,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 39 terms through n = 196 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* ---------- Prime cache management ---------- */
 static idx_t *prime_cache      = NULL; /* 1‑based array of primes */
@@ -89,6 +90,6 @@ seq_t a(idx_t n)
 
     idx_t p = nth_prime(n);                    /* 1‑based prime */
     seq_t p_seq = (seq_t)p;
-    seq_t p5 = pow_uint((uint64_t)p, (idx_t)5); /* p^5 */
+    seq_t p5 = ipow_u64_idx((uint64_t)p, (idx_t)5); /* p^5 */
     return p5 - p_seq;                         /* prime^5 - prime */
 }

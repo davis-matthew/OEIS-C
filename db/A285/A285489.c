@@ -9,13 +9,15 @@
  *            integer type used for seq_t and idx_t.)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 414 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fac = NULL;        /* factorial array */
 static idx_t fac_cap = 0;        /* current capacity of fac */
@@ -26,7 +28,7 @@ static void ensure_fact(idx_t n)
     if (fac_cap >= n) return;
     idx_t new_cap = (fac_cap == 0) ? 1 : fac_cap * 2;
     while (new_cap < n) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(fac, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fac, new_cap);
     if (!tmp) exit(1);            /* out of memory */
     fac = tmp;
     for (idx_t i = fac_cap; i < new_cap; ++i) {

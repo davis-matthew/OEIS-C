@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2^n * n! * binomial(5*n/2,n) * Sum_{k=1..n} 1/(3*n+2*k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 static seq_t *pref = NULL;
@@ -24,11 +26,11 @@ seq_t a(idx_t n)
 {
     /* Ensure the product array is large enough (n+1 for prefix/suffix). */
     if (pref_cap < (size_t)(n + 1)) {
-        if (pref) free(pref);
-        if (suf)  free(suf);
+        if (pref) mem_free(pref);
+        if (suf)  mem_free(suf);
         pref_cap = (size_t)(n + 1);
-        pref = (seq_t *)malloc(pref_cap * sizeof(seq_t));
-        suf  = (seq_t *)malloc(pref_cap * sizeof(seq_t));
+        pref = mem_new(seq_t, pref_cap);
+        suf  = mem_new(seq_t, pref_cap);
     }
 
     /* Prefix products: pref[i] = product of first i denominators (k=1..i). */

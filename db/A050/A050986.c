@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-02)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 static seq_t counts[9] = {0};   /* indices 1..8 used */
 static bool initialized = false;
@@ -39,7 +40,7 @@ static void dfs(uint64_t cur, int len)
     if (len >= 8) return;          /* maximum length of right‑truncatable primes */
     for (int i = 0; i < 4; ++i) {
         uint64_t cand = cur * 10 + append_digits[i];
-        if (is_prime_small(cand)) {
+        if (is_prime_seq(cand)) {
             counts[len + 1]++;     /* cand has length len+1 */
             dfs(cand, len + 1);
         }

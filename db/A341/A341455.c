@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build environment.  */
 
@@ -29,7 +31,7 @@ static idx_t maxComputed = 0;   /* maximum n for which dp tables are built  */
 static void free_dp(void) {
     for (int k = 0; k <= 8; ++k) {
         if (dp[k]) {
-            free(dp[k]);
+            mem_free(dp[k]);
             dp[k] = NULL;
         }
     }
@@ -54,8 +56,8 @@ static void build_prime_sieve(idx_t limit, bool **prime) {
 static void compute_dp(idx_t limit) {
     /* Allocate new tables, freeing old ones if any. */
     for (int k = 0; k <= 8; ++k) {
-        free(dp[k]);
-        dp[k] = (seq_t*)calloc((size_t)(limit + 1), sizeof(seq_t));
+        mem_free(dp[k]);
+        dp[k] = mem_new(seq_t, (size_t)(limit + 1));
         if (!dp[k]) exit(1);
     }
 

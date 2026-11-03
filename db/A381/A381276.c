@@ -8,7 +8,8 @@
  *            a(n-2*k-1), a(0)=1
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 11, i64 n <= 18, i128 n <= 32,
  *            big any n
- * Helpers:   binom, ensure_cache
+ * Validated: standard, pass, 38 terms through n = 454 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,37 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/ensure_cache.h"
-#include "../utils/binom.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* Make sure the cache is large enough */
+static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr) {
+    seq_t *cache = *cache_ptr;
+    size_t cap = *cap_ptr;
+    if (cap <= (size_t)n) {
+        size_t new_cap = cap ? (cap << 1) : 16;
+        while (new_cap <= (size_t)n)
+            new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+        if (!tmp && new_cap > 0) {
+            /* Allocation failed – abort the program. */
+            exit(1);
+        }
+        if (tmp) {
+            /* Initialize newly allocated slots to zero. */
+            if (!cache) {
+                for (size_t i = 0; i < new_cap; ++i)
+                    tmp[i] = 0;
+            } else {
+                for (size_t i = cap; i < new_cap; ++i)
+                    tmp[i] = 0;
+            }
+            *cache_ptr = tmp;
+            *cap_ptr = new_cap;
+        }
+    }
+}
 
 /* seq_t and idx_t are supplied by the build configuration. */
 seq_t a(idx_t n)
@@ -54,7 +84,7 @@ seq_t a(idx_t n)
                 pow_neg9 = pow_neg9 * (seq_t)(-9);     /* multiply by -9 each step */
 
             seq_t coeff = pow_neg9 * (seq_t)(2 * k + 1);  /* (2*k+1)*(-9)^k */
-            seq_t bin   = binom(i - 1, 2 * k);           /* binomial(i-1,2k) */
+            seq_t bin   = binomial(i - 1, 2 * k);           /* binomial(i-1,2k) */
             seq_t term  = coeff * bin * cache[i - 2 * k - 1];
 
             sum += term;

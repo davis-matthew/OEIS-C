@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 6825, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_matching_median
+ * Validated: standard, pass, 77 terms through n = 9770 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,62 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_matching_median.h"
+#include "../utils/mem.h"
+
+/* Return true iff x has median of its decimal digits equal to its digital root. */
+static bool has_matching_median(seq_t x)
+{
+    /* Frequency of each decimal digit (0‑9). */
+    int freq[10] = {0};
+    int len = 0;           /* number of digits */
+    int sum_mod9 = 0;      /* sum of digits modulo 9 */
+
+    seq_t tmp = x;
+    if (tmp == 0) {            /* special case: 0 has one digit 0 */
+        freq[0] = 1;
+        len = 1;
+    } else {
+        while (tmp != 0) {
+            int d = (int)(tmp % 10);
+            ++freq[d];
+            ++len;
+            sum_mod9 = (sum_mod9 + d) % 9;
+            tmp /= 10;
+        }
+    }
+
+    /* Digital root: 0 for 0, 9 for multiples of 9, otherwise sum_mod9. */
+    int root = (x == 0) ? 0 : ((sum_mod9 == 0) ? 9 : sum_mod9);
+
+    int median = -1;
+    if (len & 1) {          /* odd length: single middle digit after sorting */
+        int target = len / 2;
+        int cum = 0;
+        for (int d = 0; d <= 9; ++d) {
+            cum += freq[d];
+            if (cum > target) {
+                median = d;
+                break;
+            }
+        }
+    } else {                /* even length: average of two middle digits */
+        int pos1 = len / 2 - 1;
+        int pos2 = len / 2;
+        int cum = 0;
+        int d1 = -1, d2 = -1;
+        for (int d = 0; d <= 9; ++d) {
+            int before = cum;
+            cum += freq[d];
+            if (d1 == -1 && before <= pos1 && cum > pos1) d1 = d;
+            if (before <= pos2 && cum > pos2) { d2 = d; break; }
+        }
+        if (d1 == -1 || d2 == -1) return false;              /* should not happen */
+        if ((d1 + d2) & 1) return false;                     /* median not integer */
+        median = (d1 + d2) >> 1;                             /* integer median */
+    }
+
+    return median == root;
+}
 
 /* ------- Storage for the generated sequence ------- */
 static seq_t *seq_buf    = NULL;   /* array of found terms */
@@ -32,7 +88,7 @@ static void ensure_capacity(idx_t need)
     if (seq_cap >= need) return;
     idx_t new_cap = (seq_cap == 0) ? 16 : (seq_cap << 1);
     while (new_cap < need) new_cap <<= 1;
-    seq_buf = (seq_t *)realloc(seq_buf, (size_t)new_cap * sizeof(seq_t));
+    seq_buf = mem_resize(seq_t, seq_buf, (size_t)new_cap);
     seq_cap = new_cap;
 }
 

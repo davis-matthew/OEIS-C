@@ -7,16 +7,18 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of distinct values of Euler’s totient applied to
  *            the divisors of n
- * Range:     u8 n <= 1941, u16 n <= 9988, u32 n <= 9988, u64 n <= 9988,
- *            u128 n <= 9988, big any n
- * Helpers:   phi
+ * Range:     u8 n <= 1941, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9988 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     {
         if (n % d == 0)
         {
-            seq_t val = phi(d);
+            seq_t val = totient(d);
             bool unique = true;
             for (size_t i = 0; i < count; ++i)
                 if (val == distinct[i]) { unique = false; break; }
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
             idx_t e = n / d;
             if (e != d)
             {
-                val = phi(e);
+                val = totient(e);
                 unique = true;
                 for (size_t i = 0; i < count; ++i)
                     if (val == distinct[i]) { unique = false; break; }

@@ -10,16 +10,21 @@
  *            floor((nextprime(p)+1)/2)
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a3962_isprime, a3962_next_prime, a3962_prime_value
+ * Validated: standard, pass, 92 terms through n = 9566 (2026-11-03)
+ * Helpers:   is_prime_u64, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a3962_isprime.h"
-#include "../utils/a3962_next_prime.h"
-#include "../utils/a3962_prime_value.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/next_prime.h"
+
+static seq_t a3962_prime_value(uint64_t p) {
+    uint64_t q = next_prime(p);
+    return (seq_t)((q + 1) / 2);
+}
 
 seq_t a(idx_t n) {
     seq_t result = 1;

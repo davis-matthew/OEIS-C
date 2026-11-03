@@ -11,7 +11,8 @@
  *            H_{t-1}(H_{t-1}(x1)), G = 2^(2^(t-1)), H_0(x) = x
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
- * Helpers:   h64, hbig
+ * Validated: standard, pass, 46 terms through n = 248 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,33 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/h64.h"
-#include "../utils/hbig.h"
+
+/* x (x) 2^(2^t - 1) for x < 2^(2^t), t <= 6 */
+static uint64_t h64(uint64_t x, int t) {
+    int hb;
+    uint64_t m, x1, x0;
+    if (t == 0) return x;
+    hb = 1 << (t - 1);
+    m = (((uint64_t)1) << hb) - 1;
+    x1 = x >> hb;
+    x0 = x & m;
+    return (h64(x0 ^ x1, t - 1) << hb) | h64(h64(x1, t - 1), t - 1);
+}
+
+/* same for t >= 6 on arrays of 2^(t-6) words; out must not alias x */
+static void hbig(const uint64_t *x, uint64_t *out, int t) {
+    size_t w, hw, i;
+    uint64_t *tmp;
+    if (t == 6) { out[0] = h64(x[0], 6); return; }
+    w = (size_t)1 << (t - 6);
+    hw = w / 2;
+    tmp = (uint64_t *)malloc(hw * sizeof(uint64_t));
+    for (i = 0; i < hw; i++) tmp[i] = x[i] ^ x[hw + i];
+    hbig(tmp, out + hw, t - 1);
+    hbig(x + hw, tmp, t - 1);
+    hbig(tmp, out, t - 1);
+    free(tmp);
+}
 
 seq_t a(idx_t n) {
     int T = 0, t, k;

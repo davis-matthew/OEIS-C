@@ -11,12 +11,14 @@
  *            same terms as the recurrence satisfaction
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 23, u64 n <= 45, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External integer types are provided by the build. */
 extern seq_t a(idx_t n);
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (den == NULL) {
         den_cap = 64;
-        den = (seq_t*)malloc(den_cap * sizeof(seq_t));
+        den = mem_new(seq_t, den_cap);
         if (den == NULL) {
             /* Memory allocation failed – return 0 as safe default. */
             return (seq_t)0;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         /* Extend cache array if needed. */
         if (den_size >= den_cap) {
             size_t new_cap = den_cap * 2;
-            seq_t *tmp = (seq_t*)realloc(den, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, den, new_cap);
             if (!tmp) {
                 /* Memory allocation failed – return 0 to avoid UB. */
                 return (seq_t)0;

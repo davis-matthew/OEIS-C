@@ -11,7 +11,8 @@
  *            order, skipping primes
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   mul64_mod
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul64_mod.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* Helper: modular exponentiation (a^e mod m) using binary exponentiation */
 static uint64_t pow_mod64(uint64_t a, uint64_t e, uint64_t m)
@@ -30,8 +32,8 @@ static uint64_t pow_mod64(uint64_t a, uint64_t e, uint64_t m)
     uint64_t r = 1;
     while (e)
     {
-        if (e & 1) r = mul64_mod(r, a, m);
-        a = mul64_mod(a, a, m);
+        if (e & 1) r = mulmod(r, a, m);
+        a = mulmod(a, a, m);
         e >>= 1;
     }
     return r;
@@ -62,7 +64,7 @@ static bool is_prime_u64(uint64_t n)
         bool cont = false;
         for (uint64_t r = 1; r < s; ++r)
         {
-            x = mul64_mod(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1) { cont = true; break; }
         }
         if (!cont) return false;
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
     if ((size_t)n > cache_size)
     {
         size_t new_size = (size_t)n;
-        cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         cache_size = new_size;
     }
 

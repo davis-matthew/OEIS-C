@@ -10,12 +10,23 @@
  *            ≡ 4 (mod 12)])
  * Range:     u8 n <= 356, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   divisor_contribution
+ * Validated: standard, pass, 89 terms through n = 960 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/divisor_contribution.h"
+static seq_t divisor_contribution(idx_t d) {
+  seq_t contrib = (seq_t)d / 6 + 1;
+  idx_t d_mod = d % 12;
+  if (d_mod == 2 || d_mod == 6) {
+    contrib -= 1;
+  }
+  if (d_mod == 4) {
+    contrib += 1;
+  }
+  return contrib;
+}
 
 seq_t a(idx_t n) {
   seq_t result = (seq_t)0;

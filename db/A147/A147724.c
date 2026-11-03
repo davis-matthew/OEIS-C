@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 28, u32 n <= 90, u64 n <= 300,
  *            u128 n <= 1082, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 4950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,18 +50,18 @@ seq_t a(idx_t n)
         if (!row_ptr) return (seq_t)0;           /* allocation error */
 
         /* row 0 : 1 */
-        row_ptr[0] = (seq_t *)malloc(1 * sizeof(seq_t));
+        row_ptr[0] = mem_new(seq_t, 1);
         if (!row_ptr[0]) return (seq_t)0;
         row_ptr[0][0] = (seq_t)1;
 
         /* row 1 : 1 , 1 */
-        row_ptr[1] = (seq_t *)malloc(2 * sizeof(seq_t));
+        row_ptr[1] = mem_new(seq_t, 2);
         if (!row_ptr[1]) return (seq_t)0;
         row_ptr[1][0] = (seq_t)1;
         row_ptr[1][1] = (seq_t)1;
 
         /* row 2 : 4 , 5 , 1 */
-        row_ptr[2] = (seq_t *)malloc(3 * sizeof(seq_t));
+        row_ptr[2] = mem_new(seq_t, 3);
         if (!row_ptr[2]) return (seq_t)0;
         row_ptr[2][0] = (seq_t)4;
         row_ptr[2][1] = (seq_t)5;
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
 
     /* compute all missing rows up to r */
     for (idx_t i = rows_used; i <= r; ++i) {
-        seq_t *row = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (i + 1));
         if (!row) return (seq_t)0;
         for (idx_t k = 0; k <= i; ++k) {
             seq_t value = 0;

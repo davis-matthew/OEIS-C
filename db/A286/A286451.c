@@ -14,13 +14,14 @@
  *            * order
  * Range:     u8 n <= 48, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   v2_uint
+ * Validated: standard, pass, 119 terms through n = 9698 (2026-11-01)
+ * Helpers:   ctz
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/v2_uint.h"
+#include "../utils/ctz.h"
 
 /* --- helper: fast integer power for seq_t -------------------------------- */
 static seq_t pow_seq(seq_t base, idx_t exp)
@@ -94,7 +95,7 @@ seq_t a(idx_t n)
         return 0;                     /* a(1) = 0 by convention */
 
     /* 2‑adic valuations */
-    const idx_t v2_n   = v2_uint(n);
+    const idx_t v2_n   = ctz(n);
     const seq_t s      = sigma_of(n);
     const idx_t v2_sig = v2_seq(s);
 

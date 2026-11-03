@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   sign_of_sum
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,29 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sign_of_sum.h"
+#include "../utils/mem.h"
+
+/* --------------------- comparison helpers --------------------- */
+static int sign_of_sum(int64_t du, int64_t dv)
+{
+    /* returns sign of du + dv*sqrt(2)  (negative/zero/positive) */
+    if (dv == 0) {
+        return (du < 0) ? -1 : (du > 0) ? 1 : 0;
+    }
+    if (dv > 0) {
+        if (du > 0) return 1;                       /* both positive */
+        /* du <= 0 */
+        unsigned __int128 left  = (unsigned __int128)(-du) * (unsigned __int128)(-du);
+        unsigned __int128 right = (unsigned __int128)2 * (unsigned __int128)dv * (unsigned __int128)dv;
+        return (left < right) ? 1 : (left > right) ? -1 : 0;
+    } else { /* dv < 0 */
+        if (du < 0) return -1;                      /* both negative */
+        /* du >= 0 */
+        unsigned __int128 left  = (unsigned __int128)du * (unsigned __int128)du;
+        unsigned __int128 right = (unsigned __int128)2 * (unsigned __int128)(-dv) * (unsigned __int128)(-dv);
+        return (left > right) ? 1 : (left < right) ? -1 : 0;
+    }
+}
 
 /* Node representing a lattice point (i,j) */
 typedef struct { idx_t i; idx_t j; } Node;
@@ -153,7 +176,7 @@ static void odd_push(seq_t val)
 {
     if (odd_sz >= odd_cap) {
         odd_cap = odd_cap ? odd_cap << 1 : 16;
-        odd_array = (seq_t*)realloc(odd_array, odd_cap * sizeof(seq_t));
+        odd_array = mem_resize(seq_t, odd_array, odd_cap);
     }
     odd_array[odd_sz++] = val;
 }

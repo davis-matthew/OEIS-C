@@ -8,6 +8,7 @@
  *            ((n+12)*(n+9)*(n+3)*(n+2)*(n+1)*(n^5+48*n^4+769*n^3+4782*n^2+11200*n+8400))/86400
  * Range:     u8 n <= 0, u16 n <= 3, u32 n <= 21, u64 n <= 255, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 718 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

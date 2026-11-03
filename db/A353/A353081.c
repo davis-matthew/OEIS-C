@@ -9,7 +9,8 @@
  *            digits of m² equal the next two decimal digits of m²
  * Range:     u8 none, u16 n <= 1, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   append_candidate, digit_len, pow10
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,36 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/append_candidate.h"
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static seq_t *cache = NULL;      /* cached terms of the sequence   */
 static size_t cache_len = 0;     /* number of cached terms         */
@@ -40,7 +68,7 @@ seq_t a(idx_t n)
         seq_t square  = m_big * m_big;         /* m²                          */
 
         /* number of decimal digits of m² */
-        int dlen = digit_len(square);          /* returns int                 */
+        int dlen = num_digits(square);          /* returns int                 */
         if (dlen >= 4) {                       /* need at least 4 digits      */
             idx_t exp = (idx_t)(dlen - 4);      /* exponent for 10^(dlen-4)   */
             seq_t divisor = pow10(exp);        /* 10^(dlen-4) in seq_t form   */

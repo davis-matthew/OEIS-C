@@ -7,7 +7,8 @@
  * Formula:   a(n) = A238824(n-1) + A238825(n) (OEIS A238828)
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 26, u64 n <= 51, u128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
           + 2 a(n-5) + 4 a(n-6) + 2 a(n-7) – a(n-8)  (n ≥ 8)   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (needed < 8) needed = 8;     /* we need space for indices 0…7 at least */
 
     if (cap == 0 || cap < needed) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) {                 /* allocation failed – abort */
             exit(1);
         }

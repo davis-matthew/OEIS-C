@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   has_equal_1_6
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
    has the same number of 1's and 6's. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_equal_1_6.h"
+
+/*--- helper: digit test ----------------------------------------------*/
+static inline bool has_equal_1_6(seq_t val)
+{
+    unsigned cnt1 = 0, cnt6 = 0;
+    seq_t v = val;
+    do {
+        unsigned digit = (unsigned)(v % 10);
+        if (digit == 1) ++cnt1;
+        else if (digit == 6) ++cnt6;
+        v = v / 10;
+    } while (v != 0);
+    return cnt1 == cnt6;
+}
 
 /*--- static state ----------------------------------------------------*/
 static seq_t *cache      = NULL;   /* cached terms */

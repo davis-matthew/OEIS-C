@@ -8,7 +8,8 @@
  *            a(1)=2, a(2)=117, a(3)=236
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 19, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache of computed terms */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     /* Allocate or grow cache if necessary */
     size_t need = (n > 3) ? (size_t)(n + 1) : 4;  /* at least 4 slots for the first 4 terms */
     if (buf == NULL || buf_size < need) {
-        seq_t *new_buf = (seq_t*)realloc(buf, sizeof(seq_t) * need);
+        seq_t *new_buf = mem_resize(seq_t, buf, need);
         if (new_buf == NULL) return (seq_t)0;  /* allocation failure: return 0 */
         buf = new_buf;
         buf_size = need;

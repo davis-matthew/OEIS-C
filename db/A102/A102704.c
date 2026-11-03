@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 13, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   is_prime_seq
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         if (is_prime_seq(candidate)) {                /* 1000*k+999 is prime? */
             if (cache_size == cache_capacity) {       /* grow capacity if needed */
                 cache_capacity = cache_capacity ? cache_capacity << 1 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_capacity * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_capacity);
                 if (!tmp) {
                     /* allocation failed; return 0 as an error code */
                     return (seq_t)0;

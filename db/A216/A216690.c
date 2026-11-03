@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow, next_prime
+ * Validated: standard, pass, 65 terms through n = 913 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../utils/next_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Test whether a prime p has a solution to x^4 ≡ -2 (mod p). */
 static bool has_solution(uint64_t p) {
@@ -26,10 +29,10 @@ static bool has_solution(uint64_t p) {
     seq_t a = (seq_t)(p - 2);                   /* -2 mod p */
     if ((p - 1) % 4 == 0) {                     /* p ≡ 1 (mod 4) */
         uint64_t exp = (p - 1) / 4;
-        return mod_pow(a, exp, (seq_t)p) == 1;
+        return powmod(a, exp, (seq_t)p) == 1;
     } else {                                    /* p ≡ 3 (mod 4) */
         uint64_t exp = (p - 1) / 2;
-        return mod_pow(a, exp, (seq_t)p) == 1;
+        return powmod(a, exp, (seq_t)p) == 1;
     }
 }
 
@@ -47,7 +50,7 @@ static void ensure_n_terms(idx_t n) {
             /* Grow storage if needed. */
             if (val_len == val_cap) {
                 val_cap = val_cap ? val_cap * 2 : 16;
-                vals = (seq_t *)realloc(vals, val_cap * sizeof(seq_t));
+                vals = mem_resize(seq_t, vals, val_cap);
             }
             vals[val_len++] = (seq_t)last_prime;
         }

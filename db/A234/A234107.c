@@ -10,13 +10,15 @@
  *            16*a(n-6) Offset: 1 (first term a(1) = 56)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 15, u64 n <= 33, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 137 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const seq_t init[6] = {56, 186, 604, 2064, 6964, 24156};
 static seq_t *cache = NULL;      /* cache[0] holds a(1) */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     /* initialise cache with first six terms if not already done */
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(6 * sizeof(seq_t));
+        cache = mem_new(seq_t, 6);
         if (!cache) return 0;   /* allocation failure – unlikely in tests */
         for (idx_t i = 0; i < 6; ++i) cache[i] = init[i];
         cache_len = 6;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
     /* extend cache up to n if necessary */
     if (n > cache_len) {
-        seq_t *new_cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, n);
         if (!new_cache) return 0; /* allocation failure */
         cache = new_cache;
 

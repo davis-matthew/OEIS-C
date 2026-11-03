@@ -10,7 +10,8 @@
  *            a(n)=a(n-1)+a(n-2)+C(n-1)+C(n) for n≥3
  * Range:     u8 n <= 6, u16 n <= 17, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (n == 2) return (seq_t)14;
 
     /* Generate the first n composite numbers */
-    seq_t *comp = (seq_t *)malloc(sizeof(seq_t) * (size_t)n);
+    seq_t *comp = mem_new(seq_t, (size_t)n);
     if (!comp) return 0;             /* allocation failure – unlikely */
 
     idx_t candidate = 4;             /* first composite */
@@ -50,6 +52,6 @@ seq_t a(idx_t n)
         a_prev1 = a_curr;
     }
 
-    free(comp);
+    mem_free(comp);
     return a_prev1;    /* a(n) for n≥2 */
 }

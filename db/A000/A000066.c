@@ -12,13 +12,29 @@
  *            come from published exhaustive computer...
  * Range:     u8 n <= 12, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   moore_bound
+ * Validated: partial, pass, 10 terms through n = 12 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/moore_bound.h"
+
+static seq_t moore_bound(idx_t g)
+{
+    seq_t p = 1;
+    idx_t i, k;
+    if (g % 2 == 0) {
+        k = g / 2;
+        for (i = 0; i < k + 1; i++)
+            p *= 2;
+        return p - 2;
+    }
+    k = (g - 1) / 2;
+    for (i = 0; i < k; i++)
+        p *= 2;
+    return p * 3 - 2;
+}
 
 /* Excess of the (3,g)-cage order over the Moore bound, for g = 3..12. */
 static const int cage_excess[10] = {

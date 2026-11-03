@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    a(1) is the first term; 0 is returned for n == 0 (no definition). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Base values for n = 1 .. 10 */
 static const seq_t base_vals[10] = {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (n <= cache_len) return cache[n-1];
 
     /* Grow the cache to size n.  realloc works on void*; cast to seq_t* for C++ compatibility. */
-    cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, n);
     if (!cache) exit(1);           /* malloc failure – abort */
 
     /* Compute all new terms up to n.  Terms 1..10 are stored unchanged. */

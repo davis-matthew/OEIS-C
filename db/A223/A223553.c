@@ -14,12 +14,14 @@
  *            computed terms so that calls in arbitrary order are efficient
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* start with a modest size, will grow if needed */
         cap = 20;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;          /* allocation failure – return 0 */
         /* initialise all entries to 0 */
         for (size_t i = 0; i < cap; ++i) cache[i] = 0;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cap) {
         size_t newcap = cap;
         while ((size_t)n >= newcap) newcap *= 2;
-        seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) return 0;           /* allocation failure – return 0 */
         /* initialise new slots to 0 */
         for (size_t i = cap; i < newcap; ++i) tmp[i] = 0;

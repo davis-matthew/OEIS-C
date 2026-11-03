@@ -9,13 +9,15 @@
  *            i*(i+1)/2 ≤ n < (i+1)*(i+2)/2 and j = n - i*(i+1)/2
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   binom, pow_uint
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -28,9 +30,9 @@ seq_t a(idx_t n)
     idx_t j = n - i * (i + 1) / 2;
 
     /* Compute the triangle entry T(i,j) = C(i,j) * 2^(i-j) * 12^j. */
-    seq_t bin = binom(i, j);
-    seq_t p2  = pow_uint(2u, i - j);   /* 2^(i-j) */
-    seq_t p12 = pow_uint(12u, j);      /* 12^j */
+    seq_t bin = binomial(i, j);
+    seq_t p2  = ipow_u64_idx(2u, i - j);   /* 2^(i-j) */
+    seq_t p12 = ipow_u64_idx(12u, j);      /* 12^j */
 
     seq_t result = bin;
     result *= p2;

@@ -6,13 +6,15 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A003415(n) / gcd(A001615(n), A003415(n))
- * Range:     u8 n <= 95, u16 n <= 9804, u32 n <= 9804, u64 n <= 9804,
- *            u128 n <= 9804, big any n
+ * Range:     u8 n <= 95, u16 n <= 16383, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 115 terms through n = 9804 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

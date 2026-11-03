@@ -7,16 +7,19 @@
  * Formula:   a(n) = Sum_{d|n} phi(d) * d^(d-2) (define 1^(-1)=1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow, calc_phi, factor_u64
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   factor_u64, ipow, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
-#include "../utils/calc_phi.h"
+#include "../utils/ipow.h"
+#include "../utils/totient_seq.h"
 
 /* Recursively generate all divisors of n from its prime factorization
    and add each contribution phi(d)*d^(d-2) to the running total. */
@@ -32,9 +35,9 @@ recurse_divisors(size_t idx, size_t num_factors,
             /* phi(1)=1 and by convention 1^(-1)=1 */
             term = 1;
         } else {
-            term = calc_phi(d);
+            term = totient_seq(d);
             /* big_pow accepts a seq_t exponent; d-2 fits in seq_t for d>=2 */
-            term = term * big_pow(d, d - 2);
+            term = term * ipow(d, d - 2);
         }
         *sum += term;
         return;

@@ -13,6 +13,7 @@
  *            1,4,8,14,18,24,30,34,40,44,48,52,56,62,66,72,78,82,88,92,96,100,104,110,
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

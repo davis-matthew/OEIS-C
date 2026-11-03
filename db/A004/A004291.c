@@ -8,12 +8,14 @@
  *            a(2) = 120
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 877 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     if (memo == NULL) {
         // Initial allocation
         memo_len = (n < 3) ? 3 : (n + 1);
-        memo = (seq_t *)malloc(memo_len * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_len);
         if (memo == NULL) return (seq_t)0;
         
         memo[0] = (seq_t)1;
@@ -40,13 +42,13 @@ seq_t a(idx_t n) {
         // Reallocate to accommodate larger n
         idx_t old_len = memo_len;
         memo_len = n + 1;
-        seq_t *new_memo = (seq_t *)malloc(memo_len * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, memo_len);
         if (new_memo == NULL) return (seq_t)0;
         
         for (idx_t i = 0; i < old_len; i++) {
             new_memo[i] = memo[i];
         }
-        free(memo);
+        mem_free(memo);
         memo = new_memo;
         
         for (idx_t i = old_len; i <= n; i++) {

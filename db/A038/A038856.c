@@ -9,13 +9,15 @@
  *            be expressed as u³ – v³ with u > v ≥ 1, indexed from n = 1
  * Range:     u8 none, u16 none, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Internal comparison function for qsort, works for any seq_t that supports <, > */
 static int compare_seq_t(const void *p1, const void *p2)
@@ -41,7 +43,7 @@ static void build_sequence(void)
     /* Rough capacity estimate: about LIMIT_A²/20 candidates with digit 1 */
     size_t raw_cap = 1 << 20;   /* start with 1,048,576, ample for < 800 000 entries */
     size_t raw_len = 0;
-    seq_t *raw = (seq_t *)malloc(raw_cap * sizeof(seq_t));
+    seq_t *raw = mem_new(seq_t, raw_cap);
     if (!raw) abort();
 
     for (idx_t a = 1; a <= LIMIT_A; ++a) {
@@ -52,7 +54,7 @@ static void build_sequence(void)
             if (diff % (seq_t)10 == (seq_t)1) {   /* ends with digit 1 */
                 if (raw_len == raw_cap) {
                     raw_cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(raw, raw_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, raw, raw_cap);
                     if (!tmp) abort();
                     raw = tmp;
                 }
@@ -62,7 +64,7 @@ static void build_sequence(void)
     }
 
     /* Sort the raw list */
-    qsort(raw, raw_len, sizeof(seq_t), compare_seq_t);
+    mem_qsort(raw, raw_len, sizeof(seq_t), compare_seq_t);
 
     /* Remove duplicates in place */
     size_t uniq_len = 0;

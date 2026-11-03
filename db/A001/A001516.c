@@ -11,13 +11,19 @@
  *            used
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 27,
  *            big any n
- * Helpers:   a001516_is_fixed
+ * Validated: standard, pass, 35 terms through n = 391 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001516_is_fixed.h"
+
+static int a001516_is_fixed(void) {
+    seq_t m = 0;
+    m -= 1;
+    return m > 0;
+}
 
 seq_t a(idx_t n) {
     if (n < 2) return 0;

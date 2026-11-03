@@ -7,16 +7,20 @@
  * Formula:   a(n) = n^4 mod (2*n+1)
  * Range:     u8 n <= 134, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 86 terms through n = 1998 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n) {
     seq_t base = (seq_t)n;          /* n as seq_t */
     seq_t mod  = base * 2 + 1;      /* 2*n+1 */
-    return mod_pow(base, 4, mod);   /* compute n^4 mod (2*n+1) */
+    return powmod(base, 4, mod);   /* compute n^4 mod (2*n+1) */
 }

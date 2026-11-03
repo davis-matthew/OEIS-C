@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, is_prime, prime_limit_for_idx
+ * Validated: standard, pass, 96 terms through n = 9054 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,24 @@
    primes and expands it lazily to the size required for each call. */
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <math.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/prime_limit_for_idx.h"
 #include "../utils/is_prime.h"
+
+/* utility – estimate an upper bound for the n-th prime (Rosser–Schoenfeld) */
+static idx_t prime_limit_for_idx(idx_t n)
+{
+    if (n < 6)
+        return 12;                               /* prime(6)=13 */
+    double dn   = (double)n;
+    double lgn  = log(dn);
+    double lgln = log(lgn);
+    /* p_n < n(ln n + ln ln n) for n ≥ 6, add a safety margin */
+    double limit = dn * (lgn + lgln) + 3.0;
+    return (idx_t)limit;
+}
 
 static uint64_t *g_primes = NULL;    /* array of primes, 1‑based indexing: g_primes[0] = 2 */
 static size_t   g_primes_cnt = 0;    /* number of primes allocated */

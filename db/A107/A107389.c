@@ -9,12 +9,14 @@
  *            x*(1-6*x+7*x^2)/((1-x)*(1+x)*(1-5*x+x^2)) )
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 16, i64 n <= 26, i128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;        /* memoisation buffer */
 static idx_t  dp_size = 0;      /* allocated size of dp */
@@ -24,7 +26,7 @@ static void init_seq(void)
 {
     if (dp == NULL) {
         dp_size = 4;
-        dp = (seq_t *)malloc(dp_size * sizeof(seq_t));
+        dp = mem_new(seq_t, dp_size);
         dp[0] = (seq_t)0;
         dp[1] = (seq_t)1;
         dp[2] = (seq_t)-1;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         idx_t new_size = dp_size ? (dp_size << 1) : 4;
         if (new_size < required)
             new_size = required;
-        seq_t *tmp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_size);
         dp = tmp;
         dp_size = new_size;
     }

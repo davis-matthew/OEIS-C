@@ -11,16 +11,50 @@
  *            For n ≥ 1, * let s be the smallest integer with n ≤ s(s‑1)/2; *
  *            let offset = n – (s‑1)(s‑2)/2 (1 ≤ offset ≤ s‑1); * m = offset;
  *            k = s – m; return τₖ(m) = ∏ₚ C(k+eₚ–1, eₚ) *...
- * Range:     u8 n <= 160, u16 n <= 1151, u32 n <= 9645, u64 n <= 9645,
- *            u128 n <= 9645, big any n
- * Helpers:   _factor_u64
+ * Range:     u8 n <= 160, u16 n <= 1151, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 107 terms through n = 9645 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/_factor_u64.h"   /* provides _factor_u64 */
+
+/* ---------- Trial division factorisation ----------------------------------- */
+static void _factor_u64(uint64_t n, uint64_t *pr, uint64_t *exp, size_t *cnt)
+{
+    *cnt = 0;
+    if (n < 2) return;
+    /* factor 2 separately */
+    if ((n & 1ULL) == 0) {
+        pr[*cnt] = 2ULL;
+        exp[*cnt] = 0;
+        while ((n & 1ULL) == 0) {
+            n >>= 1;
+            exp[*cnt] += 1;
+        }
+        (*cnt)++;
+    }
+    /* odd primes */
+    for (uint64_t d = 3ULL; d * d <= n; d += 2ULL) {
+        if (n % d == 0) {
+            pr[*cnt] = d;
+            exp[*cnt] = 0;
+            while (n % d == 0) {
+                n /= d;
+                exp[*cnt] += 1;
+            }
+            (*cnt)++;
+        }
+    }
+    if (n > 1) {
+        pr[*cnt] = n;
+        exp[*cnt] = 1;
+        (*cnt)++;
+    }
+}
 
 static seq_t binom_uint64(uint64_t n, uint64_t k)
 {

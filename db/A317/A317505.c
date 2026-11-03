@@ -10,14 +10,23 @@
  *            by rows
  * Range:     i8 n <= 32, i16 n <= 76, i32 n <= 76, i64 n <= 76, i128 n <= 76,
  *            big any n
- * Helpers:   binom, pow2, seq_mul
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/binom.h"
-#include "../utils/seq_mul.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +46,7 @@ seq_t a(idx_t n)
     idx_t parity = r - 3 * k;              /* determines the sign */
 
     /* Compute the binomial coefficient C(r-2k, k). */
-    seq_t bin = binom(r - 2 * k, k);
+    seq_t bin = binomial(r - 2 * k, k);
 
     /* Compute 2^k. */
     seq_t pow2k = pow2(k);

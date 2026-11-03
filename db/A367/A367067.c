@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    Σ_{i=1..n} a(i) ≡ 3 (mod n+3). */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,11 +36,11 @@ seq_t a(idx_t n)
     /* Grow seq array if needed. */
     if (seq_cap == 0) {
         seq_cap = 64;
-        seq = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
     }
     while (seq_cap < n) {
         size_t new_cap = seq_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp) return (seq_t)0;          /* allocation failed */
         seq = tmp;
         seq_cap = new_cap;
@@ -47,11 +49,11 @@ seq_t a(idx_t n)
     /* Grow used_vals array if needed. */
     if (used_cap == 0) {
         used_cap = 64;
-        used_vals = (seq_t *)calloc(used_cap, sizeof(seq_t));
+        used_vals = mem_new(seq_t, used_cap);
     }
     while (used_sz == used_cap) {
         size_t new_cap = used_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(used_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, used_vals, new_cap);
         if (!tmp) return (seq_t)0;          /* allocation failed */
         used_vals = tmp;
         used_cap = new_cap;

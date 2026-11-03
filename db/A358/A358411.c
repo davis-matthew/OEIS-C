@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{d|n} (d + n/d - 1)! / (d - 1)!
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* Utility: floor integer square root (uint64_t)                 */
@@ -48,7 +50,7 @@ static void ensure_factorial_upto(idx_t n)
     if ((size_t)n < fact_size) return;
 
     size_t new_size = (size_t)n + 1;
-    seq_t *new_tbl = (seq_t *)realloc(fact_table, new_size * sizeof(seq_t));
+    seq_t *new_tbl = mem_resize(seq_t, fact_table, new_size);
     if (!new_tbl) exit(1);  /* fatal: out of memory */
 
     /* Initialize from the old size (or from scratch). */

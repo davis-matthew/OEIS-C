@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 0, u32 n <= 11, u64 n <= 31, u128 n <= 76,
  *            big any n
- * Helpers:   reverse_digits
+ * Validated: standard, pass, 36 terms through n = 192 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,10 @@
  * index order run in O(1) after the term has been generated once.
  */
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +38,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (terms == NULL) {
         cap = 16;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
         if (!terms) return (seq_t)0;          /* allocation failure */
         terms[0] = (seq_t)10577;
         len = 1;
@@ -44,7 +48,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cap) {
         size_t new_cap = cap;
         while ((size_t)n + 1 > new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) return (seq_t)0;   /* allocation failure */
         terms = tmp;
         cap   = new_cap;

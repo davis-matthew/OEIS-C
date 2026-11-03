@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 115, u32 n <= 342, u64 n <= 1112,
  *            u128 n <= 3974, big any n
- * Helpers:   gcd, int_sqrt
+ * Validated: standard, pass, 94 terms through n = 4278 (2026-11-01)
+ * Helpers:   gcd, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../utils/gcd.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 #define MAX_ARRAY 200   /* sufficient for n≤10000 */
 
@@ -45,7 +46,7 @@ seq_t a(idx_t n)
     /* Convert the linear index to row and column in the triangle. */
     idx_t t   = n - 1;                 /* 0‑based position inside the infinite triangle */
     idx_t m   = 1 + 8 * t;             /* 1 + 8t  for quadratic formula */
-    idx_t s   = int_sqrt(m);           /* floor sqrt(1+8t)   */
+    idx_t s   = isqrt(m);           /* floor sqrt(1+8t)   */
     idx_t row = (1 + s) / 2;           /* floor approximation */
     /* correct to ceil if necessary */
     if (row * (row - 1) / 2 < t) row++;

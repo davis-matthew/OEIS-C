@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   reverse_decimal
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/reverse_decimal.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 /* Memoisation of already computed terms.  The array is indexed
    starting at 1; memo[0] is unused. */
@@ -35,7 +37,7 @@ static void grow_cache(idx_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(memo, sizeof(seq_t) * (new_cap + 1));
+    seq_t *tmp = mem_resize(seq_t, memo, (new_cap + 1));
     if (!tmp) /* allocation failure – let the caller handle it */
         return;
 
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         if (i == 1) {
             memo[1] = (seq_t)1027;
         } else {
-            memo[i] = reverse_decimal(memo[i - 1]) + (seq_t)16;
+            memo[i] = reverse_digits(memo[i - 1]) + (seq_t)16;
         }
     }
     last_filled = (n > last_filled) ? n : last_filled;

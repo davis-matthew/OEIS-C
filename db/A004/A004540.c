@@ -11,7 +11,8 @@
  *            a(n) = d at step n
  * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   cmp_limbs, lin, sub_limbs
+ * Validated: standard, pass, 115 terms through n = 4667 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,40 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/cmp_limbs.h"
-#include "../utils/lin.h"
-#include "../utils/sub_limbs.h"
+
+static int cmp_limbs(const uint32_t *x, const uint32_t *y, size_t len) {
+    size_t i = len;
+    while (i > 0) {
+        i--;
+        if (x[i] != y[i]) return x[i] < y[i] ? -1 : 1;
+    }
+    return 0;
+}
+
+static void lin(uint32_t *dst, const uint32_t *src, uint32_t m, uint32_t add, size_t len) {
+    uint64_t c = add;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        uint64_t v = (uint64_t)src[i] * m + c;
+        dst[i] = (uint32_t)v;
+        c = v >> 32;
+    }
+}
+
+static void sub_limbs(uint32_t *x, const uint32_t *y, size_t len) {
+    uint64_t borrow = 0;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        uint64_t yi = (uint64_t)y[i] + borrow;
+        if ((uint64_t)x[i] >= yi) {
+            x[i] = (uint32_t)((uint64_t)x[i] - yi);
+            borrow = 0;
+        } else {
+            x[i] = (uint32_t)(((uint64_t)1 << 32) + x[i] - yi);
+            borrow = 1;
+        }
+    }
+}
 
 static uint32_t *P = NULL, *R = NULL, *T = NULL;
 static unsigned char *D = NULL;

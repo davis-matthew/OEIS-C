@@ -11,15 +11,21 @@
  *            Sum_{j=1..k-1} C(j)*T(k-j), C(j) = Sum_{d|j} d...
  * Range:     u8 n <= 10, u16 n <= 15, u32 n <= 26, u64 n <= 47, u128 n <= 89,
  *            big any n
- * Helpers:   a368_add, a368_tri
+ * Validated: standard, pass, 42 terms through n = 1608 (2026-11-01)
+ * Helpers:   triangular_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a368_add.h"
-#include "../utils/a368_tri.h"
+#include "../utils/triangular_seq.h"
+
+static void a368_add(seq_t *hi, seq_t *lo, seq_t ph, seq_t pl) {
+    *lo += pl;
+    if (*lo < pl) *hi += 1;
+    *hi += ph;
+}
 
 #define A368_MAXN 20005
 
@@ -121,7 +127,7 @@ static void a368_extend(idx_t m) {
         }
         s = 0;
         for (j = 1; 2 * j < k; j++) s += A368_T[j] * A368_T[k - j];
-        if (k % 2 == 0) s += a368_tri(A368_T[k / 2]);
+        if (k % 2 == 0) s += triangular_seq(A368_T[k / 2]);
         A368_S[k] = s;
     }
     if (m > A368_have) A368_have = m;
@@ -137,6 +143,6 @@ seq_t a(idx_t n) {
     if (A368_have == 0) A368_S[0] = 0;
     a368_extend(n);
     for (i = 2; 2 * i < n; i++) r += A368_S[i] * A368_S[n - i];
-    if (n % 2 == 0) r += a368_tri(A368_S[n / 2]);
+    if (n % 2 == 0) r += triangular_seq(A368_S[n / 2]);
     return r;
 }

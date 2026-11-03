@@ -10,13 +10,27 @@
  *            (a0+a1)(*)(b0+b1), and + meaning XOR
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   nim_mul_level
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/nim_mul_level.h"
+
+static uint64_t nim_mul_level(uint64_t x, uint64_t y, int L) {
+    if (L == 0) return x & y;
+    int h = 1 << (L - 1);
+    uint64_t mask = (h >= 64) ? ~(uint64_t)0 : (((uint64_t)1 << h) - 1);
+    uint64_t x0 = x & mask, x1 = x >> h;
+    uint64_t y0 = y & mask, y1 = y >> h;
+    uint64_t c = nim_mul_level(x0, y0, L - 1);
+    uint64_t d = nim_mul_level(x1, y1, L - 1);
+    uint64_t e = nim_mul_level(x0 ^ x1, y0 ^ y1, L - 1);
+    uint64_t low = c ^ nim_mul_level(d, (uint64_t)1 << (h - 1), L - 1);
+    uint64_t high = e ^ c;
+    return (high << h) | low;
+}
 
 seq_t a(idx_t n) {
     uint64_t r = nim_mul_level((uint64_t)15, (uint64_t)n, 6);

@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = largest integer m such that 1+2+...+m ( = m*(m+1)/2 )
  *            divides n
- * Range:     u8 n <= 1043, u16 n <= 9617, u32 n <= 9617, u64 n <= 9617,
- *            u128 n <= 9617, big any n
+ * Range:     u8 n <= 1043, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 119 terms through n = 9617 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

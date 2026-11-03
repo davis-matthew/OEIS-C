@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 8, u32 n <= 200, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_count, factor_u64, is_prime, pow10
+ * Validated: standard, pass, 48 terms through n = 9572 (2026-11-01)
+ * Helpers:   factor_u64, is_prime, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,10 +25,20 @@
 #include <stdlib.h>
 
 /* External utilities (header names follow the utils convention) */
-#include "../utils/is_prime.h"       /* bool is_prime(idx_t n);          */
-#include "../utils/factor_u64.h"     /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/digit_count.h"   /* uint64_t digit_count(uint64_t n);       */
-#include "../utils/pow10.h"         /* seq_t pow10(idx_t e);                  */
+#include <math.h>
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/num_digits0.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Dynamic list of composite numbers.  composites[i] is the (i+1)-th composite. */
 static uint64_t *composites = NULL;
@@ -81,7 +92,7 @@ seq_t a(idx_t n)
         uint64_t p = pr[i];
         uint64_t e = ex[i];
         for (uint64_t j = 0; j < e; ++j) {
-            seq_t mult = pow10((idx_t)digit_count(p));
+            seq_t mult = pow10((idx_t)num_digits0(p));
             result = result * mult + (seq_t)p;
         }
     }

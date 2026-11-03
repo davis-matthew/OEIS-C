@@ -7,14 +7,17 @@
  * Formula:   a(n) = lcm{2,4,…,2n} = 2 * lcm(1,2,…,n)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 42, u128 n <= 88,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 45 terms through n = 493 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Compute a(n) for n ≥ 1.  The function is memoised, so it can be
  * called in arbitrary order; it remains efficient for n up to about
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
     if (n > max_cached) {
         idx_t new_cap = n;
         seq_t *tmp = /* C/C++ safe cast of realloc result */
-                    (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+                    mem_resize(seq_t, cache, (size_t)new_cap);
         if (!tmp) {
             /* allocation failure – return 0 to signal error */
             return (seq_t)0;

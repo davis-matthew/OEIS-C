@@ -9,7 +9,8 @@
  * Formula:   a(n) = Sum_{d|n} tau(d)*pod(d)
  * Range:     u8 n <= 7, u16 n <= 23, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   big_pow, factor_u64, floor_sqrt
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   factor_u64, ipow, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,29 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
-#include "../utils/floor_sqrt.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Recursive helper to accumulate the sum over all divisors. */
 static void dfs(size_t idx,
@@ -35,7 +56,7 @@ static void dfs(size_t idx,
     if (idx == cnt) {
         /* compute pod(cur_div) = cur_div^(cur_tau/2)  (with an extra sqrt if cur_tau is odd) */
         seq_t half = cur_tau / 2;                     /* integer division */
-        seq_t pod  = big_pow(cur_div, half);
+        seq_t pod  = ipow(cur_div, half);
         if ((seq_t)(cur_tau & 1))                    /* if cur_tau is odd */
             pod = pod * floor_sqrt(cur_div);
         *sum += cur_tau * pod;

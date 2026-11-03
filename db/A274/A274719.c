@@ -8,8 +8,9 @@
  *            for some k >= 1; a(n) = 0 otherwise. (This follows from
  *            ∏_{k>=1}(1-q^{2k}) expanding as the Euler pentagonal theorem
  *            with q→q².)
- * Range:     i8 n <= 9720, i16 n <= 9720, i32 n <= 9720, i64 n <= 9720,
- *            i128 n <= 9720, big any n
+ * Range:     i8 n <= 100000, i16 n <= 100000, i32 n <= 100000,
+ *            i64 n <= 100000, i128 n <= 100000, big any n
+ * Validated: standard, pass, 119 terms through n = 9720 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

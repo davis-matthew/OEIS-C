@@ -11,7 +11,8 @@
  *            arbitrary calling order
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   equal_3_6
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/equal_3_6.h"
+#include "../utils/mem.h"
+
+/* Helper: test if a value has equal count of 3's and 6's in base 8. */
+static bool equal_3_6(uint64_t v)
+{
+    unsigned c3 = 0, c6 = 0;
+    do {
+        uint64_t d = v % 8;
+        if (d == 3) ++c3;
+        else if (d == 6) ++c6;
+        v /= 8;
+    } while (v);
+    return c3 == c6;
+}
 
 /* The main sequence function. */
 seq_t a(idx_t n)
@@ -35,7 +49,7 @@ seq_t a(idx_t n)
     if (cache_sz < n && (cache == NULL || cache_cap < cache_sz + n)) {
         idx_t new_cap = cache_cap == 0 ? 16 : cache_cap << 1;
         while (new_cap < cache_sz + n) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)new_cap);
         cache_cap = new_cap;
     }
 

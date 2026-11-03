@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 19, i32 n <= 39, i64 n <= 81, i128 n <= 159,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 495 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A144413_cache = NULL;
 static idx_t  A144413_cache_size = 0;
@@ -36,7 +38,7 @@ A144413_ensure_up_to(idx_t n)
     if (new_size < 3)                           /* always store at least first 3 terms */
         new_size = 3;
 
-    seq_t *tmp = (seq_t *)realloc(A144413_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, A144413_cache, new_size);
     A144413_cache = tmp;
 
     /* initialise the first three values (overwrites if they existed) */

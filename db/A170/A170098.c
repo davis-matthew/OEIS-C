@@ -8,15 +8,24 @@
  * Formula:   a(0) = 1, a(n) = 41 * 40^(n-1) for n >= 1
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   pow_seq, seq_mul
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Note: all computation is done using the arbitrary‑precision type seq_t. */
 
-#include "../utils/pow_seq.h"   /* seq_t pow_seq(seq_t base, int exp); */
-#include "../utils/seq_mul.h"   /* seq_t seq_mul(seq_t a, seq_t b); */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow_i32.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* compute the nth term a(n) */
 seq_t a(idx_t n) {
@@ -25,7 +34,7 @@ seq_t a(idx_t n) {
         return (seq_t)1;
     }
     /* compute 40^(n-1) */
-    seq_t pow = pow_seq((seq_t)40, (int)(n - 1));
+    seq_t pow = ipow_i32((seq_t)40, (int)(n - 1));
     /* multiply by 41 */
     return seq_mul((seq_t)41, pow);
 }

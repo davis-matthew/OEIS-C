@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   count_runs_base4
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,23 @@
  * representation is congruent to 3 modulo 7.  The sequence is generated
  * by successive testing of integers. */
 #include <stdlib.h>
-#include "../utils/count_runs_base4.h"
+#include "../utils/mem.h"
+
+/* Count the runs in the base‑4 representation of x.  Runs are maximal
+ * consecutive blocks of equal digits. */
+static inline int count_runs_base4(seq_t x)
+{
+    int runs = 0;
+    int prev = -1;
+    while (x > 0) {
+        int digit = (int)(x % 4);
+        if (prev == -1 || digit != prev)
+            runs++;
+        prev = digit;
+        x = x / 4;
+    }
+    return runs;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +54,7 @@ seq_t a(idx_t n)
             if (newcap < (size_t)n)
                 newcap = (size_t)n;
             /* cast needed for C++ compatibility when seq_t is a class */
-            seq_t *ptr = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *ptr = mem_resize(seq_t, cache, newcap);
             if (!ptr) return 0;          /* allocation failure – silent */
             cache = ptr;
             cap   = newcap;

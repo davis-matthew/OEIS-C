@@ -9,7 +9,8 @@
  *            (e‑⌊(j‑1)/2⌋)(2j‑⌊(j‑1)/2⌋)·p^(2e‑j)
  * Range:     u8 n <= 5, u16 n <= 47, u32 n <= 3359, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factorize_uint64
+ * Validated: standard, pass, 66 terms through n = 9675 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,47 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factorize_uint64.h"
+
+/* trial division factorisation of n into primes and exponents.
+   n is assumed non‑zero. */
+static void factorize_uint64(uint64_t n, uint64_t primes[],
+                             int exps[], size_t *cnt)
+{
+    *cnt = 0;
+    if (n == 0) return;
+
+    /* factor 2 */
+    if ((n & 1ULL) == 0ULL) {
+        primes[*cnt] = 2;
+        int e = 0;
+        while ((n & 1ULL) == 0ULL) {
+            n >>= 1ULL;
+            ++e;
+        }
+        exps[*cnt] = e;
+        ++(*cnt);
+    }
+
+    /* odd factors */
+    for (uint64_t d = 3; d <= n / d; d += 2) {
+        if (n % d == 0ULL) {
+            primes[*cnt] = d;
+            int e = 0;
+            while (n % d == 0ULL) {
+                n /= d;
+                ++e;
+            }
+            exps[*cnt] = e;
+            ++(*cnt);
+        }
+    }
+
+    if (n > 1ULL) {
+        primes[*cnt] = n;
+        exps[*cnt] = 1;
+        ++(*cnt);
+    }
+}
 
 /* fast exponentiation for seq_t */
 static seq_t pow_uint(uint64_t base, idx_t exp)

@@ -8,7 +8,8 @@
  *            (p-1)/2 = q · r for primes q, r)
  * Range:     u8 n <= 17, u16 n <= 1338, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   push_seq
+ * Validated: standard, pass, 68 terms through n = 8607 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/push_seq.h"
+#include "../utils/mem.h"
+
+static void push_seq(seq_t **arr, size_t *cnt, size_t *cap, seq_t val) {
+    if (*cnt == *cap) {
+        *cap = (*cap) ? (*cap) * 2 : 128;
+        *arr = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
+    }
+    (*arr)[(*cnt)++] = val;
+}
 
 /* Upper bound for primes needed to reach n≈10000.  5 × 10⁶ comfortably covers
    the 10 000‑th term and keeps memory usage modest. */
@@ -64,7 +73,7 @@ static void init_sieve(void) {
     }
 
     term_cap   = 256;
-    terms      = (seq_t*)malloc(term_cap * sizeof(seq_t));
+    terms      = mem_new(seq_t, term_cap);
     term_cnt   = 0;
 }
 

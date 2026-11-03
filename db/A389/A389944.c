@@ -8,7 +8,8 @@
  *            (-1)^k*binomial(2*(n-3*k),k)*A001764(n-3*k)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 26, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_a = NULL;
 static seq_t *seq_s = NULL;
@@ -37,8 +39,8 @@ static void ensure_cache(idx_t n)
     if (seq_cap < n + 1) {
         idx_t new_cap = seq_cap ? seq_cap << 1 : (n + 1);
         while (new_cap < n + 1) new_cap <<= 1;
-        seq_t *a_new = (seq_t*)realloc(seq_a, new_cap * sizeof(seq_t));
-        seq_t *s_new = (seq_t*)realloc(seq_s, new_cap * sizeof(seq_t));
+        seq_t *a_new = mem_resize(seq_t, seq_a, new_cap);
+        seq_t *s_new = mem_resize(seq_t, seq_s, new_cap);
         if (!a_new || !s_new) exit(EXIT_FAILURE);
         for (idx_t i = seq_cap; i < new_cap; ++i) {
             a_new[i] = 0;

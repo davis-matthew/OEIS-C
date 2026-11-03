@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*-------------------------------------*/
 /* signed integer division towards
@@ -61,8 +63,7 @@ static seq_t count_triples(idx_t m_idx)
 {
     if (m_idx >= T_cache_len) {
         size_t new_len = (size_t)(m_idx + 1);
-        seq_t *new_cache = (seq_t *)realloc(T_cache,
-                                            new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, T_cache, new_len);
         unsigned char *new_done = (unsigned char *)realloc(T_done,
                                         new_len * sizeof(unsigned char));
         if (!new_cache || !new_done) exit(EXIT_FAILURE);

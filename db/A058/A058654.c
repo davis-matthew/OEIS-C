@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Prime sieve data */
 static bool *prime_sieve = NULL;      /* true if index is prime */
@@ -59,7 +61,7 @@ static void add_term(idx_t val)
 {
     if (cache_len == cache_cap) {
         idx_t new_cap = cache_cap == 0 ? 32 : cache_cap << 1;
-        seq_t *new_arr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, seq_cache, new_cap);
         if (!new_arr)
             exit(1); /* allocation failed */
         seq_cache = new_arr;

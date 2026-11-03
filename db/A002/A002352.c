@@ -10,7 +10,8 @@
  *            (repeated Taylor shift and inversion of x^3 - 2)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 34, u128 n <= 71,
  *            big any n
- * Helpers:   a2352_mag_cmp
+ * Validated: standard, pass, 45 terms through n = 1951 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a2352_mag_cmp.h"
+
+static int a2352_mag_cmp(const uint32_t *a, size_t al, const uint32_t *b, size_t bl) {
+    size_t i;
+    if (al != bl) return al < bl ? -1 : 1;
+    for (i = al; i-- > 0;) {
+        if (a[i] != b[i]) return a[i] < b[i] ? -1 : 1;
+    }
+    return 0;
+}
 
 typedef struct { uint32_t *d; size_t len, cap; int neg; } a2352_bn;
 

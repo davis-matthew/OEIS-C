@@ -7,18 +7,21 @@
  * Formula:   a(n) = 9^(4*n + 3)
  * Range:     u8 none, u16 n <= 0, u32 n <= 1, u64 n <= 4, u128 n <= 9,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 26 terms through n = 193 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* 9^(4*n + 3) = 9^3 * (9^4)^n = 729 * 6561^n */
     const seq_t init = (seq_t)729;
     const seq_t mult = (seq_t)6561;
-    seq_t pow = big_pow(mult, (seq_t)n);
+    seq_t pow = ipow(mult, (seq_t)n);
     return init * pow;
 }

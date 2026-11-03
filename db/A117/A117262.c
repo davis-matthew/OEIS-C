@@ -10,12 +10,14 @@
  *            r(r+1)/2, and T(r,k) = 3^( r*(r-1)/2 - k*(k-1)/2 )
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 27, u64 n <= 35, u128 n <= 35,
  *            big any n
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow3.h"   /* provides pow3(idx_t exp) */
+#include <stdint.h>
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {

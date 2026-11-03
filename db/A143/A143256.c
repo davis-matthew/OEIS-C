@@ -10,6 +10,7 @@
  *            element in the triangle)
  * Range:     i8 n <= 8384, i16 n <= 9870, i32 n <= 9870, i64 n <= 9870,
  *            i128 n <= 9870, big any n
+ * Validated: standard, pass, 121 terms through n = 9642 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

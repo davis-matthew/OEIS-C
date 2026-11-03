@@ -7,16 +7,59 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n} d * (n/d - A003958(n/d)), where A003958 is
  *            multiplicative with A003958(p^e) = (p-1)^e
- * Range:     u8 n <= 47, u16 n <= 2159, u32 n <= 9217, u64 n <= 9217,
- *            u128 n <= 9217, big any n
- * Helpers:   compute_G
+ * Range:     u8 n <= 47, u16 n <= 2159, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 96 terms through n = 9217 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/compute_G.h"
+
+/* Compute A322582(x) = x - A003958(x) for a small integer x (x>=1). */
+static seq_t compute_G(idx_t x)
+{
+    idx_t t = x;
+    seq_t prod = (seq_t)1;
+
+    /* Temporary arrays for the prime factorization of t. */
+    idx_t primes[16];
+    int    exps[16];
+    size_t pcnt = 0;
+
+    /* Factorization of t. */
+    for (idx_t p = 2; p * p <= t; ++p) {
+        if (t % p == 0) {
+            int e = 0;
+            while (t % p == 0) {
+                t /= p;
+                ++e;
+            }
+            primes[pcnt] = p;
+            exps[pcnt]  = e;
+            ++pcnt;
+        }
+    }
+    if (t > 1) {            /* Remaining prime factor. */
+        primes[pcnt] = t;
+        exps[pcnt]  = 1;
+        ++pcnt;
+    }
+
+    /* Compute the product of (p-1)^e for all prime factors. */
+    for (size_t i = 0; i < pcnt; ++i) {
+        seq_t base = (seq_t)(primes[i] - 1);
+        seq_t pot  = (seq_t)1;
+        for (int k = 0; k < exps[i]; ++k) {
+            pot *= base;
+        }
+        prod *= pot;
+    }
+
+    return (seq_t)x - prod;
+}
 
 /* Generate all positive divisors of n. The resulting array 'divs'
    is filled with all divisors, and '*divc' is set to the count. */

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 135, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digits
+ * Validated: standard, pass, 83 terms through n = 8804 (2026-11-03)
+ * Helpers:   mem, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/digits.h"   /* provides: int digits(idx_t n) */
+#include "../utils/num_digits_idx.h"
+#include "../utils/mem.h"
 
 static idx_t pow10arr[21];          /* 10^0 .. 10^20 (fits in 64‑bit) */
 static bool pow10_inited = false;
@@ -40,8 +42,8 @@ static void init_pow10(void) {
 
 /* Test whether a and b overlap (suffix of one is prefix of the other). */
 static bool overlaps(idx_t a, idx_t b) {
-    int da = digits(a);
-    int db = digits(b);
+    int da = num_digits_idx(a);
+    int db = num_digits_idx(b);
     int m  = da < db ? da : db;
     for (int k = 1; k <= m; ++k) {
         idx_t powk    = pow10arr[k];
@@ -64,7 +66,7 @@ static void ensure_capacity(idx_t mx) {
     if (mx <= capacity) return;
     idx_t newcap = capacity ? capacity << 1 : 128;
     while (newcap < mx) newcap <<= 1;
-    perm = (seq_t *)realloc(perm, sizeof(seq_t) * (newcap + 1));
+    perm = mem_resize(seq_t, perm, (newcap + 1));
     used = (bool  *)realloc(used, sizeof(bool)  * (newcap + 1));
     /* Mark new entries as unused; perm entries remain uninitialised. */
     for (idx_t i = capacity + 1; i <= newcap; ++i) used[i] = false;

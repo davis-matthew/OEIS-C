@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   bitlen_seq
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/bitlen_seq.h"
+#include "../utils/mem.h"
+
+/* Bit length of a seq_t value (at least 1 for v==0) */
+static inline unsigned long bitlen_seq(seq_t v) {
+    unsigned long b = 0;
+    while (v) {
+        v >>= 1;
+        ++b;
+    }
+    return (b == 0) ? 1 : b;
+}
 
 /* Count 1-bits in a seq_t value */
 static inline unsigned long popcnt_seq(seq_t v) {
@@ -39,7 +50,7 @@ static size_t cache_len = 0;
 static void ensure_cache_size(idx_t n) {
     if ((size_t)n < cache_len) return;
     size_t newlen = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, newlen * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newlen);
     if (!tmp) abort();   /* OOM */
     cache = tmp;
     for (size_t i = cache_len; i < newlen; ++i) cache[i] = 0; /* init */

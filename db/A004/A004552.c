@@ -9,7 +9,8 @@
  *            multi-precision integers
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_small_add, sub_big
+ * Validated: standard, pass, 136 terms through n = 9907 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,31 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/mul_small_add.h"
-#include "../utils/sub_big.h"
+
+static size_t mul_small_add(uint32_t *a, size_t len, uint32_t m, uint32_t add) {
+    uint64_t carry = add;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        uint64_t v = (uint64_t)a[i] * m + carry;
+        a[i] = (uint32_t)v;
+        carry = v >> 32;
+    }
+    if (carry) a[len++] = (uint32_t)carry;
+    while (len > 0 && a[len - 1] == 0) len--;
+    return len;
+}
+
+static size_t sub_big(uint32_t *a, size_t la, const uint32_t *b, size_t lb) {
+    int64_t borrow = 0;
+    size_t i;
+    for (i = 0; i < la; i++) {
+        int64_t v = (int64_t)a[i] - borrow - (i < lb ? (int64_t)b[i] : 0);
+        if (v < 0) { v += ((int64_t)1 << 32); borrow = 1; } else borrow = 0;
+        a[i] = (uint32_t)v;
+    }
+    while (la > 0 && a[la - 1] == 0) la--;
+    return la;
+}
 
 static uint32_t *P = NULL, *R = NULL, *T = NULL, *Y = NULL;
 static size_t lp = 0, lr = 0, lt = 0, ly = 0, cap = 0;

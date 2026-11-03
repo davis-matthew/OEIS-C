@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 8396 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* integer square root of a 64‑bit unsigned integer */
 static inline uint64_t isqrt_u64(uint64_t x)
@@ -60,11 +62,11 @@ seq_t a(idx_t n)
     /* Recompute cache if needed */
     if (!cache || n > cache_max) {
         /* free old cache if any */
-        free(cache);
+        mem_free(cache);
 
         /* allocate new cache and initialise to zero */
         size_t sz = (size_t)(n + 1);
-        cache = (seq_t *)calloc(sz, sizeof(seq_t));
+        cache = mem_new(seq_t, sz);
         if (!cache) return 0;   /* allocation failure – return 0 */
 
         /* enumerate all admissible quadruples up to the new maximum */

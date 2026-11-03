@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_pi
+ * Validated: standard, pass, 75 terms through n = 880 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,14 @@
  */
 
 #include <stdint.h>
-#include "../utils/floor_pi.h"
+
+/* Integer approximation of π using the convergent 103993/33102 < π.
+ * For any m <= 10^5, floor(m*π) = floor(m*103993/33102). */
+static inline idx_t floor_pi(idx_t m)
+{
+    /* Use 128‑bit arithmetic to avoid overflow. */
+    return (idx_t)(((unsigned __int128)m * 103993ULL) / 33102ULL);
+}
 
 seq_t a(idx_t n)
 {

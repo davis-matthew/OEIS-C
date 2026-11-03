@@ -7,13 +7,15 @@
  * Formula:   a(n) = floor(n^n/2)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 284 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     /* For larger or arbitrary‑precision seq_t use the provided big_pow.
        The result fits in seq_t because the build’s seq_t is large enough. */
-    seq_t p = big_pow((seq_t)n, (seq_t)n);
+    seq_t p = ipow((seq_t)n, (seq_t)n);
     if (n % 2 == 0) {
         return p / 2;
     } else {

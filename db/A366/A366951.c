@@ -11,7 +11,8 @@
  *            Fibonacci numbers modulo p_n
  * Range:     u8 n <= 30, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* ---------- prime storage ---------- */
 static uint64_t *prime_list = NULL;    /* array of primes */
@@ -180,7 +182,7 @@ seq_t a(idx_t n)
 
     /* ensure pisano cache big enough */
     if (pisano_cap < prime_cnt) {
-        seq_t *tmp = (seq_t *)realloc(pisano_cache, prime_cnt * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pisano_cache, prime_cnt);
         pisano_cache = tmp;
         pisano_cap   = prime_cnt;
     }

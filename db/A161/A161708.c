@@ -7,6 +7,7 @@
  * Formula:   a(n) = -n^3 + 7*n^2 - 5*n + 1
  * Range:     i8 n <= 8, i16 n <= 34, i32 n <= 1292, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 54 terms through n = 9464 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

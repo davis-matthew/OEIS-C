@@ -7,6 +7,7 @@
  * Formula:   a(n) = -n^2 + 21*n - 1
  * Range:     i8 n <= 25, i16 n <= 191, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 68 terms through n = 991 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

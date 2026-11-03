@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 408, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   int_sqrt, is_prime
+ * Validated: standard, pass, 57 terms through n = 9559 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt.h"
 
 static size_t     primes_cap   = 0;
 static uint64_t * primes_buf   = NULL;
@@ -39,7 +40,7 @@ static bool is_of_form(uint64_t p)
         uint64_t rem = p - y2;
         if (rem % 9 != 0) continue;
         uint64_t x2 = rem / 9;
-        uint64_t s  = int_sqrt(x2);
+        uint64_t s  = isqrt(x2);
         if (s * s == x2) return true;
     }
     return false;
@@ -64,7 +65,7 @@ static void ensure_capacity(void)
 static void generate_next(void)
 {
     for (;;) {
-        if (is_prime(last_checked) && is_of_form(last_checked)) {
+        if (is_prime_u64(last_checked) && is_of_form(last_checked)) {
             ensure_capacity();
             primes_buf[primes_cnt++] = last_checked;
             last_checked++;

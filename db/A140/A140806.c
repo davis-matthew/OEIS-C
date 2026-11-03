@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 12, i16 n <= 20, i32 n <= 39, i64 n <= 39, i128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    The denominator simplifies to x^8+14*x^4+1, giving the above linear
    recurrence. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t coeff[9] = {
     0,           /* x^0 */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         size_t newcap = capacity ? capacity << 1 : 16;
         while (newcap < need)
             newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();
         cache = tmp;
         /* initialize new space to zero for safety */

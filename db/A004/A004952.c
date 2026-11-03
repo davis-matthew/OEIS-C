@@ -9,13 +9,26 @@
  *            F(17)*sqrt(5))/2 with L(17) = 3571, F(17) = 1597
  * Range:     u8 n <= 0, u16 n <= 18, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   u128_to_seq
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/u128_to_seq.h"
+#include <stdlib.h>
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
 
 static unsigned __int128 isqrt_u128(unsigned __int128 x)
 {

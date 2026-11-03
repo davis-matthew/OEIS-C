@@ -8,12 +8,14 @@
  * Formula:   a(1) = 3; a(n) = sum of factorials of the digits of a(n-1)
  * Range:     u8 n <= 2, u16 n <= 14, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL; /* array of computed values */
 static size_t cache_capacity = 0; /* allocated size of cache   */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Allocate or enlarge cache if necessary */
     if (cache == NULL || (size_t)n > cache_capacity) {
         size_t new_cap = (size_t)n;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache)       /* allocation failure guard   */
             return 0;
         cache = new_cache;

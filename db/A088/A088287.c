@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 55, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   reverse_uint
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem, reverse_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/reverse_uint.h"
+#include "../utils/reverse_digits_u64.h"
+#include "../utils/mem.h"
 
 /* *** Memoised components *** */
 static seq_t *terms = NULL;        /* dynamic array of found terms */
@@ -49,7 +51,7 @@ static void grow_terms(size_t needed)
     if (term_cap >= needed) return;
     size_t new_cap = term_cap ? term_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
     terms = new_terms;
     term_cap = new_cap;
 }
@@ -83,7 +85,7 @@ static bool next_palindrome(seq_t *out, size_t *len_out)
 
     for (;;) {
         /* Build palindrome from curr_half */
-        uint64_t rev_part = (curr_len & 1) ? reverse_uint(curr_half / 10) : reverse_uint(curr_half);
+        uint64_t rev_part = (curr_len & 1) ? reverse_digits_u64(curr_half / 10) : reverse_digits_u64(curr_half);
         size_t rev_len = curr_len - half_len;                      /* number of digits in rev_part */
         seq_t pal = (seq_t)curr_half * pow10[rev_len] + (seq_t)rev_part;
 

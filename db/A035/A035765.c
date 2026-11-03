@@ -7,7 +7,8 @@
  * Formula:   a(n) = [x^(2n)] ((1+x)/(1-x))^28
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 4, u64 n <= 12, u128 n <= 70,
  *            big any n
- * Helpers:   binom_outer, init_binom28
+ * Validated: standard, pass, 33 terms through n = 9556 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,27 @@
 */
 
 #include <stdbool.h>
-#include "../utils/binom_outer.h"
-#include "../utils/init_binom28.h"
+
+static inline seq_t binom_outer(idx_t M) {
+    /* returns C(M,27) for M >= 27 */
+    seq_t res = 1;
+    for (idx_t i = 1; i <= 27; ++i) {
+        res = res * (M - 27 + i) / i;
+    }
+    return res;
+}
+
+static inline void init_binom28(seq_t *arr) {
+    /* fill arr[0..28] with binomial coefficients C(28,r) */
+    for (idx_t r = 0; r <= 28; ++r) {
+        seq_t val = 1;
+        idx_t k = r < 28 - r ? r : 28 - r;
+        for (idx_t i = 1; i <= k; ++i) {
+            val = val * (28 - k + i) / i;
+        }
+        arr[r] = val;
+    }
+}
 
 seq_t a(idx_t n) {
     static bool init = false;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Euclidean algorithm on idx_t (uint64_t).  This avoids overflow when
    seq_t is narrower. */
@@ -85,13 +87,13 @@ seq_t a(idx_t n)
     /* Ensure cache has room for up to n */
     if (!a_cache) {
         a_cache_size = 2;
-        a_cache = (seq_t*)calloc(a_cache_size, sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cache_size);
         if (!a_cache) abort();
     }
     if ((size_t)n >= a_cache_size) {
         size_t sz = a_cache_size;
         while (sz <= (size_t)n) sz <<= 1;
-        seq_t *tmp = (seq_t*)realloc(a_cache, sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, sz);
         if (!tmp) abort();
         a_cache = tmp;
         a_cache_size = sz;

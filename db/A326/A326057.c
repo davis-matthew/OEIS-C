@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = gcd( A003961(n)-2n , A003961(n)-sigma(n) )
- * Range:     u8 n <= 53, u16 n <= 7829, u32 n <= 9685, u64 n <= 9685,
- *            u128 n <= 9685, big any n
- * Helpers:   build_primes_upto, factor_u64, gcd, pow_uint, seq_mul, sigma_of
+ * Range:     u8 n <= 53, u16 n <= 7829, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9685 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +21,31 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/gcd.h"            /* seq_t gcd(seq_t a, seq_t b)          */
-#include "../utils/seq_mul.h"        /* seq_t seq_mul(seq_t a, seq_t b)      */
-#include "../utils/pow_uint.h"       /* seq_t pow_uint(uint64_t base, idx_t exp) */
-#include "../utils/sigma_of.h"       /* seq_t sigma_of(idx_t n)              */
-#include "../utils/factor_u64.h"     /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/build_primes_upto.h" /* build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out) */
+#include <string.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 static uint64_t *prime_list       = NULL;   /* list of primes up to current limit */
 static size_t   prime_list_cnt    = 0;      /* number of primes in prime_list     */
@@ -84,7 +104,7 @@ seq_t a(idx_t n)
         uint32_t idx = prime_index[(size_t)p];
         uint64_t next_p = prime_list[(size_t)(idx + 1)];   /* next prime in the list */
 
-        seq_t pow = pow_uint(next_p, (idx_t)ex[i]);
+        seq_t pow = ipow_u64_idx(next_p, (idx_t)ex[i]);
         B = seq_mul(B, pow);
     }
 

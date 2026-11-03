@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 598, u16 n <= 9841, u32 n <= 9841, u64 n <= 9841,
  *            u128 n <= 9841, big any n
- * Helpers:   carry_free_add
+ * Validated: standard, pass, 94 terms through n = 8879 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,22 @@
  */
 
 #include <stdbool.h>
-#include "../utils/carry_free_add.h"
+
+static bool carry_free_add(seq_t n, seq_t m)
+{
+    seq_t nn = n;
+    seq_t mm = m;
+    while (mm) {
+        unsigned int nd = (unsigned int)(nn % 3);
+        unsigned int md = (unsigned int)(mm % 3);
+        if (nd + md > 2)
+            return false;
+        nn /= 3;
+        mm /= 3;
+    }
+    /* Remaining higher digits of m are ≤ 2 automatically. */
+    return true;
+}
 
 seq_t a(idx_t n)
 {

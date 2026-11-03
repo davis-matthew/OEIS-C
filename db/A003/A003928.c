@@ -8,12 +8,13 @@
  *            B_n(5), gcd(2,5-1) = 2)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 5,
  *            big any n
- * Helpers:   a003928_powmod
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a003928_powmod.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     seq_t product = (seq_t)12; /* (5^2 - 1) / 2 */
@@ -23,5 +24,5 @@ seq_t a(idx_t n) {
         p = p * (seq_t)25;
         product = product * (p - (seq_t)1);
     }
-    return a003928_powmod((seq_t)5, n * n) * product;
+    return ipow_idx((seq_t)5, n * n) * product;
 }

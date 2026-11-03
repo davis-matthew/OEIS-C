@@ -11,7 +11,8 @@
  *            fast repeated calls
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 414 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MAX_PRIME 200000          /* primes up to this bound cover n ≤ 10 000   */
 #define INITIAL_CAP 2             /* initial capacity for the value table      */
@@ -75,7 +77,7 @@ static void init(void)
 
     /* allocate value array */
     a_cap = INITIAL_CAP;
-    a_vals = (seq_t*)malloc((a_cap + 1) * sizeof(seq_t));
+    a_vals = mem_new(seq_t, (a_cap + 1));
     a_vals[1] = (seq_t)1;         /* a(1) = 1 */
     a_cap = INITIAL_CAP;
 
@@ -95,7 +97,7 @@ static void ensure_capacity(size_t needed)
         size_t new_cap = a_cap;
         while (new_cap < needed) new_cap <<= 1;
 
-        seq_t *tmp = (seq_t*)realloc(a_vals, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_vals, (new_cap + 1));
         if (!tmp) exit(EXIT_FAILURE);   /* unrecoverable allocation error */
         a_vals = tmp;
         a_cap = new_cap;

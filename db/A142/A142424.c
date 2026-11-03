@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 157, u32 n <= 158, u64 n <= 1000,
+ * Range:     u8 n <= 1, u16 n <= 157, u32 n <= 205, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Helper: modular exponentiation for arbitrary seq_t ---------- */
 static seq_t mod_pow_seq(seq_t base, seq_t exp, seq_t mod)
@@ -114,7 +116,7 @@ seq_t a(idx_t n)
     /* initial allocation if needed */
     if (cache_len == 0) {
         cache_cap = 64;                    /* start with moderate size */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     while (cache_len < n) {
@@ -124,7 +126,7 @@ seq_t a(idx_t n)
         if (is_prime_big(candidate)) {
             if (cache_len >= cache_cap) {
                 cache_cap = cache_cap * 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = candidate;
         }

@@ -11,13 +11,15 @@
  *            values: a(3)=1, a(4)=9, a(5)=36, a(6)=98
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include needed headers for memory allocation */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types provided by the build: idx_t and seq_t */
 seq_t a(idx_t n)
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
        dp1 = strings ending in a single 0
        dp2 = strings ending in two 0s
        dp3 = strings ending in a run of >=3 0s   */
-    seq_t *b = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *b = mem_new(seq_t, (size_t)(n + 1));
     if (!b) return (seq_t)0;            /* silent failure if malloc fails */
 
     b[0] = (seq_t)0;                    /* unused, but for completeness */
@@ -91,6 +93,6 @@ seq_t a(idx_t n)
         a_prev1 = a_curr;
     }
 
-    free(b);
+    mem_free(b);
     return a_curr;
 }

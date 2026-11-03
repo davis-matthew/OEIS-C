@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 22, u32 n <= 2222, u64 n <= 2222,
  *            u128 n <= 2222, big any n
- * Helpers:   pow10, reverse_decimal
+ * Validated: standard, pass, 58 terms through n = 2054 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,18 @@
 /* A043042: nth base‑10 palindrome that starts with 7. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/reverse_decimal.h"
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -43,10 +54,10 @@ seq_t a(idx_t n)
     seq_t left = pow10(k - 1) * (seq_t)7 + (seq_t)offset;
 
     if (length % 2 == 0) {                    /* even length */
-        seq_t right = reverse_decimal(left);
+        seq_t right = reverse_digits(left);
         return left * pow10(k) + right;
     } else {                                  /* odd length */
-        seq_t right = reverse_decimal(left / (seq_t)10);
+        seq_t right = reverse_digits(left / (seq_t)10);
         return left * pow10(k - 1) + right;
     }
 }

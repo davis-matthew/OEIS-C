@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 29, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, is_prime, sigma_of
+ * Validated: standard, pass, 70 terms through n = 980 (2026-11-03)
+ * Helpers:   factor_u64, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,9 +27,24 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdint.h>        /* for __builtin_popcountll */
-#include "../utils/is_prime.h"
-#include "../utils/sigma_of.h"
 #include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -51,9 +67,9 @@ seq_t a(idx_t n)
         while (newcap < n)
             newcap <<= 1;
         if (terms == NULL)
-            terms = (seq_t *)malloc(newcap * sizeof(seq_t));
+            terms = mem_new(seq_t, newcap);
         else
-            terms = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, newcap);
         tcap = newcap;
     }
 

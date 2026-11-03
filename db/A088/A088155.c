@@ -11,7 +11,8 @@
  *            * (≈2 000 seconds per call limit is respe...
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   mul_mod_words, pow_mod_words
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,62 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/mul_mod_words.h"
-#include "../utils/pow_mod_words.h"
+
+/* multiply two numbers in base 2^64,
+   keeping only the lowest 'len' 64‑bit words.
+   a, b, res are arrays of length 'len'.
+   The result is the product of a and b modulo 2^(64*len). */
+static void mul_mod_words(const uint64_t *a, const uint64_t *b,
+                          uint64_t *res, size_t len)
+{
+    /* Temporary buffer to accumulate the product.
+       It needs twice the length to hold the full product.
+       2*len words are safe for all intermediate sums. */
+    uint64_t *tmp = (uint64_t *)calloc(len * 2, sizeof(uint64_t));
+    if (!tmp) abort();                 /* out of memory */
+
+    for (size_t i = 0; i < len; ++i) {
+        __uint128_t carry = 0;
+        for (size_t j = 0; j < len; ++j) {
+            __uint128_t cur = (__uint128_t)a[i] * b[j] + tmp[i + j] + carry;
+            tmp[i + j] = (uint64_t)cur;
+            carry = cur >> 64;
+        }
+        /* carry is added to the word beyond the lower block;
+           it is discarded because we only keep the lower 'len' words. */
+        tmp[i + len] += (uint64_t)carry;
+    }
+    /* Copy the lower 'len' words to the result buffer. */
+    memcpy(res, tmp, len * sizeof(uint64_t));
+    free(tmp);
+}
+
+/* modular exponentiation: computes base^exp mod 2^(64*len).
+   base and result are arrays of length 'len' (little‑endian).
+   The exponent is a 64‑bit integer 'exp'. */
+static void pow_mod_words(const uint64_t *base, uint64_t exp,
+                          uint64_t *result, size_t len)
+{
+    uint64_t *b = (uint64_t *)malloc(len * sizeof(uint64_t));
+    uint64_t *r = (uint64_t *)malloc(len * sizeof(uint64_t));
+    if (!b || !r) abort();
+
+    memcpy(b, base, len * sizeof(uint64_t));
+    memset(r, 0, len * sizeof(uint64_t));
+    r[0] = 1; /* r = 1 */
+
+    while (exp) {
+        if (exp & 1) {
+            mul_mod_words(r, b, r, len);
+        }
+        mul_mod_words(b, b, b, len);
+        exp >>= 1;
+    }
+    memcpy(result, r, len * sizeof(uint64_t));
+
+    free(b);
+    free(r);
+}
 
 /* Main sequence function, as required. */
 seq_t a(idx_t n)

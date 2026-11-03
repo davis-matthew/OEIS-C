@@ -10,7 +10,8 @@
  *            no exponent is a Fibonacci number, f(k) = 1
  * Range:     u8 n <= 171, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 111 terms through n = 9872 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Standard headers */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global static helpers --------------------------------------------------- */
 
@@ -81,12 +83,12 @@ seq_t a(idx_t n)
 
     /* Allocate or expand cumulative‑sum array */
     if (!cum_sum) {
-        cum_sum = (seq_t *)calloc(N + 1, sizeof(seq_t));
+        cum_sum = mem_new(seq_t, N + 1);
         if (!cum_sum) abort();
         cum_sum[0] = (seq_t)0;
         cum_last   = 0;
     } else if (N > cum_last) {
-        seq_t *tmp = (seq_t *)realloc(cum_sum, (N + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cum_sum, (N + 1));
         if (!tmp) abort();
         cum_sum = tmp;
     }

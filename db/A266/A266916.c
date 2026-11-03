@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   generate_permutations
+ * Validated: full, pass, 77 terms through n = 77 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,31 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/generate_permutations.h"
+
+static void generate_permutations(int depth, bool used[10], int perm[10],
+                                  bool seen[81])
+{
+    if (depth == 10) {
+        seq_t s = 0;
+        s += (seq_t)perm[0] * perm[1];
+        s += (seq_t)perm[2] * perm[3];
+        s += (seq_t)perm[4] * perm[5];
+        s += (seq_t)perm[6] * perm[7];
+        s += (seq_t)perm[8] * perm[9];
+        int idx = (int)(s - 60);   /* 0 <= idx <= 80 */
+        seen[idx] = true;
+        return;
+    }
+
+    for (int d = 0; d < 10; ++d) {
+        if (!used[d]) {
+            used[d] = true;
+            perm[depth] = d;
+            generate_permutations(depth + 1, used, perm, seen);
+            used[d] = false;
+        }
+    }
+}
 
 static bool initialized = false;
 static seq_t cache[81];     /* maximum possible number of distinct sums (81) */

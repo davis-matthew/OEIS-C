@@ -13,15 +13,29 @@
  *            a(3)=T(2,2), a(4)=T(3,1), etc
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 21, u64 n <= 36, u128 n <= 66,
  *            big any n
- * Helpers:   big_pow, decompose
+ * Validated: standard, pass, 52 terms through n = 504 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/decompose.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
+
+/* Convert linear index (starting at 1) to (row r, column k), 1‑based. */
+static void decompose(idx_t idx, idx_t *r_out, idx_t *k_out)
+{
+    /* Solve r*(r+1)/2 >= idx for r */
+    long double r_est = (sqrtl(8.0L * idx + 1.0L) - 1.0L) / 2.0L;
+    idx_t r = (idx_t)r_est;
+    while (r * (r + 1) / 2 < idx) ++r;
+    while (r > 0 && (r - 1) * r / 2 >= idx) --r;
+
+    *r_out = r;
+    *k_out = idx - (r - 1) * r / 2;
+}
 
 /* Max row needed for index ≤ 10000: r*(r+1)/2 ≥ 10000 -> r ≈ 140.
    We use a generous bound. */
@@ -58,7 +72,7 @@ static void init_dp(void)
     dp[0][0] = (seq_t)1;
     for (idx_t n = 1; n <= MAX_N; ++n) {
         /* total number of digraphs on n vertices: 2^(n*(n-1)) */
-        seq_t t = big_pow((seq_t)2, (seq_t)(n * (n - 1)));
+        seq_t t = ipow((seq_t)2, (seq_t)(n * (n - 1)));
 
         seq_t sum_rest = 0;
 

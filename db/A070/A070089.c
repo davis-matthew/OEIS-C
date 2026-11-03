@@ -11,7 +11,8 @@
  *            1,2,4,6,8,9,10,12,16,18,20,21,…
  * Range:     u8 n <= 134, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 907 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global state for memoisation */
 static size_t seq_len = 0;       /* number of computed terms so far   */
@@ -31,7 +33,7 @@ static void ensure_seq_cap(size_t need)
 {
     if (need <= seq_cap) return;
     size_t new_cap = need * 2;
-    seq_t *new_buf = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, seq_vals, new_cap);
     if (!new_buf) exit(EXIT_FAILURE);
     seq_vals = new_buf;
     seq_cap  = new_cap;
@@ -57,7 +59,7 @@ static void extend_sieve(idx_t limit)
     }
 
     /* Allocate array for largest prime factor */
-    seq_t *lpf = (seq_t *)malloc((size_t)(limit + 2) * sizeof(seq_t));
+    seq_t *lpf = mem_new(seq_t, (size_t)(limit + 2));
     if (!lpf) { free(spf); exit(EXIT_FAILURE); }
 
     lpf[1] = 1;
@@ -81,7 +83,7 @@ static void extend_sieve(idx_t limit)
 
     /* Clean up */
     free(spf);
-    free(lpf);
+    mem_free(lpf);
 
     processed_limit = limit;
 }

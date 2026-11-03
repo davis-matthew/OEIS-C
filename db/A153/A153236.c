@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 176, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   modmul, seq_realloc
+ * Validated: standard, pass, 78 terms through n = 995 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,16 +21,27 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_realloc.h"
-#include "../utils/modmul.h"
+#include "../utils/mulmod.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* ---------- Local primality test for 64‑bit integers ---------- */
 
 static inline uint64_t modpow(uint64_t a, uint64_t d, uint64_t mod) {
     uint64_t r = 1;
     while (d) {
-        if (d & 1) r = modmul(r, a, mod);
-        a = modmul(a, a, mod);
+        if (d & 1) r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         d >>= 1;
     }
     return r;
@@ -58,7 +70,7 @@ static bool is_prime_ull(uint64_t n) {
         if (x == 1 || x == n-1) continue;
         bool cont = false;
         for (uint64_t r = 1; r < s; ++r) {
-            x = modmul(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1) { cont = true; break; }
         }
         if (!cont) return false;

@@ -11,14 +11,17 @@
  *            for r=0 we return 1
  * Range:     i8 n <= 11, i16 n <= 18, i32 n <= 41, i64 n <= 112,
  *            i128 n <= 290, big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 61 terms through n = 5117 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -52,11 +55,11 @@ seq_t a(idx_t n)
     /* Compute r * (r+k)^(k-1) */
     seq_t term = seq_r;
     if (k > 1) {
-        term *= big_pow((seq_t)(r + k), (seq_t)(k - 1));
+        term *= ipow((seq_t)(r + k), (seq_t)(k - 1));
     }
 
     /* Compute (-k)^(r-k) */
-    seq_t pow_k = big_pow(seq_k, (seq_t)(r - k));
+    seq_t pow_k = ipow(seq_k, (seq_t)(r - k));
     if ((r - k) & 1)
         pow_k = -pow_k;
     term *= pow_k;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = ∏_{k=0..n} (4*k+1)^(n-k)
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 5, u64 n <= 6, u128 n <= 8,
  *            big any n
+ * Validated: standard, pass, 27 terms through n = 36 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

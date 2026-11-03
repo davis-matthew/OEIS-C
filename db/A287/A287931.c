@@ -8,12 +8,14 @@
  *            morphism 00 → 0010, 1 → 10, starting with the word "00"
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *buf = NULL;
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     /* Initial seed: the starting word "00" */
     if (len == 0) {
         cap   = 4;                      /* small initial capacity */
-        buf   = (seq_t*)malloc(cap * sizeof(seq_t));
+        buf   = mem_new(seq_t, cap);
         if (!buf) return 0;              /* allocation failure */
         buf[0] = 0;
         buf[1] = 0;
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
         idx_t i = 0;
         idx_t newlen = 0;
         idx_t needed_cap = len * 2 + 10; /* worst case size estimate */
-        seq_t *newbuf = (seq_t*)malloc(needed_cap * sizeof(seq_t));
+        seq_t *newbuf = mem_new(seq_t, needed_cap);
         if (!newbuf) return 0;           /* allocation failure */
 
         while (i < len) {
@@ -59,7 +61,7 @@ seq_t a(idx_t n) {
             }
         }
 
-        free(buf);
+        mem_free(buf);
         buf = newbuf;
         len = newlen;
         cap = needed_cap;

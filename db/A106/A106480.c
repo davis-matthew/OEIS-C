@@ -8,7 +8,8 @@
  *            where φ(m) is Euler’s totient function
  * Range:     i8 n <= 23, i16 n <= 44, i32 n <= 47, i64 n <= 47, i128 n <= 47,
  *            big any n
- * Helpers:   phi_of
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/phi_of.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 /*--------------------------------------------------------------------
   Memoised calculation of the sequence.
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* initialise φ[0] and φ[1] */
     if (phi_len < 2) {
         phi_len = 2;
-        phi = (seq_t *)malloc(phi_len * sizeof(seq_t));
+        phi = mem_new(seq_t, phi_len);
         phi[0] = 0;          /* φ(0) – unused */
         phi[1] = 1;          /* φ(1) = 1 */
     }
@@ -43,16 +45,16 @@ seq_t a(idx_t n)
     if (phi_len <= n + 1) {
         idx_t old = phi_len;
         phi_len = n + 2;            /* indices 0 … n+1 */
-        phi = (seq_t *)realloc(phi, phi_len * sizeof(seq_t));
+        phi = mem_resize(seq_t, phi, phi_len);
         for (idx_t i = old; i <= n + 1; ++i) {
-            phi[i] = phi_of(i);
+            phi[i] = totient(i);
         }
     }
 
     /* initialise a[0] */
     if (a_len == 0) {
         a_len = 1;
-        a_arr = (seq_t *)malloc(a_len * sizeof(seq_t));
+        a_arr = mem_new(seq_t, a_len);
         a_arr[0] = (seq_t)1;       /* a(0) = 1 */
     }
 
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     if (a_len <= n) {
         idx_t old = a_len;
         a_len = n + 1;              /* indices 0 … n */
-        a_arr = (seq_t *)realloc(a_arr, a_len * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, a_len);
         for (idx_t i = old; i <= n; ++i) {
             seq_t sum = (seq_t)0;
             for (idx_t k = 1; k <= i; ++k) {

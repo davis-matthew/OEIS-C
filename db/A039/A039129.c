@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   has_equal_2_and_4
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,19 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/has_equal_2_and_4.h"
+
+static int has_equal_2_and_4(seq_t x)
+{
+    unsigned c2 = 0, c4 = 0;
+    if (x == 0) return 1;                    /* 0 has no 2 or 4 → counts equal */
+    while (x != 0) {
+        unsigned d = (unsigned)(x % 10);
+        if (d == 2) ++c2;
+        else if (d == 4) ++c4;
+        x /= 10;
+    }
+    return c2 == c4;
+}
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;

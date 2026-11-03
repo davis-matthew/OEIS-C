@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 101, u32 n <= 345, u64 n <= 1198,
  *            u128 n <= 4506, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    a(0)=1, a(1)=1, a(2)=1, a(3)=2, a(4)=2, a(5)=3, …   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
             rows_cap = new_cap;
         }
 
-        seq_t *row = (seq_t*)malloc(row_len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, row_len);
         if (!row) return 0; /* allocation failure → return 0 */
 
         /* Compute the row entries */

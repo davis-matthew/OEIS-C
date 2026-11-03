@@ -8,14 +8,15 @@
  *            (non‑prime list includes 0 and 1 starting with index 0)
  * Range:     u8 n <= 48, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   isPrimeLocal
+ * Validated: standard, pass, 77 terms through n = 4935 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrimeLocal.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n) {
     /* Static table of non‑prime numbers, indexed from 0. */
@@ -38,7 +39,7 @@ seq_t a(idx_t n) {
     /* Grow the table until it contains indices 0 … n.  We need k_n and k_{n-1}. */
     while (len <= n) {
         ++last_checked;                       /* next candidate */
-        if (!isPrimeLocal(last_checked)) {     /* it is a non‑prime */
+        if (!is_prime(last_checked)) {     /* it is a non‑prime */
             if (len == cap) {                 /* grow the array if needed */
                 cap <<= 1;
                 idx_t *tmp = (idx_t *)realloc(nonprimes, cap * sizeof(idx_t));

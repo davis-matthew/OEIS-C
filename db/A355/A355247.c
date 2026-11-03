@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n,k) * Bell(k+1) * Bell(n-k+1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 521 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------  Bell numbers cache -------------- */
 static seq_t *bell = NULL;     /* array of Bell numbers B[0..]       */
@@ -29,9 +31,9 @@ static void ensure_bell(size_t upto)
     while (new_cap <= upto) new_cap <<= 1;
 
     if (!bell) {
-        bell = (seq_t *)realloc(NULL, new_cap * sizeof(seq_t));
+        bell = mem_resize(seq_t, NULL, new_cap);
     } else {
-        seq_t *tmp = (seq_t *)realloc(bell, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, bell, new_cap);
         if (!tmp) exit(1);          /* allocation failure */
         bell = tmp;
     }

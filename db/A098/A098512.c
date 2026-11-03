@@ -5,15 +5,17 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = C(n) / gcd(n, C(n)) where C(n) is the Catalan number
- * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 26, u128 n <= 26,
+ * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   _seq_gcd, binomial
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/_seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
     seq_t catalan  = binom / (((seq_t)n) + (seq_t)1);
 
     /* gcd(n, C(n)) */
-    seq_t g = _seq_gcd(catalan, (seq_t)n);
+    seq_t g = gcd(catalan, (seq_t)n);
 
     return catalan / g;
 }

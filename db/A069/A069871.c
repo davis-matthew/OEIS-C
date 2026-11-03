@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 19, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   pow10
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,17 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow10.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -51,7 +62,7 @@ seq_t a(idx_t n)
     {
         /* minimal capacity for the first few values (3,9) */
         cap = 8;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
         if (!terms) return 0;          /* out of memory, return 0 */
 
         /* base powers for the families   */
@@ -105,7 +116,7 @@ seq_t a(idx_t n)
                 if (len == cap)
                 {
                     size_t newcap = cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, newcap);
                     if (!tmp) return 0;  /* out of memory */
                     terms = tmp;
                     cap = newcap;

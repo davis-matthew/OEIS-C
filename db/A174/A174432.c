@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 10, u64 n <= 17, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;        /* b[1..]  (1‑based)                         */
 static seq_t *prefix = NULL;   /* a[n]    (1‑based)                         */
@@ -49,18 +51,18 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = (size_t)capacity ? (size_t)capacity * 2 : 8;
     if (new_cap < (size_t)(n + 1)) new_cap = n + 1;
 
-    seq_t *new_dp     = (seq_t *)malloc(new_cap * sizeof(seq_t));
-    seq_t *new_prefix = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_dp     = mem_new(seq_t, new_cap);
+    seq_t *new_prefix = mem_new(seq_t, new_cap);
     if (!new_dp || !new_prefix) {           /* allocation failed */
         abort();                             /* terminate – no other option */
     }
 
     /* copy existing data into the new buffers */
-    if (dp)     memcpy(new_dp,     dp,     capacity * sizeof(seq_t));
-    if (prefix) memcpy(new_prefix, prefix, capacity * sizeof(seq_t));
+    if (dp)     mem_copy(new_dp, dp, capacity * sizeof(seq_t));
+    if (prefix) mem_copy(new_prefix, prefix, capacity * sizeof(seq_t));
 
-    free(dp);
-    free(prefix);
+    mem_free(dp);
+    mem_free(prefix);
     dp = new_dp;
     prefix = new_prefix;
     capacity = (idx_t)new_cap;

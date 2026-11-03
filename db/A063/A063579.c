@@ -9,13 +9,15 @@
  *            decimal representation, with a(0) being the first such k
  * Range:     u8 n <= 21, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Dynamic storage for the sequence values.
    cache[n] holds a(n); 0 means “not yet computed”. */
@@ -52,10 +54,10 @@ static void ensure_cache_cap(size_t need)
     if (cache_len >= need) return;
     size_t newcap = cache_len ? cache_len * 2 : 8;
     while (newcap < need) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp) abort();
     if (newcap > cache_len)            /* zero‑initialise the new part */
-        memset(tmp + cache_len, 0, (newcap - cache_len) * sizeof(seq_t));
+        mem_set(tmp + cache_len, 0, (newcap - cache_len) * sizeof(seq_t));
     cache = tmp;
     cache_len = newcap;
 }

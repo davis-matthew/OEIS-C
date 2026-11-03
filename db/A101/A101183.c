@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, look, nonn
  * Formula:   not stated
- * Range:     u8 n <= 10, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
- *            big any n
+ * Range:     u8 n <= 10, u16 n <= 4668, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 94 terms through n = 9684 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

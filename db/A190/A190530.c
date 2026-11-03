@@ -11,7 +11,8 @@
  *            ≥ 0). The union of all * these progressions...
  * Range:     u8 none, u16 n <= 49, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   ord2_and_k0
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,31 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/ord2_and_k0.h"
+#include "../utils/mem.h"
+
+/* Computes the multiplicative order of 2 modulo p² and the minimal k₀ with
+ * 2^k ≡ 3 mod p².  If none exists, returns k0 = 0. */
+static void ord2_and_k0(uint32_t p, uint64_t *order_out, uint64_t *k0_out) {
+    uint64_t mod = (uint64_t)p * p;
+    uint64_t pow = 2 % mod;
+    uint64_t period = 0, k0 = 0;
+    uint64_t max_iter = (uint64_t)p * (p - 1);
+    for (uint64_t k = 1; k <= max_iter; ++k) {
+        if (pow == 1 && period == 0) period = k;
+        if (pow == 3 && k0 == 0) k0 = k;
+        if (period != 0 && k0 != 0) break;
+        pow = (pow * 2) % mod;
+    }
+    if (period == 0) { /* order was not found within the loop */
+        pow = 2 % mod;
+        for (uint64_t k = 1; k <= max_iter; ++k) {
+            if (pow == 1) { period = k; break; }
+            pow = (pow * 2) % mod;
+        }
+    }
+    *order_out = period;
+    *k0_out = k0;
+}
 
 /* Forward declaration required by build */
 extern unsigned int _prime_limit_for_idx(idx_t n);
@@ -85,7 +110,7 @@ seq_t a(idx_t n) {
             ++cand_cnt;
         }
         cache_cap = 128;
-        cache = (seq_t*)my_malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         initialized = true;
     }
 
@@ -111,7 +136,7 @@ seq_t a(idx_t n) {
         /* Grow cache if necessary */
         if (cache_len == cache_cap) {
             cache_cap <<= 1;
-            cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         /* Store the new term and advance its candidate */

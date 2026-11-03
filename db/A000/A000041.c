@@ -8,13 +8,24 @@
  *            k*(3k+1)/2)), a(0) = 1 (Euler's pentagonal number recurrence)
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 127, u64 n <= 416,
  *            u128 n <= 1458, big any n
- * Helpers:   alloc_series
+ * Validated: standard, pass, 66 terms through n = 9661 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/alloc_series.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_series(size_t sz)
+{
+    seq_t *p = mem_new(seq_t, sz);
+    size_t i;
+    for (i = 0; i < sz; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *memo = NULL;
 static size_t memo_cap = 0;

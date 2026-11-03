@@ -7,13 +7,15 @@
  * Formula:   a(n) = n! - (n-2)!
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Memoized factorial cache */
 static seq_t *fact_cache = NULL;
@@ -34,7 +36,7 @@ static void ensure_factorial_cache(idx_t n)
         new_cap <<= 1;
 
     /* Reallocate the cache */
-    fact_cache = (seq_t *)realloc(fact_cache, new_cap * sizeof(seq_t));
+    fact_cache = mem_resize(seq_t, fact_cache, new_cap);
 
     /* Initialise factorial[0] and factorial[1] if this is the first call */
     if (old_cap == 0) {

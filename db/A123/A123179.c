@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 6,
  *            big any n
- * Helpers:   digits, pow10
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,19 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/digits.h"   /* int digits(idx_t) */
-#include "../utils/pow10.h"    /* seq_t pow10(idx_t) */
+#include <stdbool.h>
+#include "../utils/num_digits_idx.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,20 +50,20 @@ seq_t a(idx_t n)
     /* grow arrays if needed */
     if ((size_t)n + 1 > cap) {
         size_t new_cap = (size_t)n + 2;   /* +2 for safety when n == 0 */
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
-        cumDigits = (seq_t *)realloc(cumDigits, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
+        cumDigits = mem_resize(seq_t, cumDigits, new_cap);
         cap = new_cap;
     }
 
     /* initialise base cases */
     if (max_cached == 0) {               /* first call builds base */
         cache[1] = (seq_t)1;
-        cumDigits[1] = (seq_t)digits(1);
+        cumDigits[1] = (seq_t)num_digits_idx(1);
         max_cached = 1;
     }
     if (max_cached < 2 && n >= 2) {      /* prepare a(2) if needed */
         cache[2] = (seq_t)121;
-        cumDigits[2] = cumDigits[1] + (seq_t)digits(2);
+        cumDigits[2] = cumDigits[1] + (seq_t)num_digits_idx(2);
         max_cached = 2;
     }
 
@@ -60,11 +72,11 @@ seq_t a(idx_t n)
         /* compute the concatenated part for this i */
         seq_t appended = (seq_t)0;
         seq_t shiftPart = (seq_t)0;
-        int dig_i = digits(i);
+        int dig_i = num_digits_idx(i);
 
         /* append blocks n-k for k=2..i-1 */
         for (idx_t k = 2; k <= i - 1; ++k) {
-            int dig_k = digits(k);
+            int dig_k = num_digits_idx(k);
             seq_t block = (seq_t)i * pow10((idx_t)dig_k) + (seq_t)k;
             seq_t blockPower = pow10((idx_t)(dig_i + dig_k));
             appended = appended * blockPower + block;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 104, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 56 terms through n = 847 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
  * caches all found primes to answer future queries quickly. */
 
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on first use */
     if (cache == NULL) {
         cache_cap = 1024;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Start searching from the last stored prime + 61, or from 26 if empty */
@@ -51,10 +54,10 @@ seq_t a(idx_t n)
 
     /* Extend cache until we have computed the n-th term */
     while (cache_len < (size_t)n) {
-        if (is_prime_small(candidate)) {
+        if (is_prime_seq(candidate)) {
             if (cache_len >= cache_cap) {
                 cache_cap = cache_cap * 2 + 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = candidate;
         }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   pow_mod10_seq
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
    digit of n*k. Uses a simple brute‑force search. */
 
 #include <stdint.h>
-#include "../utils/pow_mod10_seq.h"
+
+static inline uint64_t pow_mod10_seq(seq_t base, idx_t exp)
+{
+    uint64_t r = 1;
+    uint64_t b = (uint64_t)base % 10;
+    while (exp)
+    {
+        if (exp & 1) r = (r * b) % 10;
+        b = (b * b) % 10;
+        exp >>= 1;
+    }
+    return r;
+}
 
 seq_t a(idx_t n)
 {

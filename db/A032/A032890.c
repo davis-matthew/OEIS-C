@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   zigzag_valid
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/zigzag_valid.h"
+#include "../utils/mem.h"
+
+/* Returns true if x satisfies the zigzag binary pattern. */
+static inline bool zigzag_valid(seq_t x)
+{
+    for (idx_t i = 0; (x >> (i+1)) != 0; ++i) {
+        uint8_t prev = (uint8_t)((x >> i) & 1);
+        uint8_t next = (uint8_t)((x >> (i+1)) & 1);
+        if ((i & 1) == 0) {        /* even index: d_i >= d_{i+1} */
+            if (prev < next) return false;
+        } else {                   /* odd index: d_i <= d_{i+1} */
+            if (prev > next) return false;
+        }
+    }
+    return true;
+}
 
 static seq_t *cache = NULL;    /* cached terms */
 static size_t cache_cap = 0;   /* current allocation size */
@@ -33,14 +49,14 @@ static void extend_cache_to(idx_t n)
     if (cache_len >= n) return;
     if (cache_len == 0) {
         cache_cap = 16;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         last_candidate = 1;
     }
     while (cache_len < n) {
         if (zigzag_valid(last_candidate)) {
             if (cache_len >= cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t*)realloc(cache, sizeof(seq_t) * cache_cap);
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = last_candidate;
         }

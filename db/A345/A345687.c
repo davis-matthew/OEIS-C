@@ -11,14 +11,46 @@
  *            |u|
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   gcd, minimal_u_signed
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/minimal_u_signed.h"
+
+/* Return the minimal‑absolute coefficient of x in the
+   Bézout identity for the pair (x,y). */
+static long long minimal_u_signed(int x, int y)
+{
+    int a = x, b = y;
+    int u0 = 1, v0 = 0;   /* coefficients for a, b          */
+    int u1 = 0, v1 = 1;   /* previous coefficients          */
+
+    while (b != 0) {
+        int q = a / b;
+        int r = a - q * b;
+        int u2 = u0 - q * u1;
+        int v2 = v0 - q * v1;
+        a = b; b = r;
+        u0 = u1; u1 = u2;
+        v0 = v1; v1 = v2;
+    }
+
+    int g   = a;           /* gcd(x,y)           */
+    int x1  = x / g;       /* reduced numbers    */
+    int y1  = y / g;
+    int u0v = u0;          /* coefficient for the reduced x */
+
+    /* minimise |u0v| over the one‑parameter family */
+    int d = y1;
+    int r = u0v % d;
+    if (r < 0) r += d;     /* 0 <= r < d            */
+    int u = (r <= d - r) ? r : r - d;  /* minimal |u|       */
+
+    return (long long)u;
+}
 
 seq_t a(idx_t n)
 {

@@ -12,12 +12,14 @@
  *            enumerates the coefficients of v(r,x) in degree o...
  * Range:     u8 n <= 17, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,23 +49,23 @@ seq_t a(idx_t n)
     seq_t *v_prev = NULL;
 
     /* row 1 */
-    u_prev = (seq_t*)malloc(sizeof(seq_t));
-    v_prev = (seq_t*)malloc(sizeof(seq_t));
+    u_prev = mem_new(seq_t, 1);
+    v_prev = mem_new(seq_t, 1);
     if (!u_prev || !v_prev) abort();
     u_prev[0] = (seq_t)1;
     v_prev[0] = (seq_t)1;
 
     if (r == 1) {                      /* trivial case */
         seq_t result = v_prev[0];
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         return result;
     }
 
     for (idx_t cur = 2; cur <= r; ++cur) {
         size_t new_len = (size_t)cur;
-        seq_t *u_new = (seq_t*)malloc(sizeof(seq_t) * new_len);
-        seq_t *v_new = (seq_t*)malloc(sizeof(seq_t) * new_len);
+        seq_t *u_new = mem_new(seq_t, new_len);
+        seq_t *v_new = mem_new(seq_t, new_len);
         if (!u_new || !v_new) abort();
 
         /* constant term (k = 0) */
@@ -80,14 +82,14 @@ seq_t a(idx_t n)
             v_new[k] = upk + upk1 + vpkr + vpkr1;
         }
 
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         u_prev = u_new;
         v_prev = v_new;
     }
 
     seq_t result = v_prev[pos - 1];
-    free(u_prev);
-    free(v_prev);
+    mem_free(u_prev);
+    mem_free(v_prev);
     return result;
 }

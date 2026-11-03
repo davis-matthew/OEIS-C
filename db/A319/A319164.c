@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    and p(k) is the ordinary partition number.  */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed static arrays */
 static seq_t *p_arr   = NULL;   /* partition numbers */
@@ -34,7 +36,7 @@ static void ensure_precompute(idx_t n)
 
     /* Allocate new tables */
     size_t nsz = (size_t)(n + 1);
-    seq_t  *new_p  = (seq_t *)calloc(nsz, sizeof(seq_t));
+    seq_t  *new_p  = mem_new(seq_t, nsz);
     int8_t *new_mu = (int8_t *)calloc(nsz, sizeof(int8_t));
     int8_t *new_g  = (int8_t *)calloc(nsz, sizeof(int8_t));
     if (!new_p || !new_mu || !new_g) abort();
@@ -105,7 +107,7 @@ static void ensure_precompute(idx_t n)
     }
 
     /* Free old tables */
-    free(p_arr);
+    mem_free(p_arr);
     free(mu_arr);
     free(g_arr);
     free(primes);

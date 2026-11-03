@@ -8,12 +8,14 @@
  *            (n≥2) (Number of compositions of n into parts 2..7)
  * Range:     u8 n <= 14, u16 n <= 26, u32 n <= 50, u64 n <= 98, u128 n <= 193,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
         while ((idx_t)(new_cap) <= n) new_cap *= 2;
         seq_t *tmp = NULL;
 #ifdef __cplusplus
-        tmp = (seq_t*)realloc(cache, sizeof(seq_t)*new_cap);
+        tmp = mem_resize(seq_t, cache, new_cap);
 #else
         tmp = realloc(cache, sizeof(seq_t)*new_cap);
 #endif

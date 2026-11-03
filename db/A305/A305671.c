@@ -10,7 +10,8 @@
  *            up to composite(n) (A002808(n)), or 0 if there is a tie
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
         if (processed_composites >= ans_cap)
         {
             size_t new_cap = ans_cap ? ans_cap * 2 : 16;
-            seq_t *new_arr = (seq_t *)realloc(answers, new_cap * sizeof(seq_t));
+            seq_t *new_arr = mem_resize(seq_t, answers, new_cap);
             if (!new_arr) exit(1);
             answers = new_arr;
             ans_cap = new_cap;

@@ -11,20 +11,22 @@
  *            differences of A302774
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n <= 1) return (seq_t)1;
 
     idx_t len = n - 1;                    /* number of differences to sum */
-    seq_t *diff = (seq_t *)malloc((len + 1) * sizeof(seq_t));
+    seq_t *diff = mem_new(seq_t, (len + 1));
     if (!diff) return (seq_t)0;           /* allocation failed */
 
     /* base differences */
@@ -48,6 +50,6 @@ seq_t a(idx_t n)
         result += diff[i];
     }
 
-    free(diff);
+    mem_free(diff);
     return result;
 }

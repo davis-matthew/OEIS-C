@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 1362, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_small
+ * Validated: standard, pass, 65 terms through n = 9917 (2026-11-03)
+ * Helpers:   gcd_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 */
 
 #include <stdlib.h>
-#include "../utils/gcd_small.h"
+#include "../utils/gcd_idx.h"
+#include "../utils/mem.h"
 
 /* static cache for results */
 static seq_t *cache = NULL;
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n) {
     if (n > cache_cap) {
         idx_t new_cap = cache_cap ? cache_cap * 2 : 64;
         while (new_cap < n) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 
@@ -45,7 +47,7 @@ static void ensure_cache(idx_t n) {
         const seq_t mult = 11;              /* multiplier for the result */
         idx_t count = 0;
         for (idx_t k = 1; k <= M && count < 48; ++k) {
-            if (gcd_small(k, M) == 1) {
+            if (gcd_idx(k, M) == 1) {
                 cache[cache_size++] = (seq_t)mult * (seq_t)k;
                 ++count;
             }

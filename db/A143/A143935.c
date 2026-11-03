@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9566 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------- constants ---------- */
 static const long double K = logl(127.0L) / logl(16.0L);   /* K = log(127)/log(16) */
@@ -47,7 +49,7 @@ static void extend_sieve(idx_t new_limit)
     if (sieve_limit == 0) {
         /* allocate arrays for [0 … new_limit] */
         is_prime   = (uint8_t *)malloc((size_t)new_limit + 1);
-        prime_pi   = (seq_t *)calloc((size_t)new_limit + 1, sizeof(seq_t));
+        prime_pi   = mem_new(seq_t, (size_t)new_limit + 1);
         if (!is_prime || !prime_pi)
             abort(); /* out of memory */
 
@@ -87,7 +89,7 @@ static void extend_sieve(idx_t new_limit)
 
     /* Incremental extension: enlarge arrays */
     uint8_t *tmp_bytes = (uint8_t *)realloc(is_prime, (size_t)new_limit + 1);
-    seq_t *tmp_pi      = (seq_t *)realloc(prime_pi, (size_t)(new_limit + 1) * sizeof(seq_t));
+    seq_t *tmp_pi      = mem_resize(seq_t, prime_pi, (size_t)(new_limit + 1));
     if (!tmp_bytes || !tmp_pi)
         abort();
     is_prime = tmp_bytes;

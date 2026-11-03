@@ -7,6 +7,7 @@
  * Formula:   a(n) = number of perfect‑power divisors of n! (1 included)
  * Range:     u8 n <= 19, u16 n <= 41, u32 n <= 97, u64 n <= 235,
  *            u128 n <= 565, big any n
+ * Validated: standard, pass, 66 terms through n = 9130 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

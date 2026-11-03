@@ -8,7 +8,8 @@
  * Formula:   a(n) = denominator( Bernoulli(2*n+2) * (2*n)!/(2*n+2) )
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   vp
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/vp.h"
+
+/* exponent of prime p in integer x (x > 0) */
+static idx_t vp(idx_t x, uint32_t p)
+{
+    idx_t e = 0;
+    while (x % p == 0) {
+        ++e;
+        x /= p;
+    }
+    return e;
+}
 
 /* exponent of prime p in m! */
 static idx_t fact_exp(idx_t m, uint32_t p)

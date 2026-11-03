@@ -12,13 +12,25 @@
  *            max(v2(n - 1), v2(n + 1)) where v2(x) coun...
  * Range:     i8 n <= 83, i16 n <= 83, i32 n <= 83, i64 n <= 83, i128 n <= 83,
  *            big any n
- * Helpers:   v5
+ * Validated: partial, pass, 84 terms through n = 83 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/v5.h"
+
+/* exponent of 5 in an unsigned integer */
+static inline idx_t v5(idx_t x)
+{
+    idx_t cnt = 0;
+    while (x % 5u == 0u)
+    {
+        ++cnt;
+        x /= 5u;
+    }
+    return cnt;
+}
 
 /* exponent of 2 in an unsigned integer */
 static inline idx_t v2(idx_t x)

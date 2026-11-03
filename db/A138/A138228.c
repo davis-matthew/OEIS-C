@@ -9,6 +9,7 @@
  *            a(14)=7, a(15)=8, a(16)=9, a(17)=2, and a(n)=0 for n≥18
  * Range:     u8 n <= 17, u16 n <= 17, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
+ * Validated: full, pass, 18 terms through n = 17 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

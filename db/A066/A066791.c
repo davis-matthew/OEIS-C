@@ -7,12 +7,14 @@
  * Formula:   a(n) = phi(n^2 + n + 1)
  * Range:     u8 n <= 15, u16 n <= 258, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi
+ * Validated: standard, pass, 68 terms through n = 9683 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/calc_phi.h"
+#include <stdint.h>
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -20,5 +22,5 @@ seq_t a(idx_t n)
     __uint128_t nn   = n;
     __uint128_t m128 = nn * (nn + 1) + 1;
     seq_t m = (seq_t)m128;
-    return calc_phi(m);
+    return totient_seq(m);
 }

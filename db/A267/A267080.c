@@ -11,12 +11,14 @@
  *            a(6) = 106865274, * a(7) = 1915425570
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 7, i64 n <= 14, i128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 157 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return a(n) for A267080 */
 seq_t a(idx_t n)
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (A == NULL) {
         A_cap = 8;
         A_len = 8;
-        A = (seq_t *)malloc((size_t)A_cap * sizeof(seq_t));
+        A = mem_new(seq_t, (size_t)A_cap);
         if (!A) return 0; /* allocation failure, return 0 as a fallback */
         A[0] = (seq_t)-6;
         A[1] = (seq_t)-66;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     if (n >= A_cap) {
         idx_t new_cap = A_cap;
         while (n >= new_cap) new_cap <<= 1; /* double until big enough */
-        seq_t *tmp = (seq_t *)realloc(A, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, (size_t)new_cap);
         if (!tmp) return 0; /* allocation failure */
         A = tmp;
         A_cap = new_cap;

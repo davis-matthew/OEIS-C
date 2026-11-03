@@ -9,6 +9,7 @@
  *            ceil((sqrt(8*n+1)-1)/2) and k = n - r * (r-1) / 2
  * Range:     u8 n <= 293, u16 n <= 7260, u32 n <= 7260, u64 n <= 7260,
  *            u128 n <= 7260, big any n
+ * Validated: standard, pass, 71 terms through n = 7092 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

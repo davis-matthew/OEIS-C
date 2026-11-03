@@ -8,13 +8,15 @@
  *            a(n)=3*a(n-1)-2*a(n-2)-2*a(n-3)+3*a(n-4)-a(n-5) for n>=5
  * Range:     u8 n <= 10, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         idx_t need = 5 + 1; /* indices 0..5 */
         if (need > cache_cap) {
             cache_cap = need;
-            cache = (seq_t *)malloc(sizeof(seq_t) * (size_t)cache_cap);
+            cache = mem_new(seq_t, (size_t)cache_cap);
             if (!cache) exit(EXIT_FAILURE);
         }
         /* set base terms */
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_cap) {
         idx_t new_cap = cache_cap ? cache_cap * 2 : n + 1;
         while (new_cap < n + 1) new_cap *= 2;
-        seq_t *buf = (seq_t *)realloc(cache, sizeof(seq_t) * (size_t)new_cap);
+        seq_t *buf = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!buf) exit(EXIT_FAILURE);
         cache = buf;
         cache_cap = new_cap;

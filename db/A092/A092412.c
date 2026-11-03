@@ -8,8 +8,9 @@
  * Formula:   a(n) = (1 + v₂(n)) mod 4 where v₂(n) is the exponent of 2 in the
  *            prime factorisation of n (i.e. the number of trailing zero bits
  *            in the binary representation)
- * Range:     u8 n <= 7536, u16 n <= 7536, u32 n <= 7536, u64 n <= 7536,
- *            u128 n <= 7536, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 120 terms through n = 7536 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

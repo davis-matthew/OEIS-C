@@ -8,16 +8,17 @@
  * Formula:   a(n) = (n-1)*(n^n - 1) for n even; a(n) = n^n - n + 1 for n odd
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   a002021_pow
+ * Validated: standard, pass, 35 terms through n = 99 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a002021_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     seq_t ns = (seq_t)n;
-    seq_t nn = a002021_pow(ns, n);
+    seq_t nn = ipow_idx(ns, n);
     if (n % 2 == 0) {
         return (ns - 1) * (nn - 1);
     } else {

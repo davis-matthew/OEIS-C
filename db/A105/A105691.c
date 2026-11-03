@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
- *            big any n
- * Helpers:   is_prime_seq, is_prime_uint64
+ * Range:     u8 n <= 3, u16 n <= 239, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 60 terms through n = 9804 (2026-11-03)
+ * Helpers:   is_prime_seq, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime_uint64.h"   /* bool is_prime_uint64(uint64_t)   */
-#include "../utils/is_prime_seq.h"     /* bool is_prime_seq(seq_t)         */
+#include "../utils/is_prime_seq.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 #define SIEVE_LIMIT 200000000ULL     /* should cover many terms (≈30 000) */
 
@@ -79,7 +81,7 @@ static inline bool is_sieve_prime(uint64_t n)
     if (n < 2 || (n & 1) == 0) return false;
     if (!sieve_ready) init_sieve();
     if (n > prime_bits_limit) {
-        return is_prime_uint64(n);                /* generic 64‑bit test */
+        return is_prime_u64(n);                /* generic 64‑bit test */
     }
     uint64_t idx = (n - 3) >> 1;
     return !(prime_bits[idx >> 3] & (1U << (idx & 7)));
@@ -99,7 +101,7 @@ static void ensure_seq_cap(size_t min_cap)
     if (min_cap <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 128;
     if (new_cap < min_cap) new_cap = min_cap;
-    seq_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, new_cap);
     if (seq_arr == NULL) abort();
     seq_cap = new_cap;
 }

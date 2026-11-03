@@ -11,7 +11,8 @@
  *            a(8)=6422, a(9)=20119
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 39, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const seq_t INIT_VALUES[9] = {
     (seq_t)1,
@@ -40,7 +42,7 @@ static void init_cache(void) {
     if (MEM == NULL) {
         MEM_CAP  = 9;
         MEM_SIZE = 9;
-        MEM = (seq_t*)malloc(MEM_CAP * sizeof(seq_t));
+        MEM = mem_new(seq_t, MEM_CAP);
         for (idx_t i = 0; i < 9; ++i) MEM[i] = INIT_VALUES[i];
     }
 }
@@ -59,7 +61,7 @@ seq_t a(idx_t n) {
         if (cur > MEM_CAP) {
             idx_t new_cap = MEM_CAP * 2;
             while (new_cap < cur) new_cap *= 2;
-            seq_t *tmp = (seq_t*)realloc(MEM, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, MEM, new_cap);
             if (tmp == NULL) abort();     /* allocation failed */
             MEM = tmp;
             MEM_CAP = new_cap;

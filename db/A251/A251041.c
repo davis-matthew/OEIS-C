@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 6, u64 n <= 19, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define NUM_ROWS   5
 #define STATE_SZ   (1U << (2 * NUM_ROWS))   /* 4^5 = 1024, constant at compile time */
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
     for (uint32_t s = 0; s < STATE_SZ; ++s) cur[s] = (seq_t)1;  /* first column */
 
     for (uint64_t step = 1; step <= n; ++step) {
-        memset(nxt, 0, sizeof(nxt));
+        mem_set(nxt, 0, sizeof(nxt));
 
         for (uint32_t p = 0; p < STATE_SZ; ++p) {
             seq_t val = cur[p];
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
                 nxt[c] += val;
             }
         }
-        memcpy(cur, nxt, sizeof(cur));
+        mem_copy(cur, nxt, sizeof(cur));
     }
 
     /* Sum all ending states */

@@ -11,6 +11,7 @@
  *            1641*n^4 * - 522*n^3 + 2502*n^2 - 2259*n + 723 , n odd (n>1)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 59, u128 n <= 59,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 58 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

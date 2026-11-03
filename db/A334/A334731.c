@@ -9,21 +9,39 @@
  * Formula:   a(n) = ∏_{d|n} gcd(σ(d), pod(d))
  * Range:     u8 n <= 23, u16 n <= 59, u32 n <= 119, u64 n <= 419,
  *            u128 n <= 1679, big any n
- * Helpers:   divisor_count_u64, factor_u64, gcd, mod_pow, seq_pow, sigma_of,
- *            sqrt_floor
+ * Validated: standard, pass, 90 terms through n = 9729 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_idx, isqrt_seq, num_divisors, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* σ(k) is the sum of divisors (A000203). pod(k) is the product of divisors (A007955). */
 
-#include "../utils/gcd.h"
-#include "../utils/sigma_of.h"
-#include "../utils/divisor_count_u64.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
-#include "../utils/sqrt_floor.h"
-#include "../utils/mod_pow.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/isqrt_seq.h"
+#include "../utils/num_divisors.h"
+#include "../utils/powmod.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* --------------------------------------------------------------------- */
 /* Compute gcd(σ(d), pod(d)) without overflow for 64‑bit builds.         */
@@ -36,26 +54,26 @@ static seq_t gcd_sigma_pod(uint64_t d)
     seq_t sigma = sigma_of(d);
 
     /* divisor count τ(d) */
-    uint64_t tau = divisor_count_u64(d);
+    uint64_t tau = num_divisors(d);
 
     /* Compute pod(d) modulo sigma when seq_t is 64‑bit. */
     seq_t pod_mod;
 
     if ((tau & 1ULL) == 0) {                           /* τ even  */
         if (sizeof(seq_t) <= 8) {                     /* 64‑bit build */
-            pod_mod = mod_pow((seq_t)d, tau / 2, sigma);
+            pod_mod = powmod((seq_t)d, tau / 2, sigma);
         } else {
-            pod_mod = seq_pow((seq_t)d, tau / 2);
+            pod_mod = ipow_idx((seq_t)d, tau / 2);
         }
     } else {                                            /* τ odd  */
         uint64_t exp = (tau - 1ULL) / 2;
         if (sizeof(seq_t) <= 8) {                     /* 64‑bit build */
-            seq_t part = mod_pow((seq_t)d, exp, sigma);
-            seq_t sqrt_d = sqrt_floor((seq_t)d);
+            seq_t part = powmod((seq_t)d, exp, sigma);
+            seq_t sqrt_d = isqrt_seq((seq_t)d);
             pod_mod = (part * (sqrt_d % sigma)) % sigma;
         } else {
-            seq_t part   = seq_pow((seq_t)d, exp);
-            seq_t sqrt_d = sqrt_floor((seq_t)d);
+            seq_t part   = ipow_idx((seq_t)d, exp);
+            seq_t sqrt_d = isqrt_seq((seq_t)d);
             pod_mod = part * sqrt_d;
         }
     }

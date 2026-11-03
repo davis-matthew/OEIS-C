@@ -8,12 +8,14 @@
  *            numbers that sum to n (offset 3)
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 93 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* table of a(n) values up to current max   */
 static size_t dp_cap = 0;         /* allocated size of dp                    */
@@ -22,7 +24,7 @@ static size_t dp_cap = 0;         /* allocated size of dp                    */
 static void recompute_all(idx_t max_n)
 {
     /*  Allocate or resize dp to hold indices 0 … max_n  */
-    dp = (seq_t *)realloc(dp, (size_t)(max_n + 1) * sizeof(seq_t));
+    dp = mem_resize(seq_t, dp, (size_t)(max_n + 1));
     if (!dp) abort();                          /* allocation failure */
 
     /*  Initialise all entries to 0  */

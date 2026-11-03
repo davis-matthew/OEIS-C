@@ -7,6 +7,7 @@
  * Formula:   a(n) = n!*(3*n^2 - 15*n + 10)/6
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 18, i128 n <= 31,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 435 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

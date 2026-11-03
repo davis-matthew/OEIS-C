@@ -9,7 +9,8 @@
  *            1)/(p^8 - 1)
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 24, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   part_prime
+ * Validated: standard, pass, 81 terms through n = 9567 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,34 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/part_prime.h"
+
+/* Helper: compute the contribution of a single prime power p^e. */
+static seq_t part_prime(seq_t p, idx_t e)
+{
+    if (e == 0) /* should not happen for prime powers */ return 1;
+
+    /* For e = 1 we have floor(e/2)=0, therefore the sum is 1. */
+    if (e == 1) return 1;
+
+    /* Compute t = floor(e/2) and pow8 = p^8 (should fit in seq_t for cases)
+       when the result is expected to fit in seq_t. */
+    idx_t t = e / 2;
+    seq_t pow8 = 1;
+    for (idx_t i = 0; i < 8; ++i)
+        pow8 *= p;
+
+    /* Compute numerator = p^{8*(t+1)} - 1 = (pow8)^{t+1} - 1. */
+    seq_t num = 1;
+    for (idx_t i = 0; i < t + 1; ++i)
+        num *= pow8;
+    num -= 1;
+
+    /* Denominator = p^8 - 1. */
+    seq_t den = pow8 - 1;
+
+    /* Exact division gives the required sum 1 + p^8 + p^16 + ... + p^{8t}. */
+    return num / den;
+}
 
 seq_t a(idx_t n)
 {

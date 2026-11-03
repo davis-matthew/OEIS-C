@@ -8,13 +8,15 @@
  *            * a(k) * (k^2+k)^(n-k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *a_vals = NULL;   /* stores a(1), a(2), …   */
 static seq_t *pow_vals = NULL; /* pow_vals[k] = (k^2+k)^(current_n - k)   */
@@ -25,13 +27,13 @@ static idx_t computed = 0;     /* number of terms already computed   */
 static void ensure_a(idx_t new_cap)
 {
     if (new_cap <= a_cap) return;
-    seq_t *tmp = (seq_t*)malloc(sizeof(seq_t)*new_cap);
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp) return;
     if (a_vals) {
-        memcpy(tmp, a_vals, sizeof(seq_t)*a_cap);
-        free(a_vals);
+        mem_copy(tmp, a_vals, sizeof(seq_t)*a_cap);
+        mem_free(a_vals);
     } else {
-        memset(tmp, 0, sizeof(seq_t)*new_cap);
+        mem_set(tmp, 0, sizeof(seq_t)*new_cap);
     }
     for (idx_t i = a_cap; i < new_cap; ++i) tmp[i] = 0;
     a_vals = tmp;
@@ -41,13 +43,13 @@ static void ensure_a(idx_t new_cap)
 static void ensure_pow(idx_t new_cap)
 {
     if (new_cap <= pow_cap) return;
-    seq_t *tmp = (seq_t*)malloc(sizeof(seq_t)*new_cap);
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp) return;
     if (pow_vals) {
-        memcpy(tmp, pow_vals, sizeof(seq_t)*pow_cap);
-        free(pow_vals);
+        mem_copy(tmp, pow_vals, sizeof(seq_t)*pow_cap);
+        mem_free(pow_vals);
     } else {
-        memset(tmp, 0, sizeof(seq_t)*new_cap);
+        mem_set(tmp, 0, sizeof(seq_t)*new_cap);
     }
     for (idx_t i = pow_cap; i < new_cap; ++i) tmp[i] = 0;
     pow_vals = tmp;

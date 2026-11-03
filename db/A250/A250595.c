@@ -12,7 +12,8 @@
  *            is computed by a * simple dynamic program over t...
  * Range:     u8 none, u16 none, u32 n <= 5, u64 n <= 23, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define STATE_COUNT 6
 
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
     idx_t maxLen = (m + 2) / 3;     /* integer division gives the ceil */
 
     /* Allocate array for F(k) values */
-    seq_t *pair_count = (seq_t*)malloc((size_t)(maxLen + 1) * sizeof(seq_t));
+    seq_t *pair_count = mem_new(seq_t, (size_t)(maxLen + 1));
     if (!pair_count) return (seq_t)0;   /* allocation failure */
 
     compute_pair_counts(maxLen, pair_count);
@@ -103,6 +105,6 @@ seq_t a(idx_t n)
 
     seq_t result = phi * S * S;
 
-    free(pair_count);
+    mem_free(pair_count);
     return result;
 }

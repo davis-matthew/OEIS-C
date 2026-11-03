@@ -10,13 +10,15 @@
  *            1, 0 ≤ k ≤ r
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache       = NULL; /* flattened sequence values (mod 3)          */
 static size_t cache_size  = 0;    /* number of values currently stored         */
@@ -31,8 +33,8 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* initialise the first row: r = 0, full_row[0] = 1 */
         cache_cap   = 64;
-        cache       = (seq_t *)malloc(cache_cap * sizeof(seq_t));
-        full_row    = (seq_t *)malloc(sizeof(seq_t));
+        cache       = mem_new(seq_t, cache_cap);
+        full_row    = mem_new(seq_t, 1);
         full_row[0] = (seq_t)1;
         full_len    = 1;
         row_index   = 0;
@@ -47,7 +49,7 @@ static void ensure_cache(idx_t n)
             size_t new_cap = cache_cap ? cache_cap * 2 : 64;
             while (new_cap < cache_size + left_len)
                 new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return; /* allocation failure – give up */
             cache = tmp;
             cache_cap = new_cap;
@@ -59,7 +61,7 @@ static void ensure_cache(idx_t n)
 
         /* ----- compute the next full row of the trinomial triangle ----- */
         size_t next_len = full_len + 2;          /* 2*(row+1)+1 */
-        seq_t *next = (seq_t *)malloc(next_len * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, next_len);
         if (!next) return;                      /* allocation failure – give up */
 
         for (size_t j = 0; j < next_len; ++j) {
@@ -70,7 +72,7 @@ static void ensure_cache(idx_t n)
             next[j] = val % MOD3;
         }
 
-        free(full_row);
+        mem_free(full_row);
         full_row = next;
         full_len = next_len;
         ++row_index;

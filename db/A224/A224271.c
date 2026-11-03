@@ -11,7 +11,8 @@
  *            the sum for each requested n
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 15, u64 n <= 25, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 556 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *Bell = NULL;      /* Bell numbers B[0] .. B[max]   */
 static idx_t  Bell_max = 0;     /* largest index with known B[i] */
@@ -33,7 +35,7 @@ static void init_bell(void)
 {
     if (Bell == NULL) {
         Bell_cap = 1;
-        Bell = (seq_t *)malloc(sizeof(seq_t));
+        Bell = mem_new(seq_t, 1);
         if (!Bell) exit(1);
         Bell[0] = 1;
         Bell_max = 0;
@@ -46,7 +48,7 @@ static void ensure_bell(idx_t upto)
     if (Bell_max >= upto) return;
     if (Bell_cap < upto + 1) {
         Bell_cap = upto + 1;
-        Bell = (seq_t *)realloc(Bell, Bell_cap * sizeof(seq_t));
+        Bell = mem_resize(seq_t, Bell, Bell_cap);
         if (!Bell) exit(1);
     }
     for (idx_t m = Bell_max; m < upto; ++m) {
@@ -69,7 +71,7 @@ static void ensure_a(idx_t upto)
     if (A_max >= upto) return;
     if (A_cap < upto) {
         A_cap = upto;
-        A = (seq_t *)realloc(A, A_cap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, A_cap);
         if (!A) exit(1);
     }
     for (idx_t i = A_max + 1; i <= upto; ++i) {

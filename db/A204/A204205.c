@@ -10,7 +10,8 @@
  *            if k<1 or k>n)
  * Range:     u8 n <= 26, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    to satisfy both C11 and C++17. */
 
 #include <stdlib.h>   /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
 
         /* compute any missing rows up to r */
         for (idx_t row = max_row + 1; row <= r; ++row) {
-            seq_t *row_arr = (seq_t*)malloc(sizeof(seq_t) * row);
+            seq_t *row_arr = mem_new(seq_t, row);
             if (!row_arr) return (seq_t)0;         /* allocation failure */
 
             if (row == 1) {

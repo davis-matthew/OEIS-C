@@ -9,7 +9,8 @@
  *            cosh(x*sqrt(x)))
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binomial, pow2
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow2.h"
 #include "../utils/binomial.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Helper: compute a(n) using the explicit sum derived from the definition */
 static seq_t compute_term(idx_t n)
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     /* Ensure cache large enough */
     if (n >= cache_size) {
         size_t needed = n + 1;
-        seq_t *new_cache = (seq_t*)realloc(cache, needed * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, needed);
         if (!new_cache) /* allocation failed - abort silently */
             abort();
         cache = new_cache;

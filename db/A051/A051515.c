@@ -10,12 +10,14 @@
  *            a(6)=1521, a(7)=3600, a(8)=4624, a(9)=9025
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* array of cached values (1-indexed) */
 static idx_t  seq_cache_size = 0; /* allocated size (including index 0) */
@@ -26,7 +28,7 @@ static void seq_cache_ensure(idx_t n)
 {
     if (seq_cache_size <= n) {
         idx_t new_size = n + 1; /* allocate one extra for index 0 */
-        seq_t *new_cache = (seq_t *)realloc(seq_cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, seq_cache, new_size);
         seq_cache = new_cache;
         seq_cache_size = new_size;
     }

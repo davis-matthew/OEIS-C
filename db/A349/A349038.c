@@ -9,15 +9,28 @@
  *            generating‑function definition A(x) = 1/(1 + x - 2x A(-2x))
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 7, i64 n <= 10, i128 n <= 15,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +47,7 @@ seq_t a(idx_t n)
         seq_t* newA   = alloc_seq_array(newcap);
 
         if (A) {                          /* Copy old data           */
-            memcpy(newA, A, used * sizeof(seq_t));
+            mem_copy(newA, A, used * sizeof(seq_t));
             free_seq_array(A);
         }
 

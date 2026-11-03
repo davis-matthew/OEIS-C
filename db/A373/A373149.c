@@ -7,15 +7,27 @@
  * Keywords:  nonn
  * Formula:   a(n) = ∑_{p^e‖n} e * a(p), a(2)=1, a(p)=prev_prime(p) for odd
  *            primes p
- * Range:     u8 n <= 262, u16 n <= 9853, u32 n <= 9853, u64 n <= 9853,
- *            u128 n <= 9853, big any n
- * Helpers:   prev_prime
+ * Range:     u8 n <= 262, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 107 terms through n = 9853 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Implementation of A373149 – fully additive over prime factorisation */
-#include "../utils/prev_prime.h"
+#include <stdbool.h>
+#include "../utils/is_prime.h"
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
 
 seq_t a(idx_t n)
 {

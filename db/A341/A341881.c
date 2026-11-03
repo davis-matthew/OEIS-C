@@ -7,8 +7,9 @@
  * Formula:   a(n) = number of ordered factorizations of n into 5 factors > 1.
  *            Implementation uses inclusion‑exclusion on prime exponent
  *            partitions
- * Range:     u8 n <= 479, u16 n <= 9923, u32 n <= 9923, u64 n <= 9923,
- *            u128 n <= 9923, big any n
+ * Range:     u8 n <= 479, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 113 terms through n = 9923 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

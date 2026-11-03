@@ -8,7 +8,8 @@
  *            form 16k + 5)
  * Range:     u8 n <= 8, u16 n <= 826, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 63 terms through n = 996 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* The function returns seq_t type which is a unsigned integer type
    defined by the build system.  The implementation below uses a
@@ -39,18 +41,18 @@ static void ensure_cache(idx_t n)
         if (cache == NULL)
         {
             cache_cap = 32;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
             if (cache == NULL) abort();
         }
         else if (cache_len == cache_cap)
         {
             cache_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
             if (tmp == NULL) abort();
             cache = tmp;
         }
 
-        if (is_prime_small(next_candidate))
+        if (is_prime_seq(next_candidate))
             cache[cache_len++] = (seq_t)next_candidate;
         next_candidate += 16;   /* next candidate of the form 16k+5 */
     }

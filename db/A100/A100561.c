@@ -7,14 +7,15 @@
  * Formula:   a(n) = denominator of sum_{k=0..floor(n/2)} 1/binomial(n,k)
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 27, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   my_gcd
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/my_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -41,14 +42,14 @@ seq_t a(idx_t n)
         }
 
         /* Add the fraction 1/binom to the running sum. */
-        seq_t g = my_gcd(den, binom);
+        seq_t g = gcd(den, binom);
         seq_t den_over_g = den / g;
         seq_t binom_over_g = binom / g;
 
         seq_t new_den = den_over_g * binom;       /* lcm(den, binom)   */
         seq_t new_num = num * binom_over_g + den_over_g;
 
-        seq_t g2 = my_gcd(new_num, new_den);
+        seq_t g2 = gcd(new_num, new_den);
         num = new_num / g2;
         den = new_den / g2;
     }

@@ -8,12 +8,14 @@
  * Formula:   a(n) = Σ_{i=n-4}^{n-1} (-1)^i * a(i), a(1)=a(2)=a(3)=a(4)=1
  * Range:     i8 n <= 44, i16 n <= 82, i32 n <= 158, i64 n <= 310,
  *            i128 n <= 620, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9117 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Initialise table and first four terms */
     if (A_cap == 0) {
         A_cap = 16;
-        A = (seq_t *)malloc(A_cap * sizeof(seq_t));
+        A = mem_new(seq_t, A_cap);
         A[0] = 1;  /* a(1) */
         A[1] = 1;  /* a(2) */
         A[2] = 1;  /* a(3) */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (idx > A_cap) {
         size_t new_cap = A_cap;
         while (new_cap < idx) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, new_cap);
         A = tmp;
         A_cap = new_cap;
     }

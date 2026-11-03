@@ -9,7 +9,8 @@
  *            a prime number of 0’s and a prime number of 1’s
  * Range:     u8 n <= 35, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _isprime_small, bitlen_seq_t
+ * Validated: standard, pass, 71 terms through n = 820 (2026-11-03)
+ * Helpers:   bit_length, is_prime_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/bitlen_seq_t.h"
-#include "../utils/_isprime_small.h"
+#include "../utils/bit_length.h"
+#include "../utils/is_prime_i32.h"
+#include "../utils/mem.h"
 
 /* --------------- static cache for the sequence --------------- */
 struct seq_cache_struct {
@@ -90,7 +92,7 @@ static void _append_cache(seq_t val)
 {
     if (seq_cache.size == seq_cache.cap) {
         seq_cache.cap = seq_cache.cap? seq_cache.cap * 2 : 16;
-        seq_cache.data = (seq_t*)realloc(seq_cache.data, seq_cache.cap * sizeof(seq_t));
+        seq_cache.data = mem_resize(seq_t, seq_cache.data, seq_cache.cap);
     }
     seq_cache.data[seq_cache.size++] = val;
 }
@@ -109,9 +111,9 @@ seq_t a(idx_t n)
             if (_is_semiprime(current)) {
                 seq_t val = (seq_t)current;
                 int ones  = _popcount_seq(val);
-                int bits  = bitlen_seq_t(val);
+                int bits  = bit_length(val);
                 int zeros = bits - ones;
-                if (_isprime_small(ones) && _isprime_small(zeros))
+                if (is_prime_i32(ones) && is_prime_i32(zeros))
                     _append_cache(val);
             }
             ++current;

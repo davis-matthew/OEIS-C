@@ -9,16 +9,17 @@
  *            identity * floor(m*phi) = (m + floor(m*√5)) / 2, for m = n-1. *
  *            The integer square root of 5*m*m is obtained with a plain binary
  *            * search, which works for all integer types `seq_t`...
- * Range:     u8 n <= 4, u16 n <= 18, u32 n <= 68, u64 n <= 68, u128 n <= 68,
+ * Range:     u8 n <= 8, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   isqrt_custom
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isqrt_custom.h"
+#include "../utils/isqrt_seq.h"
 
 /* --- sequence a(n) implementation ----------------------------------- */
 seq_t a(idx_t n)
@@ -32,7 +33,7 @@ seq_t a(idx_t n)
 
     /* Compute floor(m*sqrt(5)) as floor(sqrt(5*m*m)) */
     seq_t t  = (seq_t)5 * m * m;
-    seq_t s  = isqrt_custom(t);           /* floor(m*sqrt5) */
+    seq_t s  = isqrt_seq(t);           /* floor(m*sqrt5) */
 
     /* floor(m*phi) = (m + s) / 2  (integer division) */
     seq_t floor_m_phi = (m + s) / 2;

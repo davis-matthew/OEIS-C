@@ -8,7 +8,8 @@
  *            (10^(i*L)-1)/(10^L-1), L = number of decimal digits of i
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 10, u128 n <= 16,
  *            big any n
- * Helpers:   digits, pow10, seq_one
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,22 @@
    A000461(i) = i * (1 + 10^L + 10^(2L) + … + 10^((i-1)L)),
    avoiding the large intermediate 10^(i*L). */
 
-#include "../utils/digits.h"   /* digits(idx_t) */
-#include "../utils/pow10.h"    /* pow10(idx_t) */
-#include "../utils/seq_one.h"  /* seq_one(void) */
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 seq_t a(idx_t n)
 {
@@ -27,7 +41,7 @@ seq_t a(idx_t n)
     seq_t one = seq_one();         /* constant 1 */
 
     for (idx_t i = 1; i <= n; ++i) {
-        idx_t L      = digits(i);            /* length in decimal digits */
+        idx_t L      = num_digits_idx(i);            /* length in decimal digits */
         seq_t powL   = pow10(L);              /* 10^L */
 
         /* Compute the geometric sum  1 + 10^L + … + 10^((i-1)L) */

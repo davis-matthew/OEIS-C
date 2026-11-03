@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 none, i16 n <= 44, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   isPrime
+ * Validated: standard, pass, 60 terms through n = 960 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Dynamic array to cache the prime‐valued terms */
 static seq_t *cache      = NULL; /* stored terms b(m) that are +/- prime */
@@ -29,7 +31,7 @@ static idx_t  next_m   = 0;     /* next m to test in b(m) */
 /* Ensure the cache can hold at least new_cap elements. */
 static void grow_cache(size_t new_cap)
 {
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort(); /* allocation failed – terminate (no I/O) */
     cache = tmp;
     cache_cap = new_cap;
@@ -49,7 +51,7 @@ static void try_cache(idx_t m)
     /* Convert to idx_t for isPrime.  For the range of interest
        the absolute value fits into the 64-bit unsigned type. */
     idx_t candidate = (idx_t)abs_val;
-    if (isPrime(candidate)) {
+    if (is_prime(candidate)) {
         if (cache_sz == cache_cap) {
             grow_cache(cache_cap == 0 ? 8 : cache_cap * 2);
         }

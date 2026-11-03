@@ -7,7 +7,8 @@
  * Formula:   A(n) = the nth prime p such that 20*p + 3 is also prime
  * Range:     u8 n <= 31, u16 n <= 1804, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 71 terms through n = 8981 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Helper to generate successive primes using trial division. */
 static uint64_t *prime_list = NULL;
@@ -71,17 +73,17 @@ seq_t a(idx_t n)
 
     if (seq_vals == NULL) {
         seq_cap = 16;
-        seq_vals = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_vals = mem_new(seq_t, seq_cap);
     }
 
     while (seq_cnt < n) {
         uint64_t p = next_prime();
         uint64_t m = 20ULL * p + 3ULL;          /* 20p+3, fits in uint64_t for required range */
-        if (is_prime(m)) {
+        if (is_prime_u64(m)) {
             seq_t sp = (seq_t)p;
             if (seq_cnt == seq_cap) {
                 seq_cap *= 2;
-                seq_vals = (seq_t *)realloc(seq_vals, seq_cap * sizeof(seq_t));
+                seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
             }
             seq_vals[seq_cnt++] = sp;
         }

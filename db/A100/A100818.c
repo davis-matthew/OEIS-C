@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 46, u32 n <= 134, u64 n <= 427,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  static storage for partition numbers and the sequence a(n)       */
@@ -49,9 +51,9 @@ static void ensure_part_capacity(idx_t n)
     if (part == NULL) {
         /* initial allocation for part[0]  */
         part_cap = 16;
-        part     = (seq_t *)malloc(part_cap * sizeof(seq_t));
+        part     = mem_new(seq_t, part_cap);
         if (part == NULL) exit(1);
-        memset(part, 0, part_cap * sizeof(seq_t));
+        mem_set(part, 0, part_cap * sizeof(seq_t));
         part[0] = (seq_t)1;           /* p(0) = 1   */
         part_size = 0;
     }
@@ -60,10 +62,10 @@ static void ensure_part_capacity(idx_t n)
     if ((size_t)(n + 1) > part_cap) {
         size_t new_cap = part_cap ? part_cap * 2 : 16;
         while (new_cap < (size_t)(n + 1)) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(part, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, part, new_cap);
         if (tmp == NULL) exit(1);
         /* initialise new slots to zero */
-        memset(tmp + part_cap, 0, (new_cap - part_cap) * sizeof(seq_t));
+        mem_set(tmp + part_cap, 0, (new_cap - part_cap) * sizeof(seq_t));
         part = tmp;
         part_cap = new_cap;
     }
@@ -103,18 +105,18 @@ static void ensure_a_capacity(idx_t n)
 {
     if (aseq == NULL) {
         a_cap = 16;
-        aseq = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        aseq = mem_new(seq_t, a_cap);
         if (aseq == NULL) exit(1);
-        memset(aseq, 0, a_cap * sizeof(seq_t));
+        mem_set(aseq, 0, a_cap * sizeof(seq_t));
         a_size = 0;
     }
 
     if ((size_t)(n + 1) > a_cap) {
         size_t new_cap = a_cap ? a_cap * 2 : 16;
         while (new_cap < (size_t)(n + 1)) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(aseq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, aseq, new_cap);
         if (tmp == NULL) exit(1);
-        memset(tmp + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
+        mem_set(tmp + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
         aseq = tmp;
         a_cap = new_cap;
     }

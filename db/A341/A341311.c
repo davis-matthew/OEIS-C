@@ -9,6 +9,7 @@
  *            (n-i) mod 6 = 0, with coefficients c = {1,0,1,2,3,4,3,4,3,2,1}
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

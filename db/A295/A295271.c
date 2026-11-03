@@ -12,13 +12,22 @@
  *            a(5)=54773, a(6)=449827, a(7)=3697742, a(8)=30386185, a...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   mul_coef
+ * Validated: standard, pass, 41 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mul_coef.h"
+#include "../utils/mem.h"
+
+static seq_t mul_coef(seq_t term, int coef)
+{
+    seq_t res = 0;
+    for (int i = 0; i < coef; i++)
+        res += term;
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -60,7 +69,7 @@ seq_t a(idx_t n)
     /* Lazy allocation of memo table */
     if (memo == NULL) {
         memo_cap = 32;
-        memo = (seq_t *)malloc(sizeof(seq_t) * memo_cap);
+        memo = mem_new(seq_t, memo_cap);
         for (int i = 0; i < 16; ++i)
             memo[i] = init[i];
         memo_len = 16;
@@ -71,7 +80,7 @@ seq_t a(idx_t n)
         /* Ensure capacity */
         if (memo_len == memo_cap) {
             memo_cap <<= 1;
-            memo = (seq_t *)realloc(memo, sizeof(seq_t) * memo_cap);
+            memo = mem_resize(seq_t, memo, memo_cap);
         }
 
         seq_t pos = 0;

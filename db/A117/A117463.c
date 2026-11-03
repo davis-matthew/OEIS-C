@@ -9,7 +9,8 @@
  *            max(1, ceil(log₂( (n+1)/s )))
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   sum_of_digits_uint64
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-01)
+ * Helpers:   digit_sum_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
    and the sequence multiplies by at least one doubling. */
 
 #include <stdint.h>
-#include "../utils/sum_of_digits_uint64.h"
+#include "../utils/digit_sum_u64.h"
 
 /* smallest integer ≥ log₂(x)  (x > 0).  For x == 0 returns 0. */
 static int ceil_log2_uint64(uint64_t x)
@@ -39,7 +40,7 @@ seq_t a(idx_t n)
     uint64_t target = (uint64_t)n + 1;
 
     /* s = sum of digits of target */
-    uint64_t s = sum_of_digits_uint64(target);
+    uint64_t s = digit_sum_u64(target);
 
     /* r = ceil(target / s) = (target + s - 1) / s
        Using (n + s) / s gives the same integer result. */

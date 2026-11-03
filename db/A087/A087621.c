@@ -8,12 +8,14 @@
  *            a(2)=2, a(3)=4 (offset 1)
  * Range:     i8 n <= 5, i16 n <= 12, i32 n <= 21, i64 n <= 27, i128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -23,7 +25,7 @@ static void init_cache(void)
 {
     if (cache_size == 0) {
         cache_size = 4;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)-1;
         cache[2] = (seq_t)2;
@@ -36,7 +38,7 @@ static void expand_cache(idx_t n)
 {
     if (n + 1 <= cache_size) return;
     size_t new_size = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) exit(1);
     cache = new_cache;
     for (idx_t i = cache_size; i <= n; ++i) {

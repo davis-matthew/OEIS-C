@@ -7,7 +7,8 @@
  * Formula:   a(n) = primes containing decimal digit 3 (OEIS A212525)
  * Range:     u8 n <= 20, u16 n <= 3528, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   contains_digit3_seq, is_prime
+ * Validated: standard, pass, 70 terms through n = 9865 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,20 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/is_prime.h"
-#include "../utils/contains_digit3_seq.h"
+
+/* Check if a seq_t value contains the digit 3 */
+static bool contains_digit3_seq(seq_t v)
+{
+    if (v == 0)
+        return false;
+    while (v > 0)
+    {
+        if (v % 10 == 3)
+            return true;
+        v /= 10;
+    }
+    return false;
+}
 
 /* Cached terms – up to a fixed maximum size */
 #define MAX_CACHE 20000

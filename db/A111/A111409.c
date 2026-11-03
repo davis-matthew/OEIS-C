@@ -8,22 +8,24 @@
  * Formula:   a(n) = phi(phi(n+1)) - phi(phi(n))
  * Range:     i8 n <= 357, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   compute_phi
+ * Validated: standard, pass, 110 terms through n = 9929 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_phi.h"
+#include <stdint.h>
+#include "../utils/totient_u64.h"
 
 seq_t a(idx_t n)
 {
     /* phi(n) for n>0; phi(0)=0 by definition of f */
-    seq_t phi_n = (n == 0) ? 0 : (seq_t)compute_phi((uint64_t)n);
-    seq_t phi_n1 = (seq_t)compute_phi((uint64_t)(n + 1));
+    seq_t phi_n = (n == 0) ? 0 : (seq_t)totient_u64((uint64_t)n);
+    seq_t phi_n1 = (seq_t)totient_u64((uint64_t)(n + 1));
 
     /* phi(phi(n)) may be 0 only if phi(n)=0 (i.e., n=0) */
-    seq_t phi_phi_n  = (phi_n == 0) ? 0 : (seq_t)compute_phi((uint64_t)phi_n);
-    seq_t phi_phi_n1 = (seq_t)compute_phi((uint64_t)phi_n1);
+    seq_t phi_phi_n  = (phi_n == 0) ? 0 : (seq_t)totient_u64((uint64_t)phi_n);
+    seq_t phi_phi_n1 = (seq_t)totient_u64((uint64_t)phi_n1);
 
     return phi_phi_n1 - phi_phi_n;
 }

@@ -9,7 +9,8 @@
  *            found terms in increasing order; any order of calls is supported
  * Range:     u8 n <= 7, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,13 +37,13 @@ seq_t a(idx_t n)
     {
         /* 30*next_k+17 safely fits into uint64_t for the intended range */
         uint64_t num = 30ULL * (uint64_t)next_k + 17ULL;
-        if (is_prime_small((seq_t)num))
+        if (is_prime_seq((seq_t)num))
         {
             /* Grow the cache if necessary */
             if (sz == cap)
             {
                 size_t new_cap = cap ? cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();  /* unrecoverable allocation failure */
                 cache = tmp;
                 cap   = new_cap;

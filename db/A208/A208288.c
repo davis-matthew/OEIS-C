@@ -8,7 +8,8 @@
  * Formula:   a(n) = 3*a(n-1) + 6*a(n-2) - 4*a(n-3) - 2*a(n-4) + a(n-5)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 14, u64 n <= 30, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,12 +18,13 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The following helper may be omitted if seq_t is a plain integer type:
    it is only provided for safety with arbitrary‑precision builds. */
 #ifndef seq_alloc
-#  define seq_alloc(n)  ((seq_t*)malloc((n)*sizeof(seq_t)))
-#  define seq_free(p)   (free((void*)(p)))
+#  define seq_alloc(n)  (mem_new(seq_t, (n)))
+#  define seq_free(p)   (mem_free((p)))
 #endif
 
 /* Global state of the memoised algorithm */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 31, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Numbers whose base-2 representation has exactly 13 runs. Computed by
    brute‑force search. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* cached a(1)..a(k) */
 static idx_t cache_size = 0;    /* how many have been cached */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Extend the cache if necessary.  */
     if (cache_size < n) {
         /* Allocate space for the new values.  */
-        seq_t *tmp = (seq_t*)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp) {            /* allocation failed – return 0 */
             return 0;
         }

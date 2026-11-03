@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   has_91
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,21 @@
 /* Computes the n-th term of OEIS A044804:  
    numbers m such that the decimal representation of m contains the substring "91" but m+1 does not. */
 #include <stdbool.h>
-#include "../utils/has_91.h"
+
+/* Return true iff the decimal representation of x contains the adjacent digits 9 followed by 1. */
+static bool has_91(seq_t x)
+{
+    /* Work backwards from the least‑significant digit. */
+    while (x >= (seq_t)10)
+    {
+        seq_t low  = x % (seq_t)10;
+        seq_t high = (x / (seq_t)10) % (seq_t)10;
+        if (high == (seq_t)9 && low == (seq_t)1)
+            return true;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 /* External interface: a(idx_t n) returns the n-th term of the sequence. */
 seq_t a(idx_t n)

@@ -11,23 +11,36 @@
  * Formula:   a(n) = n^n - n*(n-1)^(n-1) - (n-1)*n! + n*(n-1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow, factorial
+ * Validated: standard, pass, 36 terms through n = 224 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
-#include "../utils/factorial.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)0;          /* not used, but safety */
 
     /* n^n */
-    seq_t term1 = big_pow((seq_t)n, (seq_t)n);
+    seq_t term1 = ipow((seq_t)n, (seq_t)n);
 
     /* n*(n-1)^(n-1) */
-    seq_t term2 = big_pow((seq_t)(n - 1), (seq_t)(n - 1));
+    seq_t term2 = ipow((seq_t)(n - 1), (seq_t)(n - 1));
     term2 = term2 * (seq_t)n;
 
     /* (n-1)*n! */

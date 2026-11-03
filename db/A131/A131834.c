@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Static state                                                          */
@@ -87,8 +89,8 @@ static void build_semiprimes(idx_t limit)
 static void rebuild(idx_t new_limit)
 {
     /* Allocate counts array */
-    if (count_arr) { free(count_arr); count_arr = NULL; }
-    count_arr = (seq_t*)malloc((size_t)(new_limit + 1) * sizeof(seq_t));
+    if (count_arr) { mem_free(count_arr); count_arr = NULL; }
+    count_arr = mem_new(seq_t, (size_t)(new_limit + 1));
     if (!count_arr) exit(1);
 
     /* Rebuild primes and semiprimes for new_limit */

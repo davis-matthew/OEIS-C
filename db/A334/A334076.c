@@ -6,15 +6,16 @@
  * Keywords:  nonn, look, base
  * Formula:   a(n) = bitwise NOR of n and 2*n, computed as ~(n | (n << 1))
  *            masked to the bit‑length of 2n
- * Range:     u8 n <= 511, u16 n <= 9935, u32 n <= 9935, u64 n <= 9935,
- *            u128 n <= 9935, big any n
- * Helpers:   _bitlen_seq
+ * Range:     u8 n <= 511, u16 n <= 32767, u32 n <= 32767, u64 n <= 32767,
+ *            u128 n <= 32767, big any n
+ * Validated: standard, pass, 95 terms through n = 9935 (2026-11-01)
+ * Helpers:   bit_length_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_bitlen_seq.h"
+#include "../utils/bit_length_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +23,7 @@ seq_t a(idx_t n)
 
     seq_t sn = (seq_t)n;
     seq_t sm = sn | (sn << 1);          /* n OR 2n               */
-    int    len = _bitlen_seq(sn) + 1;   /* bit‑length of 2n      */
+    int    len = bit_length_seq(sn) + 1;   /* bit‑length of 2n      */
     seq_t  mask;
 
     if (len >= (int)(sizeof(seq_t) * 8))

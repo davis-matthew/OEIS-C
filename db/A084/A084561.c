@@ -8,14 +8,29 @@
  *            contains a perfect square number of 1's
  * Range:     u8 n <= 79, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   popcount_is_square
+ * Validated: standard, pass, 78 terms through n = 9967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/popcount_is_square.h"
+#include "../utils/mem.h"
+
+/* test whether the popcount of v is a perfect square */
+static bool popcount_is_square(seq_t v)
+{
+    int pc = 0;
+    seq_t x = v;
+    while (x) {
+        pc += (int)(x & 1);
+        x >>= 1;
+    }
+    int s = 0;
+    while ((s + 1) * (s + 1) <= pc) ++s;
+    return s * s == pc;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +49,7 @@ seq_t a(idx_t n)
                 /* make sure there is room in the array */
                 if (terms_len + 1 > terms_cap) {
                     size_t new_cap = terms_cap == 0 ? 16 : terms_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                     if (!tmp) exit(1);          /* allocation failure */
                     terms = tmp;
                     terms_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = n!/(n-2) for n > 2; a(0)=a(1)=a(2)=0
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 428 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     idx_t needed = n - 3;                /* need (n-3)! */
 
     if (fact == NULL) {
-        fact = (seq_t*)malloc(sizeof(seq_t));
+        fact = mem_new(seq_t, 1);
         if (!fact) abort();
         fact[0] = 1;                    /* 0! = 1 */
         fact_size = 1;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* enlarge cache to include fact[needed] */
     if (fact_size <= needed) {
         size_t new_cap = (size_t)(needed + 1);
-        seq_t *tmp = (seq_t*)realloc(fact, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact, new_cap);
         if (!tmp) abort();
         fact = tmp;
         for (idx_t k = fact_size; k <= needed; ++k) {

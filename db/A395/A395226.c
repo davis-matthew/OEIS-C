@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 86, u16 n <= 9065, u32 n <= 9065, u64 n <= 9065,
- *            u128 n <= 9065, big any n
- * Helpers:   none
+ * Range:     u8 n <= 86, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 101 terms through n = 9065 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes a(n) */
 seq_t a(idx_t n)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* cnt[p] will hold the number of unordered Fibonacci pairs (y, z)
      * with product y*z = p (0 ≤ p ≤ n). */
     size_t len = (size_t)(n + 1);
-    seq_t *cnt = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *cnt = mem_new(seq_t, len);
     if (!cnt) return 0;            /* allocation failure – return 0 */
 
     for (idx_t i = 0; i < fibCnt; ++i) {
@@ -67,6 +69,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(cnt);
+    mem_free(cnt);
     return ans;
 }

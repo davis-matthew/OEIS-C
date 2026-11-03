@@ -11,14 +11,17 @@
  *            (row,k) uses the antidiagonal order of the triangle
  * Range:     u8 n <= 27, u16 n <= 52, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     /* Find the row corresponding to the linear index n. */
@@ -50,7 +53,7 @@ seq_t a(idx_t n) {
 
     for (idx_t i = 0; i <= k; ++i) {
         seq_t bin = binomial((idx_t)k, i);
-        seq_t pow_val = seq_pow((seq_t)i, exp);
+        seq_t pow_val = ipow_idx((seq_t)i, exp);
         seq_t term = bin * pow_val;
         if (((k - i) & 1) == 0) {
             sum_pos += term;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   array_alloc, array_free, array_realloc
+ * Validated: standard, pass, 102 terms through n = 9758 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,18 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/array_alloc.h"
-#include "../utils/array_free.h"
-#include "../utils/array_realloc.h"
+#include "../utils/mem.h"
+
+// C malloc/realloc/free
+static inline seq_t* array_alloc(size_t cap) { return mem_new(seq_t, cap); }
+
+static inline void   array_free(seq_t* p)      { mem_free(p); }
+
+static inline seq_t* array_realloc(seq_t* old,
+                                   size_t oldlen, size_t newcap)
+{
+    return mem_resize(seq_t, old, newcap);
+}
 
 #ifdef __cplusplus
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   build_primes_upto, int_sqrt
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   build_primes_upto, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/int_sqrt.h"              /* int_sqrt(idx_t) */
-#include "../utils/build_primes_upto.h"     /* build_primes_upto(idx_t, uint64_t**, size_t*) */
+#include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Helper:  check whether i³‑2 has at least two distinct prime factors
@@ -61,7 +63,7 @@ static bool has_two_large_prime_factors(uint64_t i)
     static uint64_t *prime_list = NULL;
     static size_t prime_cnt = 0;
 
-    idx_t limit = int_sqrt((idx_t)n);
+    idx_t limit = isqrt((idx_t)n);
 
     if (prime_cnt == 0 || prime_list[prime_cnt - 1] < (uint64_t)limit) {
         free(prime_list);
@@ -135,13 +137,13 @@ seq_t a(idx_t n)
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap == 0 ? 128 : cache_cap * 2;
 #ifdef __cplusplus
-            seq_t *tmp = reinterpret_cast<seq_t*>(realloc(cache, new_cap * sizeof(seq_t)));
+            seq_t *tmp = reinterpret_cast<seq_t*>(mem_resize(seq_t, cache, new_cap));
 #else
             seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
 #endif
             if (!tmp) {
                 /* Allocation failed – abort gracefully. */
-                free(cache);
+                mem_free(cache);
                 cache = NULL;
                 cache_len = cache_cap = 0;
                 return 0;

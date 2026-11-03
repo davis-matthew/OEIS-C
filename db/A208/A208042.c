@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   horizontal_valid, vertical_valid
+ * Validated: standard, pass, 35 terms through n = 196 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,32 @@
  * Transitions are added when the three consecutive columns satisfy the horizontal rule.
  * The algorithm runs in O(n·M²) time with M = 19 (number of allowed columns). */
 #include <stdint.h>
-#include "../utils/horizontal_valid.h"
-#include "../utils/vertical_valid.h"
+
+/* Helper to check three consecutive columns for forbidden horizontal patterns. */
+static int horizontal_valid(uint8_t a, uint8_t b, uint8_t c)
+{
+    for (int r = 0; r < 6; ++r) {
+        int a_bit = (a >> r) & 1;
+        int b_bit = (b >> r) & 1;
+        int c_bit = (c >> r) & 1;
+        if (a_bit == 0 && b_bit == 0 && c_bit == 0) return 0;
+        if (a_bit == 0 && b_bit == 1 && c_bit == 0) return 0;
+    }
+    return 1;
+}
+
+/* Helper to check a single column for forbidden vertical patterns. */
+static int vertical_valid(uint8_t c)
+{
+    for (int i = 0; i <= 3; ++i) {
+        int b0 = (c >> i) & 1;
+        int b1 = (c >> (i + 1)) & 1;
+        int b2 = (c >> (i + 2)) & 1;
+        if ((b0 == 0 && b1 == 0 && b2 == 0) || (b0 == 1 && b1 == 0 && b2 == 1))
+            return 0;
+    }
+    return 1;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

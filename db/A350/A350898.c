@@ -9,7 +9,8 @@
  *            4*(number of parts)
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   alloc_seq, free_seq
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,21 @@
 /*  Implementation: for each k>=1 with 4k² ≤ n, add the number of partitions of n−4k² into at most k–1 parts.  */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alloc_seq.h"   /* alloc_seq(size_t) */
-#include "../utils/free_seq.h"    /* free_seq(seq_t *) */
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {

@@ -10,7 +10,8 @@
  *            ∏a(p_i^e_i)
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_power_of_two_seq, is_squarefree, pow_uint
+ * Validated: standard, pass, 89 terms through n = 9913 (2026-11-01)
+ * Helpers:   ipow_u64_idx, is_pow2, is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,10 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/is_pow2.h"
 #include "../utils/is_squarefree.h"
-#include "../utils/pow_uint.h"
-#include "../utils/is_power_of_two_seq.h"
 
 seq_t a(idx_t n) {
     if (n <= 1) return (seq_t)n;
@@ -68,7 +70,7 @@ seq_t a(idx_t n) {
         uint64_t p = primes[i];
         uint64_t e = exps[i];
 
-        seq_t N = pow_uint(p, (idx_t)e);  /* p^e as seq_t */
+        seq_t N = ipow_u64_idx(p, (idx_t)e);  /* p^e as seq_t */
 
         if (N == (seq_t)p) {                 /* e == 1 -> squarefree already */
             result *= N;

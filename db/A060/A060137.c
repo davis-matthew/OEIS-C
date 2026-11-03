@@ -10,13 +10,15 @@
  *            i = n - s*(s+1)/2
  * Range:     i8 n <= 14, i16 n <= 20, i32 n <= 27, i64 n <= 35, i128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Lazy memoisation of rows of the array */
 static seq_t **row = NULL;          /* pointer to array of rows */
@@ -38,7 +40,7 @@ static seq_t get_T(idx_t n, idx_t k)
     /* Ensure row exists */
     if ((size_t)n >= rows_cap) ensure_rows(n);
     if (!row[n]) {
-        row[n] = (seq_t *)malloc(sizeof(seq_t));
+        row[n] = mem_new(seq_t, 1);
         row_len[n] = 1;
         row[n][0] = 0;            /* T(n,0) = 0 */
     }
@@ -46,7 +48,7 @@ static seq_t get_T(idx_t n, idx_t k)
     if ((size_t)k + 1 > row_len[n]) {
         size_t old_len = row_len[n];
         size_t new_len = (size_t)k + 1;
-        row[n] = (seq_t *)realloc(row[n], new_len * sizeof(seq_t));
+        row[n] = mem_resize(seq_t, row[n], new_len);
         for (size_t idx = old_len; idx < new_len; ++idx) {
             seq_t prev = row[n][idx - 1];
             row[n][idx] = prev * prev - (seq_t)n * prev + 1;

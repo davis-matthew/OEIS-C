@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 1849, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_adjacent_13
+ * Validated: standard, pass, 65 terms through n = 9774 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,25 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_adjacent_13.h"
+#include "../utils/mem.h"
+
+static bool has_adjacent_13(seq_t x) {
+    /* Return true if base‑8 digits of x contain adjacent 1 and 3
+       (in either order). */
+    if (x == (seq_t)0) return false;
+    int prev = -1;
+    seq_t cur = x;
+    while (cur > (seq_t)0) {
+        int d = (int)(cur % (seq_t)8U);            /* current least‑significant digit */
+        if (prev != -1) {
+            if ((prev == 1 && d == 3) || (prev == 3 && d == 1))
+                return true;
+        }
+        prev = d;
+        cur /= (seq_t)8U;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;       /* cached terms */
 static size_t cache_cap = 0;      /* allocated size of cache */
@@ -30,7 +49,7 @@ static idx_t last_checked = 0;    /* last integer examined */
 /* Grow the cache to accommodate at least new_cap elements. */
 static void grow_cache(size_t new_cap) {
     if (new_cap <= cache_cap) return;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }

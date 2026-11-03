@@ -7,6 +7,7 @@
  * Formula:   a(n) = 10^(n-2) * binomial(n, 2), a(0)=0, a(1)=0, a(2)=1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 19, u128 n <= 37,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 384 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

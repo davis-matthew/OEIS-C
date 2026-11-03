@@ -8,7 +8,8 @@
  * Formula:   a(n) = Product over primes p^e in n of (p+2)^(2e)
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 255, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 60 terms through n = 940 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"   /* factor_u64: void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/big_pow.h"      /* big_pow: seq_t big_pow(seq_t base, seq_t exp) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i) {
         seq_t base   = (seq_t)(primes[i] + 2);
         seq_t exp    = (seq_t)(2 * exps[i]);      /* 2e */
-        seq_t term   = big_pow(base, exp);
+        seq_t term   = ipow(base, exp);
         result *= term;
     }
 

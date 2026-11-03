@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(0)=1, a(1)=2, a(2)=4, a(3)=7, a(4)=14,
    a(n)=4*a(n-2)-3*a(n-4)   for n>=5   (derived from (1+2x-x^3+x^4)/((1-x^2)(1-3x^2)) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;         /* cache of computed values       */
 static idx_t  cache_len = 0;        /* number of entries already stored */
@@ -31,11 +33,11 @@ static void ensure_cache(idx_t n)
 
     if (new_cap != cache_cap) {
         if (cache) {
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             cache = tmp;
         } else {
-            cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, new_cap);
             if (!cache) abort();
         }
         cache_cap = new_cap;

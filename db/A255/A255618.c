@@ -12,7 +12,8 @@
  *            block of 4 consecutive pairs” condition
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 16, u64 n <= 37, u128 n <= 78,
  *            big any n
- * Helpers:   brute_n
+ * Validated: standard, pass, 39 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,14 +22,51 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/brute_n.h"
+#include "../utils/mem.h"
+
+/* Brute‑force enumeration for n ≤ 9 (length = n+4).  The loop
+   is small: 3^13 = 1 594 323 iterations, trivial for n ≤ 9. */
+static seq_t brute_n(idx_t n)
+{
+    idx_t L = n + 4;               /* array length */
+    idx_t pow[16];
+    pow[0] = 1;
+    for (idx_t i = 1; i <= L; ++i)
+        pow[i] = pow[i - 1] * (idx_t)3;
+    idx_t total = pow[L];
+
+    seq_t count = 0;
+    unsigned val[16];
+
+    for (idx_t id = 0; id < total; ++id) {
+        idx_t tmp = id;
+        for (idx_t pos = 0; pos < L; ++pos) {
+            val[pos] = (unsigned)(tmp % 3);
+            tmp /= 3;
+        }
+        bool ok = true;
+        for (idx_t start = 0; start + 5 <= L; ++start) {
+            int downs = 0;
+            for (idx_t j = 0; j < 4; ++j)
+                if (val[start + j] > val[start + j + 1])
+                    ++downs;
+            if (downs > 2) {
+                ok = false;
+                break;
+            }
+        }
+        if (ok)
+            ++count;
+    }
+    return count;
+}
 
 /* ------------------------------------------------------------ */
 /* Convert a raw pointer from realloc to seq_t* when compiling as C++ */
 static inline seq_t *realloc_seq(seq_t *ptr, size_t size)
 {
 #ifdef __cplusplus
-    return (seq_t *)realloc(ptr, size);
+    return mem_resize(seq_t, ptr, (size) / sizeof(seq_t));
 #else
     return realloc(ptr, size);
 #endif

@@ -7,11 +7,13 @@
  * Formula:   a(2k) = 2^(k+2)+3, a(2k+1) = 3*2^(k+1)+1
  * Range:     u8 n <= 11, u16 n <= 27, u32 n <= 59, u64 n <= 123,
  *            u128 n <= 251, big any n
+ * Validated: standard, pass, 57 terms through n = 910 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

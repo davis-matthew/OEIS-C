@@ -7,7 +7,8 @@
  * Formula:   a(n) = LCM(1,2,...,2n+1)/6
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 38 terms through n = 50 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Helper: compute lcm of two seq_t values */
 static inline seq_t lcm_seq(seq_t a, seq_t b)
@@ -38,9 +40,9 @@ seq_t a(idx_t n)
     if (n > cache_max_n) {
         size_t new_size = (size_t)n;
         if (cache == NULL) {
-            cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+            cache = mem_new(seq_t, new_size);
         } else {
-            cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_size);
         }
     }
 

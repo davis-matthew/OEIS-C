@@ -12,7 +12,8 @@
  *            also divides 2n)
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values.  */
 static seq_t *seq_cache = NULL;      /* array holding a(i) values.  */
@@ -39,8 +41,7 @@ static void grow_distinct(void)
 {
     if (distinct_len >= distinct_cap) {
         size_t new_cap = distinct_cap ? distinct_cap * 2 : 16;
-        distinct_vals   = (seq_t *)realloc(distinct_vals,
-                                           new_cap * sizeof(seq_t));
+        distinct_vals   = mem_resize(seq_t, distinct_vals, new_cap);
         distinct_counts = (size_t *)realloc(distinct_counts,
                                             new_cap * sizeof(size_t));
         distinct_cap = new_cap;
@@ -86,11 +87,11 @@ static void ensure_cache(idx_t n)
     /* Allocate or grow the main cache as needed.  */
     if (seq_cache == NULL) {
         seq_cache_cap = 1024;
-        seq_cache = (seq_t *)malloc(seq_cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cache_cap);
     }
     while (seq_cache_cap <= n + 1) {
         seq_cache_cap *= 2;
-        seq_cache = (seq_t *)realloc(seq_cache, seq_cache_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, seq_cache_cap);
     }
 
     /* Initialise the very first term a(0)=1 and update the distinct

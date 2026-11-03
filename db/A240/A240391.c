@@ -14,7 +14,8 @@
  *            northwest) mod 4
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 36,
  *            big any n
- * Helpers:   dec_state, enc_state
+ * Validated: standard, pass, 34 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,33 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/dec_state.h"
-#include "../utils/enc_state.h"
+#include "../utils/mem.h"
+
+static inline void dec_state(uint16_t s, uint8_t up[4], uint8_t diag[4]) {
+    up[0]   =  s       & 3;
+    up[1]   = (s >>  2) & 3;
+    up[2]   = (s >>  4) & 3;
+    up[3]   = (s >>  6) & 3;
+    diag[0] = (s >>  8) & 3;
+    diag[1] = (s >> 10) & 3;
+    diag[2] = (s >> 12) & 3;
+    diag[3] = (s >> 14) & 3;
+}
+
+/*  16‑bit state: 4 bits for the four column sums (upsum),
+                    4 bits for the four diagonal sums (diag), each 2 bits (0..3).   */
+static inline uint16_t enc_state(const uint8_t up[4], const uint8_t diag[4]) {
+    uint16_t s = 0;
+    s |=  up[0] & 3;
+    s |= (up[1] & 3) << 2;
+    s |= (up[2] & 3) << 4;
+    s |= (up[3] & 3) << 6;
+    s |= (diag[0] & 3) << 8;
+    s |= (diag[1] & 3) <<10;
+    s |= (diag[2] & 3) <<12;
+    s |= (diag[3] & 3) <<14;
+    return s;
+}
 
 /* ------------------------------------------------------------------ */
 /* State representation ------------------------------------------------*/
@@ -120,8 +146,8 @@ seq_t a(idx_t n) {
     static seq_t *dp  = NULL;
     static seq_t *nxt = NULL;
     if (!dp) {
-        dp  = (seq_t*)malloc(sizeof(seq_t)*N);
-        nxt = (seq_t*)malloc(sizeof(seq_t)*N);
+        dp  = mem_new(seq_t, N);
+        nxt = mem_new(seq_t, N);
     }
 
     /* Sets of active states for each step */
@@ -135,7 +161,7 @@ seq_t a(idx_t n) {
     }
 
     /* initialise */
-    memset(dp, 0, sizeof(seq_t)*N);
+    mem_set(dp, 0, sizeof(seq_t)*N);
     dp[0] = (seq_t)1;          /* empty configuration, all sums 0 */
     size_t act_cnt = 1;
     act[0] = 0;
@@ -144,7 +170,7 @@ seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;
 
     for (idx_t step = 0; step < n; ++step) {
-        memset(nxt, 0, sizeof(seq_t)*N);
+        mem_set(nxt, 0, sizeof(seq_t)*N);
         memset(seen, 0, sizeof(bool)*N);
         size_t nact_cnt = 0;
 

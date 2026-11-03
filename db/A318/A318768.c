@@ -7,8 +7,9 @@
  * Keywords:  sign, mult, easy
  * Formula:   a(n) = Sum_{d|n} (-1)^(n/d+1) * Sum_{j|d} τ(j), where τ = number
  *            of divisors (A000005)
- * Range:     i8 n <= 209, i16 n <= 9958, i32 n <= 9958, i64 n <= 9958,
- *            i128 n <= 9958, big any n
+ * Range:     i8 n <= 209, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 95 terms through n = 9958 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 23, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 182 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  * with no external side effects.                                           */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised array (1‑based).  memo_sz holds the allocated size.
    computed is the highest index that currently has a value. */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* Ensure allocation for index n (1‑based).  new_size = n+1 */
     size_t new_size = (size_t)n + 1;
     if (memo_sz < new_size) {
-        void *tmp = realloc(memo, new_size * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, memo, new_size);
         if (!tmp) return (seq_t)0;   /* allocation failure */
         memo = (seq_t *)tmp;
         /* zero‑fill newly allocated part */

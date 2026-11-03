@@ -9,14 +9,27 @@
  *            all primes
  * Range:     u8 n <= 15, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   push_uint64
+ * Validated: standard, pass, 64 terms through n = 928 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/push_uint64.h"
+
+/* Append a value to a dynamic uint64_t array. */
+static void push_uint64(uint64_t **arr, size_t *len, size_t *cap,
+                       uint64_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        *arr = (uint64_t *)realloc(*arr, newcap * sizeof(uint64_t));
+        *cap = newcap;
+    }
+    (*arr)[*len] = val;
+    (*len)++;
+}
 
 /* Sum of decimal digits of a 64‑bit unsigned integer. */
 static inline uint64_t digit_sum_u64(uint64_t x)

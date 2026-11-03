@@ -7,12 +7,14 @@
  * Formula:   a(n) = 5*(n-1)*a(n-1) - 2*(n-1)*a(n-2), a(0) = 0, a(1) = 2
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute A108209. */
 seq_t a(idx_t n)
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* Need to compute up to n. Allocate larger cache. */
     size_t newlen = (size_t)n + 1;
-    seq_t *newcache = (seq_t *)realloc(cache, newlen * sizeof(seq_t));
+    seq_t *newcache = mem_resize(seq_t, cache, newlen);
     if (!newcache)           /* allocation failure – return 0 (unlikely in tests) */
         return (seq_t)0;
     cache = newcache;

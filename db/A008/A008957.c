@@ -11,6 +11,7 @@
  *            a(n) is the n-th element of this row‑wise enumeration
  * Range:     u8 n <= 17, u16 n <= 32, u32 n <= 72, u64 n <= 163,
  *            u128 n <= 423, big any n
+ * Validated: standard, pass, 66 terms through n = 4925 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

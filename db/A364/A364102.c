@@ -7,6 +7,7 @@
  * Formula:   a(n) = sum of divisors d of (5*n-3) with d ≡ 4 (mod 5)
  * Range:     u8 n <= 53, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

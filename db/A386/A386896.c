@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{k=0..n} binomial(5*n+1,k) * binomial(3*n-k,n-k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 18,
  *            big any n
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

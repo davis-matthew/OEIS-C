@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = the n-th prime of the form 2x² + x·y + 3y² with x,y ≥ 0
- * Range:     u8 none, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
- *            big any n
- * Helpers:   cmp_seq_t, isPrime64
+ * Range:     u8 none, u16 n <= 947, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 62 terms through n = 9675 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
-#include "../utils/isPrime64.h"
-#include "../utils/cmp_seq_t.h"
+#include <stdbool.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+static int cmp_seq_t(const void *a, const void *b)
+{
+    seq_t va = *(const seq_t *)a;
+    seq_t vb = *(const seq_t *)b;
+    if (va < vb) return -1;
+    if (va > vb) return 1;
+    return 0;
+}
 
 static seq_t *primes = NULL;      /* array of found primes */
 static size_t primes_cnt = 0;     /* number of primes stored */
@@ -32,7 +43,7 @@ static void generate_primes_up_to(size_t L)
 
     /* temporary storage for primes */
     size_t local_cap = 1024;
-    seq_t *local = (seq_t*)malloc(local_cap * sizeof(seq_t));
+    seq_t *local = mem_new(seq_t, local_cap);
     if (!local) { free(seen); exit(EXIT_FAILURE); }
     size_t local_cnt = 0;
 
@@ -49,10 +60,10 @@ static void generate_primes_up_to(size_t L)
             size_t iv = (size_t)val;
             if (!seen[iv]) {
                 seen[iv] = 1;
-                if (isPrime64((uint64_t)val)) {
+                if (is_prime_u64((uint64_t)val)) {
                     if (local_cnt == local_cap) {
                         local_cap *= 2;
-                        local = (seq_t*)realloc(local, local_cap * sizeof(seq_t));
+                        local = mem_resize(seq_t, local, local_cap);
                         if (!local) { free(seen); exit(EXIT_FAILURE); }
                     }
                     local[local_cnt++] = (seq_t)val;
@@ -62,10 +73,10 @@ static void generate_primes_up_to(size_t L)
     }
 
     /* sort the local list */
-    qsort(local, local_cnt, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(local, local_cnt, sizeof(seq_t), cmp_seq_t);
 
     /* replace the global table */
-    free(primes);
+    mem_free(primes);
     primes = local;
     primes_cnt = local_cnt;
 

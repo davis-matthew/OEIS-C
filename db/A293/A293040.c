@@ -6,16 +6,46 @@
  * Keywords:  sign
  * Formula:   a(0) = 1 a(n) = 0 for 1 ≤ n < 5 a(n) = -Sum_{k=5..n}
  *            binomial(n-1,k-1) * a(n-k) for n ≥ 5
- * Range:     i8 n <= 9, i16 n <= 14, i32 n <= 20, i64 n <= 31, i128 n <= 49,
+ * Range:     i8 n <= 10, i16 n <= 14, i32 n <= 20, i64 n <= 31, i128 n <= 49,
  *            big any n
- * Helpers:   binomial, ensure_cache
+ * Validated: standard, pass, 45 terms through n = 584 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/ensure_cache.h"
+#include "../utils/mem.h"
+
+/* Make sure the cache is large enough */
+static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr) {
+    seq_t *cache = *cache_ptr;
+    size_t cap = *cap_ptr;
+    if (cap <= (size_t)n) {
+        size_t new_cap = cap ? (cap << 1) : 16;
+        while (new_cap <= (size_t)n)
+            new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+        if (!tmp && new_cap > 0) {
+            /* Allocation failed – abort the program. */
+            exit(1);
+        }
+        if (tmp) {
+            /* Initialize newly allocated slots to zero. */
+            if (!cache) {
+                for (size_t i = 0; i < new_cap; ++i)
+                    tmp[i] = 0;
+            } else {
+                for (size_t i = cap; i < new_cap; ++i)
+                    tmp[i] = 0;
+            }
+            *cache_ptr = tmp;
+            *cap_ptr = new_cap;
+        }
+    }
+}
 
 static seq_t *cache = NULL;      /* array storing computed values            */
 static size_t cache_cap = 0;     /* allocated capacity (indices 0..cap-1)    */

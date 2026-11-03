@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 1713, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has8, rec
+ * Validated: standard, pass, 63 terms through n = 7203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,37 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has8.h"
-#include "../utils/rec.h"
+#include "../utils/mem.h"
+
+/* ---------- helper: digit 8 test ---------- */
+static inline bool has8(unsigned long long x)
+{
+    while (x) {
+        if ((x % 10ULL) == 8ULL) return true;
+        x /= 10ULL;
+    }
+    return false;
+}
+
+/* ---------- recursive divisor test ---------- */
+static bool rec(const unsigned *pf, const int *exp, size_t idx,
+                size_t sz, unsigned long long cur)
+{
+    if (idx == sz) return true;
+
+    unsigned long long val = cur;
+    unsigned p = pf[idx];
+    int emax = exp[idx];
+
+    for (int e = 0; e <= emax; ++e) {
+        if (e > 0) {
+            val *= (unsigned long long)p;
+            if (!has8(val)) return false;
+        }
+        if (!rec(pf, exp, idx + 1, sz, val)) return false;
+    }
+    return true;
+}
 
 /* ---------- parameters ---------- */
 #define MAX_SIEVE   20000000U   /* 20 million – enough for all test cases */
@@ -121,7 +151,7 @@ seq_t a(idx_t n)
 
     if (!cache) {   /* initialise cache on first call */
         cache_cap = 64;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 0;           /* dummy to make indices 1‑based */
         cache_len = 1;
     }
@@ -131,7 +161,7 @@ seq_t a(idx_t n)
         if (good_number(next_checked)) {
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                seq_t *tmp = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) return 0;   /* allocation failure */
                 cache = tmp;
             }

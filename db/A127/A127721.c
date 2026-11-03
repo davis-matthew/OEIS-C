@@ -5,14 +5,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = floor(sqrt(n*(n+1)*(2n+1)/6))
- * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 566, u64 n <= 10000,
+ * Range:     u8 n <= 8, u16 n <= 57, u32 n <= 2934, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sqrt_floor
+ * Validated: standard, pass, 77 terms through n = 9833 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sqrt_floor.h"
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -40,5 +42,5 @@ seq_t a(idx_t n)
     seq_t prod = x * y;
     prod *= z;                      /* prod = n*(n+1)*(2n+1)/6 */
 
-    return sqrt_floor(prod);        /* floor of the square root */
+    return isqrt_seq(prod);        /* floor of the square root */
 }

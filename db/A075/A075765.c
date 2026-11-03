@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor(prime(n)/n) + (prime(n) mod n) (OEIS A075765)
  * Range:     u8 n <= 54, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Get the n-th prime, generating further primes as needed. */
 static seq_t *prime_list = NULL;  /* array of primes (stored as seq_t)    */
@@ -29,10 +31,10 @@ static void ensure_primes(idx_t needed)
     /* Expand array capacity as necessary */
     if (prime_cap == 0) {
         prime_cap = 4;
-        prime_list = (seq_t *) malloc(prime_cap * sizeof(seq_t));
+        prime_list = mem_new(seq_t, prime_cap);
     } else if (prime_cnt >= prime_cap) {
         prime_cap <<= 1; /* double the capacity */
-        prime_list = (seq_t *) realloc(prime_list, prime_cap * sizeof(seq_t));
+        prime_list = mem_resize(seq_t, prime_list, prime_cap);
     }
 
     while (prime_cnt < needed) {

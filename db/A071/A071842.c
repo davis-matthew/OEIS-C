@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of primes p ≤ n with p ≡ 7 (mod 8)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static uint8_t *is_prime = NULL;   /* 1 = prime, 0 = composite */
 static seq_t  *prime7_prefix = NULL;  /* cumulative count of primes ≡ 7 mod 8 */
@@ -39,9 +41,9 @@ static void extend_sieve(idx_t new_limit)
     /* Allocate/resize prefix array */
     seq_t *new_pref = NULL;
     if (prime7_prefix == NULL) {
-        new_pref = (seq_t*)calloc(sieve_limit + 1, sizeof(seq_t));
+        new_pref = mem_new(seq_t, sieve_limit + 1);
     } else {
-        new_pref = (seq_t*)realloc(prime7_prefix, (sieve_limit + 1) * sizeof(seq_t));
+        new_pref = mem_resize(seq_t, prime7_prefix, (sieve_limit + 1));
     }
     if (!new_pref) exit(1);
     prime7_prefix = new_pref;

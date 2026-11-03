@@ -8,13 +8,16 @@
  * Formula:   a(n) = binomial(r,k)^2 * binomial(2*(r-k), r-k) where r =
  *            floor((sqrt(1+8*n)-1)/2) and k = n - r*(r+1)/2. a(n) is the
  *            triangle T(r,k) read row by row
- * Range:     u8 n <= 9, u16 n <= 29, u32 n <= 54, u64 n <= 54, u128 n <= 54,
+ * Range:     u8 n <= 10, u16 n <= 29, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <math.h>
 #include "../utils/binomial.h"
 #include <math.h>
 

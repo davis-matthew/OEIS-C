@@ -10,6 +10,7 @@
  *            (42²) from 41 down to 1 and computing n = 1764/d – 42
  * Range:     u8 none, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
+ * Validated: full, pass, 13 terms through n = 13 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

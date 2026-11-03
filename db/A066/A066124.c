@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 550, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Reverse the binary representation of x (without leading zeros). */
 static inline seq_t rev_bits(seq_t x)
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
             if (is_three_steps(cand)) {
                 if (size == cap) {
                     cap = cap ? cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, cap);
                     terms = tmp;
                 }
                 terms[size++] = cand;

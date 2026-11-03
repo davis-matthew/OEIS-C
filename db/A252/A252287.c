@@ -10,6 +10,7 @@
  *            to 0, 1 or 4. Computed by dynamic programming over the rows
  * Range:     u8 none, u16 n <= 6, u32 n <= 17, u64 n <= 38, u128 n <= 81,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 210 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

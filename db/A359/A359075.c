@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   digit_sum, floor_sqrt
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   digit_sum, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,28 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/digit_sum.h"   /* digit_sum(seq_t x) returns seq_t */
-#include "../utils/floor_sqrt.h" /* floor_sqrt(seq_t x) returns seq_t */
+#include <stdint.h>
+#include "../utils/digit_sum.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 #define MAX_DIVISORS 4096  /* enough for divisor counts of all practical candidates */
 
@@ -65,7 +86,7 @@ seq_t a(idx_t n)
         if (cache_cap < needed) {
             size_t new_cap = cache_cap ? cache_cap : 16;
             while (new_cap < needed) new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) exit(1);
             cache = tmp;
             cache_cap = new_cap;

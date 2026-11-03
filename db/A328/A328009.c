@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The build supplies seq_t and idx_t */
 seq_t a(idx_t n);
@@ -107,7 +109,7 @@ static void generate_divisors(uint32_t x, seq_t **out, size_t *cnt_out)
     /* total number of divisors */
     size_t dcnt = 1;
     for (size_t i = 0; i < pcnt; ++i) dcnt *= (size_t)(exps[i] + 1);
-    seq_t *divs = (seq_t *)malloc(dcnt * sizeof(seq_t));
+    seq_t *divs = mem_new(seq_t, dcnt);
     if (!divs) exit(1);
     size_t sz = 1;
     divs[0] = 1;
@@ -124,7 +126,7 @@ static void generate_divisors(uint32_t x, seq_t **out, size_t *cnt_out)
         }
     }
     /* sort ascending */
-    qsort(divs, dcnt, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(divs, dcnt, sizeof(seq_t), cmp_seq_t);
     *out      = divs;
     *cnt_out  = dcnt;
 }
@@ -136,7 +138,7 @@ static void ensure_seq_cap(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 1024;
     if (new_cap < needed) new_cap = needed;
-    seq_t *new_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, seq_arr, new_cap);
     if (!new_arr) exit(1);
     seq_arr = new_arr;
     seq_cap = new_cap;
@@ -148,7 +150,7 @@ static void add_terms(const seq_t *terms, size_t count)
 {
     size_t new_len = seq_len + count;
     ensure_seq_cap(new_len);
-    memcpy(seq_arr + seq_len, terms, count * sizeof(seq_t));
+    mem_copy(seq_arr + seq_len, terms, count * sizeof(seq_t));
     seq_len = new_len;
 }
 
@@ -167,7 +169,7 @@ static void generate_sequence_upto(size_t needed_len)
             size_t dcnt;
             generate_divisors(n, &divs, &dcnt);
             add_terms(divs, dcnt);
-            free(divs);
+            mem_free(divs);
         }
         ++cur_n;
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   ensure_capacity, is_prime_small, rev
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   is_prime_seq, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,20 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/rev.h"
-#include "../utils/ensure_capacity.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/reverse_digits_idx.h"
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
 
 /* Square array of primes that are not emirps */
 static seq_t *cache = NULL;
@@ -46,13 +58,13 @@ seq_t a(idx_t n)
     while (cache_len < n) {
         /* Find the next prime. */
         uint64_t p = prime_start;
-        while (!is_prime_small((seq_t)p))
+        while (!is_prime_seq((seq_t)p))
             ++p;
         prime_start = p + 1;
 
         /* Check whether this prime is an emirp. */
-        uint64_t revp = rev(p);
-        bool emirp = (p != revp && is_prime_small((seq_t)revp));
+        uint64_t revp = reverse_digits_idx(p);
+        bool emirp = (p != revp && is_prime_seq((seq_t)revp));
 
         if (!emirp) {   /* store non‑emirp prime */
             size_t needed = cache_len + 1;

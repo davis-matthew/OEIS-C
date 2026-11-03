@@ -11,7 +11,8 @@
  *            primes are p+6, p+12, p+16 (difference pattern 6,6,4)
  * Range:     u8 n <= 1, u16 n <= 36, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 900 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static data needed for one-time precomputation. */
 static bool initialized = false;
@@ -64,7 +66,7 @@ static void init(void)
 
     /* ----------------------------------------------------------- */
     /* 2. Collect terms that satisfy pattern 6,6,4. */
-    term_arr = (seq_t *)malloc(prime_cnt * sizeof(seq_t));
+    term_arr = mem_new(seq_t, prime_cnt);
     if (!term_arr) return;                         /* allocation failure */
 
     term_cnt = 0;

@@ -5,16 +5,19 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   the nth prime of the form k^3 + 6 (k ≥ 1)
- * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 30, u64 n <= 30, u128 n <= 30,
- *            big any n
- * Helpers:   is_prime_seq
+ * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 75, u64 n <= 2000,
+ *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 46 terms through n = 1951 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
         /* Expand storage if needed */
         if (cache.count >= cache.capacity) {
             size_t new_cap = (cache.capacity == 0) ? 64 : cache.capacity * 2;
-            seq_t *tmp = (seq_t *)realloc(cache.primes, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache.primes, new_cap);
             if (!tmp) abort();  /* allocation failed */
             cache.primes = tmp;
             cache.capacity = new_cap;

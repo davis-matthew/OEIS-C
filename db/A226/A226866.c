@@ -9,6 +9,7 @@
  * Formula:   a(n) = (n^5 + 35*n^3 + 84*n)/40 + 1
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 92, u64 n <= 210, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 208 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

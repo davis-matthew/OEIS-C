@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state used for memoisation --------------------------------- */
 static seq_t *A_arr     = NULL;   /* a(i) values                           */
@@ -37,7 +39,7 @@ static void ensure_A(size_t idx)
     if (idx < A_cap) return;
     size_t newcap = A_cap ? A_cap * 2 : 128;
     while (newcap <= idx) newcap *= 2;
-    A_arr   = (seq_t *)realloc(A_arr,   newcap * sizeof(seq_t));
+    A_arr   = mem_resize(seq_t, A_arr, newcap);
     A_known = (bool  *)realloc(A_known, newcap * sizeof(bool));
     if (!A_arr || !A_known) abort();          /* allocation failure */
     for (size_t i = A_cap; i < newcap; ++i)    /* new bool slots were zero‑ed by realloc */
@@ -50,7 +52,7 @@ static void ensure_forced(size_t idx)
     if (idx < forced_cap) return;
     size_t newcap = forced_cap ? forced_cap * 2 : 128;
     while (newcap <= idx) newcap *= 2;
-    forced        = (seq_t *)realloc(forced,        newcap * sizeof(seq_t));
+    forced        = mem_resize(seq_t, forced, newcap);
     forced_known  = (bool  *)realloc(forced_known,  newcap * sizeof(bool));
     if (!forced || !forced_known) abort();        /* allocation failure */
     for (size_t i = forced_cap; i < newcap; ++i)

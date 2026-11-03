@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 13, i16 n <= 1487, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9572 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Return the a(n) term of OEIS A217480 (see comment above). */
 seq_t a(idx_t n)
@@ -64,12 +66,12 @@ seq_t a(idx_t n)
     }
 
     /* Step 2: Convolve B(x) with itself six times. */
-    seq_t *res = (seq_t*)calloc(n+1, sizeof(seq_t));
-    seq_t *tmp = (seq_t*)calloc(n+1, sizeof(seq_t));
+    seq_t *res = mem_new(seq_t, n+1);
+    seq_t *tmp = mem_new(seq_t, n+1);
     res[0] = 1;   /* identity for convolution */
 
     for (int iter = 0; iter < 6; ++iter) {
-        memset(tmp, 0, (n+1)*sizeof(seq_t));
+        mem_set(tmp, 0, (n+1)*sizeof(seq_t));
 
         for (idx_t i = 0; i <= n; ++i) {
             seq_t val = res[i];
@@ -95,8 +97,8 @@ seq_t a(idx_t n)
     /* Clean up */
     free(exp);
     free(sgn);
-    free(res);
-    free(tmp);
+    mem_free(res);
+    mem_free(tmp);
 
     return ans;
 }

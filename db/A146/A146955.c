@@ -13,11 +13,14 @@
  *            c ≤ r : t(r,0) = t(r,r) = 1 t(r,c) = C(r...
  * Range:     u8 n <= 28, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

@@ -8,12 +8,17 @@
  *            (mod n)
  * Range:     u8 n <= 315, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 121 terms through n = 9896 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +26,7 @@ seq_t a(idx_t n)
     seq_t mod = (seq_t)n;          /* cast index to seq_t */
     for (idx_t x = 1; x <= n; ++x)
     {
-        if (mod_pow((seq_t)x, x, mod) == 0)
+        if (powmod((seq_t)x, x, mod) == 0)
             ++count;
     }
     return count;

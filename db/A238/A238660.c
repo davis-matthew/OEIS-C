@@ -11,15 +11,44 @@
  *            recursive DFS with strong pruning
  * Range:     u8 n <= 15, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   max_sq, min_sq
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/max_sq.h"
-#include "../utils/min_sq.h"
+
+/* Maximum sum of squares for a given total sum, number of parts, and
+   an upper bound on each part. The greedy algorithm (assign as much as
+   possible to the first part, then repeat) gives the optimum because
+   the square function is convex. */
+static seq_t max_sq(idx_t sum, idx_t parts, idx_t maxPart) {
+    seq_t total = 0;
+    idx_t rem_sum = sum;
+    idx_t rem_parts = parts;
+    while (rem_parts) {
+        /* largest part we can choose ensuring at least 1 for each remaining part */
+        idx_t take = rem_sum - (rem_parts - 1);
+        if (take > maxPart) take = maxPart;
+        if (take < 1) take = 1;              /* safety */
+        rem_sum -= take;
+        rem_parts--;
+        total += (seq_t)take * take;
+    }
+    return total;
+}
+
+/* Minimum sum of squares for a given total sum and number of parts.
+   All parts are positive integers and at most <= maxPart (it is always satisfied
+   in the recursion). */
+static seq_t min_sq(idx_t sum, idx_t parts) {
+    idx_t q = sum / parts;
+    idx_t r = sum % parts;
+    seq_t sq = ((seq_t)(parts - r)) * q * q + (seq_t)r * (q + 1) * (q + 1);
+    return sq;
+}
 
 /* forward declarations of helper functions defined in utils (if needed) */
 

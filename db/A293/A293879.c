@@ -8,7 +8,8 @@
  *            contains the substring "19"
  * Range:     u8 n <= 13, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   has_substring_19
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_substring_19.h"
+#include "../utils/mem.h"
+
+/* static helper: returns true iff x has the consecutive digits 1 and 9
+   somewhere in its decimal representation. */
+static inline bool has_substring_19(seq_t x)
+{
+    /* For very small numbers the loop completes quickly */
+    while (x >= 10) {
+        if ((x % 100) == 19) {
+            return true;
+        }
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +53,7 @@ seq_t a(idx_t n)
         if (need > cap) {
             size_t new_cap = cap ? cap << 1 : 16;
             if (new_cap < need) new_cap = need;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) { /* allocation failure – return sentinel */
                 return (seq_t)0;
             }

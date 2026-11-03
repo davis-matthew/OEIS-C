@@ -7,12 +7,14 @@
  * Formula:   a(n) = (a(n-1)+a(n-2)+1)^2, a(0)=0, a(1)=1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoises computed values; expands storage as needed. */
 
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* grow cache if the requested index is not yet cached */
     if (idx >= cache_size) {
         size_t new_size = idx + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) {
             /* allocation failure – return a benign value */
             return (seq_t)0;

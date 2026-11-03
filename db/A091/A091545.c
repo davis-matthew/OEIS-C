@@ -7,12 +7,14 @@
  * Formula:   a(n) = ∏_{j=0}^{n-1} ((5*j+2)*(5*j+1)) / 2 (offset 1)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* grow storage */
     size_t new_size = (size_t)n;
-    seq_t *new_vals = (seq_t *)realloc(values, new_size * sizeof(seq_t));
+    seq_t *new_vals = mem_resize(seq_t, values, new_size);
     if (!new_vals) {                     /* allocation failed – abort */
         return (seq_t)0;
     }

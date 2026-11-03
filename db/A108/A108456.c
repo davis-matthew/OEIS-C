@@ -12,7 +12,8 @@
  *            entry
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   triangular_index
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,16 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/triangular_index.h"
+#include "../utils/mem.h"
+
+/* largest d such that d*(d+1)/2 <= n */
+static inline idx_t triangular_index(idx_t n)
+{
+    idx_t d = 0;
+    while ((d + 1) * (d + 2) / 2 <= n)
+        ++d;
+    return d;
+}
 
 static const idx_t MAX = 200;                 /* sufficient for n <= 10000 */
 static seq_t *dp = NULL;
@@ -33,7 +43,7 @@ static void init_dp(void)
         return;
 
     dp_size = (MAX + 1) * (MAX + 1);
-    dp = (seq_t *)malloc(dp_size * sizeof(seq_t));
+    dp = mem_new(seq_t, dp_size);
     for (idx_t idx = 0; idx < dp_size; ++idx)
         dp[idx] = 0;
     dp[0] = (seq_t)1;                      /* dp[0][0] = 1 */

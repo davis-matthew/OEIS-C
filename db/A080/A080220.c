@@ -9,7 +9,8 @@
  *            greater than a(n-1), otherwise a(n)=a(n-1)+1
  * Range:     u8 n <= 171, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Simple deterministic primality test for 64‑bit values (sufficient for the needed range). */
 static inline bool is_prime_u64(uint64_t n)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Extend cache if necessary. */
     if (nn > cached) {
         size_t newsize = nn;
-        seq_t *newcache = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *newcache = mem_resize(seq_t, cache, newsize);
         if (!newcache) {  /* allocation failed */
             exit(EXIT_FAILURE);
         }

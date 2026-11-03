@@ -7,12 +7,14 @@
  * Formula:   a(n) = floor((13 + sum_{k=1}^{n-1} a(k)) / 6), a(1)=2
  * Range:     u8 n <= 22, u16 n <= 57, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for values and prefix sums.  All indices start at 1. */
 static seq_t *a_cache   = NULL; /* a(n) values */
@@ -29,14 +31,14 @@ ensure_cache(idx_t need)
     /* Allocate (or reallocate) arrays of size need+1 (index 0 not used for a). */
     size_t new_cap = (size_t)(need + 1);
     if (!a_cache) {
-        a_cache   = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        sum_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        a_cache   = mem_new(seq_t, new_cap);
+        sum_cache = mem_new(seq_t, new_cap);
         if (!a_cache || !sum_cache)
             return; /* memory failure; caller will result in 0 */
         sum_cache[0] = (seq_t)0; /* sum of zero terms */
     } else {
-        a_cache   = (seq_t *)realloc(a_cache,   new_cap * sizeof(seq_t));
-        sum_cache = (seq_t *)realloc(sum_cache, new_cap * sizeof(seq_t));
+        a_cache   = mem_resize(seq_t, a_cache, new_cap);
+        sum_cache = mem_resize(seq_t, sum_cache, new_cap);
         if (!a_cache || !sum_cache)
             return; /* memory failure */
     }

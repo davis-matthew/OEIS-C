@@ -11,7 +11,8 @@
  *            The terms are listed in increasing order; a(1) =...
  * Range:     u8 none, u16 none, u32 n <= 1, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    `seq_t` and `idx_t`.  */
 
 #include <stdlib.h>   /* for malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static const seq_t POW10[10] = {
     (seq_t)1,
@@ -51,7 +53,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();               /* allocation failure – signal error */
     cache = tmp;

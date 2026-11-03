@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;     /* dynamically sized table of partition counts */
 static idx_t dp_size = 0;    /* largest n for which dp[n] is valid */
@@ -30,13 +32,13 @@ seq_t a(idx_t n)
     /* If this is the first call or we need to cover a larger n, recompute. */
     if (dp == NULL || n > dp_size) {
         /* Allocate or enlarge the table. */
-        seq_t *tmp = (seq_t *)realloc(dp, sizeof(seq_t) * (n + 1));
+        seq_t *tmp = mem_resize(seq_t, dp, (n + 1));
         if (tmp == NULL)      /* allocation failed – return 0 as error value */
             return 0;
         dp = tmp;
 
         /* Initialise all entries to 0, then set the base case. */
-        memset(dp, 0, sizeof(seq_t) * (n + 1));
+        mem_set(dp, 0, sizeof(seq_t) * (n + 1));
         dp[0] = 1;          /* one way to make 0: use no parts */
 
         /* Count combinations using the coin–change method. */

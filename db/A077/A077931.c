@@ -8,13 +8,15 @@
  *            values: a(0) = 1, a(1) = -1, a(2) = 2, a(3) = -4
  * Range:     i8 n <= 7, i16 n <= 15, i32 n <= 31, i64 n <= 34, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache   = NULL;  /* cache of computed terms          */
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     if (n + 1 > cap) {
         idx_t new_cap = cap ? cap << 1 : 16;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;          /* allocation failure → undefined on this build */
         cache = tmp;
         cap   = new_cap;

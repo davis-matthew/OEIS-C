@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 7535, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_equal_nonzero_0_8
+ * Validated: standard, pass, 68 terms through n = 9795 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
    such numbers.  No external libraries are required. */
 
 #include <stdbool.h>
-#include "../utils/has_equal_nonzero_0_8.h"
+
+/* Return true iff x (in base 9) has a non‑zero equal count of 0's
+   and 8's.  The function works for any seq_t that supports %,
+   /, ++, and comparison operators. */
+static bool has_equal_nonzero_0_8(seq_t x)
+{
+    unsigned zero = 0, eight = 0;
+    const seq_t nine = (seq_t)9;
+
+    while (x > 0) {
+        seq_t r = x % nine;
+        unsigned d = (unsigned)r;      /* digit in range 0 … 8 */
+        if (d == 0) ++zero;
+        else if (d == 8) ++eight;
+        x = x / nine;
+    }
+    return zero > 0 && eight > 0 && zero == eight;
+}
 
 /* External linkage as required. */
 seq_t a(idx_t n)

@@ -8,6 +8,7 @@
  *            +41072*n^4 +88748*n^3 +133824*n^2 +193536*n +241920)/120960
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 24, u64 n <= 235, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 998 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

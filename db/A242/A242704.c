@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 167, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9051 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Popcount for seq_t ---------- */
 static size_t popcount_seq(seq_t x)
@@ -58,7 +60,7 @@ static void resize_seq(size_t min_needed)
     if (min_needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 16;
     while (new_cap < min_needed) new_cap <<= 1;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 
@@ -77,7 +79,7 @@ static void ensure_next_capacity(void)
 {
     if (next_cap != 0) return;
     next_cap = 256;                           /* initial capacity  */
-    next_mult = (seq_t *)malloc(next_cap * sizeof(seq_t));
+    next_mult = mem_new(seq_t, next_cap);
     for (size_t i = 0; i < next_cap; ++i) next_mult[i] = (seq_t)i;
 }
 
@@ -89,7 +91,7 @@ static seq_t get_next_for_weight(size_t w)
         size_t old_cap = next_cap;
         size_t new_cap = next_cap ? next_cap << 1 : 256;
         while (new_cap <= w) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(next_mult, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, next_mult, new_cap);
         for (size_t i = old_cap; i < new_cap; ++i) tmp[i] = (seq_t)i;
         next_mult = tmp;
         next_cap  = new_cap;

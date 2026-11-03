@@ -9,14 +9,51 @@
  *            0/1 fraction is always included)
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   coprime_leq
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/coprime_leq.h"
+
+/* Compute the number of integers ≤ m that are coprime to q using inclusion–exclusion. */
+static seq_t coprime_leq(idx_t q, idx_t m)
+{
+    if (m == 0) return 0;
+
+    /* Factor q into distinct primes (simple trial division, q ≤ 10000). */
+    uint32_t primes[12];
+    size_t pcnt = 0;
+    idx_t tmp = q;
+    for (idx_t p = 2; p * p <= tmp; ++p) {
+        if (tmp % p == 0) {
+            primes[pcnt++] = (uint32_t)p;
+            while (tmp % p == 0) tmp /= p;
+        }
+    }
+    if (tmp > 1) primes[pcnt++] = (uint32_t)tmp;
+
+    seq_t sum = (seq_t)m;
+    unsigned int subsets = 1U << pcnt;          /* 2^pcnt */
+    for (unsigned int mask = 1; mask < subsets; ++mask) {
+        idx_t prod = 1;
+        int bits = 0;
+        for (size_t i = 0; i < pcnt; ++i) {
+            if (mask & (1U << i)) {
+                prod *= (idx_t)primes[i];
+                ++bits;
+            }
+        }
+        seq_t term = (seq_t)(m / prod);
+        if (bits & 1)
+            sum -= term;
+        else
+            sum += term;
+    }
+    return sum;
+}
 
 /* Include definitions of seq_t and idx_t (provided by the build). */
 

@@ -7,11 +7,13 @@
  * Formula:   a(n) = Sum_{s = 0..floor((n-1)/2)} binomial(n-1-s, s) * n^s
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 16, u64 n <= 26, u128 n <= 45,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 601 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

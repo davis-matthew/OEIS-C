@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   get_digits, is_palindrome
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   get_digits, is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "../utils/get_digits.h"
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     while (count < n) {
         // skip palindromes themselves
-        if (!is_palindrome(x, 10)) {
+        if (!is_palindrome_base(x, 10)) {
             get_digits(x, buf, &len);
             bool ok = false;
 

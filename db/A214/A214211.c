@@ -10,13 +10,15 @@
  *            floor(n/2)
  * Range:     u8 n <= 190, u16 n <= 190, u32 n <= 190, u64 n <= 190,
  *            u128 n <= 190, big any n
- * Helpers:   none
+ * Validated: partial, pass, 191 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Returns the value at index n in A214211. */
 seq_t a(idx_t n)
@@ -33,11 +35,11 @@ seq_t a(idx_t n)
     /* Initialise the first two Fibonacci words (F0 = [1], F1 = [1,2]). */
     if (cur_len == 0) {
         prev_len = 1;
-        prev = (seq_t *)malloc(prev_len * sizeof(seq_t));
+        prev = mem_new(seq_t, prev_len);
         prev[0] = 1;                     /* F0 */
 
         cur_len = 2;
-        cur = (seq_t *)malloc(cur_len * sizeof(seq_t));
+        cur = mem_new(seq_t, cur_len);
         cur[0] = 1;
         cur[1] = 2;                      /* F1 */
     }
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* Grow the Fibonacci word until it covers index k. */
     while (cur_len <= k) {
         size_t next_len = cur_len + prev_len;
-        seq_t *next = (seq_t *)malloc(next_len * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, next_len);
         if (!next) abort();              /* Allocation failure */
 
         /* Copy cur and prev into next. */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
             next[cur_len + i] = prev[i];
 
         /* Advance the window: prev becomes cur, cur becomes next. */
-        free(prev);
+        mem_free(prev);
         prev = cur;
         prev_len = cur_len;
 

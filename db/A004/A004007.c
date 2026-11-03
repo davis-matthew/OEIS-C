@@ -9,13 +9,19 @@
  *            1, 2 (mod 3)
  * Range:     u8 n <= 1, u16 n <= 28, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   chi3
+ * Validated: standard, pass, 53 terms through n = 942 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/chi3.h"
+
+static int chi3(idx_t m)
+{
+    unsigned r = (unsigned)(m % 3);
+    return r == 0 ? 0 : (r == 1 ? 1 : -1);
+}
 
 static void add_term(seq_t *pos, seq_t *neg, idx_t n, idx_t d)
 {

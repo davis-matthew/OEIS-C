@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * [x^n] exp((x + x^2)/(x^3 - 1))
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 20, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (n >= cache_len) {
         /* allocate new cache of size n+1 (at least one more element) */
         size_t new_len = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) {
             /* memory exhaustion – abort (undefined behaviour in this context) */
             abort();
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
             seq_t prod = 1;   /* product of (i-1)*(i-2)*...*(i-m+1) */
             for (idx_t m = 1; m <= i; ++m) {
                 if (m % 3 != 0) {           /* m not divisible by 3 */
-                    /* term = -(m * prod) * cache[i-m] */
+                    /* term = -(m * prod) * new_cache[i-m] */
                     seq_t term = prod * (seq_t)m;
                     term = -term;
                     term = term * new_cache[i - m];

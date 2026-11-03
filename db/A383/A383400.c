@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   count_distinct_primes
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,8 @@
 #include <stdbool.h>  /* bool */
 #include <stdlib.h>   /* malloc, free */
 
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* --------- static state for caching runs --------- */
 static seq_t *run_cache   = NULL;   /* array of run start values          */
@@ -48,7 +50,7 @@ static void append_run_start(seq_t val)
 {
     if (run_count == run_capacity) {
         size_t new_cap = run_capacity ? run_capacity * 2 : 64;
-        seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (new_arr == NULL) {
             /* In the unlikely event of allocation failure, we simply
              * abort the program – this is acceptable for the OEIS
@@ -58,7 +60,7 @@ static void append_run_start(seq_t val)
         for (size_t i = 0; i < run_count; ++i) {
             new_arr[i] = run_cache[i];
         }
-        free(run_cache);
+        mem_free(run_cache);
         run_cache   = new_arr;
         run_capacity = new_cap;
     }
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
         idx_t limit = last_scanned + block_size;
 
         for (idx_t k = last_scanned + 1; k <= limit; ++k) {
-            bool is_two = (count_distinct_primes(k) == 2);
+            bool is_two = (omega(k) == 2);
 
             if (is_two) {
                 if (in_run) {

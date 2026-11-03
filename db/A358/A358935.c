@@ -10,13 +10,31 @@
  *            fusc(n-k)
  * Range:     u8 n <= 511, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   fusc_calc
+ * Validated: standard, pass, 95 terms through n = 7370 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/fusc_calc.h"
+
+static seq_t fusc_calc(idx_t n)
+{
+    seq_t x = 0;
+    seq_t y = 1;
+
+    /* Find the position of the most significant set bit (n > 0) */
+    int msb = 63 - __builtin_clzll((uint64_t)n);
+    for (int i = msb; i >= 0; --i)
+    {
+        uint64_t bit = (uint64_t)n >> i & 1ULL;
+        if (bit)
+            x = x + y;   /* odd case: fusc(2k+1) = fusc(k)+fusc(k+1) */
+        else
+            y = x + y;   /* even case: fusc(2k)   = fusc(k)     */
+    }
+    return x;
+}
 
 seq_t a(idx_t n)
 {

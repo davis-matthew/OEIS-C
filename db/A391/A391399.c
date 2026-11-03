@@ -10,6 +10,7 @@
  *            * The function memoizes results and works for any order of calls
  * Range:     u8 n <= 34, u16 n <= 60, u32 n <= 112, u64 n <= 216,
  *            u128 n <= 423, big any n
+ * Validated: standard, pass, 75 terms through n = 996 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

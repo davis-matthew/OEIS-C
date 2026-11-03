@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, frac
  * Formula:   a(n) = A332993(n) / gcd(A000203(n), A332993(n))
- * Range:     u8 n <= 16, u16 n <= 4335, u32 n <= 9893, u64 n <= 9893,
- *            u128 n <= 9893, big any n
+ * Range:     u8 n <= 16, u16 n <= 4335, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 104 terms through n = 9893 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* a(n) = A332993(n) / A348977(n) = A332993(n) / gcd(sigma(n), A332993(n)) */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Smallest prime factor table (index 0..cap).  idx_t is an unsigned integer. */

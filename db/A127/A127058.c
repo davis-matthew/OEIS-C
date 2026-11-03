@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 54, u64 n <= 135, u128 n <= 135,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 129 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- helper: integer square root for uint64_t ---------- */
 static inline idx_t floor_isqrt_u64(idx_t x)
@@ -52,13 +54,13 @@ static void compute_rows_up_to(idx_t r)
     if (!triangle) return;   /* allocation failure – unlikely in tests */
 
     if (triangle[0] == NULL) {
-        triangle[0] = (seq_t *)malloc(sizeof(seq_t));
+        triangle[0] = mem_new(seq_t, 1);
         if (!triangle[0]) return;
         triangle[0][0] = 1;   /* T(0,0) = 0+1 = 1 */
     }
 
     for (idx_t n = max_row + 1; n <= r; ++n) {
-        triangle[n] = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        triangle[n] = mem_new(seq_t, (n + 1));
         if (!triangle[n]) return;
 
         triangle[n][n] = (seq_t)(n + 1);   /* diagonal */

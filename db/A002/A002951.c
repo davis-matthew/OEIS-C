@@ -8,10 +8,10 @@
  *            Newton's method in fixed point (y <- y + y*(1-5*y^5)/5), x =
  *            5*y^4, bracket checked exactly as A^5 < 5*D^5 < B^5, terms kept
  *            only where the expansions of A/D and B/D agree
- * Range:     u8 n <= 69, u16 n <= 9998, u32 n <= 9998, u64 n <= 9998,
- *            u128 n <= 9998, big any n
- * Helpers:   bn_bitlen, bn_bits, bn_cmp, bn_mul, bn_norm, bn_submul, cf_step,
- *            pow5
+ * Range:     u8 n <= 69, u16 n <= 19999, u32 n <= 19999, u64 n <= 19999,
+ *            u128 n <= 19999, big any n
+ * Validated: standard, pass, 114 terms through n = 9998 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,14 +19,100 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/bn_bitlen.h"
-#include "../utils/bn_bits.h"
-#include "../utils/bn_cmp.h"
-#include "../utils/bn_mul.h"
-#include "../utils/bn_norm.h"
-#include "../utils/bn_submul.h"
-#include "../utils/cf_step.h"
-#include "../utils/pow5.h"
+
+static size_t bn_norm(const uint32_t *x, size_t n) {
+    while (n && !x[n - 1]) n--;
+    return n;
+}
+
+static size_t bn_bitlen(const uint32_t *x, size_t lx) {
+    size_t b;
+    uint32_t top;
+    lx = bn_norm(x, lx);
+    if (!lx) return 0;
+    top = x[lx - 1];
+    b = (lx - 1) * 32;
+    while (top) { b++; top >>= 1; }
+    return b;
+}
+
+static uint64_t bn_bits(const uint32_t *x, size_t lx, size_t sh) {
+    size_t k = sh / 32;
+    unsigned off = (unsigned)(sh % 32);
+    uint64_t lo = (uint64_t)(k < lx ? x[k] : 0) | ((uint64_t)(k + 1 < lx ? x[k + 1] : 0) << 32);
+    uint64_t hi = (k + 2 < lx ? x[k + 2] : 0);
+    if (off == 0) return lo;
+    return (lo >> off) | (hi << (64 - off));
+}
+
+static int bn_cmp(const uint32_t *a, size_t la, const uint32_t *b, size_t lb) {
+    la = bn_norm(a, la);
+    lb = bn_norm(b, lb);
+    if (la != lb) return la < lb ? -1 : 1;
+    while (la--) {
+        if (a[la] != b[la]) return a[la] < b[la] ? -1 : 1;
+    }
+    return 0;
+}
+
+static void bn_mul(uint32_t *r, const uint32_t *a, size_t la, const uint32_t *b, size_t lb) {
+    size_t i, j;
+    memset(r, 0, (la + lb) * sizeof(uint32_t));
+    for (i = 0; i < la; i++) {
+        uint64_t carry = 0;
+        if (!a[i]) continue;
+        for (j = 0; j < lb; j++) {
+            uint64_t t = (uint64_t)a[i] * b[j] + r[i + j] + carry;
+            r[i + j] = (uint32_t)t;
+            carry = t >> 32;
+        }
+        r[i + lb] = (uint32_t)carry;
+    }
+}
+
+/* p -= e*q, assumes the result is nonnegative; returns normalized length */
+static size_t bn_submul(uint32_t *p, size_t lp, const uint32_t *q, size_t lq, uint32_t e) {
+    uint64_t c = 0;
+    uint32_t br = 0;
+    size_t i;
+    for (i = 0; i < lp; i++) {
+        uint64_t m = c, d;
+        uint32_t s;
+        if (i < lq) m += (uint64_t)q[i] * e;
+        c = m >> 32;
+        s = (uint32_t)m;
+        d = (uint64_t)p[i] - s - br;
+        p[i] = (uint32_t)d;
+        br = (uint32_t)((d >> 32) & 1);
+    }
+    return bn_norm(p, lp);
+}
+
+/* p := p mod q, returns floor(p/q) */
+static uint64_t cf_step(uint32_t *p, size_t *lp, const uint32_t *q, size_t lq) {
+    uint64_t a = 0;
+    while (bn_cmp(p, *lp, q, lq) >= 0) {
+        size_t bq = bn_bitlen(q, lq), bp = bn_bitlen(p, *lp);
+        size_t sh = bq > 32 ? bq - 32 : 0;
+        uint64_t e;
+        if (bp - sh > 63) e = 0x3FFFFFFF;
+        else {
+            uint64_t pt = bn_bits(p, *lp, sh), qt = bn_bits(q, lq, sh);
+            e = pt / (qt + 1);
+            if (e > 0xFFFFFFFFu) e = 0xFFFFFFFFu;
+            if (e == 0) e = 1;
+        }
+        *lp = bn_submul(p, *lp, q, lq, (uint32_t)e);
+        a += e;
+    }
+    return a;
+}
+
+static void pow5(const uint32_t *X, size_t L, uint32_t *out, uint32_t *t2, uint32_t *t4) {
+    bn_mul(t2, X, L, X, L);
+    bn_mul(t4, t2, 2 * L, t2, 2 * L);
+    bn_mul(out, t4, 4 * L, X, L);
+}
 
 static uint64_t *cf_terms = NULL;
 static idx_t cf_nterms = 0;

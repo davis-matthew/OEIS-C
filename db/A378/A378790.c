@@ -9,13 +9,15 @@
  *            a(6)=14, a(7)=17
  * Range:     u8 n <= 26, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache of values, 1‑based indexing. */
@@ -45,14 +47,14 @@ seq_t a(idx_t n) {
         static seq_t *dyncache = NULL;
         static idx_t dynsize = 0;
         if (dyncache == NULL) {
-            dyncache = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+            dyncache = mem_new(seq_t, (n + 1));
             if (!dyncache) abort();          /* allocation failed */
             for (idx_t i = 1; i <= 7; ++i) {
                 dyncache[i] = init[i - 1];
             }
             dynsize = 7;
         } else if (n > dynsize) {
-            seq_t *tmp = (seq_t*)realloc(dyncache, (n + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, dyncache, (n + 1));
             if (!tmp) abort();
             dyncache = tmp;
             dynsize = n;

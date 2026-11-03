@@ -13,14 +13,20 @@
  *            over rows
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 15, u128 n <= 32,
  *            big any n
- * Helpers:   diff8
+ * Validated: standard, pass, 31 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/diff8.h"
+
+/* Helper: absolute difference for unsigned char */
+static inline unsigned int diff8(unsigned char a, unsigned char b)
+{
+    return (a > b) ? (a - b) : (b - a);
+}
 
 /* Pre‑computed tables for all 64 rows */
 static unsigned char v1[64][64];

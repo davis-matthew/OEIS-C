@@ -8,20 +8,21 @@
  *            counted by direct search over y
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a004531_isqrt
+ * Validated: standard, pass, 121 terms through n = 9589 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a004531_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
     seq_t count = 0;
     uint64_t y;
     for (y = 0; 4 * y * y <= (uint64_t)n; y++) {
         uint64_t rem = (uint64_t)n - 4 * y * y;
-        uint64_t x = a004531_isqrt(rem);
+        uint64_t x = isqrt_u64(rem);
         if (x * x == rem) {
             int xf = (x == 0) ? 1 : 2;
             int yf = (y == 0) ? 1 : 2;

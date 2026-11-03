@@ -7,16 +7,22 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n = p^2 * q with p, q primes and p^2 < q, otherwise
  *            0
- * Range:     u8 n <= 9510, u16 n <= 9510, u32 n <= 9510, u64 n <= 9510,
- *            u128 n <= 9510, big any n
- * Helpers:   p_square_lt_q
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 141 terms through n = 9510 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/p_square_lt_q.h"
+
+/* compare p^2 < q using 128-bit arithmetic for safety */
+static inline bool p_square_lt_q(uint64_t p, uint64_t q)
+{
+    return (__uint128_t)p * p < q;
+}
 
 seq_t a(idx_t n)
 {

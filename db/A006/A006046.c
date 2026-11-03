@@ -8,8 +8,9 @@
  * Keywords:  nonn, nice, easy, look
  * Formula:   a(0) = 0; a(1) = 1; a(n) = 2*a(floor(n/2)) + a(ceiling(n/2)) for
  *            n > 1
- * Range:     u8 n <= 35, u16 n <= 1209, u32 n <= 9888, u64 n <= 9888,
- *            u128 n <= 9888, big any n
+ * Range:     u8 n <= 35, u16 n <= 1209, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 74 terms through n = 9888 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

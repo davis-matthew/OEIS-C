@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached values of a(n)      */
 static idx_t   cache_size = 0;   /* number of cached entries   */
@@ -47,14 +49,14 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache_size == 0) {
         cache_size = 13;                     /* store indices 0..12   */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         for (idx_t i = 0; i < cache_size; ++i)
             cache[i] = init_vals[i];
     }
 
     /* compute missing entries up to n */
     if (n >= cache_size) {
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         for (idx_t i = cache_size; i <= n; ++i) {
             /* recurrence for i >= 13, the formula works for i=13..n */
             seq_t val = 3 * cache[i - 1];           /* 3 a(i-1) */

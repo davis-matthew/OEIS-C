@@ -8,12 +8,30 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   square_array_value
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/square_array_value.h"
+static seq_t square_array_value(idx_t m_row, idx_t k_col)
+{
+    if (k_col == 1) {
+        /* k = 1: A(m,k) = (m+1)*m */
+        return ((seq_t)m_row * ((seq_t)m_row + 1));
+    }
+
+    seq_t sum = 0;
+    seq_t power = 1;
+    seq_t mm = (seq_t)m_row;
+
+    while (power <= mm) {
+        sum += mm / power;
+        power *= (seq_t)k_col;
+    }
+
+    return sum;
+}
 /* Sequence A306534
    a(n) is the n-th element of the square array A(m,k) read by antidiagonals,
    where A(m,k) = Σ_{j=0..m} floor(m / k^j)  (k ≥ 1, m ≥ 0).

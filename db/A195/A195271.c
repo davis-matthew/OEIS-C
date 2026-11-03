@@ -9,7 +9,8 @@
  *            between ⌊3p/2⌋ and ⌊3q/2⌋, where q is the next prime after p
  * Range:     u8 n <= 13, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   next_prime
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* Static storage used for memoisation */
 static seq_t *seq = NULL;     /* array of found 1.5‑gap primes   */
@@ -32,7 +34,7 @@ static void ensure_seq_cap(size_t needed)
     if (seq_cap < needed) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 8;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         seq = tmp;
         seq_cap = new_cap;

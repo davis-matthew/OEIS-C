@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 24, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   grow_idx_arr, grow_seq_arr, isPrime
+ * Validated: standard, pass, 53 terms through n = 702 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,23 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/isPrime.h"
-#include "../utils/grow_idx_arr.h"
-#include "../utils/grow_seq_arr.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* ---------- dynamic array helpers ---------- */
+static void grow_idx_arr(idx_t **arr, size_t *len, size_t *cap) {
+    if (*len >= *cap) {
+        *cap = (*cap == 0) ? 8 : (*cap << 1);
+        *arr  = (idx_t *)realloc(*arr, *cap * sizeof(idx_t));
+    }
+}
+
+static void grow_seq_arr(seq_t **arr, size_t *len, size_t *cap) {
+    if (*len >= *cap) {
+        *cap = (*cap == 0) ? 8 : (*cap << 1);
+        *arr  = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
+    }
+}
 
 /* ---------- prime table ---------- */
 static idx_t   *prime_arr    = NULL;
@@ -90,7 +105,7 @@ seq_t a(idx_t n) {
         uint64_t cand = p_n * p_n - p_np1 - 1ULL;
 
         /* accept only if cand is prime */
-        if (cand >= 2 && isPrime((idx_t)cand)) {
+        if (cand >= 2 && is_prime((idx_t)cand)) {
             grow_seq_arr(&term_arr, &term_len, &term_cap);
             term_arr[term_len++] = (seq_t)cand;
         }

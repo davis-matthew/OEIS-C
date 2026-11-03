@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* adjacency between 16 states (x1,y1) -> (x2,y2) is allowed iff
    x1 + y1 + x2 + y2 is between 3 and 9 inclusive. */
@@ -62,13 +64,13 @@ static void ensure_cache(size_t needed)
 {
     if (needed <= cache_cap) return;
     size_t new_cap = needed > 16 ? needed * 2 : 32;
-    seq_t *new_buf = (seq_t*)malloc((new_cap + 1) * sizeof(seq_t));
+    seq_t *new_buf = mem_new(seq_t, (new_cap + 1));
     if (!new_buf) exit(EXIT_FAILURE);
     if (a_cache) {
-        memcpy(new_buf, a_cache, (cache_cap + 1) * sizeof(seq_t));
-        free(a_cache);
+        mem_copy(new_buf, a_cache, (cache_cap + 1) * sizeof(seq_t));
+        mem_free(a_cache);
     }
-    memset(new_buf, 0, (new_cap + 1) * sizeof(seq_t));
+    mem_set(new_buf, 0, (new_cap + 1) * sizeof(seq_t));
     a_cache = new_buf;
     cache_cap = new_cap;
 }
@@ -87,7 +89,7 @@ static void compute_up_to(idx_t target)
     }
 
     for (idx_t n = cached_n + 1; n <= target; ++n) {
-        memset(dp_curr, 0, sizeof(dp_curr));
+        mem_set(dp_curr, 0, sizeof(dp_curr));
 
         for (int s = 0; s < 16; ++s) {
             seq_t cnt = dp_prev[s];
@@ -107,7 +109,7 @@ static void compute_up_to(idx_t target)
         a_cache[(size_t)n] = term;
 
         /* Prepare for next iteration. */
-        memcpy(dp_prev, dp_curr, sizeof(dp_prev));
+        mem_copy(dp_prev, dp_curr, sizeof(dp_prev));
     }
     cached_n = (size_t)target;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, build_primes
+ * Validated: standard, pass, 70 terms through n = 9698 (2026-11-03)
+ * Helpers:   build_primes, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached sequence values        */
 static size_t cache_cap = 0;         /* cache capacity                */
@@ -64,7 +67,7 @@ in_sequence(uint64_t cand)
     uint64_t tmp = cand;
 
     /* Factor by primes up to sqrt(tmp). */
-    uint64_t sqrt_tmp = _floor_isqrt_u64(tmp);
+    uint64_t sqrt_tmp = isqrt(tmp);
     ensure_primes_up_to(sqrt_tmp);
 
     for (size_t i = 0; i < prime_cnt && primes[i] * primes[i] <= tmp; ++i) {
@@ -109,8 +112,8 @@ cache_term(uint64_t cand)
 {
     if (cache_len >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 256;
-        seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
-        if (!p) { free(cache); abort(); }
+        seq_t *p = mem_resize(seq_t, cache, new_cap);
+        if (!p) { mem_free(cache); abort(); }
         cache = p;
         cache_cap = new_cap;
     }

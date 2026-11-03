@@ -7,7 +7,8 @@
  * Formula:   a(n) = (-1)^n * Σ_{d|n+1} (-3)^(d-1)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 912 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Implementation uses separate positive and negative sums to avoid
    using signed arithmetic.  Divisors are enumerated in O(√m) time.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,14 +30,14 @@ seq_t a(idx_t n)
     /* The largest exponent we need is m-1. */
     idx_t need = m - 1;
     if (pow3_len == 0) {
-        pow3 = (seq_t*)realloc(NULL, sizeof(seq_t));
+        pow3 = mem_resize(seq_t, NULL, 1);
         if (!pow3) return 0;            /* allocation failure – unlikely */
         pow3[0] = (seq_t)1;
         pow3_len = 1;
     }
     if (pow3_len <= need) {
         idx_t new_len = need + 1;
-        seq_t *tmp = (seq_t*)realloc(pow3, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow3, new_len);
         if (!tmp) return 0;            /* allocation failure – unlikely */
         pow3 = tmp;
         for (idx_t i = pow3_len; i <= need; ++i)

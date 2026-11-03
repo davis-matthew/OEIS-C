@@ -7,7 +7,8 @@
  * Formula:   a(n) = n * n!! - Sum_{k=1..n-1} k!! * a(n-k)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 18, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Lazy cache for a(n) and for double factorials n!! (stored as seq_t) */
 static seq_t *a_cache      = NULL;   /* a[0] unused, a[1] is first term */
@@ -37,7 +39,7 @@ ensure_cache(idx_t n)
     size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 16;
     while (new_cap <= (size_t)n) new_cap *= 2;
 
-    seq_t *new_arr = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, a_cache, new_cap);
     if (!new_arr) abort();                /* allocation failure */
     /* Zero‑initialize new slots (integer or POD types). */
     for (size_t i = a_cache_cap; i < new_cap; ++i)
@@ -54,7 +56,7 @@ ensure_dfact_cache(idx_t n)
     size_t new_cap = dfact_cap ? dfact_cap * 2 : 16;
     while (new_cap <= (size_t)n) new_cap *= 2;
 
-    seq_t *new_arr = (seq_t *)realloc(dfact_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, dfact_cache, new_cap);
     if (!new_arr) abort();
     for (size_t i = dfact_cap; i < new_cap; ++i)
         new_arr[i] = (seq_t)0;

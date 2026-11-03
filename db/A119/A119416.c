@@ -7,14 +7,16 @@
  * Formula:   a(n) = n * next_prime(largest_prime_factor(n))
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 70 terms through n = 9069 (2026-11-01)
  * Helpers:   largest_prime_factor, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/next_prime.h"
+#include <stdbool.h>
 #include "../utils/largest_prime_factor.h"
+#include "../utils/next_prime.h"
 
 seq_t a(idx_t n)
 {

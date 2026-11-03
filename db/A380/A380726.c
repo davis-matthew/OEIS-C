@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   binom_3n_n
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
  * Implementation uses only integer arithmetic on the seq_t type.
  */
 #include <stdint.h> /* for uint64_t used by idx_t */
-#include "../utils/binom_3n_n.h"
+
+static seq_t binom_3n_n(idx_t n) {
+    /* Compute binomial(3*n, n) multiplicatively */
+    seq_t res = 1;
+    seq_t N   = (seq_t)(3 * n);
+    for (idx_t i = 1; i <= n; ++i) {
+        /* res = res * (N - n + i) / i   (exact division) */
+        res = res * (N - (seq_t)n + (seq_t)i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
 
 static seq_t factorial(idx_t n) {
     seq_t f = 1;

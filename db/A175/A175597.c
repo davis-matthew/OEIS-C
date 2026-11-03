@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,14 +25,14 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
     /* n >= 1 (OEIS offset starts at 1) */
     idx_t m = n;                                   /* copy of the index */
     /* maximal possible run length is the number of bits in n */
-    seq_t min_run = (seq_t)(bitlen_seq_t(n) + 1);
+    seq_t min_run = (seq_t)(bit_length(n) + 1);
     seq_t run = 1;                                 /* current run length */
     uint8_t prev_bit = (n & 1U) ? 1 : 0;             /* first bit (LSB) */
     m >>= 1;                                       /* skip first bit */

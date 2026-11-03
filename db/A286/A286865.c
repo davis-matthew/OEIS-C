@@ -11,13 +11,17 @@
  *            1 where floor_log2(x) is the integer part of log2(x)
  * Range:     u8 n <= 31, u16 n <= 63, u32 n <= 126, u64 n <= 126,
  *            u128 n <= 126, big any n
- * Helpers:   big_pow, floor_log2_uint64
+ * Validated: standard, pass, 65 terms through n = 126 (2026-11-01)
+ * Helpers:   ilog2, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
-#include "../utils/floor_log2_uint64.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ilog2.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -26,14 +30,14 @@ seq_t a(idx_t n)
         return 1;
 
     /* Compute k = floor(log2(n)) - 1. */
-    uint32_t fl = floor_log2_uint64(n);          /* returns an unsigned int */
+    uint32_t fl = ilog2(n);          /* returns an unsigned int */
     idx_t k = (idx_t)fl - 1;                     /* k >= 1 for n >= 4 */
 
     /* inner exponent = 2^k. */
     seq_t inner = ((seq_t)1) << k;               /* 2^k */
 
     /* 2^(2^k). */
-    seq_t val = big_pow((seq_t)2, inner);
+    seq_t val = ipow((seq_t)2, inner);
 
     /* Subtract 1 to get a(n). */
     return val - 1;

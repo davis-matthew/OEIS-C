@@ -11,7 +11,8 @@
  *            is of the form 2^a * 3^b
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, is_2pow3pow
+ * Validated: standard, pass, 115 terms through n = 8684 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,15 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/is_2pow3pow.h"
+
+static inline bool is_2pow3pow(uint64_t x)
+{
+    while ((x & 1u) == 0u) x >>= 1u;   /* remove powers of 2 */
+    while (x % 3u == 0u) x /= 3u;      /* remove powers of 3 */
+    return x == 1u;
+}
 
 /* compute ψ(m) for m <= 2^64-1, result fits in uint64_t for n <= 10000 */
 static inline uint64_t psi_uint64(uint64_t m)

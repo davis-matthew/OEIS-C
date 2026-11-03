@@ -9,8 +9,9 @@
  * Formula:   a(n) = number of divisors d of n such that phi(d) is a multiple
  *            of phi(lpf(n)), where lpf(n) is the least prime factor of n and
  *            phi is Euler's totient function
- * Range:     u8 n <= 8100, u16 n <= 8100, u32 n <= 8100, u64 n <= 8100,
- *            u128 n <= 8100, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 102 terms through n = 8100 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

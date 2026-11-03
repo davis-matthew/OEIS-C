@@ -12,14 +12,15 @@
  *            multiplicative order of 10 modulo 9m, * whe...
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 16, u64 n <= 22, u128 n <= 27,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -43,8 +44,8 @@ seq_t a(idx_t n)
     }
 
     /* Compute the required value. */
-    seq_t power_t = pow_uint(10, t);
-    seq_t power_s = pow_uint(10, s);
+    seq_t power_t = ipow_u64_idx(10, t);
+    seq_t power_s = ipow_u64_idx(10, s);
     seq_t repunit = (power_s - 1) / 9;   /* integer division is exact */
     return power_t * repunit;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 103 terms through n = 9841 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 static seq_t *blocks = NULL;         /* array of block lengths (1‑based)   */
 static size_t blocks_count = 0;      /* number of blocks already stored   */
@@ -36,7 +38,7 @@ static void push_block(seq_t len)
 {
     if (blocks_count == blocks_cap) {
         size_t new_cap = blocks_cap == 0 ? 64 : blocks_cap * 2;
-        seq_t *new_blocks = (seq_t *)realloc(blocks, new_cap * sizeof(seq_t));
+        seq_t *new_blocks = mem_resize(seq_t, blocks, new_cap);
         if (!new_blocks) {
             /* allocation failed – abort the program; for competition
                environments a signal or exit would be appropriate */
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* generate blocks until we have at least n of them                      */
     while (blocks_count < (size_t)n) {
         ++current_m;                       /* move to next integer             */
-        uint64_t gp = gpf(current_m);       /* greatest prime factor of m        */
+        uint64_t gp = largest_prime_factor(current_m);       /* greatest prime factor of m        */
 
         if (cur_block_len == 0) {           /* starting a new block (first time)*/
             cur_block_len = 1;

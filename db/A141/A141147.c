@@ -11,13 +11,15 @@
  *            2^(n-2k) (OEIS A141147)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -26,9 +28,9 @@ seq_t a(idx_t n)
     seq_t result = 0;
     idx_t half = n >> 1;          /* floor(n/2) */
     for (idx_t k = 0; k <= half; ++k) {
-        seq_t t1 = binom(n, 2*k);                 /* C(n,2k) */
-        seq_t t2 = binom(2*k, k);                 /* C(2k,k) */
-        seq_t t3 = binom(n - 1 + k, k);           /* C(n-1+k,k) */
+        seq_t t1 = binomial(n, 2*k);                 /* C(n,2k) */
+        seq_t t2 = binomial(2*k, k);                 /* C(2k,k) */
+        seq_t t3 = binomial(n - 1 + k, k);           /* C(n-1+k,k) */
         seq_t t4 = pow2(n - 2*k);                 /* 2^(n-2k) */
         seq_t prod = t1;
         prod *= t2;

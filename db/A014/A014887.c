@@ -9,7 +9,8 @@
  *            the base‑7 representations of all numbers ≤ a(n) equals a(n)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *solutions = NULL;
 static size_t sol_len = 0, sol_cap = 0;
@@ -31,7 +33,7 @@ static bool initialized = false;
 /* Grow the solutions array to at least new_cap elements. */
 static void grow_solutions(size_t new_cap)
 {
-    seq_t *tmp = (seq_t *)realloc(solutions, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, solutions, new_cap);
     if (!tmp) exit(1);          /* allocation failure */
     solutions = tmp;
     sol_cap = new_cap;
@@ -48,7 +50,7 @@ static void init_once(void)
 
     if (sol_cap == 0) {
         sol_cap = 64;
-        solutions = (seq_t *)malloc(sol_cap * sizeof(seq_t));
+        solutions = mem_new(seq_t, sol_cap);
         if (!solutions) exit(1);
     }
     sol_len = 0;

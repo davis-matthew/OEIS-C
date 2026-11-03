@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Sequence type and index type are supplied by the build system */
 seq_t a(idx_t n);
@@ -60,7 +62,7 @@ static void build_tables(idx_t limit)
 {
     /* Free old tables if any */
     free(primes);
-    free(term_list);
+    mem_free(term_list);
     primes = NULL;
     term_list = NULL;
     primes_cnt = 0;
@@ -125,7 +127,7 @@ static void build_tables(idx_t limit)
         if (c >= 2 && is_small_prime(c)) ++term_cnt;
     }
 
-    term_list = (seq_t *)malloc(term_cnt * sizeof(seq_t));
+    term_list = mem_new(seq_t, term_cnt);
     if (!term_list) { free(is_prime); free(primes); free(prime_len); free(rep); return; }
 
     size_t pos = 0;

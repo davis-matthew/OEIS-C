@@ -9,12 +9,20 @@
  *            numbers E2(5,j) = 1, 52, 328, 444, 120
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 17, u128 n <= 30,
  *            big any n
- * Helpers:   binom10
+ * Validated: standard, pass, 34 terms through n = 435 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom10.h"
+static seq_t binom10(idx_t N) {
+    if (N < 10) return 0;
+    seq_t r = 1;
+    for (idx_t i = 1; i <= 10; i++) {
+        r = r * (seq_t)(N - 10 + i) / (seq_t)i;
+    }
+    return r;
+}
 
 seq_t a(idx_t n) {
     static const unsigned e2[5] = {1, 52, 328, 444, 120};

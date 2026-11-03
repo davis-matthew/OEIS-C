@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 28, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
             /* Grow the array if needed */
             if (vals_len == vals_cap) {
                 size_t new_cap = vals_cap ? vals_cap << 1 : 1;
-                seq_t *new_vals = (seq_t *)realloc(vals, new_cap * sizeof(seq_t));
+                seq_t *new_vals = mem_resize(seq_t, vals, new_cap);
                 if (!new_vals) {            /* allocation failed */
                     /* In a real program we would handle the error. */
                     return 0;

@@ -8,12 +8,14 @@
  *            5^k with i,j,k ≥ 0 (the classic “ugly” numbers)
  * Range:     u8 n <= 7, u16 n <= 111, u32 n <= 1164, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Array that will contain the ugly numbers 1,2,3,4,5,6,… */
 static seq_t *h      = NULL;   /* pointer to the array            */
@@ -27,7 +29,7 @@ static void init_state(void)
     if (h != NULL)
         return;
     h_cap = 128;
-    h = (seq_t *)malloc(h_cap * sizeof(seq_t));
+    h = mem_new(seq_t, h_cap);
     if (!h)
         abort();                 /* OOM – terminate */
     h[0] = (seq_t)1;             /* 2^0 3^0 5^0 */
@@ -47,7 +49,7 @@ static void ensure_h(idx_t n)
         size_t new_cap = h_cap ? h_cap : 128;
         while (new_cap < (size_t)n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(h, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, h, new_cap);
         if (!tmp)
             abort();
         h = tmp;

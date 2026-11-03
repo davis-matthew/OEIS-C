@@ -7,8 +7,9 @@
  * Formula:   a(n) = 2 * (min(m, r-m+1))^2 where r is the row containing the
  *            n-th flattened entry and m is the column index within that row
  *            (1‑based)
- * Range:     u8 n <= 264, u16 n <= 9959, u32 n <= 9959, u64 n <= 9959,
- *            u128 n <= 9959, big any n
+ * Range:     u8 n <= 264, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 102 terms through n = 9959 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

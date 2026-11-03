@@ -10,15 +10,29 @@
  *            and A^3 coefficients are maintained incrementally
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 23, u64 n <= 42, u128 n <= 80,
  *            big any n
- * Helpers:   alloc_zero, grow_arr
+ * Validated: standard, pass, 48 terms through n = 1886 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/grow_arr.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *grow_arr(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *r = mem_new(seq_t, newlen);
+    idx_t i;
+    for (i = 0; i < oldlen; i++) r[i] = old[i];
+    if (old) mem_free(old);
+    return r;
+}
 
 static seq_t *A_ = NULL, *S2_ = NULL, *S3_ = NULL;
 static idx_t cap_ = 0, cnt_ = 0;

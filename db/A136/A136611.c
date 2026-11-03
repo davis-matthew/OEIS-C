@@ -12,7 +12,8 @@
  *            starting from 4 and counting upward
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 7, u64 n <= 11, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 35 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 /*  sequence element type  */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /*  array of prefix sums: prefix[i] = total number of atomic positions for indices < i  */
 static idx_t *prefix = NULL;
@@ -106,7 +108,7 @@ seq_t a(idx_t n) {
             } else {
                 seq_t exp_val = candidate;
                 candidate++;
-                part = big_pow(base, exp_val);
+                part = ipow(base, exp_val);
             }
             result = result * part;
         }

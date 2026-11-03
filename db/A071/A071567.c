@@ -11,7 +11,8 @@
  *            Combine the local solutions with the CRT to obta...
  * Range:     u8 n <= 16, u16 n <= 258, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   crt_combine, egcd_inv, root_mod_prime_power
+ * Validated: standard, pass, 68 terms through n = 988 (2026-11-01)
+ * Helpers:   modinv
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,51 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/crt_combine.h"
-#include "../utils/egcd_inv.h"
-#include "../utils/root_mod_prime_power.h"
+#include "../utils/modinv.h"
+
+static uint64_t crt_combine(uint64_t a, uint64_t m1,
+                            uint64_t b, uint64_t m2)
+{
+    /* solve x ≡ a (mod m1), x ≡ b (mod m2), gcd(m1,m2)=1 */
+    uint64_t inv = modinv(m1 % m2, m2);          /* m1⁻¹ (mod m2) */
+    uint64_t diff = (b + m2 - a % m2) % m2;
+    uint64_t t = (unsigned __int128)diff * inv % m2;
+    uint64_t res = a + (unsigned __int128)m1 * t;
+    return res;
+}
+
+/* Find all solutions of r^2+r+1≡0 (mod p^e) where e≥1, p is odd.
+   Results are stored in out[0..cnt-1] (each < p^e). */
+static void root_mod_prime_power(uint64_t p, unsigned e,
+                                 uint64_t *out, size_t *cnt)
+{
+    uint64_t pe = 1;
+    uint64_t mod = p;
+    /* solutions modulo p */
+    size_t size = 0;
+    for (uint64_t r = 0; r < mod; ++r) {
+        uint64_t f = (unsigned __int128)r * r + r + 1;
+        if (f % mod == 0) out[size++] = r;
+    }
+    /* lift successively to higher powers */
+    for (unsigned k = 1; k < e; ++k) {
+        uint64_t old_mod = mod;
+        mod *= p;                     /* new modulus p^(k+1) */
+        uint64_t step = old_mod;      /* p^k */
+        size_t new_size = 0;
+        size_t old_size = size;
+        for (size_t i = 0; i < old_size; ++i) {
+            uint64_t r = out[i];
+            for (uint64_t t = 0; t < p; ++t) {
+                uint64_t cand = r + t * step;
+                uint64_t f = (unsigned __int128)cand * cand + cand + 1;
+                if (f % mod == 0) out[new_size++] = cand;
+            }
+        }
+        size = new_size;
+    }
+    *cnt = size;
+}
 
 /* Local primes up to 100000 for factorisation */
 #define PRIME_MAX 100000

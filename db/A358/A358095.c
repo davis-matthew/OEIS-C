@@ -11,13 +11,15 @@
  *            a(2k+1)+a(3k+1)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9920 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* initialise base terms a(1)..a(5) on first call */
     if (cap == 0) {
         cap  = 8;                         /* initial capacity >= 5                */
-        buf  = (seq_t *)malloc(sizeof(seq_t)*cap);
+        buf  = mem_new(seq_t, cap);
         assert(buf != NULL);
         buf[0] = (seq_t)1; /* a(1) */
         buf[1] = (seq_t)0; /* a(2) */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
             idx_t newcap = cap;
             if (newcap < 8) newcap = 8;
             while (newcap < n) newcap <<= 1;      /* double until big enough */
-            seq_t *tmp = (seq_t *)realloc(buf, sizeof(seq_t)*newcap);
+            seq_t *tmp = mem_resize(seq_t, buf, newcap);
             assert(tmp != NULL);
             buf = tmp;
             cap = newcap;

@@ -10,8 +10,9 @@
  *            implementation factorises n, enumerates all divisors, computes
  *            the numerator modulo 4 and counts the divisors for which that
  *            numerator is odd
- * Range:     u8 n <= 9865, u16 n <= 9865, u32 n <= 9865, u64 n <= 9865,
- *            u128 n <= 9865, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9865 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

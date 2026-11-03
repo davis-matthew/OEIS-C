@@ -9,14 +9,15 @@
  *            pairwise coprime
  * Range:     u8 n <= 18, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   fast_gcd
+ * Validated: partial, pass, 49 terms through n = 50 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/fast_gcd.h"
+#include "../utils/gcd_idx.h"
 
 static inline void set_bit(uint64_t *arr, idx_t idx)
 {
@@ -46,7 +47,7 @@ seq_t a(idx_t n)
     for (idx_t i = 2; i <= n; ++i) {
         uint64_t *fwd_i = fwd + (size_t)i * words;
         for (idx_t j = i + 1; j <= n; ++j) {
-            if (fast_gcd(i, j) == 1) {
+            if (gcd_idx(i, j) == 1) {
                 set_bit(fwd_i, j);          /* j > i  */
                 set_bit(rev + (size_t)j * words, i);   /* i < j  */
             }

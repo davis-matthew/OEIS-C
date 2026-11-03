@@ -11,6 +11,7 @@
  *            8*(n/3)^3 + 4*(n/3)^2 All arithmetic is performed in seq_t
  * Range:     i8 n <= 7, i16 n <= 30, i32 n <= 490, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 60 terms through n = 9734 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

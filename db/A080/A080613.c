@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   omega_big
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,24 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/omega_big.h"
+#include "../utils/mem.h"
+
+/* Compute Ω(n) for arbitrary n using trial division with precomputed primes */
+static uint8_t omega_big(uint64_t n)
+{
+    uint8_t cnt = 0;
+    uint64_t tmp = n;
+    for (size_t i = 2; i * i <= tmp; ++i) {
+        if (tmp % i == 0) {
+            do {
+                tmp /= i;
+                ++cnt;
+            } while (tmp % i == 0);
+        }
+    }
+    if (tmp > 1) ++cnt;
+    return cnt;
+}
 
 /* Forward declare the helper to obtain the smallest prime factor of a
    64‑bit integer if the build does not provide one.  On builds that do
@@ -117,7 +135,7 @@ static void ensure_a(idx_t n)
     if (a_cap < n) {
         size_t new_cap = (a_cap == 0) ? 16 : a_cap * 2;
         while (new_cap < n) new_cap <<= 1;
-        a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, new_cap);
         a_omega = (uint8_t *)realloc(a_omega, new_cap * sizeof(uint8_t));
         if (!a_arr || !a_omega) abort();
         a_cap = new_cap;

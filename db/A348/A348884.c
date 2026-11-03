@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 256, u16 n <= 256, u32 n <= 256, u64 n <= 256,
  *            u128 n <= 256, big any n
- * Helpers:   count_pairs_for_prime
+ * Validated: standard, pass, 97 terms through n = 240 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,87 @@
 #include <stdint.h>
 #include <math.h>
 #include <string.h>
-#include "../utils/count_pairs_for_prime.h"
+#include "../utils/mem.h"
+
+/* Count pairs for a single prime p --------------------------------*/
+static seq_t count_pairs_for_prime(uint32_t p)
+{
+    if (p < 2) return 0;
+
+    /* Allocate arrays */
+    uint32_t *inv   = (uint32_t *)malloc(p * sizeof(uint32_t));
+    uint32_t *h     = (uint32_t *)malloc(p * sizeof(uint32_t));
+    uint32_t *cnt   = (uint32_t *)calloc(p, sizeof(uint32_t));
+    uint32_t *offset=(uint32_t *)malloc(p * sizeof(uint32_t));
+    uint32_t *idx   = (uint32_t *)malloc(p * sizeof(uint32_t));
+    uint32_t *tmpc  = (uint32_t *)calloc(p, sizeof(uint32_t));
+    uint8_t  *present = (uint8_t *)calloc(p, 1);
+
+    /* Compute modular inverses 1..p-1 */
+    inv[1] = 1;
+    for (uint32_t i = 2; i < p; ++i)
+        inv[i] = (uint32_t)((p - (uint64_t)(p / i) * inv[p % i] % p) % p);
+
+    /* Harmonic sums H[0..p-1] mod p */
+    h[0] = 0;
+    for (uint32_t k = 1; k < p; ++k) {
+        uint32_t t = h[k - 1] + inv[k];
+        if (t >= p) t -= p;
+        h[k] = t;
+    }
+
+    /* Group frequencies by H value */
+    for (uint32_t k = 0; k < p; ++k)
+        cnt[h[k]]++;
+
+    /* Prefix sums to get offsets */
+    uint32_t sum = 0;
+    for (uint32_t v = 0; v < p; ++v) {
+        offset[v] = sum;
+        sum += cnt[v];
+    }
+
+    /* Populate idx array sorted by H value */
+    for (uint32_t k = 0; k < p; ++k) {
+        uint32_t v = h[k];
+        uint32_t pos = offset[v] + tmpc[v]++;
+        idx[pos] = k;
+    }
+    free(tmpc);
+
+    /* Count valid pairs */
+    uint64_t total = 0;
+    for (uint32_t v = 0; v < p; ++v) {
+        uint32_t m = cnt[v];
+        if (m == 0) continue;
+        uint32_t start = offset[v];
+
+        /* Mark indices in this group */
+        for (uint32_t i = 0; i < m; ++i)
+            present[idx[start + i]] = 1;
+
+        /* Enumerate ordered pairs with a >= b */
+        for (uint32_t i = 0; i < m; ++i) {
+            uint32_t a = idx[start + i];
+            for (uint32_t j = 0; j < m; ++j) {
+                uint32_t b = idx[start + j];
+                if (b > a) continue;
+                uint32_t diff = a - b;
+                if (present[diff]) total++;
+            }
+        }
+
+        /* Unmark indices */
+        for (uint32_t i = 0; i < m; ++i)
+            present[idx[start + i]] = 0;
+    }
+
+    /* Free memory */
+    free(inv); free(h); free(cnt); free(offset);
+    free(idx); free(present);
+
+    return (seq_t)total;
+}
 
 /* ------------------------------------------------------------ */
 /* Prime generation ------------------------------------------------- */
@@ -78,11 +159,11 @@ seq_t a(idx_t n)
     /* Ensure cache array is large enough */
     if (cache == NULL || cache_cap <= (size_t)n) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (new_cache && cache == NULL)
-            memset(new_cache, 0, new_cap * sizeof(seq_t));           /* init first time */
+            mem_set(new_cache, 0, new_cap * sizeof(seq_t));           /* init first time */
         if (new_cache && cache && cache_cap < new_cap)
-            memset(new_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+            mem_set(new_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
         cache = new_cache;
         cache_cap = new_cap;
     }

@@ -10,8 +10,9 @@
  *            otherwise a(n) = 0. This is equivalent to the definition: 1 if n
  *            is evil (even number of 1's in binary) or n is even and odious
  *            (odd number of 1's)
- * Range:     u8 n <= 9995, u16 n <= 9995, u32 n <= 9995, u64 n <= 9995,
- *            u128 n <= 9995, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 113 terms through n = 9995 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

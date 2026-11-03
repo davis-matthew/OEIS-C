@@ -12,22 +12,48 @@
  *            36(i-1)(2i-1)(2i-3) b(i-2), b(0)=1, b(1)=6
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   a3279_fin, a3279_isfixed, a3279_smul
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a3279_fin.h"
-#include "../utils/a3279_isfixed.h"
-#include "../utils/a3279_smul.h"
+#include "../utils/mem.h"
+
+static void a3279_fin(seq_t pos, seq_t ng, seq_t *m, bool *s) {
+    if (pos >= ng) { *m = pos - ng; *s = false; }
+    else { *m = ng - pos; *s = true; }
+}
+
+static int a3279_isfixed(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 300; i++) x = x * 2;
+    return x == 0;
+}
+
+/* c = a*b truncated to L terms, sign-magnitude; c must not alias a or b */
+static void a3279_smul(const seq_t *am, const bool *as, const seq_t *bm, const bool *bs,
+                       seq_t *cm, bool *cs, idx_t L) {
+    idx_t k, j;
+    for (k = 0; k < L; k++) {
+        seq_t pos = 0, ng = 0;
+        for (j = 0; j <= k; j++) {
+            if (am[j] == 0 || bm[k - j] == 0) continue;
+            seq_t v = am[j] * bm[k - j];
+            if (as[j] != bs[k - j]) ng += v; else pos += v;
+        }
+        a3279_fin(pos, ng, &cm[k], &cs[k]);
+    }
+}
 
 seq_t a(idx_t n) {
     idx_t M = n / 2, L = M + 1, i, j, k;
     int fixedw = a3279_isfixed();
-    seq_t *p = (seq_t *)calloc(L, sizeof(seq_t));
-    seq_t *Fm = (seq_t *)calloc(L, sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, L);
+    seq_t *Fm = mem_new(seq_t, L);
     bool *Fs = (bool *)calloc(L, sizeof(bool));
 
     if (!fixedw) {
@@ -54,8 +80,8 @@ seq_t a(idx_t n) {
         }
     } else {
         /* exact modulo 2^w: binomials via Pascal additions only */
-        seq_t *row = (seq_t *)calloc(2 * M + 1, sizeof(seq_t));
-        seq_t *cen = (seq_t *)calloc(L, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, 2 * M + 1);
+        seq_t *cen = mem_new(seq_t, L);
         idx_t r;
         row[0] = 1; cen[0] = 1;
         for (r = 1; r <= 2 * M; r++) {
@@ -71,13 +97,13 @@ seq_t a(idx_t n) {
             if (i < M)
                 for (j = i + 1; j >= 1; j--) row[j] += row[j - 1];
         }
-        free(row);
-        free(cen);
+        mem_free(row);
+        mem_free(cen);
 
         /* Q = 1/P */
-        seq_t *Qm = (seq_t *)calloc(L, sizeof(seq_t));
+        seq_t *Qm = mem_new(seq_t, L);
         bool *Qs = (bool *)calloc(L, sizeof(bool));
-        seq_t *Tm = (seq_t *)calloc(L, sizeof(seq_t));
+        seq_t *Tm = mem_new(seq_t, L);
         bool *Ts = (bool *)calloc(L, sizeof(bool));
         Qm[0] = 1;
         for (k = 1; k < L; k++) {
@@ -102,7 +128,7 @@ seq_t a(idx_t n) {
                 for (j = 0; j < L; j++) { Qm[j] = Tm[j]; Qs[j] = Ts[j]; }
             }
         }
-        free(Qm); free(Qs); free(Tm); free(Ts);
+        mem_free(Qm); free(Qs); mem_free(Tm); free(Ts);
     }
 
     /* G = D * F, D_i = (2i+1) p_i; answer = Sum_i G_i 6^(n-2i) */
@@ -120,6 +146,6 @@ seq_t a(idx_t n) {
         if (gs) aneg += gm * pw; else apos += gm * pw;
         pw *= 36;
     }
-    free(p); free(Fm); free(Fs);
+    mem_free(p); mem_free(Fm); free(Fs);
     return apos - aneg;
 }

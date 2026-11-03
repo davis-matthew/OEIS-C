@@ -12,12 +12,14 @@
  *            a(2)=7, a(3)=6, a(4)=18, a(5)=30, a(6)=87, a(7)=...
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 23, u64 n <= 44, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache of computed terms */
 static size_t cache_len = 0;     /* number of terms currently stored */
@@ -36,7 +38,7 @@ static void init_cache(void)
         return;  /* already initialized */
 
     cache_len = sizeof(initial) / sizeof(initial[0]); /* 19 */
-    cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_len);
     for (size_t i = 0; i < cache_len; ++i)
         cache[i] = initial[i];
 }
@@ -50,7 +52,7 @@ static void extend_cache(idx_t n)
         return;
 
     size_t new_len = (size_t)n;
-    cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_len);
 
     /* Compute terms from cache_len up to new_len-1 (0‑based indices). */
     for (size_t i = cache_len; i < new_len; ++i) {

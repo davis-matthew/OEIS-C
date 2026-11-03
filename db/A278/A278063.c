@@ -9,7 +9,8 @@
  *            n > 11
  * Range:     u8 n <= 199, u16 n <= 199, u32 n <= 199, u64 n <= 199,
  *            u128 n <= 199, big any n
- * Helpers:   none
+ * Validated: full, pass, 199 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Internal memoisation cache */
 static seq_t *cache = NULL;
@@ -29,12 +31,11 @@ static void grow_cache(idx_t n)
     if (n <= cache_size) return;
     size_t new_size = (cache_size > 0) ? cache_size : 16;
     while (new_size < (size_t)n) new_size <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, (new_size + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_size + 1));
     if (!new_cache) exit(1);                 /* out‑of‑memory */
     /* Zero the newly allocated part */
     if (new_size > cache_size) {
-        memset(new_cache + cache_size + 1, 0,
-               (new_size - cache_size) * sizeof(seq_t));
+        mem_set(new_cache + cache_size + 1, 0, (new_size - cache_size) * sizeof(seq_t));
     }
     cache = new_cache;
     cache_size = new_size;

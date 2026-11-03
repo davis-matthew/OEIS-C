@@ -11,15 +11,17 @@
  *            integers in [1,k] with 0,1,2,…,Ω(k) distinct prime factors, *
  *            where Ω(k) is the maximum number of distinct prime factors among
  *            * 1…k. a(n) is the sequence of all such counts...
- * Range:     u8 n <= 2158, u16 n <= 9502, u32 n <= 9502, u64 n <= 9502,
- *            u128 n <= 9502, big any n
- * Helpers:   none
+ * Range:     u8 n <= 2158, u16 n <= 20001, u32 n <= 20001, u64 n <= 20001,
+ *            u128 n <= 20001, big any n
+ * Validated: standard, pass, 97 terms through n = 9502 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* dynamic data structures ------------------------------------------------- */
 
@@ -74,7 +76,7 @@ static void ensure_freq(size_t min_size)
     size_t new_sz = freq_size ? freq_size * 2 : 8;
     if (new_sz < min_size) new_sz = min_size;
 
-    seq_t *tmp = (seq_t *)realloc(freq, new_sz * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, freq, new_sz);
     if (!tmp) abort();
     /* initialise new entries to zero */
     for (size_t i = freq_size; i < new_sz; ++i) tmp[i] = 0;
@@ -90,7 +92,7 @@ static void ensure_seq_capacity(size_t needed)
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     if (new_cap < needed) new_cap = needed;
 
-    seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
     if (!tmp) abort();
     seq_vals = tmp;
     seq_cap = new_cap;

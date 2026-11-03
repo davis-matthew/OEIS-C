@@ -11,6 +11,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 72 terms through n = 889 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -24,7 +25,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"          /* seq_t gcd(seq_t, seq_t) */
+#include "../utils/gcd.h"
 
 /* popcount of a 64‑bit value */
 static inline uint64_t popcount_u64(uint64_t x)

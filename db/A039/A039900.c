@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000041(n) - A003106(n)
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 127, u64 n <= 416,
  *            u128 n <= 1458, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9647 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *p_arr = NULL;   /* partitions of n (A000041) */
 static seq_t *q_arr = NULL;   /* partitions using parts ≡ 2 or 3 (mod 5) (A003106) */
@@ -28,8 +30,8 @@ static void extend_seq(idx_t N)
 
     idx_t len = N + 1;
 
-    seq_t *p_new = (seq_t *)calloc((size_t)len, sizeof(seq_t));
-    seq_t *q_new = (seq_t *)calloc((size_t)len, sizeof(seq_t));
+    seq_t *p_new = mem_new(seq_t, (size_t)len);
+    seq_t *q_new = mem_new(seq_t, (size_t)len);
 
     if (!p_new || !q_new) {                     /* allocation failed */
         /* In a real program you may want to handle this more gracefully */
@@ -72,8 +74,8 @@ static void extend_seq(idx_t N)
     }
 
     /* Replace old arrays with the new ones */
-    free(p_arr);
-    free(q_arr);
+    mem_free(p_arr);
+    mem_free(q_arr);
     p_arr = p_new;
     q_arr = q_new;
     p_cap = (size_t)len;

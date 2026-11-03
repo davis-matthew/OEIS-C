@@ -14,13 +14,15 @@
  *            function memoises results so that calls in...
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 25, u64 n <= 54, u128 n <= 110,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* NULL, size_t */
 #include <stdlib.h>   /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
     /* Expand cache if necessary.  Use (seq_t*) cast to satisfy C++ mode. */
     if (cache_sz <= n) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (tmp == NULL) {
             /* Memory allocation failed; return 0 as a safe fallback. */
             return (seq_t)0;

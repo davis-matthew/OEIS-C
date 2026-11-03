@@ -7,14 +7,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n is even and its number of prime factors (counted
  *            with multiplicity) is odd, otherwise 0
- * Range:     u8 n <= 9406, u16 n <= 9406, u32 n <= 9406, u64 n <= 9406,
- *            u128 n <= 9406, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 9406 (2026-11-01)
  * Helpers:   bigomega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/bigomega.h"
 
 seq_t a(idx_t n)

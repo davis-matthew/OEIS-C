@@ -8,6 +8,7 @@
  *            are the coefficients of Π_{m=1}^{12}(1 - x^{2m})
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 36, u64 n <= 144, u128 n <= 144,
  *            big any n
+ * Validated: full, pass, 145 terms through n = 144 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

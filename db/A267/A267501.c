@@ -11,13 +11,21 @@
  *            416 with a(416) = 0
  * Range:     u8 n <= 131, u16 n <= 416, u32 n <= 416, u64 n <= 416,
  *            u128 n <= 416, big any n
- * Helpers:   safe_sub
+ * Validated: full, pass, 416 terms through n = 416 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/safe_sub.h"
+
+/* safe subtraction of a seq_t value from an idx_t,
+   returning 0 if the seq_t is larger than the idx_t. */
+static inline idx_t safe_sub(idx_t i, seq_t v)
+{
+    if (v > (seq_t)i) return 0;
+    return (idx_t)i - (idx_t)v;
+}
 
 static seq_t cache[417];      /* zero‑initialized */
 static bool ready = false;

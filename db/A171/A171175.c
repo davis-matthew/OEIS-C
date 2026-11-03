@@ -12,14 +12,30 @@
  *            numbering a(C(m)+2k+1) = m^2 - k // even‑index positions...
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   block_of
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/block_of.h"
+
+/* Find block index m such that m^2 - m + 1 <= n <= m^2 + m.
+   For n==0 the block is m==0 handled by caller. */
+static idx_t block_of(idx_t n)
+{
+    if (n == 0) return 0;
+    /* upper bound: for 64‑bit n, m never exceeds 2^32 (≈4.3e9) */
+    idx_t low = 1, high = ((idx_t)1 << 32);
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        unsigned __int128 prod = (unsigned __int128)mid * (mid + 1);
+        if (prod < n) low = mid + 1;
+        else          high = mid;
+    }
+    return low;
+}
 
 seq_t a(idx_t n)
 {

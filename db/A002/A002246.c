@@ -10,15 +10,16 @@
  *            totient function
  * Range:     u8 n <= 66, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   totient
+ * Validated: standard, pass, 83 terms through n = 9011 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/totient.h"
+#include "../utils/totient_u64.h"
 
 seq_t a(idx_t n) {
     if (n == 1)
         return (seq_t)3;
-    return (seq_t)(4 * totient((uint64_t)n));
+    return (seq_t)(4 * totient_u64((uint64_t)n));
 }

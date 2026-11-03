@@ -11,13 +11,16 @@
  *            k >= 0 * (OEIS A101494)
  * Range:     u8 n <= 35, u16 n <= 66, u32 n <= 170, u64 n <= 434,
  *            u128 n <= 1128, big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 84 terms through n = 9701 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* row_of_index returns the row r such that
  *   r*(r+1)/2 <= n < (r+1)*(r+2)/2
@@ -42,7 +45,7 @@ ensure_rows(idx_t up_to)
     /* Allocate the first row if needed. */
     if (rows_computed == 0) {
         triangle = (seq_t **)malloc(sizeof(seq_t *));
-        triangle[0] = (seq_t *)malloc(sizeof(seq_t));
+        triangle[0] = mem_new(seq_t, 1);
         triangle[0][0] = (seq_t)1;   /* T(0,0)=1 */
         rows_computed = 1;
     }
@@ -50,7 +53,7 @@ ensure_rows(idx_t up_to)
     /* Compute subsequent rows. */
     while (rows_computed <= up_to) {
         idx_t n = rows_computed;
-        seq_t *row = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+        seq_t *row = mem_new(seq_t, (n + 1));
         if (!row) abort();
 
         row[n] = (seq_t)1;            /* T(n,n)=1 */

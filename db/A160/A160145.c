@@ -8,7 +8,8 @@
  * Formula:   a(n) = (2n+1) - (2n+1)/gcd(2n+1, 2^(2n+1)-1)
  * Range:     u8 n <= 156, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, mod_pow
+ * Validated: standard, pass, 94 terms through n = 9587 (2026-11-01)
+ * Helpers:   gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,11 @@
 /* Which is the same as a(n) = A005408(n) - A160144(n)        */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 /* Returns the n-th term of sequence A160145 */
 seq_t a(idx_t n)
@@ -28,7 +32,7 @@ seq_t a(idx_t n)
     idx_t exp = 2 * n + 1;
 
     /* 2^(2n+1) mod p */
-    seq_t a_mod = mod_pow((seq_t)2, exp, p);
+    seq_t a_mod = powmod((seq_t)2, exp, p);
 
     /* small congruence of the numerator denominator difference */
     seq_t m = (a_mod == 0) ? (p - 1) : (a_mod - 1);

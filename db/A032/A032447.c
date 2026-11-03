@@ -8,7 +8,8 @@
  *            positive integers by (phi(m), m) in increasing order
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  The limit up to which φ is pre‑computed.
     For n ≤ 10000 this value is more than enough.              */
@@ -45,7 +47,7 @@ static void init(void)
 {
     if (initialized) return;
 
-    phi_arr    = (seq_t *)calloc(LIMIT + 1, sizeof(seq_t));
+    phi_arr    = mem_new(seq_t, LIMIT + 1);
     sorted_idx = (idx_t *)calloc(LIMIT,      sizeof(idx_t));
     primes     = (idx_t *)malloc(LIMIT * sizeof(idx_t));   /* ample space */
 

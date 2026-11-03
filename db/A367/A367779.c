@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    area.  Not a closed‑form expression. */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* State for each height: number of prefixes, sum of areas,
    sum of area², sum of area³.  All statistics are of type seq_t. */
@@ -46,8 +48,8 @@ seq_t a(idx_t n)
     if (n == 0) return 0;
 
     size_t N = (size_t)n;             /* n ≤ ~10 000 in typical tests */
-    State *cur  = (State *)calloc(N + 2, sizeof(State));
-    State *next = (State *)calloc(N + 2, sizeof(State));
+    State *cur  = mem_new(State, N + 2);
+    State *next = mem_new(State, N + 2);
     if (!cur || !next) abort();       /* allocation failure */
 
     cur[0].cnt = 1;                    /* start at height 0, area 0 */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     for (size_t len = 0; len < N; ++len)
     {
         /* Clear next array for heights 0 … len+1 inclusive. */
-        memset(next, 0, (len + 2) * sizeof(State));
+        mem_set(next, 0, (len + 2) * sizeof(State));
 
         for (size_t h = 0; h <= len; ++h)
         {
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = cur[0].s3;  /* only paths that end at height 0 */
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     return result;
 }

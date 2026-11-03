@@ -11,13 +11,15 @@
  *            Pascal's triangle
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,16 +36,16 @@ seq_t a(idx_t n)
 
     /* ---------- initialization ---------- */
     if (!a_vals) {
-        a_vals = (seq_t *)malloc(sizeof(seq_t));
+        a_vals = mem_new(seq_t, 1);
         a_vals[0] = (seq_t)1;            /* a(0) = 1 */
         a_cap = 1;
         a_max = 0;
 
-        pow3   = (seq_t *)malloc(sizeof(seq_t));
+        pow3   = mem_new(seq_t, 1);
         pow3[0] = (seq_t)1;             /* 3^0 = 1 */
         pow3_len = 1;
 
-        binom   = (seq_t *)malloc(sizeof(seq_t));
+        binom   = mem_new(seq_t, 1);
         binom[0] = (seq_t)1;            /* row 0 of Pascal’s triangle */
         binom_len = 1;
     }
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     for (idx_t curr = a_max + 1; curr <= n; ++curr) {
         /* Extend pow3 table up to 3^curr. */
         while (pow3_len <= (size_t)curr) {
-            pow3 = (seq_t *)realloc(pow3, (pow3_len + 1) * sizeof(seq_t));
+            pow3 = mem_resize(seq_t, pow3, (pow3_len + 1));
             pow3[pow3_len] = pow3[pow3_len - 1] * (seq_t)3;
             ++pow3_len;
         }
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         /* Extend a_vals array if necessary. */
         if ((size_t)curr + 1 > a_cap) {
             a_cap = (size_t)curr + 1;
-            a_vals = (seq_t *)realloc(a_vals, a_cap * sizeof(seq_t));
+            a_vals = mem_resize(seq_t, a_vals, a_cap);
         }
         a_vals[curr] = next;
 
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
         /* binom currently holds row (curr-1); length = curr. */
         /* After the update it will hold row curr; length = curr+1. */
         size_t new_len = binom_len + 1;          /* curr + 1 */
-        binom = (seq_t *)realloc(binom, new_len * sizeof(seq_t));
+        binom = mem_resize(seq_t, binom, new_len);
         binom[new_len - 1] = (seq_t)1;           /* C(curr,curr) = 1 */
         for (size_t i = new_len - 2; i > 0; --i) {
             binom[i] = binom[i] + binom[i - 1];

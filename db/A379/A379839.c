@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   gen
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,35 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gen.h"
+#include "../utils/mem.h"
+
+/* Recursive generator of multisets.  prod   – current product
+   sum    – current sum
+   start  – next element must be at least this value (to avoid
+            duplicates via permutations) */
+static void gen(uint64_t prod, uint64_t sum, uint64_t start,
+                bool *seen, uint64_t limit)
+{
+    for (uint64_t x = start; x <= limit; ++x) {
+        /* avoid overflow of prod * x */
+        if (prod > limit / x)
+            break;
+
+        uint64_t new_prod = prod * x;
+        uint64_t new_sum  = sum + x;
+        uint64_t val = new_prod + new_sum;
+        if (val > limit)
+            break;          /* larger x will increase val even more */
+
+        seen[(size_t)val] = true;
+
+        /* recurse only if the new product itself stays within the limit
+           because further multiplication will keep the product growing
+           and the generated values will exceed the limit. */
+        if (new_prod <= limit)
+            gen(new_prod, new_sum, x, seen, limit);
+    }
+}
 
 static const uint64_t LIMIT = 200000ULL;
 
@@ -57,7 +86,7 @@ seq_t a(idx_t n)
                 ++cnt;
 
         /* Allocate array of seq_t and fill it */
-        seq = (seq_t*)malloc(cnt * sizeof(seq_t));
+        seq = mem_new(seq_t, cnt);
         if (!seq) {
             free(seen);
             return (seq_t)0;

@@ -11,7 +11,8 @@
  *            whose divisor count has already been seen for a smaller integer
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *results   = NULL;   /* array of sequence values */
 static size_t  res_len   = 0;      /* number of values stored */
@@ -35,7 +37,7 @@ static void ensure_results_cap(size_t need)
     if (need <= res_cap) return;
     size_t new_cap = res_cap ? res_cap * 2 : 8;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(results, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, results, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     results = tmp;
     res_cap = new_cap;

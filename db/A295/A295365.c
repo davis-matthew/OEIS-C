@@ -12,12 +12,14 @@
  *            complementary increasing sequences
  * Range:     u8 n <= 6, u16 n <= 18, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;
 static seq_t *B = NULL;
@@ -33,13 +35,13 @@ static void ensure_cache(idx_t n)
     size_t needed = (size_t)n + 1;
     if (!A || !B)
     {
-        A = (seq_t *)malloc(needed * sizeof(seq_t));
-        B = (seq_t *)malloc(needed * sizeof(seq_t));
+        A = mem_new(seq_t, needed);
+        B = mem_new(seq_t, needed);
     }
     else
     {
-        A = (seq_t *)realloc(A, needed * sizeof(seq_t));
-        B = (seq_t *)realloc(B, needed * sizeof(seq_t));
+        A = mem_resize(seq_t, A, needed);
+        B = mem_resize(seq_t, B, needed);
     }
     /* Compute new terms sequentially */
     for (idx_t i = size; i <= n; ++i)

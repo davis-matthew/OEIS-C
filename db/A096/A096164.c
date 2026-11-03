@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    other than <stdlib.h>.  The code is valid C11 and C++17. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **T = NULL;   /* triangle rows, 1‑based indexing */
 static idx_t maxRow = 0;   /* number of rows already built */
@@ -38,7 +40,7 @@ static void ensure_row(idx_t r)
     T = (seq_t **)realloc(T, sizeof(seq_t *) * (r + 1));
     /* build missing rows */
     for (idx_t n = maxRow + 1; n <= r; ++n) {
-        T[n] = (seq_t *)malloc(sizeof(seq_t) * (n + 1)); /* T[n][0] unused */
+        T[n] = mem_new(seq_t, (n + 1)); /* T[n][0] unused */
 
         if (n == 1) {          /* base case */
             T[1][1] = (seq_t)1;

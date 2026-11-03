@@ -12,7 +12,8 @@
  *            2/1 equals exactly 2, which is not greater than 2, so...
  * Range:     u8 n <= 6, u16 n <= 52, u32 n <= 650, u64 n <= 650,
  *            u128 n <= 650, big any n
- * Helpers:   a1275_isqrt, a1275_run
+ * Validated: standard, pass, 56 terms through n = 617 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,65 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/a1275_isqrt.h"
-#include "../utils/a1275_run.h"
+#include "../utils/isqrt_u64.h"
+
+/* returns 0 if the answer is not found below limit L */
+static uint64_t a1275_run(idx_t n, uint64_t L) {
+    const long double LN2 = 0.693147180559945309417232121458176568L;
+    uint64_t s = isqrt_u64(L) + 1, i, j;
+    unsigned char *small = (unsigned char *)calloc((size_t)(s + 1), 1);
+    uint32_t *bp = (uint32_t *)malloc(sizeof(uint32_t) * (size_t)(s / 2 + 2));
+    size_t nb = 0;
+    for (i = 3; i <= s; i += 2) {
+        if (!small[i]) {
+            bp[nb++] = (uint32_t)i;
+            for (j = i * i; j <= s; j += 2 * i) small[j] = 1;
+        }
+    }
+    free(small);
+
+    const uint64_t SEG = 1u << 18; /* number of odd values per segment */
+    unsigned char *mark = (unsigned char *)malloc((size_t)SEG);
+    uint64_t count = 1; /* prime 2 already counted */
+    int started = 0;
+    long double sum = 0.0L, comp = 0.0L;
+    uint64_t result = 0;
+    uint64_t lo;
+    for (lo = 3; lo <= L && !result; lo += 2 * SEG) {
+        uint64_t hi = lo + 2 * SEG; /* exclusive */
+        memset(mark, 0, (size_t)SEG);
+        size_t k;
+        for (k = 0; k < nb; k++) {
+            uint64_t q = bp[k];
+            if (q * q >= hi) break;
+            uint64_t st = q * q;
+            if (st < lo) {
+                st = ((lo + q - 1) / q) * q;
+                if ((st & 1) == 0) st += q;
+            }
+            for (j = st; j < hi; j += 2 * q) mark[(j - lo) >> 1] = 1;
+        }
+        for (i = 0; i < SEG; i++) {
+            if (mark[i]) continue;
+            uint64_t m = lo + 2 * i;
+            if (m > L) break;
+            if (!started) {
+                count++;
+                if (count == n) started = 1;
+                else continue;
+            }
+            long double t = log1pl(1.0L / (long double)(m - 1));
+            long double y = t - comp;
+            long double z = sum + y;
+            comp = (z - sum) - y;
+            sum = z;
+            if (sum > LN2) { result = m; break; }
+        }
+    }
+    free(mark);
+    free(bp);
+    return result;
+}
 
 seq_t a(idx_t n) {
     if (n <= 1) return (seq_t)3;

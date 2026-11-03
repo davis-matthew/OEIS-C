@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   build_primes_upto, factor_u64
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   build_primes_upto, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* ---------- Prime generation utilities ---------- */
 static uint64_t *prime_arr = NULL;   /* array of primes */
@@ -109,7 +111,7 @@ static void add_seq(seq_t val)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = (seq_cap == 0) ? 64 : seq_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
         if (!tmp) return; /* out of memory – terminate silently */
         seq_vals = tmp;
         seq_cap  = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   has_21
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,20 @@
  * constants, well within the time limits for n up to about 10 000. */
 
 #include <stdbool.h>
-#include "../utils/has_21.h"
+
+/* Return true iff x expressed in base 6 contains the substring "21". */
+static bool has_21(seq_t x)
+{
+    bool prev_is1 = false;          /* previous (lower) digit is 1? */
+    while (x > 0) {
+        seq_t d = x % 6;
+        if (prev_is1 && d == 2)    /* we have “…1 2” in reverse order ⇔ “21” in forward order */
+            return true;
+        prev_is1 = (d == 1);
+        x = x / 6;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

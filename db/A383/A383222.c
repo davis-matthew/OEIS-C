@@ -8,6 +8,7 @@
  * Formula:   a(n) = coefficient of x^4 in ∏_{k=1}^n (x + 3k – 1)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

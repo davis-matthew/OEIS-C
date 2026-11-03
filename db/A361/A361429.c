@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1231, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9512 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t val;
@@ -58,7 +60,7 @@ static void ensure_seq_capacity(idx_t n)
 {
     size_t need = (size_t)n + 1;   /* index 0 unused */
     if (need > seq_cap) {
-        seq = (seq_t *)realloc(seq, need * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, need);
         val_of_term = (size_t *)realloc(val_of_term, need * sizeof(size_t));
         seq_cap = need;
     }
@@ -73,7 +75,7 @@ static void ensure_valtab_capacity(void)
 {
     if (val_len >= val_cap) {
         size_t new_cap = val_cap ? val_cap * 2 : 16;
-        valtab = (valrec_t *)realloc(valtab, new_cap * sizeof(valrec_t));
+        valtab = mem_resize(valrec_t, valtab, new_cap);
         val_cap = new_cap;
     }
 }

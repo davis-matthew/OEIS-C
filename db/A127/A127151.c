@@ -11,14 +11,18 @@
  *            builds the triangle incrementally and answers any query
  * Range:     u8 n <= 11, u16 n <= 26, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
 
 static seq_t **T = NULL;          /* T[row] → array of values (index 0 unused for row>0) */
 static idx_t *rowLengths = NULL;  /* number of columns stored for each row (floor(log2(row+1))) */
@@ -41,10 +45,10 @@ static void ensure_capacity(size_t n) {
 /* add the next row of the triangle (row index = used) */
 static void add_row(void) {
     idx_t n = (idx_t)used;                 /* new row number (0‑based) */
-    idx_t len = floor_log2_uint64(n + 1);   /* number of columns for this row (0 for n==0) */
+    idx_t len = ilog2(n + 1);   /* number of columns for this row (0 for n==0) */
 
     /* allocate space for the new row */
-    seq_t *row = (seq_t *)calloc((size_t)len + 1, sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (size_t)len + 1);
     if (row == NULL) {
         /* allocation failure – in the OEIS test environment this should not happen */
         exit(EXIT_FAILURE);
@@ -96,7 +100,7 @@ static void ensure_up_to(idx_t target) {
         rowLengths[0] = 0;
         T = (seq_t **)calloc(16, sizeof(seq_t *));
         if (T == NULL) exit(EXIT_FAILURE);
-        T[0] = (seq_t *)calloc(1, sizeof(seq_t));
+        T[0] = mem_new(seq_t, 1);
         if (T[0] == NULL) exit(EXIT_FAILURE);
         T[0][0] = (seq_t)1; /* leaf */
         used = 1;

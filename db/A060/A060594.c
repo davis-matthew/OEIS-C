@@ -10,15 +10,18 @@
  *            sequence is multiplicative, with a(1)=1
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   big_pow, count_distinct_primes
+ * Validated: standard, pass, 119 terms through n = 973 (2026-11-01)
+ * Helpers:   ipow, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include helpers for counting distinct primes and computing big powers */
 #include <stddef.h>
-#include "../utils/count_distinct_primes.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/omega.h"
 
 seq_t a(idx_t n)
 {
@@ -34,12 +37,12 @@ seq_t a(idx_t n)
     }
 
     /* Number of distinct odd prime factors */
-    idx_t odd_cnt = count_distinct_primes(n);
+    idx_t odd_cnt = omega(n);
     if ((n & 1ULL) == 0)          /* even: exclude the factor 2 */
         odd_cnt--;
 
     /* 2^odd_cnt, works for any seq_t (uses arbitrary precision if needed) */
-    seq_t res = big_pow((seq_t)2, (seq_t)odd_cnt);
+    seq_t res = ipow((seq_t)2, (seq_t)odd_cnt);
 
     /* Multiply by the appropriate factor depending on the power of 2 */
     seq_t mult;

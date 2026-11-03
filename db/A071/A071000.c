@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 190, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9382 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* compute φ(d) once up to a given limit */
 static unsigned long long *phi_table = NULL;   /* φ values stored as 64‑bit */
@@ -86,7 +88,7 @@ static void ensure_terms_capacity(void)
     if (terms_len < terms_cap)
         return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 1024;
-    seq_t *new_arr = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, terms, new_cap);
     if (!new_arr)
         abort();
     terms = new_arr;

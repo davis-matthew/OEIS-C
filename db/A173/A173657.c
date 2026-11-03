@@ -7,17 +7,19 @@
  * Formula:   a(n) = 2 + 2^n + 3^n
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 20, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
     /* Compute 2^n, 3^n and sum with 2 */
-    seq_t pow2 = pow_uint(2, n);
-    seq_t pow3 = pow_uint(3, n);
+    seq_t pow2 = ipow_u64_idx(2, n);
+    seq_t pow3 = ipow_u64_idx(3, n);
     return pow2 + pow3 + (seq_t)2;
 }

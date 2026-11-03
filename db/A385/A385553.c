@@ -7,6 +7,7 @@
  * Formula:   a(n) = (smallest power of 2 > n) * (smallest power of 3 > n)
  * Range:     u8 n <= 8, u16 n <= 242, u32 n <= 1024, u64 n <= 1024,
  *            u128 n <= 1024, big any n
+ * Validated: standard, pass, 69 terms through n = 948 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

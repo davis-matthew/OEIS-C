@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,14 +25,15 @@
    operators).
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* The sequences are indexed from 0.  Allocate arrays of size n+1. */
     size_t N = (size_t)n;
-    seq_t *a_arr   = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *coeff   = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *tmp     = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *a_arr   = mem_new(seq_t, N + 1);
+    seq_t *coeff   = mem_new(seq_t, N + 1);
+    seq_t *tmp     = mem_new(seq_t, N + 1);
     if (!a_arr || !coeff || !tmp) return (seq_t)0;   /* allocation failure */
 
     /* 1/P_{-1} = 1  → coeff[0] = 1 */
@@ -63,9 +65,9 @@ seq_t a(idx_t n)
 
     seq_t result = a_arr[N];
 
-    free(a_arr);
-    free(coeff);
-    free(tmp);
+    mem_free(a_arr);
+    mem_free(coeff);
+    mem_free(tmp);
 
     return result;
 }

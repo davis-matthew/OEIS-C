@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   grow_digits, grow_exps, has_zero
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,61 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/grow_digits.h"
-#include "../utils/grow_exps.h"
-#include "../utils/has_zero.h"
+#include "../utils/mem.h"
+
+/* Local helper: grow an array of digits if needed.                     */
+static void grow_digits(uint32_t **arr, size_t *cap, size_t needed)
+{
+    if (*cap < needed) {
+        size_t newcap = *cap ? *cap * 2 : 4;
+        while (newcap < needed) newcap *= 2;
+        uint32_t *tmp = (uint32_t *)realloc(*arr, newcap * sizeof(uint32_t));
+        if (!tmp) exit(1);           /* allocation failure */
+        *arr = tmp;
+        *cap = newcap;
+    }
+}
+
+/* Local helper: grow an array of seq_t exponents if needed.            */
+static void grow_exps(seq_t **arr, size_t *cap, size_t needed)
+{
+    if (*cap < needed) {
+        size_t newcap = *cap ? *cap * 2 : 4;
+        while (newcap < needed) newcap *= 2;
+        seq_t *tmp = mem_resize(seq_t, *arr, newcap);
+        if (!tmp) exit(1);           /* allocation failure */
+        *arr = tmp;
+        *cap = newcap;
+    }
+}
+
+/* Helper: test whether the decimal expansion of the big integer
+   blocks (digits[0]..digits[len-1]) contains a zero digit.            */
+static bool has_zero(const uint32_t *digits, size_t len)
+{
+    size_t i;
+    for (i = 0; i < len; ++i) {
+        uint32_t v = digits[i];
+        /* Most significant block – only actual decimal digits.    */
+        if (i + 1 == len) {
+            if (v == 0) return true;            /* 0 itself, never happens */
+            while (v > 0) {
+                if ((v % 10u) == 0u) return true;
+                v /= 10u;
+            }
+        } else {
+            /* All 9 decimal digits of a base‑1e9 block, including
+               leading zeros which are real decimal digits.        */
+            uint32_t tmp = v;
+            int d;
+            for (d = 0; d < 9; ++d) {
+                if ((tmp % 10u) == 0u) return true;
+                tmp /= 10u;
+            }
+        }
+    }
+    return false;
+}
 
 /* ------------------------------------------------------------------ */
 /* Big integer represented as an array of 32‑bit blocks in base 1e9.  */

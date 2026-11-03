@@ -6,8 +6,9 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = (smallest prime not dividing n+1) - 1 or equivalently,
  *            the smallest k such that gcd(n,k)=gcd(n+1,k+1)
- * Range:     u8 n <= 9431, u16 n <= 9431, u32 n <= 9431, u64 n <= 9431,
- *            u128 n <= 9431, big any n
+ * Range:     u8 n <= 10001, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 122 terms through n = 9431 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 34, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Hash‑table entry ----------------------------------------------------- */
 typedef struct {
@@ -52,7 +54,7 @@ typedef struct {
 static void hash_map_init(HashMap* h, size_t cap) {
     h->capacity = cap;
     h->count    = 0;
-    h->table    = (HashEntry*)calloc(cap, sizeof(HashEntry));
+    h->table    = mem_new(HashEntry, cap);
 }
 
 static void hash_map_rehash(HashMap* h) {
@@ -72,7 +74,7 @@ static void hash_map_rehash(HashMap* h) {
             ++h->count;
         }
     }
-    free(old_tbl);
+    mem_free(old_tbl);
 }
 
 static bool hash_map_get(HashMap* h, uint64_t key, seq_t* out) {

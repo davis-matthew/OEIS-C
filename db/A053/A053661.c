@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 171, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9667 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,13 +25,31 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Helper functions to grow dynamic arrays */
+#ifdef __cplusplus
+template <class T>
+static T * grow_array(T *ptr, size_t new_cap, size_t elem_size) {
+    T *newp = mem_resize(T, ptr, (new_cap * elem_size) / sizeof(T));
+    if (!newp) abort(); /* memory exhausted */
+    return newp;
+}
+#else
 static void * grow_array(void *ptr, size_t new_cap, size_t elem_size) {
     void *newp = realloc(ptr, new_cap * elem_size);
     if (!newp) abort(); /* memory exhausted */
     return newp;
 }
+#endif
 
 static void ensure_used_capacity(size_t needed) {
     static size_t used_cap = 0;
@@ -73,7 +92,7 @@ static size_t next_candidate = 1;   /* smallest integer to start searching from 
 static void init_sequence(void) {
     if (seq_terms == NULL) {
         seq_terms_cap = 16;
-        seq_terms = (seq_t *)malloc(seq_terms_cap * sizeof(seq_t));
+        seq_terms = mem_new(seq_t, seq_terms_cap);
     }
     if (used_terms == NULL) {
         used_terms_cap = 1024;
@@ -95,7 +114,7 @@ static void ensure_terms_capacity_local(size_t needed) {
     if (seq_terms_cap < needed) {
         size_t new_cap = seq_terms_cap ? (seq_terms_cap << 1) : 16;
         while (new_cap < needed) new_cap <<= 1;
-        seq_terms = (seq_t *)realloc(seq_terms, new_cap * sizeof(seq_t));
+        seq_terms = mem_resize(seq_t, seq_terms, new_cap);
         seq_terms_cap = new_cap;
     }
 }

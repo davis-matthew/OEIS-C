@@ -11,7 +11,8 @@
  *            are handled efficiently
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 22, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;         /* cached a[0 .. cache_cap-1]      */
 static size_t cache_cap = 0;         /* current array size (number of entries) */
@@ -30,11 +32,10 @@ seq_t a(idx_t n)
     size_t start = cache_cap;
     if (cache_cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();                       /* allocation failed */
         if (new_cap > cache_cap)                 /* initialise new elements */
-            memset(tmp + cache_cap, 0,
-                   (new_cap - cache_cap) * sizeof(seq_t));
+            mem_set(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
         cache = tmp;
         cache_cap = new_cap;
     }

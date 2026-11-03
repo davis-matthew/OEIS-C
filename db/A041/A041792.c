@@ -11,6 +11,7 @@
  *            a(n)=p_n for n≥0
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 18, u64 n <= 41, u128 n <= 82,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 189 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,7 +12,8 @@
  *            is the concatenation of the first n–1 terms
  * Range:     u8 n <= 17, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   digit_len
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
 
 #if defined(__cplusplus)
 #include <vector>
@@ -72,7 +73,7 @@ seq_t a(idx_t n)
         /* remainder of the concatenation of a[1]…a[i-1] modulo (i+1). */
         for (size_t j = 1; j < i; ++j) {
             seq_t a_j = cache[j];
-            unsigned long long len_j = (unsigned long long)digit_len(a_j);
+            unsigned long long len_j = (unsigned long long)num_digits(a_j);
             unsigned long long pow10_j = pow10_mod(len_j, mod);
             unsigned long long a_j_mod = (unsigned long long)(a_j % (seq_t)mod);
             prefix_mod = (prefix_mod * pow10_j + a_j_mod) % mod;
@@ -83,7 +84,7 @@ seq_t a(idx_t n)
         seq_t value = 0;
         for (idx_t t = 1; ; ++t) {
             seq_t m = (seq_t)i * (seq_t)t;            /* candidate multiple */
-            unsigned long long len_m = (unsigned long long)digit_len(m);
+            unsigned long long len_m = (unsigned long long)num_digits(m);
             unsigned long long pow10_m = pow10_mod(len_m, mod);
             unsigned long long m_mod = ((unsigned long long)i * (unsigned long long)t) % mod;
             unsigned long long check = (prefix_mod * pow10_m + m_mod) % mod;

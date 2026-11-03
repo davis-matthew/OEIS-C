@@ -9,7 +9,8 @@
  *            sopfr(m) = sum of prime factors of m (with multiplicity)
  * Range:     u8 n <= 72, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Cached values of a(n) (index 0 is unused; a(1) is the first term) */
 static seq_t *cache = NULL;
@@ -27,7 +29,7 @@ static void cache_extend(idx_t n)
 {
     if ((size_t)n < cache_len) return;
     size_t new_len = (size_t)n + 1;
-    seq_t *new_cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (!new_cache) abort();
     for (size_t i = cache_len; i < new_len; ++i) new_cache[i] = 0; /* 0 = not computed */
     cache = new_cache;

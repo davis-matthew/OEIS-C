@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    incrementally until the required term is produced. */
 
 #include <stdlib.h>  /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* static cache of generated terms */
 static seq_t *cache      = NULL;
@@ -35,7 +37,7 @@ static void grow_cache(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 1;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache, new_cap);
     cache = p;
     cache_cap = new_cap;
 }

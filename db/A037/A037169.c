@@ -7,6 +7,7 @@
  * Formula:   a(n) = prime(n) * ∏_{k=0..n-2} prime(n-k) mod prime(n-k-1)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 27, u128 n <= 27,
  *            big any n
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

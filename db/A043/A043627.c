@@ -8,14 +8,22 @@
  *            runs
  * Range:     u8 none, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   pow7_five
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/pow7_five.h"
+#include "../utils/mem.h"
+
+/* local helper: 7⁵ */
+static seq_t pow7_five(void) {
+    seq_t r = 1;
+    for (int i = 0; i < 5; ++i) r *= (seq_t)7;
+    return r;
+}
 
 seq_t a(idx_t n)
 {
@@ -45,7 +53,7 @@ seq_t a(idx_t n)
     /* ---------- pre‑compute DP: f[rem_len][runs_needed] ---------- */
     const unsigned int R_MAX = N_RUNS;          /* inclusive */
     const size_t COLS = R_MAX + 1;
-    seq_t *f = (seq_t*)malloc((len + 1) * COLS * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (len + 1) * COLS);
     if (!f) return 0;                           /* unlikely in tests */
 
     for (unsigned int r = 0; r <= R_MAX; ++r)
@@ -97,6 +105,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(f);
+    mem_free(f);
     return result;
 }

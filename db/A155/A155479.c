@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   nth_allowed_index
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,28 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/nth_allowed_index.h"
+#include "../utils/mem.h"
+
+// Return the n-th integer that has no digit equal to 3, 5 or 7
+static idx_t nth_allowed_index(idx_t n) {
+    idx_t count = 0;
+    idx_t num = 0;
+    while (count < n) {
+        ++num;
+        idx_t t = num;
+        bool ok = true;
+        while (t > 0) {
+            int d = t % 10;
+            if (d == 3 || d == 5 || d == 7) {
+                ok = false;
+                break;
+            }
+            t /= 10;
+        }
+        if (ok) ++count;
+    }
+    return num;
+}
 
 // Largest Prime Estimation for the i-th prime (Rosser's bound)
 static idx_t prime_upper_bound(idx_t i) {
@@ -59,10 +81,10 @@ seq_t a(idx_t n) {
         // Ensure the primes array can hold all needed primes
         size_t needed = (size_t)target_i;
         if (!primes) {
-            primes = (seq_t *)malloc(needed * sizeof(seq_t));
+            primes = mem_new(seq_t, needed);
             if (!primes) { free(is_prime); return 0; }
         } else if (primes_cnt < needed) {
-            seq_t *tmp = (seq_t *)realloc(primes, needed * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, primes, needed);
             if (!tmp) { free(is_prime); return 0; }
             primes = tmp;
         }

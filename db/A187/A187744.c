@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum, is_triangular_sum
+ * Validated: standard, pass, 74 terms through n = 9098 (2026-11-01)
+ * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/digit_sum.h"
-#include "../utils/is_triangular_sum.h"
+
+static bool is_triangular_sum(seq_t sum) {
+    /* Triangular numbers up to 171 (9*19) */
+    const seq_t tri[19] = {
+        0, 1, 3, 6, 10, 15, 21, 28, 36, 45,
+        55, 66, 78, 91, 105, 120, 136, 153, 171
+    };
+    for (size_t i = 0; i < 19; ++i) {
+        if (tri[i] == sum) {
+            return true;
+        }
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     idx_t count = 0;

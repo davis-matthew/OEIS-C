@@ -8,13 +8,15 @@
  *            {101,303,909,1111,3333,9999}
  * Range:     u8 none, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- min‑heap helpers ----------------------------------------- */
 static seq_t *heap = NULL;
@@ -24,7 +26,7 @@ static void heap_push(seq_t v)
 {
     if (heap_sz == heap_cap) {
         size_t new_cap = (heap_cap == 0) ? 64 : (heap_cap << 1);
-        seq_t *tmp = (seq_t *)realloc(heap, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, heap, new_cap);
         if (!tmp) abort();
         heap = tmp;
         heap_cap = new_cap;
@@ -70,10 +72,10 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         heap_cap = 64;
-        heap = (seq_t *)malloc(heap_cap * sizeof(seq_t));
+        heap = mem_new(seq_t, heap_cap);
 
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
 
         /* seed the heap with the six base constants */
         const seq_t bases[6] = {101, 303, 909, 1111, 3333, 9999};
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
         /* store the unique value */
         if (cache_sz == cache_cap) {
             size_t new_cap = cache_cap << 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             cache = tmp;
             cache_cap = new_cap;

@@ -8,14 +8,15 @@
  *            (F(1) = F(2) = 1)
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 9, u128 n <= 10,
  *            big any n
- * Helpers:   a001577_powe
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   ipow_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a001577_powe.h"
+#include "../utils/ipow_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t *fe = (uint64_t *)malloc((size_t)(n + 2) * sizeof(uint64_t));
@@ -29,7 +30,7 @@ seq_t a(idx_t n) {
 
     for (k = 1; k <= n; k++) {
         /* fcur = F(k) */
-        if (fcur != 1) result = result * a001577_powe(fcur, fe[n + 1 - k]);
+        if (fcur != 1) result = result * ipow_u64(fcur, fe[n + 1 - k]);
         ftmp = fcur + fprev;
         fprev = fcur;
         fcur = ftmp;

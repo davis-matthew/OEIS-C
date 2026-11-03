@@ -8,13 +8,15 @@
  * Formula:   a(n) = 3*(n-1)*(a(n-1)+a(n-2)), a(0)=1, a(1)=0;
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static bool *ready = NULL;
@@ -28,7 +30,7 @@ static void ensure_capacity(idx_t n)
     idx_t new_size = stored ? stored << 1 : 16;
     while (new_size <= n)
         new_size <<= 1;
-    seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     bool *new_ready = (bool *)malloc(new_size * sizeof(bool));
     for (idx_t i = 0; i < new_size; ++i)
         new_ready[i] = false;
@@ -36,7 +38,7 @@ static void ensure_capacity(idx_t n)
         new_cache[i] = cache[i];
         new_ready[i] = ready[i];
     }
-    free(cache);
+    mem_free(cache);
     free(ready);
     cache = new_cache;
     ready = new_ready;

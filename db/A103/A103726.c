@@ -9,13 +9,15 @@
  *            of the first kind)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Initialise table on first use */
     if (S == NULL) {
         S = (seq_t**)malloc(sizeof(seq_t*) * (target_row + 1));
-        S[0] = (seq_t*)calloc(K, sizeof(seq_t));
+        S[0] = mem_new(seq_t, K);
         S[0][0] = 1; /* S(0,0) = 1 */
         max_row = 0;
     }
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         const size_t new_size = target_row + 1;
         S = (seq_t**)realloc(S, sizeof(seq_t*) * new_size);
         for (size_t r = max_row + 1; r <= target_row; ++r) {
-            S[r] = (seq_t*)calloc(K, sizeof(seq_t));
+            S[r] = mem_new(seq_t, K);
             if (r > 0) {
                 /* S(r,0) = 0 already from calloc */
                 const size_t k_end = (r < 11) ? r : 11;

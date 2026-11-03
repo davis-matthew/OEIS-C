@@ -10,7 +10,8 @@
  *            parts ≤ n
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 106 terms through n = 105 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,12 +19,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate a DP table of size n+1 (index 0..n). */
     size_t len = (size_t)(n + 1);
-    seq_t *dp = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, len);
     if (!dp)
         return (seq_t)0;   /* Allocation failure – return 0 as a safe value */
 
@@ -44,6 +46,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

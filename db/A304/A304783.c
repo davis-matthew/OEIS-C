@@ -11,7 +11,8 @@
  *            for n≥1. * The division is exact by construction
  * Range:     i8 n <= 15, i16 n <= 38, i32 n <= 53, i64 n <= 53, i128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t max_comp = 0;
 static seq_t *q_val  = NULL;   /* A000009(k) */
@@ -34,9 +36,9 @@ seq_t a(idx_t n)
         size_t sz = (size_t)n + 1;
 
         /* Allocate / grow workspace */
-        q_val = (seq_t *)realloc(q_val, sz * sizeof(seq_t));
-        S_val = (seq_t *)realloc(S_val, sz * sizeof(seq_t));
-        a_val = (seq_t *)realloc(a_val, sz * sizeof(seq_t));
+        q_val = mem_resize(seq_t, q_val, sz);
+        S_val = mem_resize(seq_t, S_val, sz);
+        a_val = mem_resize(seq_t, a_val, sz);
 
         /* initialise */
         for (size_t i = 0; i <= n; ++i) {

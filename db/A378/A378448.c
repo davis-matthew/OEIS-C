@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if there is exactly one subset of the proper divisors
  *            of n that sum to n, otherwise 0
- * Range:     u8 n <= 8971, u16 n <= 8971, u32 n <= 8971, u64 n <= 8971,
- *            u128 n <= 8971, big any n
+ * Range:     u8 n <= 108045, u16 n <= 108045, u32 n <= 108045,
+ *            u64 n <= 108045, u128 n <= 108045, big any n
+ * Validated: standard, pass, 131 terms through n = 8971 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

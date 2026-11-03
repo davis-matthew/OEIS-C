@@ -8,12 +8,25 @@
  *            a(n)=5*a(n-1) for n>2)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   pow_uint5
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint5.h"
+static seq_t pow_uint5(idx_t exp)
+{
+    seq_t result = (seq_t)1;
+    seq_t base   = (seq_t)5;
+    while (exp)
+    {
+        if (exp & (idx_t)1)
+            result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
 
 extern seq_t a(idx_t n)
 {

@@ -8,12 +8,14 @@
  *            a(1)=1, a(2)=4
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 43, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (alloc_size == 0) {
         /* Reserve space for the first three terms (a(0..2)). */
         alloc_size = 3;
-        cache = (seq_t *)realloc(NULL, alloc_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, alloc_size);
         if (!cache) abort();
 
         /* initialise the three known terms.  Value 0 is used only as a
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         while (new_size <= n) new_size <<= 1;     /* double until large enough */
 
         /* realloc works for both C and C++ builds; cast the void* result. */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) abort();
 
         /* zero‑initialise the newly added slots (values will be computed later). */

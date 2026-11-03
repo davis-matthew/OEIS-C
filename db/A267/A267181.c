@@ -13,13 +13,38 @@
  *            Euclid‑like algorithm
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   steps_for_pair
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/steps_for_pair.h"
+
+static seq_t steps_for_pair(seq_t a, seq_t b)
+{
+    seq_t steps = 0;
+    while (a != 0 && a != b) {
+        if (b < a) {                   /* swap (i,j) */
+            seq_t tmp = a;
+            a = b;
+            b = tmp;
+            steps++;
+            continue;
+        }
+        /* now a <= b, a > 0, and a != b */
+        seq_t q = b / a;
+        seq_t r = b % a;
+        if (r == 0) {                  /* one subtraction less, we hit equality */
+            steps += (q - 1);
+            break;
+        } else {
+            steps += q;
+            b = r;
+        }
+    }
+    return steps;
+}
 
 seq_t a(idx_t n)
 {

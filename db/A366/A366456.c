@@ -8,13 +8,15 @@
  *            binomial(n+7*k/2-2,n-k) / (9*k/2-1) (OEIS A366456)
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 9, i64 n <= 18, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
     /* Ensure the arrays are large enough and initialise for the first time */
     if (cap == 0) {
         cap = 2;
-        A = (seq_t *)malloc(cap * sizeof(seq_t));
-        B = (seq_t *)malloc(cap * sizeof(seq_t));
+        A = mem_new(seq_t, cap);
+        B = mem_new(seq_t, cap);
         if (!A || !B) {
             /* Allocation failed; return 0 as a fallback */
             return (seq_t)0;
@@ -47,8 +49,8 @@ seq_t a(idx_t n)
         /* Grow to reach at least n */
         if ((size_t)n+1 > cap) {
             size_t new_cap = (size_t)n + 1;
-            seq_t *newA = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
-            seq_t *newB = (seq_t *)realloc(B, new_cap * sizeof(seq_t));
+            seq_t *newA = mem_resize(seq_t, A, new_cap);
+            seq_t *newB = mem_resize(seq_t, B, new_cap);
             if (!newA || !newB) {
                 /* Allocation failed; return 0 as a fallback */
                 return (seq_t)0;

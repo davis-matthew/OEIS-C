@@ -7,28 +7,30 @@
  * Formula:   not stated
  * Range:     u8 n <= 82, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_generic
+ * Validated: standard, pass, 73 terms through n = 9351 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Numbers k such that k, k+1 and 2k+1 are composite. */
 #include <stdbool.h>
-#include "../utils/is_prime_generic.h"
+#include <stdint.h>
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n) {
     idx_t count = 0;
     for (idx_t k = 2; ; ++k) {
         /* k must be composite */
-        if (is_prime_generic(k))
+        if (is_prime(k))
             continue;
 
         /* k+1 must be composite */
-        if (is_prime_generic(k + 1))
+        if (is_prime(k + 1))
             continue;
 
         /* 2k+1 must be composite */
-        if (is_prime_generic(2 * k + 1))
+        if (is_prime(2 * k + 1))
             continue;
 
         ++count;

@@ -12,6 +12,7 @@
  *            evaluating T(n,k) iteratively from the most s...
  * Range:     u8 n <= 29, u16 n <= 509, u32 n <= 8190, u64 n <= 8190,
  *            u128 n <= 8190, big any n
+ * Validated: standard, pass, 79 terms through n = 7902 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

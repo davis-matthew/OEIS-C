@@ -12,7 +12,8 @@
  *            (antidiagonal index)
  * Range:     u8 n <= 43, u16 n <= 151, u32 n <= 559, u64 n <= 2143,
  *            u128 n <= 8383, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 9787 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- utilities ---------- */
 
@@ -54,7 +56,7 @@ static void ensure_table(idx_t d) {
         return;
 
     size_t new_size = (size_t)d * (size_t)d;
-    seq_t *new_tbl = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_tbl = mem_new(seq_t, new_size);
     if (!new_tbl) abort();       /* allocation failure */
 
     /* compute values for the new table
@@ -77,7 +79,7 @@ static void ensure_table(idx_t d) {
 
     /* free old table if any, replace with new one */
     if (A_table)
-        free(A_table);
+        mem_free(A_table);
     A_table = new_tbl;
     A_dim   = d;
 }

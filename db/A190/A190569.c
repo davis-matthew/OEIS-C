@@ -8,7 +8,8 @@
  * Formula:   A190569(a(n)) = A007909(n+2)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence: a(0)=1, a(1)=1, a(2)=3; for n>=3: a(n)=2*a(n-1)-a(n-2)+2*a(n-3). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache for memoised values */
 static seq_t *seq_cache = NULL;   /* dynamic array of computed terms */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     /* need to extend the cache up to index n */
     idx_t new_cap = n + 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     if (!seq_cache)
         return 0;  /* allocation failure -- caller must not rely on this value */
 

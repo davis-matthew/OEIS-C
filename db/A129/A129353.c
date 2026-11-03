@@ -12,14 +12,19 @@
  *            v₂(n/k)+1 when k|n
  * Range:     u8 n <= 1275, u16 n <= 1275, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   triangular_u128
+ * Validated: standard, pass, 136 terms through n = 1019 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/triangular_u128.h"
+
+static inline unsigned __int128 triangular_u128(idx_t m)
+{
+    return (unsigned __int128)m * (m + 1) / 2;
+}
 
 seq_t a(idx_t n)
 {

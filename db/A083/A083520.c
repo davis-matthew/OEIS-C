@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 85, u32 n <= 131, u64 n <= 131,
  *            u128 n <= 131, big any n
- * Helpers:   is_prime64
+ * Validated: standard, pass, 62 terms through n = 130 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/is_prime64.h"   /* bool is_prime64(uint64_t n); */
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 static bool has_representation(uint64_t m)
 {
@@ -73,13 +75,13 @@ seq_t a(idx_t n)
         /* Find next prime satisfying the property */
         for (;; ++cand)
         {
-            if (is_prime64(cand) && has_representation(cand - 1))
+            if (is_prime_u64(cand) && has_representation(cand - 1))
             {
                 /* Grow storage if necessary */
                 if (len == cap)
                 {
                     size_t newcap = cap ? cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(values, newcap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, values, newcap);
                     if (!tmp) return 0;   /* out of memory, return 0 as sentinel */
                     values = tmp;
                     cap = newcap;

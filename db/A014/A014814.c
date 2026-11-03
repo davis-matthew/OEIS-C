@@ -9,13 +9,15 @@
  *            (1‑x^d)
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const size_t PERIOD = 805;
 
@@ -29,8 +31,8 @@ static void init_period(void)
         return;
     initialized = 1;
 
-    seq_t *cur  = (seq_t*)malloc(sizeof(seq_t) * PERIOD);
-    seq_t *next = (seq_t*)malloc(sizeof(seq_t) * PERIOD);
+    seq_t *cur  = mem_new(seq_t, PERIOD);
+    seq_t *next = mem_new(seq_t, PERIOD);
     if (!cur || !next)
         return;                         /* allocation failed */
 
@@ -70,17 +72,17 @@ static void init_period(void)
     }
 
     /* store the computed period */
-    period = (seq_t*)malloc(sizeof(seq_t) * PERIOD);
+    period = mem_new(seq_t, PERIOD);
     if (!period) {
-        free(cur);
-        free(next);
+        mem_free(cur);
+        mem_free(next);
         return;
     }
     for (size_t i = 0; i < PERIOD; ++i)
         period[i] = cur[i];
 
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
 }
 
 seq_t a(idx_t n)

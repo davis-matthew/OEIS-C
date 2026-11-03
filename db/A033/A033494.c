@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   collatz_sum
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,24 @@
    a(n) is the n‑th record sum of the Collatz trajectory sums. */
 
 #include <stdlib.h>
-#include "../utils/collatz_sum.h"
+#include "../utils/mem.h"
+
+/* Compute the sum of the Collatz trajectory starting from 'n'. */
+static seq_t collatz_sum(idx_t n)
+{
+    seq_t sum = 0;
+    seq_t x   = (seq_t)n;
+    while (x != 1) {
+        sum += x;
+        if ((x & 1) != 0) {
+            x = x * 3 + 1;
+        } else {
+            x >>= 1;
+        }
+    }
+    sum += 1;   /* include the terminating 1 */
+    return sum;
+}
 
 static seq_t *records = NULL;   /* array of record sums */
 static size_t rec_cap = 0;      /* allocated capacity */
@@ -30,7 +48,7 @@ static void grow_records(size_t needed)
     if (rec_cap < needed) {
         size_t new_cap = rec_cap ? rec_cap << 1 : 8;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(records, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, records, new_cap);
         records = tmp;
         rec_cap = new_cap;
     }
@@ -41,7 +59,7 @@ seq_t a(idx_t n)
 {
     if (!records) {
         rec_cap  = 8;
-        records  = (seq_t*)malloc(rec_cap * sizeof(seq_t));
+        records  = mem_new(seq_t, rec_cap);
         rec_len  = 0;
         max_sum  = 0;
         next_start = 1;

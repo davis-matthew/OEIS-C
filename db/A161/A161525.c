@@ -7,6 +7,7 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k=1}^{25} (1 + x + ... + x^k)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 13, u64 n <= 55, u128 n <= 325,
  *            big any n
+ * Validated: full, pass, 326 terms through n = 325 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

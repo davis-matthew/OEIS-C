@@ -9,12 +9,15 @@
  *            n^60) / 48
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 2, u128 n <= 4,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 22 terms through n = 30 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -23,13 +26,13 @@ seq_t a(idx_t n)
 
     seq_t x = (seq_t)n;
 
-    seq_t n16 = big_pow(x, 16);
-    seq_t n18 = big_pow(x, 18);
-    seq_t n20 = big_pow(x, 20);
-    seq_t n24 = big_pow(x, 24);
-    seq_t n48 = big_pow(x, 48);
-    seq_t n52 = big_pow(x, 52);
-    seq_t n60 = big_pow(x, 60);
+    seq_t n16 = ipow(x, 16);
+    seq_t n18 = ipow(x, 18);
+    seq_t n20 = ipow(x, 20);
+    seq_t n24 = ipow(x, 24);
+    seq_t n48 = ipow(x, 48);
+    seq_t n52 = ipow(x, 52);
+    seq_t n60 = ipow(x, 60);
 
     seq_t num = 8 * n16 + 8 * n18 + 16 * n20 + 12 * n24 + 2 * n48 + n52 + n60;
 

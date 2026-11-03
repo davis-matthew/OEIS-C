@@ -12,7 +12,8 @@
  *            distinct primes dividing n. a(n) = 4^(t‑1) · ∏ a...
  * Range:     u8 n <= 33, u16 n <= 516, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 74 terms through n = 9922 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
 
             /* For e > 1 multiply by p^{2(e-1)} */
             if (e > 1) {
-                seq_t pe_pow = pow_uint(p, 2 * (e - 1));
+                seq_t pe_pow = ipow_u64_idx(p, 2 * (e - 1));
                 ap *= pe_pow;
             }
 

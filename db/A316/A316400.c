@@ -13,7 +13,8 @@
  *            condition by maintaining a bitset of reachable subset...
  * Range:     u8 n <= 48, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   add_part, gcd_int
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,45 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/add_part.h"
-#include "../utils/gcd_int.h"
+#include "../utils/gcd_i32.h"
+
+/* Try to add a new part 'add' to the current subset‑sum bitset.
+ * `bits`   : current bitset (length = words)
+ * `newbits`: output bitset after adding 'add' (preallocated length = words)
+ * `words`  : number of 64‑bit words in the bitset
+ * Returns true if addition does not create duplicate sums, false otherwise.
+ */
+static bool add_part(const uint64_t bits[],
+                     uint64_t newbits[],
+                     size_t words,
+                     int add)
+{
+    /* copy original bitset */
+    for (size_t i = 0; i < words; ++i) newbits[i] = bits[i];
+
+    int shift_words = add >> 6;   /* divide by 64 */
+    int shift_bits  = add & 63;   /* modulus 64 */
+    bool conflict = false;
+
+    for (size_t i = 0; i < words; ++i) {
+        uint64_t src   = bits[i];
+        size_t   dest  = i + shift_words;
+        if (dest >= words) continue;
+
+        uint64_t low = src << shift_bits;
+        if (bits[dest] & low) { conflict = true; break; }
+        newbits[dest] |= low;
+
+        if (shift_bits) {
+            uint64_t high = src >> (64 - shift_bits);
+            size_t   destHigh = dest + 1;
+            if (destHigh >= words) continue;
+            if (bits[destHigh] & high) { conflict = true; break; }
+            newbits[destHigh] |= high;
+        }
+    }
+    return !conflict;
+}
 
 /*---------------------------------------*/
 /* Configuration constants               */
@@ -66,7 +104,7 @@ static bool has_duplicate_average(void)
             ibit++;
             m >>= 1;
         }
-        int g = gcd_int(sum, cnt);
+        int g = gcd_i32(sum, cnt);
         uint32_t key = ((uint32_t)(cnt / g)) * 10001U + (uint32_t)(sum / g);
 
         if (used[key]) {

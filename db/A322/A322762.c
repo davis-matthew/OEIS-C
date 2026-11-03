@@ -13,6 +13,7 @@
  *            non‑increasing order, replacing each j‑th occurrence of a...
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 137, u64 n <= 682,
  *            u128 n <= 9294, big any n
+ * Validated: standard, pass, 69 terms through n = 9117 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

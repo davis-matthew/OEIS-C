@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   compare_seq_t, is_prime_small
+ * Validated: full, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,18 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/compare_seq_t.h"
+#include <stdint.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+static int compare_seq_t(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 static const int D[6] = {0, 1, 4, 6, 8, 9};
 
@@ -28,7 +39,7 @@ static void gen_perm(seq_t cur, int depth, bool used[6],
                      seq_t *primes, size_t *cnt)
 {
     if (depth == 6) {
-        if (is_prime_small(cur)) {
+        if (is_prime_seq(cur)) {
             primes[*cnt] = cur;
             ++(*cnt);
         }
@@ -52,7 +63,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         bool used[6] = {false};
         gen_perm(0, 0, used, primes, &count);
-        qsort(primes, count, sizeof(seq_t), compare_seq_t);
+        mem_qsort(primes, count, sizeof(seq_t), compare_seq_t);
         initialized = true;
     }
 

@@ -8,6 +8,7 @@
  *            division up to sqrt(2^38 - 1))
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 6, u64 n <= 8, u128 n <= 8,
  *            big any n
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

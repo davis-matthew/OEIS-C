@@ -8,12 +8,14 @@
  * Formula:   a(n) = Sum_{k=1..n} binomial(n,k) * phi(k) * phi(n-k+1)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 26, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t _phi_precomputed = 0;
 static seq_t *_phi_cache = NULL;
@@ -24,7 +26,7 @@ static void _ensure_phi(idx_t n)
     if (n <= _phi_precomputed)
         return;
 
-    seq_t *new_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (n + 1));
     if (!new_cache)
         return; /* allocation failure – not expected for small n */
 
@@ -42,7 +44,7 @@ static void _ensure_phi(idx_t n)
         }
     }
 
-    free(_phi_cache);
+    mem_free(_phi_cache);
     _phi_cache = new_cache;
     _phi_precomputed = n;
 }

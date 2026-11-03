@@ -9,13 +9,20 @@
  *            starting with 8
  * Range:     u8 n <= 2, u16 n <= 22, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   power10_small
+ * Validated: standard, pass, 60 terms through n = 664 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/power10_small.h"
+
+static seq_t power10_small(int e)
+{
+    seq_t r = 1;
+    while (e--) r *= 10;
+    return r;
+}
 
 seq_t a(idx_t n)
 {

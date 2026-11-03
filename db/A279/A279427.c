@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 11, u32 n <= 2511, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, pow10, seq_realloc
+ * Validated: standard, pass, 62 terms through n = 9969 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +21,35 @@
    to at least 10 000. */
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static bool is_prop(seq_t k) {
     seq_t sq = k * k;                       /* k² */
-    int d = digit_len(sq);                  /* number of decimal digits */
+    int d = num_digits(sq);                  /* number of decimal digits */
     if ((d & 1) == 0) return false;         /* even number of digits */
     seq_t pow_half = pow10((idx_t)(d / 2));  /* 10^(floor(d/2)) */
     /* extract the middle digit */

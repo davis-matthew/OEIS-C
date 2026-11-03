@@ -11,6 +11,7 @@
  *            a(n)=a(q+4)-4*a(q+3)+6*a(q+2)-4*a(q+1)+a(q)
  * Range:     i8 n <= 302, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 89 terms through n = 9826 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 256, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor
+ * Validated: standard, pass, 54 terms through n = 9756 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
  * otherwise a(p^e) = p^4.
  */
 #include <stddef.h>
-#include "../utils/factor.h"
+#include <stdint.h>
+#include <stdbool.h>
+
+/* --------------------------------------------------------------- */
+static void factor(uint64_t n, uint64_t *pr, uint64_t *exp, size_t *cnt)
+{
+    size_t c = 0;
+    for (uint64_t p = 2; p*p <= n; ++p) {
+        if (n % p == 0) {
+            pr[c] = p; exp[c] = 0;
+            while (n % p == 0) { n /= p; ++exp[c]; }
+            ++c;
+        }
+    }
+    if (n > 1) { pr[c] = n; exp[c] = 1; ++c; }
+    *cnt = c;
+}
 
 seq_t a(idx_t n)
 {

@@ -11,14 +11,33 @@
  *            16*Sum_{d|m} (-1)^(m+d)*d^3, A000143(0) = 1
  * Range:     i8 n <= 4, i16 n <= 17, i32 n <= 196, i64 n <= 500,
  *            i128 n <= 500, big any n
- * Helpers:   r8_val
+ * Validated: standard, pass, 50 terms through n = 490 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/r8_val.h"
+
+static seq_t r8_val(long long m)
+{
+    seq_t s = 0;
+    long long d;
+    if (m == 0) return (seq_t)1;
+    for (d = 1; d * d <= m; d++) {
+        if (m % d == 0) {
+            long long e = m / d;
+            seq_t t = (seq_t)d * (seq_t)d * (seq_t)d;
+            if (((m + d) & 1) == 0) s += t; else s -= t;
+            if (e != d) {
+                seq_t u = (seq_t)e * (seq_t)e * (seq_t)e;
+                if (((m + e) & 1) == 0) s += u; else s -= u;
+            }
+        }
+    }
+    return (seq_t)16 * s;
+}
 
 seq_t a(idx_t n)
 {

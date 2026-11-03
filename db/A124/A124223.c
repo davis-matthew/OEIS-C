@@ -11,7 +11,8 @@
  *            mod prime(r)
  * Range:     u8 n <= 4181, u16 n <= 4181, u32 n <= 4181, u64 n <= 4181,
  *            u128 n <= 4181, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 107 terms through n = 4174 (2026-11-02)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,10 +23,10 @@
 #include <stdlib.h>
 
 /* Utility functions from the build.  Their headers must be included. */
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x);          */
-#include "../utils/mod_pow.h"   /* seq_t mod_pow(seq_t base,
-                                *              uint64_t exp,
-                                *              seq_t mod);   */
+#include <stdint.h>
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 /* Cache of primes generated so far. */
 static uint64_t * _prime_cache   = NULL;   /* array of generated primes   */
@@ -80,7 +81,7 @@ seq_t a(idx_t n)
         if (n <= cumulative_after) {                   /* this is the row */
             idx_t k = n - cumulative_before;           /* 1 ≤ k < prime */
             uint64_t p = _prime_cache[idx];            /* modulus */
-            return mod_pow((seq_t)k, p - 2ULL, (seq_t)p);
+            return powmod((seq_t)k, p - 2ULL, (seq_t)p);
         }
         cumulative_before = cumulative_after;
     }

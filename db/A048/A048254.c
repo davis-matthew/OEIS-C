@@ -10,7 +10,8 @@
  *            returns the n‑th term requested
  * Range:     u8 none, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   sigma_of
+ * Validated: full, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/sigma_of.h"   /* sigma_of(idx_t n) -> seq_t */
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 static seq_t *solutions = NULL;
 static size_t solutions_len = 0;
@@ -32,14 +48,14 @@ static void build_solutions(void)
     built = 1;
 
     solutions_cap = 32;
-    solutions = (seq_t *)malloc(solutions_cap * sizeof(seq_t));
+    solutions = mem_new(seq_t, solutions_cap);
     if (!solutions) exit(1);
 
     for (idx_t n = 1; n <= 1295; ++n) {
         if (sigma_of(n) == (seq_t)1296) {
             if (solutions_len == solutions_cap) {
                 solutions_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(solutions, solutions_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, solutions, solutions_cap);
                 if (!tmp) exit(1);
                 solutions = tmp;
             }

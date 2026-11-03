@@ -8,6 +8,7 @@
  *            0 then 2*n/3 elif n mod 3 = 1 then (4*n-1)/3 else (4*n+1)/3
  * Range:     u8 n <= 21, u16 n <= 69, u32 n <= 356, u64 n <= 681,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 68 terms through n = 925 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

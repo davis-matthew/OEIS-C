@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 1448, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 8998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *sigma = NULL;          /* sum of divisors */
 static unsigned char *abundant = NULL;  /* bool flag per number */
@@ -39,7 +41,7 @@ static void ensure_terms_capacity(size_t needed)
     if (needed <= term_cap) return;
     size_t new_cap = term_cap ? term_cap : 128;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp && new_cap) { /* allocation failure – abort */
         abort();
     }
@@ -53,9 +55,9 @@ static void ensure_terms_capacity(size_t needed)
 static void recompute_upto(idx_t limit)
 {
     /* Allocate or resize storage */
-    sigma = (seq_t *)realloc(sigma, (limit + 1) * sizeof(seq_t));
+    sigma = mem_resize(seq_t, sigma, (limit + 1));
     abundant = (unsigned char *)realloc(abundant, (limit + 1) * sizeof(unsigned char));
-    sum_abundant = (seq_t *)realloc(sum_abundant, (limit + 1) * sizeof(seq_t));
+    sum_abundant = mem_resize(seq_t, sum_abundant, (limit + 1));
     if (!sigma || !abundant || !sum_abundant) abort();
 
     /* Initialise sigma array */

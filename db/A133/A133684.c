@@ -8,7 +8,8 @@
  *            (for n ≥ 1)
  * Range:     u8 n <= 19, u16 n <= 35, u32 n <= 67, u64 n <= 131,
  *            u128 n <= 259, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached Jacobsthal numbers */
 static seq_t *jacob_cache = NULL;
@@ -34,7 +36,7 @@ static void ensure_jacob(idx_t n)
     if (jacob_cache == NULL) {
         /* At least two elements are needed for J(0) and J(1). */
         jacob_cap   = 4;
-        jacob_cache = (seq_t *)malloc(jacob_cap * sizeof(seq_t));
+        jacob_cache = mem_new(seq_t, jacob_cap);
         if (!jacob_cache) { /* allocation failure: abort the program – the build framework handles it */
             abort();
         }
@@ -47,7 +49,7 @@ static void ensure_jacob(idx_t n)
     while (jacob_len <= n) {
         if (jacob_len >= jacob_cap) {
             size_t new_cap = jacob_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(jacob_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, jacob_cache, new_cap);
             if (!tmp) abort();
             jacob_cache = tmp;
             jacob_cap   = new_cap;

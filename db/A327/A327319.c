@@ -7,16 +7,18 @@
  * Formula:   a(n) = binomial(n, 2) + 6 * binomial(n, 4)
  * Range:     u8 n <= 7, u16 n <= 24, u32 n <= 363, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 54 terms through n = 998 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
-    seq_t r2 = binom(n, 2);   /* binomial(n,2) */
-    seq_t r4 = binom(n, 4);   /* binomial(n,4) */
+    seq_t r2 = binomial(n, 2);   /* binomial(n,2) */
+    seq_t r4 = binomial(n, 4);   /* binomial(n,4) */
     return r2 + 6 * r4;
 }

@@ -9,21 +9,23 @@
  *            * binomial(n + 4, 8) + 232 * binomial(n + 4, 9)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 25, u64 n <= 311, u128 n <= 1000,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 43 terms through n = 850 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     idx_t m = n + 4;
     seq_t result = 0;
     
-    result += (seq_t)10 * binom(m, 6);
-    result += (seq_t)120 * binom(m, 7);
-    result += (seq_t)328 * binom(m, 8);
-    result += (seq_t)232 * binom(m, 9);
+    result += (seq_t)10 * binomial(m, 6);
+    result += (seq_t)120 * binomial(m, 7);
+    result += (seq_t)328 * binomial(m, 8);
+    result += (seq_t)232 * binomial(m, 9);
     
     return result;
 }

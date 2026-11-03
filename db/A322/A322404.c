@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   gcd_size_t, lcm_size_t
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,14 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/gcd_size_t.h"
-#include "../utils/lcm_size_t.h"
+#include "../utils/gcd_u64.h"
+
+/* Least common multiple */
+static inline size_t lcm_size_t(size_t a, size_t b)
+{
+    if (a == 0 || b == 0) return 0;
+    return (a / gcd_u64(a, b)) * b;
+}
 
 /* ---------- utilities ---------- */
 

@@ -12,13 +12,15 @@
  *            and counting multiplicities. The cache is * extended u...
  * Range:     u8 none, u16 none, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache_terms   = NULL;   /* sorted list of admissible sums   */
 static size_t cache_len     = 0;      /* number of terms stored           */
@@ -27,7 +29,7 @@ static int    cache_limit   = 0;      /* sqrt limit used in last build    */
 /* free previous cache */
 static void free_cache(void) {
     if (cache_terms) {
-        free(cache_terms);
+        mem_free(cache_terms);
         cache_terms = NULL;
     }
     cache_len   = 0;
@@ -67,7 +69,7 @@ static void build_terms(idx_t sqrt_limit, size_t need_terms) {
             ++found;
 
     /* allocate array for the admissible sums */
-    seq_t *terms = (seq_t*)malloc(found * sizeof(seq_t));
+    seq_t *terms = mem_new(seq_t, found);
     if (!terms) { free(cnt); exit(1); }
 
     /* fill the array in ascending order (the loop over i guarantees this) */

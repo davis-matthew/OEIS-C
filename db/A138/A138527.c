@@ -11,12 +11,14 @@
  *            {0,5} * 1 if d mod 10 ∈ {2,4,6,8} * 2 if d mod 10 ∈ {1,3,7,9} }
  * Range:     i8 n <= 15, i16 n <= 60, i32 n <= 330, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 939 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;
 static idx_t cached_n = 0;
@@ -27,12 +29,12 @@ static void ensure_cache(idx_t n)
     if (n <= cached_n) return;
 
     idx_t size = n + 1;
-    seq_t *new_a = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *new_a = mem_new(seq_t, size);
     if (!new_a) return;          /* allocation failure -- silently fail */
 
     /* temporary array for delta */
-    seq_t *delta = (seq_t *)calloc(size, sizeof(seq_t));
-    if (!delta) { free(new_a); return; }
+    seq_t *delta = mem_new(seq_t, size);
+    if (!delta) { mem_free(new_a); return; }
 
     /* compute delta[k] for 1 ≤ k ≤ n */
     for (idx_t d = 1; d <= n; ++d)
@@ -59,8 +61,8 @@ static void ensure_cache(idx_t n)
         new_a[i] = -(sum / (seq_t)i);
     }
 
-    free(delta);
-    free(a_cache);
+    mem_free(delta);
+    mem_free(a_cache);
     a_cache = new_a;
     cached_n = n;
 }

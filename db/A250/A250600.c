@@ -8,12 +8,18 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1, u64 n <= 6, u128 n <= 19,
  *            big any n
- * Helpers:   N_of_R
+ * Validated: standard, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/N_of_R.h"
+static seq_t N_of_R(idx_t R)
+{
+    seq_t r = R;
+    seq_t num = (r + 3) * (r + 3) * (r + 2) * (r + 2) * (r + 1) * (r + 4);
+    return num / 144;  /* num is always a multiple of 144 */
+}
 /* 
  * Formula: a(n) = (∏_{i=0}^{2} N( floor((n+1-i)/3)+1 ))³,
  *   where N(R) = ((R+3)² * (R+2)² * (R+1) * (R+4)) / 144.

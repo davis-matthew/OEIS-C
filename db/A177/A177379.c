@@ -10,12 +10,20 @@
  *            and idx_t
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 17,
  *            big any n
- * Helpers:   seq_alloc_array
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_alloc_array.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
  
 extern seq_t a(idx_t n)  /* external linkage as requested */
 {
@@ -38,8 +46,8 @@ extern seq_t a(idx_t n)  /* external linkage as requested */
         }
         /* free old storage if we had it */
         if (alloc_size > 0) {
-            free(A);
-            free(L);
+            mem_free(A);
+            mem_free(L);
         }
         A = newA;
         L = newL;

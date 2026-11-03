@@ -7,6 +7,7 @@
  * Formula:   a(n) = 20*floor((n-1)/8) + [3,4,6,7,13,14,16,17][(n-1)%8]
  * Range:     u8 n <= 102, u16 n <= 3740, u32 n <= 3740, u64 n <= 3740,
  *            u128 n <= 3740, big any n
+ * Validated: standard, pass, 80 terms through n = 3296 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

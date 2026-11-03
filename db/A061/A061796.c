@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 2500, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   sigma_of
+ * Validated: standard, pass, 75 terms through n = 2450 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/sigma_of.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -29,7 +45,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* 1. Compute sigma(1)..sigma(n) and find maximum */
-    seq_t *sigma = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *sigma = mem_new(seq_t, (size_t)n);
     if (!sigma)
         return 0;
 
@@ -46,7 +62,7 @@ seq_t a(idx_t n)
     size_t sum_limit = (size_t)max_sigma * 2 + 1;
     unsigned char *present = (unsigned char *)calloc(sum_limit, 1);
     if (!present) {
-        free(sigma);
+        mem_free(sigma);
         return 0;
     }
 
@@ -65,6 +81,6 @@ seq_t a(idx_t n)
     }
 
     free(present);
-    free(sigma);
+    mem_free(sigma);
     return distinct;
 }

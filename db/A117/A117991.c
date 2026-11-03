@@ -9,7 +9,8 @@
  *            are the first n composite numbers
  * Range:     u8 n <= 21, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   generate_composites
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,38 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/generate_composites.h"
+
+/* Simple sieve to generate composites up to a bound. */
+static void generate_composites(idx_t n, uint64_t *out)
+{
+    /* Rough upper bound for the n‑th composite.  For n<=10000 this is safe. */
+    idx_t limit = n * 20ULL + 100ULL;
+    /* Ensure limit is at least 10. */
+    if (limit < 10ULL) limit = 10ULL;
+
+    /* Increase limit until we have enough composites. */
+    while (true) {
+        /* Sieve of Eratosthenes. */
+        bool *is_prime = (bool *)malloc((limit + 1) * sizeof(bool));
+        if (!is_prime) abort();
+        for (idx_t i = 0; i <= limit; ++i) is_prime[i] = true;
+        is_prime[0] = is_prime[1] = false;
+        for (idx_t i = 2; i * i <= limit; ++i) {
+            if (is_prime[i]) {
+                for (idx_t j = i * i; j <= limit; j += i)
+                    is_prime[j] = false;
+            }
+        }
+        idx_t cnt = 0;
+        for (idx_t i = 4; i <= limit && cnt < n; ++i) {
+            if (!is_prime[i]) out[cnt++] = (uint64_t)i;
+        }
+        free(is_prime);
+        if (cnt >= n) return;
+        /* Not enough composites, increase bound. */
+        limit *= 2;
+    }
+}
 
 static inline uint64_t gcd_uint64(uint64_t a, uint64_t b)
 {

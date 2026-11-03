@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   a(n) = 10*n-19-9*((n-2) mod 9) for n>1, a(1)=0
- * Range:     u8 n <= 28, u16 n <= 6562, u32 n <= 9982, u64 n <= 9982,
- *            u128 n <= 9982, big any n
+ * Range:     u8 n <= 28, u16 n <= 6562, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 83 terms through n = 9982 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

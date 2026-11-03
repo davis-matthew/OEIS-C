@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     }
 
     /* Result array a[0 … n] */
-    seq_t *a_arr = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *a_arr = mem_new(seq_t, (size_t)n + 1);
     if (!a_arr) {
         /* Allocation failed – return 0 to avoid crashes */
         return 0;
@@ -44,9 +46,9 @@ seq_t a(idx_t n)
     /* Allocate DP table: (kmax+1) rows, (n+1) columns */
     size_t rows = (size_t)kmax + 1;
     size_t cols = (size_t)n + 1;
-    seq_t *dp = (seq_t *)calloc(rows * cols, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, rows * cols);
     if (!dp) {
-        free(a_arr);
+        mem_free(a_arr);
         return 0;
     }
 
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_arr[(size_t)n];
-    free(a_arr);
-    free(dp);
+    mem_free(a_arr);
+    mem_free(dp);
     return result;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 84 terms through n = 7310 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,9 @@
  * a(A231550(n)) = n for every n >= 0.
  */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 static seq_t a_rec(idx_t n)
 {
@@ -38,7 +41,7 @@ static seq_t a_rec(idx_t n)
     }
     else                                   /* odd case */
     {
-        unsigned k = floor_log2_uint64(n);  /* floor log2(n), k >= 1   */
+        unsigned k = ilog2(n);  /* floor log2(n), k >= 1   */
         seq_t mask = 0;
         for (idx_t i = 0; i < k; ++i)
             mask = (mask << 1) | 1;

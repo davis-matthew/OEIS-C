@@ -10,16 +10,26 @@
  *            8*n)) / 2 ) k is the offset within that row: k = n – (
  *            (r-1)*(r+2)/2 + 1 ) The function below uses the binomial
  *            coefficient and an odd-double-factorial to evaluate T(r,k) wi...
- * Range:     u8 n <= 11, u16 n <= 31, u32 n <= 47, u64 n <= 47, u128 n <= 47,
+ * Range:     u8 n <= 12, u16 n <= 31, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   _odd_double_factorial, binom
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/_odd_double_factorial.h"
+#include "../utils/binomial.h"
+
+/* Helper: odd double factorial (2k-1)!! */
+static seq_t _odd_double_factorial(idx_t k)
+{
+    seq_t res = 1;
+    for (idx_t i = 1; i < (idx_t)(2 * k); i += 2) {
+        res *= i;
+    }
+    return res;
+}
 
 /* Helper: find the row r that contains index n */
 static idx_t _row_of_idx(idx_t n)
@@ -55,7 +65,7 @@ seq_t a(idx_t n)
     /* T(r,k) = binom(2r, 2k) * (2k-1)!! */
     idx_t two_r = r << 1;
     idx_t two_k = k << 1;
-    seq_t val = binom(two_r, two_k);
+    seq_t val = binomial(two_r, two_k);
     val *= _odd_double_factorial(k);
     return val;
 }

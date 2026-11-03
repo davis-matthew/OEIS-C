@@ -8,8 +8,9 @@
  * Formula:   a(n) = multiplicative order of 10 mod prime(n), i.e. least m
  *            with 10^m == 1 (mod prime(n)); a(n) = 0 for prime(n) = 2, 5.
  *            Primes found by a sieve
- * Range:     u8 n <= 54, u16 n <= 6542, u32 n <= 9274, u64 n <= 9274,
- *            u128 n <= 9274, big any n
+ * Range:     u8 n <= 54, u16 n <= 6542, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 83 terms through n = 9274 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,14 +11,30 @@
  *            (Sum_s (n!/z(s)) * fixA[s]) / n! so every division is exact
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   divisor_sum
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/divisor_sum.h"
+
+static seq_t divisor_sum(uint64_t n, const idx_t *s, idx_t max_s) {
+    seq_t sum = 0;
+    for (uint64_t d = 1; d * d <= n; d++) {
+        if (n % d == 0) {
+            if (d <= (uint64_t)max_s) {
+                sum += (seq_t)d * (seq_t)s[d];
+            }
+            uint64_t d2 = n / d;
+            if (d != d2 && d2 <= (uint64_t)max_s) {
+                sum += (seq_t)d2 * (seq_t)s[d2];
+            }
+        }
+    }
+    return sum;
+}
 
 static uint64_t gcd_u64(uint64_t a, uint64_t b) {
     while (b != 0) {

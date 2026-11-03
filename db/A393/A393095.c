@@ -11,7 +11,8 @@
  *            a(2)=0, a(3)=1, a(4)=2, a(5)=2, a(6)=5, a(7)=6
  * Range:     u8 n <= 43, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   sum_formula
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sum_formula.h"
+#include "../utils/mem.h"
+
+/* Compute the value for index n using the sum formula (used for n<8). */
+static seq_t sum_formula(idx_t n)
+{
+    seq_t sum = 0;
+    idx_t m = n / 3;                 /* floor(n/3) */
+    for (idx_t j = 1; j <= m; ++j) {
+        /* ceil((n-j)/2) = ((n-j)+1)/2 for integer arithmetic */
+        seq_t term = (seq_t)((n - j) + 1) / 2;
+        sum += term;
+    }
+    return sum;
+}
 
 static seq_t *cache = NULL;          /* cache of computed values */
 static idx_t cache_cap = 0;          /* capacity of cache array */
@@ -31,7 +45,7 @@ static void ensure_cache(idx_t max_n)
         return;
 
     idx_t new_cap = max_n + 1;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) {
         /* In a contest setting we would handle allocation failure; here
            we simply abort. */
@@ -63,7 +77,7 @@ static void ensure_cache(idx_t max_n)
         }
     }
 
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_cap = new_cap;
 }

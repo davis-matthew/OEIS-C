@@ -7,7 +7,8 @@
  * Formula:   a(n) = A001358(n) + 1 (semiprime + 1)
  * Range:     u8 n <= 82, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9712 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* types supplied by the build */
 extern seq_t a(idx_t n);
@@ -60,12 +62,12 @@ static void rebuild_sieve(idx_t new_limit)
 
     /* free old semiprime array */
     if (semiprimes != NULL) {
-        free(semiprimes);
+        mem_free(semiprimes);
     }
 
     semiprime_cnt = 0;
     semiprime_cap = new_limit / 2 + 1;   /* initial rough capacity */
-    semiprimes = (seq_t *)malloc(semiprime_cap * sizeof(seq_t));
+    semiprimes = mem_new(seq_t, semiprime_cap);
 
     /* generate list of semiprimes up to new_limit */
     for (idx_t num = 4; num <= new_limit; ++num) {
@@ -78,7 +80,7 @@ static void rebuild_sieve(idx_t new_limit)
         if (spf[q] == (uint32_t)q) {
             if (semiprime_cnt == semiprime_cap) {
                 semiprime_cap <<= 1;
-                semiprimes = (seq_t *)realloc(semiprimes, semiprime_cap * sizeof(seq_t));
+                semiprimes = mem_resize(seq_t, semiprimes, semiprime_cap);
             }
             semiprimes[semiprime_cnt++] = (seq_t)num;
         }

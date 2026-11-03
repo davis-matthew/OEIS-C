@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 31, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Random utility function prototypes are assumed to be provided elsewhere.
    We only use standard headers and basic arithmetic. */
@@ -45,7 +47,7 @@ static void ensure_S_rows(idx_t r_needed)
     /* First time: create row 0. */
     if (S_rows == NULL) {
         S_rows = (seq_t**)calloc(1, sizeof(seq_t*));
-        seq_t *row0 = (seq_t*)calloc(1, sizeof(seq_t));
+        seq_t *row0 = mem_new(seq_t, 1);
         row0[0] = (seq_t)1;           /* S₂(0,0) = 1 */
         S_rows[0] = row0;
         max_S_row = 0;
@@ -53,7 +55,7 @@ static void ensure_S_rows(idx_t r_needed)
 
     for (size_t r = max_S_row + 1; r <= (size_t)r_needed; ++r) {
         size_t len = r + 1;
-        seq_t *row = (seq_t*)calloc(len, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         row[0] = (seq_t)0;
         row[r] = (seq_t)1;
         for (size_t k = 1; k < r; ++k) {
@@ -72,7 +74,7 @@ static void ensure_abs_s2(idx_t k_needed)
         return;
 
     size_t new_size = (size_t)k_needed + 1;   /* store indices 0..k_needed */
-    abs_s2 = (seq_t*)realloc(abs_s2, new_size * sizeof(seq_t));
+    abs_s2 = mem_resize(seq_t, abs_s2, new_size);
 
     abs_s2[0] = (seq_t)0;   /* unused */
     if (new_size > 1)

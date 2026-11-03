@@ -7,7 +7,8 @@
  * Formula:   a(n) = (2*n)! * (2*n+1)! / ((n+1)^2 * n!^3)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 11, u128 n <= 19,
  *            big any n
- * Helpers:   exp_number, pow_seq_fixed
+ * Validated: standard, pass, 32 terms through n = 248 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,19 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/exp_number.h"
-#include "../utils/pow_seq_fixed.h"
+#include "../utils/ipow_idx.h"
+
+/* v_p(x) : exponent of prime p in the integer x */
+static idx_t exp_number(idx_t x, idx_t p)
+{
+    idx_t e = 0;
+    while (x % p == 0)
+    {
+        ++e;
+        x /= p;
+    }
+    return e;
+}
 
 /* --- Helper functions ---------------------------------------------------- */
 
@@ -114,7 +126,7 @@ seq_t a(idx_t n)
             continue;
 
         /* multiply result by p^e */
-        seq_t factor = pow_seq_fixed((seq_t)p, e);
+        seq_t factor = ipow_idx((seq_t)p, e);
         result *= factor;
     }
 

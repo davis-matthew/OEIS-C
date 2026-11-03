@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _enum_divs
+ * Validated: standard, pass, 115 terms through n = 9746 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,28 @@
 /* Count the number of divisors of n that are congruent to 2 modulo 7.
    a(n) = #{ d : d | n , d ≡ 2 (mod 7) } */
 #include <stdlib.h>
-#include "../utils/_enum_divs.h"
+
+/* Helper: recursively enumerate all divisors from the factorisation
+   primes[0..cnt-1] with exponents exps[0..cnt-1] and count those
+   congruent to 2 mod 7. */
+static void _enum_divs(const idx_t primes[], const int exps[],
+                       int cnt, int idx, idx_t cur, seq_t *res)
+{
+    if (idx == cnt) {
+        if ((cur % (idx_t)7) == (idx_t)2)
+            (*res)++;
+        return;
+    }
+    idx_t val = cur;
+    /* iterate exponent 0 .. exps[idx] */
+    for (int e = 0; e <= exps[idx]; ++e) {
+        _enum_divs(primes, exps, cnt, idx + 1, val, res);
+        /* multiply by the prime for the next exponent; careful to
+           avoid overflow – val is always a divisor of n, thus <= n. */
+        if (e < exps[idx])   /* avoid unnecessary multiplication at the end */
+            val *= primes[idx];
+    }
+}
 
 /* External linkage function required by the build */
 seq_t a(idx_t n)

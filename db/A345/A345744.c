@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   count_omega_u64
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   bigomega_u64_to_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_omega_u64.h"
+#include "../utils/bigomega_u64_to_i32.h"
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------*/
 /*    Memoisation storage                                   */
@@ -40,7 +42,7 @@ static void ensure_cache_capacity(void)
     if (cache_len == cache_cap) {
         cache_cap = cache_cap ? cache_cap * 2 : 16;
         /* explicit cast for C++ compliance */
-        cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 }
 
@@ -49,7 +51,7 @@ static void generate_until(idx_t n)
 {
     uint64_t cand = last_checked + 1;
     while (cache_len < n) {
-        if (count_omega_u64(cand) >= 5 && count_omega_u64(cand + 1) >= 5) {
+        if (bigomega_u64_to_i32(cand) >= 5 && bigomega_u64_to_i32(cand + 1) >= 5) {
             ensure_cache_capacity();
             cache[cache_len++] = (seq_t)cand;
         }

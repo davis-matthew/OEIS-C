@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8177, u16 n <= 8177, u32 n <= 8177, u64 n <= 8177,
  *            u128 n <= 8177, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 6743 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,11 +41,11 @@ seq_t a(idx_t n)
         /* start with the symbol '1' */
         r_cap = 1;
         r_len = 1;
-        row   = (seq_t *)malloc(sizeof(seq_t) * r_cap);
+        row   = mem_new(seq_t, r_cap);
         row[0] = (seq_t)1;
         /* cache is empty initially */
         c_cap = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * c_cap);
+        cache = mem_new(seq_t, c_cap);
     }
 
     /* generate terms until `n` is reachable */
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
             if (c_cap <= c_len) {
                 idx_t new_cap = c_cap ? c_cap * 2 : 16;
                 if (new_cap <= c_len) new_cap = c_len + 1;
-                seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 c_cap = new_cap;
             }
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
         idx_t next_len = 0;
         /* maximum possible length is 3 * r_len, allocate conservatively */
         idx_t alloc_cap = r_len * 3 + 2;
-        seq_t *next_row = (seq_t *)malloc(sizeof(seq_t) * alloc_cap);
+        seq_t *next_row = mem_new(seq_t, alloc_cap);
 
         for (idx_t i = 0; i < r_len; ++i) {
             unsigned v = (unsigned)row[i];   /* values are 1 … 6 */
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(row);
+        mem_free(row);
         row   = next_row;
         r_len = next_len;
         r_cap = alloc_cap;

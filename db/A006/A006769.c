@@ -10,7 +10,8 @@
  *            products in exact 256-bit arithmetic)
  * Range:     i8 n <= 13, i16 n <= 20, i32 n <= 29, i64 n <= 42, i128 n <= 58,
  *            big any n
- * Helpers:   from_i128, seq_is_fixed_width
+ * Validated: standard, pass, 49 terms through n = 292 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,31 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/from_i128.h"
-#include "../utils/seq_is_fixed_width.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t from_i128(__int128 v)
+{
+    if (v >= -(__int128)4000000000000000000LL && v <= (__int128)4000000000000000000LL)
+        return (seq_t)(long long)v;
+    {
+        __int128 q = v / ((__int128)1 << 32);
+        long long rem = (long long)(v - q * ((__int128)1 << 32));
+        return from_i128(q) * (seq_t)4294967296LL + (seq_t)rem;
+    }
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 typedef unsigned __int128 u128_t;
 
@@ -101,14 +125,14 @@ seq_t a(idx_t n) {
         idx_t i;
         if (cache == NULL) {
             cache_cap = 32;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
             cache[0] = 0; cache[1] = 1; cache[2] = 1; cache[3] = -1; cache[4] = 1;
             cache_size = 5;
         }
         if (n < cache_size) return cache[n];
         if (n >= cache_cap) {
             idx_t new_cap = (n + 1) * 2;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
         for (i = cache_size; i <= n; i++) {

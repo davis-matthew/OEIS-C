@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2518, u16 n <= 9076, u32 n <= 9076, u64 n <= 9076,
  *            u128 n <= 9076, big any n
- * Helpers:   distinct_factors, find_primitive_root, powmod_idx
+ * Validated: standard, pass, 102 terms through n = 8116 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,51 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/distinct_factors.h"
-#include "../utils/find_primitive_root.h"
-#include "../utils/powmod_idx.h"
+#include "../utils/mem.h"
+
+static void distinct_factors(idx_t n, idx_t *factors, size_t *cnt)
+{
+    *cnt = 0;
+    idx_t d = 2;
+    while (d * d <= n) {
+        if (n % d == 0) {
+            factors[(*cnt)++] = d;
+            while (n % d == 0) n /= d;
+        }
+        if (d == 2) d = 3;
+        else d += 2;
+    }
+    if (n > 1) factors[(*cnt)++] = n;
+}
+
+static idx_t powmod_idx(idx_t base, idx_t exp, idx_t mod)
+{
+    idx_t result = 1 % mod;
+    idx_t b = base % mod;
+    while (exp) {
+        if (exp & 1)
+            result = (idx_t)((unsigned __int128)result * b % mod);
+        exp >>= 1;
+        if (exp)
+            b = (idx_t)((unsigned __int128)b * b % mod);
+    }
+    return result;
+}
+
+static idx_t find_primitive_root(idx_t p, const idx_t *factors, size_t fcnt)
+{
+    for (idx_t g = 2; g < p; ++g) {
+        int ok = 1;
+        for (size_t i = 0; i < fcnt; ++i) {
+            if (powmod_idx(g, (p - 1) / factors[i], p) == 1) {
+                ok = 0;
+                break;
+            }
+        }
+        if (ok) return g;
+    }
+    return 0;
+}
 
 /* --------------------------------------------------------------------- */
 /* Types and utility functions                                         */
@@ -72,7 +115,7 @@ static void ensure_term_cap(size_t new_cap)
     if (term_cap < new_cap) {
         size_t nc = term_cap ? term_cap << 1 : 8;
         if (nc < new_cap) nc = new_cap;
-        seq_t *tmp = (seq_t *)realloc(term_list, nc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, term_list, nc);
         if (!tmp) exit(1);
         term_list = tmp;
         term_cap  = nc;

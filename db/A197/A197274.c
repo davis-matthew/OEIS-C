@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 29, u64 n <= 59, u128 n <= 120,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 /* store initial values in a larger type to avoid compile‑time truncation */
 static const unsigned long long _init_vals[8] = {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 8;                           /* indices 0..7 */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return 0;             /* allocation failure */
 
         /* fill initial values (casting to seq_t at runtime) */
@@ -63,14 +65,14 @@ seq_t a(idx_t n)
     if (n > cached_max) {
         size_t needed_cap = (size_t)n + 1;          /* indices 0..n inclusive */
         if (needed_cap > cache_cap) {
-            seq_t *new_cache = (seq_t *)malloc(needed_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, needed_cap);
             if (new_cache == NULL) return 0;       /* allocation failure */
 
             /* copy existing values */
             for (idx_t i = 0; i <= cached_max; ++i)
                 new_cache[i] = cache[i];
 
-            free(cache);
+            mem_free(cache);
             cache     = new_cache;
             cache_cap = needed_cap;
         }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 98 terms through n = 9498 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 /* ---------- hash table for (value → count) ---------- */
 #define HASH_CAP (1 << 20)           /* 1,048,576 entries, load factor < 0.5 for 10 000 terms */
@@ -117,7 +118,7 @@ seq_t a(idx_t n) {
             seq_arr[0] = (seq_t)1;
             prev_len = 1;
             prev_sub[0].val = seq_arr[0];
-            prev_sub[0].len = bitlen_seq_t(seq_arr[0]);
+            prev_sub[0].len = bit_length(seq_arr[0]);
 
             /* record own subarray */
             hash_inc(seq_arr[0]);
@@ -133,7 +134,7 @@ seq_t a(idx_t n) {
         seq_arr[seq_len] = next_val;
         ++seq_len;
 
-        unsigned cur_len = bitlen_seq_t(next_val);
+        unsigned cur_len = bit_length(next_val);
 
         /* reset next buffer */
         next_len = 0;

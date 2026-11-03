@@ -7,6 +7,7 @@
  * Formula:   a(n) = mu(n) * prime(n) (OEIS A062007)
  * Range:     i8 n <= 32, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 91 terms through n = 974 (2026-11-01)
  * Helpers:   build_primes_upto, build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,8 +15,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/build_spf.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/build_spf.h"
 
 static idx_t *spf = NULL;
 static idx_t spf_limit = 0;

@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, core, easy, nice
  * Formula:   a(n) = n*(n+1)/2
- * Range:     u8 n <= 22, u16 n <= 361, u32 n <= 9231, u64 n <= 9231,
- *            u128 n <= 9231, big any n
+ * Range:     u8 n <= 22, u16 n <= 361, u32 n <= 30000, u64 n <= 30000,
+ *            u128 n <= 30000, big any n
+ * Validated: standard, pass, 70 terms through n = 9231 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

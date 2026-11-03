@@ -8,14 +8,16 @@
  *            sequence A342539)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   big_pow, calc_phi
+ * Validated: standard, pass, 38 terms through n = 342 (2026-11-01)
+ * Helpers:   ipow, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/calc_phi.h"   /* seq_t calc_phi(seq_t m);            */
-#include "../utils/big_pow.h"    /* seq_t big_pow(seq_t base, seq_t exp); */
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -30,16 +32,16 @@ seq_t a(idx_t n)
             idx_t d1 = d;
             idx_t d2 = n / d;
 
-            seq_t phi_d1 = calc_phi((seq_t)d1);   /* φ(d1)   */
-            seq_t phi_d2 = calc_phi((seq_t)d2);   /* φ(d2)   */
+            seq_t phi_d1 = totient_seq((seq_t)d1);   /* φ(d1)   */
+            seq_t phi_d2 = totient_seq((seq_t)d2);   /* φ(d2)   */
 
-            seq_t pow_d1 = big_pow(phi_d1, (seq_t)n);   /* φ(d1)^n */
+            seq_t pow_d1 = ipow(phi_d1, (seq_t)n);   /* φ(d1)^n */
             seq_t term1  = phi_d2 * pow_d1;            /* φ(d2)*φ(d1)^n */
 
             result += term1;
 
             if (d1 != d2) {
-                seq_t pow_d2 = big_pow(phi_d2, (seq_t)n);   /* φ(d2)^n */
+                seq_t pow_d2 = ipow(phi_d2, (seq_t)n);   /* φ(d2)^n */
                 seq_t term2  = phi_d1 * pow_d2;            /* φ(d1)*φ(d2)^n */
 
                 result += term2;

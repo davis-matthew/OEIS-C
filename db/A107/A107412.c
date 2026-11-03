@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Prime precomputation ------------------------------------------------- */
@@ -31,7 +33,7 @@ static void init_primes(void)
     static bool done = false;
     if (done) return;
 
-    primes = (seq_t *)malloc(PRIMES_LIMIT * sizeof(seq_t));
+    primes = mem_new(seq_t, PRIMES_LIMIT);
     if (!primes) exit(EXIT_FAILURE);
 
     bool *composite = (bool *)malloc((PRIMES_LIMIT + 1) * sizeof(bool));
@@ -66,7 +68,7 @@ static void seq_add(seq_t value)
 {
     if (seq_len >= seq_cap) {
         seq_cap = seq_cap == 0 ? 4 : seq_cap * 2;
-        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
         if (!seq) exit(EXIT_FAILURE);
     }
     seq[seq_len++] = value;
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
 {
     if (n < 1) return 0;          /* undefined for n < 1 */
     if (seq == NULL) {
-        seq = (seq_t *)malloc(4 * sizeof(seq_t));
+        seq = mem_new(seq_t, 4);
         if (!seq) exit(EXIT_FAILURE);
     }
     grow_seq(n);

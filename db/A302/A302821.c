@@ -13,13 +13,21 @@
  *            a(6)=2419, a(7)=7900, a(8)=25645, a(9)=83685, a(10)=273504,...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 18, u64 n <= 36, u128 n <= 74,
  *            big any n
- * Helpers:   _mult_loop
+ * Validated: standard, pass, 40 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/_mult_loop.h"
+#include "../utils/mem.h"
+
+static seq_t _mult_loop(seq_t a, unsigned int m)
+{
+    seq_t r = 0;
+    for (unsigned int i = 0; i < m; ++i) r += a;
+    return r;
+}
 
 static seq_t *cache   = NULL;    /* cache[0] unused, cache[i] = a(i) */
 static size_t cache_cap = 0;     /* allocated capacity (excluding index 0) */
@@ -30,7 +38,7 @@ static void _ensure_capacity(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
     if (!tmp) return;              /* if allocation fails, leave cache unchanged */
     cache = tmp;
     cache_cap = new_cap;

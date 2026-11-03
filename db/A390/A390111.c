@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = (3*binom(2*n, n) + 5*binom(2*n-2, n-1) - binom(2*n+2,
  *            n+1)) / 2
- * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 28, u128 n <= 28,
+ * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 28, u128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 27 terms through n = 28 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 /* Offset: 2 (a(2) = 4) */
 
 /* Include the binomial function from the utilities */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

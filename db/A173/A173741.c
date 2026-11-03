@@ -10,14 +10,15 @@
  *            subsequent terms follow the pattern described above
  * Range:     u8 n <= 59, u16 n <= 197, u32 n <= 646, u64 n <= 2376,
  *            u128 n <= 5150, big any n
- * Helpers:   binomial_generic
+ * Validated: standard, pass, 94 terms through n = 5027 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/binomial_generic.h"
+#include "../utils/binomial.h"
 
 /* Main function required by the framework. */
 seq_t a(idx_t n)
@@ -39,6 +40,6 @@ seq_t a(idx_t n)
     if (c == 0 || c == r) {
         return (seq_t)1;
     } else {
-        return binomial_generic(r, c) + (seq_t)4;
+        return binomial(r, c) + (seq_t)4;
     }
 }

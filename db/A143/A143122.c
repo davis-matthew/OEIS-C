@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 90, u64 n <= 230,
  *            u128 n <= 629, big any n
- * Helpers:   floor_isqrt_u64
+ * Validated: standard, pass, 61 terms through n = 4940 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
    Here a(n) is the triangle read row‑wise. */
 
 #include <stdint.h>
-#include "../utils/floor_isqrt_u64.h"   /* provides floor_isqrt_u64 */
+#include "../utils/isqrt.h"
 
 static idx_t find_row(idx_t n) {
     /* Find r such that r(r+1)/2 <= n < (r+1)(r+2)/2. */

@@ -7,7 +7,8 @@
  * Formula:   a(n) = n^2 * (n - φ(n)) (n ≥ 1)
  * Range:     u8 n <= 7, u16 n <= 47, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   phi_u64
+ * Validated: standard, pass, 60 terms through n = 889 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/phi_u64.h"
+#include "../utils/totient.h"
 
 /* External linkage sequence function */
 seq_t a(idx_t n)
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* Compute φ(n) */
-    seq_t phi = phi_u64(n);
+    seq_t phi = totient(n);
 
     /* Cototient of n is n - φ(n) */
     seq_t cot   = (seq_t)n - phi;

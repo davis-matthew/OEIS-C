@@ -14,7 +14,8 @@
  *            The function is called many times, so an effi...
  * Range:     u8 n <= 103, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_uint8, count_prime_factors, get_digits
+ * Validated: standard, pass, 93 terms through n = 9337 (2026-11-01)
+ * Helpers:   bigomega_seq, get_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,15 @@
 #include <string.h>
 
 /* Utility headers. */
+#include <stddef.h>
+#include "../utils/bigomega_seq.h"
 #include "../utils/get_digits.h"
-#include "../utils/count_prime_factors.h"
-#include "../utils/cmp_uint8.h"
+
+/* Comparator for qsort on uint8_t. */
+static int cmp_uint8(const void *a, const void *b)
+{
+    return (*(uint8_t *)a) - (*(uint8_t *)b);
+}
 
 /* Recursive permutation generator. */
 static void permute_rec(size_t pos,
@@ -40,7 +47,7 @@ static void permute_rec(size_t pos,
                         bool *best_set)
 {
     if (pos == len) {
-        seq_t fcnt = count_prime_factors(cur);
+        seq_t fcnt = bigomega_seq(cur);
         if (!*best_set ||
             fcnt < *best_fcnt ||
             (fcnt == *best_fcnt && cur < *best_val))

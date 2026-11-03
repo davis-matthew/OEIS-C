@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Euclid's algorithm for unsigned 64‑bit integers. */
 static inline uint64_t gcd_u64(uint64_t a, uint64_t b)
@@ -70,7 +72,7 @@ static void init_cache(void)
 
     /* Rough estimate of number of admissible pairs. */
     size_t est = (size_t)LIMIT * (LIMIT - 1) / 2;
-    struct Triple *arr = (struct Triple *)malloc(est * sizeof(struct Triple));
+    struct Triple *arr = mem_new(struct Triple, est);
     if (!arr) return;                  /* allocation failed, give up */
 
     size_t cnt = 0;
@@ -86,9 +88,8 @@ static void init_cache(void)
 
             if (cnt >= est) {                          /* grow array */
                 est = est + est / 2;
-                struct Triple *tmp = (struct Triple *)
-                    realloc(arr, est * sizeof(struct Triple));
-                if (!tmp) { free(arr); return; }
+                struct Triple *tmp = mem_resize(struct Triple, arr, est);
+                if (!tmp) { mem_free(arr); return; }
                 arr = tmp;
             }
             arr[cnt].s   = s;
@@ -98,20 +99,19 @@ static void init_cache(void)
     }
 
     /* Resize to actual count and sort. */
-    struct Triple *tmp = (struct Triple *)
-        realloc(arr, cnt * sizeof(struct Triple));
-    if (!tmp) { free(arr); return; }
+    struct Triple *tmp = mem_resize(struct Triple, arr, cnt);
+    if (!tmp) { mem_free(arr); return; }
     arr = tmp;
-    qsort(arr, cnt, sizeof(struct Triple), cmp_triple);
+    mem_qsort(arr, cnt, sizeof(struct Triple), cmp_triple);
 
     /* Copy sorted legs into cache. */
-    cache = (seq_t *)malloc(cnt * sizeof(seq_t));
-    if (!cache) { free(arr); return; }
+    cache = mem_new(seq_t, cnt);
+    if (!cache) { mem_free(arr); return; }
     for (size_t i = 0; i < cnt; ++i) {
         cache[i] = arr[i].leg;
     }
     cache_size = cnt;
-    free(arr);
+    mem_free(arr);
 }
 
 /* Public sequence function. */

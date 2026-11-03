@@ -7,6 +7,7 @@
  * Formula:   a(n) = 7 * floor((n-1)/5) + {1,2,3,5,6}[(n-1) mod 5]
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

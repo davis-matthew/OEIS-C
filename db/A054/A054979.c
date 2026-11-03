@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 571, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 9716 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----- factorise a uint64_t ------------------------------------------- */
 static void factorize_u64(uint64_t n, uint64_t primes[64],
@@ -105,7 +107,7 @@ static void ensure_cache(idx_t n)
         return;
 
     size_t new_len = (size_t)n;
-    void *tmp_ptr = realloc(cache, new_len * sizeof(seq_t));
+    void *tmp_ptr = mem_resize(seq_t, cache, new_len);
     if (!tmp_ptr && new_len) {
         abort();                /* allocation failed */
     }

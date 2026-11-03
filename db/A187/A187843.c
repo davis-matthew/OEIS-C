@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 951, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   enlarge_bool, enlarge_seq
+ * Validated: standard, pass, 86 terms through n = 1946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,8 +33,39 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/enlarge_bool.h"
-#include "../utils/enlarge_seq.h"
+#include "../utils/mem.h"
+
+/* enlarge bitmap of forbidden numbers */
+static void enlarge_bool(bool **table, size_t *cap, size_t need)
+{
+    if (*cap > need)
+        return;
+    size_t new_cap = (*cap > 0) ? (*cap << 1) : 256;
+    while (new_cap <= need)
+        new_cap <<= 1;
+    bool *tmp = (bool *)realloc(*table, new_cap * sizeof(bool));
+    if (!tmp)
+        abort();
+    for (size_t i = *cap; i < new_cap; ++i)
+        tmp[i] = false;
+    *table = tmp;
+    *cap = new_cap;
+}
+
+/* enlarge the sequence array */
+static void enlarge_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap > need)
+        return;
+    size_t new_cap = (*cap > 0) ? (*cap << 1) : 16;
+    while (new_cap <= need)
+        new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp)
+        abort();
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 /* Main function requested by the specification */
 seq_t a(idx_t n)

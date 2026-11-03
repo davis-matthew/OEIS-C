@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 9, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Adjacency matrices for each possible K value (0..3).  */
 static unsigned char adj[4][16][16] = {0};
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
     if (!cache) {
         /* allocate space for first few values; will grow as needed */
         cache_size = 2;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = 0;        /* a(0) unused */
         /* Initialise dp_cur: all one‑row states are possible for every K */
         for (int k = 0; k < 4; ++k)
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
         if (cache_size < needed) {
             size_t new_size = cache_size * 2;
             if (new_size < needed) new_size = needed;
-            cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_size);
             cache_size = new_size;
         }
         /* Extend DP to required length (rows = n+1).  */

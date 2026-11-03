@@ -13,12 +13,14 @@
  *            This...
  * Range:     u8 n <= 27, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *unrestricted = NULL;   /* partitions of k (unrestricted) */
 static size_t unrestricted_len = 0;  /* array length in elements */
@@ -32,7 +34,7 @@ static void ensure_unrestricted(idx_t limit)
     if ((size_t)(limit + 1) <= unrestricted_len)
         return;
     size_t new_len = (size_t)(limit + 1);
-    seq_t *buf = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, new_len);
     if (!buf) return; /* allocation failed; let caller handle zero result */
     for (size_t i = 0; i < new_len; ++i) buf[i] = 0;
     buf[0] = 1; /* empty partition */
@@ -43,7 +45,7 @@ static void ensure_unrestricted(idx_t limit)
         }
     }
 
-    free(unrestricted);
+    mem_free(unrestricted);
     unrestricted = buf;
     unrestricted_len = new_len;
 }
@@ -54,7 +56,7 @@ static void ensure_distinct(idx_t limit)
     if ((size_t)(limit + 1) <= distinct_len)
         return;
     size_t new_len = (size_t)(limit + 1);
-    seq_t *buf = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, new_len);
     if (!buf) return; /* allocation failed; let caller handle zero result */
     for (size_t i = 0; i < new_len; ++i) buf[i] = 0;
     buf[0] = 1; /* empty partition */
@@ -65,7 +67,7 @@ static void ensure_distinct(idx_t limit)
         }
     }
 
-    free(distinct);
+    mem_free(distinct);
     distinct = buf;
     distinct_len = new_len;
 }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 23, u32 n <= 52, u64 n <= 110, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,17 +29,18 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Try to allocate an array of n seq_t elements; return NULL if n==0. */
 static seq_t *alloc_array(idx_t n)
 {
-    return n ? (seq_t *)malloc(n * sizeof(seq_t)) : NULL;
+    return n ? mem_new(seq_t, n) : NULL;
 }
 
 /* Free an array previously allocated with alloc_array. */
 static void free_array(seq_t *p)
 {
-    free(p);
+    mem_free(p);
 }
 
 /* Main sequence function */

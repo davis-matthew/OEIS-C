@@ -7,14 +7,15 @@
  * Formula:   numbers whose base-13 representation has exactly 6 runs
  * Range:     u8 none, u16 none, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   capped_comb
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   binomial_u64_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/capped_comb.h"
+#include "../utils/binomial_u64_u32.h"
 
 /* precomputed powers of 12 up to 12^6 */
 static const uint64_t pow12[7] = {1ULL, 12ULL, 144ULL, 1728ULL, 20736ULL, 248832ULL, 2985984ULL};
@@ -22,7 +23,7 @@ static const uint64_t pow12[7] = {1ULL, 12ULL, 144ULL, 1728ULL, 20736ULL, 248832
 /* total numbers with exactly 6 runs for all lengths <= L: 12^6 * C(L,6) */
 static uint64_t total_len(uint64_t L)
 {
-    uint64_t comb = capped_comb(L, 6);
+    uint64_t comb = binomial_u64_u32(L, 6);
     __int128 t = (__int128)pow12[6] * comb;
     if (t > (uint64_t)-1) t = (uint64_t)-1;
     return (uint64_t)t;
@@ -50,7 +51,7 @@ seq_t a(idx_t n)
         /* choose run length l_i */
         uint64_t l_choice = 1;
         for (uint64_t l = 1; l <= rem_len - (rem_runs - 1); ++l) {
-            uint64_t comb = capped_comb(rem_len - l - 1, rem_runs - 2);
+            uint64_t comb = binomial_u64_u32(rem_len - l - 1, rem_runs - 2);
             __int128 count_l = (__int128)pow12[rem_runs] * comb;
             uint64_t count_l64 = (count_l > (uint64_t)-1) ? (uint64_t)-1 : (uint64_t)count_l;
             if (offset < count_l64) { l_choice = l; break; }
@@ -63,7 +64,7 @@ seq_t a(idx_t n)
         if (rem_runs == 1) {          /* last run, only one completion per digit */
             count_digit_each = 1;
         } else {
-            uint64_t comb = capped_comb(rem_len - l_choice - 1, rem_runs - 2);
+            uint64_t comb = binomial_u64_u32(rem_len - l_choice - 1, rem_runs - 2);
             __int128 count = (__int128)pow12[rem_runs - 1] * comb;
             count_digit_each = (count > (uint64_t)-1) ? (uint64_t)-1 : (uint64_t)count;
         }

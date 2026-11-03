@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Divisors of 572. a(n) is the nth divisor of 572 in ascending order. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int div_cmp(const void *p, const void *q) {
     const seq_t *x = (const seq_t *)p;
@@ -72,7 +74,7 @@ seq_t a(idx_t n) {
             }
         }
         /* sort divisors */
-        qsort(divs, div_count, sizeof(seq_t), div_cmp);
+        mem_qsort(divs, div_count, sizeof(seq_t), div_cmp);
     }
 
     if (n <= div_count)

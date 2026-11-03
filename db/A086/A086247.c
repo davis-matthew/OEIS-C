@@ -8,12 +8,14 @@
  *            7‑smooth numbers)
  * Range:     u8 n <= 74, u16 n <= 1180, u32 n <= 8519, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 112 terms through n = 9717 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (!smooth) {
         smooth_len = 1;                  /* smooth[0] = 1 */
-        smooth = (seq_t *)malloc(sizeof(seq_t));
+        smooth = mem_new(seq_t, 1);
         if (!smooth) abort();
         smooth[0] = (seq_t)1;
         i2 = i3 = i5 = i7 = 0;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         if (next7 < next) next = next7;
 
         /* append the new smooth number */
-        seq_t *tmp = (seq_t *)realloc(smooth, (smooth_len + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, smooth, (smooth_len + 1));
         if (!tmp) abort();
         smooth = tmp;
         smooth[smooth_len] = next;

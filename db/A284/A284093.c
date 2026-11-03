@@ -7,20 +7,22 @@
  * Formula:   a(n) = number of partitions of n into distinct parts of the form
  *            8*k-1
  * Range:     u8 n <= 298, u16 n <= 743, u32 n <= 2130, u64 n <= 6800,
- *            u128 n <= 9842, big any n
- * Helpers:   none
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 104 terms through n = 9842 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the sequence value for index n. */
 seq_t a(idx_t n)
 {
     /* Allocate array for dynamic programming.  Use a cast to satisfy C++ builds. */
     size_t sz = (size_t)n + 1;
-    seq_t *dp = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp) abort();
 
     /* Initialize DP array.  dp[0] = 1 (empty partition). */
@@ -37,6 +39,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -9,14 +9,22 @@
  *            indexed from 1
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   sum_is_prime
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/sum_is_prime.h"
+#include "../utils/mem.h"
+
+static inline bool sum_is_prime(int s)
+{
+    /* Prime values up to 18 are 2,3,5,7,11,13,17 */
+    return (s == 2 || s == 3 || s == 5 || s == 7 ||
+            s == 11 || s == 13 || s == 17);
+}
 
 seq_t a(idx_t n)
 {
@@ -43,7 +51,7 @@ seq_t a(idx_t n)
             if (terms_cap - terms_len < 1)    /* grow capacity */
             {
                 idx_t new_cap = terms_cap ? terms_cap * 2 : 16;
-                terms = (seq_t *)realloc(terms, sizeof(seq_t) * new_cap);
+                terms = mem_resize(seq_t, terms, new_cap);
                 terms_cap = new_cap;
             }
             terms[terms_len++] = (seq_t)cand;

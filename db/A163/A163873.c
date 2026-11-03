@@ -7,13 +7,15 @@
  * Formula:   a(n) = n - a(a(n-2)); a(0)=a(1)=0
  * Range:     u8 n <= 413, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 9912 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_cap = 0;
@@ -24,7 +26,7 @@ static void init_cache(void)
     if (!cache)
     {
         cache_cap = 2;
-        cache = (seq_t*)malloc((cache_cap + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_cap + 1));
         cache[0] = 0;
         cache[1] = 0;
         last_computed = 1;
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n)
         idx_t new_cap = cache_cap ? cache_cap : 1;
         while (new_cap <= n)
             new_cap <<= 1;
-        cache = (seq_t*)realloc(cache, (size_t)(new_cap + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)(new_cap + 1));
         cache_cap = new_cap;
     }
 }

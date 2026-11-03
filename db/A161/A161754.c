@@ -8,7 +8,8 @@
  * Formula:   a(n) = sum_{i=nonprime(n+1)}^{nonprime(n+2)} nonprime(i)
  * Range:     u8 n <= 47, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 75 terms through n = 9966 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *nonprimes   = NULL;   /* nonprime(i) stored at nonprimes[i] (1‑based) */
 static seq_t *prefix_sums = NULL;   /* prefix_sums[i] = Σ_{k=1}^{i} nonprimes[k] */
@@ -30,13 +32,13 @@ static void ensure_nonprimes_up_to(idx_t max_idx)
     while (nonprime_cnt <= max_idx) {
         uint64_t val = next_candidate++;                  /* candidate integer */
 
-        bool is_prime = (val >= 2) && is_prime_small((seq_t)val);
+        bool is_prime = (val >= 2) && is_prime_seq((seq_t)val);
         if (!is_prime) {                                 /* val is a nonprime */
 
             if (nonprime_cnt + 1 > nonprime_cap) {        /* grow storage */
                 idx_t new_cap = nonprime_cap ? nonprime_cap << 1 : 16;
-                nonprimes   = (seq_t*)realloc(nonprimes,   (new_cap + 1) * sizeof(seq_t));
-                prefix_sums = (seq_t*)realloc(prefix_sums, (new_cap + 1) * sizeof(seq_t));
+                nonprimes   = mem_resize(seq_t, nonprimes, (new_cap + 1));
+                prefix_sums = mem_resize(seq_t, prefix_sums, (new_cap + 1));
                 if (!nonprimes || !prefix_sums) abort();
                 if (nonprime_cap == 0) {                  /* first allocation */
                     prefix_sums[0] = (seq_t)0;

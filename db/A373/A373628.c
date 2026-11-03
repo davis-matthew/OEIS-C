@@ -11,7 +11,8 @@
  *            binom(4k + (r-k-i), r-k-i)
  * Range:     u8 n <= 6, u16 n <= 17, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binom, floor_triangle_index, pow_seq
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,27 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/pow_seq.h"
-#include "../utils/floor_triangle_index.h"
+#include "../utils/binomial.h"
+#include "../utils/ipow_i32.h"
+
+/* Binary search for largest r such that r(r+1)/2 ≤ n */
+static idx_t floor_triangle_index(idx_t n)
+{
+    idx_t lo = 0, hi = 1;
+    /* exponential search for an upper bound */
+    while ((__uint128_t)hi * (hi + 1) / 2 <= n) {
+        hi <<= 1;
+        if (hi == 0) { hi = UINT64_MAX >> 1; break; } /* avoid overflow */
+    }
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        if ((__uint128_t)mid * (mid + 1) / 2 <= n)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 /* Compute T(r,k) for 0 ≤ k ≤ r */
 static seq_t T_row_col(idx_t r, idx_t k)
@@ -38,13 +57,13 @@ static seq_t T_row_col(idx_t r, idx_t k)
 
     idx_t i_max = (m < 2 * k) ? m : 2 * k;
     for (idx_t i = 0; i <= i_max; ++i) {
-        seq_t term = binom(2 * k, i);         /* binom(2k, i) */
+        seq_t term = binomial(2 * k, i);         /* binom(2k, i) */
         term = term * p2;                    /* * 2^i */
-        term = term * binom(4 * k + m - i, m - i); /* * binom(4k + m - i, m - i) */
+        term = term * binomial(4 * k + m - i, m - i); /* * binom(4k + m - i, m - i) */
         sum = sum + term;
         p2  = p2 * (seq_t)2;                /* next power of 2 */
     }
-    seq_t nine_pow = pow_seq((seq_t)9, k);
+    seq_t nine_pow = ipow_i32((seq_t)9, k);
     return nine_pow * sum;
 }
 

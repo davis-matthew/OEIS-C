@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
     auxiliary memory.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -59,13 +61,13 @@ seq_t a(idx_t n)
 
     /* Allocate temporary storage for three consecutive polynomials. */
     size_t sz = (size_t)(r + 2);          /* maximal degree index for g[r] */
-    seq_t *a3 = (seq_t*)malloc(sz * sizeof(seq_t));
-    seq_t *a2 = (seq_t*)malloc(sz * sizeof(seq_t));
-    seq_t *a1 = (seq_t*)malloc(sz * sizeof(seq_t));
-    seq_t *c  = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *a3 = mem_new(seq_t, sz);
+    seq_t *a2 = mem_new(seq_t, sz);
+    seq_t *a1 = mem_new(seq_t, sz);
+    seq_t *c  = mem_new(seq_t, sz);
 
     if (!a3 || !a2 || !a1 || !c) {
-        free(a3); free(a2); free(a1); free(c);
+        mem_free(a3); mem_free(a2); mem_free(a1); mem_free(c);
         return 0;                       /* allocation failure – unlikely */
     }
     /* Zero initialise. */
@@ -100,10 +102,10 @@ seq_t a(idx_t n)
     seq_t result = a1[offset];            /* a1 now holds g[r] */
 
     /* Free all allocated memory. */
-    free(orig_a3);
-    free(orig_a2);
-    free(orig_a1);
-    free(orig_c);
+    mem_free(orig_a3);
+    mem_free(orig_a2);
+    mem_free(orig_a1);
+    mem_free(orig_c);
 
     return result;
 }

@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 973 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,8 @@
    listed explicitly because no simple closed form is known for them. */
 
 #include <stddef.h>          /* for size_t */
-#include "../utils/pow2.h"   /* provides seq_t pow2(idx_t) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
     /* Index 0 is unused – the sequence is 1‑based. */

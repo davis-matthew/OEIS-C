@@ -8,12 +8,14 @@
  *            = Sum_{d|k} d^2
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 24, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *sigma_cache = NULL;
 static idx_t sigma_cache_n = 0;
@@ -21,10 +23,10 @@ static idx_t sigma_cache_n = 0;
 static void recompute_sigma(idx_t n)
 {
     /* free old cache */
-    if (sigma_cache) free(sigma_cache);
+    if (sigma_cache) mem_free(sigma_cache);
 
     /* allocate new cache (indices 0..n) */
-    sigma_cache = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+    sigma_cache = mem_new(seq_t, (n + 1));
     if (!sigma_cache) {
         /* allocation failed – in the test harness this never
            happens, but we guard anyway. */

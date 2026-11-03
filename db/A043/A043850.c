@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 30, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    n up to about 10 000 (≈80 000 tested numbers). */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state: cache of found terms, current length and last tested number */
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
         /* initial allocation */
         if (!cache) {
             cap = 1024;
-            cache = (seq_t *)malloc(cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cap);
             if (!cache) return 0; /* allocation failure, unlikely */
         }
 
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
             if (runs % 8 == 0) {
                 if (length >= cap) {
                     cap *= 2;
-                    cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cap);
                     if (!cache) return 0; /* allocation failure */
                 }
                 cache[length++] = k;

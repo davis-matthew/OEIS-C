@@ -8,8 +8,9 @@
  * Keywords:  sign, look
  * Formula:   a(n) = p1(n)*p7(n) - p3(n)*p5(n) * where p_r(n) is the n‑th
  *            prime ≡ r (mod 8) (r = 1,3,5,7)
- * Range:     i8 n <= 1, i16 n <= 16, i32 n <= 9210, i64 n <= 9886,
- *            i128 n <= 9886, big any n
+ * Range:     i8 n <= 1, i16 n <= 16, i32 n <= 9210, i64 n <= 30000,
+ *            i128 n <= 30000, big any n
+ * Validated: standard, pass, 58 terms through n = 9886 (2026-11-01)
  * Helpers:   sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/sieve_primes.h"   /* provides static sieve_primes */
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/sieve_primes.h"
 
 static uint64_t *primes = NULL;         /* cached primes */
 static size_t    primes_cnt = 0;        /* number of cached primes  */

@@ -7,12 +7,14 @@
  * Formula:   a(n) = Product_{i=1..n} Sum_{d|i} sigma(d)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
     idx_t size = n + 1;
 
     /* sigma[i] will hold the sum of divisors of i */
-    seq_t *sigma = (seq_t*)calloc((size_t)size, sizeof(seq_t));
+    seq_t *sigma = mem_new(seq_t, (size_t)size);
     if (!sigma)
         return 0;
 
@@ -34,9 +36,9 @@ seq_t a(idx_t n)
     }
 
     /* S[i] = sum_{d|i} sigma(d) (i.e. the convolution sigma*1) */
-    seq_t *S = (seq_t*)calloc((size_t)size, sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, (size_t)size);
     if (!S) {
-        free(sigma);
+        mem_free(sigma);
         return 0;
     }
 
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         prod *= S[i];
     }
 
-    free(sigma);
-    free(S);
+    mem_free(sigma);
+    mem_free(S);
     return prod;
 }

@@ -8,14 +8,18 @@
  * Formula:   a(n) = Sum_{d|n} d * a(d-1)^(n/d) (a(0)=1)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +29,7 @@ seq_t a(idx_t n)
 
     /* initialise cache to hold a(0) */
     if (cache_cap == 0) {
-        cache     = (seq_t*)malloc(sizeof(seq_t));
+        cache     = mem_new(seq_t, 1);
         if (!cache) abort();
         cache[0]  = (seq_t)1;           /* a(0) = 1 */
         cache_cap = 1;
@@ -38,7 +42,7 @@ seq_t a(idx_t n)
 
     /* extend the cache array up to index n */
     idx_t new_cap = n + 1;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
 
@@ -51,14 +55,14 @@ seq_t a(idx_t n)
             if (i % d == 0) {
                 /* divisor d */
                 idx_t exp1 = i / d;
-                seq_t term1 = big_pow(cache[d - 1], (seq_t)exp1);
+                seq_t term1 = ipow(cache[d - 1], (seq_t)exp1);
                 sum += (seq_t)d * term1;
 
                 /* paired divisor i/d */
                 idx_t d2 = i / d;
                 if (d2 != d) {
                     idx_t exp2 = i / d2;   /* equals d */
-                    seq_t term2 = big_pow(cache[d2 - 1], (seq_t)exp2);
+                    seq_t term2 = ipow(cache[d2 - 1], (seq_t)exp2);
                     sum += (seq_t)d2 * term2;
                 }
             }

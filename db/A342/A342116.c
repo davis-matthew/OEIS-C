@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 119, u16 n <= 5039, u32 n <= 5039, u64 n <= 5039,
  *            u128 n <= 5039, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 4807 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External integer types – defined in the build. */
 #ifndef idx_t
@@ -137,14 +139,14 @@ static void build_cache(idx_t limit)
 {
     /* free previous cache */
     if (CACHE) {
-        free(CACHE);
+        mem_free(CACHE);
         CACHE = NULL;
     }
     CACHE_SIZE = 0;
 
     size_t l = (size_t)limit;
     struct Entry *entries = (struct Entry *)malloc(l * sizeof(struct Entry));
-    seq_t *new_cache = (seq_t *)malloc(l * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, l);
 
     /* initialise all cache entries to zero to properly construct
        each seq_t element (works for integral and arbitrary‑precision

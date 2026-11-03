@@ -8,7 +8,8 @@
  *            to sqrt(649)
  * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 16, u64 n <= 36, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 177 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence: a(0)=25; for n≥1, a(n)=coeff_n*a(n-1)+a(n-2), where coeff_n are the continued‑fraction coefficients of sqrt(649). */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* stores the periodic part of the continued‑fraction coefficients of sqrt(649) */
 static uint64_t *period = NULL;
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_cap)
     {
         size_t newcap = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp)
             exit(1);
         cache = tmp;

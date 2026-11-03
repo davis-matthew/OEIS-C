@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 12, u32 n <= 35, u64 n <= 81, u128 n <= 173,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute the n-th term of sequence A296280. */
 seq_t a(idx_t n)
@@ -35,11 +37,11 @@ seq_t a(idx_t n)
     /* Allocate arrays for a[0..n] and b[0..n+2] (a few extra slots). */
     size_t szA = (size_t)n + 1;
     size_t szB = (size_t)n + 3;           /* enough for indices up to n */
-    seq_t *A = (seq_t *)calloc(szA, sizeof(seq_t));
-    seq_t *B = (seq_t *)calloc(szB, sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, szA);
+    seq_t *B = mem_new(seq_t, szB);
     if (!A || !B) {
-        free(A);
-        free(B);
+        mem_free(A);
+        mem_free(B);
         return (seq_t)0;                  /* allocation failure (unlikely) */
     }
 
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = A[n];
-    free(A);
-    free(B);
+    mem_free(A);
+    mem_free(B);
     return result;
 }

@@ -10,12 +10,14 @@
  *            utilities
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 6, i64 n <= 11, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 415 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* Static cache for computed values */
 static seq_t *cache = NULL;        /* array of cached a(i) */
@@ -32,9 +34,9 @@ static void ensure_cache(idx_t n)
     seq_t *new_cache = NULL;
 
     if (cache) {                            /* reuse existing storage */
-        new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        new_cache = mem_resize(seq_t, cache, new_cap);
     } else {                                 /* first allocation */
-        new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        new_cache = mem_new(seq_t, new_cap);
     }
     if (!new_cache)                          /* allocation failed – leave cache as is */
         return;

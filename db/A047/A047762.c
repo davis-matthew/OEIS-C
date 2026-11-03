@@ -12,12 +12,14 @@
  *            description: * * G(z) = 1 + z·G(z)^3 (generating function of...
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 24, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*--- Static state ---------------------------------------------------*/
 static seq_t *G  = NULL;          /* G[0..cap-1]   */
@@ -32,7 +34,7 @@ static void ensure_G(idx_t need)
     if (G_cap > need) return;
 
     /* Allocate or enlarge storage. */
-    seq_t *tmp = (seq_t*)realloc(G, (need + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, G, (need + 1));
     if (!tmp) return;               /* allocation failure → ignore   */
     G = tmp;
 
@@ -60,7 +62,7 @@ static void ensure_G2(idx_t need)
 {
     if (G2_cap > need) return;
 
-    seq_t *tmp = (seq_t*)realloc(G2, (need + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, G2, (need + 1));
     if (!tmp) return;
     G2 = tmp;
 

@@ -7,6 +7,7 @@
  * Formula:   a(n) = Product_{d|n, d>1} prime(1+(d mod 6))
  * Range:     u8 n <= 7, u16 n <= 29, u32 n <= 119, u64 n <= 839,
  *            u128 n <= 8192, big any n
+ * Validated: standard, pass, 83 terms through n = 7835 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

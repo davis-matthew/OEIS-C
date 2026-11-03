@@ -10,12 +10,14 @@
  *            A₈=1
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 24, u64 n <= 582, u128 n <= 1000,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 44 terms through n = 990 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* w = 0 term (A₀ = 1) */
     for (idx_t j = 0; j <= 8 && j <= n; ++j) {
-        seq_t term = binom(8, j) * binom(7 + (n - j), 7);
+        seq_t term = binomial(8, j) * binomial(7 + (n - j), 7);
         res += term;
     }
 
@@ -31,14 +33,14 @@ seq_t a(idx_t n)
     if (n >= 2) {
         idx_t R = n - 2;           /* R = n - w/2 */
         for (idx_t j = 0; j <= 4 && j <= R; ++j) {
-            seq_t term = binom(4, j) * binom(7 + (R - j), 7);
+            seq_t term = binomial(4, j) * binomial(7 + (R - j), 7);
             res += (seq_t)224 * term;
         }
     }
 
     /* w = 8 term (A₈ = 1, 2⁸ = 256) */
     if (n >= 4) {
-        seq_t term = binom(7 + (n - 4), 7); /* binom(n+3, 7) */
+        seq_t term = binomial(7 + (n - 4), 7); /* binom(n+3, 7) */
         res += (seq_t)256 * term;
     }
 

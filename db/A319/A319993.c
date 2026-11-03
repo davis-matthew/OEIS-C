@@ -9,8 +9,9 @@
  *            Thus for odd n: a(n) = n / rad(n) and for n = 2·m with m odd:
  *            a(n) = − (m / rad(m)). For n divisible by a higher power of 2:
  *            a(n) = 0
- * Range:     i8 n <= 728, i16 n <= 9481, i32 n <= 9481, i64 n <= 9481,
- *            i128 n <= 9481, big any n
+ * Range:     i8 n <= 728, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9481 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static seq_t odd_part_over_rad(idx_t m)

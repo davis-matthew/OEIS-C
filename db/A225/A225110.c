@@ -11,7 +11,8 @@
  *            m in increasing order. * For m = 1, a(1) = 1 with q = 1
  * Range:     u8 n <= 3, u16 n <= 38, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, uint64_cmp
+ * Validated: standard, pass, 71 terms through n = 9663 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/uint64_cmp.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static int uint64_cmp(const void *p, const void *q)
+{
+    uint64_t a = *(const uint64_t*)p;
+    uint64_t b = *(const uint64_t*)q;
+    return (a > b) - (a < b);
+}
 
 /* ------------------------------------------------------------------ */
 /*  Helper: GCD for generic seq_t                                   */
@@ -43,7 +52,7 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t need)
     if (*cap < need) {
         size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
         while (newcap < need) newcap <<= 1;
-        *arr = (seq_t*)realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
 }

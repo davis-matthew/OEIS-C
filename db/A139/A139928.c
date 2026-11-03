@@ -7,7 +7,8 @@
  * Formula:   primes of the form 2x^2 + 165y^2, offset 1 (a(1)=2)
  * Range:     u8 n <= 4, u16 n <= 413, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 58 terms through n = 9451 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Cached sequence values */
 static seq_t *seq_terms = NULL;
@@ -45,7 +47,7 @@ static void append_seq(seq_t v)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? (seq_cap << 1) : 16;
-        seq_terms = (seq_t*)realloc(seq_terms, seq_cap * sizeof(seq_t));
+        seq_terms = mem_resize(seq_t, seq_terms, seq_cap);
     }
     seq_terms[seq_len++] = v;
 }

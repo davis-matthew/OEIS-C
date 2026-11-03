@@ -8,12 +8,14 @@
  * Formula:   a(n) = 2^(n-17)*(n^3+414*n^2+12227*n-30762)/3 (valid for n>12)
  * Range:     u8 n <= 9, u16 n <= 12, u32 n <= 31, u64 n <= 61, u128 n <= 123,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 973 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* For n ≤ 12 the values are taken from the initial table.                       */
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

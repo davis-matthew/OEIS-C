@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 157, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 57 terms through n = 1000 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached primes */
 static size_t cap = 0;           /* allocated capacity */
@@ -32,7 +34,7 @@ static idx_t next_k = 0;         /* multiplier for 41*k + 10 */
 static void grow_cache(void)
 {
     size_t new_cap = (cap == 0) ? 64 : cap << 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();            /* allocation failed */
     cache = tmp;
     cap = new_cap;
@@ -54,7 +56,7 @@ static seq_t find_next_prime(void)
         unsigned long long cand = 41ULL * (unsigned long long)next_k + 10ULL;
         ++next_k;                          /* advance for next call */
         if (cand < 2ULL) continue;          /* 10, 51, … are < 2 */
-        if (is_prime_small((uint64_t)cand))
+        if (is_prime_seq((uint64_t)cand))
             return (seq_t)cand;
     }
 }
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
     /* initialise the cache on first entry */
     if (!cache) {
         cap = 64;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();
         len = 0;
     }

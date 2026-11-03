@@ -11,16 +11,34 @@
  *            f) = (f^3 + 3 f f(x^2) + 2 f(x^3))/6. Computed as...
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   grow_one, mset2, tri_m
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem, triangular_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/grow_one.h"
-#include "../utils/mset2.h"
-#include "../utils/tri_m.h"
+#include "../utils/triangular_seq.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_one(seq_t *p, idx_t oldlen, idx_t newlen) {
+    seq_t *q = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < oldlen; i++) q[i] = p[i];
+    for (i = oldlen; i < newlen; i++) q[i] = 0;
+    if (p) mem_free(p);
+    return q;
+}
+
+/* multisets of size 2 of g at weight k */
+static seq_t mset2(const seq_t *g, idx_t k) {
+    seq_t s = 0;
+    idx_t i;
+    for (i = 0; 2 * i < k; i++) s += g[i] * g[k - i];
+    if (k % 2 == 0) s += triangular_seq(g[k / 2]);
+    return s;
+}
 
 static int fixedw = -1;
 static seq_t inv3;

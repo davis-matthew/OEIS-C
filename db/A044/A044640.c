@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has08
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,35 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/has08.h"
+
+/* Return true if the base‑9 digits of n contain a "0" immediately
+ * followed by an "8". */
+static bool has08(seq_t n)
+{
+    if (n == 0)
+        return false;
+
+    unsigned char d[64];
+    size_t len = 0;
+    seq_t t = n;
+
+    /* Write digits in reverse order (least significant first). */
+    while (t != 0) {
+        d[len++] = (unsigned char)(t % 9);
+        t /= 9;
+    }
+
+    if (len < 2)
+        return false;
+
+    /* Scan forward (most significant → least significant) looking
+     * for 0 followed by 8. */
+    for (size_t i = len; i-- > 1;) {
+        if (d[i] == 0 && d[i - 1] == 8)
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

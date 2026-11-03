@@ -10,7 +10,8 @@
  *            C(n-1, i-1) * T(n-i, k-1)
  * Range:     u8 n <= 30, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* ---------- required headers ---------- */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- helper: binomial coefficient C(n,k) for k≤5 (exact) ---------- */
 static inline seq_t binom_small(idx_t n, int k)
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     while (rows_count <= r) {
         idx_t cur = rows_count;
         /* allocate row of length cur+1, initialize to zero */
-        seq_t *row = (seq_t*)calloc((size_t)(cur + 1), sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)(cur + 1));
         if (!row) abort();  /* OOM */
         if (cur == 0) {
             row[0] = 1;      /* T(0,0)=1 */

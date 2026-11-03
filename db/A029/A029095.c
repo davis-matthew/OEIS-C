@@ -9,19 +9,21 @@
  *            {1,5,7,12} The algorithm runs in O(4·n) time and O(n) memory
  * Range:     u8 n <= 74, u16 n <= 536, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     size_t sz = (size_t)(n + 1);
     /* Allocate an array to hold the coin‑change counts.
        The array is initialized to zero (except dp[0] which is set to 1). */
-    seq_t *dp = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp) /* out of memory – return 0 as a safe fallback */
         return (seq_t)0;
 
@@ -40,6 +42,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

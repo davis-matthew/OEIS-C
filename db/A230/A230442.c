@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of q^n in ∏_{k>0} (1 - q^k)^2 (1 - q^{2k})
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 855 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    by each factor (1 - q^k)^2 (1 - q^{2k}) one at a time. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration for internal recomputation routine */
 static void recompute_to(idx_t n);
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 static void recompute_to(idx_t n)
 {
     size_t N = (size_t)n + 1;           /* number of elements required   */
-    seq_t *new_cache = (seq_t *)malloc(N * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, N);
     if (!new_cache)
         return; /* allocation failed; leave cache unchanged */
 
@@ -66,7 +68,7 @@ static void recompute_to(idx_t n)
 
     /* Replace old cache with new one */
     if (cache)
-        free(cache);
+        mem_free(cache);
     cache     = new_cache;
     cache_len = N;
 }

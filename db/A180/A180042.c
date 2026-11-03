@@ -10,13 +10,15 @@
  *            (i.e., ∑_{p^k||m} φ(p^k) ≤ 7 )
  * Range:     u8 n <= 17, u16 n <= 17, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* comparison function for qsort on seq_t */
 static int cmp_seq(const void *p1, const void *p2)
@@ -44,7 +46,7 @@ static void build_seq(void)
     const struct { seq_t val, phi; } p7[2] = { {1,0}, {7,6} };
 
     /* Allocate capacity for all possible combinations (≤ 4·3·2·2 = 48) */
-    seq_vals = (seq_t *)malloc(64 * sizeof(seq_t));
+    seq_vals = mem_new(seq_t, 64);
     if (!seq_vals) return;              /* out of memory – should not happen */
 
     size_t idx = 0;
@@ -63,7 +65,7 @@ static void build_seq(void)
 
     seq_len = idx;
     /* sort and remove duplicates (duplicates cannot occur here, but keep safe) */
-    qsort(seq_vals, seq_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(seq_vals, seq_len, sizeof(seq_t), cmp_seq);
 
     /* ensure unique values if any duplicates appear */
     size_t uniq = 1;

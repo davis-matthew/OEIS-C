@@ -8,13 +8,15 @@
  *            a(3)=37
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for memoisation */
 static seq_t *dp = NULL;          /* computed terms */
@@ -28,7 +30,7 @@ static void ensure_up_to(idx_t n)
     /* Initialise the table on first use, guaranteeing space for the 4 base cases */
     if (!initialized) {
         capacity = (size_t)(n + 1 > 4 ? n + 1 : 4);          /* at least 4 entries */
-        dp = (seq_t *)malloc(capacity * sizeof(seq_t));
+        dp = mem_new(seq_t, capacity);
         if (!dp) abort();                                   /* out of memory */
         dp[0] = 0;
         dp[1] = 2;
@@ -41,7 +43,7 @@ static void ensure_up_to(idx_t n)
     /* Grow the allocation if necessary */
     if ((size_t)(n + 1) > capacity) {
         capacity = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(dp, capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, capacity);
         if (!tmp) abort();
         dp = tmp;
     }

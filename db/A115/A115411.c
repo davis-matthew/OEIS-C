@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 89, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- helper: extended gcd for 64‑bit integers ---------- */
 static int64_t egcd(int64_t a, int64_t b, int64_t *x, int64_t *y)
@@ -123,8 +125,7 @@ static void ensure_semiprimes(idx_t need)
 
             /* grow cache if needed */
             if (cache_cap < semiprime_cnt) {
-                cache = (seq_t *)realloc(cache,
-                                          semiprime_cnt * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, semiprime_cnt);
                 /* initialise new positions to 0 */
                 for (size_t i = cache_cap; i < semiprime_cnt; ++i)
                     cache[i] = 0;

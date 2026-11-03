@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 45, i32 n <= 45, i64 n <= 45, i128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    The function caches computed terms for efficiency and works for any n ≥ 2. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Handle indices below the offset */
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
     /* Ensure the cache is initialized to hold the base values */
     if (cache == NULL) {
         cached_max = sizeof(base_vals) / sizeof(base_vals[0]) - 1; /* 13 */
-        cache = (seq_t *)malloc((cached_max + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cached_max + 1));
         for (idx_t i = 0; i <= cached_max; ++i)
             cache[i] = base_vals[i];
     }
@@ -57,7 +59,7 @@ seq_t a(idx_t n) {
     /* Grow cache if necessary */
     if (n > cached_max) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) /* allocation failure */
             return 0; /* fallback; normally should handle error */
         cache = new_cache;

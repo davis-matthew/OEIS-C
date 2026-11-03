@@ -10,13 +10,15 @@
  *            length exactly 3
  * Range:     u8 n <= 3, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static bool has_max_run3(seq_t v)
 {
@@ -54,7 +56,7 @@ static void extend_cache(size_t target)
     if (cache_size >= target) return;
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
     /* Search for additional terms until we have 'target' of them */
     while (cache_size < target) {
@@ -62,7 +64,7 @@ static void extend_cache(size_t target)
         if (has_max_run3(val)) {
             if (cache_size >= cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t*)realloc(cache, sizeof(seq_t) * cache_cap);
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = val;
         }

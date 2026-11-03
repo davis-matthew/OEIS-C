@@ -9,7 +9,8 @@
  *            (c(1)=4, c(2)=6, …) d(n) = number of divisors of c(n)
  * Range:     u8 n <= 38, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   divisor_count_u64, gcd, is_prime
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-01)
+ * Helpers:   gcd, is_prime, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
-#include "../utils/divisor_count_u64.h"
 #include "../utils/gcd.h"
+#include "../utils/is_prime.h"
+#include "../utils/num_divisors.h"
 
 /* Cache of computed composite numbers */
 static uint64_t *comps = NULL;   /* array of composites */
@@ -68,7 +69,7 @@ seq_t a(idx_t n)
 
     uint64_t c_val = comps[n - 1];
     seq_t c = (seq_t)c_val;
-    seq_t d = divisor_count_u64(c_val);  /* number of divisors of c_val */
+    seq_t d = num_divisors(c_val);  /* number of divisors of c_val */
     seq_t g = gcd(c, d);
     seq_t result = (seq_t)n * g;
     return result;

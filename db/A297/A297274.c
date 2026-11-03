@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 5967, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_property
+ * Validated: standard, pass, 73 terms through n = 9964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,32 @@
    Computed by brute force search and memoized. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/digit_property.h"
+#include "../utils/mem.h"
+
+/* Helper: true if the base‑11 down‑variation equals the up‑variation of n */
+static bool digit_property(seq_t n)
+{
+    if (n == 0)
+        return true;                /* trivially true for 0 */
+
+    seq_t temp = n;
+    seq_t prev = temp % 11;
+    temp /= 11;
+
+    seq_t dv = 0;
+    seq_t uv = 0;
+    while (temp > 0) {
+        seq_t cur = temp % 11;
+        if (cur > prev) {
+            dv += (cur - prev);
+        } else if (cur < prev) {
+            uv += (prev - cur);
+        }
+        prev = cur;
+        temp /= 11;
+    }
+    return dv == uv;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,7 +56,7 @@ seq_t a(idx_t n)
     /* initialise cache */
     if (cache == NULL) {
         cache_cap = 256;                /* initial capacity */
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();            /* unrecoverable if out of memory */
     }
 
@@ -43,7 +69,7 @@ seq_t a(idx_t n)
         /* grow cache if needed */
         if (cache_size == cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             cache = tmp;
             cache_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 253, u16 n <= 9730, u32 n <= 9730, u64 n <= 9730,
  *            u128 n <= 9730, big any n
- * Helpers:   _a378200
+ * Validated: standard, pass, 82 terms through n = 8270 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,43 @@
  */
 
 #include <stdint.h>
-#include "../utils/_a378200.h"
+
+static inline seq_t _a378200(idx_t n)
+{
+    /* Handle the offset (sequence is 1‑based).  For n == 0 return 0. */
+    if (n == 0) {
+        return (seq_t)0;
+    }
+
+    /* Find the block row r where n falls: smallest r s.t. 2r²–r ≥ n. */
+    idx_t r = 1;
+    while ((seq_t)2 * (seq_t)r * (seq_t)r - (seq_t)r < (seq_t)n) {
+        r++;
+    }
+
+    /* Cumulative size of all previous blocks: S(r-1) = 2(r-1)² – (r-1). */
+    idx_t r1 = r - 1;
+    seq_t start_offset = (seq_t)2 * (seq_t)r1 * (seq_t)r1 - (seq_t)r1;
+
+    /* Position within the current block (0‑based). */
+    idx_t pos_in_row = n - ((idx_t)start_offset + 1);
+    idx_t k = pos_in_row + 1;                 /* 1‑based column index */
+
+    seq_t m = (seq_t)2 * (seq_t)r - 1;        /* 2r – 1 */
+    seq_t P;                                  /* offset within the block */
+
+    if (k < m) {
+        if (k & 1) {                          /* k odd   */
+            P = m - (seq_t)k - 1;
+        } else {                              /* k even  */
+            P = m - (seq_t)k + 1;
+        }
+    } else {                                  /* k ≥ m   */
+        P = 3 * m - (seq_t)k - 1;
+    }
+
+    return start_offset + P;
+}
 
 /* Within the build the following types are defined:
  *   seq_t  – unsigned integer type (8, 16, 32, 64‑bit or arbitrary‑precision)

@@ -13,13 +13,15 @@
  *            ignored because all summands must be * positive). The compu...
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Count the number of ways to write n as a sum of distinct integers
  * taken from the described set.  Results are computed on the fly;
@@ -61,13 +63,13 @@ seq_t a(idx_t n)
 
     /* ----- Collect the distinct parts into an array ----- */
     size_t capacity = 64;
-    seq_t *parts = (seq_t *)malloc(capacity * sizeof(seq_t));
+    seq_t *parts = mem_new(seq_t, capacity);
     size_t parts_cnt = 0;
     for (idx_t val = 1; val <= n; ++val) {
         if (present[(size_t)val]) {
             if (parts_cnt == capacity) {
                 capacity <<= 1;
-                parts = (seq_t *)realloc(parts, capacity * sizeof(seq_t));
+                parts = mem_resize(seq_t, parts, capacity);
             }
             parts[parts_cnt++] = (seq_t)val;
         }
@@ -75,9 +77,9 @@ seq_t a(idx_t n)
     free(present);
 
     /* ----- Subset‑sum DP: dp[x] = number of ways to make sum x ----- */
-    seq_t *dp = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)n + 1);
     if (!dp) {
-        free(parts);
+        mem_free(parts);
         return 0;
     }
     dp[0] = (seq_t)1;                    /* empty sum */
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
-    free(parts);
+    mem_free(dp);
+    mem_free(parts);
     return result;
 }

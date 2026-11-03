@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-01)
  * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* Property: a(n) is the n‑th integer k such that 2*k + 101 is prime. */
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)

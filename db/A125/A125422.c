@@ -12,12 +12,14 @@
  *            10·a(n−1) − 3·a(n−2) − 20·a(n−3) + a(n−4) + 6·...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    /* memoisation array */
 static idx_t  cache_len = 0;   /* current number of stored values */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialise the cache with the first six exact values */
     if (cache_len == 0) {
         cache_cap = 8;                     /* initial capacity > 6 */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)10;
         cache[2] = (seq_t)94;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         /* grow the cache if necessary */
         if (i >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[i] = val;
     }

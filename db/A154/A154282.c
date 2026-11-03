@@ -8,6 +8,7 @@
  *            with e odd; a(n)=(-1)^(e/2) if n=2^e with e even
  * Range:     i8 n <= 1500, i16 n <= 1500, i32 n <= 1500, i64 n <= 1500,
  *            i128 n <= 1500, big any n
+ * Validated: standard, pass, 111 terms through n = 1470 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

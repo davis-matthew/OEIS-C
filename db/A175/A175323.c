@@ -10,14 +10,39 @@
  *            distinct
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   good_run_div
+ * Validated: partial, pass, 89 terms through n = 89 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/good_run_div.h"
+
+/* Check whether m's binary representation has all distinct run lengths. */
+static bool good_run_div(uint64_t m)
+{
+    if (m == 0) return false;            // never occurs for a divisor
+    int len = 64 - __builtin_clzll(m);    // number of bits in m
+    uint64_t used = 0;
+    int curBit = (m >> (len - 1)) & 1;
+    int run = 1;
+
+    for (int i = len - 2; i >= 0; --i) {
+        int bit = (m >> i) & 1;
+        if (bit == curBit) {
+            ++run;
+        } else {
+            if (used & ((uint64_t)1 << run)) return false;
+            used |= ((uint64_t)1 << run);
+            curBit = bit;
+            run = 1;
+        }
+    }
+    /* last run */
+    if (used & ((uint64_t)1 << run)) return false;
+    return true;
+}
 
 /* Factor n into primes and exponents. */
 static void factorize(uint64_t n, uint64_t *primes, int *exps, int *cnt)

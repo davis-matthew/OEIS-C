@@ -7,6 +7,7 @@
  * Formula:   a(n) = (2^49-2)*n/3 + 247371098957
  * Range:     u8 none, u16 none, u32 none, u64 n <= 5000, u128 n <= 5000,
  *            big any n
+ * Validated: standard, pass, 31 terms through n = 4997 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

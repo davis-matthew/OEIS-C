@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 836, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum, rev
+ * Validated: standard, pass, 76 terms through n = 974 (2026-11-03)
+ * Helpers:   digit_sum, mem, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/digit_sum.h"
-#include "../utils/rev.h"
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* Initialise cache lazily */
     if (cap == 0) {
         cap   = 64;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* Find terms until we have at least n of them. */
@@ -44,12 +46,12 @@ seq_t a(idx_t n)
         seq_t num = (seq_t)candidate;
         seq_t sum = digit_sum(num);
         if (sum != 0) {
-            seq_t rev_val = rev(candidate);      /* reverse of candidate */
+            seq_t rev_val = reverse_digits_idx(candidate);      /* reverse of candidate */
             if ((num % sum == 0) && (rev_val % sum == 0)) {
                 /* store term */
                 if (cached == cap) {
                     size_t new_cap = cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) abort(); /* allocation failure */
                     cache = tmp;
                     cap   = new_cap;

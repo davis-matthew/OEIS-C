@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 struct Info {
     seq_t c;     /* number of subtrees containing this node’s root */
@@ -81,7 +83,7 @@ static size_t cache_size = 0;        /* current allocated size */
 static void ensure_cache(size_t n) {
     if (cache_size > n) return;
     size_t new_size = (n + 1) * 2;
-    struct Info *new_cache = (struct Info*)realloc(cache, new_size * sizeof(struct Info));
+    struct Info *new_cache = mem_resize(struct Info, cache, new_size);
     if (!new_cache) exit(EXIT_FAILURE);
     /* initialise new entries to zero */
     for (size_t i = cache_size; i < new_size; ++i) new_cache[i].c = 0;

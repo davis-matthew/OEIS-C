@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *seq   = NULL;   /* 1‑based array of terms a(k)  */
 static seq_t *cum   = NULL;   /* 1‑based array of cumulative sums Σ_{i=1}^{k}a(i) */
@@ -35,8 +38,8 @@ static void grow(idx_t n)
     if (newcap < (size_t)n + 1)
         newcap = (size_t)n + 1;
 
-    seq_t *newseq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
-    seq_t *newcum = (seq_t *)realloc(cum, newcap * sizeof(seq_t));
+    seq_t *newseq = mem_resize(seq_t, seq, newcap);
+    seq_t *newcum = mem_resize(seq_t, cum, newcap);
 
     /* realloc is guaranteed to succeed in the test harness, or the program
        will terminate with a segmentation fault – acceptable for this

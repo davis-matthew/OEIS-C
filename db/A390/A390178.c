@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 150, u64 n <= 150, u128 n <= 150,
  *            big any n
- * Helpers:   hash_u64, pow_u64_limit, seq_cmp_local
+ * Validated: standard, pass, 47 terms through n = 149 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,35 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/hash_u64.h"
-#include "../utils/pow_u64_limit.h"
-#include "../utils/seq_cmp_local.h"
+#include "../utils/mem.h"
+
+static size_t hash_u64(uint64_t x)
+{
+    return (size_t)(x ^ (x >> 33));
+}
+
+/* ---------- power with limit ---------- */
+static bool pow_u64_limit(uint64_t base, uint32_t exp,
+                          uint64_t limit, uint64_t *out)
+{
+    __uint128_t res = 1;
+    for (uint32_t i = 0; i < exp; ++i) {
+        if (res > limit / base) return false;
+        res *= base;
+    }
+    *out = (uint64_t)res;
+    return true;
+}
+
+/* ---------- comparison for qsort ---------- */
+static int seq_cmp_local(const void *p1, const void *p2)
+{
+    const seq_t *a = (const seq_t *)p1;
+    const seq_t *b = (const seq_t *)p2;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 /* The build supplies definitions for seq_t and idx_t. */
 /* typedef <unsigned> seq_t;      /* e.g. uint64_t or unsigned __int128 */
@@ -152,7 +179,7 @@ static void seq_append(uint64_t val)
 {
     if (seqLen == seqCap) {
         seqCap = seqCap ? seqCap << 1 : 16;
-        seqBuf = (seq_t *)realloc(seqBuf, seqCap * sizeof(seq_t));
+        seqBuf = mem_resize(seq_t, seqBuf, seqCap);
     }
     seqBuf[seqLen++] = (seq_t)val;
 }
@@ -190,7 +217,7 @@ static void prepare_sequence(void)
     for (size_t i = 0; i < mapCap; ++i)
         if (mapFlags[i] == 2) seq_append(mapKeys[i]);
 
-    if (seqLen > 1) qsort(seqBuf, seqLen, sizeof(seq_t), seq_cmp_local);
+    if (seqLen > 1) mem_qsort(seqBuf, seqLen, sizeof(seq_t), seq_cmp_local);
 
     sequence_prepared = true;
 }

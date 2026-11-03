@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, look, tabf, easy
  * Formula:   not stated
- * Range:     u8 n <= 519, u16 n <= 9954, u32 n <= 9954, u64 n <= 9954,
- *            u128 n <= 9954, big any n
- * Helpers:   binom_int, unrank_row_value
+ * Range:     u8 n <= 519, u16 n <= 16382, u32 n <= 16382, u64 n <= 16382,
+ *            u128 n <= 16382, big any n
+ * Validated: standard, pass, 92 terms through n = 9954 (2026-11-01)
+ * Helpers:   binomial_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,31 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom_int.h"
-#include "../utils/unrank_row_value.h"
+#include "../utils/binomial_idx.h"
+
+/* helper: unrank the r‑th combination of size w from {0,…,k-1}
+   in standard lexicographic order; return the integer having bits
+   set at the chosen indices. */
+static inline seq_t unrank_row_value(idx_t k, idx_t w, idx_t rank)
+{
+    idx_t result = 0;
+    idx_t next_index = 0;
+    for (idx_t pos = 0; pos < w; ++pos)
+    {
+        for (idx_t i = next_index; i <= k - w + pos; ++i)
+        {
+            idx_t count = binomial_idx(k - i - 1, w - pos - 1);
+            if (rank < count)
+            {
+                result |= ((idx_t)1 << i);
+                next_index = i + 1;
+                break;
+            }
+            rank -= count;
+        }
+    }
+    return (seq_t)result;
+}
 
 /* convenient integer types supplied by the build
  *   idx_t   – unsigned 64‑bit integer (uint64_t)
@@ -55,7 +79,7 @@ seq_t a(idx_t n)
     idx_t remaining = offset;
     for (idx_t w = 0; w <= k; ++w)
     {
-        idx_t cnt = binom_int(k, w);
+        idx_t cnt = binomial_idx(k, w);
         if (remaining < cnt)
         {
             /* we found the weight w and the rank within that weight */

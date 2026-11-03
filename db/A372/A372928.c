@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} mu(n/d) * d^3 * tau(d)
  * Range:     u8 n <= 5, u16 n <= 23, u32 n <= 599, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 56 terms through n = 9811 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -39,10 +41,10 @@ seq_t a(idx_t n)
 
         /* compute p^(3e-3)  (for e >= 1 always) */
         idx_t exp_pow = 3 * e - 3;           /* 3*e-3 fits in idx_t for all e <= 64 */
-        seq_t p_pow = seq_pow(p, exp_pow);
+        seq_t p_pow = ipow_idx(p, exp_pow);
 
         /* compute p^3 */
-        seq_t p3 = seq_pow(p, 3);
+        seq_t p3 = ipow_idx(p, 3);
 
         /* term inside the bracket: p^3*(e+1) - e */
         seq_t term_inside = p3 * (seq_t)(e + 1) - (seq_t)e;

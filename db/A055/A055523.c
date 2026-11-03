@@ -10,6 +10,7 @@
  *            a(n) = (3*(n^2-2)+(-1)^(n+1)*(n^2+2))/8)
  * Range:     u8 n <= 22, u16 n <= 362, u32 n <= 1002, u64 n <= 1002,
  *            u128 n <= 1002, big any n
+ * Validated: standard, pass, 70 terms through n = 808 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

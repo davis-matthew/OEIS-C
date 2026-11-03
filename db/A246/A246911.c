@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Helper: integer square root, using double sqrt for sufficient precision. */
 static uint64_t isqrt_u64(uint64_t n)
@@ -90,7 +92,7 @@ static idx_t last_checked = 0;
 static void append_term(seq_t val)
 {
     size_t new_cap = cache_len == 0 ? 16 : cache_len * 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         abort();
     cache = new_cache;

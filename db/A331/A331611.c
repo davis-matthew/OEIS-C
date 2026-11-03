@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    This function memoises both sequences and computes them iteratively. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build environment. */
 seq_t a(idx_t n)
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     /* initialise caches on first call */
     if (a_len == 0) {
         a_cap = 1;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
-        d_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
+        d_cache = mem_new(seq_t, a_cap);
         a_cache[0] = 1;   /* a(0) */
         d_cache[0] = 1;   /* A094088(0) */
         a_len   = 1;
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
     /* grow arrays to needed size */
     if ((size_t)n + 1 > a_cap) {
         size_t new_cap = (size_t)n + 1;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-        d_cache = (seq_t *)realloc(d_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
+        d_cache = mem_resize(seq_t, d_cache, new_cap);
         a_cap   = new_cap;
     }
 

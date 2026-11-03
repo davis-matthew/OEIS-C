@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 6, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   count_each_digit
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,16 @@
  */
 
 #include <string.h>   /* for memset */
-#include "../utils/count_each_digit.h"
+
+static seq_t count_each_digit(const int *digits, int len, int *cnt)
+{
+    /* Count each decimal digit in the current sequence. */
+    memset(cnt, 0, 10 * sizeof(int));
+    for (int i = 0; i < len; ++i) {
+        ++cnt[digits[i]];
+    }
+    return 0;   /* dummy return */
+}
 
 seq_t a(idx_t n)
 {

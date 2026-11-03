@@ -8,12 +8,14 @@
  *            Initial values: a(0)=4, a(1)=15, a(2)=60, a(3)=239, a(4)=952
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -22,7 +24,7 @@ seq_t a(idx_t n) {
     /* Initialise cache with the first five terms */
     if (cache == NULL) {
         size_t cap = 8;            /* start with a small capacity */
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return (seq_t)0;   /* allocation failed – return 0 */
 
         cache[0] = (seq_t)4;
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
     /* Ensure the array is large enough */
     size_t cap = cached + 1;
     while (cap <= n) cap <<= 1;
-    cache = (seq_t*)realloc(cache, cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cap);
 
     /* Compute missing terms using the recurrence */
     for (idx_t i = cached + 1; i <= n; ++i) {

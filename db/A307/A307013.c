@@ -10,8 +10,9 @@
  * Formula:   a(n) = A307011(n) + A307012(n) Compute a(n) as the sum of the
  *            first two cube‑coordinate components of the counterclockwise
  *            hexagonal spiral
- * Range:     i8 n <= 9991, i16 n <= 9991, i32 n <= 9991, i64 n <= 9991,
- *            i128 n <= 9991, big any n
+ * Range:     i8 n <= 10092, i16 n <= 10092, i32 n <= 10092, i64 n <= 10092,
+ *            i128 n <= 10092, big any n
+ * Validated: standard, pass, 94 terms through n = 9991 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

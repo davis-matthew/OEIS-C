@@ -7,13 +7,15 @@
  * Formula:   a(0)=1, a(1)=3, a(2)=8, a(3)=23, a(n)=7*a(n-2)+8*a(n-4) for n>=4
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 
 static seq_t *cache = NULL;          /* dynamically grown cache of values */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
         new_size = 4;
 
     /* Allocate a new buffer */
-    seq_t *new_cache = (seq_t*)calloc((size_t)new_size, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)new_size);
     if (!new_cache)
         return;  /* allocation failure – caller must handle */
 
@@ -41,7 +43,7 @@ static void ensure_cache(idx_t n)
         new_cache[i] = cache[i];
 
     /* Free old cache and install the new one */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_size = new_size;
 

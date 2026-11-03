@@ -8,13 +8,15 @@
  * Formula:   a(n) = Σ_{k=1}^{16} q_k * binomial(n−k+15, 15) where q = [2,
  *            −29, 197, −830, 2426, −5196, 8548, −9460, 17282, 6585, 16919,
  *            2541, 1154, −114, 16, −1]
- * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 16, u64 n <= 24, u128 n <= 24,
+ * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 24, u128 n <= 24,
  *            big any n
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include <stdlib.h>  /* abs() */
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*  Pre‑compute the number of partitions of any integer x into at most 8 parts.
  *  For a given n, the required sum is
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         idx_t new_cap = need + 1;
         /* round up to a power of two multiple for fewer reallocs */
         new_cap = (new_cap + 1023) & ~((idx_t)1023);
-        dp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, new_cap);
         dp_cap = new_cap;
         /* initialize table */
         for (size_t i = 0; i < new_cap; ++i) dp[i] = 0;

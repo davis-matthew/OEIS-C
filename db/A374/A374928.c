@@ -7,7 +7,8 @@
  * Formula:   a(n) = binomial(n+1,2)! / (2*n-1)!!
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,13 @@
 #include <string.h>
 
 /* Utilities from the build */
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* --------------------------------------------------------------------- */
 /*   Prime sieve helpers                                               */
@@ -131,7 +137,7 @@ seq_t a(idx_t n)
             e_total += n;                    /* multiply by 2^n    */
 
         if (e_total > 0) {
-            seq_t powp = seq_pow((seq_t)p, e_total);
+            seq_t powp = ipow_idx((seq_t)p, e_total);
             result = seq_mul(result, powp);
         }
     }

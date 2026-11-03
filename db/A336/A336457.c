@@ -12,7 +12,8 @@
  *            sigma(n)
  * Range:     u8 n <= 143, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, factor_u64
+ * Validated: standard, pass, 113 terms through n = 9720 (2026-11-03)
+ * Helpers:   build_primes_upto, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;          /* 1‑based cache of a(n)   */
 static idx_t a_cache_size = 0;         /* allocated size */
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
 {
     if (a_cache_size <= n) {
         size_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_size);
         if (!tmp) exit(EXIT_FAILURE);
         /* initialise new entries to 0 (unset) */
         for (size_t i = a_cache_size; i < new_size; ++i) tmp[i] = 0;

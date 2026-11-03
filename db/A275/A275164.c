@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 155, u32 n <= 167, u64 n <= 167,
  *            u128 n <= 167, big any n
- * Helpers:   is19smooth
+ * Validated: full, pass, 167 terms through n = 167 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,17 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/is19smooth.h"
+
+/* Helper: is a 64‑bit integer 19‑smooth?  */
+static inline bool is19smooth(uint64_t x)
+{
+    static const uint64_t primes[8] = {2, 3, 5, 7, 11, 13, 17, 19};
+    for (size_t i = 0; i < 8; ++i) {
+        uint64_t p = primes[i];
+        while (x % p == 0) x /= p;
+    }
+    return x == 1;
+}
 
 seq_t a(idx_t n)
 {

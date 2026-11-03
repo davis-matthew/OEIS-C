@@ -9,12 +9,15 @@
  *            treated as an exact division
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -27,10 +30,10 @@ seq_t a(idx_t n)
     seq_t numerator = n_seq * (seq_t)(5 * (idx_t)n - 1);
 
     if (n >= 3) {
-        seq_t pow_val = big_pow(base, (seq_t)(n - 3));
+        seq_t pow_val = ipow(base, (seq_t)(n - 3));
         return numerator * pow_val;
     } else {                            /* n = 1 or 2, use division */
-        seq_t pow_den = big_pow(base, (seq_t)(3 - n));
+        seq_t pow_den = ipow(base, (seq_t)(3 - n));
         return numerator / pow_den;
     }
 }

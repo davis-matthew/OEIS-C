@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 707, u32 n <= 707, u64 n <= 707,
  *            u128 n <= 707, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 706 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* integer square root (floor) of an unsigned 64‑bit number. */
 static idx_t _int_isqrt_u64(idx_t n)
@@ -48,7 +50,7 @@ static void _recompute_terms(idx_t limit, seq_t **terms_ptr, size_t *len_ptr)
 {
     /* free old terms array, if present */
     if (*terms_ptr != NULL) {
-        free(*terms_ptr);
+        mem_free(*terms_ptr);
         *terms_ptr = NULL;
     }
     *len_ptr = 0;
@@ -81,7 +83,7 @@ static void _recompute_terms(idx_t limit, seq_t **terms_ptr, size_t *len_ptr)
 
     /* collect all n with exactly six representations */
     size_t cap = 128;
-    seq_t *arr = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, cap);
     if (!arr) { free(cnt); free(sq); return; }
 
     size_t len = 0;
@@ -89,7 +91,7 @@ static void _recompute_terms(idx_t limit, seq_t **terms_ptr, size_t *len_ptr)
         if (cnt[n] == 6) {
             if (len == cap) {
                 cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(arr, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, arr, cap);
                 if (!tmp) break;          /* allocation failure – stop expanding */
                 arr = tmp;
             }

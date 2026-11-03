@@ -8,7 +8,8 @@
  *            odd (to exclude the one‑part partition)
  * Range:     u8 n <= 29, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* OEIS A357456 – Number of partitions of n into two or more odd parts. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         idx_t new_max = (n > PREFETCH_MAX) ? n : PREFETCH_MAX;
 
         /* Allocate and initialise a new array. */
-        seq_t *newdp = (seq_t *)calloc(new_max + 1, sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, new_max + 1);
         if (!newdp)
             return 0; /* allocation failure – should not happen in normal testing */
 
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old cache. */
-        free(dp);
+        mem_free(dp);
         dp = newdp;
         dp_max = new_max;
     }

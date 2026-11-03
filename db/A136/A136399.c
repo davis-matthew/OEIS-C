@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 248, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digits_le1
+ * Validated: standard, pass, 88 terms through n = 9561 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/digits_le1.h"
+#include "../utils/mem.h"
+
+static bool digits_le1(seq_t x)
+{
+    if (x == 0)
+        return true;          /* 0 has no digit > 1, so it is pruned */
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (d > 1)
+            return false;     /* has a digit > 1 */
+        x /= 10;
+    }
+    return true;
+}
 
 /* Lazy cache of precomputed terms */
 static seq_t *cache = NULL;
@@ -35,7 +49,7 @@ static void enlarge_cache(size_t need)
     size_t new_cap = cache_cap == 0 ? 64 : cache_cap * 2;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         exit(EXIT_FAILURE);   /* abort on allocation failure */
     cache = new_cache;

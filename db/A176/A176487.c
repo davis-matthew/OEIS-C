@@ -9,7 +9,8 @@
  *            floor((sqrt(8n+1)-1)/2) and k = n - r*(r+1)/2
  * Range:     u8 n <= 16, u16 n <= 38, u32 n <= 95, u64 n <= 238,
  *            u128 n <= 608, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 71 terms through n = 1312 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
    Eulerian(r+1,k) (Eulerian numbers via recurrence), then return
    binomial + Eulerian - 1. */
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Space‑saving Eulerian numbers cache, indexed by row:
    euler_cache[n][k] stores Eulerian(n, k). */
@@ -41,7 +44,7 @@ static void ensure_eulerian_up_to(idx_t target_row)
 
     for (idx_t n = euler_cache_rows; n <= target_row; ++n) {
         /* Allocate space for row n: n+1 entries (0..n). */
-        euler_cache[n] = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+        euler_cache[n] = mem_new(seq_t, (n + 1));
         if (!euler_cache[n])
             abort();
 
@@ -82,7 +85,7 @@ seq_t a(idx_t n)
     ensure_eulerian_up_to(r + 1);
 
     /* Compute the term using the definition. */
-    seq_t bin = binom(r, k);
+    seq_t bin = binomial(r, k);
     seq_t eul = euler_cache[r + 1][k];
     seq_t result = bin + eul - 1;      /* All arithmetic is in seq_t. */
     return result;

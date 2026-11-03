@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 17, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*  A202488 – Number of (n+2)×6 binary arrays avoiding 000 and 010
  *  in every row, column and NW‑SE diagonal.
@@ -103,8 +105,8 @@ seq_t a(idx_t n)
     seq_t (*pnxt)[64] = nxt;
 
     /* initialise tables */
-    memset(cur, 0, sizeof(cur));
-    memset(nxt, 0, sizeof(nxt));
+    mem_set(cur, 0, sizeof(cur));
+    mem_set(nxt, 0, sizeof(nxt));
 
     for (uint8_t i = 0; i < allowedCount; ++i)
         for (uint8_t j = 0; j < allowedCount; ++j)
@@ -112,7 +114,7 @@ seq_t a(idx_t n)
 
     /* Add one row at a time until we reach the required height */
     for (idx_t step = 0; step < n; ++step) {
-        memset(pnxt[0], 0, sizeof(seq_t) * 64 * 64);
+        mem_set(pnxt[0], 0, sizeof(seq_t) * 64 * 64);
 
         for (uint8_t i = 0; i < allowedCount; ++i) {          /* prev_last   */
             for (uint8_t j = 0; j < allowedCount; ++j) {      /* prev_second */

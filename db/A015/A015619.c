@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1918 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define PERIOD          1610UL                /* period of the sequence          */
 #define PHI_LEN         529UL                /* φ(1610) + 1 = 528 + 1           */
@@ -112,7 +114,7 @@ static void ensure_cache(void) {
     if (ACACHE)
         return;
 
-    ACACHE = (seq_t *)malloc(PERIOD * sizeof(seq_t));
+    ACACHE = mem_new(seq_t, PERIOD);
     if (!ACACHE)         /* allocation failed – caller will get 0          */
         return;
 

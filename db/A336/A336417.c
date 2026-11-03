@@ -8,7 +8,8 @@
  *            floor(i/k)))
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 24, u128 n <= 40,
  *            big any n
- * Helpers:   mu_of, pow_seq
+ * Validated: standard, pass, 41 terms through n = 192 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,29 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mu_of.h"
-#include "../utils/pow_seq.h"
+#include <stddef.h>
+#include "../utils/ipow_i32.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 seq_t a(idx_t n)
 {
@@ -57,7 +79,7 @@ seq_t a(idx_t n)
             idx_t cnt = end - start + 1;          /* quantity of such i */
 
             seq_t base = (seq_t)(c + 1);          /* factor (1 + c)   */
-            seq_t pow  = pow_seq(base, (int)cnt); /* base^cnt          */
+            seq_t pow  = ipow_i32(base, (int)cnt); /* base^cnt          */
             P *= pow;
         }
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    The table is cached statically and expanded on demand. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;      /* dp[0..max_n] holds the values a(0)...a(max_n) */
 static idx_t max_n = 0;       /* largest n that has been computed so far */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Ensure the DP table is large enough. */
     if (dp == NULL || n > max_n) {
         idx_t new_size = (max_n > n) ? max_n : n;   /* keep the larger size */
-        seq_t *new_dp = (seq_t *)realloc(dp, (size_t)(new_size + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, (size_t)(new_size + 1));
         if (new_dp == NULL) return (seq_t)0;             /* allocation failure */
         dp = new_dp;
         max_n = new_size;

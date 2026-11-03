@@ -8,16 +8,83 @@
  *            number such that sigma(k)+1 ≥ p
  * Range:     u8 n <= 8, u16 n <= 79, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   _sigma_prime_power, build_spf, get_prime
+ * Validated: standard, pass, 63 terms through n = 2556 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/get_prime.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/build_spf.h"
-#include "../utils/_sigma_prime_power.h"
+#include "../utils/mem.h"
+
+/* Return the k‑th prime (k ≥ 1).  On first call the prime list
+   is built incrementally using trial division.  The list is
+   stored in a static array which is expanded as necessary.   */
+static uint32_t get_prime(idx_t k)
+{
+    static uint32_t *pr = NULL;     /* array of primes */
+    static size_t sz   = 0;         /* number of primes stored */
+    static size_t cap  = 0;         /* allocated capacity */
+    static uint32_t cand = 3;       /* candidate after 2 */
+
+    /* initialise the prime table on first use */
+    if (sz == 0) {
+        cap = 8;
+        pr = (uint32_t *)realloc(pr, cap * sizeof(uint32_t));
+        if (!pr) abort();
+        sz = 0;
+    }
+
+    /* grow the array until we have at least k primes */
+    while (sz < (size_t)k) {
+        if (sz == 0) {                /* add the first prime */
+            pr[sz++] = 2;
+            continue;
+        }
+
+        /* find the next prime candidate */
+        uint32_t p = cand;
+        bool ok = true;
+        for (size_t i = 0; i < sz; ++i) {
+            uint32_t prime = pr[i];
+            if ((uint64_t)prime * prime > (uint64_t)p) break;
+            if (p % prime == 0) { ok = false; break; }
+        }
+
+        if (!ok) {                    /* not prime – keep searching */
+            cand += 2;                /* only odd numbers remain */
+            continue;
+        }
+
+        /* prime found – store it, grow table if needed */
+        if (sz == cap) {
+            cap <<= 1;
+            pr = (uint32_t *)realloc(pr, cap * sizeof(uint32_t));
+            if (!pr) abort();
+        }
+        pr[sz++] = p;
+        cand = p + 2;
+    }
+
+    return pr[(size_t)k - 1];
+}
+
+/* Helper: sigma of a prime power p^e. */
+static seq_t _sigma_prime_power(idx_t p, int e)
+{
+    seq_t sum = (seq_t)1;
+    seq_t term = (seq_t)1;
+    for (int i = 0; i < e; ++i) {
+        term *= (seq_t)p;
+        sum += term;
+    }
+    return sum;
+}
 
 /* Global static data for caching practical numbers and SPF table. */
 static idx_t * _spf = NULL;          /* smallest prime factor array */
@@ -81,13 +148,13 @@ static void _generate_practicals(idx_t limit)
         if (_practical_and_sigma(n, &sigma)) {
             if (_pract_len == _pract_cap) {
                 size_t new_cap = _pract_cap ? _pract_cap * 2 : 128;
-                seq_t *new_practs = (seq_t*)malloc(new_cap * sizeof(seq_t));
-                seq_t *new_sigs   = (seq_t*)malloc(new_cap * sizeof(seq_t));
+                seq_t *new_practs = mem_new(seq_t, new_cap);
+                seq_t *new_sigs   = mem_new(seq_t, new_cap);
                 if (_pract_cap) {
-                    memcpy(new_practs, _practicals, _pract_len * sizeof(seq_t));
-                    memcpy(new_sigs,   _sigs,      _pract_len * sizeof(seq_t));
-                    free(_practicals);
-                    free(_sigs);
+                    mem_copy(new_practs, _practicals, _pract_len * sizeof(seq_t));
+                    mem_copy(new_sigs, _sigs, _pract_len * sizeof(seq_t));
+                    mem_free(_practicals);
+                    mem_free(_sigs);
                 }
                 _practicals = new_practs;
                 _sigs       = new_sigs;

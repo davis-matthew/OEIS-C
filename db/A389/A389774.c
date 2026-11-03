@@ -11,12 +11,14 @@
  *            323*q^16 + 460*q^15 + 326*q^14 + 337*q^13 + 270*q^12 +...
  * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const struct {
     idx_t shift;          /* exponent of q in the numerator   */
@@ -50,7 +52,7 @@ static size_t P_cap = 0;
 static void compute_p(idx_t N)
 {
     if (N + 1 > P_cap) {
-        seq_t *tmp = (seq_t *)realloc(P, (N + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, P, (N + 1));
         if (!tmp) abort();          /* out of memory */
         P = tmp;
         P_cap = N + 1;

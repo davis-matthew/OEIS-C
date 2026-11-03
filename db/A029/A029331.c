@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Sequence A029331: Number of partitions of n into parts 4, 5, 6, and 12.
    Computed by dynamic programming over the coin denominations. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* extend cache if required */
     if (n >= cache_size) {
         /* allocate space for all values up to n */
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+        seq_t *new_cache = mem_new(seq_t, (n + 1));
         if (!new_cache) return 0;                 /* allocation failure (unlikely) */
         /* initialise dp array */
         for (idx_t i = 0; i <= n; ++i) new_cache[i] = 0;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         }
 
         /* replace old cache */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_size = n + 1;
     }

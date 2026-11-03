@@ -9,7 +9,8 @@
  *            columns nondecreasing
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 22, u64 n <= 137, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define NUM_ROWS 7
 #define NUM_CUTS 8
@@ -75,13 +77,13 @@ seq_t a(idx_t n)
     }
 
     /* initial state: all rows in state 0 */
-    memset(dp_cur, 0, sizeof(dp_cur));
+    mem_set(dp_cur, 0, sizeof(dp_cur));
     dp_cur[0] = 1;
 
     seq_t *cur  = dp_cur;
     seq_t *next = dp_next;
     for (idx_t col = 0; col < n; ++col) {
-        memset(next, 0, sizeof(dp_next));
+        mem_set(next, 0, sizeof(dp_next));
         for (int s = 0; s < STATE_SPACE; ++s) {
             seq_t val = cur[s];
             if (!val) continue;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   mul_by_37, mul_by_703
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,8 +33,23 @@
  */
 
 #include <stdlib.h>
-#include "../utils/mul_by_37.h"
-#include "../utils/mul_by_703.h"
+#include "../utils/mem.h"
+
+/* multiply x by 37 using repeated addition – safe for all seq_t types */
+static seq_t mul_by_37(seq_t x)
+{
+    seq_t r = x;
+    for (int i = 0; i < 36; ++i) r += x;   /* r = x + 36·x = 37·x      */
+    return r;
+}
+
+/* multiply x by 703 using repeated addition – safe for all seq_t types */
+static seq_t mul_by_703(seq_t x)
+{
+    seq_t r = x;
+    for (int i = 0; i < 702; ++i) r += x;  /* r = x + 702·x = 703·x    */
+    return r;
+}
 
 static seq_t *cache = NULL;      /* array of computed terms   */
 static idx_t  cache_size = 0;    /* number of stored terms    */
@@ -46,8 +62,8 @@ static void ensure_cache(idx_t n)
     /* resize the cache */
     size_t new_size = (size_t)(n + 1);
     seq_t *new_cache = (cache == NULL) ?
-                       (seq_t *)malloc(new_size * sizeof(seq_t)) :
-                       (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+                       mem_new(seq_t, new_size) :
+                       mem_resize(seq_t, cache, new_size);
 
     if (new_cache == NULL) abort();        /* allocation failure        */
     cache       = new_cache;

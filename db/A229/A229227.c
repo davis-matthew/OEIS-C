@@ -8,13 +8,16 @@
  *            This is the partition function G(n,10)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 25, u128 n <= 42,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 41 terms through n = 403 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
     /* initial allocation */
     if (cap == 0) {
         cap = 16;                            /* arbitrary small size */
-        dp = (seq_t *)malloc(sizeof(seq_t) * cap);
+        dp = mem_new(seq_t, cap);
         if (!dp) return 0;                    /* unlikely: out of memory   */
         dp[0] = 1;                           /* a(0) = 1 */
         for (idx_t i = 1; i < cap; ++i) dp[i] = 0;
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
         /* enlarge array if necessary */
         if (cap <= n) {
             size_t new_cap = (size_t)n + 1;
-            seq_t *new_dp  = (seq_t *)realloc(dp, sizeof(seq_t) * new_cap);
+            seq_t *new_dp  = mem_resize(seq_t, dp, new_cap);
             if (!new_dp) return 0;           /* out of memory – unlikely */
             dp = new_dp;
             for (idx_t i = cap; i < new_cap; ++i) dp[i] = 0;
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
             seq_t sum = 0;
             /* block size k can be 1…10 and ≤ i */
             for (idx_t k = 1; k <= 10 && k <= i; ++k) {
-                seq_t comb = binom(i - 1, k - 1);   /* C(i-1, k-1) */
+                seq_t comb = binomial(i - 1, k - 1);   /* C(i-1, k-1) */
                 sum += comb * dp[i - k];
             }
             dp[i] = sum;

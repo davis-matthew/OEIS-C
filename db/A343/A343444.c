@@ -8,14 +8,25 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   digit_xor
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sequence defined by scanning integers with decimal digit XOR zero */
 #include <stddef.h>
-#include "../utils/digit_xor.h"
+
+static inline int digit_xor(seq_t x)
+{
+    int xr = 0;
+    if (x == 0) return 0;
+    while (x > 0) {
+        xr ^= (int)(x % (seq_t)10);
+        x /= (seq_t)10;
+    }
+    return xr;
+}
 
 seq_t a(idx_t n)
 {

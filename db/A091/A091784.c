@@ -10,9 +10,10 @@
  *            reciprocals of those digits * is an integer. The algorithm
  *            enumerates all nondecreasing digit strings * in increasing
  *            numeric order and keeps a running sum modulo 2520 (the lcm...
- * Range:     u8 n <= 7, u16 n <= 41, u32 n <= 637, u64 n <= 9072,
- *            u128 n <= 9072, big any n
- * Helpers:   none
+ * Range:     u8 n <= 7, u16 n <= 41, u32 n <= 637, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 59 terms through n = 9072 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---- helpers for dynamic array of seq_t ----------------------------------- */
 
@@ -33,7 +35,7 @@ static void seqs_grow(size_t need)
     if (need <= seqs_cap) return;
     size_t new_cap = seqs_cap ? seqs_cap << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seqs = (seq_t *)realloc(seqs, new_cap * sizeof(seq_t));
+    seqs = mem_resize(seq_t, seqs, new_cap);
     seqs_cap = new_cap;
 }
 

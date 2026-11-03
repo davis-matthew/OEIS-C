@@ -10,12 +10,14 @@
  *            values: a(1)=4, a(2)=4, a(3)=16, a(4)=36, a(5)=94
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 47, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the nth term of OEIS sequence A218051.
  * The sequence is defined by the recurrence:
@@ -41,8 +43,8 @@ seq_t a(idx_t n)
     size_t need = (size_t)n + 1;
     if (cache_cap < need) {
         /* reallocate: if cache is NULL, allocate anew; otherwise grow */
-        seq_t *tmp = (cache == NULL) ? (seq_t*)malloc(need * sizeof(seq_t))
-                                     : (seq_t*)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = (cache == NULL) ? mem_new(seq_t, need)
+                                     : mem_resize(seq_t, cache, need);
         if (tmp == NULL) {
             /* allocation failure – abort or return 0 */
             return (seq_t)0;

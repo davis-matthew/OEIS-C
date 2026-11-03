@@ -7,17 +7,19 @@
  * Formula:   a(n) = (8*n + 7) * C(n+6, 6) / 7 (OEIS A052226)
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 55, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 50 terms through n = 905 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     /* Compute the binomial coefficient C(n+6, 6) */
-    seq_t c = binom(n + 6, 6);
+    seq_t c = binomial(n + 6, 6);
 
     /* Compute the multiplier (8*n + 7) */
     seq_t mult = (seq_t)8 * (seq_t)n + (seq_t)7;

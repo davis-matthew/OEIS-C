@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=2..n} 3^(n-k) * binomial(n,k) * |Stirling1(k,2)|
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -20,7 +22,7 @@ seq_t a(idx_t n)
 
     /* Allocate array for |Stirling1(k,2)| values (0..n). */
     size_t len = (size_t)(n + 1);
-    seq_t *t = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *t = mem_new(seq_t, len);
     if (!t) return (seq_t)0; /* out of memory: return 0 */
 
     /* Initialise base cases */
@@ -60,6 +62,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(t);
+    mem_free(t);
     return sum;
 }

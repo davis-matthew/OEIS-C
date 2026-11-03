@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} sigma(n/d)*d^3
  * Range:     u8 n <= 5, u16 n <= 35, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 693 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    8‑, 16‑, 32‑, 64‑bit or arbitrary‑precision integer types.  */
 
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 static seq_t *sigma_tab = NULL;   /* sigma values, indexed from 0..N */
 static idx_t  sigma_max   = 0;    /* current maximum n for which sigma_tab is valid */
@@ -33,7 +35,7 @@ ensure_sigma(idx_t n)
         return;
 
     /* allocate new array of size n + 1 (index 0 unused) */
-    seq_t *new_tab = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_tab = mem_new(seq_t, (size_t)(n + 1));
     if (!new_tab)
         return;   /* in production code we would handle the error */
 
@@ -50,7 +52,7 @@ ensure_sigma(idx_t n)
 
     /* free old table if it existed */
     if (sigma_tab)
-        free(sigma_tab);
+        mem_free(sigma_tab);
 
     sigma_tab = new_tab;
     sigma_max = n;

@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 40, u64 n <= 113, u128 n <= 394,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 4762 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -30,7 +31,8 @@
 #include <math.h>              /* for sqrt */
 #include <stdint.h>            /* for uint64_t */
 #include <stdbool.h>           /* for bool */
-#include "../utils/binomial.h" /* for binomial(idx_t, idx_t) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

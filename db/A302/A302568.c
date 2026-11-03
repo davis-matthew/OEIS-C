@@ -9,7 +9,8 @@
  *            are pairwise coprime
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   factor_u64, gcd64, is_prime_small
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   factor_u64, gcd_u64, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
 #include "../utils/factor_u64.h"
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/is_prime_seq.h"
 
 /* small gcd for 64‑bit values */
 
@@ -58,7 +59,7 @@ static void init_primes(void) {
 /* ensure primes up to at least n are present */
 static void ensure_prime_list(uint64_t n) {
     for (uint64_t cand = last_prime + 1; cand <= n; ++cand) {
-        if (is_prime_small((seq_t)cand)) {
+        if (is_prime_seq((seq_t)cand)) {
             grow_seq((void **)&primes, &prime_cap, prime_cnt + 1);
             primes[prime_cnt++] = (seq_t)cand;
             last_prime = cand;
@@ -77,7 +78,7 @@ static uint64_t prime_index(uint64_t p) {
 
 /* test whether an odd number x satisfies the required property */
 static bool ok_number(uint64_t x) {
-    if (is_prime_small((seq_t)x)) return true;
+    if (is_prime_seq((seq_t)x)) return true;
 
     /* factor x */
     uint64_t pr[64], ex[64];
@@ -101,7 +102,7 @@ static bool ok_number(uint64_t x) {
     /* pairwise coprime test */
     for (size_t i = 0; i < ic; ++i) {
         for (size_t j = i + 1; j < ic; ++j) {
-            if (gcd64(idx[i], idx[j]) != 1u) return false;
+            if (gcd_u64(idx[i], idx[j]) != 1u) return false;
         }
     }
     return true;

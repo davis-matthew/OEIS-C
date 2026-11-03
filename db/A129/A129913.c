@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ll_gcd, reduce
+ * Validated: standard, pass, 76 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,32 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/ll_gcd.h"
-#include "../utils/reduce.h"
+#include "../utils/mem.h"
+
+/* Euclidean GCD for signed 64‑bit integers */
+static long long ll_gcd(long long a, long long b)
+{
+    if (a < 0) a = -a;
+    if (b < 0) b = -b;
+    while (b) {
+        long long t = a % b;
+        a = b;
+        b = t;
+    }
+    return a;
+}
+
+/* Reduce a rational number num/den to lowest terms.
+ * The denominator is kept positive.  num may become negative. */
+static void reduce(long long *num, long long *den)
+{
+    long long g = ll_gcd(*num, *den);
+    if (g > 1) {
+        *num /= g;
+        *den /= g;
+    }
+    /* the denominator is always positive (>0) */
+}
 
 #define MAX_VAL 362880   /* 1*2*3*4*5*6*7*8*9 */
 
@@ -81,7 +106,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         size_t sz = (size_t)MAX_VAL + 1;
-        counts = (seq_t *)calloc(sz, sizeof(seq_t));
+        counts = mem_new(seq_t, sz);
         if (!counts) return 0;     /* allocation failure safeguard */
         init_counts(counts);
         initialized = true;

@@ -12,13 +12,16 @@
  *            places). For each * candidate denominator q we comput...
  * Range:     u8 n <= 154, u16 n <= 154, u32 n <= 154, u64 n <= 154,
  *            u128 n <= 154, big any n
- * Helpers:   mul_mod
+ * Validated: partial, pass, 153 terms through n = 154 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mul_mod.h"
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/mulmod.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     uint64_t q = 1;
     while (1) {
         /* Compute (q * PI_NUM) mod PI_DEN without overflow. */
-        uint64_t prod = mul_mod(q, PI_NUM, PI_DEN);
+        uint64_t prod = mulmod(q, PI_NUM, PI_DEN);
 
         /* Distance from q·π to the nearest integer expressed as a
          * numerator over PI_DEN.  The minimal fractional part is

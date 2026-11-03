@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 3894, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 8961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    static cache and extends it up to the requested index on demand. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static size_t count_zeros(seq_t x)
 {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Initialise the array on first call. */
     if (buf == NULL) {
         cap = 128;
-        buf = (seq_t*)malloc(cap * sizeof(seq_t));
+        buf = mem_new(seq_t, cap);
         if (!buf) return (seq_t)0; /* out‑of‑memory fallback */
     }
 
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         if (equal_zero_count(next_k)) {
             if (size >= cap) {
                 cap <<= 1;                 /* double the capacity      */
-                seq_t *tmp = (seq_t*)realloc(buf, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, buf, cap);
                 if (!tmp) return (seq_t)0; /* out‑of‑memory fallback */
                 buf = tmp;
             }

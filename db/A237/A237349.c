@@ -9,12 +9,14 @@
  *            number of divisors of k (A000005)
  * Range:     u8 n <= 11, u16 n <= 39, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for n >= 1.
  * Uses a simple sieve to build smallest prime factors (spf) up to n,
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
     /* Allocate array for divisor counts d[0..n].  Use seq_t since d fits in
        small values but we keep the same type throughout. */
-    seq_t *d = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *d = mem_new(seq_t, (n + 1));
     if (!d) { free(spf); abort(); }
 
     d[1] = 1;
@@ -73,6 +75,6 @@ seq_t a(idx_t n)
     }
 
     free(spf);
-    free(d);
+    mem_free(d);
     return sum;
 }

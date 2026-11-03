@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer floor square root for 64‑bit unsigned integers. */
 static uint64_t _isqrt_u64(uint64_t n)
@@ -82,7 +84,7 @@ static void _extend_sequence(idx_t needed)
 
     if (!seq) {
         seq_cap = 64;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq_len = 0;
         next_k  = 2;
     }
@@ -93,7 +95,7 @@ static void _extend_sequence(idx_t needed)
         /* Append the found good k */
         if (seq_len == seq_cap) {              /* enlarge buffer */
             seq_cap *= 2;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len++] = (seq_t)next_k;
         next_k++;                              /* advance for next search */

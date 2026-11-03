@@ -12,6 +12,7 @@
  *            reverse of that list, each repeated four times)
  * Range:     u8 n <= 4, u16 n <= 224, u32 n <= 224, u64 n <= 224,
  *            u128 n <= 224, big any n
+ * Validated: full, pass, 224 terms through n = 224 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

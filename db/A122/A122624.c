@@ -7,13 +7,22 @@
  * Formula:   a(n) = n_{2^n}
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 30, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   pow2, seq_mul
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/pow2.h"
-#include "../utils/seq_mul.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {

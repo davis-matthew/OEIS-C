@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   is_prime
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,13 +23,14 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"   /* bool is_prime(uint64_t) */
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 static void permute_rec(seq_t cur, int depth, bool *used, seq_t *out, size_t *cnt)
 {
     if (depth == 5) {
         /* Safe cast: all results are < 50000, fit in uint64_t */
-        if (is_prime((uint64_t)cur))
+        if (is_prime_u64((uint64_t)cur))
             out[(*cnt)++] = cur;
         return;
     }
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     if (!init) {
         bool used[5] = {false};
         permute_rec(0, 0, used, primes, &prime_cnt);
-        qsort(primes, prime_cnt, sizeof(seq_t), cmp_seq);
+        mem_qsort(primes, prime_cnt, sizeof(seq_t), cmp_seq);
         init = true;
     }
 

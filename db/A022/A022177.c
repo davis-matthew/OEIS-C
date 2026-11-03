@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 17, u64 n <= 47, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 1309 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 
 #include <stdlib.h>   /* malloc, free, realloc */
 #include <stdint.h>   /* for size_t, uint64_t */
+#include "../utils/mem.h"
 
 /* Function prototype supplied by the build */
 seq_t a(idx_t n)
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
 
     /* Precompute powers of 13 up to exponent r+1 */
     idx_t pow_len = r + 2;
-    seq_t *pow13 = (seq_t *)malloc(pow_len * sizeof(seq_t));
+    seq_t *pow13 = mem_new(seq_t, pow_len);
     if (!pow13)  /* allocation failure – return zero as a safety value */
         return (seq_t)0;
     pow13[0] = (seq_t)1;
@@ -67,6 +69,6 @@ seq_t a(idx_t n)
         result = result * numerator / denominator;
     }
 
-    free(pow13);
+    mem_free(pow13);
     return result;
 }

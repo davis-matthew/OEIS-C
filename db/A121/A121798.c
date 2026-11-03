@@ -9,12 +9,14 @@
  *            + 63*a(n-6) - 56*a(n-7) + 6*a(n-8) (offset 1)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache          = NULL;   /* dynamic cache for computed terms   */
 static size_t cache_capacity = 0;      /* allocated size of the cache (>= n+1)  */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         size_t new_capacity = cache_capacity ? cache_capacity * 2 : 16;
         if (new_capacity < (size_t)(n + 1))
             new_capacity = n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
         if (!tmp) abort();
         cache = tmp;
         cache_capacity = new_capacity;

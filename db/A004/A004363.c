@@ -7,13 +7,14 @@
  * Formula:   a(n) = binomial(6*n, n-8) = Product_{i=1..n-8} (5*n+8+i)/i
  * Range:     u8 n <= 9, u16 n <= 11, u32 n <= 14, u64 n <= 22, u128 n <= 26,
  *            big any n
- * Helpers:   a004363_gcd
+ * Validated: partial, pass, 19 terms through n = 26 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a004363_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     idx_t k = n - 8;
@@ -24,7 +25,7 @@ seq_t a(idx_t n) {
         /* r = C(base+i-1, i-1); next r = r * (base+i) / i, exactly.
            Reduce first so no intermediate exceeds the new value. */
         uint64_t rm = (uint64_t)(r % (seq_t)i);
-        uint64_t g = a004363_gcd(rm, (uint64_t)i);
+        uint64_t g = gcd_u64(rm, (uint64_t)i);
         if (g == 0) g = (uint64_t)i;
         uint64_t d = (uint64_t)i / g;           /* d divides base+i */
         uint64_t num = ((uint64_t)base + (uint64_t)i) / d;

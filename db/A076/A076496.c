@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static uint64_t *sigma = NULL; /* divisor sums up to current LIMIT */
 static size_t    sigma_limit = 0;  /* current maximum index of sigma */
@@ -61,7 +63,7 @@ static void init(void)
        computed explicitly to handle the small k < 12 case.
        --------------------------------------------------------------- */
     sol_cap = 20000U;		/* initial capacity */
-    solutions = (seq_t *)malloc(sol_cap * sizeof(seq_t));
+    solutions = mem_new(seq_t, sol_cap);
 
     for (size_t k = 1; k <= LIMIT; ++k) {
         uint64_t r   = sigma[k] % k;    /* σ(k) modulo k   */
@@ -69,8 +71,7 @@ static void init(void)
         if (r == rem) {
             if (sol_len >= sol_cap) {   /* grow the array if necessary */
                 sol_cap = sol_cap * 2;
-                solutions = (seq_t *)realloc(solutions,
-                                              sol_cap * sizeof(seq_t));
+                solutions = mem_resize(seq_t, solutions, sol_cap);
             }
             solutions[sol_len++] = (seq_t)k;
         }

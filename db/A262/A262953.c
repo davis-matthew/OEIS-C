@@ -11,12 +11,14 @@
  *            x^{2k-1}) · ∏_{k≥1} (1 + x^{3k-2}) * * The imp...
  * Range:     u8 n <= 32, u16 n <= 90, u32 n <= 279, u64 n <= 939,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *CACHE = NULL;     /* array holding a[0..max_n]        */
 static size_t CACHE_SIZE = 0;   /* current capacity of CACHE         */
@@ -30,7 +32,7 @@ static size_t CACHE_SIZE = 0;   /* current capacity of CACHE         */
 static void build_cache(idx_t n)
 {
     /* allocate new array of size n+1, initialized to 0 */
-    seq_t *new_cache = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)(n + 1));
     if (!new_cache) abort();                /* allocation failure */
 
     for (idx_t i = 0; i <= n; ++i)
@@ -51,7 +53,7 @@ static void build_cache(idx_t n)
     }
 
     /* swap old cache */
-    if (CACHE) free(CACHE);
+    if (CACHE) mem_free(CACHE);
     CACHE      = new_cache;
     CACHE_SIZE = (size_t)(n + 1);
 }

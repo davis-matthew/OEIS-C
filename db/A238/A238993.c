@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define STATES 256     /* 4 columns, each 2 bits (0..3) */
 
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
 
     /* initialise DP counts for the first row (col sums all zero) */
     if (!counts_initialized) {
-        memset(counts, 0, sizeof(counts));
+        mem_set(counts, 0, sizeof(counts));
         counts[0] = 1;                   /* start from state 0 (all zeros) */
         counts_initialized = true;
     }
@@ -129,8 +131,7 @@ seq_t a(idx_t n)
         if (n > cached_cap) {
             size_t new_cap = cached_cap ? cached_cap << 1 : 1;
             if (new_cap < n) new_cap = n;
-            seq_t *tmp = (seq_t*)realloc(cached_results,
-                                         new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cached_results, new_cap);
             if (!tmp) return 0;          /* allocation failure → zero term */
             cached_results = tmp;
             cached_cap     = new_cap;
@@ -138,7 +139,7 @@ seq_t a(idx_t n)
 
         /* compute rows from cached_len+1 up to n */
         for (idx_t row = cached_len + 1; row <= n; ++row) {
-            memset(next_counts, 0, sizeof(next_counts));
+            mem_set(next_counts, 0, sizeof(next_counts));
 
             for (int s = 0; s < STATES; ++s) {
                 if (counts[s] == 0) continue;
@@ -151,7 +152,7 @@ seq_t a(idx_t n)
             }
 
             /* swap counts */
-            memcpy(counts, next_counts, sizeof(counts));
+            mem_copy(counts, next_counts, sizeof(counts));
 
             /* sum over all states to obtain a(row) */
             seq_t sum = 0;

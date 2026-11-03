@@ -12,14 +12,28 @@
  *            a(8)=155610272, * a(9)=2174615543, a(10)=30495310793
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   mul_small
+ * Validated: standard, pass, 33 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static const int coeff[10] = { 10, 75, -240, -399, 972, -1263, 482, 669, -100, -9 };
 static const seq_t init_vals[10] = {
@@ -40,7 +54,7 @@ seq_t a(idx_t n)
     /* Ensure cache is big enough for index n. */
     if (n >= cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0; /* allocation failed */
         cache = tmp;
         cache_size = new_size;

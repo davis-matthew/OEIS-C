@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   ensure_uint64_cap, has_two_prime_digits
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,33 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/ensure_uint64_cap.h"
-#include "../utils/has_two_prime_digits.h"
+#include "../utils/mem.h"
+
+/* Helper: ensures that an array of uint64_t has at least 'need' slots. */
+static void ensure_uint64_cap(uint64_t **arr, size_t *cap, size_t need)
+{
+    if (*cap >= need) return;
+    size_t new_cap = (*cap) ? (*cap) * 2 : 16;
+    while (new_cap < need) new_cap *= 2;
+    *arr = (uint64_t *)realloc(*arr, new_cap * sizeof(uint64_t));
+    *cap = new_cap;
+}
+
+/* Count digits in x; return true iff exactly two of the digits are
+   2,3,5 or 7. */
+static bool has_two_prime_digits(uint64_t x)
+{
+    int cnt = 0;
+    while (x) {
+        int d = x % 10;
+        if (d == 2 || d == 3 || d == 5 || d == 7) {
+            ++cnt;
+            if (cnt > 2) return false; /* early exit */
+        }
+        x /= 10;
+    }
+    return cnt == 2;
+}
 
 /* Helper: ensures that an array of seq_t has at least 'need' slots. */
 static void ensure_seq_cap(seq_t **arr, size_t *cap, size_t need)
@@ -34,7 +60,7 @@ static void ensure_seq_cap(seq_t **arr, size_t *cap, size_t need)
     if (*cap >= need) return;
     size_t new_cap = (*cap) ? (*cap) * 2 : 16;
     while (new_cap < need) new_cap *= 2;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 

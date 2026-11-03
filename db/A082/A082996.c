@@ -7,13 +7,15 @@
  * Formula:   a(n) = card{ x <= n : bigomega(x) = 4 }
  * Range:     u8 n <= 1659, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega
+ * Validated: standard, pass, 115 terms through n = 9791 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/bigomega.h"
+#include "../utils/mem.h"
 
 /* static cache of cumulative counts up to the largest n seen so far */
 static seq_t *cum = NULL;
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t n)
 
     /* resize to (n + 1) */
     size_t new_cap = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cum, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cum, new_cap);
     if (!tmp) exit(1);     /* allocation failed; terminate */
     cum = tmp;
     cap = new_cap;

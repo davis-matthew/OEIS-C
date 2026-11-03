@@ -9,13 +9,14 @@
  *            where m = floor((6*n)^(1/3)). The index n starts at 1
  * Range:     u8 n <= 245, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   cube_root_idx_t
+ * Validated: standard, pass, 88 terms through n = 4951 (2026-11-01)
+ * Helpers:   icbrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/cube_root_idx_t.h"
+#include "../utils/icbrt.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +24,7 @@ seq_t a(idx_t n)
 
     /* m = floor((6*n)^(1/3)) */
     idx_t six_n = 6 * n;               /* safe for n up to 10⁴ → < 2⁶⁴   */
-    idx_t m = cube_root_idx_t(six_n);
+    idx_t m = icbrt(six_n);
 
     /* Compare 6*(n+m) and m*(m+1)*(m+2) using 128‑bit arithmetic */
     unsigned __int128 lhs = (unsigned __int128)6 * (n + m);

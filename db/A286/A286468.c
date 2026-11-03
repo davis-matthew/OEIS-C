@@ -9,8 +9,9 @@
  * Formula:   a(n) = product over run-length groups of
  *            prime(index)^(length-1), where run-lengths are counted from the
  *            least‑significant binary bit of n
- * Range:     u8 n <= 120, u16 n <= 996, u32 n <= 8740, u64 n <= 8740,
- *            u128 n <= 8740, big any n
+ * Range:     u8 n <= 120, u16 n <= 996, u32 n <= 31753, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 116 terms through n = 8740 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

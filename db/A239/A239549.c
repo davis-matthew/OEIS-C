@@ -8,13 +8,15 @@
  *            a(1) = 1 Implements the sequence A239549 with memoization
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>   /* for memcpy */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {                      /* first allocation */
         capacity = (n < 2 ? 2 : n + 1);
 #ifdef __cplusplus
-        cache = reinterpret_cast<seq_t*>(malloc(capacity * sizeof(seq_t)));
+        cache = mem_new(seq_t, capacity);
 #else
         cache = malloc(capacity * sizeof(seq_t));
 #endif
@@ -40,9 +42,9 @@ seq_t a(idx_t n)
         while (new_cap < n + 1)
             new_cap <<= 1;
 #ifdef __cplusplus
-        seq_t *tmp = reinterpret_cast<seq_t*>(malloc(new_cap * sizeof(seq_t)));
-        memcpy(tmp, cache, computed * sizeof(seq_t));
-        free(cache);
+        seq_t *tmp = mem_new(seq_t, new_cap);
+        mem_copy(tmp, cache, computed * sizeof(seq_t));
+        mem_free(cache);
         cache = tmp;
 #else
         cache = realloc(cache, new_cap * sizeof(seq_t));

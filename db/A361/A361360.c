@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 17, u64 n <= 32, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 490 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*Maximum initial capacity (covers the first 13 terms).*/
 #define INIT_CAP 16
@@ -46,7 +48,7 @@ static void grow_cache(idx_t new_cap)
     idx_t new_capacity = (cache_cap > 0) ? cache_cap : INIT_CAP;
     while (new_capacity < new_cap)
         new_capacity *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
     if (!tmp) abort(); /* allocation failed */
     cache = tmp;
     cache_cap = new_capacity;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     /* Initialise cache with first 13 terms if not done yet. */
     if (!cache)
     {
-        cache = (seq_t *)malloc(INIT_CAP * sizeof(seq_t));
+        cache = mem_new(seq_t, INIT_CAP);
         if (!cache) abort();
         cache_cap = INIT_CAP;
         /* 13 known initial terms. */

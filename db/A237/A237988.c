@@ -9,14 +9,27 @@
  *            a(8)=11, and for n>8: a(n)=3*a(n-3)+3*a(n-6)+a(n-9)
  * Range:     u8 n <= 14, u16 n <= 26, u32 n <= 51, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: standard, pass, 61 terms through n = 83 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t  *cache      = NULL;
 static size_t cache_size  = 0;

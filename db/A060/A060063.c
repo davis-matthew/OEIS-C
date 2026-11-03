@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 23, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,10 +48,10 @@ seq_t a(idx_t n)
     /* --- initialise the first row (p(0,x)=1) --- */
     if (!flatten) {
         fcap   = 64;
-        flatten = (seq_t *)malloc(fcap * sizeof(seq_t));
+        flatten = mem_new(seq_t, fcap);
         if (!flatten) exit(EXIT_FAILURE);
 
-        prev_row = (seq_t *)malloc(sizeof(seq_t));
+        prev_row = mem_new(seq_t, 1);
         if (!prev_row) exit(EXIT_FAILURE);
         prev_row[0] = (seq_t)1;
         prowlen     = 1;
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         idx_t   next   = currow + 1;
         size_t next_len = (size_t)next + 1;   /* length of new row    */
 
-        seq_t *curr_row = (seq_t *)calloc(next_len, sizeof(seq_t));
+        seq_t *curr_row = mem_new(seq_t, next_len);
         if (!curr_row) exit(EXIT_FAILURE);
 
         /* compute coefficients of row next from row currow       */
@@ -136,7 +138,7 @@ seq_t a(idx_t n)
         if (fcap < needed) {
             size_t newcap = fcap ? fcap << 1 : 64;
             while (newcap < needed) newcap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(flatten, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, flatten, newcap);
             if (!tmp) exit(EXIT_FAILURE);
             flatten = tmp;
             fcap   = newcap;
@@ -148,7 +150,7 @@ seq_t a(idx_t n)
         fsize += next_len;
 
         /* advance to the next row */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = curr_row;
         prowlen = next_len;
         currow   = next;

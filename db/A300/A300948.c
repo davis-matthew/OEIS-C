@@ -9,7 +9,8 @@
  *            Σ b_i * 2^i a(n) = Σ b_i * 2^(a(i+1)-1)
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 83 terms through n = 9391 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 /* (All arithmetic is on type seq_t; the exponent is cast to idx_t.) */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Cached values of the sequence (index 0 unused). */
 static seq_t *cache = NULL;
@@ -31,7 +34,7 @@ static void ensure_cache(idx_t need)
     if (!cache) {
         cache_cap = (size_t)(need + 8);
         #if defined(__cplusplus)
-            cache = reinterpret_cast<seq_t *>(malloc(cache_cap * sizeof(seq_t)));
+            cache = mem_new(seq_t, cache_cap);
         #else
             cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
         #endif
@@ -41,7 +44,7 @@ static void ensure_cache(idx_t need)
         size_t new_cap = cache_cap;
         while (need >= new_cap) new_cap <<= 1;   /* double until sufficient */
         #if defined(__cplusplus)
-            seq_t *tmp = reinterpret_cast<seq_t *>(realloc(cache, new_cap * sizeof(seq_t)));
+            seq_t *tmp = reinterpret_cast<seq_t *>(mem_resize(seq_t, cache, new_cap));
         #else
             seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
         #endif

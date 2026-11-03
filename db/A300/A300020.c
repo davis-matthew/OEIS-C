@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 13, u16 n <= 883, u32 n <= 9609, u64 n <= 9609,
- *            u128 n <= 9609, big any n
- * Helpers:   digit_counts
+ * Range:     u8 n <= 13, u16 n <= 883, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 92 terms through n = 9609 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
+#include "../utils/mem.h"
 
 /*  Static state to support memoised construction.  */
 static seq_t *terms      = NULL;   /* array of terms */
@@ -64,7 +68,7 @@ ensure_terms_capacity(size_t need)
     while (new_cap <= need)
         new_cap <<= 1;
 
-    seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
     terms = new_terms;
     terms_cap = new_cap;
 }

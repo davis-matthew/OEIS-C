@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   not stated
- * Range:     u8 n <= 152, u16 n <= 9892, u32 n <= 9892, u64 n <= 9892,
- *            u128 n <= 9892, big any n
- * Helpers:   none
+ * Range:     u8 n <= 152, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 91 terms through n = 9892 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
  
 /* Primorial base is derived from the list of primes.
  * We only need the first few primes because the product of the first 20 primes
@@ -72,7 +74,7 @@ static void _ensure_capacity(size_t needed)
     if (needed <= _cache_cap) return;
     size_t new_cap = _cache_cap ? _cache_cap * 2 : 8;
     if (needed > new_cap) new_cap = needed;
-    _cache = (seq_t*)realloc(_cache, new_cap * sizeof(seq_t));
+    _cache = mem_resize(seq_t, _cache, new_cap);
     _cache_cap = new_cap;
 }
  

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sym_diff
+ * Validated: standard, pass, 98 terms through n = 9718 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,21 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/sym_diff.h"
+
+/*------------------------------------------------------------*/
+static void sym_diff(const int *a, size_t la, const int *b, size_t lb,
+                     int *out, size_t *outlen)
+{
+    size_t i = 0, j = 0, k = 0;
+    while (i < la && j < lb) {
+        if (a[i] < b[j]) out[k++] = a[i++];
+        else if (a[i] > b[j]) out[k++] = b[j++];
+        else { ++i; ++j; }
+    }
+    while (i < la) out[k++] = a[i++];
+    while (j < lb) out[k++] = b[j++];
+    *outlen = k;
+}
 
 /*------------------------------------------------------------*/
 /*  Prime list generation                                        */

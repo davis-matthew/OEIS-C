@@ -13,12 +13,14 @@
  *            sequence is obtained by listing the triangle row by row
  * Range:     u8 n <= 111, u16 n <= 310, u32 n <= 965, u64 n <= 1274,
  *            u128 n <= 1274, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 1157 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached triangle rows.  rows[i] points to an array of length i+1. */
 static seq_t **rows = NULL;          /* Pointer array for rows */
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         }
 
         /* Allocate the new row. */
-        seq_t *new_row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, len);
         new_row[0] = 1;
         new_row[idx] = 1; /* last element */
 

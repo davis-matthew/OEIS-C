@@ -12,7 +12,8 @@
  *            = 44. Transition from pair (r1,r2) to r3 is...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   has111
+ * Validated: standard, pass, 31 terms through n = 178 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has111.h"
+
+static inline bool has111(int x) {
+    for (int shift = 0; shift <= 3; ++shift) {
+        if (((x >> shift) & 7) == 7) return true;
+    }
+    return false;
+}
 
 static inline bool triple_ok(int a, int b, int c) {
     if ((a & b & c) != 0) return false; /* vertical triple */

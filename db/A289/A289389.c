@@ -5,13 +5,15 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = Sum_{k>=0} (-1)^k * binomial(n, 5*k+4)
- * Range:     i8 n <= 7, i16 n <= 15, i32 n <= 30, i64 n <= 36, i128 n <= 36,
+ * Range:     i8 n <= 9, i16 n <= 17, i32 n <= 35, i64 n <= 36, i128 n <= 36,
  *            big any n
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

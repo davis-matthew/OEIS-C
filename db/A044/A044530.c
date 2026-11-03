@@ -10,13 +10,15 @@
  *            representation of n+1 does NOT contain "14"
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool has14(seq_t x)
 {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         if (has14(next_candidate) && !has14(next_candidate + 1)) {
             if (sz == cap) {
                 cap = cap ? cap * 2 : 10;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[sz++] = next_candidate;
         }

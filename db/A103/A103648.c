@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * Initial values: a(0)=0, a(1)=1, a(2)=1, a(3)=2, a(4)=1, a(5)=1,
  * a(6)=2, a(7)=4, a(8)=1. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values.  */
 static seq_t *cache = NULL;
@@ -35,7 +37,7 @@ static void compute_to(idx_t n)
     /* First time: allocate space for a(0) and set base value.  */
     if (!initialized) {
         if (cached_size < 1) {
-            cache = (seq_t *)realloc(cache, sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, 1);
             if (cache == NULL) abort();
             cached_size = 1;
         }
@@ -50,7 +52,7 @@ static void compute_to(idx_t n)
     /* Grow the cache if necessary.  */
     if (n + 1 > cached_size) {
         size_t newsize = (size_t)(n + 1) * sizeof(seq_t);
-        seq_t *tmp = (seq_t *)realloc(cache, newsize);
+        seq_t *tmp = mem_resize(seq_t, cache, (newsize) / sizeof(seq_t));
         if (tmp == NULL) abort();
         cache = tmp;
         cached_size = (idx_t)(n + 1);

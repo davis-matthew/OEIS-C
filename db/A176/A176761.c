@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 10, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   digit_len, seq_to_str
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,30 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "../utils/seq_to_str.h"
-#include "../utils/digit_len.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 /* cached powers of two */
 static seq_t *powers = NULL;
@@ -42,7 +65,7 @@ static void ensure_power(idx_t e)
     size_t new_cap = powers_cap ? powers_cap : 1;
     while (new_cap <= (size_t)e + 1) new_cap <<= 1;
     if (new_cap != powers_cap) {
-        powers = (seq_t *)realloc(powers, new_cap * sizeof(seq_t));
+        powers = mem_resize(seq_t, powers, new_cap);
         powers_cap = new_cap;
     }
     for (size_t i = powers_len; i <= (size_t)e; ++i) {
@@ -59,7 +82,7 @@ static void ensure_sum(idx_t i)
     size_t new_cap = sums_cap ? sums_cap : 1;
     while (new_cap <= (size_t)i + 1) new_cap <<= 1;
     if (new_cap != sums_cap) {
-        sums = (seq_t *)realloc(sums, new_cap * sizeof(seq_t));
+        sums = mem_resize(seq_t, sums, new_cap);
         sums_cap = new_cap;
     }
     if (sums_len == 0) {          /* initialise the zero‐term */
@@ -84,7 +107,7 @@ static seq_t min_power_with_i(idx_t i)
         ensure_power(e);
         seq_t p = powers[e];
 
-        size_t digits = (size_t)digit_len(p);
+        size_t digits = (size_t)num_digits(p);
         if (digits != buf_len) {
             buf_len = digits;
             size_t needed = digits + 1;   /* +1 for nul terminator */

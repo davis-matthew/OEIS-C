@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 9348, u16 n <= 9348, u32 n <= 9348, u64 n <= 9348,
- *            u128 n <= 9348, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 102 terms through n = 9348 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Fixed point of the morphism 0→0132, 1→1320, 2→3201, 3→2013
    (sequence A287556). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Returns the n‑th term of the sequence (1‑indexed).  n ≥ 1. */
 seq_t a(idx_t n)
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* initialise the sequence with the starting symbol 0 */
     if (seq_len == 0) {
         seq_len = 1;
-        seq     = (seq_t *)malloc(seq_len * sizeof(seq_t));
+        seq     = mem_new(seq_t, seq_len);
         seq[0]  = (seq_t)0;
     }
 
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if ((size_t)n > seq_len) {
         while ((size_t)n > seq_len) {
             size_t new_len = seq_len * 4;
-            seq_t *dst = (seq_t *)malloc(new_len * sizeof(seq_t));
+            seq_t *dst = mem_new(seq_t, new_len);
 
             for (size_t i = 0; i < seq_len; ++i) {
                 seq_t v = seq[i];
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
                 }
             }
 
-            free(seq);
+            mem_free(seq);
             seq     = dst;
             seq_len = new_len;
         }

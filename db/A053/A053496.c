@@ -9,7 +9,8 @@
  *            (n-5)*(n-1)*(n-2)*(n-3)*(n-4)*a(n-6) for n>=6
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 22, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Note: seq_t and idx_t are provided by the build.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for previously computed values */
 static seq_t *cache = NULL;
@@ -34,7 +36,7 @@ static void ensure_cache_cap(idx_t n)
     while (new_cap < need)
         new_cap <<= 1;
 #ifdef __cplusplus
-    seq_t *tmp = reinterpret_cast<seq_t*>(realloc(cache, new_cap * sizeof(seq_t)));
+    seq_t *tmp = reinterpret_cast<seq_t*>(mem_resize(seq_t, cache, new_cap));
 #else
     seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
 #endif

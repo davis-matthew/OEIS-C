@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
     Complexity: O(n²) with n up to ~10⁴, well below the 2‑second limit. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* partitions into distinct parts: q[s] = number of partitions of s */
-    seq_t *q = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *q = mem_new(seq_t, (N + 1));
     if (!q) return 0;
     q[0] = 1;
     for (size_t i = 1; i <= N; ++i) q[i] = 0;
@@ -36,8 +38,8 @@ seq_t a(idx_t n)
         for (size_t sum = N; sum >= part; --sum)
             q[sum] = q[sum] + q[sum - part];
 
-    seq_t *Qex = (seq_t*)malloc((N + 1) * sizeof(seq_t));
-    if (!Qex) { free(q); return 0; }
+    seq_t *Qex = mem_new(seq_t, (N + 1));
+    if (!Qex) { mem_free(q); return 0; }
 
     seq_t ans = 0;
 
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(q);
-    free(Qex);
+    mem_free(q);
+    mem_free(Qex);
     return ans;
 }

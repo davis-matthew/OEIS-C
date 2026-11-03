@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 137, u32 n <= 156, u64 n <= 156,
  *            u128 n <= 156, big any n
- * Helpers:   none
+ * Validated: full, pass, 156 terms through n = 156 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    (in any order) are fast. */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Allowed odd prime factors of k²+1. */
 static const unsigned long long primes_100smooth[]
@@ -35,7 +37,7 @@ static unsigned long long next_candidate = 1;   /* next k to test */
 static void grow_cache(void)
 {
     size_t new_cap = seq_capacity ? seq_capacity * 2 : 16;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (tmp == NULL) abort();
     seq_cache = tmp;
     seq_capacity = new_cap;

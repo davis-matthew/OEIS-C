@@ -13,15 +13,19 @@
  *            not cyclic and the function returns –1. (The...
  * Range:     i8 n <= 100, i16 n <= 100, i32 n <= 100, i64 n <= 100,
  *            i128 n <= 100, big any n
- * Helpers:   factor_u64, gcd, mod_pow
+ * Validated: partial, pass, 99 terms through n = 100 (2026-11-01)
+ * Helpers:   factor_u64, gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/gcd.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mod_pow.h"
+#include "../utils/gcd.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -78,7 +82,7 @@ seq_t a(idx_t n)
         bool ok = true;
         for (size_t j = 0; j < cnt_phi; ++j) {
             uint64_t q = primes_phi[j];
-            seq_t r = mod_pow((seq_t)g, phi_u / q, (seq_t)n);
+            seq_t r = powmod((seq_t)g, phi_u / q, (seq_t)n);
             if (r == 1) {
                 ok = false;
                 break;

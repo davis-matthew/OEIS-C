@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 40, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    Computes values for any n ≥ 1 (memoised). */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[0] holds a(1), etc. */
 static idx_t cache_size = 0;  /* number of terms currently cached */
@@ -57,13 +59,13 @@ seq_t a(idx_t n) {
        to allow memoisation for any n. */
     if (cache == NULL) {
         cache_size = (n > 16) ? n : 16;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         for (idx_t i = 0; i < 16; ++i) cache[i] = init_vals[i];
     }
 
     /* Grow cache if needed */
     if (n > cache_size) {
-        cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, n);
         /* Compute new terms from cache_size up to n-1 (zero‑based) */
         for (idx_t i = cache_size; i < n; ++i) {
             idx_t idx = i + 1;              /* real sequence index */

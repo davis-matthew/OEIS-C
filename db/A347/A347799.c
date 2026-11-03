@@ -8,7 +8,8 @@
  * Formula:   a(n) = number of compositions of n into at most 6 nonprime parts
  * Range:     u8 n <= 18, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for the computed sequence and auxiliary tables. */
 static seq_t *sequence = NULL;      /* a[n] values */
@@ -62,10 +64,10 @@ static void sieve_primes(idx_t limit, idx_t **primes_out, size_t *cnt_out)
 static void recompute_up_to(idx_t new_limit)
 {
     size_t sz = (size_t)(new_limit + 1);
-    seq_t *a          = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *coeff_prev = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *coeff_curr = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *pref       = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *a          = mem_new(seq_t, sz);
+    seq_t *coeff_prev = mem_new(seq_t, sz);
+    seq_t *coeff_curr = mem_new(seq_t, sz);
+    seq_t *pref       = mem_new(seq_t, sz);
     if (!a || !coeff_prev || !coeff_curr || !pref) return;
 
     /* build prime list */
@@ -107,14 +109,14 @@ static void recompute_up_to(idx_t new_limit)
     }
 
     /* free previous sequence if any and store new one */
-    free(sequence);
+    mem_free(sequence);
     sequence = a;
     sequence_size = new_limit;
 
     /* free temporary arrays */
-    free(coeff_prev);
-    free(coeff_curr);
-    free(pref);
+    mem_free(coeff_prev);
+    mem_free(coeff_curr);
+    mem_free(pref);
     free(prime_list);
 }
 

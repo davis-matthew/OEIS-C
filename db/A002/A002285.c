@@ -9,7 +9,8 @@
  *            1/log(10) found by long division
  * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   c2285_cmp, c2285_iszero
+ * Validated: standard, pass, 121 terms through n = 4737 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/c2285_cmp.h"
-#include "../utils/c2285_iszero.h"
+
+static int c2285_cmp(const uint32_t *a, const uint32_t *b, size_t L) {
+    size_t i;
+    for (i = 0; i < L; i++) {
+        if (a[i] != b[i]) return a[i] < b[i] ? -1 : 1;
+    }
+    return 0;
+}
+
+static int c2285_iszero(const uint32_t *x, size_t L) {
+    size_t i;
+    for (i = 0; i < L; i++) if (x[i]) return 0;
+    return 1;
+}
 
 #define B1E9 1000000000ULL
 

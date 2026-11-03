@@ -6,14 +6,17 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 1 if n==1; a(n) = 0 if n is odd; a(n) = 2^ω(n) if n is
  *            even, where ω(n) is the number of distinct prime factors of n
- * Range:     u8 n <= 9885, u16 n <= 9885, u32 n <= 9885, u64 n <= 9885,
- *            u128 n <= 9885, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 119 terms through n = 9885 (2026-11-01)
  * Helpers:   factorize
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factorize.h"
 
 seq_t a(idx_t n)

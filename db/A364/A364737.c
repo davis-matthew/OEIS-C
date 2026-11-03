@@ -6,8 +6,9 @@
  * Keywords:  sign
  * Formula:   a(n) = (1/n) * Sum_{k=0..n-1} (-1)^k * binomial(n,k) * *
  *            binomial(n+3*k, n-1-k), a(0) = 1
- * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 16, i64 n <= 26, i128 n <= 26,
+ * Range:     i8 n <= 4, i16 n <= 9, i32 n <= 16, i64 n <= 26, i128 n <= 26,
  *            big any n
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
  *  operators are required on seq_t; no floating point or external
  *  libraries are used.  The algorithm has O(n) time complexity. */
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

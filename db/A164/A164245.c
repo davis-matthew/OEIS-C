@@ -12,13 +12,15 @@
  *            counts. The difference Δ = (#00101) – (#0101...
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 33, u64 n <= 65, u128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 426 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +37,8 @@ seq_t a(idx_t n)
     seq_t *dp_cur[16];
     seq_t *dp_next[16];
     for (idx_t s = 0; s < 16; ++s) {
-        dp_cur[s]  = (seq_t*)calloc((size_t)diff_size, sizeof(seq_t));
-        dp_next[s] = (seq_t*)calloc((size_t)diff_size, sizeof(seq_t));
+        dp_cur[s]  = mem_new(seq_t, (size_t)diff_size);
+        dp_next[s] = mem_new(seq_t, (size_t)diff_size);
     }
 
     /* Initial state: empty string, difference 0, state 0. */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     for (idx_t len = 0; len < n; ++len) {
         /* Reset next layer to zero. */
         for (idx_t s = 0; s < 16; ++s)
-            memset(dp_next[s], 0, (size_t)diff_size * sizeof(seq_t));
+            mem_set(dp_next[s], 0, (size_t)diff_size * sizeof(seq_t));
 
         for (idx_t s = 0; s < 16; ++s) {
             seq_t *row_cur = dp_cur[s];
@@ -87,8 +89,8 @@ seq_t a(idx_t n)
 
     /* Free allocated memory. */
     for (idx_t s = 0; s < 16; ++s) {
-        free(dp_cur[s]);
-        free(dp_next[s]);
+        mem_free(dp_cur[s]);
+        mem_free(dp_next[s]);
     }
 
     return result;

@@ -7,16 +7,21 @@
  * Formula:   a(n) = n! * a(n-1) / a(n-2); Initial values: a(0) = 1, a(1) = 2
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Utility for GCD needed for exact cancellation. */
+#include <stdint.h>
+#include <stdlib.h>
+#include <stddef.h>
 #include "../utils/gcd.h"
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cache of previously computed values. */
 static seq_t *cache   = NULL;   /* array of a(0) .. a(cache_len-1) */
@@ -30,7 +35,7 @@ static void ensure_cache(idx_t n)
         return; /* already large enough */
 
     size_t new_len = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (!new_cache)
         exit(EXIT_FAILURE); /* allocation failure */
 
@@ -48,7 +53,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache on first call. */
     if (cache_len == 0) {
-        cache = (seq_t *)calloc(2, sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (!cache)
             exit(EXIT_FAILURE);
         cache[0] = (seq_t)1;  /* a(0) */

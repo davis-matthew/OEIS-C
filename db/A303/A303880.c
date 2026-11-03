@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 200, u16 n <= 1001, u32 n <= 1001, u64 n <= 1001,
  *            u128 n <= 1001, big any n
- * Helpers:   shares_even_digit
+ * Validated: standard, pass, 87 terms through n = 856 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/shares_even_digit.h"
+#include "../utils/mem.h"
+
+/* Return true iff x and y share at least one even decimal digit. */
+static bool shares_even_digit(seq_t x, seq_t y)
+{
+    unsigned mask = 0;
+    seq_t t = x;
+    while (t > 0) {
+        unsigned d = (unsigned)(t % 10);
+        if ((d & 1u) == 0u)
+            mask |= 1u << d;
+        t /= 10;
+    }
+    t = y;
+    while (t > 0) {
+        unsigned d = (unsigned)(t % 10);
+        if (mask & (1u << d))
+            return true;
+        t /= 10;
+    }
+    return false;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Memoisation state                                                */
@@ -74,7 +96,7 @@ static void ensure_cache(idx_t n)
 
     /* Initialise a(1)=2 if empty. */
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache)
             abort();
         cache[0] = (seq_t)2;
@@ -93,8 +115,7 @@ static void ensure_cache(idx_t n)
             ++cand;
         }
         /* Append the new term. */
-        seq_t *tmp = (seq_t *)realloc(cache,
-                      (cache_len + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (cache_len + 1));
         if (!tmp)
             abort();
         cache = tmp;

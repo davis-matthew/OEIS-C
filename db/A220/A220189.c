@@ -7,14 +7,17 @@
  * Formula:   a(n) = n^(a(n-1)/(n-1)) with a(2)=2^2
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 4, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 4 terms through n = 5 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +31,7 @@ seq_t a(idx_t n)
     /* Ensure the cache is large enough to hold index n   */
     if (cache_size <= n) {
         size_t new_size = (size_t)(n + 1) * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp)   /* allocation failed – return 0 as error code */
             return (seq_t)0;
         /* Initialize the new entries to 0 (default constructor
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
         } else {
             seq_t prev   = cache[k - 1];
             seq_t exp    = prev / (seq_t)(k - 1);  /* integer division */
-            cache[k] = big_pow((seq_t)k, exp);
+            cache[k] = ipow((seq_t)k, exp);
         }
     }
     if (n > last)

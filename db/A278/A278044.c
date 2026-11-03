@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base
  * Formula:   a(n) = index_of_largest_tribonacci_leq_n - 2, with a(0) = 1
- * Range:     u8 n <= 8509, u16 n <= 8509, u32 n <= 8509, u64 n <= 8509,
- *            u128 n <= 8509, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 122 terms through n = 8509 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

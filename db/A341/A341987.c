@@ -10,7 +10,8 @@
  *            sum is n. Offset is 8
  * Range:     u8 n <= 11, u16 n <= 29, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- prime sieve ---------- */
 /* Return all primes <= limit in a newly allocated array.
@@ -94,8 +96,8 @@ seq_t a(idx_t n)
 
         /* DP arrays */
         size_t N = (size_t)n + 1;
-        seq_t *dp  = (seq_t *)calloc(N, sizeof(seq_t));
-        seq_t *dpn = (seq_t *)calloc(N, sizeof(seq_t));
+        seq_t *dp  = mem_new(seq_t, N);
+        seq_t *dpn = mem_new(seq_t, N);
         if (!dp || !dpn) {
             free(tokens);
             if (prime_list) free(prime_list);
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
 
         for (int part = 0; part < 8; ++part) {
             /* clear destination */
-            memset(dpn, 0, N * sizeof(seq_t));
+            mem_set(dpn, 0, N * sizeof(seq_t));
             for (size_t s = 0; s <= n; ++s) {
                 seq_t val = dp[s];
                 if (!val) continue;
@@ -123,11 +125,11 @@ seq_t a(idx_t n)
 
         /* enlarge cache if necessary */
         if (cache_cap < N) {
-            seq_t *new_cache = (seq_t *)malloc(N * sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, N);
             if (!new_cache) {
                 /* cleanup before exit */
-                free(dp);
-                free(dpn);
+                mem_free(dp);
+                mem_free(dpn);
                 free(tokens);
                 if (prime_list) free(prime_list);
                 return 0;
@@ -136,8 +138,8 @@ seq_t a(idx_t n)
             size_t copy_len = (cache_cap > 0) ? cache_cap : 0;
             if (copy_len > N) copy_len = N;
             if (cache && copy_len > 0)
-                memcpy(new_cache, cache, copy_len * sizeof(seq_t));
-            if (cache) free(cache);
+                mem_copy(new_cache, cache, copy_len * sizeof(seq_t));
+            if (cache) mem_free(cache);
             cache = new_cache;
             cache_cap = N;
         }
@@ -148,8 +150,8 @@ seq_t a(idx_t n)
         cache_max = n;
 
         /* free temporaries */
-        free(dpn);
-        free(dp);
+        mem_free(dpn);
+        mem_free(dp);
         free(tokens);
         if (prime_list) free(prime_list);
     }

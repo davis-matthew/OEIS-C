@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 54, u32 n <= 3843, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrimeGeneric, sigma_of
+ * Validated: standard, pass, 61 terms through n = 9798 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,46 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../utils/sigma_of.h"      /* σ(n) ; returns seq_t */
-#include "../utils/isPrimeGeneric.h" /* bool isPrimeGeneric(seq_t) */
+#include <stdint.h>
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 /* Return the n‑th term of the sequence for n >= 1. */
 seq_t a(idx_t n)
@@ -52,10 +91,10 @@ seq_t a(idx_t n)
             /* grow primes array if necessary */
             if (primes_len == primes_cap) {
                 size_t new_cap = primes_cap ? primes_cap << 1 : 64;
-                seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, primes, new_cap);
                 if (!tmp) {
                     /* OOM: return 0 (undefined behaviour not required to be handled) */
-                    free(primes);
+                    mem_free(primes);
                     primes = NULL;
                     primes_cap = primes_len = 0;
                     return (seq_t)0;

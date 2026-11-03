@@ -8,14 +8,17 @@
  *            ∏_{i=0}^{5} (1 - (-7)^{\,n-i}) / (1 - (-7)^{\,i+1})
  * Range:     u8 none, u16 none, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   big_pow, seq_gcd
+ * Validated: standard, pass, 24 terms through n = 170 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_gcd.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/gcd.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -32,8 +35,8 @@ seq_t a(idx_t n)
         idx_t exp_den = i + 1;          /* exponent for denominator factor */
 
         /* 7^exp, then apply 1 ± 7^exp according to parity */
-        seq_t pow_num = big_pow((seq_t)7, (seq_t)exp_num);
-        seq_t pow_den = big_pow((seq_t)7, (seq_t)exp_den);
+        seq_t pow_num = ipow((seq_t)7, (seq_t)exp_num);
+        seq_t pow_den = ipow((seq_t)7, (seq_t)exp_den);
 
         seq_t num_factor = (exp_num & 1) ? (pow_num + (seq_t)1)
                                          : (pow_num - (seq_t)1);
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
                                          : (pow_den - (seq_t)1);
 
         /* Reduce the current fraction by gcd(num_factor, den_factor) */
-        seq_t g = seq_gcd(num_factor, den_factor);
+        seq_t g = gcd(num_factor, den_factor);
         if (g != (seq_t)1)
         {
             num_factor /= g;
@@ -49,14 +52,14 @@ seq_t a(idx_t n)
         }
 
         /* Cancel common factors with the accumulated result */
-        g = seq_gcd(res_num, den_factor);
+        g = gcd(res_num, den_factor);
         if (g != (seq_t)1)
         {
             res_num /= g;
             den_factor /= g;
         }
 
-        g = seq_gcd(res_den, num_factor);
+        g = gcd(res_den, num_factor);
         if (g != (seq_t)1)
         {
             res_den /= g;

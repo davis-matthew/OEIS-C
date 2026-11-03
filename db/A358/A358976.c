@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, sum_fact_base_digits
+ * Validated: standard, pass, 82 terms through n = 9412 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,33 @@
 #include <stdbool.h>
 #include <limits.h>
 #include "../utils/gcd.h"
-#include "../utils/sum_fact_base_digits.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static seq_t sum_fact_base_digits(seq_t n)
+{
+    seq_t temp = n;
+    /* Build list of factorials <= n */
+    seq_t fac = 1;
+    size_t idx = 0;
+    /* Using a small array on the stack; size won't exceed 20 for n < 2^64 */
+    seq_t facts[64];
+    facts[0] = 1; /* 0! unused, but keep for indexing convenience */
+    /* Compute factorials until fac > temp */
+    do {
+        idx++;
+        fac *= (idx);
+        facts[idx] = fac;
+    } while (fac <= temp && idx < 63);
+
+    seq_t sum = 0;
+    for (size_t i = idx; i >= 1; --i) {
+        seq_t digit = temp / facts[i];
+        temp -= digit * facts[i];
+        sum += digit;
+    }
+    return sum;
+}
 
 /* Forward declarations */
 static seq_t sum_fact_base_digits(seq_t n);
@@ -48,10 +75,10 @@ static void push_cache(seq_t val)
 {
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (cache_size == cache_cap) {
         cache_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (tmp == NULL)
             return;  /* allocation failure – in practice this should not happen */
         cache = tmp;

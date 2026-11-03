@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return true if x written in base 9 contains the substring 4,2. */
 static bool has_42(seq_t x)
@@ -43,7 +45,7 @@ static void ensure_capacity(size_t needed, size_t *cap, seq_t **arr)
     if (needed <= *cap) return;
     size_t new_cap = (*cap) ? (*cap) * 2 : 64;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *newp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, *arr, new_cap);
     if (!newp) abort();                                 /* allocation failed */
     *arr  = newp;
     *cap  = new_cap;

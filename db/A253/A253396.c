@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 19, u32 n <= 210, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    (for n > 18, with the given initial values) */
 
 #include <stdlib.h>   /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 static const seq_t init_vals[] = {
     0,          /* unused 0th entry */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         if (new_cap < 64) new_cap = 64;
         while (new_cap <= (size_t)n) new_cap <<= 1;
 
-        seq_t *tmp = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) return 0;            /* allocation failure, safe fallback */
         terms = tmp;
         terms_cap = new_cap;

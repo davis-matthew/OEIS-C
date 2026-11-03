@@ -7,11 +7,13 @@
  * Formula:   a(n) = n + digit_sum(n-1) + digit_sum(n+1)
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
 
 seq_t a(idx_t n)

@@ -8,14 +8,18 @@
  *            with p prime, q prime, and n-1 prime)
  * Range:     u8 n <= 8, u16 n <= 486, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_prime_factors, is_prime
+ * Validated: standard, pass, 63 terms through n = 9707 (2026-11-03)
+ * Helpers:   bigomega_seq, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/bigomega_seq.h"
 #include "../utils/is_prime.h"
-#include "../utils/count_prime_factors.h"
+#include "../utils/mem.h"
 
 /* Cache for memoisation */
 static seq_t *cache = NULL;
@@ -31,7 +35,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         exit(1);          /* simple failure handling */
     cache = tmp;
@@ -50,7 +54,7 @@ seq_t a(idx_t n)
         while (1) {
             idx_t cand = next_candidate;
             /* Candidate must be semiprime and cand-1 must be prime. */
-            if (is_prime(cand - 1) && count_prime_factors((seq_t)cand) == 2) {
+            if (is_prime(cand - 1) && bigomega_seq((seq_t)cand) == 2) {
                 /* Store the term. */
                 grow_cache(cache_len + 1);
                 cache[cache_len++] = (seq_t)cand;

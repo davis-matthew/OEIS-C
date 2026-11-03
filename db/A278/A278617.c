@@ -9,18 +9,21 @@
  *            the prime-counting function
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   compute_pi
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
     if (n <= (idx_t)2)
         return (seq_t)0;
     idx_t lim = (idx_t)(2 * n - (idx_t)3);
-    seq_t pi = compute_pi(lim);
+    seq_t pi = prime_pi(lim);
     return pi - (seq_t)1;
 }

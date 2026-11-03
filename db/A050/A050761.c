@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---- Big integer helpers (decimal digits) -------------------------------- */
 
@@ -122,14 +124,14 @@ seq_t a(idx_t n)
     /* Grow the array of results if necessary */
     if (values == NULL && n == 0) {
         values_cap = 64;
-        values = (seq_t *)malloc(values_cap * sizeof(seq_t));
+        values = mem_new(seq_t, values_cap);
     }
     while (values_len <= (size_t)n) {
         /* Test current Fibonacci number */
         if (no_consecutive_equal(&f_curr)) {
             if (values_len == values_cap) {
                 values_cap <<= 1;
-                values = (seq_t *)realloc(values, values_cap * sizeof(seq_t));
+                values = mem_resize(seq_t, values, values_cap);
             }
             values[values_len++] = (seq_t)next_k;
         }

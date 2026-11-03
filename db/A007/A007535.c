@@ -8,13 +8,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 82 terms through n = 9842 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
 
 /* Search: find smallest composite m > n such that n^(m-1) ≡ 1 (mod m) */
 
@@ -33,7 +34,7 @@ seq_t a(idx_t n) {
     uint64_t m = n + 1;
     
     while (1) {
-        if (m > 1 && !is_prime(m)) {
+        if (m > 1 && !is_prime_u64(m)) {
             if (modpow((uint64_t)n, m - 1, m) == 1) {
                 return (seq_t)m;
             }

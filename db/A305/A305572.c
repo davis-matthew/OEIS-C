@@ -7,14 +7,17 @@
  * Formula:   a(n) = (-1)^(n-1) + Σ_{d|n, d>1} a(n/d)^d
  * Range:     u8 n <= 23, u16 n <= 35, u32 n <= 71, u64 n <= 143,
  *            u128 n <= 287, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 76 terms through n = 6586 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* global memoisation arrays */
 static seq_t *cache   = NULL;          /* computed a(n) values */
@@ -27,7 +30,7 @@ static void ensure_storage(idx_t n)
     if ((size_t)n >= cache_cap) {
         size_t new_cap = (size_t)n + 1;
         if (new_cap < 128) new_cap = 128;   /* minimal initial size */
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         flag  = (unsigned char*)realloc(flag,  new_cap * sizeof(unsigned char));
         /* initialise new flag entries to 0 (undefined) */
         for (size_t i = cache_cap; i < new_cap; ++i) flag[i] = 0;
@@ -52,12 +55,12 @@ static seq_t compute_a(idx_t n)
 
             /* term for divisor d: a(n/d)^d */
             seq_t val_nd = compute_a(nd);
-            sum += big_pow(val_nd, (seq_t)d);
+            sum += ipow(val_nd, (seq_t)d);
 
             /* term for divisor nd (if >1 and not equal to d) */
             if (nd > 1 && nd != d) {
                 seq_t val_d = compute_a(d);
-                sum += big_pow(val_d, (seq_t)nd);
+                sum += ipow(val_d, (seq_t)nd);
             }
         }
     }

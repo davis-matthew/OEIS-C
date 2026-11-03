@@ -11,15 +11,17 @@
  *            operations are performed in type seq_t
  * Range:     u8 n <= 19, u16 n <= 53, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binom, seq_pow
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <limits.h>
-#include "../utils/binom.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -59,11 +61,11 @@ seq_t a(idx_t n)
     /* Last element of the row  (c == r) */
     if (c == r) {
         /* 4^(r-1)  */
-        return seq_pow((seq_t)4, r - 1);
+        return ipow_idx((seq_t)4, r - 1);
     }
 
     /* General element: binomial coefficient times a power of 3   */
-    seq_t pow3 = seq_pow((seq_t)3, c);
-    seq_t bin   = binom(r - 1, c);
+    seq_t pow3 = ipow_idx((seq_t)3, c);
+    seq_t bin   = binomial(r - 1, c);
     return pow3 * bin;
 }

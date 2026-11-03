@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   _smallest_prime_factor_uint64
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-02)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,17 +24,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/_smallest_prime_factor_uint64.h"
+#include "../utils/smallest_prime_factor.h"
 
 /* semiprime test for 64‑bit numbers */
 static bool is_semiprime_uint64(uint64_t n)
 {
     if (n < 4) return false;                 /* need at least 2*2 */
-    uint64_t p = _smallest_prime_factor_uint64(n);
+    uint64_t p = smallest_prime_factor(n);
     if (p == n) return false;                /* prime */
     uint64_t q = n / p;
     if (q == 1) return false;
-    return _smallest_prime_factor_uint64(q) == q;
+    return smallest_prime_factor(q) == q;
 }
 
 /* The main sequence function. */

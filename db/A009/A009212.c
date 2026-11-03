@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 14, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* a[n] values */
 static seq_t *g_cache = NULL;   /* g[n] values  */
@@ -37,8 +39,8 @@ static void ensure_capacity(idx_t max_n)
     seq_t *new_g = NULL;
 
     /* Allocate new arrays */
-    new_a = (seq_t *)malloc(new_cap * sizeof(seq_t));
-    new_g = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    new_a = mem_new(seq_t, new_cap);
+    new_g = mem_new(seq_t, new_cap);
     if (!new_a || !new_g) return; /* allocation failed */
 
     /* Copy old data */
@@ -79,8 +81,8 @@ static void ensure_capacity(idx_t max_n)
     }
 
     /* Free old arrays */
-    free(a_cache);
-    free(g_cache);
+    mem_free(a_cache);
+    mem_free(g_cache);
     a_cache = new_a;
     g_cache = new_g;
     a_cap = new_cap;

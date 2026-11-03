@@ -9,12 +9,14 @@
  *            where Catalan(k) is the usual Catalan number
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the n-th term of OEIS A116876 using the recurrence above.
  * idx_t and seq_t types are provided by the build environment.                 */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* Pre‑compute Catalan numbers C[0..n-2] */
     size_t limit = (size_t)n - 1;        /* n-1 elements, last index is n-2   */
-    seq_t *catalan = (seq_t *)malloc(limit * sizeof(seq_t));
+    seq_t *catalan = mem_new(seq_t, limit);
     if (catalan == NULL) return (seq_t)0; /* in case of allocation failure */
 
     catalan[0] = (seq_t)1;                 /* C0 = 1 */
@@ -37,8 +39,8 @@ seq_t a(idx_t n)
     }
 
     /* Pre‑compute powers of 12: 12^e for e=0..n-2 */
-    seq_t *pow12 = (seq_t *)malloc(limit * sizeof(seq_t));
-    if (pow12 == NULL) { free(catalan); return (seq_t)0; }
+    seq_t *pow12 = mem_new(seq_t, limit);
+    if (pow12 == NULL) { mem_free(catalan); return (seq_t)0; }
 
     pow12[0] = (seq_t)1;
     for (idx_t e = 1; e <= n - 2; ++e) {
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         a_nm1 = a_n;
     }
 
-    free(catalan);
-    free(pow12);
+    mem_free(catalan);
+    mem_free(pow12);
     return a_n;
 }

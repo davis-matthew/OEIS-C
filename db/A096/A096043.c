@@ -12,13 +12,17 @@
  *            supplied helper routines binomial and big_pow
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;          /* not used for the sequence (offset 1) */
@@ -37,7 +41,7 @@ seq_t a(idx_t n) {
     seq_t comb = binomial(r, c - 1);
 
     /* 9^{exp} as a seq_t */
-    seq_t pow9 = big_pow((seq_t)9, (seq_t)exp);
+    seq_t pow9 = ipow((seq_t)9, (seq_t)exp);
 
     /* (9^{exp} - 1) / 8  must be an integer */
     seq_t term = (pow9 - (seq_t)1) / (seq_t)8;

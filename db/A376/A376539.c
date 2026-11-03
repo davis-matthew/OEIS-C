@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   leads_to_376
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,22 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/leads_to_376.h"
+
+/* Return true if the residue r eventually hits 376 under repeated squaring
+   modulo 1000. */
+static bool leads_to_376(unsigned int r)
+{
+    unsigned int u = r;
+    bool visited[1000] = {0};
+
+    while (1) {
+        if (u == 376U) return true;
+        if (u == 0U || u == 1U || u == 625U) return false;
+        if (visited[u]) return false;
+        visited[u] = true;
+        u = (u * u) % 1000U;
+    }
+}
 
 /* Global data describing the residue classes that converge to 376. */
 static bool initialized = false;

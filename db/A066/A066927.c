@@ -9,7 +9,8 @@
  * Formula:   a(n) = floor( sqrt( p_n / 2 ) ) + 1
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   _int_sqrt
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/_int_sqrt.h"
+#include "../utils/isqrt.h"
 
 /* rough upper bound for the n‑th prime (Rosser–Schoenfeld) */
 static inline idx_t _prime_limit_for_idx(idx_t n)
@@ -70,6 +71,6 @@ seq_t a(idx_t n)
 
     idx_t p = _nth_prime(n);
     idx_t half = p >> 1;                 /* floor(p/2)           */
-    idx_t s = _int_sqrt(half);           /* floor(sqrt(p/2))     */
+    idx_t s = isqrt(half);           /* floor(sqrt(p/2))     */
     return (seq_t)(s + 1);
 }

@@ -10,13 +10,16 @@
  *            (row and column indices in the triangle)
  * Range:     u8 n <= 40, u16 n <= 128, u32 n <= 420, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 94 terms through n = 1099 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/binom.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0; /* safety, though offset starts at 1 */
@@ -44,7 +47,7 @@ seq_t a(idx_t n) {
     seq_t pow2exp = pow2(exp);
 
     /* Compute binomial coefficient C(r-1, k-1). */
-    seq_t bin = binom(r - 1, k - 1);
+    seq_t bin = binomial(r - 1, k - 1);
 
     return pow2exp * bin;
 }

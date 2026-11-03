@@ -9,14 +9,23 @@
  *            v_p(binomial(2*n-2,n-1)))
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 9, u64 n <= 15, u128 n <= 24,
  *            big any n
- * Helpers:   a005017_vfact
+ * Validated: standard, pass, 35 terms through n = 264 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a005017_vfact.h"
+
+static idx_t a005017_vfact(idx_t m, idx_t p) {
+    idx_t s = 0;
+    while (m) {
+        m /= p;
+        s += m;
+    }
+    return s;
+}
 
 seq_t a(idx_t n) {
     seq_t d = 1;

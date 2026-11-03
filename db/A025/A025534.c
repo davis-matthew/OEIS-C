@@ -9,6 +9,7 @@
  *            LCM{C(n,0),C(n,1),...,C(n,n)}
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 27, u64 n <= 30, u128 n <= 30,
  *            big any n
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,8 @@
    algorithm. */
 
 #include <stddef.h>                 /* for size_t */
-#include "../utils/gcd.h"           /* static seq_t gcd(seq_t, seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

@@ -13,13 +13,15 @@
  *            a(11)=1, a(12)=0, a(13)=1, a(14)=1, a(15)=1, a...
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 84 terms through n = 83 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* A memoised implementation of the recurrence.  It works for
    arbitrary‑precision seq_t as well as for built‑in unsigned types. */
@@ -41,12 +43,12 @@ seq_t a(idx_t n)
 
     /* grow the cache if necessary */
     if (!cache) {
-        cache = (seq_t *)malloc(need * sizeof(seq_t));
+        cache = mem_new(seq_t, need);
         if (!cache)
             return 0;                 /* allocation failure; fall back to 0 */
         cache_size = 0;
     } else if (need > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp)
             return 0;                 /* allocation failure; fall back to 0 */
         cache = tmp;

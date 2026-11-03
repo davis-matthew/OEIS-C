@@ -7,8 +7,9 @@
  * Formula:   a(n) = binomial(r,k) * 2^(r-k) * 8^k, where r =
  *            floor((√(8*n+1)-1)/2) is the row number, and k = n - r*(r+1)/2
  *            is the column index
- * Range:     u8 n <= 7, u16 n <= 23, u32 n <= 44, u64 n <= 44, u128 n <= 44,
+ * Range:     u8 n <= 7, u16 n <= 23, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

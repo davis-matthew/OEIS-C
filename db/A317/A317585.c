@@ -9,7 +9,8 @@
  *            a(n-k) ) <= 2 (n >= 1, a(1) = 0)
  * Range:     u8 n <= 4505, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 8677 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * n up to about 1 000 000 in the allowed environments. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* array of a(1) … a(n) */
 static idx_t cached_size = 0;    /* size of allocated array */
@@ -34,7 +36,7 @@ static void ensure_cache_size(idx_t n)
     while (new_size <= n)
         new_size <<= 1;
 #if defined(__cplusplus)
-    seq_t *new_cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
 #else
     seq_t *new_cache = realloc(cache, new_size * sizeof(seq_t));
 #endif

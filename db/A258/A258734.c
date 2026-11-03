@@ -11,6 +11,7 @@
  *            hold for all n ≥ 3
  * Range:     u8 none, u16 n <= 7, u32 n <= 72, u64 n <= 210, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 207 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

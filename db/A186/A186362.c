@@ -12,13 +12,15 @@
  *            a(n)=n*a(n-1)+(n-1)!-E(n-1) is used, with E(0)=E(1)=1
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static state for memoization */
 static seq_t *fact = NULL;
@@ -34,14 +36,14 @@ static void ensure_up_to(idx_t n)
     idx_t new_cap = size == 0 ? 1 : size;
     while (new_cap <= n) new_cap = new_cap * 2 + 1;
 
-    seq_t *new_fact = (seq_t *)malloc(new_cap * sizeof(seq_t));
-    seq_t *new_eul  = (seq_t *)malloc(new_cap * sizeof(seq_t));
-    seq_t *new_a   = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_fact = mem_new(seq_t, new_cap);
+    seq_t *new_eul  = mem_new(seq_t, new_cap);
+    seq_t *new_a   = mem_new(seq_t, new_cap);
 
     if (size > 0) {
-        memcpy(new_fact, fact, size * sizeof(seq_t));
-        memcpy(new_eul,  euler, size * sizeof(seq_t));
-        memcpy(new_a,    a_seq, size * sizeof(seq_t));
+        mem_copy(new_fact, fact, size * sizeof(seq_t));
+        mem_copy(new_eul, euler, size * sizeof(seq_t));
+        mem_copy(new_a, a_seq, size * sizeof(seq_t));
     }
 
     /* fill new entries */
@@ -75,9 +77,9 @@ static void ensure_up_to(idx_t n)
     }
 
     /* replace old arrays */
-    free(fact);
-    free(euler);
-    free(a_seq);
+    mem_free(fact);
+    mem_free(euler);
+    mem_free(a_seq);
     fact  = new_fact;
     euler = new_eul;
     a_seq = new_a;

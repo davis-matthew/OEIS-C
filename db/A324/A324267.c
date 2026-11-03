@@ -7,14 +7,16 @@
  * Formula:   a(n) = 11*16807^n
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 2, u64 n <= 4, u128 n <= 8,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
-    return 11 * pow_uint(16807ULL, n);
+    return 11 * ipow_u64_idx(16807ULL, n);
 }

@@ -10,13 +10,15 @@
  *            pentagonal number recurrence
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *partition_table = NULL;   /* cached partition numbers */
 static idx_t partition_size = 0;        /* max n computed so far */
@@ -28,13 +30,13 @@ static void compute_partitions(idx_t n)
 
     /* allocate new table large enough */
     idx_t new_size = n;
-    seq_t *new_table = (seq_t*)malloc((new_size + 1) * sizeof(seq_t));
+    seq_t *new_table = mem_new(seq_t, (new_size + 1));
     if (!new_table) { /* allocation failed – let caller handle error */ return; }
 
     /* copy existing data if any */
     if (partition_table) {
-        memcpy(new_table, partition_table, (partition_size + 1) * sizeof(seq_t));
-        free(partition_table);
+        mem_copy(new_table, partition_table, (partition_size + 1) * sizeof(seq_t));
+        mem_free(partition_table);
     }
 
     /* initialize p(0) if this is the first allocation */

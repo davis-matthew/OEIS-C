@@ -12,7 +12,8 @@
  *            a row
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static unsigned char adj[64][64] = {0};
 static int adj_built = 0;
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
        After step steps we have arrays of size (step+1)+1 = step+2 rows.
        For step = n we obtain arrays of size (n+1)×3, i.e. the required a(n). */
     for (idx_t step = 1; step <= n; ++step) {
-        memset(next, 0, sizeof(next));
+        mem_set(next, 0, sizeof(next));
 
         for (idx_t i = 0; i < 64; ++i) {
             if (cur[i] == (seq_t)0) continue;
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
 
         if (step == n) return sum;        /* a(n) found */
 
-        memcpy(cur, next, sizeof(cur));
+        mem_copy(cur, next, sizeof(cur));
     }
 
     /* should never reach here */

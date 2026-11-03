@@ -11,7 +11,8 @@
  *            values
  * Range:     u8 n <= 39, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   _floor_isqrt_u64, sieve_primes
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   isqrt, mem, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
+#include "../utils/isqrt.h"
 #include "../utils/sieve_primes.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/mem.h"
 
 /* Prime list management -------------------------------------------------*/
 static uint64_t *prime_list = NULL;   /* 1‑based: prime_list[0] = 2 */
@@ -63,7 +66,7 @@ static void factor_uint64(uint64_t n, uint64_t part[64], uint32_t exp[64], size_
     uint64_t rem = n;
     if (prime_count == 0) ensure_primes_up_to(2);  /* initialise primes */
 
-    uint64_t lim = _floor_isqrt_u64(rem);
+    uint64_t lim = isqrt(rem);
     ensure_primes_up_to(lim);
 
     for (size_t i = 0; i < prime_count && prime_list[i] <= lim; ++i) {
@@ -77,7 +80,7 @@ static void factor_uint64(uint64_t n, uint64_t part[64], uint32_t exp[64], size_
             part[c] = p;
             exp[c]  = e;
             ++c;
-            lim = _floor_isqrt_u64(rem);
+            lim = isqrt(rem);
         }
     }
     if (rem > 1) {                    /* remaining prime factor */
@@ -152,7 +155,7 @@ seq_t a(idx_t n)
         if (satisfies_property(current)) {
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap ? cache_cap << 1 : 8;
-                cache    = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache    = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)current;
         }

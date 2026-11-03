@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 28, i32 n <= 85, i64 n <= 289,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 843 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache for computed sequence values */
 static seq_t *cache = NULL;      /* pointer to array containing a(0 … N) */
@@ -50,8 +52,8 @@ seq_t a(idx_t n)
     size_t Nl   = (size_t)N;
     idx_t  sz   = Nl + 1;
     /* allocate two working arrays of size N+1 */
-    seq_t *arr   = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *buffer = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *arr   = mem_new(seq_t, sz);
+    seq_t *buffer = mem_new(seq_t, sz);
     if (!arr || !buffer) return (seq_t)0;  /* allocation failed */
 
     /* initial series A(x) = 1  (only a(0)=1) */
@@ -112,10 +114,10 @@ seq_t a(idx_t n)
 
     /* free obsolete buffer */
     seq_t *other = next;          /* the array that is not 'curr' */
-    if (other != curr) free(other);
+    if (other != curr) mem_free(other);
 
     /* update cache */
-    free(cache);                   /* free previous cache if any */
+    mem_free(cache);                   /* free previous cache if any */
     cache      = curr;             /* keep final series */
     cache_size = sz;               /* number of stored terms */
 

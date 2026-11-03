@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-12) + a(n-13), a(1) = a(2) = … = a(13) = 1
  * Range:     u8 n <= 104, u16 n <= 206, u32 n <= 406, u64 n <= 806,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,9 +30,7 @@ seq_t a(idx_t n)
     if (cur_max < n) {
         idx_t new_size  = n + 1;      /* indices 0 .. n inclusive */
         size_t byte_len = (size_t)new_size * sizeof(seq_t);
-        seq_t *tmp = (seq_t *)realloc(
-                         (void *) (cache == (seq_t *)0 ? NULL : cache),
-                         byte_len);
+        seq_t *tmp = mem_resize(seq_t, (cache == (seq_t *)0 ? NULL : cache), (byte_len) / sizeof(seq_t));
         if (tmp == (seq_t *)0) {
             /* Allocation failed – fail gracefully. */
             return 0;

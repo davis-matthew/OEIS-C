@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 24, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static caches for rows already computed
    rows[r] points to an array of size r+1 containing T(4,r,k) for k=0..r */
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
     /* initialize row cache on first call */
     if (rows == NULL) {
         rows = (seq_t**)malloc(sizeof(seq_t*));
-        rows[0] = (seq_t*)malloc(sizeof(seq_t));
+        rows[0] = mem_new(seq_t, 1);
         rows[0][0] = 1;
         rows_count = 1;
     }
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
     while (rows_count <= r) {
         idx_t prevR = rows_count - 1;
         seq_t *prev = rows[prevR];
-        seq_t *curr = (seq_t*)malloc((rows_count + 1) * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, (rows_count + 1));
         curr[0] = 1;                /* k = 0 case */
         for (idx_t kk = 1; kk < rows_count; ++kk) {
             seq_t diff = (seq_t)(rows_count + 1 - kk);   /* (n+1-k) for current row */

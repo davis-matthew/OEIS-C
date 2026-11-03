@@ -12,13 +12,14 @@
  *            layers: n = 8k^2 + 3v^2 + (3b+1)^2 with v == b (mod 2)
  * Range:     u8 n <= 999, u16 n <= 999, u32 n <= 999, u64 n <= 999,
  *            u128 n <= 999, big any n
- * Helpers:   a005871_isqrt
+ * Validated: standard, pass, 152 terms through n = 994 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a005871_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 static uint64_t a005871_isqrt_fast(uint64_t x) {
   uint64_t lo = 0, hi = 1;
@@ -27,7 +28,7 @@ static uint64_t a005871_isqrt_fast(uint64_t x) {
     uint64_t mid = lo + (hi - lo) / 2;
     if (mid * mid <= x) lo = mid; else hi = mid;
   }
-  (void)a005871_isqrt;
+  (void)isqrt_u64;
   return lo;
 }
 

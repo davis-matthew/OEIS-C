@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 12, i16 n <= 633, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   pow_uint_custom
+ * Validated: standard, pass, 76 terms through n = 961 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
                     a(p^e) = (p^(e+1) + (-1)^e)/(p+1)
    The value for n is the product of the terms for each prime power.  */
 #include <stdint.h>
-#include "../utils/pow_uint_custom.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +44,7 @@ seq_t a(idx_t n)
     }
     if (e > 0)
     {
-        seq_t term = pow_uint_custom(2, e);
+        seq_t term = ipow_u64_idx(2, e);
         term = -term;
         result *= term;
     }
@@ -61,12 +62,12 @@ seq_t a(idx_t n)
         seq_t term;
         if (p == 5)
         {
-            term = pow_uint_custom(5, e);
+            term = ipow_u64_idx(5, e);
         }
         else
         {
             idx_t mod5 = p % 5;
-            seq_t power = pow_uint_custom(p, e + 1); /* p^(e+1) */
+            seq_t power = ipow_u64_idx(p, e + 1); /* p^(e+1) */
             if (mod5 == 1 || mod5 == 4) /* p ≡ 1 or 4 (mod 5) */
             {
                 seq_t numerator = power - 1;
@@ -89,13 +90,13 @@ seq_t a(idx_t n)
         seq_t term;
         if (m == 5)
         {
-            term = pow_uint_custom(5, 1);
+            term = ipow_u64_idx(5, 1);
         }
         else
         {
             idx_t pprime = m;
             idx_t mod5 = pprime % 5;
-            seq_t power = pow_uint_custom(pprime, 2); /* p^(1+1) */
+            seq_t power = ipow_u64_idx(pprime, 2); /* p^(1+1) */
             if (mod5 == 1 || mod5 == 4)
             {
                 seq_t numerator = power - 1;

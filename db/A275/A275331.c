@@ -10,7 +10,8 @@
  *            number of unlabeled rooted trees with n nodes (A000081)
  * Range:     u8 n <= 21, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Computes the nth term of OEIS A275331. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *t_cache = NULL;   /* 1-based array of t(n), t_cache[0] unused */
 static idx_t t_cache_max = 0;   /* largest n for which t_cache has been built */
@@ -28,7 +30,7 @@ static void compute_t_upto(idx_t limit)
         return;               /* already computed */
 
     size_t new_size = (size_t)limit + 1;
-    seq_t *tmp = (seq_t *)realloc(t_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, t_cache, new_size);
     if (!tmp) abort();         /* allocation failure */
     t_cache = tmp;
 

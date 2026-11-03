@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    element, row 1 has two, etc.).  All arithmetic is performed in seq_t. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---- static storage for the triangular array ---- */
 static seq_t **rows = NULL;          /* rows[r] -> array of r+1 elements   */
@@ -49,7 +51,7 @@ static void ensure_fib(size_t needed)
 
     size_t new_len = fib_len ? fib_len * 2 : 2;
     if (new_len <= needed + 1) new_len = needed + 2;  /* need at least needed+1 elements */
-    fib = (seq_t*)realloc(fib, new_len * sizeof(seq_t));
+    fib = mem_resize(seq_t, fib, new_len);
     if (!fib) abort();
 
     if (fib_len == 0) {                    /* initialise only once */
@@ -69,7 +71,7 @@ static void ensure_row(idx_t r)
     while (rows_cnt <= r)
     {
         idx_t len = rows_cnt + 1;          /* number of elements in new row */
-        seq_t *row = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) abort();
 
         row[0] = 1;                       /* first element is always 1 */

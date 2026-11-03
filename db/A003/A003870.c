@@ -8,14 +8,36 @@
  *            all partitions of 6 (enumerated, then sorted)
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   cmp_int, hook_degree
+ * Validated: full, pass, 11 terms through n = 11 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/cmp_int.h"
-#include "../utils/hook_degree.h"
+
+static int cmp_int(const void *x, const void *y) {
+    int u = *(const int *)x, v = *(const int *)y;
+    return (u > v) - (u < v);
+}
+
+static int hook_degree(const int *parts, int len) {
+    long long prod = 1;
+    for (int i = 0; i < len; i++) {
+        for (int j = 0; j < parts[i]; j++) {
+            int arm = parts[i] - j - 1;
+            int leg = 0;
+            for (int k = i + 1; k < len; k++)
+                if (parts[k] > j) leg++;
+            prod *= arm + leg + 1;
+        }
+    }
+    long long f = 1;
+    int total = 0;
+    for (int i = 0; i < len; i++) total += parts[i];
+    for (int i = 2; i <= total; i++) f *= i;
+    return (int)(f / prod);
+}
 
 static int deg_list[64];
 static int deg_count = 0;

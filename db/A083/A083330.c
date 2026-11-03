@@ -7,13 +7,15 @@
  * Formula:   a(n) = (3*4^n - 2*3^n + 2^n)/2
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,10 +30,10 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary */
     if (cached <= (size_t)n) {
         size_t new_size = (size_t)n + 1;
-        pow2 = (seq_t*)realloc(pow2, new_size * sizeof(seq_t));
-        pow3 = (seq_t*)realloc(pow3, new_size * sizeof(seq_t));
-        pow4 = (seq_t*)realloc(pow4, new_size * sizeof(seq_t));
-        val = (seq_t*)realloc(val, new_size * sizeof(seq_t));
+        pow2 = mem_resize(seq_t, pow2, new_size);
+        pow3 = mem_resize(seq_t, pow3, new_size);
+        pow4 = mem_resize(seq_t, pow4, new_size);
+        val = mem_resize(seq_t, val, new_size);
         cached = new_size;
 
         /* Initialise the missing terms */

@@ -8,6 +8,7 @@
  * Formula:   a(0)=1, a(1)=26, a(2)=650, a(n)=650*25^(n-2) for n>=2
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

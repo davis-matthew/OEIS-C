@@ -9,12 +9,15 @@
  *            A001222(n)
  * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: standard, pass, 121 terms through n = 4925 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_smallest_prime_factor.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n) {
     if (n < 2) return 0;          /* a(1) = 0 */
@@ -23,7 +26,7 @@ seq_t a(idx_t n) {
 
     /* Factorize n using the smallest prime factor routine */
     while (x > 1) {
-        uint64_t spf = _smallest_prime_factor(x);
+        uint64_t spf = smallest_prime_factor(x);
         if (spf == 0) break;      /* safety net – should not happen */
         omega++;
         x /= spf;

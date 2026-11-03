@@ -9,13 +9,15 @@
  *            binomial(n-j-1, n-2j) ) * a(n-j) a(1) = a(2) = 1
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* 1‑based cache of computed terms */
 static idx_t  cache_size = 0;    /* allocated size of the cache */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         idx_t oldsize = cache_size;
         idx_t newsize = n + 1;                     /* indices 0..n inclusive */
-        seq_t *tmp = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newsize);
         if (!tmp)                                  /* allocation failure */
             return (seq_t)0;
         cache = tmp;

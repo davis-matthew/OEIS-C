@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 15, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for the cube roots (elements of A000404). */
 static seq_t   *roots      = NULL;   /* array of roots, sorted ascending */
@@ -53,8 +55,8 @@ static void generate_upto(uint64_t lim)
     }
 
     /* Rebuild roots array.  Free previous contents if any. */
-    free(roots);
-    roots   = (seq_t*)malloc(cnt * sizeof(seq_t));
+    mem_free(roots);
+    roots   = mem_new(seq_t, cnt);
     if (!roots) abort();
     roots_len = 0;
     roots_cap = cnt;

@@ -8,6 +8,7 @@
  *            (p-1) divides 2n
  * Range:     u8 n <= 5, u16 n <= 17, u32 n <= 89, u64 n <= 269,
  *            u128 n <= 1889, big any n
+ * Validated: standard, pass, 74 terms through n = 9955 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

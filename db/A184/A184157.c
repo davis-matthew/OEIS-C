@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Sequenced types are supplied by the build system.  */
 typedef idx_t idx_t;
@@ -116,8 +118,7 @@ static void ensure_cache_size(idx_t n)
 {
     if ((size_t)n < cache_cap) return;
     size_t new_cap = (size_t)n + 1;
-    Stats *new_cache = (Stats *)realloc(stats_cache,
-                                        new_cap * sizeof(Stats));
+    Stats *new_cache = mem_resize(Stats, stats_cache, new_cap);
     if (!new_cache) abort();
     /* New entries indicate uninitialised entries by sz == 0.  */
     for (size_t i = cache_cap; i < new_cap; ++i) new_cache[i].sz = 0;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   int_sqrt_uint32
+ * Validated: standard, pass, 111 terms through n = 4543 (2026-11-03)
+ * Helpers:   isqrt_u32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/int_sqrt_uint32.h"
+#include "../utils/isqrt_u32.h"
+#include "../utils/mem.h"
 
 /* ---------- integer square root (64‑bit) ---------- */
 static uint64_t int_sqrt_uint64(uint64_t n) {
@@ -59,7 +61,7 @@ static void ensure_primes_upto(uint32_t n) {
     if (prime_limit >= n) return;
     for (uint32_t cand = prime_limit + 1; cand <= n; ++cand) {
         bool is_prime = true;
-        uint32_t sq = int_sqrt_uint32(cand);
+        uint32_t sq = isqrt_u32(cand);
         for (size_t i = 0; i < prime_count && prime_list[i] <= sq; ++i) {
             if (cand % prime_list[i] == 0) {
                 is_prime = false;
@@ -105,7 +107,7 @@ static void ensure_cache_size(size_t need) {
     if (cache_cap >= need) return;
     size_t cap = cache_cap ? cache_cap : 8;
     while (cap < need) cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, cap);
     if (!tmp) abort();
     seq_cache = tmp;
     cache_cap = cap;

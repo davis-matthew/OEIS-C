@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 28, u32 n <= 58, u64 n <= 119,
  *            u128 n <= 242, big any n
- * Helpers:   pref_index
+ * Validated: standard, pass, 59 terms through n = 2752 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,7 +36,13 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/pref_index.h"
+#include "../utils/mem.h"
+
+/* Triangular table indices: pref[s][p] → offset = s*(s+1)/2 + p   (0 ≤ p ≤ s) */
+static size_t pref_index(idx_t s, idx_t p)
+{
+    return ((size_t)s * (s + 1)) / 2 + p;
+}
 
 /* Integer square‑root for 64‑bit unsigned numbers */
 static inline unsigned long long isqrt_u64(unsigned long long x)
@@ -67,7 +74,7 @@ static void ensure_n(idx_t upto)
 
     /* Reallocate pref array */
     size_t new_pref_size = ((size_t)upto + 1) * ((size_t)upto + 2) / 2;
-    pref = (seq_t *)realloc(pref, new_pref_size * sizeof(seq_t));
+    pref = mem_resize(seq_t, pref, new_pref_size);
 
     /* Reallocate floor_phi array */
     floor_phi = (idx_t *)realloc(floor_phi,

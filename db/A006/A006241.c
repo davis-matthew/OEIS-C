@@ -8,13 +8,15 @@
  *            a(1)=a(2)=a(3)=a(5)=a(7)=1, a(4)=2, a(6)=3
  * Range:     u8 n <= 23, u16 n <= 47, u32 n <= 95, u64 n <= 167,
  *            u128 n <= 335, big any n
- * Helpers:   a000248_pow
+ * Validated: standard, pass, 81 terms through n = 994 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/a000248_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 #define CACHE_SIZE 10001
 
@@ -40,12 +42,12 @@ static seq_t compute_a(idx_t n) {
     
     for (idx_t d = 2; d * d <= n; d++) {
         if (n % d == 0) {
-            seq_t term = a000248_pow(compute_a(n / d), d);
+            seq_t term = ipow_idx(compute_a(n / d), d);
             result += term;
             
             idx_t other = n / d;
             if (other != d) {
-                term = a000248_pow(compute_a(d), other);
+                term = ipow_idx(compute_a(d), other);
                 result += term;
             }
         }

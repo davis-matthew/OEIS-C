@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   even_runs_ge_odd
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,46 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/even_runs_ge_odd.h"
+#include "../utils/mem.h"
+
+static bool even_runs_ge_odd(uint64_t v) {
+    uint8_t digits[64];
+    size_t len = 0;
+    if (v == 0) {
+        digits[len++] = 0;
+    } else {
+        while (v != 0) {
+            digits[len++] = (uint8_t)(v % 14);
+            v /= 14;
+        }
+    }
+
+    size_t i = len - 1;          /* most significant digit index */
+    uint8_t curr = digits[i];
+    size_t runlen = 1;
+    int even_runs = 0, odd_runs = 0;
+
+    while (i > 0) {
+        if (digits[i - 1] == curr) {
+            runlen++;
+        } else {
+            if (runlen % 2 == 0)
+                even_runs++;
+            else
+                odd_runs++;
+            curr = digits[i - 1];
+            runlen = 1;
+        }
+        i--;
+    }
+    /* final run */
+    if (runlen % 2 == 0)
+        even_runs++;
+    else
+        odd_runs++;
+
+    return even_runs >= odd_runs;
+}
 
 seq_t a(idx_t n) {
     /* static cache of computed terms */
@@ -46,7 +86,7 @@ seq_t a(idx_t n) {
         if (even_runs_ge_odd(checked)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);  /* allocation failed */
                 cache = tmp;
                 cache_cap = new_cap;

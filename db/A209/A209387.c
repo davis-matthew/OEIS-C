@@ -10,7 +10,8 @@
  *            step; * else * a(n) = a(n-1) + step;
  * Range:     u8 n <= 65, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *seq = NULL;
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     /* Initialise storage on first call */
     if (seq == NULL) {
         cap = 16;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
         if (!seq) return (seq_t)0;   /* allocation failed */
         seq[0] = (seq_t)1;
         len  = 1;
@@ -69,8 +71,8 @@ seq_t a(idx_t n) {
         /* ensure capacity for the new element */
         if (len == cap) {
             size_t newcap = cap ? cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
-            if (!tmp) { free(seq); return (seq_t)0; } /* allocation failed */
+            seq_t *tmp = mem_resize(seq_t, seq, newcap);
+            if (!tmp) { mem_free(seq); return (seq_t)0; } /* allocation failed */
             seq = tmp;
             cap = newcap;
         }

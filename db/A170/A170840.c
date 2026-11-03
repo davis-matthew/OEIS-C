@@ -8,12 +8,14 @@
  *            3x^{2^k})
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 94 terms through n = 93 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of computed coefficients up to the largest n requested */
@@ -22,7 +24,7 @@ seq_t a(idx_t n) {
 
     /* If cache is empty, initialise it for n=0 */
     if (cache == NULL) {
-        cache = (seq_t*)calloc(1, sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = 1;
         cached_max = 0;
     }
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
         size_t new_len = (size_t)new_max + 1;
 
         /* Allocate new array and initialise to zero */
-        seq_t *new_cache = (seq_t*)calloc(new_len, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache) return 0;                 /* allocation failed; return 0 */
         new_cache[0] = 1;
 
@@ -61,7 +63,7 @@ seq_t a(idx_t n) {
         }
 
         /* Free old cache and replace */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cached_max = new_max;
     }

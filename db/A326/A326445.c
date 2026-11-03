@@ -12,7 +12,8 @@
  *            smallest parts. * The partitions are counted in non‑de...
  * Range:     u8 n <= 31, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External types provided by the build system. */
 seq_t a(idx_t n);
@@ -35,7 +37,7 @@ static cache_t cache = {0, NULL};
 /* Helper: free previously allocated cache.                            */
 static void free_cache(void) {
     if (cache.a) {
-        free(cache.a);
+        mem_free(cache.a);
         cache.a = NULL;
     }
     cache.max_n = 0;
@@ -57,10 +59,10 @@ static void recompute(idx_t N)
     /* --- 2.  Allocate DP tables ------------------------------------------ */
     const size_t stride = (size_t)(N + 1);     /* columns for all sums 0..N */
     const size_t rows   = 9;                  /* j = 0 .. 8 */
-    seq_t *dp = (seq_t *)calloc(rows * stride, sizeof(seq_t));
-    seq_t *S  = (seq_t *)calloc(rows * stride, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, rows * stride);
+    seq_t *S  = mem_new(seq_t, rows * stride);
     if (!dp || !S) {
-        free(is_sf); free(dp); free(S);
+        free(is_sf); mem_free(dp); mem_free(S);
         return;
     }
 
@@ -92,7 +94,7 @@ static void recompute(idx_t N)
     }
 
     /* --- 4.  Extract a(n) from the table for exactly 8 parts ---------------- */
-    seq_t *a_arr = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *a_arr = mem_new(seq_t, (size_t)(N + 1));
     if (a_arr) {
         size_t base8 = 8 * stride;
         for (idx_t i = 0; i <= N; ++i)
@@ -100,7 +102,7 @@ static void recompute(idx_t N)
     }
 
     /* --- 5.  Clean up temporary arrays -------------------------------------- */
-    free(is_sf); free(dp); free(S);
+    free(is_sf); mem_free(dp); mem_free(S);
 
     /* --- 6.  Update cache (free old data if present) ------------------------ */
     free_cache();

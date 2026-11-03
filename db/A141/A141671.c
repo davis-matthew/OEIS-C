@@ -12,13 +12,14 @@
  *            index of row r) * k = n - start(r) * Then c...
  * Range:     u8 n <= 5150, u16 n <= 5150, u32 n <= 5150, u64 n <= 5150,
  *            u128 n <= 5150, big any n
- * Helpers:   start_index_of
+ * Validated: standard, pass, 107 terms through n = 5076 (2026-11-01)
+ * Helpers:   triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/start_index_of.h"
+#include "../utils/triangular.h"
 
 static inline idx_t row_of(idx_t n) {
     /* Find largest r such that r*(r+1)/2 <= n */
@@ -40,7 +41,7 @@ seq_t a(idx_t n) {
     idx_t r = row_of(n);
 
     /* 2. Compute start index of this row */
-    idx_t start = start_index_of(r);
+    idx_t start = triangular(r);
 
     /* 3. Column k within the row */
     idx_t k = n - start;

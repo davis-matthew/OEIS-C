@@ -11,12 +11,14 @@
  *            x^3*(3*x^6-20*x^5+57*x^4-91*x^3+116*x^2+105*x+10)/(1-x)^7
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 51, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 48 terms through n = 857 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
            For n < 3 this loop is skipped, so no negative arguments are
            passed to binom.  binom is expected to return 0 if the
            upper index is smaller than 6. */
-        seq_t comb = binom(n + 3 - j, 6);
+        seq_t comb = binomial(n + 3 - j, 6);
 
         if (coeffs[j] > 0) {
             pos_total += comb * (seq_t)coeffs[j];

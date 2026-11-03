@@ -8,14 +8,30 @@
  * Formula:   not stated
  * Range:     u8 n <= 202, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_adjacent_zeros
+ * Validated: standard, pass, 82 terms through n = 9764 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sequence: even numbers and odd numbers with at least one pair of adjacent zeros in binary representation */
 #include <stdbool.h>
-#include "../utils/has_adjacent_zeros.h"
+
+/* Helper that checks if a binary number (odd) has at least one pair of adjacent zeros.
+ * The check is performed by shifting the number right one bit at a time and testing
+ * the lower two bits.  It stops once the number becomes smaller than 4 (since
+ * 00 can no longer be found). */
+static bool has_adjacent_zeros(seq_t x)
+{
+    const seq_t mask = (seq_t)3;          /* binary 11 */
+    while (x > (seq_t)3) {                /* only loop while at least two bits remain */
+        x >>= 1U;                         /* shift right by one bit */
+        if ((x & mask) == (seq_t)0) {     /* low two bits are 00 */
+            return true;
+        }
+    }
+    return false;
+}
 
 /* Returns the nth term (1‑based) of the sequence.
  * The sequence contains all even integers and all odd integers whose

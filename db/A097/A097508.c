@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor(n * (sqrt(2)-1)) = floor(sqrt(2*n*n)) - n
  * Range:     u8 n <= 618, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 94 terms through n = 4490 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

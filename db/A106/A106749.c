@@ -10,12 +10,14 @@
  *            fixed point
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* initialise with the first symbol */
     if (word_len == 0) {
-        word = (seq_t*)malloc(sizeof(seq_t));
+        word = mem_new(seq_t, 1);
         if (!word) return (seq_t)0;          /* fallback */
         word[0] = (seq_t)1;
         word_len = 1;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         }
 
         /* allocate new storage */
-        seq_t *new_word = (seq_t*)malloc(sizeof(seq_t) * new_len);
+        seq_t *new_word = mem_new(seq_t, new_len);
         if (!new_word) return (seq_t)0;    /* fallback on allocation failure */
 
         /* fill the new word by applying the morphism */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         }
 
         /* replace the old word */
-        free(word);
+        mem_free(word);
         word = new_word;
         word_len = new_len;
     }

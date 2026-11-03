@@ -13,6 +13,7 @@
  *            by multiplying or dividing by powers of 2 afte...
  * Range:     u8 n <= 54, u16 n <= 1264, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 96 terms through n = 9765 (2026-11-01)
  * Helpers:   factor_u64, gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/gcd.h"
 #include "../utils/pow2.h"

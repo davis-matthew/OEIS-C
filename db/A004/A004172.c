@@ -12,17 +12,38 @@
  *            triangle). a(n) = T(r,j) with r = floor(sqrt(n)), j = n - r^2
  * Range:     i8 n <= 25, i16 n <= 49, i32 n <= 121, i64 n <= 256,
  *            i128 n <= 625, big any n
- * Helpers:   alloc_zero, binom_s, gcd_s, release
+ * Validated: standard, pass, 83 terms through n = 2520 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/binom_s.h"
-#include "../utils/gcd_s.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static seq_t gcd_s(seq_t a, seq_t b) {
+    if (a < 0) a = -a;
+    if (b < 0) b = -b;
+    while (b != 0) {
+        seq_t t = a % b;
+        a = b;
+        b = t;
+    }
+    return a;
+}
 
 /* Unsigned Genocchi number G_{2t} (t >= 1) via the Seidel triangle;
    all intermediate entries are <= the result. */
@@ -65,7 +86,7 @@ seq_t a(idx_t n) {
     p = G / g;
     q = kk / g;
 
-    b = binom_s(m, k);
+    b = binomial(m, k);
     b /= q;
     res = b * p;
     if (t % 2 == 1) res = -res;

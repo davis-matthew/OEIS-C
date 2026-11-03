@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #ifdef __cplusplus
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (!seq) {
         size_t need = n + 1;
         if (need < 26) need = 26;          /* have enough room for first 25 terms */
-        seq = (seq_t *)malloc(need * sizeof(seq_t));
+        seq = mem_new(seq_t, need);
         if (!seq) abort();
         seq[0] = (seq_t)1;                 /* a(0) */
         cap = need;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cap) {
         size_t new_cap = cap * 2;
         if (new_cap < (size_t)n + 1) new_cap = (size_t)n + 1;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         cap = new_cap;
     }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   reverse_decimal_custom
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
  * where reverse_decimal(x) is x written in base‑10 with its digits
  * reversed (e.g. reverse_decimal(123) = 321). */
 #include <stdint.h>
-#include "../utils/reverse_decimal_custom.h"
+#include "../utils/reverse_digits.h"
 
 /* Compute the n-th term of sequence A118220. */
 seq_t a(idx_t n)
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
 
     seq_t val = (seq_t)1;           /* a(1) = 1 */
     for (idx_t i = (idx_t)1; i < n; ++i)
-        val = reverse_decimal_custom(val) + (seq_t)72;  /* recurrence */
+        val = reverse_digits(val) + (seq_t)72;  /* recurrence */
 
     return val;
 }

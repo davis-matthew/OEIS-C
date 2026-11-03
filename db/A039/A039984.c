@@ -7,7 +7,8 @@
  * Formula:   a(n) = A090345(n) mod 2
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   next_letter
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,21 @@
    a → ab, b → cd, c → cd, d → bb, with the coding a,c,d → 1, b → 0. */
 
 #include <stdint.h>   /* for standard integer types */
-#include "../utils/next_letter.h"
+
+/* Helper to choose the child letter of a given parent.
+   child = 1 selects the first letter of the production,
+   child = 2 selects the second. */
+static inline char next_letter(char parent, int child)
+{
+    switch (parent)
+    {
+        case 'a': return (child == 1) ? 'a' : 'b';
+        case 'b': return (child == 1) ? 'c' : 'd';
+        case 'c': return (child == 1) ? 'c' : 'd';
+        case 'd': return 'b';                /* both children are 'b' */
+        default : return 'a';                /* safety catch */
+    }
+}
 
 /* Compute the n-th term of OEIS A039984 (1‑based). */
 seq_t a(idx_t n)

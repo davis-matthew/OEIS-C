@@ -9,7 +9,8 @@
  *            ∏_{p^e‖k} ∏_{j: 2^j‖e} (p^{2^j} – 1)
  * Range:     u8 n <= 27, u16 n <= 445, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 72 terms through n = 9433 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Compute the infinitary φ function for a single number. */
 static seq_t iphi(idx_t n)
@@ -60,8 +63,7 @@ seq_t a(idx_t n)
     if (n > max_computed) {                 /* expand cache if necessary */
         size_t new_cap = (size_t)n + 1;
         if (cap < new_cap) {
-            seq_t *new_cache = (seq_t *)realloc(cache,
-                                            new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (!new_cache)
                 abort();                    /* allocation failure */
             for (size_t i = cap; i < new_cap; ++i)

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, base
  * Formula:   not stated
- * Range:     u8 n <= 38, u16 n <= 3597, u32 n <= 9294, u64 n <= 9294,
- *            u128 n <= 9294, big any n
- * Helpers:   has_digit9_uint64
+ * Range:     u8 n <= 38, u16 n <= 3597, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 73 terms through n = 9294 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,18 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/has_digit9_uint64.h"
+#include "../utils/mem.h"
+
+/* Check whether a 64‑bit unsigned integer contains the decimal digit 9. */
+static inline bool has_digit9_uint64(uint64_t x)
+{
+    while (x) {
+        if (x % 10 == 9)
+            return true;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Very small deterministic primality test for 64‑bit integers
    adequate for the ranges needed by this sequence. */
@@ -50,7 +62,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (!started) {
         cap = 16;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache)
             return (seq_t)0;   /* allocation failed */
         cache[0] = (seq_t)2;    /* first prime */
@@ -63,7 +75,7 @@ seq_t a(idx_t n)
         if (!has_digit9_uint64(next) && is_prime_uint64(next)) {
             if (len == cap) {
                 size_t new_cap = cap << 1;
-                seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)
                     return (seq_t)0;   /* reallocation failed */
                 cache = tmp;

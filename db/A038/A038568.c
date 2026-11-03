@@ -10,13 +10,15 @@
  *            integers 1 ≤ r ≤ m that are coprime to m in increasing order.
  *            The sequence is produced by writing, for each m in increasing
  *            order, the pairs (r, m) for every r ∈ R(m). That...
- * Range:     u8 n <= 7886, u16 n <= 7886, u32 n <= 7886, u64 n <= 7886,
- *            u128 n <= 7886, big any n
+ * Range:     u8 n <= 39639, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 110 terms through n = 7886 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

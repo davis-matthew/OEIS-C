@@ -9,13 +9,15 @@
  *            of n} (1-x^d)
  * Range:     u8 n <= 41, u16 n <= 209, u32 n <= 2309, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9709 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Count partitions of n-1 into parts 1 and the distinct prime divisors of n. */
 seq_t a(idx_t n)
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         primes[pc++] = tmp;   /* remaining prime factor > sqrt(n) */
 
     /* Dynamic programming array: dp[i] = number of partitions of i. */
-    seq_t *dp = (seq_t *)calloc((size_t)m + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)m + 1);
     if (!dp)
         return (seq_t)0;       /* allocation failure */
 
@@ -61,6 +63,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[m];
-    free(dp);
+    mem_free(dp);
     return result;
 }

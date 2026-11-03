@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 9, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static caches for already computed terms and powers of 3 */
@@ -34,14 +36,14 @@ seq_t a(idx_t n) {
     /*--- ensure seq has room up to n ----------------------------------*/
     if (nn + 1 > seq_cap) {
         size_t new_cap = nn + 1;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 
     /*--- ensure powers of 3 up to 3^(n-1) --------------------------------*/
     if (nn > pow3_cap) {               /* need pow3[n-1] when nn>=1 */
         size_t new_cap = nn;           /* because we need indices 0..nn-1 */
-        pow3 = (seq_t *)realloc(pow3, new_cap * sizeof(seq_t));
+        pow3 = mem_resize(seq_t, pow3, new_cap);
         if (pow3_cap == 0) {           /* first time, initialise */
             pow3[0] = 1;
             pow3_cap = 1;

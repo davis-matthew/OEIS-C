@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 21, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  *   a(2k+1) = (2^k + 1) k! + Σ_{j=0}^{k-1} (k-j-1)! a(2j+1)   */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *even_arr = NULL;     /* a(2k) */
 static seq_t *odd_arr  = NULL;     /* a(2k+1) */
@@ -38,10 +40,10 @@ static void ensure_capacity(idx_t k_req)
     while (new_cap <= k_req)
         new_cap *= 2;
 
-    even_arr = (seq_t *)realloc(even_arr, sizeof(seq_t) * new_cap);
-    odd_arr  = (seq_t *)realloc(odd_arr,  sizeof(seq_t) * new_cap);
-    fact_arr = (seq_t *)realloc(fact_arr, sizeof(seq_t) * new_cap);
-    pow2_arr = (seq_t *)realloc(pow2_arr, sizeof(seq_t) * new_cap);
+    even_arr = mem_resize(seq_t, even_arr, new_cap);
+    odd_arr  = mem_resize(seq_t, odd_arr, new_cap);
+    fact_arr = mem_resize(seq_t, fact_arr, new_cap);
+    pow2_arr = mem_resize(seq_t, pow2_arr, new_cap);
 
     /* Initialize newly allocated entries to 0; they will be set later. */
     for (idx_t i = cap; i < new_cap; ++i) {

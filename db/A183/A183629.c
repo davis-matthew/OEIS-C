@@ -8,7 +8,8 @@
  * Formula:   a(n) = 3*(644 + 21*2^(n+2) + 3^n)
  * Range:     u8 none, u16 n <= 7, u32 n <= 19, u64 n <= 39, u128 n <= 79,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 39 terms through n = 192 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,13 +17,13 @@
 /* Computes the nth term of OEIS A183629 (index starts at 1). */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* Compute 2^(n+2) and 3^n as big integers if necessary. */
-    seq_t two_pow  = big_pow((seq_t)2, (seq_t)(n + 2));
-    seq_t three_pow = big_pow((seq_t)3, (seq_t)n);
+    seq_t two_pow  = ipow((seq_t)2, (seq_t)(n + 2));
+    seq_t three_pow = ipow((seq_t)3, (seq_t)n);
 
     /* Sum the components: 644 + 21*2^(n+2) + 3^n. */
     seq_t sum = (seq_t)644;

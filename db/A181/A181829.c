@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 90, i32 n <= 5000, i64 n <= 5000,
  *            i128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 4894 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 /*  Include the standard library for memory allocation.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  The function defined by the problem statement  */
 seq_t a(idx_t n)
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         not been done yet.  */
     if (cache_size < init_len) {
         idx_t new_size = init_len;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return (seq_t)0;           /* allocation failed */
         cache = tmp;
         for (idx_t i = cache_size; i < new_size; ++i)
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
 
     /*  Extend the cache so that it covers the required index k.  */
     idx_t new_size = k + 1;                 /* inclusive */
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) return (seq_t)0;              /* allocation failed */
     cache = tmp;
 

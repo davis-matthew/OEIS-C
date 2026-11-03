@@ -8,14 +8,16 @@
  * Formula:   a(n) = LCM{ d | n‑1 : d+1 is prime }, a(1)=1
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, is_prime_small
+ * Validated: standard, pass, 113 terms through n = 9109 (2026-11-01)
+ * Helpers:   gcd, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* compute lcm of two seq_t values */
 static seq_t lcm_seq(seq_t a_, seq_t b_)
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     for (idx_t d = 1; d <= m; ++d)
     {
-        if (m % d == 0 && is_prime_small((seq_t)(d + 1)))
+        if (m % d == 0 && is_prime_seq((seq_t)(d + 1)))
         {
             res = lcm_seq(res, (seq_t)d);
         }

@@ -12,17 +12,29 @@
  *            E(i,t) = E(i,t-1) + E(i-1,i-t), zigzag(i) = E(i...
  * Range:     i8 n <= 21, i16 n <= 46, i32 n <= 121, i64 n <= 300,
  *            i128 n <= 779, big any n
- * Helpers:   a000037_isqrt, alloc_zero, binom, release
+ * Validated: standard, pass, 74 terms through n = 1324 (2026-11-03)
+ * Helpers:   binomial, isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a000037_isqrt.h"
-#include "../utils/binom.h"
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 static seq_t zigzag(idx_t j) {
     seq_t *prev = alloc_zero(j + 1);
@@ -44,7 +56,7 @@ static seq_t zigzag(idx_t j) {
 }
 
 seq_t a(idx_t n) {
-    idx_t r = (a000037_isqrt(8 * n + 1) - 1) / 2;
+    idx_t r = (isqrt_u64(8 * n + 1) - 1) / 2;
     idx_t k, j, i;
     seq_t f, res;
     while (r > 0 && r * (r + 1) / 2 > n) r--;
@@ -60,7 +72,7 @@ seq_t a(idx_t n) {
         f = zigzag(j);
         if (m % 2 == 1) f = -f;
     }
-    res = f * binom(r, k);
+    res = f * binomial(r, k);
     for (i = 0; i < k; i++) res = res * 2;
     return res;
 }

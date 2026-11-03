@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 39,
  *            big any n
- * Helpers:   mod13
+ * Validated: standard, pass, 35 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
           (top/left most significant), is divisible by 13. */
 
 #include <stdlib.h>
-#include "../utils/mod13.h"
+#include "../utils/mem.h"
+
+static inline int mod13(int x) { return x % 13; }
 
 static const int PAT[10][3] = {
     {0,0,0}, {0,2,3}, {1,0,1}, {1,2,4},
@@ -58,8 +61,8 @@ seq_t a(idx_t n) {
     static seq_t *next = NULL;
     static size_t cap = 0;
     if (cap < (size_t)STATES) {
-        cur  = (seq_t *)realloc(cur,  STATES * sizeof(seq_t));
-        next = (seq_t *)realloc(next, STATES * sizeof(seq_t));
+        cur  = mem_resize(seq_t, cur, STATES);
+        next = mem_resize(seq_t, next, STATES);
         cap = STATES;
     }
 

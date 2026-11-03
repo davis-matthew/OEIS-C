@@ -9,14 +9,37 @@
  *            (d+1)·2^(d-2) = 1 when d = 1)
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 29, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   mu_of, pow_uint
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mu_of.h"
-#include "../utils/pow_uint.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ipow_u64_idx.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +60,7 @@ seq_t a(idx_t n)
             if (d == 1)
                 term = 1;   /* (1+1)·2^(-1) → 1 by definition */
             else
-                term = (seq_t)(d + 1) * pow_uint(2, d - 2);
+                term = (seq_t)(d + 1) * ipow_u64_idx(2, d - 2);
 
             if (mu > 0)
                 sum_pos += term;
@@ -56,7 +79,7 @@ seq_t a(idx_t n)
                 if (d2 == 1)
                     term = 1;
                 else
-                    term = (seq_t)(d2 + 1) * pow_uint(2, d2 - 2);
+                    term = (seq_t)(d2 + 1) * ipow_u64_idx(2, d2 - 2);
 
                 if (mu > 0)
                     sum_pos += term;

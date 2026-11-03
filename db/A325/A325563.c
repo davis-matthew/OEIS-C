@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = the largest proper divisor d of n such that the binary
  *            polynomial of d divides the binary polynomial of n over GF(2)
- * Range:     u8 n <= 510, u16 n <= 7722, u32 n <= 7722, u64 n <= 7722,
- *            u128 n <= 7722, big any n
+ * Range:     u8 n <= 510, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 116 terms through n = 7722 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

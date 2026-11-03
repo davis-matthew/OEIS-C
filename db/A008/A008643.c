@@ -9,12 +9,14 @@
  *            A008643)
  * Range:     u8 n <= 39, u16 n <= 285, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;      /* dynamic array used for computation */
 static idx_t dp_cap = 0;      /* current capacity of dp */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Ensure the table is large enough. */
     if (n + 1 > dp_cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_cap);
         if (!tmp) /* allocation failure: leave old table intact */
             return 0;
         dp = tmp;

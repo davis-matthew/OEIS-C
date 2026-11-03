@@ -8,8 +8,9 @@
  * Formula:   a(n) = 2*n - sigma(n) - popcount(n) where sigma(n) = sum of
  *            divisors of n. We compute sigma by prime factorisation using
  *            trial division
- * Range:     i8 n <= 136, i16 n <= 8980, i32 n <= 8980, i64 n <= 8980,
- *            i128 n <= 8980, big any n
+ * Range:     i8 n <= 136, i16 n <= 16384, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 101 terms through n = 8980 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

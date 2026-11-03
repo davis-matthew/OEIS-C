@@ -13,13 +13,15 @@
  *            31349144530*a(n-14) + 3...
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 9, i64 n <= 16, i128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
 
     /* Allocate space for intermediate sequence values. */
     size_t len = (size_t)n + 1;
-    seq_t *a_vals = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *a_vals = mem_new(seq_t, len);
     if (!a_vals)
         return (seq_t)0; /* memory error, unlikely for typical inputs */
 
@@ -91,6 +93,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_vals[n];
-    free(a_vals);
+    mem_free(a_vals);
     return result;
 }

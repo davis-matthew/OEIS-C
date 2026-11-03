@@ -10,12 +10,14 @@
  *            a(7)=15,a(8)=26,a(9)=46
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 39, u64 n <= 75, u128 n <= 148,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t initial[10] = {
     0ULL, // unused 0 index
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
     /* Initialize cache with base values if empty */
     if (cache_len == 0) {
         cache_len = 9;
-        cache = (seq_t *)malloc((cache_len + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_len + 1));
         if (!cache) abort();
         for (idx_t i = 1; i <= 9; ++i) {
             cache[i] = initial[i];
@@ -56,7 +58,7 @@ seq_t a(idx_t n) {
     idx_t new_size = n + 1;                    /* index n included */
     if (new_size < cache_len * 2) new_size = cache_len * 2;
     if (new_size < 10) new_size = 10;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) abort();
     cache = new_cache;
 

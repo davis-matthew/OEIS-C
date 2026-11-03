@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   feb1_is_wed
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,17 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/feb1_is_wed.h"
+#include "../utils/mem.h"
+
+/*  Zeller's congruence for Gregorian calendar (month 14 = February). */
+static inline bool feb1_is_wed(idx_t y) {
+    idx_t Y = y - 1;            /* year for Feb (month 14) */
+    idx_t K = Y % 100;          /* year of the century */
+    idx_t J = Y / 100;          /* zero‑based century */
+    /* h: 0 = Saturday, 1 = Sunday, ... 6 = Friday */
+    idx_t h = (1 + 39 + K + K / 4 + J / 4 + 5 * J) % 7;
+    return h == 4;              /* 4 corresponds to Wednesday */
+}
 
 static inline bool is_leap(idx_t y) {
     return (y % 4 == 0 && (y % 100 != 0 || y % 400 == 0));
@@ -36,7 +47,7 @@ seq_t a(idx_t n) {
 
     if (cache == NULL) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         /* Avoid compiler warnings about unused static variables */
         (void)cache_count;
     }
@@ -47,7 +58,7 @@ seq_t a(idx_t n) {
             if (cache_count == cache_cap) {
                 /* grow cache */
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (tmp == NULL) { /* memory exhaustion: abort */
                     abort();
                 }

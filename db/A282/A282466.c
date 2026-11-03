@@ -7,12 +7,14 @@
  * Formula:   a(n) = (n + 5) * n!
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 431 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of factorials: fact[i] = i! for i <= fact_len */
 static seq_t *fact = NULL;
@@ -21,7 +23,7 @@ static idx_t fact_len = 0;
 /* Ensure factorials up to n are computed and stored in fact[]. */
 static void ensure_factorial(idx_t n) {
     if (fact == NULL) {
-        fact = (seq_t*)calloc(1, sizeof(seq_t));
+        fact = mem_new(seq_t, 1);
         fact[0] = (seq_t)1;
         fact_len = 0;
     }
@@ -30,7 +32,7 @@ static void ensure_factorial(idx_t n) {
 
     idx_t old_len = fact_len;
     idx_t new_len = n;
-    seq_t *tmp = (seq_t*)realloc(fact, (new_len + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fact, (new_len + 1));
     fact = tmp;
     for (idx_t i = old_len + 1; i <= new_len; ++i) {
         fact[i] = fact[i - 1] * (seq_t)i;

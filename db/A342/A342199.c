@@ -7,14 +7,16 @@
  * Formula:   a(0) = 1; a(n) = Σ_{k=1..n} binomial(n,k)^5 * a(k-1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/binomial.h"  /* for binomial() */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* dynamic array of a(n) values   */
 static size_t cache_cap = 0;         /* current capacity of cache      */
@@ -26,18 +28,17 @@ static void assure_cache(idx_t n)
     {
         size_t new_cap = cache_cap > 0 ? cache_cap * 2 : 16;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) abort();                 /* out of memory */
         if (cache)
         {
-            memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
+            mem_free(cache);
         }
         /* initialise the new part with zeros – not strictly needed because
            we will overwrite all indices up to n, but it keeps the array
            clean for any debugging. */
-        memset(new_cache + cache_cap, 0,
-               (new_cap - cache_cap) * sizeof(seq_t));
+        mem_set(new_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
         cache = new_cache;
         cache_cap = new_cap;
     }

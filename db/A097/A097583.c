@@ -8,7 +8,8 @@
  * Formula:   a(n) = A007094(A007908(n))
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 13, u128 n <= 22,
  *            big any n
- * Helpers:   digits
+ * Validated: standard, pass, 31 terms through n = 335 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
     decimal concatenation of the integers 1..n  */
 
 #include <stdbool.h>
-#include "../utils/digits.h"
+#include "../utils/num_digits_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +34,7 @@ seq_t a(idx_t n)
 
     seq_t val = (seq_t)0;          /* decimal concatenation of 1..n      */
     for (idx_t i = 1; i <= n; ++i) {
-        int d = digits(i);          /* number of decimal digits of i     */
+        int d = num_digits_idx(i);          /* number of decimal digits of i     */
         /* d is at most 5 for i <= 10000, so pow10[d] exists       */
         val = val * pow10[d] + (seq_t)i;
     }

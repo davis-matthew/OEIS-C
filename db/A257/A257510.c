@@ -7,8 +7,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = number of zero digits in the factorial base
  *            representation of n
- * Range:     u8 n <= 9007, u16 n <= 9007, u32 n <= 9007, u64 n <= 9007,
- *            u128 n <= 9007, big any n
+ * Range:     u8 n <= 10080, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 136 terms through n = 9007 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

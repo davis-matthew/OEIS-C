@@ -7,6 +7,7 @@
  * Formula:   a(n) = p(n)^6 + p(n+1)^6
  * Range:     u8 none, u16 n <= 2, u32 n <= 11, u64 n <= 20, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
 
 seq_t a(idx_t n)

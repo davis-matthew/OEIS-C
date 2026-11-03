@@ -8,13 +8,26 @@
  *            (unique)
  * Range:     u8 n <= 20, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   cmp_seq_t
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/cmp_seq_t.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* external integer types (supplied by the build) */
 extern seq_t a(idx_t n);
@@ -43,7 +56,7 @@ static void rebuild_cache(idx_t need)
     while (1) {
         /* Temporary buffer to collect raw values */
         size_t buf_cap = 1024;
-        seq_t *buf = (seq_t *)malloc(buf_cap * sizeof(seq_t));
+        seq_t *buf = mem_new(seq_t, buf_cap);
         if (!buf) exit(1);
         size_t buf_len = 0;
 
@@ -60,8 +73,8 @@ static void rebuild_cache(idx_t need)
 
                 if (buf_len == buf_cap) {
                     buf_cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(buf, buf_cap * sizeof(seq_t));
-                    if (!tmp) { free(buf); exit(1); }
+                    seq_t *tmp = mem_resize(seq_t, buf, buf_cap);
+                    if (!tmp) { mem_free(buf); exit(1); }
                     buf = tmp;
                 }
                 buf[buf_len++] = (seq_t)val;
@@ -69,7 +82,7 @@ static void rebuild_cache(idx_t need)
         }
 
         /* Sort the values. */
-        qsort(buf, buf_len, sizeof(seq_t), seq_cmp_wrapper);
+        mem_qsort(buf, buf_len, sizeof(seq_t), seq_cmp_wrapper);
 
         /* Remove duplicates in place. */
         size_t uniq_len = 0;
@@ -80,12 +93,12 @@ static void rebuild_cache(idx_t need)
 
         /* If enough terms collected, store into cache and return. */
         if (uniq_len >= (size_t)need) {
-            seq_t *new_cache = (seq_t *)malloc(uniq_len * sizeof(seq_t));
-            if (!new_cache) { free(buf); exit(1); }
+            seq_t *new_cache = mem_new(seq_t, uniq_len);
+            if (!new_cache) { mem_free(buf); exit(1); }
             for (size_t i = 0; i < uniq_len; ++i) new_cache[i] = buf[i];
 
-            free(buf);
-            free(cache);
+            mem_free(buf);
+            mem_free(cache);
             cache     = new_cache;
             cache_len = uniq_len;
             cur_limit = limit;
@@ -93,7 +106,7 @@ static void rebuild_cache(idx_t need)
         }
 
         /* Not enough – double limit and retry. */
-        free(buf);
+        mem_free(buf);
         limit <<= 1;
     }
 }

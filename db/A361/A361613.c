@@ -9,11 +9,13 @@
  *            + 43(2^n - 16)(2^n - 32) + (2^n - 16)(2^n - 32)(2^n - 64))
  * Range:     u8 none, u16 none, u32 n <= 4, u64 n <= 8, u128 n <= 14,
  *            big any n
+ * Validated: partial, pass, 11 terms through n = 14 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n) {

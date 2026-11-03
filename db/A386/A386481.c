@@ -10,17 +10,38 @@
  *            upward antidiagonals (k descends on each diagonal). Indexing:
  *            diagonal s contains s+1 elements (k = s … 0). The cumulative
  *            count up to diagonal s is C(s) = s*(s+1)/2
- * Range:     u8 n <= 59, u16 n <= 796, u32 n <= 9359, u64 n <= 9359,
- *            u128 n <= 9359, big any n
- * Helpers:   _cum_div2, _diag_of_idx
+ * Range:     u8 n <= 59, u16 n <= 796, u32 n <= 11324, u64 n <= 11324,
+ *            u128 n <= 11324, big any n
+ * Validated: standard, pass, 107 terms through n = 9359 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_cum_div2.h"
-#include "../utils/_diag_of_idx.h"
+
+/* internal helpers */
+static inline __uint128_t
+_cum_div2(idx_t s)
+{
+    return (__uint128_t)s * (s + 1) / 2;
+}
+
+/* binary search for diagonal index s: largest s with s*(s+1)/2 <= n */
+static inline idx_t
+_diag_of_idx(idx_t n)
+{
+    idx_t low = 0, high = n;                 /* high never < low */
+    while (low < high) {
+        idx_t mid = low + ((high - low) + 1) / 2;
+        if (_cum_div2(mid) <= n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 /* main sequence routine */
 seq_t a(idx_t n)

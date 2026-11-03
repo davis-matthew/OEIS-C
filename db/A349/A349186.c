@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(n) = 2*a(n-1) + a(n-2) + Σ_{k=0}^{n-3} a(k)*a(n-3-k)   for n≥2 */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* array of computed terms   */
 static size_t cache_len = 0;      /* allocated length of cache */
@@ -30,9 +32,9 @@ static void ensure_cache(idx_t n)
         return;
 
     if (cache == NULL) {
-        cache = (seq_t *)malloc(required * sizeof(seq_t));
+        cache = mem_new(seq_t, required);
     } else {
-        seq_t *tmp = (seq_t *)realloc(cache, required * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, required);
         if (tmp == NULL) {
             /* Allocation failure – terminate the program. */
             exit(1);

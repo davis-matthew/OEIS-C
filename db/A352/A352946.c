@@ -7,13 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/3)} (n-3*k)^k
  * Range:     u8 n <= 14, u16 n <= 22, u32 n <= 37, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +23,7 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= maxk; ++k)
     {
         seq_t base = (seq_t)n - (seq_t)3 * (seq_t)k;
-        seq_t term = pow_seq(base, (int)k);
+        seq_t term = ipow_i32(base, (int)k);
         sum += term;
     }
     return sum;

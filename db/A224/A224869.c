@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 20, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  OEIS A224869 :  a(n) = n*(a(n-1)+1) ,  a(1) = -1  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoised values: cache[1] == a(1). */
 static seq_t *cache = NULL;      /* pointer to cache array */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
        at least two elements so that cache[1] is usable. */
     if (computed_max < 1) {
         if (!cache || cache_cap < 2) {
-            cache = (seq_t *)calloc(2, sizeof(seq_t));
+            cache = mem_new(seq_t, 2);
             if (!cache) return (seq_t)0;   /* allocation failure */
             cache_cap = 2;
         }
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
     /* Expand the cache if it is too small for the requested index. */
     if ((size_t)n + 1 > cache_cap) {
-        void *tmp = realloc(cache, ((size_t)n + 1) * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, cache, ((size_t)n + 1));
         if (!tmp) return (seq_t)0;   /* allocation failure */
         cache = (seq_t *)tmp;
         cache_cap = (size_t)n + 1;

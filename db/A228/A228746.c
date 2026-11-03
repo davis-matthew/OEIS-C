@@ -12,6 +12,7 @@
  *            if n is odd, a(n) = 24·I if n is even (factor 2 present...
  * Range:     u8 n <= 2, u16 n <= 314, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
+ * Validated: standard, pass, 66 terms through n = 2339 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

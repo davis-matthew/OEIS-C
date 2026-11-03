@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 11, u16 n <= 1855, u32 n <= 9706, u64 n <= 9706,
- *            u128 n <= 9706, big any n
- * Helpers:   none
+ * Range:     u8 n <= 11, u16 n <= 1855, u32 n <= 33099, u64 n <= 33099,
+ *            u128 n <= 33099, big any n
+ * Validated: standard, pass, 69 terms through n = 9706 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static inline int popcount_seq_t(seq_t x) {
     int c = 0;
@@ -54,7 +56,7 @@ static void ensure_seq(idx_t n) {
     /* Allocate the array on first use */
     if (!seq) {
         seq_cap = 32;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
     }
 
     /* Extend the sequence until it contains at least n terms */
@@ -63,7 +65,7 @@ static void ensure_seq(idx_t n) {
         if (!representable(candidate)) {
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = candidate;
         }

@@ -8,13 +8,15 @@
  *            Prod_{j=1..k} (1 + x^j)^2
  * Range:     u8 n <= 62, u16 n <= 176, u32 n <= 548, u64 n <= 1874,
  *            u128 n <= 6812, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 9882 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     idx_t max_sum = (k_max * (k_max + 1)) / 2;
 
     /* Allocate array for subset-sum counts D[j] */
-    seq_t *D = (seq_t *)calloc(max_sum + 1, sizeof(seq_t));
+    seq_t *D = mem_new(seq_t, max_sum + 1);
     if (!D) return (seq_t)0;   /* Memory failure: return 0 (should not happen) */
     D[0] = (seq_t)1;           /* Empty subset */
 
@@ -61,6 +63,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(D);
+    mem_free(D);
     return result;
 }

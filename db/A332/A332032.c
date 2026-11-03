@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d|n, d <= n/d, d and n/d have same parity as n} d!
  * Range:     u8 n <= 35, u16 n <= 80, u32 n <= 168, u64 n <= 440,
  *            u128 n <= 1224, big any n
+ * Validated: standard, pass, 91 terms through n = 9972 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

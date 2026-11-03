@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 12, u64 n <= 18, u128 n <= 22,
  *            big any n
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-01)
  * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
    n divided by the first prime strictly greater than n.  If the
    division terminates (i.e. the next prime is 2 or 5) the result is 0. */
 
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
 
 seq_t a(idx_t n)

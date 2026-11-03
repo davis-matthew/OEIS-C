@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2*a(n-1) + 6*a(n-2) (a(0)=2, a(1)=2)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 34, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 475 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[0..last_filled] holds a[i] already */
 static size_t cap = 0;        /* current allocated cache size */
@@ -25,7 +27,7 @@ static void grow_cache(size_t needed)
     size_t newcap = cap ? cap * 2 : 16;
     while (newcap < needed)
         newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp) {
         /* In a real program we should handle allocation failure. */
         return;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 11, u64 n <= 24, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define ROWS 3125      /* 5^5 possible 5‑digit rows */
 #define MAXN 10       /* base values computed directly */
@@ -142,8 +144,8 @@ static void initialise(void)
     /* Compute first ten terms via dynamic programming.               */
 
     /* Allocate DP arrays. */
-    seq_t *dp_cur  = (seq_t *)calloc(ROWS, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(ROWS, sizeof(seq_t));
+    seq_t *dp_cur  = mem_new(seq_t, ROWS);
+    seq_t *dp_next = mem_new(seq_t, ROWS);
 
     /* Initial row (row 1): any row is allowed. */
     for (int r = 0; r < ROWS; ++r) {
@@ -152,13 +154,13 @@ static void initialise(void)
 
     /* Cache allocation. */
     cache_cap = 12; /* indices 0..11, 0 unused */
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache[0] = (seq_t)0;
 
     /* Compute up to n = 10 (rows = n+1 = 11). */
     for (int step = 1; step <= MAXN; ++step) {
         /* dp_next = 0 */
-        memset(dp_next, 0, ROWS * sizeof(seq_t));
+        mem_set(dp_next, 0, ROWS * sizeof(seq_t));
 
         /* Transition: for each prev row, add to all compatible next rows. */
         for (int prev = 0; prev < ROWS; ++prev) {
@@ -188,8 +190,8 @@ static void initialise(void)
     }
 
     /* Free temporary DP arrays (dp_cur is now the last dp_next). */
-    free(dp_next);
-    free(dp_cur);
+    mem_free(dp_next);
+    mem_free(dp_cur);
 }
 
 /* ------------------------------------------------------------------ */
@@ -199,7 +201,7 @@ static void ensure_cache_capacity(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort(); /* allocation failure */
     cache = new_cache;
     cache_cap = new_cap;

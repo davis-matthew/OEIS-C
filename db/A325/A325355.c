@@ -11,8 +11,9 @@
  *            1, let p1^e1 ... pk^ek be the prime factorisation of n. Form the
  *            multiset of prime indices where each prime index i appears ei
  *            times. Reverse this list to obtain r1 ≥ r...
- * Range:     u8 n <= 402, u16 n <= 9236, u32 n <= 9236, u64 n <= 9236,
- *            u128 n <= 9236, big any n
+ * Range:     u8 n <= 402, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9236 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

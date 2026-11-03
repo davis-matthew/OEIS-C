@@ -11,7 +11,8 @@
  *            memoisation is used
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Small‑int utilities ----------------------------------------------------- */
 #if defined(__GNUC__) || defined(__clang__)
@@ -83,7 +85,7 @@ seq_t a(idx_t n) {
 
     if (n > cache_len) {
         size_t new_len = (size_t)n;
-        seq_t *new_cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) {
             /* Allocation failed: abort or handle appropriately. */
             abort();

@@ -13,13 +13,15 @@
  *            (n = 1..17): 0, 0, 0, 30, 260, 2358, 20430, 176774, 152...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 22, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[17] = {
     0ULL, 0ULL, 0ULL, 30ULL, 260ULL, 2358ULL, 20430ULL,
@@ -40,7 +42,7 @@ static void ensure_cache(idx_t n)
 {
     if (n <= cache_len) return;
 
-    seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
     if (!tmp) abort();
     cache = tmp;
 

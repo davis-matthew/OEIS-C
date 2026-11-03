@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 13, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Constant number of digits in base 22. */
 #define BASE_DIGITS 22
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
     /* Ensure cache large enough for index n. */
     if (n >= a_cache_size) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, a_cache, new_size);
         if (!new_cache) return 0; /* allocation failure, caller must handle */
         a_cache = new_cache;
         a_cache_size = new_size;
@@ -68,8 +70,8 @@ seq_t a(idx_t n) {
     /* Initialise DP arrays and base case a(1) on first use. */
     if (a_computed_max == 0) {
         /* Allocate DP arrays. */
-        dp_prev = (seq_t *)realloc(dp_prev, BASE_DIGITS * sizeof(seq_t));
-        dp_curr = (seq_t *)realloc(dp_curr, BASE_DIGITS * sizeof(seq_t));
+        dp_prev = mem_resize(seq_t, dp_prev, BASE_DIGITS);
+        dp_curr = mem_resize(seq_t, dp_curr, BASE_DIGITS);
         if (!dp_prev || !dp_curr) return 0; /* allocation failure */
 
         /* dp_1[d] = 1 for all d. */

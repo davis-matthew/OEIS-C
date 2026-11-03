@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq      = NULL;   /* sequence values a(0), a(1), ... */
 static idx_t  seq_len  = 0;      /* number of computed terms */
@@ -46,7 +48,7 @@ static void ensure_seq_capacity(idx_t need)
     if (need <= seq_cap) return;
     idx_t new_cap = seq_cap ? seq_cap * 2 : 1;
     while (new_cap <= need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) abort();          /* memory failure */
     seq = tmp;
     seq_cap = new_cap;
@@ -58,7 +60,7 @@ static void ensure_prefix_capacity(idx_t need)
     if (need <= prefix_cap) return;
     idx_t new_cap = prefix_cap ? prefix_cap * 2 : 2;
     while (new_cap <= need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(prefix, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prefix, new_cap);
     if (!tmp) abort();
     prefix = tmp;
     prefix_cap = new_cap;
@@ -69,12 +71,12 @@ static void init_sequence(void)
 {
     if (seq) return;          /* already initialised */
     seq_cap = 1;              /* allocate one slot for a(0) */
-    seq     = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq     = mem_new(seq_t, seq_cap);
     if (!seq) abort();
     seq[0] = (seq_t)1;
 
     prefix_cap = 2;           /* prefix[0]=0, prefix[1]=a(0) */
-    prefix = (seq_t *)malloc(prefix_cap * sizeof(seq_t));
+    prefix = mem_new(seq_t, prefix_cap);
     if (!prefix) abort();
     prefix[0] = (seq_t)0;
     prefix[1] = (seq_t)1;

@@ -13,15 +13,52 @@
  *            (901/84)*n + 1 (n >= 1)
  * Range:     u8 none, u16 n <= 1, u32 n <= 7, u64 n <= 91, u128 n <= 194,
  *            big any n
- * Helpers:   binom_uint128, small_a
+ * Validated: standard, pass, 34 terms through n = 176 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/binom_uint128.h"
-#include "../utils/small_a.h"
+
+/* Binomial coefficient (n-1 choose k) using 128‑bit arithmetic. */
+static inline unsigned __int128 binom_uint128(idx_t n, int k)
+{
+    unsigned __int128 result = 1;
+    for (int i = 1; i <= k; ++i) {
+        result = result * (unsigned __int128)(n - i) / (unsigned __int128)i;
+    }
+    return result;
+}
+
+/* Evaluate the polynomial using Horner’s rule with
+   a common denominator LCM = 60480. The result fits in
+   unsigned __int128 for n <= 10 (and comfortably for
+   n used in the difference method). */
+static inline seq_t small_a(idx_t n)
+{
+    /* Coefficients for n^0 .. n^9 */
+    const unsigned long long coeff_num[10] = {
+        1ULL, 901ULL, 90763ULL, 2533393ULL, 338651ULL,
+        754417ULL, 264247ULL, 1000157ULL, 1207573ULL, 1207573ULL
+    };
+    const unsigned long long coeff_den[10] = {
+        1ULL, 84ULL, 1680ULL, 15120ULL, 960ULL,
+        1440ULL, 480ULL, 2520ULL, 6720ULL, 30240ULL
+    };
+    const unsigned long long lcm = 60480ULL;
+
+    unsigned __int128 num = 0;
+    unsigned long long n64 = (unsigned long long)n;   /* idx_t fits in 64 bits */
+
+    for (int i = 9; i >= 0; --i) {
+        unsigned long long coeff = coeff_num[i] * (lcm / coeff_den[i]);
+        num = num * n64 + coeff;
+    }
+
+    return (seq_t)(num / lcm);
+}
 
 /* If seq_t is an arbitrary‑precision integer class, the
    cast from unsigned __int128 to seq_t must be defined. */

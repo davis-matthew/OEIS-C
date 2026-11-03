@@ -5,15 +5,25 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   not stated
- * Range:     u8 n <= 122, u16 n <= 9730, u32 n <= 9730, u64 n <= 9730,
- *            u128 n <= 9730, big any n
- * Helpers:   has_001
+ * Range:     u8 n <= 122, u16 n <= 32769, u32 n <= 32769, u64 n <= 32769,
+ *            u128 n <= 32769, big any n
+ * Validated: standard, pass, 75 terms through n = 9730 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_001.h"
+
+static bool has_001(seq_t num) {
+    while (num >= 8) {
+        if ((num & 7) == 1) {
+            return true;
+        }
+        num >>= 1;
+    }
+    return false;
+}
 
 /* Search for integers whose binary representation contains "001" substring */
 

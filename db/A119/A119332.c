@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2^(floor(n/4)) if n mod 4 is 0 or 1, otherwise 0
  * Range:     u8 n <= 31, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

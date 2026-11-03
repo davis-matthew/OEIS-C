@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 24, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 157 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
           -28*a(n-9) +25*a(n-10).              */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_terms[13] = {
     0ULL,          /* index 0 (unused) */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     if (memo == NULL) {
         size_t needed = n > 13 ? (size_t)n + 1 : 14;
         memo_size = needed;
-        memo = (seq_t *)malloc(memo_size * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_size);
         for (idx_t i = 1; i <= 12 && i < memo_size; ++i)
             memo[i] = init_terms[i];
         for (idx_t i = 13; i < memo_size; ++i)
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     } else if (n + 1 > memo_size) {
         size_t new_size = memo_size * 2;
         if (new_size < (size_t)n + 1) new_size = (size_t)n + 1;
-        memo = (seq_t *)realloc(memo, new_size * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, new_size);
         memo_size = new_size;
     }
 

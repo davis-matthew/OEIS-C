@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 169, u16 n <= 1033, u32 n <= 8383, u64 n <= 9843,
- *            u128 n <= 9843, big any n
- * Helpers:   gcd
+ * Range:     u8 n <= 169, u16 n <= 1033, u32 n <= 8383, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 114 terms through n = 9843 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 typedef uint64_t idx_t;        /* index type (unsigned 64‑bit) */
 
@@ -105,12 +107,12 @@ static inline void index_to_pair(idx_t k, idx_t *pn, idx_t *pm)
 static void rebuild_dp(struct entry *e, size_t target_n)
 {
     if (e->dp) {
-        free(e->dp);
+        mem_free(e->dp);
         e->dp = NULL;
         e->dp_len = 0;
     }
 
-    seq_t *new_dp = (seq_t*)calloc((size_t)(target_n + 1), sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, (size_t)(target_n + 1));
     if (!new_dp) abort();
 
     new_dp[0] = (seq_t)1;               /* empty partition */
@@ -146,7 +148,7 @@ static void ensure_a_cache_capacity(idx_t n)
     if (n >= a_cache_cap) {
         size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 4;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) abort();
         a_cache = tmp;
         a_cache_cap = new_cap;

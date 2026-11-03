@@ -13,7 +13,8 @@
  *            m in row n-v (row 0 = {1}). The composites are...
  * Range:     u8 n <= 47, u16 n <= 769, u32 n <= 4037, u64 n <= 4037,
  *            u128 n <= 4037, big any n
- * Helpers:   is_prime, push
+ * Validated: standard, pass, 71 terms through n = 3988 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/push.h"
+#include "../utils/is_prime_u64.h"
+
+static void push(uint64_t **arr, size_t *len, size_t *cap, uint64_t v) {
+    if (*len == *cap) {
+        *cap = *cap ? *cap * 2 : 16;
+        *arr = (uint64_t *)realloc(*arr, *cap * sizeof(uint64_t));
+    }
+    (*arr)[(*len)++] = v;
+}
 
 #define MAXROW 62
 
@@ -67,7 +75,7 @@ static void build_row(int n) {
     for (v = 1; v <= n; v++) {
         for (j = 0; j < rlen[n - v]; j++) {
             uint64_t c = (rows[n - v][j] << v) + 1;
-            if (is_prime(c)) {
+            if (is_prime_u64(c)) {
                 push(&t, &tl, &tc, c);
                 push(&pp, &pl, &pc, c);
             }

@@ -8,7 +8,8 @@
  *            computed as (2^m mod p^2 - 1)/p
  * Range:     u8 n <= 56, u16 n <= 6594, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a2323_mulmod, a2323_powmod
+ * Validated: standard, pass, 80 terms through n = 9613 (2026-11-01)
+ * Helpers:   mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a2323_mulmod.h"
-#include "../utils/a2323_powmod.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
 
 static uint32_t *a2323_primes = NULL;
 static size_t a2323_np = 0;
@@ -51,14 +52,14 @@ seq_t a(idx_t n) {
     for (q = 2; q * q <= t; q++) {
         if (t % q == 0) {
             while (t % q == 0) t /= q;
-            while (m % q == 0 && a2323_powmod(2, m / q, p) == 1) m /= q;
+            while (m % q == 0 && powmod_u64(2, m / q, p) == 1) m /= q;
         }
     }
     if (t > 1) {
         q = t;
-        while (m % q == 0 && a2323_powmod(2, m / q, p) == 1) m /= q;
+        while (m % q == 0 && powmod_u64(2, m / q, p) == 1) m /= q;
     }
     p2 = p * p;
-    r = a2323_powmod(2, m, p2);
+    r = powmod_u64(2, m, p2);
     return (seq_t)((r + p2 - 1) % p2 / p);
 }

@@ -8,7 +8,8 @@
  * Formula:   computed by brute‑force search using prime factorisation
  * Range:     u8 n <= 21, u16 n <= 5244, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, is_power_of_two, seq_alloc, seq_realloc
+ * Validated: standard, pass, 69 terms through n = 9533 (2026-11-01)
+ * Helpers:   is_pow2, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,30 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/is_power_of_two.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include "../utils/is_pow2.h"
+#include "../utils/smallest_prime_factor.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Test whether a number k (32/64 bit) has
  * a divisor count that is a power of two
@@ -31,7 +52,7 @@ static bool is_candidate(uint64_t k)
     seq_t tau = 1;                 /* divisor count */
 
     while (n > 1) {
-        uint64_t p = _smallest_prime_factor(n);
+        uint64_t p = smallest_prime_factor(n);
         unsigned int e = 0;
         while (n % p == 0) {
             ++e;
@@ -40,7 +61,7 @@ static bool is_candidate(uint64_t k)
         if (e >= 2) has_square = true;
         tau = tau * (seq_t)(e + 1);
     }
-    return has_square && is_power_of_two(tau);
+    return has_square && is_pow2(tau);
 }
 
 /* Public sequence function. */

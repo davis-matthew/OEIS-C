@@ -8,14 +8,28 @@
  *            m equals the length of its Roman numeral representation
  * Range:     u8 n <= 26, u16 n <= 144, u32 n <= 144, u64 n <= 144,
  *            u128 n <= 144, big any n
- * Helpers:   digit_len_as_seq
+ * Validated: standard, pass, 70 terms through n = 142 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digit_len_as_seq.h"
+
+/* Return the number of decimal digits of n.  */
+static seq_t digit_len_as_seq(seq_t n)
+{
+    /* Use an unsigned long long for the temporary value; safe because
+       the result (number of digits) is bounded by the number of times we
+       can divide by 10 before reaching zero, which is far below 64 bits. */
+    unsigned long long d = 0;
+    do {
+        n /= 10;
+        ++d;
+    } while (n != 0);
+    return (seq_t)d;
+}
 
 /* Length of a Roman digit for each decimal digit 0–9. */
 static const unsigned char LEN_DIGIT[10] = {0,1,2,3,2,1,2,3,4,2};

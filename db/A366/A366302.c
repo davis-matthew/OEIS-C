@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,18 +17,19 @@
    a(0) = 1
    a(n) = Sum_{k=1..n} (-1)^(k+1) * binomial(n,k) * (1^k + 2^k + ... + 7^k) * a(n-k)  */
 #include <stdlib.h>
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 /* Allocate an array of seq_t of given length */
 static seq_t* seq_alloc(size_t len)
 {
-    return (seq_t*)malloc(len * sizeof(seq_t));
+    return mem_new(seq_t, len);
 }
 
 /* Reallocate an existing array to a new length */
 static seq_t* seq_realloc(seq_t* old, size_t /* old_len */, size_t new_len)
 {
-    return (seq_t*)realloc(old, new_len * sizeof(seq_t));
+    return mem_resize(seq_t, old, new_len);
 }
 
 /* Memoisation cache for sequence values */
@@ -57,7 +59,7 @@ static void ensure_Sk(idx_t n)
     for (idx_t k = (idx_t)sk_len; k <= n; ++k) {
         seq_t sum = 0;
         for (idx_t i = 1; i <= 7; ++i)
-            sum += pow_int((seq_t)i, k);
+            sum += ipow_idx((seq_t)i, k);
         Sk[k] = sum;
     }
     sk_len = (size_t)(n + 1);

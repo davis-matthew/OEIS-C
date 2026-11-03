@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 5750, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, is_squarefree
+ * Validated: standard, pass, 70 terms through n = 9491 (2026-11-03)
+ * Helpers:   is_squarefree, mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_squarefree.h"   /* bool is_squarefree(seq_t x) */
-#include "../utils/_smallest_prime_factor.h" /* uint64_t _smallest_prime_factor(uint64_t n) */
+#include <stddef.h>
+#include "../utils/is_squarefree.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------------*/
 /* Helper: determine whether a 64‑bit integer is a prime power
@@ -35,7 +38,7 @@
 static bool is_prime_power_uint64(uint64_t n)
 {
     if (n <= 1)          return false;
-    uint64_t p = _smallest_prime_factor(n);
+    uint64_t p = smallest_prime_factor(n);
     if (p == n)          return false;          /* n is prime → not a power */
     while (n % p == 0)   n /= p;
     return n == 1;
@@ -58,7 +61,7 @@ static void extend_cache(idx_t n)
     if (cache_cap < n) {
         cache_cap = cache_cap ? cache_cap * 2 : 64;
         if (cache_cap < n) cache_cap = n;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     for (; cached_len < n; ++cached_len) {

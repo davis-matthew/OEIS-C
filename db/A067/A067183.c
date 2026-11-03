@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return the n‑th term of A067183 (1‑based). */
 seq_t a(idx_t n)
@@ -40,12 +42,12 @@ seq_t a(idx_t n)
     /* --- initialise on first call -------------------------------- */
     if (humbles == NULL) {
         humbles_cap = 16;
-        humbles = (seq_t *)malloc(humbles_cap * sizeof(seq_t));
+        humbles = mem_new(seq_t, humbles_cap);
         humbles[0] = 1;
         humbles_len = 1;
 
         results_cap = 16;
-        results = (seq_t *)malloc(results_cap * sizeof(seq_t));
+        results = mem_new(seq_t, results_cap);
         results[0] = 1;            /* 1 satisfies the condition */
         results_len = 1;
     }
@@ -55,8 +57,7 @@ seq_t a(idx_t n)
         /* make sure the humbles array can hold the next element   */
         if (humbles_len == humbles_cap) {
             humbles_cap *= 2;
-            humbles = (seq_t *)realloc(humbles,
-                                       humbles_cap * sizeof(seq_t));
+            humbles = mem_resize(seq_t, humbles, humbles_cap);
         }
 
         /* next 7‑smooth numbers coming from 2,3,5,7 */
@@ -103,8 +104,7 @@ seq_t a(idx_t n)
             /* make sure the results array can hold the new term   */
             if (results_len == results_cap) {
                 results_cap *= 2;
-                results = (seq_t *)realloc(results,
-                                            results_cap * sizeof(seq_t));
+                results = mem_resize(seq_t, results, results_cap);
             }
             results[results_len++] = (seq_t)next;
         }

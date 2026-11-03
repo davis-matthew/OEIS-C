@@ -6,8 +6,9 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = Sum_{k=0..n} (-1)^A010060(n-k) * (binomial(n, k) mod 2) *
  *            A001045(k)
- * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 32, u64 n <= 34, u128 n <= 34,
+ * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 35, u64 n <= 67, u128 n <= 130,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 979 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,17 @@
 
 #include <stdint.h>          /* for uint64_t etc. */
 
-seq_t a(idx_t n) {
+/* the code below runs in wide_t: 128 bits at the fixed widths (never narrower
+   than seq_t), seq_t itself for big, so values that pass 2^64 on the way to a
+   term that fits stay exact; a() returns the term in seq_t */
+#ifdef __cplusplus
+typedef seq_t wide_t;
+#else
+typedef __typeof__((seq_t)0 + (__int128)0) wide_t;
+#endif
+#define seq_t wide_t
+
+seq_t a_wide(idx_t n) {
     seq_t sum_pos = 0;
     seq_t sum_neg = 0;
     seq_t pow2k   = 1;            /* 2^k, starting with k = 0 */
@@ -49,4 +60,10 @@ seq_t a(idx_t n) {
 
     /* The result is guaranteed non‑negative, so the subtraction will not underflow. */
     return (sum_pos >= sum_neg) ? (sum_pos - sum_neg) : 0;
+}
+
+#undef seq_t
+seq_t a(idx_t n)
+{
+    return (seq_t)a_wide(n);
 }

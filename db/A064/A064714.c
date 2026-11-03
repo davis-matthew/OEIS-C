@@ -10,14 +10,24 @@
  *            q(n)=q(|n-q(n-2)|)+q(|n-q(n-3)|) (n≥3)
  * Range:     u8 n <= 51, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   abs_diff
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* --------------------------------------------------------------- */
 #include <stdlib.h>
-#include "../utils/abs_diff.h"
+#include "../utils/mem.h"
+
+/* Absolute difference between an idx_t and a seq_t, cast to idx_t. */
+static inline idx_t abs_diff(idx_t n, seq_t v)
+{
+    seq_t diff = (seq_t)n;
+    if (diff >= v) diff -= v;
+    else           diff = v - diff;
+    return (idx_t)diff;
+}
 
 /* Cached values of q and a.  The arrays grow as needed.  */
 static seq_t *q_arr   = NULL;
@@ -34,8 +44,8 @@ static void ensure_upto(idx_t n)
     while (new_cap <= n) new_cap <<= 1;
 
     /* Reallocate with proper casts for C++. */
-    q_arr = (seq_t *)realloc(q_arr, new_cap * sizeof(seq_t));
-    a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+    q_arr = mem_resize(seq_t, q_arr, new_cap);
+    a_arr = mem_resize(seq_t, a_arr, new_cap);
 
     /* Compute missing terms. */
     for (idx_t i = cache_sz; i <= n; ++i)

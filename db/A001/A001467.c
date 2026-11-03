@@ -10,6 +10,7 @@
  *            4*2^n bits, which is far more than the precision needed for a(n)
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 5, i64 n <= 6, i128 n <= 7,
  *            big any n
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   row_number
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,22 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/row_number.h"
+#include "../utils/mem.h"
+
+/*  Return the row number r (1‑based) such that
+ *     1 + 2 + … + r‑1 < n ≤ 1 + 2 + … + r
+ *  i.e. the smallest r with n ≤ r*(r+1)/2.  */
+static size_t row_number(idx_t n)
+{
+    size_t r = 1;
+    idx_t sum = 0;
+    while (sum < n) {
+        sum += (idx_t)r;
+        if (sum >= n) break;
+        ++r;
+    }
+    return r;
+}
 
 /*  Storage for the rows of coefficients of u and v.
  *
@@ -63,8 +79,8 @@ static void grow_to(size_t r)
 
     /*  Initialize row 1.  */
     if (max_row < 1) {
-        u_rows[1] = (seq_t *)malloc(sizeof(seq_t));
-        v_rows[1] = (seq_t *)malloc(sizeof(seq_t));
+        u_rows[1] = mem_new(seq_t, 1);
+        v_rows[1] = mem_new(seq_t, 1);
         u_rows[1][0] = 1;
         v_rows[1][0] = 1;
         max_row = 1;
@@ -72,8 +88,8 @@ static void grow_to(size_t r)
 
     /*  Compute remaining rows.  */
     for (size_t i = max_row + 1; i <= r; ++i) {
-        seq_t *new_u = (seq_t *)malloc(i * sizeof(seq_t));
-        seq_t *new_v = (seq_t *)malloc(i * sizeof(seq_t));
+        seq_t *new_u = mem_new(seq_t, i);
+        seq_t *new_v = mem_new(seq_t, i);
         seq_t *prev_u = u_rows[i - 1];
         seq_t *prev_v = v_rows[i - 1];
         size_t prev_len = i - 1;

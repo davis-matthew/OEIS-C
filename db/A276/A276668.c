@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   _v2_factorial
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -40,7 +41,17 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_v2_factorial.h"
+
+/* exponent of prime 2 in factorial of m (m ≥ 0) */
+static idx_t _v2_factorial(idx_t m)
+{
+    idx_t exp = 0;
+    while (m >= 2) {
+        m /= 2;
+        exp += m;
+    }
+    return exp;
+}
 
 static size_t _primes_cnt = 0;
 static uint64_t *_primes = NULL;

@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, look
  * Formula:   not stated
- * Range:     u8 n <= 85, u16 n <= 5289, u32 n <= 9649, u64 n <= 9649,
- *            u128 n <= 9649, big any n
- * Helpers:   none
+ * Range:     u8 n <= 85, u16 n <= 5289, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 80 terms through n = 9649 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    (non‑decreasing) partition representation. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* internal helper structures ------------------------------------------- */
 typedef struct {
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)1;      /* empty partition */
 
     /* allocate DP table for sums 1..n */
-    StateArray *dp = (StateArray *)malloc((n + 1) * sizeof(StateArray));
+    StateArray *dp = mem_new(StateArray, (n + 1));
     if (!dp) return (seq_t)0;          /* allocation failure handling */
 
     for (idx_t i = 1; i <= n; ++i) dp[i].count = 0;
@@ -95,6 +97,6 @@ seq_t a(idx_t n)
     for (size_t idx = 0; idx < dp[n].count; ++idx)
         result += dp[n].entries[idx].ct;
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

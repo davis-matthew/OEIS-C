@@ -7,12 +7,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Triangle T(n,k) averaging array; a(n) is the flattened
    row‑wise triangle.  Recurrence:
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* Resize array if needed to hold up to row r. */
     size_t need_cap = (size_t)(((__int128)r * (r + 1)) / 2);
     if (need_cap > capacity) {
-        seq_t *tmp = (seq_t *)realloc(data, need_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, data, need_cap);
         if (!tmp) exit(EXIT_FAILURE);
         data = tmp;
         capacity = need_cap;
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     if (max_row < 2) {
         /* Ensure space for rows 1 and 2. */
         if (capacity < 3) {
-            seq_t *tmp = (seq_t *)realloc(data, 3 * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, data, 3);
             if (!tmp) exit(EXIT_FAILURE);
             data = tmp;
             capacity = 3;

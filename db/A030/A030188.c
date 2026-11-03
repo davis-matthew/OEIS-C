@@ -12,7 +12,8 @@
  *            points over F_p including infinity
  * Range:     i8 n <= 1160, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 112 terms through n = 9732 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Maximum n expected plus one so that m = 2*n+1 <= MAXN */
 #define MAXN 40001   /* covers n up to 20000 comfortably */
@@ -128,7 +130,7 @@ static void init_sequence(void)
         }
         primeInfos[pi].prime = p;
         primeInfos[pi].maxExp = exp;
-        primeInfos[pi].bvals = (seq_t *)malloc((exp + 1) * sizeof(seq_t));
+        primeInfos[pi].bvals = mem_new(seq_t, (exp + 1));
 
         /* b(1) */
         primeInfos[pi].bvals[0] = (seq_t)1;

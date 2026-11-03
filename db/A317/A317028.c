@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 35, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   _pow8
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,18 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/_pow8.h"
+
+/* Helper: 8^exp for an integer exponent; uses 128‑bit intermediate. */
+static seq_t
+_pow8(idx_t exp)
+{
+    seq_t res = 1;
+    for (idx_t i = 0; i < exp; ++i) {
+        __int128 tmp = (__int128)res * 8;
+        res = (seq_t)tmp;
+    }
+    return res;
+}
 
 /* Helper: binomial coefficient C(n,k) for 0≤k≤n, using 128‑bit
    intermediate to avoid overflow when the result fits in seq_t. */

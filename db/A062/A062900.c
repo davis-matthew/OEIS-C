@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 925, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   rev_mod8
+ * Validated: standard, pass, 66 terms through n = 965 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,15 @@
  * decimal reversal are both multiples of 8.
  */
 #include <stdint.h>
-#include "../utils/rev_mod8.h"
+
+static int rev_mod8(seq_t n) {
+    seq_t rev = 0;
+    while (n > 0) {
+        rev = ((rev * 10) + (n % 10)) % 8;
+        n /= 10;
+    }
+    return (int)rev;
+}
 
 seq_t a(idx_t n) {
     /* n >= 1 by OEIS offset */

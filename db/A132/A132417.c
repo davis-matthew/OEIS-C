@@ -11,6 +11,7 @@
  *            e[10]=-38, e[11]=-42, e[12]=-46, e[13]=-50, e[14]=-54, e[15]=6
  * Range:     u8 n <= 31, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

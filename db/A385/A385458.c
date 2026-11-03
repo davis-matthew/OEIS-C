@@ -9,8 +9,9 @@
  *            index n. T(row,col) = b(row) - b(col) - b(row-col). And b(m) =
  *            2*floor(m/3) + floor(m/6) - popcount(floor(m/3)), the 2-adic
  *            valuation of the product of the first m Fibonacci numbers
- * Range:     u8 n <= 9470, u16 n <= 9470, u32 n <= 9470, u64 n <= 9470,
- *            u128 n <= 9470, big any n
+ * Range:     u8 n <= 11475, u16 n <= 11475, u32 n <= 11475, u64 n <= 11475,
+ *            u128 n <= 11475, big any n
+ * Validated: standard, pass, 107 terms through n = 9470 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

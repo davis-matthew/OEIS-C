@@ -10,12 +10,14 @@
  *            a(7)=211, a(8)=457 (offset 1)
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 29, u64 n <= 58, u128 n <= 116,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* initial values a(1)..a(8) */
 static const seq_t init_vals[8] = {
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
         return;   /* already computed */
 
     /* allocate space for n terms */
-    seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, n);
     if (tmp == NULL)
         abort();  /* allocation failure */
     cache = tmp;

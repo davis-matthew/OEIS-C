@@ -7,12 +7,14 @@
  * Formula:   a(n) = 5*a(n-1) - 2*a(n-2); a(0)=2, a(1)=9
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 14, u64 n <= 28, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 942 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* initial allocation and base values */
     if (cache == NULL) {
         cache_len = 2;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[0] = (seq_t)2;
         cache[1] = (seq_t)9;
         max_computed = 1;
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if ((size_t)n + 1 > cache_len) {
         cache_len = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, cache_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_len);
     }
 
     /* compute missing terms up to n */

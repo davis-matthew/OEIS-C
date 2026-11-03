@@ -7,7 +7,8 @@
  * Formula:   a(n) = binomial(n+8,8) * binomial(n+8,7) / (n+8)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 14, u64 n <= 88, u128 n <= 1000,
  *            big any n
- * Helpers:   exp_in_t_prime
+ * Validated: standard, pass, 41 terms through n = 931 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,17 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/exp_in_t_prime.h"
+
+/* Count the exponent of prime p in the integer n. */
+static inline idx_t exp_in_t_prime(idx_t n, idx_t p)
+{
+    idx_t e = 0;
+    while (n % p == 0) {
+        ++e;
+        n /= p;
+    }
+    return e;
+}
 
 /* Pre‑compute all primes up to a fixed limit (enough for n up to about 10000). */
 #define MAX_LIMIT 20000

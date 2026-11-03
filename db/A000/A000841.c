@@ -13,7 +13,8 @@
  *            Grouping by cycle type lambda gives a(n) = (1/4) * Sum...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   a841_gcd, a841_pow2, a841_rec
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   gcd_u64, pow2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,45 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a841_gcd.h"
-#include "../utils/a841_pow2.h"
-#include "../utils/a841_rec.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/pow2_u64.h"
+
+static void a841_rec(int rem, int maxp, int *parts, int k, uint64_t fact, int big,
+                     unsigned __int128 *s128, seq_t *sbig) {
+    if (rem == 0) {
+        uint64_t L = 1, sum = 0, c, z = 1, coef;
+        int i, run;
+        for (i = 0; i < k; i++)
+            L = L / gcd_u64(L, (uint64_t)parts[i]) * (uint64_t)parts[i];
+        for (uint64_t m = 0; m < L; m++) {
+            unsigned e = 0;
+            for (i = 0; i < k; i++) e += (unsigned)gcd_u64(m, (uint64_t)parts[i]);
+            sum += (uint64_t)1 << e;
+        }
+        c = sum / L;
+        for (i = 0; i < k; i++) z *= (uint64_t)parts[i];
+        run = 1;
+        for (i = 1; i <= k; i++) {
+            if (i < k && parts[i] == parts[i - 1]) {
+                run++;
+            } else {
+                for (int j = 2; j <= run; j++) z *= (uint64_t)j;
+                run = 1;
+            }
+        }
+        coef = fact / z;
+        if (big) {
+            *sbig += (seq_t)coef * pow2_u64(2 * c);
+        } else {
+            *s128 += (unsigned __int128)coef * ((unsigned __int128)1 << (2 * c));
+        }
+        return;
+    }
+    for (int p = (rem < maxp ? rem : maxp); p >= 1; p--) {
+        parts[k] = p;
+        a841_rec(rem - p, p, parts, k + 1, fact, big, s128, sbig);
+    }
+}
 
 seq_t a(idx_t n) {
     int parts[64];

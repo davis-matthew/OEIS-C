@@ -9,12 +9,14 @@
  *            a(9)=0, a(10)=2, a(11)=0
  * Range:     u8 n <= 979, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 114 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Cached values of the sequence  */
 static seq_t *seq_vals = NULL;
@@ -27,7 +29,7 @@ static void init_seq(void)
         return;               /* already initialised */
 
     seq_len = 12;             /* indices 0..11 inclusive   */
-    seq_vals = (seq_t *)malloc(seq_len * sizeof(seq_t));
+    seq_vals = mem_new(seq_t, seq_len);
     if (!seq_vals)
         return;               /* allocation failed – callers get 0  */
 
@@ -57,7 +59,7 @@ static void ensure_seq(idx_t n)
     /* Resize to accommodate indices up to n  */
     idx_t old_len = seq_len;
     seq_len = n + 1;
-    seq_vals = (seq_t *)realloc(seq_vals, seq_len * sizeof(seq_t));
+    seq_vals = mem_resize(seq_t, seq_vals, seq_len);
     if (!seq_vals)
         return;               /* allocation failed – caller will get 0  */
 

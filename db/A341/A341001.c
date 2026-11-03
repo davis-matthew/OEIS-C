@@ -6,46 +6,58 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of partitions of n into 10 distinct nonzero
  *            squares
- * Range:     u8 n <= 1080, u16 n <= 3084, u32 n <= 9183, u64 n <= 9183,
- *            u128 n <= 9183, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1080, u16 n <= 3084, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 118 terms through n = 9183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include <stdint.h>
+/* A341001: the number of partitions of n into 10 distinct nonzero squares.
+ * dp[k][s] = the number of ways to write s as k distinct parts, by a 0/1
+ * knapsack over the parts in increasing order, up to a limit that grows with n
+ * (the original stopped at a fixed limit). Counts are sums only, so exact
+ * modulo the width. */
 
-#define MAX_N 10000
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
 #define K 10
 
-static seq_t dp[MAX_N + 1][K + 1] = {0};
-
-static int initialized = 0;
-
-static void init(void)
+static int is_part(uint64_t m)
 {
-    /* dp[s][c] = number of ways to form sum s using exactly c distinct squares
-       processed so far. */
-    dp[0][0] = 1;
-    for (idx_t k = 1; k * k <= MAX_N; ++k)
-    {
-        idx_t sq = k * k;
-        for (idx_t s = MAX_N; s >= sq; --s)
-        {
-            for (idx_t c = 1; c <= K; ++c)
-            {
-                dp[s][c] += dp[s - sq][c - 1];
-            }
-        }
+    /* a nonzero square */
+    uint64_t r = 0;
+    while ((r + 1) * (r + 1) <= m) ++r;
+    return m > 0 && r * r == m;
+}
+
+static seq_t *dp = NULL;                  /* dp[k * (L + 1) + s] */
+static uint64_t L = 0;
+
+static void build(uint64_t lim)
+{
+    mem_free(dp);
+    dp = mem_new(seq_t, (size_t)(K + 1) * (lim + 1));
+    if (!dp) abort();
+    L = lim;
+    dp[0] = (seq_t)1;
+    for (uint64_t p = 1; p <= L; ++p) {
+        if (!is_part(p)) continue;
+        for (int k = K; k >= 1; --k)
+            for (uint64_t s = L; s >= p; --s)
+                dp[(size_t)k * (L + 1) + s] += dp[(size_t)(k - 1) * (L + 1) + s - p];
     }
-    initialized = 1;
 }
 
 seq_t a(idx_t n)
 {
-    if (!initialized)
-        init();
-    if (n > MAX_N)
-        return 0;
-    return dp[n][K];
+    if ((uint64_t)n > L || !dp) {
+        uint64_t lim = L ? 2 * L : 4096;
+        while (lim < (uint64_t)n) lim *= 2;
+        build(lim);
+    }
+    return dp[(size_t)K * (L + 1) + (uint64_t)n];
 }

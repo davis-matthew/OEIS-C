@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 37, u128 n <= 76,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 988 (2026-11-01)
  * Helpers:   gcd, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,8 +17,9 @@
  * Formula: a(n) = binomial(n,2)*(3^(n-2) + (-1)^n - 2)/4
  * Offset 0   (a(0) = 0)
  */
-#include "../utils/pow3.h"
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {

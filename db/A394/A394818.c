@@ -11,18 +11,20 @@
  *            (1/P_{i-1}(y))
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 314 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate two arrays of size n+1 */
-    seq_t *G   = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *newG = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *G   = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *newG = mem_new(seq_t, (size_t)(n + 1));
     if (!G || !newG) return (seq_t)0;   /* allocation failed */
 
     G[0] = (seq_t)1;            /* G_0(0) = 1 */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         fact *= (seq_t)(i + 1);
     }
 
-    free(G);
-    free(newG);
+    mem_free(G);
+    mem_free(newG);
     return result;
 }

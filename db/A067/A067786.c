@@ -8,7 +8,8 @@
  * Formula:   a(n) = the n-th integer >0 such that φ(n) = 2·π(n) (offset 1)
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   ensure_uint32_cap
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/ensure_uint32_cap.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static void ensure_uint32_cap(uint32_t **arr, size_t *sz, size_t *cap, size_t need)
+{
+    if (need <= *cap) return;
+    size_t ncap = *cap ? *cap * 2 : 16;
+    while (ncap < need) ncap <<= 1;
+    uint32_t *nptr = (uint32_t *)realloc(*arr, ncap * sizeof(uint32_t));
+    if (!nptr && ncap > 0) exit(EXIT_FAILURE);
+    *arr = nptr;
+    *cap = ncap;
+}
 
 /* ------------------------------------------------------------------ */
 /* Helper: ensure enough room in a dynamic array of uint32_t.          */
@@ -30,7 +43,7 @@ static void ensure_seq_cap(seq_t **arr, size_t *sz, size_t *cap, size_t need)
     if (need <= *cap) return;
     size_t ncap = *cap ? *cap * 2 : 16;
     while (ncap < need) ncap <<= 1;
-    seq_t *nptr = (seq_t *)realloc(*arr, ncap * sizeof(seq_t));
+    seq_t *nptr = mem_resize(seq_t, *arr, ncap);
     if (!nptr && ncap > 0) exit(EXIT_FAILURE);
     *arr = nptr;
     *cap = ncap;

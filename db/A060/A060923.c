@@ -12,12 +12,14 @@
  *            T(n‑3,k‑2) * – T(n‑2,k) – T(n‑2,k‑2), * with T(n,k)=0...
  * Range:     u8 n <= 10, u16 n <= 37, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of all computed values */
@@ -34,21 +36,21 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* allocate cache buffer */
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0; /* allocation failure, fall back to 0 */
 
         /* base rows --------------------------------------------------- */
         /* row 0 : {1} */
-        row[0] = (seq_t *)malloc(1 * sizeof(seq_t));
+        row[0] = mem_new(seq_t, 1);
         row[0][0] = (seq_t)1;
         row_len[0] = 1;
         /* row 1 : {4,1} */
-        row[1] = (seq_t *)malloc(2 * sizeof(seq_t));
+        row[1] = mem_new(seq_t, 2);
         row[1][0] = (seq_t)4;
         row[1][1] = (seq_t)1;
         row_len[1] = 2;
         /* row 2 : {11,17,1} */
-        row[2] = (seq_t *)malloc(3 * sizeof(seq_t));
+        row[2] = mem_new(seq_t, 3);
         row[2][0] = (seq_t)11;
         row[2][1] = (seq_t)17;
         row[2][2] = (seq_t)1;
@@ -67,7 +69,7 @@ seq_t a(idx_t n) {
         if (new_cap > cache_cap) {                                 \
             size_t newc = cache_cap;                               \
             while (newc < new_cap) newc *= 2;                      \
-            seq_t *tmp = (seq_t *)realloc(cache, newc * sizeof(seq_t)); \
+            seq_t *tmp = mem_resize(seq_t, cache, newc); \
             if (!tmp) return (seq_t)0; /* allocation failure */   \
             cache = tmp; cache_cap = newc;                         \
         }                                                          \
@@ -77,7 +79,7 @@ seq_t a(idx_t n) {
     while (cache_len <= (size_t)n) {
         idx_t next_row = last_row + 1;      /* next row to compute */
         size_t len = (size_t)(next_row + 1);
-        seq_t *cur = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, len);
         if (!cur) return (seq_t)0;          /* allocation failure */
 
         /* obtain previous rows if available */
@@ -121,7 +123,7 @@ seq_t a(idx_t n) {
 
         /* replace old row in the ring buffer */
         int idx = (int)(next_row % 3);
-        if (row[idx]) free(row[idx]);
+        if (row[idx]) mem_free(row[idx]);
         row[idx] = cur;
         row_len[idx] = len;
 

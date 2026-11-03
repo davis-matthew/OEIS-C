@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 19, u16 n <= 4114, u32 n <= 9743, u64 n <= 9743,
- *            u128 n <= 9743, big any n
- * Helpers:   none
+ * Range:     u8 n <= 19, u16 n <= 4114, u32 n <= 20001, u64 n <= 20001,
+ *            u128 n <= 20001, big any n
+ * Validated: standard, pass, 81 terms through n = 9743 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Utility: compute p^p up to a limit (uint64_t). */
 static uint64_t power_limit(uint32_t p, uint64_t limit)
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
 
         /* Compute prime powers p^p that are <= LIMIT. */
         power_count = 0;
-        prime_powers = (seq_t*)malloc(prime_count * sizeof(seq_t));
+        prime_powers = mem_new(seq_t, prime_count);
         if (!prime_powers) return 0;
 
         for (size_t idx = 0; idx < prime_count; ++idx) {

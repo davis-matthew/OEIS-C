@@ -11,15 +11,37 @@
  *            triangle, the position within that row, determines t...
  * Range:     u8 n <= 9870, u16 n <= 9870, u32 n <= 9870, u64 n <= 9870,
  *            u128 n <= 9870, big any n
- * Helpers:   ceil_tri_row_u64, tri_prev_u64, tri_u64
+ * Validated: standard, pass, 136 terms through n = 9385 (2026-11-01)
+ * Helpers:   triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/ceil_tri_row_u64.h"
-#include "../utils/tri_prev_u64.h"
-#include "../utils/tri_u64.h"
+#include "../utils/triangular.h"
+
+/* Binary search to find the minimal r such that T(r) >= n (r >= 1). */
+static inline idx_t ceil_tri_row_u64(idx_t n)
+{
+    idx_t low = 1;
+    /* Choose a high that exceeds sqrt(2*max_n).  1<<33 is > 2^32,
+       thus sufficient for all 64‑bit indices. */
+    idx_t high = (idx_t)1ULL << 33;
+    while (low < high) {
+        idx_t mid = (low + high) >> 1;
+        if (triangular(mid) >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
+
+/* Compute T_{r-1} = r*(r-1)/2 safely. */
+static inline idx_t tri_prev_u64(idx_t r)
+{
+    return (idx_t)(((__int128)r * (r - 1)) / 2);
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

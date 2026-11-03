@@ -7,7 +7,8 @@
  * Formula:   a(n) = k such that 12*k+1 is not prime (i.e., composite)
  * Range:     u8 n <= 153, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: standard, pass, 81 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,18 @@
 #include <stdbool.h>
 #include <stddef.h>
 /* helpers needed for arbitrary‑precision allocation and deallocation */
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Deterministic trial division primality test for 64‑bit values.
    It works for every candidate 12*k+1 that occurs when k is less than

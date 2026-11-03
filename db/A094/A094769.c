@@ -9,7 +9,8 @@
  *            a(i) adjacent to the previous term’s position
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 44, u64 n <= 89, u128 n <= 178,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 708 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const int DX[4] = {1, 0, -1, 0};
 static const int DY[4] = {0, 1, 0, -1};
@@ -41,12 +43,12 @@ static size_t hash_count = 0;
 static void ensure_hash_capacity(void) {
     if (hash_size == 0) {
         hash_size = 8;
-        hash_table = (struct HashEntry *)calloc(hash_size, sizeof(struct HashEntry));
+        hash_table = mem_new(struct HashEntry, hash_size);
         return;
     }
     if (hash_count * 2 >= hash_size) {
         size_t new_size = hash_size << 1;
-        struct HashEntry *new_tbl = (struct HashEntry *)calloc(new_size, sizeof(struct HashEntry));
+        struct HashEntry *new_tbl = mem_new(struct HashEntry, new_size);
         for (size_t i = 0; i < hash_size; ++i) {
             if (hash_table[i].used) {
                 uint64_t k = hash_table[i].key;
@@ -58,7 +60,7 @@ static void ensure_hash_capacity(void) {
                 new_tbl[h].used = 1;
             }
         }
-        free(hash_table);
+        mem_free(hash_table);
         hash_table = new_tbl;
         hash_size = new_size;
     }
@@ -103,7 +105,7 @@ seq_t a(idx_t n) {
     /* lazy initialization */
     if (vals_len == 0) {
         vals_cap = 4;
-        vals = (seq_t *)calloc(vals_cap, sizeof(seq_t));
+        vals = mem_new(seq_t, vals_cap);
         vals[0] = 0;
         vals_len = 1;
 
@@ -142,7 +144,7 @@ seq_t a(idx_t n) {
 
         if (vals_len == vals_cap) {
             size_t new_cap = vals_cap ? vals_cap * 2 : 4;
-            vals = (seq_t *)realloc(vals, new_cap * sizeof(seq_t));
+            vals = mem_resize(seq_t, vals, new_cap);
             vals_cap = new_cap;
         }
         vals[vals_len] = val;

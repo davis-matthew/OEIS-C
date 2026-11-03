@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of m such that prime(n) = m + digit_sum(m)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum_uint64
+ * Validated: standard, pass, 121 terms through n = 9376 (2026-11-02)
+ * Helpers:   digit_sum_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digit_sum_uint64.h"
+#include "../utils/digit_sum_u64.h"
 
 static uint64_t *primes = NULL;        /* array of primes found so far */
 static size_t   primes_cap = 0;        /* allocated capacity of 'primes' */
@@ -102,7 +103,7 @@ a(idx_t n)
 
     seq_t count = 0;
     for (uint64_t m = low; m < p; ++m) {
-        if (m + (uint64_t)digit_sum_uint64(m) == p)
+        if (m + (uint64_t)digit_sum_u64(m) == p)
             ++count;
     }
     return count;

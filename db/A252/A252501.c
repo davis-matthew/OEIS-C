@@ -9,14 +9,19 @@
  *            and column indices of n in row‑major order
  * Range:     u8 n <= 12, u16 n <= 39, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   _start, binomial
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/_start.h"
+
+static unsigned __int128 _start(idx_t r) {
+    return (unsigned __int128)r * (r + 1) / 2;
+}
 
 /* find the row r such that _start(r) <= n < _start(r+1) */
 static idx_t find_row(idx_t n) {

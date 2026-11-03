@@ -9,12 +9,14 @@
  *            a(0)=1, a(1)=1, a(2)=1, a(3)=2, a(4)=4
  * Range:     u8 n <= 11, u16 n <= 21, u32 n <= 42, u64 n <= 83, u128 n <= 165,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     if (n + 1 > size) {
         idx_t new_size = n + 1;
         /* realloc returns void *; cast explicitly for C++ */
-        seq_t *newdp = (seq_t *)realloc(dp, new_size * sizeof(*dp));
+        seq_t *newdp = mem_resize(seq_t, dp, new_size);
         if (!newdp) abort();   /* allocation failure */
 
         if (dp == NULL) {            /* first allocation – initialise base cases */

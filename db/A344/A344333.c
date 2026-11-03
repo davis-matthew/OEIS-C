@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   gcd, seq_cmp
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,18 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "../utils/gcd.h"
-#include "../utils/seq_cmp.h"
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 static seq_t *values = NULL;          /* array of precomputed values   */
 static size_t values_len = 0;         /* number of values */
@@ -39,7 +50,7 @@ static void precompute(void)
     const idx_t LIMIT = 250;
     size_t max_pairs = (size_t)LIMIT * (LIMIT - 1) / 2;
 
-    values = (seq_t *)malloc(max_pairs * sizeof(seq_t));
+    values = mem_new(seq_t, max_pairs);
     values_len = 0;
 
     for (idx_t a = 1; a < LIMIT; ++a) {
@@ -55,7 +66,7 @@ static void precompute(void)
     }
 
     /* Sort the list of values. */
-    qsort(values, values_len, sizeof(seq_t), seq_cmp);
+    mem_qsort(values, values_len, sizeof(seq_t), seq_cmp);
 
     /* Remove duplicates (should not occur with coprime a,b, but be safe). */
     size_t uniq = 0;

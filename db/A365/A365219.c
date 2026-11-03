@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   digit_first, digit_last, is_gdi, is_gui
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,33 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/digit_first.h"
-#include "../utils/digit_last.h"
-#include "../utils/is_gdi.h"
-#include "../utils/is_gui.h"
+#include "../utils/mem.h"
+
+/* Return the most significant (leftmost) decimal digit of x.  */
+static inline seq_t digit_first(seq_t x)
+{
+    while (x >= (seq_t)10)
+        x /= (seq_t)10;
+    return x;
+}
+
+/* Return the least significant (rightmost) decimal digit of x.  */
+static inline seq_t digit_last(seq_t x)
+{
+    return x % (seq_t)10;
+}
+
+/* GDI: leftmost digit > rightmost digit.  */
+static inline bool is_gdi(seq_t x)
+{
+    return digit_first(x) > digit_last(x);
+}
+
+/* GUI: rightmost digit > leftmost digit.  */
+static inline bool is_gui(seq_t x)
+{
+    return digit_first(x) < digit_last(x);
+}
 
 /* ------------------------------------------------------------------ */
 /*  Memoised sequence data                                            */
@@ -46,7 +70,7 @@ static void ensure_seq_cap(size_t need)
     size_t newcap = (seq_cap == 0 ? 16 : seq_cap * 2);
     while (newcap < need)
         newcap *= 2;
-    seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, newcap);
     seq_cap = newcap;
 }
 
@@ -58,7 +82,7 @@ static void ensure_gui_cap(size_t need)
     size_t newcap = (gui_cap == 0 ? 16 : gui_cap * 2);
     while (newcap < need)
         newcap *= 2;
-    gui_list = (seq_t *)realloc(gui_list, newcap * sizeof(seq_t));
+    gui_list = mem_resize(seq_t, gui_list, newcap);
     used     = (bool   *)realloc(used,     newcap * sizeof(bool));
     gui_cap  = newcap;
 }
@@ -72,10 +96,10 @@ seq_t a(idx_t n)
     /* Initialise on first call */
     if (seq_len == 0) {
         seq_cap = 16;
-        seq = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
 
         gui_cap = 16;
-        gui_list = (seq_t *)calloc(gui_cap, sizeof(seq_t));
+        gui_list = mem_new(seq_t, gui_cap);
         used     = (bool   *)calloc(gui_cap, sizeof(bool));
 
         /* First term: 12 is the smallest GUI. */

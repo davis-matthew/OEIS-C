@@ -8,15 +8,24 @@
  * Formula:   a(0) = 1, a(1) = 32, a(n) = 992 · 31^(n‑2) for n ≥ 2
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The sequence first grows as 1, 32, 992, 30752, 953312, …  (see OEIS A169381)*/
 
-#include "../utils/seq_pow.h"   /* provides seq_pow(seq_t, idx_t) */
-#include "../utils/seq_mul.h"   /* provides seq_mul(seq_t, seq_t)   */
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -27,6 +36,6 @@ seq_t a(idx_t n)
         return (seq_t)32;
 
     /* For n ≥ 2:  a(n) = 992 × 31^(n‑2)  */
-    seq_t pow_31 = seq_pow((seq_t)31, (idx_t)(n - 2U));
+    seq_t pow_31 = ipow_idx((seq_t)31, (idx_t)(n - 2U));
     return seq_mul(pow_31, (seq_t)992);
 }

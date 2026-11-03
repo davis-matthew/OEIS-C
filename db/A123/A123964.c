@@ -10,6 +10,7 @@
  *            0, a(3) = -64, a(4) = -3, a(5) = 4080,
  * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 42, i64 n <= 1325,
  *            i128 n <= 1325, big any n
+ * Validated: standard, pass, 52 terms through n = 1234 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

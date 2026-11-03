@@ -10,7 +10,8 @@
  *            search
  * Range:     u8 n <= 96, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   balanced_ones_fours
+ * Validated: standard, pass, 78 terms through n = 9425 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/balanced_ones_fours.h"
+#include "../utils/mem.h"
+
+static inline bool balanced_ones_fours(seq_t x)
+{
+    unsigned count1 = 0, count4 = 0;
+    while (x) {
+        unsigned d = (unsigned)(x % 6);
+        if (d == 1) ++count1;
+        else if (d == 4) ++count4;
+        x /= 6;
+    }
+    return count1 == count4;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,7 +48,7 @@ seq_t a(idx_t n)
             /* Grow the array if necessary. */
             if ((size_t)len == cap) {
                 size_t newcap = cap ? cap << 1 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp) abort();                /* unlikely, but safe */
                 cache = tmp;
                 cap = newcap;

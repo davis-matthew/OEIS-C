@@ -8,8 +8,9 @@
  * Formula:   a(n) = Legendre symbol (row / prime(col)), triangle read by rows
  *            with rows indexed from 0. The row index is determined by the
  *            cumulative row lengths r(r+1)/2
- * Range:     i8 n <= 9617, i16 n <= 9617, i32 n <= 9617, i64 n <= 9617,
- *            i128 n <= 9617, big any n
+ * Range:     i8 n <= 11475, i16 n <= 11475, i32 n <= 11475, i64 n <= 11475,
+ *            i128 n <= 11475, big any n
+ * Validated: standard, pass, 94 terms through n = 9617 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

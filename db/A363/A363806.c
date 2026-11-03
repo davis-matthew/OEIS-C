@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 757, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _max_divisors_sqrt
+ * Validated: standard, pass, 117 terms through n = 9133 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/_max_divisors_sqrt.h"
+
+static uint64_t _max_divisors_sqrt(uint64_t n)
+{
+    /* upper bound for number of divisors: 2^(log2(n)) <= n */
+    return n;
+}
 
 /* static prime table up to 10 000, enough for all n ≤ 10 000 */
 static uint64_t _primes[1229];

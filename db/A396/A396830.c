@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 83, u64 n <= 7055,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 49 terms through n = 9436 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /*  Compute integer power using 128‑bit arithmetic to avoid overflow when seq_t

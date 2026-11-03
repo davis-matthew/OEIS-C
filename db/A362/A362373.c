@@ -8,9 +8,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, look, easy
  * Formula:   not stated
- * Range:     u8 n <= 77, u16 n <= 9548, u32 n <= 9548, u64 n <= 9548,
- *            u128 n <= 9548, big any n
- * Helpers:   none
+ * Range:     u8 n <= 77, u16 n <= 13866, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 77 terms through n = 9548 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Map entry: value → cumulative sum of all indices where the value has appeared */
 typedef struct {
@@ -51,7 +53,7 @@ static void seq_ensure(size_t min_cap) {
     if (min_cap > seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
         if (new_cap < min_cap) new_cap = min_cap;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 }
@@ -61,7 +63,7 @@ static void map_ensure(size_t min_cap) {
     if (min_cap > map_cap) {
         size_t new_cap = map_cap ? map_cap * 2 : 8;
         if (new_cap < min_cap) new_cap = min_cap;
-        map = (MapEntry *)realloc(map, new_cap * sizeof(MapEntry));
+        map = mem_resize(MapEntry, map, new_cap);
         map_cap = new_cap;
     }
 }

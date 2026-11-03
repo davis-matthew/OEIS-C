@@ -8,12 +8,13 @@
  *            n = 1..5 the values are 41, 34, 27, 34, 41 respectively
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
 
     /* Start with n itself; for primes this will stay n. */
     seq_t best = (seq_t)n;
-    idx_t max = _floor_isqrt_u64(n);
+    idx_t max = isqrt(n);
 
     for (idx_t d = 2; d <= max; ++d) {
         if (n % d == 0) {

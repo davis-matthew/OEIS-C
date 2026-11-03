@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   bitlen_seq_t, can_extend_with_zeros, rule_output
+ * Validated: standard, pass, 84 terms through n = 7863 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,42 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
-#include "../utils/can_extend_with_zeros.h"
-#include "../utils/rule_output.h"
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
+
+/* Rule 30 output for pattern l,c,r.  Index = (l<<2)|(c<<1)|r. */
+static inline unsigned rule_output(unsigned l, unsigned c, unsigned r)
+{
+    static const unsigned char table[8] = {
+        0,  /* 000 -> 0 */
+        1,  /* 001 -> 1 */
+        1,  /* 010 -> 1 */
+        1,  /* 011 -> 1 */
+        1,  /* 100 -> 1 */
+        0,  /* 101 -> 0 */
+        0,  /* 110 -> 0 */
+        0   /* 111 -> 0 */
+    };
+    return table[(l << 2) | (c << 1) | r];
+}
+
+/* Check if a state (p0,p1) can be extended indefinitely to the right
+ * by zeros yielding all-zero outputs. */
+static inline bool can_extend_with_zeros(unsigned state)
+{
+    /* try up to 10 steps – the state space is only 4 states */
+    for (int i = 0; i < 10; ++i) {
+        unsigned l = (state >> 1) & 1;
+        unsigned c = state & 1;
+        if (rule_output(l, c, 0) != 0)
+            return false;
+        unsigned next = (c << 1);            /* (p1,0) */
+        if (next == state)                  /* settled into (0,0) */
+            return true;
+        state = next;
+    }
+    return false;
+}
 
 /* Returns true iff ‘value’ has a finite predecessor in Rule 30. */
 static bool has_predecessor(seq_t value)
@@ -31,7 +65,7 @@ static bool has_predecessor(seq_t value)
     if (value == (seq_t)0)
         return true;                /* the only number with itself as predecessor */
 
-    idx_t len = bitlen_seq_t(value);   /* number of bits in value (>0) */
+    idx_t len = bit_length(value);   /* number of bits in value (>0) */
     if (len == 0)                       /* should not happen but be safe */
         return true;
 
@@ -99,7 +133,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < needed)
         new_cap <<= 1;
-    void *tmp = realloc(cache, new_cap * sizeof(seq_t));
+    void *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         exit(EXIT_FAILURE);
     cache = (seq_t *)tmp;

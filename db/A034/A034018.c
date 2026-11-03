@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* array of sequence values          */
 static size_t seq_len = 0;         /* number of stored terms            */
@@ -31,7 +33,7 @@ static idx_t  gen_limit = 0;       /* largest bound that has been generated */
 static void ensure_capacity(size_t new_cap)
 {
     if (new_cap <= seq_cap) return;
-    seq_t *new_seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *new_seq = mem_resize(seq_t, seq, new_cap);
     seq = new_seq;
     seq_cap = new_cap;
 }
@@ -73,14 +75,14 @@ static void rebuild_sequence(idx_t limit)
 
     /* Allocate new sequence array */
     size_t new_cap = 16;
-    seq_t *new_seq = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_seq = mem_new(seq_t, new_cap);
     size_t new_len = 0;
 
     for (idx_t v = 1; v <= limit; ++v) {
         if (has_rep[(size_t)v] && !is_prim[(size_t)v]) {
             if (new_len == new_cap) {
                 new_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(new_seq, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, new_seq, new_cap);
                 new_seq = tmp;
             }
             new_seq[new_len++] = (seq_t)v;
@@ -88,7 +90,7 @@ static void rebuild_sequence(idx_t limit)
     }
 
     /* Replace old sequence with the new one */
-    free(seq);
+    mem_free(seq);
     free(has_rep);
     free(is_prim);
     seq = new_seq;

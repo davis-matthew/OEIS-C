@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MAXPRIME 200000          /* primes up to this value are sufficient for n ≤ 10000 */
 
@@ -81,7 +83,7 @@ static void init_sequence(void)
 
     /* --- initialise list of valid terms: m = 0 is always valid ------------- */
     valCap = 64;
-    vals   = (seq_t*)malloc(valCap * sizeof(seq_t));
+    vals   = mem_new(seq_t, valCap);
     vals[0] = (seq_t)0;
     valCnt = 1;
 }
@@ -128,7 +130,7 @@ seq_t a(idx_t n)
         if (ok) {
             if (valCnt == valCap) {
                 valCap *= 2;
-                vals = (seq_t*)realloc(vals, valCap * sizeof(seq_t));
+                vals = mem_resize(seq_t, vals, valCap);
             }
             vals[valCnt++] = (seq_t)curM;
         }

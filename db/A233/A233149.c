@@ -8,7 +8,8 @@
  * Formula:   a(n) = ((n^2+1)^3) - round(sqrt((n^2+1)^3))^2
  * Range:     i8 n <= 1, i16 n <= 4, i32 n <= 31, i64 n <= 50, i128 n <= 50,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,26 @@
 /* Computes the nearest square to (n^2+1)^3 and returns the difference.
    Uses the utility function floor_sqrt(seq_t) which returns the
    integer part of the square root. */
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {

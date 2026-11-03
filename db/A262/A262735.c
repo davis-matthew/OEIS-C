@@ -9,15 +9,31 @@
  *            (n≥7)
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 31, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   create_array, delete_array
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/create_array.h"
-#include "../utils/delete_array.h"
+
+static seq_t *create_array(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t *)malloc(sizeof(seq_t) * cap);
+#endif
+}
+
+static void delete_array(seq_t *arr, size_t cap) {
+#ifdef __cplusplus
+    (void)cap; /* unused */
+    delete[] arr;
+#else
+    free(arr);
+#endif
+}
 
 /* Compute the n-th term of OEIS A262735. */
 seq_t a(idx_t n) {

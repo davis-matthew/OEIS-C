@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>  /* malloc, realloc, free */
 #include <string.h>  /* memcpy */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0u) return (seq_t)0;            /* offset is 1; n==0 is undefined */
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
     if (idx >= cache_size) {
         /* allocate new array large enough for all requested terms */
         size_t new_size = idx + 1u;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) {
             /* allocation failure: return 0 as a safe fallback */
             return (seq_t)0;
@@ -48,8 +50,8 @@ seq_t a(idx_t n) {
 
         /* copy already computed terms */
         if (cache_size > 0u) {
-            memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+            mem_free(cache);
         }
 
         /* constants for the digit pattern */

@@ -10,7 +10,8 @@
  *            next number have opposite parity
  * Range:     u8 none, u16 none, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   digits_of, pow10
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,18 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digits_of.h"   /* idx_t digits_of(idx_t x); */
-#include "../utils/pow10.h"       /* seq_t pow10(idx_t e); */
+#include <stdint.h>
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* return the most significant decimal digit of x   (x >= 1) */
 static int first_digit(idx_t x)
@@ -53,7 +64,7 @@ seq_t a(idx_t n)
             int first_next_digit = first_digit(next);
 
             if ((last_digit & 1) != (first_next_digit & 1)) {
-                idx_t next_digits = digits_of(next);   /* number of decimal digits in next */
+                idx_t next_digits = num_digits_idx(next);   /* number of decimal digits in next */
                 current_block = current_block * pow10((idx_t)next_digits) + (seq_t)next;
                 cur = next;
                 next = cur + 1;

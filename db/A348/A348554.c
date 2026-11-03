@@ -10,7 +10,8 @@
  *            list sorted ascending and excluding 1 and 2*m
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   divisor_count_u64, factor_u64, seq_cmp
+ * Validated: partial, pass, 89 terms through n = 90 (2026-11-03)
+ * Helpers:   factor_u64, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/factor_u64.h"
-#include "../utils/divisor_count_u64.h"
-#include "../utils/seq_cmp.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 static void gen_divs_rec(const uint64_t *pr, const uint64_t *ex, size_t cnt,
                          size_t idx, seq_t cur, seq_t *out, size_t *out_cnt,
@@ -51,7 +62,7 @@ seq_t a(idx_t n)
     idx_t cum = 0;    /* Sum of lengths of rows 2 .. row‑1 */
 
     while (1) {
-        idx_t len = divisor_count_u64(2 * (uint64_t)row) - 2;
+        idx_t len = num_divisors(2 * (uint64_t)row) - 2;
         if (pos0 < cum + len)
             break;
         cum += len;
@@ -73,7 +84,7 @@ seq_t a(idx_t n)
     gen_divs_rec(primes, exps, pf_cnt, 0, (seq_t)1, divs, &div_cnt, (seq_t)num);
 
     /* Sort divisors ascending. */
-    qsort(divs, div_cnt, sizeof(seq_t), seq_cmp);
+    mem_qsort(divs, div_cnt, sizeof(seq_t), seq_cmp);
 
     return divs[idx_in_row];
 }

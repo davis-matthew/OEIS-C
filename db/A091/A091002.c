@@ -8,7 +8,8 @@
  * Formula:   a(n) = (3^(n+1) - (-2)^(n+1) - 5)/30
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 22, u64 n <= 42, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    for n >= 3: a(n) = 2*a(n-1) + 5*a(n-2) - 6*a(n-3) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Extend the cache if needed */
     if (n >= cap) {
         idx_t newcap = n + 1;                         /* store up to index n */
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         if (!cache)                                   /* allocation failure */
             return (seq_t)0;
 

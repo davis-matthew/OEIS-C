@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 218 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    fits in seq_t.  No external libraries are required. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoisation cache: cache[i] holds a(i) for 0 ≤ i < cache_cap.
    cache_max records the highest index that has been computed. */
@@ -45,7 +47,7 @@ static void ensure_cache(idx_t n)
         return;
 
     idx_t old_cap = cache_cap;
-    cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, needed);
     if (!cache)
         exit(1);  /* allocation failed */
 

@@ -11,12 +11,14 @@
  *            a(8)=44, a(9)=50, a(10)=56
  * Range:     u8 n <= 45, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0; /* number of terms stored (cache_len = highest index + 1) */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         /* grow cache to accommodate n */
         idx_t required = n + 1;
         idx_t new_cap = (required > cache_len * 2) ? required : cache_len * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort(); /* out of memory */
         cache = tmp;
         /* fill missing values */

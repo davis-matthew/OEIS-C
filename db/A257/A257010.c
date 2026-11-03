@@ -9,14 +9,30 @@
  *            number of positive divisors of m that are ≡ 1 (mod b)
  * Range:     u8 n <= 13, u16 n <= 184, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _count_excluded_divs
+ * Validated: standard, pass, 94 terms through n = 954 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_count_excluded_divs.h"
+
+static void _count_excluded_divs(const uint64_t primes[], const int exps[],
+                                 int pc, int idx, seq_t cur,
+                                 idx_t mod, seq_t *cnt)
+{
+    if (idx == pc) {
+        if ((cur % mod) == 1)
+            ++(*cnt);
+        return;
+    }
+    seq_t val = 1;
+    for (int e = 0; e <= exps[idx]; ++e) {
+        _count_excluded_divs(primes, exps, pc, idx + 1, cur * val, mod, cnt);
+        val *= primes[idx];
+    }
+}
 
 seq_t a(idx_t n)
 {

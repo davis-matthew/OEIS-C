@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 21, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,27 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Test whether x is a Fibonacci number. */
 static inline bool is_fibonacci(seq_t x)
@@ -48,7 +69,7 @@ seq_t a(idx_t n)
 
     /* First invocation – allocate and compute the whole sequence up to n. */
     if (cache == NULL) {
-        cache = (seq_t *)realloc(NULL, (need + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, (need + 1));
         if (!cache) return (seq_t)0;     /* allocation failure */
 
         cache[1] = (seq_t)1;
@@ -63,7 +84,7 @@ seq_t a(idx_t n)
     }
     /* Extend cache if required. */
     else if (need > cache_cap) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (need + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (need + 1));
         if (!new_cache) return (seq_t)0;  /* allocation failure */
         cache = new_cache;
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_valid_zero_pattern
+ * Validated: standard, pass, 98 terms through n = 8949 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,26 @@
    one zero digit, and have no two adjacent zeros.
    Return the n‑th such integer. */
 #include <stdbool.h>
-#include "../utils/has_valid_zero_pattern.h"
+
+static bool has_valid_zero_pattern(seq_t x)
+{
+    if (x % 10 == 0) return false;          /* divisible by 10 */
+    bool has_zero = false;
+    bool prev_zero = false;
+    seq_t tmp = x;
+    while (tmp > 0) {
+        seq_t d = tmp % 10;
+        if (d == 0) {
+            if (prev_zero) return false;    /* two consecutive zeros */
+            prev_zero = true;
+            has_zero = true;
+        } else {
+            prev_zero = false;
+        }
+        tmp /= 10;
+    }
+    return has_zero;
+}
 
 seq_t a(idx_t n)
 {

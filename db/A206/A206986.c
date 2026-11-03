@@ -10,7 +10,8 @@
  *            transfer‑matrix of the last two rows
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 24, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 typedef uint8_t uint8_bool;
 
@@ -151,15 +153,15 @@ seq_t a(idx_t n)
         }
 
         /* Allocate DP arrays.  dp_prev holds states for n = 2 (all ones). */
-        dp_prev = (seq_t*)malloc(dp_size * sizeof(seq_t));
-        dp_curr = (seq_t*)malloc(dp_size * sizeof(seq_t));
+        dp_prev = mem_new(seq_t, dp_size);
+        dp_curr = mem_new(seq_t, dp_size);
         for (size_t i = 0; i < dp_size; ++i)
             dp_prev[i] = (seq_t)1;
-        memset(dp_curr, 0, dp_size * sizeof(seq_t));
+        mem_set(dp_curr, 0, dp_size * sizeof(seq_t));
 
         /* Cache for a(n).  We use 1‑based indexing; cache[0] is unused. */
         cache_cap = 10;     /* initial capacity */
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 3;      /* we will store a[1] and a[2] at indices 1 and 2   */
         cache[0] = (seq_t)0;                       /* dummy */
         cache[1] = (seq_t)S;                       /* a(1) = number of valid rows    */
@@ -177,7 +179,7 @@ seq_t a(idx_t n)
         size_t next_n = cached_n + 1;   /* compute a(next_n) */
 
         /* Transition from dp_prev (state for next_n-2) to dp_curr (next_n-1) */
-        memset(dp_curr, 0, dp_size * sizeof(seq_t));
+        mem_set(dp_curr, 0, dp_size * sizeof(seq_t));
 
         for (size_t state = 0; state < dp_size; ++state) {
             seq_t val = dp_prev[state];
@@ -201,7 +203,7 @@ seq_t a(idx_t n)
         if (next_n >= cache_cap) {
             size_t newCap = cache_cap * 2;
             if (newCap <= next_n) newCap = next_n + 1;
-            cache = (seq_t*)realloc(cache, newCap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, newCap);
             cache_cap = newCap;
         }
         cache[next_n] = sum;

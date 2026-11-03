@@ -11,13 +11,15 @@
  *            a(6)=30, a(7)=35, a(8)=39, a(9)=45, a(10)=50
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;          /* storage for computed values      */
 static size_t memo_cap = 0;         /* current capacity of memo array   */
@@ -35,14 +37,14 @@ static void ensure_capacity(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;                /* grow until large enough */
 
-    seq_t *new_mem = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_new(seq_t, new_cap);
     if (!new_mem)                      /* memory allocation failed */
         exit(EXIT_FAILURE);
 
     if (memo) {
         for (size_t i = 0; i < memo_cap; ++i)
             new_mem[i] = memo[i];
-        free(memo);
+        mem_free(memo);
     }
     memo = new_mem;
     memo_cap = new_cap;

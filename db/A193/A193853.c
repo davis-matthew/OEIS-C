@@ -10,7 +10,8 @@
  *            linear index n
  * Range:     u8 n <= 14, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,12 +39,12 @@ seq_t a(idx_t n)
 
     /* Allocate space for two successive rows */
     size_t max_len = (size_t)(r + 1);
-    seq_t *prev = (seq_t *)malloc(max_len * sizeof(seq_t));
-    seq_t *cur  = (seq_t *)malloc(max_len * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, max_len);
+    seq_t *cur  = mem_new(seq_t, max_len);
     if (!prev || !cur) {          /* allocation failed – return 0 */
         seq_t zero = 0;
-        if (prev) free(prev);
-        if (cur) free(cur);
+        if (prev) mem_free(prev);
+        if (cur) mem_free(cur);
         return zero;
     }
 
@@ -75,8 +78,8 @@ seq_t a(idx_t n)
     result *= pow2(k);
 
     /* Free allocated memory */
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
 
     return result;
 }

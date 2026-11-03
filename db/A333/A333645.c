@@ -8,13 +8,36 @@
  *            uphi(1) = 1 , uphi(p^e) = p^e - 1 (e >= 1)
  * Range:     u8 n <= 143, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   dfs_divisor_uphi
+ * Validated: standard, pass, 86 terms through n = 9875 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/dfs_divisor_uphi.h"
+
+/* Recursive helper to enumerate all exponent combinations
+   and accumulate the sum of uphi over all divisors. */
+static void dfs_divisor_uphi(const uint64_t *primes,
+                             const int *exps,
+                             int num,
+                             int idx,
+                             seq_t current_uphi,
+                             seq_t *sum)
+{
+    if (idx == num) {
+        *sum += current_uphi;
+        return;
+    }
+    seq_t p = (seq_t)primes[idx];
+    seq_t pow = 1;                         /* p^k */
+    for (int k = 0; k <= exps[idx]; ++k) {
+        seq_t factor = (k == 0) ? (seq_t)1 : (pow - 1);
+        dfs_divisor_uphi(primes, exps, num, idx + 1,
+                         current_uphi * factor, sum);
+        pow *= p;                           /* next power */
+    }
+}
 
 seq_t a(idx_t n)
 {

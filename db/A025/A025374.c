@@ -8,7 +8,8 @@
  *            or more ways
  * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The build supplies these types; they are assumed to exist. */
 extern seq_t a(idx_t n);
@@ -64,7 +66,7 @@ static void _build_sequence(size_t limit)
             if (cnt[val] >= 9) {
                 if (found == _terms_cap) {
                     size_t new_cap = (_terms_cap > 0) ? _terms_cap * 2 : 32;
-                    _terms = (seq_t *)realloc(_terms, new_cap * sizeof(seq_t));
+                    _terms = mem_resize(seq_t, _terms, new_cap);
                     if (!_terms) abort();
                     _terms_cap = new_cap;
                 }

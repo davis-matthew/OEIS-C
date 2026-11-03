@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 784, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 94 terms through n = 9793 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Search for the smallest odd prime p ≤ s-6 (s-6 ≥ 3 when n≥4). */
     for (uint64_t p = 3ULL; p <= s - 6ULL; p += 2ULL)
     {
-        if (!is_prime(p))
+        if (!is_prime_u64(p))
             continue;                      /* skip non‑primes */
 
         uint64_t q = (s - p) >> 1U;        /* q = (2n+1 - p)/2 */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         if (q < 3ULL)
             continue;                      /* q must be an odd prime ≥3 */
 
-        if (is_prime(q))
+        if (is_prime_u64(q))
             return (seq_t)p;               /* smallest p found */
     }
 

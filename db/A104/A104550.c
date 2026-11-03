@@ -10,13 +10,15 @@
  *            1-based
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 27, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;        /* memoized terms */
 static idx_t  memo_cap = 0;       /* allocated size of memo (in elements) */
@@ -30,7 +32,7 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = memo_cap ? memo_cap : 8;
     while (new_cap <= n)
         new_cap <<= 1;                 /* grow by factors of 2 */
-    seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, memo, new_cap);
     if (!tmp) {
         /* Out of memory – abort. */
         exit(1);

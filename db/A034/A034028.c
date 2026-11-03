@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,26 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/floor_sqrt.h"   /* provides floor_sqrt(seq_t) */
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* static storage for the list of excluded (non‑representable) numbers */
 static seq_t *slice   = NULL;   /* array of values */
@@ -36,7 +56,7 @@ static void ensure_capacity(size_t new_cap)
     if (new_cap <= slice_cap) return;
     size_t cap = slice_cap ? slice_cap * 2 : 8;
     while (cap < new_cap) cap <<= 1;
-    seq_t *p = (seq_t *)realloc(slice, cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, slice, cap);
     if (!p) abort();   /* out of memory – safe for the build system */
     slice    = p;
     slice_cap = cap;

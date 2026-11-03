@@ -8,7 +8,8 @@
  *            t! (n>0)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 35 terms through n = 356 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *fact = NULL;      /* factorials: fact[i] = i!   */
 static size_t fact_len = 0;     /* number of factorials allocated */
@@ -26,7 +28,7 @@ static void ensure_fact(idx_t n)
 {
     if (fact_len <= (size_t)n) {
         size_t new_len = (size_t)n + 1;
-        fact = (seq_t *)realloc(fact, new_len * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, new_len);
         if (!fact) exit(1);          /* simple error handling */
         for (size_t i = fact_len; i <= n; ++i) {
             if (i == 0)

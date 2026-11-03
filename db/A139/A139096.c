@@ -8,6 +8,7 @@
  * Formula:   a(n) = 2^(2*A000043(n)-1) - 2^A000043(n)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 9,
  *            big any n
+ * Validated: standard, pass, 15 terms through n = 15 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,8 @@
  *  For n beyond the number of known exponents, 0 is returned. */
 
 #include <stddef.h>
-#include "../utils/pow2.h"   /* pow2(idx_t exp) → seq_t */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 static const idx_t mersenne_exponents[] = {
     2,   3,   5,   7,   13,  17,  19,  31,  61,  89,

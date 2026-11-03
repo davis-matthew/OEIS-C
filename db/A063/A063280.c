@@ -12,12 +12,14 @@
  *            static array, so calls can arrive in any order
  * Range:     i8 n <= 63, i16 n <= 63, i32 n <= 63, i64 n <= 63, i128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (!init_done) {
         /* ensure room for indices 0 … 13 (size 14) */
         cache_cap = 14;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         for (idx_t i = 0; i < cache_cap; ++i)
             cache[i] = (seq_t)0;   /* initialise everything to zero */
         /* set the known terms */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* grow the cache so that index n exists */
     if ((idx_t)(n) >= cache_cap) {
         idx_t new_cap = (idx_t)(n) + 1;
-        seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) {
             /* Allocation failed – return a safe value (zero) */
             return (seq_t)0;

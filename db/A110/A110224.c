@@ -7,13 +7,19 @@
  * Formula:   a(n) = Fibonacci(n)^3 + Fibonacci(n+1)^3
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 31, u128 n <= 61,
  *            big any n
- * Helpers:   cube, fib_fast
+ * Validated: standard, pass, 39 terms through n = 154 (2026-11-01)
+ * Helpers:   fib_fast
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include "../utils/fib_fast.h"
-#include "../utils/cube.h"
+
+/* Compute x^3 using seq_t arithmetic. */
+static seq_t cube(seq_t x)
+{
+    return x * x * x;
+}
 
 seq_t a(idx_t n)
 {

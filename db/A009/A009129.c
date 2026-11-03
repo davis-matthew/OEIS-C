@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 7393, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9016 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* --------- helpers ----------------------------------------------------- */
 static uint64_t gcd_uint64(uint64_t a, uint64_t b)
@@ -44,7 +46,7 @@ static size_t _valid_len       = 0;      /* number of valid perimeters     */
 static void _free_global_state(void)
 {
     if (_valid_perims != NULL) {
-        free(_valid_perims);
+        mem_free(_valid_perims);
         _valid_perims = NULL;
     }
     _valid_len    = 0;
@@ -84,7 +86,7 @@ static void _recompute(uint64_t new_limit)
     /* allocate destination array */
     seq_t *new_list = NULL;
     if (valid_count > 0) {
-        new_list = (seq_t *)calloc(valid_count, sizeof(seq_t));
+        new_list = mem_new(seq_t, valid_count);
         if (!new_list) {
             free(cnt);
             return;                                          /* allocation fail */

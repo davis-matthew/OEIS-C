@@ -9,16 +9,19 @@
  * Formula:   a(n) = lcm(n, tau(n), sigma(n))
  * Range:     u8 n <= 15, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   factor_u64, gcd, pow_uint
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd.h"       /* gcd(seq_t, seq_t) */
-#include "../utils/factor_u64.h"/* factor_u64(uint64_t, uint64_t*, uint64_t*, size_t*) */
-#include "../utils/pow_uint.h"  /* pow_uint(uint64_t, idx_t) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
     seq_t sigma = 1;
     for (size_t i = 0; i < cnt; ++i) {
         seq_t p = (seq_t)pr[i];
-        seq_t num = pow_uint(pr[i], ex[i] + 1) - 1;
+        seq_t num = ipow_u64_idx(pr[i], ex[i] + 1) - 1;
         seq_t denom = p - 1;
         seq_t term = num / denom;          /* division is exact */
         sigma = sigma * term;

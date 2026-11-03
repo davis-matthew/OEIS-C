@@ -8,12 +8,14 @@
  *            n-4*k)
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 32, u64 n <= 61, u128 n <= 118,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 52 terms through n = 996 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -25,14 +27,14 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= maxk; ++k)
     {
-        seq_t t1 = binom(n, k);         /* binomial(n,k) */
+        seq_t t1 = binomial(n, k);         /* binomial(n,k) */
 
         /* compute the second binomial factor */
         idx_t f = n - 3 * k - 1;        /* n - 3k - 1 */
         idx_t g = n - 4 * k;            /* n - 4k */
 
         /* For n>0 the values stay non‑negative; binom handles 0 <= g <= f */
-        seq_t t2 = binom(f, g);         /* binomial(f,g) */
+        seq_t t2 = binomial(f, g);         /* binomial(f,g) */
 
         sum += t1 * t2;
     }

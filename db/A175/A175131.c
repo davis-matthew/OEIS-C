@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2^(n-1) mod semiprime(n)
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   build_primes_upto, mod_pow, seq_alloc_array
+ * Validated: standard, pass, 84 terms through n = 999 (2026-11-03)
+ * Helpers:   build_primes_upto, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,16 @@
 #include <stdlib.h>
 
 /* Utilities that are available in the build environment */
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/mod_pow.h"
-#include "../utils/seq_alloc_array.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 struct Node {
     seq_t val;      /* product p[i] * p[j]   */
@@ -168,8 +176,7 @@ a(idx_t n)
 
         /* Allocate space for semiprimes */
         semiprime_cap = 25000;                         /* extra room */
-        semiprimes = (seq_t*)malloc(semiprime_cap *
-                                    sizeof(seq_t));
+        semiprimes = mem_new(seq_t, semiprime_cap);
 
         /* Generate the first semiprime_cap terms */
         generate_semiprimes(semiprime_cap, semiprimes,
@@ -181,8 +188,7 @@ a(idx_t n)
     if (n > semiprime_cnt) {
         size_t new_cap = semiprime_cnt;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        semiprimes = (seq_t*)realloc(semiprimes,
-                                     new_cap * sizeof(seq_t));
+        semiprimes = mem_resize(seq_t, semiprimes, new_cap);
 
         /* If the existing prime list is too small, extend it */
         if (primes && primes[prime_cnt-1] < n) {
@@ -199,5 +205,5 @@ a(idx_t n)
     seq_t mod = semiprimes[n-1];
 
     /* 2^(n-1) mod mod */
-    return mod_pow((seq_t)2, (uint64_t)(n-1), mod);
+    return powmod((seq_t)2, (uint64_t)(n-1), mod);
 }

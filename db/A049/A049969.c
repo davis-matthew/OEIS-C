@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stdint.h>
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
 
 /* Cached values of the sequence and of the cumulative sums. */
 static seq_t *a_cache   = NULL;   /* a_cache[0] unused, a_cache[1] = a(1) … */
@@ -43,8 +46,8 @@ static void ensure_capacity(idx_t n)
     while (new_cap < n)
         new_cap <<= 1;              /* double until enough */
 
-    a_cache   = (seq_t *)realloc(a_cache,   (new_cap + 1) * sizeof(seq_t));
-    sum_cache = (seq_t *)realloc(sum_cache, (new_cap + 1) * sizeof(seq_t));
+    a_cache   = mem_resize(seq_t, a_cache, (new_cap + 1));
+    sum_cache = mem_resize(seq_t, sum_cache, (new_cap + 1));
 
     /* Keep the cumulative sum base at 0. The realloc may discard old
        memory, but we re‑initialize the zero element each time. */
@@ -82,7 +85,7 @@ seq_t a(idx_t n)
         else
         {
             /* Recurrence for i ≥ 4. */
-            unsigned p = floor_log2_uint64(i - 2);          /* 2^p < i-1 ≤ 2^(p+1) */
+            unsigned p = ilog2(i - 2);          /* 2^p < i-1 ≤ 2^(p+1) */
             idx_t two_pow = ((idx_t)1) << (p + 1);          /* 2^(p+1) */
 
             idx_t m = two_pow + (idx_t)2 - i;              /* m = 2^(p+1) + 2 – i */

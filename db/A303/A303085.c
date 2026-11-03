@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 17, u64 n <= 32, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
           - 416*a(n-13) + 152*a(n-14) + 20*a(n-15)
           - 21*a(n-16) + 9*a(n-17)          */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Initial 18 values a(1)..a(18).  a(1) is stored in init[0]. */
 static const seq_t init[18] = {
@@ -59,11 +61,11 @@ seq_t a(idx_t n)
     /* Ensure memo has capacity for n terms (indices 0..n-1). */
     if (n > memo_cap) {
         size_t new_cap = (size_t)n;
-        seq_t *new_mem = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_mem = mem_new(seq_t, new_cap);
         if (!new_mem) { abort(); }           /* allocation failure */
         /* copy old values */
         for (idx_t i = 0; i < memo_size; ++i) new_mem[i] = memo[i];
-        free(memo);
+        mem_free(memo);
         memo = new_mem;
         memo_cap = n;
     }

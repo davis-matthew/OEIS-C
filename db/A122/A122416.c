@@ -7,12 +7,29 @@
  * Formula:   a(n) = S(n) + 1, where S(n) is the smallest k such that n | k!
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   minimal_k_for_prime
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/minimal_k_for_prime.h"
+/* minimal_k_for_prime returns the smallest k with vp(k!) >= e,
+   where vp(k!) = sum_{i>=1} floor(k / p^i) */
+static idx_t minimal_k_for_prime(idx_t p, idx_t e)
+{
+    idx_t k = 1;
+    while (1) {
+        idx_t sum = 0;
+        idx_t t = k;
+        while (t) {
+            t /= p;
+            sum += t;
+        }
+        if (sum >= e)
+            return k;
+        ++k;
+    }
+}
 
 seq_t a(idx_t n)
 {

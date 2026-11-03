@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,22 +44,22 @@ seq_t a(idx_t n)
         size_t sz    = (size_t)max_sum + 1;          /* array size */
 
         /* Allocate temporary arrays for this row. */
-        dp   = (seq_t *)malloc(sz * sizeof(seq_t));
-        next = (seq_t *)malloc(sz * sizeof(seq_t));
+        dp   = mem_new(seq_t, sz);
+        next = mem_new(seq_t, sz);
         if (!dp || !next)
         {
-            free(dp); free(next);
+            mem_free(dp); mem_free(next);
             return (seq_t)0;
         }
 
         /* Initialise dp[0] = 1, others zero. */
-        memset(dp, 0, sz * sizeof(seq_t));
+        mem_set(dp, 0, sz * sizeof(seq_t));
         dp[0] = (seq_t)1;
 
         /* Dynamic programming: add each component one by one. */
         for (idx_t comp = 0; comp < d; ++comp)
         {
-            memset(next, 0, sz * sizeof(seq_t));
+            mem_set(next, 0, sz * sizeof(seq_t));
 
             for (idx_t s = 0; s <= max_sum; ++s)
             {
@@ -89,15 +91,15 @@ seq_t a(idx_t n)
 
         /* Move to the next row. */
         cum += row_len;
-        free(dp);
-        free(next);
+        mem_free(dp);
+        mem_free(next);
     }
 
     /* At this point: dp holds the counts for the target row d. */
     idx_t pos = n - cum - 1;          /* 0‑based position in the row */
     seq_t result = dp[pos];
 
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return result;
 }

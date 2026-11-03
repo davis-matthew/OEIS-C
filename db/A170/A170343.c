@@ -12,7 +12,8 @@
  *            is memoised in a static array that grows...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,19 @@
 #include <stdbool.h>  /* bool type */
 
 /* Helpers for allocated seq_t arrays.  These are part of the build utilities. */
-#include "../utils/alloc_seq_array.h"   /* alloc_seq_array(size_t) -> seq_t* */
-#include "../utils/free_seq_array.h"    /* free_seq_array(seq_t*) */
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache = NULL;       /* Holds a(0)…a(max_cached) */
 static size_t  cap   = 0;         /* Current capacity of cache in slots */

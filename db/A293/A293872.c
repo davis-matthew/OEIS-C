@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 2989, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   contains_12
+ * Validated: standard, pass, 67 terms through n = 9953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
  * Subsequent calls reuse the already computed terms.
  */
 #include <stdlib.h>
-#include "../utils/contains_12.h"
+#include "../utils/mem.h"
+
+/* Return 1 if x contains the decimal substring "12".  */
+static int contains_12(seq_t x)
+{
+    int prev = -1;                 /* previous (lower) digit, or -1 initially */
+    while (x > (seq_t)0) {
+        int d = (int)(x % (seq_t)10);   /* current (lower) digit */
+        if (d == (int)1 && prev == (int)2) {
+            return 1;             /* found substring "12" */
+        }
+        prev = d;
+        x /= (seq_t)10;
+    }
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +55,7 @@ seq_t a(idx_t n)
             size_t new_cap = (cap == 0) ? 16 : cap * 2;
             while (new_cap < needed)
                 new_cap *= 2;
-            seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, new_cap);
             cap = new_cap;
         }
 

@@ -12,7 +12,8 @@
  *            reduced fraction a(n)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 29, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
    implementation caches all computed a(n) values (numerator and
    denominator) to allow out‑of‑order calls. */
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Cached numerators and denominators of a(n) as reduced fractions. */
 static seq_t *num = NULL;   /* numerator of a(n) */
@@ -34,8 +37,8 @@ static void ensure_capacity(idx_t N) {
     if (N + 1 <= cap) return;
     size_t new_cap = cap ? (cap << 1) : 256;
     while (new_cap < (size_t)(N + 1)) new_cap <<= 1;
-    num = (seq_t *)realloc(num, (new_cap + 1) * sizeof(seq_t));
-    den = (seq_t *)realloc(den, (new_cap + 1) * sizeof(seq_t));
+    num = mem_resize(seq_t, num, (new_cap + 1));
+    den = mem_resize(seq_t, den, (new_cap + 1));
     cap = new_cap;
 }
 

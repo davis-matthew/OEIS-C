@@ -11,15 +11,52 @@
  *            from A214230)
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   square_spiral_value_at, steps_of_segments
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/square_spiral_value_at.h"
-#include "../utils/steps_of_segments.h"
+
+/* Map a coordinate (x,y) in the square spiral to its number */
+static seq_t square_spiral_value_at(long long x, long long y)
+{
+    if (x == 0 && y == 0) return (seq_t)1;
+
+    idx_t ax = x >= 0 ? (idx_t)x : (idx_t)(-x);
+    idx_t ay = y >= 0 ? (idx_t)y : (idx_t)(-y);
+    idx_t l  = (ax > ay) ? ax : ay;              /* layer */
+    seq_t t  = (seq_t)(2 * l + 1) * (seq_t)(2 * l + 1);  /* max value in layer */
+
+    long long kl = (long long)l;
+
+    /* bottom‑right corner */
+    if (x == kl && y == -kl) return t;
+
+    /* top side (exclude top‑left corner) */
+    if (y == kl && x != -kl)
+        return t - ((seq_t)4 * l + (seq_t)(x + l));
+
+    /* left side (includes top‑left corner) */
+    if (x == -kl)
+        return t - (seq_t)(2 * l) - (seq_t)(l + y);
+
+    /* right side (includes bottom‑right corner already handled) */
+    if (x == kl)
+        return t - ((seq_t)7 * l - (seq_t)y);
+
+    /* bottom side */
+    return t - (seq_t)(l - x);
+}
+
+/* cumulative number of steps after completing segment s
+   (segment 0 has length 1, segment s ≥ 1 has length s+1) */
+static inline uint64_t steps_of_segments(uint64_t s)
+{
+    return (s + 1) * (s + 2) / 2;
+}
 
 /* coordinates used for the triangular walk */
 typedef struct { long long x; long long y; } coord_t;

@@ -10,6 +10,7 @@
  *            (mod 5) * = (p^(e+1)+(-1)^e) / (p+1) if p ≡ 2,3 (mod 5)
  * Range:     u8 n <= 16, u16 n <= 4002, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 85 terms through n = 9657 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

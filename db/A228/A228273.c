@@ -12,13 +12,15 @@
  *            (m-1) * m^(m-k) for 1 <= k <= m-1
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 55, u64 n <= 153,
  *            u128 n <= 378, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 71 terms through n = 9044 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* General case: (m-1) * m^(m-k) */
     seq_t base = (seq_t)m;
     seq_t exp  = (seq_t)(m - k);
-    seq_t power = big_pow(base, exp);
+    seq_t power = ipow(base, exp);
     seq_t result = ((seq_t)(m - 1)) * power;
     return result;
 }

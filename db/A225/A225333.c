@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 9,
  *            big any n
- * Helpers:   get_digits_generic
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,42 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/get_digits_generic.h"
+
+/* Extract the decimal digits of x into an array `digits` in
+ * most‑significant‑digit first order.  On return, *len holds
+ * the number of digits and *digits points to a newly malloc‑ed array.
+ * The caller must free(*digits).
+ */
+static void get_digits_generic(seq_t x, uint8_t **digits, size_t *len)
+{
+    /* Handle the special case x == 0 (not used here but kept for completeness). */
+    if (x == (seq_t)0) {
+        *len = 1;
+        *digits = (uint8_t*)malloc(sizeof(uint8_t));
+        if (*digits) (*digits)[0] = 0;
+        return;
+    }
+
+    /* Count digits. */
+    size_t count = 0;
+    seq_t t = x;
+    while (t != (seq_t)0) {
+        t = t / (seq_t)10;
+        ++count;
+    }
+
+    *len = count;
+    *digits = (uint8_t*)malloc(count * sizeof(uint8_t));
+    if (*digits == NULL) return;              /* out of memory – caller will handle */
+
+    /* Store digits in reverse order then reverse them into MSB-first order. */
+    t = x;
+    while (t != (seq_t)0) {
+        uint8_t d = (uint8_t)(t % (seq_t)10);
+        (*digits)[--count] = d;
+        t = t / (seq_t)10;
+    }
+}
 
 /* ---------- helpers --------------------------------------------------- */
 

@@ -13,14 +13,34 @@
  *            first entry forced to 0
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 13, u128 n <= 29,
  *            big any n
- * Helpers:   _check_window
+ * Validated: standard, pass, 30 terms through n = 202 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/_check_window.h"
+
+static inline bool _check_window(uint8_t r1, uint8_t r2, uint8_t r3, uint8_t c)
+{
+    bool b[3][3];
+    uint8_t rows[3] = { r1, r2, r3 };
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            b[i][j] = (rows[i] >> (c + j)) & 1U;
+        }
+    }
+
+    int lines = 0;
+    for (int i = 0; i < 3; ++i)
+        if (b[i][0] == b[i][1] && b[i][1] == b[i][2]) ++lines;
+    for (int j = 0; j < 3; ++j)
+        if (b[0][j] == b[1][j] && b[1][j] == b[2][j]) ++lines;
+    if (b[0][0] == b[1][1] && b[1][1] == b[2][2]) ++lines;
+    if (b[0][2] == b[1][1] && b[1][1] == b[2][0]) ++lines;
+    return lines >= 2;
+}
 
 static bool _valid[32][32][32];
 static uint8_t _next_row[32][32][32];

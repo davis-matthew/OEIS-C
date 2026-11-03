@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, look
  * Formula:   not stated
- * Range:     u8 n <= 686, u16 n <= 9738, u32 n <= 9738, u64 n <= 9738,
- *            u128 n <= 9738, big any n
- * Helpers:   mode_of_digits
+ * Range:     u8 n <= 686, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 108 terms through n = 9738 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,39 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mode_of_digits.h"
+#include "../utils/mem.h"
+
+static inline unsigned char mode_of_digits(seq_t x,
+                                          unsigned char *digit_buf,
+                                          size_t *len_out) {
+    size_t len = 0;
+    if (x == (seq_t)0) {
+        digit_buf[len++] = 0;
+    } else {
+        seq_t t = x;
+        while (t > 0) {
+            digit_buf[len++] = (uint8_t)(t % 10);
+            t /= 10;
+        }
+    }
+    *len_out = len;
+
+    /* count digits of x itself */
+    unsigned char cnt[10] = {0};
+    for (size_t i = 0; i < len; ++i)
+        cnt[digit_buf[i]]++;
+
+    /* determine mode (smallest digit on tie) */
+    unsigned char mode_digit = 0;
+    unsigned char mode_freq   = cnt[0];
+    for (int d = 1; d < 10; ++d) {
+        if (cnt[d] > mode_freq) {
+            mode_freq   = cnt[d];
+            mode_digit  = d;
+        }
+    }
+    return mode_digit;
+}
 
 static seq_t *cache = NULL;      /* cached sequence values */
 static size_t cache_cap = 0;     /* capacity of cache array   */
@@ -32,7 +65,7 @@ static inline void init_cache(void) {
     if (cache_len == 0) {
         /* allocate for a(0) */
         cache_cap = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) exit(EXIT_FAILURE);
         cache[0] = (seq_t)0;
         cache_len = 1;
@@ -45,7 +78,7 @@ static inline void grow_cache(size_t needed) {
         /* double capacity for amortised linear growth */
         size_t new_cap = cache_cap ? cache_cap : 1;
         while (new_cap < needed) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         cache_cap = new_cap;

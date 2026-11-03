@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n, d <= sqrt(n)} a(d)^2 (OEIS A348955)
- * Range:     u8 n <= 1439, u16 n <= 8446, u32 n <= 8446, u64 n <= 8446,
- *            u128 n <= 8446, big any n
- * Helpers:   isqrt_idx_t
+ * Range:     u8 n <= 1439, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 106 terms through n = 8446 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 
 #include <stdlib.h>   /* malloc, realloc, free, abort, size_t */
 #include <stdint.h>   /* uint64_t etc. */
-#include "../utils/isqrt_idx_t.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /*--- Cache handling -----------------------------------------------------*/
 static seq_t *cache = NULL;    /* cache[0] unused, cache[1] = 1          */
@@ -31,7 +33,7 @@ static void ensure_cache_up_to(idx_t n)
     if (cache_size <= n) {
         idx_t new_size = n + 1;
         /* realloc returns a void*, cast explicitly for C++ */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp)
             abort();                     /* memory allocation failure */
         /* If the array grew, initialise new entries to 0 */
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         /* Compute a(m) for each new index m. */
         for (idx_t m = max_computed + 1; m <= n; ++m) {
             seq_t sum = 0;
-            idx_t limit = isqrt_idx_t(m);   /* floor(sqrt(m)) */
+            idx_t limit = isqrt(m);   /* floor(sqrt(m)) */
             for (idx_t d = 1; d <= limit; ++d) {
                 if (m % d == 0) {           /* d is a divisor of m */
                     seq_t v = cache[d];

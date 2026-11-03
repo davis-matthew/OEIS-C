@@ -13,7 +13,8 @@
  *            For an index n >= 1 we first determine the row r and col...
  * Range:     u8 n <= 23, u16 n <= 48, u32 n <= 111, u64 n <= 264,
  *            u128 n <= 496, big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 71 terms through n = 475 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 #include <math.h>
 
 /* Include utility for exponentiation */
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 /* Forward declaration for computing T(r,c) */
 static seq_t triangle_T(idx_t row, idx_t col);
@@ -87,7 +88,7 @@ static seq_t triangle_T(idx_t row, idx_t col)
     /* Sum the terms according to the formula. */
     seq_t sum = (seq_t)0;
     for (int i = 1; i <= maxK; ++i) {
-        seq_t term = factorials[i] * pow_seq((seq_t)i, (int)exponent) * prev[i];
+        seq_t term = factorials[i] * ipow_i32((seq_t)i, (int)exponent) * prev[i];
         if (((maxK - i) & 1) == 1) {   /* sign = -1 when (maxK-i) is odd */
             sum -= term;
         } else {

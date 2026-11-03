@@ -8,13 +8,15 @@
  * Formula:   a(n) = T(r,k) where r = floor(sqrt(n)), k = n - r², and T(n,k)
  *            is defined by T(n,k) = C(2n+1,n+1) - C(2n+1, n-k-1) for k ≤ n,
  *            T(n,k) = C(2n+1,n+1) - C(2n+1, k-n-1) for k > n
- * Range:     u8 n <= 15, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
+ * Range:     u8 n <= 25, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Compute floor(sqrt(x)) for 0 ≤ x < 2⁶⁴. */

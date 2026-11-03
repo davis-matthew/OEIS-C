@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 23, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 /* Standard library for memory allocation */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for computed terms */
 static seq_t *A = NULL;          /* a[1..max_n]           */
@@ -35,8 +37,8 @@ static void ensure_cap(idx_t n)
     if ((size_t)n <= cap) return;
     size_t new_cap = (cap == 0 ? 2 : cap * 2);
     while (new_cap < (size_t)n) new_cap <<= 1;     /* grow geometrically */
-    seq_t *newA = (seq_t *)realloc(A, sizeof(seq_t) * (new_cap + 1));
-    seq_t *newB = (seq_t *)realloc(B, sizeof(seq_t) * (new_cap + 1));
+    seq_t *newA = mem_resize(seq_t, A, (new_cap + 1));
+    seq_t *newB = mem_resize(seq_t, B, (new_cap + 1));
     if (!newA || !newB) return;                   /* allocation failure (unlikely) */
     A = newA;
     B = newB;

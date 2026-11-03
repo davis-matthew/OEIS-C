@@ -11,14 +11,16 @@
  *            binomial(n-i, j)
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 26, u64 n <= 51, u128 n <= 100,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 49 terms through n = 482 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The binomial helper is provided by the build system; include its
    header to make the function visible. */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     for (idx_t i = i_min; i <= i_max; ++i) {
         /* binomial(n-i+1, i) – number of ways to place the a's */
-        seq_t binomA = binom(n - i + 1, i);
+        seq_t binomA = binomial(n - i + 1, i);
 
         idx_t m = n - i;                 /* remaining positions */
         idx_t L = (m + 1) / 2;           /* lower bound for j */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 22, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pow10, reverse_decimal
+ * Validated: standard, pass, 59 terms through n = 915 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,19 @@
    For each n it finds the corresponding palindrome s(n) and returns
    (s(n)+1)/10. */
 
-#include "../utils/pow10.h"            /* seq_t pow10(idx_t e); */
-#include "../utils/reverse_decimal.h"  /* seq_t reverse_decimal(seq_t v); */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -72,12 +84,12 @@ seq_t a(idx_t n)
         if (L % 2)                               /* odd */
         {
             seq_t fh_no_last = firstHalf / 10;
-            seq_t rev = reverse_decimal(fh_no_last);
+            seq_t rev = reverse_digits(fh_no_last);
             palindrome = firstHalf * powk + rev;
         }
         else                                     /* even */
         {
-            seq_t rev = reverse_decimal(firstHalf);
+            seq_t rev = reverse_digits(firstHalf);
             palindrome = firstHalf * powk + rev;
         }
 

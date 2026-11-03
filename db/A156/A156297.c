@@ -6,8 +6,9 @@
  * Keywords:  nonn, tabl, easy
  * Formula:   a(n) = 1 if the term n corresponds to a perfect-square row with
  *            column equal to its square root; otherwise 0
- * Range:     u8 n <= 9983, u16 n <= 9983, u32 n <= 9983, u64 n <= 9983,
- *            u128 n <= 9983, big any n
+ * Range:     u8 n <= 97461, u16 n <= 97461, u32 n <= 97461, u64 n <= 97461,
+ *            u128 n <= 97461, big any n
+ * Validated: standard, pass, 121 terms through n = 9983 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

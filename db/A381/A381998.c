@@ -7,12 +7,14 @@
  * Formula:   a(n) = n! * Σ_{k=0..n} (2*k)^(n-k) * Catalan(k)/(n-k)!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *pwr = NULL;           /* (2*k)^(current_n-k)  */
 static size_t pwr_size = 0;
@@ -28,8 +30,7 @@ static void ensure_up_to(idx_t n)
 
         /* allocate or extend power array if needed */
         if (pwr_size <= cur) {
-            seq_t *new_pwr = (seq_t *)realloc(pwr,
-                                 (cur + 1) * sizeof(seq_t));
+            seq_t *new_pwr = mem_resize(seq_t, pwr, (cur + 1));
             for (idx_t i = pwr_size; i < cur + 1; ++i)
                 new_pwr[i] = (seq_t)1;
             pwr = new_pwr;
@@ -38,16 +39,14 @@ static void ensure_up_to(idx_t n)
 
         /* allocate or extend cache array */
         if (cache_size <= cur) {
-            seq_t *new_cache = (seq_t *)realloc(cache,
-                                 (cur + 1) * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, (cur + 1));
             cache = new_cache;
             cache_size = cur + 1;
         }
 
         /* allocate or extend catalan array */
         if (cat_size <= cur) {
-            seq_t *new_cat = (seq_t *)realloc(cat_arr,
-                                 (cur + 1) * sizeof(seq_t));
+            seq_t *new_cat = mem_resize(seq_t, cat_arr, (cur + 1));
             cat_arr = new_cat;
             cat_size = cur + 1;
         }

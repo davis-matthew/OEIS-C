@@ -7,21 +7,23 @@
  * Formula:   a(n) = T(i,j) where i = floor((sqrt(8*n+1)-1)/2), j = n -
  *            i*(i+1)/2 and T(i,j) = Σ_{t=0}^{min(j,i-j)} binomial(2*j-2*t,
  *            j-t) * binomial(2*i-2*j-2*t, i-j-t)
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 49, u64 n <= 49, u128 n <= 49,
+ * Range:     u8 n <= 20, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   _floor_isqrt_u64, binomial
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
+ * Helpers:   binomial, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* row index i from triangular number */
-    idx_t root = _floor_isqrt_u64(n * 8 + 1);
+    idx_t root = isqrt(n * 8 + 1);
     idx_t i    = (root - 1) / 2;
 
     /* column index j */

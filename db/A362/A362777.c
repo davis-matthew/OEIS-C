@@ -10,13 +10,24 @@
  *            (triangular array T(n,k)=n!*k+1 read by rows)
  * Range:     u8 n <= 12, u16 n <= 29, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   factorial
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>                /* for uint64_t */
-#include "../utils/factorial.h"     /* seq_t factorial(idx_t n) */
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* Find the row r such that n lies in that row of the triangular array. */
 static idx_t triangular_row(idx_t n)

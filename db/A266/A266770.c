@@ -9,18 +9,20 @@
  *            Computed by DP over the allowed part sizes: 2,4,6,7,8,10,12
  * Range:     u8 n <= 37, u16 n <= 131, u32 n <= 971, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 973 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate DP array of size n+1 */
     size_t len = (size_t)(n + 1);
-    seq_t *dp = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, len);
     if (!dp) return 0;
     dp[0] = (seq_t)1;
 
@@ -35,6 +37,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

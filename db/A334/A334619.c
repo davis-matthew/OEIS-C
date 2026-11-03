@@ -13,14 +13,17 @@
  *            otherwise it turns right. The returned value is...
  * Range:     u8 n <= 127, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   absl
+ * Validated: standard, pass, 83 terms through n = 9977 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/absl.h"
+
+/* helper: absolute value for int64_t */
+static inline int64_t absl(int64_t v) { return v >= 0 ? v : -v; }
 
 /* spiral number of coordinate (x,y) */
 static inline seq_t spiral_number(int64_t x, int64_t y) {

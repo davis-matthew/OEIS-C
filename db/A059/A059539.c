@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor(n * cbrt(3)) (Beatty sequence for 3^(1/3))
  * Range:     u8 n <= 4, u16 n <= 26, u32 n <= 1288, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 86 terms through n = 1985 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  *            digit 3 in base‑5 of k
  * Range:     u8 none, u16 n <= 17, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   count3_base5
+ * Validated: full, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,18 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/count3_base5.h"
+#include "../utils/mem.h"
+
+/* count how many 3's are in the base‑5 representation of x */
+static inline int count3_base5(uint64_t x)
+{
+    int cnt = 0;
+    while (x) {
+        if ((x % 5U) == 3U) ++cnt;
+        x /= 5U;
+    }
+    return cnt;
+}
 
 /* static cache of found terms */
 static seq_t *matches = (seq_t *)0;   /* array of a(i) values      */
@@ -35,7 +47,7 @@ static void ensure_matches_capacity(size_t n)
     if (n <= matches_cap) return;
     size_t newcap = matches_cap ? (matches_cap << 1) : 16;
     while (newcap < n) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(matches, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, matches, newcap);
     if (!tmp) exit(1);   /* out of memory */
     matches = tmp;
     matches_cap = newcap;

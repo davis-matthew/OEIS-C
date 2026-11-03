@@ -11,12 +11,14 @@
  *            9*(2*n+3)*(n-1)*a(n-4)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 15, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,14 +34,14 @@ seq_t a(idx_t n)
     if (n + 1ULL > cache_size) {
         size_t new_size = n + 1ULL;        /* at least n+1 elements */
         if (new_size < 4) new_size = 4;    /* at least 4 slots for init */
-        seq_t *new_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return (seq_t)0;   /* allocation failure – unlikely */
 
         /* copy existing data */
         for (size_t i = 0; i < cache_size; ++i)
             new_cache[i] = cache[i];
 
-        free(cache);
+        mem_free(cache);
         cache      = new_cache;
         cache_size = new_size;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 5843, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi, hash_phi, is_prime
+ * Validated: standard, pass, 70 terms through n = 9494 (2026-11-03)
+ * Helpers:   is_prime, mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/calc_phi.h"
 #include "../utils/is_prime.h"
-#include "../utils/hash_phi.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
+
+/* Helper: simple hash for seq_t values using the low 64 bits */
+static uint64_t hash_phi(seq_t key) {
+    uint64_t low = (uint64_t)key;
+    return low ^ (low >> 32);
+}
 
 /* Hash table for tracking already seen φ values */
 static size_t table_size   = 0;        /* table capacity (power of two) */
@@ -35,7 +42,7 @@ static void table_resize(size_t new_size) {
     seq_t *old_keys = table_keys;
     bool  *old_flag = table_flag;
 
-    table_keys = (seq_t *)malloc(new_size * sizeof(seq_t));
+    table_keys = mem_new(seq_t, new_size);
     table_flag = (bool *)calloc(new_size, sizeof(bool));
     table_size = new_size;
 
@@ -50,7 +57,7 @@ static void table_resize(size_t new_size) {
         }
     }
 
-    free(old_keys);
+    mem_free(old_keys);
     free(old_flag);
 }
 
@@ -59,7 +66,7 @@ static void table_init(void) {
     if (!table_keys) {
         table_part: /* first power of two >= 128 */
         table_size  = 128;
-        table_keys  = (seq_t *)malloc(table_size * sizeof(seq_t));
+        table_keys  = mem_new(seq_t, table_size);
         table_flag  = (bool *)calloc(table_size, sizeof(bool));
     }
 }
@@ -103,10 +110,10 @@ static idx_t  current_k   = 0;
 /* Grow terms array */
 static void grow_terms(void) {
     size_t new_cap = (terms_cap == 0) ? 16 : terms_cap * 2;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (seq_terms) {
-        memcpy(new_arr, seq_terms, terms_count * sizeof(seq_t));
-        free(seq_terms);
+        mem_copy(new_arr, seq_terms, terms_count * sizeof(seq_t));
+        mem_free(seq_terms);
     }
     seq_terms = new_arr;
     terms_cap = new_cap;
@@ -121,7 +128,7 @@ seq_t a(idx_t n) {
     /* Generate terms until we have at least n */
     while (terms_count < n) {
         ++current_k;
-        seq_t phi_k = calc_phi((seq_t)current_k);
+        seq_t phi_k = totient_seq((seq_t)current_k);
 
         bool first = !table_contains(phi_k);
         table_insert(phi_k);

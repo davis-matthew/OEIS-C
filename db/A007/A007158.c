@@ -8,13 +8,15 @@
  *            where A007155(i) = 2^(2^i) * 3^(3^i - 2^i)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 6 terms through n = 5 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 static seq_t pw_seq(seq_t b, uint64_t e)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     seq_t pos = 0, neg = 0;
     idx_t i;
     for (i = 0; i <= n; i++) {
-        seq_t t = binom(n, i) * a7155(i);
+        seq_t t = binomial(n, i) * a7155(i);
         if (((n - i) & 1) == 0) pos += t;
         else neg += t;
     }

@@ -7,12 +7,14 @@
  * Formula:   a(n) = n-th divisor of 2^48 - 1, in ascending order
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 147, u64 n <= 768, u128 n <= 768,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 768 terms through n = 768 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t divisors_list[2000];
 static int div_count = -1;
@@ -38,7 +40,7 @@ static void compute_divisors(void) {
         }
     }
     
-    qsort(divisors_list, (size_t)div_count, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(divisors_list, (size_t)div_count, sizeof(seq_t), cmp_seq_t);
 }
 
 seq_t a(idx_t n) {

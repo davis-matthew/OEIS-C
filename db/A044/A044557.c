@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   contains53
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,25 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/contains53.h"
+#include "../utils/mem.h"
+
+/* Return true if x's base‑7 representation contains the substring "53".  */
+static bool contains53(seq_t x)
+{
+    if (x == 0) return false;
+
+    uint8_t prev = 0xFF;   /* sentinel for the digit that follows in base‑7  */
+    while (x != 0) {
+        uint8_t digit = (uint8_t)(x % 7);
+        /* In base‑7 we walk from least significant to most significant:
+         * a "53" appears when we meet a '3' digit and the next (more
+         * significant) digit is '5'.  Hence we look for prev==3 && digit==5. */
+        if (prev == 3 && digit == 5) return true;
+        prev = digit;
+        x /= 7;
+    }
+    return false;
+}
 
 /* True if x contains "53" but x+1 does not. */
 static bool good_candidate(seq_t x)
@@ -48,12 +67,12 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap) {
                 /* Grow the cache.  */
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *new_buf = (seq_t *)malloc(new_cap * sizeof(seq_t));
+                seq_t *new_buf = mem_new(seq_t, new_cap);
                 if (!new_buf) return 0;           /* allocation failure  */
                 if (cache) {
                     for (idx_t i = 0; i < cache_len; ++i)
                         new_buf[i] = cache[i];
-                    free(cache);
+                    mem_free(cache);
                 }
                 cache = new_buf;
                 cache_cap = new_cap;

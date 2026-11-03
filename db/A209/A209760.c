@@ -11,7 +11,8 @@
  *            row‑wise
  * Range:     u8 n <= 26, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* Implements the above recurrence with memoised rows of v(x). */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t **u_rows = NULL;   /* u_row[k] – array of coefficients of u(k,x) */
 static seq_t **v_rows = NULL;   /* v_row[k] – array of coefficients of v(k,x) */
@@ -45,8 +47,8 @@ seq_t a(idx_t n) {
         v_rows = (seq_t**)realloc(v_rows, (row + 1) * sizeof(seq_t*));
 
         for (size_t k = max_row + 1; k <= row; ++k) {
-            seq_t *u_cur = (seq_t*)malloc(k * sizeof(seq_t));
-            seq_t *v_cur = (seq_t*)malloc(k * sizeof(seq_t));
+            seq_t *u_cur = mem_new(seq_t, k);
+            seq_t *v_cur = mem_new(seq_t, k);
 
             if (k == 1) {                     /* base case */
                 u_cur[0] = 1;

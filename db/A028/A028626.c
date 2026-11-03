@@ -9,13 +9,15 @@
  *            theta_2(z)*theta_2(15z))^2
  * Range:     u8 n <= 39, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 897 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static cache for the intermediate coefficient array A */
 static seq_t *A_cache = NULL;      /* array of coefficients A[n] */
@@ -27,9 +29,9 @@ static void compute_A(idx_t N)
     if (N < A_max) return;          /* already computed up to a larger N */
 
     /* Allocate new array of size N+1 and zero it */
-    seq_t *newA = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *newA = mem_new(seq_t, (N + 1));
     if (!newA) return;              /* allocation failed: silently return */
-    memset(newA, 0, (N + 1) * sizeof(seq_t));
+    mem_set(newA, 0, (N + 1) * sizeof(seq_t));
 
     /* θ3(z)*θ3(15z) part : indices i,j >= 0 with i^2 + 15 j^2 = n */
     for (idx_t i = 0; ; ++i) {
@@ -56,7 +58,7 @@ static void compute_A(idx_t N)
     }
 
     /* Replace old array */
-    free(A_cache);
+    mem_free(A_cache);
     A_cache = newA;
     A_max   = N;
 }

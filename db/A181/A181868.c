@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   pow10
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,18 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -40,7 +52,7 @@ seq_t a(idx_t n)
     if ((size_t)needed > cap) {
         size_t newcap = cap ? cap * 2 : 16;
         if (newcap < (size_t)needed) newcap = (size_t)needed;
-        seq_t *tmp = (seq_t *)realloc(values, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, values, newcap);
         if (!tmp) abort();        /* allocation failed */
         values = tmp;
         idx_t *tmp2 = (idx_t *)realloc(sumLen, newcap * sizeof(idx_t));

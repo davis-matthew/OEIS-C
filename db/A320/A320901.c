@@ -7,14 +7,23 @@
  * Formula:   a(n) = Σ_{d|n} (-1)^(d+1) * d*(d+1)*(d+2) / 6
  * Range:     i8 n <= 7, i16 n <= 55, i32 n <= 1810, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   term_div
+ * Validated: standard, pass, 60 terms through n = 8567 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/term_div.h"
+
+static inline seq_t term_div(idx_t d)
+{
+    seq_t dd = (seq_t)d;                  /* promote divisor */
+    seq_t t  = dd * (dd + 1) * (dd + 2) / 6; /* product of three consecutive integers */
+    if ((d & 1) == 0)                     /* even d → negative sign */
+        t = -t;
+    return t;
+}
 
 seq_t a(idx_t n)
 {

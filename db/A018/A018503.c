@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Sequence: Divisors of 530 in ascending order (OEIS A018503) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recursive generation of all divisors. */
 static void
@@ -88,7 +90,7 @@ init_divisors(void)
     size_t total = 1;
     for (size_t i = 0; i < pcnt; ++i) total *= (exps[i] + 1);
 
-    divisors = (seq_t *)malloc(total * sizeof(seq_t));
+    divisors = mem_new(seq_t, total);
     if (!divisors) return;          /* allocation failed – return zero later */
 
     size_t idx = 0;

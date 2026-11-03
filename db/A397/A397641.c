@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 28, u64 n <= 34, u128 n <= 34,
+ * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 29, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   binomial, seq_mul
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,15 @@
 */
 
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/seq_mul.h"     /* seq_t seq_mul(seq_t a, seq_t b); */
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/binomial.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Computes the n-th term of OEIS sequence A397641. */
 seq_t a(idx_t n)

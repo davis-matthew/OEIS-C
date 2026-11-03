@@ -9,9 +9,10 @@
  *            {1≤t≤x : gcd(m,t)=1} and φ(k) is Euler's totient function. The
  *            sequence is read by rows: a(n)=T(r,c) where r is the unique
  *            integer with r(r+1)/2 ≥ n and c = n - (r-1)*r/2
- * Range:     u8 n <= 9638, u16 n <= 9638, u32 n <= 9638, u64 n <= 9638,
- *            u128 n <= 9638, big any n
- * Helpers:   count_coprime, gcd_uint64, merge_primes
+ * Range:     u8 n <= 10011, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 107 terms through n = 9638 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,47 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/count_coprime.h"
-#include "../utils/gcd_uint64.h"
-#include "../utils/merge_primes.h"
+#include "../utils/gcd_u64.h"
+
+/* Count numbers up to k coprime to a given set of primes.
+   primes[] contains distinct primes; pcnt=number of primes.  */
+static inline uint64_t count_coprime(uint64_t k, const uint16_t *pr, uint8_t pcnt) {
+    uint64_t ans = 0;
+    uint32_t total = 1u << pcnt;          /* pcnt ≤ 5, 2^5 = 32 */
+    for (uint32_t mask = 0; mask < total; ++mask) {
+        uint64_t prod = 1;
+        uint8_t bits = 0;
+        for (uint8_t i = 0; i < pcnt; ++i) {
+            if (mask & (1u << i)) {
+                prod *= pr[i];
+                ++bits;
+                if (prod > k) break;
+            }
+        }
+        if (prod > k) continue;
+        int8_t mu = (bits & 1) ? -1 : 1;   /* μ(d) = (-1)^{bits} for square‑free d */
+        ans += mu * (k / prod);
+    }
+    return ans;
+}
+
+/* Merge prime factor lists of two numbers into primes_uni[10] (max 10 distinct primes) */
+static inline uint8_t merge_primes(const uint16_t *pa, uint8_t a, const uint16_t *pb, uint8_t b, uint16_t *uni) {
+    uint8_t i = 0, j = 0, k = 0;
+    while (i < a && j < b) {
+        if (pa[i] < pb[j]) {
+            uni[k++] = pa[i++];
+        } else if (pa[i] > pb[j]) {
+            uni[k++] = pb[j++];
+        } else {
+            uni[k++] = pa[i];
+            ++i; ++j;
+        }
+    }
+    while (i < a) uni[k++] = pa[i++];
+    while (j < b) uni[k++] = pb[j++];
+    return k;               /* number of distinct primes in union */
+}
 
 /* Pre‑computation parameters */
 #define MAX_PRE 20000          /* maximum n (row) expected */
@@ -101,7 +140,7 @@ seq_t a(idx_t n) {
                                    pcnt[(uint32_t)r]);
 
     /* lcm(r,c) and its distinct prime set = union of primes of r and c */
-    uint64_t g = gcd_uint64((uint64_t)r, c);
+    uint64_t g = gcd_u64((uint64_t)r, c);
     uint64_t lcm = (r / g) * c;   /* lcm fits in 64‑bit for given limits */
 
     /* Prepare union of prime sets */

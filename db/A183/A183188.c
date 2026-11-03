@@ -7,7 +7,8 @@
  * Formula:   a(n) = 3*a(n-1) + a(n-3), a(0)=1, a(1)=2, a(2)=6
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static memoisation cache */
 static seq_t *cache   = NULL;   /* buffer holding pre‑computed terms */
@@ -25,7 +27,7 @@ static size_t  length = 0;      /* number of terms actually computed */
 static void init_cache(void)
 {
     size_t init_cap = 4;                     /* start with a small buffer */
-    cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, init_cap);
     if (!cache) exit(EXIT_FAILURE);
     cache[0] = (seq_t)1;
     cache[1] = (seq_t)2;
@@ -40,7 +42,7 @@ static void ensure_capacity(size_t needed)
     if (cap >= needed) return;
     size_t new_cap = cap ? cap * 2 : 4;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     cache = tmp;
     cap   = new_cap;

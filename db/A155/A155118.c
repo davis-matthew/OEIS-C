@@ -12,12 +12,14 @@
  *            and position r along the diagonal, and T(d-r,r) is returned
  * Range:     u8 n <= 32, u16 n <= 87, u32 n <= 272, u64 n <= 943,
  *            u128 n <= 3484, big any n
+ * Validated: standard, pass, 82 terms through n = 9953 (2026-11-01)
  * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
 

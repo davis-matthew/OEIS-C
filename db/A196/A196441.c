@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 59, u16 n <= 839, u32 n <= 9765, u64 n <= 9765,
- *            u128 n <= 9765, big any n
+ * Range:     u8 n <= 59, u16 n <= 839, u32 n <= 27719, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9765 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,6 +24,8 @@
    larger k can be divisible by such an L. */
 
 /* To use the gcd function provided by the utils library. */
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
 #include <stdbool.h>
 

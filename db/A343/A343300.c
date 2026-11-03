@@ -10,14 +10,16 @@
  *            factors of n in ascending order. a(1) = 0
  * Range:     u8 n <= 33, u16 n <= 245, u32 n <= 7709, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 89 terms through n = 7353 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static uint64_t spf_uint64(uint64_t n) {
     if (n <= 1) return n;
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
 
     seq_t sum = 0;
     for (size_t i = 0; i < count; ++i) {
-        sum += big_pow((seq_t)primes[i], (seq_t)(i + 1));
+        sum += ipow((seq_t)primes[i], (seq_t)(i + 1));
     }
     return sum;
 }

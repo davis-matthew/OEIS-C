@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 17, u64 n <= 31, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return true iff column `cur` satisfies the rule when it has
    neighbouring columns `left` (exists if left_exists==true)
@@ -91,10 +93,10 @@ seq_t a(idx_t n)
     }
 
     const size_t STATES = 32u * 32u;
-    seq_t *dp = (seq_t *)calloc(STATES, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(STATES, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, STATES);
+    seq_t *dp_next = mem_new(seq_t, STATES);
     if (!dp || !dp_next) {
-        free(dp); free(dp_next);
+        mem_free(dp); mem_free(dp_next);
         return (seq_t)0;
     }
 
@@ -141,7 +143,7 @@ seq_t a(idx_t n)
         if (last_ok[left][cur]) ans += val;
     }
 
-    free(dp);
-    free(dp_next);
+    mem_free(dp);
+    mem_free(dp_next);
     return ans;
 }

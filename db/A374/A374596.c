@@ -12,15 +12,36 @@
  *            shorter leg, * then longer leg
  * Range:     u8 n <= 21, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   compute_value, gcd64
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/compute_value.h"
-#include "../utils/gcd64.h"
+#include <stdbool.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
+
+/* Compute floor((x*y/(x+y))^2) using either 128‑bit intermediate (when
+ * seq_t is a small unsigned type) or directly with seq_t for big
+ * integer types. */
+static seq_t compute_value(uint64_t x, uint64_t y)
+{
+    /* Branch on sizeof(seq_t) to avoid casting errors with big types. */
+    if (sizeof(seq_t) <= 8) {          /* unsigned 8/16/32/64 bit */
+        unsigned __int128 num = (unsigned __int128)x * x * y * y;
+        unsigned __int128 den = (unsigned __int128)(x + y) * (x + y);
+        return (seq_t)(num / den);
+    } else {                           /* arbitrary-precision type */
+        seq_t X = (seq_t)x;
+        seq_t Y = (seq_t)y;
+        seq_t num = X * X * Y * Y;
+        seq_t den = (X + Y) * (X + Y);
+        return num / den;
+    }
+}
 
 /* Helper: Euclidean gcd for uint64_t (no external dependency). */
 
@@ -58,7 +79,7 @@ static void generate_triples(uint64_t limit, Triple **out, size_t *cnt)
 
         for (uint64_t n = 1; n < m; n++) {
             if (((m - n) & 1ULL) == 0) continue;          /* same parity */
-            if (gcd64(m, n) != 1) continue;               /* not coprime */
+            if (gcd_u64(m, n) != 1) continue;               /* not coprime */
 
             uint64_t a0 = m * m - n * n;
             uint64_t b0 = 2ULL * m * n;
@@ -105,7 +126,7 @@ static void build_cache(size_t need, seq_t **cache_ptr, size_t *len_ptr)
     }
 
     /* Allocate cache for all generated triples (safe even if > need). */
-    seq_t *new_cache = (seq_t *)malloc(total * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, total);
     /* Sort triples to enforce OEIS ordering. */
     qsort(vec, total, sizeof(Triple), cmp_triple);
     for (size_t i = 0; i < total; i++) {
@@ -113,7 +134,7 @@ static void build_cache(size_t need, seq_t **cache_ptr, size_t *len_ptr)
     }
 
     free(vec);
-    free(*cache_ptr);
+    mem_free(*cache_ptr);
     *cache_ptr = new_cache;
     *len_ptr = total;
 }

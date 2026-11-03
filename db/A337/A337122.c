@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 6170, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_next
+ * Validated: standard, pass, 76 terms through n = 9982 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_next.h"
+
+/* next value in the mod‑k Collatz sequence */
+static inline seq_t mod_next(seq_t x, seq_t k)
+{
+    if (x & 1) {
+        /* 3x+1 is always even when x is odd, so the result is < 2k, then %k */
+        return (x * 3 + 1) % k;
+    } else {
+        return (x / 2) % k;
+    }
+}
 
 /* next value in the ordinary Collatz sequence */
 static inline seq_t collatz_next(seq_t v)

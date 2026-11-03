@@ -10,15 +10,17 @@
  *            binomial(k,2*i) * (2i-1)!! * n^(k-2*i)
  * Range:     u8 n <= 18, u16 n <= 33, u32 n <= 64, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n) {
     /* Find row r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2 */
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
     seq_t oddfact = 1;          /* (2i-1)!! */
     for (idx_t i = 0; i <= halfk; ++i) {
         seq_t choose = binomial(k, 2 * i);
-        seq_t pow_n  = pow_seq((seq_t)r, k - 2 * i);
+        seq_t pow_n  = ipow_i32((seq_t)r, k - 2 * i);
         seq_t term   = choose;
         term = term * oddfact;
         term = term * pow_n;

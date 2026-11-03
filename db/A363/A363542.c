@@ -10,7 +10,8 @@
  *            sum_{k=1..n} k*L_k*a(n-k) with L_k defined above)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache   = NULL;   /* a values */
 static seq_t *val_pos   = NULL;   /* positive part of k*L_k */
@@ -33,13 +35,13 @@ static void ensure_cache(idx_t n)
     size_t new_cap = (cache_size == 0) ? 1 : cache_size;
     while (new_cap <= (size_t)n) new_cap <<= 1;
     if (cache_size == 0) {
-        a_cache   = (seq_t*)malloc(new_cap * sizeof(seq_t));
-        val_pos   = (seq_t*)malloc(new_cap * sizeof(seq_t));
-        val_neg   = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        a_cache   = mem_new(seq_t, new_cap);
+        val_pos   = mem_new(seq_t, new_cap);
+        val_neg   = mem_new(seq_t, new_cap);
     } else {
-        a_cache   = (seq_t*)realloc(a_cache   , new_cap * sizeof(seq_t));
-        val_pos   = (seq_t*)realloc(val_pos   , new_cap * sizeof(seq_t));
-        val_neg   = (seq_t*)realloc(val_neg   , new_cap * sizeof(seq_t));
+        a_cache   = mem_resize(seq_t, a_cache, new_cap);
+        val_pos   = mem_resize(seq_t, val_pos, new_cap);
+        val_neg   = mem_resize(seq_t, val_neg, new_cap);
     }
 
     /* initialize for the new region */

@@ -9,13 +9,15 @@
  *            0)
  * Range:     u8 n <= 39, u16 n <= 169, u32 n <= 1181, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9058 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Return the number of paths from 2 to n.
  * For n < 2 the function returns 0 (undefined by OEIS). */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Allocate DP array: dp[y] holds number of ways to reach y.  */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp)
         return 0;                   /* allocation failure – not expected */
 
@@ -60,6 +62,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

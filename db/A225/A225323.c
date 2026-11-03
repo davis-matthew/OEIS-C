@@ -8,7 +8,8 @@
  *            divisible by 11
  * Range:     u8 n <= 5, u16 n <= 21, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,31 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* helper to grow a dynamically allocated array */
+#ifdef __cplusplus
+template <class T>
+static T *grow_array(T *arr, size_t *cap, size_t need, size_t elem_size)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap > 0) ? (*cap << 1) : 16;
+        while (new_cap < need) new_cap <<= 1;
+        T *tmp = mem_resize(T, arr, (new_cap * elem_size) / sizeof(T));
+        arr = tmp;
+        *cap = new_cap;
+    }
+    return arr;
+}
+#else
 static void *grow_array(void *arr, size_t *cap, size_t need, size_t elem_size)
 {
     if (*cap < need) {
@@ -30,6 +54,7 @@ static void *grow_array(void *arr, size_t *cap, size_t need, size_t elem_size)
     }
     return arr;
 }
+#endif
 
 /* global state for partitions and sequence values */
 static seq_t *partitions = NULL;   /* partition numbers p[0], p[1], … */

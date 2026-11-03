@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 347, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   digit_len, pow10, seq_pow
+ * Validated: standard, pass, 70 terms through n = 1846 (2026-11-03)
+ * Helpers:   ipow_idx, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,19 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../utils/seq_pow.h"      /* seq_pow(base, exp) */
-#include "../utils/pow10.h"        /* pow10(exp) */
-#include "../utils/digit_len.h"    /* digit_len(x) */
+#include "../utils/ipow_idx.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* ------------------------------------------------------------ */
 /* Helper: test whether a last digit satisfies d³ ≡ d (mod 10). */
@@ -57,7 +68,7 @@ static void ensure_cache_cap(size_t need)
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     if (new_cap < need)
         new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) /* malloc failure – abort */
         abort();
     seq_cache = tmp;
@@ -71,7 +82,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (!seq_cache) {
         seq_cap   = 16;
-        seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
         if (!seq_cache)
             abort();
         seq_cache[0] = (seq_t)0; /* a(0) = 0 */
@@ -94,15 +105,15 @@ seq_t a(idx_t n)
         }
 
         /* Compute cube of the candidate. */
-        seq_t cube = seq_pow(cand, 3);
+        seq_t cube = ipow_idx(cand, 3);
 
         /* First digit of candidate. */
-        int dlen_cand = digit_len(cand);
+        int dlen_cand = num_digits(cand);
         seq_t pow10_cand = pow10((idx_t)(dlen_cand - 1));
         seq_t first_cand = cand / pow10_cand;
 
         /* First digit of cube. */
-        int dlen_cube = digit_len(cube);
+        int dlen_cube = num_digits(cube);
         seq_t pow10_cube = pow10((idx_t)(dlen_cube - 1));
         seq_t first_cube = cube / pow10_cube;
 

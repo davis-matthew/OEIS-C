@@ -9,13 +9,15 @@
  *            (1/∏(1‑xᵏ))·(x/(1‑x))·∑ₖ₌₁^∞(-1)^(k‑1)·x^(3k(k‑1)/2)·(1‑x^(2k))
  * Range:     u8 n <= 18, u16 n <= 46, u32 n <= 134, u64 n <= 427,
  *            u128 n <= 1479, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 8874 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,9 +25,9 @@ seq_t a(idx_t n)
     size_t N = (size_t)n + 1;
 
     /* compute partition numbers p[0..n] by the standard coin‑change DP */
-    seq_t *p = (seq_t*)malloc(N * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, N);
     if (!p) return 0;              /* in case of allocation failure */
-    memset(p, 0, N * sizeof(seq_t));
+    mem_set(p, 0, N * sizeof(seq_t));
     p[0] = 1;
     for (size_t part = 1; part <= n; ++part) {
         for (size_t sum = part; sum <= n; ++sum) {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
 
     /* compute coefficients s[0..n] of the factor (x/(1‑x))*∑(-1)^(k‑1)(x^(3k(k‑1)/2)-x^(3k(k‑1)/2+2k)) */
     int *s = (int*)calloc(N, sizeof(int));
-    if (!s) { free(p); return 0; }
+    if (!s) { mem_free(p); return 0; }
 
     for (size_t k = 1; ; ++k) {
         size_t gk = 3 * k * (k - 1) / 2;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     }
     seq_t result = posSum - negSum;
 
-    free(p);
+    mem_free(p);
     free(s);
     return result;
 }

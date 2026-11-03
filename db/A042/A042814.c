@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 19, u64 n <= 39, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    so that any subsequent call is O(1) for indices that have been seen. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----------  dynamic array helpers  ---------- */
 static seq_t *p_arr = NULL;   /* cached numerators */
@@ -35,7 +37,7 @@ static void ensure_capacity(size_t need)
     size_t new_cap = p_cap ? p_cap * 2 : 4;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(p_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, p_arr, new_cap);
     if (!tmp)
         abort();           /* allocation failure */
     p_arr = tmp;

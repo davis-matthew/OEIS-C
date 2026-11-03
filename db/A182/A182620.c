@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 118, u32 n <= 7069, u64 n <= 7069,
  *            u128 n <= 7069, big any n
- * Helpers:   bin_to_dec, divisor_count_u64
+ * Validated: standard, pass, 71 terms through n = 6567 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,22 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/bin_to_dec.h"
+#include "../utils/num_divisors.h"
+
+static seq_t bin_to_dec(uint64_t v)
+{
+    seq_t val = 0;
+    int started = 0;
+    /* iterate from most significant bit to least */
+    for (int i = 63; i >= 0; --i) {
+        int bit = (v >> i) & 1;
+        if (bit || started) {
+            val = val * (seq_t)10 + (seq_t)bit;
+            started = 1;
+        }
+    }
+    return val;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +48,7 @@ seq_t a(idx_t n)
 
     /* find the row containing the nth term */
     while (1) {
-        uint64_t dcnt = divisor_count_u64((uint64_t)r);
+        uint64_t dcnt = num_divisors((uint64_t)r);
         if (cumulative + dcnt >= n) break;
         cumulative += dcnt;
         ++r;

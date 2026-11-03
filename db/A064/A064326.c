@@ -11,6 +11,7 @@
  *            (e.g. arbitrary‑precision) it uses seq_t directly
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 10, i64 n <= 18, i128 n <= 33,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 770 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

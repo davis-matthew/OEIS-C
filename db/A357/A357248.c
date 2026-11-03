@@ -9,6 +9,7 @@
  *            (1/18)*(n-7)*(n-8)*(n-9)[n>6] + (1/1944)*(n-8)!/(n-12)! [n>11]
  * Range:     u8 none, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 22,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 22 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

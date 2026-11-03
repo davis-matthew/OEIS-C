@@ -12,7 +12,8 @@
  *            (nonsense values), and stores the differences bet...
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Compile‑time constants ---------------------------------------------------- */
 #define LIMIT       2000000      /* largest k for which σ(k) is computed   */
@@ -83,7 +85,7 @@ static void init(void)
         if (!reachable[v]) ++nonsense_cnt;
 
     diff_len = (nonsense_cnt > 0) ? nonsense_cnt - 1 : 0;
-    diffs    = (seq_t *)malloc(diff_len * sizeof(seq_t));
+    diffs    = mem_new(seq_t, diff_len);
 
     /* 5. Store differences between successive nonsense values ----------------------- */
     if (diff_len > 0) {

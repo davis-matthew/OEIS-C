@@ -11,7 +11,8 @@
  *            m‑th composite number
  * Range:     u8 n <= 1035, u16 n <= 1035, u32 n <= 1035, u64 n <= 1035,
  *            u128 n <= 1035, big any n
- * Helpers:   isPrimeTrial, mod_pow, triangular
+ * Validated: standard, pass, 121 terms through n = 1030 (2026-11-01)
+ * Helpers:   is_prime_seq, powmod, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrimeTrial.h"   /* bool isPrimeTrial(seq_t);*/
-#include "../utils/mod_pow.h"        /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod);*/
-#include "../utils/triangular.h"    /* seq_t triangular(idx_t r)*/
+#include <string.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/powmod.h"
+#include "../utils/triangular.h"
 
 static idx_t *composite_nums = NULL;   /* 1‑based: composite_nums[i-1] = composite(i) */
 static idx_t composite_len   = 0;      /* number of stored composites */
@@ -44,7 +46,7 @@ static void ensure_composites(idx_t need)
     while (composite_len < need) {
         idx_t n = next_candidate++;
         /* n >= 4 here */
-        if (!isPrimeTrial((seq_t)n)) {
+        if (!is_prime_seq((seq_t)n)) {
             composite_nums[composite_len++] = n;
         }
     }
@@ -88,5 +90,5 @@ seq_t a(idx_t n)
     idx_t comp_k = composite_nums[k - 1];
     idx_t exp    = comp_r - comp_k;   /* exponent is a non‑negative integer */
 
-    return mod_pow((seq_t)2, (uint64_t)exp, (seq_t)comp_r);
+    return powmod((seq_t)2, (uint64_t)exp, (seq_t)comp_r);
 }

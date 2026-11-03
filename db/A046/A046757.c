@@ -9,7 +9,8 @@
  *            * n^(n-m-2) for n>m>=0, a(n,n)=1
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 /* Include necessary utilities */
 #include <stdbool.h>
 #include <math.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 /* Computes the OEIS sequence A046757 value for a given index n. */
 seq_t a(idx_t n)
@@ -43,11 +46,11 @@ seq_t a(idx_t n)
     seq_t result;
     if (diff >= 0) {
         /* Positive exponent: multiply by n^diff. */
-        seq_t pow = pow_seq(r_seq, diff);
+        seq_t pow = ipow_i32(r_seq, diff);
         result = coeff * bin * pow;
     } else {
         /* Negative exponent: divide by n^(-diff).  The division is exact. */
-        seq_t denom    = pow_seq(r_seq, -diff);
+        seq_t denom    = ipow_i32(r_seq, -diff);
         seq_t numerator = coeff * bin;
         result = numerator / denom;
     }

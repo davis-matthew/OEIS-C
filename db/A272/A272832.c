@@ -9,14 +9,28 @@
  * Formula:   a(n) = 2*4^n - 16*3^(n-2) + 2^(n-1) + 1 (for n > 2)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   pow2, pow3, pow4
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
-#include "../utils/pow4.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

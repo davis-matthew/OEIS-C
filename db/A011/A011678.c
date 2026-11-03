@@ -9,12 +9,14 @@
  *            is 127‑periodic
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 118 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* first call: initialise 0..6 */
     if (cache == NULL) {
         cache_size = 8;                            /* 0..7 at least */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) { exit(1); }
 
         /* explicit initial values */
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         while ((size_t)n + 1 > new_size)
             new_size *= 2;
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) { exit(1); }
         cache = tmp;
         cache_size = new_size;

@@ -7,19 +7,21 @@
  * Formula:   G.f. 1/Product_{k>=1} (1-x^prime(k)) computed via partition DP
  * Range:     u8 n <= 38, u16 n <= 107, u32 n <= 353, u64 n <= 1327,
  *            u128 n <= 5442, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9931 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
     
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) return 0;
     
     for (idx_t i = 0; i <= n; i++) {
@@ -48,6 +50,6 @@ seq_t a(idx_t n) {
     }
     
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

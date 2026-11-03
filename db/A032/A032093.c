@@ -7,14 +7,16 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = (1/2)*(binomial(n-1, n-7) - binomial(floor((n-1)/2),
  *            floor((n-7)/2)))
- * Range:     u8 n <= 10, u16 n <= 17, u32 n <= 39, u64 n <= 39, u128 n <= 39,
+ * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 32 terms through n = 39 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -23,12 +25,12 @@ seq_t a(idx_t n)
     }
 
     /* binomial(n-1, n-7) == binomial(n-1, 6) */
-    seq_t first  = binom(n - 1, (idx_t)6);
+    seq_t first  = binomial(n - 1, (idx_t)6);
 
     /* binomial(floor((n-1)/2), floor((n-7)/2)) */
     idx_t half_n_minus_1 = (n - 1) / 2;
     idx_t half_n_minus_7 = (n - 7) / 2;
-    seq_t second = binom(half_n_minus_1, half_n_minus_7);
+    seq_t second = binomial(half_n_minus_1, half_n_minus_7);
 
     seq_t diff = first - second;
     return diff / 2;

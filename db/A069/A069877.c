@@ -8,15 +8,19 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 58, u32 n <= 498, u64 n <= 8898,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 87 terms through n = 9250 (2026-11-02)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* a(n) = smallest positive integer whose multiset of prime exponents is exactly the set
  * of non‑zero decimal digits of n.  For example, a(231) = 2³·3²·5¹ = 360.  a(0) = 1. */
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static const uint64_t first_primes[20] = {
     2ULL, 3ULL, 5ULL, 7ULL, 11ULL,
@@ -59,7 +63,7 @@ seq_t a(idx_t n)
     seq_t result = (seq_t)1;
     for (size_t i = 0; i < ecnt; ++i) {
         seq_t p = (seq_t)first_primes[i];
-        seq_t pw = big_pow(p, (seq_t)exps[i]);
+        seq_t pw = ipow(p, (seq_t)exps[i]);
         result *= pw;
     }
     return result;

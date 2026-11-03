@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 23, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   bigomega
+ * Validated: standard, pass, 68 terms through n = 914 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/bigomega.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,8 +51,7 @@ seq_t a(idx_t n)
                 /* Ensure enough space in the cache */
                 if (clen == ccap) {
                     size_t new_cap = ccap ? ccap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(cache,
-                                                  new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     cache = tmp;
                     ccap   = new_cap;
                 }

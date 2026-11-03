@@ -7,8 +7,9 @@
  * Formula:   a(n) = 1 if the denominator of the Bernoulli number B_n is 6,
  *            otherwise 0. Equivalent condition: n is even and for every prime
  *            p ≥ 5, (p-1) does not divide n
- * Range:     u8 n <= 9779, u16 n <= 9779, u32 n <= 9779, u64 n <= 9779,
- *            u128 n <= 9779, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 141 terms through n = 9779 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

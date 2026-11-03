@@ -8,13 +8,16 @@
  * Formula:   a(n) = 256*C(n) - 256*C(n+1) + 96*C(n+2) - 16*C(n+3) + C(n+4)
  *            where C(k) = A000108(k) = Catalan number. The sequence satisfies
  *            a(n) = (n+5)\u00D7a(n+1) = 2(2n−1)a(n) with a(0)=126
- * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 13, u64 n <= 29, u128 n <= 29,
+ * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 16, u64 n <= 29, u128 n <= 29,
  *            big any n
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
 
 seq_t a(idx_t n)

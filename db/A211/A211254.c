@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 12, u32 n <= 28, u64 n <= 60, u128 n <= 124,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    + 36*a(n-11) + 20*a(n-12) - 8*a(n-13),  n ≥ 14,
    with a(1)=64, a(2)=130, … ,a(13)=120752. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Initial values a(1) .. a(13); a(0) is unused. */
 static const seq_t init_vals[14] = {0U,
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first 13 terms if not already done. */
     if (cache == NULL) {
         cached = 13;
-        cache = (seq_t *)malloc((cached + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cached + 1));
         if (cache == NULL) abort();
         for (idx_t i = 1; i <= cached; ++i)
             cache[i] = init_vals[i];
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if (n <= cached) return cache[n];
 
     /* Grow cache to include term n, computing new terms with the recurrence. */
-    seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
     if (tmp == NULL) abort();
     cache = tmp;
 

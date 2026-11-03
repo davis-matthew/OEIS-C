@@ -10,7 +10,8 @@
  *            interval (a 0-length composition earns the value 0)
  * Range:     u8 n <= 13, u16 n <= 31, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   is_gapless_interval
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,41 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_gapless_interval.h"
+
+/* Test whether the composition produced by k in standard order is a
+   gapless interval (consecutive increasing parts). */
+static inline bool is_gapless_interval(idx_t k)
+{
+    if (k == 0) return true;          /* empty composition */
+
+    /* positions of 1 bits, counting from 1, plus the leading 0 */
+    int pos[70];
+    int posCnt = 1;                    /* pos[0] = 0 already */
+    pos[0] = 0;
+
+    for (int i = 1; (k >> (i - 1)) != 0; ++i) {
+        if (k & (1ULL << (i - 1))) {
+            pos[posCnt++] = i;
+        }
+    }
+
+    int L = posCnt - 1;                /* number of composition parts */
+    if (L == 0) return true;
+
+    int diff[70];
+    for (int i = 1; i < posCnt; ++i) {
+        diff[i - 1] = pos[i] - pos[i - 1];
+    }
+
+    /* reverse order of differences and check for consecutive 1 increments */
+    int prev = diff[L - 1];
+    for (int t = L - 2; t >= 0; --t) {
+        int cur = diff[t];
+        if (cur != prev + 1) return false;
+        prev = cur;
+    }
+    return true;
+}
 
 /* Return the n-th element of A356956 (offset 1, a(1)=0).  Uses a
    simple incremental cache so that calls in arbitrary order are fast. */

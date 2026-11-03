@@ -12,6 +12,7 @@
  *            uses simple arithmetic. It works for any seq_t,...
  * Range:     i8 n <= 10, i16 n <= 22, i32 n <= 57, i64 n <= 158,
  *            i128 n <= 417, big any n
+ * Validated: standard, pass, 61 terms through n = 5145 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,8 +7,9 @@
  * Keywords:  base, sign
  * Formula:   a(n) = (sum of decimal digits of all distinct prime factors of
  *            n) - (decimal digits of n)
- * Range:     i8 n <= 9436, i16 n <= 9436, i32 n <= 9436, i64 n <= 9436,
- *            i128 n <= 9436, big any n
+ * Range:     i8 n <= 12345, i16 n <= 12345, i32 n <= 12345, i64 n <= 12345,
+ *            i128 n <= 12345, big any n
+ * Validated: standard, pass, 137 terms through n = 9436 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

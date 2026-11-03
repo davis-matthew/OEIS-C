@@ -7,18 +7,20 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sequence A029108: number of partitions of n into parts 1, 6, 7, 10. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate a temporary DP array of size n+1. */
-    seq_t *dp = (seq_t *)malloc((n + 1U) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1U));
     if (!dp)
         abort();                     /* allocation failed – no recovery possible */
 
@@ -43,6 +45,6 @@ seq_t a(idx_t n)
         dp[i] += dp[i - 10];
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

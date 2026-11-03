@@ -11,14 +11,16 @@
  *            for speed
  * Range:     u8 n <= 20, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Cache for Motzkin numbers.  The maximum k needed for n ≤ 10000 is about 140;
    a generous limit of 200 is sufficient.  The array is static to avoid dynamic
@@ -43,7 +45,7 @@ static seq_t get_motzkin(idx_t k)
         if (k >= 200) {
             /* Should never happen for the intended usage (n ≤ 10000).  */
             size_t new_cap = (size_t)k + 1;
-            seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, new_cap);
             if (!new_cache) abort();
             /* Copy already computed values. */
             for (size_t i = 0; i < motzkin_len; ++i)
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
     idx_t k = n - prev_tri;     /* 1 ≤ k ≤ r */
 
     /* Compute the triangular entry: binomial(r-1,k-1) * Motzkin(k). */
-    seq_t bin = binom(r - 1, k - 1);
+    seq_t bin = binomial(r - 1, k - 1);
     seq_t mot = get_motzkin(k);
     return bin * mot;
 }

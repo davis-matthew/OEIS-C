@@ -11,7 +11,8 @@
  *            rows. Initial values: a(1)=12, a(2)=113
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   seq_alloc, seq_free
+ * Validated: standard, pass, 33 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,19 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_free.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 /* 5‑cell row mask 0 … 31 */
 #define ROWS 32

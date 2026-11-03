@@ -10,13 +10,14 @@
  *            110*9^n + 45*8^n - 10*7^n + 6^n
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 33 terms through n = 654 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +44,7 @@ seq_t a(idx_t n)
 
     seq_t result = 0;
     for (int i = 0; i < 16; ++i) {
-        seq_t p = pow_uint(terms[i].base, n);
+        seq_t p = ipow_u64_idx(terms[i].base, n);
         p *= (seq_t)terms[i].coeff;
         if (terms[i].sign > 0)
             result += p;

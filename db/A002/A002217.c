@@ -12,12 +12,39 @@
  *            of terms in the resulting sequence
  * Range:     u8 n <= 2409, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_sum_of_prime_factors
+ * Validated: standard, pass, 121 terms through n = 9704 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_sum_of_prime_factors.h"
+static seq_t compute_sum_of_prime_factors(seq_t n) {
+    if (n <= 1) return 0;
+    
+    seq_t sum = 0;
+    seq_t temp = n;
+    
+    // Divide by 2
+    while (temp % 2 == 0) {
+        sum += 2;
+        temp /= 2;
+    }
+    
+    // Divide by odd numbers
+    for (seq_t i = 3; i <= temp / i; i += 2) {
+        while (temp % i == 0) {
+            sum += i;
+            temp /= i;
+        }
+    }
+    
+    // If temp > 1, it's a prime factor
+    if (temp > 1) {
+        sum += temp;
+    }
+    
+    return sum;
+}
 
 seq_t a(idx_t n) {
     seq_t current = (seq_t)n;

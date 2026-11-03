@@ -12,13 +12,15 @@
  *            (r+1)*(r+2)/2 and m = n − r*(r+1)/2. (Offset: 0. a(0)=2.)
  * Range:     u8 n <= 112, u16 n <= 364, u32 n <= 1300, u64 n <= 4802,
  *            u128 n <= 5150, big any n
- * Helpers:   none
+ * Validated: standard, pass, 111 terms through n = 3961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square root of a uint64_t, floor.  No overflow. */
 static idx_t
@@ -58,7 +60,7 @@ ensure_rows(idx_t needed)
 
     /* Allocate the new rows. */
     for (idx_t r = tri_rows; r <= needed; ++r) {
-        tri[r] = (seq_t*)calloc((size_t)(r + 1), sizeof(seq_t));
+        tri[r] = mem_new(seq_t, (size_t)(r + 1));
         if (!tri[r])
             abort();            /* OOM – does not happen for n≤10000 */
     }

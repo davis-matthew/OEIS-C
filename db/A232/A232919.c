@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   pair_allowed
+ * Validated: standard, pass, 31 terms through n = 195 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,14 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pair_allowed.h"
+
+/* Forbidden pairs: (0,2), (2,0), (1,1) */
+static inline bool pair_allowed(int a, int b)
+{
+    return !(a == 0 && b == 2) &&
+           !(a == 2 && b == 0) &&
+           !(a == 1 && b == 1);
+}
 
 #define MAX_COLS 7
 #define MAX_ROWS 200      /* fits the 192 admissible column patterns */

@@ -9,15 +9,67 @@
  *            a(0)..a(15) are given in the OEIS entry
  * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 22, u64 n <= 41, u128 n <= 83,
  *            big any n
- * Helpers:   ensure_cache, fill_partial_quotients
+ * Validated: standard, pass, 46 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/ensure_cache.h"
-#include "../utils/fill_partial_quotients.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Make sure the cache is large enough */
+static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr) {
+    seq_t *cache = *cache_ptr;
+    size_t cap = *cap_ptr;
+    if (cap <= (size_t)n) {
+        size_t new_cap = cap ? (cap << 1) : 16;
+        while (new_cap <= (size_t)n)
+            new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+        if (!tmp && new_cap > 0) {
+            /* Allocation failed – abort the program. */
+            exit(1);
+        }
+        if (tmp) {
+            /* Initialize newly allocated slots to zero. */
+            if (!cache) {
+                for (size_t i = 0; i < new_cap; ++i)
+                    tmp[i] = 0;
+            } else {
+                for (size_t i = cap; i < new_cap; ++i)
+                    tmp[i] = 0;
+            }
+            *cache_ptr = tmp;
+            *cap_ptr = new_cap;
+        }
+    }
+}
+
+/* compute the first 32 partial quotients of the continued fraction for sqrt(311) */
+static void fill_partial_quotients(seq_t cf[32])
+{
+    const seq_t D   = 311;    /* D is not a perfect square */
+    const seq_t a0  = 17;     /* floor(sqrt(311)) */
+    seq_t m = 0;
+    seq_t d = 1;
+    seq_t a = a0;
+
+    cf[0] = a0;
+    for (size_t i = 1; i < 32; ++i)
+    {
+        seq_t m_next = d * a - m;
+        seq_t d_next = (D - m_next * m_next) / d;
+        seq_t a_next = (a0 + m_next) / d_next;
+
+        cf[i] = a_next;
+        m = m_next;
+        d = d_next;
+        a = a_next;
+    }
+}
 
 /* compute and store the first 32 denominators of convergents in cache[0..31] */
 static void compute_initial_terms(seq_t *cache)

@@ -7,11 +7,13 @@
  * Formula:   a(n) = ∑_{k=0..n} binomial(n,k) * binomial(n+3*k-1,3*k)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Computes the n-th term of OEIS A378378.  */

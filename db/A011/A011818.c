@@ -10,13 +10,16 @@
  *            (n+1-2k)^n
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 18,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 /* seq_t a(idx_t n) computes the OEIS sequence A011818 */
 seq_t a(idx_t n)
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
     {
         /* Core term: (-1)^k * binomial(n+1,k) * (n+1-2k)^n */
         seq_t base  = (seq_t)(n + 1 - 2 * k);
-        seq_t power = seq_pow(base, n);            /* (n+1-2k)^n */
+        seq_t power = ipow_idx(base, n);            /* (n+1-2k)^n */
         seq_t bin   = binomial(n + 1, k);          /* binom(n+1,k) */
         seq_t term  = bin * power;                 /* unsigned product */
 

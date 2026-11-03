@@ -9,7 +9,8 @@
  *            different numbers of distinct prime factors
  * Range:     u8 n <= 115, u16 n <= 836, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_omega
+ * Validated: standard, pass, 85 terms through n = 9888 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,26 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/compute_omega.h"
+#include "../utils/mem.h"
+
+/* compute number of distinct prime factors ω(m) for 1 ≤ m ≤ n,
+   store in omega[0..n], and return maximum ω value in *max_omega. */
+static void compute_omega(size_t n, const int *spf, int *omega, int *max_omega)
+{
+    int i;
+    omega[0] = 0;
+    omega[1] = 0;
+    *max_omega = 0;
+    for (i = 2; i <= (int)n; ++i) {
+        int p = spf[i];
+        int j = i / p;
+        if (spf[j] == p)
+            omega[i] = omega[j];
+        else
+            omega[i] = omega[j] + 1;
+        if (omega[i] > *max_omega) *max_omega = omega[i];
+    }
+}
 
 /* compute smallest prime factors up to n */
 static void build_spf(size_t n, int *spf)
@@ -66,8 +86,8 @@ seq_t a(idx_t n)
     }
 
     /* 3) group knapsack dynamic programming */
-    seq_t *dp_old = (seq_t*)calloc((N + 1), sizeof(seq_t));
-    seq_t *dp_new = (seq_t*)calloc((N + 1), sizeof(seq_t));
+    seq_t *dp_old = mem_new(seq_t, (N + 1));
+    seq_t *dp_new = mem_new(seq_t, (N + 1));
     if (!dp_old || !dp_new) return (seq_t)0;  /* allocation failure */
     dp_old[0] = (seq_t)1;
 
@@ -98,8 +118,8 @@ seq_t a(idx_t n)
     free(grp);
     free(len);
     free(pos);
-    free(dp_old);
-    free(dp_new);
+    mem_free(dp_old);
+    mem_free(dp_new);
 
     return result;
 }

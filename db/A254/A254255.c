@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 11, u64 n <= 30, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cache to store already computed terms */
 static seq_t *cache = NULL;
@@ -45,7 +47,7 @@ static void ensure_cache(idx_t n)
     if (!cache || cache_cap <= n) {
         idx_t new_cap = cache_cap ? cache_cap * 2 : 32;
         while (new_cap <= n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);  /* out of memory */
         cache = tmp;
         cache_cap = new_cap;

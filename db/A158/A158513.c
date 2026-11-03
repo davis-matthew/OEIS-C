@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 9, i64 n <= 22, i128 n <= 43,
  *            big any n
- * Helpers:   alloc_seq_array, seq_free_array
+ * Validated: standard, pass, 37 terms through n = 679 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,17 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/alloc_seq_array.h"   /* decl. of alloc_seq_array */
-#include "../utils/seq_free_array.h"    /* decl. of seq_free_array */
+#include <stdint.h>
+#include <stdlib.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 seq_t a(idx_t n)
 {
@@ -46,7 +56,7 @@ seq_t a(idx_t n)
             new_cap <<= 1;               /* double until large enough */
         }
         seq_t *new_cache = alloc_seq_array(new_cap);
-        memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
+        mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
         seq_free_array(cache);
         cache = new_cache;
         cache_cap = new_cap;

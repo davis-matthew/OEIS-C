@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 30, u32 n <= 64, u64 n <= 139,
  *            u128 n <= 324, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 3635 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
          + (k*(k-1)*(k-2)/6)*T(n-1,k-3)            */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* integer square root: floor(sqrt(x)) for idx_t */
 static inline idx_t isqrt(idx_t x) {
@@ -51,9 +53,9 @@ static void ensure_rows(idx_t r) {
         rows_cap = 1;
         rows = (seq_t**)malloc(rows_cap * sizeof(seq_t*));
         /* row 0 has length 1 */
-        seq_t *row0 = (seq_t*)malloc(1 * sizeof(seq_t));
+        seq_t *row0 = mem_new(seq_t, 1);
 #ifdef __cplusplus
-        new(&row0[0]) seq_t();
+        *(&row0[0]) = (seq_t)0;
 #endif
         row0[0] = (seq_t)1;
         rows[0] = row0;
@@ -73,10 +75,10 @@ static void ensure_rows(idx_t r) {
     /* compute new rows */
     for (idx_t i = max_row + 1; i <= r; ++i) {
         size_t len = 3 * (size_t)i + 1;
-        seq_t *row = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
 #ifdef __cplusplus
         for (size_t j = 0; j < len; ++j)
-            new(&row[j]) seq_t();
+            *(&row[j]) = (seq_t)0;
 #endif
         if (i == 0) {          /* already done above, but keep for safety */
             row[0] = (seq_t)1;

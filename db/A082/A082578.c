@@ -7,13 +7,16 @@
  * Formula:   a(n) = ∑_{k=0..n} binomial(2k,k) * binomial(2k+1,k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 33,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 33 terms through n = 200 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The binomial helper is provided by the utility library. */
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +27,7 @@ seq_t a(idx_t n)
     /* Grow the cache if it does not yet cover the requested index. */
     if (n >= cache_len) {
         size_t new_len = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp)      /* allocation failure – leave the caller to handle it */
             return 0;
         cache = tmp;

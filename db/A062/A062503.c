@@ -7,13 +7,23 @@
  * Formula:   a(n) = (n-th squarefree integer)^2 a(n) = A000290(A005117(n))
  * Range:     u8 n <= 11, u16 n <= 157, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* ---------- Cache of squarefree numbers ---------- */
 static seq_t *sqfs = NULL;      /* array of computed squarefree integers */
@@ -29,6 +39,16 @@ static void *safe_malloc(size_t size) {
     return malloc(size);
 #endif
 }
+#ifdef __cplusplus
+template <class T>
+static T *safe_realloc(T *ptr, size_t size) {
+#ifdef __cplusplus
+    return mem_resize(T, ptr, (size) / sizeof(T));
+#else
+    return mem_resize(T, ptr, (size) / sizeof(T));
+#endif
+}
+#else
 static void *safe_realloc(void *ptr, size_t size) {
 #ifdef __cplusplus
     return realloc(ptr, size);
@@ -36,6 +56,7 @@ static void *safe_realloc(void *ptr, size_t size) {
     return realloc(ptr, size);
 #endif
 }
+#endif
 
 /* Build all squarefree numbers up to 'limit' (inclusive) */
 static void compute_to_limit(size_t limit) {

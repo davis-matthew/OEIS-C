@@ -11,13 +11,15 @@
  *            sequence is read row by row; row(n) and position k(n) are found
  *            by subtracting row lengths from the index offset, then the term
  *            is evaluated by the OEIS formula
- * Range:     u8 n <= 38, u16 n <= 638, u32 n <= 9492, u64 n <= 9492,
- *            u128 n <= 9492, big any n
+ * Range:     u8 n <= 38, u16 n <= 638, u32 n <= 16382, u64 n <= 16382,
+ *            u128 n <= 16382, big any n
+ * Validated: standard, pass, 77 terms through n = 9492 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

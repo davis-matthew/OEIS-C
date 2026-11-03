@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   reverse_decimal
+ * Validated: standard, pass, 58 terms through n = 87 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 */
 
 #include <stdbool.h>
-#include "../utils/reverse_decimal.h"
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         seq_t cur = (seq_t)1013;          /* a(1) */
         for (idx_t i = 0; i < 90; ++i) {
             cycle[i] = cur;
-            cur = reverse_decimal(cur) + (seq_t)2;
+            cur = reverse_digits(cur) + (seq_t)2;
         }
         initialized = true;
     }

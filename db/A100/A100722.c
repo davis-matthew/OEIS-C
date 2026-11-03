@@ -9,7 +9,8 @@
  *            five runs
  * Range:     u8 n <= 21, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   binary_runs, is_prime_u64
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,31 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binary_runs.h"
 #include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* Count the number of runs of consecutive identical bits in x.
+   An early exit returns if more than 5 runs are found. */
+static inline int binary_runs(uint64_t x)
+{
+    if (x == 0) return 1;          /* binary 0 has one run of 0s */
+
+    int runs  = 1;
+    uint64_t prev = x & 1ULL;
+    x >>= 1;
+    while (x)
+    {
+        uint64_t cur = x & 1ULL;
+        if (cur != prev)
+        {
+            ++runs;
+            if (runs > 5) return runs;  /* early exit */
+        }
+        prev = cur;
+        x >>= 1;
+    }
+    return runs;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,7 +60,7 @@ seq_t a(idx_t n)
             /* grow cache if needed */
             if (cache_size == cache_cap) {
                 idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)
                     abort(); /* memory allocation failed */
                 cache = tmp;

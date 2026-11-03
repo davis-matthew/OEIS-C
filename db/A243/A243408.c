@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 21, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _modmul, _modpow
+ * Validated: standard, pass, 55 terms through n = 931 (2026-11-03)
+ * Helpers:   mem, mulmod_u32, powmod_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/_modmul.h"
-#include "../utils/_modpow.h"
+#include "../utils/mulmod_u32.h"
+#include "../utils/powmod_u32.h"
+#include "../utils/mem.h"
 
 /* Small prime list for quick divisibility tests */
 static const uint32_t _small_primes[] = {
@@ -51,11 +53,11 @@ static bool _is_prime32(uint32_t n)
     for (size_t i = 0; i < 3; ++i) {
         uint32_t a = witnesses[i];
         if (a % n == 0) continue;
-        uint32_t x = _modpow(a, d, n);
+        uint32_t x = powmod_u32(a, d, n);
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (size_t r = 1; r < s; ++r) {
-            x = _modmul(x, x, n);
+            x = mulmod_u32(x, x, n);
             if (x == n - 1) {
                 composite = false;
                 break;
@@ -139,13 +141,13 @@ static void _build_good_list(void)
             if (_good_cnt == 0) {
                 /* initial capacity: a few thousand is enough */
                 size_t cap = 20000;
-                _good_list = (seq_t *)malloc(cap * sizeof(seq_t));
+                _good_list = mem_new(seq_t, cap);
                 /* unlikely to exceed; will resize if necessary */
             } else if (_good_cnt == 20000) {
                 /* In the extremely rare event we need more than 20k entries,
                    double the capacity. */
                 size_t cap = _good_cnt + (_good_cnt >> 1) + 1;
-                _good_list = (seq_t *)realloc(_good_list, cap * sizeof(seq_t));
+                _good_list = mem_resize(seq_t, _good_list, cap);
             }
             _good_list[_good_cnt++] = (seq_t)p;
         }

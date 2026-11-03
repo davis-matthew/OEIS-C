@@ -13,12 +13,14 @@
  *            the same integer type as used for the result
  * Range:     u8 n <= 18, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,9 +32,9 @@ seq_t a(idx_t n)
 
     if (dp_size <= n) {
         /* Resize the array (deallocate previous one if any). */
-        seq_t *new_dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, (n + 1));
         if (!new_dp) abort();
-        free(dp);
+        mem_free(dp);
         dp = new_dp;
         dp_size = n + 1;
     }

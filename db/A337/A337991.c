@@ -10,15 +10,26 @@
  *            read row‑by‑row
  * Range:     u8 n <= 28, u16 n <= 68, u32 n <= 193, u64 n <= 571,
  *            u128 n <= 1972, big any n
- * Helpers:   exp_in_num
+ * Validated: standard, pass, 82 terms through n = 4904 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/exp_in_num.h"
+
+/* ------------------------------------------------------------
+ * Exponent of prime p in integer n.
+ * ------------------------------------------------------------ */
+static idx_t exp_in_num(idx_t n, int p)
+{
+    idx_t e = 0;
+    while (n % p == 0) { n /= p; ++e; }
+    return e;
+}
 
 static int   primes[20050];
 static int   prime_cnt = 0;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   factor_u64, next_prime, prev_prime
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   factor_u64, is_prime, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,9 +29,20 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
 #include "../utils/next_prime.h"
-#include "../utils/prev_prime.h"
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
 
 /* Compute p^e using 128‑bit accumulator, return uint64_t (wraparound is OK). */
 static inline uint64_t pow_uint64(uint64_t p, unsigned e)

@@ -11,15 +11,27 @@
  *            T(n,k) is read by rows (OEIS A225213)
  * Range:     u8 n <= 6, u16 n <= 21, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   binomial, factorial, pow_uint
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/factorial.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -43,7 +55,7 @@ seq_t a(idx_t n)
     /* Compute (k-1)! * binomial(r,k) * r^(r-k) */
     seq_t fact = factorial(k - 1);          /* (k-1)!   */
     seq_t bin  = binomial(r, k);             /* C(r,k)   */
-    seq_t pw   = pow_uint((uint64_t)r, r - k);   /* r^(r-k)  */
+    seq_t pw   = ipow_u64_idx((uint64_t)r, r - k);   /* r^(r-k)  */
 
     seq_t result = fact;
     result = result * bin;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 207, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_lucky_numbers, is_lucky_in_list
+ * Validated: standard, pass, 87 terms through n = 9980 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,43 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/build_lucky_numbers.h"
-#include "../utils/is_lucky_in_list.h"
+
+static void build_lucky_numbers(int max_limit, int **out_arr, int *out_len)
+{
+    /* create a list containing only odd numbers up to max_limit */
+    int *nums = (int*)malloc((max_limit / 2 + 1) * sizeof(int));
+    int sz = 0;
+    for (int i = 1; i <= max_limit; i += 2) nums[sz++] = i;
+
+    int idx = 1;
+    while (idx < sz) {
+        int step = nums[idx];
+        if (step > sz) break;
+        int new_sz = 0;
+        for (int i = 0; i < sz; ++i) {
+            if ((i + 1) % step != 0) nums[new_sz++] = nums[i];
+        }
+        sz = new_sz;
+        ++idx;
+    }
+    *out_arr = nums;
+    *out_len = sz;
+}
+
+static bool is_lucky_in_list(int val, const int *arr, int len)
+{
+    int lo = 0, hi = len - 1;
+    while (lo <= hi) {
+        int mid = (lo + hi) >> 1;
+        int midv = arr[mid];
+        if (midv == val) return true;
+        if (midv < val)
+            lo = mid + 1;
+        else
+            hi = mid - 1;
+    }
+    return false;
+}
 
 static bool initialized = false;
 static int *lucky_arr = NULL;

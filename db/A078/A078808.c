@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 96 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **A = NULL;                /* rows of A */
 static seq_t **B = NULL;                /* rows of B */
@@ -65,15 +67,15 @@ static void ensure_dp(idx_t needed)
 
     /* Ensure row 0 exists – it is needed for all other rows. */
     if (A[0] == NULL) {
-        A[0] = (seq_t*)calloc(1, sizeof(seq_t));
-        B[0] = (seq_t*)calloc(1, sizeof(seq_t));
+        A[0] = mem_new(seq_t, 1);
+        B[0] = mem_new(seq_t, 1);
         A[0][0] = 1;   /* base for recursion */
         B[0][0] = 1;
     }
 
     for (idx_t n = dp_max + 1; n <= needed; ++n) {
-        A[(size_t)n] = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
-        B[(size_t)n] = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
+        A[(size_t)n] = mem_new(seq_t, (size_t)n + 1);
+        B[(size_t)n] = mem_new(seq_t, (size_t)n + 1);
 
         /* Compute B[n][k] */
         for (idx_t k = 0; k <= n; ++k) {

@@ -7,13 +7,15 @@
  * Formula:   a(n) is the n-th divisor of 962 in ascending order
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached divisors of 962 */
 static seq_t *cached_divs = NULL;
@@ -41,7 +43,7 @@ static void init_divisors(void) {
 
     cached_cnt = (size_t)1 << pc;                /* 2^pc divisors */
 
-    cached_divs = (seq_t*)malloc(sizeof(seq_t) * cached_cnt);
+    cached_divs = mem_new(seq_t, cached_cnt);
     if (!cached_divs) return;                    /* malloc failure */
 
     /* Generate all products for every subset of primes */

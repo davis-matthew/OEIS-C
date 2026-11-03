@@ -9,6 +9,7 @@
  *            along antidiagonals upwards (rows run from 0)
  * Range:     u8 n <= 36, u16 n <= 136, u32 n <= 528, u64 n <= 2080,
  *            u128 n <= 8256, big any n
+ * Validated: standard, pass, 79 terms through n = 9252 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -6,11 +6,13 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 3*(6858365065530*(2^45 - 1)*n + 153479820268467961)^2
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 n <= 0, big any n
+ * Validated: standard, pass, 20 terms through n = 9981 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

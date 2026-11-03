@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 3000, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   get_digits
+ * Validated: standard, pass, 88 terms through n = 2813 (2026-11-03)
+ * Helpers:   get_digits, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stddef.h>
 #include "../utils/get_digits.h"
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Small primality test for 32‑bit values (used to test digit‑count
@@ -50,11 +53,11 @@ static void ensure_seq_capacity(size_t needed)
 {
     if (!seq) {
         seq_cap = 256;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
     }
     if (needed > seq_cap) {
         while (seq_cap < needed) seq_cap <<= 1;
-        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
     }
 }
 

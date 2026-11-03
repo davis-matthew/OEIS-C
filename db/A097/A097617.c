@@ -11,7 +11,8 @@
  *            a(1)=23456789, a(2)=21443183, …
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_uint32, modpow_uint32
+ * Validated: standard, pass, 37 terms through n = 9726 (2026-11-03)
+ * Helpers:   is_prime_u32, mem, powmod_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/is_prime_uint32.h"
-#include "../utils/modpow_uint32.h"
+#include "../utils/is_prime_u32.h"
+#include "../utils/powmod_u32.h"
+#include "../utils/mem.h"
 
 /* first decimal digit of i^k (2 ≤ i ≤ 9) using high‑precision arithmetic */
 static unsigned leading_digit(unsigned i, idx_t k)
@@ -56,13 +58,13 @@ seq_t a(idx_t n)
             val = val * 10U + d;
         }
 
-        if (is_prime_uint32(val))
+        if (is_prime_u32(val))
         {
             if (cached + 1U > cap)
             {
                 size_t new_cap = cap ? cap : 16U;
                 while (new_cap <= cached + 1U) new_cap <<= 1U;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();
                 cache = tmp;
                 cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   factor_u64, is_prime, mod_pow
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   factor_u64, is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
-#include "../utils/factor_u64.h" /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/mod_pow.h"    /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 /* Test whether 2 is a primitive root modulo a prime p (p > 2). */
 static bool is_primitive_root2(uint64_t p)
@@ -39,7 +42,7 @@ static bool is_primitive_root2(uint64_t p)
 
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t q = primes[i];
-        if (mod_pow((seq_t)2, p1 / q, (seq_t)p) == (seq_t)1)
+        if (powmod((seq_t)2, p1 / q, (seq_t)p) == (seq_t)1)
             return false;
     }
     return true;

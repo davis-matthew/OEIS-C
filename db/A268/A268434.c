@@ -13,13 +13,15 @@
  *            rows that have been computed
  * Range:     u8 n <= 15, u16 n <= 22, u32 n <= 45, u64 n <= 105,
  *            u128 n <= 253, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 8823 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     /* Create row 0 if needed */
     if (rows_len == 0) {
-        seq_t *row0 = (seq_t *)malloc(sizeof(seq_t));
+        seq_t *row0 = mem_new(seq_t, 1);
         if (!row0) return 0;        /* OOM guard – will abort on real run */
         row0[0] = (seq_t)1;
         rows[0] = row0;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     while (total_elems <= (size_t)n) {
         size_t next_row   = rows_len;          /* index of new row            */
         size_t next_len   = next_row + 1;      /* length of new row           */
-        seq_t  *newrow    = (seq_t *)malloc(sizeof(seq_t) * next_len);
+        seq_t  *newrow    = mem_new(seq_t, next_len);
         if (!newrow) return 0;                 /* OOM guard */
         seq_t  *prev_row  = rows[rows_len - 1];
         size_t prev_len   = next_row;           /* prev_row length equals next_row */

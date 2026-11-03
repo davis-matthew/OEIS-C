@@ -9,7 +9,8 @@
  *            composition in standard (graded reverse‑lexicographic) order
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   compose_parts_recursive, floor_log2_uint64
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,13 +33,29 @@
     The implementation stores at most 64 parts (enough for n up to 2^63-1)
     and works for any n that fits in idx_t. */
 
-#include "../utils/floor_log2_uint64.h"
-#include "../utils/compose_parts_recursive.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
+
+static void compose_parts_recursive(int weight, idx_t pos, int *parts,
+                                    int *len) {
+    if (weight == 0) return;             /* empty composition */
+    for (int last = weight; last >= 1; --last) {
+        int rem = weight - last;
+        idx_t count = (rem == 0) ? 1ULL : (1ULL << (rem - 1));
+        if (pos < count) {                /* this last part is chosen */
+            compose_parts_recursive(rem, pos, parts, len);
+            parts[(*len)++] = last;
+            return;
+        }
+        pos -= count;                     /* skip this block */
+    }
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;                /* the empty composition */
     /* Determine the weight of the target composition.  weight = floor_log2(n) + 1. */
-    int w = (int)(floor_log2_uint64(n) + 1);
+    int w = (int)(ilog2(n) + 1);
     /* Compute the offset within the compositions of weight w. */
     idx_t start = (idx_t)1 << (w - 1);
     idx_t pos = n - start;                /* 0‑based within weight w */
@@ -52,7 +69,7 @@ seq_t a(idx_t n) {
     seq_t sum = 0;
     for (int i = 0; i < len; ++i) {
         int p = parts[i];                 /* p >= 1 */
-        seq_t part_weight = (seq_t)(floor_log2_uint64((idx_t)p) + 1);
+        seq_t part_weight = (seq_t)(ilog2((idx_t)p) + 1);
         sum += part_weight;
     }
     return sum;

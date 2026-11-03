@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 150, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   desired
+ * Validated: standard, pass, 76 terms through n = 9835 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,26 @@
  * (computed by brute‑force enumeration). */
 
 #include <stdbool.h>
-#include "../utils/desired.h"
+
+/* Return true iff UV(n,9) > DV(n,9). */
+static bool desired(seq_t n) {
+    seq_t v = n;
+    seq_t prev = v % 9;   /* least significant digit */
+    v /= 9;
+    seq_t uv = 0, dv = 0;
+
+    while (v > 0) {
+        seq_t cur = v % 9;
+        if (cur > prev) {
+            dv += cur - prev;
+        } else if (cur < prev) {
+            uv += prev - cur;
+        }
+        prev = cur;
+        v /= 9;
+    }
+    return uv > dv;
+}
 
 /* Return the n‑th term of A297269 (1‑based). */
 seq_t a(idx_t n) {

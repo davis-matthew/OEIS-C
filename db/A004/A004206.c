@@ -11,16 +11,61 @@
  *            P == 1 (mod n) by a DP over column-class coun...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   is_prime, perm_mod, pm
+ * Validated: partial, pass, 18 terms through n = 20 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
-#include "../utils/perm_mod.h"
-#include "../utils/pm.h"
+#include <stdbool.h>
+#include "../utils/is_prime_u64.h"
+
+/* permanent of n x n matrix w^(d*i*j) mod P; rows/cols fall in m=n/d classes of size d */
+static uint64_t perm_mod(idx_t n, idx_t d, const uint64_t *pw, uint64_t P) {
+    idx_t m = n / d, R = d + 1;
+    uint64_t S = 1;
+    uint64_t *base = (uint64_t *)malloc(m * sizeof(uint64_t));
+    for (idx_t b = 0; b < m; b++) { base[b] = S; S *= R; }
+    uint32_t *dp = (uint32_t *)calloc(S, sizeof(uint32_t));
+    idx_t *u = (idx_t *)calloc(m, sizeof(idx_t));
+    uint64_t r = 0;
+    dp[0] = 1;
+    for (uint64_t s = 0; s < S; s++) {
+        uint64_t v = dp[s];
+        if (v && r < n) {
+            uint64_t a = r % m;
+            for (idx_t b = 0; b < m; b++) {
+                if (u[b] < d) {
+                    uint64_t w = pw[(d * a * b) % n];
+                    uint64_t t = v * w % P * (uint64_t)(d - u[b]) % P;
+                    uint64_t idx = s + base[b];
+                    dp[idx] = (uint32_t)((dp[idx] + t) % P);
+                }
+            }
+        }
+        for (idx_t b = 0; b < m; b++) {
+            u[b]++; r++;
+            if (u[b] < R) break;
+            u[b] = 0; r -= R;
+        }
+    }
+    uint64_t res = dp[S - 1];
+    free(dp); free(u); free(base);
+    return res;
+}
+
+static uint64_t pm(uint64_t b, uint64_t e, uint64_t P) {
+    uint64_t r = 1;
+    b %= P;
+    while (e) {
+        if (e & 1) r = r * b % P;
+        b = b * b % P;
+        e >>= 1;
+    }
+    return r;
+}
 
 static int mobius(uint64_t x) {
     int s = 1;
@@ -71,7 +116,7 @@ seq_t a(idx_t n) {
         uint64_t p = k * n + 1;
         k--;
         if (p < (1ULL << 30) && found == 0 && k == 0) break;
-        if (!is_prime(p)) continue;
+        if (!is_prime_u64(p)) continue;
         P[found++] = p;
     }
 

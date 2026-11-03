@@ -10,12 +10,14 @@
  *            2*(2*n-3)*a(n-1) + 4*(n-3)*a(n-2) - 6*(2*n-9)*a(n-3)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* First call – allocate space for indices 0…3 (the 0th element is unused) */
     if (!cache) {
         cap = 4;                                   /* at least indices 0..3 */
-        cache = (seq_t*)malloc(sizeof(seq_t) * (cap + 1));
+        cache = mem_new(seq_t, (cap + 1));
         if (!cache) abort();                       /* OOM protection */
         cache[1] = (seq_t)1;
         cache[2] = (seq_t)2;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* Extend the cache when the requested n exceeds the current capacity */
     if (n > cap) {
         idx_t new_cap = n;                         /* need indices 0…n      */
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * (new_cap + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (!tmp) abort();                         /* OOM protection */
         cache = tmp;
         cap   = new_cap;

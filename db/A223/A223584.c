@@ -10,12 +10,14 @@
  *            a(n) = 1163 * a(n-1)
  * Range:     u8 none, u16 n <= 1, u32 n <= 2, u64 n <= 5, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 25 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* First-time allocation and precomputation of the first 7 values */
     if (cache == NULL) {
         /* Allocate space for indices 0..7 (index 0 unused) */
-        cache = (seq_t*)malloc((size_t)8 * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)8);
         if (!cache) return 0;  /* allocation failure */
 
         /* Compute a(1) .. a(7) using the closed form */
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary */
     if (n > cached_max) {
         size_t new_size = (size_t)n + 1;   /* +1 because index n is needed */
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0;   /* allocation failure */
 
         cache = tmp;

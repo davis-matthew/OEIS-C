@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 128, u64 n <= 128, u128 n <= 128,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 59 terms through n = 116 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         }
         /* scan all 5‑digit numbers */
         for (idx_t x = 10000; x <= 99999; ++x) {
-            uint64_t d = divisor_count_u64((uint64_t)x);
+            uint64_t d = num_divisors((uint64_t)x);
             if (d <= 128U) {
                 size_t idx = (size_t)d;
                 seq_t sx = (seq_t)x;

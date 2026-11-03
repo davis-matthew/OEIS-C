@@ -10,7 +10,8 @@
  *            digits of n, n must have distinct digits)
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 5 terms through n = 4 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Small helper: popcount for ten‑bit masks */
 static inline int popcount10(int mask) {
@@ -88,10 +90,10 @@ static void build_cache(void) {
     }
 
     /* Sort terms ascending */
-    qsort(tmp, len, sizeof(seq_t), cmp_seq);
+    mem_qsort(tmp, len, sizeof(seq_t), cmp_seq);
 
     /* Allocate cache and copy */
-    cache = (seq_t *)malloc(len * sizeof(seq_t));
+    cache = mem_new(seq_t, len);
     for (size_t i = 0; i < len; ++i)
         cache[i] = tmp[i];
     cache_cnt = len;

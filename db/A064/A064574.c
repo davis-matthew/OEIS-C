@@ -9,13 +9,15 @@
  *            of a single composite integer (excluding the all‑ones partition)
  * Range:     u8 n <= 87, u16 n <= 923, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static buffer for dynamic programming */
 static seq_t *dp = NULL;
@@ -25,8 +27,8 @@ static idx_t dp_cap = 0;
 static void ensure_dp_cap(idx_t n)
 {
     if (dp_cap < n + 1) {
-        seq_t *new_dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
-        if (dp != NULL) free(dp);
+        seq_t *new_dp = mem_new(seq_t, (size_t)(n + 1));
+        if (dp != NULL) mem_free(dp);
         dp = new_dp;
         dp_cap = n + 1;
     }

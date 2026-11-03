@@ -9,14 +9,27 @@
  *            and 2's
  * Range:     u8 n <= 98, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   matches_base5_0_2
+ * Validated: standard, pass, 79 terms through n = 9103 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/matches_base5_0_2.h"
+
+/* checks if the base‑5 digits of x contain the same count of 0 and 2 */
+static bool matches_base5_0_2(idx_t x)
+{
+    idx_t c0 = 0, c2 = 0;
+    while (x > 0) {
+        idx_t d = x % 5;
+        if (d == 0)  c0++;
+        else if (d == 2) c2++;
+        x /= 5;
+    }
+    return c0 == c2;
+}
 
 seq_t a(idx_t n)
 {

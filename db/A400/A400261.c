@@ -12,15 +12,38 @@
  *            1,2,6,30,210,2310,30030,… . Implementation uses the helper fa...
  * Range:     u8 n <= 95, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, msdigit_primorial_base
+ * Validated: standard, pass, 122 terms through n = 9510 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/msdigit_primorial_base.h"
+
+static seq_t msdigit_primorial_base(seq_t d)
+{
+    if (d == (seq_t)0) return (seq_t)0;
+
+    /* first few primes – enough for all primorials that fit in seq_t */
+    const uint64_t first_primes[] =
+        {2U,3U,5U,7U,11U,13U,17U,19U,23U,29U,31U,37U,
+         41U,43U,47U,53U,59U,61U,67U,71U,73U,79U,83U,89U,97U};
+    const size_t prime_cnt = sizeof(first_primes)/sizeof(first_primes[0]);
+
+    seq_t primorial = (seq_t)1;   /* 1 = first primorial 0th */
+
+    for (size_t i = 0; i < prime_cnt; ++i) {
+        uint64_t p = first_primes[i];
+        /* avoid overflow and stop once primorial * p would exceed d */
+        if (primorial > d / p) break;
+        primorial = primorial * (seq_t)p;
+    }
+    return d / primorial;
+}
 
 static seq_t arithmetic_derivative_u64(uint64_t n)
 {

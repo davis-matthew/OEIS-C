@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   contains_adjacent
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,25 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/contains_adjacent.h"
+#include "../utils/mem.h"
+
+/* Test whether the decimal representation of x contains the adjacent digits 37 or 73. */
+static bool contains_adjacent(seq_t x)
+{
+    seq_t prev = 0;
+    bool started = false;
+    while (x > 0) {
+        seq_t d = x % 10;
+        if (started) {
+            if ((prev == 3 && d == 7) || (prev == 7 && d == 3))
+                return true;
+        }
+        prev = d;
+        started = true;
+        x = x / 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -45,7 +64,7 @@ seq_t a(idx_t n)
                 /* Ensure capacity. */
                 if (cache_len >= cache_cap) {
                     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) abort(); /* allocation failed */
                     cache = tmp;
                     cache_cap = new_cap;

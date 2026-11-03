@@ -10,11 +10,13 @@
  *            n=∏p^e and A129283(n)=n+d(n), d(n)=n·∑e/p
  * Range:     u8 n <= 63, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
+ * Validated: partial, pass, 97 terms through n = 97 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

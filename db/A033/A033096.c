@@ -9,12 +9,38 @@
  *            representation of k)
  * Range:     u8 n <= 15, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   sum_ones_in_base_upto
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sum_ones_in_base_upto.h"
+/* Helper: sum of 1's in the base‑b representation of all integers from 1 to m (inclusive) */
+static seq_t sum_ones_in_base_upto(idx_t base, idx_t m)
+{
+    if (m == 0) return 0;
+    seq_t total = 0;
+    seq_t pow    = 1;
+    while (pow <= m)
+    {
+        seq_t next = pow * (seq_t)base;
+        seq_t high = (seq_t)(m / next);
+        seq_t curr = (seq_t)((m / pow) % base);
+        seq_t low  = (seq_t)(m % pow);
+
+        seq_t add;
+        if (curr == 1)
+            add = high * pow + low + 1;
+        else if (curr > 1)
+            add = (high + 1) * pow;
+        else
+            add = high * pow;
+
+        total += add;
+        pow = next;
+    }
+    return total;
+}
 
 seq_t a(idx_t n)
 {

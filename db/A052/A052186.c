@@ -8,12 +8,14 @@
  *            a(k)*a(n-1-k) + Σ_{k=0}^{n-2} a(k)*a(n-2-k)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 433 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
 
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         for (idx_t i = cache_size; i < new_size; ++i) {
             if (i == 0)
                 cache[i] = (seq_t)1;

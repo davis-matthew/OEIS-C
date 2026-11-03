@@ -12,12 +12,14 @@
  *            -384048485640, a(7) = -17892957477264, a(8) = -8432631...
  * Range:     i8 none, i16 n <= 1, i32 n <= 4, i64 n <= 10, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 586 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 /* Note: seq_t and idx_t are defined by the build environment. */
 
 seq_t a(idx_t n)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Start with a small capacity, then grow as needed */
         cap = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
         if (cache == NULL)
             return (seq_t)0;   /* allocation failure: unlikely in tests */
 
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
             /* Round up to next multiple of 16 */
             newcap = (newcap + 15) & ~((size_t)15);
         }
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * newcap);
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (tmp == NULL)
             return (seq_t)0;   /* allocation failure: unlikely in tests */
         cache = tmp;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define HASH_CAP 65536U                      /* power‑of‑two hash size */
 #define SQRT2 1.414213562373095048801688724209698079L
@@ -161,7 +163,7 @@ seq_t a(idx_t n)
         hash_tbl = (uint64_t *)calloc(HASH_CAP, sizeof(uint64_t));
 
         a_cap = 256;
-        a_tab = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_tab = mem_new(seq_t, a_cap);
         a_used = 0;
         global_rank = 0;
 
@@ -177,7 +179,7 @@ seq_t a(idx_t n)
         if ((cur.i & 1ULL) == 0ULL) {   /* even i */
             if (a_used == a_cap) {
                 a_cap <<= 1;
-                a_tab = (seq_t *)realloc(a_tab, a_cap * sizeof(seq_t));
+                a_tab = mem_resize(seq_t, a_tab, a_cap);
             }
             a_tab[a_used++] = (seq_t)global_rank;
         }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(n-1) + a(n-2), a(0)=1, a(1)=16
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 41, u64 n <= 88, u128 n <= 180,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computes the nth term of OEIS sequence A022106, 0‑based.   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *cache      = NULL; /* array of seq_t */
@@ -34,7 +36,7 @@ static void ensure_capacity(idx_t needed)
         new_cap <<= 1;                     /* grow until it fits     */
 
     /* realloc can be used with a null pointer; cast is required for C++ */
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (new_ptr) {                         /* success: update cache  */
         cache      = new_ptr;
         cache_cap  = new_cap;

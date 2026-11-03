@@ -8,16 +8,20 @@
  * Formula:   T(n,k) = T(n-k,k) + T(n-k,k-1), T(0,0)=1, T(n,0)=0. a(n) =
  *            T(s,k) with s = smallest integer such that s(s+1)/2 ≥ n, k = n -
  *            s(s-1)/2. (Flattening row‑wise starting with row 1.)
- * Range:     u8 n <= 707, u16 n <= 4377, u32 n <= 9945, u64 n <= 9945,
- *            u128 n <= 9945, big any n
- * Helpers:   _offset
+ * Range:     u8 n <= 707, u16 n <= 4377, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 120 terms through n = 9945 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/_offset.h"
+#include "../utils/mem.h"
+
+/* helper: offset of row n (≥0) in the flattened array */
+static inline idx_t _offset(idx_t n) { return n * (n - 1) / 2; }
 
 /* dynamic storage for the triangle values */
 static seq_t *dp          = NULL;  /* flattened triangle */
@@ -32,14 +36,14 @@ static void _ensure_rows(idx_t needed_rows)
     /* new storage size (include row 0 element) */
     size_t new_size = (size_t)needed_rows * (needed_rows + 1) / 2 + 1;
 
-    seq_t *new_dp = (seq_t *)calloc(new_size, sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, new_size);
     if (!new_dp) return;                          /* out of memory */
 
     /* copy old data */
     if (dp) {
         size_t old_size = (size_t)dp_rows * (dp_rows + 1) / 2 + 1;
-        memcpy(new_dp, dp, old_size * sizeof(seq_t));
-        free(dp);
+        mem_copy(new_dp, dp, old_size * sizeof(seq_t));
+        mem_free(dp);
     }
 
     /* initialise base T(0,0) if this is the first allocation */

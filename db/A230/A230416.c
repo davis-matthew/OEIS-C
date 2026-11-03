@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 3149, u32 n <= 3149, u64 n <= 3149,
  *            u128 n <= 3149, big any n
- * Helpers:   ensure_capacity, fact_digit_sum
+ * Validated: standard, pass, 74 terms through n = 2755 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,55 @@
 
 /* Requires the utility to ensure dynamic array capacity */
 #include <stdlib.h>
-#include "../utils/ensure_capacity.h"
-#include "../utils/fact_digit_sum.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
+
+/* Compute sum of digits of x in factorial number system (A034968) */
+static inline seq_t fact_digit_sum(seq_t x)
+{
+    seq_t sum = 0;
+    seq_t div = 2;                     /* divisor is (i+1) */
+    while (x > 0) {
+        sum += x % div;
+        x /= div;
+        ++div;
+    }
+    return sum;
+}
 
 /* Sequence value function */
 seq_t a(idx_t n)
@@ -37,7 +85,7 @@ seq_t a(idx_t n)
 
     /* Initialize cache with a(0) */
     if (cache_len == 0) {
-        ensure_capacity(1, &cap, (void **)&cache, sizeof(seq_t));
+        ensure_capacity(1, &cap, OEISC_VPP(&cache), sizeof(seq_t));
         cache[0] = 0;
         cache_len = 1;
     }
@@ -50,7 +98,7 @@ seq_t a(idx_t n)
         seq_t start_val = curr_fact - 1;              /* first element of row m */
 
         /* Append start value */
-        ensure_capacity(cache_len + 1, &cap, (void **)&cache, sizeof(seq_t));
+        ensure_capacity(cache_len + 1, &cap, OEISC_VPP(&cache), sizeof(seq_t));
         cache[cache_len++] = start_val;
 
         seq_t cur = start_val;
@@ -61,7 +109,7 @@ seq_t a(idx_t n)
             seq_t sum_dig = fact_digit_sum(cur);
             seq_t nxt = cur - sum_dig;
             if (nxt == repeat_val) break;            /* reached the previous row's start */
-            ensure_capacity(cache_len + 1, &cap, (void **)&cache, sizeof(seq_t));
+            ensure_capacity(cache_len + 1, &cap, OEISC_VPP(&cache), sizeof(seq_t));
             cache[cache_len++] = nxt;
             cur = nxt;
         }

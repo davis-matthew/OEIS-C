@@ -8,6 +8,7 @@
  * Formula:   a(n) = B where p = prime(n) satisfies (p-1)! ≡ -1 - B·p (mod p²)
  * Range:     u8 n <= 67, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 81 terms through n = 842 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto */
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
 
 static uint64_t *prime_arr   = NULL;   /* array of primes (1‑based indexing in a) */
 static size_t   prime_cnt    = 0;      /* number of primes currently stored */

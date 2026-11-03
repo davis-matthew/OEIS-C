@@ -11,14 +11,22 @@
  *            a(m) reads rows in order
  * Range:     u8 n <= 31, u16 n <= 55, u32 n <= 138, u64 n <= 350,
  *            u128 n <= 899, big any n
- * Helpers:   alloc_zero, row_len
+ * Validated: standard, pass, 75 terms through n = 1832 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/row_len.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static idx_t row_len(idx_t r) { return 3 * (r - 1) / 2 + 1; }
 
 static seq_t **rows = NULL;
 static idx_t *lens = NULL;

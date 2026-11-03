@@ -7,14 +7,17 @@
  * Formula:   a(n) = {2 n choose n}_q / (n+1)_q, where q = 11
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 6,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* (exact integer division, result fits seq_t for all n) */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Euclidean GCD for seq_t (works for built‑in and arbitrary precision) */
 static seq_t seq_gcd(seq_t a, seq_t b)
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
         return 1;
 
     /* (n+1)_q = (q^(n+1) – 1) / (q – 1) */
-    seq_t pow_q_n_plus1 = big_pow(q, n + 1);
+    seq_t pow_q_n_plus1 = ipow(q, n + 1);
     seq_t denom = (pow_q_n_plus1 - 1) / (q - 1);
 
     /* Compute { 2n choose n }_q by multiplicative cancellation */

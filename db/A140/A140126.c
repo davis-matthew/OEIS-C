@@ -8,7 +8,8 @@
  *            n such that 4*i^2 + 1 is prime)
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"   /* provides bool is_prime_small(uint64_t) */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* ---------- initialise on first call ---------- */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return 0;          /* out of memory – caller will fault */
         cache[0] = 0;                         /* unused slot for 0th index */
     }
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_cap) {
         size_t new_cap = cache_cap;
         while (n + 1 > new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return 0;           /* out of memory */
         cache = tmp;
         cache_cap = new_cap;
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         uint64_t ii   = (uint64_t)next_i * next_i;
         uint64_t val  = 4ULL * ii + 1ULL;
 
-        if (is_prime_small(val)) {
+        if (is_prime_seq(val)) {
             ++max_n;
             curr_sum += (seq_t)next_i;
             cache[max_n] = curr_sum;

@@ -7,12 +7,14 @@
  * Formula:   a(n) = floor(n/2)! * |Stirling1(n, floor(n/2))|
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
     /* Allocate an array of k+1 unsigned Stirling numbers of the first kind
        processed row by row.  We keep only the values needed for the
        current row. */
-    seq_t *s = (seq_t *)malloc((size_t)(k + 1) * sizeof(seq_t));
+    seq_t *s = mem_new(seq_t, (size_t)(k + 1));
     if (!s) abort();                      /* allocation failure protection */
 
     /* initialize s[0] = 1 (for n = 0), all other entries 0. */
@@ -53,6 +55,6 @@ seq_t a(idx_t n)
 
     seq_t result = s[k] * fact;     /* |Stirling1(n,k)| * k! */
 
-    free(s);
+    mem_free(s);
     return result;
 }

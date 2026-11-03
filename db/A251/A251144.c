@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 29, u64 n <= 61, u128 n <= 125,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    The function memoises results so that calls can come in any order. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build system (do not redeclare) */
 
@@ -36,9 +38,9 @@ static void ensure_cache(idx_t n)
     /* Allocate or grow the cache to length n+1 (index 0 unused). */
     size_t new_len = (size_t)(n + 1);
     if (cache == NULL) {
-        cache = (seq_t *)calloc(new_len, sizeof(seq_t));
+        cache = mem_new(seq_t, new_len);
     } else {
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
     }
 
     /* Compute values for the newly added indices. */

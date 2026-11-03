@@ -9,7 +9,8 @@
  *            if none
  * Range:     i8 n <= 8, i16 n <= 56, i32 n <= 56, i64 n <= 56, i128 n <= 56,
  *            big any n
- * Helpers:   digits_uint64, gcd_uint64
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   gcd_u64, num_digits_u64_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,8 +34,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/digits_uint64.h"
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/num_digits_u64_to_u32.h"
 
 /* ---------- constants & global tables ---------- */
 #define MAX_PRIME_LIMIT 100000
@@ -141,13 +142,13 @@ seq_t a(idx_t n) {
     init_primes();
 
     uint64_t N = (uint64_t)n;
-    unsigned d = digits_uint64(N);
+    unsigned d = num_digits_u64_to_u32(N);
 
     /* compute 10^d */
     uint64_t M = 1;
     for (unsigned i = 0; i < d; ++i) M *= 10ULL;
 
-    uint64_t g = gcd_uint64(N, M);
+    uint64_t g = gcd_u64(N, M);
     uint64_t b = M / g;                /* modulus for trailing condition */
     if (b == 0) return (seq_t)-1;      /* should not happen */
 

@@ -9,15 +9,17 @@
  * Formula:   a(n) = A000005(A009191(n))
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, u64_gcd
+ * Validated: standard, pass, 136 terms through n = 9428 (2026-11-01)
+ * Helpers:   gcd_u64, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/u64_gcd.h"
+#include <stdlib.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -25,13 +27,13 @@ seq_t a(idx_t n)
     uint64_t nn = (uint64_t)n;
 
     /* d(n) – number of positive divisors of n */
-    uint64_t d = divisor_count_u64(nn);
+    uint64_t d = num_divisors(nn);
 
     /* g = gcd(n, d(n)) */
-    uint64_t g = u64_gcd(nn, d);
+    uint64_t g = gcd_u64(nn, d);
 
     /* a(n) = d(g) */
-    uint64_t ret = divisor_count_u64(g);
+    uint64_t ret = num_divisors(g);
 
     return (seq_t)ret;
 }

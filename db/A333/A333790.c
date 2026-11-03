@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = n + min{ a(n - n/p) | p prime and p | n }
- * Range:     u8 n <= 78, u16 n <= 9928, u32 n <= 9928, u64 n <= 9928,
- *            u128 n <= 9928, big any n
- * Helpers:   build_spf
+ * Range:     u8 n <= 78, u16 n <= 17902, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 93 terms through n = 9928 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /* Memoisation table for a(n); 0 means “not yet computed”. */
 static seq_t *cache      = NULL;  /* one element per n, index 0 unused */
@@ -43,7 +45,7 @@ static void ensure_cache(idx_t n)
 {
     if ((size_t)n < cache_cap) return;
     size_t new_cap = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) exit(1);           /* out of memory */
     for (size_t i = cache_cap; i < new_cap; ++i)
         new_cache[i] = (seq_t)0;

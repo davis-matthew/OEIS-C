@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 127, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   small_factor_count
+ * Validated: standard, pass, 81 terms through n = 8823 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,40 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/small_factor_count.h"
+
+/* Count the multiplicity of prime factors 2,3,5,7 in k.  The result is the
+ * total number of such prime factors.  For a number to be included in the
+ * sequence it must have this count ≥ 2. */
+static int small_factor_count(uint64_t k)
+{
+    int cnt = 0;
+
+    /* factor 2 */
+    while ((k & 1ULL) == 0ULL) {
+        k >>= 1;
+        ++cnt;
+    }
+
+    /* factor 3 */
+    while (k % 3ULL == 0ULL) {
+        k /= 3ULL;
+        ++cnt;
+    }
+
+    /* factor 5 */
+    while (k % 5ULL == 0ULL) {
+        k /= 5ULL;
+        ++cnt;
+    }
+
+    /* factor 7 */
+    while (k % 7ULL == 0ULL) {
+        k /= 7ULL;
+        ++cnt;
+    }
+
+    return cnt;
+}
 
 /* Return the n-th term of the sequence (1‑based). */
 seq_t a(idx_t n)

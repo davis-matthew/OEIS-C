@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 23, u32 n <= 23, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   _floor_isqrt_u64, is_prime_small
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   is_prime_seq, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/isqrt.h"
 
 /* Cached list of found terms (stored as k values). */
 static idx_t   *terms   = NULL;   /* array of idx_t values */
@@ -48,11 +49,11 @@ static void add_term(idx_t k)
 static bool is_good(idx_t k)
 {
     /* largest m with m < sqrt(k) */
-    idx_t mmax = _floor_isqrt_u64(k - 1);
+    idx_t mmax = isqrt(k - 1);
     for (idx_t m = 2; m <= mmax; ++m) {
         uint64_t sq = m * m;           /* m² fits in 64 bits for k < 2¹²⁸ in practice */
         uint64_t r   = k % sq;
-        if (is_prime_small((seq_t)r))
+        if (is_prime_seq((seq_t)r))
             return false;
     }
     return true;

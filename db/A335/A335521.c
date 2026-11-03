@@ -11,7 +11,8 @@
  *            a depth‑first search that simulates the greedy p...
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   factor_u64, prime_pi
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   factor_u64, mem, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 /* Utility headers.  Adjust paths if necessary. */
 #include "../utils/factor_u64.h"
 #include "../utils/prime_pi.h"
+#include "../utils/mem.h"
 
 /* ----- Hash table for memoization ----- */
 typedef struct { uint64_t key; seq_t val; } CacheEntry;
@@ -38,11 +40,11 @@ static void cache_reset(size_t min_cap)
     size_t cap = 1;
     while (cap < min_cap) cap <<= 1;
     if (cache == NULL || cache_cap < cap) {
-        free(cache);
-        cache = (CacheEntry *)calloc(cap, sizeof(CacheEntry));
+        mem_free(cache);
+        cache = mem_new(CacheEntry, cap);
         cache_cap = cap;
     } else {
-        memset(cache, 0, cache_cap * sizeof(CacheEntry));
+        mem_set(cache, 0, cache_cap * sizeof(CacheEntry));
     }
     cache_cnt = 0;
 }
@@ -62,7 +64,7 @@ static void cache_insert(uint64_t key, seq_t val)
     /* simple resize guard – should never hit in practice */
     if ((cache_cnt + 1) * 10 >= cache_cap * 7) {
         size_t new_cap = cache_cap << 1;
-        CacheEntry *new_tbl = (CacheEntry *)calloc(new_cap, sizeof(CacheEntry));
+        CacheEntry *new_tbl = mem_new(CacheEntry, new_cap);
         for (size_t i = 0; i < cache_cap; ++i) {
             if (cache[i].key) {
                 uint64_t k = cache[i].key;
@@ -72,7 +74,7 @@ static void cache_insert(uint64_t key, seq_t val)
                 new_tbl[p].val = cache[i].val;
             }
         }
-        free(cache);
+        mem_free(cache);
         cache = new_tbl;
         cache_cap = new_cap;
     }

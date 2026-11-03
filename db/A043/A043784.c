@@ -8,12 +8,29 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   count_runs_base3
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count_runs_base3.h"
+static unsigned count_runs_base3(idx_t x)
+{
+    if (x == 0)               /* “0” has one run */
+        return 1;
+    unsigned runs = 1;
+    idx_t last = x % 3;
+    x /= 3;
+    while (x > 0) {
+        idx_t d = x % 3;
+        if (d != last) {
+            ++runs;
+            last = d;
+        }
+        x /= 3;
+    }
+    return runs;
+}
 /* Numbers n for which the number of runs in the base‑3 representation
  * of n is congruent to 4 (mod 5).  Computed by incremental search. */
 

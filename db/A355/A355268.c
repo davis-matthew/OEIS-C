@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Sum_{k=0..⌊n/2⌋} 1/k!
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 440 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Initial values: a(0)=1, a(1)=1, a(2)=4 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (n >= cap) {
         size_t newCap = cap ? cap << 1 : 8;
         while (newCap <= (size_t)n) newCap <<= 1;
-        cache = (seq_t *)realloc(cache, newCap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newCap);
         if (cache == NULL) return (seq_t)0;   /* allocation failure */
 
         /* Initialise base values if this is the first allocation */

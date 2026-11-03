@@ -10,12 +10,14 @@
  *            quotient and remainder by n+1 first
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -26,15 +28,15 @@ seq_t a(idx_t n) {
 
     if (cache == NULL) {
         cache_len = (n + 10 < 100) ? 100 : n + 10;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[0] = 1;
         cache[1] = 1;
     } else if (cache_len <= n) {
         idx_t newlen = cache_len;
         while (newlen <= n) newlen *= 2;
-        seq_t *nc = (seq_t *)malloc(newlen * sizeof(seq_t));
+        seq_t *nc = mem_new(seq_t, newlen);
         for (idx_t j = 0; j <= max_computed; j++) nc[j] = cache[j];
-        free(cache);
+        mem_free(cache);
         cache = nc;
         cache_len = newlen;
     }

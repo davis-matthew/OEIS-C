@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} (-4)^(n-k) * 5^k * Stirling2(n,k) * k!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Derived recurrence: a_m = 4^m + Σ_{i=0}^{m-1} C(m,i) * a_i * 4^{m-i-1} */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,13 +33,13 @@ seq_t a(idx_t n)
     if (cache_size < n + 1) {
         idx_t new_cap = cache_size ? cache_size * 2 : 1;
         while (new_cap <= n) new_cap <<= 1;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_size = new_cap;
     }
     if (pow4_size < n + 1) {
         idx_t new_cap = pow4_size ? pow4_size * 2 : 1;
         while (new_cap <= n) new_cap <<= 1;
-        pow4 = (seq_t*)realloc(pow4, new_cap * sizeof(seq_t));
+        pow4 = mem_resize(seq_t, pow4, new_cap);
         pow4_size = new_cap;
     }
 

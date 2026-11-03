@@ -12,13 +12,15 @@
  *            (n,k) satisfying n + k = d for the d‑th antidiagonal
  * Range:     u8 n <= 42, u16 n <= 75, u32 n <= 168, u64 n <= 403,
  *            u128 n <= 1032, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 9031 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*--- Bell number cache -----------------------------------------------------*/
 static seq_t *bell = NULL;   /* bell[i] stores Bell(i) */
@@ -31,7 +33,7 @@ static void ensure_bell_upto(idx_t m)
     /* initialise with Bell(0) = 1 if not yet done */
     if (bell_len == 0) {
         bell_cap = 4;
-        bell = (seq_t*)malloc(bell_cap * sizeof(seq_t));
+        bell = mem_new(seq_t, bell_cap);
         if (!bell) abort();
         bell[0] = (seq_t)1;
         bell_len = 1;
@@ -52,7 +54,7 @@ static void ensure_bell_upto(idx_t m)
         /* Grow array if necessary */
         if (bell_len >= bell_cap) {
             size_t new_cap = bell_cap ? bell_cap * 2 : 4;
-            seq_t *tmp = (seq_t*)realloc(bell, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, bell, new_cap);
             if (!tmp) abort();
             bell = tmp;
             bell_cap = new_cap;

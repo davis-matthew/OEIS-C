@@ -8,6 +8,7 @@
  *            order), a(n) = q^6 * (q^2 - 1) * (q^6 - 1)
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 13, u128 n <= 13,
  *            big any n
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

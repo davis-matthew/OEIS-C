@@ -9,7 +9,8 @@
  *            a(3)=0
  * Range:     u8 n <= 486, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 9956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    index handled by using n as given).  Results are memoised in a
    static array so calls in any order are fast and memory efficient. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if ((size_t)n > cap) {
         size_t new_cap = (cap > 0) ? cap * 2 : 4;
         if (new_cap < (size_t)n) new_cap = (size_t)n;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap = new_cap;
     }
 

@@ -10,13 +10,29 @@
  *            this via binary * exponentiation of the truncated polynomial
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 27, u64 n <= 290, u128 n <= 1000,
  *            big any n
- * Helpers:   poly_mul
+ * Validated: standard, pass, 43 terms through n = 896 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/poly_mul.h"
+
+/* multiply two degree‑≤9 polynomials a and b, store result in res;
+ * coefficients larger than degree 9 are discarded (truncated). */
+static void poly_mul(const seq_t a[10], const seq_t b[10], seq_t res[10])
+{
+    seq_t tmp[10] = {0};
+    for (int i = 0; i < 10; ++i) {
+        if (a[i] == 0) continue;
+        for (int j = 0; j < 10; ++j) {
+            if (i + j > 9) break;
+            if (b[j] == 0) continue;
+            tmp[i + j] += a[i] * b[j];
+        }
+    }
+    for (int i = 0; i < 10; ++i) res[i] = tmp[i];
+}
 
 /* main sequence function */
 seq_t a(idx_t n)

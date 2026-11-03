@@ -12,7 +12,8 @@
  *            programming on pairs of consecutive rows
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 16, u128 n <= 36,
  *            big any n
- * Helpers:   absdiff
+ * Validated: standard, pass, 31 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/absdiff.h"
+#include "../utils/mem.h"
+
+/* ---------------  Transfer function  --------------- */
+static inline int absdiff(int a, int b)
+{
+    return a > b ? a - b : b - a;
+}
 
 /* ---------------  Row enumeration  --------------- */
 #define ROWS 243          /* 3^5 possible rows */
@@ -191,8 +198,8 @@ seq_t a(idx_t n)
     if (!precomputed) init_precomputation();
 
     /* DP arrays */
-    seq_t *dp = (seq_t*)calloc(pairCount, sizeof(seq_t));
-    seq_t *newdp = (seq_t*)calloc(pairCount, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, pairCount);
+    seq_t *newdp = mem_new(seq_t, pairCount);
 
     /* Initialize: each valid pair can be the first pair */
     for (size_t i = 0; i < pairCount; ++i) dp[i] = 1;
@@ -200,7 +207,7 @@ seq_t a(idx_t n)
     /* Perform n-1 transitions */
     for (idx_t step = 1; step < n; ++step) {
         /* zero newdp */
-        memset(newdp, 0, pairCount * sizeof(seq_t));
+        mem_set(newdp, 0, pairCount * sizeof(seq_t));
         for (size_t p = 0; p < pairCount; ++p) {
             if (dp[p] == 0) continue;
             size_t sz = adjSize[p];
@@ -223,8 +230,8 @@ seq_t a(idx_t n)
     }
 
     /* Clean up temporary arrays */
-    free(dp);
-    free(newdp);
+    mem_free(dp);
+    mem_free(newdp);
 
     return result;
 }

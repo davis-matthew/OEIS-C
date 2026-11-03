@@ -12,12 +12,25 @@
  *            distance 1 and layer spacing sqrt(2/3). The center si...
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   eis_E
+ * Validated: standard, pass, 93 terms through n = 941 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/eis_E.h"
+static long long eis_E(unsigned long long k) {
+    long long s = 0;
+    unsigned long long d;
+    for (d = 1; d * d <= k; d++) {
+        if (k % d == 0) {
+            unsigned long long e = k / d;
+            int r1 = (int)(d % 3), r2 = (int)(e % 3);
+            s += (r1 == 1) ? 1 : (r1 == 2 ? -1 : 0);
+            if (e != d) s += (r2 == 1) ? 1 : (r2 == 2 ? -1 : 0);
+        }
+    }
+    return s;
+}
 
 seq_t a(idx_t n) {
     unsigned long long N = (unsigned long long)n;

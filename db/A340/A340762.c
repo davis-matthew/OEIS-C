@@ -10,14 +10,16 @@
  *            from a(1)=4
  * Range:     u8 n <= 239, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi
+ * Validated: standard, pass, 76 terms through n = 8790 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/calc_phi.h"
-
+#include <stdint.h>
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* initialise storage and the first element if this is the first call */
     if (seq == NULL) {
         cap = 16;
-        seq = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, NULL, cap);
         len = 0;
         last_checked = 4;          /* start with the first term  */
         seq[len++] = 4;            /* a(1) = 4                     */
@@ -45,12 +47,12 @@ seq_t a(idx_t n)
         seq_t t = last_checked;
         /* iterate φ until 4 or 1 is reached */
         while (t != 4 && t != 1) {
-            t = calc_phi(t);
+            t = totient_seq(t);
         }
         if (t == 4) {              /* accept the candidate */
             if (len == cap) {      /* grow the table if needed */
                 cap <<= 1;
-                seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, cap);
             }
             seq[len++] = last_checked;
         }

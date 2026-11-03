@@ -10,12 +10,14 @@
  *            otherwise
  * Range:     i8 n <= 8, i16 n <= 14, i32 n <= 29, i64 n <= 37, i128 n <= 37,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     idx_t s = (n + 2) / 3;      /* floor((n+2)/3)            */
-    seq_t pow2 = pow_seq((seq_t)2, n - 1);   /* 2^(n-1) */
+    seq_t pow2 = ipow_i32((seq_t)2, n - 1);   /* 2^(n-1) */
 
     seq_t detT;
     idx_t r = n % 6;

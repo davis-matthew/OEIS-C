@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 23, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Initial values: a(0)=0, a(1)=2, a(2)=5, a(3)=14, a(4)=36, a(5)=96 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t a_init[6] = {0, 2, 5, 14, 36, 96};
 
@@ -33,7 +35,7 @@ static void ensure_cache_size(idx_t n)
     if (new_cap == 0) new_cap = 6;                 /* start with the initial capacity   */
     while (new_cap <= (size_t)n) new_cap <<= 1;    /* grow exponentially                */
 
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) abort();                            /* allocation failed */
     a_cache = tmp;
     cache_cap = new_cap;
@@ -48,7 +50,7 @@ extern seq_t a(idx_t n)
 
     /* Initialise cache on first invocation */
     if (!a_cache) {
-        a_cache = (seq_t *)malloc(6 * sizeof(seq_t));
+        a_cache = mem_new(seq_t, 6);
         if (!a_cache) abort();
         for (idx_t i = 0; i < 6; ++i) a_cache[i] = a_init[i];
         cache_cap = 6;

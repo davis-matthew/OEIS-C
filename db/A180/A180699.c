@@ -8,14 +8,16 @@
  *            of n
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 2, u128 n <= 8,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static const long double LOG16L = log10l((long double)16.0L);
 static const long double EPS    = 1e-18L;
@@ -50,11 +52,11 @@ seq_t a(idx_t n)
     while (1) {
         if (high <= low) {
             if (f + EPS >= low) {
-                return big_pow((seq_t)16, (seq_t)k);
+                return ipow((seq_t)16, (seq_t)k);
             }
         } else {
             if ((f + EPS >= low) && (f < high - EPS)) {
-                return big_pow((seq_t)16, (seq_t)k);
+                return ipow((seq_t)16, (seq_t)k);
             }
         }
 

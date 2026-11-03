@@ -11,12 +11,14 @@
  *            It uses only integer arithmetic and works for all pro...
  * Range:     u8 n <= 31, u16 n <= 60, u32 n <= 145, u64 n <= 429,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global cache for partition numbers */
 static seq_t *partitions = NULL;
@@ -28,8 +30,7 @@ static void ensure_partitions(idx_t N) {
     if (partition_cap >= N) return;          /* already enough */
 
     /* Expand the cache */
-    seq_t *new_part = (seq_t *)realloc(partitions,
-                                       (N + 1) * sizeof(seq_t));
+    seq_t *new_part = mem_resize(seq_t, partitions, (N + 1));
     if (!new_part) return;                   /* silently fail */
     partitions = new_part;
 

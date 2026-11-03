@@ -9,7 +9,8 @@
  *            sum_{|x|<n, |y|<n, gcd(|x|,|y|)=1} (n - |k*x|)*(n - |k*y|)
  * Range:     u8 n <= 4, u16 n <= 18, u32 n <= 329, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 931 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Basic gcd for unsigned integers                           */
 static inline idx_t gcd_uint64(idx_t a, idx_t b)
@@ -40,7 +42,7 @@ static void cache_ensure(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap? cache_cap*2 : 1;
     while (new_cap < need) new_cap <<= 1;
-    cache_vals = (seq_t*)realloc(cache_vals, new_cap * sizeof(seq_t));
+    cache_vals = mem_resize(seq_t, cache_vals, new_cap);
     cache_flag = (unsigned char*)realloc(cache_flag, new_cap);
     for (size_t i = cache_cap; i < new_cap; ++i) cache_flag[i] = 0;
     cache_cap = new_cap;

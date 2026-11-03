@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrime_uint64, mod_pow
+ * Validated: standard, pass, 71 terms through n = 980 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,21 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
-#include "../utils/isPrime_uint64.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Simple primality test using previously found primes */
+static bool isPrime_uint64(uint64_t n, uint64_t *primes, size_t primes_cnt)
+{
+    if (n < 2) return false;
+    for (size_t i = 0; i < primes_cnt; ++i) {
+        uint64_t p = primes[i];
+        if (p * p > n) break;
+        if (n % p == 0) return false;
+    }
+    return true;
+}
 
 /* Resize a dynamic array of seq_t */
 static void ensure_seq_cap(seq_t **arr, size_t *cap, size_t need)
@@ -31,7 +45,7 @@ static void ensure_seq_cap(seq_t **arr, size_t *cap, size_t need)
     if (*cap >= need) return;
     size_t newcap = (*cap) ? (*cap) : 8;
     while (newcap < need) newcap <<= 1;
-    *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, newcap);
     *cap = newcap;
 }
 
@@ -94,7 +108,7 @@ seq_t a(idx_t n)
             } else {
                 uint64_t d = ugcd(34ULL, candidate - 1);
                 uint64_t exp = (candidate - 1) / d;
-                seq_t res = mod_pow((seq_t)2, exp, (seq_t)candidate);
+                seq_t res = powmod((seq_t)2, exp, (seq_t)candidate);
                 good = (res == (seq_t)1);
             }
 

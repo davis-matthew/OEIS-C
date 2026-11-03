@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 17, u32 n <= 28, u64 n <= 33, u128 n <= 33,
  *            big any n
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* OEIS A357931
  * a(n) = Sum_{k=0..floor(n/3)} |Stirling1(n-2k, n-3k)|
  *

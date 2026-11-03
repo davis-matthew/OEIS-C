@@ -10,14 +10,16 @@
  *            mod 3 = 2} k = cy*(3*cy+1)/2 z_n = sum_{k=1..n, k mod 3 = 0} k =
  *            3*cz*(cz+1)/2 with cx = n/3 + (n%3>=1) cy = n/3 + (n%3>=2) cz =
  *            n/3
- * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 54, u64 n <= 54, u128 n <= 54,
+ * Range:     u8 n <= 6, u16 n <= 29, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   sqrt_floor
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sqrt_floor.h"
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -43,5 +45,5 @@ seq_t a(idx_t n)
     seq_t d2 = x * x + y * y + z * z;
 
     /* floor of Euclidean distance */
-    return sqrt_floor(d2);
+    return isqrt_seq(d2);
 }

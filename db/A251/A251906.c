@@ -12,7 +12,8 @@
  *            linear‑time dynamic programming * over triples of c...
  * Range:     u8 none, u16 n <= 1, u32 n <= 6, u64 n <= 16, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 179 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* EXTERNAL TYPES:
  *   seq_t – arbitrary precision integer type used by the build
@@ -124,15 +126,15 @@ static void init_tables(void)
     }
 
     /* Allocate DP arrays */
-    dp_cur = (seq_t *)calloc(STATES, sizeof(seq_t));
-    dp_nxt = (seq_t *)calloc(STATES, sizeof(seq_t));
+    dp_cur = mem_new(seq_t, STATES);
+    dp_nxt = mem_new(seq_t, STATES);
 
     /* Base for length 2 (two rows) – all pairs allowed */
     for (uint32_t i = 0; i < STATES; ++i) dp_cur[i] = (seq_t)1;
 
     /* Result cache for lengths up to 3 (need answer for n=1) */
     len_cap = 4;               /* indices 0..3 inclusive */
-    len_res = (seq_t *)calloc(len_cap, sizeof(seq_t));
+    len_res = mem_new(seq_t, len_cap);
     /* len_res[0] and [1] unused; len_res[2] counts length-2 arrays (not used)
        len_res[3] will hold answer for n=1 (length 3). We compute it in ensure_len. */
 
@@ -150,9 +152,9 @@ static void ensure_len(idx_t L)
     if (L >= len_cap) {
         idx_t newCap = len_cap;
         while (newCap <= L) newCap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(len_res, newCap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, len_res, newCap);
         if (!tmp) exit(1);
-        memset(tmp + len_cap, 0, (newCap - len_cap) * sizeof(seq_t));
+        mem_set(tmp + len_cap, 0, (newCap - len_cap) * sizeof(seq_t));
         len_res = tmp;
         len_cap = newCap;
     }
@@ -179,7 +181,7 @@ static void ensure_len(idx_t L)
         len_res[curLen] = sum;
 
         /* Prepare for next step: clear dp_cur, swap dp_cur and dp_nxt */
-        memset(dp_cur, 0, STATES * sizeof(seq_t));
+        mem_set(dp_cur, 0, STATES * sizeof(seq_t));
         seq_t *tmp = dp_cur; dp_cur = dp_nxt; dp_nxt = tmp;
     }
 

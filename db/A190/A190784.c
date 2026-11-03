@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- Suffix automaton for binary strings ---------- */
 typedef struct {
@@ -183,7 +185,7 @@ seq_t a(idx_t n)
         sa_last = 0;
 
         seq_cap = 16;
-        seq_arr = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         if (!seq_arr) abort();
         seq_len = 0;
         current = 0;
@@ -207,7 +209,7 @@ seq_t a(idx_t n)
                 selected[candidate] = 1;
             if (seq_len >= seq_cap) {
                 size_t newcap = seq_cap ? seq_cap * 2 : 16;
-                seq_t *tmp = (seq_t*)realloc(seq_arr, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_arr, newcap);
                 if (!tmp) abort();
                 seq_arr = tmp;
                 seq_cap = newcap;

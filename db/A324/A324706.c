@@ -9,8 +9,9 @@
  *            1+p^2+p^4+p^6.) The implementation uses the multiplicative
  *            formula and a simple prime sieve. It works for any seq_t of size
  *            8 or greater
- * Range:     u8 n <= 119, u16 n <= 9841, u32 n <= 9841, u64 n <= 9841,
- *            u128 n <= 9841, big any n
+ * Range:     u8 n <= 119, u16 n <= 19319, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 82 terms through n = 9841 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

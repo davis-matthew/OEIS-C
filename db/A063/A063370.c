@@ -11,6 +11,7 @@
  *            a(13)=4262. a(n) is defined for all n ≥ 2
  * Range:     i8 n <= 2, i16 n <= 85, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 54 terms through n = 971 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

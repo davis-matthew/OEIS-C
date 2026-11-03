@@ -8,8 +8,9 @@
  * Formula:   a(n) = number of Jacobsthal numbers needed by the greedy
  *            algorithm to represent n. A_1 = 0, A_2 = 1, A_k =
  *            A_{k-1}+2*A_{k-2} for k≥3
- * Range:     u8 n <= 300, u16 n <= 9624, u32 n <= 9624, u64 n <= 9624,
- *            u128 n <= 9624, big any n
+ * Range:     u8 n <= 300, u16 n <= 10923, u32 n <= 10923, u64 n <= 10923,
+ *            u128 n <= 10923, big any n
+ * Validated: standard, pass, 123 terms through n = 9624 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

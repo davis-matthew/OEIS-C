@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   is_simply_connected_to_one
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,32 @@
    Implemented by incremental search with memoisation. */
 
 #include <stdlib.h>
-#include "../utils/is_simply_connected_to_one.h"
+#include "../utils/mem.h"
+
+static int is_simply_connected_to_one(seq_t x)
+{
+    int min_digit = 10, max_digit = -1;
+    char seen[10] = {0};
+
+    /* Extract digits of x */
+    seq_t y = x;
+    do {
+        int d = (int)(y % 10);
+        seen[d] = 1;
+        if (d < min_digit) min_digit = d;
+        if (d > max_digit) max_digit = d;
+        y /= 10;
+    } while (y != 0);
+
+    /* Must contain the digit 1 */
+    if (!seen[1]) return 0;
+
+    /* All digits between min and max must be present */
+    for (int d = min_digit; d <= max_digit; ++d)
+        if (!seen[d]) return 0;
+
+    return 1;
+}
 
 static seq_t *cache = NULL;     /* array of previously computed terms    */
 static size_t cache_cap = 0;    /* current capacity of cache             */
@@ -39,7 +65,7 @@ seq_t a(idx_t n)
         if (is_simply_connected_to_one(cur)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
-                cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, new_cap);
                 cache_cap = new_cap;
             }
             cache[cache_len++] = cur;

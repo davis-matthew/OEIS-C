@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 16, i16 n <= 37, i32 n <= 80, i64 n <= 193,
  *            i128 n <= 501, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 5073 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -66,6 +67,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -79,13 +81,13 @@ seq_t a(idx_t n)
     idx_t k = n - start;                      /* column index within the row */
 
     /* Allocate arrays of size r+1 (≤ 200 for n ≤ 10⁴) */
-    seq_t *s   = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));   /* Stirling numbers */
-    seq_t *aarr = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));   /* A[j] = S(r,r-j)*C(r,j) */
-    seq_t *pref = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));   /* prefix sums of aarr */
+    seq_t *s   = mem_new(seq_t, (size_t)(r + 1));   /* Stirling numbers */
+    seq_t *aarr = mem_new(seq_t, (size_t)(r + 1));   /* A[j] = S(r,r-j)*C(r,j) */
+    seq_t *pref = mem_new(seq_t, (size_t)(r + 1));   /* prefix sums of aarr */
 
     if (!s || !aarr || !pref) {
         /* Allocation failure – return 0 (unlikely for small r) */
-        free(s); free(aarr); free(pref);
+        mem_free(s); mem_free(aarr); mem_free(pref);
         return (seq_t)0;
     }
 
@@ -127,9 +129,9 @@ seq_t a(idx_t n)
     seq_t val  = pref[k] + pref[r - k] - pref[0] - pref[r] + (seq_t)1;
 
     /* Clean up */
-    free(s);
-    free(aarr);
-    free(pref);
+    mem_free(s);
+    mem_free(aarr);
+    mem_free(pref);
 
     return val;
 }

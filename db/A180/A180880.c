@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 30, u128 n <= 62,
  *            big any n
- * Helpers:   binom, pow_uint
+ * Validated: standard, pass, 37 terms through n = 97 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,8 @@
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/pow_uint.h"
+#include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Compute the Eulerian number A(k,d) for d = 0,1,2 */
 static seq_t euler(idx_t k, int d)
@@ -38,12 +39,12 @@ static seq_t euler(idx_t k, int d)
         case 0:  /* exactly 0 descents */
             return (seq_t)1;
         case 1:  /* exactly 1 descent */
-            return pow_uint(2, k) - (seq_t)k - 1;
+            return ipow_u64_idx(2, k) - (seq_t)k - 1;
         case 2:  /* exactly 2 descents */
         {
-            seq_t p2 = pow_uint(2, k);
-            seq_t p3 = pow_uint(3, k);
-            seq_t comb = binom(k + 1, 2);             /* (k+1 choose 2) */
+            seq_t p2 = ipow_u64_idx(2, k);
+            seq_t p3 = ipow_u64_idx(3, k);
+            seq_t comb = binomial(k + 1, 2);             /* (k+1 choose 2) */
             return p3 + comb - ((seq_t)(k + 1) * p2); /* = 3^k - (k+1)2^k + C(k+1,2) */
         }
         default:
@@ -62,7 +63,7 @@ seq_t a(idx_t n)
     idx_t L_e = m / 2;        /* floor(m/2) */
 
     /* Binomial coefficient C(m, L_o) */
-    seq_t bin = binom(m, L_o);
+    seq_t bin = binomial(m, L_o);
 
     /* Eulerian numbers for the odd subsequence */
     seq_t eo0 = euler(L_o, 0);  /* 1 */

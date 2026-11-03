@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   pentagonal
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,13 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pentagonal.h"
+#include "../utils/mem.h"
+
+/* Computes the pentagonal number P(m) = m*(3*m-1)/2. */
+static seq_t pentagonal(idx_t m)
+{
+    return (seq_t)m * ((seq_t)(3*m - 1)) / 2;
+}
 
 seq_t a(idx_t n)
 {
@@ -54,7 +61,7 @@ seq_t a(idx_t n)
     seq_t *curr = NULL;
 
     for (idx_t i = 0; i <= r; ++i) {
-        curr = (seq_t*)malloc((i + 1) * sizeof(seq_t));
+        curr = mem_new(seq_t, (i + 1));
         curr[0] = 1;                      /* T(i,0) = 1 */
 
         if (i > 0) {
@@ -70,13 +77,13 @@ seq_t a(idx_t n)
         /* If we reached the target row, return the requested element. */
         if (i == r) {
             seq_t result = curr[c];
-            free(curr);
-            if (prev) free(prev);
+            mem_free(curr);
+            if (prev) mem_free(prev);
             return result;
         }
 
         /* Prepare for next iteration. */
-        if (prev) free(prev);
+        if (prev) mem_free(prev);
         prev = curr;
     }
 

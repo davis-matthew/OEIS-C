@@ -8,8 +8,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n is composite and its arithmetic derivative n' is a
  *            sum of distinct primorial numbers, otherwise 0
- * Range:     u8 n <= 7, u16 n <= 8946, u32 n <= 8946, u64 n <= 8946,
- *            u128 n <= 8946, big any n
+ * Range:     u8 n <= 7, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 138 terms through n = 8946 (2026-11-01)
  * Helpers:   factor_u64, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,8 +19,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
 
 #define MAX_PRIMORIALS 7  /* 0# , 2 , 6 , 30 , 210 , 2310 , 30030  */
 

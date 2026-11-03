@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 39, u64 n <= 59, u128 n <= 97,
  *            big any n
+ * Validated: standard, pass, 61 terms through n = 1265 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -25,6 +26,7 @@
 */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* compute T(n,k) = (n*k)! / (k!^n * n!) by the product formula: */

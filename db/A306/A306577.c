@@ -9,8 +9,9 @@
  * Formula:   a(n) = last odd number in the Collatz trajectory of n before 1
  *            (1 if no odd number other than 1 occurs; -1 if 1 is never
  *            reached)
- * Range:     u8 n <= 74, u16 n <= 3742, u32 n <= 6861, u64 n <= 6861,
- *            u128 n <= 6861, big any n
+ * Range:     u8 n <= 74, u16 n <= 3742, u32 n <= 14563, u64 n <= 14563,
+ *            u128 n <= 14563, big any n
+ * Validated: standard, pass, 117 terms through n = 6861 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

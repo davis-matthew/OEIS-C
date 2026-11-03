@@ -10,7 +10,8 @@
  *            concatenation. * (OEIS A191248)
  * Range:     u8 n <= 300, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_count
+ * Validated: standard, pass, 91 terms through n = 9367 (2026-11-01)
+ * Helpers:   num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/digit_count.h"
+#include <math.h>
+#include "../utils/num_digits0.h"
 
 #define MAX_PRIMES 20000
 #define SIEVE_LIMIT 300000
@@ -52,7 +54,7 @@ static void generate_primes(void)
         primes[count] = (uint32_t)i;
 
         /* digit counts of the prime */
-        uint64_t len = digit_count(i);
+        uint64_t len = num_digits0(i);
         prefix_len[count + 1] = prefix_len[count] + len;
 
         unsigned char cur[10] = {0};
@@ -73,7 +75,7 @@ static void generate_primes(void)
 /* digit of a prime (1‑based from left) */
 static unsigned char prime_digit(uint32_t p, idx_t pos)
 {
-    idx_t len = digit_count(p);
+    idx_t len = num_digits0(p);
     idx_t from_right = len - pos;
     while (from_right--)  p /= 10;
     return (unsigned char)(p % 10);

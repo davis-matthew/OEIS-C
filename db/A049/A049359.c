@@ -10,7 +10,8 @@
  *            of times * (leading zero not allowed)
  * Range:     u8 none, u16 none, u32 n <= 720, u64 n <= 720, u128 n <= 720,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: standard, pass, 40 terms through n = 713 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,20 @@
  * ../utils/free_seq_array.h). */
 
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Return the count of 8k‑digit base‑8 numbers that use each digit
  * exactly k times, with no leading zero. */

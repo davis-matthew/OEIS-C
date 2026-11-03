@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *primes = NULL;
 static size_t prime_cnt = 0;
@@ -31,7 +34,7 @@ static inline void ensure_capacity(size_t needed)
     size_t new_cap = prime_cap ? prime_cap * 2 : 8;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_ptr = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, primes, new_cap);
     primes = new_ptr;
     prime_cap = new_cap;
 }
@@ -39,9 +42,9 @@ static inline void ensure_capacity(size_t needed)
 /* Test whether p satisfies the defining condition */
 static inline bool good_prime(uint64_t p)
 {
-    return is_prime(p) &&
-           is_prime(3 * p + 20) &&
-           is_prime(20 * p + 3);
+    return is_prime_u64(p) &&
+           is_prime_u64(3 * p + 20) &&
+           is_prime_u64(20 * p + 3);
 }
 
 seq_t a(idx_t n)

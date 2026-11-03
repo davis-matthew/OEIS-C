@@ -7,8 +7,9 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = 0 for n = 0 or n = 2; 1 if n is a perfect square; 3 if n
  *            ≡ 2 (mod 4) and n > 0; 2 otherwise
- * Range:     u8 n <= 9733, u16 n <= 9733, u32 n <= 9733, u64 n <= 9733,
- *            u128 n <= 9733, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 119 terms through n = 9733 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

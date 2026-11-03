@@ -10,12 +10,14 @@
  *            a(1)=1, a(2)=3, a(3)=16, a(4)=37, a(5)=117, a(6)=372
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 39, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (!cache) {
         /* allocate space for indices 0..6 (7 elements) */
         cache_len = 7;
-        cache = (seq_t*)calloc((size_t)cache_len, sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_len);
         if (!cache) return 0;          /* allocation failure, return 0 */
         /* cache[0] is left zero for simplicity */
         cache[1] = (seq_t)1;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
 
     /* grow cache up to index n */
     idx_t new_len = n + 1; /* we need indices 0..n inclusive */
-    seq_t *tmp = (seq_t*)realloc(cache, (size_t)new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_len);
     if (!tmp) return 0;                     /* allocation failure */
     cache = tmp;
     /* zero new elements – important for the added space */

@@ -8,13 +8,15 @@
  * Formula:   a(n) = a(n-1) XOR 1 if n is prime, else a(n-1); a(0)=0
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* cache of values a(0)..a(current_max) */
 static seq_t *a_cache = NULL;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* initialise caches on first call */
     if (a_cache == NULL) {
         a_cache_size = 2;                                 /* store a(0) and a(1) */
-        a_cache = (seq_t *)calloc(a_cache_size, sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cache_size);
         if (!a_cache) return (seq_t)0;                   /* allocation failure */
         a_cache[0] = 0;
         a_cache[1] = 0;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
 
     /* Expand a_cache to store up to n */
     idx_t new_size = n + 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_size);
     if (!tmp) return (seq_t)0;                 /* allocation failure */
     a_cache = tmp;
 

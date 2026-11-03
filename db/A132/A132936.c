@@ -11,7 +11,8 @@
  *            after * the required primes have been found
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 16,
  *            big any n
- * Helpers:   digit_len, is_prime_small, pow10
+ * Validated: standard, pass, 28 terms through n = 264 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,20 @@
 #include <stdbool.h>
 
 /* Utility functions supplied by the build */
-#include "../utils/is_prime_small.h"  /* bool is_prime_small(seq_t n); */
-#include "../utils/digit_len.h"       /* int digit_len(seq_t x); */
-#include "../utils/pow10.h"           /* seq_t pow10(idx_t e); */
+#include <stdint.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static uint64_t *isolated_primes = NULL;   /* array of isolated prime values */
 static size_t isolated_cap   = 0;
@@ -43,7 +55,7 @@ static void ensure_isolated(idx_t need)
 
         /* Handle 2 separately */
         if (last_checked == 2) {
-            if (is_prime_small((seq_t)2)) {
+            if (is_prime_seq((seq_t)2)) {
                 if (isolated_cnt >= isolated_cap) {
                     isolated_cap = isolated_cap ? isolated_cap * 2 : 16;
                     isolated_primes = (uint64_t*)realloc(isolated_primes,
@@ -58,11 +70,11 @@ static void ensure_isolated(idx_t need)
         if ((last_checked & 1u) == 0) continue;
 
         uint64_t p = last_checked;
-        if (!is_prime_small((seq_t)p)) continue;
+        if (!is_prime_seq((seq_t)p)) continue;
 
         bool iso = true;
-        if (p > 2 && is_prime_small((seq_t)(p - 2))) iso = false;
-        if (is_prime_small((seq_t)(p + 2))) iso = false;
+        if (p > 2 && is_prime_seq((seq_t)(p - 2))) iso = false;
+        if (is_prime_seq((seq_t)(p + 2))) iso = false;
 
         if (iso) {
             if (isolated_cnt >= isolated_cap) {
@@ -80,7 +92,7 @@ static void ensure_cache(idx_t need)
 {
     while (cache_cnt < need) {
         uint64_t p = isolated_primes[cache_cnt];
-        int d   = digit_len((seq_t)p);          /* number of decimal digits of p */
+        int d   = num_digits((seq_t)p);          /* number of decimal digits of p */
         seq_t pow = pow10((idx_t)d);            /* 10^d */
         seq_t res = (cache_cnt == 0) ? 0
                                    : value_cache[cache_cnt - 1];
@@ -88,8 +100,7 @@ static void ensure_cache(idx_t need)
 
         if (cache_cnt >= cache_cap) {
             cache_cap = cache_cap ? cache_cap * 2 : 16;
-            value_cache = (seq_t*)realloc(value_cache,
-                cache_cap * sizeof(seq_t));
+            value_cache = mem_resize(seq_t, value_cache, cache_cap);
         }
         value_cache[cache_cnt++] = res;
     }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 16, u64 n <= 36, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -40,6 +41,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static table of the first 12 terms (index 0 unused)             */
 static const seq_t init_terms[13] = {
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
     if (memo == NULL) {
         /* allocate space for indices 0..12 (0 unused)                      */
         memo_sz = 13;
-        memo    = (seq_t *)calloc(memo_sz, sizeof(seq_t));
+        memo    = mem_new(seq_t, memo_sz);
         if (memo == NULL) { /* allocation failure; return 0 as fallback  */
             return (seq_t)0;
         }
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
     } else if (memo_sz <= n) {
         /* Increase allocation to hold all terms up to n                      */
         idx_t new_sz = n + 1;
-        seq_t *tmp = (seq_t *)realloc(memo, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_sz);
         if (tmp == NULL) {
             /* allocation failure; return 0 as fallback                    */
             return (seq_t)0;

@@ -12,13 +12,15 @@
  *            A001076(k+2)=4*A001076(k+1)+A001076(k)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     if (a001_len == 0) {
         a001_len = 2;
-        a001 = (seq_t *)malloc(sizeof(seq_t) * a001_len);
+        a001 = mem_new(seq_t, a001_len);
         a001[0] = (seq_t)1;
         a001[1] = (seq_t)4;
     }
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
     if (needed_idx > a001_len) {
         size_t new_len = needed_idx;
-        seq_t *tmp = (seq_t *)realloc(a001, sizeof(seq_t) * new_len);
+        seq_t *tmp = mem_resize(seq_t, a001, new_len);
         for (size_t i = a001_len; i < new_len; ++i) {
             tmp[i] = tmp[i - 1] * (seq_t)4 + tmp[i - 2];
         }

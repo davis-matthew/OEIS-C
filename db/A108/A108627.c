@@ -10,13 +10,15 @@
  *            = 2*x*(1 - x - x^3)/(1 - 4*x + 2*x^2 + x^4) )
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute the nth term of A108627.  The first term is a(1).  */
 seq_t a(idx_t n)
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     }
     if (cap < (size_t)n) cap = n;          /* final safety */
     if (memo == NULL || cap + 1 > cap) {
-        seq_t *tmp = (seq_t *)realloc(memo, (cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, (cap + 1));
         if (!tmp) return (seq_t)0;        /* allocation failure – unlikely */
         memo = tmp;
         /* initialise new elements to 0 */

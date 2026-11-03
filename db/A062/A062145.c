@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 49, u32 n <= 178, u64 n <= 610,
  *            u128 n <= 1325, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 71 terms through n = 1281 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
  * a(n) enumerates T(r,k) over rows r=0,1,2,... and columns k=0..r
  * where r is the unique integer for which r*(r+1)/2 <= n < (r+1)*(r+2)/2
  */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -38,8 +40,8 @@ seq_t a(idx_t n)
     idx_t k  = n - tri;          /* 0 <= k <= r */
 
     /* Compute the binomial products in arbitrary precision */
-    seq_t b1 = binom(r,     k);  /* binom(r,k)   */
-    seq_t b2 = binom(r + 3, k);  /* binom(r+3,k) */
+    seq_t b1 = binomial(r,     k);  /* binom(r,k)   */
+    seq_t b2 = binomial(r + 3, k);  /* binom(r+3,k) */
 
     return b1 * b2;              /* T(r,k) */
 }

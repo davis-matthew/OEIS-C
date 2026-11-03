@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   get_divisors_938
+ * Validated: standard, pass, 97 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,36 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/get_divisors_938.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static void get_divisors_938(idx_t *div, size_t *cnt)
+{
+    const idx_t N = 938;
+    size_t m = 0;
+    for (idx_t d = 1; d * d <= N; ++d)
+    {
+        if (N % d == 0)
+        {
+            div[m++] = d;
+            if (d != N / d)
+                div[m++] = N / d;
+        }
+    }
+    /* Simple insertion sort – at most 8 elements. */
+    for (size_t i = 1; i < m; ++i)
+    {
+        idx_t key = div[i];
+        size_t j = i;
+        while (j > 0 && div[j-1] > key)
+        {
+            div[j] = div[j-1];
+            --j;
+        }
+        div[j] = key;
+    }
+    *cnt = m;
+}
 
 /* ------------------------------------------------------------------ */
 /* Helper to get all divisors of 938 in increasing order.            */
@@ -45,10 +75,10 @@ static void poly_div_monic(const seq_t *num, size_t nlen,
                            seq_t **qout, size_t *qlen)
 {
     *qlen = nlen - dlen + 1;
-    seq_t *rem = (seq_t*)calloc(nlen, sizeof(seq_t));
+    seq_t *rem = mem_new(seq_t, nlen);
     for (size_t i = 0; i < nlen; ++i) rem[i] = num[i];
 
-    seq_t *q = (seq_t*)calloc(*qlen, sizeof(seq_t));
+    seq_t *q = mem_new(seq_t, *qlen);
 
     for (int ii = (int)nlen - 1; ii >= (int)dlen - 1; --ii)
     {
@@ -61,7 +91,7 @@ static void poly_div_monic(const seq_t *num, size_t nlen,
                 rem[qpos + sj] -= coeff * den[sj];
         }
     }
-    free(rem);
+    mem_free(rem);
     *qout = q;
 }
 
@@ -87,7 +117,7 @@ static void init_psi(void)
     {
         idx_t n = divs[id];
         size_t nlen = (size_t)n + 1;          /* degree n polynomial */
-        seq_t *poly = (seq_t*)calloc(nlen, sizeof(seq_t));
+        seq_t *poly = mem_new(seq_t, nlen);
         poly[0] = -1;                         /* constant term */
         poly[n] = 1;                          /* leading term */
 
@@ -97,7 +127,7 @@ static void init_psi(void)
             if (n % divs[jd] != 0) continue;
             seq_t *q; size_t qlen;
             poly_div_monic(poly, nlen, phi[jd], philen[jd], &q, &qlen);
-            free(poly);
+            mem_free(poly);
             poly = q;
             nlen = qlen;
         }
@@ -111,7 +141,7 @@ static void init_psi(void)
 
     /* 4. Divide x^N - 1 by Φ_N to obtain ψ. */
     size_t numlen = (size_t)N + 1;
-    seq_t *num = (seq_t*)calloc(numlen, sizeof(seq_t));
+    seq_t *num = mem_new(seq_t, numlen);
     num[0] = -1;              /* constant term */
     num[N] = 1;               /* leading term */
 
@@ -121,10 +151,10 @@ static void init_psi(void)
     /* 5. Store ψ coefficients padded with zeros up to period N. */
     for (size_t i = 0; i < N; ++i) psi[i] = 0;
     for (size_t i = 0; i < qlen; ++i) psi[i] = q[i];
-    free(q);
-    free(num);
+    mem_free(q);
+    mem_free(num);
     /* Free all intermediate Φ polynomials. */
-    for (size_t i = 0; i < divc; ++i) free(phi[i]);
+    for (size_t i = 0; i < divc; ++i) mem_free(phi[i]);
 
     /* 6. Store globally for fast lookup. */
     static seq_t period_coeff[938];
@@ -167,7 +197,7 @@ seq_t a(idx_t n)
         {
             idx_t n = divs[id];
             size_t nlen = (size_t)n + 1;
-            seq_t *poly = (seq_t*)calloc(nlen, sizeof(seq_t));
+            seq_t *poly = mem_new(seq_t, nlen);
             poly[0] = -1;
             poly[n] = 1;
 
@@ -176,7 +206,7 @@ seq_t a(idx_t n)
                 if (n % divs[jd] != 0) continue;
                 seq_t *q; size_t qlen;
                 poly_div_monic(poly, nlen, phi[jd], philen[jd], &q, &qlen);
-                free(poly);
+                mem_free(poly);
                 poly = q;
                 nlen = qlen;
             }
@@ -185,21 +215,21 @@ seq_t a(idx_t n)
         }
 
         /* 3. Build numerator x^N - 1. */
-        seq_t *num = (seq_t*)calloc(N + 1, sizeof(seq_t));
+        seq_t *num = mem_new(seq_t, N + 1);
         num[0] = -1; num[N] = 1;
 
         /* 4. Divide by Φ_N to obtain ψ. */
         seq_t *q; size_t qlen;
         poly_div_monic(num, N + 1, phi[divc - 1], philen[divc - 1], &q, &qlen);
-        free(num);
+        mem_free(num);
 
         /* 5. Copy ψ into period array padded with zeros. */
         for (size_t i = 0; i < N; ++i) period[i] = 0;
         for (size_t i = 0; i < qlen; ++i) period[i] = q[i];
-        free(q);
+        mem_free(q);
 
         /* 6. Free all Φ polynomials. */
-        for (size_t i = 0; i < divc; ++i) free(phi[i]);
+        for (size_t i = 0; i < divc; ++i) mem_free(phi[i]);
 
         init_done = true;
     }

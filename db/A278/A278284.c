@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 29,
  *            big any n
- * Helpers:   check_column
+ * Validated: standard, pass, 32 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,51 @@
    (-1,-1) (-1,0) (-1,1) (0,-1) (0,1) (1,0).  */
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/check_column.h"
+#include "../utils/mem.h"
+
+static inline bool check_column(int prev, int curr, int next,
+                                bool has_prev, bool has_next)
+{
+    for (int r = 0; r < 5; ++r) {
+        int cb = (curr >> r) & 1;
+        bool eq = false, diff = false;
+
+        /* (-1,-1) */
+        if (has_prev && r > 0) {
+            int nb = (prev >> (r - 1)) & 1;
+            if (nb == cb) eq = true; else diff = true;
+        }
+        /* (-1,0) */
+        if (r > 0) {
+            int nb = (curr >> (r - 1)) & 1;
+            if (nb == cb) eq = true; else diff = true;
+        }
+        /* (-1,1) */
+        if (has_next && r > 0) {
+            int nb = (next >> (r - 1)) & 1;
+            if (nb == cb) eq = true; else diff = true;
+        }
+        /* (0,-1) */
+        if (has_prev) {
+            int nb = (prev >> r) & 1;
+            if (nb == cb) eq = true; else diff = true;
+        }
+        /* (0,1) */
+        if (has_next) {
+            int nb = (next >> r) & 1;
+            if (nb == cb) eq = true; else diff = true;
+        }
+        /* (1,0) */
+        if (r < 4) {
+            int nb = (curr >> (r + 1)) & 1;
+            if (nb == cb) eq = true; else diff = true;
+        }
+
+        if (!(eq && diff))
+            return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -58,7 +103,7 @@ seq_t a(idx_t n)
 
     static seq_t dp_prev[32 * 32];
     static seq_t dp_cur [32 * 32];
-    memset(dp_prev, 0, sizeof(dp_prev));
+    mem_set(dp_prev, 0, sizeof(dp_prev));
 
     /* Initialize (column 1, column 2) */
     for (int i = 0; i < 32; ++i) {
@@ -71,7 +116,7 @@ seq_t a(idx_t n)
 
     /* Process columns 3 .. n */
     for (idx_t col = 3; col <= n; ++col) {
-        memset(dp_cur, 0, sizeof(dp_cur));
+        mem_set(dp_cur, 0, sizeof(dp_cur));
         for (int s = 0; s < 32 * 32; ++s) {
             seq_t ways = dp_prev[s];
             if (!ways) continue;
@@ -83,7 +128,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp_prev, dp_cur, sizeof(dp_cur));
+        mem_copy(dp_prev, dp_cur, sizeof(dp_cur));
     }
 
     /* Final step: check last column (no right neighbour) */

@@ -10,14 +10,34 @@
  *            the n-th row of Pascal's triangle, or 0 if none
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   base3_carries
+ * Validated: standard, pass, 103 terms through n = 9056 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/base3_carries.h"
+
+/* Helper: number of carries when adding a and b in base 3. */
+static unsigned base3_carries(uint64_t a, uint64_t b) {
+    unsigned carry = 0;
+    unsigned carr_cnt = 0;
+    while (a || b || carry) {
+        unsigned sum = (unsigned)(a % 3) + (unsigned)(b % 3) + carry;
+        if (sum >= 3) {
+            ++carr_cnt;
+            carry = 1;
+            sum -= 3;
+        } else {
+            carry = 0;
+        }
+        a /= 3;
+        b /= 3;
+        if (carr_cnt >= 2) break;
+    }
+    return carr_cnt;
+}
 
 seq_t a(idx_t n)
 {

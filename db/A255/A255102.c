@@ -9,12 +9,14 @@
  *            a(1)=66, a(2)=168, a(3)=441, a(4)=1137, a(5)=2907, a(6)=7498
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 20, u64 n <= 43, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoized values, 1‑based index */
 static idx_t  cache_len = 0;  /* largest index computed so far */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (n > cache_len) {
         /* reallocate to size n+1 (index 0 unused) */
         size_t new_size = (size_t)(n + 1) * sizeof(seq_t);
-        cache = (seq_t *)realloc(cache, new_size);
+        cache = mem_resize(seq_t, cache, (new_size) / sizeof(seq_t));
 
         /* initialise the first six terms if not already present */
         static const seq_t init[6] = {66, 168, 441, 1137, 2907, 7498};

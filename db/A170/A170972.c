@@ -8,6 +8,7 @@
  *            elements sum to n
  * Range:     u8 n <= 153, u16 n <= 153, u32 n <= 153, u64 n <= 153,
  *            u128 n <= 153, big any n
+ * Validated: full, pass, 154 terms through n = 153 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

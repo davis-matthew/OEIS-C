@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = period of the vector sequence d(n)^2^k (mod n), k ≥ 1
- * Range:     u8 n <= 1173, u16 n <= 9994, u32 n <= 9994, u64 n <= 9994,
- *            u128 n <= 9994, big any n
- * Helpers:   gcd, powmod64
+ * Range:     u8 n <= 1173, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 116 terms through n = 9994 (2026-11-01)
+ * Helpers:   gcd, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/powmod64.h"   /* power modulo 64‑bit (base,exp,mod)  */
-#include "../utils/gcd.h"        /* gcd(seq_t,seq_t) */
+#include "../utils/gcd.h"
+#include "../utils/powmod_u64.h"
 
 /* --------------------------------------------------------------------- */
 /* Helper: power of a uint64_t base to an exponent (small)                */
@@ -81,7 +82,7 @@ static uint64_t order_mod(uint64_t a, uint64_t mod)
     a %= mod;
     for (size_t i = 0; i < pf; ++i) {
         uint64_t q = phi_factors[i];
-        while (ord % q == 0 && powmod64(a, ord / q, mod) == 1)
+        while (ord % q == 0 && powmod_u64(a, ord / q, mod) == 1)
             ord /= q;
     }
     return ord;

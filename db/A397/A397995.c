@@ -10,13 +10,15 @@
  *            order
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,21 +40,21 @@ seq_t a(idx_t n)
     if (cache_size == 0) {
         /* Allocate space for a[1] */
         cache_cap = 4;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0; /* out of memory */
         cache[1] = (seq_t)1;
         cache_size = 1;
 
         /* pow4[0] = 1 */
         pow4_cap = 4;
-        pow4 = (seq_t*)malloc(pow4_cap * sizeof(seq_t));
+        pow4 = mem_new(seq_t, pow4_cap);
         if (!pow4) return 0;
         pow4[0] = (seq_t)1;
         pow4_size = 1;
 
         /* s for n = 1: S1(1,1) = 1 */
         s_cap = 4;
-        s = (seq_t*)malloc(s_cap * sizeof(seq_t));
+        s = mem_new(seq_t, s_cap);
         if (!s) return 0;
         s[1] = (seq_t)1;
         s_size = 1;
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         if (s_size < new_n) {
             idx_t new_cap = s_cap * 2;
             if (new_cap < new_n) new_cap = new_n;
-            seq_t *tmp = (seq_t*)realloc(s, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, s, new_cap);
             if (!tmp) return 0;
             s = tmp;
             s_cap = new_cap;
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
         if (pow4_size <= old_n) {
             idx_t new_cap = pow4_cap * 2;
             if (new_cap < old_n + 1) new_cap = old_n + 1;
-            seq_t *tmp = (seq_t*)realloc(pow4, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, pow4, new_cap);
             if (!tmp) return 0;
             pow4 = tmp;
             pow4_cap = new_cap;
@@ -113,7 +115,7 @@ seq_t a(idx_t n)
         /* Grow cache if needed */
         if (cache_size + 1 >= cache_cap) {
             idx_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return 0;
             cache = tmp;
             cache_cap = new_cap;

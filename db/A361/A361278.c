@@ -7,6 +7,7 @@
  * Formula:   a(n) = n! * SUM_{k=0..n} binomial(2*k, n-k) / k!
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 21, u128 n <= 37,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 543 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

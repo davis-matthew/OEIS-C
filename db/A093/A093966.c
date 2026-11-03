@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 97, u32 n <= 264, u64 n <= 722,
  *            u128 n <= 1275, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 1216 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
    routine binom). The term a(n) is the nth element of the sequence
    obtained by anti‑diagonal traversal of this array. */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static seq_t A_nk(idx_t n, idx_t k)
 {
@@ -37,7 +39,7 @@ static seq_t A_nk(idx_t n, idx_t k)
         seq_t fact = 1;                      /* j!   */
         for (idx_t j = 1; j <= n; ++j) {
             fact *= j;                       /* fact = j!   */
-            sum += (seq_t)j * fact * binom(n, j);
+            sum += (seq_t)j * fact * binomial(n, j);
         }
         return sum;
     }
@@ -47,10 +49,10 @@ static seq_t A_nk(idx_t n, idx_t k)
     seq_t fact   = 1;                          /* j!   */
     for (idx_t j = 1; j < k; ++j) {
         fact *= j;                             /* fact = j!   */
-        result += (seq_t)j * fact * binom(n, j);
+        result += (seq_t)j * fact * binomial(n, j);
     }
     fact *= k;                                 /* fact = k!   */
-    result += fact * binom(n, k);
+    result += fact * binomial(n, k);
     return result;
 }
 

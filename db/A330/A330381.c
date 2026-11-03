@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, tabl
  * Formula:   not stated
- * Range:     u8 n <= 13, u16 n <= 33, u32 n <= 60, u64 n <= 60, u128 n <= 60,
+ * Range:     u8 n <= 19, u16 n <= 43, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
  *         A(r, m) = Σ_{j=0}^{⌊m/3⌋} (-1)^j * C(r, j) * C(m-3*j + r - 1, r - 1).
  */
 #include <math.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Compute A(r, m): number of length‑r ternary strings with digit sum m */
 static seq_t compute_A(idx_t r, idx_t m)
@@ -32,7 +34,7 @@ static seq_t compute_A(idx_t r, idx_t m)
     idx_t maxj = m / 3;           /* floor(m/3) */
     for (idx_t j = 0; j <= maxj; ++j) {
         /* terms of Inclusion–Exclusion */
-        seq_t term = binom(r, j) * binom(m - 3*j + r - 1, r - 1);
+        seq_t term = binomial(r, j) * binomial(m - 3*j + r - 1, r - 1);
         if (j & 1) sum -= term;
         else      sum += term;
     }

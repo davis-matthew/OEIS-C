@@ -8,12 +8,14 @@
  *            a(2) = 129
  * Range:     i8 n <= 1, i16 n <= 4, i32 n <= 8, i64 n <= 17, i128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 886 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,9 +30,9 @@ seq_t a(idx_t n)
     /* Grow cache to store up to index n */
     size_t new_len = (size_t)n + 1;
     if (cache == NULL) {
-        cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        cache = mem_new(seq_t, new_len);
     } else {
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
     }
     if (cache == NULL)  /* allocation failed – fallback */
         return (seq_t)0;

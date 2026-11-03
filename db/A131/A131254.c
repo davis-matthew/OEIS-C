@@ -11,12 +11,14 @@
  *            for 0≤k≤n-1 and D(n,n)=1; compute the row val...
  * Range:     u8 n <= 54, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     while (flatten_len <= (size_t)n) {
         /* Allocate current row of triangle data */
         size_t cur_len = next_row + 1;
-        seq_t *cur = (seq_t*)malloc(cur_len * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, cur_len);
         if (!cur) { /* allocation failure – abort */
             return (seq_t)0;
         }
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         }
 
         /* Compute the flattened values of this row (cumulative sums from right) */
-        seq_t *row_final = (seq_t*)malloc(cur_len * sizeof(seq_t));
+        seq_t *row_final = mem_new(seq_t, cur_len);
         row_final[cur_len-1] = (seq_t)1;                    /* last element is always 1 */
         for (int j = (int)cur_len - 2; j >= 0; --j) {
             row_final[j] = row_final[j+1] + cur[j];
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         if (needed > flatten_cap) {
             size_t new_cap = flatten_cap? flatten_cap*2 : 128;
             while (new_cap < needed) new_cap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(flatten, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, flatten, new_cap);
             if (!tmp) return (seq_t)0;            /* allocation failure */
             flatten = tmp;
             flatten_cap = new_cap;
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
         }
 
         /* Free temporary structures */
-        free(row_final);
+        mem_free(row_final);
 
         /* Update cached rows for next iteration */
         if (next_row == 0) {
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
             /* For n≥2, drop the oldest row (prev_prev) */
             seq_t *old_prev_prev = prev_prev;
             seq_t *old_prev      = prev;
-            free(old_prev_prev);
+            mem_free(old_prev_prev);
             prev_prev = old_prev;
             len_prev_prev = len_prev;
             prev = cur;

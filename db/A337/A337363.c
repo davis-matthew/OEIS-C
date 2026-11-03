@@ -8,17 +8,35 @@
  * Formula:   a(n) = total pairs of divisors of n minus the pairs of
  *            consecutive divisors, i.e. a(n) = C(tau(n),2) - |{ d | d|n and
  *            d+1|n }|
- * Range:     u8 n <= 359, u16 n <= 9778, u32 n <= 9778, u64 n <= 9778,
- *            u128 n <= 9778, big any n
- * Helpers:   count_consecutive, factor_u64
+ * Range:     u8 n <= 359, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 100 terms through n = 9778 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/count_consecutive.h"
+
+static void count_consecutive(size_t idx, uint64_t cur, const uint64_t *pr,
+                              const uint64_t *exp, size_t cnt, uint64_t n,
+                              uint64_t *consec)
+{
+    if (idx == cnt) {
+        /* cur is a divisor of n */
+        if (cur + 1 <= n && n % (cur + 1) == 0)
+            (*consec)++;
+        return;
+    }
+    uint64_t cur_mul = 1;
+    for (uint64_t e = 0; e <= exp[idx]; ++e) {
+        count_consecutive(idx + 1, cur * cur_mul, pr, exp, cnt, n, consec);
+        cur_mul *= pr[idx];
+    }
+}
 
 seq_t a(idx_t n)
 {

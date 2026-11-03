@@ -7,7 +7,8 @@
  * Formula:   a(n) = binom(n,9) * derangement(n - 9)
  * Range:     u8 n <= 11, u16 n <= 13, u32 n <= 17, u64 n <= 25, u128 n <= 37,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 33 terms through n = 194 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* where derangement(m) = number of derangements of m distinct items */
 
 #include <stddef.h>            /* for size_t */
-#include "../utils/binom.h"    /* for binom() */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Compute the number of derangements D(m) for m ≥ 0. */
 static seq_t derangement(idx_t m)
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (n < 9)                     /* offset of the sequence is 9 */
         return (seq_t)0;
 
-    seq_t binom9 = binom(n, (idx_t)9);          /* choose(n,9) */
+    seq_t binom9 = binomial(n, (idx_t)9);          /* choose(n,9) */
     seq_t der     = derangement(n - (idx_t)9);   /* D(n-9)         */
 
     return binom9 * der;

@@ -13,13 +13,14 @@
  *            removed) as a path: 0 = go left, 1 = go right. Th...
  * Range:     i8 n <= 108, i16 n <= 108, i32 n <= 108, i64 n <= 108,
  *            i128 n <= 108, big any n
- * Helpers:   v2_seq_t
+ * Validated: partial, pass, 108 terms through n = 108 (2026-11-01)
+ * Helpers:   ctz_seq_to_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/v2_seq_t.h"
+#include "../utils/ctz_seq_to_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -63,8 +64,8 @@ seq_t a(idx_t n)
     seq_t p = lnum + rnum;  /* numerator   */
     seq_t q = lden + rden;  /* denominator */
 
-    int e_num = v2_seq_t(p);
-    int e_den = v2_seq_t(q);
+    int e_num = ctz_seq_to_i32(p);
+    int e_den = ctz_seq_to_i32(q);
 
     return (seq_t)e_num - (seq_t)e_den;
 }

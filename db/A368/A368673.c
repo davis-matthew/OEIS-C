@@ -9,13 +9,15 @@
  *            divisors of n
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cached square‑free flags: 1 if i is square‑free, 0 otherwise. */
 static unsigned char *sqf_flag   = NULL;
@@ -35,7 +37,7 @@ static void recompute_sqf(idx_t n)
     sqf_flag = flag;
 
     /* Reallocate the prefix array. */
-    seq_t *prefix = (seq_t*)realloc(sqf_prefix, new_cap * sizeof(seq_t));
+    seq_t *prefix = mem_resize(seq_t, sqf_prefix, new_cap);
     if (!prefix) abort();
     sqf_prefix = prefix;
 

@@ -15,12 +15,14 @@
  *            a(16)=9464, a(17)=13504, a(18)=16952, a(19)=209...
  * Range:     u8 n <= 2, u16 n <= 22, u32 n <= 65, u64 n <= 149, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static const seq_t init_values[20] = {
     189, 243, 302, 369, 554, 720, 920, 1312, 1616, 1976,
@@ -39,7 +41,7 @@ static void ensure_cache_cap(size_t needed)
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     if (!new_arr) abort();  /* out of memory */
     cache = new_arr;
     cache_cap = new_cap;

@@ -12,12 +12,14 @@
  *            from Euler's pentagonal recurrence
  * Range:     u8 n <= 10, u16 n <= 25, u32 n <= 70, u64 n <= 222,
  *            u128 n <= 759, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 9899 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a001523_P = NULL;
 static idx_t a001523_plen = 0;
@@ -26,9 +28,9 @@ static void a001523_ensure(idx_t n) {
     if (n < a001523_plen) return;
     idx_t nl = n + 1;
     if (nl < 2 * a001523_plen) nl = 2 * a001523_plen;
-    seq_t *q = (seq_t *)calloc((size_t)nl, sizeof(seq_t));
+    seq_t *q = mem_new(seq_t, (size_t)nl);
     for (idx_t i = 0; i < a001523_plen; i++) q[i] = a001523_P[i];
-    free(a001523_P);
+    mem_free(a001523_P);
     a001523_P = q;
     for (idx_t m = a001523_plen; m < nl; m++) {
         if (m == 0) { q[0] = 1; continue; }

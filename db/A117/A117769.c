@@ -9,7 +9,8 @@
  *            digit_product(L_k) ∈ {0,1,2,3,5,8,21,144} (OEIS A117769)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 23, u64 n <= 60, u128 n <= 146,
  *            big any n
- * Helpers:   digit_product, fib_product_p
+ * Validated: standard, pass, 41 terms through n = 943 (2026-11-03)
+ * Helpers:   digit_product, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/digit_product.h"
-#include "../utils/fib_product_p.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether a small product is a Fibonacci number that can
+ * appear as a digit product of a Lucas number.
+ */
+static inline bool fib_product_p(seq_t prod) {
+    return (prod == (seq_t)0) || (prod == (seq_t)1) || (prod == (seq_t)2) ||
+           (prod == (seq_t)3) || (prod == (seq_t)5) || (prod == (seq_t)8) ||
+           (prod == (seq_t)21) || (prod == (seq_t)144);
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n) {
@@ -34,7 +44,7 @@ seq_t a(idx_t n) {
     /* Initialize storage and the first two qualifying terms. */
     if (!initialized) {
         found_cap = 16;
-        found = (seq_t *)malloc(found_cap * sizeof(seq_t));
+        found = mem_new(seq_t, found_cap);
         if (!found) return 0;            /* memory allocation failed */
         found[0] = (seq_t)1;             /* L1 */
         found[1] = (seq_t)3;             /* L2 (digit product = 3) */
@@ -55,8 +65,8 @@ seq_t a(idx_t n) {
             /* Store the qualifying Lucas number. */
             if (found_len >= found_cap) {
                 found_cap <<= 1; /* double capacity */
-                seq_t *tmp = (seq_t *)realloc(found, found_cap * sizeof(seq_t));
-                if (!tmp) { free(found); return 0; }
+                seq_t *tmp = mem_resize(seq_t, found, found_cap);
+                if (!tmp) { mem_free(found); return 0; }
                 found = tmp;
             }
             found[found_len++] = next;

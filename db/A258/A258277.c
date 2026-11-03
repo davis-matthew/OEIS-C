@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: standard, pass, 96 terms through n = 926 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,11 +18,22 @@
    via the product:  ∏_{k>0} (1 - x^{3k}) (1 - x^{6k}) / (1 + x^k). */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The build supplies the following routines for handling seq_t arrays.
    They are sufficient for allocating and freeing the coefficient buffer. */
-#include "../utils/alloc_seq_array.h"   /* seq_t *alloc_seq_array(size_t n); */
-#include "../utils/free_seq_array.h"    /* void free_seq_array(seq_t *p); */
+#include <stdbool.h>
+#include <stdint.h>
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n) {
     /* Work with a size_t extent for loop counters. */

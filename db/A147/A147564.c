@@ -10,6 +10,7 @@
  *            2·[k=0]; triangle rows (flattened) give the sequence a(n)
  * Range:     u8 n <= 38, u16 n <= 141, u32 n <= 509, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1048 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

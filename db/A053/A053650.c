@@ -7,14 +7,15 @@
  * Formula:   a(n) = n * (n - phi(n)) (cototient of n²)
  * Range:     u8 n <= 21, u16 n <= 299, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi_small
+ * Validated: standard, pass, 73 terms through n = 9998 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/phi_small.h"
+#include "../utils/totient.h"
 
 /* Main function required by the build system */
 seq_t a(idx_t n)
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
     }
 
-    seq_t phi_n = phi_small(n);          /* φ(n) */
+    seq_t phi_n = totient(n);          /* φ(n) */
     seq_t un   = (seq_t)n;               /* cast index to seq_t  */
     return un * (un - phi_n);            /* a(n) = n*(n - φ(n)) */
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   is_prime_uint64, pow_leq, root_floor
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,34 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"
-#include "../utils/pow_leq.h"
-#include "../utils/root_floor.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* Return true if base^exp <= limit without overflow (128‑bit). */
+static bool pow_leq(uint64_t base, int exp, uint64_t limit)
+{
+    __uint128_t r = 1;
+    for (int i = 0; i < exp; ++i) {
+        r *= base;
+        if (r > limit) return false;
+    }
+    return true;
+}
+
+/* Integer floor of the e‑th root of val: largest r with r^e <= val. */
+static uint64_t root_floor(uint64_t val, int e)
+{
+    if (val < 2) return 1;
+    uint64_t lo = 1, hi = val;
+    while (lo < hi) {
+        uint64_t mid = lo + (hi - lo + 1) / 2;
+        if (pow_leq(mid, e, val))
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 /* Cached terms of the sequence */
 static seq_t *cache = NULL;      /* array of stored terms */
@@ -34,7 +60,7 @@ static void ensure_cache(idx_t need)
     if ((size_t)need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while ((size_t)need > new_cap) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) { exit(EXIT_FAILURE); }
     cache = tmp;
     cache_cap = new_cap;
@@ -44,7 +70,7 @@ static void ensure_cache(idx_t need)
 static uint64_t next_prime_uint64(uint64_t n)
 {
     uint64_t cand = n + 1;
-    while (!is_prime_uint64(cand)) ++cand;
+    while (!is_prime_u64(cand)) ++cand;
     return cand;
 }
 
@@ -60,7 +86,7 @@ static int count_prime_powers(uint64_t p, uint64_t q)
         uint64_t hi = root_floor(max_val, exp); /* largest base with b^exp <= max_val */
         if (lo > hi) continue;
         for (uint64_t b = lo; b <= hi; ++b) {
-            if (is_prime_uint64(b)) {
+            if (is_prime_u64(b)) {
                 ++cnt;
                 if (cnt > 2) return cnt;      /* early exit */
             }

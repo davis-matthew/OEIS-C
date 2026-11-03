@@ -9,7 +9,8 @@
  *            duplicates; enlarge B until n terms are known
  * Range:     u8 n <= 7, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   A004890_cmp, A004890_push, u128_to_seq
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,32 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/A004890_cmp.h"
-#include "../utils/A004890_push.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static int A004890_cmp(const void *x, const void *y) {
+    uint64_t u = *(const uint64_t *)x, v = *(const uint64_t *)y;
+    return (u > v) - (u < v);
+}
+
+static void A004890_push(uint64_t s, uint64_t **buf, size_t *len, size_t *cap) {
+    if (*len >= *cap) {
+        size_t nc = (*cap == 0) ? 1024 : *cap * 2;
+        *buf = (uint64_t *)realloc(*buf, nc * sizeof(uint64_t));
+        *cap = nc;
+    }
+    (*buf)[(*len)++] = s;
+}
 
 static uint64_t *A004890_vals = NULL;
 static size_t A004890_cnt = 0;

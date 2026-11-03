@@ -8,9 +8,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n} psi(n/d) * ( d - product_{p|d} (p-1)^{exp(d,p)}
  *            )
- * Range:     u8 n <= 33, u16 n <= 1439, u32 n <= 9434, u64 n <= 9434,
- *            u128 n <= 9434, big any n
- * Helpers:   _rec
+ * Range:     u8 n <= 33, u16 n <= 1439, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 94 terms through n = 9434 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,54 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/_rec.h"
+
+/* Internal recursive helper that accumulates the sum. */
+static void _rec(idx_t n,
+                 const uint64_t *primes,
+                 const size_t *exps,
+                 size_t pcnt,
+                 size_t depth,
+                 size_t *cho_exp,
+                 seq_t cur_val,
+                 seq_t prod_minus1,
+                 seq_t *sum)
+{
+    if (depth == pcnt) {
+        /* At leaf: cur_val is the divisor d. */
+        seq_t d_val = cur_val;
+        seq_t A322 = d_val - prod_minus1;          /* d - product(p-1)^k */
+
+        idx_t m_int = n / (idx_t)d_val;              /* n/d */
+        seq_t psi = (seq_t)m_int;                   /* start with m */
+
+        /* compute the product (1+1/p) for each prime where exponent in m>0 */
+        for (size_t j = 0; j < pcnt; ++j) {
+            size_t exp_m = exps[j] - cho_exp[j];
+            if (exp_m > 0) {
+                psi = psi * (seq_t)(primes[j] + 1);
+                psi = psi / primes[j];
+            }
+        }
+
+        seq_t contrib = psi * A322;
+        *sum += contrib;
+        return;
+    }
+
+    uint64_t p = primes[depth];
+    size_t maxe = exps[depth];
+    seq_t val = cur_val;
+    seq_t prod = prod_minus1;
+
+    for (size_t e = 0; e <= maxe; ++e) {
+        cho_exp[depth] = e;
+        _rec(n, primes, exps, pcnt, depth + 1, cho_exp, val, prod, sum);
+        if (e < maxe) {
+            val = val * (seq_t)p;
+            prod = prod * (seq_t)(p - 1);
+        }
+    }
+}
 
 /* Forward declaration of the function to be implemented. */
 seq_t a(idx_t n);

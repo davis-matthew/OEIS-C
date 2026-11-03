@@ -10,7 +10,8 @@
  *            with a hash set of windows
  * Range:     u8 n <= 20, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   mix64
+ * Validated: standard, pass, 69 terms through n = 98 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,13 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mix64.h"
+
+static uint64_t mix64(uint64_t x) {
+    x ^= x >> 30; x *= 0xbf58476d1ce4e5b9ULL;
+    x ^= x >> 27; x *= 0x94d049bb133111ebULL;
+    x ^= x >> 31;
+    return x;
+}
 
 #define KOL_MAX 20000000ULL
 

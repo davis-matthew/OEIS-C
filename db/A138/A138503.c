@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d|n} (-1)^(d-1) * d^3 (OEIS A138503)
  * Range:     i8 n <= 5, i16 n <= 31, i32 n <= 1223, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 56 terms through n = 9940 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <inttypes.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Recursively enumerate the divisors of n from its prime powers.

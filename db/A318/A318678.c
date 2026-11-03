@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n, 2d > σ(d)} (2d - σ(d))
- * Range:     u8 n <= 16, u16 n <= 4596, u32 n <= 9971, u64 n <= 9971,
- *            u128 n <= 9971, big any n
- * Helpers:   seq_pow
+ * Range:     u8 n <= 16, u16 n <= 4596, u32 n <= 65536, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 108 terms through n = 9971 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* Recursive helper that walks the prime factorisation of n.  At each
    level cur_d is the divisor built up so far and cur_sigma is the
@@ -44,7 +46,7 @@ static seq_t _sum_def(size_t pos, seq_t cur_d, seq_t cur_sigma,
 
     for (uint8_t e = 0; e <= emax; ++e) {
         /* σ(p^e) = (p^(e+1)-1)/(p-1)  */
-        seq_t sigma_p = (seq_pow((seq_t)p, (idx_t)(e + 1)) - (seq_t)1)
+        seq_t sigma_p = (ipow_idx((seq_t)p, (idx_t)(e + 1)) - (seq_t)1)
                         / ((seq_t)p - (seq_t)1);
 
         total += _sum_def(pos + 1, cur_d * p_pow,

@@ -7,14 +7,27 @@
  * Formula:   a(n) = (1-(n-1)/2^n)*(n!)^n
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   big_pow, factorial, pow2
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-01)
+ * Helpers:   ipow, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/ipow.h"
 #include "../utils/pow2.h"
-#include "../utils/factorial.h"
-#include "../utils/big_pow.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* Computes the OEIS sequence A212805 */
 seq_t a(idx_t n)
@@ -33,7 +46,7 @@ seq_t a(idx_t n)
     seq_t fact = factorial(n);
 
     /* (n!)^n */
-    seq_t fact_pow = big_pow(fact, (seq_t)n);
+    seq_t fact_pow = ipow(fact, (seq_t)n);
 
     /* Combine numerator and divisor */
     seq_t numerator_times = fact_pow * two_n_minus;   /* big integer multiply */

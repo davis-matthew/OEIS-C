@@ -10,16 +10,17 @@
  *            refers to the flattened triangle read row‑wise, so we first
  *            determine the row r and column k: r = smallest integer with
  *            r*(r+1)/2 >= n k = n - (r*(r-1)/2) Then T(r,k) is computed as...
- * Range:     u8 n <= 234, u16 n <= 1491, u32 n <= 9762, u64 n <= 9762,
- *            u128 n <= 9762, big any n
- * Helpers:   pow_uint
+ * Range:     u8 n <= 234, u16 n <= 1491, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 121 terms through n = 9762 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"   /* provides seq_t pow_uint(seq_t base, idx_t exp) */
+#include "../utils/ipow_u64_idx.h"
 
 #define MAX_ROW 200   /* maximum row needed for index up to ~20000 */
 
@@ -76,6 +77,6 @@ seq_t a(idx_t n)
     if (partitions == 0) return 0;
 
     /* Compute 2^(k-1) and multiply */
-    seq_t two_pow = pow_uint(2, k - 1);
+    seq_t two_pow = ipow_u64_idx(2, k - 1);
     return partitions * two_pow;
 }

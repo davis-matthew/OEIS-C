@@ -7,7 +7,8 @@
  * Formula:   a(n) = Catalan(n) mod 9
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   exp3_fact, pow_mod9
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,33 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/exp3_fact.h"
-#include "../utils/pow_mod9.h"
+
+/* ----------  helper: exponent of 3 in n! (Legendre) ---------- */
+static idx_t exp3_fact(idx_t n)
+{
+    idx_t sum = 0;
+    while (n)
+    {
+        n /= 3;
+        sum += n;
+    }
+    return sum;
+}
+
+/* ----------  helper: modular exponentiation modulo 9 (uint8_t) ---------- */
+static uint8_t pow_mod9(uint8_t a, unsigned exp)
+{
+    uint8_t res = 1 % 9;
+    a %= 9;
+    while (exp > 0)
+    {
+        if (exp & 1U)
+            res = (res * a) % 9;
+        a = (a * a) % 9;
+        exp >>= 1U;
+    }
+    return res;
+}
 
 /* ----------  cache for factorials modulo 9 with all 3‑factors removed ---------- */
 static uint8_t *fact_no3_cache = NULL;

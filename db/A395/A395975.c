@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 28, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /*  Storage for rows of the inverse triangle.
     Rows are allocated on demand and cached.  */
@@ -48,7 +50,7 @@ static void T_ensure(idx_t need)
 static void T_compute(idx_t n)
 {
     /* Allocate space for n+1 entries (indices 0 … n). */
-    seq_t *row = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (size_t)(n + 1));
     if (!row) abort();
 
     row[n] = (seq_t)1;   /* diagonal entry */

@@ -7,13 +7,14 @@
  * Formula:   a(n) = ((n+1)! * (6*C(n+4,4) + 20*C(n+4,5) + 15*C(n+4,6))) / 2
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   _binom_small
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_binom_small.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -26,9 +27,9 @@ seq_t a(idx_t n)
         fact *= (seq_t)i;
 
     /* Compute the three binomial terms */
-    seq_t c4 = _binom_small(m, 4);
-    seq_t c5 = _binom_small(m, 5);
-    seq_t c6 = _binom_small(m, 6);
+    seq_t c4 = binomial(m, 4);
+    seq_t c5 = binomial(m, 5);
+    seq_t c6 = binomial(m, 6);
 
     /* Sum with integer coefficients */
     seq_t sum = 6 * c4 + 20 * c5 + 15 * c6;

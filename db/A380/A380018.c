@@ -8,7 +8,8 @@
  *            binomial(-1/4,k)/(n-k)!
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
    This version is valid for any unsigned seq_t (uint8_t … uint64_t,
    unsigned __int128, or arbitrary‑precision integer class). */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
         /* (4k+1)^(n-k) */
         seq_t base = (seq_t)(4 * k + 1);
         seq_t exp  = (seq_t)(n - k);
-        seq_t pow  = big_pow(base, exp);
+        seq_t pow  = ipow(base, exp);
 
         /* term = binom(n,k) * pow * P_k */
         seq_t term = binom * pow;

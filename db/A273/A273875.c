@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9488 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 #define MAX_CUBE 80000  /* maximum value of the cubic expression
                           for n <= 10000 (7*100^2 = 70 000) */
@@ -58,9 +60,9 @@ seq_t a(idx_t n)
     /* recompute everything if we need a larger maximum */
     if (n > max_n) {
         /* free any previously allocated array */
-        free(counts);
+        mem_free(counts);
         /* allocate array of size n+1, initialized to 0 */
-        counts = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        counts = mem_new(seq_t, (size_t)(n + 1));
         if (!counts) exit(1);   /* allocation failure */
 
         /* build the cube lookup table once */

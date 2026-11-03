@@ -11,7 +11,8 @@
  *            (n+m-3)/2 (for n>0) and a(0)=1
  * Range:     u8 n <= 16, u16 n <= 28, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   binom, grow_seq
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,22 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/grow_seq.h"
-#include "../utils/binom.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;
@@ -48,8 +63,8 @@ static seq_t compute_a_value(idx_t n)
         if (d1 < 0 || d1 > k) continue;
         if (d2 < 0 || d2 > k + 1) continue;
 
-        seq_t b1 = binom((idx_t)k, (idx_t)d1);
-        seq_t b2 = binom((idx_t)k + 1, (idx_t)d2);
+        seq_t b1 = binomial((idx_t)k, (idx_t)d1);
+        seq_t b2 = binomial((idx_t)k + 1, (idx_t)d2);
         sum += b1 * b2;
     }
     return sum;

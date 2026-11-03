@@ -12,6 +12,7 @@
  *            → binary 111000101 → 453
  * Range:     u8 n <= 17, u16 n <= 297, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
+ * Validated: standard, pass, 72 terms through n = 7997 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

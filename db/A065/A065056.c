@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 17, u16 n <= 285, u32 n <= 9507, u64 n <= 9507,
- *            u128 n <= 9507, big any n
- * Helpers:   to_idx
+ * Range:     u8 n <= 17, u16 n <= 285, u32 n <= 72108, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 65 terms through n = 9507 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/to_idx.h"
+#include "../utils/mem.h"
+
+/* convert a seq_t to idx_t (assumes value fits into idx_t) */
+static inline idx_t to_idx(seq_t v)
+{
+    return (idx_t)v;                  /* C‑style cast works for both C and C++ */
+}
 
 static seq_t *sum_arr = NULL;          /* sum_arr[0] = 0, sum_arr[i] = a(i) */
 static size_t sum_cap = 0;             /* allocated capacity of sum_arr */
@@ -66,7 +73,7 @@ static void ensure_sum_cap(idx_t idx)
 {
     while (idx >= (idx_t)sum_cap) {
         sum_cap = sum_cap ? sum_cap * 2 : 16;
-        seq_t *tmp = (seq_t*)realloc(sum_arr, sum_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, sum_arr, sum_cap);
         if (!tmp) exit(1);
         sum_arr = tmp;
     }
@@ -77,7 +84,7 @@ static void init_static(void)
 {
     if (sum_arr == NULL) {
         sum_cap = 16;
-        sum_arr = (seq_t*)malloc(sum_cap * sizeof(seq_t));
+        sum_arr = mem_new(seq_t, sum_cap);
         if (!sum_arr) exit(1);
         sum_arr[0] = (seq_t)0;
         sum_len = 1;                      /* sum_arr[0] already defined */

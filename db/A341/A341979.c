@@ -10,7 +10,8 @@
  *            over all * primes ≤ n (with 1 inserted at the beginning)
  * Range:     u8 n <= 130, u16 n <= 130, u32 n <= 130, u64 n <= 130,
  *            u128 n <= 130, big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 72 terms through n = 130 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* The OEIS offset is 59. For n < 59 we return 0 (value is irrelevant). */
@@ -47,14 +49,14 @@ seq_t a(idx_t n) {
     /* DP array: dp[k * stride + s] = number of ways to pick k distinct
      * primes that sum to s.  We need k from 0..8 and sums 0..n.  */
     size_t stride = (size_t)n + 1;          /* sums 0..n inclusive */
-    seq_t *dp = (seq_t*)malloc(sizeof(seq_t) * 9 * stride);
+    seq_t *dp = mem_new(seq_t, 9 * stride);
     if (!dp) {
         free(primes);
         return 0;
     }
     /* Initialize all entries to zero.  Use memset because seq_t is
      * trivial. */
-    memset(dp, 0, sizeof(seq_t) * 9 * stride);
+    mem_set(dp, 0, sizeof(seq_t) * 9 * stride);
     dp[0] = 1;                               /* 0 primes can sum to 0 */
 
     /* Iterate over each prime (including 1). */
@@ -80,7 +82,7 @@ seq_t a(idx_t n) {
 
     seq_t result = dp[8 * stride + n];
 
-    free(dp);
+    mem_free(dp);
     free(primes);
     return result;
 }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} [phi(d) | sigma(d)] * sigma(d)/phi(d)
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /*          (c(d) is 1 iff phi(d) divides sigma(d), otherwise 0)  */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static idx_t currentMax = 0;
 #ifdef __cplusplus
@@ -28,14 +30,14 @@ static idx_t currentMax = 0;
 static void recompute_arrays(idx_t n)
 {
     /* free old arrays */
-    if (sigma) free(sigma);
-    if (phi)   free(phi);
+    if (sigma) mem_free(sigma);
+    if (phi)   mem_free(phi);
 
     /* allocate new arrays, zero sigma */
-    sigma = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    phi   = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    sigma = mem_new(seq_t, (n + 1));
+    phi   = mem_new(seq_t, (n + 1));
     if (!sigma || !phi) exit(EXIT_FAILURE);
-    memset(sigma, 0, (n + 1) * sizeof(seq_t));
+    mem_set(sigma, 0, (n + 1) * sizeof(seq_t));
 
     /* compute sigma (sum of divisors) */
     for (idx_t i = 1; i <= n; ++i) {

@@ -8,14 +8,38 @@
  *            m
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   tau_n_and_n3
+ * Validated: standard, pass, 121 terms through n = 9885 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/tau_n_and_n3.h"
+
+/* ------------------------------------------------------------------ */
+static void tau_n_and_n3(idx_t n, seq_t *tau, seq_t *tau3)
+{
+    *tau  = 1;
+    *tau3 = 1;
+
+    uint64_t temp = n;
+    for (uint64_t p = 2; p * p <= temp; ++p) {
+        if (temp % p == 0) {
+            int exp = 0;
+            while (temp % p == 0) {
+                temp /= p;
+                ++exp;
+            }
+            *tau  *= (seq_t)(exp + 1);
+            *tau3 *= (seq_t)(3 * exp + 1);
+        }
+    }
+    if (temp > 1) {               /* remaining prime factor */
+        *tau  *= 2;
+        *tau3 *= 4;
+    }
+}
 
 /* ------------------------------------------------------------------ */
 /* Euclidean gcd for the type seq_t – works for built‑in integers as   */

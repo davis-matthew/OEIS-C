@@ -10,6 +10,7 @@
  *            squarefree number. For A005117(n)=1 the value is 0
  * Range:     u8 n <= 128, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 108 terms through n = 9569 (2026-11-01)
  * Helpers:   build_primes_upto, is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,8 +19,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_squarefree.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/is_squarefree.h"
 
 static uint64_t *prime_list = NULL;   /* primes for factorisation */
 static size_t prime_cnt   = 0;          /* number of primes */

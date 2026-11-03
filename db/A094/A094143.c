@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   gcd_int
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   gcd_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,9 @@
 /* ------------------------------------------------------------ */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd_int.h"
+#include <stddef.h>
+#include "../utils/gcd_i32.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /*  Auxiliary routines                                         */
@@ -44,7 +47,7 @@ static size_t hash_count  = 0;      /* number of used entries */
 /* initialize hash table with given capacity (must be power of two) */
 static void hash_init(size_t cap) {
     hash_keys = (idx_t*)calloc(cap, sizeof(idx_t));
-    hash_vals = (seq_t*)calloc(cap, sizeof(seq_t));
+    hash_vals = mem_new(seq_t, cap);
     hash_cap  = cap;
     hash_count = 0;
 }
@@ -70,7 +73,7 @@ static void hash_resize(void) {
     idx_t *old_keys = hash_keys;
     seq_t *old_vals = hash_vals;
     hash_keys = (idx_t*)calloc(new_cap, sizeof(idx_t));
-    hash_vals = (seq_t*)calloc(new_cap, sizeof(seq_t));
+    hash_vals = mem_new(seq_t, new_cap);
     hash_cap  = new_cap;
     hash_count = 0;
     /* re‑insert old entries */
@@ -80,7 +83,7 @@ static void hash_resize(void) {
         }
     }
     free(old_keys);
-    free(old_vals);
+    mem_free(old_vals);
 }
 
 /* put key/value pair into hash, resizing if necessary */
@@ -117,7 +120,7 @@ static void precompute(void) {
         for (idx_t n = 1; n < m; ++n) {
             /* parity & coprimality conditions for primitive triples */
             if (((m - n) & 1) == 0) continue;
-            if (gcd_int((int)m, (int)n) != 1) continue;
+            if (gcd_i32((int)m, (int)n) != 1) continue;
 
             /* legs: a = m^2 - n^2,  b = 2mn                     */
             idx_t a = m * m - n * n;
@@ -135,7 +138,7 @@ static void precompute(void) {
     }
 
     /* build array of pairs from hash table */
-    struct Pair *pairs = (struct Pair*)malloc(hash_count * sizeof(struct Pair));
+    struct Pair *pairs = mem_new(struct Pair, hash_count);
     size_t pos = 0;
     for (size_t i = 0; i < hash_cap; ++i) {
         if (hash_keys[i] != 0) {
@@ -146,16 +149,16 @@ static void precompute(void) {
     }
 
     /* sort by difference to obtain the sequence order */
-    qsort(pairs, hash_count, sizeof(struct Pair), cmp_pair);
+    mem_qsort(pairs, hash_count, sizeof(struct Pair), cmp_pair);
 
     /* store sorted areas into cache */
-    cache = (seq_t*)malloc(hash_count * sizeof(seq_t));
+    cache = mem_new(seq_t, hash_count);
     for (size_t i = 0; i < hash_count; ++i) {
         cache[i] = pairs[i].area;
     }
     cache_len = hash_count;
 
-    free(pairs);
+    mem_free(pairs);
 }
 
 /* ------------------------------------------------------------ */

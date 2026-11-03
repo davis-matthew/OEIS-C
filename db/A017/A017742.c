@@ -5,14 +5,16 @@
  * Offset:    78    (a(78) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = binomial(n, 78) for n >= 78
- * Range:     u8 n <= 79, u16 n <= 80, u32 n <= 84, u64 n <= 96, u128 n <= 133,
+ * Range:     u8 n <= 79, u16 n <= 80, u32 n <= 84, u64 n <= 96, u128 n <= 134,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 9259 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sequence A017742: C(n,78)  (offset 78) */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

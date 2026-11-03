@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 93, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum_parity, is_composite
+ * Validated: standard, pass, 75 terms through n = 9975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,30 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/digit_sum_parity.h"
-#include "../utils/is_composite.h"
+#include "../utils/mem.h"
+
+/* helper: parity of digit sum of x */
+static inline int digit_sum_parity(uint64_t x)
+{
+    int parity = 0;
+    while (x) {
+        parity ^= (int)(x % 10) & 1;  /* flip for odd digits */
+        x /= 10;
+    }
+    return parity;
+}
+
+/* check if an integer k (uint64_t) is composite */
+static inline bool is_composite(uint64_t k)
+{
+    if (k < 4)
+        return false;          /* 4 is first composite */
+    for (uint64_t d = 2; d * d <= k; ++d) {
+        if (k % d == 0)
+            return true;       /* divisor found */
+    }
+    return false;              /* prime */
+}
 
 /* dynamic storage for the sequence */
 static seq_t *seq_vals = NULL;
@@ -38,7 +61,7 @@ static void ensure_capacity(size_t req)
     size_t new_cap = seq_cap ? seq_cap * 2 : 64;
     while (new_cap < req)
         new_cap <<= 1;
-    seq_vals = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_vals = mem_resize(seq_t, seq_vals, new_cap);
     seq_cap = new_cap;
 }
 

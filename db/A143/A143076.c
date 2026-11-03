@@ -13,12 +13,14 @@
  *            + 240551 x^8 - 131824 x^9 + 37101 x^10 - 3676 x^11 - 44 x^12
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 8, i64 n <= 15, i128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Initialize cache on first call. */
     if (cache_len == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)-1;      /* a(1) */
         cache[1] = (seq_t)0;       /* a(2) */
         cache_len = 2;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         if (idx + 1 > cache_cap) {
             while (cache_cap <= idx + 1)
                 cache_cap <<= 1;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         /* Compute terms from cache_len up to idx. */
         for (idx_t i = cache_len; i <= idx; ++i) {

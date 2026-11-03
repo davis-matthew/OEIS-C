@@ -8,12 +8,14 @@
  *            Prod_{j=1..k}(1 + x^(2*j))
  * Range:     u8 n <= 258, u16 n <= 713, u32 n <= 2214, u64 n <= 7534,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 105 terms through n = 9901 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Allocate or enlarge cache to include n */
     if (cache_cap < n + 1) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
     }
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* DP array for subset sums of {1..k} */
     idx_t max_target = n / 2;
-    seq_t *dp = (seq_t *)calloc(max_target + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, max_target + 1);
     if (!dp) exit(EXIT_FAILURE);
     dp[0] = 1;          /* only empty subset has sum 0 */
 
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(dp);
+    mem_free(dp);
     cache_cap = n + 1;
     return cache[n];
 }

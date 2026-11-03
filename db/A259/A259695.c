@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=1..n-1} k^7 * sigma(k) * sigma(n-k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 13, u64 n <= 119, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cached divisor–sum values */
 static seq_t *sigma_cache = NULL;
@@ -25,9 +27,9 @@ static void ensure_sigma(idx_t n)
     if (n <= sigma_cap)
         return;
     if (sigma_cache && sigma_cap > 0)
-        free(sigma_cache);
+        mem_free(sigma_cache);
     /* Allocate (n+1) entries and zero‑initialize them */
-    sigma_cache = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    sigma_cache = mem_new(seq_t, (size_t)(n + 1));
     sigma_cap  = n;
     for (idx_t i = 1; i <= n; ++i) {
         seq_t inc = (seq_t)i;

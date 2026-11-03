@@ -9,12 +9,14 @@
  * Formula:   a(n) = 42*a(n-1) - 441*a(n-2); a(1)=24, a(2)=1368
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     if (!cache) {                  /* initialise for first two terms */
         cache_size = 2;
-        cache = (seq_t*)malloc(sizeof(seq_t) * 2);
+        cache = mem_new(seq_t, 2);
         cache[0] = 24;
         cache[1] = 1368;
     }
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         seq_t a_nm1 = cache[cache_size - 1];   /* a(k-1) */
         seq_t a_nm2 = cache[cache_size - 2];   /* a(k-2) */
         seq_t val = a_nm1 * (seq_t)42U - a_nm2 * (seq_t)441U;
-        cache = (seq_t*)realloc(cache, sizeof(seq_t) * (cache_size + 1));
+        cache = mem_resize(seq_t, cache, (cache_size + 1));
         cache[cache_size] = val;
         cache_size++;
     }

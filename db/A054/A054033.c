@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_five_distinct_digits
+ * Validated: standard, pass, 67 terms through n = 948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,34 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_five_distinct_digits.h"
+#include "../utils/mem.h"
+
+/* Count distinct digits of an unsigned __int128 value. */
+static bool has_five_distinct_digits(unsigned __int128 v)
+{
+    unsigned mask = 0;          /* bit i set if digit i has appeared   */
+    int distinct = 0;           /* how many different digits seen     */
+
+    if (v == 0)                 /* one digit '0'   */
+    {
+        return true;            /* still only one digit, not five      */
+    }
+
+    while (v != 0)
+    {
+        int d = v % 10;         /* extract last decimal digit          */
+        unsigned bit = 1u << d;
+        if (!(mask & bit))      /* new distinct digit                  */
+        {
+            mask |= bit;
+            ++distinct;
+            if (distinct > 5)    /* early exit if more than five        */
+                return false;
+        }
+        v /= 10;
+    }
+    return distinct == 5;
+}
 
 /* Dynamic array of the sequence values. */
 static seq_t *vals      = NULL;   /* storage for terms                 */
@@ -36,7 +64,7 @@ static void ensure_vals_capacity(void)
     if (vals_len == vals_cap)
     {
         size_t new_cap = vals_cap ? vals_cap * 2 : 128;
-        seq_t *tmp = (seq_t *)realloc(vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, vals, new_cap);
         if (!tmp) abort();          /* out of memory */
         vals = tmp;
         vals_cap = new_cap;

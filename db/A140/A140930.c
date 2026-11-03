@@ -9,11 +9,14 @@
  * Formula:   a(n) = ∏_{i=0}^{6} ( binomial(n+16, n+i) * i! / (n+16-i)^(6-i) )
  * Range:     u8 n <= 0, u16 n <= 0, u32 none, u64 n <= 6, u128 n <= 7,
  *            big any n
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
 

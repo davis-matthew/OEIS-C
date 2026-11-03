@@ -9,15 +9,31 @@
  *            7^j with 0 ≤ i ≤ 40, j ≥ 0 (sorted in ascending order)
  * Range:     u8 none, u16 n <= 4, u32 n <= 34, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   mul_small, seq_one
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_one.h"
-#include "../utils/mul_small.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* Comparator for qsort, works for any seq_t that supports < > operators. */
 static int seq_t_cmp(const void *p, const void *q)
@@ -40,7 +56,7 @@ seq_t a(idx_t n)
 
         /* Rough estimate of total pairs.  720 is enough for i ≤ 40. */
         const size_t EST = 800;
-        seq_t *tmp = (seq_t *)malloc(EST * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, EST);
         if (!tmp) return 0;  /* fallback on allocation failure */
 
         size_t len = 0;
@@ -58,10 +74,10 @@ seq_t a(idx_t n)
         }
 
         /* Sort and unique the values */
-        qsort(tmp, len, sizeof(seq_t), seq_t_cmp);
+        mem_qsort(tmp, len, sizeof(seq_t), seq_t_cmp);
         cache_len = 0;
-        cache = (seq_t *)malloc(len * sizeof(seq_t));
-        if (!cache) { free(tmp); return 0; }
+        cache = mem_new(seq_t, len);
+        if (!cache) { mem_free(tmp); return 0; }
 
         seq_t last;
         int has_last = 0;
@@ -72,7 +88,7 @@ seq_t a(idx_t n)
                 has_last = 1;
             }
         }
-        free(tmp);
+        mem_free(tmp);
     }
 
     if (n == 0) return 0;   /* offset is 1, but guard against bad calls */

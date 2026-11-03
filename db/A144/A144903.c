@@ -12,13 +12,33 @@
  *            A(n,k)=A(0,k-1)+A(1,k-1)+...+A(n,k-1) (n>=0). Thus we can...
  * Range:     u8 n <= 83, u16 n <= 239, u32 n <= 719, u64 n <= 2515,
  *            u128 n <= 9107, big any n
- * Helpers:   antidiagonal_d
+ * Validated: standard, pass, 107 terms through n = 8450 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/antidiagonal_d.h"
+#include "../utils/mem.h"
+
+/* compute the antidiagonal index d such that d(d+1)/2 <= n < (d+1)(d+2)/2 */
+static idx_t antidiagonal_d(idx_t n)
+{
+    idx_t low = 0, high = 1;
+    /* grow high until it exceeds n */
+    while (((__int128)high * (high + 1)) / 2 <= n)
+        high <<= 1;
+
+    /* binary search */
+    while (low < high) {
+        idx_t mid = (low + high + 1) >> 1;
+        if (((__int128)mid * (mid + 1)) / 2 <= n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 static seq_t *A = NULL;          /* 1‑D table A[i*size + j]                   */
 static idx_t  table_size = 0;    /* current size of one dimension of A        */
@@ -35,7 +55,7 @@ static void ensure_table(idx_t needed)
         new_size <<= 1;
 
     /* allocate new table */
-    seq_t *newA = (seq_t *)calloc(new_size * new_size, sizeof(seq_t));
+    seq_t *newA = mem_new(seq_t, new_size * new_size);
     if (!newA) { /* allocation failed; leave old table untouched */
         return;
     }
@@ -58,7 +78,7 @@ static void ensure_table(idx_t needed)
     }
 
     /* free old memory and update globals */
-    free(A);
+    mem_free(A);
     A = newA;
     table_size = new_size;
 }

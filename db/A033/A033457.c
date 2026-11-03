@@ -7,13 +7,14 @@
  * Formula:   a(n) = Sum_{d|n+2, d<n+2} d^2 * phi((n+2)/d)
  * Range:     u8 n <= 21, u16 n <= 267, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi
+ * Validated: standard, pass, 73 terms through n = 9482 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/calc_phi.h"
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -27,14 +28,14 @@ seq_t a(idx_t n)
             /* d is always a proper divisor (d < m) */
             seq_t d_seq = (seq_t)d;
             seq_t term = d_seq * d_seq;           /* d^2   */
-            term *= calc_phi((seq_t)q);           /* *phi(q) */
+            term *= totient_seq((seq_t)q);           /* *phi(q) */
             total += term;
 
             /* Include the paired divisor q if it is distinct and proper */
             if (q != d && q < m) {
                 seq_t q_seq = (seq_t)q;
                 seq_t term_q = q_seq * q_seq;
-                term_q *= calc_phi(d_seq);        /* *phi(d) */
+                term_q *= totient_seq(d_seq);        /* *phi(d) */
                 total += term_q;
             }
         }

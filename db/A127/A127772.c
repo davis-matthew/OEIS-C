@@ -8,6 +8,7 @@
  * Formula:   a(n) = φ(n+1) - Σ_{m=⌈n/2⌉}^{n-1} a(m), a(0)=1
  * Range:     i8 n <= 59, i16 n <= 59, i32 n <= 59, i64 n <= 59, i128 n <= 59,
  *            big any n
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -13,7 +13,8 @@
  *            interval [k*n,(k+1)*n‑1]
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (!bitset) return 0;                    /* allocation failure – safe fallback */
 
     /* Array for counts of products in each interval [k*n,(k+1)*n-1]. */
-    seq_t *cnt = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));
+    seq_t *cnt = mem_new(seq_t, (size_t)(r + 1));
     if (!cnt) {
         free(bitset);
         return 0;
@@ -63,6 +65,6 @@ seq_t a(idx_t n)
 
     seq_t result = cnt[k];
     free(bitset);
-    free(cnt);
+    mem_free(cnt);
     return result;
 }

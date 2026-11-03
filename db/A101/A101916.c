@@ -9,13 +9,15 @@
  * Formula:   a(0) = 1; a(n) = -∑_{k=0..⌊(n‑1)/6⌋} a(k)·a(n‑6k‑1)
  * Range:     i8 n <= 34, i16 n <= 63, i32 n <= 63, i64 n <= 63, i128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache of computed terms */
 static seq_t *cache      = NULL; /* array of terms */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Resize the cache if necessary */
     if (n >= cache_len) {
         idx_t new_len = n + 1;
-        seq_t *new_buf = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_buf = mem_new(seq_t, new_len);
         if (!new_buf)
             return 0; /* allocation failure */
 
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         if (cache) {
             for (idx_t i = 0; i < cache_len; ++i)
                 new_buf[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache     = new_buf;
         cache_len = new_len;

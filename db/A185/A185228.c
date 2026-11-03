@@ -9,7 +9,8 @@
  *            number of partitions of n with all parts ≥ 8
  * Range:     u8 n <= 51, u16 n <= 105, u32 n <= 248, u64 n <= 671,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 918 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /*=== standard includes */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*=== static cache for the partition table === */
 static seq_t *p = NULL;     /* p[i] = #partitions of i using parts ≥ 8 */
@@ -27,7 +29,7 @@ static void recompute(idx_t n)
 {
     /* allocate new table */
     size_t sz = (size_t)(n + 1);
-    seq_t *newp = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, sz);
     if (!newp) return;          /* out of memory – caller will still see old data */
 
     /* initialise all entries to 0 */
@@ -42,7 +44,7 @@ static void recompute(idx_t n)
     }
 
     /* replace old table */
-    if (p) free(p);
+    if (p) mem_free(p);
     p = newp;
     max_computed = n;
 }

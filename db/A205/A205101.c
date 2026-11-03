@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   mod_mul
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
    modulo n). */
 
 #include <stdlib.h>
-#include "../utils/mod_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mulmod.h"
 
 seq_t a(idx_t n)
 {
@@ -49,13 +52,13 @@ seq_t a(idx_t n)
             even_res = residue;
         } else if (k & 1U) {            /* odd k */
             value   = odd_val * (seq_t)k;
-            residue = (idx_t)mod_mul((uint64_t)odd_res, (uint64_t)k,
+            residue = (idx_t)mulmod((uint64_t)odd_res, (uint64_t)k,
                                      (uint64_t)n);
             odd_val = value;
             odd_res = residue;
         } else {                        /* even k */
             value   = even_val * (seq_t)k;
-            residue = (idx_t)mod_mul((uint64_t)even_res, (uint64_t)k,
+            residue = (idx_t)mulmod((uint64_t)even_res, (uint64_t)k,
                                      (uint64_t)n);
             even_val = value;
             even_res = residue;

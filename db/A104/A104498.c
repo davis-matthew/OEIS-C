@@ -8,7 +8,8 @@
  *            (OEIS A104498)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 24, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for the sequence and powers of four */
 static seq_t *seq = NULL;         /* sequence values a(n)              */
@@ -29,8 +31,8 @@ static void ensure_capacity(idx_t n)
     if (capacity == 0) {
         /* initial capacity: enough for indices 0 and 1 */
         capacity = 4;
-        seq = (seq_t *)malloc(sizeof(seq_t) * capacity);
-        pow4 = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        seq = mem_new(seq_t, capacity);
+        pow4 = mem_new(seq_t, capacity);
         seq[0] = (seq_t)0;
         pow4[0] = (seq_t)1;
         size = 1;                   /* we have computed a[0] */
@@ -42,8 +44,8 @@ static void ensure_capacity(idx_t n)
     if (n + 1 > capacity) {
         idx_t newcap = capacity * 2;
         if (newcap < n + 1) newcap = n + 1;
-        seq = (seq_t *)realloc(seq, sizeof(seq_t) * newcap);
-        pow4 = (seq_t *)realloc(pow4, sizeof(seq_t) * newcap);
+        seq = mem_resize(seq_t, seq, newcap);
+        pow4 = mem_resize(seq_t, pow4, newcap);
         capacity = newcap;
     }
 

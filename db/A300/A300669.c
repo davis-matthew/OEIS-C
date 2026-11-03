@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   has_two_consecutive_ones
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,35 @@
  * C++17.
  */
 #include <stdbool.h>
-#include "../utils/has_two_consecutive_ones.h"
+
+/* Return true if binary expansion of 1/k has two consecutive ones. */
+static bool has_two_consecutive_ones(seq_t k)
+{
+    /* strip all factors of 2 – the property depends only on the odd part */
+    seq_t m = k;
+    while ((m & 1) == 0)
+        m >>= 1;
+    if (m == 1)               /* 1/1=1.0 has no fractional 1 bits */
+        return false;
+
+    seq_t r = 1;               /* current remainder (starts at 1) */
+    bool last_bit = false;     /* bit produced in previous step */
+
+    for (;;) {
+        r <<= 1;               /* multiply remainder by 2 */
+        bool bit = (r >= m);   /* 1 if the division yields a 1 else 0 */
+
+        if (last_bit && bit)   /* consecutive 1's found */
+            return true;
+
+        last_bit = bit;
+        r %= m;                /* new remainder for next iteration */
+
+        if (r == 1)            /* cycle completed without success */
+            break;
+    }
+    return false;
+}
 
 /* OEIS A300669 */
 seq_t a(idx_t n)

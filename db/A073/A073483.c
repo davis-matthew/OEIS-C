@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 24, u32 n <= 46, u64 n <= 75, u128 n <= 131,
  *            big any n
- * Helpers:   build_primes
+ * Validated: standard, pass, 69 terms through n = 983 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,10 @@
  */
 
 #include <stdlib.h>      /* malloc, realloc, size_t */
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 #define PRIME_LIMIT 200000   /* enough for n ≈ 10000 */
 
@@ -94,10 +98,9 @@ static int is_squarefree(idx_t m, idx_t *pf, int *exp, int *cnt)
 static void append_sqfree(seq_t val)
 {
     if (sqfree_len == 0) {
-        sqfree = (seq_t *)malloc(32 * sizeof(seq_t));
+        sqfree = mem_new(seq_t, 32);
     } else if (sqfree_len % 32 == 0) {
-        sqfree = (seq_t *)realloc(sqfree,
-                                  (sqfree_len + 32) * sizeof(seq_t));
+        sqfree = mem_resize(seq_t, sqfree, (sqfree_len + 32));
     }
     sqfree[sqfree_len++] = val;
 }

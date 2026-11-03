@@ -10,17 +10,41 @@
  *            odd
  * Range:     u8 n <= 64, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   floor_root3_u128, floor_root4_u128, pow_u128_u64_3,
- *            pow_u128_u64_4
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
+ * Helpers:   icbrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_root3_u128.h"
-#include "../utils/floor_root4_u128.h"
-#include "../utils/pow_u128_u64_3.h"
-#include "../utils/pow_u128_u64_4.h"
+#include "../utils/icbrt_u128.h"
+
+static inline unsigned __int128 pow_u128_u64_4(uint64_t x) {
+    return (unsigned __int128)x * x * x * x;
+}
+
+/* largest integer x with x^4 <= limit  */
+static uint64_t floor_root4_u128(unsigned __int128 limit) {
+    uint64_t lo = 0, hi = 1;
+    /* find an upper bound hi */
+    while (pow_u128_u64_4(hi) <= limit) {
+        if (hi > UINT64_MAX / 2) { hi = UINT64_MAX; break; }
+        hi <<= 1;
+    }
+    /* binary search */
+    while (lo < hi) {
+        uint64_t mid = (lo + hi + 1) >> 1;
+        if (pow_u128_u64_4(mid) <= limit)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
+
+static inline unsigned __int128 pow_u128_u64_3(uint64_t x) {
+    return (unsigned __int128)x * x * x;
+}
 
 /* seq_t is an unsigned integer type (uint*_t or unsigned __int128) */
 seq_t a(idx_t n) {
@@ -31,6 +55,6 @@ seq_t a(idx_t n) {
         return (seq_t)floor_root4_u128(limit);
     } else {                       /* odd */
         unsigned __int128 limit = n128 * n128 * n128 * n128;  /* n^4 */
-        return (seq_t)floor_root3_u128(limit);
+        return (seq_t)icbrt_u128(limit);
     }
 }

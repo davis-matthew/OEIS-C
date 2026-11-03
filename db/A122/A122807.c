@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 34, u32 n <= 102, u64 n <= 102,
  *            u128 n <= 102, big any n
- * Helpers:   none
+ * Validated: partial, pass, 102 terms through n = 102 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*----- static state ---------------------------------------------------*/
 static uint64_t *prime_ptr   = NULL;    /* array of primes */
@@ -82,8 +84,8 @@ static void extend_primes_to(idx_t limit)
     prime_limit = limit;
 
     /* rebuild prefix sums */
-    free(prefix_sum_ptr);
-    prefix_sum_ptr = (seq_t *)malloc(sizeof(seq_t) * (prime_cnt + 1));
+    mem_free(prefix_sum_ptr);
+    prefix_sum_ptr = mem_new(seq_t, (prime_cnt + 1));
     if (!prefix_sum_ptr) return;
     prefix_sum_ptr[0] = (seq_t)0;
     for (size_t i = 0; i < prime_cnt; ++i)

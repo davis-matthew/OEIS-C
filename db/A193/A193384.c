@@ -10,12 +10,14 @@
  *            a(n) = b² · 2^(n mod 4). This matches the OEIS terms
  * Range:     u8 n <= 13, u16 n <= 22, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (n == 3) return (seq_t)2;
 
     idx_t k   = n / 4;                 /* floor(n/4) */
-    seq_t c   = binom(2 * k, k);       /* C(2k,k) */
+    seq_t c   = binomial(2 * k, k);       /* C(2k,k) */
     seq_t b   = c / (seq_t)2;          /* b = C(2k,k)/2 */
     seq_t bsq = b * b;                 /* b² */
 

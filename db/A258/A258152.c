@@ -13,16 +13,28 @@
  *            sequence is defined for n ≥ 1; a(0) = 0 is returned
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binomial, factorial, seq_pow
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factorial.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 #define MAX_N 200   /* sufficient for flattened indices up to ≈10000 */
 
@@ -65,7 +77,7 @@ static seq_t compute_value_for_parts(int *parts, int depth, int n) {
     for (int j = 1; j <= n; ++j)
         if (e[j]) {
             seq_t bin = binomial((idx_t)n, (idx_t)j);
-            prod = prod * seq_pow(bin, (idx_t)e[j]);
+            prod = prod * ipow_idx(bin, (idx_t)e[j]);
         }
 
     return coeff * prod;

@@ -8,7 +8,8 @@
  * Formula:   a(n) = A276086(A003415(n))
  * Range:     u8 n <= 17, u16 n <= 47, u32 n <= 255, u64 n <= 2639,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 87 terms through n = 8938 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/big_pow.h"     /* seq_t big_pow(seq_t base, seq_t exp) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 /* Arithmetic derivative A003415 */
 static seq_t arithmetic_derivative(idx_t n)
@@ -59,7 +62,7 @@ static seq_t primorial_exp(seq_t m)
         uint32_t p = primes[idx++];
         seq_t digit = m % (seq_t)p;   /* 0 ≤ digit < p */
         if (digit != 0) {
-            seq_t pw = big_pow((seq_t)p, digit);
+            seq_t pw = ipow((seq_t)p, digit);
             result *= pw;
         }
         m /= (seq_t)p;

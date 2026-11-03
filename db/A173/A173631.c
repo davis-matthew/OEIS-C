@@ -9,7 +9,8 @@
  *            first n primes. P_0 = 1, so a(0) = 2
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 15, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   floor_sqrt, seq_mul, seq_one, sieve_first_n_primes
+ * Validated: standard, pass, 42 terms through n = 581 (2026-11-01)
+ * Helpers:   ipow_i32, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,10 +25,35 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "../utils/sieve_first_n_primes.h" /* sieve_first_n_primes */
-#include "../utils/seq_mul.h"              /* seq_mul */
-#include "../utils/floor_sqrt.h"           /* floor_sqrt */
-#include "../utils/seq_one.h"              /* seq_one */
+#include <stdbool.h>
+#include <math.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/sieve_first_n_primes.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 /* 128‑bit unsigned type (available on C++ and GCC/Clang on 64‑bit targets) */
 #if defined(__UINT128_T) || defined(__uint128_t) || defined(__SIZEOF_INT128__)

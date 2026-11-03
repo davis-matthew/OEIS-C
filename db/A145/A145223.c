@@ -12,13 +12,15 @@
  *            derangements D_k satisfy D_0=1, D_1=0, D_k = (k-1)*(D_{k-1...
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 13, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached values of derangements D_k and odd derangements o_k. */
 static seq_t *D_cache = NULL;
@@ -33,13 +35,13 @@ ensure_cache(idx_t need)
         return;                                     /* already sufficient */
 
     idx_t newsize = (need + 1 > 2) ? need + 1 : 2;   /* at least 2 entries */
-    seq_t *newD = (seq_t *)realloc(D_cache, newsize * sizeof(seq_t));
-    seq_t *newo = (seq_t *)realloc(o_cache, newsize * sizeof(seq_t));
+    seq_t *newD = mem_resize(seq_t, D_cache, newsize);
+    seq_t *newo = mem_resize(seq_t, o_cache, newsize);
 
     if (!newD || !newo) {
         /* on failure abort – environment guarantees enough memory */
-        if (newD) free(newD);
-        if (newo) free(newo);
+        if (newD) mem_free(newD);
+        if (newo) mem_free(newo);
         exit(EXIT_FAILURE);
     }
 

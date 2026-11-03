@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 5907, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc, better_than_seq_t, freep
+ * Validated: standard, pass, 70 terms through n = 9094 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,16 @@
    at least one exponent equal to 1. */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc.h"
-#include "../utils/better_than_seq_t.h"
-#include "../utils/freep.h"
+#include "../utils/mem.h"
+
+static void *alloc(size_t n){ return malloc(n); }
+
+/* Compares integer to seq_t only when seq_t fits into uint64_t */
+static int better_than_seq_t(uint64_t a, seq_t b){
+    return (uint64_t)b > a;
+}
+
+static void freep(void *p){ free(p); }
 
 static struct {
     seq_t *vals;   /* cached values, 1‑based indexing in cache[n-1] */
@@ -82,8 +90,8 @@ static void ensure_cache(idx_t n){
             if(valid && max_exp == 3 && min_exp == 1){
                 if(cache.size == cache.capacity){
                     size_t new_cap = (cache.capacity==0)?64:cache.capacity*2;
-                    seq_t *new_vals = (seq_t*)alloc(new_cap * sizeof(seq_t));
-                    if(cache.vals) {for(size_t i=0;i<cache.size;i++) new_vals[i]=cache.vals[i]; freep(cache.vals);}
+                    seq_t *new_vals = mem_new(seq_t, new_cap);
+                    if(cache.vals) {for(size_t i=0;i<cache.size;i++) new_vals[i]=cache.vals[i]; mem_free(cache.vals);}
                     cache.vals = new_vals;
                     cache.capacity = new_cap;
                 }

@@ -7,18 +7,21 @@
  * Formula:   a(n) = Sum_{k=0..n} k! * (-k)^k * Stirling1(n,k)
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 6, i64 n <= 10, i128 n <= 15,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 /* Ensure a dynamic array of seq_t has at least ‘needed’ elements. */
 static void ensure_cap(size_t needed, size_t *cap, seq_t **ptr) {
     if (needed > *cap) {
-        seq_t *p = (seq_t*)realloc(*ptr, needed * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, *ptr, needed);
         *ptr = p;
         *cap = needed;
     }
@@ -39,15 +42,15 @@ seq_t a(idx_t n) {
 
     /* Initialise caches on the very first call */
     if (a_cache == NULL) {
-        a_cache = (seq_t*)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         a_cache[0] = (seq_t)1;
         a_cap = 1;
 
-        T_cache = (seq_t*)malloc(sizeof(seq_t));
+        T_cache = mem_new(seq_t, 1);
         T_cache[0] = (seq_t)1;
         T_cap = 1;
 
-        s_prev = (seq_t*)malloc(sizeof(seq_t));
+        s_prev = mem_new(seq_t, 1);
         s_prev[0] = (seq_t)1;
         s_cap_prev = 1;
     }
@@ -62,7 +65,7 @@ seq_t a(idx_t n) {
     if (fact_k < n) {
         for (idx_t k = fact_k + 1; k <= n; ++k) {
             fact = fact * (seq_t)k;                                 /* k!   */
-            seq_t pow_k = seq_pow((seq_t)(-(seq_t)k), k);           /* (-k)^k */
+            seq_t pow_k = ipow_idx((seq_t)(-(seq_t)k), k);           /* (-k)^k */
             T_cache[k] = fact * pow_k;                             /* k! * (-k)^k */
         }
         fact_k = n;
@@ -74,7 +77,7 @@ seq_t a(idx_t n) {
     /* Compute Stirling rows from max_n+1 up to n */
     for (idx_t cur = max_n + 1; cur <= n; ++cur) {
         size_t row_len = (size_t)cur + 1;
-        seq_t *s_curr = (seq_t*)malloc(row_len * sizeof(seq_t));
+        seq_t *s_curr = mem_new(seq_t, row_len);
         s_curr[0] = (seq_t)0; /* s(cur,0) = 0 for cur > 0 */
 
         for (idx_t k = 1; k <= cur; ++k) {
@@ -94,7 +97,7 @@ seq_t a(idx_t n) {
         a_cache[cur] = sum;
 
         /* Prepare for next iteration */
-        free(s_prev);
+        mem_free(s_prev);
         s_prev = s_curr;
         s_cap_prev = row_len;
         max_n = cur;

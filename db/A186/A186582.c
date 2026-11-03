@@ -13,12 +13,14 @@
  *            - 4*a(n-5) + 2*a(n-6) * + 2*a(n-8) - 2*a(n-9)
  * Range:     u8 none, u16 n <= 5, u32 n <= 41, u64 n <= 107, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----- internal cache -------------------------------------------- */
 
@@ -29,7 +31,7 @@ static idx_t cache_size = 0;     /* maximum index computed (>=1) */
 static void init_cache(void)
 {
     cache_size = 14;
-    cache = (seq_t *)malloc((cache_size + 1) * sizeof(seq_t));
+    cache = mem_new(seq_t, (cache_size + 1));
     cache[0] = 0;      /* not used, keeps 1‑based indexing */
     cache[1] = 8824;
     cache[2] = 827;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
 
     /* enlarge cache to hold up to index n */
     size_t new_cap = (size_t)n + 1;  /* +1 to keep 1‑based indices */
-    seq_t *c = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *c = mem_resize(seq_t, cache, new_cap);
     if (!c)                         /* allocation failed */
         return 0;
     cache = c;

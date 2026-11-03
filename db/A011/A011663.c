@@ -9,12 +9,14 @@
  *            function caches computed terms for repeated calls
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached sequence values */
 static size_t cache_len = 0;     /* number of values currently stored */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
         /* Ensure at least space for 5 elements. */
         size_t sz = n + 1;
         if (sz < 5) sz = 5;
-        cache = (seq_t *)malloc(sz * sizeof(seq_t));
+        cache = mem_new(seq_t, sz);
         if (!cache) return 0;            /* out of memory – caller handles */
         /* Initialise the first 5 terms. */
         cache[0] = 0;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Grow the cache to accommodate up to n (inclusive). */
     size_t new_size = n + 1;
     if (new_size > cache_len) {
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0;            /* out of memory – caller handles */
         cache = tmp;
     }

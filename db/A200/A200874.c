@@ -9,7 +9,8 @@
  *            + 360 ) / 360
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 94, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 151 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the function with external linkage */
 seq_t a(idx_t n);
@@ -41,7 +43,7 @@ static void grow_recurrence_cache(size_t needed)
     size_t new_cap = recurrence_cap ? recurrence_cap * 2 : 8;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_arr = (seq_t *)realloc(recurrence_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, recurrence_cache, new_cap);
     if (!new_arr) /* allocation failure – return zero (undef) */
         return;
     recurrence_cache = new_arr;
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
     /* Fallback: recurrence with memoisation */
     if (!recurrence_cache) {
         recurrence_cap = 8;
-        recurrence_cache = (seq_t *)calloc(recurrence_cap, sizeof(seq_t));
+        recurrence_cache = mem_new(seq_t, recurrence_cap);
         if (!recurrence_cache)
             return 0;   /* allocation failure — return zero */
         for (size_t i = 1; i <= 7; ++i)

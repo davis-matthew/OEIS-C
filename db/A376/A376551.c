@@ -8,13 +8,16 @@
  * Formula:   a(n) = n * Sum_{k=0..n} ( binomial(n, k) * (n - k)^k )
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 21, u128 n <= 25,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     /* Special case n = 0 */
@@ -28,7 +31,7 @@ seq_t a(idx_t n) {
         seq_t C = binomial(n, k);
 
         /* (n - k)^k  (base is uint64_t, exponent is idx_t) */
-        seq_t power = pow_uint((uint64_t)(n - k), k);
+        seq_t power = ipow_u64_idx((uint64_t)(n - k), k);
 
         /* term = C * power */
         sum += C * power;

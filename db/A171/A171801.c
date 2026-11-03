@@ -8,13 +8,16 @@
  *            a(0) = 1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   big_pow, pow_uint
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-01)
+ * Helpers:   ipow, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -24,9 +27,9 @@ seq_t a(idx_t n)
         return (seq_t)4;
 
     /* 2^n */
-    seq_t pow2 = pow_uint(2, n);
+    seq_t pow2 = ipow_u64_idx(2, n);
     /* (2^n + 1)^(n-2) */
-    seq_t term2 = big_pow(pow2 + (seq_t)1, (seq_t)(n - 2));
+    seq_t term2 = ipow(pow2 + (seq_t)1, (seq_t)(n - 2));
     /* ((n+1)*2^n + 2) */
     seq_t inner = ((seq_t)(n + 1)) * pow2 + (seq_t)2;
     /* Final product */

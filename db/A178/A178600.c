@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1 if n==0 or n==3 or n==11 or n==14, otherwise 0
  * Range:     u8 n <= 14, u16 n <= 14, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
+ * Validated: full, pass, 15 terms through n = 14 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

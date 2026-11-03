@@ -10,17 +10,19 @@
  *            rotations of n's binary representation
  * Range:     u8 n <= 255, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 86 terms through n = 993 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
     seq_t x = n;
-    unsigned t = bitlen_seq_t(x);
+    unsigned t = bit_length(x);
     /* Build mask of t lowest bits */
     seq_t mask = 0;
     for (unsigned i = 0; i < t; ++i)

@@ -15,13 +15,15 @@
  *            function returns the flattened sequence a...
  * Range:     u8 n <= 16, u16 n <= 38, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*--------------------------------------------------------------------
   Compute the triangle entry t(n,k,2) where n is the row index and k the
@@ -37,15 +39,15 @@ static seq_t triangle_entry(idx_t r, idx_t k)
     if (r == 0) return (seq_t)1;   /* t(0,0)=1 */
 
     /* row 0 */
-    seq_t *prev = (seq_t*)malloc(sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, 1);
     if (!prev) return (seq_t)0;
     prev[0] = (seq_t)1;          /* t0(0,0)=1 */
 
     /* build rows 1 .. r-1 into 'prev' (row r-1) */
     for (idx_t nrow = 1; nrow < r; ++nrow)
     {
-        seq_t *curr = (seq_t*)malloc(sizeof(seq_t)*(nrow+1));
-        if (!curr) { free(prev); return (seq_t)0; }
+        seq_t *curr = mem_new(seq_t, (nrow+1));
+        if (!curr) { mem_free(prev); return (seq_t)0; }
 
         curr[0] = (seq_t)1;          /* t0(nrow,0)=1 */
         curr[nrow] = (seq_t)0;       /* t0(nrow,nrow)=0 */
@@ -58,7 +60,7 @@ static seq_t triangle_entry(idx_t r, idx_t k)
             curr[j] = term1 + term2;
         }
 
-        free(prev);
+        mem_free(prev);
         prev = curr;   /* next iteration uses this as previous row */
     }
 
@@ -66,8 +68,8 @@ static seq_t triangle_entry(idx_t r, idx_t k)
        Compute row r into 'curr' (row r).  After this, 'prev' holds
        row r-1 and 'curr' holds row r.
     ------------------------------------------------------------ */
-    seq_t *curr = (seq_t*)malloc(sizeof(seq_t)*(r+1));
-    if (!curr) { free(prev); return (seq_t)0; }
+    seq_t *curr = mem_new(seq_t, (r+1));
+    if (!curr) { mem_free(prev); return (seq_t)0; }
 
     curr[0] = (seq_t)1;
     curr[r] = (seq_t)0;
@@ -97,8 +99,8 @@ static seq_t triangle_entry(idx_t r, idx_t k)
         result -= coeff3 * prev[k - 1];
     }
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 114, u32 n <= 114, u64 n <= 114,
  *            u128 n <= 114, big any n
- * Helpers:   floor_cube_root, floor_sqrt
+ * Validated: standard, pass, 72 terms through n = 113 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -41,8 +42,45 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/floor_sqrt.h"
-#include "../utils/floor_cube_root.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Test whether a given number n has a representation in some base b
  * such that the sum of the cubes of its digits equals n. */
@@ -111,7 +149,7 @@ seq_t a(idx_t n)
 
     if (terms == NULL) {
         cap = 16;
-        terms = (seq_t *)malloc(cap * sizeof(*terms));
+        terms = mem_new(seq_t, cap);
         if (!terms) exit(1);
     }
 
@@ -119,7 +157,7 @@ seq_t a(idx_t n)
         if (is_good(next_candidate)) {
             if (sz >= cap) {
                 cap <<= 1;
-                terms = (seq_t *)realloc(terms, cap * sizeof(*terms));
+                terms = mem_resize(seq_t, terms, cap);
                 if (!terms) exit(1);
             }
             terms[sz++] = next_candidate;

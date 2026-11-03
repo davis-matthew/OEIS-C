@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1094, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sieve_primes
+ * Validated: standard, pass, 116 terms through n = 9124 (2026-11-03)
+ * Helpers:   mem, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/sieve_primes.h"
+#include "../utils/mem.h"
 
 static seq_t   *sigma_arr    = NULL;
 static bool    *sigma_present = NULL;
@@ -39,8 +43,8 @@ _ensure_sieve(uint64_t limit)
     /* allocate fresh arrays of length limit+1 */
     size_t len = limit + 1;
 
-    free(sigma_arr);
-    sigma_arr = (seq_t *)calloc(len, sizeof(seq_t));
+    mem_free(sigma_arr);
+    sigma_arr = mem_new(seq_t, len);
     if (!sigma_arr) { /* errno handling omitted for brevity */ }
 
     free(sigma_present);

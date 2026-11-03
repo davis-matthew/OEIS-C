@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   is_prime_uint64
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;     /* cached k values            */
 static idx_t  size  = 0;       /* number of cached terms     */
@@ -36,7 +38,7 @@ static void ensure_terms(idx_t need)
     size_t new_cap = cap ? cap * 2 : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, new_cap);
     cap = new_cap;
 }
 
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         ensure_terms(size + 1);
         for (;;) {
             uint64_t N = next_k * 100000ULL + 99999ULL;
-            if (is_prime_uint64(N)) {
+            if (is_prime_u64(N)) {
                 terms[size++] = (seq_t)next_k;
                 next_k++;   /* move past the found k */
                 break;

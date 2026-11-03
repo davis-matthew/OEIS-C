@@ -8,13 +8,15 @@
  *            a(2k)=Fib(k), a(2k+1)=Lucas(k)
  * Range:     u8 n <= 24, u16 n <= 48, u32 n <= 94, u64 n <= 186,
  *            u128 n <= 370, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Sequences cached across calls */
 static seq_t *fib_cache = NULL;
@@ -34,7 +36,7 @@ static void ensure_fib_upto(idx_t k)
     if (fib_cache == NULL) {
         fib_len = 2;
         fib_cap = 2;
-        fib_cache = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+        fib_cache = mem_new(seq_t, fib_cap);
         if (!fib_cache) return; /* allocation failure – caller will get UB */
         fib_cache[0] = 0;
         fib_cache[1] = 1;
@@ -44,7 +46,7 @@ static void ensure_fib_upto(idx_t k)
     while (fib_len <= k) {
         if (fib_len == fib_cap) {
             fib_cap = fib_cap ? fib_cap * 2 : 2;
-            fib_cache = (seq_t *)realloc(fib_cache, fib_cap * sizeof(seq_t));
+            fib_cache = mem_resize(seq_t, fib_cache, fib_cap);
             if (!fib_cache) return;
         }
         fib_cache[fib_len] = fib_cache[fib_len - 1] + fib_cache[fib_len - 2];
@@ -61,7 +63,7 @@ static void ensure_lucas_upto(idx_t k)
     if (lucas_cache == NULL) {
         lucas_len = 2;
         lucas_cap = 2;
-        lucas_cache = (seq_t *)malloc(lucas_cap * sizeof(seq_t));
+        lucas_cache = mem_new(seq_t, lucas_cap);
         if (!lucas_cache) return;
         lucas_cache[0] = 2;
         lucas_cache[1] = 1;
@@ -71,7 +73,7 @@ static void ensure_lucas_upto(idx_t k)
     while (lucas_len <= k) {
         if (lucas_len == lucas_cap) {
             lucas_cap = lucas_cap ? lucas_cap * 2 : 2;
-            lucas_cache = (seq_t *)realloc(lucas_cache, lucas_cap * sizeof(seq_t));
+            lucas_cache = mem_resize(seq_t, lucas_cache, lucas_cap);
             if (!lucas_cache) return;
         }
         lucas_cache[lucas_len] = lucas_cache[lucas_len - 1] + lucas_cache[lucas_len - 2];

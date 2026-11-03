@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 128, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 82 terms through n = 841 (2026-11-01)
  * Helpers:   digit_counts
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,9 @@
    parity of the sum of their digits.  It uses the helper function
    digit_counts to count decimal digits of an arbitrary-precision integer. */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
 
 extern seq_t a(idx_t n)

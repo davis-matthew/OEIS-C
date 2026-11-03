@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 178, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----- helper: build smallest prime factor table up to `limit` ----- */
 static uint32_t *spf   = NULL;   /* SPF array, 0 <= spf[i] <= i */
@@ -72,7 +74,7 @@ static void push_term(uint64_t value)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap << 1 : 128;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) return;          /* allocation failed – ignore */
         terms = tmp;
         terms_cap = new_cap;

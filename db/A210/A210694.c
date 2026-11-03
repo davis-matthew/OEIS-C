@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 41, u32 n <= 128, u64 n <= 367,
  *            u128 n <= 1020, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 65 terms through n = 9487 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Integer square‑root for uint64_t using a binary search. */
 static idx_t isqrt_u64(idx_t x)
@@ -61,8 +63,8 @@ seq_t a(idx_t n)
     idx_t k = s - pos;              /* k ≥ 1 */
 
     /* Compute T(r,k) = k^(r+1) + (k+1)^(r+1). */
-    seq_t term1 = big_pow((seq_t)k,     (seq_t)(r + 1));
-    seq_t term2 = big_pow((seq_t)(k + 1), (seq_t)(r + 1));
+    seq_t term1 = ipow((seq_t)k,     (seq_t)(r + 1));
+    seq_t term2 = ipow((seq_t)(k + 1), (seq_t)(r + 1));
 
     return term1 + term2;
 }

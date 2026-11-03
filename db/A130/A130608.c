@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 30, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* 1‑based cache: a_cache[0] is unused. */
 static seq_t *a_cache = NULL;   /* array of cached values */
@@ -33,7 +35,7 @@ static size_t a_cap   = 0;      /* allocated size (always > a_last) */
 static void a_init(void)
 {
     a_cap = 7;                                 /* indices 0..6 */
-    a_cache = (seq_t *)malloc(sizeof(seq_t) * a_cap);
+    a_cache = mem_new(seq_t, a_cap);
     if (!a_cache) abort();                    /* out of memory – not expected */
     a_cache[0] = 0;                            /* unused */
     a_cache[1] = 0;    /* a(1) */
@@ -56,7 +58,7 @@ static void a_ensure(idx_t n)
     size_t new_cap = a_cap;
     while (new_cap <= (size_t)n) new_cap <<= 1;   /* double until large enough */
     if (new_cap > a_cap) {
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) abort();      /* out of memory – unexpected */
         a_cache = tmp;
         a_cap   = new_cap;

@@ -11,6 +11,7 @@
  *            a(0) = a(1) = 0. The binomial C(2k-1, k-1) is eva...
  * Range:     i8 n <= 7, i16 n <= 14, i32 n <= 30, i64 n <= 32, i128 n <= 32,
  *            big any n
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

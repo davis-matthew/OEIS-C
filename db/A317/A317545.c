@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(1) = 1; For n > 1, a(n) = Σ_{d | (n / p)} a(d), where p is the
  *            smallest prime divisor of n
- * Range:     u8 n <= 383, u16 n <= 9342, u32 n <= 9342, u64 n <= 9342,
- *            u128 n <= 9342, big any n
- * Helpers:   alloc_cache, build_spf, ensure_cache, factor_u64
+ * Range:     u8 n <= 383, u16 n <= 36863, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9342 (2026-11-03)
+ * Helpers:   build_spf, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,11 +17,44 @@
 /* External functions and types provided by the build */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/factor_u64.h"        /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/alloc_cache.h"      /* seq_t *alloc_cache(idx_t n); */
-#include "../utils/ensure_cache.h"     /* void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr); */
-#include "../utils/build_spf.h"        /* void build_spf(idx_t limit, idx_t **spf_out); */
-#include "../utils/alloc_cache.h"      /* seq_t *alloc_cache(idx_t n); */
+#include <stdbool.h>
+#include "../utils/build_spf.h"
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Make sure the cache is large enough */
+static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr) {
+    seq_t *cache = *cache_ptr;
+    size_t cap = *cap_ptr;
+    if (cap <= (size_t)n) {
+        size_t new_cap = cap ? (cap << 1) : 16;
+        while (new_cap <= (size_t)n)
+            new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+        if (!tmp && new_cap > 0) {
+            /* Allocation failed – abort the program. */
+            exit(1);
+        }
+        if (tmp) {
+            /* Initialize newly allocated slots to zero. */
+            if (!cache) {
+                for (size_t i = 0; i < new_cap; ++i)
+                    tmp[i] = 0;
+            } else {
+                for (size_t i = cap; i < new_cap; ++i)
+                    tmp[i] = 0;
+            }
+            *cache_ptr = tmp;
+            *cap_ptr = new_cap;
+        }
+    }
+}
 
 static seq_t *cache = NULL;      /* cache[n] holds a(n); 0 means uninitialised */
 static size_t cache_cap = 0;

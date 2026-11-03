@@ -7,12 +7,14 @@
  * Formula:   a(n) = 3*(9^n - 1)/4 Recurrence: a(0) = 0, a(n) = 9*a(n-1) + 6
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 973 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The sequence values are stored in a lazily‑expanded static cache.
    Subsequent calls reuse the computed terms.  The implementation
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (cache_size == 0U)
     {
         cache_size = 1U;
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache)                 /* allocation failed – return 0 as fallback */
             return (seq_t)0;
         cache[0] = (seq_t)0;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         return cache[(size_t)n];
 
     /* Grow the cache to hold indices up to n */
-    seq_t *new_cache = (seq_t *)realloc(cache, (size_t)(n + 1U) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)(n + 1U));
     if (!new_cache)               /* allocation failed – return 0 */
         return (seq_t)0;
     cache = new_cache;

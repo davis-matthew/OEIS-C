@@ -8,13 +8,16 @@
  *            a(n-1-3*k); a(0)=1
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 27, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -24,7 +27,7 @@ static void ensure_capacity(idx_t n) {
     if (n >= cache_len) {
         size_t new_len = cache_len ? cache_len : 1;
         while (new_len <= (size_t)n) new_len <<= 1;
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         cache_len = new_len;
     }
 }
@@ -32,7 +35,7 @@ static void ensure_capacity(idx_t n) {
 seq_t a(idx_t n) {
     if (!cache) {
         cache_len = 1;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[0] = 1;
         max_computed = 0;
     }
@@ -43,7 +46,7 @@ seq_t a(idx_t n) {
             idx_t limit = (i - 1) / 3;
             seq_t sum = 0;
             for (idx_t k = 0; k <= limit; ++k) {
-                seq_t term = binom(i + 1 - 3 * k, k);
+                seq_t term = binomial(i + 1 - 3 * k, k);
                 term = term * cache[i - 1 - 3 * k];
                 sum += term;
             }

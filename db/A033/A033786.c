@@ -9,13 +9,15 @@
  *            function of triangular numbers)
  * Range:     u8 n <= 1079, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 9781 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of seq_t and idx_t provided by the build system. */
 typedef seq_t seq_t;
@@ -30,7 +32,7 @@ static bool cache_initialized = false;
 static void compute_cache(idx_t max_n)
 {
     /* Allocate new cache */
-    seq_t *new_cache = (seq_t*)malloc((max_n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (max_n + 1));
     if (!new_cache) return;           /* allocation failed – just abort */
 
     for (idx_t i = 0; i <= max_n; ++i) new_cache[i] = 0;
@@ -84,7 +86,7 @@ static void compute_cache(idx_t max_n)
     }
 
     /* Replace the old cache */
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     cache = new_cache;
     cache_size = max_n + 1;
     cache_initialized = true;

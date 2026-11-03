@@ -10,7 +10,8 @@
  *            a(8)=8, a(9)=14, a(10)=11, a(11)=17
  * Range:     i8 n <= 62, i16 n <= 63, i32 n <= 63, i64 n <= 63, i128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static state for memoisation */
 static seq_t *cache = NULL;
@@ -30,7 +32,7 @@ static void init_cache(void)
 {
     if (!initialized) {
         cache_cap = 11;                /* indices 0 .. 10 */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) {
             /* Allocation failed – fall back to zero value. */
             cache_cap = 0;
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     /* Extend the cache if necessary. */
     if (idx >= cache_cap) {
         size_t new_cap = idx + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache)          /* allocation failure */
             return (seq_t)0;
         cache = new_cache;

@@ -9,15 +9,29 @@
  *            implementation uses the helper seq_realloc to grow the cache so
  *            it works for arbitrary‑precision seq_t types
  * Range:     u8 n <= 31, u16 n <= 127, u32 n <= 767, u64 n <= 8191,
- *            u128 n <= 9435, big any n
- * Helpers:   calc_phi, seq_realloc
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 86 terms through n = 9435 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/calc_phi.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/totient_seq.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -55,13 +69,13 @@ seq_t a(idx_t n)
         if (n % d == 0) {
             /* divisor d */
             if (d < n) {
-                seq_t phi_d = calc_phi((seq_t)d);
+                seq_t phi_d = totient_seq((seq_t)d);
                 sum += phi_d * a(d);
             }
             /* paired divisor n/d */
             idx_t e = n / d;
             if (e != d && e < n) {
-                seq_t phi_e = calc_phi((seq_t)e);
+                seq_t phi_e = totient_seq((seq_t)e);
                 sum += phi_e * a(e);
             }
         }

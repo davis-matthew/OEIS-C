@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(n) = (n-1) * (3*a(n-1) + a(n-2))   for n > 1 */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL; /* memoisation array */
 static size_t cache_cap = 0;/* current allocation size (in seq_t units) */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on the first call. */
     if (cache == NULL) {
         cache_cap = 2;                       /* need slots for indices 0 and 1 */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return (seq_t)0;   /* out of memory: return 0 */
 
         cache[0] = (seq_t)1;                 /* a(0) = 1 */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         while (new_cap < (size_t)(n + 1)) {
             new_cap <<= 1;   /* double until big enough */
         }
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return (seq_t)0; /* out of memory: return 0 */
         cache = tmp;
         cache_cap = new_cap;

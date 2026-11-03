@@ -8,14 +8,24 @@
  *            a(n) is the nth partial quotient of sqrt(860) (a(0) = ⌊√860⌋)
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   floor_sqrt_860
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/floor_sqrt_860.h"
+
+/* compute ⌊√860⌋ using only integer arithmetic */
+static seq_t floor_sqrt_860(void)
+{
+    seq_t r = 0;
+    while ((r + 1) * (r + 1) <= 860) {
+        ++r;
+    }
+    return r;   /* r = 29 for D = 860 */
+}
 
 /* static storage for the computed period */
 static bool init_done = false;

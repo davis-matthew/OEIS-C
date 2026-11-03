@@ -9,7 +9,8 @@
  *            indices of k) + (sum of prime indices of k) is odd
  * Range:     u8 n <= 128, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, build_spf
+ * Validated: standard, pass, 79 terms through n = 9922 (2026-11-03)
+ * Helpers:   build_primes_upto, build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/build_spf.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *terms = NULL;            /* array of found terms */
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
     /* Initialise term storage on first call. */
     if (!terms) {
         terms_cap = 256;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         term_cnt  = 0;
         last_k    = 0;
     }
@@ -119,7 +121,7 @@ seq_t a(idx_t n)
         if (odd_sum_condition(candidate)) {
             if (term_cnt == terms_cap) {
                 terms_cap <<= 1;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[term_cnt++] = (seq_t)candidate;
         }

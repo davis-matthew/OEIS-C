@@ -8,17 +8,20 @@
  * Formula:   a(n) = floor( 16 * 3^(n-1) / (n+2) ) (n ≥ 2); a(0) = 2, a(1) = 6
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 5 terms through n = 4 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static seq_t pow3_n(idx_t n)
 {
     /* compute 3^n as a seq_t (big integer if needed) */
-    return big_pow((seq_t)3, (seq_t)n);
+    return ipow((seq_t)3, (seq_t)n);
 }
 
 seq_t a(idx_t n)

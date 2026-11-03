@@ -11,13 +11,26 @@
  *            (a≠b)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 47,
  *            big any n
- * Helpers:   idx_from_vals, zero_dp_full
+ * Validated: standard, pass, 36 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/idx_from_vals.h"
-#include "../utils/zero_dp_full.h"
+/* Helper to encode the last three values (a,b,c),
+   each 0..7 with 7 meaning “not yet set”, into a single index 0..511. */
+static unsigned idx_from_vals(unsigned a, unsigned b, unsigned c)
+{
+    return ((a << 3) + b) * 8 + c;
+}
+
+static void zero_dp_full(seq_t dp[2][7][512])
+{
+    for (unsigned i = 0; i < 2; ++i)
+        for (unsigned mx = 0; mx <= 6; ++mx)
+            for (unsigned s = 0; s < 512; ++s)
+                dp[i][mx][s] = 0;
+}
 
 seq_t a(idx_t n)
 {

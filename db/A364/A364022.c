@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 407, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   accumulate_divs
+ * Validated: standard, pass, 107 terms through n = 9292 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,28 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/accumulate_divs.h"
+
+static void accumulate_divs(size_t idx, idx_t cur_d,
+                            const idx_t *primes, const idx_t *exps,
+                            size_t cnt, idx_t n, seq_t *res)
+{
+    if (idx == cnt) {
+        /* cur_d is a divisor of n */
+        idx_t m = n / cur_d;
+        if ((m % 5) == 4) {
+            seq_t sign = (m & 1) ? -1 : 1;
+            *res += sign * (seq_t)cur_d;
+        }
+        return;
+    }
+    idx_t p = primes[idx];
+    idx_t e = exps[idx];
+    idx_t d = cur_d;
+    for (idx_t exp = 0; exp <= e; ++exp) {
+        accumulate_divs(idx + 1, d, primes, exps, cnt, n, res);
+        d *= p;                 /* increase exponent of current prime */
+    }
+}
 
 seq_t a(idx_t n)
 {

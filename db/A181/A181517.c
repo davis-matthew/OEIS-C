@@ -8,7 +8,8 @@
  *            = y + P^2*(1+P)/(1-P) ⇔ P - y + yP - 2P^2 - P^3 = 0
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 16, u64 n <= 28, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 477 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* -------------------------------------------------------------- */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised arrays: p[k]   – coefficients of P(y)
  *                   C2[k] – convolution C2(k)=∑_{i=1}^{k-1} p_i p_{k-i}   */
@@ -34,8 +36,8 @@ static void ensure_capacity(idx_t need)
     size_t new_size = alloc_size ? alloc_size : 16;
     while (new_size <= (size_t)(need + 1))
         new_size <<= 1;
-    p  = (seq_t *)realloc(p,  new_size * sizeof(seq_t));
-    C2 = (seq_t *)realloc(C2, new_size * sizeof(seq_t));
+    p  = mem_resize(seq_t, p, new_size);
+    C2 = mem_resize(seq_t, C2, new_size);
     for (size_t i = alloc_size; i < new_size; ++i) {
         p[i]  = (seq_t)0;
         C2[i] = (seq_t)0;

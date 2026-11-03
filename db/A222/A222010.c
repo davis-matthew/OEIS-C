@@ -8,13 +8,15 @@
  * Formula:   a(n) = 2^n - 1 (for all n ≥ 0)
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 3, u64 n <= 3, u128 n <= 3,
  *            big any n
+ * Validated: full, pass, 4 terms through n = 3 (2026-11-02)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* (This follows from a(n) = A222011(n) - 1 with A222011(n) = 2^n.) */
-#include "../utils/pow2.h"   /* provides seq_t pow2(idx_t exp) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

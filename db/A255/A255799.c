@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 55, u32 n <= 151, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static initial values (1‑based, index 0 unused).  The literals are
  * cast to seq_t to avoid implicit type promotion problems.
@@ -61,7 +63,7 @@ seq_t a(idx_t n) {
     size_t required = n + 1;
     if (required < init_len) required = init_len;
     if (required > cache_cap) {
-        seq_t *new_ptr = (seq_t *)realloc(cache, required * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, required);
         if (!new_ptr) return (seq_t)0;          /* allocation failed */
         cache = new_ptr;
         cache_cap = required;

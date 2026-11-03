@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   is_prime, is_prime_small
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-01)
+ * Helpers:   is_prime, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,15 +19,15 @@
    Implements a brute‑force search over bases 2..n, then returns n+1
    if n itself is prime. */
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
 #include "../utils/is_prime.h"
+#include "../utils/is_prime_seq.h"
 
 static bool digits_prime(idx_t num, idx_t base)
 {
     while (num > 0) {
         idx_t digit = num % base;
         if (digit <= 255) {
-            if (!is_prime_small((seq_t)digit))
+            if (!is_prime_seq((seq_t)digit))
                 return false;
         } else {
             if (!is_prime(digit))

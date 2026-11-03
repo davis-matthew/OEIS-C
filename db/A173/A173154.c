@@ -7,6 +7,7 @@
  * Formula:   a(n) = n^3/6 + 3*n^2/4 + 7*n/3 + 7/8 + (-1)^n/8
  * Range:     u8 n <= 2, u16 n <= 23, u32 n <= 1885, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 66 terms through n = 9921 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

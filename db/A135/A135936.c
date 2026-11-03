@@ -11,16 +11,17 @@
  *            (starting at 0) and m the index within the row * (0 ≤ m ≤
  *            ⌊r/2⌋). The mapping from n to (r,m) is by * row‑wise linear
  *            traversal of the triangle. The function computes * a(...
- * Range:     i8 n <= 38, i16 n <= 149, i32 n <= 159, i64 n <= 159,
+ * Range:     i8 n <= 76, i16 n <= 159, i32 n <= 159, i64 n <= 159,
  *            i128 n <= 159, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 104 terms through n = 150 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -35,10 +36,10 @@ seq_t a(idx_t n)
             /* n lies in this row */
             idx_t m = n - cum;          /* position inside the row   */
             /* Compute T(r,m) ....................................... */
-            seq_t term1 = binom(r - m, m);   /* C(r-m, m)            */
+            seq_t term1 = binomial(r - m, m);   /* C(r-m, m)            */
             seq_t term2 = 0;
             if (m > 0) {
-                term2 = 3 * binom(r - m - 1, m - 1);   /* 3*C(r-m-1,m-1)  */
+                term2 = 3 * binomial(r - m - 1, m - 1);   /* 3*C(r-m-1,m-1)  */
             }
             seq_t val = term1 - term2;
             if (m & 1u) {

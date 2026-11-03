@@ -10,7 +10,8 @@
  *            |s(n,k)| * (L/(k+1)), L = lcm(1..n+1), a(n) = N / gcd(N, L)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 31,
  *            big any n
- * Helpers:   a001192_zalloc, a2657_fixed, a2657_sieve
+ * Validated: standard, pass, 35 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,30 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/a001192_zalloc.h"
-#include "../utils/a2657_fixed.h"
-#include "../utils/a2657_sieve.h"
+#include "../utils/mem.h"
+
+static seq_t *a001192_zalloc(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    idx_t i;
+    for (i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static int a2657_fixed(void) {
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 300; i++) t = t * 2;
+    return t == 0;
+}
+
+static unsigned char *a2657_sieve(idx_t m) {
+    unsigned char *c = (unsigned char *)calloc((size_t)m + 2, 1);
+    idx_t i, j;
+    for (i = 2; i <= m; i++)
+        if (!c[i])
+            for (j = i * i; j <= m; j += i) c[j] = 1;
+    return c;
+}
 
 #define A2657_LW 16
 
@@ -156,7 +178,7 @@ static seq_t a2657_big_calc(idx_t n) {
     }
 
     free(comp);
-    free(s);
+    mem_free(s);
     return N;
 }
 

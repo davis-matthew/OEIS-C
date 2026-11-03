@@ -10,12 +10,14 @@
  *            Computation uses an O(n^2) recurrence
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 26, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,11 +34,11 @@ seq_t a(idx_t n)
         if (new_cap < n + 1) new_cap = n + 1;
 
         /* Allocate new arrays */
-        seq_t *a_new = (seq_t*)malloc(new_cap * sizeof(seq_t));
-        seq_t *h_new = (seq_t*)malloc(new_cap * sizeof(seq_t));
-        seq_t *f_new = (seq_t*)malloc(new_cap * sizeof(seq_t));
-        seq_t *g_new = (seq_t*)malloc(new_cap * sizeof(seq_t));
-        seq_t *q_new = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *a_new = mem_new(seq_t, new_cap);
+        seq_t *h_new = mem_new(seq_t, new_cap);
+        seq_t *f_new = mem_new(seq_t, new_cap);
+        seq_t *g_new = mem_new(seq_t, new_cap);
+        seq_t *q_new = mem_new(seq_t, new_cap);
 
         /* zero initialise new entries */
         for (idx_t i = 0; i < new_cap; ++i) {
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         }
 
         /* release old arrays */
-        free(a_arr); free(h_arr); free(f_arr); free(g_arr); free(q_arr);
+        mem_free(a_arr); mem_free(h_arr); mem_free(f_arr); mem_free(g_arr); mem_free(q_arr);
 
         /* install new arrays */
         a_arr = a_new; h_arr = h_new; f_arr = f_new; g_arr = g_new; q_arr = q_new;

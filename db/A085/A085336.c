@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 90, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   getbit, icbrt, setbit
+ * Validated: standard, pass, 53 terms through n = 8687 (2026-11-03)
+ * Helpers:   icbrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,9 +27,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/getbit.h"
 #include "../utils/icbrt.h"
-#include "../utils/setbit.h"
+#include "../utils/mem.h"
+
+/* Helper: test a bit */
+static inline int getbit(const uint8_t *bits, idx_t pos)
+{
+    return (bits[pos >> 3] >> (pos & 7)) & 1;
+}
+
+/* Helper: set a bit in a bitset */
+static inline void setbit(uint8_t *bits, idx_t pos)
+{
+    bits[pos >> 3] |= (uint8_t)(1 << (pos & 7));
+}
 
 /* Comparator used by qsort */
 static int cmp_idx(const void *a, const void *b)
@@ -97,12 +109,12 @@ seq_t a(idx_t n)
         /* ---------- Collect all numbers that are in the intersection into the
                         cache (in increasing order).  -------------------------------- */
         /* Allocate a generous cache size and resize at the end. */
-        cache = (seq_t *)malloc((two_len + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (two_len + 1));
         for (idx_t val = 1; val <= LIMIT; ++val) {
             if (getbit(int_bits, val))
                 cache[cache_len++] = (seq_t)val;
         }
-        cache = (seq_t *)realloc(cache, cache_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_len);
 
         /* ---------- Clean up temporary storage -------------------------------- */
         free(two_sums);

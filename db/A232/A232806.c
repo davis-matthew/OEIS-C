@@ -7,6 +7,7 @@
  * Formula:   a(n) = a(n-1)^2/2 + 5/2, a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 8,
  *            big any n
+ * Validated: standard, pass, 13 terms through n = 12 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

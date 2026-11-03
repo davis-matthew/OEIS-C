@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* initialise static storage once */
     if (k_list == NULL) {
         k_cap = 128;
-        k_list = (seq_t *)malloc(k_cap * sizeof(seq_t));
+        k_list = mem_new(seq_t, k_cap);
     }
     if (digits == NULL) {
         digits_cap = 128;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
             /* store current exponent */
             if (k_len >= k_cap) {
                 k_cap *= 2;
-                k_list = (seq_t *)realloc(k_list, k_cap * sizeof(seq_t));
+                k_list = mem_resize(seq_t, k_list, k_cap);
             }
             k_list[k_len++] = (seq_t)current_k;
         }

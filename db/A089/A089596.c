@@ -13,12 +13,14 @@
  *            2x^5 + x^10 - 2x^12 + 4x^17 - 2x^22 + x^24 - 2x^29 + x^34,...
  * Range:     u8 n <= 43, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Numerator coefficients for 0 ≤ n ≤ 30. */
 static const seq_t N_COEF[31] = {
@@ -45,8 +47,8 @@ seq_t a(idx_t n)
     /* Resize the cache if necessary. */
     if (needed > cache_size) {
         size_t old_size = cache_size;
-        seq_t *tmp = cache ? (seq_t *)realloc(cache, needed * sizeof(seq_t))
-                           : (seq_t *)malloc(needed * sizeof(seq_t));
+        seq_t *tmp = cache ? mem_resize(seq_t, cache, needed)
+                           : mem_new(seq_t, needed);
         if (!tmp) abort();
         cache = tmp;
         cache_size = needed;

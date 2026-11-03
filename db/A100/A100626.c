@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2^(2*p_n+1) where p_n is the n‑th prime
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 11, u128 n <= 18,
  *            big any n
- * Helpers:   estimate_prime_upper_bound, seq_pow, simple_sieve
+ * Validated: standard, pass, 32 terms through n = 234 (2026-11-01)
+ * Helpers:   ipow_idx, simple_sieve
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,18 @@
 #include <stdbool.h>
 
 /* Utilities provided by the build system */
+#include <math.h>
+#include "../utils/ipow_idx.h"
 #include "../utils/simple_sieve.h"
-#include "../utils/seq_pow.h"
-#include "../utils/estimate_prime_upper_bound.h"
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 /* Compute the n-th term of A100626.  The function handles calls in
    any order and caches primes up to the largest n requested. */
@@ -58,6 +68,6 @@ seq_t a(idx_t n)
     idx_t exponent = (idx_t)2 * (idx_t)prime + 1;
 
     /* Compute 2^exponent using seq_pow. */
-    seq_t result = seq_pow((seq_t)2, exponent);
+    seq_t result = ipow_idx((seq_t)2, exponent);
     return result;
 }

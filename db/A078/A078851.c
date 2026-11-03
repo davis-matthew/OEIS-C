@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 55, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 859 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Small prime list for trial division (up to 1000). */
 static const uint32_t SMALL_PRIME_LIMIT = 1000;
@@ -128,7 +130,7 @@ static uint64_t next_prime(uint64_t curr) {
 static void append_term(seq_t val) {
     if (terms_cnt >= terms_cap) {
         terms_cap = terms_cap ? terms_cap * 2 : 64;
-        terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
     terms[terms_cnt++] = val;
 }

@@ -8,6 +8,7 @@
  * Formula:   a(n) = 16*n^4 - 24*n^3 + 8*n^2 + 2*n (OEIS A374397)
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 128, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 49 terms through n = 9646 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,9 +8,10 @@
  * Formula:   a(n) = smallest divisor d of n such that n/d is non‑abundant *
  *            (sigma(n/d) <= 2 * (n/d)). Equivalent: let m = n/d be the
  *            largest * divisor of n with sigma(m) <= 2m; then a(n) = n / m
- * Range:     u8 n <= 605, u16 n <= 9267, u32 n <= 9267, u64 n <= 9267,
- *            u128 n <= 9267, big any n
- * Helpers:   factor_u64, recurse_div
+ * Range:     u8 n <= 605, u16 n <= 99999, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 9267 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,30 @@
 /*  Necessary type definitions are supplied by the build (seq_t and idx_t). */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/recurse_div.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+
+/*  Recursive helper that enumerates all divisors of n.  */
+static void recurse_div(size_t idx, size_t cnt,
+                        const seq_t pow_arr[][65], const seq_t sigma_arr[][65],
+                        const uint64_t ex_arr[],
+                        seq_t cur_m, seq_t cur_sigma,
+                        seq_t *best_m)
+{
+    if (idx == cnt) {
+        /*  Check non‑abundant condition: sigma(cur_m) <= 2 * cur_m  */
+        if (cur_sigma <= (seq_t)2 * cur_m && cur_m > *best_m)
+            *best_m = cur_m;
+        return;
+    }
+    for (uint64_t e = 0; e <= ex_arr[idx]; ++e) {
+        seq_t next_m     = cur_m     * pow_arr[idx][e];
+        seq_t next_sigma = cur_sigma * sigma_arr[idx][e];
+        recurse_div(idx + 1, cnt, pow_arr, sigma_arr,
+                    ex_arr, next_m, next_sigma, best_m);
+    }
+}
 
 seq_t a(idx_t n)
 {

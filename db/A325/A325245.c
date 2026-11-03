@@ -9,7 +9,8 @@
  *            part used at most once)
  * Range:     u8 n <= 29, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *p_distinct = NULL;
 static size_t p_curr_max = 0;
@@ -26,7 +28,7 @@ static void ensure_partitions(idx_t N) {
     if ((idx_t)p_curr_max >= N) return;   /* already computed */
 
     size_t new_size = (size_t)N + 1;
-    seq_t *new_ptr = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_ptr = mem_new(seq_t, new_size);
     if (!new_ptr) exit(1);
 
     for (size_t i = 0; i < new_size; ++i) new_ptr[i] = 0;
@@ -38,7 +40,7 @@ static void ensure_partitions(idx_t N) {
         }
     }
 
-    free(p_distinct);
+    mem_free(p_distinct);
     p_distinct = new_ptr;
     p_curr_max = (size_t)N;
 }

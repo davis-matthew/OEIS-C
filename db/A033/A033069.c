@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 227, u32 n <= 7520, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 9939 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *heap_vals = NULL;    /* heap of numbers */
 static uint8_t *heap_last = NULL;  /* corresponding last digit of each heap element */
@@ -33,7 +35,7 @@ static size_t terms_cap  = 0;      /* capacity of the terms array */
 static void heap_resize(void)
 {
     size_t new_cap = heap_cap ? heap_cap * 2 : 8;
-    heap_vals = (seq_t *)realloc(heap_vals, new_cap * sizeof(seq_t));
+    heap_vals = mem_resize(seq_t, heap_vals, new_cap);
     heap_last = (uint8_t *)realloc(heap_last, new_cap * sizeof(uint8_t));
     heap_cap = new_cap;
 }
@@ -91,7 +93,7 @@ static void ensure_terms_size(idx_t n)
     if (terms_cap < n) {
         terms_cap = (terms_cap ? terms_cap * 2 : 8);
         if (terms_cap < n) terms_cap = n;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
 
     /* Add initial single‑digit numbers if the heap is empty */

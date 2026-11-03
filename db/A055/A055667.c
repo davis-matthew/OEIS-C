@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
+ * Validated: partial, pass, 100 terms through n = 99 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -34,6 +35,7 @@ static inline idx_t int_sqrt_u64(idx_t n) {
     return r;
 }
 
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n) {

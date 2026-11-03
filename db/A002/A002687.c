@@ -10,8 +10,8 @@
  *            N/(n!*D), reduced by removing the small primes of n!*D from N
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 20, i128 n <= 34,
  *            big any n
- * Helpers:   z2687_add, z2687_bitlen, z2687_cmp, z2687_divs, z2687_isprime,
- *            z2687_len, z2687_mods, z2687_muladd, z2687_muls, z2687_sub
+ * Validated: standard, pass, 36 terms through n = 425 (2026-11-03)
+ * Helpers:   bit_length_u64, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,21 +19,90 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/z2687_add.h"
-#include "../utils/z2687_bitlen.h"
-#include "../utils/z2687_cmp.h"
-#include "../utils/z2687_divs.h"
-#include "../utils/z2687_isprime.h"
-#include "../utils/z2687_len.h"
-#include "../utils/z2687_mods.h"
-#include "../utils/z2687_muladd.h"
-#include "../utils/z2687_muls.h"
-#include "../utils/z2687_sub.h"
+#include "../utils/bit_length_u64.h"
+#include "../utils/is_prime_u64.h"
+
+static void z2687_add(uint32_t *a, const uint32_t *b, size_t L) {
+    uint64_t c = 0;
+    for (size_t i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)a[i] + b[i] + c;
+        a[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+}
+
+static int z2687_cmp(const uint32_t *a, const uint32_t *b, size_t L) {
+    for (size_t i = L; i-- > 0;) {
+        if (a[i] != b[i]) return a[i] < b[i] ? -1 : 1;
+    }
+    return 0;
+}
+
+static void z2687_divs(uint32_t *x, size_t L, uint64_t d) {
+    uint64_t r = 0;
+    for (size_t i = L; i-- > 0;) {
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+}
+
+static size_t z2687_len(const uint32_t *x, size_t L) {
+    while (L > 0 && x[L - 1] == 0) L--;
+    return L;
+}
+
+static uint64_t z2687_mods(const uint32_t *x, size_t L, uint64_t d) {
+    uint64_t r = 0;
+    for (size_t i = L; i-- > 0;) {
+        uint64_t cur = (r << 32) | x[i];
+        r = cur % d;
+    }
+    return r;
+}
+
+static void z2687_muladd(uint32_t *acc, const uint32_t *a, const uint32_t *b, size_t L) {
+    size_t la = z2687_len(a, L), lb = z2687_len(b, L);
+    for (size_t i = 0; i < la; i++) {
+        uint64_t carry = 0;
+        size_t j;
+        for (j = 0; j < lb && i + j < L; j++) {
+            uint64_t t = (uint64_t)a[i] * b[j] + acc[i + j] + carry;
+            acc[i + j] = (uint32_t)t;
+            carry = t >> 32;
+        }
+        size_t k = i + j;
+        while (carry && k < L) {
+            uint64_t t = (uint64_t)acc[k] + carry;
+            acc[k] = (uint32_t)t;
+            carry = t >> 32;
+            k++;
+        }
+    }
+}
+
+static void z2687_muls(uint32_t *x, size_t L, uint32_t m) {
+    uint64_t c = 0;
+    for (size_t i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+}
+
+static void z2687_sub(uint32_t *a, const uint32_t *b, size_t L) {
+    int64_t br = 0;
+    for (size_t i = 0; i < L; i++) {
+        int64_t t = (int64_t)a[i] - (int64_t)b[i] - br;
+        if (t < 0) { t += ((int64_t)1 << 32); br = 1; } else br = 0;
+        a[i] = (uint32_t)t;
+    }
+}
 
 seq_t a(idx_t n) {
     uint64_t m = (uint64_t)n + 2;
     uint64_t fb = 0;
-    for (uint64_t i = 2; i <= n; i++) fb += (uint64_t)z2687_bitlen(i);
+    for (uint64_t i = 2; i <= n; i++) fb += (uint64_t)bit_length_u64(i);
     size_t L = (size_t)((fb + 2 * m + 64) / 32 + 2);
 
     uint32_t *c = (uint32_t *)calloc((size_t)(n + 1) * L, sizeof(uint32_t));
@@ -50,7 +119,7 @@ seq_t a(idx_t n) {
     c[0] = 1;
     uint64_t rb = 0;
     for (uint64_t r = 1; r <= n; r++) {
-        rb += (uint64_t)z2687_bitlen(r);
+        rb += (uint64_t)bit_length_u64(r);
         size_t lim = (size_t)(rb / 32 + 2);
         if (lim > L) lim = L;
         for (uint64_t k = r; k >= 1; k--) {
@@ -64,7 +133,7 @@ seq_t a(idx_t n) {
     /* D = lcm(1..n+2) */
     D[0] = 1;
     for (uint64_t p = 2; p <= m; p++) {
-        if (!z2687_isprime(p)) continue;
+        if (!is_prime_u64(p)) continue;
         uint64_t q = p;
         z2687_muls(D, L, (uint32_t)p);
         while (q <= m / p) { q *= p; z2687_muls(D, L, (uint32_t)p); }
@@ -83,7 +152,7 @@ seq_t a(idx_t n) {
 
     /* cancel common factors with the denominator n! * D */
     for (uint64_t p = 2; p <= m; p++) {
-        if (!z2687_isprime(p)) continue;
+        if (!is_prime_u64(p)) continue;
         uint64_t e = 0;
         for (uint64_t t = n / p; t > 0; t /= p) e += t;
         for (uint64_t q = p; q <= m; ) { e++; if (q > m / p) break; q *= p; }

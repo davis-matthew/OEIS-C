@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has92
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
    such number.  Complexity is O(n) with a small constant. */
 
 #include <stdbool.h>
-#include "../utils/has92.h"
+
+/* Check whether the decimal representation of x contains the
+   substring "92". */
+static inline bool has92(seq_t x)
+{
+    seq_t prev = x % 10;
+    x /= 10;
+    while (x) {
+        seq_t cur = x % 10;
+        if (cur == 9 && prev == 2)
+            return true;
+        prev = cur;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -11,6 +11,7 @@
  *            1 – k if k < m and k even P(r,k) = 3m...
  * Range:     u8 n <= 231, u16 n <= 9730, u32 n <= 9730, u64 n <= 9730,
  *            u128 n <= 9730, big any n
+ * Validated: standard, pass, 82 terms through n = 8670 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

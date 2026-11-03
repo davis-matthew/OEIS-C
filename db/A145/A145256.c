@@ -7,13 +7,15 @@
  * Keywords:  base, nonn
  * Formula:   a(n) = the smallest integer > n that is non-coprime to n and has
  *            the same number of 1's in its binary representation as n has
- * Range:     u8 n <= 127, u16 n <= 9127, u32 n <= 9127, u64 n <= 9127,
- *            u128 n <= 9127, big any n
+ * Range:     u8 n <= 127, u16 n <= 32767, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 85 terms through n = 9127 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Count the number of set bits (1's) in an integer of type seq_t. */

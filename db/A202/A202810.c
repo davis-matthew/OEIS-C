@@ -12,15 +12,30 @@
  *            edge increments lie in {0,1,2}
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 19, u128 n <= 98,
  *            big any n
- * Helpers:   state_to_vec, vec_to_state
+ * Validated: standard, pass, 32 terms through n = 200 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/state_to_vec.h"
-#include "../utils/vec_to_state.h"
+
+/* Convert a base‑3 integer (0..242) to its 5‑digit representation. */
+static void state_to_vec(int idx, unsigned char h[5]) {
+    for (int i = 0; i < 5; ++i) {
+        h[i] = idx % 3;
+        idx /= 3;
+    }
+}
+
+/* Convert a 5‑digit vector back to its base‑3 integer. */
+static int vec_to_state(const unsigned char h[5]) {
+    int idx = 0;
+    for (int i = 4; i >= 0; --i)
+        idx = idx * 3 + h[i];
+    return idx;
+}
 
 /* Number of horizontal states: 3^5 possible 5‑digit base‑3 vectors. */
 #define STATE_COUNT 243          /* 3^5 */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    1 - 2(-1)^k x^k + 2x^{2k} - 2(-1)^k x^{3k} + x^{4k}   for each k. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
 
     /* Allocate or enlarge buffer as needed.  */
     if (buf_size < N + 1) {
-        free(buf);
-        buf = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+        mem_free(buf);
+        buf = mem_new(seq_t, (N + 1));
         if (!buf) return 0;          /* return 0 on allocation failure */
         buf_size = N + 1;
     }

@@ -11,12 +11,15 @@
  *            opposite bit. The result is interpreted as a binary number
  * Range:     u8 n <= 17, u16 n <= 297, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 71 terms through n = 8761 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Position of the most significant 1‑bit of n. */
-    int msb = floor_log2_uint64(n);
+    int msb = ilog2(n);
 
     /* Start with the first bit of n. */
     int currentBit = (n >> msb) & 1;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define WIDTH 6
 #define PAT_COUNT (1U << WIDTH)
@@ -89,12 +91,12 @@ seq_t a(idx_t n)
     seq_t (*cur)[PAT_COUNT] = dp0;
     seq_t (*next)[PAT_COUNT] = dp1;
 
-    memset(cur, 0, sizeof(dp0));
+    mem_set(cur, 0, sizeof(dp0));
     for (int p = 0; p < PAT_COUNT; ++p)
         cur[SENTINEL][p] = 1;
 
     for (idx_t row = 1; row < n; ++row) {
-        memset(next, 0, sizeof(dp1));
+        mem_set(next, 0, sizeof(dp1));
         for (int up = 0; up <= SENTINEL; ++up) {
             for (int curIdx = 0; curIdx < PAT_COUNT; ++curIdx) {
                 seq_t val = cur[up][curIdx];

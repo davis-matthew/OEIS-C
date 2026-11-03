@@ -7,14 +7,16 @@
  * Formula:   a(n) = Sum_{d|n} phi(d) * d^(n/d-1)
  * Range:     u8 n <= 14, u16 n <= 29, u32 n <= 62, u64 n <= 122,
  *            u128 n <= 245, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 63 terms through n = 4632 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* Max distinct prime factors for a 64‑bit n is < 16 */
 #define MAX_PRIME_FACTORS 16
@@ -92,7 +94,7 @@ static void _dfs_div(idx_t idx,
         /* At a leaf: curr_val is a divisor d of n */
         idx_t div = n / (idx_t)curr_val;      /* n / d             */
         idx_t exp = div - (idx_t)1;           /* exponent for d^(n/d-1) */
-        seq_t term = seq_pow(curr_val, exp);  /* d^(exp)            */
+        seq_t term = ipow_idx(curr_val, exp);  /* d^(exp)            */
         term *= curr_phi;                    /* * phi(d)           */
         *sum += term;
         return;
@@ -110,7 +112,7 @@ static void _dfs_div(idx_t idx,
         }
         if (e > 0) {
             /* phi(p^e) = (p-1) * p^(e-1) */
-            seq_t phi_pe = seq_pow((seq_t)p, (idx_t)(e - 1));
+            seq_t phi_pe = ipow_idx((seq_t)p, (idx_t)(e - 1));
             phi_pe *= (seq_t)(p - 1);
             new_phi *= phi_pe;
         }

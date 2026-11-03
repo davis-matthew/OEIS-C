@@ -7,15 +7,18 @@
  * Formula:   a(n) = Sum_{d|n} (-1)^(n/d+1)*d^5
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 84, u64 n <= 7130,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 49 terms through n = 7905 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
             part = (seq_t)val;
         } else {
             /* a(p^e) = 1 + p^5 + p^10 + … + p^(5e) */
-            seq_t p5  = pow_uint(p, 5);
+            seq_t p5  = ipow_u64_idx(p, 5);
             seq_t term = 1;
             seq_t sum  = 1;
             for (uint64_t k = 1; k <= e; ++k) {

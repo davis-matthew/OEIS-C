@@ -8,12 +8,17 @@
  * Formula:   a(n) = 237*a(n-1) mod 65537; a(1)=1
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 55 terms through n = 9484 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -24,5 +29,5 @@ seq_t a(idx_t n)
     const seq_t MOD  = (seq_t)65537;
     const seq_t BASE = (seq_t)237;
 
-    return mod_pow(BASE, n - 1, MOD);
+    return powmod(BASE, n - 1, MOD);
 }

@@ -12,13 +12,15 @@
  *            a(10)=731109730 * The function memoises computed...
  * Range:     u8 none, u16 n <= 4, u32 n <= 11, u64 n <= 24, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,10 +51,10 @@ seq_t a(idx_t n)
     if (cached_size < 10) {
         size_t sz = 11; /* 0..10 inclusive */
         if (!cache) {
-            cache = (seq_t *)malloc(sz * sizeof(seq_t));
+            cache = mem_new(seq_t, sz);
             if (!cache) return (seq_t)0;
         } else {
-            seq_t *tmp = (seq_t *)realloc(cache, sz * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, sz);
             if (!tmp) return (seq_t)0;
             cache = tmp;
         }
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     /* Grow and compute up to n if needed. */
     if (cached_size < n) {
         size_t new_sz = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_sz);
         if (!tmp) return (seq_t)0;
         cache = tmp;
 

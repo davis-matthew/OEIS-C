@@ -7,6 +7,7 @@
  * Formula:   a(n) = 16*(-1)^n*Sum_{0<d|n} (-1)^d*d^3, a(0) = 1
  * Range:     u8 n <= 2, u16 n <= 15, u32 n <= 623, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 53 terms through n = 9829 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 108, u16 n <= 5066, u32 n <= 5066, u64 n <= 5066,
  *            u128 n <= 5066, big any n
- * Helpers:   ugcd_uint64
+ * Validated: standard, pass, 75 terms through n = 4883 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/ugcd_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* Returns true iff k satisfies the sequence condition. */
 static bool good_uint64(uint64_t k) {
@@ -85,7 +87,7 @@ static bool good_uint64(uint64_t k) {
         uint64_t a = divs[i];
         uint64_t b = divs[i+1];
         if (b <= a) continue;      /* safety check */
-        uint64_t g   = ugcd_uint64(a, b);
+        uint64_t g   = gcd_u64(a, b);
         uint64_t num = b / g;       /* reduced numerator   */
         uint64_t den = a / g;       /* reduced denominator */
         if (first || num * best_den < best_num * den) {
@@ -109,7 +111,7 @@ seq_t a(idx_t n) {
 
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;   /* allocation failure (unlikely) */
         cache[0] = 0;
         cache[1] = 0;
@@ -120,7 +122,7 @@ seq_t a(idx_t n) {
         if (good_uint64(next_k)) {
             if (cache_len >= cache_cap) {
                 cache_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) return 0;   /* allocation failure */
                 cache = tmp;
             }

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  fini, full, easy, nonn
  * Formula:   not stated
- * Range:     u8 none, u16 none, u32 n <= 9775, u64 n <= 9775, u128 n <= 9775,
- *            big any n
- * Helpers:   mod_pow
+ * Range:     u8 none, u16 none, u32 n <= 32768, u64 n <= 32768,
+ *            u128 n <= 32768, big any n
+ * Validated: full, pass, 32768 terms through n = 32768 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,10 @@
 /* Computes the nth quadratic nonresidue modulo 65537 (sequence A136806). */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -31,14 +35,14 @@ static void build_cache(void)
 
     /* There are exactly (MOD-1)/2 = 32768 nonresidues. */
     cache_size = 32768;
-    cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_size);
     if (cache == NULL)
         return;                     /* allocation failure */
 
     size_t pos = 0;
     for (seq_t a = (seq_t)1; a < MOD; ++a) {
         /* Euler's criterion: a is a nonresidue iff a^EXP ≡ -1 (mod MOD). */
-        if (mod_pow(a, EXP, MOD) == (MOD - (seq_t)1)) {
+        if (powmod(a, EXP, MOD) == (MOD - (seq_t)1)) {
             cache[pos++] = a;
             if (pos == cache_size)
                 break;

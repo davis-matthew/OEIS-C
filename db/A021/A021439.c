@@ -7,12 +7,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computation: a(n) = floor(10^n / 435) mod 10
    (digit n of the decimal expansion of 1/435) */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialise the cache on first call */
     if (cap == 0) {
         cap = 64;
-        digits = (seq_t *)malloc(cap * sizeof(seq_t));
+        digits = mem_new(seq_t, cap);
         if (!digits) return (seq_t)0;
         seq_t dig = (seq_t)((rem * 10ULL) / 435ULL);
         digits[0] = dig;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cap) {
         size_t new_cap = cap;
         while ((size_t)n >= new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(digits, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, digits, new_cap);
         if (!tmp) return (seq_t)0;
         digits = tmp;
         cap    = new_cap;

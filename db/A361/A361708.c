@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{d|n} A018252(d)
  * Range:     u8 n <= 71, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9747 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static tables for non‑prime values and primes discovered so far */
 static seq_t *nonprime_table = NULL;
@@ -35,7 +37,7 @@ static void ensure_nonprime_count(idx_t need)
     /* Grow the nonprime table as needed */
     if (nonprime_cap == 0) {
         nonprime_cap = 16;
-        nonprime_table = (seq_t *)malloc(nonprime_cap * sizeof(seq_t));
+        nonprime_table = mem_new(seq_t, nonprime_cap);
     }
 
     /* Grow the prime list as needed */
@@ -75,7 +77,7 @@ static void ensure_nonprime_count(idx_t need)
             /* store into nonprime table */
             if (nonprime_count == nonprime_cap) {
                 nonprime_cap *= 2;
-                nonprime_table = (seq_t *)realloc(nonprime_table, nonprime_cap * sizeof(seq_t));
+                nonprime_table = mem_resize(seq_t, nonprime_table, nonprime_cap);
             }
             nonprime_table[nonprime_count++] = (seq_t)cand;
         }

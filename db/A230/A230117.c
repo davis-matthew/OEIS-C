@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 372, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 64 terms through n = 950 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdlib.h>   /* malloc, realloc */
 #include <stdbool.h>  /* bool, true, false */
 
-#include "../utils/is_prime.h"   /* is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n)
 {
@@ -34,11 +36,11 @@ extern seq_t a(idx_t n)
     /* Grow the array if necessary. */
     if (cap == 0) {
         cap = 256;
-        arr = (seq_t *)malloc(cap * sizeof(seq_t));
+        arr = mem_new(seq_t, cap);
     }
     if (n > cap) {
         while (cap < n) cap <<= 1;            /* double until big enough */
-        arr = (seq_t *)realloc(arr, cap * sizeof(seq_t));
+        arr = mem_resize(seq_t, arr, cap);
     }
 
     /* Generate new terms until we have at least n of them. */

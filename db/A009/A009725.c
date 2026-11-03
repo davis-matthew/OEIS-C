@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 23, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
     T_n = Σ_{j=1}^{n-1} binom(2n-2, 2j-1) * T_j * T_{n-j}   (n ≥ 2)
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *T_arr = NULL;   /* array of tangent numbers, indexed by k (T_0 unused) */
 static idx_t  T_cap = 0;      /* current maximum k stored (valid indices 0..T_cap) */
@@ -29,13 +31,13 @@ static void ensure_T(idx_t needed)
     if (needed <= T_cap) return;          /* already computed */
 
     idx_t new_cap = needed;
-    seq_t *new_arr = (seq_t *)malloc((new_cap + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, (new_cap + 1));
 
     /* copy previous values */
     if (T_arr) {
         for (idx_t i = 0; i <= T_cap; ++i)
             new_arr[i] = T_arr[i];
-        free(T_arr);
+        mem_free(T_arr);
     } else {
         /* first allocation: initialise index 0 to 0 */
         new_arr[0] = 0;

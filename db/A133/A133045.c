@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4941, u16 n <= 4941, u32 n <= 4941, u64 n <= 4941,
  *            u128 n <= 4941, big any n
- * Helpers:   bigint_to_decimal
+ * Validated: standard, pass, 97 terms through n = 3912 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include "../utils/bigint_to_decimal.h"
+
+/* Convert big integer a to a decimal string.                                */
+static void bigint_to_decimal(const uint32_t *a, size_t len,
+                              char *buf, size_t *out_len)
+{
+    size_t pos = 0;
+    char tmp[32];
+    int w = snprintf(tmp, sizeof(tmp), "%u", a[len - 1]);
+    memcpy(buf + pos, tmp, (size_t)w);
+    pos += (size_t)w;
+    for (int i = (int)len - 2; i >= 0; --i) {
+        int w2 = snprintf(tmp, sizeof(tmp), "%09u", a[i]);
+        memcpy(buf + pos, tmp, (size_t)w2);
+        pos += (size_t)w2;
+    }
+    *out_len = pos;
+    buf[pos] = '\0';
+}
 
 #define BASE      1000000000U   /* 1e9 – base for big‑integer words        */
 #define MAX_WORDS 3500          /* enough for ≈ 31500 decimal digits       */

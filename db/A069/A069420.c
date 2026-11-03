@@ -11,7 +11,8 @@
  *            for both colours
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define ROWS 6
 
@@ -286,18 +288,18 @@ static bool same_state(const State *a, const State *b) {
 static void table_init(Table *t, size_t cap) {
     t->cap = cap;
     t->used = 0;
-    t->data = (TableEntry*)calloc(cap, sizeof(TableEntry));
+    t->data = mem_new(TableEntry, cap);
 }
 
 static void table_clear(Table *t) {
-    memset(t->data, 0, t->cap * sizeof(TableEntry));
+    mem_set(t->data, 0, t->cap * sizeof(TableEntry));
     t->used = 0;
 }
 
 static void table_resize(Table *t, size_t newcap) {
     TableEntry *old = t->data;
     size_t oldcap = t->cap;
-    t->data = (TableEntry*)calloc(newcap, sizeof(TableEntry));
+    t->data = mem_new(TableEntry, newcap);
     t->cap = newcap;
     t->used = 0;
     for (size_t i = 0; i < oldcap; ++i) {
@@ -311,7 +313,7 @@ static void table_resize(Table *t, size_t newcap) {
         t->data[h].used = 1;
         ++t->used;
     }
-    free(old);
+    mem_free(old);
 }
 
 static void table_put(Table *t, const State *key, seq_t val) {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 57 terms through n = 999 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static inline uint64_t modmul_uint64(uint64_t a, uint64_t b, uint64_t mod)
 {
@@ -49,7 +51,7 @@ static void ensure_cache_capacity(idx_t cap)
     if (cache_cap < cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap < cap) new_cap <<= 1;
-        seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, cache, new_cap);
         if (!newp) abort();            /* fatal: out of memory */
         cache = newp;
         cache_cap = new_cap;
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
     /* growth helper for prime_cache */
     if (prime_cache_len == 0 && prime_cache_cap == 0) {
         prime_cache_cap = 16;
-        prime_cache = (seq_t *)malloc(prime_cache_cap * sizeof(seq_t));
+        prime_cache = mem_new(seq_t, prime_cache_cap);
         if (!prime_cache) abort();   /* fatal: out of memory */
     }
 
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
             if (candidate <= 5) { candidate = 7; continue; }
             if ((candidate & 1) == 0) { candidate += 1; continue; }
 
-            if (is_prime_small((seq_t)candidate)) break;
+            if (is_prime_seq((seq_t)candidate)) break;
 
             candidate += 2;
         }
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
             /* store prime in cache */
             if (prime_cache_len == prime_cache_cap) {
                 size_t new_cap = prime_cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(prime_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, prime_cache, new_cap);
                 if (!tmp) abort();
                 prime_cache = tmp;
                 prime_cache_cap = new_cap;

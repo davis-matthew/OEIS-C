@@ -7,14 +7,28 @@
  * Formula:   a(n) = sqrt(28*A296377(n)^2 - 3)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   mul_small
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* Cached solutions of x^2 - 28*y^2 = -3.
    odd_x/y  : seeds (5,1) for indices n = 1,3,5,...
@@ -48,8 +62,8 @@ static void ensure_odd(size_t k)
     size_t new_cap = odd_cap ? odd_cap : 1;
     while (new_cap <= k) new_cap <<= 1;
 
-    seq_t *new_x = (seq_t*)realloc(odd_x, new_cap * sizeof(seq_t));
-    seq_t *new_y = (seq_t*)realloc(odd_y, new_cap * sizeof(seq_t));
+    seq_t *new_x = mem_resize(seq_t, odd_x, new_cap);
+    seq_t *new_y = mem_resize(seq_t, odd_y, new_cap);
     odd_x = new_x;
     odd_y = new_y;
 
@@ -78,8 +92,8 @@ static void ensure_even(size_t k)
     size_t new_cap = even_cap ? even_cap : 1;
     while (new_cap <= k) new_cap <<= 1;
 
-    seq_t *new_x = (seq_t*)realloc(even_x, new_cap * sizeof(seq_t));
-    seq_t *new_y = (seq_t*)realloc(even_y, new_cap * sizeof(seq_t));
+    seq_t *new_x = mem_resize(seq_t, even_x, new_cap);
+    seq_t *new_y = mem_resize(seq_t, even_y, new_cap);
     even_x = new_x;
     even_y = new_y;
 

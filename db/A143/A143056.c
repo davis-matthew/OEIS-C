@@ -9,13 +9,15 @@
  *            a(2)=1, a(3)=1, a(4)=1
  * Range:     i8 n <= 12, i16 n <= 22, i32 n <= 42, i64 n <= 84, i128 n <= 168,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 4221 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term (n >= 1).  Values are stored in a static cache
    so subsequent calls are handled in O(1) after the first pass up to n. */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     if (n > cached) {             /* need to extend the cache */
         size_t new_size = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp)
             abort();              /* unrecoverable memory error */
         cache = tmp;

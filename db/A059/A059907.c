@@ -7,6 +7,7 @@
  * Formula:   a(n) = tau(n^2-1) - tau(n-1)
  * Range:     u8 n <= 1870, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 99 terms through n = 9938 (2026-11-01)
  * Helpers:   factor_uint64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 119, u32 n <= 350, u64 n <= 1127,
  *            u128 n <= 3915, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 4335 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Forward declarations */
 static void ensure_rows(idx_t r);
@@ -46,7 +48,7 @@ static void initialise(void)
 
     /* row 0 */
     flat_cap = 64;
-    flat = (seq_t*)malloc(flat_cap * sizeof(seq_t));
+    flat = mem_new(seq_t, flat_cap);
     flat[0] = 1;
     flat_size = 1;
 
@@ -55,7 +57,7 @@ static void initialise(void)
     offsets[0] = 0;
 
     suffix_cap = 4;
-    suffix = (seq_t*)malloc(suffix_cap * sizeof(seq_t));
+    suffix = mem_new(seq_t, suffix_cap);
     suffix[0] = 0;
 
     max_row = 0;
@@ -76,15 +78,16 @@ static void add_row(idx_t n)          /* n ≥ 1 */
 {
     size_t prev_len = n;               /* length of row n‑1 */
     idx_t prev_off = offsets[n - 1];
-    seq_t *prev = flat + prev_off;
 
     /* Grow flat array if necessary */
     if (flat_size + (n + 1) > flat_cap) {
         flat_cap = flat_cap ? flat_cap << 1 : 128;
         while (flat_cap < flat_size + n + 1)
             flat_cap <<= 1;
-        flat = (seq_t*)realloc(flat, flat_cap * sizeof(seq_t));
+        flat = mem_resize(seq_t, flat, flat_cap);
     }
+
+    seq_t *prev = flat + prev_off;    /* after flat may have moved */
 
     /* Grow offsets array if necessary */
     if (max_row + 1 >= offsets_cap) {
@@ -99,7 +102,7 @@ static void add_row(idx_t n)          /* n ≥ 1 */
         suffix_cap = suffix_cap ? suffix_cap << 1 : 8;
         while (suffix_cap < prev_len + 1)
             suffix_cap <<= 1;
-        suffix = (seq_t*)realloc(suffix, suffix_cap * sizeof(seq_t));
+        suffix = mem_resize(seq_t, suffix, suffix_cap);
     }
 
     /* Compute suffix sums of previous row */

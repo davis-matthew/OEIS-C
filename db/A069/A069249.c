@@ -7,17 +7,19 @@
  * Formula:   a(n) = n*n - phi(n)*sigma(n) (OEIS A069249)
  * Range:     u8 n <= 29, u16 n <= 461, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi_local
+ * Validated: standard, pass, 84 terms through n = 9753 (2026-11-02)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
 
 /* Required helpers provided by the framework */
-#include "../utils/phi_local.h"
+#include "../utils/totient_seq.h"
 
 /* We implement our own very small power routine; no external helper for it.
    The exponent is always a small non‑negative integer (the exponent of a prime
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
     init_primes();                      /* ensure primes are ready */
 
     seq_t n_seq = (seq_t)n;
-    seq_t phi = phi_local(n_seq);
+    seq_t phi = totient_seq(n_seq);
     seq_t sigma = sigma_seq(n_seq);
     seq_t sq = n_seq * n_seq;
     seq_t prod = phi * sigma;

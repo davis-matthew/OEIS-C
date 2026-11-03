@@ -7,6 +7,7 @@
  * Formula:   a(n) = n*(prime(n+1)-prime(n))
  * Range:     u8 n <= 29, u16 n <= 1830, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 68 terms through n = 9006 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,7 +16,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sieve_first_n_primes.h"   /* provides sieve_first_n_primes(idx_t n, uint32_t **out, size_t *cnt_out) */
+#include <string.h>
+#include <math.h>
+#include "../utils/sieve_first_n_primes.h"
 
 static uint32_t *primes_u32 = NULL;
 static size_t     primes_cnt = 0;

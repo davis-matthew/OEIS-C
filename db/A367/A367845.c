@@ -8,13 +8,15 @@
  *            a(n-k), a(0)=1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Computes the n-th term of OEIS A367845.
    The function is safe for arbitrary-precision seq_t as well as
@@ -26,9 +28,9 @@ seq_t a(idx_t n)
 
     /* allocate three arrays of size (n+1) */
     size_t len = (size_t)(n + 1);
-    seq_t *a_arr  = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *pow2   = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *fact   = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *a_arr  = mem_new(seq_t, len);
+    seq_t *pow2   = mem_new(seq_t, len);
+    seq_t *fact   = mem_new(seq_t, len);
 
     if (!a_arr || !pow2 || !fact) {
         /* In a real library you might handle the error differently */
@@ -68,8 +70,8 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_arr[n];
-    free(a_arr);
-    free(pow2);
-    free(fact);
+    mem_free(a_arr);
+    mem_free(pow2);
+    mem_free(fact);
     return result;
 }

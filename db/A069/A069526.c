@@ -12,6 +12,7 @@
  *            fixed bound the function returns 0
  * Range:     u8 n <= 27, u16 n <= 111, u32 n <= 666, u64 n <= 9898,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 84 terms through n = 9354 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

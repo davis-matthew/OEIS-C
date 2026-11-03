@@ -10,6 +10,7 @@
  *            prime(d+1). (prime(1)=2, prime(2)=3, prime(3)=5, prime(4)=7)
  * Range:     u8 n <= 17, u16 n <= 926, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 79 terms through n = 996 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3448, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_six_twos
+ * Validated: standard, pass, 52 terms through n = 9977 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,24 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_six_twos.h"
+
+/* Return true iff the ternary representation of x contains
+   exactly six digits equal to 2. */
+static bool has_six_twos(seq_t x)
+{
+    int cnt = 0;
+    while (x > 0)
+    {
+        if ((x % (seq_t)3) == (seq_t)2)
+        {
+            ++cnt;
+            if (cnt > 6)
+                return false;
+        }
+        x /= (seq_t)3;
+    }
+    return cnt == 6;
+}
 
 /* a(n) is the n-th positive integer whose base‑3 expansion
    contains exactly six digits equal to 2.  The sequence is

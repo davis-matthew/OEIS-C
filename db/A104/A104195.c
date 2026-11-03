@@ -8,7 +8,8 @@
  *            φ(n) – λ(n) (offset 1)
  * Range:     u8 n <= 59, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   ugcd
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/ugcd.h"
+#include "../utils/gcd_u64.h"
 
 /* Types supplied by the build environment */
 extern seq_t a(idx_t n);
@@ -132,7 +133,7 @@ static uint64_t carmichael_lambda(uint64_t n)
                     comp *= p;
                 comp *= (p - 1);
             }
-            uint64_t g = ugcd(res, comp);
+            uint64_t g = gcd_u64(res, comp);
             unsigned __int128 tmp = (unsigned __int128)res / g * comp;
             res = (uint64_t)tmp;
         }
@@ -140,7 +141,7 @@ static uint64_t carmichael_lambda(uint64_t n)
     if (temp > 1) {   /* remaining prime factor */
         uint64_t p = temp;
         uint64_t comp = p - 1; /* p is odd here */
-        uint64_t g = ugcd(res, comp);
+        uint64_t g = gcd_u64(res, comp);
         unsigned __int128 tmp = (unsigned __int128)res / g * comp;
         res = (uint64_t)tmp;
     }

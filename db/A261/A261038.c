@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 27, i16 n <= 367, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 8992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    (offset 1 – a(1) is the first term) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence.  cache[i] holds a(i+1). */
 static seq_t *cache      = NULL;   /* pointer to allocated array */
@@ -39,7 +41,7 @@ static void ensure_cache_capacity(idx_t needed)
     size_t new_cap = cache_cap ? cache_cap << 1 : 8;
     while (new_cap < (size_t)needed) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();   /* allocation failed */
     cache     = tmp;
     cache_cap = new_cap;

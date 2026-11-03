@@ -11,14 +11,16 @@
  *            2*Sum_{w=0}^{(n-1)/2} floor(C(n,w)/(2*w+1)). where C(n,w) =
  *            binomial coefficient. This implementation uses the provided
  *            binom function for safe arbitrary‑precision calculations
- * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 30, u64 n <= 36, u128 n <= 36,
+ * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 34, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     idx_t half = n / 2;
@@ -26,15 +28,15 @@ seq_t a(idx_t n) {
 
     if ((n & 1) == 0) {   /* even n */
         for (idx_t w = 0; w < half; ++w) {
-            seq_t c   = binom(n, w);
+            seq_t c   = binomial(n, w);
             seq_t div = (seq_t)(2 * w + 1);
             sum += c / div;
         }
-        seq_t middle = binom(n, half) / (seq_t)(n + 1);
+        seq_t middle = binomial(n, half) / (seq_t)(n + 1);
         sum = sum * 2 + middle;
     } else {              /* odd n */
         for (idx_t w = 0; w <= half; ++w) {
-            seq_t c   = binom(n, w);
+            seq_t c   = binomial(n, w);
             seq_t div = (seq_t)(2 * w + 1);
             sum += c / div;
         }

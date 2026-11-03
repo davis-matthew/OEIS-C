@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 118, u16 n <= 370, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
- * Helpers:   has_no_ternary_two
+ * Validated: standard, pass, 90 terms through n = 498 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +21,22 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_no_ternary_two.h"
+#include "../utils/mem.h"
+
+static bool has_no_ternary_two(idx_t x)
+{
+    idx_t t = x;
+    while (t > 0) {
+        if (t % 3 == 2) return false;
+        t /= 3;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
     /* DP array for counting subset sums of allowed parts */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) return (seq_t)0;          /* allocation failure */
 
     dp[0] = 1;
@@ -43,6 +54,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

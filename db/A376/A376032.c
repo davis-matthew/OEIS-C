@@ -9,7 +9,8 @@
  *            0 if none
  * Range:     u8 n <= 254, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, calc_phi, mod_pow
+ * Validated: standard, pass, 102 terms through n = 9737 (2026-11-01)
+ * Helpers:   build_primes_upto, powmod, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/calc_phi.h"          /* seq_t calc_phi(idx_t m); */
-#include "../utils/mod_pow.h"           /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
-#include "../utils/build_primes_upto.h" /* void build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out); */
+#include <string.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/powmod.h"
+#include "../utils/totient_seq.h"
 
 static uint64_t *prime_list = NULL;
 static size_t    prime_count = 0;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if (n == 1 || n == 2 || n == 3 || n == 6)
         return (seq_t)0;
 
-    seq_t phi = calc_phi(n);
+    seq_t phi = totient_seq(n);
     uint64_t phi_val = (uint64_t)phi;   /* phi(n) fits in 64 bits for the tested range */
 
     if (!prime_list)
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
             uint64_t p = prime_list[i];
             if ((n % p) == 0)
                 continue;
-            seq_t val = mod_pow((seq_t)2, phi_val, (seq_t)p);
+            seq_t val = powmod((seq_t)2, phi_val, (seq_t)p);
             if (val == (seq_t)1)
                 return (seq_t)p;
         }

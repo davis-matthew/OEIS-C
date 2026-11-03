@@ -9,7 +9,8 @@
  *            A000041(n)
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 28, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #if defined(__cplusplus)
 #include <new>                      /* for 'new' and 'delete' */
 #endif
-#include "../utils/big_pow.h"       /* big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -73,7 +76,7 @@ seq_t a(idx_t n)
     /* ---------- Compute 2^(n-1) using the provided big_pow function ----------
      * pow2 = 2^(n-1)
      */
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)(n - 1));
+    seq_t pow2 = ipow((seq_t)2, (seq_t)(n - 1));
 
     /* Differences and final multiplication */
     seq_t diff = pow2 - P[n];

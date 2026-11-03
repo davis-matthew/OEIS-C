@@ -8,7 +8,8 @@
  * Formula:   a(n) = n + ⌊n·√2⌋ + ⌊n·√(3/2)⌋ + ⌊n·√(5–√5)/2⌋
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 120, u64 n <= 120, u128 n <= 120,
  *            big any n
- * Helpers:   floor_ratio, floor_sqrt, ratio_leq
+ * Validated: partial, pass, 120 terms through n = 120 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,54 @@
    by binary search with an inequality that avoids negative
    intermediate values. */
 
-#include "../utils/floor_sqrt.h"   /* floor_sqrt(seq_t) */
-#include "../utils/floor_ratio.h"
-#include "../utils/ratio_leq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Helper: test 5 n^4 + 4 x^4 >= 10 n^2 x^2
+   which is equivalent to x <= n * √(5–√5)/2. */
+static int ratio_leq(seq_t x, idx_t n)
+{
+    seq_t n2 = (seq_t)n * (seq_t)n;
+    seq_t n4 = n2 * n2;
+    seq_t x2 = x * x;
+    seq_t x4 = x2 * x2;
+    seq_t left  = (seq_t)5 * n4 + (seq_t)4 * x4;
+    seq_t right = (seq_t)10 * n2 * x2;
+    return left >= right;
+}
+
+/* Floor of n * √(5–√5)/2  using the inequality in ratio_leq. */
+static seq_t floor_ratio(idx_t n)
+{
+    if (n == 0) return 0;
+    seq_t lo = 0, hi = n;                /* 0 ≤ floor(…) ≤ n */
+    while (lo < hi) {
+        seq_t mid = (lo + hi + 1) >> 1;   /* upper mid */
+        if (ratio_leq(mid, n))
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 seq_t a(idx_t n)
 {

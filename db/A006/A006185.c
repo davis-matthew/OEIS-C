@@ -9,6 +9,7 @@
  *            (n^2-n+16)/6 if n ≡ 5 (mod 6)
  * Range:     u8 n <= 39, u16 n <= 627, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 70 terms through n = 4996 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

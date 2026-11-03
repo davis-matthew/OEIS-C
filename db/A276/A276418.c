@@ -7,13 +7,16 @@
  * Keywords:  nonn, tabl, walk, easy
  * Formula:   a(n) = T(j,k) where j = largest integer with j(j+1)/2 <= n, k =
  *            n - j(j+1)/2, and T(j,k) = 2^k * C(2j-k, j-k)
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 135, u64 n <= 594,
+ * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 170, u64 n <= 594,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1135 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

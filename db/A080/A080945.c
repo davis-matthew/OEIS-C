@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_suffix, rec_suffix
+ * Validated: standard, pass, 71 terms through n = 9281 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,39 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <limits.h>
-#include "../utils/is_suffix.h"
-#include "../utils/rec_suffix.h"
+#include "../utils/mem.h"
+
+/* Helper to test whether d is a binary suffix of n */
+static inline bool is_suffix(uint64_t n, uint64_t d) {
+    unsigned len = 64 - __builtin_clzll(d); /* number of bits in d */
+    if (len == 64) {                      /* mask of all bits */
+        return true;                      /* only n itself has 64 bits */
+    }
+    uint64_t mask = (1ULL << len) - 1;
+    return (n & mask) == d;
+}
+
+/* Recursive divisor enumeration.
+   Returns true as soon as at least three suffix divisors are found. */
+static bool rec_suffix(uint64_t n, const uint64_t *primes, const uint64_t *exps,
+                       size_t idx, size_t cnt, uint64_t cur, uint8_t *cnt_suffix) {
+    if (idx == cnt) {
+        if (is_suffix(n, cur)) {
+            (*cnt_suffix)++;
+            if (*cnt_suffix >= 3) return true;
+        }
+        return false;
+    }
+
+    uint64_t p    = primes[idx];
+    uint64_t pow  = 1;
+    for (uint64_t e = 0; e <= exps[idx]; ++e) {
+        if (e > 0) pow *= p;
+        uint64_t next = cur * pow;
+        if (rec_suffix(n, primes, exps, idx + 1, cnt, next, cnt_suffix)) return true;
+    }
+    return false;
+}
 
 /* Checks whether n has at least three suffix divisors. */
 static bool qualifies(uint64_t n) {
@@ -79,7 +111,7 @@ static void ensure_capacity(size_t need) {
     if (need <= memo_cap) return;
     size_t new_cap = memo_cap ? memo_cap * 2 : 64;
     while (new_cap < need) new_cap *= 2;
-    seq_t *new_ptr = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, memo, new_cap);
     if (!new_ptr) {
         abort(); /* allocation failure */
     }

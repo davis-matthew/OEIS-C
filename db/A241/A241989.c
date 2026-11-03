@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 7603, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_harshad16
+ * Validated: standard, pass, 77 terms through n = 9250 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_harshad16.h"
+#include "../utils/mem.h"
+
+/* Return true if x is divisible by the sum of its base‑16 digits. */
+static bool is_harshad16(seq_t x)
+{
+    seq_t sum = 0;
+    seq_t t   = x;
+    while (t > 0)
+    {
+        sum += t & (seq_t)15;   /* add lowest hex digit */
+        t >>= 4;                /* drop lowest hex digit */
+    }
+    return (sum != 0) && ((x % sum) == 0);
+}
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;   /* allocated capacity of cache array */
@@ -33,7 +47,7 @@ static void ensure_cache(size_t need)
     size_t new_cap = (cache_cap == 0) ? 256 : cache_cap * 2;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)          /* allocation failure → abort */
         abort();
     cache     = tmp;

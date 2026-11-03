@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = minimal number of pentagonal numbers whose sum equals n
  *            (by the polygonal number theorem, a(n) ≤ 5 for all n > 0)
- * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
- *            u128 n <= 104, big any n
+ * Range:     u8 n <= 207, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 121 terms through n = 9711 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

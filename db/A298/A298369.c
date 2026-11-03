@@ -9,7 +9,8 @@
  *            a(0)=a(1)=a(2)=1
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 40, u64 n <= 86, u128 n <= 179,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 778 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stddef.h>       /* size_t */
 #include <stdlib.h>       /* realloc, abort */
+#include "../utils/mem.h"
 
 /* Cache for already computed terms */
 static seq_t *cache = NULL;
@@ -39,7 +41,7 @@ static void ensure_capacity(idx_t idx)
     size_t new_cap = cache_cap ? cache_cap * 2 : (size_t)idx + 1;
     if (new_cap <= (size_t)idx) new_cap = (size_t)idx + 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();           /* allocation failure */
 
     /* Initialize newly allocated memory to zero */

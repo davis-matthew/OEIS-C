@@ -11,14 +11,28 @@
  *            n) time, O(1) memory
  * Range:     u8 n <= 9, u16 n <= 215, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_bc
+ * Validated: standard, pass, 63 terms through n = 9988 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_bc.h"
+
+/* Count pairs (b,c) with 0≤b,c≤N and bc≤T (N,T ≤ n). */
+static seq_t count_bc(unsigned long long N, unsigned long long T)
+{
+    unsigned long long cnt = 0;
+    /* b = 0 case */
+    cnt += N + 1;        /* c = 0..N */
+    for (unsigned long long b = 1; b <= N; ++b) {
+        unsigned long long max_c = T / b;
+        if (max_c > N) max_c = N;
+        cnt += max_c + 1;   /* c = 0..max_c */
+    }
+    return (seq_t)cnt;
+}
 
 seq_t a(idx_t n)
 {

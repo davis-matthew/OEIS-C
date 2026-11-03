@@ -11,7 +11,8 @@
  *            otherwise a(n) = a(n-1) + lpf(n)
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   lpf
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,16 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/lpf.h"   /* provides idx_t lpf(idx_t n) */
+#include "../utils/mem.h"
+
+/* Return the smallest prime factor of n   (n > 1) */
+static inline idx_t lpf(idx_t n)
+{
+    if (n % 2 == 0) return 2;
+    for (idx_t i = 3; i <= n / i; i += 2)
+        if (n % i == 0) return i;
+    return n;   /* n itself is prime – should not be called for primes */
+}
 
 seq_t a(idx_t n)
 {
@@ -35,7 +45,7 @@ seq_t a(idx_t n)
 
     /* Allocate an array large enough to hold the sequence up to n */
     /* Cast is required for C++ compatibility */
-    seq_t *seq = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, (size_t)(n + 1));
     if (!seq) exit(EXIT_FAILURE);
 
     seq[0] = (seq_t)0;
@@ -68,6 +78,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[(size_t)n];
-    free(seq);
+    mem_free(seq);
     return result;
 }

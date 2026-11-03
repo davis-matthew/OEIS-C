@@ -8,7 +8,8 @@
  * Formula:   a(n) = φ(A048701(n))
  * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_phi
+ * Validated: standard, pass, 68 terms through n = 9874 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 /*   where A048701(n) is the n‑th binary palindrome of even length. */
 
 #include <stdint.h>
-#include "../utils/seq_phi.h"
+#include "../utils/totient_seq.h"
 
 /* Return the n-th term of the sequence (n ≥ 1). */
 seq_t a(idx_t n)
@@ -41,5 +42,5 @@ seq_t a(idx_t n)
     seq_t p = ((seq_t)half << k) | (seq_t)rev;
 
     /* Return its Euler totient. */
-    return seq_phi(p);
+    return totient_seq(p);
 }

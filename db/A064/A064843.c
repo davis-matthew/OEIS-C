@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 /* Include standard allocations header */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage function required by the test harness */
 seq_t a(idx_t n)
@@ -33,9 +35,9 @@ seq_t a(idx_t n)
     if (n > cached_n) {
         /* Allocate memory if not yet allocated */
         if (cache == NULL)
-            cache = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+            cache = mem_new(seq_t, (n + 1));
         else
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+            cache = mem_resize(seq_t, cache, (n + 1));
 
         /* In case allocation failed – safety return (conceptually this
            should not happen in the test harness) */

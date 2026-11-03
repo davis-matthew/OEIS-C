@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 173 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Assume seq_t and idx_t are defined by the build system. */
 seq_t a(idx_t n)
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     static seq_t dp_cur[4][4][16];
     static seq_t dp_next[4][4][16];
     /* clear dp_cur for the first row */
-    memset(dp_cur, 0, sizeof(dp_cur));
+    mem_set(dp_cur, 0, sizeof(dp_cur));
 
     /* ----- Row 1 --------------------------------------------------- */
     /* In row 1 the neighbours are non‑existent, so the only restriction
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     /* ----- Rows 2 .. n ------------------------------------------------ */
     for (idx_t row = 2; row <= n; ++row) {
         /* clear dp_next */
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         for (int prev_l = 0; prev_l < 4; ++prev_l) {
             for (int prev_r = 0; prev_r < 4; ++prev_r) {
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
             }
         }
         /* swap dp_cur and dp_next for next iteration */
-        memcpy(dp_cur, dp_next, sizeof(dp_cur));
+        mem_copy(dp_cur, dp_next, sizeof(dp_cur));
     }
 
     /* ----- Sum over all states for the last row ---------------------- */

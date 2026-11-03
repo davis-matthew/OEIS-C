@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 24, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- helpers for prime powers ---------- */
 static idx_t *prime_powers = NULL;
@@ -102,19 +104,19 @@ static void ensure_up_to(idx_t n)
 
     /* resize each dp[j] to length n+1 */
     for (int j = 0; j <= 7; ++j) {
-        seq_t *new_arr = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, (n + 1));
         if (!new_arr) abort();
-        memset(new_arr, 0, (n + 1) * sizeof(seq_t));
+        mem_set(new_arr, 0, (n + 1) * sizeof(seq_t));
         if (dp[j]) {
-            memcpy(new_arr, dp[j], (dp_cap + 1) * sizeof(seq_t));
-            free(dp[j]);
+            mem_copy(new_arr, dp[j], (dp_cap + 1) * sizeof(seq_t));
+            mem_free(dp[j]);
         }
         dp[j] = new_arr;
     }
 
     /* base case dp[0][0] = 1 already set during init */
     if (!dp[0]) {
-        dp[0] = (seq_t *)calloc(1, sizeof(seq_t));
+        dp[0] = mem_new(seq_t, 1);
         if (!dp[0]) abort();
         dp[0][0] = (seq_t)1;
     }
@@ -148,7 +150,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* allocate dp[0]..dp[7] fields */
         for (int j = 0; j <= 7; ++j) {
-            dp[j] = (seq_t *)calloc(1, sizeof(seq_t));
+            dp[j] = mem_new(seq_t, 1);
             if (!dp[j]) abort();
         }
         dp[0][0] = (seq_t)1;   /* base case */

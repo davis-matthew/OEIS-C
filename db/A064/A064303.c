@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1 + 5*n + 14*n^2 + 28*n^3 + 42*n^4 + 42*n^5
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 39, u64 n <= 3376,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 45 terms through n = 9174 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

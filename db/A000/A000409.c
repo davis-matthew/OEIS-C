@@ -10,25 +10,65 @@
  *            n)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 6, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   a409_binom_big, a409_binom_fixed, a409_fixed, a409_inv, a409_mul
+ * Validated: partial, pass, 14 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a409_binom_big.h"
-#include "../utils/a409_binom_fixed.h"
-#include "../utils/a409_fixed.h"
-#include "../utils/a409_inv.h"
-#include "../utils/a409_mul.h"
+#include "../utils/mem.h"
+
+/* exact binomial(2^k - 1, n) */
+static seq_t a409_binom_big(idx_t k, idx_t n) {
+    seq_t m = ((seq_t)1 << k) - 1;
+    seq_t c = 1;
+    for (idx_t i = 0; i < n; i++)
+        c = c * (m - (seq_t)i) / ((seq_t)i + 1);
+    return c;
+}
+
+static seq_t a409_mul(seq_t x, seq_t y) { return (seq_t)(x * 1u * y); }
+
+/* inverse of odd q modulo 2^width (fixed-width only) */
+static seq_t a409_inv(seq_t q) {
+    seq_t x = q;
+    for (int i = 0; i < 8; i++) x = a409_mul(x, (seq_t)(2 - a409_mul(q, x)));
+    return x;
+}
+
+/* binomial(m, n) modulo 2^width, m < 2^63 */
+static seq_t a409_binom_fixed(uint64_t m, idx_t n) {
+    seq_t num = 1, den = 1;
+    long e = 0;
+    for (idx_t i = 0; i < n; i++) {
+        uint64_t t = m - i;
+        while (!(t & 1)) { t >>= 1; e++; }
+        num = a409_mul(num, (seq_t)t);
+        uint64_t d = i + 1;
+        while (!(d & 1)) { d >>= 1; e--; }
+        den = a409_mul(den, (seq_t)d);
+    }
+    seq_t r = a409_mul(num, a409_inv(den));
+    if (e > 256) return 0;
+    for (long i = 0; i < e; i++) r = (seq_t)(r + r);
+    return r;
+}
+
+/* 1 if seq_t is a fixed-width (wrapping) type, 0 if arbitrary precision */
+static int a409_fixed(void) {
+    seq_t t = 1;
+    for (int i = 0; i < 300; i++) t = (seq_t)(t + t);
+    return t == 0;
+}
 
 seq_t a(idx_t n) {
     int fixed = a409_fixed();
     if (fixed && n > 60) return 0; /* cannot fit in any fixed width */
 
     /* unsigned Stirling numbers of the first kind, row n+1 */
-    seq_t *s = (seq_t *)calloc((size_t)(n + 2), sizeof(seq_t));
+    seq_t *s = mem_new(seq_t, (size_t)(n + 2));
     for (idx_t j = 0; j < n + 2; j++) s[j] = 0;
     s[0] = 1;
     for (idx_t i = 1; i <= n + 1; i++) {
@@ -47,6 +87,6 @@ seq_t a(idx_t n) {
         if ((n - k) & 1) pos = (seq_t)(pos + term);
         else neg = (seq_t)(neg + term);
     }
-    free(s);
+    mem_free(s);
     return (seq_t)(pos - neg);
 }

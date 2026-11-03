@@ -11,14 +11,18 @@
  *            ((-p)^(e+1) - 1)/(-p - 1)
  * Range:     i8 n <= 12, i16 n <= 280, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   factor_u64, pow2, pow_seq
+ * Validated: standard, pass, 79 terms through n = 981 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 #include "../utils/pow2.h"
 
 static seq_t prime_power_value(uint64_t p, idx_t e)
@@ -32,12 +36,12 @@ static seq_t prime_power_value(uint64_t p, idx_t e)
         return 1;
     if (p % 5 == 1 || p % 5 == 4)    /* ratio = p */
     {
-        seq_t numerator = pow_seq((seq_t)p, e + 1) - 1;
+        seq_t numerator = ipow_i32((seq_t)p, e + 1) - 1;
         seq_t denominator = (seq_t)(p - 1);
         return numerator / denominator;
     }
     /* p % 5 == 2 or 3: ratio = -p */
-    seq_t numerator = pow_seq(-(seq_t)p, e + 1) - 1;
+    seq_t numerator = ipow_i32(-(seq_t)p, e + 1) - 1;
     seq_t denominator = -(seq_t)p - 1;
     return numerator / denominator;
 }

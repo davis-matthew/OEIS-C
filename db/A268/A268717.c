@@ -11,12 +11,20 @@
  *            inverse maps a Gray code g back to the binary number x)
  * Range:     u8 n <= 128, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   gray
+ * Validated: standard, pass, 98 terms through n = 8112 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gray.h"
+#include <stdint.h>
+#include <stdbool.h>
+
+/* Gray code of x */
+static inline uint64_t gray(uint64_t x)
+{
+    return x ^ (x >> 1);
+}
 static inline uint64_t gray_to_binary(uint64_t g) {
     uint64_t mask;
     for (mask = g >> 1; mask; mask >>= 1) {

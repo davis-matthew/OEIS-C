@@ -7,8 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   count_base14_runs, get_cache_capacity, get_cache_size,
- *            set_cache, set_cache_capacity, set_cache_size
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,12 +19,53 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_base14_runs.h"
-#include "../utils/get_cache_capacity.h"
-#include "../utils/get_cache_size.h"
-#include "../utils/set_cache.h"
-#include "../utils/set_cache_capacity.h"
-#include "../utils/set_cache_size.h"
+#include "../utils/mem.h"
+
+/* Count the number of maximal runs in the base‑14 representation of x. */
+static inline int count_base14_runs(seq_t x)
+{
+    int runs = 0;
+    int prev_digit = -1;   /* no previous digit for the most significant part */
+    while (x > 0) {
+        int digit = (int)(x % 14);
+        if (digit != prev_digit) {
+            ++runs;
+            prev_digit = digit;
+        }
+        x /= 14;
+    }
+    return runs;
+}
+
+static size_t get_cache_capacity(void)
+{
+    static size_t capacity = 0;
+    return capacity;
+}
+
+static size_t get_cache_size(void)
+{
+    static size_t size = 0;
+    return size;
+}
+
+static void set_cache(seq_t *cache)
+{
+    static seq_t *static_cache = NULL;
+    static_cache = cache;
+}
+
+static void set_cache_capacity(size_t capacity)
+{
+    static size_t static_capacity = 0;
+    static_capacity = capacity;
+}
+
+static void set_cache_size(size_t size)
+{
+    static size_t static_size = 0;
+    static_size = size;
+}
 
 /* Grow the cache to at least 'need' elements. */
 static void ensure_cache_size(size_t need)
@@ -38,7 +79,7 @@ static void ensure_cache_size(size_t need)
     while (new_cap < need)
         new_cap *= 2;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     /* in a real environment we would check for NULL, but this
        is sufficient for the short‑lived context of a sequence. */
     cache = new_cache;
@@ -72,7 +113,7 @@ seq_t a(idx_t n)
         /* Grow cache storage if full. */
         if (cache_size == cache_capacity) {
             size_t new_cap = cache_capacity ? cache_capacity * 2 : 16;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             cache = new_cache;
             cache_capacity = new_cap;
         }

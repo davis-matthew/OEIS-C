@@ -7,15 +7,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of primes in the sequence h(m) defined by h(1)=n,
  *            h(m+1)=floor(h(m)/2)
- * Range:     u8 n <= 9982, u16 n <= 9982, u32 n <= 9982, u64 n <= 9982,
- *            u128 n <= 9982, big any n
- * Helpers:   isPrime
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 116 terms through n = 9982 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/isPrime.h"   /* provides bool isPrime(idx_t x) */
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
     seq_t count = 0;
     idx_t cur = n;
     while (cur > 0) {
-        if (isPrime(cur))
+        if (is_prime(cur))
             ++count;
         cur >>= 1;              /* floor division by 2 */
     }

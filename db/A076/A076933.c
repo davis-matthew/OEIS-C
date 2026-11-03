@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 386, u16 n <= 9910, u32 n <= 9910, u64 n <= 9910,
- *            u128 n <= 9910, big any n
- * Helpers:   sort_divisors
+ * Range:     u8 n <= 386, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 115 terms through n = 9910 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
    divisors in increasing order. */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/sort_divisors.h"
+
+/* Simple insertion sort for the small divisor array. */
+static void sort_divisors(uint64_t *arr, size_t n)
+{
+    for (size_t i = 1; i < n; ++i) {
+        uint64_t key = arr[i];
+        size_t j = i;
+        while (j > 0 && arr[j - 1] > key) {
+            arr[j] = arr[j - 1];
+            --j;
+        }
+        arr[j] = key;
+    }
+}
 
 /* Maximum number of divisors expected for the n values considered
    (overkill for n up to ~10^6). */

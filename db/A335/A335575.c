@@ -10,7 +10,8 @@
  *            enumerates all such k in increasing order
  * Range:     u8 n <= 1, u16 n <= 34, u32 n <= 2466, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt, mod_pow
+ * Validated: standard, pass, 87 terms through n = 8270 (2026-11-03)
+ * Helpers:   ipow_i32, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,29 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Helper: test whether a seq_t value is a triangular number. */
 static bool
@@ -51,7 +73,7 @@ k_is_valid(idx_t k)
 
     /* Compute t1^t2 mod t3 */
     /* t2 fits in uint64_t for the ranges of interest (k up to ~10^6). */
-    seq_t res = mod_pow(t1, (uint64_t)(t2), t3);
+    seq_t res = powmod(t1, (uint64_t)(t2), t3);
 
     return is_triangular(res);
 }
@@ -74,7 +96,7 @@ a(idx_t n)
                 /* Ensure capacity in cache */
                 if (cache_cap <= cache_len) {
                     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, new_cap);
                     cache_cap = new_cap;
                 }
                 cache[cache_len++] = (seq_t)next_k;

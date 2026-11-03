@@ -13,8 +13,9 @@
  *            if n has an even number of digits and a substring has length
  *            exactly n/2, only the first such substring (starting before the
  *            middle) is used
- * Range:     u8 n <= 157, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
- *            u128 n <= 9999, big any n
+ * Range:     u8 n <= 157, u16 n <= 10997, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 118 terms through n = 9999 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

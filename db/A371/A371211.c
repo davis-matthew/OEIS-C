@@ -5,14 +5,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n, n/d > 3} a(d) with a(1) = 1
- * Range:     u8 n <= 1439, u16 n <= 9706, u32 n <= 9706, u64 n <= 9706,
- *            u128 n <= 9706, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1439, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9706 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* enlarge cache if needed */
     if (n > cacheSize) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
         if (!tmp && n > 0)
             return 0;  /* allocation failure – return 0 as a safe fallback */
         cache = tmp;

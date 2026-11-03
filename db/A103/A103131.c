@@ -7,8 +7,9 @@
  * Keywords:  sign
  * Formula:   a(n) = ∏{k | 1 ≤ k < n, gcd(k,n)=1} k (mod n), expressed in the
  *            minimal absolute value representation
- * Range:     i8 n <= 1180, i16 n <= 9816, i32 n <= 9816, i64 n <= 9816,
- *            i128 n <= 9816, big any n
+ * Range:     i8 n <= 1180, i16 n <= 16385, i32 n <= 16385, i64 n <= 16385,
+ *            i128 n <= 16385, big any n
+ * Validated: standard, pass, 118 terms through n = 9816 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

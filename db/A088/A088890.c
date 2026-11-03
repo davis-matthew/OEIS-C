@@ -7,11 +7,13 @@
  * Formula:   a(n) = ((n^8-(n-1)^8)-(n^2-(n-1)^2))/252
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 39, u64 n <= 925, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 936 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Compute binomial(n, r) where 0 ≤ r ≤ 7.

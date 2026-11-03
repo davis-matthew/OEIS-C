@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 1182, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 60 terms through n = 8898 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *ks_cache = NULL;     /* cache of found k values   */
 static size_t ks_cache_cap = 0;    /* current capacity           */
@@ -31,7 +33,7 @@ static void ks_grow(size_t min_cap)
     size_t new_cap = ks_cache_cap ? ks_cache_cap << 1 : 16;
     while (new_cap < min_cap)
         new_cap <<= 1;
-    seq_t *new_ptr = (seq_t *)realloc(ks_cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, ks_cache, new_cap);
     if (!new_ptr)
         return;   /* out of memory – future accesses will fail */
     ks_cache = new_ptr;

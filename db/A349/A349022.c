@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 39,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 37 terms through n = 937 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
  */
 
 #include <stdlib.h>                 /* calloc, realloc */
-#include "../utils/binomial.h"      /* seq_t binomial(idx_t, idx_t) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;         /* dynamic array of cached a(n) */
 static idx_t cache_cap = 0;         /* current size of the cache */
@@ -38,11 +40,11 @@ static void ensure_cache(idx_t n)
     if (!cache) {
         cache_cap = (n + 1) * 2;
         if (cache_cap < 2) cache_cap = 2;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (n + 1 > cache_cap) {
         idx_t new_cap = cache_cap * 2;
         while (n + 1 > new_cap) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return;             /* allocation failed – keep old cache */
         /* initialize newly allocated slots to 0 */
         for (idx_t i = cache_cap; i < new_cap; ++i) tmp[i] = 0;

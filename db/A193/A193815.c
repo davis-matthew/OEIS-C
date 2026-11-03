@@ -10,15 +10,17 @@
  *            So the sequence lists the entries of each row of this triangle
  *            in order: 1; 1,1; 1,3,2; 1,4,6,3; … This implementation builds
  *            the values on demand and caches them for efficien...
- * Range:     u8 n <= 31, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
+ * Range:     u8 n <= 58, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binomial.h"   /* Provides: seq_t binomial(idx_t n, idx_t k); */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* ensure cache has enough room to store additional terms */
     if (cap == 0) {
         cap = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
     }
 
     /* generate rows until we reach the requested index */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         /* ensure the cache buffer can hold the entire row */
         while (cap < len + (row + 1)) {
             cap <<= 1;
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * cap);
+            cache = mem_resize(seq_t, cache, cap);
         }
 
         /* compute all entries of the current row */

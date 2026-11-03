@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 34, u32 n <= 103, u64 n <= 103, u128 n <= 103,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 93 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Maximum bound to generate sequence terms.  Adjust if more terms are
    required. */
@@ -35,7 +37,7 @@ static void ensure_vals_capacity(size_t needed)
     if (needed > vals_cap) {
         size_t new_cap = vals_cap ? vals_cap * 2 : 256;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *new_ptr = (seq_t *)realloc(vals, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, vals, new_cap);
         if (!new_ptr) abort();
         vals = new_ptr;
         vals_cap = new_cap;

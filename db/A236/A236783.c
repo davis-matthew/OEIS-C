@@ -10,13 +10,28 @@
  *            minimum is the same constant throughout the array
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 25, u128 n <= 53,
  *            big any n
- * Helpers:   blockH
+ * Validated: standard, pass, 35 terms through n = 204 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/blockH.h"
+
+/* Compute the value of the expression for a 2×2 block. */
+static inline int blockH(int a, int b, int c, int d)
+{
+    int sum = a + b + c + d;
+    int mn = a;
+    if (b < mn) mn = b;
+    if (c < mn) mn = c;
+    if (d < mn) mn = d;
+    int mx = a;
+    if (b > mx) mx = b;
+    if (c > mx) mx = c;
+    if (d > mx) mx = d;
+    return sum - mx - 2 * mn;   /* 0..4 */
+}
 
 #define ROWS 27
 #define HVAL 5          /* possible values of the constant: 0..4 */

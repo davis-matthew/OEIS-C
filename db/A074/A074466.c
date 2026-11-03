@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = gcd(n^3, sigma(n^3), phi(n^3))
- * Range:     u8 n <= 5, u16 n <= 29, u32 n <= 1964, u64 n <= 8848,
- *            u128 n <= 8848, big any n
+ * Range:     u8 n <= 5, u16 n <= 29, u32 n <= 1964, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 109 terms through n = 8848 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

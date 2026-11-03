@@ -9,8 +9,9 @@
  *            row number), * k = n − r*(r+1)/2 (column index within row). * By
  *            Lucas' theorem, binomial(r,k) mod 2 = 1 iff * (k & ~r) == 0 else
  *            0. This implements the Sierpinski triangle * read by rows
- * Range:     u8 n <= 9209, u16 n <= 9209, u32 n <= 9209, u64 n <= 9209,
- *            u128 n <= 9209, big any n
+ * Range:     u8 n <= 10584, u16 n <= 10584, u32 n <= 10584, u64 n <= 10584,
+ *            u128 n <= 10584, big any n
+ * Validated: standard, pass, 121 terms through n = 9209 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 6, u32 n <= 19, u64 n <= 43, u128 n <= 92,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Pre–computed validity of a 5‑tuple. 5 digits 0..3 in base‑4 encode a mask
    0..1023, the mask is (d0<<8)+(d1<<6)+(d2<<4)+(d3<<2)+d4 where d0 is the
@@ -79,10 +81,10 @@ seq_t a(idx_t n)
     /* Ensure the results array is large enough. */
     if (!results || results_len <= n) {
         idx_t new_cap = n + 1;
-        seq_t *new_res = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+        seq_t *new_res = mem_new(seq_t, new_cap);
         if (results) {
             for (idx_t i = 0; i < results_len; ++i) new_res[i] = results[i];
-            free(results);
+            mem_free(results);
         }
         for (idx_t i = results_len; i < new_cap; ++i) new_res[i] = 0;
         results = new_res;

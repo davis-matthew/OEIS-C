@@ -7,6 +7,7 @@
  * Formula:   a(n) = sum_{p <= n, p prime, gcd(p,n)=1, (n-1) mod p ≠ 0} p
  * Range:     u8 n <= 44, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

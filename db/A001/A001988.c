@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 24, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   a1988_isprime, a1988_mulmod, a1988_powmod, a1988_wcmp
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   is_prime_u64, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,10 +24,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/a1988_isprime.h"
-#include "../utils/a1988_mulmod.h"
-#include "../utils/a1988_powmod.h"
-#include "../utils/a1988_wcmp.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+
+static int a1988_wcmp(const void *p, const void *q) {
+    uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+    return (x > y) - (x < y);
+}
 
 #define A1988_NTAB 200
 #define A1988_MAXT 20000
@@ -70,7 +75,7 @@ static int a1988_ok(uint64_t c, int i) {
     uint64_t x = (q - c % q) % q;
     if (i < A1988_NTAB) return a1988_nr[i][x];
     if (x == 0) return 0;
-    return a1988_powmod(x, (q - 1) / 2, q) == q - 1;
+    return powmod_u64(x, (q - 1) / 2, q) == q - 1;
 }
 
 static int a1988_count(uint64_t c) {
@@ -123,7 +128,7 @@ seq_t a(idx_t n) {
         int k;
         a1988_brute += 8;
         k = a1988_count(c);
-        if (k > a1988_filled && a1988_isprime(c)) a1988_fill(c, k);
+        if (k > a1988_filled && is_prime_u64(c)) a1988_fill(c, k);
     }
     if (a1988_filled < need) {
         if (!a1988_res) a1988_build_wheel();
@@ -135,7 +140,7 @@ seq_t a(idx_t n) {
             if (a1988_idx == a1988_nres) { a1988_idx = 0; a1988_blk++; }
             if (c <= last) continue;
             k = a1988_count(c);
-            if (k > a1988_filled && a1988_isprime(c)) a1988_fill(c, k);
+            if (k > a1988_filled && is_prime_u64(c)) a1988_fill(c, k);
         }
     }
     return (seq_t)a1988_terms[need];

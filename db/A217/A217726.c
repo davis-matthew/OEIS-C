@@ -7,7 +7,8 @@
  * Formula:   a(n) = A225326(n)/6
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 16, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state for memoisation */
 static idx_t     next_k = 1;          /* next partition index to compute */
@@ -33,7 +35,7 @@ static void ensure_p_cap(size_t needed)
     if (needed > p_cap) {
         size_t newcap = (p_cap) ? p_cap << 1 : 64;
         while (newcap < needed) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(p_vals, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, p_vals, newcap);
         if (!tmp) abort();
         p_vals = tmp;
         p_cap  = newcap;
@@ -44,14 +46,14 @@ static void ensure_p_cap(size_t needed)
 static void ensure_n_cap(size_t needed)
 {
     if (!n_vals) {
-        n_vals = (seq_t *)malloc(64 * sizeof(seq_t));
+        n_vals = mem_new(seq_t, 64);
         if (!n_vals) abort();
         n_cap = 64;
     }
     if (needed > n_cap) {
         size_t newcap = n_cap << 1;
         while (newcap < needed) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(n_vals, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, n_vals, newcap);
         if (!tmp) abort();
         n_vals = tmp;
         n_cap  = newcap;
@@ -107,7 +109,7 @@ static void compute_next_p(void)
 static void compute_upto(idx_t target)
 {
     if (!p_vals) {                          /* initialise partition array */
-        p_vals = (seq_t *)malloc(64 * sizeof(seq_t));
+        p_vals = mem_new(seq_t, 64);
         if (!p_vals) abort();
         p_cap = 64;
         p_vals[0] = 1;                     /* p(0) = 1 */

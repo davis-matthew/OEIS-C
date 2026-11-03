@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, mult
  * Formula:   a(n) = ∏_{p | n} (1 + Legendre(-3, p))
- * Range:     u8 n <= 8711, u16 n <= 8711, u32 n <= 8711, u64 n <= 8711,
- *            u128 n <= 8711, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8711 (2026-11-01)
  * Helpers:   factor_uint64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,7 +23,8 @@
  */
 
 #include <stdbool.h>
-#include "../utils/factor_uint64.h"   /* provides factor_uint64 */
+#include <stdint.h>
+#include "../utils/factor_uint64.h"
 
 seq_t a(idx_t n)
 {

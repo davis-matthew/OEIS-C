@@ -9,12 +9,15 @@
  * Formula:   a(0)=1, a(1)=0, a(2)=21, a(3)=119, a(n)=2^(2*n+1)-1 for n>=4
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 41 terms through n = 988 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -25,6 +28,6 @@ seq_t a(idx_t n)
 
     /* For n >= 4 use the closed form a(n) = 2^(2*n+1) - 1 */
     idx_t exp = 2*n + 1;          /* exponent for the power of two */
-    seq_t val = seq_pow((seq_t)2, exp);   /* 2^exp, exact big‑int if needed */
+    seq_t val = ipow_idx((seq_t)2, exp);   /* 2^exp, exact big‑int if needed */
     return val - (seq_t)1;        /* subtract one */
 }

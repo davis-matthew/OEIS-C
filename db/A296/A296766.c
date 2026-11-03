@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 182, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9488 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static bool in_sequence(seq_t x)
 {
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
 
     if (cap == 0) {   /* first initialisation */
         cap = 64;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
     }
 
     /* gather terms up to index n (1‑based) */
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         if (in_sequence(next)) {
             if (len == cap) {
                 cap *= 2;
-                terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
             }
             terms[len++] = next;
         }

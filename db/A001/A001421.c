@@ -9,7 +9,8 @@
  *            (Legendre)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 6, u128 n <= 12,
  *            big any n
- * Helpers:   a001421_leg
+ * Validated: standard, pass, 29 terms through n = 240 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a001421_leg.h"
+
+static uint64_t a001421_leg(uint64_t m, uint64_t p) {
+    uint64_t s = 0;
+    while (m) {
+        m /= p;
+        s += m;
+    }
+    return s;
+}
 
 seq_t a(idx_t n) {
     seq_t r = 1;

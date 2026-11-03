@@ -7,7 +7,8 @@
  * Formula:   a(n) = Bell(n) * Motzkin(n)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static caches for Bell and Motzkin numbers. */
 static seq_t *bell_cache = NULL;
@@ -39,7 +41,7 @@ static void ensure_bell(idx_t n)
         size_t new_cap = bell_cap ? bell_cap * 2 : 1;
         if (new_cap < (size_t)needed)
             new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(bell_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, bell_cache, new_cap);
         bell_cache = tmp;
         bell_cap = new_cap;
     }
@@ -83,7 +85,7 @@ static void ensure_mot(idx_t n)
         size_t new_cap = mot_cap ? mot_cap * 2 : 1;
         if (new_cap < (size_t)needed)
             new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(mot_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, mot_cache, new_cap);
         mot_cache = tmp;
         mot_cap = new_cap;
     }
@@ -98,7 +100,7 @@ static void ensure_mot(idx_t n)
     {
         if (mot_cap < 2)
         {
-            seq_t *tmp = (seq_t *)realloc(mot_cache, 2 * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, mot_cache, 2);
             mot_cache = tmp;
             mot_cap = 2;
         }

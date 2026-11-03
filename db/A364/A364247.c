@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   number_from_coord, number_to_coord
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,79 @@
    spiral‑numbered board until the king gets stuck.  The function
    returns a(1)=1, a(2)=2, … for 1 ≤ n ≤ 511.  For larger n it returns 0. */
 #include <stdbool.h>
-#include "../utils/number_from_coord.h"
-#include "../utils/number_to_coord.h"
+
+/* Convert (x,y) coordinates of the spiral board to the corresponding
+   spiral number.  Both x and y are signed 64‑bit integers. */
+static inline seq_t number_from_coord(long long x, long long y) {
+    if (x == 0 && y == 0) return (seq_t)1;
+
+    idx_t ax = x >= 0 ? (idx_t)x : (idx_t)(-x);
+    idx_t ay = y >= 0 ? (idx_t)y : (idx_t)(-y);
+    idx_t k  = ax > ay ? ax : ay;
+    idx_t side_len = 2 * k;
+    seq_t side_len_seq = (seq_t)side_len;
+
+    seq_t max_val = ((seq_t)(2 * k + 1)) * ((seq_t)(2 * k + 1));
+    seq_t ring_start = max_val - (seq_t)(8 * k) + 1;
+    seq_t val;
+
+    long long kk = (long long)k;
+    if (x == kk && y >= -kk + 1 && y <= kk) {
+        seq_t offset = (seq_t)(y + kk - 1);
+        val = ring_start + offset;
+    } else if (y == kk && x >= -kk && x <= kk - 1) {
+        seq_t offset = side_len_seq + ((seq_t)(kk - 1 - x));
+        val = ring_start + offset;
+    } else if (x == -kk && y >= -kk && y <= kk - 1) {
+        seq_t offset = 2 * side_len_seq + ((seq_t)(kk - 1 - y));
+        val = ring_start + offset;
+    } else if (y == -kk && x >= -kk + 1 && x <= kk) {
+        seq_t offset = 3 * side_len_seq + ((seq_t)(x + kk - 1));
+        val = ring_start + offset;
+    } else {
+        /* should not happen */
+        val = max_val;
+    }
+    return val;
+}
+
+/* Convert a spiral number to its (x,y) coordinates.  The result fits
+   easily in signed 64‑bit integers. */
+static inline void number_to_coord(seq_t n, long long *x, long long *y) {
+    if (n == (seq_t)1) { *x = 0; *y = 0; return; }
+
+    idx_t k = 0;
+    while (true) {
+        seq_t side = (seq_t)(2 * k + 1);
+        seq_t side_sq = side * side;
+        if (side_sq >= n) break;
+        ++k;
+    }
+
+    idx_t side_len = 2 * k;
+    seq_t max_val = ((seq_t)(2 * k + 1)) * ((seq_t)(2 * k + 1));
+    seq_t ring_start = max_val - (seq_t)(8 * k) + 1;
+    seq_t offset_seq = n - ring_start;
+    idx_t off = (idx_t)offset_seq;
+    long long kk = (long long)k;
+
+    if (off < side_len) {
+        *x = kk;
+        *y = -kk + 1 + (long long)off;
+    } else if (off < side_len * 2) {
+        idx_t t = off - side_len;
+        *x = kk - 1 - (long long)t;
+        *y = kk;
+    } else if (off < side_len * 3) {
+        idx_t t = off - 2 * side_len;
+        *x = -kk;
+        *y = kk - 1 - (long long)t;
+    } else {
+        idx_t t = off - 3 * side_len;
+        *x = -kk + 1 + (long long)t;
+        *y = -kk;
+    }
+}
 
 static inline idx_t collatz_steps(seq_t n) {
     idx_t steps = 0;

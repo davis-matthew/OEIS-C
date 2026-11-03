@@ -11,8 +11,9 @@
  *            offset = n - (k-1)*k/2 - 1 S_{p} = p*(p+1)*(p+2)/6
  *            (sum_{m=1}^{p} m(m+1)/2) This gives a(1)=2, a(2)=6, a(3)=8, … as
  *            in OEIS A212014
- * Range:     u8 n <= 36, u16 n <= 1657, u32 n <= 8687, u64 n <= 8687,
- *            u128 n <= 8687, big any n
+ * Range:     u8 n <= 36, u16 n <= 1657, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 82 terms through n = 8687 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

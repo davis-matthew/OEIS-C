@@ -8,7 +8,8 @@
  *            its decimal representation yields another prime
  * Range:     u8 n <= 26, u16 n <= 1973, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9764 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static bool ready = false;
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
 
         /* Allocate list of qualifying primes. */
         size_t cap = 1000;
-        list = (seq_t*)malloc(cap * sizeof(seq_t));
+        list = mem_new(seq_t, cap);
         list_size = 0;
 
         /* Scan all primes, test property, and store valid ones. */
@@ -82,7 +84,7 @@ seq_t a(idx_t n) {
             if (newp >= 2 && newp <= LIMIT && isPrime[newp]) {
                 if (list_size == cap) {
                     cap <<= 1;
-                    list = (seq_t*)realloc(list, cap * sizeof(seq_t));
+                    list = mem_resize(seq_t, list, cap);
                 }
                 list[list_size++] = (seq_t)prime;
             }

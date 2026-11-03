@@ -11,7 +11,8 @@
  *            the n-th such number, with a(1)=0
  * Range:     u8 n <= 13, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   is_BII_uint64
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,39 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_BII_uint64.h"
+#include "../utils/mem.h"
+
+/* Test whether a number n is a BII-number.  */
+static inline bool is_BII_uint64(uint64_t n)
+{
+    if (n == 0) return true;          /* empty set-system */
+
+    /* Each set bit j of n contributes an edge whose mask is (j+1). */
+    uint64_t masks[64];
+    int m = 0;
+    uint64_t bits = n;
+    while (bits) {
+        int j = __builtin_ctzll(bits);    /* position of the lowest set bit */
+        bits &= bits - 1;                 /* clear that bit */
+        uint64_t mask = (uint64_t)(j + 1); /* p = j+1 */
+        masks[m++] = mask;
+    }
+
+    /* Intersecting and antichain tests. */
+    for (int i = 0; i < m; ++i) {
+        for (int j = i + 1; j < m; ++j) {
+            uint64_t a = masks[i];
+            uint64_t b = masks[j];
+            if ((a & b) == 0)            /* disjoint → not intersecting */
+                return false;
+            if (a != b && (a & b) == a)   /* a ⊂ b → not antichain */
+                return false;
+            if (a != b && (a & b) == b)   /* b ⊂ a → not antichain */
+                return false;
+        }
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,7 +68,7 @@ seq_t a(idx_t n)
         if (is_BII_uint64((uint64_t)tested)) {
             if (cached == capacity) {
                 capacity = capacity ? capacity * 2 : 64;
-                void *tmp = realloc(cache, capacity * sizeof(seq_t));
+                void *tmp = mem_resize(seq_t, cache, capacity);
                 if (!tmp) {            /* allocation failure – abort */
                     return 0;
                 }

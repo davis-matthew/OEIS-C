@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 2999, u16 n <= 9970, u32 n <= 9970, u64 n <= 9970,
- *            u128 n <= 9970, big any n
- * Helpers:   none
+ * Range:     u8 n <= 2999, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 94 terms through n = 9970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;          /* array of pointers to each computed row */
 static size_t rows_capacity = 0;     /* current capacity of the rows array */
@@ -40,7 +42,7 @@ static void ensure_rows_up_to(idx_t r)
         rows = (seq_t **)malloc(rows_capacity * sizeof(seq_t *));
 
         /* Row 1 = {1} */
-        rows[0] = (seq_t *)malloc(sizeof(seq_t));
+        rows[0] = mem_new(seq_t, 1);
         rows[0][0] = (seq_t)1;
         rows_count = 1;
 
@@ -49,7 +51,7 @@ static void ensure_rows_up_to(idx_t r)
             rows_capacity *= 2;
             rows = (seq_t **)realloc(rows, rows_capacity * sizeof(seq_t *));
         }
-        rows[1] = (seq_t *)malloc(2 * sizeof(seq_t));
+        rows[1] = mem_new(seq_t, 2);
         rows[1][0] = (seq_t)1;
         rows[1][1] = (seq_t)2;
         rows_count = 2;
@@ -58,7 +60,7 @@ static void ensure_rows_up_to(idx_t r)
     /* Generate missing rows up to r */
     while (rows_count < (size_t)r) {
         size_t new_row_len = rows_count + 1;                /* length of this new row (row number) */
-        seq_t *new_row = (seq_t *)malloc(new_row_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_row_len);
 
         const seq_t *prevprev = (rows_count >= 2) ? rows[rows_count - 2] : NULL;
         size_t  prevprev_len = (rows_count >= 2) ? (rows_count - 1) : 0; /* =r‑2 */

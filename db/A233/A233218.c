@@ -11,12 +11,14 @@
  *            a(n)=29*a(n-1)-175*a(n-2)+147*a(n-3)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     sz = (n > 4) ? n : 4;
 
     /* grow the cache array */
-    cache = (seq_t *)realloc(cache, (sz + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (sz + 1));
     if (!cache) return 0;         /* allocation failure, should not happen */
 
     /* initialize the first four values on first use */

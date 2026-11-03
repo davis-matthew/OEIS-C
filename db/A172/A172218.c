@@ -9,12 +9,19 @@
  *            direct enumeration for n < 8
  * Range:     u8 n <= 5, u16 n <= 21, u32 n <= 908, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   conflict_dir
+ * Validated: standard, pass, 53 terms through n = 985 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/conflict_dir.h"
+static int conflict_dir(int r1, int c1, int r2, int c2) {
+    int dr = r1 - r2;
+    if (dr < 0) dr = -dr;
+    int dc = c1 - c2;
+    if (dc < 0) dc = -dc;
+    return (dr == 2*dc) || (dc == 2*dr);
+}
 
 static seq_t compute_small(idx_t n) {
     int N = 3 * (int)n;

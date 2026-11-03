@@ -12,13 +12,15 @@
  *            n*(n+1) * La_{n-2}, with La_{-1} = 0, La_0 = 1. Th...
  * Range:     i8 n <= 9, i16 n <= 20, i32 n <= 43, i64 n <= 43, i128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>   /* for size_t and types used below */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static data used to store all computed rows of the triangle */
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
     /* initialise on first call */
     if (!data) {
         capacity = 16;
-        data = (seq_t *)malloc(capacity * sizeof(seq_t));
+        data = mem_new(seq_t, capacity);
         if (!data) exit(1);
         data[0] = 1;          /* La_0 = 1 */
         size = 1;
@@ -54,7 +56,7 @@ seq_t a(idx_t n) {
         if (needed > capacity) {
             size_t newCap = capacity;
             while (newCap < needed) newCap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(data, newCap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, data, newCap);
             if (!tmp) exit(1);
             data = tmp;
             capacity = newCap;

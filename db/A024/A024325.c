@@ -8,14 +8,35 @@
  * Formula:   a(n) = Sum_{j=1..floor((n+1)/2)} A023531(j)*A001950(n-j+1)
  * Range:     u8 n <= 3, u16 n <= 57, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 76 terms through n = 960 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Upper Wythoff sequence cache: T(i) = floor(i*φ)+i  (i ≥ 0) */
 static seq_t *t_cache = NULL;
@@ -27,7 +48,7 @@ static void ensure_t_cache(idx_t n) {
         return;                                 /* already sufficient */
 
     size_t new_size = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)realloc(t_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, t_cache, new_size);
     if (!new_cache)                               /* allocation failed */
         return;                                   /* keep old cache */
 

@@ -12,8 +12,9 @@
  *            p^b(p,n). * Implementation: trial division factorization of n;
  *            for each prime p * compute p^b and track the extreme values. For
  *            primes or powers of a * single prime the...
- * Range:     u8 n <= 525, u16 n <= 9886, u32 n <= 9886, u64 n <= 9886,
- *            u128 n <= 9886, big any n
+ * Range:     u8 n <= 525, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 109 terms through n = 9886 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

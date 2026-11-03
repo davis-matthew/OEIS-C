@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/gcd.h"   /* for seq_t gcd(seq_t, seq_t) function */
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Static state for prime generation and caching of qualifying primes */
 static uint64_t *primes = NULL;    /* list of primes found so far */
@@ -48,7 +50,7 @@ static void append_uint64(uint64_t **arr, size_t *len, size_t *cap, uint64_t val
 static void append_seq(seq_t **arr, size_t *len, size_t *cap, seq_t val) {
     if (*len == *cap) {
         *cap = (*cap == 0) ? 8 : (*cap << 1);
-        *arr = (seq_t*)realloc(*arr, (*cap) * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, (*cap));
     }
     (*arr)[*len] = val;
     (*len)++;

@@ -11,6 +11,7 @@
  *            <= n, counting those whose coordinates are coprime
  * Range:     u8 n <= 61, u16 n <= 2770, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 76 terms through n = 9085 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
    n up to ≈ 10 000 (≈ 10⁶ iterations).  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static idx_t _isqrt_u64(idx_t n)

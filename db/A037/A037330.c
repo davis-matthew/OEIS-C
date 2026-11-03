@@ -8,13 +8,24 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   base6_digit_sum
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/base6_digit_sum.h"
+#include "../utils/mem.h"
+
+static seq_t base6_digit_sum(seq_t x)
+{
+    seq_t sum = 0;
+    while (x != 0) {
+        sum += x % 6;
+        x /= 6;
+    }
+    return sum;
+}
 
 /* Numbers whose base‑6 and base‑10 expansions have the same digit sum.
    The function searches integers sequentially, records those whose
@@ -44,7 +55,7 @@ seq_t a(idx_t n)
 
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;  /* allocation failed */
     }
 
@@ -52,7 +63,7 @@ seq_t a(idx_t n)
         if (digit_sum(cur) == base6_digit_sum(cur)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
                     /* allocation failed – return last known term */
                     return cache_len ? cache[cache_len - 1] : 0;

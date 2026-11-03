@@ -10,15 +10,19 @@
  *            and p = ⌊log₂(n–2)⌋; initial values: a(1)=1, a(2)=1, a(3)=3
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 35, u64 n <= 67, u128 n <= 131,
  *            big any n
- * Helpers:   floor_log2_uint64, pow2
+ * Validated: standard, pass, 52 terms through n = 3120 (2026-11-03)
+ * Helpers:   ilog2, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/floor_log2_uint64.h" /* floor_log2_uint64(idx_t) */
-#include "../utils/pow2.h"              /* pow2(idx_t) */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +41,7 @@ seq_t a(idx_t n)
         if (num == capacity)
         {
             size_t new_cap = capacity == 0 ? 1 : capacity * 2;
-            seq_t *tmp = (seq_t *)realloc(table, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, table, new_cap);
             if (!tmp) exit(EXIT_FAILURE); /* simple error handling */
             table    = tmp;
             capacity = new_cap;
@@ -67,7 +71,7 @@ seq_t a(idx_t n)
         else                          /* n ≥ 4 */
         {
             /* p = floor_log2(cur-2) */
-            idx_t p = floor_log2_uint64(cur - 2);
+            idx_t p = ilog2(cur - 2);
 
             /* 2^(p+1) as seq_t */
             seq_t pow_val = pow2(p + 1);

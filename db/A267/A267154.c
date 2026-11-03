@@ -12,12 +12,14 @@
  *            16*a(n-2) + a(n-4) - 16*a(n-6)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;            /* dynamically grown array of terms   */
 static size_t cache_cap = 0;           /* allocated capacity                 */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* Allocate memory if first call */
     if (cache == NULL) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0;          /* allocation failure */
     }
 
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if (needed > cache_cap) {
         size_t new_cap = cache_cap;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;            /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;

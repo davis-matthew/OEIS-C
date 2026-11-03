@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 81, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 937 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* popcount for uint64_t */
 static inline uint64_t popcount64(uint64_t x)
@@ -67,7 +69,7 @@ static void ensure_match_cap(size_t need)
     while (match_cap < need)
     {
         size_t new_cap = match_cap ? match_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(match_idx, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, match_idx, new_cap);
         match_idx = tmp;
         match_cap = new_cap;
     }

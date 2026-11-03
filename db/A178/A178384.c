@@ -9,7 +9,8 @@
  *            a(1)=1, a(2)=1, a(3)=3
  * Range:     i8 n <= 7, i16 n <= 12, i32 n <= 16, i64 n <= 23, i128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 149 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #ifdef __cplusplus
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 /* Static cache for memoization */
 static seq_t *cache = NULL;
@@ -78,7 +80,7 @@ ensure_cache(idx_t n)
     if (needed > cache_cap) {
         size_t newcap = cache_cap ? cache_cap * 2 : 16;
         while (newcap < needed) newcap <<= 1;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         cache_cap = newcap;
     }
 

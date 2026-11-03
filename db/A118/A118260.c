@@ -8,14 +8,17 @@
  *            (a is squarefree or b is squarefree)
  * Range:     u8 n <= 20, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static idx_t max_pre = 0;       /* largest n for which we have computed the
                                    sequence */
@@ -26,7 +29,7 @@ static bool *sqfree_arr = NULL; /* sqfree[i] true iff i is squarefree */
 static void recompute_up_to(idx_t new_n)
 {
     /* new sizes: indices 0..new_n inclusive */
-    seq_t *new_count = (seq_t *)malloc((new_n + 1) * sizeof(seq_t));
+    seq_t *new_count = mem_new(seq_t, (new_n + 1));
     bool *new_sqfree = (bool *)malloc((new_n + 1) * sizeof(bool));
 
     /* initialise squarefree array */
@@ -71,7 +74,7 @@ static void recompute_up_to(idx_t new_n)
     }
 
     /* replace old tables */
-    if (count_arr) free(count_arr);
+    if (count_arr) mem_free(count_arr);
     if (sqfree_arr) free(sqfree_arr);
     count_arr = new_count;
     sqfree_arr = new_sqfree;

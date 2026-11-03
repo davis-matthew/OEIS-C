@@ -11,8 +11,9 @@
  *            the Hamming weight applied offset times to x. * cum_sum[i] =
  *            Σ_{t=0..i} iter_len(t), iter_len(t) is the number of *
  *            iterations of the popcount on t until ≤1
- * Range:     u8 n <= 912, u16 n <= 9703, u32 n <= 9703, u64 n <= 9703,
- *            u128 n <= 9703, big any n
+ * Range:     u8 n <= 912, u16 n <= 11724, u32 n <= 11724, u64 n <= 11724,
+ *            u128 n <= 11724, big any n
+ * Validated: standard, pass, 98 terms through n = 9703 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

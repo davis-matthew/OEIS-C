@@ -8,6 +8,7 @@
  * Formula:   a(n) = sort_digits_nondecreasing( 2^n + reverse(2^n) )
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 33, u64 n <= 66, u128 n <= 139,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 954 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

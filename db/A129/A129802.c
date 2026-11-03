@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 1784, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   jacobi_symbol
+ * Validated: standard, pass, 76 terms through n = 9509 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,31 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/jacobi_symbol.h"
+#include "../utils/mem.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 /* ---------- modular arithmetic helpers ---------- */
 static inline uint64_t modmul64(uint64_t a, uint64_t b, uint64_t mod) {
@@ -128,12 +153,12 @@ struct Heap {
 static void heap_init(struct Heap *h) {
     h->size = 0;
     h->capacity = 16;
-    h->data = (seq_t*)malloc(h->capacity * sizeof(seq_t));
+    h->data = mem_new(seq_t, (h->capacity * sizeof(seq_t)) / sizeof(seq_t));
 }
 static void heap_push(struct Heap *h, seq_t val) {
     if (h->size == h->capacity) {
         h->capacity <<= 1;
-        h->data = (seq_t*)realloc(h->data, h->capacity * sizeof(seq_t));
+        h->data = mem_resize(seq_t, h->data, (h->capacity * sizeof(seq_t)) / sizeof(seq_t));
     }
     size_t i = h->size++;
     while (i > 0) {
@@ -195,7 +220,7 @@ seq_t a(idx_t n) {
         heap_pop(&heap, &v);
         if (values_len == values_cap) {
             values_cap = values_cap ? values_cap << 1 : 16;
-            values = (seq_t*)realloc(values, values_cap * sizeof(seq_t));
+            values = mem_resize(seq_t, values, values_cap);
         }
         values[values_len++] = v;
 

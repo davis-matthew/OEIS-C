@@ -10,6 +10,7 @@
  *            242697*n^2 + 517474*n + 600600) / 840 (valid for all n ≥ 1)
  * Range:     u8 none, u16 none, u32 n <= 16, u64 n <= 210, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 203 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

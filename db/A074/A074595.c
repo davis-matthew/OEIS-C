@@ -8,7 +8,8 @@
  * Formula:   a(n) = A001222(A024619(n))
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_power
+ * Validated: standard, pass, 121 terms through n = 9032 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,23 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_power.h"
+
+/* Return true iff x is a prime power (including primes). */
+static bool is_prime_power(uint64_t x)
+{
+    uint64_t p = 0;
+    for (uint64_t i = 2; i * i <= x; ++i) {
+        if (x % i == 0) {
+            p = i;
+            break;
+        }
+    }
+    if (p == 0)          /* x is prime */
+        return true;
+    while (x % p == 0)
+        x /= p;
+    return x == 1;       /* remaining factor is 1 → pure power */
+}
 
 /* Count prime factors of n with multiplicity (Ω(n)). */
 static int count_prime_factors(uint64_t n)

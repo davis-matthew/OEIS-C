@@ -11,13 +11,16 @@
  *            * binomial(n-m,j)
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 /* integer square‑root for 64‑bit unsigned integers */
 static idx_t floor_sqrt_u64(idx_t x)
@@ -49,7 +52,7 @@ seq_t a(idx_t n)
 
     /* first sum: j = 0 .. col */
     for (idx_t j = 0; j <= col; ++j) {
-        seq_t term = seq_pow((seq_t)(j + 1), row);
+        seq_t term = ipow_idx((seq_t)(j + 1), row);
         term *= binomial(col, j);
         if ((j + col) & 1) /* odd exponent → negative sign */
             result -= term;
@@ -60,7 +63,7 @@ seq_t a(idx_t n)
     /* second sum: j = 0 .. (row-col) */
     idx_t maxj = row - col;
     for (idx_t j = 0; j <= maxj; ++j) {
-        seq_t term = seq_pow((seq_t)(j + 1), row);
+        seq_t term = ipow_idx((seq_t)(j + 1), row);
         term *= binomial(maxj, j);
         if ((j + row - col) & 1)
             result -= term;

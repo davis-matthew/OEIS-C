@@ -7,6 +7,7 @@
  * Formula:   a(n) = Product_{k=0..n} (k^5 + (n-k)^5)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 8,
  *            big any n
+ * Validated: standard, pass, 27 terms through n = 98 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

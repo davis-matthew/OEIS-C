@@ -9,14 +9,18 @@
  *            A223491
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 88 terms through n = 8732 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>                 /* for size_t */
-#include "../utils/factor_u64.h"     /* factor_u64 */
-#include "../utils/pow_uint.h"       /* pow_uint */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +46,7 @@ seq_t a(idx_t n)
         }
 
         /* compute p^t */
-        seq_t val = pow_uint(primes[i], t);
+        seq_t val = ipow_u64_idx(primes[i], t);
 
         if (val > best) {
             best = val;

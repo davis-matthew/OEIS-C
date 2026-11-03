@@ -8,12 +8,14 @@
  * Formula:   a(n) = (n+1) * Σ_{k=0..n} 3^(n-k) * binomial(4*n+3, k)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     idx_t k, N;
 
     N = n * 4 + 3;                     /* 4*n + 3 */
-    powCurr = pow_seq((seq_t)3, (int)n); /* 3^n */
+    powCurr = ipow_i32((seq_t)3, (int)n); /* 3^n */
     binom = (seq_t)1;                   /* binomial coefficient for k=0 */
     sum = powCurr;                      /* term for k=0 */
 

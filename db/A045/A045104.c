@@ -9,12 +9,14 @@
  *            exactly three 1's and four 2's
  * Range:     u8 none, u16 n <= 35, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* stored values */
 static size_t cache_size = 0;    /* number of stored values */
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
             if (cache_size == cache_capacity) {
                 /* grow cache */
                 size_t new_capacity = cache_capacity == 0 ? 128 : cache_capacity * 2;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_capacity);
                 if (!new_cache) abort();  /* allocation failure */
                 cache = new_cache;
                 cache_capacity = new_capacity;

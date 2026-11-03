@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   one, zero
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/one.h"
-#include "../utils/zero.h"
+
+static inline seq_t one(void)  { return (seq_t)1; }
+
+static inline seq_t zero(void) { return (seq_t)0; }
 
 #ifdef __cplusplus
 

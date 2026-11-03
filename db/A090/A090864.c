@@ -10,13 +10,32 @@
  *            form k(3k±1)/2 for some integer k≥1
  * Range:     u8 n <= 229, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_gpn
+ * Validated: standard, pass, 86 terms through n = 972 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_gpn.h"
+
+static bool is_gpn(seq_t x) {
+    /* Test whether x is a generalized pentagonal number:
+     * k(3k-1)/2 or k(3k+1)/2 for some integer k≥1.  */
+    for (idx_t k = 1; ; ++k) {
+        /* Use seq_t arithmetic to avoid overflow. */
+        seq_t kk = (seq_t)k;
+        seq_t g1 = (kk * (3 * kk - 1)) / 2;
+        if (g1 > x) /* g1 is increasing, so we can terminate. */
+            break;
+        if (g1 == x)
+            return true;
+        seq_t g2 = (kk * (3 * kk + 1)) / 2;
+        if (g2 == x)
+            return true;
+        /* g2 grows faster than g1, so the next iteration will also have g1 > x eventually. */
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     /* Returns the n-th term (1‑based) of A090864. */

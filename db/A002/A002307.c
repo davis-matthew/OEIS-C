@@ -11,7 +11,8 @@
  *            1..p-1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a2307_prime
+ * Validated: standard, pass, 123 terms through n = 9973 (2026-11-01)
+ * Helpers:   nth_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,10 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/a2307_prime.h"
+#include "../utils/nth_prime.h"
 
 seq_t a(idx_t n) {
-    uint64_t p = a2307_prime(n);
+    uint64_t p = nth_prime(n);
     bool *is_qr = (bool *)malloc(p * sizeof(bool));
     memset(is_qr, 0, p * sizeof(bool));
     for (uint64_t i = 1; i < p; i++)

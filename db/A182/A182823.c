@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 15, i16 n <= 36, i32 n <= 92, i64 n <= 231,
  *            i128 n <= 596, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9908 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global cache of polynomial coefficient rows */
 static seq_t **rows = NULL;          /* rows[i] points to coefficient array of P(i,x) */
@@ -70,7 +72,7 @@ static void build_rows_up_to(idx_t upto)
 
     for (idx_t r = rows_used; r <= upto; ++r) {
         /* Allocate coefficient array of length r+1 */
-        seq_t *coef = (seq_t *)malloc(((size_t)r + 1U) * sizeof(seq_t));
+        seq_t *coef = mem_new(seq_t, ((size_t)r + 1U));
         if (!coef) exit(EXIT_FAILURE);
         rows[r] = coef;
 

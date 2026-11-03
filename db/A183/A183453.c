@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 40, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return true iff every 1 in the middle row has exactly three
  * neighbouring 1s in the 3×3 block formed by (prev, curr, next). */
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
      * for the next iteration. */
     static seq_t dp[64][64];
     static seq_t dpNext[64][64];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* First row: pretend row 0 is all zeros. */
     for (uint8_t curr = 0; curr < 64; ++curr)
@@ -101,7 +103,7 @@ seq_t a(idx_t n)
      * and 'curr' holds row r‑1.  We transition to a new pair
      * (curr, nxt). */
     for (idx_t row = 2; row <= n; ++row) {
-        memset(dpNext, 0, sizeof(dpNext));
+        mem_set(dpNext, 0, sizeof(dpNext));
         for (uint8_t prev = 0; prev < 64; ++prev) {
             for (uint8_t curr = 0; curr < 64; ++curr) {
                 seq_t ways = dp[prev][curr];
@@ -119,7 +121,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, dpNext, sizeof(dp));
+        mem_copy(dp, dpNext, sizeof(dp));
     }
 
     /* Final row: require the row after the last to be zero. */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* ---------- Practical number test for uint64_t ----------
    Practical numbers satisfy the condition that, for their prime
@@ -83,14 +85,14 @@ static void ensure_cache(idx_t n)
     /* Initialise cache on first call */
     if (cache_len == 0) {
         cache_len = 1;                            /* keep index 0 */
-        cache = (seq_t*)realloc(NULL, sizeof(seq_t) * 2);   /* indices 0,1 */
+        cache = mem_resize(seq_t, NULL, 2);   /* indices 0,1 */
     }
 
     if ((size_t)n < cache_len) return; /* already available */
 
     /* Allocate up to n */
     size_t new_len = (size_t)n + 1;
-    seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * new_len);
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     cache = tmp;
 
     /* Generate missing terms */

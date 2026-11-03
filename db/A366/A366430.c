@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 5117, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_candidate, bigomega, build_spf, rev
+ * Validated: standard, pass, 76 terms through n = 9976 (2026-11-03)
+ * Helpers:   bigomega, build_spf, mem, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,27 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_spf.h"
 #include "../utils/bigomega.h"
-#include "../utils/append_candidate.h"
-#include "../utils/rev.h"
+#include "../utils/build_spf.h"
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 /* Rebuild the cache up to `limit` and store it in `*cache_out` (new
    array).  The number of entries written is returned through `*len_out`. */
@@ -55,7 +73,7 @@ static void recompute_up_to(idx_t limit, seq_t **cache_out, size_t *len_out)
     for (idx_t m = 2; m <= limit; ++m) {
         if (omega[m] != 3)
             continue;
-        idx_t rev_m = rev(m);
+        idx_t rev_m = reverse_digits_idx(m);
         seq_t rev_omega = (rev_m <= limit) ? (seq_t)omega[rev_m] : bigomega(rev_m);
         if (rev_omega == 3)
             append_candidate(&terms, &terms_len, &terms_cap, (seq_t)m);
@@ -67,7 +85,7 @@ static void recompute_up_to(idx_t limit, seq_t **cache_out, size_t *len_out)
 
     /*--- Replace old cache ---*/
     if (*cache_out)
-        free(*cache_out);
+        mem_free(*cache_out);
 
     *cache_out = terms;
     *len_out   = terms_len;

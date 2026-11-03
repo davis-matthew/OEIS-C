@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 32, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
  * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,7 @@
 
 /* The build supplies the following types; no definitions are needed. */
 #include <stdbool.h>
-#include "../utils/is_prime_seq.h"  /* provides: bool is_prime_seq(seq_t); */
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {

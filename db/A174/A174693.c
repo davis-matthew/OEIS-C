@@ -9,16 +9,34 @@
  *            the triangle read by rows, offset 0
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 37, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   binomial, factorial, seq_mul
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factorial.h"
+#include <stdint.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
+#include "../utils/mem.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static seq_t **euler = NULL;      /* euler[m][k] = Eulerian(m,k)   */
 static idx_t euler_max = 0;       /* number of rows currently stored */
@@ -38,7 +56,7 @@ ensure_euler_up_to(idx_t m)
     for (idx_t i = euler_max; i <= m; ++i) {
         /* Eulerian row i has i entries (for i = 0 we have one entry). */
         idx_t len = (i == 0) ? 1 : i;
-        euler[i] = (seq_t *)malloc(len * sizeof(seq_t));
+        euler[i] = mem_new(seq_t, len);
         if (!euler[i]) abort();
 
         /* Base cases: E(i,0)=1 and E(i,i-1)=1 (for i>0). */

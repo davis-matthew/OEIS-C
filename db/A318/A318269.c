@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 18, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    with p(n) the coefficient of xⁿ in the numerator (p(4)=21, p(5)=158, …, p(12)=5, all other p(k)=0). */
 
 #include <stdlib.h>   /* for malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static const int d_coeff[15] = {
     1,   -9,   31,  -44,   -4,  84, -66, -46,  74,   4, -36,   4,   9, -1, -1
@@ -43,7 +45,7 @@ static void ensure_capacity(idx_t need)
     if (need <= cache_cap) return;
     size_t new_cap = (size_t)need;
     if (new_cap == 0) new_cap = 1;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) abort();
     cache = new_ptr;
     cache_cap = new_cap;

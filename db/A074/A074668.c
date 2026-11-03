@@ -8,7 +8,8 @@
  *            primes that contain 7 distinct digits
  * Range:     u8 n <= 5, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   seq_alloc
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,18 @@
    "../utils/NAME.h".  We need seq_alloc to construct an array of
    seq_t correctly for all supported builds, including arbitrary‑
    precision C++ builds. */
-#include "../utils/seq_alloc.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>

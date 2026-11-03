@@ -7,7 +7,8 @@
  * Formula:   a(n) = (2*n)! * [x^(2*n)] cos(x) * cos(sqrt(3)*x) / cos(3*x)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 13,
  *            big any n
- * Helpers:   binomial, seq_mul
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,30 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,14 +58,14 @@ seq_t a(idx_t n)
     /* initialize cache lazily */
     if (seq_last == (idx_t)-1) {
         seq_cap = 1;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) return 0;          /* insufficient memory; should not happen */
         seq[0] = 1;                  /* a(0) = 1 */
         seq_last = 0;
 
         pow_cap = 1;
-        pow3 = (seq_t*)malloc(pow_cap * sizeof(seq_t));
-        pow9 = (seq_t*)malloc(pow_cap * sizeof(seq_t));
+        pow3 = mem_new(seq_t, pow_cap);
+        pow9 = mem_new(seq_t, pow_cap);
         if (!pow3 || !pow9) return 0;
         pow3[0] = 1;
         pow9[0] = 1;
@@ -52,14 +75,14 @@ seq_t a(idx_t n)
     if (n >= seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 8;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
     if (n >= pow_cap) {
         size_t new_cap = pow_cap ? pow_cap * 2 : 8;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        pow3 = (seq_t*)realloc(pow3, new_cap * sizeof(seq_t));
-        pow9 = (seq_t*)realloc(pow9, new_cap * sizeof(seq_t));
+        pow3 = mem_resize(seq_t, pow3, new_cap);
+        pow9 = mem_resize(seq_t, pow9, new_cap);
         pow_cap = new_cap;
     }
 

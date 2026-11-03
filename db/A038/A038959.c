@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   legendre_74
+ * Validated: standard, pass, 62 terms through n = 812 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/legendre_74.h"
+
+/* Check whether 74 is a quadratic residue modulo an odd prime p > 37. */
+static bool legendre_74(uint64_t p)
+{
+    /* Legendre symbol (2|p). */
+    int l2 = ((p % 8 == 1) || (p % 8 == 7)) ? 1 : -1;
+
+    /* Quadratic residues modulo 37. */
+    static const uint8_t residues[18] = {
+        1, 3, 4, 7, 9,10,11,12,16,21,25,26,27,28,30,33,34,36
+    };
+    uint8_t r = p % 37;
+    int lp37 = -1;          /* start as non‑residue */
+    for (int i = 0; i < 18; ++i) {
+        if (r == residues[i]) { lp37 = 1; break; }
+    }
+
+    /* Legendre(74|p) = (2|p) * (p|37) == 1 means l2==lp37. */
+    return l2 == lp37;
+}
 
 /* Resize helper for dynamic arrays of uint64_t. */
 static void ensure_capacity_uint64(uint64_t **arr, size_t *cap, size_t needed)

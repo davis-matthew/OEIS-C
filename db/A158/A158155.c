@@ -10,7 +10,8 @@
  *            into exactly k parts
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 46, u64 n <= 205, u128 n <= 304,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 301 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_K 21  /* maximum number of parts in a partition              */
 
@@ -40,14 +42,14 @@ static void ensure_dp(idx_t n_max)
         size_t old_size = (size_t)(max_n_comp + 1) * (MAX_K + 1);
         size_t new_size = (size_t)(n_max + 1) * (MAX_K + 1);
 
-        seq_t *newdp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *newdp = mem_resize(seq_t, dp, new_size);
         if (newdp == NULL) abort();
         dp = newdp;
 
         /* Zero the newly added rows if any */
         if (old_size < new_size) {
             size_t add_rows = new_size - old_size;
-            memset(dp + old_size, 0, add_rows * sizeof(seq_t));
+            mem_set(dp + old_size, 0, add_rows * sizeof(seq_t));
         }
 
         /* Base case: P(0,0)=1, all other P(0,k>0)=0 (already zeroed) */

@@ -11,7 +11,8 @@
  *            exp( Sum_{m>=1} 2^{Sum_i gcd(lambda_i,m)} t^m/m ), i.e...
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 15, u64 n <= 20, u128 n <= 28,
  *            big any n
- * Helpers:   A7776_gcd, alloc_zero, seq_is_fixed_width
+ * Validated: standard, pass, 38 terms through n = 49 (2026-11-03)
+ * Helpers:   gcd_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/alloc_zero.h"
-#include "../utils/A7776_gcd.h"
+#include "../utils/gcd_idx.h"
+#include "../utils/mem.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 typedef unsigned long long A7776_u64;
 
@@ -64,7 +82,7 @@ static void A7776_leaf(void)
             idx_t part = W_parts[i];
             j = i;
             while (j < L && W_parts[j] == part) j++;
-            c += (j - i) * A7776_gcd(part, m);
+            c += (j - i) * gcd_idx(part, m);
             i = j;
         }
         W_cyc[m] = c;

@@ -10,6 +10,7 @@
  *            * binomial(n+7-j, 9), a(1) = 0
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 27, u64 n <= 350, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 996 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

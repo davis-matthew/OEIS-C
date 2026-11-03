@@ -9,13 +9,21 @@
  *            starting with 5
  * Range:     u8 n <= 3, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   pow7_u8
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow7_u8.h"
+
+static seq_t pow7_u8(int exp)
+{
+    seq_t r = 1;
+    for (int i = 0; i < exp; ++i)
+        r *= 7;
+    return r;
+}
 
 seq_t a(idx_t n)
 {

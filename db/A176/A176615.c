@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nice, nonn
  * Formula:   a(n) = number of pairs i < j ≤ n with i + j a perfect square
- * Range:     u8 n <= 96, u16 n <= 3834, u32 n <= 9948, u64 n <= 9948,
- *            u128 n <= 9948, big any n
+ * Range:     u8 n <= 96, u16 n <= 3834, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 84 terms through n = 9948 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

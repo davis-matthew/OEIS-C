@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 64 terms through n = 963 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static uint64_t *prime_uint64 = NULL;
 static size_t prime_cnt = 0, prime_cap = 0;
@@ -27,7 +30,7 @@ static uint64_t cur = 2;
 static void ensure_cap_seq(size_t *cnt, size_t *cap, seq_t **arr) {
     if (*cnt >= *cap) {
         size_t newcap = (*cap == 0) ? 16 : *cap * 2;
-        *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
 }
@@ -65,7 +68,7 @@ seq_t a(idx_t n) {
                 uint64_t rem = (cu - 1) % 3;
                 if (rem == 0) {
                     uint64_t exp = (cu - 1) / 3;
-                    seq_t res = mod_pow((seq_t)22, exp, (seq_t)cu);
+                    seq_t res = powmod((seq_t)22, exp, (seq_t)cu);
                     if (res == (seq_t)1) sol = true;
                 } else {
                     sol = true;

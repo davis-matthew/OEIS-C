@@ -10,7 +10,8 @@
  *            is semiprime AND k+1 is prime))
  * Range:     u8 n <= 37, u16 n <= 4046, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9823 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* Simple primality test suitable for the small numbers that
@@ -63,12 +65,12 @@ static void ensure_terms(idx_t target)
     /* Grow the array if necessary. */
     if (seq_cap == 0) {
         seq_cap = 64;
-        seq_values = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_values = mem_new(seq_t, seq_cap);
         if (!seq_values) exit(EXIT_FAILURE);
     }
     while (seq_cap < (size_t)target) {
         seq_cap *= 2;
-        seq_values = (seq_t *)realloc(seq_values, seq_cap * sizeof(seq_t));
+        seq_values = mem_resize(seq_t, seq_values, seq_cap);
         if (!seq_values) exit(EXIT_FAILURE);
     }
 

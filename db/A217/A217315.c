@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 81, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
     a(0) = T(0,0), a(1) = T(0,1), a(2) = T(1,0), etc. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         while (rows <= next_diag)
         {
             idx_t r = rows;                  /* new row index to create   */
-            seq_t *row = (seq_t *)malloc(sizeof(seq_t) * 8);
+            seq_t *row = mem_new(seq_t, 8);
             if (!row)
                 return (seq_t)0;              /* memory failure */
 
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
             seq_t **new_tbl = (seq_t **)realloc(
                 table, (rows + 1) * sizeof(seq_t *));
             if (!new_tbl) {
-                free(row);
+                mem_free(row);
                 return (seq_t)0;              /* memory failure */
             }
             table = new_tbl;
@@ -90,8 +92,7 @@ seq_t a(idx_t n)
             /* Append the value to the sequence array. */
             if (seq_len >= seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 1;
-                seq_t *new_seq = (seq_t *)realloc(
-                    seq, seq_cap * sizeof(seq_t));
+                seq_t *new_seq = mem_resize(seq_t, seq, seq_cap);
                 if (!new_seq)
                     return (seq_t)0;          /* memory failure */
                 seq = new_seq;

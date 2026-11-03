@@ -14,14 +14,17 @@
  *            reduced...
  * Range:     i8 n <= 255, i16 n <= 8191, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 116 terms through n = 9922 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* static cache for the numerator and denominator exponent tables  */
 static seq_t  *num_arr  = NULL;      /* num[e]   */
@@ -35,7 +38,7 @@ static void extend_precalc(size_t upto)
         return;
 
     size_t newSize = upto + 1;
-    seq_t  *newNum  = (seq_t *)realloc(num_arr,  newSize * sizeof(seq_t));
+    seq_t  *newNum  = mem_resize(seq_t, num_arr, newSize);
     unsigned *newDen = (unsigned *)realloc(den_arr, newSize * sizeof(unsigned));
 
     /* compute missing entries from max_precalc to upto */

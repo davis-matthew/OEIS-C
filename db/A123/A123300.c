@@ -9,7 +9,8 @@
  *            the n-th such prime
  * Range:     u8 n <= 1, u16 n <= 2265, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9627 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Helper: raise an integer to the fifth power (fits in 64 bits
    for the limits we need). */
@@ -104,7 +106,7 @@ static void rebuild_cache(uint64_t new_limit)
             ++count;
     }
 
-    seq_t *new_list = (seq_t *)malloc(count * sizeof(seq_t));
+    seq_t *new_list = mem_new(seq_t, count);
     size_t pos = 0;
     for (size_t n = 2; n <= new_limit; ++n) {
         if (!is_prime[n]) continue;
@@ -120,7 +122,7 @@ static void rebuild_cache(uint64_t new_limit)
     free(is_prime);
 
     /* Replace global list */
-    free(prime_list);
+    mem_free(prime_list);
     prime_list = new_list;
     prime_list_len = count;
     computed_limit = new_limit;

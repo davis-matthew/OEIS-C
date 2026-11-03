@@ -14,7 +14,8 @@
  *            edge of the graph
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static bool _a223349_initialized = false;
 
@@ -115,8 +117,8 @@ static void _a223349_init(void)
     _a223349_next_idx = edges;
 
     /* Allocate DP buffers. */
-    _a223349_dp   = (seq_t*)calloc(state_count, sizeof(seq_t));
-    _a223349_next = (seq_t*)calloc(state_count, sizeof(seq_t));
+    _a223349_dp   = mem_new(seq_t, state_count);
+    _a223349_next = mem_new(seq_t, state_count);
 
     _a223349_initialized = true;
 }

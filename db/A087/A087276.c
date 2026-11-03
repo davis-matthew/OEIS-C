@@ -8,13 +8,22 @@
  * Formula:   a(1)=1; a(2n)=2*a(n)+1; a(2n+1)=2*a(n)+floor(log2(n))+2
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   log2_floor_idx
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/log2_floor_idx.h"
+
+static seq_t log2_floor_idx(idx_t v) {
+    seq_t r = 0;
+    while (v > 1) {
+        v >>= 1;
+        r++;
+    }
+    return r;
+}
 
 seq_t a(idx_t n) {
     if (n <= 1) {

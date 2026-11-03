@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   build_primes, build_spf, seq_alloc
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   build_primes, build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,13 +20,24 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Include helper routines from ../utils ----------
    (The build system will provide the required headers.) ----------
 */
-#include "../utils/build_primes.h"      /* build_primes */
-#include "../utils/build_spf.h"         /* build_spf */
-#include "../utils/seq_alloc.h"         /* seq_alloc */
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/build_primes.h"
+#include "../utils/build_spf.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 /* ---------- Static cache for generated sequence ----------
    seq   : array of accepted numbers
@@ -148,7 +160,7 @@ static void ensure_sequence_upto(size_t need)
             /* Grow the sequence array if needed. */
             if (len + 1 > cap) {
                 size_t new_cap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, new_cap);
                 if (!tmp) abort();
                 seq = tmp;
                 cap = new_cap;

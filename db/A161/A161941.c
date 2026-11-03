@@ -7,12 +7,14 @@
  * Formula:   a(n) = 4*a(n-1) - 2*a(n-2) Initial values: a(0) = 2, a(1) = 5
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 35, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
         size_t init_cap = (size_t)2;
         if (n + 1 > init_cap) init_cap = (size_t)(n + 1);
 
-        memo = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, init_cap);
         if (memo == NULL) abort();
 
         memo[0] = (seq_t)2;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Grow the table if necessary */
     size_t new_cap = (size_t)(n + 1);
     if (new_cap > cap) {
-        seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_cap);
         if (tmp == NULL) abort();
         memo = tmp;
         cap   = new_cap;

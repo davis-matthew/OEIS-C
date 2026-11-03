@@ -8,14 +8,17 @@
  *            if n is a prime power p^e -> p^(2e-1) otherwise -> n^2
  * Range:     u8 n <= 17, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 /* External linkage as required */
 seq_t a(idx_t n)
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
     if (cnt == 1) {
         idx_t e = (idx_t)ex[0];                /* exponent of the prime */
         idx_t exp = 2 * e - 1;                 /* the power required */
-        return big_pow((seq_t)pr[0], (seq_t)exp);
+        return ipow((seq_t)pr[0], (seq_t)exp);
     }
 
     /* For composite numbers with at least two distinct primes */

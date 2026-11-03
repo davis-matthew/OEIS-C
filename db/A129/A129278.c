@@ -8,7 +8,8 @@
  * Formula:   a(n) = coefficient of q^(2n+2) in ∏_{i=1..n+2} ((1‑q^i)/(1‑q))^2
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/seq_mul.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -26,14 +32,14 @@ seq_t a(idx_t n)
     size_t size = (size_t)E + 1;  /* array length needed                       */
 
     /* allocate working arrays */
-    seq_t *dp   = (seq_t *)calloc(size, sizeof(seq_t));
-    seq_t *buf  = (seq_t *)calloc(size, sizeof(seq_t));
-    seq_t *pref0 = (seq_t *)calloc(size + 1, sizeof(seq_t)); /* prefix sums of dp   */
-    seq_t *pref1 = (seq_t *)calloc(size + 1, sizeof(seq_t)); /* prefix of k*dp       */
+    seq_t *dp   = mem_new(seq_t, size);
+    seq_t *buf  = mem_new(seq_t, size);
+    seq_t *pref0 = mem_new(seq_t, size + 1); /* prefix sums of dp   */
+    seq_t *pref1 = mem_new(seq_t, size + 1); /* prefix of k*dp       */
 
     if (!dp || !buf || !pref0 || !pref1) {
         /* allocation failed; return 0 as fallback (should never happen) */
-        free(dp); free(buf); free(pref0); free(pref1);
+        mem_free(dp); mem_free(buf); mem_free(pref0); mem_free(pref1);
         return (seq_t)0;
     }
 
@@ -54,7 +60,7 @@ seq_t a(idx_t n)
         }
 
         /* clear buffer for next polynomial */
-        memset(buf, 0, size * sizeof(seq_t));
+        mem_set(buf, 0, size * sizeof(seq_t));
 
         /* new degree after adding factor i          */
         size_t new_deg = old_deg + 2 * (size_t)i - 2;
@@ -111,8 +117,8 @@ seq_t a(idx_t n)
     seq_t result = dp[2 * n + 2];   /* coefficient at exponent 2n+2 */
 
     /* free temporaries */
-    free(dp);  free(buf);
-    free(pref0);  free(pref1);
+    mem_free(dp);  mem_free(buf);
+    mem_free(pref0);  mem_free(pref1);
 
     return result;
 }

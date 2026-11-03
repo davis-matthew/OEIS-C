@@ -8,12 +8,14 @@
  * Formula:   a(0) = 1; a(2*n) = Σ_{j=0}^{n} a(j)*a(n-j); a(2*n+1) = 2*a(2*n)
  * Range:     u8 n <= 10, u16 n <= 30, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* First call: initialise cache for a(0) ------------------------------- */
     if (cache == NULL) {
         cap  = 1;
-        cache = (seq_t*)calloc(cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) exit(EXIT_FAILURE);
         cache[0] = (seq_t)1;
         maxi = 0;
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     /* Grow cache if needed -------------------------------------------------- */
     if (n >= cap) {
-        seq_t *tmp = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) exit(EXIT_FAILURE);
         /* zero‑initialize new entries ------------------------------------- */
         for (idx_t i = cap; i <= n; ++i) tmp[i] = (seq_t)0;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 27, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    Initial values: a(1)=1, a(2)=0, a(3)=1, a(4)=1, a(5)=2, a(6)=7 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values (zero‑based indices: cache[0] = a(1)) */
 static seq_t *cache    = NULL;  /* dynamic array of values */
@@ -30,7 +32,7 @@ static void init_cache(void)
 
     /* Allocate small initial block and grow as needed */
     cache_size = 16;
-    cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_size);
     if (!cache) exit(1);                  /* out of memory */
 
     cache[0] = (seq_t)1;   /* a(1) */
@@ -48,7 +50,7 @@ static void ensure_capacity(idx_t n)
     if (n < cache_size) return;
     idx_t new_size = cache_size;
     while (new_size <= n) new_size <<= 1;                     /* double until big enough */
-    seq_t *new_cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) exit(1);                                  /* out of memory */
     cache = new_cache;
     cache_size = new_size;

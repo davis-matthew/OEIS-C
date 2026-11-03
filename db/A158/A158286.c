@@ -11,6 +11,7 @@
  *            - r(r+1)/2 is the column index
  * Range:     i8 n <= 5, i16 n <= 14, i32 n <= 27, i64 n <= 65, i128 n <= 152,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 1303 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

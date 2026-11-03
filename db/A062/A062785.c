@@ -8,6 +8,7 @@
  *            = 0. Here sigma(n) is the sum of all positive divisors of n
  * Range:     u8 n <= 11, u16 n <= 119, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 81 terms through n = 9134 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

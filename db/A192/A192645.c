@@ -12,7 +12,8 @@
  *            differences x^2 - y^2 for each fixed x and descending y
  * Range:     u8 n <= 12, u16 n <= 226, u32 n <= 2619, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9936 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* A node represents one stream (fixed x, decreasing y). */
 typedef struct {
@@ -47,7 +49,7 @@ static void seq_push(seq_t v)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 4;
-        seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq[0]));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         seq = tmp;
         seq_cap = new_cap;
     }
@@ -59,7 +61,7 @@ static void heap_push(Heap *h, Node v)
 {
     if (h->size == h->cap) {
         size_t new_cap = h->cap ? h->cap * 2 : 16;
-        Node *tmp = (Node*)realloc(h->data, new_cap * sizeof(Node));
+        Node *tmp = mem_resize(Node, h->data, new_cap);
         h->data = tmp;
         h->cap = new_cap;
     }
@@ -113,14 +115,14 @@ static void init_sequence_and_heap(void)
 
     /* Allocate initial storage for the sequence array. */
     seq_cap = 4;
-    seq = (seq_t*)calloc(seq_cap, sizeof(seq[0]));
+    seq = mem_new(seq_t, seq_cap);
     seq[0] = (seq_t)1;
     seq[1] = (seq_t)2;
     seq_len = 2;
 
     /* Initialise the min‑heap. */
     heap.cap = 16;
-    heap.data = (Node*)calloc(heap.cap, sizeof(Node));
+    heap.data = mem_new(Node, heap.cap);
     heap.size = 0;
 
     /* First candidate 2^2 - 1^2 = 3. */

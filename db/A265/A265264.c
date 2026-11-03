@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 26, u64 n <= 50, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 2856 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,12 +37,12 @@ seq_t a(idx_t n)
         idx_t new_a_cap = (a_cap == 0) ? 16 : a_cap;
         while (new_a_cap <= n) new_a_cap <<= 1;
 
-        a_cache = (seq_t *)realloc(a_cache, (new_a_cap + 1) * sizeof(seq_t));
-        b_cache = (seq_t *)realloc(b_cache, (new_a_cap / 2 + 2) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (new_a_cap + 1));
+        b_cache = mem_resize(seq_t, b_cache, (new_a_cap / 2 + 2));
 
         /* initialize new entries to zero */
-        memset(a_cache + a_cap, 0, (new_a_cap - a_cap + 1) * sizeof(seq_t));
-        memset(b_cache + b_cap, 0, (new_a_cap / 2 + 2 - b_cap) * sizeof(seq_t));
+        mem_set(a_cache + a_cap, 0, (new_a_cap - a_cap + 1) * sizeof(seq_t));
+        mem_set(b_cache + b_cap, 0, (new_a_cap / 2 + 2 - b_cap) * sizeof(seq_t));
 
         a_cap = new_a_cap;
         b_cap = new_a_cap / 2 + 2;

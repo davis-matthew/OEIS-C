@@ -9,12 +9,14 @@
  *            Initial values (for n = 1 … 5): 1, 76, 646, 108871, 930811
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 13, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 622 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, free, size_t */
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL; /* cached terms, zero‑based (cache[0] = a(1)) */
 static size_t cache_cap  = 0;    /* allocated capacity in terms   */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first five terms on first call */
     if (cache_len == 0) {
         cache_cap = 8;               /* start with a small, but sufficient, size */
-        cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
         if (!cache) return 0;        /* allocation failure -> arbitrary 0 */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)76;
@@ -44,11 +46,11 @@ seq_t a(idx_t n)
         /* grow capacity if needed (double size) */
         if (cache_len >= cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_t *new_arr = mem_new(seq_t, new_cap);
             if (!new_arr) return 0;   /* allocation failure -> arbitrary 0 */
             for (size_t i = 0; i < cache_len; ++i)
                 new_arr[i] = cache[i];
-            free(cache);
+            mem_free(cache);
             cache     = new_arr;
             cache_cap = new_cap;
         }

@@ -7,12 +7,15 @@
  * Formula:   a(n) = C(n,4) * (4*n-15)^(n-6) (for n >= 6)
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 10, u64 n <= 15, u128 n <= 24,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 35 terms through n = 98 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     seq_t exp  = (seq_t)(n - 6);
 
     /* Raise base to the power exp */
-    seq_t pow = big_pow(base, exp);
+    seq_t pow = ipow(base, exp);
 
     /* Final result */
     return binom * pow;

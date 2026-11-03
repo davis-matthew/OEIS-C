@@ -8,13 +8,15 @@
  *            listed (see OEIS entry)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* initial 16 terms of the sequence */
 static const seq_t init[16] = {
@@ -41,7 +43,7 @@ static void ensure_cache(idx_t n)
         size_t need_cap = 16;
         if (n + 1 > need_cap)
             need_cap = (size_t)n + 1;
-        cache = (seq_t *)realloc(NULL, need_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, need_cap);
         if (!cache) {
             /* allocation failed – abort further work */
             return;
@@ -57,7 +59,7 @@ static void ensure_cache(idx_t n)
         size_t new_cap = (size_t)n + 1;
         if (new_cap < 2 * cache_cap)
             new_cap = 2 * cache_cap;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* allocation failed – abort further work */
             return;

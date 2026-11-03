@@ -13,7 +13,8 @@
  *            appropriate element
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdint.h>          /* for uint64_t */
 #include <stddef.h>          /* for size_t */
 #include <stdbool.h>         /* for bool */
-#include "../utils/binom.h"  /* seq_t binom(idx_t a, idx_t b) */
+#include "../utils/binomial.h"
 
 /* helper: convert seq_t (arbitrary‑precision integer) to idx_t.
    The values we use here are guaranteed to fit in idx_t. */
@@ -34,7 +35,7 @@ static void unrank_comb(idx_t n, idx_t r, idx_t rank, idx_t *out)
     idx_t pos = 0;
     idx_t start = 1;
     while (r > 0) {
-        idx_t cnt = to_idx(binom(n - start, r - 1));
+        idx_t cnt = to_idx(binomial(n - start, r - 1));
         if (rank < cnt) {
             out[pos++] = start;
             r--;
@@ -68,7 +69,7 @@ seq_t a(idx_t n)
     idx_t k = 1;
     idx_t found = 0;
     for (; k <= m; ++k) {
-        idx_t num_sets = to_idx(binom(m - 1, k - 1));
+        idx_t num_sets = to_idx(binomial(m - 1, k - 1));
         idx_t block_size = k * num_sets;
         if (offset < block_size) {
             found = 1;

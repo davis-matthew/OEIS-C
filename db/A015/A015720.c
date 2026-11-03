@@ -11,16 +11,18 @@
  *            the series 1 successively by the factors 1/(1−x^171...
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 1920 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* allocate array for coefficients up to n */
-    seq_t *coeff = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, n + 1);
     if (!coeff) return 0;          /* allocation failed – undefined behaviour */
     coeff[0] = (seq_t)1;           /* a(0) = 1 */
 
@@ -40,6 +42,6 @@ seq_t a(idx_t n) {
     for (idx_t i = 1; i <= n; ++i) coeff[i] += coeff[i - 1];
 
     seq_t result = coeff[n];
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

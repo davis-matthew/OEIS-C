@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl, look
  * Formula:   not stated
- * Range:     u8 n <= 43, u16 n <= 118, u32 n <= 403, u64 n <= 1429, u128 none,
- *            big any n
- * Helpers:   pow2
+ * Range:     u8 n <= 43, u16 n <= 118, u32 n <= 403, u64 n <= 1429,
+ *            u128 n <= 5354, big any n
+ * Validated: standard, pass, 82 terms through n = 9120 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Static cache: one big square matrix for the first (curD+1) rows/cols  */
 static seq_t *matrix = NULL;  /* row‑major storage: index = row*(curD+1)+col   */
@@ -34,7 +37,7 @@ static void build_matrix(idx_t newD)
 {
     /* Allocate new storage  */
     size_t size = (size_t)(newD + 1) * (newD + 1);
-    seq_t *newM = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *newM = mem_new(seq_t, size);
     if (!newM) return;    /* out of memory – caller must handle it */
 
     /* --- First row A(0,k)  ------------------------------------------- */
@@ -56,7 +59,7 @@ static void build_matrix(idx_t newD)
     }
 
     /* Replace old matrix, free old memory.                              */
-    free(matrix);
+    mem_free(matrix);
     matrix = newM;
     curD   = newD;
 }
@@ -69,7 +72,7 @@ seq_t a(idx_t n)
     while ((d + 1) * (d + 2) / 2 <= n) ++d;
 
     /* Ensure the matrix is large enough.                               */
-    if (!matrix || d > curD) build_matrix(d);
+    if (!matrix || d > curD) build_matrix(d < 1 ? 1 : d);   /* row 1 is always written */
 
     /* Position of the entry inside the diagonal.                       */
     idx_t start = d * (d + 1) / 2;

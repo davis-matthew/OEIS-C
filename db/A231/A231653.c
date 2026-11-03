@@ -10,6 +10,7 @@
  *            mod 3 == 1 ? 128*n^2 + 128*n - 256 : 0)) / 2304
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 41, u64 n <= 673,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 47 terms through n = 990 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

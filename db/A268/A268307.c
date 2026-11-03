@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   floor_cube_root
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,28 @@
  *  It is memoized, so calls in any order are efficient. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_cube_root.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static bool is_sum_two_cubes(seq_t t)
 {
@@ -53,7 +75,7 @@ seq_t a(idx_t n)
             /* enlarge array if necessary */
             if (cache_size == cache_cap) {
                 size_t new_cap = cache_cap == 0 ? 4 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)
                     abort();               /* allocation failure */
                 cache = tmp;

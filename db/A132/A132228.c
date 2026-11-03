@@ -8,13 +8,15 @@
  *            (OEIS A132228)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 15, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* realloc, NULL */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 /* Forward declaration of helper that works in both C and C++ */
 static void ensure_cache(idx_t n);
@@ -27,7 +29,7 @@ static void ensure_cache_c(idx_t n)
 {
     if (cache == NULL || cap <= n) {
         size_t new_cap = (n + 1) * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         /* Failure to alloc is ignored – the caller (a) will abort on it */
         cache = tmp;
         /* Zero‑initialize the newly allocated part */

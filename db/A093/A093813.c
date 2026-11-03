@@ -10,13 +10,23 @@
  *            range [1,50] the function returns 0
  * Range:     u8 n <= 50, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   count_letters
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <ctype.h>
-#include "../utils/count_letters.h"
+
+static unsigned char count_letters(const char *s) {
+    unsigned char c = 0;
+    while (*s) {
+        if (isalpha((unsigned char)*s))
+            ++c;
+        ++s;
+    }
+    return c;
+}
 
 static const char *state_names[50] = {
     "Alabama",         // 7

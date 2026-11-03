@@ -10,13 +10,15 @@
  *            a(4)=2744, a(5)=19208, a(6)=134428
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 868 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t init[7] = {
     (seq_t)1,
@@ -42,10 +44,10 @@ seq_t a(idx_t n)
             /* grow to at least needed, doubling for efficiency */
             size_t newCap = (cap == 0) ? 8 : cap;
             while (newCap < needed) newCap <<= 1;
-            seq_t *tmp = (seq_t *)malloc(newCap * sizeof(seq_t));
+            seq_t *tmp = mem_new(seq_t, newCap);
             if (cache) {
-                memcpy(tmp, cache, size * sizeof(seq_t));
-                free(cache);
+                mem_copy(tmp, cache, size * sizeof(seq_t));
+                mem_free(cache);
             }
             cache = tmp;
             cap   = newCap;
@@ -67,10 +69,10 @@ seq_t a(idx_t n)
         if (cap <= target) {
             size_t newCap = (cap == 0) ? 8 : cap;
             while (newCap <= target) newCap <<= 1;
-            seq_t *tmp = (seq_t *)malloc(newCap * sizeof(seq_t));
+            seq_t *tmp = mem_new(seq_t, newCap);
             if (cache) {
-                memcpy(tmp, cache, size * sizeof(seq_t));
-                free(cache);
+                mem_copy(tmp, cache, size * sizeof(seq_t));
+                mem_free(cache);
             }
             cache = tmp;
             cap   = newCap;

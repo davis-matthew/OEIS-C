@@ -11,6 +11,7 @@
  *            recurrence a(n)=5a(n-1)-10a(n-2)+10a(n-3)-5a(n-4)+a(n-5)
  * Range:     u8 n <= 6, u16 n <= 26, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
+ * Validated: standard, pass, 55 terms through n = 71 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

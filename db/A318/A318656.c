@@ -7,8 +7,9 @@
  * Keywords:  sign, changed
  * Formula:   a(n) = 2*A007814(n) - A046645(n) Additive with a(2^e) =
  *            popcount(e), and a(p^e) = popcount(e) - 2*e for odd prime p
- * Range:     i8 n <= 9701, i16 n <= 9701, i32 n <= 9701, i64 n <= 9701,
- *            i128 n <= 9701, big any n
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 108 terms through n = 9701 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

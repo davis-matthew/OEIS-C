@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 15, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
+ * Validated: full, pass, 15 terms through n = 15 (2026-11-02)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,7 +22,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/digit_sum.h"   /* declares seq_t digit_sum(seq_t) */
+#include "../utils/digit_sum.h"
 
 #define LIMIT 10000   /* safe upper bound – after this no more terms exist */
 

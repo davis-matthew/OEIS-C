@@ -9,13 +9,15 @@
  *            A(0,0) = 1; read by antidiagonals for a(n)
  * Range:     u8 n <= 26, u16 n <= 76, u32 n <= 251, u64 n <= 901,
  *            u128 n <= 1325, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 1018 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Memoisation for the 2‑D array A(n,k). */
 static size_t cache_dim = 0;          /* current dimension (max i or j + 1)   */
@@ -34,7 +36,7 @@ static void ensure_cache_dim(size_t needed)
 
     size_t new_size = new_dim * new_dim;
 
-    seq_t *new_cache  = (seq_t *)calloc(new_size, sizeof(seq_t));
+    seq_t *new_cache  = mem_new(seq_t, new_size);
     unsigned char *new_comp = (unsigned char *)calloc(new_size, sizeof(unsigned char));
 
     /* copy old data into the larger array */
@@ -47,7 +49,7 @@ static void ensure_cache_dim(size_t needed)
         }
     }
 
-    free(cache);
+    mem_free(cache);
     free(computed);
 
     cache      = new_cache;

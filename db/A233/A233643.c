@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 9, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Parameters of the problem */
 #define ROWS           6561   /* 3^8 possible rows */
@@ -120,8 +122,8 @@ static void init_precalc(void)
     }
 
     /* 4. Allocate DP arrays and initialise */
-    dp_cur  = (seq_t *)malloc(ROWS * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(ROWS * sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, ROWS);
+    dp_next = mem_new(seq_t, ROWS);
     for (size_t i = 0; i < ROWS; ++i) dp_cur[i] = (seq_t)1;
 }
 
@@ -138,7 +140,7 @@ static void ensure_computed(idx_t n)
     /* Grow results array if necessary */
     if ((size_t)n + 1 > rescap) {
         size_t newcap = (size_t)n + 1;
-        results = (seq_t *)realloc(results, newcap * sizeof(seq_t));
+        results = mem_resize(seq_t, results, newcap);
         /* zero new entries */
         for (size_t i = rescap; i < newcap; ++i) results[i] = (seq_t)0;
         rescap = newcap;
@@ -147,7 +149,7 @@ static void ensure_computed(idx_t n)
     /* Process steps from processed_n+1 up to n */
     for (idx_t step = processed_n + 1; step <= n; ++step) {
         /* Clear dp_next */
-        memset(dp_next, 0, ROWS * sizeof(seq_t));
+        mem_set(dp_next, 0, ROWS * sizeof(seq_t));
 
         /* Self‑loop contributions */
         for (size_t r = 0; r < ROWS; ++r)

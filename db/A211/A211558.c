@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{j=5..n+4} Stirling2(n+4,j)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 21, u128 n <= 38,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 203 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

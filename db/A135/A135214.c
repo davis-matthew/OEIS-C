@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 60, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 835 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: compute base^exp using seq_t (exp ∈ {4,5}) */
 static inline seq_t pow_exp(idx_t base, int exp) {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* Ensure cache exists and contains at least a[1] */
     if (max_cache == 0) {
         capacity = 2;               /* we need index 1; allocate 2 slots */
-        cache = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        cache = mem_new(seq_t, capacity);
         if (!cache) return (seq_t)0; /* allocation failure guard */
         cache[1] = (seq_t)1;        /* a(1) = 1 */
         max_cache = 1;
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     /* Expand cache if needed */
     if (n + 1 > capacity) {
         size_t new_cap = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) return (seq_t)0;  /* realloc failure guard */
         cache = new_cache;
         capacity = new_cap;

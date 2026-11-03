@@ -9,15 +9,28 @@
  *            an incrementally updated difference-table diagonal
  * Range:     i8 n <= 9, i16 n <= 17, i32 n <= 34, i64 n <= 64, i128 n <= 128,
  *            big any n
- * Helpers:   grow_zero, is_prime
+ * Validated: standard, pass, 51 terms through n = 3103 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
-#include "../utils/grow_zero.h"
+#include <string.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
 
 static seq_t *diag = NULL;   /* diag[j] = j-th difference ending at the latest prime */
 static seq_t *res = NULL;    /* res[m] = a(m+1) */
@@ -27,7 +40,7 @@ static uint64_t lastp = 1;
 
 static uint64_t next_prime(uint64_t p) {
     uint64_t q = p + 1;
-    while (!is_prime(q)) q++;
+    while (!is_prime_u64(q)) q++;
     return q;
 }
 

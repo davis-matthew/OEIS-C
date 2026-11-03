@@ -14,13 +14,15 @@
  *            + 15*x^10 - 2*x^9 + x^7 + 3*x^6 - x^5 - x^...
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 126,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 112 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const long long coeffP[26] = {
     -1, -3, 0, -2, -1, -1, 3, 1, 0, -2,
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         size_t new_size = (size_t)(n + 1);
         /* allocate or reallocate */
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return (seq_t)0;          /* allocation failed */
         cache = tmp;
         /* compute new terms from old size to n */

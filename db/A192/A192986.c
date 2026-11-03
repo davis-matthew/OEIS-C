@@ -8,14 +8,17 @@
  * Formula:   a(n) = numerator of (∑_{i=0}^{n-1} A000110(i)) / A000110(n)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 26, u128 n <= 43,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 43 terms through n = 477 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Static storage for Bell numbers and their prefix sums. */
 static seq_t *Bell      = NULL;
@@ -30,8 +33,8 @@ ensure(idx_t n)
     /* Allocate at least one slot initially. */
     if (capacity == 0) {
         capacity = 1;
-        Bell      = (seq_t *)realloc(Bell, capacity * sizeof(seq_t));
-        prefixSum = (seq_t *)realloc(prefixSum, capacity * sizeof(seq_t));
+        Bell      = mem_resize(seq_t, Bell, capacity);
+        prefixSum = mem_resize(seq_t, prefixSum, capacity);
         if (!Bell || !prefixSum) return;          /* allocation failed */
         /* B(0) = 1, prefixSum[0] = 1 */
         Bell[0]      = (seq_t)1;
@@ -43,8 +46,8 @@ ensure(idx_t n)
     if ((size_t)(n + 1) > capacity) {
         size_t newCap = capacity ? capacity * 2 : 1;
         while (newCap <= (size_t)(n + 1)) newCap *= 2;
-        Bell      = (seq_t *)realloc(Bell, newCap * sizeof(seq_t));
-        prefixSum = (seq_t *)realloc(prefixSum, newCap * sizeof(seq_t));
+        Bell      = mem_resize(seq_t, Bell, newCap);
+        prefixSum = mem_resize(seq_t, prefixSum, newCap);
         if (!Bell || !prefixSum) return;          /* allocation failed */
         capacity = newCap;
     }

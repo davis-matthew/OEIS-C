@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 17, u32 n <= 40, u64 n <= 86, u128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    calls may arrive in any order.   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Multiply by a small unsigned integer (coeff ≤ 5) using repeated addition.
    Works for any unsigned seq_t type. */
@@ -52,7 +54,7 @@ static void ensure_cache(idx_t n)
     size_t new_size = cache_size ? cache_size * 2 : 8;
     if (new_size < required) new_size = required;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) abort();
     /* Zero the new part if the array grew. */
     if (new_size > cache_size)

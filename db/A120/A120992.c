@@ -7,6 +7,7 @@
  * Formula:   Runs of consecutive squarefree integers
  * Range:     u8 n <= 71, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 103 terms through n = 9165 (2026-11-01)
  * Helpers:   is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 /* The algorithm simply scans integers, detects runs of squarefree
  * numbers using the provided is_squarefree function, and counts runs. */
 
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_squarefree.h"
 
 seq_t a(idx_t n)

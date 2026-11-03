@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    No memoisation is needed; each call rebuilds only up to the required row. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     size_t prev_len = 0;
 
     for (size_t i = 1; i <= r; ++i) {
-        seq_t *cur = (seq_t *)malloc(i * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, i);
         if (!cur) return (seq_t)0;  /* allocation failure (unlikely) */
 
         for (size_t k = 1; k <= i; ++k) {
@@ -56,13 +58,13 @@ seq_t a(idx_t n)
 
         if (i == r) {
             seq_t result = cur[offset];
-            free(cur);
-            if (prev) free(prev);
+            mem_free(cur);
+            if (prev) mem_free(prev);
             return result;
         }
 
         /* Prepare for next iteration: cur becomes the new prev. */
-        if (prev) free(prev);
+        if (prev) mem_free(prev);
         prev = cur;
         prev_len = i;
     }

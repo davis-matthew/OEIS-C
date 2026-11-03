@@ -5,13 +5,15 @@
  * Offset:    4    (a(4) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = min{p : p>n and p and 2*n-p are primes}
- * Range:     u8 n <= 222, u16 n <= 9430, u32 n <= 9430, u64 n <= 9430,
- *            u128 n <= 9430, big any n
+ * Range:     u8 n <= 222, u16 n <= 60000, u32 n <= 60000, u64 n <= 60000,
+ *            u128 n <= 60000, big any n
+ * Validated: standard, pass, 86 terms through n = 9430 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

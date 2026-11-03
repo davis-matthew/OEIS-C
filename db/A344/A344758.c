@@ -7,16 +7,37 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = smallest divisor d of n such that A011772(d)=A011772(n)
- * Range:     u8 n <= 255, u16 n <= 9932, u32 n <= 9932, u64 n <= 9932,
- *            u128 n <= 9932, big any n
- * Helpers:   compute_t
+ * Range:     u8 n <= 255, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 99 terms through n = 9932 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/compute_t.h"
+
+static seq_t compute_t(idx_t d)
+{
+    /* Find the minimal m such that T_m = m(m+1)/2 is divisible by d.
+       Use a running sum to avoid large intermediate values. */
+    idx_t mod = 1 % d;
+    if (mod == 0) return (seq_t)1;
+
+    /* It is known that a solution always occurs by m <= 2*d.
+       This loop guarantees finding it quickly for the required range. */
+    for (idx_t m = 2; m <= 2 * d; ++m) {
+        mod = (mod + m) % d;
+        if (mod == 0) return (seq_t)m;
+    }
+
+    /* Fallback: continue indefinitely (should never be reached). */
+    for (idx_t m = 2 * d + 1;; ++m) {
+        mod = (mod + m) % d;
+        if (mod == 0) return (seq_t)m;
+    }
+}
 
 seq_t a(idx_t n)
 {

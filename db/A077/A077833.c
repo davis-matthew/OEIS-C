@@ -9,12 +9,14 @@
  *            implements the expansion of 1/(1‑2x‑3x²‑2x³)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 19, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoised values */
 static idx_t  cache_size = 0; /* number of computed entries */
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
     idx_t new_size = n + 1;
     if (new_size < 3) new_size = 3;        /* at least hold first three */
 
-    cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
     if (cache == NULL) exit(1);           /* memory allocation failure */
 
     /* initialise base cases if this is the first allocation */

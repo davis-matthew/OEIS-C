@@ -10,7 +10,8 @@
  *            coefficients and stores the complementary * list for fast lookup
  * Range:     u8 none, u16 n <= 170, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 2482 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
 
         /* Build the sorted list of unique numbers (i.e. not marked as duplicate). */
         unique_len = 0;
-        unique = (seq_t *)malloc((size_t)(LIMIT + 1) * sizeof(seq_t));
+        unique = mem_new(seq_t, (size_t)(LIMIT + 1));
         if (unique == NULL) { /* allocation failure, cleanup and return 0 */
             free(duplicate);
             duplicate = NULL;

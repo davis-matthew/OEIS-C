@@ -9,13 +9,15 @@
  *            counting function
  * Range:     i8 n <= 5934, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 115 terms through n = 9602 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Cached data for memoization */
 static idx_t cached_limit = 0;          /* current size (n+1) that arrays cover */
@@ -28,7 +30,7 @@ static void recompute_upto(idx_t n)
 {
     /* Allocate or reallocate arrays */
     cached_pi = (idx_t *)realloc(cached_pi, (n + 1) * sizeof(idx_t));
-    cached_a = (seq_t *)realloc(cached_a, (n + 1) * sizeof(seq_t));
+    cached_a = mem_resize(seq_t, cached_a, (n + 1));
     cached_isprime = (unsigned char *)realloc(cached_isprime,
                                               (n + 1) * sizeof(unsigned char));
     if (!cached_pi || !cached_a || !cached_isprime)

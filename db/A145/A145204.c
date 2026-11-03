@@ -12,13 +12,24 @@
  *            through integers sequentially, counting those * wi...
  * Range:     u8 n <= 65, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   even_v3
+ * Validated: standard, pass, 75 terms through n = 9968 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/even_v3.h"
+
+/* helper: true iff m has an even number of factors of 3 */
+static bool even_v3(seq_t m)
+{
+    idx_t e = 0;
+    while (m % (seq_t)3 == 0) {
+        m /= (seq_t)3;
+        e++;
+    }
+    return ((e & 1ULL) == 0);
+}
 
 seq_t a(idx_t n)
 {

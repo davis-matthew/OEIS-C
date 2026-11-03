@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 24, u32 n <= 45, u64 n <= 90, u128 n <= 174,
  *            big any n
+ * Validated: standard, pass, 56 terms through n = 4189 (2026-11-01)
  * Helpers:   get_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -26,6 +27,8 @@
  */
 
 #include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/get_digits.h"
 
 static int alt_sum_abs(seq_t x)

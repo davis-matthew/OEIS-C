@@ -7,16 +7,19 @@
  * Keywords:  nonn
  * Formula:   a(n) = tau(A003415(n)) – number of divisors of the arithmetic
  *            derivative of n
- * Range:     u8 n <= 806, u16 n <= 9347, u32 n <= 9347, u64 n <= 9347,
- *            u128 n <= 9347, big any n
- * Helpers:   divisor_count_u64, factor_u64
+ * Range:     u8 n <= 806, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 101 terms through n = 9347 (2026-11-01)
+ * Helpers:   factor_u64, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 /* Return a(n) for OEIS sequence A229341 (offset 2) */
 seq_t a(idx_t n)
@@ -39,5 +42,5 @@ seq_t a(idx_t n)
     /* Number of divisors of der */
     /* For all n used in tests (n ≤ 10000) der fits in 64‑bit */
     uint64_t der64 = (uint64_t)der;
-    return (seq_t)divisor_count_u64(der64);
+    return (seq_t)num_divisors(der64);
 }

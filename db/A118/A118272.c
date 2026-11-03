@@ -9,13 +9,15 @@
  *            (1 + x^{2k} + x^{4k})^2 Offset: 0 (a(0) is the first term)
  * Range:     i8 n <= 75, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *global_coeff = NULL;
 static seq_t *global_temp  = NULL;
@@ -35,11 +37,11 @@ seq_t a(idx_t n)
     if (N >= coeff_len) {
         /* Allocate larger working arrays */
         size_t new_len = N + 1;
-        seq_t *coeff_new = (seq_t *)malloc(new_len * sizeof(seq_t));
-        seq_t *temp_new  = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *coeff_new = mem_new(seq_t, new_len);
+        seq_t *temp_new  = mem_new(seq_t, new_len);
         if (!coeff_new || !temp_new) abort();
 
-        memset(coeff_new, 0, new_len * sizeof(seq_t));
+        mem_set(coeff_new, 0, new_len * sizeof(seq_t));
         coeff_new[0] = 1;                /* start with the constant term */
 
         seq_t *curr = coeff_new;         /* current product */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
 
         for (size_t k = 1; k <= N; ++k) {
             /* clear next buffer */
-            memset(next, 0, new_len * sizeof(seq_t));
+            mem_set(next, 0, new_len * sizeof(seq_t));
 
             /* Multiply by the polynomial for this k */
             for (int ia = 0; ia < 3; ++ia) {
@@ -81,8 +83,8 @@ seq_t a(idx_t n)
         }
 
         /* Free previous arrays */
-        if (global_coeff) free(global_coeff);
-        if (global_temp)  free(global_temp);
+        if (global_coeff) mem_free(global_coeff);
+        if (global_temp)  mem_free(global_temp);
 
         /* Store new arrays */
         global_coeff = curr;

@@ -9,7 +9,8 @@
  *            that of n}|
  * Range:     u8 n <= 15, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   num_to_str
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,24 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/num_to_str.h"
+
+/* Convert an integer to a decimal string (most significant digit first).
+   The function stores the string in *buf and returns its length. */
+static int num_to_str(idx_t v, char *buf)
+{
+    int pos = 0;
+    while (v > 0) {
+        buf[pos++] = '0' + (int)(v % 10);
+        v /= 10;
+    }
+    /* reverse to obtain most‑significant digit first */
+    for (int i = 0; i < pos / 2; ++i) {
+        char t = buf[i];
+        buf[i] = buf[pos - 1 - i];
+        buf[pos - 1 - i] = t;
+    }
+    return pos;
+}
 
 /* Forward declarations – seq_t and idx_t are supplied by the build. */
 static seq_t count_leq(seq_t bound, const char *pat, int pat_len);

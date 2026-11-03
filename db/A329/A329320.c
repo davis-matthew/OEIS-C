@@ -11,12 +11,15 @@
  *            The result is that count plus 1 if the final...
  * Range:     u8 n <= 8191, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 103 terms through n = 7153 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
 
     seq_t res = 0;
     while (n >= 2) {
-        idx_t m   = floor_log2_uint64(n);            // highest set bit index (>=1)
+        idx_t m   = ilog2(n);            // highest set bit index (>=1)
         idx_t pow2 = ((idx_t)1) << m;                 // 2^m
         idx_t k    = n - pow2;                       // remainder after removing 2^m
         idx_t mask = (((idx_t)1) << (m - 1)) - 1;     // low (m-1) bits mask

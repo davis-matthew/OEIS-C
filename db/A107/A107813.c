@@ -9,7 +9,8 @@
  *            smallest unused prime that contains a digit of a(n-1)
  * Range:     u8 n <= 54, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   contains_mask
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/contains_mask.h"
+
+static bool contains_mask(uint64_t p, uint16_t mask) {
+    do {
+        if (mask & (1U << (p % 10))) return true;
+        p /= 10;
+    } while (p);
+    return false;
+}
 
 /* Forward declaration of the required function. */
 seq_t a(idx_t n);

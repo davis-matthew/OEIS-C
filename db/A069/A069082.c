@@ -11,7 +11,8 @@
  *            condition described in the comments
  * Range:     u8 n <= 5, u16 n <= 555, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9677 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime sieve helpers ---------- */
 static uint32_t *prime_list = NULL;
@@ -155,7 +157,7 @@ static void ensure_term_cap(size_t need)
     while (term_cap < need) {
         term_cap = term_cap * 2 + 1;
     }
-    terms = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, term_cap);
 }
 
 /* ---------- Main sequence function ---------- */

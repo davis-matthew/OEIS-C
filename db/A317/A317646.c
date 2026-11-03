@@ -9,13 +9,15 @@
  *            2*z^2 + 2*w^2 = n
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* integer square root: floor(sqrt(n)) for unsigned 64‑bit integers. */
 static inline idx_t uint64_isqrt(idx_t n)
@@ -38,10 +40,10 @@ seq_t a(idx_t n)
     /* Rebuild cache if necessary. */
     if (n >= rep2_size) {
         if (rep2) {
-            free(rep2);
+            mem_free(rep2);
         }
         rep2_size = n + 1;
-        rep2 = (seq_t *)malloc((size_t)rep2_size * sizeof(seq_t));
+        rep2 = mem_new(seq_t, (size_t)rep2_size);
         if (!rep2)
             return (seq_t)0;       /* out of memory – return 0 as a safe value */
         /* initialise */

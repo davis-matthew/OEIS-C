@@ -9,14 +9,17 @@
  *            p with p ≤ n < p²)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _floor_isqrt_u64, build_primes
+ * Validated: standard, pass, 99 terms through n = 978 (2026-11-01)
+ * Helpers:   build_primes, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>                     /* for free() */
-#include "../utils/build_primes.h"       /* void build_primes(idx_t limit, idx_t **out, size_t *cnt) */
-#include "../utils/_floor_isqrt_u64.h"  /* idx_t _floor_isqrt_u64(idx_t n) */
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/build_primes.h"
+#include "../utils/isqrt.h"
 
 /* Static cache of primes up to the largest n seen */
 static idx_t *primes = NULL;
@@ -51,7 +54,7 @@ seq_t a(idx_t n)
         max_cached = n;
     }
 
-    idx_t sq = _floor_isqrt_u64(n);
+    idx_t sq = isqrt(n);
     size_t cnt_n  = count_leq(n);
     size_t cnt_sq = count_leq(sq);
 

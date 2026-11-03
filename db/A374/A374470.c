@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = gcd(bigomega(n), A064547(n))
- * Range:     u8 n <= 8814, u16 n <= 8814, u32 n <= 8814, u64 n <= 8814,
- *            u128 n <= 8814, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 8814 (2026-11-01)
  * Helpers:   bigomega, factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,9 +19,11 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/bigomega.h"
-#include "../utils/gcd.h"
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

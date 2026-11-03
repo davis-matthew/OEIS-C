@@ -9,7 +9,8 @@
  *            triangular numbers
  * Range:     u8 n <= 265, u16 n <= 265, u32 n <= 265, u64 n <= 265,
  *            u128 n <= 265, big any n
- * Helpers:   none
+ * Validated: partial, pass, 101 terms through n = 265 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* DP table stored as 1‑D array */
 static bool initialized = false;
@@ -33,7 +35,7 @@ static void init(void)
     const idx_t max_n = MAX_N;
     const idx_t max_c = MAX_C;
 
-    dp = (seq_t *)malloc((size_t)(max_c + 1) * (max_n + 1) * sizeof(seq_t));
+    dp = mem_new(seq_t, (size_t)(max_c + 1) * (max_n + 1));
     if (!dp) return;                 /* allocation failed – keep initialized false */
 
     /* Zero initialise the DP table. */

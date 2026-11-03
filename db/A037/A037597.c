@@ -10,12 +10,14 @@
  *            4*a(n-1)+a(n-3)-4*a(n-4) for n≥5
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 286 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (n > max_n) {
         idx_t need  = n + 1;                     /* include index 0 */
         idx_t newcap = (cap < need) ? need : cap * 2 + 4;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp)  /* allocation failure – return 0 (undefined sequence) */
             return 0;
         cache = tmp;

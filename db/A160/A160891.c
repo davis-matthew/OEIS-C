@@ -7,15 +7,18 @@
  * Formula:   a(n) = J_4(n)/phi(n) = ∏_{p^e‖n} p^(3e-3) * (1 + p + p^2 + p^3)
  * Range:     u8 n <= 5, u16 n <= 29, u32 n <= 1049, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 55 terms through n = 4805 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Uses the elementary factorisation helper "factor_u64" and integer powers */
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     if (n < 1)
@@ -32,11 +35,11 @@ seq_t a(idx_t n) {
         /* exp = e - 1, then 3*(e-1) is exponent for the first term */
         idx_t e_minus1 = (idx_t)exps[i] - 1;
         idx_t exp_term = 3 * e_minus1;          /* 3(e-1) */
-        seq_t term = pow_uint(p, exp_term);      /* p^(3(e-1)) */
+        seq_t term = ipow_u64_idx(p, exp_term);      /* p^(3(e-1)) */
 
-        seq_t p1 = pow_uint(p, 1);   /* p^1    */
-        seq_t p2 = pow_uint(p, 2);   /* p^2    */
-        seq_t p3 = pow_uint(p, 3);   /* p^3    */
+        seq_t p1 = ipow_u64_idx(p, 1);   /* p^1    */
+        seq_t p2 = ipow_u64_idx(p, 2);   /* p^2    */
+        seq_t p3 = ipow_u64_idx(p, 3);   /* p^3    */
 
         seq_t sum = 1 + p1 + p2 + p3;    /* 1 + p + p^2 + p^3 */
         seq_t component = term * sum;    /* p^(3e-3) * (1+p+p^2+p^3) */

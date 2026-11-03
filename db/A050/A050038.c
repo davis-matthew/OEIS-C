@@ -11,12 +11,14 @@
  *            2^(p+1))
  * Range:     u8 n <= 31, u16 n <= 194, u32 n <= 1703, u64 n <= 8193,
  *            u128 n <= 8193, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 7998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute floor(log2(x)) for x ≥ 1; returns 0 for x == 1. */
 static idx_t floor_log2_idx(idx_t x)
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         size_t new_cap = (cap == 0) ? 16 : cap * 2;
         if (new_cap < (size_t)n + 1)
             new_cap = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap = new_cap;
     }
 

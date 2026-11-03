@@ -10,7 +10,8 @@
  *            until the n‑th such triple is found
  * Range:     u8 none, u16 n <= 1, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   init_small_primes
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,33 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/init_small_primes.h"
+
+/* Generate a small table of primes up to a fixed limit.
+   The limit is chosen so that the sieve can mark composites
+   for blocks of size 1MiB while sieving primes up to around
+   10^12 – more than enough for n up to 10 000.          */
+static void init_small_primes(uint32_t **pprimes, size_t *pcnt)
+{
+    const size_t LIM = 1000000;          /* up to 1 000 000 ≈ √10^12 */
+    bool *sieve = (bool *)calloc(LIM + 1, sizeof(bool));
+    if (!sieve) exit(1);
+
+    for (size_t i = 2; i * i <= LIM; ++i)
+        if (!sieve[i])
+            for (size_t j = i * i; j <= LIM; j += i)
+                sieve[j] = true;
+
+    uint32_t *pr = (uint32_t *)malloc((LIM + 1) * sizeof(uint32_t));
+    if (!pr) { free(sieve); exit(1); }
+    size_t cnt = 0;
+    for (size_t i = 2; i <= LIM; ++i)
+        if (!sieve[i])
+            pr[cnt++] = (uint32_t)i;
+
+    free(sieve);
+    *pprimes = pr;
+    *pcnt    = cnt;
+}
 
 seq_t a(idx_t n)
 {

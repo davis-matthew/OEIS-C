@@ -8,13 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sequence A045073: numbers whose base‑4 representation contains exactly two 0's and two 3's. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cached sequence values          */
 static size_t cap  = 0;       /* current allocation size         */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         if (matches((seq_t)last)) {
             if (sz >= cap) {
                 size_t newcap = cap ? cap * 2 : 8;
-                seq_t *p = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *p = mem_resize(seq_t, cache, newcap);
                 if (!p) exit(1);
                 cache = p;
                 cap   = newcap;

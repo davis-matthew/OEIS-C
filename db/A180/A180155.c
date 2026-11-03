@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 1196, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, seq_pow, seq_to_str
+ * Validated: standard, pass, 107 terms through n = 9182 (2026-11-03)
+ * Helpers:   ipow_idx, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,30 @@
 #include <stdint.h>
 #include <string.h>
 /* utility headers supplied by the build system */
-#include "../utils/digit_len.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_to_str.h"
+#include <stddef.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 /*-------------------- static state --------------------*/
 static seq_t *seq      = NULL; /* 0‑based values of the sequence */
@@ -44,7 +66,7 @@ static void ensure_seq_cap(size_t min_cap)
     if (seq_cap >= min_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < min_cap) new_cap <<= 1;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 
@@ -77,8 +99,8 @@ static void prepare_cube_str(idx_t k)
     ensure_cube_cap(kk);
     if (cube_str[kk] != NULL) return;          /* already computed */
 
-    seq_t cube = seq_pow((seq_t)k, (idx_t)3);
-    size_t dlen = digit_len(cube);
+    seq_t cube = ipow_idx((seq_t)k, (idx_t)3);
+    size_t dlen = num_digits(cube);
     char *buf = (char *)malloc(dlen + 1);
     if (!buf) abort();                         /* memory error */
     seq_to_str(cube, buf, &dlen);
@@ -92,7 +114,7 @@ static char *get_prev_str(seq_t v)
 {
     static char *prev_buf = NULL;
     static size_t prev_cap = 0;
-    size_t len = digit_len(v);
+    size_t len = num_digits(v);
     if (prev_cap < len + 1) {
         free(prev_buf);
         prev_buf = (char *)malloc(len + 1);

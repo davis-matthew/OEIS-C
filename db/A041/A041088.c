@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 35, u128 n <= 72,
  *            big any n
- * Helpers:   sqrt_floor
+ * Validated: standard, pass, 39 terms through n = 193 (2026-11-03)
+ * Helpers:   isqrt_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,9 @@
  */
 
 #include <stdlib.h>
-#include "../utils/sqrt_floor.h"
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,13 +44,13 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* we need the first 12 terms */
         const size_t base_len = 12;
-        cache = (seq_t *)malloc(base_len * sizeof(seq_t));
+        cache = mem_new(seq_t, base_len);
         if (cache == NULL) abort();
 
         /* continued‑fraction data */
         seq_t m = 0;              /* m_0 */
         seq_t d = 1;              /* d_0 */
-        seq_t a0 = sqrt_floor(D); /* a0 = floor(sqrt(52)) = 7 */
+        seq_t a0 = isqrt_seq(D); /* a0 = floor(sqrt(52)) = 7 */
         seq_t a = a0;             /* current partial quotient */
 
         /* convergent recurrence */
@@ -81,7 +84,7 @@ seq_t a(idx_t n)
 
     /* grow the cache up to n + 1 */
     size_t new_size = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (tmp == NULL) abort();
     cache = tmp;
 

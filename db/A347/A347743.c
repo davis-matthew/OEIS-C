@@ -10,7 +10,8 @@
  *            dynamic programming by successive convolution with primes
  * Range:     u8 n <= 18, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*--- helper to generate all primes ≤ limit --------------------------------*/
 static void generate_primes_upto(idx_t limit, uint64_t **out, size_t *cnt)
@@ -69,10 +71,10 @@ seq_t a(idx_t n)
 
     idx_t len = n + 1;
     /* Allocate DP arrays */
-    seq_t *prev = (seq_t *)calloc((size_t)len, sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc((size_t)len, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)len);
+    seq_t *curr = mem_new(seq_t, (size_t)len);
     if (!prev || !curr) {
-        free(prev); free(curr); free(primes);
+        mem_free(prev); mem_free(curr); free(primes);
         return (seq_t)0;
     }
 
@@ -99,8 +101,8 @@ seq_t a(idx_t n)
         curr = tmp;
     }
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     free(primes);
     return total;
 }

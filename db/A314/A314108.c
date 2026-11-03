@@ -12,12 +12,14 @@
  *            a(9)=44, a(10)=49
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Initial terms for n = 0 … 10.  They are stored in a read‑only
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
     /* Allocate and initialise the cache on first call. */
     if (!cache) {
         capacity = 64;                                           /* initial size */
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         for (size_t i = 0; i < capacity; ++i) cache[i] = 0;
 
         /* copy the 11 known initial terms */
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
         size_t new_cap = capacity;
         while (n + 1 > new_cap) new_cap <<= 1;
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp) {
             cache = tmp;
             for (size_t i = capacity; i < new_cap; ++i)

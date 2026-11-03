@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_uint64
+ * Validated: standard, pass, 69 terms through n = 9779 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* Small primes for trial division (up to 1000). */
 static const uint16_t small_primes[] = {
@@ -91,7 +93,7 @@ static uint64_t pollard_rho(uint64_t n) {
             y = (mul_mod(y, y, n) + c) % n;
             y = (mul_mod(y, y, n) + c) % n;
             uint64_t diff = x > y ? x - y : y - x;
-            d = gcd_uint64(diff, n);
+            d = gcd_u64(diff, n);
         }
         if (d != n) return d;
         ++c;
@@ -207,7 +209,7 @@ seq_t a(idx_t n) {
         if (valid_k(next_k)) {
             if (len == cap) {
                 cap = (cap == 0) ? 16 : cap << 1;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[len++] = (seq_t)next_k;
         }

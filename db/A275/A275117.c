@@ -14,7 +14,8 @@
  *            direction, 4 if in the opposite direction
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   dir_to_value
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/dir_to_value.h"
+#include "../utils/mem.h"
+
+/* Map ant direction (0=N,1=E,2=S,3=W) to sequence value */
+static inline seq_t dir_to_value(int dir)
+{
+    switch (dir) {
+        case 0: return (seq_t)1; /* North */
+        case 1: return (seq_t)2; /* East (clockwise) */
+        case 2: return (seq_t)4; /* South (opposite) */
+        case 3: return (seq_t)3; /* West (counter‑clockwise) */
+        default: return (seq_t)0;
+    }
+}
 
 /* Cell colour storage */
 typedef struct {
@@ -109,7 +122,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* initialise memoisation array */
         dir_cap = 1;
-        dir_seq = (seq_t*)malloc(dir_cap * sizeof(seq_t));
+        dir_seq = mem_new(seq_t, dir_cap);
         if (!dir_seq) exit(EXIT_FAILURE);
         dir_seq[0] = dir_to_value(0);   /* a(0) = 1 */
 
@@ -153,7 +166,7 @@ seq_t a(idx_t n)
         if ((idx_t)step >= dir_cap) {
             idx_t new_cap = dir_cap ? dir_cap * 2 : 1;
             while (new_cap <= step) new_cap <<= 1;
-            seq_t* tmp = (seq_t*)realloc(dir_seq, (size_t)new_cap * sizeof(seq_t));
+            seq_t* tmp = mem_resize(seq_t, dir_seq, (size_t)new_cap);
             if (!tmp) exit(EXIT_FAILURE);
             dir_seq = tmp;
             dir_cap = new_cap;

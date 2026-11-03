@@ -9,13 +9,28 @@
  *            oct(m-1) does not
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   oct_has_50
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/oct_has_50.h"
+
+/* Test whether the base‑8 representation of x contains the substring "50". */
+static inline bool oct_has_50(seq_t x)
+{
+    seq_t prev = x % 8;   /* least significant digit */
+    x /= 8;
+    while (x > 0) {
+        seq_t d = x % 8;  /* next more significant digit */
+        if (d == 5 && prev == 0)
+            return true;
+        prev = d;
+        x /= 8;
+    }
+    return false;
+}
 
 /* Return the n-th member of sequence A044227 (1‑based index). */
 seq_t a(idx_t n)

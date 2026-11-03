@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9110, u16 n <= 9110, u32 n <= 9110, u64 n <= 9110,
- *            u128 n <= 9110, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9110 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto */
+#include "../utils/build_primes_upto.h"
 
 static uint64_t *primes = NULL;      /* global prime table */
 static size_t  prime_count = 0;      /* number of primes in primes[] */

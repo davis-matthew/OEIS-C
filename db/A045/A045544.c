@@ -10,7 +10,8 @@
  *            a(31)=4294967295. If n > 31, a(n) = 0
  * Range:     u8 none, u16 none, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    The table is filled once and sorted using qsort. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparator that works for both C and C++ regardless of seq_t type. */
 static int cmp_seq(const void *x, const void *y)
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
             table[pos++] = prod;
         }
         len = pos;
-        qsort(table, len, sizeof(seq_t), cmp_seq);
+        mem_qsort(table, len, sizeof(seq_t), cmp_seq);
     }
 
     if (n == 0 || (idx_t)n > (idx_t)len)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 699, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9891 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * so a sliding‑window algorithm yields an O(n^2) solution.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* initialise a(1) on first call */
     if (len == 0) {
         cap = 16;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
         seq[0] = (seq_t)1;      /* a(1) = 1 */
         len = 1;
     }
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         size_t newcap = cap ? cap * 2 : 16;
         while (newcap < (size_t)n)
             newcap <<= 1;
-        seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, newcap);
         cap = newcap;
     }
 

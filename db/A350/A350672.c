@@ -10,7 +10,8 @@
  *            and a(n) equals 2
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* 1‑indexed cache of terms   */
 static size_t cache_cap = 0;     /* capacity of cache (index 0 unused)   */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t required)
     if ((size_t)required <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 4;
     while (new_cap < (size_t)required) new_cap <<= 1;
-    seq_t *new_ptr = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, (new_cap + 1));
     cache = new_ptr;
     cache_cap = new_cap;
 }

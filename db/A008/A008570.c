@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4866, u16 n <= 4866, u32 n <= 4866, u64 n <= 4866,
  *            u128 n <= 4866, big any n
- * Helpers:   mult_by_9
+ * Validated: standard, pass, 115 terms through n = 4761 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,41 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/mult_by_9.h"
+
+/* Helper: multiply a decimal string by 9.
+ *   s   – input string, most significant digit first, no leading zeros
+ *   len – length of input string
+ *   out_len – receives the length of the allocated result
+ * Returns a newly malloc’ed string containing the product, null terminated. */
+static char *mult_by_9(const char *s, size_t len, size_t *out_len)
+{
+    /* A carry may add at most one digit. */
+    char *tmp = (char *)malloc(len + 2);          /* +1 for carry, +1 for '\0' */
+    if (!tmp) abort();
+
+    int carry = 0;
+    for (long i = (long)len - 1; i >= 0; --i)
+    {
+        int prod = (s[i] - '0') * 9 + carry;
+        tmp[i + 1] = (char)('0' + (prod % 10));
+        carry = prod / 10;
+    }
+
+    if (carry > 0)
+    {
+        tmp[0] = (char)('0' + carry);
+        *out_len = len + 1;
+        tmp[*out_len] = '\0';
+    }
+    else
+    {
+        /* Shift left to discard the leading zero. */
+        memmove(tmp, tmp + 1, len);
+        *out_len = len;
+        tmp[*out_len] = '\0';
+    }
+    return tmp;
+}
 
 /* Forward declaration of the sequence function. */
 seq_t a(idx_t n);

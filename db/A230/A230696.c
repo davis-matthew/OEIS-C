@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,12 +23,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* -----  Memory helpers for seq_t objects  ----- */
 static inline seq_t *alloc_seq_array(size_t len)
 {
     /* Allocate len elements of type seq_t, zero-initialised */
-    return (seq_t *)calloc(len, sizeof(seq_t));
+    return mem_new(seq_t, len);
 }
 
 /* -----  Triangle storage  ----- */

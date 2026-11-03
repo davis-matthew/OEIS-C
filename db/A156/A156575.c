@@ -7,6 +7,7 @@
  * Formula:   a(n) = 34*a(n-1)-a(n-2)-4232 for n>2, with a(1)=289, a(2)=4225
  * Range:     u8 none, u16 n <= 2, u32 n <= 5, u64 n <= 12, u128 n <= 24,
  *            big any n
+ * Validated: standard, pass, 30 terms through n = 565 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

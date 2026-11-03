@@ -5,64 +5,132 @@
  * Offset:    909526    (a(909526) is the first term)
  * Keywords:  nonn, cons, fini
  * Formula:   a(n) is the (n-909526+1)-th decimal digit of 2^3021377-1
- * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
- * Helpers:   get_digits, pow2
+ * Range:     u8 n <= 909615, u16 n <= 909615, u32 n <= 909615,
+ *            u64 n <= 909615, u128 n <= 909615, big any n
+ * Validated: partial, pass, 90 terms through n = 909615 (2026-11-03)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+/* A371876: the decimal digits of 2^3021377 - 1, which has 909526 of them; the
+ * offset is 909526, so a(909526) is the leading digit.
+ *
+ * A digit far down needs the whole number: it is built exactly in base 10^9,
+ * multiplying by 2^29 at a time. The leading digits come much faster from
+ * 2^3021377 computed by squaring with only the top LEAD_LIMBS limbs kept: each
+ * truncation is off by under one unit in the last of the limbs, and the 50 or
+ * so steps leave the first LEAD_DIGITS digits exact. (Subtracting 1 changes
+ * only the last digit: 2^k ends in 2, 4, 6 or 8.) Digits are small, so this is
+ * the same at every width. */
+
+#include <stdint.h>
 #include <stdlib.h>
-#include <stddef.h>
-#include "../utils/pow2.h"
-#include "../utils/get_digits.h"
+#include <string.h>
 
-static uint8_t *digit_cache = NULL;
-static size_t digit_count  = 0;
-static const idx_t EXPONENT = 3021377ULL;    /* 2^3021377 - 1 */
-static const idx_t OFFSET   = 909526ULL;     /* a(909526) is the first digit */
+#define EXPONENT 3021377
+#define DIGITS 909526                   /* = the offset */
+#define LEAD_LIMBS 340                    /* 3060 digits */
+#define LEAD_DIGITS 3000
 
-static void init_digits(void) {
-    /* Compute the Mersenne prime 2^EXPONENT - 1 */
-    seq_t prime = pow2(EXPONENT);
-    prime = prime - 1;   /* 2^EXPONENT - 1 */
+static unsigned char *all = NULL;         /* every digit, once built */
+static unsigned char lead[LEAD_DIGITS];
+static int lead_built = 0;
 
-    /* First pass: get the number of decimal digits */
-    size_t len = 0;
-    get_digits(prime, NULL, &len);
-
-    /* Allocate buffer for the digits (most‑significant first) */
-    uint8_t *buf = (uint8_t*)malloc(len * sizeof(uint8_t));
-    if (!buf)
-        return;  /* allocation failed; leave cache empty */
-
-    /* Second pass: retrieve the digits into the buffer */
-    get_digits(prime, buf, &len);
-
-    /* Utilities deliver digits least‑significant first.  Reverse to
-       obtain the canonical decimal order. */
-    for (size_t i = 0; i < len / 2; ++i) {
-        uint8_t tmp = buf[i];
-        buf[i] = buf[len - 1 - i];
-        buf[len - 1 - i] = tmp;
+static void build_all(void)
+{
+    const size_t LIMBS = DIGITS / 9 + 2;
+    uint32_t *L = (uint32_t *)calloc(LIMBS, sizeof *L);   /* little-endian base 10^9 */
+    all = (unsigned char *)malloc(DIGITS + 9);
+    if (!L || !all) abort();
+    size_t len = 1;
+    L[0] = 1;
+    for (int left = EXPONENT; left > 0;) {
+        int s = left < 29 ? left : 29;
+        left -= s;
+        uint64_t carry = 0;
+        for (size_t j = 0; j < len; ++j) {
+            uint64_t v = ((uint64_t)L[j] << s) + carry;
+            L[j] = (uint32_t)(v % 1000000000u);
+            carry = v / 1000000000u;
+        }
+        while (carry) {
+            L[len++] = (uint32_t)(carry % 1000000000u);
+            carry /= 1000000000u;
+        }
     }
-
-    digit_cache  = buf;
-    digit_count  = len;
+    L[0] -= 1;
+    size_t pos = 0;
+    for (size_t j = len; j-- > 0;) {
+        char buf[9];
+        uint32_t v = L[j];
+        for (int d = 0; d < 9; ++d) { buf[d] = (char)(v % 10); v /= 10; }
+        int top = 8;
+        if (j == len - 1) while (top > 0 && buf[top] == 0) --top;
+        for (int d = top; d >= 0; --d) all[pos++] = (unsigned char)buf[d];
+    }
+    free(L);
 }
 
-seq_t a(idx_t n) {
-    if (n < OFFSET)
-        return 0;   /* Undefined below the offset */
+/* r = the top LEAD_LIMBS limbs of x*y (big-endian base 10^9, leading limb nonzero) */
+static void mul_top(const uint32_t *x, int nx, const uint32_t *y, int ny, uint32_t *r, int *nr)
+{
+    uint64_t prod[2 * LEAD_LIMBS + 1];
+    int n = nx + ny;
+    memset(prod, 0, sizeof prod);
+    for (int i = nx - 1; i >= 0; --i)                 /* little-endian accumulation */
+        for (int j = ny - 1; j >= 0; --j) {
+            int k = (nx - 1 - i) + (ny - 1 - j);
+            prod[k] += (uint64_t)x[i] * y[j];
+            prod[k + 1] += prod[k] / 1000000000u;
+            prod[k] %= 1000000000u;
+        }
+    for (int k = 0; k < n; ++k) {
+        prod[k + 1] += prod[k] / 1000000000u;
+        prod[k] %= 1000000000u;
+    }
+    while (n > 1 && prod[n - 1] == 0) --n;
+    int keep = n < LEAD_LIMBS ? n : LEAD_LIMBS;
+    for (int i = 0; i < keep; ++i) r[i] = (uint32_t)prod[n - 1 - i];
+    *nr = keep;
+}
 
-    if (!digit_cache)
-        init_digits();   /* Lazy initialization */
+static void build_lead(void)
+{
+    uint32_t res[LEAD_LIMBS] = {1}, base[LEAD_LIMBS] = {2}, t[LEAD_LIMBS];
+    int nres = 1, nbase = 1, nt;
+    for (unsigned e = EXPONENT; e; e >>= 1) {
+        if (e & 1) {
+            mul_top(res, nres, base, nbase, t, &nt);
+            memcpy(res, t, sizeof t);
+            nres = nt;
+        }
+        if (e > 1) {
+            mul_top(base, nbase, base, nbase, t, &nt);
+            memcpy(base, t, sizeof t);
+            nbase = nt;
+        }
+    }
+    int pos = 0;
+    for (int i = 0; i < nres && pos < LEAD_DIGITS; ++i) {
+        char buf[9];
+        uint32_t v = res[i];
+        for (int d = 0; d < 9; ++d) { buf[d] = (char)(v % 10); v /= 10; }
+        int top = 8;
+        if (i == 0) while (top > 0 && buf[top] == 0) --top;
+        for (int d = top; d >= 0 && pos < LEAD_DIGITS; --d) lead[pos++] = (unsigned char)buf[d];
+    }
+    lead_built = 1;
+}
 
-    if (!digit_cache)
-        return 0;   /* Failed to initialise */
-
-    size_t idx = (size_t)(n - OFFSET);
-    if (idx >= digit_count)
-        return 0;   /* n exceeds number of digits */
-
-    return (seq_t)digit_cache[idx];
+seq_t a(idx_t n)
+{
+    if (n < DIGITS || n >= 2 * (idx_t)DIGITS) return (seq_t)0;
+    size_t i = (size_t)(n - DIGITS);              /* position from the left */
+    if (DIGITS > 100000 && i < LEAD_DIGITS) {
+        if (!lead_built) build_lead();
+        return (seq_t)lead[i];
+    }
+    if (!all) build_all();
+    return (seq_t)all[i];
 }

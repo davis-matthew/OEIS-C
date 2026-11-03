@@ -13,7 +13,8 @@
  *            by exactly one. The values are computed by dynamic programming
  * Range:     u8 none, u16 n <= 3, u32 n <= 10, u64 n <= 24, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* number of possible rows (4 cells, each 0..2) */
 #define NUM_ROWS 81
@@ -126,8 +128,8 @@ static void init_tables(void)
     }
 
     /* allocate DP buffers */
-    dp_cur  = (seq_t *)calloc((size_t)STATE_COUNT, sizeof(seq_t));
-    dp_next = (seq_t *)calloc((size_t)STATE_COUNT, sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, (size_t)STATE_COUNT);
+    dp_next = mem_new(seq_t, (size_t)STATE_COUNT);
 }
 
 /* Ensure cache array can hold index n */
@@ -136,10 +138,10 @@ static void ensure_cache_size(idx_t n)
     if (n + 1 <= cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap <= n + 1) new_cap *= 2;
-    seq_t *new_cache = (seq_t *)calloc((size_t)new_cap, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)new_cap);
     if (cache) {
-        memcpy(new_cache, cache, (size_t)cache_cap * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, (size_t)cache_cap * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = new_cap;
@@ -175,7 +177,7 @@ seq_t a(idx_t n)
         /* extend DP to n */
         for (idx_t step = current_max + 1; step <= n; ++step) {
             /* zero dp_next */
-            memset(dp_next, 0, (size_t)STATE_COUNT * sizeof(seq_t));
+            mem_set(dp_next, 0, (size_t)STATE_COUNT * sizeof(seq_t));
 
             /* transition */
             for (int prev_row = 0; prev_row < NUM_ROWS; ++prev_row) {

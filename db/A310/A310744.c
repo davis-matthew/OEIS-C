@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,14 +33,14 @@ seq_t a(idx_t n)
     if (idx + 1 > cache_cap) {
         /* need to extend cache */
         size_t need = idx + 1;
-        seq_t *new_cache = (seq_t *)malloc(need * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, need);
         if (!new_cache)
             exit(1); /* allocation failure – not expected for tested limits */
 
         /* copy old terms if any */
         if (cache) {
-            memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
+            mem_free(cache);
         }
 
         /* initial known terms (0 … 9) */

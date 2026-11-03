@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000120(A002808(n)) (binary weight of the nth composite)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 9585 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cached data */
 static seq_t *composites = NULL;          /* popcount of composites */
@@ -69,7 +71,7 @@ static void ensure_composites(size_t need)
         if (current_scan >= 4 && !prime_sieve[(size_t)current_scan]) {
             if (comps_len == comps_cap) {
                 size_t new_cap = comps_cap ? comps_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(composites, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, composites, new_cap);
                 if (!tmp) exit(1);
                 composites = tmp;
                 comps_cap = new_cap;

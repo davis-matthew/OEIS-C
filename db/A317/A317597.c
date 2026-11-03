@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 18, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   build_primes_upto, is_prime_small
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,7 +39,8 @@
 #include <stdlib.h>
 
 #include "../utils/build_primes_upto.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* --- Persistent state --------------------------------------------------- */
 static uint64_t *prime_list = NULL;   /* primes ≤ prime_limit   */
@@ -71,7 +73,7 @@ static void extend_prime_sieve(uint64_t limit)
 static void grow_a_arrays(size_t new_cap)
 {
     if (new_cap <= a_cap) return;
-    seq_t *new_vals = (seq_t *)realloc(a_values, new_cap * sizeof(seq_t));
+    seq_t *new_vals = mem_resize(seq_t, a_values, new_cap);
     bool  *new_mask = (bool  *)realloc(a_mask,   new_cap * sizeof(bool));
 
     /* Initialise any new slots. */
@@ -122,7 +124,7 @@ seq_t a(idx_t n)
             for (ii = ii - 1; ; --ii) {
                 uint64_t p   = prime_list[ii];
                 uint64_t diff = next_even - p;
-                if (is_prime_small((seq_t)diff)) {
+                if (is_prime_seq((seq_t)diff)) {
                     size_t cnt = primes_upto - (ii + 1);   /* π(E‑1) – π(p) */
                     grow_a_arrays(cnt + 1);
                     if (!a_mask[cnt]) {

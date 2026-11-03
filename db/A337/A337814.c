@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -29,7 +30,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 /* Compute the sum of divisors σ(n).  The result is of type seq_t. */
 static seq_t sigma_uint64(uint64_t n) {

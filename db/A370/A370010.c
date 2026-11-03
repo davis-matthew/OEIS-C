@@ -7,7 +7,8 @@
  * Formula:   a(n) = the greatest prime strictly less than 4 × prime(n)
  * Range:     u8 n <= 18, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto, prev_prime
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,28 @@
 #include <stdlib.h>
 
 /* Utility headers (one per function name) */
-#include "../utils/_prime_limit_for_idx.h"
+#include <stdbool.h>
+#include <math.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/prev_prime.h"
+#include "../utils/is_prime.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
 
 /* Cache of the primes computed so far (1‑based index) */
 static idx_t    cached_num_primes = 0;   /* number of primes stored */

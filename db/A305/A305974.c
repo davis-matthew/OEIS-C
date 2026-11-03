@@ -7,8 +7,9 @@
  * Keywords:  sign
  * Formula:   a(1)=1; for n>1, if n=p^k then a(n)=-k; otherwise a(n)=n-(#prime
  *            powers ≤ n)
- * Range:     i8 n <= 183, i16 n <= 9865, i32 n <= 9865, i64 n <= 9865,
- *            i128 n <= 9865, big any n
+ * Range:     i8 n <= 183, i16 n <= 16384, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 101 terms through n = 9865 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

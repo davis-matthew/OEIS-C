@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 44, u32 n <= 95, u64 n <= 224,
  *            u128 n <= 571, big any n
- * Helpers:   a0
+ * Validated: standard, pass, 64 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,10 @@
  */
 
 #include <stdlib.h>
-#include "../utils/a0.h"
+#include "../utils/mem.h"
+
+/* Return a(0) = 1 */
+static inline seq_t a0(void) { return (seq_t)1; }
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -29,7 +33,7 @@ seq_t a(idx_t n)
     if (n == 0) return a0();
 
     /* Allocate dynamic array for partitions */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return (seq_t)0;        /* allocation failure – unlikely */
 
     dp[0] = (seq_t)1;                /* p_k(0) = 1 for any k */
@@ -56,6 +60,6 @@ seq_t a(idx_t n)
         fac = fac * (seq_t)k;
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

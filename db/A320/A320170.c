@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   grow_seq, is_palindrome
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,24 @@
  * a(n) + a(n−1) is a palindrome in base 10. */
 
 #include <stdbool.h>
-#include "../utils/grow_seq.h"
-#include "../utils/is_palindrome.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +56,7 @@ seq_t a(idx_t n)
                 cache[1] = (seq_t)10;
             } else {
                 seq_t cand = cache[i - 2] + (seq_t)1;
-                while (!is_palindrome(cache[i - 1] + cand, (idx_t)10)) {
+                while (!is_palindrome_base(cache[i - 1] + cand, (idx_t)10)) {
                     cand += (seq_t)1;
                 }
                 cache[i] = cand;

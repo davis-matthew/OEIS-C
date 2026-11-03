@@ -10,7 +10,8 @@
  *            square and 4z² + 724zw + w² is a square }
  * Range:     u8 n <= 1, u16 n <= 49, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 97 terms through n = 9899 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,26 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *a_cache   = NULL;
 static seq_t *f1_cache  = NULL;
@@ -35,17 +55,17 @@ static void recompute(idx_t max_n)
 {
     /* free old cache */
     if (a_cache) {
-        free(a_cache);
-        free(f1_cache);
-        free(f2_cache);
+        mem_free(a_cache);
+        mem_free(f1_cache);
+        mem_free(f2_cache);
         a_cache = f1_cache = f2_cache = NULL;
     }
 
     /* allocate new arrays */
     size_t sz = (size_t)(max_n + 1);
-    a_cache  = (seq_t*)calloc(sz, sizeof(seq_t));
-    f1_cache = (seq_t*)calloc(sz, sizeof(seq_t));
-    f2_cache = (seq_t*)calloc(sz, sizeof(seq_t));
+    a_cache  = mem_new(seq_t, sz);
+    f1_cache = mem_new(seq_t, sz);
+    f2_cache = mem_new(seq_t, sz);
     if (!a_cache || !f1_cache || !f2_cache)
         return;   /* allocation failure, leave arrays NULL */
 

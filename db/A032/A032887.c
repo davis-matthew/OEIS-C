@@ -12,13 +12,33 @@
  *            pattern until the n‑th one is found. The implement...
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   is_valid_oct_alternating
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_valid_oct_alternating.h"
+
+static bool is_valid_oct_alternating(seq_t x)
+{
+    bool next_greater = true;                 /* need d_{i} < d_{i+1} for i even */
+    seq_t prev = x & ((seq_t)7);              /* least‑significant digit d0   */
+    x >>= 3;                                  /* shift right one octal digit   */
+
+    while (x != (seq_t)0) {
+        seq_t curr = x & ((seq_t)7);          /* next digit d_{i+1}           */
+        if (next_greater) {
+            if (!(prev < curr)) return false;
+        } else {
+            if (!(prev > curr)) return false;
+        }
+        next_greater = !next_greater;        /* flip comparison for next   */
+        prev = curr;
+        x >>= 3;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

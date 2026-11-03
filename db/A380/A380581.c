@@ -8,7 +8,8 @@
  * Formula:   a(n) = [x^n] G(x)^n, G(x) = ∏_{k≥1} 1/(1-x^k)^{k^4}
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 22,
  *            big any n
- * Helpers:   to_sz
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/to_sz.h"
+#include "../utils/mem.h"
+
+/* helper: convert an unsigned integer n to the size_t type safely */
+static size_t to_sz(idx_t n) { return (size_t)n; }
 
 /* main function --------------------------------------------------- */
 seq_t a(idx_t n)
@@ -34,7 +38,7 @@ seq_t a(idx_t n)
     /* ----------------------------------------------------------------- */
     /* 1. compute the divisor sums σ₅(k) for k = 1 .. N          */
     /* ----------------------------------------------------------------- */
-    seq_t *sigma5 = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *sigma5 = mem_new(seq_t, N + 1);
     for (size_t d = 1; d <= N; ++d) {
         seq_t d_pow5 = (seq_t)d;
         d_pow5 = d_pow5 * (seq_t)d;   /* d² */
@@ -49,7 +53,7 @@ seq_t a(idx_t n)
     /* ----------------------------------------------------------------- */
     /* 2. compute the coefficients g[0..N] of G(x) = exp(∑ σ₅(k)/k x^k) */
     /* ----------------------------------------------------------------- */
-    seq_t *g = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *g = mem_new(seq_t, N + 1);
     g[0] = 1;                                     /* G(0) = 1          */
     for (size_t m = 1; m <= N; ++m) {
         seq_t sum = 0;
@@ -63,8 +67,8 @@ seq_t a(idx_t n)
     /* 3. compute G(x)^N by successive convolution                */
     /*    We keep two temporary arrays: cur and next                */
     /* ----------------------------------------------------------------- */
-    seq_t *cur  = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *next = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, N + 1);
+    seq_t *next = mem_new(seq_t, N + 1);
 
     cur[0] = 1; /* start with the empty product (G^0)   */
 
@@ -88,10 +92,10 @@ seq_t a(idx_t n)
     /* ----------------------------------------------------------------- */
     /* 4. cleanup                                            */
     /* ----------------------------------------------------------------- */
-    free(sigma5);
-    free(g);
-    free(cur);
-    free(next);
+    mem_free(sigma5);
+    mem_free(g);
+    mem_free(cur);
+    mem_free(next);
 
     return answer;
 }

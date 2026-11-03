@@ -7,8 +7,9 @@
  * Formula:   a(n) = 2^(k+1) where 2^k is the largest power of 2 dividing n.
  *            Computation: find the lowest set bit of n (n & -n) and double
  *            it. This works for any unsigned seq_t type and is O(1) per call
- * Range:     u8 n <= 127, u16 n <= 9627, u32 n <= 9627, u64 n <= 9627,
- *            u128 n <= 9627, big any n
+ * Range:     u8 n <= 127, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 79 terms through n = 9627 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

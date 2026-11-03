@@ -8,6 +8,7 @@
  * Formula:   a(n) = |⋃_{p|n} {p^k mod n : k ≥ 0}|
  * Range:     u8 n <= 536, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 94 terms through n = 4890 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

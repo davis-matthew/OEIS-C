@@ -8,13 +8,14 @@
  *            Catalan(k-1)*(4k-2)/(k+1), Catalan(0) = 1
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 35, u128 n <= 68,
  *            big any n
- * Helpers:   a781_gcd
+ * Validated: standard, pass, 42 terms through n = 1547 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a781_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     static idx_t sk = 0;      /* index of cached Catalan value */
@@ -30,7 +31,7 @@ seq_t a(idx_t n) {
         idx_t k = sk + 1;
         uint64_t m = (uint64_t)k + 1;
         uint64_t r = (uint64_t)(sc % (seq_t)m);
-        uint64_t g = a781_gcd(m, r);
+        uint64_t g = gcd_u64(m, r);
         seq_t q = sc / (seq_t)g;
         uint64_t d = m / g;
         uint64_t f = (4 * (uint64_t)k - 2) / d;

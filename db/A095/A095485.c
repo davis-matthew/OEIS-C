@@ -7,16 +7,31 @@
  * Formula:   a(n) = decimal integer obtained by writing 46 in base (11 - n)
  * Range:     u8 n <= 7, u16 n <= 8, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   _digits_of_seq, _pow10_of_len, _unary46
+ * Validated: full, pass, 11 terms through n = 10 (2026-11-02)
+ * Helpers:   num_digits_seq_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/_digits_of_seq.h"
-#include "../utils/_pow10_of_len.h"
-#include "../utils/_unary46.h"
+#include "../utils/num_digits_seq_to_u32.h"
+
+/* Helper: compute 10^len as seq_t. */
+static seq_t _pow10_of_len(unsigned len) {
+    seq_t p = 1;
+    for (unsigned i = 0; i < len; ++i)
+        p *= 10;
+    return p;
+}
+
+/* Helper: unary representation of 46 in base 1 (46 ones). */
+static seq_t _unary46(void) {
+    seq_t r = 0;
+    for (unsigned i = 0; i < 46; ++i)
+        r = r * 10 + 1;
+    return r;
+}
 
 seq_t a(idx_t n) {
     /* base = 11 - n (can be negative). */
@@ -58,7 +73,7 @@ seq_t a(idx_t n) {
     seq_t result = 0;
     for (size_t i = dcnt; i-- > 0; ) {
         seq_t digit = (seq_t)digits[i];
-        unsigned len = _digits_of_seq(digit);
+        unsigned len = num_digits_seq_to_u32(digit);
         seq_t mult = _pow10_of_len(len);
         result = result * mult + digit;
     }

@@ -11,13 +11,28 @@
  *            expansions of 1, …, n
  * Range:     u8 n <= 98, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   compute_a_rec
+ * Validated: standard, pass, 83 terms through n = 933 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/compute_a_rec.h"
+
+static seq_t compute_a_rec(idx_t n)
+{
+    if (n <= 1) return 0;                       /* a(0)=a(1)=0 */
+    if (n & 1ULL) {                              /* odd: a(2m+1) */
+        idx_t m = (n - 1) >> 1;                  /* m = (n-1)/2 */
+        seq_t v = compute_a_rec(m);
+        return v * 2 + (seq_t)m;
+    } else {                                     /* even: a(2m) */
+        idx_t m = n >> 1;                        /* m = n/2 */
+        seq_t v1 = compute_a_rec(m);
+        seq_t v2 = compute_a_rec(m - 1);
+        return v1 + v2 + (seq_t)m;
+    }
+}
 
 seq_t a(idx_t n)
 {

@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf, base, look
  * Formula:   not stated
- * Range:     u8 n <= 52, u16 n <= 2820, u32 n <= 9016, u64 n <= 9016,
- *            u128 n <= 9016, big any n
- * Helpers:   cmp_seq_t, ensure_capacity, get_digits
+ * Range:     u8 n <= 52, u16 n <= 2820, u32 n <= 16122, u64 n <= 16122,
+ *            u128 n <= 16122, big any n
+ * Validated: standard, pass, 89 terms through n = 9016 (2026-11-03)
+ * Helpers:   get_digits, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,9 +29,52 @@
 #include <stdbool.h>
 
 /* utility helpers from the build system */
+#include <stddef.h>
+#include <stdint.h>
 #include "../utils/get_digits.h"
-#include "../utils/ensure_capacity.h"
-#include "../utils/cmp_seq_t.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size) /* elem_size: sizeof(T) */
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, new_cap);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* external function required by the build system */
 seq_t a(idx_t n)
@@ -78,14 +122,12 @@ seq_t a(idx_t n)
         }
 
         /* sort the subwords in increasing numeric order */
-        qsort(sub_words, sub_cnt, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(sub_words, sub_cnt, sizeof(seq_t), cmp_seq_t);
 
         /* ensure the global cache can hold the new entries */
         size_t required = cache_size + sub_cnt;
         if (required > cache_limit) {
-            void *tmp = cache;
-            ensure_capacity(required, &cache_limit, &tmp, sizeof(seq_t));
-            cache = (seq_t *)tmp;
+            ensure_capacity(required, &cache_limit, OEISC_VPP(&cache), sizeof(seq_t));
         }
 
         /* append the sorted row into the cache */

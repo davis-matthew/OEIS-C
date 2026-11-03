@@ -11,12 +11,14 @@
  *            powers of two
  * Range:     u8 n <= 49, u16 n <= 223, u32 n <= 1687, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9881 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *p = NULL;      /* array of binary partition counts p[0 … N] */
 static size_t psize = 0;     /* current allocated size */
@@ -25,7 +27,7 @@ static size_t psize = 0;     /* current allocated size */
 static void recompute_p(idx_t limit)
 {
     size_t sz = (size_t)limit + 1;
-    seq_t *tmp = (seq_t *)realloc(p, sz * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, p, sz);
     if (!tmp) abort();                /* out of memory */
     p = tmp;
     for (size_t i = 0; i < sz; ++i) p[i] = 0;

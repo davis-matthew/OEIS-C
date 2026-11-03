@@ -11,7 +11,8 @@
  *            prime
  * Range:     u8 n <= 10, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   digit_prod_uint64
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/digit_prod_uint64.h"
+#include "../utils/mem.h"
+
+/* product of decimal digits of an unsigned 64‑bit number */
+static inline uint64_t digit_prod_uint64(uint64_t v)
+{
+    uint64_t p = 1;
+    while (v) {
+        p *= v % 10;
+        v /= 10;
+    }
+    return p;
+}
 
 /* trial division primality test for 64‑bit values (sufficient for the digit products). */
 static inline bool is_prime_uint64(uint64_t v)
@@ -53,7 +65,7 @@ static void gen_len(idx_t len, int start_digit, uint64_t cur,
         if (iter_prime(cur)) {
             if (*built_ptr == *cap_ptr) {
                 size_t new_cap = (*cap_ptr == 0) ? 128 : (*cap_ptr) * 2;
-                seq_t *tmp = (seq_t *)realloc(*cache_ptr, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, *cache_ptr, new_cap);
                 *cache_ptr = tmp;
                 *cap_ptr = new_cap;
             }

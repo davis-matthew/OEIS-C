@@ -9,7 +9,8 @@
  *            sequence starts at offset 1, so a(1) = 1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static storage for partition numbers */
 static seq_t *p_arr = NULL;          /* p_arr[0] = 1, p_arr[1..] = p(i) */
@@ -34,7 +36,7 @@ static void ensure_p_capacity(idx_t nmax)
     while (new_cap <= (size_t)nmax)   /* make new_cap > nmax */
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(p_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, p_arr, new_cap);
     p_arr = tmp;
     p_capacity = new_cap;
 

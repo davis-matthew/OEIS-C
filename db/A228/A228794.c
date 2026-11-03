@@ -11,12 +11,14 @@
  *            function memoises computed terms to allow arbitrary call order
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,9 +34,9 @@ seq_t a(idx_t n)
         /* allocate enough room for indices 0..7, i.e. size 8              */
         idx_t new_cap = 8;
         if (cache == NULL) {
-            cache = (seq_t *)calloc(new_cap, sizeof(seq_t));
+            cache = mem_new(seq_t, new_cap);
         } else {
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
         }
         cache_size = 7;
         /* initialise the first seven terms (overwrites only if needed)   */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Grow cache if needed.  The cache array is 1‑based; element 0 is unused. */
     if (cache_size < n) {
         idx_t new_cap = n + 1;                /* include element n         */
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         /* Compute missing terms using the recurrence            */
         for (idx_t i = cache_size + 1; i <= n; ++i) {
             /*

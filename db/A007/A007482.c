@@ -8,12 +8,14 @@
  * Formula:   a(n) = 3*a(n-1) + 2*a(n-2), a(0) = 1, a(1) = 3
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 35, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     
     if (n >= memo_len) {
         idx_t new_len = (n < 10) ? 10 : (n + 1);
-        memo = (seq_t *)realloc(memo, new_len * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, new_len);
         memo_len = new_len;
     }
     

@@ -9,12 +9,14 @@
  *            a(2)=a(3)=1
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 22, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;   /* largest n for which a(n) is computed */
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
         const idx_t need_init = 3;
         if (cache_cap < need_init) {
             cache_cap = need_init * 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[0] = (seq_t)3; /* a(1) */
         cache[1] = (seq_t)1; /* a(2) */
@@ -43,7 +45,7 @@ static void ensure_cache(idx_t n)
         idx_t new_cap = cache_cap * 2;
         if (new_cap < n)
             new_cap = n;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

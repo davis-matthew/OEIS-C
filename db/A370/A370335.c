@@ -8,6 +8,7 @@
  *            (2*4^k + 1)/3, otherwise 0
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 35, u64 n <= 66, u128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

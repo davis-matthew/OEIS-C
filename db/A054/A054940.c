@@ -8,15 +8,29 @@
  * Formula:   a(n) = (A001187(n)+(-1)^n*A000142(n-1))/2
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   binomial, factorial, pow2
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/factorial.h"   /* factorial(idx_t) -> seq_t */
-#include "../utils/pow2.h"        /* pow2(idx_t) -> seq_t */
-#include "../utils/binomial.h"   /* binomial(idx_t, idx_t) -> seq_t */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 static seq_t *conn_cache = NULL;      /* cache for A001187 values, 1‑based */
 static idx_t  conn_cap   = 0;
@@ -29,7 +43,7 @@ connected_graphs(idx_t n)
     /* Lazy initialization of the cache */
     if (conn_cache == NULL) {
         conn_cap = 16;
-        conn_cache = (seq_t *)malloc(conn_cap * sizeof(seq_t));
+        conn_cache = mem_new(seq_t, conn_cap);
         if (!conn_cache) return 0;            /* allocation failure – should not happen */
         conn_cache[0] = 0;                    /* unused */
         conn_cache[1] = 1;                    /* one graph on a single vertex */
@@ -59,7 +73,7 @@ connected_graphs(idx_t n)
         /* Grow cache if necessary (doubling strategy) */
         if (m >= conn_cap) {
             idx_t new_cap = conn_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(conn_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, conn_cache, new_cap);
             if (!tmp) return 0;      /* allocation failure – should not happen */
             conn_cache = tmp;
             conn_cap   = new_cap;

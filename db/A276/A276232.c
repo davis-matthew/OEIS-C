@@ -10,7 +10,8 @@
  *            where f(k)=∑_{i=1..k} C(k,i)*i^{i-1}*(k+1-i)^{k-i}/(k+1-i)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   bitlen_seq_t, pow_seq
+ * Validated: standard, pass, 38 terms through n = 383 (2026-11-03)
+ * Helpers:   bit_length, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_seq.h"   /* seq_t pow_seq(seq_t base, int exp) */
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
 
 static seq_t *cache_a = NULL;   /* a[0..max_comp] */
 static size_t cap_a = 0;
@@ -39,7 +42,7 @@ static void ensure_cap_a(size_t n)
     if (n < cap_a) return;
     size_t new_cap = cap_a ? cap_a * 2 : 64;
     while (new_cap <= n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache_a, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache_a, new_cap);
     cache_a = tmp;
     cap_a = new_cap;
 }
@@ -50,8 +53,8 @@ static void ensure_cap_f_t(size_t n)
     if (n < cap_f) return;
     size_t new_cap = cap_f ? cap_f * 2 : 64;
     while (new_cap <= n) new_cap <<= 1;
-    seq_t *tmp_f = (seq_t *)realloc(cache_f, new_cap * sizeof(seq_t));
-    seq_t *tmp_t = (seq_t *)realloc(cache_t, new_cap * sizeof(seq_t));
+    seq_t *tmp_f = mem_resize(seq_t, cache_f, new_cap);
+    seq_t *tmp_t = mem_resize(seq_t, cache_t, new_cap);
     cache_f = tmp_f;
     cache_t = tmp_t;
     cap_f = cap_t = new_cap;
@@ -66,7 +69,7 @@ static void compute_t_up_to(size_t n)
         if (i == 0) {
             cache_t[i] = (seq_t)1;
         } else {
-            cache_t[i] = pow_seq((seq_t)i, (int)(i - 1));
+            cache_t[i] = ipow_i32((seq_t)i, (int)(i - 1));
         }
     }
     last_t = n;
@@ -84,7 +87,7 @@ static void compute_f_up_to(size_t n)
         seq_t bin = (seq_t)k;  /* C(k,1) */
         for (size_t i = 1; i <= k; ++i) {
             /* term = bin * t[i] * (k+1-i)^{k-i} / (k+1-i) */
-            seq_t pow_i = pow_seq((seq_t)(k + 1 - i), (int)(k - i));
+            seq_t pow_i = ipow_i32((seq_t)(k + 1 - i), (int)(k - i));
             seq_t term = bin * cache_t[i];
             term *= pow_i;
             term /= (seq_t)(k + 1 - i);

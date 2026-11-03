@@ -10,12 +10,14 @@
  *            Σ_{k=0}^{N‑1} C(N‑1, k) * B[k] (N ≥ 1)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 25, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 493 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for Bell numbers */
 static seq_t *Bell = NULL;     /* array of Bell numbers, Bell[i] = B_i   */
@@ -27,7 +29,7 @@ static void ensure_bell(idx_t max)
     if (BellSize > max) return;          /* already have them */
     /* enlarge the array */
     idx_t newSize = max + 1;
-    seq_t *tmp = (seq_t *)realloc(Bell, sizeof(seq_t) * newSize);
+    seq_t *tmp = mem_resize(seq_t, Bell, newSize);
     if (!tmp) abort();                   /* allocation failure */
     Bell = tmp;
 

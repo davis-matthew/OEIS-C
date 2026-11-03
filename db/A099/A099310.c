@@ -7,19 +7,22 @@
  * Formula:   a(n) = A003415(A000010(n))
  * Range:     u8 n <= 96, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   factor_u64, phi
+ * Validated: standard, pass, 90 terms through n = 4821 (2026-11-01)
+ * Helpers:   factor_u64, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/phi.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
-    seq_t phi_val = phi(n);                       /* Euler's totient φ(n) */
+    seq_t phi_val = totient(n);                       /* Euler's totient φ(n) */
     uint64_t phi64 = (uint64_t)phi_val;           /* φ(n) is ≤ n-1 (≤9999 for n≤10000) */
     uint64_t primes[64];
     uint64_t exps[64];

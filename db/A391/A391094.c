@@ -9,13 +9,17 @@
  *            n*(n-j))
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 26 terms through n = 25 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +39,7 @@ seq_t a(idx_t n)
         seq_t exp = ((seq_t)j * (j + 1) / 2)
                   + (seq_t)n * ((seq_t)n - (seq_t)j);
 
-        seq_t term = bin * big_pow(nseq, exp);
+        seq_t term = bin * ipow(nseq, exp);
 
         if ((j & 1ULL) == 0ULL)   /* (-1)^j positive for even j */
             pos += term;

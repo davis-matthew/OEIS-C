@@ -7,7 +7,8 @@
  * Formula:   a(n) = A046315(n) - 2 (odd semiprimes minus 2)
  * Range:     u8 none, u16 none, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   build_primes
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 /* Node in the min‑heap of products of two odd primes. */
 typedef struct {
@@ -110,7 +113,7 @@ static void ensure_cache(idx_t n)
 
         /* 2. Initialise the min‑heap once */
         heap_cap = odd_cnt;
-        heap     = (HeapNode*)malloc(sizeof(HeapNode) * heap_cap);
+        heap     = mem_new(HeapNode, heap_cap);
         heap_size = odd_cnt;
         for (size_t i = 0; i < odd_cnt; ++i) {
             heap[i].i   = i;
@@ -130,7 +133,7 @@ static void ensure_cache(idx_t n)
         seq_t val_minus_2 = node.val - (seq_t)2;
         if (cache_len >= cache_cap) {
             cache_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
-            cache = (seq_t*)realloc(cache, sizeof(seq_t) * cache_cap);
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = val_minus_2;
 

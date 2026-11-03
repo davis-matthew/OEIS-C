@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 22, u32 n <= 24, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for already computed indices. */
 static seq_t *a_cache = NULL;
@@ -35,7 +37,7 @@ ensure_cache(idx_t n)
     if (a_cap <= n) {
         idx_t new_cap = a_cap ? a_cap * 2 : n + 1;
         if (new_cap < n + 1) new_cap = n + 1;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         a_comp  = (bool  *)realloc(a_comp,  new_cap * sizeof(bool));
         for (idx_t i = a_cap; i < new_cap; ++i) {
             a_cache[i] = (seq_t)0;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
 
     /* array to hold the sequence values s(t) = Fibonacci(2t-1). */
     size_t cap   = 1024;
-    seq_t  *s_arr = (seq_t*)malloc(cap * sizeof(seq_t));
+    seq_t  *s_arr = mem_new(seq_t, cap);
     if (!s_arr) { free(first); a_cache[n] = (seq_t)0; a_comp[n] = true; return a_cache[n]; }
     size_t len = 0;
 
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
         /* store current value */
         if (len == cap) {
             cap <<= 1;
-            s_arr = (seq_t*)realloc(s_arr, cap * sizeof(seq_t));
+            s_arr = mem_resize(seq_t, s_arr, cap);
             if (!s_arr) break; /* allocation failed – terminate */
         }
         s_arr[len++] = s_cur;
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
             a_cache[n] = diff;
             a_comp[n]  = true;
             free(first);
-            free(s_arr);
+            mem_free(s_arr);
             return diff;
         } else {
             first[res] = t;               /* record first occurrence (1‑based) */
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
 
     /* should never reach here, but fall back gracefully */
     free(first);
-    free(s_arr);
+    mem_free(s_arr);
     a_cache[n] = (seq_t)0;
     a_comp[n]  = true;
     return a_cache[n];

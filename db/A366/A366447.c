@@ -13,7 +13,8 @@
  *            Product_{j=i+1..n+1}((i+j+n-3)/(i+j-1)))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   gcd, seq_mul, seq_pow
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include <string.h>
 #include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Count unordered pairs (i,j), 1 ≤ i < j ≤ N, with i+j = s */
 static inline idx_t pair_count(idx_t s, idx_t N)
@@ -112,7 +118,7 @@ static seq_t product_value(idx_t n, int offset)
     for (idx_t p = 2; p <= limit; ++p) {
         int32_t e = exp[p];
         if (e > 0) {
-            seq_t pow_p = seq_pow((seq_t)p, (idx_t)e);
+            seq_t pow_p = ipow_idx((seq_t)p, (idx_t)e);
             result = seq_mul(result, pow_p);
         }
     }

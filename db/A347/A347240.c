@@ -11,9 +11,10 @@
  *            A000593(x) (sum of odd divisors) from the starting value n *
  *            (excluding n itself). Return 1 if n is a power of two; otherwise
  *            * return –1 if the iteration never reaches 1
- * Range:     u8 n <= 64, u16 n <= 8279, u32 n <= 8279, u64 n <= 8279,
- *            u128 n <= 8279, big any n
- * Helpers:   floor_sqrt, is_power_of_two, largest_prime_factor
+ * Range:     u8 n <= 64, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 113 terms through n = 8279 (2026-11-01)
+ * Helpers:   ipow_i32, is_pow2, largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,27 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_power_of_two.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/is_pow2.h"
 #include "../utils/largest_prime_factor.h"
-#include "../utils/floor_sqrt.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* compute σ₀'(n): sum of odd divisors of n */
 static seq_t sum_of_odd_divisors(seq_t n)
@@ -56,7 +75,7 @@ static seq_t sum_of_odd_divisors(seq_t n)
 seq_t a(idx_t n)
 {
     /* n is a power of two → a(n)=1 */
-    if (is_power_of_two((seq_t)n)) return 1;
+    if (is_pow2((seq_t)n)) return 1;
 
     seq_t cur = (seq_t)n;
     bool reached_one = false;

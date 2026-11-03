@@ -9,14 +9,16 @@
  *            R(k) = reverse decimal digits of k
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 30, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   reverse
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/reverse.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* initialise first terms on first call */
     if (cache_len == 0) {
         cache_len = 3;
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return 1;                 /* graceful failure */
         cache[0] = cache[1] = cache[2] = 1;
     }
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         if (cap == 0) cap = 1;
         while (cap <= (size_t)n) cap <<= 1;
         if (cap > cache_len) {
-            seq_t *tmp = (seq_t*)realloc(cache, cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cap);
             if (!tmp) return 1;               /* graceful failure */
             cache = tmp;
         }
@@ -47,8 +49,8 @@ seq_t a(idx_t n)
         /* compute terms from cache_len to n inclusive */
         for (size_t i = cache_len; i <= (size_t)n; ++i) {
             seq_t v = cache[i-1];
-            v += reverse(cache[i-2]);          /* R(a(i-2)) */
-            v += reverse(cache[i-3]);          /* R(a(i-3)) */
+            v += reverse_digits(cache[i-2]);          /* R(a(i-2)) */
+            v += reverse_digits(cache[i-3]);          /* R(a(i-3)) */
             cache[i] = v;
         }
         cache_len = n + 1;

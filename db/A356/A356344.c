@@ -7,16 +7,38 @@
  * Formula:   a(n) = Sum_{k=1..n} binomial(2*k, k) * sigma(k)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binomial, seq_mul, sigma_of
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/sigma_of.h"
-#include "../utils/seq_mul.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -29,7 +51,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache with a[0] = 0 */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (cache == NULL) {            /* allocation failed – abort */
             return (seq_t)0;
         }
@@ -41,7 +63,7 @@ seq_t a(idx_t n)
     if ((idx_t)cache_len <= n) {
         /* New length = n+1 (indices 0..n inclusive) */
         size_t new_len = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp == NULL) {              /* allocation failed – abort */
             return (seq_t)0;
         }

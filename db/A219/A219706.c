@@ -11,12 +11,15 @@
  *            (fixed‑size or arbitrary precision)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 35 terms through n = 350 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
     seq_t falling = n_seq;
 
     /* pow_n = n^(n-2).  For n=2 this is n^0 = 1. */
-    seq_t pow_n = big_pow(n_seq, (seq_t)(n - 2));
+    seq_t pow_n = ipow(n_seq, (seq_t)(n - 2));
 
     for (idx_t k = 1; k <= n - 1; ++k) {
         /* term = falling * k * pow_n * (n-k) */

@@ -8,12 +8,14 @@
  *            5*a(n-6) + a(n-7) + a(n-8) for n >= 9
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 30, u64 n <= 72, u128 n <= 161,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 900 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static const seq_t base_vals[] = {1, 7, 29, 94, 263, 667, 1577, 3538};
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         cache_cap = 16;
         while (cache_cap < n) cache_cap *= 2;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         for (idx_t i = 0; i < 8; i++) {
             cache[i] = base_vals[i];
         }
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
     
     while (cache_cap < n) {
         cache_cap *= 2;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     
     while (cache_len < n) {

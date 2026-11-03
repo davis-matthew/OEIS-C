@@ -8,14 +8,15 @@
  * Formula:   a(n) = 3^(n-1) + 2*4^(n-1) + 8^(n-1) + 24^(n-1) (with a(0) = 1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 28,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 36 terms through n = 420 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -24,10 +25,10 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* compute each power using exponentiation by squaring */
-    seq_t p3   = pow_uint((uint64_t)3, n - 1);
-    seq_t p4   = pow_uint((uint64_t)4, n - 1);
-    seq_t p8   = pow_uint((uint64_t)8, n - 1);
-    seq_t p24  = pow_uint((uint64_t)24, n - 1);
+    seq_t p3   = ipow_u64_idx((uint64_t)3, n - 1);
+    seq_t p4   = ipow_u64_idx((uint64_t)4, n - 1);
+    seq_t p8   = ipow_u64_idx((uint64_t)8, n - 1);
+    seq_t p24  = ipow_u64_idx((uint64_t)24, n - 1);
 
     /* combine the terms */
     return p3 + (seq_t)2 * p4 + p8 + p24;

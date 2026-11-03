@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = 64*n^2 - 40*n + 15
- * Range:     u8 n <= 2, u16 n <= 32, u32 n <= 8192, u64 n <= 7866,
- *            u128 n <= 7866, big any n
+ * Range:     u8 n <= 2, u16 n <= 32, u32 n <= 8192, u64 n <= 20737,
+ *            u128 n <= 20737, big any n
+ * Validated: standard, pass, 55 terms through n = 7866 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

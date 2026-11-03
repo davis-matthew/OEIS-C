@@ -9,12 +9,14 @@
  *            j*a(j)*A000085(n-j-2); * Initial values: a(0)=1, a(1)=2, a(2)=6
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---- cached values ----------------------------------------------------- */
 static seq_t *seq_a = NULL;   /* a(index) values */
@@ -31,7 +33,7 @@ static void ensure_a_capacity(idx_t idx)
     if ((idx + 1) > (idx_t)a_cap) {
         size_t new_cap = a_cap ? a_cap << 1 : 16;
         while ((idx_t)new_cap <= idx) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(seq_a, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_a, new_cap);
         if (!tmp) abort();
         seq_a = tmp;
         a_cap = new_cap;
@@ -43,7 +45,7 @@ static void ensure_invol_capacity(idx_t idx)
     if ((idx + 1) > (idx_t)invol_cap) {
         size_t new_cap = invol_cap ? invol_cap << 1 : 16;
         while ((idx_t)new_cap <= idx) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(seq_invol, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_invol, new_cap);
         if (!tmp) abort();
         seq_invol = tmp;
         invol_cap = new_cap;

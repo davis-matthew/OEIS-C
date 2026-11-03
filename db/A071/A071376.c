@@ -11,12 +11,14 @@
  *            iterate all primes p <= n/2, check that n-p...
  * Range:     i8 n <= 23, i16 n <= 25, i32 n <= 25, i64 n <= 25, i128 n <= 25,
  *            big any n
- * Helpers:   isPrime
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/isPrime.h"
+#include <stdbool.h>
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {
@@ -25,12 +27,12 @@ seq_t a(idx_t n)
         return 0;
 
     /* Prime case */
-    if (isPrime(n))
+    if (is_prime(n))
         return (seq_t)n;
 
     /* Odd composite numbers */
     if ((n & 1) == 1) {   /* n is odd */
-        if (isPrime(n - 2))
+        if (is_prime(n - 2))
             return 2 * (seq_t)(n - 2);    /* 2 and (n-2) give the minimal product */
         return 0;
     }
@@ -40,12 +42,12 @@ seq_t a(idx_t n)
     bool found = false;
 
     for (idx_t p = 2; p <= n / 2; ++p) {
-        if (!isPrime(p))
+        if (!is_prime(p))
             continue;
         idx_t q = n - p;
         if (p >= q)       /* keep distinct primes and avoid double counting */
             continue;
-        if (!isPrime(q))
+        if (!is_prime(q))
             continue;
         seq_t prod = (seq_t)p * (seq_t)q;
         if (!found || prod < minProd) {

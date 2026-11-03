@@ -9,7 +9,8 @@
  *            p1^b1 * … * pr^br. a(4) = 58
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -51,7 +52,7 @@ seq_t a(idx_t n)
 
     /* Compute (rad^n) / n - n*(n-1)/2 */
     seq_t n_seq = (seq_t)n;
-    seq_t pow_val = big_pow(rad, n_seq);
+    seq_t pow_val = ipow(rad, n_seq);
     seq_t subterm = n_seq * (n_seq - (seq_t)1) / (seq_t)2;
     seq_t result = pow_val / n_seq - subterm;
 

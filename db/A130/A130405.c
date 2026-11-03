@@ -10,14 +10,27 @@
  *            (r+1)(r+2)/2 and k = n - r·(r+1)/2
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   fib
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/fib.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 static seq_t **_rows = NULL;      /* cache of rows (each row is an array of seq_t) */
 static size_t _row_count = 0;     /* number of rows currently cached */
@@ -36,7 +49,7 @@ seq_t a(idx_t n)
     /* Build all rows up to r that are not yet cached. */
     for (size_t i = _row_count; i <= (size_t)r; ++i) {
         size_t len = i + 1;                      /* number of coefficients in row i */
-        seq_t *row = (seq_t *)calloc(len, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row)
             return (seq_t)0;                      /* memory allocation failed */
 

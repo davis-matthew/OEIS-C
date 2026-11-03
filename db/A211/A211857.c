@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 105, u32 n <= 262, u64 n <= 723,
  *            u128 n <= 2162, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9607 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    (each pair may be used at most once). */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External linkage */
 seq_t a(idx_t n)
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         /* Allocate and initialise the DP array. */
-        dp = (seq_t*)calloc((size_t)MAX_N + 1U, sizeof(seq_t));
+        dp = mem_new(seq_t, (size_t)MAX_N + 1U);
         if (dp == NULL) return (seq_t)0;          /* safety */
         dp[0] = 1;                                /* empty sum */
 

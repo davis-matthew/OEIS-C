@@ -11,7 +11,8 @@
  *            e(r,p) = Σ_{t≥1} ⌊r/p^t⌋
  * Range:     u8 n <= 24, u16 n <= 69, u32 n <= 215, u64 n <= 688,
  *            u128 n <= 2311, big any n
- * Helpers:   build_primes_upto, seq_pow
+ * Validated: standard, pass, 85 terms through n = 9906 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdbool.h>
 /* utilities */
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 /* static cache */
 static bool          init_done      = false;
@@ -87,7 +88,7 @@ seq_t
 a(idx_t n)
 {
     if (n < 2)
-        return seq_pow((seq_t)0, 0);   /* undefined for n<2 */
+        return ipow_idx((seq_t)0, 0);   /* undefined for n<2 */
 
     ensure_precomputed(n);
 
@@ -110,5 +111,5 @@ a(idx_t n)
 
     idx_t exp = exponent_in_factorial(r, prime);
 
-    return seq_pow((seq_t)prime, exp);
+    return ipow_idx((seq_t)prime, exp);
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 1586, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitcount_seq_t, is_prime_small
+ * Validated: standard, pass, 63 terms through n = 9968 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, popcount_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/bitcount_seq_t.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/popcount_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache      = NULL;   /* array of sequence values      */
 static size_t seq_cache_cap  = 0;       /* allocated capacity             */
@@ -30,7 +32,7 @@ static idx_t  last_checked   = 3;       /* last number examined (start > 3) */
 
 /* Return true if x has an even number of 1‑bits. */
 static inline bool is_evil(idx_t x) {
-    return ((bitcount_seq_t((seq_t)x) & 1) == 0);
+    return ((popcount_seq((seq_t)x) & 1) == 0);
 }
 
 /* Ensure seq_cache has space for at least 'need' elements. */
@@ -38,7 +40,7 @@ static void ensure_seq_capacity(size_t need) {
     if (seq_cache_cap >= need) return;
     size_t new_cap = seq_cache_cap ? (seq_cache_cap << 1) : 64;
     if (new_cap < need) new_cap = need;
-    seq_t *new_ptr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_ptr) {
         /* Allocation failed – abort */
         exit(EXIT_FAILURE);
@@ -57,7 +59,7 @@ seq_t a(idx_t n) {
         last_checked = m;
 
         /* Skip primes. */
-        if (is_prime_small((seq_t)m)) continue;
+        if (is_prime_seq((seq_t)m)) continue;
 
         /* Consider only evil composites. */
         if (!is_evil(m)) continue;

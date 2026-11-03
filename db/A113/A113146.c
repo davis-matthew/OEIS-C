@@ -10,12 +10,14 @@
  *            factorial)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
     while (new_len <= n)
         new_len <<= 1;
 
-    a_buf = (seq_t *)realloc(a_buf, new_len * sizeof(seq_t));
-    f_buf = (seq_t *)realloc(f_buf, new_len * sizeof(seq_t));
+    a_buf = mem_resize(seq_t, a_buf, new_len);
+    f_buf = mem_resize(seq_t, f_buf, new_len);
 
     /* initialise first element(s) if this is the first call */
     if (cache_len == 0) {

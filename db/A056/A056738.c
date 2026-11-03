@@ -7,7 +7,8 @@
  * Formula:   a(1) = 1, a(n+1) = a(n) + (n+1) + #{ k | 1 ≤ k ≤ n, a(k) ≤ n }
  * Range:     u8 n <= 19, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The following types are supplied by the build environment. */
 extern seq_t a(idx_t n);
@@ -33,7 +35,7 @@ static void ensure_capacity(idx_t need)
     if (need <= buf_size) return;
     idx_t new_size = (buf_size == 0) ? need : (buf_size * 2);
     if (new_size < need) new_size = need;
-    seq_t *tmp = (seq_t *)realloc(buf, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, buf, new_size);
     buf = tmp;
     buf_size = new_size;
 }

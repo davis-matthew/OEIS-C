@@ -12,13 +12,15 @@
  *            v(n,k)=u(n‑1,k‑1)+v(n‑1,k‑1)+u(n‑1,k)+ (k==0?1:0)
  * Range:     u8 n <= 25, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,16 +41,16 @@ seq_t a(idx_t n)
         return 1;
 
     /* allocate arrays for previous row (length r-1) */
-    seq_t *u_prev = (seq_t *)calloc(r, sizeof(seq_t));
-    seq_t *v_prev = (seq_t *)calloc(r, sizeof(seq_t));
+    seq_t *u_prev = mem_new(seq_t, r);
+    seq_t *v_prev = mem_new(seq_t, r);
     u_prev[0] = 1;
     v_prev[0] = 1;
 
     /* compute subsequent rows up to row r */
     for (idx_t len = 2; len <= r; ++len)
     {
-        seq_t *u_cur = (seq_t *)calloc(len, sizeof(seq_t));
-        seq_t *v_cur = (seq_t *)calloc(len, sizeof(seq_t));
+        seq_t *u_cur = mem_new(seq_t, len);
+        seq_t *v_cur = mem_new(seq_t, len);
 
         for (idx_t j = 0; j < len; ++j)
         {
@@ -77,15 +79,15 @@ seq_t a(idx_t n)
             v_cur[j] = v_val;
         }
 
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         u_prev = u_cur;
         v_prev = v_cur;
     }
 
     seq_t result = u_prev[k];          /* desired coefficient */
 
-    free(u_prev);
-    free(v_prev);
+    mem_free(u_prev);
+    mem_free(v_prev);
     return result;
 }

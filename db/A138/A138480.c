@@ -9,6 +9,7 @@
  * Formula:   a(n) is the nth autobiographical number (base‑10 representation)
  * Range:     u8 none, u16 n <= 3, u32 n <= 6, u64 n <= 10, u128 n <= 10,
  *            big any n
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

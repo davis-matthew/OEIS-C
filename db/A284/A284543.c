@@ -12,13 +12,15 @@
  *            a(7)=219, a(8)=503
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 126,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 123 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute element a(n) of sequence A284543 */
 seq_t a(idx_t n)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* initialise cache with first 9 terms on first call */
     if (!init) {
         cache_cap = 9;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;  /* allocation failure – caller will ignore */
         for (size_t i = 0; i < 9; ++i)
             cache[i] = init_vals[i];
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap;
         while ((size_t)n + 1 > new_cap)
             new_cap = new_cap ? new_cap * 2 : 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;  /* allocation failure – caller will ignore */
         cache = tmp;
         cache_cap = new_cap;

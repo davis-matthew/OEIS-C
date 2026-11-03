@@ -12,12 +12,14 @@
  *            constant)
  * Range:     u8 n <= 18, u16 n <= 35, u32 n <= 102, u64 n <= 297,
  *            u128 n <= 988, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9473 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,11 +41,11 @@ seq_t a(idx_t n)
 
     /* rebuild table if a larger diagonal is required             */
     if (s > cur_max_sum) {
-        if (dp != NULL) free(dp);
+        if (dp != NULL) mem_free(dp);
 
         stride = s + 1;              /* stride must accommodate indices 0..s   */
         size_t size = (size_t)stride * (size_t)stride;
-        dp = (seq_t *)malloc(size * sizeof(seq_t));
+        dp = mem_new(seq_t, size);
         for (size_t i = 0; i < size; ++i) dp[i] = 0;
 
         /* base case */

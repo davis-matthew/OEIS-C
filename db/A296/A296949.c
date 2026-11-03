@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static unsigned char VALID[32][32][32];
 static unsigned char FINAL_VALID[32][32];
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
     }
 
     /* initialise DP for sequences of length 2: DP_CUR[prev][curr] = 1 if VALID[0][prev][curr] */
-    memset(DP_CUR, 0, sizeof(DP_CUR));
+    mem_set(DP_CUR, 0, sizeof(DP_CUR));
     for (int prev = 0; prev < 32; ++prev) {
         for (int curr = 0; curr < 32; ++curr) {
             if (VALID[0][prev][curr]) DP_CUR[prev][curr] = 1;
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
 
     /* propagate for rows 3 .. n */
     for (idx_t step = 3; step <= n; ++step) {
-        memset(DP_NEXT, 0, sizeof(DP_NEXT));
+        mem_set(DP_NEXT, 0, sizeof(DP_NEXT));
         for (int prev = 0; prev < 32; ++prev) {
             for (int curr = 0; curr < 32; ++curr) {
                 seq_t ways = DP_CUR[prev][curr];
@@ -123,7 +125,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(DP_CUR, DP_NEXT, sizeof(DP_CUR));
+        mem_copy(DP_CUR, DP_NEXT, sizeof(DP_CUR));
     }
 
     /* final validation with next row = 0 */

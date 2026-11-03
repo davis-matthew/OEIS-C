@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 23, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   double_string, seq_to_str
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,53 @@
 #include <stdbool.h>
 #include <string.h>
 #include <limits.h>
-#include "../utils/seq_to_str.h"   /* seq_to_str(seq_t v, char *buf, size_t *len) */
-#include "../utils/double_string.h"
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
+
+/* ** Helper: double a decimal string (most significant char first) ** */
+static void double_string(const char *src, int len_src,
+                          char **out, int *len_out)
+{
+    int carry = 0;
+    int tmp_len = len_src + 1;           /* may need one more digit */
+    char *tmp = (char *)malloc(tmp_len + 1); /* +1 for '\0' */
+    int pos = tmp_len;
+    tmp[pos] = '\0';
+
+    for (int i = len_src - 1; i >= 0; --i) {
+        int val = (src[i] - '0') * 2 + carry;
+        tmp[--pos] = '0' + (val % 10);
+        carry     = val / 10;
+    }
+    if (carry) tmp[--pos] = '0' + carry;
+
+    int new_len = tmp_len - pos;
+    *out = (char *)malloc(new_len + 1);
+    memcpy(*out, tmp + pos, new_len);
+    (*out)[new_len] = '\0';
+
+    free(tmp);
+    *len_out = new_len;
+}
 
 #define MAX_DIGITS 4096   /* safe upper bound for interim buffers */
 
@@ -47,7 +93,7 @@ static void extend_powers_up_to_len(int minLen)
 
     /* start with 1 if empty */
     if (power_count == 0) {
-        power_strs[0] = strdup("1");
+        power_strs[0] = mem_strdup("1");
         power_lens[0] = 1;
         power_count = 1;
     }
@@ -91,7 +137,7 @@ static void ensure_terms(idx_t need)
 {
     if (term_capacity == 0) {
         term_capacity = 64;
-        term_arr = (seq_t *)malloc(term_capacity * sizeof(seq_t));
+        term_arr = mem_new(seq_t, term_capacity);
         term_count = 0;
     }
     if (need <= term_count) return;
@@ -138,8 +184,7 @@ static void ensure_terms(idx_t need)
             /* store term */
             if (term_count >= term_capacity) {
                 size_t new_cap = term_capacity * 2;
-                seq_t *tmp = (seq_t *)realloc(term_arr,
-                                              new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, term_arr, new_cap);
                 term_arr = tmp;
                 term_capacity = new_cap;
             }

@@ -13,13 +13,16 @@
  *            runs in O(n·E) time where E ≈ 3×10⁴ is the total number...
  * Range:     u8 none, u16 n <= 9, u32 n <= 22, u64 n <= 46, u128 n <= 96,
  *            big any n
- * Helpers:   sabs
+ * Validated: standard, pass, 42 terms through n = 204 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
-#include "../utils/sabs.h"
+
+/* absolute value for int */
+static inline int sabs(int x) { return x < 0 ? -x : x; }
 
 /* external integer types supplied by the build system */
 extern seq_t a(idx_t n);          /* already declared in the build headers */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 852, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 70 terms through n = 996 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Cached sequence data. */
 static seq_t *cache      = NULL;   /* array of the sequence terms   */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
         /* Find the next prime candidate */
         for (;;) {
             seq_t cand = (seq_t)next_cand;
-            if (!is_prime_small(cand)) {                /* not prime */
+            if (!is_prime_seq(cand)) {                /* not prime */
                 ++next_cand;
                 continue;
             }
@@ -39,12 +41,12 @@ static void ensure_cache(idx_t n)
             /* 2*p+1 must be composite, 2*p+3 must be prime */
             seq_t two_p_plus1 = ((seq_t)next_cand << 1) + 1;
             seq_t two_p_plus3 = ((seq_t)next_cand << 1) + 3;
-            if (!is_prime_small(two_p_plus1) &&
-                is_prime_small(two_p_plus3)) {
+            if (!is_prime_seq(two_p_plus1) &&
+                is_prime_seq(two_p_plus3)) {
                 /* Store the prime */
                 if (cache_len == cache_cap) {
                     cache_cap = cache_cap ? cache_cap * 2 : 16;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = cand;
                 ++next_cand;   /* advance for future searches */

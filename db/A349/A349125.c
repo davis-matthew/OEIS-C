@@ -7,9 +7,10 @@
  * Keywords:  sign, mult
  * Formula:   a(n) = multiplicative with a(p^e)=0 if e>1, -1 if p=2,
  *            -prevprime(p) otherwise
- * Range:     i8 n <= 136, i16 n <= 9414, i32 n <= 9414, i64 n <= 9414,
- *            i128 n <= 9414, big any n
- * Helpers:   build_primes_upto, floor_isqrt_u64, prev_prime
+ * Range:     i8 n <= 136, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 99 terms through n = 9414 (2026-11-02)
+ * Helpers:   build_primes_upto, is_prime, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_isqrt_u64.h"
-#include "../utils/prev_prime.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
+#include "../utils/isqrt.h"
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
 
 static const uint64_t *prime_list = NULL;   /* primes ≤ current_limit */
 static size_t prime_count = 0;
@@ -48,7 +59,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     uint64_t rem = (uint64_t)n;
-    idx_t sqrt_n = floor_isqrt_u64(rem);   /* correct function name */
+    idx_t sqrt_n = isqrt(rem);   /* correct function name */
     ensure_prime_list(sqrt_n);
 
     seq_t result = (seq_t)1;

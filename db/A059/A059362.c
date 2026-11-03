@@ -11,7 +11,8 @@
  *            exponentiation, and caches the primes that pass the...
  * Range:     u8 n <= 42, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _gcd_u64, mod_pow
+ * Validated: standard, pass, 73 terms through n = 997 (2026-11-03)
+ * Helpers:   gcd_u64, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/mod_pow.h"
-#include "../utils/_gcd_u64.h"
+#include <string.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* integer gcd for 64‑bit values */
 
@@ -44,7 +47,7 @@ seq_t a(idx_t n)
 
         /* initialise good‑prime list */
         good_cap = 64;
-        good_list = (seq_t *)malloc(good_cap * sizeof(seq_t));
+        good_list = mem_new(seq_t, good_cap);
         good_count = 0;
 
         initialized = true;
@@ -75,15 +78,14 @@ seq_t a(idx_t n)
 
             /* test the 24‑th‑power‑residue condition */
             uint64_t p_minus_1 = (uint64_t)(candidate - 1);
-            uint64_t g = _gcd_u64(24ULL, p_minus_1);
+            uint64_t g = gcd_u64(24ULL, p_minus_1);
             uint64_t exp = p_minus_1 / g;       /* exponent to test */
-            seq_t res = mod_pow((seq_t)2, exp, (seq_t)candidate);
+            seq_t res = powmod((seq_t)2, exp, (seq_t)candidate);
 
             if (res != (seq_t)1) {               /* 2 is NOT a 24‑th residue */
                 if (good_count == good_cap) {
                     good_cap <<= 1;
-                    good_list = (seq_t *)realloc(good_list,
-                                                 good_cap * sizeof(seq_t));
+                    good_list = mem_resize(seq_t, good_list, good_cap);
                 }
                 good_list[good_count++] = (seq_t)candidate;
             }

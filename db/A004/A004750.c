@@ -5,15 +5,26 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, base
  * Formula:   not stated
- * Range:     u8 n <= 122, u16 n <= 8133, u32 n <= 8133, u64 n <= 8133,
- *            u128 n <= 8133, big any n
- * Helpers:   contains_011
+ * Range:     u8 n <= 122, u16 n <= 32769, u32 n <= 32769, u64 n <= 32769,
+ *            u128 n <= 32769, big any n
+ * Validated: standard, pass, 74 terms through n = 8133 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/contains_011.h"
+
+static bool contains_011(seq_t num) {
+    if (num < 4) return false;
+    while (num >= 4) {
+        if ((num & 7) == 3) {
+            return true;
+        }
+        num >>= 1;
+    }
+    return false;
+}
 
 /* Search for the n-th positive integer whose binary expansion contains '011' */
 

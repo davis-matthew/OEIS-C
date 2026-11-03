@@ -12,7 +12,8 @@
  *            = 1, a(3) = 1, a(4) = 0, a(5) = 2, …
  * Range:     u8 n <= 26, u16 n <= 51, u32 n <= 100, u64 n <= 226,
  *            u128 n <= 523, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9308 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----- integer square‑root (floor) on unsigned 64‑bit integers -------------------
  * Only basic arithmetic operations are used, no floating point or <math.h>.
@@ -46,14 +48,14 @@ static idx_t fact_limit = 0;        /* current cache size                  */
 static seq_t get_factorial(idx_t n)
 {
     if (fact_cache == NULL) {
-        fact_cache = (seq_t *)malloc(sizeof(seq_t));
+        fact_cache = mem_new(seq_t, 1);
         if (!fact_cache) return 0;
         fact_cache[0] = 1;
         fact_limit = 1;
     }
     if (n >= fact_limit) {
         size_t new_lim = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(fact_cache, new_lim * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, fact_cache, new_lim);
         if (!new_cache) return 0;
         for (idx_t i = fact_limit; i <= n; ++i)
             new_cache[i] = new_cache[i - 1] * (seq_t)i;

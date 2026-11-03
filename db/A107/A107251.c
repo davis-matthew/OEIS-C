@@ -11,16 +11,30 @@
  *            arithmetic is used
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 7,
  *            big any n
- * Helpers:   exp_sf
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Requires interface of seq_t and idx_t as provided by the build. */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/exp_sf.h"
+
+/* Exponent of prime p in the superfactorial SF(m). */
+static uint64_t exp_sf(uint64_t m, int p) {
+    uint64_t exp = 0;
+    uint64_t d = (uint64_t)p;
+    while (d <= m) {
+        uint64_t L = m / d;
+        exp += L * (m + 1) - d * L * (L + 1) / 2;
+        if (d > m / (uint64_t)p) break; /* avoid overflow */
+        d *= (uint64_t)p;
+    }
+    return exp;
+}
 
 /* Prime table (max prime needed for n <= 10000 is 20000). */
 static int primes[3000];

@@ -10,12 +10,14 @@
  *            C(k+3,3)=(k+1)(k+2)(k+3)/6
  * Range:     u8 n <= 15, u16 n <= 29, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for the triangle rows. */
 static seq_t **rows      = NULL;   /* array of pointers to rows */
@@ -51,7 +53,7 @@ ensure_rows_up_to(idx_t max_row)
 
     for (idx_t r = rows_cnt; r <= max_row; ++r) {
         size_t len = (size_t)(r + 1);
-        seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row)
             abort();
 

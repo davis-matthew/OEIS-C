@@ -10,7 +10,8 @@
  *            decimal. The sequence has 12 terms (offset 1)
  * Range:     u8 none, u16 none, u32 none, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Compilation requirement: C11 / C++17, seq_t and idx_t supplied by the build. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Digits of 13143449029 in base 7: 643464321244. */
 static const unsigned char base7_digits[12] = {6,4,3,4,6,4,3,2,1,2,4,4};
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         }
         /* Copy into sorted array and sort ascending. */
         for (int i = 0; i < 12; ++i) sorted[i] = vals[i];
-        qsort(sorted, 12, sizeof(seq_t), cmp_seq);
+        mem_qsort(sorted, 12, sizeof(seq_t), cmp_seq);
         ready = true;
     }
 

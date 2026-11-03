@@ -8,7 +8,8 @@
  *            floor(n^(1/5))
  * Range:     u8 n <= 22, u16 n <= 362, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   integer_fifth_root, pow5_leq
+ * Validated: standard, pass, 70 terms through n = 9774 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,46 @@
    integer or an arbitrary‑precision type, both of which accept conversion
    from a C integer.  */
 #include <stdbool.h>
-#include "../utils/integer_fifth_root.h"
-#include "../utils/pow5_leq.h"
+
+static bool pow5_leq(idx_t base, idx_t limit)
+/* Return true iff base^5 <= limit, without overflow. */
+{
+    unsigned __int128 prod = 1;
+    for (int i = 0; i < 5; ++i) {
+        if (prod > (unsigned __int128)(limit) / base)
+            return false;
+        prod *= base;
+    }
+    return true;
+}
+
+static idx_t integer_fifth_root(idx_t n)
+/* Return the largest r with r^5 <= n. */
+{
+    idx_t low = 0;
+    idx_t high = 1;
+
+    /* Grow high until high^5 > n.  Stop if high would overflow. */
+    while (pow5_leq(high, n)) {
+        if (high >= (UINT64_MAX >> 1))
+            high = UINT64_MAX;
+        else
+            high <<= 1;
+        if (high == UINT64_MAX && pow5_leq(high, n))
+            break;     /* cannot grow any further */
+    }
+
+    /* Binary search between low and high (inclusive).  */
+    while (low < high) {
+        idx_t mid = low + ((high - low + 1) >> 1);   /* upper mid */
+        if (pow5_leq(mid, n))
+            low = mid;
+        else
+            high = mid - 1;
+    }
+
+    return low;
+}
 
 seq_t a(idx_t n)
 {

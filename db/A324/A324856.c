@@ -7,7 +7,8 @@
  * Formula:   numbers n such that exactly one of its prime indices divides n
  * Range:     u8 n <= 50, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 8086 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Static state for the sieve, prime indexing and result caching        */
@@ -41,7 +43,7 @@ static void _rebuild(idx_t new_limit)
     free(_spf);
     free(_prime_index_of);
     free(_primes);
-    free(_cache);
+    mem_free(_cache);
 
     _limit = new_limit;
     _cache_len = 0;
@@ -86,7 +88,7 @@ static void _rebuild(idx_t new_limit)
 
     /* preparing cache capacity */
     _cache_cap = 1024;
-    _cache = (seq_t *)malloc(_cache_cap * sizeof(seq_t));
+    _cache = mem_new(seq_t, _cache_cap);
     if (!_cache) abort();
 
     /* ----------------------------------------------------------------- */
@@ -119,7 +121,7 @@ static void _rebuild(idx_t new_limit)
         if (divisors == 1) {
             if (_cache_len == _cache_cap) {
                 _cache_cap <<= 1;
-                _cache = (seq_t *)realloc(_cache, _cache_cap * sizeof(seq_t));
+                _cache = mem_resize(seq_t, _cache, _cache_cap);
                 if (!_cache) abort();
             }
             _cache[_cache_len++] = (seq_t)cand;

@@ -11,15 +11,17 @@
  *            m is exactly at index n-1, then a(n) = 0. Otherwise, let k (<
  *            n-1) be the previous occurrence of m and j the first occurrence
  *            of m. Then a(n) = min(n-1-k, j)
- * Range:     u8 n <= 598, u16 n <= 9662, u32 n <= 9662, u64 n <= 9662,
- *            u128 n <= 9662, big any n
- * Helpers:   none
+ * Range:     u8 n <= 598, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 112 terms through n = 9662 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Hash bucket for first occurrence lookup */
 typedef struct {
@@ -45,7 +47,7 @@ static size_t hash_seq_t(seq_t v) {
 static void first_resize(size_t need) {
     size_t new_cap = first_cap ? first_cap : 8;
     while (new_cap < need) new_cap <<= 1;
-    bucket_t *new_tab = (bucket_t*)calloc(new_cap, sizeof(bucket_t));
+    bucket_t *new_tab = mem_new(bucket_t, new_cap);
     if (!new_tab) exit(1); /* Allocation failed */
     for (size_t i = 0; i < first_cap; ++i) {
         if (first_tab[i].used) {
@@ -54,7 +56,7 @@ static void first_resize(size_t need) {
             new_tab[h] = first_tab[i];
         }
     }
-    free(first_tab);
+    mem_free(first_tab);
     first_tab = new_tab;
     first_cap = new_cap;
 }
@@ -101,7 +103,7 @@ static void build_up_to(idx_t n) {
         /* Initial allocation */
         size_t cap = 4;
         while (cap < (size_t)n + 1) cap <<= 1;
-        seq = (seq_t*)malloc((cap + 1) * sizeof(seq_t));
+        seq = mem_new(seq_t, (cap + 1));
         if (!seq) exit(1);
         seq_cap = cap;
         seq_len = 1;
@@ -110,7 +112,7 @@ static void build_up_to(idx_t n) {
     } else if ((size_t)n + 1 > seq_cap) {
         size_t new_cap = seq_cap;
         while (new_cap < (size_t)n + 1) new_cap <<= 1;
-        seq = (seq_t*)realloc(seq, (new_cap + 1) * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, (new_cap + 1));
         if (!seq) exit(1);
         seq_cap = new_cap;
     }

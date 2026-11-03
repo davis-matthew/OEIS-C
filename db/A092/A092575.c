@@ -9,12 +9,13 @@
  *            3y^2 with x>0, y>0, gcd(x,y)=1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isqrt_lim
+ * Validated: standard, pass, 118 terms through n = 9218 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/isqrt_lim.h"
+#include "../utils/isqrt.h"
 
 /* Euclidean algorithm for seq_t values */
 static seq_t seq_gcd(seq_t a, seq_t b)
@@ -40,7 +41,7 @@ seq_t a(idx_t n)
         idx_t y2 = t / 3;
         if (y2 == 0)          /* y must be >0 */
             continue;
-        idx_t y = isqrt_lim(y2);
+        idx_t y = isqrt(y2);
         if (y * y != y2)      /* not a perfect square */
             continue;
         if (seq_gcd((seq_t)x, (seq_t)y) == 1)

@@ -11,7 +11,8 @@
  *            triple-sum counts, updated each time a term is added
  * Range:     u8 n <= 36, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ensure_bytes
+ * Validated: standard, pass, 72 terms through n = 941 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/ensure_bytes.h"
+
+static unsigned char *ensure_bytes(unsigned char *arr, size_t *cap, size_t need) {
+    if (need <= *cap) return arr;
+    size_t nc = *cap ? *cap : 1024;
+    while (nc < need) nc *= 2;
+    arr = (unsigned char *)realloc(arr, nc);
+    memset(arr + *cap, 0, nc - *cap);
+    *cap = nc;
+    return arr;
+}
 
 static int64_t *T = NULL;
 static size_t nt = 0, capT = 0;

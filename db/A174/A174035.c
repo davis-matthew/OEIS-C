@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 38, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t a, idx_t b) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t **eul_rows   = NULL;   /* eul_rows[i]  → array of Eulerian(i,k), k=0..i */
 static idx_t  eul_max     = 0;      /* highest row computed (0 based) */
@@ -41,7 +43,7 @@ ensure_euler(idx_t max_needed)
     /* Compute new rows. */
     for (idx_t i = eul_max + 1; i <= max_needed; ++i) {
         /* Each row i has i+1 elements (indices 0..i). */
-        seq_t *row = (seq_t *)calloc((size_t)(i + 1), sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)(i + 1));
         if (!row) abort();
 
         if (i == 0) {                      /* A(0,0)=1 */

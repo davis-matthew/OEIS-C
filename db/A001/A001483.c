@@ -9,6 +9,7 @@
  *            (-1)^k (x^(k(3k-1)/2) + x^(k(3k+1)/2))
  * Range:     i8 n <= 27, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 74 terms through n = 9483 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

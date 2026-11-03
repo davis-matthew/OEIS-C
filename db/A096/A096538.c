@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    a(0) = 1
    a(n+1) = Σ_{i=0..n} (i+1)·2^i·C(n,i)·a(i)·a(n-i)   for n ≥ 0   */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*--- cache for computed a(n) values ----------------------------------*/
 static seq_t *a_cache      = NULL;   /* a_cache[n] == a(n) */
@@ -35,7 +37,7 @@ static void ensure_a_cache(idx_t n)
     if (a_cache_len < need) {
         size_t newlen = a_cache_len ? a_cache_len : 4;
         while (newlen < need) newlen <<= 1;
-        a_cache = (seq_t *)realloc(a_cache, newlen * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, newlen);
         a_cache_len = newlen;
     }
     if (a_computed == 0) {          /* first time: set a(0)=1 */
@@ -51,7 +53,7 @@ static void ensure_pow2_cache(idx_t n)
     if (pow2_len < need) {
         size_t newlen = pow2_len ? pow2_len : 4;
         while (newlen < need) newlen <<= 1;
-        pow2_cache = (seq_t *)realloc(pow2_cache, newlen * sizeof(seq_t));
+        pow2_cache = mem_resize(seq_t, pow2_cache, newlen);
         /* initialise new entries */
         size_t start = pow2_len;
         if (start == 0) {            /* first entry must be 1 */

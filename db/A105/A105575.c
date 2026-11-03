@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   mod_mul
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_mul.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
 
 /* ---------- small helper functions ---------- */
 
@@ -29,8 +31,8 @@ static uint64_t mod_pow(uint64_t base, uint64_t exp, uint64_t mod)
 {
     uint64_t result = 1;
     while (exp) {
-        if (exp & 1) result = mod_mul(result, base, mod);
-        base = mod_mul(base, base, mod);
+        if (exp & 1) result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -68,7 +70,7 @@ static bool isPrime64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mod_mul(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 composite = false;
                 break;

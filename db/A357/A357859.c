@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   _floor_isqrt_u64, grow_seq_array
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,22 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/grow_seq_array.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 /* Count factorizations of ``rem`` into distinct even factors all ≥ ``min_f``.
    The factors are enumerated in ascending order to guarantee distinctness. */
@@ -31,7 +46,7 @@ static seq_t factorizations_of(uint64_t rem, uint64_t min_f)
     if ((rem & 1ULL) == 0ULL && rem >= min_f)
         total += 1;
 
-    uint64_t limit = _floor_isqrt_u64(rem);
+    uint64_t limit = isqrt(rem);
     for (uint64_t d = min_f; d <= limit; ++d)
     {
         if ((d & 1ULL) == 0ULL && rem % d == 0ULL)

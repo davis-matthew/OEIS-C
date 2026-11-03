@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 654, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   bigomega, count_distinct_primes
+ * Validated: standard, pass, 63 terms through n = 1966 (2026-11-03)
+ * Helpers:   bigomega, mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include <stdbool.h>
 #include "../utils/bigomega.h"
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* Static cache for the sequence terms */
 static seq_t *cache = NULL;
@@ -38,7 +41,7 @@ static void ensure_cache_capacity(size_t need)
     while (new_cap < need)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();                 /* allocation failure */
     cache = tmp;
     cache_cap = new_cap;
@@ -54,7 +57,7 @@ static void generate_next_term(void)
         /* Compute the total and distinct prime factor counts */
         idx_t cand = (idx_t)last_checked;
         seq_t  bigo   = bigomega(cand);              /* Ω(m) */
-        uint64_t distinct = count_distinct_primes(last_checked); /* ω(m) */
+        uint64_t distinct = omega(last_checked); /* ω(m) */
 
         /* Check defining condition */
         if (bigo == 3 * (seq_t)distinct)

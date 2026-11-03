@@ -8,13 +8,15 @@
  * Formula:   a(1) = 11, a(n+1) = a(n)^2 - a(n) + 1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* cache of computed terms */
 static idx_t  cached_n = 0;        /* number of terms cached (max n) */
@@ -31,7 +33,7 @@ static void ensure_capacity(idx_t needed)
         return;
 
     idx_t new_cap = needed;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         return; /* allocation failed – in practice the test harness will not hit this */
 
@@ -45,7 +47,7 @@ static void ensure_capacity(idx_t needed)
         new((void*)&new_cache[i]) seq_t();
 #endif
 
-    free(cache);
+    mem_free(cache);
     cache   = new_cache;
     capacity = new_cap;
 }

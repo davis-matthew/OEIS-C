@@ -8,7 +8,8 @@
  * Formula:   a(n) = min{ T_k - p_n | T_k triangular >= p_n }
  * Range:     u8 n <= 4, u16 n <= 85, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt, next_prime
+ * Validated: standard, pass, 101 terms through n = 9811 (2026-11-01)
+ * Helpers:   ipow_i32, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,26 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t start); */
-#include "../utils/floor_sqrt.h"   /* seq_t floor_sqrt(seq_t x); */
+#include "../utils/ipow_i32.h"
+#include "../utils/next_prime.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static uint64_t *primes_u64 = NULL;   /* array of primes (uint64_t) */
 static size_t      primes_cnt = 0;    /* number of primes stored */

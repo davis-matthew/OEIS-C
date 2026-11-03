@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor((2*n^3 + 3*n^2 - 11*n + 42)/114)
  * Range:     u8 n <= 24, u16 n <= 154, u32 n <= 895, u64 n <= 895,
  *            u128 n <= 895, big any n
+ * Validated: standard, pass, 67 terms through n = 833 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

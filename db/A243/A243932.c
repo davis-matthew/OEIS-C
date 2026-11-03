@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 2518, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9609 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- helper : enumerate all divisors and count twin status ---------- */
 static void gen_divisors(int pos, uint64_t cur, uint64_t orig,
@@ -106,8 +108,7 @@ seq_t a(idx_t n)
         if (has_equal_twin_non_twin(cand)) {
             if (seq_len == seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap * 2 : 1;
-                seq_t *tmp = (seq_t *)realloc(seq_cache,
-                                              new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
                 if (!tmp) abort();          /* out‑of‑memory */
                 seq_cache = tmp;
                 seq_cap   = new_cap;

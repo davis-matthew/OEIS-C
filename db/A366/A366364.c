@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 12, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Generating function: A(x) = (1 + x/A(x)^2)/(1 - x) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
     /* first call – initialise arrays for index 0 */
     if (!A) {
         cap = 1;
-        A = (seq_t *)malloc(2 * sizeof(seq_t));   /* indices 0 .. cap */
-        C = (seq_t *)malloc(2 * sizeof(seq_t));
+        A = mem_new(seq_t, 2);   /* indices 0 .. cap */
+        C = mem_new(seq_t, 2);
         A[0] = 1;
         C[0] = 1;              /* conv[0] = a0*a0 = 1 */
         triple_last = 1;        /* triple[0] = a0*conv[0] = 1 */
@@ -39,8 +41,8 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cap) {
         size_t newcap = cap ? cap : 1;
         while ((size_t)n + 1 > newcap) newcap <<= 1;
-        A = (seq_t *)realloc(A, (newcap + 1) * sizeof(seq_t));
-        C = (seq_t *)realloc(C, (newcap + 1) * sizeof(seq_t));
+        A = mem_resize(seq_t, A, (newcap + 1));
+        C = mem_resize(seq_t, C, (newcap + 1));
         cap = newcap;
     }
 

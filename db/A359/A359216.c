@@ -8,8 +8,9 @@
  * Formula:   a(n) = B(ceil(n/2)) where B(m) is the sequence A329116 given by
  *            t = floor(sqrt(m)) j = m - t*t if t == 0 -> B(m) = 0 else if t
  *            odd -> B(m) = t - j else -> B(m) = -t + j
- * Range:     i8 n <= 9649, i16 n <= 9649, i32 n <= 9649, i64 n <= 9649,
- *            i128 n <= 9649, big any n
+ * Range:     i8 n <= 10081, i16 n <= 10081, i32 n <= 10081, i64 n <= 10081,
+ *            i128 n <= 10081, big any n
+ * Validated: standard, pass, 92 terms through n = 9649 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

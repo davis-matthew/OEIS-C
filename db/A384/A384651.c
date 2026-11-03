@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 51, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *table = NULL;   /* flat array A[n][k] */
 static idx_t stride = 0;      /* current maximal n,k + 1 */
@@ -47,7 +49,7 @@ static void recompute_table(idx_t maxd)
 {
     idx_t new_stride = maxd + 1;
     size_t new_size = (size_t)new_stride * (size_t)new_stride;
-    seq_t *new_table = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_table = mem_new(seq_t, new_size);
     if (!new_table) abort();
 
     for (idx_t n = 0; n <= maxd; ++n) {
@@ -63,7 +65,7 @@ static void recompute_table(idx_t maxd)
                 seq_t sum = 0;
                 for (idx_t j = 0; j <= n; ++j) {
                     idx_t denom = 2 * n - j + k;
-                    seq_t term = binom(denom, j);
+                    seq_t term = binomial(denom, j);
                     term *= new_table[(n - j) * new_stride + j];
                     term *= (seq_t)k;
                     term /= (seq_t)denom;
@@ -75,7 +77,7 @@ static void recompute_table(idx_t maxd)
         }
     }
 
-    free(table);
+    mem_free(table);
     table = new_table;
     stride = new_stride;
 }

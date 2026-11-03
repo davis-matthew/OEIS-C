@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 163, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   equal_zeros_fives
+ * Validated: standard, pass, 85 terms through n = 9778 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
    representation contains the same number of 0's and 5's. */
 
 #include <stdlib.h>
-#include "../utils/equal_zeros_fives.h"
+#include "../utils/mem.h"
+
+/* Count zeros and fives in the base‑9 representation of x. */
+static int equal_zeros_fives(seq_t x)
+{
+    unsigned zeros = 0, fives = 0;
+    while (x != (seq_t)0) {
+        int d = (int)(x % (seq_t)9);
+        if (d == 0) ++zeros;
+        else if (d == 5) ++fives;
+        x /= (seq_t)9;
+    }
+    return zeros == fives;
+}
 
 static seq_t *cache      = NULL;   /* array of found numbers          */
 static size_t cache_len  = 0;      /* current number of entries       */
@@ -29,7 +43,7 @@ static void cache_append(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc((void *)cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

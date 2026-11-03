@@ -12,12 +12,14 @@
  *            * up to the leading term, row by row. For a...
  * Range:     u8 n <= 59, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Find the row r such that r(r+1)/2 >= n. */
@@ -33,10 +35,10 @@ seq_t a(idx_t n) {
 
     /* Allocate arrays for u and v of the current row. */
     size_t cur_len = 1;
-    seq_t *u = (seq_t *)malloc(sizeof(seq_t) * cur_len);
-    seq_t *v = (seq_t *)malloc(sizeof(seq_t) * cur_len);
+    seq_t *u = mem_new(seq_t, cur_len);
+    seq_t *v = mem_new(seq_t, cur_len);
     if (!u || !v) { /* allocation failure – return 0 as a sentinel */
-        free(u); free(v);
+        mem_free(u); mem_free(v);
         return 0;
     }
     u[0] = 1;      /* u(1,x) = 1 */
@@ -44,18 +46,18 @@ seq_t a(idx_t n) {
 
     if (r == 1) {
         seq_t res = v[0];
-        free(u); free(v);
+        mem_free(u); mem_free(v);
         return res;
     }
 
     /* Iterate from row 2 up to row r. */
     for (idx_t row = 2; row <= r; ++row) {
         size_t new_len = cur_len + 1;
-        seq_t *u_new = (seq_t *)malloc(sizeof(seq_t) * new_len);
-        seq_t *v_new = (seq_t *)malloc(sizeof(seq_t) * new_len);
+        seq_t *u_new = mem_new(seq_t, new_len);
+        seq_t *v_new = mem_new(seq_t, new_len);
         if (!u_new || !v_new) {
-            free(u); free(v);
-            free(u_new); free(v_new);
+            mem_free(u); mem_free(v);
+            mem_free(u_new); mem_free(v_new);
             return 0;
         }
 
@@ -66,7 +68,7 @@ seq_t a(idx_t n) {
             v_new[k] = shift + v_val + ((k == 0) ? (seq_t)1 : (seq_t)0); /* v(row)[k] + 1 if constant term */
         }
 
-        free(u); free(v);
+        mem_free(u); mem_free(v);
         u = u_new;
         v = v_new;
         cur_len = new_len;
@@ -76,6 +78,6 @@ seq_t a(idx_t n) {
     seq_t result = v[offset];
 
     /* Clean up. */
-    free(u); free(v);
+    mem_free(u); mem_free(v);
     return result;
 }

@@ -11,7 +11,8 @@
  *            times, and the remaining r−m parts contain no part equal to r
  * Range:     u8 n <= 42, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const idx_t N_MAX = 20000;          /* pre‑compute for n up to 20000 */
 
@@ -49,11 +51,11 @@ static void init_tables(void)
     /* allocate flat DP table dp[k][m]  (k=0…MAX_K, m=0…N_MAX)      */
     size_t stride  = (size_t)(N_MAX + 1);
     size_t dp_size = (size_t)(MAX_K + 1) * stride;
-    dp = (seq_t *)malloc(dp_size * sizeof(seq_t));
+    dp = mem_new(seq_t, dp_size);
     if (!dp) { exit(1); }
 
     /* allocate result table a(n)  (n=0…N_MAX)                       */
-    a_table = (seq_t *)malloc((N_MAX + 1) * sizeof(seq_t));
+    a_table = mem_new(seq_t, (N_MAX + 1));
     if (!a_table) { exit(1); }
 
     /* initialise tables to zero */

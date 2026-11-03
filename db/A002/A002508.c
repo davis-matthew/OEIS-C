@@ -12,14 +12,23 @@
  *            c(k)*a(m-k...
  * Range:     i8 n <= 10, i16 n <= 18, i32 n <= 43, i64 n <= 121,
  *            i128 n <= 394, big any n
- * Helpers:   a002508_isbig
+ * Validated: standard, pass, 53 terms through n = 880 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/a002508_isbig.h"
+#include "../utils/mem.h"
+
+static int a002508_isbig(void) {
+    static volatile int one = 1;
+    seq_t x = (seq_t)one;
+    int i;
+    for (i = 0; i < 140; i++) x = x + x;
+    return !(x == 0);
+}
 
 static seq_t *a002508_fx = NULL;
 static idx_t a002508_fxlen = 0;
@@ -27,7 +36,7 @@ static idx_t a002508_fxlen = 0;
 static void a002508_fixed_build(idx_t N) {
     idx_t k, j;
     int t;
-    seq_t *f = (seq_t *)malloc(N * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, N);
     for (j = 0; j < N; j++) f[j] = 0;
     f[0] = 1;
     for (k = 1; k < N; k++) {
@@ -41,7 +50,7 @@ static void a002508_fixed_build(idx_t N) {
                 for (j = k; j < N; j++) f[j] += f[j - k];
         }
     }
-    free(a002508_fx);
+    mem_free(a002508_fx);
     a002508_fx = f;
     a002508_fxlen = N;
 }
@@ -54,8 +63,8 @@ static void a002508_big_build(idx_t N) {
     static const int bv[6] = {-2, 8, 12, 8, -2, 0};
     idx_t old = a002508_blen, i, k, d;
     long long *cc = (long long *)calloc(N, sizeof(long long));
-    seq_t *na = (seq_t *)malloc(N * sizeof(seq_t));
-    seq_t *nc = (seq_t *)malloc(N * sizeof(seq_t));
+    seq_t *na = mem_new(seq_t, N);
+    seq_t *nc = mem_new(seq_t, N);
     for (d = 1; d < N; d++) {
         long long w = (long long)d * bv[(d - 1) % 6];
         if (w == 0) continue;
@@ -73,8 +82,8 @@ static void a002508_big_build(idx_t N) {
         }
         na[i] = s / (seq_t)i;
     }
-    free(a002508_ba);
-    free(a002508_bc);
+    mem_free(a002508_ba);
+    mem_free(a002508_bc);
     a002508_ba = na;
     a002508_bc = nc;
     a002508_blen = N;

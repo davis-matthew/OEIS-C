@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 133, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9703 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* Integer square root for unsigned 64‑bit numbers. */
 static inline idx_t isqrt_u64(idx_t n)
@@ -89,7 +91,7 @@ static void init_sequence(void)
     for (idx_t v = 1; v <= LIMIT; ++v)
         if (seen[(size_t)v]) ++values_len;
 
-    values = (seq_t *)malloc(values_len * sizeof(seq_t));
+    values = mem_new(seq_t, values_len);
     assert(values != NULL);
 
     size_t pos = 0;

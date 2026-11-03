@@ -8,14 +8,17 @@
  *            k! , derived from A(x) = exp( x * A(x)^5 / (1 - x * A(x)^2) )
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Cached values of the sequence to support arbitrary-order queries */
 static seq_t *cache = NULL;        /* array of seq_t values */
@@ -40,7 +43,7 @@ static seq_t compute_term(idx_t n)
         seq_t base     = (seq_t)base_idx;
 
         /* pow_val = base^(k-1) */
-        seq_t pow_val  = big_pow(base, (seq_t)(k - 1));
+        seq_t pow_val  = ipow(base, (seq_t)(k - 1));
 
         /* term = ratio * pow_val * binom */
         seq_t term = ratio * pow_val;
@@ -62,7 +65,7 @@ seq_t a(idx_t n)
     /* Ensure the cache is initialized */
     if (cache == NULL) {
         cache_cap = 1;
-        cache     = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache     = mem_new(seq_t, cache_cap);
         if (cache == NULL) {
             /* Allocation failed – return zero as a safe fallback */
             return (seq_t)0;
@@ -79,7 +82,7 @@ seq_t a(idx_t n)
     /* Extend cache if necessary */
     if (n + 1 > cache_cap) {
         size_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) {
             /* Realloc failed – return zero or use previous cache */
             return (seq_t)0;

@@ -9,12 +9,13 @@
  *            sigma_k(n) = sum_{d|n} d^k
  * Range:     u8 none, u16 none, u32 n <= 1, u64 n <= 6, u128 n <= 64,
  *            big any n
- * Helpers:   pow_small_k
+ * Validated: standard, pass, 30 terms through n = 9219 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_small_k.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +33,7 @@ seq_t a(idx_t n)
             t >>= 1;
             ++e;
         }
-        seq_t p_pow = pow_small_k((seq_t)2, 19);
+        seq_t p_pow = ipow_idx((seq_t)2, 19);
         seq_t part = 1;
         seq_t term = 1;
         for (idx_t i = 0; i < e; ++i) {
@@ -50,7 +51,7 @@ seq_t a(idx_t n)
                 t /= p;
                 ++e;
             }
-            seq_t p_pow = pow_small_k((seq_t)p, 19);
+            seq_t p_pow = ipow_idx((seq_t)p, 19);
             seq_t part = 1;
             seq_t term = 1;
             for (idx_t i = 0; i < e; ++i) {
@@ -63,7 +64,7 @@ seq_t a(idx_t n)
 
     /* remaining prime factor if any */
     if (t > 1) {
-        seq_t p_pow = pow_small_k((seq_t)t, 19);
+        seq_t p_pow = ipow_idx((seq_t)t, 19);
         seq_t part = 1;
         part += p_pow;   /* sigma for a prime factor with exponent 1 */
         sigma *= part;

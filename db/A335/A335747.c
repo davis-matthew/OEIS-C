@@ -10,12 +10,14 @@
  *            a(6)=380
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 24, u64 n <= 49, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static idx_t cache_size = 0;
@@ -23,11 +25,11 @@ static idx_t cache_size = 0;
 static void grow_cache(idx_t needed)
 {
     if (seq_cache == NULL) {
-        seq_cache = (seq_t*)malloc(needed * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, needed);
         if (seq_cache == NULL) abort();
         cache_size = needed;
     } else if (needed > cache_size) {
-        seq_t *tmp = (seq_t*)realloc(seq_cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, needed);
         if (tmp == NULL) abort();
         seq_cache = tmp;
         cache_size = needed;

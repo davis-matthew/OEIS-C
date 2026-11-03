@@ -12,13 +12,15 @@
  *            a(15)=58545
  * Range:     u8 n <= 1, u16 n <= 15, u32 n <= 35, u64 n <= 76, u128 n <= 158,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* C++ compatibility: idx_t and seq_t are defined by the build system.  */
 seq_t a(idx_t n)
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
 
     /* Allocate cache the first time or enlarge it if required.  */
     if (n + 1 > cache_capacity) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
         /* In the unlikely event of allocation failure we just abort;  */
         if (!tmp) abort();
         cache = tmp;

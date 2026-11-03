@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    the answer is trivially 1. */
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,14 +37,14 @@ seq_t a(idx_t n)
     /* Allocate storage for the residues of one full period.
        Pisano period ≤ 6*n for n>1. */
     size_t capacity = 6 * (size_t)n + 5;
-    seq_t *residues = (seq_t*)malloc(sizeof(seq_t) * capacity);
+    seq_t *residues = mem_new(seq_t, capacity);
     if (!residues) return 0;          /* allocation failed */
 
     /* Boolean arrays to record which residues appear at all and
        which ones have been seen while scanning. */
     bool *possible = (bool*)calloc((size_t)n, sizeof(bool));
     bool *seen     = (bool*)calloc((size_t)n, sizeof(bool));
-    if (!possible || !seen) { free(residues); return 0; }
+    if (!possible || !seen) { mem_free(residues); return 0; }
 
     /* Generate Fibonacci numbers modulo n until the pair (0,1) repeats. */
     seq_t prev = 0;
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
     }
 
     /* Clean up. */
-    free(residues);
+    mem_free(residues);
     free(possible);
     free(seen);
 

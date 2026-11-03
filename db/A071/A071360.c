@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   is_prime64
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 /* Generates the smallest n‑digit prime with strictly decreasing digits */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime64.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +46,7 @@ seq_t a(idx_t n)
                     if (mask & (1U << d))
                         num = num * 10 + d;
 
-                if (is_prime64(num)) {
+                if (is_prime_u64(num)) {
                     seq_t val = (seq_t)num;
                     if (best == 0 || val < best)
                         best = val;

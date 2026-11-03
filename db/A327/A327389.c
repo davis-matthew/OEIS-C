@@ -10,7 +10,8 @@
  *            OEIS starting at a(1)
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   build_primes_upto, build_spf, gcd_int, pow2
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   build_primes_upto, build_spf, gcd_i32, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/build_spf.h"
 #include "../utils/build_primes_upto.h"
-#include "../utils/gcd_int.h"
+#include "../utils/build_spf.h"
+#include "../utils/gcd_i32.h"
 #include "../utils/pow2.h"
 
 /* Cached data for all n seen */
@@ -99,7 +100,7 @@ seq_t a(idx_t n) {
             if (mask & ((size_t)1 << i)) {
                 for (size_t j = i + 1; j < prime_cnt && ok; ++j) {
                     if (mask & ((size_t)1 << j)) {
-                        if (gcd_int((int)indices[i], (int)indices[j]) != 1)
+                        if (gcd_i32((int)indices[i], (int)indices[j]) != 1)
                             ok = false;
                     }
                 }

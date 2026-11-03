@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 23, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* dynamic table of computed values   */
 static idx_t cache_len = 0;      /* allocated size (always > max index) */
@@ -37,7 +39,7 @@ static idx_t max_computed = 0;   /* highest index for which a value is stored */
 static void init_cache(void)
 {
     cache_len = 8;                    /* indices 0..7 */
-    cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_len);
     cache[0] = (seq_t)0;              /* unused, keep zero */
     cache[1] = (seq_t)32;
     cache[2] = (seq_t)1296;
@@ -59,7 +61,7 @@ static void ensure_cache(idx_t n)
     if (cache_len <= n) {
         size_t new_len = cache_len == 0 ? 8 : cache_len;
         while (new_len <= n) new_len <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         cache = tmp;
         cache_len = new_len;
     }

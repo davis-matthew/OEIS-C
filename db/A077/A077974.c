@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 20, i32 n <= 38, i64 n <= 38, i128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    than the cache is used, and the routine is O(n) in the largest
    argument supplied. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache for already computed terms */
 static seq_t *cache = NULL;
@@ -36,7 +38,7 @@ static void ensure_terms(idx_t n)
     idx_t new_size = n + 1;
 
     /* reallocate (if necessary) */
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp)      /* allocation failure – leave cache unchanged */
         return;
     cache = tmp;

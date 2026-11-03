@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_palindrome.h"   /* provides:  bool is_palindrome(seq_t x, idx_t base); */
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 /* Return the number of decimal digits of x (x>0). */
 static inline idx_t digit_len_seq(seq_t x)
@@ -52,10 +54,10 @@ seq_t a(idx_t n)
     /* Extend palindrome cache to cover up to next_candidate. */
     if (max_pal_pre < next_candidate) {
         for (idx_t i = max_pal_pre + 1; i <= next_candidate; ++i) {
-            if (is_palindrome((seq_t)i, (idx_t)10)) {
+            if (is_palindrome_base((seq_t)i, (idx_t)10)) {
                 if (pal_len >= pal_cap) {
                     pal_cap = pal_cap ? pal_cap * 2 : 4;
-                    pal_cache = (seq_t *)realloc(pal_cache, pal_cap * sizeof(seq_t));
+                    pal_cache = mem_resize(seq_t, pal_cache, pal_cap);
                 }
                 pal_cache[pal_len++] = (seq_t)i;
             }
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < pal_len && pal_cache[i] < next_candidate; ++i) {
             seq_t p = pal_cache[i];
             seq_t q = next_candidate - p;
-            if (is_palindrome(q, (idx_t)10)) {
+            if (is_palindrome_base(q, (idx_t)10)) {
                 idx_t d1 = digit_len_seq(p);
                 idx_t d2 = digit_len_seq(q);
                 if ((d1 > d2 ? d1 - d2 : d2 - d1) == 1) {
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
         if (ok) {
             if (seq_len >= seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 4;
-                seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
             }
             seq_cache[seq_len++] = next_candidate;
         }

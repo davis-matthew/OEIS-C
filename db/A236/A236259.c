@@ -12,13 +12,18 @@
  *            a(6)=2794651, a(7)=33899863, * a(8)=411212991, a(9)=4988112515
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   min_idx
+ * Validated: standard, pass, 33 terms through n = 175 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/min_idx.h"
+#include <math.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static inline idx_t min_idx(idx_t a, idx_t b){return a<b?a:b;}
 
 /* Cached sequence values, 1‑based. */
 static seq_t *cache = NULL;
@@ -51,7 +56,7 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap <= (size_t)n) new_cap = (size_t)n + 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache     = tmp;
     cache_cap = (idx_t)new_cap;
 }

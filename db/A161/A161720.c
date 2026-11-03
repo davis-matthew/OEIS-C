@@ -7,6 +7,7 @@
  * Formula:   a(n) = (prime(n) - 7)/2 (offset 3)
  * Range:     i8 n <= 32, i16 n <= 58, i32 n <= 58, i64 n <= 58, i128 n <= 58,
  *            big any n
+ * Validated: partial, pass, 56 terms through n = 58 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
 
 static uint32_t *prime_cache = NULL;

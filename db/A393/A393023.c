@@ -9,8 +9,9 @@
  * Keywords:  sign
  * Formula:   a(n) = z-coordinate of the n-th lattice point sorted by L = |x|
  *            + |y| + |z|, then by z, then by polar angle φ of (x,y)
- * Range:     i8 n <= 9757, i16 n <= 9757, i32 n <= 9757, i64 n <= 9757,
- *            i128 n <= 9757, big any n
+ * Range:     i8 n <= 11520, i16 n <= 11520, i32 n <= 11520, i64 n <= 11520,
+ *            i128 n <= 11520, big any n
+ * Validated: standard, pass, 105 terms through n = 9757 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

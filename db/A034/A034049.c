@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 2291, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 70 terms through n = 9584 (2026-11-01)
  * Helpers:   digit_product
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 /* Multiplicative digital root of a number is found by repeated
    multiplication of its decimal digits.  a(n) is the n‑th positive
    integer whose multiplicative digital root equals 2. */
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_product.h"
 
 seq_t a(idx_t n)

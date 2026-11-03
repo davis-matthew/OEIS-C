@@ -9,12 +9,14 @@
  *            factors
  * Range:     i8 n <= 17, i16 n <= 71, i32 n <= 238, i64 n <= 500,
  *            i128 n <= 500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 451 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;          /* array of computed coefficients */
 static idx_t   cache_size  = 0;        /* number of elements stored (0..size-1) */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Recompute cache if n is beyond current size */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)calloc(new_size, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return 0;          /* allocation failed */
 
         new_cache[0] = 1;                  /* multiplicative identity */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old cache */
-        free(a_cache);
+        mem_free(a_cache);
         a_cache    = new_cache;
         cache_size = new_size;
     }

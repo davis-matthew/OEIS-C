@@ -12,13 +12,15 @@
  *            status
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>   /* for memset */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -94,11 +96,11 @@ seq_t a(idx_t n)
     static seq_t *dp_cur = NULL;
     static seq_t *dp_next = NULL;
     if (!dp_cur) {
-        dp_cur = (seq_t*)malloc(STATES * sizeof(seq_t));
-        dp_next = (seq_t*)malloc(STATES * sizeof(seq_t));
+        dp_cur = mem_new(seq_t, STATES);
+        dp_next = mem_new(seq_t, STATES);
     }
     /* zero dp_cur */
-    memset(dp_cur, 0, STATES * sizeof(seq_t));
+    mem_set(dp_cur, 0, STATES * sizeof(seq_t));
 
     /* start state: all dummy positions considered already covered (mask=7),
        values 0 0 0 (encoded in indices). */
@@ -110,7 +112,7 @@ seq_t a(idx_t n)
     /* Main loop over positions */
     for (idx_t pos = 1; pos <= n; ++pos) {
         /* clear next DP */
-        memset(dp_next, 0, STATES * sizeof(seq_t));
+        mem_set(dp_next, 0, STATES * sizeof(seq_t));
 
         if (pos == 1) { /* only length 1 windows possible */
             for (int s = 0; s < STATES; ++s) {

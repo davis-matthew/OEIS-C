@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(x) * prime(y) where x divides y (offset 1)
  * Range:     u8 none, u16 none, u32 n <= 1981, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 73 terms through n = 9480 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------- */
 /* Helper comparator for qsort – suitable for both C and C++ compilers */
@@ -74,9 +76,9 @@ static void build_cache(void)
             /* Grow temporary array if needed */
             if (prod_cnt >= prod_cap) {
                 size_t new_cap = prod_cap ? prod_cap << 1 : 1024;
-                seq_t *tmp = (seq_t *)realloc(prod, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, prod, new_cap);
                 if (!tmp) {                               /* allocation failed */
-                    free(prod);
+                    mem_free(prod);
                     free(primes);
                     return;
                 }
@@ -89,14 +91,14 @@ static void build_cache(void)
 
     /* ---------------------------------------------------------------- */
     /* Sort the array                                                 */
-    qsort(prod, prod_cnt, sizeof(seq_t), cmp_seq);
+    mem_qsort(prod, prod_cnt, sizeof(seq_t), cmp_seq);
 
     /* ---------------------------------------------------------------- */
     /* Deduplicate and store into the cache                           */
     if (!cache) {
-        cache = (seq_t *)malloc(prod_cnt * sizeof(seq_t));
+        cache = mem_new(seq_t, prod_cnt);
         if (!cache) {                               /* allocation failed */
-            free(prod);
+            mem_free(prod);
             free(primes);
             return;
         }
@@ -112,7 +114,7 @@ static void build_cache(void)
 
     /* ---------------------------------------------------------------- */
     /* Clean up temporary data                                        */
-    free(prod);
+    mem_free(prod);
     free(primes);
 }
 

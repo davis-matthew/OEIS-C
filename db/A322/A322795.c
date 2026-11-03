@@ -11,14 +11,48 @@
  *            of n and k is strictly less than the Levenshtein distance
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   damerau_levenshtein
+ * Validated: standard, pass, 117 terms through n = 982 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/damerau_levenshtein.h"
+
+/* Damerau–Levenshtein distance (optimal string alignment) for binary
+   strings.  This variant allows one transposition of adjacent
+   characters (in either string) as a single operation. */
+static int damerau_levenshtein(const uint8_t *a, unsigned len_a,
+                               const uint8_t *b, unsigned len_b)
+{
+    static idx_t dp[70][70];
+
+    for (unsigned i = 0; i <= len_a; ++i)
+        dp[i][0] = i;
+    for (unsigned j = 0; j <= len_b; ++j)
+        dp[0][j] = j;
+
+    for (unsigned i = 1; i <= len_a; ++i) {
+        for (unsigned j = 1; j <= len_b; ++j) {
+            idx_t cost = (a[i-1] == b[j-1]) ? 0 : 1;
+            idx_t sub   = dp[i-1][j-1] + cost;
+            idx_t ins   = dp[i][j-1]   + 1;
+            idx_t del   = dp[i-1][j]   + 1;
+            idx_t best  = sub;
+            if (ins < best) best = ins;
+            if (del < best) best = del;
+            if (i > 1 && j > 1 &&
+                a[i-1] == b[j-2] &&
+                a[i-2] == b[j-1]) {
+                idx_t trans = dp[i-2][j-2] + 1;
+                if (trans < best) best = trans;
+            }
+            dp[i][j] = best;
+        }
+    }
+    return (int)dp[len_a][len_b];
+}
 
 /* Helper: get the binary representation of x.
    Bits are stored in buf[0..len-1] with the most

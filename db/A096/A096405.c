@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 3095, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   zeros_in_bin, zeros_in_tern
+ * Validated: standard, pass, 74 terms through n = 9823 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,37 @@
    as long as seq_t is assignable from a scalar of type seq_t.  The cache
    is grown with realloc, with an explicit cast to the seq_t* type. */
 #include <stdlib.h>
-#include "../utils/zeros_in_bin.h"
-#include "../utils/zeros_in_tern.h"
+#include "../utils/mem.h"
+
+/* Count zeros in the binary representation of x.
+   For x == 0 the representation is "0" (one zero). */
+static inline int zeros_in_bin(idx_t x)
+{
+    int z = 0;
+    if (x == 0)
+        return 1;
+    while (x) {
+        if ((x & 1) == 0)
+            z++;
+        x >>= 1;
+    }
+    return z;
+}
+
+/* Count zeros in the ternary representation of x.
+   For x == 0 the representation is "0" (one zero). */
+static inline int zeros_in_tern(idx_t x)
+{
+    int z = 0;
+    if (x == 0)
+        return 1;
+    while (x) {
+        if (x % 3 == 0)
+            z++;
+        x /= 3;
+    }
+    return z;
+}
 
 /* Cache for the seen terms.  Static so it survives across calls. */
 static seq_t *cache   = NULL;  /* pointer to the terms already found */
@@ -43,7 +73,7 @@ seq_t a(idx_t n)
                 /* Store the term in the cache. */
                 if (cache_len == cache_cap) {
                     cache_cap = cache_cap ? cache_cap * 2 : 16;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                     /* realloc may return NULL on failure; the harness assumes sufficient memory. */
                 }
                 cache[cache_len++] = (seq_t)x;

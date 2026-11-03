@@ -7,7 +7,8 @@
  * Formula:   a(n) = (p₅(n) + 1)/2, where p₅(n) is the n-th prime ≡ 5 (mod 8)
  * Range:     u8 n <= 14, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   estimate_bound
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/estimate_bound.h"
+
+/* Estimate an upper bound for the n-th prime congruent to 5 modulo 8.
+   For n >= 6 the bound p_n ≈ n (log n + log log n).  For the AP we
+   multiply by ~4.5 (density 1/4) and add a safety margin. */
+static size_t estimate_bound(idx_t n)
+{
+    if (n < 6) return 100;
+    double dn = (double)n;
+    double bound = dn * (log(dn) + log(log(dn))) * 4.5 + 10.0;
+    return (size_t)bound;
+}
 
 /* Compute the sequence term a(n). */
 seq_t a(idx_t n)

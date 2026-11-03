@@ -10,8 +10,9 @@
  * Formula:   A(n, k) = Sum_{i>=0} (b_{i+1}*c_i - b_i*c_{i+1}) * 3^i where
  *            b_i, c_i are the binary digits of n and k. a(n) is read from the
  *            square array A(n,k) by upwards antidiagonals
- * Range:     i8 n <= 4687, i16 n <= 8757, i32 n <= 8757, i64 n <= 8757,
- *            i128 n <= 8757, big any n
+ * Range:     i8 n <= 4687, i16 n <= 10010, i32 n <= 10010, i64 n <= 10010,
+ *            i128 n <= 10010, big any n
+ * Validated: standard, pass, 94 terms through n = 8757 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

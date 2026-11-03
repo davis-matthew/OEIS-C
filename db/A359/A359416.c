@@ -13,9 +13,10 @@
  *            the entry: For each block [2^(m‑1)+1, 2^m‑1] we first compute
  *            the top odd index 2^m‑1, then all even indices in descending
  *            order, and finally all remaining odd indices in de...
- * Range:     u8 n <= 36, u16 n <= 548, u32 n <= 9052, u64 n <= 9052,
- *            u128 n <= 9052, big any n
- * Helpers:   ceil_pow2, is_prime
+ * Range:     u8 n <= 36, u16 n <= 548, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 80 terms through n = 9052 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,14 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/ceil_pow2.h"
+#include "../utils/mem.h"
+
+static idx_t ceil_pow2(idx_t n)
+{
+    idx_t r = 1;
+    while (r < n) r <<= 1;
+    return r;
+}
 
 static seq_t  *cache      = NULL;
 static size_t  cache_cap  = 0;
@@ -45,7 +53,7 @@ static void grow_seq_arr(seq_t **arr, size_t *cap, size_t needed)
     if (*cap >= needed) return;
     size_t newcap = (*cap == 0) ? 8 : *cap << 1;
     if (newcap < needed) newcap = needed;
-    seq_t *tmp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, newcap);
     if (!tmp) exit(EXIT_FAILURE);
     *arr = tmp;
     *cap = newcap;
@@ -56,7 +64,7 @@ static void grow_used_arr(size_t needed)
     if (used_cap >= needed) return;
     size_t newcap = (used_cap == 0) ? 8 : used_cap << 1;
     if (newcap < needed) newcap = needed;
-    seq_t *tmp = (seq_t *)realloc(used, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, used, newcap);
     if (!tmp) exit(EXIT_FAILURE);
     used = tmp;
     used_cap = newcap;

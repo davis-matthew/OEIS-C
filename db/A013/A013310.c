@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 16, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declarations – seq_t and idx_t are defined by the build system */
 static seq_t *g = NULL;
@@ -42,7 +44,7 @@ static idx_t computed = 0;   /* highest n for which g[n] is known */
 /* Allocate room for an array of seq_t of given size */
 static seq_t *alloc_seq_array(size_t n)
 {
-    return (seq_t *)malloc(n * sizeof(seq_t));
+    return mem_new(seq_t, n);
 }
 
 /* Compute the value of f_k according to the definition above */
@@ -59,9 +61,9 @@ static void ensure_capacity(idx_t n)
 {
     if (cap <= n) {
         idx_t new_cap = n + 1;
-        g = (seq_t *)realloc(g, new_cap * sizeof(seq_t));
-        w = (seq_t *)realloc(w, new_cap * sizeof(seq_t));
-        f = (seq_t *)realloc(f, new_cap * sizeof(seq_t));
+        g = mem_resize(seq_t, g, new_cap);
+        w = mem_resize(seq_t, w, new_cap);
+        f = mem_resize(seq_t, f, new_cap);
 
         /* Initialise new entries of f */
         for (idx_t i = cap; i <= n; ++i)

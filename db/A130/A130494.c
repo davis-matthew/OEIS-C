@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    where prefix[i] = ∑_{k=0}^{i} k!.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build.  */
 
@@ -41,8 +43,8 @@ seq_t a(idx_t n)
 
         if (fact == NULL) {
             /* First allocation.  */
-            f = (seq_t*)malloc(new_cap * sizeof(seq_t));
-            p = (seq_t*)malloc(new_cap * sizeof(seq_t));
+            f = mem_new(seq_t, new_cap);
+            p = mem_new(seq_t, new_cap);
             if (f == NULL || p == NULL) {
                 /* Allocation failed – return 0 as a fallback.  */
                 return (seq_t)0;
@@ -54,8 +56,8 @@ seq_t a(idx_t n)
             fact_max = 0;
         } else {
             /* Grow the arrays.  */
-            f = (seq_t*)realloc(fact, new_cap * sizeof(seq_t));
-            p = (seq_t*)realloc(prefix, new_cap * sizeof(seq_t));
+            f = mem_resize(seq_t, fact, new_cap);
+            p = mem_resize(seq_t, prefix, new_cap);
             if (f == NULL || p == NULL) {
                 /* Allocation failed – return 0 as a fallback.  */
                 return (seq_t)0;

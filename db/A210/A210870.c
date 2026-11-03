@@ -12,7 +12,8 @@
  *            coefficient of x^(k‑1) in u(k,x) where k satisfies k*(k+1)/2 ≥ n
  * Range:     u8 n <= 61, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*  External integer types supplied by the build system:
     idx_t  – unsigned 64‑bit index type
@@ -73,8 +75,8 @@ static void ensure_rows_upto(size_t r)
     grow_row_pointers(r + 1);                /* we need indices 1…r */
     for (size_t i = rows_computed + 1; i <= r; ++i) {
         /* Allocate row i (length i). */
-        seq_t *u = (seq_t *)calloc(i, sizeof(seq_t));
-        seq_t *v = (seq_t *)calloc(i, sizeof(seq_t));
+        seq_t *u = mem_new(seq_t, i);
+        seq_t *v = mem_new(seq_t, i);
         if (!u || !v) abort();
 
         if (i == 1) {                 /* base case */

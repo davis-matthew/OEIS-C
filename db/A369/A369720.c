@@ -9,7 +9,8 @@
  *            with e the exponent of p in n)
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 1108, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 61 terms through n = 9418 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Return a(n) for sequence A369720. */
 seq_t a(idx_t n)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         seq_t p = (seq_t)pr[i];
         uint64_t e = ex[i];
         uint64_t k = (e >= 3) ? e : 3;        /* exponent needed in m */
-        seq_t pw = big_pow(p, (seq_t)(k + 1)); /* p^(k+1) */
+        seq_t pw = ipow(p, (seq_t)(k + 1)); /* p^(k+1) */
         seq_t numerator = pw - (seq_t)1;
         seq_t denom = p - (seq_t)1;
         seq_t sigma = numerator / denom;     /* exact division */

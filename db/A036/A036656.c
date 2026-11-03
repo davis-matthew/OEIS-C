@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 31, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,12 +41,12 @@ seq_t a(idx_t n)
     if (need > max) {
         /* allocate space for t[0..need] */
         size_t newsize = (size_t)(need + 1);
-        seq_t *tmp = (seq_t *)malloc(newsize * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, newsize);
         if (!tmp)
             exit(1);                  /* allocation failed */
         if (t) {
-            memcpy(tmp, t, (size_t)(max + 1) * sizeof(seq_t));
-            free(t);
+            mem_copy(tmp, t, (size_t)(max + 1) * sizeof(seq_t));
+            mem_free(t);
         }
         t = tmp;
         /* initialise the first computed entry if necessary */

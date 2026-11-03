@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    value is 0 and weight 2 otherwise (for the two signs).   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline idx_t floor_cube_root(idx_t n) {
     idx_t r = 0;
@@ -37,12 +39,12 @@ seq_t a(idx_t n) {
         cube[i] = i * i * i;
 
     /* DP array for exact sums */
-    seq_t *dp  = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp  = mem_new(seq_t, (size_t)(n + 1));
     dp[0] = 1;                /* empty tuple contributes 1 */
 
     /* Process the four coordinates independently */
     for (idx_t coord = 0; coord < 4; ++coord) {
-        seq_t *ndp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        seq_t *ndp = mem_new(seq_t, (size_t)(n + 1));
         for (idx_t sum = 0; sum <= n; ++sum) {
             if (dp[sum] == 0) continue;
             seq_t base = dp[sum];
@@ -53,7 +55,7 @@ seq_t a(idx_t n) {
                 ndp[sum + c] += base * weight;
             }
         }
-        free(dp);
+        mem_free(dp);
         dp = ndp;
     }
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n) {
         result += dp[s];
 
     /* Clean up */
-    free(dp);
+    mem_free(dp);
     free(cube);
 
     return result;

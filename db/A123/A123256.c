@@ -11,7 +11,8 @@
  *            d*A000081(d) ) * A000081(m-k)
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *A0 = NULL;   /* A000081 values, indexed from 1 */
 static seq_t *T  = NULL;   /* t[k] = sum_{d | k} d*A000081(d) */
@@ -35,13 +37,13 @@ static void ensure_root(idx_t n)
 
     /* Allocate or grow arrays to size n+1 (index from 1). */
     if (A0 == NULL) {
-        A0 = (seq_t *)malloc((n+2) * sizeof(seq_t));
-        T  = (seq_t *)malloc((n+2) * sizeof(seq_t));
+        A0 = mem_new(seq_t, (n+2));
+        T  = mem_new(seq_t, (n+2));
         if (!A0 || !T) return;           /* allocation failure (not handled) */
         A0cnt = 0; Tcnt = 0;
     } else {
-        A0 = (seq_t *)realloc(A0, (n+2) * sizeof(seq_t));
-        T  = (seq_t *)realloc(T,  (n+2) * sizeof(seq_t));
+        A0 = mem_resize(seq_t, A0, (n+2));
+        T  = mem_resize(seq_t, T, (n+2));
         if (!A0 || !T) return;           /* allocation failure (not handled) */
     }
 

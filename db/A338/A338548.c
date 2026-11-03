@@ -10,13 +10,17 @@
  *            1/p^3) (Jordan's totient of order 3)
  * Range:     i8 n <= 5, i16 n <= 32, i32 n <= 1245, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 58 terms through n = 9387 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 static seq_t jordan3(idx_t n)
 {
@@ -34,7 +38,7 @@ static seq_t jordan3(idx_t n)
         seq_t term = (seq_t)(p * p * p - 1);
 
         /* p^(3*e-3) may be zero for e=1, which is fine (seq_pow handles exp=0). */
-        seq_t p_pow = seq_pow((seq_t)p, 3 * e - 3);
+        seq_t p_pow = ipow_idx((seq_t)p, 3 * e - 3);
 
         result *= p_pow;
         result *= term;

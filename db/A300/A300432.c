@@ -13,7 +13,8 @@
  *            be 1, 2 or 4
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 38, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define COLS 5
 #define MASKS (1 << COLS)
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
        where the last two rows are cur (previous) and prev (current). */
     static seq_t dp[MASKS][MASKS];
     static seq_t ndp[MASKS][MASKS];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* Initialise with the first two rows (row 0 and row 1). */
     for (int m0 = 0; m0 < MASKS; ++m0) {
@@ -123,7 +125,7 @@ seq_t a(idx_t n)
 
     /* Process rows 2 … n‑1 (0‑based). */
     for (idx_t r = 2; r < n; ++r) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
         for (int cur = 0; cur < MASKS; ++cur) {      /* second‑last row */
             for (int prev = 0; prev < MASKS; ++prev) {/* last row          */
                 seq_t ways = dp[prev][cur];
@@ -137,7 +139,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     /* Final row check (row n‑1) – no next row. */

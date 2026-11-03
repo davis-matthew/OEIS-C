@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 6,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: standard, pass, 24 terms through n = 25 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,15 @@
    product exactly using only integer operations. */
 
 #include <stdint.h>                     /* for uint64_t */
-#include "../utils/seq_pow.h"           /* seq_pow(seq_t, idx_t) */
-#include "../utils/seq_mul.h"           /* seq_mul(seq_t, seq_t) */
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Count trailing zeros of a 64‑bit unsigned integer. */
 static inline unsigned int v2_uint64(uint64_t x) {
@@ -50,7 +58,7 @@ seq_t a(idx_t n) {
         exp2_num += (unsigned long long)v2 * (unsigned long long)exp;
 
         if (odd != 1ULL) {              /* odd part ^ exp */
-            seq_t power = seq_pow((seq_t)odd, exp);
+            seq_t power = ipow_idx((seq_t)odd, exp);
             result = seq_mul(result, power);
         }
     }
@@ -73,7 +81,7 @@ seq_t a(idx_t n) {
         exp2_num += (unsigned long long)v2 * (unsigned long long)exp;
 
         if (odd != 1ULL) {                            /* odd part ^ exp */
-            seq_t power = seq_pow((seq_t)odd, exp);
+            seq_t power = ipow_idx((seq_t)odd, exp);
             result = seq_mul(result, power);
         }
     }
@@ -81,7 +89,7 @@ seq_t a(idx_t n) {
     /* ---- final factor of 2 ---- */
     long long exp2_final = (long long)exp2_num
                            - (long long)n * (long long)(n + 1);
-    seq_t pow2 = seq_pow((seq_t)2, (idx_t)exp2_final);
+    seq_t pow2 = ipow_idx((seq_t)2, (idx_t)exp2_final);
     result = seq_mul(result, pow2);
 
     return result;

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 59, u16 n <= 2519, u32 n <= 9283, u64 n <= 9283,
- *            u128 n <= 9283, big any n
- * Helpers:   none
+ * Range:     u8 n <= 59, u16 n <= 2519, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 92 terms through n = 9283 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache to store already computed values; size is 10001 to handle
    indices up to 10000 as required by the performance constraint. */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Initialise cache once. */
     if (!cache) {
         cache_size = 10001;             /* indices 0..10000 inclusive */
-        cache = (seq_t *)calloc(cache_size, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
     }
 
     if (n < cache_size && cache[n] != 0)

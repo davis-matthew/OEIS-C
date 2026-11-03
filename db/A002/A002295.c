@@ -8,14 +8,20 @@
  *            multiplying out its prime factorization (Legendre's formula)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 35,
  *            big any n
- * Helpers:   leg_a002295
+ * Validated: standard, pass, 37 terms through n = 96 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/leg_a002295.h"
+
+static uint64_t leg_a002295(uint64_t m, uint64_t p) {
+    uint64_t e = 0;
+    while (m) { m /= p; e += m; }
+    return e;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;

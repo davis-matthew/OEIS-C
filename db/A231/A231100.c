@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1593, u64 n <= 1593, u128 n <= 1593,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 1556 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper for GCD on 64‑bit indices. */
 static inline idx_t gcd_idx(idx_t a, idx_t b)
@@ -55,7 +57,7 @@ static void generate_all(void)
     /* Conservative bound for m: 600 gives >90 000 primitive triples. */
     const idx_t M_MAX = 600;
     const size_t TRIPLE_CAP = 300000;
-    struct Triple *triples = (struct Triple *)malloc(TRIPLE_CAP * sizeof(*triples));
+    struct Triple *triples = mem_new(struct Triple, TRIPLE_CAP);
     size_t len = 0;
 
     for (idx_t m = 2; m <= M_MAX; ++m) {
@@ -73,15 +75,15 @@ static void generate_all(void)
         }
     }
 
-    qsort(triples, len, sizeof(*triples), cmp_triple);
+    mem_qsort(triples, len, sizeof(*triples), cmp_triple);
 
     cache_len = len;
-    cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_len);
     for (size_t i = 0; i < len; ++i) {
         cache[i] = triples[i].b;
     }
 
-    free(triples);
+    mem_free(triples);
 }
 
 /* Public sequence function. */

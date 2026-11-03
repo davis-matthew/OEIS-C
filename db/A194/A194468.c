@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root (floor) for 64‑bit unsigned integers */
 static uint64_t isqrt_u64(uint64_t n)
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     /* grow array if necessary */
     if (len == cap) {
         size_t new_cap = cap ? cap * 2 : 4;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();        /* memory exhaustion */
         terms = tmp;
         cap   = new_cap;

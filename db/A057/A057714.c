@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 153, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64, is_prime, seq_realloc
+ * Validated: standard, pass, 80 terms through n = 9900 (2026-11-01)
+ * Helpers:   factor_u64, ipow, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,10 +24,22 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/ipow.h"
+#include "../utils/is_prime.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static bool is_good_composite(uint64_t m)
 {
@@ -42,8 +55,8 @@ static bool is_good_composite(uint64_t m)
 
     /* check strict increasing of prime powers */
     for (size_t i = 0; i + 1 < cnt; ++i) {
-        seq_t left  = big_pow((seq_t)pr[i],  (seq_t)ex[i]);
-        seq_t right = big_pow((seq_t)pr[i+1], (seq_t)ex[i+1]);
+        seq_t left  = ipow((seq_t)pr[i],  (seq_t)ex[i]);
+        seq_t right = ipow((seq_t)pr[i+1], (seq_t)ex[i+1]);
         if (left >= right)
             return false;
     }

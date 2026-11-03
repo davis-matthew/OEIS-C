@@ -7,13 +7,15 @@
  * Formula:   a(n) is the nth decimal digit of 1/995, offset 0
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_capacity = 0;
@@ -27,7 +29,7 @@ static void ensure_capacity(idx_t needed) {
     idx_t new_cap = cache_capacity ? cache_capacity * 2 : 64;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) {
         abort();           /* allocation failure – shouldn't happen in tests */
     }

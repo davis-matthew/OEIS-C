@@ -7,6 +7,7 @@
  * Formula:   a(n) = least prime factor of 44745755^4 + 2^(4*n+2)
  * Range:     u8 none, u16 n <= 20, u32 n <= 56, u64 n <= 500, u128 n <= 500,
  *            big any n
+ * Validated: standard, pass, 73 terms through n = 433 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

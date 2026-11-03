@@ -9,12 +9,14 @@
  *            by dynamic programming with each part used at most once
  * Range:     u8 n <= 42, u16 n <= 99, u32 n <= 273, u64 n <= 856,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* Initial allocation for n=0. */
     if (dp == NULL) {
-        dp = (seq_t *)malloc(sizeof(seq_t) * 1);
+        dp = mem_new(seq_t, 1);
         if (dp == NULL) return 0;       /* allocation failure */
         dp[0] = 1;                      /* one partition of zero */
         max_n = 0;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         return dp[n];
 
     /* Extend the table to hold values up to n. */
-    seq_t *new_dp = (seq_t *)realloc(dp, sizeof(seq_t) * (n + 1));
+    seq_t *new_dp = mem_resize(seq_t, dp, (n + 1));
     if (new_dp == NULL) return 0;       /* allocation failure */
     dp = new_dp;
 

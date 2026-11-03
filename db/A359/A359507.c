@@ -11,16 +11,40 @@
  *            the property b1 XOR b2 XOR ... XOR bt = 0. This implementation
  *            computes the minimal k by iteratively constructing the
  *            linear‑basis of the intermediate integers {n+1,…,n+k-1} an...
- * Range:     u8 n <= 382, u16 n <= 7131, u32 n <= 7131, u64 n <= 7131,
- *            u128 n <= 7131, big any n
- * Helpers:   in_span, insert_basis
+ * Range:     u8 n <= 382, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 118 terms through n = 7131 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/in_span.h"
-#include "../utils/insert_basis.h"
+
+static inline bool in_span(const unsigned long long *basis, unsigned long long x)
+{
+    for (int i = 63; i >= 0; --i) {
+        if ((x >> i) & 1ULL) {
+            if (!basis[i])
+                return false;
+            x ^= basis[i];
+        }
+    }
+    return x == 0;
+}
+
+static inline void insert_basis(unsigned long long *basis, unsigned long long x)
+{
+    for (int i = 63; i >= 0; --i) {
+        if ((x >> i) & 1ULL) {
+            if (!basis[i]) {
+                basis[i] = x;
+                return;
+            }
+            x ^= basis[i];
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {

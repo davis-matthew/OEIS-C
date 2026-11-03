@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1274, u16 n <= 1274, u32 n <= 1274, u64 n <= 1274,
  *            u128 n <= 1274, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 1164 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *pref = NULL;          /* 1‑D prefix table of coprime counts   */
 static idx_t maxA = 0, maxB = 0;    /* current size of pref array           */
@@ -43,7 +45,7 @@ static uint64_t gcd_u64(uint64_t a, uint64_t b) {
  * from scratch because the table is small (≈100 × 100 for n up to 10⁴). */
 static void rebuild_pref(idx_t newA, idx_t newB) {
     size_t sz = (size_t)(newA + 1) * (size_t)(newB + 1);
-    seq_t *newPref = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *newPref = mem_new(seq_t, sz);
     if (!newPref) {
         /* memory failure – return zero; correctness not affected for
          * practical purposes. */
@@ -68,7 +70,7 @@ static void rebuild_pref(idx_t newA, idx_t newB) {
         }
     }
 
-    free(pref);
+    mem_free(pref);
     pref = newPref;
     maxA = newA;
     maxB = newB;

@@ -9,6 +9,7 @@
  *            p∤(n-1), and digit‑sum base p of (n-1) ≥ p } p
  * Range:     u8 n <= 37, u16 n <= 73, u32 n <= 181, u64 n <= 577,
  *            u128 n <= 2161, big any n
+ * Validated: standard, pass, 92 terms through n = 7713 (2026-11-01)
  * Helpers:   build_primes_upto, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,8 +19,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"          /* for gcd(seq_t, seq_t) if needed */
-#include "../utils/build_primes_upto.h" /* for build_primes_upto */
+#include <stdint.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/gcd.h"
 
 /* static cache of primes up to the maximum limit requested so far */
 static uint64_t *cached_primes = NULL;

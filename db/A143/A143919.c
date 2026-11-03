@@ -7,7 +7,8 @@
  * Formula:   a(n+1) = A001065(a(n)), a(0) = 100
  * Range:     u8 n <= 0, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   isqrt_seq
+ * Validated: partial, pass, 102 terms through n = 101 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,26 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/isqrt_seq.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Integer square root (floor) of a non‑negative seq_t value. */
+static seq_t isqrt_seq(seq_t v)
+{
+    seq_t lo = 0, hi = v;
+    while (lo <= hi) {
+        seq_t mid = lo + ((hi - lo) >> 1);
+        seq_t sq  = mid * mid;
+        if (sq == v) return mid;
+        if (sq < v) {
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return hi;
+}
 
 /* Compute the sum of proper divisors of x. */
 static seq_t aliquot_sum(seq_t x)
@@ -55,7 +75,7 @@ seq_t a(idx_t n)
         idx_t new_cap = cache_cap == 0 ? 1 : cache_cap;
         while (new_cap <= n)
             new_cap *= 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache)
             return (seq_t)0;  /* allocation failure – return 0 */
         cache = new_cache;

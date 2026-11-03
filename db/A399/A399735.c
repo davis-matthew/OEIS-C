@@ -7,7 +7,8 @@
  * Formula:   a(n) = \prod_{p^e \parallel n} (e \text{ odd} ? p^e : p^e + 1)
  * Range:     u8 n <= 211, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 86 terms through n = 9641 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,11 @@
 /* Implements the OEIS sequence A399735 (sum of unitary divisors d of n such that n/d is a square). */
 
 #include <stddef.h>            /* for size_t */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Compute a(n) for n ≥ 1. For n = 0 return 0 (undefined but harmless). */
 seq_t a(idx_t n)
@@ -36,7 +40,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i)
     {
         /* p^e as a seq_t (may be arbitrary precision). */
-        seq_t p_pow = pow_uint(primes[i], (idx_t)exps[i]);
+        seq_t p_pow = ipow_u64_idx(primes[i], (idx_t)exps[i]);
 
         /* Contribution: p^e if exponent odd, else p^e + 1. */
         if (exps[i] & 1U)

@@ -8,14 +8,17 @@
  *            (with a(0)=1; the summation effectively starts at k=1 for n>0)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 23,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: standard, pass, 33 terms through n = 337 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +27,8 @@ seq_t a(idx_t n)
     seq_t sum = (seq_t)0;
     for (idx_t k = 1; k <= n; ++k) {
         seq_t term = binomial(n, k);
-        term *= pow_uint((uint64_t)k, n - k);         /* k^(n-k)   */
-        term *= pow_uint((uint64_t)(2 * k + 1), k - 1);/* (2k+1)^(k-1) */
+        term *= ipow_u64_idx((uint64_t)k, n - k);         /* k^(n-k)   */
+        term *= ipow_u64_idx((uint64_t)(2 * k + 1), k - 1);/* (2k+1)^(k-1) */
         sum += term;
     }
     return sum;

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 14, u64 n <= 30, u128 n <= 30,
+ * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   isprime_big
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isprime_big.h"   /* isprime_big(seq_t) */
+#include <stdint.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,14 +33,14 @@ seq_t a(idx_t n)
     /* allocate or grow cache so that it can hold n terms */
     if (cache == NULL) {
         cache_cap = (size_t)(n > 16 ? n : 16);
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;          /* allocation failure, return 0 */
         cache[0] = 1;                  /* a(1) */
         cache_max = 1;
     } else if ((size_t)n > cache_cap) {
         size_t new_cap = cache_cap;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;            /* allocation failure, return 0 */
         cache    = tmp;
         cache_cap = new_cap;
@@ -53,7 +56,7 @@ seq_t a(idx_t n)
         /* find smallest k>0 with base+3^k prime */
         while (true) {
             next = base + power;
-            if (isprime_big(next))           /* works for arbitrary precision */
+            if (is_prime_seq(next))           /* works for arbitrary precision */
                 break;
             power *= (seq_t)3;
         }

@@ -12,13 +12,15 @@
  *            -18*a(n-6)-14*a(n-7)+3*a(n-8)+2*a(n-9) for n>9
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 23, u64 n <= 48, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,14 +41,14 @@ seq_t a(idx_t n)
 
     if (!buf) {
         buf_cap = 9u;
-        buf = (seq_t *)malloc(buf_cap * sizeof(seq_t));
+        buf = mem_new(seq_t, buf_cap);
         for (size_t i = 0; i < 9u; ++i) buf[i] = init[i];
         buf_used = 9u;
     }
 
     if ((size_t)n > buf_cap) {
         size_t new_cap = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(buf, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, new_cap);
         if (!tmp) return 0;               /* allocation failure */
         buf = tmp;
         buf_cap = new_cap;

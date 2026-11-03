@@ -7,13 +7,15 @@
  * Formula:   a(n) = (2*n+1)^(2*(2*n+1)^2)
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 1, u64 n <= 1, u128 n <= 2,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -22,5 +24,5 @@ seq_t a(idx_t n)
     /* exponent = 2 * m * m */
     seq_t exp = (seq_t)(2 * m * m);
     /* return m^exp using the provided big_pow routine */
-    return big_pow(m, exp);
+    return ipow(m, exp);
 }

@@ -8,13 +8,15 @@
  *            binomial(n, k) * a(n-k)
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 13, i64 n <= 21, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute the n-th term of OEIS sequence A352138.
  * The function uses memoisation so that calls in arbitrary order
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
 
     /* ---------- First call initialisation ---------- */
     if (max_calc == (idx_t)-1) {         /* no values known yet   */
-        a_vals   = (seq_t*)malloc(sizeof(seq_t) * 1);
-        fact_arr = (seq_t*)malloc(sizeof(seq_t) * 1);
+        a_vals   = mem_new(seq_t, 1);
+        fact_arr = mem_new(seq_t, 1);
         if (!a_vals || !fact_arr) abort();
 
         a_vals[0] = (seq_t)1;
@@ -48,14 +50,14 @@ seq_t a(idx_t n)
 
     /* ---------- Resizing storage for a_vals ---------- */
     if (n >= max_calc) {
-        seq_t *tmp = (seq_t*)realloc(a_vals, sizeof(seq_t) * (n + 1));
+        seq_t *tmp = mem_resize(seq_t, a_vals, (n + 1));
         if (!tmp) abort();
         a_vals = tmp;
     }
 
     /* ---------- Ensure factorial table up to n ---------- */
     if (fact_max <= n) {
-        seq_t *tmp = (seq_t*)realloc(fact_arr, sizeof(seq_t) * (n + 1));
+        seq_t *tmp = mem_resize(seq_t, fact_arr, (n + 1));
         if (!tmp) abort();
         fact_arr = tmp;
         for (idx_t i = fact_max; i <= n; ++i) {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 48, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 66 terms through n = 953 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 
 #include <stdlib.h>          /* for malloc, realloc */
 
-#include "../utils/digit_sum.h"   /* seq_t digit_sum(seq_t v); */
+#include <stdbool.h>
+#include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* Static cache for computed terms. */
 static seq_t *cache = NULL;
@@ -35,7 +38,7 @@ static void grow_cache(size_t min_cap)
     size_t new_cap = cache_cap ? cache_cap : 1;
     while (new_cap < min_cap)
         new_cap <<= 1;                       /* double until large enough */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }

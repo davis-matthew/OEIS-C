@@ -12,13 +12,15 @@
  *            DP * computes the number of ways to reach n usi...
  * Range:     u8 n <= 27, u16 n <= 409, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9773 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,9 +47,9 @@ seq_t a(idx_t n)
 
     /* Allocate DP table: 9 rows (j = 0…8) × (n+1) columns. */
     size_t stride = (size_t)n + 1;
-    seq_t *dp = (seq_t *)malloc(stride * 9 * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, stride * 9);
     if (!dp) return (seq_t)0;          /* allocation failed */
-    memset(dp, 0, stride * 9 * sizeof(seq_t));
+    mem_set(dp, 0, stride * 9 * sizeof(seq_t));
     dp[0] = 1;                          /* dp[0][0] = 1 */
 
     /* Standard coin‑change DP: unlimited use of each palindrome,
@@ -64,6 +66,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[8 * stride + n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -11,13 +11,15 @@
  *            seq_t exactly. Values for α(k) are positive, so the su...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,11 +31,11 @@ seq_t a(idx_t n)
     size_t sz = (size_t)N + 1;
 
     /* Allocate temporary arrays */
-    seq_t *pow6    = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *alpha_pos = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *alpha_neg = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *alpha   = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *a_seq   = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *pow6    = mem_new(seq_t, sz);
+    seq_t *alpha_pos = mem_new(seq_t, sz);
+    seq_t *alpha_neg = mem_new(seq_t, sz);
+    seq_t *alpha   = mem_new(seq_t, sz);
+    seq_t *a_seq   = mem_new(seq_t, sz);
 
     if (!pow6 || !alpha_pos || !alpha_neg || !alpha || !a_seq) {
         /* Allocation failed – abort (should not happen in test harness) */
@@ -68,8 +70,8 @@ seq_t a(idx_t n)
     }
 
     /* Reuse α_pos and α_neg memory for recurrence to reduce footprint */
-    free(alpha_pos);
-    free(alpha_neg);
+    mem_free(alpha_pos);
+    mem_free(alpha_neg);
     /* α array becomes local after use; keep for recurrence. */
 
     /* Compute a(n) using the recurrence */
@@ -85,9 +87,9 @@ seq_t a(idx_t n)
     seq_t result = a_seq[N];
 
     /* Free allocated memory */
-    free(pow6);
-    free(alpha);
-    free(a_seq);
+    mem_free(pow6);
+    mem_free(alpha);
+    mem_free(a_seq);
 
     return result;
 }

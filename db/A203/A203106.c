@@ -9,7 +9,8 @@
  *            immediately preceded by two 0's to the left or by two 0's above
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Constants */
 #define COLS 6
@@ -121,13 +123,13 @@ seq_t a(idx_t n)
     size_t act_prev_cnt = 0, act_next_cnt = 0;
 
     /* Initial state: two imaginary zero rows. */
-    memset(dp_prev, 0, sizeof(dp_prev));
+    mem_set(dp_prev, 0, sizeof(dp_prev));
     dp_prev[0] = 1;
     act_prev[act_prev_cnt++] = 0;
 
     for (idx_t row = 1; row <= n; ++row)
     {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         act_next_cnt = 0;
 
         if (row <= 2)   /* only horizontal rule applies */
@@ -172,7 +174,7 @@ seq_t a(idx_t n)
         }
 
         /* Prepare for next iteration: copy dp_next to dp_prev. */
-        memcpy(dp_prev, dp_next, sizeof(dp_prev));
+        mem_copy(dp_prev, dp_next, sizeof(dp_prev));
         act_prev_cnt = act_next_cnt;
         memcpy(act_prev, act_next, act_next_cnt * sizeof(size_t));
     }

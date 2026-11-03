@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} k! * k^(k+n) * Stirling2(n,k)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 12,
  *            big any n
- * Helpers:   big_pow, seq_alloc_new_array
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/seq_alloc_new_array.h"
+#include <string.h>
+#include <math.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 seq_t a(idx_t n)
 {
@@ -72,32 +78,32 @@ seq_t a(idx_t n)
 
         tmp = seq_alloc_new_array(new_cap);
         for (size_t i = 0; i < cap; ++i) tmp[i] = a_cache[i];
-        free(a_cache);
+        mem_free(a_cache);
         a_cache = tmp;
 
         tmp = seq_alloc_new_array(new_cap);
         for (size_t i = 0; i < cap; ++i) tmp[i] = S_prev[i];
-        free(S_prev);
+        mem_free(S_prev);
         S_prev = tmp;
 
         tmp = seq_alloc_new_array(new_cap);
         for (size_t i = 0; i < cap; ++i) tmp[i] = S_curr[i];
-        free(S_curr);
+        mem_free(S_curr);
         S_curr = tmp;
 
         tmp = seq_alloc_new_array(new_cap);
         for (size_t i = 0; i < cap; ++i) tmp[i] = pow_kn[i];
-        free(pow_kn);
+        mem_free(pow_kn);
         pow_kn = tmp;
 
         tmp = seq_alloc_new_array(new_cap);
         for (size_t i = 0; i < cap; ++i) tmp[i] = fact_k[i];
-        free(fact_k);
+        mem_free(fact_k);
         fact_k = tmp;
 
         tmp = seq_alloc_new_array(new_cap);
         for (size_t i = 0; i < cap; ++i) tmp[i] = kkfact_k[i];
-        free(kkfact_k);
+        mem_free(kkfact_k);
         kkfact_k = tmp;
 
         cap = new_cap;
@@ -108,7 +114,7 @@ seq_t a(idx_t n)
         /* factorials and k! * k^k for the new k = cur */
         if (cur > 0) {
             fact_k[(size_t)cur] = fact_k[(size_t)(cur - 1)] * (seq_t)cur;
-            seq_t pkk = big_pow((seq_t)cur, (seq_t)cur);
+            seq_t pkk = ipow((seq_t)cur, (seq_t)cur);
             kkfact_k[(size_t)cur] = fact_k[(size_t)cur] * pkk;
         }
 
@@ -117,7 +123,7 @@ seq_t a(idx_t n)
             if (k < cur)                /* old k: raise exponent by 1 */
                 pow_kn[(size_t)k] = pow_kn[(size_t)k] * (seq_t)k;
             else                         /* new k = cur: k^cur itself */
-                pow_kn[(size_t)k] = big_pow((seq_t)cur, (seq_t)cur);
+                pow_kn[(size_t)k] = ipow((seq_t)cur, (seq_t)cur);
         }
 
         /* Stirling numbers of the second kind: row cur */

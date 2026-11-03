@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 106, u16 n <= 106, u32 n <= 106, u64 n <= 106,
  *            u128 n <= 106, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 106 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Big‑integer with base BASE = 10⁹. */
 #define BASE 1000000000U
@@ -128,7 +130,7 @@ seq_t a(idx_t n) {
     static int initialized = 0;
     if (!initialized) {
         digits_cap = 16;
-        digits = (seq_t *)malloc(digits_cap * sizeof(seq_t));
+        digits = mem_new(seq_t, digits_cap);
         digits_len = 0;
 
         bd_from_uint(&p, 15);   /* integer part of sqrt(230) */
@@ -172,7 +174,7 @@ seq_t a(idx_t n) {
                 /* store the digit */
                 if (digits_len == digits_cap) {
                     digits_cap *= 2;
-                    digits = (seq_t *)realloc(digits, digits_cap * sizeof(seq_t));
+                    digits = mem_resize(seq_t, digits, digits_cap);
                 }
                 digits[digits_len++] = (seq_t)chosen;
                 break;

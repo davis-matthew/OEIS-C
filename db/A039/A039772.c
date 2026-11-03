@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 9743, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, phi
+ * Validated: standard, pass, 68 terms through n = 9275 (2026-11-03)
+ * Helpers:   gcd, mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/phi.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;      /* cached terms */
 static size_t terms_cnt = 0;     /* number of terms stored */
@@ -41,7 +43,7 @@ ensure_capacity(size_t need)
     while (new_cap < need)
         new_cap *= 2;
 
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     terms = tmp;
     terms_cap = new_cap;
 }
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     while (terms_cnt < (size_t)n) {
         last_checked += 2;          /* next even integer */
         seq_t k  = (seq_t)last_checked;
-        seq_t phi_k = phi((idx_t)k);
+        seq_t phi_k = totient((idx_t)k);
         seq_t km1 = k - 1;
 
         if (phi_k != km1) {

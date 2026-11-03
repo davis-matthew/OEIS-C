@@ -11,7 +11,8 @@
  *            the given quadratic form
  * Range:     u8 n <= 7, u16 n <= 767, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_uint64
+ * Validated: standard, pass, 61 terms through n = 8919 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/is_prime_uint64.h"   /* for is_prime_uint64 */
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* integer square root of a 128‑bit integer, result fits in 64 bits */
 static uint64_t isqrt_uint128(__uint128_t n)
@@ -52,7 +54,7 @@ static void ensure_n(idx_t n)
         /* find next prime */
         do {
             ++last_checked;
-        } while (!is_prime_uint64(last_checked));
+        } while (!is_prime_u64(last_checked));
         uint64_t p = last_checked;
 
         /* check representation 2x^2 + xy + 7y^2 = p */
@@ -76,7 +78,7 @@ static void ensure_n(idx_t n)
         if (ok) {
             if (val_sz == val_cap) {
                 val_cap = val_cap ? val_cap * 2 : 64;
-                vals = (seq_t *)realloc(vals, val_cap * sizeof(seq_t));
+                vals = mem_resize(seq_t, vals, val_cap);
             }
             vals[val_sz++] = (seq_t)p;
         }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 44, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,8 +31,14 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* first 13 primes – enough for τ ≤ 5000 */
 static const uint32_t _primes[] =
@@ -61,7 +68,7 @@ static void _dfs_find(int idx, int max_exp, seq_t cur_k, idx_t cur_tau,
     for (int e = 1; e <= max_exp; ++e) {
         idx_t new_tau = cur_tau * (idx_t)(e + 1);
         if (new_tau > target_tau) break;
-        seq_t p_pow = seq_pow((seq_t)p, (idx_t)e);
+        seq_t p_pow = ipow_idx((seq_t)p, (idx_t)e);
         seq_t new_k  = seq_mul(cur_k, p_pow);
         if (*found && new_k >= *best) break;      /* pruning */
         _dfs_find(idx + 1, e, new_k, new_tau, target_tau,

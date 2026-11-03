@@ -11,17 +11,63 @@
  *            over columns
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 25, u128 n <= 51,
  *            big any n
- * Helpers:   first_ok_col, last_ok_col, mid_ok_col, neighbor_check
+ * Validated: standard, pass, 36 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The helper functions below are already supplied by the build environment. */
 #include <stdbool.h>
-#include "../utils/first_ok_col.h"
-#include "../utils/last_ok_col.h"
-#include "../utils/mid_ok_col.h"
-#include "../utils/neighbor_check.h"
+
+/* Check that the value of each cell in the middle column C satisfies the
+   rule with its neighbors given by columns L (left) and R (right).
+   'hasL' and 'hasR' indicate whether the corresponding neighbor column
+   exists.  Zero values are forbidden only if the strict majority of
+   neighboring ones exceeds half the available neighbors.  One values are
+   never forbidden, since they are never less than a strict majority. */
+static inline bool neighbor_check(int L, int C, int R,
+                                  bool hasL, bool hasR)
+{
+    for (int r = 0; r < 3; ++r) {
+        int neigh = 0;          /* number of existing neighbors */
+        int ones  = 0;          /* number of ones among them */
+
+        /* horizontal left and right */
+        if (hasL) { neigh++; ones += (L >> r) & 1; }
+        if (hasR) { neigh++; ones += (R >> r) & 1; }
+
+        /* diagonals: up-left / up-right / down-left / down-right */
+        if (hasL && r > 0)   { neigh++; ones += (L >> (r-1)) & 1; }
+        if (hasR && r > 0)   { neigh++; ones += (R >> (r-1)) & 1; }
+        if (hasL && r < 2)   { neigh++; ones += (L >> (r+1)) & 1; }
+        if (hasR && r < 2)   { neigh++; ones += (R >> (r+1)) & 1; }
+
+        int val = (C >> r) & 1;                 /* value of the cell */
+
+        /* For a zero cell, reject if the strict majority of neighbors
+           are ones: that means ones > floor(neigh/2). */
+        if (val == 0 && ones > neigh / 2)
+            return false;
+    }
+    return true;
+}
+
+/* Column validity predicates for the first, middle and last columns. */
+static inline bool first_ok_col(int C, int R)
+{
+    return neighbor_check(-1, C, R, false, true);
+}
+
+static inline bool last_ok_col(int L, int C)
+{
+    return neighbor_check(L, C, -1, true, false);
+}
+
+static inline bool mid_ok_col(int L, int C, int R)
+{
+    return neighbor_check(L, C, R, true, true);
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

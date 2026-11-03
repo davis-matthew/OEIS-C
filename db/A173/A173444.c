@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes, is_prime
+ * Validated: standard, pass, 76 terms through n = 999 (2026-11-03)
+ * Helpers:   build_primes, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"      /* bool is_prime(idx_t) */
-#include "../utils/build_primes.h"  /* void build_primes(idx_t limit,
-                                      idx_t **out, size_t *cnt) */
+#include <stddef.h>
+#include "../utils/build_primes.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* static helper to generate primes up to a fixed limit (sufficient for n≤10000) */
 static void ensure_prime_table(idx_t **primes, size_t *cnt)
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     if (tbl_cap == 0) {
         tbl_cap = 16;
         tbl_count = 0;
-        table = (seq_t*)malloc(tbl_cap * sizeof(seq_t));
+        table = mem_new(seq_t, tbl_cap);
     }
 
     /* Generate terms until we have at least n of them */
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
             /* Resize result table if needed */
             if (tbl_count == tbl_cap) {
                 tbl_cap *= 2;
-                table = (seq_t*)realloc(table, tbl_cap * sizeof(seq_t));
+                table = mem_resize(seq_t, table, tbl_cap);
             }
             table[tbl_count++] = (seq_t)next_k;
         }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp          = NULL;   /* memoized DP array */
 static size_t dp_cap      = 0;       /* allocated capacity of dp */
@@ -58,12 +60,12 @@ static void ensure_tribs(idx_t max_n) {
 static void ensure_dp(idx_t n) {
     if (dp == NULL) {                 /* first allocation */
         dp_cap = n + 1;
-        dp = (seq_t *)malloc(dp_cap * sizeof(seq_t));
+        dp = mem_new(seq_t, dp_cap);
         dp[0] = 1;                    /* a(0) = 1 */
         dp_upto = 0;
     } else if (n + 1 > dp_cap) {      /* need to grow */
         dp_cap = n + 1;
-        dp = (seq_t *)realloc(dp, dp_cap * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, dp_cap);
     }
 }
 

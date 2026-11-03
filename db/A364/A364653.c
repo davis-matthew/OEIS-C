@@ -9,13 +9,15 @@
  *            = 7 with initial values a(1)=a(2)=a(3)=1, a(4)=3
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dom_cache = NULL;   /* stored values, 1‑based */
 static idx_t  dom_max_computed = 0;  /* highest n having a value */
@@ -29,9 +31,9 @@ seq_t a(idx_t n) {
         idx_t need = 4;
         seq_t *p = NULL;
         if (dom_cache == NULL)
-            p = (seq_t *)malloc((need + 1) * sizeof(seq_t));
+            p = mem_new(seq_t, (need + 1));
         else
-            p = (seq_t *)realloc(dom_cache, (need + 1) * sizeof(seq_t));
+            p = mem_resize(seq_t, dom_cache, (need + 1));
         if (p == NULL) return 0;  /* allocation failed */
         dom_cache = p;
         /* initialise base case */
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
     if (dom_max_computed < n) {
         /* grow array */
         idx_t new_max = n;
-        seq_t *p = (seq_t *)realloc(dom_cache, (new_max + 1) * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, dom_cache, (new_max + 1));
         if (p == NULL) return 0;  /* allocation failed */
         dom_cache = p;
         /* compute missing terms */

@@ -7,6 +7,7 @@
  * Formula:   a(n) = 0, 3, 12 for n = 0,1,2, and for n ≥ 3 a(n) = 3 * n!
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 19,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper: simple primality test for uint64_t (works for small values) */
 static bool is_prime_uint64(uint64_t num)
@@ -43,7 +45,7 @@ static void ensure_composites(idx_t need)
 
     if (comp_cap == 0) {
         comp_cap    = 64;
-        composites  = (seq_t*)calloc(comp_cap, sizeof(seq_t));
+        composites  = mem_new(seq_t, comp_cap);
     }
 
     uint64_t last_checked = checked_upto;
@@ -51,7 +53,7 @@ static void ensure_composites(idx_t need)
         if (num > 3 && !is_prime_uint64(num)) {
             if (comp_len == comp_cap) {
                 comp_cap *= 2;
-                composites = (seq_t*)realloc(composites, comp_cap * sizeof(seq_t));
+                composites = mem_resize(seq_t, composites, comp_cap);
             }
             composites[comp_len++] = (seq_t)num;
             last_checked = num;

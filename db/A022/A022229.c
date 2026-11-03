@@ -7,7 +7,8 @@
  * Formula:   a(n) = [n,11]₆ = Product_{i=1..11} (6^{n-i+1}-1)/(6^i-1)
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 12, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 22 terms through n = 130 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
    returned.  The implementation is safe for arbitrary‑precision
    seq_t types and runs in O(n) time. */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +36,8 @@ seq_t a(idx_t n)
 
     /* Use the recurrence a(n) = a(n-1) * (6^n-1) / (6^{n-11}-1) */
     for (idx_t k = 12; k <= n; ++k) {
-        seq_t num = big_pow(six, (seq_t)k) - (seq_t)1;
-        seq_t den = big_pow(six, (seq_t)(k - 11)) - (seq_t)1;
+        seq_t num = ipow(six, (seq_t)k) - (seq_t)1;
+        seq_t den = ipow(six, (seq_t)(k - 11)) - (seq_t)1;
         result = result * num;   /* multiply by numerator */
         result = result / den;   /* exact division by denominator */
     }

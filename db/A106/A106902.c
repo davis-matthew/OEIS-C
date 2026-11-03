@@ -11,7 +11,8 @@
  *            12p – 51y² and checking whether it is a perfect...
  * Range:     u8 n <= 16, u16 n <= 1633, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   int_sqrt_uint64, is_prime_uint64
+ * Validated: standard, pass, 67 terms through n = 8573 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/is_prime_uint64.h"
-#include "../utils/int_sqrt_uint64.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -37,7 +40,7 @@ static bool has_form_prime(uint64_t p)
         uint64_t D = 12 * p;
         if (51 * yy > D) break;
         D -= 51 * yy;
-        uint64_t sq = int_sqrt_uint64(D);
+        uint64_t sq = isqrt_u64(D);
         if (sq * sq != D) continue;
         /* Check both ± solutions for integer x.  */
         uint64_t num1 = 3 * y + sq;
@@ -53,7 +56,7 @@ void ensure_cache_cap(size_t min_cap)
     if (cache_cap >= min_cap) return;
     size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
     while (new_cap < min_cap) new_cap *= 2;
-    cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -64,7 +67,7 @@ seq_t a(idx_t n)
     while (cache_size < n) {
         /* Start checking from the next integer after last_checked. */
         uint64_t candidate = (uint64_t)last_checked + 1;
-        if (is_prime_uint64(candidate) && has_form_prime(candidate)) {
+        if (is_prime_u64(candidate) && has_form_prime(candidate)) {
             ensure_cache_cap(cache_size + 1);
             cache[cache_size] = (seq_t)candidate;
             cache_size++;

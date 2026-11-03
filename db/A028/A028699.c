@@ -11,7 +11,8 @@
  *            sequence A028699
  * Range:     u8 n <= 30, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   alloc_seq_array, idx2seq
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,16 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"   /* Provides seq_t *alloc_seq_array(size_t). */
-#include "../utils/idx2seq.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper to cast index to seq_t safely when small. */
+static inline seq_t idx2seq(idx_t x) { return (seq_t)x; }
 
 #define MAXN 10000
 

@@ -11,6 +11,7 @@
  *            dynamic programming over the rows
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 28, u128 n <= 57,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 206 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

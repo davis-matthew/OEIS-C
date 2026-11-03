@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 35, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Auxiliary constants -----------------------------------------------------*/
 #define MAX_N 10000            /* maximum index we support (adjust as needed) */
@@ -47,7 +49,7 @@ static void precompute(void)
         exit(EXIT_FAILURE);
 
     /* Allocate answer array */
-    best_arr = (seq_t *)calloc((size_t)MAX_N + 1, sizeof(seq_t));
+    best_arr = mem_new(seq_t, (size_t)MAX_N + 1);
     if (!best_arr) {
         free(dp);
         exit(EXIT_FAILURE);

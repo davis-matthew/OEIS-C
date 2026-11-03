@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 40, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   digit_product, floor_cube_root
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   digit_product, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,30 @@
 /* Search: a(n) is the nth non‑negative integer m with m - digit_product(m) a perfect cube. */
 
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/digit_product.h"
-#include "../utils/floor_cube_root.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* External linkage */
 seq_t a(idx_t n)
@@ -30,7 +53,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_cap = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         cache_size = 0;
     }
 
@@ -51,7 +74,7 @@ seq_t a(idx_t n)
             if (cache_size >= cache_cap)
             {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = next_m;
         }

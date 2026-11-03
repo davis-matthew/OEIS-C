@@ -7,13 +7,15 @@
  * Formula:   a(n) = n*prime(n) - sum_{i=1..n-1} prime(i)
  * Range:     u8 n <= 11, u16 n <= 143, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 4804 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External signature */
 extern idx_t is_prime(idx_t x);   /* not used but kept for compatibility */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         if (prime_cap == 0) {
             prime_cap = 16;
             primes    = (uint64_t*)malloc(prime_cap * sizeof(uint64_t));
-            cum       = (seq_t*)malloc((prime_cap + 1) * sizeof(seq_t));
+            cum       = mem_new(seq_t, (prime_cap + 1));
             if (!primes || !cum) return 0;   /* allocation failure */
             /* Add prime 2 as the first prime */
             primes[0] = 2;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
                     primes = tmp;
                     prime_cap = new_cap;
 
-                    seq_t *tmpcum = (seq_t*)realloc(cum, (new_cap + 1) * sizeof(seq_t));
+                    seq_t *tmpcum = mem_resize(seq_t, cum, (new_cap + 1));
                     if (!tmpcum) return 0;
                     cum = tmpcum;
                     cum_cap = new_cap + 1;

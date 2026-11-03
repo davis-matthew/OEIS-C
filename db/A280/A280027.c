@@ -13,7 +13,8 @@
  *            origin
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 37, u64 n <= 71, u128 n <= 139,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 3321 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* Helper hash table for mapping line identifiers to cumulative sums. */
 typedef struct {
@@ -49,7 +51,7 @@ static void ht_init(ht_t *ht, size_t init_capacity)
     ht->capacity = init_capacity;
     ht->size = 0;
     ht->key   = (int64_t *)malloc(ht->capacity * sizeof(int64_t));
-    ht->value = (seq_t  *)calloc(ht->capacity, sizeof(seq_t)); /* zero init */
+    ht->value = mem_new(seq_t, ht->capacity); /* zero init */
     for (size_t i = 0; i < ht->capacity; ++i) ht->key[i] = HT_SENTINEL;
 }
 
@@ -58,7 +60,7 @@ static void ht_rehash(ht_t *ht)
 {
     size_t new_capacity = ht->capacity << 1;
     int64_t *new_key = (int64_t *)malloc(new_capacity * sizeof(int64_t));
-    seq_t   *new_value = (seq_t  *)calloc(new_capacity, sizeof(seq_t));
+    seq_t   *new_value = mem_new(seq_t, new_capacity);
     for (size_t i = 0; i < new_capacity; ++i) new_key[i] = HT_SENTINEL;
 
     size_t old_capacity = ht->capacity;
@@ -74,7 +76,7 @@ static void ht_rehash(ht_t *ht)
     }
 
     free(ht->key);
-    free(ht->value);
+    mem_free(ht->value);
     ht->key = new_key;
     ht->value = new_value;
     ht->capacity = new_capacity;
@@ -128,7 +130,7 @@ static void ensure_cache_capacity(idx_t needed)
 {
     while (cache_capacity <= (size_t)needed) {
         size_t new_cap = cache_capacity ? cache_capacity << 1 : 16;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort();  /* out of memory */
         cache = new_cache;
         cache_capacity = new_cap;
@@ -139,7 +141,7 @@ static void init_memoization(void)
 {
     /* Allocate cache for a(0). */
     cache_capacity = 16;
-    cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_capacity);
     cache[0] = (seq_t)1;        /* a(0) = 1 */
     cache_size = 1;
     next_index = 1;             /* next to compute */

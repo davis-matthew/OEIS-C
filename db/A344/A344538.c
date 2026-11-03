@@ -12,7 +12,8 @@
  *            sequence is periodic with period 35 * (a(n+35)=a(n)+35)
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static storage for the sequence and the used‑number bitmap. */
 static seq_t  *seq_buf   = NULL;
@@ -37,7 +39,7 @@ static void ensure_seq_capacity(idx_t n)
 
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     if (new_cap < need) new_cap = need;
-    seq_buf = (seq_t *)realloc(seq_buf, new_cap * sizeof(seq_t));
+    seq_buf = mem_resize(seq_t, seq_buf, new_cap);
     if (!seq_buf) exit(1);     /* allocation failed */
     seq_cap = new_cap;
 }
@@ -63,7 +65,7 @@ static void init_buffers(void)
 {
     if (!seq_buf) {
         seq_cap = 16;
-        seq_buf = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_buf = mem_new(seq_t, seq_cap);
         if (!seq_buf) exit(1);
         seq_buf[0] = 0;
         cache_len = 1;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 31, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   largest_anagram
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,25 @@
 /* largest_anagram returns the largest decimal anagram of its argument. */
 
 #include <stdlib.h>   /* for NULL */
-#include "../utils/largest_anagram.h"
+
+static seq_t largest_anagram(seq_t x)
+{
+    unsigned short cnt[10] = {0};
+    seq_t t = x;
+    while (t > 0) {
+        unsigned d = (unsigned)(t % 10);
+        cnt[d]++;
+        t = t / 10;
+    }
+    seq_t y = 0;
+    for (int d = 9; d >= 0; --d) {
+        unsigned short c = cnt[d];
+        for (unsigned i = 0; i < c; ++i) {
+            y = y * 10 + d;
+        }
+    }
+    return y;
+}
 
 seq_t a(idx_t n)
 {

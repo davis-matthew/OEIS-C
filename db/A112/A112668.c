@@ -13,12 +13,14 @@
  *            Let prev = r(r – 1)/2 (number of terms in al...
  * Range:     u8 n <= 14, u16 n <= 27, u32 n <= 64, u64 n <= 152,
  *            u128 n <= 433, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9388 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,14 +44,14 @@ seq_t a(idx_t n)
     if (r > cache_cap) {
         /* allocate larger array */
         idx_t new_cap   = r + 1;                 /* index from 0..r */
-        seq_t *new_bases = (seq_t *)malloc((size_t)new_cap * sizeof(seq_t));
+        seq_t *new_bases = mem_new(seq_t, (size_t)new_cap);
         if (!new_bases) return 0;               /* out of memory: fallback */
 
         /* copy old cached bases if any */
         if (bases) {
             for (idx_t i = 0; i <= cache_cap; ++i)
                 new_bases[i] = bases[i];
-            free(bases);
+            mem_free(bases);
         }
 
         /* compute base for new rows m = cache_cap+1 .. r */

@@ -10,6 +10,7 @@
  *            smallest possible. Initial values are * a(1)=1, a(2)=9
  * Range:     u8 n <= 3, u16 n <= 102, u32 n <= 102, u64 n <= 102,
  *            u128 n <= 102, big any n
+ * Validated: partial, pass, 102 terms through n = 102 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

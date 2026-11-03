@@ -11,6 +11,7 @@
  *            5,7,9,… until a square is reached
  * Range:     i8 n <= 89, i16 n <= 9869, i32 n <= 9869, i64 n <= 9869,
  *            i128 n <= 9869, big any n
+ * Validated: standard, pass, 82 terms through n = 9639 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

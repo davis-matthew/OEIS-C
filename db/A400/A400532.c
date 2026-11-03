@@ -10,9 +10,10 @@
  * Formula:   a(n) = T(i,j) where (i,j) is obtained by reading the square
  *            array * T(n,k) in downward antidiagonals (Cantor order). The
  *            index mapping is * as described in the OEIS entry for A400532
- * Range:     u8 n <= 9602, u16 n <= 9602, u32 n <= 9602, u64 n <= 9602,
- *            u128 n <= 9602, big any n
- * Helpers:   cantor_coords, gcd, mod_pow, phi, pow_uint
+ * Range:     u8 n <= 11325, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 107 terms through n = 9602 (2026-11-01)
+ * Helpers:   gcd, ipow_u64_idx, powmod, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,11 +24,37 @@
 #include <stdbool.h>
 
 /* ---- Utility headers (provided by the build system) ---- */
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/phi.h"
-#include "../utils/mod_pow.h"
-#include "../utils/pow_uint.h"
-#include "../utils/cantor_coords.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/powmod.h"
+#include "../utils/totient.h"
+
+/* ---- Find (i,j) from Cantor Cantor order index n (1‑based) ---- */
+static void cantor_coords(idx_t n, uint64_t *i, uint64_t *j)
+{
+    uint64_t N = (uint64_t)n;
+
+    /* Binary search for the smallest s with s*(s+1)/2 >= N */
+    uint64_t low = 1, high = 1;
+    while (high * (high + 1) / 2 < N)
+        high <<= 1;
+
+    while (low < high) {
+        uint64_t mid = (low + high) / 2;
+        if (mid * (mid + 1) / 2 >= N)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    uint64_t s = low;                       /* diagonal number */
+    uint64_t prev = (s - 1) * s / 2;        /* triangles below current diagonal */
+    uint64_t offset = N - prev - 1;         /* 0‑based offset within diagonal */
+
+    *i = offset + 1;
+    *j = s - offset;
+}
 
 /* ---- Local helper: factorization of uint64_t numbers ---- */
 static void factor_uint64(uint64_t n, uint64_t pr[], uint64_t ex[], size_t *cnt)
@@ -69,20 +96,20 @@ static seq_t ord_seq_t(seq_t a, seq_t mod)
     if (mod == (seq_t)1)
         return 1;
 
-    seq_t phi_mod = phi((idx_t)mod);          /* φ(mod) */
-    uint64_t phi = (uint64_t)phi_mod;         /* phi fits in 64‑bit for our usage */
+    seq_t phi_mod = totient((idx_t)mod);          /* φ(mod) */
+    uint64_t totient = (uint64_t)phi_mod;         /* phi fits in 64‑bit for our usage */
 
     /* Factor φ(mod) */
     uint64_t primes[64], exps[64];
     size_t pcnt = 0;
-    factor_uint64(phi, primes, exps, &pcnt);
+    factor_uint64(totient, primes, exps, &pcnt);
 
-    uint64_t d = phi;
+    uint64_t d = totient;
     for (size_t i = 0; i < pcnt; ++i) {
         uint64_t q = primes[i];
         /* Reduce d by prime factor q while a^(d/q) ≡ 1 (mod mod) */
         while (d % q == 0ULL) {
-            seq_t t = mod_pow(a, (idx_t)(d / q), mod);
+            seq_t t = powmod(a, (idx_t)(d / q), mod);
             if (t == (seq_t)1)
                 d /= q;
             else
@@ -111,7 +138,7 @@ static seq_t T_of_nk(uint64_t n, uint64_t k)
         seq_t comp;
 
         if (p == 2ULL) {
-            seq_t mod = pow_uint(2ULL, (idx_t)e);
+            seq_t mod = ipow_u64_idx(2ULL, (idx_t)e);
             seq_t rem = (seq_t)k % mod;
 
             if (rem == (seq_t)1)
@@ -123,14 +150,14 @@ static seq_t T_of_nk(uint64_t n, uint64_t k)
                 comp = 4 * ordv;
             }
         } else {
-            seq_t mod = pow_uint(p, (idx_t)e);
+            seq_t mod = ipow_u64_idx(p, (idx_t)e);
             seq_t rem = (seq_t)k % mod;
 
             if (rem == (seq_t)1)
                 comp = 1;
             else {
                 seq_t ordv = ord_seq_t(k, mod);
-                seq_t pe_minus = pow_uint(p, (idx_t)(e - 1));
+                seq_t pe_minus = ipow_u64_idx(p, (idx_t)(e - 1));
                 seq_t g = gcd(ordv, pe_minus);
                 comp = (seq_t)p * g;
             }

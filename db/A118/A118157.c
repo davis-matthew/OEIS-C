@@ -8,12 +8,15 @@
  * Formula:   a(1)=1; for n>1, a(n)=reverse_decimal(a(n-1))+62
  * Range:     u8 n <= 5, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   reverse_decimal
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/reverse_decimal.h"
+#include <stdlib.h>
+#include <stddef.h>
+#include "../utils/reverse_digits.h"
 #include <stddef.h>
 
 seq_t a(idx_t n) {
@@ -25,7 +28,7 @@ seq_t a(idx_t n) {
 
     /* iterate up to n */
     for (idx_t i = 2; i <= n; ++i) {
-        curr = reverse_decimal(curr) + (seq_t)62;
+        curr = reverse_digits(curr) + (seq_t)62;
     }
 
     return curr;

@@ -11,16 +11,52 @@
  *            results * so that calls with arbitrary n are fast
  * Range:     u8 n <= 164, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_equal_5_and_8, seq_alloc, seq_realloc
+ * Validated: standard, pass, 85 terms through n = 9647 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc.h"   /* seq_alloc()  */
-#include "../utils/seq_realloc.h"/* seq_realloc() */
-#include "../utils/has_equal_5_and_8.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* test whether a number has equal counts of 5 and 8 in base 9 */
+static bool has_equal_5_and_8(seq_t x)
+{
+    if (x == 0)                /* "0" has 0 of each digit */
+        return true;
+
+    int cnt5 = 0, cnt8 = 0;
+    seq_t y = x;
+    while (y != 0) {
+        int d = (int)(y % 9);
+        if (d == 5) ++cnt5;
+        else if (d == 8) ++cnt8;
+        y /= 9;
+    }
+    return cnt5 == cnt8;
+}
 
 /* static cache of generated terms */
 static seq_t *cache    = NULL;   /* array of a(1), a(2), ...          */

@@ -10,18 +10,21 @@
  *            concatenating them
  * Range:     u8 n <= 9, u16 n <= 41, u32 n <= 1022, u64 n <= 1022,
  *            u128 n <= 1022, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 68 terms through n = 1012 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
     seq_t result = 0;
     idx_t v = n;
-    idx_t msb = floor_log2_uint64(v);
+    idx_t msb = ilog2(v);
     idx_t current = (v >> msb) & 1;
     idx_t run_len = 1;
 

@@ -10,12 +10,14 @@
  *            with memoization
  * Range:     u8 n <= 20, u16 n <= 35, u32 n <= 65, u64 n <= 125,
  *            u128 n <= 246, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build system. */
 static seq_t *dp = NULL;   /* memoized values */
@@ -28,7 +30,7 @@ static void ensure_capacity(idx_t n) {
     if (cap >= needed) return;
     size_t newcap = cap ? cap << 1 : 16;
     if (newcap < needed) newcap = needed;
-    seq_t *newdp = (seq_t *)realloc(dp, newcap * sizeof(seq_t));
+    seq_t *newdp = mem_resize(seq_t, dp, newcap);
     if (!newdp) abort();  /* out of memory */
     dp = newdp;
     cap = newcap;

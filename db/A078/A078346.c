@@ -9,12 +9,14 @@
  *            fast
  * Range:     u8 n <= 17, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (capacity <= n) {
         idx_t newcap = capacity ? capacity << 1 : 2;
         while (newcap <= n) newcap <<= 1;
-        void *tmp = realloc(table, newcap * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, table, newcap);
         table = (seq_t *)tmp;      /* cast required for C++ compilation */
         capacity = newcap;
     }

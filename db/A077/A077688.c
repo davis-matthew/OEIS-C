@@ -12,14 +12,26 @@
  *            * direct (brute‑force) construction of every cyc...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -27,8 +39,8 @@ seq_t a(idx_t n)
     idx_t start = n * (n - 1) / 2 + 1;
     idx_t last  = start + n - 1;
 
-    int L_start = digit_len((seq_t)start);
-    int L_last  = digit_len((seq_t)last);
+    int L_start = num_digits((seq_t)start);
+    int L_last  = num_digits((seq_t)last);
 
     if (L_start == L_last) {
         /* All n numbers have the same length L = L_start */
@@ -45,7 +57,7 @@ seq_t a(idx_t n)
     if (!lens) return (seq_t)0;          /* allocation failure */
 
     for (idx_t i = 0; i < n; ++i)
-        lens[i] = (unsigned char)digit_len((seq_t)(start + i));
+        lens[i] = (unsigned char)num_digits((seq_t)(start + i));
 
     seq_t sum = 0;
     for (idx_t k = 0; k < n; ++k) {

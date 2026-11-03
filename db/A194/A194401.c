@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 26, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,27 @@
 */
 
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -40,7 +61,7 @@ seq_t a(idx_t n)
 
     /* enlarge the array when necessary */
     if (terms_len == 0) {
-        terms = (seq_t *)malloc(sizeof(seq_t) * 16);
+        terms = mem_new(seq_t, 16);
         if (!terms) { return (seq_t)0; }
         terms_len = 0;
     }
@@ -66,10 +87,10 @@ seq_t a(idx_t n)
             /* store the valid m */
             if (terms_len == 16) {
                 /* double the capacity */
-                terms = (seq_t *)realloc(terms, sizeof(seq_t) * 32);
+                terms = mem_resize(seq_t, terms, 32);
                 if (!terms) { return (seq_t)0; }
             } else if (terms_len == 32) {
-                terms = (seq_t *)realloc(terms, sizeof(seq_t) * 64);
+                terms = mem_resize(seq_t, terms, 64);
                 if (!terms) { return (seq_t)0; }
             }
             terms[terms_len++] = (seq_t)next_m;

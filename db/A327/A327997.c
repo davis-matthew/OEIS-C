@@ -10,7 +10,8 @@
  *            Stirling numbers of the first kind
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,10 +40,10 @@ seq_t a(idx_t n)
        Allocate temporary arrays for Stirling numbers and for binomial
        coefficients / powers of 3.  Size is r+1 (maximum index needed).
        ------------------------------------------------------------------ */
-    seq_t *prev = (seq_t *)malloc((r + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((r + 1) * sizeof(seq_t));
-    seq_t *pow3 = (seq_t *)malloc((r + 1) * sizeof(seq_t));
-    seq_t *bin =  (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (r + 1));
+    seq_t *curr = mem_new(seq_t, (r + 1));
+    seq_t *pow3 = mem_new(seq_t, (r + 1));
+    seq_t *bin =  mem_new(seq_t, (r + 1));
     if (!prev || !curr || !pow3 || !bin) return 0; /* should never happen */
 
     /* ------------------------------------------------------------------
@@ -95,10 +97,10 @@ seq_t a(idx_t n)
     /* ------------------------------------------------------------------
        Clean up and return the result.
        ------------------------------------------------------------------ */
-    free(prev);
-    free(curr);
-    free(pow3);
-    free(bin);
+    mem_free(prev);
+    mem_free(curr);
+    mem_free(pow3);
+    mem_free(bin);
 
     return res;
 }

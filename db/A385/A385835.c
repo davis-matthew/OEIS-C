@@ -8,13 +8,15 @@
  *            for n ≥ 1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 245 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system.  They are unsigned
    integer types; seq_t may be an arbitrary-precision class in C++.  */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
         return;
 
     /* Allocate a new array large enough for n+1 terms */
-    seq_t *new_cache = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)(n + 1));
     if (!new_cache)
         abort(); /* allocation failed */
 
@@ -55,7 +57,7 @@ static void ensure_cache(idx_t n)
     }
 
     /* Replace the old cache with the new one */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_size = n + 1;
 }

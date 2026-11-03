@@ -8,14 +8,33 @@
  * Formula:   a(n) = prime(bigomega(n)) for n≥2, a(1)=1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   prime_of_idx
+ * Validated: standard, pass, 116 terms through n = 8906 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/prime_of_idx.h"
+
+/* return the k‑th prime (k ≥ 1).  k is very small for the intended range. */
+static seq_t prime_of_idx(idx_t k)
+{
+    if (k == 1) return 2;
+    seq_t p = 3;
+    idx_t cnt = 1;          /* prime 2 already counted */
+    for (;;) {
+        bool is_prime = true;
+        for (seq_t d = 3; d * d <= p; d += 2) {
+            if (p % d == 0) { is_prime = false; break; }
+        }
+        if (is_prime) {
+            ++cnt;
+            if (cnt == k) return p;
+        }
+        p += 2;
+    }
+}
 
 /* bigomega(n): total number of prime factors of n (counted with multiplicity) */
 static idx_t bigomega_uint64(uint64_t x)

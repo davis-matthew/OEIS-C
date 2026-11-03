@@ -10,16 +10,35 @@
  *            2, a(3) = 6, a(4) = 30, a(5) = 30030, a(6) = 9699690,
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   append_candidate, is_palindrome, is_prime
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   is_palindrome_base, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"        /* bool is_prime(idx_t n);          */
-#include "../utils/is_palindrome.h"   /* bool is_palindrome(seq_t x, idx_t base); */
-#include "../utils/append_candidate.h"/* void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val); */
+#include <stdlib.h>
+#include "../utils/is_palindrome_base.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 seq_t a(idx_t n)
 {
@@ -55,7 +74,7 @@ seq_t a(idx_t n)
         }
 
         /* Check palindrome */
-        if (is_palindrome(trimmed, 10)) {
+        if (is_palindrome_base(trimmed, 10)) {
             append_candidate(&cache, &cache_len, &cache_cap, primorial);
         }
 

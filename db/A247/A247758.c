@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 94, u16 n <= 2083, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 8084 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Rank of each digit in the custom alphabet order */
 static const unsigned char rank[10] = {9, 8, 0, 7, 3, 4, 5, 6, 2, 1};
@@ -60,7 +62,7 @@ static void ensure_capacity(size_t need)
     size_t newcap = cache_cap ? cache_cap * 2 : 8;
     while (newcap < need)
         newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     /* Allocation failure handling omitted for brevity. */
     cache = tmp;
     cache_cap = newcap;

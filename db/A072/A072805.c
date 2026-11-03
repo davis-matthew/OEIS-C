@@ -10,14 +10,30 @@
  *            → "21" → 21, 11 → "102" → 102
  * Range:     u8 n <= 5, u16 n <= 28, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   base3_value
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for abort, realloc */
-#include "../utils/base3_value.h"
+#include "../utils/mem.h"
+
+/* Convert a prime (32‑bit) into the required base‑3 decimal value. */
+static seq_t base3_value(uint32_t p)
+{
+    unsigned int digits[32];
+    int len = 0;
+    while (p > 0) {
+        digits[len++] = (unsigned int)(p % 3U);
+        p /= 3U;
+    }
+    unsigned long long val = 0;
+    for (int i = len - 1; i >= 0; --i)
+        val = val * 10ULL + (unsigned long long)digits[i];
+    return (seq_t)val;   /* cast back to seq_t (fits for all present fits) */
+}
 
 /* The build supplies the following integer types. */
 seq_t a(idx_t n);
@@ -49,7 +65,7 @@ static void extend_cache(size_t needed)
     /* Grow the cache buffer if required. */
     if (seq_cache_cnt == seq_cache_cap) {
         size_t new_cap = seq_cache_cap ? seq_cache_cap * 2 : 1024;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) abort();   /* out of memory */
         seq_cache = tmp;
         seq_cache_cap = new_cap;

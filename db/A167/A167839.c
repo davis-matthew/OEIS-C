@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Compile‑time limit for the sieve.  10 million comfortably
    contains the first ten thousand isolated primes.           */
@@ -64,7 +66,7 @@ static void init(void)
 
     /* Prepare array for isolated primes.  Start with a small capacity. */
     isolated_cap = 128;
-    isolated = (seq_t *)malloc(isolated_cap * sizeof(seq_t));
+    isolated = mem_new(seq_t, isolated_cap);
     if (!isolated) exit(EXIT_FAILURE);
 
     /* Offsets to check around a candidate prime. */
@@ -86,8 +88,7 @@ static void init(void)
         if (isolated_candidate) {
             if (isolated_cnt == isolated_cap) {
                 isolated_cap *= 2;
-                isolated = (seq_t *)realloc(isolated,
-                                            isolated_cap * sizeof(seq_t));
+                isolated = mem_resize(seq_t, isolated, isolated_cap);
                 if (!isolated) exit(EXIT_FAILURE);
             }
             isolated[isolated_cnt++] = (seq_t)p;

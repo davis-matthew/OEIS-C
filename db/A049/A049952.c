@@ -12,14 +12,17 @@
  *            = Σ_{i=1}^k a(i))
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,8 +39,8 @@ seq_t a(idx_t n)
     if (!cap || cap <= (size_t)n) {
         size_t newcap = cap ? cap << 1 : 64;
         if (newcap <= (size_t)n) newcap = (size_t)n + 1;
-        A = (seq_t *)realloc(A, newcap * sizeof(seq_t));
-        S = (seq_t *)realloc(S, newcap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, newcap);
+        S = mem_resize(seq_t, S, newcap);
         cap = newcap;
         if (last == 0) {          /* first allocation – initialise base */
             S[0] = (seq_t)0;
@@ -53,7 +56,7 @@ seq_t a(idx_t n)
             S[i] = S[i - 1] + A[i];
         } else {
             /* compute p = floor(log2(i-2))  (satisfies 2^p < i-1 ≤ 2^(p+1)) */
-            idx_t p = floor_log2_uint64(i - 2);
+            idx_t p = ilog2(i - 2);
             /* 2^(p+1) fits into 64‑bit for n ≤ 10000 */
             seq_t pow2 = (seq_t)((uint64_t)1 << (p + 1));
             idx_t m = (idx_t)(((seq_t)i * 2) - 3 - pow2);

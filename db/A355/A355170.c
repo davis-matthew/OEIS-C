@@ -10,7 +10,8 @@
  *            of the sequence as defined in OEIS A355170
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>   /* for memset */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state to allow out‑of‑order requests */
@@ -58,7 +60,7 @@ seq_t a(idx_t n) {
             /* add to seen list */
             if (seen_len == seen_cap) {
                 size_t new_cap = seen_cap ? seen_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(seen, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seen, new_cap);
                 if (!tmp) abort();
                 seen = tmp;
                 seen_cap = new_cap;
@@ -68,7 +70,7 @@ seq_t a(idx_t n) {
             /* add to terms list */
             if (terms_len == terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) abort();
                 terms = tmp;
                 terms_cap = new_cap;

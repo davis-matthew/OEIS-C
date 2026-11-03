@@ -11,7 +11,8 @@
  *            boolean table of forbidden numbers
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9404 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static bool          initialized = false;   /* indicates that globals are ready   */
 static size_t        a_cap = 0;             /* capacity of A array                */
@@ -53,7 +55,7 @@ ensure_a_capacity(void)
     if (a_len < a_cap)
         return;
     size_t new_cap = a_cap ? a_cap * 2 : 16;
-    seq_t *tmp = (seq_t *)realloc(Aarr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, Aarr, new_cap);
     if (!tmp)
         exit(EXIT_FAILURE);
     Aarr = tmp;

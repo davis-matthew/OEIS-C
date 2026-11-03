@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 70, u32 n <= 211, u64 n <= 691,
  *            u128 n <= 2431, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9367 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  * This is obtained by dynamic programming over all such terms.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static globals for memoized DP */
 static seq_t *dp = NULL;      /* array of computed a(n) values */
@@ -26,7 +28,7 @@ static idx_t dp_max = 0;      /* largest n for which dp has been computed */
 static void build_dp(idx_t N)
 {
     /* reallocate the dp array if needed */
-    seq_t *newdp = (seq_t*)realloc(dp, (N + 1) * sizeof(seq_t));
+    seq_t *newdp = mem_resize(seq_t, dp, (N + 1));
     dp = newdp;
 
     /* initialise all entries to 0 and set dp[0] = 1 */

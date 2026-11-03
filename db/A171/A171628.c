@@ -9,6 +9,7 @@
  *            - 1) - [n - k²t ≥ k] * C(n - k²t - 1, k - 1) )
  * Range:     u8 n <= 25, u16 n <= 55, u32 n <= 133, u64 n <= 353,
  *            u128 n <= 900, big any n
+ * Validated: standard, pass, 68 terms through n = 875 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

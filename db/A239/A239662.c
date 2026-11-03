@@ -11,12 +11,26 @@
  *            the triangle is read row‑by‑row
  * Range:     u8 n <= 94, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
- * Helpers:   row_length
+ * Validated: partial, pass, 94 terms through n = 94 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/row_length.h"
+static inline idx_t row_length(idx_t r)
+{
+    /* largest k with k(k+1)/2 <= r */
+    idx_t low = 0, high = r;
+    while (low < high) {
+        idx_t mid = (low + high + 1) >> 1;
+        unsigned __int128 val = (unsigned __int128)mid * (mid + 1) / 2;
+        if (val <= r)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 seq_t a(idx_t n)
 {

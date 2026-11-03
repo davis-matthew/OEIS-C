@@ -12,14 +12,15 @@
  *            a(n) = p₂ / gcd(p₂, q₂)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_gcd.h"   /* seq_gcd(seq_t, seq_t) */
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -36,6 +37,6 @@ seq_t a(idx_t n)
     }
 
     /* Now p/q = X₂.  The reduced reciprocal has denominator p / gcd(p,q). */
-    seq_t g = seq_gcd(p, q);
+    seq_t g = gcd(p, q);
     return p / g;
 }

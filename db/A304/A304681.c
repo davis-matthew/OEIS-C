@@ -10,7 +10,8 @@
  *            the n consecutive blocks of length t are all distinct)
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   cmp_ulong, hash_block
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,29 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/cmp_ulong.h"
-#include "../utils/hash_block.h"
+
+static int cmp_ulong(const void *a, const void *b)
+{
+    unsigned long long ua = *(const unsigned long long *)a;
+    unsigned long long ub = *(const unsigned long long *)b;
+    return (ua < ub) ? -1 : (ua > ub);
+}
+
+/* Helper: hash a block of length t starting at position start.
+ * Uses a simple 64‑bit rolling hash with base 131. */
+static unsigned long long
+hash_block(idx_t start, idx_t t)
+{
+    unsigned long long h = 0;
+    idx_t i;
+    for (i = 0; i < t; ++i) {
+        idx_t pos = start + i;
+        /* Parity of popcount gives Thue-Morse bit (0 for even, 1 for odd). */
+        unsigned bit = __builtin_parityll(pos);
+        h = h * 131ULL + bit;
+    }
+    return h;
+}
 
 seq_t a(idx_t n)
 {

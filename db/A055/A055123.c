@@ -9,6 +9,7 @@
  *            digits of n (replacing 0 with 0, and 1…12 with 12…1)
  * Range:     u8 n <= 168, u16 n <= 2196, u32 n <= 2196, u64 n <= 2196,
  *            u128 n <= 2196, big any n
+ * Validated: standard, pass, 73 terms through n = 2104 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

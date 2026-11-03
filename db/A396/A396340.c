@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 70 terms through n = 999 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* Helper: dynamic Fibonacci array up to a given maximum gap */
 static uint64_t * _fib_arr = NULL;
@@ -73,7 +75,7 @@ seq_t a(idx_t n) {
     if (!initialized) {
         /* Prepare cache */
         found_cap = 16;
-        found = (seq_t*)malloc(found_cap * sizeof(seq_t));
+        found = mem_new(seq_t, found_cap);
         found_len = 0;
         /* Initialize prime state */
         prev_prime = 2;
@@ -89,7 +91,7 @@ seq_t a(idx_t n) {
         if (_gap_is_fib(gap)) {
             if (found_len == found_cap) {
                 found_cap <<= 1;
-                found = (seq_t*)realloc(found, found_cap * sizeof(seq_t));
+                found = mem_resize(seq_t, found, found_cap);
             }
             found[found_len++] = (seq_t)curr_prime;   /* store as seq_t */
         }

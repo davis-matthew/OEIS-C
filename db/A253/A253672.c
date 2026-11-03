@@ -9,16 +9,27 @@
  *            R_{n-1}[k] + 3 for k = 0 .. 3n-1. The sequence a(n) is the
  *            concatenation of all rows R_n. Initial values: a(0)=0, a(1)=1,
  *            a(2)=2, a(3)=0, a(4)=1, …
- * Range:     u8 n <= 9495, u16 n <= 9495, u32 n <= 9495, u64 n <= 9495,
- *            u128 n <= 9495, big any n
- * Helpers:   cumulative_row
+ * Range:     u8 n <= 11135, u16 n <= 15452, u32 n <= 15452, u64 n <= 15452,
+ *            u128 n <= 15452, big any n
+ * Validated: standard, pass, 94 terms through n = 9495 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <limits.h>
-#include "../utils/cumulative_row.h"
+
+static inline idx_t cumulative_row(idx_t r) {
+    /* cumulative terms up to and including row r:
+       3*(r+1)*(r+2)/2  (use 128-bit to avoid overflow) */
+    __uint128_t t = (__uint128_t)(r + 1) * (r + 2);
+    t *= 3;
+    t >>= 1;                     /* divide by 2 */
+    if (t > ( __uint128_t)UINT64_MAX)
+        return UINT64_MAX;       /* sentinel – larger than any index */
+    return (idx_t)t;
+}
 
 static inline seq_t rec_value(idx_t r, idx_t pos) {
     /* Returns a value in row r at position pos (0‑based). */

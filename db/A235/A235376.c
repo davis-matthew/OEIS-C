@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   mod_mul, to_decimal_from_base
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,28 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_mul.h"
-#include "../utils/to_decimal_from_base.h"
+#include "../utils/mulmod.h"
+
+/* Convert number p into the decimal integer formed by its base‑b
+ * digits.  For example, to_decimal_from_base(277,9) returns 337. */
+static uint64_t to_decimal_from_base(uint64_t p, int base)
+{
+    int digits[64];
+    int len = 0;
+    uint64_t tmp = p;
+    while (tmp) {
+        digits[len++] = tmp % base;
+        tmp /= base;
+    }
+    if (len == 0) {           /* p == 0 */
+        len = 1;
+        digits[0] = 0;
+    }
+    uint64_t dec = 0;
+    for (int i = len - 1; i >= 0; --i)
+        dec = dec * 10 + (uint64_t)digits[i];
+    return dec;
+}
 
 /* ------------------------------------------------------------------ */
 /* Simple 64‑bit modular multiplication and exponentiation for primality
@@ -41,8 +62,8 @@ static uint64_t mod_pow(uint64_t base, uint64_t exp, uint64_t mod)
     uint64_t result = 1;
     while (exp) {
         if (exp & 1)
-            result = mod_mul(result, base, mod);
-        base = mod_mul(base, base, mod);
+            result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -80,7 +101,7 @@ static bool isPrime64(uint64_t n)
             continue;
         bool composite = true;
         for (int r = 1; r < s; ++r) {
-            x = mod_mul(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 composite = false;
                 break;

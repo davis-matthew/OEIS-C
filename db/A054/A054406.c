@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 4, u16 n <= 31, u32 n <= 4836, u64 n <= 10000,
+ * Range:     u8 n <= 9, u16 n <= 248, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sqrt_floor
+ * Validated: standard, pass, 78 terms through n = 9519 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,13 +24,14 @@
  * sequence type `seq_t`.
  */
 
-#include "../utils/sqrt_floor.h"
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
     seq_t ns = (seq_t)n;            /* cast index to seq_t          */
     seq_t n_sq = ns * ns;           /* n²                            */
-    seq_t s = sqrt_floor(3 * n_sq); /* floor(n · √3) = ⌊√(3n²)⌋    */
+    seq_t s = isqrt_seq(3 * n_sq); /* floor(n · √3) = ⌊√(3n²)⌋    */
     seq_t k = 3 * ns + s;           /* 3n + ⌊n√3⌋                   */
     if ((k & 1) == 0)               /* k even: exact division by 2   */
         return k >> 1;

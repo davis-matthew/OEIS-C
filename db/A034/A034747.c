@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{d|n} σ(d) · F(n/d), n ≥ 1
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
     computes the convolution value. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declarations from the build system –  do NOT replace these. */
 extern seq_t a(idx_t n);          /* the function to be defined below */
@@ -47,15 +49,15 @@ static void prepare_upto(idx_t n)
         return;                                 /* already prepared */
 
     /* Free any previous allocations */
-    free(sigma_arr);
-    free(fib_arr);
+    mem_free(sigma_arr);
+    mem_free(fib_arr);
 
     /* Allocate new arrays.  Guard against overflow of the size_t argument. */
     if (n > SIZE_MAX - 1)
         return;                                 /* out of memory: abort */
 
-    sigma_arr = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
-    fib_arr   = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    sigma_arr = mem_new(seq_t, (size_t)(n + 1));
+    fib_arr   = mem_new(seq_t, (size_t)(n + 1));
     if (!sigma_arr || !fib_arr)
         return;                                 /* allocation failed */
 

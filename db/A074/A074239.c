@@ -11,7 +11,8 @@
  *            values
  * Range:     u8 n <= 322, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9746 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- static storage ----------------------------------------------------- */
 static uint64_t *primes = NULL;           /* array of primes (including 2)          */
@@ -49,7 +51,7 @@ static void grow_a_cache(void)
 {
     if (a_cache_size == a_cap) {
         a_cap = a_cap ? a_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(a_cache, a_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, a_cap);
         if (!tmp) abort();
         a_cache = tmp;
     }

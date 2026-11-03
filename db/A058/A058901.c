@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 27, u16 n <= 9547, u32 n <= 9547, u64 n <= 9547,
- *            u128 n <= 9547, big any n
- * Helpers:   none
+ * Range:     u8 n <= 27, u16 n <= 10806, u32 n <= 33069, u64 n <= 33069,
+ *            u128 n <= 33069, big any n
+ * Validated: standard, pass, 67 terms through n = 9547 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Check whether n has a multiple n*k whose base‑5 digit sum equals k. */
 static bool has_solution(idx_t n)
@@ -64,7 +66,7 @@ static void grow_cache(size_t new_cap)
     size_t old_cap = cache_cap;
     while (cache_cap < new_cap)
         cache_cap = cache_cap ? cache_cap * 2 : 16;
-    seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
     if (!tmp) abort();
     cache = tmp;
     /* If the cache was previously empty, initialize length. */

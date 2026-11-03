@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 47, u128 n <= 94,
  *            big any n
- * Helpers:   grow_to
+ * Validated: standard, pass, 46 terms through n = 1862 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/grow_to.h"
+#include "../utils/mem.h"
+
+/* ---------- Utility: grow an array of seq_t to at least 'need' elements ---------- */
+static void grow_to(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 1 : *cap;
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+        if (!tmp) exit(1);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* ---------- Memoisation storage ---------- */
 static seq_t *cache  = NULL;       /* cache[n] = a(n)   */

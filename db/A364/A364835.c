@@ -10,7 +10,8 @@
  *            a(n) = 49456 – n/3 else : a(n) = (n mod 3) – 1
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 898 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* hash table entry for counts of seq_t values */
 typedef struct {
@@ -53,7 +55,7 @@ static inline uint64_t hash_seq_t(seq_t x)
 static void hash_resize(void)
 {
     size_t new_size = hash_size << 1;
-    HashEntry *new_table = (HashEntry *)calloc(new_size, sizeof(HashEntry));
+    HashEntry *new_table = mem_new(HashEntry, new_size);
     size_t new_mask = new_size - 1;
 
     for (size_t i = 0; i < hash_size; ++i) {
@@ -68,7 +70,7 @@ static void hash_resize(void)
         }
     }
 
-    free(hash_table);
+    mem_free(hash_table);
     hash_table = new_table;
     hash_size  = new_size;
     hash_mask  = new_mask;
@@ -87,7 +89,7 @@ static void hash_init(void)
     hash_size = 1 << 10;   /* 1024, power of two */
     hash_mask = hash_size - 1;
     hash_used = 0;
-    hash_table = (HashEntry *)calloc(hash_size, sizeof(HashEntry));
+    hash_table = mem_new(HashEntry, hash_size);
 }
 
 /* increment count of key in hash table */
@@ -130,7 +132,7 @@ static void seq_grow_if_needed(void)
 {
     if (seq_len >= seq_cap) {
         seq_cap = (seq_cap == 0) ? 128 : seq_cap << 1;
-        seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
     }
 }
 
@@ -145,7 +147,7 @@ seq_t a(idx_t n)
     static int init_done = 0;
     if (!init_done) {
         seq_cap = 128;
-        seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         seq_arr[0] = (seq_t)1;   /* a(1) = 1 */
         seq_len   = 1;
 

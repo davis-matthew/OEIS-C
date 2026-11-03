@@ -10,14 +10,16 @@
  *            indices i>=0 and j>=0, the matrix element is A(i,j) = Σ_{m=0..d}
  *            binomial(d,m) * s^(d-m) * CB(p+m), where d = |i-j|, p =
  *            min(i,j), s = 1 if j <= i else -1, and CB(t) = binom...
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 54, u64 n <= 54, u128 n <= 54,
+ * Range:     u8 n <= 14, u16 n <= 35, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>   /* for bool type */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static inline seq_t central_binom(idx_t t)

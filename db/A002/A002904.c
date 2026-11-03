@@ -11,15 +11,46 @@
  *            value, otherwise 0. a(n) = 0 for n >= 10^6 ("ll")
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   a002904_canon, a002904_cat, a002904_val
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <string.h>
-#include "../utils/a002904_canon.h"
-#include "../utils/a002904_cat.h"
-#include "../utils/a002904_val.h"
+
+static void a002904_cat(char *buf, size_t *pos, const char *w) {
+    while (*w) buf[(*pos)++] = *w++;
+    buf[*pos] = '\0';
+}
+
+static void a002904_canon(int v, char *out) {
+    static const int vals[] = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
+    static const char *syms[] = {"m", "cm", "d", "cd", "c", "xc", "l", "xl", "x", "ix",
+                                 "v", "iv", "i"};
+    size_t pos = 0;
+    int k;
+    out[0] = '\0';
+    for (k = 0; k < 13; k++) {
+        while (v >= vals[k]) {
+            a002904_cat(out, &pos, syms[k]);
+            v -= vals[k];
+        }
+    }
+}
+
+static int a002904_val(char c) {
+    switch (c) {
+    case 'i': return 1;
+    case 'v': return 5;
+    case 'x': return 10;
+    case 'l': return 50;
+    case 'c': return 100;
+    case 'd': return 500;
+    case 'm': return 1000;
+    }
+    return 0;
+}
 
 static const char *a002904_ones[] = {"", "one", "two", "three", "four", "five", "six",
                                      "seven", "eight", "nine"};

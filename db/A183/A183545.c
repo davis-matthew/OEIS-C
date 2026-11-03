@@ -12,7 +12,8 @@
  *            implementation builds the tree with a min‑heap and a hash...
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   _floor_isqrt_u64, hash_contains
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/hash_contains.h"
+#include "../utils/isqrt.h"
+
+/* Simple open‑address hash set for idx_t values,
+ * using 0 as the empty key (all values in S are ≥3). */
+static bool hash_contains(idx_t key, idx_t *tab, size_t cap)
+{
+    size_t h = (size_t)key & (cap - 1);
+    while (tab[h]) {
+        if (tab[h] == key) return true;
+        h = (h + 1) & (cap - 1);
+    }
+    return false;
+}
 
 /* Compute the smallest power of two ≥ v.  v>0. */
 static size_t next_pow2(size_t v)
@@ -121,7 +133,7 @@ seq_t a(idx_t n)
         idx_t val = k + 2;                           /* (k+2) */
         idx_t sq = val * val;                       /* (k+2)^2 */
         idx_t sq5 = 5 * sq;                         /* 5*(k+2)^2 */
-        idx_t sqrt_term = _floor_isqrt_u64(sq5);     /* floor(sqrt(5)* (k+2)) */
+        idx_t sqrt_term = isqrt(sq5);     /* floor(sqrt(5)* (k+2)) */
         idx_t t = (val + sqrt_term) / 2;             /* floor((k+2)*φ) */
 
         idx_t child1 = t - 2;        /* -2 + floor((k+2)*φ) */

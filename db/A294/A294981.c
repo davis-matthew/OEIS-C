@@ -9,6 +9,7 @@
  *            (mod 6); a(n) = 18 otherwise (i.e. n ≡ 0,1,2 (mod 6) for n ≥ 3)
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

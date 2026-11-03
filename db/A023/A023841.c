@@ -8,15 +8,29 @@
  *            e_p(m!) = ∑i≥1 ⌊m/p^i⌋ is the exponent of prime p in m!
  * Range:     u8 n <= 680, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes, e_factor
+ * Validated: standard, pass, 94 terms through n = 9778 (2026-11-01)
+ * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
-#include "../utils/e_factor.h"
+
+/* exponent of prime p in m!  (Legendre formula) */
+static inline seq_t e_factor(idx_t m, idx_t p)
+{
+    seq_t exp = 0;
+    for (idx_t power = p; power <= m; power *= p) {
+        exp += (seq_t)(m / power);
+        if (power > m / p)      /* next multiplication would overflow or exceed m */
+            break;
+    }
+    return exp;
+}
 
 /* static state for prime sieve */
 static idx_t *prime_array = NULL;   /* array of primes up to current limit */

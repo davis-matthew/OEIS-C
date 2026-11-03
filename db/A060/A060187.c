@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 31, u32 n <= 70, u64 n <= 177,
  *            u128 n <= 447, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1157 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Recurrence: T(n,1)=T(n,n)=1; for 1<k<n: T(n,k)= (2n-2k+1)*T(n-1,k-1)+(2k-1)*T(n-1,k).  
    a(n) is the nth element of the triangle read by rows. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;
 static idx_t max_row = 0;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         triangle = new_tri;
 
         for (idx_t i = max_row + 1; i <= r; ++i) {
-            triangle[i] = (seq_t*)malloc(sizeof(seq_t) * (i + 1));
+            triangle[i] = mem_new(seq_t, (i + 1));
             if (!triangle[i]) abort();
 
             triangle[i][1] = 1;

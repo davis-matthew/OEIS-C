@@ -10,13 +10,15 @@
  *            with 2a+b=n, a>n/4, b<2a, gcd(a,b)=1, and b^2<2a^2
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cached_limit = 0;
@@ -35,11 +37,11 @@ static seq_t seq_gcd(seq_t a, seq_t b) {
 /* Compute a(n) for all n in (cached_limit, limit] and store them in cache. */
 static void compute_range(idx_t limit) {
     if (!cache) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * (limit + 1));
+        cache = mem_new(seq_t, (limit + 1));
         if (!cache) return;                       /* allocation failure – should never happen */
         for (idx_t i = 0; i <= limit; ++i) cache[i] = 0;
     } else if (cached_limit + 1 <= limit) {
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * (limit + 1));
+        seq_t *new_cache = mem_resize(seq_t, cache, (limit + 1));
         if (!new_cache) return;                   /* allocation failure – should never happen */
         cache = new_cache;
         for (idx_t i = cached_limit + 1; i <= limit; ++i) cache[i] = 0;

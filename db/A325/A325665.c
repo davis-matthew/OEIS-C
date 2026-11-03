@@ -10,13 +10,15 @@
  *            ⌊k*(-√2)⌋, Δf_k = f_{k+1}-f_k)
  * Range:     i8 n <= 12, i16 n <= 17, i32 n <= 37, i64 n <= 73, i128 n <= 133,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* Allocate array to hold the sequence f_k (k = 0..n) and
        to compute successive differences in place. */
-    seq_t *cur = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, (n + 1));
     if (!cur) return 0;               /* allocation failed */
 
     /* --- compute f_k = floor(k*(-sqrt(2))) for k=0..n --- */
@@ -57,6 +59,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = cur[0];
-    free(cur);
+    mem_free(cur);
     return result;
 }

@@ -9,21 +9,24 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes A265543: smallest base‑2 palindrome m ≥ n such that every base‑2 digit of n is ≤ the corresponding digit of m.
    The returned value is the decimal integer whose decimal digits form the binary representation of m. */
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;                     /* a(0) = 0 */
 
     /* Length of the binary representation of n (≥ 1) */
-    int len = (int)floor_log2_uint64(n) + 1;   /* n > 0 */
+    int len = (int)ilog2(n) + 1;   /* n > 0 */
 
     /* Build the palindrome in binary form (bits stored in m_bits). */
     seq_t m_bits = 0;

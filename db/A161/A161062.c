@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 139, u16 n <= 445, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 112 terms through n = 950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,15 +17,16 @@
 /* Computes a(n) = number of partitions of n into powers of two,
    where every part appears either 0 or at least 13 times. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate and initialise DP arrays */
     idx_t size = n + 1U;
-    seq_t *dp  = (seq_t *)calloc((size_t)size, sizeof(seq_t));
-    seq_t *dp2 = (seq_t *)calloc((size_t)size, sizeof(seq_t));
+    seq_t *dp  = mem_new(seq_t, (size_t)size);
+    seq_t *dp2 = mem_new(seq_t, (size_t)size);
     if (!dp || !dp2) {               /* allocation failure */
-        free(dp); free(dp2);
+        mem_free(dp); mem_free(dp2);
         return (seq_t)0;
     }
 
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
-    free(dp2);
+    mem_free(dp);
+    mem_free(dp2);
     return result;
 }

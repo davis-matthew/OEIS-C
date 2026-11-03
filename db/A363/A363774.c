@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 17, i16 n <= 39, i32 n <= 46, i64 n <= 46, i128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +37,8 @@ seq_t a(idx_t n)
     /* Extend h array up to required n */
     if (h_size <= n) {
         /* Reallocate and rebuild h entirely (n ≤ 10000, cheap) */
-        free(h);
-        h = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        mem_free(h);
+        h = mem_new(seq_t, (n + 1));
         for (idx_t i = 0; i <= n; ++i) h[i] = 0;
 
         /* Compute all ordered pairs (i,j) with i² + j² ≤ n */
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
 
     /* Extend a_seq up to required n */
     if (a_size <= n) {
-        a_seq = (seq_t *)realloc(a_seq, (n + 1) * sizeof(seq_t));
+        a_seq = mem_resize(seq_t, a_seq, (n + 1));
 
         /* Initialize first term if not already */
         if (a_size == 0) {

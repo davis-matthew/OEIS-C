@@ -9,12 +9,14 @@
  *            x^i)
  * Range:     u8 n <= 13, u16 n <= 38, u32 n <= 178, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,12 +51,12 @@ seq_t a(idx_t n)
     // Allocate or extend memo
     if (memo_size == 0 || n >= memo_size) {
         idx_t new_size = (n + 256) & ~(idx_t)255;
-        seq_t *new_memo = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, new_size);
         if (memo != NULL) {
             for (idx_t i = 0; i <= computed_up_to; i++) {
                 new_memo[i] = memo[i];
             }
-            free(memo);
+            mem_free(memo);
         }
         memo = new_memo;
         memo_size = new_size;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool build_digits(idx_t pos, idx_t n, seq_t prefix, seq_t *lucas, uint8_t *digits) {
     if (pos > n) return true;
@@ -61,7 +63,7 @@ seq_t a(idx_t n) {
     if (n == 0) return 0;           /* offset starts at 1                */
 
     /* Allocate array of Lucas numbers 1..n */
-    seq_t *lucas = (seq_t*)malloc((size_t)(n+1) * sizeof(seq_t));
+    seq_t *lucas = mem_new(seq_t, (size_t)(n+1));
     if (!lucas) return 0;
 
     /* Lucas sequence: L0=2, L1=1, hence L1=1, L2=3, */
@@ -82,7 +84,7 @@ seq_t a(idx_t n) {
         result = 0;   /* no n‑digit number satisfies the conditions   */
     }
 
-    free(lucas);
+    mem_free(lucas);
     free(digits);
     return result;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 6, i64 n <= 10, i128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    with memoisation suitable for arbitrary call order. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* factorial cache: fact[i] = i!  (i ≤ fact_len)              */
 static seq_t *fact = NULL;
@@ -39,7 +41,7 @@ static void ensure_factorials(idx_t upto)
 {
     if (!fact) {
         fact_cap = 1;
-        fact = (seq_t *)malloc(fact_cap * sizeof(seq_t));
+        fact = mem_new(seq_t, fact_cap);
         if (!fact) exit(EXIT_FAILURE);
         fact[0] = (seq_t)1;
         fact_len = 0;
@@ -48,7 +50,7 @@ static void ensure_factorials(idx_t upto)
 
     size_t new_cap = fact_cap;
     while (new_cap <= upto) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fact, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     fact = tmp;
     fact_cap = new_cap;
@@ -64,7 +66,7 @@ static void ensure_a(idx_t upto)
     if (!a_seq) {
         a_cap = 8;
         if (a_cap < upto + 1) a_cap = upto + 1;
-        a_seq = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_seq = mem_new(seq_t, a_cap);
         if (!a_seq) exit(EXIT_FAILURE);
     }
     if (upto <= a_len) return;
@@ -72,7 +74,7 @@ static void ensure_a(idx_t upto)
     if (upto + 1 > a_cap) {
         size_t new_cap = a_cap;
         while (new_cap <= upto) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(a_seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_seq, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         a_seq = tmp;
         a_cap = new_cap;

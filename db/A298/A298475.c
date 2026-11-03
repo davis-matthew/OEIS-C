@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_pal_bin
+ * Validated: standard, pass, 101 terms through n = 9900 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,15 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_pal_bin.h"
+
+/* Test whether the substring s[0..len-1] is a binary palindrome */
+static bool is_pal_bin(const char *s, idx_t len)
+{
+    for (idx_t i = 0; i * 2 < len; ++i)
+        if (s[i] != s[len - 1 - i])
+            return false;
+    return true;
+}
 
 /* a(n): minimal number of binary palindromes that partition the binary
  * representation of n, with n >= 1.  For n == 0, returns 0. */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 136, u32 n <= 528, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   idx_T, pow_uint
+ * Validated: standard, pass, 94 terms through n = 1236 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,15 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/pow_uint.h"
-#include "../utils/idx_T.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
+
+/* convert (n,k) (1‑based) to linear 0‑based index in tri */
+static inline idx_t idx_T(idx_t n, idx_t k)
+{
+    return ((n - 1) * n) / 2 + (k - 1);
+}
 
 /* internal storage of the already computed triangle */
 static seq_t *tri   = NULL;   /* flattened array of triangle entries */
@@ -32,7 +40,7 @@ static void ensure_capacity(idx_t new_cap)
     if (new_cap <= tri_cap)
         return;
     size_t new_size = (size_t)new_cap * sizeof(seq_t);
-    tri = (seq_t *)realloc(tri, new_size);
+    tri = mem_resize(seq_t, tri, (new_size) / sizeof(seq_t));
     tri_cap = new_cap;
 }
 
@@ -50,7 +58,7 @@ static void ensure_rows(idx_t row_needed)
             seq_t val;
             if (k == 1) {
                 /* T(r,1) = 2^(r-1) */
-                val = pow_uint((uint64_t)2, r - 1);
+                val = ipow_u64_idx((uint64_t)2, r - 1);
             } else {
                 seq_t a = tri[idx_T(r - 1, k - 1)];
                 seq_t b = 0;

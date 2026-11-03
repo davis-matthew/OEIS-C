@@ -8,6 +8,7 @@
  * Formula:   a(n) = gcd(4·n, A025586(4·n))
  * Range:     u8 n <= 26, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 /* The function below iterates the Collatz sequence until 1 is reached, keeps track of the maximum value, */
 /* and returns the greatest common divisor of 4n and that maximum. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

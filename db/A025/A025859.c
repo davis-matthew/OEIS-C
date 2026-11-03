@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
                  −a(n−9)−a(n−11)−a(n−12)+a(n−16)
      for all n≥0, with a(k)=0 for k<0.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* DP table: cache[i] = a(i) */
 static idx_t cached_n = 0;    /* largest n that has been computed */
@@ -33,7 +35,7 @@ static void resize_cache(idx_t need)
     idx_t new_size = cache_size ? cache_size * 2 : 16;
     if (new_size < need + 1) new_size = need + 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) abort();                /* memory exhausted */
 
     cache = tmp;

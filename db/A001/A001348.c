@@ -8,7 +8,8 @@
  *            a sieve
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 31,
  *            big any n
- * Helpers:   a1348_pow2
+ * Validated: standard, pass, 36 terms through n = 99 (2026-11-01)
+ * Helpers:   pow2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/a1348_pow2.h"
+#include "../utils/pow2_u64.h"
 
 static uint64_t *a1348_primes = NULL;
 static uint64_t a1348_count = 0;
@@ -48,5 +49,5 @@ static uint64_t a1348_prime(idx_t n) {
 
 seq_t a(idx_t n) {
     uint64_t p = a1348_prime(n);
-    return a1348_pow2(p) - 1;
+    return pow2_u64(p) - 1;
 }

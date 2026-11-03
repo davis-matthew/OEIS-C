@@ -11,12 +11,14 @@
  *            row‑wise (row 0 has length 1, row r>=1 has length r)
  * Range:     i8 n <= 7, i16 n <= 23, i32 n <= 36, i64 n <= 36, i128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* flattened coefficients */
 static size_t cache_len   = 0;    /* number of terms stored       */
@@ -32,7 +34,7 @@ static void ensure_cache(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 256;
     while (new_cap < needed) new_cap *= 2;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -42,7 +44,7 @@ static void init_sequence(void)
     if (cache) return;
 
     cache_cap = 256;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
 
     /* first term a(0) = 1 */
     cache[0] = 1;
@@ -50,7 +52,7 @@ static void init_sequence(void)
 
     /* initialise previous row (row 0) */
     prev_len = 1;
-    prev_coeff = (seq_t *)malloc(sizeof(seq_t));
+    prev_coeff = mem_new(seq_t, 1);
     prev_coeff[0] = 1;
     current_row = 0;
 }
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         idx_t next_row   = current_row + 1;
         size_t curr_len  = (size_t)next_row;          /* r+1 terms */
 
-        seq_t *curr_coeff = (seq_t *)malloc(curr_len * sizeof(seq_t));
+        seq_t *curr_coeff = mem_new(seq_t, curr_len);
 
         /* k = 0 */
         curr_coeff[0] = (seq_t)2 * prev_coeff[0];
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
             cache[cache_len++] = curr_coeff[k];
 
         /* advance to next row */
-        free(prev_coeff);
+        mem_free(prev_coeff);
         prev_coeff = curr_coeff;
         prev_len = curr_len;
         current_row = next_row;

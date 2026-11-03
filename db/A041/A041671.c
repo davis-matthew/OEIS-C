@@ -11,7 +11,8 @@
  *            a(16)=526968725, a(17)=1310454071, a(18)=5768785009...
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static size_t cache_cap = 0;   /* current allocated capacity (in seq_t elements) */
@@ -74,7 +76,7 @@ static void ensure_cache_size(idx_t n)
         size_t new_cap = cache_cap ? cache_cap : 20;
         while (new_cap < target)
             new_cap <<= 1;                 /* grow geometrically */
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) abort();                /* allocation failure */
         seq_cache = tmp;
         cache_cap = new_cap;

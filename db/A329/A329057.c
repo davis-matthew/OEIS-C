@@ -11,17 +11,20 @@
  *            T_{r+1}, where T_r = r(r+1)/2 (terms before row r), i = n - T_r
  *            (0 ≤ i ≤ r). Then if i == 0 : a(n) = Catalan(r) else : a(n) =
  *            (r+1)^(i-1) * binomial(2r - i, r - i)
- * Range:     u8 n <= 15, u16 n <= 32, u32 n <= 73, u64 n <= 166,
+ * Range:     u8 n <= 16, u16 n <= 32, u32 n <= 73, u64 n <= 166,
  *            u128 n <= 430, big any n
- * Helpers:   binomial, catalan, pow_int
+ * Validated: standard, pass, 71 terms through n = 9058 (2026-11-01)
+ * Helpers:   binomial, catalan, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* required utilities */
-#include "../utils/pow_int.h"
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/catalan.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     /* Find r: largest such that r*(r+1)/2 <= n */
@@ -35,7 +38,7 @@ seq_t a(idx_t n) {
     if (i == 0) {
         return catalan(r);
     } else {
-        seq_t pow_val = pow_int((seq_t)(r + 1), i - 1);
+        seq_t pow_val = ipow_idx((seq_t)(r + 1), i - 1);
         seq_t bin_val = binomial((idx_t)(2 * r - i), (idx_t)(r - i));
         return pow_val * bin_val;
     }

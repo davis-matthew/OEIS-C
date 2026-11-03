@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 22, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   digit_counts, is_prime, seq_alloc, seq_free
+ * Validated: full, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   digit_counts, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,21 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"
+#include <stdlib.h>
 #include "../utils/digit_counts.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_free.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 /* Helper: tests whether all decimal digits of a number are distinct. */
 static bool distinct_digits(seq_t x) {

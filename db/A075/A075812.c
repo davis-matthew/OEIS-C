@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 134, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   bigomega, rev_uint64
+ * Validated: standard, pass, 61 terms through n = 1998 (2026-11-03)
+ * Helpers:   bigomega, mem, reverse_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,12 +23,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Utility to compute the function bigomega(n) (number of prime factors
    counted with multiplicity).  The appropriate header must be
    provided by the build system. */
 #include "../utils/bigomega.h"
-#include "../utils/rev_uint64.h"
+#include "../utils/reverse_digits_u64.h"
 
 /* Powers of ten up to 10^19 – enough for all palindromes that
    occur up to n = 10000. */
@@ -77,7 +79,7 @@ static seq_t next_palindrome(void)
                 if (gen_middle < 10) {
                     uint64_t val = gen_prefix * pow10[half + 1]
                                 + (uint64_t)gen_middle * pow10[half]
-                                + rev_uint64(gen_prefix);
+                                + reverse_digits_u64(gen_prefix);
                     gen_middle++;
                     return (seq_t)val;
                 } else {
@@ -98,7 +100,7 @@ static seq_t next_palindrome(void)
             if (gen_prefix == 0) gen_prefix = start;
 
             if (gen_prefix <= end) {
-                uint64_t val = gen_prefix * pow10[half] + rev_uint64(gen_prefix);
+                uint64_t val = gen_prefix * pow10[half] + reverse_digits_u64(gen_prefix);
                 gen_prefix++;
                 return (seq_t)val;
             } else {
@@ -122,10 +124,10 @@ static void ensure_cache_cap(void)
 {
     if (cachecap == 0) {
         cachecap = 16;
-        cache = (seq_t *)malloc(cachecap * sizeof(seq_t));
+        cache = mem_new(seq_t, cachecap);
     } else if (cachelen == cachecap) {
         cachecap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, cachecap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cachecap);
         cache = tmp;            /* realloc may return NULL – not handled
                                    because we never run out of memory
                                    for the required n. */

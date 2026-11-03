@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 279, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Simple deterministic primality test for 64‑bit integers. */
 static bool is_prime_uint64(uint64_t n) {
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
     /* grow cache when needed */
     if (sz == 0) {
         cap = 64;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     while (sz < n) {
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
             /* store the prime, cast to seq_t (overflow is fine when value does not fit) */
             if (sz == cap) {
                 cap <<= 1;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[sz++] = (seq_t)next_candidate;
         }

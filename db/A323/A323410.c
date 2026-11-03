@@ -6,17 +6,20 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = n - ∏_{p^e∥n} (p^e - 1)
- * Range:     u8 n <= 389, u16 n <= 8254, u32 n <= 8254, u64 n <= 8254,
- *            u128 n <= 8254, big any n
- * Helpers:   factor_u64, pow_uint
+ * Range:     u8 n <= 389, u16 n <= 21210, u32 n <= 21210, u64 n <= 21210,
+ *            u128 n <= 21210, big any n
+ * Validated: standard, pass, 110 terms through n = 8254 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
 
         for (size_t i = 0; i < cnt; ++i) {
             /* compute p^e - 1 and multiply into φ*(n) */
-            seq_t term = pow_uint(primes[i], exps[i]);  /* p^e   */
+            seq_t term = ipow_u64_idx(primes[i], exps[i]);  /* p^e   */
             term -= (seq_t)1;                          /* p^e-1 */
             phi *= term;
         }

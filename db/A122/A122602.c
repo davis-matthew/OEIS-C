@@ -12,13 +12,15 @@
  *            a(2) = … = a(10) = 0
  * Range:     u8 n <= 16, u16 n <= 24, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ------------- Memoisation cache ------------- */
 static seq_t *cache      = NULL;  /* 0‑unused, cache[i] holds a(i) */
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t needed)
     /* Expand array if necessary. */
     if (needed + 1 > cache_cap) {
         size_t new_cap = (size_t)(needed + 1);
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache)
             abort();                 /* allocation failure */
         /* Zero‑initialise new entries. */

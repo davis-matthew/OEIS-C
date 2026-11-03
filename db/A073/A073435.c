@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 2380, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9732 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------
  * Configuration:  pre‑compute up to MAX_INDEX composite indices.
@@ -72,7 +74,7 @@ static void init_sequence(void)
     /* ---------- 3. Produce the first MAX_INDEX composite numbers ----------
      * composites[1] = 4, composites[2] = 6, etc.
      */
-    composites = (seq_t *)malloc((size_t)(MAX_INDEX + 1) * sizeof(seq_t));
+    composites = mem_new(seq_t, (size_t)(MAX_INDEX + 1));
     if (!composites)
         return;
     composites[0] = 0;                /* unused placeholder */

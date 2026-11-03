@@ -12,13 +12,15 @@
  *            2*a(n-6) + 6*a(n-7) for n>10
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 36, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* realloc */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if (cache_len < required)
     {
         /* realloc the cache; cast needed because realloc returns void* */
-        seq_t *new_cache = (seq_t *)realloc(cache, required * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, required);
         if (!new_cache)
             return (seq_t)0;       /* allocation failure (unlikely for valid inputs) */
 

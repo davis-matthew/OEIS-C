@@ -11,15 +11,26 @@
  *            posets). Then P = S/(1-S), so P(n) = S(n) + Sum_...
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 33, u128 n <= 63,
  *            big any n
- * Helpers:   alloc_zero, release, sp_gcd
+ * Validated: standard, pass, 43 terms through n = 966 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/sp_gcd.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 static seq_t *spC = 0, *spP = 0, *spS = 0, *spB = 0, *spM = 0;
 static idx_t spL = 0;
@@ -57,7 +68,7 @@ static void sp_build(idx_t N)
             seq_t r = spM[i - 1];
             seq_t t = spC[m] + (seq_t)(i - 1);
             seq_t si = (seq_t)i;
-            seq_t g = sp_gcd(r, si);
+            seq_t g = gcd(r, si);
             spM[i] = (r / g) * (t / (si / g));
         }
         for (n = N; n >= m; n--) {

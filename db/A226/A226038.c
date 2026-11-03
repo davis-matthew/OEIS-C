@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 6710, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   weak_condition
+ * Validated: standard, pass, 78 terms through n = 9837 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,27 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/weak_condition.h"
+
+/* Check the weak Clausen condition for a given k.
+   For each prime divisor p of k+1, verify that (k % (p-1)) == 0. */
+static bool weak_condition(idx_t k)
+{
+    idx_t temp = k + 1;         /* number to factorize */
+
+    for (idx_t p = 2; p <= temp / p; ++p) {
+        if (temp % p == 0) {
+            if (k % (p - 1) != 0)
+                return false;
+            while (temp % p == 0)
+                temp /= p;
+        }
+    }
+    if (temp > 1) { /* remaining prime factor > sqrt(original temp) */
+        if (k % (temp - 1) != 0)
+            return false;
+    }
+    return true;
+}
 
 /* Return the nth term (n ≥ 1).  For n == 0 the function returns 0
    as a safe default, although the OEIS offset starts at 1. */

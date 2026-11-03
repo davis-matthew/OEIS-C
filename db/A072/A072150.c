@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 92, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    a(6)=17, a(7)=18, a(8)=20, a(9)=25, a(10)=26, a(11)=28, a(12)=33
    The recurrence holds for n >= 13. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache == NULL) {
         cache_size = (n >= 13) ? n + 1 : 13;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         for (idx_t i = 0; i < 13; ++i) cache[i] = base_vals[i];
         for (idx_t i = 13; i < cache_size; ++i) {
             cache[i] = cache[i - 3] + cache[i - 9] - cache[i - 12];
@@ -42,7 +44,7 @@ static void ensure_cache(idx_t n)
     } else if (n >= cache_size) {
         idx_t old = cache_size;
         cache_size = n + 1;
-        cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_size);
         for (idx_t i = old; i < cache_size; ++i) {
             cache[i] = cache[i - 3] + cache[i - 9] - cache[i - 12];
         }

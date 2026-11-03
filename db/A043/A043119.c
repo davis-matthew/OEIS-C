@@ -10,13 +10,33 @@
  *            not. Computed by a straightforward linear scan
  * Range:     u8 n <= 13, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   has_adjacent_0_and_4
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_adjacent_0_and_4.h"
+
+static bool has_adjacent_0_and_4(seq_t x)
+{
+    if (x == (seq_t)0) return false;               /* only digit 0, no adjacency */
+
+    seq_t tmp = x;
+    int prev = -1;                                 /* previous base‑6 digit */
+
+    while (tmp > (seq_t)0) {
+        int digit = (int)(tmp % (seq_t)6);          /* current least‑significant digit */
+
+        if (prev >= 0 &&
+            ((prev == 0 && digit == 4) || (prev == 4 && digit == 0)))
+            return true;                           /* adjacency found */
+
+        prev = digit;                              /* set for next iteration */
+        tmp /= (seq_t)6;                           /* shift right one base‑6 digit */
+    }
+    return false;                                  /* no adjacency detected */
+}
 
 seq_t a(idx_t n)
 {

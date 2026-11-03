@@ -9,12 +9,14 @@
  * Formula:   a(n) = 120*σ_3(n) - 24*σ_1(n) + 288*∑_{k=1}^{n-1} σ_1(k)σ_1(n-k)
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the n‑th term of A282017, the coefficients in the
    q‑expansion of (E_4 + E_2^2)/2, where σ_1 and σ_3 are the sum of
@@ -26,8 +28,8 @@ seq_t a(idx_t n)
 
     /* allocate arrays for divisor sums up to n */
     size_t len = (size_t)n + 1;   /* indices 0..n */
-    seq_t *sigma1 = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *sigma3 = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *sigma1 = mem_new(seq_t, len);
+    seq_t *sigma3 = mem_new(seq_t, len);
     if (!sigma1 || !sigma3)
         return (seq_t)0;          /* allocation failed → return 0 */
 
@@ -54,8 +56,8 @@ seq_t a(idx_t n)
         (seq_t)288 * conv;
 
     /* free temporary storage (optional for short‑living data) */
-    free(sigma1);
-    free(sigma3);
+    mem_free(sigma1);
+    mem_free(sigma3);
 
     return result;
 }

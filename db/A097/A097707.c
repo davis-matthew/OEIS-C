@@ -7,6 +7,7 @@
  * Formula:   a(n) = ∏_{p ≤ n, p ≡ 3 (mod 4)} p^{⌊n/p⌋ + ⌊n/p²⌋ + ⌊n/p³⌋ + …}
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 21, u64 n <= 27, u128 n <= 27,
  *            big any n
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

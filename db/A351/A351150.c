@@ -8,13 +8,36 @@
  *            = 1, a(1) = 0
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 22, u128 n <= 23,
  *            big any n
- * Helpers:   ensure_to
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/ensure_to.h"
+#include "../utils/mem.h"
+
+/* Ensure that an array has space for indices up to 'need' (inclusive)   */
+static void ensure_to(idx_t need, seq_t **arr, size_t *cap)
+{
+    if (need < *cap)
+        return;
+
+    size_t new_cap = (size_t)need + 1;
+    if (new_cap < 2)
+        new_cap = 2;
+
+    if (*arr)
+    {
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+        *arr = tmp;
+    }
+    else
+    {
+        *arr = mem_new(seq_t, new_cap);
+    }
+    *cap = new_cap;
+}
 
 /* Dynamically allocated cache for the sequence values */
 static seq_t *a_cache  = NULL;

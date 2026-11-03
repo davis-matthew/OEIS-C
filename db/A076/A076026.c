@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 49,
  *            big any n
- * Helpers:   catalan
+ * Validated: standard, pass, 40 terms through n = 742 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 /* ----------  local dynamic‑array helpers  ---------- */
 static void ensure_cap(size_t needed, size_t *cap, seq_t **ptr)
@@ -34,7 +36,7 @@ static void ensure_cap(size_t needed, size_t *cap, seq_t **ptr)
     size_t new_cap = (*cap == 0) ? 1 : *cap;
     while (new_cap < needed)
         new_cap <<= 1;
-    *ptr = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+    *ptr = mem_resize(seq_t, *ptr, new_cap);
     *cap = new_cap;
 }
 

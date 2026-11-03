@@ -7,7 +7,8 @@
  * Formula:   a(n) = R_{n+1} - R_n, where R_k is the k‑th Ramanujan prime
  * Range:     u8 n <= 1043, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9931 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------------------------------------------------------- */
 /* static state for memoisation                                 */
@@ -82,7 +84,7 @@ static void compute_to(idx_t target)
 
     /* ---- 3. Compute f(x) = π(x) – π(⌊x/2⌋)  for  x = 2 .. lim ----- */
     size_t f_len = lim - 1;              /* for x=2..lim */
-    seq_t *f = (seq_t*)malloc(f_len * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, f_len);
     if (!f) { free(is_comp); free(primes); free(pi); abort(); }
 
     for (size_t x = 2; x <= lim; ++x) {
@@ -99,10 +101,10 @@ static void compute_to(idx_t target)
 
     /* ---- 5. Find Ramanujan primes R_1 .. R_k ------------------- */
     size_t *R = (size_t*)malloc((target_k + 1) * sizeof(size_t));
-    if (!R) { free(is_comp); free(primes); free(pi); free(f); abort(); }
+    if (!R) { free(is_comp); free(primes); free(pi); mem_free(f); abort(); }
 
-    seq_t *new_diff = (seq_t*)malloc((target_k + 1) * sizeof(seq_t)); /* 1‑based */
-    if (!new_diff) { free(is_comp); free(primes); free(pi); free(f); free(R); abort(); }
+    seq_t *new_diff = mem_new(seq_t, (target_k + 1)); /* 1‑based */
+    if (!new_diff) { free(is_comp); free(primes); free(pi); mem_free(f); free(R); abort(); }
 
     size_t needed = 1;
     for (size_t x = 2; x <= lim && needed <= target_k; ++x) {
@@ -118,11 +120,11 @@ static void compute_to(idx_t target)
     free(is_comp);
     free(primes);
     free(pi);
-    free(f);
+    mem_free(f);
     free(R);
 
     /* ---- 7. Replace the global cache -------------------------- */
-    free(diff_arr);                      /* old cache */
+    mem_free(diff_arr);                      /* old cache */
     diff_arr = new_diff;
     diff_cap = target_k + 1;             /* indices 0 .. target_k */
     max_computed_n = target;

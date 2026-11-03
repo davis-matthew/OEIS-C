@@ -11,13 +11,15 @@
  *            values: a(1)=32733, a(2)=80361, a(3)=215658
  * Range:     u8 none, u16 n <= 1, u32 n <= 13, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Memoisation cache (1‑based indexing) */
 static seq_t *cache   = NULL;     /* pointer to cached terms */
@@ -31,7 +33,7 @@ static void init_cache(void)
         return;
     /* Allocate space for indices 0..3 (needs 4 elements). */
     size_t cap = 4;
-    cache = (seq_t*)malloc(cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cap);
     if (cache == NULL)
         exit(1);                      /* memory allocation failed */
     cache_cap  = cap;
@@ -53,7 +55,7 @@ static void ensure_capacity(idx_t n)
         new_cap = 4;
     while (new_cap <= (size_t)n)
         new_cap *= 2;
-    seq_t *new_ptr = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (new_ptr == NULL)
         exit(1);                      /* allocation failed */
     cache = new_ptr;

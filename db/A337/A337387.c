@@ -9,22 +9,30 @@
  *            binomial(2*n+1,2*k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   binomial, pow_uint, seq_mul
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
     seq_t sum = 0;
     for (idx_t k = 0; k <= n; ++k)
     {
-        seq_t power = pow_uint((uint64_t)n, n - k);
+        seq_t power = ipow_u64_idx((uint64_t)n, n - k);
         seq_t b1    = binomial(2 * k, k);
         seq_t b2    = binomial(2 * n + 1, 2 * k);
         seq_t term  = seq_mul(seq_mul(power, b1), b2);

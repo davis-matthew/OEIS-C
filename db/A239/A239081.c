@@ -9,7 +9,8 @@
  *            |p(i)-i| <= 9 for all i (OEIS A239081)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 21, u64 n <= 39, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 866 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MASK_BITS 10
 #define MASK_SIZE (1 << MASK_BITS)
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     static seq_t ndp[MASK_SIZE];
 
     /* reset DP arrays for this call */
-    memset(dp, 0, sizeof dp);
+    mem_set(dp, 0, sizeof dp);
     dp[0] = (seq_t)1;
 
     /* Main loop over positions 1 .. n. */
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         int maxd = rem < 9 ? (int)rem : 9;
 
         /* reset ndp */
-        memset(ndp, 0, sizeof ndp);
+        mem_set(ndp, 0, sizeof ndp);
 
         /* iterate over all masks */
         for (int mask = 0; mask < MASK_SIZE; ++mask) {
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
         }
 
         /* prepare for next iteration */
-        memcpy(dp, ndp, sizeof dp);
+        mem_copy(dp, ndp, sizeof dp);
     }
 
     /* After processing all positions, no pending matches should remain. */

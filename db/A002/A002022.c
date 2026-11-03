@@ -9,21 +9,22 @@
  *            n odd
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 27,
  *            big any n
- * Helpers:   a000272_ipow
+ * Validated: standard, pass, 33 terms through n = 100 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000272_ipow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     seq_t base = (seq_t)n - 1;
     seq_t power;
 
     if (n % 2 == 0) {
-        power = a000272_ipow(base, n + 1);
+        power = ipow_idx(base, n + 1);
     } else {
-        power = a000272_ipow(base, n);
+        power = ipow_idx(base, n);
     }
 
     return power - base;

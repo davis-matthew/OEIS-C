@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 33, u64 n <= 66, u128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 431 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,11 +44,11 @@ seq_t a(idx_t n)
     const size_t ARR_SIZE   = STATE_CNT * diff_span;
 
     /* two work arrays, cleared each iteration */
-    seq_t *cur  = (seq_t *)malloc(ARR_SIZE * sizeof(seq_t));
-    seq_t *next = (seq_t *)malloc(ARR_SIZE * sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, ARR_SIZE);
+    seq_t *next = mem_new(seq_t, ARR_SIZE);
     if (!cur || !next) { return 0; }      /* allocation failed */
-    memset(cur, 0, ARR_SIZE * sizeof(seq_t));
-    memset(next, 0, ARR_SIZE * sizeof(seq_t));
+    mem_set(cur, 0, ARR_SIZE * sizeof(seq_t));
+    mem_set(next, 0, ARR_SIZE * sizeof(seq_t));
 
     /* initial states: after the first 4 bits each 4‑bit pattern occurs exactly once,
      * difference is zero for all of them. */
@@ -107,7 +109,7 @@ seq_t a(idx_t n)
         seq_t *tmp = cur;
         cur = next;
         next = tmp;
-        memset(next, 0, ARR_SIZE * sizeof(seq_t));   /* clear the buffer we'll use next */
+        mem_set(next, 0, ARR_SIZE * sizeof(seq_t));   /* clear the buffer we'll use next */
     }
 
     /* sum all states having difference == 0 */
@@ -117,7 +119,7 @@ seq_t a(idx_t n)
         result += cur[s * diff_span + offset];
     }
 
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 27, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binom_seq_seq, pow2
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,8 +36,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
-#include "../utils/binom_seq_seq.h"
+#include "../utils/mem.h"
+
+/* local binomial: C(a, b)  (a is seq_t, b is idx_t, 0 ≤ b ≤ a) */
+static seq_t binom_seq_seq(seq_t a, idx_t b)
+{
+    if (b == 0) return 1;
+    seq_t res = 1;
+    for (idx_t t = 1; t <= b; ++t) {
+        res = (res * (a - (seq_t)(b - t))) / t;
+    }
+    return res;
+}
 
 /* array of pointers to rows of T; each row occupies (row+1) seq_t elements */
 static seq_t **T_rows     = NULL;
@@ -57,7 +70,7 @@ static void ensure_rows(idx_t max_row)
 
     for (idx_t i = T_rows_cnt; i <= max_row; ++i) {
         /* allocate the new row */
-        seq_t *row = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (i + 1));
         row[i] = 1;                      /* base case T(i,i)=1 */
 
         seq_t pow2_i = pow2(i);

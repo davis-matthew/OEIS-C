@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 8,
  *            big any n
- * Helpers:   leading_digit_pow2, pow2
+ * Validated: standard, pass, 26 terms through n = 166 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,18 @@
 #include <stdbool.h>
 #include <math.h>
 #include "../utils/pow2.h"
-#include "../utils/leading_digit_pow2.h"
+#include "../utils/mem.h"
+
+/* compute the most significant decimal digit of 2^k
+   using double arithmetic (Benford's law) */
+static unsigned leading_digit_pow2(idx_t k)
+{
+    const double LOG10_2 = 0.301029995663981195213738894724493;
+    double f = fmod(k * LOG10_2, 1.0);
+    /* add a tiny safety offset to avoid rounding just below an integer */
+    double x = pow(10.0, f) + 1e-12;
+    return (unsigned)x;
+}
 
 /* static cache of computed terms */
 static seq_t *cache = NULL;
@@ -40,7 +52,7 @@ static void append_term(idx_t k)
     if (cache_len >= cache_cap)
     {
         size_t new_cap = cache_cap ? cache_cap << 1 : 8;
-        seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, cache, new_cap);
         cache = p;
         cache_cap = new_cap;
     }

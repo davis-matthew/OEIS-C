@@ -12,15 +12,25 @@
  *            every intermediate value stays no larger than...
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 25, u64 n <= 46, u128 n <= 88,
  *            big any n
- * Helpers:   a106_gcd, alloc_series
+ * Validated: standard, pass, 47 terms through n = 931 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/alloc_series.h"
-#include "../utils/a106_gcd.h"
+#include <stdlib.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_series(size_t sz)
+{
+    seq_t *p = mem_new(seq_t, sz);
+    size_t i;
+    for (i = 0; i < sz; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *A106_R = 0;   /* A106_R[1..A106_have] = A000081 */
 static idx_t A106_have = 0;
@@ -45,7 +55,7 @@ static void a106_build(idx_t N)
             /* C[j] = C[j-1] * (c + j - 1) / j, exactly, without overflow */
             seq_t prev = C[j - 1];
             unsigned long long pm = (unsigned long long)(prev % (seq_t)j);
-            unsigned long long g = a106_gcd(pm, (unsigned long long)j);
+            unsigned long long g = gcd_u64(pm, (unsigned long long)j);
             unsigned long long q = (unsigned long long)j / g;
             seq_t top = c + (seq_t)(j - 1);
             C[j] = (prev / (seq_t)g) * (top / (seq_t)q);

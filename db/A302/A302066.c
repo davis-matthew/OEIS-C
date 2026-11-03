@@ -12,13 +12,15 @@
  *            programming over the rows
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define NUM_MASKS    32        /* 2⁵ possible column values */
 #define NULL_MASK    32        /* special value meaning “no row” */
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
     }
 
     /* Initialise DP with the first row (upper‑left element must be 0). */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     for (int first = 0; first < NUM_MASKS; ++first) {
         if ((first & 1) == 0)           /* bit 0 is the upper‑left cell */
             dp[NULL_MASK][first] = (seq_t)1;
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
 
     /* Process rows 2 … n. */
     for (idx_t row = 2; row <= n; ++row) {
-        memset(newdp, 0, sizeof(newdp));
+        mem_set(newdp, 0, sizeof(newdp));
         for (int pp = 0; pp <= NUM_MASKS; ++pp) {
             for (int p = 0; p < NUM_MASKS; ++p) {
                 seq_t ways = dp[pp][p];
@@ -114,7 +116,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, newdp, sizeof(dp));
+        mem_copy(dp, newdp, sizeof(dp));
     }
 
     /* Final validation: the last row must satisfy its constraints. */

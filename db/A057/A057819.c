@@ -7,12 +7,14 @@
  * Formula:   a(n) = 4*a(n‑1) - a(n‑2), a(0) = 4, a(1) = 9
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 16, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +23,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache with first two terms if it is empty. */
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         cache[0] = (seq_t)4;
         cache[1] = (seq_t)9;
         cache_len = 2;
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     /* Extend cache to hold terms up to index n */
     idx_t new_len = n + 1;
-    cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_len);
 
     /* Compute missing terms using the recurrence. */
     for (idx_t i = cache_len; i <= n; ++i) {

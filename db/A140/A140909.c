@@ -13,7 +13,8 @@
  *            prime exponents, and finally multiplying the prime powers
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 4, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h> /* for memset */
-#include "../utils/big_pow.h" /* for seq_t big_pow(seq_t, seq_t) */
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static int primes[20000];
 static int primeCount = 0;
@@ -115,7 +117,7 @@ seq_t a(idx_t n)
     for (int pi = 0; pi < primeCount; ++pi) {
         int e = expArray[pi];
         if (e > 0) {
-            seq_t term = big_pow((seq_t)primes[pi], (seq_t)e);
+            seq_t term = ipow((seq_t)primes[pi], (seq_t)e);
             result = result * term;
         }
     }

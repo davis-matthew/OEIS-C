@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = lcm( a(p^e) for each prime power p^e dividing n ), with
  *            a(p^e) = period of the tribonacci sequence modulo p^e
- * Range:     u8 n <= 14, u16 n <= 194, u32 n <= 9579, u64 n <= 9579,
- *            u128 n <= 9579, big any n
- * Helpers:   gcd, trib_period
+ * Range:     u8 n <= 14, u16 n <= 194, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 68 terms through n = 9579 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,29 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/trib_period.h"
+
+/* Period of tribonacci sequence modulo m (m ≥ 1). */
+static seq_t trib_period(uint64_t m)
+{
+    if (m == 1)          /* all terms are 0 modulo 1; period is 1 */
+        return (seq_t)1;
+
+    uint64_t a = 0;                 /* T_{k-3} */
+    uint64_t b = 0;                 /* T_{k-2} */
+    uint64_t c = 1 % m;             /* T_{k-1} (initial T_2) */
+    seq_t period = 0;
+
+    while (true)
+    {
+        uint64_t d = (a + b + c) % m;  /* T_k */
+        a = b; b = c; c = d;
+        period++;
+
+        if (a == 0 && b == 0 && c == (1 % m))
+            break;
+    }
+    return period;
+}
 
 /* Fast exponentiation for uint64_t (no overflow for m <= 10000). */
 static uint64_t pow_uint_u64(uint64_t base, uint32_t exp)

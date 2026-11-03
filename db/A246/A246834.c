@@ -8,15 +8,16 @@
  * Formula:   a(n) = A(i,j) where (i,j) is the n‑th element in the *
  *            antidiagonal traversal of the square array with * A(i,j) =
  *            concat_binary(i, i*j) (concatenation of binary strings)
- * Range:     u8 n <= 62, u16 n <= 2111, u32 n <= 9806, u64 n <= 9806,
- *            u128 n <= 9806, big any n
- * Helpers:   bitlen_seq_t
+ * Range:     u8 n <= 62, u16 n <= 2111, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 82 terms through n = 9806 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
@@ -39,6 +40,6 @@ seq_t a(idx_t n)
     if (prod == 0)           /* concatenation with 0 yields i itself */
         return (seq_t)i;
 
-    unsigned shift = bitlen_seq_t(prod);   /* number of bits in i*j */
+    unsigned shift = bit_length(prod);   /* number of bits in i*j */
     return ((seq_t)i << shift) | prod;
 }

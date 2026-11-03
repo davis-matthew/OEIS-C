@@ -7,12 +7,15 @@
  * Formula:   a(n) = 3^n - Fibonacci(n)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 44 terms through n = 946 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Fast doubling algorithm for Fibonacci (F(0)=0, F(1)=1) */
 static seq_t fib_fast(idx_t n)
@@ -42,7 +45,7 @@ static seq_t fib_fast(idx_t n)
 
 seq_t a(idx_t n)
 {
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)n);
+    seq_t pow3 = ipow((seq_t)3, (seq_t)n);
     seq_t fibn = fib_fast(n);
     return pow3 - fibn;
 }

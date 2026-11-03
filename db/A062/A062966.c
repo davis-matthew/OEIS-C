@@ -7,19 +7,20 @@
  * Formula:   a(n) = C(n+3,3) + C(n+4,4) + C(n+5,5) + C(n+6,6)
  * Range:     u8 n <= 3, u16 n <= 14, u32 n <= 116, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binom_n_r
+ * Validated: standard, pass, 52 terms through n = 997 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom_n_r.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     seq_t sum = (seq_t)0;
-    sum += binom_n_r(n + (idx_t)3, (idx_t)3);  /* C(n+3,3) */
-    sum += binom_n_r(n + (idx_t)4, (idx_t)4);  /* C(n+4,4) */
-    sum += binom_n_r(n + (idx_t)5, (idx_t)5);  /* C(n+5,5) */
-    sum += binom_n_r(n + (idx_t)6, (idx_t)6);  /* C(n+6,6) */
+    sum += binomial(n + (idx_t)3, (idx_t)3);  /* C(n+3,3) */
+    sum += binomial(n + (idx_t)4, (idx_t)4);  /* C(n+4,4) */
+    sum += binomial(n + (idx_t)5, (idx_t)5);  /* C(n+5,5) */
+    sum += binomial(n + (idx_t)6, (idx_t)6);  /* C(n+6,6) */
     return sum;
 }

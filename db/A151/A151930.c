@@ -8,13 +8,24 @@
  *            exponent of the largest power of 2 dividing n+1
  * Range:     i8 n <= 94, i16 n <= 94, i32 n <= 94, i64 n <= 94, i128 n <= 94,
  *            big any n
- * Helpers:   stern_from_idx
+ * Validated: partial, pass, 95 terms through n = 94 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/stern_from_idx.h"
+
+/* Return 2^popcount(n).  This is the Stern value S(n). */
+static seq_t stern_from_idx(idx_t n)
+{
+    seq_t v = (seq_t)1;
+    while (n) {
+        if (n & 1) v *= (seq_t)2;   /* multiply by 2 for every set bit */
+        n >>= 1;
+    }
+    return v;
+}
 
 seq_t a(idx_t n)
 {

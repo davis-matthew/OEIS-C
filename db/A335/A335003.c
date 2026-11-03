@@ -12,6 +12,7 @@
  *            S = 2^r + 1 S, S·2^(r–1), S·2^(r–2), … , S·2^1 The...
  * Range:     u8 n <= 11, u16 n <= 37, u32 n <= 137, u64 n <= 529,
  *            u128 n <= 2081, big any n
+ * Validated: standard, pass, 71 terms through n = 4835 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

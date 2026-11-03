@@ -11,7 +11,8 @@
  *            odd period length, i.e. the fundamental unit has norm -1
  * Range:     u8 n <= 32, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   a000037_isqrt, sqfree_u
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,14 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a000037_isqrt.h"
-#include "../utils/sqfree_u.h"
+#include "../utils/isqrt_u64.h"
+
+static bool sqfree_u(uint64_t m) {
+    if (m % 4 == 0) return false;
+    for (uint64_t p = 3; p * p <= m; p += 2)
+        if (m % (p * p) == 0) return false;
+    return true;
+}
 
 static uint64_t *memo = NULL;
 static idx_t memo_len = 0, memo_cap = 0;
@@ -28,7 +35,7 @@ static uint64_t last_D = 4;
 
 /* Parity of the period of the continued fraction of (P0 + sqrt(N)) / Q0 */
 static bool odd_period(uint64_t N, int64_t P0, int64_t Q0) {
-    int64_t s = (int64_t)a000037_isqrt(N);
+    int64_t s = (int64_t)isqrt_u64(N);
     int64_t P = P0, Q = Q0;
     /* one step to reach a reduced (purely periodic) state */
     int64_t q = (P + s) / Q;

@@ -10,12 +10,14 @@
  *            coefficient of x^n in numerator polynomial, 0 for n > 15
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 26, u64 n <= 52, u128 n <= 104,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 888 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static const seq_t init[] = {
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     idx_t needed = n + 1;
     if (cache == NULL) {
         cache_len = (needed < 2048) ? 2048 : (needed * 2);
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         for (idx_t i = 0; i < 11; i++) {
             cache[i] = init[i];
         }
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
         while (new_len < needed) {
             new_len *= 2;
         }
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         cache_len = new_len;
     }
     

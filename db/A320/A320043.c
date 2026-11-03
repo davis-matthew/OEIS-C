@@ -7,11 +7,13 @@
  * Formula:   a(n) = Sum_{k=1..n} (n+1-k)^2*k/gcd(n+1-k, k)^3
  * Range:     u8 n <= 7, u16 n <= 29, u32 n <= 477, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 58 terms through n = 9149 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

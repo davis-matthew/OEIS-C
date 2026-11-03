@@ -8,7 +8,8 @@
  *            where p(m) is the partition function A000041(m)
  * Range:     u8 n <= 19, u16 n <= 47, u32 n <= 134, u64 n <= 428,
  *            u128 n <= 1479, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9699 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Dynamically cache partition numbers p(0)…p(maxN). */
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <stdint.h>   /* uint64_t */
+#include "../utils/mem.h"
 
 static seq_t *partitions = NULL; /* p[0..maxN] */
 static idx_t  maxN = 0;          /* largest n for which partitions is valid */
@@ -27,10 +29,9 @@ static void ensure_partitions(idx_t up_to)
         return;                     /* already computed */
 
     /* Allocate or grow the array */
-    seq_t *newp = (seq_t *)realloc(partitions,
-                                   (size_t)(up_to + 1) * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, partitions, (size_t)(up_to + 1));
     if (!newp) {
-        free(partitions);
+        mem_free(partitions);
         abort(); /* memory exhausted */
     }
     partitions = newp;

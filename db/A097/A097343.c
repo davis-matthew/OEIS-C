@@ -6,9 +6,10 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  sign, tabf
  * Formula:   not stated
- * Range:     i8 n <= 7938, i16 n <= 7938, i32 n <= 7938, i64 n <= 7938,
- *            i128 n <= 7938, big any n
- * Helpers:   is_prime, jacobi_symbol
+ * Range:     i8 n <= 12717, i16 n <= 12717, i32 n <= 12717, i64 n <= 12717,
+ *            i128 n <= 12717, big any n
+ * Validated: standard, pass, 121 terms through n = 7938 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,32 @@
    a(n) is defined for all n >= 2. */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/jacobi_symbol.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 /* Return the next odd prime after n.  n is assumed to be an odd prime >= 3. */
 static inline uint64_t next_prime_uint64(uint64_t n)

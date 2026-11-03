@@ -9,7 +9,8 @@
  *            n-th k with k, k+2, k+6, k+8 all prime. Found terms are memoized
  * Range:     u8 n <= 4, u16 n <= 28, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   q_isqrt
+ * Validated: standard, pass, 54 terms through n = 9956 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/q_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 static uint64_t *q_terms = NULL;
 static idx_t q_count = 0, q_cap = 0;
@@ -53,7 +54,7 @@ static void q_segment(void) {
     uint64_t lo = q_lo, hi = lo + 2 * (L - 1), i;
     unsigned char *comp;
     size_t t;
-    q_base(q_isqrt(hi) + 1);
+    q_base(isqrt_u64(hi) + 1);
     comp = (unsigned char *)calloc((size_t)L, 1);
     for (t = 0; t < q_nbp; t++) {
         uint64_t p = q_bp[t], s;

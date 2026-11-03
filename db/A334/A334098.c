@@ -9,9 +9,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A334097(n) - A331410(n)
- * Range:     u8 n <= 9906, u16 n <= 9906, u32 n <= 9906, u64 n <= 9906,
- *            u128 n <= 9906, big any n
- * Helpers:   gpf
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9906 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdbool.h>
 
 /* Utility from the build system: returns the largest prime factor of x. */
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
 
 /* Compute a(p) for an odd prime p. */
 static seq_t a_prime(uint64_t p)
@@ -31,7 +32,7 @@ static seq_t a_prime(uint64_t p)
 
     /* Continue until k becomes a power of two. */
     while ((k & (k - 1)) != 0) {
-        uint64_t lpf = gpf(k);          /* largest odd prime factor of k */
+        uint64_t lpf = largest_prime_factor(k);          /* largest odd prime factor of k */
         k += k / lpf;                   /* k -> k + k/p */
         ++iter;
     }

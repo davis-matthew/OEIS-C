@@ -9,7 +9,8 @@
  * Formula:   a(0)=1; a(n)=a(n-1)+p(n) if a(n-1)<=p(n) else a(n-1)-p(n)
  * Range:     u8 n <= 50, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,30 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /*--- Dynamic array helpers ------------------------------------------------*/
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (*cap >= needed) return;
+    size_t new_cap = (*cap) ? (*cap) * 2 : 16;
+    while (new_cap < needed) new_cap <<= 1;
+    T *new_ptr = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!new_ptr) exit(1);
+    *ptr = new_ptr;
+    *cap = new_cap;
+}
+#else
 static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if (*cap >= needed) return;
@@ -30,6 +53,7 @@ static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_
     *ptr = new_ptr;
     *cap = new_cap;
 }
+#endif
 
 /*--- Prime generation ------------------------------------------------------*/
 static uint64_t *primes = NULL;        /* 0‑based array: primes[0]=2, primes[1]=3, ... */
@@ -41,7 +65,7 @@ static uint64_t next_prime_candidate = 2; /* next odd number to test */
 static void ensure_primes_upto(idx_t target)
 {
     if (primes_cnt > target) return;
-    ensure_capacity(target + 1, &primes_cap, (void **)&primes, sizeof(uint64_t));
+    ensure_capacity(target + 1, &primes_cap, OEISC_VPP(&primes), sizeof(uint64_t));
 
     while (primes_cnt <= target) {
         /* Test current candidate for primality using known primes.  */
@@ -79,7 +103,7 @@ static idx_t  cache_len = 0;                /* highest computed index + 1 */
 /* Compute a(n) if not already computed.                                   */
 static void compute_up_to(idx_t n)
 {
-    ensure_capacity(n + 1, &cache_cap, (void **)&cache, sizeof(seq_t));
+    ensure_capacity(n + 1, &cache_cap, OEISC_VPP(&cache), sizeof(seq_t));
 
     if (cache_len == 0) {                    /* initialise a(0) */
         cache[0] = (seq_t)1;

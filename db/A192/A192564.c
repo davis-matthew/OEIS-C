@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} |Stirling1(n,k)| * Stirling2(n,k) * (k!)^2
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state for memoisation */
@@ -31,12 +33,12 @@ seq_t a(idx_t n) {
     /* initialise on first call */
     if (computed == (idx_t)-1) {
         capacity = 1;
-        C_prev = (seq_t*)malloc(capacity * sizeof(seq_t));
-        C_curr = (seq_t*)malloc(capacity * sizeof(seq_t));
-        S_prev = (seq_t*)malloc(capacity * sizeof(seq_t));
-        S_curr = (seq_t*)malloc(capacity * sizeof(seq_t));
-        fact   = (seq_t*)malloc(capacity * sizeof(seq_t));
-        memo   = (seq_t*)malloc(capacity * sizeof(seq_t));
+        C_prev = mem_new(seq_t, capacity);
+        C_curr = mem_new(seq_t, capacity);
+        S_prev = mem_new(seq_t, capacity);
+        S_curr = mem_new(seq_t, capacity);
+        fact   = mem_new(seq_t, capacity);
+        memo   = mem_new(seq_t, capacity);
         for (size_t i = 0; i < capacity; ++i)
             C_prev[i] = C_curr[i] = S_prev[i] = S_curr[i] = fact[i] = memo[i] = 0;
         C_prev[0] = 1;   /* c(0,0) = 1 */
@@ -49,12 +51,12 @@ seq_t a(idx_t n) {
     /* grow arrays if necessary */
     if (N >= capacity) {
         size_t new_cap = N + 1;
-        C_prev = (seq_t*)realloc(C_prev, new_cap * sizeof(seq_t));
-        C_curr = (seq_t*)realloc(C_curr, new_cap * sizeof(seq_t));
-        S_prev = (seq_t*)realloc(S_prev, new_cap * sizeof(seq_t));
-        S_curr = (seq_t*)realloc(S_curr, new_cap * sizeof(seq_t));
-        fact   = (seq_t*)realloc(fact,   new_cap * sizeof(seq_t));
-        memo   = (seq_t*)realloc(memo,   new_cap * sizeof(seq_t));
+        C_prev = mem_resize(seq_t, C_prev, new_cap);
+        C_curr = mem_resize(seq_t, C_curr, new_cap);
+        S_prev = mem_resize(seq_t, S_prev, new_cap);
+        S_curr = mem_resize(seq_t, S_curr, new_cap);
+        fact   = mem_resize(seq_t, fact, new_cap);
+        memo   = mem_resize(seq_t, memo, new_cap);
         /* initialise new slots to zero */
         for (size_t i = capacity; i < new_cap; ++i) {
             C_prev[i] = C_curr[i] = S_prev[i] = S_curr[i] = fact[i] = memo[i] = 0;

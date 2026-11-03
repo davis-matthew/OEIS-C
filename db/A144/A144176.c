@@ -9,12 +9,34 @@
  *            b(3k+2) = (k mod 9) + 2, b(3k+3) = b(3k+1) * b(3k+2) (k ≥ 0)
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   b_at
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/b_at.h"
+/* Computes b(k) according to the definition above */
+static inline seq_t
+b_at(idx_t k)
+{
+    idx_t rem = k % 3U;
+
+    if (rem == 1U) {
+        /* k = 3n + 1 */
+        idx_t n = (k - 1U) / 3U;
+        return ((seq_t)(n / 9U)) + (seq_t)2U;
+    } else if (rem == 2U) {
+        /* k = 3n + 2 */
+        idx_t n = (k - 2U) / 3U;
+        return ((seq_t)(n % 9U)) + (seq_t)2U;
+    } else {
+        /* k = 3n + 3, i.e. n' = k/3 - 1 */
+        idx_t n_prime = k / 3U - 1U;
+        seq_t v1 = ((seq_t)(n_prime / 9U)) + (seq_t)2U;
+        seq_t v2 = ((seq_t)(n_prime % 9U)) + (seq_t)2U;
+        return v1 * v2;
+    }
+}
 
 /* Sequence a(n) as defined in the OEIS entry */
 seq_t

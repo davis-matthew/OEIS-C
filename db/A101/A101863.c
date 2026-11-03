@@ -7,7 +7,8 @@
  * Formula:   a(n) = n^2 + floor(n*(1 + sqrt(5))/2)^2
  * Range:     u8 n <= 8, u16 n <= 134, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   integer_sqrt
+ * Validated: standard, pass, 63 terms through n = 8268 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
    the golden ratio.  Uses integer arithmetic only. */
 
 #include <stdint.h>
-#include "../utils/integer_sqrt.h"  /* integer_sqrt(idx_t x) */
+#include "../utils/isqrt.h"
 
 /* Helper: compute floor(n * φ) where φ = (1 + √5)/2.
    Uses identity floor(n*φ) = (n + floor(n*√5)) / 2. */
@@ -26,7 +27,7 @@ static inline seq_t floor_n_phi(idx_t n)
     /* 5 * n^2 is small enough for idx_t in expected use cases
        (n up to ~10 000). */
     idx_t prod = 5 * n * n;
-    idx_t sqrt5n = integer_sqrt(prod);          /* floor(n*√5) */
+    idx_t sqrt5n = isqrt(prod);          /* floor(n*√5) */
     seq_t term = ((seq_t)n + (seq_t)sqrt5n) / 2;/* floor(n*φ)   */
     return term;
 }

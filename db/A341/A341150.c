@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Helper: convert triangle coordinates (n,k) to a linear array index */
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     /* Total number of elements up to row r */
     idx_t total = (r + 1) * (r + 2) / 2;
     /* Allocate the array that will hold all values of the triangle */
-    seq_t *tri = (seq_t*)calloc((size_t)total, sizeof(seq_t));
+    seq_t *tri = mem_new(seq_t, (size_t)total);
     if (tri == NULL) {
         /* Out of memory; return 0 as a fallback (should not happen). */
         return (seq_t)0;
@@ -97,6 +99,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = tri[(size_t)n];
-    free(tri);
+    mem_free(tri);
     return result;
 }

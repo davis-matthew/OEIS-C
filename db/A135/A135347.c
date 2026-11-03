@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 59, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   _sieve_prime_power
+ * Validated: standard, pass, 103 terms through n = 9792 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,33 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_sieve_prime_power.h"
+
+static void
+_sieve_prime_power(uint32_t n, bool *is_pp, uint32_t *base)
+{
+    /* compute smallest prime factor */
+    uint32_t *spf = (uint32_t *)malloc((n + 1) * sizeof(uint32_t));
+    for (uint32_t i = 0; i <= n; ++i) spf[i] = 0;
+    for (uint32_t i = 2; i <= n; ++i) {
+        if (spf[i] == 0) {
+            spf[i] = i;
+            if ((uint64_t)i * i <= n)
+                for (uint64_t j = (uint64_t)i * i; j <= n; j += i)
+                    if (spf[j] == 0) spf[j] = i;
+        }
+    }
+    for (uint32_t i = 2; i <= n; ++i) {
+        uint32_t x = i, p = spf[x], e = 0;
+        while (x % p == 0) { x /= p; ++e; }
+        if (x == 1) {          /* prime power */
+            is_pp[i] = true;
+            base[i] = p;
+        } else {
+            is_pp[i] = false;
+        }
+    }
+    free(spf);
+}
 
 static void
 _dfs(idx_t rem, idx_t last, seq_t prod, int used_cnt,

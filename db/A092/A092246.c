@@ -8,13 +8,26 @@
  *            numbers and selecting those with an odd binary popcount
  * Range:     u8 n <= 64, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   popcount_parity
+ * Validated: standard, pass, 75 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/popcount_parity.h"
+#include "../utils/mem.h"
+
+/* parity of popcount of x: returns 1 if number of 1‑bits is odd, 0 otherwise */
+static int popcount_parity(seq_t x)
+{
+    int p = 0;
+    while (x != 0) {
+        p ^= 1;                     /* flip parity per set bit */
+        seq_t low = x & (-x);        /* lowest set bit */
+        x   = x - low;               /* clear that bit */
+    }
+    return p;
+}
 
 /* static cache of computed terms */
 static seq_t *cache     = NULL;  /* array of terms */
@@ -32,7 +45,7 @@ static void cache_grow(size_t new_len)
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < new_len)
         new_cap *= 2;
-    cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

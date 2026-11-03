@@ -9,14 +9,17 @@
  *            2^(2n-1)/C(2n,n), expressed as a fraction in lowest terms
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   binom, gcd, pow2
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   binomial, gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"   /* binom(idx_t a, idx_t b) -> seq_t          */
-#include "../utils/pow2.h"    /* pow2(idx_t exp) -> seq_t                */
-#include "../utils/gcd.h"    /* gcd(seq_t a, seq_t b) -> seq_t          */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/gcd.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
     idx_t two_n = n << 1;
 
     /* C(2n,n) */
-    seq_t bin = binom(two_n, n);
+    seq_t bin = binomial(two_n, n);
 
     /* 2^(2n) */
     seq_t pow2v = pow2(two_n);

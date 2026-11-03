@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 5, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 250 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External types defined by the build system */
 extern seq_t a(idx_t n);
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
     /* Allocate if this is the first call */
     if (cache == NULL) {
         cache_cap = (size_t)n + 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return;          /* out‑of‑memory – caller will fail */
         cache[0] = (seq_t)1;                /* a(0) = 1 */
         last_computed = 0;
@@ -38,7 +40,7 @@ static void ensure_cache(idx_t n)
     /* Extend the memory if needed */
     else if (cache_cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return;            /* out‑of‑memory – ignore */
         cache = tmp;
         cache_cap = new_cap;

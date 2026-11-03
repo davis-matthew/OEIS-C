@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, mult, easy
  * Formula:   not stated
- * Range:     i8 n <= 9854, i16 n <= 9854, i32 n <= 9854, i64 n <= 9854,
- *            i128 n <= 9854, big any n
+ * Range:     i8 n <= 59049, i16 n <= 59049, i32 n <= 59049, i64 n <= 59049,
+ *            i128 n <= 59049, big any n
+ * Validated: standard, pass, 111 terms through n = 9854 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

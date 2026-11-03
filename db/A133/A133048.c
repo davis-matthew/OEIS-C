@@ -10,17 +10,20 @@
  *            dropped)
  * Range:     u8 n <= 36, u16 n <= 66, u32 n <= 2498, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint, rev
+ * Validated: standard, pass, 84 terms through n = 9248 (2026-11-01)
+ * Helpers:   ipow_u64_idx, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/rev.h"
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/reverse_digits_idx.h"
 
 seq_t a(idx_t n)
 {
-    idx_t rev_n   = rev(n);          /* reverse decimal expansion, drop leading zeros */
+    idx_t rev_n   = reverse_digits_idx(n);          /* reverse decimal expansion, drop leading zeros */
     uint8_t digits[20];
     int cnt = 0;
 
@@ -45,7 +48,7 @@ seq_t a(idx_t n)
             exp = digits[i - 1];
             i--;                     /* skip the exponent digit */
         }
-        result *= pow_uint((uint64_t)base, exp);
+        result *= ipow_u64_idx((uint64_t)base, exp);
         i--;
     }
 

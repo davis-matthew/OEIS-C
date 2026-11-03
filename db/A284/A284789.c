@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   tt_bit
+ * Validated: standard, pass, 102 terms through n = 9911 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,10 @@
     a(n) = output bit n (1‑based) after scanning the Thue‑Morse sequence
     and replacing each occurrence of 1001 by 0. */
 #include <stdint.h>
-#include "../utils/tt_bit.h"
+
+static inline unsigned tt_bit(idx_t i) {
+    return (__builtin_popcountll(i) & 1U);
+}
 
 seq_t a(idx_t n) {
     idx_t out_cnt = 0;              /* number of output bits produced */

@@ -7,13 +7,29 @@
  * Formula:   a(n) = sigma(2*n) * binomial(2*n,n) / 2 (n ≥ 1)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 30, u128 n <= 62,
  *            big any n
- * Helpers:   binomial, sigma_of
+ * Validated: standard, pass, 45 terms through n = 471 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sigma_of.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

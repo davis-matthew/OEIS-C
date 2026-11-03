@@ -10,14 +10,17 @@
  *            iteration as 1). Palindromes themselves are counted as well
  * Range:     u8 none, u16 none, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   is_palindrome, reverse
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   is_palindrome_base, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/reverse.h"
-#include "../utils/is_palindrome.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/is_palindrome_base.h"
+#include "../utils/reverse_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -32,10 +35,10 @@ seq_t a(idx_t n)
 
         /* Perform up to 9 reverse‑and‑add iterations */
         for (idx_t step = (idx_t)1; step <= (idx_t)9; ++step) {
-            seq_t rev = reverse(v);
+            seq_t rev = reverse_digits(v);
             v = v + rev;               /* reverse‑and‑add */
 
-            if (is_palindrome(v, (idx_t)10)) {
+            if (is_palindrome_base(v, (idx_t)10)) {
                 /* Palindrome reached at this step */
                 if (step == (idx_t)9) {
                     ++found;

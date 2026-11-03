@@ -9,6 +9,7 @@
  *            is the exponent of prime p in n!
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 15, u64 n <= 24, u128 n <= 39,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 502 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,7 +17,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/build_primes.h"   /* build_primes */
+#include <stdlib.h>
+#include "../utils/build_primes.h"
 
 static idx_t max_limit = 0;          /* current upper bound for primes cached */
 static idx_t *prime_list = NULL;     /* array of primes ≤ max_limit */

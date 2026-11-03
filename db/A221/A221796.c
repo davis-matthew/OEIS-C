@@ -12,7 +12,8 @@
  *            a(7)=13314, a(8)=85974, a(9)=338148, a(10)=1892213
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 29, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
     /* Allocate an array large enough to hold all terms up to n.  */
     size_t N = (size_t)n;
-    seq_t *A = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, (N + 1));
     if (!A) return (seq_t)0;   /* allocation failure – unlikely for small n */
 
     /* Load the known initial values. */
@@ -66,6 +68,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = A[N];
-    free(A);
+    mem_free(A);
     return result;
 }

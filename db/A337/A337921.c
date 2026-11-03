@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   bitlen_seq_t, pow3
+ * Validated: standard, pass, 46 terms through n = 972 (2026-11-01)
+ * Helpers:   bit_length, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
  * (K ≈ 1.585·n), which is easily fast enough for n up to 10 000.
  */
 
+#include <stdint.h>
+#include "../utils/bit_length.h"
 #include "../utils/pow3.h"
-#include "../utils/bitlen_seq_t.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     seq_t x = pow3(n);
 
     /* maximum k with 2^k < 3^n is floor(log2(3^n)) = bitlen-1 */
-    idx_t K = bitlen_seq_t(x) - 1;
+    idx_t K = bit_length(x) - 1;
 
     seq_t sum = 0;
     for (idx_t i = 0; i < K; ++i) {

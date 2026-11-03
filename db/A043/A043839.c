@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    order and remains fast for n up to at least 10,000. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;        /* array of found terms   */
 static size_t seq_len   = 0;           /* number of terms stored*/
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
             /* store the value */
             if (seq_len == seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap * 2 : 1;
-                seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, new_cap);
                 seq_cap = new_cap;
             }
             seq_cache[seq_len++] = (seq_t)next_k;

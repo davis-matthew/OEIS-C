@@ -10,13 +10,15 @@
  *            r(r+1)/2
  * Range:     u8 n <= 28, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t a, idx_t b) */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Compute T(n,k) – number of paths from (0,0) to (n,0) with exactly k h-steps. */
 static seq_t triangle_T(idx_t n, idx_t k)
@@ -38,9 +40,9 @@ static seq_t triangle_T(idx_t n, idx_t k)
     {
         idx_t total = base + m;            /* total steps when the number of U steps = m   */
         /* multinomial coefficient: total!/(m! m! k! (s-m)!) */
-        seq_t term = binom(total, m);                      /* choose positions for U */
-        term = term * binom(total - m, m);                /* choose positions for D */
-        term = term * binom(total - 2 * m, k);             /* choose positions for h steps */
+        seq_t term = binomial(total, m);                      /* choose positions for U */
+        term = term * binomial(total - m, m);                /* choose positions for D */
+        term = term * binomial(total - 2 * m, k);             /* choose positions for h steps */
         /* H steps fill the remaining positions automatically */
         sum += term;
     }

@@ -11,8 +11,9 @@
  *            within the row for p. Then a(n) = d * φ(d), where * d = (p−1) /
  *            gcd(k, p−1). The sequence is read row‑wise from * the irregular
  *            table
- * Range:     u8 n <= 92, u16 n <= 9172, u32 n <= 9172, u64 n <= 9172,
- *            u128 n <= 9172, big any n
+ * Range:     u8 n <= 92, u16 n <= 10123, u32 n <= 10123, u64 n <= 10123,
+ *            u128 n <= 10123, big any n
+ * Validated: standard, pass, 107 terms through n = 9172 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

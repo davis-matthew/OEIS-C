@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  tabf, sign
  * Formula:   not stated
- * Range:     i8 n <= 37, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
+ * Range:     i8 n <= 57, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,6 +24,7 @@
 
 #include <stdint.h>
 #include <math.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* cumulative number of terms up to row r (r≥0) */

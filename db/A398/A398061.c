@@ -9,12 +9,14 @@
  *            initial values (a(0),...,a(6)) = (0, 2, 5, 11, 18, 28, 41)
  * Range:     u8 n <= 15, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* establish the first 7 terms once */
     if (len == 0) {
         cap  = 8;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();
         cache[0] = 0;  cache[1] = 2;  cache[2] = 5;
         cache[3] = 11; cache[4] = 18; cache[5] = 28;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         if (cap <= target) {
             size_t new_cap = cap ? cap : 8;
             while (new_cap <= target) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             cache = tmp;
             cap   = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = (product of the first n palindromic primes) + 1
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   make_palindrome_odd
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/make_palindrome_odd.h"
+#include "../utils/mem.h"
+
+/* ---- Helper: construct odd‑length palindrome from prefix ---- */
+static inline uint64_t make_palindrome_odd(uint64_t prefix)
+{
+    uint64_t pal = prefix;
+    uint64_t t = prefix / 10;    /* skip the middle digit */
+    while (t > 0) {
+        pal = pal * 10 + (t % 10);
+        t /= 10;
+    }
+    return pal;
+}
 
 /* ---- Helper: 64‑bit deterministic Miller‑Rabin primality test ---- */
 
@@ -92,7 +105,7 @@ seq_t a(idx_t n)
     /* Initialise on first call */
     if (prod == NULL) {
         prod_cap = 16;
-        prod = (seq_t *)malloc(prod_cap * sizeof(seq_t));
+        prod = mem_new(seq_t, prod_cap);
         if (!prod) return (seq_t)0;       /* allocation failure */
 
         prod[0] = (seq_t)1;              /* product of zero primes */
@@ -118,7 +131,7 @@ seq_t a(idx_t n)
             /* Grow the array if necessary */
             if (prod_size == prod_cap) {
                 size_t new_cap = prod_cap * 2 + 16;
-                seq_t *tmp = (seq_t *)realloc(prod, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, prod, new_cap);
                 if (!tmp) return (seq_t)0;   /* allocation failure */
                 prod = tmp;
                 prod_cap = new_cap;

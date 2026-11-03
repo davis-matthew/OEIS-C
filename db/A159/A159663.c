@@ -7,7 +7,8 @@
  * Formula:   a(n) = 11*a(n-1) - 200*(n-1)*a(n-2), with a(0) = 1, a(1) = 11
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 6, i64 n <= 12, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* Cached terms */
 static idx_t  cache_len = 0;  /* Current size of cache */
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
     /* Allocate or resize the cache if necessary. */
     if (cache == NULL) {
         size_t needed = (size_t)(n >= 1 ? n + 1 : 2);
-        cache = (seq_t *)calloc(needed, sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         if (!cache) abort();           /* out of memory */
         /* Store the first two terms. */
         cache[0] = (seq_t)1;
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
         last_computed = 1;
     } else if (n >= cache_len) {
         size_t new_len = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();
         cache = tmp;
         cache_len = new_len;

@@ -12,7 +12,8 @@
  *            generating function)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 566 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const seq_t INIT[6] = {1, 47, 2162, 99452, 4574792, 210439351};
 static const seq_t C45 = 45;
@@ -34,14 +36,14 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         cap = 6;
         if ((size_t)n + 1 > cap) cap = (size_t)n + 1;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();           /* allocation failure */
         for (size_t i = 0; i < 6; ++i) cache[i] = INIT[i];
         computed = 5;
     } else if ((size_t)n + 1 > cap) {
         size_t new_cap = cap;
         while ((size_t)n + 1 > new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cap = new_cap;

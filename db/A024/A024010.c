@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1 - n^12
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 5, i64 n <= 38, i128 n <= 320,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 287 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

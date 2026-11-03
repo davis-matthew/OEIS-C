@@ -8,7 +8,8 @@
  *            5^k⌋ is a prime number
  * Range:     u8 n <= 39, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_prime, trailing_sum
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,17 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/is_prime.h"
-#include "../utils/trailing_sum.h"
+#include "../utils/mem.h"
+
+static inline seq_t trailing_sum(seq_t m)
+{
+    seq_t sum = m;
+    while (m > 0) {
+        m /= 5;
+        sum += m;
+    }
+    return sum;
+}
 
 /*---------------------------------------------------------------*/
 seq_t a(idx_t n)
@@ -37,7 +48,7 @@ seq_t a(idx_t n)
     /* one‑time cache initialization */
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             return 0;          /* allocation failure – not expected */
     }
@@ -55,7 +66,7 @@ seq_t a(idx_t n)
                 /* enlarge cache if necessary */
                 if (cache_size == cache_cap) {
                     size_t new_cap = cache_cap * 2 + 16;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp)
                         return 0;      /* allocation failure */
                     cache = tmp;

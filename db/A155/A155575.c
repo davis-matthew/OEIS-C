@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* integer square root of an unsigned 64‑bit integer (floor) */
 static inline idx_t isqrt_idx_t(idx_t n)
@@ -89,8 +91,8 @@ static void recompute_up_to(idx_t limit)
         if (a_bits[i] && b_bits[i]) ++count;
 
     /* allocate new cache */
-    seq_t *new_cache = count ? (seq_t*)malloc(count * sizeof(seq_t)) : NULL;
-    if (cache) free(cache);
+    seq_t *new_cache = count ? mem_new(seq_t, count) : NULL;
+    if (cache) mem_free(cache);
     cache = new_cache;
     cache_len = count;
     cache_cap = count;

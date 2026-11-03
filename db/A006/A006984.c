@@ -11,14 +11,34 @@
  *            binary quadratic form
  * Range:     u8 n <= 255, u16 n <= 500, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
- * Helpers:   fdiv_ll, min_norm
+ * Validated: standard, pass, 67 terms through n = 494 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/fdiv_ll.h"
-#include "../utils/min_norm.h"
+
+static long long fdiv_ll(long long p, long long q) {
+  long long r = p / q;
+  if ((p % q != 0) && ((p < 0) != (q < 0))) r--;
+  return r;
+}
+
+static long long min_norm(long long A, long long B, long long C) {
+  /* positive definite form A x^2 + B x y + C y^2; reduce to |B| <= A <= C */
+  for (;;) {
+    if (A > C) { long long t = A; A = C; C = t; }
+    if (B > A || -B > A) {
+      long long k = fdiv_ll(B + A, 2 * A);
+      C = C - k * B + k * k * A;
+      B = B - 2 * k * A;
+    } else {
+      if (A <= C) break;
+    }
+  }
+  return A;
+}
 
 seq_t a(idx_t n) {
   long long N = (long long)n;

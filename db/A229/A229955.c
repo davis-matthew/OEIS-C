@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 21, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,16 +39,16 @@ seq_t a(idx_t n)
     }
 
     /* Allocate arrays c[0..r] and s[0..r] (c[0] unused). */
-    seq_t *c = (seq_t *)malloc((r + 1) * sizeof(seq_t));
-    seq_t *s = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, (r + 1));
+    seq_t *s = mem_new(seq_t, (r + 1));
     if (!c || !s) {
-        free(c); free(s);
+        mem_free(c); mem_free(s);
         return (seq_t)0;
     }
 
     c[0] = (seq_t)1;   /* dummy */
     for (idx_t i = 1; i <= r; ++i) {
-        seq_t b = binom(2 * i, i);   /* binom(2i,i) */
+        seq_t b = binomial(2 * i, i);   /* binom(2i,i) */
         c[i] = b * b * b;            /* ^3 */
     }
 
@@ -62,15 +65,15 @@ seq_t a(idx_t n)
     /* Build the triangular array row by row. */
     seq_t **T = (seq_t **)malloc((r + 1) * sizeof(seq_t *));
     if (!T) {
-        free(c); free(s);
+        mem_free(c); mem_free(s);
         return (seq_t)0;
     }
 
     for (idx_t row = 1; row <= r; ++row) {
-        T[row] = (seq_t *)calloc(row + 1, sizeof(seq_t));
+        T[row] = mem_new(seq_t, row + 1);
         if (!T[row]) {
-            for (idx_t p = 1; p < row; ++p) free(T[p]);
-            free(T); free(c); free(s);
+            for (idx_t p = 1; p < row; ++p) mem_free(T[p]);
+            free(T); mem_free(c); mem_free(s);
             return (seq_t)0;
         }
         T[row][1] = s[row];
@@ -100,7 +103,7 @@ seq_t a(idx_t n)
     }
 
 cleanup:
-    for (idx_t row = 1; row <= r; ++row) free(T[row]);
-    free(T); free(c); free(s);
+    for (idx_t row = 1; row <= r; ++row) mem_free(T[row]);
+    free(T); mem_free(c); mem_free(s);
     return result;
 }

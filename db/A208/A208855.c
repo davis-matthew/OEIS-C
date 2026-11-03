@@ -10,9 +10,10 @@
  *            * anti‑diagonals: for each s = x+m the pairs (x,m) with m=1..s-1
  *            are * visited in that order. This implementation builds the
  *            sequence * incrementally and memoises previ...
- * Range:     u8 n <= 59, u16 n <= 7428, u32 n <= 7428, u64 n <= 7428,
- *            u128 n <= 7428, big any n
- * Helpers:   gcd
+ * Range:     u8 n <= 59, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 71 terms through n = 7428 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         /* ensure capacity */
         if (size + 1 >= cap) {
             size_t new_cap = cap ? cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort(); /* allocation failure */
             cache = tmp;
             cap   = new_cap;

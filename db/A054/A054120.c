@@ -14,12 +14,14 @@
  *            sequence a(n) consists of the elements of T(n,k)...
  * Range:     u8 n <= 30, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **T = NULL;          /* array of pointers to rows of T */
 static idx_t  T_rows = 0;         /* number of rows currently stored */
@@ -37,7 +39,7 @@ static void ensure_rows(idx_t r)
     for (idx_t n = T_rows; n <= r; ++n)
     {
         /* Allocate storage for row n. */
-        T[n] = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+        T[n] = mem_new(seq_t, (n + 1));
         if (!T[n]) return;         /* allocation failure – caller will see 0 */
 
         if (n == 0)

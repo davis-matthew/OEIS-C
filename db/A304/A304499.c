@@ -10,7 +10,8 @@
  *            returns c(n)
  * Range:     u8 n <= 35, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static uint8_t *used_bits = NULL;
 static size_t used_bits_cap_bits = 0;
@@ -59,7 +61,7 @@ static void ensure_c_capacity(size_t idx)
 {
     if (idx + 1 > c_cap) {
         size_t new_cap = (idx + 1) * 2;
-        c_vals = (seq_t *)realloc(c_vals, new_cap * sizeof(seq_t));
+        c_vals = mem_resize(seq_t, c_vals, new_cap);
         c_cap = new_cap;
     }
 }

@@ -8,15 +8,17 @@
  * Formula:   a(n) = Sum_{d|n} sigma_{n/d}(d)
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 32, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 /* Integer square root: floor(sqrt(n)) */
 static inline idx_t isqrt_u64(idx_t n)
@@ -46,8 +48,8 @@ static seq_t sigma_k_of_d(idx_t d, idx_t k)
     seq_t res = 1;
     for (size_t i = 0; i < cnt; ++i) {
         seq_t p   = (seq_t)pr[i];
-        seq_t num = big_pow(p, (seq_t)(k * (ex[i] + 1))) - 1;
-        seq_t den = big_pow(p, (seq_t)k) - 1;
+        seq_t num = ipow(p, (seq_t)(k * (ex[i] + 1))) - 1;
+        seq_t den = ipow(p, (seq_t)k) - 1;
         seq_t term = num / den;
         res *= term;
     }

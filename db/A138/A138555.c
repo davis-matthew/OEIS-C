@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root: floor(sqrt(n)) for uint64_t n. */
 static idx_t floor_sqrt_idx(idx_t n)
@@ -52,7 +54,7 @@ static void ensure_dp_capacity(idx_t need)
     if (dp_cap <= (size_t)need) {
         size_t new_cap = dp_cap ? dp_cap << 1 : 16;
         while (new_cap <= (size_t)need) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_cap);
         dp = tmp;
         dp_cap = new_cap;
     }
@@ -74,7 +76,7 @@ static void ensure_idx_capacity(size_t need)
 static void compute_up_to(idx_t target)
 {
     if (dp == NULL) {
-        dp   = (seq_t *)malloc(16 * sizeof(seq_t));
+        dp   = mem_new(seq_t, 16);
         dp_cap = 16;
         dp[0] = 0;
         dp_last = 0;

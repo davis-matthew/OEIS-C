@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 8346, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes, rev_uint64
+ * Validated: standard, pass, 68 terms through n = 9232 (2026-11-01)
+ * Helpers:   build_primes, reverse_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
-#include "../utils/rev_uint64.h"
+#include "../utils/reverse_digits_u64.h"
 
 #define PRIME_LIMIT   2000000ULL     /* enough for all numbers examined in the tests */
 #define MAX_TERMS     200000         /* capacity for memoisation */
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
         /* skip numbers < 2 and single‑digit numbers (they cannot satisfy n<rev) */
         while (next_candidate < 2) ++next_candidate;
 
-        uint64_t rev = rev_uint64(next_candidate);
+        uint64_t rev = reverse_digits_u64(next_candidate);
 
         if (next_candidate < rev)                /* n < rev(n)  */
         {

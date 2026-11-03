@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
- *            big any n
- * Helpers:   build_primes_upto, factor_u64
+ * Range:     u8 n <= 988, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 89 terms through n = 9755 (2026-11-03)
+ * Helpers:   build_primes_upto, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* ---------- static state ---------- */
 static seq_t *cache   = NULL;   /* 1‑based cache, cache[0] unused          */
@@ -92,11 +94,11 @@ recompute_cache_to(idx_t n_needed)
      * the 1‑based indexing. */
     if (cache_cap == 0) {
         cache_cap = n_needed * 2 + 1;
-        cache = (seq_t *)realloc(NULL, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_cap);
         if (!cache) abort();
     } else if (cache_len + n_needed > cache_cap) {
         cache_cap = (cache_cap + n_needed) * 2;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
         if (!cache) abort();
     }
 

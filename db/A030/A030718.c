@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 686, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 7902 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    indices are handled efficiently (O(n) overall for n up to about 10⁴).*/
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t val;
@@ -40,14 +42,14 @@ seq_t a(idx_t n) {
     /* one‑time initialisation */
     if (!A) {
         A_cap = 64;
-        A = (seq_t *)malloc(A_cap * sizeof(seq_t));
+        A = mem_new(seq_t, A_cap);
         if (!A) return (seq_t)0;
         A[0] = (seq_t)1;
         A_sz = 1;
     }
     if (!B) {
         B_cap = 64;
-        B = (seq_t *)malloc(B_cap * sizeof(seq_t));
+        B = mem_new(seq_t, B_cap);
         if (!B) return (seq_t)0;
         B_sz = 0;
     }
@@ -57,9 +59,9 @@ seq_t a(idx_t n) {
         /* Count distinct values in current A */
         size_t i;
         size_t distinct = 0;
-        pair_t *pairs = (pair_t *)malloc(A_sz * sizeof(pair_t));
+        pair_t *pairs = mem_new(pair_t, A_sz);
         if (!pairs) return (seq_t)0;
-        memset(pairs, 0, A_sz * sizeof(pair_t));
+        mem_set(pairs, 0, A_sz * sizeof(pair_t));
 
         for (i = 0; i < A_sz; ++i) {
             seq_t v = A[i];
@@ -93,8 +95,8 @@ seq_t a(idx_t n) {
         /* Append distinct values to B */
         if (B_sz + distinct > B_cap) {
             while (B_cap < B_sz + distinct) B_cap *= 2;
-            B = (seq_t *)realloc(B, B_cap * sizeof(seq_t));
-            if (!B) { free(pairs); return (seq_t)0; }
+            B = mem_resize(seq_t, B, B_cap);
+            if (!B) { mem_free(pairs); return (seq_t)0; }
         }
         for (i = 0; i < distinct; ++i)
             B[B_sz++] = pairs[i].val;
@@ -102,13 +104,13 @@ seq_t a(idx_t n) {
         /* Append frequencies to A */
         if (A_sz + distinct > A_cap) {
             while (A_cap < A_sz + distinct) A_cap *= 2;
-            A = (seq_t *)realloc(A, A_cap * sizeof(seq_t));
-            if (!A) { free(pairs); return (seq_t)0; }
+            A = mem_resize(seq_t, A, A_cap);
+            if (!A) { mem_free(pairs); return (seq_t)0; }
         }
         for (i = 0; i < distinct; ++i)
             A[A_sz++] = (seq_t)pairs[i].cnt;
 
-        free(pairs);
+        mem_free(pairs);
     }
 
     return B[n-1];

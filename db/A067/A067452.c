@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   seq_pow, seq_realloc
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,21 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/seq_pow.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Test whether n qualifies for the sequence */
 static bool qualifies(uint64_t n)
@@ -60,7 +74,7 @@ static bool qualifies(uint64_t n)
 
     /* check if prod == d^k for some d in [1,9] */
     for (int d = 1; d <= 9; ++d) {
-        seq_t power = seq_pow((seq_t)d, (idx_t)k);
+        seq_t power = ipow_idx((seq_t)d, (idx_t)k);
         if (power == prod)
             return true;
     }

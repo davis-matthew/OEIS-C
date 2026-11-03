@@ -11,7 +11,8 @@
  *            cached so that calls may come in any order
  * Range:     u8 n <= 2, u16 n <= 21, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   divisor_count_u64, factor_u64, sigma_of
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   factor_u64, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,25 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../utils/sigma_of.h"
-#include "../utils/divisor_count_u64.h"
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* helper: fast exponentiation for seq_t */
 static seq_t pow_seq(seq_t base, size_t exp) {
@@ -46,7 +63,7 @@ seq_t a(idx_t n) {
         /* initial allocation */
         if (terms_cap == 0) {
             terms_cap = 64;
-            terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+            terms = mem_new(seq_t, terms_cap);
         }
 
         /* loop until we find enough terms */
@@ -71,7 +88,7 @@ seq_t a(idx_t n) {
             }
 
             /* tau and omega */
-            seq_t tau   = (seq_t)divisor_count_u64(u);
+            seq_t tau   = (seq_t)num_divisors(u);
             seq_t omega = (seq_t)cnt;
 
             /* RHS: psi + tau^2 + omega^3 */
@@ -81,7 +98,7 @@ seq_t a(idx_t n) {
             if (sigma == rhs) {
                 if (terms_len == terms_cap) {
                     terms_cap *= 2;
-                    terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, terms_cap);
                 }
                 terms[terms_len++] = (seq_t)candidate;
             }

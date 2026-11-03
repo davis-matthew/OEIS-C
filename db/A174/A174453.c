@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 273, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_idx_t
+ * Validated: standard, pass, 118 terms through n = 9584 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
    a(n) = smallest k >= 1 such that gcd(m + (-1)^m, m + n - 4) > 1,
    where m = n + k - 1. */
 
-#include "../utils/gcd_idx_t.h"
+#include <stdint.h>
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         /* m + n - 4 */
         idx_t x2 = m + n - 4;
 
-        if (gcd_idx_t(x1, x2) > 1)
+        if (gcd_idx(x1, x2) > 1)
             return (seq_t)k;
     }
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   has_23
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,24 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_23.h"
+#include "../utils/mem.h"
+
+/* true if base‑6 representation of x contains the substring "23" or "32" */
+static inline bool has_23(seq_t x)
+{
+    if (x == 0) return false;
+    uint8_t prev = (uint8_t)(x % (seq_t)6);
+    x /= (seq_t)6;
+    while (x != 0)
+    {
+        uint8_t cur = (uint8_t)(x % (seq_t)6);
+        if ((prev == 2 && cur == 3) || (prev == 3 && cur == 2))
+            return true;
+        prev = cur;
+        x /= (seq_t)6;
+    }
+    return false;
+}
 
 /* memoised sequence storage */
 static seq_t *seq = NULL;    /* array of found values */
@@ -42,7 +60,7 @@ seq_t a(idx_t n)
             if (seq_len >= seq_cap)
             {
                 size_t new_cap = seq_cap ? seq_cap << 1 : 16;
-                seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, new_cap);
                 seq_cap = new_cap;
             }
             seq[seq_len++] = last_k;

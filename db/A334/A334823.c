@@ -12,6 +12,7 @@
  *            Otherwise k = (r‑e)/2 and a(n) = (-1)^k * (2r-2k)! / [...
  * Range:     i8 n <= 14, i16 n <= 27, i32 n <= 65, i64 n <= 170,
  *            i128 n <= 434, big any n
+ * Validated: standard, pass, 82 terms through n = 4653 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

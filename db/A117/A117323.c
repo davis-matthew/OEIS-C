@@ -7,7 +7,8 @@
  * Formula:   a(n) = A001358(n) modulo A000040(n)
  * Range:     u8 none, u16 none, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"   /* provides build_primes_upto() */
+#include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 struct Node {
     seq_t val;
@@ -79,7 +81,7 @@ static void init(void) {
     build_primes_upto(PRIME_LIMIT, &primes, &prime_cnt);
 
     /* allocate heap */
-    heap = (struct Node *)malloc(sizeof(struct Node) * prime_cnt);
+    heap = mem_new(struct Node, prime_cnt);
     heap_sz = 0;
 
     /* initial nodes: p_i * p_i for all primes */
@@ -94,7 +96,7 @@ static void init(void) {
 
     /* semiprime array initialization */
     semis_cap = 16;
-    semis = (seq_t *)malloc(sizeof(seq_t) * semis_cap);
+    semis = mem_new(seq_t, semis_cap);
     semis_len = 0;
 
     initialized = true;
@@ -105,7 +107,7 @@ static void semis_ensure(size_t needed) {
     if (semis_cap >= needed) return;
     size_t new_cap = semis_cap ? semis_cap * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    semis = (seq_t *)realloc(semis, new_cap * sizeof(seq_t));
+    semis = mem_resize(seq_t, semis, new_cap);
     semis_cap = new_cap;
 }
 
@@ -144,12 +146,12 @@ seq_t a(idx_t n) {
         build_primes_upto(new_limit, &new_primes, &new_cnt);
 
         free(primes);
-        free(heap);
-        free(semis);
+        mem_free(heap);
+        mem_free(semis);
 
         primes = new_primes;
         prime_cnt = new_cnt;
-        heap = (struct Node *)malloc(sizeof(struct Node) * prime_cnt);
+        heap = mem_new(struct Node, prime_cnt);
         heap_sz = 0;
         for (idx_t i = 0; i < prime_cnt; ++i) {
             struct Node node = {
@@ -160,7 +162,7 @@ seq_t a(idx_t n) {
             heap_push(node);
         }
         semis_cap = 16;
-        semis = (seq_t *)malloc(sizeof(seq_t) * semis_cap);
+        semis = mem_new(seq_t, semis_cap);
         semis_len = 0;
     }
 

@@ -5,14 +5,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = n + sigma(n) (sigma = sum of divisors of n)
- * Range:     u8 n <= 71, u16 n <= 9771, u32 n <= 9771, u64 n <= 9771,
- *            u128 n <= 9771, big any n
- * Helpers:   none
+ * Range:     u8 n <= 71, u16 n <= 13859, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 80 terms through n = 9771 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the sum of divisors of n (n >= 1). */
 static seq_t sum_of_divisors(idx_t n) {
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
     if (n >= cache_size) {
         /* extend cache to hold sigma(k) for k = 1..n */
         size_t new_size = (size_t)(n + 1);                        /* include index 0 */
-        seq_t *new_cache = (seq_t *)realloc(sigma_cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, sigma_cache, new_size);
         if (!new_cache) return 0; /* fallback on OOM, not expected */
         sigma_cache = new_cache;
 

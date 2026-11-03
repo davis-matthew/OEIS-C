@@ -10,7 +10,8 @@
  *            a(5)=494, a(6)=1845
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 34, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /*  Compute the nth term of OEIS A297655.  */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* one‑based array of computed terms   */
 static idx_t  cache_last = 0;    /* largest index computed so far      */
@@ -27,11 +29,11 @@ seq_t a(idx_t n) {
 
     /* Ensure the cache is large enough.  */
     if (cache == NULL) {
-        cache = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(n + 1));
         cache_last = 0;
     } else if ((idx_t)(cache_last + 1) <= n) {
         /* Grow the cache if necessary.  */
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (tmp == NULL) return (seq_t)0;   /* allocation failure */
         cache = tmp;
     }

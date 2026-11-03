@@ -8,7 +8,8 @@
  * Formula:   a(n) = gcd(F(n), ∏_{d|n, d<n} F(d))
  * Range:     u8 n <= 13, u16 n <= 23, u32 n <= 47, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   gcd_any, mul128
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,21 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/gcd_any.h"
-#include "../utils/mul128.h"
+#include <stdalign.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication using 128‑bit intermediate when
+   available and seq_t is a built‑in integer.  For arbitrary‑precision
+   types the plain * operator is used. */
+static inline seq_t mul128(seq_t a, seq_t b)
+{
+#if defined(__SIZEOF_INT128__) && !defined(__cplusplus)
+    return (seq_t)((unsigned __int128)(unsigned long long)a * b);
+#else
+    return a * b;
+#endif
+}
 
 /* Cached Fibonacci numbers: fib_cache[0] = F(0), fib_cache[1] = F(1), … */
 static seq_t *fib_cache = NULL;
@@ -33,7 +47,7 @@ static void ensure_fib_cache(idx_t n)
     if (fib_cache_size >= need) return;
 
     size_t new_size = need;
-    seq_t *new_cache = (seq_t *)realloc(fib_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, fib_cache, new_size);
     if (!new_cache) exit(1);            /* allocation failure */
 
     /* Initialize base cases if the cache was empty. */
@@ -79,5 +93,5 @@ seq_t a(idx_t n)
         }
     }
 
-    return gcd_any(Fn, prod);                  /* gcd(Fn, product) */
+    return gcd(Fn, prod);                  /* gcd(Fn, product) */
 }

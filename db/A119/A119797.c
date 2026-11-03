@@ -11,13 +11,15 @@
  *            and idx_t that support the required arithmetic operations
  * Range:     u8 n <= 184, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 8453 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Count distinct decimal digits of x. */
 static unsigned int distinct_digits(seq_t x)
@@ -61,8 +63,7 @@ seq_t a(idx_t n)
             /* Ensure room in the cache. */
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap > 0) ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache,
-                                               new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
                     /* Allocation failed – abort with zero. */
                     return (seq_t)0;

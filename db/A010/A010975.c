@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial(n,22)
  * Range:     u8 n <= 23, u16 n <= 26, u32 n <= 36, u64 n <= 78, u128 n <= 521,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 932 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

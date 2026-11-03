@@ -9,12 +9,14 @@
  *            is valid for all n ≥ 6
  * Range:     i8 n <= 12, i16 n <= 25, i32 n <= 43, i64 n <= 43, i128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache to reuse previously computed values */
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     /* initialise cache with the first 6 terms when first called */
     if (cache_len == 0) {
         cache_len = 6;
-        cache = (seq_t *)malloc((size_t)cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_len);
         if (!cache) return 0; /* allocation failure: return zero */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)0;
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
 
     /* grow the cache to accommodate up to n */
     if (n >= cache_len) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!tmp) return 0; /* allocation failure: return zero */
         cache = tmp;
         /* compute the new entries */

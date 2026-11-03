@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of even decimal digits in the n‑th prime
  * Range:     u8 n <= 54, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   count_even_digits
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/count_even_digits.h"
+#include "../utils/mem.h"
+
+/* Count the even decimal digits of a non‑negative integer x. */
+static seq_t count_even_digits(seq_t x)
+{
+    seq_t cnt = 0;
+    while (x > 0) {
+        seq_t d = x % 10;
+        if ((d % 2) == 0)
+            ++cnt;
+        x = x / 10;
+    }
+    return cnt;
+}
 
 /* ------------------------------------------------------------------ */
 /* Global storage for the list of primes.  The size is capped at
@@ -45,7 +59,7 @@ static void ensure_primes(idx_t n)
     idx_t required_cap = prime_count + (needed - current_limit);
     while (prime_cap < required_cap) {
         size_t new_cap = (prime_cap == 0) ? 1024 : (size_t)prime_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(prime_list, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prime_list, new_cap);
         if (!tmp) exit(EXIT_FAILURE);   /* allocation failed */
         prime_list = tmp;
         prime_cap  = (idx_t)new_cap;
@@ -64,8 +78,7 @@ static void ensure_primes(idx_t n)
         if (is_prime) {
             if (prime_count >= prime_cap) {      /* defensive check */
                 size_t new_cap = prime_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(prime_list,
-                                              new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, prime_list, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 prime_list = tmp;
                 prime_cap  = (idx_t)new_cap;

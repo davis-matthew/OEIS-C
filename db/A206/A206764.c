@@ -11,14 +11,17 @@
  *            number of divisors of n
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 9, i64 n <= 16, i128 n <= 19,
  *            big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 static void dfs_dfs(idx_t idx, idx_t factor_cnt, const uint64_t *primes,
                     const uint64_t *exps, seq_t cur_div, seq_t *sum_term,
@@ -28,7 +31,7 @@ static void dfs_dfs(idx_t idx, idx_t factor_cnt, const uint64_t *primes,
         /* reached a complete divisor */
         (*tau_cnt)++;
         seq_t base = (seq_t)1 - cur_div;
-        seq_t term = seq_pow(base, n);
+        seq_t term = ipow_idx(base, n);
         *sum_term += term;
         return;
     }

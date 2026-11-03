@@ -12,13 +12,17 @@
  *            2^(n-k)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 126,
  *            big any n
- * Helpers:   floor_log2_uint64, pow2
+ * Validated: standard, pass, 50 terms through n = 114 (2026-11-01)
+ * Helpers:   ilog2, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 #include "../utils/pow2.h"
-#include "../utils/floor_log2_uint64.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +32,7 @@ seq_t a(idx_t n)
     if ((n & 1) || n == 0) {
         return pow2(n);
     }
-    idx_t m = floor_log2_uint64(n + 1);
+    idx_t m = ilog2(n + 1);
     idx_t prev = ((idx_t)1 << (m - 1));
     idx_t k = prev - 1;
     idx_t exp = n - k;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 28, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* constants ----------------------------------------------------- */
 #define LIMIT_R   2000000  /* search limit for r (enough for 10 000 terms) */
@@ -183,7 +185,7 @@ static void generate_terms(void)
     }
 
     /* allocate storage for terms */
-    term_arr = (seq_t *)malloc(MAX_T * sizeof(seq_t));
+    term_arr = mem_new(seq_t, MAX_T);
     if (!term_arr) exit(1);
     term_cnt = 0;
 
@@ -195,7 +197,7 @@ static void generate_terms(void)
     }
 
     /* sort terms */
-    qsort(term_arr, term_cnt, sizeof(seq_t), seq_cmp);
+    mem_qsort(term_arr, term_cnt, sizeof(seq_t), seq_cmp);
 
     /* clean up temporary tables */
     free(spf);

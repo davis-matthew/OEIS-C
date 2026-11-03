@@ -7,13 +7,14 @@
  * Formula:   a(n) = (n+1)*(n+2)/2 * 2^(n*(n-1))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
     idx_t exp = (idx_t)n * (n - 1);
 
     /* compute 2^exp */
-    seq_t pow2 = pow_seq((seq_t)2, exp);
+    seq_t pow2 = ipow_idx((seq_t)2, exp);
 
     /* final result */
     return tri * pow2;

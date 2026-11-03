@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(n-3) + a(n-2), a(1)=1, a(2)=2, a(3)=3
  * Range:     u8 n <= 19, u16 n <= 38, u32 n <= 78, u64 n <= 157,
  *            u128 n <= 315, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 938 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* 1‑based index, cache[0] unused */
 static idx_t cache_size = 0;     /* highest computed index */
@@ -28,7 +30,7 @@ static void ensure_capacity(idx_t needed)
     idx_t new_cap = cache_capacity ? cache_capacity : 4;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_cap + 1));
     if (!new_cache) abort(); /* out of memory */
     cache = new_cache;
     cache_capacity = new_cap;

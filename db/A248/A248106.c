@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 114, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   g_value
+ * Validated: standard, pass, 77 terms through n = 993 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,14 @@
  */
 #include <math.h>
 #include <stdint.h>
-#include "../utils/g_value.h"
+
+/* Helper: compute g(k) = k * ln((k+1)/(k-1)) - 2 */
+static double g_value(idx_t k)
+{
+    double kd = (double)k;
+    double ratio = (kd + 1.0) / (kd - 1.0);
+    return kd * log(ratio) - 2.0;
+}
 
 static const double E_SQUARED = 7.3890560989306495 /* e^2 */;
 

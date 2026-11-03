@@ -9,13 +9,48 @@
  *            a(2)=-1, a(3)=1
  * Range:     i8 n <= 16, i16 n <= 41, i32 n <= 84, i64 n <= 171,
  *            i128 n <= 345, big any n
- * Helpers:   ensure_values
+ * Validated: standard, pass, 67 terms through n = 8041 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/ensure_values.h"
+#include "../utils/mem.h"
+
+/* Helper to ensure the cache holds values up to index 'n'.
+   The cache is a static array of seq_t that grows as needed. */
+static void ensure_values(idx_t n)
+{
+    /* static state */
+    static seq_t *cache = NULL;
+    static idx_t size  = 0;   /* number of elements currently stored */
+    static idx_t cap   = 0;   /* allocated capacity */
+
+    if (cache == NULL) { /* first call: allocate and store the 4 base terms */
+        cap = 16;
+        cache = mem_new(seq_t, cap);
+        cache[0] = (seq_t)4;
+        cache[1] = (seq_t)1;
+        cache[2] = (seq_t)-1;
+        cache[3] = (seq_t)1;
+        size = 4;
+    }
+
+    /* extend cache to include value n */
+    if (n < size) return;              /* already computed */
+
+    if (n >= cap) {
+        /* grow; double until big enough */
+        while (cap <= n) cap <<= 1;
+        cache = mem_resize(seq_t, cache, cap);
+    }
+
+    for (idx_t i = size; i <= n; ++i) {
+        cache[i] = cache[i-1] - cache[i-2] + cache[i-3] + cache[i-4];
+    }
+    size = n + 1;
+}
 
 /* External function required by the harness */
 seq_t a(idx_t n)
@@ -34,7 +69,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* initialise cache with base values */
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = (seq_t)4;
         cache[1] = (seq_t)1;
         cache[2] = (seq_t)-1;
@@ -47,7 +82,7 @@ seq_t a(idx_t n)
     /* grow if necessary */
     if (n >= cap) {
         while (cap <= n) cap <<= 1;
-        cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
     }
 
     /* compute missing terms */

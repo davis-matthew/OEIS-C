@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 335, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _gcd_int_local
+ * Validated: standard, pass, 98 terms through n = 995 (2026-11-03)
+ * Helpers:   gcd_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_gcd_int_local.h"
+#include "../utils/gcd_i32.h"
+#include "../utils/mem.h"
 
 /* Sequence entry; static cache for memoisation */
 static seq_t *a_cache = NULL;
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
     /* Ensure cache is large enough */
     if (n >= a_cache_size) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, a_cache, new_size);
         if (!new_cache) {
             /* Allocation failed; return 0 as a safe fallback */
             return 0;
@@ -67,7 +69,7 @@ seq_t a(idx_t n) {
                 idx_t maxX = (B - 1) / 2;
                 for (idx_t X = 1; X <= maxX; ++X) {
                     idx_t U = B - X;
-                    if (_gcd_int_local((int)X, (int)U) != 1)
+                    if (gcd_i32((int)X, (int)U) != 1)
                         continue;
                     /* t = floor(A*X / B) */
                     seq_t t = ((seq_t)A * X) / B;
@@ -86,7 +88,7 @@ seq_t a(idx_t n) {
                 idx_t maxX2 = (B2 - 1) / 2;
                 for (idx_t X = 1; X <= maxX2; ++X) {
                     idx_t U = B2 - X;
-                    if (_gcd_int_local((int)X, (int)U) != 1)
+                    if (gcd_i32((int)X, (int)U) != 1)
                         continue;
                     seq_t t = ((seq_t)A2 * X) / B2;
                     if (t == 0)

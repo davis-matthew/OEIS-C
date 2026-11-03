@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---- type definitions --------------------------------------------------- */
 /* seq_t and idx_t are provided by the build; do not redefine them. */
@@ -53,12 +55,12 @@ static void ensure_seq_cap(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 4;
     while (new_cap < need) new_cap *= 2;
-    seq_t *new_seq = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_seq = mem_new(seq_t, new_cap);
     if (!new_seq) abort();
     if (seq)
     {
         for (size_t i = 0; i < seq_size; ++i) new_seq[i] = seq[i];
-        free(seq);
+        mem_free(seq);
     }
     seq = new_seq;
     seq_cap = new_cap;

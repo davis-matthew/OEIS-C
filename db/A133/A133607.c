@@ -12,12 +12,14 @@
  *            0≤col≤row
  * Range:     i8 n <= 77, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,17 +35,17 @@ seq_t a(idx_t n)
     if (r == 0) return (seq_t)1;     /* row 0: only one element */
 
     /* Allocate the first two rows. */
-    seq_t *row_nm2 = (seq_t*)malloc(sizeof(seq_t));
+    seq_t *row_nm2 = mem_new(seq_t, 1);
     row_nm2[0] = (seq_t)1;           /* T(0,0) */
 
-    seq_t *row_nm1 = (seq_t*)malloc(2 * sizeof(seq_t));
+    seq_t *row_nm1 = mem_new(seq_t, 2);
     row_nm1[0]  = (seq_t)0;          /* T(1,0) */
     row_nm1[1]  = (seq_t)1;          /* T(1,1) */
 
     if (r == 1) {                    /* already have the needed row */
         seq_t res = row_nm1[k];
-        free(row_nm2);
-        free(row_nm1);
+        mem_free(row_nm2);
+        mem_free(row_nm1);
         return res;
     }
 
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     seq_t *cur = NULL;
     for (idx_t i = 2; i <= r; ++i) {
         size_t sz = (size_t)(i + 1);
-        cur = (seq_t*)malloc(sz * sizeof(seq_t));
+        cur = mem_new(seq_t, sz);
 
         for (idx_t j = 0; j <= i; ++j) {
             seq_t a1 = (j <= (i - 1)) ? row_nm1[j] : (seq_t)0;
@@ -59,13 +61,13 @@ seq_t a(idx_t n)
             cur[j] = a1 - a2;
         }
 
-        free(row_nm2);
+        mem_free(row_nm2);
         row_nm2 = row_nm1;
         row_nm1 = cur;
     }
 
     seq_t result = row_nm1[k];
-    free(row_nm2);
-    free(row_nm1);
+    mem_free(row_nm2);
+    mem_free(row_nm1);
     return result;
 }

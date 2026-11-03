@@ -9,6 +9,7 @@
  *            division by the last digit (OEIS A210582)
  * Range:     u8 n <= 30, u16 n <= 4395, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 80 terms through n = 8683 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

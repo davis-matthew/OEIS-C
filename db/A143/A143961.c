@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{k=0..n} C(n,k) * A010054(k)
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 34, u64 n <= 67, u128 n <= 131,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 872 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoized a(n) values */
 static size_t cache_cap = 0;  /* allocated size of cache */
@@ -30,10 +32,10 @@ static size_t comb_cap = 0;   /* allocated size of comb array */
 static void ensure_capacity(size_t *cap, seq_t **arr, size_t needed)
 {
     if (*cap < needed) {
-        seq_t *new_arr = (seq_t*)realloc(*arr, sizeof(seq_t)*needed);
+        seq_t *new_arr = mem_resize(seq_t, *arr, needed);
         if (!new_arr) abort();                  /* out of memory */
         if (needed > *cap)
-            memset(&new_arr[*cap], 0, sizeof(seq_t)*(needed-*cap));
+            mem_set(&new_arr[*cap], 0, sizeof(seq_t)*(needed-*cap));
         *arr = new_arr;
         *cap = needed;
     }

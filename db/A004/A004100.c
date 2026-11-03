@@ -11,15 +11,27 @@
  *            j*b(j)), the block decomposition gives L(x) =...
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 14, u128 n <= 20,
  *            big any n
- * Helpers:   alloc_zero, pw2, release
+ * Validated: standard, pass, 34 terms through n = 89 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/pw2.h"
+#include <stdint.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 static seq_t *cache = 0;
 static idx_t cache_len = 0;
@@ -44,9 +56,9 @@ seq_t a(idx_t n)
     seq_t *b = alloc_zero(N + 2);
     c[0] = 1;
     for (m = 1; m <= N; m++) {
-        for (k = 0; k <= m; k++) c[m] += C[m * W + k] * pw2(k * (m - k));
-        for (k = 0; 2 * k < m; k++) h[m] += C[m * W + k] * pw2(k * (m - k));
-        if (m % 2 == 0) h[m] += C[m * W + m / 2] * pw2(m * m / 4 - 1);
+        for (k = 0; k <= m; k++) c[m] += C[m * W + k] * pow2(k * (m - k));
+        for (k = 0; 2 * k < m; k++) h[m] += C[m * W + k] * pow2(k * (m - k));
+        if (m % 2 == 0) h[m] += C[m * W + m / 2] * pow2(m * m / 4 - 1);
     }
     for (m = 1; m <= N; m++) {
         b[m] = h[m];

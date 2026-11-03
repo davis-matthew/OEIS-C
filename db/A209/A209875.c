@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 201, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum, next_prime, seq_realloc
+ * Validated: standard, pass, 58 terms through n = 9910 (2026-11-01)
+ * Helpers:   digit_sum, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,20 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../utils/next_prime.h"   /* provides: uint64_t next_prime(uint64_t start); */
-#include "../utils/digit_sum.h"    /* provides: seq_t digit_sum(seq_t v); */
-#include "../utils/seq_realloc.h"  /* provides: seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap); */
+#include "../utils/digit_sum.h"
+#include "../utils/next_prime.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Static cache for the sequence */
 static seq_t *seq_terms   = NULL;

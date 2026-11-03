@@ -12,12 +12,14 @@
  *            is n = 8k + Σ_{i=1}^{r} y_i, where each y_i > k...
  * Range:     u8 n <= 13, u16 n <= 20, u32 n <= 36, u64 n <= 72, u128 n <= 153,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 48 terms through n = 911 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -32,13 +34,13 @@ seq_t a(idx_t n)
     /* r ≥ 1 */
     idx_t r_max = (n - 8) / 2;        /* floor((n-8)/2) */
     for (idx_t r = 1; r <= r_max; ++r) {
-        seq_t C1 = binom(r + 8, 8);   /* C(r+8,8) */
+        seq_t C1 = binomial(r + 8, 8);   /* C(r+8,8) */
         idx_t k_max = (n - r) / (r + 8);
         if (k_max == 0) continue;    /* no k satisfies t ≥ 0 */
 
         for (idx_t k = 1; k <= k_max; ++k) {
             idx_t t = n - k * (r + 8) - r;            /* non‑negative by construction */
-            seq_t C2 = binom(t + r - 1, r - 1);      /* C(t+r-1, r-1) */
+            seq_t C2 = binomial(t + r - 1, r - 1);      /* C(t+r-1, r-1) */
             total += C1 * C2;
         }
     }

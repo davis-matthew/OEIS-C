@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   cache_sum_digit_squares, enters_at_16
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,36 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/cache_sum_digit_squares.h"
-#include "../utils/enters_at_16.h"
+#include "../utils/mem.h"
+
+/* Sum of the squares of the decimal digits of x.  Computation is done
+   in an unsigned long long to avoid overflow for small seq_t types. */
+static inline seq_t cache_sum_digit_squares(seq_t x)
+{
+    unsigned long long sum = 0;
+    while (x > 0) {
+        uint8_t d = (uint8_t)(x % 10);
+        sum += (unsigned long long)d * (unsigned long long)d;
+        x /= 10;
+    }
+    return (seq_t)sum;
+}
+
+/* Return true if the digit‑square chain starting from n first hits 16
+   before any other element of the unhappy cycle. */
+static inline bool enters_at_16(seq_t n)
+{
+    seq_t cur = n;
+    while (1) {
+        if (cur == (seq_t)1) return false;                       /* happy -> reject */
+        if (cur == (seq_t)16) return true;                      /* first hit */
+        if (cur == (seq_t)4 || cur == (seq_t)37 ||
+            cur == (seq_t)58 || cur == (seq_t)89 ||
+            cur == (seq_t)145 || cur == (seq_t)42 ||
+            cur == (seq_t)20) return false;                    /* other cycle -> reject */
+        cur = cache_sum_digit_squares(cur);
+    }
+}
 
 /* Return the n-th term of the sequence, 1‑based indexing.  The function
    maintains a static cache of already found terms and expands it as
@@ -40,7 +69,7 @@ seq_t a(idx_t n)
         /* Allocate initial capacity if necessary. */
         if (cache_cap == 0) {
             cache_cap = 256;
-            cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+            cache = mem_new(seq_t, cache_cap);
         }
 
         /* Start searching from the next integer after the last cached term. */
@@ -55,7 +84,7 @@ seq_t a(idx_t n)
             /* Grow the cache if full. */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {               /* allocation failed – abort safely */
                     return 0;
                 }

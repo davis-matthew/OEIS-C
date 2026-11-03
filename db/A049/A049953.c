@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 32, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   floor_log2_uint64, pow2
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   ilog2, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,11 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Cache for computed a(n) values and cumulative sums S(n)=a(1)+…+a(n). */
 static seq_t *a_cache = NULL;      /* 1‑based index  */
@@ -41,8 +45,8 @@ seq_t a(idx_t n)
     if (cache_cap < n + 1) {
         idx_t new_cap = cache_cap ? cache_cap * 2 : n + 1;
         if (new_cap < n + 1) new_cap = n + 1;
-        a_cache  = (seq_t *)realloc(a_cache, new_cap * sizeof(*a_cache));
-        S_cache  = (seq_t *)realloc(S_cache, new_cap * sizeof(*S_cache));
+        a_cache  = mem_resize(seq_t, a_cache, new_cap);
+        S_cache  = mem_resize(seq_t, S_cache, new_cap);
         cache_cap = new_cap;
     }
 
@@ -56,7 +60,7 @@ seq_t a(idx_t n)
             S_cache[k] = S_cache[k - 1] + a_cache[k];
         } else {
             /* Determine p such that 2^p < k-1 ≤ 2^(p+1). */
-            idx_t p = floor_log2_uint64(k - 2);
+            idx_t p = ilog2(k - 2);
             /* m = 2^(p+1) + 2 - k  (m < k) */
             seq_t two_pow = pow2(p + 1);          /* 2^(p+1) as seq_t */
             seq_t m_val   = two_pow + (seq_t)2 - (seq_t)k;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 21, i32 n <= 78, i64 n <= 253,
  *            i128 n <= 1081, big any n
- * Helpers:   count_exp
+ * Validated: standard, pass, 61 terms through n = 1265 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,7 +37,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_exp.h"
+
+/* exponent of prime p in integer m */
+static inline idx_t count_exp(idx_t m, idx_t p)
+{
+        idx_t cnt = 0;
+        while (m % p == 0) {
+                ++cnt;
+                m /= p;
+        }
+        return cnt;
+}
 
 /* --- helpers for prime generation and factorisation -------------------------------- */
 

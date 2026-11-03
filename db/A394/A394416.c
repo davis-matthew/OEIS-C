@@ -9,9 +9,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 174, u16 n <= 8090, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 549, big any n
- * Helpers:   gcd, rad
+ * Range:     u8 n <= 23, u16 n <= 19, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 31, big any n
+ * Validated: standard, pass, 84 terms through n = 9708 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,37 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/rad.h"
-#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+static seq_t rad(idx_t m)
+{
+    seq_t r = (seq_t)1;
+    if (m < 2) return r;
+    /* Handle factor 2 */
+    if ((m & 1) == 0) {
+        r *= (seq_t)2;
+        while ((m & 1) == 0) m >>= 1;
+    }
+    for (idx_t p = 3; p * p <= m; p += 2) {
+        if (m % p == 0) {
+            r *= (seq_t)p;
+            while (m % p == 0) m /= p;
+        }
+    }
+    if (m > 1) r *= (seq_t)m;  /* remaining prime factor */
+    return r;
+}
+
+/* Greatest common divisor for seq_t values. */
+static seq_t gcd(seq_t a, seq_t b)
+{
+    while (b != 0) {
+        seq_t t = a % b;
+        a = b;
+        b = t;
+    }
+    return a;
+}
 
 static size_t seq_cap   = 0;          /* capacity of seq_arr (index 0 unused)      */
 static seq_t *seq_arr   = NULL;       /* stored sequence values                     */
@@ -46,7 +76,7 @@ static void ensure_seq_cap(idx_t n)
     if ((size_t)n + 1 > seq_cap) {
         size_t newcap = seq_cap ? seq_cap * 2 : 16;
         while ((size_t)n + 1 > newcap) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq_arr, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_arr, newcap);
         if (!tmp) exit(EXIT_FAILURE);
         seq_arr = tmp;
         seq_cap = newcap;

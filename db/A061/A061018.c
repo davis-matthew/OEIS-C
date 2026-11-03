@@ -8,16 +8,33 @@
  * Formula:   a(n) is the nth term of the triangle of permutations * with at
  *            least one fixed point among the first m positions, * flattened
  *            row by row: a(1) = 1, a(2) = 1, a(3) = 1, a(4) = 2, …
- * Range:     u8 n <= 17, u16 n <= 37, u32 n <= 45, u64 n <= 45, u128 n <= 45,
+ * Range:     u8 n <= 17, u16 n <= 36, u32 n <= 45, u64 n <= 45, u128 n <= 6,
  *            big any n
- * Helpers:   _row_of_index
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/_row_of_index.h"
+#include "../utils/mem.h"
+
+/* Helper: find minimal r such that r(r+1)/2 >= n */
+static idx_t _row_of_index(idx_t n)
+{
+    idx_t low  = 1;
+    idx_t high = 1;
+    while (high * (high + 1) / 2 < n) high <<= 1;   /* exponential search */
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        if (mid * (mid + 1) / 2 >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 static idx_t   _max_row = 0;
 static seq_t * _fact    = NULL;   /* factorial array, index 0..N   */
@@ -29,7 +46,7 @@ static void _ensure_tables(idx_t rows)
     if (rows <= _max_row) return;
 
     /* resize factorial array */
-    _fact = (seq_t *)realloc(_fact, (rows + 1) * sizeof(seq_t));
+    _fact = mem_resize(seq_t, _fact, (rows + 1));
     /* resize row pointers */
     _T = (seq_t **)realloc(_T, (rows + 1) * sizeof(seq_t *));
     /* initialise factorial[0] */
@@ -41,7 +58,7 @@ static void _ensure_tables(idx_t rows)
 
     /* allocate each required row for T and compute it */
     for (idx_t n = _max_row; n <= rows; ++n)
-        _T[n] = (seq_t *)realloc(_T[n], (n + 1) * sizeof(seq_t));
+        _T[n] = mem_resize(seq_t, _T[n], (n + 1));
 
     /* compute T values up to n = rows-2 */
     if (rows >= 2) {

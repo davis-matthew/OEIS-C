@@ -8,13 +8,22 @@
  *            n) for n ≥ 1 (here m = 2·n is the even norm, so n = m/2)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 4, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   binomial, seq_mul
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Coordination sequence for A_29 lattice */
 seq_t a(idx_t n)

@@ -12,13 +12,21 @@
  *            (1-x^2)^3,...
  * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 52, u64 n <= 144, u128 n <= 435,
  *            big any n
- * Helpers:   a001452_zeros
+ * Validated: standard, pass, 56 terms through n = 9672 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a001452_zeros.h"
+#include "../utils/mem.h"
+
+static seq_t *a001452_zeros(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    idx_t i;
+    for (i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *a001452_cache = NULL;
 static idx_t a001452_len = 0;
@@ -60,8 +68,8 @@ static void a001452_build(idx_t len) {
             }
         }
     }
-    free(B);
-    if (a001452_cache) free(a001452_cache);
+    mem_free(B);
+    if (a001452_cache) mem_free(a001452_cache);
     a001452_cache = A;
     a001452_len = len;
 }

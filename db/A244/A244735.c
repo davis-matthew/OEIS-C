@@ -7,7 +7,8 @@
  * Formula:   a(n) = (prime(n) mod 5) mod 2
  * Range:     u8 n <= 54, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 1955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *_primes = NULL;     /* array of the primes discovered */
 static idx_t  _prime_cnt = 0;     /* number of primes stored */
@@ -38,7 +40,7 @@ static inline void add_prime(uint64_t p)
 {
     if (_prime_cnt >= _prime_cap) {
         _prime_cap = _prime_cap ? _prime_cap * 2 : 32;
-        _primes = (seq_t *)realloc((void*)_primes, _prime_cap * sizeof(seq_t));
+        _primes = mem_resize(seq_t, _primes, _prime_cap);
     }
     _primes[_prime_cnt++] = (seq_t)p;
 }

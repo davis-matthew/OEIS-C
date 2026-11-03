@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 136, u32 n <= 528, u64 n <= 683,
  *            u128 n <= 683, big any n
+ * Validated: standard, pass, 81 terms through n = 610 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -36,6 +37,7 @@
  *  for all indices that fit in the arithmetic type of the build.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 static seq_t table_term(idx_t i, idx_t j)

@@ -10,13 +10,16 @@
  *            a(n) is obtained by reducing the fraction c_n to lowest terms
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 29,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 37 terms through n = 774 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/gcd.h"   /* provides seq_t gcd(seq_t, seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
         fact *= (seq_t)i;
 
     /* Fibonacci numbers up to F_{n+1} */
-    seq_t *fib = (seq_t *)malloc((n + 2) * sizeof(seq_t));
+    seq_t *fib = mem_new(seq_t, (n + 2));
     if (!fib) return 0;            /* allocation failed */
     fib[0] = 0;
     fib[1] = 1;
@@ -47,6 +50,6 @@ seq_t a(idx_t n)
     seq_t g = gcd(sum, fact);
     seq_t numerator = sum / g;
 
-    free(fib);
+    mem_free(fib);
     return numerator;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 25, u64 n <= 49, u128 n <= 93,
  *            big any n
- * Helpers:   validTriple
+ * Validated: standard, pass, 45 terms through n = 204 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,26 @@
 /* Sequence A296310: Number of n×5 binary arrays in which each 1 has 3 or 6 king‑move
    neighboring 1s.  The array is counted for n ≥ 1. */
 #include <stdbool.h>
-#include "../utils/validTriple.h"
+
+static bool validTriple(uint32_t above, uint32_t mid, uint32_t below) {
+    for (int c = 0; c < 5; ++c) {
+        if (((mid >> c) & 1u) == 0) continue;          /* only 1‑cells are restricted */
+        int cnt = 0;
+        /* above row */
+        if (c - 1 >= 0 && ((above >> (c - 1)) & 1u)) ++cnt;
+        if ((above >> c) & 1u) ++cnt;
+        if (c + 1 < 5 && ((above >> (c + 1)) & 1u)) ++cnt;
+        /* mid row */
+        if (c - 1 >= 0 && ((mid >> (c - 1)) & 1u)) ++cnt;
+        if (c + 1 < 5 && ((mid >> (c + 1)) & 1u)) ++cnt;
+        /* below row */
+        if (c - 1 >= 0 && ((below >> (c - 1)) & 1u)) ++cnt;
+        if ((below >> c) & 1u) ++cnt;
+        if (c + 1 < 5 && ((below >> (c + 1)) & 1u)) ++cnt;
+        if (cnt != 3 && cnt != 6) return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;

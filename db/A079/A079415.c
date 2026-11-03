@@ -7,12 +7,14 @@
  * Formula:   a(n) = floor(prime(n)/n) * ceil(prime(n)/n) / 2
  * Range:     u8 n <= 54, u16 n <= 7421, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 9959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* 
  * Helper: generate primes on demand.  The list grows as needed.
@@ -32,7 +34,7 @@ ensure_primes(idx_t needed)
 
     if (prime_cap == 0) {
         prime_cap = 64;
-        prime_list = (seq_t*)malloc(prime_cap * sizeof(seq_t));
+        prime_list = mem_new(seq_t, prime_cap);
     }
 
     /* Start searching from last prime + 1 or from 2 if list empty */
@@ -59,8 +61,7 @@ ensure_primes(idx_t needed)
             /* Expand array if needed */
             if (prime_cnt == prime_cap) {
                 prime_cap *= 2;
-                prime_list = (seq_t*)realloc(prime_list,
-                                             prime_cap * sizeof(seq_t));
+                prime_list = mem_resize(seq_t, prime_list, prime_cap);
             }
             prime_list[prime_cnt] = (seq_t)cand;
             prime_cnt++;

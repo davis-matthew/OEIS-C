@@ -9,14 +9,24 @@
  *            leading zeros to L digits
  * Range:     u8 n <= 39, u16 n <= 6948, u32 n <= 6948, u64 n <= 6948,
  *            u128 n <= 6948, big any n
- * Helpers:   digsig
+ * Validated: standard, pass, 73 terms through n = 6183 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/digsig.h"
+
+static uint64_t digsig(uint64_t x, int L) {
+    uint64_t s = 0;
+    int i;
+    for (i = 0; i < L; i++) {
+        s += (uint64_t)1 << (4 * (x % 10));
+        x /= 10;
+    }
+    return s;
+}
 
 static uint64_t *terms = NULL;
 static idx_t tcnt = 0, tcap = 0;

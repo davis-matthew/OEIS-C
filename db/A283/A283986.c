@@ -9,12 +9,14 @@
  *            sequence: s(0)=0, s(1)=1, * s(2k)=s(k), s(2k+1)=s(k)+s(k+1)
  * Range:     u8 n <= 4690, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 115 terms through n = 7385 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *stern_vals = NULL;     /* cache of Stern values, indices 0..max computed */
 static idx_t  stern_size = 0;        /* number of valid entries (max index + 1) */
@@ -30,8 +32,7 @@ static void ensure_stern(idx_t n)
     /* Initialize or grow the storage */
     if (stern_size == 0) {
         stern_cap = 2;                         /* at least indices 0 and 1 */
-        seq_t *tmp = (seq_t *)realloc(stern_vals,
-                                      sizeof(seq_t) * stern_cap);
+        seq_t *tmp = mem_resize(seq_t, stern_vals, stern_cap);
         if (!tmp)
             return;                            /* allocation failed */
         stern_vals = tmp;
@@ -43,8 +44,7 @@ static void ensure_stern(idx_t n)
         /* prevent overflow: if doubling would overflow or be too small */
         if (new_cap <= stern_cap || new_cap <= n)
             new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(stern_vals,
-                                      sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, stern_vals, new_cap);
         if (!tmp)
             return;                            /* allocation failed */
         stern_vals = tmp;

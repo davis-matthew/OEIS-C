@@ -8,6 +8,7 @@
  *            nonzero 4th powers summing to m <= 7 (DP over m, growing limit)
  * Range:     u8 n <= 86, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 70 terms through n = 961 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

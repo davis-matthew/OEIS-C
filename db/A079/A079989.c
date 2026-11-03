@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 31, u64 n <= 60, u128 n <= 119,
  *            big any n
- * Helpers:   count_for_n, mul_small
+ * Validated: standard, pass, 51 terms through n = 2357 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -46,8 +47,70 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/mul_small.h"
-#include "../utils/count_for_n.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+/* Small DP for n ≤ 19: count permutations satisfying the constraints. */
+static seq_t count_for_n(idx_t n)
+{
+    if (n == 0)
+        return 1;
+
+    size_t sz = (size_t)1 << n;
+    seq_t *dp   = mem_new(seq_t, sz);
+    seq_t *next = mem_new(seq_t, sz);
+    if (!dp || !next)
+        abort();
+
+    dp[0] = 1;
+
+    for (idx_t row = 1; row <= n; ++row)
+    {
+        /* clear next */
+        mem_set(next, 0, sz * sizeof(seq_t));
+
+        idx_t lower = (row > 3 ? row - 3 : 1);
+        idx_t upper = (row + 3 <= n ? row + 3 : n);
+
+        for (size_t mask = 0; mask < sz; ++mask)
+        {
+            seq_t ways = dp[mask];
+            if (ways == 0)
+                continue;
+
+            for (idx_t j = lower; j <= upper; ++j)
+            {
+                if (j == row + 1 || j == row + 2)
+                    continue;                      /* forbidden differences 1,2 */
+                size_t bit = j - 1;
+                if (mask & ((size_t)1 << bit))
+                    continue;                      /* target already used */
+                next[mask | ((size_t)1 << bit)] += ways;
+            }
+        }
+        /* swap dp and next for next row */
+        seq_t *tmp  = dp;
+        dp          = next;
+        next        = tmp;
+    }
+
+    seq_t result = dp[sz - 1];
+    mem_free(dp);
+    mem_free(next);
+    return result;
+}
 
 /* Coefficients for the recurrence: a(n) = Σ coeffs[i] · a(n-1-i)  (i=0…19) */
 static const int coeffs[20] = {
@@ -71,13 +134,13 @@ static void ensure_cache(idx_t n)
     idx_t new_size = n + 1;
     if (!cache)
     {
-        cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+        cache = mem_new(seq_t, new_size);
         if (!cache)
             abort();
     }
     else
     {
-        cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         if (!cache)
             abort();
     }

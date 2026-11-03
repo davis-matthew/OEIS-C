@@ -6,8 +6,9 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, base
  * Formula:   a(n) = sort_digits(n^3 + n)
- * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 2067, u64 n <= 9472,
- *            u128 n <= 9472, big any n
+ * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 2067, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 62 terms through n = 9472 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

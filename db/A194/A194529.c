@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 95, i16 n <= 95, i32 n <= 95, i64 n <= 95, i128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    for n>14: a(n) = a(n-1) + a(n-13) - a(n-14)              (OEIS formula) */
 
 #include <stdlib.h>   /* malloc/realloc/abort */
+#include "../utils/mem.h"
 
 static const seq_t init[14] = { 2, -1, 1, -2, 0, 2, -1, 1, 3, 0, 2, 4, 1, 3 };
 static seq_t *cache   = NULL;    /* cache[0] = a(1), cache[cache_len-1] = a(cache_len) */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Grow the cache if it does not yet contain the desired term.               */
     if (cache_len < n) {
         size_t new_len = (size_t)n;                 /* n is small enough for size_t */
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();                         /* out of memory */
 
         /* Compute every missing term up to n.  We reuse existing values

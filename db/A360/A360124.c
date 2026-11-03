@@ -9,6 +9,7 @@
  *            = 2^e * m^2 with e ≥ 3 and m odd, sorted in increasing order
  * Range:     u8 none, u16 none, u32 none, u64 n <= 54, u128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,12 +9,14 @@
  *            64*n with 0 ≤ x(i) ≤ n
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 48, u64 n <= 200, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,12 +24,12 @@ seq_t a(idx_t n)
     idx_t target = n * (idx_t)64;
     /* Allocate DP arrays; use explicit cast from void* to seq_t* for C/C++ */
     size_t maxSum = (size_t)target;
-    seq_t *dp   = (seq_t*)calloc(maxSum + 1, sizeof(seq_t));
-    seq_t *next = (seq_t*)calloc(maxSum + 1, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, maxSum + 1);
+    seq_t *next = mem_new(seq_t, maxSum + 1);
     if (!dp || !next) {
         /* Allocation failed – return 0 as a saf­e fallback */
-        free(dp);
-        free(next);
+        mem_free(dp);
+        mem_free(next);
         return 0;
     }
 
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[target];
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return result;
 }

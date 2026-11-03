@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   compute_terms
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,50 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <math.h>
-#include "../utils/compute_terms.h"
+#include "../utils/mem.h"
+
+/* compute all terms up to 'limit' using DP and store them in 'out_terms' */
+static void compute_terms(idx_t limit, seq_t **out_terms, size_t *out_len)
+{
+    size_t L = (size_t)limit;
+    /* DP table: dp[cnt][sum] – number of unordered representations
+       using exactly 'cnt' positive squares for the value 'sum'.  */
+    unsigned long long **dp = (unsigned long long**)malloc((7 + 1) * sizeof(unsigned long long*));
+    for (int c = 0; c <= 7; ++c)
+        dp[c] = (unsigned long long*)calloc(L + 1, sizeof(unsigned long long));
+    dp[0][0] = 1ULL;
+
+    for (idx_t s = 1; s * s <= limit; ++s) {
+        idx_t sq = s * s;
+        for (idx_t sum = sq; sum <= limit; ++sum) {
+            for (int cnt = 1; cnt <= 7; ++cnt) {
+                dp[cnt][sum] += dp[cnt - 1][sum - sq];
+            }
+        }
+    }
+
+    /* collect all sums having exactly 4 representations */
+    size_t cap = 64;
+    seq_t *list = mem_new(seq_t, cap);
+    size_t len = 0;
+    for (idx_t sum = 1; sum <= limit; ++sum) {
+        if (dp[7][sum] == 4ULL) {
+            if (len >= cap) {
+                cap <<= 1;
+                list = mem_resize(seq_t, list, cap);
+            }
+            list[len++] = (seq_t)sum;
+        }
+    }
+
+    /* free DP tables */
+    for (int c = 0; c <= 7; ++c)
+        free(dp[c]);
+    free(dp);
+
+    *out_terms = list;
+    *out_len   = len;
+}
 
 static seq_t *terms = NULL;          /* array of terms (1‑based) */
 static size_t terms_len = 0;         /* number of stored terms   */
@@ -52,7 +96,7 @@ static void ensure_terms(size_t needed)
         compute_terms(new_limit, &new_terms, &new_len);
 
         /* dispose old terms and replace */
-        free(terms);
+        mem_free(terms);
         terms = new_terms;
         terms_len = new_len;
         cur_limit = new_limit;

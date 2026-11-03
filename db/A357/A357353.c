@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -72,11 +74,11 @@ seq_t a(idx_t n)
     /* 3.  Build the list of coins (values) and their residues.
      *    For residue 1 we always have the coin n+1 (generator). */
     size_t max_coins = n;          /* at most one per residue (excluding 0) */
-    seq_t *coin_val  = (seq_t *)calloc(max_coins, sizeof(seq_t));
+    seq_t *coin_val  = mem_new(seq_t, max_coins);
     size_t *coin_res = (size_t *)calloc(max_coins, sizeof(size_t));
     if (!coin_val || !coin_res) {
         free(sieve); free(min_prime);
-        free(coin_val); free(coin_res);
+        mem_free(coin_val); free(coin_res);
         return 0;
     }
 
@@ -99,12 +101,12 @@ seq_t a(idx_t n)
 
     /* ----------------------------------------------------------- */
     /* 4.  Dijkstra on residues 0 .. n-1 */
-    seq_t *dist   = (seq_t *)calloc((size_t)n, sizeof(seq_t));
+    seq_t *dist   = mem_new(seq_t, (size_t)n);
     bool *seen    = (bool *)calloc((size_t)n, sizeof(bool));
     bool *visited = (bool *)calloc((size_t)n, sizeof(bool));
     if (!dist || !seen || !visited) {
-        free(coin_val); free(coin_res);
-        free(dist); free(seen); free(visited);
+        mem_free(coin_val); free(coin_res);
+        mem_free(dist); free(seen); free(visited);
         return 0;
     }
 
@@ -155,8 +157,8 @@ seq_t a(idx_t n)
 
     /* ----------------------------------------------------------- */
     /* 6.  Clean up */
-    free(coin_val); free(coin_res);
-    free(dist);    free(seen); free(visited);
+    mem_free(coin_val); free(coin_res);
+    mem_free(dist);    free(seen); free(visited);
 
     return frob;
 }

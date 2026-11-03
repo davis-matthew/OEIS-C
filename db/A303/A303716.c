@@ -12,12 +12,14 @@
  *            answered efficiently
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 28, u64 n <= 57, u128 n <= 115,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     /* Ensure the cache contains at least the first 9 terms */
     if (cached_n < 9) {
-        cache = (seq_t*)realloc(cache, 9 * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, 9);
         for (idx_t i = 0; i < 9; ++i) {
             cache[i] = init[i];
         }
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 
     /* Extend the cache up to n if needed */
     if (n > cached_n) {
-        seq_t *tmp = (seq_t*)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp) {
             /* Allocation failed; return 0 (should not happen with valid input) */
             return 0;

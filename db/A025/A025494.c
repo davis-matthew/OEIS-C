@@ -10,14 +10,35 @@
  *            selecting perfect squares.)
  * Range:     u8 none, u16 none, u32 none, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *squares = NULL;     /* array of found squares          */
 static size_t sq_cnt = 0;         /* number of squares stored        */
@@ -28,8 +49,8 @@ static void add_square(seq_t val)
 {
     if (sq_cap == 0 || sq_cnt == sq_cap) {
         size_t new_cap = (sq_cap == 0) ? 64 : sq_cap << 1;
-        seq_t *tmp = (seq_t *)realloc(squares, new_cap * sizeof(seq_t));
-        if (!tmp) { free(squares); exit(1); }
+        seq_t *tmp = mem_resize(seq_t, squares, new_cap);
+        if (!tmp) { mem_free(squares); exit(1); }
         squares = tmp;
         sq_cap = new_cap;
     }
@@ -72,14 +93,14 @@ static void init_sequence(void)
 
     /* Sort and deduplicate */
     if (sq_cnt > 1) {
-        qsort(squares, sq_cnt, sizeof(seq_t), cmp_seq);
+        mem_qsort(squares, sq_cnt, sizeof(seq_t), cmp_seq);
         size_t uniq = 1;
         for (size_t i = 1; i < sq_cnt; ++i) {
             if (squares[i] != squares[uniq - 1])
                 squares[uniq++] = squares[i];
         }
         sq_cnt = uniq;
-        seq_t *tmp = (seq_t *)realloc(squares, sq_cnt * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, squares, sq_cnt);
         if (tmp) squares = tmp;
     }
     initialized = true;

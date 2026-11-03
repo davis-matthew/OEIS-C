@@ -10,12 +10,14 @@
  *            a(3)=7
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, free, exit */
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* memoised values, 1‑based */
 static idx_t  seq_cap = 0;         /* allocated array size */
@@ -32,7 +34,7 @@ static void ensure_capacity(idx_t up_to)
     while (new_cap <= up_to)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp)
         exit(EXIT_FAILURE);
     seq = tmp;

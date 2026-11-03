@@ -12,7 +12,8 @@
  *            coin‑change DP for the corresponding odd weights, a...
  * Range:     u8 n <= 44, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Value for n = 0 is defined as 1 by OEIS. */
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
         /* Dynamic programming array for the coin‑change problem.
            dp[t] = number of ways to obtain sum t using the allowed
            odd weights for this r.  Size is n+1. */
-        seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *dp = mem_new(seq_t, (n + 1));
         if (!dp) return (seq_t)0; /* allocation failed */
         for (idx_t i = 0; i <= n; ++i)
             dp[i] = (seq_t)0;
@@ -66,7 +68,7 @@ seq_t a(idx_t n) {
             answer += dp[(idx_t)T];
         }
 
-        free(dp);
+        mem_free(dp);
     }
 
     return answer;

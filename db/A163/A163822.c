@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = number of divisors d of 2n such that gcd(d-1, 2n/d-1) = 1
- * Range:     u8 n <= 1159, u16 n <= 9015, u32 n <= 9015, u64 n <= 9015,
- *            u128 n <= 9015, big any n
+ * Range:     u8 n <= 1159, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 115 terms through n = 9015 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

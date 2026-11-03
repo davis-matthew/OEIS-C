@@ -9,7 +9,8 @@
  *            memoizes computed values for out‑of‑order calls
  * Range:     u8 n <= 120, u16 n <= 120, u32 n <= 120, u64 n <= 120,
  *            u128 n <= 120, big any n
- * Helpers:   gpf
+ * Validated: partial, pass, 121 terms through n = 120 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* static cache for memoization */
 static seq_t *cache = NULL;
@@ -32,13 +34,13 @@ static void cache_ensure_capacity(size_t needed)
     size_t new_cap = cache_cap ? cache_cap << 1 : 4;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr)         /* allocation failure: abort silently */
         return;
     if (cache) {
         for (size_t i = 0; i < cache_len; ++i)
             new_arr[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_arr;
     cache_cap = new_cap;
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
         }
         uint64_t sum = (uint64_t)cache[(size_t)(i - 1)] +
                        (uint64_t)cache[(size_t)(i - 3)];
-        uint64_t p   = gpf(sum);
+        uint64_t p   = largest_prime_factor(sum);
         cache[(size_t)i] = (seq_t)p;
     }
     cache_len = (size_t)n + 1;

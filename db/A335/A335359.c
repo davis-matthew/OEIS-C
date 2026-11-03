@@ -11,13 +11,15 @@
  *            Y‑coordinate
  * Range:     u8 n <= 5156, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 101 terms through n = 8090 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* state for the on‑demand generation of the sequence */
 static seq_t *Y_seq = NULL;    /* array of Y‑coordinates */
@@ -87,7 +89,7 @@ static void ensure_generated_up_to(idx_t n)
     size_t needed = (size_t)pow4 + 1;          /* number of vertices needed */
 
     /* allocate / reallocate the array */
-    Y_seq = (seq_t *)realloc(Y_seq, needed * sizeof(seq_t));
+    Y_seq = mem_resize(seq_t, Y_seq, needed);
     Y_cap = needed;
     Y_len = 0;
 

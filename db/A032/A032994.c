@@ -7,7 +7,8 @@
  * Formula:   a(n) = n‑th integer whose base‑12 digits differ by at least 4
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   good_base12
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,25 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/good_base12.h"
+
+/* Helper: check if a positive integer has base‑12 digits that differ
+   by at least 4 between consecutive digits. */
+static bool good_base12(seq_t value)
+{
+    if (value == 0)        /* 0 is not part of the sequence */
+        return false;
+    unsigned prev = (unsigned)(value % 12);
+    value /= 12;
+    while (value > 0) {
+        unsigned d = (unsigned)(value % 12);
+        unsigned diff = (prev > d) ? (prev - d) : (d - prev);
+        if (diff < 4)
+            return false;
+        prev = d;
+        value /= 12;
+    }
+    return true;
+}
 
 /* Main sequence function.  It returns the n‑th valid number, with
    n >= 1.  For n < 1 the return value is 0. */

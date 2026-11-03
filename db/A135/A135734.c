@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 2, i16 n <= 10, i32 n <= 208, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 49 terms through n = 961 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,9 @@
 */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
 
 static uint32_t *prime_cache = NULL;   /* stored primes, 1‑based index = array index+1   */

@@ -10,7 +10,8 @@
  *            a(5)=1
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 17, u64 n <= 31, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,22 +38,21 @@ seq_t a(idx_t n)
         if (new_len <= n)
             new_len = n + 1;
 
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_len);
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache)
             abort();  /* allocation failure */
 
         /* Copy existing values, if any */
         if (cache != NULL)
-            memcpy(new_cache, cache, sizeof(seq_t) * cache_len);
+            mem_copy(new_cache, cache, sizeof(seq_t) * cache_len);
 
         /* Initialise newly allocated slots (optional, 0 is safe) */
         if (new_cache + cache_len < new_cache + new_len)
-            memset(new_cache + cache_len, 0,
-                   sizeof(seq_t) * (new_len - cache_len));
+            mem_set(new_cache + cache_len, 0, sizeof(seq_t) * (new_len - cache_len));
 
         /* Replace old cache */
         if (cache != NULL)
-            free(cache);
+            mem_free(cache);
         cache = new_cache;
         cache_len = new_len;
     }

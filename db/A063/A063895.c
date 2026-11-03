@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 19, u32 n <= 33, u64 n <= 61, u128 n <= 114,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  *     a(n) = Σ_{i=1}^{⌊(n‑1)/2⌋} a(i) * a(n‑i)
  *            + (n even ? (a(n/2)‑1) * a(n/2) / 2 : 0)  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*-------------------------  cache support  ------------------------*/
 static seq_t  *cache     = NULL;   /* cache[1] ... cache[n], cache[0] unused      */
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL || cache_cap <= n) {
         idx_t new_cap = cache_cap ? cache_cap << 1 : 4;
         if (new_cap <= n) new_cap = n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
         if (tmp == NULL) exit(EXIT_FAILURE);
         cache = tmp;
         cache_cap = new_cap;

@@ -7,15 +7,23 @@
  * Formula:   a(n) = Sum_{k=0..n} k^(n-k) * Stirling1(n,k)
  * Range:     i8 n <= 5, i16 n <= 6, i32 n <= 10, i64 n <= 16, i128 n <= 18,
  *            big any n
- * Helpers:   seq_alloc_new_array, seq_free_array
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *cache = NULL;
 static idx_t cache_cap = 0;

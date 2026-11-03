@@ -8,8 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 127, u64 n <= 1377,
  *            u128 n <= 1377, big any n
- * Helpers:   degree_uint32, poly_mod_uint32, poly_mul_uint32,
- *            poly_to_decimal_uint32
+ * Validated: standard, pass, 43 terms through n = 1335 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +21,53 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/degree_uint32.h"
-#include "../utils/poly_mod_uint32.h"
-#include "../utils/poly_mul_uint32.h"
-#include "../utils/poly_to_decimal_uint32.h"
+#include "../utils/mem.h"
+
+/* degree of a 32‑bit polynomial (position of highest 1 bit), or -1 if zero */
+static inline int degree_uint32(uint32_t p)
+{
+    int d = -1;
+    while (p) {
+        p >>= 1;
+        d++;
+    }
+    return d;
+}
+
+/* GF(2) polynomial reduction of p modulo mod (mod is monic) */
+static inline uint32_t poly_mod_uint32(uint32_t p, uint32_t mod)
+{
+    int deg_mod = degree_uint32(mod);
+    if (deg_mod < 0) return p;
+    while (degree_uint32(p) >= deg_mod) {
+        unsigned shift = degree_uint32(p) - deg_mod;
+        p ^= mod << shift;
+    }
+    return p;
+}
+
+/* GF(2) polynomial multiplication (no modulus), operands fit in 32 bits */
+static inline uint32_t poly_mul_uint32(uint32_t a, uint32_t b)
+{
+    uint32_t res = 0;
+    while (b) {
+        if (b & 1u) res ^= a;
+        a <<= 1;
+        b >>= 1;
+    }
+    return res;
+}
+
+/* Convert binary polynomial to decimal integer represented in seq_t */
+static seq_t poly_to_decimal_uint32(uint32_t poly, int deg)
+{
+    seq_t val = 0;
+    for (int i = deg; i >= 0; --i) {
+        unsigned bit = (poly >> i) & 1u;
+        val = val * 10 + bit;
+    }
+    return val;
+}
 
 /* List of all monic irreducible polynomials found so far (by degree). */
 static uint32_t *prev_poly = NULL;
@@ -65,7 +108,7 @@ static void ensure_capacity(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 64;
     if (new_cap < need) new_cap = need;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap = new_cap;
 }
 

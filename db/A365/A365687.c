@@ -12,7 +12,8 @@
  *            otherwise count the tuples (a₁,…,aₖ) of coprime...
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 static void dfs_count(size_t idx, uint64_t current, seq_t *cnt,
                       uint64_t n, const uint64_t *primes,
@@ -87,10 +88,10 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     if (k == 1)
-        return phi(n);
+        return totient(n);
 
     if (k == 2) {
-        seq_t phi_n = phi(n);
+        seq_t phi_n = totient(n);
         return phi_n / (seq_t)2;
     }
 

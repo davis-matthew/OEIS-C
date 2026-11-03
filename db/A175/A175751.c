@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   big_pow, build_primes_upto, seq_mul
+ * Validated: standard, pass, 51 terms through n = 973 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,13 +17,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* OEIS A175751: Numbers with 44 divisors.
    Numbers of the forms p^43, p^21*q, p^10*q^3 and p^10*q*r with distinct primes. */
 
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <string.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Dynamic array for the sequence terms. */
 static seq_t *seq_arr = NULL;
@@ -34,7 +41,7 @@ static inline void push_val(seq_t v)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 128;
-        seq_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, seq_arr, new_cap);
         seq_cap = new_cap;
     }
     seq_arr[seq_len++] = v;
@@ -71,12 +78,12 @@ static void init_sequence(void)
     build_primes_upto(PRIME_LIMIT, &primes, &primes_cnt);
 
     /* 1. p^43 (only prime 2 produces a value <= LIMIT). */
-    seq_t p43 = big_pow((seq_t)2, (seq_t)43);
+    seq_t p43 = ipow((seq_t)2, (seq_t)43);
     if (p43 <= LIMIT) push_val(p43);
 
     /* 2. p^21 * q  (p and q distinct). */
     for (size_t i = 0; i < primes_cnt; ++i) {
-        seq_t p21 = big_pow((seq_t)primes[i], (seq_t)21);
+        seq_t p21 = ipow((seq_t)primes[i], (seq_t)21);
         if (p21 > LIMIT) break;           /* larger p gives larger p21 */
         for (size_t j = 0; j < primes_cnt; ++j) {
             if (primes[j] == primes[i]) continue;
@@ -88,11 +95,11 @@ static void init_sequence(void)
 
     /* 3. p^10 * q^3  (p and q distinct). */
     for (size_t i = 0; i < primes_cnt; ++i) {
-        seq_t p10 = big_pow((seq_t)primes[i], (seq_t)10);
+        seq_t p10 = ipow((seq_t)primes[i], (seq_t)10);
         if (p10 > LIMIT) break;           /* larger p gives larger p10 */
         for (size_t j = 0; j < primes_cnt; ++j) {
             if (primes[j] == primes[i]) continue;
-            seq_t q3 = big_pow((seq_t)primes[j], (seq_t)3);
+            seq_t q3 = ipow((seq_t)primes[j], (seq_t)3);
             seq_t val = seq_mul(p10, q3);
             if (val > LIMIT) break;        /* q increases ⇒ val increases */
             push_val(val);
@@ -101,7 +108,7 @@ static void init_sequence(void)
 
     /* 4. p^10 * q * r  (p,q,r distinct, q < r to avoid duplicates). */
     for (size_t i = 0; i < primes_cnt; ++i) {
-        seq_t p10 = big_pow((seq_t)primes[i], (seq_t)10);
+        seq_t p10 = ipow((seq_t)primes[i], (seq_t)10);
         if (p10 > LIMIT) break;
         for (size_t j = 0; j < primes_cnt; ++j) {
             if (primes[j] == primes[i]) continue;
@@ -117,7 +124,7 @@ static void init_sequence(void)
     }
 
     /* Sort and remove duplicates. */
-    qsort(seq_arr, seq_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(seq_arr, seq_len, sizeof(seq_t), cmp_seq);
     size_t uniq = 0;
     for (size_t i = 0; i < seq_len; ++i) {
         if (uniq == 0 || seq_arr[i] != seq_arr[uniq - 1]) {

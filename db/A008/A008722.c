@@ -9,12 +9,14 @@
  *            a(7)=0, a(8)=5, a(9)=1, a(10)=6, a(11)=2, a(12)=7, a(13)=3)
  * Range:     u8 n <= 125, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 896 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of computed terms */
 static size_t cache_len = 0;     /* number of terms currently stored (next free index) */
@@ -32,12 +34,12 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap : 16;
         while (new_cap < n + 1)
             new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache)
             exit(EXIT_FAILURE);  /* allocation failure */
         for (size_t i = 0; i < cache_len; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

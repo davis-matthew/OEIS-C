@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 24, i16 n <= 55, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *A_cache = NULL;          /* cache for a(n) values   */
 static idx_t  A_cache_size = 0;        /* number of valid entries */
@@ -39,7 +41,7 @@ static void ensure_cache_capacity(idx_t needed)
     size_t new_cap = A_cache_cap ? A_cache_cap : 16;
     while (new_cap < required) new_cap <<= 1;
 
-    seq_t *new_arr = (seq_t *)realloc(A_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, A_cache, new_cap);
     if (!new_arr) exit(EXIT_FAILURE); /* allocation failed */
 
     A_cache = new_arr;
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
 {
     if (A_cache == NULL) {
         size_t init_cap = 16;
-        A_cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        A_cache = mem_new(seq_t, init_cap);
         if (!A_cache) exit(EXIT_FAILURE);
         for (size_t i = 0; i < 13; ++i)
             A_cache[i] = A_init_vals[i];

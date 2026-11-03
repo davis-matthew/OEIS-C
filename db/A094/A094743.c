@@ -9,7 +9,8 @@
  *            (prime p such that p-2 is also prime)
  * Range:     u8 n <= 18, u16 n <= 861, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ----- global static data ----- */
 static seq_t *seq = NULL;      /* cache of sequence values           */
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     /* initialise cache and prime list */
     if (seq_len == 0) {
         seq_cap = 64;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)2;          /* a(1) = 2 */
         seq_len = 1;
 
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
             if (next_candidate > 2 && is_prime(next_candidate - 2)) {
                 if (seq_len >= seq_cap) {
                     seq_cap *= 2;
-                    seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, seq_cap);
                 }
                 seq[seq_len++] = (seq_t)next_candidate;
             }

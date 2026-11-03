@@ -12,13 +12,14 @@
  *            Catalan(j) * binom(r-1-j, k-1) * binom(r-1-j, k) / (...
  * Range:     u8 n <= 21, u16 n <= 55, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   binom_len
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_len.h"
+#include "../utils/binomial.h"
 
 /* ------------------------------------------------------------ */
 /* multiplicative binomial coefficient (indices are idx_t).     */
@@ -73,8 +74,8 @@ seq_t a(idx_t idx)
         idx_t m = r - 1 - j;              /* m ≥ 1        */
         if (k <= m) {
             seq_t term = c;
-            term *= binom_len(m, k - 1);
-            term *= binom_len(m, k);
+            term *= binomial(m, k - 1);
+            term *= binomial(m, k);
             term /= (seq_t)m;
             sum += term;
         }

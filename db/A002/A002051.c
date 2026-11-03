@@ -8,12 +8,14 @@
  *            A000670(m) = Sum_{k=0..m} Stirling2(m,k)*k!
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 19, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 94 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *st_row = NULL;   /* current Stirling2 row S(rows_done, k) */
 static seq_t *fub = NULL;      /* fub[m] = A000670(m) */
@@ -25,8 +27,8 @@ static void ensure(idx_t m)
     idx_t i, j, k;
     if (st_row == NULL) {
         cap = (m + 1 > 16) ? m + 1 : 16;
-        st_row = (seq_t *)malloc(cap * sizeof(seq_t));
-        fub = (seq_t *)malloc(cap * sizeof(seq_t));
+        st_row = mem_new(seq_t, cap);
+        fub = mem_new(seq_t, cap);
         for (i = 0; i < cap; i++) { st_row[i] = 0; fub[i] = 0; }
         st_row[0] = 1;
         fub[0] = 1;
@@ -36,14 +38,14 @@ static void ensure(idx_t m)
         idx_t nc = cap * 2;
         seq_t *ns, *nf;
         if (nc < m + 1) nc = m + 1;
-        ns = (seq_t *)malloc(nc * sizeof(seq_t));
-        nf = (seq_t *)malloc(nc * sizeof(seq_t));
+        ns = mem_new(seq_t, nc);
+        nf = mem_new(seq_t, nc);
         for (i = 0; i < nc; i++) {
             if (i < cap) { ns[i] = st_row[i]; nf[i] = fub[i]; }
             else { ns[i] = 0; nf[i] = 0; }
         }
-        free(st_row);
-        free(fub);
+        mem_free(st_row);
+        mem_free(fub);
         st_row = ns;
         fub = nf;
         cap = nc;

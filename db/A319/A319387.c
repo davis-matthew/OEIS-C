@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1029, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_palindrome
+ * Validated: standard, pass, 116 terms through n = 8793 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
    such that n – p is also a palindrome.  If no such p exists, return n. */
 
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 seq_t a(idx_t n) {
     /* Convert index to seq_t once for efficient arithmetic. */
@@ -27,7 +28,7 @@ seq_t a(idx_t n) {
     for (idx_t p = 0; p <= n; ++p) {
         seq_t p_seq = (seq_t)p;
         /* Check if both p and n-p are palindromes. */
-        if (is_palindrome(p_seq, 10) && is_palindrome(n_seq - p_seq, 10))
+        if (is_palindrome_base(p_seq, 10) && is_palindrome_base(n_seq - p_seq, 10))
             return p_seq;   /* Found the smallest suitable p. */
     }
 

@@ -7,12 +7,14 @@
  * Formula:   a(n) = (sigma_3(n) - sigma(n))/6
  * Range:     u8 n <= 6, u16 n <= 39, u32 n <= 2465, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 9933 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static caches for divisor sums */
 static seq_t *sigma1 = NULL;
@@ -23,8 +25,8 @@ static idx_t cached_max = 0;
 static void recompute_cache(idx_t n)
 {
     /* Allocate arrays of size n+1 and zero them */
-    sigma1 = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    sigma3 = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    sigma1 = mem_new(seq_t, (size_t)(n + 1));
+    sigma3 = mem_new(seq_t, (size_t)(n + 1));
     if (!sigma1 || !sigma3) {
         /* Allocation failed – abort */
         exit(1);

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 865, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_sf_semiprime_u64
+ * Validated: standard, pass, 73 terms through n = 9914 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,30 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_sf_semiprime_u64.h"
+
+/* helper: true if x is a square‑free semiprime (product of two
+ * distinct primes).  Only defined for x ≤ 0xFFFFFFFFFFFFFFFF. */
+static bool is_sf_semiprime_u64(uint64_t x)
+{
+    if (x < 6) return false;           /* 2·3 = 6 is the smallest one   */
+    uint32_t factors = 0;
+    for (uint64_t p = 2; p * p <= x; ++p)
+    {
+        if (x % p == 0)
+        {
+            ++factors;
+            x /= p;
+            if (x % p == 0)          /* square factor -> not square‑free */
+                return false;
+            if (factors > 2)         /* more than two prime factors */
+                return false;
+        }
+    }
+    if (x > 1) {                      /* remaining factor > 1         */
+        ++factors;
+    }
+    return factors == 2;
+}
 
 /* helper: trial and error prime test for 64‑bit numbers */
 static bool is_prime_uint64(uint64_t x)

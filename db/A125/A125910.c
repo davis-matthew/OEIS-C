@@ -9,22 +9,24 @@
  * Formula:   a(n) = 15*7^n-45*6^n+65*5^n-55*4^n+28*3^n-8*2^n+1
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 44,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 37 terms through n = 996 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;          /* only for completeness; offset is 1 */
-    seq_t pow2 = pow_uint(2, n);
-    seq_t pow3 = pow_uint(3, n);
-    seq_t pow4 = pow_uint(4, n);
-    seq_t pow5 = pow_uint(5, n);
-    seq_t pow6 = pow_uint(6, n);
-    seq_t pow7 = pow_uint(7, n);
+    seq_t pow2 = ipow_u64_idx(2, n);
+    seq_t pow3 = ipow_u64_idx(3, n);
+    seq_t pow4 = ipow_u64_idx(4, n);
+    seq_t pow5 = ipow_u64_idx(5, n);
+    seq_t pow6 = ipow_u64_idx(6, n);
+    seq_t pow7 = ipow_u64_idx(7, n);
 
     seq_t result = (seq_t)15 * pow7
                  - (seq_t)45 * pow6

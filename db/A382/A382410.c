@@ -10,12 +10,14 @@
  *            Lucas(0)=2, Lucas(1)=1, Lucas(n)=Lucas(n-1)+Lucas(n-2)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* initialise with first two Lucas numbers */
     if (lucas == NULL) {
-        lucas = (seq_t *)malloc(2 * sizeof(seq_t));
+        lucas = mem_new(seq_t, 2);
         if (lucas == NULL) {
             /* memory failure – abort */
             abort();
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* grow cache if needed */
     if (n >= cap) {
         idx_t newcap = n + 1;  /* one more than n */
-        seq_t *t = (seq_t *)realloc(lucas, newcap * sizeof(seq_t));
+        seq_t *t = mem_resize(seq_t, lucas, newcap);
         if (t == NULL) {
             /* memory failure – abort */
             abort();

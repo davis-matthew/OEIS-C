@@ -9,12 +9,14 @@
  *            Product_{k>0} (1 - x^(8k))^2 / (1 + x^k)
  * Range:     i8 n <= 2500, i16 n <= 2500, i32 n <= 2500, i64 n <= 2500,
  *            i128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 2181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached coefficients */
 static size_t cache_size = 0;        /* size of cache */
@@ -25,8 +27,8 @@ static void compute_series(idx_t n)
     size_t N = (size_t)n;
     size_t size = N + 1;
 
-    seq_t *a = (seq_t*)malloc(size * sizeof(seq_t));
-    seq_t *b = (seq_t*)malloc(size * sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, size);
+    seq_t *b = mem_new(seq_t, size);
     if (!a || !b) return;          /* allocation failed */
 
     /* initialise: coefficient of x^0 is 1, the rest 0 */
@@ -60,10 +62,10 @@ static void compute_series(idx_t n)
     }
 
     /* a now holds the desired coefficients */
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     cache = a;
     cache_size = size;
-    free(b);           /* the unneeded buffer */
+    mem_free(b);           /* the unneeded buffer */
 }
 
 seq_t a(idx_t n)

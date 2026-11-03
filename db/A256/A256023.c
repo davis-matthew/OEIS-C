@@ -13,7 +13,8 @@
  *            a(5)=3500, a(6)=9820, * a(7)=27424, a(8)=76068, a(9)=212126,...
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 18, u64 n <= 40, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #if !defined(MAX_SEQ_CACHE)
 #define MAX_SEQ_CACHE 20000   /* sufficient for n up to ~10000 */
 #endif
+#include "../utils/mem.h"
 
 /* static cache for computed values */
 static seq_t seq_cache[MAX_SEQ_CACHE + 1];
@@ -59,13 +61,13 @@ seq_t a(idx_t n)
              * taken.  The cast is safe because for arbitrary-precision
              * types the compiler generates appropriate constructors
              * (e.g. boost::multiprecision::cpp_int).  */
-            seq_t *new_cache = (seq_t *)calloc(n + 1, sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, n + 1);
             if (!new_cache) return 0;          /* allocation failed */
             for (idx_t i = 1; i <= max_computed; ++i) new_cache[i] = seq_cache[i];
             /* copy existing cache and replace */
-            free((void *)seq_cache);           /* free static allocation */
+            mem_free(seq_cache);           /* free static allocation */
             /* use the newly allocated cache for future calls */
-            memcpy(new_cache, seq_cache, (max_computed + 1) * sizeof(seq_t));
+            mem_copy(new_cache, seq_cache, (max_computed + 1) * sizeof(seq_t));
             /* (overwrite pointer indirectly by using a global pointer if desired) */
             /* For simplicity we abort if we cannot grow – assume n ≤ MAX_SEQ_CACHE. */
             return 0; /* should not reach here under normal constraints */

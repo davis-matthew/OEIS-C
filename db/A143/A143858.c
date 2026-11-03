@@ -12,6 +12,7 @@
  *            of the array R(m,n) = C(n+1,2m)
  * Range:     u8 n <= 30, u16 n <= 95, u32 n <= 333, u64 n <= 1195,
  *            u128 n <= 4312, big any n
+ * Validated: standard, pass, 78 terms through n = 6813 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

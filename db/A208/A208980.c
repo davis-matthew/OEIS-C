@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 89, u16 n <= 9107, u32 n <= 9107, u64 n <= 9107,
- *            u128 n <= 9107, big any n
- * Helpers:   none
+ * Range:     u8 n <= 89, u16 n <= 27714, u32 n <= 85667, u64 n <= 85667,
+ *            u128 n <= 85667, big any n
+ * Validated: standard, pass, 87 terms through n = 9107 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Returns the n-th element of the sequence (1‑based index). */
 seq_t a(idx_t n)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < isWinCap; ++i) isWin[i] = false;
 
         winsCap = 16;                     /* initial capacity for wins */
-        wins = (seq_t*)malloc(winsCap * sizeof(seq_t));
+        wins = mem_new(seq_t, winsCap);
         if (!wins) return (seq_t)0;       /* out of memory */
         winsSize = 0;
 
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
             /* Append i to the array of winning numbers */
             if (winsSize == winsCap) {
                 size_t newCap = winsCap << 1;
-                seq_t *tmp = (seq_t*)realloc(wins, newCap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, wins, newCap);
                 if (!tmp) return (seq_t)0;
                 wins = tmp;
                 winsCap = newCap;

@@ -8,7 +8,8 @@
  *            Φ₃₉₉(x)
  * Range:     i8 n <= 216, i16 n <= 216, i32 n <= 216, i64 n <= 216,
  *            i128 n <= 216, big any n
- * Helpers:   none
+ * Validated: full, pass, 217 terms through n = 216 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *phi_399 = NULL;      /* coefficients of Φ₃₉₉, lowest term first (index 0) */
 static size_t deg_phi_399 = 0;     /* degree of Φ₃₉₉ */
@@ -65,7 +67,7 @@ static void init_phi_399(void)
     for (size_t idx = 0; idx < dcount; ++idx) {
         idx_t n = divisors[idx];
         if (n == 1) {   /* Φ₁(x) = x - 1 */
-            polys[idx] = (seq_t *)malloc(2 * sizeof(seq_t));
+            polys[idx] = mem_new(seq_t, 2);
             polys[idx][0] = (seq_t)-1;
             polys[idx][1] = (seq_t)1;
             deg[idx] = 1;
@@ -107,7 +109,7 @@ static void init_phi_399(void)
         }
 
         /* store result */
-        polys[idx] = (seq_t *)malloc((Rdeg + 1) * sizeof(seq_t));
+        polys[idx] = mem_new(seq_t, (Rdeg + 1));
         for (i = 0; i <= Rdeg; ++i) polys[idx][i] = Res[i];
         deg[idx] = Rdeg;
     }

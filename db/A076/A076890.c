@@ -8,14 +8,56 @@
  *            A000720( A002113(n) ))
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   extend_sieve
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/extend_sieve.h"
+
+/* ---------- prime sieve with prefix prime counts ---------- */
+static void extend_sieve(uint32_t new_limit,
+                         uint32_t **pi_pref, size_t *cur_limit) {
+    if (new_limit <= *cur_limit) return;
+
+    /* allocate prefix array of required size */
+    uint32_t *pi = (uint32_t*)realloc(*pi_pref,
+                                     (new_limit + 1) * sizeof(uint32_t));
+    if (!pi) {
+        /* allocation failure – abort by returning 0 which will be
+           handled by the calling function as an error value */
+        *pi_pref = NULL;
+        return;
+    }
+    *pi_pref = pi;
+
+    /* temporary prime flag array */
+    uint8_t *is_prime = (uint8_t*)malloc(new_limit + 1);
+    if (!is_prime) return;
+
+    for (uint32_t i = 0; i <= new_limit; ++i) is_prime[i] = 1;
+    if (new_limit >= 0) is_prime[0] = 0;
+    if (new_limit >= 1) is_prime[1] = 0;
+
+    for (uint32_t i = 2; i * i <= new_limit; ++i) {
+        if (is_prime[i]) {
+            for (uint32_t j = i * i; j <= new_limit; j += i)
+                is_prime[j] = 0;
+        }
+    }
+
+    /* fill prefix counts */
+    uint32_t cnt = 0;
+    for (uint32_t i = 0; i <= new_limit; ++i) {
+        if (is_prime[i]) ++cnt;
+        pi[i] = cnt;
+    }
+
+    free(is_prime);
+    *cur_limit = new_limit;
+}
 
 /* ---------- helper: power of 10 (int <= 10) ---------- */
 static uint32_t pow10_int(int e) {

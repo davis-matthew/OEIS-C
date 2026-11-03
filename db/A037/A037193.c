@@ -11,14 +11,32 @@
  *            magnitude word ("mille", "million", …). * The imple...
  * Range:     u8 n <= 103, u16 n <= 103, u32 n <= 103, u64 n <= 103,
  *            u128 n <= 103, big any n
- * Helpers:   _magnitude_plural, _magnitude_singular
+ * Validated: partial, pass, 104 terms through n = 103 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>   /* for uint64_t; idx_t is defined elsewhere */
-#include "../utils/_magnitude_plural.h"
-#include "../utils/_magnitude_singular.h"
+
+/* --------------------------------------------------------------------
+ * Consonant counts for the magnitude words.
+ * Singular and plural are used according to the group value.
+ * -------------------------------------------------------------------- */
+static seq_t _magnitude_singular(idx_t idx)
+{
+    if (idx == 1)           /* mille */
+        return 3;
+    return (idx & 1) ? 5 : 4; /* 2: million (4), 3: milliard (5),
+                                 4: billion (4), 5: billiard (5), … */
+}
+
+static seq_t _magnitude_plural(idx_t idx)
+{
+    if (idx == 1)           /* mille has no plural form */
+        return 3;
+    return _magnitude_singular(idx) + 1; /* add the final 's' */
+}
 
 /* Consonant counts for the units 0–19. */
 static const seq_t _UNITS[20] = {

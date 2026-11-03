@@ -12,7 +12,8 @@
  *            may come in any order. The algorithm is O(n) for t...
  * Range:     u8 n <= 101, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static memoisation storage */
 static seq_t *A        = NULL;   /* a(n) values */
@@ -59,7 +61,7 @@ static void ensure_A_cap(idx_t need)
     if (A_cap > (size_t)need) return;
     size_t new_cap = A_cap ? A_cap : 16;
     while (new_cap <= (size_t)need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, A, new_cap);
     if (!tmp) abort();                    /* memory exhaustion */
     A      = tmp;
     A_cap  = new_cap;
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
     /* initialise static tables on first call */
     if (!A) {
         A_cap   = 16;
-        A       = (seq_t *)calloc(A_cap, sizeof(seq_t));
+        A       = mem_new(seq_t, A_cap);
         if (!A) abort();
 
         used_cap = 16;

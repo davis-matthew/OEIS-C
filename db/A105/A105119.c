@@ -10,14 +10,15 @@
  *            (e_0 receives e_k)
  * Range:     u8 n <= 51, u16 n <= 271, u32 n <= 2367, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint64
+ * Validated: standard, pass, 86 terms through n = 9717 (2026-11-01)
+ * Helpers:   ipow_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint64.h"
+#include "../utils/ipow_u64.h"
 
 seq_t a(idx_t n) {
     if (n == 1) return 1;                 /* Special case: 1 has no primes */
@@ -48,7 +49,7 @@ seq_t a(idx_t n) {
     seq_t result = 1;
     for (int i = 0; i < m; ++i) {
         uint64_t e_rot = (i == 0) ? exps[m - 1] : exps[i - 1];
-        seq_t term = pow_uint64(primes[i], e_rot);
+        seq_t term = ipow_u64(primes[i], e_rot);
         result *= term;
     }
     return result;

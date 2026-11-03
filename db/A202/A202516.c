@@ -9,13 +9,17 @@
  *            Σ_{k≥1} (2^k+3^k)^k * x^k / k )
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"   /* prototype: seq_t big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +34,7 @@ seq_t a(idx_t n)
     /* grow value table as needed */
     if (A_sz <= n) {
         idx_t new_sz = n + 1;
-        seq_t *tmp = (seq_t*)realloc(A, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, new_sz);
         if (!tmp) abort();
         A = tmp;
         /* initialise new entries (except A[0] which will be set later) */
@@ -43,9 +47,9 @@ seq_t a(idx_t n)
         idx_t new_sz = n + 1;
         seq_t *tmp2, *tmp3, *tmpS;
 
-        tmp2 = (seq_t*)realloc(pow2, new_sz * sizeof(seq_t));
-        tmp3 = (seq_t*)realloc(pow3, new_sz * sizeof(seq_t));
-        tmpS = (seq_t*)realloc(S,    new_sz * sizeof(seq_t));
+        tmp2 = mem_resize(seq_t, pow2, new_sz);
+        tmp3 = mem_resize(seq_t, pow3, new_sz);
+        tmpS = mem_resize(seq_t, S, new_sz);
         if (!tmp2 || !tmp3 || !tmpS) abort();
 
         pow2 = tmp2; pow3 = tmp3; S = tmpS;
@@ -61,7 +65,7 @@ seq_t a(idx_t n)
             pow2[i] = pow2[i-1] * (seq_t)2;
             pow3[i] = pow3[i-1] * (seq_t)3;
             seq_t base = pow2[i] + pow3[i];
-            S[i] = big_pow(base, (seq_t)i);  /* (2^i+3^i)^i */
+            S[i] = ipow(base, (seq_t)i);  /* (2^i+3^i)^i */
         }
         S_sz = n + 1;
     }

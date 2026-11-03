@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 6232, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9367 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static size_t cache_limit = 0;   /* last limit used for precomputation   */
 static seq_t *cache_terms = NULL;/* array of sequence values            */
@@ -77,9 +79,9 @@ static void build_terms(idx_t n)
             if (dp[9 * sz + s] == 1) {
                 if (len == cap) {
                     cap = (cap == 0 ? 128 : cap * 2);
-                    seq_t *tmp = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, cap);
                     if (!tmp) {
-                        free((void *)dp);
+                        free(dp);
                         exit(1);
                     }
                     terms = tmp;
@@ -88,11 +90,11 @@ static void build_terms(idx_t n)
             }
         }
 
-        free((void *)dp);
+        free(dp);
 
         if (len >= (size_t)n) {          /* we have enough terms */
             if (cache_terms)
-                free(cache_terms);
+                mem_free(cache_terms);
             cache_terms = terms;
             cache_len   = len;
             cache_limit = limit;
@@ -101,7 +103,7 @@ static void build_terms(idx_t n)
         }
 
         /* Not enough terms: discard and expand the search limit. */
-        free(terms);
+        mem_free(terms);
         limit <<= 1;                      /* double the limit */
     }
 }

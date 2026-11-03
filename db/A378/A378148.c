@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2519, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_int32, factor_h, floor_sqrt
+ * Validated: standard, pass, 103 terms through n = 9445 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,57 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"   /* floor_sqrt(seq_t) */
-#include "../utils/cmp_int32.h"
-#include "../utils/factor_h.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+static int cmp_int32(const void *p, const void *q)
+{
+    const int32_t *a = (const int32_t *)p;
+    const int32_t *b = (const int32_t *)q;
+    return (*a > *b) - (*a < *b);
+}
+
+/* small factorisation routine for h <= 20000 */
+static void factor_h(uint64_t n, uint64_t *primes, int *exps, size_t *pcount)
+{
+    *pcount = 0;
+    uint64_t p = 2;
+    while (p * p <= n) {
+        if (n % p == 0) {
+            int e = 0;
+            while (n % p == 0) {
+                n /= p;
+                ++e;
+            }
+            primes[(*pcount)]   = p;
+            exps[(*pcount)] = e;
+            ++(*pcount);
+        }
+        ++p;
+    }
+    if (n > 1) {
+        primes[(*pcount)]   = n;
+        exps[(*pcount)] = 1;
+        ++(*pcount);
+    }
+}
 
 /* recursively generate all divisors of h² */
 static void gen_divisors_rec(const uint64_t *primes,

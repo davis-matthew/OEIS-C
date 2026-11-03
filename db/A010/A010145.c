@@ -6,8 +6,9 @@
  * Keywords:  nonn, cofr, easy
  * Formula:   a(n) = the n‑th term of the continued fraction expansion of
  *            sqrt(61)
- * Range:     u8 n <= 9941, u16 n <= 9941, u32 n <= 9941, u64 n <= 9941,
- *            u128 n <= 9941, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 94 terms through n = 9941 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,12 +8,14 @@
  *            sequence is the coefficient expansion of (1+10x)/(1-101x^2)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     if (pow_cache == NULL) {
         pow_cap = 1;
-        pow_cache = (seq_t *)realloc(NULL, pow_cap * sizeof(seq_t));
+        pow_cache = mem_resize(seq_t, NULL, pow_cap);
         if (!pow_cache) return 0;          /* allocation failed; return 0 as fallback */
         pow_cache[0] = (seq_t)1;           /* 101^0 = 1 */
         pow_max = 0;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         if (k + 1 > pow_cap) {
             idx_t new_cap = pow_cap * 2;
             if (new_cap <= k) new_cap = k + 1;
-            seq_t *temp = (seq_t *)realloc(pow_cache, new_cap * sizeof(seq_t));
+            seq_t *temp = mem_resize(seq_t, pow_cache, new_cap);
             if (!temp) return 0;           /* allocation failed; return 0 */
             pow_cache = temp;
             pow_cap = new_cap;

@@ -9,14 +9,16 @@
  *            a(p^e) = p^e - for p ≥ 5: a(p^e) = 1 + floor(p^(e+1)/(2p+2))
  * Range:     u8 n <= 16, u16 n <= 4412, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 76 terms through n = 9651 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* inclusion of the big‑integer utility for raising integers to powers
    (required on all builds) */
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -42,12 +44,12 @@ seq_t a(idx_t n)
         /* Contribution of the prime power p^e */
         seq_t contrib;
         if (p == 2 || p == 3)
-            contrib = pow_uint(p, e);
+            contrib = ipow_u64_idx(p, e);
         else
         {
             /* p >= 5 */
             seq_t denom = (seq_t)(2 * p + 2);
-            seq_t term  = pow_uint(p, e + 1) / denom;
+            seq_t term  = ipow_u64_idx(p, e + 1) / denom;
             contrib = term + (seq_t)1;
         }
 
@@ -62,11 +64,11 @@ seq_t a(idx_t n)
 
         seq_t contrib;
         if (p == 2 || p == 3)
-            contrib = pow_uint(p, e);
+            contrib = ipow_u64_idx(p, e);
         else
         {
             seq_t denom = (seq_t)(2 * p + 2);
-            seq_t term  = pow_uint(p, e + 1) / denom;
+            seq_t term  = ipow_u64_idx(p, e + 1) / denom;
             contrib = term + (seq_t)1;
         }
 

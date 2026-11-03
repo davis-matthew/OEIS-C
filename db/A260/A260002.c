@@ -9,12 +9,27 @@
  *            f(z,x,y-1) + y) (z>0, y>0)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 2, u128 n <= 2,
  *            big any n
- * Helpers:   f_rec
+ * Validated: partial, pass, 3 terms through n = 2 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/f_rec.h"
+static seq_t f_rec(idx_t z, seq_t x, seq_t y)
+{
+    /* base case: third argument zero -> return second argument */
+    if (y == (seq_t)0)
+        return x;
+
+    /* base case: first argument zero -> return sum of the last two */
+    if (z == (idx_t)0)
+        return x + y;
+
+    /* recursive step: compute f(z,x,y-1) once, then use it twice */
+    seq_t m = f_rec(z, x, y - (seq_t)1);   /* f(z,x,y-1)   */
+    seq_t yplus = m + y;                   /* f(z,x,y-1)+y */
+    return f_rec(z - (idx_t)1, m, yplus);
+}
 
 seq_t a(idx_t n)
 {

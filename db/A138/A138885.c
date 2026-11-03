@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,7 +17,7 @@
 /* Sequence A138885: runs of 1 and 0, run lengths are the
    non‑prime numbers (1,4,6,8,9,…), starting with 1. */
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t); */
+#include "../utils/is_prime.h"
 
 /* Return the n‑th term (1‑based). */
 seq_t a(idx_t n)

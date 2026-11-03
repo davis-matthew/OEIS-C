@@ -11,7 +11,8 @@
  *            n-th prime congruent to 7 (mod 8)
  * Range:     u8 n <= 4, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   build_primes_upto, floor_sqrt
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,28 @@
 #include <stdlib.h>
 
 /* Utility to sieve primes up to a given limit */
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 /* Utility to compute integer square root of a seq_t value */
-#include "../utils/floor_sqrt.h"
 
 static uint64_t *primes_all      = NULL;  /* all primes up to current limit */
 static size_t     primes_all_cnt = 0;     /* number of primes in primes_all   */

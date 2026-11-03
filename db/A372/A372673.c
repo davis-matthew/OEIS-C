@@ -9,12 +9,14 @@
  *            phi(k) read by antidiagonals downwards
  * Range:     u8 n <= 796, u16 n <= 9870, u32 n <= 9870, u64 n <= 9870,
  *            u128 n <= 9870, big any n
- * Helpers:   calc_phi
+ * Validated: standard, pass, 121 terms through n = 9633 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/calc_phi.h"
+#include <stdint.h>
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n) {
     if (n == 0)
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
     idx_t col = s - row;          /* k‑index in T */
 
     seq_t prod = (seq_t)row * (seq_t)col;
-    seq_t phi_prod = calc_phi(prod);
-    seq_t phi_col  = calc_phi((seq_t)col);
+    seq_t phi_prod = totient_seq(prod);
+    seq_t phi_col  = totient_seq((seq_t)col);
     return phi_prod / phi_col;
 }

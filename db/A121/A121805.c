@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, fini, nice
  * Formula:   not stated
- * Range:     u8 n <= 7, u16 n <= 1293, u32 n <= 7750, u64 n <= 7750,
- *            u128 n <= 7750, big any n
- * Helpers:   none
+ * Range:     u8 n <= 7, u16 n <= 1293, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 61 terms through n = 7750 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* 1‑based cache (index 1 contains a(1)) */
 static idx_t max_computed = 0;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Allocate or expand the cache as needed */
     if (n > max_computed) {
         idx_t new_size = n + 1;          /* indices 0..n, ignore 0 */
-        cache = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)new_size);
         if (!cache) {                     /* Out of memory; abort */
             return (seq_t)0;
         }

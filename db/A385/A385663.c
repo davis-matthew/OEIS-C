@@ -7,8 +7,9 @@
  * Formula:   a(n) is the decimal integer whose digits are the binary
  *            representation of the n‑th binary number with an even number of
  *            1s
- * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 512, u64 n <= 9128,
- *            u128 n <= 9128, big any n
+ * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 512, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 52 terms through n = 9128 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

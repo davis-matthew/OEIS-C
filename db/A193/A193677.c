@@ -10,13 +10,14 @@
  *            #{ k : 1 ≤ k ≤ ⌊n/2⌋, k is odd, gcd(k,n)=1 } (n≥1)
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   gcd_uint64
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* compute φ(n) for n ≥ 0 (works for n ≤ UINT64_MAX)
    trial division is sufficient for the intended range (n up to ~10⁴) */
@@ -54,7 +55,7 @@ seq_t a(idx_t n)
     uint64_t half = n64 >> 1;
     uint64_t cnt  = 0;
     for (uint64_t k = 1; k <= half; ++k) {
-        if ((k & 1ULL) && (gcd_uint64(k, n64) == 1ULL))
+        if ((k & 1ULL) && (gcd_u64(k, n64) == 1ULL))
             ++cnt;
     }
 

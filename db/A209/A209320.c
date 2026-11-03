@@ -9,7 +9,8 @@
  *            that p+1 and q-1 are both practical numbers
  * Range:     u8 n <= 884, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, is_practical_num, is_prime
+ * Validated: standard, pass, 116 terms through n = 9829 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,62 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime.h"
 #include "../utils/build_primes_upto.h"
-#include "../utils/is_practical_num.h"
+#include "../utils/is_prime.h"
+
+/* Test whether x is a practical number.
+   Uses the list of primes for factorisation. */
+static bool is_practical_num(uint64_t x, const uint64_t *primes, size_t prime_cnt)
+{
+    if (x == 1) return true;
+    if ((x & 1ULL) != 0ULL) {          /* only 1 or even numbers can be practical */
+        return false;
+    }
+
+    uint64_t rem = x;
+    seq_t sigma = (seq_t)1;            /* product of σ(p^e) so far */
+    bool first = true;                 /* whether 2 is the first prime factor */
+
+    for (size_t i = 0; i < prime_cnt && primes[i] * primes[i] <= rem; ++i) {
+        uint64_t p = primes[i];
+        int exp = 0;
+        while (rem % p == 0) {
+            rem /= p;
+            ++exp;
+        }
+        if (!exp) continue;
+
+        if (first) {
+            if (p != 2ULL) return false; /* first prime factor must be 2 */
+            first = false;
+        }
+
+        /* Practicality condition: p <= sigma + 1 */
+        if ((seq_t)p > sigma + (seq_t)1) return false;
+
+        /* σ(p^exp) = 1 + p + ... + p^exp */
+        seq_t power = (seq_t)1;
+        seq_t sigma_pe = (seq_t)1;
+        for (int j = 0; j < exp; ++j) {
+            power   = power * (seq_t)p;
+            sigma_pe = sigma_pe + power;
+        }
+        sigma = sigma * sigma_pe;
+    }
+
+    /* Handle remaining prime factor > sqrt(x) */
+    if (rem > 1) {
+        uint64_t p = rem;
+        if (first) {
+            if (p != 2ULL) return false;
+            first = false;
+        }
+        if ((seq_t)p > sigma + (seq_t)1) return false;
+        sigma = sigma * ((seq_t)1 + (seq_t)p);
+    }
+
+    return true;
+}
 
 seq_t a(idx_t n)
 {

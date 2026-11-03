@@ -11,6 +11,7 @@
  *            p ≡ 3 or 7 (mod 10)
  * Range:     u8 n <= 16, u16 n <= 418, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 84 terms through n = 938 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Compute base^exp for small exponents.  The exponent is small enough

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Types supplied by the build environment */
@@ -55,7 +57,7 @@ static void grow_terms(idx_t new_cap)
 {
     if (new_cap <= term_cap)
         return;
-    seq_t *tmp = (seq_t *)realloc(terms, (size_t)new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, (size_t)new_cap);
     if (!tmp) abort();
     terms = tmp;
     term_cap = new_cap;
@@ -104,7 +106,7 @@ static void precompute(void)
 
     /* Allocate initial terms array */
     term_cap = 1024;
-    terms = (seq_t *)malloc((size_t)term_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, (size_t)term_cap);
     if (!terms)
         abort();
     term_len = 0;

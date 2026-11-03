@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 8119 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* local integer square root for unsigned 64‑bit integers */
 static idx_t int_sqrt_u64(idx_t n)
@@ -80,11 +82,11 @@ static void recompute(idx_t new_L)
 
     /* rebuild the sequence array (numbers with exactly two representations) */
     if (seq != NULL) {
-        free(seq);
+        mem_free(seq);
     }
     seq_cap = new_L;                     /* worst‑case upper bound */
     seq_len = 0;
-    seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     if (seq == NULL) exit(1);
 
     for (idx_t v = 1; v <= new_L; ++v) {

@@ -8,22 +8,24 @@
  *            phi = Euler's totient function from utils/phi.h)
  * Range:     i8 n <= 93, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 81 terms through n = 9793 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     /* n is unsigned, n >= 1 by specification */
     if (n & 1UL)  /* odd */
-        return phi(n);
+        return totient(n);
     else          /* even */
     {
-        seq_t phi_n   = phi(n);
-        seq_t phi_half = phi(n >> 1);   /* n/2 */
+        seq_t phi_n   = totient(n);
+        seq_t phi_half = totient(n >> 1);   /* n/2 */
         return phi_n - ((seq_t)4 * phi_half);
     }
 }

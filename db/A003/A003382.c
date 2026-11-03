@@ -7,16 +7,21 @@
  * Formula:   search -- enumerate all sums a^8+b^8+c^8+d^8 with 1<=a<=b<=c<=d
  *            that are <= a limit, then sort and dedupe; double the limit
  *            until there are at least n distinct sums
- * Range:     u8 n <= 1, u16 n <= 15, u32 n <= 2880, u64 n <= 9883,
- *            u128 n <= 9883, big any n
- * Helpers:   a3382_cmp
+ * Range:     u8 n <= 1, u16 n <= 15, u32 n <= 2880, u64 n <= 13540,
+ *            u128 n <= 13540, big any n
+ * Validated: standard, pass, 53 terms through n = 9883 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a3382_cmp.h"
+
+static int a3382_cmp(const void *p, const void *q) {
+    uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+    return (x > y) - (x < y);
+}
 
 static uint64_t *a3382_vals = NULL;
 static idx_t a3382_cnt = 0;

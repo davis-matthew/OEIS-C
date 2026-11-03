@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(n-1) + n for composite n, else -(a(n-1)+n). a(1)=1
  * Range:     i8 n <= 35, i16 n <= 1030, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 73 terms through n = 9777 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Cache for memoisation of sequence values (0‑based: cache[0] = a(1)) */
 static seq_t *cache = NULL;
@@ -28,7 +30,7 @@ static void ensure_cache_capacity(size_t n)
     if (n <= cache_cap) return;
     size_t newcap = cache_cap ? cache_cap * 2 : 1;
     if (newcap < n) newcap = n;
-    seq_t *newptr = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, cache, newcap);
     if (!newptr) abort();  /* allocation failure */
     cache = newptr;
     cache_cap = newcap;

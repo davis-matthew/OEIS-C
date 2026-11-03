@@ -10,12 +10,14 @@
  * Formula:   a(n) = (1 + a(1)+a(2)+...+a(n-1) - n/2) * (n-1)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* initialise cache for n >= 1 */
     if (max_n == 0) {
         capacity = 1;
-        arr = (seq_t*)malloc(capacity * sizeof(seq_t));
+        arr = mem_new(seq_t, capacity);
         if (!arr) return 0;             /* out of memory – return 0 as guard */
         arr[0]   = (seq_t)2;            /* a(1) = 2 */
         max_n    = 1;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         size_t newcap = capacity;
         if (newcap == 0) newcap = 1;
         while (newcap < (size_t)n) newcap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(arr, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, arr, newcap);
         if (!tmp) return 0;          /* out of memory – return 0 as guard */
         arr = tmp;
         capacity = newcap;

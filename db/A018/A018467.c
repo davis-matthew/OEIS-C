@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th divisor of 460 in ascending order
  * Range:     u8 n <= 10, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort on seq_t. */
 static int cmp_seq(const void *a, const void *b)
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        qsort(tmp, 12, sizeof(seq_t), cmp_seq);
+        mem_qsort(tmp, 12, sizeof(seq_t), cmp_seq);
         for (size_t i = 0; i < 12; ++i)
             divs[i] = tmp[i];
         initialized = true;

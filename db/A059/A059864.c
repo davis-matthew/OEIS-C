@@ -9,7 +9,8 @@
  *            0‑based indexing: prime(4)=7, prime(5)=11, etc
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 11, u64 n <= 17, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 310 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
  
 /* --- cache for computed sequence values (1‑based) --- */
@@ -76,8 +78,7 @@ static void ensure_seq(idx_t n) {
         size_t new_cap = (seq_cap == 0) ? 16 : seq_cap << 1;
         while (new_cap < (size_t)n + 1)
             new_cap <<= 1;
-        seq_cache = (seq_t *)realloc(seq_cache,
-                                     new_cap * sizeof(*seq_cache));
+        seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         seq_cap = new_cap;
     }
 

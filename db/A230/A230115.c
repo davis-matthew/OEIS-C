@@ -8,13 +8,16 @@
  * Formula:   a(n) = the nth integer m such that τ(m+1) - τ(m) = 2 (A230115)
  * Range:     u8 n <= 23, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 71 terms through n = 1941 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* --------- Cache handling --------------------------------------------- */
 static seq_t *cached = NULL;      /* dynamic array of found terms           */
@@ -27,7 +30,7 @@ static void grow_cache(void)
 {
     size_t new_cap = (cached_cap == 0) ? 16 : cached_cap * 2;
     /* realloc is required to be cast in C++ */
-    seq_t *tmp = (seq_t *)realloc(cached, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cached, new_cap);
     if (!tmp) abort();            /* unrecoverable memory exhaustion       */
     cached = tmp;
     cached_cap = new_cap;
@@ -45,8 +48,8 @@ seq_t a(idx_t n)
     while (cached_len < n) {
         uint64_t x = (uint64_t)next_scan++;          /* test integer   */
 
-        uint64_t tau_x   = divisor_count_u64(x);
-        uint64_t tau_xp1 = divisor_count_u64(x + 1);
+        uint64_t tau_x   = num_divisors(x);
+        uint64_t tau_xp1 = num_divisors(x + 1);
 
         if (tau_xp1 == tau_x + 2) {                 /* τ(x+1)-τ(x)=2  */
             if (cached_len == cached_cap)

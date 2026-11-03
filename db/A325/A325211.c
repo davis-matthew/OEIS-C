@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{d|n, d<n} τ(n/d) * a(d), a(1)=1
  * Range:     u8 n <= 23, u16 n <= 383, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9758 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence variant: a(1) = 1; for n>1, a(n) = Σ_{d|n, d<n} τ(n/d) * a(d) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static caches */
 static seq_t *a_cache = NULL;     /* a values indexed by n (0 unused) */
@@ -34,8 +36,8 @@ static void ensure_cache(idx_t n)
     idx_t new_size = n + 1;
 
     /* allocate new arrays */
-    seq_t *new_a   = (seq_t *)malloc((size_t)new_size * sizeof(seq_t));
-    seq_t *new_tau = (seq_t *)malloc((size_t)new_size * sizeof(seq_t));
+    seq_t *new_a   = mem_new(seq_t, (size_t)new_size);
+    seq_t *new_tau = mem_new(seq_t, (size_t)new_size);
     if (!new_a || !new_tau) {
         /* allocation failure – abort for safety */
         abort();
@@ -52,8 +54,8 @@ static void ensure_cache(idx_t n)
         for (idx_t i = 0; i < cache_size; ++i) {
             new_a[i] = a_cache[i];
         }
-        free(a_cache);
-        free(tau_cache);
+        mem_free(a_cache);
+        mem_free(tau_cache);
     }
 
     a_cache   = new_a;

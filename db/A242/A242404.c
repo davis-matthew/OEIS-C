@@ -10,6 +10,7 @@
  *            distinct prime divisors of n. The sequence starts at a(1)=0
  * Range:     u8 n <= 38, u16 n <= 144, u32 n <= 472, u64 n <= 1816,
  *            u128 n <= 6682, big any n
+ * Validated: standard, pass, 86 terms through n = 9640 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,8 +10,9 @@
  *            reversal by inspecting the leading decimal digits of 2^n. No
  *            large integer arithmetic (and consequently no overflow) is
  *            required
- * Range:     u8 n <= 566, u16 n <= 6293, u32 n <= 9924, u64 n <= 9924,
- *            u128 n <= 9924, big any n
+ * Range:     u8 n <= 566, u16 n <= 6293, u32 n <= 31180, u64 n <= 31180,
+ *            u128 n <= 31180, big any n
+ * Validated: standard, pass, 119 terms through n = 9924 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

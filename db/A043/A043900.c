@@ -10,13 +10,30 @@
  *            of k+1 does not
  * Range:     u8 n <= 13, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   has_adjacent_5_0
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_adjacent_5_0.h"
+
+/* Return true if x (written in base 6) has the adjacent pair 5‑0 or 0‑5. */
+static bool has_adjacent_5_0(seq_t x)
+{
+    if (x < (seq_t)6) return false;          /* one digit cannot contain a pair */
+    seq_t prev = x % (seq_t)6;               /* least significant digit */
+    x = x / (seq_t)6;
+    while (x > (seq_t)0) {
+        seq_t cur = x % (seq_t)6;
+        if ((prev == (seq_t)0 && cur == (seq_t)5) ||
+            (prev == (seq_t)5 && cur == (seq_t)0))
+            return true;
+        prev = cur;
+        x = x / (seq_t)6;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 48, u32 n <= 149, u64 n <= 500,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 931 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;      /* array of partition counts */
 static idx_t  max_n = 0;      /* highest n that has been computed */
@@ -33,7 +35,7 @@ static void
 recompute(idx_t n)
 {
     /* allocate or reallocate storage */
-    dp = (seq_t *)realloc(dp, (n + 1) * sizeof(seq_t));
+    dp = mem_resize(seq_t, dp, (n + 1));
     /* clear the array */
     for (idx_t i = 0; i <= n; ++i)
         dp[i] = 0;

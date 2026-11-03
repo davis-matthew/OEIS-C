@@ -12,13 +12,23 @@
  *            index. Subsequent calls use the stored values
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   sum_base5
+ * Validated: standard, pass, 117 terms through n = 975 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/sum_base5.h"
+
+static inline seq_t sum_base5(seq_t x)
+{
+    seq_t s = 0;
+    while (x > 0) {
+        s += x % 5;
+        x /= 5;
+    }
+    return s;
+}
 
 /* Dynamic cache shared by all calls */
 #if defined(__cplusplus)

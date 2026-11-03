@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 5, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,13 +19,14 @@
    The function stores computed values in a static cache so that calls
    arrive in any order and are efficient. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* dynamic array of sequence terms   */
 static idx_t  cache_len = 0;       /* number of valid entries currently   */
 
 static void init_cache(void) {
     cache_len = 4;
-    cache = (seq_t *)malloc((size_t)cache_len * sizeof(seq_t));
+    cache = mem_new(seq_t, (size_t)cache_len);
     /* Guard against allocation failure (undefined‑behaviour otherwise) */
     if (!cache) return;
     cache[0] = (seq_t)30;
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n) {
     /* increase size to at least n+1, using a modest growth factor */
     idx_t new_len = n + 1;
     if (new_len < 4) new_len = 4;
-    seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_len);
     if (!tmp) return;            /* allocation failed: silently keep old size */
     cache = tmp;
     /* fill new entries using recurrence */

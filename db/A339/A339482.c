@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} d^(n-d+1) * binomial(d + n/d - 2, d-1)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 26, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow, binomial, factor_u64
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   binomial, factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* provides factor_u64() */
-#include "../utils/binomial.h"    /* provides binomial() */
-#include "../utils/big_pow.h"     /* provides big_pow() */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 /* Recursive helper: accumulate contribution of all divisors */
 static void sum_divisors(idx_t pos, idx_t current, idx_t n,
@@ -30,7 +32,7 @@ static void sum_divisors(idx_t pos, idx_t current, idx_t n,
 {
     if (pos == factor_cnt) {
         /* current is a divisor d of n */
-        seq_t pow_term   = big_pow((seq_t)current,
+        seq_t pow_term   = ipow((seq_t)current,
                                    (seq_t)(n - current + 1));
         idx_t n_div_d    = n / current;
         seq_t bin_term   = binomial(current + n_div_d - 2,

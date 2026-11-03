@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 3355, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 77 terms through n = 8998 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -100,6 +102,6 @@ seq_t a(idx_t n)
     } else {
         /* exponent (2p – 1) / 3 is an integer for p ≡ 2 (mod 3) */
         uint64_t exp = (2 * p - 1) / 3;
-        return mod_pow((seq_t)2, exp, (seq_t)p);
+        return powmod((seq_t)2, exp, (seq_t)p);
     }
 }

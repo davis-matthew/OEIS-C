@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* Standard headers */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *cache       = NULL;     /* array of computed terms   */
@@ -52,7 +54,7 @@ static void ensureCapacity(size_t need)
        trivially copied.  For non‑trivial class types the build must
        provide a trivial constructor (as expected for the big integer
        class used in the project). */
-    seq_t *p = (seq_t *)realloc(cache, newCap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache, newCap);
     if (p == NULL && newCap > 0) abort();   /* allocation failure */
     cache = p;
     cacheCap = newCap;
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cacheCap = 16;
-        cache = (seq_t *)malloc(cacheCap * sizeof(seq_t));
+        cache = mem_new(seq_t, cacheCap);
         if (cache == NULL && cacheCap > 0) abort();
         cacheSize = 0;
     }

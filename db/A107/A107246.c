@@ -7,9 +7,10 @@
  * Formula:   a(n) = Σ_{k=0}^{n} F_8(k)^2 where F_8(0..6)=0, F_8(7)=1, and
  *            F_8(m)=F_8(m-1)+…+F_8(m-8) for m≥8 a(0)=0, a(1)=0, …, a(6)=0,
  *            a(7)=1 …
- * Range:     u8 n <= 11, u16 n <= 15, u32 n <= 23, u64 n <= 30, u128 n <= 30,
+ * Range:     u8 n <= 11, u16 n <= 15, u32 n <= 23, u64 n <= 39, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     {
         /* allocate space for indices 0..7 */
         array_len = 8;                /* indices 0..7 inclusive */
-        F = (seq_t *)calloc(array_len, sizeof(seq_t));
-        S = (seq_t *)calloc(array_len, sizeof(seq_t));
+        F = mem_new(seq_t, array_len);
+        S = mem_new(seq_t, array_len);
         /* initial octanacci terms */
         if (array_len > 7)
         {
@@ -46,8 +48,8 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > array_len)
     {
         size_t new_len = (size_t)n + 1;
-        seq_t *tmpF = (seq_t *)realloc(F, new_len * sizeof(seq_t));
-        seq_t *tmpS = (seq_t *)realloc(S, new_len * sizeof(seq_t));
+        seq_t *tmpF = mem_resize(seq_t, F, new_len);
+        seq_t *tmpS = mem_resize(seq_t, S, new_len);
         if (!tmpF || !tmpS)        /* allocation failure – abort */
         {
             /* on failure return 0; (unlikely in the test environment) */
@@ -56,8 +58,8 @@ seq_t a(idx_t n)
         F = tmpF;
         S = tmpS;
         /* zero the newly allocated part */
-        memset(F + array_len, 0, (new_len - array_len) * sizeof(seq_t));
-        memset(S + array_len, 0, (new_len - array_len) * sizeof(seq_t));
+        mem_set(F + array_len, 0, (new_len - array_len) * sizeof(seq_t));
+        mem_set(S + array_len, 0, (new_len - array_len) * sizeof(seq_t));
         array_len = new_len;
     }
 

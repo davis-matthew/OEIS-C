@@ -11,7 +11,8 @@
  *            t-row+2
  * Range:     u8 n <= 1325, u16 n <= 1325, u32 n <= 1325, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   carryless_sum
+ * Validated: standard, pass, 107 terms through n = 1303 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
 /* The function implements A389424 exactly as defined. */
 
 #include <stdint.h>
-#include "../utils/carryless_sum.h"
+
+/* Carry‑less addition of n + n in base k.  Each digit d is replaced by
+   (2*d) mod k; no carries are propagated. */
+static seq_t carryless_sum(idx_t n, idx_t k)
+{
+    seq_t result = 0;
+    seq_t factor = 1;           /* current power of k */
+    while (n > 0) {
+        idx_t digit = n % k;                /* current digit of n */
+        seq_t d = (seq_t)digit;
+        seq_t doubled = (seq_t)((d * 2) % (seq_t)k);  /* doubled digit mod k */
+        result += doubled * factor;
+        factor *= (seq_t)k;
+        n /= k;
+    }
+    return result;
+}
 
 /* Integer square root of an unsigned 128‑bit value via binary search. */
 static idx_t isqrt_u128(unsigned __int128 x)

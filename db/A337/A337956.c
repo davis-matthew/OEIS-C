@@ -7,14 +7,16 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = binomial(binomial(n+1,2)+3, 4) +
  *            binomial(binomial(n,2),4)
- * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 25, u64 n <= 25, u128 n <= 25,
+ * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
     idx_t t2 = n * (n - 1) / 2;       /* C(n,2)   */
 
     /* Evaluate the outer binomial coefficients. */
-    seq_t v1 = binom(t1, 4);          /* C(t1,4)  */
-    seq_t v2 = binom(t2, 4);          /* C(t2,4)  */
+    seq_t v1 = binomial(t1, 4);          /* C(t1,4)  */
+    seq_t v2 = binomial(t2, 4);          /* C(t2,4)  */
 
     return v1 + v2;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 45, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   good_digits
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,22 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/good_digits.h"
+#include "../utils/mem.h"
+
+/* Returns true if every decimal digit of v is one of 1,2,3,5,7. */
+static inline bool good_digits(seq_t v)
+{
+    /* bit 1,2,3,5,7 set to 1 */
+    const unsigned int allowed = (1u << 1) | (1u << 2) | (1u << 3) |
+                                 (1u << 5) | (1u << 7);
+    while (v > 0) {
+        unsigned int d = (unsigned int)(v % 10);
+        if (!(allowed & (1u << d)))
+            return false;
+        v /= 10;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,14 +57,14 @@ seq_t a(idx_t n)
     /* initialise the 7‑smooth list with the first element */
     if (smooth_sz == 0) {
         smooth_cap = 4;
-        smooth = (seq_t *)malloc(smooth_cap * sizeof(seq_t));
+        smooth = mem_new(seq_t, smooth_cap);
         if (!smooth) exit(1);
         smooth[0] = 1;
         smooth_sz = 1;
         /* store first accepted term if it satisfies the digit condition */
         if (good_digits(1)) {
             acc_cap = 16;
-            accepted = (seq_t *)malloc(acc_cap * sizeof(seq_t));
+            accepted = mem_new(seq_t, acc_cap);
             if (!accepted) exit(1);
             accepted[0] = 1;
             acc_sz = 1;
@@ -70,7 +86,7 @@ seq_t a(idx_t n)
         /* append next to the smooth list */
         if (smooth_sz == smooth_cap) {
             smooth_cap <<= 1;
-            smooth = (seq_t *)realloc(smooth, smooth_cap * sizeof(seq_t));
+            smooth = mem_resize(seq_t, smooth, smooth_cap);
             if (!smooth) exit(1);
         }
         smooth[smooth_sz++] = next;
@@ -85,7 +101,7 @@ seq_t a(idx_t n)
         if (good_digits(next)) {
             if (acc_sz == acc_cap) {
                 acc_cap <<= 1;
-                accepted = (seq_t *)realloc(accepted, acc_cap * sizeof(seq_t));
+                accepted = mem_resize(seq_t, accepted, acc_cap);
                 if (!accepted) exit(1);
             }
             accepted[acc_sz++] = next;

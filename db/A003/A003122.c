@@ -13,16 +13,45 @@
  *            3*((2n+2)!)^2/(n!(n+1)!(n+2...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 36,
  *            big any n
- * Helpers:   h3122_arr, h3122_fixed, h3122_inv, h3122_mulf
+ * Validated: standard, pass, 39 terms through n = 468 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/h3122_arr.h"
-#include "../utils/h3122_fixed.h"
-#include "../utils/h3122_inv.h"
-#include "../utils/h3122_mulf.h"
+#include "../utils/mem.h"
+
+static seq_t *h3122_arr(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    idx_t i;
+    for (i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static int h3122_fixed(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 200; i++) x = x + x;
+    return x == 0;
+}
+
+static seq_t h3122_inv(seq_t t) {
+    seq_t v = t;
+    int i;
+    for (i = 0; i < 8; i++) {
+        seq_t two = 2;
+        seq_t u = t * v;
+        v = v * (two - u);
+    }
+    return v;
+}
+
+static void h3122_mulf(seq_t *O, long *e, uint64_t x, int dir) {
+    while (x % 2 == 0) { x /= 2; *e += dir; }
+    if (dir > 0) *O = *O * (seq_t)x;
+    else *O = *O * h3122_inv((seq_t)x);
+}
 
 static seq_t *h3122_f = NULL;
 static idx_t h3122_have = 0;
@@ -101,8 +130,8 @@ static void h3122_compute(idx_t N) {
         T[s] = 0;
     }
 
-    free(P); free(C); free(G); free(G2); free(T);
-    if (h3122_f) free(h3122_f);
+    mem_free(P); mem_free(C); mem_free(G); mem_free(G2); mem_free(T);
+    if (h3122_f) mem_free(h3122_f);
     h3122_f = F;
     h3122_have = N + 1;
 }

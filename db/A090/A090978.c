@@ -7,13 +7,15 @@
  * Formula:   A090978(a) = a + Σ_{k<a, a(k) divides a} a(k)
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static cache of computed terms, 1‑indexed */
 static seq_t *cache = NULL;
@@ -25,14 +27,14 @@ static void grow_cache(idx_t n) {
     if (n <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < (size_t)n) new_cap <<= 1;
-    seq_t *new_arr = (seq_t*)malloc((new_cap + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, (new_cap + 1));
     if (!new_arr) {
         /* Allocation failed – abort (system will terminate program) */
         abort();
     }
     if (cache) {
-        memcpy(new_arr, cache, (cache_len + 1) * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_arr, cache, (cache_len + 1) * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_arr;
     cache_cap = new_cap;

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 155, u32 n <= 1105, u64 n <= 2046,
  *            u128 n <= 2046, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 1929 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the user‑supplied types */
 typedef uint64_t idx_t;          /* index type supplied by the build */
@@ -59,7 +61,7 @@ static void ensure_rows(idx_t desired_row)
     for (idx_t r = rows_count; r <= desired_row; ++r)
     {
         size_t len = ((size_t)1 << r);           /* 2^r elements */
-        seq_t *curr = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, len);
         if (!curr) abort();                      /* out of memory */
 
         if (r == 0)                            /* base row */

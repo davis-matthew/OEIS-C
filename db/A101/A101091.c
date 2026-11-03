@@ -8,13 +8,23 @@
  *            n))/5040
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   cancel_factor
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/cancel_factor.h"
+
+/* Helper to cancel prime factors of a small integer factor */
+static void cancel_factor(uint64_t* f, int den[4], const uint64_t primes[4]) {
+    for (int i = 0; i < 4; i++) {
+        while (den[i] > 0 && (*f % primes[i] == 0)) {
+            *f /= primes[i];
+            den[i]--;
+        }
+    }
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* offset is 1; behaviour below 1 is irrelevant */

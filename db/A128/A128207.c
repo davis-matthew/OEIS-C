@@ -12,6 +12,7 @@
  *            definition reduce to F(i))
  * Range:     i8 n <= 20, i16 n <= 35, i32 n <= 40, i64 n <= 40, i128 n <= 40,
  *            big any n
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

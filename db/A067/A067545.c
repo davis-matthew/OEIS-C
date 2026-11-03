@@ -9,7 +9,8 @@
  *            is the i‑th composite number
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 17,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 /* Computes the n‑th term a(n) of OEIS sequence A067545. */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
         return 0;          /* offset starts at 1, but protect against 0 */
 
     /* allocate array for d_i = composite-1 */
-    seq_t *d = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *d = mem_new(seq_t, (size_t)n);
     if (d == NULL)
         return 0;          /* allocation failed, unlikely for these sizes */
 
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
     seq_t m = (seq_t)4;   /* first composite number */
     while (count < n)
     {
-        if (!is_prime_small(m))
+        if (!is_prime_seq(m))
         {
             d[count] = m - (seq_t)1;
             ++count;
@@ -52,6 +55,6 @@ seq_t a(idx_t n)
     for (idx_t i = (idx_t)0; i < n; ++i)
         sum = sum + (prod / d[i]);
 
-    free(d);
+    mem_free(d);
     return sum;
 }

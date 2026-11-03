@@ -10,13 +10,15 @@
  *            b(k)=0 for k>9. Initial values: a(0)=1, a(1)=4, a(2)=16
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int32_t B[10] = {
     1,   0,   0,   0, -36, -248, 1040, -2840, 11504, -9520
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold up to index n */
     if (n + 1 > cache_cap) {
         size_t new_cap = (n + 1) * 2;
-        seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
         if (!new_arr) return 0;   /* allocation failure: return 0 */
         cache = new_arr;
         cache_cap = new_cap;

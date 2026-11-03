@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 6645, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 64 terms through n = 9987 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,13 +18,16 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Helper to freely realloc in both C and C++ environments. */
-static inline seq_t *seq_realloc(void *ptr, size_t n)
+static inline seq_t *seq_realloc(seq_t *ptr, size_t n)
 {
 #if defined(__cplusplus)
-    return static_cast<seq_t*>(realloc(ptr, n));
+    return mem_resize(seq_t, ptr, (n) / sizeof(seq_t));
 #else
     return (seq_t*)realloc(ptr, n);
 #endif
@@ -55,8 +59,8 @@ static void fill_cache(size_t upto)
     while (cache_size < upto)
     {
         /* test whether next_k satisfies the congruence */
-        seq_t a = mod_pow((seq_t)2, (uint64_t)next_k - 1, (seq_t)next_k);
-        seq_t b = mod_pow((seq_t)4, (uint64_t)next_k - 1, (seq_t)next_k);
+        seq_t a = powmod((seq_t)2, (uint64_t)next_k - 1, (seq_t)next_k);
+        seq_t b = powmod((seq_t)4, (uint64_t)next_k - 1, (seq_t)next_k);
         if (a == b) cache[cache_size++] = (seq_t)next_k;
         ++next_k;
     }

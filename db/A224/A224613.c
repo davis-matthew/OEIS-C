@@ -7,6 +7,7 @@
  * Formula:   a(n) = sigma(6*n) (sum of divisors of 6*n)
  * Range:     u8 n <= 17, u16 n <= 2939, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 69 terms through n = 9205 (2026-11-01)
  * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,7 +16,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/build_spf.h"   // provides build_spf()
+#include "../utils/build_spf.h"
 
 /* Cache for the smallest‑prime‑factor table */
 static idx_t *spf = NULL;

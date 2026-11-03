@@ -10,14 +10,17 @@
  *            binomial(n‑1,k‑1) * k^(k‑1) * (n‑k+1)^(n‑k‑1)
  * Range:     u8 n <= 13, u16 n <= 27, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Return the n‑th term of OEIS sequence A232055 (1‑based index).  */
 seq_t a(idx_t n)
@@ -43,13 +46,13 @@ seq_t a(idx_t n)
     seq_t result = binomial(r - 1, k - 1);
 
     /* Compute k^(k-1). */
-    result *= big_pow((seq_t)k, (seq_t)(k - 1));
+    result *= ipow((seq_t)k, (seq_t)(k - 1));
 
     /* Compute (r-k+1)^(r-k-1) when the exponent is non‑negative. */
     if (r > k) {
         idx_t exp = r - k - 1;
         seq_t base = (seq_t)(r - k + 1);
-        result *= big_pow(base, (seq_t)exp);
+        result *= ipow(base, (seq_t)exp);
     }
     /* For r == k the factor is omitted (equals 1). */
 

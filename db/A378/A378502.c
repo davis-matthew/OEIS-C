@@ -8,7 +8,8 @@
  * Formula:   a(n) = floor((17/36) * 4^n)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence (equivalent): a(1) = 1, a(n) = 4*a(n-1) + p[(n-2)%3] where p = {3,2,0}. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* 1‑based cache, cache[0] unused */
 static idx_t cache_len = 0;          /* largest index currently stored */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (n > cache_len) {
         /* Allocate space for indices up to n (including unused 0). */
         size_t new_len = (size_t)n + 1;    /* new_len is size_t for realloc */
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) {
             /* Allocation failed: return 0 (undefined case). */
             return (seq_t)0;

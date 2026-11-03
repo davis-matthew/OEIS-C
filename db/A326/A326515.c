@@ -10,8 +10,9 @@
  *            of the prime indices of a factor f is (∑prime_index(p) *
  *            exponent_of_p_in_f) / (∑exponent_of_p_in_f). For a factorization
  *            to satisfy the condition each factor must have this...
- * Range:     u8 n <= 9598, u16 n <= 9598, u32 n <= 9598, u64 n <= 9598,
- *            u128 n <= 9598, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9598 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

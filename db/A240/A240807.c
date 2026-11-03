@@ -7,14 +7,16 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign
  * Formula:   a(0)=a(1)=-1, a(2)=2; for n>2: a(n)=a(n-1-a(n-1))+a(n-2-a(n-2))
- * Range:     i8 n <= 259, i16 n <= 9715, i32 n <= 9715, i64 n <= 9715,
- *            i128 n <= 9715, big any n
- * Helpers:   none
+ * Range:     i8 n <= 259, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 110 terms through n = 9715 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return (seq_t)0;   /* allocation failed */
         cache = tmp;
 

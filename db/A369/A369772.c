@@ -9,7 +9,8 @@
  *            - gcd(n-1, a(n-2))) (OEIS A369772)
  * Range:     u8 n <= 160, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 87 terms through n = 9933 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t * _cache   = NULL;           /* 1‑based cache of computed terms   */
 static size_t _cache_cap = 0;             /* current capacity of _cache       */
@@ -29,7 +31,7 @@ static void _ensure_cache(idx_t n)
     if (_cache_cap <= (size_t)n) {
         size_t new_cap = (_cache_cap == 0) ? 16 : _cache_cap * 2;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(_cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _cache, (new_cap + 1));
         if (!tmp) abort();                  /* allocation failure */
         _cache = tmp;
         _cache_cap = new_cap;

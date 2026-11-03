@@ -9,15 +9,30 @@
  *            2^(1/3) and {x} denotes the fractional part of x
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   fenw_inc, fenw_sum
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdlib.h>
-#include "../utils/fenw_inc.h"
-#include "../utils/fenw_sum.h"
+#include "../utils/mem.h"
+
+/* Fenwick tree helpers (1‑based indexing) */
+static inline void fenw_inc(seq_t *f, size_t n, size_t idx)
+{
+    for (size_t i = idx; i <= n; i += i & -i)
+        f[i] += 1;
+}
+
+static inline seq_t fenw_sum(const seq_t *f, size_t idx)
+{
+    seq_t s = 0;
+    for (size_t i = idx; i > 0; i -= i & -i)
+        s += f[i];
+    return s;
+}
 
 /* Comparator for sorting indices by fractional part value */
 static long double *g_s;  /* pointer to fractional part array used by cmp */
@@ -48,7 +63,7 @@ seq_t a(idx_t n)
         long double *s = (long double *)malloc((N + 1) * sizeof(long double));
         int *order = (int *)malloc((N + 1) * sizeof(int));
         int *rank = (int *)malloc((N + 1) * sizeof(int));
-        seq_t *new_cache = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (N + 1));
 
         /* compute fractional parts of k*α for k = 1..N */
         s[0] = 0.0L;                 /* unused */
@@ -71,7 +86,7 @@ seq_t a(idx_t n)
             rank[order[i + 1]] = i;  /* 0‑based rank */
 
         /* Fenwick tree for order statistics */
-        seq_t *fenwick = (seq_t *)calloc(N + 1, sizeof(seq_t));
+        seq_t *fenwick = mem_new(seq_t, N + 1);
         for (idx_t k = 1; k <= N; ++k)
         {
             int r = rank[k];               /* 0‑based rank */
@@ -84,10 +99,10 @@ seq_t a(idx_t n)
         free(s);
         free(order);
         free(rank);
-        free(fenwick);
+        mem_free(fenwick);
 
         /* replace old cache */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_size = N;
     }

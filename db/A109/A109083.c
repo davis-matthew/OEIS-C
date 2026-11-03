@@ -8,6 +8,7 @@
  *            k*(3k+1)/2])
  * Range:     i8 n <= 116, i16 n <= 950, i32 n <= 950, i64 n <= 950,
  *            i128 n <= 950, big any n
+ * Validated: standard, pass, 140 terms through n = 949 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,15 +10,29 @@
  *            enumerated with the last prime exponent varying slowest
  * Range:     u8 n <= 11, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   big_pow, pow_m_m
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
-#include "../utils/pow_m_m.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+/* compute m^m, but stop and return >limit if the value exceeds the limit.
+   limit is a positive unsigned __int128.  The function never overflows. */
+static unsigned __int128 pow_m_m(unsigned int m, unsigned __int128 limit)
+{
+    if (m == 0) return 1;
+    unsigned __int128 r = 1;
+    for (unsigned int i = 0; i < m; ++i) {
+        r *= m;
+        if (r > limit) return limit + 1;   /* just enough to make the block count > limit */
+    }
+    return r;
+}
 
 /* first few primes – enough for all n that fit in a 64‑bit index */
 static const uint32_t PRIMES[] = {
@@ -48,7 +62,7 @@ seq_t a(idx_t n)
             for (unsigned int pos = 0; pos < m; ++pos) {
                 unsigned int digit = (unsigned int)(idx % base);   /* 0 .. m-1 */
                 idx /= base;
-                seq_t power = big_pow((seq_t)PRIMES[pos], (seq_t)(digit + 1));
+                seq_t power = ipow((seq_t)PRIMES[pos], (seq_t)(digit + 1));
                 result *= power;
             }
             return result;

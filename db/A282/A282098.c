@@ -10,14 +10,49 @@
  *            of x (returns 1 for x <= 1)
  * Range:     u8 n <= 16, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   max_prime_factor_of
+ * Validated: standard, pass, 81 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/max_prime_factor_of.h"
+#include "../utils/mem.h"
+
+/* Helper: largest prime factor of an unsigned integer value.
+   Assumes the argument fits in uint64_t for the values that occur. */
+static seq_t
+max_prime_factor_of(seq_t x)
+{
+    if (x <= (seq_t)1)
+        return (seq_t)1;
+
+    uint64_t u   = (uint64_t)x;
+    uint64_t max = 1;
+
+    /* factor out 2 first */
+    while ((u & 1ULL) == 0) {
+        max = 2;
+        u >>= 1;
+    }
+
+    /* enumerate odd divisors up to sqrt(u) */
+    for (uint64_t d = 3; d <= u / d; d += 2) {
+        if (u % d == 0) {
+            max = d;
+            do {
+                u /= d;
+            } while (u % d == 0);
+        }
+    }
+
+    /* if anything remains, it is a prime factor > sqrt(original) */
+    if (u > 1)
+        max = u;
+
+    return (seq_t)max;
+}
 
 /* Main sequence function.  Uses a static cache that grows as needed.
    The code is valid C11 and C++17. */
@@ -36,7 +71,7 @@ a(idx_t n)
     /* initialise cache lazily */
     if (cache == NULL) {
         cache_cap = 4;          /* initial capacity (at least 3+1) */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL)
             abort();
         cache[0] = cache[1] = cache[2] = (seq_t)1;
@@ -50,7 +85,7 @@ a(idx_t n)
             size_t new_cap = cache_cap ? cache_cap : 4;
             while (new_cap <= (size_t)(n + 1))
                 new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (tmp == NULL)
                 abort();
             cache     = tmp;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 347, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9778 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Ensure the used‑array is large enough to hold index 'idx'.  */
 /* The array stores a single byte per integer; 0 = unused, 1 = used. */
@@ -51,7 +53,7 @@ static void ensure_seq_cap(seq_t **seq, size_t *cap, size_t idx)
     size_t new_cap = (*cap == 0 ? 64 : *cap << 1);
     while (new_cap <= idx)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *seq, new_cap);
     if (!tmp)
         exit(1);
     *seq = tmp;
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
     /* Initialise containers on first call.  */
     if (!seq_arr) {
         seq_cap = 64;
-        seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         if (!seq_arr)
             exit(1);
         seq_arr[0] = 0;   /* sentinel – index 0 is unused */

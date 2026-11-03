@@ -8,7 +8,8 @@
  *            n-k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 /* Uses the utilities: big_pow, binomial.                                  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
             /* (k+1)^(k-1) with k=0 is defined as 1 */
             pk = 1;
         } else {
-            pk = big_pow((seq_t)(k + 1), (seq_t)(k - 1));
+            pk = ipow((seq_t)(k + 1), (seq_t)(k - 1));
         }
 
         seq_t bin = binomial((idx_t)(n + 2 * k + 1), (idx_t)(n - k));

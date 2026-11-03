@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 8, u64 n <= 22, u128 n <= 49,
  *            big any n
- * Helpers:   window_good
+ * Validated: standard, pass, 33 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/window_good.h"
+#include "../utils/mem.h"
+
+/* Helper to test if a 5‑tuple has two disjoint pairs with equal sum. */
+static inline bool window_good(int x[5]) {
+    int i, j, k, l;
+    for (i = 0; i < 3; i++)
+        for (j = i + 1; j < 4; j++)
+            for (k = j + 1; k < 5; k++)
+                for (l = k + 1; l < 5; l++) {
+                    int a = x[i], b = x[j];
+                    int c = x[k], d = x[l];
+                    if (a + b == c + d) return true;   // pair (i,j) & (k,l)
+                    if (a + c == b + d) return true;   // (i,k) & (j,l)
+                    if (a + d == b + c) return true;   // (i,l) & (j,k)
+                }
+    return false;
+}
 
 #define ALPHA 7               /* alphabet size 0..6 */
 #define STATE_SIZE (ALPHA*ALPHA*ALPHA*ALPHA) /* 7^4 = 2401 */
@@ -66,8 +83,8 @@ static void init_transitions(void) {
 static void init_dp(void) {
     size_t i;
     /* Allocate DP arrays. */
-    dp_cur = (seq_t*)calloc(STATE_SIZE, sizeof(seq_t));
-    dp_next = (seq_t*)calloc(STATE_SIZE, sizeof(seq_t));
+    dp_cur = mem_new(seq_t, STATE_SIZE);
+    dp_next = mem_new(seq_t, STATE_SIZE);
 
     /* Enumerate all 5‑tuples to fill dp_cur for length 5 (n=1). */
     int x[5];
@@ -85,7 +102,7 @@ static void init_dp(void) {
 
     /* Store a(1). */
     ans_cap = 2;       /* we need indices 0..1 */
-    ans = (seq_t*)malloc(ans_cap * sizeof(seq_t));
+    ans = mem_new(seq_t, ans_cap);
     ans[0] = 0;        /* unused */
     seq_t sum = 0;
     for (i = 0; i < STATE_SIZE; i++)
@@ -111,7 +128,7 @@ seq_t a(idx_t n)
     /* Extend memoisation up to requested n if necessary. */
     if ((size_t)n >= ans_cap) {
         size_t new_cap = n + 1;
-        ans = (seq_t*)realloc(ans, new_cap * sizeof(seq_t));
+        ans = mem_resize(seq_t, ans, new_cap);
         /* If reallocation fails, the program will terminate. */
         seq_t *old_dp_cur = dp_cur;
         /* dp_cur already has counts for length corresponding to current max. */

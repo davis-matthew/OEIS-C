@@ -7,17 +7,30 @@
  * Formula:   a(n) = number of perfect powers x with 2^n < x < 2^(n+1)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 28, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   bitlen_seq_t, cmp_seq_t, pow2, pow_seq
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   bit_length, ipow_i32, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/pow2.h"      /* pow2(idx_t) -> seq_t */
-#include "../utils/pow_seq.h"   /* pow_seq(seq_t base, int exp) -> seq_t */
-#include "../utils/bitlen_seq_t.h" /* bitlen_seq_t(seq_t) -> idx_t */
-#include "../utils/cmp_seq_t.h"   /* cmp_seq_t(const void*, const void*) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/bit_length.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* Simple cache for memoised values of F(x) */
 struct cache_entry {
@@ -43,8 +56,7 @@ static void cache_insert(seq_t key, seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        struct cache_entry *tmp = (struct cache_entry *)realloc(cache,
-                           new_cap * sizeof(struct cache_entry));
+        struct cache_entry *tmp = mem_resize(struct cache_entry, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }
@@ -59,24 +71,24 @@ static seq_t floor_root(seq_t x, idx_t e)
     if (e <= 1) return x;
 
     /* Initial guess: 2^(floor(bitlen(x)/e)) */
-    idx_t bl = bitlen_seq_t(x);
+    idx_t bl = bit_length(x);
     idx_t exp_guess = bl / e;
     seq_t a = pow2(exp_guess);          /* lower bound candidate */
 
     /* Adjust upward as long as (a+1)^e <= x */
     seq_t ap1 = a + 1;
-    seq_t ap1_pow = pow_seq(ap1, (int)e);
+    seq_t ap1_pow = ipow_i32(ap1, (int)e);
     while (cmp_seq_t(&ap1_pow, &x) <= 0) {
         a = ap1;
         ap1 = a + 1;
-        ap1_pow = pow_seq(ap1, (int)e);
+        ap1_pow = ipow_i32(ap1, (int)e);
     }
 
     /* Adjust downward if a^e > x */
-    seq_t a_pow = pow_seq(a, (int)e);
+    seq_t a_pow = ipow_i32(a, (int)e);
     while (cmp_seq_t(&a_pow, &x) > 0) {
         a = a - 1;
-        a_pow = pow_seq(a, (int)e);
+        a_pow = ipow_i32(a, (int)e);
     }
     return a;
 }
@@ -89,7 +101,7 @@ static seq_t F(seq_t x)
     seq_t cached;
     if (cache_lookup(x, &cached)) return cached;
 
-    idx_t emax = bitlen_seq_t(x) - 1;
+    idx_t emax = bit_length(x) - 1;
     seq_t sum = (seq_t)0;
 
     for (idx_t e = 2; e <= emax; ++e) {

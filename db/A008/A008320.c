@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 1170, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9410 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_arr  = NULL;
 static size_t seq_cap  = 0;
@@ -35,15 +37,15 @@ static void ensure_seq(size_t need)
     if (need <= seq_cap) return;
     size_t cap = seq_cap ? seq_cap << 1 : 1;
     while (cap < need) cap <<= 1;
-    seq_arr = (seq_t *)realloc(seq_arr, cap * sizeof(seq_t));
-    sq_arr  = (seq_t *)realloc(sq_arr,  cap * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, cap);
+    sq_arr  = mem_resize(seq_t, sq_arr, cap);
     seq_cap = cap;
 }
 
 static void hash_grow(void)
 {
     size_t new_cap = hash_cap ? hash_cap << 1 : 8;
-    seq_t *new_keys = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_keys = mem_new(seq_t, new_cap);
     size_t *new_vals = (size_t *)calloc(new_cap, sizeof(size_t));
     if (!new_keys || !new_vals) exit(EXIT_FAILURE);
     for (size_t i = 0; i < hash_cap; ++i) {
@@ -56,7 +58,7 @@ static void hash_grow(void)
             new_vals[pos] = val;
         }
     }
-    free(hash_keys);
+    mem_free(hash_keys);
     free(hash_vals);
     hash_keys = new_keys;
     hash_vals = new_vals;
@@ -67,7 +69,7 @@ static void hash_insert(seq_t key, size_t val)
 {
     if (hash_cap == 0) {
         hash_cap = 8;
-        hash_keys = (seq_t *)calloc(8, sizeof(seq_t));
+        hash_keys = mem_new(seq_t, 8);
         hash_vals = (size_t *)calloc(8, sizeof(size_t));
     }
     if (hash_size * 2 >= hash_cap) hash_grow();
@@ -109,7 +111,7 @@ static void init(void)
     seq_size = 1;
 
     hash_cap = 8;
-    hash_keys = (seq_t *)calloc(hash_cap, sizeof(seq_t));
+    hash_keys = mem_new(seq_t, hash_cap);
     hash_vals = (size_t *)calloc(hash_cap, sizeof(size_t));
     hash_insert(sq_arr[0], 0);
     initialized = true;

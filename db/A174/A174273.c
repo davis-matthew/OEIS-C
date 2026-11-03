@@ -7,13 +7,15 @@
  * Formula:   a(1) = 1 Multiplicative: a(p^e) = e + 1 for odd prime p a(2^e) =
  *            e + 1 – floor((e + 1)/2) This follows the OEIS description of
  *            A174273
- * Range:     u8 n <= 9942, u16 n <= 9942, u32 n <= 9942, u64 n <= 9942,
- *            u128 n <= 9942, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9942 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>

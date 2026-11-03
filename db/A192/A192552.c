@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} Stirling2(n,k)*(-1)^(n-k)*k!^2
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state */
@@ -27,11 +29,11 @@ seq_t a(idx_t n) {
     /* --- initialization ---------------------------------------------------- */
     if (max_computed == (idx_t)-1) {
         buf_size = 1;
-        a_vals   = (seq_t*)malloc(buf_size * sizeof(seq_t));
-        fact     = (seq_t*)malloc(buf_size * sizeof(seq_t));
-        fact2    = (seq_t*)malloc(buf_size * sizeof(seq_t));
-        S_prev   = (seq_t*)malloc(buf_size * sizeof(seq_t));
-        S_curr   = (seq_t*)malloc(buf_size * sizeof(seq_t));
+        a_vals   = mem_new(seq_t, buf_size);
+        fact     = mem_new(seq_t, buf_size);
+        fact2    = mem_new(seq_t, buf_size);
+        S_prev   = mem_new(seq_t, buf_size);
+        S_curr   = mem_new(seq_t, buf_size);
 
         /* a(0) = 1 */
         a_vals[0] = 1;
@@ -45,11 +47,11 @@ seq_t a(idx_t n) {
     /* --- ensure enough storage ------------------------------------------- */
     if ((size_t)(n+1) > buf_size) {
         size_t new_len = (size_t)(n + 1);
-        a_vals = (seq_t*)realloc(a_vals,  new_len * sizeof(seq_t));
-        fact   = (seq_t*)realloc(fact,    new_len * sizeof(seq_t));
-        fact2  = (seq_t*)realloc(fact2,   new_len * sizeof(seq_t));
-        S_prev = (seq_t*)realloc(S_prev,  new_len * sizeof(seq_t));
-        S_curr = (seq_t*)realloc(S_curr,  new_len * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, new_len);
+        fact   = mem_resize(seq_t, fact, new_len);
+        fact2  = mem_resize(seq_t, fact2, new_len);
+        S_prev = mem_resize(seq_t, S_prev, new_len);
+        S_curr = mem_resize(seq_t, S_curr, new_len);
         buf_size = new_len;
     }
 

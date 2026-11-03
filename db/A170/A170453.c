@@ -12,13 +12,20 @@
  *            a(n-k) – 11·a(n-45)) / 11
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   seq_alloc_array
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_alloc_array.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {
@@ -55,6 +62,6 @@ seq_t a(idx_t n)
     seq_t result = A[n];
     /* The allocated array may be freed here; the build environment
        will reclaim memory after the function returns. */
-    free(A);
+    mem_free(A);
     return result;
 }

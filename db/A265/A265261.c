@@ -9,7 +9,8 @@
  *            λ(c) is the Carmichael function (exponent of (ℤ/cℤ)×)
  * Range:     u8 none, u16 n <= 4000, u32 n <= 4000, u64 n <= 4000,
  *            u128 n <= 4000, big any n
- * Helpers:   build_primes_upto, gcd, is_prime_small
+ * Validated: standard, pass, 81 terms through n = 3828 (2026-11-02)
+ * Helpers:   build_primes_upto, gcd, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/gcd.h"          /* seq_t gcd(seq_t a, seq_t b) */
-#include "../utils/is_prime_small.h"   /* bool is_prime_small(seq_t num) */
-#include "../utils/build_primes_upto.h"/* void build_primes_upto(idx_t limit,
-                                        uint64_t **primes_out, size_t *cnt_out) */
+#include "../utils/build_primes_upto.h"
+#include "../utils/gcd.h"
+#include "../utils/is_prime_seq.h"
 
 static uint64_t *prime_list = NULL;
 static size_t prime_cnt = 0;
@@ -95,7 +95,7 @@ seq_t a(idx_t n)
     for (;; ++c)
     {
         /* Skip primes, we need a composite number. */
-        if (c > 1 && !is_prime_small((seq_t)c))
+        if (c > 1 && !is_prime_seq((seq_t)c))
         {
             uint64_t lambda = lambda_of(c);
             if ((c - nn) % lambda == 0)

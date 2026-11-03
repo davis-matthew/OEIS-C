@@ -7,6 +7,7 @@
  * Formula:   a(n) = numerator of the reduced sum ∑ 1/k_j, where n = ∏ p_j^k_j
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 126 terms through n = 8486 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,7 @@
    the seq_t type as required. */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd.h"          /* provides gcd(seq_t,seq_t) */
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

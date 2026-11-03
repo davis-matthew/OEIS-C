@@ -10,7 +10,8 @@
  *            search over successive primes
  * Range:     u8 none, u16 n <= 5, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   mod_pow, next_prime
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-01)
+ * Helpers:   next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 /* Utility headers supplied by the build system */
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t) */
-#include "../utils/mod_pow.h"      /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod) */
+#include <string.h>
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
 
 /* Static cache of found primes, sufficient for n up to about 10 000. */
 static seq_t term_cache[20000];
@@ -52,11 +54,11 @@ seq_t a(idx_t n)
         uint64_t e2 = (p - 1ULL) / 121ULL;  /* (p‑1)/121  */
 
         /* Condition 1: 2^e1 ≡ 1 (mod p)  -> x¹¹ ≡ 2 possible. */
-        if (mod_pow((seq_t)2, e1, (seq_t)p) != (seq_t)1)
+        if (powmod((seq_t)2, e1, (seq_t)p) != (seq_t)1)
             continue;
 
         /* Condition 2: 2^e2 ≠ 1 (mod p)  -> x¹²¹ ≡ 2 impossible. */
-        if (mod_pow((seq_t)2, e2, (seq_t)p) == (seq_t)1)
+        if (powmod((seq_t)2, e2, (seq_t)p) == (seq_t)1)
             continue;
 
         /* p satisfies both conditions; store it. */

@@ -9,14 +9,17 @@
  *            a(n‑1) / g; otherwise a(n) = concatenate decimal(a(n‑1), n)
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 11, u64 n <= 19, u128 n <= 31,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 39 terms through n = 371 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"   /* provides seq_t gcd(seq_t, seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;         /* cached values a(1), a(2), …  */
 static size_t  cache_cap = 0;       /* allocated capacity in seq_t units */
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     /* lazy init: cache[0] = a(1) = 1 */
     if (cache_len == 0) {
         cache_cap = 16;
-        cache = (seq_t *)realloc(NULL, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_cap);
         if (!cache) abort();           /* out of memory */
         cache[0] = (seq_t)1;
         cache_len = 1;                 /* we now have a(1) */
@@ -62,7 +65,7 @@ seq_t a(idx_t n)
         /* ensure capacity */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
             if (!new_ptr) abort();
             cache = new_ptr;
             cache_cap = new_cap;

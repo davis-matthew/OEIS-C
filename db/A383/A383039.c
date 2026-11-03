@@ -9,6 +9,7 @@
  * Formula:   a(n) = 2*Lucas(n)^2 - 1 𝐿(0)=2, 𝐿(1)=1, 𝐿(n)=𝐿(n-1)+𝐿(n-2)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 22, u64 n <= 45, u128 n <= 91,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 893 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

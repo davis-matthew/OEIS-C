@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 93, u32 n <= 194, u64 n <= 471,
  *            u128 n <= 1186, big any n
- * Helpers:   T_row_k
+ * Validated: standard, pass, 94 terms through n = 1231 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,27 @@
    the same recurrence gives the exact result. */
 
 #include <stdint.h>
-#include "../utils/T_row_k.h"
+
+/* compute T(row,k) using the above recurrence, with all
+   intermediate arithmetic performed in 128‑bit so that
+   64‑bit builds are safe whenever the final result fits in
+   a 64‑bit word.  */
+static seq_t T_row_k(idx_t row, idx_t col)
+{
+    if (col == 0) return 0;
+    if (col == 1) return 1;
+
+    unsigned __int128 t0 = 0;                /* T(row,0) */
+    unsigned __int128 t1 = 1;                /* T(row,1) */
+    unsigned __int128 r_mul = (unsigned __int128)row * (row + 1);
+
+    for (idx_t i = 2; i <= col; ++i) {
+        unsigned __int128 t2 = t1 + r_mul * t0;
+        t0 = t1;
+        t1 = t2;
+    }
+    return (seq_t)t1;
+}
 
 /* map the linear index n to the pair (row,col) obtained by
    reading the table by antidiagonals.  */

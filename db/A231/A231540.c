@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   row_valid_single
+ * Validated: standard, pass, 34 terms through n = 193 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,28 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/row_valid_single.h"
+
+/* Check whether a single row (curr) is valid when it has no neighbours
+ * (no previous and no next row). */
+static bool row_valid_single(int curr)
+{
+    for (int j = 0; j < 4; ++j)
+    {
+        if ((curr >> j) & 1)            /* a 1 is always fine           */
+            continue;
+        int ones = 0, k = 0;             /* number of 1 neighbours,      */
+                                         /* k = total neighbours counted */
+
+        /* horizontal neighbours */
+        if (j > 0)    { ++k; if ((curr >> (j - 1)) & 1) ++ones; }
+        if (j < 3)    { ++k; if ((curr >> (j + 1)) & 1) ++ones; }
+
+        /* no vertical or anti‑diagonal neighbours for a single row */
+        if (ones > k / 2)
+            return false;                /* forced to be a majority 1 */
+    }
+    return true;
+}
 
 /* Helper tables for row validity */
 static bool valid_single[16];

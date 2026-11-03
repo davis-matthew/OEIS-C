@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd_u64, int_grow, mod_pow
+ * Validated: standard, pass, 92 terms through n = 951 (2026-11-01)
+ * Helpers:   gcd_u64, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,20 @@
 #include <stdint.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"   /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <string.h>
 #include "../utils/gcd_u64.h"
-#include "../utils/int_grow.h"
+#include "../utils/powmod.h"
+
+static void int_grow(size_t *cap, void **ptr, size_t elem_size)
+{
+    if (*cap == 0) {
+        *cap = 8;
+        *ptr = malloc(*cap * elem_size);
+    } else {
+        *cap <<= 1;
+        *ptr = realloc(*ptr, *cap * elem_size);
+    }
+}
 
 /* gcd for 64‑bit integers */
 
@@ -87,7 +99,7 @@ seq_t a(idx_t n)
             uint64_t d = gcd_u64(26ULL, p - 1ULL);
             uint64_t exp = (p - 1ULL) / d;
             seq_t base = (seq_t)(p - 2ULL);          /* -2 mod p */
-            seq_t res  = mod_pow(base, exp, (seq_t)p);
+            seq_t res  = powmod(base, exp, (seq_t)p);
             if (res == (seq_t)1) add_value((seq_t)p);
         }
         ++candidate;

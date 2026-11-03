@@ -8,7 +8,8 @@
  *            primes, square allowed)
  * Range:     u8 n <= 19, u16 n <= 1370, u32 n <= 4760, u64 n <= 4760,
  *            u128 n <= 4760, big any n
- * Helpers:   _smallest_prime_factor, is_prime_small
+ * Validated: standard, pass, 71 terms through n = 4341 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,17 +18,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/is_prime_small.h"
+#include <stddef.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* Helper: check whether a 64‑bit integer is semiprime. */
 static bool is_semiprime_uint64(uint64_t m)
 {
-    uint64_t a = _smallest_prime_factor(m);
+    uint64_t a = smallest_prime_factor(m);
     if (a == m)                /* m is prime */
         return false;
     uint64_t b = m / a;
-    return is_prime_small((seq_t)b);
+    return is_prime_seq((seq_t)b);
 }
 
 /* The sequence function.  It lazily builds the list of terms the first time
@@ -54,7 +57,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap)
             {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();            /* memory error */
                 cache    = tmp;
                 cache_cap = new_cap;

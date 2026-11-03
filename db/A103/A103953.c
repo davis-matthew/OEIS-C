@@ -9,7 +9,8 @@
  *            power; if no such P exists, a(n)=0
  * Range:     u8 none, u16 n <= 29, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   comp_seq
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,17 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/comp_seq.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static int comp_seq(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return  1;
+    return 0;
+}
 
 #define MAX_POWER_LIMIT 1000000000000ULL   /* limit for pre‑computed perfect powers */
 
@@ -55,7 +66,7 @@ static void init_pp(void)
 
     /* initial capacity – will grow if needed */
     idx_t cap = 2000000;
-    pp = (seq_t *)malloc(cap * sizeof(seq_t));
+    pp = mem_new(seq_t, cap);
     if (!pp) return;                  /* out of memory – unlikely in tests */
 
     seq_t limit = (seq_t)MAX_POWER_LIMIT;
@@ -67,7 +78,7 @@ static void init_pp(void)
         while (1) {
             if (pp_cnt >= cap) {
                 cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(pp, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, pp, cap);
                 if (!tmp) return;
                 pp = tmp;
             }
@@ -78,7 +89,7 @@ static void init_pp(void)
     }
 
     /* sort and keep only distinct values */
-    qsort(pp, pp_cnt, sizeof(seq_t), comp_seq);
+    mem_qsort(pp, pp_cnt, sizeof(seq_t), comp_seq);
     idx_t uniq = 0;
     for (idx_t i = 0; i < pp_cnt; ++i) {
         if (uniq == 0 || pp[i] != pp[uniq - 1]) {

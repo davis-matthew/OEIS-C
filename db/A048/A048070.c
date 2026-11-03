@@ -9,12 +9,14 @@
  *            constraints 5m ≤ ⌊(n-4)/2⌋ and m ≤ n-⌊(n-4)/2⌋
  * Range:     u8 n <= 19, u16 n <= 30, u32 n <= 51, u64 n <= 95, u128 n <= 181,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 63 terms through n = 2820 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
 
     for (idx_t m = 1; m <= mmax; ++m) {
         idx_t need_low = 5 * m;
-        seq_t low_comb  = binom(low,  need_low);
-        seq_t high_comb = binom(high, m);
+        seq_t low_comb  = binomial(low,  need_low);
+        seq_t high_comb = binomial(high, m);
         result += low_comb * high_comb;
     }
     return result;

@@ -9,13 +9,14 @@
  *            ((n+4)*(n+5)*(n+6)*(n+7)), a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 22,
  *            big any n
- * Helpers:   a006150_gcd
+ * Validated: standard, pass, 35 terms through n = 420 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a006150_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     seq_t v = 1;
@@ -40,7 +41,7 @@ seq_t a(idx_t n) {
                 uint64_t r, g;
                 if (den[i] == 1) break;
                 r = (uint64_t)(v % (seq_t)den[i]);
-                g = a006150_gcd(r, den[i]);
+                g = gcd_u64(r, den[i]);
                 if (g <= 1) break;
                 v /= (seq_t)g;
                 den[i] /= g;
@@ -50,7 +51,7 @@ seq_t a(idx_t n) {
         for (i = 0; i < 4; i++) {
             for (j = 0; j < 5 && den[i] > 1; j++) {
                 for (;;) {
-                    uint64_t g = a006150_gcd(den[i], num[j]);
+                    uint64_t g = gcd_u64(den[i], num[j]);
                     if (g <= 1) break;
                     den[i] /= g;
                     num[j] /= g;

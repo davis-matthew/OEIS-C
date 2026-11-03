@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 15, i16 n <= 28, i32 n <= 50, i64 n <= 50, i128 n <= 50,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,6 +23,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Fast integer power for seq_t base raised to a non‑negative idx_t exponent. */

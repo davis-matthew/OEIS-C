@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 706, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, factor_u64, sigma_of, test_divisors_rec
+ * Validated: standard, pass, 80 terms through n = 9612 (2026-11-03)
+ * Helpers:   factor_u64, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,9 +30,51 @@
 
 /* Utility functions from the OEIS utilities library */
 #include "../utils/factor_u64.h"
-#include "../utils/divisor_count_u64.h"
-#include "../utils/sigma_of.h"
-#include "../utils/test_divisors_rec.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/*  Recursive divisor enumeration.  Returns true as soon as a divisor
+ *  satisfies the condition.  All arithmetic on k, d, sigma, etc. is
+ *  performed in seq_t.  k and cur are held as uint64_t to avoid overflows
+ *  of the integer type seq_t. */
+static bool test_divisors_rec(const uint64_t *pr, const uint64_t *ex,
+                              size_t pcnt, size_t idx,
+                              uint64_t cur,
+                              seq_t sigma, seq_t numerator,
+                              uint64_t k)
+{
+    if (idx == pcnt) {                           /* reached a divisor */
+        seq_t k_over_d = (seq_t)(k / cur);
+        seq_t denom   = sigma - k_over_d;
+        if (denom != (seq_t)0 && numerator % denom == (seq_t)0)
+            return true;
+        return false;
+    }
+
+    uint64_t prod = 1;
+    for (uint64_t e = 0; e <= ex[idx]; ++e) {
+        if (test_divisors_rec(pr, ex, pcnt, idx + 1,
+                              cur * prod, sigma, numerator, k))
+            return true;
+        prod *= (uint64_t)pr[idx];
+    }
+    return false;
+}
 
 /* ------------------------------------------------------------------ */
 
@@ -42,7 +85,7 @@ static bool k_is_valid(uint64_t k)
     if (k <= 1U)
         return false;
 
-    seq_t tau_seq  = divisor_count_u64(k);        /* tau(k) */
+    seq_t tau_seq  = num_divisors(k);        /* tau(k) */
     if (tau_seq <= (seq_t)1)
         return false;                             /* tau(k) - 1 == 0 */
 
@@ -73,7 +116,7 @@ static void ensure_seq_cap(size_t need)
     size_t new_cap = seq_cap ? (seq_cap << 1) : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
     seq_vals = tmp;
     seq_cap  = new_cap;
 }
@@ -89,7 +132,7 @@ seq_t a(idx_t n)
     /* Initialise storage on first call */
     if (seq_vals == NULL) {
         seq_cap = 16;
-        seq_vals = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_vals = mem_new(seq_t, seq_cap);
         seq_len  = 0;
         last_k   = 2;
     }

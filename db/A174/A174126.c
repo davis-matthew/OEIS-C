@@ -9,12 +9,14 @@
  *            k-1)^2 with T(n,0)=T(n,n)=1 (OEIS A174126)
  * Range:     u8 none, u16 none, u32 none, u64 n <= 542, u128 n <= 2108,
  *            big any n
+ * Validated: standard, pass, 82 terms through n = 4402 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Compute integer floor sqrt of x for unsigned 64‑bit x */

@@ -12,12 +12,14 @@
  *            x^5/(1-3*x-2*x^2+11*x^3-3*x^4-6*x^5)
  * Range:     u8 n <= 10, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 129,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 900 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Initialize base values up to n=5 on first call */
     if (seq_len == 0) {
         seq_len = 5;
-        seq = (seq_t *)malloc(seq_len * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_len);
         if (!seq) return 0;   /* allocation failed – return 0 (unlikely in contest) */
         seq[0] = 0;  /* a(1) */
         seq[1] = 0;  /* a(2) */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         return seq[n-1];
 
     /* Grow cache to size n */
-    seq = (seq_t *)realloc(seq, n * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, n);
     if (!seq) return 0;   /* allocation failed – return 0 (unlikely) */
 
     /* Compute new terms using the recurrence */

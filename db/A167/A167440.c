@@ -8,19 +8,22 @@
  * Formula:   a(n) = 2^n * (5 - 5*4^n + 16^n)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;
-    seq_t pow2  = seq_pow((seq_t)2,  n);
-    seq_t pow4  = seq_pow((seq_t)4,  n);
-    seq_t pow16 = seq_pow((seq_t)16, n);
+    seq_t pow2  = ipow_idx((seq_t)2,  n);
+    seq_t pow4  = ipow_idx((seq_t)4,  n);
+    seq_t pow16 = ipow_idx((seq_t)16, n);
 
     seq_t term = (seq_t)5;
     term -= (seq_t)5 * pow4;

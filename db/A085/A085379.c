@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   Greatest prime that can be written as a sum of distinct divisors
  *            of n
- * Range:     u8 n <= 107, u16 n <= 9971, u32 n <= 9971, u64 n <= 9971,
- *            u128 n <= 9971, big any n
+ * Range:     u8 n <= 107, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 82 terms through n = 9971 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

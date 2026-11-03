@@ -10,13 +10,14 @@
  *            prefixing and suffixing)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   isPrime
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {
@@ -51,7 +52,7 @@ seq_t a(idx_t n)
 
         idx_t inserted = left * pow10[i + 1] + (idx_t)3 * pow10[i] + right;
 
-        if (isPrime(inserted)) {
+        if (is_prime(inserted)) {
             bool seen = false;
             for (int j = 0; j < prime_cnt; ++j) {
                 if (primes[j] == inserted) {

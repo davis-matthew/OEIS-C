@@ -10,8 +10,9 @@
  *            ⌊ (√(8n+1) − 1) / 2 ⌋, r = n − d(d+1)/2, i = r, j = d − r. Then
  *            T(i,0) = 4*i, T(i,k) = ⌊ (4*T(i,k−1) + 3) / 3 ⌋ (k ≥ 1), and
  *            a(n) = T(i,j). The implementation avoids float...
- * Range:     u8 n <= 105, u16 n <= 562, u32 n <= 2557, u64 n <= 9733,
- *            u128 n <= 9733, big any n
+ * Range:     u8 n <= 105, u16 n <= 562, u32 n <= 2558, u64 n <= 11175,
+ *            u128 n <= 11324, big any n
+ * Validated: standard, pass, 82 terms through n = 9733 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,17 @@
 
 #include <stdint.h>
 
-seq_t a(idx_t n)
+/* the code below runs in wide_t: 128 bits at the fixed widths (never narrower
+   than seq_t), seq_t itself for big, so values that pass 2^64 on the way to a
+   term that fits stay exact; a() returns the term in seq_t */
+#ifdef __cplusplus
+typedef seq_t wide_t;
+#else
+typedef __typeof__((seq_t)0 + (__int128)0) wide_t;
+#endif
+#define seq_t wide_t
+
+seq_t a_wide(idx_t n)
 {
     /* Find anti‑diagonal d such that d(d+1)/2 ≤ n < (d+1)(d+2)/2. */
     idx_t d = 0;
@@ -46,4 +57,10 @@ seq_t a(idx_t n)
         val = (val * 4 + 3) / 3;
     }
     return val;
+}
+
+#undef seq_t
+seq_t a(idx_t n)
+{
+    return (seq_t)a_wide(n);
 }

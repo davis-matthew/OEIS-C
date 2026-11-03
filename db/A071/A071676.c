@@ -11,7 +11,8 @@
  *            + j and 0 ≤ j ≤ i
  * Range:     i8 n <= 102, i16 n <= 102, i32 n <= 102, i64 n <= 102,
  *            i128 n <= 102, big any n
- * Helpers:   none
+ * Validated: partial, pass, 103 terms through n = 102 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /*  includes and helper prototypes ---------------------------------------------------- */
 #include <stdlib.h>   /* malloc, calloc, free */
 #include <stdint.h>   /* for uintptr_t, if needed */
+#include "../utils/mem.h"
 
 /*  integer square‑root for unsigned 64‑bit values ------------------------------------- */
 static idx_t floor_isqrt_u64(idx_t x)
@@ -47,9 +49,9 @@ static void build_table(idx_t new_s)
     seq_t **newT = (seq_t **)malloc((new_s + 1) * sizeof(seq_t *));
     if (!newT) return;   /* allocation failure – the caller will get a zero result */
     for (idx_t r = 0; r <= new_s; ++r) {
-        newT[r] = (seq_t *)calloc((new_s + 1), sizeof(seq_t));
+        newT[r] = mem_new(seq_t, (new_s + 1));
         if (!newT[r]) { /* cleanup previously allocated rows */
-            for (idx_t rr = 0; rr < r; ++rr) free(newT[rr]);
+            for (idx_t rr = 0; rr < r; ++rr) mem_free(newT[rr]);
             free(newT);
             return;
         }
@@ -70,7 +72,7 @@ static void build_table(idx_t new_s)
 
     /* Free the old table, if any */
     if (T_table) {
-        for (idx_t r = 0; r <= T_max_s; ++r) free(T_table[r]);
+        for (idx_t r = 0; r <= T_max_s; ++r) mem_free(T_table[r]);
         free(T_table);
     }
 

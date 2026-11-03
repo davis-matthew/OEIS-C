@@ -9,13 +9,15 @@
  * Formula:   a(n) = coefficient of ∏_{k≥1} 1/(1 - binomial(k+2,2)·x^k)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 18, u64 n <= 38, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 851 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,9 +29,9 @@ seq_t a(idx_t n)
 
     /* ensure the array is large enough */
     if (dp_len < N + 1) {
-        seq_t *new_dp = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, (N + 1));
         if (!new_dp) return 0;   /* allocation failure */
-        free(dp);
+        mem_free(dp);
         dp = new_dp;
         dp_len = N + 1;
     }

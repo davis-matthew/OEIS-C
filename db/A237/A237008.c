@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 6, u32 n <= 14, u64 n <= 30, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
    where A(k)=∑_{s=0}^6 f(s)^k.  The values A(k) are precomputed
    up to the required maximum. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Precomputed per-sum counts */
 static const seq_t f[7] = {1, 2, 3, 4, 3, 2, 1};
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (!A) {
         A_cnt = 1;            /* we will compute A[0] */
-        A = (seq_t *)malloc(sizeof(seq_t) * A_cnt);
+        A = mem_new(seq_t, A_cnt);
         if (!A)
             return (seq_t)0; /* allocation failure (should not happen) */
 
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* extend cache if necessary */
     if ((size_t)kmax >= A_cnt) {
         size_t new_cnt = (size_t)kmax + 1;
-        seq_t *tmp = (seq_t *)realloc(A, new_cnt * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, new_cnt);
         if (!tmp)
             return (seq_t)0; /* allocation failure */
         A = tmp;

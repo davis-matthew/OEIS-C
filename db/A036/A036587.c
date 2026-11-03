@@ -11,6 +11,7 @@
  *            Σ_{1 ≤ i ≤ floor((n-1)/2)}[ * if i < n-1-i...
  * Range:     u8 n <= 15, u16 n <= 15, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
+ * Validated: full, pass, 16 terms through n = 15 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

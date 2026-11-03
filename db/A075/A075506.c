@@ -8,13 +8,15 @@
  *            2nd kind)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 387 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *a_vals = NULL;          /* array of computed a(n) */
@@ -29,7 +31,7 @@ static void grow_array(seq_t **arr, size_t *cap, size_t need)
     if (need <= *cap) return;
     size_t new_cap = (*cap > 0) ? (*cap) * 2 : 1;
     while (new_cap < need) new_cap *= 2;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     /* initialise the new part to zero */
     for (size_t i = *cap; i < new_cap; ++i) (*arr)[i] = (seq_t)0;
     *cap = new_cap;
@@ -41,11 +43,11 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (a_vals == NULL) {
         a_cap = 1;
-        a_vals = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_cap);
         a_vals[0] = (seq_t)1;      /* a(0) = 1 */
 
         b_cap = 1;
-        b = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        b = mem_new(seq_t, b_cap);
         b[0] = (seq_t)1;          /* b[0] = 1 for n = 0 */
 
         computed = 0;

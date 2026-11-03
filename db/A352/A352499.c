@@ -10,8 +10,9 @@
  *            ∑_{i=1}^{r-1} L(i) < n ≤ ∑_{i=1}^{r} L(i) L(i) =
  *            ⌊(√(8i+1)+1)/4⌋, k = n – ∑_{i=1}^{r-1} L(i), and T(r,k) = r if
  *            (2k‑1) divides r, otherwise 0
- * Range:     u8 n <= 1870, u16 n <= 9495, u32 n <= 9495, u64 n <= 9495,
- *            u128 n <= 9495, big any n
+ * Range:     u8 n <= 1870, u16 n <= 10490, u32 n <= 10490, u64 n <= 10490,
+ *            u128 n <= 10490, big any n
+ * Validated: standard, pass, 98 terms through n = 9495 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  *            at step n-1 (exact big-integer arithmetic internally)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bn_add_small
+ * Validated: standard, pass, 115 terms through n = 9274 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,15 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/bn_add_small.h"
+
+static void bn_add_small(uint32_t *a, size_t len, uint32_t v) {
+    uint64_t c = v;
+    for (size_t i = 0; i < len && c; i++) {
+        uint64_t s = (uint64_t)a[i] + c;
+        a[i] = (uint32_t)s;
+        c = s >> 32;
+    }
+}
 
 static void bn_mul_small(uint32_t *a, size_t len, uint32_t m) {
     uint64_t c = 0;

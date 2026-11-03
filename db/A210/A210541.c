@@ -10,12 +10,14 @@
  *            a(4) = 1
  * Range:     u8 n <= 11, u16 n <= 16, u32 n <= 25, u64 n <= 39, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Allocate/expand the memoization array if necessary */
     if (n >= cap) {
         size_t new_cap = (size_t)n + 1;          /* include index 0 */
-        seq_t *tmp = (seq_t*)realloc(dp, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_cap);
         if (!tmp) exit(1);                      /* allocation failed */
         dp  = tmp;
         cap = new_cap;

@@ -9,7 +9,8 @@
  *            ∈ {1} ∪ primes(>1) (OEIS A096139)
  * Range:     u8 n <= 1364, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 9715 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state for prime sieve and memoization */
 static bool *is_prime = NULL;        /* sieve of size sieve_len   */
@@ -55,11 +57,11 @@ static void ensure_cache(idx_t n)
     if (cache_len >= n) return;      /* already enough */
 
     size_t new_len = n * 2;          /* grow by factor 2 to avoid many reallocs */
-    seq_t *new_cache = (seq_t*)calloc(new_len, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_len);
     if (!new_cache) return;          /* allocation failed */
     /* copy old values */
     for (size_t i = 0; i < cache_len; ++i) new_cache[i] = cache[i];
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_len = new_len;
 }

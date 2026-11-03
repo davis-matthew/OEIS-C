@@ -11,13 +11,15 @@
  *            odd} (-1)^{(k-1)/2} * s(r,k). The arrays...
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 13, i64 n <= 21, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *T_cache = NULL;   /* Σ_{m} (-1)^m s(n,2m)   */
 static seq_t *O_cache = NULL;   /* Σ_{m} (-1)^{m} s(n,2m-1) */
@@ -29,8 +31,8 @@ static void ensure_T_O(idx_t n)
     if (cache_max >= n) return;
 
     size_t new_size = (size_t)n + 1;
-    T_cache = (seq_t *)realloc(T_cache, new_size * sizeof(seq_t));
-    O_cache = (seq_t *)realloc(O_cache, new_size * sizeof(seq_t));
+    T_cache = mem_resize(seq_t, T_cache, new_size);
+    O_cache = mem_resize(seq_t, O_cache, new_size);
 
     /* If this is the first allocation, initialise the base case */
     if (cache_max == 0) {

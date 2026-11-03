@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 103, u16 n <= 103, u32 n <= 103, u64 n <= 103,
  *            u128 n <= 103, big any n
- * Helpers:   none
+ * Validated: partial, pass, 104 terms through n = 103 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External integer types provided by the build. */
 extern struct { /* placeholder for build‑defined types */ } *no_distinction;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
             /* Double until it fits, but at least 16.  */
             idx_t new_cap = cap ? cap << 1 : 16;
             while (new_cap < needed) new_cap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort(); /* allocation failed */
             cache = tmp;
             cap   = new_cap;

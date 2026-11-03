@@ -12,7 +12,8 @@
  *            x. A short segmented sieve walk from that x t...
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   a5579_L, a5579_atanh2, a5579_isqrt
+ * Validated: standard, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,26 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/a5579_L.h"
-#include "../utils/a5579_atanh2.h"
-#include "../utils/a5579_isqrt.h"
+#include "../utils/isqrt_u64.h"
+
+/* 2*atanh(u) for 0 <= u <= 1/3 */
+static long double a5579_atanh2(long double u) {
+    long double u2 = u * u, t = u, s = 0;
+    int j;
+    if (u == 0) return 0;
+    for (j = 1; j < 400; j += 2) {
+        long double term = t / j;
+        s += term;
+        if (term <= s * 1e-22L) break;
+        t *= u2;
+    }
+    return 2 * s;
+}
+
+/* log(p/(p-1)) */
+static long double a5579_L(uint64_t p) {
+    return a5579_atanh2(1.0L / (long double)(2 * p - 1));
+}
 
 #define A5579_SEG (1u << 20)
 
@@ -83,7 +101,7 @@ static long double a5579_H2(uint64_t v) {
 
 /* F = Sum_{p<=x} log(p/(p-1)), P = pi(x) */
 static void a5579_lucy(uint64_t x, long double *F, uint64_t *P) {
-    uint64_t r = a5579_isqrt(x), v, i, p;
+    uint64_t r = isqrt_u64(x), v, i, p;
     int64_t *lc = (int64_t *)malloc((size_t)(r + 1) * sizeof(int64_t));
     int64_t *hc = (int64_t *)malloc((size_t)(r + 1) * sizeof(int64_t));
     long double *l1 = (long double *)malloc((size_t)(r + 1) * sizeof(long double));
@@ -175,7 +193,7 @@ static void a5579_seg_sieve(uint64_t lo, uint64_t hi) {
     size_t k;
     if (!a5579_mark) a5579_mark = (unsigned char *)malloc(A5579_SEG);
     memset(a5579_mark, 0, (size_t)(hi - lo));
-    a5579_ensure_base(a5579_isqrt(hi) + 1);
+    a5579_ensure_base(isqrt_u64(hi) + 1);
     for (k = 0; k < a5579_nbp; k++) {
         uint64_t q = a5579_bp[k], start = q * q, j;
         if (start >= hi) break;

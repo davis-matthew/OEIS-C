@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 4390, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 67 terms through n = 8500 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Static storage for the already found values of the sequence. */
 static seq_t *k_values = NULL;   /* array of found k's */
@@ -34,11 +36,11 @@ static void ensure_capacity()
 {
     if (sz >= cap) {
         size_t newcap = (cap < 16) ? 16 : cap * 2;
-        seq_t *newptr = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *newptr = mem_new(seq_t, newcap);
         if (!newptr) return;          /* allocation failed – should not happen in tests */
         if (k_values) {
-            memcpy(newptr, k_values, sz * sizeof(seq_t));
-            free(k_values);
+            mem_copy(newptr, k_values, sz * sizeof(seq_t));
+            mem_free(k_values);
         }
         k_values = newptr;
         cap = newcap;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* Generate values until we have at least n of them. */
     while (sz < (size_t)n) {
         uint64_t val = 139ULL * curr_k + 137ULL;   /* 139*k + 137 */
-        if (is_prime(val)) {
+        if (is_prime_u64(val)) {
             ensure_capacity();
             k_values[sz++] = (seq_t)curr_k;
         }

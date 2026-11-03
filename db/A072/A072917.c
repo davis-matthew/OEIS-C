@@ -9,20 +9,23 @@
  *            φ(n)
  * Range:     u8 n <= 420, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_prime, phi
+ * Validated: standard, pass, 116 terms through n = 9643 (2026-11-01)
+ * Helpers:   next_prime, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Uses the utilities phi() and next_prime() */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     /* compute Euler's totient */
-    seq_t phi_val = phi(n);
+    seq_t phi_val = totient(n);
 
     /* find the least prime > phi_val */
     uint64_t next = next_prime((uint64_t)phi_val);

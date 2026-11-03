@@ -7,13 +7,15 @@
  * Formula:   a(0)=1; for n>0, a(n)=Σ_{d|n} a(n−d) (order of summands matters)
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 35, u64 n <= 71, u128 n <= 143,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 1960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
     /* dynamic programming: dp[s] = number of compositions of s */
     size_t dp_size = (size_t)n + 1;
-    seq_t *dp = (seq_t *)malloc(dp_size * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     if (!dp) { free(divs); return (seq_t)0; }
     dp[0] = (seq_t)1;
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)n];
-    free(dp);
+    mem_free(dp);
     free(divs);
     return result;
 }

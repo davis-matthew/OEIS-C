@@ -8,7 +8,8 @@
  * Formula:   a(n) = A383706(A122111(n))
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   compute_pi, factor_u64
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   factor_u64, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,8 @@
 #include <stdbool.h>
 
 /* Provided helper functions */
-#include "../utils/factor_u64.h"      /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/compute_pi.h"     /* seq_t compute_pi(idx_t n); */
+#include "../utils/factor_u64.h"
+#include "../utils/prime_pi.h"
 
 /* Small vector of masks for strict partitions of a given size */
 typedef struct {
@@ -85,7 +86,7 @@ seq_t a(idx_t n)
     size_t freqcnt = 0;
     for (size_t i = 0; i < pcnt; ++i) {
         uint64_t p = primes[i];
-        idx_t idx = (idx_t)compute_pi(p);          /* index of prime p */
+        idx_t idx = (idx_t)prime_pi(p);          /* index of prime p */
         /* accumulate multiplicity exp[i] */
         bool found = false;
         for (size_t j = 0; j < freqcnt; ++j) {

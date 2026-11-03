@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * static array so that calls with arbitrary n are efficient. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Count the decimal digits of x.  The array cnt must be of length 10. */
 static void count_digits(seq_t x, unsigned char cnt[10])
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* Initialise storage on the first call. */
     if (count == 0) {
         cap    = 16;
-        cache  = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache  = mem_new(seq_t, cap);
         if (!cache) abort();
     }
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
             /* Ensure capacity. */
             if (count >= cap) {
                 size_t new_cap = cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();
                 cache = tmp;
                 cap   = new_cap;

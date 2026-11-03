@@ -11,13 +11,15 @@
  *            a(n) = (1/n) * Σ_{k=1..n} ( Σ_{d|k} d*c_d ) * a(n-k)
  * Range:     i8 n <= 35, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const int period10[10] = {  2, -2,  2, -2,  1, -2,  2, -2,  2, -2 };
 
@@ -33,8 +35,8 @@ static void ensure_cache(idx_t n)
     /* Allocate initial storage if needed */
     if (cache_a == NULL) {
         cache_cap = 16;
-        cache_a = (seq_t *)malloc((size_t)cache_cap * sizeof(seq_t));
-        cache_b = (seq_t *)malloc((size_t)cache_cap * sizeof(seq_t));
+        cache_a = mem_new(seq_t, (size_t)cache_cap);
+        cache_b = mem_new(seq_t, (size_t)cache_cap);
         if (!cache_a || !cache_b) {
             /* Allocation failure – abort program. */
             abort();
@@ -50,8 +52,8 @@ static void ensure_cache(idx_t n)
     while (cache_cap <= n) {
         cache_cap *= 2;
     }
-    seq_t *tmp_a = (seq_t *)realloc(cache_a, (size_t)cache_cap * sizeof(seq_t));
-    seq_t *tmp_b = (seq_t *)realloc(cache_b, (size_t)cache_cap * sizeof(seq_t));
+    seq_t *tmp_a = mem_resize(seq_t, cache_a, (size_t)cache_cap);
+    seq_t *tmp_b = mem_resize(seq_t, cache_b, (size_t)cache_cap);
     if (!tmp_a || !tmp_b) {
         abort();
     }

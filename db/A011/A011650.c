@@ -8,15 +8,62 @@
  *            Φ₁₀₅(x)
  * Range:     i8 n <= 48, i16 n <= 48, i32 n <= 48, i64 n <= 48, i128 n <= 48,
  *            big any n
- * Helpers:   divide_polynomial, mul_xd_minus_1
+ * Validated: full, pass, 49 terms through n = 48 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/divide_polynomial.h"
-#include "../utils/mul_xd_minus_1.h"
+
+/* Generic polynomial division:  P = Q * div + rem
+   Both P and div are monic (leading coefficient 1).  The quotient
+   is written to Quotient[0 .. degP - degDiv] and its degree to *degQ_out.
+   All intermediate values stay within the range of seq_t. */
+static void divide_polynomial(
+    const seq_t *P,      size_t degP,
+    const seq_t *Div,    size_t degDiv,
+    seq_t *Quotient,     size_t *degQ_out)
+{
+    seq_t R[121];
+    for (size_t i = 0; i <= degP; ++i)
+        R[i] = P[i];
+    size_t rdeg = degP;
+    size_t qdeg_max = degP - degDiv;      /* maximum possible degree of quotient */
+    for (size_t i = 0; i <= qdeg_max; ++i)
+        Quotient[i] = 0;
+
+    while (rdeg >= degDiv) {
+        seq_t coeff = R[rdeg];
+        size_t shift = rdeg - degDiv;
+        Quotient[shift] = coeff;
+        for (size_t j = 0; j <= degDiv; ++j) {
+            R[shift + j] -= coeff * Div[j];
+        }
+        while (rdeg > 0 && R[rdeg] == 0)
+            --rdeg;
+    }
+    *degQ_out = qdeg_max;
+}
+
+static void mul_xd_minus_1(seq_t *poly, size_t *deg, idx_t d)
+{
+    size_t old_deg = *deg;
+    size_t new_deg = old_deg + d;
+    seq_t temp[121];                       /* 3+5+7+105 = 120 is the largest degree to appear */
+    for (size_t i = 0; i <= new_deg; ++i) {
+        seq_t val = 0;
+        if (i <= old_deg)                 /* subtract poly[i]   */
+            val -= poly[i];
+        if (i >= d && (i - d) <= old_deg) /* add poly[i-d]     */
+            val += poly[i - d];
+        temp[i] = val;
+    }
+    for (size_t i = 0; i <= new_deg; ++i)
+        poly[i] = temp[i];
+    *deg = new_deg;
+}
 
 seq_t a(idx_t n)
 {

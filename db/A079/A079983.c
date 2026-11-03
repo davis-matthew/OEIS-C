@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static array of the first 20 values */
 static const seq_t base_vals[20] = {
@@ -44,7 +46,7 @@ static void ensure_capacity(idx_t n)
         /* Grow to next power of two for amortised efficiency */
         if (new_cap < 64) new_cap = 64;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *new_buf = (seq_t *)realloc(buf, new_cap * sizeof(seq_t));
+        seq_t *new_buf = mem_resize(seq_t, buf, new_cap);
         if (!new_buf) return;          /* allocation failure – caller will see garbage */
         /* zero newly allocated part */
         for (idx_t i = buf_cap; i < new_cap; ++i) new_buf[i] = 0;
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     /* initialise buffer with first 20 values only once */
     if (!buf) {
         buf_cap = 64;                         /* initial capacity */
-        buf = (seq_t *)calloc(buf_cap, sizeof(seq_t));
+        buf = mem_new(seq_t, buf_cap);
         for (idx_t i = 0; i < 20; ++i) buf[i] = base_vals[i];
         buf_computed = 20;                    /* we have values 0..19 */
     }

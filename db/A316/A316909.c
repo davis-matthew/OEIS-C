@@ -7,8 +7,9 @@
  * Keywords:  base, nonn
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 37, u32 n <= 318, u64 n <= 5989,
- *            u128 n <= 8995, big any n
- * Helpers:   digit_len
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 69 terms through n = 8995 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,9 @@
    the above process incrementally. */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/digit_len.h"
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* stored terms, 0‑based */
 static idx_t seq_size   = 0;       /* number of terms stored */
@@ -44,7 +47,7 @@ static void seq_Grow(idx_t needed)
     if (needed <= seq_cap) return;
     if (seq_cap == 0) seq_cap = 64;
     while (seq_cap < needed) seq_cap <<= 1;
-    seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, seq_cap);
 }
 
 static void digits_Grow(size_t needed)
@@ -79,7 +82,7 @@ static uint8_t digits_Pop(void)
 static void enqueue_digits(seq_t val)
 {
     if (val == 0) { digits_Push(0); return; }
-    size_t len = (size_t)digit_len(val);
+    size_t len = (size_t)num_digits(val);
     uint8_t *rev = (uint8_t *)malloc(len);
     seq_t temp = val;
     for (size_t i = 0; i < len; ++i) {

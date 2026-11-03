@@ -12,14 +12,21 @@
  *            indexed from 1
  * Range:     u8 none, u16 n <= 3, u32 n <= 11, u64 n <= 25, u128 n <= 51,
  *            big any n
- * Helpers:   pair_index
+ * Validated: standard, pass, 35 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pair_index.h"
+#include "../utils/mem.h"
+
+/* Helper to map pair of differences (d1,d2) to a linear index. */
+static inline int pair_index(int d1, int d2)
+{
+    return (d1 + 6) * 13 + (d2 + 6);
+}
 
 #define DIFF_MIN   (-6)
 #define DIFF_MAX   (6)
@@ -107,7 +114,7 @@ static void ensure_cache_upto(idx_t n)
     if ((size_t)(n + 1) > cache_len)
     {
         size_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) /* allocation failed; abort */
             exit(1);
         cache = tmp;

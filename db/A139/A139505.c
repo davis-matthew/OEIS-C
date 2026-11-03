@@ -7,7 +7,8 @@
  * Formula:   primes of the form x^2 + 25*x*y + y^2 for x,y ≥ 0
  * Range:     u8 none, u16 none, u32 n <= 5000, u64 n <= 5000, u128 n <= 5000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 4847 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* --- Helper: integer square root for idx_t --------------------------------- */
 static idx_t isqrt_u64(idx_t n)
@@ -85,7 +87,7 @@ static void ensure_cache(idx_t n)
 
     /* Reserve initial capacity for the cache.  We will reallocate as needed. */
     cache_cap = 200000;
-    cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache     = mem_new(seq_t, cache_cap);
     if (!cache) {
         free(isprime);
         free(seen);
@@ -104,7 +106,7 @@ static void ensure_cache(idx_t n)
                 seen[val] = 1;
                 if (cache_size == cache_cap) {
                     cache_cap *= 2;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                     if (!cache) { free(isprime); free(seen); return; }
                 }
                 cache[cache_size++] = (seq_t)val;
@@ -116,7 +118,7 @@ static void ensure_cache(idx_t n)
     free(seen);
 
     /* Sort the cache to obtain increasing order of primes. */
-    qsort(cache, cache_size, sizeof(seq_t), cmp_seq_t_asc);
+    mem_qsort(cache, cache_size, sizeof(seq_t), cmp_seq_t_asc);
 
     built = true;
     /* If cache_size < n the LIMIT was too small; for n ≤ 10 000

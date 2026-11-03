@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_27_or_72
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_27_or_72.h"
+#include "../utils/mem.h"
+
+/* Test whether x contains "27" or "72" as a decimal substring. */
+static bool has_27_or_72(seq_t x)
+{
+    if (x < (seq_t)10) return false;
+    seq_t last = x % (seq_t)10;
+    x /= (seq_t)10;
+    while (x > (seq_t)0) {
+        seq_t cur = x % (seq_t)10;
+        if ((cur == (seq_t)2 && last == (seq_t)7) ||
+            (cur == (seq_t)7 && last == (seq_t)2))
+            return true;
+        last = cur;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 /* Return the n-th term of the sequence. */
 seq_t a(idx_t n)
@@ -39,7 +57,7 @@ seq_t a(idx_t n)
             if (!has_27_or_72(prev)) {          /* Ensure k-1 lacks the substring. */
                 if (terms_len == terms_cap) {   /* Grow the array if needed. */
                     size_t new_cap = terms_cap ? terms_cap << 1 : 8;
-                    terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, new_cap);
                     terms_cap = new_cap;
                 }
                 terms[terms_len++] = k;

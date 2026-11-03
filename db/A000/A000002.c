@@ -8,8 +8,9 @@
  * Formula:   Kolakoski self-generation: a(1)=1, a(2)=2, a(3)=2; for k >= 3,
  *            the k-th run has length a(k) and consists of 1's if k is odd,
  *            2's if k is even
- * Range:     u8 n <= 9898, u16 n <= 9898, u32 n <= 9898, u64 n <= 9898,
- *            u128 n <= 9898, big any n
+ * Range:     u8 n <= 10502, u16 n <= 10502, u32 n <= 10502, u64 n <= 10502,
+ *            u128 n <= 10502, big any n
+ * Validated: standard, pass, 124 terms through n = 9898 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

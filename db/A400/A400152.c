@@ -9,7 +9,8 @@
  *            primorial base, p is the corresponding radix prime; a(0) = 1
  * Range:     u8 n <= 23, u16 n <= 179, u32 n <= 2099, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, is_prime_small
+ * Validated: standard, pass, 103 terms through n = 9632 (2026-11-01)
+ * Helpers:   ipow, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/is_prime_seq.h"
 
 /* maximum number of primes we will need – far more than any
    uint64_t primorial requires (the 53rd prime is already > 2^64). */
@@ -48,7 +49,7 @@ static void ensure_cache(idx_t n)
         uint64_t cand = primes[prime_cnt - 1] + 1;
         /* find the next prime; our range is tiny, so a trial
            division test using is_prime_small() is ample. */
-        while (!is_prime_small(cand))
+        while (!is_prime_seq(cand))
             ++cand;
 
         if (prime_cnt >= MAX_PRIMES)
@@ -80,5 +81,5 @@ seq_t a(idx_t n)
     seq_t msd = (seq_t)n / primorials[j];
 
     /* Corresponding radix prime is primes[j] */
-    return big_pow(primes[j], msd);
+    return ipow(primes[j], msd);
 }

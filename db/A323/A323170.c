@@ -10,8 +10,9 @@
  *            fast enough for the required n up to about 10 000. The
  *            comparison is performed in uint64_t to avoid overflow when seq_t
  *            is less than 64 bits
- * Range:     u8 n <= 9232, u16 n <= 9232, u32 n <= 9232, u64 n <= 9232,
- *            u128 n <= 9232, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9232 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

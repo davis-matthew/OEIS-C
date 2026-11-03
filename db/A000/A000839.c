@@ -9,25 +9,25 @@
  *            - n)
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   a000809_p2
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000809_p2.h"
-
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
-    seq_t p2_n_1 = a000809_p2(n - 1);
-    seq_t p2_n = a000809_p2(n);
+    seq_t p2_n_1 = pow2(n - 1);
+    seq_t p2_n = pow2(n);
     
     seq_t base_exp = p2_n + p2_n_1;
     seq_t exp1 = 3 * p2_n - 3 - (seq_t)n;
     seq_t exp3 = base_exp - (seq_t)n;
     
-    seq_t t1 = a000809_p2((idx_t)exp1);
-    seq_t t2 = a000809_p2((idx_t)base_exp);
-    seq_t t3 = a000809_p2((idx_t)exp3);
+    seq_t t1 = pow2((idx_t)exp1);
+    seq_t t2 = pow2((idx_t)base_exp);
+    seq_t t3 = pow2((idx_t)exp3);
     
     return t1 + t2 - t3;
 }

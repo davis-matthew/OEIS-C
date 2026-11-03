@@ -12,14 +12,15 @@
  *            counted by the sum above (plus the * trivial solutions a=c=0,...
  * Range:     u8 n <= 6, u16 n <= 32, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   gcd_idx_t_simple
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/gcd_idx_t_simple.h"
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
         const idx_t maxV = n1 / u;
         for (idx_t v = (idx_t)1; v <= maxV; ++v) {
             /* Skip non‑coprime pairs */
-            if (gcd_idx_t_simple(u, v) != (idx_t)1)
+            if (gcd_idx(u, v) != (idx_t)1)
                 continue;
 
             /* Denominators for the bounds on k */

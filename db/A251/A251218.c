@@ -9,7 +9,8 @@
  *            having 0 or 2 ones
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 15, u128 n <= 32,
  *            big any n
- * Helpers:   allowed_block
+ * Validated: standard, pass, 31 terms through n = 202 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/allowed_block.h"
+
+/* -------------------------------------------------------------------- */
+static inline bool allowed_block(int a_bit, int a_next, int b_bit, int b_next) {
+    int sum = a_bit + a_next + b_bit + b_next;
+    return (sum == 1 || sum == 3 || sum == 4);
+}
 
 /* -------------------------------------------------------------------- */
 /* Dynamic allocation helpers that work both in C and C++               */

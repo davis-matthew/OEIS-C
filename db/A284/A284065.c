@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   power6
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,13 @@
    by the build harness. */
 
 #include <stdbool.h>
-#include "../utils/power6.h"
+
+/* compute base^exp for small exp (exp <= number of digits, usually < 20) */
+static inline seq_t power6(idx_t exp) {
+    seq_t r = 1;
+    for (idx_t i = 0; i < exp; ++i) r *= 6;
+    return r;
+}
 
 static inline seq_t power5(idx_t exp) {
     seq_t r = 1;

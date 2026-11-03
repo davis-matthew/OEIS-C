@@ -11,18 +11,19 @@
  *            a(n) = n + 2 else if n == b²-2 → a(n) = st...
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   ceil_isqrt
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-01)
+ * Helpers:   isqrt_ceil
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/ceil_isqrt.h"
+#include "../utils/isqrt_ceil.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;
     if (n == 1) return 1;           /* special block of length 1 */
 
-    idx_t b = ceil_isqrt(n);        /* block index (b ≥ 1 for n ≥ 1) */
+    idx_t b = isqrt_ceil(n);        /* block index (b ≥ 1 for n ≥ 1) */
     if (b == 1)                     /* block of length 1 (n == 1) */
         return n;
 

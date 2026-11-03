@@ -11,12 +11,14 @@
  *            r*(r+1)/2 in the flattened sequence
  * Range:     u8 n <= 16, u16 n <= 29, u32 n <= 57, u64 n <= 125,
  *            u128 n <= 334, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1320 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **St1 = NULL;     /* table of Stirling numbers */
 static idx_t  St1_max = 0;     /* highest row computed */
@@ -40,13 +42,13 @@ static void ensure_stirling(idx_t max_row)
 
     /* Initialise row 0 if not done yet. */
     if (St1[0] == NULL) {
-        St1[0] = (seq_t *)malloc(sizeof(seq_t));
+        St1[0] = mem_new(seq_t, 1);
         St1[0][0] = 1;
     }
 
     /* Compute missing rows. */
     for (idx_t n = St1_max + 1; n <= max_row; ++n) {
-        St1[n] = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        St1[n] = mem_new(seq_t, (size_t)(n + 1));
         St1[n][0] = 0;                     /* S(n,0) = 0 for n>0 */
         for (idx_t k = 1; k <= n; ++k) {
             seq_t a = St1[n-1][k-1];

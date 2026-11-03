@@ -9,6 +9,7 @@
  *            factors of n (with multiplicity)
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
  * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,8 +20,9 @@
 #include <stddef.h>
 
 /* Utilities from the framework */
-#include "../utils/build_primes_upto.h"   /* build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out); */
-#include "../utils/factor_u64.h"          /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
 
 /* static cache of primes up to the largest processed n */
 static uint64_t *primes_cache = NULL;

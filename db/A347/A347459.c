@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 15, u16 n <= 1003, u32 n <= 9342, u64 n <= 9342,
- *            u128 n <= 9342, big any n
- * Helpers:   cmp_seq_t, dfs_factorisations
+ * Range:     u8 n <= 15, u16 n <= 1003, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 112 terms through n = 9342 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,50 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/cmp_seq_t.h"   /* cmp_seq_t for qsort */
-#include "../utils/dfs_factorisations.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
+
+/* recursive search for factorizations of 'rem', last chosen factor is 'last',
+ * depth parity given by 'depth'.
+ */
+static void dfs_factorisations(seq_t rem, seq_t last, int depth,
+                               seq_t prod_odd, seq_t prod_even,
+                               const seq_t *divs, size_t dcnt,
+                               seq_t *counter)
+{
+    if (rem == (seq_t)1) {
+        if ((depth & 1) == 0) {          /* even length */
+            if (prod_even % prod_odd == (seq_t)0)
+                (*counter) += (seq_t)1;
+        }
+        return;
+    }
+    for (size_t i = 0; i < dcnt; ++i) {
+        seq_t d = divs[i];
+        if (d < last) continue;
+        if (d > rem) break;
+        if (rem % d != (seq_t)0) continue;
+
+        seq_t np_odd  = prod_odd;
+        seq_t np_even = prod_even;
+        if ((depth & 1) == 0)
+            np_odd  = np_odd * d;  /* odd position */
+        else
+            np_even = np_even * d; /* even position */
+
+        dfs_factorisations(rem / d, d, depth + 1, np_odd, np_even,
+                           divs, dcnt, counter);
+    }
+}
 
 /* auxiliary function: generate all divisors of a number from its prime
  * factorization.  'pr' and 'exp' have length 'cnt'.
@@ -96,7 +139,7 @@ seq_t a(idx_t n)
     gen_divisors_rec(factors, exps, fcnt, 0, (seq_t)1, divs, &dcnt);
 
     /* sort divisors */
-    qsort(divs, dcnt, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(divs, dcnt, sizeof(seq_t), cmp_seq_t);
 
     seq_t counter = 0;
     dfs_factorisations((seq_t)(n * (idx_t)n), (seq_t)2, 0,

@@ -9,13 +9,17 @@
  *            The function returns the concatenated number minus n
  * Range:     u8 n <= 15, u16 n <= 63, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digits_u64
+ * Validated: standard, pass, 83 terms through n = 937 (2026-11-01)
+ * Helpers:   num_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digits_u64.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/num_digits_u64.h"
 
 static seq_t pow10_u64(uint64_t e)
 {
@@ -42,7 +46,7 @@ seq_t a(idx_t n)
     /* factor out 2 */
     while ((temp % 2ULL) == 0)
     {
-        int d = digits_u64(2ULL);
+        int d = num_digits_u64(2ULL);
         seq_t ten = pow10_u64(d);
         result = result * ten + (seq_t)2ULL;
         temp /= 2ULL;
@@ -53,7 +57,7 @@ seq_t a(idx_t n)
     {
         while ((temp % p) == 0)
         {
-            int d = digits_u64(p);
+            int d = num_digits_u64(p);
             seq_t ten = pow10_u64(d);
             result = result * ten + (seq_t)p;
             temp /= p;
@@ -63,7 +67,7 @@ seq_t a(idx_t n)
     /* remaining prime factor > sqrt(temp) */
     if (temp > 1ULL)
     {
-        int d = digits_u64(temp);
+        int d = num_digits_u64(temp);
         seq_t ten = pow10_u64(d);
         result = result * ten + (seq_t)temp;
     }

@@ -10,16 +10,27 @@
  *            |i * 2^max(0,bitlen(j)-bitlen(i)) - j *
  *            2^max(0,bitlen(i)-bitlen(j))| (where bitlen(x) = number of bits
  *            needed to represent x, 0↦0)
- * Range:     u8 n <= 9720, u16 n <= 9720, u32 n <= 9720, u64 n <= 9720,
- *            u128 n <= 9720, big any n
- * Helpers:   antidiagonal_coords, pow2
+ * Range:     u8 n <= 10010, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 107 terms through n = 9720 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/antidiagonal_coords.h"
 #include "../utils/pow2.h"
+
+/* mapping from linear index n to pair (i,j) on the antidiagonals of T */
+static inline void antidiagonal_coords(idx_t n, idx_t *i, idx_t *j)
+{
+    /* find s such that (s+1)(s+2)/2 <= n < (s+2)(s+3)/2 */
+    idx_t s = 0;
+    while (((s + 1) * (s + 2)) / 2 <= n) ++s;
+    idx_t pos = n - (s * (s + 1)) / 2;  /* 0 <= pos <= s */
+    *i = pos;
+    *j = s - pos;
+}
 
 static inline unsigned bitlen_idx(idx_t x)
 {

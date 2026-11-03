@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   build_primes_upto, factor_u64
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   build_primes_upto, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -52,8 +53,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/factor_u64.h"          /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/build_primes_upto.h"   /* build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out); */
+#include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *A_tbl = NULL;
 static seq_t *B_tbl = NULL;
@@ -73,9 +75,9 @@ static void ensure_memo(idx_t n)
         return;
     size_t new_cap = (size_t)n + 1;
     new_cap <<= 1;   /* grow by factor of 2 */
-    seq_t *na = (seq_t *)realloc(A_tbl, new_cap * sizeof(seq_t));
-    seq_t *nb = (seq_t *)realloc(B_tbl, new_cap * sizeof(seq_t));
-    seq_t *nc = (seq_t *)realloc(C_tbl, new_cap * sizeof(seq_t));
+    seq_t *na = mem_resize(seq_t, A_tbl, new_cap);
+    seq_t *nb = mem_resize(seq_t, B_tbl, new_cap);
+    seq_t *nc = mem_resize(seq_t, C_tbl, new_cap);
     unsigned char *ncum = (unsigned char *)realloc(computed, new_cap * sizeof(unsigned char));
     if (!na || !nb || !nc || !ncum) {
         abort();   /* memory error */

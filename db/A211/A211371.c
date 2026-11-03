@@ -11,12 +11,14 @@
  *            for n≥1. a(0)=0. See A211371
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
     if (n >= cap)
     {
         idx_t new_cap = n + 1;
-        T = (seq_t *)realloc(T, new_cap * sizeof(seq_t));
-        A = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+        T = mem_resize(seq_t, T, new_cap);
+        A = mem_resize(seq_t, A, new_cap);
 
         /* Fill values from the old capacity up to the new one. */
         for (idx_t i = cap; i < new_cap; ++i)

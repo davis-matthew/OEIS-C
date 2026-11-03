@@ -10,7 +10,8 @@
  *            k+1 does not contain that substring
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper: test if a number contains the substring 1,5 in base‑7. */
 static bool has15(seq_t x)
@@ -50,7 +52,7 @@ static void ensure_capacity(size_t need)
     if (need > seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 8;
         if (new_cap < need) new_cap = need;
-        seq_t *new_arr = (seq_t *)realloc(sequence, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, sequence, new_cap);
         if (!new_arr) abort();
         sequence = new_arr;
         seq_cap = new_cap;

@@ -10,12 +10,14 @@
  *            distinct parts with all parts ≥ 9
  * Range:     u8 n <= 70, u16 n <= 139, u32 n <= 338, u64 n <= 969,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 908 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Grow the buffer if necessary. */
     if (dp == NULL || dp_cap < m + 1) {
         dp_cap = m + 1;
-        dp = (seq_t *)realloc(dp, dp_cap * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, dp_cap);
         if (dp == NULL)
             return 0; /* allocation failure – unlikely in tests */
     }

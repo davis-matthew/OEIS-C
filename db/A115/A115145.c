@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 13, i32 n <= 21, i64 n <= 38, i128 n <= 70,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: standard, pass, 46 terms through n = 1520 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
  */
 
 #include <stdint.h>
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -44,12 +45,12 @@ seq_t a(idx_t n)
         seq_t den = (seq_t)i * (seq_t)(i - 6);
 
         /* reduce with prev */
-        seq_t g1 = seq_gcd(prev >= 0 ? prev : -prev, den);
+        seq_t g1 = gcd(prev >= 0 ? prev : -prev, den);
         prev /= g1;
         den /= g1;
 
         /* reduce num with den */
-        seq_t g2 = seq_gcd(num, den);
+        seq_t g2 = gcd(num, den);
         num /= g2;
         den /= g2;   /* should become 1 */
 

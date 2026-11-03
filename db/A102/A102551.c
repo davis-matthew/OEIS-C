@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = ⌊prime(n)/(prime(n+1)-prime(n))⌋
- * Range:     u8 n <= 54, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
- *            big any n
- * Helpers:   estimate_prime_upper_bound, isqrt_size_t
+ * Range:     u8 n <= 54, u16 n <= 6938, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 89 terms through n = 9633 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/estimate_prime_upper_bound.h"
-#include "../utils/isqrt_size_t.h"
+#include <math.h>
+#include "../utils/isqrt_u64.h"
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 /* Global cache of primes */
 static uint64_t *prime_cache = NULL;    /* array of primes */
@@ -44,7 +54,7 @@ static void generate_primes_until(size_t needed)
 
     sieve[0] = sieve[1] = 1;   /* mark 0 and 1 as non‑prime */
 
-    size_t limit = isqrt_size_t(bound);
+    size_t limit = isqrt_u64(bound);
     for (size_t i = 2; i <= limit; ++i) {
         if (!sieve[i]) {
             for (size_t j = i * i; j <= bound; j += i)

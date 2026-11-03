@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   computeDelta
+ * Validated: standard, pass, 32 terms through n = 200 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,30 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/computeDelta.h"
+
+/* Number of 1‑neighbours for the middle row pixel.  The arguments
+   are packed as five bits per row. */
+static unsigned char computeDelta(uint32_t up, uint32_t mid, uint32_t down)
+{
+    unsigned char v = 0;
+    for (int j = 0; j < 5; ++j) {
+        if (((mid >> j) & 1U) == 0) continue;
+        unsigned int neigh = 0;
+        /* upper row */
+        if (j > 0) neigh += (up >> (j - 1)) & 1U;
+        neigh += (up >> j) & 1U;
+        if (j < 4) neigh += (up >> (j + 1)) & 1U;
+        /* same row (excluding the cell itself) */
+        if (j > 0) neigh += (mid >> (j - 1)) & 1U;
+        if (j < 4) neigh += (mid >> (j + 1)) & 1U;
+        /* lower row */
+        if (j > 0) neigh += (down >> (j - 1)) & 1U;
+        neigh += (down >> j) & 1U;
+        if (j < 4) neigh += (down >> (j + 1)) & 1U;
+        if (neigh > 4) ++v;
+    }
+    return v;
+}
 
 static unsigned char preDelta[32][32][32];
 static bool preDelta_initialized = false;

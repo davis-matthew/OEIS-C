@@ -9,14 +9,16 @@
  *            C(floor((n-1)/3), 2k) * C(n-floor((n-1)/3), k)
  * Range:     u8 n <= 15, u16 n <= 27, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Where C denotes binomial coefficient (combination). */
 
-#include "../utils/binom.h"   /* binom(idx_t a, idx_t b) available */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -37,8 +39,8 @@ seq_t a(idx_t n)
 
     seq_t total = 0;
     for (idx_t k = 1; k <= maxk; ++k) {
-        seq_t low_choice  = binom(L, 2 * k);
-        seq_t high_choice = binom(H, k);
+        seq_t low_choice  = binomial(L, 2 * k);
+        seq_t high_choice = binomial(H, k);
         total += low_choice * high_choice;
     }
     return total;

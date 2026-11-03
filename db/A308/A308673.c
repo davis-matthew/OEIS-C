@@ -11,7 +11,8 @@
  *            otherwise a(n+1)=1
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>   /* malloc, free, abort */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* 1‑indexed cache */
 static size_t cache_cap = 0;  /* allocated capacity (excluding unused index 0) */
@@ -37,12 +39,12 @@ ensure_cache(idx_t n)
     size_t new_cap = cache_cap ? cache_cap << 1 : 4;   /* double or start at 4 */
     while (new_cap < n)
         new_cap <<= 1;
-    seq_t *new_data = (seq_t*)malloc((new_cap + 1) * sizeof(seq_t));
+    seq_t *new_data = mem_new(seq_t, (new_cap + 1));
     if (!new_data) abort();           /* out of memory */
     if (cache) {                       /* copy existing entries */
         for (idx_t i = 1; i <= cache_size; ++i)
             new_data[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_data;
     cache_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 22, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #ifdef __cplusplus
 #include <type_traits>
@@ -51,10 +53,10 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
     if (N + 1 > cap) {
         /* Grow cache and g arrays to size N+1 */
-        if (cache) free(cache);
-        if (g)     free(g);
-        cache = (seq_t*)calloc(N + 1, sizeof(seq_t));
-        g     = (seq_t*)calloc(N + 1, sizeof(seq_t));
+        if (cache) mem_free(cache);
+        if (g)     mem_free(g);
+        cache = mem_new(seq_t, N + 1);
+        g     = mem_new(seq_t, N + 1);
         if (!cache || !g) {
             /* Allocation failed – abort */
 #if defined(__cplusplus)

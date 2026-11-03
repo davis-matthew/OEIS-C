@@ -13,6 +13,7 @@
  *            new root (x–d) is multiplied into the curr...
  * Range:     i8 n <= 11, i16 n <= 37, i32 n <= 46, i64 n <= 46, i128 n <= 46,
  *            big any n
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

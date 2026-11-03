@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -40,6 +41,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cache of computed values.  Cached up to the largest n requested. */
 static seq_t *cached_vals = NULL;
@@ -52,13 +54,13 @@ seq_t a(idx_t n)
     size_t needed = (size_t)n + 1;
     if (n >= cached_size) {
         /* Allocate new arrays for the larger request. */
-        seq_t *new_cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, needed);
         if (!new_cache) abort();
 
         /* Working arrays for the computation up to 'needed-1'. */
-        seq_t *P    = (seq_t *)calloc(needed, sizeof(seq_t));   /* partitions up to t‑1 */
-        seq_t *pos  = (seq_t *)calloc(needed, sizeof(seq_t));   /* positive contributions */
-        seq_t *neg  = (seq_t *)calloc(needed, sizeof(seq_t));   /* negative contributions */
+        seq_t *P    = mem_new(seq_t, needed);   /* partitions up to t‑1 */
+        seq_t *pos  = mem_new(seq_t, needed);   /* positive contributions */
+        seq_t *neg  = mem_new(seq_t, needed);   /* negative contributions */
         if (!P || !pos || !neg) abort();
 
         /* Initial partitions: only part 0 is possible. */
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
             size_t max_c = (n >= tri) ? (size_t)((n - tri) / t) : 0;
 
             /* Store binomial coefficients C(c+7,7) for c=0..max_c. */
-            seq_t *comb = (seq_t *)malloc((max_c + 1) * sizeof(seq_t));
+            seq_t *comb = mem_new(seq_t, (max_c + 1));
             if (!comb) abort();
             comb[0] = (seq_t)1;
             for (size_t c = 1; c <= max_c; ++c) {
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
                 }
             }
 
-            free(comb);
+            mem_free(comb);
 
             /* Update P to include parts of size t for the next iteration. */
             for (idx_t w = t; w <= n; ++w)
@@ -117,11 +119,11 @@ seq_t a(idx_t n)
             new_cache[i] = pos[i] - neg[i];   /* final value is non‑negative */
 
         /* Clean up. */
-        free(P);
-        free(pos);
-        free(neg);
+        mem_free(P);
+        mem_free(pos);
+        mem_free(neg);
         /* Replace the old cache. */
-        free(cached_vals);
+        mem_free(cached_vals);
         cached_vals = new_cache;
         cached_size = needed;
     }

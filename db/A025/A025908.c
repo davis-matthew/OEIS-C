@@ -11,12 +11,14 @@
  *            iterates over each part size once, guarantee...
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;   /* memoised DP table */
 static idx_t   dp_size = 0;/* size of dp (entries 0 … dp_size-1) */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (n >= dp_size)
     {
         idx_t new_size = n + 1;
-        seq_t *new_dp = (seq_t *)malloc(sizeof(seq_t) * new_size);
+        seq_t *new_dp = mem_new(seq_t, new_size);
         if (!new_dp) return 0;                   /* allocation failure → 0 */
 
         /* Zero‑initialise and set the base case. */
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old table and free its memory. */
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
         dp = new_dp;
         dp_size = new_size;
     }

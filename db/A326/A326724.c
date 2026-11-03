@@ -11,12 +11,14 @@
  *            n-th element of the triangle read row by row
  * Range:     i8 n <= 6, i16 n <= 14, i32 n <= 29, i64 n <= 35, i128 n <= 35,
  *            big any n
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 #define MAX_E 2000          /* enough for n up to ≈10⁴ */

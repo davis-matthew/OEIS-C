@@ -8,7 +8,8 @@
  *            (n+1)^2
  * Range:     u8 n <= 695, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 926 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build environment. */
 /* extern idx_t; extern seq_t; are not required to be declared here. */
@@ -84,7 +86,7 @@ static void init_counts(void)
     /* ----------------------------------------------------- */
     /* Step 2: Allocate array for a(n) values.              */
     /* ----------------------------------------------------- */
-    counts = (seq_t *)calloc(MAX_N + 1ULL, sizeof(seq_t));
+    counts = mem_new(seq_t, MAX_N + 1ULL);
     if (!counts) {
         free(is_prime);
         free(prime_buf);

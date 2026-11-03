@@ -7,6 +7,7 @@
  * Formula:   a(n) = 7^n*(n+1)*(81*n^4+684*n^3+1401*n^2+434*n+40)/40
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 5, u64 n <= 15, u128 n <= 18,
  *            big any n
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

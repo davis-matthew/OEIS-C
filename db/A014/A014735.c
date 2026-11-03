@@ -10,18 +10,20 @@
  *            triangle
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 14, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Previous row data */
     size_t prev_size = 1;
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t) * prev_size);
+    seq_t *prev = mem_new(seq_t, prev_size);
     prev[0] = 1;  /* row 1 contains only 1 */
 
     idx_t odd_cnt = 0;   /* how many odd entries (≠1) have been seen */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Iterate over rows until we reach the requested odd element */
     while (odd_cnt < n) {
         size_t cur_size = prev_size + 1;   /* next row length */
-        seq_t *cur = (seq_t *)malloc(sizeof(seq_t) * cur_size);
+        seq_t *cur = mem_new(seq_t, cur_size);
 
         cur[0] = 1;  /* each Eulerian triangle row starts with 1 */
 
@@ -47,15 +49,15 @@ seq_t a(idx_t n)
                 ++odd_cnt;
                 if (odd_cnt == n) {
                     seq_t result = val * val;
-                    free(prev);
-                    free(cur);
+                    mem_free(prev);
+                    mem_free(cur);
                     return result;
                 }
             }
         }
 
         /* Prepare for next iteration: current row becomes previous */
-        free(prev);
+        mem_free(prev);
         prev = cur;
         prev_size = cur_size;
     }

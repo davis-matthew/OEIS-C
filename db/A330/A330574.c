@@ -9,13 +9,15 @@
  *            and sign) and * d(m) is the number of divisors of m
  * Range:     u8 n <= 4, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 101 terms through n = 9540 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of precomputed values */
@@ -32,9 +34,9 @@ seq_t a(idx_t n) {
     if (needed > cache_lim) {
         /* Allocate space for indices 0 … needed */
         size_t sz = (size_t)needed + 1U;
-        free(r2);   free(div);  free(d1);  free(d3);
-        r2  = (seq_t*)calloc(sz, sizeof(seq_t));
-        div = (seq_t*)calloc(sz, sizeof(seq_t));
+        mem_free(r2);   mem_free(div);  free(d1);  free(d3);
+        r2  = mem_new(seq_t, sz);
+        div = mem_new(seq_t, sz);
         d1  = (idx_t*)calloc(sz, sizeof(idx_t));
         d3  = (idx_t*)calloc(sz, sizeof(idx_t));
         if (!r2 || !div || !d1 || !d3) return (seq_t)0;   /* allocation failure */

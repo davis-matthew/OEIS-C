@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 947, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9351 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,13 +22,14 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Push a value into a min‑heap. */
 static void heap_push(seq_t **arr, size_t *len, size_t *cap, seq_t val)
 {
     if (*len >= *cap) {
         *cap = (*cap == 0) ? 64 : (*cap << 1);
-        *arr = (seq_t *)realloc(*arr, *cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
     }
     size_t i = *len;
     (*arr)[i] = val;
@@ -80,12 +82,12 @@ seq_t a(idx_t n)
     /* Initialization on first call. */
     if (seq == NULL) {
         seq_cap = 64;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)1;
         seq_len = 1;
 
         heap_cap = 64;
-        heap = (seq_t *)malloc(heap_cap * sizeof(seq_t));
+        heap = mem_new(seq_t, heap_cap);
         heap_len = 0;
 
         /* Insert initial children: 3*1-1 = 2, 4*1-1 = 3. */
@@ -106,7 +108,7 @@ seq_t a(idx_t n)
         /* Accept a new term. */
         if (seq_len >= seq_cap) {
             seq_cap <<= 1;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len++] = x;
         prev_val = x;

@@ -8,7 +8,8 @@
  *            (unordered pairs)
  * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 44, u64 n <= 170, u128 n <= 629,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 5001 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    working for arbitrary‑precision classes. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static int cmp_seq_t(const void *a, const void *b) {
     const seq_t v1 = *(const seq_t *)a;
@@ -54,7 +56,7 @@ seq_t a(idx_t n) {
     }
     /* Size needed for all unordered pairs (i,j) with i <= j < pow_cnt */
     size_t terms_cap = pow_cnt * (pow_cnt + 1) / 2;
-    seq_t *terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+    seq_t *terms = mem_new(seq_t, terms_cap);
     if (!terms) return 0;                        /* allocation failure */
     size_t terms_cnt = 0;
     for (size_t i = 0; i < pow_cnt; ++i) {
@@ -66,7 +68,7 @@ seq_t a(idx_t n) {
         }
     }
     /* Sort the sums and remove duplicates (unlikely but harmless). */
-    qsort(terms, terms_cnt, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(terms, terms_cnt, sizeof(seq_t), cmp_seq_t);
     size_t uniq = 0;
     for (size_t i = 0; i < terms_cnt; ++i) {
         if (uniq == 0 || terms[i] != terms[uniq-1]) {
@@ -75,6 +77,6 @@ seq_t a(idx_t n) {
     }
     seq_t result = 0;
     if ((idx_t)uniq > n) result = terms[n];
-    free(terms);
+    mem_free(terms);
     return result;
 }

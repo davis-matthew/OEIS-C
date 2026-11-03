@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 21, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* constants and data structures                                         */
@@ -138,7 +140,7 @@ static inline void initialise(void)
     dp_next = dp_next_arr;
 
     /* DP for n = 1 : arrays with two rows (one adjacent pair)          */
-    memset(dp_cur, 0, sizeof(dp_cur_arr));
+    mem_set(dp_cur, 0, sizeof(dp_cur_arr));
     seq_t total = 0;
     for (idx_t id = 0; id < PAIRS; ++id) {
         if (horiz_ok[id]) {
@@ -151,7 +153,7 @@ static inline void initialise(void)
     /* initialise cache (index 0 unused)                               */
     cache_limit = 2;
     /* use calloc with explicit cast */
-    cache = (seq_t*)calloc((size_t)cache_limit, sizeof(seq_t));
+    cache = mem_new(seq_t, (size_t)cache_limit);
     if (!cache) exit(EXIT_FAILURE);
     cache[1] = total;
 
@@ -169,12 +171,10 @@ static inline void ensure_cache(idx_t n)
     while (new_limit <= n) new_limit *= 2;
 
     /* use realloc with explicit cast */
-    seq_t *new_cache = (seq_t*)realloc((void*)cache,
-                                       (size_t)new_limit * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_limit);
     if (!new_cache) exit(EXIT_FAILURE);
     /* zero the newly allocated part */
-    memset(&new_cache[cache_limit], 0,
-           (size_t)(new_limit - cache_limit) * sizeof(seq_t));
+    mem_set(&new_cache[cache_limit], 0, (size_t)(new_limit - cache_limit) * sizeof(seq_t));
 
     cache = new_cache;
     cache_limit = new_limit;
@@ -194,7 +194,7 @@ seq_t a(idx_t n)
     /* extend DP step by step up to n */
     for (idx_t m = current_n + 1; m <= n; ++m) {
         /* zero next array */
-        memset(dp_next, 0, sizeof(dp_next_arr));
+        mem_set(dp_next, 0, sizeof(dp_next_arr));
 
         /* transition from current to next */
         for (idx_t id = 0; id < PAIRS; ++id) {

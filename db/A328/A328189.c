@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- helper: compare for qsort ---------- */
 static int cmp_uint64(const void *a, const void *b)
@@ -168,7 +170,7 @@ static void ensure_cache_capacity(size_t needed)
     if (g_cache_sz >= needed) return;
     size_t new_cap = g_cache_sz ? g_cache_sz * 2 : 64;
     if (new_cap < needed) new_cap = needed + 16;
-    seq_t *tmp = (seq_t *)realloc(g_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, g_cache, new_cap);
     if (!tmp) abort();
     g_cache = tmp;
     g_cache_sz = new_cap;
@@ -181,7 +183,7 @@ seq_t a(idx_t n)
 
     /* initialise cache on first call */
     if (g_cache_sz == 0) {
-        g_cache = (seq_t *)malloc(64 * sizeof(seq_t));
+        g_cache = mem_new(seq_t, 64);
         if (!g_cache) abort();
         g_cache_sz = 64;
         g_prime_cap = 16;

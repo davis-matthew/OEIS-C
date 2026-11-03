@@ -8,6 +8,7 @@
  * Formula:   a(n) = 2 * (1 + Σ_{i≥1} [bit(i-1) of (n-1)] * 3^i)
  * Range:     u8 n <= 16, u16 n <= 512, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 75 terms through n = 993 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

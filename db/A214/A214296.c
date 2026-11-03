@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* precomputed first 17 terms */
 static const seq_t small_terms[17] = {
@@ -58,7 +60,7 @@ static void init_primes(void)
     for (idx_t i = 2; i <= LIMIT; ++i)
         if (is_prime[i]) ++cnt;
 
-    prime_list = (seq_t*)malloc(cnt * sizeof(seq_t));
+    prime_list = mem_new(seq_t, cnt);
     if (!prime_list) { free(is_prime); return; }
 
     size_t idx = 0;

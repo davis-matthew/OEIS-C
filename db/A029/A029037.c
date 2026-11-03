@@ -8,6 +8,7 @@
  *            Equivalent to the coefficient of 1/((1-x)(1-x^3)(1-x^4)(1-x^11))
  * Range:     u8 n <= 49, u16 n <= 363, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 77 terms through n = 976 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

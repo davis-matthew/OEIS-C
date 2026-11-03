@@ -9,13 +9,15 @@
  *            over v)
  * Range:     u8 n <= 42, u16 n <= 4670, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9607 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *A004862_terms = NULL;
 static idx_t A004862_count = 0;
@@ -42,8 +44,8 @@ static void A004862_build(long long limit) {
         if (best <= 11) cnt++;
     }
 
-    free(A004862_terms);
-    A004862_terms = (seq_t *)malloc((size_t)cnt * sizeof(seq_t));
+    mem_free(A004862_terms);
+    A004862_terms = mem_new(seq_t, (size_t)cnt);
     idx_t k = 0;
     for (long long v = 0; v <= limit; v++)
         if (d[v] <= 11) A004862_terms[k++] = (seq_t)v;

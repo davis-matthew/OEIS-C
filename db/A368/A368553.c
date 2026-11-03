@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,21 @@
 /* Recurrence: a(0)=1; a(n)=2*a(n-1)+n^n; */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"   /* provides seq_t big_pow(seq_t base, seq_t exp); */
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Multiply-by-self exponentiation for big exponent (seq_t type) */
+static seq_t big_pow(seq_t base, seq_t exp) {
+    seq_t result = 1;
+    while (exp != 0) {
+        if ((exp % 2) != 0) {
+            result *= base;
+        }
+        base *= base;
+        exp /= 2;
+    }
+    return result;
+}
 
 static seq_t *cache = NULL;          /* holds computed a(0)..a(k) */
 static idx_t  cache_len = 0;         /* number of terms stored */
@@ -29,7 +44,7 @@ static void ensure_cache_cap(idx_t cap)
     size_t new_cap = cache_cap ? cache_cap : 1;
     while (new_cap < (size_t)cap)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp && new_cap > 0)          /* allocation failed */
         exit(EXIT_FAILURE);
     cache = tmp;

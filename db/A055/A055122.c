@@ -10,8 +10,9 @@
  *            0 if d == 0 * d' = 12 – d otherwise * The result is the number
  *            formed by those complemented digits in the * same base 12 order.
  *            This is equivalent to * a(n) = Σ (d' * 12...
- * Range:     u8 n <= 143, u16 n <= 9606, u32 n <= 9606, u64 n <= 9606,
- *            u128 n <= 9606, big any n
+ * Range:     u8 n <= 143, u16 n <= 20735, u32 n <= 20735, u64 n <= 20735,
+ *            u128 n <= 20735, big any n
+ * Validated: standard, pass, 74 terms through n = 9606 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

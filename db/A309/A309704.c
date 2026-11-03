@@ -7,15 +7,17 @@
  * Keywords:  nonn, look, fini
  * Formula:   a(n) = a(n-a(n-1)) + a(n-a(n-4)) for n > 6 with initial values:
  *            a(1)=3, a(2)=4, a(3)=5, a(4)=4, a(5)=5, a(6)=6
- * Range:     u8 n <= 494, u16 n <= 9391, u32 n <= 9391, u64 n <= 9391,
- *            u128 n <= 9391, big any n
- * Helpers:   none
+ * Range:     u8 n <= 494, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 116 terms through n = 9391 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoised values, 0‑based: cache[i] = a(i+1) */
 static size_t cap   = 0;         /* current capacity of cache          */
@@ -26,7 +28,7 @@ static void ensure_capacity(idx_t n)
 {
     if (cap >= n) return;
     size_t new_cap = (size_t)n;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();  /* allocation failed */
     cache = tmp;
     cap   = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 153, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 8789 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *a_array = NULL;   /* a_array[1..] holds the sequence values */
 static size_t a_cap   = 0;       /* current capacity of a_array */
@@ -35,7 +37,7 @@ static void grow_a_array(size_t min_cap)
     if (a_cap >= min_cap) return;
     size_t new_cap = a_cap == 0 ? 4 : a_cap << 1;
     while (new_cap < min_cap) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_array, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_array, new_cap);
     if (!tmp) abort();  /* out of memory */
     a_array = tmp;
     a_cap = new_cap;

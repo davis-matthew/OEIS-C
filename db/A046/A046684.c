@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 415, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, sigma2_u64
+ * Validated: standard, pass, 83 terms through n = 9922 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,37 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/sigma2_u64.h"
+#include "../utils/mem.h"
+
+static uint64_t sigma2_u64(uint64_t n)
+{
+    uint64_t result = 1;
+    uint64_t temp   = n;
+    for (uint64_t p = 2; p * p <= temp; ++p)
+    {
+        if (temp % p == 0)
+        {
+            /* Count the exponent of p in n and build the geometric sum
+               1 + p² + p⁴ + … + p²e. */
+            uint8_t e   = 0;
+            uint64_t pow = 1;
+            uint64_t term = 1;
+            while (temp % p == 0)
+            {
+                temp /= p;
+                ++e;
+                pow  *= p * p;
+                term += pow;
+            }
+            result *= term;
+        }
+    }
+    if (temp > 1)                /* Remaining prime factor. */
+    {
+        result *= (1 + temp * temp);
+    }
+    return result;
+}
 
 /* ------------------------------------------------------------------ */
 /* Cache for the generated sequence terms.  It grows dynamically on
@@ -50,7 +81,7 @@ static void ensure_cache_capacity(size_t need)
     while (new_cap < need)
         new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     /* The evaluation harness guarantees sufficient memory, so no NULL
        check is necessary. */
     cache = new_cache;

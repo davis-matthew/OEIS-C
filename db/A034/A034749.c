@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{d|n} F_d * C_{n/d-1}
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fib_cache = NULL;
 static size_t fib_cap   = 0;
@@ -25,7 +27,7 @@ static void ensure_fib(idx_t n)
 {
     if ((size_t)n + 1 <= fib_cap) return;
     size_t new_cap = (size_t)n + 1;
-    seq_t *p = (seq_t *)realloc(fib_cache, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, fib_cache, new_cap);
     if (!p) exit(1);
     fib_cache = p;
     for (idx_t i = fib_cap; (size_t)i <= n; ++i)
@@ -42,7 +44,7 @@ static void ensure_cat(idx_t n)
     size_t needed = (n == 0) ? 1 : (size_t)n;   /* indices 0 .. n-1 */
     if (needed <= cat_cap) return;
     size_t new_cap = needed;
-    seq_t *p = (seq_t *)realloc(cat_cache, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cat_cache, new_cap);
     if (!p) exit(1);
     cat_cache = p;
     for (idx_t i = cat_cap; i < new_cap; ++i)

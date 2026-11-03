@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 151, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   bitlen_seq_t, gcd
+ * Validated: standard, pass, 85 terms through n = 940 (2026-11-03)
+ * Helpers:   bit_length, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
    The values are generated lazily on demand and cached for reuse. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/bit_length.h"
 #include "../utils/gcd.h"
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/mem.h"
 
 /* static cache for already computed terms */
 static seq_t *cache = NULL;
@@ -34,7 +36,7 @@ static void grow_cache(size_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, cache, new_cap);
     cache = ptr;
     cache_cap = new_cap;
 }
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
             seq_t v = (seq_t)next;
 
             /* binary length of v */
-            unsigned bits = bitlen_seq_t(v);
+            unsigned bits = bit_length(v);
 
             /* add v to cache if coprime to its binary length */
             if (gcd(v, (seq_t)bits) == (seq_t)1) {

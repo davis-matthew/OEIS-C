@@ -11,7 +11,8 @@
  *            d(n) is computed exactly with a small i...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   x3084_div, x3084_gcd, x3084_mul
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,27 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/x3084_div.h"
-#include "../utils/x3084_gcd.h"
-#include "../utils/x3084_mul.h"
+#include "../utils/gcd_idx.h"
+
+static void x3084_div(uint32_t *x, size_t len, uint32_t d) {
+    uint64_t r = 0;
+    size_t i;
+    for (i = len; i-- > 0;) {
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+}
+
+static void x3084_mul(uint32_t *x, size_t len, uint32_t m) {
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        uint64_t cur = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)cur;
+        c = cur >> 32;
+    }
+}
 
 #define X3084_MAXN 1000
 
@@ -63,7 +82,7 @@ static void x3084_gen(idx_t rem, idx_t maxp, idx_t depth, uint64_t e) {
     for (p = maxp; p >= 1; p--) {
         uint64_t g = 0;
         for (j = 0; j < depth; j++)
-            g += (uint64_t)x3084_m[j] * x3084_gcd(p, x3084_p[j]);
+            g += (uint64_t)x3084_m[j] * gcd_idx(p, x3084_p[j]);
         memcpy(nxt, cur, x3084_flen * sizeof(uint32_t));
         for (m = 1; m * p <= rem; m++) {
             uint64_t de = (uint64_t)m * (p - 1) + (uint64_t)m * (m - 1) * p

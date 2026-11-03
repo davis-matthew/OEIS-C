@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 12, u64 n <= 25, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 171 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Multiply a seq_t by a small unsigned integer (≤ 111). */
 static seq_t mul_small_seq(seq_t x, unsigned int m)
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (buf == NULL) {
         buf_size = 16U;
-        buf = (seq_t*)malloc(sizeof(seq_t) * buf_size);
+        buf = mem_new(seq_t, buf_size);
         for (idx_t i = 0; i < 16U; ++i) {
             buf[i] = init[i];
         }
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
         } else {
             buf_size = buf_size * 2U;
         }
-        buf = (seq_t*)realloc(buf, sizeof(seq_t) * buf_size);
+        buf = mem_resize(seq_t, buf, buf_size);
     }
 
     /* Compute missing terms from current size up to n. */

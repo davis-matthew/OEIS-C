@@ -9,13 +9,15 @@
  *            5 a(n) is the n‑th term of OEIS A181560
  * Range:     i8 n <= 20, i16 n <= 36, i32 n <= 42, i64 n <= 42, i128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,12 +34,12 @@ seq_t a(idx_t n)
     if (needed > cache_cap) {
         size_t new_cap = cache_cap ? 2 * cache_cap : 64;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp) abort();                      /* allocation failure */
         if (cache) {                            /* copy existing values */
             for (size_t i = 0; i < cache_len; ++i)
                 tmp[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache      = tmp;
         cache_cap  = new_cap;

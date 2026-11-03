@@ -8,15 +8,33 @@
  * Formula:   a(n) = ceil(sqrt(a(n-1)^2 + a(n-2)^2)), a(1)=1, a(2)=3
  * Range:     u8 n <= 19, u16 n <= 42, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   ceil_sqrt_uint128, isqrt
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   isqrt_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/isqrt.h"
-#include "../utils/ceil_sqrt_uint128.h"
+#include "../utils/isqrt_seq.h"
+#include "../utils/mem.h"
+
+/* C build: use unsigned __int128 for intermediate arithmetic
+   (available when the compiler supports it). */
+static inline unsigned __int128 ceil_sqrt_uint128(unsigned __int128 x)
+{
+    unsigned __int128 low = 0;
+    unsigned __int128 high = ((unsigned __int128)1) << 64;  /* 2^64 */
+    while (low < high) {
+        unsigned __int128 mid = (low + high) >> 1;
+        unsigned __int128 sq  = mid * mid;
+        if (sq < x)
+            low = mid + 1;
+        else
+            high = mid;
+    }
+    return low;                           /* ceil of sqrt(x) */
+}
 
 #ifdef __cplusplus
 /* C++ build: sequence type is an arbitrary‑precision class.
@@ -34,7 +52,7 @@ static idx_t max_computed = 0;     /* highest index stored in cache */
 static void ensure_cache(idx_t n)
 {
     if (cache_capacity < n + (idx_t)1) {
-        cache = (seq_t *)realloc(cache, (size_t)(n + (idx_t)1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)(n + (idx_t)1));
         cache_capacity = n + (idx_t)1;
     }
 }
@@ -69,7 +87,7 @@ seq_t a(idx_t n)
         seq_t x = cache[i-1];
         seq_t y = cache[i-2];
         seq_t sum = x * x + y * y;      /* arbitrary‑precision arithmetic */
-        seq_t root = isqrt(sum);        /* floor sqrt */
+        seq_t root = isqrt_seq(sum);        /* floor sqrt */
         if (root * root != sum)
             root = root + (seq_t)1;     /* ceil */
         cache[i] = root;

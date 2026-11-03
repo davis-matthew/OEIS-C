@@ -6,9 +6,10 @@
  * Offset:    21    (a(21) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 184, u16 n <= 1055, u32 n <= 9666, u64 n <= 9666,
- *            u128 n <= 9666, big any n
- * Helpers:   is_decimal_pal
+ * Range:     u8 n <= 184, u16 n <= 1055, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 87 terms through n = 9666 (2026-11-03)
+ * Helpers:   is_palindrome_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_decimal_pal.h"
+#include "../utils/is_palindrome_u64.h"
+#include "../utils/mem.h"
 
 /* --- Main sequence function */
 seq_t a(idx_t n)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
        we store as a flat array for speed. */
     const size_t K = 7;                     /* 0..6 inclusive */
     const size_t stride = (size_t)(n + 1);   /* sums 0..n */
-    seq_t *dp = (seq_t *)calloc(K * stride, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, K * stride);
     if (!dp) {
         return 0;   /* allocation failure – unlikely for the problem size */
     }
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Enumerate all palindromes <= n and update DP once per palindrome
        to guarantee distinctness. */
     for (uint64_t v = 1; v <= (uint64_t)n; ++v) {
-        if (!is_decimal_pal(v)) {
+        if (!is_palindrome_u64(v)) {
             continue;
         }
         /* Update DP in reverse order of k to avoid reusing the same
@@ -70,6 +72,6 @@ seq_t a(idx_t n)
     /* Result: number of partitions into 6 palindromes summing to n */
     seq_t result = dp[6 * stride + n];
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

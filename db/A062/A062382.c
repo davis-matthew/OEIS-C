@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 126, u32 n <= 500, u64 n <= 500, u128 n <= 500,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 471 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the nth term of sequence A062382 (1‑based indexing). */
 seq_t a(idx_t n)
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Allocate initial cache capacity if necessary */
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Generate terms until we have at least n of them */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
             /* store in cache, growing if necessary */
             if (cache_sz == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_sz++] = (seq_t)next_num;
         }

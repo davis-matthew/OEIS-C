@@ -8,14 +8,19 @@
  * Formula:   a(n) = the n-th positive integer coprime to 2^n - 1
  * Range:     u8 n <= 59, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, is_prime, mod_pow
+ * Validated: standard, pass, 85 terms through n = 9572 (2026-11-01)
+ * Helpers:   gcd, is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
 #include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n) {
     /* Handle trivial case */
@@ -40,7 +45,7 @@ seq_t a(idx_t n) {
         }
         seq_t mod = (seq_t)k;
         /* Compute 2^n mod k */
-        seq_t pow = mod_pow((seq_t)2, n, mod);
+        seq_t pow = powmod((seq_t)2, n, mod);
         /* val = (2^n - 1) mod k */
         seq_t val = pow + mod - 1;
         val %= mod;

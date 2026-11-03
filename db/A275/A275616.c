@@ -10,13 +10,16 @@
  *            omega(k)
  * Range:     u8 n <= 141, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 93 terms through n = 9276 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static state to keep the cache across calls */
@@ -47,7 +50,7 @@ seq_t a(idx_t n) {
         }
 
         /* Re‑allocate the terms array for the new sequence. */
-        seq_t *new_terms = (seq_t *)malloc(new_limit * sizeof(seq_t));
+        seq_t *new_terms = mem_new(seq_t, new_limit);
         if (!new_terms) abort();                /* memory allocation failed */
 
         /* Enumerate all integers up to new_limit and collect the good ones. */
@@ -61,7 +64,7 @@ seq_t a(idx_t n) {
         }
 
         /* Replace old cache with the new one. */
-        free(terms);
+        mem_free(terms);
         terms = new_terms;
         terms_count = count;
         current_limit = new_limit;

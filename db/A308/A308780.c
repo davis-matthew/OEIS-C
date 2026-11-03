@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root (floor) for uint64_t.  Uses 128‑bit arithmetic to
  * avoid overflow. */
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
         /* Store the a1 value. */
         if (sz == cap) {
             size_t newcap = (cap == 0) ? 16 : cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp)   /* allocation failure: return 0 as a fallback */
                 return (seq_t)0;
             cache = tmp;

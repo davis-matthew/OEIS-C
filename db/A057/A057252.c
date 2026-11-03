@@ -7,7 +7,8 @@
  * Formula:   a(n) = n such that n | 10^n + 9^n + 8^n + 7^n + 6^n
  * Range:     u8 n <= 13, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   mulmod_seq, pow_mod_seq
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem, mulmod_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/mulmod_seq.h"
-#include "../utils/pow_mod_seq.h"
+#include "../utils/mem.h"
+
+/* Compute base^exp mod mod.  Assumes base < mod and exp fits in idx_t. */
+static seq_t pow_mod_seq(seq_t base, idx_t exp, seq_t mod)
+{
+    seq_t result = 1 % mod;
+    seq_t b = base % mod;
+    while (exp) {
+        if (exp & 1)
+            result = mulmod_seq(result, b, mod);
+        b = mulmod_seq(b, b, mod);
+        exp >>= 1;
+    }
+    return result;
+}
 
 /* -------------- helper: modular multiplication ----------------- */
 
@@ -37,7 +52,7 @@ static void grow_cache(size_t needed)
     if (seq_cap >= needed) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 8;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) abort();          /* allocation failure */
     seq_cache = tmp;
     seq_cap   = new_cap;

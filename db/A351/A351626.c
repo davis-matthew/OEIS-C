@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Static storage for the generated terms. */
 static seq_t *seq_arr = NULL;   /* array of terms */
@@ -33,7 +35,7 @@ static inline void grow_seq_arr(size_t min_cap) {
     if (min_cap <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 4;
     while (new_cap < min_cap) new_cap <<= 1;
-    seq_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, new_cap);
     seq_cap = new_cap;
 }
 

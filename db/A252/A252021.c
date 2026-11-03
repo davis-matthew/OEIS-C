@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 335, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, is_prime
+ * Validated: standard, pass, 73 terms through n = 8576 (2026-11-03)
+ * Helpers:   is_prime, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
 #include "../utils/is_prime.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* Static cache of found terms. */
 static seq_t *cache = NULL;
@@ -33,9 +35,9 @@ static void ensure_cache_capacity(void)
         return;
 
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
-        free(cache);
+        mem_free(cache);
         exit(EXIT_FAILURE);
     }
     cache = tmp;
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
 
         /* Compute (p-1)/τ(p-1) and test primality of the quotient. */
         uint64_t m = p - 1;
-        uint64_t tau = divisor_count_u64(m);
+        uint64_t tau = num_divisors(m);
         if (m % tau != 0)
             continue;  /* not divisible, skip */
 

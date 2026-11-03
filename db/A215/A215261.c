@@ -14,7 +14,8 @@
  *            are * non‑semiprime. No closed formula exists; th...
  * Range:     u8 n <= 163, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 83 terms through n = 9810 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* ----------  constants & global state  ---------- */
 #define LIMIT        2000000        /* enough for n up to 10 000 */
@@ -45,7 +47,7 @@ static void ensure_seq_cap(size_t min_cap)
     if (seq_cap < min_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
         while (new_cap < min_cap) new_cap <<= 1;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 }
@@ -72,7 +74,7 @@ static void init(void)
     used = (bool *)calloc(LIMIT + 1, sizeof(bool));
     semip_len = 0;
     size_t cap = 128;
-    semiprimes = (seq_t *)malloc(cap * sizeof(seq_t));
+    semiprimes = mem_new(seq_t, cap);
     for (idx_t x = 4; x <= LIMIT; ++x) {
         idx_t t = x;
         int cnt = 0;
@@ -83,7 +85,7 @@ static void init(void)
         if (t == 1 && cnt == 2) {
             if (semip_len == cap) {
                 cap <<= 1;
-                semiprimes = (seq_t *)realloc(semiprimes, cap * sizeof(seq_t));
+                semiprimes = mem_resize(seq_t, semiprimes, cap);
             }
             semiprimes[semip_len++] = (seq_t)x;
         }
@@ -91,7 +93,7 @@ static void init(void)
 
     /* initialise sequence with the first two non‑semiprimes 1,2 */
     seq_cap = 16;
-    seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     seq_len = 0;
     seq[seq_len++] = (seq_t)1;
     seq[seq_len++] = (seq_t)2;

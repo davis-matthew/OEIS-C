@@ -7,12 +7,14 @@
  * Formula:   a(n) = ∑_{k=0..n} (-1)^k * Stirling2(n,k) * binomial(k,2)
  * Range:     i8 n <= 6, i16 n <= 10, i32 n <= 17, i64 n <= 26, i128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;      /* a(0)...a(current) */
 static idx_t  cache_len = 0;       /* number of entries *stored* */
@@ -23,7 +25,7 @@ static idx_t  S_size = 0;          /* allocated length of S_rows */
    New slots are initialized to zero. */
 static void ensure_S_rows(idx_t new_size) {
     if (S_size >= new_size) return;
-    seq_t *tmp = (seq_t *)realloc(S_rows, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, S_rows, new_size);
     if (!tmp) abort();
     for (idx_t i = S_size; i < new_size; ++i) tmp[i] = 0;
     S_rows = tmp;
@@ -35,7 +37,7 @@ static void ensure_S_rows(idx_t new_size) {
    unchanged – it is updated after computing new values. */
 static void ensure_a_cache(idx_t new_size) {
     if (cache_len >= new_size) return;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_size);
     if (!tmp) abort();
     for (idx_t i = cache_len; i < new_size; ++i) tmp[i] = 0;
     a_cache = tmp;

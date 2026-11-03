@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 39,
  *            big any n
- * Helpers:   word_to_value
+ * Validated: standard, pass, 37 terms through n = 870 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,15 @@
     
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/word_to_value.h"
+
+/* Convert a word (array of digits 1..3) into a seq_t integer. */
+static seq_t word_to_value(const uint8_t *w, size_t len)
+{
+    seq_t val = 0;
+    for (size_t i = 0; i < len; ++i)
+        val = val * 10 + (seq_t)w[i];
+    return val;
+}
 
 static const uint64_t BASE = 911382323ULL;
 

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <inttypes.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,8 +39,8 @@ seq_t a(idx_t n)
     /* initialisation: a(1)=1, a(2)=1, a(3)=2 */
     if (!vals) {
         cap = 4;                           /* at least space for indices 0..4 */
-        vals   = (seq_t *)malloc((cap+1) * sizeof(seq_t));
-        prefix = (seq_t *)malloc((cap+1) * sizeof(seq_t));
+        vals   = mem_new(seq_t, (cap+1));
+        prefix = mem_new(seq_t, (cap+1));
         vals[1] = (seq_t)1;
         vals[2] = (seq_t)1;
         vals[3] = (seq_t)2;
@@ -55,8 +57,8 @@ seq_t a(idx_t n)
         if ((size_t)n > cap) {
             size_t new_cap = cap == 0 ? 4 : cap;
             while (new_cap < (size_t)n + 1) new_cap <<= 1;
-            vals   = (seq_t *)realloc(vals,   (new_cap+1) * sizeof(seq_t));
-            prefix = (seq_t *)realloc(prefix, (new_cap+1) * sizeof(seq_t));
+            vals   = mem_resize(seq_t, vals, (new_cap+1));
+            prefix = mem_resize(seq_t, prefix, (new_cap+1));
             cap = new_cap;
         }
 

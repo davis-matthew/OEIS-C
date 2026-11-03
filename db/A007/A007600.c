@@ -8,12 +8,30 @@
  * Formula:   a(n) = Min_{k=0..2} 2*k + 3*ceiling(log_3(n/2^k))
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   ceil_log3_divide
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/ceil_log3_divide.h"
+static seq_t ceil_log3_divide(idx_t n, idx_t denominator) {
+    if (n <= denominator) {
+        return 0;
+    }
+    
+    seq_t m = 0;
+    idx_t power = denominator;
+    
+    while (power < n) {
+        if (power > ((idx_t)-1) / 3) {
+            return m + 1;
+        }
+        power *= 3;
+        m++;
+    }
+    
+    return m;
+}
 
 seq_t a(idx_t n) {
     seq_t r0 = 3 * ceil_log3_divide(n, 1ULL);

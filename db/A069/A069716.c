@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 2519, u32 n <= 2520, u64 n <= 2520,
  *            u128 n <= 2520, big any n
- * Helpers:   gcd_int, lcm_int
+ * Validated: standard, pass, 108 terms through n = 2333 (2026-11-03)
+ * Helpers:   gcd_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,17 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/gcd_int.h"
-#include "../utils/lcm_int.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/gcd_i32.h"
+#include "../utils/mem.h"
+
+/* LCM for two small integers. */
+static inline int lcm_int(int a, int b)
+{
+    int g = gcd_i32(a, b);
+    return (a / g) * b;          /* a and b are ≤ 2520, product fits in int  */
+}
 
 /* Euclidean GCD for small integers.  The LCM values never exceed 2520. */
 
@@ -38,7 +48,7 @@ static inline void heap_push(node_t **heap, size_t *cap, size_t *size, node_t ke
 {
     if (*size >= *cap) {
         *cap = (*cap > 0) ? (*cap << 1) : 512;
-        *heap = (node_t *)realloc(*heap, *cap * sizeof(node_t));
+        *heap = mem_resize(node_t, *heap, (*cap * sizeof(node_t)) / sizeof(node_t));
     }
     size_t i = *size;
     (*size)++;
@@ -116,7 +126,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        free(heap);
+        mem_free(heap);
         initialized = true;
     }
 

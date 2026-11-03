@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   binom_limit
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,19 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binom_limit.h"
+
+static seq_t binom_limit(idx_t n, idx_t k, seq_t limit)
+{
+    if (k > n - k) k = n - k;          /* use symmetry */
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        unsigned __int128 temp = (unsigned __int128)res * (n - k + i);
+        temp /= i;
+        if (temp > limit) return limit + 1;
+        res = (seq_t)temp;
+    }
+    return res;
+}
 
 /* external linkage */
 seq_t a(idx_t n)

@@ -6,9 +6,10 @@
  * Keywords:  nonn, easy
  * Formula:   Composite set of integers that divide some Lucas number * (OEIS
  *            A065156)
- * Range:     u8 n <= 80, u16 n <= 9731, u32 n <= 9731, u64 n <= 9731,
- *            u128 n <= 9731, big any n
- * Helpers:   divides_some_lucas
+ * Range:     u8 n <= 80, u16 n <= 10780, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 78 terms through n = 9731 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,32 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/divides_some_lucas.h"
+#include "../utils/mem.h"
+
+/* test whether m divides some Lucas number L_k with k ≤ m */
+static bool divides_some_lucas(idx_t m)
+{
+    if (m == 0)
+        return false;                     /* not used, but keep safe */
+
+    /* L_0 = 2 , L_1 = 1 */
+    if (2 % m == 0 || 1 % m == 0)
+        return true;
+
+    idx_t prev = 2 % m;
+    idx_t curr = 1 % m;
+
+    for (idx_t i = 2; i <= m; ++i) {
+        idx_t next = prev + curr;
+        if (next >= m)
+            next -= m;
+        if (next == 0)
+            return true;
+        prev = curr;
+        curr = next;
+    }
+    return false;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -39,7 +65,7 @@ seq_t a(idx_t n)
     /* Initial allocation */
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Expand cache until we have at least n terms */
@@ -47,8 +73,7 @@ seq_t a(idx_t n)
         if (divides_some_lucas(next_int)) {
             if (cache_size == cache_cap) {      /* grow the cache   */
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache,
-                                          cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = (seq_t)next_int;
         }

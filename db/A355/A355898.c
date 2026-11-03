@@ -9,13 +9,16 @@
  *            / gcd(a(n-1), a(n-2)) (n ≥ 3)
  * Range:     u8 n <= 15, u16 n <= 30, u32 n <= 121, u64 n <= 237,
  *            u128 n <= 443, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 66 terms through n = 4908 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoised values a(1), a(2), … */
 static size_t cache_len = 0;  /* number of terms currently stored */
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
     if (cache_cap < needed) {
         size_t new_cap = needed > 32 ? needed * 2 : needed + 32;
         /* realloc returns void* in C; cast it for C++ builds as well. */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

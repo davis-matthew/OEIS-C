@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 187, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_equal_8_10
+ * Validated: standard, pass, 86 terms through n = 945 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,19 @@
  */
 
 #include <stdbool.h>
-#include "../utils/has_equal_8_10.h"
+
+/* Check whether a number has the same number of 8's and 10's in base‑12. */
+static inline bool has_equal_8_10(seq_t x)
+{
+    unsigned count8 = 0, count10 = 0;
+    while (x > (seq_t)0) {
+        unsigned d = (unsigned)(x % (seq_t)12);
+        if (d == 8)  ++count8;
+        else if (d == 10) ++count10;
+        x /= (seq_t)12;
+    }
+    return count8 == count10;
+}
 
 /* Return the n‑th term (n >= 1) of the sequence. */
 seq_t a(idx_t n)

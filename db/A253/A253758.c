@@ -11,7 +11,8 @@
  *            horizontal and vertical non‑decreasing
  * Range:     u8 none, u16 n <= 2, u32 n <= 8, u64 n <= 19, u128 n <= 41,
  *            big any n
- * Helpers:   decode, majority3, state_idx
+ * Validated: standard, pass, 33 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/decode.h"
-#include "../utils/majority3.h"
-#include "../utils/state_idx.h"
+#include "../utils/mem.h"
+
+static inline int decode(int e) { return e - 1; }
+
+/* Majority of three bits */
+static int majority3(int a, int b, int c)
+{
+    return (a + b + c >= 2) ? 1 : 0;
+}
+
+/* State index: (r1,r2,prev_d0,prev_d1) → array position */
+static inline int state_idx(int r1, int r2, int prev0, int prev1)
+{
+    return (((r1 << 4) + r2) * 9) + (prev0 * 3 + prev1);
+}
 
 /* ---- Precomputation of median differences for a 3×3 block ---- */
 
@@ -81,12 +94,12 @@ seq_t a(idx_t n)
     static seq_t *dp     = NULL;
     static seq_t *dp_next = NULL;
     if (!dp) {
-        dp      = (seq_t *)calloc(STATES, sizeof(seq_t));
-        dp_next = (seq_t *)calloc(STATES, sizeof(seq_t));
+        dp      = mem_new(seq_t, STATES);
+        dp_next = mem_new(seq_t, STATES);
     }
 
     /* ---- Initialise with the first three rows ----- */
-    memset(dp, 0, STATES * sizeof(seq_t));
+    mem_set(dp, 0, STATES * sizeof(seq_t));
     for (int r0 = 0; r0 < 16; ++r0)
         for (int r1 = 0; r1 < 16; ++r1)
             for (int r2 = 0; r2 < 16; ++r2) {
@@ -102,7 +115,7 @@ seq_t a(idx_t n)
 
     /* ---- Propagate through the remaining (n−1) rows ----- */
     for (idx_t step = 1; step <= n - 1; ++step) {
-        memset(dp_next, 0, STATES * sizeof(seq_t));
+        mem_set(dp_next, 0, STATES * sizeof(seq_t));
         for (int r1 = 0; r1 < 16; ++r1)
             for (int r2 = 0; r2 < 16; ++r2)
                 for (int prev = 0; prev < 9; ++prev) {

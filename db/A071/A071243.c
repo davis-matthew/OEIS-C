@@ -8,7 +8,8 @@
  *            - 1) for n ≥ 5 (prime(k) = the k‑th prime)
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   prime_bound
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/prime_bound.h"
+
+/* Estimate an upper bound for the nth prime (for n ≥ 6) */
+static uint32_t prime_bound(size_t n)
+{
+    if (n < 6) return 15;
+    double nn = (double)n;
+    double estimate = nn * (log(nn) + log(log(nn)));
+    return (uint32_t)(estimate + 3.0);
+}
 
 /* ---------- Prime generation ---------- */
 static uint32_t *primes = NULL;          /* Array of primes */

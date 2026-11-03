@@ -11,7 +11,8 @@
  *            count
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 43, u64 n <= 145, u128 n <= 230,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 220 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define KMAX 33                     /* maximum number of parts to consider */
 #define KSIZE (KMAX + 1)            /* array dimension per row */
@@ -44,14 +46,14 @@ static void ensure_dp(idx_t n)
 
     /* allocate a new array of the required size, zero‑initialized      */
     size_t new_size = (size_t)(n + 1) * (size_t)KSIZE;
-    seq_t *new_dp = (seq_t *)calloc(new_size, sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, new_size);
     if (!new_dp) exit(1);
 
     /* copy existing data if any                                   */
     if (dp) {
         size_t old_size = (size_t)(dp_max_n + 1) * (size_t)KSIZE;
-        memcpy(new_dp, dp, old_size * sizeof(seq_t));
-        free(dp);
+        mem_copy(new_dp, dp, old_size * sizeof(seq_t));
+        mem_free(dp);
     }
 
     dp = new_dp;

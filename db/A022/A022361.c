@@ -7,6 +7,7 @@
  * Formula:   a(n) = 27*A000045(n)
  * Range:     u8 n <= 6, u16 n <= 17, u32 n <= 40, u64 n <= 87, u128 n <= 179,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 943 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

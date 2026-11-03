@@ -9,13 +9,16 @@
  *            reverse of n is prime
  * Range:     u8 n <= 32, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   isPrime64
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/isPrime64.h"          /* provides bool isPrime64(uint64_t) */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
             tmp /= b;
         }
 
-        if (isPrime64((uint64_t)rev))
+        if (is_prime_u64((uint64_t)rev))
             ++count;
     }
 

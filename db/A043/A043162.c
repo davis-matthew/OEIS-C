@@ -8,13 +8,32 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_adj
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_adj.h"
+
+static inline bool has_adj(seq_t x)
+{
+    /* No adjacency if only one digit */
+    if (x < (seq_t)8)
+        return false;
+
+    seq_t prev = x % (seq_t)8;   /* least significant digit */
+    x /= (seq_t)8;
+    while (x > (seq_t)0) {
+        seq_t cur = x % (seq_t)8;   /* next higher digit */
+        if ((prev == (seq_t)1 && cur == (seq_t)5) ||
+            (prev == (seq_t)5 && cur == (seq_t)1))
+            return true;
+        prev = cur;
+        x /= (seq_t)8;
+    }
+    return false;
+}
 
 /* a(n) = the n‑th integer k such that the base‑8 representation of k
  * contains an adjacent pair of digits 1 and 5 (in either order) while

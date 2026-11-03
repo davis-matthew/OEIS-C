@@ -13,12 +13,14 @@
  *            that n = 0 + 1 + … + r + p with 0 ≤ p ≤ r
  * Range:     u8 n <= 57, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for the triangle rows */
 static seq_t **T_rows   = NULL;   /* array of pointers to rows   */
@@ -36,7 +38,7 @@ static void ensure_fib(idx_t n)
     if (fib_cnt == 0) {
         fib_cap = 2;
         fib_cnt = 2;
-        fib = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+        fib = mem_new(seq_t, fib_cap);
         fib[0] = 0;
         fib[1] = 1;
     }
@@ -44,7 +46,7 @@ static void ensure_fib(idx_t n)
         seq_t next = fib[fib_cnt - 1] + fib[fib_cnt - 2];
         if (fib_cnt == fib_cap) {
             size_t new_cap = fib_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(fib, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fib, new_cap);
             fib = tmp;
             fib_cap = new_cap;
         }
@@ -59,7 +61,7 @@ static void ensure_rows(idx_t target)
     while (T_count <= (size_t)target) {
         idx_t      r    = (idx_t)T_count;
         size_t     len  = (size_t)r + 1;
-        seq_t *    row  = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *    row  = mem_new(seq_t, len);
 
         if (r == 0) {
             row[0] = 1;

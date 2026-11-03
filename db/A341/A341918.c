@@ -8,7 +8,8 @@
  * Formula:   a(n) = 120*(67*n^2 + 138*n + 68)*(4*n+7)!/((3*n+12)!*(n-1)!)
  * Range:     u8 none, u16 n <= 1, u32 n <= 11, u64 n <= 21, u128 n <= 41,
  *            big any n
- * Helpers:   legendre_sum
+ * Validated: standard, pass, 38 terms through n = 492 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,16 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/legendre_sum.h"
+
+static inline idx_t legendre_sum(idx_t n, idx_t p)
+{
+    idx_t sum = 0;
+    while (n > 0) {
+        n /= p;
+        sum += n;
+    }
+    return sum;
+}
 
 /* compute a(n) */
 seq_t a(idx_t n)

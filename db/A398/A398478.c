@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{j=0..n} binomial(n + j, j) * n^(n - j) / (j + 1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../utils/gcd.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Compute A398478. */
 seq_t a(idx_t n)
@@ -32,7 +33,7 @@ seq_t a(idx_t n)
         return 1;
 
     /* The first term of the sum: T_0 = n^n. */
-    seq_t sum = big_pow((seq_t)n, (seq_t)n);
+    seq_t sum = ipow((seq_t)n, (seq_t)n);
     seq_t term = sum;
 
     /* Generate subsequent terms T_j for j = 1 .. n. */

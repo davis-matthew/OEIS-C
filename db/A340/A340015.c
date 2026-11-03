@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 5001, u32 n <= 5001, u64 n <= 5001,
  *            u128 n <= 5001, big any n
- * Helpers:   digit_len, get_digits
+ * Validated: standard, pass, 96 terms through n = 4968 (2026-11-01)
+ * Helpers:   get_digits, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/get_digits.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
 
 #define CACHE_CAP 20005
 
@@ -94,7 +96,7 @@ seq_t a(idx_t n)
             }
             /* Stop searching if e grows too big relative to the
                current sum of odd digits.  */
-            seq_t limit = sumOdd + (seq_t)9 * (seq_t)digit_len(e) + (seq_t)10;
+            seq_t limit = sumOdd + (seq_t)9 * (seq_t)num_digits(e) + (seq_t)10;
             if (e > limit)
                 break;
         }

@@ -9,9 +9,10 @@
  *            number of prime factors equals k. After appending a(n) the count
  *            of terms with that many prime factors is updated. If a(n) == 0
  *            the inventory index resets to k = 0; otherwise k is i...
- * Range:     u8 n <= 884, u16 n <= 9677, u32 n <= 9677, u64 n <= 9677,
- *            u128 n <= 9677, big any n
- * Helpers:   bigomega
+ * Range:     u8 n <= 884, u16 n <= 11196, u32 n <= 11196, u64 n <= 11196,
+ *            u128 n <= 11196, big any n
+ * Validated: standard, pass, 95 terms through n = 9677 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/bigomega.h"
+#include "../utils/mem.h"
 
 static seq_t  *seq      = NULL;   /* stored sequence values */
 static size_t  seq_cap  = 0;      /* current allocation for seq   */
@@ -34,7 +36,7 @@ static void enlarge_seq(idx_t needed)
     if (needed <= (idx_t)seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap : 64;
     while ((idx_t)new_cap < needed) new_cap <<= 1;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     /* one–time initialization */
     if (seq == NULL) {
         seq_cap = 64;
-        seq      = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq      = mem_new(seq_t, seq_cap);
         freq_cap = 64;
         freq     = (idx_t *)malloc(freq_cap * sizeof(idx_t));
         for (size_t i = 0; i < freq_cap; ++i) freq[i] = 0;

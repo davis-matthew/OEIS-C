@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 64 terms through n = 842 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"   /* declares bool is_prime(idx_t); */
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {

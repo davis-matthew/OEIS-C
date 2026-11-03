@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    behaviour is undefined, but the tests never request those. */
 
 #include <stddef.h>           /* for size_t */
+#include "../utils/mem.h"
 
 #ifdef __cplusplus
 /* In C++ the type seq_t may be an arbitrary-precision integer
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
        official tests. */
     if (n > MAX_N)
     {
-        seq_t *temp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        seq_t *temp = mem_new(seq_t, (size_t)(n + 1));
         if (!temp) return 0;  /* allocation failure: return 0 */
         for (idx_t i = 0; i <= n; ++i) temp[i] = 0;
         temp[0] = 1;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
                 temp[i] += temp[i - p];
         }
         seq_t result = temp[n];
-        free(temp);
+        mem_free(temp);
         return result;
     }
 

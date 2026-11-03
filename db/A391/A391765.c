@@ -7,7 +7,8 @@
  * Formula:   a(n) = smallest integer k such that prime(k)-1 ≡ 0 (mod n)
  * Range:     u8 n <= 158, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 86 terms through n = 9922 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static uint64_t *primes = NULL;
 static size_t primes_cnt = 0, primes_cap = 0;
@@ -60,7 +62,7 @@ static void grow_cache(size_t mincap)
     if (cache_cap >= mincap) return;
     size_t newcap = cache_cap > 0 ? cache_cap * 2 : 8;
     while (newcap < mincap) newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof *tmp);
+    seq_t *tmp = mem_resize(seq_t, cache, (newcap * sizeof *tmp) / sizeof(seq_t));
     cache = tmp;
     /* mark new positions as uncomputed (zero). */
     for (size_t i = cache_cap; i < newcap; ++i) cache[i] = 0;

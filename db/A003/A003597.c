@@ -7,12 +7,14 @@
  * Formula:   a(n) = n-th number of the form 3^i * 11^j, i,j >= 0
  * Range:     u8 n <= 9, u16 n <= 30, u32 n <= 109, u64 n <= 405,
  *            u128 n <= 1554, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 9567 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -23,7 +25,7 @@ static idx_t idx11 = 0;
 static void ensure_cache(idx_t needed) {
     if (cache == NULL) {
         cache_cap = (needed < 64) ? 64 : needed * 2;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 1;
         cache_len = 1;
         idx3 = 0;
@@ -33,7 +35,7 @@ static void ensure_cache(idx_t needed) {
     while (cache_len < needed) {
         if (cache_len >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         
         seq_t cand3 = cache[idx3] * 3;

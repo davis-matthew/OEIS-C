@@ -7,7 +7,8 @@
  * Formula:   Let T(n,k) be the eigentriangle of the binomial matrix
  * Range:     u8 n <= 27, u16 n <= 54, u32 n <= 135, u64 n <= 350,
  *            u128 n <= 945, big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 82 terms through n = 4912 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t **T_TABLE = NULL;      /* triangular table of T entries  */
 static idx_t  T_ROWS   = 0;         /* number of rows already computed*/
@@ -43,11 +45,11 @@ ensure_rows(idx_t upto)
     /* compute new rows */
     for (idx_t r = T_ROWS; r <= upto; ++r) {
         /* allocate row of length r+1 */
-        seq_t *row = (seq_t *)calloc(r + 1, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, r + 1);
 
         if (r > 0) {
             /* precompute binomial coefficients bin(r-1, j) for j=0..r-1 */
-            seq_t *bin = (seq_t *)malloc(r * sizeof(seq_t));
+            seq_t *bin = mem_new(seq_t, r);
             bin[0] = 1;
             for (idx_t j = 1; j < r; ++j)
                 bin[j] = bin[j - 1] * ((seq_t)(r - 1 - (j - 1))) / (seq_t)j;
@@ -59,7 +61,7 @@ ensure_rows(idx_t upto)
                     sum += bin[j] * T_TABLE[j][k];
                 row[k] = sum;
             }
-            free(bin);
+            mem_free(bin);
         }
 
         /* diagonal element is 1 */

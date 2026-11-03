@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   popcount_bitset, shift_and_or
+ * Validated: partial, pass, 62 terms through n = 64 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,40 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/popcount_bitset.h"
-#include "../utils/shift_and_or.h"
+
+/* Count bits in a bitset of 'len' 64‑bit words. */
+static seq_t popcount_bitset(const uint64_t *bits, size_t len)
+{
+    seq_t cnt = 0;
+    for (size_t i = 0; i < len; ++i)
+        cnt += __builtin_popcountll(bits[i]);
+    return cnt;
+}
+
+/* ====== small helper: shift src bits left by 'shift' bits and OR into dst ======
+   dst and src are arrays of 64‑bit words.  dst_len is the number of words in dst.
+   The shift may be large; bits that would fall outside dst_len words are dropped. */
+static void shift_and_or(const uint64_t *src, size_t src_len,
+                         uint64_t *dst, size_t dst_len,
+                         idx_t shift)
+{
+    size_t word_shift = (size_t)(shift >> 6);
+    uint8_t  bit_shift = (uint8_t)(shift & 63);
+    size_t i, d;
+
+    if (bit_shift == 0) {               /* only word shift */
+        for (i = 0, d = word_shift; i < src_len && d < dst_len; ++i, ++d)
+            dst[d] |= src[i];
+    } else {
+        for (i = 0, d = word_shift; i < src_len && d < dst_len; ++i, ++d) {
+            uint64_t v = src[i];
+            if (v == 0) continue;
+            dst[d] |= v << bit_shift;
+            if (d + 1 < dst_len)
+                dst[d + 1] |= v >> (64 - bit_shift);
+        }
+    }
+}
 
 /* Return the first n primes, allocating an array of length n.  The caller
  * must free the returned pointer. */

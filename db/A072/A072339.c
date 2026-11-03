@@ -12,8 +12,9 @@
  *            p−n until a power of two is reached; the number of steps plus
  *            the final power‑of‑two term gives the minimal alternating
  *            representation length
- * Range:     u8 n <= 9619, u16 n <= 9619, u32 n <= 9619, u64 n <= 9619,
- *            u128 n <= 9619, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9619 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

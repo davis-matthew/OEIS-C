@@ -9,7 +9,8 @@
  *            8^n)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   exp_in_single
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,16 @@
    arccosh(x)/sqrt(2*(x-1)) about x=1                     */
 
 #include <stdint.h>
-#include "../utils/exp_in_single.h"
+
+static idx_t exp_in_single(idx_t k, uint32_t p)
+{
+    idx_t cnt = 0;
+    while (k % p == 0) {
+        ++cnt;
+        k /= p;
+    }
+    return cnt;
+}
 
 static uint32_t primes[3000];
 static int prime_count = 0;

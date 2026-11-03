@@ -8,7 +8,8 @@
  *            A024556(k) (odd squarefree composite numbers)
  * Range:     u8 n <= 102, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small, is_squarefree
+ * Validated: standard, pass, 76 terms through n = 979 (2026-11-03)
+ * Helpers:   is_prime_seq, is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,15 +17,17 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include "../utils/is_prime_seq.h"
 #include "../utils/is_squarefree.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/mem.h"
 
 /* Ensure capacity of a dynamic array of seq_t */
 static void ensure_cap(size_t needed, seq_t **arr, size_t *cap) {
     if (*cap < needed) {
         size_t new_cap = *cap ? *cap * 2 : 16;
         while (new_cap < needed) new_cap <<= 1;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }
@@ -67,7 +70,7 @@ seq_t a(idx_t n) {
             uint64_t cand = odd_next;
             odd_next += 2;
             if (cand > 1 &&
-                !is_prime_small((seq_t)cand) &&
+                !is_prime_seq((seq_t)cand) &&
                 is_squarefree((seq_t)cand)) {
                 ensure_cap(odd_len + 1, &odd_sqfree_comp, &odd_cap);
                 odd_sqfree_comp[odd_len++] = (seq_t)cand;

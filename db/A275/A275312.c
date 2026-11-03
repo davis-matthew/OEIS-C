@@ -9,13 +9,15 @@
  *            elements and the minimal allowed block size
  * Range:     u8 n <= 9, u16 n <= 13, u32 n <= 21, u64 n <= 34, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 727 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* initialise DP for n == 0 */
     if (dp_len == 0) {
         dp = (seq_t **)malloc(sizeof(seq_t*));
-        dp[0] = (seq_t *)malloc(sizeof(seq_t) * 1);
+        dp[0] = mem_new(seq_t, 1);
         dp[0][0] = (seq_t)1;          /* a(0) = 1 */
         dp_len = 1;
     }
@@ -38,11 +40,11 @@ seq_t a(idx_t n)
         for (idx_t rem = dp_len; rem <= n; ++rem)
         {
             /* allocate current row */
-            seq_t *row = (seq_t *)malloc(sizeof(seq_t) * (rem + 1));
+            seq_t *row = mem_new(seq_t, (rem + 1));
             dp[rem] = row;
 
             /* temporary array for binomial coefficients C(rem-1, k-1) */
-            seq_t *binom = (seq_t *)malloc(sizeof(seq_t) * (rem + 1));
+            seq_t *binom = mem_new(seq_t, (rem + 1));
             if (rem >= 1) {
                 binom[1] = (seq_t)1;           /* C(rem-1,0) = 1 */
                 for (idx_t k = 2; k <= rem; ++k) {
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
             }
             row[rem] = (seq_t)0;                               /* dp[rem][rem] = 0 */
 
-            free(binom);
+            mem_free(binom);
         }
         dp_len = n + 1;
     }

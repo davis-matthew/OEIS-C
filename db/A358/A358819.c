@@ -9,7 +9,8 @@
  *            ∑_{i=k+1}^{k+r} popcount(i) (w(i) = A000120(i))
  * Range:     u8 n <= 2, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----- auxiliary struct for pending targets ----- */
 struct PendEntry {
@@ -42,7 +44,7 @@ static idx_t last_k_processed = 0; /* largest k that has been examined    */
 static void grow_S(idx_t new_len)
 {
     if (new_len <= S_len) return;
-    seq_t *tmp = (seq_t *)realloc(S, (new_len + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, S, (new_len + 1));
     if (!tmp) abort();
     S = tmp;
     for (idx_t i = S_len + 1; i <= new_len; ++i) {
@@ -58,7 +60,7 @@ static void ensure_terms_cap(size_t needed)
     if (needed <= terms_cap) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) abort();
     terms = tmp;
     terms_cap = new_cap;
@@ -70,8 +72,7 @@ static void ensure_pend_cap(size_t needed)
     if (needed <= pend_cap) return;
     size_t new_cap = pend_cap ? pend_cap * 2 : 64;
     while (new_cap < needed) new_cap <<= 1;
-    struct PendEntry *tmp = (struct PendEntry *)realloc(pend,
-                             new_cap * sizeof(*tmp));
+    struct PendEntry *tmp = mem_resize(struct PendEntry, pend, new_cap);
     if (!tmp) abort();
     pend = tmp;
     pend_cap = new_cap;
@@ -142,7 +143,7 @@ static void generate_upto_terms(size_t need_cnt)
 
     if (!S) {                   /* first time: allocate base array */
         S_len = 0;
-        S = (seq_t *)malloc(sizeof(seq_t));
+        S = mem_new(seq_t, 1);
         if (!S) abort();
         S[0] = 0;
     }

@@ -11,13 +11,15 @@
  *            complementary increasing sequences
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 41, u64 n <= 88, u128 n <= 180,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 1973 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state ----------------------------------------------------- */
 static seq_t *a_arr = NULL;   /* a[0..len_a-1] */
@@ -38,7 +40,7 @@ static void ensure_capacity_a(size_t need)
     if (need <= cap_a) return;
     size_t new_cap = cap_a ? cap_a * 2 : 4;
     if (new_cap < need) new_cap = need;
-    a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+    a_arr = mem_resize(seq_t, a_arr, new_cap);
     cap_a = new_cap;
 }
 
@@ -47,7 +49,7 @@ static void ensure_capacity_b(size_t need)
     if (need <= cap_b) return;
     size_t new_cap = cap_b ? cap_b * 2 : 8;
     if (new_cap < need) new_cap = need;
-    b_arr = (seq_t *)realloc(b_arr, new_cap * sizeof(seq_t));
+    b_arr = mem_resize(seq_t, b_arr, new_cap);
     cap_b = new_cap;
 }
 

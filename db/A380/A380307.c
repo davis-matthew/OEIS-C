@@ -8,13 +8,15 @@
  *            a(n−k), with a(0) = 1
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 8, i64 n <= 14, i128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 322 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system. */
 seq_t a(idx_t n)
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
         size_t init = 16;
         if (init < (size_t)(n + 1))
             init = n + 1;
-        a_cache = (seq_t *)malloc(init * sizeof(seq_t));
-        p_cache = (seq_t *)malloc(init * sizeof(seq_t));
+        a_cache = mem_new(seq_t, init);
+        p_cache = mem_new(seq_t, init);
         a_cap   = init;
         p_cap   = init;
 
@@ -46,8 +48,8 @@ seq_t a(idx_t n)
         size_t new_cap = a_cap << 1;
         if (new_cap < (size_t)(n + 1))
             new_cap = n + 1;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-        p_cache = (seq_t *)realloc(p_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
+        p_cache = mem_resize(seq_t, p_cache, new_cap);
         a_cap   = new_cap;
         p_cap   = new_cap;
     }

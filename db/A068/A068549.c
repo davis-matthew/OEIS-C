@@ -7,6 +7,7 @@
  * Formula:   largest prime < sqrt(2n-4) - 1
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
+ * Validated: partial, pass, 88 terms through n = 97 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

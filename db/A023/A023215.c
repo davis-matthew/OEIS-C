@@ -8,7 +8,8 @@
  *            A023215)
  * Range:     u8 n <= 6, u16 n <= 317, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 65 terms through n = 971 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_sz = 0;
@@ -25,7 +27,7 @@ static uint64_t last_cand = 3;  /* odd candidate to test */
 
 static void grow_cache(void) {
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) return;  /* on allocation failure leave unchanged */
     cache = tmp;
     cache_cap = new_cap;
@@ -37,9 +39,9 @@ seq_t a(idx_t n) {
     /* Grow cache until it contains at least n terms */
     while (cache_sz < (size_t)n) {
         seq_t p = (seq_t)last_cand;
-        if (is_prime_small(p)) {
+        if (is_prime_seq(p)) {
             seq_t q = 4 * p + 7;
-            if (is_prime_small(q)) {
+            if (is_prime_seq(q)) {
                 if (cache_sz >= cache_cap) grow_cache();
                 cache[cache_sz++] = p;
             }

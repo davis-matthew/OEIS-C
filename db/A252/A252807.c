@@ -15,13 +15,15 @@
  *            a(15) = 380509. The recurrence is linear w...
  * Range:     u8 none, u16 n <= 11, u32 n <= 32, u64 n <= 73, u128 n <= 154,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const seq_t init[15] = {
     752ULL, 369ULL, 551ULL, 742ULL, 1625ULL,
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary */
     if (N > max_n) {
         size_t new_cap = N + 1;          /* index 0 unused */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;              /* allocation failure */
         cache = tmp;
         /* initialise newly allocated part */

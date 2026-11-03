@@ -12,13 +12,15 @@
  *            number of partitions of m into exactly k (not necessa...
  * Range:     u8 n <= 18, u16 n <= 37, u32 n <= 85, u64 n <= 206,
  *            u128 n <= 542, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 4684 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #define MAX_K 141  /* sufficient for n <= 10000 (floor((sqrt(8*10000+1)-1)/2)=140) */
 
@@ -41,17 +43,15 @@ static void ensure_tables(idx_t n)
     /* enlarge dp array to cover rows 0 .. n */
     size_t new_rows = (size_t)n + 1;
     size_t new_size = new_rows * (MAX_K + 1);
-    seq_t *new_dp = (seq_t*)calloc(new_size, sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, new_size);
     if (!new_dp) return;                     /* out‑of‑memory – undefined behaviour */
 
     /* copy old data if any */
     if (dp) {
         for (size_t r = 0; r <= current_max_n; ++r) {
-            memcpy(new_dp + r * (MAX_K + 1),
-                   dp + r * (MAX_K + 1),
-                   (MAX_K + 1) * sizeof(seq_t));
+            mem_copy(new_dp + r * (MAX_K + 1), dp + r * (MAX_K + 1), (MAX_K + 1) * sizeof(seq_t));
         }
-        free(dp);
+        mem_free(dp);
     }
     dp = new_dp;
 
@@ -60,7 +60,7 @@ static void ensure_tables(idx_t n)
 
     /* compute factorials once */
     if (!fact) {
-        fact = (seq_t*)malloc((MAX_K + 1) * sizeof(seq_t));
+        fact = mem_new(seq_t, (MAX_K + 1));
         if (!fact) return;
         fact[0] = (seq_t)1;
         for (size_t i = 1; i <= MAX_K; ++i)

@@ -9,9 +9,10 @@
  *            0 if none. Algorithm: For each n, compute k^n mod n for all k,
  *            check whether the residue is prime using a simple sieve memoized
  *            up to the current maximum n; return the smallest such prime
- * Range:     u8 n <= 461, u16 n <= 8287, u32 n <= 8287, u64 n <= 8287,
- *            u128 n <= 8287, big any n
- * Helpers:   mod_pow
+ * Range:     u8 n <= 461, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 100 terms through n = 8287 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
 
 /* Cached prime sieve up to prime_cache_max (inclusive). */
 static bool *prime_flags = NULL;
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     seq_t min_prime = 0;
 
     for (idx_t x = 0; x < n; ++x) {
-        seq_t r = mod_pow((seq_t)x, n, (seq_t)n);  /* compute x^n mod n */
+        seq_t r = powmod((seq_t)x, n, (seq_t)n);  /* compute x^n mod n */
 
         if (r < 2)
             continue;  /* 0 or 1 cannot be prime */

@@ -8,7 +8,8 @@
  *            of all such values sorted in increasing order
  * Range:     u8 n <= 5, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /*  Static tables for the formal progressions  (m = 0…MAX_M-1)  */
@@ -100,7 +102,7 @@ static void ensure_cache_capacity(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();                 /* allocation failure */
     cache = tmp;
     cache_cap = new_cap;
@@ -112,9 +114,9 @@ static void ensure_cache_capacity(size_t needed)
 static void init_progressions(void)
 {
     /* allocate dynamic arrays */
-    cur_val  = (seq_t *)malloc(MAX_M * sizeof(seq_t));
-    step_arr = (seq_t *)malloc(MAX_M * sizeof(seq_t));
-    heap     = (heap_node *)malloc(MAX_M * sizeof(heap_node));
+    cur_val  = mem_new(seq_t, MAX_M);
+    step_arr = mem_new(seq_t, MAX_M);
+    heap     = mem_new(heap_node, MAX_M);
     if (!cur_val || !step_arr || !heap) abort();
 
     /* initialise each progression */

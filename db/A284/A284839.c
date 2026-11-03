@@ -12,6 +12,7 @@
  *            arithmetic and the types supplied * by the buil...
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 35, u64 n <= 71, u128 n <= 143,
  *            big any n
+ * Validated: standard, pass, 64 terms through n = 993 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

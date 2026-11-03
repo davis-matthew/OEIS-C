@@ -11,13 +11,15 @@
  *            → x+1
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 24, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- Fibonacci cache ---------- */
 static seq_t *fib_cache = NULL;
@@ -29,7 +31,7 @@ static void ensure_fib(idx_t k)
     if (k < fib_cache_size) return;      /* already computed */
 
     size_t new_size = (size_t)k + 1;      /* need indices 0..k */
-    seq_t *new_cache = (seq_t*)realloc(fib_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, fib_cache, new_size);
     if (!new_cache) return;              /* allocation failure – silently ignore */
 
     if (fib_cache_size == 0) {

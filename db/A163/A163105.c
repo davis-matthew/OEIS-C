@@ -9,24 +9,40 @@
  *            of divisors of (number of divisors of n))
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, sigma_of
+ * Validated: standard, pass, 121 terms through n = 9726 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/sigma_of.h"
+#include <stdlib.h>
+#include "../utils/num_divisors.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)0;          /* no term for n=0, but safe anyway */
     /* tau(n) */
-    uint64_t tau1 = divisor_count_u64((uint64_t)n);
+    uint64_t tau1 = num_divisors((uint64_t)n);
     /* sigma(tau(n)) – sigma_of works on idx_t, so cast tau1 */
     seq_t sigma_tau = sigma_of((idx_t)tau1);
     /* tau(sigma(tau(n))) – the result of sigma_tau fits in uint64_t
        for the range of n we are interested in (n up to about 10⁴). */
-    uint64_t tau2 = divisor_count_u64((uint64_t)sigma_tau);
+    uint64_t tau2 = num_divisors((uint64_t)sigma_tau);
     return (seq_t)tau2;
 }

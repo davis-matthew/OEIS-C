@@ -11,13 +11,32 @@
  *            antidiagonals of the square array A(n,k)
  * Range:     u8 n <= 17, u16 n <= 31, u32 n <= 41, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   triangular_upper
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t */
-#include "../utils/triangular_upper.h"
+
+static inline idx_t triangular_upper(idx_t n) {
+    /* Return the smallest k such that k*(k+1)/2 > n. */
+    idx_t lo = 0;
+    idx_t hi = 1;
+    /* Grow hi until the condition is satisfied. */
+    while (( (__int128)hi * (hi + 1) ) / 2 <= n) {
+        hi <<= 1;
+    }
+    /* Binary search between lo and hi. */
+    while (lo + 1 < hi) {
+        idx_t mid = lo + ((hi - lo) >> 1);
+        if (( (__int128)mid * (mid + 1) ) / 2 <= n)
+            lo = mid;
+        else
+            hi = mid;
+    }
+    return hi;
+}
 
 static inline idx_t triangular(idx_t k) {
     /* Return k*(k+1)/2 using 128-bit intermediate to avoid overflow. */

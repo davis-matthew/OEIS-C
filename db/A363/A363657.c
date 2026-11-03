@@ -9,7 +9,8 @@
  *            all squares)
  * Range:     u8 n <= 7, u16 n <= 21, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
             /* New record found: store m = k² */
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 64;
-                seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+                seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
             }
             seq_arr[seq_len++] = (seq_t)k * (seq_t)k;
             best_log = cand_log;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 3959, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alt_sum_is_one
+ * Validated: standard, pass, 70 terms through n = 7773 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,36 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/alt_sum_is_one.h"
+
+/* Compute whether the alternating digit sum of x equals 1. */
+static inline bool alt_sum_is_one(seq_t x)
+{
+    int digits[32];    /* enough for 128‑bit numbers */
+    int len = 0;
+
+    /* Extract digits least‑significant first. */
+    while (x > 0) {
+        digits[len++] = (int)(x % 10);
+        x /= 10;
+    }
+
+    /* Empty number never occurs (we start from 1). */
+    if (len == 0)
+        return false;
+
+    int sum = 0;
+    bool add = true;   /* leftmost digit is added */
+
+    /* Process digits from most significant to least significant. */
+    for (int i = len - 1; i >= 0; --i) {
+        if (add)
+            sum += digits[i];
+        else
+            sum -= digits[i];
+        add = !add;
+    }
+    return sum == 1;
+}
 
 /* Return the n-th term of the sequence. */
 seq_t a(idx_t n)

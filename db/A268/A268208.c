@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for computed terms.  cache[i] holds a(i).  */
 static seq_t *cache = NULL;
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n)
     /* First allocation and seed values */
     if (cache == NULL) {
         cache_alloc = 8;                          /* initial size          */
-        cache = (seq_t *)malloc(cache_alloc * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_alloc);
         if (!cache) return;                      /* allocation failure – abort silently */
 
         /* seed the known first four terms */
@@ -56,7 +58,7 @@ static void ensure_cache(idx_t n)
         size_t new_alloc = cache_alloc;
         while ((size_t)(n + 1) > new_alloc)
             new_alloc <<= 1;                     /* double until large enough */
-        seq_t *tmp = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_alloc);
         if (!tmp) return;                       /* allocation failure – abort silently */
         cache = tmp;
         cache_alloc = new_alloc;

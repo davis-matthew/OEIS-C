@@ -12,13 +12,17 @@
  *            offset = n – d·(d+1)/2, i = d – offset, j = offset
  * Range:     u8 n <= 48, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   binom, catalan
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include the necessary helper functions. */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
 #include "../utils/catalan.h"
 #include <stdint.h>
 
@@ -43,8 +47,8 @@ seq_t a(idx_t n)
     idx_t limit = (i < j) ? i : j;
     seq_t sum = 0;
     for (idx_t t = 0; t <= limit; ++t) {
-        seq_t v = binom(i, t);
-        v *= binom(j, t);
+        seq_t v = binomial(i, t);
+        v *= binomial(j, t);
         v *= catalan(t);
         sum += v;
     }

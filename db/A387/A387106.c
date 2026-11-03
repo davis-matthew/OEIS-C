@@ -8,12 +8,39 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   seg_sum
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seg_sum.h"
+/* Sum of seven‑segment counts of the decimal digits of x. */
+static seq_t seg_sum(seq_t x)
+{
+    if (x == 0)
+        return (seq_t)6;                     /* 0 uses 6 segments */
+
+    static const unsigned seg[10] = {
+        6, /* 0 */
+        2, /* 1 */
+        5, /* 2 */
+        5, /* 3 */
+        4, /* 4 */
+        5, /* 5 */
+        6, /* 6 */
+        4, /* 7 */
+        7, /* 8 */
+        5  /* 9 */
+    };
+
+    seq_t sum = 0;
+    while (x > 0) {
+        unsigned d = (unsigned)(x % 10);
+        sum += (seq_t)seg[d];
+        x /= 10;
+    }
+    return sum;
+}
 /* Compute the number of iterations of the seven‑segment digit
    counter A074458 needed to reach a fixed point (4, 5 or 6) for a
    given non‑negative integer n.  The mapping used by A074458

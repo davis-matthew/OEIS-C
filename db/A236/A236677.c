@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8192, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 137 terms through n = 7536 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,10 @@
    i.e. a(n) = (a[log]==0 ? a[n-2^log] : 0)                               */
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static size_t cache_len = 0;   /* number of entries already computed       */
@@ -32,13 +36,12 @@ static void ensure_cache_capacity(idx_t n)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) abort();                            /* allocation failure */
     if (!seq_cache) {
-        memset(tmp, 0, new_cap * sizeof(seq_t));   /* first allocation */
+        mem_set(tmp, 0, new_cap * sizeof(seq_t));   /* first allocation */
     } else {
-        memset(tmp + cache_cap, 0,
-               (new_cap - cache_cap) * sizeof(seq_t));
+        mem_set(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
     }
     seq_cache = tmp;
     cache_cap = new_cap;
@@ -51,7 +54,7 @@ static void compute_up_to(idx_t n)
         if (i == 0) {
             seq_cache[0] = (seq_t)1;
         } else {
-            unsigned log = floor_log2_uint64(i);      /* floor(log2(i))   */
+            unsigned log = ilog2(i);      /* floor(log2(i))   */
             idx_t msb   = ((idx_t)1) << log;          /* 2^log           */
             idx_t rest  = i - msb;                    /* n without msb   */
             seq_cache[i] = (seq_cache[log] == 0 ?

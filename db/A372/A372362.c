@@ -9,13 +9,15 @@
  *            largest power of 2 dividing (3x+1). Offset: 0 (a(0)=1)
  * Range:     u8 n <= 8, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 106 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *m_vals = NULL;   /* array of successive Rⁿ(27) values, all odd. */
 static idx_t m_len  = 0;       /* number of entries currently stored. */
@@ -29,7 +31,7 @@ static void ensure_m_cap(idx_t req)
     size_t new_cap = m_cap ? m_cap * 2 : 16;
     while (new_cap < (size_t)req) new_cap <<= 1;
 
-    m_vals = (seq_t *)realloc(m_vals, new_cap * sizeof(seq_t));
+    m_vals = mem_resize(seq_t, m_vals, new_cap);
     m_cap = new_cap;
 }
 

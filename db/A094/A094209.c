@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t fact[10] = {1ULL, 1ULL, 2ULL, 6ULL, 24ULL, 120ULL,
                                720ULL, 5040ULL, 40320ULL, 362880ULL};
@@ -76,7 +78,7 @@ static void generate_all(seq_t seq[], int *seq_len)
         for (int i = 0; i < 10; ++i) cnt[i] = 0;
         dfs_generate(0, c, c, cnt, 0, 0, seq, seq_len);
     }
-    qsort(seq, *seq_len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(seq, *seq_len, sizeof(seq_t), cmp_seq_t);
     int newlen = 0;
     for (int i = 0; i < *seq_len; ++i) {
         if (i == 0 || seq[i] != seq[i - 1])

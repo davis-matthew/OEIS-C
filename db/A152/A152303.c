@@ -9,7 +9,8 @@
  *            + floor(b(n‑2)/10) (n ≥ 2)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 117 terms through n = 9768 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* big‑integer helpers ---------------------------------------------------- */
@@ -79,7 +81,7 @@ static void ensure_cache(idx_t n)
     if (cached_max == (idx_t)-1) {
         /* first call : set array for indices 0,1 */
         a_cache_len = 2;
-        a_cache = (seq_t *)malloc(sizeof(seq_t) * a_cache_len);
+        a_cache = mem_new(seq_t, a_cache_len);
         a_cache[0] = 1;
         a_cache[1] = 1;
         cached_max = 1;
@@ -88,7 +90,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)n + 1 > a_cache_len) {
         size_t new_len = (a_cache_len > 0) ? a_cache_len * 2 : 2;
         while (new_len <= (size_t)n + 1) new_len <<= 1;
-        a_cache = (seq_t *)realloc(a_cache, sizeof(seq_t) * new_len);
+        a_cache = mem_resize(seq_t, a_cache, new_len);
         a_cache_len = new_len;
     }
 }

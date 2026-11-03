@@ -9,13 +9,22 @@
  *            from Pell equation (9*a(n))^2 - 82*b(n)^2 = -1)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 15,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: standard, pass, 29 terms through n = 381 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h" /* provides seq_t *alloc_seq_array(size_t n) */
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {
@@ -45,7 +54,7 @@ seq_t a(idx_t n)
         for (idx_t i = 0; i <= max_cached; ++i) {
             new_cache[i] = cache[i];
         }
-        free(cache); /* free old buffer */
+        mem_free(cache); /* free old buffer */
         cache = new_cache;
         cap = new_cap;
     }

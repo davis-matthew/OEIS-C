@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 41, u16 n <= 554, u32 n <= 1000, u64 n <= 1000,
+ * Range:     u8 n <= 135, u16 n <= 554, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   catalan
+ * Validated: standard, pass, 107 terms through n = 978 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
 #include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 /* external types supplied by the build */
 seq_t a(idx_t n)
@@ -33,13 +36,13 @@ seq_t a(idx_t n)
 
     /* Dynamic programming array: dp[i] = number of partitions of i
        using the already processed Catalan coins.  */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return (seq_t)0;
     dp[0] = (seq_t)1;
 
     /* Build increasing list of distinct Catalan numbers <= n. */
     idx_t *coins = (idx_t *)malloc((size_t)(n + 1) * sizeof(idx_t));
-    if (!coins) { free(dp); return (seq_t)0; }
+    if (!coins) { mem_free(dp); return (seq_t)0; }
     size_t coin_cnt = 0;
     for (idx_t k = 0; ; ++k) {
         seq_t c = catalan(k);            /* Catalan(k) */
@@ -56,9 +59,9 @@ seq_t a(idx_t n)
         if (v == 0) continue;
 
         /* Make a copy of the current dp into newdp. */
-        seq_t *newdp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, (size_t)(n + 1));
         if (!newdp) break;
-        memcpy(newdp, dp, (size_t)(n + 1) * sizeof(seq_t));
+        mem_copy(newdp, dp, (size_t)(n + 1) * sizeof(seq_t));
 
         /* For every residue modulo v process the indices belonging
            to that residue as a separate 1‑dimensional array. */
@@ -67,9 +70,9 @@ seq_t a(idx_t n)
             size_t cnt = (size_t)maxj + 1;
 
             /* Allocate temporary arrays for values and prefix sums. */
-            seq_t *arr     = (seq_t *)calloc(cnt, sizeof(seq_t));
-            seq_t *prefix  = (seq_t *)calloc(cnt, sizeof(seq_t));
-            if (!arr || !prefix) { free(newdp); free(arr); free(prefix); continue; }
+            seq_t *arr     = mem_new(seq_t, cnt);
+            seq_t *prefix  = mem_new(seq_t, cnt);
+            if (!arr || !prefix) { mem_free(newdp); mem_free(arr); mem_free(prefix); continue; }
 
             /* Fill arr with current dp values for this residue. */
             for (size_t j = 0; j < cnt; ++j) {
@@ -90,17 +93,17 @@ seq_t a(idx_t n)
                 newdp[idx] = val;
             }
 
-            free(arr);
-            free(prefix);
+            mem_free(arr);
+            mem_free(prefix);
         }
 
         /* Prepare for next coin: newdp becomes the current dp. */
-        free(dp);
+        mem_free(dp);
         dp = newdp;
     }
 
     seq_t result = dp[(size_t)n];
-    free(dp);
+    mem_free(dp);
     free(coins);
     return result;
 }

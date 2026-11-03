@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 43, u64 n <= 89, u128 n <= 181,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* is Fibonacci(n), hence an incremental Fibonacci cache is maintained. */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t *fib_cache = NULL;  /* caches Fibonacci numbers 0..N */
 static idx_t  fib_cache_max = 0; /* maximum index currently cached */
@@ -27,7 +29,7 @@ static void ensure_fib_cache(idx_t n)
 {
     if (fib_cache == NULL) {
         /* initialize cache with F0=0, F1=1 */
-        fib_cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        fib_cache = mem_new(seq_t, 2);
         if (fib_cache == NULL) abort();
         fib_cache[0] = (seq_t)0;
         fib_cache[1] = (seq_t)1;
@@ -37,7 +39,7 @@ static void ensure_fib_cache(idx_t n)
 
     /* grow cache to accommodate indices up to n */
     size_t new_size = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)realloc(fib_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, fib_cache, new_size);
     if (new_cache == NULL) abort();
     fib_cache = new_cache;
 

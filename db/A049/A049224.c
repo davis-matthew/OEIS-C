@@ -9,13 +9,15 @@
  *            enumerates the triangle row‑major order
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 28, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     {
         idx_t row = max_row + 1;               /* new row to compute (1‑based)     */
         size_t len = (size_t)row;              /* number of elements in the row   */
-        seq_t *row_vals = (seq_t *)malloc((len + 1) * sizeof(seq_t));
+        seq_t *row_vals = mem_new(seq_t, (len + 1));
         if (!row_vals)          /* allocation failed */
             return 0;
 
@@ -65,10 +67,10 @@ seq_t a(idx_t n)
 
         /* append the new row to the global cache */
         size_t new_cache_len = cache_len + len;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cache_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cache_len);
         if (!new_cache)
         {
-            free(row_vals);
+            mem_free(row_vals);
             return 0;
         }
         cache = new_cache;
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
             cache[cache_len++] = row_vals[m];
 
         /* release the previous row to avoid leaks */
-        if (prev_row) free(prev_row);
+        if (prev_row) mem_free(prev_row);
         prev_row = row_vals;
         prev_len = len;
         ++max_row;

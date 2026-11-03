@@ -11,12 +11,15 @@
  *            exact by definition
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 18 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +27,7 @@ seq_t a(idx_t n)
         return 0;                 /* offset not used below 2 */
 
     seq_t N = (seq_t)n;
-    seq_t pow_n = big_pow(N, (seq_t)n);   /* n^n */
+    seq_t pow_n = ipow(N, (seq_t)n);   /* n^n */
 
     seq_t coeff = N * N + N + 1;          /* n^2 + n + 1 */
 

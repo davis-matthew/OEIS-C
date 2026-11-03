@@ -9,13 +9,16 @@
  *            needed to reach 1 starting at x = n
  * Range:     u8 n <= 522, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega, phi
+ * Validated: standard, pass, 89 terms through n = 9781 (2026-11-01)
+ * Helpers:   bigomega, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/bigomega.h"
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
         seq_t   omega_seq   = bigomega(x);
         idx_t   omega       = (idx_t)omega_seq;
 
-        seq_t   phi_seq     = phi(omega);          /* phi expects idx_t, returns seq_t */
+        seq_t   phi_seq     = totient(omega);          /* phi expects idx_t, returns seq_t */
         idx_t   phi_val     = (idx_t)phi_seq;
 
         x -= phi_val;           /* next iterate of the map */

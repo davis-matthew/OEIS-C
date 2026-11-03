@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 167, u32 n <= 8400, u64 n <= 8400,
  *            u128 n <= 8400, big any n
- * Helpers:   bigomega, is_prime
+ * Validated: standard, pass, 61 terms through n = 8368 (2026-11-03)
+ * Helpers:   bigomega, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,8 +31,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"      /* bool is_prime(idx_t n);          */
-#include "../utils/bigomega.h"      /* seq_t bigomega(idx_t n);         */
+#include "../utils/bigomega.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* Allocate the cache on first use. */
     if (!terms) {
         capacity = 16;
-        terms = (seq_t *)malloc(capacity * sizeof(seq_t));
+        terms = mem_new(seq_t, capacity);
         if (!terms) {
             return 0;   /* allocation failure, return 0 as a safe default */
         }
@@ -67,10 +69,10 @@ seq_t a(idx_t n)
             /* Grow the cache if necessary. */
             if (count + 1 > capacity) {
                 capacity *= 2;
-                seq_t *tmp = (seq_t *)realloc(terms, capacity * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, capacity);
                 if (!tmp) {
                     /* allocation failure; give up. */
-                    free(terms);
+                    mem_free(terms);
                     terms = NULL;
                     return 0;
                 }

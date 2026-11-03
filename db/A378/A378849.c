@@ -11,9 +11,10 @@
  *            transformed by y' = y + 1, giving a walk with steps +1,0,-1 that
  *            starts and ends at height 1 and stays ≥ 0. The number of such
  *            walks is computed by dynamic programming over the cu...
- * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 24, u64 n <= 31, u128 n <= 31,
+ * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 24, u64 n <= 46, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 2003 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,8 +40,8 @@ seq_t a(idx_t n)
 
     /* Arrays of heights: index = height + 1.  */
     size_t size = (size_t)n + 2;               /* allow heights up to n + 1 */
-    seq_t *prev = (seq_t *)calloc(size, sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, size);
+    seq_t *curr = mem_new(seq_t, size);
     if (!prev || !curr)
         return 0;     /* in production code handle out of memory */
 
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     for (idx_t step = 1; step <= n; ++step)
     {
         /* Zero out curr array for indices that will be written.  */
-        memset(curr, 0, size * sizeof(seq_t));
+        mem_set(curr, 0, size * sizeof(seq_t));
 
         /* The maximum height after (step‑1) steps is (step‑1).  */
         idx_t max_h = step - 1;              /* height */
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = prev[1];   /* height 0 after n steps */
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

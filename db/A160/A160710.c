@@ -7,15 +7,17 @@
  * Formula:   a(n) = Sum_{k=0..n} Stirling1(n, k)*2^(k^2)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 28 terms through n = 57 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/pow_uint.h"
-
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,10 +36,10 @@ seq_t a(idx_t n)
     /* Initial allocation on first call */
     if (a_cache == NULL) {
         cap = 1;
-        a_cache = (seq_t *)malloc(cap * sizeof(seq_t));
-        prev    = (seq_t *)malloc(cap * sizeof(seq_t));
-        curr    = (seq_t *)malloc(cap * sizeof(seq_t));
-        pow2sq  = (seq_t *)malloc(cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, cap);
+        prev    = mem_new(seq_t, cap);
+        curr    = mem_new(seq_t, cap);
+        pow2sq  = mem_new(seq_t, cap);
         if (!a_cache || !prev || !curr || !pow2sq)
             abort(); /* allocation failure */
 
@@ -50,10 +52,10 @@ seq_t a(idx_t n)
     /* Grow the shared arrays if a larger n is requested */
     if ((size_t)n + 1u > cap) {
         size_t new_cap = (size_t)n + 1u;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-        prev    = (seq_t *)realloc(prev,    new_cap * sizeof(seq_t));
-        curr    = (seq_t *)realloc(curr,    new_cap * sizeof(seq_t));
-        pow2sq  = (seq_t *)realloc(pow2sq,  new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
+        prev    = mem_resize(seq_t, prev, new_cap);
+        curr    = mem_resize(seq_t, curr, new_cap);
+        pow2sq  = mem_resize(seq_t, pow2sq, new_cap);
         if (!a_cache || !prev || !curr || !pow2sq)
             abort();
         cap = new_cap;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     /* Compute rows from (max_n + 1) up to n */
     for (idx_t m = max_n + 1u; m <= n; ++m) {
         /* 2^(m^2)  */
-        pow2sq[m] = pow_uint(2ULL, (idx_t)((unsigned long long)m * (unsigned long long)m));
+        pow2sq[m] = ipow_u64_idx(2ULL, (idx_t)((unsigned long long)m * (unsigned long long)m));
 
         /* Fill Stirling(n,k) for k = 0..m (unsigned values) */
         curr[0] = (seq_t)0;

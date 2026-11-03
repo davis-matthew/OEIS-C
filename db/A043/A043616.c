@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- Cache for memoised terms --------------------------------------- */
 static seq_t *cache      = NULL;
@@ -29,11 +31,11 @@ static void add_value(seq_t val)
 {
     if (cache_size == cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 128 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp) abort(); /* allocation failure */
         if (cache)
-            memcpy(tmp, cache, cache_size * sizeof(seq_t));
-        free(cache);
+            mem_copy(tmp, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
         cache = tmp;
         cache_cap = new_cap;
     }

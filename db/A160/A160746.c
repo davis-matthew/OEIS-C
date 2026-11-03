@@ -10,13 +10,31 @@
  *            two < n) and r = n – m A151566(n) = A151566(m) + 2 · A151566(r)
  * Range:     u8 n <= 19, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   A151566
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/A151566.h"
+
+static seq_t A151566(idx_t n)
+{
+    if (n == 0) return (seq_t)0;
+    if (n == 1) return (seq_t)1;
+    if (n == 2) return (seq_t)2;
+
+    /* find the greatest power of two ≤ n */
+    idx_t m = 1;
+    while (m <= n >> 1) m <<= 1;
+
+    if (m == n) /* n is a power of two, n ≥ 4 */
+        return (seq_t)3 * A151566(n >> 1);
+
+    /* n = m + r, where r = n - m < m */
+    idx_t r = n - m;
+    return A151566(m) + (seq_t)2 * A151566(r);
+}
 
 seq_t a(idx_t n)
 {

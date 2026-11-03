@@ -9,6 +9,7 @@
  *            a(n)*((261*a(n)^3)-(504*a(n)^2)+(283*a(n))-38)/2 for n > 0
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 1, u64 n <= 2, u128 n <= 2,
  *            big any n
+ * Validated: partial, pass, 4 terms through n = 3 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

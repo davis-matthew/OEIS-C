@@ -14,13 +14,15 @@
  *            bounda...
  * Range:     u8 n <= 56, u16 n <= 173, u32 n <= 598, u64 n <= 2215,
  *            u128 n <= 8520, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 7223 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Integer square root for idx_t (fits in uint64_t).                     */
@@ -64,7 +66,7 @@ static void ensure_rows(idx_t need)
     /* compute missing rows sequentially */
     for (idx_t n = rows_computed; n <= need; ++n) {
         /* allocate storage for this row */
-        row_ptrs[n] = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        row_ptrs[n] = mem_new(seq_t, (n + 1));
         if (row_ptrs[n] == NULL) abort();
 
         /* fill each column k */

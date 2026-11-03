@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 39, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   free_arr
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,16 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/free_arr.h"
+
+/* free allocs made with new in C++ or malloc in C */
+static void free_arr(seq_t *arr)
+{
+#ifdef __cplusplus
+    delete[] arr;
+#else
+    free(arr);
+#endif
+}
 
 /* global state for memoisation */
 static idx_t max_n = 0;     /* largest n already computed */

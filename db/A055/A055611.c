@@ -13,14 +13,34 @@
  *            d_k … d_1
  * Range:     u8 n <= 9, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   digit_len, max_sum_pos, pow10
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
-#include "../utils/max_sum_pos.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+static inline seq_t max_sum_pos(int i)
+{
+    if (i <= 0) return 0;
+    /* maximum sum attainable with positions 1 … i
+       (position 1 contribution is 1*1, others are (j-1)*j) */
+    return 1 + (seq_t)i * (i + 1) * (i - 1) / 3;
+}
 
 seq_t a(idx_t n)
 {
@@ -63,7 +83,7 @@ seq_t a(idx_t n)
     for (int i = k; i >= 1; --i)
     {
         seq_t d   = (seq_t)digits[i];
-        int   len = digit_len(d);
+        int   len = num_digits(d);
         result = result * pow10((idx_t)len) + d;
     }
 

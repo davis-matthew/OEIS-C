@@ -10,12 +10,14 @@
  *            = Sum_{k=1..n} binomial(n,k) * Prod_{i=0}^{k-1}(4i+1) * a(n-k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: resize a cache array to hold at least (n+1) elements. */
 static void ensure_cache(idx_t n, seq_t **arr, size_t *cap)
@@ -24,7 +26,7 @@ static void ensure_cache(idx_t n, seq_t **arr, size_t *cap)
     if (*cap < need) {
         size_t newcap = (*cap == 0) ? 4 : *cap * 2;
         while (newcap < need) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, newcap);
         if (!tmp) exit(1);
         *arr = tmp;
         *cap = newcap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 16, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Allocate or grow all arrays to hold indices 0..new_cap.
  * Newly added elements are zeroed. */
@@ -42,13 +44,13 @@ static void ensure_capacity(idx_t new_cap,
 
     size_t sz = (size_t)(new_cap + 1) * sizeof(seq_t);
 
-    *c0_prev1 = (seq_t *)realloc(*c0_prev1, sz);
-    *c0_prev2 = (seq_t *)realloc(*c0_prev2, sz);
-    *c0_cur   = (seq_t *)realloc(*c0_cur,   sz);
-    *c1_prev1 = (seq_t *)realloc(*c1_prev1, sz);
-    *c1_prev2 = (seq_t *)realloc(*c1_prev2, sz);
-    *c1_cur   = (seq_t *)realloc(*c1_cur,   sz);
-    *aval     = (seq_t *)realloc(*aval,     sz);
+    *c0_prev1 = mem_resize(seq_t, *c0_prev1, (sz) / sizeof(seq_t));
+    *c0_prev2 = mem_resize(seq_t, *c0_prev2, (sz) / sizeof(seq_t));
+    *c0_cur   = mem_resize(seq_t, *c0_cur, (sz) / sizeof(seq_t));
+    *c1_prev1 = mem_resize(seq_t, *c1_prev1, (sz) / sizeof(seq_t));
+    *c1_prev2 = mem_resize(seq_t, *c1_prev2, (sz) / sizeof(seq_t));
+    *c1_cur   = mem_resize(seq_t, *c1_cur, (sz) / sizeof(seq_t));
+    *aval     = mem_resize(seq_t, *aval, (sz) / sizeof(seq_t));
 
     if (!*c0_prev1 || !*c0_prev2 || !*c0_cur ||
         !*c1_prev1 || !*c1_prev2 || !*c1_cur ||

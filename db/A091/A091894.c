@@ -10,16 +10,19 @@
  *            binomial(r-1,2k) * binomial(2k,k)/(k+1). See OEIS for details
  * Range:     u8 n <= 17, u16 n <= 38, u32 n <= 114, u64 n <= 368,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 66 terms through n = 9813 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>            /* for size_t */
-#include "../utils/binomial.h" /* seq_t binomial(idx_t n, idx_t k) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 #ifdef __cplusplus
-#include "../utils/pow2.h"     /* seq_t pow2(idx_t exp) */
 #endif
 
 static inline idx_t row_len(idx_t r)

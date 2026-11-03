@@ -9,8 +9,9 @@
  * Formula:   a(n) = number of solutions x mod r of x^2 ≡ k (mod r) where r
  *            and k are determined by flattening the triangle: r*(r-1)/2 < n ≤
  *            r*(r+1)/2, k = n - r*(r-1)/2 - 1
- * Range:     u8 n <= 9838, u16 n <= 9838, u32 n <= 9838, u64 n <= 9838,
- *            u128 n <= 9838, big any n
+ * Range:     u8 n <= 11325, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 116 terms through n = 9838 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

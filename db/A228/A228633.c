@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 22, u32 n <= 38, u64 n <= 66, u128 n <= 118,
  *            big any n
- * Helpers:   binom_safe
+ * Validated: standard, pass, 51 terms through n = 172 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 /* Note: C(x,0)=1 for x≥0, and C(x,0)=0 for x<0. */
 
 #include <stdint.h>
-#include "../utils/binom_safe.h"
+
+/* Helper: compute binomial coefficient C(n,k) for n,k≥0.
+   Uses multiplicative formula and returns 0 if n<k or n<0. */
+static seq_t binom_safe(int64_t n_signed, idx_t k) {
+    if (n_signed < 0) return 0;
+    idx_t n = (idx_t)n_signed;
+    if (k > n) return 0;
+    if (k == 0) return 1;
+
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        /* res = res * (n - i + 1) / i; division is exact at each step. */
+        res = res * (seq_t)(n - i + 1) / (seq_t)i;
+    }
+    return res;
+}
 
 seq_t a(idx_t n) {
     if (n < 7) return 0;          /* behavior below offset is irrelevant */

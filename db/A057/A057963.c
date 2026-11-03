@@ -11,7 +11,8 @@
  *            first term is a(2))
  * Range:     u8 n <= 19, u16 n <= 72, u32 n <= 243, u64 n <= 888,
  *            u128 n <= 3454, big any n
- * Helpers:   binomial, pow2, seq_mul
+ * Validated: standard, pass, 69 terms through n = 9526 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,15 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/binomial.h"   /* binomial(idx_t n, idx_t k) */
-#include "../utils/pow2.h"       /* pow2(idx_t exp) */
-#include "../utils/seq_mul.h"    /* seq_mul(seq_t a, seq_t b) */
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {

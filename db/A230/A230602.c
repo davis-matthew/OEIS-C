@@ -7,12 +7,14 @@
  * Formula:   a(n) = Lucas(2^n - 2)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached state, valid for any order of calls. */
 static idx_t _a_current = 0;          /* largest n for which elements are cached */
@@ -31,7 +33,7 @@ static void _a_prepare(idx_t n)
         _Lk = 2;          /* L_0 */
         _Lk1 = 1;         /* L_1 */
         _a_cache_cap = 8;
-        _a_cache = (seq_t *)malloc(_a_cache_cap * sizeof(seq_t));
+        _a_cache = mem_new(seq_t, _a_cache_cap);
         _a_cache[1] = 2;  /* a(1) */
     }
 
@@ -39,7 +41,7 @@ static void _a_prepare(idx_t n)
     if (n >= _a_cache_cap) {
         while (_a_cache_cap <= n)
             _a_cache_cap <<= 1;
-        _a_cache = (seq_t *)realloc(_a_cache, _a_cache_cap * sizeof(seq_t));
+        _a_cache = mem_resize(seq_t, _a_cache, _a_cache_cap);
     }
 
     /* Compute missing terms up to n. */

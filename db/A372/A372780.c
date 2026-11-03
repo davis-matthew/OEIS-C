@@ -10,7 +10,8 @@
  *            is at least log₂(3/2)
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* cached values of a(n) */
 static size_t cached  = 0;      /* number of cached terms */
@@ -32,7 +34,7 @@ static void init_once(void)
     init_done = true;
 
     cap   = 64;
-    cache = (seq_t *)malloc(cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cap);
     /* cache[0] will be filled on the first call to ensure() */
     cached = 0;
     next_k = 1;
@@ -57,7 +59,7 @@ static void ensure(idx_t n)
         if (frac >= beta - eps) {                         /* inequality holds */
             if (cached == cap) {                          /* grow cache if needed */
                 cap <<= 1;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[cached++] = (seq_t)next_k;
         }

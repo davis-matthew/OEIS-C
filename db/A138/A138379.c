@@ -9,12 +9,14 @@
  *            Σ_{j=1}^{i-1} a(j)/j! ) + Σ_{i=0}^{n-1} C(n,i) ], n > 2
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,8 +25,8 @@ seq_t a(idx_t n)
 
     /* allocate arrays for b(k) = a(k)/k! and their prefix sums S(k) = Σ_{j=1}^{k} b(j) */
     size_t size = (size_t)(n + 1);
-    seq_t *b = (seq_t *)malloc(size * sizeof(seq_t));
-    seq_t *S = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *b = mem_new(seq_t, size);
+    seq_t *S = mem_new(seq_t, size);
     if (!b || !S) { /* memory failure – return zero */
         return (seq_t)0;
     }
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     /* a(n) = n! * b(n) */
     seq_t result = fact * b[n];
 
-    free(b);
-    free(S);
+    mem_free(b);
+    mem_free(S);
     return result;
 }

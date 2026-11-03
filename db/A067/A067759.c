@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 30, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------------
    Prime sieve – built once, up to a fixed limit (20 000 000).  All primes
@@ -160,7 +162,7 @@ seq_t a(idx_t n)
             /* Ensure room in the cache. */
             if (term_len == term_cap) {
                 term_cap = term_cap == 0 ? 16 : term_cap * 2;
-                term_cache = (seq_t *)realloc(term_cache, term_cap * sizeof(seq_t));
+                term_cache = mem_resize(seq_t, term_cache, term_cap);
                 if (!term_cache)
                     return 0;   /* allocation failure */
             }

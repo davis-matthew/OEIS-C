@@ -11,12 +11,25 @@
  *            p_{k-2}. The function returns p_n
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 39, u128 n <= 84,
  *            big any n
- * Helpers:   cf_a
+ * Validated: standard, pass, 43 terms through n = 192 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/cf_a.h"
+static inline seq_t cf_a(idx_t k)
+{
+    if (k == 0)
+        return (seq_t)18;
+    switch ((k - 1) % 5)
+    {
+        case 0: case 1: case 2: case 3:
+            return (seq_t)1;
+        case 4:
+            return (seq_t)36;
+    }
+    return (seq_t)0; /* unreachable */
+}
 
 seq_t a(idx_t n)
 {

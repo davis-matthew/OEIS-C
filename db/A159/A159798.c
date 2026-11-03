@@ -9,6 +9,7 @@
  * Formula:   T(n,k) = 1 + k*(n-3), 0 ≤ k < n
  * Range:     u8 n <= 170, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
+ * Validated: standard, pass, 96 terms through n = 4952 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,22 +9,25 @@
  * Formula:   a(n) = 18*8^n-63*7^n+111*6^n-120*5^n+83*4^n-36*3^n+9*2^n-1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 35 terms through n = 985 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
-    seq_t pow8 = big_pow((seq_t)8, (seq_t)n);
-    seq_t pow7 = big_pow((seq_t)7, (seq_t)n);
-    seq_t pow6 = big_pow((seq_t)6, (seq_t)n);
-    seq_t pow5 = big_pow((seq_t)5, (seq_t)n);
-    seq_t pow4 = big_pow((seq_t)4, (seq_t)n);
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)n);
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)n);
+    seq_t pow8 = ipow((seq_t)8, (seq_t)n);
+    seq_t pow7 = ipow((seq_t)7, (seq_t)n);
+    seq_t pow6 = ipow((seq_t)6, (seq_t)n);
+    seq_t pow5 = ipow((seq_t)5, (seq_t)n);
+    seq_t pow4 = ipow((seq_t)4, (seq_t)n);
+    seq_t pow3 = ipow((seq_t)3, (seq_t)n);
+    seq_t pow2 = ipow((seq_t)2, (seq_t)n);
 
     seq_t result = (seq_t)18 * pow8 - (seq_t)63 * pow7;
     result += (seq_t)111 * pow6;

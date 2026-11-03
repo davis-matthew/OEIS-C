@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Dynamic caching for the sequence values, factorials and powers of 3 */
 static seq_t *a_cache      = NULL;   /* a_cache[i] = a(i)          */
@@ -37,9 +39,9 @@ static void extend_cache(size_t new_n)
     size_t new_size = new_n + 1;
 
     /* Allocate new storage */
-    seq_t *new_a  = (seq_t *)malloc(new_size * sizeof(seq_t));
-    seq_t *new_f  = (seq_t *)malloc(new_size * sizeof(seq_t));
-    seq_t *new_p3 = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_a  = mem_new(seq_t, new_size);
+    seq_t *new_f  = mem_new(seq_t, new_size);
+    seq_t *new_p3 = mem_new(seq_t, new_size);
     if (!new_a || !new_f || !new_p3)
         return;  /* allocation failure – leave caches untouched */
 
@@ -96,9 +98,9 @@ static void extend_cache(size_t new_n)
     }
 
     /* Free old memory */
-    if (a_cache)      free(a_cache);
-    if (fact_cache)   free(fact_cache);
-    if (pow3_cache)   free(pow3_cache);
+    if (a_cache)      mem_free(a_cache);
+    if (fact_cache)   mem_free(fact_cache);
+    if (pow3_cache)   mem_free(pow3_cache);
 
     /* Install new caches */
     a_cache      = new_a;

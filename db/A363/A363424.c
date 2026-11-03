@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  */
 #include <stdbool.h>
 #include <stdlib.h>   /* for malloc, realloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,9 +36,9 @@ seq_t a(idx_t n)
         while (new_cap <= (size_t)n)
             new_cap <<= 1;
 
-        a_buf  = (seq_t *)realloc(a_buf,  new_cap * sizeof(seq_t));
-        s_buf  = (seq_t *)realloc(s_buf,  new_cap * sizeof(seq_t));
-        pow4   = (seq_t *)realloc(pow4,   new_cap * sizeof(seq_t));
+        a_buf  = mem_resize(seq_t, a_buf, new_cap);
+        s_buf  = mem_resize(seq_t, s_buf, new_cap);
+        pow4   = mem_resize(seq_t, pow4, new_cap);
 
         /* initialise the newly allocated part to zero */
         for (size_t i = buf_cap; i < new_cap; ++i) {

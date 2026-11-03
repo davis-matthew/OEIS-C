@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   count_distinct_primes, is_squarefree
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   is_squarefree, mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/is_squarefree.h"
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* Powers of ten up to 10^10 (sufficient for all n up to ~10⁴). */
 static const uint64_t pow10[11] = {
@@ -60,7 +62,7 @@ static void ensure_capacity(size_t needed, size_t *cap, seq_t **p)
     size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(*p, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *p, new_cap);
     *p = tmp;
     *cap = new_cap;
 }
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
 
         /* filter */
         if (is_squarefree(cand)) {
-            int distinct = count_distinct_primes((uint64_t)cand);
+            int distinct = omega((uint64_t)cand);
             if ((distinct & 1) == 0) {
                 ensure_capacity(cache_len + 1, &cache_cap, &cache);
                 cache[cache_len++] = cand;

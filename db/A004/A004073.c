@@ -9,7 +9,8 @@
  *            a(1)=1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   expand_and_append
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,32 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "../utils/expand_and_append.h"
+
+static char *expand_and_append(const char *prev, idx_t n) {
+    size_t exp_len = 0;
+    for (const char *p = prev; *p; p++) {
+        exp_len += (size_t)(*p - '0');
+    }
+    
+    char nbuf[64];
+    int nlen = snprintf(nbuf, sizeof(nbuf), "%llu", (unsigned long long)n);
+    if (nlen < 0) nlen = 0;
+    
+    size_t total = exp_len + (size_t)nlen + 1;
+    char *res = (char *)malloc(total);
+    if (!res) return NULL;
+    
+    size_t pos = 0;
+    for (const char *p = prev; *p; p++) {
+        for (int i = 1; i <= *p - '0'; i++) {
+            int w = snprintf(res + pos, total - pos, "%d", i);
+            if (w > 0) pos += (size_t)w;
+        }
+    }
+    snprintf(res + pos, total - pos, "%llu", (unsigned long long)n);
+    
+    return res;
+}
 
 static char **cache = NULL;
 static idx_t cache_len = 0;

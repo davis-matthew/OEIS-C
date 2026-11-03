@@ -9,13 +9,15 @@
  *            -4, -4, -1, -3}
  * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* ensure base cases */
     if (fib_last == 0) {
         size_t init_cap = 2;
-        fib = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        fib = mem_new(seq_t, init_cap);
         fib_cap = init_cap;
         fib[0] = (seq_t)1;   /* F1 */
         fib[1] = (seq_t)1;   /* F2 */
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         if ((idx_t)fib_cap < fibIndex) {
             size_t new_cap = fib_cap ? fib_cap * 2 : 2;
             while ((idx_t)new_cap < fibIndex) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(fib, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fib, new_cap);
             fib = tmp;
             fib_cap = new_cap;
         }

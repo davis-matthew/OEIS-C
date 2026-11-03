@@ -8,6 +8,7 @@
  *            -13031*n^4 +25524*n^3 -34192*n^2 +28400*n -11072)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 42, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 864 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

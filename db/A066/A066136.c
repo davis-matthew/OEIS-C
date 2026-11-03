@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 322, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   compute_pi, isPrime
+ * Validated: standard, pass, 91 terms through n = 958 (2026-11-01)
+ * Helpers:   is_prime, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,10 @@
 
 #include <stdbool.h>
 /* Helper prototypes (provided by the build environment) */
-#include "../utils/isPrime.h"
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/is_prime.h"
+#include "../utils/prime_pi.h"
 
 /*  Entry a(n) of sequence A066136  */
 seq_t a(idx_t n)
@@ -37,9 +40,9 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* compute π(n) as a seq_t value */
-    seq_t pi_n = compute_pi(n);
+    seq_t pi_n = prime_pi(n);
 
-    if (isPrime(n))
+    if (is_prime(n))
         return pi_n;
     else
         return (seq_t)n - pi_n - (seq_t)1;

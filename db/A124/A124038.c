@@ -11,12 +11,14 @@
  *            treated as 0. The function computes a(n) for any n >= 0
  * Range:     i8 n <= 94, i16 n <= 334, i32 n <= 1244, i64 n <= 1325,
  *            i128 n <= 1325, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 1222 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,13 +36,13 @@ seq_t a(idx_t n)
     idx_t k = n - start;
 
     /* Allocate the first two rows of the triangle. */
-    seq_t *row_n_minus2 = (seq_t *)malloc(1 * sizeof(seq_t));  /* row 0 */
+    seq_t *row_n_minus2 = mem_new(seq_t, 1);  /* row 0 */
     if (!row_n_minus2) return 0;
     row_n_minus2[0] = 1;
 
-    seq_t *row_n_minus1 = (seq_t *)malloc(2 * sizeof(seq_t));  /* row 1 */
+    seq_t *row_n_minus1 = mem_new(seq_t, 2);  /* row 1 */
     if (!row_n_minus1) {
-        free(row_n_minus2);
+        mem_free(row_n_minus2);
         return 0;
     }
     row_n_minus1[0] = -2;
@@ -48,8 +50,8 @@ seq_t a(idx_t n)
 
     if (r == 1) {                /* The required term is already computed. */
         seq_t result = row_n_minus1[k];
-        free(row_n_minus1);
-        free(row_n_minus2);
+        mem_free(row_n_minus1);
+        mem_free(row_n_minus2);
         return result;
     }
 
@@ -57,10 +59,10 @@ seq_t a(idx_t n)
     seq_t *curr = NULL;
     for (idx_t row = 2; row <= r; ++row) {
         idx_t sz = row + 1;
-        curr = (seq_t *)malloc(sz * sizeof(seq_t));
+        curr = mem_new(seq_t, sz);
         if (!curr) {
-            free(row_n_minus1);
-            free(row_n_minus2);
+            mem_free(row_n_minus1);
+            mem_free(row_n_minus2);
             return 0;
         }
 
@@ -77,14 +79,14 @@ seq_t a(idx_t n)
             }
         }
 
-        free(row_n_minus2);          /* free the oldest row */
+        mem_free(row_n_minus2);          /* free the oldest row */
         row_n_minus2 = row_n_minus1;
         row_n_minus1 = curr;
     }
 
     /* Retrieve the requested element and clean up. */
     seq_t result = row_n_minus1[k];
-    free(row_n_minus1);
-    free(row_n_minus2);
+    mem_free(row_n_minus1);
+    mem_free(row_n_minus2);
     return result;
 }

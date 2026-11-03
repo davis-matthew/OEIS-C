@@ -9,8 +9,9 @@
  *            Repeatedly apply: m_next = d * a - m d_next = (m_const - m_next
  *            * m_next) / d a_next = (a0 + m_next) / d_next After the k‑th
  *            iteration a = a_next and it is the (k)th term a(k)...
- * Range:     u8 n <= 9980, u16 n <= 9980, u32 n <= 9980, u64 n <= 9980,
- *            u128 n <= 9980, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 91 terms through n = 9980 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

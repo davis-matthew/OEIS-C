@@ -13,14 +13,27 @@
  *            minimal quadratic equation has discriminant D...
  * Range:     u8 n <= 6, u16 n <= 18, u32 n <= 45, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   squarefree
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/squarefree.h"
+
+/* remove all square factors from a given value */
+static seq_t squarefree(seq_t d)
+{
+    seq_t m = d;
+    for (uint64_t i = 2; (seq_t)i * (seq_t)i <= m; ++i) {
+        seq_t sq = (seq_t)i * (seq_t)i;
+        while (m % sq == 0) {
+            m /= sq;
+        }
+    }
+    return m;
+}
 
 /* integer square root of a 64‑bit value */
 static inline uint64_t isqrt_u64(uint64_t x)

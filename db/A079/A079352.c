@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values (index 1..cache_len are valid) */
 static seq_t *cache = NULL;
@@ -52,7 +54,7 @@ static void grow_terms(size_t need)
     size_t new_cap = terms_cap ? terms_cap << 1 : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *p = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, terms, new_cap);
     terms = p;
     terms_cap = new_cap;
 }
@@ -66,7 +68,7 @@ static void ensure_cache_size(idx_t n)
 
     /* Allocate/resize the cache array. */
     size_t new_len = (size_t)n + 1;            /* indices 0..n */
-    seq_t *p = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache, new_len);
     cache = p;
     idx_t old_len = cache_len;
     cache_len = n;

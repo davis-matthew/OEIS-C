@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 118, u32 n <= 118, u64 n <= 118,
  *            u128 n <= 118, big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 118 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* forwards: external types defined by the build system */
 extern seq_t a(idx_t n);
@@ -36,7 +38,7 @@ static void free_dp(void)
 {
     if (dp) {
         for (int k = 0; k <= 8; ++k)
-            free(dp[k]);
+            mem_free(dp[k]);
         free(dp);
         dp = NULL;
     }
@@ -55,7 +57,7 @@ static void rebuild_dp(idx_t new_n)
     dp = (seq_t**)calloc(9, sizeof(seq_t*));
     if (!dp) exit(1);
     for (int k = 0; k <= 8; ++k) {
-        dp[k] = (seq_t*)calloc((size_t)new_n + 1, sizeof(seq_t));
+        dp[k] = mem_new(seq_t, (size_t)new_n + 1);
         if (!dp[k]) exit(1);
     }
     dp[0][0] = (seq_t)1;  /* base case: 0 parts sum to 0 */

@@ -7,6 +7,7 @@
  * Formula:   a(n) = smallest k >= 2*n such that k is prime or twice a prime
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

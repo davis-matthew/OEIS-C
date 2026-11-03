@@ -7,19 +7,22 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} ((3*(n-k)+2)^k)/(k!)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate array r[0..n] where r[k] = n! / k!   (computed backwards) */
-    seq_t *r = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *r = mem_new(seq_t, (size_t)(n + 1));
     if (!r) return 0; /* allocation failure, return 0 as a fallback */
 
     /* r[n] = 1  (since n!/n! = 1) */
@@ -34,11 +37,11 @@ seq_t a(idx_t n)
     seq_t sum = (seq_t)0;
     for (idx_t k = 0; k <= n; ++k) {
         seq_t base = (seq_t)3 * (seq_t)(n - k) + (seq_t)2;
-        seq_t power = big_pow(base, (seq_t)k);      /* power = base^k */
+        seq_t power = ipow(base, (seq_t)k);      /* power = base^k */
         seq_t term  = r[k] * power;                 /* term = r[k] * power */
         sum += term;
     }
 
-    free(r);
+    mem_free(r);
     return sum;
 }

@@ -7,16 +7,17 @@
  * Formula:   a(n) = 5 * binomial(11*n+5, n) / (11*n+5)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 26,
  *            big any n
- * Helpers:   binom, int128_gcd, seq_gcd
+ * Validated: standard, pass, 35 terms through n = 189 (2026-11-01)
+ * Helpers:   binomial, gcd, gcd_i128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_gcd.h"
-#include "../utils/binom.h"
-#include "../utils/int128_gcd.h"
+#include "../utils/binomial.h"
+#include "../utils/gcd.h"
+#include "../utils/gcd_i128.h"
 
 seq_t a(idx_t n)
 {
@@ -58,13 +59,13 @@ seq_t a(idx_t n)
             denom *= (10*i - 1);
 
             /* Cancel common factors between numerator and denominator. */
-            __int128 g = int128_gcd(numer, denom);
+            __int128 g = gcd_i128(numer, denom);
             numer /= g;
             denom /= g;
 
             /* Cancel factors between the current value and the
                denominator to keep the intermediate product small. */
-            g = int128_gcd((__int128)val, denom);
+            g = gcd_i128((__int128)val, denom);
             val /= (seq_t)g;
             denom /= g;
 
@@ -79,7 +80,7 @@ seq_t a(idx_t n)
            returns the exact binomial coefficient, and the
            arithmetic is performed by the class implementation
            which can hold arbitrarily large numbers. */
-        seq_t bin = binom(11*n + 5, n);
+        seq_t bin = binomial(11*n + 5, n);
         seq_t res = 5 * bin;
         return res / (11*n + 5);
     }

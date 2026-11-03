@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoised answers. */
 static seq_t *cache = NULL;      /* array of previously computed terms */
@@ -33,7 +35,7 @@ static void grow_cache(size_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 1024;
     if (new_cap < need)
         new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         exit(1);                /* unrecoverable allocation failure */
     cache = tmp;
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on first call. */
     if (!cache) {
         cache_cap = 1024;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             exit(1);
         cache_len = 0;

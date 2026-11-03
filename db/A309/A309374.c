@@ -11,6 +11,7 @@
  *            memoises them
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-02)
  * Helpers:   gcd, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,8 +20,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/gcd.h"      /* seq_t gcd(seq_t a, seq_t b); */
-#include "../utils/is_prime.h" /* bool is_prime(idx_t x); */
+#include "../utils/gcd.h"
+#include "../utils/is_prime.h"
 
 static void init_terms(seq_t *terms, size_t *cnt)
 {

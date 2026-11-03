@@ -10,14 +10,16 @@
  *            binomial(n,k)*(2^k-1) for k>0, T(n,0)=1)
  * Range:     u8 n <= 31, u16 n <= 84, u32 n <= 266, u64 n <= 970,
  *            u128 n <= 3539, big any n
- * Helpers:   binomial, pow_uint
+ * Validated: standard, pass, 82 terms through n = 8195 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Convert index n to row r and column k in the triangle */
 static idx_t triangle_coords(idx_t n)
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     }
 
     seq_t bin = binomial(r, k);
-    seq_t powk = pow_uint((uint64_t)2, k);      /* 2^k   */
+    seq_t powk = ipow_u64_idx((uint64_t)2, k);      /* 2^k   */
     seq_t val  = bin * (powk - (seq_t)1);       /* (2^k-1) */
     return val;
 }

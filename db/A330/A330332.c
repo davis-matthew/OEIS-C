@@ -11,7 +11,8 @@
  *            has already appeared); Initial values: a(0)=0, a(1)=1, a(2)=2
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 9529 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------------- Hash table for frequencies ---------------- */
 
@@ -46,8 +48,8 @@ freq_init(size_t want)
 {
     size_t cap = 1;
     while (cap < want) cap <<= 1;
-    freq_tbl = (entry_t*)malloc(cap * sizeof(entry_t));
-    memset(freq_tbl, 0, cap * sizeof(entry_t));
+    freq_tbl = mem_new(entry_t, cap);
+    mem_set(freq_tbl, 0, cap * sizeof(entry_t));
     freq_cap = cap;
     freq_used = 0;
 }
@@ -101,15 +103,15 @@ freq_inc(seq_t key)
         size_t old_cap = freq_cap;
         entry_t *old_tbl = freq_tbl;
         freq_cap <<= 1;
-        freq_tbl = (entry_t*)malloc(freq_cap * sizeof(entry_t));
-        memset(freq_tbl, 0, freq_cap * sizeof(entry_t));
+        freq_tbl = mem_new(entry_t, freq_cap);
+        mem_set(freq_tbl, 0, freq_cap * sizeof(entry_t));
         freq_used = 0;
         for (size_t i = 0; i < old_cap; ++i) {
             if (old_tbl[i].used) {
                 freq_insert_new(old_tbl[i].key, old_tbl[i].cnt);
             }
         }
-        free(old_tbl);
+        mem_free(old_tbl);
     }
 }
 
@@ -125,7 +127,7 @@ seq_resize(size_t mincap)
     if (seq_cap >= mincap) return;
     size_t newcap = seq_cap ? seq_cap * 2 : 4;
     while (newcap < mincap) newcap *= 2;
-    seq_vals = (seq_t*)realloc(seq_vals, newcap * sizeof(seq_t));
+    seq_vals = mem_resize(seq_t, seq_vals, newcap);
     seq_cap  = newcap;
 }
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 9918 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Fibonacci numbers (Zeckendorf basis): 1,2,3,5,8,…  */
 static seq_t *fibs = NULL;
@@ -29,7 +31,7 @@ static void init_fibs(void)
 {
     if (fib_cnt) return;
     fib_cnt = 90;
-    fibs = (seq_t*)malloc(fib_cnt * sizeof(seq_t));
+    fibs = mem_new(seq_t, fib_cnt);
     if (!fibs) abort();
     fibs[0] = (seq_t)1;
     fibs[1] = (seq_t)2;
@@ -70,7 +72,7 @@ static void ensure_cache(idx_t n)
         if (count_terms(val) == 10) {
             if (cache_size >= cache_cap) {       /* grow cache */
                 size_t new_cap = (cache_cap == 0 ? 16 : cache_cap << 1);
-                seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();
                 cache = tmp;
                 cache_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 9, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   digits, floor_sqrt, pow10
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-01)
+ * Helpers:   ipow_i32, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,37 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/digits.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/num_digits_idx.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static bool is_square(seq_t x)
 {
@@ -30,7 +59,7 @@ static bool is_square(seq_t x)
 
 static seq_t compute_value(idx_t i, seq_t prev)
 {
-    int k = digits(i);
+    int k = num_digits_idx(i);
     seq_t pow10k = pow10((idx_t)k);
     seq_t pow10_2k = pow10((idx_t)(2 * k));
 

@@ -9,6 +9,7 @@
  *            even, a(n) = (n^2 + 3n)/2 + 2 if n is odd
  * Range:     u8 n <= 21, u16 n <= 360, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 75 terms through n = 8209 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

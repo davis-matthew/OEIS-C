@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n^12 + 15*n^6 + 44*n^4) / 60
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 8, u64 n <= 56, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 845 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

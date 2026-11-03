@@ -7,7 +7,8 @@
  * Formula:   a(n) is the n‑th integer k satisfying φ(k+1) < 2·φ(k)
  * Range:     u8 n <= 182, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 87 terms through n = 9832 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    function static seq_t phi(idx_t m), which computes Euler's totient
    φ(m).  We use this function directly. */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -29,10 +31,10 @@ seq_t a(idx_t n)
        cached so that each iteration only requires one call to phi(). */
     idx_t k = 1;          /* current candidate k              */
     idx_t count = 0;      /* how many k’s found so far       */
-    seq_t phi_k = phi(1); /* φ(k) for the current k          */
+    seq_t phi_k = totient(1); /* φ(k) for the current k          */
 
     while (1) {
-        seq_t phi_k1 = phi(k + 1);   /* φ(k+1) */
+        seq_t phi_k1 = totient(k + 1);   /* φ(k+1) */
         if (phi_k1 < phi_k * 2) {    /* condition holds */
             ++count;
             if (count == n) {

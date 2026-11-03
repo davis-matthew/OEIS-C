@@ -10,14 +10,60 @@
  *            (x^54 - x^52 - x² + 1) / * (x^30 - x^26 - x⁴ + 1) = Φ₅₂(x)
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   compute_phi52_coeffs
+ * Validated: standard, pass, 97 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for NULL */
 #include <stdlib.h>   /* for malloc, realloc */
-#include "../utils/compute_phi52_coeffs.h"
+#include "../utils/mem.h"
+
+/* Compute the coefficients of Φ₅₂(x) (degree 24) once.  Result is stored
+ * in coeff[0..24] (coeff[0] == 1).  We also return the degree.  This
+ * function is called lazily from a(). */
+static void compute_phi52_coeffs(seq_t coeff[25], int *deg)
+{
+    /* Numerator: x^54 - x^52 - x^2 + 1 */
+    seq_t num[55] = {0};
+    num[54] = 1;
+    num[52] = -1;
+    num[2] = -1;
+    num[0] = 1;
+
+    /* Denominator: x^30 - x^26 - x^4 + 1 */
+    seq_t den[31] = {0};
+    den[30] = 1;
+    den[26] = -1;
+    den[4] = -1;
+    den[0] = 1;
+
+    /* Copy of numerator for in‑place division */
+    seq_t rem[55];
+    for (int i = 0; i < 55; ++i) rem[i] = num[i];
+
+    /* Quotient will hold Φ₅₂(x) (degree 24) */
+    seq_t quot[25] = {0};
+
+    /* Long division: leading coefficient of den is 1 */
+    for (int i = 54; i >= 30; --i) {
+        seq_t q = rem[i];
+        int qpos = i - 30;          /* position in quotient (0..24) */
+        quot[qpos] = q;
+        if (q != 0) {
+            for (int j = 0; j <= 30; ++j) {
+                rem[qpos + j] -= q * den[j];
+            }
+        }
+    }
+
+    /* Transfer quotient to output array */
+    for (int i = 0; i <= 24; ++i)
+        coeff[i] = quot[i];
+
+    *deg = 24;   /* Φ₅₂ has degree 24 */
+}
 
 /* ------------------------------------------------------------------ */
 /* Main sequence function                                            */
@@ -43,7 +89,7 @@ seq_t a(idx_t n)
     /* Ensure cache exists and contains the 0th term */
     if (!cache) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 1; /* a(0) = 1 */
         cache_len = 1;
     }
@@ -53,7 +99,7 @@ seq_t a(idx_t n)
         /* Grow storage when necessary */
         if (cache_len == cache_cap) {
             idx_t new_cap = cache_cap << 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             cache = tmp;
             cache_cap = new_cap;
         }

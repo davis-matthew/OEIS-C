@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 762, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: standard, pass, 66 terms through n = 9100 (2026-11-03)
+ * Helpers:   mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* --- global state ----------------------------------------------------- */
 static seq_t *cache = NULL;     /* memoised sequence values          */
@@ -45,7 +48,7 @@ static void cache_expand(void)
 {
     if (cache_len == cache_cap) {
         cache_cap = cache_cap ? cache_cap * 2 : 16;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 }
 
@@ -55,7 +58,7 @@ static void factor_uint64(uint64_t n, uint64_t primes[32], int exp[32], size_t *
     uint64_t temp = n;
     *cnt = 0;
     while (temp > 1 && *cnt < 32) {
-        uint64_t p = _smallest_prime_factor(temp);
+        uint64_t p = smallest_prime_factor(temp);
         int e = 0;
         while (temp % p == 0) {
             temp /= p;

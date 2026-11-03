@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum of divisors of (5*n-1) that are ≡ 1 (mod 5)
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static void dfs_sum(int idx, seq_t cur, const uint64_t *pr, const uint64_t *exp,

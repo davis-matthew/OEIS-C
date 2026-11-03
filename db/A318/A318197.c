@@ -7,14 +7,17 @@
  * Formula:   a(n) = 2^((n - 1)*(n + 2)/2)*3^(n*(n - 1))*n^n
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 7,
  *            big any n
- * Helpers:   big_pow, pow2, pow3
+ * Validated: standard, pass, 26 terms through n = 30 (2026-11-01)
+ * Helpers:   ipow, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/ipow.h"
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
-#include "../utils/big_pow.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
        encounter in the test harness. */
     seq_t val2 = pow2(exp2);
     seq_t val3 = pow3(exp3);
-    seq_t valn = big_pow(sn, sn);        /* n^n */
+    seq_t valn = ipow(sn, sn);        /* n^n */
 
     /* Multiply the factors.  The result type may be 8,16,32,64,128
        bits or an arbitrary‑precision class; the multiplication uses

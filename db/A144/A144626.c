@@ -12,7 +12,8 @@
  *            = (i+2j+3k)! / (i! j! k! 2^j 6^k)
  * Range:     u8 n <= 17, u16 n <= 47, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   pow_factor
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/pow_factor.h"
+#include "../utils/ipow_i32.h"
 
 /* Primes up to 30000 are sufficient for all n ≤ 10000 (max S = 3n) */
 #define PRIME_LIMIT   30000
@@ -87,7 +88,7 @@ static seq_t compute_T(idx_t i, idx_t j, idx_t k)
         else if (p == 3) e -= (int)k;
 
         if (e <= 0) continue;
-        result *= pow_factor((seq_t)p, e);
+        result *= ipow_i32((seq_t)p, e);
     }
 
     return result;

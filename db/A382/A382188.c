@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in 1/(1-9*Σ_{k≥0}x^{2^k})^{1/3}
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 20, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +37,8 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if (n + 1 > a_cap) {
         size_t new_cap = (n + 1) * 2;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-        b_cache = (seq_t *)realloc(b_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
+        b_cache = mem_resize(seq_t, b_cache, new_cap);
         /* initialise new elements */
         for (size_t i = a_cap; i < new_cap; ++i) {
             a_cache[i] = 0;

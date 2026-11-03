@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    ((1 - x^8)*(1 - x^12)*(1 - x^14)*(1 - x^15)) */
 
 #include <stdlib.h>   /* for malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     const int num_terms = 8;
 
     /* allocation for dynamic programming table */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) return 0; /* memory failure, return zero */
 
     dp[0] = 1;
@@ -52,6 +54,6 @@ seq_t a(idx_t n)
             result += dp[n - t];
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

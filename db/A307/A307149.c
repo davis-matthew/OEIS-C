@@ -9,12 +9,14 @@
  *            where p(m) is the number of binary partitions of m
  * Range:     u8 n <= 49, u16 n <= 199, u32 n <= 1443, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9905 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t *p_cache = NULL;   /* caches values of p(m) */
@@ -24,7 +26,7 @@ static idx_t  p_size  = 0;      /* number of elements in p_cache */
 static void ensure_p_cache(idx_t max_index) {
     if (p_size > max_index) return;          /* already enough */
     idx_t new_size = max_index + 1;
-    seq_t *new_cache = (seq_t*)realloc(p_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, p_cache, new_size);
     if (!new_cache && new_size > 0) abort();  /* allocation failed */
     p_cache = new_cache;
 

@@ -8,13 +8,15 @@
  * Formula:   a(n) = F(n)*F(n+1) - F(n+2) (offset 3)
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 24, u64 n <= 47, u128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 933 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* This implementation lazily builds the Fibonacci sequence in a static array. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* initialise cache with F(0) = 0, F(1) = 1 */
     if (fibsize < 2) {
         fibsize = 2;
-        fib = (seq_t *)malloc(fibsize * sizeof(seq_t));
+        fib = mem_new(seq_t, fibsize);
         if (!fib) return (seq_t)0;          /* allocation failure: return 0 */
         fib[0] = (seq_t)0;
         fib[1] = (seq_t)1;
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     idx_t needed = n + 3;   /* because array is 0‑based and we need index n+2 */
     if (needed > fibsize) {
         idx_t newsize = needed;
-        seq_t *tmp = (seq_t *)realloc(fib, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fib, newsize);
         if (!tmp) return (seq_t)0;          /* allocation failure: return 0 */
         fib = tmp;
         for (idx_t i = fibsize; i < newsize; ++i)

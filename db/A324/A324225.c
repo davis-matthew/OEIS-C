@@ -13,13 +13,15 @@
  *            A324225 – “Total number of 1’s in falling diagonals”.)
  * Range:     u8 n <= 27, u16 n <= 65, u32 n <= 152, u64 n <= 407,
  *            u128 n <= 1157, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9388 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 typedef uint64_t idx_t;          /* defined by the build system */
 
@@ -61,14 +63,14 @@ seq_t a(idx_t n)
 
     /* Ensure factorial array contains (r-1)!                            */
     if (factSize == 0) {                 /* first call */
-        fact = (seq_t *)malloc(sizeof(seq_t));
+        fact = mem_new(seq_t, 1);
         if (!fact) abort();
         fact[0] = 1;
         factSize = 1;
     }
     if (factSize <= r - 1) {              /* extend array   */
         size_t newSize = (size_t)r;
-        seq_t *tmpFact = (seq_t *)realloc(fact, newSize * sizeof(seq_t));
+        seq_t *tmpFact = mem_resize(seq_t, fact, newSize);
         if (!tmpFact) abort();
         for (idx_t i = factSize; i < r; ++i) {
             tmpFact[i] = tmpFact[i - 1] * (seq_t)i;

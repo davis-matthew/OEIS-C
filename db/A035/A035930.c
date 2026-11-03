@@ -7,6 +7,7 @@
  * Formula:   a(n) = max_{1 <= k < digits(n)} (floor(n / 10^k)) * (n mod 10^k)
  * Range:     u8 n <= 298, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
+ * Validated: standard, pass, 124 terms through n = 9206 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

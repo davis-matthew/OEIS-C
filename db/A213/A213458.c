@@ -9,13 +9,15 @@
  *            such that every consecutive 4 elements have sum < 6
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 17, u64 n <= 38, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 164 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* DP over the last 3 digits.  There are 4^3 = 64 possible states,
    each state is encoded as a 6‑bit integer: (b1,b2,b3) with
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
             b3[s] = s & 3;
             sum3[s] = b1[s] + b2[s] + b3[s];
         }
-        a_vals = (seq_t *)malloc(sizeof(seq_t));
+        a_vals = mem_new(seq_t, 1);
         a_vals[0] = 0;                 /* not used (offset is 1) */
         a_n_max = 0;
         initialized = true;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     /* --- extend memoisation table to the required n ----------------- */
     if ((size_t)n > a_n_max) {
         size_t new_size = (size_t)n + 1;
-        a_vals = (seq_t *)realloc(a_vals, new_size * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, new_size);
 
         for (size_t step = a_n_max + 1; step <= (size_t)n; ++step) {
             /* clear next buffer */

@@ -7,6 +7,7 @@
  * Formula:   a(n) = -∑_{d|n} ( -n/d )^d
  * Range:     i8 n <= 14, i16 n <= 29, i32 n <= 59, i64 n <= 119,
  *            i128 n <= 242, big any n
+ * Validated: standard, pass, 66 terms through n = 4910 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

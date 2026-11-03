@@ -10,7 +10,8 @@
  *            exhaustive enumeration of all reachable boards
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   decode_board, encode_board_from_cells, has_won
+ * Validated: full, pass, 10 terms through n = 9 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,36 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/decode_board.h"
-#include "../utils/encode_board_from_cells.h"
-#include "../utils/has_won.h"
+
+/* ---------- Board utilities ---------------------------------------- */
+static void decode_board(uint32_t board, uint8_t cells[9])
+{
+    for (int i = 0; i < 9; ++i)
+        cells[i] = (board >> (2 * i)) & 3u;
+}
+
+static uint32_t encode_board_from_cells(const uint8_t cells[9])
+{
+    uint32_t b = 0;
+    for (int i = 0; i < 9; ++i)
+        b |= (uint32_t)(cells[i] & 3u) << (2 * i);
+    return b;
+}
+
+static bool has_won(const uint8_t cells[9])
+{
+    static const int lines[8][3] = {
+        {0,1,2},{3,4,5},{6,7,8},
+        {0,3,6},{1,4,7},{2,5,8},
+        {0,4,8},{2,4,6}
+    };
+    for (int i = 0; i < 8; ++i) {
+        int a = lines[i][0], b = lines[i][1], c = lines[i][2];
+        if (cells[a] && cells[a] == cells[b] && cells[b] == cells[c])
+            return true;
+    }
+    return false;
+}
 
 #define HASH_SIZE (1 << 20)    /* 1,048,576 entries, > 4× number of states */
 

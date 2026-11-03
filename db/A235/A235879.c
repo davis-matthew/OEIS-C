@@ -9,6 +9,7 @@
  * Formula:   a(n) = 3*(12 + 7*2^(1+n) + 3^n)
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 19, u64 n <= 39, u128 n <= 79,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 208 (2026-11-01)
  * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 /* See OEIS A235879 */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
 

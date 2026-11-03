@@ -11,7 +11,8 @@
  *            primes below the chosen sieve limit
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9634 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* Prime table (odd primes) up to a fixed sieve limit           */
@@ -106,7 +108,7 @@ static void init_once(void)
 {
     generate_primes();
     heap_size = prime_count;
-    heap = (HeapNode *)malloc(heap_size * sizeof(HeapNode));
+    heap = mem_new(HeapNode, heap_size);
     if (!heap) return;
     for (size_t i = 0; i < heap_size; ++i)
         heap[i].val = (seq_t)(2ULL * (uint64_t)primes[i]);
@@ -116,7 +118,7 @@ static void init_once(void)
         sift_down(i);
 
     memo_cap = 1024;
-    memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+    memo = mem_new(seq_t, memo_cap);
     memo_len = 0;
 }
 
@@ -126,7 +128,7 @@ static void ensure_memo(size_t n)
 {
     while (memo_cap < n) {
         memo_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(memo, memo_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, memo_cap);
         if (!tmp) return;
         memo = tmp;
     }

@@ -11,13 +11,31 @@
  *            are also triangular numbers
  * Range:     u8 n <= 5, u16 n <= 422, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_triple_squares
+ * Validated: standard, pass, 77 terms through n = 9700 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_triple_squares.h"
+
+static idx_t count_triple_squares(seq_t limit) {
+    /* Counts integers k such that k² ≤ limit and k² is both a square and a triangular number. */
+    if (limit < 1) return 0;
+    seq_t prev = 0;
+    seq_t cur  = 1;
+    idx_t cnt = 0;
+    while (1) {
+        seq_t sq = cur * cur;
+        if (sq > limit) break;
+        ++cnt;
+        /* recurrence for roots of triangular squares: next = 6*cur - prev */
+        seq_t next = 6 * cur - prev;
+        prev = cur;
+        cur  = next;
+    }
+    return cnt;
+}
 
 static seq_t floor_isqrt(seq_t x) {
     seq_t low = 0, high = x, mid, ans = 0;

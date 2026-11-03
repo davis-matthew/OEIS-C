@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 13, u16 n <= 729, u32 n <= 9830, u64 n <= 9830,
- *            u128 n <= 9830, big any n
- * Helpers:   none
+ * Range:     u8 n <= 13, u16 n <= 729, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 78 terms through n = 9830 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t sigma_limit = 0;       /* current maximum k with σ data */
 static seq_t *sigma_arr = NULL;     /* σ(k) array, 1‑based, size = sigma_limit+1 */
@@ -37,7 +39,7 @@ static idx_t last_checked = 0;
 /* Recompute σ(k) for all 1 ≤ k ≤ new_limit using a classic divisor sieve.
  * Allocates or resizes sigma_arr as necessary. */
 static void recompute_sigma(idx_t new_limit) {
-    seq_t *new_sigma = (seq_t*)realloc(sigma_arr, (size_t)(new_limit + 1) * sizeof(seq_t));
+    seq_t *new_sigma = mem_resize(seq_t, sigma_arr, (size_t)(new_limit + 1));
     if (!new_sigma) abort();
     sigma_arr = new_sigma;
     for (idx_t i = 0; i <= new_limit; ++i) sigma_arr[i] = 0;
@@ -63,7 +65,7 @@ static void ensure_terms_cap(size_t needed) {
     if (terms_cap >= needed) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 16;
     if (new_cap < needed) new_cap = needed;
-    seq_t *new_terms = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
     if (!new_terms) abort();
     terms = new_terms;
     terms_cap = new_cap;

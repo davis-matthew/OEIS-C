@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   logsumexp
+ * Validated: standard, pass, 93 terms through n = 998 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/logsumexp.h"
+
+/* Helper: logsumexp(x,y) = log(exp(x)+exp(y)) assuming x>=y or y>=x */
+static inline double logsumexp(double x, double y)
+{
+    if (x < y) {
+        double t = x; x = y; y = t;
+    }
+    if (y == -INFINITY) return x;
+    return x + log1p(exp(y - x));
+}
 
 static double *prev_log = NULL;  /* log values of S(prev_n,k)  */
 static double *curr_log = NULL;  /* temporary log values for the next row */

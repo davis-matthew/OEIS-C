@@ -8,13 +8,15 @@
  *            binomial(n,2*k+1) * a(n-2*k-1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 36 terms through n = 396 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     // Allocate cache on first call
     if (cache == NULL) {
         cache_len = (n < 1000) ? 1000 : n + 100;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         for (idx_t i = 0; i < cache_len; i++) {
             cache[i] = 0;
         }
@@ -33,14 +35,14 @@ seq_t a(idx_t n) {
     
     // Grow cache if needed
     while (n >= cache_len) {
-        seq_t *new_cache = (seq_t *)malloc(cache_len * 2 * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, cache_len * 2);
         for (idx_t i = 0; i < cache_len; i++) {
             new_cache[i] = cache[i];
         }
         for (idx_t i = cache_len; i < cache_len * 2; i++) {
             new_cache[i] = 0;
         }
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len *= 2;
     }
@@ -54,7 +56,7 @@ seq_t a(idx_t n) {
             idx_t limit = (i - 1) / 2;
             
             for (idx_t k = 0; k <= limit; k++) {
-                seq_t binom_val = binom(i, 2 * k + 1);
+                seq_t binom_val = binomial(i, 2 * k + 1);
                 seq_t term = binom_val * cache[i - 2 * k - 1];
                 
                 if (k % 2 == 0) {

@@ -7,8 +7,9 @@
  * Formula:   a(n) = sum_{k=0..n} T(n,k) where T(n,k)=C(n,k)*A026641(n-k) with
  *            A026641(m) = abs( Σ_{j=0..m} (-1)^j * C(m+j,j) )
  *            A007318(n,k)=C(n,k). Read the triangle row‑wise (offset 0)
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 152, u64 n <= 498,
+ * Range:     u8 n <= 14, u16 n <= 45, u32 n <= 153, u64 n <= 498,
  *            u128 n <= 1776, big any n
+ * Validated: standard, pass, 71 terms through n = 5080 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,7 +17,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* binomial(idx_t a, idx_t b) -> seq_t */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 /* Convert a linear index to the corresponding row r and column k.  */
 static void index_to_row_col(idx_t n, idx_t *r, idx_t *k)

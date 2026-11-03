@@ -8,15 +8,16 @@
  *            the column index in the triangle: T(n, k) = binomial(n + k - 1,
  *            n) for 1 ≤ k ≤ n. The function indexes the triangle row‑by‑row
  *            starting at a(1)
- * Range:     u8 n <= 14, u16 n <= 43, u32 n <= 78, u64 n <= 78, u128 n <= 78,
+ * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   binomial_idx_t
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial_idx_t.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -37,5 +38,5 @@ seq_t a(idx_t n)
     idx_t k = n - prior;                        /* column index (1‑based) */
 
     /* Return T(r, k) = binomial(r + k - 1, r) */
-    return binomial_idx_t(r + k - 1, r);
+    return binomial(r + k - 1, r);
 }

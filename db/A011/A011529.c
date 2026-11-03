@@ -9,6 +9,7 @@
  *            19, with a(k)=0 for k>19
  * Range:     i8 none, i16 none, i32 none, i64 n <= 19, i128 n <= 19,
  *            big any n
+ * Validated: full, pass, 19 terms through n = 19 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

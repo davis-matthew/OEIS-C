@@ -7,6 +7,7 @@
  * Formula:   a(n) = 6 * floor((n+1)/4) + {0,0,3,5}[(n+1) mod 4]
  * Range:     u8 n <= 169, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 82 terms through n = 4477 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

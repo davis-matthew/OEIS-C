@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   has_three_distinct_base6, popcount6
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem, popcount_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,19 @@
     (OEIS A031958, offset 1)  */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/has_three_distinct_base6.h"
-#include "../utils/popcount6.h"
+#include "../utils/popcount_u32.h"
+#include "../utils/mem.h"
+
+/*  Test whether x has exactly three distinct digits in base 6  */
+static int has_three_distinct_base6(idx_t x)
+{
+    unsigned int mask = 0;
+    while (x) {
+        mask |= 1u << (x % 6);
+        x /= 6;
+    }
+    return popcount_u32(mask) == 3;
+}
 
 /*  Cache for previously computed terms  */
 static seq_t      *cache   = NULL;
@@ -30,10 +42,10 @@ static void ensure_capacity(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 128;
     if (new_cap < needed) new_cap = needed;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (cache) {
         for (size_t i = 0; i < cache_len; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache      = new_cache;
     cache_cap  = new_cap;

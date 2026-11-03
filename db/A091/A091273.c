@@ -8,7 +8,8 @@
  *            from k=4)
  * Range:     u8 n <= 8, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   mul_mod64, pow_mod64
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/mul_mod64.h"
-#include "../utils/pow_mod64.h"
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 typedef uint64_t idx_t;    /* index type as required by the build */
 typedef seq_t seq_t;       /* seq_t is defined by the build (uint8_t … __int128) */
@@ -41,11 +45,11 @@ static int is_prime64(uint64_t n) {
     for (size_t i = 0; i < sizeof(bases)/sizeof(bases[0]); ++i) {
         uint64_t a = bases[i] % n;
         if (a == 0) continue;
-        uint64_t x = pow_mod64(a, d, n);
+        uint64_t x = powmod_u64(a, d, n);
         if (x == 1 || x == n-1) continue;
         int comp = 1;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1) { comp = 0; break; }
         }
         if (comp) return 0;
@@ -101,7 +105,7 @@ static idx_t last_k = 4; /* start testing from k=4 */
 static void seq_cache_push(seq_t val) {
     if (seq_cache_len == seq_cache_cap) {
         size_t new_cap = seq_cache_cap ? seq_cache_cap << 1 : 16;
-        seq_t *new_mem = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *new_mem = mem_resize(seq_t, seq_cache, new_cap);
         if (!new_mem) exit(1);
         seq_cache = new_mem;
         seq_cache_cap = new_cap;

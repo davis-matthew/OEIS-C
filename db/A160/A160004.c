@@ -9,13 +9,15 @@
  *            identity * H_{n+1}(x) = 2x H_n(x) - 2n H_{n-1}(x) with x = 2/25
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 5, i64 n <= 10, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 360 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Grow the cache to include term n if necessary. */
     if (n >= cache_len) {
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();                    /* allocation failed */
 
         /* Compute missing terms incrementally. */

@@ -10,12 +10,14 @@
  *            rest is exact mod 2^w
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 24, u64 n <= 46, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;   /* memo[1..memo_len-1] are valid */
@@ -27,11 +29,11 @@ seq_t a(idx_t n) {
 
     if (n >= memo_cap) {
         idx_t new_cap = (n < 1000) ? 1000 : n + 1;
-        seq_t *nm = (seq_t *)malloc((size_t)(new_cap + 1) * sizeof(seq_t));
+        seq_t *nm = mem_new(seq_t, (size_t)(new_cap + 1));
         idx_t i;
         for (i = 0; i <= new_cap; i++) nm[i] = 0;
         for (i = 0; i < memo_len; i++) nm[i] = memo[i];
-        if (memo) free(memo);
+        if (memo) mem_free(memo);
         memo = nm;
         memo_cap = new_cap;
     }

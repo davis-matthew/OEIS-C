@@ -10,12 +10,14 @@
  *            a(1)=128, a(2)=134, a(3)=143, a(4)=155
  * Range:     u8 n <= 7, u16 n <= 23, u32 n <= 52, u64 n <= 110, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h> /* for realloc */
+#include "../utils/mem.h"
 
 /* User-provided types: seq_t, idx_t */
 seq_t a(idx_t n) {
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     /* Initialise cache on first call with known terms */
     if (!cache) {
         /* allocate space for indices up to 4 plus a dummy 0 slot */
-        cache = (seq_t *)realloc(NULL, (size_t)(4 + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, (size_t)(4 + 1));
         cache[1] = 128;
         cache[2] = 134;
         cache[3] = 143;
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
 
     /* Expand cache to accommodate n */
     size_t new_size = (size_t)n + 1;   /* include dummy 0 slot */
-    cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
 
     /* Compute missing terms using the recurrence */
     for (idx_t i = cached_max + 1; i <= n; ++i) {

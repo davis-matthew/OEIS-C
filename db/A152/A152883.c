@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 29, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for factorials: fact[i] = i! (0! = 1) */
 static seq_t *fact = NULL;
@@ -35,7 +37,7 @@ static void ensure_factorial(idx_t max_i)
     if (fact_len < needed) {
         size_t new_cap = fact_len ? fact_len * 2 : 2;
         if (new_cap < needed) new_cap = needed;
-        fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, new_cap);
         /* If array wasn't previously allocated, initialize first entry */
         if (fact_len == 0) fact[0] = 1;
         /* Compute missing factorials */

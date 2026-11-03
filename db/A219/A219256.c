@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* allowed[d] is true iff digit d (0 ≤ d < 64) is allowed. */
 static const bool allowed[64] = {
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         /* Grow cache if necessary. */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();                  /* allocation failure */
             cache = tmp;
             cache_cap = new_cap;

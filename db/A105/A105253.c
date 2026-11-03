@@ -7,12 +7,13 @@
  * Formula:   a(n) = binomial(n+6,n)*binomial(n+10,n)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 10, u64 n <= 57, u128 n <= 987,
  *            big any n
- * Helpers:   gcd_any
+ * Validated: standard, pass, 39 terms through n = 968 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd_any.h"
+#include "../utils/gcd.h"
 
 /* Compute binomial coefficient C(N,K) for idx_t N,K using only integer
    operations.  The algorithm reduces intermediate results by cancelling
@@ -28,11 +29,11 @@ static seq_t binom_n_k(idx_t N, idx_t K)
         seq_t num = (seq_t)(N - K + i);
         seq_t den = (seq_t)i;
 
-        seq_t g1 = gcd_any(num, den);
+        seq_t g1 = gcd(num, den);
         num /= g1;
         den /= g1;
 
-        seq_t g2 = gcd_any(res, den);
+        seq_t g2 = gcd(res, den);
         res /= g2;
         den /= g2;
 

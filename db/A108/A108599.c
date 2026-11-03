@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   mul_div
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,12 @@
  *   of e (P/Q) and β (P/(P−Q)) to compute the floors with integer arithmetic.
  */
 #include <stdint.h>
-#include "../utils/mul_div.h"
+
+static inline idx_t mul_div(idx_t a, idx_t m, idx_t d)
+{
+    /* floor(a * m / d) using 128‑bit intermediate for safety */
+    return (idx_t)(((__uint128_t)a * m) / d);
+}
 
 static const idx_t P  = 234286;   /* Approximation numerator of e   */
 static const idx_t Q  = 86189;    /* Approximation denominator of e */

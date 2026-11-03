@@ -9,12 +9,14 @@
  *            r*(r+1)/2, and T(r,k) = (k+1)(k+2)(k+3)/6 * binomial(r,k)
  * Range:     u8 n <= 19, u16 n <= 83, u32 n <= 362, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 76 terms through n = 906 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Find the row index r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2 */

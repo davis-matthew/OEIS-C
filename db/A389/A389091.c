@@ -7,13 +7,15 @@
  * Formula:   a(n) = d_1^1 + d_2^2 + … + d_m^m (digits of n in decimal)
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 86 terms through n = 85 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     /* Special case n == 0: treat as single digit '0' */
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
     for (int i = 0; i < len; ++i) {
         int digit = rev[len - 1 - i];      /* most significant first */
         idx_t pos = (idx_t)(i + 1);       /* positions start at 1 */
-        sum += seq_pow((seq_t)digit, pos);
+        sum += ipow_idx((seq_t)digit, pos);
     }
     return sum;
 }

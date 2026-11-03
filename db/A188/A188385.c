@@ -10,14 +10,34 @@
  *            in the prime factorization of n^n
  * Range:     u8 n <= 63, u16 n <= 6143, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _max_prime_exponent
+ * Validated: standard, pass, 80 terms through n = 9267 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_max_prime_exponent.h"
+
+static uint64_t _max_prime_exponent(uint64_t n) {
+    uint64_t max_exp = 0;
+    uint64_t tmp = n;
+    for (uint64_t p = 2; p * p <= tmp; ++p) {
+        if (tmp % p == 0) {
+            uint64_t exp = 0;
+            while (tmp % p == 0) {
+                tmp /= p;
+                ++exp;
+            }
+            if (exp > max_exp)
+                max_exp = exp;
+        }
+    }
+    /* Remaining prime factor, if any, contributes exponent 1. */
+    if (tmp > 1 && 1 > max_exp)
+        max_exp = 1;
+    return max_exp;
+}
 
 seq_t a(idx_t n) {
     if (n < 1)

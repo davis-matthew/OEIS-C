@@ -9,13 +9,14 @@
  *            6^(n-7) for n>7, a(7)=406
  * Range:     u8 none, u16 n <= 11, u32 n <= 18, u64 n <= 31, u128 n <= 56,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 38 terms through n = 903 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -27,11 +28,11 @@ seq_t a(idx_t n)
 
     seq_t t = 32;
 
-    seq_t p2 = pow_seq((seq_t)2, e1);
-    seq_t p3 = pow_seq((seq_t)3, e1);
-    seq_t p4 = pow_seq((seq_t)4, e2);
-    seq_t p5 = pow_seq((seq_t)5, e1);
-    seq_t p6 = pow_seq((seq_t)6, e1);
+    seq_t p2 = ipow_i32((seq_t)2, e1);
+    seq_t p3 = ipow_i32((seq_t)3, e1);
+    seq_t p4 = ipow_i32((seq_t)4, e2);
+    seq_t p5 = ipow_i32((seq_t)5, e1);
+    seq_t p6 = ipow_i32((seq_t)6, e1);
 
     t += (seq_t)121 * p2;
     t += (seq_t)155 * p3;

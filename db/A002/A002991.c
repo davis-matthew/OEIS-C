@@ -11,16 +11,53 @@
  *            counts vertex-rooted trees and E(x) counts edge-roo...
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 28, u64 n <= 50, u128 n <= 93,
  *            big any n
- * Helpers:   A_grow, w2991_is_fixed, w2991_pairs
+ * Validated: standard, pass, 49 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/A_grow.h"
-#include "../utils/w2991_is_fixed.h"
-#include "../utils/w2991_pairs.h"
+#include "../utils/mem.h"
+
+static seq_t *A_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < newlen; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
+
+static int w2991_is_fixed(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 300; i++) x += x;
+    return x == 0;
+}
+
+/* coefficient of x^m in (X^2 - X(x^2))/2 (distinct) or (X^2 + X(x^2))/2 */
+static seq_t w2991_pairs(const seq_t *X, long long m, int distinct) {
+    seq_t s = 0;
+    long long i;
+    if (m < 2) return s;
+    for (i = 1; 2 * i < m; i++) s += X[i] * X[m - i];
+    if (m % 2 == 0) {
+        seq_t x = X[m / 2];
+        if (x != 0) {
+            if (distinct) {
+                if (x % 2 == 0) s += (x / 2) * (x - 1);
+                else s += x * ((x - 1) / 2);
+            } else {
+                if (x % 2 == 0) s += (x / 2) * (x + 1);
+                else s += x * ((x + 1) / 2);
+            }
+        }
+    }
+    return s;
+}
 
 #define W2991_FL 8
 #define W2991_FMAX 256

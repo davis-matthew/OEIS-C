@@ -8,12 +8,14 @@
  *            of all positive divisors of k
  * Range:     u8 n <= 12, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types, provided by the build system. */
 /* idx_t   – unsigned integer type for indices (uint64_t)   */
@@ -34,8 +36,8 @@ static void rebuild_to(idx_t n)
 {
     /* Allocate/resize both tables. */
     size_t sz = (size_t)(n + 1);
-    sigma  = (seq_t *)realloc(sigma, sz * sizeof(seq_t));
-    prefix = (seq_t *)realloc(prefix, sz * sizeof(seq_t));
+    sigma  = mem_resize(seq_t, sigma, sz);
+    prefix = mem_resize(seq_t, prefix, sz);
 
     /* Initialize sigma array to zero. */
     for (idx_t i = 0; i <= n; ++i)

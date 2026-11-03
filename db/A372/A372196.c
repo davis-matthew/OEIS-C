@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static storage for memoisation */
 static seq_t *seq_arr   = NULL;   /* terms a(i) */
@@ -38,10 +40,10 @@ static void ensure_seq(idx_t need)
     if (need <= cap_seq) return;
     idx_t new_cap = cap_seq ? cap_seq << 1 : 8;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
     if (!tmp) abort();
     /* zero the new part */
-    memset(tmp + cap_seq, 0, (new_cap - cap_seq) * sizeof(seq_t));
+    mem_set(tmp + cap_seq, 0, (new_cap - cap_seq) * sizeof(seq_t));
     seq_arr = tmp;
     cap_seq = new_cap;
 }

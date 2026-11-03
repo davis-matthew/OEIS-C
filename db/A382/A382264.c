@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 694, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 8890 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #define SIEVE_LIMIT 5000000u       /* limits for primes/semiprimes */
 
@@ -94,7 +96,7 @@ static void build_data(void) {
 
     /* Allocate initial capacity for sequence terms */
     terms_cap = 16;
-    terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
 
     data_ready = true;
 }
@@ -104,7 +106,7 @@ static inline void ensure_capacity_terms(size_t needed) {
     if (terms_cap < needed) {
         size_t new_cap = terms_cap ? terms_cap << 1u : 16;
         while (new_cap < needed) new_cap <<= 1u;
-        terms = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
         terms_cap = new_cap;
     }
 }

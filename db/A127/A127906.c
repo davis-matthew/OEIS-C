@@ -7,12 +7,15 @@
  * Formula:   a(n) = n * (decimal value of binary representation of n)
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 255, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 52 terms through n = 9259 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 /* Convert an index n to its decimal value when the bit pattern
  * of n is interpreted as a decimal number.
@@ -24,7 +27,7 @@ static seq_t binary_to_decimal(idx_t n)
         return 0;
 
     /* Find the position of the most significant bit of n. */
-    idx_t msb = floor_log2_uint64(n);
+    idx_t msb = ilog2(n);
 
     seq_t dec = 0;
     for (idx_t i = msb; ; --i) {

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Product_{p | n} (1 + Legendre(-2, p))
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   modpow64
+ * Validated: standard, pass, 121 terms through n = 992 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/modpow64.h"
+#include "../utils/powmod_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +44,7 @@ seq_t a(idx_t n)
                 continue;
             }
             /* Compute Legendre(-2, p) using Euler's criterion */
-            uint64_t t = modpow64((p == 2ULL ? 0ULL : p - 2ULL), (p - 1ULL) / 2ULL, p);
+            uint64_t t = powmod_u64((p == 2ULL ? 0ULL : p - 2ULL), (p - 1ULL) / 2ULL, p);
             if (t == 1ULL) {
                 /* Legendre = +1 -> factor 2 */
                 result = (seq_t)(((__uint128_t)result) * 2ULL);
@@ -59,7 +60,7 @@ seq_t a(idx_t n)
     if (temp > 1ULL) {
         uint64_t p = temp;
         if (p > 2ULL) {
-            uint64_t t = modpow64(p - 2ULL, (p - 1ULL) / 2ULL, p);
+            uint64_t t = powmod_u64(p - 2ULL, (p - 1ULL) / 2ULL, p);
             if (t == 1ULL) {
                 result = (seq_t)(((__uint128_t)result) * 2ULL);
             } else {

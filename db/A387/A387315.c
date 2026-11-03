@@ -7,12 +7,14 @@
  * Formula:   n*a(n) = (14*n+21)*a(n-1) - 13*(n+3)*a(n-2), a(0)=1, a(1)=35
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 598 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term of OEIS sequence A387315.  The result is
  * memoised in a static cache so that calls in any order are fast.
@@ -27,11 +29,11 @@ seq_t a(idx_t n)
     if (cache_cap <= (size_t)n) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 2;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp) return 0;            /* allocation failed – unlikely */
         if (cache) {
             for (size_t i = 0; i < cache_len; ++i) tmp[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache     = tmp;
         cache_cap = new_cap;

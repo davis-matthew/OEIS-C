@@ -9,7 +9,8 @@
  *            for some positive integers y and z; 0 if no such x exists
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------- static state for cube values ------------- */
 static seq_t *cube_vals  = NULL;   /* array of perfect cubes (base^3) */
@@ -38,8 +40,7 @@ static void ensure_cubes_up_to(seq_t v)
                 break;
             if (cube_count == cube_cap) {
                 size_t new_cap = cube_cap == 0 ? 16 : cube_cap << 1;
-                seq_t *tmp = (seq_t *)realloc(cube_vals,
-                                             new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cube_vals, new_cap);
                 if (!tmp) {
                     /* out of memory */
                     exit(EXIT_FAILURE);
@@ -60,8 +61,7 @@ static void ensure_cubes_up_to(seq_t v)
                 break;
             if (cube_count == cube_cap) {
                 size_t new_cap = cube_cap == 0 ? 16 : cube_cap << 1;
-                seq_t *tmp = (seq_t *)realloc(cube_vals,
-                                             new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cube_vals, new_cap);
                 if (!tmp) {
                     /* out of memory */
                     exit(EXIT_FAILURE);

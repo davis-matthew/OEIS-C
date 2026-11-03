@@ -7,12 +7,14 @@
  * Formula:   a(n) = 24*a(n-1) - a(n-2), with a(0)=1, a(1)=24
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 619 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache to memoise previously computed terms. */
 static seq_t *cache = NULL;
@@ -26,7 +28,7 @@ static void init_cache(void)
         return;
 
     cache_cap = 16;                     /* arbitrary initial size */
-    cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (cache == NULL)
         abort();                /* out of memory */
 
@@ -45,7 +47,7 @@ static void ensure_cap(idx_t need)
     while (new_cap < need)
         new_cap <<= 1;     /* double the capacity until large enough */
 
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (tmp == NULL)
         abort();           /* out of memory */
 

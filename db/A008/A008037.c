@@ -11,12 +11,14 @@
  *            a(10)=204, a(11)=220, a(12)=254
  * Range:     u8 n <= 12, u16 n <= 181, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of computed values   */
 static idx_t cache_len = 0;      /* number of entries stored   */
@@ -31,7 +33,7 @@ static const seq_t init_vals[13] = {
 static void init_cache(void)
 {
     /* Allocate space for the first 13 terms (index 0..12) */
-    cache = (seq_t*)malloc(sizeof(seq_t) * 13);
+    cache = mem_new(seq_t, 13);
     for (int i = 0; i < 13; ++i)
         cache[i] = init_vals[i];
     cache_len = 13;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Grow the cache if a higher index is needed */
     if (n >= cache_len) {
         idx_t new_len = n + 1;
-        cache = (seq_t*)realloc(cache, sizeof(seq_t) * new_len);
+        cache = mem_resize(seq_t, cache, new_len);
         /* Compute new terms using the linear recurrence */
         for (idx_t k = cache_len; k <= n; ++k) {
             seq_t val = cache[k-1];                    // a(k-1)

@@ -9,6 +9,7 @@
  *            replacing each digit d of a(n-1) with its double (2*d)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 12, u64 n <= 13, u128 n <= 17,
  *            big any n
+ * Validated: standard, pass, 29 terms through n = 29 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

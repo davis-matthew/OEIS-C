@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   has_equal_9_and_10
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
    The function returns the n-th value of that sequence (1‑based). */
 
 #include <stdbool.h>
-#include "../utils/has_equal_9_and_10.h"
+
+static inline bool has_equal_9_and_10(seq_t x)
+{
+    uint64_t c9 = 0, c10 = 0;
+    while (x) {
+        unsigned d = (unsigned)(x % 11);
+        if (d == 9) ++c9;
+        else if (d == 10) ++c10;
+        x /= 11;
+    }
+    return c9 == c10;
+}
 
 seq_t a(idx_t n)
 {

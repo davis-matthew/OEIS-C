@@ -7,13 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..⌊n/2⌋} binomial(n, 2*k) * (n-2*k+1)!
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Compute a(n) for OEIS sequence A088128.
  * idx_t is an unsigned 64‑bit integer, seq_t is an unsigned integer type
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
      * consecutive numbers (n-2k+1) and (n-2k).  The division is
      * exact by construction of the factorial sequence. */
     for (idx_t k = 0; ((k << 1) <= n); ++k) {
-        seq_t bin = binom(n, k << 1);   /* binomial(n, 2*k)               */
+        seq_t bin = binomial(n, k << 1);   /* binomial(n, 2*k)               */
         sum += bin * fact;              /* add the current term             */
 
         if ((k << 1) < n) {             /* prepare for the next k (if any)   */

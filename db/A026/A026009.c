@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 135, u32 n <= 391, u64 n <= 1322,
  *            u128 n <= 2700, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 2571 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static inline idx_t row_len(idx_t n)
 {
@@ -63,15 +65,15 @@ seq_t a(idx_t n)
     /* Allocate buffers for two successive rows.  The maximum row length
        seen for n ≤ 10 000 is < 512, so the allocations are cheap. */
     idx_t prev_len = row_len(0);
-    seq_t *prev = (seq_t *)malloc(prev_len * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, prev_len);
     if (!prev)
         return 0;             /* out‑of‑memory – unlikely in practice */
     prev[0] = 1;              /* row 0 */
 
     for (idx_t i = 1; i <= r; ++i) {
         idx_t cur_len = row_len(i);
-        seq_t *cur = (seq_t *)malloc(cur_len * sizeof(seq_t));
-        if (!cur) { free(prev); return 0; }
+        seq_t *cur = mem_new(seq_t, cur_len);
+        if (!cur) { mem_free(prev); return 0; }
 
         cur[0] = 1;            /* first entry is always 1 */
 
@@ -87,12 +89,12 @@ seq_t a(idx_t n)
             }
         }
 
-        free(prev);
+        mem_free(prev);
         prev = cur;
         prev_len = cur_len;
     }
 
     seq_t result = prev[k];
-    free(prev);
+    mem_free(prev);
     return result;
 }

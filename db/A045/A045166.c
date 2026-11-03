@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    length, producing the terms in ascending numeric order. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global cache for generated terms */
 static seq_t *cache = NULL;      /* pointer to array of seq_t */
@@ -29,7 +31,7 @@ static int next_len = 3;         /* next length of base‑5 strings to generate 
 static void push_value(seq_t val) {
     if (cache_used == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         cache = new_cache;
         cache_cap = new_cap;
     }

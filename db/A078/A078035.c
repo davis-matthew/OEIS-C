@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 12, i16 n <= 26, i32 n <= 43, i64 n <= 43, i128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
         a(n) = –2·a(n‑2) + a(n‑3) .
    This recurrence follows from (1+2x²‑x³)·∑a(n)xⁿ = 1‑x.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* If the cache is too small, grow it to accommodate index n.  */
     if (n >= cache_len) {
         idx_t new_len = n + 1;
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         /* Compute any new terms that were not previously cached.  */
         for (idx_t i = cache_len; i <= n; ++i) {
             if (i == 0)          cache[i] = (seq_t) 1;

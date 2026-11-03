@@ -9,13 +9,15 @@
  *            a(p) = p^2+p-2)
  * Range:     u8 n <= 14, u16 n <= 224, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* idx_t and seq_t are provided by the build system. */
 extern seq_t a(idx_t n);
@@ -47,7 +49,7 @@ static void ensure_cache(idx_t max_needed)
     if (max_needed <= cached_limit) return;
 
     /* Reallocate a_cache */
-    seq_t *new_a = (seq_t *)realloc(a_cache, (max_needed + 1) * sizeof(seq_t));
+    seq_t *new_a = mem_resize(seq_t, a_cache, (max_needed + 1));
     if (!new_a) { /* allocation failure; abort silently */
         return;
     }

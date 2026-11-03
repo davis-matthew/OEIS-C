@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 9, u64 n <= 2500, u128 n <= 2500,
- *            big any n
- * Helpers:   count_digits, isprime_big, mul128, pow10
+ * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 2500, u64 n <= 2500,
+ *            u128 n <= 2500, big any n
+ * Validated: standard, pass, 70 terms through n = 1847 (2026-11-01)
+ * Helpers:   is_prime_seq, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,29 @@
 /* for arbitrary‑precision numbers. The function runs in O(n) time. */
 
 #include <stdbool.h>
-#include "../utils/count_digits.h"
-#include "../utils/pow10.h"
-#include "../utils/mul128.h"
-#include "../utils/isprime_big.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdalign.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/num_digits_idx.h"
+
+static seq_t pow10(idx_t exp) {
+    seq_t res = 1;
+    for (idx_t i = 0; i < exp; ++i) res *= (seq_t)10;
+    return res;
+}
+
+/* Helper: safe multiplication using 128‑bit intermediate when
+   available and seq_t is a built‑in integer.  For arbitrary‑precision
+   types the plain * operator is used. */
+static inline seq_t mul128(seq_t a, seq_t b)
+{
+#if defined(__SIZEOF_INT128__) && !defined(__cplusplus)
+    return (seq_t)((unsigned __int128)(unsigned long long)a * b);
+#else
+    return a * b;
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -32,11 +52,11 @@ seq_t a(idx_t n)
 
     while (found < n) {
         cur++;                                 /* next candidate number      */
-        int d = count_digits(cur);             /* number of decimal digits   */
+        int d = num_digits_idx(cur);             /* number of decimal digits   */
         seq_t part = mul128((seq_t)99, pow10(d));/* 99 * 10^d                 */
         seq_t test = part + (seq_t)cur;         /* 99… concatenated with cur   */
 
-        if (isprime_big(test))
+        if (is_prime_seq(test))
             found++;                           /* increment count if prime    */
     }
 

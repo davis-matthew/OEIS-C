@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 898, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: standard, pass, 70 terms through n = 9920 (2026-11-03)
+ * Helpers:   mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* Sum of distinct prime factors of a 64‑bit integer. */
 static seq_t sopf_distinct_uint64(uint64_t n)
@@ -29,7 +32,7 @@ static seq_t sopf_distinct_uint64(uint64_t n)
     seq_t sum = 0;
     uint64_t last = 0;          /* last prime factor seen (for distinctness) */
     while (n > 1) {
-        uint64_t p = _smallest_prime_factor(n);
+        uint64_t p = smallest_prime_factor(n);
         if (p != last) {
             sum += (seq_t)p;
             last = p;
@@ -60,7 +63,7 @@ seq_t a(idx_t n)
         if (s2k == sk2) {
             if (cache_len >= cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) {
                     /* Allocation failed; aborting to avoid undefined behaviour. */
                     abort();

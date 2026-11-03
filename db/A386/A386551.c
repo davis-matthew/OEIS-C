@@ -11,7 +11,8 @@
  *            calls may be in any order
  * Range:     u8 n <= 13, u16 n <= 3250, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_from_dec_str
+ * Validated: standard, pass, 74 terms through n = 9577 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_from_dec_str.h"
+#include "../utils/mem.h"
+
+static seq_t seq_from_dec_str(const char *buf, size_t len)
+{
+    seq_t val = (seq_t)0;
+    for (size_t i = 0; i < len; ++i) {
+        val = val * (seq_t)10 + (seq_t)(buf[i] - '0');
+    }
+    return val;
+}
 
 /* -------------------------------------------------------------------
    Utility: convert seq_t to decimal string and back
@@ -63,13 +73,13 @@ static void vis_init(VisSet *vs)
 {
     vs->size = 0;
     vs->cap  = 64;                    /* start with 64 slots */
-    vs->keys = (seq_t *)calloc(vs->cap, sizeof(seq_t));
+    vs->keys = mem_new(seq_t, vs->cap);
 }
 
 static void vis_resize(VisSet *vs)
 {
     size_t newcap = vs->cap * 2;
-    seq_t *newkeys = (seq_t *)calloc(newcap, sizeof(seq_t));
+    seq_t *newkeys = mem_new(seq_t, newcap);
     for (size_t i = 0; i < vs->cap; ++i) {
         seq_t k = vs->keys[i];
         if (k == (seq_t)0) continue;
@@ -80,7 +90,7 @@ static void vis_resize(VisSet *vs)
         }
         newkeys[h] = k;
     }
-    free(vs->keys);
+    mem_free(vs->keys);
     vs->keys = newkeys;
     vs->cap  = newcap;
 }
@@ -132,7 +142,7 @@ static void h_reserve(MinHeap *h, size_t need)
     if (h->cap < need) {
         size_t newcap = h->cap ? h->cap * 2 : 64;
         if (newcap < need) newcap = need;
-        seq_t *tmp = (seq_t *)realloc(h->data, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, h->data, newcap);
         if (!tmp) abort();
         h->data = tmp;
         h->cap  = newcap;
@@ -185,11 +195,11 @@ static void seq_append(seq_t val)
 {
     if (seq_cap == 0) {
         seq_cap = 64;
-        seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         if (!seq_arr) abort();
     } else if (seq_len == seq_cap) {
         seq_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_arr, seq_cap);
         if (!tmp) abort();
         seq_arr = tmp;
     }

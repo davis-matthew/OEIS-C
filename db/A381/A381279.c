@@ -10,14 +10,16 @@
  *            divisors of k (A000005)
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;
@@ -28,12 +30,12 @@ static void ensure_cache(idx_t n)
     if (n >= cache_cap) {
         size_t new_cap = n + 1;
         if (new_cap < 4) new_cap = 4;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) exit(EXIT_FAILURE);
         if (cache) {
             for (size_t i = 0; i <= cached_max; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = new_cache;
         cache_cap = new_cap;
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         if ((prev & 1) == 0) {          /* even */
             cache[k] = prev >> 1;
         } else {                        /* odd */
-            uint64_t d = divisor_count_u64((uint64_t)(k - 1));
+            uint64_t d = num_divisors((uint64_t)(k - 1));
             cache[k] = prev + (seq_t)d;
         }
     }

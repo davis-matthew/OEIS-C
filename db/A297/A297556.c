@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 47, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    It works for seq_t of any unsigned integer type or arbitrary‑precision
    integer class.  The code is valid C11 and C++17. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static void grow_cache(idx_t need, seq_t **cache, size_t *cap)
 {
@@ -27,7 +29,7 @@ static void grow_cache(idx_t need, seq_t **cache, size_t *cap)
     if (*cap < required)                           /* sparse → reallocate */
     {
         size_t new_cap = required;
-        seq_t *tmp = (seq_t *)realloc(*cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *cache, new_cap);
         *cache = tmp;
         *cap   = new_cap;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Return true if the base‑10 representation of x contains the substring "36". */
 static bool has36(seq_t x)
@@ -45,7 +47,7 @@ static void grow_cache(idx_t needed)
     if (needed <= cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
     if (!tmp) abort();          /* allocation failure */
     cache = tmp;
     cache_cap = new_cap;

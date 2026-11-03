@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} (2k+1)!! * unsigned Stirling1(n,k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    build, using only the integer operators required by the problem statement.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Special case for n=0 */
@@ -30,11 +32,11 @@ seq_t a(idx_t n) {
     size_t N = (size_t)n;
 
     /* Allocate arrays to hold two successive rows of unsigned Stirling numbers */
-    seq_t *prev = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, N + 1);
+    seq_t *curr = mem_new(seq_t, N + 1);
     if (!prev || !curr) {
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return (seq_t)0;
     }
 
@@ -42,10 +44,10 @@ seq_t a(idx_t n) {
     prev[0] = (seq_t)1;
 
     /* Pre‑compute odd double factorials (2k+1)!! up to k = N */
-    seq_t *df = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *df = mem_new(seq_t, N + 1);
     if (!df) {
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return (seq_t)0;
     }
     df[0] = (seq_t)1;
@@ -68,9 +70,9 @@ seq_t a(idx_t n) {
             }
 
             /* Clean up */
-            free(prev);
-            free(curr);
-            free(df);
+            mem_free(prev);
+            mem_free(curr);
+            mem_free(df);
 
             return sum;
         }
@@ -83,8 +85,8 @@ seq_t a(idx_t n) {
     }
 
     /* Should not reach here */
-    free(prev);
-    free(curr);
-    free(df);
+    mem_free(prev);
+    mem_free(curr);
+    mem_free(df);
     return (seq_t)0;
 }

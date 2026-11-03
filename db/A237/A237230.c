@@ -12,12 +12,14 @@
  *            are taken directly from the OEIS entry
  * Range:     u8 none, u16 n <= 3, u32 n <= 14, u64 n <= 35, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[17] = {
     0ULL,          /* dummy for index 0 */
@@ -48,10 +50,10 @@ seq_t a(idx_t n)
 
     /* Ensure cache large enough to hold indices up to n (inclusive). */
     if (cache_alloc <= n) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) return 0;          /* allocation failure – return 0 */
         cache = tmp;
-        memset((void *)(cache + cache_alloc), 0, (n + 1 - cache_alloc) * sizeof(seq_t));
+        mem_set((cache + cache_alloc), 0, (n + 1 - cache_alloc) * sizeof(seq_t));
         cache_alloc = n + 1;
 
         /* initialise known initial terms if they were not already set */

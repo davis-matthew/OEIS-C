@@ -12,13 +12,15 @@
  *            1,1,4,6,12,18,30,42,63,85
  * Range:     u8 n <= 12, u16 n <= 62, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const seq_t _init[10] = {
     1, 1, 4, 6, 12, 18, 30, 42, 63, 85
@@ -38,7 +40,7 @@ static void _ensure_cache(idx_t n)
     if (_cached_size < required) {
         size_t newsize = _cached_size > 0 ? _cached_size : 1;
         while (newsize < required) newsize <<= 1;
-        void *tmp = realloc(_cache, newsize * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, _cache, newsize);
         if (!tmp) abort();
         _cache = (seq_t *)tmp;
         _cached_size = newsize;

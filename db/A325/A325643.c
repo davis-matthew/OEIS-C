@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 256, u16 n <= 9710, u32 n <= 9710, u64 n <= 9710,
- *            u128 n <= 9710, big any n
- * Helpers:   factor_u64, poly_divisible
+ * Range:     u8 n <= 256, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9710 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,20 @@
 #include <stdlib.h>
 
 #include "../utils/factor_u64.h"
-#include "../utils/poly_divisible.h"
+
+/* Return true if the polynomial encoded by bits n_bits is divisible by
+ * the polynomial encoded by bits d_bits over GF(2).  */
+static bool poly_divisible(uint64_t n_bits, uint64_t d_bits)
+{
+    if (d_bits == 0) return false;
+    while (n_bits != 0) {
+        int deg_n = 63 - __builtin_clzll(n_bits);
+        int deg_d = 63 - __builtin_clzll(d_bits);
+        if (deg_n < deg_d) break;
+        n_bits ^= d_bits << (deg_n - deg_d);
+    }
+    return n_bits == 0;
+}
 
 static int cmp_uint64(const void *a, const void *b)
 {

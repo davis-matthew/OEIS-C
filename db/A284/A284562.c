@@ -7,8 +7,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = A227349(n) / A284569(n) (product of run lengths / lcm of
  *            run lengths)
- * Range:     u8 n <= 9503, u16 n <= 9503, u32 n <= 9503, u64 n <= 9503,
- *            u128 n <= 9503, big any n
+ * Range:     u8 n <= 10922, u16 n <= 10922, u32 n <= 10922, u64 n <= 10922,
+ *            u128 n <= 10922, big any n
+ * Validated: standard, pass, 137 terms through n = 9503 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

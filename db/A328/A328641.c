@@ -8,6 +8,7 @@
  *            a(p^e) = (p-1)*(e*p - p - e - 1) (e > 1)
  * Range:     i8 n <= 50, i16 n <= 4388, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 81 terms through n = 9759 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

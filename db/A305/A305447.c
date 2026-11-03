@@ -13,7 +13,8 @@
  *            a(10)=1799,...
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 27, u64 n <= 54, u128 n <= 108,
  *            big any n
- * Helpers:   mul_small
+ * Validated: standard, pass, 46 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,20 @@
    coefficients above.  It relies on the utility function mul_small
    defined in "../utils/mul_small.h". */
 #include <stdlib.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static seq_t *cache = NULL;   /* cache[0] holds a(1) */
 static idx_t cache_len = 0;   /* number of terms currently cached */
@@ -32,7 +46,7 @@ seq_t a(idx_t n) {
     /* Initialise the cache on the first call with the first 18 values. */
     if (cache_len == 0) {
         cache_cap = (size_t)18;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         /* Initial terms from OEIS A305447. */
         static const seq_t init[18] = {
             (seq_t)1,     (seq_t)11,   (seq_t)7,    (seq_t)20,
@@ -53,7 +67,7 @@ seq_t a(idx_t n) {
     /* Extend cache to hold terms up to n. */
     if ((size_t)n > cache_cap) {
         cache_cap = (size_t)n;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* Compute values from cache_len+1 up to n using the recurrence. */

@@ -9,9 +9,10 @@
  * Formula:   a(n) = 1 if n has no prime p with p^p | n but its arithmetic
  *            derivative n' has some prime q with q^q | n', else 0; a(1) = 0
  *            by convention
- * Range:     u8 n <= 2184, u16 n <= 9929, u32 n <= 9929, u64 n <= 9929,
- *            u128 n <= 9929, big any n
- * Helpers:   factor_u64, pow_uint
+ * Range:     u8 n <= 2184, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 139 terms through n = 9929 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdbool.h>
 
 /* Provided by the build environment */
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/pow_uint.h"     /* pow_uint(uint64_t base, idx_t exp) returns seq_t */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Small primes needed for checking q^q | derivative (q^q grows very fast) */
 static const uint64_t small_primes[] = {2, 3, 5, 7, 11, 13};
@@ -49,7 +51,7 @@ static int has_prime_power_divisor(seq_t x)
 {
     for (size_t i = 0; i < small_primes_cnt; ++i) {
         uint64_t q = small_primes[i];
-        seq_t qpow = pow_uint(q, (idx_t)q);          /* q^q */
+        seq_t qpow = ipow_u64_idx(q, (idx_t)q);          /* q^q */
         if (qpow > x)
             break;                                 /* no larger q can divide x */
         if (x % qpow == 0)

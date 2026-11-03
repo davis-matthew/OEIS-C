@@ -8,7 +8,8 @@
  *            sorted in increasing order
  * Range:     u8 n <= 177, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_squarefree
+ * Validated: standard, pass, 82 terms through n = 8852 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 static seq_t *cache     = NULL;   /* cached terms */
 static size_t cache_len = 0;      /* number of terms stored */
@@ -56,8 +58,7 @@ seq_t a(idx_t n)
         if (is_squarefree(tmp)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 32;
-                seq_t *new_arr = (seq_t *)realloc(cache,
-                                                  new_cap * sizeof(seq_t));
+                seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
                 if (!new_arr) { /* out of memory */
                     exit(EXIT_FAILURE);
                 }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = prime(8*n - 4) (the (8*n-4)-th prime)
  * Range:     u8 n <= 7, u16 n <= 818, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 60 terms through n = 998 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
 
 /* Estimate an upper bound for the k-th prime using the prime number theorem.

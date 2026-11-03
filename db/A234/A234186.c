@@ -13,14 +13,17 @@
  *            * transition graph between rows is built once...
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 15, u128 n <= 32,
  *            big any n
- * Helpers:   abs16
+ * Validated: standard, pass, 31 terms through n = 198 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/abs16.h"
+
+/* Absolute value for signed 16‑bit integers. */
+static int16_t abs16(int16_t x) { return (x < 0) ? -x : x; }
  
 /* Compile‑time constants for the state space. */
 enum { MAX_STATES = 343 };          /* 7³ possible rows */

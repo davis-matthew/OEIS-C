@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 24, u64 n <= 44, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 905 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* dynamically allocated array */
 static size_t cache_len = 0;         /* number of elements stored (≥ current cached size) */
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
     size_t required = (size_t)n + 1;
     if (required <= cache_len)
         return;
-    seq_t *new_cache = (seq_t *)realloc(cache, required * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, required);
     if (!new_cache) abort();          /* allocation failure */
     /* Initialise new entries to 0. */
     for (size_t i = cache_len; i < required; ++i)

@@ -6,8 +6,9 @@
  * Keywords:  nonn, mult
  * Formula:   multiplicative: a(1) = 1 a(2^p) = 1 a(p^e) (p odd) = (e+1)*p^e +
  *            (2*(1 + (e*(p-1)-1)*p^e))/((p-1)^2)
- * Range:     u8 n <= 12, u16 n <= 1181, u32 n <= 9964, u64 n <= 9964,
- *            u128 n <= 9964, big any n
+ * Range:     u8 n <= 12, u16 n <= 1181, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 80 terms through n = 9964 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

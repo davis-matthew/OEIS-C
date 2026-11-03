@@ -12,13 +12,15 @@
  *            a(7)=18837, a(8)=45114, a(9)=113177, a(10)=278981, a(11...
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 20, u64 n <= 45, u128 n <= 94,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;           /* array of computed values */
 static idx_t  cache_cap = 0;          /* allocated capacity (elements)   */
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     if (!cache) {
         ensure_capacity(15);
         /* zero the array for safety */
-        memset((void *)cache, 0, (size_t)cache_cap * sizeof(seq_t));
+        mem_set(cache, 0, (size_t)cache_cap * sizeof(seq_t));
 
         static const seq_t init[16] = {
             (seq_t)0,         /* dummy for 0‑index */

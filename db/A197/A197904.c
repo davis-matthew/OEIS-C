@@ -7,6 +7,7 @@
  * Formula:   a(n) = ceil((n + 1/n)^5) (OEIS A197904)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 9, u64 n <= 7131,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 48 terms through n = 9621 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

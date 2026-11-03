@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[11] = {
     (seq_t)1,  (seq_t)4,  (seq_t)8,  (seq_t)13, (seq_t)17,
@@ -42,7 +44,7 @@ ensure_capacity(idx_t need)
     idx_t new_cap = (cap == 0) ? 128 : cap * 2;
     while (new_cap <= need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();            /* out of memory */
     cache = tmp;
@@ -58,7 +60,7 @@ init_cache_if_needed(void)
 
     /* Allocate at least 11 elements, but we allocate a bit more for future growth */
     cap   = 128;
-    cache = (seq_t *)calloc(cap, sizeof(seq_t));
+    cache = mem_new(seq_t, cap);
     if (!cache)
         abort();            /* out of memory */
     for (idx_t i = 0; i < 11; ++i)

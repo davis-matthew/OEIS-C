@@ -12,15 +12,25 @@
  *            integers; for larger n the same algorithm sti...
  * Range:     u8 n <= 15, u16 n <= 4095, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   pow_imag_next, pow_real_next
+ * Validated: standard, pass, 76 terms through n = 8191 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <inttypes.h>
-#include "../utils/pow_imag_next.h"
-#include "../utils/pow_real_next.h"
+
+static inline int64_t pow_imag_next(int64_t pR, int64_t pI)
+{
+    return pR - pI;
+}
+
+static inline int64_t pow_real_next(int64_t pR, int64_t pI)
+{
+    /* (pR + pI*i) * (-1 + i) = (-pR - pI) + (pR - pI)*i */
+    return -pR - pI;
+}
 
 /* Public sequence function */
 seq_t a(idx_t n)

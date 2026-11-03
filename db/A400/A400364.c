@@ -10,7 +10,8 @@
  *            hypotenuse A002144(n))
  * Range:     u8 none, u16 n <= 3, u32 n <= 25, u64 n <= 2549, u128 n <= 2549,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 41 terms through n = 2542 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* ---------- Helper: simple primality test for uint64_t ---------- */
 static bool is_prime_uint64(uint64_t n)

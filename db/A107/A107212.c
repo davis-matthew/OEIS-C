@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 408, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 9438 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- integer square root (floor) ---------- */
 static inline uint64_t int_sqrt_uint64(uint64_t n)
@@ -134,7 +136,7 @@ seq_t a(idx_t n)
         /* store the prime */
         if (cnt >= cap) {
             size_t new_cap = cap ? cap * 2 : 64;
-            seq_t *tmp = (seq_t*)realloc(primes, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, primes, new_cap);
             if (!tmp) return 0;          /* unlikely but defensive */
             primes = tmp;
             cap = new_cap;

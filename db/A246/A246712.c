@@ -10,13 +10,15 @@
  *            (mod 8)
  * Range:     i8 n <= 7, i16 n <= 22, i32 n <= 72, i64 n <= 245, i128 n <= 876,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 2365 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 #ifdef __cplusplus
 #include <type_traits>
 using temp_t = typename std::conditional<(sizeof(seq_t) <= 8), __int128, seq_t>::type;
@@ -46,11 +48,11 @@ seq_t a(idx_t n)
 
     /* Allocate space for coefficients up to n */
     size_t sz = (size_t)n + 1;                 /* fits in size_t for n ≤ 10000 */
-    seq_t *a_vals = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *c_vals = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *a_vals = mem_new(seq_t, sz);
+    seq_t *c_vals = mem_new(seq_t, sz);
     if (!a_vals || !c_vals) {                 /* allocation failure */
-        free(a_vals);
-        free(c_vals);
+        mem_free(a_vals);
+        mem_free(c_vals);
         return (seq_t)0;
     }
 
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_vals[n];
-    free(c_vals);
-    free(a_vals);
+    mem_free(c_vals);
+    mem_free(a_vals);
     return result;
 }

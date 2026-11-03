@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 8191, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Substitution table: 0→[1,2,0], 1→[1,1,0], 2→[1,0,0] */
 static const unsigned char sub[3][3] = {
@@ -63,12 +65,12 @@ ensure_n(size_t n)
         return;
     if (pos2_cap == 0) {
         pos2_cap = 128;
-        pos2 = (seq_t *)malloc(pos2_cap * sizeof(seq_t));
+        pos2 = mem_new(seq_t, pos2_cap);
     }
     while (pos2_len < n) {
         if (pos2_len >= pos2_cap) {
             pos2_cap *= 2;
-            pos2 = (seq_t *)realloc(pos2, pos2_cap * sizeof(seq_t));
+            pos2 = mem_resize(seq_t, pos2, pos2_cap);
         }
         unsigned char sym = letter_at(next_pos);
         if (sym == 2)

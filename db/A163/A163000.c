@@ -9,7 +9,8 @@
  *            }
  * Range:     u8 n <= 702, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 109 terms through n = 9044 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (n >= m) {
         idx_t new_m = n + 1;
         /* reallocate values array */
-        seq_t *new_values = (seq_t *)realloc(values, new_m * sizeof(seq_t));
+        seq_t *new_values = mem_resize(seq_t, values, new_m);
         if (!new_values) return 0;         /* out of memory, return 0 */
         values = new_values;
 

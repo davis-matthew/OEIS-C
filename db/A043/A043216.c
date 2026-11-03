@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_adj01
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,24 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has_adj01.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static bool has_adj01(seq_t x)
+{
+    if (x < (seq_t)10)                /* single digit cannot have adjacency */
+        return false;
+    int last = 10;                    /* sentinel for first digit          */
+    seq_t y = x;
+    while (y > 0) {
+        int d = (int)(y % (seq_t)10);
+        if ((last == 0 && d == 1) || (last == 1 && d == 0))
+            return true;              /* found an adjacent 0 and 1        */
+        last = d;
+        y   /= (seq_t)10;
+    }
+    return false;
+}
 
 /* external types provided by the build system */
 extern seq_t a(idx_t n);
@@ -49,7 +67,7 @@ static void ensure_capacity(size_t new_cap)
     size_t cap = cache_cap == 0 ? 64 : cache_cap;
     while (cap < new_cap)
         cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cap);
     cache = tmp;
     cache_cap = cap;
 }

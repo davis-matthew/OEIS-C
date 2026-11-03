@@ -9,7 +9,8 @@
  *            factors of n
  * Range:     u8 n <= 257, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, gcd, int_sqrt, is_prime, seq_mul
+ * Validated: standard, pass, 91 terms through n = 8499 (2026-11-03)
+ * Helpers:   build_primes_upto, gcd, is_prime, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,11 +18,18 @@
 /* Note: all helper functions used below are provided in "../utils/*.h". */
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
+#include "../utils/build_primes_upto.h"
 #include "../utils/gcd.h"
 #include "../utils/is_prime.h"
-#include "../utils/int_sqrt.h"
-#include "../utils/build_primes_upto.h"
-#include "../utils/seq_mul.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +41,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         size_t new_size = (cache_size == 0) ? 16 : cache_size;
         while (n >= new_size) new_size <<= 1;
-        seq_t *new_cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) return 0;  /* Out of memory – the caller should handle this. */
         /* Zero-fill the newly allocated portion */
         for (size_t i = cache_size; i < new_size; ++i) new_cache[i] = 0;
@@ -55,7 +63,7 @@ seq_t a(idx_t n)
         static size_t prime_count = 0;
         static idx_t prime_limit = 0;
 
-        idx_t limit = int_sqrt(n);    /* sqrt(n) is enough to test all prime divisors */
+        idx_t limit = isqrt(n);    /* sqrt(n) is enough to test all prime divisors */
         if (limit > prime_limit) {
             /* Build primes up to the new limit; free previous list if any */
             if (prime_list) free(prime_list);

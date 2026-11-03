@@ -9,12 +9,14 @@
  *            a(n) + a(n+1) (for n > 1)
  * Range:     u8 n <= 79, u16 n <= 4863, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 7697 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache holding the computed values.
    a_cache[i] contains a(i); cache grows as needed. */
@@ -31,8 +33,7 @@ static void ensure_cache(idx_t new_size)
     /* Allocate or reallocate storage.  Cast the void* returned by realloc
        so the code compiles as C++ as well. */
     size_t new_cap = (size_t)new_size;
-    seq_t *new_cache = (seq_t *)realloc(a_cache,
-                                         new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_cap);
     if (!new_cache) {
         abort();                      /* allocation failed */
     }

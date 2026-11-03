@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   _collatz_steps
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/_collatz_steps.h"
+#include "../utils/mem.h"
+
+/*--- Collatz total stopping time ----------------------------------------*/
+static idx_t _collatz_steps(idx_t x)
+{
+    idx_t steps = 0;
+    while (x != 1) {
+        if (x & 1)          /* odd -> 3x+1 */
+            x = 3 * x + 1;
+        else                /* even -> x/2 */
+            x >>= 1;
+        ++steps;
+    }
+    return steps;
+}
 
 /*--- Integer square root for 64‑bit values --------------------------------*/
 static inline idx_t _isqrt_u64(idx_t v)
@@ -52,10 +67,10 @@ static void _grow_cache(void)
 {
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else {
         cache_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (tmp)
             cache = tmp;
     }

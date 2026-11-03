@@ -10,7 +10,8 @@
  *            and caches them for repeated queries
  * Range:     u8 n <= 1, u16 n <= 25, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   build_primes_upto, digit_counts
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   build_primes_upto, digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/digit_counts.h"          /* void digit_counts(seq_t x, unsigned char cnt[10]) */
-#include "../utils/build_primes_upto.h"     /* void build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out) */
+#include "../utils/build_primes_upto.h"
+#include "../utils/digit_counts.h"
+#include "../utils/mem.h"
 
 static seq_t phi_of(idx_t m, const uint64_t *primes, size_t primes_cnt)
 {
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         prime_cnt = cnt;
 
         cache_cap = 128;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
 
         initialized = true;
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
             /* Store the term in cache */
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)next_t;
         }

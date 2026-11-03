@@ -7,13 +7,15 @@
  * Formula:   a(n) = number of integer right triangles with semiperimeter n.
  *            Equivalently, the number of solutions of x*y*(y+z) = n with y >
  *            z ≥ 1, gcd(y,z)=1, and y and z of opposite parity
- * Range:     u8 n <= 8703, u16 n <= 8703, u32 n <= 8703, u64 n <= 8703,
- *            u128 n <= 8703, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 133 terms through n = 8703 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

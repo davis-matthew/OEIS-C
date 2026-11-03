@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 7, u128 n <= 14,
  *            big any n
+ * Validated: standard, pass, 29 terms through n = 186 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* Recurrence: a(0)=1;
    for n≥1: a(n)=a(n-1)*3*(9*n-8)*(9*n-5)*(9*n-4)/(n^2*(3*n-2))
    The sequence is the coefficients of 3F2([1/9,4/9,5/9],[1/3,1],729*x). */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

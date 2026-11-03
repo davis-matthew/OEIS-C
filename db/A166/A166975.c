@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 179, u32 n <= 179, u64 n <= 179, u128 n <= 179,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: full, pass, 179 terms through n = 179 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Store the sequence once; read‑only after initialization. */
 static seq_t *terms = NULL;
@@ -30,12 +32,12 @@ static void init_terms(void)
 {
     /* Compute all 4‑digit primes; there are only 179 such primes. */
     const size_t CAP = 200;          /* enough space for all terms */
-    terms = (seq_t *)malloc(CAP * sizeof(seq_t));
+    terms = mem_new(seq_t, CAP);
     if (!terms) return;             /* allocation failed – give up */
 
     size_t count = 0;
     for (int n = 1000; n <= 9999; ++n) {
-        if (!is_prime_small((seq_t)n)) continue;
+        if (!is_prime_seq((seq_t)n)) continue;
 
         int A = n / 1000;
         int B = (n / 100) % 10;
@@ -46,8 +48,8 @@ static void init_terms(void)
         int ab = 10 * A + B;                  /* AB */
         int cd = 10 * C + D;                  /* CD */
 
-        if (is_prime_small((seq_t)digit_sum) &&
-            is_prime_small((seq_t)(ab + cd))) {
+        if (is_prime_seq((seq_t)digit_sum) &&
+            is_prime_seq((seq_t)(ab + cd))) {
             if (count < CAP) {
                 terms[count++] = (seq_t)n;
             }

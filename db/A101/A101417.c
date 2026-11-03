@@ -9,7 +9,8 @@
  *            Product_{i>=2} (1 - x^i)
  * Range:     u8 n <= 34, u16 n <= 77, u32 n <= 199, u64 n <= 578,
  *            u128 n <= 1843, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 8090 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Allocate an array of seq_t of length n+1          */
     /* Use malloc so the code compiles as C11 as well.    */
     size_t len = (size_t)(n + 1);
-    seq_t *dp = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, len);
     if (!dp)
         return (seq_t)0;           /* out‑of‑memory guard */
 
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
        calls the default constructor.                     */
 #ifdef __cplusplus
     for (size_t i = 0; i < len; ++i)
-        new (&dp[i]) seq_t();
+        *(&dp[i]) = (seq_t)0;
 #endif
 
     /* Initialize DP values: dp[0] = 1, others 0             */
@@ -62,9 +64,9 @@ seq_t a(idx_t n)
     /* Destruct every element before freeing memory.     */
 #ifdef __cplusplus
     for (size_t i = 0; i < len; ++i)
-        dp[i].~seq_t();
+(void)0;  /* mem_free destroys the elements */
 #endif
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

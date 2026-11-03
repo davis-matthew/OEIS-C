@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* generate all primes ≤ limit and return them in *primes (malloc'ed) and their count *cnt */
 static void generate_primes_upto(idx_t limit, idx_t **primes, size_t *cnt)
@@ -61,7 +63,7 @@ static void recompute(idx_t new_limit,
     /* free previous data */
     if (*primes) free(*primes);
     if (*isAvg)  free(*isAvg);
-    if (*vals)   free(*vals);
+    if (*vals)   mem_free(*vals);
 
     /* generate primes up to a safety margin (enough for all averages ≤ new_limit) */
     idx_t prime_limit = new_limit * 2 + 100;
@@ -92,7 +94,7 @@ static void recompute(idx_t new_limit,
 
     /* build the list of non‑average integers */
     size_t capacity = (size_t)new_limit;        /* enough for numbers ≤ new_limit */
-    seq_t *list = (seq_t*)malloc(capacity * sizeof(seq_t));
+    seq_t *list = mem_new(seq_t, capacity);
     if (!list) exit(1);
     size_t ncnt = 0;
     for (size_t v = 1; v <= (size_t)new_limit; ++v) {
@@ -100,7 +102,7 @@ static void recompute(idx_t new_limit,
             list[ncnt++] = (seq_t)v;
             if (ncnt == capacity) {
                 capacity <<= 1;
-                list = (seq_t*)realloc(list, capacity * sizeof(seq_t));
+                list = mem_resize(seq_t, list, capacity);
                 if (!list) exit(1);
             }
         }

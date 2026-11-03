@@ -12,7 +12,8 @@
  *            equals T(n,k)
  * Range:     u8 n <= 144, u16 n <= 498, u32 n <= 2111, u64 n <= 9918,
  *            u128 n <= 9918, big any n
- * Helpers:   none
+ * Validated: standard, pass, 108 terms through n = 8863 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static helpers and storage for the triangular table */
 static seq_t **rows = NULL;        /* pointers to rows 0 .. size-1 */
@@ -41,7 +43,7 @@ static void ensure_up_to(idx_t n)
         size_t r = size;                             /* new row index */
         size_t len = r * (r + 1) / 2 + 1;            /* number of coefficients */
 
-        seq_t *row = (seq_t*)calloc(len, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) exit(1);
 
         /* enlarge storage for rows, lengths and cumulative array */

@@ -12,12 +12,14 @@
  *            a(0) = 1 a(n) = 2 + 3·∑_{k=1}^{n-1} a(n-k) fo...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 452 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) abort();        /* out of memory */
         if (cache) {
             /* copy existing values */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
                 for (size_t i = 0; i <= (size_t)computed_up_to; ++i)
                     new_cache[i] = cache[i];
             }
-            free(cache);
+            mem_free(cache);
         }
         cache      = new_cache;
         cache_size = new_size;

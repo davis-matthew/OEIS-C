@@ -9,7 +9,8 @@
  *            king‑move neighbors
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* 6 columns -> 64 possible row masks */
 #define WIDTH 6
@@ -98,14 +100,14 @@ seq_t a(idx_t n)
     seq_t *nxt = ndp;
 
     /* initialise dp for row 1: prev = 0 */
-    memset(cur, 0, sizeof(dp));
+    mem_set(cur, 0, sizeof(dp));
     for (unsigned int currow = 0; currow < MAXMASK; ++currow) {
         cur[currow] = 1;          /* prev=0 (index 0), cur=row */
     }
 
     /* Iterate rows 2 .. n */
     for (idx_t row = 2; row <= n; ++row) {
-        memset(nxt, 0, sizeof(ndp));
+        mem_set(nxt, 0, sizeof(ndp));
 
         for (unsigned int prev = 0; prev < MAXMASK; ++prev) {
             unsigned int basePrev = prev * MAXMASK;

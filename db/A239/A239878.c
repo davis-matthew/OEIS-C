@@ -7,11 +7,13 @@
  * Formula:   a(n) = k where digit_sum(k*k)+1 = digit_sum((k+1)*(k+1))
  * Range:     u8 n <= 1, u16 n <= 16, u32 n <= 3127, u64 n <= 4067,
  *            u128 n <= 4067, big any n
+ * Validated: standard, pass, 66 terms through n = 3541 (2026-11-01)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
 
 seq_t a(idx_t n)

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 42, u64 n <= 82, u128 n <= 165,
  *            big any n
- * Helpers:   pow10
+ * Validated: standard, pass, 53 terms through n = 991 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,17 @@
  * pow10 utility for arbitrary-precision exponents.
  */
 
-#include "../utils/pow10.h"
+#include <stdint.h>
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n) {
     /* Index within the 17-term block (0‑based) and block number (0‑based). */

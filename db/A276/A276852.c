@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 28, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 1287 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,16 +26,17 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static void ensure_capacity(size_t *cap, size_t needed, seq_t **ptr)
 {
     if (*cap < needed) {
         size_t new_cap = *cap * 2;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t*)realloc(*ptr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *ptr, new_cap);
         if (!tmp) exit(1); /* out of memory */
         /* zero the newly allocated part */
-        memset(tmp + *cap, 0, (new_cap - *cap) * sizeof(seq_t));
+        mem_set(tmp + *cap, 0, (new_cap - *cap) * sizeof(seq_t));
         *ptr = tmp;
         *cap = new_cap;
     }
@@ -62,10 +64,10 @@ seq_t a(idx_t n)
     if (!dp_cur) {
         dp_cur_cap  = 16;
         dp_next_cap = 16;
-        dp_cur  = (seq_t*)calloc(dp_cur_cap,  sizeof(seq_t));
-        dp_next = (seq_t*)calloc(dp_next_cap, sizeof(seq_t));
+        dp_cur  = mem_new(seq_t, dp_cur_cap);
+        dp_next = mem_new(seq_t, dp_next_cap);
         a_cache_cap = 16;
-        a_cache = (seq_t*)calloc(a_cache_cap, sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cache_cap);
         a_cache[0] = (seq_t)0;            /* a(0)  */
         max_n_computed = 0;
     }
@@ -74,9 +76,9 @@ seq_t a(idx_t n)
     while (n >= a_cache_cap) {
         size_t new_cap = a_cache_cap * 2;
         if (n >= new_cap) new_cap = n + 1;
-        seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) exit(1);
-        memset(tmp + a_cache_cap, 0, (new_cap - a_cache_cap) * sizeof(seq_t));
+        mem_set(tmp + a_cache_cap, 0, (new_cap - a_cache_cap) * sizeof(seq_t));
         a_cache = tmp;
         a_cache_cap = new_cap;
     }
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
         ensure_capacity(&dp_next_cap, max_h,     &dp_next);
 
         /* clear dp_next for this step */
-        memset(dp_next, 0, max_h * sizeof(seq_t));
+        mem_set(dp_next, 0, max_h * sizeof(seq_t));
 
         if (step == 1) {
             /* From the origin we can go to heights 1,2,3 in one move */

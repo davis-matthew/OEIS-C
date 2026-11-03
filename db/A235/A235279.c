@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 21, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  * 115480, 160888, 260680, 401560
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (cache_size <= n) {
         /* Make sure we have at least 10 slots in case n < 9. */
         idx_t new_size = (n + 1 > (idx_t)10) ? (n + 1) : (idx_t)10;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_size);
         if (!tmp)
             abort(); /* allocation failed */
         /* Zero the newly allocated part. */

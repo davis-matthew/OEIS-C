@@ -12,8 +12,8 @@
  *            [p has an odd cycle], z(p) = Prod L^m_L * m_L...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 7, u64 n <= 10, u128 n <= 13,
  *            big any n
- * Helpers:   alloc_zero, gi, grow_zero, pw2, release, seq_is_fixed_width,
- *            u128_to_seq
+ * Validated: standard, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   gcd_i32, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,13 +21,56 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/grow_zero.h"
-#include "../utils/pw2.h"
-#include "../utils/gi.h"
+#include <string.h>
+#include "../utils/gcd_i32.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
 
 typedef unsigned __int128 u128;
 
@@ -62,7 +105,7 @@ static void rec(int rem, int maxL, int depth, long E, int cyc, int anyodd,
         int vL = 0, oL = L, s2 = s;
         u128 o2 = o;
         seq_t c2 = cnt;
-        for (j = 0; j < depth; j++) cross += (long)pm[j] * gi(L, pl[j]);
+        for (j = 0; j < depth; j++) cross += (long)pm[j] * gcd_i32(L, pl[j]);
         while (!(oL & 1)) { oL >>= 1; vL++; }
         for (m = 1; m * L <= rem; m++) {
             int vm = 0, om = m;
@@ -120,7 +163,7 @@ seq_t a(idx_t n)
                 bkt = alloc_zero(X);
                 rec(m, m, 0, 0, 0, 0, 0, (u128)1, f);
                 for (x = 0; x < X; x++)
-                    if (bkt[x] != 0) tot += bkt[x] * pw2(x);
+                    if (bkt[x] != 0) tot += bkt[x] * pow2(x);
                 release(bkt, X);
                 G[m] = tot / f;
                 t = G[m] * (idx_t)m;

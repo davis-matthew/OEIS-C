@@ -10,14 +10,36 @@
  *            (treating d-1 = 0 as not dividing)
  * Range:     u8 n <= 22, u16 n <= 728, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _enumerate_divs
+ * Validated: standard, pass, 103 terms through n = 9388 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_enumerate_divs.h"
+
+static void _enumerate_divs(int idx, seq_t cur, uint64_t *primes, int *exps,
+                            int cnt, seq_t N, seq_t *cnt_iso)
+{
+    if (idx == cnt) {
+        bool iso = true;
+        if (cur > 1) {
+            if (N % (cur - 1) == 0)
+                iso = false;
+        }
+        if (iso && N % (cur + 1) == 0)
+            iso = false;
+        if (iso)
+            (*cnt_iso)++;
+        return;
+    }
+    seq_t mult = 1;
+    for (int e = 0; e <= exps[idx]; e++) {
+        _enumerate_divs(idx + 1, cur * mult, primes, exps, cnt, N, cnt_iso);
+        mult *= (seq_t)primes[idx];
+    }
+}
 
 seq_t a(idx_t n)
 {

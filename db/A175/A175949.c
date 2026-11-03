@@ -12,13 +12,27 @@
  *            with bit 1
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   add_run_to_dec
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/add_run_to_dec.h"
+
+static void add_run_to_dec(int r, unsigned char *dec, int *len)
+{
+    int tmp = r;
+    unsigned char rev[20];
+    int revlen = 0;
+    while (tmp > 0) {
+        rev[revlen++] = (unsigned char)(tmp % 10);
+        tmp /= 10;
+    }
+    for (int i = revlen - 1; i >= 0; --i) {
+        dec[(*len)++] = rev[i];
+    }
+}
 
 seq_t a(idx_t n)
 {

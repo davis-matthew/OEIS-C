@@ -7,13 +7,28 @@
  * Formula:   a(n) = floor((5*5^n - 18*n - 5)/36)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 28, u128 n <= 55,
  *            big any n
- * Helpers:   power5
+ * Validated: standard, pass, 42 terms through n = 409 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/power5.h"
+#include <stdbool.h>
+
+static inline seq_t power5(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = 5;
+    while (exp)
+    {
+        if (exp & 1)
+            result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
 
 static const seq_t init[6] = {
     (seq_t)0,

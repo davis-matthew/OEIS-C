@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 6, u16 n <= 2088, u32 n <= 9850, u64 n <= 9850,
- *            u128 n <= 9850, big any n
- * Helpers:   estimate_limit_for_primes
+ * Range:     u8 n <= 6, u16 n <= 2088, u32 n <= 14403, u64 n <= 14403,
+ *            u128 n <= 14403, big any n
+ * Validated: standard, pass, 63 terms through n = 9850 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,18 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/estimate_limit_for_primes.h"
+
+/* estimate how far we must sieve to contain at least 'needed' primes */
+static size_t estimate_limit_for_primes(size_t needed)
+{
+    /* For n >= 6, p_n < n (ln n + ln ln n)  (Rosser–Schoenfeld bound) */
+    if (needed < 6) return 15;
+    double n = (double)needed;
+    double ln_n   = log(n);
+    double ln_ln_n = log(ln_n);
+    double estimate = n * (ln_n + ln_ln_n);
+    return (size_t)(estimate + 100);   /* some safety margin */
+}
 
 /*------------------------------------------------------------------------
  *  Prime generation helpers

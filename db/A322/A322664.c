@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{p^k|n} (n/p^k)^2 (sum over all prime powers dividing
  *            n)
- * Range:     u8 n <= 27, u16 n <= 395, u32 n <= 8847, u64 n <= 8847,
- *            u128 n <= 8847, big any n
+ * Range:     u8 n <= 27, u16 n <= 395, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 78 terms through n = 8847 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

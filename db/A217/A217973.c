@@ -7,14 +7,23 @@
  * Formula:   a(n) = nth Niven (Harshad) number that contains no digit 0
  * Range:     u8 n <= 49, u16 n <= 4149, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum, has_no_zero_digit
+ * Validated: standard, pass, 76 terms through n = 9998 (2026-11-01)
+ * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include "../utils/digit_sum.h"
-#include "../utils/has_no_zero_digit.h"
+
+static bool has_no_zero_digit(seq_t x) {
+    if (x == 0) return false;          /* zero contains digit 0 */
+    while (x > 0) {
+        if (x % 10 == 0) return false; /* digit 0 found */
+        x /= 10;
+    }
+    return true;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;              /* offset is 1; n must be >=1 */

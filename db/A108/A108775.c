@@ -7,12 +7,14 @@
  * Formula:   a(n) = floor(sigma(n)/n)
  * Range:     u8 n <= 105, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9597 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes a(n) = ⌊σ(n)/n⌋ for n ≥ 1.
    σ(n) is the sum of all positive divisors of n.
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         /* need to extend cache up to n (inclusive) */
         size_t new_size = (size_t)n + 1;                /* elements 0..n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0;                            /* allocation failure */
         cache = tmp;
 

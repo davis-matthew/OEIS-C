@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 216, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9797 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer floor‑sqrt for unsigned 64‑bit values, O(log v) */
 static idx_t _floor_isqrt_u64(idx_t n)
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         candidate = 3;
 
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
     }
 
     /* Generate primes and evaluate the square‑gap condition until we have n terms */
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
                     size_t newcap = seq_cap << 1;
                     if (newcap == 0) newcap = 16;
                     seq_cap = newcap;
-                    seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, newcap);
                 }
                 seq[seq_cnt++] = (seq_t)(primes_cnt - 1);
             }

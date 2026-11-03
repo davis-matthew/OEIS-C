@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=0..m} b(k)*3^k where (n-1) = Sum_{k=0..m} b(k)*2^k
  * Range:     u8 n <= 39, u16 n <= 1280, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 74 terms through n = 9647 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

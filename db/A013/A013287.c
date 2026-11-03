@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build system:
    seq_t – the type for sequence values (int8_t … __int128 or GMP-type)
@@ -42,12 +44,12 @@ static seq_t *Eminus_arr= NULL;  /* exp(-G) */
 /* free any existing cache */
 static void free_cache(void)
 {
-    if (fact_arr) free(fact_arr);
-    if (T_arr)    free(T_arr);
-    if (L_arr)    free(L_arr);
-    if (G_arr)    free(G_arr);
-    if (Eplus_arr)free(Eplus_arr);
-    if (Eminus_arr)free(Eminus_arr);
+    if (fact_arr) mem_free(fact_arr);
+    if (T_arr)    mem_free(T_arr);
+    if (L_arr)    mem_free(L_arr);
+    if (G_arr)    mem_free(G_arr);
+    if (Eplus_arr)mem_free(Eplus_arr);
+    if (Eminus_arr)mem_free(Eminus_arr);
     fact_arr = T_arr = L_arr = G_arr = Eplus_arr = Eminus_arr = NULL;
     cache_max = 0;
 }
@@ -59,12 +61,12 @@ static void build_cache(idx_t n)
 
     free_cache();                    /* start fresh for simplicity */
 
-    fact_arr  = (seq_t*)malloc((n+1)*sizeof(seq_t));
-    T_arr     = (seq_t*)malloc((n+1)*sizeof(seq_t));
-    L_arr     = (seq_t*)malloc((n+1)*sizeof(seq_t));
-    G_arr     = (seq_t*)malloc((n+1)*sizeof(seq_t));
-    Eplus_arr= (seq_t*)malloc((n+1)*sizeof(seq_t));
-    Eminus_arr= (seq_t*)malloc((n+1)*sizeof(seq_t));
+    fact_arr  = mem_new(seq_t, (n+1));
+    T_arr     = mem_new(seq_t, (n+1));
+    L_arr     = mem_new(seq_t, (n+1));
+    G_arr     = mem_new(seq_t, (n+1));
+    Eplus_arr= mem_new(seq_t, (n+1));
+    Eminus_arr= mem_new(seq_t, (n+1));
 
     /* factorials */
     fact_arr[0] = 1;

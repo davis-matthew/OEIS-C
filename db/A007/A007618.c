@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) + sum of digits of a(n-1), a(1) = 5
  * Range:     u8 n <= 28, u16 n <= 3390, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9862 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t digit_sum(seq_t x) {
     seq_t sum = 0;
@@ -32,13 +34,13 @@ seq_t a(idx_t n) {
     
     if (n > cache_len) {
         idx_t new_len = (n > 1000) ? n + 1000 : 2000;
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_len);
+        seq_t *new_cache = mem_new(seq_t, new_len);
         
         if (cache != NULL) {
             for (idx_t i = 0; i < computed_len; i++) {
                 new_cache[i] = cache[i];
             }
-            free(cache);
+            mem_free(cache);
         }
         
         cache = new_cache;

@@ -10,7 +10,8 @@
  *            same number of prime factors counted with multiplicity
  * Range:     u8 n <= 3, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   count_prime_factors, is_prime
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   bigomega_seq, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/bigomega_seq.h"
 #include "../utils/is_prime.h"
-#include "../utils/count_prime_factors.h"
 
 seq_t a(idx_t n)
 {
@@ -50,8 +51,8 @@ seq_t a(idx_t n)
         }
 
         /* Count prime factors with multiplicity. */
-        seq_t cf1 = count_prime_factors((seq_t)start);
-        seq_t cf2 = count_prime_factors((seq_t)(start + 1));
+        seq_t cf1 = bigomega_seq((seq_t)start);
+        seq_t cf2 = bigomega_seq((seq_t)(start + 1));
 
         if (cf1 == cf2) {
             /* Store the qualifying n. */

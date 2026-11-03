@@ -8,8 +8,9 @@
  * Formula:   a(n) = T(r,k) where r = smallest integer with r(r+1)/2 ≥ n, k =
  *            n - r(r-1)/2. T(r,1) = T(r,r) = 1; otherwise T(r,k) = 1 if r%2
  *            == k%2, else 0
- * Range:     u8 n <= 9821, u16 n <= 9821, u32 n <= 9821, u64 n <= 9821,
- *            u128 n <= 9821, big any n
+ * Range:     u8 n <= 11325, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 107 terms through n = 9821 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

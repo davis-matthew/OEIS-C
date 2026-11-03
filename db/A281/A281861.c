@@ -9,14 +9,27 @@
  *            binom(n+1, s)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   fib
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/fib.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 static seq_t *fib_cache = NULL;
 static idx_t fib_cache_len = 0;
@@ -26,7 +39,7 @@ static void ensure_fib_cache(idx_t n)
 {
     if (fib_cache_len > n) return;
     idx_t new_len = (n + 1);
-    fib_cache = (seq_t *)realloc(fib_cache, new_len * sizeof(seq_t));
+    fib_cache = mem_resize(seq_t, fib_cache, new_len);
     if (!fib_cache_len) {
         /* initialize first two Fibonacci numbers */
         fib_cache[0] = 0;

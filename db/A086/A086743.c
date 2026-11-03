@@ -9,14 +9,34 @@
  *            sum of distinct powers of 3 (i.e. 3^k with k ≥ 1)
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   zero_coeff
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/zero_coeff.h"
+
+/* Helper: test if integer x has a zero coefficient in the product
+   ∏_{k≥1} (1 - x^{3^k})  →  coefficient of x^x is zero              */
+static bool zero_coeff(idx_t x)
+{
+    /* if x is not a multiple of 3, cannot be formed from powers 3^k
+       thus coefficient is zero */
+    if ((x % 3) != 0)
+        return true;
+
+    /* x is a multiple of 3 */
+    /* check base‑3 digits: if any digit is 2, representation impossible */
+    while (x > 0) {
+        unsigned d = (unsigned)(x % 3);
+        if (d == 2)
+            return true;
+        x /= 3;          /* move to next ternary digit          */
+    }
+    return false;       /* all digits 0/1 and last digit 0 → representable */
+}
 
 /* Cache of the sequence values.  Values are kept as uint64_t
    because the nth term for n ≤ 10000 easily fits in 64 bits. */

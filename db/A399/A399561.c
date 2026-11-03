@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 12, u64 n <= 16, u128 n <= 21,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,14 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,22 +40,20 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cache_cap) {
         /* allocate or grow the term cache */
         if (!cache) {
-            cache = (seq_t *)malloc(((size_t)n + 1) * sizeof(seq_t));
+            cache = mem_new(seq_t, ((size_t)n + 1));
             if (!cache) return (seq_t)0; /* allocation failed */
         } else if ((size_t)n + 1 > cache_cap) {
-            seq_t *tmp = (seq_t *)realloc(cache,
-                          ((size_t)n + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, ((size_t)n + 1));
             if (!tmp) return (seq_t)0;
             cache = tmp;
         }
 
         /* allocate or grow the power‑of‑two cache */
         if (!p2_cache) {
-            p2_cache = (seq_t *)malloc(((size_t)n + 1) * sizeof(seq_t));
+            p2_cache = mem_new(seq_t, ((size_t)n + 1));
             if (!p2_cache) return (seq_t)0;
         } else if ((size_t)n + 1 > cache_cap) {
-            seq_t *tmp = (seq_t *)realloc(p2_cache,
-                          ((size_t)n + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, p2_cache, ((size_t)n + 1));
             if (!tmp) return (seq_t)0;
             p2_cache = tmp;
         }

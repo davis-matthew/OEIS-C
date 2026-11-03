@@ -9,6 +9,7 @@
  *            by rows of T(0,0), T(1,0),T(1,1),T(2,0),
  * Range:     u8 n <= 39, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-01)
  * Helpers:   triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

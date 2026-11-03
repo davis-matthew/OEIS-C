@@ -12,7 +12,8 @@
  *            then taking successive differences. The implement...
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 7283 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper comparison for qsort (works for integral types and uint128). */
 static int cmp_seq(const void *a, const void *b)
@@ -48,7 +50,7 @@ static void init_sequence(idx_t n)
 
     /* Allocate sigma array. */
     sigma_len = M + 1;
-    sigma = (seq_t *)malloc(sigma_len * sizeof(seq_t));
+    sigma = mem_new(seq_t, sigma_len);
     if (!sigma) return;   /* out of memory – will return 0 */
     for (size_t i = 0; i < sigma_len; ++i) sigma[i] = 0;
 
@@ -63,9 +65,9 @@ static void init_sequence(idx_t n)
     /* Collect all σ values into a temporary array. */
     size_t total = 0;
     for (size_t i = 1; i <= M; ++i) ++total;
-    seq_t *all = (seq_t *)malloc(total * sizeof(seq_t));
+    seq_t *all = mem_new(seq_t, total);
     if (!all) {
-        free(sigma);
+        mem_free(sigma);
         sigma = NULL;
         return;
     }
@@ -75,7 +77,7 @@ static void init_sequence(idx_t n)
     }
 
     /* Sort the array and deduplicate. */
-    qsort(all, total, sizeof(seq_t), cmp_seq);
+    mem_qsort(all, total, sizeof(seq_t), cmp_seq);
     size_t uniq = 0;
     if (total > 0) {
         all[uniq++] = all[0];
@@ -92,10 +94,10 @@ static void init_sequence(idx_t n)
         diffs = NULL;
     } else {
         diffs_len = uniq - 1;
-        diffs = (seq_t *)malloc(diffs_len * sizeof(seq_t));
+        diffs = mem_new(seq_t, diffs_len);
         if (!diffs) {
-            free(all);
-            free(sigma);
+            mem_free(all);
+            mem_free(sigma);
             sigma = NULL;
             return;
         }
@@ -105,8 +107,8 @@ static void init_sequence(idx_t n)
     }
 
     /* Cleanup temporary array and set flags. */
-    free(all);
-    free(sigma);
+    mem_free(all);
+    mem_free(sigma);
     sigma = NULL;
     ready = true;
     computed_max_n = (idx_t)diffs_len;

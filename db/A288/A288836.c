@@ -7,6 +7,7 @@
  * Formula:   a(n) = (1/6) * 3^(n+1) * n * (n+1) * (n+5)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 13, u64 n <= 31, u128 n <= 69,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 908 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

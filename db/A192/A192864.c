@@ -11,7 +11,8 @@
  *            flatness condition
  * Range:     u8 n <= 41, u16 n <= 4911, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_flat_prime
+ * Validated: standard, pass, 73 terms through n = 9806 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,25 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_flat_prime.h"
+
+/* Test whether an odd prime p is a lower flat prime. */
+static bool is_flat_prime(uint64_t p)
+{
+    /* p is odd prime */
+    uint64_t m = p - 1;
+    /* remove all factors of 2 */
+    while ((m & 1ULL) == 0ULL) {
+        m >>= 1;
+    }
+    /* check squarefree of the odd part m */
+    for (uint64_t d = 3; d * d <= m; d += 2) {
+        if (m % d == 0) {
+            m /= d;
+            if (m % d == 0) return false;  /* repeated factor */
+        }
+    }
+    return true;
+}
 
 /* Test whether x is prime (trial division). */
 static bool is_prime_uint64(uint64_t x)

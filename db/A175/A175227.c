@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 28, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   compute_sequence
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,56 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/compute_sequence.h"
+#include "../utils/mem.h"
+
+static seq_t *
+compute_sequence(idx_t limit, size_t *out_len)
+{
+    /* Allocate an array big enough for all integers up to 'limit' */
+    size_t cap = (size_t)limit + 1;
+    seq_t *seq = mem_new(seq_t, cap);
+    if (!seq) return NULL; /* allocation failure */
+
+    /* Sieve of Eratosthenes for primes up to 'limit' */
+    bool *isPrime = (bool *)calloc(cap, sizeof(bool));
+    if (!isPrime) { mem_free(seq); return NULL; }
+    for (size_t i = 2; i < cap; ++i) isPrime[i] = true;
+    for (size_t i = 2; i * i < cap; ++i) {
+        if (isPrime[i]) {
+            for (size_t j = i * i; j < cap; j += i) isPrime[j] = false;
+        }
+    }
+    isPrime[0] = isPrime[1] = false;
+
+    /* Initial list: all non‑primes from 1 to limit */
+    size_t sz = 0;
+    for (size_t i = 1; i < cap; ++i) {
+        if (!isPrime[i]) seq[sz++] = (seq_t)i;
+    }
+
+    /* Iteratively apply deletions for each prime p <= limit */
+    for (size_t p = 2; p < cap; ++p) {
+        if (!isPrime[p]) continue;               /* skip non-primes */
+
+        size_t counter = 0;          /* count of elements > p */
+        size_t dest = 0;             /* write position */
+
+        for (size_t i = 0; i < sz; ++i) {
+            seq_t val = seq[i];
+            if (val <= (seq_t)p) {
+                seq[dest++] = val;
+            } else {
+                ++counter;
+                if (counter % p != 0) seq[dest++] = val;
+            }
+        }
+        sz = dest;                    /* shrink list after this step */
+    }
+
+    free(isPrime);
+    *out_len = sz;
+    return seq;
+}
 
 seq_t a(idx_t n)
 {
@@ -47,7 +97,7 @@ seq_t a(idx_t n)
             seq_t *newc = compute_sequence(limit, &len);
             if (!newc) return (seq_t)0;   /* allocation failure */
 
-            if (cache) free(cache);
+            if (cache) mem_free(cache);
             cache = newc;
             cache_len = len;
             cache_limit = limit;

@@ -12,7 +12,8 @@
  *            m = 2^c * prod p_i^e_i, c in {0,1}, where the expo...
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 19, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   seq_is_fixed_width
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
+#include "../utils/mem.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 #define NPR 80
 static uint64_t pr[NPR];
@@ -90,7 +103,7 @@ seq_t a(idx_t n) {
     if (g_fixed) { g_lim = 0; g_lim--; }
     if (memo == NULL) {
         memo_cap = 64;
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         memof = (unsigned long long *)malloc(memo_cap * sizeof(unsigned long long));
         memo[0] = 2;
         memof[0] = 1;
@@ -99,11 +112,11 @@ seq_t a(idx_t n) {
     while (memo_cnt < n) {
         if (memo_cnt >= memo_cap) {
             idx_t nc = memo_cap * 2;
-            seq_t *nm = (seq_t *)malloc(nc * sizeof(seq_t));
+            seq_t *nm = mem_new(seq_t, nc);
             unsigned long long *nf = (unsigned long long *)malloc(nc * sizeof(unsigned long long));
             idx_t k;
             for (k = 0; k < memo_cnt; k++) { nm[k] = memo[k]; nf[k] = memof[k]; }
-            free(memo); free(memof);
+            mem_free(memo); free(memof);
             memo = nm; memof = nf; memo_cap = nc;
         }
         g_v = memof[memo_cnt - 1];

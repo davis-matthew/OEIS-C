@@ -10,14 +10,17 @@
  *            computes a(n) for any n ≥ 1
  * Range:     u8 n <= 23, u16 n <= 719, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_seq
+ * Validated: standard, pass, 76 terms through n = 9787 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* factor_u64: void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/pow_seq.h"      /* seq_t pow_seq(seq_t a, int k); */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
             /* a(p^e) = (3*e*(p-1)+3) * p^(e-1)  */
             coeff = (seq_t)(3 * e * (primes[i] - 1) + 3);
         }
-        seq_t ppow = pow_seq(p, (int)(e - 1));  /* p^(e-1), e-1 fits in int for all test cases */
+        seq_t ppow = ipow_i32(p, (int)(e - 1));  /* p^(e-1), e-1 fits in int for all test cases */
         result *= coeff;
         result *= ppow;
     }

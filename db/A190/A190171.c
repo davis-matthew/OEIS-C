@@ -11,14 +11,29 @@
  *            a(4)=2, a(5)=5, a(6)=12, a(7)=27
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 24, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   alloc_seq, free_seq
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/alloc_seq.h"
-#include "../utils/free_seq.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;

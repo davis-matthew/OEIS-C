@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    up to the requested n. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,8 +43,8 @@ seq_t a(idx_t n)
     if (computed == 0) {
         row_cap  = 2;          /* need indices 0..1               */
         prod_cap = 2;
-        row  = (seq_t*)malloc(row_cap * sizeof(seq_t));
-        prod = (seq_t*)malloc(prod_cap * sizeof(seq_t));
+        row  = mem_new(seq_t, row_cap);
+        prod = mem_new(seq_t, prod_cap);
         if (!row || !prod) return 0;         /* allocation failure */
 
         row[0] = 0;    /* unused, keep zero */
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         /* extend row array if necessary (size cur+1 needed) */
         if (row_cap < (size_t)(cur + 1)) {
             size_t new_cap = (size_t)(cur + 1);
-            seq_t *tmp = (seq_t*)realloc(row, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, row, new_cap);
             if (!tmp) return 0;               /* allocation failure */
             row = tmp;
             row_cap = new_cap;
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
         /* extend prod array if necessary */
         if (prod_cap < (size_t)(cur + 1)) {
             size_t new_cap = (size_t)(cur + 1);
-            seq_t *tmp = (seq_t*)realloc(prod, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, prod, new_cap);
             if (!tmp) return 0;               /* allocation failure */
             prod = tmp;
             prod_cap = new_cap;

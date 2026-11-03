@@ -7,7 +7,8 @@
  * Formula:   a(n) = (27*a(n-1) + 3*binomial(3*n, n)) / 4 (a(0)=1)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t n, idx_t k); */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* cached values a[0..len-1] */
 static size_t cache_len = 0;      /* current number of stored elements */
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t need)
     if ((need + 1) <= cache_len) return;
 
     size_t new_cap = (size_t)(need + 1);
-    seq_t *new_buf = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_new(seq_t, new_cap);
     if (!new_buf) return;                 /* allocation failed – caller will see zero */
 
     /* copy old data */
@@ -38,7 +40,7 @@ static void ensure_cache(idx_t need)
     for (size_t i = cache_len; i < new_cap; ++i)
         new_buf[i] = 0;
 
-    free(seq_cache);
+    mem_free(seq_cache);
     seq_cache = new_buf;
     cache_len = new_cap;
 }
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
 {
     /* initialise singleton cache if necessary */
     if (seq_cache == NULL) {
-        seq_cache = (seq_t *)malloc(sizeof(seq_t));
+        seq_cache = mem_new(seq_t, 1);
         if (!seq_cache) return (seq_t)0;   /* allocation failure */
         seq_cache[0] = 1;                 /* a(0) */
         cache_len  = 1;

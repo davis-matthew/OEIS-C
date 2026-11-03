@@ -6,66 +6,59 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
- *            big any n
- * Helpers:   isqrt, period_one_count, resize_array
+ * Range:     u8 n <= 3, u16 n <= 101, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 59 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-/* Sequence A102538: numbers m not of the form k(k+2) that contain
- * exactly one '1' in the periodic part of the continued fraction
- * representation of sqrt(m).  Offset = 1. */
-#include <stdbool.h>
-#include "../utils/isqrt.h"
-#include "../utils/resize_array.h"
-#include "../utils/period_one_count.h"
+/* m is a term iff m is not a square, m + 1 is not a square (m != k(k+2)),
+   and exactly one partial quotient in the period of the continued fraction
+   of sqrt(m) is 1. The standard recurrence m' = d a - m, d' = (D - m'^2)/d,
+   a' = (a0 + m')/d' runs until a' = 2 a0 ends the period; all in 64 bits (in
+   seq_t it timed out under big), with the terms cached. */
 
-/* Public sequence routine. */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static int period_one_count(uint64_t D, uint64_t a0)
+{
+    uint64_t m = 0, d = 1, a = a0;
+    int cnt = 0;
+    for (;;) {
+        uint64_t mn = d * a - m;
+        uint64_t dn = (D - mn * mn) / d;
+        uint64_t an = (a0 + mn) / dn;
+        if (an == 1) ++cnt;
+        if (an == 2 * a0) break;              /* end of period */
+        m = mn;
+        d = dn;
+        a = an;
+    }
+    return cnt;
+}
+
 seq_t a(idx_t n)
 {
-    if (n == 0) return 0;  /* undefined for n < 1 */
-
-    /* static cache of computed terms */
-    static seq_t *cache      = NULL;
-    static idx_t cache_size  = 0;
-    static idx_t cache_cap   = 0;
-    static seq_t last_m      = 0;    /* last integer examined */
-
-    while (cache_size < n) {
-        seq_t m = last_m + 1UL;               /* next integer */
-
-        /* skip perfect squares */
-        seq_t sqrt_m = isqrt(m);
-        if (sqrt_m * sqrt_m == m) {
-            last_m = m;
-            continue;
+    static seq_t *cache = NULL;
+    static size_t size = 0, cap = 0;
+    static uint64_t last = 0, r = 0;          /* r = isqrt(last + 1), kept as last grows */
+    if (n == 0) return (seq_t)0;
+    while (size < (size_t)n) {
+        uint64_t m = ++last;
+        while ((r + 1) * (r + 1) <= m) ++r;   /* r = isqrt(m) */
+        if (r * r == m || (r + 1) * (r + 1) == m + 1) continue;
+        if (period_one_count(m, r) != 1) continue;
+        if (size == cap) {
+            cap = cap ? 2 * cap : 64;
+            seq_t *t = mem_resize(seq_t, cache, cap);
+            if (!t) abort();
+            cache = t;
         }
-
-        /* skip numbers of the form t^2 - 1 (i.e. m+1 is a square) */
-        seq_t sqrt_m1 = isqrt(m + 1);
-        if (sqrt_m1 * sqrt_m1 == m + 1) {
-            last_m = m;
-            continue;
-        }
-
-        /* count 1's in the periodic part of sqrt(m) */
-        if (period_one_count(m, sqrt_m) == 1) {
-            /* enlarge cache if necessary */
-            if (cache_cap <= cache_size) {
-                idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                cache = resize_array(cache, cache_cap, new_cap);
-                cache_cap = new_cap;
-            }
-            cache[cache_size++] = m;
-            if (cache_size == n) {
-                last_m = m;
-                return m;
-            }
-        }
-        last_m = m;
+        cache[size++] = (seq_t)m;
     }
-
-    /* should never reach here */
     return cache[n - 1];
 }

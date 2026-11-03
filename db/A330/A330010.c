@@ -10,7 +10,8 @@
  *            a(4)=30
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 43, u64 n <= 89, u128 n <= 181,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,13 +20,14 @@
 #include <stddef.h>   /* size_t */
 #include <stdint.h>   /* uint64_t */
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static void grow_cache(idx_t need, seq_t **arr, idx_t *len)
 {
     if (*len > need) return;
     idx_t new_len = (*len == 0) ? 1 : *len;
     while (new_len <= need) new_len <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, (size_t)new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, (size_t)new_len);
     if (!tmp) abort();
     *arr      = tmp;
     *len      = new_len;

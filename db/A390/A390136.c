@@ -8,7 +8,8 @@
  *            binomial(n-1,n-k) / k! (a(0)=1)
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 11, i64 n <= 18, i128 n <= 30,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 38 terms through n = 318 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t   cache_cap = 0;
@@ -30,7 +33,7 @@ static void ensure_cache(idx_t need)
     if (need < cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap <= need) new_cap <<= 1;
-    seq_t *new_buf = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+    seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
     cache = new_buf;
     cache_cap = new_cap;
 }
@@ -64,7 +67,7 @@ static seq_t compute_term(idx_t n)
         return (seq_t)sum;
     } else {
         /* Use the arbitrary‑precision utilities */
-        seq_t pow  = big_pow((seq_t)(n + 1), (seq_t)(n - 1));
+        seq_t pow  = ipow((seq_t)(n + 1), (seq_t)(n - 1));
         seq_t binom = 1;
         seq_t fall  = 1;
         seq_t sum   = 0;

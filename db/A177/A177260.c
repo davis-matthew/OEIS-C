@@ -10,13 +10,15 @@
  *            For n<0 a(n)=0
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 442 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *cache = NULL;          /* array of computed values */
@@ -31,7 +33,7 @@ static void init_cache(void)
 
     /* allocate at least 9 elements to cover 0..8 without further resizing */
     cache_len = 9;
-    cache = (seq_t *)calloc(cache_len, sizeof(seq_t));
+    cache = mem_new(seq_t, cache_len);
     if (cache == NULL)
         return;   /* allocation failure – nothing else can be done */
 
@@ -53,12 +55,12 @@ static void ensure_cache_len(idx_t n)
     if (cache_len >= needed)
         return;
 
-    seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, needed);
     if (tmp == NULL)
         return;   /* realloc failed – nothing else can be done */
 
     /* zero the newly allocated portion */
-    memset(tmp + cache_len, 0, (needed - cache_len) * sizeof(seq_t));
+    mem_set(tmp + cache_len, 0, (needed - cache_len) * sizeof(seq_t));
 
     cache = tmp;
     cache_len = needed;

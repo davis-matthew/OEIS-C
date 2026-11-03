@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 none, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
- *            big any n
- * Helpers:   none
+ * Range:     u8 none, u16 n <= 956, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 60 terms through n = 9861 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 typedef unsigned __int128 uint128;
 static const uint128 GOOGOL = ((uint128)1) << 100;   /* little googol = 2^100 */
@@ -110,7 +112,7 @@ static void ensure_cap(size_t n)
     if (n <= cap) return;
     size_t new_cap = cap ? cap * 2 : 1024;
     while (new_cap < n) new_cap *= 2;
-    seq_t *new_arr = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, values, new_cap);
     if (!new_arr) exit(EXIT_FAILURE);
     values = new_arr;
     cap = new_cap;

@@ -7,16 +7,29 @@
  * Formula:   search - enumerate all sums of 7 positive 10th powers with bases
  *            1..m up to (m+1)^10 + 5 (that range is then complete), sort,
  *            dedupe; m grows until n terms exist
- * Range:     u8 n <= 1, u16 n <= 15, u32 n <= 37, u64 n <= 37, u128 n <= 37,
- *            big any n
- * Helpers:   u128_to_seq
+ * Range:     u8 n <= 1, u16 n <= 15, u32 n <= 4151, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 53 terms through n = 7388 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/u128_to_seq.h"
+#include <stdint.h>
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
 
 typedef unsigned __int128 u128_t;
 

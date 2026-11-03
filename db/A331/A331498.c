@@ -8,13 +8,26 @@
  *            cardinal word for n in the alphabet
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   tens_letter
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/tens_letter.h"
+
+static inline char tens_letter(uint64_t tens)
+{
+    /* tens is in 2..6 */
+    switch (tens) {
+        case 2: return 'V';
+        case 3: return 'T';
+        case 4: return 'Q';
+        case 5: return 'C';
+        case 6: return 'S';
+        default: return 'A'; /* unreachable */
+    }
+}
 
 static const char letter_map_0_19[20] = {
     'Z', /* 0 "zéro"   */

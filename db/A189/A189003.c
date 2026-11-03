@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 35, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 470 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
     if (n < cache_len)
         return;
     idx_t new_len = n + 1;
-    seq_t *new_cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     /* If realloc fails, we simply return and use the old cache – the
        caller will eventually produce an undefined value, which is
        acceptable for an out-of-memory situation. */
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
 {
     if (cache_len == 0) {
         /* initialise cache with the first 8 terms */
-        cache = (seq_t*)malloc(8 * sizeof(seq_t));
+        cache = mem_new(seq_t, 8);
         for (idx_t i = 0; i < 8; ++i)
             cache[i] = init_terms[i];
         cache_len = 8;

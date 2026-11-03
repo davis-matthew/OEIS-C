@@ -11,12 +11,14 @@
  *            in the first ⌊(n−2)/3⌋ positions
  * Range:     u8 n <= 22, u16 n <= 37, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
 
     for (idx_t t = 1; t <= t_max; ++t)
     {
-        seq_t c1 = binom(m, 4 * t);  /* C(m,4t) */
-        seq_t c2 = binom(n_m, t);    /* C(n−m, t) */
+        seq_t c1 = binomial(m, 4 * t);  /* C(m,4t) */
+        seq_t c2 = binomial(n_m, t);    /* C(n−m, t) */
         sum += c1 * c2;
     }
 

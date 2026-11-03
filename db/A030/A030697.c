@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 100, u128 n <= 10000,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 35 terms through n = 9660 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,7 +38,8 @@
  
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* digit length of a seq_t value (works for arbitrary precision) */
 static int digit_len(seq_t x)
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
             int diff = digit_len(m) - L;
             if (diff <= 0) continue;                   /* must be longer */
 
-            seq_t divisor = seq_pow((seq_t)10, (idx_t)diff);
+            seq_t divisor = ipow_idx((seq_t)10, (idx_t)diff);
             if ((m / divisor) == P) return m;          /* prefix matches */
         }
     }

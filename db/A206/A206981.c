@@ -9,12 +9,14 @@
  *            a(1)=4, a(2)=16, a(3)=36 (The recurrence holds for all n ≥ 4.)
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 22, u64 n <= 45, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;  /* array of computed terms, 1‑based indexing */
 static size_t stored_len = 0;/* number of terms actually stored in cache   */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first three terms if it is the first call */
     if (cache == NULL) {
         capacity = 3;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (cache == NULL)  /* allocation failure: abort */
             exit(1);
         cache[0] = (seq_t)4;      /* a(1) */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         size_t new_cap = capacity ? capacity : 1;
         while (new_cap < (size_t)n)
             new_cap <<= 1;                 /* double until large enough */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL)                 /* allocation failure: abort */
             exit(1);
         cache = tmp;

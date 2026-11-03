@@ -12,13 +12,15 @@
  *            a(11)=284488
  * Range:     u8 none, u16 n <= 8, u32 n <= 25, u64 n <= 57, u128 n <= 121,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;          /* memoized terms, 1‑based index */
 static size_t memo_cap = 0;         /* allocated array size (>=1‑based + 1) */
@@ -31,7 +33,7 @@ static void ensure_memo(idx_t n)
     if (!memo)                              /* first time: allocate and init */
     {
         size_t cap = (needed > 12 ? needed : 12);
-        memo     = (seq_t *)malloc((cap + 1) * sizeof(seq_t));
+        memo     = mem_new(seq_t, (cap + 1));
         memo_cap = cap + 1;
 
         /* initialise 1 … 11 (index 0 remains 0) */
@@ -53,7 +55,7 @@ static void ensure_memo(idx_t n)
     {
         size_t new_cap = needed;
         if (new_cap < memo_cap * 2) new_cap = memo_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(memo, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, (new_cap + 1));
         memo = tmp;
         memo_cap = new_cap + 1;
     }

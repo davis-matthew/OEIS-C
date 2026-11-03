@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const unsigned short double_fact[10] = {
     1,   /* 0!! = 1   */
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     /*  Initialise the cache on first call  */
     if (!init_done) {
         terms_cap = 64;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         terms_len = 0;
         last_checked = 0;
         init_done = true;
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
             /*  Store term; grow array if necessary  */
             if (terms_len >= terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len] = cand;
             terms_len++;

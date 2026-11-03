@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has56or65_oct
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,23 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has56or65_oct.h"
+#include "../utils/mem.h"
+
+/*--- helper: check for the adjacent digits 56 or 65 in base 8 -----*/
+static bool has56or65_oct(seq_t v)
+{
+    if (v == (seq_t)0) return false;
+    unsigned char prev = (unsigned char)(v % (seq_t)8);
+    v /= (seq_t)8;
+    while (v != (seq_t)0) {
+        unsigned char curr = (unsigned char)(v % (seq_t)8);
+        if ((prev == 5 && curr == 6) || (prev == 6 && curr == 5))
+            return true;
+        v /= (seq_t)8;
+        prev = curr;
+    }
+    return false;
+}
 
 /* number found for index n; static cache for memoisation */
 static seq_t *cache      = NULL;   /* array of found terms          */
@@ -40,10 +57,10 @@ static void build_up_to(idx_t n)
 
     /* reallocate the cache array */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (cache == NULL) abort();  /* allocation failed */
     } else {
-        seq_t *tmp = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, capacity);
         if (tmp == NULL) abort();    /* allocation failed */
         cache = tmp;
     }

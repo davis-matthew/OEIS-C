@@ -8,13 +8,15 @@
  *            binomial(n,2*k+1) * a(n-2*k-1), a(0)=1
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 12, i64 n <= 20, i128 n <= 22,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -25,7 +27,7 @@ static void ensure_cache(idx_t n)
 {
     if (n < cache_size)
         return;
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     cache = new_cache;
     cache_size = n + 1;
 }
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
 static void init_cache(void)
 {
     if (cache == NULL) {
-        cache = (seq_t *)calloc(1, sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = 1;          /* a(0) = 1 */
         cache_size = 1;
         computed_max = 0;

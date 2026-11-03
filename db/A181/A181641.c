@@ -9,12 +9,14 @@
  *            2*(3‑2*n)*a(n‑2) ) / n
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 17, i64 n <= 24, i128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* Grow cache to hold term n */
     idx_t old_size = size;
-    seq = (seq_t *)realloc(seq, (n + 1) * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, (n + 1));
     if (!seq)
         return 0;   /* allocation failed – return zero */
     size = n + 1;

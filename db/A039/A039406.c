@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   has_equal_nonzero_ones_and_sixes
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,23 @@
    (offset 1), computed by brute‑force enumeration. */
 
 #include <stdbool.h>
-#include "../utils/has_equal_nonzero_ones_and_sixes.h"
+
+/* Return true if x has at least one digit 1 and one digit 6 and
+   the counts are equal. */
+static bool has_equal_nonzero_ones_and_sixes(seq_t x)
+{
+    unsigned int c1 = 0, c6 = 0;
+    seq_t t = x;
+    while (t > 0) {
+        unsigned int d = (unsigned)(t % 10);
+        if (d == 1)
+            ++c1;
+        else if (d == 6)
+            ++c6;
+        t /= 10;
+    }
+    return c1 > 0 && c6 > 0 && c1 == c6;
+}
 
 seq_t a(idx_t n)
 {

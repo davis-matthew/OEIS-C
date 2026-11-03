@@ -11,13 +11,15 @@
  *            6))
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 /* (seq_t and idx_t are supplied by the build system.) */
 
 /* ------------------------------------------------------------------ */
@@ -72,7 +74,7 @@ static idx_t  cache_cap    = 0;      /* allocated capacity of cache */
 
 static void grow_cache(idx_t new_cap)
 {
-    seq_t *tmp = (seq_t *)realloc(gap_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, gap_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     gap_cache = tmp;
     cache_cap = new_cap;
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
 
     if (cache_cap == 0) {          /* initialise cache once */
         cache_cap = 64;
-        gap_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        gap_cache = mem_new(seq_t, cache_cap);
         if (!gap_cache) exit(EXIT_FAILURE);
         cache_len = 0;
     }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 31, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   idx_rc, is_visited, set_visited
+ * Validated: full, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>   /* strchr, memset */
-#include "../utils/idx_rc.h"
-#include "../utils/is_visited.h"
-#include "../utils/set_visited.h"
+#include "../utils/mem.h"
+
+/* row/col to board index */
+static inline int idx_rc(int r, int c) { return r * 3 + c; }
+
+static inline bool is_visited(const uint8_t *vis, int pos)
+{
+    return (vis[pos >> 3] & (1U << (pos & 7))) != 0;
+}
+
+/* ------------------------------------------------------------------ */
+static inline void set_visited(uint8_t *vis, int pos)
+{
+    vis[pos >> 3] |= (1U << (pos & 7));
+}
 
 /* external types supplied by the build system */
 typedef uint64_t idx_t;   /* index type */
@@ -84,7 +97,7 @@ seq_t a(idx_t n)
     if (!built) {
         /* clear visited bitset and counts */
         memset(visited, 0, sizeof(visited));
-        memset(counts, 0, sizeof(counts));
+        mem_set(counts, 0, sizeof(counts));
 
         /* start configuration: empty square (0) at bottom‑right corner */
         static const uint8_t start_state[9] = {1,2,3,4,5,6,7,8,0};

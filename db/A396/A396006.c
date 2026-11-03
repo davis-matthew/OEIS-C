@@ -10,7 +10,8 @@
  *            increasing * order and a(1)=1
  * Range:     u8 none, u16 none, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* The maximum value to be examined when building the sequence.
  * It must be large enough to contain the first 10 000 terms;
@@ -34,7 +36,7 @@ static void compute_sequence(void)
 {
     /* Build list of fibbinary numbers up to MAX_VAL */
     size_t fib_cap = 2048;
-    seq_t  *fib   = (seq_t*)malloc(fib_cap * sizeof(seq_t));
+    seq_t  *fib   = mem_new(seq_t, fib_cap);
     size_t  fib_cnt = 0;
 
     for (idx_t i = 1; i <= MAX_VAL; ++i) {
@@ -42,7 +44,7 @@ static void compute_sequence(void)
         if ((v & (v >> 1)) == 0) {               /* no consecutive ones */
             if (fib_cnt == fib_cap) {
                 fib_cap <<= 1;
-                fib = (seq_t*)realloc(fib, fib_cap * sizeof(seq_t));
+                fib = mem_resize(seq_t, fib, fib_cap);
             }
             fib[fib_cnt++] = v;
         }
@@ -71,13 +73,13 @@ static void compute_sequence(void)
         if (present[i]) seq_len++;
 
     /* Allocate and fill the sequence array */
-    seq_vals = (seq_t*)malloc(seq_len * sizeof(seq_t));
+    seq_vals = mem_new(seq_t, seq_len);
     size_t k = 0;
     for (size_t i = 1; i <= MAX_VAL; ++i)
         if (present[i]) seq_vals[k++] = (seq_t)i;
 
     /* Clean up */
-    free(fib);
+    mem_free(fib);
     free(present);
 }
 

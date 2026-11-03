@@ -9,8 +9,9 @@
  * Formula:   a(n) = number of iterations of f(k)=k‑largest_prime_leq(k) *
  *            until reaching 0 (a(0)=0, a(1)=1). The function uses a * dynamic
  *            cache that grows as needed
- * Range:     u8 n <= 9539, u16 n <= 9539, u32 n <= 9539, u64 n <= 9539,
- *            u128 n <= 9539, big any n
+ * Range:     u8 n <= 10007, u16 n <= 10007, u32 n <= 10007, u64 n <= 10007,
+ *            u128 n <= 10007, big any n
+ * Validated: standard, pass, 122 terms through n = 9539 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global cache for the sequence */
 static uint32_t *primes          = NULL;   /* list of primes up to the sieve bound   */
@@ -75,14 +77,14 @@ static void build_sequence(void)
 
     /* Collect the sequence terms (primes not excluded) */
     seq_cap = prime_cnt;  /* an upper bound on the number of terms */
-    seq_terms = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+    seq_terms = mem_new(seq_t, seq_cap);
     seq_len = 0;
     for (size_t i = 0; i < prime_cnt; ++i) {
         uint32_t p = primes[i];
         if (!excluded_arr[p]) {
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq_terms = (seq_t*)realloc(seq_terms, seq_cap * sizeof(seq_t));
+                seq_terms = mem_resize(seq_t, seq_terms, seq_cap);
             }
             seq_terms[seq_len++] = (seq_t)p;
         }

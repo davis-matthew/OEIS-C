@@ -5,22 +5,24 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   G.f.: (1 + 2x) * Product_{n>=1} (1 + x^(2^n-1) + 2*x^(2^n))
- * Range:     u8 n <= 60, u16 n <= 4086, u32 n <= 9283, u64 n <= 9283,
- *            u128 n <= 9283, big any n
- * Helpers:   none
+ * Range:     u8 n <= 60, u16 n <= 4086, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 88 terms through n = 9283 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
 
 static void compute_upto(idx_t n_max)
 {
-    seq_t *new_cache = (seq_t *)malloc((n_max + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (n_max + 1));
     if (!new_cache)
         return; /* if allocation fails, leave the old cache intact */
 
@@ -53,7 +55,7 @@ static void compute_upto(idx_t n_max)
     }
 
     if (cache)
-        free(cache);
+        mem_free(cache);
     cache = new_cache;
     cache_size = n_max + 1;
 }

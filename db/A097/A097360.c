@@ -11,12 +11,14 @@
  *            parts in decreasing order
  * Range:     u8 n <= 23, u16 n <= 55, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free, realloc, NULL */
+#include "../utils/mem.h"
 
 /* The build supplies the integer types idx_t and seq_t.  They are used
    directly; no typedef is made here. */
@@ -39,8 +41,8 @@ static void compute_all(idx_t N)
     uint32_t *spf   = (uint32_t *)malloc(size * sizeof(uint32_t));
     uint32_t *head  = (uint32_t *)malloc(size * sizeof(uint32_t));
     uint32_t *next  = (uint32_t *)malloc(size * sizeof(uint32_t));
-    seq_t    *dp_prev = (seq_t *)malloc(size * sizeof(seq_t));
-    seq_t    *dp_cur  = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t    *dp_prev = mem_new(seq_t, size);
+    seq_t    *dp_cur  = mem_new(seq_t, size);
 
     /* Ensure tables are valid; on allocation failure abort. */
     if (!spf || !head || !next || !dp_prev || !dp_cur) exit(EXIT_FAILURE);
@@ -80,7 +82,7 @@ static void compute_all(idx_t N)
 
     /* Allocate / reallocate cache array. */
     if (!cache || max_cached < N) {
-        seq_t *new_cache = (seq_t *)realloc(cache, size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, size);
         if (!new_cache) exit(EXIT_FAILURE);
         cache = new_cache;
     }
@@ -118,8 +120,8 @@ static void compute_all(idx_t N)
     free(spf);
     free(head);
     free(next);
-    free(dp_prev);
-    free(dp_cur);
+    mem_free(dp_prev);
+    mem_free(dp_cur);
 
     /* Update maximum cached value. */
     max_cached = N;

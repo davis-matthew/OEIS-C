@@ -13,13 +13,15 @@
  *            a(10)=44870,...
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 35, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[16] = {
     0, 2, 4, 13, 62, 222, 820, 3159,
@@ -42,7 +44,7 @@ static void ensure_cache(idx_t n)
     /* Initial allocation */
     if (!cache) {
         cache_cap = needed > 16 ? needed : 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return;                  /* allocation failure – caller will handle */
 
         /* copy the known initial values */
@@ -55,7 +57,7 @@ static void ensure_cache(idx_t n)
     /* Grow the cache if required */
     else if (needed > cache_cap) {
         size_t new_cap = needed * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return;                    /* allocation failure – caller will handle */
         cache = tmp;
         cache_cap = new_cap;

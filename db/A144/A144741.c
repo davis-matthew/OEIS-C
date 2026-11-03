@@ -10,7 +10,8 @@
  *            (p ≤ q) for a common factor with n
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   _has_factor
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/_has_factor.h"
+
+/* Helper that checks whether q is among the prime factors of n. */
+static bool _has_factor(uint64_t q, uint64_t *factors, size_t fcnt)
+{
+    for (size_t i = 0; i < fcnt; ++i) {
+        if (factors[i] == q)
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

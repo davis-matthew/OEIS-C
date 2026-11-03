@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 1384, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   grow_seq, sum_proper
+ * Validated: standard, pass, 69 terms through n = 9559 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,11 +24,70 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper to grow a dynamic array of seq_t when an arbitrary‑precision
    integer class may be used. */
-#include "../utils/grow_seq.h"
-#include "../utils/sum_proper.h"
+#include <stdlib.h>
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
+
+/* --------------------------------------------------------------------- */
+static seq_t sum_proper(idx_t n)
+{
+    if (n <= 1)
+        return (seq_t)0;
+
+    seq_t sigma = 1;            /* product of divisor sums of prime powers */
+    idx_t temp  = n;
+    idx_t p     = 2;
+
+    /* Handle factor 2 separately for speed */
+    if ((temp & 1u) == 0) {
+        seq_t term = 1;
+        seq_t pseq = (seq_t)2;
+        seq_t power = 1;
+        while ((temp & 1u) == 0) {
+            temp >>= 1;
+            power *= pseq;
+            term += power;
+        }
+        sigma *= term;
+    }
+
+    /* Odd factors */
+    for (p = 3; p <= temp / p; p += 2) {
+        if (temp % p == 0) {
+            seq_t term = 1;
+            seq_t pseq = (seq_t)p;
+            seq_t power = 1;
+            while (temp % p == 0) {
+                temp /= p;
+                power *= pseq;
+                term += power;
+            }
+            sigma *= term;
+        }
+    }
+
+    if (temp > 1) {               /* remaining prime factor */
+        seq_t pseq = (seq_t)temp;
+        sigma *= (1 + pseq);
+    }
+
+    return sigma - (seq_t)n;      /* sum of proper divisors */
+}
 
 /* --------------------------------------------------------------------- */
 /*  Sequence storage (zero‑based: sequence[0] is a(1))                   */

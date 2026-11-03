@@ -11,14 +11,25 @@
  *            y=1 of (1-x+x*y)*B(x,y) + (B(x^2,y^2) - B(x,y)^2)/...
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 26, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   A_grow, a3228_gcdi
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   gcd_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/A_grow.h"
-#include "../utils/a3228_gcdi.h"
+#include "../utils/gcd_idx.h"
+#include "../utils/mem.h"
+
+static seq_t *A_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < newlen; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static seq_t *Pp = NULL, *Qq = NULL, *Ss = NULL, *Cc = NULL;
 static idx_t cap = 0;
@@ -44,8 +55,8 @@ static void a3228_build_q(idx_t from, idx_t N)
 /* rooted trees via forest DP with exact multichoose (no wrapping division) */
 static void a3228_fixed_p(idx_t N)
 {
-    seq_t *F = (seq_t *)malloc((size_t)(N + 1) * sizeof(seq_t));
-    seq_t *mc = (seq_t *)malloc((size_t)(N + 1) * sizeof(seq_t));
+    seq_t *F = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *mc = mem_new(seq_t, (size_t)(N + 1));
     for (idx_t i = 0; i <= N; i++) F[i] = 0;
     F[0] = 1;
     for (idx_t k = 1; k <= N; k++) {
@@ -59,7 +70,7 @@ static void a3228_fixed_p(idx_t N)
         for (idx_t j = 1; j <= J; j++) {
             seq_t r = mc[j - 1];
             idx_t rm = (idx_t)(r % j);
-            idx_t g = a3228_gcdi(j, rm);
+            idx_t g = gcd_idx(j, rm);
             mc[j] = (r / g) * ((p + (seq_t)(j - 1)) / (seq_t)(j / g));
         }
         for (idx_t m = top; m >= k; m--) {
@@ -68,8 +79,8 @@ static void a3228_fixed_p(idx_t N)
             F[m] += acc;
         }
     }
-    free(F);
-    free(mc);
+    mem_free(F);
+    mem_free(mc);
 }
 
 static void a3228_ensure(idx_t N, int fixed)

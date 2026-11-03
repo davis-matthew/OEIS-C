@@ -7,8 +7,9 @@
  * Formula:   a(n) = 2^(r‑c) mod (c+2), where r and c are chosen so that the
  *            index n is the (c+1)-st element in the r‑th row of the triangle
  *            T(r,k)=2^(r‑k) mod (k+2); i.e. n = r(r+1)/2 + c, 0 ≤ c ≤ r
- * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
- *            u128 n <= 104, big any n
+ * Range:     u8 n <= 1325, u16 n <= 1325, u32 n <= 1325, u64 n <= 1325,
+ *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 121 terms through n = 1177 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

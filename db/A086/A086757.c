@@ -9,15 +9,18 @@
  *            base p is a palindrome
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   build_primes, is_palindrome_in_base
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-01)
+ * Helpers:   build_primes, is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/build_primes.h"
-#include "../utils/is_palindrome_in_base.h"
+#include "../utils/is_palindrome_base.h"
 
 /* Main sequence function. */
 seq_t a(idx_t n) {
@@ -36,7 +39,7 @@ seq_t a(idx_t n) {
         idx_t p = primes[i];
         if (p > val)             /* Representation is a single digit (palindrome). */
             return (seq_t)p;
-        if (is_palindrome_in_base(val, p))
+        if (is_palindrome_base(val, p))
             return (seq_t)p;
     }
 
@@ -53,7 +56,7 @@ seq_t a(idx_t n) {
             idx_t p = new_primes[i];
             if (p > val)
                 return (seq_t)p;
-            if (is_palindrome_in_base(val, p))
+            if (is_palindrome_base(val, p))
                 return (seq_t)p;
         }
 

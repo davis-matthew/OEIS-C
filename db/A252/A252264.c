@@ -13,7 +13,8 @@
  *            a(n)=a(n‑1)+a(n‑2)+12*a(n‑3)+32*a(n...
  * Range:     u8 none, u16 n <= 5, u32 n <= 14, u64 n <= 32, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /*  Storage for the computed sequence                          */
@@ -45,7 +47,7 @@ static void reserve_capacity(size_t need)
     size_t newcap = dp_capacity ? dp_capacity : 32;
     while (newcap < need)
         newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(dp, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, dp, newcap);
     dp      = tmp;
     dp_capacity = newcap;
 }

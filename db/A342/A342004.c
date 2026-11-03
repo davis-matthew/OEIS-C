@@ -9,8 +9,9 @@
  * Formula:   a(n) = 1 if the maximal exponent in the prime factorization * of
  *            the arithmetic derivative of n is less than the maximal exponent
  *            * in n, otherwise 0 (a(1)=1)
- * Range:     u8 n <= 778, u16 n <= 9428, u32 n <= 9428, u64 n <= 9428,
- *            u128 n <= 9428, big any n
+ * Range:     u8 n <= 778, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9428 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

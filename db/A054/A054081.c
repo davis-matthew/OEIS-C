@@ -13,7 +13,8 @@
  *            antidiagonal traversal
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   alloc_seq_array, diag_of, free_seq_array
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,35 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/diag_of.h"
-#include "../utils/free_seq_array.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* ---------- find the diagonal (0‑based) that contains nth term ---------- */
+static idx_t diag_of(idx_t n)
+{
+    idx_t low = 0, high = 1;
+    /* raise high until cumulative terms on diag high ≥ n */
+    while ((unsigned __int128)(high + 1) * (high + 2) / 2 < n)
+        high <<= 1;
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        unsigned __int128 val = (unsigned __int128)(mid + 1) * (mid + 2) / 2;
+        if (val >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;            /* 0‑based diagonal index */
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* ---------- helpers for possible arbitrary‑precision seq_t in C++ ---------- */
 #ifdef __cplusplus

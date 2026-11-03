@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 97, i16 n <= 97, i32 n <= 97, i64 n <= 97, i128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 98 terms through n = 97 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* auxiliary integer square root (floor) for 64‑bit unsigned input */
 static idx_t isqrt_u64(idx_t n)
@@ -87,7 +89,7 @@ static void ensure_cache_size(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();                 /* allocation failure */
     cache = tmp;
     cache_cap = new_cap;

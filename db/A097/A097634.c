@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cached_terms = NULL;   /* array of non‑representable numbers */
 static size_t  cached_len   = 0;      /* number of elements in the array */
@@ -70,7 +72,7 @@ static seq_t *build_terms(size_t limit, size_t *out_len)
 
     /* Collect the non‑representable numbers. */
     size_t est = limit;                     /* at most 'limit' numbers */
-    seq_t *terms = (seq_t *)malloc(est * sizeof(seq_t));
+    seq_t *terms = mem_new(seq_t, est);
     if (terms == NULL) {
         free(rep);
         return NULL;
@@ -84,7 +86,7 @@ static seq_t *build_terms(size_t limit, size_t *out_len)
     }
 
     free(rep);
-    terms = (seq_t *)realloc(terms, cnt * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, cnt);
     *out_len = cnt;
     return terms;
 }
@@ -104,7 +106,7 @@ static void ensure_terms(idx_t n)
     if (new_terms == NULL) return;           /* allocation failure – unlikely */
 
     /* Free old table and replace. */
-    free(cached_terms);
+    mem_free(cached_terms);
     cached_terms = new_terms;
 
     /* In the unlikely event that the new table is still too small,
@@ -113,7 +115,7 @@ static void ensure_terms(idx_t n)
         cur_limit *= 2;
         new_terms = build_terms(cur_limit, &cached_len);
         if (new_terms == NULL) break;        /* allocation failure – stop */
-        free(cached_terms);
+        mem_free(cached_terms);
         cached_terms = new_terms;
     }
 }

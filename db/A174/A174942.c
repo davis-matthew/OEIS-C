@@ -10,13 +10,15 @@
  *            ProdDiv(k) * mobius(n-k+1)
  * Range:     i8 n <= 11, i16 n <= 23, i32 n <= 40, i64 n <= 40, i128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* integer power for seq_t, exponent fits in int */
 static seq_t ipow(seq_t base, int exp)
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
     /* allocate required arrays */
     int8_t *mu   = (int8_t *)calloc(N + 1, sizeof(int8_t));
-    seq_t *prod  = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *prod  = mem_new(seq_t, N + 1);
     int *is_comp = (int *)calloc(N + 1, sizeof(int));
     int *primes  = (int *)malloc((N + 1) * sizeof(int));
     int primes_cnt = 0;
@@ -115,7 +117,7 @@ seq_t a(idx_t n)
 
     /* free allocated memory */
     free(mu);
-    free(prod);
+    mem_free(prod);
     free(is_comp);
     free(primes);
 

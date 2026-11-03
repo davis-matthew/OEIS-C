@@ -8,15 +8,18 @@
  * Formula:   a(n) = product_{p prime <= n} p^floor(n/p)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 14, u64 n <= 23, u128 n <= 39,
  *            big any n
- * Helpers:   big_pow, build_primes_upto
+ * Validated: standard, pass, 41 terms through n = 489 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* Special case: a(0) = 1 */
@@ -42,7 +45,7 @@ seq_t a(idx_t n) {
         if (p > n) break;           /* all remaining primes are too big */
         idx_t exp = n / p;          /* floor(n/p) */
         if (exp == 0) continue;
-        seq_t pow_val = big_pow((seq_t)p, (seq_t)exp);
+        seq_t pow_val = ipow((seq_t)p, (seq_t)exp);
         result *= pow_val;
     }
     return result;

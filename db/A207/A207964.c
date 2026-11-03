@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 24, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 172 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    Initial values: a(1)=22, a(2)=484.  */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- internal data -------------------------------------------- */
 #define VLEN 22                 /* number of column patterns with no 001/100 */
@@ -77,8 +79,8 @@ static void build_tables(void)
     }
 
     /* allocate DP arrays */
-    dp_cur = (seq_t*)malloc(STATECOUNT * sizeof(seq_t));
-    dp_nxt = (seq_t*)malloc(STATECOUNT * sizeof(seq_t));
+    dp_cur = mem_new(seq_t, STATECOUNT);
+    dp_nxt = mem_new(seq_t, STATECOUNT);
     for (int i = 0; i < STATECOUNT; ++i) {
         dp_cur[i] = 0;
         dp_nxt[i] = 0;

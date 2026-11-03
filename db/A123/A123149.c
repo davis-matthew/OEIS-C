@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 110, u16 n <= 335, u32 n <= 1099, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 1239 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -58,32 +60,32 @@ seq_t a(idx_t n)
     seq_t *curr  = NULL;  /* row i */
 
     /* row 0 */
-    prev2 = (seq_t *)malloc(sizeof(seq_t));
+    prev2 = mem_new(seq_t, 1);
     prev2[0] = (seq_t)1;
 
     /* row 1 */
-    prev1 = (seq_t *)malloc(2 * sizeof(seq_t));
+    prev1 = mem_new(seq_t, 2);
     prev1[0] = (seq_t)1;
     prev1[1] = (seq_t)0;
 
     /* if target is in row 0 or row 1 */
     if (r == 0) {
         /* already handled by n==0 */
-        free(prev2);
-        free(prev1);
+        mem_free(prev2);
+        mem_free(prev1);
         return (seq_t)1;
     }
     if (r == 1) {
         seq_t result = prev1[k];
-        free(prev2);
-        free(prev1);
+        mem_free(prev2);
+        mem_free(prev1);
         return result;
     }
 
     /* generate rows up to r */
     seq_t result = (seq_t)0;  /* will be set when i == r */
     for (idx_t i = 2; i <= r; ++i) {
-        curr = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        curr = mem_new(seq_t, (i + 1));
 
         for (idx_t j = 0; j <= i; ++j) {
             seq_t left  = (j >= 1) ? prev1[j - 1] : (seq_t)0;
@@ -98,15 +100,15 @@ seq_t a(idx_t n)
         if (i == r)            /* target row reached */
             result = curr[k];
 
-        free(prev2);
+        mem_free(prev2);
         prev2 = prev1;
         prev1 = curr;
         curr  = NULL;
     }
 
     /* clean up */
-    free(prev2);
-    free(prev1);
+    mem_free(prev2);
+    mem_free(prev1);
 
     return result;
 }

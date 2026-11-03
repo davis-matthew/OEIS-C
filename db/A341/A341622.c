@@ -11,6 +11,7 @@
  *            * small min‑heap, without relying on any external libraries
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 61, u64 n <= 101,
  *            u128 n <= 221, big any n
+ * Validated: standard, pass, 62 terms through n = 4756 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow2.h"     /* seq_t pow2(idx_t exp); */
+#include "../utils/pow2.h"
 
 typedef struct {
     seq_t val;   /* current value (base · 2^e)   */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small, mod_pow
+ * Validated: standard, pass, 74 terms through n = 917 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,11 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
-#include "../utils/is_prime_small.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Return true if the prime p satisfies the condition. */
 static inline bool satisfies(seq_t p)
@@ -36,7 +40,7 @@ static inline bool satisfies(seq_t p)
 
     /* Otherwise check 2^((p-1)/47) ≡ 1 (mod p). */
     seq_t exp = diff / 47;
-    return mod_pow((seq_t)2, (uint64_t)exp, p) == 1;
+    return powmod((seq_t)2, (uint64_t)exp, p) == 1;
 }
 
 /* Next prime after 'start'.  Uses is_prime_small for trial division. */
@@ -45,7 +49,7 @@ static seq_t next_prime(seq_t start)
     seq_t cand = start + 1;
     if (cand <= 2) return 2;
     if (cand % 2 == 0) cand++;          /* make odd */
-    while (!is_prime_small(cand))
+    while (!is_prime_seq(cand))
         cand += 2;
     return cand;
 }
@@ -62,7 +66,7 @@ static void ensure_capacity(size_t need)
     if (good_cap >= need) return;
     size_t new_cap = good_cap ? good_cap * 2 : 4;
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(goodprimes, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, goodprimes, new_cap);
     if (!tmp) abort();        /* out of memory */
     goodprimes = tmp;
     good_cap = new_cap;

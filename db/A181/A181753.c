@@ -11,6 +11,7 @@
  *            is obtained from the previous one by adding 5 modulo 8
  * Range:     u8 n <= 168, u16 n <= 168, u32 n <= 168, u64 n <= 168,
  *            u128 n <= 168, big any n
+ * Validated: partial, pass, 168 terms through n = 168 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

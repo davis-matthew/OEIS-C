@@ -10,12 +10,14 @@
  *            a(0)=0)
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   fib_u64
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-01)
+ * Helpers:   fibonacci
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/fib_u64.h"
+#include <stdint.h>
+#include "../utils/fibonacci.h"
 
 seq_t a(idx_t n)
 {
@@ -32,5 +34,5 @@ seq_t a(idx_t n)
         f = n - 2;
 
     /* fib_u64 returns seq_t, the appropriate Fibonacci number */
-    return fib_u64(f);
+    return fibonacci(f);
 }

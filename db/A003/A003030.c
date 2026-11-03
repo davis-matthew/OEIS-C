@@ -10,15 +10,36 @@
  *            (e.g.f.: 1 - exp(-A(x)) = C(x))
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   A_grow, a3030_two_pow
+ * Validated: standard, pass, 29 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/A_grow.h"
-#include "../utils/a3030_two_pow.h"
+#include "../utils/mem.h"
+
+static seq_t *A_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < newlen; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
+
+static seq_t a3030_two_pow(idx_t e) {
+    seq_t r = 1;
+    seq_t b = 2;
+    while (e) {
+        if (e & 1) r = r * b;
+        e >>= 1;
+        if (e) b = b * b;
+    }
+    return r;
+}
 
 static seq_t *a3030_c = NULL;
 static seq_t *a3030_s = NULL;

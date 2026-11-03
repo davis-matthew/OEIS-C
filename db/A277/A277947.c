@@ -10,14 +10,27 @@
  *            numbers
  * Range:     u8 none, u16 n <= 1, u32 n <= 20, u64 n <= 100, u128 n <= 100,
  *            big any n
- * Helpers:   has_digit_three_lt_or_equal_three
+ * Validated: standard, pass, 40 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_digit_three_lt_or_equal_three.h"
+#include "../utils/mem.h"
+
+static bool has_digit_three_lt_or_equal_three(seq_t v)
+{
+    bool has3 = false;
+    while (v > 0) {
+        uint8_t d = (uint8_t)(v % (seq_t)10);
+        if (d > 3) return false;
+        if (d == 3) has3 = true;
+        v = v / (seq_t)10;
+    }
+    return has3;
+}
 
 static seq_t *cache = NULL;          /* cache of found squares */
 static size_t  cache_len = 0;        /* number of cached terms */
@@ -30,7 +43,7 @@ static void ensure_cache_capacity(size_t needed)
     if (cache_cap < needed) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 1024;
         if (new_cap < needed) new_cap = needed;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort(); /* simple error handling */
         cache = new_cache;
         cache_cap = new_cap;

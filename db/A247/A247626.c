@@ -11,7 +11,8 @@
  *            to support arbitrary order of calls
  * Range:     u8 n <= 57, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   is_knife_number
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,25 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_knife_number.h"
+#include "../utils/mem.h"
+
+/* checks whether x satisfies the knife condition */
+static bool is_knife_number(seq_t x)
+{
+    if (x < 10) return false;          /* too small to split with a>0 and b≥1 digit */
+
+    seq_t d = 10;                      /* divisor corresponding to the split position */
+    while (d <= x) {
+        seq_t a   = x / d;
+        seq_t b   = x % d;
+        seq_t sum = a + b;
+        if (x % sum == 0) return true;
+        /* advance to next power of 10 without overflow */
+        if (d > x / 10) break;
+        d *= 10;
+    }
+    return false;
+}
 
 /* static cache for already computed terms */
 static seq_t *knife_cache = NULL;
@@ -32,7 +51,7 @@ static void knife_cache_append(seq_t val)
 {
     if (knife_cache_size == knife_cache_cap) {
         size_t new_cap = knife_cache_cap ? knife_cache_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(knife_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, knife_cache, new_cap);
         if (!tmp) abort();                /* out‑of‑memory guard */
         knife_cache = tmp;
         knife_cache_cap = new_cap;

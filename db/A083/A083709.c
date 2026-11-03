@@ -10,12 +10,14 @@
  *            a(7)=41
  * Range:     u8 n <= 13, u16 n <= 91, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for memoization */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* Allocate space for at least the first 8 terms or up to n */
         cap = n + 1 > 8 ? (size_t)(n + 1) : 8;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         /* Base values a(0) … a(7) */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)0;
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
         /* Grow cache to accommodate requested n */
         size_t new_cap = cap * 2;
         if (new_cap < (size_t)n + 1) new_cap = n + 1;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap = new_cap;
     }
 

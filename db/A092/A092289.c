@@ -9,7 +9,8 @@
  *            P(k) is the partition number (OEIS A000041)
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system; do not redefine them here. */
 
@@ -37,7 +39,7 @@ static void ensure_partitions(idx_t n)
     if (new_cap == 0) new_cap = 1;
     while (new_cap <= n) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(P, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, P, new_cap);
     if (!tmp) exit(1);          /* abort on allocation failure */
     P = tmp;
     P_cap = new_cap;

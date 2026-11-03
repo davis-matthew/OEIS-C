@@ -8,12 +8,14 @@
  *            binomial(3*n , n‑k‑1) * 3^k (for n>0), * a(0) = 0
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     const idx_t three_n = 3 * n;
 
     for (idx_t k = 0; k < n; ++k) {
-        seq_t c1 = binom(n + k - 1, k);         /* binomial(n+k‑1,k) */
-        seq_t c2 = binom(three_n, n - k - 1);   /* binomial(3n,n‑k‑1) */
+        seq_t c1 = binomial(n + k - 1, k);         /* binomial(n+k‑1,k) */
+        seq_t c2 = binomial(three_n, n - k - 1);   /* binomial(3n,n‑k‑1) */
 
         __uint128_t term = (__uint128_t)c1 * (__uint128_t)c2;
         term = term * pow3;                     /* multiply by 3^k */

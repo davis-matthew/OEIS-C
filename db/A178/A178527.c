@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 4960, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes, is_prime
+ * Validated: standard, pass, 61 terms through n = 9266 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,47 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Requires helper from utils: */
-#include "../utils/is_prime.h"        /* bool is_prime(idx_t n); */
-#include "../utils/count_distinct_primes.h" /* int count_distinct_primes(uint64_t n); */
+
+/* Return true if x >= 2 is prime (deterministic trial division) */
+static inline bool is_prime(idx_t x)
+{
+    if (x < 2)                         return false;
+    if (x == 2 || x == 3)              return true;
+    if (x % 2 == 0)                    return false;
+    for (idx_t i = 3; i <= x / i; i += 2)
+        if (x % i == 0)                return false;
+    return true;
+}
+
+/* Count distinct prime factors of an unsigned 64-bit integer n.
+   The result fits in a signed int for all n that may be passed. */
+static int count_distinct_primes(uint64_t n)
+{
+    if (n <= 1)
+        return 0;
+
+    int cnt = 0;
+    /* Handle factor 2 separately. */
+    if (n % 2 == 0) {
+        cnt++;
+        while (n % 2 == 0)
+            n /= 2;
+    }
+    /* Test odd divisors up to sqrt(n). */
+    for (uint64_t p = 3; p <= n / p; p += 2) {
+        if (n % p == 0) {
+            cnt++;
+            while (n % p == 0)
+                n /= p;
+        }
+    }
+    if (n > 1)   /* Remaining prime factor. */
+        cnt++;
+    return cnt;
+}
 
 /* Return the n-th element of sequence A178527.  n >= 1. */
 seq_t a(idx_t n)
@@ -49,7 +87,7 @@ seq_t a(idx_t n)
             /* Store the term in the cache. */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap == 0 ? 4 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (tmp == NULL) {
                     /* In a real program we would handle allocation failure.
                        For this problem we can assert or abort. */

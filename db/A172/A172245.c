@@ -11,6 +11,7 @@
  *            N(i,j,n) = product of distinct primes of i·j·n
  * Range:     u8 n <= 540, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 99 terms through n = 9654 (2026-11-01)
  * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../utils/gcd_u64.h"
 
 /* FOR USE IN C++ COMPILATION WITH AN ARBITRARY‑PRECISION seq_t CLASS */

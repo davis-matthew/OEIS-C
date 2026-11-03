@@ -11,7 +11,8 @@
  *            – current value of x modulo 10^m (digits 0…m‑1) s –...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   add_int_at_offset, add_mult_at_offset
+ * Validated: standard, pass, 116 terms through n = 9871 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,43 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/add_int_at_offset.h"
-#include "../utils/add_mult_at_offset.h"
+
+/* add a small integer V to target starting at position offset */
+static void add_int_at_offset(uint8_t *target, size_t *len_t,
+                              uint16_t V, size_t offset)
+{
+    unsigned int pos = (unsigned int)offset;
+    unsigned int carry = V;
+    while (carry) {
+        unsigned int val = target[pos] + carry;
+        target[pos] = val % 10;
+        carry = val / 10;
+        ++pos;
+    }
+    if (pos > *len_t) *len_t = pos;
+}
+
+/* add mult * src[0..len-1] to target starting at position offset
+   All calculations are done with 16‑bit intermediate values   */
+static void add_mult_at_offset(uint8_t *target, size_t *len_t,
+                               const uint8_t *src, size_t len_s,
+                               uint16_t mult, size_t offset)
+{
+    unsigned int pos = (unsigned int)offset;
+    unsigned int carry = 0;
+    for (size_t i = 0; i < len_s; ++i, ++pos) {
+        unsigned int val = target[pos] + src[i] * mult + carry;
+        target[pos] = val % 10;
+        carry = val / 10;
+    }
+    while (carry) {
+        unsigned int val = target[pos] + carry;
+        target[pos] = val % 10;
+        carry = val / 10;
+        ++pos;
+    }
+    if (pos > *len_t) *len_t = pos;
+}
 
 #define CAP 40005   /* maximum number of decimal digits needed (n≈10000) */
 

@@ -11,7 +11,8 @@
  *            integers. The limit is chosen large enough fo...
  * Range:     u8 n <= 88, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 8723 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 extern seq_t a(idx_t n);
@@ -59,7 +61,7 @@ static void mark_expressible(size_t limit)
 static void build_sequence(size_t limit)
 {
     /* allocate space for up to limit numbers (worst case) */
-    sequence = (seq_t*)malloc((limit + 1) * sizeof(seq_t));
+    sequence = mem_new(seq_t, (limit + 1));
     sequence_len = 0;
 
     for (size_t m = 1; m <= limit; ++m) {
@@ -85,7 +87,7 @@ static void ensure_terms(idx_t n)
                 size_t new_limit = precomputed_limit * 2;
                 free(tau);
                 free(expressible);
-                free(sequence);
+                mem_free(sequence);
                 precomputed_limit = new_limit;
                 compute_tau(precomputed_limit);
                 mark_expressible(precomputed_limit);

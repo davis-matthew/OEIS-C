@@ -12,6 +12,7 @@
  *            where Row and Col are derived from n by reading the triangle
  * Range:     u8 n <= 66, u16 n <= 210, u32 n <= 465, u64 n <= 465,
  *            u128 n <= 465, big any n
+ * Validated: standard, pass, 107 terms through n = 416 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

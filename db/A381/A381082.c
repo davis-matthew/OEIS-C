@@ -12,7 +12,8 @@
  *            the first kind with s(0,0)=1
  * Range:     i8 n <= 28, i16 n <= 54, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: compute unsigned integer floor of sqrt assuming x fits in 64-bit */
 static idx_t _floor_isqrt_u64(idx_t n) {
@@ -39,15 +41,15 @@ static idx_t _floor_isqrt_u64(idx_t n) {
 /* Compute T(n,k) as described above */
 static seq_t compute_T(idx_t n, idx_t k) {
     /* allocate array to store s(j,k) for j=0..n */
-    seq_t *s_jk = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+    seq_t *s_jk = mem_new(seq_t, (n + 1));
     if (!s_jk) return 0;
     /* temporary arrays for DP over Stirling numbers */
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t) * (k + 1));
-    seq_t *curr = (seq_t *)malloc(sizeof(seq_t) * (k + 1));
+    seq_t *prev = mem_new(seq_t, (k + 1));
+    seq_t *curr = mem_new(seq_t, (k + 1));
     if (!prev || !curr) {
-        free(s_jk);
-        free(prev);
-        free(curr);
+        mem_free(s_jk);
+        mem_free(prev);
+        mem_free(curr);
         return 0;
     }
     /* init for j = 0 */
@@ -68,11 +70,11 @@ static seq_t compute_T(idx_t n, idx_t k) {
     }
 
     /* compute binomial coefficients bin[j] = C(n,j) */
-    seq_t *bin = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+    seq_t *bin = mem_new(seq_t, (n + 1));
     if (!bin) {
-        free(prev);
-        free(curr);
-        free(s_jk);
+        mem_free(prev);
+        mem_free(curr);
+        mem_free(s_jk);
         return 0;
     }
     bin[0] = 1;
@@ -92,10 +94,10 @@ static seq_t compute_T(idx_t n, idx_t k) {
         --jj;
     }
 
-    free(prev);
-    free(curr);
-    free(bin);
-    free(s_jk);
+    mem_free(prev);
+    mem_free(curr);
+    mem_free(bin);
+    mem_free(s_jk);
 
     /* apply overall sign factor (-1)^{n-k} */
     if (((n - k) & 1) != 0) sum = -sum;

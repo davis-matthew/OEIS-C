@@ -8,12 +8,24 @@
  * Formula:   not stated
  * Range:     u8 n <= 128, u16 n <= 1275, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   a001318
+ * Validated: standard, pass, 82 terms through n = 1094 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a001318.h"
+/* local helper: compute the n-th A001318 value */
+static seq_t a001318(idx_t n)
+{
+    idx_t m;
+    if (n & 1) {                       /* odd index */
+        m = (n + 1) / 2;
+        return ((seq_t)m * (((seq_t)3 * (seq_t)m) - 1)) / 2;
+    } else {                           /* even index */
+        m = n / 2;
+        return ((seq_t)m * (((seq_t)3 * (seq_t)m) + 1)) / 2;
+    }
+}
 /*
  * Formula: a(n) is the antidiagonal reading of a triangular array T(k,j).
  *   T(1,j) = A001318(j), the nth generalized pentagonal number (offset 1):

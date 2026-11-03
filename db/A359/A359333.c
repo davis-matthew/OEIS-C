@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
     progressions have the larger minimal common difference. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cache of computed sequence values (1‑based).  Initially empty. */
 static seq_t *cache = NULL;      /* array holding terms 0..computed_len   */
@@ -36,7 +38,7 @@ static void ensure_cache(size_t need)
     if (cap >= need) return;
     size_t new_cap = cap ? cap << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cap   = new_cap;
 }
 

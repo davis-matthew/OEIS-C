@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 165, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 972 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Returns d(n) where a(1)=0, d(1)=3 and the rule is applied as described. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* linear search – works for the small n considered.  */
 static bool contains(const seq_t *arr, size_t len, seq_t v)
@@ -32,8 +34,8 @@ static void grow_to(size_t need, seq_t **A, seq_t **D, size_t *cap)
     if (*cap >= need) return;
     size_t new_cap = *cap ? *cap << 1 : 8;
     while (new_cap < need) new_cap <<= 1;
-    *A = (seq_t *)realloc(*A, new_cap * sizeof(seq_t));
-    *D = (seq_t *)realloc(*D, new_cap * sizeof(seq_t));
+    *A = mem_resize(seq_t, *A, new_cap);
+    *D = mem_resize(seq_t, *D, new_cap);
     if (!*A || !*D) abort();          /* allocation failure */
     *cap = new_cap;
 }

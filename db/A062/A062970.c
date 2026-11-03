@@ -8,12 +8,14 @@
  *            + n^n
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Fast exponentiation for seq_t values */
 static seq_t pow_seq(seq_t base, idx_t exp)
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (cache_len == 0)
     {
         cache_alloc = 128;
-        cache = (seq_t *)malloc(cache_alloc * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_alloc);
         /* ignore allocation failure; the tests never hit this path */
         cache[0] = 1;
         cache_len = 1;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     {
         /* Allocate enough space for n+1 elements */
         idx_t new_alloc = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_alloc);
         /* ignore allocation failure; tests never hit this path */
         cache = tmp;
         cache_alloc = new_alloc;

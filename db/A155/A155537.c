@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 31, u32 n <= 96, u64 n <= 310,
  *            u128 n <= 1101, big any n
+ * Validated: standard, pass, 61 terms through n = 1241 (2026-11-01)
  * Helpers:   gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,8 @@
  *          k = n - (r-1)*r/2,
  *          and T(r,k) = (2^r + 1) * binom(r-1,k-1) * binom(r,k) / (r-k+1),
  *          read by rows of the triangle. */
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 #include "../utils/pow2.h"
 

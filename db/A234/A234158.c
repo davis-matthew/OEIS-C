@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 8, u128 n <= 19,
  *            big any n
- * Helpers:   absdiff_int, val_at
+ * Validated: standard, pass, 27 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/absdiff_int.h"
-#include "../utils/val_at.h"
+#include "../utils/mem.h"
+
+static inline int absdiff_int(int a, int b) {
+    return a > b ? a - b : b - a;
+}
+
+static inline int val_at(uint32_t r, int c) {
+    return (int)((r >> (c * 2)) & 3U);
+}
 
 static int initialized = 0;
 
@@ -127,13 +135,13 @@ static void init(void) {
     free(tmp_pos);
 
     /* Step 5: DP buffers */
-    dp_cur = (seq_t*)calloc(states_cnt, sizeof(seq_t));
-    dp_next = (seq_t*)calloc(states_cnt, sizeof(seq_t));
+    dp_cur = mem_new(seq_t, states_cnt);
+    dp_next = mem_new(seq_t, states_cnt);
     for (int i = 0; i < states_cnt; ++i) dp_cur[i] = (seq_t)1;
 
     /* Step 6: cache */
     cache_cap = 16;
-    cache = (seq_t*)calloc(cache_cap, sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache[0] = (seq_t)0;   /* unused, placeholder */
     last_n = 0;
 
@@ -147,14 +155,14 @@ seq_t a(idx_t n) {
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = cache_cap * 2;
         if (new_cap < (size_t)n + 1) new_cap = (size_t)n + 1;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 
     /* compute further terms up to n */
     while (last_n < (size_t)n) {
         /* reset dp_next */
-        memset(dp_next, 0, states_cnt * sizeof(seq_t));
+        mem_set(dp_next, 0, states_cnt * sizeof(seq_t));
         for (int i = 0; i < states_cnt; ++i) {
             seq_t val = dp_cur[i];
             if (val == (seq_t)0) continue;

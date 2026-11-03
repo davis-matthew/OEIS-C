@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 16, u64 n <= 34, u128 n <= 70,
  *            big any n
- * Helpers:   conflict
+ * Validated: standard, pass, 39 terms through n = 172 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,18 @@
    more than one conflict in total. */
 
 #include <stdbool.h>
-#include "../utils/conflict.h"
+
+static inline int conflict(int a, int b)
+{
+    int a0 = (a >> 0) & 1;
+    int a1 = (a >> 1) & 1;
+    int a2 = (a >> 2) & 1;
+    int b0 = (b >> 0) & 1;
+    int b1 = (b >> 1) & 1;
+    int b2 = (b >> 2) & 1;
+    return (a0 & b0) + (a1 & b1) + (a2 & b2) +
+           (a0 & b1) + (a1 & b2) + (a1 & b0) + (a2 & b1);
+}
 
 /* External linkage: seq_t and idx_t are defined by the build environment. */
 seq_t a(idx_t n)

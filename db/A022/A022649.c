@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 11, u64 n <= 30, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* precomputed binomial coefficients C(21, t) */
 static const seq_t bin[22] = {
@@ -39,7 +41,7 @@ static idx_t  max_n  = 0;        /* highest n computed */
 static void grow_cache(idx_t n)
 {
     if (n <= max_n) return;
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) abort();          /* allocation failed */
     cache = new_cache;
     /* initialise new entries to zero */
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     if (n > max_n)
     {
         /* Allocate or extend the array */
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         if (!cache) abort();
         /* Zero newly added entries */
         for (idx_t i = max_n + 1; i <= n; ++i)

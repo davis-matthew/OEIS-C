@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *a_vals  = NULL;   /* a(k) for 0 ≤ k ≤ max_n            */
 static seq_t *binom_cur = NULL; /* C(e_k, r) for r = cur−k           */
@@ -42,8 +44,8 @@ seq_t a(idx_t n)
     /* --- one‑time initialization ------------------------------------ */
     if (!init_done) {
         capacity = 1;
-        a_vals   = (seq_t *)realloc(NULL, capacity * sizeof(seq_t));
-        binom_cur= (seq_t *)realloc(NULL, capacity * sizeof(seq_t));
+        a_vals   = mem_resize(seq_t, NULL, capacity);
+        binom_cur= mem_resize(seq_t, NULL, capacity);
 
         a_vals[0]   = (seq_t)1;  /* a(0) = 1                     */
         binom_cur[0]= (seq_t)1;  /* C(e_0, 0) = 1                 */
@@ -57,8 +59,8 @@ seq_t a(idx_t n)
         while ((idx_t)(n + 1) > capacity) {
             idx_t new_cap = (capacity == 0) ? 1 : capacity << 1;
             capacity = new_cap;
-            a_vals    = (seq_t *)realloc(a_vals, capacity * sizeof(seq_t));
-            binom_cur = (seq_t *)realloc(binom_cur, capacity * sizeof(seq_t));
+            a_vals    = mem_resize(seq_t, a_vals, capacity);
+            binom_cur = mem_resize(seq_t, binom_cur, capacity);
         }
 
         /* compute terms one by one */

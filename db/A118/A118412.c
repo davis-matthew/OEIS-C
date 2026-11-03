@@ -9,11 +9,13 @@
  *            (4*(D-6)) / (3*D) where D = (n+1)(n+2)(n+3)
  * Range:     u8 n <= 2, u16 n <= 23, u32 n <= 1502, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 63 terms through n = 9451 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 228, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_one_digit_factorial_base
+ * Validated: standard, pass, 98 terms through n = 9880 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,25 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_one_digit_factorial_base.h"
+#include "../utils/mem.h"
+
+/* Convert an integer into its factorial base digits and
+ * return true iff any digit equals 1. */
+static bool has_one_digit_factorial_base(seq_t m)
+{
+    if (m == (seq_t)0)
+        return false;
+    seq_t t = m;
+    idx_t i = 1;                /* base = i+1 (2,3,4,...) */
+    while (t > (seq_t)0) {
+        seq_t d = t % (seq_t)(i + 1);
+        if (d == (seq_t)1)
+            return true;
+        t = t / (seq_t)(i + 1);
+        ++i;
+    }
+    return false;
+}
 
 /* Cache of already computed sequence values.  The cache grows
  * as needed to answer queries in any order. */
@@ -40,7 +59,7 @@ static void ensure_cache(idx_t n)
 
     if (!cache_ready) {              /* first initialisation   */
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             abort();                 /* allocation failure     */
         cache[0] = (seq_t)1;         /* a(0) = 1               */
@@ -56,7 +75,7 @@ static void ensure_cache(idx_t n)
         /* Grow cache if necessary. */
         if ((size_t)cache_len >= cache_cap) {
             cache_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
             if (!tmp)
                 abort();             /* allocation failure     */
             cache = tmp;

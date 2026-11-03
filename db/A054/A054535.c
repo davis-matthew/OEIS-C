@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, tabl, nice
  * Formula:   not stated
- * Range:     i8 n <= 9975, i16 n <= 9975, i32 n <= 9975, i64 n <= 9975,
- *            i128 n <= 9975, big any n
- * Helpers:   gcd64, mobius_uint64
+ * Range:     i8 n <= 10011, i16 n <= 10011, i32 n <= 10011, i64 n <= 10011,
+ *            i128 n <= 10011, big any n
+ * Validated: standard, pass, 109 terms through n = 9975 (2026-11-01)
+ * Helpers:   gcd_u64, mobius_u64_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,8 @@
    where φ is Euler’s totient and μ is the Möbius function. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd64.h"
-#include "../utils/mobius_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mobius_u64_to_seq.h"
 
 /* Euclidean greatest‑common‑divisor for uint64_t. */
 
@@ -59,10 +60,10 @@ seq_t a(idx_t n)
     uint64_t row = s - idx + 1;        /* n in the array */
     uint64_t col = idx;                /* k in the array */
 
-    uint64_t g = gcd64(row, col);
+    uint64_t g = gcd_u64(row, col);
     uint64_t d = row / g;              /* n / gcd(n,k) */
 
-    seq_t mu = mobius_uint64(d);
+    seq_t mu = mobius_u64_to_seq(d);
     if (mu == 0) return 0;             /* μ(d)=0 ⇒ sum equals 0 */
 
     seq_t phi_row = phi_uint64(row);

@@ -13,6 +13,7 @@
  *            larger than the number of terms, the functio...
  * Range:     u8 none, u16 n <= 2023, u32 n <= 2601, u64 n <= 2601,
  *            u128 n <= 2601, big any n
+ * Validated: full, pass, 2601 terms through n = 2601 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

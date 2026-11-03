@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 1010, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isqrt_u32
+ * Validated: standard, pass, 111 terms through n = 9417 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/isqrt_u32.h"
+#include "../utils/isqrt_u64.h"
 
 /* ---------- dynamic sieve structures ---------- */
 static size_t sieve_limit = 0;          /* current sieved upper bound   */
@@ -43,7 +44,7 @@ static void ensure_sieve(size_t needed) {
     if (new_limit >= 1) is_prime[1] = 0;
 
     /* classic sieve of Eratosthenes */
-    size_t limit_sqrt = isqrt_u32(new_limit);
+    size_t limit_sqrt = isqrt_u64(new_limit);
     for (size_t i = 2; i <= limit_sqrt; ++i) {
         if (is_prime[i]) {
             for (size_t j = i * i; j <= new_limit; j += i) {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, is_prime, mod_pow
+ * Validated: standard, pass, 72 terms through n = 942 (2026-11-03)
+ * Helpers:   factor_u64, is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mod_pow.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Check whether 90 is a primitive root modulo the prime p. */
 static bool is_primitive_root_90(uint64_t p)
@@ -40,7 +43,7 @@ static bool is_primitive_root_90(uint64_t p)
     {
         uint64_t q      = prim[i];
         uint64_t exponent = phi / q;      /* (p-1)/q  */
-        seq_t    r      = mod_pow((seq_t)90, exponent, (seq_t)p);
+        seq_t    r      = powmod((seq_t)90, exponent, (seq_t)p);
         if (r == (seq_t)1)                /* order divides (p-1)/q → not primitive */
             return false;
     }
@@ -59,7 +62,7 @@ static void append_prime(uint64_t p)
     if (count == size_cap)
     {
         size_cap = size_cap ? size_cap * 2 : 8;
-        primes = (seq_t *)realloc(primes, size_cap * sizeof(seq_t));
+        primes = mem_resize(seq_t, primes, size_cap);
     }
     primes[count++] = (seq_t)p;
 }

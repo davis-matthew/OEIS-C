@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   no_carry
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,20 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/no_carry.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether two numbers a and b can be added in base 3
+   without any carry. */
+static inline bool no_carry(seq_t a, seq_t b)
+{
+    while (a || b) {
+        if (((a % 3) + (b % 3)) >= 3)
+            return false;
+        a /= 3;
+        b /= 3;
+    }
+    return true;
+}
 
 /* Dynamic containers for the generated sequence and the used‑number set. */
 static seq_t *seq_buf          = NULL;   /* buffer of a(n) values          */
@@ -60,7 +74,7 @@ static void ensure_seq_capacity(idx_t n)
     size_t new_cap = seq_cap ? seq_cap << 1 : 1;
     while (new_cap <= (size_t)n + 1)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_buf, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_buf, new_cap);
     if (!tmp) abort();
     seq_buf = tmp;
     seq_cap = new_cap;

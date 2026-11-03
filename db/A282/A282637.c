@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*----------------------------------------------------------------------*/
 /*  English number → words   (uint64_t only).  */
@@ -129,7 +131,7 @@ static void ensure_seq_cap(size_t min_cap)
     while (new_cap < min_cap)
         new_cap <<= 1;
     /* C++ requires cast, C handles void*. */
-    seq_t *tmp = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
     if (!tmp) abort();
     seq_arr = tmp;
     seq_cap = new_cap;

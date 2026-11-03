@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 123 terms through n = 8711 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    iteratively expanding an initial word until it contains at least
    n symbols, then returning the (n−1)th element. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     /* initialise with the seed word "a" if needed */
     if (len == 0) {
-        word = (seq_t *)malloc(sizeof(seq_t));
+        word = mem_new(seq_t, 1);
         word[0] = (seq_t)1;   /* a */
         len   = 1;
     }
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         idx_t oldlen = len;
         /* allocate a temporary array that is at most 4× oldlen long;
            each 'a' becomes 4 symbols, each 'b' stays 1. */
-        seq_t *next = (seq_t *)malloc(sizeof(seq_t) * oldlen * 4);
+        seq_t *next = mem_new(seq_t, oldlen * 4);
         idx_t pos = 0;
         for (idx_t i = 0; i < oldlen; ++i) {
             if (word[i] == (seq_t)1) {        /* a → a b a b */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
                 next[pos++] = (seq_t)2;
             }
         }
-        free(word);
+        mem_free(word);
         word = next;
         len  = pos;
     }

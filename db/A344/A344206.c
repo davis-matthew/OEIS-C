@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 37, u64 n <= 37, u128 n <= 37,
+ * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   binom, binom_big_small, ensure_cache
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,48 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/binom.h"      /* seq_t binom(idx_t a, idx_t b) */
-#include "../utils/ensure_cache.h"
-#include "../utils/binom_big_small.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* Make sure the cache is large enough */
+static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr) {
+    seq_t *cache = *cache_ptr;
+    size_t cap = *cap_ptr;
+    if (cap <= (size_t)n) {
+        size_t new_cap = cap ? (cap << 1) : 16;
+        while (new_cap <= (size_t)n)
+            new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+        if (!tmp && new_cap > 0) {
+            /* Allocation failed – abort the program. */
+            exit(1);
+        }
+        if (tmp) {
+            /* Initialize newly allocated slots to zero. */
+            if (!cache) {
+                for (size_t i = 0; i < new_cap; ++i)
+                    tmp[i] = 0;
+            } else {
+                for (size_t i = cap; i < new_cap; ++i)
+                    tmp[i] = 0;
+            }
+            *cache_ptr = tmp;
+            *cap_ptr = new_cap;
+        }
+    }
+}
+
+/* multiplicative binomial with a large upper argument N and small k */
+static inline seq_t binom_big_small(seq_t N, idx_t k)
+{
+    if (N < (seq_t)k) return (seq_t)0;
+    seq_t res = (seq_t)1;
+    for (idx_t i = 1; i <= k; ++i) {
+        seq_t num = N - (seq_t)(k - i);
+        res = (res * num) / (seq_t)i;
+    }
+    return res;
+}
 
 /* forward declaration of recursive helper */
 static seq_t rec(idx_t n, idx_t min_k);
@@ -61,7 +101,7 @@ static seq_t rec(idx_t n, idx_t min_k)
     for (size_t idx = 0; idx < div_cnt; ++idx) {
         idx_t k = divs[idx];
         if (k < min_k) continue;            /* safety */
-        seq_t f_k = binom(k + 5, 6);        /* binom(k+5,6) */
+        seq_t f_k = binomial(k + 5, 6);        /* binom(k+5,6) */
         idx_t temp = n;
         idx_t e = 0;
         while (temp % k == 0) {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   factor_u64, is_prime
+ * Validated: standard, pass, 74 terms through n = 4506 (2026-11-03)
+ * Helpers:   factor_u64, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,8 +34,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
 #include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Test whether k satisfies the sequence condition */
 static bool k_is_valid(idx_t k)
@@ -81,7 +83,7 @@ static void ensure_cache_capacity(size_t needed)
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap   = new_cap;
 }
 

@@ -9,12 +9,14 @@
  *            of the second kind)
  * Range:     u8 n <= 12, u16 n <= 18, u32 n <= 32, u64 n <= 56, u128 n <= 106,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *stirling_table = NULL;   /* 2D table flattened: row i occupies indices i*7 .. i*7+6 */
 static idx_t stirling_rows   = 0;      /* number of rows currently stored (next free index) */
@@ -31,9 +33,9 @@ static void ensure_stirling(idx_t m)
 
     /* Resize the flat table */
     if (stirling_table == NULL)
-        stirling_table = (seq_t*)malloc(stirling_cap * 7 * sizeof(seq_t));
+        stirling_table = mem_new(seq_t, stirling_cap * 7);
     else
-        stirling_table = (seq_t*)realloc(stirling_table, stirling_cap * 7 * sizeof(seq_t));
+        stirling_table = mem_resize(seq_t, stirling_table, stirling_cap * 7);
 
     /* Zero-initialize any newly allocated rows */
     for (idx_t i = stirling_rows; i < stirling_cap; ++i)

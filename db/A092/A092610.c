@@ -9,15 +9,36 @@
  *            primes that end in 3, as required by OEIS A092610
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 11, u128 n <= 19,
  *            big any n
- * Helpers:   grow_for_seq_t, next_prime, seq_mul
+ * Validated: standard, pass, 31 terms through n = 278 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t start); */
-#include "../utils/seq_mul.h"      /* seq_t seq_mul(seq_t a, seq_t b); */
-#include "../utils/grow_for_seq_t.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Ensure the array has room for at least `need` products. */
+static void grow_for_seq_t(size_t need, size_t *cap, seq_t **arr)
+{
+    if (need <= *cap)
+        return;
+    size_t new_cap = (*cap) ? (*cap) * 2 : 16;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp)
+        abort();              /* memory exhausted */
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 static seq_t *products = NULL;   /* cumulative products */
 static size_t  prod_cap  = 0;    /* allocated capacity */

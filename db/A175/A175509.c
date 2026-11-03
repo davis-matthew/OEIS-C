@@ -7,7 +7,8 @@
  * Formula:   a(n) = ((2*n)-th semiprime) – 2*(n-th semiprime)
  * Range:     i8 n <= 79, i16 n <= 79, i32 n <= 79, i64 n <= 79, i128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------------------------------------------------------------------- */
 /*  Global data ---------------------------------------------------------- */
@@ -59,9 +61,9 @@ static bool generate_semiprimes(idx_t need)
     if (!build_spf(spf_limit)) return false;
 
     /* free old list (if any) and prepare for new */
-    if (semip) free(semip);
+    if (semip) mem_free(semip);
     semip_cap = need + 16;                    /* start with some room   */
-    semip     = (seq_t *)malloc(semip_cap * sizeof(seq_t));
+    semip     = mem_new(seq_t, semip_cap);
     if (!semip) return false;
     semip_cnt = 0;
 
@@ -72,7 +74,7 @@ static bool generate_semiprimes(idx_t need)
         if (m >= 2 && spf[m] == (uint32_t)m) {      /* m is prime */
             if (semip_cnt >= semip_cap) {
                 semip_cap <<= 1;                    /* grow */
-                seq_t *tmp = (seq_t *)realloc(semip, semip_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, semip, semip_cap);
                 if (!tmp) return false;
                 semip = tmp;
             }

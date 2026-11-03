@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 25, i16 n <= 25, i32 n <= 25, i64 n <= 25, i128 n <= 25,
  *            big any n
- * Helpers:   add_letter
+ * Validated: full, pass, 25 terms through n = 25 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,19 @@
 #include <ctype.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/add_letter.h"
+
+/* Add a single alphabetic character to the mask; duplicate => false. */
+static bool add_letter(char c, unsigned *mask)
+{
+    if (isalpha((unsigned char)c)) {
+        c = (char)tolower((unsigned char)c);
+        unsigned bit = 1u << (c - 'a');
+        if (*mask & bit)
+            return false;
+        *mask |= bit;
+    }
+    return true;
+}
 
 /* Basic word tables for numbers 0–999. */
 static const char *unit_words[10] = {

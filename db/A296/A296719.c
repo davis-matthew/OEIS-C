@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 45, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    with initial values a(1)=3, a(2)=9, a(3)=21. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* cached values, index 0 unused */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     /* lazily allocate and seed the cache */
     if (cache == NULL) {
         cache_size = 3;
-        cache = (seq_t*)calloc((size_t)(cache_size + 1), sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(cache_size + 1));
         if (cache == NULL) abort(); /* out of memory */
         cache[1] = (seq_t)3;
         cache[2] = (seq_t)9;
@@ -37,8 +39,7 @@ seq_t a(idx_t n) {
     /* extend cache if necessary */
     if (n > cache_size) {
         idx_t new_size = n;
-        seq_t *new_cache = (seq_t*)realloc(cache,
-                                            (size_t)(new_size + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)(new_size + 1));
         if (new_cache == NULL) abort(); /* out of memory */
         cache = new_cache;
         for (idx_t i = cache_size + 1; i <= new_size; ++i) {

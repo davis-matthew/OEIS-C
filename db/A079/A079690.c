@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 975, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 112 terms through n = 9638 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Storage for big‑integer factorial, using base 10000 (4 decimal digits). */
 #define FACT_BASE 10000
@@ -41,7 +43,7 @@ static void ensure_counts_size(idx_t need) {
     size_t new_cap = (counts_cap == 0) ? 16 : counts_cap;
     while (new_cap <= need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(five_counts, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, five_counts, new_cap);
     if (!tmp) abort();          /* fatal error if allocation fails */
     five_counts = tmp;
     counts_cap = new_cap;

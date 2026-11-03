@@ -9,13 +9,15 @@
  *            in that system)
  * Range:     u8 n <= 32, u16 n <= 8151, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9323 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *phi_arr = NULL;          /* φ(i) for i ≤ max_limit      */
 static unsigned char *totient_flag = NULL;  /* flag[v] == 1 if v is a totient */
@@ -44,7 +46,7 @@ static void ensure_precalc(idx_t n)
         return;                            /* already prepared */
 
     /* allocate new arrays */
-    seq_t *new_phi = (seq_t *)malloc((needed + 1) * sizeof(seq_t));
+    seq_t *new_phi = mem_new(seq_t, (needed + 1));
     unsigned char *new_flag = (unsigned char *)malloc((needed + 1) * sizeof(unsigned char));
     if (!new_phi || !new_flag) {
         /* memory exhaustion – abort */
@@ -74,7 +76,7 @@ static void ensure_precalc(idx_t n)
     }
 
     /* free old arrays */
-    if (phi_arr) free(phi_arr);
+    if (phi_arr) mem_free(phi_arr);
     if (totient_flag) free(totient_flag);
 
     phi_arr = new_phi;

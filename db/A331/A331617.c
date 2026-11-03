@@ -8,13 +8,15 @@
  *            a(0)=1
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 12, i64 n <= 20, i128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 358 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
     /* Initial allocation (index 0). */
     if (!initialized) {
         cap = 1;
-        A = (seq_t *)realloc(NULL, sizeof(seq_t) * (cap + 1));
-        C = (seq_t *)realloc(NULL, sizeof(seq_t) * (cap + 1));
+        A = mem_resize(seq_t, NULL, (cap + 1));
+        C = mem_resize(seq_t, NULL, (cap + 1));
         if (!A || !C) return 0;          /* allocation failure */
         A[0] = 1;
         C[0] = 1;                        /* dummy value for c[0] */
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
     if (n > cap) {
         idx_t new_cap = cap;
         while (new_cap <= n) new_cap <<= 1;
-        A = (seq_t *)realloc(A, sizeof(seq_t) * (new_cap + 1));
-        C = (seq_t *)realloc(C, sizeof(seq_t) * (new_cap + 1));
+        A = mem_resize(seq_t, A, (new_cap + 1));
+        C = mem_resize(seq_t, C, (new_cap + 1));
         if (!A || !C) return 0;          /* allocation failure */
         cap = new_cap;
     }

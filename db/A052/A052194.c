@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- name length calculator (US nomenclature) ---------- */
 static const int len_digit[20] = {
@@ -135,7 +137,7 @@ seq_t a(idx_t n) {
         /* Limit chosen large enough to contain first 10 000 terms
            even for the biggest seq_t widths. */
         const idx_t LIMIT = 500000;
-        struct Number *arr = (struct Number *)malloc(LIMIT * sizeof(struct Number));
+        struct Number *arr = mem_new(struct Number, LIMIT);
         if (!arr) abort();
 
         for (idx_t i = 0; i < LIMIT; ++i) {
@@ -144,15 +146,15 @@ seq_t a(idx_t n) {
             arr[i].val = (seq_t)val;
         }
 
-        qsort(arr, LIMIT, sizeof(struct Number), cmp_number);
+        mem_qsort(arr, LIMIT, sizeof(struct Number), cmp_number);
 
-        sorted_seq = (seq_t *)malloc(LIMIT * sizeof(seq_t));
+        sorted_seq = mem_new(seq_t, LIMIT);
         if (!sorted_seq) abort();
 
         for (idx_t i = 0; i < LIMIT; ++i)
             sorted_seq[i] = arr[i].val;
 
-        free(arr);
+        mem_free(arr);
         seq_size = LIMIT;
         initialized = true;
     }

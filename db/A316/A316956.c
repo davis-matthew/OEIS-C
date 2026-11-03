@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 36,
  *            big any n
- * Helpers:   seq_from_str
+ * Validated: standard, pass, 33 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,17 @@
 #include <stdlib.h>     /* malloc, free, memcpy */
 #include <string.h>     /* memcpy */
 #include <stdbool.h>    /* bool */
+#include "../utils/mem.h"
 
-#include "../utils/seq_from_str.h"   /* seq_t seq_from_str(const char *) */
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 static seq_t *cache     = NULL;   /* array of computed terms, 0‑based */
 static size_t cache_len = 0;      /* number of elements currently stored */
@@ -67,10 +77,10 @@ ensure_cache(idx_t n)
     if (!cache || needed > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (cache) {
-            memcpy(tmp, cache, cache_len * sizeof(seq_t));
-            free(cache);
+            mem_copy(tmp, cache, cache_len * sizeof(seq_t));
+            mem_free(cache);
         }
         cache     = tmp;
         cache_cap = new_cap;

@@ -7,18 +7,21 @@
  * Formula:   a(n) = Sum_{k=1..n} (-k)^(k+1)
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 8, i64 n <= 15, i128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     seq_t sum = 0;
     for (idx_t k = 1; k <= n; ++k) {
-        seq_t term = big_pow((seq_t)k, (seq_t)(k + 1));  /* k^(k+1) */
+        seq_t term = ipow((seq_t)k, (seq_t)(k + 1));  /* k^(k+1) */
         if ((k & 1) == 0)    /* k even → sign negative */
             sum -= term;
         else                 /* k odd  → sign positive */

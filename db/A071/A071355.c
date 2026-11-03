@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2*n^2 + 11*n + 12 Offset: -1 (a(-1) = 3)
  * Range:     u8 n <= 8, u16 n <= 178, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 65 terms through n = 4859 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

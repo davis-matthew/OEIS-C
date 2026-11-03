@@ -9,6 +9,7 @@
  *            v₂(m) is the exponent of the highest power of 2 dividing m
  * Range:     i8 n <= 1027, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 145 terms through n = 9673 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

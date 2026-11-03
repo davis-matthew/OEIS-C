@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 30, u32 n <= 59, u64 n <= 125,
  *            u128 n <= 240, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 61 terms through n = 725 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* Max dimension needed for n ≤ 10000: s ≈ 141 ⇒ m,n ≤ 140.  Handle up to 200 safely. */
 #define MAX_DIMS 200
@@ -67,7 +69,7 @@ static void precompute(idx_t needed)
                 /* base = 2^{m-i} - 1 */
                 seq_t base = pow2[m - i];
                 base -= (seq_t)1;
-                seq_t pow = seq_pow(base, n);
+                seq_t pow = ipow_idx(base, n);
                 seq_t term = binom[m][i] * pow;
                 if ((i & 1) == 0)
                     pos += term;

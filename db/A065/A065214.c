@@ -9,7 +9,8 @@
  *            palindrome (search)
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   is_palindrome, reverse_decimal
+ * Validated: standard, pass, 57 terms through n = 991 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/is_palindrome.h"
-#include "../utils/reverse_decimal.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -30,10 +32,10 @@ static seq_t next_candidate = 1;
 static bool needs9(seq_t start) {
     seq_t cur = start;
     for (int step = 0; step < 9; ++step) {
-        if (is_palindrome(cur, 10)) return false;  /* reached before 9 steps or start is palindrome */
-        cur = cur + reverse_decimal(cur);
+        if (is_palindrome_base(cur, 10)) return false;  /* reached before 9 steps or start is palindrome */
+        cur = cur + reverse_digits(cur);
     }
-    return is_palindrome(cur, 10);               /* reached at the 9th step */
+    return is_palindrome_base(cur, 10);               /* reached at the 9th step */
 }
 
 /* Ensure capacity for at least min_cap elements in the cache. */
@@ -41,7 +43,7 @@ static void ensure_capacity(size_t min_cap) {
     if (cache_cap >= min_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < min_cap) new_cap = min_cap;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }

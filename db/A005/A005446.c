@@ -9,12 +9,14 @@
  *            b(n-1) - Sum_{j=2..n-1} j*b(j)*b(n-j+1) ), b(0) = b(1) = 1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 #ifdef __cplusplus
 #include <type_traits>
 typedef std::conditional<std::is_class<seq_t>::value, seq_t, unsigned __int128>::type wide_t;
@@ -90,14 +92,14 @@ static void ensure(idx_t n) {
     if (n + 1 > cap) {
         idx_t nc = cap ? cap : 16;
         while (nc < n + 1) nc *= 2;
-        wide_t *nn = (wide_t *)calloc((size_t)nc, sizeof(wide_t));
-        wide_t *nd = (wide_t *)calloc((size_t)nc, sizeof(wide_t));
+        wide_t *nn = mem_new(wide_t, (size_t)nc);
+        wide_t *nd = mem_new(wide_t, (size_t)nc);
         for (idx_t i = 0; i < have; i++) {
             nn[i] = bnum[i];
             nd[i] = bden[i];
         }
-        free(bnum);
-        free(bden);
+        mem_free(bnum);
+        mem_free(bden);
         bnum = nn;
         bden = nd;
         bsgn = (int *)realloc(bsgn, (size_t)nc * sizeof(int));

@@ -7,6 +7,7 @@
  * Formula:   a(n) = prime p such that (p-2)/11 is not a prime number
  * Range:     u8 n <= 52, u16 n <= 6420, u32 n <= 9800, u64 n <= 9800,
  *            u128 n <= 9800, big any n
+ * Validated: standard, pass, 74 terms through n = 8996 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,7 +15,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t n); */
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {

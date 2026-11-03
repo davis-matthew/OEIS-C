@@ -8,12 +8,14 @@
  *            of triangle A054098)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* First call: allocate and initialise the base values */
     if (!table) {
         cap = (n + 1 > MIN_CAP) ? (n + 1) : MIN_CAP;
-        table = (seq_t *)malloc(cap * sizeof(seq_t));
+        table = mem_new(seq_t, cap);
         if (!table) return (seq_t)0;   /* allocation failed – unlikely in tests */
         table[0] = (seq_t)1;
         table[1] = (seq_t)3;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* If the requested index exceeds current capacity, grow the table */
     else if ((size_t)(n + 1) > cap) {
         size_t newcap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(table, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, table, newcap);
         if (!tmp) return (seq_t)0;     /* allocation failed */
         table = tmp;
         cap = newcap;

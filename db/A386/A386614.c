@@ -11,14 +11,28 @@
  *            overflow while a product still fits in seq_t
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 21,
  *            big any n
- * Helpers:   binomial, mul_safe
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t a, idx_t b) */
-#include "../utils/mul_safe.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* Multiply two seq_t values safely (uses 128‑bit on integral types). */
+static inline seq_t mul_safe(seq_t x, seq_t y) {
+#if defined(__GNUC__) || defined(__clang__) || defined(_MSC_VER)
+    /* If seq_t is a fundamental integer type of ≤ 64 bits, use 128‑bit
+       arithmetic to avoid overflow.  For arbitrary‑precision types the
+       built‑in multiplication operator works correctly. */
+    if (sizeof(seq_t) <= sizeof(unsigned long long)) {
+        return (seq_t)(((__int128)x) * (__int128)y);
+    }
+#endif
+    return x * y;
+}
 
 /* Cached sequence values */
 static seq_t *cache      = NULL;   /* array of computed a(n) values */
@@ -30,7 +44,7 @@ static void ensure_capacity(idx_t n) {
     if (cache_cap == 0) {
         /* Initial allocation – at least as large as needed. */
         size_t init = (n < 16 ? 16 : (size_t)n + 1);
-        cache = (seq_t *)malloc(init * sizeof(seq_t));
+        cache = mem_new(seq_t, init);
         if (!cache) return;             /* allocation failed – caller will
                                             get zero, which is acceptable for
                                             such a failure in the test harness. */
@@ -45,7 +59,7 @@ static void ensure_capacity(idx_t n) {
     if ((size_t)(n + 1) <= cache_cap) return;
     size_t new_cap = cache_cap;
     while ((size_t)(n + 1) > new_cap) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) return;                  /* reallocation failed – keep old array */
     cache = tmp;
     cache_cap = new_cap;

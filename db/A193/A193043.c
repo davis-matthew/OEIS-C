@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   min_x
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,28 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/min_x.h"
+
+/* Helper: binary search for the smallest x such that
+ *        x·(x+1)/2 ≥ N.
+ *  N is ≥1.                                    */
+static idx_t min_x(idx_t N)
+{
+    idx_t low = 1, high = 1;
+    /* find an upper bound */
+    while (((unsigned __int128)high * (high + 1)) / 2 < N)
+        high <<= 1;
+    low = high >> 1;
+    /* binary search */
+    while (low < high) {
+        idx_t mid = (low + high) >> 1;
+        unsigned __int128 val = ((unsigned __int128)mid * (mid + 1)) / 2;
+        if (val >= N)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 /*  Main function required by the framework. */
 seq_t a(idx_t n)

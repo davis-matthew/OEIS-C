@@ -8,6 +8,7 @@
  *            the number of positive divisors of m
  * Range:     u8 n <= 4158, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 106 terms through n = 9988 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* provides factor_u64 */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 /* Merge the prime factorisation of v into the global arrays. */
 static void merge_factor(uint64_t v,

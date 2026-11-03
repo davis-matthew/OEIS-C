@@ -10,12 +10,14 @@
  *            (v(1)=1, v(2)=3, v(3)=5, v(4)=7, v(5)=9, …)
  * Range:     u8 none, u16 none, u32 n <= 16, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 8434 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     static const idx_t primes[8] = {3,5,7,11,13,17,19,23};
 
     /* Allocate array to hold the first n members of the multiplicative semigroup. */
-    seq_t *t = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *t = mem_new(seq_t, (size_t)n);
     if (!t) return (seq_t)0;            /* allocation failed */
 
     /* indices for the multi‑pointer method (the ugly‑number algorithm). */
@@ -54,6 +56,6 @@ seq_t a(idx_t n)
     const seq_t product = (seq_t)111546435ULL;   /* 3*5*7*11*13*17*19*23 */
     seq_t result = product * t[n-1];
 
-    free(t);
+    mem_free(t);
     return result;
 }

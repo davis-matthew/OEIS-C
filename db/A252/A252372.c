@@ -10,14 +10,15 @@
  * Formula:   a(n) = 1 if n>1 and gpf(n) < spf(n)^2, otherwise 0
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 136 terms through n = 9379 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
 
 /* Smallest prime factor of n (returns n if n is prime or 1) */
 static uint64_t spf_uint64(uint64_t n)
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
 
     uint64_t nn = (uint64_t)n;
     uint64_t sp = spf_uint64(nn);
-    uint64_t gp = gpf(nn);
+    uint64_t gp = largest_prime_factor(nn);
 
     /* Compare using native integer to avoid overflow of seq_t */
     if (gp < sp * sp)

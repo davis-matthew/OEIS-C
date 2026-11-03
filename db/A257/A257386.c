@@ -12,6 +12,7 @@
  *            step when the height equals 3. Complexity O(...
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 47, u128 n <= 89,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 940 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

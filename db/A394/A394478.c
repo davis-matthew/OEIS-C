@@ -9,13 +9,16 @@
  *            memoises the values up to the required index
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;        /* memoisation array */
 static idx_t  cache_cap = 0;         /* current allocated capacity */
@@ -33,7 +36,7 @@ ensure_cached(idx_t n)
         size_t new_cap = (size_t)cache_cap > 0 ? 2 * cache_cap : 1;
         while (new_cap <= (size_t)n)
             new_cap <<= 1;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         cache_cap = new_cap;
     }
 

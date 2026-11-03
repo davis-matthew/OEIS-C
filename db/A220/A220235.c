@@ -7,19 +7,24 @@
  * Formula:   a(n) = (2^n + 3^n) mod n
  * Range:     u8 n <= 271, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 91 terms through n = 1000 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0)
         return 0;                      /* undefined for offset 1, safe fallback */
     seq_t mod = (seq_t)n;              /* modulus as seq_t */
-    seq_t p2   = mod_pow((seq_t)2, (uint64_t)n, mod);  /* 2^n mod n */
-    seq_t p3   = mod_pow((seq_t)3, (uint64_t)n, mod);  /* 3^n mod n */
+    seq_t p2   = powmod((seq_t)2, (uint64_t)n, mod);  /* 2^n mod n */
+    seq_t p3   = powmod((seq_t)3, (uint64_t)n, mod);  /* 3^n mod n */
     return (p2 + p3) % mod;            /* (2^n + 3^n) mod n */
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   rev, seq_cmp
+ * Validated: full, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,20 @@
 #include <stdint.h>
 
 /* Utility: reverse the decimal representation of an index. */
-#include "../utils/rev.h"          /* rev(idx_t x) */
+#include <stddef.h>
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 /* Utility: comparison function for qsort on seq_t values. */
-#include "../utils/seq_cmp.h"      /* seq_cmp(const void*, const void*) */
 
 /* Global cache of valid numbers */
 static seq_t *val_list   = NULL;   /* array of found numbers */
@@ -35,7 +46,7 @@ static bool   initialized = false;
 static void generate(int len, int pos, uint16_t used, seq_t cur)
 {
     if (pos == len) {
-        idx_t r = rev((idx_t)cur);          /* decimal reversal */
+        idx_t r = reverse_digits_idx((idx_t)cur);          /* decimal reversal */
         if (r != 0 && cur % (seq_t)r == 0) { /* reverse divides the number */
             val_list[val_count++] = cur;
         }
@@ -57,14 +68,14 @@ static void init_sequence(void)
 {
     /* Allocate enough space for all distinct‑digit numbers up to 6 digits
        (the total is 170 000; 200 k gives a comfortable margin). */
-    val_list = (seq_t *)malloc(200000 * sizeof(seq_t));
+    val_list = mem_new(seq_t, 200000);
     val_count = 0;
 
     for (int len = 1; len <= 6; ++len)
         generate(len, 0, 0, 0);
 
     /* Sort the list increasingly. */
-    qsort(val_list, val_count, sizeof(seq_t), seq_cmp);
+    mem_qsort(val_list, val_count, sizeof(seq_t), seq_cmp);
     initialized = true;
 }
 

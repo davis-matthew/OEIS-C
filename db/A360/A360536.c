@@ -10,12 +10,24 @@
  *            binary representation of i. e(0) = 0
  * Range:     i8 n <= 66, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
- * Helpers:   count00
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count00.h"
+static inline int count00(idx_t x)
+{
+    int e = 0;
+    int prev = -1;          /* previous bit, -1 means none */
+    while (x) {
+        int bit = (int)(x & 1ULL);
+        if (bit == 0 && prev == 0) e++;
+        prev = bit;
+        x >>= 1;
+    }
+    return e;
+}
 
 seq_t a(idx_t n)
 {

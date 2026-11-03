@@ -7,6 +7,7 @@
  * Formula:   a(n) = n*(n^2-1)*(n+2)*(n^2+4*n+6)/72
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 81, u64 n <= 3314,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 48 terms through n = 8911 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

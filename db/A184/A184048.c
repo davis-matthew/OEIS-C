@@ -10,6 +10,7 @@
  *            2^(floor((k-1)/2))+2^(floor(k/2)))
  * Range:     u8 n <= 21, u16 n <= 105, u32 n <= 391, u64 n <= 391,
  *            u128 n <= 391, big any n
+ * Validated: standard, pass, 73 terms through n = 368 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,7 @@
     a(n) directly from the explicit formula. */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

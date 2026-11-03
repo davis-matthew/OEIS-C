@@ -7,7 +7,8 @@
  * Formula:   a(n) = n^3*Product_{distinct primes p dividing n} (1+1/p^3)
  * Range:     u8 n <= 6, u16 n <= 39, u32 n <= 1547, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint_seq
+ * Validated: standard, pass, 55 terms through n = 9921 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow_uint_seq.h"
+#include "../utils/ipow_idx.h"
 
 /* Simple trial‑division factorisation of a 64‑bit integer.
    Stores primes and their exponents in the provided arrays.
@@ -64,8 +65,8 @@ seq_t a(idx_t n)
         idx_t   e3  = 3 * (idx_t)e;           /* 3e */
         idx_t   e3m = e3 - 3;                 /* 3e-3  (e>=1 always) */
 
-        seq_t pow1 = pow_uint_seq((seq_t)p, e3);
-        seq_t pow2 = pow_uint_seq((seq_t)p, e3m);
+        seq_t pow1 = ipow_idx((seq_t)p, e3);
+        seq_t pow2 = ipow_idx((seq_t)p, e3m);
         seq_t term = pow1 + pow2;             /* p^(3e) + p^(3e-3) */
         result *= term;
     }

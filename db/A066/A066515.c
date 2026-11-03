@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    for n ≈ 10 000. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static size_t primeCount = 0;           /* number of primes found          */
 static seq_t *primeVals   = NULL;       /* array of primes                */
@@ -48,7 +50,7 @@ static void init_primes(void)
     for (idx_t i = 2; i <= MAX_VAL; ++i)
         if (!comp[(size_t)i]) ++primeCount;
     /* allocate primes array                    */
-    primeVals = (seq_t *)malloc((size_t)primeCount * sizeof(seq_t));
+    primeVals = mem_new(seq_t, (size_t)primeCount);
     if (!primeVals) { free(comp); return; }
     /* fill primes array                        */
     size_t pos = 0;

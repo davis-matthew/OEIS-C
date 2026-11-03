@@ -6,15 +6,17 @@
  * Keywords:  nonn
  * Formula:   a(n) is Van Eck's sequence with a(1)=1, a(n+1) = min{ k>0 :
  *            a(n+1−k)=a(n) } or 0 if no such k
- * Range:     u8 n <= 381, u16 n <= 9725, u32 n <= 9725, u64 n <= 9725,
- *            u128 n <= 9725, big any n
- * Helpers:   none
+ * Range:     u8 n <= 381, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 106 terms through n = 9725 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* the build provides these types */
 extern seq_t a(idx_t n);          /* required prototype */
@@ -33,7 +35,7 @@ static void seq_ensure_cache(idx_t need)
     if (seq_cache_cap < (size_t)need) {
         size_t new_cap = seq_cache_cap ? seq_cache_cap * 2 : 4;
         if (new_cap < (size_t)need) new_cap = (size_t)need;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) abort();
         seq_cache = tmp;
         seq_cache_cap = new_cap;

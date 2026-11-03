@@ -9,8 +9,9 @@
  * Formula:   a(n) = binomial(n, m) where m is the number of parts in the k‑th
  *            partition of n listed in Abramowitz–Stegun order (partitions
  *            grouped by increasing number of parts, then lexicographically)
- * Range:     u8 n <= 54, u16 n <= 1039, u32 n <= 2713, u64 n <= 2713,
+ * Range:     u8 n <= 154, u16 n <= 1896, u32 n <= 2713, u64 n <= 2713,
  *            u128 n <= 2713, big any n
+ * Validated: standard, pass, 95 terms through n = 2701 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,6 +23,7 @@
    to the type constraints described in the problem statement. */
 
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static int recurse_exact(idx_t rem, idx_t max, idx_t parts_left,

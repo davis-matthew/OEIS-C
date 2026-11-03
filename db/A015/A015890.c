@@ -9,7 +9,8 @@
  *            Φ_1881(x)
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   mul_x_pow_minus_one
+ * Validated: standard, pass, 97 terms through n = 1918 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul_x_pow_minus_one.h"
+
+/* multiplies a polynomial by (x^d – 1) – the factor coming from a divisor with exponent +1 or –1. */
+static int64_t *mul_x_pow_minus_one(int64_t *poly, int deg, int d)
+{
+    int new_deg = deg + d;
+    int64_t *newpoly = (int64_t *)calloc((size_t)new_deg + 1, sizeof(int64_t));
+    for (int i = 0; i <= deg; ++i) {
+        newpoly[i]      -= poly[i];      /* multiply by –1 */
+        newpoly[i + d]  += poly[i];      /* multiply by x^d */
+    }
+    free(poly);
+    return newpoly;
+}
 
 /* divides a monic numerator by a monic denominator – the result is the coprime polynomial Φ_1881. */
 static int64_t *poly_div(int64_t *num, int deg_num, int64_t *den, int deg_den)

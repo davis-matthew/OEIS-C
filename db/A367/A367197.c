@@ -8,6 +8,7 @@
  *            is even, * 2*(p^(v+1)-1)/(p^2-1) if v is odd
  * Range:     u8 n <= 16, u16 n <= 5673, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 100 terms through n = 9609 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

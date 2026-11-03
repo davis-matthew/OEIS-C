@@ -7,8 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 561, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   append_candidate, build_primes_upto, fib_mod_u64, is_prime,
- *            powmod64
+ * Validated: standard, pass, 65 terms through n = 884 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime, mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,11 +24,57 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/powmod64.h"
 #include "../utils/is_prime.h"
-#include "../utils/append_candidate.h"
-#include "../utils/fib_mod_u64.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
+
+static void fib_mod_u64(idx_t n, uint64_t mod, uint64_t *fn, uint64_t *fn1)
+{
+    /* Fast doubling for Fibonacci modulo 'mod'. */
+    if (n == 0) { *fn = 0; *fn1 = 1; return; }
+
+    uint64_t a = 0, b = 1;            /* a = F(k), b = F(k+1) */
+    int top = 63 - __builtin_clzll(n);
+
+    for (int i = top; i >= 0; --i) {
+        /* Compute F(2k) and F(2k+1) */
+        uint64_t t = (2 * b) % mod;
+        if (t < a) t += mod;
+        uint64_t temp = t - a;          /* (2*b - a) % mod */
+        uint64_t c = (a * temp) % mod;  /* F(2k)  */
+        uint64_t d = (a * a % mod + b * b % mod) % mod; /* F(2k+1) */
+
+        a = c;
+        b = d;
+
+        if ((n >> i) & 1) {            /* Move to k+1 */
+            uint64_t e = (a + b) % mod; /* F(2k+2) */
+            a = b;
+            b = e;
+        }
+    }
+    *fn = a;
+    *fn1 = b;
+}
 
 static uint64_t rank_prime(uint64_t q, const uint64_t *primes, size_t primes_cnt)
 {
@@ -37,7 +83,7 @@ static uint64_t rank_prime(uint64_t q, const uint64_t *primes, size_t primes_cnt
     if (q == 5) return 5;     /* F(5) = 5 */
 
     /* Legendre symbol (5|q) */
-    uint64_t leg = powmod64(5, (q - 1) >> 1, q);
+    uint64_t leg = powmod_u64(5, (q - 1) >> 1, q);
     int symbol = (leg == 1) ? 1 : -1;   /* for odd prime q, leg is 1 or q-1 */
 
     uint64_t M = (symbol == 1) ? (q - 1) : (2 * (q + 1));

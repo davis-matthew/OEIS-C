@@ -11,7 +11,8 @@
  *            is performed), convert back to decimal
  * Range:     u8 n <= 255, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 87 terms through n = 7929 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,14 +21,14 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;          /* undefined for n<1, but defensive */
 
     seq_t val = (seq_t)n;           /* current rotated value */
-    size_t L = bitlen_seq_t(val);   /* fixed bit length of the original n */
+    size_t L = bit_length(val);   /* fixed bit length of the original n */
 
     /* create a mask with L lowest bits set */
     size_t width = sizeof(seq_t) * CHAR_BIT;

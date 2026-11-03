@@ -7,15 +7,17 @@
  * Formula:   not stated
  * Range:     u8 n <= 159, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum, is_prime_small
+ * Validated: standard, pass, 85 terms through n = 987 (2026-11-01)
+ * Helpers:   digit_sum, is_prime_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The nth integer whose sum of digits is NOT prime.  Offset 1 (a(1)=1). */
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/digit_sum.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
         /* Compute sum of digits of m (converted to seq_t). */
         int sum = (int)digit_sum((seq_t)m);
         /* If the sum is not prime, we count this number. */
-        if (!is_prime_small(sum))
+        if (!is_prime_i32(sum))
             ++count;
     }
 

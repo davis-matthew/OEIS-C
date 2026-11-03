@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort on seq_t values */
 static int cmp_seq_t(const void *a, const void *b)
@@ -33,7 +35,7 @@ static void ensure_capacity(size_t need, size_t *cap, seq_t **arr)
     if (*cap >= need) return;
     size_t newcap = (*cap ? *cap * 2 : 32);
     if (newcap < need) newcap = need;
-    *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, newcap);
     *cap = newcap;
 }
 
@@ -47,8 +49,8 @@ static void ensure_pow(size_t len)
 {
     while (powCap <= len) {
         seq_t v = (powCap == 0) ? 1 : pow13[powCap - 1] * (seq_t)13;
-        pow13 = (seq_t *)realloc(pow13, (powCap + 1) * sizeof(seq_t));
-        S13   = (seq_t *)realloc(S13,   (powCap + 1) * sizeof(seq_t));
+        pow13 = mem_resize(seq_t, pow13, (powCap + 1));
+        S13   = mem_resize(seq_t, S13, (powCap + 1));
         pow13[powCap] = v;
         S13[powCap]   = (v - (seq_t)1) / (seq_t)12;
         ++powCap;
@@ -79,7 +81,7 @@ static void generate_len(idx_t len, seq_t **cache, size_t *cap, size_t *sz)
 
                 if (localSz == localCap) {
                     localCap = (localCap ? localCap * 2 : 32);
-                    local = (seq_t *)realloc(local, localCap * sizeof(seq_t));
+                    local = mem_resize(seq_t, local, localCap);
                 }
                 local[localSz++] = val;
             }
@@ -87,7 +89,7 @@ static void generate_len(idx_t len, seq_t **cache, size_t *cap, size_t *sz)
     }
 
     /* Sort the numbers of this length */
-    qsort(local, localSz, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(local, localSz, sizeof(seq_t), cmp_seq_t);
 
     /* Append them to the global cache */
     ensure_capacity(*sz + localSz, cap, cache);
@@ -95,7 +97,7 @@ static void generate_len(idx_t len, seq_t **cache, size_t *cap, size_t *sz)
         (*cache)[*sz + i] = local[i];
     *sz += localSz;
 
-    free(local);
+    mem_free(local);
 }
 
 /* The main sequence function */

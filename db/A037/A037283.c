@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 32, u32 n <= 104, u64 n <= 314,
  *            u128 n <= 2834, big any n
- * Helpers:   cmp_seq_t, digit_len, pow10
+ * Validated: standard, pass, 67 terms through n = 9042 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,28 @@
 #include <stdint.h>
 
 /* Utility functions provided by the build system. */
-#include "../utils/pow10.h"          /* seq_t pow10(idx_t e); */
-#include "../utils/digit_len.h"     /* int digit_len(seq_t x); */
-#include "../utils/cmp_seq_t.h"     /* int cmp_seq_t(const void *a, const void *b); */
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -51,13 +71,13 @@ seq_t a(idx_t n)
 
     /* Sort the divisors in ascending order. */
     if (divcnt > 1)
-        qsort(divs, divcnt, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(divs, divcnt, sizeof(seq_t), cmp_seq_t);
 
     /* Concatenate the sorted divisors to form the result. */
     seq_t result = 0;
     for (size_t k = 0; k < divcnt; ++k) {
         seq_t d = divs[k];
-        seq_t mult = pow10((idx_t)digit_len(d));
+        seq_t mult = pow10((idx_t)num_digits(d));
         result = result * mult + d;
     }
 

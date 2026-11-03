@@ -12,7 +12,8 @@
  *            as 0. The triangle rows have lengths 2*r+1, and...
  * Range:     u8 n <= 18, u16 n <= 40, u32 n <= 105, u64 n <= 268,
  *            u128 n <= 750, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1600 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External function signature */
 seq_t a(idx_t n)
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* start with capacity for the initial row */
         capacity = 1;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache) return (seq_t)0; /* allocation failed; return 0 as error */
         /* row 0 */
         cache[0] = (seq_t)1;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         size_t required = size_cache + len_curr;
         if (required > capacity) {
             capacity = required * 2;
-            cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, capacity);
             if (!cache) return (seq_t)0;      /* allocation failed */
         }
 

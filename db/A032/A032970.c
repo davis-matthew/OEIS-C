@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
    are used.  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache data */
 static seq_t *cache = NULL;  /* array of generated values */
@@ -40,11 +42,11 @@ static void ensure_cap(size_t need)
 {
     if (cap == 0) {
         cap = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
     }
     while (cap < need) {
         cap <<= 1; /* double the capacity */
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * cap);
+        cache = mem_resize(seq_t, cache, cap);
     }
 }
 

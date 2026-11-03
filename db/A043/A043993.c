@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_adj_6_7
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,27 @@
  * of k+1 does not. */
 
 #include <stdbool.h>
-#include "../utils/has_adj_6_7.h"
+
+/* Return true if x (decimal) has two consecutive base‑9 digits 6 and 7
+ * in either order. */
+static bool has_adj_6_7(uint64_t x)
+{
+    if (x == 0) return false;
+
+    uint8_t digits[17]; /* maximum digits needed for 64‑bit numbers in base‑9 */
+    int len = 0;
+    while (x > 0) {
+        digits[len++] = (uint8_t)(x % 9);
+        x /= 9;
+    }
+
+    for (int i = 1; i < len; ++i) {
+        if ((digits[i] == 6 && digits[i-1] == 7) ||
+            (digits[i] == 7 && digits[i-1] == 6))
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

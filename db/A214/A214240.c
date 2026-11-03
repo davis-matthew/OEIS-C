@@ -12,13 +12,15 @@
  *            a(6) = 8178855 a(7) = 318511707 a(8) = 1304674848...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 169 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Dynamic array growth helper used only inside this file. */
 static void grow_cache(seq_t **p, size_t *cap, size_t needed)
@@ -28,7 +30,7 @@ static void grow_cache(seq_t **p, size_t *cap, size_t needed)
     size_t new_cap = *cap ? *cap * 2 : 8;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(*p, sizeof(seq_t) * new_cap);
+    seq_t *tmp = mem_resize(seq_t, *p, new_cap);
     if (!tmp) /* out of memory – abort */
         abort();
     *p   = tmp;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 12, u64 n <= 28, u128 n <= 59,
  *            big any n
- * Helpers:   has_pair_sum4
+ * Validated: standard, pass, 36 terms through n = 204 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,17 @@
    call. */
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/has_pair_sum4.h"
+
+/* Check whether any pair among four numbers sums to 4 */
+static bool has_pair_sum4(int a, int b, int c, int d)
+{
+    int v[4] = {a, b, c, d};
+    for (int i = 0; i < 4; ++i)
+        for (int j = i + 1; j < 4; ++j)
+            if (v[i] + v[j] == 4)
+                return true;
+    return false;
+}
 
 #define STATES 125        /* 5^3 possible triples */
 #define VALUES 5          /* alphabet size */

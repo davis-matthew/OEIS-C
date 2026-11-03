@@ -13,7 +13,8 @@
  *            dynamic...
  * Range:     i8 none, i16 n <= 50, i32 n <= 50, i64 n <= 50, i128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>   /* malloc, realloc, free, NULL */
 #include <stdint.h>   /* uint32_t */
 #include <stdbool.h>  /* bool */
+#include "../utils/mem.h"
 
 static seq_t *semiprimes = NULL;   /* array of semiprimes (0‑based for s(1)) */
 static idx_t semip_size   = 0;      /* number of generated semiprimes */
@@ -70,7 +72,7 @@ static void ensure_semiprimes(idx_t need)
         idx_t new_cap = semip_cap ? semip_cap * 2 : 128;
         if (new_cap < need)
             new_cap = need;
-        semiprimes = (seq_t *)realloc(semiprimes, sizeof(seq_t) * new_cap);
+        semiprimes = mem_resize(seq_t, semiprimes, new_cap);
         semip_cap = new_cap;
     }
 

@@ -9,6 +9,7 @@
  *            by 1, add 1, multiply by 2, add 2, …; start with 3.”
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 24, u64 n <= 40, u128 n <= 66,
  *            big any n
+ * Validated: standard, pass, 48 terms through n = 757 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 1280, u32 n <= 1280, u64 n <= 1280,
  *            u128 n <= 1280, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 1278 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------------------------------------------------------------------- */
 /*  Algebras in ℤ[√2] modulo a prime p  (needed for order calculation)    */
@@ -144,7 +146,7 @@ static void seq_append(seq_t val)
 {
     if (seq_cnt == seq_cap) {
         seq_cap = (seq_cap == 0) ? 10 : seq_cap * 2;
-        seq_vals = (seq_t *)realloc(seq_vals, seq_cap * sizeof(seq_t));
+        seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
     }
     seq_vals[seq_cnt++] = val;
 }

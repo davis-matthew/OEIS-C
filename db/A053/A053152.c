@@ -10,7 +10,8 @@
  *            a(1)=0, a(2)=2, a(3)=9
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 41, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* This implementation uses the recurrence for O(n) time with linear
    memoisation.  Only standard C11 facilities are required. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         /* allocate at least up to the first 3 terms */
         idx_t needed = n < 3 ? 3 : n;
         size_t sz = (size_t)(needed + 1);
-        A = (seq_t *)malloc(sz * sizeof(seq_t));
+        A = mem_new(seq_t, sz);
         A[1] = 0;
         A[2] = 2;
         A[3] = 9;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     } else if (n > max_n) {
         /* grow the array to accommodate the new index */
         size_t new_sz = (size_t)(n + 1);
-        A = (seq_t *)realloc(A, new_sz * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_sz);
 
         /* compute the missing terms */
         for (idx_t i = max_n + 1; i <= n; ++i) {

@@ -10,6 +10,7 @@
  *            parts 7k and 7k+5 with at least one part of each type
  * Range:     u8 n <= 79, u16 n <= 187, u32 n <= 512, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 96 terms through n = 948 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

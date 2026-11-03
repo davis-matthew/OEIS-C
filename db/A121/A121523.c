@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,9 +37,9 @@ seq_t a(idx_t n)
     if (sz <= n) {
         idx_t newsz = n + 1;
         if (seq == NULL)
-            seq = (seq_t *)realloc(NULL, newsz * sizeof(seq_t));
+            seq = mem_resize(seq_t, NULL, newsz);
         else
-            seq = (seq_t *)realloc(seq, newsz * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, newsz);
 
         /* initialise new part */
         for (idx_t i = sz; i < newsz; ++i) seq[i] = 0;

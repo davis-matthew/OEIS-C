@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   build_phi_and_totients
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,36 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/build_phi_and_totients.h"
+#include "../utils/mem.h"
+
+/* Helper: build the totient sieve up to 'lim' and mark totients in is_t. */
+static void build_phi_and_totients(idx_t lim, uint32_t **phi_out, unsigned char **tot_out)
+{
+    uint32_t *phi = (uint32_t*)realloc(*phi_out, (size_t)(lim + 1) * sizeof(uint32_t));
+    unsigned char *tot = (unsigned char*)realloc(*tot_out, (size_t)(lim + 1) * sizeof(unsigned char));
+
+    for (idx_t i = 0; i <= lim; ++i) {
+        phi[i] = (uint32_t)i;
+        tot[i] = 0;
+    }
+
+    for (idx_t i = 2; i <= lim; ++i) {
+        if (phi[i] == i) {               /* i is prime */
+            uint32_t p = (uint32_t)i;
+            for (idx_t j = i; j <= lim; j += i) {
+                phi[j] = (uint32_t)((uint64_t)phi[j] / p * (p - 1));
+            }
+        }
+    }
+
+    for (idx_t k = 1; k <= lim; ++k) {
+        uint32_t v = phi[k];
+        if (v <= lim) tot[v] = 1;
+    }
+
+    *phi_out = phi;
+    *tot_out = tot;
+}
 
 /* Static data shared between calls. */
 static idx_t      current_lim = 0;
@@ -45,10 +75,10 @@ static void grow_starts(void)
 {
     if (start_cap == 0) {
         start_cap = 64;
-        starts = (seq_t*)malloc(start_cap * sizeof(seq_t));
+        starts = mem_new(seq_t, start_cap);
     } else if (start_cnt >= start_cap) {
         start_cap <<= 1;
-        starts = (seq_t*)realloc(starts, start_cap * sizeof(seq_t));
+        starts = mem_resize(seq_t, starts, start_cap);
     }
 }
 

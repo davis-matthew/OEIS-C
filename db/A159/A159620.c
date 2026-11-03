@@ -7,12 +7,14 @@
  * Formula:   a(0)=1, a(1)=6, a(n)=6*a(n-1)-722*(n-1)*a(n-2) for n≥2
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 5, i64 n <= 10, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 341 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -21,9 +23,9 @@ seq_t a(idx_t n) {
         idx_t old_len = cache_len;
         cache_len = n + 1;
         if (cache)
-            cache = (seq_t *)realloc(cache, cache_len * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_len);
         else
-            cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_len);
         for (idx_t i = old_len; i < cache_len; ++i) {
             if (i == 0)
                 cache[i] = 1;

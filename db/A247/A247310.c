@@ -14,13 +14,14 @@
  *            Fibonacci number with Fib(0)=0, Fib(1)=1
  * Range:     u8 n <= 40, u16 n <= 71, u32 n <= 142, u64 n <= 280,
  *            u128 n <= 557, big any n
- * Helpers:   fib_idx
+ * Validated: standard, pass, 81 terms through n = 943 (2026-11-01)
+ * Helpers:   fibonacci
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/fib_idx.h"
+#include "../utils/fibonacci.h"
 
 seq_t a(idx_t n)
 {
@@ -28,10 +29,10 @@ seq_t a(idx_t n)
     idx_t r = n % 3;
 
     if (r == 1) {                     /* middle row  */
-        return fib_idx(c);
+        return fibonacci(c);
     } else if (r == 0) {               /* bottom row  */
-        return (c & 1) ? 0 : fib_idx(c + 1);
+        return (c & 1) ? 0 : fibonacci(c + 1);
     } else {                           /* top row     */
-        return (c & 1) ? fib_idx(c + 1) : 0;
+        return (c & 1) ? fibonacci(c + 1) : 0;
     }
 }

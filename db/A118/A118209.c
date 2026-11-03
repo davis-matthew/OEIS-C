@@ -9,7 +9,8 @@
  *            (−p)^e + 1 ) / (p + 1) for odd primes p
  * Range:     i8 n <= 31, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   seq_one, seq_pow
+ * Validated: standard, pass, 91 terms through n = 9956 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,18 +18,20 @@
 /*  Dependencies: seq_pow, seq_one */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
-#include "../utils/seq_one.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 static seq_t prime_power_value(uint64_t p, int e)
 {
     if (p == 2) {
-        seq_t pow_val = seq_pow((seq_t)2, (idx_t)(e + 2));
+        seq_t pow_val = ipow_idx((seq_t)2, (idx_t)(e + 2));
         seq_t sign = (e & 1) ? (seq_t)(-1) : (seq_t)1;
         /* ((-1)^e * 2^(e+2) – 1) / 3 */
         return (sign * pow_val - (seq_t)1) / (seq_t)3;
     } else {
-        seq_t pow_neg_p = seq_pow((seq_t)(- (int64_t)p), (idx_t)e);
+        seq_t pow_neg_p = ipow_idx((seq_t)(- (int64_t)p), (idx_t)e);
         /* ( p * (−p)^e + 1 ) / (p + 1) */
         return ((seq_t)p * pow_neg_p + (seq_t)1) / (seq_t)(p + 1);
     }

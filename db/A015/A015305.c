@@ -8,7 +8,8 @@
  *            +11*(-2)^(4*n-10) -(-2)^(5*n-10))/40095 (for n ≥ 5)
  * Range:     i8 n <= 6, i16 n <= 8, i32 n <= 11, i64 n <= 17, i128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* array of computed values, indexed by n */
 static idx_t  cache_size = 0;     /* number of slots currently allocated */
@@ -30,9 +32,9 @@ static void ensure_cache(idx_t size)
         return;
     size_t new_size = (size_t)size;
     if (cache == NULL) {
-        cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        cache = mem_new(seq_t, new_size);
     } else {
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
     }
     cache_size = size;
 }

@@ -8,12 +8,31 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   _compute_d
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_compute_d.h"
+static seq_t _compute_d(idx_t n)
+{
+    /* base cases – valid for all n ≥ 1 */
+    if (n == 1) return (seq_t)1;
+    if (n == 0) return (seq_t)0;          /* safety for n == 0 */
+
+    if (n & 1ULL) {                       /* n odd */
+        return ((seq_t)2) * _compute_d((n - 1) / 2) + (seq_t)1;
+    } else {                              /* n even */
+        idx_t m = n >> 1;                 /* m = n/2 */
+        if ((m & 1ULL) == 0) {           /* m even */
+            return _compute_d(m);
+        } else {                         /* m odd */
+            seq_t dm  = _compute_d(m);
+            seq_t dm1 = _compute_d(m - 1);
+            return dm + ((seq_t)2) * dm1;
+        }
+    }
+}
 /*  OEIS A160704
  *
  *  a(n) = 2*a(n-1) + d(n)    (n ≥ 2,  a(1) = 1)

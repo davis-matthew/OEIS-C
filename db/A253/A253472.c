@@ -8,6 +8,7 @@
  * Formula:   a(1)=4; a(2)=7; a(3)=8; a(4)=9; a(n)=n+7 for n>4
  * Range:     u8 n <= 248, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 89 terms through n = 9973 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

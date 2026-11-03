@@ -13,14 +13,17 @@
  *            order
  * Range:     u8 n <= 15, u16 n <= 15, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   get_digits, pow_uint
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   get_digits, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 #include "../utils/get_digits.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 static bool is_qualified(seq_t k)
 {
@@ -33,7 +36,7 @@ static bool is_qualified(seq_t k)
     for (size_t i = 0; i < len; ++i) {
         uint8_t d = digits[i];
         sum_digits += (seq_t)d;
-        sum_powers += pow_uint(d, len);   /* digit^len */
+        sum_powers += ipow_u64_idx(d, len);   /* digit^len */
     }
 
     seq_t lhs = sum_digits * (seq_t)len;   /* (sum of digits) * len */

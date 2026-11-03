@@ -11,12 +11,14 @@
  *            r*(r-1)/2
  * Range:     u8 n <= 22, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *u = NULL;
 static seq_t *v = NULL;
@@ -45,10 +47,10 @@ static void ensure_capacity(idx_t target) {
     /* Lazy initialization */
     if (cur_n == 0) {
         alloc_cap = 1;
-        u  = (seq_t *)malloc(sizeof(seq_t) * alloc_cap);
-        v  = (seq_t *)malloc(sizeof(seq_t) * alloc_cap);
-        nu = (seq_t *)malloc(sizeof(seq_t) * alloc_cap);
-        nv = (seq_t *)malloc(sizeof(seq_t) * alloc_cap);
+        u  = mem_new(seq_t, alloc_cap);
+        v  = mem_new(seq_t, alloc_cap);
+        nu = mem_new(seq_t, alloc_cap);
+        nv = mem_new(seq_t, alloc_cap);
         u[0] = 1;
         v[0] = 1;
         cur_n = 1;
@@ -59,10 +61,10 @@ static void ensure_capacity(idx_t target) {
         idx_t n = cur_n + 1;                /* new row number */
         if ((size_t)n > alloc_cap) {        /* enlarge allocated arrays if needed */
             alloc_cap = n;
-            u  = (seq_t *)realloc(u,  sizeof(seq_t) * alloc_cap);
-            v  = (seq_t *)realloc(v,  sizeof(seq_t) * alloc_cap);
-            nu = (seq_t *)realloc(nu, sizeof(seq_t) * alloc_cap);
-            nv = (seq_t *)realloc(nv, sizeof(seq_t) * alloc_cap);
+            u  = mem_resize(seq_t, u, alloc_cap);
+            v  = mem_resize(seq_t, v, alloc_cap);
+            nu = mem_resize(seq_t, nu, alloc_cap);
+            nv = mem_resize(seq_t, nv, alloc_cap);
         }
 
         /* Compute coefficients for row n into nu and nv */

@@ -9,12 +9,14 @@
  *            a(8)=1, a(9)=4, a(10)=3, a(11)=5
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for previously computed values */
 static seq_t *cache = NULL;      /* array of computed terms          */
@@ -29,7 +31,7 @@ static void grow_cache(idx_t needed)
     idx_t newsize = cache_size ? cache_size * 2 : 16;
     if (newsize <= needed)
         newsize = needed + 1;
-    cache = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, newsize);
     cache_size = newsize;
 }
 

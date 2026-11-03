@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   build_primes_upto, int_sqrt
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto(idx_t, uint64_t **, size_t *) */
-#include "../utils/int_sqrt.h"           /* int_sqrt(idx_t) */
+#include <stdint.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
 
 /* ------------------------------------------------------------
  *  Helper: set of primes up to a given limit (inclusive).
@@ -87,7 +89,7 @@ a(idx_t n)
     idx_t upper = 2 * n;
 
     /* Ensure we have primes up to sqrt(2n) for square‑free testing */
-    idx_t prime_limit = (idx_t)int_sqrt(upper) + 1;
+    idx_t prime_limit = (idx_t)isqrt(upper) + 1;
     ensure_primes(prime_limit);
 
     seq_t prod = (seq_t)1;

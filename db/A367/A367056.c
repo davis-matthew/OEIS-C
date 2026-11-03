@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..floor(n/3)} binomial(n-2*k+1,k) *
  *            binomial(2*n-5*k,n-3*k) / (n-2*k+1)
- * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 15, u64 n <= 26, u128 n <= 26,
+ * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   binomial, seq_mul
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,16 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/seq_mul.h"    /* provides seq_t seq_mul(seq_t a, seq_t b); */
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,7 +39,7 @@ seq_t a(idx_t n)
         return cache[n];
 
     /* expand cache to hold up to n */
-    cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (size_t)(n + 1));
 
     for (idx_t i = cache_sz; i <= n; ++i) {
         seq_t val;

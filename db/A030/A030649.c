@@ -9,11 +9,14 @@
  *            (1/10950439500)*(n+9)*binomial(n+17,4)*binomial(n+4,4)*binomial(n+13,9)^2
  * Range:     u8 none, u16 none, u32 none, u64 n <= 30, u128 n <= 196,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 970 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
 

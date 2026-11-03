@@ -12,12 +12,14 @@
  *            modulo 2. The sequence is 85‑periodic
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 831 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for the OEIS sequence A011702.  The result is returned
    as a seq_t value (0 or 1).  The function memoises previously computed
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cap) {
         size_t new_cap = cap ? cap << 1 : 16;
         while (new_cap < (size_t)n + 1) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(buf, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, new_cap);
         if (!tmp) abort();          /* fatal failure */
         buf  = tmp;
         cap  = new_cap;

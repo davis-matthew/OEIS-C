@@ -7,13 +7,15 @@
  * Formula:   a(n) = 15*a(n-1) + a(n-2), a(0) = 0, a(1) = 1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 833 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,14 +34,14 @@ seq_t a(idx_t n)
         while (new_size <= (size_t)n)
             new_size *= 2;
 
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_size);
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache)
             abort();  /* allocation failure */
 
         /* copy existing data */
         if (cache) {
-            memcpy(new_cache, cache, sizeof(seq_t) * cache_size);
-            free(cache);
+            mem_copy(new_cache, cache, sizeof(seq_t) * cache_size);
+            mem_free(cache);
         }
 
         /* initialise the new part of the cache */

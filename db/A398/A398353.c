@@ -9,16 +9,19 @@
  *            primes), 0 if no such prime exists
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   _smallest_prime_factor, build_primes_upto, is_prime_small
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime_seq, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/_smallest_prime_factor.h"
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -46,11 +49,11 @@ seq_t a(idx_t n)
         if (rem < 2) continue;  /* no semiprime smaller than 4 */
 
         /* check if rem is semiprime: product of two primes */
-        uint64_t spf = _smallest_prime_factor((uint64_t)rem);
+        uint64_t spf = smallest_prime_factor((uint64_t)rem);
         if (spf == 0 || spf == (uint64_t)rem) continue;  /* 0 or prime -> not semiprime */
 
         uint64_t second = (uint64_t)rem / spf;
-        if (is_prime_small((seq_t)second)) {
+        if (is_prime_seq((seq_t)second)) {
             /* rem = spf * second and both primes -> semiprime */
             return (seq_t)p;
         }

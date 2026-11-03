@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build environment */
 extern seq_t a(idx_t n);
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
 
         /* Allocate initial capacity for the sequence array. */
         seqCap = 2048;
-        seq = (seq_t *)malloc(seqCap * sizeof(seq_t));
+        seq = mem_new(seq_t, seqCap);
         if (seq == NULL) {
             free(isPrime);
             return (seq_t)0;
@@ -86,10 +88,10 @@ seq_t a(idx_t n)
             /* Grow the array if needed. */
             if (seqSize == seqCap) {
                 size_t newCap = seqCap * 2;
-                seq_t *tmp = (seq_t *)realloc(seq, newCap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, newCap);
                 if (tmp == NULL) {
                     free(isPrime);
-                    free(seq);
+                    mem_free(seq);
                     return (seq_t)0;
                 }
                 seq = tmp;

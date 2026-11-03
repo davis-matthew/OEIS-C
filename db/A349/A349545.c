@@ -10,6 +10,7 @@
  *            = n - r(r+1)/2. GL(k,2) = ∏_{i=0}^{k-1} (2^k - 2^i)
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 26, u64 n <= 44, u128 n <= 77,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 1320 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

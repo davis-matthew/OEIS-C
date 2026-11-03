@@ -10,13 +10,14 @@
  *            = floor((sqrt(8*n+1)-1)/2) and j = n - i(i+1)/2
  * Range:     u8 n <= 43, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   pow2_custom
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow2_custom.h"
+#include "../utils/pow2.h"
 
 /* Return the n-th term of sequence A143038. */
 seq_t a(idx_t n)
@@ -29,10 +30,10 @@ seq_t a(idx_t n)
     idx_t offset = i * (i + 1) / 2;  /* first index of row i */
     idx_t j = n - offset;            /* column index within the row */
 
-    seq_t val = pow2_custom(i);      /* base 2^i */
+    seq_t val = pow2(i);      /* base 2^i */
 
     if (j < i) {                     /* subtract lower power */
-        seq_t sub = pow2_custom(i - 1 - j);
+        seq_t sub = pow2(i - 1 - j);
         val -= sub;
     }
 

@@ -8,8 +8,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = gcd(A018804(n), A347130(n))
- * Range:     u8 n <= 35, u16 n <= 6911, u32 n <= 9939, u64 n <= 9939,
- *            u128 n <= 9939, big any n
+ * Range:     u8 n <= 35, u16 n <= 6911, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 113 terms through n = 9939 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,8 +20,10 @@
 /* A347130(n) = Σ_{d|n} d·(n/d)'   (Dirichlet convolution of id and arithmetic derivative) */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 /* Recursive enumeration of all divisors of n. Handles
    the φ(d)·(n/d) part (pill) and the d·(n/d)' part (dir). */

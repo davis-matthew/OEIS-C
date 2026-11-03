@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    for square roots, producing a periodic sequence. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
             /* grow storage if needed */
             if (period_len == period_cap) {
                 period_cap = period_cap ? period_cap * 2 : 256;
-                period = (seq_t *)realloc(period, period_cap * sizeof(seq_t));
+                period = mem_resize(seq_t, period, period_cap);
             }
             period[period_len++] = (seq_t)a_next;
 

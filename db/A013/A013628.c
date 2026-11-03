@@ -9,12 +9,14 @@
  *            index) The sequence is the flattened coefficients of (4 + 5*x)^m
  * Range:     u8 n <= 7, u16 n <= 22, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -12,7 +12,8 @@
  *            automaton DP over the last two rows
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 #define COLS 6
 #define ROWS (1u << COLS)          /* 64 possible 6‑bit row patterns */
@@ -129,7 +131,7 @@ seq_t a(idx_t n)
     static seq_t dp[ROWS + 1][ROWS];
     static seq_t ndp[ROWS + 1][ROWS];
     /* initialise counts for first row: top‑left cell = 0 */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     for (int row = 0; row < ROWS; ++row) {
         if ((row & 1) == 0) {      /* column 0 bit must be 0 */
             dp[DUMMY][row] = (seq_t)1;
@@ -138,7 +140,7 @@ seq_t a(idx_t n)
 
     /* iterate adding rows 2 … n */
     for (idx_t r = 1; r < n; ++r) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
 
         for (int prev2 = 0; prev2 <= DUMMY; ++prev2) {
             for (int prev = 0; prev < ROWS; ++prev) {
@@ -153,7 +155,7 @@ seq_t a(idx_t n)
             }
         }
         /* swap dp and ndp */
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     /* final row must satisfy last_ok */

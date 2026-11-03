@@ -10,6 +10,7 @@
  *            choose k]_q is the Gaussian binomial coefficient
  * Range:     u8 n <= 16, u16 n <= 30, u32 n <= 58, u64 n <= 125,
  *            u128 n <= 240, big any n
+ * Validated: standard, pass, 65 terms through n = 1177 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

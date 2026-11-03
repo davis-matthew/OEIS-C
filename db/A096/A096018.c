@@ -11,34 +11,37 @@
  *            = p^(3e) - (p-1)p^(2e-1)(p^e+1)/(p+1)
  * Range:     u8 n <= 6, u16 n <= 39, u32 n <= 1524, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_seq
+ * Validated: standard, pass, 56 terms through n = 9054 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow_i32.h"
 
 static seq_t component(uint64_t p, int e)
 {
     if (p == 2) {
         /* a(2^e) = 2^(3e) */
-        return pow_seq((seq_t)2, 3ULL * (uint64_t)e);
+        return ipow_i32((seq_t)2, 3ULL * (uint64_t)e);
     }
 
     if ((p & 3ULL) == 1ULL) { /* p ≡ 1 (mod 4) */
-        seq_t p_pow_2e1 = pow_seq((seq_t)p, 2ULL * (uint64_t)e - 1ULL);
-        seq_t p_pow_e   = pow_seq((seq_t)p, (uint64_t)e);
+        seq_t p_pow_2e1 = ipow_i32((seq_t)p, 2ULL * (uint64_t)e - 1ULL);
+        seq_t p_pow_e   = ipow_i32((seq_t)p, (uint64_t)e);
         seq_t p_pow_e1  = p_pow_e * (seq_t)p;           /* p^(e+1) */
         seq_t inner     = p_pow_e1 + p_pow_e - (seq_t)1;/* p^(e+1)+p^e−1 */
         return p_pow_2e1 * inner;
     }
 
     /* p ≡ 3 (mod 4) */
-    seq_t p_pow_3e   = pow_seq((seq_t)p, 3ULL * (uint64_t)e);
-    seq_t p_pow_2e1  = pow_seq((seq_t)p, 2ULL * (uint64_t)e - 1ULL);
-    seq_t p_pow_e    = pow_seq((seq_t)p, (uint64_t)e);
+    seq_t p_pow_3e   = ipow_i32((seq_t)p, 3ULL * (uint64_t)e);
+    seq_t p_pow_2e1  = ipow_i32((seq_t)p, 2ULL * (uint64_t)e - 1ULL);
+    seq_t p_pow_e    = ipow_i32((seq_t)p, (uint64_t)e);
     seq_t mult       = p_pow_2e1 * (seq_t)(p - 1ULL);  /* p^(2e-1)*(p-1) */
 
     if ((e & 1) == 0) {          /* even exponent: use (p^e-1)   */

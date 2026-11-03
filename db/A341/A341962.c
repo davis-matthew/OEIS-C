@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 493 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static caches for the sequence and auxiliary arrays */
 static seq_t *a_seq = NULL;   /* a[n] */
@@ -47,14 +49,14 @@ static void ensure_cap(idx_t n) {
     size_t new_cap = need * 2;               /* double to amortize reallocs */
     if (new_cap < need) new_cap = need;     /* avoid overflow */
 
-    a_seq = (seq_t *)realloc(a_seq, new_cap * sizeof(*a_seq));
-    c_seq = (seq_t *)realloc(c_seq, new_cap * sizeof(*c_seq));
-    d_seq = (seq_t *)realloc(d_seq, new_cap * sizeof(*d_seq));
+    a_seq = mem_resize(seq_t, a_seq, new_cap);
+    c_seq = mem_resize(seq_t, c_seq, new_cap);
+    d_seq = mem_resize(seq_t, d_seq, new_cap);
 
     /* initialise the newly allocated part to zero (not strictly required) */
-    memset(a_seq + cap, 0, (new_cap - cap) * sizeof(*a_seq));
-    memset(c_seq + cap, 0, (new_cap - cap) * sizeof(*c_seq));
-    memset(d_seq + cap, 0, (new_cap - cap) * sizeof(*d_seq));
+    mem_set(a_seq + cap, 0, (new_cap - cap) * sizeof(*a_seq));
+    mem_set(c_seq + cap, 0, (new_cap - cap) * sizeof(*c_seq));
+    mem_set(d_seq + cap, 0, (new_cap - cap) * sizeof(*d_seq));
 
     cap = new_cap;
 }

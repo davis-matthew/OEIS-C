@@ -10,12 +10,14 @@
  *            values a(1)=3, a(2)=10, a(3)=33
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 36, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* ensure base cases are present */
     if (cached_n < 3) {
         idx_t new_size = 3;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         cache[0] = (seq_t)3;  /* a(1) */
         cache[1] = (seq_t)10; /* a(2) */
         cache[2] = (seq_t)33; /* a(3) */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (n > cached_n) {
         idx_t i;
         /* Grow the cache to size n */
-        cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, n);
 
         for (i = cached_n; i < n; ++i) { /* i is zero‑based index of a(i+1) */
             /* recurrence a(i+1) = a(i) + 7*a(i-1) + 4*a(i-2) */

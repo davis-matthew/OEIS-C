@@ -9,6 +9,7 @@
  *            between 1 and 10) whose squared sum is at most 100
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 21, u128 n <= 52,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 975 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

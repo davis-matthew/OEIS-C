@@ -7,12 +7,14 @@
  * Formula:   a(n) = -2*(a(n‑1)+a(n‑2)), a(0)=1, a(1)=‑1
  * Range:     i8 n <= 15, i16 n <= 31, i32 n <= 63, i64 n <= 127,
  *            i128 n <= 255, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1906 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage function as required */
 seq_t a(idx_t n)
@@ -31,9 +33,9 @@ seq_t a(idx_t n)
         size_t new_len = (size_t)(n + 1);
         seq_t *tmp;
         if (cache == NULL) {
-            tmp = (seq_t*)malloc(new_len * sizeof(seq_t));
+            tmp = mem_new(seq_t, new_len);
         } else {
-            tmp = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+            tmp = mem_resize(seq_t, cache, new_len);
         }
         if (!tmp) return 0;                /* Out of memory: return 0 as a fallback */
         cache = tmp;

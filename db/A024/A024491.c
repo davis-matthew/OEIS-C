@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial(4n,2n)/(4n-1)
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 9, i64 n <= 18, i128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
    a(n) = a(n-1) * 2*(4n-3)*(4n-5) / [ n*(2n-1) ]   for n >= 1
    The product is reduced by GCDs to avoid overflow. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

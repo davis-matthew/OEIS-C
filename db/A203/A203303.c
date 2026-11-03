@@ -7,7 +7,8 @@
  * Formula:   a(n) = Product_{0 <= i < j <= n-1} (2^j - 2^i)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   pow2, seq_pow
+ * Validated: standard, pass, 22 terms through n = 22 (2026-11-01)
+ * Helpers:   ipow_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,11 @@
 /* Implementation uses the closed form:
    a(n) = 2^(n*(n-1)*(n-2)/6) * Prod_{k=1}^{n-1} (2^k-1)^(n-k)   */
 
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 #include "../utils/pow2.h"
-#include "../utils/seq_pow.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +34,7 @@ seq_t a(idx_t n)
     for (idx_t k = 1; k < n; ++k) {
         seq_t term   = pow2(k) - (seq_t)1;   /* 2^k - 1  */
         idx_t  e     = n - k;                /* exponent   */
-        result = result * seq_pow(term, e);
+        result = result * ipow_idx(term, e);
     }
     return result;
 }

@@ -9,8 +9,9 @@
  *            of the prime factors of n (counting multiplicities). Computed by
  *            sieving primes up to n, then a DP that enumerates all reachable
  *            sums
- * Range:     u8 n <= 9754, u16 n <= 9754, u32 n <= 9754, u64 n <= 9754,
- *            u128 n <= 9754, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 103 terms through n = 9754 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

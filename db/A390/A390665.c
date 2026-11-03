@@ -8,13 +8,14 @@
  * Formula:   a(n) = ∏_{p^e || n} (1 + p^(e + ((3 - e % 3) % 3)))
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 1553, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 62 terms through n = 9057 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +32,7 @@ seq_t a(idx_t n)
             }
             uint64_t rem = e % 3;
             uint64_t e2 = e + ((3 - rem) % 3);    /* exponent in the smallest cube */
-            seq_t term = pow_uint(p, (idx_t)e2);
+            seq_t term = ipow_u64_idx(p, (idx_t)e2);
             term += (seq_t)1;
             res *= term;
         }
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
         uint64_t e = 1;
         uint64_t rem = e % 3;
         uint64_t e2 = e + ((3 - rem) % 3);
-        seq_t term = pow_uint(nn, (idx_t)e2);
+        seq_t term = ipow_u64_idx(nn, (idx_t)e2);
         term += (seq_t)1;
         res *= term;
     }

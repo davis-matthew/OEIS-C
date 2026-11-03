@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{p > n} floor(n^2 / p) , p prime
  * Range:     u8 n <= 15, u16 n <= 318, u32 n <= 2236, u64 n <= 2236,
  *            u128 n <= 2236, big any n
- * Helpers:   bit_mask
+ * Validated: standard, pass, 67 terms through n = 2139 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/bit_mask.h"
+
+static inline uint8_t bit_mask(idx_t n) { return 1 << (n & 7); }
 
 /* ---------------  Static data for sieving --------------- */
 static uint8_t *sieve_bits    = NULL;  /* bitset: 0=prime, 1=composite */

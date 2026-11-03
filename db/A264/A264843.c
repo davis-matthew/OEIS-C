@@ -9,7 +9,8 @@
  *            of the form 3k+1 (k ≥ 0)
  * Range:     u8 n <= 22, u16 n <= 6715, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9629 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* forward declaration of the sequence function */
 seq_t a(idx_t n);
@@ -87,7 +89,7 @@ static void grow_blocks(idx_t N)
     if (block_cap >= (size_t)N) return;
     size_t new_cap = (block_cap == 0) ? 32 : block_cap * 2;
     while (new_cap < (size_t)N) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(blocks, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, blocks, new_cap);
     if (!tmp) abort();
     blocks     = tmp;
     block_cap  = new_cap;

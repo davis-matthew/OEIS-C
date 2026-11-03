@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 2076, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mult_small
+ * Validated: standard, pass, 69 terms through n = 9625 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,22 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/mult_small.h"
+
+/* Multiply a decimal number stored in an array of single digits
+   (least‑significant digit first) by a small integer m (<= 362880). */
+static void mult_small(unsigned char *digits, int *len, unsigned int m)
+{
+    uint64_t carry = 0;
+    for (int i = 0; i < *len; ++i) {
+        uint64_t prod = (uint64_t)digits[i] * m + carry;
+        digits[i] = prod % 10;
+        carry = prod / 10;
+    }
+    while (carry) {
+        digits[(*len)++] = carry % 10;
+        carry /= 10;
+    }
+}
 
 /* Pre‑computed factorials of 0‑9 */
 static const uint32_t fact[10] = {

@@ -9,13 +9,15 @@
  *            (120/(2n)) * Σ_{d|n} φ(d) * S₂(n/d,5)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 5, u64 n <= 22, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ----------  Stirling numbers of the second kind  S₂(n,5)  ---------- */
 
@@ -26,7 +28,7 @@ static size_t S2_rows = 0;      /* highest n already computed */
 static void ensure_S2(size_t n)
 {
     if (S2 == NULL) {
-        S2 = (seq_t *)malloc(6 * sizeof(seq_t));
+        S2 = mem_new(seq_t, 6);
         for (int k = 0; k <= 5; ++k) S2[k] = 0;
         S2[0] = 1;      /* S₂(0,0)=1 ; all other entries stay 0 */
         S2_rows = 0;
@@ -34,7 +36,7 @@ static void ensure_S2(size_t n)
     if (n <= S2_rows) return;
 
     size_t new_rows = n + 1;          /* include new row n */
-    S2 = (seq_t *)realloc(S2, new_rows * 6 * sizeof(seq_t));
+    S2 = mem_resize(seq_t, S2, new_rows * 6);
 
     for (size_t i = S2_rows + 1; i <= n; ++i) {
         /* S₂(i,0) = 0 for i>0 – already zero because of realloc */

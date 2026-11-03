@@ -10,12 +10,14 @@
  *            a(k)*a(2n-k) + a(n)*(a(n)+1)/2, a(0)=0, a(1)=1
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 31, u64 n <= 56, u128 n <= 106,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 2473 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *memo = NULL;
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     
     if (memo == NULL) {
         memo_cap = 16;
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         memo[0] = 0;
         memo[1] = 1;
         memo_len = 2;
@@ -38,11 +40,11 @@ seq_t a(idx_t n) {
     while (memo_cap <= n) {
         memo_cap *= 2;
     }
-    seq_t *new_memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+    seq_t *new_memo = mem_new(seq_t, memo_cap);
     for (idx_t i = 0; i < memo_len; i++) {
         new_memo[i] = memo[i];
     }
-    free(memo);
+    mem_free(memo);
     memo = new_memo;
     
     // Compute values from memo_len to n

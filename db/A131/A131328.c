@@ -9,13 +9,15 @@
  *            and any seq_t (unsigned or arbitrary precision)
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 43, u64 n <= 89, u128 n <= 182,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 864 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for already computed values */
 static seq_t *cache = NULL;                  /* pointer to allocated array */
@@ -32,7 +34,7 @@ static void grow_cache(size_t new_cap)
     while (new_size < new_cap)
         new_size *= 2;
 
-    seq_t *p = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache, new_size);
     if (p == NULL) {
         /* Allocation failed – terminate with an error */
         abort();

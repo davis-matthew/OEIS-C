@@ -10,7 +10,8 @@
  *            on the 3^6 possible rows)
  * Range:     u8 none, u16 none, u32 n <= 2, u64 n <= 7, u128 n <= 15,
  *            big any n
- * Helpers:   seq_alloc_array
+ * Validated: standard, pass, 26 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_alloc_array.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 #define STATES 729   /* 3^6 different rows */
 #define WIDTH  6     /* fixed width of the array */
@@ -99,7 +106,7 @@ static void extend_to(idx_t target_rows)
 
     while (max_rows_done < target_rows) {
         /* reset next vector */
-        memset(next_vec, 0, sizeof(seq_t) * STATES);
+        mem_set(next_vec, 0, sizeof(seq_t) * STATES);
 
         /* count transitions */
         for (idx_t r = 0; r < STATES; ++r) {

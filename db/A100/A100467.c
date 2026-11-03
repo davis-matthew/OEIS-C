@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 10, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
+ * Range:     u8 none, u16 none, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+static int cmp_seq_num(const void *x, const void *y)
+{
+    const seq_t *u = (const seq_t *)x, *v = (const seq_t *)y;
+    return *u < *v ? -1 : (*v < *u ? 1 : 0);
+}
+
 
 /* ---- constants ------------------------------------------------------- */
 
@@ -99,7 +108,7 @@ static void init(void) {
 
     /* build sequence values */
     seq_cap = SEQ_INIT;
-    seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     const size_t total = semip_sz;
     for (size_t idx = 0; idx < total; ++idx) {
         uint32_t k_val = semip[idx];
@@ -109,14 +118,14 @@ static void init(void) {
         if (sum <= MAXV && is_semiprime(sum)) {
             if (seq_sz == seq_cap) {
                 seq_cap *= 2;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_sz++] = (seq_t)sum;
         }
     }
 
     /* sort and deduplicate the sequence */
-    qsort(seq, seq_sz, sizeof(seq_t), (int(*)(const void*,const void*))((void(*)(void))memcmp));
+    mem_qsort(seq, seq_sz, sizeof(seq_t), cmp_seq_num);    /* numerically (memcmp compared bytes) */
     size_t uniq = 0;
     for (size_t i = 0; i < seq_sz; ++i) {
         if (uniq == 0 || seq[i] != seq[uniq-1]) {

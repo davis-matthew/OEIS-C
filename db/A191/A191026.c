@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   good_jacobi
+ * Validated: standard, pass, 70 terms through n = 885 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,17 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/good_jacobi.h"
+#include "../utils/mem.h"
+
+/* (p|35)=1  iff (p|5) and (p|7) have the same sign
+   (for primes not dividing 35) */
+static bool good_jacobi(idx_t p)
+{
+    if (p % 5 == 0 || p % 7 == 0) return false;
+    bool leg5 = (p % 5 == 1 || p % 5 == 4);          /* symbol = +1 */
+    bool leg7 = (p % 7 == 1 || p % 7 == 2 || p % 7 == 4);  /* symbol = +1 */
+    return leg5 == leg7;
+}
 
 /* Prime list for small prime tests */
 static idx_t *primes = NULL;
@@ -50,7 +61,7 @@ static void ensure_cache_cap(size_t needed)
     if (cache_cap < needed) {
         size_t new_cap = (cache_cap == 0) ? 8 : cache_cap << 1;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

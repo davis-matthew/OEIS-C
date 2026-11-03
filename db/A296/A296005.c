@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 /* Required headers for static allocation and booleans */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state: sequence arrays and bookkeeping */
 static seq_t *A = NULL, *B = NULL;    /* sequence values */
@@ -36,7 +38,7 @@ static void grow_array(seq_t **arr, size_t *cap, size_t need)
     if (*cap >= need) return;
     size_t newcap = (*cap) ? (*cap) << 1 : 8;
     while (newcap < need) newcap <<= 1;
-    *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, newcap);
     *cap = newcap;
 }
 
@@ -61,8 +63,8 @@ static void init(void)
 {
     if (initialized) return;
     A_cap = 16; B_cap = 16;
-    A = (seq_t *)malloc(A_cap * sizeof(seq_t));
-    B = (seq_t *)malloc(B_cap * sizeof(seq_t));
+    A = mem_new(seq_t, A_cap);
+    B = mem_new(seq_t, B_cap);
 
     /* base values */
     A[0] = 2;  A[1] = 3;

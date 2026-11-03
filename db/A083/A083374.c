@@ -7,6 +7,7 @@
  * Formula:   a(n) = n^2*(n^2-1)/2 (binomial(n^2,2) for n>=1)
  * Range:     u8 n <= 4, u16 n <= 19, u32 n <= 303, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 53 terms through n = 7259 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   is_prime, rev
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   is_prime, mem, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/rev.h"
 #include "../utils/is_prime.h"
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
 
 /* ---------- Utility: integer square root of a 64‑bit value ---------- */
 static idx_t
@@ -120,18 +122,18 @@ ensure_initialized(idx_t desired_n)
         if (!primes_uint32) break;   /* allocation failure */
 
         /* Convert to seq_t array */
-        seq_t *primes = (seq_t *)malloc(prime_cnt * sizeof(seq_t));
+        seq_t *primes = mem_new(seq_t, prime_cnt);
         for (size_t i = 0; i < prime_cnt; ++i) primes[i] = (seq_t)primes_uint32[i];
 
         /* Collect isolated emirps */
         size_t cap = prime_cnt / 10 + 1;
-        seq_t *tmp = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, cap);
         size_t tmpcnt = 0;
 
         bool prev_emirp = false;
         for (size_t i = 0; i < prime_cnt; ++i) {
             bool curr_emirp;
-            idx_t rev_cur = rev((idx_t)primes[i]);
+            idx_t rev_cur = reverse_digits_idx((idx_t)primes[i]);
             if (rev_cur == (idx_t)primes[i])           /* palindrome */
                 curr_emirp = false;
             else
@@ -139,7 +141,7 @@ ensure_initialized(idx_t desired_n)
 
             bool next_emirp = false;
             if (i + 1 < prime_cnt) {
-                idx_t rev_next = rev((idx_t)primes[i + 1]);
+                idx_t rev_next = reverse_digits_idx((idx_t)primes[i + 1]);
                 if (rev_next != (idx_t)primes[i + 1])
                     next_emirp = is_prime(rev_next);
             }
@@ -147,7 +149,7 @@ ensure_initialized(idx_t desired_n)
             if (curr_emirp && !prev_emirp && !next_emirp) {
                 if (tmpcnt == cap) {
                     cap <<= 1U;
-                    tmp = (seq_t *)realloc(tmp, cap * sizeof(seq_t));
+                    tmp = mem_resize(seq_t, tmp, cap);
                 }
                 tmp[tmpcnt++] = primes[i];
             }
@@ -155,7 +157,7 @@ ensure_initialized(idx_t desired_n)
         }
 
         free(primes_uint32);
-        free(primes);
+        mem_free(primes);
 
         if (tmpcnt >= (size_t)desired_n) {
             isolated_primes = tmp;
@@ -164,7 +166,7 @@ ensure_initialized(idx_t desired_n)
             break;
         }
 
-        free(tmp);               /* insufficient, try larger limit */
+        mem_free(tmp);               /* insufficient, try larger limit */
         limit <<= 1U;            /* double the limit for next iteration */
     }
 }

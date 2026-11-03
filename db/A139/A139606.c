@@ -7,6 +7,7 @@
  * Formula:   a(n) = 15*n + 6
  * Range:     u8 n <= 16, u16 n <= 4368, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 69 terms through n = 4928 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

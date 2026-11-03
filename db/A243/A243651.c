@@ -7,7 +7,8 @@
  * Formula:   Nonnegative integers representable as x^2 + 11*y^2
  * Range:     u8 n <= 1, u16 n <= 10, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   grow_seq
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/grow_seq.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 typedef struct {
     seq_t val;   /* current value x^2 + 11*y^2 */
@@ -57,7 +72,7 @@ static bool initialized = false;
 static void init_sequence(void) {
     /* construct heap of Y_MAX+1 lists */
     heap_size = Y_MAX + 1;
-    heap = (HeapNode *)malloc(heap_size * sizeof(HeapNode));
+    heap = mem_new(HeapNode, heap_size);
     for (idx_t i = 0; i < (idx_t)heap_size; ++i) {
         heap[i].y = i;
         heap[i].x = 0;
@@ -70,7 +85,7 @@ static void init_sequence(void) {
 
     /* initialise cache */
     cache_cap = 128;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache_len = 0;
     initialized = true;
 }

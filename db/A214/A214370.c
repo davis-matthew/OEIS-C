@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache of terms (1‑based). */
 static seq_t *A = NULL;       /* array of sequence terms */
@@ -43,10 +45,10 @@ static void ensure_capA(idx_t idx)
     if (needed > capA) {
         size_t newcap = capA ? capA * 2 : 64;
         while (newcap < needed) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(A, (newcap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, (newcap + 1));
         if (!tmp) abort();                    /* allocation failure */
         /* zero any newly added elements (treat as zero) */
-        memset(tmp + capA, 0, (newcap + 1 - capA) * sizeof(seq_t));
+        mem_set(tmp + capA, 0, (newcap + 1 - capA) * sizeof(seq_t));
         A = tmp;
         capA = newcap;
     }
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
 
     /* lazily initialise cache on first call */
     if (A == NULL) {
-        A = (seq_t *)calloc(1, 1);        /* dummy element at index 0 */
+        A = mem_new(seq_t, (1) * (1) / sizeof(seq_t));        /* dummy element at index 0 */
         capA = 0;
         used = (uint8_t *)calloc(1, 1);   /* value 0 unused */
         cap_used = 0;

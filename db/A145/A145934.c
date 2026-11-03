@@ -7,6 +7,7 @@
  * Formula:   a(n) = a(n-1) - 6*a(n-2) (a(0)=1, a(1)=1)
  * Range:     i8 n <= 6, i16 n <= 11, i32 n <= 24, i64 n <= 49, i128 n <= 98,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 2342 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

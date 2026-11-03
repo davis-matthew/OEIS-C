@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * t = ⌊v3/2⌋, and recording every integer between successive t values
  * that is skipped.  This yields the requested a(n). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t
 a(idx_t n)
@@ -35,7 +37,7 @@ a(idx_t n)
     /* allocate space for the first missing number if needed */
     if (missing_len < 1 && missing_cap == 0) {
         missing_cap = 8;
-        missing = (seq_t *)realloc(missing, missing_cap * sizeof(seq_t));
+        missing = mem_resize(seq_t, missing, missing_cap);
         if (!missing)
             abort();              /* allocation failure */
     }
@@ -64,8 +66,7 @@ a(idx_t n)
                     if (new_cap == 0)
                         new_cap = 8;
                     seq_t *tmp =
-                        (seq_t *)realloc(missing,
-                                         new_cap * sizeof(seq_t));
+                        mem_resize(seq_t, missing, new_cap);
                     if (!tmp)
                         abort();
                     missing = tmp;

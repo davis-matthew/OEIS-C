@@ -9,13 +9,23 @@
  *            (from a(n) = exp(-1/4) * Sum_{k>=0} (4k+1)^n/(4^k k!))
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 31,
  *            big any n
- * Helpers:   A3576_regrow
+ * Validated: standard, pass, 37 terms through n = 226 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/A3576_regrow.h"
+#include "../utils/mem.h"
+
+static seq_t *A3576_regrow(seq_t *old, idx_t oldlen, idx_t newcap) {
+    seq_t *p = mem_new(seq_t, (size_t)newcap);
+    idx_t i;
+    for (i = 0; i < newcap; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static seq_t *A3576_row = NULL;   /* current triangle row T(cur, 0..cur) */
 static seq_t *A3576_vals = NULL;  /* a(0..cur) */

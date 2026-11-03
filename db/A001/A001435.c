@@ -11,21 +11,94 @@
  *            = U - 1 - T (loops), E = T*L, Np = U - Ps, D2/D3...
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 22, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   bin2, bin3, choose3, dil, fixed_bits, from_u128, mul, zs
+ * Validated: standard, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/bin2.h"
-#include "../utils/bin3.h"
-#include "../utils/choose3.h"
-#include "../utils/dil.h"
-#include "../utils/fixed_bits.h"
-#include "../utils/from_u128.h"
-#include "../utils/mul.h"
-#include "../utils/zs.h"
+#include "../utils/mem.h"
+
+static seq_t bin2(seq_t x) {
+    if (x % 2 == 0) return (x / 2) * (x - 1);
+    return x * ((x - 1) / 2);
+}
+
+static seq_t bin3(seq_t x) {
+    seq_t p, q, r;
+    if (x < 3) return 0;
+    p = x; q = x - 1; r = x - 2;
+    if (p % 3 == 0) p /= 3; else if (q % 3 == 0) q /= 3; else r /= 3;
+    if (p % 2 == 0) p /= 2; else q /= 2;
+    return p * q * r;
+}
+
+/* H1,H2,H3: (multi)sets of 1,2,3 objects drawn from class A */
+static void choose3(const seq_t *A, long long N, int multi, int need3,
+                    seq_t *H1, seq_t *H2, seq_t *H3) {
+    long long k, w;
+    for (w = 0; w <= N; w++) { H1[w] = 0; H2[w] = 0; H3[w] = 0; }
+    for (k = 0; k <= N; k++) {
+        seq_t c1, c2, c3;
+        if (A[k] == 0) continue;
+        c1 = A[k];
+        c2 = multi ? bin2(A[k] + 1) : bin2(A[k]);
+        c3 = 0;
+        if (need3) c3 = multi ? bin3(A[k] + 2) : bin3(A[k]);
+        for (w = N; w >= 0; w--) {
+            if (need3) {
+                if (w >= k) H3[w] += c1 * H2[w - k];
+                if (w >= 2 * k) H3[w] += c2 * H1[w - 2 * k];
+                if (w == 3 * k) H3[w] += c3;
+            }
+            if (w >= k) H2[w] += c1 * H1[w - k];
+            if (w == 2 * k) H2[w] += c2;
+            if (w == k) H1[w] += c1;
+        }
+    }
+}
+
+static void dil(const seq_t *x, long long k, seq_t *out, long long N) {
+    long long i;
+    for (i = 0; i <= N; i++) out[i] = 0;
+    for (i = 0; i * k <= N; i++) out[i * k] = x[i];
+}
+
+static int fixed_bits(void) {
+    seq_t x = 1;
+    int b = 0;
+    while (b < 300) {
+        x = x + x;
+        b++;
+        if (x == 0) return b;
+    }
+    return 0;
+}
+
+static seq_t from_u128(unsigned __int128 v) {
+    seq_t two64 = 1;
+    int i;
+    for (i = 0; i < 64; i++) two64 = two64 + two64;
+    return (seq_t)(uint64_t)(v >> 64) * two64 + (seq_t)(uint64_t)v;
+}
+
+static void mul(const seq_t *x, const seq_t *y, seq_t *c, long long N) {
+    long long i, j;
+    for (i = 0; i <= N; i++) c[i] = 0;
+    for (i = 0; i <= N; i++) {
+        if (x[i] == 0) continue;
+        for (j = 0; i + j <= N; j++) c[i + j] += x[i] * y[j];
+    }
+}
+
+static seq_t *zs(long long len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    long long i;
+    for (i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *cache = NULL;
 static long long cacheN = -1;
@@ -59,7 +132,7 @@ static void build(long long N) {
             for (k = 1; k <= m; k++) s += ss[k] * T[m - k + 1];
             T[m + 1] = s / (seq_t)m;
         }
-        free(ss);
+        mem_free(ss);
     }
     dil(T, 2, T2, N);
 
@@ -129,10 +202,10 @@ static void build(long long N) {
     mul(T2, W, tmp, N);
     for (k = 0; k <= N; k++) R[k] += tmp[k];
 
-    free(T); free(T2); free(P); free(Ps); free(U); free(L); free(E); free(E2);
-    free(Np); free(Np2); free(Np3); free(h1); free(h2); free(h3); free(D2T);
-    free(tmp); free(tmp2); free(M); free(W);
-    if (cache) free(cache);
+    mem_free(T); mem_free(T2); mem_free(P); mem_free(Ps); mem_free(U); mem_free(L); mem_free(E); mem_free(E2);
+    mem_free(Np); mem_free(Np2); mem_free(Np3); mem_free(h1); mem_free(h2); mem_free(h3); mem_free(D2T);
+    mem_free(tmp); mem_free(tmp2); mem_free(M); mem_free(W);
+    if (cache) mem_free(cache);
     cache = R;
     cacheN = N;
 }

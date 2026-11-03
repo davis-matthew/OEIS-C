@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Catalan(prime(n))
- * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 18,
+ * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 11, u128 n <= 19,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 98 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <stddef.h>
 #include "../utils/catalan.h"
 
 static idx_t *cached_primes = NULL;

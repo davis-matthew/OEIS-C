@@ -13,13 +13,15 @@
  *            or...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>   /* for size_t */
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static size_t memo_cap = 0;
@@ -31,7 +33,7 @@ static void ensure_memo_cap(size_t n)
     if (n < memo_cap) return;
     size_t new_cap = memo_cap ? memo_cap * 2 : 32;
     while (new_cap <= n) new_cap <<= 1;
-    memo = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+    memo = mem_resize(seq_t, memo, new_cap);
     memo_cap = new_cap;
 }
 

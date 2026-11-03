@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, is_prime, powmod64
+ * Validated: standard, pass, 72 terms through n = 836 (2026-11-01)
+ * Helpers:   factor_u64, is_prime, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,12 @@
    and for the arbitrary–precision seq_t class.
 */
 #include <stddef.h>
-#include "../utils/is_prime.h"
-#include "../utils/powmod64.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod_u64.h"
 
 static uint64_t *cached_primes = NULL;
 static size_t cached_len = 0;
@@ -61,7 +65,7 @@ static bool is_primitive_root72(uint64_t p) {
 
     for (size_t i = 0; i < fcnt; ++i) {
         uint64_t q = factors[i];
-        if (powmod64(base, phi / q, p) == 1) {
+        if (powmod_u64(base, phi / q, p) == 1) {
             return false;               /* a nontrivial root of unity exists */
         }
     }

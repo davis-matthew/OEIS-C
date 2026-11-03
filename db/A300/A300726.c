@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look
  * Formula:   a(n) = A053644(n) - A300724(n)
- * Range:     u8 n <= 511, u16 n <= 8685, u32 n <= 8685, u64 n <= 8685,
- *            u128 n <= 8685, big any n
- * Helpers:   factorize, floor_log2_uint64, pow2
+ * Range:     u8 n <= 511, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 111 terms through n = 8685 (2026-11-01)
+ * Helpers:   factorize, ilog2, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,10 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factorize.h"
+#include "../utils/ilog2.h"
 #include "../utils/pow2.h"
-#include "../utils/floor_log2_uint64.h"
 
 static void rec_divisors(idx_t n,
                          const uint64_t *primes,
@@ -37,7 +39,7 @@ static void rec_divisors(idx_t n,
         if (curr > 1 && zero_flag == 0) {
             int mu = (odd_cnt & 1) ? -1 : 1;
             idx_t nd = n / curr;
-            seq_t fnd = pow2(floor_log2_uint64(nd));
+            seq_t fnd = pow2(ilog2(nd));
             long long val = (long long)fnd;
             if (mu == 1) {
                 *sum += val;

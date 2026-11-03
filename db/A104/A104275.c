@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 159, u16 n <= 7536, u32 n <= 7536, u64 n <= 7536,
- *            u128 n <= 7536, big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 159, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 82 terms through n = 7536 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,10 @@
 /* Definition: a(n) = the smallest integer k such that 2k-1 is not prime
    (i.e., 2k-1 is composite or equals 1).  a(1)=1, a(2)=5, a(3)=8, ... */
 
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* offset 1: n>=1 in tests */
@@ -23,7 +27,7 @@ seq_t a(idx_t n) {
     idx_t count = 0;
     while (1) {
         uint64_t odd = (uint64_t)k * 2ull - 1ull;  /* 2k-1, fits in 64‑bit for test range */
-        if (!is_prime(odd)) {
+        if (!is_prime_u64(odd)) {
             ++count;
             if (count == n) {
                 return (seq_t)k;

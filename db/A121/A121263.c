@@ -8,14 +8,34 @@
  *            interpretation
  * Range:     u8 n <= 23, u16 n <= 30, u32 n <= 40, u64 n <= 55, u128 n <= 79,
  *            big any n
- * Helpers:   decimal_in_base
+ * Validated: standard, pass, 51 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/decimal_in_base.h"
+
+/* Interpret the decimal representation of num in base 'base'.
+   num is an idx_t (uint64_t), base and the result are seq_t. */
+static seq_t decimal_in_base(idx_t num, seq_t base) {
+    int digits[20];
+    int len = 0;
+    if (num == 0) {
+        digits[len++] = 0;
+    } else {
+        while (num > 0) {
+            digits[len++] = num % 10;
+            num /= 10;
+        }
+    }
+    seq_t value = 0;
+    for (int i = len - 1; i >= 0; --i) {
+        value = value * base + digits[i];
+    }
+    return value;
+}
 
 /* Compute sequence a(n) for n >= 10.
    For n < 10 the result is defined as 0 (unused). */

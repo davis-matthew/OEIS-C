@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 39, u64 n <= 122, u128 n <= 327,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 9993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External integer types provided by the build */
 extern seq_t binomial(idx_t n, idx_t k);  /* unused, but allowed */
@@ -58,7 +60,7 @@ static void ensure_rows(idx_t need_row)
     /* compute missing rows */
     for (idx_t r = max_row_computed + 1; r <= need_row; ++r) {
         size_t len = 2 * r + 1;            /* indices 0 .. 2r */
-        seq_t *row = (seq_t *)calloc(len, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) abort();                /* allocation failure */
 
         if (r == 1) {

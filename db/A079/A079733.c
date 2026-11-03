@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 973 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ *
  *  Static state for primes and cached sequence values
@@ -127,7 +129,7 @@ static void ensure_cache(idx_t need)
 
         /* initialise the cache */
         cache_cap = 8;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_sz  = 0;
         prime_index = 0;
     }
@@ -145,8 +147,7 @@ static void ensure_cache(idx_t need)
         if (p >= 3 && is_sum_of_two_squares((uint64_t)p - 3U)) {
             if (cache_sz == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 8;
-                cache = (seq_t *)realloc(cache,
-                                         cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_sz++] = (seq_t)p;
         }

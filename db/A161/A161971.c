@@ -10,13 +10,15 @@
  *            (C11/C++17)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 228 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build environment. */
 
@@ -40,8 +42,8 @@ ensure_capacity(idx_t n)
     while (new_cap < need)
         new_cap <<= 1;                    /* grow by powers of two */
 
-    seq_t *new_a = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
-    seq_t *new_t = (seq_t *)realloc(t_vals, new_cap * sizeof(seq_t));
+    seq_t *new_a = mem_resize(seq_t, a_vals, new_cap);
+    seq_t *new_t = mem_resize(seq_t, t_vals, new_cap);
     if (!new_a || !new_t) {
         /* Allocation failed; abort. */
         exit(EXIT_FAILURE);

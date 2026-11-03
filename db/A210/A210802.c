@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  * row by row.  Row n has n coefficients and ends with F(n+1) (the
  * (n+1)st Fibonacci number). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;   /* undefined, but harmless */
@@ -41,15 +43,15 @@ seq_t a(idx_t n) {
     idx_t cur_len = 1;
 
     /* Initial row (n=1): u=1, v=1 */
-    u = (seq_t*)malloc(sizeof(seq_t));
-    v = (seq_t*)malloc(sizeof(seq_t));
+    u = mem_new(seq_t, 1);
+    v = mem_new(seq_t, 1);
     u[0] = (seq_t)1;
     v[0] = (seq_t)1;
 
     if (r == 1) {                     /* answer is the single coefficient */
         seq_t result = v[pos];
-        free(u);
-        free(v);
+        mem_free(u);
+        mem_free(v);
         return result;
     }
 
@@ -57,8 +59,8 @@ seq_t a(idx_t n) {
     for (idx_t row = 2; row <= r; ++row) {
         idx_t prev_len = cur_len;     /* length of previous row */
         idx_t next_len = row;         /* length of current row */
-        seq_t* next_u = (seq_t*)malloc(next_len * sizeof(seq_t));
-        seq_t* next_v = (seq_t*)malloc(next_len * sizeof(seq_t));
+        seq_t* next_u = mem_new(seq_t, next_len);
+        seq_t* next_v = mem_new(seq_t, next_len);
 
         /* i = 0 */
         next_u[0] = u[0] + v[0] + (seq_t)1;           /* u_next[0] */
@@ -90,16 +92,16 @@ seq_t a(idx_t n) {
         /* If this is the target row, return the required coefficient */
         if (row == r) {
             seq_t result = next_v[pos];
-            free(u);
-            free(v);
-            free(next_u);
-            free(next_v);
+            mem_free(u);
+            mem_free(v);
+            mem_free(next_u);
+            mem_free(next_v);
             return result;
         }
 
         /* Prepare for next iteration */
-        free(u);
-        free(v);
+        mem_free(u);
+        mem_free(v);
         u = next_u;
         v = next_v;
         cur_len = next_len;

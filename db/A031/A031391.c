@@ -7,6 +7,7 @@
  * Formula:   a(n) = prime(10*n-3) (OEIS A031391)
  * Range:     u8 n <= 5, u16 n <= 654, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 59 terms through n = 918 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 static uint64_t *prime_arr = NULL;     /* primes up to prime_bound */

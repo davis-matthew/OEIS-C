@@ -8,7 +8,8 @@
  *            3*(31*n-79)*a(n-2) + 36*(2*n-5)*a(n-3)) / (n-1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* (Derived from (1‑n)*a(n)+4*(5*n-14)*a(n‑1)+3*(31*n-79)*a(n‑2)+36*(2*n-5)*a(n‑3)=0) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* A larger type for intermediate arithmetic.  If the compiler supports
    unsigned __int128 we use it; otherwise we fall back to unsigned long long. */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache if necessary. */
     if (n >= size) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!tmp) exit(EXIT_FAILURE);   /* allocation failed */
         cache = tmp;
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   good_base11
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
  * non‑negative integer until the nth match is found. */
 
 #include <stdbool.h>
-#include "../utils/good_base11.h"
+
+static bool good_base11(seq_t x)
+{
+    int c3 = 0, c10 = 0;
+    seq_t t = x;
+    /* Handle the special case x == 0 explicitly to avoid the do‑while
+     * loop being skipped when x == 0. */
+    if (t == 0) {
+        return true; /* 0 has zero 3's and zero 10's. */
+    }
+    while (t > 0) {
+        int d = (int)(t % 11); /* digit in base 11 */
+        if (d == 3)          ++c3;
+        else if (d == 10)    ++c10;
+        t /= 11;
+    }
+    return c3 == c10;
+}
 
 seq_t a(idx_t n)
 {

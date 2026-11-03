@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 116, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base[20] = {
     0ULL, 0ULL, 0ULL, 3ULL, 2ULL, 6ULL, 6ULL, 18ULL, 18ULL, 37ULL,
@@ -43,7 +45,7 @@ static void ensure_cache(idx_t n) {
     idx_t new_size = cache_size ? cache_size << 1 : 32;
     while (new_size <= n) new_size <<= 1;
 #ifdef __cplusplus
-    seq_t *tmp = reinterpret_cast<seq_t*>(realloc(cache, new_size * sizeof(seq_t)));
+    seq_t *tmp = reinterpret_cast<seq_t*>(mem_resize(seq_t, cache, new_size));
 #else
     seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
 #endif

@@ -10,12 +10,14 @@
  *            follows from A' = A^2/(2-A) and using e.g.f. coefficients
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +28,7 @@ seq_t a(idx_t n)
     /* extend cache if necessary */
     if (n >= capacity) {
         idx_t new_cap = (n + 1) * 2;
-        seq_t *new_values = (seq_t *)realloc(values,
-                                              (size_t)new_cap * sizeof(seq_t));
+        seq_t *new_values = mem_resize(seq_t, values, (size_t)new_cap);
         if (!new_values) {        /* unable to allocate – return 0 */
             return 0;
         }

@@ -12,7 +12,8 @@
  *            column is represented by a 5‑bit pattern
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 13, u64 n <= 29, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define PAT_COUNT 32                 /* 5‑bit patterns: 0 … 31 */
 #define INITIAL_CACHE_CAP 10000      /* enough for requested n ≤ 10000 */
@@ -98,10 +100,10 @@ static void ensure_cache_cap(idx_t n)
 {
     if (n < cacheCap) return;
     size_t newCap = (n > cacheCap * 2) ? n + 1 : cacheCap * 2 + 1;
-    seq_t *newCache = (seq_t *)malloc(newCap * sizeof(seq_t));
+    seq_t *newCache = mem_new(seq_t, newCap);
     if (!newCache) return;            /* allocation failure → silently fail */
     for (size_t i = 1; i <= cacheSize; ++i) newCache[i] = cache[i];
-    free(cache);
+    mem_free(cache);
     cache = newCache;
     cacheCap = newCap;
 }
@@ -164,7 +166,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cacheCap = INITIAL_CACHE_CAP + 1;
-        cache = (seq_t *)malloc(cacheCap * sizeof(seq_t));
+        cache = mem_new(seq_t, cacheCap);
         if (!cache) return (seq_t)0;   /* allocation failure */
     }
 

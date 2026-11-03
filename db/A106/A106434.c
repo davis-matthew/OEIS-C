@@ -7,12 +7,14 @@
  * Formula:   a(1)=0, a(2)=2, a(n)=3*a(n-1)+2*a(n-2) for n≥3
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 36, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
     /* Grow the table if needed */
     if (n > dp_size) {
         size_t new_cap = (size_t)(n + 1); /* indices 0..n, 0 unused */
-        seq_t *tmp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_cap);
         if (!tmp) { /* allocation failed – return 0 as a safe fallback */
             return 0;
         }

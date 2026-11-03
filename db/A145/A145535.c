@@ -10,7 +10,8 @@
  *            performed on 8! = 40320
  * Range:     u8 none, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* a(n) values for n starting at 1   */
 static size_t cache_size = 0;    /* number of stored terms            */
@@ -52,7 +54,7 @@ static void init_cache(void)
             ++prime_cnt;
 
     /* 2. Allocate cache and temporary removed array. */
-    cache = (seq_t *)malloc(prime_cnt * sizeof(seq_t));
+    cache = mem_new(seq_t, prime_cnt);
     if (!cache) {
         free(is_prime);
         return;
@@ -60,7 +62,7 @@ static void init_cache(void)
     bool *removed = (bool *)malloc((N + 1) * sizeof(bool));
     if (!removed) {
         free(is_prime);
-        free(cache);
+        mem_free(cache);
         return;
     }
     for (idx_t i = 0; i <= N; ++i)

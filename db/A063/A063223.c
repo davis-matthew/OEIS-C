@@ -9,12 +9,14 @@
  *            24, a(4) = 34, a(5) = 44, a(6) = 52
  * Range:     u8 n <= 26, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoization buffer, cache[0] unused */
 static idx_t  cache_cap = 0;  /* allocated size (in terms of array index) */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
         idx_t new_cap = n + 1;
         if (new_cap < 16) new_cap = 16;          /* minimal grow */
         /* realloc returns void*, cast to seq_t* for both C and C++ */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();                      /* cannot allocate */
         cache = tmp;
         cache_cap = new_cap;

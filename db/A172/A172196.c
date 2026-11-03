@@ -13,13 +13,15 @@
  *            and sign: sign * alternates with n, and mag...
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 21, u64 n <= 36, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 475 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the external linkage function required by the
  * build system.  The exact typedefs for seq_t and idx_t are supplied at
@@ -46,7 +48,7 @@ static void ensure_c(idx_t max_n)
 
     /* Allocate (or enlarge) the arrays. */
     if (c_len == 0) {
-        c_val   = (seq_t*)malloc(sizeof(seq_t));
+        c_val   = mem_new(seq_t, 1);
         c_sign  = (int  *)malloc(sizeof(int));
         if (!c_val || !c_sign) abort();
         /* Initialize c(0) */
@@ -55,7 +57,7 @@ static void ensure_c(idx_t max_n)
         pow_of_two = (seq_t)1;            /* 2^0 */
         c_len = 1;
     } else {
-        c_val  = (seq_t*)realloc(c_val, (max_n + 1) * sizeof(seq_t));
+        c_val  = mem_resize(seq_t, c_val, (max_n + 1));
         c_sign = (int  *)realloc(c_sign, (max_n + 1) * sizeof(int));
         if (!c_val || !c_sign) abort();
     }

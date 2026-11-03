@@ -12,7 +12,8 @@
  *            dividing k
  * Range:     u8 n <= 8, u16 n <= 1202, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_capacity_u64
+ * Validated: standard, pass, 83 terms through n = 9960 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,16 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/ensure_capacity_u64.h"
+
+/* ---------- dynamic array helpers for uint64_t ---------- */
+static void ensure_capacity_u64(uint64_t **arr, size_t *cap, size_t needed)
+{
+    if (needed <= *cap) return;
+    size_t ncap = *cap ? (*cap << 1) : 8;
+    while (ncap < needed) ncap <<= 1;
+    *arr = (uint64_t*)realloc(*arr, ncap * sizeof(uint64_t));
+    *cap  = ncap;
+}
 
 /* ---------- SPF (smallest prime factor) sieve ---------- */
 static uint64_t *spf        = NULL;

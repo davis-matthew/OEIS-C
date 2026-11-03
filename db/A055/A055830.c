@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 138, u32 n <= 441, u64 n <= 1274,
  *            u128 n <= 1274, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 1273 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
     a(n) is the entry T(r,k) where r*(r+1)/2 ≤ n < (r+1)*(r+2)/2 and k = n‑r*(r+1)/2. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fib = NULL;                  /* Fibonacci array (fib[i] = Fib(i)) */
 static size_t fib_count = 0;                /* number of computed Fibonacci values */
@@ -34,7 +36,7 @@ static void ensure_fib(size_t need)
     if (fib_cap <= need) {                /* grow capacity */
         size_t new_cap = fib_cap ? fib_cap : 1;
         while (new_cap <= need) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(fib, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fib, new_cap);
         if (!tmp) exit(1);
         fib   = tmp;
         fib_cap = new_cap;
@@ -65,7 +67,7 @@ static void ensure_triangle_up_to(size_t r)
         row_cap   = new_cap;
     }
     for (size_t rr = row_count; rr <= r; ++rr) {
-        seq_t *row = (seq_t*)malloc((rr + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (rr + 1));
         if (!row) exit(1);
         if (rr == 0) {
             row[0] = (seq_t)1;

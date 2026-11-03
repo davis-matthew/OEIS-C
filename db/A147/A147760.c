@@ -9,6 +9,7 @@
  * Formula:   a(n) = (n+1)*2^(n - popcount(n)) - 1
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
+ * Validated: standard, pass, 48 terms through n = 3290 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 /*  (equivalent to a(n) = n*2^m + 2^m - 1 where m = n - popcount(n)) */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

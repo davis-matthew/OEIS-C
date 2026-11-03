@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 113, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   find_cube_root
+ * Validated: standard, pass, 85 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,28 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/find_cube_root.h"
+#include "../utils/mem.h"
+
+/* Find least non‑negative x < m such that x³ ≡ 2 (mod m).
+   If no such x exists, return 0 and found flag is false. */
+static int find_cube_root(idx_t m, seq_t *root)
+{
+    seq_t target = (seq_t)(2 % m);      /* 2 mod m */
+    if (m == 1) {                       /* any x works; choose 0 */
+        *root = (seq_t)0;
+        return 1;
+    }
+
+    for (idx_t x = 0; x < m; ++x) {
+        seq_t v = (seq_t)x * x % m;
+        v = v * x % m;
+        if (v == target) {
+            *root = (seq_t)x;
+            return 1;
+        }
+    }
+    return 0;
+}
 
 static seq_t *root_cache = NULL;   /* cached roots */
 static size_t cache_len = 0;       /* number of cached roots */
@@ -33,7 +55,7 @@ static void ensure_cache_cap(void)
 {
     if (cache_len >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(root_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, root_cache, new_cap);
         if (!tmp) exit(1);          /* abort on allocation failure */
         root_cache = tmp;
         cache_cap = new_cap;

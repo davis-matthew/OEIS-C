@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 345 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    f[n][k] = Σ_{l=1..n, v2(l)=k} ( (n-1)! / (n-l)! ) * f[n-l][k]   (in exact integer arithmetic). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* forward declarations for the build's integer types */
 extern idx_t trailing_zeros(idx_t);   /* defined below */
@@ -53,7 +55,7 @@ static void ensure_capacity(idx_t Nmax) {
 
     /* allocate new storage */
     size_t newSize = (size_t)(Nmax + 1) * (newKmax + 1);
-    seq_t *newF = (seq_t*)calloc(newSize, sizeof(seq_t));
+    seq_t *newF = mem_new(seq_t, newSize);
     if (!newF) abort();            /* out of memory */
 
     /* copy old data */
@@ -63,7 +65,7 @@ static void ensure_capacity(idx_t Nmax) {
                 newF[n * (newKmax + 1) + k] = f[n * (f_kmax + 1) + k];
             }
         }
-        free(f);
+        mem_free(f);
     }
 
     /* initialise base cases for new rows/cols */

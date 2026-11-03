@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{j=0..n-10} binomial(n,j) * Bell(j)
  * Range:     u8 n <= 12, u16 n <= 14, u32 n <= 19, u64 n <= 28, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 450 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Implements memoised computation of Bell numbers up to the largest n-10 */
 /* encountered. The routine grows a static array of Bell numbers lazily.   */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *bell = NULL;       /* array of Bell numbers */
 static idx_t bell_count = 0;     /* number of Bell entries stored (index+1) */
@@ -26,7 +28,7 @@ static void ensure_bell(idx_t upto)
     if (upto + 1 <= bell_count) return;           /* already have enough */
 
     /* Extend the array */
-    seq_t *tmp = (seq_t *)realloc(bell, (upto + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, bell, (upto + 1));
     if (!tmp) exit(1);                            /* allocation failed */
     bell = tmp;
 

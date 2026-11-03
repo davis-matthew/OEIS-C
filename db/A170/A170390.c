@@ -9,13 +9,15 @@
  *            43*(a(n‑1)+…+a(n‑42)) – 946*a(n‑43) for n ≥ 43
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* make sure cache exists for at least one element */
     if (!initialized) {
         cache_capacity = 1;
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = (seq_t)1;                      /* a(0) */
         computed_up_to = 0;
         initialized = 1;
@@ -36,9 +38,9 @@ seq_t a(idx_t n)
 
     /* grow cache if needed */
     if (n + 1 > cache_capacity) {
-        seq_t *new_cache = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-        memcpy(new_cache, cache, cache_capacity * sizeof(seq_t));
-        free(cache);
+        seq_t *new_cache = mem_new(seq_t, (n + 1));
+        mem_copy(new_cache, cache, cache_capacity * sizeof(seq_t));
+        mem_free(cache);
         cache = new_cache;
         cache_capacity = n + 1;
     }

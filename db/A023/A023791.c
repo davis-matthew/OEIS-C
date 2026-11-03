@@ -8,12 +8,14 @@
  *            representation has strictly descending digits
  * Range:     u8 n <= 2, u16 n <= 255, u32 n <= 511, u64 n <= 511,
  *            u128 n <= 511, big any n
- * Helpers:   none
+ * Validated: full, pass, 511 terms through n = 511 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for qsort */
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *p, const void *q)
 {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
             vals[idx++] = val;
         }
         cnt = idx;                 /* should be 511 */
-        qsort(vals, cnt, sizeof(seq_t), cmp_seq);
+        mem_qsort(vals, cnt, sizeof(seq_t), cmp_seq);
     }
 
     if (n < 1 || n > cnt)      /* out of range */

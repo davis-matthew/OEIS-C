@@ -10,22 +10,25 @@
  *            == 3 * For n < 3, a(n) = 0
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     if (n < 3) return 0;
 
     idx_t exp_n2 = n - 2;
-    seq_t pow_n2 = big_pow((seq_t)5, (seq_t)exp_n2);
+    seq_t pow_n2 = ipow((seq_t)5, (seq_t)exp_n2);
 
     idx_t exp_e = (n - 2) / 2;
-    seq_t pow_e = big_pow((seq_t)5, (seq_t)exp_e);
+    seq_t pow_e = ipow((seq_t)5, (seq_t)exp_e);
 
     idx_t r = n % 5;
     if (r == 0) return pow_n2;          /* a(n) = 5^(n-2) when n ≡ 0 (mod 5) */

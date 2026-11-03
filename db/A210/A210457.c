@@ -11,6 +11,7 @@
  *            array T(n,k) = binomial(n,k)*(n-1)^(n-k)*n by rows
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 54, u64 n <= 135, u128 n <= 377,
  *            big any n
+ * Validated: standard, pass, 61 terms through n = 9947 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

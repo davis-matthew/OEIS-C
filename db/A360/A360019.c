@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 40, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,27 @@
  */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Check whether S is a triangular number.
  * Triangular numbers are T_m = m (m+1) / 2.
@@ -48,8 +69,8 @@ seq_t a(idx_t n)
     /* lazy allocation on first use */
     if (seq == NULL) {
         capacity = 16;
-        seq      = (seq_t *)malloc(capacity * sizeof(seq_t));
-        prefix   = (seq_t *)malloc((capacity + 1) * sizeof(seq_t));
+        seq      = mem_new(seq_t, capacity);
+        prefix   = mem_new(seq_t, (capacity + 1));
         if (!seq || !prefix) exit(1);
         size = 0;
         prefix[0] = 0;  /* prefix sum of zero terms */
@@ -60,8 +81,8 @@ seq_t a(idx_t n)
         /* Ensure we have enough room to add a new element */
         if (size + 1 > capacity) {
             capacity *= 2;
-            seq    = (seq_t *)realloc(seq,    capacity * sizeof(seq_t));
-            prefix = (seq_t *)realloc(prefix, (capacity + 1) * sizeof(seq_t));
+            seq    = mem_resize(seq_t, seq, capacity);
+            prefix = mem_resize(seq_t, prefix, (capacity + 1));
             if (!seq || !prefix) exit(1);
         }
 

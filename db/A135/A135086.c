@@ -12,12 +12,15 @@
  *            smallest integer with k(k+1)/2 ≥ n. * prev = k(k‑1...
  * Range:     u8 n <= 44, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -39,13 +42,13 @@ seq_t a(idx_t n)
 
     if (c <= r) {
         /* A[r][c] = 2^c – 1 */
-        seq_t pow2_c = big_pow((seq_t)2, (seq_t)c);
+        seq_t pow2_c = ipow((seq_t)2, (seq_t)c);
         return pow2_c - (seq_t)1;
     } else {
         /* A[r][c] = (2^r – 1) * 2^(c – r) */
-        seq_t pow2_r   = big_pow((seq_t)2, (seq_t)r);
+        seq_t pow2_r   = ipow((seq_t)2, (seq_t)r);
         seq_t term     = pow2_r - (seq_t)1;
-        seq_t pow2_diff = big_pow((seq_t)2, (seq_t)(c - r));
+        seq_t pow2_diff = ipow((seq_t)2, (seq_t)(c - r));
         return term * pow2_diff;
     }
 }

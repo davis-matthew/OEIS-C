@@ -9,6 +9,7 @@
  *            120 for n>5; a(1)=256, a(2)=512, a(3)=1024, a(4)=2048, a(5)=3728
  * Range:     u8 none, u16 n <= 5, u32 n <= 83, u64 n <= 210, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 48 terms through n = 204 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

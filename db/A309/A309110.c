@@ -10,7 +10,8 @@
  *            217225462874112000 a(5) = 19228688422470957567836160000000
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   big_pow, seq_from_str, seq_mul
+ * Validated: standard, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,24 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_from_str.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 static bool initialized = false;
 static seq_t base_vals[6];  /* 0 unused, indices 1..5 */
@@ -72,8 +88,8 @@ seq_t a(idx_t n)
     seq_t exponent_for_base = t1 + t2;   /* exponent for 369600 */
 
     /* compute the multiplicative factors */
-    seq_t factor_power = big_pow((seq_t)272097792, (seq_t)m);
-    seq_t base_factor  = big_pow((seq_t)369600, exponent_for_base);
+    seq_t factor_power = ipow((seq_t)272097792, (seq_t)m);
+    seq_t base_factor  = ipow((seq_t)369600, exponent_for_base);
 
     /* result = result * factor_power * base_factor */
     seq_t temp = seq_mul(result, factor_power);

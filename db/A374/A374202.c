@@ -10,8 +10,9 @@
  *            of 2 in x. The function below computes a(n) for any n ≥ 2 using
  *            O(√n) trial division and double‑precision Fibonacci modulo 2⁶⁴
  *            (sufficient for n ≤ 10 000)
- * Range:     u8 n <= 9803, u16 n <= 9803, u32 n <= 9803, u64 n <= 9803,
- *            u128 n <= 9803, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 123 terms through n = 9803 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

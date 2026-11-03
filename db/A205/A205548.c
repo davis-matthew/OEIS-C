@@ -8,16 +8,22 @@
  * Formula:   a(n) = C(max(i+1,j+1),min(i+1,j+1)) where (i,j) are obtained by
  *            numbering the infinite symmetric matrix by antidiagonals
  *            starting at (1,1)
- * Range:     u8 n <= 38, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
+ * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   binomial, count_terms
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/count_terms.h"
+
+/* Compute the number of pairs with i+j <= s, i,j>=1 */
+static inline unsigned __int128 count_terms(uint64_t s) {
+    return (__int128)s * (s - 1) / 2;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;  /* undefined for offset 1, safe fallback */

@@ -8,14 +8,36 @@
  *            sum of all positive divisors of k
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   sigma_naive
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sigma_naive.h"
+
+/* compute σ(n) by trial division (fallback for n > LIMIT_K) */
+static uint64_t sigma_naive(uint32_t n) {
+    uint64_t result = 1;
+    uint32_t x = n;
+    for (uint32_t p = 2; (uint64_t)p * p <= x; ++p) {
+        if (x % p == 0) {
+            uint64_t term = 1;
+            uint64_t factor = 1;
+            while (x % p == 0) {
+                x /= p;
+                term *= p;
+                factor += term;
+            }
+            result *= factor;
+        }
+    }
+    if (x > 1) {
+        result *= (1 + (uint64_t)x);
+    }
+    return result;
+}
 
 #define LIMIT_K 200000
 

@@ -10,7 +10,8 @@
  *            undesired prime factor in the denominator of Bernoulli B_{70*m}
  * Range:     u8 n <= 1, u16 n <= 54, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _gcd_idx, build_primes_upto
+ * Validated: standard, pass, 56 terms through n = 990 (2026-11-03)
+ * Helpers:   build_primes_upto, gcd_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/_gcd_idx.h"
+#include "../utils/gcd_idx.h"
+#include "../utils/mem.h"
 
 /* Euclidean gcd for idx_t (uint64_t) */
 
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
             if (p == 2ULL || p == 3ULL || p == 11ULL || p == 71ULL)
                 continue;   /* these primes are always present */
             idx_t d = (idx_t)(p - 1ULL);
-            idx_t g = _gcd_idx(MULT, d);
+            idx_t g = gcd_idx(MULT, d);
             idx_t m0 = d / g;
             if (m0 == 0 || m0 > M_MAX) continue;
             for (idx_t j = m0; j <= M_MAX; j += m0)
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
 
         /* allocate terms array with a modest initial capacity */
         terms_cap = 128;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) return (seq_t)0;
         terms_len = 0;
         initialized = true;
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
             /* valid m found */
             if (terms_len == terms_cap) {
                 terms_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                 if (!tmp) return (seq_t)0;  /* out of memory */
                 terms = tmp;
             }

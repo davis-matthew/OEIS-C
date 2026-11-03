@@ -10,13 +10,15 @@
  *            static cache to store computed values of p
  * Range:     u8 n <= 17, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache of partition values p(0)..p(max)  */
 static seq_t *p_cache = NULL;      /* array of p values  */
@@ -30,7 +32,7 @@ ensure_partitions(idx_t n)
     /* initial allocation if needed */
     if (!p_cache) {
         p_cache_cap = n + 1;
-        p_cache = (seq_t *)malloc(p_cache_cap * sizeof(seq_t));
+        p_cache = mem_new(seq_t, p_cache_cap);
         if (!p_cache) abort();
         p_cache[0] = 1;       /* p(0) = 1 */
         p_cache_len = 1;
@@ -38,7 +40,7 @@ ensure_partitions(idx_t n)
     /* grow the cache if requested size exceeds current capacity */
     if (p_cache_cap <= n) {
         p_cache_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(p_cache, p_cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, p_cache, p_cache_cap);
         if (!tmp) abort();
         p_cache = tmp;
     }

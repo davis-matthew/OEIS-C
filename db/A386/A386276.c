@@ -12,6 +12,7 @@
  *            Equivalently: m = 6 * i * 12^j with gcd(i,10)=1, j≥0
  * Range:     u8 n <= 19, u16 n <= 3709, u32 n <= 3709, u64 n <= 3709,
  *            u128 n <= 3709, big any n
+ * Validated: standard, pass, 70 terms through n = 3630 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   has_three_zeros_and_three_twos
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_three_zeros_and_three_twos.h"
+#include "../utils/mem.h"
+
+/* Helper: true if x has exactly three 0's and exactly three 2's in base‑4. */
+static bool has_three_zeros_and_three_twos(seq_t x)
+{
+    unsigned count0 = 0, count2 = 0;
+    /* Empty representation is not needed (x > 0 when called). */
+    while (x != (seq_t)0) {
+        unsigned digit = (unsigned)(x % (seq_t)4);
+        if (digit == 0) {
+            if (++count0 > 3) return false;
+        } else if (digit == 2) {
+            if (++count2 > 3) return false;
+        }
+        x /= (seq_t)4;
+    }
+    return (count0 == 3) && (count2 == 3);
+}
 
 /* Dyn‑array of computed values. */
 static seq_t *cache = NULL;          /* pointer to array of terms */
@@ -33,7 +51,7 @@ static void ensure_capacity(size_t needed)
     if (cache == NULL || cache_cap < needed) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

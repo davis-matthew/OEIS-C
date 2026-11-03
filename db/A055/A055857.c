@@ -12,7 +12,8 @@
  *            36283*(x^7+x^11)+48543*(x^8+x^10)+53446*x^9
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 45, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   init_coeffs
+ * Validated: standard, pass, 46 terms through n = 943 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,25 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/init_coeffs.h"
+#include "../utils/mem.h"
+
+static void init_coeffs(int D[19]) {
+    /* (1-x^3)^3 = 1 - 3x^3 + 3x^6 - x^9                      */
+    const int A[10] = {1,0,0,-3,0,0,3,0,0,-1};
+    /* (1-x)^4   = 1 - 4x + 6x^2 -4x^3 + x^4                  */
+    const int B[5]  = {1,-4,6,-4,1};
+    /* (1+x)^5   = 1 + 5x +10x^2 +10x^3 +5x^4 +x^5              */
+    const int C[6]  = {1,5,10,10,5,1};
+
+    for (int i = 0; i < 19; ++i) D[i] = 0;
+
+    for (int i = 0; i < 10; ++i)
+        for (int j = 0; j < 5; ++j)
+            for (int k = 0; k < 6; ++k) {
+                int idx = i + j + k;
+                D[idx] += A[i] * B[j] * C[k];
+            }
+}
 
 /* Numerator coefficients P(x) (degree 0 … 18) */
 static const seq_t NUM[19] = {
@@ -45,12 +64,12 @@ seq_t a(idx_t n) {
     size_t old_size = cache_size;
     if ((size_t)n >= cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return (seq_t)0;          /* allocation failed */
         if (cache) {
             if (old_size > 0)
-                memcpy(new_cache, cache, old_size * sizeof(seq_t));
-            free(cache);
+                mem_copy(new_cache, cache, old_size * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = new_cache;
         cache_size = new_size;

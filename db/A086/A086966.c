@@ -8,7 +8,8 @@
  *            prime
  * Range:     u8 n <= 54, u16 n <= 7057, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, mod_mul
+ * Validated: standard, pass, 116 terms through n = 9150 (2026-11-01)
+ * Helpers:   is_prime, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
    so the simple enumeration is fast enough for primes up to ~10⁵. */
 
 #include <stdint.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t) */
-#include "../utils/mod_mul.h"   /* uint64_t mod_mul(uint64_t, uint64_t, uint64_t) */
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/is_prime.h"
+#include "../utils/mulmod.h"
 
 seq_t a(idx_t n)
 {
@@ -47,9 +50,9 @@ seq_t a(idx_t n)
     for (seq_t x = 0; x < p; ++x) {
         /* x^2 mod p */
         uint64_t x64 = (uint64_t)x;
-        uint64_t x2 = mod_mul(x64, x64, prime64);
+        uint64_t x2 = mulmod(x64, x64, prime64);
         /* x^4 mod p */
-        uint64_t x4 = mod_mul(x2, x2, prime64);
+        uint64_t x4 = mulmod(x2, x2, prime64);
         /* polynomial value: x^4 - x - 1 (mod p) */
         uint64_t poly = (x4 + prime64 - (x64 + 1)) % prime64;
         if (poly == 0)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum, is_prime_small
+ * Validated: standard, pass, 76 terms through n = 995 (2026-11-01)
+ * Helpers:   digit_sum, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 static idx_t *primes      = NULL;   /* stored prime values */
 static size_t primes_cap  = 0;      /* allocated capacity of primes */
@@ -50,7 +52,7 @@ static void ensure_primes_up_to_idx(idx_t idx)
         /* Find the next prime after last_checked */
         do {
             ++last_checked;
-        } while (!is_prime_small((seq_t)last_checked));
+        } while (!is_prime_seq((seq_t)last_checked));
         /* Store it */
         ensure_primes_cap(primes_cnt + 1);
         primes[primes_cnt++] = last_checked;

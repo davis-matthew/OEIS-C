@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 203, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   nCr
+ * Validated: standard, pass, 58 terms through n = 9467 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,18 @@
  */
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/nCr.h"
+
+/* Binomial coefficient C(n,k) for seq_t type. */
+static seq_t nCr(seq_t n, int k)
+{
+    if (k < 0 || n < (seq_t)k) return 0;
+    if (k == 0 || n == (seq_t)k) return 1;
+    if (k > n / 2) k = (int)(n - k);
+    seq_t r = 1;
+    for (int i = 1; i <= k; ++i)
+        r = r * (n - k + i) / i;   /* exact division */
+    return r;
+}
 
 /* Count how many valid numbers of length L exist.  The result fits
  * into idx_t because it grows at most polynomially in L. */

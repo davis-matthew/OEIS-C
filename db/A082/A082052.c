@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum of all divisors d of n with d % 4 != 1
  * Range:     u8 n <= 107, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   dfs_div_sum
+ * Validated: standard, pass, 87 terms through n = 8815 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,33 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/dfs_div_sum.h"
+
+/* Recursive helper: enumerate divisors constructed from prime powers
+ * and add those not congruent to 1 mod 4 to *sum.
+ */
+static void
+dfs_div_sum(unsigned idx,
+            seq_t    cur,
+            unsigned cnt,
+            const uint64_t *primes,
+            const unsigned *exponents,
+            seq_t *sum)
+{
+    if (idx == cnt) {
+        /* cur is a divisor of the original n */
+        if (cur % (seq_t)4 != (seq_t)1) {
+            *sum += cur;
+        }
+        return;
+    }
+
+    /* multiply cur by prime[idx]^e, for e = 0..exponents[idx] */
+    seq_t pow = (seq_t)1;
+    for (unsigned e = 0; e <= exponents[idx]; ++e) {
+        dfs_div_sum(idx + 1, cur * pow, cnt, primes, exponents, sum);
+        pow *= (seq_t)primes[idx];
+    }
+}
 
 /* Maximum number of distinct prime factors for a 64‑bit integer.
  * 20 is ample for all 64‑bit numbers. */

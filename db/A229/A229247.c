@@ -9,13 +9,15 @@
  *            whose largest block has size exactly 5
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 16, u64 n <= 25, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 489 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return binomial coefficient C(n,k) for 0 ≤ k ≤ n, using only integer
    arithmetic.  The arguments and result are of type idx_t/seq_t. */
@@ -42,8 +44,8 @@ seq_t a(idx_t n)
     if (B4 == NULL)
     {
         cap4 = cap5 = 1;
-        B4 = (seq_t *)malloc(cap4 * sizeof(seq_t));
-        B5 = (seq_t *)malloc(cap5 * sizeof(seq_t));
+        B4 = mem_new(seq_t, cap4);
+        B5 = mem_new(seq_t, cap5);
         if (!B4 || !B5) return (seq_t)0;          /* allocation failure */
         B4[0] = B5[0] = (seq_t)1;                 /* Bm(0) = 1 */
         len4 = len5 = 1;
@@ -54,14 +56,14 @@ seq_t a(idx_t n)
     {
         size_t new_cap = cap4 ? cap4 : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        B4 = (seq_t *)realloc(B4, new_cap * sizeof(seq_t));
+        B4 = mem_resize(seq_t, B4, new_cap);
         cap4 = new_cap;
     }
     if (cap5 <= (size_t)n)
     {
         size_t new_cap = cap5 ? cap5 : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        B5 = (seq_t *)realloc(B5, new_cap * sizeof(seq_t));
+        B5 = mem_resize(seq_t, B5, new_cap);
         cap5 = new_cap;
     }
 

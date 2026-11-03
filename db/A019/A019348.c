@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, mod_pow
+ * Validated: standard, pass, 72 terms through n = 879 (2026-11-03)
+ * Helpers:   build_primes_upto, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static uint64_t *prime_list = NULL;   /* all primes up to a fixed limit */
 static size_t prime_count = 0;        /* number of primes in prime_list */
@@ -36,7 +39,7 @@ static size_t seq_cache_cap  = 0;
 /* linear increase of cache capacity */
 static void enlarge_cache(void) {
     size_t new_cap = seq_cache_cap ? seq_cache_cap * 2 : 16;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     seq_cache = tmp;
     seq_cache_cap = new_cap;
@@ -67,12 +70,12 @@ static bool has_primitive_root_21(uint64_t p) {
         if (temp % q == 0) {
             /* remove all powers of q from temp */
             while (temp % q == 0) temp /= q;
-            if (mod_pow((seq_t)21, phi / q, (seq_t)p) == (seq_t)1)
+            if (powmod((seq_t)21, phi / q, (seq_t)p) == (seq_t)1)
                 return false;
         }
     }
     if (temp > 1) {   /* remaining prime factor */
-        if (mod_pow((seq_t)21, phi / temp, (seq_t)p) == (seq_t)1)
+        if (powmod((seq_t)21, phi / temp, (seq_t)p) == (seq_t)1)
             return false;
     }
     return true;

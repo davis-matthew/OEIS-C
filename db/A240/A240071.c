@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 9806, u16 n <= 9806, u32 n <= 9806, u64 n <= 9806,
- *            u128 n <= 9806, big any n
- * Helpers:   none
+ * Range:     u8 n <= 11458, u16 n <= 11458, u32 n <= 11458, u64 n <= 11458,
+ *            u128 n <= 11458, big any n
+ * Validated: standard, pass, 103 terms through n = 9806 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square root: longest integer r such that r*r <= n.  */
 static idx_t
@@ -49,7 +51,7 @@ ensure_capacity(void)
 {
     if (seq_len >= seq_cap) {
         size_t new_cap = (seq_cap == 0) ? 16 : seq_cap << 1;
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp)
             abort();   /* insufficient memory – terminate */
         seq = tmp;

@@ -12,12 +12,14 @@
  *            * odd[i] = number of colored-partitions of i with...
  * Range:     u8 n <= 10, u16 n <= 25, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *even_arr = NULL;
 static seq_t *odd_arr  = NULL;
@@ -33,10 +35,10 @@ seq_t a(idx_t n)
 
     /* Ensure arrays are large enough and clear them */
     if (cache_size < n + 1) {
-        free(even_arr);
-        free(odd_arr);
-        even_arr = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-        odd_arr  = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        mem_free(even_arr);
+        mem_free(odd_arr);
+        even_arr = mem_new(seq_t, (n + 1));
+        odd_arr  = mem_new(seq_t, (n + 1));
         cache_size = n + 1;
     }
     for (idx_t i = 0; i <= n; ++i) {

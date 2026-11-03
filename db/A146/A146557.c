@@ -9,6 +9,7 @@
  *            k*(p-1)/p) + 7*n^2 - 12*n + 4 )
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 113, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 48 terms through n = 953 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,9 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"   /* factor_u64 function from utils */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)
 {

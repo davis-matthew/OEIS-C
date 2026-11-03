@@ -10,7 +10,8 @@
  *            1 + x*(T(x)*R(x) + T(x)*T(x^2) + T(x^3))/3, T(0) = 1
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 24, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   grow_mem
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/grow_mem.h"
+
+static void *grow_mem(void *p, idx_t oldc, idx_t newc, size_t sz) {
+    char *q = (char *)realloc(p, (size_t)newc * sz);
+    memset(q + (size_t)oldc * sz, 0, (size_t)(newc - oldc) * sz);
+    return (void *)q;
+}
 
 #define DEF_CORE(NAME, T)                                                   \
 static T NAME(idx_t n) {                                                    \

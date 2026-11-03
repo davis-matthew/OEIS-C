@@ -14,7 +14,8 @@
  *            a(2)=T(1,0), a(3)=T(0,2), …...
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* global cache for the table */
 static seq_t *T = NULL;
@@ -32,7 +34,7 @@ static void recompute_table(idx_t newsize)
 {
     idx_t i, j;
     /* allocate new table */
-    seq_t *newT = (seq_t *)malloc(newsize * newsize * sizeof(seq_t));
+    seq_t *newT = mem_new(seq_t, newsize * newsize);
     if (!newT) return;  /* out‑of‑memory: caller will return 0 */
 
     /* initialise to zero */
@@ -73,7 +75,7 @@ static void recompute_table(idx_t newsize)
     }
 
     /* replace old table (if any) */
-    if (T) free(T);
+    if (T) mem_free(T);
     T = newT;
     T_size = newsize;
 }

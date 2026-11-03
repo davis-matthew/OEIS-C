@@ -10,13 +10,15 @@
  *            Initial values: a(1)=4, a(2)=13, a(3)=64, a(4)=230, a(5)=1012
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Initial allocation and seed with the first five terms */
     if (terms == NULL) {
         capacity = 6;               /* indices 0..5, ignore index 0 */
-        terms = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        terms = mem_new(seq_t, capacity);
         if (!terms) { /* allocation failed – return 0 */
             return (seq_t)0;
         }
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* Grow the allocation if necessary */
     if ((size_t)(n + 1) > capacity) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(terms, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) { /* realloc failed – keep old allocation but cannot compute */
             return (seq_t)0;
         }

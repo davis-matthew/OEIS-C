@@ -8,12 +8,14 @@
  * Formula:   a(1)=0, a(2)=1, a(3)=3, a(n) = (n+1)*a(n-1) - n*a(n-2) for n>=4
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 441 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (need > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 4;
         if (new_cap < need) new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)          /* allocation failed – return 0 as a safe fallback */
             return (seq_t)0;
         cache = tmp;

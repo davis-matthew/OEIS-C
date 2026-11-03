@@ -7,14 +7,26 @@
  * Formula:   a(n) = ⌊9ⁿ / 5ⁿ⌋ (OEIS A094986)
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 37, u64 n <= 75, u128 n <= 150,
  *            big any n
- * Helpers:   base5_digits_to_seq_t
+ * Validated: standard, pass, 50 terms through n = 970 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/base5_digits_to_seq_t.h"
+
+/* Convert a number represented by base‑5 digits (least significant first)
+   into a seq_t value by repeated multiplication by 5.  The routine works
+   for any numeric seq_t type that supports the usual integer operators. */
+static seq_t base5_digits_to_seq_t(const uint8_t *digits, size_t first,
+                                   size_t last_excl)
+{
+    seq_t r = 0;
+    for (size_t i = last_excl; i-- > first; )
+        r = r * 5 + digits[i];
+    return r;
+}
 
 /* Returns floor(9ⁿ / 5ⁿ).  The value is computed by keeping 9ⁿ in base‑5
    with the smallest necessary number of digits, then discarding the

@@ -10,13 +10,15 @@
  *            allowed, only one kind of 1 can be a part)
  * Range:     u8 n <= 29, u16 n <= 204, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Coin‑change DP: for each factorial p, add dp[s-p] to dp[s] for all s≥p. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for DP results. */
 static seq_t *dp_cache = NULL;
@@ -35,7 +37,7 @@ static void ensure_dp(idx_t target) {
     size_t new_max = (size_t)target + 1;
     if (dp_cache == NULL || new_max > dp_size) {
         /* Allocate new cache. */
-        seq_t *new_cache = (seq_t *)malloc(new_max * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_max);
         if (!new_cache) abort();          /* Failed allocation. */
 
         /* Zero out and compute DP. */
@@ -53,7 +55,7 @@ static void ensure_dp(idx_t target) {
         }
 
         /* Replace old cache. */
-        free(dp_cache);
+        mem_free(dp_cache);
         dp_cache = new_cache;
         dp_size = new_max;
     }

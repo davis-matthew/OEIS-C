@@ -10,12 +10,14 @@
  *            a(14)=12, a(15)=2, a(16)=56
  * Range:     u8 n <= 22, u16 n <= 39, u32 n <= 74, u64 n <= 142,
  *            u128 n <= 280, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* stored values up to max_computed */
 static idx_t max_computed = (idx_t)-1; /* last index for which cache is defined */
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* allocate for 17 initial values */
         size_t sz = 17;
-        cache = (seq_t*)calloc(sz, sizeof(seq_t));
+        cache = mem_new(seq_t, sz);
         static const seq_t init[17] = {
             0, 0, 0, 1, 0, 0, 4, 1, 0, 6, 8, 1, 4, 28, 12, 2, 56
         };
@@ -41,7 +43,7 @@ static void ensure_cache(idx_t n)
     size_t old_sz = (size_t)(max_computed + 1);
     size_t new_sz = (size_t)(n + 1);
 
-    seq_t *tmp = (seq_t*)realloc(cache, new_sz * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_sz);
     if (!tmp) abort();  /* allocation failure */
     cache = tmp;
 

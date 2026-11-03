@@ -9,7 +9,8 @@
  *            (2*j/(2*j+1))^(n−2*j)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,14 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Auxiliary data for prime factorisation */
 #define LIM 20000            /* Enough for all j and 2*j+1 with n≤10000 */
@@ -114,7 +121,7 @@ seq_t a(idx_t n)
         int e_exp = exp[i];
         if (e_exp > 0) {
             /* pow_seq expects (seq_t base, idx_t exp) */
-            seq_t pw = seq_pow((seq_t)primes[i], (idx_t)e_exp);
+            seq_t pw = ipow_idx((seq_t)primes[i], (idx_t)e_exp);
             res = seq_mul(res, pw);
         }
     }

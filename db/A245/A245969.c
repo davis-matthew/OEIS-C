@@ -8,6 +8,7 @@
  * Formula:   a(n) = 4*n^3 + 16*n^2 + 6*n + 1 for n >= 3
  * Range:     u8 none, u16 n <= 24, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 54 terms through n = 989 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

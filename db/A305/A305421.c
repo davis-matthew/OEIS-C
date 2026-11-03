@@ -6,16 +6,28 @@
  * Keywords:  nonn
  * Formula:   a(n) = carry‑less product of the next irreducible * polynomials
  *            in the GF(2)[X] factorization of the integer n
- * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 9908, u64 n <= 9908,
- *            u128 n <= 9908, big any n
- * Helpers:   carry_mul_seq
+ * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 21845, u64 n <= 21845,
+ *            u128 n <= 21845, big any n
+ * Validated: standard, pass, 94 terms through n = 9908 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/carry_mul_seq.h"
+
+/* Carry‑less multiplication over GF(2). */
+static seq_t carry_mul_seq(seq_t a, seq_t b)
+{
+    seq_t r = 0;
+    while (b) {
+        if (b & 1) r ^= a;
+        a <<= 1;
+        b >>= 1;
+    }
+    return r;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Precomputed list of irreducible monic polynomials over GF(2).      */

@@ -7,13 +7,15 @@
  * Formula:   a(0) = 1, a(n) = n! * sum_{k=4..n} a(n-k)/((k-3)! * (n-k)!)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (fact_len <= n) {
         idx_t new_cap = fact_cap ? fact_cap * 2 : 1;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *new_fact = (seq_t*)realloc(fact, (size_t)new_cap * sizeof(seq_t));
+        seq_t *new_fact = mem_resize(seq_t, fact, (size_t)new_cap);
         fact = new_fact;
         fact_cap = new_cap;
         /* initialise missing factorials */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     if (seq_len <= n) {
         idx_t new_cap = seq_cap ? seq_cap * 2 : 4; /* start small */
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *new_seq = (seq_t*)realloc(seq, (size_t)new_cap * sizeof(seq_t));
+        seq_t *new_seq = mem_resize(seq_t, seq, (size_t)new_cap);
         seq = new_seq;
         seq_cap = new_cap;
         if (seq_len == 0) {

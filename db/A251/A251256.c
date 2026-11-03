@@ -12,7 +12,8 @@
  *            rows, using the compatibility relation between con...
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 19, u128 n <= 41,
  *            big any n
- * Helpers:   is_compatible
+ * Validated: standard, pass, 34 terms through n = 194 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,33 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_compatible.h"
+
+/* Compatibility between two rows: each 7‑bit mask represents a row. */
+static bool is_compatible(uint8_t prev, uint8_t next)
+{
+    for (int j = 0; j < 6; ++j) {
+        int a = (prev >> j) & 1;
+        int b = (prev >> (j + 1)) & 1;
+        int c = (next >> j) & 1;
+        int d = (next >> (j + 1)) & 1;
+
+        int ones = a + b + c + d;
+        if (ones == 1)                /* exactly one 1 */
+            continue;
+        if (ones == 2) {
+            /* two 1s must be on the same horizontal or vertical edge */
+            if ((a && b && !c && !d) ||
+                (!a && !b && c && d) ||
+                (a && c && !b && !d) ||
+                (b && d && !a && !c))
+                continue;
+            return false;            /* forbidden opposite‑corner pattern */
+        }
+        /* zero, three or four ones are forbidden */
+        return false;
+    }
+    return true;
+}
 
 /* Precomputed adjacency */
 static int comp_list[128][128];

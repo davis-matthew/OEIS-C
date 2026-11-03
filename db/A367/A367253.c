@@ -8,7 +8,8 @@
  * Formula:   a(n) = number of partitions of n with parts 1, 2, 5, 20, 40
  * Range:     u8 n <= 52, u16 n <= 301, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* (Same as the number of ways to make change for 5n cents with Canadian coins) */
 
 #include <stdlib.h>   /* calloc, free, abort */
+#include "../utils/mem.h"
 
 static seq_t *dp_cache = NULL;
 static idx_t cache_max = 0;
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     if (dp_cache == NULL || n > cache_max) {
         /* Allocate new table up to n */
         idx_t new_max = n;
-        seq_t *new_dp = (seq_t *)calloc(new_max + 1, sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, new_max + 1);
         if (!new_dp) abort();          /* allocation failed */
 
         new_dp[0] = 1;                  /* one way to partition 0 */
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
         }
 
         /* Replace old cache */
-        if (dp_cache) free(dp_cache);
+        if (dp_cache) mem_free(dp_cache);
         dp_cache = new_dp;
         cache_max = new_max;
     }

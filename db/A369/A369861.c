@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 17, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   digit_len, floor_cube_root, pow10
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   ipow_i32, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,9 +30,38 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_cube_root.h"
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdlib.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/num_digits.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n) {
     /* x begins as the starting integer n */
@@ -43,7 +73,7 @@ seq_t a(idx_t n) {
         seq_t a0 = floor_cube_root(x);          /* floor(cuberoot(x)) */
         seq_t cube0 = a0 * a0 * a0;             /* a0^3       */
         seq_t b0   = x - cube0;                 /* excess     */
-        idx_t L0   = digit_len(b0);             /* number of digits of b0   */
+        idx_t L0   = num_digits(b0);             /* number of digits of b0   */
         seq_t powL = pow10((idx_t)L0);          /* 10^L0       */
 
         /* Next value of the orbit */

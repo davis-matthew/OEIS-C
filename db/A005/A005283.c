@@ -10,14 +10,28 @@
  *            Product_{i=1..n} (1-x^i)/(1-x)
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 21, u64 n <= 37, u128 n <= 69,
  *            big any n
- * Helpers:   seq_is_fixed_width
+ * Validated: standard, pass, 42 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     if (n < 5) return 0;
@@ -37,7 +51,7 @@ seq_t a(idx_t n) {
     seq_t result;
     if (seq_is_fixed_width()) {
         /* exact modulo 2^w: start from pentagonal series, apply 1/(1-x) n times */
-        seq_t *c = (seq_t *)malloc(((size_t)k + 1) * sizeof(seq_t));
+        seq_t *c = mem_new(seq_t, ((size_t)k + 1));
         for (idx_t j = 0; j <= k; j++) {
             c[j] = 0;
             if (e[j] > 0) c[j] += 1;
@@ -47,7 +61,7 @@ seq_t a(idx_t n) {
             for (idx_t j = 1; j <= k; j++)
                 c[j] += c[j - 1];
         result = c[k];
-        free(c);
+        mem_free(c);
     } else {
         /* C = binomial(n-1+r, r), r = 0..k; coefficient e(k-r) */
         seq_t pos = 0, neg = 0;

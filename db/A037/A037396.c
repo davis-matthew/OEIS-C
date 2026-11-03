@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 1899, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ok_digit_subset_uint64
+ * Validated: standard, pass, 64 terms through n = 9966 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,32 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/ok_digit_subset_uint64.h"
+
+/* Return true iff every digit present in the base‑5 representation
+   of k also appears somewhere in the base‑9 representation of k. */
+static bool ok_digit_subset_uint64(uint64_t k)
+{
+    uint64_t mask5 = 0, mask9 = 0;
+
+    /* Collect digits of k in base 5. */
+    uint64_t t = k;
+    while (t > 0) {
+        unsigned d = t % 5;
+        mask5 |= 1ull << d;
+        t /= 5;
+    }
+
+    /* Collect digits of k in base 9. */
+    t = k;
+    while (t > 0) {
+        unsigned d = t % 9;
+        mask9 |= 1ull << d;
+        t /= 9;
+    }
+
+    /* All base‑5 digits must be present among base‑9 digits. */
+    return (mask5 & ~mask9) == 0;
+}
 
 /* Return the nth term of the sequence (offset 1). */
 seq_t a(idx_t n)

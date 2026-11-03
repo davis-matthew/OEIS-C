@@ -7,8 +7,9 @@
  * Formula:   a(n) = A073817(n)^2 + A073817(n+1)^2 where A073817 is the Lucas
  *            4‑step sequence defined by L(0)=4, L(1)=1, L(2)=3, L(3)=7,
  *            L(n)=L(n-1)+L(n-2)+L(n-3)+L(n-4) for n≥4
- * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 15, u64 n <= 22, u128 n <= 22,
+ * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 15, u64 n <= 32, u128 n <= 66,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 944 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

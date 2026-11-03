@@ -8,12 +8,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 36, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   digit_len_seq
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/digit_len_seq.h"
+#include <stdbool.h>
+#include "../utils/num_digits.h"
 /* 
  * a(n) = concatenation of the consecutive integers from m to m+k,
  * where t is the smallest integer with t*(t+1)/2 ≥ n,
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
     idx_t end = m + k;
     for (idx_t v = m; v <= end; ++v) {
         seq_t vi = (seq_t)v;
-        seq_t base = pow10_idx(digit_len_seq(vi));
+        seq_t base = pow10_idx(num_digits(vi));
         res = res * base + vi;
     }
     return res;

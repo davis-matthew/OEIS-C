@@ -8,6 +8,7 @@
  *            f(m) = 1 + x + … + x^{m-1} (the growth series of D_30)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 40, u128 n <= 353,
  *            big any n
+ * Validated: full, pass, 871 terms through n = 870 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

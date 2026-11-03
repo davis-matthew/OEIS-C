@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static uint8_t *prime_bool = NULL;       /* prime_bool[x] == 1 if x is prime */
 static uint64_t prime_limit = 0;          /* current sieve upper bound */
@@ -67,7 +69,7 @@ static void initialise(void)
     /* Start with a reasonably large sieve so that few extensions are needed. */
     build_sieve(20000000ULL);
     valid_cap = 1024;
-    valid_terms = (seq_t *)malloc(valid_cap * sizeof(seq_t));
+    valid_terms = mem_new(seq_t, valid_cap);
     if (!valid_terms) exit(EXIT_FAILURE);
     initialized = true;
 }
@@ -77,7 +79,7 @@ static void add_valid(uint64_t v)
 {
     if (valid_cnt >= valid_cap) {
         valid_cap = valid_cap ? valid_cap * 2 : 1024;
-        seq_t *tmp = (seq_t *)realloc(valid_terms, valid_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, valid_terms, valid_cap);
         if (!tmp) exit(EXIT_FAILURE);
         valid_terms = tmp;
     }

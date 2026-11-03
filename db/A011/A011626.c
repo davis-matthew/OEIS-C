@@ -8,14 +8,31 @@
  *            criterion)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   mod_pow_227
+ * Validated: standard, pass, 97 terms through n = 9315 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow_227.h"
+
+/* Compute a^113 (mod 227) using exponentiation by squaring. */
+static inline uint64_t mod_pow_227(uint64_t a)
+{
+    const uint64_t mod = 227ULL;
+    uint64_t result = 1ULL % mod;
+    uint64_t base   = a % mod;
+    uint64_t exp    = 113ULL;          /* (227-1)/2 */
+    while (exp != 0ULL) {
+        if (exp & 1ULL) {
+            result = (result * base) % mod;
+        }
+        base = (base * base) % mod;
+        exp >>= 1ULL;
+    }
+    return result;
+}
 
 /* External linkage as required */
 seq_t a(idx_t n)

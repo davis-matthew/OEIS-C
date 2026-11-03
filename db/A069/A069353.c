@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2^i * 3^j - 1 , i,j >= 0 (sorted ascending)
  * Range:     u8 n <= 26, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    in O(n) time and constant extra space (apart from the sequence
    array).  Memoization is employed so repeated calls are efficient. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         if (size == 0) {
             if (cap == 0) {
                 cap = 16;
-                smooth = (seq_t *)malloc(cap * sizeof(seq_t));
+                smooth = mem_new(seq_t, cap);
             }
             smooth[0] = (seq_t)1;   /* 2^0 * 3^0 = 1 */
             size = 1;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         /* grow the array if needed */
         if (size >= cap) {
             cap = cap ? cap * 2 : 16;
-            smooth = (seq_t *)realloc(smooth, cap * sizeof(seq_t));
+            smooth = mem_resize(seq_t, smooth, cap);
         }
 
         /* next candidates from the two pointers */

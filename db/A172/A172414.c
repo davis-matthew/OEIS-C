@@ -5,13 +5,16 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf, easy, less
  * Formula:   a(n) = catalan(floor(sqrt(n)))
- * Range:     u8 n <= 35, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
+ * Range:     u8 n <= 48, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
 
 /* integer square‑root, floor(sqrt(x)) for idx_t values.

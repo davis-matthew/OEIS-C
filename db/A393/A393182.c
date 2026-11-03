@@ -8,12 +8,14 @@
  *            Σ_{i=0}^{j} a(i) * a(j-i)
  * Range:     u8 n <= 12, u16 n <= 20, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_arr   = NULL;   /* a(n) values                  */
 static seq_t *conv_arr = NULL;  /* conv[j] = Σ_{i=0}^{j} a[i]*a[j-i] */
@@ -28,9 +30,9 @@ static void ensure_capacity(idx_t n)
     if (capacity < needed) {
         size_t new_cap = capacity ? capacity * 2 : 8;
         if (new_cap < needed) new_cap = needed;
-        a_arr    = (seq_t *)realloc(a_arr,    new_cap * sizeof(seq_t));
-        conv_arr = (seq_t *)realloc(conv_arr, new_cap * sizeof(seq_t));
-        s_arr    = (seq_t *)realloc(s_arr,    new_cap * sizeof(seq_t));
+        a_arr    = mem_resize(seq_t, a_arr, new_cap);
+        conv_arr = mem_resize(seq_t, conv_arr, new_cap);
+        s_arr    = mem_resize(seq_t, s_arr, new_cap);
         capacity = new_cap;
     }
 }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = 5*a(n-1) - 6*a(n-2) + 4*a(n-3) - a(n-4) (n ≥ 5)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 35, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #if defined(__cplusplus)
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* Memoised computation of A055991.  Cache contains a(0)=1 (auxiliary)
    and the first four non‑zero terms. */
@@ -28,10 +30,10 @@ static idx_t  cache_max  = 0;      /* maximum index computed so far */
    because seq_t is a builtin type. */
 static void alloc_cache(size_t cap)
 {
-    cache = (seq_t*)malloc(sizeof(seq_t) * cap);
+    cache = mem_new(seq_t, cap);
     if (cache == NULL) return;
 #if defined(__cplusplus)
-    for (size_t i = 0; i < cap; ++i) new (&cache[i]) seq_t();
+    for (size_t i = 0; i < cap; ++i) *(&cache[i]) = (seq_t)0;
 #endif
     cache_cap = cap;
 }
@@ -54,11 +56,11 @@ static void ensure_cache(idx_t n)
     /* Resize cache if necessary */
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = ((size_t)n + 1) * 2;
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return;
         cache = tmp;
 #if defined(__cplusplus)
-        for (size_t i = cache_cap; i < new_cap; ++i) new (&cache[i]) seq_t();
+        for (size_t i = cache_cap; i < new_cap; ++i) *(&cache[i]) = (seq_t)0;
 #endif
         cache_cap = new_cap;
     }

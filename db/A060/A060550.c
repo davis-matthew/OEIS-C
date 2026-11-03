@@ -12,11 +12,13 @@
  *            1), where d(n) = 1 if n mod 6 = 1, else 0
  * Range:     u8 n <= 27, u16 n <= 51, u32 n <= 99, u64 n <= 195,
  *            u128 n <= 387, big any n
+ * Validated: standard, pass, 66 terms through n = 500 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

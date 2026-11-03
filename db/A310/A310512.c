@@ -13,7 +13,8 @@
  *            A310512
  * Range:     u8 n <= 48, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[11] = {
     (seq_t)1,  (seq_t)4,  (seq_t)10, (seq_t)16, (seq_t)21,
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Initialise the first 11 terms once */
     if (!init_done) {
         size_t init_size = 11;          /* indices 0..10 inclusive */
-        cache = (seq_t *)realloc(cache, init_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, init_size);
         if (!cache) exit(1);            /* out‑of‑memory */
         for (idx_t i = 0; i < 11; ++i)
             cache[i] = init_vals[i];
@@ -50,11 +52,11 @@ seq_t a(idx_t n)
     /* Ensure the array is large enough for n */
     if ((size_t)n + 1 > cache_len) {
         size_t new_len = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) exit(1);
         /* Zero initialise the newly allocated part */
         if (new_len > cache_len)
-            memset(tmp + cache_len, 0, (new_len - cache_len) * sizeof(seq_t));
+            mem_set(tmp + cache_len, 0, (new_len - cache_len) * sizeof(seq_t));
         cache = tmp;
         cache_len = new_len;
     }

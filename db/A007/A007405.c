@@ -8,14 +8,17 @@
  *            a(0) = 1
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 21, u128 n <= 36,
  *            big any n
- * Helpers:   binom, pw2
+ * Validated: standard, pass, 39 terms through n = 99 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/pw2.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 #define MAX_N 20001
 
@@ -39,7 +42,7 @@ seq_t a(idx_t n) {
             seq_t result = memo[i - 1];
             
             for (idx_t k = 0; k < i; k++) {
-                seq_t term = binom(i - 1, k) * memo[k] * pw2(i - 1 - k);
+                seq_t term = binomial(i - 1, k) * memo[k] * pow2(i - 1 - k);
                 result += term;
             }
             

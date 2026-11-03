@@ -12,16 +12,18 @@
  *            and 2s ≥ k; if no such k exists a(n)=0
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   gcd64
+ * Validated: partial, pass, 96 terms through n = 95 (2026-11-02)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
 
 /* ----------  64‑bit modular arithmetic  ---------- */
 
@@ -83,7 +85,7 @@ static uint64_t pollard_rho(uint64_t n)
             x = (mul_mod(x, x, n) + c) % n;
             y = (mul_mod(y, y, n) + c) % n;
             y = (mul_mod(y, y, n) + c) % n;
-            d = gcd64((x > y) ? x - y : y - x, n);
+            d = gcd_u64((x > y) ? x - y : y - x, n);
         }
         if (d != n) return d;
         ++c;

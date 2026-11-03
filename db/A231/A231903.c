@@ -8,7 +8,8 @@
  * Formula:   A231903 - sum of two distinct primes >3 in exactly one way
  * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;          /* array of found terms */
 static size_t term_cnt = 0;          /* number of terms stored */
@@ -65,9 +67,9 @@ static void compute_terms(void)
         if (pair_cnt == 1) {
             /* Append e to terms. */
             if (term_cnt == 0) {
-                terms = (seq_t *)malloc(8 * sizeof(seq_t));
+                terms = mem_new(seq_t, 8);
             } else if (term_cnt == 8) { /* arbitrary grow factor */
-                terms = (seq_t *)realloc(terms, 16 * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, 16);
             }
             terms[term_cnt++] = (seq_t)e;
         }

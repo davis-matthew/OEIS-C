@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   dfs_distinct, dfs_unrestricted
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,39 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/dfs_distinct.h"
-#include "../utils/dfs_unrestricted.h"
+#include "../utils/mem.h"
+
+static void dfs_distinct(uint64_t n, uint64_t min_factor,
+                         unsigned parity,
+                         uint64_t *even, uint64_t *odd)
+{
+    if (parity & 1) ++*odd;
+    else          ++*even;
+
+    for (uint64_t d = min_factor; d <= n / d; ++d) {
+        if (n % d == 0) {
+            uint64_t m = n / d;
+            if (d < m)          /* guarantee distinctness */
+                dfs_distinct(m, d + 1, parity + 1, even, odd);
+        }
+    }
+}
+
+static void dfs_unrestricted(uint64_t n, uint64_t min_factor,
+                             unsigned parity,
+                             uint64_t *even, uint64_t *odd)
+{
+    /* single‑factor factorisation (n itself) */
+    if (parity & 1) ++*odd;
+    else          ++*even;
+
+    for (uint64_t d = min_factor; d <= n / d; ++d) {
+        if (n % d == 0) {
+            uint64_t m = n / d;
+            dfs_unrestricted(m, d, parity + 1, even, odd);
+        }
+    }
+}
 
 /* Find the n‑th integer k>1 such that:
  *   • the number of unordered factorisations of k (repetitions allowed)
@@ -30,7 +62,7 @@ static void push_value(seq_t **array, size_t *len, size_t *cap, seq_t value)
 {
     if (*len == *cap) {
         size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
-        seq_t *tmp = (seq_t *)realloc(*array, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *array, newcap);
         if (!tmp) {
             exit(EXIT_FAILURE);    /* allocation failure */
         }

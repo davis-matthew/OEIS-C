@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, fini, full
  * Formula:   not stated
- * Range:     u8 n <= 20, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 20, u16 n <= 112, u32 n <= 112, u64 n <= 112,
+ *            u128 n <= 112, big any n
+ * Validated: full, pass, 112 terms through n = 112 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
 
         /* ---------- Collect the non‑representable numbers ---------- */
         terms_len = 0;
-        terms = (seq_t*)malloc((size_t)LIMIT * sizeof(seq_t));  /* capacity ≥ LIMIT */
+        terms = mem_new(seq_t, (size_t)LIMIT);  /* capacity ≥ LIMIT */
         for (idx_t i = 1; i <= LIMIT; ++i) {          /* skip 0, we only want positives */
             if (!rep[i]) {
                 terms[terms_len++] = (seq_t)i;

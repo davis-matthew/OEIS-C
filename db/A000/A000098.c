@@ -11,14 +11,24 @@
  *            floor((j^2+6j+12)/12)
  * Range:     u8 n <= 9, u16 n <= 26, u32 n <= 87, u64 n <= 318,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_series
+ * Validated: standard, pass, 52 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/alloc_series.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_series(size_t sz)
+{
+    seq_t *p = mem_new(seq_t, sz);
+    size_t i;
+    for (i = 0; i < sz; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *P = 0;      /* partition numbers p(0..have-1) */
 static size_t have = 0;

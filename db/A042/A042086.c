@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 14, u64 n <= 29, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Computes the nth term of OEIS sequence A042086. */
 seq_t a(idx_t n)
@@ -41,9 +43,9 @@ seq_t a(idx_t n)
     /* Initialise cache with the 12 seed values. */
     if (cache == NULL) {
         cap = 12;                       /* at least 12 slots */
-        cache = (seq_t *)malloc(cap * sizeof(*cache));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) return 0;    /* allocation failure */
-        memcpy(cache, init, sizeof(init));  /* copy seeds */
+        mem_copy(cache, init, sizeof(init));  /* copy seeds */
         last = 11;                      /* highest seed index */
     }
 
@@ -51,10 +53,10 @@ seq_t a(idx_t n)
     /* Expand cache if required. */
     if ((size_t)(n + 1) > cap) {
         size_t newcap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(*cache));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (tmp == NULL) return 0;  /* allocation failure */
         /* zero‑initialize newly added part (not strictly needed) */
-        memset(tmp + cap, 0, (newcap - cap) * sizeof(*cache));
+        mem_set(tmp + cap, 0, (newcap - cap) * sizeof(*cache));
         cache = tmp;
         cap = newcap;
     }

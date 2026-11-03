@@ -7,12 +7,14 @@
  * Formula:   a(n) = -a(n-1) - 41*a(n-2), a(1) = 0, a(2) = -1
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 13, i64 n <= 26, i128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 490 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *cache = NULL;      /* array of computed terms, 1‑based indexing */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* initialise cache once we need to compute beyond the trivial terms */
     if (cache == NULL) {
         cache_capacity = 3;        /* at least indices 0..3 */
-        cache = (seq_t *)malloc((cache_capacity + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_capacity + 1));
         cache[0] = 0;              /* dummy, unused */
         cache[1] = 0;              /* a(1) */
         cache[2] = -1;             /* a(2) */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         /* double capacity if we are about to overflow */
         if (cached_max + 1 > cache_capacity) {
             cache_capacity *= 2;
-            cache = (seq_t *)realloc(cache, (cache_capacity + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (cache_capacity + 1));
         }
 
         /* recurrence: a(k) = -a(k-1) - 41*a(k-2) */

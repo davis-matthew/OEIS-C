@@ -14,7 +14,8 @@
  *            construction is compensated by dividing the final resul...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 34,
  *            big any n
- * Helpers:   calc_viol
+ * Validated: standard, pass, 32 terms through n = 176 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,37 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/calc_viol.h"
+
+static int calc_viol(uint8_t row, uint8_t above, uint8_t below,
+                     bool above_exists, bool below_exists)
+{
+    int viol = 0;
+    for (int j = 0; j < 5; ++j) {
+        int val = (row >> j) & 1;
+        int k = 0;
+        int s = 0;
+
+        /* horizontal neighbours */
+        if (j > 0)      { ++k; s += (row >> (j - 1)) & 1; }
+        if (j < 4)      { ++k; s += (row >> (j + 1)) & 1; }
+
+        /* vertical neighbours */
+        if (above_exists)  { ++k; s += (above >> j) & 1; }
+        if (below_exists)  { ++k; s += (below >> j) & 1; }
+
+        /* antidiagonal neighbours */
+        if (above_exists && j < 4)   { ++k; s += (above >> (j + 1)) & 1; }
+        if (below_exists && j > 0)   { ++k; s += (below >> (j - 1)) & 1; }
+
+        int maj = -1;
+        if (s * 2 > k)   maj = 1;
+        else if (s * 2 < k) maj = 0;
+
+        if (maj != -1 && val == maj)
+            ++viol;
+    }
+    return viol;
+}
 
 static unsigned char rowViolTop[32][32];
 static unsigned char rowViolMid[32][32][32];

@@ -8,13 +8,15 @@
  *            Φ_418(x)
  * Range:     i8 n <= 180, i16 n <= 180, i32 n <= 180, i64 n <= 180,
  *            i128 n <= 180, big any n
- * Helpers:   none
+ * Validated: full, pass, 181 terms through n = 180 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Simple polynomial representation */
 typedef struct {
@@ -25,7 +27,7 @@ typedef struct {
 /* Free memory used by a poly_t */
 static void free_poly(poly_t *p) {
     if (p->coeff) {
-        free(p->coeff);
+        mem_free(p->coeff);
         p->coeff = NULL;
     }
     p->deg = 0;
@@ -35,7 +37,7 @@ static void free_poly(poly_t *p) {
 static poly_t poly_mul(const poly_t *a, const poly_t *b) {
     poly_t r;
     r.deg = a->deg + b->deg;
-    r.coeff = (seq_t*)calloc(r.deg + 1, sizeof(seq_t));
+    r.coeff = mem_new(seq_t, r.deg + 1);
     for (idx_t i = 0; i <= a->deg; ++i) {
         for (idx_t j = 0; j <= b->deg; ++j) {
             r.coeff[i + j] += a->coeff[i] * b->coeff[j];
@@ -51,8 +53,8 @@ static poly_t poly_div_exact(const poly_t *num, const poly_t *den) {
     idx_t qdeg = m - n;
     poly_t q;
     q.deg = qdeg;
-    q.coeff = (seq_t*)calloc(qdeg + 1, sizeof(seq_t));
-    seq_t *rem = (seq_t*)calloc(m + 1, sizeof(seq_t));
+    q.coeff = mem_new(seq_t, qdeg + 1);
+    seq_t *rem = mem_new(seq_t, m + 1);
     for (idx_t i = 0; i <= m; ++i) rem[i] = num->coeff[i];
 
     for (idx_t i = m; i >= n; --i) {
@@ -65,7 +67,7 @@ static poly_t poly_div_exact(const poly_t *num, const poly_t *den) {
     }
 
     while (q.deg > 0 && q.coeff[q.deg] == 0) --q.deg;
-    free(rem);
+    mem_free(rem);
     return q;
 }
 
@@ -84,7 +86,7 @@ static void compute_phi_cache(void) {
     /* Φ_1(x) = x - 1 */
     poly_t p1;
     p1.deg = 1;
-    p1.coeff = (seq_t*)calloc(2, sizeof(seq_t));
+    p1.coeff = mem_new(seq_t, 2);
     p1.coeff[0] = -1;
     p1.coeff[1] = 1;
     phi_cache[1] = p1;
@@ -99,14 +101,14 @@ static void compute_phi_cache(void) {
         /* Numerator: x^d - 1 */
         poly_t num;
         num.deg = d;
-        num.coeff = (seq_t*)calloc(d + 1, sizeof(seq_t));
+        num.coeff = mem_new(seq_t, d + 1);
         num.coeff[0] = -1;
         num.coeff[d] = 1;
 
         /* Denominator: product of Φ_e for all proper divisors e | d */
         poly_t den;
         den.deg = 0;
-        den.coeff = (seq_t*)calloc(1, sizeof(seq_t));
+        den.coeff = mem_new(seq_t, 1);
         den.coeff[0] = 1;   /* multiplicative identity */
 
         for (size_t j = 0; j < idx; ++j) {

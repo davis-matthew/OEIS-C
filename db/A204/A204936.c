@@ -9,7 +9,8 @@
  *            is the least pair of distinct factorials with n | (k! – j!)
  * Range:     u8 n <= 9, u16 n <= 12, u32 n <= 36, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
        residues are 0..n-1.  */
     bool *seen = (bool *)calloc((size_t)n, sizeof(bool));
     if (!seen) return (seq_t)0; /* allocation failed */
-    seq_t *first_val = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *first_val = mem_new(seq_t, (size_t)n);
     if (!first_val) {
         free(seen);
         return (seq_t)0;
@@ -78,6 +80,6 @@ seq_t a(idx_t n)
     }
 
     free(seen);
-    free(first_val);
+    mem_free(first_val);
     return best;
 }

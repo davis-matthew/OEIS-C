@@ -11,7 +11,8 @@
  *            of set partitions of * {1,…,k*n} into blocks of size at most n
  * Range:     u8 n <= 22, u16 n <= 30, u32 n <= 39, u64 n <= 69, u128 n <= 109,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 489 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------
  * Helper: compute B(m,n) = number of set partitions of a set
@@ -37,12 +39,12 @@ static seq_t compute_B(idx_t row, idx_t col) {
     idx_t m = row * col;
 
     /* dynamic programming array */
-    seq_t *B = (seq_t *)malloc((m + 1) * sizeof(seq_t));
+    seq_t *B = mem_new(seq_t, (m + 1));
     if (!B) return (seq_t)0;   /* out of memory */
 
 #ifdef __cplusplus
     /* construct each element (needed for arbitrary‑precision types) */
-    for (size_t idx = 0; idx <= m; ++idx) new (B + idx) seq_t();
+    for (size_t idx = 0; idx <= m; ++idx) *(B + idx) = (seq_t)0;
 #endif
 
     B[0] = (seq_t)1;
@@ -64,9 +66,9 @@ static seq_t compute_B(idx_t row, idx_t col) {
 
 #ifdef __cplusplus
     /* destruct elements */
-    for (size_t idx = 0; idx <= m; ++idx) B[idx].~seq_t();
+    /* (mem_free destroys the elements) */
 #endif
-    free(B);
+    mem_free(B);
     return result;
 }
 

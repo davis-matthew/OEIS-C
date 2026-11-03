@@ -12,12 +12,35 @@
  *            that case
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   sq_div_count
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sq_div_count.h"
+/* Count the number of integers y ≥ 1 with y² | m.
+   This equals the number of square divisors of m. */
+static seq_t sq_div_count(idx_t m) {
+    seq_t count = 1;
+    idx_t exp = 0;
+    /* factor 2 */
+    while ((m & 1) == 0) {
+        exp++;
+        m >>= 1;
+    }
+    if (exp) count *= (exp / 2 + 1);
+    /* factor odd primes */
+    for (idx_t p = 3; p <= m / p; p += 2) {
+        exp = 0;
+        while (m % p == 0) {
+            exp++;
+            m /= p;
+        }
+        if (exp) count *= (exp / 2 + 1);
+    }
+    /* remaining prime factor (exponent 1) contributes 1, no change */
+    return count;
+}
 /* Note: sz_t and idx_t are supplied by the build; do not define them. */
 
 static idx_t isqrt(idx_t n) {

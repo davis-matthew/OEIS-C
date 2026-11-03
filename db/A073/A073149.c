@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    a(0) = T(0,0), a(1) = T(1,0), a(2)=T(1,1), a(3)=T(2,0), … */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **rows_cache = NULL;   /* rows_cache[i] points to array of size i+1 */
 static size_t rows_cache_size = 0;  /* allocated size of rows_cache pointer array */
@@ -45,7 +47,7 @@ static void ensure_row_cache(size_t idx)
     for (; rows_computed <= idx; ++rows_computed) {
         size_t n = rows_computed;
         /* cast to seq_t* for C++ compatibility */
-        seq_t *row = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (n + 1));
         if (!row) abort();
         rows_cache[n] = row;
 

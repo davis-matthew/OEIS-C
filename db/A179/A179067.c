@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 113 terms through n = 9238 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,25 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#endif
 
 /* -------------  Helper to grow a dynamic array  ----------------- */
+#ifdef __cplusplus
+template <class T>
+static void grow_if_needed(T **array, size_t *cap, size_t *len, size_t elem_size) /* elem_size: sizeof(T) */
+{
+    if (*len >= *cap) {
+        *cap = (*cap == 0) ? 16 : (*cap << 1);
+        *array = mem_resize(T, *array, *cap);
+    }
+}
+#else
 static void grow_if_needed(void **array, size_t *cap, size_t *len, size_t elem_size)
 {
     if (*len >= *cap) {
@@ -38,6 +56,7 @@ static void grow_if_needed(void **array, size_t *cap, size_t *len, size_t elem_s
         *array = realloc(*array, *cap * elem_size);
     }
 }
+#endif
 
 /* -------------  Static state for memoisation  ------------------ */
 static idx_t     sieve_limit   = 0;   /* current prime sieve limit        */
@@ -51,7 +70,7 @@ static void recompute_orders(void)
 {
     /* free previous data */
     free(primes);
-    free(orders_cache);
+    mem_free(orders_cache);
     primes = NULL;
     orders_cache = NULL;
     prime_cnt = 0;
@@ -69,10 +88,10 @@ static void recompute_orders(void)
     /* --- collect prime numbers ---------------------------------------- */
     size_t cap = 0;
     size_t cnt = 0;
-    grow_if_needed((void**)&primes, &cap, &cnt, sizeof(idx_t));
+    grow_if_needed(OEISC_VPP(&primes), &cap, &cnt, sizeof(idx_t));
     for (idx_t i = 2; i <= sieve_limit + 2; ++i)
         if (is_prime[i]) {
-            grow_if_needed((void**)&primes, &cap, &cnt, sizeof(idx_t));
+            grow_if_needed(OEISC_VPP(&primes), &cap, &cnt, sizeof(idx_t));
             primes[cnt++] = i;
         }
     prime_cnt = cnt;
@@ -81,10 +100,10 @@ static void recompute_orders(void)
     /* --- identify leading indices of twin primes --------------------- */
     idx_t *lead = NULL;
     size_t lead_cap = 0, lead_cnt = 0;
-    grow_if_needed((void**)&lead, &lead_cap, &lead_cnt, sizeof(idx_t));
+    grow_if_needed(OEISC_VPP(&lead), &lead_cap, &lead_cnt, sizeof(idx_t));
     for (size_t i = 0; i + 1 < prime_cnt; ++i)
         if (primes[i + 1] - primes[i] == 2) {
-            grow_if_needed((void**)&lead, &lead_cap, &lead_cnt, sizeof(idx_t));
+            grow_if_needed(OEISC_VPP(&lead), &lead_cap, &lead_cnt, sizeof(idx_t));
             /* 1‑based index of the lower prime in the twin pair */
             lead[lead_cnt++] = (idx_t)(i + 1);
         }
@@ -99,13 +118,13 @@ static void recompute_orders(void)
             if (lead[i] - lead[i - 1] == 2)
                 ++run_len;
             else {
-                grow_if_needed((void**)&seq, &seq_cap, &seq_cnt, sizeof(seq_t));
+                grow_if_needed(OEISC_VPP(&seq), &seq_cap, &seq_cnt, sizeof(seq_t));
                 seq[seq_cnt++] = (seq_t)run_len;
                 run_len = 1;
             }
         }
         /* last run */
-        grow_if_needed((void**)&seq, &seq_cap, &seq_cnt, sizeof(seq_t));
+        grow_if_needed(OEISC_VPP(&seq), &seq_cap, &seq_cnt, sizeof(seq_t));
         seq[seq_cnt++] = (seq_t)run_len;
     }
 

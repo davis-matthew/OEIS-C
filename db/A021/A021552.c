@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
        r_{k+1} = r_k * 10 mod 548
    The function caches digits for repeated calls. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *digits = NULL;      /* cached digits */
 static size_t digits_len = 0;     /* number of digits stored */
@@ -33,7 +35,7 @@ static void grow_cache(size_t need)
     size_t new_cap = digits_cap ? digits_cap * 2 : 16;
     if (new_cap < need)
         new_cap = need;
-    seq_t *new_arr = (seq_t *)realloc(digits, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, digits, new_cap);
     if (!new_arr) {
         /* Allocation failed – terminate the program safely. */
         abort();

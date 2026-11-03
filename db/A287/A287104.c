@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 8616 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    substitution; the word is built from the initial symbol 1. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of the current word */
 static seq_t *w = NULL;    /* array of digits 0,1,2 */
@@ -28,7 +30,7 @@ static void ensure_len(idx_t n)
 {
     if (w == NULL) {
         /* start with the single symbol 1 */
-        w = (seq_t*)malloc(1 * sizeof(seq_t));
+        w = mem_new(seq_t, 1);
         if (w == NULL) abort();
         w[0] = 1;
         w_len = 1;
@@ -43,7 +45,7 @@ static void ensure_len(idx_t n)
             new_len += (v == 2) ? 1 : 2;
         }
 
-        seq_t *neww = (seq_t*)malloc(new_len * sizeof(seq_t));
+        seq_t *neww = mem_new(seq_t, new_len);
         if (neww == NULL) abort();
 
         /* build the next word */
@@ -61,7 +63,7 @@ static void ensure_len(idx_t n)
             }
         }
 
-        free(w);
+        mem_free(w);
         w = neww;
         w_len = new_len;
     }

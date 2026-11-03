@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 14, u32 n <= 1561, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   mod_mul_uint64, mod_pow_uint64
+ * Validated: standard, pass, 49 terms through n = 4985 (2026-11-01)
+ * Helpers:   mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/mod_mul_uint64.h"
-#include "../utils/mod_pow_uint64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
 
 /* small primes for quick rejection */
 static const uint64_t small_primes[] =
@@ -44,11 +45,11 @@ static bool is_prime_uint64(uint64_t n)
     for (size_t i = 0; i < sizeof(bases)/sizeof(bases[0]); ++i) {
         uint64_t a = bases[i] % n;
         if (a == 0ULL) return true;
-        uint64_t x = mod_pow_uint64(a, d, n);
+        uint64_t x = powmod_u64(a, d, n);
         if (x == 1ULL || x == n - 1) continue;
         bool composite = true;
         for (unsigned r = 1U; r < s; ++r) {
-            x = mod_mul_uint64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;

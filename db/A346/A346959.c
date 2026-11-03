@@ -8,13 +8,27 @@
  *            0‑9 at least once
  * Range:     u8 none, u16 none, u32 n <= 8, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   is_pandigital
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_pandigital.h"
+
+/* Check whether a number contains all digits 0‑9 (at least once). */
+static inline bool is_pandigital(seq_t x)
+{
+    unsigned mask = 0;
+    seq_t y = x;
+    while (y > 0) {
+        /* Extract least‑significant decimal digit. */
+        int d = (int)(y % (seq_t)10);
+        mask |= 1u << d;
+        y /= (seq_t)10;
+    }
+    return mask == 0x3FF;   /* all 10 bits set */
+}
 
 /* Return the nth pentagonal pandigital number (OEIS A346959). */
 seq_t a(idx_t n)

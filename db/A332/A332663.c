@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf, easy
  * Formula:   a(n) = A124171(n+1) - 1
- * Range:     u8 n <= 2279, u16 n <= 9551, u32 n <= 9551, u64 n <= 9551,
- *            u128 n <= 9551, big any n
- * Helpers:   prefix_tri
+ * Range:     u8 n <= 2279, u16 n <= 11479, u32 n <= 11479, u64 n <= 11479,
+ *            u128 n <= 11479, big any n
+ * Validated: standard, pass, 94 terms through n = 9551 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,12 @@
    m is the largest integer with m*(m+1)*(m+2)/6 <= n  */
 
 #include <stdint.h>
-#include "../utils/prefix_tri.h"
+
+static inline __uint128_t prefix_tri(idx_t m)
+{
+    /* m(m+1)(m+2)/6  using 128‑bit arithmetic to avoid overflow */
+    return (__uint128_t)m * (m + 1) * (m + 2) / 6;
+}
 
 seq_t a(idx_t n)
 {

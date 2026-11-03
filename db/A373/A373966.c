@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 11, i16 n <= 29, i32 n <= 46, i64 n <= 46, i128 n <= 46,
  *            big any n
- * Helpers:   derangement
+ * Validated: partial, pass, 45 terms through n = 46 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/derangement.h"
+
+/* Compute the derangement !m for m ≥ 0 using the recurrence:
+   !0 = 1,  !1 = 0,  !m = (m-1)*(!(m-1)+!(m-2))   (m ≥ 2) */
+static inline seq_t derangement(idx_t m)
+{
+    if (m == 0) return 1;
+    if (m == 1) return 0;
+    seq_t d0 = 1, d1 = 0, di;
+    for (idx_t i = 2; i <= m; ++i) {
+        di = (seq_t)(i - 1) * (d1 + d0);
+        d0 = d1;
+        d1 = di;
+    }
+    return d1;
+}
 
 /* Integer square root for unsigned 64‑bit values */
 static inline idx_t isqrt_u64(idx_t x)

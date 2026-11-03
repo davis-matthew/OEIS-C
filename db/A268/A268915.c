@@ -13,6 +13,7 @@
  *            ≤ m
  * Range:     i8 n <= 56, i16 n <= 1275, i32 n <= 1275, i64 n <= 1275,
  *            i128 n <= 1275, big any n
+ * Validated: standard, pass, 94 terms through n = 1131 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,14 +12,17 @@
  *            r(r+1)/2 >= n. This implements the OEIS sequence A369919
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   binom, pow2, pow_seq
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-01)
+ * Helpers:   binomial, ipow_i32, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_i32.h"
 #include "../utils/pow2.h"
-#include "../utils/pow_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
     idx_t k = n - prev_cum;
 
     /* Compute binomial coefficient C(r,k) */
-    seq_t bin = binom(r, k);
+    seq_t bin = binomial(r, k);
 
     /* Compute (2^{r-k} - 1) */
     seq_t base = pow2(r - k);
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
     if (k == 0) {
         power = (seq_t)1;
     } else {
-        power = pow_seq(base, (int)k);
+        power = ipow_i32(base, (int)k);
     }
 
     /* Result is binomial times power */

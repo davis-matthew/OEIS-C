@@ -11,12 +11,14 @@
  *            with numerator and denominator multiplied by (1+x)
  * Range:     u8 n <= 11, u16 n <= 42, u32 n <= 412, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     idx_t i;
     int p;
 
-    s = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    s = mem_new(seq_t, (size_t)(n + 1));
     for (i = 0; i <= n; i++)
         s[i] = 0;
     s[0] = 1;
@@ -41,6 +43,6 @@ seq_t a(idx_t n)
         if (numexp[p] <= n)
             res += s[n - numexp[p]];
     }
-    free(s);
+    mem_free(s);
     return res;
 }

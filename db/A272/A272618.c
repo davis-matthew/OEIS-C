@@ -11,9 +11,10 @@
  *            every prime divisor of k also divides n. Rows that contain no
  *            such k contribute a single 0. (The array is read by rows; a(1)
  *            is the first element, etc.)
- * Range:     u8 n <= 1444, u16 n <= 9953, u32 n <= 9953, u64 n <= 9953,
- *            u128 n <= 9953, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1444, u16 n <= 10814, u32 n <= 10814, u64 n <= 10814,
+ *            u128 n <= 10814, big any n
+ * Validated: standard, pass, 104 terms through n = 9953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t  *seq      = NULL;  /* array of sequence terms */
@@ -44,7 +46,7 @@ ensure_seq_size(size_t needed)
     if (seq_len + needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 128;
     while (seq_len + needed > new_cap) new_cap <<= 1;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 

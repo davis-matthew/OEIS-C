@@ -8,13 +8,15 @@
  *            binomial(n,k)*(k-1)!*a(n-k) (OEIS A355284)
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cache for a(n) values */
 static seq_t *a_cache = NULL;
@@ -32,16 +34,16 @@ static void ensure_fact_cap(idx_t n)
     if (fact_cache == NULL) {
         size_t sz = n + 1;
         if (sz < 4) sz = 4;
-        fact_cache = (seq_t*)malloc(sz * sizeof(seq_t));
+        fact_cache = mem_new(seq_t, sz);
         fact_cap   = sz;
         fact_last  = 0;
         fact_cache[0] = 1;
     } else if (fact_cap <= (size_t)n) {
         size_t new_cap = fact_cap * 2;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *new_fact = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_fact = mem_new(seq_t, new_cap);
         for (size_t i = 0; i < fact_cap; ++i) new_fact[i] = fact_cache[i];
-        free(fact_cache);
+        mem_free(fact_cache);
         fact_cache = new_fact;
         fact_cap   = new_cap;
     }
@@ -60,14 +62,14 @@ static void ensure_a_cache(idx_t n)
     if (a_cache == NULL) {
         size_t sz = n + 1;
         if (sz < 4) sz = 4;
-        a_cache = (seq_t*)malloc(sz * sizeof(seq_t));
+        a_cache = mem_new(seq_t, sz);
         a_cap   = sz;
     } else if (a_cap <= (size_t)n) {
         size_t new_cap = a_cap * 2;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *new_a = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_a = mem_new(seq_t, new_cap);
         for (size_t i = 0; i < a_cap; ++i) new_a[i] = a_cache[i];
-        free(a_cache);
+        mem_free(a_cache);
         a_cache = new_a;
         a_cap   = new_cap;
     }

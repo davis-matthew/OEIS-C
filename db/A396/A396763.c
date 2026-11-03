@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 5833, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   int_sqrt
+ * Validated: standard, pass, 76 terms through n = 9735 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,8 @@
 #include <stdbool.h>
 
 /* int_sqrt from utils */
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached terms of the sequence   */
 static size_t cached = 0;        /* number of terms cached         */
@@ -46,7 +48,7 @@ static void ensure_cache_cap(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     if (new_cap < needed) new_cap = needed;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) abort();
     cache = new_ptr;
     cache_cap = new_cap;
@@ -117,7 +119,7 @@ seq_t a(idx_t n)
         seq_t tau = 1;    /* number of divisors */
         seq_t sigma = 1;  /* sum of divisors */
 
-        uint64_t limit = int_sqrt(candidate);
+        uint64_t limit = isqrt(candidate);
         ensure_primes_upto(limit);
 
         for (size_t i = 0; i < prime_cnt && primes[i] * primes[i] <= remaining; ++i) {

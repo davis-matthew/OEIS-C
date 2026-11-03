@@ -9,13 +9,25 @@
  *            duplicates, and double B until at least n terms are known
  * Range:     u8 n <= 20, u16 n <= 93, u32 n <= 649, u64 n <= 8310,
  *            u128 n <= 10000, big any n
- * Helpers:   jp_sift
+ * Validated: standard, pass, 67 terms through n = 9099 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/jp_sift.h"
+
+static void jp_sift(seq_t *x, long long i, long long nn) {
+    for (;;) {
+        long long c = 2 * i + 1;
+        if (c >= nn) break;
+        if (c + 1 < nn && x[c + 1] > x[c]) c++;
+        if (x[i] < x[c]) {
+            seq_t t = x[i]; x[i] = x[c]; x[c] = t;
+            i = c;
+        } else break;
+    }
+}
 
 #define JP_CAP 262144
 

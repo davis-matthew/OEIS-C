@@ -12,6 +12,7 @@
  *            function builds the DP table for the coin‑chang...
  * Range:     u8 n <= 19, u16 n <= 69, u32 n <= 367, u64 n <= 3438,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 66 terms through n = 9212 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,17 +9,21 @@
  *            (n^2-1)*k)
  * Range:     u8 none, u16 n <= 13, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   is_prime_small, mod_pow
+ * Validated: partial, pass, 56 terms through n = 57 (2026-11-01)
+ * Helpers:   is_prime_seq, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
-#include "../utils/is_prime_small.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/powmod.h"
 
 static inline bool is_composite(seq_t x) {
-    return x >= (seq_t)4 && !is_prime_small(x);
+    return x >= (seq_t)4 && !is_prime_seq(x);
 }
 
 seq_t a(idx_t n) {
@@ -32,7 +36,7 @@ seq_t a(idx_t n) {
     for (;;) {
         if (is_composite(k)) {
             seq_t mod = (n_sq - (seq_t)1) * k;          /* (n^2-1)*k */
-            seq_t r = mod_pow(n_seq, (idx_t)(k - (seq_t)1), mod);
+            seq_t r = powmod(n_seq, (idx_t)(k - (seq_t)1), mod);
             if (r == (seq_t)1) return k;
         }
         ++k;

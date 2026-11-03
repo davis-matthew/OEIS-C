@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 8329, u16 n <= 8329, u32 n <= 8329, u64 n <= 8329,
- *            u128 n <= 8329, big any n
- * Helpers:   gcd
+ * Range:     u8 n <= 10079, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8329 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t num;
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
     /* Resize cache if necessary */
     if (n >= cache_cap) {
         idx_t new_cap = n + 1;
-        cache     = (seq_t *)realloc(cache,     sizeof(seq_t)     * new_cap);
+        cache     = mem_resize(seq_t, cache, new_cap);
         computed  = (bool  *)realloc(computed,  sizeof(bool)      * new_cap);
         for (idx_t i = cache_cap; i < new_cap; ++i) {
             cache[i]    = 0;

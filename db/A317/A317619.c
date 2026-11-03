@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 2015, u32 n <= 2015, u64 n <= 2015,
  *            u128 n <= 2015, big any n
- * Helpers:   coords_to_num, max_int
+ * Validated: full, pass, 2016 terms through n = 2015 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,40 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>   /* for abs */
-#include "../utils/coords_to_num.h"
-#include "../utils/max_int.h"
+#include "../utils/mem.h"
+
+/* ----------------------------------------------------------------------
+   utilities                                                     */
+static inline int max_int(int a, int b) { return (a > b) ? a : b; }
+
+/* ----------------------------------------------------------------------
+   Spiral coordinate to number mapping                             */
+static seq_t coords_to_num(int x, int y)
+{
+    if (x == 0 && y == 0) return 0;
+
+    int r = max_int(abs(x), abs(y));
+    seq_t base = (seq_t)(2 * r - 1) * (seq_t)(2 * r - 1); /* (2r-1)^2 */
+
+    seq_t offset;
+    /* right side (excluding bottom corner) */
+    if (x == r && y != -r) {
+        offset = (seq_t)(y + r - 1);
+    }
+    /* top side (excluding right‑top corner) */
+    else if (y == r && x != r) {
+        offset = (seq_t)(2 * r + (r - 1 - x));
+    }
+    /* left side (excluding top‑left corner) */
+    else if (x == -r && y != r) {
+        offset = (seq_t)(4 * r + (r - 1 - y));
+    }
+    /* bottom side (includes both bottom corners) */
+    else {
+        offset = (seq_t)(6 * r + (x + r - 1));
+    }
+    return base + offset;
+}
 
 /* ----------------------------------------------------------------------
    State: sequence and visited bitset                              */
@@ -40,7 +73,7 @@ static void ensure_seq_cap(idx_t n)
     if (n < seq_len) return;
     size_t new_cap = seq_cap ? seq_cap : 16;
     while (new_cap <= (size_t)n + 1) new_cap <<= 1;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
     /* new area is uninitialized; values will be written later */
 }

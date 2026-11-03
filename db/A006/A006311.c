@@ -11,7 +11,8 @@
  *            eta_j; computed exactly modulo many primes q == 1 (mod p^...
  * Range:     i8 n <= 4, i16 n <= 5, i32 n <= 8, i64 n <= 11, i128 n <= 17,
  *            big any n
- * Helpers:   from_i128, nth_prime, seq_is_big
+ * Validated: standard, pass, 25 terms through n = 26 (2026-11-01)
+ * Helpers:   nth_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,27 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_is_big.h"
-#include "../utils/from_i128.h"
+#include <string.h>
 #include "../utils/nth_prime.h"
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static seq_t from_i128(__int128 v)
+{
+    if (v >= -(__int128)4000000000000000000LL && v <= (__int128)4000000000000000000LL)
+        return (seq_t)(long long)v;
+    {
+        __int128 q = v / ((__int128)1 << 32);
+        long long rem = (long long)(v - q * ((__int128)1 << 32));
+        return from_i128(q) * (seq_t)4294967296LL + (seq_t)rem;
+    }
+}
 
 typedef unsigned __int128 u128;
 

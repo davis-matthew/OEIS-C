@@ -14,11 +14,13 @@
  *            T(n,k) = Σ_{i=0}^{k} C(L1-i+1,i)·C(L2-(k-i...
  * Range:     u8 n <= 69, u16 n <= 207, u32 n <= 674, u64 n <= 2449,
  *            u128 n <= 2675, big any n
+ * Validated: standard, pass, 100 terms through n = 2585 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

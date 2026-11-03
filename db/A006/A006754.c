@@ -10,20 +10,33 @@
  *            a(4)=7
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   a000037_isqrt, grow_zero
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a000037_isqrt.h"
-#include "../utils/grow_zero.h"
+#include <string.h>
+#include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
 
 static idx_t rwin(idx_t n)
 {
     uint64_t m = 2 * (uint64_t)n;
-    uint64_t r = a000037_isqrt(m);
+    uint64_t r = isqrt_u64(m);
     if (m > r * r + r) r++;
     if (n == 4 || n == 5 || n == 6) r = 4;
     if (n == 8) r = 5;

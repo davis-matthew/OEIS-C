@@ -9,13 +9,16 @@
  *            + C(2*n+1, 4)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   big_pow, binom
+ * Validated: standard, pass, 35 terms through n = 175 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -23,16 +26,16 @@ seq_t a(idx_t n)
         return 0;
 
     /* Powers of the constants */
-    seq_t pow15 = big_pow((seq_t)15, (seq_t)n);
-    seq_t pow10 = big_pow((seq_t)10, (seq_t)n);
-    seq_t pow6  = big_pow((seq_t)6,  (seq_t)n);
-    seq_t pow3  = big_pow((seq_t)3,  (seq_t)n);
+    seq_t pow15 = ipow((seq_t)15, (seq_t)n);
+    seq_t pow10 = ipow((seq_t)10, (seq_t)n);
+    seq_t pow6  = ipow((seq_t)6,  (seq_t)n);
+    seq_t pow3  = ipow((seq_t)3,  (seq_t)n);
 
     /* Binomial coefficients */
     idx_t two_n_plus_one = n * 2 + 1;
-    seq_t c2 = binom(two_n_plus_one, 2);
-    seq_t c3 = binom(two_n_plus_one, 3);
-    seq_t c4 = binom(two_n_plus_one, 4);
+    seq_t c2 = binomial(two_n_plus_one, 2);
+    seq_t c3 = binomial(two_n_plus_one, 3);
+    seq_t c4 = binomial(two_n_plus_one, 4);
 
     /* Compute the expression term by term */
     seq_t result = pow15;

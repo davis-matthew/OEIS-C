@@ -10,7 +10,8 @@
  *            that A004254(3*m-J(m,21)) ≡ 5*J(m,21) (mod m)
  * Range:     u8 n <= 1, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   is_prime, jacobi_symbol, mult_mod
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   is_prime, mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,17 +21,41 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/jacobi_symbol.h"
 #include "../utils/is_prime.h"
-#include "../utils/mult_mod.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 typedef struct { uint64_t a, b, c, d; } Mat;
 
 static inline void mat_mul(Mat *out, const Mat *x, const Mat *y, uint64_t mod) {
-    uint64_t a = (mult_mod(x->a, y->a, mod) + mult_mod(x->b, y->c, mod)) % mod;
-    uint64_t b = (mult_mod(x->a, y->b, mod) + mult_mod(x->b, y->d, mod)) % mod;
-    uint64_t c = (mult_mod(x->c, y->a, mod) + mult_mod(x->d, y->c, mod)) % mod;
-    uint64_t d = (mult_mod(x->c, y->b, mod) + mult_mod(x->d, y->d, mod)) % mod;
+    uint64_t a = (mulmod(x->a, y->a, mod) + mulmod(x->b, y->c, mod)) % mod;
+    uint64_t b = (mulmod(x->a, y->b, mod) + mulmod(x->b, y->d, mod)) % mod;
+    uint64_t c = (mulmod(x->c, y->a, mod) + mulmod(x->d, y->c, mod)) % mod;
+    uint64_t d = (mulmod(x->c, y->b, mod) + mulmod(x->d, y->d, mod)) % mod;
     out->a = a; out->b = b; out->c = c; out->d = d;
 }
 
@@ -78,7 +103,7 @@ seq_t a(idx_t n) {
         if (val == rhs) {
             if (count >= cap) {
                 size_t newcap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t*)realloc(terms, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, newcap);
                 terms = tmp;
                 cap = newcap;
             }

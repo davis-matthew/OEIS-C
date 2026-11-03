@@ -8,6 +8,7 @@
  * Formula:   a(n) = p * (p-1)^2 where p is the nth prime (1‑indexed)
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 /* Static cache for primes – built the first time a is called */

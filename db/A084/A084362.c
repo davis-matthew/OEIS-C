@@ -13,13 +13,26 @@
  *            DP
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 27, u64 n <= 58, u128 n <= 121,
  *            big any n
- * Helpers:   weight_for_m
+ * Validated: standard, pass, 47 terms through n = 3289 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/weight_for_m.h"
+#include "../utils/mem.h"
+
+/* Weight of a largest part m:  (m+1)*2^{m-2} for m>=2, 1 for m=1 */
+static inline seq_t weight_for_m(idx_t m)
+{
+    if (m <= 1)
+        return (seq_t)1;
+    seq_t w = (seq_t)(m + 1);
+    idx_t p = m - 2;
+    while (p--)
+        w *= (seq_t)2;
+    return w;
+}
 
 /* Sequence A084362 */
 seq_t a(idx_t n)
@@ -28,7 +41,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* dp[i] will hold the number of partitions of i using parts ≤ current m */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp)                /* allocation failed – return 0 as a safe fallback */
         return (seq_t)0;
     dp[0] = (seq_t)1;       /* one empty partition */
@@ -46,6 +59,6 @@ seq_t a(idx_t n)
         result += w * dp[n - m];
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

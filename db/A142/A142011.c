@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 224, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 60 terms through n = 986 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,7 @@
    provided primality routine.  No hard‑coded table is used. */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
 
 /* Return the n‑th prime congruent to 7 modulo 31, with a(1) = 7. */
 seq_t a(idx_t n)

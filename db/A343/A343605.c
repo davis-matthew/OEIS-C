@@ -9,12 +9,35 @@
  *            digits of m equals the sum of balanced ternary digits of n
  * Range:     i8 n <= 120, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   balanced_sum
+ * Validated: standard, pass, 82 terms through n = 8031 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/balanced_sum.h"
+/* Computes the sum of balanced ternary digits of a value. */
+static inline seq_t balanced_sum(seq_t n)
+{
+    seq_t sum = 0;
+    while (n != 0)
+    {
+        seq_t r = n % 3;
+        n /= 3;
+        /* Adjust remainders that fall outside {-1,0,1} */
+        if (r == 2)
+        {
+            r = -1;
+            n += 1;
+        }
+        else if (r == -2)
+        {
+            r = 1;
+            n -= 1;
+        }
+        sum += r;
+    }
+    return sum;
+}
 
 /* Public sequence function */
 seq_t a(idx_t n)

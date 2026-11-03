@@ -11,7 +11,8 @@
  *            multiplying only the necessary factors and cancel...
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 21, u64 n <= 33, u128 n <= 57,
  *            big any n
- * Helpers:   fact_prime_exp, gcd, max_k_with_exp
+ * Validated: standard, pass, 44 terms through n = 659 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,33 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/gcd.h"
-#include "../utils/fact_prime_exp.h"
-#include "../utils/max_k_with_exp.h"
+
+/* exponent of prime p in m!  (m >= 0) */
+static inline seq_t fact_prime_exp(idx_t m, idx_t p)
+{
+    seq_t e = 0;
+    idx_t d = p;
+    while (d <= m) {
+        e += m / d;
+        if (d > m / p) break;          /* prevent overflow of d * p */
+        d *= p;
+    }
+    return e;
+}
+
+/* Largest k ≤ limit_k such that exp_p(k!) ≤ max_exp  */
+static inline idx_t max_k_with_exp(idx_t p, seq_t max_exp, idx_t limit_k)
+{
+    idx_t lo = 0, hi = limit_k;
+    while (lo < hi) {
+        idx_t mid = (lo + hi + 1) >> 1;
+        if (fact_prime_exp(mid, p) <= max_exp)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 /* Factorise n into distinct primes and their exponents.
     For n ≤ 10000 a simple trial division is fast enough.  */

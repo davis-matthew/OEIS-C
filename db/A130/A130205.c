@@ -7,13 +7,15 @@
  * Formula:   a(1)=1, a(2)=2; for n>2, a(n)=n^2-a(n-1)-a(n-2)
  * Range:     u8 n <= 26, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* 1‑based cache for computed terms   */
 static idx_t cache_cap = 0;     /* current allocated size (in elements) */
@@ -27,11 +29,11 @@ seq_t a(idx_t n)
 
     /* Ensure the cache can hold indices up to n */
     if (cache == NULL) {
-        cache = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(n + 1));
         cache_cap = n + 1;
         cached_n  = 0;
     } else if ((size_t)(n + 1) > (size_t)cache_cap) {
-        cache = (seq_t*)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)(n + 1));
         cache_cap = n + 1;
     }
 

@@ -5,8 +5,9 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = n modulo (sum of proper divisors of n)
- * Range:     u8 n <= 48, u16 n <= 9704, u32 n <= 9704, u64 n <= 9704,
- *            u128 n <= 9704, big any n
+ * Range:     u8 n <= 48, u16 n <= 16385, u32 n <= 16385, u64 n <= 16385,
+ *            u128 n <= 16385, big any n
+ * Validated: standard, pass, 95 terms through n = 9704 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

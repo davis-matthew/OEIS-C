@@ -8,12 +8,14 @@
  * Formula:   a(n) = n*(n-1)*(n-2)*(n-3)*(n-4)*(61*n-299)/10
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 32, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 42 terms through n = 915 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial.h"   /* safe fallback for 128‑bit builds */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     if (n < 5) return 0;          /* below or equal the offset */

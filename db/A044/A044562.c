@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has61
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,25 @@
  */
 
 #include <stdbool.h>
-#include "../utils/has61.h"
+
+/* Helper: check whether a base‑7 representation of x contains "61". */
+static bool has61(seq_t x)
+{
+    if (x == (seq_t)0)
+        return false;
+
+    /* We scan the digits from least significant to most significant. */
+    int previous = -1;                     /* value of the lower digit that has
+                                             * already been processed */
+    while (x > (seq_t)0) {
+        int d = (int)(x % (seq_t)7);      /* current digit (more significant) */
+        if (previous == 1 && d == 6)      /* pattern 6,1 found */
+            return true;
+        previous = d;
+        x = x / (seq_t)7;
+    }
+    return false;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

@@ -9,15 +9,38 @@
  *            returns the denominator of the reduced fraction a(n)
  * Range:     u8 n <= 7, u16 n <= 8, u32 n <= 9, u64 n <= 11, u128 n <= 12,
  *            big any n
- * Helpers:   add_signed, gcd
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/add_signed.h"
+#include "../utils/mem.h"
+
+/* Add two signed integers: a + b, where a,b ≥ 0 and neg_a, neg_b indicate negativity */
+static void add_signed(seq_t a, bool neg_a, seq_t b, bool neg_b,
+                       seq_t *mag, bool *neg)
+{
+    if (neg_a == neg_b) {                /* same sign */
+        *mag = a + b;
+        *neg = neg_a;
+    } else {                              /* different signs */
+        if (a > b) {
+            *mag = a - b;
+            *neg = neg_a;
+        } else if (b > a) {
+            *mag = b - a;
+            *neg = neg_b;
+        } else {
+            *mag = 0;
+            *neg = false;
+        }
+    }
+}
 
 static seq_t *numerator_mag = NULL;   /* magnitudes of numerators */
 static bool   *numerator_neg = NULL;   /* true if numerator is negative */
@@ -31,9 +54,9 @@ static void ensure_cache(idx_t n)
     if (n < cache_capacity)
         return;
     size_t new_cap = (size_t)n + 1;
-    numerator_mag = (seq_t *)realloc(numerator_mag, new_cap * sizeof(seq_t));
+    numerator_mag = mem_resize(seq_t, numerator_mag, new_cap);
     numerator_neg = (bool   *)realloc(numerator_neg, new_cap * sizeof(bool));
-    denominator    = (seq_t *)realloc(denominator   , new_cap * sizeof(seq_t));
+    denominator    = mem_resize(seq_t, denominator, new_cap);
     for (size_t i = cache_capacity; i < new_cap; ++i) {
         numerator_mag[i] = 0;
         numerator_neg[i] = false;

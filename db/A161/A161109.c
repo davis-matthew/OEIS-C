@@ -9,7 +9,8 @@
  *            where every part appears at least 8 times
  * Range:     u8 n <= 146, u16 n <= 428, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 110 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n < 1) return 0;               /* offset starts at 1 */
@@ -27,25 +29,25 @@ seq_t a(idx_t n) {
 
     if (cache_size < n + 1) {           /* need to recompute up to n */
         if (cache) {                    /* free old cache if any */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_size = 0;
         }
 
         idx_t limit = n;
         size_t size = (size_t)(limit + 1);
-        seq_t *dp_old = (seq_t*)calloc(size, sizeof(seq_t));
-        seq_t *dp_new = (seq_t*)calloc(size, sizeof(seq_t));
+        seq_t *dp_old = mem_new(seq_t, size);
+        seq_t *dp_new = mem_new(seq_t, size);
         if (!dp_old || !dp_new) {
-            free(dp_old); free(dp_new);
+            mem_free(dp_old); mem_free(dp_new);
             return 0;
         }
         dp_old[0] = 1;                   /* base case: sum 0 has one partition */
 
         /* temporary array for prefix sums (size limit+1 reused) */
-        seq_t *tmp = (seq_t*)calloc(size, sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, size);
         if (!tmp) {
-            free(dp_old); free(dp_new);
+            mem_free(dp_old); mem_free(dp_new);
             return 0;
         }
 
@@ -55,7 +57,7 @@ seq_t a(idx_t n) {
             if (t > limit) break;
 
             /* start with old dp values as base for new dp */
-            memcpy(dp_new, dp_old, size * sizeof(seq_t));
+            mem_copy(dp_new, dp_old, size * sizeof(seq_t));
 
             /* process each residue modulo t separately */
             for (idx_t r = 0; r < t; ++r) {
@@ -87,8 +89,8 @@ seq_t a(idx_t n) {
         /* dp_old now contains final counts up to 'limit' */
         cache = dp_old;                   /* keep the final array as cache */
         cache_size = size;
-        free(dp_new);                     /* free the unused buffer */
-        free(tmp);
+        mem_free(dp_new);                     /* free the unused buffer */
+        mem_free(tmp);
     }
 
     return cache[n];

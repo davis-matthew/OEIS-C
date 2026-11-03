@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   is_prime_uint64
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    returns the n‑th such k (a(1) = 6). */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_uint64.h"   /* is_prime_uint64(uint64_t) */
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
 
 /* The arithmetic progression: 10 000 000 per step, with offset 1 111 111. */
 static const uint64_t STEP   = 10000000ULL;   /* 10^7 */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
         /* Prime test using the utility function.  It is
            deterministic for 64‑bit numbers. */
-        if (is_prime_uint64(cand))
+        if (is_prime_u64(cand))
         {
             ++count;          /* one more member of the sequence */
             if (count == n)   /* the *n*‑th one is found */

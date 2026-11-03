@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 224, u32 n <= 637, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    where each part appears at least 8 times. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
 
     /* Allocate DP arrays; cast the void* from calloc to the appropriate
        pointer type for C++ compatibility. */
-    seq_t *dp1 = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *dp2 = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp1 = mem_new(seq_t, N + 1);
+    seq_t *dp2 = mem_new(seq_t, N + 1);
     if (!dp1 || !dp2) return (seq_t)0;   /* allocation failed */
 
     dp1[0] = (seq_t)1;                   /* one way to partition 0 */
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp1[N];
-    free(dp1);
-    free(dp2);
+    mem_free(dp1);
+    mem_free(dp2);
     return result;
 }

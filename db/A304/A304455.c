@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9650, u16 n <= 9650, u32 n <= 9650, u64 n <= 9650,
- *            u128 n <= 9650, big any n
- * Helpers:   sort_seq
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9650 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,20 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/sort_seq.h"
+
+/* Simple in‑place insertion sort for small arrays (works for C and C++). */
+static void sort_seq(seq_t *a, size_t len)
+{
+    for (size_t i = 1; i < len; ++i) {
+        seq_t key = a[i];
+        size_t j = i;
+        while (j > 0 && a[j - 1] > key) {
+            a[j] = a[j - 1];
+            --j;
+        }
+        a[j] = key;
+    }
+}
 
 seq_t a(idx_t n)
 {

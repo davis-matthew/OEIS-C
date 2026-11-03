@@ -10,6 +10,7 @@
  *            p3(n) – [n ≡ 0 (mod 3)] (the triple‑equal partition is removed)
  * Range:     u8 n <= 55, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

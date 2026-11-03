@@ -10,6 +10,7 @@
  *            n = 1000
  * Range:     u8 n <= 10, u16 n <= 76, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 80 terms through n = 997 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

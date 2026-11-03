@@ -12,12 +12,25 @@
  *            = 1. Equivalent to a(n) = A001563(n) - A002469(n+2)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 21, u128 n <= 35,
  *            big any n
- * Helpers:   a002468_pd
+ * Validated: standard, pass, 41 terms through n = 102 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a002468_pd.h"
+static seq_t a002468_pd(idx_t m, idx_t j) {
+    seq_t jf = 1;
+    for (idx_t i = 2; i <= j; i++) jf = jf * (seq_t)i;
+    if (m == 0) return jf;
+    seq_t e0 = jf;
+    seq_t e1 = (seq_t)j * jf;
+    for (idx_t k = 2; k <= m; k++) {
+        seq_t e2 = (seq_t)(k + j - 1) * e1 + (seq_t)(k - 1) * e0;
+        e0 = e1;
+        e1 = e2;
+    }
+    return e1;
+}
 
 seq_t a(idx_t n) {
     if (n < 3) return 0;

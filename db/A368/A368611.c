@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} pi(k) * floor(n/k)
  * Range:     u8 n <= 27, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     }
 
     /* Prefix array of π(k) */
-    seq_t *pi = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *pi = mem_new(seq_t, (n + 1));
     if (!pi) {
         free(prime);
         return 0;
@@ -57,6 +59,6 @@ seq_t a(idx_t n)
     }
 
     free(prime);
-    free(pi);
+    mem_free(pi);
     return result;
 }

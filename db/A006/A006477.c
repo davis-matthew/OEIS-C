@@ -8,22 +8,24 @@
  *            A000009(n) - A000041(n/2)
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 127, u64 n <= 416,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 940 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <string.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;
     
-    seq_t *p = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *p_odd = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (n + 1));
+    seq_t *p_odd = mem_new(seq_t, (n + 1));
     
-    memset(p, 0, (n + 1) * sizeof(seq_t));
-    memset(p_odd, 0, (n + 1) * sizeof(seq_t));
+    mem_set(p, 0, (n + 1) * sizeof(seq_t));
+    mem_set(p_odd, 0, (n + 1) * sizeof(seq_t));
     
     p[0] = 1;
     p_odd[0] = 1;
@@ -50,8 +52,8 @@ seq_t a(idx_t n) {
         result = p[n] - p_odd[n] - p_half;
     }
     
-    free(p);
-    free(p_odd);
+    mem_free(p);
+    mem_free(p_odd);
     
     return result;
 }

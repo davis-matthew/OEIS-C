@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -41,6 +42,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* forward declared helper: compute rows up to a given index */
 static void compute_rows_up_to(idx_t r);
@@ -88,8 +90,8 @@ static void compute_rows_up_to(idx_t r)
         size_t next_len = rows_alloc + 1; /* length of the new row */
 
         /* allocate for new u and v rows */
-        seq_t *new_u = (seq_t *)malloc(next_len * sizeof(seq_t));
-        seq_t *new_v = (seq_t *)malloc(next_len * sizeof(seq_t));
+        seq_t *new_u = mem_new(seq_t, next_len);
+        seq_t *new_v = mem_new(seq_t, next_len);
         if (!new_u || !new_v) abort();
 
         /* ----- base case for the first row ----- */
@@ -130,7 +132,7 @@ static void compute_rows_up_to(idx_t r)
         prev_len = next_len;
 
         /* free old v row (if any) and make new_v the current one */
-        if (prev_v) free(prev_v);
+        if (prev_v) mem_free(prev_v);
         prev_v = new_v;
         v_len = next_len;
     }

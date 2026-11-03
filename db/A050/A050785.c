@@ -7,16 +7,31 @@
  * Keywords:  nonn, easy, base
  * Formula:   a(n) = nth palindrome containing at least one pair of
  *            consecutive equal digits
- * Range:     u8 n <= 11, u16 n <= 208, u32 n <= 9275, u64 n <= 9275,
- *            u128 n <= 9275, big any n
- * Helpers:   has_adjacency
+ * Range:     u8 n <= 11, u16 n <= 208, u32 n <= 43569, u64 n <= 43569,
+ *            u128 n <= 43569, big any n
+ * Validated: standard, pass, 69 terms through n = 9275 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_adjacency.h"
+
+/* Helper: check whether a seq_t number contains at least one pair of
+   consecutive equal decimal digits. */
+static inline bool has_adjacency(seq_t x) {
+    if (x < 10) return false;           /* single‑digit numbers have none */
+    seq_t prev = x % 10;
+    x /= 10;
+    while (x > 0) {
+        seq_t cur = x % 10;
+        if (cur == prev) return true;
+        prev = cur;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Helper: reverse decimal digits of a seq_t value. */
 static inline seq_t reverse_num(seq_t x) {

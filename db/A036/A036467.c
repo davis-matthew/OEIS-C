@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 1955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime cache ---------- */
 static uint32_t *prime_cache = NULL;   /* prime_cache[0] = 2, prime_cache[1] = 3, … */
@@ -80,7 +82,7 @@ static void ensure_a_up_to(idx_t n)
 {
     if (a_size == 0) {              /* initialise with a(0)=1 */
         a_cap   = 4;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         a_cache[0] = (seq_t)1;
         a_size   = 1;
     }
@@ -91,7 +93,7 @@ static void ensure_a_up_to(idx_t n)
     size_t need = (size_t)n + 1;
     if (a_cap < need) {
         a_cap = need * 2;
-        a_cache = (seq_t *)realloc(a_cache, a_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, a_cap);
     }
 
     for (size_t i = a_size; i <= (size_t)n; ++i) {

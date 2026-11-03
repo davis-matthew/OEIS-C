@@ -9,12 +9,14 @@
  *            sequence for the D6 lattice)
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 48, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 39 terms through n = 917 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
         if (n < k)          /* binomial term is zero for n < k */
             continue;
         idx_t m = n - k + 5; /* argument for binomial: (n-k+5 choose 5) */
-        seq_t term = binom(m, 5); /* binom returns seq_t */
+        seq_t term = binomial(m, 5); /* binom returns seq_t */
         result += (seq_t)coeff[k] * term;
     }
     return result;

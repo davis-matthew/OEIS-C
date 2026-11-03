@@ -9,9 +9,10 @@
  * Formula:   a(n) = A003959(n) / gcd(A003959(n), A129283(n)) where A003959 is
  *            multiplicative with a(p^e) = (p+1)^e and A129283(n) = n + D(n)
  *            with D(n) the arithmetic derivative
- * Range:     u8 n <= 47, u16 n <= 2047, u32 n <= 9512, u64 n <= 9512,
- *            u128 n <= 9512, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto
+ * Range:     u8 n <= 47, u16 n <= 2047, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 101 terms through n = 9512 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
 #include <stdint.h>   /* uint64_t */
 
 /*  Utilities provided by the framework.  */
-#include "../utils/_floor_isqrt_u64.h"  /* _floor_isqrt_u64 */
-#include "../utils/build_primes_upto.h" /* build_primes_upto */
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
 
 /*  Primitive gcd for seq_t.  */
 static seq_t
@@ -68,7 +70,7 @@ arith_derivative(uint64_t n)
 
     seq_t sum = 0;
     uint64_t tmp = n;
-    uint64_t sqrt_n = _floor_isqrt_u64(tmp);
+    uint64_t sqrt_n = isqrt(tmp);
     ensure_primes(sqrt_n);
 
     for (size_t i = 0; i < prime_cnt && primes[i] <= sqrt_n; ++i) {
@@ -82,7 +84,7 @@ arith_derivative(uint64_t n)
         }
         /* term = (n / p) * exp  */
         sum += ((seq_t)(n / p)) * exp;
-        sqrt_n = _floor_isqrt_u64(tmp);
+        sqrt_n = isqrt(tmp);
     }
     if (tmp > 1) /* remaining prime factor */
         sum += ((seq_t)(n / tmp)); /* exp == 1 */
@@ -99,7 +101,7 @@ A003959(uint64_t n)
 
     seq_t product = 1;
     uint64_t tmp = n;
-    uint64_t sqrt_n = _floor_isqrt_u64(tmp);
+    uint64_t sqrt_n = isqrt(tmp);
     ensure_primes(sqrt_n);
 
     for (size_t i = 0; i < prime_cnt && primes[i] <= sqrt_n; ++i) {
@@ -117,7 +119,7 @@ A003959(uint64_t n)
         for (uint64_t j = 0; j < exp; ++j)
             pow *= base;
         product *= pow;
-        sqrt_n = _floor_isqrt_u64(tmp);
+        sqrt_n = isqrt(tmp);
     }
     if (tmp > 1) { /* remaining prime factor */
         seq_t base = (seq_t)tmp + 1;

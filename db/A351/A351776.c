@@ -13,7 +13,8 @@
  *            …
  * Range:     i8 n <= 30, i16 n <= 50, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>   /* uint64_t */
 #include <stdlib.h>   /* malloc, realloc, abort */
 #include <assert.h>   /* assert */
+#include "../utils/mem.h"
 
 static void antidiagonal_coords(idx_t n, idx_t *row, idx_t *col)
 {
@@ -54,7 +56,7 @@ static seq_t compute_T(idx_t n, idx_t k)
 
     if (n + 1 > T_cap) {
         idx_t new_cap = n + 1;
-        seq_t *new_buf = (seq_t*)realloc(T_buf, (size_t)new_cap * sizeof(seq_t));
+        seq_t *new_buf = mem_resize(seq_t, T_buf, (size_t)new_cap);
         if (!new_buf)
             abort();              /* allocation failure */
         T_buf = new_buf;

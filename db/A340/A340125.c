@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 5, u16 n <= 58, u32 n <= 1532, u64 n <= 9919,
- *            u128 n <= 9919, big any n
- * Helpers:   none
+ * Range:     u8 n <= 5, u16 n <= 58, u32 n <= 1532, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 60 terms through n = 9919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * queries. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for generated sequence */
 static seq_t *seq = NULL;
@@ -34,7 +36,7 @@ static void ensure_cap(size_t need)
     size_t new_cap = seq_cap ? seq_cap * 2 : 4;
     if (new_cap < need)
         new_cap = need;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     if (!seq)
         abort(); /* out of memory */
     seq_cap = new_cap;

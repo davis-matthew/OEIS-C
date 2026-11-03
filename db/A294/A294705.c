@@ -7,15 +7,18 @@
  * Formula:   a(n) = Π_{p^e‖n} p^(11e-7)*(p-1)*(p^2-1)*(p^4-1)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 8, u64 n <= 58, u128 n <= 3186,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 38 terms through n = 9656 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Compute the order of the general symplectic group of 4×4 matrices over Z_n. */
 seq_t a(idx_t n)
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
         uint64_t e = exps[i];
 
         /* p^(11*e-7) */
-        seq_t p_pow = big_pow(p, (seq_t)(11*e - 7));
+        seq_t p_pow = ipow(p, (seq_t)(11*e - 7));
 
         /* (p-1) */
         seq_t term1 = p - (seq_t)1;

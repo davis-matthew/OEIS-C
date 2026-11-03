@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define XMAX 1000000LL   /* search range for x */
 
@@ -88,10 +90,10 @@ static void init_solutions(void)
     }
 
     /* Sort the distinct y values. */
-    qsort(tmp, tmp_cnt, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(tmp, tmp_cnt, sizeof(seq_t), cmp_seq_t);
 
     /* Allocate persistent array. */
-    solutions = (seq_t *)malloc(tmp_cnt * sizeof(seq_t));
+    solutions = mem_new(seq_t, tmp_cnt);
     for (size_t i = 0; i < tmp_cnt; ++i) solutions[i] = tmp[i];
     sol_cnt = tmp_cnt;
     initialized = true;

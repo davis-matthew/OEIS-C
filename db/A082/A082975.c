@@ -10,13 +10,15 @@
  *            (sqrt(37)-4)/3)
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 26, u64 n <= 53, u128 n <= 107,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of computed terms */
 static seq_t *cache = NULL;
@@ -27,7 +29,7 @@ static void init_first_terms(void) {
     seq_t init[6] = { (seq_t)1, (seq_t)1, (seq_t)3,
                      (seq_t)10, (seq_t)13, (seq_t)36 };
     if (!cache) {
-        cache = (seq_t*)malloc(6 * sizeof(seq_t));
+        cache = mem_new(seq_t, 6);
         if (!cache) { /* oops, allocation failed – return 0 in this unlikely case */
             return;
         }
@@ -42,7 +44,7 @@ static void init_first_terms(void) {
 static void ensure_cache(idx_t n) {             /* n: index we need at least */
     if (cache_size > n) return;                /* already big enough */
     idx_t new_size = n + 1;
-    seq_t *new_cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) {
         /* allocation failed – silently fall back to 0 for all terms ≥ new_size */
         return;

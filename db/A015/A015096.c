@@ -7,12 +7,14 @@
  * Formula:   a(0) = 1; a(n+1) = Σ_{i=0}^{n} 11^i * a(i) * a(n-i) (q = 11)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 26 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of previously computed sequence values.  The array grows
    as needed and is reordered when a larger n is requested.  All
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
        cache is too small, realloc it and compute the missing values. */
     if ((size_t)cache_size <= (size_t)n) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(seq_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_size);
         if (!tmp) return 0;                /* allocation failed */
         seq_cache = tmp;
 

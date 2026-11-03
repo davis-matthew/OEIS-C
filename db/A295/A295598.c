@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 12, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 52 terms through n = 856 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/build_primes_upto.h"   /* declares build_primes_upto */
+#include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static seq_t *sequence = NULL;     /* 0‑based array of a(1),a(2),…        */
 static size_t seq_len = 0;         /* number of terms stored              */
@@ -63,7 +65,7 @@ static bool is_special_prime(uint64_t p)
 static void recompute(uint64_t m_limit)
 {
     /* free old data if any */
-    if (sequence) free(sequence);
+    if (sequence) mem_free(sequence);
     sequence = NULL;
     seq_len  = 0;
     seq_cap  = 0;
@@ -94,14 +96,14 @@ static void recompute(uint64_t m_limit)
 
     /* 4. Collect admissible m's into the sequence             */
     seq_cap = 1024;
-    sequence = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+    sequence = mem_new(seq_t, seq_cap);
     if (!sequence) abort();
 
     for (uint64_t i = 1; i <= m_limit; ++i) {
         if (!invalid[(size_t)i]) {
             if (seq_len == seq_cap) {
                 seq_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(sequence, seq_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, sequence, seq_cap);
                 if (!tmp) abort();
                 sequence = tmp;
             }

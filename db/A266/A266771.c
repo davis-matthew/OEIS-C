@@ -9,7 +9,8 @@
  *            1/((1-t^8)^2*(1-t^2)*(1-t^4)*(1-t^6)*(1-t^10)*(1-t^12)*(1-t^14))
  * Range:     u8 n <= 15, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Computed via recurrence from the denominator coefficients */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached sequence values */
 static size_t cache_len = 0;     /* number of cached terms (cache_len = last+1) */
@@ -99,7 +101,7 @@ static void init_dh(void)
     for (int i = 0; i < 65; ++i) { cur[i] = tmp[i]; tmp[i] = 0; }
     deg += 14;
 
-    dh = (seq_t *)malloc(sizeof(seq_t) * 33);
+    dh = mem_new(seq_t, 33);
     for (int k = 0; k <= 32; ++k)
         dh[k] = (seq_t)cur[2 * k];
 
@@ -114,7 +116,7 @@ static void ensure_cache(idx_t n)
     /* Grow cache if necessary */
     size_t new_cap = cache_cap == 0 ? 64 : cache_cap;
     while (new_cap <= n + 1) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     if (!new_arr) exit(1);
     cache = new_arr;
     cache_cap = new_cap;

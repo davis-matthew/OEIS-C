@@ -10,13 +10,15 @@
  *            value for any n ≥ 1
  * Range:     u8 none, u16 n <= 5, u32 n <= 24, u64 n <= 62, u128 n <= 138,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The implementation uses a state‑machine over the last 13 bits.  The state set has 2¹³
    elements.  For each state we store the number of accepted strings that end in that
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
 
     /* Allocate DP tables on first call.  They are reused for subsequent calls. */
     if (!dp_prev) {
-        dp_prev = (seq_t*)malloc(STATES * sizeof(seq_t));
-        dp_next = (seq_t*)malloc(STATES * sizeof(seq_t));
+        dp_prev = mem_new(seq_t, STATES);
+        dp_next = mem_new(seq_t, STATES);
     }
 
     /* Init: after length 13, every 13‑bit prefix is allowed once. */

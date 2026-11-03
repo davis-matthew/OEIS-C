@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 48, u32 n <= 148, u64 n <= 494,
  *            u128 n <= 1762, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    The array dp is extended only when a larger n is requested. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (dp == NULL) {
         dp_size = 1;                          /* at least for i = 0 */
-        dp = (seq_t *)realloc(NULL, dp_size * sizeof(seq_t));
+        dp = mem_resize(seq_t, NULL, dp_size);
         /* dp[0] = 1, other entries are zeroed implicitly here */
         dp[0] = 1;
         max_n = 0;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
         /* Allocate more space if necessary */
         if (newsize > dp_size) {
-            seq_t *tmp = (seq_t *)realloc(dp, newsize * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, dp, newsize);
             dp = tmp;
             dp_size = newsize;
         }

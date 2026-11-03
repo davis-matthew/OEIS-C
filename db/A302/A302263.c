@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* helper function: test whether row 'cur' satisfies the adjacency constraint
  * when the row above is 'prev' (valid if hasPrev==true) and the row below
@@ -109,9 +111,9 @@ seq_t a(idx_t n)
     }
 
     /* Allocate DP arrays */
-    seq_t *dp = (seq_t *)calloc(64 * 64, sizeof(seq_t));
-    seq_t *nextdp = (seq_t *)calloc(64 * 64, sizeof(seq_t));
-    if (!dp || !nextdp) { free(dp); free(nextdp); return 0; }
+    seq_t *dp = mem_new(seq_t, 64 * 64);
+    seq_t *nextdp = mem_new(seq_t, 64 * 64);
+    if (!dp || !nextdp) { mem_free(dp); mem_free(nextdp); return 0; }
 
     /* Initialize DP with the first two rows */
     for (uint64_t r0 = 0; r0 < 64; ++r0) {
@@ -124,7 +126,7 @@ seq_t a(idx_t n)
 
     /* Iterate rows 3 through n */
     for (idx_t row = 2; row < n; ++row) {
-        memset(nextdp, 0, sizeof(seq_t) * 64 * 64);
+        mem_set(nextdp, 0, sizeof(seq_t) * 64 * 64);
         for (uint64_t s = 0; s < 64U * 64U; ++s) {
             seq_t val = dp[s];
             if (!val) continue;
@@ -148,6 +150,6 @@ seq_t a(idx_t n)
             ans += dp[s];
     }
 
-    free(dp); free(nextdp);
+    mem_free(dp); mem_free(nextdp);
     return ans;
 }

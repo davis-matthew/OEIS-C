@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} (-1)^A010060(n-k)*(binomial(n, k) mod 2)*3^k
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
         idx_t rem = n - k;
         int parity = __builtin_popcountll(rem) & 1; /* 0 even, 1 odd */
 
-        seq_t term = pow_seq((seq_t)3, k);          /* 3^k */
+        seq_t term = ipow_idx((seq_t)3, k);          /* 3^k */
 
         if (parity == 0)
             sum += term;        /* even parity -> + */

@@ -8,12 +8,14 @@
  *            binomial(ceil((n-1)/2), ceil(k/2))
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 30, u64 n <= 62, u128 n <= 125,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 49 terms through n = 986 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t, idx_t) */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
         idx_t f = k / 2;            /* floor(k/2) */
         idx_t t = k - f;            /* ceil(k/2) */
 
-        seq_t bin1 = binom(m1, f);
-        seq_t bin2 = binom(m2, t);
+        seq_t bin1 = binomial(m1, f);
+        seq_t bin2 = binomial(m2, t);
 
         seq_t term = bin1 * bin2;
         term *= (seq_t)k;           /* multiply by k */

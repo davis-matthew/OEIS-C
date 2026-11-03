@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 145, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 81 terms through n = 890 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static idx_t next_candidate = 1;
 static seq_t *cache = NULL;
@@ -31,12 +33,12 @@ seq_t a(idx_t n)
         if (cache_capacity == 0)
         {
             cache_capacity = 16;
-            cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_capacity);
         }
         else if (cache_size == cache_capacity)
         {
             cache_capacity *= 2;
-            cache = (seq_t *)realloc(cache, cache_capacity * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_capacity);
         }
 
         /* Test whether 12*next_candidate+11 is composite */

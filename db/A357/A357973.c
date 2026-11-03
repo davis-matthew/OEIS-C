@@ -12,6 +12,7 @@
  *            use 6,4,5 segments respectively)
  * Range:     u8 n <= 1439, u16 n <= 1439, u32 n <= 1439, u64 n <= 1439,
  *            u128 n <= 1439, big any n
+ * Validated: standard, pass, 83 terms through n = 1392 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

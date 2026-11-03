@@ -12,12 +12,14 @@
  *            function returns 0)
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 30, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         /* Ensure capacity for indices up to n and also for the first
            few base entries (4..7).  Use the larger of (n+1) and 8. */
         capacity = (size_t)((n + 1) > 8 ? (n + 1) : 8);
-        cache = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        cache = mem_new(seq_t, capacity);
         if (cache == NULL) {
             /* Allocation failed – return 0 as fallback (should not happen). */
             return (seq_t)0;
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* Ensure the cache is large enough for indices up to n */
     if ((size_t)(n + 1) > capacity) {
         capacity = (size_t)(n + 1);
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * capacity);
+        cache = mem_resize(seq_t, cache, capacity);
         if (cache == NULL) {
             /* Reallocation failed – return 0 as fallback. */
             return (seq_t)0;

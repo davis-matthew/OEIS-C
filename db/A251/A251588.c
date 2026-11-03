@@ -9,12 +9,14 @@
  *            525875*n^4 + 1074745*n^3 + 1294846*n^2 + 876856*n + 262144)
  * Range:     u8 none, u16 none, u32 n <= 6, u64 n <= 11, u128 n <= 19,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 34 terms through n = 270 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -32,17 +34,17 @@ seq_t a(idx_t n)
     seq_t pow8_num = 1;
     seq_t pow8_den = 1;
     if (n >= 6)
-        pow8_num = pow_seq(8ULL, (int)(n - 6));
+        pow8_num = ipow_i32(8ULL, (int)(n - 6));
     else
-        pow8_den = pow_seq(8ULL, (int)(6 - n));
+        pow8_den = ipow_i32(8ULL, (int)(6 - n));
 
     /* (n+1)^(n-8)  (numerator / denominator separately) */
     seq_t pown1_num = 1;
     seq_t pown1_den = 1;
     if (n >= 8)
-        pown1_num = pow_seq((seq_t)(n + 1), (int)(n - 8));
+        pown1_num = ipow_i32((seq_t)(n + 1), (int)(n - 8));
     else
-        pown1_den = pow_seq((seq_t)(n + 1), (int)(8 - n));
+        pown1_den = ipow_i32((seq_t)(n + 1), (int)(8 - n));
 
     /* multiply all numerators and divide by all denominators */
     seq_t numerator = pow8_num * pown1_num;

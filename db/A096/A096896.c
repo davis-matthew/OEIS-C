@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   gcd64
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
    is the sequence value a(n).
 */
 #include <stdint.h>
-#include "../utils/gcd64.h"
+#include <stdbool.h>
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         /* parity condition: one even, one odd */
         if ((d & 1) == (e & 1)) continue;
         /* coprime condition for primitiveness */
-        if (gcd64(d, e) != 1) continue;
+        if (gcd_u64(d, e) != 1) continue;
 
         /* compute candidate hypotenuse as 128‑bit to avoid overflow */
         unsigned __int128 cand = (unsigned __int128)d * d

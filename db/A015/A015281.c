@@ -10,6 +10,7 @@
  *            G(n-1,k-1) (k=1,2,3)
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 5, i64 n <= 8, i128 n <= 14,
  *            big any n
+ * Validated: standard, pass, 26 terms through n = 191 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

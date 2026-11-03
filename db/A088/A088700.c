@@ -8,16 +8,37 @@
  *            semiprimes
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   build_primes, cmp_seq_t, seq_alloc
+ * Validated: standard, pass, 118 terms through n = 978 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_primes.h"   /* void build_primes(idx_t limit, idx_t **out, size_t *cnt); */
-#include "../utils/cmp_seq_t.h"     /* int cmp_seq_t(const void *a, const void *b); */
-#include "../utils/seq_alloc.h"     /* seq_t *seq_alloc(size_t n); void seq_free_array(seq_t *p); */
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/build_primes.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 /* Types supplied by the build */
 extern seq_t *seq_alloc(size_t);
@@ -80,7 +101,7 @@ static void init(void)
     }
 
     /* 4. Sort the semiprimes into strictly increasing order. */
-    qsort(semiprimes, semiprime_cnt, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(semiprimes, semiprime_cnt, sizeof(seq_t), cmp_seq_t);
 
     initialized = true;
 }

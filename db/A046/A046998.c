@@ -7,6 +7,7 @@
  * Formula:   a(n) = (3*n^4 + 4*n^3 - 7*n + 6) / 6
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

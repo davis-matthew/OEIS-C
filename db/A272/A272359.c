@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 37, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _count_up_to, _gcd_seq, _lcm_seq
+ * Validated: standard, pass, 60 terms through n = 9641 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,9 +28,21 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_count_up_to.h"
-#include "../utils/_gcd_seq.h"
-#include "../utils/_lcm_seq.h"
+#include "../utils/gcd.h"
+
+/* Count how many members of the union are ≤ x. */
+static seq_t _count_up_to(seq_t x,
+                          seq_t base1, seq_t base2, seq_t lcm)
+{
+    return (x / base1) + (x / base2) - (x / lcm);
+}
+
+/* Helper: LCM for seq_t using gcd. */
+static seq_t _lcm_seq(seq_t a, seq_t b)
+{
+    seq_t g = gcd(a, b);
+    return (a / g) * b;
+}
 
 /* Helper: Euclidean GCD for seq_t. */
 

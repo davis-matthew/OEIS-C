@@ -11,12 +11,14 @@
  *            a(13)=3042
  * Range:     i8 n <= 2, i16 n <= 40, i32 n <= 40, i64 n <= 40, i128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term of A063372.  n >= 2.  */
 seq_t a(idx_t n)
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         cap    = 64;                /* start with more than enough space */
         if (cap < init_len) cap = init_len;
 
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
         if (cache == NULL)
             return 0;             /* allocation failed */
 
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         while (new_cap < needed_len)
             new_cap <<= 1;          /* double until big enough */
 
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (new_cache == NULL)
             return cache[(size_t)(max_n - 2)];  /* give up on growth */
 

@@ -8,8 +8,9 @@
  *            n. For offset 1 the recurrence is a(1)=0, a(2n)=a(n)+[n≡0 mod
  *            8], a(2n+1)=a(n). The function below computes the value directly
  *            by scanning the bits of n
- * Range:     u8 n <= 9705, u16 n <= 9705, u32 n <= 9705, u64 n <= 9705,
- *            u128 n <= 9705, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 118 terms through n = 9705 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

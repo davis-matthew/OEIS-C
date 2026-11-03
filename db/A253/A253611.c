@@ -14,7 +14,8 @@
  *            0 upwards introduced in row major order” (RGS)
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 16, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Number of admissible 3‑cell row patterns (≤2 distinct values). */
 #define P 21
@@ -111,8 +113,8 @@ static void init_tables(void)
         trans_count[s] = cnt;
     }
     /* Allocate DP arrays once. */
-    curr = (seq_t *)malloc(S * sizeof(seq_t));
-    nxt  = (seq_t *)malloc(S * sizeof(seq_t));
+    curr = mem_new(seq_t, S);
+    nxt  = mem_new(seq_t, S);
 }
 
 /* --------------------------------------------------------------------- */
@@ -122,8 +124,8 @@ seq_t a(idx_t n)
     if (!curr || !nxt) init_tables();
 
     /* Clear DP arrays. */
-    memset(curr, 0, S * sizeof(seq_t));
-    memset(nxt,  0, S * sizeof(seq_t));
+    mem_set(curr, 0, S * sizeof(seq_t));
+    mem_set(nxt, 0, S * sizeof(seq_t));
 
     /* --- initialise first two rows --- */
     for (int p0 = 0; p0 < P; ++p0) {
@@ -142,7 +144,7 @@ seq_t a(idx_t n)
 
     /* --- add remaining rows (n times) --- */
     for (idx_t step = 0; step < n; ++step) {
-        memset(nxt, 0, S * sizeof(seq_t));
+        mem_set(nxt, 0, S * sizeof(seq_t));
         for (int s = 0; s < S; ++s) {
             seq_t cnt = curr[s];
             if (cnt == 0) continue;

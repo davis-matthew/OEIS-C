@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 181, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_pal_base
+ * Validated: standard, pass, 96 terms through n = 9945 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_pal_base.h"
+#include "../utils/is_palindrome_base.h"
 
 /* Integer square‑root: floor(sqrt(x)) for any unsigned seq_t. */
 static seq_t isqrt_seq(seq_t x)
@@ -54,7 +55,7 @@ static bool has_two_palindromes(seq_t num)
     idx_t sqrt_lim = (idx_t)sqrt_num;
 
     for (idx_t b = 2; b <= sqrt_lim; ++b) {
-        if (is_pal_base(num, b)) {
+        if (is_palindrome_base(num, b)) {
             if (++cnt >= 2)
                 return true;
         }

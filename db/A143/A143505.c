@@ -10,13 +10,15 @@
  *            Eulerian polynomials. Row sums are A000670 without the leading 1
  * Range:     u8 n <= 27, u16 n <= 54, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root of a 64‑bit unsigned integer.
    Returns floor(sqrt(x)). Uses 128‑bit arithmetic to avoid overflow. */
@@ -44,12 +46,12 @@ seq_t a(idx_t n)
     uint64_t pos = n - (r - 1) * (r - 1); /* 1 … 2r‑1 */
 
     /* Allocate two buffers for the Eulerian recurrence. */
-    seq_t *prev = (seq_t *)calloc(r, sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc(r, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, r);
+    seq_t *curr = mem_new(seq_t, r);
     if (!prev || !curr)
     {
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return 0;
     }
 
@@ -101,7 +103,7 @@ seq_t a(idx_t n)
         result += prev[k] * bin;
     }
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

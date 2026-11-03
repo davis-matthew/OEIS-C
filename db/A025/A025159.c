@@ -12,13 +12,26 @@
  *            partitions of m into k parts * (parts may repeat). Q sati...
  * Range:     u8 n <= 53, u16 n <= 143, u32 n <= 430, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _kmax_needed
+ * Validated: standard, pass, 83 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/_kmax_needed.h"
+#include "../utils/mem.h"
+
+static int _kmax_needed(idx_t n)
+{
+    /* maximum k such that 5*k*(k-1)/2 + k <= n   */
+    int kmax = 0;
+    for (int k = 1;; ++k) {
+        idx_t shift = (idx_t)k * (k - 1) * 5 / 2;   /* 5*k*(k-1)/2   */
+        if (shift + k > n) break;
+        kmax = k;
+    }
+    return kmax;
+}
 
 /* The following types are defined by the build system:
    typedef ... seq_t;  // integer type for sequence values
@@ -36,14 +49,14 @@ static void _extend_columns(int new_kmax)
     size_t old_cols = _dp_cols;
     size_t new_cols = (size_t)new_kmax + 1;
     /* allocate new table */
-    seq_t *newdp = (seq_t*)calloc((_max_n + 1) * new_cols, sizeof(seq_t));
+    seq_t *newdp = mem_new(seq_t, (_max_n + 1) * new_cols);
     /* copy old data */
     for (idx_t w = 0; w <= _max_n; ++w) {
         for (size_t k = 0; k < old_cols; ++k) {
             newdp[w * new_cols + k] = _dp[w * old_cols + k];
         }
     }
-    free(_dp);
+    mem_free(_dp);
     _dp = newdp;
     _dp_cols = new_cols;
     /* compute new columns for all existing rows */
@@ -60,7 +73,7 @@ static void _extend_columns(int new_kmax)
 static void _extend_rows(idx_t new_n)
 {
     size_t new_rows = (size_t)new_n + 1;
-    seq_t *newdp = (seq_t*)realloc(_dp, new_rows * _dp_cols * sizeof(seq_t));
+    seq_t *newdp = mem_resize(seq_t, _dp, new_rows * _dp_cols);
     _dp = newdp;
     /* initialize new rows to zero */
     for (idx_t w = _max_n + 1; w <= new_n; ++w) {
@@ -83,7 +96,7 @@ static void _ensure_dp(idx_t n, int kmax)
 {
     if (_dp == NULL) { /* first allocation */
         _dp_cols = (size_t)kmax + 1;
-        _dp = (seq_t*)calloc((n + 1) * _dp_cols, sizeof(seq_t));
+        _dp = mem_new(seq_t, (n + 1) * _dp_cols);
         _dp[0] = 1; /* Q(0,0)=1 */
         for (size_t w = 1; w <= n; ++w) {
             for (size_t k = 1; k < _dp_cols && k <= w; ++k) {

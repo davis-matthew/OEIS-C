@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-1) - a(floor(n/2)), a(1) = 1
  * Range:     i8 n <= 47, i16 n <= 70, i32 n <= 70, i64 n <= 70, i128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* a(n) is defined for n >= 1 only. */
 static seq_t *cache = NULL;            /* 1‑based cache for already computed terms   */
@@ -26,9 +28,9 @@ static void compute_up_to(idx_t n)
 
     /* Allocate or reallocate the cache. */
     if (!cache)
-        cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (n + 1));
     else
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
 
     /* Initialize starting terms if this is the first call. */
     if (cache_max == 0) {

@@ -7,22 +7,30 @@
  * Formula:   a(n) = n! * Sum_{d|n} (-1)^(d+1) * (n/d)^n / d!
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow, fact_local
+ * Validated: standard, pass, 30 terms through n = 232 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
-#include "../utils/fact_local.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+/* Small factorial routine valid for any seq_t */
+static seq_t fact_local(idx_t m) {
+    seq_t r = 1;
+    for (idx_t i = 2; i <= m; ++i) r *= (seq_t)i;
+    return r;
+}
 
 /* Recursive divisor enumeration */
 static void enumerate_divs(size_t idx, uint64_t cur, uint64_t *pr, int *ex, size_t cnt,
                            idx_t n, seq_t factorial_n, seq_t *res) {
     if (idx == cnt) {
         seq_t base = (seq_t)(n / cur);          /* n/d   */
-        seq_t power = big_pow(base, (seq_t)n);  /* (n/d)^n */
+        seq_t power = ipow(base, (seq_t)n);  /* (n/d)^n */
         seq_t fact_d = fact_local(cur);         /* d!    */
         seq_t q = factorial_n / fact_d;         /* n!/d! */
         seq_t term = q * power;                 /* term   */

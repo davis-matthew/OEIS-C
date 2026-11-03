@@ -9,19 +9,20 @@
  *            divisor of n
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   gpf
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
     if (n == 1) return (seq_t)1;          /* a(1) is defined to be 1 */
 
-    uint64_t p = gpf((uint64_t)n);        /* largest prime divisor of n */
+    uint64_t p = largest_prime_factor((uint64_t)n);        /* largest prime divisor of n */
     seq_t n_seq = (seq_t)n;
     seq_t p_seq = (seq_t)p;
 

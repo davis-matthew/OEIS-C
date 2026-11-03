@@ -9,7 +9,8 @@
  *            of the second kind
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,14 +34,14 @@ seq_t a(idx_t n)
     /* one time initialisation */
     if (a_table == NULL) {
         a_cap  = 1;
-        a_table = (seq_t*)malloc(a_cap * sizeof(seq_t));
+        a_table = mem_new(seq_t, a_cap);
         a_table[0] = (seq_t)1;           /* a(0) = 1 */
 
         a_max  = 0;
 
         S_cap = 1;
-        S_prev = (seq_t*)malloc(S_cap * sizeof(seq_t));
-        S_curr = (seq_t*)malloc(S_cap * sizeof(seq_t));
+        S_prev = mem_new(seq_t, S_cap);
+        S_curr = mem_new(seq_t, S_cap);
         S_prev[0] = (seq_t)1;           /* S(0,0) = 1 */
     }
 
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > a_cap) {
         size_t newcap = a_cap ? a_cap * 2 : 1;
         while (newcap < (size_t)n + 1) newcap *= 2;
-        a_table = (seq_t*)realloc(a_table, newcap * sizeof(seq_t));
+        a_table = mem_resize(seq_t, a_table, newcap);
         a_cap = newcap;
     }
 
@@ -57,8 +59,8 @@ seq_t a(idx_t n)
         if ((size_t)i + 1 > S_cap) {
             size_t newcap = S_cap ? S_cap * 2 : 1;
             while (newcap < (size_t)i + 1) newcap *= 2;
-            S_prev = (seq_t*)realloc(S_prev, newcap * sizeof(seq_t));
-            S_curr = (seq_t*)realloc(S_curr, newcap * sizeof(seq_t));
+            S_prev = mem_resize(seq_t, S_prev, newcap);
+            S_curr = mem_resize(seq_t, S_curr, newcap);
             S_cap = newcap;
         }
 

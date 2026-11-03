@@ -7,6 +7,7 @@
  * Formula:   a(n) = 6*n - floor(2*n*e)
  * Range:     u8 none, u16 n <= 0, u32 n <= 0, u64 n <= 5000, u128 n <= 5000,
  *            big any n
+ * Validated: standard, pass, 88 terms through n = 4899 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

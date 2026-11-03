@@ -9,6 +9,7 @@
  * Formula:   a(n) = 1/2*(n+1)*(n+(-1)^n+1) for n > 0, a(0) = 0
  * Range:     u8 n <= 21, u16 n <= 361, u32 n <= 499, u64 n <= 499,
  *            u128 n <= 499, big any n
+ * Validated: standard, pass, 69 terms through n = 499 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,12 +9,20 @@
  *            (n!/k!)^2 * binomial(n-1, k-1) (1 ≤ k ≤ n)
  * Range:     i8 n <= 6, i16 n <= 15, i32 n <= 29, i64 n <= 78, i128 n <= 210,
  *            big any n
- * Helpers:   ratio_sq
+ * Validated: standard, pass, 52 terms through n = 4815 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/ratio_sq.h"
+/* ---------- utility: (n!/k!)^2  (square of factorial ratio) ---------- */
+static seq_t ratio_sq(idx_t n, idx_t k)
+{
+    seq_t prod = 1;
+    for (idx_t i = k + 1; i <= n; ++i)
+        prod *= (seq_t)i;
+    return prod * prod;
+}
 /* ---------- utility: binomial coefficient (multiplicative) ---------- */
 static seq_t binom_small(idx_t n, idx_t k)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 1314, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   weighted_sum
+ * Validated: standard, pass, 76 terms through n = 9322 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
    The function returns the n‑th such integer (1‑indexed). */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/weighted_sum.h"
+#include "../utils/mem.h"
+
+/* Compute the weighted digit sum for a candidate m. */
+static seq_t weighted_sum(seq_t m) {
+    seq_t k = 0;
+    seq_t w = 1;
+    seq_t tmp = m;
+    while (tmp > 0) {
+        int digit = (int)(tmp % 10);   /* digit is 0..9 */
+        k += (seq_t)digit * w;
+        w++;
+        tmp /= 10;
+    }
+    return k;
+}
 
 static seq_t *seq = NULL;        /* array of found terms          */
 static size_t seq_len = 0;       /* current number of terms       */
@@ -31,7 +46,7 @@ static uint64_t next_candidate = 1;   /* next integer to test        */
 static void grow(void) {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 4;
-        seq = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 }

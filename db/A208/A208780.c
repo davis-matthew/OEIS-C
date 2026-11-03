@@ -10,7 +10,8 @@
  *            the antidiagonals of * the table for T(n,k)
  * Range:     u8 n <= 16, u16 n <= 67, u32 n <= 277, u64 n <= 1082,
  *            u128 n <= 4279, big any n
- * Helpers:   _t44
+ * Validated: standard, pass, 74 terms through n = 9162 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,48 @@
 /* static data structures are initialized on first use */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/_t44.h"
+
+/* helper: compute T(4,4) by exhaustive enumeration (16 bits) */
+static seq_t _t44(void)
+{
+    seq_t cnt = 0;
+    for (uint32_t m = 0; m < (1u << 16); ++m) {
+        bool bad = false;
+        /* check horizontal constraints for each row (4 bits) */
+        for (int r = 0; r < 4; ++r) {
+            uint8_t row = (m >> (r * 4)) & 0x0F;   /* 4 bits */
+            /* position 0..1 for start of 3‑cell window */
+            for (int c = 0; c <= 1; ++c) {
+                uint8_t w = (row >> c) & 0x07;   /* 3 bits */
+                if ((w == 0b000) || (w == 0b001)) {
+                    bad = true;
+                    break;
+                }
+            }
+            if (bad) break;
+        }
+        if (bad) continue;
+
+        /* check vertical constraints for each column (4 rows) */
+        for (int c = 0; c < 4; ++c) {
+            /* build 4‑bit column */
+            uint8_t col = 0;
+            for (int r = 0; r < 4; ++r)
+                col |= ((m >> (r * 4 + c)) & 1u) << r;
+            /* 3-cell windows starting at row 0 and 1 */
+            for (int r = 0; r <= 1; ++r) {
+                uint8_t w = (col >> r) & 0x07;
+                if ((w == 0b011) || (w == 0b111)) {
+                    bad = true;
+                    break;
+                }
+            }
+            if (bad) break;
+        }
+        if (!bad) ++cnt;
+    }
+    return cnt;
+}
 
 /* Limits: for n up to 10000 the indices i,j do not exceed 141.
  * We precompute values up to 200 for safety. */

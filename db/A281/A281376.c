@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{d=1..ceil((n-3)/3)} Sum_{j=1..n-(2*d+1)} floor(j/d)
  * Range:     u8 n <= 20, u16 n <= 195, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 67 terms through n = 8172 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

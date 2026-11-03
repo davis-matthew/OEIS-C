@@ -13,7 +13,8 @@
  *            T(r,k) with n = r(r+1)/2 + k, where r is the...
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 35, u64 n <= 65, u128 n <= 119,
  *            big any n
- * Helpers:   binomial, pow2
+ * Validated: standard, pass, 61 terms through n = 2972 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Global cache for B[n] (total number of acyclic digraphs). */
 static seq_t *B_cache = NULL;
@@ -40,7 +43,7 @@ static void ensure_B(idx_t needed)
     while (new_cap <= (size_t)needed)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(B_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, B_cache, new_cap);
     if (!tmp)
         abort();            /* allocation failure */
     B_cache = tmp;

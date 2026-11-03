@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*   Concatenation of next n nonprime numbers (1 is counted as nonprime).   */
 
@@ -121,7 +123,7 @@ static void ensure_cache_capacity(idx_t n)
     if (a_cap >= (size_t)n) return;
     size_t new_cap = a_cap ? a_cap * 2 : 16;
     while (new_cap < (size_t)n) new_cap *= 2;
-    seq_t *new_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_cap);
     if (!new_cache) exit(1);
     a_cache = new_cache;
     a_cap   = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 122, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 77 terms through n = 9482 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
         cur_num++;
 
         /* count distinct prime factors of cur_num */
-        uint64_t primes = count_distinct_primes(cur_num);
+        uint64_t primes = omega(cur_num);
 
         /* reject if not enough distinct primes */
         if (primes < 2) continue;
@@ -57,7 +60,7 @@ seq_t a(idx_t n)
         /* accept current number */
         if (seq_len == seq_cap) {
             size_t new_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, new_cap);
             assert(tmp != NULL);
             seq = tmp;
             seq_cap = new_cap;

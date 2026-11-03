@@ -11,12 +11,14 @@
  *            sequence A109452 for n ≥ 1
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 24, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 /* Auxiliary recursive function: m may become negative, so use signed type. */
 static seq_t aux(long long m, idx_t n)
@@ -30,14 +32,14 @@ static seq_t aux(long long m, idx_t n)
     idx_t halffloor = mm / 2;   /* not used directly but kept for clarity */
 
     /* term1 = binom(n, mm) * binom(mm, halfceil) */
-    seq_t term1 = binom(n, mm);
+    seq_t term1 = binomial(n, mm);
     if (term1 != 0)
-        term1 *= binom(mm, halfceil);
+        term1 *= binomial(mm, halfceil);
 
     /* term2 = binom(n, halfceil-1)  (if halfceil > 0) */
     seq_t term2 = 0;
     if (halfceil > 0)
-        term2 = binom(n, halfceil - 1);
+        term2 = binomial(n, halfceil - 1);
 
     /* term3 = aux(halfceil-2, n) */
     seq_t term3 = aux((long long)halfceil - 2, n);

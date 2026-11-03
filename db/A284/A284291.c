@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 2119, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   contains_digit_6_idx, isPrime_idx
+ * Validated: standard, pass, 65 terms through n = 9712 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/contains_digit_6_idx.h"
-#include "../utils/isPrime_idx.h"
+#include "../utils/is_prime.h"
+
+/* helper: test whether a number contains the digit 6 */
+static inline bool contains_digit_6_idx(idx_t n)
+{
+    while (n > 0) {
+        if (n % 10 == 6) return true;
+        n /= 10;
+    }
+    return false;
+}
 
 /* cache for all computed terms (64‑bit values) */
 static idx_t *cache = NULL;
@@ -42,7 +52,7 @@ seq_t a(idx_t n)
                 cand += 2;
                 continue;
             }
-            if (isPrime_idx(cand)) {
+            if (is_prime(cand)) {
                 /* Store the term (64‑bit) so we can convert later. */
                 if (cache_len >= cache_cap) {
                     size_t new_cap = cache_cap ? cache_cap * 2 : 8;

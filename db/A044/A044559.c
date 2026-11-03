@@ -10,13 +10,29 @@
  *            not
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_55
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_55.h"
+
+static bool has_55(seq_t x)
+{
+    if (x == 0)
+        return false;
+    int prev = -1;
+    while (x > 0)
+    {
+        int d = (int)(x % 7);
+        if (d == 5 && prev == 5)
+            return true;
+        prev = d;
+        x /= 7;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,6 +7,7 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥0}(1 - x^{4k+3})
  * Range:     i8 n <= 123, i16 n <= 332, i32 n <= 987, i64 n <= 3233,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 91 terms through n = 9272 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

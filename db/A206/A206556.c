@@ -10,13 +10,15 @@
  *            x^k)^(-1) / (1 – x^6)
  * Range:     u8 n <= 27, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static storage for the intermediate sequences */
 static seq_t *p_no1 = NULL;   /* partitions with parts ≥ 2 */
@@ -34,7 +36,7 @@ static void ensure_p_no1(idx_t N)
         return;
 
     /* Allocate an array of length N+1 and initialise to zero. */
-    seq_t *tmp = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, (size_t)(N + 1));
     if (!tmp)                       /* out of memory: abort */
         exit(EXIT_FAILURE);
     tmp[0] = 1;                      /* the empty partition */
@@ -48,7 +50,7 @@ static void ensure_p_no1(idx_t N)
     }
 
     /* Replace the old array. */
-    free(p_no1);
+    mem_free(p_no1);
     p_no1 = tmp;
     p_max = N;
 }
@@ -66,11 +68,11 @@ static void ensure_a(idx_t N)
 
     /* Allocate or extend the a_arr array. */
     if (!a_arr) {
-        a_arr = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+        a_arr = mem_new(seq_t, (size_t)(N + 1));
         if (!a_arr)
             exit(EXIT_FAILURE);
     } else {
-        a_arr = (seq_t *)realloc(a_arr, (size_t)(N + 1) * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, (size_t)(N + 1));
         if (!a_arr)
             exit(EXIT_FAILURE);
         /* New elements are zeroed by calloc → realloc does not initialize,

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 29, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *table = NULL;     /* contiguous array of a(n,k) values   */
 static size_t rows = 0;         /* number of rows currently stored     */
@@ -42,7 +44,7 @@ static void ensure_table(size_t needed_rows, size_t needed_cols) {
         return;
 
     size_t r, c;
-    seq_t *new_t = (seq_t *)malloc(needed_rows * needed_cols * sizeof(seq_t));
+    seq_t *new_t = mem_new(seq_t, needed_rows * needed_cols);
     if (!new_t)
         return; /* allocation failure – caller will get 0 */
 
@@ -57,7 +59,7 @@ static void ensure_table(size_t needed_rows, size_t needed_cols) {
         }
     }
 
-    free(table);
+    mem_free(table);
     table = new_t;
     rows = needed_rows;
     cols = needed_cols;

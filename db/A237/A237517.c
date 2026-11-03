@@ -7,7 +7,8 @@
  * Formula:   a(n) = pi(n^2)/pi(n) where pi(m) is the Pisano period modulo m
  * Range:     u8 n <= 9, u16 n <= 1252, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, pisano_prime
+ * Validated: standard, pass, 85 terms through n = 9878 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,22 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../utils/gcd.h"
-#include "../utils/pisano_prime.h"
+
+/* compute Pisano period of a prime p by direct simulation */
+static seq_t pisano_prime(uint64_t p)
+{
+    seq_t prev = 0;
+    seq_t curr = 1;
+    seq_t cnt  = 0;
+    do
+    {
+        uint64_t next = ((uint64_t)prev + (uint64_t)curr) % p;
+        prev = curr;
+        curr = (seq_t)next;
+        ++cnt;
+    } while (!(prev == 0 && curr == 1));
+    return cnt;
+}
 
 /* fast exponentiation for small exponents (all exponents here are < 30) */
 static inline seq_t pow_seq_small(seq_t base, int exp)

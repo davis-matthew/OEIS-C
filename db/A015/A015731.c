@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   mul_by_xminus1
+ * Validated: standard, pass, 97 terms through n = 1866 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/mul_by_xminus1.h"
+
+/* multiply P[0..deg] by (x^d - 1) into TMP[0..deg+d] */
+static void mul_by_xminus1(const seq_t *P, int deg, int d, seq_t *TMP)
+{
+    int new_deg = deg + d;
+    for (int i = 0; i <= new_deg; ++i) TMP[i] = 0;
+    for (int i = 0; i <= deg; ++i) {
+        TMP[i]     -= P[i];
+        TMP[i + d] += P[i];
+    }
+}
 
 /* constants from the factorisation 1722 = 2·3·7·41 */
 #define PERIOD      1722

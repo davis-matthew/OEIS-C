@@ -9,13 +9,25 @@
  *            7, divisible by 11, or contains a digit 7
  * Range:     u8 n <= 91, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_seven
+ * Validated: standard, pass, 76 terms through n = 9902 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_seven.h"
+
+/* Helper: return true if x contains the digit 7. */
+static inline bool has_seven(seq_t x)
+{
+    while (x)
+    {
+        if ((x % (seq_t)10) == (seq_t)7)
+            return true;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

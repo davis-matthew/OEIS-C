@@ -10,13 +10,17 @@
  *            T(row,0) = 0. Here n is the global index (starting at 0)
  * Range:     i8 n <= 12, i16 n <= 30, i32 n <= 60, i64 n <= 145,
  *            i128 n <= 393, big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 61 terms through n = 4821 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t g)
 {
@@ -38,10 +42,10 @@ seq_t a(idx_t g)
     seq_t bin = binomial(r, k);
 
     /* Compute k^(k-1) */
-    seq_t powk = big_pow((seq_t)k, (seq_t)(k - 1));
+    seq_t powk = ipow((seq_t)k, (seq_t)(k - 1));
 
     /* Compute (k+1)^(r-k) */
-    seq_t powk1 = big_pow((seq_t)(k + 1), (seq_t)(r - k));
+    seq_t powk1 = ipow((seq_t)(k + 1), (seq_t)(r - k));
 
     /* T(r,k) = (-1)^(k-1) * k^(k-1) * (k+1)^(r-k) * C(r,k) */
     seq_t term = bin * powk;

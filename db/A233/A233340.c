@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 391 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Configuration constants                                               */
@@ -124,7 +126,7 @@ static void build_transitions(void)
         for (int nxt = 0; nxt < 32; ++nxt)
         {
             int state = (cur << 5) | nxt;
-            memset(final, 0, sizeof(final));
+            mem_set(final, 0, sizeof(final));
             bits[0] = (uint16_t)cur;
             bits[1] = (uint16_t)nxt;
             bits[2] = 0;
@@ -160,7 +162,7 @@ static void ensure_cache(idx_t n)
     if (n + 1 <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap <= n + 1) new_cap *= 2;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -169,9 +171,9 @@ static void init(void)
     if (init_done) return;
     init_done = true;
 
-    dp_cur  = (seq_t *)calloc(STATES, sizeof(seq_t));
-    dp_next = (seq_t *)calloc(STATES, sizeof(seq_t));
-    cache   = (seq_t *)calloc(16, sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, STATES);
+    dp_next = mem_new(seq_t, STATES);
+    cache   = mem_new(seq_t, 16);
 
     dp_cur[0] = (seq_t)1;       /* start with empty state */
     cache[0]  = (seq_t)1;       /* a(0) = 1 */
@@ -194,7 +196,7 @@ seq_t a(idx_t n)
         /* One column step – apply all transitions.                    */
         for (int step = 0; step < 3; ++step)
         {
-            memset(dp_next, 0, STATES * sizeof(seq_t));
+            mem_set(dp_next, 0, STATES * sizeof(seq_t));
             for (int s = 0; s < STATES; ++s)
             {
                 seq_t val = dp_cur[s];

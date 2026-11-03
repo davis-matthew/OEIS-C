@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = A002760(n+1) - A002760(n) (sorted squares and cubes
  *            without duplicates)
- * Range:     u8 n <= 18, u16 n <= 722, u32 n <= 9465, u64 n <= 9465,
- *            u128 n <= 9465, big any n
+ * Range:     u8 n <= 18, u16 n <= 722, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 86 terms through n = 9465 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

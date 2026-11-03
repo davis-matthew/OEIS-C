@@ -12,6 +12,7 @@
  *            [primepi(p)[e]], with '[' mapped to binary 1 and ']' to binary 0
  * Range:     u8 n <= 4, u16 n <= 14, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

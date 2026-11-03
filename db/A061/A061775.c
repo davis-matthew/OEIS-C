@@ -10,13 +10,15 @@
  *            sieve of smallest prime factors on demand
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 124 terms through n = 9907 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The build supplies the types seq_t and idx_t.  We do not declare them here. */
 
@@ -71,7 +73,7 @@ static void ensure_a(idx_t n)
 {
     if (a_arr == NULL) {  /* first call */
         size_t sz = (size_t)n + 1;      /* use n+1 so that a_arr[n] is valid */
-        a_arr = (seq_t *)malloc(sz * sizeof(seq_t));
+        a_arr = mem_new(seq_t, sz);
         if (!a_arr)
             return;            /* allocation failure – caller will see 0 */
         a_limit = 1;
@@ -85,7 +87,7 @@ static void ensure_a(idx_t n)
             build_sieve(n);
 
         size_t newsize = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(a_arr, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_arr, newsize);
         if (!tmp) /* allocation failure – keep old data */
             return;
         a_arr = tmp;

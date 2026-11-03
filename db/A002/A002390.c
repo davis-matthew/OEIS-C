@@ -10,8 +10,8 @@
  *            iteration y <- y*(3 - 5*y^2)/2
  * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   a2390_add, a2390_cmp, a2390_divs, a2390_iszero, a2390_mulfx,
- *            a2390_muls, a2390_shr1, a2390_sub
+ * Validated: standard, pass, 115 terms through n = 4430 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,14 +19,86 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a2390_add.h"
-#include "../utils/a2390_cmp.h"
-#include "../utils/a2390_divs.h"
-#include "../utils/a2390_iszero.h"
-#include "../utils/a2390_mulfx.h"
-#include "../utils/a2390_muls.h"
-#include "../utils/a2390_shr1.h"
-#include "../utils/a2390_sub.h"
+
+static void a2390_add(uint32_t *x, const uint32_t *y, size_t L) {
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t cur = (uint64_t)x[i] + y[i] + c;
+        x[i] = (uint32_t)cur;
+        c = cur >> 32;
+    }
+}
+
+static int a2390_cmp(const uint32_t *x, const uint32_t *y, size_t L) {
+    size_t i = L;
+    while (i-- > 0) {
+        if (x[i] != y[i]) return x[i] < y[i] ? -1 : 1;
+    }
+    return 0;
+}
+
+static void a2390_divs(uint32_t *x, size_t L, uint32_t d) {
+    uint64_t r = 0;
+    size_t i = L;
+    while (i-- > 0) {
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+}
+
+static int a2390_iszero(const uint32_t *x, size_t L) {
+    size_t i;
+    for (i = 0; i < L; i++) if (x[i]) return 0;
+    return 1;
+}
+
+/* out = a*b in fixed point with F fractional limbs, L = F+1 limbs total */
+static void a2390_mulfx(const uint32_t *a, const uint32_t *b, uint32_t *out,
+                        uint32_t *p, size_t L, size_t F) {
+    size_t i, j;
+    memset(p, 0, 2 * L * sizeof(uint32_t));
+    for (i = 0; i < L; i++) {
+        uint64_t c = 0;
+        if (a[i] == 0) continue;
+        for (j = 0; j < L; j++) {
+            uint64_t cur = (uint64_t)a[i] * b[j] + p[i + j] + c;
+            p[i + j] = (uint32_t)cur;
+            c = cur >> 32;
+        }
+        p[i + L] = (uint32_t)c;
+    }
+    for (i = 0; i < L; i++) out[i] = p[i + F];
+}
+
+static void a2390_muls(uint32_t *x, size_t L, uint32_t m) {
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t cur = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)cur;
+        c = cur >> 32;
+    }
+}
+
+static void a2390_shr1(uint32_t *x, size_t L) {
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint32_t hi = (i + 1 < L) ? x[i + 1] : 0;
+        x[i] = (x[i] >> 1) | (hi << 31);
+    }
+}
+
+static void a2390_sub(uint32_t *x, const uint32_t *y, size_t L) {
+    int64_t b = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        int64_t cur = (int64_t)x[i] - y[i] - b;
+        if (cur < 0) { cur += ((int64_t)1 << 32); b = 1; } else b = 0;
+        x[i] = (uint32_t)cur;
+    }
+}
 
 static uint32_t *a2390_val = NULL;
 static size_t a2390_F = 0;

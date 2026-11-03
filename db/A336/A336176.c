@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 911, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9809 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>   /* for sqrt on double – used only for estimate */
+#include "../utils/mem.h"
 
 static inline idx_t int_sqrt(idx_t x)
 {
@@ -84,7 +86,7 @@ static void init_sequence(void)
     idx_t a_max = int_sqrt((idx_t)max_limit);
 
     size_t cap = 200000;  /* initial guess */
-    powers = (seq_t *)malloc(cap * sizeof(seq_t));
+    powers = mem_new(seq_t, cap);
     powers_len = 0;
 
     for (idx_t a = 1; a <= a_max; ++a) {
@@ -96,14 +98,14 @@ static void init_sequence(void)
             seq_t prod = a_sq * b_cu;
             if (powers_len == cap) {
                 cap *= 2;
-                powers = (seq_t *)realloc(powers, cap * sizeof(seq_t));
+                powers = mem_resize(seq_t, powers, cap);
             }
             powers[powers_len++] = prod;
         }
     }
 
     /* 2. Sort and deduplicate */
-    qsort(powers, powers_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(powers, powers_len, sizeof(seq_t), cmp_seq);
     size_t uniq = 0;
     for (size_t i = 0; i < powers_len; ++i) {
         if (i == 0 || powers[i] != powers[i - 1]) {
@@ -114,7 +116,7 @@ static void init_sequence(void)
 
     /* 3. Scan k and collect terms a(n) */
     size_t terms_cap = 50000;  /* enough for K_LIMIT */
-    terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
     terms_len = 0;
 
     size_t low = 0, high = 0;
@@ -129,7 +131,7 @@ static void init_sequence(void)
         if (high - low == 1) {                     /* exactly one */
             if (terms_len == terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = k;
         }

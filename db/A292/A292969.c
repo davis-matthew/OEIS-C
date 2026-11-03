@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Sum_{k=0..floor(n/4)} (-k)^(n-4*k)/(k! * (n-4*k)!)
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 12, i64 n <= 20, i128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 476 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute integer power base^exp for any seq_t type. */
 static seq_t int_pow(seq_t base, idx_t exp)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 {
     /* Allocate factorial table up to n. */
     size_t sz = (size_t)n + 1;
-    seq_t *fact = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, sz);
     if (!fact) return (seq_t)0;            /* out‑of‑memory safeguard */
 
     fact[0] = (seq_t)1;
@@ -55,6 +57,6 @@ seq_t a(idx_t n)
         sum = sum + term;
     }
 
-    free(fact);
+    mem_free(fact);
     return sum;
 }

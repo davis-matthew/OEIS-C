@@ -9,13 +9,14 @@
  *            otherwise a(n) = 4 if n>2, * with a(1)=0, a(2)=1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 121 terms through n = 9890 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -26,12 +27,12 @@ seq_t a(idx_t n)
     /* a(n) = 3 if n>=4 and n is a square or n = m(m+1) */
     if (n >= 4) {
         /* check perfect square */
-        idx_t m = _floor_isqrt_u64(n);
+        idx_t m = isqrt(n);
         if (m * m == n) return (seq_t)3;
 
         /* check m(m+1) form */
         idx_t d = 1 + 4 * n;
-        idx_t sqrt_d = _floor_isqrt_u64(d);
+        idx_t sqrt_d = isqrt(d);
         if (sqrt_d * sqrt_d == d && (sqrt_d - 1) % 2 == 0) return (seq_t)3;
     }
 
@@ -39,12 +40,12 @@ seq_t a(idx_t n)
     idx_t s = n - 1;
     /* check perfect square for s (m >= 2 to avoid n=3 case not counted yet) */
     if (s >= 4) {
-        idx_t m = _floor_isqrt_u64(s);
+        idx_t m = isqrt(s);
         if (m * m == s && m >= 2) return (seq_t)2;
     }
     /* check m(m+1) form for s */
     idx_t d = 1 + 4 * s;
-    idx_t sqrt_d = _floor_isqrt_u64(d);
+    idx_t sqrt_d = isqrt(d);
     if (sqrt_d * sqrt_d == d && (sqrt_d - 1) % 2 == 0) return (seq_t)2;
 
     /* Default for n > 2 */

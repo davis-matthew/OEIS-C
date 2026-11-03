@@ -9,8 +9,9 @@
  *            contains the terms 2r, 2r+2, …, 2r+2(r‑2), 1 (row 1 has a single
  *            element 1). Each row has r terms, the last being 1. The sequence
  *            is indexed starting at n = 1
- * Range:     u8 n <= 2143, u16 n <= 9623, u32 n <= 9623, u64 n <= 9623,
- *            u128 n <= 9623, big any n
+ * Range:     u8 n <= 2143, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 71 terms through n = 9623 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

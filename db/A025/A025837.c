@@ -9,7 +9,8 @@
  *            (1-x³)(1-x⁵)(1-x⁹)=0)
  * Range:     u8 n <= 251, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #else
 #  define CAST_PTR(Type, Expr) (reinterpret_cast<Type>(Expr))
 #endif
+#include "../utils/mem.h"
 
 /* Compute a(n).  Sequence is cached so subsequent calls are O(1). */
 seq_t a(idx_t n)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* First call: allocate space for the requested n (at least 1)   */
     if (dp == NULL) {
         dp_cap     = (size_t)((n >= 1) ? n + 1 : 1);
-        dp         = CAST_PTR(seq_t *, calloc(dp_cap, sizeof(seq_t)));
+        dp         = CAST_PTR(seq_t *, mem_new(seq_t, dp_cap));
         if (dp == NULL) return 0;          /* out-of-memory: dummy 0 */
         dp[0]      = (seq_t)1;              /* a(0)=1 */
         max_cached = 0;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* Grow the array if a larger n is requested */
     if ((size_t)n >= dp_cap) {
         size_t new_cap = (size_t)((n >= 1) ? n + 1 : 1);
-        seq_t *new_dp = CAST_PTR(seq_t *, realloc(dp, new_cap * sizeof(seq_t)));
+        seq_t *new_dp = CAST_PTR(seq_t *, mem_resize(seq_t, dp, new_cap));
         if (new_dp == NULL) return 0;      /* out-of-memory */
 
         /* Zero the newly allocated portion */

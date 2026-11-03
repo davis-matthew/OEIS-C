@@ -13,6 +13,7 @@
  *            3)*(-1)^k*(-1)^n) / 96 (T read by antidiagonal...
  * Range:     u8 n <= 31, u16 n <= 219, u32 n <= 9246, u64 n <= 9870,
  *            u128 n <= 9870, big any n
+ * Validated: standard, pass, 76 terms through n = 9443 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

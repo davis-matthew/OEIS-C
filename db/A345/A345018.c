@@ -8,8 +8,9 @@
  * Formula:   a(n) = r + n - T(r-1) - 1, where r = least integer with
  *            ∑_{i=1}^r i² ≥ n, and T(k) = k(k+1)(2k+1)/6 (the k‑th sum of
  *            squares)
- * Range:     u8 n <= 253, u16 n <= 9992, u32 n <= 9992, u64 n <= 9992,
- *            u128 n <= 9992, big any n
+ * Range:     u8 n <= 253, u16 n <= 10416, u32 n <= 10416, u64 n <= 10416,
+ *            u128 n <= 10416, big any n
+ * Validated: standard, pass, 107 terms through n = 9992 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

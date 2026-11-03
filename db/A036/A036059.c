@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 181, u128 n <= 181,
  *            big any n
- * Helpers:   counts_of_seq
+ * Validated: standard, pass, 37 terms through n = 175 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,17 @@
  */
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/counts_of_seq.h"
+
+/* helper: count decimal digits of a sequence value */
+static void counts_of_seq(seq_t v, uint64_t out[10])
+{
+    for (int i = 0; i < 10; ++i) out[i] = 0;
+    while (v > (seq_t)0) {
+        int d = (int)(v % (seq_t)10);
+        ++out[d];
+        v /= (seq_t)10;
+    }
+}
 
 /* helper: number of decimal digits of a non‑zero value */
 static int digit_len_seq_t(seq_t v)

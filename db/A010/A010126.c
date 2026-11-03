@@ -7,8 +7,9 @@
  * Formula:   a(0)=4; for n≥1, a(n) = 8 if n divisible by 6, 2 if n even, 4 if
  *            n divisible by 3, 1 otherwise. This is equivalent to the
  *            multiplicative definition: a(2^e)=2, a(3^e)=4, a(p^e)=1 for p≥5
- * Range:     u8 n <= 9701, u16 n <= 9701, u32 n <= 9701, u64 n <= 9701,
- *            u128 n <= 9701, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 97 terms through n = 9701 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

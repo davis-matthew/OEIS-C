@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 210, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   compare_seq
+ * Validated: standard, pass, 71 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
  * four exponents with repetition and sorts the resulting numbers.  No external
  * utilities or dynamic allocation are required other than a fixed static buffer. */
 #include <stdlib.h>
-#include "../utils/compare_seq.h"
+#include "../utils/mem.h"
+
+/* Comparator for qsort */
+static int compare_seq(const void *p, const void *q)
+{
+    const seq_t *x = (const seq_t *)p;
+    const seq_t *y = (const seq_t *)q;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 /* Maximum number of terms that may be required for the supported n range.
    For n up to 100 000 the required size is below 200 000, which safely covers
@@ -70,7 +81,7 @@ static void rebuild_cache(idx_t n_needed)
     a_cache_size = pos;
 
     /* Sort the generated numbers. */
-    qsort(a_cache, a_cache_size, sizeof(seq_t), compare_seq);
+    mem_qsort(a_cache, a_cache_size, sizeof(seq_t), compare_seq);
 }
 
 /* Public function required by the exercise. */

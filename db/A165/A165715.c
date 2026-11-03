@@ -10,7 +10,8 @@
  * Formula:   a(n) = ∏_{k} p(n,k)^{b(A165713(n),k)}
  * Range:     u8 n <= 6, u16 n <= 30, u32 n <= 60, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   count_distinct_primes, factor_u64
+ * Validated: partial, pass, 63 terms through n = 64 (2026-11-01)
+ * Helpers:   factor_u64, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,10 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
 
 /* Helper: fast exponentiation for seq_t */
 static seq_t seq_pow_fast(seq_t base, idx_t exp)
@@ -60,7 +63,7 @@ seq_t a(idx_t n)
     /* 2. find m = A165713(n) – smallest integer > n with same omega */
     idx_t m = n + 1;
     size_t omega_n = cnt_n;
-    while (count_distinct_primes((uint64_t)m) != omega_n)
+    while (omega((uint64_t)m) != omega_n)
         ++m;
 
     /* 3. factorise m */

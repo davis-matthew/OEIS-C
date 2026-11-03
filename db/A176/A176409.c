@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 110, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_multiples
+ * Validated: standard, pass, 82 terms through n = 9112 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,12 @@
    types where idx_t and seq_t are unsigned integer types. */
 
 #include <stdint.h>
-#include "../utils/count_multiples.h"
+
+static inline idx_t count_multiples(idx_t x)
+{
+    /* count of positive integers ≤ x that are multiples of 3 or 7 */
+    return x / 3 + x / 7 - x / 21;
+}
 
 seq_t a(idx_t n)
 {

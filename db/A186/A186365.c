@@ -9,7 +9,8 @@
  *            ∑_{p=1}^{⌊(n-2)/2⌋} (-1)^p * a(n-2p-1) * C(n, 2p+1)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 22, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 272 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /*  C++ and C compatible  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper to compute (x * mult) / div with 128‑bit intermediate when needed */
 static inline seq_t muldiv(seq_t x, unsigned long long mult, unsigned long long div)
@@ -48,7 +50,7 @@ static void ensure_a(size_t required_n)
         size_t new_cap = A_cap ? A_cap * 2 : 16;
         if (new_cap < required_n + 1)
             new_cap = required_n + 1;
-        seq_t *newA = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+        seq_t *newA = mem_resize(seq_t, A, new_cap);
         if (!newA) { /* allocation failed – abort the program */
             abort();
         }

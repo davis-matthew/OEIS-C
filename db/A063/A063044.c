@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 7, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of helper functions that operate on seq_t */
 static bool is_prime_small(seq_t v);
@@ -42,8 +44,7 @@ static void ensure_cache_capacity(idx_t need)
         cache_cap = 1;
     while (cache_cap < need)
         cache_cap *= 2U;
-    seq_t *new_cache = (seq_t *)realloc(cache,
-                                         (size_t)cache_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)cache_cap);
     if (!new_cache)
         abort(); /* allocation failure */
     cache = new_cache;

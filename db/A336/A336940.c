@@ -7,6 +7,7 @@
  * Formula:   a(n) = number of odd divisors of n!
  * Range:     u8 n <= 14, u16 n <= 28, u32 n <= 60, u64 n <= 136,
  *            u128 n <= 310, big any n
+ * Validated: standard, pass, 61 terms through n = 9629 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
 
 static idx_t  prime_limit = 0;

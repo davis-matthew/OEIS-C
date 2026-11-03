@@ -7,71 +7,45 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of ordered 9‑tuples of positive integers whose
  *            squares sum to n
- * Range:     u8 n <= 25, u16 n <= 88, u32 n <= 1632, u64 n <= 9412,
- *            u128 n <= 9412, big any n
- * Helpers:   none
+ * Range:     u8 n <= 25, u16 n <= 88, u32 n <= 1632, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 71 terms through n = 9412 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+/* dp after j steps counts the ordered sums of j positive squares; 9 steps of
+   convolution with the squares give a(0..L). L doubles when a larger n is
+   asked, so the work is O(L^1.5) overall. (The original redid the table for
+   every new n and kept the squares in a fixed array of 101.) */
+
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
-    if (n < 9U) return 0;          /* offset is 9, behavior below is irrelevant */
-
-    static idx_t max_n = 0;
+    static idx_t L = 0;                      /* dp covers 0..L, valid if L > 0 */
     static seq_t *dp = NULL;
-    static seq_t *next_arr = NULL;
-
-    if (n > max_n) {
-        idx_t size = n + 1;
-
-#ifdef __cplusplus
-        delete[] dp;
-        delete[] next_arr;
-        dp = new seq_t[size]();          /* value‑initialize all elements to zero */
-        next_arr = new seq_t[size]();
-#else
-        free(dp);
-        free(next_arr);
-        dp = (seq_t *)calloc((size_t)size, sizeof(seq_t));
-        next_arr = (seq_t *)calloc((size_t)size, sizeof(seq_t));
-#endif
-
-        /* list of square values up to n */
-        idx_t squares[101];
-        size_t sq_cnt = 0;
-        for (idx_t k = 1; k * k <= (idx_t)n; ++k) {
-            squares[sq_cnt++] = k * k;
-        }
-
-        /* initial state: 0 squares used, sum 0 */
-        for (idx_t i = 0; i <= (idx_t)n; ++i) dp[i] = 0;
-        dp[0] = 1;
-
-        /* perform 9 convolutions */
+    if (n < 9) return (seq_t)0;
+    if (n > L) {
+        idx_t newL = L ? L : 1024;
+        while (newL < n) newL *= 2;
+        mem_free(dp);
+        dp = mem_new(seq_t, newL + 1);
+        seq_t *nx = mem_new(seq_t, newL + 1);
+        if (!dp || !nx) abort();
+        dp[0] = (seq_t)1;
         for (int step = 0; step < 9; ++step) {
-            for (idx_t i = 0; i <= (idx_t)n; ++i) next_arr[i] = 0;
-
-            for (idx_t s = 0; s <= (idx_t)n; ++s) {
-                seq_t cur = dp[s];
-                if (cur == 0) continue;
-
-                for (size_t si = 0; si < sq_cnt; ++si) {
-                    idx_t ns = s + squares[si];
-                    if (ns > (idx_t)n) break;           /* squares sorted */
-                    next_arr[ns] += cur;
-                }
+            for (idx_t i = 0; i <= newL; ++i) nx[i] = (seq_t)0;
+            for (idx_t s = 0; s <= newL; ++s) {
+                if (dp[s] == (seq_t)0) continue;
+                for (idx_t k = 1; s + k * k <= newL; ++k) nx[s + k * k] += dp[s];
             }
-            /* swap dp and next_arr for next iteration */
-            seq_t *tmp = dp;
-            dp = next_arr;
-            next_arr = tmp;
+            seq_t *t = dp; dp = nx; nx = t;
         }
-
-        max_n = n;
+        mem_free(nx);
+        L = newL;
     }
-
     return dp[n];
 }

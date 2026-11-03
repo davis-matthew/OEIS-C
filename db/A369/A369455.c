@@ -7,16 +7,19 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = Sum_{d|n} A055615(n/d) * A083345(d)
- * Range:     i8 n <= 63, i16 n <= 9758, i32 n <= 9758, i64 n <= 9758,
- *            i128 n <= 9758, big any n
+ * Range:     i8 n <= 63, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 116 terms through n = 9758 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 /* Arithmetic derivative of n: n' = Σ e_i * (n / p_i) */
 static seq_t arithmetic_derivative(idx_t n)

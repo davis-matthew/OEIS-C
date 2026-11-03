@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 934, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 62 terms through n = 9344 (2026-11-01)
  * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* Computes OEIS A052160 by scanning primes */
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
 
 seq_t a(idx_t n)

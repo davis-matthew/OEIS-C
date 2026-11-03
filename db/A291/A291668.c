@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   big_pow, digit_counts
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   digit_counts, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"          /* big_pow(seq_t, seq_t) */
-#include "../utils/digit_counts.h"     /* digit_counts(seq_t, unsigned char[10]) */
+#include <stddef.h>
+#include "../utils/digit_counts.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
     /* generate terms until we have at least n of them */
     while (cache_len < n)
     {
-        seq_t power = big_pow((seq_t)next_k, (seq_t)4); /* k^4 */
+        seq_t power = ipow((seq_t)next_k, (seq_t)4); /* k^4 */
         unsigned char cnt[10];
         digit_counts(power, cnt);                     /* counts of each decimal digit */
 
@@ -44,7 +47,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap)            /* grow cache if needed */
             {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();                  /* abort on allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

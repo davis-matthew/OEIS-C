@@ -8,14 +8,36 @@
  *            odd decimal digit
  * Range:     u8 n <= 23, u16 n <= 640, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_odd_digit, pow10_seq
+ * Validated: standard, pass, 71 terms through n = 968 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_odd_digit.h"
-#include "../utils/pow10_seq.h"
+#include <stdint.h>
+
+/* Test if a number contains at least one odd decimal digit.  */
+static bool has_odd_digit(seq_t v)
+{
+    while (v > 0)
+    {
+        seq_t d = v % 10;
+        if (d & 1)   /* odd digit */
+            return true;
+        v /= 10;
+    }
+    return false;
+}
+
+/* 10^e as seq_t (e fits in idx_t, small for n ≤ 10 000) */
+static inline seq_t pow10_seq(idx_t e)
+{
+    seq_t r = 1;
+    for (idx_t i = 0; i < e; ++i)
+        r *= 10;
+    return r;
+}
 
 /* Build a palindrome from the given prefix. If odd_len is true, the middle
    digit of the prefix is omitted before mirroring. */

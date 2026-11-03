@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   fib
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/fib.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 static seq_t *value_cache   = NULL;   /* a(n) values, 1‑indexed */
 static idx_t *index_cache   = NULL;   /* Fibonacci index of a(n), 1‑indexed */
@@ -39,7 +52,7 @@ static void ensure_cache(size_t need)
     while (new_cap < need)
         new_cap <<= 1;             /* grow exponentially */
 
-    seq_t *v = (seq_t *)realloc(value_cache, new_cap * sizeof(seq_t));
+    seq_t *v = mem_resize(seq_t, value_cache, new_cap);
     if (!v)
         abort();
     value_cache = v;

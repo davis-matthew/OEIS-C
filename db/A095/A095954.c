@@ -12,7 +12,8 @@
  *            sequence
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 8822 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*--------------------------------------------------------------*/
 /*   Sieve of Eratosthenes – smallest prime factor array        */
@@ -157,7 +159,7 @@ static void seq_reserve_extend(void)
 {
     if (seq_cap == 0) seq_cap = 64;
     else seq_cap <<= 1;
-    seq_t *new_ptr = (seq_t*)realloc(sequence, seq_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, sequence, seq_cap);
     if (!new_ptr) exit(1);   /* out of memory */
     sequence = new_ptr;
 }

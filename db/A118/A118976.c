@@ -14,7 +14,8 @@
  *            by rows, 1‑based indexing
  * Range:     u8 n <= 23, u16 n <= 70, u32 n <= 218, u64 n <= 718,
  *            u128 n <= 2448, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 4668 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     /* Reject n < 1; behavior below the offset does not matter */
@@ -47,8 +48,8 @@ seq_t a(idx_t n) {
     /* Compute the two terms of the definition safely */
     seq_t term1;
     {
-        seq_t c1 = binom(r - 1, k - 1);
-        seq_t c2 = binom(r, k - 1);
+        seq_t c1 = binomial(r - 1, k - 1);
+        seq_t c2 = binomial(r, k - 1);
         /* For built‑in integer types, use 128‑bit intermediate to avoid overflow */
         if (sizeof(seq_t) <= sizeof(uint64_t)) {
             unsigned __int128 prod = (unsigned __int128)c1 * (unsigned __int128)c2;
@@ -60,8 +61,8 @@ seq_t a(idx_t n) {
 
     seq_t term2;
     {
-        seq_t c1 = binom(r - 1, k);
-        seq_t c2 = binom(r, k);
+        seq_t c1 = binomial(r - 1, k);
+        seq_t c2 = binomial(r, k);
         if (sizeof(seq_t) <= sizeof(uint64_t)) {
             unsigned __int128 prod = (unsigned __int128)c1 * (unsigned __int128)c2;
             term2 = (seq_t)(prod / (k + 1));

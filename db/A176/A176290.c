@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 12, i64 n <= 26, i128 n <= 54,
  *            big any n
- * Helpers:   grow_to_at_least
+ * Validated: standard, pass, 36 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,18 @@
    with initial terms a(0)=1, a(1)=2, a(2)=-3, a(3)=-75.   */
 
 #include <stdlib.h>
-#include "../utils/grow_to_at_least.h"
+#include "../utils/mem.h"
+
+/* Grow a dynamic array of seq_t to at least 'needed' elements.
+ * Works for both C and C++ when seq_t may be an arbitrary-precision class. */
+static void grow_to_at_least(seq_t **arr, size_t *cap, size_t needed)
+{
+    if (*cap > needed) return;
+    size_t newcap = (*cap > 0) ? (*cap * 2) : 4;
+    while (newcap <= needed) newcap *= 2;
+    *arr = mem_resize(seq_t, *arr, newcap);
+    *cap = newcap;
+}
 
 /* Return the n-th term of the Hankel transform of A105872. */
 seq_t a(idx_t n)

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 96, u16 n <= 8258, u32 n <= 8258, u64 n <= 8258,
- *            u128 n <= 8258, big any n
- * Helpers:   none
+ * Range:     u8 n <= 96, u16 n <= 19999, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 116 terms through n = 8258 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------------------
    Helper: integer square root of a 64‑bit unsigned value.
@@ -75,7 +77,7 @@ static void build_sums(uint64_t bound)
     size_t max_pairs = (size_t)(m + 1) * (m + 2) / 2;
 
     /* Temporary array to collect all sums */
-    seq_t *tmp = (seq_t *)malloc(max_pairs * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, max_pairs);
     if (!tmp) abort();    /* out of memory */
 
     size_t count = 0;
@@ -89,7 +91,7 @@ static void build_sums(uint64_t bound)
     }
 
     /* Sort the temporary array */
-    qsort(tmp, count, sizeof(seq_t), compare_seq_t);
+    mem_qsort(tmp, count, sizeof(seq_t), compare_seq_t);
 
     /* Remove duplicates in place */
     size_t out = 0;
@@ -100,13 +102,13 @@ static void build_sums(uint64_t bound)
     }
 
     /* Allocate a new array of the unique sums */
-    seq_t *new_arr = (seq_t *)malloc(out * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, out);
     if (!new_arr) abort();
     for (size_t i = 0; i < out; ++i) new_arr[i] = tmp[i];
 
     /* Clean up */
-    free(tmp);
-    if (sums) free(sums);
+    mem_free(tmp);
+    if (sums) mem_free(sums);
 
     sums     = new_arr;
     sums_len = out;

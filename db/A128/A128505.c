@@ -9,14 +9,16 @@
  * Formula:   a(n) = binom(row‑m+3,3) * binom(row‑m,m) * (‑1)^m where (row,m)
  *            are the row and column indices of the index‑n term in the
  *            flattened triangular array. Row lengths are floor(row/2)+1
- * Range:     i8 n <= 8, i16 n <= 51, i32 n <= 52, i64 n <= 52, i128 n <= 52,
+ * Range:     i8 n <= 9, i16 n <= 51, i32 n <= 52, i64 n <= 52, i128 n <= 52,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -36,8 +38,8 @@ seq_t a(idx_t n)
     idx_t m = n - cumul;
 
     /* Compute the binomial factors.  binom returns seq_t. */
-    seq_t factor1 = binom(row - m + 3, 3);   /* C(row‑m+3, 3) */
-    seq_t factor2 = binom(row - m,     m);   /* C(row‑m,   m) */
+    seq_t factor1 = binomial(row - m + 3, 3);   /* C(row‑m+3, 3) */
+    seq_t factor2 = binomial(row - m,     m);   /* C(row‑m,   m) */
 
     seq_t val = factor1 * factor2;  /* product of the two factors */
 

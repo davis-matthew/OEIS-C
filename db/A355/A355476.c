@@ -11,7 +11,8 @@
  *            a(n)=c*m. (All arithmetic is on unsigned integer type seq_t.)
  * Range:     u8 n <= 67, u16 n <= 700, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 91 terms through n = 9564 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"  /* provides divisor_count_u64(uint64_t) */
+#include "../utils/num_divisors.h"
 
 #define MAX_TERMS 20000   /* array capacity; >10 000, safe for requested limits */
 
@@ -51,7 +52,7 @@ static size_t find_map_index(seq_t v)
 /* compute divisor count for seq_t values that fit in uint64_t */
 static inline seq_t divisor_count(seq_t x)
 {
-    return (seq_t)divisor_count_u64((uint64_t)x);
+    return (seq_t)num_divisors((uint64_t)x);
 }
 
 seq_t a(idx_t n)

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 1022, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has8_max8
+ * Validated: standard, pass, 57 terms through n = 9717 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 /* No external headers beyond the build system's types are required. */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has8_max8.h"
+
+/* Return true iff x has a digit 8 and no digit > 8. */
+static bool has8_max8(uint64_t x)
+{
+    bool seen8 = false;
+    if (x == 0) return false;
+    while (x > 0) {
+        unsigned d = (unsigned)(x % 10);
+        if (d > 8) return false;
+        if (d == 8) seen8 = true;
+        x /= 10;
+    }
+    return seen8;
+}
 
 #define MAX_PRIMES   65536   /* enough for n up to many thousands          */
 #define MAX_TERMS    65536   /* enough for the first many terms of A106094 */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 22, u32 n <= 2222, u64 n <= 2222,
  *            u128 n <= 2222, big any n
- * Helpers:   rev_decimal
+ * Validated: standard, pass, 58 terms through n = 1677 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 */
 
 #include <stdint.h>
-#include "../utils/rev_decimal.h"   /* seq_t rev_decimal(seq_t x); */
+#include <stdbool.h>
+#include "../utils/reverse_digits.h"
 
 seq_t a(idx_t n) {
     /* For each length L (>=1) the number of palindromes that start
@@ -61,9 +63,9 @@ seq_t a(idx_t n) {
             seq_t prefix = prefix_start + (seq_t)idx;
 
             if (len % 2 == 0) { /* even length L = 2m */
-                return prefix * pow10[half_len] + rev_decimal(prefix);
+                return prefix * pow10[half_len] + reverse_digits(prefix);
             } else {            /* odd length L = 2m+1 */
-                return prefix * pow10[half_len - 1] + rev_decimal(prefix / (seq_t)10);
+                return prefix * pow10[half_len - 1] + reverse_digits(prefix / (seq_t)10);
             }
         } else {
             idx -= (idx_t)count;              /* skip this block */

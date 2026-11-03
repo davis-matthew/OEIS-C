@@ -11,7 +11,8 @@
  *            coefficients of B(x)^2. This comes from the OEIS...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 22, u128 n <= 23,
  *            big any n
- * Helpers:   p3093_addto, p3093_binom, p3093_div, p3093_mul
+ * Validated: partial, pass, 21 terms through n = 23 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,51 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/p3093_addto.h"
-#include "../utils/p3093_binom.h"
-#include "../utils/p3093_div.h"
-#include "../utils/p3093_mul.h"
+
+static void p3093_addto(uint32_t *x, const uint32_t *y, size_t L)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)x[i] + y[i] + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+}
+
+static void p3093_div(uint32_t *x, size_t L, uint32_t d)
+{
+    uint64_t r = 0;
+    size_t i = L;
+    while (i-- > 0) {
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+}
+
+static void p3093_mul(uint32_t *x, size_t L, uint32_t k)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)x[i] * k + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+}
+
+/* x = binomial(N, K), computed multiplicatively (exact at every step) */
+static void p3093_binom(uint32_t *x, size_t L, uint64_t N, uint64_t K)
+{
+    uint64_t i;
+    memset(x, 0, L * sizeof(uint32_t));
+    x[0] = 1;
+    for (i = 1; i <= K; i++) {
+        p3093_mul(x, L, (uint32_t)(N - K + i));
+        p3093_div(x, L, (uint32_t)i);
+    }
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 32, u64 n <= 62, u128 n <= 124,
  *            big any n
- * Helpers:   bool_same, check_bottom, check_mid, check_top
+ * Validated: standard, pass, 49 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,10 +28,63 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/bool_same.h"
-#include "../utils/check_bottom.h"
-#include "../utils/check_mid.h"
-#include "../utils/check_top.h"
+#include "../utils/mem.h"
+
+static inline int bool_same(int bit1, int bit2) { return bit1 == bit2; }
+
+/* Check that the bottom row (`curr`) satisfies the neighbour condition,
+ * given its previous row (`prev`).  No row below.
+ */
+static int check_bottom(int prev, int curr) {
+    for (int j = 0; j < 5; j++) {
+        int v = (curr >> j) & 1;
+        int cnt = 0;
+        if (j > 0 && bool_same((curr >> (j - 1)) & 1, v)) cnt++;
+        if (j < 4 && bool_same((curr >> (j + 1)) & 1, v)) cnt++;
+        if (j > 0 && bool_same((prev >> (j - 1)) & 1, v)) cnt++;
+        if (bool_same((prev >> j) & 1, v)) cnt++;
+        if (j < 4 && bool_same((prev >> (j + 1)) & 1, v)) cnt++;
+        if (cnt != 2 && cnt != 3) return 0;
+    }
+    return 1;
+}
+
+/* Check that a middle row (`curr`) satisfies the neighbour condition,
+ * given its previous row (`prev`) and its next row (`next`).
+ */
+static int check_mid(int prev, int curr, int next) {
+    for (int j = 0; j < 5; j++) {
+        int v = (curr >> j) & 1;
+        int cnt = 0;
+        if (j > 0 && bool_same((curr >> (j - 1)) & 1, v)) cnt++;
+        if (j < 4 && bool_same((curr >> (j + 1)) & 1, v)) cnt++;
+        if (j > 0 && bool_same((prev >> (j - 1)) & 1, v)) cnt++;
+        if (bool_same((prev >> j) & 1, v)) cnt++;
+        if (j < 4 && bool_same((prev >> (j + 1)) & 1, v)) cnt++;
+        if (j > 0 && bool_same((next >> (j - 1)) & 1, v)) cnt++;
+        if (bool_same((next >> j) & 1, v)) cnt++;
+        if (j < 4 && bool_same((next >> (j + 1)) & 1, v)) cnt++;
+        if (cnt != 2 && cnt != 3) return 0;
+    }
+    return 1;
+}
+
+/* Check that the top row satisfies the neighbour condition, given
+ * the current row (`curr`) and the row below (`next`).
+ */
+static int check_top(int curr, int next) {
+    for (int j = 0; j < 5; j++) {
+        int v = (curr >> j) & 1;
+        int cnt = 0;
+        if (j > 0 && bool_same((curr >> (j - 1)) & 1, v)) cnt++;
+        if (j < 4 && bool_same((curr >> (j + 1)) & 1, v)) cnt++;
+        if (j > 0 && bool_same((next >> (j - 1)) & 1, v)) cnt++;
+        if (bool_same((next >> j) & 1, v)) cnt++;
+        if (j < 4 && bool_same((next >> (j + 1)) & 1, v)) cnt++;
+        if (cnt != 2 && cnt != 3) return 0;
+    }
+    return 1;
+}
 
 /* ----------  helpers for bit handling  ---------- */
 
@@ -137,7 +191,7 @@ seq_t a(idx_t n) {
     /* build initial cache up to 21 by DP */
     if (cache_len < 21) {
         size_t new_cap = 22;  /* indices 0..21, we ignore index 0 */
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (!cache) return 0;   /* allocation failure */
         for (size_t i = 1; i <= 21; i++)
             cache[i] = compute_term_dp((idx_t)i);
@@ -147,7 +201,17 @@ seq_t a(idx_t n) {
     if ((idx_t)n <= cache_len)
         return cache[(size_t)n];
 
-    /* extend cache using recurrence for n > 21 */
+    /* extend cache using recurrence for n > 21 (the array used to stay at
+       22 entries) */
+    static size_t cache_cap = 22;
+    if ((size_t)n + 1 > cache_cap) {
+        size_t c = cache_cap;
+        while (c < (size_t)n + 1) c *= 2;
+        seq_t *t = mem_resize(seq_t, cache, c);
+        if (!t) return 0;
+        cache = t;
+        cache_cap = c;
+    }
     while ((idx_t)cache_len < n) {
         ++cache_len;
         if (cache_len <= 21) continue;   /* already computed */

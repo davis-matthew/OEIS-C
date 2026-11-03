@@ -12,16 +12,24 @@
  *            binary search
  * Range:     u8 n <= 25, u16 n <= 496, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   p1694_count, p1694_isqrt, p1694_sqfree
+ * Validated: standard, pass, 70 terms through n = 9422 (2026-11-01)
+ * Helpers:   is_squarefree_u64, isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/p1694_count.h"
-#include "../utils/p1694_isqrt.h"
-#include "../utils/p1694_sqfree.h"
+#include "../utils/is_squarefree_u64.h"
+#include "../utils/isqrt_u64.h"
+
+static uint64_t p1694_count(uint64_t x) {
+    uint64_t total = 0, b;
+    for (b = 1; b * b * b <= x; b++)
+        if (is_squarefree_u64(b))
+            total += isqrt_u64(x / (b * b * b));
+    return total;
+}
 
 seq_t a(idx_t n) {
     uint64_t lo = 1, hi = (uint64_t)n * (uint64_t)n;

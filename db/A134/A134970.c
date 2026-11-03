@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  fini, nonn, base, full
  * Formula:   not stated
- * Range:     u8 none, u16 none, u32 n <= 4681, u64 n <= 8557, u128 n <= 8557,
- *            big any n
- * Helpers:   none
+ * Range:     u8 none, u16 none, u32 n <= 4118, u64 n <= 116505,
+ *            u128 n <= 116505, big any n
+ * Validated: full, pass, 116505 terms through n = 116505 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* comparison for qsort (unsigned seq_t values) */
 static int cmp_seq(const void *p1, const void *p2)
@@ -50,7 +52,7 @@ static void build_cache(seq_t **out_ptr, idx_t *size_ptr)
         }
     }
 
-    seq_t *arr = (seq_t *)malloc((size_t)total * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, (size_t)total);
     if (!arr) abort();
     unsigned long long idx = 0;
 
@@ -92,7 +94,7 @@ static void build_cache(seq_t **out_ptr, idx_t *size_ptr)
     }
 
     /* sort the list */
-    qsort(arr, (size_t)total, sizeof(seq_t), cmp_seq);
+    mem_qsort(arr, (size_t)total, sizeof(seq_t), cmp_seq);
 
     *out_ptr  = arr;
     *size_ptr = (idx_t)total;

@@ -12,13 +12,18 @@
  *            already‑computed terms and is O(n) per request, using on...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +39,7 @@ seq_t a(idx_t n)
     /* Initialise on first call */
     if (memo_len == 0) {
         memo_cap = 8;                     /* initial capacity */
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         if (!memo) return 0;              /* allocation failed – abort */
         memo[0] = (seq_t)0;               /* a(0) = 0   */
         memo[1] = (seq_t)1;               /* a(1) = 1   */
@@ -53,7 +58,7 @@ seq_t a(idx_t n)
         seq_t next_pow5 = cur_pow5 * (seq_t)5;
 
         /* (cur_k)^4 mod next_pow5 */
-        seq_t k4_mod = mod_pow(cur_k, (uint64_t)4, next_pow5);
+        seq_t k4_mod = powmod(cur_k, (uint64_t)4, next_pow5);
 
         /* Compute m = ((k^4 - 6) / 5^current_n) mod 5
            Since k4_mod < next_pow5, we can extract the quotient
@@ -76,8 +81,8 @@ seq_t a(idx_t n)
         /* Grow memoisation array if needed */
         if (memo_len == memo_cap) {
             memo_cap *= 2;
-            seq_t *tmp_ptr = (seq_t *)realloc(memo, memo_cap * sizeof(seq_t));
-            if (!tmp_ptr) { free(memo); return 0; } /* allocation failed */
+            seq_t *tmp_ptr = mem_resize(seq_t, memo, memo_cap);
+            if (!tmp_ptr) { mem_free(memo); return 0; } /* allocation failed */
             memo = tmp_ptr;
         }
 

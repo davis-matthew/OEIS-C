@@ -7,13 +7,28 @@
  * Formula:   a(n) = 1/((1 - x)^7 - x^7); a(0..6) = binom(n+6, 6)
  * Range:     u8 n <= 0, u16 n <= 3, u32 n <= 28, u64 n <= 60, u128 n <= 124,
  *            big any n
- * Helpers:   binom_nplus6_6
+ * Validated: standard, pass, 49 terms through n = 2622 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom_nplus6_6.h"
+#include "../utils/mem.h"
+
+/* compute binomial(n+6, 6) for 0 <= n <= 6; only needed for the first 7 terms */
+static seq_t binom_nplus6_6(idx_t n)
+{
+    /* (n+1)(n+2)(n+3)(n+4)(n+5)(n+6) / 720 */
+    seq_t prod = (seq_t)(n + 1);
+    prod *= (seq_t)(n + 2);
+    prod *= (seq_t)(n + 3);
+    prod *= (seq_t)(n + 4);
+    prod *= (seq_t)(n + 5);
+    prod *= (seq_t)(n + 6);
+    prod /= (seq_t)720;          /* 6! = 720 */
+    return prod;
+}
 
 static seq_t *cache = NULL;    /* cached values a(0)...a(cache_size-1) */
 static idx_t  cache_size = 0;  /* number of values currently stored */
@@ -26,12 +41,12 @@ static void ensure_capacity(idx_t needed)
         size_t new_cap = cache_cap ? cache_cap : 16;
         while (new_cap < (size_t)needed)
             new_cap *= 2;
-        seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (!new_arr) abort();   /* no sufficient memory – terminate */
         if (cache) {
             for (size_t i = 0; i < cache_size; ++i)
                 new_arr[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache  = new_arr;
         cache_cap = new_cap;

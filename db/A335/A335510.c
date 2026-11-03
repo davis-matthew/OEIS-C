@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   factorial_uint64
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,15 @@
    where e_i are the exponents in the prime factorization of n. */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factorial_uint64.h"
+
+static seq_t factorial_uint64(uint64_t n)
+{
+    seq_t r = 1;
+    for (uint64_t i = 2; i <= n; ++i) {
+        r *= (seq_t)i;
+    }
+    return r;
+}
 
 seq_t a(idx_t n)
 {

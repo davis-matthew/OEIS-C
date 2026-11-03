@@ -8,6 +8,7 @@
  *            of n
  * Range:     u8 n <= 104, u16 n <= 111, u32 n <= 111, u64 n <= 111,
  *            u128 n <= 111, big any n
+ * Validated: partial, pass, 111 terms through n = 111 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

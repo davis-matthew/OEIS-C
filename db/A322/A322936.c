@@ -12,14 +12,15 @@
  *            1 * is defined to contain {1}
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   uint64_gcd
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/uint64_gcd.h"
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
         bool has_value = false;
 
         for (idx_t a_val = 1; a_val <= row; ++a_val) {
-            if (uint64_gcd(a_val, row) == 1 && ((row - 1) % a_val != 0)) {
+            if (gcd_idx(a_val, row) == 1 && ((row - 1) % a_val != 0)) {
                 ++count;
                 if (count == n) return (seq_t)a_val;
                 has_value = true;

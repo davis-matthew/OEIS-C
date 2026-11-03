@@ -8,13 +8,26 @@
  *            (oblong(k) = k*(k+1), 1 ≤ k ≤ n)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 10, u128 n <= 13,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"     /* pow10(idx_t e) returns seq_t */
-#include "../utils/digit_len.h" /* digit_len(seq_t x) returns int */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -26,7 +39,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     for (idx_t k = 1; k <= n; ++k) {
         seq_t oblong = (seq_t)k * ((seq_t)k + 1);          /* k*(k+1)   */
-        int d = digit_len(oblong);                       /* digit count */
+        int d = num_digits(oblong);                       /* digit count */
         result = result * pow10((idx_t)d) + oblong;       /* append */
     }
     return result;

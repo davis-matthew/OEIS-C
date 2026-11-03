@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 39, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Caching structures */
 static seq_t *p_arr   = NULL; /* partition numbers p[0..n] */
@@ -40,7 +42,7 @@ static void zero_seq_array(seq_t *arr, idx_t size)
 /* compute ordinary partition numbers p[0..limit] */
 static void compute_partitions(idx_t limit)
 {
-    p_arr = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    p_arr = mem_new(seq_t, (limit + 1));
     zero_seq_array(p_arr, limit + 1);
     p_arr[0] = (seq_t)1;
     for (idx_t k = 1; k <= limit; ++k) {
@@ -78,8 +80,8 @@ static void compute_s_series(idx_t limit)
 /* convolve partition numbers with the numerator coefficient array */
 static void compute_convolution(idx_t limit)
 {
-    a_pos = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
-    a_neg = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    a_pos = mem_new(seq_t, (limit + 1));
+    a_neg = mem_new(seq_t, (limit + 1));
     zero_seq_array(a_pos, limit + 1);
     zero_seq_array(a_neg, limit + 1);
 
@@ -105,10 +107,10 @@ static void ensure_cache(idx_t n)
     if (cached_n >= n) return;      /* already ready */
 
     /* free old memory */
-    free(p_arr);
+    mem_free(p_arr);
     free(s_arr);
-    free(a_pos);
-    free(a_neg);
+    mem_free(a_pos);
+    mem_free(a_neg);
 
     compute_partitions(n);
     compute_s_series(n);

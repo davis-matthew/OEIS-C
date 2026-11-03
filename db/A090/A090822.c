@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, nice, changed
  * Formula:   not stated
- * Range:     u8 n <= 9099, u16 n <= 9099, u32 n <= 9099, u64 n <= 9099,
- *            u128 n <= 9099, big any n
- * Helpers:   none
+ * Range:     u8 n <= 24000, u16 n <= 24000, u32 n <= 24000, u64 n <= 24000,
+ *            u128 n <= 24000, big any n
+ * Validated: standard, pass, 115 terms through n = 9099 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    for some words x, y with |y| > 0. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* 0‑based cache: seq_cache[0] = a(1) */
 static idx_t seq_len  = 0;        /* number of terms already stored */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t needed)
     if (cache_cap >= needed) return;
     idx_t new_cap = cache_cap ? cache_cap : 8;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     seq_cache = tmp;
     cache_cap = new_cap;
 }

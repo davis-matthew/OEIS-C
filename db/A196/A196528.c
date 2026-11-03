@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 100, u64 n <= 100, u128 n <= 100,
  *            big any n
- * Helpers:   gcd, is_prime
+ * Validated: standard, pass, 67 terms through n = 98 (2026-11-03)
+ * Helpers:   gcd, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include "../utils/gcd.h"
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t      *gcds       = NULL;   /* gcd values for each m (1‑indexed). */
 static size_t     capacity    = 0;       /* allocated size of gcds array. */
@@ -41,7 +43,7 @@ static void ensure_capacity(size_t need)
     if (need <= capacity) return;
     size_t newcap = capacity ? capacity * 2 : 16;
     while (newcap < need) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(gcds, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, gcds, newcap);
     if (!tmp) exit(EXIT_FAILURE);
     gcds = tmp;
     capacity = newcap;

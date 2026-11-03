@@ -8,12 +8,14 @@
  * Formula:   a(n) = sum_{k=1}^{min(7,n)} binom(n,k)*a(n-k), a(0)=1
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 410 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -31,10 +33,10 @@ static void ensure_cache(idx_t n)
 
     if (!cache) {
         cache_cap = n + 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     } else if (n >= cache_cap) {
         cache_cap = n + 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     if (cache_len == 0) {

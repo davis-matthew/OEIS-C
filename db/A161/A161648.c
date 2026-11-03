@@ -8,7 +8,8 @@
  *            x^k)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Compute a(n) by a standard bounded knapsack DP. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build system. */
 
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate DP array of size n+1. */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) /* allocation failed */
         return 0;
 
@@ -34,9 +36,9 @@ seq_t a(idx_t n)
 
     for (idx_t k = 1; k <= 35; ++k)
     {
-        seq_t *next = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, (size_t)(n + 1));
         if (!next) {
-            free(dp);
+            mem_free(dp);
             return 0;
         }
 
@@ -48,11 +50,11 @@ seq_t a(idx_t n)
             next[j] = sum;
         }
 
-        free(dp);
+        mem_free(dp);
         dp = next;
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

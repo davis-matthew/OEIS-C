@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 33, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build.
    No assumptions on their exact type except those in the
@@ -59,15 +61,13 @@ static void ensure_capacity(idx_t max_needed)
 
     /* --- Allocate new space ------------------------------------------------ */
     /* dp_total */
-    seq_t *new_total = (seq_t*)realloc(dp_total,
-                                       (max_needed + 1) * sizeof(seq_t));
+    seq_t *new_total = mem_resize(seq_t, dp_total, (max_needed + 1));
     if (new_total == NULL) abort();   /* Out of memory */
     dp_total = new_total;
 
     /* dp_k[1..5] */
     for (int k = 1; k <= 5; ++k) {
-        seq_t *new_k = (seq_t*)realloc(dp_k[k],
-                                       (max_needed + 1) * sizeof(seq_t));
+        seq_t *new_k = mem_resize(seq_t, dp_k[k], (max_needed + 1));
         if (new_k == NULL) abort();
         dp_k[k] = new_k;
     }

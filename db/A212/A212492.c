@@ -8,6 +8,7 @@
  *            prime (offset 1)
  * Range:     u8 n <= 9, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
+ * Validated: standard, pass, 63 terms through n = 85 (2026-11-01)
  * Helpers:   is_prime, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,8 +16,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/next_prime.h"
+#include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/next_prime.h"
 
 /* Cached primes satisfying the condition. */
 static uint64_t *cache64 = NULL;   /* array of found primes (uint64_t) */

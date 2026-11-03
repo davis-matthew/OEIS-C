@@ -12,7 +12,8 @@
  *            unique integer such that (s-1)*s/2 ≥ n > (s-2)*(s...
  * Range:     u8 n <= 24, u16 n <= 60, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 /*  Note:  R(k,m) is computed lazily and cached.  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 #define MAXK 400   /* sufficient for n up to ≈10 000 (s≈142) */
 
@@ -68,7 +71,7 @@ static seq_t compute_R(idx_t k, idx_t m)
     seq_t pow_k[MAXK+1];
     pow_k[0] = 0;               /* unused */
     for (idx_t i = 1; i <= m; ++i)
-        pow_k[i] = big_pow((seq_t)i, k);
+        pow_k[i] = ipow((seq_t)i, k);
 
     seq_t total = 0;
     const seq_t two = 2;

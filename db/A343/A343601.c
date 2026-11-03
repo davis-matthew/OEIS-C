@@ -10,6 +10,7 @@
  *            n until the leftmost digit is nonzero
  * Range:     u8 n <= 243, u16 n <= 6561, u32 n <= 6561, u64 n <= 6561,
  *            u128 n <= 6561, big any n
+ * Validated: standard, pass, 84 terms through n = 6534 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

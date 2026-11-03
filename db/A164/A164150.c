@@ -9,7 +9,8 @@
  *            of 0000 and 0101 substrings
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 34, u64 n <= 67, u128 n <= 131,
  *            big any n
- * Helpers:   delta_from_state_and_bit
+ * Validated: standard, pass, 50 terms through n = 393 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/delta_from_state_and_bit.h"
+#include "../utils/mem.h"
+
+/*  Transition: next_state = ((state << 1) | bit) & 7
+    Delta (difference change): +1 for 0000, -1 for 0101, 0 otherwise. */
+static inline int delta_from_state_and_bit(int state, int bit)
+{
+    return (state == 0 && bit == 0) ? 1
+           : (state == 2 && bit == 1) ? -1
+           : 0;
+}
 
 static const int STATE_COUNT = 8;     /* 3‑bit last context (000..111) */
 
@@ -36,10 +46,10 @@ seq_t a(idx_t n)
 
     /* Allocate current and next DP tables. */
     size_t table_size = (size_t)STATE_COUNT * diff_size;
-    seq_t *cur  = (seq_t *)calloc(table_size, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(table_size, sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, table_size);
+    seq_t *next = mem_new(seq_t, table_size);
     if (!cur || !next) {   /* allocation failed; return 0 as fallback */
-        free(cur); free(next);
+        mem_free(cur); mem_free(next);
         return (seq_t)0;
     }
 
@@ -51,7 +61,7 @@ seq_t a(idx_t n)
     idx_t cur_len = 3;
     while (cur_len < n) {
         /* Zero the next buffer efficiently. */
-        memset(next, 0, table_size * sizeof(seq_t));
+        mem_set(next, 0, table_size * sizeof(seq_t));
 
         for (int s = 0; s < STATE_COUNT; ++s) {
             size_t base = (size_t)s * diff_size;
@@ -84,7 +94,7 @@ seq_t a(idx_t n)
         result += cur[(size_t)s * diff_size + offset];
     }
 
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     return result;
 }

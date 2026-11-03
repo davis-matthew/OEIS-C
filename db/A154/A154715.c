@@ -9,13 +9,17 @@
  *            integer such that row*(row+1)/2 <= n and col = n - row*(row+1)/2
  * Range:     u8 n <= 10, u16 n <= 23, u32 n <= 49, u64 n <= 128,
  *            u128 n <= 365, big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 52 terms through n = 4918 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +33,7 @@ seq_t a(idx_t n)
     idx_t col   = n - start;       /* 0 <= col <= r */
 
     seq_t bin   = binomial(r, col);            /* C(r, col) */
-    seq_t powr  = big_pow((seq_t)(col + 2), (seq_t)r); /* (col+2)^r */
+    seq_t powr  = ipow((seq_t)(col + 2), (seq_t)r); /* (col+2)^r */
 
     return bin * powr;               /* a(n) */
 }

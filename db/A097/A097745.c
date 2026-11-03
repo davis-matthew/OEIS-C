@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 19, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* constants */
 #define MAX_K 300               /* maximum partition index to use */
@@ -64,9 +66,9 @@ static void init(void)
         }
     }
     /* sort all differences */
-    qsort(diffs_all, PAIRS, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(diffs_all, PAIRS, sizeof(seq_t), cmp_seq_t);
     /* deduplicate and store unique sorted differences */
-    diffs = (seq_t *)malloc(PAIRS * sizeof(seq_t));
+    diffs = mem_new(seq_t, PAIRS);
     if (!diffs) exit(1);
     diffs_cnt = 0;
     for (idx_t i = 0; i < PAIRS; ++i) {

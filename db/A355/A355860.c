@@ -9,15 +9,16 @@
  *            indexed by r and columns by k: T(r,k)=r*k/(r+k) if divisible,
  *            otherwise 0. The index n is converted to row r and column k by
  *            solving r(r+1)/2 ≥ n
- * Range:     u8 n <= 9232, u16 n <= 9232, u32 n <= 9232, u64 n <= 9232,
- *            u128 n <= 9232, big any n
- * Helpers:   sqrt128_floor
+ * Range:     u8 n <= 22155, u16 n <= 22155, u32 n <= 22155, u64 n <= 22155,
+ *            u128 n <= 22155, big any n
+ * Validated: standard, pass, 121 terms through n = 9232 (2026-11-01)
+ * Helpers:   isqrt_u128_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sqrt128_floor.h"
+#include "../utils/isqrt_u128_to_u64.h"
 
 /* Compute a(n) for the OEIS sequence A355860 */
 seq_t a(idx_t n)
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
     uint64_t r = 0;
     {
         unsigned __int128 val = (unsigned __int128)8 * n + 1;
-        uint64_t sq = sqrt128_floor(val);
+        uint64_t sq = isqrt_u128_to_u64(val);
         r = (sq - 1) >> 1;    /* (sq - 1)/2 */
 
         /* Adjust in case of rounding errors */

@@ -8,7 +8,8 @@
  * Formula:   a(0)=1; a(2*n)=a(n); a(2*n+1)=Σ_{i=0..⌊log₂(n+1)⌋} a(n-(2^i-1))
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (cache == NULL) {
         cap = 1;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return (seq_t)0;          /* out‑of‑memory: caller will receive 0 */
         cache[0] = (seq_t)1;                  /* a(0) = 1 */
         max_n = 0;
@@ -39,11 +41,11 @@ seq_t a(idx_t n)
         if (needed > cap) {
             size_t new_cap = cap ? cap << 1 : 1;
             while (new_cap < needed) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return (seq_t)0;        /* out‑of‑memory */
             if (new_cap > cap)
                 /* initialise the newly allocated part to zero */
-                memset((void *)(tmp + cap), 0, (new_cap - cap) * sizeof(seq_t));
+                mem_set((tmp + cap), 0, (new_cap - cap) * sizeof(seq_t));
             cache = tmp;
             cap = new_cap;
         }

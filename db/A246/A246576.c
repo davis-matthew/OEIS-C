@@ -8,7 +8,8 @@
  * Formula:   G(x) = (∏_{r≥1} (1 - x^r)) * x^4 / ((1 - x)^2 * (1 - x^2)^2)
  * Range:     i8 n <= 69, i16 n <= 69, i32 n <= 69, i64 n <= 69, i128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached table of coefficients of B(x) = 1/((1-x)^2(1-x^2)^2) */
 static idx_t _b_cache_max = 0;
@@ -27,7 +29,7 @@ static void ensure_b(idx_t N)
 {
     if (_b_cache == NULL) {
         /* Allocate table up to N */
-        _b_cache = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+        _b_cache = mem_new(seq_t, (size_t)(N + 1));
         if (_b_cache == NULL) return; /* allocation failure left to caller */
         for (idx_t n = 0; n <= N; ++n) {
             seq_t sum = 0;
@@ -39,7 +41,7 @@ static void ensure_b(idx_t N)
         _b_cache_max = N;
     } else if (N > _b_cache_max) {
         /* Extend existing table */
-        seq_t *tmp = (seq_t *)realloc(_b_cache, (size_t)(N + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _b_cache, (size_t)(N + 1));
         if (tmp == NULL) return; /* allocation failure left to caller */
         _b_cache = tmp;
         for (idx_t n = _b_cache_max + 1; n <= N; ++n) {

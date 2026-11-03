@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   equal_zeros_ones
+ * Validated: standard, pass, 76 terms through n = 9578 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
    contains the same number of 0’s and 1’s.  Computed by direct enumeration. */
 
 #include <stdbool.h>
-#include "../utils/equal_zeros_ones.h"
+
+static inline bool equal_zeros_ones(seq_t v)
+{
+    idx_t zeros = 0, ones = 0;
+    seq_t x = v;
+    while (x > 0) {
+        seq_t d = x % 4;
+        if (d == 0) ++zeros;
+        else if (d == 1) ++ones;
+        x /= 4;
+    }
+    return zeros == ones;
+}
 
 seq_t a(idx_t n)
 {

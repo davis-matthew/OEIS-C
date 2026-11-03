@@ -9,13 +9,15 @@
  *            having radical r)
  * Range:     u8 n <= 127, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9517 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     }
 
     /* ---------- 2. Compute radical of each number ---------- */
-    seq_t *rad = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *rad = mem_new(seq_t, sz);
     if (!rad) { free(spf); return 0; }
     rad[1] = 1;
     for (idx_t i = 2; i <= n; ++i) {
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
 
     /* ---------- 3. Count numbers per radical ---------- */
     idx_t *freq = (idx_t *)calloc(sz, sizeof(idx_t));
-    if (!freq) { free(spf); free(rad); return 0; }
+    if (!freq) { free(spf); mem_free(rad); return 0; }
     for (idx_t i = 1; i <= n; ++i)
         freq[(size_t)rad[i]]++;
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
 
     /* ---------- 5. Free memory ---------- */
     free(spf);
-    free(rad);
+    mem_free(rad);
     free(freq);
 
     return sum;

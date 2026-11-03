@@ -13,13 +13,15 @@
  *            a(13)=149504, a(14)=175...
  * Range:     u8 none, u16 none, u32 n <= 60, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* initial terms a(1) … a(19) */
 static const seq_t init_vals[19] = {
@@ -57,7 +59,7 @@ static void ensure_cache(idx_t n)
     /* initialize cache with the 19 seed values on first call */
     if (cache == NULL) {
         cache_len = sizeof(init_vals) / sizeof(init_vals[0]);   /* 19 */
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache)
             return;           /* allocation failed – caller will treat as 0 */
         for (size_t i = 0; i < cache_len; ++i)
@@ -72,7 +74,7 @@ static void ensure_cache(idx_t n)
     while (new_len < (size_t)n)
         new_len <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp)
         return;               /* allocation failed – cache remains unchanged */
 

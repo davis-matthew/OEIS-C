@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
   
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state persistent across calls */
@@ -37,8 +39,8 @@ seq_t a(idx_t n) {
     /* one‑time allocation and initialisation */
     if (cap == 0) {
         cap = 16;
-        A   = (seq_t*)malloc(cap * sizeof(seq_t));
-        B   = (seq_t*)malloc(cap * sizeof(seq_t));
+        A   = mem_new(seq_t, cap);
+        B   = mem_new(seq_t, cap);
         if (!A || !B) return (seq_t)0;   /* allocation failure – safe return */
 
         /* seed the base cases */
@@ -65,10 +67,10 @@ seq_t a(idx_t n) {
         idx_t need = n + 1;
         if (need > cap) {
             while (cap < need) cap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(A, cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, A, cap);
             if (!tmp) return (seq_t)0;
             A = tmp;
-            tmp = (seq_t*)realloc(B, cap * sizeof(seq_t));
+            tmp = mem_resize(seq_t, B, cap);
             if (!tmp) return (seq_t)0;
             B = tmp;
         }

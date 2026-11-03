@@ -9,21 +9,24 @@
  *            a(1) = 1)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 27 terms through n = 200 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* compute the needed powers of small integers */
-    seq_t pow100 = big_pow((seq_t)100, (seq_t)n);
-    seq_t pow160 = big_pow((seq_t)160, (seq_t)n);
-    seq_t pow256 = big_pow((seq_t)256, (seq_t)n);
-    seq_t pow35  = big_pow((seq_t)35,  (seq_t)n);
-    seq_t pow80  = big_pow((seq_t)80,  (seq_t)n);
+    seq_t pow100 = ipow((seq_t)100, (seq_t)n);
+    seq_t pow160 = ipow((seq_t)160, (seq_t)n);
+    seq_t pow256 = ipow((seq_t)256, (seq_t)n);
+    seq_t pow35  = ipow((seq_t)35,  (seq_t)n);
+    seq_t pow80  = ipow((seq_t)80,  (seq_t)n);
 
     /* assemble the linear combination */
     seq_t result = pow100;          /* +100^n */

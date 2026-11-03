@@ -11,12 +11,14 @@
  *            The sequence a(n) reads this triangle row by row
  * Range:     u8 n <= 13, u16 n <= 33, u32 n <= 77, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* Allocate array for S(n-1,k) values; size R+2 to allow access
        for k = R+1 (full sum of previous rows). */
     size_t sz = (size_t)R + 2;
-    seq_t *Sprev = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *Sprev = mem_new(seq_t, sz);
     if (!Sprev) return (seq_t)0;
 
     Sprev[1] = (seq_t)1;     /* S(1,1) = 1. */
@@ -47,9 +49,9 @@ seq_t a(idx_t n)
     /* Build rows sequentially until row R is reached. */
     for (idx_t cur = 2; cur <= R; ++cur) {
         size_t curSize = (size_t)cur + 2;
-        seq_t *Snew = (seq_t *)calloc(curSize, sizeof(seq_t));
+        seq_t *Snew = mem_new(seq_t, curSize);
         if (!Snew) {
-            free(Sprev);
+            mem_free(Sprev);
             return (seq_t)0;
         }
 
@@ -68,10 +70,10 @@ seq_t a(idx_t n)
         /* For k > cur, S(cur,k) equals the full sum of rows 1..cur. */
         Snew[cur + 1] = Snew[cur];
 
-        free(Sprev);
+        mem_free(Sprev);
         Sprev = Snew;
     }
 
-    free(Sprev);
+    mem_free(Sprev);
     return answer;
 }

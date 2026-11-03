@@ -7,7 +7,8 @@
  * Formula:   a(n) = primes p such that 2 is a 9th power residue modulo p
  * Range:     u8 n <= 35, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd, isPrimeTrial, mod_pow
+ * Validated: standard, pass, 72 terms through n = 978 (2026-11-03)
+ * Helpers:   gcd, is_prime_seq, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *good = NULL;
 static size_t good_cap = 0;
@@ -27,7 +30,7 @@ static uint64_t candidate = 3;
 static void grow_good(void)
 {
     size_t new_cap = (good_cap == 0) ? 64 : good_cap * 2;
-    seq_t *new_ptr = (seq_t *)realloc(good, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, good, new_cap);
     if (!new_ptr) exit(1);          /* allocation failed */
     good = new_ptr;
     good_cap = new_cap;
@@ -47,12 +50,12 @@ static void ensure_good(idx_t n)
         }
 
         /* test current candidate for primality */
-        if (isPrimeTrial((seq_t)candidate))
+        if (is_prime_seq((seq_t)candidate))
         {
             /* candidate is prime */
             seq_t g = gcd((seq_t)9, (seq_t)(candidate - 1));
             seq_t exp = (seq_t)(candidate - 1) / g;
-            if (mod_pow((seq_t)2, (uint64_t)exp, (seq_t)candidate) == (seq_t)1)
+            if (powmod((seq_t)2, (uint64_t)exp, (seq_t)candidate) == (seq_t)1)
                 good[good_len++] = candidate;
         }
 

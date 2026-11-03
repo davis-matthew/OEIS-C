@@ -11,12 +11,14 @@
  *            are generated incrementally
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         capacity = 1;
-        nums = (seq_t*)malloc(sizeof(seq_t) * capacity);
+        nums = mem_new(seq_t, capacity);
         exps = (idx_t*)malloc(sizeof(idx_t) * capacity);
         nums[0] = (seq_t)2;          /* r(0) = 2/1 */
         exps[0] = (idx_t)0;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         idx_t new_cap = capacity ? capacity : 1;
         while (new_cap < need)
             new_cap <<= 1;
-        nums = (seq_t*)realloc(nums, sizeof(seq_t) * new_cap);
+        nums = mem_resize(seq_t, nums, new_cap);
         exps = (idx_t*)realloc(exps, sizeof(idx_t) * new_cap);
         capacity = new_cap;
     }

@@ -10,13 +10,26 @@
  *            counts of digits congruent to k modulo 5 * for k = 0..4
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, pow10
+ * Validated: standard, pass, 61 terms through n = 9623 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +52,7 @@ seq_t a(idx_t n)
     seq_t res = d;            /* start with total digit count */
     for (int k = 0; k < 5; ++k) {
         seq_t part = cnt[k];
-        int part_digits = digit_len(part);      /* number of decimal digits */
+        int part_digits = num_digits(part);      /* number of decimal digits */
         seq_t mult = pow10(part_digits);        /* 10^part_digits */
         res = res * mult + part;                /* concatenate */
     }

@@ -8,6 +8,7 @@
  *            a(3*n+2) = (-4)^n * (8*n + 6)
  * Range:     i8 n <= 5, i16 n <= 16, i32 n <= 32, i64 n <= 32, i128 n <= 32,
  *            big any n
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

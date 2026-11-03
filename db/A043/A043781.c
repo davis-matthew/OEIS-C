@@ -8,13 +8,15 @@
  * Formula:   a(n) = the nth integer whose base‑3 digit run count ≡ 1 (mod 5)
  * Range:     u8 n <= 10, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* count_runs returns the number of runs in the base‑3 representation of x */
 static int count_runs(seq_t x)
@@ -45,7 +47,7 @@ static void ensure_cache_cap(size_t needed)
     if (cache_cap < needed) {
         size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
         while (new_cap < needed) new_cap *= 2;
-        seq_t *newptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, cache, new_cap);
         if (!newptr) abort();
         cache = newptr;
         cache_cap = new_cap;

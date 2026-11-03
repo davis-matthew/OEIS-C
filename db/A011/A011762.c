@@ -8,6 +8,7 @@
  *            accents. The sequence a(0)=4 ("cero"), a(1)=3 ("uno") etc
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 95 terms through n = 9815 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

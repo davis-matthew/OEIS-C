@@ -13,7 +13,8 @@
  *            * for i odd >=3: T(i,j)=T(i-1,j-2)+T(i-1,j) (j=2..2i-2) * Then
  *            a(n)=T(floor(sqrt(n)), n - (floor(sqrt(n)))^2)
  * Range:     u8 n <= 87, u16 n <= 266, u32 n <= 807, u64 n <= 2859,
- *            u128 n <= 9816, big any n
+ *            u128 n <= 10200, big any n
+ * Validated: standard, pass, 90 terms through n = 9816 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

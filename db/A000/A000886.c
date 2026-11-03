@@ -13,18 +13,43 @@
  *            Sum_{d|L} mu(L/d) 2^{Sum_i gcd(lambda_i,d)} is the...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   a886_fix, a886_gcd, a886_mu, a886_mul, a886_powmul
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   gcd_u64, mobius_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a886_fix.h"
-#include "../utils/a886_gcd.h"
-#include "../utils/a886_mu.h"
-#include "../utils/a886_mul.h"
-#include "../utils/a886_powmul.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mobius_i64.h"
+
+static uint64_t a886_fix(int t, uint64_t L) {
+    switch (t) {
+        case 0: return 4;
+        case 1: return (L % 2) ? 2 : 4;
+        case 2: return (L % 2) ? 0 : 4;
+        case 3: return (L % 3) ? 1 : 4;
+        default: return (L % 4) ? 0 : 4;
+    }
+}
+
+/* (q*D + r) *= m, keeping r < D */
+static void a886_mul(seq_t *q, unsigned __int128 *r, uint64_t m, uint64_t D) {
+    unsigned __int128 t = *r * (unsigned __int128)m;
+    *q = *q * (seq_t)m + (seq_t)(uint64_t)(t / D);
+    *r = t % D;
+}
+
+static void a886_powmul(seq_t *q, unsigned __int128 *r, uint64_t b, uint64_t E, uint64_t D) {
+    if (b == 1) return;
+    while (E > 0) {
+        uint64_t m = 1, k = 0;
+        while (k < E && m <= ((uint64_t)1 << 62) / b) { m *= b; k++; }
+        a886_mul(q, r, m, D);
+        E -= k;
+    }
+}
 
 typedef struct {
     int N;
@@ -47,7 +72,7 @@ static void a886_leaf(const int *parts, int k, a886_ctx *cx) {
             j++;
         }
         z *= mf;
-        lcm = lcm / a886_gcd(lcm, (uint64_t)parts[i]) * (uint64_t)parts[i];
+        lcm = lcm / gcd_u64(lcm, (uint64_t)parts[i]) * (uint64_t)parts[i];
         i = j;
     }
     uint64_t w = cx->fact / z;
@@ -60,10 +85,10 @@ static void a886_leaf(const int *parts, int k, a886_ctx *cx) {
         long long s = 0;
         for (uint64_t d = 1; d <= L; d++) {
             if (L % d) continue;
-            int mu = a886_mu((long long)(L / d));
+            int mu = mobius_i64((long long)(L / d));
             if (!mu) continue;
             int c = 0;
-            for (int t = 0; t < k; t++) c += (int)a886_gcd((uint64_t)parts[t], d);
+            for (int t = 0; t < k; t++) c += (int)gcd_u64((uint64_t)parts[t], d);
             s += (long long)mu * (long long)((uint64_t)1 << c);
         }
         s /= (long long)L;

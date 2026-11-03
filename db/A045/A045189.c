@@ -9,13 +9,22 @@
  *            contains no 0's and exactly two 3's
  * Range:     u8 n <= 19, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   pow3_int
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
-#include "../utils/pow3_int.h"
+
+static seq_t pow3_int(unsigned int e)
+/* Return 3^e as seq_t.  Easier implementation for small e. */
+{
+    seq_t r = (seq_t)1;
+    for (unsigned int i = 0; i < e; ++i)
+        r *= (seq_t)3;
+    return r;
+}
 
 static seq_t binomial_int(int n, int k)
 /* Return C(n,k) as seq_t.  Assumes 0 <= k <= n. */

@@ -10,13 +10,15 @@
  *            P(n+1) = 2·n · ( P(n) + P(n-1) ) Hence a(n) = P(n) + n · P(n-1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 465 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialise cache: P[0] = 1, P[1] = 0 */
     if (P == NULL) {
         P_cap = 8;
-        P = (seq_t*)malloc(P_cap * sizeof(seq_t));
+        P = mem_new(seq_t, P_cap);
         if (!P) return (seq_t)0;   /* allocation failure */
         P[0] = (seq_t)1;
         P[1] = (seq_t)0;
@@ -42,8 +44,8 @@ seq_t a(idx_t n)
         if (needed > P_cap) {
             size_t newcap = P_cap;
             while (newcap < needed) newcap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(P, newcap * sizeof(seq_t));
-            if (!tmp) { free(P); P = NULL; P_cap = P_len = 0; return (seq_t)0; }
+            seq_t *tmp = mem_resize(seq_t, P, newcap);
+            if (!tmp) { mem_free(P); P = NULL; P_cap = P_len = 0; return (seq_t)0; }
             P = tmp; P_cap = newcap;
         }
         /* compute missing P values using recurrence */

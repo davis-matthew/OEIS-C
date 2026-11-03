@@ -13,13 +13,15 @@
  *            40*a(n-9) + 12*a(n-10) - 4*a(n-11...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 27, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 939 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const int rec[13] = { 0, 12, -54, 124, -133, -16, 175, -94, -69, 40, 12, -4, -1 };
 static const int num[12] = { 0, 1, -4, -4, 36, -39, -26, 50, 6, -15, 0, 1 };
@@ -31,7 +33,7 @@ static idx_t computed_up_to = 0;
 seq_t a(idx_t n) {
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 0;
         computed_up_to = 0;
     }
@@ -40,9 +42,9 @@ seq_t a(idx_t n) {
     if (n + 1 > cache_cap) {
         idx_t newcap = cache_cap;
         while (newcap < n + 1) newcap *= 2;
-        seq_t *nc = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *nc = mem_new(seq_t, newcap);
         for (idx_t i = 0; i <= computed_up_to; i++) nc[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = nc;
         cache_cap = newcap;
     }

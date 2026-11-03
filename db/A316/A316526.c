@@ -12,12 +12,14 @@
  *            a(3)=2741670, a(4)=27930182, a(5)=245220486
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 6, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;       /* dynamic cache of computed terms */
 static size_t cache_capacity = 0;     /* length of allocated block */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
     size_t new_cap = cache_capacity ? cache_capacity : 16;
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     cache_capacity = new_cap;
 }
 
@@ -40,7 +42,7 @@ static void init_cache(void)
 {
     if (cache_capacity == 0) {
         cache_capacity = 16;
-        seq_cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_capacity);
         /* pre‑compute the first six terms */
         static const seq_t init_vals[6] = {
             (seq_t)122,

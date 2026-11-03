@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 1492, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 66 terms through n = 8729 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 0) {   /* offset starts at 1, a(0) is undefined; return 0 */
@@ -47,18 +49,18 @@ seq_t a(idx_t n) {
         if (p == 3) {
             /* a(3^e) = (3^(2e+1) - 1) / 2 */
             idx_t exp = (idx_t)(2 * e + 1);
-            seq_t pow_term = pow_uint(3, exp);
+            seq_t pow_term = ipow_u64_idx(3, exp);
             local = (pow_term - (seq_t)1) / (seq_t)2;
         } else if ((p % 3) == 1) {
             /* a(p^e) = ((p^(e+1) - 1)/(p-1))^2 */
             idx_t exp = (idx_t)(e + 1);
-            seq_t sigma = (pow_uint(p, exp) - (seq_t)1) / (seq_t)(p - 1);
+            seq_t sigma = (ipow_u64_idx(p, exp) - (seq_t)1) / (seq_t)(p - 1);
             local = sigma * sigma;
         } else { /* p % 3 == 2 */
             /* a(p^e) = (p^(2e+2) - 1)/(p^2 - 1) */
             idx_t exp = (idx_t)(2 * e + 2);
-            seq_t numerator   = pow_uint(p, exp) - (seq_t)1;
-            seq_t denominator = pow_uint(p, 2)   - (seq_t)1;
+            seq_t numerator   = ipow_u64_idx(p, exp) - (seq_t)1;
+            seq_t denominator = ipow_u64_idx(p, 2)   - (seq_t)1;
             local = numerator / denominator;
         }
 

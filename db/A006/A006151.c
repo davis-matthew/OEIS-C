@@ -10,14 +10,16 @@
  *            a(n-1), a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 19,
  *            big any n
- * Helpers:   g64
+ * Validated: standard, pass, 33 terms through n = 195 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/g64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_cap = 0;
@@ -26,7 +28,7 @@ static idx_t memo_computed = 0;
 seq_t a(idx_t n) {
     if (memo == NULL) {
         memo_cap = 64;
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         memo[0] = 1;
         memo_computed = 1;
     }
@@ -35,9 +37,9 @@ seq_t a(idx_t n) {
     if (n >= memo_cap) {
         idx_t newcap = memo_cap;
         while (n >= newcap) newcap *= 2;
-        seq_t *nm = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *nm = mem_new(seq_t, newcap);
         for (idx_t k = 0; k < memo_computed; k++) nm[k] = memo[k];
-        free(memo);
+        mem_free(memo);
         memo = nm;
         memo_cap = newcap;
     }
@@ -56,7 +58,7 @@ seq_t a(idx_t n) {
         /* cancel common factors between small numerator and denominator terms */
         for (q = 0; q < 5; q++) {
             for (p = 0; p < 6; p++) {
-                uint64_t g = g64(num[p], den[q]);
+                uint64_t g = gcd_u64(num[p], den[q]);
                 if (g > 1) {
                     num[p] /= g;
                     den[q] /= g;

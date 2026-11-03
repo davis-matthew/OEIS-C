@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  * This function implements exactly that construction. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,8 +47,8 @@ seq_t a(idx_t n)
         len = 1;  /* avoid zero-size allocation */
 
     /* previous and current row buffers */
-    seq_t *prev = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, len);
+    seq_t *curr = mem_new(seq_t, len);
 
     /* initialise row 0: T(0,k) = T(4,k/2) if k even, else 0 */
     for (size_t k = 0; k < len; ++k) {
@@ -75,8 +77,8 @@ seq_t a(idx_t n)
 
     seq_t result = prev[j];
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
 
     return result;
 }

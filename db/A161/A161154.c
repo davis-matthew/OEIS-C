@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 126, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   bitlen_seq_t, gcd
+ * Validated: standard, pass, 81 terms through n = 825 (2026-11-01)
+ * Helpers:   bit_length, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
+#include "../utils/bit_length.h"
 #include "../utils/gcd.h"
-#include "../utils/bitlen_seq_t.h"
 
 #define MAX_TERMS 20000   /* sufficient for n up to about 10000 */
 
@@ -42,7 +44,7 @@ static inline bool is_candidate(seq_t x)
         tmp >>= 1;
     }
 
-    seq_t bits  = bitlen_seq_t(x);
+    seq_t bits  = bit_length(x);
     seq_t zeros = bits - ones;   /* count of non‑leading zeros */
 
     /* zeros == 0 occurs only for x == 1; by definition 0 is coprime only to 1 */

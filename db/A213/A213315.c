@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5110, u32 n <= 7483, u64 n <= 7483,
  *            u128 n <= 7483, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 6720 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #define SIEVE_LIMIT 10000000U   /* proven upper bound for the sequence */
 
@@ -50,7 +52,7 @@ static void init(void)
 
     /* allocate cache for the list of terms */
     cache_cap = 1024;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) exit(EXIT_FAILURE);
 
     /* ---- scan all numbers up to the sieve limit ---- */
@@ -93,7 +95,7 @@ static void init(void)
         if (!break_outer && nonprime_cnt == 8) {
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 cache = tmp;
             }

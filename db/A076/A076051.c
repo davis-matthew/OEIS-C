@@ -8,12 +8,14 @@
  * Formula:   a(n) = product of odd ≤ n + product of even ≤ n
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 19, u64 n <= 33, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 782 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return A076051 term for index n (offset 1). */
 seq_t a(idx_t n) {
@@ -30,14 +32,14 @@ seq_t a(idx_t n) {
         size_t new_size = (size_t)n + 1;
         if (cache_size == 0) {
             /* First allocation */
-            odd_cache  = (seq_t *)malloc(new_size * sizeof(seq_t));
-            even_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+            odd_cache  = mem_new(seq_t, new_size);
+            even_cache = mem_new(seq_t, new_size);
             if (!odd_cache || !even_cache) return 0;  /* allocation failure fallback */
             odd_cache[0]  = 1;  /* product of no odd numbers = 1 */
             even_cache[0] = 1;  /* product of no even numbers = 1 */
         } else {
-            odd_cache  = (seq_t *)realloc(odd_cache,  new_size * sizeof(seq_t));
-            even_cache = (seq_t *)realloc(even_cache, new_size * sizeof(seq_t));
+            odd_cache  = mem_resize(seq_t, odd_cache, new_size);
+            even_cache = mem_resize(seq_t, even_cache, new_size);
             if (!odd_cache || !even_cache) return 0;
         }
 

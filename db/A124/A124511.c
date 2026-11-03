@@ -7,7 +7,8 @@
  * Formula:   a(n) = 9 * 2^(ω(n)+Ω(n)), a(1)=1
  * Range:     u8 n <= 11, u16 n <= 3071, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 73 terms through n = 9582 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -40,6 +42,6 @@ seq_t a(idx_t n)
     int exp = (int)(omega + omega_total);   /* exponent of 2 */
 
     /* a(n) = 9 * 2^exp */
-    seq_t val = seq_pow((seq_t)2, (idx_t)exp);
+    seq_t val = ipow_idx((seq_t)2, (idx_t)exp);
     return (seq_t)9 * val;
 }

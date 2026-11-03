@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 4, u16 n <= 42, u32 n <= 363, u64 n <= 10000,
+ * Range:     u8 n <= 4, u16 n <= 363, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isprime_big
+ * Validated: standard, pass, 58 terms through n = 9391 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isprime_big.h"
+#include <stdint.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_arr = NULL;     /* stored primes */
 static idx_t  prime_count = 0;      /* how many primes we have */
@@ -28,7 +31,7 @@ static void push_prime(seq_t val)
 {
     if (prime_count == prime_cap) {
         prime_cap = prime_cap ? prime_cap * 2 : 16;
-        prime_arr = (seq_t *)realloc(prime_arr, prime_cap * sizeof(seq_t));
+        prime_arr = mem_resize(seq_t, prime_arr, prime_cap);
     }
     prime_arr[prime_count++] = val;
 }
@@ -48,7 +51,7 @@ static void generate_range(seq_t old_bound, seq_t new_bound)
             __int128 val128 = (__int128)3 * x * x + ypart128;
             if (val128 > ( __int128)new_bound) break;
             seq_t val = (seq_t)val128;
-            if (val > old_bound && isprime_big(val))
+            if (val > old_bound && is_prime_seq(val))
                 push_prime(val);
         }
     }
@@ -90,7 +93,7 @@ static void ensure_size(idx_t n)
     seq_t bound = (seq_t)1000;                /* start with a modest bound */
     while (prime_count < n) {
         generate_range(last_checked_bound, bound);
-        qsort(prime_arr, prime_count, sizeof(seq_t), cmp_seq);
+        mem_qsort(prime_arr, prime_count, sizeof(seq_t), cmp_seq);
         unique_primes();
 
         last_checked_bound = bound;
@@ -100,7 +103,7 @@ static void ensure_size(idx_t n)
     /* final check in case the last round didn't produce enough primes */
     if (prime_count < n) {
         generate_range(last_checked_bound, bound);
-        qsort(prime_arr, prime_count, sizeof(seq_t), cmp_seq);
+        mem_qsort(prime_arr, prime_count, sizeof(seq_t), cmp_seq);
         unique_primes();
         last_checked_bound = bound;
     }

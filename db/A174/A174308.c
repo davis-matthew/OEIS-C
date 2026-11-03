@@ -9,13 +9,15 @@
  *            n^(n–2), n ≥ 1
  * Range:     i8 n <= 3, i16 n <= 3, i32 n <= 4, i64 n <= 6, i128 n <= 7,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     idx_t exp_n_minus_2 = (idx_t)(n - 2);
 
     /* base n as seq_t */
-    seq_t pow_n = big_pow((seq_t)n, exp_n_minus_2);
+    seq_t pow_n = ipow((seq_t)n, exp_n_minus_2);
 
     /* sign factor: (n-1)(n-2)/2 mod 2 */
     idx_t parity =
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         return (seq_t)n;
 
     /* compute a(n) = (D^n – 1)/(D – 1) */
-    seq_t pow_D_n   = big_pow(D, n);
+    seq_t pow_D_n   = ipow(D, n);
     seq_t numerator = pow_D_n - (seq_t)1;
     seq_t denominator = D - (seq_t)1;
     return numerator / denominator;

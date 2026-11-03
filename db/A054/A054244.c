@@ -9,6 +9,7 @@
  *            2^{2^{k-t}-1}, where k = popcount(n)
  * Range:     u8 n <= 14, u16 n <= 30, u32 n <= 62, u64 n <= 126,
  *            u128 n <= 254, big any n
+ * Validated: standard, pass, 69 terms through n = 980 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

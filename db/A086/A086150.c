@@ -9,7 +9,8 @@
  *            (leading zeros allowed) that yield non‑prime numbers
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_char
+ * Validated: standard, pass, 121 terms through n = 9220 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/cmp_char.h"
+
+/* Comparator for qsort to order characters. */
+static int cmp_char(const void *p1, const void *p2)
+{
+    return (*(const char *)p1 - *(const char *)p2);
+}
 
 /* Return true iff v is a prime number (0 or 1 is not prime). */
 static bool is_prime_uint64(uint64_t v)

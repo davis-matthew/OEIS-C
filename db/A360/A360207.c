@@ -13,7 +13,8 @@
  *            Legendre's formula
  * Range:     u8 n <= 15, u16 n <= 22, u32 n <= 39, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   pow_uint, seq_mul
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -91,8 +92,13 @@ static inline int legendre_exp(uint32_t n, uint32_t p)
 /* ---------- Utils helpers ------------------------------------------ */
 /* The build provides these functions; we include the most useful ones. */
 
-#include "../utils/seq_mul.h"      /* seq_mul(seq_t a, seq_t b)  */
-#include "../utils/pow_uint.h"     /* pow_uint(uint64_t base, idx_t exp)  */
+#include <string.h>
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* ------------------------------------------------------------------ */
 /* ---------- Main sequence function --------------------------------- */
@@ -125,7 +131,7 @@ seq_t a(idx_t n)
         if (p > p_r) break;
         int exp = legendre_exp(p_r, p) - legendre_exp(p_k, p) - legendre_exp(p_rk, p);
         if (exp > 0) {
-            seq_t term = pow_uint(p, (idx_t)exp);
+            seq_t term = ipow_u64_idx(p, (idx_t)exp);
             result = seq_mul(result, term);
         }
     }

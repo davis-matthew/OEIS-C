@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8255, u16 n <= 9870, u32 n <= 9870, u64 n <= 9870,
  *            u128 n <= 9870, big any n
- * Helpers:   _max_t
+ * Validated: standard, pass, 93 terms through n = 9379 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,24 @@
  */
 
 #include <stdint.h>   /* for uint64_t (idx_t) */
-#include "../utils/_max_t.h"
+
+static inline idx_t _max_t(idx_t n)
+{
+    /*
+     * Find the largest t such that t*(t+1)/2 < n.
+     * Binary search with 128‑bit arithmetic to avoid overflow.
+     */
+    idx_t low = 0, high = n;
+    while (low < high) {
+        idx_t mid = low + (high - low + 1)/2;
+        __uint128_t tri = (__uint128_t)mid * (mid + 1) / 2;
+        if (tri < n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 seq_t a(idx_t n)
 {

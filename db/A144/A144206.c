@@ -10,7 +10,8 @@
  *            upper bound until at least n terms have been found
  * Range:     u8 n <= 8, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build. */
 extern seq_t a(idx_t n);
@@ -69,7 +71,7 @@ static void rebuild(idx_t limit)
     }
 
     /* ---------- rebuild sequence terms ---------- */
-    free(terms);
+    mem_free(terms);
     terms     = NULL;
     term_len  = 0;
     term_cap  = 0;
@@ -82,7 +84,7 @@ static void rebuild(idx_t limit)
         /* Found a triple (n, n+4, n+6) meaning a = n+3 */
         if (term_len == term_cap) {
             term_cap = term_cap ? term_cap * 2 : 16;
-            terms = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, term_cap);
         }
         terms[term_len++] = (seq_t)(n + 3);
     }

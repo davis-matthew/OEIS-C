@@ -11,7 +11,8 @@
  *            neighbors are not counted)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 182 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Precomputation of bits and transition lists */
 static unsigned char bit[32][5];
@@ -84,8 +86,8 @@ seq_t a(idx_t n)
     static seq_t next[32][32];
 
     /* Clear DP arrays */
-    memset(dp, 0, sizeof(dp));
-    memset(next, 0, sizeof(next));
+    mem_set(dp, 0, sizeof(dp));
+    mem_set(next, 0, sizeof(next));
 
     /* Start with two dummy rows of zeros. */
     dp[0][0] = 1;
@@ -106,8 +108,8 @@ seq_t a(idx_t n)
             }
         }
         /* Swap dp and next */
-        memcpy(dp, next, sizeof(dp));
-        memset(next, 0, sizeof(next));
+        mem_copy(dp, next, sizeof(dp));
+        mem_set(next, 0, sizeof(next));
     }
 
     /* Final validation: rows after the last one are empty (all 0). */

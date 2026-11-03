@@ -7,14 +7,17 @@
  * Formula:   a(n) = Π_{j=0}^{n-2} (4^n - 4^j)^2 / (4^{n-1} - 4^j)
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 4, u64 n <= 5, u128 n <= 8,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +26,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* 4^n and 4^{n-1} */
-    seq_t pow4n   = big_pow((seq_t)4, (seq_t)n);
+    seq_t pow4n   = ipow((seq_t)4, (seq_t)n);
     seq_t pow4nm1 = pow4n / ((seq_t)4);   /* exact division */
 
     seq_t power_j = (seq_t)1;            /* 4^j, starting with j = 0 */

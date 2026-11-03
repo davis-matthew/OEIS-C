@@ -12,7 +12,8 @@
  *            row 3: [1, 1/5, 1] For n>=4: row n+1[i] =...
  * Range:     u8 n <= 67, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Reduced fraction with denominator 1 or 5. */
 typedef struct { seq_t num; unsigned den; } frac_t;
@@ -63,7 +65,7 @@ static void cache_append(seq_t val)
 {
     if (seq_cache_len >= seq_cache_cap) {
         seq_cache_cap = seq_cache_cap == 0 ? 32 : seq_cache_cap * 2;
-        seq_cache = (seq_t*)realloc(seq_cache, seq_cache_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, seq_cache_cap);
     }
     seq_cache[seq_cache_len++] = val;
 }
@@ -77,13 +79,13 @@ static void ensure_cache(idx_t n)
     if (prev_row == NULL) {
         /* create row 3 explicitly */
         prev_size = 3;
-        prev_row = (frac_t*)malloc(prev_size * sizeof(frac_t));
+        prev_row = mem_new(frac_t, prev_size);
         prev_row[0].num = 1; prev_row[0].den = 1;
         prev_row[1].num = 1; prev_row[1].den = 5;
         prev_row[2].num = 1; prev_row[2].den = 1;
 
         seq_cache_cap = 32;
-        seq_cache = (seq_t*)malloc(seq_cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cache_cap);
         seq_cache_len = 0;
 
         /* process interior of row 3 */
@@ -99,7 +101,7 @@ static void ensure_cache(idx_t n)
     /* generate rows until cache has enough terms */
     while (seq_cache_len < (size_t)n) {
         size_t next_size = prev_size + 1;
-        frac_t *next_row = (frac_t*)malloc(next_size * sizeof(frac_t));
+        frac_t *next_row = mem_new(frac_t, next_size);
         /* edges */
         next_row[0].num = 1; next_row[0].den = 1;
         next_row[next_size-1].num = 1; next_row[next_size-1].den = 1;
@@ -120,7 +122,7 @@ static void ensure_cache(idx_t n)
             }
         }
 
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = next_row;
         prev_size = next_size;
     }

@@ -13,7 +13,8 @@
  *            i‑th prime
  * Range:     u8 n <= 97, u16 n <= 480, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   _coords_from_index
+ * Validated: standard, pass, 91 terms through n = 4924 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,25 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/_coords_from_index.h"
+
+/* compute coordinates (i,j) from antidiagonal index n */
+static void _coords_from_index(idx_t n, idx_t *i, idx_t *j)
+{
+    /* binary search for smallest d with d*(d+1)/2 >= n */
+    idx_t low = 1, high = n;
+    while (low < high) {
+        idx_t mid = (low + high) >> 1;
+        if (mid * (mid + 1) / 2 >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    idx_t d = low;
+    idx_t prev = (d - 1) * d / 2;
+    idx_t pos = n - prev;           /* 1‑based position on this diagonal */
+    *i = pos;
+    *j = d - pos + 1;
+}
 
 #define MAX_PRIME_LIMIT 5000  /* enough to cover indices up to ~500 */
 

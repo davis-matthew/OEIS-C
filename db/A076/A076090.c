@@ -10,14 +10,16 @@
  *            a(n) = 0
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 10, u128 n <= 13,
  *            big any n
- * Helpers:   big_pow, digit_sum
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
+ * Helpers:   digit_sum, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
 #include "../utils/digit_sum.h"
+#include "../utils/ipow.h"
 
 #define BASE_SEARCH_LIMIT 100000ULL  /* empirical upper bound for the base */
 
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     for (idx_t b = 2; b <= BASE_SEARCH_LIMIT; ++b)
     {
-        seq_t pow_val = big_pow((seq_t)b, n);
+        seq_t pow_val = ipow((seq_t)b, n);
         /* If the power is zero (possible on overflow in some build),
            terminate the search. */
         if (pow_val == 0) return (seq_t)0;

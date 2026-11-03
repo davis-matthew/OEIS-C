@@ -12,12 +12,14 @@
  *            beginning * with the constant term, row by row
  * Range:     u8 n <= 24, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,10 +37,10 @@ seq_t a(idx_t n)
     idx_t k          = pos - 1;              /* coefficient index */
 
     /* Allocate arrays for two consecutive rows. */
-    seq_t *A_cur   = (seq_t *)malloc(r * sizeof(seq_t));
-    seq_t *B_cur   = (seq_t *)malloc(r * sizeof(seq_t));
-    seq_t *A_next  = (seq_t *)malloc(r * sizeof(seq_t));
-    seq_t *B_next  = (seq_t *)malloc(r * sizeof(seq_t));
+    seq_t *A_cur   = mem_new(seq_t, r);
+    seq_t *B_cur   = mem_new(seq_t, r);
+    seq_t *A_next  = mem_new(seq_t, r);
+    seq_t *B_next  = mem_new(seq_t, r);
 
     /* Initial row (n = 1). */
     A_cur[0] = 1;
@@ -76,10 +78,10 @@ seq_t a(idx_t n)
     seq_t result = B_cur[k];
 
     /* Clean up. */
-    free(A_cur);
-    free(B_cur);
-    free(A_next);
-    free(B_next);
+    mem_free(A_cur);
+    mem_free(B_cur);
+    mem_free(A_next);
+    mem_free(B_next);
 
     return result;
 }

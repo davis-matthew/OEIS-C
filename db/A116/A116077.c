@@ -15,15 +15,18 @@
  *            seq...
  * Range:     u8 n <= 14, u16 n <= 44, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom, catalan
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stddef.h>
+#include "../utils/binomial.h"
 #include "../utils/catalan.h"
-#include "../utils/binom.h"
+#include "../utils/mem.h"
 
 static seq_t **rows      = NULL;   /* array of pointers to rows */
 static size_t row_cap    = 0;       /* capacity of rows array          */
@@ -48,7 +51,7 @@ static void ensure_rows(size_t need) {
     if (first_cap < need + 1) {
         size_t new_cap = (first_cap == 0) ? 1 : first_cap * 2;
         while (new_cap < need + 1) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(first_col, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, first_col, new_cap);
         if (!tmp) abort();
         first_col = tmp;
         first_cap = new_cap;
@@ -58,7 +61,7 @@ static void ensure_rows(size_t need) {
     while (row_cnt <= need) {
         size_t r     = row_cnt;            /* current row number */
         size_t len   = r + 1;              /* number of elements in this row */
-        seq_t *row   = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row   = mem_new(seq_t, len);
         if (!row) abort();
 
         /* Set the last element: T(r,r) = r+1 */
@@ -80,7 +83,7 @@ static void ensure_rows(size_t need) {
             /* Compute the remaining columns */
             for (size_t c = 1; c < r; ++c) {
                 size_t diff = r - c;                                     /* r-c > 0      */
-                seq_t central = binom((idx_t)(2 * diff), (idx_t)diff);   /* C(2m,m)      */
+                seq_t central = binomial((idx_t)(2 * diff), (idx_t)diff);   /* C(2m,m)      */
                 row[c] = prev_row[c - 1] + central;
             }
         } else {

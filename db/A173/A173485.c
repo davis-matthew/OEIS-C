@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   mod_pow, mul_small, pow10
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,32 @@
 #include <stdbool.h>
 
 /* Required helper functions are provided by the build environment. */
-#include "../utils/mod_pow.h"
-#include "../utils/pow10.h"
-#include "../utils/mul_small.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* seq_t and idx_t are defined by the build; this function uses only
    integer arithmetic and the helper routines above. */
@@ -33,7 +57,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Compute 10^(n+1) mod n using modular exponentiation. */
-    seq_t t_mod = mod_pow(10, (uint64_t)(n + 1), (seq_t)n);
+    seq_t t_mod = powmod(10, (uint64_t)(n + 1), (seq_t)n);
     /* t_mod < n, so safe to cast to idx_t. */
     idx_t t = (idx_t)t_mod;
 

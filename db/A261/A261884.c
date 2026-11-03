@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   prime_contribution
+ * Validated: standard, pass, 96 terms through n = 932 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,23 @@
  */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/prime_contribution.h"
+
+/* Helper: return the prime‑power contribution of p^e. */
+static seq_t prime_contribution(uint64_t p, uint64_t e)
+{
+    if (p == 2ULL) {
+        return (e & 1) ? (seq_t)-1 : (seq_t)1;
+    } else if (p == 3ULL) {
+        return (seq_t)-1;
+    } else if (p % 6ULL == 1ULL) {
+        return (seq_t)(e + 1ULL);
+    } else if (p % 6ULL == 5ULL) {
+        return (e & 1) ? (seq_t)0 : (seq_t)1;
+    } else {
+        /* should not happen for primes > 3 */
+        return (seq_t)1;
+    }
+}
 
 seq_t a(idx_t n)
 {

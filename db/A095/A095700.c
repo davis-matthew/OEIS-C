@@ -8,22 +8,26 @@
  *            * where p(m, k) is the number of partitions of m using parts ≤ k
  * Range:     u8 n <= 24, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate DP arrays */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
-    seq_t *aarr = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *aarr = mem_new(seq_t, (size_t)(n + 1));
     if (!dp || !aarr) {
-        free(dp);
-        free(aarr);
+        mem_free(dp);
+        mem_free(aarr);
         return (seq_t)0; /* allocation failure */
     }
 
@@ -58,8 +62,8 @@ seq_t a(idx_t n)
 
     /* Clean up */
     seq_t result = aarr[n];
-    free(dp);
-    free(aarr);
+    mem_free(dp);
+    mem_free(aarr);
     free(primes);
 
     return result;

@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 85 terms through n = 9949 (2026-11-01)
  * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_spf.h"   /* declares void build_spf(idx_t limit, idx_t **out); */
+#include "../utils/build_spf.h"
 
 static idx_t *spf = NULL;   /* smallest prime factor for every number up to current limit */
 static idx_t spf_limit = 0; /* current size of spf table */

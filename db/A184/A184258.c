@@ -9,6 +9,7 @@
  *            x1 + 8*x2 + 27*x3 = 27*n (n ≥ 1)
  * Range:     u8 n <= 9, u16 n <= 998, u32 n <= 998, u64 n <= 998,
  *            u128 n <= 998, big any n
+ * Validated: standard, pass, 85 terms through n = 920 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

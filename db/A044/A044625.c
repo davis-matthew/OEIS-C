@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has71
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/has71.h"
+#include "../utils/mem.h"
+
+static bool has71(seq_t x)
+{
+    int prev = -1;
+    while (x) {
+        int d = (int)(x % 8);
+        if (prev == 1 && d == 7)
+            return true;
+        prev = d;
+        x /= 8;
+    }
+    return false;
+}
 
 /* External linkage as required */
 seq_t a(idx_t n)
@@ -34,11 +48,11 @@ seq_t a(idx_t n)
         size_t new_cap = term_cap ? term_cap * 2 : 128;
         while (new_cap < (size_t)n)
             new_cap *= 2;
-        seq_t *new_buf = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_buf = mem_new(seq_t, new_cap);
         if (!new_buf) abort();
         if (terms) {
-            memcpy(new_buf, terms, term_cnt * sizeof(seq_t));
-            free(terms);
+            mem_copy(new_buf, terms, term_cnt * sizeof(seq_t));
+            mem_free(terms);
         }
         terms = new_buf;
         term_cap = new_cap;

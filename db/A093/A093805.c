@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_frequencies, digit_sum, is_prime_small
+ * Validated: standard, pass, 68 terms through n = 970 (2026-11-01)
+ * Helpers:   digit_frequencies, digit_sum, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,14 +18,14 @@
    and the count of prime digits (2,3,5,7) in n is also prime.
    Computed by brute‑force search. */
 #include <stdbool.h>
-#include "../utils/digit_sum.h"
 #include "../utils/digit_frequencies.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/digit_sum.h"
+#include "../utils/is_prime_seq.h"
 
 static inline bool is_valid(seq_t x)
 {
     /* digit sum must be prime */
-    if (!is_prime_small(digit_sum(x)))
+    if (!is_prime_seq(digit_sum(x)))
         return false;
 
     unsigned int freq[10] = {0};
@@ -32,7 +33,7 @@ static inline bool is_valid(seq_t x)
 
     /* count prime digits */
     int prime_digit_count = freq[2] + freq[3] + freq[5] + freq[7];
-    return is_prime_small((seq_t)prime_digit_count);
+    return is_prime_seq((seq_t)prime_digit_count);
 }
 
 seq_t a(idx_t n)

@@ -11,16 +11,57 @@
  *            (-1)^k q^{k^2}, psi(x) = Sum_{k>=0} x^{k(k+1)/2}
  * Range:     i8 n <= 7, i16 n <= 23, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   alloc_zero, mulsp, release
+ * Validated: partial, pass, 52 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/mulsp.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+/* In-place multiply dense series s (length L) by a sparse series of given type. */
+static void mulsp(seq_t *s, idx_t L, int type)
+{
+    idx_t i = L;
+    while (i-- > 0) {
+        seq_t acc = 0;
+        idx_t k;
+        for (k = 0;; k++) {
+            idx_t e;
+            long long c;
+            if (type == 0) {          /* eta(q^4)^3 */
+                e = 2 * k * (k + 1);
+                c = (long long)(2 * k + 1);
+                if (k & 1) c = -c;
+            } else if (type == 1) {   /* theta_3 */
+                e = k * k;
+                c = k ? 2 : 1;
+            } else if (type == 2) {   /* theta_4 */
+                e = k * k;
+                c = k ? ((k & 1) ? -2 : 2) : 1;
+            } else {                  /* psi(q^2) */
+                e = k * (k + 1);
+                c = 1;
+            }
+            if (e > i) break;
+            acc += s[i - e] * (seq_t)c;
+        }
+        s[i] = acc;
+    }
+}
 
 static seq_t *cache = 0;
 static idx_t cache_len = 0;

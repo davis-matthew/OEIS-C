@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{d|n} 2^((d-1)*(n/d-1)) * C(2*(d-1),(d-1)) * d
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow, binom
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"   /* seq_t big_pow(seq_t base, seq_t exp); */
-#include "../utils/binom.h"    /* seq_t binom(idx_t a, idx_t b); */
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 /* Recursive divisor enumeration */
 static void dfs_divisors(idx_t *primes, int *exps, size_t idx, size_t pc,
@@ -28,8 +29,8 @@ static void dfs_divisors(idx_t *primes, int *exps, size_t idx, size_t pc,
         idx_t p1  = d - 1;
         idx_t p2  = n / d - 1;
         seq_t exp = (seq_t)p1 * (seq_t)p2;              /* exponent of 2   */
-        seq_t pow2 = big_pow((seq_t)2, exp);            /* 2^exp           */
-        seq_t binom_val = binom(2 * p1, p1);            /* central binomial */
+        seq_t pow2 = ipow((seq_t)2, exp);            /* 2^exp           */
+        seq_t binom_val = binomial(2 * p1, p1);            /* central binomial */
         seq_t term = pow2 * binom_val;
         term = term * (seq_t)d;
         *sum += term;

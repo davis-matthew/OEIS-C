@@ -8,18 +8,55 @@
  *            a(n-1)
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 8, u128 n <= 9,
  *            big any n
- * Helpers:   alloc_seq, free_seq_array, seq_mul, seq_pow, seq_to_str
+ * Validated: partial, pass, 7 terms through n = 10 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/alloc_seq.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_to_str.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,14 +75,14 @@ seq_t a(idx_t n)
     if (!cache) {
         size = n + 5;                     /* at least n+1 for the requested index */
         cache = alloc_seq(size);
-        memset(cache, 0, size * sizeof(seq_t));
+        mem_set(cache, 0, size * sizeof(seq_t));
 
         /* a(4) is the first real term */
         cache[4] = (seq_t)16;
         computed_until = 4;
 
         /* initialise pow2 = 2^4 */
-        pow2  = seq_pow((seq_t)2, 4);
+        pow2  = ipow_idx((seq_t)2, 4);
         pow2_exp = 4;
     }
 
@@ -53,8 +90,8 @@ seq_t a(idx_t n)
     if (size <= n) {
         idx_t new_size = n + 5;
         seq_t *new_cache = alloc_seq(new_size);
-        memcpy(new_cache, cache, size * sizeof(seq_t));
-        memset(new_cache + size, 0, (new_size - size) * sizeof(seq_t));
+        mem_copy(new_cache, cache, size * sizeof(seq_t));
+        mem_set(new_cache + size, 0, (new_size - size) * sizeof(seq_t));
         free_seq_array(cache);
         cache = new_cache;
         size = new_size;

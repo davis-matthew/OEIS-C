@@ -12,7 +12,8 @@
  *            that occur at least twice, sorting them and * return...
  * Range:     u8 none, u16 none, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <vector>
 #include <algorithm>
 #endif
+#include "../utils/mem.h"
 
 /* global state ----------------------------------------------------------- */
 static seq_t *terms = NULL;          /* sorted list of terms */
@@ -47,7 +49,7 @@ static void grow_terms(size_t need)
     if (terms_cap < need) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 128;
         if (new_cap < need) new_cap = need;
-        terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
         terms_cap = new_cap;
     }
 }
@@ -56,7 +58,7 @@ static void grow_terms(size_t need)
 static void generate_terms(idx_t limit)
 {
     /* free previous data */
-    if (terms) { free(terms); terms = NULL; }
+    if (terms) { mem_free(terms); terms = NULL; }
     terms_size = 0;
     terms_cap  = 0;
 

@@ -9,13 +9,15 @@
  *            (1-3x)/(1-6x+25x²))
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 13, i64 n <= 27, i128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 872 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>  /* for malloc and realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* First call: allocate and initialise the first two terms */
     if (cache == NULL) {
         cache_size = 2;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return (seq_t)0;          /* out‑of‑memory, unlikely for tests */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)3;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         idx_t new_size = cache_size;
         while ((idx_t)(n + 1) > new_size)
             new_size *= 2;        /* grow by factor of two */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return (seq_t)0;  /* allocation failure */
         cache = tmp;
         cache_size = new_size;

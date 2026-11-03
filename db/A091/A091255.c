@@ -12,8 +12,9 @@
  *            of n in the symmetric array A(x,y) = gcd_GF2(x,y) and returning
  *            the gcd of the polynomials represented by the binary expansions
  *            of i and j over GF(2)
- * Range:     u8 n <= 9980, u16 n <= 9980, u32 n <= 9980, u64 n <= 9980,
- *            u128 n <= 9980, big any n
+ * Range:     u8 n <= 10440, u16 n <= 10440, u32 n <= 10440, u64 n <= 10440,
+ *            u128 n <= 10440, big any n
+ * Validated: standard, pass, 121 terms through n = 9980 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

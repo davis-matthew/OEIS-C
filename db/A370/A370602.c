@@ -7,13 +7,17 @@
  * Formula:   a(n) = n! * Sum_{d|n} 1/((d-1)! * (n/d)^(d-1))
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"   /* gives seq_t big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Static cache of factorials up to the maximum n requested. */
 static seq_t *fact_cache = NULL;
@@ -25,7 +29,7 @@ static void ensure_factorials(idx_t n)
     if (fact_cache_size <= n) {
         idx_t old_size = fact_cache_size;
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(fact_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact_cache, new_size);
         if (!tmp) exit(1);                      /* abort on allocation failure */
         fact_cache = tmp;
         if (old_size == 0) {
@@ -52,14 +56,14 @@ seq_t a(idx_t n)
             /* first divisor d = i */
             idx_t d = i;
             seq_t num = fact_cache[n] / fact_cache[d - 1];
-            seq_t pow_term = big_pow((seq_t)(n / d), (seq_t)(d - 1));
+            seq_t pow_term = ipow((seq_t)(n / d), (seq_t)(d - 1));
             result += num / pow_term;
 
             /* second divisor d = n / i, distinct from i when i*i != n */
             idx_t d2 = n / i;
             if (d2 != d) {
                 seq_t num2 = fact_cache[n] / fact_cache[d2 - 1];
-                seq_t pow_term2 = big_pow((seq_t)(n / d2), (seq_t)(d2 - 1));
+                seq_t pow_term2 = ipow((seq_t)(n / d2), (seq_t)(d2 - 1));
                 result += num2 / pow_term2;
             }
         }

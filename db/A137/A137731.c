@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=1}^{n-1} S2(n-1,k) * a(k) * a(n-k) (a(1)=1)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 15, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         size_t new_cap = n + 1;
         if (new_cap < 2) new_cap = 2;
         if (new_cap < A_cap * 2) new_cap = A_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, new_cap);
         if (!tmp) return (seq_t)0;          /* allocation failure, unlikely */
         A = tmp;
         /* initialise new entries to 0 */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         size_t new_cap = (n - 1) + 1;
         if (new_cap < 1) new_cap = 1;
         if (new_cap < S_cap * 2) new_cap = S_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(S, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, S, new_cap);
         if (!tmp) return (seq_t)0;
         S = tmp;
         for (size_t i = S_cap; i < new_cap; ++i) S[i] = (seq_t)0;
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
             A[1] = (seq_t)1;
             /* initialise first Stirling row S(0,0)=0, S(1,1)=1 */
             if (S_cap < 2) {  /* allocate for indices 0 and 1 */
-                seq_t *tmp = (seq_t *)realloc(S, 2 * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, S, 2);
                 if (!tmp) return (seq_t)0;
                 S = tmp;
                 S_cap = 2;
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
             size_t new_cap = m + 1;
             if (new_cap < 2) new_cap = 2;
             if (new_cap < S_cap * 2) new_cap = S_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(S, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, S, new_cap);
             if (!tmp) return (seq_t)0;
             S = tmp;
             for (size_t i = S_cap; i < new_cap; ++i) S[i] = (seq_t)0;

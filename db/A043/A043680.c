@@ -7,12 +7,29 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   hex_runs
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/hex_runs.h"
+/* Returns the number of runs in the base‑16 representation of x. */
+static int hex_runs(seq_t x)
+{
+    if (x == 0)
+        return 1;
+    uint8_t prev = (uint8_t)(x & 0xFul);
+    x >>= 4;
+    int trans = 0;
+    while (x) {
+        uint8_t d = (uint8_t)(x & 0xFul);
+        if (d != prev)
+            ++trans;
+        prev = d;
+        x >>= 4;
+    }
+    return trans + 1;
+}
 /* This function enumerates integers in increasing order and returns the nth integer whose base‑16 representation has exactly 7 runs. */
 
 seq_t a(idx_t n)

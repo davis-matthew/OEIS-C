@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const idx_t TR_LIMIT = 500;                /* enough for >200 000 distinct terms */
 static seq_t *term_table = NULL;                  /* sorted unique terms */
@@ -48,7 +50,7 @@ static void precompute_terms(void) {
     size_t pairs = (size_t)m * (size_t)m;
 
     /* allocate array for all sums */
-    seq_t *all = (seq_t *)malloc(pairs * sizeof(seq_t));
+    seq_t *all = mem_new(seq_t, pairs);
     if (!all) {
         /* allocation failed – leave table empty */
         return;
@@ -64,18 +66,18 @@ static void precompute_terms(void) {
     }
 
     /* sort the array */
-    qsort(all, pairs, sizeof(seq_t), seq_cmp);
+    mem_qsort(all, pairs, sizeof(seq_t), seq_cmp);
 
     /* deduplicate into term_table */
     if (pairs == 0) {
-        free(all);
+        mem_free(all);
         return;
     }
 
     /* allocate maximal possible size first */
-    term_table = (seq_t *)malloc(pairs * sizeof(seq_t));
+    term_table = mem_new(seq_t, pairs);
     if (!term_table) {
-        free(all);
+        mem_free(all);
         return;
     }
 
@@ -91,7 +93,7 @@ static void precompute_terms(void) {
     }
 
     /* free temporary array */
-    free(all);
+    mem_free(all);
 }
 
 seq_t a(idx_t n) {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 132, u16 n <= 132, u32 n <= 132, u64 n <= 132,
  *            u128 n <= 132, big any n
- * Helpers:   none
+ * Validated: partial, pass, 132 terms through n = 132 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    contains the requested position.  a(n) is the nth symbol
    (1‑based) of that infinite word. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of the word up to the largest index seen */
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
 
     /* initial word: '0' */
     if (seq == NULL) {
-        seq = (seq_t *)malloc(sizeof(seq_t));
+        seq = mem_new(seq_t, 1);
         seq_len = 1;
         seq[0] = (seq_t)0;
     }
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
         }
 
         /* allocate space for the expanded word */
-        seq_t *next = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, new_len);
         size_t pos = 0;
 
         /* second pass: perform the expansion */
@@ -61,7 +63,7 @@ seq_t a(idx_t n) {
             }
         }
 
-        free(seq);
+        mem_free(seq);
         seq = next;
         seq_len = new_len;
     }

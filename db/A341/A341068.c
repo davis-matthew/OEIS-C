@@ -8,7 +8,8 @@
  * Formula:   a(n) = coefficient of x^n in (Sum_{k squarefree} x^k)^8
  * Range:     u8 n <= 11, u16 n <= 24, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --------------  helper: integer square root -------------- */
 static unsigned _isqrt_u64(idx_t n) {
@@ -39,14 +41,14 @@ static void recompute(idx_t new_n) {
     /* 1. free old tables */
     for (m = 0; m <= 8; ++m) {
         if (dp[m]) {
-            free(dp[m]);
+            mem_free(dp[m]);
             dp[m] = NULL;
         }
     }
 
     /* 2. allocate new tables */
     for (m = 0; m <= 8; ++m) {
-        dp[m] = (seq_t *)calloc((size_t)new_n + 1, sizeof(seq_t));
+        dp[m] = mem_new(seq_t, (size_t)new_n + 1);
         if (!dp[m]) abort();
     }
     dp[0][0] = (seq_t)1;          /* base case */

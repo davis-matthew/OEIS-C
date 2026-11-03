@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   seq_alloc
+ * Validated: full, pass, 28 terms through n = 28 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,16 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/seq_alloc.h"
+#include <stdlib.h>
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;

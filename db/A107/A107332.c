@@ -8,14 +8,35 @@
  *            initial values: a(1)=0, a(2)=1, a(3)=0, a(4)=0, a(5)=-1
  * Range:     i8 n <= 21, i16 n <= 36, i32 n <= 66, i64 n <= 126,
  *            i128 n <= 247, big any n
- * Helpers:   seq_malloc, seq_realloc
+ * Validated: standard, pass, 63 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>                   /* for size_t if needed */
-#include "../utils/seq_malloc.h"     /* seq_malloc */
-#include "../utils/seq_realloc.h"    /* seq_realloc */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+static inline seq_t *seq_realloc(seq_t *p, idx_t n)
+{
+#ifdef __cplusplus
+    return mem_resize(seq_t, p, n);
+#else
+    return (seq_t *)realloc(p, n * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {

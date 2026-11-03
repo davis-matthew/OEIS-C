@@ -8,11 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 128, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 79 terms through n = 9221 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /*
  * Definition: Let S be the set of non‑negative integers m such that
  * the number of exponents e (positions of 1 bits in the binary

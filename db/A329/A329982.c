@@ -10,12 +10,14 @@
  *            transform of a(n))
  * Range:     i8 n <= 937, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9426 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,10 +35,10 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_cap = 16;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
 
         val_cap = 16;
-        values = (seq_t*)malloc(val_cap * sizeof(seq_t));
+        values = mem_new(seq_t, val_cap);
         counts = (size_t*)malloc(val_cap * sizeof(size_t));
     }
 
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
         if (cache_len == cache_cap)
         {
             cache_cap *= 2;
-            cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len] = next;
         ++cache_len;
@@ -101,7 +103,7 @@ seq_t a(idx_t n)
             if (val_len == val_cap)
             {
                 val_cap *= 2;
-                values = (seq_t*)realloc(values, val_cap * sizeof(seq_t));
+                values = mem_resize(seq_t, values, val_cap);
                 counts = (size_t*)realloc(counts, val_cap * sizeof(size_t));
             }
             values[val_len] = next;

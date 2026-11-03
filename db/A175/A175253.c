@@ -11,7 +11,8 @@
  *            the largest n requested so far
  * Range:     u8 n <= 19, u16 n <= 2887, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 101 terms through n = 9456 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static idx_t precomp_max = 0;
 static bool   *seen       = NULL;   /* seen[x] == true if some σ(m) = x for m ≤ precomp_max */
@@ -33,7 +35,7 @@ static void recompute(idx_t new_max)
 
     /* Resize arrays (or allocate once). */
     seen  = (bool *)realloc(seen,  (new_max + 1) * sizeof(bool));
-    sigma = (seq_t *)realloc(sigma, (new_max + 1) * sizeof(seq_t));
+    sigma = mem_resize(seq_t, sigma, (new_max + 1));
     spf   = (idx_t *)realloc(spf,   (new_max + 1) * sizeof(idx_t));
 
     /* Initialize new bool entries to false. */

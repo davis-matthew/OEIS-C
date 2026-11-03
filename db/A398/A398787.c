@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   build_spf
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,7 +37,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/build_spf.h"   /* void build_spf(idx_t limit, idx_t **spf_out); */
+#include <stdint.h>
+#include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   /* cached sequence values          */
 static size_t cache_cap  = 0;      /* allocated capacity of cache      */
@@ -69,7 +72,7 @@ append_cache(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();          /* program cannot continue           */
         cache     = tmp;
         cache_cap = new_cap;

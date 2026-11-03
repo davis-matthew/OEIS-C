@@ -10,12 +10,14 @@
  *            OEIS A330132 for further terms
  * Range:     u8 n <= 10, u16 n <= 24, u32 n <= 53, u64 n <= 111,
  *            u128 n <= 227, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* First call: allocate space for at least 7 entries and store the base cases. */
     if (cache == NULL) {
         size_t init_len = 7;                 /* size_t for malloc parameter */
-        cache = (seq_t *)malloc(init_len * sizeof(seq_t));
+        cache = mem_new(seq_t, init_len);
         if (cache == NULL) { exit(EXIT_FAILURE); } /* cannot allocate */
         for (i = 0; i < 7; ++i) {
             cache[i] = base_vals[i];
@@ -47,10 +49,10 @@ seq_t a(idx_t n)
     size_t old_len = cache_len;
     size_t new_len = (size_t)(n + 1);        /* destination size for realloc */
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (tmp == NULL) {
         /* On allocation failure, leave old cache untouched and abort. */
-        free(cache);
+        mem_free(cache);
         exit(EXIT_FAILURE);
     }
     cache     = tmp;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   ensure_used_capacity, is_prime
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/is_prime.h"     /* bool is_prime(idx_t x); */
-#include "../utils/ensure_used_capacity.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+static void ensure_used_capacity(idx_t needed, unsigned char **used, size_t *cap)
+{
+    if ((size_t)needed < *cap) return;
+    size_t new_cap = (*cap == 0) ? 64 : *cap;
+    while ((size_t)needed >= new_cap) new_cap <<= 1;
+    unsigned char *tmp = (unsigned char*)realloc(*used, new_cap * sizeof(unsigned char));
+    if (!tmp) abort();
+    if (new_cap > *cap)
+        memset(tmp + *cap, 0, new_cap - *cap);
+    *used = tmp;
+    *cap   = new_cap;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +53,7 @@ seq_t a(idx_t n)
     if ((size_t)n > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap : 64;
         while ((size_t)n > new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 88, i16 n <= 88, i32 n <= 88, i64 n <= 88, i128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 89 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t A029826_table[22] =
 {
@@ -84,7 +86,7 @@ static void ensure_cache_cap(idx_t n)
     size_t cap = cache_cap ? cache_cap : 1;
     while (cap <= (size_t)n)
         cap <<= 1;                     /* double until enough */
-    cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cap);
     cache_cap = cap;
 }
 

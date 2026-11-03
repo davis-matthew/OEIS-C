@@ -14,7 +14,8 @@
  *            a...
  * Range:     u8 n <= 90, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 94 terms through n = 94 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
 
 static seq_t *phi = NULL;          /* array of φ values */
 static size_t phi_size = 0;        /* current allocated size of phi */
@@ -33,7 +36,7 @@ static void ensure_phi_up_to(idx_t limit)
     if ((idx_t)phi_size > limit) return;  /* nothing to do */
 
     size_t newsize = (size_t)limit + 1;    /* include 0..limit */
-    seq_t *newphi = (seq_t *)realloc(phi, newsize * sizeof(seq_t));
+    seq_t *newphi = mem_resize(seq_t, phi, newsize);
     if (!newphi) return;                  /* allocation failed – leave as is */
 
     /* initialise all entries to their index value */
@@ -89,7 +92,7 @@ seq_t a(idx_t n)
 
     while (true) {
         /* length of this row = 1 + floor(log2(row)) */
-        idx_t len = 1 + floor_log2_uint64((unsigned long long)row);
+        idx_t len = 1 + ilog2((unsigned long long)row);
 
         if (cumulative + len >= n) {      /* our term is in this row */
             idx_t col = n - cumulative;    /* 1‑based column within row */

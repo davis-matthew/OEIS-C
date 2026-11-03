@@ -8,8 +8,9 @@
  *            floor(cbrt(5*10^(3(n-1)))), computed by the digit-by-digit
  *            cube-root method on native base-10^9 bignums (each step: largest
  *            d with 300*r^2*d + 30*r*d^2 + d^3 <= remainder)
- * Range:     u8 n <= 9389, u16 n <= 9389, u32 n <= 9389, u64 n <= 9389,
- *            u128 n <= 9389, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9389 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

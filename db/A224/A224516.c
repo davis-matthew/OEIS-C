@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8189, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_simple
+ * Validated: standard, pass, 101 terms through n = 9787 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,34 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_simple.h"
+
+/* Helper: factorise a 64‑bit integer into primes and exponents.
+   The result is stored in the arrays `primes` and `exps`; `cnt`
+   receives the number of distinct prime factors (max 64). */
+static void factor_simple(uint64_t n, uint64_t *primes, uint64_t *exps, size_t *cnt)
+{
+    size_t c = 0;
+    uint64_t d = 2;
+    while (d * d <= n) {
+        if (n % d == 0) {
+            uint64_t e = 0;
+            while (n % d == 0) {
+                n /= d;
+                e++;
+            }
+            primes[c] = d;
+            exps[c]   = e;
+            c++;
+        }
+        d = (d == 2) ? 3 : d + 2;   /* skip even numbers after 2 */
+    }
+    if (n > 1) {                    /* remaining prime factor */
+        primes[c] = n;
+        exps[c]   = 1;
+        c++;
+    }
+    *cnt = c;
+}
 
 /* Return the number of solutions of x^4 - x ≡ 0 (mod n). */
 seq_t a(idx_t n)

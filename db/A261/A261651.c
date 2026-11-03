@@ -8,14 +8,25 @@
  *            ((1+x^(3k+1))/(1-x^(3k+1)))^3
  * Range:     u8 n <= 6, u16 n <= 19, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   coef_dk
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/coef_dk.h"
+#include "../utils/mem.h"
+
+/* helper to compute the coefficient d_k for a given m (here m=1) */
+static inline seq_t coef_dk(idx_t k)
+{
+    if (k == 0) return 1;          /* binom(2,2) = 1            */
+    if (k == 1) return 6;          /* 3*binom(2,2) + binom(2,2)=6 */
+    if (k == 2) return 18;         /* 3*binom(3,2)+binom(3,2)+binom(2,2)=18 */
+    /* for k ≥ 3 : d_k = 4k² + 2 */
+    return (seq_t)(4 * k * k + 2);
+}
 
 seq_t a(idx_t n)
 {
@@ -29,8 +40,8 @@ seq_t a(idx_t n)
     /* allocate / grow arrays if needed */
     if (len > cur_cap) {
         cur_cap = len;
-        cur  = (seq_t *)realloc(cur,  cur_cap * sizeof(seq_t));
-        next = (seq_t *)realloc(next, cur_cap * sizeof(seq_t));
+        cur  = mem_resize(seq_t, cur, cur_cap);
+        next = mem_resize(seq_t, next, cur_cap);
         /* in case realloc moved memory, zero the new part */
     }
 

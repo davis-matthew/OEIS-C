@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 14, u64 n <= 34, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_ROWS 25   /* number of admissible 7‑bit rows (no 000, no 011) */
 
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
 
         /* 3. allocate cache and initialise first two terms */
         cache_len = 4;                /* accommodate indices 0..3 at least */
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) { exit(1); }      /* abort on allocation failure */
         cache[0] = (seq_t)0;          /* unused */
         cache[1] = (seq_t)V;          /* a(1) = 25 */
@@ -143,7 +145,7 @@ seq_t a(idx_t n)
             size_t new_len = cache_len * 2;
             if (new_len < (size_t)(n + 1))
                 new_len = (size_t)(n + 1);
-            seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_len);
             if (!tmp) { exit(1); }    /* abort on allocation failure */
             cache = tmp;
             cache_len = new_len;

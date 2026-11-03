@@ -10,6 +10,7 @@
  *            the multiplicative formulas for σ₁, σ₂, and τ
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

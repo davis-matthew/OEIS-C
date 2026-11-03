@@ -9,12 +9,14 @@
  *            a(n)=a(n-a(n-1))+a(n-a(n-2))+a(n-a(n-3));
  * Range:     u8 n <= 255, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 106 terms through n = 978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the n-th term of OEIS sequence A296518. */
 seq_t a(idx_t n)
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* n > 6 */
     if (seq == NULL) {
         /* Allocate space up to n and initialise the first six terms. */
-        seq = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        seq = mem_new(seq_t, (size_t)(n + 1));
         if (!seq) return 0;   /* In an OJ environment this should never happen. */
         seq[1] = (seq_t)3;
         seq[2] = (seq_t)1;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         cap  = 6;
     } else if (cap < n) {
         /* Grow the cache to contain index n. */
-        seq = (seq_t *)realloc(seq, (size_t)(n + 1) * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, (size_t)(n + 1));
         if (!seq) return 0;
         /* Compute new terms sequentially. */
     }

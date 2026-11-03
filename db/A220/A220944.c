@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
  * This implementation uses the closed‑form expression with fast exponentiation.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Computes a(n) for A220944 */
 seq_t a(idx_t n)
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
     /* k = floor(n/2) */
     idx_t k = n >> 1;       
     /* 3^k with arbitrary precision */
-    seq_t pow3k = big_pow((seq_t)3, (seq_t)k); 
+    seq_t pow3k = ipow((seq_t)3, (seq_t)k); 
     /* 4*3^k */
     seq_t res   = (seq_t)4 * pow3k;             
     /* subtract the appropriate constant */

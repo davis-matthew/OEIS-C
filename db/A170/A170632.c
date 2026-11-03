@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,8 +33,20 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *seq_cache = NULL;   /* cached values a(0), a(1), … */
 static size_t cache_size = 0;     /* allocated size of seq_cache      */
@@ -51,7 +64,7 @@ seq_t a(idx_t n)
         if (!tmp) abort();                 /* out of memory */
 
         if (seq_cache) {
-            memcpy(tmp, seq_cache, cache_size * sizeof(seq_t));
+            mem_copy(tmp, seq_cache, cache_size * sizeof(seq_t));
             free_seq_array(seq_cache);
         }
         seq_cache = tmp;

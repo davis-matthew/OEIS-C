@@ -8,12 +8,14 @@
  *            λ_1=4, λ_2=6, λ_3=8, λ_4=6
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 171 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
         /* enlarge cache to hold a[0..n] */
         idx_t old_size = cache_size;
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return 0;          /* allocation failed */
 
         /* copy old values */
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         }
 
         /* free previous cache and replace */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }

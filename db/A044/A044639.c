@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has07
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,21 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has07.h"
+
+static inline bool has07(seq_t v) {
+    /* Scan the base‑9 digits from least significant to most significant. */
+    seq_t prev = 0;
+    bool first = true;     /* skip the first digit pair */
+    while (v > 0) {
+        seq_t d = v % 9;
+        if (!first && d == 0 && prev == 7)
+            return true;
+        prev = d;
+        first = false;
+        v /= 9;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     /* Offset is 1; return 0 for n==0 (behavior below offset is irrelevant). */

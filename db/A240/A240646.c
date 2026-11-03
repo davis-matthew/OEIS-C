@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 30, u128 n <= 58,
  *            big any n
- * Helpers:   count_valid_rows_with_first_zero, row_ok
+ * Validated: standard, pass, 39 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,33 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/count_valid_rows_with_first_zero.h"
-#include "../utils/row_ok.h"
+
+/* Test whether a single row is valid given the rows above and below it. */
+static bool row_ok(int row, int above, int below, bool hasAbove, bool hasBelow) {
+    for (int j = 0; j < 5; ++j) {
+        int val = (row >> j) & 1;
+        int h = 0;
+        if (j > 0 && ((row >> (j - 1)) & 1) == val) h++;
+        if (j < 4 && ((row >> (j + 1)) & 1) == val) h++;
+        int v = 0;
+        if (hasAbove && ((above >> j) & 1) == val) v++;
+        if (hasBelow && ((below >> j) & 1) == val) v++;
+        if (h == v) return false;
+    }
+    return true;
+}
+
+/* Count rows that are valid on their own and have first cell 0. */
+static seq_t count_valid_rows_with_first_zero(void) {
+    seq_t cnt = 0;
+    for (int r = 0; r < 32; ++r) {
+        if ((r & 1) == 0) {          /* first (leftmost) cell is 0 */
+            if (row_ok(r, 0, 0, false, false))
+                cnt += (seq_t)1;
+        }
+    }
+    return cnt;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n) {

@@ -11,6 +11,7 @@
  *            number of divisors, σ(m) = sum of divisors
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 31, u64 n <= 639, u128 n <= 639,
  *            big any n
+ * Validated: standard, pass, 65 terms through n = 628 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

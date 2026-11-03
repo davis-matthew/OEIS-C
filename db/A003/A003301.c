@@ -12,15 +12,48 @@
  *            4n^3 c(n-1)...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 16,
  *            big any n
- * Helpers:   a3301_big, a3301_u
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a3301_big.h"
-#include "../utils/a3301_u.h"
+
+static int a3301_big(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 140; i++) x = x * 2;
+    return x != 0;
+}
+
+static seq_t a3301_u(idx_t n) {
+    if (a3301_big()) {
+        seq_t p = 1, c = 3;
+        idx_t m;
+        if (n == 0) return p;
+        for (m = 1; m < n; m++) {
+            seq_t M = (seq_t)m;
+            seq_t nx = (10 * M * M + 10 * M + 3) * c - 9 * M * M * p;
+            nx /= (M + 1) * (M + 1);
+            p = c;
+            c = nx;
+        }
+        return c;
+    } else {
+        seq_t s = 0, b = 1, c = 1;
+        idx_t k;
+        for (k = 0; k <= n; k++) {
+            s += b * b * c;
+            if (k < n) {
+                b = b * (seq_t)(n - k) / (seq_t)(k + 1);
+                c = c * (seq_t)(2 * (2 * k + 1)) / (seq_t)(k + 1);
+            }
+        }
+        return s;
+    }
+}
 
 seq_t a(idx_t n) {
     seq_t u = a3301_u(n);

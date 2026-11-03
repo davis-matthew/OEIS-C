@@ -9,15 +9,36 @@
  *            exactly four 0's and one 2, sorted increasingly
  * Range:     u8 n <= 1, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   seq_alloc, seq_realloc
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache = NULL;       /* array of terms */
 static size_t cache_len = 0;      /* number of terms stored */
@@ -112,7 +133,7 @@ static void ensure_cache(idx_t n)
     }
 
     if (!cache_sorted) {
-        qsort(cache, cache_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(cache, cache_len, sizeof(seq_t), cmp_seq);
         cache_sorted = true;
     }
 }

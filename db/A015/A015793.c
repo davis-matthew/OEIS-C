@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 1300, u32 n <= 1300, u64 n <= 1300,
  *            u128 n <= 1300, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 1110 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The function that OEIS calls */
 seq_t a(idx_t n)
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         }
 
         /* Temporary storage for terms from this pass */
-        seq_t *new_terms = (seq_t*)realloc(terms, (terms_count + new_limit/5) * sizeof(seq_t));
+        seq_t *new_terms = mem_resize(seq_t, terms, (terms_count + new_limit/5));
         if (!new_terms) {
             free(spf);
             return 0;
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
             if (divisor != 0 && sigma % divisor == 0) {
                 if (terms_count >= terms_cap) {
                     terms_cap *= 2;
-                    seq_t *tmp = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                     if (!tmp) {
                         free(spf);
                         return 0;

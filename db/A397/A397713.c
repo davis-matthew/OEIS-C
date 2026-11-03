@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, tabl, easy
  * Formula:   not stated
- * Range:     u8 n <= 39, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
+ * Range:     u8 n <= 69, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   binomial, bitlen_seq_t
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   binomial, bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
    C(r,k), where r = floor((sqrt(8n+1)-1)/2) is the row containing index n,
    and k = n - r*(r+1)/2 is the column in that row. */
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
@@ -34,5 +36,5 @@ seq_t a(idx_t n)
 
     /* Compute the binomial coefficient and the number of binary digits. */
     seq_t val = binomial(r, k);
-    return (seq_t)bitlen_seq_t(val);
+    return (seq_t)bit_length(val);
 }

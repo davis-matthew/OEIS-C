@@ -12,15 +12,43 @@
  *            bond of order b; f(m,w) counts multisets of chi...
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 19, u64 n <= 35, u128 n <= 65,
  *            big any n
- * Helpers:   A_grow, mc
+ * Validated: standard, pass, 44 terms through n = 420 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/A_grow.h"
-#include "../utils/mc.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *A_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < newlen; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
+
+/* multichoose(c, j) = binomial(c+j-1, j) for j <= 4, using exact divisions only */
+static seq_t mc(seq_t c, int j)
+{
+    seq_t x[4];
+    int k, d;
+    seq_t r;
+    for (k = 0; k < j; k++) x[k] = c + (seq_t)k;
+    for (d = j; d >= 2; d--) {
+        for (k = 0; k < j; k++) {
+            if (x[k] % d == 0) { x[k] /= d; break; }
+        }
+    }
+    r = x[0];
+    for (k = 1; k < j; k++) r *= x[k];
+    return r;
+}
 
 static seq_t *F = NULL, *Cv = NULL;
 static idx_t Flen = 0, Clen = 0, built = 0;

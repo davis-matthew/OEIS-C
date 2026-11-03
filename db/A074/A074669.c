@@ -6,8 +6,9 @@
  * Keywords:  fini, full, nonn, base
  * Formula:   a(n) = the nth six‑digit prime whose decimal digits are all
  *            distinct, in increasing order. The sequence has 10 239 terms
- * Range:     u8 none, u16 none, u32 n <= 9702, u64 n <= 9702, u128 n <= 9702,
- *            big any n
+ * Range:     u8 none, u16 none, u32 n <= 10239, u64 n <= 10239,
+ *            u128 n <= 10239, big any n
+ * Validated: full, pass, 10239 terms through n = 10239 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

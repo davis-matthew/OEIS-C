@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *indices = NULL;          /* array of a(n) values */
 static size_t indices_len = 0;           /* number of values stored */
@@ -31,7 +33,7 @@ static void ensure_indices_cap(size_t needed) {
     if (indices_cap >= needed) return;
     size_t new_cap = indices_cap == 0 ? 16 : indices_cap * 2;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(indices, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, indices, new_cap);
     if (!tmp) abort();
     indices = tmp;
     indices_cap = new_cap;

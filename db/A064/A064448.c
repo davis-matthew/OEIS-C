@@ -7,7 +7,8 @@
  * Formula:   a(n) = gcd(n^n, φ(n^n))
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   gcd_seq_local, pow_seq_local
+ * Validated: standard, pass, 34 terms through n = 96 (2026-11-01)
+ * Helpers:   gcd, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,8 @@
 /* a(n) = ∏ p_j^(n·e_j − 1) · gcd(∏ p_j , ∏ (p_j − 1)) */
 
 #include <stdint.h>
-#include "../utils/gcd_seq_local.h"
-#include "../utils/pow_seq_local.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_i32.h"
 
 /* main sequence function */
 seq_t a(idx_t n)
@@ -74,7 +75,7 @@ seq_t a(idx_t n)
         int exp = (int)(n_seq * exps[i] - 1);
 
         /* compute p_j^exp */
-        seq_t p_pow = pow_seq_local((seq_t)primes[i], exp);
+        seq_t p_pow = ipow_i32((seq_t)primes[i], exp);
 
         product_pow *= p_pow;
 
@@ -82,6 +83,6 @@ seq_t a(idx_t n)
         prodQ *= (seq_t)(primes[i] - 1);
     }
 
-    seq_t gcdPQ = gcd_seq_local(prodP, prodQ);
+    seq_t gcdPQ = gcd(prodP, prodQ);
     return product_pow * gcdPQ;
 }

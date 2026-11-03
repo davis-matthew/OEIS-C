@@ -9,12 +9,14 @@
  *            (a(1)+a(2)+…+a(n-1))
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 8, u64 n <= 10, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > (size_t)cap) {
         size_t new_cap = cap ? cap << 1 : 8;
         while ((size_t)new_cap < (size_t)n + 1) new_cap <<= 1;
-        A = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
-        S = (seq_t *)realloc(S, new_cap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_cap);
+        S = mem_resize(seq_t, S, new_cap);
         cap = (idx_t)new_cap;
     }
 

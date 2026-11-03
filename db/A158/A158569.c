@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 9, u64 n <= 11, u128 n <= 12,
  *            big any n
- * Helpers:   fib_big
+ * Validated: standard, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,57 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/fib_big.h"
+
+/* Compute Fibonacci number F(n) where n is an arbitrary-size
+   seq_t.  Implements fast doubling using the binary representation
+   of n.  Works for both fixed-size unsigned types and arbitrary
+   precision integer classes. */
+static seq_t fib_big(seq_t n)
+{
+    if (n == (seq_t)0)
+        return (seq_t)0;
+
+    /* Determine bit length of n */
+    seq_t tmp = n;
+    size_t bitlen = 0;
+    while (tmp > (seq_t)0) {
+        tmp /= (seq_t)2;
+        ++bitlen;
+    }
+
+    /* Extract bits LSB first */
+    unsigned char *bits = (unsigned char *)malloc(bitlen);
+    if (!bits)  /* out-of-memory: return 0 as graceful fallback */
+        return (seq_t)0;
+
+    tmp = n;
+    for (size_t i = 0; i < bitlen; ++i) {
+        bits[i] = (unsigned char)((tmp % (seq_t)2) != 0);
+        tmp /= (seq_t)2;
+    }
+
+    seq_t a = (seq_t)0;   /* F(0)   */
+    seq_t b = (seq_t)1;   /* F(1)   */
+
+    /* Process bits from MSB to LSB */
+    for (size_t i = bitlen; i-- > 0;) {
+        seq_t two_b = b + b;
+        seq_t two_b_minus_a = two_b - a;
+        seq_t c = a * two_b_minus_a;
+        seq_t d = a * a + b * b;
+
+        if (bits[i]) {
+            a = d;
+            b = c + d;
+        } else {
+            a = c;
+            b = d;
+        }
+    }
+
+    free(bits);
+    return a;   /* F(n) */
+}
 
 /* Compute Fibonacci number F(n) with a 64‑bit integer index.
    Uses fast doubling and only seq_t arithmetic. */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
    It uses only integer arithmetic as required. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,8 +38,8 @@ seq_t a(idx_t n)
 
     /* initial row (n = 1) : u(1,x)=1, v(1,x)=1 */
     size_t len = 1;                      /* current number of coefficients */
-    seq_t *uPrev = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *vPrev = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *uPrev = mem_new(seq_t, len);
+    seq_t *vPrev = mem_new(seq_t, len);
     uPrev[0] = (seq_t)1;
     vPrev[0] = (seq_t)1;
 
@@ -48,15 +50,15 @@ seq_t a(idx_t n)
     /* if the requested term lies in the first row, return it immediately */
     if (n == 1) {
         seq_t res = vPrev[0];
-        free(uPrev); free(vPrev);
+        mem_free(uPrev); mem_free(vPrev);
         return res;
     }
 
     /* Generate subsequent rows until we have produced at least n terms */
     while (generated < n) {
         size_t newLen = len + 1;
-        seq_t *uCur = (seq_t *)malloc(newLen * sizeof(seq_t));
-        seq_t *vCur = (seq_t *)malloc(newLen * sizeof(seq_t));
+        seq_t *uCur = mem_new(seq_t, newLen);
+        seq_t *vCur = mem_new(seq_t, newLen);
 
         /* i == 0: constant term of the new polynomials */
         uCur[0] = uPrev[0] + vPrev[0];
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         vCur[newLen - 1] = (seq_t)(2) * vPrev[len - 1];
 
         /* Prepare for the next iteration */
-        free(uPrev); free(vPrev);
+        mem_free(uPrev); mem_free(vPrev);
         uPrev = uCur; vPrev = vCur;
         len = newLen;
         generated += (idx_t)newLen;   /* add the new row's terms */
@@ -87,6 +89,6 @@ seq_t a(idx_t n)
 
     seq_t result = vPrev[pos];
 
-    free(uPrev); free(vPrev);
+    mem_free(uPrev); mem_free(vPrev);
     return result;
 }

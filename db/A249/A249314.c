@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 10, u64 n <= 28, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define STATE_COUNT 4096   /* 4^6 */
 
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
 
     /* Iterate over the additional n digits to reach length n+6 */
     for (idx_t step = 0; step < n; ++step) {
-        memset(next, 0, sizeof(next));
+        mem_set(next, 0, sizeof(next));
 
         for (int s = 0; s < STATE_COUNT; ++s) {
             seq_t val = cur[s];
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
             }
         }
 
-        memcpy(cur, next, sizeof(cur));
+        mem_copy(cur, next, sizeof(cur));
     }
 
     /* Sum over all admissible suffixes to obtain the total */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,10 @@
     big_pow function from the utilities library for exponentiation.  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* static cache */
 static seq_t *a_arr = NULL;   /* a values   */
@@ -47,9 +51,9 @@ static void precompute_to(idx_t n)
     idx_t new_cap = n + 1;
 
     /* resize arrays */
-    a_arr = (seq_t *)realloc(a_arr, sizeof(seq_t) * new_cap);
-    s_arr = (seq_t *)realloc(s_arr, sizeof(seq_t) * new_cap);
-    p_arr = (seq_t *)realloc(p_arr, sizeof(seq_t) * new_cap);
+    a_arr = mem_resize(seq_t, a_arr, new_cap);
+    s_arr = mem_resize(seq_t, s_arr, new_cap);
+    p_arr = mem_resize(seq_t, p_arr, new_cap);
 
     /* zero initialise new slots (they will be overwritten later) */
     for (idx_t i = old_cap; i < new_cap; ++i) {
@@ -68,7 +72,7 @@ static void precompute_to(idx_t n)
     /* compute values for new indices */
     for (idx_t i = (old_cap > 0 ? old_cap : 1); i <= n; ++i) {
         /* 1. compute i^i */
-        p_arr[i] = big_pow((seq_t)i, (seq_t)i);
+        p_arr[i] = ipow((seq_t)i, (seq_t)i);
 
         /* 2. compute s(i) via inclusion–exclusion */
         seq_t sum_terms = 0;

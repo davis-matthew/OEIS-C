@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   has_adjacent_5_6
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,26 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adjacent_5_6.h"
+#include "../utils/mem.h"
+
+/* Test whether a base‑7 representation of x contains
+   adjacent digits 5 and 6 (either order). */
+static bool has_adjacent_5_6(seq_t x)
+{
+    if (x < 2)                          /* fewer than two digits */
+        return false;
+
+    seq_t prev = x % 7;                 /* least significant digit */
+    x /= 7;
+    while (x > 0) {
+        seq_t cur = x % 7;              /* next digit */
+        if ((prev == 5 && cur == 6) || (prev == 6 && cur == 5))
+            return true;
+        prev = cur;
+        x /= 7;
+    }
+    return false;
+}
 
 /* Memoisation storage */
 static seq_t *cache         = NULL;    /* array of terms found so far   */
@@ -48,7 +68,7 @@ seq_t a(idx_t n)
             /* Store the term */
             if (cache_len >= cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap << 1;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)
                     abort();               /* allocation failed */
                 cache = tmp;

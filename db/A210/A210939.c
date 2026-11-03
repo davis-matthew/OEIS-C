@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_arr   = NULL;   /* cached sequence values          */
 static size_t seq_cap   = 0;      /* capacity of seq_arr             */
@@ -30,7 +32,7 @@ static idx_t next_to_check = 1;   /* next integer to examine         */
 static void seq_grow(void)
 {
     size_t new_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
-    seq_t *new_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, seq_arr, new_cap);
     if (!new_arr) abort();
     seq_arr = new_arr;
     seq_cap = new_cap;

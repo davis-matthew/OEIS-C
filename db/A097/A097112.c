@@ -8,12 +8,14 @@
  *            for n ≥ 4
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
  
 /* Cached values for successive n.
  * The array grows as needed; values are stored for all indices
@@ -36,7 +38,7 @@ ensure_cache_size(idx_t n)
     if (new_size < n + 1)
         new_size = n + 1;
 
-    cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
     if (!cache) {
         /* Allocation failed; terminate program (no output is expected). */
         abort();

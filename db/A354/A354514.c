@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 208, u16 n <= 8650, u32 n <= 8650, u64 n <= 8650,
  *            u128 n <= 8650, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 87 terms through n = 6688 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* static state for incremental generation */
 static seq_t *terms = NULL;          /* sorted list of terms */
@@ -40,7 +42,7 @@ static void grow_terms(void)
 {
     if (terms_size >= terms_cap) {
         size_t new_cap = (terms_cap == 0) ? 16 : terms_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) exit(1);               /* bail out on allocation failure */
         terms = tmp;
         terms_cap = new_cap;
@@ -81,12 +83,12 @@ static bool qualifies(uint64_t k)
         if (p * p > temp) break;
         if (temp % p == 0) {
             /* p is a prime factor of k */
-            if (gpf(k + p) == p) return true;
+            if (largest_prime_factor(k + p) == p) return true;
             while (temp % p == 0) temp /= p;
         }
     }
     if (temp > 1) {                     /* remaining factor is prime */
-        if (gpf(k + temp) == temp) return true;
+        if (largest_prime_factor(k + temp) == temp) return true;
     }
     return false;
 }
@@ -99,7 +101,7 @@ static void ensure_terms(idx_t n)
     /* The first term is 0; initialise structures if this is the first call. */
     if (terms_size == 0) {
         terms_cap = 16;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) exit(1);
         terms_size = 0;
         checked_max = 0;

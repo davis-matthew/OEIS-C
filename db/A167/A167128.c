@@ -10,13 +10,20 @@
  *            of the second kind
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 58, u64 n <= 126,
  *            u128 n <= 334, big any n
- * Helpers:   seq_alloc_array
+ * Validated: standard, pass, 58 terms through n = 1198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_alloc_array.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* static storage for Stirling numbers and running column sums */
 static seq_t **S2_rows    = NULL;   /* S2_rows[m][k] : S2(m,k), 0 ≤ k ≤ m */

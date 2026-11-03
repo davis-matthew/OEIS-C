@@ -13,14 +13,24 @@
  *            a(k) is recorded for every k <= n along the...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 21, u128 n <= 35,
  *            big any n
- * Helpers:   alloc_series
+ * Validated: standard, pass, 39 terms through n = 276 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/alloc_series.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_series(size_t sz)
+{
+    seq_t *p = mem_new(seq_t, sz);
+    size_t i;
+    for (i = 0; i < sz; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *a140_cache = 0;
 static idx_t a140_cached_n = 0;

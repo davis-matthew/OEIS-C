@@ -10,7 +10,8 @@
  *            by * brute‑force search)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 39, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Convert a seq_t value to base‑3 (most significant digit first).
  * `buf` must have room for at least `cap` characters. Return the number
@@ -67,7 +69,7 @@ static void cache_append(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(*cache));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();               /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;

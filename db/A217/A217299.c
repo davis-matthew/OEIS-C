@@ -11,7 +11,8 @@
  *            and exactly height h
  * Range:     u8 n <= 16, u16 n <= 32, u32 n <= 64, u64 n <= 128,
  *            u128 n <= 167, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 973 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  static state  */
 static seq_t **dp   = NULL;   /* dp[h][n] – number of AVL trees of height h and n leaves   */
@@ -33,7 +35,7 @@ static void free_dp(void)
 {
     if (dp != NULL) {
         for (size_t h = 0; h < dp_height; ++h) {
-            free(dp[h]);
+            mem_free(dp[h]);
         }
         free(dp);
         dp = NULL;
@@ -86,7 +88,7 @@ static void recompute_dp(idx_t nmax)
     /*  allocate DP arrays  */
     dp = (seq_t **)malloc((dp_height + 1) * sizeof(seq_t *));
     for (size_t height = 0; height <= dp_height; ++height) {
-        dp[height] = (seq_t *)calloc((size_t)nmax + 1, sizeof(seq_t));
+        dp[height] = mem_new(seq_t, (size_t)nmax + 1);
     }
     dp_nmax = (size_t)nmax;
 

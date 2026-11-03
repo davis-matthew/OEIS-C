@@ -7,12 +7,14 @@
  * Formula:   a(n) = number of partitions of n into parts 2, 3, 7, and 10
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term of OEIS A029158.  The function can be called in
  * arbitrary order for any n >= 0.  It memoises results in a static
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     /* We need to compute up to n.  Allocate/resize the array. */
     idx_t new_size = n + 1;
-    dp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+    dp = mem_resize(seq_t, dp, new_size);
     if (!dp) { /* allocation failed – unlikely for small n */
         return 0;
     }

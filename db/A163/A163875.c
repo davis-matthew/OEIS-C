@@ -7,7 +7,8 @@
  * Formula:   a(n) = n - a(a(n-4)), a(0)=a(1)=a(2)=a(3)=0
  * Range:     u8 n <= 411, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9237 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values */
 static seq_t *cache = NULL;
@@ -30,7 +32,7 @@ static void ensure_computed(idx_t n)
     /* Allocate and initialise cache if this is the first call */
     if (cache == NULL) {
         size_t init_cap = (n >= 8) ? n + 1 : 16;
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (cache == NULL) exit(EXIT_FAILURE);
         cache_cap = init_cap;
         /* initialise first four values */
@@ -42,7 +44,7 @@ static void ensure_computed(idx_t n)
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = cache_cap;
         while ((size_t)n + 1 > new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) exit(EXIT_FAILURE);
         cache = tmp;
         cache_cap = new_cap;

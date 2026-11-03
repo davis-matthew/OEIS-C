@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 46, i16 n <= 139, i32 n <= 454, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *S = NULL;        /* cached coefficients of S(q)          */
 static size_t cap = 0;        /* current capacity of S                 */
@@ -40,7 +42,7 @@ static size_t cap = 0;        /* current capacity of S                 */
 /* Build S[0..limit] where limit >= 0.  All indices are zero‑based. */
 static void build_series(size_t limit)
 {
-    seq_t *newS = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    seq_t *newS = mem_new(seq_t, (limit + 1));
     if (!newS) return; /* allocation failed; caller will handle */
 
     newS[0] = 1;
@@ -70,7 +72,7 @@ static void build_series(size_t limit)
         }
     }
 
-    free(S);
+    mem_free(S);
     S = newS;
     cap = limit + 1;
 }

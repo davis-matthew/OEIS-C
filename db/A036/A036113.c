@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 7, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   append_count_digit, digit_counts
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,35 @@
  *             followed by the digit d itself, only when the count is positive.
  */
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
-#include "../utils/append_count_digit.h"
+#include "../utils/mem.h"
+
+/* Append decimal representation of count followed by digit d into *res.
+   This works for any size of count. */
+static void append_count_digit(seq_t *res, seq_t count, int d)
+{
+    /* Write the count into a stack array of decimal digits (reversed). */
+    seq_t tmp = count;
+    int digits[64];
+    int len = 0;
+    if (tmp == 0) {
+        digits[len++] = 0;
+    } else {
+        while (tmp > 0) {
+            digits[len++] = (int)(tmp % 10);
+            tmp /= 10;
+        }
+    }
+    /* Append the digits of the count to the result in correct order. */
+    for (int i = len - 1; i >= 0; --i) {
+        *res = (*res) * 10 + (seq_t)digits[i];
+    }
+    /* Append the digit d. */
+    *res = (*res) * 10 + (seq_t)d;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +61,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (cache == NULL) {
         cap = 2;
-        cache = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cap);
         if (!cache) return (seq_t)0;          /* allocation failed */
         cache[0] = (seq_t)3;
         cache[1] = (seq_t)2;
@@ -49,7 +77,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap > 0 ? cap * 2 : 2;
         while (new_cap <= (size_t)n)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;           /* allocation failed */
         cache = tmp;
         cap   = new_cap;

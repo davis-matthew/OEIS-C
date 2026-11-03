@@ -9,8 +9,9 @@
  *            i → diagonal r such that r*(r+1)/2 ≤ i < (r+1)*(r+2)/2, then
  *            within that diagonal let n = i - r*(r+1)/2, and k = r - n. So
  *            a(i) = n^2 + n*k + k^2
- * Range:     u8 n <= 135, u16 n <= 9810, u32 n <= 9810, u64 n <= 9810,
- *            u128 n <= 9810, big any n
+ * Range:     u8 n <= 135, u16 n <= 11475, u32 n <= 11475, u64 n <= 11475,
+ *            u128 n <= 11475, big any n
+ * Validated: standard, pass, 86 terms through n = 9810 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

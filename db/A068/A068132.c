@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 16, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   digitSum
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    in a static cache so that multiple calls are efficient. */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/digitSum.h"   /* digitSum(seq_t) is provided */
+#include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,11 +35,11 @@ seq_t a(idx_t n)
         while (size < n) {
             /* compute T(k) */
             seq_t tri = (seq_t)k_next * ((seq_t)k_next + 1) / 2;
-            if (digitSum(tri) == (seq_t)28) {
+            if (digit_sum(tri) == (seq_t)28) {
                 /* append to cache */
                 if (size == cap) {
                     size_t new_cap = cap ? cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) abort();            /* allocation failure */
                     cache = tmp;
                     cap = new_cap;

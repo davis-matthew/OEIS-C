@@ -8,9 +8,10 @@
  * Formula:   a(n) = 2*a(n-1) - a(n-2) + d_{n-2} (for n ≥ 3) where d_i is the
  *            i‑th digit of the concatenated decimal representation of the
  *            sequence. Initial values: a(1)=1, a(2)=2, a(3)=4
- * Range:     u8 n <= 13, u16 n <= 172, u32 n <= 9673, u64 n <= 9673,
- *            u128 n <= 9673, big any n
- * Helpers:   digit_len, seq_alloc_new_array, seq_to_str
+ * Range:     u8 n <= 13, u16 n <= 172, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 59 terms through n = 9673 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,33 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_to_str.h"
-#include "../utils/digit_len.h"
+#include <string.h>
+#include <math.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 /* Cached values of a(n) for 1 ≤ n ≤ cache_len. */
 static seq_t *cache = NULL;
@@ -58,7 +83,7 @@ ensure_cache(idx_t n)
         /* Append digits of these terms */
         for (idx_t i = 1; i <= 4; ++i) {
             seq_t v = cache[i - 1];
-            size_t dlen = (size_t)digit_len(v);
+            size_t dlen = (size_t)num_digits(v);
             if (dlen > tmp_cap) {
                 tmp_cap = dlen * 2;
                 tmp_str = (char *)realloc(tmp_str, tmp_cap);
@@ -84,7 +109,7 @@ ensure_cache(idx_t n)
         if (cache_cap < n) {
             size_t new_cap = cache_cap ? cache_cap : 4;
             while (new_cap < n) new_cap <<= 1;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
 
@@ -100,7 +125,7 @@ ensure_cache(idx_t n)
             cache[idx - 1] = val;
 
             /* Append digits of the newly computed term */
-            size_t dlen = (size_t)digit_len(val);
+            size_t dlen = (size_t)num_digits(val);
             if (dlen > tmp_cap) {
                 tmp_cap = dlen * 2;
                 tmp_str = (char *)realloc(tmp_str, tmp_cap);

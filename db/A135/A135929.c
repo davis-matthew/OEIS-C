@@ -12,8 +12,9 @@
  *            3. The sequence lists the coefficients of P_n(x) in order of
  *            decreasing exponents. Offsets start at 0
  * Range:     i8 n <= 145, i16 n <= 423, i32 n <= 1409, i64 n <= 5007,
- *            i128 n <= 9489, big any n
- * Helpers:   even_size
+ *            i128 n <= 11475, big any n
+ * Validated: standard, pass, 107 terms through n = 9489 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/even_size.h"
+#include "../utils/mem.h"
+
+/* Helper: number of stored even coefficients for a given row r */
+static inline size_t even_size(idx_t r) { return r/2 + 1; }
 
 /* Main function */
 seq_t a(idx_t n)
@@ -57,7 +61,7 @@ seq_t a(idx_t n)
         rows_even = (seq_t**)malloc(rows_cap * sizeof(seq_t*));
         if (!rows_even) abort();
         /* base row 0 */
-        rows_even[0] = (seq_t*)malloc(sizeof(seq_t));
+        rows_even[0] = mem_new(seq_t, 1);
         if (!rows_even[0]) abort();
         rows_even[0][0] = 1;
         max_row = 0;
@@ -76,7 +80,7 @@ seq_t a(idx_t n)
         }
 
         size_t sz = even_size(cur);            /* number of even coeffs */
-        seq_t *row = (seq_t*)calloc(sz, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, sz);
         if (!row) abort();
 
         if (cur == 0) {

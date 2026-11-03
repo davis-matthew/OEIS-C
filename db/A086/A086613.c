@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Make sure the cache can hold indices up to max_n (inclusive). */
 static void
@@ -41,7 +43,7 @@ ensure_cache(idx_t max_n)
     if (cap <= max_n)
     {
         idx_t new_cap = max_n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!new_cache)                /* allocation failure – abort */
             exit(EXIT_FAILURE);
         cache = new_cache;
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL)                  /* first call: initialise global cache */
     {
-        cache = (seq_t *)calloc(1, sizeof(seq_t)); /* allocate at least one element */
+        cache = mem_new(seq_t, 1); /* allocate at least one element */
         if (!cache) exit(EXIT_FAILURE);
         cap = 1;
     }
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
     if (cap <= n)
     {
         idx_t new_cap = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!new_cache) exit(EXIT_FAILURE);
         cache = new_cache;
         for (idx_t i = cap; i <= n; ++i)

@@ -12,7 +12,8 @@
  *            for any n>=1
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 30, u64 n <= 62, u128 n <= 126,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 51 terms through n = 457 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* a[1..]  */
 static seq_t *sum_cache = NULL;  /* prefix sums s[1..] = Σ_{i<=k} a(i) */
@@ -36,14 +39,14 @@ static void ensure_cap(idx_t needed)
     idx_t new_cap = (cache_cap == 0) ? 4 : cache_cap;
     while (new_cap <= needed)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
-    seq_t *new_sum   = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
+    seq_t *new_sum   = mem_new(seq_t, new_cap);
     if (cache)
-        memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
+        mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
     if (sum_cache)
-        memcpy(new_sum,   sum_cache,   cache_cap * sizeof(seq_t));
-    free(cache);
-    free(sum_cache);
+        mem_copy(new_sum, sum_cache, cache_cap * sizeof(seq_t));
+    mem_free(cache);
+    mem_free(sum_cache);
     cache      = new_cache;
     sum_cache  = new_sum;
     cache_cap  = new_cap;

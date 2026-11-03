@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 51, u32 n <= 739, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    triangular numbers (T_k = k(k+1)/2, k ≥ 1). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n < 9) return 0;          /* offset of the sequence */
@@ -53,8 +55,8 @@ seq_t a(idx_t n) {
 
         /* Allocate and clear DP arrays */
         for (int p = 0; p < 10; ++p) {
-            if (dp[p]) free(dp[p]);
-            dp[p] = (seq_t *)calloc(new_max + 1, sizeof(seq_t));
+            if (dp[p]) mem_free(dp[p]);
+            dp[p] = mem_new(seq_t, new_max + 1);
             if (!dp[p]) return 0;   /* allocation failure */
         }
         dp[0][0] = 1;                 /* base case */

@@ -12,7 +12,8 @@
  *            s(0)=s(1)=1, (k+1)*s(k) = 3*(2k-1)*s(k-1) - (k-2)*s(k-2);...
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 17, u64 n <= 30, u128 n <= 57,
  *            big any n
- * Helpers:   dz_add, dz_addw, dz_div, dz_mul, dz_phi, dz_sub
+ * Validated: standard, pass, 41 terms through n = 190 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +21,54 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/dz_add.h"
-#include "../utils/dz_addw.h"
-#include "../utils/dz_div.h"
-#include "../utils/dz_mul.h"
-#include "../utils/dz_phi.h"
-#include "../utils/dz_sub.h"
+#include "../utils/totient_u64.h"
+
+static void dz_add(uint32_t *x, const uint32_t *y, size_t L) {
+    uint64_t c = 0;
+    for (size_t i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)x[i] + y[i] + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+}
+
+static void dz_mul(uint32_t *x, size_t L, uint32_t m) {
+    uint64_t c = 0;
+    for (size_t i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+}
+
+static void dz_addw(uint32_t *acc, const uint32_t *v, uint32_t *t, size_t L, uint32_t w) {
+    memcpy(t, v, L * sizeof(uint32_t));
+    dz_mul(t, L, w);
+    dz_add(acc, t, L);
+}
+
+static void dz_div(uint32_t *x, size_t L, uint32_t d) {
+    uint64_t r = 0;
+    for (size_t i = L; i-- > 0;) {
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+}
+
+static void dz_sub(uint32_t *x, const uint32_t *y, size_t L) {
+    uint64_t b = 0;
+    for (size_t i = 0; i < L; i++) {
+        uint64_t yi = (uint64_t)y[i] + b;
+        if ((uint64_t)x[i] >= yi) {
+            x[i] = (uint32_t)((uint64_t)x[i] - yi);
+            b = 0;
+        } else {
+            x[i] = (uint32_t)(((uint64_t)1 << 32) + x[i] - yi);
+            b = 1;
+        }
+    }
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
@@ -75,7 +118,7 @@ seq_t a(idx_t n) {
             dz_div(c, L, (uint32_t)k);
         }
         idx_t q = k + 1;
-        if (N % q == 0) dz_addw(acc, c, t, L, (uint32_t)dz_phi(N / q));
+        if (N % q == 0) dz_addw(acc, c, t, L, (uint32_t)totient_u64(N / q));
         tmp = p2; p2 = p1; p1 = c; c = tmp;
     }
 

@@ -9,14 +9,16 @@
  *            is the nth element of the triangle read by rows (offset 1)
  * Range:     i8 n <= 91, i16 n <= 91, i32 n <= 91, i64 n <= 91, i128 n <= 91,
  *            big any n
- * Helpers:   mobius, phi
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   mobius, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* required external helpers */
-#include "../utils/mobius.h"   /* seq_t mobius(idx_t n); */ 
-#include "../utils/phi.h"     /* seq_t phi(idx_t n); */
+#include <stdint.h>
+#include "../utils/mobius.h"
+#include "../utils/totient.h"
 
 /* integer square–root for 128‑bit values, used in row calculation */
 static inline idx_t isqrt_u128(__uint128_t x)
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
 
     if (r % k == 0) {                   /* k divides r */
         seq_t mu = mobius(r);           /* μ(r) ∈ {−1,0,1} */
-        seq_t phi_k = phi(k);           /* φ(k) ≥ 0 */
+        seq_t phi_k = totient(k);           /* φ(k) ≥ 0 */
         return mu * phi_k;
     }
     return 0;

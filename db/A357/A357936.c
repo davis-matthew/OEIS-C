@@ -8,6 +8,7 @@
  * Formula:   a(n) is the least multiple of n that is a Niven (Harshad) number
  * Range:     u8 n <= 28, u16 n <= 1498, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 76 terms through n = 9753 (2026-11-01)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* Implementation: brute‑force search for the smallest k such that n*k is divisible by the digit sum of n*k. */
 
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
 
 seq_t a(idx_t n)

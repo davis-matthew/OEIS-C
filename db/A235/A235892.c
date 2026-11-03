@@ -9,6 +9,7 @@
  * Formula:   a(n) = 4 * (16002 + 381 * 2^n + 4^n)
  * Range:     u8 none, u16 none, u32 n <= 14, u64 n <= 30, u128 n <= 62,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 60 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 /* This uses the supplied pow2 utility to compute 2^exp as a seq_t. */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

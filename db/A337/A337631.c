@@ -8,12 +8,14 @@
  * Formula:   a(n) = 2^n*(n^2 - 6*n + 13) - 3*n - 13
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 23, u64 n <= 52, u128 n <= 114,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 987 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*        a(1) = 0, a(2) = 1, a(3) = 10, ... (see OEIS A337631) */
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

@@ -11,7 +11,8 @@
  *            terms; add if a(n‑1) is not prime, subtract if it is
  * Range:     u8 n <= 164, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_digits_capacity
+ * Validated: standard, pass, 82 terms through n = 9055 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,18 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/ensure_digits_capacity.h"
+#include "../utils/mem.h"
+
+/* Ensure that a byte array has at least <need> elements. */
+static void
+ensure_digits_capacity(uint8_t **arr, size_t *cap, size_t need)
+{
+    if (need <= *cap) return;
+    size_t newcap = *cap ? *cap * 2 : 16;
+    if (newcap < need) newcap = need;
+    *arr = (uint8_t *)realloc(*arr, newcap);
+    *cap = newcap;
+}
 
 /* static storage for generated sequence and its digit stream */
 static seq_t *s_cache = NULL;      /* zero‑based sequence values          */
@@ -37,7 +49,7 @@ ensure_seq_capacity(seq_t **arr, size_t *cap, size_t need)
     if (need <= *cap) return;
     size_t newcap = *cap ? *cap * 2 : 16;
     if (newcap < need) newcap = need;
-    *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, newcap);
     *cap = newcap;
 }
 

@@ -9,12 +9,14 @@
  *            with gcd reduction so no intermediate exceeds the final value
  * Range:     u8 n <= 8, u16 n <= 10, u32 n <= 15, u64 n <= 24, u128 n <= 44,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 973 (2026-11-01)
  * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {

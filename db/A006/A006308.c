@@ -7,6 +7,7 @@
  * Formula:   a(n) = p*(p-1)/2 where p = prime(n) = A000040(n) (A008837)
  * Range:     u8 n <= 9, u16 n <= 26, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
+ * Validated: partial, pass, 25 terms through n = 26 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

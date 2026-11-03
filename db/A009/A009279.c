@@ -7,14 +7,15 @@
  * Formula:   a(n) = lcm(d(n), φ(n))
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   _my_gcd
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes d(n) (number of divisors) and φ(n) (Euler totient) by trial division. */
 #include <stdint.h>
-#include "../utils/_my_gcd.h"
+#include "../utils/gcd.h"
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -49,7 +50,7 @@ seq_t a(idx_t n)
     }
 
     /* compute lcm = d / gcd(d,phi) * phi */
-    seq_t g = _my_gcd(d, phi);
+    seq_t g = gcd(d, phi);
     seq_t res = d / g * phi;
     return res;
 }

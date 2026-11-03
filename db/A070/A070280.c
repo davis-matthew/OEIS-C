@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-1) + product_of_digits(n-1), a(1) = 1
  * Range:     u8 n <= 37, u16 n <= 868, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_product_idx
+ * Validated: standard, pass, 87 terms through n = 979 (2026-11-03)
+ * Helpers:   digit_product_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/digit_product_idx.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* cache[0] holds a(1) */
 static idx_t cache_len = 0;     /* number of terms already stored */
@@ -25,7 +27,7 @@ static void ensure_cache(idx_t n)
     if ((idx_t)cache_cap >= n) return;
     size_t newcap = cache_cap ? cache_cap << 1 : 16;
     while (newcap < (size_t)n) newcap <<= 1;
-    cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, newcap);
     cache_cap = newcap;
 }
 

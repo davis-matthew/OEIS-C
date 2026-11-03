@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 8222 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Simple primality test for small numbers. */
 static bool is_prime_small(uint64_t x)
@@ -87,8 +89,8 @@ seq_t a(idx_t n)
         if (has_semiprime_divisor(current)) {
             if (seq_len == seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap * 2 : 64;
-                seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
-                if (!tmp) { free(seq); abort(); }
+                seq_t *tmp = mem_resize(seq_t, seq, new_cap);
+                if (!tmp) { mem_free(seq); abort(); }
                 seq = tmp;
                 seq_cap = new_cap;
             }

@@ -11,22 +11,35 @@
  *            n>=3
  * Range:     u8 n <= 2, u16 n <= 64, u32 n <= 4999, u64 n <= 4999,
  *            u128 n <= 4999, big any n
- * Helpers:   digits_of, pow10, rev
+ * Validated: standard, pass, 60 terms through n = 4842 (2026-11-01)
+ * Helpers:   num_digits_idx, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/rev.h"
-#include "../utils/digits_of.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/num_digits_idx.h"
+#include "../utils/reverse_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
     /* compute the number of decimal digits of n */
-    int nd = digits_of(n);                  /* nd >= 1 for all n >= 1 */
+    int nd = num_digits_idx(n);                  /* nd >= 1 for all n >= 1 */
 
     /* reverse of n without leading zeros */
-    seq_t rev_n = (seq_t)rev(n);
+    seq_t rev_n = (seq_t)reverse_digits_idx(n);
 
     /* powers of 10 required for shifting */
     seq_t pow1 = pow10((idx_t)(nd + 1));     /* 10^(nd+1) */

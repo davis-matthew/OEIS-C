@@ -13,13 +13,16 @@
  *            even, m≥2) * * For odd indices E_m = 0....
  * Range:     i8 n <= 17, i16 n <= 33, i32 n <= 70, i64 n <= 166,
  *            i128 n <= 417, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 66 terms through n = 1453 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t a, idx_t b); */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *euler = NULL;          /* Euler numbers, indexed by integer. */
 static idx_t    euler_size = 0;      /* Number of Euler values currently stored. */
@@ -30,7 +33,7 @@ ensure_euler(idx_t limit)
 {
     if (euler == NULL) {
         euler_size = limit + 1;
-        euler = (seq_t *)malloc(euler_size * sizeof(seq_t));
+        euler = mem_new(seq_t, euler_size);
         /* initialise to zero */
         for (idx_t i = 0; i < euler_size; ++i) euler[i] = 0;
         euler[0] = 1;          /* E_0 = 1 */
@@ -40,7 +43,7 @@ ensure_euler(idx_t limit)
 
     /* enlarge array */
     size_t new_size = limit + 1;
-    seq_t *tmp = (seq_t *)realloc(euler, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, euler, new_size);
     if (!tmp) return;          /* allocation failed: caller will crash */
     euler = tmp;
     for (idx_t i = euler_size; i < new_size; ++i) euler[i] = 0;
@@ -56,7 +59,7 @@ ensure_euler(idx_t limit)
         idx_t half = m / 2;
         for (idx_t i = 0; i < half; ++i) {
             idx_t e = 2 * i;
-            seq_t coeff = binom(m, e);
+            seq_t coeff = binomial(m, e);
             seq_t prod  = coeff * euler[e];
             sum += prod;
         }
@@ -87,7 +90,7 @@ seq_t a(idx_t n)
 
     /* Step 4: coefficient = binomial(k, e) * E_d.  Euler is zero for odd d, but
      * d is always even here. */
-    seq_t coef = binom(k, e);
+    seq_t coef = binomial(k, e);
     seq_t result = coef * euler[d];
     return result;
 }

@@ -9,9 +9,10 @@
  *            negaFibonacci representation of n. The representation is formed
  *            by distinct F(-k) = (-1)^{k+1} * F(k) (no two consecutive k),
  *            and the representation is unique
- * Range:     i8 n <= 25, i16 n <= 1, i32 n <= 8619, i64 n <= 8619,
- *            i128 n <= 8619, big any n
- * Helpers:   min_abs_val, upd
+ * Range:     i8 n <= 25, i16 n <= 1, i32 n <= 10946, i64 n <= 10946,
+ *            i128 n <= 10946, big any n
+ * Validated: standard, pass, 93 terms through n = 8619 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,30 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/min_abs_val.h"
-#include "../utils/upd.h"
+#include "../utils/mem.h"
+
+static inline seq_t min_abs_val(seq_t a, seq_t b)
+{
+    /* returns the value (with its sign) having the smaller absolute value.
+       If one is 0 (not used), returns the other. */
+    if (a == 0) return b;
+    if (b == 0) return a;
+    seq_t aa = a >= 0 ? a : -a;
+    seq_t bb = b >= 0 ? b : -b;
+    return (aa <= bb) ? a : b;
+}
+
+/* update reachable and minimal-term arrays */
+static inline void upd(bool *reach, seq_t *val, size_t idx, seq_t cand,
+                       bool *new_reach, seq_t *new_val)
+{
+    if (!new_reach[idx]) {
+        new_reach[idx] = true;
+        new_val[idx] = cand;
+    } else {
+        new_val[idx] = min_abs_val(new_val[idx], cand);
+    }
+}
 
 /* Global data, initialized once */
 static bool initialized = false;
@@ -54,7 +77,7 @@ static void init_data(void)
         }
         /* add term */
         seq_t term = (K % 2 == 0) ? -fk : fk;   /* even -> negative              */
-        negafib = (seq_t*)realloc(negafib, K * sizeof(seq_t));
+        negafib = mem_resize(seq_t, negafib, K);
         negafib[K-1] = term;
         if (fk > LIM && (K % 2 == 1))  /* we need one more term of opposite sign if needed */
             break;
@@ -65,10 +88,10 @@ static void init_data(void)
     bool   *reach1 = (bool*)calloc(SZ, sizeof(bool));
     bool   *new_reach0 = (bool*)calloc(SZ, sizeof(bool));
     bool   *new_reach1 = (bool*)calloc(SZ, sizeof(bool));
-    seq_t *val0 = (seq_t*)calloc(SZ, sizeof(seq_t));
-    seq_t *val1 = (seq_t*)calloc(SZ, sizeof(seq_t));
-    seq_t *new_val0 = (seq_t*)calloc(SZ, sizeof(seq_t));
-    seq_t *new_val1 = (seq_t*)calloc(SZ, sizeof(seq_t));
+    seq_t *val0 = mem_new(seq_t, SZ);
+    seq_t *val1 = mem_new(seq_t, SZ);
+    seq_t *new_val0 = mem_new(seq_t, SZ);
+    seq_t *new_val1 = mem_new(seq_t, SZ);
 
     size_t offset = LIM;
     reach0[offset] = true;          /* sum 0 reachable with no terms */
@@ -79,8 +102,8 @@ static void init_data(void)
         /* reset new arrays */
         memset(new_reach0, 0, SZ * sizeof(bool));
         memset(new_reach1, 0, SZ * sizeof(bool));
-        memset(new_val0,  0, SZ * sizeof(seq_t));
-        memset(new_val1,  0, SZ * sizeof(seq_t));
+        mem_set(new_val0, 0, SZ * sizeof(seq_t));
+        mem_set(new_val1, 0, SZ * sizeof(seq_t));
 
         /* transitions from states with previous not taken */
         for (size_t idx = 0; idx < SZ; ++idx) if (reach0[idx]) {
@@ -108,7 +131,7 @@ static void init_data(void)
     }
 
     /* build answer table */
-    ans = (seq_t*)calloc(LIM + 1, sizeof(seq_t));   /* ans[0] unused */
+    ans = mem_new(seq_t, LIM + 1);   /* ans[0] unused */
     for (size_t idx = 0; idx < SZ; ++idx) {
         seq_t s = (seq_t)idx - (seq_t)offset;
         if (s < 1 || (size_t)s > LIM) continue;
@@ -121,8 +144,8 @@ static void init_data(void)
     /* free temporary arrays */
     free(reach0); free(reach1);
     free(new_reach0); free(new_reach1);
-    free(val0); free(val1);
-    free(new_val0); free(new_val1);
+    mem_free(val0); mem_free(val1);
+    mem_free(new_val0); mem_free(new_val1);
 
     initialized = true;
 }

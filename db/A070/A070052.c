@@ -9,6 +9,7 @@
  *            of A070052 for n ≥ 9, with initial terms below)
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 17, u64 n <= 43, u128 n <= 100,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 397 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,11 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
+ * Validated: partial, pass, 89 terms through n = 89 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 /* Computes the n‑th digit in the decimal expansion of the continued fraction
    [1; 3, 4, 7, 11, 18, …] (Lucas numbers starting at 1).
    a(1) = 1, a(2) = 3, a(3) = 0, a(4) = 8, …  (OEIS A333567)   */

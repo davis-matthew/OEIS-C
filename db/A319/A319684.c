@@ -8,8 +8,9 @@
  * Formula:   a(n) = Sum_{d|n} A003415(d) Implementation of a(n) using prime
  *            factorisation. A003415(d) = d * sum_{p|d} (e_p / p) where e_p is
  *            the exponent of prime p in d
- * Range:     u8 n <= 31, u16 n <= 5759, u32 n <= 9251, u64 n <= 9251,
- *            u128 n <= 9251, big any n
+ * Range:     u8 n <= 31, u16 n <= 5759, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 107 terms through n = 9251 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n) {

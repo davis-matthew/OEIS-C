@@ -7,12 +7,23 @@
  * Formula:   a(n) = Sum_{m=1..n+1} A000005(m)*binomial(n, m-1)*(m-1)!
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 33,
  *            big any n
- * Helpers:   count_divisors
+ * Validated: standard, pass, 38 terms through n = 279 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count_divisors.h"
+/* Count divisors of m (A000005) */
+static idx_t count_divisors(idx_t m) {
+    idx_t count = 0;
+    for (idx_t i = 1; i * i <= m; i++) {
+        if (m % i == 0) {
+            count++;
+            if (i * i != m) count++;
+        }
+    }
+    return count;
+}
 
 /* Compute binomial coefficient C(n, k) */
 static seq_t binomial(idx_t n, idx_t k) {

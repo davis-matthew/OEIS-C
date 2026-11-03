@@ -9,21 +9,23 @@
  *            1, a(j) = Sum_{i=1..j} Q[i]*a(j-i) - Sum_{i=1..j} P[i]*a(j-i)
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 40, u64 n <= 80, u128 n <= 161,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 4017 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A3116_P = NULL, *A3116_Q = NULL, *A3116_A = NULL;
 static idx_t A3116_cap = 0;
 
 static void A3116_build(idx_t m) {
-    seq_t *P = (seq_t *)calloc(m + 1, sizeof(seq_t));
-    seq_t *Q = (seq_t *)calloc(m + 1, sizeof(seq_t));
-    seq_t *den = (seq_t *)calloc(m + 1, sizeof(seq_t));
-    seq_t *A = (seq_t *)calloc(m + 1, sizeof(seq_t));
+    seq_t *P = mem_new(seq_t, m + 1);
+    seq_t *Q = mem_new(seq_t, m + 1);
+    seq_t *den = mem_new(seq_t, m + 1);
+    seq_t *A = mem_new(seq_t, m + 1);
     idx_t i, j, k;
     for (j = 0; j <= m; j++) { P[j] = 0; Q[j] = 0; den[j] = 0; A[j] = 0; }
     den[0] = 1;

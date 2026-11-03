@@ -8,13 +8,15 @@
  * Formula:   a(n) = H(2*n)*(2*n)!/n!
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term of sequence A123989. */
 seq_t a(idx_t n)
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
     /* Initialise for n = 0. */
     if (A == NULL) {
         cap = 1;
-        A = (seq_t *)malloc(cap * sizeof(seq_t));
-        F = (seq_t *)malloc(cap * sizeof(seq_t));
+        A = mem_new(seq_t, cap);
+        F = mem_new(seq_t, cap);
         if (A == NULL || F == NULL) return 0;          /* OOM guard */
         A[0] = (seq_t)0;   /* a(0) = 0 */
         F[0] = (seq_t)1;   /* F(0) = 1 – convenient for the recurrence */
@@ -41,8 +43,8 @@ seq_t a(idx_t n)
         size_t target = (size_t)n + 1;
         if (target > cap) {
             while (cap < target) cap <<= 1;          /* double until sufficient */
-            seq_t *newA = (seq_t *)realloc(A, cap * sizeof(seq_t));
-            seq_t *newF = (seq_t *)realloc(F, cap * sizeof(seq_t));
+            seq_t *newA = mem_resize(seq_t, A, cap);
+            seq_t *newF = mem_resize(seq_t, F, cap);
             if (newA == NULL || newF == NULL) return 0;  /* OOM guard */
             A = newA;
             F = newF;

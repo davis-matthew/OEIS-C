@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 20, u32 n <= 28, u64 n <= 60, u128 n <= 115,
  *            big any n
- * Helpers:   digit_at
+ * Validated: standard, pass, 50 terms through n = 472 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digit_at.h"
+#include "../utils/mem.h"
+
+/* Return digit at given position in the repeating string 123456789 */
+static inline int digit_at(idx_t pos)
+{
+    return (int)((pos - 1) % 9 + 1);  /* 1 … 9 */
+}
 
 /* Dynamic storage for the sequence terms */
 static seq_t *seq_terms = NULL;
@@ -44,7 +51,7 @@ static void ensure_capacity(void)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(seq_terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_terms, new_cap);
         if (!tmp) exit(1);                /* allocation failure */
         seq_terms = tmp;
         seq_cap   = new_cap;

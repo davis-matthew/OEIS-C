@@ -11,14 +11,34 @@
  *            come from Gray(i), odd positions from Gray(j)
  * Range:     u8 n <= 135, u16 n <= 2079, u32 n <= 2079, u64 n <= 2079,
  *            u128 n <= 2079, big any n
- * Helpers:   antidiagonal_k
+ * Validated: standard, pass, 85 terms through n = 1952 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>  /* uint*_t, __uint128_t */
 #include <limits.h>  /* CHAR_BIT */
-#include "../utils/antidiagonal_k.h"
+
+/* Find k such that k*(k+1)/2 <= n < (k+1)*(k+2)/2 */
+static inline idx_t antidiagonal_k(idx_t n)
+{
+    idx_t low = 0, high = 1;
+    /* Exponentially grow high until it exceeds n */
+    while (((__uint128_t)high * (high + 1)) / 2 <= n) {
+        low  = high;
+        high <<= 1;          /* double high */
+    }
+    /* Binary search between low and high */
+    while (low + 1 < high) {
+        idx_t mid = low + ((high - low) >> 1);
+        if (((__uint128_t)mid * (mid + 1)) / 2 <= n)
+            low = mid;
+        else
+            high = mid;
+    }
+    return low;              /* largest k with t_k <= n */
+}
 
 seq_t a(idx_t n)
 {

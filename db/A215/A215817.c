@@ -11,7 +11,8 @@
  *            A(1)=6‑sqrt(7), A(2)=19‑4*sqrt(7)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   cast_to_seq_t
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,12 @@
    which a(n) fits into seq_t. */
 
 #include <stdint.h>
-#include "../utils/cast_to_seq_t.h"
+
+/* Helper to cast a signed __int128 to seq_t safely. */
+static inline seq_t cast_to_seq_t(__int128 v)
+{
+    return (seq_t)v;
+}
 
 seq_t a(idx_t n)
 {

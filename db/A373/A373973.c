@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n has a divisor that is a sum of two distinct
  *            positive cubes, 0 otherwise
- * Range:     u8 n <= 1613, u16 n <= 9242, u32 n <= 9242, u64 n <= 9242,
- *            u128 n <= 9242, big any n
- * Helpers:   cube_uint64
+ * Range:     u8 n <= 1613, u16 n <= 100080, u32 n <= 100080, u64 n <= 100080,
+ *            u128 n <= 100080, big any n
+ * Validated: standard, pass, 142 terms through n = 9242 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/cube_uint64.h"
+
+/* Compute the cube of a 64‑bit integer using 128‑bit arithmetic to avoid overflow */
+static inline seq_t cube_uint64(uint64_t x)
+{
+    unsigned __int128 t = (unsigned __int128)x * x * x;
+    return (seq_t)t;
+}
 
 /* Integer cube root: largest r such that r^3 <= n */
 static inline uint64_t int_cuberoot(uint64_t n)

@@ -10,7 +10,8 @@
  *            unique integer with 2^p < n-1 ≤ 2^(p+1)
  * Range:     u8 n <= 41, u16 n <= 207, u32 n <= 1797, u64 n <= 8193,
  *            u128 n <= 8193, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 7479 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute floor(log₂(v)) for v ≥ 1.  For v = 0 the behaviour is undefined. */
 static inline unsigned floor_log2_idx(idx_t v)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
     if ((idx_t)cap < n) {
         size_t new_cap = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (!tmp) {            /* allocation failure – terminate the program. */
             exit(EXIT_FAILURE);
         }

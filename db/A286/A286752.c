@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9169 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static data */
 static uint8_t *fib_prefix = NULL;
@@ -80,7 +82,7 @@ static void ensure_output_capacity (size_t needed)
     size_t new_cap = output_cap ? output_cap << 1 : 64;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *new_buf = (seq_t *)realloc(output_arr, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, output_arr, new_cap);
     if (!new_buf) exit(1);               /* out of memory */
     output_arr = new_buf;
     output_cap = new_cap;

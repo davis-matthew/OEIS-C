@@ -11,8 +11,9 @@
  *            numbers). The first few rows are: 1; 2,1; 3,2,1,1;
  *            4,3,2,2,1,1,1; etc. The sequence a(n) is obtained by reading the
  *            triangle row by row
- * Range:     u8 n <= 9033, u16 n <= 9033, u32 n <= 9033, u64 n <= 9033,
- *            u128 n <= 9033, big any n
+ * Range:     u8 n <= 10980, u16 n <= 10980, u32 n <= 10980, u64 n <= 10980,
+ *            u128 n <= 10980, big any n
+ * Validated: standard, pass, 110 terms through n = 9033 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

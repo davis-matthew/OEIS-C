@@ -8,7 +8,8 @@
  *            function
  * Range:     i8 n <= 54, i16 n <= 99, i32 n <= 99, i64 n <= 99, i128 n <= 99,
  *            big any n
- * Helpers:   jacobi_symbol_ll
+ * Validated: partial, pass, 100 terms through n = 99 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,33 @@
 
 #include <stddef.h>   /* for size_t */
 #include <stdint.h>   /* for intptr_t, uintptr_t, etc. */
-#include "../utils/jacobi_symbol_ll.h"
+
+/* Jacobi symbol (a | n) for odd n > 0, a > 0 */
+static int jacobi_symbol_ll(long long a, long long n)
+{
+    if (n <= 0 || (n & 1) == 0)
+        return 0;
+    if (a == 0)
+        return 0;
+    int result = 1;
+    a = a % n;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            int n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                result = -result;
+        }
+        /* swap a and n */
+        long long tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            result = -result;
+        a %= n;
+    }
+    return (n == 1) ? result : 0;
+}
 
 /* static arrays for the sieve */
 #define PRIME_CAP 50050

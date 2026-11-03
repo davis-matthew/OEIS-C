@@ -8,12 +8,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*=====  A184430 Upper s‑Wythoff sequence: a(n)  =====*/
 /* This implementation generates the sequence by producing the
@@ -61,7 +63,7 @@ static void used_insert (seq_t v)
     if (used_len == used_cap)
     {
         used_cap = used_cap ? used_cap << 1 : 8;
-        seq_t *tmp = (seq_t *)realloc (used_arr, used_cap * sizeof (seq_t));
+        seq_t *tmp = mem_resize(seq_t, used_arr, used_cap);
         if (!tmp) exit (EXIT_FAILURE);
         used_arr = tmp;
     }
@@ -99,7 +101,7 @@ static void ensure_cache (idx_t n)
         if (k >= cache_cap)      /* grow cache if necessary */
         {
             size_t new_cap = cache_cap ? cache_cap << 1 : 8;
-            seq_t *tmp = (seq_t *)realloc (seq_cache, new_cap * sizeof (seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
             if (!tmp) exit (EXIT_FAILURE);
             seq_cache = tmp;
             cache_cap = new_cap;
@@ -121,13 +123,13 @@ seq_t a(idx_t n)
     if (!cache_cap)
     {
         cache_cap = 8;
-        seq_cache = (seq_t *)calloc (cache_cap, sizeof (seq_t));
+        seq_cache = mem_new(seq_t, cache_cap);
         if (!seq_cache) exit (EXIT_FAILURE);
     }
     if (!used_cap)
     {
         used_cap = 8;
-        used_arr = (seq_t *)calloc (used_cap, sizeof (seq_t));
+        used_arr = mem_new(seq_t, used_cap);
         if (!used_arr) exit (EXIT_FAILURE);
     }
 

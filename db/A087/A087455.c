@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2*a(n-1) - 3*a(n-2) (a(0)=1, a(1)=1)
  * Range:     i8 n <= 9, i16 n <= 19, i32 n <= 39, i64 n <= 81, i128 n <= 160,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 3249 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;           /* array storing computed terms   */
 static idx_t  cache_size = 0;         /* currently allocated size       */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
     while (new_size <= n)
         new_size <<= 1;
 
-    seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache) abort();           /* cannot happen in tests */
 
     /* Copy old values if any */
@@ -41,7 +43,7 @@ static void ensure_cache(idx_t n)
     for (idx_t i = cache_size; i < new_size; ++i)
         new_cache[i] = 0;
 
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_size = new_size;
 }

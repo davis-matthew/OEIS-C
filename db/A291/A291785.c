@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 73, i16 n <= 73, i32 n <= 73, i64 n <= 73, i128 n <= 73,
  *            big any n
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,6 +24,7 @@
 #include <stddef.h>
 
 /* Utilities provided by the build environment. */
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* --- helper: small power in 128‑bit intermediate --- */

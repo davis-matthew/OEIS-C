@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 3424, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9745 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- helpers ---------- */
 
@@ -74,8 +76,8 @@ seq_t a(idx_t n)
         return 0;          /* offset 1 – values for n≥1 are needed */
 
     /* Allocate counting tables.  Size n+1 because sums run up to n-1. */
-    seq_t *cnt_xy = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
-    seq_t *cnt_zw = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *cnt_xy = mem_new(seq_t, (size_t)n + 1);
+    seq_t *cnt_zw = mem_new(seq_t, (size_t)n + 1);
     if (!cnt_xy || !cnt_zw) {
         /* out‑of‑memory; terminate */
         exit(1);
@@ -128,7 +130,7 @@ seq_t a(idx_t n)
         result += cxy * czw;
     }
 
-    free(cnt_xy);
-    free(cnt_zw);
+    mem_free(cnt_xy);
+    mem_free(cnt_zw);
     return result;
 }

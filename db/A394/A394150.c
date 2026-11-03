@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 13, u64 n <= 23, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 287 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* {seq_t} and {idx_t} are supplied by the build. */
 seq_t a(idx_t n) {
@@ -45,21 +47,21 @@ seq_t a(idx_t n) {
     /* Ensure we have enough space for indices up to n. */
     if (size <= n) {
         idx_t newsize = (idx_t)(n + 1);
-        G =       (seq_t *)realloc(G,       newsize * sizeof(seq_t));
-        R =       (seq_t *)realloc(R,       newsize * sizeof(seq_t));
-        B =       (seq_t *)realloc(B,       newsize * sizeof(seq_t));
-        S_RG =    (seq_t *)realloc(S_RG,    newsize * sizeof(seq_t));
-        S_RB =    (seq_t *)realloc(S_RB,    newsize * sizeof(seq_t));
-        S_RGB =   (seq_t *)realloc(S_RGB,   newsize * sizeof(seq_t));
+        G =       mem_resize(seq_t, G, newsize);
+        R =       mem_resize(seq_t, R, newsize);
+        B =       mem_resize(seq_t, B, newsize);
+        S_RG =    mem_resize(seq_t, S_RG, newsize);
+        S_RB =    mem_resize(seq_t, S_RB, newsize);
+        S_RGB =   mem_resize(seq_t, S_RGB, newsize);
 
         /* Zero new parts */
         if (size > 0) {
-            memset(G + size,       0, (newsize - size) * sizeof(seq_t));
-            memset(R + size,       0, (newsize - size) * sizeof(seq_t));
-            memset(B + size,       0, (newsize - size) * sizeof(seq_t));
-            memset(S_RG + size,    0, (newsize - size) * sizeof(seq_t));
-            memset(S_RB + size,    0, (newsize - size) * sizeof(seq_t));
-            memset(S_RGB + size,   0, (newsize - size) * sizeof(seq_t));
+            mem_set(G + size, 0, (newsize - size) * sizeof(seq_t));
+            mem_set(R + size, 0, (newsize - size) * sizeof(seq_t));
+            mem_set(B + size, 0, (newsize - size) * sizeof(seq_t));
+            mem_set(S_RG + size, 0, (newsize - size) * sizeof(seq_t));
+            mem_set(S_RB + size, 0, (newsize - size) * sizeof(seq_t));
+            mem_set(S_RGB + size, 0, (newsize - size) * sizeof(seq_t));
         }
 
         /* Initial conditions (they are required before any recursion). */

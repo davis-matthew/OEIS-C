@@ -12,7 +12,8 @@
  *            term in row k is obtained and num_j are integers defined b...
  * Range:     i8 n <= 15, i16 n <= 32, i32 n <= 42, i64 n <= 42, i128 n <= 42,
  *            big any n
- * Helpers:   binom, count_terms_upto, pow2
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/count_terms_upto.h"
+#include "../utils/mem.h"
+
+static inline idx_t count_terms_upto(idx_t r)
+/* number of terms in the triangle up to and including row r */
+{
+    idx_t m   = r + 1;              /* number of rows counted */
+    idx_t q   = m >> 1;             /* m/2 */
+    idx_t sum_floor;
+    if ((m & 1) == 0)               /* m even: m = 2q   */
+        sum_floor = q * q;          /* sum_{t=1}^{2q}⌊t/2⌋ = q² */
+    else                            /* m odd : m = 2q+1 */
+        sum_floor = q * (q + 1);    /* sum_{t=1}^{2q+1}⌊t/2⌋ = q(q+1) */
+    return m + sum_floor;           /* 1 per row + sum_floor */
+}
 
 /* ---------- helpers for determining the row ----------------- */
 
@@ -47,7 +62,7 @@ static void ensure_num_upto(idx_t upto)
         return;
     size_t oldlen = num_len;
     size_t newlen = upto + 1;
-    num_arr = (seq_t *)realloc(num_arr, newlen * sizeof(seq_t));
+    num_arr = mem_resize(seq_t, num_arr, newlen);
     for (size_t i = oldlen; i <= upto; ++i) {
         if (i == 0) {                /* base case */
             num_arr[0] = 1;          /* num_0 = 1 */
@@ -56,7 +71,7 @@ static void ensure_num_upto(idx_t upto)
         idx_t k = (idx_t)i;
         seq_t S = 0;
         for (idx_t t = 0; t < k; ++t) {
-            seq_t term = binom(k, t);
+            seq_t term = binomial(k, t);
             term *= num_arr[t];
             term *= pow2(k - t);
             S += term;
@@ -87,7 +102,7 @@ seq_t a(idx_t n)
 
     /* compute the term:
          a(n) = binom(row, j) * num_j * 2^(row - j)   */
-    seq_t result = binom(row, j);
+    seq_t result = binomial(row, j);
     result *= num_arr[j];
     result *= pow2(row - j);
     return result;

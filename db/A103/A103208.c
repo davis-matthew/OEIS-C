@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9648 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state -----------------------------------------------------------*/
 static seq_t *results = NULL;     /* Found k values (a(n))   */
@@ -35,10 +37,10 @@ static void ensure_res_capacity(void)
     static size_t res_cap = 0;
     if (res_cap == 0) {
         res_cap = 64;
-        results = (seq_t*)malloc(res_cap * sizeof(seq_t));
+        results = mem_new(seq_t, res_cap);
     } else if (res_count >= res_cap) {
         res_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(results, res_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, results, res_cap);
         if (!tmp) return;           /* allocation failure – unlikely */
         results = tmp;
     }

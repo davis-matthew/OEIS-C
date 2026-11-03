@@ -8,12 +8,13 @@
  *            3)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 7,
  *            big any n
- * Helpers:   a000272_ipow
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000272_ipow.h"
+#include "../utils/ipow_idx.h"
 
 static idx_t gcd_u64(idx_t a, idx_t b) {
     while (b) {
@@ -26,7 +27,7 @@ static idx_t gcd_u64(idx_t a, idx_t b) {
 
 seq_t a(idx_t n) {
     idx_t exponent = (n * (n + 1)) / 2;
-    seq_t result = a000272_ipow((seq_t)4, exponent);
+    seq_t result = ipow_idx((seq_t)4, exponent);
     
     seq_t power_of_4 = (seq_t)16;
     for (idx_t i = 2; i <= n + 1; i++) {

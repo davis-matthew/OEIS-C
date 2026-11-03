@@ -9,12 +9,15 @@
  * Formula:   a(n) = 4^popcount(floor(n/2)) * (n%2 ? 5 : 1)
  * Range:     u8 n <= 14, u16 n <= 254, u32 n <= 300, u64 n <= 300,
  *            u128 n <= 300, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 77 terms through n = 279 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* count set bits in an unsigned 64‑bit integer */
 static inline unsigned popcount_u64(idx_t x) {
@@ -31,7 +34,7 @@ seq_t a(idx_t n) {
     idx_t m = n >> 1;                  /* floor(n/2) */
     unsigned k = popcount_u64(m);      /* exponent of 4 */
 
-    seq_t result = big_pow((seq_t)4, (seq_t)k);   /* 4^k */
+    seq_t result = ipow((seq_t)4, (seq_t)k);   /* 4^k */
 
     if (n & 1)                         /* odd n -> multiply by 5 */
         result *= (seq_t)5;

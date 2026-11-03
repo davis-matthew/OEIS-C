@@ -7,7 +7,8 @@
  * Formula:   a(n) = A294998(n)^3 (cubes whose largest decimal digit is 8)
  * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 450, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cube_largest_digit_is8
+ * Validated: standard, pass, 52 terms through n = 9877 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,20 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/cube_largest_digit_is8.h"
+#include "../utils/mem.h"
+
+static bool cube_largest_digit_is8(seq_t cube)
+{
+    bool has8 = false;
+    seq_t maxdigit = 0;
+    while (cube > 0) {
+        seq_t d = cube % 10;
+        if (d > maxdigit) maxdigit = d;
+        if (d == 8) has8 = true;
+        cube /= 10;
+    }
+    return has8 && maxdigit == 8;
+}
 
 seq_t a(idx_t n)
 {
@@ -28,7 +42,7 @@ seq_t a(idx_t n)
     /* if cache is empty, allocate a small initial block */
     if (cache_len == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* extend cache until we have the requested n-th term */
@@ -46,7 +60,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap) {
                 /* grow cache, double capacity */
                 size_t new_cap = cache_cap * 2;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (!new_cache) { /* allocation failure; abort gracefully */
                     abort();
                 }

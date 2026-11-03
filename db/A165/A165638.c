@@ -7,13 +7,15 @@
  * Formula:   a(0) = 1, a(1) = 6, a(n) = -6*a(n-1) + 12 for n >= 2
  * Range:     i8 n <= 2, i16 n <= 5, i32 n <= 12, i64 n <= 19, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Initialise cache with a(0) = 1 if not done yet. */
     if (cache == NULL) {
         cache_allocated = 1;
-        cache = (seq_t *)malloc(cache_allocated * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_allocated);
         if (!cache) { return 0; }        /* kernel fallback; not expected */
         cache[0] = 1;
         last_computed = 0;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         size_t new_alloc = cache_allocated ? cache_allocated : 64;
         while (new_alloc < needed)
             new_alloc <<= 1;           /* double until sufficient */
-        seq_t *tmp = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_alloc);
         if (!tmp) { return 0; }       /* allocation failed */
         cache = tmp;
         cache_allocated = new_alloc;

@@ -7,13 +7,30 @@
  * Formula:   a(n) computed by 3‑adic Hensel lifting for sqrt(-1/2)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_uint_cap
+ * Validated: standard, pass, 113 terms through n = 9748 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/ensure_uint_cap.h"
+#include "../utils/mem.h"
+
+/* Ensure that an unsigned integer array has at least 'needed' elements. */
+static void
+ensure_uint_cap(unsigned int **arr, size_t *cap, size_t needed)
+{
+    if (*cap < needed) {
+        size_t new_cap = *cap ? *cap * 2 : 16;
+        if (new_cap < needed) new_cap = needed;
+        unsigned int *tmp = (unsigned int *)realloc(*arr, new_cap * sizeof(unsigned int));
+        if (!tmp) abort();
+        /* zero newly allocated part */
+        for (size_t i = *cap; i < new_cap; ++i) tmp[i] = 0;
+        *arr   = tmp;
+        *cap   = new_cap;
+    }
+}
 
 /* Static workspace for the digits of the 3‑adic integer and its square. */
 static seq_t   *digits    = NULL;   /* base‑3 digits of the 3‑adic integer */
@@ -31,7 +48,7 @@ ensure_seq_cap(seq_t **arr, size_t *cap, size_t needed)
     if (*cap < needed) {
         size_t new_cap = *cap ? *cap * 2 : 16;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) abort();
         *arr   = tmp;
         *cap   = new_cap;

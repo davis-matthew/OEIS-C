@@ -8,8 +8,9 @@
  * Formula:   a(n) = Σ_{d|n} A003602(n/d) * A003602(d) where A003602(n) =
  *            (odd_part(n)+1)/2 (odd_part(n) = n divided by the largest power
  *            of 2 dividing n)
- * Range:     u8 n <= 104, u16 n <= 9404, u32 n <= 9016, u64 n <= 9016,
- *            u128 n <= 9016, big any n
+ * Range:     u8 n <= 104, u16 n <= 9404, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 96 terms through n = 9016 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

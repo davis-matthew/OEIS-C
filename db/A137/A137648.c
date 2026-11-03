@@ -7,12 +7,14 @@
  * Formula:   a(n) = Σ_{k=0..n} C(k², k) · C(k², n‑k)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t a, idx_t b) */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -21,8 +23,8 @@ seq_t a(idx_t n)
         /* k² fits in idx_t for all intended n (≤ 10 000 gives k²≤10⁸) */
         idx_t m = k * k;
 
-        seq_t b1 = binom(m, k);
-        seq_t b2 = binom(m, n - k);
+        seq_t b1 = binomial(m, k);
+        seq_t b2 = binomial(m, n - k);
 
         sum += b1 * b2;
     }

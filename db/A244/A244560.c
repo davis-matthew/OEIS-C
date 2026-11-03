@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 80, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 938 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache of computed a[n] values */
 static seq_t *a_cache   = NULL;     /* array 0 .. cache_limit */
@@ -31,7 +33,7 @@ static void compute_up_to(idx_t new_limit)
     size_t limit = (size_t)new_limit;
 
     /* allocate array for b[n] */
-    seq_t *b_coef = (seq_t *)calloc(limit + 1, sizeof(seq_t));
+    seq_t *b_coef = mem_new(seq_t, limit + 1);
     if (!b_coef) return;
 
     /* fill b[n] */
@@ -50,14 +52,14 @@ static void compute_up_to(idx_t new_limit)
     size_t *idx = NULL;
     if (m > 0) {
         idx = (size_t *)calloc(m, sizeof(size_t));
-        if (!idx) { free(b_coef); return; }
+        if (!idx) { mem_free(b_coef); return; }
         size_t pos = 0;
         for (size_t i = 0; i <= limit; ++i) if (b_coef[i] != 0) idx[pos++] = i;
     }
 
     /* compute convolution square a[n] = Σ b[i]*b[n-i] */
-    seq_t *a_new = (seq_t *)calloc(limit + 1, sizeof(seq_t));
-    if (!a_new) { free(idx); free(b_coef); return; }
+    seq_t *a_new = mem_new(seq_t, limit + 1);
+    if (!a_new) { free(idx); mem_free(b_coef); return; }
 
     for (size_t ii = 0; ii < m; ++ii) {
         size_t i = idx[ii];
@@ -71,12 +73,12 @@ static void compute_up_to(idx_t new_limit)
     }
 
     /* replace old cache */
-    free(a_cache);
+    mem_free(a_cache);
     a_cache = a_new;
     cache_limit = limit;
 
     free(idx);
-    free(b_coef);
+    mem_free(b_coef);
 }
 
 seq_t a(idx_t n)

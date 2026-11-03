@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2725, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 66 terms through n = 9804 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,10 @@
 */
 
 #include <stdbool.h>
-#include "../utils/mod_pow.h"   /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 static seq_t base_residues[22];
 static bool initialized = false;
@@ -46,7 +50,7 @@ init_base_residues(void)
     const seq_t mod = (seq_t)529;          /* 23² */
     idx_t count = 0;
     for (idx_t k = 1; k < 529; ++k) {
-        if (mod_pow((seq_t)k, 22, mod) == (seq_t)1) {
+        if (powmod((seq_t)k, 22, mod) == (seq_t)1) {
             base_residues[count++] = (seq_t)k;
         }
     }

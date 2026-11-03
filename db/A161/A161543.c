@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: deterministic Miller‑Rabin for 64‑bit values (tuned for speed). */
 static inline bool is_prime_u64(uint64_t n)
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* initialise the array on first call */
     if (cap == 0) {
         cap = 32;
-        seq = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, NULL, cap);
     }
 
     /* generate new terms until we have at least n of them */
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         if (!is_prime_u64((uint64_t)sum)) {
             if (sz == cap) {        /* grow the array */
                 cap <<= 1;
-                seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, cap);
             }
             seq[sz++] = composite;
         }

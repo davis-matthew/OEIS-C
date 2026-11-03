@@ -8,6 +8,7 @@
  * Formula:   a(n) = S(n,8) (Stirling numbers of the second kind)
  * Range:     u8 n <= 9, u16 n <= 11, u32 n <= 16, u64 n <= 26, u128 n <= 26,
  *            big any n
+ * Validated: partial, pass, 19 terms through n = 26 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

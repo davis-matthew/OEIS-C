@@ -7,14 +7,16 @@
  * Formula:   a(n) = 4^(p_n^2) (p_n = n‑th prime, n≥1)
  * Range:     u8 none, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>    /* malloc, realloc, abort */
 #include <stdbool.h>   /* bool */
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 /* Dynamic cache of primes for fast nth_prime queries. */
 static uint64_t *prime_list   = NULL; /* array of known primes */
@@ -77,5 +79,5 @@ seq_t a(idx_t n)
     idx_t exponent = (idx_t)((uint64_t)2 * p * p);
 
     /* Return 2^exponent.  pow_seq handles big integers if seq_t is big. */
-    return pow_seq((seq_t)2, exponent);
+    return ipow_idx((seq_t)2, exponent);
 }

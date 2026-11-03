@@ -8,7 +8,8 @@
  *            binomial(n-2*k-1, k)/(n-2*k)!
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 12, i64 n <= 19, i128 n <= 31,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 38 terms through n = 416 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Auxiliary: integer power for seq_t */
 static seq_t int_pow_seq(seq_t base, idx_t exp)
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)1;
 
     /* Pre‑compute factorials up to n in a small array. */
-    seq_t *fact = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+    seq_t *fact = mem_new(seq_t, (n + 1));
     if (!fact) return 0;                  /* allocation failure – return 0 */
     fact[0] = 1;
     for (idx_t i = 1; i <= n; ++i)
@@ -70,6 +73,6 @@ seq_t a(idx_t n)
         sum = sum + term;
     }
 
-    free(fact);
+    mem_free(fact);
     return sum;
 }

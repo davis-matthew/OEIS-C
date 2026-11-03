@@ -9,19 +9,20 @@
  *            j < i)
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   sqrt_floor128
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-01)
+ * Helpers:   isqrt_u128_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sqrt_floor128.h"
+#include "../utils/isqrt_u128_to_u64.h"
 
 seq_t a(idx_t n)
 {
     /* n is 1‑based.  */
     /* Find i such that i(i‑1)/2 ≥ n.  */
     unsigned __int128 v = (unsigned __int128)8 * n + 1;     /* 1 + 8*n  */
-    unsigned long long r = sqrt_floor128(v);              /* floor(sqrt)  */
+    unsigned long long r = isqrt_u128_to_u64(v);              /* floor(sqrt)  */
     idx_t i = (idx_t)((r + 1) >> 1);                     /* (1 + r)/2   */
     /* Correct for possible rounding down.  */
     if ( (unsigned __int128)i * (i - 1) / 2 < n )

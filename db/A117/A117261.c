@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
     static idx_t cached_n = 0;          /* highest n for which cache is filled   */
     /* Allocate or extend cache if necessary */
     if (cache == NULL) {
-        cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (n + 1));
         if (cache == NULL) return 0;   /* allocation failure: return 0 */
         cache[0] = (seq_t)1;
         if (n == 0) return cache[0];
@@ -34,10 +37,10 @@ seq_t a(idx_t n)
     } else if (n > cached_n) {
         /* Reallocate larger array */
         size_t new_size = (n + 1) * sizeof(seq_t);
-        seq_t *tmp = (seq_t *)malloc(new_size);
+        seq_t *tmp = mem_new(seq_t, (new_size) / sizeof(seq_t));
         if (tmp == NULL) return 0;   /* allocation failure: return 0 */
-        memcpy(tmp, cache, (cached_n + 1) * sizeof(seq_t));
-        free(cache);
+        mem_copy(tmp, cache, (cached_n + 1) * sizeof(seq_t));
+        mem_free(cache);
         cache = tmp;
         /* Compute missing values */
         for (idx_t i = cached_n + 1; i <= n; ++i) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 13, u64 n <= 30, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- constants ----------
  * 5 digits (0..4) → 5³ possible triples = 125 states.
@@ -86,7 +88,7 @@ static void ensure_cache_capacity(size_t n)
 {
     if (a_cap >= n + 1) return;
     size_t new_cap = n + 1;
-    a_arr = (seq_t *)realloc(a_arr, sizeof(seq_t) * new_cap);
+    a_arr = mem_resize(seq_t, a_arr, new_cap);
     /* If realloc failed, a_arr will be NULL – the caller will abort. */
     a_cap = new_cap;
 }
@@ -102,8 +104,8 @@ static void compute_up_to(size_t n)
     /* Initialise DP for length 3 (the first 3 digits – trivial). */
     if (cur_len == 0) {
         cur_len    = 3;
-        state_cnt_cur  = (seq_t *)malloc(sizeof(seq_t) * STATE_SIZE);
-        state_cnt_next = (seq_t *)malloc(sizeof(seq_t) * STATE_SIZE);
+        state_cnt_cur  = mem_new(seq_t, STATE_SIZE);
+        state_cnt_next = mem_new(seq_t, STATE_SIZE);
         for (int s = 0; s < STATE_SIZE; ++s) {
             state_cnt_cur[s]  = 1;   /* one way to have any particular triple */
             state_cnt_next[s] = 0;

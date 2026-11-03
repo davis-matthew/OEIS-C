@@ -10,22 +10,25 @@
  *            modulo s
  * Range:     u8 n <= 623, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow, pow_uint
+ * Validated: standard, pass, 106 terms through n = 9857 (2026-11-01)
+ * Helpers:   ipow_u64_idx, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
-#include "../utils/pow_uint.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/powmod.h"
 
 static seq_t phi_of_5_pow(uint64_t e)
 {
     /* phi(5^e) = 5^e - 5^(e-1) = 5^(e-1)*4, for e>0; phi(1)=1 for e==0. */
     if (e == 0)
         return (seq_t)1;
-    seq_t pow5 = pow_uint(5, e);          /* 5^e */
+    seq_t pow5 = ipow_u64_idx(5, e);          /* 5^e */
     seq_t pow5_div5 = pow5 / (seq_t)5;    /* 5^(e-1) */
     return pow5 - pow5_div5;              /* 4*5^(e-1) */
 }
@@ -90,7 +93,7 @@ seq_t a(idx_t n)
             uint64_t p = factors[i];
             while (ord % p == 0) {
                 uint64_t candidate = ord / p;
-                if (mod_pow((seq_t)5, candidate, (seq_t)s) == (seq_t)1)
+                if (powmod((seq_t)5, candidate, (seq_t)s) == (seq_t)1)
                     ord = candidate;
                 else
                     break;

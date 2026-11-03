@@ -9,12 +9,14 @@
  *            (equivalently a(n) = 1 + Σ_{k=1..n} 2^k a(⌊log2 k⌋))
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 22, u64 n <= 53, u128 n <= 116,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 892 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline int floor_log2_u64(idx_t v) {
     int r = 0;
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     /* Initial allocation */
     if (cache_cap == 0) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;          /* allocation failure */
         cache[0] = (seq_t)1;
         last    = 0;
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
 
     /* Grow array if necessary */
     if ((size_t)(n + 1) > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) return (seq_t)0;          /* realloc failure */
         cache = tmp;
         cache_cap = n + 1;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/int_sqrt.h"   /* helper: int_sqrt(idx_t) */
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* ---------- primality utilities ---------- */
 static uint64_t *prime_list = NULL;   /* dynamic list of primes */
@@ -69,7 +71,7 @@ static uint64_t smallest_prime_factor(uint64_t n)
 {
     if ((n & 1ULL) == 0) return 2;
 
-    uint64_t limit = (uint64_t)int_sqrt(n);
+    uint64_t limit = (uint64_t)isqrt(n);
     prime_extend_to(limit);
     for (size_t i = 0; i < prime_len; ++i) {
         uint64_t p = prime_list[i];
@@ -114,8 +116,7 @@ seq_t a(idx_t n)
             /* extend cache if necessary */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 32;
-                seq_cache = (seq_t *)realloc(seq_cache,
-                                              new_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, new_cap);
                 cache_cap = new_cap;
             }
             seq_cache[cache_len++] = (seq_t)next_candidate;

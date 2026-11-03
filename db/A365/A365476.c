@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isqrt_uint32
+ * Validated: standard, pass, 109 terms through n = 9605 (2026-11-01)
+ * Helpers:   isqrt_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/isqrt_uint32.h"
+#include "../utils/isqrt_u32.h"
 
 /* ----------  sieve and list of odd composites ---------- */
 static const uint32_t SIEVE_LIMIT = 10000000;   /* large enough for the tests */
@@ -86,7 +87,7 @@ seq_t a(idx_t n)
     ensure_odd_composites(n);
 
     uint32_t m = odd_comps[n - 1];
-    uint32_t sqrt_m = isqrt_uint32(m);
+    uint32_t sqrt_m = isqrt_u32(m);
 
     seq_t min_prod = 0;
     bool first = true;

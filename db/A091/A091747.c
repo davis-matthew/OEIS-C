@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 25, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    row n has 2·n−1 elements, so indices 1 … n² belong to rows 1 … n.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- integer square‑root (floor) for 64‑bit values ------------------- */
 static idx_t floor_sqrt_u64(idx_t n)
@@ -52,10 +54,10 @@ seq_t a(idx_t n)
 
     /* Allocate working arrays for one row (size 2*r+1, indices 0 … 2*r) */
     size_t const sz = 2*r + 1;
-    seq_t *prev = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, sz);
+    seq_t *curr = mem_new(seq_t, sz);
     if (!prev || !curr) {          /* allocation failed */
-        free(prev); free(curr);
+        mem_free(prev); mem_free(curr);
         return 0;
     }
 
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
 
     seq_t result = prev[k];
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

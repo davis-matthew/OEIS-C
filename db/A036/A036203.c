@@ -9,6 +9,7 @@
  *            * result is 0
  * Range:     u8 n <= 222, u16 n <= 222, u32 n <= 222, u64 n <= 222,
  *            u128 n <= 222, big any n
+ * Validated: full, pass, 222 terms through n = 222 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   T_of_nk
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,35 @@
  */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/T_of_nk.h"
+
+/* Compute T(n,k) for given n,k (n>=1, k>=0). */
+static seq_t T_of_nk(idx_t n, idx_t k)
+{
+    seq_t sum = 0;
+    for (idx_t L = 1;; ++L) {
+        /* minimal sum for this L */
+        unsigned __int128 minSum = (unsigned __int128)L;
+        if (k != 0) {
+            unsigned __int128 LL = L;
+            unsigned __int128 KK = k;
+            minSum += KK * LL * (LL - 1) / 2;
+        }
+        if (minSum > n) break;                 /* no more L possible */
+        /* compute remainder after subtracting the k part */
+        unsigned __int128 rem = n;
+        if (k != 0) {
+            unsigned __int128 LL = L;
+            unsigned __int128 KK = k;
+            rem -= KK * LL * (LL - 1) / 2;
+        }
+        if (rem % L == 0) {
+            unsigned __int128 a = rem / L;
+            if (a >= 1)
+                sum += L;
+        }
+    }
+    return sum;
+}
 
 /* integer square root of an unsigned 128-bit number */
 static uint64_t isqrt128(unsigned __int128 x)

@@ -11,7 +11,8 @@
  *            sequence A177747
  * Range:     u8 n <= 9, u16 n <= 36, u32 n <= 378, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 885 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* External linkage as required */
 seq_t a(idx_t n)
@@ -35,8 +37,8 @@ seq_t a(idx_t n)
         size_t newcap = cap ? cap : 16;
         while (newcap < need) newcap <<= 1;
 
-        seq_t *nc = (seq_t *)realloc(c, newcap * sizeof(seq_t));
-        seq_t *nv = (seq_t *)realloc(val, newcap * sizeof(seq_t));
+        seq_t *nc = mem_resize(seq_t, c, newcap);
+        seq_t *nv = mem_resize(seq_t, val, newcap);
         /* In a real implementation we would check for NULLs,
            but the build environment guarantees enough memory. */
         c   = nc;

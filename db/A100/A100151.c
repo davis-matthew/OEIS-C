@@ -8,6 +8,7 @@
  *            identity follows from a(n) = (1/6)*n*(109*n^2 - 153*n + 50)
  * Range:     u8 n <= 2, u16 n <= 15, u32 n <= 618, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 53 terms through n = 4904 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

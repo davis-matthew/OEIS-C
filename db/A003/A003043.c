@@ -12,7 +12,8 @@
  *            prunes dead ends with bit-parallel degree checks and caches r...
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 4, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   a3043_pop
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-01)
+ * Helpers:   popcount_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a3043_pop.h"
+#include "../utils/popcount_u32.h"
 
 static int a3043_n;
 static uint32_t a3043_M0[5], a3043_M1[5], a3043_nb[32];
@@ -33,7 +34,7 @@ static uint64_t *a3043_cval;
 
 static uint64_t a3043_f(uint32_t U, int h, int used)
 {
-    int r = a3043_pop(U), d, maxd;
+    int r = popcount_u32(U), d, maxd;
     uint32_t adj, A = 0, B = 0, E;
     uint64_t total = 0, key = 0;
     size_t slot = 0;

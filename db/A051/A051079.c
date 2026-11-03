@@ -8,7 +8,8 @@
  *            solution
  * Range:     u8 n <= 17, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd_u64, mod_pow
+ * Validated: standard, pass, 70 terms through n = 959 (2026-11-03)
+ * Helpers:   gcd_u64, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
 #include "../utils/gcd_u64.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *qvals = NULL;           /* list of qualifying primes */
 static size_t qlen = 0, qcap = 0;
@@ -31,7 +34,7 @@ static inline void ensure_qcap(void)
 {
     if (qlen >= qcap) {
         size_t new_cap = qcap ? qcap * 2u : 8u;
-        seq_t *tmp = (seq_t *)realloc(qvals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, qvals, new_cap);
         qvals = tmp;
         qcap = new_cap;
     }
@@ -100,7 +103,7 @@ seq_t a(idx_t n)
         uint64_t exp = (p - 1u) / g;
         seq_t base = (seq_t)p - 2;          /* p – 2 ≡ –2 (mod p) */
         seq_t mod  = (seq_t)p;
-        seq_t r = mod_pow(base, exp, mod);
+        seq_t r = powmod(base, exp, mod);
         if (r == (seq_t)1u) {
             ensure_qcap();
             qvals[qlen++] = (seq_t)p;

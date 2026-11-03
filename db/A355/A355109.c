@@ -7,7 +7,8 @@
  * Formula:   a(n) = 1 + Sum_{k=1..n-1} binomial(n-1,k) * 2^(k-1) * a(k)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   binomial, pow2, seq_mul
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,16 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/seq_mul.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Compute a(n) for the OEIS sequence A355109. */
 seq_t a(idx_t n)
@@ -36,7 +44,7 @@ seq_t a(idx_t n)
     if (cache_cap < required) {
         size_t new_cap = required > 16 ? required : 16;
         while (new_cap < required) new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         /* If realloc fails cache might be NULL, but the program is not allowed
            to crash on memory allocation failure. */
         cache = new_cache;

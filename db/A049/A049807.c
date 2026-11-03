@@ -8,7 +8,8 @@
  * Formula:   a(n) = 1 + Σ_{b=2..n} #{a | 1 ≤ a ≤ ⌊b/3⌋ , gcd(a,b)=1}
  * Range:     u8 n <= 49, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* (= number of Farey fractions of order n that are ≤ 1/3) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Static storage for the cache and smallest‑prime‑factor sieve     */
@@ -34,7 +36,7 @@ static void precompute(idx_t target)
 {
     /* ---------- ensure array sizes ---------- */
     if (cache_cap < target + 1) {
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * (target + 1));
+        seq_t *new_cache = mem_resize(seq_t, cache, (target + 1));
         if (!new_cache) exit(EXIT_FAILURE);
         cache       = new_cache;
         cache_cap   = target + 1;
@@ -114,7 +116,7 @@ seq_t a(idx_t n)
     /* First call: initialise storage */
     if (cache == NULL) {
         cache_cap = 64;
-        cache     = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache     = mem_new(seq_t, cache_cap);
         if (!cache) exit(EXIT_FAILURE);
         cache_len = 0;
         spf_cap   = 0;

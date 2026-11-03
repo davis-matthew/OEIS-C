@@ -12,7 +12,8 @@
  *            (q^{\,n-r} - q^r)\,f_{n,r}(q). The sequence a(...
  * Range:     i8 n <= 91, i16 n <= 91, i32 n <= 91, i64 n <= 91, i128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 92 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Row data: for row r we keep poly[0 … r], each an array of coeffs up
    to exponent rows[r].len‑1.                                    */
@@ -53,7 +55,7 @@ static void ensure_rows(idx_t target)
 
         /* allocate coefficient arrays for each rank */
         for (idx_t rank = 0; rank <= r; ++rank) {
-            newrow.poly[rank] = (seq_t*)calloc((size_t)len, sizeof(seq_t));
+            newrow.poly[rank] = mem_new(seq_t, (size_t)len);
             if (newrow.poly[rank] == NULL) return;
         }
 

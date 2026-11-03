@@ -11,7 +11,8 @@
  *            point with a rigorous error bound, and only the...
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 37, u128 n <= 79,
  *            big any n
- * Helpers:   bn_addsmall, bn_divs
+ * Validated: standard, pass, 42 terms through n = 199 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/bn_addsmall.h"
-#include "../utils/bn_divs.h"
+
+static void bn_addsmall(uint32_t *a, size_t L, uint64_t v) {
+    size_t i;
+    for (i = 0; i < L && v; i++) {
+        v += a[i];
+        a[i] = (uint32_t)v;
+        v >>= 32;
+    }
+}
+
+static void bn_divs(uint32_t *dst, const uint32_t *src, size_t L, uint32_t d) {
+    uint64_t r = 0;
+    size_t i = L;
+    while (i-- > 0) {
+        uint64_t cur = (r << 32) | src[i];
+        dst[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+}
 
 static size_t bn_len(const uint32_t *x, size_t L) {
     while (L && !x[L - 1]) L--;

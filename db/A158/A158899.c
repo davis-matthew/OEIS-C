@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* ---------------------------------------------------------------------- */
 /* Simple prime sieve – rebuilt when more primes are needed.              */
@@ -90,7 +93,7 @@ static bool is_full_reptend_prime(uint64_t p)
     for (size_t i = 0; i < fc; ++i) {
         uint64_t q = fac[i];
         while (order % q == 0 &&
-               mod_pow((seq_t)10, order / q, (seq_t)p) == (seq_t)1) {
+               powmod((seq_t)10, order / q, (seq_t)p) == (seq_t)1) {
             order /= q;
         }
     }
@@ -127,8 +130,8 @@ seq_t a(idx_t n)
             /* Append 2*p to cache */
             if (cache_len == cache_cap) {
                 size_t newcap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
-                if (!tmp) { free(cache); exit(EXIT_FAILURE); }
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
+                if (!tmp) { mem_free(cache); exit(EXIT_FAILURE); }
                 cache = tmp;
                 cache_cap = newcap;
             }

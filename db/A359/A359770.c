@@ -8,13 +8,15 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n and bigomega(n) have different parity, else 0.
  *            a(n) = ((n mod 2) XOR (bigomega(n) mod 2))
- * Range:     u8 n <= 9943, u16 n <= 9943, u32 n <= 9943, u64 n <= 9943,
- *            u128 n <= 9943, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 137 terms through n = 9943 (2026-11-01)
  * Helpers:   bigomega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/bigomega.h"
 
 seq_t a(idx_t n)

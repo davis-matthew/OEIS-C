@@ -9,6 +9,7 @@
  * Formula:   a(n) = n^3/2 - n^2/4 - n + (n%2==1 && n>1 ? 3/4 : 0); a(1)=0
  * Range:     u8 n <= 6, u16 n <= 23, u32 n <= 23, u64 n <= 23, u128 n <= 23,
  *            big any n
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

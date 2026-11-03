@@ -10,9 +10,10 @@
  *            (Amdeberhan-Zeilberger); evaluated in binary fixed point, then
  *            a(1) = integer part, a(n) = (n-1)-th decimal digit after the
  *            point
- * Range:     u8 n <= 9872, u16 n <= 9872, u32 n <= 9872, u64 n <= 9872,
- *            u128 n <= 9872, big any n
- * Helpers:   z3_addmul, z3_divsm, z3_mulsm
+ * Range:     u8 n <= 20002, u16 n <= 20002, u32 n <= 20002, u64 n <= 20002,
+ *            u128 n <= 20002, big any n
+ * Validated: standard, pass, 124 terms through n = 9872 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,41 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/z3_addmul.h"
-#include "../utils/z3_divsm.h"
-#include "../utils/z3_mulsm.h"
+
+static void z3_addmul(uint32_t *acc, size_t L, const uint32_t *t, size_t hi, uint32_t m) {
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < hi; i++) {
+        uint64_t v = (uint64_t)t[i] * m + acc[i] + c;
+        acc[i] = (uint32_t)v;
+        c = v >> 32;
+    }
+    for (; c && i < L; i++) {
+        uint64_t v = (uint64_t)acc[i] + c;
+        acc[i] = (uint32_t)v;
+        c = v >> 32;
+    }
+}
+
+static void z3_divsm(uint32_t *x, size_t L, uint32_t d) {
+    uint64_t r = 0;
+    size_t i = L;
+    while (i-- > 0) {
+        uint64_t v = (r << 32) | x[i];
+        x[i] = (uint32_t)(v / d);
+        r = v % d;
+    }
+}
+
+static void z3_mulsm(uint32_t *x, size_t L, uint32_t m) {
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t v = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)v;
+        c = v >> 32;
+    }
+}
 
 static unsigned char *z3_dig = NULL;
 static size_t z3_ndig = 0;

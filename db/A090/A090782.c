@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* maximum bound for n – chosen large enough to contain at least
    10 000 terms (empirically it gives roughly 30 000 terms).  */
@@ -90,13 +92,13 @@ static void a090782_init(void)
     for (size_t n = 4; n <= MAX_N; ++n) {
         if (cnt[n] == 3) {
             /* grow temporary array */
-            seq_t *newptr = (seq_t*)realloc(tmp, (tlen + 1) * sizeof(seq_t));
+            seq_t *newptr = mem_resize(seq_t, tmp, (tlen + 1));
             if (!newptr) {
                 /* allocation failed – signal failure */
                 free(cnt);
                 free(is_prime);
                 free(primes);
-                free(tmp);
+                mem_free(tmp);
                 return;
             }
             tmp = newptr;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = the (n)-th integer > 3 such that 2*a(n)-5 is composite
  * Range:     u8 n <= 156, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 78 terms through n = 998 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"   /* provides bool is_prime_small(uint64_t) */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t  cache_size = 0;   /* number of terms stored */
@@ -31,7 +33,7 @@ static idx_t  last_checked = 3; /* last integer candidate examined */
 static void grow_cache(void)
 {
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (tmp == NULL) {
         /* In a sequence generation context we can abort on allocation
            failure; no output is required. */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
 
         if (cand > 3) {
             uint64_t m = (uint64_t)2 * cand - 5; /* compute 2*cand-5 */
-            bool prime = is_prime_small(m);
+            bool prime = is_prime_seq(m);
             if (!prime) {                      /* composite or not prime */
                 if (cache_size == cache_cap)
                     grow_cache();

@@ -6,8 +6,9 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) = T(r,c) where r = floor((sqrt(8*n+1)-1)/2), c = n -
  *            r*(r+1)/2 and T(r,c) = r + 2*c*(r-c)
- * Range:     u8 n <= 261, u16 n <= 9194, u32 n <= 9194, u64 n <= 9194,
- *            u128 n <= 9194, big any n
+ * Range:     u8 n <= 261, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 82 terms through n = 9194 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

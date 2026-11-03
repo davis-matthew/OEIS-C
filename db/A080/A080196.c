@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 539, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9225 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Used primes for 13‑smooth numbers (primes <=13) */
 static const seq_t fprimes[6] = {(seq_t)2, (seq_t)3, (seq_t)5,
@@ -43,7 +45,7 @@ static void ensure_smooth_len(idx_t needed)   /* needed is zero‑based index */
     /* initialise the first element */
     if (smooth_len == 0) {
         smooth_cap = 1;
-        smooth = (seq_t *)malloc(smooth_cap * sizeof(seq_t));
+        smooth = mem_new(seq_t, smooth_cap);
         smooth[0] = (seq_t)1;
         smooth_len = 1;
     }
@@ -52,7 +54,7 @@ static void ensure_smooth_len(idx_t needed)   /* needed is zero‑based index */
     if (smooth_cap <= (size_t)needed) {
         size_t new_cap = smooth_cap ?: 1;
         while (new_cap <= (size_t)needed) new_cap <<= 1;
-        smooth = (seq_t *)realloc(smooth, new_cap * sizeof(seq_t));
+        smooth = mem_resize(seq_t, smooth, new_cap);
         smooth_cap = new_cap;
     }
 

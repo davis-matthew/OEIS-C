@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   cmp_size_t
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,14 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/cmp_size_t.h"
+
+/* Compare function for qsort on size_t values. */
+static int cmp_size_t(const void *a, const void *b)
+{
+    size_t x = *(const size_t *)a;
+    size_t y = *(const size_t *)b;
+    return (x > y) - (x < y);
+}
 
 /* Return the number of distinct permutations of a multiset stored
    in arr[0 .. cnt-1] (arr contains the elements, not their

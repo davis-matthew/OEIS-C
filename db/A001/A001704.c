@@ -5,14 +5,21 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   a(n) = n concatenated with n + 1
- * Range:     u8 n <= 8, u16 n <= 98, u32 n <= 9677, u64 n <= 9677,
- *            u128 n <= 9677, big any n
- * Helpers:   pow10_helper
+ * Range:     u8 n <= 8, u16 n <= 98, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 61 terms through n = 9677 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10_helper.h"
+static seq_t pow10_helper(int k) {
+    seq_t result = 1;
+    for (int i = 0; i < k; i++) {
+        result *= 10;
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     seq_t nseq = (seq_t)n;

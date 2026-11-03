@@ -9,11 +9,13 @@
  *            (bigOmega). For each i, Ω(i) ≥ 1, so all divisions are exact
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 32, u64 n <= 61, u128 n <= 113,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 2351 (2026-11-01)
  * Helpers:   bigomega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/bigomega.h"
 
 seq_t a(idx_t n)

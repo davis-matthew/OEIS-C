@@ -12,13 +12,15 @@
  *            The recurrence uses only additions, subtractio...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 472 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Standard allocation functions; the cast is required for C++ */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  The sequence calculator.  It uses a static memoised cache so that
     calls may occur in any order. */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     /*  Initialise cache with the first known term.  */
     if (cache == NULL) {
-        cache = (seq_t *)calloc(1, sizeof(seq_t));   /* allocate a[0]   */
+        cache = mem_new(seq_t, 1);   /* allocate a[0]   */
         if (cache == NULL) return (seq_t)0;          /* out of memory   */
         cache[0] = (seq_t)1;
         cache_size = 1;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     /*  Extend cache if the requested index is beyond the current size. */
     if (n >= cache_size) {
-        cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (cache == NULL) return (seq_t)0;          /* out of memory   */
 
         for (idx_t i = cache_size; i <= n; ++i) {

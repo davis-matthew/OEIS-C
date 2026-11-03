@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * arbitrary order of calls. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Prime colors used by the packing coloring. */
 static const idx_t prime_colors[8] = {2, 3, 5, 7, 11, 13, 17, 19};
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Ensure cache can hold the new element. */
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) abort();
         cache      = tmp;
         cache_cap  = new_cap;

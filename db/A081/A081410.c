@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) + a(n-2) + (n mod 3)
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 46, u64 n <= 92, u128 n <= 184,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *buf = NULL;      /* buffer of computed terms, 0‑based for n=1 */
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     /* Ensure the first two terms are initialized */
     if (len == 0) {
         cap = 4;
-        buf = (seq_t*)malloc(cap * sizeof(seq_t));
+        buf = mem_new(seq_t, cap);
         buf[0] = (seq_t)1;          /* a(1) */
         buf[1] = (seq_t)1;          /* a(2) */
         len = 2;
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
         size_t new_cap = cap;
         while (len + (n - len) > new_cap)
             new_cap *= 2;
-        buf = (seq_t*)realloc(buf, new_cap * sizeof(seq_t));
+        buf = mem_resize(seq_t, buf, new_cap);
         cap = new_cap;
     }
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 29, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   seq_cmp
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
    The sequence is the concatenation of the rows. */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_cmp.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,7 +52,7 @@ seq_t a(idx_t n)
 
     if (row_sizes[r] == 0) {
         size_t sz = (size_t)1 << r;
-        seq_t *row = (seq_t *)malloc(sz * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, sz);
         if (!row) { /* out of memory – abort */
             abort();
         }
@@ -63,7 +74,7 @@ seq_t a(idx_t n)
         }
 
         /* sort the row in ascending order */
-        qsort(row, sz, sizeof(seq_t), seq_cmp);
+        mem_qsort(row, sz, sizeof(seq_t), seq_cmp);
 
         rows[r] = row;
         row_sizes[r] = sz;

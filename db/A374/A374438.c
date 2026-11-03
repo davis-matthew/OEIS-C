@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   _triangle_row_for, _umul128
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,32 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_triangle_row_for.h"
-#include "../utils/_umul128.h"
+
+/* 128‑bit multiplication helper for 64‑bit indices. */
+static inline unsigned __int128 _umul128(idx_t a, idx_t b)
+{
+    return (unsigned __int128)a * b;
+}
+
+/* Find the row r such that r(r+1)/2 <= n < (r+1)(r+2)/2. */
+static idx_t _triangle_row_for(idx_t n)
+{
+    idx_t low = 0, high = 1;
+    /* Increase high exponentially until it exceeds n. */
+    while (_umul128(high, high + 1) / 2 <= n) {
+        if (high >= (UINT64_MAX >> 1)) { high = UINT64_MAX; break; }
+        high <<= 1;
+    }
+    /* Binary search on [low, high] */
+    while (low < high) {
+        idx_t mid = low + (high - low + 1) / 2;
+        if (_umul128(mid, mid + 1) / 2 <= n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 /* Row storage: up to 256 rows; covers n <= 10^7 safely. */
 #define MAX_ROWS 256

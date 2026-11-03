@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, frac
  * Formula:   not stated
- * Range:     u8 n <= 9140, u16 n <= 9140, u32 n <= 9140, u64 n <= 9140,
- *            u128 n <= 9140, big any n
- * Helpers:   cmp_uint32, gcd
+ * Range:     u8 n <= 10079, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9140 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"   /* seq_t gcd(seq_t, seq_t) */
-#include "../utils/cmp_uint32.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+static int cmp_uint32(const void *a, const void *b)
+{
+    return (*(const uint32_t *)a) - (*(const uint32_t *)b);
+}
 
 /* ------------------------------------------------------------------ */
 /*  Divisor tables for quick access to all d > 1 with d | n          */
@@ -120,7 +126,7 @@ static seq_t lookup_cache(CacheEntry **table, uint64_t n, uint64_t min)
 static void store_cache(CacheEntry **table, uint64_t n, uint64_t min, seq_t val)
 {
     size_t h = hash_key(n, min);
-    CacheEntry *e = (CacheEntry *)malloc(sizeof(CacheEntry));
+    CacheEntry *e = mem_new(CacheEntry, 1);
     if (!e) abort();
     e->n = n;
     e->min = min;

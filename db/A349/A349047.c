@@ -6,8 +6,9 @@
  * Keywords:  sign
  * Formula:   a(n) = Sum_{k=0..floor(n/3)} (-1)^k * binomial(n-k, 2*k) *
  *            Catalan(k)
- * Range:     i8 n <= 9, i16 n <= 18, i32 n <= 37, i64 n <= 70, i128 n <= 136,
+ * Range:     i8 n <= 12, i16 n <= 21, i32 n <= 38, i64 n <= 70, i128 n <= 136,
  *            big any n
+ * Validated: standard, pass, 53 terms through n = 981 (2026-11-01)
  * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* A349047 – signed sequence defined by a(0)=a(1)=a(2)=1 and for n≥3: */
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/catalan.h"
 

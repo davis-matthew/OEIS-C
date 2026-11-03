@@ -9,15 +9,40 @@
  *            of n, or 0 if no such composite exists
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   digits_to_value, next_perm
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digits_to_value.h"
-#include "../utils/next_perm.h"
+#include <stdlib.h>
+
+static uint64_t digits_to_value(const int *dig, int len)
+{
+    uint64_t val = 0;
+    for (int i = 0; i < len; ++i) val = val * 10 + (uint64_t)dig[i];
+    return val;
+}
+
+/* next permutation in lexicographic order.  Returns true if a next
+   permutation exists, false if the array is at its last permutation.   */
+static bool next_perm(int *a, int n) {
+    int i = n - 2;
+    while (i >= 0 && a[i] >= a[i + 1]) --i;
+    if (i < 0) return false;
+
+    int j = n - 1;
+    while (a[j] <= a[i]) --j;
+
+    int tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+
+    for (int l = i + 1, r = n - 1; l < r; ++l, --r) {
+        tmp = a[l]; a[l] = a[r]; a[r] = tmp;
+    }
+    return true;
+}
 
 /* is_prime checks whether x is a prime number.  Works up to 2^64 */
 static bool is_prime(uint64_t x)

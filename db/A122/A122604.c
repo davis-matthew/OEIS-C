@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 22, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const int REC[10] = {
     /* d0 = -1 */ -1,
@@ -47,12 +49,11 @@ seq_t a(idx_t n)
     /* Expand cache if necessary */
     if (n > cached_n) {
         idx_t new_n = n;
-        cache = (seq_t *)realloc(cache, (new_n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (new_n + 1));
         if (!cache) return 0;          /* allocation failure – return 0 */
 
         /* initialise any new cells with zero (realloc does not clear) */
-        memset(cache + cached_n + 1, 0,
-               (new_n - cached_n) * sizeof(seq_t));
+        mem_set(cache + cached_n + 1, 0, (new_n - cached_n) * sizeof(seq_t));
 
         /* fill in required terms */
         for (idx_t i = cached_n + 1; i <= new_n; ++i) {

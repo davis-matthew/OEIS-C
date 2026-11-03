@@ -11,24 +11,26 @@
  *            sizes
  * Range:     u8 n <= 22, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for calloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate arrays to hold counts of partitions with even or odd
        number of parts for every sum up to n.  Use calloc to zero them. */
-    seq_t *even = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *odd  = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *even = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *odd  = mem_new(seq_t, (size_t)(n + 1));
     if (!even || !odd)
     {
         /* In case of allocation failure, return 0 (unlikely for small n). */
-        if (even) free(even);
-        if (odd)  free(odd);
+        if (even) mem_free(even);
+        if (odd)  mem_free(odd);
         return (seq_t)0;
     }
 
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     /* The desired sequence value is the number of partitions of n with an
        even number of parts.  Store it before freeing the arrays. */
     seq_t result = even[n];
-    free(even);
-    free(odd);
+    mem_free(even);
+    mem_free(odd);
     return result;
 }

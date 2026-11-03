@@ -10,14 +10,25 @@
  *            concatenating 1,2,…,n and D(n) is the number of digits in S(n)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 9, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   pow10, seq_gcd
+ * Validated: standard, pass, 35 terms through n = 368 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/seq_gcd.h"
+#include <stdint.h>
+#include "../utils/gcd.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,6 +50,6 @@ seq_t a(idx_t n)
     }
 
     seq_t denom = pow10(D);               /* 10^D   */
-    seq_t g     = seq_gcd(S, denom);      /* gcd(S,10^D)   */
+    seq_t g     = gcd(S, denom);      /* gcd(S,10^D)   */
     return S / g;                         /* numerator after reduction   */
 }

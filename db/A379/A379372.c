@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2757, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 62 terms through n = 9824 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Test whether a 64‑bit integer is sphenic (product of exactly three distinct
    primes, each to the first power). */
@@ -51,7 +54,7 @@ seq_t a(idx_t n)
     /* Grow cache as needed.  Use a simple doubling strategy. */
     if (cache == NULL) {
         cap = 256;
-        cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
     }
 
     while (size < n) {
@@ -72,7 +75,7 @@ seq_t a(idx_t n)
         /* Resize cache if it's full. */
         if (size == cap) {
             cap <<= 1;
-            cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
         }
     }
 

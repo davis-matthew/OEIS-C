@@ -11,13 +11,15 @@
  *            34561254, c_10 = 9994985, c_11 = 1552772,...
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 6, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     idx_t maxk = n < 14 ? n : 14;
     for (idx_t k = 0; k <= maxk; ++k)
     {
-        seq_t bin = binom(n + 13 - k, 13);
+        seq_t bin = binomial(n + 13 - k, 13);
         sum += coef[k] * bin;
     }
     return sum;

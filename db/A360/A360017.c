@@ -12,7 +12,8 @@
  *            n ≥ 1 and is efficient enough to compute the fir...
  * Range:     u8 n <= 5, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------- */
 /* Global static state used by the generation routine                   */
@@ -147,7 +149,7 @@ seq_t a(idx_t n) {
     if (!seq) {
         /* Allocate some initial memory for the sequence */
         seq_cap = 16;
-        seq     = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq     = mem_new(seq_t, seq_cap);
         if (!seq) exit(EXIT_FAILURE);
         seq_len = 0;
         rebuild_sieve(4096U);  /* start with a modest sieve size */
@@ -167,7 +169,7 @@ seq_t a(idx_t n) {
             /* Append to our sequence */
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2U : 16U;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
                 if (!seq) exit(EXIT_FAILURE);
             }
             seq[seq_len++] = (seq_t)next_candidate;

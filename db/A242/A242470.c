@@ -12,12 +12,14 @@
  *            rules. The state space has 8*8*8 = 512 states. Complex...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 24, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* fixed number of DP states: max_used (0..7), last1 (0..7), last2 (0..7) */
 #define STATE_COUNT 512
@@ -30,8 +32,8 @@ static void init_dp_arrays(void)
 {
     if (dp_cur == NULL)
     {
-        dp_cur  = (seq_t *)malloc(STATE_COUNT * sizeof(seq_t));
-        dp_next = (seq_t *)malloc(STATE_COUNT * sizeof(seq_t));
+        dp_cur  = mem_new(seq_t, STATE_COUNT);
+        dp_next = mem_new(seq_t, STATE_COUNT);
         /* zero them */
         for (int i = 0; i < STATE_COUNT; ++i)
         {

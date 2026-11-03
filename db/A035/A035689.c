@@ -11,6 +11,7 @@
  *            inclusion–exclusion (subtract partitions with only one type)
  * Range:     u8 n <= 72, u16 n <= 178, u32 n <= 511, u64 n <= 1652,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 90 terms through n = 4166 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

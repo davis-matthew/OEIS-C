@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   is_palseq
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   is_palindrome, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_palseq.h"
+#include "../utils/is_palindrome.h"
+#include "../utils/mem.h"
 
 /* Cache of found terms */
 static seq_t *cache = NULL;
@@ -36,7 +38,7 @@ static void cache_append(seq_t v)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);
         cache = tmp;
         cache_cap = new_cap;
@@ -86,7 +88,7 @@ static void sieve_collect(idx_t lim)
 
             /* Complement */
             seq_t comp = pow10 - p;
-            if (is_palseq(comp)) {
+            if (is_palindrome(comp)) {
                 cache_append(p);
             }
         }

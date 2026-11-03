@@ -8,7 +8,8 @@
  *            numbers ≤ p_n plus 1)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   estimate_prime_upper_bound
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,16 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/estimate_prime_upper_bound.h"
+#include <math.h>
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 static idx_t  max_n          = 0;            /* largest n we have prepared for        */
 static uint8_t* is_prime     = NULL;         /* sieve array, 1 = prime, 0 = composite */

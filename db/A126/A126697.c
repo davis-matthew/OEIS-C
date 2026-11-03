@@ -9,13 +9,15 @@
  *            of n that occurs among a(0),a(1),...,a(n-1)
  * Range:     u8 n <= 34, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;  /* array of computed sequence terms */
 static idx_t seq_len   = 0;      /* number of terms currently stored (>=1 after init) */
@@ -45,7 +47,7 @@ static void ensure_up_to(idx_t n)
     /* initialise for n==0 */
     if (seq_len == 0) {
         size_t init_cap = (n + 1 > 16) ? n + 1 : 16;
-        seq_cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, init_cap);
         seq_cap   = init_cap;
         seq_cache[0] = (seq_t)1;
         seq_len = 1;
@@ -56,7 +58,7 @@ static void ensure_up_to(idx_t n)
         size_t new_cap = seq_cap;
         while (new_cap <= (size_t)(n + 1))
             new_cap = new_cap ? new_cap << 1 : 16;
-        seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         seq_cap   = new_cap;
     }
 

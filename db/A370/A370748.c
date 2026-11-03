@@ -8,9 +8,10 @@
  * Formula:   a(0) = 1; a(n) = A137564( Σ_{k=0}^{n-1} a(k) ), where A137564
  *            preserves only the leftmost occurrence of each decimal digit in
  *            the given number
- * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 1086, u64 n <= 9570,
- *            u128 n <= 9570, big any n
- * Helpers:   removeDupDigits
+ * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 1086, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 60 terms through n = 9570 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,38 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/removeDupDigits.h"
+
+/* Remove repeated decimal digits, keeping the leftmost occurrence. */
+static seq_t removeDupDigits(seq_t x)
+{
+    seq_t tmp = x;
+    size_t dcnt = 0;
+    /* count digits */
+    do {
+        dcnt++;
+        tmp = tmp / 10;
+    } while (tmp != 0);
+
+    uint8_t *buf = (uint8_t*)malloc(dcnt);
+    tmp = x;
+    for (size_t i = 0; i < dcnt; ++i) {
+        uint8_t d = (uint8_t)(tmp % 10);
+        buf[dcnt - 1 - i] = d;
+        tmp = tmp / 10;
+    }
+
+    bool seen[10] = {false};
+    seq_t res = 0;
+    for (size_t i = 0; i < dcnt; ++i) {
+        uint8_t d = buf[i];
+        if (!seen[d]) {
+            seen[d] = true;
+            res = res * 10 + d;
+        }
+    }
+    free(buf);
+    return res;
+}
 
 seq_t a(idx_t n)
 {

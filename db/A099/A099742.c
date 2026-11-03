@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 4, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrimeGeneric
+ * Validated: standard, pass, 85 terms through n = 9575 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,31 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isPrimeGeneric.h"
+#include <stddef.h>
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 static seq_t *lower_twin = NULL;      /* array of lower twin primes */
 static size_t lower_cnt  = 0;         /* current number of stored twin primes */
@@ -37,7 +62,7 @@ static void ensure_lower_twin_primes(idx_t n)
     /* initialise or grow the twin array as needed */
     if (lower_cap == 0) {
         lower_cap = 32;
-        lower_twin = (seq_t *)malloc(lower_cap * sizeof(seq_t));
+        lower_twin = mem_new(seq_t, lower_cap);
     }
 
     while (lower_cnt < (size_t)n) {
@@ -47,9 +72,9 @@ static void ensure_lower_twin_primes(idx_t n)
         if (isPrimeGeneric(cand) && isPrimeGeneric(cand + 2U)) {
             if (lower_cnt == lower_cap) {
                 lower_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(lower_twin, lower_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, lower_twin, lower_cap);
                 if (!tmp) {
-                    free(lower_twin);
+                    mem_free(lower_twin);
                     exit(EXIT_FAILURE);
                 }
                 lower_twin = tmp;

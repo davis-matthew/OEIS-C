@@ -9,14 +9,39 @@
  *            digit 0,1,8 and no other digits (search)
  * Range:     u8 none, u16 n <= 6, u32 n <= 1479, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   isPrimeGeneric
+ * Validated: standard, pass, 48 terms through n = 1586 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>   /* for size_t */
-#include "../utils/isPrimeGeneric.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 static const unsigned digit_bit_map[10] = {
     1u,            /* 0 */

@@ -9,9 +9,10 @@
  * Formula:   a(n) = lexicographically earliest sequence satisfying * a(i) =
  *            a(j) ⇒ f(i) = f(j), f(n)=0 for n>2 with gcd(n,φ(n))=1, * and
  *            f(n)=n for all other numbers
- * Range:     u8 n <= 377, u16 n <= 8585, u32 n <= 8585, u64 n <= 8585,
- *            u128 n <= 8585, big any n
- * Helpers:   gcd, phi
+ * Range:     u8 n <= 377, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 119 terms through n = 8585 (2026-11-03)
+ * Helpers:   gcd, mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 /* Includes required utilities */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/phi.h"
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* cache[n-1] holds a(n) */
 static size_t cache_size = 0;     /* number of elements stored */
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     if ((size_t)n > cache_size) {
         size_t new_cap = n * 2;        /* grow roughly twice */
         if (new_cap < (size_t)n) new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;            /* allocation failure: return 0 */
         cache = tmp;
 
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
 
             /* f(n) = 0 iff n>2 and gcd(n,φ(n)) = 1 */
             if (idx > 2u) {
-                seq_t phi_n = phi(idx);
+                seq_t phi_n = totient(idx);
                 if (gcd(idx, phi_n) == 1)
                     coprime = true;
             }

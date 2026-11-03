@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 52, u32 n <= 160, u64 n <= 539,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 922 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,12 +20,13 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate an array of size n+1 for dynamic programming.  */
     size_t len = (size_t)n + 1;
-    seq_t *dp = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, len);
     if (!dp)
         return (seq_t)0;                /* allocation failure – should not happen for n ≤ 10000 */
 
@@ -44,6 +46,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -10,7 +10,8 @@
  *            (falling_factorial(x,k)=x*(x-1)*...*(x-k+1))
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Count of Stirling numbers of the first kind (unsigned) :
    c(i,j) = c(i-1,j-1) + (i-1) * c(i-1,j)   for i>0, j>0   with c(0,0)=1. */
@@ -31,11 +33,11 @@ seq_t a(idx_t n)
     const idx_t m = n + 3;
 
     /* Allocate two rows for the dynamic programming of Stirling numbers */
-    seq_t *prev = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (n + 1));
+    seq_t *curr = mem_new(seq_t, (n + 1));
     if (!prev || !curr) {
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return (seq_t)0;
     }
 
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
 
     for (idx_t s = s_min; s <= n; ++s) {
         /* 2^s as a big integer */
-        seq_t two_pow_s = big_pow((seq_t)2, s);
+        seq_t two_pow_s = ipow((seq_t)2, s);
 
         /* falling factorial (2^s)_m = (2^s)(2^s-1)...(2^s-m+1) */
         seq_t prod = (seq_t)1;
@@ -84,8 +86,8 @@ seq_t a(idx_t n)
         }
     }
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
 
     /* the final count is pos - neg (pos ≥ neg for the combinatorial sequence) */
     return pos - neg;

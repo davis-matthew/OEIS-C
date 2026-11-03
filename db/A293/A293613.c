@@ -7,6 +7,7 @@
  * Formula:   a(n) = (1/4)*(7*n + 17)*(5*n + 6)*Pochhammer(n, 6) / 6!
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 25, u64 n <= 441, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 925 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 /*            = ((7*n+17)*(5*n+6)*n*(n+1)*(n+2)*(n+3)*(n+4)*(n+5)) / 2880 */
 
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/gcd.h"
 #include <stddef.h>
 

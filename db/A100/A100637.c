@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = number of primes <= 3*n + 3 (prime counting function)
- * Range:     u8 n <= 538, u16 n <= 9075, u32 n <= 9075, u64 n <= 9075,
- *            u128 n <= 9075, big any n
- * Helpers:   none
+ * Range:     u8 n <= 538, u16 n <= 33332, u32 n <= 33332, u64 n <= 33332,
+ *            u128 n <= 33332, big any n
+ * Validated: standard, pass, 66 terms through n = 9075 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for prime sieve and cumulative prime counts. */
 static bool *prime = NULL;
@@ -29,7 +31,7 @@ static void ensure_sieve(idx_t new_limit) {
 
     /* Allocate new arrays for the larger limit. */
     bool *new_prime = (bool *)malloc((size_t)(new_limit + 1) * sizeof(bool));
-    seq_t *new_pi = (seq_t *)malloc((size_t)(new_limit + 1) * sizeof(seq_t));
+    seq_t *new_pi = mem_new(seq_t, (size_t)(new_limit + 1));
     if (!new_prime || !new_pi) {
         /* Allocation failed: leave state unchanged. */
         return;
@@ -61,7 +63,7 @@ static void ensure_sieve(idx_t new_limit) {
 
     /* Release old arrays. */
     free(prime);
-    free(prime_pi);
+    mem_free(prime_pi);
 
     /* Install new arrays. */
     prime = new_prime;

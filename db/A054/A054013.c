@@ -6,15 +6,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = (σ(n) − 1) mod n where σ(n) is the sum of all divisors of
  *            n. This is equivalent to the Chowla function of n read modulo n
- * Range:     u8 n <= 48, u16 n <= 9032, u32 n <= 9032, u64 n <= 9032,
- *            u128 n <= 9032, big any n
- * Helpers:   sigma_seq
+ * Range:     u8 n <= 294, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 99 terms through n = 9032 (2026-11-01)
+ * Helpers:   sigma
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sigma_seq.h"
+#include "../utils/sigma.h"
 
 /* Main sequence function: a(n) = (σ(n) − 1) mod n, offset 1. */
 seq_t a(idx_t n)
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
     if (n == 0)
         return 0;
 
-    seq_t sig   = sigma_seq(n);
+    seq_t sig   = sigma(n);
     seq_t value = sig - 1;                 /* σ(n) − 1 */
     seq_t res   = value % (seq_t)n;        /* modulo n  (n ≡ 0 mod n) */
     return res;

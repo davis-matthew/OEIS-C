@@ -5,17 +5,19 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n, phi(d)|sigma(d)} d (balanced divisors of n)
- * Range:     u8 n <= 22, u16 n <= 9320, u32 n <= 9320, u64 n <= 9320,
- *            u128 n <= 9320, big any n
- * Helpers:   factor_u64, pow_int
+ * Range:     u8 n <= 22, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 100 terms through n = 9320 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 static void dfs_factor(const uint64_t *pr, const uint64_t *ex, size_t len,
                        size_t idx, seq_t d, seq_t phi, seq_t sigma,
@@ -29,21 +31,21 @@ static void dfs_factor(const uint64_t *pr, const uint64_t *ex, size_t len,
     uint64_t p = pr[idx];
     for (uint64_t e = 0; e <= ex[idx]; ++e) {
         /* p^e  */
-        seq_t powp = pow_int((seq_t)p, (idx_t)e);
+        seq_t powp = ipow_idx((seq_t)p, (idx_t)e);
         seq_t new_d = d * powp;
 
         /* φ(p^e) */
         seq_t phi_pe = 1;
         if (e > 0) {
-            seq_t powp_e = pow_int((seq_t)p, (idx_t)e);
-            seq_t powp_e_1 = pow_int((seq_t)p, (idx_t)(e - 1));
+            seq_t powp_e = ipow_idx((seq_t)p, (idx_t)e);
+            seq_t powp_e_1 = ipow_idx((seq_t)p, (idx_t)(e - 1));
             phi_pe = powp_e - powp_e_1;
         }
 
         /* σ(p^e) */
         seq_t sigma_pe = 1;
         if (e > 0) {
-            seq_t powp_e1 = pow_int((seq_t)p, (idx_t)(e + 1));
+            seq_t powp_e1 = ipow_idx((seq_t)p, (idx_t)(e + 1));
             sigma_pe = (powp_e1 - 1) / (seq_t)(p - 1);
         }
 

@@ -13,12 +13,14 @@
  *            order. The array is grown as needed up to the maximum...
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[13] = {
     1, 5, 10, 15, 20, 25, 29, 34, 39, 44, 49, 54, 59
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* First use: allocate and initialise cache with initial values */
     if (cache == NULL) {
         cache_cap = (size_t) (n + 1 > 13 ? n + 1 : 13);
-        cache = (seq_t *) malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         for (int i = 0; i < 13; ++i)
             cache[i] = init_vals[i];
         max_computed = 12;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         size_t newcap = cache_cap;
         while ((size_t)n + 1 > newcap)
             newcap <<= 1;               /* double until large enough */
-        seq_t *tmp = (seq_t *) realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (tmp)
             cache = tmp;
         cache_cap = newcap;

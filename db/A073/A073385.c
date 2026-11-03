@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 5, u32 n <= 12, u64 n <= 31, u128 n <= 74,
  *            big any n
- * Helpers:   binom_fixed8, pow2
+ * Validated: standard, pass, 35 terms through n = 946 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/pow2.h"
-#include "../utils/binom_fixed8.h"
+
+/* Compute binomial coefficient C(a, 8) where 8 is fixed. */
+static seq_t binom_fixed8(idx_t a) {
+    seq_t res = 1;
+    for (idx_t i = 1; i <= 8; ++i) {
+        res = res * (seq_t)(a - i + 1);
+        res = res / i;
+    }
+    return res;
+}
 
 /* Compute a(n) for any non‑negative n. */
 seq_t a(idx_t n) {

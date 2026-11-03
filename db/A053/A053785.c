@@ -8,13 +8,15 @@
  *            smallest prime strictly larger than n^4 and n^4 itself
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 255, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrime
+ * Validated: standard, pass, 100 terms through n = 849 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include primality test routine */
-#include "../utils/isPrime.h"
+#include <stdbool.h>
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n) {
     /* n is 1‑based, must be ≥1 */
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
 
     while (1) {
         /* isPrime accepts a 64‑bit unsigned integer (idx_t) */
-        if (isPrime((idx_t)cand)) {
+        if (is_prime((idx_t)cand)) {
             return cand - n4;
         }
         cand += 2; /* next odd candidate */

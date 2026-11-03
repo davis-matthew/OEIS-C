@@ -8,7 +8,8 @@
  * Formula:   a(n) = [prime(n+2)-2*prime(n+1)-prime(n)]^(n+1)
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 5, i64 n <= 9, i128 n <= 14,
  *            big any n
- * Helpers:   estimate_nth_prime
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,17 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/estimate_nth_prime.h"
+#include <math.h>
+
+/* --------------------------------------------------------------------- */
+static idx_t estimate_nth_prime(idx_t n)
+{
+    if (n < 6)
+        return 15;   /* first few primes are < 15 */
+    long double dn = (long double)n;
+    long double est = dn * (logl(dn) + logl(logl(dn))) + 3.0L;
+    return (idx_t)est;
+}
 
 /* Helper: compute primes up to 'bound' (inclusive). */
 static void sieve_primes(uint64_t bound, uint64_t **primes_arr, size_t *cnt, size_t *cap)

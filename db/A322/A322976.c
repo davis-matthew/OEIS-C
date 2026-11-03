@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = number of divisors d of n such that d+2 is prime
- * Range:     u8 n <= 9800, u16 n <= 9800, u32 n <= 9800, u64 n <= 9800,
- *            u128 n <= 9800, big any n
+ * Range:     u8 n <= 10395, u16 n <= 10395, u32 n <= 10395, u64 n <= 10395,
+ *            u128 n <= 10395, big any n
+ * Validated: standard, pass, 121 terms through n = 9800 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

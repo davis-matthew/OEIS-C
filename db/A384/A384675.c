@@ -9,14 +9,17 @@
  *            96889010407^(n-1) mod 10^11)
  * Range:     u8 none, u16 n <= 1, u32 n <= 1, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 37 terms through n = 9559 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_pow.h"
-
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -27,5 +30,5 @@ seq_t a(idx_t n)
     /* exponent is (n-1); if n==0 the underflow produces a huge
        exponent but the result is irrelevant for offset < 1. */
     idx_t exp = n - 1U;
-    return mod_pow(base, (uint64_t)exp, mod);
+    return powmod(base, (uint64_t)exp, mod);
 }

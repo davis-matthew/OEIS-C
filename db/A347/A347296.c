@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 387, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 9617 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    then a(n+1)=a(n)+a(k).  Indexing starts at 1. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache state */
 static seq_t *seq_cache     = NULL;   /* cache array, 0..i used, index 0 unused */
@@ -33,7 +35,7 @@ static void grow_cache(idx_t n)
         size_t new_cap = seq_cache_cap ? seq_cache_cap : 2;
         while (new_cap <= (size_t)n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (tmp == NULL) abort();  /* allocation failure */
         seq_cache = tmp;
         seq_cache_cap = new_cap;
@@ -46,7 +48,7 @@ static void ensure_cache(idx_t n)
     if (seq_cache == NULL) {
         /* first call – initialise for a(1) */
         seq_cache_cap = 2;
-        seq_cache = (seq_t *)malloc(seq_cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cache_cap);
         if (seq_cache == NULL) abort();
         seq_cache[0] = (seq_t)0;
         seq_cache[1] = (seq_t)1;

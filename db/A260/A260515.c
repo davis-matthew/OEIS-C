@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 29, u32 n <= 99, u64 n <= 355,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 908 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #if defined(__cplusplus)
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 /* Periodic coefficients c(d).  Indexed by d % 8.  */
 static const int8_t period[8] = { -1, 4, -2, 4, -3, 4, -2, 4 };
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         size_t prev_cap = coeff_cap;
 
         /* Allocate / reallocate coefficient array.  */
-        seq_t *new_coeff = (seq_t *)realloc(coeff, new_cap * sizeof(seq_t));
+        seq_t *new_coeff = mem_resize(seq_t, coeff, new_cap);
         if (!new_coeff) exit(EXIT_FAILURE);
         coeff = new_coeff;
 

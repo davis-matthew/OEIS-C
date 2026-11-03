@@ -7,12 +7,14 @@
  * Formula:   a(n) = number of partitions of n into parts 3,4,7,12
  * Range:     u8 n <= 102, u16 n <= 721, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached DP table */
 static seq_t *dp = NULL;
@@ -25,10 +27,10 @@ seq_t a(idx_t n)
     if (n + (idx_t)1 > dp_size) {
         /* Resize and recompute */
         if (dp != NULL) {
-            free(dp);
+            mem_free(dp);
         }
         dp_size = n + (idx_t)1;
-        dp = (seq_t*)malloc((size_t)dp_size * sizeof(seq_t));
+        dp = mem_new(seq_t, (size_t)dp_size);
         if (dp == NULL) {              /* allocation failure: return 0 */
             return 0;
         }

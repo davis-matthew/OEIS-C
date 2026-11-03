@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, tabf
  * Formula:   not stated
- * Range:     u8 n <= 9968, u16 n <= 9968, u32 n <= 9968, u64 n <= 9968,
- *            u128 n <= 9968, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10300, u16 n <= 10300, u32 n <= 10300, u64 n <= 10300,
+ *            u128 n <= 10300, big any n
+ * Validated: standard, pass, 119 terms through n = 9968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build system:
    idx_t   – unsigned 64‑bit integer
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
                 /* append a_val to data[] */
                 if (len == cap) {
                     size_t new_cap = (cap == 0) ? 128 : cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(data, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, data, new_cap);
                     if (!tmp) abort();        /* out of memory */
                     data = tmp;
                     cap  = new_cap;

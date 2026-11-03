@@ -12,7 +12,8 @@
  *            (k+1)*(k+2)/2, * let d = n - k*(k+1)/2, d = k - x, y =...
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* internal state */
 static seq_t *sequence  = NULL;  /* linear sequence a(n) */
@@ -38,20 +40,20 @@ static void build_grid_and_seq(idx_t n)
     if (newK <= Kmax) return;          /* already built up to required level */
 
     /* free any previous allocations */
-    free(grid);
-    free(sequence);
+    mem_free(grid);
+    mem_free(sequence);
     seq_len = 0;
     Kmax = newK;
     grid_w = Kmax + 1;
 
     /* allocate new grid */
     size_t grid_size = (size_t)grid_w * (size_t)grid_w;
-    grid = (seq_t *)malloc(grid_size * sizeof(seq_t));
+    grid = mem_new(seq_t, grid_size);
     if (!grid) return; /* allocation failed; caller will handle */
 
     /* allocate new linear sequence */
     size_t new_seq_len = (size_t)Kmax * (Kmax + 1) / 2 + (size_t)Kmax + 1;
-    sequence = (seq_t *)malloc(new_seq_len * sizeof(seq_t));
+    sequence = mem_new(seq_t, new_seq_len);
     if (!sequence) return;
 
     /* visited marks Grundy values seen in the successor set.

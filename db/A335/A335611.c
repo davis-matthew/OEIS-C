@@ -10,23 +10,24 @@
  *            35*3^(n-1) - 5
  * Range:     u8 none, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 21,
  *            big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 30 terms through n = 546 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     if (n < 2) return 0;             /* outside the offset */
     idx_t k = n - 1;                  /* exponent n-1 */
 
-    seq_t p63 = pow_int((seq_t)63, k);
-    seq_t p31 = pow_int((seq_t)31, k);
-    seq_t p15 = pow_int((seq_t)15, k);
-    seq_t p7  = pow_int((seq_t)7, k);
-    seq_t p3  = pow_int((seq_t)3, k);
+    seq_t p63 = ipow_idx((seq_t)63, k);
+    seq_t p31 = ipow_idx((seq_t)31, k);
+    seq_t p15 = ipow_idx((seq_t)15, k);
+    seq_t p7  = ipow_idx((seq_t)7, k);
+    seq_t p3  = ipow_idx((seq_t)3, k);
 
     /* Separate positive and negative parts to avoid unsigned underflow */
     seq_t pos = (seq_t)31 * p63 + (seq_t)145 * p15 + (seq_t)35 * p3;

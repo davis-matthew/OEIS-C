@@ -7,12 +7,14 @@
  * Formula:   a(n) = 7*floor(a(n-1)/3) + (a(n-1) mod 3), a(1) = 3
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 26, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     if (cached_size < n) {
         /* Extend cache to hold up to n elements */
-        seq_t *tmp = (seq_t*)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp) { /* allocation failure: return 0 (undefined) */
             return 0;
         }

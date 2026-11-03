@@ -6,13 +6,15 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = Sum_{k=0..floor(n/2)} binomial(25, n-2*k) For n >= 24 the
  *            sum equals 2^24
- * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 1000, u64 n <= 1000,
+ * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 46 terms through n = 987 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -9,12 +9,14 @@
  *            T(k)=T(k-1)+T(k-2)+T(k-3) for k≥3
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 35, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 865 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *T = NULL;     /* tribonacci numbers */
 static seq_t *a_cache = NULL; /* cumulative sums a(k) */
@@ -30,8 +32,8 @@ static void ensure_cache(idx_t n)
     while (new_cap <= n)
         new_cap <<= 1;
 
-    seq_t *tmpT = (seq_t *)realloc(T, (size_t)new_cap * sizeof(seq_t));
-    seq_t *tmpA = (seq_t *)realloc(a_cache, (size_t)new_cap * sizeof(seq_t));
+    seq_t *tmpT = mem_resize(seq_t, T, (size_t)new_cap);
+    seq_t *tmpA = mem_resize(seq_t, a_cache, (size_t)new_cap);
     if (!tmpT || !tmpA)
         abort(); /* allocation failed */
 

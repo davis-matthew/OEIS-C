@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,11 +37,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     // dp arrays, zero-initialized
-    seq_t *dp  = (seq_t *)calloc(n + 1, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *dp  = mem_new(seq_t, n + 1);
+    seq_t *next = mem_new(seq_t, n + 1);
     if (!dp || !next) return 0;  // out of memory
 
     dp[0] = 1;
@@ -48,7 +50,7 @@ seq_t a(idx_t n) {
     for (idx_t m = 1; m <= n; ++m) {
         idx_t tmax = n / m;
         // Precompute weights w[t] for this part size
-        seq_t *w = (seq_t *)malloc((tmax + 1) * sizeof(seq_t));
+        seq_t *w = mem_new(seq_t, (tmax + 1));
         w[0] = 1;  // base case t=0
 
         for (idx_t t = 1; t <= tmax; ++t) {
@@ -73,15 +75,15 @@ seq_t a(idx_t n) {
         }
 
         // Prepare for next part size
-        free(w);
-        free(dp);
+        mem_free(w);
+        mem_free(dp);
         dp = next;
-        next = (seq_t *)calloc(n + 1, sizeof(seq_t));
+        next = mem_new(seq_t, n + 1);
         if (!next) return 0;
     }
 
     seq_t result = dp[n];
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return result;
 }

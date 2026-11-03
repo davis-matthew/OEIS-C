@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, easy
  * Formula:   a(n) = Sum_{d|n, d<n} (2*d - sigma(d))
- * Range:     i8 n <= 215, i16 n <= 9625, i32 n <= 9625, i64 n <= 9625,
- *            i128 n <= 9625, big any n
- * Helpers:   none
+ * Range:     i8 n <= 215, i16 n <= 10079, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 116 terms through n = 9625 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for divisor sums sigma(d) */
 static seq_t *sigma_cache = NULL;      /* sigma_cache[0] unused */
@@ -31,8 +33,7 @@ static void ensure_sigma(idx_t n)
     idx_t new_size = n;
 
     /* Reallocate cache to new size (+1 because we use 1-based indices) */
-    seq_t *new_cache = (seq_t *)realloc(sigma_cache,
-                                        (new_size + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, sigma_cache, (new_size + 1));
     if (!new_cache) abort(); /* allocation failed */
 
     /* Initialize new entries to 0; old entries already contain correct values. */

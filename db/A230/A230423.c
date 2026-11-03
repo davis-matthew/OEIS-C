@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 2*A230414(n)
- * Range:     u8 n <= 248, u16 n <= 5714, u32 n <= 9466, u64 n <= 9466,
- *            u128 n <= 9466, big any n
+ * Range:     u8 n <= 248, u16 n <= 5714, u32 n <= 10079, u64 n <= 10079,
+ *            u128 n <= 10079, big any n
+ * Validated: standard, pass, 91 terms through n = 9466 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

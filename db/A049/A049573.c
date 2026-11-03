@@ -10,14 +10,18 @@
  *            case p = 2 is always included
  * Range:     u8 n <= 53, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 74 terms through n = 992 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n) {
     if (n == 0)
@@ -34,7 +38,7 @@ seq_t a(idx_t n) {
         if (is_prime((idx_t)p)) {
             /* Check the condition for odd primes. */
             if (((p - 1) % 41) != 0 ||
-                mod_pow((seq_t)2, (p - 1) / 41, (seq_t)p) == (seq_t)1) {
+                powmod((seq_t)2, (p - 1) / 41, (seq_t)p) == (seq_t)1) {
                 ++found;
                 if (found == n)
                     return (seq_t)p;

@@ -11,12 +11,14 @@
  *            other terms follow the recurrence
  * Range:     i8 n <= 68, i16 n <= 68, i32 n <= 68, i64 n <= 68, i128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t init_vals[14] = {
     [0] = 0,          /* dummy for index 0 */
@@ -43,8 +45,7 @@ static idx_t max_computed = 1;        /* highest index computed so far */
 static void ensure_cache(idx_t n)
 {
     if (cache_size > n) return;
-    seq_t *new_cache = (seq_t *)realloc(cache,
-                                         sizeof(seq_t) * (size_t)(n + 1));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)(n + 1));
     if (!new_cache) return;          /* out of memory (unlikely) */
     cache = new_cache;
     cache_size = n + 1;

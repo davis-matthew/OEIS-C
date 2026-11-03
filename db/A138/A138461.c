@@ -8,13 +8,15 @@
  *            + 9*(n-3)*a(n-4), with a(0)=0, a(1)=1, a(2)=-2, a(3)=4, a(4)=-6
  * Range:     i8 n <= 5, i16 n <= 12, i32 n <= 23, i64 n <= 28, i128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values.  The array grows as needed. */
 static seq_t *seq_cache = NULL;
@@ -27,7 +29,7 @@ static void seq_ensure_capacity(idx_t n)
     if (n < seq_cap) return;
     size_t new_cap = (seq_cap == 0) ? 64 : seq_cap;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    seq_t *new_buf = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_buf) abort();         /* abort on allocation failure */
     seq_cache = new_buf;
     seq_cap = new_cap;

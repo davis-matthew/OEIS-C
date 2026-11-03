@@ -12,14 +12,17 @@
  *            where A001263(n,k) = (1/k)*C(n-1,k-1)*C(n,k-1)
  * Range:     i8 n <= 7, i16 n <= 16, i32 n <= 48, i64 n <= 177, i128 n <= 609,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: standard, pass, 61 terms through n = 4638 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
 
     seq_t diff = a001263 - 1;                      /* A001263 - 1 */
 
-    seq_t pow4 = pow_uint(4, r);                   /* 4^r  */
+    seq_t pow4 = ipow_u64_idx(4, r);                   /* 4^r  */
 
     seq_t temp = (seq_t)1 - pow4;                  /* 1 - 4^r */
     seq_t result = temp * diff + (seq_t)1;          /* final value */

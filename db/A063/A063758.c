@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2*Fib(n+4) - 6 (with a(0) = 1)
  * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 42, u64 n <= 88, u128 n <= 180,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 469 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

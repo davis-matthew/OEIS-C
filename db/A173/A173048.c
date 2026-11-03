@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 35, u64 n <= 65, u128 n <= 135,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 316 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;      /* DP array for S(r,t) */
 static idx_t dp_cap = 0;      /* Current capacity of dp */
@@ -49,9 +51,9 @@ seq_t a(idx_t n)
     /* Ensure dp has enough space. */
     idx_t need = r + 1;
     if (dp_cap < need) {
-        seq_t *tmp = (seq_t *)realloc(dp, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, need);
         if (!tmp) {                    /* Allocation failed. */
-            free(dp);
+            mem_free(dp);
             dp = NULL;
             dp_cap = 0;
             return (seq_t)0;

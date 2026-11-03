@@ -7,12 +7,15 @@
  * Formula:   a(n) = Product_{d|n, d>1} prime(1+(d mod 8))
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 59, u64 n <= 419,
  *            u128 n <= 3779, big any n
+ * Validated: standard, pass, 81 terms through n = 7365 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Mapping of d mod 8 to the (1+(d mod 8))-th prime:

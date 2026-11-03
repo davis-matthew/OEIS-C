@@ -9,12 +9,14 @@
  *            a(n-3) (n ≥ 3)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 22, u64 n <= 45, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 914 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Initialise cache with first three values */
     if (cache_size == 0) {
         size_t cap = 3;
-        cache = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cap);
         if (!cache) return (seq_t)0;          /* unlikely */
         cache[0] = 6;
         cache[1] = 4;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* Grow cache to hold values up to n */
     idx_t needed = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, needed);
     if (!new_cache) return (seq_t)0;          /* unlikely */
     cache = new_cache;
 

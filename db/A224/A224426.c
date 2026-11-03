@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 4, u64 n <= 18, u128 n <= 48,
  *            big any n
- * Helpers:   _pow2_small, _pow4_small
+ * Validated: standard, pass, 33 terms through n = 172 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,16 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/_pow2_small.h"
-#include "../utils/_pow4_small.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+/* Local helper to compute 4^e for very small e (e < 5). */
+static inline seq_t _pow4_small(idx_t e)
+{
+    seq_t r = 1;
+    while (e) { r *= 4; --e; }
+    return r;
+}
 
 seq_t a(idx_t n)
 {
@@ -40,7 +49,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cap)
     {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_buf = (seq_t *)realloc(buf, new_cap * sizeof(seq_t));
+        seq_t *new_buf = mem_resize(seq_t, buf, new_cap);
         if (!new_buf) return 0;    /* allocation failure – unlikely in tests */
         buf = new_buf;
 
@@ -49,7 +58,7 @@ seq_t a(idx_t n)
         {
             if (i < 5)  /* use closed form for first 5 terms */
             {
-                seq_t pow2n = _pow2_small((idx_t)i);
+                seq_t pow2n = pow2((idx_t)i);
                 seq_t pow4n = _pow4_small((idx_t)i);
                 seq_t term2 = 2180388 * pow2n;
                 seq_t term3 = 2132604 * pow4n;

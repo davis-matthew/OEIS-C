@@ -11,13 +11,14 @@
  *            = r*(2k-1) with 1 ≤ k ≤ r
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   isqrt_u128
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   isqrt_u128_to_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/isqrt_u128.h"
+#include "../utils/isqrt_u128_to_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;
@@ -25,7 +26,7 @@ seq_t a(idx_t n) {
 
     /* Compute r: the row number containing index n */
     unsigned __int128 d = (unsigned __int128)8 * n + 1;
-    idx_t s = isqrt_u128(d);
+    idx_t s = isqrt_u128_to_idx(d);
     idx_t r = (s - 1) / 2;
     unsigned __int128 sum = (unsigned __int128)r * (r + 1) / 2;
     if (sum < n) r++;                    /* ensure r*(r+1)/2 ≥ n */

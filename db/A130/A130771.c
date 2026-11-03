@@ -9,6 +9,7 @@
  *            * and 2*n+3 are composite. The function searches sequentially
  * Range:     u8 n <= 28, u16 n <= 2500, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
+ * Validated: standard, pass, 70 terms through n = 2385 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

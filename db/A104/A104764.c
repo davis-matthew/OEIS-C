@@ -9,6 +9,7 @@
  *            = T(2,2), a(4) = T(3,1), …
  * Range:     u8 n <= 66, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
  * Helpers:   lucas
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

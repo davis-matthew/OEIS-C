@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------------------------------------------------------------------- */
 /*  Prime generation (Sieve of Eratosthenes)                              */
@@ -128,7 +130,7 @@ static void init_computations(void)
 
     if (g_heap) return;   /* already initialised */
 
-    g_heap = (Node*)malloc(MAX_I * sizeof(Node));
+    g_heap = mem_new(Node, MAX_I);
     if (!g_heap) abort();
 
     /* insert first candidate for each i: j = i */
@@ -150,7 +152,7 @@ static void generate_until(idx_t n)
 
     if (g_cache == NULL) {
         g_cache_cap = 64;
-        g_cache = (seq_t*)malloc(g_cache_cap * sizeof(seq_t));
+        g_cache = mem_new(seq_t, g_cache_cap);
         if (!g_cache) abort();
     }
 
@@ -161,7 +163,7 @@ static void generate_until(idx_t n)
         /* store quotient j/i */
         if (g_cache_sz == g_cache_cap) {
             g_cache_cap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(g_cache, g_cache_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, g_cache, g_cache_cap);
             if (!tmp) abort();
             g_cache = tmp;
         }

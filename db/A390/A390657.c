@@ -8,13 +8,15 @@
  * Formula:   a(n) = 1 + 2 * Sum_{k=0..n-1} a(floor(k/3)) * a(n-1-k)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 38, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Cached values of the sequence                                    */
@@ -35,7 +37,7 @@ static void ensure_capacity(size_t needed)
     if (new_cap < needed)
         new_cap = needed;
 
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     if (!new_arr) {
         /* In a real library we would handle memory exhaustion more gracefully.
            For the OEIS evaluation we can simply abort. */

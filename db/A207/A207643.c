@@ -9,6 +9,7 @@
  * Formula:   a(n) = 1 + Sum_{k=1..⌊n/2⌋} Π_{j=1..k} ⌊(n‑j)/j⌋
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 37, u64 n <= 74, u128 n <= 146,
  *            big any n
+ * Validated: standard, pass, 53 terms through n = 493 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

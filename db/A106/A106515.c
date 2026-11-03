@@ -8,12 +8,14 @@
  *            a(3)=15
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 50, u128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 973 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* Ensure the table is at least 4 long for the base cases. */
     if (dp_size == 0) {
         dp_size = 4;
-        dp = (seq_t *)malloc(sizeof(seq_t) * dp_size);
+        dp = mem_new(seq_t, dp_size);
         /* Guard against allocation failure; if it fails, returning 0 for all n. */
         if (!dp) return (seq_t)0;
         dp[0] = (seq_t)1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Grow the table to accommodate up to index n (inclusive). */
     idx_t new_size = n + 1;
     /* realloc is safe even if dp is non-NULL and new_size > dp_size. */
-    seq_t *tmp = (seq_t *)realloc(dp, sizeof(seq_t) * (size_t)new_size);
+    seq_t *tmp = mem_resize(seq_t, dp, (size_t)new_size);
     if (!tmp) {
         /* Allocation failed; return the last known value as a safe fallback. */
         return dp[dp_size - 1];

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 2, u64 n <= 6, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 26 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* number of possible rows of length 6 with digits 0..2 */
 #define N_STATES 729
@@ -109,8 +111,8 @@ static void init(void)
     }
 
     /* ----- DP storage --------------------------------------------------- */
-    dp_cur  = (seq_t *)malloc(N_STATES * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(N_STATES * sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, N_STATES);
+    dp_next = mem_new(seq_t, N_STATES);
 
     /* initial vector: one way for each single row */
     for (int s = 0; s < N_STATES; ++s) dp_cur[s] = 1;
@@ -125,12 +127,12 @@ static void ensure_cache(idx_t n)
     /* grow cache array if necessary */
     if (cache_cap == 0) cache_cap = 16;
     while (cache_cap <= (size_t)n) cache_cap <<= 1;
-    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
 
     /* extend DP from max_cached to n */
     for (idx_t step = max_cached; step < n; ++step) {
         /* dp_next = 0 */
-        memset(dp_next, 0, N_STATES * sizeof(seq_t));
+        mem_set(dp_next, 0, N_STATES * sizeof(seq_t));
 
         for (int s = 0; s < N_STATES; ++s) {
             seq_t val = dp_cur[s];

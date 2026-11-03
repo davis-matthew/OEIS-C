@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   uint64_isqrt
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/uint64_isqrt.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* Global state for primes and sequence terms */
 static struct {
@@ -45,7 +47,7 @@ static void init_state(void) {
     g.last_checked = 1;
 
     g.terms_cap = 128;
-    g.terms = (seq_t*)malloc(g.terms_cap * sizeof(seq_t));
+    g.terms = mem_new(seq_t, g.terms_cap);
     g.terms_count = 0;
 
     g.next_candidate = 1;
@@ -89,13 +91,12 @@ static void generate_until(idx_t target_index) {
         uint64_t cand = g.next_candidate;
         uint64_t prime_val = g.primes[g.next_candidate - 1];
         uint64_t s = cand + 2 * prime_val;
-        idx_t r = uint64_isqrt(s);
+        idx_t r = isqrt(s);
         if (r * r == s) {
             /* Store term */
             if (g.terms_count == g.terms_cap) {
                 g.terms_cap *= 2;
-                g.terms = (seq_t*)realloc(g.terms,
-                                          g.terms_cap * sizeof(seq_t));
+                g.terms = mem_resize(seq_t, g.terms, g.terms_cap);
             }
             g.terms[g.terms_count++] = (seq_t)cand;
         }

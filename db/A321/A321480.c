@@ -9,6 +9,7 @@
  * Formula:   a(n) = noz(1 + noz(2 + ... + noz((n-1) + n))) (a(0) = 0)
  * Range:     u8 n <= 33, u16 n <= 4087, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 83 terms through n = 9928 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

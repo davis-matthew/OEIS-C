@@ -10,7 +10,8 @@
  *            planarity test; a(n) = a(16) = 26 for n>15
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   low32, popc32
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   ctz_u32, popcount_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/low32.h"
-#include "../utils/popc32.h"
+#include "../utils/ctz_u32.h"
+#include "../utils/popcount_u32.h"
 
 static uint32_t G[16];
 
@@ -28,7 +29,7 @@ static uint32_t comp_of(uint32_t M, int s)
     uint32_t seen = 1u << s, fr = seen;
     while (fr) {
         uint32_t nf = 0, t = fr;
-        while (t) { int v = low32(t); t &= t - 1; nf |= G[v] & M; }
+        while (t) { int v = ctz_u32(t); t &= t - 1; nf |= G[v] & M; }
         nf &= ~seen; seen |= nf; fr = nf;
     }
     return seen;
@@ -44,7 +45,7 @@ static bool dmp(uint32_t M)
 
     /* initial cycle */
     {
-        int u = low32(M), w = low32(G[u] & M), x;
+        int u = ctz_u32(M), w = ctz_u32(G[u] & M), x;
         for (i = 0; i < 16; i++) par[i] = -2;
         par[w] = -1; qh = qt = 0; q[qt++] = w;
         while (qh < qt) {
@@ -53,7 +54,7 @@ static bool dmp(uint32_t M)
             nb = G[x] & M;
             if (x == w) nb &= ~(1u << u);
             while (nb) {
-                int y = low32(nb); nb &= nb - 1;
+                int y = ctz_u32(nb); nb &= nb - 1;
                 if (par[y] == -2) { par[y] = x; q[qt++] = y; }
             }
             if (par[u] != -2) break;
@@ -77,11 +78,11 @@ static bool dmp(uint32_t M)
         /* type a fragments: single edges between H vertices */
         t = H;
         while (t && bestCount > 1) {
-            int u = low32(t); uint32_t vs;
+            int u = ctz_u32(t); uint32_t vs;
             t &= t - 1;
             vs = G[u] & M & H & ~emb[u];
             while (vs) {
-                int v = low32(vs), cnt = 0, ff = -1, f;
+                int v = ctz_u32(vs), cnt = 0, ff = -1, f;
                 uint32_t att;
                 vs &= vs - 1;
                 if (v < u) continue;
@@ -98,28 +99,28 @@ static bool dmp(uint32_t M)
         /* type b fragments: components of G - H */
         rest = M & ~H;
         while (rest) {
-            uint32_t K = comp_of(rest, low32(rest)), att = 0, kk = K;
+            uint32_t K = comp_of(rest, ctz_u32(rest)), att = 0, kk = K;
             int cnt = 0, ff = -1, f;
             rest &= ~K;
-            while (kk) { int x = low32(kk); kk &= kk - 1; att |= G[x] & H; }
+            while (kk) { int x = ctz_u32(kk); kk &= kk - 1; att |= G[x] & H; }
             for (f = 0; f < nf; f++)
                 if ((fmask[f] & att) == att) { if (ff < 0) ff = f; cnt++; }
             if (cnt == 0) return false;
             if (cnt < bestCount) {
-                int a1 = low32(att), a2 = -1, end = -1, x;
+                int a1 = ctz_u32(att), a2 = -1, end = -1, x;
                 uint32_t st = G[a1] & K;
                 bestCount = cnt; bestFace = ff;
                 for (i = 0; i < 16; i++) par[i] = -2;
                 qh = qt = 0;
-                while (st) { int y = low32(st); st &= st - 1; par[y] = a1; q[qt++] = y; }
+                while (st) { int y = ctz_u32(st); st &= st - 1; par[y] = a1; q[qt++] = y; }
                 while (qh < qt) {
                     uint32_t o, nb;
                     x = q[qh++];
                     o = G[x] & att & ~(1u << a1);
-                    if (o) { a2 = low32(o); end = x; break; }
+                    if (o) { a2 = ctz_u32(o); end = x; break; }
                     nb = G[x] & K;
                     while (nb) {
-                        int y = low32(nb); nb &= nb - 1;
+                        int y = ctz_u32(nb); nb &= nb - 1;
                         if (par[y] == -2) { par[y] = x; q[qt++] = y; }
                     }
                 }
@@ -171,32 +172,32 @@ static bool planar_mask(uint32_t M)
         changed = false;
         t = M;
         while (t) {
-            int v = low32(t); t &= t - 1;
-            if (popc32(G[v] & M) <= 1) { M &= ~(1u << v); changed = true; }
+            int v = ctz_u32(t); t &= t - 1;
+            if (popcount_u32(G[v] & M) <= 1) { M &= ~(1u << v); changed = true; }
         }
     }
-    if (popc32(M) <= 4) return true;
-    c = comp_of(M, low32(M));
+    if (popcount_u32(M) <= 4) return true;
+    c = comp_of(M, ctz_u32(M));
     if (c != M) return planar_mask(c) && planar_mask(M & ~c);
     t = M;
     while (t) {
-        int v = low32(t);
+        int v = ctz_u32(t);
         uint32_t R = M & ~(1u << v);
         t &= t - 1;
-        c = comp_of(R, low32(R));
+        c = comp_of(R, ctz_u32(R));
         if (c != R) {
             uint32_t rest = R;
             while (rest) {
-                c = comp_of(rest, low32(rest));
+                c = comp_of(rest, ctz_u32(rest));
                 if (!planar_mask(c | (1u << v))) return false;
                 rest &= ~c;
             }
             return true;
         }
     }
-    V = popc32(M); E = 0;
+    V = popcount_u32(M); E = 0;
     t = M;
-    while (t) { int v = low32(t); t &= t - 1; E += popc32(G[v] & M); }
+    while (t) { int v = ctz_u32(t); t &= t - 1; E += popcount_u32(G[v] & M); }
     E /= 2;
     if (E > 3 * V - 6) return false;
     return dmp(M);
@@ -217,7 +218,7 @@ static long long count_planar(int n)
             else r &= above;
             b = r;
             while (b) {
-                int j = low32(b); b &= b - 1;
+                int j = ctz_u32(b); b &= b - 1;
                 G[i] |= 1u << j; G[j] |= 1u << i; E++;
             }
         }

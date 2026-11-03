@@ -10,14 +10,32 @@
  *            * consecutive equal digits
  * Range:     u8 n <= 80, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_consecutive_equal_digits_base6
+ * Validated: standard, pass, 75 terms through n = 9621 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_consecutive_equal_digits_base6.h"
+#include "../utils/mem.h"
+
+static inline bool has_consecutive_equal_digits_base6(seq_t x)
+{
+    if (x < (seq_t)6)
+        return true;            /* single digit always qualifies */
+    int prev = -1;
+    seq_t t = x;
+    while (t > (seq_t)0)
+    {
+        int d = (int)(t % (seq_t)6);
+        if (prev == d)
+            return true;        /* found a pair of equal adjacent digits */
+        prev = d;
+        t /= (seq_t)6;
+    }
+    return false;               /* no equal adjacent digits found */
+}
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -36,7 +54,7 @@ static void ensure_cache(idx_t n)
     if (new_size < (size_t)n)
         new_size = (size_t)n;
 
-    seq_t *p = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache, new_size);
     if (!p)
         abort();               /* out of memory – terminate */
     cache = p;

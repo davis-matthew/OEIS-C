@@ -9,15 +9,18 @@
  *            W_v(N) = Σ_{i=0}^{v} (-1)^{v+i} * binom(v+1,i+1) * * ∏_{g}
  *            binom(s_g+i,i), * W_{S+1}(N) = 0. * a(0) = 1. * * The routine
  *            uses the helper `binom(idx_t n, idx_t k)` to compute...
- * Range:     u8 n <= 3, u16 n <= 59, u32 n <= 2879, u64 n <= 10000,
+ * Range:     u8 n <= 8, u16 n <= 59, u32 n <= 2879, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 79 terms through n = 9427 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -61,7 +64,7 @@ seq_t a(idx_t n)
 
     /* allocate array for W[0..S] (W[S+1] implicitly 0) */
     size_t wsize = (size_t)S + 2;
-    seq_t *W = (seq_t *)calloc(wsize, sizeof(seq_t));
+    seq_t *W = mem_new(seq_t, wsize);
     if (!W) return (seq_t)0;   /* out‑of‑memory guard (unlikely) */
 
     /* compute W[0..S] */
@@ -73,10 +76,10 @@ seq_t a(idx_t n)
             /* product over all prime exponents */
             seq_t prod = (seq_t)1;
             for (size_t j = 0; j < mp; ++j) {
-                prod *= binom(exps[j] + i, i);
+                prod *= binomial(exps[j] + i, i);
             }
 
-            seq_t term = binom(v + 1, i + 1) * prod;
+            seq_t term = binomial(v + 1, i + 1) * prod;
 
             if (((v + i) & 1) == 0)
                 pos += term;
@@ -95,6 +98,6 @@ seq_t a(idx_t n)
         result += W[v] * (W[v] + W[v + 1]);
     }
 
-    free(W);
+    mem_free(W);
     return result;
 }

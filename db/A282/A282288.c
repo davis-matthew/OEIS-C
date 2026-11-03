@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 471, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9706 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Computes a(n) for the sequence A282288. */
 seq_t a(idx_t n)
@@ -38,13 +40,13 @@ seq_t a(idx_t n)
         }
 
         /* Dynamic programming with 19 convolutions. */
-        seq_t *cur = (seq_t*)calloc(new_max + 1, sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, new_max + 1);
         if (!cur) return 0;          /* allocation failed – unlikely in tests */
         cur[0] = 1;                  /* base: zero‑sum with zero terms */
 
         for (int step = 1; step <= 19; ++step) {
-            seq_t *next = (seq_t*)calloc(new_max + 1, sizeof(seq_t));
-            if (!next) { free(cur); return 0; }
+            seq_t *next = mem_new(seq_t, new_max + 1);
+            if (!next) { mem_free(cur); return 0; }
 
             for (size_t pi = 0; pi < pcnt; ++pi) {
                 idx_t val = powers[pi];
@@ -53,12 +55,12 @@ seq_t a(idx_t n)
                 }
             }
 
-            free(cur);
+            mem_free(cur);
             cur = next;
         }
 
         /* Store the new table in the cache, discarding the old one. */
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
         dp = cur;
         max_n = new_max;
     }

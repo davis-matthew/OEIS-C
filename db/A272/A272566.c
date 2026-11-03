@@ -11,6 +11,7 @@
  *            (4*n^3+24*n^2-25*n+123)/6 if n>4 is odd
  * Range:     u8 n <= 4, u16 n <= 24, u32 n <= 128, u64 n <= 128,
  *            u128 n <= 128, big any n
+ * Validated: standard, pass, 59 terms through n = 125 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_mod64, pow10, pow_mod64
+ * Validated: standard, pass, 50 terms through n = 9435 (2026-11-01)
+ * Helpers:   mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,20 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/pow10.h"
-#include "../utils/mul_mod64.h"
-#include "../utils/pow_mod64.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* ---------- Miller‑Rabin for 32‑bit integers ---------- */
 
@@ -44,11 +56,11 @@ static inline bool is_prime_uint64(uint64_t n)
     for (size_t i = 0; i < sizeof(bases)/sizeof(bases[0]); ++i) {
         uint64_t a = bases[i];
         if (a % n == 0) continue;
-        uint64_t x = pow_mod64(a, d, n);
+        uint64_t x = powmod_u64(a, d, n);
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (unsigned r = 1; r < s; ++r) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;

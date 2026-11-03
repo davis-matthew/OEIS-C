@@ -8,7 +8,8 @@
  *            (k! * (n-2k)!)
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 16, i128 n <= 18,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,11 @@
    computation is O(n) with small additional constant
    factors. */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Note: idx_t is an unsigned 64‑bit integer, seq_t is the
    build‑dependent signed integer type (possibly arbitrary
@@ -43,14 +47,14 @@ seq_t a(idx_t n)
         idx_t m = n - 2 * k;     /* m = n-2k */
 
         /* m^k */
-        seq_t m_pow = big_pow((seq_t)m, (seq_t)k);  /* 0^0 treated as 1 */
+        seq_t m_pow = ipow((seq_t)m, (seq_t)k);  /* 0^0 treated as 1 */
 
         /* (1-m)^(m-1)   (base = 1 - m)   exponent = m-1 */
         seq_t base = 1 - (seq_t)m;
         idx_t exp = m - 1;
         seq_t power_term;
         if (exp >= 0)
-            power_term = big_pow(base, (seq_t)exp);
+            power_term = ipow(base, (seq_t)exp);
         else          /* exp == -1, occurs only when m == 0 */
             power_term = (seq_t)1;   /* because base == 1 in this case */
 

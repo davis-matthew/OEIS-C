@@ -10,15 +10,17 @@
  *            - 2*j*binom(n,j))) by antidiagonals, * starting with n ≥ 2. The
  *            argument n is the sequence index (a(2) * is the first term). The
  *            function works for any n ≥ 2 and * uses t...
- * Range:     u8 n <= 13, u16 n <= 49, u32 n <= 56, u64 n <= 56, u128 n <= 56,
- *            big any n
- * Helpers:   binom
+ * Range:     u8 n <= 18, u16 n <= 50, u32 n <= 198, u64 n <= 719,
+ *            u128 n <= 1226, big any n
+ * Validated: standard, pass, 71 terms through n = 1162 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 /* external linkage as required */
 seq_t a(idx_t n)
@@ -48,10 +50,10 @@ seq_t a(idx_t n)
     /* Compute A(nRow,k) from the given formula */
     seq_t result = 0;
     for (idx_t j = 0; j <= k; ++j) {
-        seq_t part1 = binom(2 * nRow + 1, 2 * j);
-        seq_t part2 = binom(nRow, j);
+        seq_t part1 = binomial(2 * nRow + 1, 2 * j);
+        seq_t part2 = binomial(nRow, j);
         seq_t term  = part1 - ((seq_t)2 * (seq_t)j * part2);
-        seq_t coeff = binom(nRow + k - j - 1, nRow - 1);
+        seq_t coeff = binomial(nRow + k - j - 1, nRow - 1);
         result += coeff * term;
     }
     return result;

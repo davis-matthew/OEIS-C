@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   contains15_or51
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
    next to each other (in either order) while the same property
    does not hold for k‑1.  a(1) = 14. */
 #include <stdbool.h>
-#include "../utils/contains15_or51.h"
+
+/* Return true if the base‑9 representation of x contains an
+   adjacent pair of digits 1 and 5 in either order. */
+static inline bool contains15_or51(seq_t x)
+{
+    seq_t prev = (seq_t)9;          /* sentinel – not a legal digit */
+    while (x > (seq_t)0) {
+        seq_t d = x % (seq_t)9;     /* least‑significant digit */
+        if ((d == (seq_t)1 && prev == (seq_t)5) ||
+            (d == (seq_t)5 && prev == (seq_t)1))
+            return true;
+        prev = d;
+        x /= (seq_t)9;
+    }
+    return false;
+}
 
 /* Return the n‑th term of the sequence (n >= 1).  For n == 0
    the function returns 0, as behaviour below the offset does not

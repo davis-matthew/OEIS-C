@@ -10,17 +10,19 @@
  *            listed in increasing column order
  * Range:     u8 n <= 28, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* previous row, initially the zero‑row [1] */
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, 1);
     prev[0] = (seq_t)1;
     size_t len_prev = 1;
 
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     for (;;) {                          /* iterate over rows */
         size_t len_new = len_prev + 1;
-        seq_t *newrow = (seq_t *)malloc(sizeof(seq_t) * len_new);
+        seq_t *newrow = mem_new(seq_t, len_new);
 
         /* build the new row */
         newrow[0] = (seq_t)1;
@@ -60,14 +62,14 @@ seq_t a(idx_t n)
                 }
             }
             /* clean up */
-            free(prev);
-            free(newrow);
+            mem_free(prev);
+            mem_free(newrow);
             return ans;
         }
 
         /* move to next row */
         cumulative += evens;
-        free(prev);
+        mem_free(prev);
         prev = newrow;
         len_prev = len_new;
     }

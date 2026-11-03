@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;          /* memoised terms */
 static idx_t seq_len   = 0;              /* number of terms currently cached */
@@ -40,10 +42,10 @@ static void ensure_seq_capacity(idx_t needed)
     if (needed <= seq_cap) return;
     idx_t new_cap = seq_cap ? seq_cap << 1 : 128;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *newptr = (seq_t *)realloc(seq_cache, (size_t)new_cap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, seq_cache, (size_t)new_cap);
     if (!newptr) abort();
     if (new_cap > seq_cap)
-        memset(newptr + seq_cap, 0, (size_t)(new_cap - seq_cap) * sizeof(seq_t));
+        mem_set(newptr + seq_cap, 0, (size_t)(new_cap - seq_cap) * sizeof(seq_t));
     seq_cache = newptr;
     seq_cap   = new_cap;
 }

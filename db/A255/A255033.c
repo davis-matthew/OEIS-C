@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 43, u64 n <= 107, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 176 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -46,6 +47,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache: 0‑based index (cache[0] = a(1)) */
 static seq_t *cache = NULL;
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
     if (!cache) {
         size_t initial = (size_t)20;          /* we know we need at least 20 */
         cache_cap = initial * 2;              /* provide room for future growth */
-        cache     = (seq_t *)realloc(NULL, cache_cap * sizeof(seq_t));
+        cache     = mem_resize(seq_t, NULL, cache_cap);
         if (!cache) return 0;                 /* allocation failure → zero */
         for (size_t i = 0; i < 20; ++i) {
             cache[i] = init20[i];
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
         if ((size_t)n > cache_cap) {
             size_t new_cap = cache_cap;
             while (new_cap < (size_t)n) new_cap *= 2;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (!new_cache) return 0;         /* allocation failure → zero */
             cache = new_cache;
             cache_cap = new_cap;

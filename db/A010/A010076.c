@@ -9,7 +9,8 @@
  *            a(n-2) a(0)=0, a(1)=1, a(2)=1;
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
     /* In C a void* can be implicitly converted to any object type */
     #define RECAST_PTR(p) ((seq_t*)p)
 #endif
+#include "../utils/mem.h"
 
 /* Static cache for already computed values */
 static seq_t *cache = NULL;
@@ -54,7 +56,7 @@ static void ensure_cache(idx_t upto)
 
     /* Grow the array to hold indices 0 … upto */
     idx_t const new_size = upto + (idx_t)1;
-    seq_t *p = RECAST_PTR(realloc(cache, new_size * sizeof(seq_t)));
+    seq_t *p = RECAST_PTR(mem_resize(seq_t, cache, new_size));
     if (!p)
         exit(1);           /* allocation failed – abort */
     cache = p;

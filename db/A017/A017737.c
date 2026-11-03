@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 75, u32 n <= 80, u64 n <= 91, u128 n <= 132,
  *            big any n
- * Helpers:   gcd, seq_mul
+ * Validated: standard, pass, 32 terms through n = 9658 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,16 @@
  * where seq_t is a 64‑bit unsigned integer and to work correctly
  * with arbitrary‑precision builds.
  */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/seq_mul.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {

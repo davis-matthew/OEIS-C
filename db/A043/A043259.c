@@ -9,13 +9,15 @@
  *            contains the adjacent digits '79' or '97', but k‑1 does not
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return true if n has the pair 7,9 or 9,7 in adjacent decimal digits. */
 static bool has_pair(seq_t n)
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         if (has_pair(cur) && !has_pair(cur - 1)) {
             if (cache_len >= cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 4;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (tmp == NULL) abort();     /* out of memory */
                 cache = tmp;
                 cache_cap = new_cap;

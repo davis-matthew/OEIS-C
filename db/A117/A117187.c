@@ -7,8 +7,9 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = binomial(2*floor(n/2)+2, floor(n/2)+1) -
  *            catalan(floor(n/2)+1)
- * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 29, u64 n <= 30, u128 n <= 30,
+ * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-01)
  * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
 /* Uses binomial and catalan utility functions from the utils library */
 
 #include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/catalan.h"
 

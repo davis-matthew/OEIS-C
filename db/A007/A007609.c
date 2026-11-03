@@ -11,14 +11,19 @@
  *            least n values are <= M
  * Range:     u8 n <= 175, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a7609_cmp
+ * Validated: standard, pass, 84 terms through n = 9078 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a7609_cmp.h"
+
+static int a7609_cmp(const void *x, const void *y) {
+    uint64_t u = *(const uint64_t *)x, v = *(const uint64_t *)y;
+    return (u > v) - (u < v);
+}
 
 static uint64_t *a7609_cache = NULL;
 static idx_t a7609_len = 0;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 3, i32 n <= 6, i64 n <= 10, i128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 253 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact_tab = NULL;      /* factorial table: fact_tab[i] = i! */
 static size_t fact_len = 0;         /* current allocated length of fact_tab */
@@ -44,7 +46,7 @@ static void ensure_factorial_upto(idx_t max_n)
     if (newlen < needed)
         newlen = needed;
 
-    seq_t *newtab = (seq_t *)realloc(fact_tab, newlen * sizeof(seq_t));
+    seq_t *newtab = mem_resize(seq_t, fact_tab, newlen);
     if (!newtab) {
         /* Allocation failure – terminate the program. */
         exit(EXIT_FAILURE);

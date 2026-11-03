@@ -10,8 +10,9 @@
  *            (bigomega(n) – Σ_{d|n, 1<d<n} f(d) * f(n/d)) (n > 1) The
  *            sequence a(n) is the integer numerator of f(n) after all factors
  *            of 2 in the denominator are cancelled
- * Range:     i8 n <= 15, i16 n <= 511, i32 n <= 9287, i64 n <= 9287,
- *            i128 n <= 9287, big any n
+ * Range:     i8 n <= 15, i16 n <= 511, i32 n <= 65535, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9287 (2026-11-01)
  * Helpers:   bigomega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,6 +8,7 @@
  *            by r = floor( (sqrt(8*n+1) - 1) / 2 ) k = n - r*(r+1)/2
  * Range:     u8 n <= 5, u16 n <= 20, u32 n <= 65, u64 n <= 231, u128 n <= 903,
  *            big any n
+ * Validated: standard, pass, 57 terms through n = 1322 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
    T(i,j) = binomial(i,j) * 8^(i-j) in row-major order. */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

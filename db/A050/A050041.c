@@ -11,13 +11,15 @@
  *            2^(p+1)
  * Range:     u8 n <= 21, u16 n <= 77, u32 n <= 518, u64 n <= 4480,
  *            u128 n <= 8193, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 7758 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoization. */
 static seq_t *cache = NULL;
@@ -30,7 +32,7 @@ static void ensure_cache_cap(idx_t need)
     size_t cap = (size_t)need + 1;       /* indices start at 1 */
     if (cap <= cache_cap)
         return;
-    seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cap);
     if (!tmp)
         abort();                         /* unrecoverable allocation failure */
     cache = tmp;

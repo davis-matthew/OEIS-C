@@ -11,7 +11,8 @@
  *            implements the OEIS A090628
  * Range:     u8 n <= 31, u16 n <= 50, u32 n <= 98, u64 n <= 202,
  *            u128 n <= 456, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9233 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *der = NULL;          /* derangement numbers */
 static size_t der_cap = 0;         /* allocated capacity */
@@ -29,7 +31,7 @@ static void ensure_der_size(size_t needed)
         return;
     /* expand to needed+1 to include index 'needed' */
     size_t new_cap = needed + 1;
-    seq_t *tmp = (seq_t *)realloc(der, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, der, new_cap);
     if (!tmp) abort();               /* allocation failure */
     der = tmp;
     /* compute new entries */

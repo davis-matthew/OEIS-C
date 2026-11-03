@@ -9,7 +9,8 @@
  *            is periodic with period 287
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (!init)
     {
         const size_t P = 287;             /* period length */
-        period = (seq_t*)malloc(P * sizeof(seq_t));
+        period = mem_new(seq_t, P);
         if (!period) return (seq_t)0;     /* out-of-memory guard */
 
         /* Compute the first 287 terms using the recurrence above */

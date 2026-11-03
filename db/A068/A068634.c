@@ -7,6 +7,7 @@
  * Formula:   a(n) = lcm(n, R(n))
  * Range:     u8 n <= 12, u16 n <= 106, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 71 terms through n = 9931 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* R(n) is the decimal digit reversal of n. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 #include <stdint.h>
 

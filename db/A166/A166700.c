@@ -9,7 +9,8 @@
  *            a(p^e) = (a(p-1)+3)^e
  * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 66 terms through n = 9973 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* declares factor_u64() */
+#include <stdbool.h>
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* cache for already computed values (1‑based index) */
 static seq_t *cache = NULL;
@@ -40,7 +43,7 @@ static void ensure_cache(idx_t n)
     else if (new_cap < cache_cap * 2)
         new_cap = cache_cap * 2;   /* grow roughly doubling */
 
-    seq_t *new_cache = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_cap + 1));
     if (!new_cache)
         abort();   /* unrecoverable allocation failure */
 

@@ -11,12 +11,14 @@
  *            the e.g.f. 1/(2 + x – eˣ + x²/2! + … + x⁷/7!)
  * Range:     u8 n <= 10, u16 n <= 17, u32 n <= 23, u64 n <= 34, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 398 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Allocate and initialise the first value */
     if (!buf) {
         cap  = (n < 8 ? 8 : 1);
-        buf  = (seq_t *)malloc(cap * sizeof(seq_t));
+        buf  = mem_new(seq_t, cap);
         if (!buf) return (seq_t)0;   /* out‑of‑memory guard */
         buf[0] = (seq_t)1;          /* a(0) = 1 */
         last   = 0;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (n >= cap) {
         size_t newcap = (cap == 0) ? n + 1 : cap * 2;
         while (newcap <= (size_t)n) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(buf, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, newcap);
         if (!tmp) return (seq_t)0;
         buf = tmp;
         cap = newcap;

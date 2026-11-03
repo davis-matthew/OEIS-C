@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 26, u32 n <= 47, u64 n <= 88, u128 n <= 160,
  *            big any n
+ * Validated: standard, pass, 58 terms through n = 3904 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,6 +23,7 @@
  */
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

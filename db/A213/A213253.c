@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 268, u16 n <= 268, u32 n <= 268, u64 n <= 268,
  *            u128 n <= 268, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 254 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static uint64_t *lpf_tbl = NULL;          /* largest prime factor table   */
 static const idx_t LPF_LIMIT = 1000000;   /* precomputation limit        */
@@ -59,10 +61,10 @@ static void ensure_cache_size(idx_t n)
     if (cache_size > (size_t)n) return;
 
     size_t new_size = (size_t)n + 16;  /* small growth factor      */
-    seq_t *new_cache = (seq_t*)realloc(seq_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, seq_cache, new_size);
     if (!new_cache) return;            /* allocation failed: keep old */
 
-    memset(new_cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
+    mem_set(new_cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
     seq_cache = new_cache;
     cache_size = new_size;
 }
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
     init_lpf_tbl();
     if (seq_cache == NULL)
     {
-        seq_cache = (seq_t*)calloc(1, sizeof(seq_t));
+        seq_cache = mem_new(seq_t, 1);
         cache_size = 1;
     }
     ensure_cache_size(n);

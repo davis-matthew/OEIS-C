@@ -7,15 +7,40 @@
  * Formula:   a(n) = (3 + Σ_{k=1}^{n-1} 10^{len(a(k))})^3 (offset 1)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 2, u128 n <= 3,
  *            big any n
- * Helpers:   alloc_seq_array, digit_len, free_seq_array, get_pow10
+ * Validated: partial, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/get_pow10.h"
-#include "../utils/digit_len.h"
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+static const seq_t get_pow10(unsigned int e) {
+    static seq_t power10[32];
+    static bool init = false;
+    if (!init) {
+        power10[0] = (seq_t)1;
+        for (unsigned int i = 1; i < 32; ++i)
+            power10[i] = power10[i-1] * (seq_t)10;
+        init = true;
+    }
+    return power10[e];
+}
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache = NULL;       /* cached terms a(1)...a(max_cached)      */
 static size_t cache_cap = 0;      /* capacity of the cache                 */
@@ -67,7 +92,7 @@ seq_t a(idx_t n)
 
         /* Prepare root for the next term:
            next_root = root + 10^{len(term)}      */
-        int len   = digit_len(term);                    /* number of decimal digits */
+        int len   = num_digits(term);                    /* number of decimal digits */
         seq_t pow10 = get_pow10((unsigned)len);
         next_root = root + pow10;
     }

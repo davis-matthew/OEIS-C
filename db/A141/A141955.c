@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n‑th prime p such that p ≡ 11 (mod 27)
  * Range:     u8 n <= 3, u16 n <= 361, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static storage for the sieve of Eratosthenes */
 static bool *s_is_prime = NULL;   /* is I prime? */
@@ -54,7 +56,7 @@ static void ensure_residue_capacity(size_t needed)
     if (needed <= s_residue_cap) return;
     size_t new_cap = s_residue_cap ? (s_residue_cap << 1) : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(s_residue, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, s_residue, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     s_residue = tmp;
     s_residue_cap = new_cap;
@@ -66,7 +68,7 @@ static void fill_up_to(idx_t n)
     if (n == 0) return;            /* a(0) is undefined */
     if (s_residue == NULL) {
         s_residue_cap = 16;
-        s_residue = (seq_t *)malloc(s_residue_cap * sizeof(seq_t));
+        s_residue = mem_new(seq_t, s_residue_cap);
         if (!s_residue) exit(EXIT_FAILURE);
     }
 

@@ -12,28 +12,29 @@
  *            3*2^(floor((n+3)/6)+d(n)), d(n)=1 if n mod 6 = 1 else 0
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   pow2_exp
+ * Validated: standard, pass, 50 terms through n = 472 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2_exp.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;
 
-    seq_t term1 = pow2_exp(n);
+    seq_t term1 = pow2(n);
 
     idx_t ceil_n2 = (n + 1) / 2;          /* ceil(n/2) */
-    seq_t term2 = pow2_exp(ceil_n2);
+    seq_t term2 = pow2(ceil_n2);
     term2 = term2 * 3;                   /* 3 * 2^ceil(n/2) */
 
     idx_t exp3 = n / 3 + ((n % 3) == 1 ? 1 : 0);
-    seq_t term3 = pow2_exp(exp3);        /* 2^(floor(n/3)+(n%3==1?1:0)) */
+    seq_t term3 = pow2(exp3);        /* 2^(floor(n/3)+(n%3==1?1:0)) */
 
     idx_t exp4 = (n + 3) / 6 + ((n % 6) == 1 ? 1 : 0);
-    seq_t term4 = pow2_exp(exp4);
+    seq_t term4 = pow2(exp4);
     term4 = term4 * 3;                   /* 3 * 2^((n+3)/6 + d(n)) */
 
     seq_t result = term1 + term4;

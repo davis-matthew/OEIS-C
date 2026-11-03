@@ -11,14 +11,28 @@
  *            + 1. This computes the self‑inverse permutation A213927
  * Range:     u8 n <= 254, u16 n <= 9870, u32 n <= 9870, u64 n <= 9870,
  *            u128 n <= 9870, big any n
- * Helpers:   find_z
+ * Validated: standard, pass, 83 terms through n = 9568 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/find_z.h"
+
+static inline uint64_t find_z(uint64_t n) {
+    /* Find smallest z such that z*(z+1)/2 >= n. */
+    uint64_t low = 1U, high = n;
+    while (low < high) {
+        uint64_t mid = low + (high - low) / 2U;
+        __uint128_t sum = (__uint128_t)mid * (mid + 1U) / 2U;
+        if (sum >= n)
+            high = mid;
+        else
+            low = mid + 1U;
+    }
+    return low;
+}
 
 seq_t a(idx_t n) {
     /* Handle the allowed minimum offset; behaviour for n==0 is undefined. */

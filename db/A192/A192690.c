@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, is_prime
+ * Validated: standard, pass, 74 terms through n = 8311 (2026-11-03)
+ * Helpers:   factor_u64, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"     /* bool is_prime(idx_t x); */
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   /* stored sequence terms   */
 static idx_t  cache_cap  = 0;      /* capacity for cache      */
@@ -38,7 +40,7 @@ static void grow_cache(idx_t need)
     size_t new_cap = cache_cap ? (size_t)cache_cap << 1 : 16;
     while (new_cap < (size_t)need)
         new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = (idx_t)new_cap;
 }
 

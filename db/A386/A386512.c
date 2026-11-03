@@ -9,7 +9,8 @@
  *            * binomial(n-1,k) * a(k) * a(n-1-k);
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 /* core helpers are provided by the build system:
    seq_t binom(idx_t a, idx_t b); */
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient C(a,b) using multiplicative formula. */
+static seq_t binom(idx_t a, idx_t b) {
+    if (b > a) return 0;
+    if (b > a - b) b = a - b;          /* use symmetry */
+    seq_t res = 1;
+    for (idx_t i = 1; i <= b; ++i) {
+        res *= (seq_t)(a - b + i);
+        res /= (seq_t)i;
+    }
+    return res;
+}
 
 /* Memoization buffers */
 static seq_t *cache      = NULL;  /* a[0..max]      */
@@ -31,7 +45,7 @@ static void ensure_cache_size(idx_t n)
 {
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) exit(EXIT_FAILURE);
         cache = new_cache;
         cache_cap = new_cap;
@@ -44,7 +58,7 @@ static void ensure_weight_size(idx_t n)
     if ((size_t)n + 1 > weight_cap) {
         size_t old_cap = weight_cap;
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_w = (seq_t *)realloc(weight, new_cap * sizeof(seq_t));
+        seq_t *new_w = mem_resize(seq_t, weight, new_cap);
         if (!new_w) exit(EXIT_FAILURE);
         weight = new_w;
         weight_cap = new_cap;

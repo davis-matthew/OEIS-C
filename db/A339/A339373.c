@@ -9,20 +9,22 @@
  *            triangular numbers
  * Range:     u8 n <= 51, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system */
 seq_t a(idx_t n)
 {
     /* Dynamic programming arrays: even parts count and odd parts count */
-    seq_t *even = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
-    seq_t *odd  = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *even = mem_new(seq_t, (size_t)n + 1);
+    seq_t *odd  = mem_new(seq_t, (size_t)n + 1);
     if (!even || !odd) return (seq_t)0;   /* fall back on error */
 
     even[0] = 1;   /* empty partition counts as even (zero parts) */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
 
     seq_t result = even[(size_t)n];
 
-    free(even);
-    free(odd);
+    mem_free(even);
+    mem_free(odd);
     return result;
 }

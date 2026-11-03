@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 717 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    separately, growing each cache dynamically on demand. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for odd indices: odd_terms[m] = a(2*m+1)  (m >= 0) */
 static seq_t *odd_terms = NULL;
@@ -41,7 +43,7 @@ static void ensure_odd(size_t m)
     while (new_cap <= m)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(odd_terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, odd_terms, new_cap);
     odd_terms = tmp;
     odd_cap = new_cap;
 
@@ -68,7 +70,7 @@ static void ensure_even(size_t m)
     while (new_cap <= m)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(even_terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, even_terms, new_cap);
     even_terms = tmp;
     even_cap = new_cap;
 

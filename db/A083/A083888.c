@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_divs_recursive, only01
+ * Validated: standard, pass, 121 terms through n = 9936 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,35 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_divs_recursive.h"
-#include "../utils/only01.h"
+
+/* Check whether all decimal digits of x are 0 or 1. */
+static inline bool only01(uint64_t x)
+{
+    if (x == 0) return true;          /* not a divisor of any n≠0, but safe */
+    while (x > 0) {
+        uint8_t d = x % 10;
+        if (d > 1) return false;
+        x /= 10;
+    }
+    return true;
+}
+
+/* Recursively generate divisors and count those satisfying only01. */
+static void count_divs_recursive(int k, uint64_t cur,
+                                 const uint64_t *primes, const int *exps,
+                                 int total, seq_t *cnt)
+{
+    if (k == total) {
+        if (only01(cur)) (*cnt)++;
+        return;
+    }
+    uint64_t p = primes[k];
+    uint64_t val = cur;
+    for (int e = 0; e <= exps[k]; ++e) {
+        count_divs_recursive(k + 1, val, primes, exps, total, cnt);
+        val *= p;               /* next power of p */
+    }
+}
 
 seq_t a(idx_t n)
 {

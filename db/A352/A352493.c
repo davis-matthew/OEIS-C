@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    primes are used. */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External integer types defined by the build system */
 typedef uint64_t idx_t;
@@ -80,8 +82,8 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* Allocate DP arrays */
-    seq_t *dp    = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *next  = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp    = mem_new(seq_t, N + 1);
+    seq_t *next  = mem_new(seq_t, N + 1);
     if (!dp || !next) {
         free(primes);
         return 0; /* allocation failure */
@@ -129,7 +131,7 @@ seq_t a(idx_t n)
 
     /* Clean up */
     free(primes);
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return result;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 722, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -50,6 +51,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* coefficients of Q(x) */
 static const int Q[19] = {
@@ -116,13 +118,13 @@ seq_t a(idx_t n)
         while (new_cap <= n)
             new_cap <<= 1;              /* exponential growth */
 
-        seq_t *new_table = (seq_t *)calloc(new_cap, sizeof(seq_t));
+        seq_t *new_table = mem_new(seq_t, new_cap);
         if (new_table == NULL)
             return 0;                 /* out of memory → safe return */
 
         if (table != NULL) {
-            memcpy(new_table, table, sizeof(seq_t) * cap);
-            free(table);
+            mem_copy(new_table, table, sizeof(seq_t) * cap);
+            mem_free(table);
         }
         table = new_table;
         cap   = new_cap;

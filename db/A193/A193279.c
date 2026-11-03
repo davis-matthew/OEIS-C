@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of distinct sums of distinct proper divisors of n
  *            (non‑empty subsets)
- * Range:     u8 n <= 143, u16 n <= 9725, u32 n <= 9725, u64 n <= 9725,
- *            u128 n <= 9725, big any n
+ * Range:     u8 n <= 143, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 92 terms through n = 9725 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

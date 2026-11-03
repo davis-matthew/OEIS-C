@@ -10,17 +10,18 @@
  *            avoiding overflow
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* target value: floor(sqrt(n)) */
-    idx_t s = _floor_isqrt_u64(n);
+    idx_t s = isqrt(n);
     seq_t target = (seq_t)s;
 
     seq_t x = (seq_t)n;           /* current value */

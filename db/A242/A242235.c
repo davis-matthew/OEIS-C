@@ -11,13 +11,15 @@
  *            the first term listed in the OEIS entry
  * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 29, u64 n <= 62, u128 n <= 127,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* enlarge cache if necessary */
     if (idx >= cache_len) {
         size_t new_len = idx + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache)
             abort();   /* fatal error if allocation fails */
         /* initialize new entries to 0 (for safety) */

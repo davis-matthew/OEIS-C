@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 28, u32 n <= 2876, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum_uint128, grow_seq_array
+ * Validated: standard, pass, 52 terms through n = 9406 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,31 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/grow_seq_array.h"
-#include "../utils/digit_sum_uint128.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
+
+/* helper: digit sum of a non‑negative __int128 number */
+static uint64_t digit_sum_uint128(__int128 x)
+{
+    uint64_t sum = 0;
+    while (x > 0) {
+        sum += (uint64_t)(x % 10);
+        x /= 10;
+    }
+    return sum;
+}
 
 static size_t terms_size = 0;     /* current capacity of the terms array   */
 static seq_t *terms = NULL;       /* stored terms a(1), a(2), ...           */

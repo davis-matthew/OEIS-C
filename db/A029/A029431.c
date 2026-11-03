@@ -7,12 +7,14 @@
  * Formula:   a(n) = number of partitions of n into parts 6,10,11,12
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
     /* Recompute the entire table each time we need a larger n. */
     if (n >= dp_size) {
         idx_t new_size = n + 1;
-        seq_t *new_dp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, new_size);
         if (!new_dp)               /* allocation failed – return 0 */
             return (seq_t)0;
         dp = new_dp;

@@ -8,7 +8,8 @@
  * Formula:   a(n) = ∏_{i=0..5} A000110(floor((n+i)/6))
  * Range:     u8 n <= 13, u16 n <= 19, u32 n <= 28, u64 n <= 44, u128 n <= 70,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 51 terms through n = 772 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdbool.h>  /* bool */
 
 /* Helper: compute binomial coefficient C(a,b) as seq_t */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Static cache for Bell numbers */
 static seq_t *bell_cache = NULL;   /* array of Bell numbers */
@@ -34,7 +37,7 @@ static void ensure_bell_capacity(size_t need)
     size_t new_cap = bell_cap ? bell_cap * 2U : 1U;
     while (new_cap < need)
         new_cap <<= 1U;    /* double until large enough */
-    seq_t *tmp = (seq_t *)realloc(bell_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, bell_cache, new_cap);
     if (!tmp) {
         /* Allocation failed – abort to avoid undefined behaviour. */
         exit(EXIT_FAILURE);
@@ -63,7 +66,7 @@ static void compute_bell_up_to(idx_t max_k)
         seq_t sum = (seq_t)0;
         /* B(n) = Σ_{k=0}^{n-1} C(n-1, k) * B(k) */
         for (size_t k = 0; k < n; ++k) {
-            seq_t term = binom((idx_t)(n - 1), (idx_t)k) * bell_cache[k];
+            seq_t term = binomial((idx_t)(n - 1), (idx_t)k) * bell_cache[k];
             sum = sum + term;
         }
         bell_cache[n] = sum;

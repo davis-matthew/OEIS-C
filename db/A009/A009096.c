@@ -12,7 +12,8 @@
  *            opposite parity
  * Range:     u8 n <= 9, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------
    Helper for computing gcd of two unsigned integers.
@@ -103,7 +105,7 @@ static void init(void)
     const seq_t PERIM_LIMIT = 200000u;   /* safe upper bound */
 
     size_t prim_cap = 128;
-    seq_t *prim = (seq_t *)malloc(prim_cap * sizeof(seq_t));
+    seq_t *prim = mem_new(seq_t, prim_cap);
     size_t prim_cnt = 0;
 
     for (unsigned long long m = 2;
@@ -122,7 +124,7 @@ static void init(void)
 
             if (prim_cnt == prim_cap) {
                 prim_cap <<= 1;
-                prim = (seq_t *)realloc(prim, prim_cap * sizeof(seq_t));
+                prim = mem_resize(seq_t, prim, prim_cap);
             }
             prim[prim_cnt++] = p0;
         }
@@ -134,20 +136,20 @@ static void init(void)
           equal to p0.
        ------------------------------------------------------------------ */
     heap_size = prim_cnt;
-    heap = (heap_item_t *)malloc(heap_size * sizeof(heap_item_t));
+    heap = mem_new(heap_item_t, heap_size);
     for (size_t i = 0; i < prim_cnt; ++i) {
         heap[i].val = prim[i];
         heap[i].inc = prim[i];
     }
     heap_build();   /* turn array into min-heap */
 
-    free(prim);     /* primitive list no longer needed */
+    mem_free(prim);     /* primitive list no longer needed */
 
     /* ------------------------------------------------------------------
        3. Prepare sequence result array.
        ------------------------------------------------------------------ */
     seq_cap = 128;
-    seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     seq_len = 0;
 
     initialized = 1;
@@ -173,7 +175,7 @@ seq_t a(idx_t n)
         /* grow result array if necessary */
         if (seq_len == seq_cap) {
             seq_cap = seq_cap ? seq_cap * 2 : 128;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
 
         seq[seq_len++] = out_val;            /* store output */

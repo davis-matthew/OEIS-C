@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   is_uniform_lyndon_reversed
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,48 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_uniform_lyndon_reversed.h"
+#include "../utils/mem.h"
+
+static inline bool is_uniform_lyndon_reversed(idx_t n)
+{
+    /* Build reversed binary string (least significant bit first). */
+    unsigned len = 0;
+    uint64_t tmp = (uint64_t)n;
+    while (tmp) {
+        len++;
+        tmp >>= 1;
+    }
+    unsigned bits[64];
+    for (unsigned i = 0; i < len; i++) {
+        bits[i] = (uint8_t)((n >> i) & 1ULL);
+    }
+
+    unsigned i = 0;
+    int expected_len = -1;
+
+    while (i < len) {
+        unsigned j = i + 1;
+        unsigned k = i;
+        while (j < len && bits[k] <= bits[j]) {
+            if (bits[k] < bits[j]) {
+                k = i;
+            } else {
+                k++;
+            }
+            j++;
+        }
+        unsigned l = j - k;
+        while (i <= k) {
+            if (expected_len == -1) {
+                expected_len = (int)l;
+            } else if (expected_len != (int)l) {
+                return false;
+            }
+            i += l;
+        }
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -43,7 +85,7 @@ seq_t a(idx_t n)
         if (is_uniform_lyndon_reversed(cand)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
                     /* allocation failure; return 0 as a fallback */
                     return 0;

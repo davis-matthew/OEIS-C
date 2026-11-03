@@ -9,7 +9,8 @@
  *            (computed by a sieve of Eratosthenes and Euler’s totient)
  * Range:     u8 n <= 91, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9831 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Upper bound for the sieve – large enough for the first 10 000 terms. */
 #define MAX_BOUND 2000000
@@ -33,7 +35,7 @@ static size_t  terms_cap    = 0;
 static void grow_terms(void)
 {
     size_t new_cap = terms_cap ? terms_cap * 2 : 1024;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) exit(1);         /* abort on memory failure */
     terms = tmp;
     terms_cap = new_cap;
@@ -53,7 +55,7 @@ static void init_sequence(void)
     if (initialized) return;
 
     /* Allocate working arrays */
-    phi   = (seq_t *)malloc((MAX_BOUND + 1) * sizeof(seq_t));
+    phi   = mem_new(seq_t, (MAX_BOUND + 1));
     nonsq = (uint8_t *)calloc((MAX_BOUND + 1), sizeof(uint8_t));
 
     if (!phi || !nonsq) exit(1);

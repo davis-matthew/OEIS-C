@@ -9,13 +9,15 @@
  *            * r(r+1)/2 ≥ n > (r-1)r/2
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 20, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* integer square root, floor(sqrt(n)).  Works safely for non‑negative idx_t. */
 static idx_t isqrt_idx(idx_t n)
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
 
     /* Allocate array for Φ_k(x) values (1 … r). */
     size_t sz = (size_t)r + 1;                   /* phi[0] unused */
-    seq_t *phi = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *phi = mem_new(seq_t, sz);
     if (!phi) return 0;                          /* allocation failure: fallback */
 
     /* Compute Φ_1(x) = x – 1 */
@@ -83,6 +85,6 @@ seq_t a(idx_t n)
         result = result * numer;
     }
 
-    free(phi);
+    mem_free(phi);
     return result;
 }

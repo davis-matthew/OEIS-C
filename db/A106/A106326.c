@@ -7,7 +7,8 @@
  * Formula:   a(n) = the smallest odd semiprime ≥ n
  * Range:     u8 n <= 253, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_odd
+ * Validated: standard, pass, 88 terms through n = 979 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,17 @@
    e.g. 9 = 3×3, 15 = 3×5, 21 = 3×7, …)               */
 
 #include <stdbool.h>
-#include "../utils/is_prime_odd.h"
+
+/* Test if an odd integer x (x ≥ 3) is prime.  */
+static bool is_prime_odd(seq_t x)
+{
+    if (x < 3) return false;
+    if ((x & 1) == 0) return false;
+    for (seq_t d = 3; d * d <= x; d += 2) {
+        if (x % d == 0) return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

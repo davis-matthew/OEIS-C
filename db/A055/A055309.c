@@ -9,6 +9,7 @@
  *            234*n^3 + 2211*n^2 - 8938*n + 12960)/234101145600
  * Range:     u8 n <= 9, u16 n <= 10, u32 n <= 12, u64 n <= 17, u128 n <= 28,
  *            big any n
+ * Validated: standard, pass, 27 terms through n = 195 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

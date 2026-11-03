@@ -8,14 +8,21 @@
  *            <= j) in increasing order with a min-heap and drops duplicates
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 119, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a3380_pow8
+ * Validated: standard, pass, 48 terms through n = 9829 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a3380_pow8.h"
+
+static seq_t a3380_pow8(idx_t x) {
+    seq_t b = (seq_t)x, r = 1;
+    int k;
+    for (k = 0; k < 8; k++) r *= b;
+    return r;
+}
 
 typedef unsigned __int128 a3380_u128;
 

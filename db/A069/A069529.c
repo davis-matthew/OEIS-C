@@ -9,6 +9,7 @@
  *            is 10; a(n) = 0 if no such multiple exists
  * Range:     u8 n <= 19, u16 n <= 198, u32 n <= 4998, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 83 terms through n = 8310 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

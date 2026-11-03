@@ -9,7 +9,8 @@
  *            digits of x) * (sum of squares of digits of x)^2
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   digit_sums
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,20 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/digit_sums.h"
+#include "../utils/mem.h"
+
+/* compute sum of digits and sum of squares of digits for a seq_t number */
+static void digit_sums(seq_t n, seq_t *sum, seq_t *sum_sq)
+{
+    *sum = 0;
+    *sum_sq = 0;
+    while (n) {
+        int d = (int)(n % 10);
+        *sum += d;
+        *sum_sq += (seq_t)d * (seq_t)d;
+        n /= 10;
+    }
+}
 
 static seq_t terms[40000];
 static size_t term_count = 0;
@@ -57,7 +71,7 @@ seq_t a(idx_t n)
             }
         }
         /* sort the terms */
-        qsort(terms, term_count, sizeof(seq_t), cmp_seq_t_custom);
+        mem_qsort(terms, term_count, sizeof(seq_t), cmp_seq_t_custom);
         initialized = true;
     }
 

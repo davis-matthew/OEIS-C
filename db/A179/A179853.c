@@ -7,12 +7,15 @@
  * Formula:   a(n) = (n+1)^(n-1) * (3*n)! / n! (OEIS A179853)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 10,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +24,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* (n+1)^(n-1) */
-    seq_t pow = big_pow((seq_t)(n + 1), (seq_t)(n - 1));
+    seq_t pow = ipow((seq_t)(n + 1), (seq_t)(n - 1));
 
     /* product of the integers from (n+1) to (3*n) inclusive */
     seq_t prod = (seq_t)1;

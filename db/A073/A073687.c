@@ -9,14 +9,16 @@
  *            each group is prime; a(n) is the first term in the n‑th group
  * Range:     u8 n <= 4, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   isPrimeTrial
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Generate groups until we have at least n groups */
     while (count < n) {
         /* Find the first composite for this group */
-        while (current < 4 || isPrimeTrial((seq_t)current))
+        while (current < 4 || is_prime_seq((seq_t)current))
             ++current;
         seq_t start = (seq_t)current;
 
@@ -40,19 +42,19 @@ seq_t a(idx_t n)
         seq_t sum = 0;
         while (true) {
             sum += (seq_t)current;
-            if (isPrimeTrial(sum))
+            if (is_prime_seq(sum))
                 break;           /* group ends */
 
             ++current;
             /* Skip non‑composites for the next iteration */
-            while (current < 4 || isPrimeTrial((seq_t)current))
+            while (current < 4 || is_prime_seq((seq_t)current))
                 ++current;
         }
 
         /* Store the group head */
         if (count == cap) {
             size_t new_cap = cap ? cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(heads, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, heads, new_cap);
             if (!tmp)
                 exit(1);          /* out of memory */
             heads = tmp;

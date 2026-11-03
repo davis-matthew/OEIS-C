@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 37, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   power8
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,13 @@
 */
 
 #include <stdint.h>
-#include "../utils/power8.h"
+
+static inline uint64_t power8(int exp)
+{
+    uint64_t r = 1;
+    for (int i = 0; i < exp; ++i) r *= 8;
+    return r;
+}
 
 static inline uint64_t comb_int(int n, int k)
 {

@@ -9,18 +9,20 @@
  *            n(n+1)/2 into at most n parts each <= n+1
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 37, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     long long N = (long long)n * ((long long)n + 1) / 2;
     long long nn = (long long)n;
-    seq_t *c = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, (size_t)(N + 1));
     long long i, k;
     seq_t result;
     for (k = 0; k <= N; k++) c[k] = 0;
@@ -35,6 +37,6 @@ seq_t a(idx_t n) {
         }
     }
     result = c[N];
-    free(c);
+    mem_free(c);
     return result;
 }

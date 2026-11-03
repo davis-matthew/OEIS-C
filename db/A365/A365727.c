@@ -6,13 +6,15 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..floor(n/4)} binomial(k,n-4k) *
  *            binomial(n-3k+1,k) / (n-3k+1)
- * Range:     u8 n <= 18, u16 n <= 38, u32 n <= 51, u64 n <= 51, u128 n <= 51,
+ * Range:     u8 n <= 24, u16 n <= 43, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

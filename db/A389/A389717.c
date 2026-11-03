@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 54, u32 n <= 102, u64 n <= 194,
  *            u128 n <= 377, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    so unsigned arithmetic is safe. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t _init[12] = {
     1, 0, 0, 1, 0, 0, 1,
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     }
 
     /* Allocate array for terms 0..n (inclusive) */
-    seq_t *buf = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+    seq_t *buf = mem_new(seq_t, (n + 1));
     if (!buf) {
         /* Should never happen for reasonably sized n */
         return 0;
@@ -57,6 +59,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = buf[n];
-    free(buf);
+    mem_free(buf);
     return result;
 }

@@ -12,12 +12,14 @@
  *            by rows of T
  * Range:     i8 n <= 11, i16 n <= 16, i32 n <= 29, i64 n <= 56, i128 n <= 106,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 1221 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,23 +38,23 @@ seq_t a(idx_t n)
     idx_t k0 = n - prev_total;               /* 1 <= k0 <= r */
 
     /* powers of (-3) up to r */
-    seq_t *pow_neg3 = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *pow_neg3 = mem_new(seq_t, (r + 1));
     pow_neg3[0] = (seq_t)1;
     for (idx_t i = 1; i <= r; ++i)
         pow_neg3[i] = pow_neg3[i - 1] * (seq_t)(-3);
 
     /* two rows: previous and current */
-    seq_t *e_prev = (seq_t *)malloc((r + 1) * sizeof(seq_t));
-    seq_t *e_cur  = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *e_prev = mem_new(seq_t, (r + 1));
+    seq_t *e_cur  = mem_new(seq_t, (r + 1));
 
     /* row 1 */
     e_prev[0] = (seq_t)0;
     e_prev[1] = (seq_t)1;
     if (r == 1) {
         seq_t ans = e_prev[1] + e_prev[1];
-        free(e_prev);
-        free(e_cur);
-        free(pow_neg3);
+        mem_free(e_prev);
+        mem_free(e_cur);
+        mem_free(pow_neg3);
         return ans;
     }
 
@@ -73,8 +75,8 @@ seq_t a(idx_t n)
 
     seq_t result = e_prev[k0] + e_prev[r - k0 + 1];
 
-    free(e_prev);
-    free(e_cur);
-    free(pow_neg3);
+    mem_free(e_prev);
+    mem_free(e_cur);
+    mem_free(pow_neg3);
     return result;
 }

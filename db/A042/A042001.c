@@ -7,7 +7,8 @@
  * Formula:   a(n) = 163620601252 * a(n-22) – a(n-44) (n > 43)
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 21, u64 n <= 37, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 179 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Memoisation storage */
 static seq_t *cache = NULL;              /* array of previously computed terms */
@@ -54,11 +56,11 @@ static void ensure_cache_size(idx_t n)
 {
     if (cache_size > (size_t)n) return;
     size_t new_size = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache) return; /* on memory failure, caller will see bogus values */
     if (cache) {
         for (size_t i = 0; i < cache_size; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_cache;
     cache_size = new_size;

@@ -12,14 +12,16 @@
  *            using Hensel lifting
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
 
 static inline seq_t compute_T(idx_t r, idx_t k)
 {
@@ -39,7 +41,7 @@ static inline seq_t compute_T(idx_t r, idx_t k)
 seq_t a(idx_t n)
 {
     /* Find the row r such that 2^(r-1) <= n <= 2^r - 1 */
-    unsigned r = floor_log2_uint64(n) + 1;
+    unsigned r = ilog2(n) + 1;
 
     uint64_t start = 1ULL << (r - 1);        /* first index of row r */
     uint64_t k = n - start;                 /* column index (0‑based) */

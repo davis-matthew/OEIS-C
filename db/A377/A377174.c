@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   factor_u64, mod_pow, next_prime
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   factor_u64, mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,16 +18,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"
-#include "../utils/mod_pow.h"
+#include <string.h>
 #include "../utils/factor_u64.h"
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static void ensure_capacity(size_t needed, size_t *cap, seq_t **ptr)
 {
     if (*cap < needed) {
         size_t new_cap = (*cap == 0) ? 16 : (*cap * 2);
         while (new_cap < needed) new_cap <<= 1;
-        *ptr = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+        *ptr = mem_resize(seq_t, *ptr, new_cap);
         *cap = new_cap;
     }
 }
@@ -48,7 +51,7 @@ static bool is_primitive_root_5over2(uint64_t p)
     for (size_t i = 0; i < pcnt; ++i) {
         uint64_t q   = primes[i];
         uint64_t exp = (p - 1) / q;
-        if (mod_pow(g, exp, (seq_t)p) == (seq_t)1) return false;
+        if (powmod(g, exp, (seq_t)p) == (seq_t)1) return false;
     }
     return true;
 }

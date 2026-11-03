@@ -8,7 +8,8 @@
  *            (sigma(k) is the sum of the positive divisors of k)
  * Range:     u8 n <= 44, u16 n <= 4103, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static state */
 static idx_t spf_limit = 0;          /* current size of spf array      */
@@ -103,7 +105,7 @@ static seq_t sigma_of(idx_t n) {
 static void push_term(seq_t value) {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap == 0 ? 16 : terms_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();
         terms = tmp;
         terms_cap = new_cap;

@@ -12,12 +12,15 @@
  *            succeeds: n*10 = n followed by a zero)
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 69 terms through n = 971 (2026-11-01)
  * Helpers:   get_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>           /* for size_t */
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/get_digits.h"
 
 seq_t a(idx_t n)

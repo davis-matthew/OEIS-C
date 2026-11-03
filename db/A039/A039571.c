@@ -9,14 +9,29 @@
  *            has equal numbers of 1’s, 3’s and 4’s
  * Range:     u8 n <= 28, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   has_equal_134
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_equal_134.h"
+#include "../utils/mem.h"
+
+/* test whether a number satisfies the property */
+static bool has_equal_134(seq_t x)
+{
+    int c1 = 0, c3 = 0, c4 = 0;
+    while (x > 0) {
+        int d = (int)(x % (seq_t)5);
+        x /= (seq_t)5;
+        if (d == 1) ++c1;
+        else if (d == 3) ++c3;
+        else if (d == 4) ++c4;
+    }
+    return c1 == c3 && c3 == c4;
+}
 
 /* static state for memoisation */
 static seq_t *cache = NULL;
@@ -30,7 +45,7 @@ static void grow_cache(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;

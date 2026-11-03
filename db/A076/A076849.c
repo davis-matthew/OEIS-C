@@ -11,13 +11,15 @@
  *            efficiently
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *u_cache = NULL;     /* memoisation table for u(n) */
 static idx_t cache_size = 0;     /* current allocated size of u_cache */
@@ -45,7 +47,7 @@ static seq_t u_recursive(idx_t n)
     /* Resize cache if necessary */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(u_cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, u_cache, new_size);
         if (!new_cache)   /* abort on allocation failure */
             abort();
         /* initialise new entries to 0 */

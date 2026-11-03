@@ -8,12 +8,14 @@
  * Formula:   a(n) = Sum_{k=0..n+1} C(n+1,k) * C((n+1)*k, n-k) / (n+1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 18,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         /* binom((n+1)*k , n-k)  – top value fits in idx_t */
         idx_t top    = (idx_t)(N * k);
         idx_t bottom = (idx_t)(n - k);
-        seq_t C_Nk_nk = binom(top, bottom);
+        seq_t C_Nk_nk = binomial(top, bottom);
 
         sum += C_n1_k * C_Nk_nk;
     }

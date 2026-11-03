@@ -7,7 +7,8 @@
  * Formula:   a(n) = binomial(2*n-1, n-1) mod n
  * Range:     u8 n <= 308, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   exp_in_fact, mod_pow
+ * Validated: standard, pass, 101 terms through n = 8476 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/exp_in_fact.h"
-#include "../utils/mod_pow.h"
+#include <stddef.h>
+#include <string.h>
+#include "../utils/powmod.h"
+
+/* exponent of prime p in factorial m (Legendre's formula) */
+static inline int exp_in_fact(uint64_t m, uint64_t p)
+{
+    int exp = 0;
+    while (m) {
+        m /= p;
+        exp += (int)m;
+    }
+    return exp;
+}
 
 seq_t a(idx_t n)
 {
@@ -44,7 +57,7 @@ seq_t a(idx_t n)
                 - exp_in_fact((uint64_t)(n - 1), (uint64_t)p)
                 - exp_in_fact((uint64_t)n, (uint64_t)p);
         if (e > 0) {
-            seq_t pw = mod_pow((seq_t)p, (uint64_t)e, mod);
+            seq_t pw = powmod((seq_t)p, (uint64_t)e, mod);
             result = (result * pw) % mod;
         }
     }

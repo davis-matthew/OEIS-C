@@ -8,12 +8,14 @@
  *            initial values a(0) = 1, a(1) = 0
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* cache of computed terms */
 static idx_t cache_len = 0;        /* number of terms stored (size of cache) */
@@ -23,14 +25,14 @@ seq_t a(idx_t n)
     /* Ensure cache has space for a(0) and a(1) */
     if (cache_len == 0) {
         cache_len = 2;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)0;
     }
 
     /* Compute any missing terms up to n */
     if (n >= cache_len) {
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+        cache = mem_resize(seq_t, cache, (n + 1));
         for (idx_t m = cache_len; m <= n; ++m) {
             if (m < 2) {
                 /* m == 0 or 1 already set */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 167, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- helper data structures ---------- */
 static uint64_t *spf = NULL;                /* smallest prime factor for each n */
@@ -126,7 +128,7 @@ static void append_value(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
         if (new_arr == NULL) abort();
         cache = new_arr;
         cache_cap = new_cap;
@@ -141,7 +143,7 @@ seq_t a(idx_t n)
 
     if (cache_len == 0) {        /* initialise on first call */
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) abort();
         append_value(1);         /* a(1) = 1 */
     }

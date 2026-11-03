@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   num_to_pos, pos_to_num
+ * Validated: standard, pass, 93 terms through n = 9336 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,62 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/num_to_pos.h"
-#include "../utils/pos_to_num.h"
+#include "../utils/mem.h"
+
+/* convert a spiral number to its (x,y) coordinate */
+static void num_to_pos(seq_t n, int64_t *x, int64_t *y)
+{
+    if (n <= 1) { *x = 0; *y = 0; return; }
+
+    /* find ring r such that (2*r-1)^2 < n <= (2*r+1)^2 */
+    idx_t r = 0;
+    seq_t max_in_ring = 1;
+    while (max_in_ring < n) {
+        r++;
+        max_in_ring = (seq_t)(2 * r + 1) * (seq_t)(2 * r + 1);
+    }
+
+    seq_t base = (seq_t)(2 * r - 1) * (seq_t)(2 * r - 1);
+    seq_t offset = n - base;               /* 1‑based offset inside the ring */
+
+    if (offset <= (seq_t)(2 * r)) {                 /* right side */
+        *x = r;
+        *y = (int64_t)offset - r;
+    } else if (offset <= (seq_t)(4 * r)) {           /* top side */
+        seq_t o = offset - (seq_t)(2 * r);
+        *y = r;
+        *x = r - (int64_t)o;
+    } else if (offset <= (seq_t)(6 * r)) {           /* left side */
+        seq_t o = offset - (seq_t)(4 * r);
+        *x = -r;
+        *y = r - (int64_t)o;
+    } else {                                       /* bottom side */
+        seq_t o = offset - (seq_t)(6 * r);
+        *y = -r;
+        *x = (int64_t)o - r;
+    }
+}
+
+/* convert a coordinate (x,y) into its spiral number (1‑based) */
+static seq_t pos_to_num(int64_t x, int64_t y)
+{
+    int64_t r = x < 0 ? -x : x;
+    int64_t ay = y < 0 ? -y : y;
+    if (ay > r) r = ay;
+    if (r == 0) return 1;
+
+    seq_t base = (seq_t)(2 * r - 1) * (seq_t)(2 * r - 1);
+
+    if (x == r && y != -r) {                /* right side (excluding bottom‑right corner) */
+        return base + (seq_t)(y + r);
+    } else if (y == r) {                    /* top side */
+        return base + (seq_t)(2 * r) + (seq_t)(r - x);
+    } else if (x == -r) {                   /* left side */
+        return base + (seq_t)(4 * r) + (seq_t)(r - y);
+    } else {                                /* bottom side */
+        return base + (seq_t)(6 * r) + (seq_t)(x + r);
+    }
+}
 
 static seq_t *seq_cache   = NULL;
 static size_t seq_cap     = 0;
@@ -58,7 +113,7 @@ static void ensure_seq_cap(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 64;
     while (new_cap <= need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) abort();
     seq_cache = tmp;
     seq_cap = new_cap;

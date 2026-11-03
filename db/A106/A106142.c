@@ -10,7 +10,8 @@
  *            list lazily for larger n
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #if defined(__cplusplus)
 #include <new>                     /* for placement new in C++  */
 #endif
+#include "../utils/mem.h"
 
 /* ---------- configuration -------------------------------------------------- */
 #define SEMI_LIMIT   2000000U        /* pre‑compute all semiprimes ≤ LIMIT          */
@@ -50,13 +52,13 @@ static void _a_extend_sem(void)
 {
     size_t old_cap = _a_sem_cap;
     _a_sem_cap = (_a_sem_cap == 0) ? 1024 : (_a_sem_cap << 1);
-    seq_t *new_arr = (seq_t *)realloc(_a_sem_residue, _a_sem_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, _a_sem_residue, _a_sem_cap);
     if (!new_arr) abort();
     _a_sem_residue = new_arr;
 #if defined(__cplusplus)
     /* default‑construct newly allocated elements in C++ */
     for (size_t i = old_cap; i < _a_sem_cap; ++i)
-        new (&_a_sem_residue[i]) seq_t();
+        *(&_a_sem_residue[i]) = (seq_t)0;
 #endif
 }
 
@@ -88,7 +90,7 @@ static void _a_initialize(void)
 
     /* ----- pre‑compute residues of all semiprimes ≤ SEMI_LIMIT ------------ */
     _a_sem_cap = 1024;
-    _a_sem_residue = (seq_t *)malloc(_a_sem_cap * sizeof(seq_t));
+    _a_sem_residue = mem_new(seq_t, _a_sem_cap);
     if (!_a_sem_residue) abort();
 
     for (uint32_t n = 4; n <= SEMI_LIMIT; ++n) {
@@ -97,7 +99,7 @@ static void _a_initialize(void)
         if (_a_spf[q] == q) {           /* q is prime → n is semiprime */
             if (_a_sem_cnt == _a_sem_cap) _a_extend_sem();
 #if defined(__cplusplus)
-            new (&_a_sem_residue[_a_sem_cnt]) seq_t(n % 6);
+            *(&_a_sem_residue[_a_sem_cnt]) = (seq_t)(n % 6);
 #else
             _a_sem_residue[_a_sem_cnt] = (seq_t)(n % 6);
 #endif
@@ -154,7 +156,7 @@ static void _a_ensure_terms(idx_t n)
         if (is_semiprime) {
             if (_a_sem_cnt == _a_sem_cap) _a_extend_sem();
 #if defined(__cplusplus)
-            new (&_a_sem_residue[_a_sem_cnt]) seq_t(x % 6);
+            *(&_a_sem_residue[_a_sem_cnt]) = (seq_t)(x % 6);
 #else
             _a_sem_residue[_a_sem_cnt] = (seq_t)(x % 6);
 #endif

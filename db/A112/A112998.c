@@ -11,17 +11,51 @@
  *            out‑of‑order requests
  * Range:     u8 n <= 3, u16 n <= 176, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   bigomega_uint64, ensure_capacity, is_prime, is_semiprime_uint64
+ * Validated: standard, pass, 59 terms through n = 907 (2026-11-03)
+ * Helpers:   bigomega_u64, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/is_semiprime_uint64.h"
-#include "../utils/bigomega_uint64.h"
-#include "../utils/ensure_capacity.h"
+#include <stdlib.h>
+#include <stddef.h>
+#include "../utils/bigomega_u64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* true if x is the product of exactly two primes (possibly the same) */
+static bool is_semiprime_uint64(uint64_t x)
+{
+    if (x < 4)
+        return false;
+    uint64_t d = 0;
+    if (x % 2 == 0)
+        d = 2;
+    else {
+        for (uint64_t dd = 3; dd <= x / dd; dd += 2) {
+            if (x % dd == 0) {
+                d = dd;
+                break;
+            }
+        }
+    }
+    if (d == 0)
+        return false;                      /* x is prime */
+    uint64_t second = x / d;
+    return is_prime_u64(second);
+}
+
+/* Grow an array of seq_t elements to at least min_cap elements. */
+static void ensure_capacity(size_t min_cap, seq_t **arr, size_t *cap)
+{
+    if (min_cap <= *cap) return;
+    size_t new_cap = (*cap) ? (*cap) * 2 : 1024;
+    if (new_cap < min_cap) new_cap = min_cap;
+    *arr = mem_resize(seq_t, *arr, new_cap);
+    *cap = new_cap;
+}
 
 /* Cache of already found terms */
 static seq_t *cache      = NULL;
@@ -39,11 +73,11 @@ seq_t a(idx_t n)
     /* Extend the cache until it contains at least n terms. */
     while (cache_size < n) {
         uint64_t cand = next_candidate;          /* candidate n */
-        if (is_prime(cand)) {
+        if (is_prime_u64(cand)) {
             uint64_t nm1 = cand + 1;
             uint64_t nm2 = cand + 2;
             if (is_semiprime_uint64(nm1) &&
-                bigomega_uint64(nm2) == (seq_t)3) {
+                bigomega_u64(nm2) == (seq_t)3) {
                 /* Ensure the array is large enough. */
                 if (cache_size + 1 > cache_cap)
                     ensure_capacity(cache_size + 1, &cache, &cache_cap);

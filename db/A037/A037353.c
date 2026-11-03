@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 540, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_common_digits
+ * Validated: standard, pass, 67 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,27 @@
    computed by brute‑force search. */
 
 #include <stdlib.h>
-#include "../utils/has_common_digits.h"
+#include "../utils/mem.h"
+
+/* Return nonzero if x has a digit in common between its base‑4 and base‑6
+   representations. */
+static int has_common_digits(seq_t x)
+{
+    int mask4 = 0, mask6 = 0;
+    seq_t y = x;
+    while (x > 0) {
+        int d = (int)(x % 4);
+        mask4 |= 1 << d;
+        x /= 4;
+    }
+    x = y;
+    while (x > 0) {
+        int d = (int)(x % 6);
+        mask6 |= 1 << d;
+        x /= 6;
+    }
+    return (mask4 & mask6) != 0;
+}
 
 static seq_t *cache = NULL;      /* array of found terms */
 static size_t cache_cap = 0;     /* allocated capacity */
@@ -30,7 +51,7 @@ static void grow_cache(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;

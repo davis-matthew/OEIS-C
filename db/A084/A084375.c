@@ -12,7 +12,8 @@
  *            returns the index of the n‑th such prime....
  * Range:     u8 n <= 19, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   ceil_sqrt_uint64
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   isqrt_ceil_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/ceil_sqrt_uint64.h"
+#include "../utils/isqrt_ceil_u64.h"
 
 /* ---------- Configuration ---------------------------------------------- */
 #define SEG_SIZE  1048576        /* 2^20  numbers per sieving segment  */
@@ -183,7 +184,7 @@ seq_t a(idx_t n)
 
     while (1) {
         uint64_t high = low + SEG_SIZE - 1;
-        uint64_t sqrt_high = ceil_sqrt_uint64(high);
+        uint64_t sqrt_high = isqrt_ceil_u64(high);
         if (sqrt_high > BASE_MAX) extend_base_primes(sqrt_high);
 
         /* mark composites */

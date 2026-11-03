@@ -10,14 +10,17 @@
  *            counting 1 as a prime
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 37 terms through n = 45 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* stores a[n] for 0 <= n <= cache_max */
 static idx_t  cache_max = 0;    /* highest index for which a_cache is valid */
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
         size_t msize = (size_t)new_max + 1;          /* indices 0..new_max */
         size_t total  = 10 * msize;                  /* t = 0..9 */
 
-        seq_t *dp = (seq_t*)calloc(total, sizeof(seq_t));   /* automatically zeroed */
+        seq_t *dp = mem_new(seq_t, total);   /* automatically zeroed */
         dp[0] = (seq_t)1;   /* dp[0][0] = 1 */
 
         /* dynamic programming */
@@ -66,17 +69,17 @@ seq_t a(idx_t n)
         }
 
         /* allocate new cache of a[n] values */
-        seq_t *new_cache = (seq_t*)calloc((size_t)new_max + 1, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)new_max + 1);
         for (idx_t s = 9; s <= new_max; ++s)
             new_cache[s] = dp[9 * msize + s];
 
         /* replace old cache */
         if (a_cache)
-            free(a_cache);
+            mem_free(a_cache);
         a_cache   = new_cache;
         cache_max = new_max;
 
-        free(dp);
+        mem_free(dp);
         free(primes);
     }
 

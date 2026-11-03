@@ -11,13 +11,46 @@
  *            zigzag)
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   is_down_first_zigzag
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_down_first_zigzag.h"
+
+static bool is_down_first_zigzag(seq_t n)
+{
+    /* Extract base‑6 digits (least significant first). */
+    seq_t tmp = n;
+    int digits[200];          /* enough for any seq_t that fits in the build */
+    int len = 0;
+
+    if (tmp == 0)          /* single digit numbers are not allowed */
+        return false;
+
+    while (tmp > 0) {
+        int d = (int)(tmp % 6);
+        digits[len++] = d;
+        tmp /= 6;
+    }
+
+    if (len < 2)           /* at least two digits required */
+        return false;
+
+    /* Most significant must be greater than the next digit. */
+    int msb   = digits[len - 1];
+    int next  = digits[len - 2];
+    if (msb <= next)
+        return false;
+
+    /* All adjacent digits must differ (strict zigzag). */
+    for (int i = 0; i < len - 1; ++i)
+        if (digits[i] == digits[i + 1])
+            return false;
+
+    return true;
+}
 
 seq_t a(idx_t n)
 {

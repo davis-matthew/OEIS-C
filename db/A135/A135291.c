@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 32, u32 n <= 75, u64 n <= 179,
  *            u128 n <= 436, big any n
+ * Validated: standard, pass, 61 terms through n = 9886 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto */
+#include "../utils/build_primes_upto.h"
 
 seq_t a(idx_t n)
 {

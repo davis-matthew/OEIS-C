@@ -12,6 +12,7 @@
  *            a(9)); for all larger indices the value is 4. This is a...
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
+ * Validated: partial, pass, 83 terms through n = 82 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  *            (offset_row(r) = r(r-1)/2 + 1) and k = n - offset_row(r) + 1
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   _count_coprime_to_primes
+ * Validated: partial, pass, 104 terms through n = 104 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,29 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_count_coprime_to_primes.h"
+
+/* Count integers <= k that are coprime to all primes in arr[0..cnt-1] */
+static seq_t _count_coprime_to_primes(idx_t k, uint32_t *arr, int cnt)
+{
+    seq_t res = (seq_t)k;          /* start with all numbers 1..k */
+    uint64_t prod;
+    int mask;
+    for (mask = 1; mask < (1 << cnt); ++mask) {
+        prod = 1;
+        int bits = 0;
+        int i;
+        for (i = 0; i < cnt; ++i) if (mask & (1 << i)) {
+            uint32_t p = arr[i];
+            ++bits;
+            if (prod > k / p) { prod = k + 1; break; } /* overflow or > k */
+            prod *= p;
+        }
+        if (prod > k) continue;
+        seq_t term = (seq_t)(k / prod);
+        if (bits & 1) res -= term; else res += term;
+    }
+    return res;
+}
 
 static bool _init_spf = false;
 static size_t _spf_limit = 200000; /* sufficient for n up to ~10^4, can be increased */

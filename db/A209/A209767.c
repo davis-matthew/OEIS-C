@@ -9,13 +9,15 @@
  *            v(n,x)=2x*u(n-1,x)+(x+1)*v(n-1,x)+1
  * Range:     u8 n <= 24, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static storage for the triangle */
 static seq_t **U_rows = NULL;      /* array of pointers to u rows (1‑based) */
@@ -51,8 +53,8 @@ static void ensure_rows(idx_t cnt)
 
     for (idx_t r = U_rows_cnt + 1; r <= cnt; ++r) {
         size_t len = (size_t)r;
-        seq_t *new_u = (seq_t *)malloc(len * sizeof(seq_t));
-        seq_t *new_v = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *new_u = mem_new(seq_t, len);
+        seq_t *new_v = mem_new(seq_t, len);
         if (!new_u || !new_v) {
             /* allocation failure – abort silently */
             abort();
@@ -98,7 +100,7 @@ static void ensure_rows(idx_t cnt)
 
         /* replace current v by the newly created one (free old) */
         if (cur_v)
-            free(cur_v);
+            mem_free(cur_v);
         cur_v      = new_v;
         cur_v_len = (idx_t)len;
     }

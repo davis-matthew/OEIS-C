@@ -9,13 +9,15 @@
  *            representation, no digit zero
  * Range:     u8 n <= 3, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* prime for each non‑zero base‑9 digit d (1≤d≤8) */
 static const uint8_t prime_for_digit[9] = {0,2,3,5,7,11,13,17,19};
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
     if (cache_cap == 0) {                       /* initial allocation */
         cache_cap = 16;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     while (cache_len < n) {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
 
         if (cache_len >= cache_cap) {           /* grow the cache if needed */
             cache_cap *= 2;
-            cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         cache[cache_len++] = (seq_t)candidate;  /* store the found term */

@@ -6,171 +6,110 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 3, u16 n <= 81, u32 n <= 500, u64 n <= 500,
+ *            u128 n <= 500, big any n
+ * Validated: standard, pass, 59 terms through n = 465 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-/* Sequence A342402: a(n) is the n‑th perfect square k=n² such that
-   among its proper divisors there is a subset of size τ(k)/2 whose sum
-   equals k. This implementation tests successive squares and
-   checks the property by a depth‑first search with pruning. */
-#include <stdlib.h>
+/* The terms are squares k = j^2 (tau(k) is odd only then, so the number m
+ * of proper divisors is even); k is a term iff some m/2 of its proper
+ * divisors add up to k. That is decided exactly by a DP over the divisors
+ * in increasing order with one bitset of reachable sums (0..k) per subset
+ * size c: B[c] |= B[c-1] << d, only for the sizes from which m/2 can still
+ * be reached; a quick test of the smallest and largest m/2 divisors settles
+ * most j. (The original's depth-first search blew up on some j.) */
+
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/mem.h"
 
-/* maximum number of divisors that may occur for the considered range */
-#define MAX_DIVS 20000
-
-/* comparison function for qsort on seq_t values */
-static int cmp_seq_t(const void *a, const void *b)
+static int cmp_u64(const void *x, const void *y)
 {
-    const seq_t *x = (const seq_t *)a;
-    const seq_t *y = (const seq_t *)b;
-    if (*x < *y) return -1;
-    return (*x > *y) ? 1 : 0;
+    uint64_t a = *(const uint64_t *)x, b = *(const uint64_t *)y;
+    return (a > b) - (a < b);
 }
 
-/* generate all divisors of n² into buf[0..tau-1], tau = product(2*e+1) */
-static void rec_divs(size_t idx, seq_t cur,
-                     const uint32_t *primes, const uint8_t *exps, size_t pcnt,
-                     seq_t *buf, size_t *pos)
+static bool is_term(uint64_t j)
 {
-    if (idx == pcnt) {
-        buf[(*pos)++] = cur;
-        return;
-    }
-    uint32_t p   = primes[idx];
-    uint8_t exp  = exps[idx] * 2;      /* exponent in n² */
-    seq_t prod   = 1;
-    for (uint8_t i = 0; i <= exp; ++i) {
-        rec_divs(idx + 1, cur * prod,
-                 primes, exps, pcnt, buf, pos);
-        prod *= p;
-    }
-}
-
-/* DFS to decide whether a subset of size need from divs[idx..m-1]
-   sums to k.  Prefix and maxs give lower/upper bounds. */
-static bool dfs(const seq_t *divs, size_t m, size_t half,
-                size_t idx, size_t need, seq_t sum, seq_t k,
-                const seq_t *prefix, const seq_t *maxs)
-{
-    if (need == 0) return sum == k;
-    if (idx == m) return false;
-    if (need > m - idx) return false;
-
-    /* minimal possible sum of the next 'need' smallest divisors */
-    seq_t min_possible = prefix[idx + need] - prefix[idx];
-    if (sum + min_possible > k) return false;
-
-    /* maximal possible sum using the largest 'need' divisors */
-    seq_t max_possible = maxs[need];
-    if (sum + max_possible < k) return false;
-
-    /* include divs[idx] */
-    if (dfs(divs, m, half, idx + 1, need - 1,
-            sum + divs[idx], k, prefix, maxs))
-        return true;
-
-    /* skip divs[idx] */
-    if (dfs(divs, m, half, idx + 1, need,
-            sum, k, prefix, maxs))
-        return true;
-
-    return false;
-}
-
-/* test whether k = n² satisfies the property */
-static bool is_term(uint64_t n)
-{
-    /* factor n */
-    uint32_t primes[32];
-    uint8_t  exps[32];
-    size_t   pcnt = 0;
-    uint64_t x = n;
-
-    while (x % 2 == 0) {
-        if (pcnt == 0 || primes[pcnt - 1] != 2) {
-            primes[pcnt] = 2;
-            exps[pcnt]   = 0;
-            pcnt++;
+    uint64_t k = j * j, x = j, p[32];
+    int e[32], np = 0;
+    for (uint64_t q = 2; q * q <= x; ++q)
+        if (x % q == 0) {
+            p[np] = q;
+            e[np] = 0;
+            while (x % q == 0) { x /= q; e[np] += 2; }
+            ++np;
         }
-        exps[pcnt - 1]++;
-        x /= 2;
-    }
-    for (uint64_t p = 3; p * p <= x; p += 2) {
-        while (x % p == 0) {
-            if (pcnt == 0 || primes[pcnt - 1] != p) {
-                primes[pcnt] = p;
-                exps[pcnt]   = 0;
-                pcnt++;
-            }
-            exps[pcnt - 1]++;
-            x /= p;
-        }
-    }
-    if (x > 1) {
-        primes[pcnt] = (uint32_t)x;
-        exps[pcnt]   = 1;
-        pcnt++;
-    }
-
-    /* total number of divisors of n² */
+    if (x > 1) { p[np] = x; e[np++] = 2; }
     size_t tau = 1;
-    for (size_t i = 0; i < pcnt; ++i) tau *= (size_t)(2 * exps[i] + 1);
-
-    if (tau > MAX_DIVS) return false;     /* safety */
-
-    /* generate all divisors of n² */
-    static seq_t all_divs[MAX_DIVS];
-    size_t pos = 0;
-    rec_divs(0, (seq_t)1, primes, exps, pcnt, all_divs, &pos);
-    if (pos != tau) return false;         /* sanity check */
-
-    /* sort divisors */
-    qsort(all_divs, tau, sizeof(seq_t), cmp_seq_t);
-
-    size_t m = tau - 1;          /* number of proper divisors */
-    if (m == 0 || (m & 1)) return false;
-
-    size_t half = m / 2;
-
-    /* prefix sums of divisors (for lower bound) */
-    static seq_t prefix[MAX_DIVS + 1];
-    prefix[0] = 0;
-    for (size_t i = 0; i < m; ++i) prefix[i + 1] = prefix[i] + all_divs[i];
-
-    /* sums of the largest 'i' divisors (for upper bound) */
-    static seq_t maxs[MAX_DIVS / 2 + 1];
-    maxs[0] = 0;
-    for (size_t i = 1; i <= half; ++i)
-        maxs[i] = maxs[i - 1] + all_divs[m - i];
-
-    seq_t k = (seq_t)n * (seq_t)n;
-    return dfs(all_divs, m, half, 0, half, (seq_t)0, k, prefix, maxs);
+    for (int i = 0; i < np; ++i) tau *= (size_t)(e[i] + 1);
+    uint64_t *d = (uint64_t *)malloc(tau * sizeof *d);
+    if (!d) abort();
+    size_t nd = 1;
+    d[0] = 1;
+    for (int i = 0; i < np; ++i) {                    /* all divisors of k */
+        size_t base = nd;
+        uint64_t pw = 1;
+        for (int t = 1; t <= e[i]; ++t) {
+            pw *= p[i];
+            for (size_t s = 0; s < base; ++s) d[nd++] = d[s] * pw;
+        }
+    }
+    qsort(d, nd, sizeof *d, cmp_u64);
+    size_t m = nd - 1, half = m / 2;                  /* d[0..m) are the proper divisors */
+    bool ok = false;
+    if (m >= 2) {
+        uint64_t lo = 0, hi = 0;
+        for (size_t i = 0; i < half; ++i) { lo += d[i]; hi += d[m - 1 - i]; }
+        if (lo <= k && k <= hi) {
+            size_t W = (size_t)(k / 64) + 1;
+            uint64_t *B = (uint64_t *)calloc((half + 1) * W, sizeof *B);
+            if (!B) abort();
+            B[0] = 1;                                 /* size 0, sum 0 */
+            for (size_t i = 0; i < m; ++i) {
+                uint64_t s = d[i];
+                size_t ws = (size_t)(s / 64), bs = (size_t)(s % 64);
+                size_t cmax = i + 1 < half ? i + 1 : half;
+                size_t cmin = half > m - i ? half - (m - i) + 1 : 1;
+                for (size_t c = cmax; c >= cmin && c >= 1; --c) {
+                    uint64_t *dst = B + c * W, *src = B + (c - 1) * W;
+                    for (size_t w = W; w-- > ws;) {
+                        uint64_t v = src[w - ws] << bs;
+                        if (bs && w > ws) v |= src[w - ws - 1] >> (64 - bs);
+                        dst[w] |= v;
+                    }
+                    if (c == 1) break;
+                }
+            }
+            ok = (B[half * W + k / 64] >> (k % 64)) & 1;
+            free(B);
+        }
+    }
+    free(d);
+    return ok;
 }
 
-/* Main sequence accessor */
 seq_t a(idx_t n)
 {
-    static seq_t *seqtab = NULL;
-    static size_t seqlen = 0, seqcap = 0;
-    static uint64_t current_s = 1;   /* root of the current square being tested */
-
-    if (n == 0) return 0;        /* safety */
-    while (seqlen < (size_t)n) {
-        ++current_s;
-        if (is_term(current_s)) {
-            seq_t val = (seq_t)current_s * (seq_t)current_s;
-            if (seqlen == seqcap) {
-                seqcap = seqcap ? seqcap * 2 : 16;
-                seqtab = (seq_t *)realloc(seqtab, seqcap * sizeof(seq_t));
-            }
-            seqtab[seqlen++] = val;
+    static seq_t *T = NULL;
+    static size_t cnt = 0, cap = 0;
+    static uint64_t j = 0;
+    if (n == 0) return (seq_t)0;
+    while (cnt < (size_t)n) {
+        ++j;
+        if (!is_term(j)) continue;
+        if (cnt == cap) {
+            cap = cap ? 2 * cap : 64;
+            seq_t *t = mem_resize(seq_t, T, cap);
+            if (!t) abort();
+            T = t;
         }
+        T[cnt++] = (seq_t)(j * j);
     }
-    return seqtab[n - 1];
+    return T[n - 1];
 }

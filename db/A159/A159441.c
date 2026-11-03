@@ -9,9 +9,10 @@
  *            c1! … c6!), * where c0 = n² – Σ ci. * This coefficient can be
  *            evaluated as a product of binomials: * Π binom( N – Σ_{j<i} cj ,
  *            ci ) with N = n²
- * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 7, u128 n <= 12,
+ * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 7, u128 n <= 13,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 26 terms through n = 99 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 static const idx_t squares[6] = {1, 4, 9, 16, 25, 36};
 
@@ -79,7 +80,7 @@ seq_t a(idx_t n) {
             idx_t cnt = (idx_t)solutions[s].cnt[i];
             if (cnt == 0) continue;
             if (cnt > remaining) { term = 0; break; }
-            term *= binom(remaining, cnt);
+            term *= binomial(remaining, cnt);
             remaining -= cnt;
         }
 

@@ -9,8 +9,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if A328768(n) and A328845(n) are both multiples of 3,
  *            otherwise 0
- * Range:     u8 n <= 9663, u16 n <= 9663, u32 n <= 9663, u64 n <= 9663,
- *            u128 n <= 9663, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 143 terms through n = 9663 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

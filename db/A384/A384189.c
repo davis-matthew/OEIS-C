@@ -11,14 +11,25 @@
  *            in binary (e.g., 2, 4, 8, 16, 32, …)
  * Range:     u8 n <= 227, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_zero_count_other_than_one
+ * Validated: standard, pass, 83 terms through n = 9731 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_zero_count_other_than_one.h"
+
+/* Return true iff the binary representation of x contains a number
+   of zeros different from 1.  x > 0 is required. */
+static inline bool has_zero_count_other_than_one(idx_t x)
+{
+    uint64_t w = (uint64_t)x;                 /* candidate fits in 64 bits */
+    unsigned ones  = __builtin_popcountll(w);
+    unsigned bits  = 64 - __builtin_clzll(w);  /* number of bits used */
+    unsigned zeros = bits - ones;
+    return zeros != 1;
+}
 
 seq_t a(idx_t n)
 {

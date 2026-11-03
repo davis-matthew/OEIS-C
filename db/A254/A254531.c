@@ -8,6 +8,7 @@
  * Formula:   a(n) = round(12*log_2(n/440)) + 49, 27 <= n <= 4308
  * Range:     u8 n <= 4308, u16 n <= 4308, u32 n <= 4308, u64 n <= 4308,
  *            u128 n <= 4308, big any n
+ * Validated: full, pass, 4282 terms through n = 4308 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,12 +8,19 @@
  *            sum_{k=0..⌊m/9⌋} ((m-9k) is even ? (m-9k)/2 + 1 : 0)
  * Range:     u8 n <= 89, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   b_term
+ * Validated: standard, pass, 84 terms through n = 940 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/b_term.h"
+/* Compute the term ((m-9k)/2 + 1) when (m-9k) is even; otherwise 0. */
+static inline seq_t b_term(idx_t j)
+{
+    if ((j & 1) == 0)
+        return (seq_t)(j >> 1) + 1;
+    return 0;
+}
 
 /* Compute d(m) as defined above. */
 static seq_t d_term(idx_t m)

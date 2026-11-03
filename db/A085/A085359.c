@@ -11,13 +11,15 @@
  *            (binom(3i,i) / (2i+1)) mod 2 = 1, etc.)
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *A        = NULL;  /* a(n) values up to cachedMax          */
 static seq_t *pairCnt  = NULL;  /* number of ordered pairs (i,j) with i+j = m */
@@ -30,8 +32,8 @@ static idx_t   cachedMax = 0;    /* highest n for which arrays are valid   */
 static void build_up_to(idx_t newMax)
 {
     size_t sz = (size_t)newMax + 1;
-    seq_t *newA    = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *newPC   = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *newA    = mem_new(seq_t, sz);
+    seq_t *newPC   = mem_new(seq_t, sz);
     uint8_t *newB   = (uint8_t*)calloc(sz, sizeof(uint8_t));
     idx_t *newOnes  = (idx_t*)calloc(sz, sizeof(idx_t));
 
@@ -63,8 +65,8 @@ static void build_up_to(idx_t newMax)
     }
 
     /* Replace old arrays. */
-    free(A);
-    free(pairCnt);
+    mem_free(A);
+    mem_free(pairCnt);
     free(b);
     free(ones);
 

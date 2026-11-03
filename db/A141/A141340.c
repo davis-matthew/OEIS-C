@@ -12,13 +12,15 @@
  *            once and then returns the requested term
  * Range:     u8 n <= 21, u16 n <= 21, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
             if (ok) {
                 if (seq_len >= cap) {
                     cap = (cap == 0) ? 16 : cap * 2;
-                    seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, cap);
                 }
                 seq[seq_len++] = (seq_t)val;
             }

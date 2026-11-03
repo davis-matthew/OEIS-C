@@ -8,12 +8,14 @@
  *            of k into parts congruent to 1 or 5 modulo 6
  * Range:     u8 n <= 24, u16 n <= 80, u32 n <= 277, u64 n <= 1015,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 1863 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,15 +33,15 @@ seq_t a(idx_t n)
         new_cap *= 2;
 
     /* Allocate a new array for the cumulative sums. */
-    seq_t *new_vals = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_vals = mem_new(seq_t, new_cap);
     if (!new_vals)
         return 0;          /* out of memory, best effort */
 
     /* Temporary array for partition counts p(k). */
     idx_t N = new_cap - 1;                     /* maximum index needed */
-    seq_t *dp = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(N + 1));
     if (!dp) {                                 /* out of memory */
-        free(new_vals);
+        mem_free(new_vals);
         return 0;
     }
 
@@ -61,8 +63,8 @@ seq_t a(idx_t n)
     }
 
     /* Clean up and update the static table. */
-    free(dp);
-    free(values);
+    mem_free(dp);
+    mem_free(values);
     values   = new_vals;
     size     = new_cap;
     capacity = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for A059973 values */
 static seq_t *A059cache = NULL;
@@ -36,7 +38,7 @@ static void _ensure_A059cache(idx_t limit)
         return;                       /* already computed */
 
     idx_t old_len = A059cache_len;
-    A059cache = (seq_t *)realloc(A059cache, (limit + 1) * sizeof(seq_t));
+    A059cache = mem_resize(seq_t, A059cache, (limit + 1));
     if (A059cache == NULL) {
         /* Allocation failed – terminate */
         exit(1);

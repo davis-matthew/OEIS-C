@@ -8,28 +8,31 @@
  * Formula:   a(n) = Sum_{d|n} d * (u(d)+v(d)) where u(d) = 1 if d is prime
  *            else 0, and v(d) = 1 if d is a semiprime (prime squared or
  *            product of two primes) else 0
- * Range:     u8 n <= 177, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, is_prime_small
+ * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
+ *            big any n
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-01)
+ * Helpers:   is_prime_seq, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 
-#include "../utils/is_prime_small.h"          /* bool is_prime_small(uint64_t n) */
-#include "../utils/_smallest_prime_factor.h"  /* uint64_t _smallest_prime_factor(uint64_t n) */
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/smallest_prime_factor.h"
 
 static inline bool is_prime_or_semiprime(uint64_t x)
 {
     if (x < 2) return false;
-    if (is_prime_small(x)) return true;
+    if (is_prime_seq(x)) return true;
 
-    uint64_t p = _smallest_prime_factor(x);
+    uint64_t p = smallest_prime_factor(x);
     if (p == 0) return false;          /* safety, should not occur for composite x */
 
     uint64_t q = x / p;
-    return is_prime_small(q);
+    return is_prime_seq(q);
 }
 
 seq_t a(idx_t n)

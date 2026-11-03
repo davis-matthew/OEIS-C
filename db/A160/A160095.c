@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* The sequence array is built once on the first call.  The size
  * 200000 is enough to provide at least 182000 terms, far more than
@@ -48,7 +50,7 @@ static void
 build_sequence(idx_t limit)
 {
     /* sum[i] will hold the sum of proper divisors of i.  */
-    seq_t *sum = (seq_t *)calloc((size_t)(limit + 1), sizeof(seq_t));
+    seq_t *sum = mem_new(seq_t, (size_t)(limit + 1));
     if (!sum) return;   /* allocation failure: assume never happens */
 
     /* Sieve: add each divisor d to all its multiples > d.   */
@@ -65,8 +67,8 @@ build_sequence(idx_t limit)
         if (sum[m] > 1) ++cnt;
 
     /* Allocate the vector for sorted values. */
-    seq_t *tmp = (seq_t *)malloc(cnt * sizeof(seq_t));
-    if (!tmp) { free(sum); return; }
+    seq_t *tmp = mem_new(seq_t, cnt);
+    if (!tmp) { mem_free(sum); return; }
 
     /* Copy values > 1 into the new array. */
     size_t pos = 0;
@@ -74,15 +76,15 @@ build_sequence(idx_t limit)
         if (sum[m] > 1) tmp[pos++] = sum[m];
 
     /* Sort the array. */
-    qsort(tmp, cnt, sizeof(seq_t), compare_seq_t);
+    mem_qsort(tmp, cnt, sizeof(seq_t), compare_seq_t);
 
     /* Replace any existing data.  Because this function is called
        only once at startup, we can simply free the old array. */
-    free(sorted_vals);
+    mem_free(sorted_vals);
     sorted_vals = tmp;
     sorted_len  = cnt;
 
-    free(sum);
+    mem_free(sum);
 }
 
 /* Public function: returns the n-th term of the sequence. */

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 47, u16 n <= 7320, u32 n <= 8624, u64 n <= 8624,
- *            u128 n <= 8624, big any n
- * Helpers:   none
+ * Range:     u8 n <= 47, u16 n <= 7320, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 85 terms through n = 8624 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    integers whose decimal representation begins with their digital root.
    The function memoizes results so any n ≥ 1 may be requested in any order. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* dynamic array of sequence values */
 static size_t cap   = 0;      /* current capacity of cache  */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
             if (lead == dr) {               /* store term if it matches */
                 if (len == cap) {           /* grow cache if full */
                     size_t newcap = (cap == 0 ? 16 : cap * 2);
-                    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, newcap);
                     cache = tmp;
                     cap   = newcap;
                 }

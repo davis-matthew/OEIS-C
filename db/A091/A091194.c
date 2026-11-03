@@ -7,13 +7,15 @@
  * Formula:   a(n) = number of abundant numbers ≤ n (σ(n) > 2n)
  * Range:     u8 n <= 420, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +23,7 @@ seq_t a(idx_t n)
 
     idx_t i, j;
     /* allocate array for σ(0..n), initialised to 0 */
-    seq_t *sigma = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *sigma = mem_new(seq_t, (size_t)n + 1);
     if (!sigma) return 0;  /* unlikely in tests */
 
     /* compute sum of divisors: σ(k) = Σ_{d|k} d */
@@ -37,6 +39,6 @@ seq_t a(idx_t n)
         if (sigma[i] > ((seq_t)i * 2)) ++count;
     }
 
-    free(sigma);
+    mem_free(sigma);
     return count;
 }

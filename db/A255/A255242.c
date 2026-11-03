@@ -11,7 +11,8 @@
  * Formula:   a(1)=0; for n>=2, a(n)=σ(n)-n + Σ_{d|n, d<n} a(d)
  * Range:     u8 n <= 47, u16 n <= 2159, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* cache[0] unused; cache[1] = 0 */
 static size_t cache_len = 0;      /* number of cached entries (index 0 unused) */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
 
     if ((size_t)n >= cache_len) {
         size_t new_len = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         for (size_t i = cache_len; i < new_len; ++i)
             cache[i] = 0;
 

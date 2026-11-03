@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 728, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 87 terms through n = 9984 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* power function for seq_t */
 static inline seq_t pow_seq(seq_t base, idx_t exp)
@@ -53,7 +54,7 @@ static inline seq_t prime_a(uint64_t p)
 {
     /* p has correct residue mod 4 (1 or 3) */
     uint64_t cand = p + 4;         /* next number with same residue */
-    while (!is_prime_small((seq_t)cand)) cand += 4;
+    while (!is_prime_seq((seq_t)cand)) cand += 4;
     return (seq_t)cand;
 }
 

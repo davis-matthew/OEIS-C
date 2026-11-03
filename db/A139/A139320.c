@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 105 terms through n = 999 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* static cache of already computed k values (a(1), a(2), …)          */
 static seq_t *k_cache = NULL;    /* array of seq_t */
@@ -37,13 +40,13 @@ static void ensure_cache_cap(idx_t n)
     while (n > (idx_t)new_cap) new_cap <<= 1;
 
     /* allocate new array and copy existing elements */
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp) abort();          /* allocation failure */
 
     for (size_t i = 0; i < cache_cap; ++i)
         tmp[i] = k_cache[i];
 
-    free(k_cache);
+    mem_free(k_cache);
     k_cache   = tmp;
     cache_cap = new_cap;
 }

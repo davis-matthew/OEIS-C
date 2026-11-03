@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9246 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* Helper functions for prime generation                         */
@@ -54,7 +56,7 @@ static void init(void)
 
     /* Gap storage */
     gap_cap = 16;
-    gap_arr = (seq_t *)malloc(gap_cap * sizeof(seq_t));
+    gap_arr = mem_new(seq_t, gap_cap);
     if (!gap_arr) exit(1);
 }
 
@@ -76,7 +78,7 @@ static void add_gap(seq_t g)
 {
     if (gap_cnt == gap_cap) {
         size_t newcap = gap_cap << 1;
-        seq_t *tmp = (seq_t *)realloc(gap_arr, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, gap_arr, newcap);
         if (!tmp) exit(1);
         gap_arr = tmp;
         gap_cap = newcap;

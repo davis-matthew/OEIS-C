@@ -10,6 +10,7 @@
  *            with entries T(r,k) = binomial(r,k) * 3^(r-k)
  * Range:     u8 n <= 15, u16 n <= 46, u32 n <= 172, u64 n <= 599,
  *            u128 n <= 2223, big any n
+ * Validated: standard, pass, 68 terms through n = 7901 (2026-11-01)
  * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow3.h"
 

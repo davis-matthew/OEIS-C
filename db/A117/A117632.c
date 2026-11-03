@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 118 terms through n = 9894 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  *              a(k)                if n = k*(k+1)/2 ) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* integer square root of an unsigned 64‑bit value, using 128‑bit multiplication to avoid overflow */
 static inline idx_t isqrt_u64(idx_t x)
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* grow the cache if needed */
     if ((size_t)(n + 1) > cache_cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();         /* allocation failure */
         cache = tmp;
 

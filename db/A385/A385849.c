@@ -8,8 +8,9 @@
  * Formula:   a(n) = numerator( (1 - 3k + 2k² + 6n - 6kn + 6n²) / (1 + 3k +
  *            2k²) ) where (n,k) are the row and column of the unfolded
  *            triangle (1‑based)
- * Range:     u8 n <= 41, u16 n <= 5676, u32 n <= 9697, u64 n <= 9697,
- *            u128 n <= 9697, big any n
+ * Range:     u8 n <= 41, u16 n <= 5676, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 82 terms through n = 9697 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

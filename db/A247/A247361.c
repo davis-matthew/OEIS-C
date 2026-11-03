@@ -11,7 +11,8 @@
  *            sequences lazily upon request
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   append_to, is_vowel_end
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,68 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/append_to.h"
-#include "../utils/is_vowel_end.h"
+#include "../utils/mem.h"
+
+/* Append a value to a dynamic array. */
+static void append_to(seq_t **arr, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+        if (!tmp)
+            exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+    (*arr)[*len] = val;
+    (*len)++;
+}
+
+/* Determine whether the English name of n ends in a vowel.
+   Only integer arithmetic is used; no string operations.  The logic
+   follows the English naming rules for numbers < 1000 and applies
+   recursively to larger numbers via modulus with 1000. */
+static bool is_vowel_end(seq_t n)
+{
+    /* Numbers that are exact multiples of 1000 end with "thousand",
+       which concludes with 'n' — a consonant. */
+    if (n % 1000 == 0)
+        return false;
+
+    /* Work with the last up-to-three‑digit portion of the number. */
+    seq_t r = n % 1000;
+
+    if (r < 100) {
+        /* Special case: twelve is a vowel; all other teens are consonants. */
+        if (r == 12)
+            return true;
+        if (r >= 10 && r <= 19)
+            return false;
+
+        if (r % 10 == 0)            /* tens words end with 'y' */
+            return false;
+
+        /* Ones digit determines the ending for single‑digit numbers. */
+        seq_t ones = r % 10;
+        return (ones == 1 || ones == 2 || ones == 3 ||
+                ones == 5 || ones == 9);
+    } else {
+        /* r is 100..999.  The hundreds word ends with 'd'
+           (consonant).  If the low two digits are zero, we already
+           returned false above.  Otherwise the ending is determined
+           by the value 0..99 below. */
+        seq_t low = r % 100;
+        if (low == 12)
+            return true;
+        if (low >= 10 && low <= 19)
+            return false;
+        if (low % 10 == 0)
+            return false;
+        seq_t ones = low % 10;
+        return (ones == 1 || ones == 2 || ones == 3 ||
+                ones == 5 || ones == 9);
+    }
+}
 
 /* Dynamic arrays for the two interleaved sequences. */
 static seq_t *V = NULL;  /* vowel‑ending numbers */

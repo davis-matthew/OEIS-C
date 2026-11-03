@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 8540 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*---------- Helper: simple sieve of Eratosthenes --------------------------------*/
 static void simple_sieve(uint32_t limit, uint32_t **primes_out, size_t *count_out)
@@ -106,7 +108,7 @@ seq_t a(idx_t n)
         /* Allocate buffer for all candidate sums.  The number of unordered
            pairs (p < q) is prime_filter_cnt*(prime_filter_cnt-1)/2. */
         size_t pair_cap = prime_filter_cnt * (prime_filter_cnt - 1) / 2;
-        seq_t *sums = (seq_t*)malloc(pair_cap * sizeof(seq_t));
+        seq_t *sums = mem_new(seq_t, pair_cap);
         if (!sums) exit(EXIT_FAILURE);
         size_t sums_size = 0;
 
@@ -128,7 +130,7 @@ seq_t a(idx_t n)
 
         /* Sort the sums and remove duplicates */
         if (sums_size > 1)
-            qsort(sums, sums_size, sizeof(seq_t), cmp_seq);
+            mem_qsort(sums, sums_size, sizeof(seq_t), cmp_seq);
 
         /* Deduplicate in place */
         size_t uniq = 0;
@@ -137,7 +139,7 @@ seq_t a(idx_t n)
             if (uniq == 0 || sums[i] != sums[uniq - 1])
                 sums[uniq++] = sums[i];
         }
-        sums = (seq_t*)realloc(sums, uniq * sizeof(seq_t));   /* shrink to used size */
+        sums = mem_resize(seq_t, sums, uniq);   /* shrink to used size */
 
         seq        = sums;
         seq_size   = uniq;

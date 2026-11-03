@@ -11,13 +11,14 @@
  *            triangle T(r,c) = (c+1)*binom(r,c)
  * Range:     u8 n <= 39, u16 n <= 142, u32 n <= 510, u64 n <= 2044,
  *            u128 n <= 5150, big any n
- * Helpers:   binom_calc
+ * Validated: standard, pass, 85 terms through n = 4994 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_calc.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
     idx_t c = n - cum;                     /* 0 ≤ c ≤ r */
 
     /* Binomial coefficient binom(r, c) */
-    seq_t bin = binom_calc(r, c);
+    seq_t bin = binomial(r, c);
 
     /* Result: (c+1) * binom(r, c) */
     seq_t result = ((seq_t)(c + 1u)) * bin;

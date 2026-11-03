@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 7, u32 n <= 20, u64 n <= 44, u128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: grow the cache up to at least new_cap elements. */
 static void
@@ -41,7 +43,7 @@ ensure_capacity(size_t new_cap, size_t *cap, seq_t **ptr)
 {
     if (*cap < new_cap) {
         size_t new_size = new_cap;
-        seq_t *tmp = (seq_t *)realloc(*ptr, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *ptr, new_size);
         if (tmp == NULL) {
             /* Allocation failure – abort. */
             abort();

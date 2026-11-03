@@ -12,7 +12,8 @@
  *            * a(n) is the n‑th element of that scan
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static uint64_t *prime_list = NULL;   /* array of the first primes (uint64_t) */
 static size_t prime_cnt = 0;          /* number of primes stored */
@@ -58,7 +60,7 @@ static seq_t row_kth_value(idx_t r, idx_t col)
         return (seq_t)0;               /* safety, should not happen */
 
     size_t npr = (size_t)r;            /* number of primes in this row */
-    seq_t *next = (seq_t *)malloc(npr * sizeof(seq_t));
+    seq_t *next = mem_new(seq_t, npr);
 
     /* initialise the first multiple of each prime */
     for (size_t i = 0; i < npr; ++i)
@@ -82,7 +84,7 @@ static seq_t row_kth_value(idx_t r, idx_t col)
             if (next[i] == m)
                 next[i] += (seq_t)prime_list[i];
     }
-    free(next);
+    mem_free(next);
     return value;
 }
 

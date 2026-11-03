@@ -8,7 +8,8 @@
  * Formula:   a(n) = number of distinct sums s+t with s, t | n
  * Range:     u8 n <= 839, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9546 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,13 +20,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;
 
     /* gather divisors of n */
     size_t cap = 32;
-    seq_t *divs = (seq_t*)malloc(cap * sizeof(seq_t));
+    seq_t *divs = mem_new(seq_t, cap);
     if (!divs) return 0;          /* allocation failure: return 0 */
     size_t divcnt = 0;
 
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
         if (n % i == 0) {
             if (divcnt == cap) { /* grow array */
                 cap <<= 1;
-                divs = (seq_t*)realloc(divs, cap * sizeof(seq_t));
+                divs = mem_resize(seq_t, divs, cap);
                 if (!divs) return 0;
             }
             divs[divcnt++] = (seq_t)i;
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
             if (j != i) {
                 if (divcnt == cap) {
                     cap <<= 1;
-                    divs = (seq_t*)realloc(divs, cap * sizeof(seq_t));
+                    divs = mem_resize(seq_t, divs, cap);
                     if (!divs) return 0;
                 }
                 divs[divcnt++] = (seq_t)j;
@@ -53,14 +55,14 @@ seq_t a(idx_t n) {
     /* max possible sum is 2*n, we allocate an array of that size plus
        one for the zero index (unused). */
     if (n > (UINT64_MAX >> 1)) {
-        free(divs);
+        mem_free(divs);
         return 0;  /* too large to handle safely */
     }
 
     idx_t maxsum = n * 2;
     uint8_t *seen = (uint8_t*)calloc((size_t)maxsum + 1, sizeof(uint8_t));
     if (!seen) {
-        free(divs);
+        mem_free(divs);
         return 0;  /* allocation failure */
     }
 
@@ -77,6 +79,6 @@ seq_t a(idx_t n) {
     }
 
     free(seen);
-    free(divs);
+    mem_free(divs);
     return count;
 }

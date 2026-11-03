@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8192, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   _runs_first, floor_log2
+ * Validated: standard, pass, 121 terms through n = 8185 (2026-11-01)
+ * Helpers:   ilog2_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,15 +23,46 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_runs_first.h"
-#include "../utils/floor_log2.h"
+#include <stdlib.h>
+#include "../utils/ilog2_idx.h"
+
+/* Recursive helper: computes number of runs in the composition of given sum.
+   sum   : total sum of the composition
+   idx   : 0‑based index within the list of compositions of this sum
+   runs  : output number of runs
+   first : output first part of the composition (needed for counting runs)
+*/
+static void _runs_first(idx_t sum, idx_t idx, seq_t *runs, int *first) {
+    if (sum == 0) {
+        *runs = 0;            /* empty composition has no runs */
+        *first = 0;
+        return;
+    }
+    for (int k = (int)sum; k >= 1; --k) {
+        idx_t rest_sum = sum - k;
+        idx_t blocksize = (rest_sum == 0) ? 1 : ((idx_t)1 << (rest_sum - 1));
+        if (idx < blocksize) {
+            *first = k;
+            if (rest_sum == 0) {
+                *runs = 1;
+            } else {
+                seq_t runs_rest;
+                int first_rest;
+                _runs_first(rest_sum, idx, &runs_rest, &first_rest);
+                *runs = runs_rest + ((k != first_rest) ? (seq_t)1 : (seq_t)0);
+            }
+            return;
+        }
+        idx -= blocksize;     /* skip this block */
+    }
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;                     /* a(0) = 0 */
 
     /* Determine the sum S such that compositions of sums < S are < n
        and sum S compositions cover n.  For n ≥ 1,  S = floor_log2(n) + 1   */
-    idx_t S = floor_log2(n) + 1;
+    idx_t S = ilog2_idx(n) + 1;
 
     /* 2^(S-1) is the first index of compositions of sum S */
     idx_t start = ((idx_t)1 << (S - 1));

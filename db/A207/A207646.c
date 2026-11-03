@@ -7,14 +7,16 @@
  * Formula:   a(n) = Product_{k=1..n} floor(2*n/k - 1) (with a(0) = 1)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 20, u64 n <= 38, u128 n <= 76,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 45 terms through n = 471 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
-#include "../utils/big_pow.h"   /* big_pow(seq_t base, seq_t exp) */
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 #define MAXSPF 200001   /* enough for n up to 10000 (2*n-1 <= 20000) */
 
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
     seq_t result = 1;
     for (uint32_t p = 2; p <= max_val; ++p) {
         if (exp_arr[p] > 0) {
-            seq_t pow = big_pow((seq_t)p, (seq_t)exp_arr[p]);
+            seq_t pow = ipow((seq_t)p, (seq_t)exp_arr[p]);
             result *= pow;
         }
     }

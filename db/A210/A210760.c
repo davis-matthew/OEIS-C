@@ -9,7 +9,8 @@
  *            decimal representation
  * Range:     u8 none, u16 none, u32 n <= 9592, u64 n <= 9592, u128 n <= 9592,
  *            big any n
- * Helpers:   build_primes_upto, digit_len, pow10
+ * Validated: full, pass, 9592 terms through n = 9592 (2026-11-03)
+ * Helpers:   build_primes_upto, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,20 @@
 #include <stdbool.h>
 
 /* Utility functions used */
-#include "../utils/build_primes_upto.h"   /* build_primes_upto()         */
-#include "../utils/digit_len.h"           /* digit_len()                 */
-#include "../utils/pow10.h"               /* pow10()                     */
+#include <stdint.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Comparator for sorting primes lexicographically */
 static int cmp_lex(const void *p1, const void *p2)
@@ -30,8 +42,8 @@ static int cmp_lex(const void *p1, const void *p2)
     seq_t b = *(const seq_t *)p2;
 
     /* lengths of decimal strings */
-    size_t la = digit_len(a);
-    size_t lb = digit_len(b);
+    size_t la = num_digits(a);
+    size_t lb = num_digits(b);
 
     size_t min_len = la < lb ? la : lb;
     size_t i;
@@ -65,7 +77,7 @@ seq_t a(idx_t n)
         build_primes_upto(LIMIT, &primes64, &pcnt);
 
         /* allocate array for seq_t values and copy */
-        lex_primes = (seq_t *)malloc(pcnt * sizeof(seq_t));
+        lex_primes = mem_new(seq_t, pcnt);
         count = pcnt;
         for (size_t i = 0; i < pcnt; ++i)
             lex_primes[i] = (seq_t)primes64[i];
@@ -73,7 +85,7 @@ seq_t a(idx_t n)
         free(primes64); /* free temporary array returned by build_primes_upto */
 
         /* sort lexicographically */
-        qsort(lex_primes, count, sizeof(seq_t), cmp_lex);
+        mem_qsort(lex_primes, count, sizeof(seq_t), cmp_lex);
     }
 
     if (n < 1 || (idx_t)n > count)

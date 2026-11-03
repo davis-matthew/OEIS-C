@@ -11,13 +11,17 @@
  *            T(n‑1,k‑1) - 4*T(n‑1,k) - 4*T(n‑2,k) with T(n,k)=0 if k<0...
  * Range:     i8 n <= 15, i16 n <= 41, i32 n <= 41, i64 n <= 41, i128 n <= 41,
  *            big any n
- * Helpers:   offset_row
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/offset_row.h"
+#include <stdint.h>
+#include <math.h>
+#include "../utils/triangular.h"
+#include "../utils/mem.h"
 
 /* 1‑D storage of the triangle: row r starts at index r(r+1)/2   */
 static seq_t *tri = NULL;
@@ -33,7 +37,7 @@ static void ensure_cache(idx_t need_row)
     idx_t req = (need_row > 2) ? need_row : 2;
     idx_t newSize = (req + 1) * (req + 2) / 2;          /* total elements up to row req */
 
-    seq_t *newTri = (seq_t*)realloc(tri, newSize * sizeof(seq_t));
+    seq_t *newTri = mem_resize(seq_t, tri, newSize);
     if (!newTri) return;               /* memory failure – abort */
     tri = newTri;
 
@@ -54,9 +58,9 @@ static void ensure_cache(idx_t need_row)
 
     /* compute remaining rows, if any */
     for (idx_t n = currentMaxRow + 1; n <= need_row; ++n) {
-        idx_t offset     = offset_row(n);
-        idx_t offsetPrev = offset_row(n - 1);
-        idx_t offsetPrev2 = (n >= 2) ? offset_row(n - 2) : 0;
+        idx_t offset     = triangular(n);
+        idx_t offsetPrev = triangular(n - 1);
+        idx_t offsetPrev2 = (n >= 2) ? triangular(n - 2) : 0;
 
         for (idx_t k = 0; k <= n; ++k) {
             seq_t t1 = (k > 0)          ? tri[offsetPrev + k - 1] : (seq_t)0;
@@ -78,5 +82,5 @@ seq_t a(idx_t n)
 
     idx_t k = n - r * (r + 1) / 2;   /* column within the row */
     ensure_cache(r);
-    return tri[offset_row(r) + k];
+    return tri[triangular(r) + k];
 }

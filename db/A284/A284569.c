@@ -7,14 +7,16 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = LCM of the lengths of runs of 1‑bits in the binary
  *            representation of n
- * Range:     u8 n <= 9109, u16 n <= 9109, u32 n <= 9109, u64 n <= 9109,
- *            u128 n <= 9109, big any n
+ * Range:     u8 n <= 10922, u16 n <= 10922, u32 n <= 10922, u64 n <= 10922,
+ *            u128 n <= 10922, big any n
+ * Validated: standard, pass, 137 terms through n = 9109 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n) {

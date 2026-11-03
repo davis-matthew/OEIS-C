@@ -10,13 +10,15 @@
  *            initial values: a(1) = 2 , a(2) = 9 , a(3) = 30 , a(4) = 110
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 17, u64 n <= 35, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoised values.  cache[i] holds a(i). */
 static seq_t *cache = NULL;      /* pointer to allocated array */
@@ -26,14 +28,14 @@ static size_t cache_len = 0;     /* next index to compute */
 /* Grow the cache to at least `new_cap` elements, preserving existing data. */
 static void grow_cache(size_t new_cap)
 {
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp) {
         /* Allocation failed – abort the program (no partial results). */
         abort();
     }
     if (cache) {
-        memcpy(tmp, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(tmp, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = tmp;
     cache_cap = new_cap;

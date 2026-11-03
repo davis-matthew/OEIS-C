@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    10915727, 53635324, 263420767, 1293604417, 6353594215 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Table of initial values */
 static const seq_t init_vals[14] = {
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary (C++ cast required) */
     if ((size_t)n >= cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) return 0;          /* allocation failure */
         cache = new_cache;
         cache_size = new_size;

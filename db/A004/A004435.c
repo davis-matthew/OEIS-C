@@ -9,13 +9,15 @@
  *            the sum of 2 distinct perfect squares
  * Range:     u8 n <= 72, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t isqrt_seq(seq_t x) {
     if (x == 0) return 0;
@@ -53,7 +55,7 @@ seq_t a(idx_t n) {
         while (is_sum_of_two_distinct_squares(m)) {
             m++;
         }
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * (cache_len + 1));
+        cache = mem_resize(seq_t, cache, (cache_len + 1));
         cache[cache_len] = m;
         cache_len++;
     }

@@ -13,13 +13,14 @@
  *            row with r*(r+1)/2 ≥ n and k = n - (r-1)*r...
  * Range:     u8 n <= 24, u16 n <= 60, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 static inline seq_t _T_value(idx_t n, idx_t k)
 {
@@ -30,12 +31,12 @@ static inline seq_t _T_value(idx_t n, idx_t k)
     /* Compute Σ_{j=0..k} binom(k,j)*binom(n-k+j,j+1) */
     seq_t sum = 0;
     for (idx_t j = 0; j <= k; ++j) {
-        seq_t b1 = binom(k, j);
-        seq_t b2 = binom(n - k + j, j + 1);
+        seq_t b1 = binomial(k, j);
+        seq_t b2 = binomial(n - k + j, j + 1);
         sum += b1 * b2;
     }
 
-    seq_t bin_n_k = binom(n, k);
+    seq_t bin_n_k = binomial(n, k);
     seq_t n_seq   = (seq_t)n;
     return (bin_n_k * sum) / n_seq;
 }

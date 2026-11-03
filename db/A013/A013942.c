@@ -6,8 +6,9 @@
  * Keywords:  nonn, tabf, easy, nice
  * Formula:   a(n) is the n-th element of the triangle T(i,j)=floor(2i/j),
  *            read row by row (i≥1, j=1..2i)
- * Range:     u8 n <= 9456, u16 n <= 9456, u32 n <= 9456, u64 n <= 9456,
- *            u128 n <= 9456, big any n
+ * Range:     u8 n <= 10100, u16 n <= 10100, u32 n <= 10100, u64 n <= 10100,
+ *            u128 n <= 10100, big any n
+ * Validated: standard, pass, 112 terms through n = 9456 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

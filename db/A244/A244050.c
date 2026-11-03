@@ -7,13 +7,15 @@
  * Formula:   a(1)=4; a(n)=a(n-1)+4*sum_{k=1..n} sigma(k) for n≥2
  * Range:     u8 n <= 5, u16 n <= 38, u32 n <= 1575, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sigma_value
+ * Validated: standard, pass, 56 terms through n = 9611 (2026-11-03)
+ * Helpers:   mem, sigma
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/sigma_value.h"
+#include "../utils/sigma.h"
+#include "../utils/mem.h"
 
 /* Cached partial sums of sigma(n) and of a(n). */
 static seq_t *sigma_sums = NULL;   /* sigma_sums[i] = sum_{k=1..i} sigma(k) */
@@ -30,8 +32,8 @@ static void ensure_capacity(idx_t n)
     if (array_cap < needed) {
         size_t newcap = array_cap ? array_cap * 2 : 8;
         while (newcap < needed) newcap <<= 1;
-        sigma_sums = (seq_t*)realloc(sigma_sums, newcap * sizeof(seq_t));
-        a_vals    = (seq_t*)realloc(a_vals,    newcap * sizeof(seq_t));
+        sigma_sums = mem_resize(seq_t, sigma_sums, newcap);
+        a_vals    = mem_resize(seq_t, a_vals, newcap);
         array_cap = newcap;
     }
 
@@ -40,7 +42,7 @@ static void ensure_capacity(idx_t n)
     }
 
     for (idx_t i = current_max + 1; i <= n; ++i) {
-        seq_t sigma_i = sigma_value(i);
+        seq_t sigma_i = sigma(i);
         sigma_sums[i] = sigma_sums[i - 1] + sigma_i;
 
         seq_t add = sigma_sums[i] * (seq_t)4;

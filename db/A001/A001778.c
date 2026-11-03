@@ -8,13 +8,14 @@
  *            n!*binomial(n-1,5)/6!)
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 12, u64 n <= 19, u128 n <= 32,
  *            big any n
- * Helpers:   a001778_gcd
+ * Validated: standard, pass, 33 terms through n = 100 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001778_gcd.h"
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n) {
     seq_t result = 1;
@@ -23,10 +24,10 @@ seq_t a(idx_t n) {
     for (i = 7; i <= n; i++) {
         idx_t d = i - 6;
         idx_t x = i, y = i - 1, g;
-        g = a001778_gcd(x, d);
+        g = gcd_idx(x, d);
         x /= g;
         d /= g;
-        g = a001778_gcd(y, d);
+        g = gcd_idx(y, d);
         y /= g;
         d /= g;
         /* now gcd(x*y, d) = 1, so d divides result exactly */

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl, easy
  * Formula:   not stated
- * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 35, u64 n <= 36, u128 n <= 36,
+ * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
  * where r = floor((sqrt(8*n-7)-1)/2) is the 0‑based row number
  * and c = n - r*(r+1)/2 - 1 is the 0‑based column number.
  */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -46,6 +48,6 @@ seq_t a(idx_t n)
     idx_t numerator = 2 * row0 + 2 * col0 + 3;
     idx_t k = 2 * row0 + 1;
 
-    seq_t bin = binom(numerator, k);
+    seq_t bin = binomial(numerator, k);
     return bin * (seq_t)(col0 + 1);
 }

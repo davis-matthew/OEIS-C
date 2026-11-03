@@ -11,15 +11,35 @@
  *            r(0) = 1 (A000598, rooted ternary trees). G.f...
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 27, u64 n <= 49, u128 n <= 92,
  *            big any n
- * Helpers:   alloc_zero, nofree_seq, u128_to_seq
+ * Validated: standard, pass, 46 terms through n = 464 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/nofree_seq.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static void nofree_seq(seq_t *p) { (void)p; }
 
 typedef unsigned __int128 u128_t;
 

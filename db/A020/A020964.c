@@ -8,12 +8,14 @@
  *            Recurrence: for n>6 a(n) = 3*a(n-1) - 4*a(n-3) + a(n-4) + a(n-5)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 24, u64 n <= 49, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t _BASE[7] = {1, 4, 11, 28, 70, 171, 417};
 
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache if needed */
     if (_cache == NULL) {
         _cache_size = n + 1;
-        _cache = (seq_t *)malloc((size_t)_cache_size * sizeof(seq_t));
+        _cache = mem_new(seq_t, (size_t)_cache_size);
         if (_cache == NULL) return 0;
         for (idx_t i = 0; i < 7; ++i) {
             _cache[i] = _BASE[i];
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         _last_computed = 6;
     } else if (n + 1 > _cache_size) {
         _cache_size = n + 1;
-        _cache = (seq_t *)realloc(_cache, (size_t)_cache_size * sizeof(seq_t));
+        _cache = mem_resize(seq_t, _cache, (size_t)_cache_size);
         if (_cache == NULL) return 0;
         if (_last_computed < 6) {
             for (idx_t i = 0; i < 7; ++i) {

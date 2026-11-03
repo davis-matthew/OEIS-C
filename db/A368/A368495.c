@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 89, i16 n <= 89, i32 n <= 89, i64 n <= 89, i128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache structure --------------------------------------- */
 static struct {
@@ -50,10 +52,10 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache if necessary --------------------- */
     if (n + 1 > cache.capacity) {
         /* free old arrays if they exist -------------------------------- */
-        free(cache.f);
-        free(cache.h);
-        free(cache.g5);
-        free(cache.a);
+        mem_free(cache.f);
+        mem_free(cache.h);
+        mem_free(cache.g5);
+        mem_free(cache.a);
         free(cache.tri_f);
         free(cache.tri_h);
 
@@ -62,10 +64,10 @@ seq_t a(idx_t n)
         cache.capacity = (idx_t)cap;
 
         /* allocate coefficient arrays --------------------------------- */
-        cache.f  = (seq_t *)calloc(cap, sizeof(seq_t));
-        cache.h  = (seq_t *)calloc(cap, sizeof(seq_t));
-        cache.g5 = (seq_t *)calloc(cap, sizeof(seq_t));
-        cache.a  = (seq_t *)calloc(cap, sizeof(seq_t));
+        cache.f  = mem_new(seq_t, cap);
+        cache.h  = mem_new(seq_t, cap);
+        cache.g5 = mem_new(seq_t, cap);
+        cache.a  = mem_new(seq_t, cap);
 
         /* ---------- build ψ(-q) (f) ----------------------------------- */
         /* count triangular numbers <= n */
@@ -109,12 +111,12 @@ seq_t a(idx_t n)
         }
 
         /* ---------- convolution: compute g5 = h^5 --------------------- */
-        seq_t *cur  = (seq_t *)calloc(cap, sizeof(seq_t));
+        seq_t *cur  = mem_new(seq_t, cap);
         seq_t *next = NULL;
         cur[0] = 1;   /* start from 1 */
 
         for (int step = 0; step < 5; ++step) {
-            next = (seq_t *)calloc(cap, sizeof(seq_t));
+            next = mem_new(seq_t, cap);
             for (size_t i = 0; i < cap; ++i) {
                 if (cur[i] == 0) continue;
                 idx_t iidx = (idx_t)i;
@@ -125,12 +127,12 @@ seq_t a(idx_t n)
                     next[(size_t)j] += cur[i] * cache.h[(size_t)t];
                 }
             }
-            free(cur);
+            mem_free(cur);
             cur = next;
         }
         /* cur now holds g5 coefficients */
         for (size_t i = 0; i < cap; ++i) cache.g5[i] = cur[i];
-        free(cur);
+        mem_free(cur);
 
         /* ---------- division: compute a = g5 / f ---------------------- */
         cache.a[0] = cache.g5[0];  /* f[0]==1 */

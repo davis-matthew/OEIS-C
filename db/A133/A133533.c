@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(n)^6 + prime(n+1)^6 + prime(n+2)^6
  * Range:     u8 none, u16 n <= 1, u32 n <= 10, u64 n <= 217, u128 n <= 10000,
  *            big any n
- * Helpers:   generate_primes_up_to
+ * Validated: standard, pass, 35 terms through n = 9525 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,44 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/generate_primes_up_to.h"
+
+/* generate primes up to 'limit' (inclusive) */
+static void generate_primes_up_to(idx_t limit, uint32_t **out, size_t *cnt_out)
+{
+    size_t sz = limit + 1;
+    unsigned char *is_composite = (unsigned char *)calloc(sz, 1);
+    if (!is_composite) {
+        /* Allocation failure – abort program (trusted environment) */
+        abort();
+    }
+
+    for (idx_t i = 2; i * i <= limit; ++i) {
+        if (!is_composite[i]) {
+            for (idx_t j = i * i; j <= limit; j += i)
+                is_composite[j] = 1;
+        }
+    }
+
+    size_t cnt = 0;
+    for (idx_t i = 2; i <= limit; ++i)
+        if (!is_composite[i]) ++cnt;
+
+    uint32_t *arr = (uint32_t *)malloc(cnt * sizeof(uint32_t));
+    if (!arr) {
+        free(is_composite);
+        abort();
+    }
+
+    size_t idx = 0;
+    for (idx_t i = 2; i <= limit; ++i)
+        if (!is_composite[i])
+            arr[idx++] = (uint32_t)i;
+
+    free(is_composite);
+
+    *out   = arr;
+    *cnt_out = cnt;
+}
 
 /* --------------------------------------------------------------------
    Simple sieve of Eratosthenes that stores the primes in a static

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    a(5)=26, a(6)=32, a(7)=38, a(8)=44 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* memoised values */
 static size_t cache_len = 0;       /* number of elements stored */
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     if (cache_len == 0) {
         cache_len = 9;
         /* malloc returns void*, cast needed for C++ compat */
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return 0; /* allocation failed */
         for (size_t i = 0; i < cache_len; ++i) cache[i] = base_vals[i];
     }
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
     size_t req_len = (size_t)n + 1;
     if (req_len > cache_len) {
         /* Extend cache */
-        seq_t *new_cache = (seq_t*)realloc(cache, req_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, req_len);
         if (!new_cache) return 0; /* allocation failed */
         cache = new_cache;
 

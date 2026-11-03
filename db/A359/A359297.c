@@ -9,7 +9,8 @@
  *            divides (p_k² – 1)
  * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/is_prime.h"   /* provides is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Prime storage */
 static uint64_t *prime_list  = NULL;
@@ -52,7 +54,7 @@ static void add_term(seq_t val)
 {
     if (term_count == term_cap) {
         size_t new_cap = (term_cap == 0 ? 4 : term_cap * 2);
-        term_list = (seq_t *)realloc(term_list, new_cap * sizeof(seq_t));
+        term_list = mem_resize(seq_t, term_list, new_cap);
         term_cap = new_cap;
     }
     term_list[term_count++] = val;

@@ -8,7 +8,8 @@
  * Formula:   a(n) = -n + (2^(n-1)*(21*n+34)+8*(-1)^n)/36 (recurrence version)
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 28, u64 n <= 59, u128 n <= 122,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 943 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #ifdef __cplusplus
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 /* Base values of the sequence (indices 1 to 6) */
 static const seq_t BASE[6] = { (seq_t)1, (seq_t)2, (seq_t)8, (seq_t)22, (seq_t)57, (seq_t)136 };
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Start with a moderate capacity; it will grow as required */
         cache_capacity = 64;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         if (cache == NULL) {
             return 0; /* unlikely, but keep the program well‑defined */
         }
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         while (new_capacity < n) {
             new_capacity *= 2;
         }
-        seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
         if (tmp == NULL) {
             return 0; /* allocation failure – rare in practice */
         }

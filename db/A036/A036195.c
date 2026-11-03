@@ -9,6 +9,7 @@
  *            * with a(n) = 0 when n ≡ 0 (mod 173))
  * Range:     u8 n <= 172, u16 n <= 172, u32 n <= 172, u64 n <= 172,
  *            u128 n <= 172, big any n
+ * Validated: full, pass, 172 terms through n = 172 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

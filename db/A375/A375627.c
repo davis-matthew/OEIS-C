@@ -7,13 +7,15 @@
  * Formula:   a(n) = n! * Sum_{k=0..⌊n/2⌋} (n-2*k+2)^k / k!
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fac_cache = NULL;   /* factorials fac[n] = n! */
 static size_t fac_cap   = 0;      /* number of factorials stored */
@@ -29,7 +31,7 @@ ensure_factorials(idx_t n)
         return;
 
     size_t needed = (size_t)n + 1;
-    seq_t *new_fac = (seq_t*)realloc(fac_cache, needed * sizeof(seq_t));
+    seq_t *new_fac = mem_resize(seq_t, fac_cache, needed);
     if (!new_fac) abort();
     fac_cache = new_fac;
 
@@ -64,7 +66,7 @@ ensure_sequence(idx_t n)
         return;
 
     size_t needed = (size_t)n + 1;
-    seq_t *new_seq = (seq_t*)realloc(seq_cache, needed * sizeof(seq_t));
+    seq_t *new_seq = mem_resize(seq_t, seq_cache, needed);
     if (!new_seq) abort();
     seq_cache = new_seq;
 

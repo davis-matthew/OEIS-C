@@ -9,15 +9,16 @@
  *            9*a(n-1) - 18*a(n-2) for n > 1
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   pow_seq_t_r
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq_t_r.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
-    seq_t pow6 = pow_seq_t_r(6, n);
-    seq_t pow3 = pow_seq_t_r(3, n);
+    seq_t pow6 = ipow_idx(6, n);
+    seq_t pow3 = ipow_idx(3, n);
     return 3 * pow6 - 2 * pow3;
 }

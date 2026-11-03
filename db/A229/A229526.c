@@ -8,6 +8,7 @@
  * Formula:   a(n) = (-5+3*(-1)^n)*(-4-2*n+n^2)/8
  * Range:     i8 n <= 6, i16 n <= 108, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 62 terms through n = 985 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

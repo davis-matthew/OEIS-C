@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=0..n} (-n)^k * C(n+1,k) * C(n+1,k+1)
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 10, i64 n <= 15, i128 n <= 26,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 368 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

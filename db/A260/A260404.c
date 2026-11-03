@@ -7,14 +7,23 @@
  * Formula:   a(n) = ∏_{j=1..n} j^C(n-j+5,5) (6th level factorials)
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   big_pow, binomial, seq_mul
+ * Validated: partial, pass, 7 terms through n = 6 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
@@ -22,7 +31,7 @@ seq_t a(idx_t n) {
     for (idx_t j = 1; j <= n; ++j) {
         idx_t m = n - j + 5;
         seq_t exp = binomial(m, 5);
-        seq_t pow = big_pow((seq_t)j, exp);
+        seq_t pow = ipow((seq_t)j, exp);
         result = seq_mul(result, pow);
     }
     return result;

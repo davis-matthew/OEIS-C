@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"          /* provides bool is_prime(uint64_t) */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,21 +38,21 @@ seq_t a(idx_t n)
     while (count < n) {
         /* Find the next prime satisfying the ±10 condition */
         while (1) {
-            if (is_prime(candidate)) {
+            if (is_prime_u64(candidate)) {
                 bool ok = false;
-                if (candidate > 10 && is_prime(candidate - 10))
+                if (candidate > 10 && is_prime_u64(candidate - 10))
                     ok = true;
-                if (is_prime(candidate + 10))
+                if (is_prime_u64(candidate + 10))
                     ok = true;
                 if (ok) {
                     /* Allocate or extend storage if necessary */
                     if (cap == 0) {
                         cap = 16;
-                        list = (seq_t *)malloc(cap * sizeof(seq_t));
+                        list = mem_new(seq_t, cap);
                         if (!list) exit(EXIT_FAILURE);
                     } else if ((size_t)count >= cap) {
                         cap *= 2;
-                        seq_t *tmp = (seq_t *)realloc(list, cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, list, cap);
                         if (!tmp) exit(EXIT_FAILURE);
                         list = tmp;
                     }

@@ -8,13 +8,15 @@
  *            This is the coefficient of x^n in ∏_{k≥2} 1/(1 - x^{k(k+1)/2})
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Assumes seq_t and idx_t are defined elsewhere in the build.          */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
         idx_t new_cap = n + 1;   /* number of elements needed */
 
         /* Reallocate array; abort on failure (should not happen). */
-        seq_t *new_dp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, new_cap);
         if (!new_dp && new_cap != 0) abort();
         dp = new_dp;
 

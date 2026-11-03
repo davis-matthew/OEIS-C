@@ -7,13 +7,26 @@
  * Formula:   a(n) = Sum_{k=0..n} (3*k)!/(k!^3) * binomial(k,n-k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   binomial, mul_exact
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/mul_exact.h"
+
+/* Helper that multiplies two seq_t values safely.
+   Uses 128‑bit arithmetic when available and in C mode,
+   otherwise falls back to the normal * operator. */
+static inline seq_t mul_exact(seq_t a, seq_t b)
+{
+#if defined(__SIZEOF_INT128__) && !defined(__cplusplus)
+    return (seq_t)(((unsigned __int128)a) * b);
+#else
+    return a * b;
+#endif
+}
 
 /* Helper that computes (value * mult)/denom exactly.
    Works in both C and C++ builds. */

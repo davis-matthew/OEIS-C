@@ -7,8 +7,9 @@
  * Keywords:  base, nonn
  * Formula:   a(n) = 2 + the number of trailing non‑zero digits in the
  *            factorial‑base representation of (n-1)
- * Range:     u8 n <= 9871, u16 n <= 9871, u32 n <= 9871, u64 n <= 9871,
- *            u128 n <= 9871, big any n
+ * Range:     u8 n <= 10080, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 103 terms through n = 9871 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

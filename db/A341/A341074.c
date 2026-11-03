@@ -8,13 +8,15 @@
  *            parts
  * Range:     u8 n <= 57, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Count partitions of n into 5 distinct squarefree parts */
 seq_t a(idx_t n)
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
 
     /* 2. Dynamic programming over subsets of squarefree numbers */
     size_t dpSize = (size_t)(n + 1) * 6; /* k = 0..5 */
-    seq_t *dp = (seq_t*)calloc(dpSize, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dpSize);
     dp[0] = 1;  /* dp[sum=0][k=0] = 1 */
 
     for (size_t si = 0; si < count; ++si) {
@@ -68,6 +70,6 @@ seq_t a(idx_t n)
     seq_t result = dp[(size_t)n * 6 + 5];
 
     free(sqnums);
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,19 +25,30 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #if defined(__cplusplus)
 /* For the big‑integer build the utilities below correctly construct
    and destroy objects of type seq_t.  */
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdint.h>
+#include <stdlib.h>
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 # define SEQ_ALLOC(SZ)    alloc_seq_array((size_t)(SZ))
 # define SEQ_FREE(P)      free_seq_array((seq_t*)(P))
 #else
 /* Plain C build – seq_t is an integral type.  */
 # include <stdlib.h>
 # define SEQ_ALLOC(SZ)    ((seq_t*)malloc(sizeof(seq_t)*(SZ)))
-# define SEQ_FREE(P)      free((void*)(P))
+# define SEQ_FREE(P)      free((P))
 #endif
 
 seq_t a(idx_t n)

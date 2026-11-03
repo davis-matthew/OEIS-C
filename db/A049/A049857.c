@@ -7,7 +7,8 @@
  * Formula:   a(n) = concatenate(prevprime(n), n, nextprime(n))
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   digit_len, next_prime, pow10, prev_prime
+ * Validated: partial, pass, 30 terms through n = 32 (2026-11-01)
+ * Helpers:   is_prime, next_prime, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,30 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/prev_prime.h"
+#include <stdlib.h>
+#include "../utils/is_prime.h"
 #include "../utils/next_prime.h"
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include "../utils/num_digits.h"
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,8 +55,8 @@ seq_t a(idx_t n)
     seq_t n_s    = (seq_t)n;
 
     /* Compute decimal lengths */
-    int d_n     = digit_len(n_s);
-    int d_next  = digit_len(nxt_s);
+    int d_n     = num_digits(n_s);
+    int d_next  = num_digits(nxt_s);
 
     /* Compute powers of ten for concatenation */
     seq_t pow_len = pow10((idx_t)(d_n + d_next));          /* 10^(d(n)+d(next))      */

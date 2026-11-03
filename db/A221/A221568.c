@@ -9,13 +9,15 @@
  *            values: a(1) = 0, a(2) = 10, a(3) = 26, a(4) = 100
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 35, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t, NULL */
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Ensure cache is large enough */
     if (cache == NULL || (size_t)(n + 1) > cache_size) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) {
             /* In a real program we might abort or return an error;
                for this harness we just return 0 on allocation failure. */

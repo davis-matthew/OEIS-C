@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = count of divisors d of n such that d^n mod n is a divisor
  *            of n
- * Range:     u8 n <= 9195, u16 n <= 9195, u32 n <= 9195, u64 n <= 9195,
- *            u128 n <= 9195, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 116 terms through n = 9195 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

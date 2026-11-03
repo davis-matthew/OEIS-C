@@ -11,7 +11,8 @@
  *            xA(x))·(1 + 3xA(x)²)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 371 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for memoisation */
 static seq_t *a_vals      = NULL;   /* a_vals[n] = a(n)          */
@@ -33,7 +35,7 @@ static void ensure_cap(size_t need, size_t *cap, seq_t **ptr)
     if (need <= *cap) return;
     size_t new_cap = (*cap == 0) ? need * 2 : *cap * 2;
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t*)realloc(*ptr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *ptr, new_cap);
     if (!tmp) abort();                 /* allocation failed */
     /* zero the newly allocated tail */
     for (size_t i = *cap; i < new_cap; ++i) tmp[i] = (seq_t)0;

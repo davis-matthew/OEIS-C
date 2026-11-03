@@ -9,7 +9,8 @@
  *            the decimal expansion of 1/m is 2
  * Range:     u8 n <= 1, u16 n <= 16, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   good_m
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,42 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/good_m.h"
+
+/* Return true if m satisfies the condition for the sequence.  */
+static bool good_m(seq_t m)
+{
+    if (m <= 1)
+        return false;      /* 1/m = 1.0… contains digit 1, not 2 */
+
+    seq_t rem = 1 % m;          /* initial remainder */
+    bool seen2 = false;         /* have we seen a digit 2? */
+
+    /* The cycle length of 1/m is at most m-1, so using m as a
+     * hard upper bound is safe for the test.  If m is larger than
+     * the maximum value representable by idx_t, the cast truncates
+     * and the loop is still harmless for the sizes needed by the
+     * tests.  */
+    idx_t limit = (idx_t)m;
+
+    for (idx_t step = 0; step < limit; ++step) {
+        seq_t prod  = rem * 10;   /* next product */
+        seq_t digit = prod / m;   /* next decimal digit */
+
+        if (digit > 2)            /* digit 3–9 found → reject */
+            return false;
+
+        if (digit == 2)
+            seen2 = true;
+
+        rem = prod % m;           /* next remainder */
+        if (rem == 0)             /* terminating decimal */
+            return seen2;         /* accept only if a 2 was seen */
+    }
+
+    /* Completed the maximum number of steps without a large digit.
+       Accept only if a 2 has been seen somewhere. */
+    return seen2;
+}
 
 /* Static cache of successful terms. */
 static seq_t *cache = NULL;       /* array of terms */

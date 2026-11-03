@@ -8,7 +8,8 @@
  *            representation of n
  * Range:     u8 n <= 10, u16 n <= 1105, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   modinv_7_uint64
+ * Validated: standard, pass, 70 terms through n = 9787 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,28 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/modinv_7_uint64.h"
+#include "../utils/mem.h"
+
+/* Modular inverse of 7 modulo 10^m for m = 0..12.
+ * For other systems 7 is invertible modulo any 10^m because gcd(7,10)=1. */
+static uint64_t modinv_7_uint64(uint64_t mod)
+{
+    int64_t x0 = 1, x1 = 0;
+    uint64_t a = 7, b = mod;
+    while (b != 0) {
+        uint64_t q = a / b;
+        uint64_t r = a % b;
+        int64_t x2 = x0 - (int64_t)q * x1;
+        x0 = x1; x1 = x2;
+        a = b; b = r;
+    }
+    if (a != 1) return 0;                     /* should never happen */
+    if (x0 < 0) {
+        int64_t t = (-x0 + (int64_t)mod - 1) / (int64_t)mod;
+        x0 += t * (int64_t)mod;
+    }
+    return (uint64_t)(x0 % (int64_t)mod);
+}
 
 /* Work around the absence of a supplied comparison routine by
  * providing our own which works for all supported seq_t types.   */
@@ -87,7 +109,7 @@ static void used_insert_at(seq_t val, size_t pos)
 {
     if (used_cnt == used_cap) {
         size_t new_cap = used_cap ? used_cap * 2 : 64;
-        seq_t * tmp = (seq_t *)realloc(used_vals, new_cap * sizeof(seq_t));
+        seq_t * tmp = mem_resize(seq_t, used_vals, new_cap);
         used_vals = tmp;
         used_cap = new_cap;
     }
@@ -108,7 +130,7 @@ seq_t a(idx_t n)
         if (n > seq_cap) {
             size_t new_cap = seq_cap ? seq_cap * 2 : 64;
             while (new_cap < (size_t)n) new_cap <<= 1;
-            seq_t * tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_t * tmp = mem_resize(seq_t, seq_cache, new_cap);
             seq_cache = tmp;
             seq_cap = new_cap;
         }

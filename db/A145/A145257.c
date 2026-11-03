@@ -9,14 +9,16 @@
  *            the same number of 0’s in its binary representation as n has
  * Range:     u8 n <= 28, u16 n <= 190, u32 n <= 190, u64 n <= 2038,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t, gcd, is_prime
+ * Validated: standard, pass, 80 terms through n = 9978 (2026-11-01)
+ * Helpers:   bit_length, gcd, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include "../utils/bit_length.h"
 #include "../utils/gcd.h"
-#include "../utils/bitlen_seq_t.h"
 #include "../utils/is_prime.h"
 
 /* popcount for an arbitrary precision integer */
@@ -34,7 +36,7 @@ static inline int popcount_seq_t(seq_t x)
 /* number of zero bits in the binary representation of x */
 static inline int zeros_seq_t(seq_t x)
 {
-    return (int)bitlen_seq_t(x) - popcount_seq_t(x);
+    return (int)bit_length(x) - popcount_seq_t(x);
 }
 
 seq_t a(idx_t n)

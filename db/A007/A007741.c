@@ -9,14 +9,14 @@
  *            consecutive primes starting at prime(n) that is abundant
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     // Find the n-th prime
@@ -24,7 +24,7 @@ seq_t a(idx_t n) {
     idx_t prime_count = 0;
     
     while (true) {
-        if (is_prime(candidate)) {
+        if (is_prime_u64(candidate)) {
             prime_count++;
             if (prime_count == n) {
                 break;
@@ -54,6 +54,6 @@ seq_t a(idx_t n) {
         // Find the next prime
         do {
             candidate++;
-        } while (!is_prime(candidate));
+        } while (!is_prime_u64(candidate));
     }
 }

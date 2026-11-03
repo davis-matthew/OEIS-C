@@ -9,7 +9,8 @@
  *            * factor of n and the largest prime factor of n inclusive
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static size_t max_limit = 0;
@@ -30,8 +32,8 @@ static void ensure_capacity(idx_t n)
     if (!initialized || (size_t)n > max_limit) {
         size_t old = max_limit;
         max_limit = (size_t)n + 100;   /* small buffer */
-        spf = (seq_t *)realloc(spf, (max_limit + 1) * sizeof(seq_t));
-        lpfmax = (seq_t *)realloc(lpfmax, (max_limit + 1) * sizeof(seq_t));
+        spf = mem_resize(seq_t, spf, (max_limit + 1));
+        lpfmax = mem_resize(seq_t, lpfmax, (max_limit + 1));
         is_pal = (uint8_t *)realloc(is_pal, (max_limit + 1) * sizeof(uint8_t));
         for (size_t i = old + 1; i <= max_limit; ++i) {
             spf[i] = 0;

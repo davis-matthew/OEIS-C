@@ -7,17 +7,20 @@
  * Formula:   a(1)=1, a(2)=2, a(n)=3^(n-2) for n>2
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 22, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     if (n == 1) return (seq_t)1;
     if (n == 2) return (seq_t)2;
     /* compute 3^(n-2) using the provided big integer power helper */
-    return big_pow((seq_t)3, (seq_t)(n - 2));
+    return ipow((seq_t)3, (seq_t)(n - 2));
 }

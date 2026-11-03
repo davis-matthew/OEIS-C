@@ -12,7 +12,8 @@
  *            consecutively, starting with G(0,0). * For effici...
  * Range:     u8 n <= 62, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static storage for the triangular table */
 static seq_t **triangle = NULL;      /* pointer to each row array                */
@@ -54,7 +56,7 @@ static void ensure_triangle_up_to(idx_t r)
 
     /* build new rows */
     for (idx_t cur = max_row + 1; cur <= r; ++cur) {
-        seq_t *row = (seq_t *)malloc((cur + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (cur + 1));
         if (row == NULL) abort();
 
         for (idx_t k = 0; k <= cur; ++k) {

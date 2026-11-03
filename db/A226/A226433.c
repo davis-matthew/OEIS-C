@@ -8,15 +8,22 @@
  * Formula:   a(n) = 2*Fib(2n-1) - 2^(n-2) - n + 1 (n > 1), a(1) = 1
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   pow2, seq_mul
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_mul.h"    /* seq_mul(seq_t, seq_t) -> seq_t */
-#include "../utils/pow2.h"       /* pow2(idx_t) -> seq_t */
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/pow2.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Fast doubling Fibonacci: computes F(n) and F(n+1) in *fn and *fn1. */
 static void fib_pair(idx_t n, seq_t *fn, seq_t *fn1)

@@ -11,16 +11,20 @@
  *            modulo the odd part of n
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 36, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   factor_u64, mod_pow, pow_uint
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow_uint.h"
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +41,7 @@ seq_t a(idx_t n)
 
     /* Special case: odd part equals 1. */
     if (odd == 1) {
-        seq_t pow_v2 = pow_uint(2, v2);
+        seq_t pow_v2 = ipow_u64_idx(2, v2);
         return pow_v2;              /* 2^v2 * (2^1-1) == 2^v2 */
     }
 
@@ -62,15 +66,15 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cntp; ++i) {
         idx_t p = (idx_t)phi_pr[i];
         while (order % p == 0 &&
-               mod_pow((seq_t)2, (idx_t)(order / p), (seq_t)odd) == (seq_t)1)
+               powmod((seq_t)2, (idx_t)(order / p), (seq_t)odd) == (seq_t)1)
         {
             order /= p;
         }
     }
 
     /* Assemble the result: 2^v2 * (2^order - 1). */
-    seq_t pow_v2 = pow_uint(2, v2);
-    seq_t pow_o  = pow_uint(2, order);
+    seq_t pow_v2 = ipow_u64_idx(2, v2);
+    seq_t pow_o  = ipow_u64_idx(2, order);
 
     return pow_v2 * (pow_o - (seq_t)1);
 }

@@ -11,7 +11,8 @@
  *            a(7)=766, a(8)=1458, a(9)=2792
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 30, u64 n <= 62, u128 n <= 126,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
             (seq_t)766, (seq_t)1458, (seq_t)2792
         };
         cap = 32;
-        buf = (seq_t *)malloc(cap * sizeof(seq_t));
+        buf = mem_new(seq_t, cap);
         if (!buf) { exit(EXIT_FAILURE); }
         for (idx_t i = 0; i < 9; ++i) buf[i] = init[i];
         size = 9;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     if (n > cap) {
         idx_t newcap = cap;
         while (newcap < n) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(buf, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, newcap);
         if (!tmp) { exit(EXIT_FAILURE); }
         buf = tmp;
         cap = newcap;

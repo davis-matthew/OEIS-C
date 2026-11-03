@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of partitions of n into 5 distinct nonzero squares
  * Range:     u8 n <= 1638, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   none
+ * Validated: standard, pass, 124 terms through n = 7964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    with k_i^2 <= n, accumulating the sums.   */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* maximum n to pre‑compute; adjust if larger values are needed */
 /* (Choose a value large enough for the test harness; 10000 covers the typical range.) */
@@ -36,7 +38,7 @@ static inline idx_t floor_isqrt(idx_t u)
 static void init_cache(void)
 {
     const idx_t N = PRE_MAX_N;
-    cache = (seq_t *)malloc(sizeof(seq_t) * (N + 1));
+    cache = mem_new(seq_t, (N + 1));
     if (cache == NULL) exit(1);
 
     /* initialise cache to zero */

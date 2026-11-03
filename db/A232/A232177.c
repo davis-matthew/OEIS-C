@@ -7,14 +7,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = least positive k such that T(n)+T(k) is a perfect square
  *            /* with offset 0; T(m) = m*(m+1)/2
- * Range:     u8 n <= 10, u16 n <= 55, u32 n <= 73, u64 n <= 73, u128 n <= 73,
+ * Range:     u8 n <= 24, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   sqrt_floor
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sqrt_floor.h"
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 1; k <= max_k; ++k) {
         seq_t sum = Tn + Tk;
-        seq_t s   = sqrt_floor(sum);
+        seq_t s   = isqrt_seq(sum);
         if (s * s == sum)
             return k;
 

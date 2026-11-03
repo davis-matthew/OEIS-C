@@ -8,12 +8,14 @@
  * Formula:   a(n) = ((5*n)!/(120^n)) * C(5*n+1, n)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 7,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Computes a(n) for the OEIS sequence A036773.
  * Uses only arithmetic on seq_t and idx_t, no floating-point operations. */
@@ -30,6 +32,6 @@ seq_t a(idx_t n)
         }
     }
 
-    seq_t b = binom(m + 1, n);   /* C(5*n+1, n) */
+    seq_t b = binomial(m + 1, n);   /* C(5*n+1, n) */
     return f * b;                /* final product gives a(n)          */
 }

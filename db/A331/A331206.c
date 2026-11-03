@@ -9,14 +9,31 @@
  *            interpreted in base -2
  * Range:     u8 n <= 52, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   eval_neg2
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/eval_neg2.h"
+#include "../utils/mem.h"
+
+/* Compute A053985(k) – value of k in base -2.  Result fits in a
+   signed 64‑bit integer for the ranges of k we need. */
+static long long eval_neg2(uint64_t k)
+{
+    long long val = 0;
+    long long pow = 1;
+    while (k)
+    {
+        if (k & 1)
+            val += pow;
+        pow *= -2;
+        k >>= 1;
+    }
+    return val;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +54,7 @@ seq_t a(idx_t n)
             if (sz == cap)                /* grow the array */
             {
                 size_t newcap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, newcap);
                 terms = tmp;
                 cap = newcap;
             }

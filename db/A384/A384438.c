@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,11 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,20 +51,20 @@ seq_t a(idx_t n)
         seq_t mod_mul3 = k_sq * (seq_t)3;              /* 3*k^2 */
 
         /* 2^k  (mod 3*k^2) */
-        seq_t pow2k_mod = mod_pow((seq_t)2, (uint64_t)next_k, mod_mul3);
+        seq_t pow2k_mod = powmod((seq_t)2, (uint64_t)next_k, mod_mul3);
 
         /* ((2^k + 1)/3)  (exact, because 3 divides 2^k+1) */
         seq_t t = (pow2k_mod + (seq_t)1) / (seq_t)3;    /* t < k^2 */
 
         /* test whether t^k == 1 (mod k^2) */
-        seq_t power = mod_pow(t, (uint64_t)next_k, k_sq);
+        seq_t power = powmod(t, (uint64_t)next_k, k_sq);
         if (power == (seq_t)1)
         {
             /* append to cache */
             if (cache_len + 1 > cache_cap) {
                 /* double capacity (or set to 2 if empty) */
                 size_t new_cap = cache_cap ? cache_cap * 2 : 2;
-                seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
                 if (!new_arr) exit(1); /* allocation failure */
                 cache = new_arr;
                 cache_cap = new_cap;

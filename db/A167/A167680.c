@@ -8,7 +8,8 @@
  * Formula:   a(n) - 18*(a(n-1)+...+a(n-14)) + 171*a(n-15) = b(n)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 484 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* rearranged to compute the required terms iteratively.             */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of computed terms */
 static seq_t *cache = NULL;          /* array of a(i) values           */
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t n) {
     size_t need = (size_t)(n + 1);
     if (need <= cache_cap) return;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, need * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, need);
     if (!new_cache) abort();          /* out of memory */
     cache = new_cache;
     for (size_t i = cache_cap; i < need; ++i) cache[i] = 0;

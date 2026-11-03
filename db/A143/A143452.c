@@ -7,13 +7,15 @@
  * Formula:   a(0)=1, a(n)=2*n+1 for 0<=n<=10; a(n)=a(n-1)+2*a(n-10) for n>=11
  * Range:     u8 n <= 19, u16 n <= 44, u32 n <= 92, u64 n <= 189,
  *            u128 n <= 384, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cap = 0;
@@ -26,10 +28,10 @@ static void ensure_capacity(idx_t n)
     size_t old_cap = cap;
     size_t new_cap = old_cap ? old_cap * 2 : 4;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) abort();
     for (size_t i = 0; i < old_cap; ++i) new_cache[i] = cache[i];
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     cache = new_cache;
     cap = new_cap;
 }

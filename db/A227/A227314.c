@@ -9,15 +9,18 @@
  *            with multiplicity of the sum of the first n composite numbers)
  * Range:     u8 n <= 16, u16 n <= 1766, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_prime_factors, is_prime
+ * Validated: standard, pass, 116 terms through n = 9856 (2026-11-03)
+ * Helpers:   bigomega_seq, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include "../utils/bigomega_seq.h"
 #include "../utils/is_prime.h"
-#include "../utils/count_prime_factors.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +51,7 @@ seq_t a(idx_t n)
         /* Grow storage if necessary */
         if (count > cap) {
             size_t new_cap = cap ? cap << 1 : 8;
-            seq_t *tmp = (seq_t *)realloc(prefix, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, prefix, new_cap);
             if (!tmp) { abort(); }
             prefix = tmp;
             cap = new_cap;
@@ -59,5 +62,5 @@ seq_t a(idx_t n)
     }
 
     /* Return the number of prime factors (with multiplicity) of the sum */
-    return count_prime_factors(prefix[n - 1]);
+    return bigomega_seq(prefix[n - 1]);
 }

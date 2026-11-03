@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   not stated
- * Range:     i8 n <= 9424, i16 n <= 9424, i32 n <= 9424, i64 n <= 9424,
- *            i128 n <= 9424, big any n
- * Helpers:   _smallest_prime_factor, is_prime
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9424 (2026-11-01)
+ * Helpers:   is_prime, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "../utils/is_prime.h"
-#include "../utils/_smallest_prime_factor.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         uint64_t sum = 0;
         uint64_t temp = x;
         while (temp > 1) {
-            uint64_t p = _smallest_prime_factor(temp);
+            uint64_t p = smallest_prime_factor(temp);
             sum += p;
             temp /= p;
         }

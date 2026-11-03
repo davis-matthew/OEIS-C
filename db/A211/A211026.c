@@ -8,13 +8,15 @@
  * Formula:   a(n) = 2*A000041(n) + 2 (p(n) = partition number of n)
  * Range:     u8 n <= 13, u16 n <= 39, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes a(n) for OEIS A211026. */
 seq_t a(idx_t n)
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (n > max_n) {
         size_t new_cap = n + 1;
         if (new_cap > cap) {
-            seq_t *tmp = (seq_t *)realloc(p, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, p, new_cap);
             if (!tmp) return 0;      /* allocation failure: signal error */
             p = tmp;
             /* zero only the new part of the array */

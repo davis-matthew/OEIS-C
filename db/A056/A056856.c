@@ -12,12 +12,14 @@
  *            and evaluates T(r,c) = r^c · e_{r-1-c}(1,2,…,r-1), w...
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     idx_t col = n - prev - 1;
 
     /* Compute elementary symmetric sums e[0..r-1] for the set {1,2,…,r-1}. */
-    seq_t *e = (seq_t *)malloc(r * sizeof(seq_t));
+    seq_t *e = mem_new(seq_t, r);
     if (!e) return 0;               /* allocation failure */
     e[0] = 1;
     for (idx_t j = 1; j < r; ++j) e[j] = 0;
@@ -59,6 +61,6 @@ seq_t a(idx_t n)
 
     seq_t result = pow * e_val;
 
-    free(e);
+    mem_free(e);
     return result;
 }

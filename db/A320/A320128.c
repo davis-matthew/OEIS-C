@@ -11,13 +11,15 @@
  *            and c includes both signs when the variable i...
  * Range:     u8 n <= 69, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9612 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>   /* for size_t */
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------- */
 /*   Helper: build the array that stores r₂(m) for 0 ≤ m ≤ max_n         */
@@ -30,7 +32,7 @@ static void ensure_r2(size_t max_n)
     if (max_n < r2_cap) return;   /* already built */
 
     size_t new_cap = max_n + 1;    /* include index max_n */
-    r2_vals = (seq_t *)realloc(r2_vals, new_cap * sizeof(seq_t));
+    r2_vals = mem_resize(seq_t, r2_vals, new_cap);
     if (!r2_vals) abort();        /* out of memory */
 
     for (size_t m = r2_cap; m <= max_n; ++m) {

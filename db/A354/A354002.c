@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k=1..n} Stirling1(n,k) * prime(k+1)
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 20, i128 n <= 34,
  *            big any n
- * Helpers:   generate_first_primes
+ * Validated: standard, pass, 38 terms through n = 441 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,43 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>            /* for log() in prime limit estimation */
-#include "../utils/generate_first_primes.h"
+#include "../utils/mem.h"
+
+/* Helper: generate the first needed_primes primes by a local sieve. */
+static uint32_t *generate_first_primes(size_t needed_primes, idx_t *out_limit)
+{
+    /* Rough upper bound for the largest needed prime.  For n≥6:
+       p_n < n (log n + log log n).  Add a safety margin. */
+    idx_t limit;
+    if (needed_primes < 6) {
+        limit = 15;
+    } else {
+        double n = (double)needed_primes;
+        double estimate = n * (log(n) + log(log(n)));
+        limit = (idx_t)(estimate) + 10;
+    }
+    *out_limit = limit;
+
+    bool *is_p = (bool*)malloc((limit + 1) * sizeof(bool));
+    for (idx_t i = 0; i <= limit; ++i) is_p[i] = false;
+    for (idx_t i = 2; i <= limit; ++i) is_p[i] = true;
+    for (idx_t i = 2; i * i <= limit; ++i) {
+        if (is_p[i]) {
+            for (idx_t j = i * i; j <= limit; j += i)
+                is_p[j] = false;
+        }
+    }
+    uint32_t *primes = (uint32_t*)malloc((needed_primes + 1) * sizeof(uint32_t));
+    size_t cnt = 0;
+    for (idx_t i = 2; i <= limit && cnt < needed_primes; ++i) {
+        if (is_p[i]) {
+            ++cnt;
+            primes[cnt] = (uint32_t)i;
+        }
+    }
+    free(is_p);
+    return primes;
+}
 
 #define MAX_CACHE 10000          /* maximum number of terms to cache */
 #define SIEVE_LIMIT 200000       /* fixed sieve size for initial primes */
@@ -105,8 +142,8 @@ seq_t a(idx_t n)
 
         /* Allocate Stirling rows for the current run. */
         size_t sz = (size_t)(n + 1);
-        seq_t *prev = (seq_t*)calloc(sz, sizeof(seq_t));
-        seq_t *cur  = (seq_t*)calloc(sz, sizeof(seq_t));
+        seq_t *prev = mem_new(seq_t, sz);
+        seq_t *cur  = mem_new(seq_t, sz);
         prev[0] = 1;   /* s(0,0)=1 */
 
         seq_t val = 0;
@@ -125,7 +162,7 @@ seq_t a(idx_t n)
             seq_t *tmp = prev; prev = cur; cur = tmp;
         }
 
-        free(prev); free(cur);
+        mem_free(prev); mem_free(cur);
         free(primes);
         return val;
     }

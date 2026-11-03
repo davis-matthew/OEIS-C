@@ -8,13 +8,15 @@
  *            a(n-k)
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 11, i64 n <= 17, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build environment.  The function
    binomial(a,b) is also supplied. */
@@ -39,8 +41,7 @@ static void ensure_cache_size(idx_t n)
 #if defined(SEQ_REALLOC_AVAILABLE)
     seq_t *new_cache = seq_realloc(cache, cache_cap, needed);
 #else
-    seq_t *new_cache = (seq_t *)realloc(cache,
-                                         needed * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, needed);
 #endif
 
     if (!new_cache) abort();       /* unrecoverable failure           */

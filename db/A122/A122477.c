@@ -7,14 +7,17 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 2466, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_frequencies
+ * Validated: standard, pass, 58 terms through n = 9368 (2026-11-03)
+ * Helpers:   digit_frequencies, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* OEIS A122477: numbers k such that the decimal digits of k and k^2 together contain all ten digits 0–9. */
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_frequencies.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_values = NULL;
 static size_t seq_cap = 0;
@@ -27,7 +30,7 @@ seq_t a(idx_t n) {
     /* lazy initialization */
     if (seq_values == NULL) {
         seq_cap = 4;
-        seq_values = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_values = mem_new(seq_t, seq_cap);
         seq_len = 0;
         last_checked = 0;
     }
@@ -52,7 +55,7 @@ seq_t a(idx_t n) {
         if (ok) {
             if (seq_len == seq_cap) {
                 size_t new_cap = seq_cap * 2;
-                seq_t *tmp = (seq_t*)realloc(seq_values, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_values, new_cap);
                 seq_values = tmp;
                 seq_cap = new_cap;
             }

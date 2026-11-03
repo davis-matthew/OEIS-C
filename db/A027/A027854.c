@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 71 terms through n = 8494 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 static uint64_t *primes = NULL;        /* primes used for factorisation */
 static size_t primes_cap  = 0;
@@ -74,8 +76,7 @@ static void cache_append(uint64_t value)
 {
     if (mutine_size == mutine_cap) {
         size_t new_cap = mutine_cap ? mutine_cap * 2 : 64;
-        seq_t *tmp = (seq_t*)realloc(mutine_cache,
-                                     new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, mutine_cache, new_cap);
         if (!tmp) return; /* allocation failed – unlikely */
         /* initialize the newly allocated part to zeros (good for py big ints) */
         for (size_t i = mutine_size; i < new_cap; ++i) tmp[i] = (seq_t)0;
@@ -95,7 +96,7 @@ seq_t a(idx_t n)
             if (x <= 1) { next_candidate = x + 1; continue; }
 
             /* find largest prime factor */
-            uint64_t p = gpf(x);
+            uint64_t p = largest_prime_factor(x);
             if (!p) { next_candidate = x + 1; continue; }
 
             /* largest power of p dividing x */

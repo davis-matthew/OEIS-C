@@ -10,8 +10,8 @@
  *            with multiplicity and ω is the number of distinct prime factors
  * Range:     u8 n <= 41, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, count_distinct_primes, count_prime_factors,
- *            int_cube_root
+ * Validated: standard, pass, 103 terms through n = 8405 (2026-11-01)
+ * Helpers:   bigomega_seq, build_primes_upto, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +20,26 @@
 #include <stdlib.h>
 
 /* utility functions */
+#include <limits.h>
+#include <stdbool.h>
+#include "../utils/bigomega_seq.h"
 #include "../utils/build_primes_upto.h"
-#include "../utils/int_cube_root.h"
-#include "../utils/count_distinct_primes.h"
-#include "../utils/count_prime_factors.h"
+#include "../utils/omega.h"
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 seq_t a(idx_t n)
 {
@@ -79,7 +95,7 @@ seq_t a(idx_t n)
     }
 
     /* Compute Ω(x) and ω(x) and return the excess. */
-    seq_t total   = count_prime_factors(x);
-    int distinct  = count_distinct_primes((uint64_t)x);
+    seq_t total   = bigomega_seq(x);
+    int distinct  = omega((uint64_t)x);
     return total - (seq_t)distinct;
 }

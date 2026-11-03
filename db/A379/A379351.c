@@ -7,12 +7,14 @@
  * Formula:   a(n) = greatest prime factor of n^2 + 2
  * Range:     u8 n <= 20, u16 n <= 272, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 77 terms through n = 934 (2026-11-01)
  * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)

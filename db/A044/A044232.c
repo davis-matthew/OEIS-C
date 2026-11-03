@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 1010, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has55_oct
+ * Validated: standard, pass, 56 terms through n = 9317 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has55_oct.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether the octal representation of x contains “…55” */
+static bool has55_oct(uint64_t x)
+{
+    uint64_t prev = x & 7ULL;   /* x % 8 */
+    x >>= 3;                    /* x /= 8 */
+    while (x != 0) {
+        uint64_t d = x & 7ULL;  /* x % 8 */
+        if (d == 5 && prev == 5)
+            return true;
+        prev = d;
+        x >>= 3;                /* x /= 8 */
+    }
+    return false;
+}
 
 /* Cache state */
 static seq_t *cache = NULL;          /* Cached terms */
@@ -32,7 +48,7 @@ static void ensure_capacity(void)
 {
     if (cache_size >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 8;
-        seq_t *newptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, cache, new_cap);
         if (!newptr)
             abort();                 /* allocation failure is fatal */
         cache = newptr;
@@ -49,7 +65,7 @@ seq_t a(idx_t n)
     /* Lazy initialization of cache */
     if (!cache) {
         cache_cap = 8;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             abort();
     }

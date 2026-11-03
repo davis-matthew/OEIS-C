@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   calc_phi, sigma_of
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,13 +22,28 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../utils/calc_phi.h"
-#include "../utils/sigma_of.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* Transform x → σ(φ(x)) */
 static inline seq_t f_value(seq_t x)
 {
-    seq_t phi = calc_phi(x);
+    seq_t phi = totient_seq(x);
     return sigma_of((idx_t)phi);
 }
 
@@ -79,7 +95,7 @@ static void _ensure_cache(idx_t n)
             /* Grow cache if full */
             if (_found == _cap) {
                 size_t new_cap = (_cap == 0) ? 16 : _cap * 2;
-                seq_t *tmp = (seq_t *)realloc(_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, _cache, new_cap);
                 if (!tmp) abort();
                 _cache = tmp;
                 _cap   = new_cap;

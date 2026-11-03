@@ -9,13 +9,15 @@
  *            and F_k = F_{k-1} + F_{k-2} for k ≥ 3
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Note: seq_t and idx_t are defined by the build environment. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fib = NULL;   /* Fibonacci numbers F_1 … F_n */
 static seq_t *sq  = NULL;   /* Squares of Fibonacci numbers */
@@ -29,9 +31,9 @@ ensure_capacity(idx_t n)
 {
     if (capacity < (size_t)(n + 1)) {
         capacity = n + 1;
-        fib = (seq_t *)realloc(fib, capacity * sizeof(seq_t));
-        sq  = (seq_t *)realloc(sq,  capacity * sizeof(seq_t));
-        val = (seq_t *)realloc(val, capacity * sizeof(seq_t));
+        fib = mem_resize(seq_t, fib, capacity);
+        sq  = mem_resize(seq_t, sq, capacity);
+        val = mem_resize(seq_t, val, capacity);
         if (!fib || !sq || !val) exit(1);  /* allocation failed */
     }
 }

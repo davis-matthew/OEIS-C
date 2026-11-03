@@ -11,14 +11,27 @@
  *            row‑wise
  * Range:     u8 n <= 36, u16 n <= 93, u32 n <= 305, u64 n <= 1045,
  *            u128 n <= 3682, big any n
- * Helpers:   binomial, row_from_index
+ * Validated: standard, pass, 82 terms through n = 9353 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t N, idx_t K) */
-#include "../utils/row_from_index.h"
+#include "../utils/binomial.h"
+
+static inline idx_t
+row_from_index(idx_t n)
+{
+    idx_t row = 0;
+    while (1) {
+        unsigned __int128 next = (unsigned __int128)(row + 1) * (row + 2) / 2;
+        if (next > n)
+            break;
+        row++;
+    }
+    return row;
+}
 
 seq_t a(idx_t n)
 {

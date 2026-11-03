@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has73
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,20 @@
  * arbitrary indices remain fast.
  */
 #include <stdlib.h>
-#include "../utils/has73.h"
+#include "../utils/mem.h"
+
+static inline int has73(seq_t x)
+{
+    /* Return 1 if x contains the substring "73" in decimal */
+    while (x >= (seq_t)10) {
+        seq_t last   = x % (seq_t)10;
+        seq_t second = (x / (seq_t)10) % (seq_t)10;
+        if (second == (seq_t)7 && last == (seq_t)3)
+            return 1;
+        x /= (seq_t)10;
+    }
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -43,8 +57,7 @@ seq_t a(idx_t n)
             /* store cur in the cache */
             if (terms_len == terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(terms,
-                                            new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) /* allocation failure */
                     return (seq_t)0;
                 terms = tmp;

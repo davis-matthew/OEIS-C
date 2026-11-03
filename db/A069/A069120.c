@@ -9,15 +9,22 @@
  *            for fast repeated calls
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   div_by_pow2, v2
+ * Validated: standard, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   ctz_seq_to_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t */
 #include <stdint.h>   /* for uint64_t if needed */
-#include "../utils/div_by_pow2.h"
-#include "../utils/v2.h"
+#include "../utils/ctz_seq_to_idx.h"
+
+/* Helper to divide a seq_t by 2^k (k <= 64). */
+static seq_t div_by_pow2(seq_t x, idx_t k) {
+    seq_t res = x;
+    while (k--) res /= (seq_t)2;
+    return res;
+}
 
 extern seq_t a(idx_t n);   /* forward declaration for compiler/tooling */
 
@@ -42,7 +49,7 @@ seq_t a(idx_t n) {
         S = (seq_t)2 * next_k * S_prev + fact_prev;
 
         /* Check integer condition: v2(S) >= next_k. */
-        if (v2(S) >= next_k) {
+        if (ctz_seq_to_idx(S) >= next_k) {
             /* Compute a_k = S / 2^next_k. */
             seq_t a_k = div_by_pow2(S, next_k);
             seq_vals[seq_len++] = a_k;

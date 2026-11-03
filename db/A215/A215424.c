@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrimeTrial
+ * Validated: standard, pass, 71 terms through n = 983 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/isPrimeTrial.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
 
 /* Ensure the dynamic array has at least `need` elements. */
 static void grow_uint64(uint64_t **arr, size_t *cap, size_t need)
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         /* find the next prime with an allowed residue modulo 13 */
         while (1) {
             next_candidate = cand + 1;
-            if (isPrimeTrial((seq_t)cand)) {
+            if (is_prime_seq((seq_t)cand)) {
                 uint64_t r = cand % 13;
                 if (r == 0 || r == 1 || r == 2 || r == 4 || r == 5 || r == 6)
                     break; /* correct prime found */

@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor((3*n+2)/sqrt(2)) - 3*floor(n/sqrt(2)) - 1
  * Range:     u8 n <= 4, u16 n <= 79, u32 n <= 132, u64 n <= 132,
  *            u128 n <= 132, big any n
+ * Validated: partial, pass, 132 terms through n = 132 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

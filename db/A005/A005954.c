@@ -12,16 +12,47 @@
  *            2*t^(1/4)*G is...
  * Range:     u8 n <= 0, u16 n <= 3, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   alloc_zero, mul_E, mul_G, release
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/mul_E.h"
-#include "../utils/mul_G.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+/* A <- A * E, in place, truncated to length len */
+static void mul_E(seq_t *A, idx_t len) {
+    idx_t i = len;
+    while (i > 0) {
+        i--;
+        for (idx_t k = 1; k * k <= i; k++) {
+            A[i] += (seq_t)2 * A[i - k * k];
+        }
+    }
+}
+
+/* A <- A * G, in place, truncated to length len */
+static void mul_G(seq_t *A, idx_t len) {
+    idx_t i = len;
+    while (i > 0) {
+        i--;
+        for (idx_t k = 1; k * (k + 1) <= i; k++) {
+            A[i] += A[i - k * (k + 1)];
+        }
+    }
+}
 
 static seq_t *res = NULL;
 static idx_t res_len = 0;

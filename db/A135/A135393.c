@@ -9,7 +9,8 @@
  *            2)
  * Range:     u8 n <= 26, u16 n <= 34, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static state for caching computed terms and for perfect‑power data. */
 static seq_t *cache      = NULL;
@@ -45,7 +47,7 @@ static void grow_cache(void)
 {
     if (cache_size == cache_cap) {
         cache_cap = (cache_cap ? cache_cap * 2 : 8);
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(*cache));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 }
 
@@ -77,8 +79,7 @@ static void ensure_powers(idx_t limit)
                 /* Append to powers list */
                 if (powers_len == powers_cap) {
                     powers_cap = (powers_cap ? powers_cap * 2 : 8);
-                    powers = (seq_t *)realloc(powers,
-                                             powers_cap * sizeof(seq_t));
+                    powers = mem_resize(seq_t, powers, powers_cap);
                 }
                 powers[powers_len++] = val;
             }
@@ -90,7 +91,7 @@ static void ensure_powers(idx_t limit)
 
     /* Sort the powers list for efficient searching */
     if (powers_len > 1) {
-        qsort(powers, powers_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(powers, powers_len, sizeof(seq_t), cmp_seq_t);
     }
     pow_limit = limit;
 }

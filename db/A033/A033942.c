@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 118, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_prime_factors
+ * Validated: standard, pass, 77 terms through n = 945 (2026-11-03)
+ * Helpers:   bigomega_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,13 @@
    calls in any order remain efficient. */
 
 /* required utility header */
-#include "../utils/count_prime_factors.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/bigomega_seq.h"
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External linkage as requested. */
 seq_t a(idx_t n)
@@ -41,19 +45,19 @@ seq_t a(idx_t n)
     /* Grow the cache when needed. */
     if (cache_len == 0) {
         cache_cap = 256;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;
     }
 
     /* Extend cache until we have at least n terms. */
     while (cache_len < n) {
         /* Test next_val for Ω(next_val) >= 3. */
-        if (count_prime_factors(next_val) >= (seq_t)3) {
+        if (bigomega_seq(next_val) >= (seq_t)3) {
             /* Ensure space. */
             if ((size_t)cache_len >= cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
-                if (!tmp) { free(cache); return (seq_t)0; }
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+                if (!tmp) { mem_free(cache); return (seq_t)0; }
                 cache = tmp;
                 cache_cap = new_cap;
             }

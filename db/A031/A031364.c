@@ -12,7 +12,8 @@
  *            ±2 (mod 5) and e even, e ≥ 2; * (in all other...
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
 
 /* public sequence function */
 seq_t a(idx_t n)
@@ -42,25 +44,25 @@ seq_t a(idx_t n)
         seq_t local;
 
         if (p == 5) { /* special rule for 5 */
-            seq_t pow5e   = seq_pow((seq_t)5, e);
-            seq_t pow5e_1 = seq_pow((seq_t)5, e - 1);
+            seq_t pow5e   = ipow_idx((seq_t)5, e);
+            seq_t pow5e_1 = ipow_idx((seq_t)5, e - 1);
             local = pow5e + pow5e_1;
         } else {
             uint64_t mod5 = p % 5;
             if (mod5 == 1 || mod5 == 4) { /* p ≡ ±1 (mod 5) */
-                seq_t pe  = seq_pow((seq_t)p, e);      /* p^e   */
-                seq_t pe1 = seq_pow((seq_t)p, e - 1);  /* p^(e‑1) */
+                seq_t pe  = ipow_idx((seq_t)p, e);      /* p^e   */
+                seq_t pe1 = ipow_idx((seq_t)p, e - 1);  /* p^(e‑1) */
                 local = (seq_t)(e + 1) * pe
                       + (seq_t)(2 * e)   * pe1;
                 if (e >= 2) {
-                    seq_t pe2 = seq_pow((seq_t)p, e - 2); /* p^(e‑2) */
+                    seq_t pe2 = ipow_idx((seq_t)p, e - 2); /* p^(e‑2) */
                     local += (seq_t)(e - 1) * pe2;
                 }
             } else { /* p ≡ ±2 (mod 5) */
                 if (e & 1) return 0ULL;              /* odd exponent → 0 */
                 if (e == 0) { local = 1; }            /* never reached */
                 else { /* e even and ≥2 */
-                    seq_t pe2 = seq_pow((seq_t)p, e - 2); /* p^(e‑2) */
+                    seq_t pe2 = ipow_idx((seq_t)p, e - 2); /* p^(e‑2) */
                     seq_t p2  = (seq_t)p * (seq_t)p;
                     local = pe2 * (p2 + (seq_t)1);
                 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   adjacent_1_9
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
  * n such numbers are found.  It works for all supported seq_t types. */
 
 #include <stdbool.h>
-#include "../utils/adjacent_1_9.h"
+
+static bool adjacent_1_9(seq_t x)
+{
+    /* Need at least two digits to have a pair */
+    if (x < 10) return false;
+    seq_t last = x % 10;
+    seq_t rest = x / 10;
+    while (rest > 0) {
+        seq_t d = rest % 10;
+        if ((last == 1 && d == 9) || (last == 9 && d == 1))
+            return true;
+        last = d;
+        rest = rest / 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

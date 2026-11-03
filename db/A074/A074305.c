@@ -7,6 +7,7 @@
  * Formula:   a(3m) = 2m, a(3m+1) = 4m+3, a(3m+2) = 4m+1
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

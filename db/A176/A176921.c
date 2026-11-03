@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   factor_u64, mod_pow, pow_uint
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,12 @@
    performed with the seq_t type. */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
-#include "../utils/mod_pow.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +44,7 @@ seq_t a(idx_t n)
         if (p == 2 || p == 5) {
             continue;            /* drop all 2's and 5's */
         }
-        seq_t pe = pow_uint(p, e);
+        seq_t pe = ipow_u64_idx(p, e);
         m *= pe;
     }
     if (m == 1) return 1;   /* terminating decimal */
@@ -53,7 +57,7 @@ seq_t a(idx_t n)
         if (p == 2 || p == 5) {
             continue;
         }
-        seq_t p_pow_minus1 = pow_uint(p, e - 1); /* p^(e-1) */
+        seq_t p_pow_minus1 = ipow_u64_idx(p, e - 1); /* p^(e-1) */
         seq_t term = p_pow_minus1 * (seq_t)(p - 1); /* (p-1)*p^(e-1) */
         phi *= term;
     }
@@ -71,7 +75,7 @@ seq_t a(idx_t n)
         /* divide out this prime factor as much as possible */
         while (order % (seq_t)p == 0) {
             seq_t cand = order / (seq_t)p;
-            if (mod_pow(10, (uint64_t)cand, m) == 1) {
+            if (powmod(10, (uint64_t)cand, m) == 1) {
                 order = cand;
             } else {
                 break;

@@ -9,12 +9,14 @@
  *            a(9)=9 (offset 1)
  * Range:     u8 n <= 487, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9901 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 {
     /* Initialise cache with the first nine values if required */
     if (!cache) {
-        cache = (seq_t *)realloc(NULL, 9 * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, 9);
         if (!cache) exit(1);
         for (idx_t i = 0; i < 9; ++i)
             cache[(size_t)i] = (seq_t)(i + 1);
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     /* If the cache is somehow smaller than 9, enlarge it */
     if (cache_size < 9) {
-        seq_t *tmp = (seq_t *)realloc(cache, 9 * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, 9);
         if (!tmp) exit(1);
         cache = tmp;
         for (idx_t i = cache_size; i < 9; ++i)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         return cache[(size_t)(n - 1)];
 
     /* Extend cache up to n, computing new terms sequentially */
-    seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
     if (!tmp) exit(1);
     cache = tmp;
 

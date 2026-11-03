@@ -12,7 +12,8 @@
  *            example: rows 1‑5 give a(1)=1, a(2)=1, a(3)=2, a(4)=...
  * Range:     u8 n <= 23, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for computed rows of the triangle */
 static seq_t     *triangle_data = NULL;   /* contiguous storage of all T(n,k) values */
@@ -43,9 +45,9 @@ static void ensure_rows(size_t up_to)
     /* Compute total number of elements needed for rows 1…up_to */
     size_t new_data_len = up_to * (up_to + 1) / 2;
     if (triangle_data == NULL) {
-        triangle_data = (seq_t*)malloc(new_data_len * sizeof(seq_t));
+        triangle_data = mem_new(seq_t, new_data_len);
     } else {
-        triangle_data = (seq_t*)realloc(triangle_data, new_data_len * sizeof(seq_t));
+        triangle_data = mem_resize(seq_t, triangle_data, new_data_len);
     }
 
     /* Fill missing rows */

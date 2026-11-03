@@ -10,7 +10,8 @@
  *            * elementary cellular automaton starting with a single ON cell
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 947 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const unsigned char rule_out[8] = {0,1,1,0,1,1,1,0};
 
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Ensure cache is large enough to hold a(n). */
     if (n >= cache_cap) {
         size_t newCap = n + 1;
-        cache = (seq_t*)realloc(cache, newCap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newCap);
         cache_cap = newCap;
     }
 

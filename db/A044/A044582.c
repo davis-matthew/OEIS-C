@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    but the base‑8 representation of n+1 does not. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return true if the base‑8 digits of x contain the adjacent pair 1,6. */
 static bool has16(seq_t x)
@@ -68,8 +70,7 @@ seq_t a(idx_t n)
                 if (len == cap)
                 {
                     size_t new_cap = cap ? (cap << 1) : 128;
-                    seq_t *new_cache = (seq_t *)realloc(cache,
-                                                        new_cap * sizeof(seq_t));
+                    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                     if (!new_cache)
                         exit(1);              /* abort on allocation failure */
                     cache = new_cache;

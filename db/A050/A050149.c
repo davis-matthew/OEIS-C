@@ -9,12 +9,14 @@
  *            return 0
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 20 terms through n = 22 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     /* Handle the offset: a(3) is the first term */
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
 
     seq_t sum = (seq_t)0;
     for (idx_t s = (idx_t)1; s <= n; ++s) {
-        seq_t term = binom(n, s) * binom(s + n - (idx_t)5, n - (idx_t)4);
+        seq_t term = binomial(n, s) * binomial(s + n - (idx_t)5, n - (idx_t)4);
         sum += term;
     }
     return sum;

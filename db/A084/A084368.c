@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 101, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_no_digit_one
+ * Validated: standard, pass, 83 terms through n = 933 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_no_digit_one.h"
+#include "../utils/mem.h"
+
+static bool has_no_digit_one(uint32_t x)
+{
+    while (x) {
+        if (x % 10 == 1) return false;
+        x /= 10;
+    }
+    return true;
+}
 
 /* -----------  Static state  -------------------------------------- */
 static uint32_t *prime_list = NULL;          /* primes found so far       */
@@ -82,7 +92,7 @@ seq_t a(idx_t n)
         if (has_no_digit_one(p_k)) {
             if (terms_used == terms_cap) {
                 terms_cap = terms_cap ? terms_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(qual_terms, terms_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, qual_terms, terms_cap);
                 if (!tmp) abort();
                 qual_terms = tmp;
             }

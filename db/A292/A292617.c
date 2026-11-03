@@ -10,14 +10,17 @@
  *            Catalan number
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   idx_to_size
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/idx_to_size.h"
+#include "../utils/mem.h"
+
+static inline size_t idx_to_size(idx_t x) { return (size_t)x; }
 
 /* -------------  internal helpers  ------------------------------------- */
 
@@ -35,9 +38,9 @@ static void _compute_up_to(idx_t N)
     size_t sz = idx_to_size(N) + 1;
 
     /* grow / allocate working arrays */
-    _q = (seq_t *)realloc(_q, sz * sizeof(seq_t));
-    _c = (seq_t *)realloc(_c, sz * sizeof(seq_t));
-    _a = (seq_t *)realloc(_a, sz * sizeof(seq_t));
+    _q = mem_resize(seq_t, _q, sz);
+    _c = mem_resize(seq_t, _c, sz);
+    _a = mem_resize(seq_t, _a, sz);
 
     /* --------- partitions into distinct parts (DP) --------- */
     for (size_t i = 0; i < sz; ++i) _q[i] = 0;

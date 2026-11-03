@@ -9,7 +9,8 @@
  *            Catalan number
  * Range:     u8 n <= 242, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _exp_catalan, _exp_factorial, _exp_in_int
+ * Validated: standard, pass, 87 terms through n = 8997 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,36 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_exp_catalan.h"
-#include "../utils/_exp_factorial.h"
-#include "../utils/_exp_in_int.h"
+
+/* Legendre's formula: exponent of prime p in m! */
+static inline idx_t _exp_factorial(idx_t m, idx_t p)
+{
+    idx_t res = 0;
+    while (m) {
+        m /= p;
+        res += m;
+    }
+    return res;
+}
+
+/* exponent of prime p in integer m (m ≥ 1). */
+static inline idx_t _exp_in_int(idx_t m, idx_t p)
+{
+    idx_t e = 0;
+    while (m % p == 0) {
+        ++e;
+        m /= p;
+    }
+    return e;
+}
+
+/* exponent of prime p in C_k = binomial(2k,k)/(k+1) */
+static inline idx_t _exp_catalan(idx_t k, idx_t p)
+{
+    return _exp_factorial(2 * k, p)
+         - 2 * _exp_factorial(k, p)
+         - _exp_in_int(k + 1, p);
+}
 
 /* ---------- prime utilities ---------- */
 

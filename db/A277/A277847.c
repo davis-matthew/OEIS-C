@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∏_{p^e‖n} (p==2 ? 2 : odd_part(p-1)*p^(e-1) + 1)
  * Range:     u8 n <= 522, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   odd_part, pow_int
+ * Validated: standard, pass, 102 terms through n = 8604 (2026-11-01)
+ * Helpers:   ipow_idx, odd_part
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/ipow_idx.h"
 #include "../utils/odd_part.h"
-#include "../utils/pow_int.h"
 
 seq_t a(idx_t n) {
     if (n == 1) return 1;
@@ -43,7 +44,7 @@ seq_t a(idx_t n) {
                 exp++;
             }
             seq_t odd = odd_part((seq_t)(p - 1));
-            seq_t power = pow_int((seq_t)p, exp - 1);
+            seq_t power = ipow_idx((seq_t)p, exp - 1);
             seq_t contrib = odd * power + 1;
             result *= contrib;
         }

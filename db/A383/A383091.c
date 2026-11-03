@@ -10,7 +10,8 @@
  *            term (offset 1)
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   backtrack_counts, gcd_int
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   gcd_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,33 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/backtrack_counts.h"
-#include "../utils/gcd_int.h"
+#include <stddef.h>
+#include "../utils/gcd_i32.h"
+#include "../utils/mem.h"
+
+/* Backtracking to count permutations of runs with no equal adjacent runs.
+   Count is capped at 2. */
+static void backtrack_counts(int *rem, int mcnt, int prev, int depth,
+                             int total_runs, int *found)
+{
+    if (*found >= 2)
+        return;
+    if (depth == total_runs)
+    {
+        ++(*found);
+        return;
+    }
+    for (int i = 0; i < mcnt; ++i)
+    {
+        if (rem[i] == 0 || i == prev)
+            continue;
+        rem[i]--;
+        backtrack_counts(rem, mcnt, i, depth + 1, total_runs, found);
+        rem[i]++;
+        if (*found >= 2)
+            return;
+    }
+}
 
 /* Prime generation (simple sieve) */
 #define PRIME_LIMIT 2000000U   /* enough for the first ~10000 terms */
@@ -103,7 +129,7 @@ static bool valid_term(uint64_t n)
     /* Compute gcd of exponents */
     int g = exponents[0];
     for (size_t i = 1; i < exp_cnt; ++i)
-        g = gcd_int(g, exponents[i]);
+        g = gcd_i32(g, exponents[i]);
 
     /* Enumerate all divisors of g */
     int divisors[64];
@@ -160,7 +186,7 @@ static void ensure_cache_capacity(idx_t min_cap)
     idx_t new_cap = cache_cap ? cache_cap * 2 : 32;
     while (new_cap < min_cap)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         exit(EXIT_FAILURE);
     cache = tmp;

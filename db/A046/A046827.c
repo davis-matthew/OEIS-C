@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 26, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   digit_counts
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,10 @@
 /*--------------------------------------------------------------*/
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
+#include "../utils/mem.h"
 
 static seq_t *cache          = NULL;   /* stored terms              */
 static size_t cache_len      = 0;      /* number of terms cached    */
@@ -33,8 +37,7 @@ static void append_term(seq_t val)
 {
     if (cache_len == cache_cap) {
         cache_cap = cache_cap ? cache_cap * 2 : 1024;
-        cache = (seq_t *)realloc(cache,
-                                 cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     cache[cache_len++] = val;
 }
@@ -60,7 +63,7 @@ seq_t a(idx_t n)
     /* initialise storage on first call */
     if (!initialized) {
         cache_cap   = 1024;
-        cache       = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache       = mem_new(seq_t, cache_cap);
         cache_len   = 0;
         last_k      = 0;
         initialized = true;

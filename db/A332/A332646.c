@@ -11,7 +11,8 @@
  *            20 000 and serves arbitrary requests up to that range
  * Range:     u8 none, u16 n <= 3, u32 n <= 36, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   cmp_seq_t, pow_uint
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,18 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow_uint.h"   /* seq_t pow_uint(uint64_t base, idx_t exp); */
-#include "../utils/cmp_seq_t.h"  /* int cmp_seq_t(const void*, const void*); */
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 static seq_t *cache = NULL;          /* sorted unique values         */
 static size_t cache_len = 0;         /* number of stored values       */
@@ -36,7 +47,7 @@ static void init_sequence(void)
     const size_t CAPACITY   = 40000;    /* how many values we can store */
 
     /* Dynamic array for results */
-    seq_t *values = (seq_t *)malloc(CAPACITY * sizeof(seq_t));
+    seq_t *values = mem_new(seq_t, CAPACITY);
     size_t values_len = 0;
 
     /* 1. Add m=1 (d=1). */
@@ -103,7 +114,7 @@ static void init_sequence(void)
     /* 5. Add composite values where τ(d)=3 or 4 (small enough). */
     for (idx_t d = 2; d <= MAX_COMP; ++d) {
         if (tau[d] >= 3 && tau[d] <= 4) {
-            seq_t v = pow_uint((uint64_t)d, (idx_t)tau[d]);   /* d^τ(d) */
+            seq_t v = ipow_u64_idx((uint64_t)d, (idx_t)tau[d]);   /* d^τ(d) */
             values[values_len++] = v;
         }
     }
@@ -113,7 +124,7 @@ static void init_sequence(void)
     free(tau);
 
     /* 6. Sort and deduplicate. */
-    qsort(values, values_len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(values, values_len, sizeof(seq_t), cmp_seq_t);
     size_t uniq_len = 0;
     for (size_t i = 0; i < values_len; ++i) {
         if (i == 0 || values[i] != values[i - 1]) {

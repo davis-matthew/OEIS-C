@@ -8,8 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   _prime_limit_for_idx, build_primes, is_prime_big, jacobi_symbol,
- *            mod_pow
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   build_primes, is_prime_u64, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,11 +20,98 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_prime_limit_for_idx.h"
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
 #include "../utils/build_primes.h"
-#include "../utils/is_prime_big.h"
-#include "../utils/mod_pow.h"
-#include "../utils/jacobi_symbol.h"
+#include "../utils/powmod.h"
+#include "../utils/is_prime_u64.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
+
+/* Miller–Rabin primality test for seq_t (supports 8/16/32/64/128/ arbitrary-precision) */
+/* n fits in uint64_t (n >= 0 here) */
+static bool is_prime_big_fits_u64(seq_t v)
+{
+    if (sizeof(seq_t) <= 8) return true;
+    return !((seq_t)UINT64_MAX < v);
+}
+
+static bool is_prime_big(seq_t n) {
+    if (n < 2) return false;
+    /* exact in 64 bits when n fits: the seq_t products below overflow at
+       u64/i64 once n passes 2^32, and are slow under big */
+    if (is_prime_big_fits_u64(n)) return is_prime_u64((uint64_t)n);
+    if (n == 2 || n == 3) return true;
+    if ((n & 1) == 0) return false;
+
+    /* write n-1 as d * 2^s with d odd */
+    seq_t d = n - 1;
+    unsigned s = 0;
+    while ((d & 1) == 0) {
+        d >>= 1;
+        s++;
+    }
+
+    /* deterministic bases covering 128‑bit values */
+    static const int base_list[] = {2,3,5,7,11,13,17,19,23,29,31,37};
+    const int num_bases = sizeof(base_list)/sizeof(base_list[0]);
+
+    for (int i = 0; i < num_bases; i++) {
+        seq_t a = (seq_t)base_list[i];
+        if (a >= n) continue;
+
+        /* compute a^d mod n */
+        seq_t x = 1;
+        seq_t pow = a % n;
+        seq_t exp = d;
+        while (exp > 0) {
+            if (exp & 1) x = (x * pow) % n;
+            pow = (pow * pow) % n;
+            exp >>= 1;
+        }
+
+        if (x == 1 || x == n-1) continue;
+
+        bool cont = false;
+        for (unsigned r = 1; r < s; r++) {
+            x = (x * x) % n;
+            if (x == n-1) { cont = true; break; }
+        }
+        if (!cont) return false;
+    }
+    return true;
+}
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 /* Compute √(-1) mod a prime p.  p is assumed odd and p ≡ 1 (mod 4). */
 static uint64_t sqrt_mod_minus_one(uint64_t p)
@@ -32,7 +119,7 @@ static uint64_t sqrt_mod_minus_one(uint64_t p)
     /* Special case p ≡ 3 (mod 4) – not needed for A002144 primes but kept for safety. */
     if ((p & 3U) == 3U) {
         uint64_t exp = (p + 1) >> 2;              /* (p+1)/4 */
-        seq_t r = mod_pow((seq_t)(p - 1), exp, (seq_t)p);
+        seq_t r = powmod((seq_t)(p - 1), exp, (seq_t)p);
         return (uint64_t)r;
     }
 
@@ -45,9 +132,9 @@ static uint64_t sqrt_mod_minus_one(uint64_t p)
     uint64_t z = 2;
     while (jacobi_symbol(z, p) != -1) ++z;
 
-    seq_t c = mod_pow((seq_t)z, q, (seq_t)p);
-    seq_t t = mod_pow((seq_t)(p - 1), q, (seq_t)p);
-    seq_t r = mod_pow((seq_t)(p - 1), (q + 1) >> 1, (seq_t)p); /* exp = (q+1)/2 */
+    seq_t c = powmod((seq_t)z, q, (seq_t)p);
+    seq_t t = powmod((seq_t)(p - 1), q, (seq_t)p);
+    seq_t r = powmod((seq_t)(p - 1), (q + 1) >> 1, (seq_t)p); /* exp = (q+1)/2 */
     uint32_t m = s;
 
     while ((uint64_t)t != 1U) {
@@ -57,7 +144,7 @@ static uint64_t sqrt_mod_minus_one(uint64_t p)
         while ((uint64_t)tt != 1U) { tt = (tt * tt) % (seq_t)p; ++i; }
 
         uint64_t exp = 1ULL << (m - i - 1);
-        seq_t b = mod_pow(c, exp, (seq_t)p);
+        seq_t b = powmod(c, exp, (seq_t)p);
 
         r = (r * b) % (seq_t)p;
         t = (t * b * b) % (seq_t)p;

@@ -10,12 +10,13 @@
  *            step to avoid overflow
  * Range:     u8 none, u16 n <= 2, u32 n <= 9, u64 n <= 50, u128 n <= 1000,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: standard, pass, 38 terms through n = 969 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -52,7 +53,7 @@ seq_t a(idx_t n)
         seq_t x = terms[i];
         for (int d = 0; d < 4; ++d) {
             if (denom[d] == 1) continue;
-            seq_t g = seq_gcd(x, denom[d]);
+            seq_t g = gcd(x, denom[d]);
             if (g > 1) {
                 x     /= g;
                 denom[d] /= g;

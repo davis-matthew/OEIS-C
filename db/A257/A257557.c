@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 26, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    for n>=5: a(n)=2*a(n-1)+2*a(n-3)+a(n-5)   (a(k)=0 for k<0) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Allocate at least 5 entries for the base cases */
         cache_size = 5;
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         static const seq_t base[5] = {1, 1, 2, 6, 14};
         for (size_t i = 0; i < 5; ++i)
             cache[i] = base[i];
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
             size_t new_size = cache_size;
             while ((size_t)(n + 1) > new_size)
                 new_size *= 2;
-            cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_size);
             cache_size = new_size;
         }
 

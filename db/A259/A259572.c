@@ -10,12 +10,14 @@
  *            indices increasing, then i increasing)
  * Range:     u8 n <= 762, u16 n <= 1830, u32 n <= 1830, u64 n <= 1830,
  *            u128 n <= 1830, big any n
+ * Validated: standard, pass, 97 terms through n = 1752 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* include the Euclidean GCD routine for seq_t */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Integer square‑root for 64‑bit unsigned values.

@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of even parts in the partition having Heinz number
  *            n
- * Range:     u8 n <= 9508, u16 n <= 9508, u32 n <= 9508, u64 n <= 9508,
- *            u128 n <= 9508, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 103 terms through n = 9508 (2026-11-01)
  * Helpers:   build_primes_upto, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/prime_pi.h"
 

@@ -9,7 +9,8 @@
  *            DP
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static int vertical_ok(uint8_t col)
 {
@@ -146,12 +148,12 @@ seq_t a(idx_t n)
         }
 
         /* 3. Allocate DP arrays */
-        dp_prev = (seq_t *)malloc(S * sizeof(seq_t));
-        dp_next = (seq_t *)malloc(S * sizeof(seq_t));
+        dp_prev = mem_new(seq_t, S);
+        dp_next = mem_new(seq_t, S);
 
         /* 4. Result cache */
         results_cap = 3; /* indices 0..2 used initially */
-        results = (seq_t *)malloc(results_cap * sizeof(seq_t));
+        results = mem_new(seq_t, results_cap);
         results[0] = 0;  /* unused */
 
         /* base cases */
@@ -174,7 +176,7 @@ seq_t a(idx_t n)
     /* Ensure results array large enough */
     if (n >= results_cap) {
         idx_t new_cap = n + 1;
-        results = (seq_t *)realloc(results, new_cap * sizeof(seq_t));
+        results = mem_resize(seq_t, results, new_cap);
         results_cap = new_cap;
     }
 

@@ -14,7 +14,8 @@
  *            a(6)=1829373498, a(7)=37157718881, a(8)=754736624943...
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 13, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,12 +23,13 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Simple realloc wrapper for the sequence cache */
 static seq_t *seq_realloc(seq_t *old, size_t old_cap, size_t new_cap)
 {
     (void)old_cap;                /* unused, realloc handles size internally */
-    return (seq_t *)realloc(old, new_cap * sizeof(seq_t));
+    return mem_resize(seq_t, old, new_cap);
 }
 
 /* Computes the n-th term of A251004 (1‑based offset) */

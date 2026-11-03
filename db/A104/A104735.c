@@ -8,7 +8,8 @@
  *            sum of the i‑th prime is also prime
  * Range:     u8 n <= 10, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   digit_sum_uint64, is_prime_uint64
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   digit_sum_u64, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 /* Note: Uses "is_prime_uint64" and "digit_sum_uint64" utilities. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_uint64.h"
-#include "../utils/digit_sum_uint64.h"
+#include <stdint.h>
+#include "../utils/digit_sum_u64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Dynamic array of prime values: prime_list[k] holds the (k+1)‑th prime. */
 static seq_t *prime_list = NULL;
@@ -39,7 +42,7 @@ static void ensure_prime_cap(idx_t need)
         size_t new_cap = prime_cap ? prime_cap << 1 : 16;
         while (new_cap < (size_t)need)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(prime_list, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prime_list, new_cap);
         prime_list = tmp;
         prime_cap  = new_cap;
     }
@@ -94,11 +97,11 @@ seq_t a(idx_t n)
         generate_primes_up_to(next_test_index);
 
         /* Is the index itself prime? */
-        if (is_prime_uint64((uint64_t)next_test_index)) {
+        if (is_prime_u64((uint64_t)next_test_index)) {
             /* The next_test_index‑th prime is at prime_list[next_test_index-1]. */
             seq_t p_of_index = prime_list[next_test_index - 1];
-            seq_t dsum = digit_sum_uint64((uint64_t)p_of_index);
-            if (is_prime_uint64((uint64_t)dsum)) {
+            seq_t dsum = digit_sum_u64((uint64_t)p_of_index);
+            if (is_prime_u64((uint64_t)dsum)) {
                 /* Record this index. */
                 ensure_qual_cap(qual_cnt + 1);
                 qual_list[qual_cnt++] = next_test_index;

@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sequence: a(n) is the n‑th divisor of 280 in ascending order (offset 1) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t divisors[16];
 static int initialized = 0;
@@ -47,7 +49,7 @@ static void init_divisors(void)
         }
     }
     /* sort ascending */
-    qsort(divisors, 16, sizeof(seq_t), cmp_seq);
+    mem_qsort(divisors, 16, sizeof(seq_t), cmp_seq);
     initialized = 1;
 }
 

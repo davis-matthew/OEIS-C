@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Simple deterministic primality test for 64‑bit integers.
  * All numbers produced by this sequence are < 10^10, so this
@@ -133,7 +135,7 @@ seq_t a(idx_t n)
     static idx_t cache_size = 0;
 
     if (cache == NULL) {
-        cache = (seq_t *)malloc(1022 * sizeof(seq_t));
+        cache = mem_new(seq_t, 1022);
         int idx = 0;
         for (int k = 1; k <= 10; ++k)
             gen_subsets(0, k, 0, k, cache, &idx);

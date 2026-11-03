@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 9398, u16 n <= 9398, u32 n <= 9398, u64 n <= 9398,
- *            u128 n <= 9398, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 102 terms through n = 9398 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    integer arithmetic and standard library functions. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of generated digits */
 static seq_t *seq = NULL;  /* array of digits 0-3, stored as seq_t */
@@ -34,7 +36,7 @@ static void expand(void)
 {
     idx_t oldlen = maxlen;
     idx_t newlen = oldlen * 4;
-    seq_t *newseq = (seq_t *)malloc(sizeof(seq_t) * newlen);
+    seq_t *newseq = mem_new(seq_t, newlen);
     if (!newseq) abort();  /* out of memory */
 
     idx_t j = 0;
@@ -51,7 +53,7 @@ static void expand(void)
             newseq[j++] = 2; newseq[j++] = 0; newseq[j++] = 3; newseq[j++] = 1;
         }
     }
-    free(seq);
+    mem_free(seq);
     seq = newseq;
     maxlen = newlen;
 }
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
 
     if (!seq) {
         /* Initialize with the starting word "0". */
-        seq = (seq_t *)malloc(sizeof(seq_t));
+        seq = mem_new(seq_t, 1);
         if (!seq) abort();
         seq[0] = 0;
         maxlen = 1;

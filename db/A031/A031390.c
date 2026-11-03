@@ -7,13 +7,15 @@
  * Formula:   a(n) = prime(9*n - 3)
  * Range:     u8 n <= 6, u16 n <= 727, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cache of primes */
 static seq_t *prime_cache = NULL;
@@ -29,7 +31,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = prime_cap ? prime_cap * 2 : 64;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(prime_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prime_cache, new_cap);
     prime_cache = tmp;
     prime_cap = new_cap;
 }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Σ_{k=0..⌊n/3⌋} (-1)^k/k!
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact_cache = NULL;   /* fact_cache[i] = i!   */
 static seq_t *a_cache   = NULL;   /* a_cache[i]   = a(i)  */
@@ -37,8 +39,8 @@ static void init_cache(void)
 {
     if (cache_len == 0) {
         cache_len = 1;
-        fact_cache = (seq_t*)malloc(sizeof(seq_t));
-        a_cache   = (seq_t*)malloc(sizeof(seq_t));
+        fact_cache = mem_new(seq_t, 1);
+        a_cache   = mem_new(seq_t, 1);
         if (!fact_cache || !a_cache) {
             /* allocation failed – just abort; memory is small here */
             abort();
@@ -54,8 +56,8 @@ static void grow_to(idx_t n)
     if ((size_t)n + 1 <= cache_len) return;
 
     size_t new_len = (size_t)n + 1;
-    fact_cache = (seq_t*)realloc(fact_cache, new_len * sizeof(seq_t));
-    a_cache   = (seq_t*)realloc(a_cache,   new_len * sizeof(seq_t));
+    fact_cache = mem_resize(seq_t, fact_cache, new_len);
+    a_cache   = mem_resize(seq_t, a_cache, new_len);
     if (!fact_cache || !a_cache) abort();
 
     for (size_t i = cache_len; i < new_len; ++i) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 160, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9244 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Sieve for smallest prime factors -------------------------------- */
 static unsigned int *spf = NULL;    /* array of smallest prime factors */
@@ -83,7 +85,7 @@ static idx_t   next_k = 1;          /* next candidate integer to test */
 static void grow_terms(void)
 {
     terms_cap = (terms_cap == 0 ? 64 : terms_cap * 2);
-    terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, terms_cap);
 }
 
 /* ---------- Public sequence function --------------------------------- */
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
         initialized = true;
         build_spf();
         terms_cap = 64;
-        terms     = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms     = mem_new(seq_t, terms_cap);
         terms_len = 0;
         next_k    = 1;
     }

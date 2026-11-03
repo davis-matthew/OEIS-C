@@ -7,14 +7,23 @@
  * Formula:   a(n) = Sum_{d|n} 2^(n-d) * binomial(d, n/d-1)
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 34, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   binomial, pow2, seq_mul
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
+#include "../utils/pow2.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {

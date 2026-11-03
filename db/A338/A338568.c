@@ -8,7 +8,8 @@
  * Formula:   a(n) = |{j < n : A001055(j) = A001055(n)}|
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Computes A001055 (unordered factorization counts) by recursion
    and keeps a running frequency table of those counts. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state across calls */
 static seq_t *factor_counts = NULL;      /* A001055 values, 1‑based */
@@ -30,7 +32,7 @@ static void ensure_freq_cap(seq_t cnt)
     if (idx + 1 <= freq_cap) return;
     size_t new_cap = freq_cap ? freq_cap * 2 : 16;
     if (idx + 1 > new_cap) new_cap = idx + 1;
-    seq_t *tmp = (seq_t*)realloc(freq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, freq, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     for (size_t i = freq_cap; i < new_cap; ++i) tmp[i] = 0;
     freq = tmp;
@@ -57,9 +59,9 @@ static void compute_counts_up_to(idx_t n)
 
     size_t new_cap = (size_t)n + 1;
     if (!factor_counts) {
-        factor_counts = (seq_t*)calloc(new_cap, sizeof(seq_t));
+        factor_counts = mem_new(seq_t, new_cap);
     } else {
-        seq_t *tmp = (seq_t*)realloc(factor_counts, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, factor_counts, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         for (size_t i = max_n_processed + 1; i < new_cap; ++i) tmp[i] = 0;
         factor_counts = tmp;

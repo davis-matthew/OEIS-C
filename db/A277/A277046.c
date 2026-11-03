@@ -9,13 +9,15 @@
  *            - (row-1)^2; the triangle is read by rows
  * Range:     u8 n <= 57, u16 n <= 241, u32 n <= 993, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 97 terms through n = 964 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* integer square root for unsigned 64-bit integers */
 static inline idx_t isqrt_u64(idx_t n)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     idx_t col = n - prev_sq;
 
     /* calculate the term: 2^row - row + col - 1 */
-    seq_t pow2 = seq_pow((seq_t)2, row);
+    seq_t pow2 = ipow_idx((seq_t)2, row);
     seq_t result = pow2 - (seq_t)row + (seq_t)(col - 1);
 
     return result;

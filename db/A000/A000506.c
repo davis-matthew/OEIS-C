@@ -11,13 +11,15 @@
  *            alternations
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 15, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <string.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n < 6) return 0;
@@ -27,15 +29,15 @@ seq_t a(idx_t n) {
        last difference has sign s (0=ascent, 1=descent), and a alternations so far (4 = 5 runs).
     */
     
-    seq_t *curr = (seq_t *)calloc(2LL * (n+1) * (n+1), sizeof(seq_t));
-    seq_t *prev = (seq_t *)calloc(2LL * (n+1) * (n+1), sizeof(seq_t));
+    seq_t *curr = mem_new(seq_t, 2LL * (n+1) * (n+1));
+    seq_t *prev = mem_new(seq_t, 2LL * (n+1) * (n+1));
     
     #define IDX(r, s, a) (2LL * (n + 1) * (r) + (n + 1) * (s) + (a))
     
     prev[IDX(1, 0, 0)] = 1;
     
     for (idx_t i = 1; i < n; i++) {
-        memset(curr, 0, 2LL * (n+1) * (n+1) * sizeof(seq_t));
+        mem_set(curr, 0, 2LL * (n+1) * (n+1) * sizeof(seq_t));
         
         for (idx_t r_prev = 1; r_prev <= i; r_prev++) {
             for (int s_prev = 0; s_prev < 2; s_prev++) {
@@ -75,8 +77,8 @@ seq_t a(idx_t n) {
         }
     }
     
-    free(curr);
-    free(prev);
+    mem_free(curr);
+    mem_free(prev);
     #undef IDX
     
     return result / 2;

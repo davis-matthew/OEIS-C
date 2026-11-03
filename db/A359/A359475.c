@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n is cubefree, nonsquare and its prime factorization
  *            contains exactly one squared prime, otherwise 0
- * Range:     u8 n <= 9934, u16 n <= 9934, u32 n <= 9934, u64 n <= 9934,
- *            u128 n <= 9934, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 137 terms through n = 9934 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Integer square root for uint64_t: returns floor(sqrt(n)). */

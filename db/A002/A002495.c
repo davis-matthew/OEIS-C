@@ -11,16 +11,53 @@
  *            1082*A^2*B^2 - 6976*A*B^3 + 55808*B^4)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 9, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   alloc_zero, mul_A, mul_B, psi_pass, th_pass
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/alloc_zero.h"
-#include "../utils/mul_A.h"
-#include "../utils/mul_B.h"
-#include "../utils/psi_pass.h"
-#include "../utils/th_pass.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+/* multiply series by theta3 = 1 + 2*sum q^(k^2) */
+static void th_pass(seq_t **s, seq_t **t, idx_t L) {
+    seq_t *x = *s, *y = *t;
+    for (idx_t m = 0; m < L; m++) {
+        seq_t acc = 0;
+        for (idx_t k = 1; k * k <= m; k++) acc += x[m - k * k];
+        y[m] = x[m] + acc + acc;
+    }
+    *s = y; *t = x;
+}
+
+static void mul_A(seq_t **s, seq_t **t, idx_t L) {
+    for (int i = 0; i < 4; i++) th_pass(s, t, L);
+}
+
+/* multiply series by psi(q^2) = sum_{k>=0} q^(k(k+1)) */
+static void psi_pass(seq_t **s, seq_t **t, idx_t L) {
+    seq_t *x = *s, *y = *t;
+    for (idx_t m = 0; m < L; m++) {
+        seq_t acc = 0;
+        for (idx_t k = 0; k * (k + 1) <= m; k++) acc += x[m - k * (k + 1)];
+        y[m] = acc;
+    }
+    *s = y; *t = x;
+}
+
+static void mul_B(seq_t **s, seq_t **t, idx_t L) {
+    for (int i = 0; i < 4; i++) psi_pass(s, t, L);
+    seq_t *x = *s;
+    for (idx_t m = L - 1; m >= 1; m--) x[m] = x[m - 1];
+    x[0] = 0;
+}
 
 seq_t a(idx_t n) {
     static seq_t *res = NULL;

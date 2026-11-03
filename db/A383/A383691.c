@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* --- Configuration ----------------------------------------------------- */
 #define MAX_ROOT 31426ULL          /* floor(sqrt(987654321)) */
@@ -40,7 +42,7 @@ static void ensure_cache(size_t need)
     size_t grow = cache_cap ? cache_cap * 2 : 16;
     while (grow < need)
         grow *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, grow * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, grow);
     if (tmp == NULL) {
         /* Hard failure – the sequence cannot continue. */
         exit(1);

@@ -8,9 +8,10 @@
  * Formula:   a(n) is the n-th term of the row‑wise listing of the Ramanujan
  *            sum table c_q(t) = Sum_{d|gcd(q,t)} d·μ(q/d), where μ is the
  *            Möbius function
- * Range:     i8 n <= 7395, i16 n <= 9870, i32 n <= 9870, i64 n <= 9870,
+ * Range:     i8 n <= 8237, i16 n <= 9870, i32 n <= 9870, i64 n <= 9870,
  *            i128 n <= 9870, big any n
- * Helpers:   gcd, mobius, upper_bound_row
+ * Validated: standard, pass, 90 terms through n = 9695 (2026-11-01)
+ * Helpers:   gcd, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,28 @@
 #include <stdint.h>
 #include "../utils/gcd.h"
 #include "../utils/mobius.h"
-#include "../utils/upper_bound_row.h"
+
+static idx_t
+upper_bound_row(idx_t idx)
+{
+    /* Find the smallest n with n*(n+1)/2 >= idx using a fast expansion
+       and binary search.  All arithmetic is performed in 128‑bit to avoid
+       overflow. */
+    idx_t low  = 1;
+    idx_t high = 2;
+    while ( ( (__int128)high * (high + 1) ) / 2 < idx )
+        high <<= 1;                 /* double until we are above the target */
+
+    while (low < high)
+    {
+        idx_t mid = low + (high - low) / 2;
+        if ( ( (__int128)mid * (mid + 1) ) / 2 >= idx )
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 seq_t a(idx_t i)
 {

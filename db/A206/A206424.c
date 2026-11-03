@@ -8,13 +8,15 @@
  *            digits equal to 1, * c2 = number of base‑3 digits equal to 2. *
  *            * This counts the number of k (0 ≤ k ≤ n) such that * C(n,k) ≡ 1
  *            (mod 3) using Lucas' theorem
- * Range:     u8 n <= 726, u16 n <= 9584, u32 n <= 9584, u64 n <= 9584,
- *            u128 n <= 9584, big any n
+ * Range:     u8 n <= 726, u16 n <= 19683, u32 n <= 19683, u64 n <= 19683,
+ *            u128 n <= 19683, big any n
+ * Validated: standard, pass, 94 terms through n = 9584 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/pow3.h"
 
 seq_t a(idx_t n)

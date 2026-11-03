@@ -9,7 +9,8 @@
  *            (mod p)
  * Range:     u8 n <= 6, u16 n <= 809, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 63 terms through n = 936 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool is_prime(uint64_t n); */
-#include "../utils/mod_pow.h"    /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <stdint.h>
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
         /* Only primes ≡ 1 (mod 8) can satisfy the condition. */
         if ((curr & 7U) == 1U) {
             uint64_t exp = (curr - 1) >> 2;          /* (p‑1)/4 */
-            seq_t rem = mod_pow((seq_t)2, exp, (seq_t)curr);
+            seq_t rem = powmod((seq_t)2, exp, (seq_t)curr);
 
             /* rem == p‑1 ⇒ rem ≡ –1 (mod p) */
             if (rem == (seq_t)(curr - 1)) {

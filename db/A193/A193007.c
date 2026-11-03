@@ -9,12 +9,14 @@
  *            a(n-6) with a(0)=0, a(1)=1, a(2)=1, a(3)=9, a(4)=36, a(5)=108
  * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 #if defined(__SIZEOF_INT128__)
 typedef unsigned __int128 u128;
 #endif
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL)
             return 0; /* Allocation failure → fallback */
 
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         while ((size_t)n + 1 > new_cap)
             new_cap <<= 1;           /* double the size each step */
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL)
             return 0; /* Realloc failure → fallback */
 

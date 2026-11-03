@@ -8,12 +8,14 @@
  *            a(2)=2, a(3)=3, a(4)=5, a(5)=7, a(6)=8
  * Range:     u8 n <= 15, u16 n <= 32, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base_vals[6] = {2, 2, 3, 5, 7, 8};
 
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         if ((size_t)n > init_cap)
             init_cap = (size_t)n;
 
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (!cache)
             return 0;                  /* out‑of‑memory is an unlikely failure */
 
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
 
     /* enlarge the cache if necessary */
     if ((size_t)n > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
         if (!tmp)
             return 0;                  /* out‑of‑memory */
 

@@ -11,7 +11,8 @@
  *            number of primes ≤ 9!=362880
  * Range:     u8 none, u16 none, u32 n <= 110, u64 n <= 110, u128 n <= 110,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 110 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 static const idx_t N = 362880ULL;           /* 9! */
 
@@ -63,7 +65,7 @@ static void init_cache(void)
     }
 
     /* allocation for removal counts */
-    removals = (seq_t *)malloc(prime_cnt * sizeof(seq_t));
+    removals = mem_new(seq_t, prime_cnt);
     if (!removals) abort();
     for (size_t i = 0; i < prime_cnt; ++i)
         removals[i] = 0;

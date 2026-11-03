@@ -13,16 +13,28 @@
  *            (3k)!/(2k+1)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   a1905_isbig, a1905_isprime, a1905_leg
+ * Validated: standard, pass, 29 terms through n = 175 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/a1905_isbig.h"
-#include "../utils/a1905_isprime.h"
-#include "../utils/a1905_leg.h"
+#include "../utils/is_prime_u64.h"
+
+static int a1905_isbig(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = (seq_t)(x + x);
+    return x != 0;
+}
+
+static uint64_t a1905_leg(uint64_t N, uint64_t p) {
+    uint64_t e = 0;
+    while (N) { N /= p; e += N; }
+    return e;
+}
 
 typedef unsigned __int128 a1905_u128;
 
@@ -85,7 +97,7 @@ static seq_t a1905_fixed(idx_t n) {
     B = 1;
     for (p = 3; p <= (uint64_t)K; p += 2) {
         uint64_t vQ, M, e, v, T, Hm[25], Vm[25];
-        if (!a1905_isprime(p)) continue;
+        if (!is_prime_u64(p)) continue;
         vQ = a1905_leg((uint64_t)K, p);
         M = 1;
         for (e = 0; e < vQ; e++) M *= p;
@@ -142,7 +154,7 @@ static seq_t a1905_big(idx_t n) {
     K = 3 * (uint64_t)n;
     for (p = 2; p <= K; p++) {
         uint64_t e;
-        if (!a1905_isprime(p)) continue;
+        if (!is_prime_u64(p)) continue;
         e = a1905_leg(K, p);
         while (e > 0 && A % (seq_t)p == 0) { A /= (seq_t)p; e--; }
     }

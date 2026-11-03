@@ -9,7 +9,8 @@
  *            digit followed by the length of that run
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   append_char, seq_from_str
+ * Validated: standard, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,29 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/seq_from_str.h"
-#include "../utils/append_char.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+/* append a single digit character to a dynamic buffer */
+static void append_char(char **buf, size_t *len, size_t *cap, char c)
+{
+    if (*len + 1 > *cap) {
+        *cap = (*cap == 0) ? 16 : (*cap << 1);
+        *buf = (char *)realloc(*buf, *cap);
+    }
+    (*buf)[*len] = c;
+    ++(*len);
+}
 
 static seq_t *cache_seq  = NULL;   /* values a(1), a(2), … */
 static char **cache_str  = NULL;   /* corresponding C‑style strings */
@@ -31,7 +53,7 @@ static void grow_cache(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = (cache_cap == 0) ? 1 : cache_cap * 2;
     while (new_cap < need) new_cap <<= 1;
-    cache_seq = (seq_t *)realloc(cache_seq, new_cap * sizeof(seq_t));
+    cache_seq = mem_resize(seq_t, cache_seq, new_cap);
     cache_str = (char **)realloc(cache_str, new_cap * sizeof(char *));
     cache_cap = new_cap;
 }

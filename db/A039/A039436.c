@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         if (cache_cap == 0)
         {
             cache_cap = 8;
-            cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
         }
 
         while (cache_len < target)
@@ -57,9 +59,9 @@ seq_t a(idx_t n)
                 if (cache_len == cache_cap)
                 {
                     size_t newcap = cache_cap << 1;
-                    seq_t *tmp_arr = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+                    seq_t *tmp_arr = mem_resize(seq_t, cache, newcap);
                     if (!tmp_arr) { /* allocation failed – return 0 as a sentinel */
-                        free(cache);
+                        mem_free(cache);
                         cache = NULL;
                         cache_len = cache_cap = 0;
                         return (seq_t)0;

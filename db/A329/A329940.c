@@ -11,15 +11,40 @@
  *            row to the highest row
  * Range:     u8 n <= 22, u16 n <= 48, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   big_pow, min_diag
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Utility needed for integer‑powered arithmetic */
 #include <stdint.h>
-#include "../utils/big_pow.h"
-#include "../utils/min_diag.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+/* Find the smallest diagonal index s (≥ 2) such that
+   (s - 1) * s / 2 ≥ N.  Uses binary search with 128‑bit
+   intermediate arithmetic to avoid overflow. */
+static inline idx_t min_diag(idx_t N)
+{
+    idx_t lo = 2;
+    idx_t hi = 2;
+
+    /* Grow the search range until it surely covers N. */
+    while (((__int128)(hi - 1) * hi) / 2 < N)
+        hi <<= 1;
+
+    /* Binary search for the exact diagonal. */
+    while (lo < hi)
+    {
+        idx_t mid = lo + (hi - lo) / 2;
+        if (((__int128)(mid - 1) * mid) / 2 >= N)
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    return lo;
+}
 
 seq_t a(idx_t n)
 {
@@ -43,6 +68,6 @@ seq_t a(idx_t n)
     seq_t base = (seq_t)(col + 1);
     seq_t exp  = (seq_t)row;
 
-    seq_t val = big_pow(base, exp);
+    seq_t val = ipow(base, exp);
     return val - 1;
 }

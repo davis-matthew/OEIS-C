@@ -10,7 +10,8 @@
  *            term or as a previous first difference
  * Range:     u8 n <= 15, u16 n <= 249, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 867 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #define USED_SIZE 65536   /* enough for all odd candidates up to n≈10 000 */
 
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* initial terms */
         capacity = 64;
-        values   = (seq_t *)malloc(capacity * sizeof(seq_t));
+        values   = mem_new(seq_t, capacity);
         if (!values) return (seq_t)0;   /* allocation failure */
         values[0] = (seq_t)1;   /* a(1) */
         values[1] = (seq_t)4;   /* a(2) */
@@ -77,9 +79,9 @@ seq_t a(idx_t n)
         /* ensure enough capacity for the new entry */
         if (last == capacity) {
             capacity *= 2;
-            seq_t *tmp = (seq_t *)realloc(values, capacity * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, values, capacity);
             if (!tmp) {
-                free(values);
+                mem_free(values);
                 return (seq_t)0;            /* allocation failure */
             }
             values = tmp;

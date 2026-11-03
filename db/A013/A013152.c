@@ -12,12 +12,14 @@
  *            is an integer. * All computations are per...
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 11, i64 n <= 19, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*  Return the n‑th term of the sequence A013152.
  *  idx_t is an unsigned integer type (usually uint64_t).
@@ -26,12 +28,12 @@ seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)0;
     /* Allocate space for coefficients */
-    seq_t *t      = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *t_tanh = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *a_arr  = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *binom  = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *t      = mem_new(seq_t, (n + 1));
+    seq_t *t_tanh = mem_new(seq_t, (n + 1));
+    seq_t *a_arr  = mem_new(seq_t, (n + 1));
+    seq_t *binom  = mem_new(seq_t, (n + 1));
     if (!t || !t_tanh || !a_arr || !binom) {
-        free(t); free(t_tanh); free(a_arr); free(binom);
+        mem_free(t); mem_free(t_tanh); mem_free(a_arr); mem_free(binom);
         return (seq_t)0;
     }
 
@@ -99,9 +101,9 @@ seq_t a(idx_t n)
 
     seq_t result = a_arr[n];
 
-    free(t);
-    free(t_tanh);
-    free(a_arr);
-    free(binom);
+    mem_free(t);
+    mem_free(t_tanh);
+    mem_free(a_arr);
+    mem_free(binom);
     return result;
 }

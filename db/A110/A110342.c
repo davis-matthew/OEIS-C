@@ -11,12 +11,16 @@
  *            beginning with n
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +29,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Determine whether n itself is prime. */
-    bool start_is_prime = is_prime((uint64_t)n);
+    bool start_is_prime = is_prime_u64((uint64_t)n);
 
     seq_t result = 1;
     idx_t count = 0;
@@ -35,7 +39,7 @@ seq_t a(idx_t n)
     {
         if (start_is_prime)
         {
-            if (is_prime((uint64_t)m))
+            if (is_prime_u64((uint64_t)m))
             {
                 result *= (seq_t)m;
                 ++count;
@@ -46,7 +50,7 @@ seq_t a(idx_t n)
         else
         {
             /* Composite numbers are defined as integers >1 that are not prime. */
-            if (!is_prime((uint64_t)m))
+            if (!is_prime_u64((uint64_t)m))
             {
                 result *= (seq_t)m;
                 ++count;

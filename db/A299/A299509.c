@@ -12,13 +12,15 @@
  *            a(7)=477, a(8)=1233, a(9)=3265, a(10)=8727, a(11)...
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 46, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* cache[i] = a(i+1) */
 static size_t cache_size = 0;      /* allocated size of cache */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (current_max == 0) {
         const size_t init_len = 24;
         if (cache_size < init_len) {
-            cache = (seq_t *)realloc(cache, init_len * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, init_len);
             cache_size = init_len;
         }
         static const seq_t init_values[24] = {
@@ -43,13 +45,13 @@ seq_t a(idx_t n)
             408435961ULL, 1086155913ULL, 2888454053ULL,
             7681365667ULL
         };
-        memcpy(cache, init_values, init_len * sizeof(seq_t));
+        mem_copy(cache, init_values, init_len * sizeof(seq_t));
         current_max = init_len;
     }
 
     /* grow cache if required */
     if (cache_size < (size_t)n) {
-        cache = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)n);
         cache_size = (size_t)n;
     }
 

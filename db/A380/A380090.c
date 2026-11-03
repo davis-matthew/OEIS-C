@@ -9,13 +9,14 @@
  *            unitary divisors of n that are terms in A207481
  * Range:     u8 n <= 137, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 85 terms through n = 9509 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 1) return 1;                  /* a(1) = 1 */
@@ -29,7 +30,7 @@ seq_t a(idx_t n) {
                 ++e;
             }
             if (e <= p) {
-                seq_t term = pow_uint(p, e);
+                seq_t term = ipow_u64_idx(p, e);
                 term += (seq_t)1;
                 result *= term;
             }
@@ -39,7 +40,7 @@ seq_t a(idx_t n) {
         idx_t p = tmp;
         idx_t e = 1;                        /* exponent is 1 */
         if (e <= p) {
-            seq_t term = pow_uint(p, e);
+            seq_t term = ipow_u64_idx(p, e);
             term += (seq_t)1;
             result *= term;
         }

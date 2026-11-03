@@ -7,9 +7,10 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) is the nth prime p such that 2p+1 and 4p+1 are composite.
  *            The special prime 2 is also included
- * Range:     u8 n <= 24, u16 n <= 4962, u32 n <= 8839, u64 n <= 8839,
- *            u128 n <= 8839, big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 24, u16 n <= 4962, u32 n <= 30000, u64 n <= 30000,
+ *            u128 n <= 30000, big any n
+ * Validated: standard, pass, 69 terms through n = 8839 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-
+#include "../utils/mem.h"
 
 static seq_t *terms   = NULL;   /* stored terms  */
 static size_t terms_len  = 0;    /* number of terms known */
@@ -30,7 +31,7 @@ static void add_term(seq_t p)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 4;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();           /* allocation failed */
         terms = tmp;
         terms_cap = new_cap;

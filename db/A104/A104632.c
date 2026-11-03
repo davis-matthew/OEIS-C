@@ -11,12 +11,14 @@
  *            a(3)=6)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,14 +32,14 @@ seq_t a(idx_t n)
     /* initial allocation */
     if (dp == NULL) {
         allocated = 4;                    /* indices 0..3 used, 0 ignored */
-        dp = (seq_t *)malloc(allocated * sizeof(seq_t));
+        dp = mem_new(seq_t, allocated);
         if (dp == NULL) return 0;         /* allocation failure */
         dp[1] = (seq_t)1;
         dp[2] = (seq_t)2;
         dp[3] = (seq_t)6;
         max_computed = 3;
     } else if (n >= allocated) {          /* grow array if needed */
-        seq_t *tmp = (seq_t *)realloc(dp, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, (n + 1));
         if (tmp == NULL) return 0;
         dp = tmp;
         allocated = n + 1;

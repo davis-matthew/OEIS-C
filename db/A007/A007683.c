@@ -7,7 +7,8 @@
  * Formula:   a(1) = 1; a(n) = -Sum_{k = 1..n-1} (n+k)!*a(k)/(2k)!
  * Range:     i8 n <= 6, i16 n <= 8, i32 n <= 12, i64 n <= 19, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 
 static seq_t *memo = NULL;
@@ -27,13 +29,13 @@ seq_t a(idx_t n) {
         idx_t new_len = (memo_len == 0) ? 16 : memo_len;
         while (new_len < n) new_len *= 2;
         
-        seq_t *new_memo = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, new_len);
         bool *new_computed = (bool *)malloc(new_len * sizeof(bool));
         
         if (memo != NULL) {
-            memcpy(new_memo, memo, memo_len * sizeof(seq_t));
+            mem_copy(new_memo, memo, memo_len * sizeof(seq_t));
             memcpy(new_computed, computed, memo_len * sizeof(bool));
-            free(memo);
+            mem_free(memo);
             free(computed);
         }
         

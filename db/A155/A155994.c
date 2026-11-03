@@ -12,15 +12,29 @@
  *            a(2)=8,
  * Range:     i8 n <= 27, i16 n <= 56, i32 n <= 56, i64 n <= 56, i128 n <= 56,
  *            big any n
- * Helpers:   binom, mul_small
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* ---------- helpers from the build system ---------- */
 #include <stdint.h>
-#include "../utils/binom.h"   /* seq_t binom(idx_t a, idx_t b); */
-#include "../utils/mul_small.h" /* seq_t mul_small(seq_t x, unsigned int m); */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* ---------- local utility functions ---------- */
 
@@ -44,7 +58,7 @@ static inline seq_t coeff_U(idx_t n, idx_t j)
     idx_t k = (n - j) >> 1;          /* (n-j)/2   */
     idx_t a = (n + j) >> 1;          /* (n+j)/2   */
 
-    seq_t bin = binom(a, k);         /* binom((n+j)/2, (n-j)/2) */
+    seq_t bin = binomial(a, k);         /* binom((n+j)/2, (n-j)/2) */
     seq_t pow2 = pow_two(j);         /* 2^j  */
     seq_t coeff = bin * pow2;
 
@@ -60,7 +74,7 @@ static inline seq_t coeff_p(idx_t n, idx_t j)
     seq_t r = -u;                            /* -U_n part */
 
     if ( j & 1 ) {                           /* odd j adds 2*binom(n,j) */
-        seq_t odd = binom(n, j);
+        seq_t odd = binomial(n, j);
         odd = odd * 2;                       /* multiply by 2 */
         r = r + odd;
     }

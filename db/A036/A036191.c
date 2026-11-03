@@ -8,6 +8,7 @@
  *            ≡ n (mod 151), 0 ≤ k < 150)
  * Range:     u8 n <= 150, u16 n <= 150, u32 n <= 150, u64 n <= 150,
  *            u128 n <= 150, big any n
+ * Validated: full, pass, 150 terms through n = 150 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

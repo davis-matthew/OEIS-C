@@ -9,13 +9,29 @@
  *            trailing zeros in m (A014707(0)=0)
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   paperfolding
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/paperfolding.h"
+
+static seq_t paperfolding(idx_t x)
+{
+    if (x == 0) return 0;
+    idx_t t = x;
+    unsigned trailing = 0;
+    while ((t & 1) == 0) {
+        ++trailing;
+        t >>= 1;
+    }
+    /* t is odd, shift by trailing+1 */
+    if (trailing + 1 >= (sizeof(seq_t) * 8)) {
+        return 0;
+    }
+    return ((seq_t)x >> (trailing + 1)) & 1;
+}
 
 seq_t a(idx_t n)
 {

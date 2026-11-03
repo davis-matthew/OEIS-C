@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 14, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 153 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* assume seq_t and idx_t are defined in the build environment */
 seq_t a(idx_t n)
@@ -108,8 +110,8 @@ seq_t a(idx_t n)
     }
 
     /* ---------- DP over rows ---------- */
-    seq_t *dp_cur = (seq_t *)calloc(S, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(S, sizeof(seq_t));
+    seq_t *dp_cur = mem_new(seq_t, S);
+    seq_t *dp_next = mem_new(seq_t, S);
 
     /* initial states: any triple of pairwise disjoint rows */
     for (int s = 0; s < S; ++s) dp_cur[s] = 1;
@@ -138,8 +140,8 @@ seq_t a(idx_t n)
     for (int s = 0; s < S; ++s) ans += dp_cur[s];
 
     /* clean up */
-    free(dp_cur);
-    free(dp_next);
+    mem_free(dp_cur);
+    mem_free(dp_next);
 
     return ans;
 }

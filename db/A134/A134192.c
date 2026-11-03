@@ -9,7 +9,8 @@
  *            runs over distinct primes dividing n
  * Range:     u8 n <= 35, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   build_spf
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdlib.h>
 
 /* Helper to build smallest‑prime‑factor table */
+#include <stdint.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /* Memoization cache for fixed indices */
 static seq_t *cache = NULL;       /* cache[i] holds a(i); 0 means uncomputed */
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
     /* Grow cache to accommodate n (if needed) */
     if (cache == NULL || n >= cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL)
             abort();       /* allocation failed */
         /* Initialise new entries to 0 */

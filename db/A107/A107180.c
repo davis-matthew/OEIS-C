@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 819, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_uint64
+ * Validated: standard, pass, 62 terms through n = 9477 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
    the congruence condition modulo 280 and primality. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
 
 /* residues modulo 280 for which primes can occur */
 static const uint16_t _residues[13] = {
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     while (count < n) {
         /* test congruence condition */
         size_t r = (size_t)(candidate % 280);
-        if (_ok_table[r] && is_prime_uint64(candidate)) {
+        if (_ok_table[r] && is_prime_u64(candidate)) {
             ++count;
             if (count == n)
                 return (seq_t)candidate;

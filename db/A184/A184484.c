@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 88, u16 n <= 120, u32 n <= 120, u64 n <= 120,
  *            u128 n <= 120, big any n
- * Helpers:   none
+ * Validated: partial, pass, 120 terms through n = 120 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cached values of a(n), 1‑based indexing in the array (a_cache[0] = a(1)). */
 static seq_t *a_cache = NULL;
@@ -65,7 +67,7 @@ static void ensure_cache_cap(size_t needed)
     size_t new_cap = a_cache_cap ? a_cache_cap << 1 : 8;
     while (new_cap <= needed)
         new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, a_cache, new_cap);
     if (!new_arr)
         exit(1);                     /* allocation failure */
     a_cache = new_arr;

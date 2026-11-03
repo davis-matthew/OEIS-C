@@ -9,7 +9,8 @@
  *            decimal representation of n^2 (OEIS A219032)
  * Range:     u8 n <= 15, u16 n <= 845, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   get_digits, is_square_ull
+ * Validated: standard, pass, 102 terms through n = 9822 (2026-11-01)
+ * Helpers:   get_digits, is_square_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "../utils/get_digits.h"
-#include "../utils/is_square_ull.h"
+#include "../utils/is_square_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +44,7 @@ seq_t a(idx_t n)
         unsigned long long val = 0;
         for (size_t j = i; j > 0; --j) {
             val = val * 10ULL + (unsigned long long)digits[j - 1];
-            if (!is_square_ull(val)) continue;
+            if (!is_square_u64(val)) continue;
             /* duplicate detection */
             bool already = false;
             for (size_t k = 0; k < seen_cnt; ++k) {

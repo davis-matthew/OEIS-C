@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 3354, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 75 terms through n = 8268 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* prime list ------------------------------------------------------------- */
 static uint32_t *primes = NULL;          /* primes[0] … primes[primes_cnt-1] */
@@ -49,7 +51,7 @@ static void ensure_record_cap(void)
 {
     if (rec_cnt == rec_cap) {
         rec_cap = (rec_cap == 0) ? 16 : rec_cap << 1;
-        recdenoms = (seq_t *)realloc(recdenoms, rec_cap * sizeof(seq_t));
+        recdenoms = mem_resize(seq_t, recdenoms, rec_cap);
     }
 }
 

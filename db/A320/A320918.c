@@ -8,13 +8,15 @@
  *            a(n-3) for n > 2
  * Range:     i8 n <= 2, i16 n <= 6, i32 n <= 13, i64 n <= 28, i128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  Cache of computed terms */
 static seq_t *cache = NULL;
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cache_len) {
         size_t new_len = (size_t)n + 1;
         seq_t *new_cache =
-            (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+            mem_resize(seq_t, cache, new_len);
         if (!new_cache) abort();              /* allocation failure */
 
         cache     = new_cache;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
             /* Allocate space for at least three elements */
             size_t min_len = (cache_len < 3) ? 3 : cache_len;
             seq_t *tmp =
-                (seq_t *)realloc(cache, min_len * sizeof(seq_t));
+                mem_resize(seq_t, cache, min_len);
             if (!tmp) abort();
             cache    = tmp;
             cache_len = min_len;

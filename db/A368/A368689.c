@@ -8,12 +8,14 @@
  *            2) + f(k − 3) for k ≥ 2
  * Range:     u8 n <= 23, u16 n <= 43, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 static idx_t max_n = 0;
 static seq_t *a_arr = NULL;   /* a_arr[0..max_n], a_arr[0] unused */
@@ -27,8 +29,8 @@ static void compute_up_to(idx_t n)
     /* Allocate new arrays (zeroed) */
     size_t sz_a = (size_t)(n + 1);
     size_t sz_f = (size_t)n;
-    seq_t *new_a = (seq_t *)calloc(sz_a, sizeof(seq_t));
-    seq_t *new_f = (seq_t *)calloc(sz_f, sizeof(seq_t));
+    seq_t *new_a = mem_new(seq_t, sz_a);
+    seq_t *new_f = mem_new(seq_t, sz_f);
     if (!new_a || !new_f) return;   /* allocation failed, abort */
 
     /* Compute f[0..n-1] */
@@ -50,8 +52,8 @@ static void compute_up_to(idx_t n)
     }
 
     /* Free old arrays if any */
-    free(a_arr);
-    free(f_arr);
+    mem_free(a_arr);
+    mem_free(f_arr);
 
     a_arr = new_a;
     f_arr = new_f;

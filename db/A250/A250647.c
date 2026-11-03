@@ -11,12 +11,14 @@
  *            a(4)=89, a(5)=134, a(6)=219, a(7)=296 (valid for n ≥ 1)
  * Range:     u8 n <= 6, u16 n <= 51, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    // array holding computed a(1)..a(k)
 static size_t cache_len = 0;   // number of values stored in cache
@@ -27,7 +29,7 @@ static void init_cache(void)
     if (cache != NULL)
         return;
     cache_len = 7;
-    cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+    cache = mem_new(seq_t, cache_len);
     if (cache == NULL)
         abort(); /* out of memory */
     cache[0] = 6;    // a(1)
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     size_t target = (size_t)n; /* working copy in size_t (n ≤ 10000 in tests) */
     if (target > cache_len) {
         /* extend cache to hold values up to n */
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * target);
+        seq_t *new_cache = mem_resize(seq_t, cache, target);
         if (new_cache == NULL)
             abort(); /* out of memory */
         cache = new_cache;

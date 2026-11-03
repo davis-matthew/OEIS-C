@@ -10,13 +10,15 @@
  *            c_{n-1} + i * c_{n-2} (I^2 = -1)
  * Range:     u8 n <= 15, u16 n <= 30, u32 n <= 60, u64 n <= 121,
  *            u128 n <= 242, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Signed sequence element: magnitude and sign (-1,0,1).  */
 typedef struct {
@@ -101,7 +103,7 @@ static void ensure_cache(idx_t n) {
 
     size_t new_len = (size_t)(n + 1);
     coeff_pair *new_cache =
-        (coeff_pair *)realloc(cache, new_len * sizeof(coeff_pair));
+        mem_resize(coeff_pair, cache, new_len);
     if (new_cache == NULL)             /* allocation failed – abort */
         return;
     cache = new_cache;

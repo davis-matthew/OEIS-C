@@ -12,14 +12,23 @@
  *            F_k(n-m) - Sum_{m==0 mod (k+1), m>0} C(n,...
  * Range:     u8 n <= 8, u16 n <= 10, u32 n <= 14, u64 n <= 21, u128 n <= 35,
  *            big any n
- * Helpers:   grow_arr
+ * Validated: standard, pass, 39 terms through n = 436 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/grow_arr.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_arr(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *r = mem_new(seq_t, newlen);
+    idx_t i;
+    for (i = 0; i < oldlen; i++) r[i] = old[i];
+    if (old) mem_free(old);
+    return r;
+}
 
 static seq_t *F5 = 0, *F6 = 0, *row = 0;
 static idx_t have = 0, cap = 0;

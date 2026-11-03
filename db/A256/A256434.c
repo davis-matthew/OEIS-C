@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if ∃ m ≥ 0 such that * n = m*(5*m*m - 5*m + 2)/2, else
  *            a(n) = 0. * The function iterates m until the value exceeds n
- * Range:     u8 n <= 9778, u16 n <= 9778, u32 n <= 9778, u64 n <= 9778,
- *            u128 n <= 9778, big any n
+ * Range:     u8 n <= 104160, u16 n <= 104160, u32 n <= 104160,
+ *            u64 n <= 104160, u128 n <= 104160, big any n
+ * Validated: standard, pass, 141 terms through n = 9778 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,15 +7,24 @@
  * Formula:   a(n) = (n^3 - n)*7^n (offset 1)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 18, u128 n <= 39,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: standard, pass, 35 terms through n = 991 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Uses helper functions big_pow and seq_mul from the utils library. */
 
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -27,7 +36,7 @@ seq_t a(idx_t n)
     seq_t n3_minus_n = n3 - n_t;
 
     /* compute 7^n (using the provided big_pow helper) */
-    seq_t pow7 = big_pow(seven, n_t);
+    seq_t pow7 = ipow(seven, n_t);
 
     /* return the product */
     return seq_mul(pow7, n3_minus_n);

@@ -12,7 +12,8 @@
  *            prime. A small cache stores the sequence v...
  * Range:     u8 n <= 87, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Preliminary state – allocated progressively as more terms are needed.  */
 static seq_t *seq = NULL;          /* cache of sequence values      */
@@ -32,7 +34,7 @@ static void append_term(seq_t v)
 {
     if (seq_len == seq_cap) {
         seq_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
-        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
     }
     seq[seq_len++] = v;
 }

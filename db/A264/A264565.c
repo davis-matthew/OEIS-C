@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 29, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stddef.h>   /* size_t */
 #include <stdbool.h>  /* bool */
+#include "../utils/mem.h"
 
 #define MAX_N 10000   /* maximum n we cache; sufficient for the benchmark */
 
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         if (n <= 7) return init_terms[(size_t)n];
 
         /* temporary array for on‑the‑fly computation */
-        seq_t *temp = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+        seq_t *temp = mem_new(seq_t, (n + 1));
         for (size_t i = 1; i <= 7; ++i) temp[i] = init_terms[i];
         seq_t result = temp[(size_t)n];
         for (size_t i = 8; i <= n; ++i) {
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
                      - 216 * temp[i-5] - 243 * temp[i-6];
             temp[i] = result;
         }
-        free(temp);
+        mem_free(temp);
         return result;
     }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 115, u16 n <= 811, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp     = NULL;   /* dp[k] = number of partitions of k using 4,6,10,12 */
 static idx_t dp_cap  = 0;      /* allocated capacity of dp   */
@@ -30,14 +32,14 @@ static void ensure_dp(idx_t max)
     if (dp_cap < max + 1) {
         /* reallocate to new capacity */
         idx_t new_cap = max + 1;
-        seq_t *new_dp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, new_cap);
         if (dp != NULL) {
             /* copy old data up to current capacity */
             idx_t copy_cap = dp_cap < new_cap ? dp_cap : new_cap;
             for (idx_t i = 0; i < copy_cap; ++i) new_dp[i] = dp[i];
             /* zero the rest */
             for (idx_t i = copy_cap; i < new_cap; ++i) new_dp[i] = 0;
-            free(dp);
+            mem_free(dp);
         } else {
             for (idx_t i = 0; i < new_cap; ++i) new_dp[i] = 0;
         }

@@ -12,6 +12,7 @@
  *            number of sequences ending with (x,i) wher...
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 392 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

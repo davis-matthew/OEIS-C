@@ -12,14 +12,25 @@
  *            construction algorithm
  * Range:     u8 n <= 27, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   cmp_seq_t
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/cmp_seq_t.h"  /* provides int cmp_seq_t(const void *,const void *); */
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static int cmp_seq_t(const void *a, const void *b)
+{
+    seq_t va = *(const seq_t *)a;
+    seq_t vb = *(const seq_t *)b;
+    if (va < vb) return -1;
+    if (va > vb) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,9 +46,9 @@ seq_t a(idx_t n)
     /* Initialisation on the first call. */
     if (seq_len == 0) {
         seq_cap = 64;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         row_len = 1;
-        row = (seq_t*)malloc(sizeof(seq_t));
+        row = mem_new(seq_t, 1);
         seq[0] = row[0] = (seq_t)1;
         seq_len = 1;
     }
@@ -46,7 +57,7 @@ seq_t a(idx_t n)
     while (seq_len <= n) {
         /* Compute the next row (convolution with {2,1}) */
         idx_t next_len = row_len + 1;
-        seq_t *next = (seq_t*)malloc((size_t)next_len * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, (size_t)next_len);
 
         next[0] = row[0] * 2;
         for (idx_t i = 1; i < row_len; ++i)
@@ -54,14 +65,14 @@ seq_t a(idx_t n)
         next[row_len] = row[row_len-1];
 
         /* Sort the convolution result to form the next row. */
-        qsort((void*)next, (size_t)next_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(next, (size_t)next_len, sizeof(seq_t), cmp_seq_t);
 
         /* Resize the main sequence array if required. */
         if (seq_len + next_len > seq_cap) {
             seq_cap = seq_cap ? seq_cap * 2 : 64;
             while (seq_len + next_len > seq_cap)
                 seq_cap *= 2;
-            seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
 
         /* Append the sorted row to the flattened sequence. */
@@ -69,7 +80,7 @@ seq_t a(idx_t n)
             seq[seq_len++] = next[i];
 
         /* Advance to the next row. */
-        free(row);
+        mem_free(row);
         row = next;
         row_len = next_len;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Prime numbers keyed by the base‑8 digit value:
    primes[1] = 2, primes[2] = 3, ..., primes[7] = 17. */
@@ -42,7 +44,7 @@ static void ensure_cache_capacity(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, cache, new_cap);
     if (!ptr)
         exit(EXIT_FAILURE);
     cache = ptr;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 1720, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for the precomputed sequence */
 static seq_t *global_seq = NULL;
@@ -62,7 +64,7 @@ static void build(void) {
 
     /* --- Build output sequence: p, p+4, p, p+4, … ------------------- */
     global_len = 2 * cnt;
-    global_seq = (seq_t *)malloc(global_len * sizeof(seq_t));
+    global_seq = mem_new(seq_t, global_len);
     if (!global_seq) exit(1);
     for (size_t i = 0; i < cnt; ++i) {
         global_seq[2 * i]     = (seq_t)pairs[i];

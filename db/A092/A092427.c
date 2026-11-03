@@ -7,7 +7,8 @@
  * Formula:   a(n) is the least k>1 such that k^n | (k‑1)!
  * Range:     u8 n <= 57, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*--- Prime generation ---------------------------------------------------*/
 static uint32_t *primes = NULL;      /* list of primes found so far   */
@@ -122,10 +124,10 @@ static size_t memo_cap = 0;  /* allocated capacity */
 static void memo_grow(void) {
     if (memo_cap == 0) {
         memo_cap = 64;
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
     } else {
         memo_cap *= 2;
-        memo = (seq_t *)realloc(memo, memo_cap * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, memo_cap);
     }
 }
 

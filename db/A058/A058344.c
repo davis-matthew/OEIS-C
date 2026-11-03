@@ -7,15 +7,16 @@
  * Keywords:  sign, look
  * Formula:   a(n) = 2*σ(m) - σ(n) + (-1)^n * n, where m is the odd part of n
  *            (n = 2^k * m, m odd)
- * Range:     i8 n <= 95, i16 n <= 9802, i32 n <= 9802, i64 n <= 9802,
- *            i128 n <= 9802, big any n
- * Helpers:   sigma_uint
+ * Range:     i8 n <= 95, i16 n <= 13439, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 97 terms through n = 9802 (2026-11-01)
+ * Helpers:   sigma_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sigma_uint.h"
+#include "../utils/sigma_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +27,8 @@ seq_t a(idx_t n)
     uint64_t m = u;
     while ((m & 1ULL) == 0) m >>= 1;
 
-    seq_t sigma_m = sigma_uint(m);
-    seq_t sigma_n = sigma_uint(u);
+    seq_t sigma_m = sigma_u64(m);
+    seq_t sigma_n = sigma_u64(u);
 
     seq_t diff = sigma_m + sigma_m; /* 2*σ(m) */
     diff -= sigma_n;

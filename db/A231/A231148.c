@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  tabf, sign, easy
  * Formula:   not stated
- * Range:     i8 n <= 70, i16 n <= 71, i32 n <= 71, i64 n <= 71, i128 n <= 71,
+ * Range:     i8 n <= 71, i16 n <= 71, i32 n <= 71, i64 n <= 71, i128 n <= 71,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
  */
 
 #include <math.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     if (n < 1) return 0;                   /* offset is 1; behaviour below offset is irrelevant */
@@ -50,7 +52,7 @@ seq_t a(idx_t n) {
         long long num = (long long)k + t;      /* k + t ≥ 0 because k ≥ |t| */
         idx_t i = (idx_t)(num / 2);
 
-        seq_t c = binom(k, i);
+        seq_t c = binomial(k, i);
         if (i & 1) c = -c;                    /* multiply by (-1)^i */
         sum += c;
     }

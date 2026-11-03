@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 16, i32 n <= 28, i64 n <= 52, i128 n <= 100,
  *            big any n
- * Helpers:   build_primes_upto, factor_u64
+ * Validated: standard, pass, 63 terms through n = 2180 (2026-11-03)
+ * Helpers:   build_primes_upto, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,9 @@
 #include <stddef.h>
 #include <assert.h>
 
-#include "../utils/build_primes_upto.h"   /* build_primes_upto(idx_t limit, uint64_t **primes, size_t *cnt) */
-#include "../utils/factor_u64.h"          /* factor_u64(uint64_t n, uint64_t *factors, uint64_t *exps, size_t *cnt) */
+#include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Cached data for prime list and their primorials */
 static bool        init_done  = false;
@@ -60,14 +62,14 @@ static void init_or_expand(idx_t limit)
 
     /* free previous allocations, if any */
     if (prime_list) free(prime_list);
-    if (primorial_arr) free(primorial_arr);
+    if (primorial_arr) mem_free(primorial_arr);
 
     /* generate all primes up to limit (inclusive) */
     build_primes_upto(limit, &prime_list, &prime_cnt);
     prime_limit = limit;
 
     /* allocate primorial array */
-    primorial_arr = (seq_t *)malloc(sizeof(seq_t) * prime_cnt);
+    primorial_arr = mem_new(seq_t, prime_cnt);
     assert(primorial_arr != NULL);
 
     /* compute primorials: primorial_arr[i] = product of primes[0..i] */

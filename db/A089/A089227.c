@@ -11,7 +11,8 @@
  *            only those that satisfy the condition
  * Range:     u8 n <= 102, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 80 terms through n = 8844 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* Miller‑Rabin primality test for 64‑bit integers */
 static bool is_prime_u64(unsigned long long n)
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
     /* Grow storage as needed */
     if (terms == NULL) {
         terms_cap = 16;
-        terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 
     /* Generate terms until we have at least n */
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
         if (is_prime_u64(cand)) {
             if (terms_len == terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = k;
         }

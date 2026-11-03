@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 743, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
 
         /* ---------- Count divisors and collect ==36 ---------- */
         size_t init_cap = 20000;            /* initial guess for number of values */
-        values = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        values = mem_new(seq_t, init_cap);
         if (!values) { free(spf); return 0; }
         val_cap = init_cap;
         val_len = 0;
@@ -77,8 +79,8 @@ seq_t a(idx_t n)
                 if (val_len == val_cap)
                 {
                     val_cap = val_cap ? val_cap * 2 : 4;
-                    seq_t *tmp = (seq_t *)realloc(values, val_cap * sizeof(seq_t));
-                    if (!tmp) { free(spf); free(values); return 0; }
+                    seq_t *tmp = mem_resize(seq_t, values, val_cap);
+                    if (!tmp) { free(spf); mem_free(values); return 0; }
                     values = tmp;
                 }
                 values[val_len++] = (seq_t)i;

@@ -7,12 +7,14 @@
  * Formula:   a(1) = 0; for n > 1: a(n) = (a(n-1)^2 + 1) mod n
  * Range:     u8 n <= 20, u16 n <= 679, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 9415 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* allocate a new cache large enough for indices 0 … n (index 0 unused) */
     idx_t new_cap = n + 1;
-    seq_t *new_cache = (seq_t *)calloc((size_t)new_cap, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)new_cap);
     if (!new_cache) {
         /* allocation failed – fallback to recomputing without a cache */
         seq_t res = 0;
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     }
 
     /* free old cache and keep new one */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_size = n;
 

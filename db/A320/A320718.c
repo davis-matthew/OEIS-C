@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 none, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
- *            big any n
- * Helpers:   next_prime
+ * Range:     u8 none, u16 n <= 342, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 61 terms through n = 9740 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t start) */
+#include <stdbool.h>
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     if (n > capacity) {
         idx_t new_cap = (capacity == 0) ? 128 : capacity << 1;
         while (new_cap < n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();              /* out of memory */
         cache    = tmp;
         capacity = new_cap;

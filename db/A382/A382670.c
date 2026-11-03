@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   prime_ok
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/prime_ok.h"
+#include "../utils/mem.h"
+
+/* Test whether a prime p satisfies that p‑1 is of the form 2^a·5^b. */
+static inline bool prime_ok(uint64_t p)
+{
+    if (p == 2)
+        return true;        /* 2 is always allowed */
+    uint64_t m = p - 1;
+    while ((m & 1ULL) == 0)
+        m >>= 1;            /* strip all factors 2 */
+    while (m % 5ULL == 0)
+        m /= 5;             /* strip all factors 5 */
+    return m == 1ULL;       /* remaining part must be 1 */
+}
 
 /* Test whether k satisfies the sequence condition. */
 static bool ok_k(uint64_t k)
@@ -82,7 +96,7 @@ seq_t a(idx_t n)
         /* Ensure capacity. */
         if (seq_len == seq_cap) {
             size_t new_cap = seq_cap ? seq_cap << 1 : 8;
-            seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
             if (!tmp)                /* allocation failed */
                 return 0;
             seq_vals = tmp;

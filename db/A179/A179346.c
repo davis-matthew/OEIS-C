@@ -11,7 +11,8 @@
  *            eventually chosen
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 16, u64 n <= 31, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 328 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Width of the sliding window (i+4) - (i-7) + 1 = 12 */
 #define W      12
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     seq_t *next = dp_next;
 
     /* reset tables */
-    memset(cur, 0, sizeof(dp));
+    mem_set(cur, 0, sizeof(dp));
 
     /* Initial mask for position i = 1: mark values outside [1,n] as used */
     uint32_t init_mask = 0;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
     /* Process positions i = 1 .. n */
     for (idx_t i = 1; i <= n; ++i) {
-        memset(next, 0, sizeof(dp_next));
+        mem_set(next, 0, sizeof(dp_next));
 
         for (uint32_t mask = 0; mask < MASKS; ++mask) {
             seq_t ways = cur[mask];

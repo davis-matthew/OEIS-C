@@ -9,12 +9,14 @@
  *            generating function is ∏_{k>0,3∤k} (1 + 2x^k + x^{2k})
  * Range:     u8 n <= 18, u16 n <= 53, u32 n <= 169, u64 n <= 578,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;      /* DP array: dp[s] = #partitions of sum s */
 static idx_t  dp_cap = 0;     /* current allocated size */
@@ -26,7 +28,7 @@ static void ensure_dp_size(idx_t n)
     if (needed <= dp_cap)
         return;
 
-    seq_t *new_dp = (seq_t *)realloc(dp, needed * sizeof(seq_t));
+    seq_t *new_dp = mem_resize(seq_t, dp, needed);
     if (!new_dp) {
         /* allocation failure: terminate program */
         exit(EXIT_FAILURE);

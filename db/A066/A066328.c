@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = sum of indices of distinct prime factors of n (PrimePi(p)
  *            = index of prime p, 2 → 1, 3 → 2, 5 → 3, …)
- * Range:     u8 n <= 1618, u16 n <= 9872, u32 n <= 9872, u64 n <= 9872,
- *            u128 n <= 9872, big any n
+ * Range:     u8 n <= 1618, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 107 terms through n = 9872 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

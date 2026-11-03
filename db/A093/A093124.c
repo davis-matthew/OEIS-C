@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   sigma_of
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
    answered in O(1) after the necessary range has been calculated. */
 
 #include <stdlib.h>   /* malloc, realloc, free */
-#include "../utils/sigma_of.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 static size_t cache_cap = 0;            /* array capacity */
 static seq_t *sigma_arr = NULL;         /* σ(i) */
@@ -37,11 +53,11 @@ static void cache_ensure(idx_t n)
         new_cap <<= 1;
 
     seq_t *tmp;
-    tmp = (seq_t *)realloc(sigma_arr, new_cap * sizeof(seq_t));
+    tmp = mem_resize(seq_t, sigma_arr, new_cap);
     if (!tmp) return;  sigma_arr = tmp;
-    tmp = (seq_t *)realloc(pref_arr,  new_cap * sizeof(seq_t));
+    tmp = mem_resize(seq_t, pref_arr, new_cap);
     if (!tmp) return;  pref_arr  = tmp;
-    tmp = (seq_t *)realloc(a_arr,     new_cap * sizeof(seq_t));
+    tmp = mem_resize(seq_t, a_arr, new_cap);
     if (!tmp) return;  a_arr     = tmp;
 
     cache_cap = new_cap;

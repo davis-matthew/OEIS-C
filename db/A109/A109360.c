@@ -10,13 +10,15 @@
  *            a(4)=8, a(5)=11, a(6)=11, a(7)=14
  * Range:     u8 n <= 152, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 913 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static memoization array */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     /* initialise first 8 terms once */
     if (dp_size == 0) {
         dp_size = 8;
-        dp = (seq_t *)malloc(dp_size * sizeof(seq_t));
+        dp = mem_new(seq_t, dp_size);
         dp[0] = (seq_t)0;
         dp[1] = (seq_t)1;
         dp[2] = (seq_t)5;
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
     /* ensure dp has enough capacity */
     if (dp_size <= n) {
         size_t new_size = n + 1;
-        dp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, new_size);
         /* compute terms from old size to n */
         for (idx_t i = dp_size; i <= n; ++i) {
             /* recurrence: a(n) = a(n-1) - a(n-3) + 2*a(n-4) - a(n-5) + a(n-7) - a(n-8) */

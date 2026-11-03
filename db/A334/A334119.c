@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{i=1}^{n-1} (n-i)*(2n-i)*c(i)*c(2n-i)
  * Range:     u8 n <= 12, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   is_prime_in_list, sieve_primes
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/sieve_primes.h"   /* provides sieve_primes */
-#include "../utils/is_prime_in_list.h"
+#include <string.h>
+#include "../utils/sieve_primes.h"
+
+static bool is_prime_in_list(idx_t val, idx_t *primes, size_t cnt)
+{
+    size_t lo = 0, hi = cnt;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        idx_t v = primes[mid];
+        if (v == val) return true;
+        if (v < val)  lo = mid + 1;
+        else          hi = mid;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

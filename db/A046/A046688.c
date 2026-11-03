@@ -10,12 +10,14 @@
  *            diagonal). For k = 0 (row 0) a(n) = 1
  * Range:     u8 n <= 62, u16 n <= 186, u32 n <= 626, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 94 terms through n = 1020 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Return the value at index n in OEIS sequence A046688. */
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

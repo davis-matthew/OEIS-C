@@ -7,14 +7,16 @@
  * Keywords:  nonn, nice
  * Formula:   a(n) = number of ways to write n = x + y (x,y>0) such that 6x-1,
  *            6x+1, 6y+1 and 6y+5 are all prime
- * Range:     u8 n <= 9467, u16 n <= 9467, u32 n <= 9467, u64 n <= 9467,
- *            u128 n <= 9467, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 116 terms through n = 9467 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Utility header providing is_prime() */
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

@@ -10,12 +10,14 @@
  *            even number of parts, each <= k
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static size_t current_max_c = 0;
 static seq_t *dp_even = NULL;
@@ -27,13 +29,13 @@ static void precompute(size_t max_c)
 {
     if (max_c <= current_max_c) return;
 
-    free(dp_even);
-    free(dp_odd);
-    free(table);
+    mem_free(dp_even);
+    mem_free(dp_odd);
+    mem_free(table);
 
-    dp_even = (seq_t *)calloc(max_c + 1, sizeof(seq_t));
-    dp_odd  = (seq_t *)calloc(max_c + 1, sizeof(seq_t));
-    table   = (seq_t *)calloc((max_c + 1) * (max_c + 1), sizeof(seq_t));
+    dp_even = mem_new(seq_t, max_c + 1);
+    dp_odd  = mem_new(seq_t, max_c + 1);
+    table   = mem_new(seq_t, (max_c + 1) * (max_c + 1));
     if (!dp_even || !dp_odd || !table) exit(1);
 
     dp_even[0] = 1; /* empty partition has 0 parts (even) */

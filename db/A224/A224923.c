@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{i=0..n} Sum_{j=0..n} (i XOR j)
  * Range:     u8 n <= 7, u16 n <= 46, u32 n <= 1023, u64 n <= 1023,
  *            u128 n <= 1023, big any n
+ * Validated: standard, pass, 61 terms through n = 980 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

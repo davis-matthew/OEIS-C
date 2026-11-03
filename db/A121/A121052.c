@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 15, u16 n <= 256, u32 n <= 9346, u64 n <= 9346,
- *            u128 n <= 9346, big any n
- * Helpers:   calc_phi, mod_pow
+ * Range:     u8 n <= 15, u16 n <= 256, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 74 terms through n = 9346 (2026-11-01)
+ * Helpers:   powmod, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,11 @@
    n^m ≡ 1 (mod n^2 + n – 1).  For n = 1 the
    convention a(1) = 1 is used (see OEIS entry).  */
 #include <stdbool.h>
-#include "../utils/calc_phi.h"
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +40,7 @@ seq_t a(idx_t n)
 
     /* Compute φ(mod).  The helper calc_phi does it exactly
        by factoring mod. */
-    seq_t phi = calc_phi(mod);
+    seq_t phi = totient_seq(mod);
 
     /* We look for the minimal divisor d of phi such that
        n^d ≡ 1 (mod mod).  First factor phi by trial division.
@@ -57,7 +61,7 @@ seq_t a(idx_t n)
                congruence. */
             while (order % p == 0) {
                 seq_t cand = order / p;
-                if (mod_pow(ns, (uint64_t)cand, mod) == (seq_t)1)
+                if (powmod(ns, (uint64_t)cand, mod) == (seq_t)1)
                     order = cand;
                 else
                     break;
@@ -70,7 +74,7 @@ seq_t a(idx_t n)
         uint64_t p = (uint64_t)temp;
         while (order % p == 0) {
             seq_t cand = order / p;
-            if (mod_pow(ns, (uint64_t)cand, mod) == (seq_t)1)
+            if (powmod(ns, (uint64_t)cand, mod) == (seq_t)1)
                 order = cand;
             else
                 break;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = 4*n^2 + 12*n - 1583
  * Range:     i8 none, i16 n <= 91, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 59 terms through n = 971 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

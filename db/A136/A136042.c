@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    entry and cached for fast indexed access. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for the sequence values and the current numerators */
 static seq_t *seq_cache = NULL;      /* memoised s(i) values              */
@@ -32,7 +34,7 @@ static const seq_t denom = 29;        /* denominator of the fraction       */
 static void grow_seq_cache(void)
 {
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap << 1;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) abort();
     seq_cache = tmp;
     cache_cap = (idx_t)new_cap;
@@ -42,7 +44,7 @@ static void grow_seq_cache(void)
 static void grow_num_cache(void)
 {
     size_t new_cap = (num_cap == 0) ? 17 : num_cap << 1;  /* start one larger than seq_cache */
-    seq_t *tmp = (seq_t *)realloc(num_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, num_cache, new_cap);
     if (!tmp) abort();
     num_cache = tmp;
     num_cap = (idx_t)new_cap;

@@ -9,13 +9,15 @@
  *            1)
  * Range:     u8 n <= 39, u16 n <= 322, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 9954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global cache for computed a(k) with k >= 0.
    seq_cache[0] holds a(0) = 67. */
@@ -50,9 +52,9 @@ seq_t a(idx_t n)
     if (cache_cap <= n) {
         idx_t new_cap = n + 1;
         if (seq_cache == NULL) {
-            seq_cache = (seq_t *)calloc((size_t)new_cap, sizeof(seq_t));
+            seq_cache = mem_new(seq_t, (size_t)new_cap);
         } else {
-            seq_cache = (seq_t *)realloc(seq_cache, (size_t)new_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, (size_t)new_cap);
         }
         /* Out of memory is unlikely; if it occurs, return 0. */
         if (seq_cache == NULL) return 0;

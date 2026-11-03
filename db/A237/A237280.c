@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _ensure_int_cap, _ensure_seq_cap
+ * Validated: standard, pass, 66 terms through n = 812 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,26 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/_ensure_int_cap.h"
-#include "../utils/_ensure_seq_cap.h"
+#include "../utils/mem.h"
+
+/* -----  Array reallocation helpers  ----- */
+static void _ensure_int_cap(size_t *cap, size_t need, int **arr)
+{
+    if (need <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 64 : *cap * 2;
+    while (new_cap < need) new_cap <<= 1;
+    *arr = (int *)realloc(*arr, new_cap * sizeof(**arr));
+    *cap = new_cap;
+}
+
+static void _ensure_seq_cap(size_t *cap, size_t need, seq_t **arr)
+{
+    if (need <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 64 : *cap * 2;
+    while (new_cap < need) new_cap <<= 1;
+    *arr = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+    *cap = new_cap;
+}
 
 /* -----  Static cache  ----- */
 static idx_t      _last_k      = 0;  /* largest k processed            */

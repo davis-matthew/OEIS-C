@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static uint32_t *spf = NULL;          /* smallest prime factor table */
 static size_t   spf_size = 0;         /* allocated size of spf */
@@ -53,8 +55,8 @@ static void precompute_spf(size_t limit)
 
     /* Ensure memo table big enough for this limit */
     if (memo_size < limit + 1) {
-        free(memo);
-        memo = (seq_t *)calloc(limit + 1, sizeof(seq_t));
+        mem_free(memo);
+        memo = mem_new(seq_t, limit + 1);
         memo_size = limit + 1;
     }
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binom_2i_i_mod3
+ * Validated: standard, pass, 89 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,25 @@
  */
 
 #include <stdlib.h>   /* malloc, realloc, free */
-#include "../utils/binom_2i_i_mod3.h"
+#include "../utils/mem.h"
+
+/* compute C(2*i,i) mod 3 */
+static inline seq_t binom_2i_i_mod3(idx_t i)
+{
+    /* if any base–3 digit of i is 2 -> term is 0 */
+    idx_t x = i;
+    int parity = 0;          /* parity of number of 1-digits */
+    while (x > 0)
+    {
+        int d = x % 3;
+        x /= 3;
+        if (d == 2)
+            return (seq_t)0;
+        if (d == 1)
+            parity ^= 1;
+    }
+    return (seq_t)(parity ? 2 : 1);   /* 2^parity mod 3 */
+}
 
 seq_t a(idx_t n)
 {
@@ -43,7 +62,7 @@ seq_t a(idx_t n)
         size_t new_size = (cached == 0) ? 64 : cached * 2;
         if (n + 1 > new_size)
             new_size = n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp)
             exit(EXIT_FAILURE);   /* out of memory */
         cache = tmp;

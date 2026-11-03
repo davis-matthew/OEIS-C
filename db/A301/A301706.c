@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 32, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    which is fast enough for n up to about 10000.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;          // undefined for n = 0
@@ -36,12 +38,12 @@ seq_t a(idx_t n) {
         idx_t new_max = n;
 
         /* Allocate new arrays */
-        seq_t *new_h = (seq_t*)malloc((new_max + 1) * sizeof(seq_t));
-        seq_t *new_g = (seq_t*)malloc((new_max + 1) * sizeof(seq_t));
-        seq_t *new_f = (seq_t*)malloc((new_max + 1) * sizeof(seq_t));
+        seq_t *new_h = mem_new(seq_t, (new_max + 1));
+        seq_t *new_g = mem_new(seq_t, (new_max + 1));
+        seq_t *new_f = mem_new(seq_t, (new_max + 1));
 
         /* 1. Partition numbers p[0..new_max-1] (number of partitions of m) */
-        seq_t *p = (seq_t*)calloc(new_max, sizeof(seq_t));
+        seq_t *p = mem_new(seq_t, new_max);
         p[0] = 1;
         for (idx_t i = 1; i < new_max; ++i) {
             for (idx_t j = i; j < new_max; ++j) {
@@ -57,8 +59,8 @@ seq_t a(idx_t n) {
 
         /* 3. DP arrays for weighted partitions */
         idx_t max_sum = new_max - 1;        /* largest sum that can occur */
-        seq_t *dp  = (seq_t*)calloc(max_sum + 1, sizeof(seq_t)); /* for g */
-        seq_t *dp2 = (seq_t*)calloc(max_sum + 1, sizeof(seq_t)); /* for f */
+        seq_t *dp  = mem_new(seq_t, max_sum + 1); /* for g */
+        seq_t *dp2 = mem_new(seq_t, max_sum + 1); /* for f */
         dp[0]  = 1;
         dp2[0] = 1;
 
@@ -84,12 +86,12 @@ seq_t a(idx_t n) {
         }
 
         /* 6. Free temporary and old arrays */
-        free(p);
-        free(dp);
-        free(dp2);
-        free(h);
-        free(g);
-        free(f);
+        mem_free(p);
+        mem_free(dp);
+        mem_free(dp2);
+        mem_free(h);
+        mem_free(g);
+        mem_free(f);
 
         /* 7. Store new arrays in static variables */
         h = new_h;

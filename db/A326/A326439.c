@@ -8,7 +8,8 @@
  * Formula:   a(n) = Π_{σ ∈ signatures(1..n)} count(σ)
  * Range:     u8 n <= 21, u16 n <= 53, u32 n <= 139, u64 n <= 478,
  *            u128 n <= 1000, big any n
- * Helpers:   build_spf, signature_key
+ * Validated: standard, pass, 67 terms through n = 991 (2026-11-01)
+ * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,39 @@
 /* Include required utilities */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/build_spf.h"    /* provides build_spf */
-#include "../utils/signature_key.h"
+#include "../utils/build_spf.h"
+
+/* Compute the encoded key of the prime signatures of val using the SPF array */
+static uint64_t signature_key(uint64_t val, idx_t *spf)
+{
+    uint8_t exps[64];
+    size_t len = 0;
+    while (val > 1) {
+        idx_t p = spf[(idx_t)val];
+        uint8_t cnt = 0;
+        while (val % p == 0) {
+            val /= p;
+            cnt++;
+        }
+        exps[len++] = cnt;
+    }
+    /* sort the exponents ascending – tiny array – insertion sort */
+    for (size_t i = 1; i < len; ++i) {
+        uint8_t key = exps[i];
+        size_t j = i;
+        while (j > 0 && exps[j - 1] > key) {
+            exps[j] = exps[j - 1];
+            --j;
+        }
+        exps[j] = key;
+    }
+    /* encode key: len in lowest 4 bits, each exponent in 4 bits */
+    uint64_t k = (uint64_t)len & 0xFULL;
+    for (size_t i = 0; i < len; ++i) {
+        k |= ((uint64_t)(exps[i] & 0xF) << (4 * (i + 1)));
+    }
+    return k;
+}
 
 static int cmp_uint64(const void *a, const void *b)
 {

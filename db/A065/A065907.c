@@ -9,7 +9,8 @@
  *            the n-th prime with p ≡ 7 (mod 8)
  * Range:     u8 n <= 14, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   build_primes_upto, mod_pow
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   build_primes_upto, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 static uint64_t *prime_cache = NULL;
 static size_t prime_cache_cnt = 0;
@@ -91,10 +93,10 @@ seq_t a(idx_t n)
     idx_t exp = (selected_prime + 1) / 4;      /* exponent for sqrt and 4‑root */
 
     /* First square root of 2: s = 2^((p+1)/4) mod p   (p ≡ 3 mod 4) */
-    seq_t s = mod_pow((seq_t)2, exp, p);
+    seq_t s = powmod((seq_t)2, exp, p);
 
     /* Fourth root: t = s^((p+1)/4) mod p   (t^4 ≡ 2) */
-    seq_t t = mod_pow(s, exp, p);
+    seq_t t = powmod(s, exp, p);
 
     /* Return the smaller representative among t and p‑t */
     seq_t p_minus_t = p - t;

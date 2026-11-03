@@ -10,14 +10,27 @@
  *            n = i + j + (j–i)(j–i+1)/2 and return T(i,j)
  * Range:     u8 n <= 22, u16 n <= 47, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom_big
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom_big.h"
+
+/* Compute binomial(a,k) for large a, small k using multiplicative formula
+   with exact integer arithmetic on seq_t. */
+static seq_t binom_big(seq_t a, idx_t k)
+{
+    seq_t res = 1;
+    for (idx_t t = 1; t <= k; ++t) {
+        seq_t term = a - (seq_t)(k - t);  /* a - k + t */
+        res = res * term;
+        res = res / t;                    /* exact division */
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

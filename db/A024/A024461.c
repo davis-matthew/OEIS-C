@@ -8,7 +8,8 @@
  * Formula:   a(n) = sum_{i=1..floor((n+1)/2)} Fib(i) * Composite(n+1-i)
  * Range:     u8 n <= 10, u16 n <= 30, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         /* Ensure Fibonacci cache up to n */
         if (fib_cache == NULL)
         {
-            fib_cache = (seq_t *)malloc(sizeof(seq_t) * (n + 3));
+            fib_cache = mem_new(seq_t, (n + 3));
             if (!fib_cache) abort();
             fib_cache[0] = 0;
             fib_cache[1] = 1;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         }
         else if (fib_cache_cnt < n)
         {
-            fib_cache = (seq_t *)realloc(fib_cache, sizeof(seq_t) * (n + 3));
+            fib_cache = mem_resize(seq_t, fib_cache, (n + 3));
             for (size_t i = fib_cache_cnt + 1; i <= n; ++i)
                 fib_cache[i] = fib_cache[i - 1] + fib_cache[i - 2];
             fib_cache_cnt = n;
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
         {
             uint64_t candidate = last_candidate + 1;
             bool is_prime = true;
-            uint64_t limit = (uint64_t)int_sqrt(candidate);
+            uint64_t limit = (uint64_t)isqrt(candidate);
             for (size_t pi = 0; pi < primes_cnt && primes[pi] <= limit; ++pi)
             {
                 if (candidate % primes[pi] == 0)

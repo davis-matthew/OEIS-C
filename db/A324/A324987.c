@@ -9,13 +9,14 @@
  * Formula:   a(n) = Product_{d|n} tau(d)*sigma(d)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 static void _dfs(int idx, int pfcnt, const uint64_t *pr,
                  const int *exp, seq_t cur_tau,
@@ -30,7 +31,7 @@ static void _dfs(int idx, int pfcnt, const uint64_t *pr,
     for (int e = 0; e <= emax; ++e) {
         seq_t sigma_term = 1;
         if (e != 0) {
-            seq_t pow_val = pow_uint(p, (idx_t)(e + 1));
+            seq_t pow_val = ipow_u64_idx(p, (idx_t)(e + 1));
             seq_t denom = (seq_t)(p - 1);
             sigma_term = (pow_val - 1) / denom;
         }

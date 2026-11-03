@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 18, u64 n <= 41, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Height of the arrays */
 #define ROWS 7
@@ -143,8 +145,8 @@ static void init(void)
     }
 
     /* Allocate DP arrays */
-    dp_cur = (seq_t *)calloc((size_t)S, sizeof(seq_t));
-    dp_nxt = (seq_t *)calloc((size_t)S, sizeof(seq_t));
+    dp_cur = mem_new(seq_t, (size_t)S);
+    dp_nxt = mem_new(seq_t, (size_t)S);
 
     initialized = true;
 }

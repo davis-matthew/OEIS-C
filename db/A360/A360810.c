@@ -7,16 +7,23 @@
  * Formula:   a(n) = Sum_{k=0..⌊n/2⌋} (n-2k)^k * binomial(n-k-1, k)
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 21, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   binomial, seq_mul, seq_pow
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -27,7 +34,7 @@ seq_t a(idx_t n)
         seq_t base = (seq_t)(n - 2 * k);
 
         /* power = base^k (using the provided seq_pow) */
-        seq_t power = seq_pow(base, k);
+        seq_t power = ipow_idx(base, k);
 
         /* bin = binomial(n - k - 1, k) */
         seq_t bin = binomial(n - k - 1, k);

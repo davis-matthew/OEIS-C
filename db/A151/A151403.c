@@ -9,18 +9,22 @@
  * Formula:   a(n) = 4^n * catalan(n)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   catalan, pow_uint
+ * Validated: standard, pass, 37 terms through n = 183 (2026-11-01)
+ * Helpers:   catalan, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
     /* 4^n */
-    seq_t pow4n = pow_uint(4ULL, n);
+    seq_t pow4n = ipow_u64_idx(4ULL, n);
     /* Catalan number C_n */
     seq_t catn = catalan(n);
     /* product */

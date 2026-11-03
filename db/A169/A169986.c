@@ -11,12 +11,14 @@
  *            the * machine), and for any seq_t type supported by the b...
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 46, u64 n <= 92, u128 n <= 184,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 3212 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *a_arr = NULL;   /* cache of computed terms */
 static size_t a_len = 0;      /* number of terms currently cached */
@@ -30,9 +32,9 @@ static void ensure_a(idx_t n) {
     /* Reallocate the cache as needed. */
     seq_t *tmp;
     if (a_arr == NULL) {
-        tmp = (seq_t *)malloc(required * sizeof(seq_t));
+        tmp = mem_new(seq_t, required);
     } else {
-        tmp = (seq_t *)realloc(a_arr, required * sizeof(seq_t));
+        tmp = mem_resize(seq_t, a_arr, required);
     }
     if (tmp == NULL) return;           /* allocation failed – value will be garbage */
     a_arr = tmp;

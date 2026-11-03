@@ -10,7 +10,8 @@
  *            where S={m≥1 | m is squarefree and not prime}
  * Range:     u8 n <= 22, u16 n <= 41, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     static seq_t *memo = NULL;
     static size_t memo_cap = 0;
     if (memo_cap < (size_t)(n + 1)) {
-        seq_t *new_mem = (seq_t *)realloc(memo, (n + 1) * sizeof(seq_t));
+        seq_t *new_mem = mem_resize(seq_t, memo, (n + 1));
         if (!new_mem) return (seq_t)0;            /* allocation failure */
         memo = new_mem;
         memo_cap = (size_t)(n + 1);

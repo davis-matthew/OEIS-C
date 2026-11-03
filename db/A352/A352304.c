@@ -7,14 +7,16 @@
  * Formula:   a(n) = n! * Sum_{k=0..floor(n/4)} (-k-1)^(n-4*k)/(n-4*k)!
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 12, i64 n <= 19, i128 n <= 21,
  *            big any n
- * Helpers:   binomial, pow_int
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   binomial, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
     if (sizeof(seq_t) <= 8) {
         /* Allocate array of length n+1.  Memory is not freed; the function is
            called infrequently and the small size keeps leaks negligible. */
-        seq_t *arr = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        seq_t *arr = mem_new(seq_t, (size_t)(n + 1));
         if (!arr) return 0;  /* Out of memory – unlikely in tests. */
 
         arr[0] = 1;
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= maxk; ++k) {
         idx_t exp = n - 4 * k;       /* exponent of the power term   */
         seq_t base = (seq_t)(-(int64_t)(k + 1));  /* -(k+1) as seq_t */
-        seq_t power = pow_int(base, exp);         /* (-k-1)^(exp)  */
+        seq_t power = ipow_idx(base, exp);         /* (-k-1)^(exp)  */
 
         /* Compute the factorial ratio n!/(n-4k)! as a product from m+1 to n,
            where m = n-4k. */

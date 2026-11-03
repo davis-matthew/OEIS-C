@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const int coeff[12] = {3, 17, 66, 129, 183, 162, -29, -150, -189, -109, -2, 8};
 static const seq_t base[14] = {0,
@@ -56,9 +58,9 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (cache_len == 0) {
         cache_cap = 14;               /* we will store indices 0..13 at least */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
-        memset(cache, 0, cache_cap * sizeof(seq_t));
+        mem_set(cache, 0, cache_cap * sizeof(seq_t));
         /* copy known initial values */
         for (size_t i = 1; i <= 13; ++i) cache[i] = base[i];
         cache_len = 13;
@@ -67,10 +69,10 @@ seq_t a(idx_t n)
     /* Extend cache capacity if required */
     if ((size_t)n >= cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
-        memset(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+        mem_set(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
         cache_cap = new_cap;
     }
 

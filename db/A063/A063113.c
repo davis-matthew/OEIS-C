@@ -8,14 +8,28 @@
  * Formula:   a(1)=1; a(n+1)=a(n)+prod_nonzero_base3(a(n))
  * Range:     u8 n <= 84, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   prod_nonzero_base3
+ * Validated: standard, pass, 80 terms through n = 884 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/prod_nonzero_base3.h"
+#include "../utils/mem.h"
+
+/* product of the non‑zero digits of x in base 3 */
+static seq_t prod_nonzero_base3(seq_t x)
+{
+    seq_t prod = (seq_t)1;
+    while (x != (seq_t)0) {
+        seq_t d = x % (seq_t)3;
+        if (d != (seq_t)0)
+            prod *= d;
+        x /= (seq_t)3;
+    }
+    return prod;
+}
 
 /* dynamic storage for sequence terms (0‑based index; a(1) at a[0]) */
 static seq_t *seq_a       = NULL;
@@ -31,7 +45,7 @@ static void seq_ensure_capacity(size_t need)
     if (new_cap < need)
         new_cap = need;
     /* realloc is safe for both C and C++ when cast from void* to seq_t* */
-    seq_a = (seq_t *)realloc(seq_a, new_cap * sizeof(seq_t));
+    seq_a = mem_resize(seq_t, seq_a, new_cap);
     seq_a_cap = new_cap;
 }
 

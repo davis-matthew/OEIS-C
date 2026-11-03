@@ -7,14 +7,22 @@
  * Formula:   a(n) = n-th divisor of 350 (ascending)
  * Range:     u8 n <= 10, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   div_compare
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/div_compare.h"
+#include "../utils/mem.h"
+
+static int div_compare(const void *p1, const void *p2)
+{
+    seq_t a = *(const seq_t *)p1;
+    seq_t b = *(const seq_t *)p2;
+    return (a < b) ? -1 : ((a > b) ? 1 : 0);
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +47,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        qsort(divisors, 12, sizeof(seq_t), div_compare);
+        mem_qsort(divisors, 12, sizeof(seq_t), div_compare);
         initialized = 1;
     }
 

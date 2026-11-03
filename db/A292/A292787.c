@@ -10,7 +10,8 @@
  *            = digit_sum_n(k^2) (digit sums taken in base‑n)
  * Range:     u8 n <= 16, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   is_power_of_n
+ * Validated: partial, pass, 71 terms through n = 72 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,14 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_power_of_n.h"
+
+static bool is_power_of_n(seq_t base, seq_t val) {
+    if (val == 1) return true;          /* 1 = base^0 */
+    while (val % base == 0) {
+        val /= base;
+    }
+    return val == 1;
+}
 
 static seq_t digit_sum(seq_t x, seq_t base) {
     seq_t sum = 0;

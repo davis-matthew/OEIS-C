@@ -9,14 +9,17 @@
  *            for n ≥ 2
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 256, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 59 terms through n = 9132 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n < 2) return 0;              /* valid for offset 2 and above */
@@ -46,7 +49,7 @@ seq_t a(idx_t n) {
                     + (seq_t)10;
 
         /* compute p^(4(e-1)) via big_pow (handles exp = 0) */
-        seq_t pow_factor = big_pow(p, (seq_t)(4 * (e - 1)));
+        seq_t pow_factor = ipow(p, (seq_t)(4 * (e - 1)));
 
         /* accumulate the multiplicative contribution */
         result = result * pow_factor * poly;

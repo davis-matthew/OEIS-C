@@ -8,7 +8,8 @@
  * Keywords:  nonn, easy
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 n <= 26, big any n
- * Helpers:   parse_seed
+ * Validated: standard, pass, 22 terms through n = 4549 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,16 @@
                    a(1) = 1059683225053915111058165141686995
    Computes the sequence for any n ≥ 0. */
 #include <stdbool.h>
-#include "../utils/parse_seed.h"
+
+/* Parse a decimal string into a value of type seq_t.
+   Works for unsigned integer and arbitrary‑precision types. */
+static seq_t parse_seed(const char *s)
+{
+    seq_t x = 0;
+    for (const char *p = s; *p; ++p)
+        x = x * 10 + (seq_t)(*p - '0');
+    return x;
+}
 
 /* Global storage for the two seed values, lazily initialized. */
 static seq_t g_seed0 = 0, g_seed1 = 0;

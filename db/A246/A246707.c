@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 35, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const int e_table[12] = {4,2,3,4,2,2,6,2,2,4,3,2};
 
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate coefficient array f[0..n] */
-    seq_t *f = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (n + 1));
     if (!f)
         return (seq_t)0;  /* allocation failure: undefined behaviour for this task */
 
@@ -52,6 +54,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = f[n];
-    free(f);
+    mem_free(f);
     return result;
 }

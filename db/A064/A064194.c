@@ -7,7 +7,8 @@
  * Formula:   a(2n) = 3*a(n), a(2n+1) = 2*a(n+1)+a(n), a(1) = 1
  * Range:     u8 n <= 32, u16 n <= 1030, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9524 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache       = NULL;  /* dynamic cache; index 0 unused */
 static idx_t  cache_size  = 0;     /* allocated size (elements) */
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
     while (new_size <= n)
         new_size <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, (new_size + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_size + 1));
     if (!new_cache) {
         /* Out of memory – abort */
         abort();

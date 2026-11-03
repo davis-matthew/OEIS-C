@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 282, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* prime table up to LIMIT */
 #define PRIME_LIMIT 1000000
@@ -128,10 +130,10 @@ static void ensure_n_terms(idx_t n) {
             seq_t v = (seq_t)cand;
             if (term_sz >= term_cap) {
                 size_t new_cap = term_cap ? term_cap * 2 : 32;
-                seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+                seq_t *new_arr = mem_new(seq_t, new_cap);
                 if (term_arr && term_sz)
-                    memcpy(new_arr, term_arr, term_sz * sizeof(seq_t));
-                if (term_arr) free(term_arr);
+                    mem_copy(new_arr, term_arr, term_sz * sizeof(seq_t));
+                if (term_arr) mem_free(term_arr);
                 term_arr = new_arr;
                 term_cap = new_cap;
             }

@@ -12,7 +12,8 @@
  *            OEIS entry, sorted by increasing perimeter
  * Range:     u8 none, u16 none, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   gcd_u64
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------------------
  *  Integer utilities
@@ -52,7 +54,7 @@ static void grow_triples(size_t needed)
     if (g_triples_cnt + needed <= g_triples_cap) return;
     size_t new_cap = g_triples_cap ? g_triples_cap : 64;
     while (g_triples_cnt + needed > new_cap) new_cap <<= 1;
-    tri_t *tmp = (tri_t*)realloc(g_triples, new_cap * sizeof(tri_t));
+    tri_t *tmp = mem_resize(tri_t, g_triples, new_cap);
     if (!tmp) abort();
     g_triples = tmp;
     g_triples_cap = new_cap;
@@ -137,11 +139,11 @@ static void init_sequence(void)
     }
 
     /* Sort triples by perimeter (then largest side) */
-    qsort(g_triples, g_triples_cnt, sizeof(tri_t), compare_tri);
+    mem_qsort(g_triples, g_triples_cnt, sizeof(tri_t), compare_tri);
 
     /* Store only the largest sides in order */
     g_largest_cnt = g_triples_cnt;
-    g_largest_array = (seq_t*)malloc(g_largest_cnt * sizeof(seq_t));
+    g_largest_array = mem_new(seq_t, g_largest_cnt);
     if (!g_largest_array) abort();
     for (size_t i = 0; i < g_largest_cnt; ++i)
         g_largest_array[i] = g_triples[i].largest;

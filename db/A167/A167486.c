@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,7 +22,7 @@
    The process is repeated n times.  The result fits in seq_t. */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"   // provides bool is_prime(idx_t x)
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {

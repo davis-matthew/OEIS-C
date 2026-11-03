@@ -11,13 +11,15 @@
  *            a(8)=32, a(9)=34, a(10)=44
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[11] = {1,6,8,12,14,22,28,28,32,34,44};
 
@@ -30,11 +32,11 @@ static void grow_cache_to(size_t n)
 {
     if (n < cache_cap) return;
     size_t new_cap = n + 1;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) return;           /* allocation failed – leave behaviour undefined */
     if (cache) {
         for (size_t i = 0; i < cache_cap; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     for (size_t i = cache_cap; i < new_cap; ++i) new_cache[i] = 0;
     cache = new_cache;

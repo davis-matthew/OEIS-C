@@ -11,7 +11,8 @@
  *            1
  * Range:     u8 none, u16 n <= 4, u32 n <= 12, u64 n <= 27, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define ROWS 729                 /* 3^6 possible rows */
 #define STATE_COUNT (ROWS*ROWS)  /* (r0,r1) pairs */
@@ -44,8 +46,8 @@ static uint32_t *g_actB = NULL;
 static void init_tables(void)
 {
     g_adj      = (PairAdj*)malloc(sizeof(PairAdj)*STATE_COUNT);
-    g_dpA      = (seq_t*) malloc(sizeof(seq_t)*STATE_COUNT);
-    g_dpB      = (seq_t*) malloc(sizeof(seq_t)*STATE_COUNT);
+    g_dpA      = mem_new(seq_t, STATE_COUNT);
+    g_dpB      = mem_new(seq_t, STATE_COUNT);
     g_actA     = (uint32_t*)malloc(sizeof(uint32_t)*STATE_COUNT);
     g_actB     = (uint32_t*)malloc(sizeof(uint32_t)*STATE_COUNT);
 
@@ -69,8 +71,8 @@ static void init_tables(void)
     }
 
     /* zero DP buffers */
-    memset(g_dpA, 0, sizeof(seq_t)*STATE_COUNT);
-    memset(g_dpB, 0, sizeof(seq_t)*STATE_COUNT);
+    mem_set(g_dpA, 0, sizeof(seq_t)*STATE_COUNT);
+    mem_set(g_dpB, 0, sizeof(seq_t)*STATE_COUNT);
 }
 
 /* --------------------------------------------------------------------- */

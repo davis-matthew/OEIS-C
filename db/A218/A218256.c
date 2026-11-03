@@ -8,7 +8,8 @@
  *            function
  * Range:     u8 n <= 140, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_uint128, divisor_count_u64
+ * Validated: standard, pass, 88 terms through n = 8612 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,17 @@
 #include <stdio.h>
 
 /* utilities provided by the framework */
-#include "../utils/divisor_count_u64.h"
-#include "../utils/cmp_uint128.h"
+#include "../utils/num_divisors.h"
+
+/* Compare function for qsort on __uint128_t */
+static int cmp_uint128(const void *a, const void *b)
+{
+    const unsigned __int128 *x = (const unsigned __int128 *)a;
+    const unsigned __int128 *y = (const unsigned __int128 *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 /* Miller‑Rabin primality test for 128‑bit numbers */
 static const uint64_t MR_BASES[] = {2ULL,3ULL,5ULL,7ULL,11ULL,13ULL,17ULL,19ULL,23ULL,29ULL,31ULL,37ULL};
@@ -156,7 +166,7 @@ seq_t a(idx_t n)
     }
 
     /* compute tau(n-1) using provided utility (fits in 64 bits) */
-    seq_t tau_prev = divisor_count_u64((uint64_t)(n - 1));
+    seq_t tau_prev = num_divisors((uint64_t)(n - 1));
 
     /* answer */
     return tau_full - tau_prev;

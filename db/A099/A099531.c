@@ -8,13 +8,15 @@
  *            -3*a(n-1)-3*a(n-2)-a(n-3)-a(n-4) for n>=4
  * Range:     i8 n <= 12, i16 n <= 23, i32 n <= 44, i64 n <= 88, i128 n <= 178,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>   /* for idx_t and seq_t types */
+#include "../utils/mem.h"
 
 /* static cache storing values up to the highest n computed so far */
 static seq_t *cache = NULL;
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n) {
     idx_t old_size = cache_size;
     idx_t new_size = n + 1;
     /* resize the array */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) {
         /* allocation failed – terminate the program (should never happen in tests) */
         abort();

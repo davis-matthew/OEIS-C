@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 6137, u64 n <= 6137,
  *            u128 n <= 6137, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 5482 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t pow_digit[10][10];
 static bool pow_init = false;
@@ -99,7 +101,7 @@ seq_t a(idx_t n) {
         }
 
         /* Sort the unique values */
-        if (vcnt > 1) qsort(values, vcnt, sizeof(seq_t), cmp_seq);
+        if (vcnt > 1) mem_qsort(values, vcnt, sizeof(seq_t), cmp_seq);
 
         if (cum + vcnt <= target) {
             cum += vcnt;

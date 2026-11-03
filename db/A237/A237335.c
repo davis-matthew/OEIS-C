@@ -11,13 +11,55 @@
  *            * computes the n‑th term for any n ≥ 1
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 9, u128 n <= 20,
  *            big any n
- * Helpers:   build_graph
+ * Validated: standard, pass, 28 terms through n = 203 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/build_graph.h"
+
+static void build_graph(uint16_t neigh[256][256],
+                        uint8_t  diff_arr[256][256],
+                        uint16_t deg[256])
+{
+    for (uint32_t i = 0; i < 256; ++i) {
+        /* decompose i into 4 digits base‑4 */
+        uint8_t rowA[4];
+        uint32_t x = i;
+        for (int k = 3; k >= 0; --k) { rowA[k] = x % 4; x /= 4; }
+
+        deg[i] = 0;
+        for (uint32_t j = 0; j < 256; ++j) {
+            uint8_t rowB[4];
+            uint32_t y = j;
+            for (int k = 3; k >= 0; --k) { rowB[k] = y % 4; y /= 4; }
+
+            unsigned d = 0xFF;   /* use 0xFF as "invalid" marker */
+            for (int col = 0; col <= 2; ++col) {
+                /* compute max-min over the 2×2 block */
+                unsigned mv = rowA[col];
+                if (rowA[col+1] < mv) mv = rowA[col+1];
+                if (rowB[col]   < mv) mv = rowB[col];
+                if (rowB[col+1] < mv) mv = rowB[col+1];
+
+                unsigned Mv = rowA[col];
+                if (rowA[col+1] > Mv) Mv = rowA[col+1];
+                if (rowB[col]   > Mv) Mv = rowB[col];
+                if (rowB[col+1] > Mv) Mv = rowB[col+1];
+
+                unsigned diff = Mv - mv;
+                if (col == 0) d = diff;
+                else if (diff != d) { d = 0xFF; break; }
+            }
+            if (d != 0xFF) {
+                neigh[i][deg[i]]    = (uint16_t)j;
+                diff_arr[i][deg[i]] = (uint8_t)d;
+                ++deg[i];
+            }
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {

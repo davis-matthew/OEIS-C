@@ -8,13 +8,15 @@
  *            a(2) = -1, a(3) = -4, a(4) = -1, a(5) = 2
  * Range:     i8 n <= 5000, i16 n <= 5000, i32 n <= 5000, i64 n <= 5000,
  *            i128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 4834 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values for fast repeated calls */
 static seq_t *cache   = NULL;  /* array of computed a(n) */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* initial allocation – bigger than six to reduce resizes */
         cap = 64;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) return;           /* allocation failed, leave empty */
         for (size_t i = 0; i < 6; ++i) cache[i] = init_terms[i];
         for (size_t i = 6; i < cap; ++i) cache[i] = 0;
@@ -42,7 +44,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)n >= cap) {
         size_t new_cap = cap ? cap * 2 : 64;
         while ((size_t)n >= new_cap) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return;   /* reallocation failed – nothing more to compute */
         cache = tmp;
         cap = new_cap;

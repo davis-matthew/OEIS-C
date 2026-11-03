@@ -12,7 +12,8 @@
  *            increasing order
  * Range:     u8 n <= 1, u16 n <= 222, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime table ---------- */
 static uint64_t *prime_table = NULL;   /* array of primes  */
@@ -73,13 +75,13 @@ static void ensure_seq_capacity(void)
     if (seq_len < seq_cap)
         return;
     size_t new_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (new_arr == NULL)
         exit(EXIT_FAILURE);
     for (size_t i = 0; i < seq_len; ++i)
         new_arr[i] = seq_vals[i];
     if (seq_vals)
-        free(seq_vals);
+        mem_free(seq_vals);
     seq_vals = new_arr;
     seq_cap  = new_cap;
 }

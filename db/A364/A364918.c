@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 405, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 93 terms through n = 9924 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
    for n ≥ 2, a(n) = a(n − GCD(n − 1, a(n − 1))) + GCD(n, a(n − 1)) */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Computes the n‑th term of A364918.
    The function is independent for each call and meets the
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
 
     /* Allocate a temporary array of size n + 1 (index 0 unused). */
     size_t sz = (size_t)(n + 1);
-    seq_t *seq = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, sz);
     if (!seq) return (seq_t)0;          /* allocation failure → return 0 */
 
     /* Initialise a(1) */
@@ -51,6 +54,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[n];
-    free(seq);
+    mem_free(seq);
     return result;
 }

@@ -8,17 +8,27 @@
  * Keywords:  nonn
  * Formula:   a(n) = lcm of suffix sums of exponents of prime factors of n
  *            (the exponents of the prime factors of A108951(n))
- * Range:     u8 n <= 9681, u16 n <= 9681, u32 n <= 9681, u64 n <= 9681,
- *            u128 n <= 9681, big any n
- * Helpers:   factor_u64, gcd, swap
+ * Range:     u8 n <= 20579, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9681 (2026-11-01)
+ * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/gcd.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/swap.h"
+#include "../utils/gcd.h"
+
+/* swap two elements in the factor arrays */
+static void swap(uint64_t *a, uint64_t *b, uint64_t *ea, uint64_t *eb)
+{
+    uint64_t tmp = *a; *a = *b; *b = tmp;
+    tmp      = *ea; *ea = *eb; *eb = tmp;
+}
 
 seq_t a(idx_t n)
 {

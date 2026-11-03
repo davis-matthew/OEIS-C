@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl, nice, easy, look
  * Formula:   not stated
- * Range:     u8 n <= 330, u16 n <= 1780, u32 n <= 9827, u64 n <= 9827,
- *            u128 n <= 9827, big any n
+ * Range:     u8 n <= 330, u16 n <= 1780, u32 n <= 12583, u64 n <= 20100,
+ *            u128 n <= 20100, big any n
+ * Validated: standard, pass, 121 terms through n = 9827 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

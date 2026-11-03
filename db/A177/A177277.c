@@ -7,6 +7,7 @@
  * Formula:   a(n) = round(n*(n+2)*(2*n-1)/168)
  * Range:     u8 n <= 27, u16 n <= 176, u32 n <= 905, u64 n <= 905,
  *            u128 n <= 905, big any n
+ * Validated: standard, pass, 67 terms through n = 896 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,8 +11,8 @@
  *            sorting them, and indexing into the sorted array
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, _prime_limit_for_idx, build_primes_upto,
- *            cmp_seq_t
+ * Validated: standard, pass, 71 terms through n = 9898 (2026-11-03)
+ * Helpers:   build_primes_upto, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +21,29 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/_prime_limit_for_idx.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include <stddef.h>
+#include <math.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/cmp_seq_t.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 static seq_t *sortedSums = NULL;       /* sorted sums of composites */
 static size_t sortedSumsCnt = 0;       /* number of elements stored */
@@ -76,7 +95,7 @@ static void compute_sequence(void)
     for (idx_t i = 2; i <= maxVal; ++i)
         is_prime[i] = 1;   /* assume prime */
 
-    const idx_t sqrtMax = _floor_isqrt_u64(maxVal);
+    const idx_t sqrtMax = isqrt(maxVal);
     for (idx_t i = 2; i <= sqrtMax; ++i) {
         if (is_prime[i]) {
             for (idx_t j = i * i; j <= maxVal; j += i)
@@ -85,8 +104,7 @@ static void compute_sequence(void)
     }
 
     /* -------------------------------- Prefix sums of composites -------------------------------- */
-    seq_t *prefix = (seq_t *)calloc((size_t)maxVal + 1ULL,
-                                    sizeof(seq_t));
+    seq_t *prefix = mem_new(seq_t, (size_t)maxVal + 1ULL);
     if (!prefix) {
         free(primes);
         free(is_prime);
@@ -101,11 +119,11 @@ static void compute_sequence(void)
     }
 
     /* --------------------------------- Gather the sums --------------------------------- */
-    sortedSums = (seq_t *)calloc(GAPS, sizeof(seq_t));
+    sortedSums = mem_new(seq_t, GAPS);
     if (!sortedSums) {
         free(primes);
         free(is_prime);
-        free(prefix);
+        mem_free(prefix);
         return;
     }
 
@@ -118,11 +136,11 @@ static void compute_sequence(void)
     sortedSumsCnt = GAPS;
 
     /* ------------------------------ Sort the sums ----------------------------- */
-    qsort(sortedSums, GAPS, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(sortedSums, GAPS, sizeof(seq_t), cmp_seq_t);
 
     /* ---------- Free temporary data --------------------------------------- */
     free(is_prime);
-    free(prefix);
+    mem_free(prefix);
     free(primes);
 }
 

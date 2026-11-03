@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_seq_array, factor_u64, free_seq_array, mod_pow, next_prime
+ * Validated: standard, pass, 72 terms through n = 928 (2026-11-03)
+ * Helpers:   factor_u64, mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,11 +24,22 @@
 #include <stdlib.h>
 
 /* utility functions from the library */
-#include "../utils/next_prime.h"
+#include <string.h>
+#include <stddef.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mod_pow.h"
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* helper: test whether 99 is a primitive root modulo p */
 static bool is_primitive_root_99(uint64_t p)
@@ -48,7 +60,7 @@ static bool is_primitive_root_99(uint64_t p)
         uint64_t q = primes[i];
         uint64_t exp = n / q;
         /* if 99^((p−1)/q) ≡ 1 (mod p) then order divides (p−1)/q < p−1 */
-        if (mod_pow((seq_t)99, exp, (seq_t)p) == (seq_t)1)
+        if (powmod((seq_t)99, exp, (seq_t)p) == (seq_t)1)
             return false;
     }
     return true;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_nonn_squareful
+ * Validated: standard, pass, 79 terms through n = 9510 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,32 @@
 #include <stdint.h>   /* uint64_t */
 #include <stdbool.h>  /* bool */
 #include <stdlib.h>   /* malloc, realloc, free */
-#include "../utils/is_nonn_squareful.h"
+#include "../utils/mem.h"
+
+/* --- Test whether a number is nonsquare‑free but not squareful -----------*/
+static bool is_nonn_squareful(idx_t n)
+{
+    idx_t tmp = n;
+    bool has_sq  = false;
+    bool has_one = false;
+
+    for (idx_t p = 2; p * p <= tmp; ++p) {
+        if (tmp % p == 0) {
+            int cnt = 0;
+            while (tmp % p == 0) {
+                tmp /= p;
+                ++cnt;
+            }
+            if (cnt >= 2) has_sq = true;
+            else if (cnt == 1) has_one = true;
+        }
+    }
+
+    /* any remaining factor > 1 appears exactly once */
+    if (tmp > 1) has_one = true;
+
+    return has_sq && has_one;
+}
 
 /* --- Integer square‑root for 64‑bit values --------------------------------*/
 static inline idx_t isqrt_u64(idx_t n)
@@ -51,7 +77,7 @@ seq_t a(idx_t n)
 
     if (terms == NULL) {            /* first call: initialise */
         terms_cap = 128;
-        terms     = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms     = mem_new(seq_t, terms_cap);
         terms_len = 0;
         next_candidate = 2;
     }
@@ -60,7 +86,7 @@ seq_t a(idx_t n)
         if (is_nonn_squareful(next_candidate)) {
             if (terms_len == terms_cap) {
                 terms_cap <<= 1;     /* double capacity */
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)next_candidate;
         }

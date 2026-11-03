@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 20, u32 n <= 38, u64 n <= 70, u128 n <= 138,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 625 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 */
 
 #include <stdlib.h>     /* malloc, free */
+#include "../utils/mem.h"
 
 /* Cache of computed terms, 1‑based index. */
 static seq_t *cache = NULL;    /* array of size cache_len = current capacity */
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
     /* Grow the array if necessary. */
     if ((idx_t)(n + 1) > cache_len) {
         size_t new_len = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache) abort(); /* allocation failure */
 
         /* Initialise the new buffer with zeroes. */
@@ -45,7 +47,7 @@ static void ensure_cache(idx_t n)
             for (idx_t i = 0; i < cache_len; ++i) {
                 new_cache[i] = cache[i];
             }
-            free(cache);
+            mem_free(cache);
         }
         cache = new_cache;
         cache_len = (idx_t)new_len;

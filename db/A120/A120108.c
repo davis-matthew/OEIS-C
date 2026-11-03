@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 77, u32 n <= 252, u64 n <= 1080,
  *            u128 n <= 3915, big any n
- * Helpers:   exponent_in_lcm, floor_sqrt_8n_plus_1
+ * Validated: standard, pass, 82 terms through n = 4942 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,33 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/exponent_in_lcm.h"
-#include "../utils/floor_sqrt_8n_plus_1.h"
+
+/* Return ⌊log_p(m)⌋ for a given m ≥ 1 and prime p ≥ 2. */
+static idx_t exponent_in_lcm(idx_t m, idx_t p)
+{
+    idx_t exp = 0;
+    idx_t pow = 1;
+    while (pow <= m / p) {
+        pow *= p;
+        exp++;
+    }
+    return exp;
+}
+
+/* Compute floor(sqrt(8*n+1)) using 128‑bit intermediate arithmetic. */
+static idx_t floor_sqrt_8n_plus_1(idx_t n)
+{
+    __uint128_t val = (__uint128_t)8 * n + 1;
+    __uint128_t low = 0, high = ( __uint128_t )1 << 64; /* > sqrt(UINT64_MAX) */
+    while (low < high) {
+        __uint128_t mid = (low + high + 1) >> 1;
+        if (mid > 0 && mid > val / mid)
+            high = mid - 1;
+        else
+            low = mid;
+    }
+    return (idx_t)low;
+}
 
 /* Static storage for primes up to the largest needed limit. */
 static idx_t *primes = NULL;     /* array of primes */

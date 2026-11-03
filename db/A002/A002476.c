@@ -7,13 +7,15 @@
  * Formula:   Primes of the form 6m + 1
  * Range:     u8 n <= 25, u16 n <= 3259, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static bool *sieve = NULL;
@@ -25,13 +27,13 @@ static idx_t primes_6m1_capacity = 0;
 static void build_and_collect(idx_t limit)
 {
 	if (sieve) free(sieve);
-	if (primes_6m1) free(primes_6m1);
+	if (primes_6m1) mem_free(primes_6m1);
 
 	sieve = (bool *)malloc((size_t)limit + 1);
 	if (!sieve) return;
 
 	primes_6m1_capacity = (limit / 6) + 100;
-	primes_6m1 = (seq_t *)malloc(sizeof(seq_t) * primes_6m1_capacity);
+	primes_6m1 = mem_new(seq_t, primes_6m1_capacity);
 	if (!primes_6m1) {
 		free(sieve);
 		sieve = NULL;
@@ -56,7 +58,7 @@ static void build_and_collect(idx_t limit)
 		if (sieve[p] && p % 6 == 1) {
 			if (primes_6m1_count >= primes_6m1_capacity) {
 				primes_6m1_capacity *= 2;
-				primes_6m1 = (seq_t *)realloc(primes_6m1, sizeof(seq_t) * primes_6m1_capacity);
+				primes_6m1 = mem_resize(seq_t, primes_6m1, primes_6m1_capacity);
 			}
 			primes_6m1[primes_6m1_count++] = (seq_t)p;
 		}

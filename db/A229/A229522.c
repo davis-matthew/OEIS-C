@@ -7,7 +7,8 @@
  * Formula:   a(n) = last decimal digit of (n^n)^n = n^(n^2) mod 10
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   small_pow10
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,17 @@
 /* Computes the final digit of (n^n)^n for any n >= 1.
  * The sequence is periodic with period 10. */
 #include <stdint.h>
-#include "../utils/small_pow10.h"
+
+static unsigned small_pow10(unsigned base, unsigned exp)
+{
+    unsigned result = 1;
+    while (exp) {
+        if (exp & 1) result = (result * base) % 10;
+        base = (base * base) % 10;
+        exp >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

@@ -11,14 +11,21 @@
  *            = E(m,k-1) + E(m-1,m-k), E(0,0) = 1
  * Range:     i8 n <= 9, i16 n <= 11, i32 n <= 16, i64 n <= 24, i128 n <= 24,
  *            big any n
- * Helpers:   fixed_width
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/fixed_width.h"
+
+static bool fixed_width(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 300; i++) x = x + x;
+    return x == 0;
+}
 
 #define MAXN 16400
 #define FN 160

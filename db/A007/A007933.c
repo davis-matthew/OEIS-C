@@ -8,21 +8,22 @@
  *            permutation (leading zeros allowed) that is prime
  * Range:     u8 n <= 118, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 77 terms through n = 9878 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
 
 static bool check_perm(const char *digits, int len) {
     uint64_t num = 0;
     for (int i = 0; i < len; i++) {
         num = num * 10 + (uint64_t)(digits[i] - '0');
     }
-    return is_prime(num);
+    return is_prime_u64(num);
 }
 
 static bool gen_perm(char *digits, int len, int pos) {

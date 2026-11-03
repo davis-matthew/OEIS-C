@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of partitions of n into parts 1, 3, 7, 9
  * Range:     u8 n <= 54, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -29,7 +31,7 @@ static void recompute(idx_t n)
 {
     if (cache == NULL || cache_size < (size_t)n + 1) {
         size_t new_size = (size_t)n + 1;
-        seq_t *ptr = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *ptr = mem_resize(seq_t, cache, new_size);
         if (ptr == NULL) {
             /* Allocation failed – abort with zero to avoid crash in test harness */
             exit(EXIT_FAILURE);
@@ -39,7 +41,7 @@ static void recompute(idx_t n)
     }
 
     /* Initialise all entries to 0 and set base case */
-    memset(cache, 0, cache_size * sizeof(seq_t));
+    mem_set(cache, 0, cache_size * sizeof(seq_t));
     cache[0] = 1;
 
     /* Coins (parts) in ascending order */

@@ -7,12 +7,15 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} (k+1)^(n-k) * binomial(k+3,3)/(n-k)!
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
         /* binomial(k+3,3) = bin_idx*(bin_idx-1)*(bin_idx-2)/6   */
         seq_t binom = ((seq_t)bin_idx * (bin_idx - 1) * (bin_idx - 2)) / 6;
 
-        seq_t pow_val = seq_pow((seq_t)base, r);
+        seq_t pow_val = ipow_idx((seq_t)base, r);
 
         seq_t term = binom;
         term *= pow_val;

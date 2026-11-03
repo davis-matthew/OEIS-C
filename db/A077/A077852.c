@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2*a(n-1) + a(n-3) + 1 , a(0)=1, a(1)=3, a(2)=7, a(3)=16
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 27, u64 n <= 55, u128 n <= 111,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Allocate a temporary array large enough for the requested index.
        For the typical test ranges (n ≲ 10000) this is trivial in size. */
     idx_t i;
-    seq_t *buf = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, (size_t)(n + 1));
     if (!buf) abort();           /* allocation failure – terminate */
 
     /* Initialise the first four values */
@@ -40,6 +42,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = buf[n];
-    free(buf);
+    mem_free(buf);
     return result;
 }

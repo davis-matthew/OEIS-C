@@ -8,14 +8,16 @@
  * Formula:   a(n) = (binomial(2*m,2*r) + binomial(2*m+1,2*r)) / 2, where m =
  *            floor((sqrt(8*n+1)-1)/2) and r = n - m*(m+1)/2. This reproduces
  *            OEIS A232535
- * Range:     u8 n <= 11, u16 n <= 38, u32 n <= 57, u64 n <= 57, u128 n <= 57,
+ * Range:     u8 n <= 16, u16 n <= 48, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
     idx_t r = n - m * (m + 1) / 2;
 
     /* Compute T(m,r) = (binomial(2m,2r) + binomial(2m+1,2r)) / 2. */
-    seq_t t1 = binom(2 * m, 2 * r);
-    seq_t t2 = binom(2 * m + 1, 2 * r);
+    seq_t t1 = binomial(2 * m, 2 * r);
+    seq_t t2 = binomial(2 * m + 1, 2 * r);
 
     return (t1 + t2) / 2;
 }

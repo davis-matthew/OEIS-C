@@ -11,6 +11,7 @@
  *            n=∏p^e, A348746(n)=∏(A348744(p))^e and a(n) = ∏ σ(A348744(p)^e)
  * Range:     u8 n <= 29, u16 n <= 799, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 87 terms through n = 9166 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

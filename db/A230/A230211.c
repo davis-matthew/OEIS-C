@@ -12,16 +12,30 @@
  *            flat index into the trapezoid, r is the row number (r≥1, row r
  *            has r+8 terms), and k is 0‑based column index within the row (0
  *            ≤ k ≤ r+7)
- * Range:     i8 n <= 125, i16 n <= 305, i32 n <= 892, i64 n <= 1675,
+ * Range:     i8 n <= 144, i16 n <= 443, i32 n <= 1065, i64 n <= 1675,
  *            i128 n <= 1675, big any n
- * Helpers:   binomial, mul_small
+ * Validated: standard, pass, 82 terms through n = 1569 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/mul_small.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* Helper: binomial that returns 0 if k > n or k < 0. */
 static inline seq_t safe_binomial(idx_t n, idx_t k)

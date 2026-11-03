@@ -7,14 +7,36 @@
  * Formula:   a(n) = number of primes p with n³‑n < p ≤ n³ (n ≥ 1)
  * Range:     u8 n <= 5952, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _mr_witness
+ * Validated: standard, pass, 106 terms through n = 9932 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_mr_witness.h"
+
+/* deterministic Miller–Rabin for 64‑bit integers */
+static bool _mr_witness(uint64_t n, uint64_t a, uint64_t d, unsigned s)
+{
+    unsigned __int128 x  = 1;
+    unsigned __int128 cur = a % n;
+    uint64_t exp = d;
+    while (exp > 0) {
+        if (exp & 1ULL)
+            x = (x * cur) % n;
+        cur = (cur * cur) % n;
+        exp >>= 1U;
+    }
+    if (x == 1U || x == n - 1)
+        return true;
+    for (unsigned r = 1; r < s; ++r) {
+        x = (x * x) % n;
+        if (x == n - 1)
+            return true;
+    }
+    return false;
+}
 
 static bool _is_prime_uint64(uint64_t n)
 {

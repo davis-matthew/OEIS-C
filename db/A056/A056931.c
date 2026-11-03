@@ -9,6 +9,7 @@
  * Formula:   a(n) = n*(n+1) - ((nextPrime(n^2) + prevPrime((n+1)^2)) / 2)
  * Range:     i8 n <= 7, i16 n <= 86, i32 n <= 86, i64 n <= 86, i128 n <= 86,
  *            big any n
+ * Validated: partial, pass, 85 terms through n = 86 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

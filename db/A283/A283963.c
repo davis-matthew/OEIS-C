@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 7872 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Initial cache contains the root symbol '1' */
     if (cache == NULL) {
-        cache   = (seq_t*)malloc(sizeof(seq_t));
+        cache   = mem_new(seq_t, 1);
         cache[0] = 1;
         cur_len   = 1;
     }
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         for (idx_t i = 0; i < cur_len; ++i)
             new_len += (cache[i] == 0 ? 1 : 4);
 
-        seq_t *new_cache = (seq_t*)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         idx_t pos = 0;
         for (idx_t i = 0; i < cur_len; ++i) {
             if (cache[i] == 0) {                 /* 0 → 1 */
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cur_len = new_len;
     }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor(n^(4/3))
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   cube_leq
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,15 @@
  * It uses only integer operations allowed in the specification. */
 
 #include <stdint.h> /* for NULL, types, if needed */
-#include "../utils/cube_leq.h"
+
+static inline int cube_leq(seq_t mid, seq_t target) {
+    /* return true if mid^3 <= target, using only division to avoid overflow */
+    if (mid == 0) return 1;                /* 0^3 == 0 <= target */
+    seq_t t1 = target / mid;               /* floor(target / mid)  */
+    if (mid > t1) return 0;                /* mid^2 > target => mid^3 > target */
+    seq_t t2 = t1 / mid;                   /* floor(target / (mid*mid)) */
+    return (mid <= t2);                    /* mid^3 <= target ? */
+}
 
 seq_t a(idx_t n) {
     /* Special case n = 0 */

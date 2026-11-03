@@ -9,15 +9,27 @@
  *            2n, p^b exactly dividing 2n
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 29, u64 n <= 209,
  *            u128 n <= 1259, big any n
- * Helpers:   a6863_isprime, a6863_mulp
+ * Validated: standard, pass, 48 terms through n = 8906 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/a6863_isprime.h"
-#include "../utils/a6863_mulp.h"
+#include "../utils/is_prime_u64.h"
+
+static void a6863_mulp(seq_t *result, idx_t m, idx_t p) {
+    idx_t b = 0;
+    idx_t mc = m;
+    while (mc % p == 0) {
+        b++;
+        mc /= p;
+    }
+    for (idx_t i = 0; i <= b; i++) {
+        *result *= (seq_t)p;
+    }
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
@@ -38,11 +50,11 @@ seq_t a(idx_t n) {
     for (idx_t d = 1; d <= m / d; d++) {
         if (m % d == 0) {
             idx_t p = d + 1;
-            if (p > 2 && a6863_isprime(p)) a6863_mulp(&result, m, p);
+            if (p > 2 && is_prime_u64(p)) a6863_mulp(&result, m, p);
             idx_t d2 = m / d;
             if (d2 != d) {
                 p = d2 + 1;
-                if (p > 2 && a6863_isprime(p)) a6863_mulp(&result, m, p);
+                if (p > 2 && is_prime_u64(p)) a6863_mulp(&result, m, p);
             }
         }
     }

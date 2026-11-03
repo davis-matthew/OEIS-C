@@ -13,6 +13,7 @@
  *            3*r For n mod 4 = 0: let s = n/4 → a(n) =...
  * Range:     u8 n <= 10, u16 n <= 78, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
+ * Validated: standard, pass, 64 terms through n = 194 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

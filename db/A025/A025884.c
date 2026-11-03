@@ -7,12 +7,14 @@
  * Formula:   number of partitions of n into parts 5, 7, and 10 (OEIS A025884)
  * Range:     u8 n <= 399, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 4127 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* for calloc and free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -20,7 +22,7 @@ seq_t a(idx_t n)
        allocation is done with calloc so the elements are initialized
        to zero.  The pointer is cast explicitly, so the code compiles
        both as C11 and as C++17. */
-    seq_t *dp = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)n + 1);
     if (!dp) return (seq_t)0;       /* memory error fallback */
 
     dp[0] = (seq_t)1;               /* empty partition */
@@ -35,6 +37,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

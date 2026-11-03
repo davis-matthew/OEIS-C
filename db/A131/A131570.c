@@ -10,14 +10,28 @@
  *            decimal)
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 11, u64 n <= 13, u128 n <= 16,
  *            big any n
- * Helpers:   concat_plus_one
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/concat_plus_one.h"
+#include "../utils/mem.h"
+
+/* helper: concatenate x with x+1 in decimal (x is odd) */
+static seq_t concat_plus_one(seq_t x)
+{
+    seq_t y = x + 1;          /* y = x+1 */
+    seq_t pow10 = 1;
+    seq_t t = y;
+    while (t > 0) {          /* compute 10^digit_count(y) */
+        t /= 10;
+        pow10 *= 10;
+    }
+    return x * pow10 + y;
+}
 
 /* dynamic cache for the sequence values */
 static seq_t *cache = NULL;
@@ -32,13 +46,13 @@ static void ensure_capacity(size_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp)
         exit(EXIT_FAILURE);
     if (cache) {
         for (size_t i = 0; i < cache_len; ++i)
             tmp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = tmp;
     cache_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 7663, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   equal_2_and_8
+ * Validated: standard, pass, 68 terms through n = 9742 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/equal_2_and_8.h"
+#include "../utils/mem.h"
+
+/* Returns true if the base‑9 expansion of x contains the same
+   number of 2’s as 8’s (and at least one of each). */
+static inline bool equal_2_and_8(seq_t x)
+{
+    unsigned c2 = 0, c8 = 0;
+    const seq_t nine = (seq_t)9;
+
+    while (x > (seq_t)0) {
+        seq_t d = x % nine;
+        if (d == (seq_t)2) ++c2;
+        else if (d == (seq_t)8) ++c8;
+        x = x / nine;
+    }
+    return c2 == c8 && c2 > 0;
+}
 
 /* Return the nth term of the sequence (1‑based index). */
 seq_t a(idx_t n)
@@ -37,7 +54,7 @@ seq_t a(idx_t n)
         /* Resize cache if necessary. */
         if (len == cap) {
             size_t newcap = cap ? cap * 2 : 8;
-            seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp) abort();          /* allocation failure */
             cache = tmp;
             cap   = newcap;

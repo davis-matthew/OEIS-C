@@ -10,14 +10,17 @@
  *            upwards, testing each with mod_pow
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 87 terms through n = 9779 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
         seq_t xm = (seq_t)x;                     /* modulus in seq_t */
         uint64_t exp = (uint64_t)(x - (idx_t)1); /* exponent fits in 64 bits */
 
-        if (mod_pow(base, exp, xm) == (seq_t)1)
+        if (powmod(base, exp, xm) == (seq_t)1)
             return xm;                           /* found the pseudoprime */
     }
 }

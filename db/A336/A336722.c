@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = gcd(tau(n), sigma(n), pod(n))
- * Range:     u8 n <= 1824, u16 n <= 8111, u32 n <= 8111, u64 n <= 8111,
- *            u128 n <= 8111, big any n
- * Helpers:   _floor_isqrt_u64, divisor_count_u64, mod_pow, sigma_of
+ * Range:     u8 n <= 1824, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8111 (2026-11-01)
+ * Helpers:   isqrt, num_divisors, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,27 @@
 
 /* Include helpers from the utilities library */
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"   /* divisor_count_u64(uint64_t)   */
-#include "../utils/sigma_of.h"           /* sigma_of(uint64_t)           */
-#include "../utils/mod_pow.h"            /* mod_pow(seq_t, idx_t, seq_t) */
-#include "../utils/_floor_isqrt_u64.h"   /* _floor_isqrt_u64(uint64_t)   */
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/isqrt.h"
+#include "../utils/num_divisors.h"
+#include "../utils/powmod.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* Small gcd routine that works for all seq_t types */
 static inline seq_t _gcd_seq(seq_t a, seq_t b) {
@@ -43,7 +61,7 @@ seq_t a(idx_t n)
     uint64_t nn = (uint64_t)n;
 
     /* 1. τ(n) – number of divisors */
-    uint64_t tau = divisor_count_u64(nn);
+    uint64_t tau = num_divisors(nn);
 
     /* 2. σ(n) – sum of divisors */
     seq_t sigma = sigma_of(nn);
@@ -55,10 +73,10 @@ seq_t a(idx_t n)
     /* 4. Compute pod(n) modulo g */
     /*    pod(n) = n^{tau/2} * (sqrt(n) if tau odd) */
     idx_t exp_half = tau / 2;            /* floor(tau/2) */
-    seq_t pod_mod = mod_pow((seq_t)nn, exp_half, g);
+    seq_t pod_mod = powmod((seq_t)nn, exp_half, g);
 
     if (tau & 1U) {                      /* if tau is odd, multiply by sqrt(n) once */
-        uint64_t sqrt_n = _floor_isqrt_u64(nn);
+        uint64_t sqrt_n = isqrt(nn);
         pod_mod = (pod_mod * (seq_t)sqrt_n) % g;
     }
 

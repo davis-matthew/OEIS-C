@@ -9,7 +9,8 @@
  *            squarefree numbers
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 18, u64 n <= 33, u128 n <= 61,
  *            big any n
- * Helpers:   build_spf, gcd
+ * Validated: standard, pass, 45 terms through n = 1344 (2026-11-03)
+ * Helpers:   build_spf, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"           /* seq_t gcd(seq_t a, seq_t b) */
-#include "../utils/build_spf.h"     /* void build_spf(idx_t limit, idx_t **spf_out) */
+#include <stdint.h>
+#include "../utils/build_spf.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Cache for numerators a(1)..a(N) */
 static seq_t *num_cache = NULL;
@@ -47,7 +50,7 @@ static void grow_num_cache(size_t need)
     size_t new_cap = num_cap ? num_cap * 2 : 8;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(num_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, num_cache, new_cap);
     if (!tmp)
         abort();   /* memory exhausted */
     num_cache = tmp;

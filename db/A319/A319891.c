@@ -12,14 +12,29 @@
  *            8‑blocks
  * Range:     i8 n <= 2, i16 n <= 6, i32 n <= 23, i64 n <= 27, i128 n <= 27,
  *            big any n
- * Helpers:   falling_product
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/falling_product.h"
+
+static seq_t falling_product(seq_t start, idx_t len)
+{
+    seq_t res = 1;
+    for (idx_t i = 0; i < len; ++i) {
+        /* use 128‑bit intermediate if available to avoid
+           signed overflow in the 64‑bit build.  Casting to
+           a larger type is implementation defined for values
+           that do not fit, but for values that do fit the
+           intermediate will also fit, so the final result
+           is exact. */
+        res = (seq_t)((__int128)res * (start - (seq_t)i));
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

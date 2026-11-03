@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 24, u128 n <= 24,
+ * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   binom, catalan
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
+ * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,10 @@
  *   (C(a,b) is the binomial coefficient and Catalan(k) the k‑th Catalan number.)
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
 #include "../utils/catalan.h"
 
 seq_t a(idx_t n)
@@ -35,7 +39,7 @@ seq_t a(idx_t n)
     if (n & 1) {
         /* odd n = 2k+1 */
         idx_t k = (n - 1) / 2;
-        seq_t bin = binom(2 * n, n + 1);     /* C(2n , n+1) */
+        seq_t bin = binomial(2 * n, n + 1);     /* C(2n , n+1) */
         seq_t cat = catalan(k);              /* Catalan(k) */
         seq_t sum;
 
@@ -48,8 +52,8 @@ seq_t a(idx_t n)
     } else {
         /* even n = 2k */
         idx_t k = n / 2;
-        seq_t bin = binom(2 * n, n + 1);     /* C(2n , n+1) = C(4k , 2k+1) */
-        seq_t c2  = binom(2 * k, k);         /* C(2k , k)        */
+        seq_t bin = binomial(2 * n, n + 1);     /* C(2n , n+1) = C(4k , 2k+1) */
+        seq_t c2  = binomial(2 * k, k);         /* C(2k , k)        */
         seq_t sum;
 
         if (((k - 1) & 1) == 0) {             /* (-1)^(k-1) = +1 */

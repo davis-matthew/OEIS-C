@@ -9,7 +9,8 @@
  *            floor((k-3)*sqrt(3)) = 6
  * Range:     u8 none, u16 n <= 13, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,27 @@
    [n*r] - [3*r] - [n*r-3*r] with r = sqrt(3).) */
 
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"   /* provides seq_t floor_sqrt(seq_t); */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *a_cache  = NULL;   /* stored positions */
 static size_t a_len    = 0;       /* number of elements stored */
@@ -30,7 +51,7 @@ static void a_ensure_cap(size_t need) {
     if (a_cap >= need) return;
     size_t new_cap = a_cap ? a_cap << 1U : 16U;
     while (new_cap < need) new_cap <<= 1U;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) abort();              /* allocation failed */
     a_cache = tmp;
     a_cap   = new_cap;

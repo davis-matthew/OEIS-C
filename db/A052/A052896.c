@@ -7,13 +7,15 @@
  * Formula:   a(n) = ∑_{k=0..n} Stirling2(n,k)·(2^k-2), n≥1 (a(0)=0)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t  *Sarr   = NULL; /* current Stirling array S(n,·) */
 static size_t Slen   = 0;      /* size of Sarr  */
@@ -26,12 +28,12 @@ seq_t a(idx_t n)
     /* Lazy initialization for n = 0 */
     if (aval == NULL || Sarr == NULL) {
         /* a(0) = 0 */
-        aval  = (seq_t*)malloc(sizeof(seq_t));
+        aval  = mem_new(seq_t, 1);
         aval[0] = (seq_t)0;
         Alen = 1;
 
         /* S(0,0) = 1  */
-        Sarr = (seq_t*)malloc(sizeof(seq_t));
+        Sarr = mem_new(seq_t, 1);
         Sarr[0] = (seq_t)1;
         Slen = 1;
 
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     for (idx_t cur = computed + 1; cur <= n; ++cur) {
         size_t cur_len = (size_t)cur + 1;          /* new array length */
 
-        seq_t *newS = (seq_t*)malloc(sizeof(seq_t) * cur_len);
+        seq_t *newS = mem_new(seq_t, cur_len);
         if (!newS) return (seq_t)0;               /* allocation failure (unlikely) */
 
         /* S(cur,0) = 0 */
@@ -68,13 +70,13 @@ seq_t a(idx_t n)
         }
 
         /* store the new a(cur) value */
-        aval = (seq_t*)realloc(aval, sizeof(seq_t) * (cur + 1));
+        aval = mem_resize(seq_t, aval, (cur + 1));
         if (!aval) return (seq_t)0;                /* allocation failure */
         aval[cur] = a_cur;
         Alen = cur + 1;
 
         /* replace the old Stirling array */
-        free(Sarr);
+        mem_free(Sarr);
         Sarr = newS;
         Slen = cur_len;
 

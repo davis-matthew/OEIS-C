@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   extend_freq_array, extend_seq_t_array
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,35 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/extend_freq_array.h"
-#include "../utils/extend_seq_t_array.h"
+#include "../utils/mem.h"
+
+/* Same for a frequency array of unsigned char. */
+static void
+extend_freq_array(unsigned char **arr, size_t *cap, size_t needed)
+{
+    if (*cap > needed) return;
+    size_t new_cap = needed + 1;
+    unsigned char *tmp = (unsigned char *)realloc(*arr, new_cap * sizeof(unsigned char));
+    if (tmp == NULL) abort();
+    memset(tmp + *cap, 0, (new_cap - *cap) * sizeof(unsigned char));
+    *arr = tmp;
+    *cap = new_cap;
+}
+
+/* Helper to extend a seq_t array, keeping unused elements zero‑initialised. */
+static void
+extend_seq_t_array(seq_t **arr, size_t *cap, size_t needed)
+{
+    /* Use 1‑based indexing; capacity is the array length. */
+    if (*cap > needed) return;
+    size_t new_cap = needed + 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (tmp == NULL) abort();               /* allocation failure */
+    /* zero the new part */
+    mem_set(tmp + *cap, 0, (new_cap - *cap) * sizeof(seq_t));
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 /* The sequence function */
 seq_t a(idx_t n)

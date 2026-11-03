@@ -9,7 +9,8 @@
  *            exponentially odd number (OEIS A380326)
  * Range:     u8 n <= 99, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9841 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- Global data structures ---------- */
 static const unsigned LIMIT = 2000000;       /* upper bound for sieve */
@@ -108,11 +110,11 @@ static void ensure_cache_len(size_t need)
     if (cache_len >= need) return;
     size_t new_len = need > cache_len ? need : cache_len * 2;
     if (new_len < 16) new_len = 16;
-    seq_t *new_arr = (seq_t*)malloc(new_len * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_len);
     if (cache_len > 0) {
         for (size_t i = 0; i < cache_len; ++i) new_arr[i] = seq_cache[i];
     }
-    free(seq_cache);
+    mem_free(seq_cache);
     seq_cache = new_arr;
     cache_len = new_len;
 }

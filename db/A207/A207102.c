@@ -12,13 +12,15 @@
  *            +5*a(n-21) -2*a(n-22) -3*a(n-23) -a(n-24)
  * Range:     u8 n <= 3, u16 n <= 14, u32 n <= 145, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 168 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[25] = {
     0,          /* unused index 0 */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* initialize cache with the first 24 terms */
     if (cache == NULL) {
         size_t init_len = 24;
-        cache = (seq_t*)calloc(init_len + 2, sizeof(seq_t));
+        cache = mem_new(seq_t, init_len + 2);
         if (cache == NULL) return 0;    /* allocation failure */
         for (idx_t i = 1; i <= init_len; ++i)
             cache[i] = init_vals[i];
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* extend cache if necessary */
     if (n > cache_len) {
         size_t new_len = (size_t)n;
-        seq_t *tmp = (seq_t*)realloc(cache, (new_len + 2) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_len + 2));
         if (tmp == NULL) return 0;      /* allocation failure */
         cache = tmp;
         /* compute missing terms using the recurrence */

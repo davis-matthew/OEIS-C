@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto, mod_mul
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   build_primes_upto, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,17 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_mul.h"
-#include "../utils/_prime_limit_for_idx.h"
+#include <math.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mulmod.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 /*  Compute F(n)  and  F(n+1)  modulo  mod.
  *  Results returned via the pointers *f and *f1.  */
@@ -40,8 +49,8 @@ static void fib_pair_mod(idx_t n, uint64_t mod, uint64_t *f, uint64_t *f1)
 
     /*  Compute F(2k) and F(2k+1) using the doubling formulas.  */
     uint64_t t = ((2 * b) % mod + mod - a) % mod;          /* 2*b – a (mod) */
-    uint64_t c = mod_mul(a, t, mod);                       /* F(2k)      */
-    uint64_t d = (mod_mul(a, a, mod) + mod_mul(b, b, mod)) % mod; /* F(2k+1) */
+    uint64_t c = mulmod(a, t, mod);                       /* F(2k)      */
+    uint64_t d = (mulmod(a, a, mod) + mulmod(b, b, mod)) % mod; /* F(2k+1) */
 
     if (n & 1) {
         *f  = d;                       /* F(2k+1)    */

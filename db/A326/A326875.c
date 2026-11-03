@@ -8,7 +8,8 @@
  *            binary indices is closed under bitwise OR
  * Range:     u8 n <= 62, u16 n <= 2481, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 2932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return true iff the integer n satisfies the BII property
    (the set of positions of its 1‑bits is closed under bitwise OR). */
@@ -65,12 +67,12 @@ seq_t a(idx_t n)
         if (is_bii(next)) {
             if (seq_len >= seq_cap) {
                 size_t newcap = seq_cap ? seq_cap * 2 : 8;
-                seq_t *newarr = (seq_t *)malloc(newcap * sizeof(seq_t));
+                seq_t *newarr = mem_new(seq_t, newcap);
                 if (!newarr)
                     abort();
                 if (seq)
-                    memcpy(newarr, seq, seq_len * sizeof(seq_t));
-                free(seq);
+                    mem_copy(newarr, seq, seq_len * sizeof(seq_t));
+                mem_free(seq);
                 seq = newarr;
                 seq_cap = newcap;
             }

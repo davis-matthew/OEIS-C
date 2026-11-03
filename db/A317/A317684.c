@@ -8,8 +8,8 @@
  *            unordered non‑negative solutions to k = a^2 + b^2
  * Range:     u8 n <= 2540, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, alloc_seq_array, build_primes_upto,
- *            free_seq_array
+ * Validated: standard, pass, 97 terms through n = 9667 (2026-11-03)
+ * Helpers:   build_primes_upto, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +19,21 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static idx_t current_max = 0;          /* largest n that has been processed */
 static seq_t *sums       = NULL;       /* array of A000161 values up to current_max */
@@ -47,11 +58,11 @@ static void ensure_upto(idx_t n)
         new_sums[i] = 0;
 
     /* Compute A000161(k) for 0 <= k <= n */
-    idx_t a_lim = _floor_isqrt_u64(n);
+    idx_t a_lim = isqrt(n);
     for (idx_t a = 0; a <= a_lim; ++a) {
         idx_t a2  = a * a;
         idx_t rem = n - a2;                     /* remaining part to be b^2 */
-        idx_t b_lim = _floor_isqrt_u64(rem);
+        idx_t b_lim = isqrt(rem);
         for (idx_t b = a; b <= b_lim; ++b) {
             idx_t sum = a2 + b * b;             /* a^2 + b^2 <= n */
             new_sums[sum] += 1;                 /* unordered pair counted once */

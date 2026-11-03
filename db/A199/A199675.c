@@ -9,7 +9,8 @@
  *            binom(n,k)·(-1)^{k+1}·a(n−k)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* This recurrence follows from exp‑generating‑function inversion: */
 #include <stdlib.h>   /* for malloc, realloc */
 #include <stdint.h>  /* for uintptr_t if needed */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* memoised values a(0)…a(N)    */
 static idx_t  cache_len = 0;    /* number of entries in cache   */
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     /* allocate (and extend) cache if necessary */
     if (n + 1 > cache_len) {
         idx_t new_len = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) {
             /* allocation failure – abort (runtime error) */
             exit(EXIT_FAILURE);

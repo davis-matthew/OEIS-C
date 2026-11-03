@@ -9,7 +9,8 @@
  *            is the exponent of 2 in the prime power decomposition of n
  * Range:     u8 n <= 119, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_plus_one
+ * Validated: standard, pass, 85 terms through n = 9853 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/pow_plus_one.h"
+
+/* Compute p^e + 1 using seq_t arithmetic.  p and e are ordinary
+   integers; the result is returned as seq_t. */
+static seq_t pow_plus_one(uint64_t p, uint64_t e)
+{
+    seq_t r = 1;
+    for (uint64_t i = 0; i < e; ++i) {
+        r *= (seq_t)p;
+    }
+    return r + 1;
+}
 
 /* Maximum number of primes below 1 000 000 – sufficient for factoring
    numbers up to 10 000 though this implementation works for any 64‑bit n. */

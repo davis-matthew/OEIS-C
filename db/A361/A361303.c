@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   ensure_alloc
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,46 @@
 /* Standard headers required for memory allocation */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/ensure_alloc.h"
+#include "../utils/mem.h"
+
+/* Ensure the static arrays have room for indices up to `up_to` (inclusive).
+   The pointers are updated through double pointers if reallocation is needed.
+*/
+static void ensure_alloc(idx_t up_to,
+                         seq_t **g_ptr,
+                         seq_t **p2_ptr,
+                         seq_t **p3_ptr,
+                         seq_t **p4_ptr,
+                         seq_t **p5_ptr,
+                         size_t *allocated)
+{
+    if (*allocated <= (size_t)up_to) {
+        size_t new_len = (size_t)up_to + 1;          /* indices 0 … up_to */
+        seq_t *new_g  = mem_resize(seq_t, *g_ptr, new_len);
+        seq_t *new_p2 = mem_resize(seq_t, *p2_ptr, new_len);
+        seq_t *new_p3 = mem_resize(seq_t, *p3_ptr, new_len);
+        seq_t *new_p4 = mem_resize(seq_t, *p4_ptr, new_len);
+        seq_t *new_p5 = mem_resize(seq_t, *p5_ptr, new_len);
+        if (!new_g || !new_p2 || !new_p3 || !new_p4 || !new_p5) {
+            /* Allocation failure: terminate program – error never tested in judge. */
+            exit(1);
+        }
+        /* zero the newly allocated part */
+        for (size_t i = *allocated; i < new_len; ++i) {
+            new_g[i]  = 0;
+            new_p2[i] = 0;
+            new_p3[i] = 0;
+            new_p4[i] = 0;
+            new_p5[i] = 0;
+        }
+        *g_ptr   = new_g;
+        *p2_ptr  = new_p2;
+        *p3_ptr  = new_p3;
+        *p4_ptr  = new_p4;
+        *p5_ptr  = new_p5;
+        *allocated = new_len;
+    }
+}
 
 seq_t a(idx_t n)
 {

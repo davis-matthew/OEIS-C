@@ -7,6 +7,7 @@
  * Formula:   Sum of divisors of 5*n-2 that are ≡1 (mod 5)
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,6 +11,7 @@
  *            exponents on 5, 13, 17, 29, ..., and B >= 2n-...
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 72, u64 n <= 2560,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 48 terms through n = 9920 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

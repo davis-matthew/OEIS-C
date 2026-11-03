@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 26 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*                     Prime generation (simple sieve)                 */
@@ -81,8 +83,8 @@ static void ensure_cache(idx_t n)
         size_t new_cap = prim_cap ? prim_cap * 2 : 4;
         while (new_cap < (size_t)n) new_cap <<= 1;
 
-        prim_array = (seq_t*)realloc(prim_array, (new_cap + 1) * sizeof(seq_t));
-        prod_array = (seq_t*)realloc(prod_array, (new_cap + 1) * sizeof(seq_t));
+        prim_array = mem_resize(seq_t, prim_array, (new_cap + 1));
+        prod_array = mem_resize(seq_t, prod_array, (new_cap + 1));
         prim_cap = prod_cap = new_cap;
     }
 

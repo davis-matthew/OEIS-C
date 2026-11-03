@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of partitions of n into parts 8,10,11,12
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;      /* dynamic array holding the table   */
 static idx_t  dp_max = 0;     /* largest index currently computed */
@@ -33,17 +35,17 @@ static void ensure_dp_size(idx_t n)
     /* Allocate (or grow) the buffer.  */
     if (dp == NULL) {
         size_t sz = (size_t)(n + 1);
-        dp = (seq_t *)calloc(sz, sizeof(seq_t));
+        dp = mem_new(seq_t, sz);
         if (!dp) exit(1);                 /* allocation failure */
         dp[0] = 1;
         dp_max = 0;
     } else if (n > dp_max) {
         size_t old_sz = (size_t)(dp_max + 1);
         size_t new_sz = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(dp, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_sz);
         if (!tmp) exit(1);                 /* allocation failure */
         /* Zero the newly added portion.  */
-        memset(tmp + old_sz, 0, (new_sz - old_sz) * sizeof(seq_t));
+        mem_set(tmp + old_sz, 0, (new_sz - old_sz) * sizeof(seq_t));
         dp = tmp;
     }
 

@@ -11,14 +11,34 @@
  *            the next prime after p
  * Range:     u8 n <= 47, u16 n <= 447, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   floor_sqrt, next_prime
+ * Validated: standard, pass, 96 terms through n = 7974 (2026-11-01)
+ * Helpers:   ipow_i32, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_sqrt.h"
+#include <stdbool.h>
+#include "../utils/ipow_i32.h"
 #include "../utils/next_prime.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Return the largest prime factor of x.  For x <= 1 the result is x itself. */
 static seq_t largest_prime_factor(seq_t x) {

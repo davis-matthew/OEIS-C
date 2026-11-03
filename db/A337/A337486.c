@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 103, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_factors, subtract_factors
+ * Validated: standard, pass, 84 terms through n = 9653 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,8 +31,29 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_factors.h"
-#include "../utils/subtract_factors.h"
+
+/* Check whether the multiset 'counts' contains all required primes
+   with sufficient multiplicities for candidate 'n' (whose factorization
+   given in idx_arr/exp_arr/cnt).  */
+static bool has_factors(int *counts, int32_t *idx_arr, int *exp_arr, int cnt)
+{
+    for (int i = 0; i < cnt; ++i) {
+        int32_t pi = idx_arr[i];
+        int e = exp_arr[i];
+        if (counts[pi] < e)
+            return false;
+    }
+    return true;
+}
+
+static void subtract_factors(int *counts, int32_t *idx_arr, int *exp_arr, int cnt)
+{
+    for (int i = 0; i < cnt; ++i) {
+        int32_t pi = idx_arr[i];
+        int e = exp_arr[i];
+        counts[pi] -= e;
+    }
+}
 
 /* Maximum prime we will sieve.  This is comfortably
    larger than all primes needed for n up to about 10000. */

@@ -11,17 +11,35 @@
  *            solution mod 13ᵐ, * obtain the solution mod 13ᵐ⁺¹
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 8, u64 n <= 17, u128 n <= 18,
  *            big any n
- * Helpers:   mul_small_int_seq, mul_small_int_small, pow_mul_seq,
- *            pow_mul_small
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mul_small_int_seq.h"
-#include "../utils/mul_small_int_small.h"
-#include "../utils/pow_mul_seq.h"
-#include "../utils/pow_mul_small.h"
+
+/* helper: arbitrary‑precision multiplication by a single unsigned int ----------------- */
+static inline seq_t mul_small_int_seq(seq_t a, unsigned int b) {
+    return a * (seq_t)b;
+}
+
+/* helper: small‑integer multiplication by a single unsigned int -------------------- */
+static inline seq_t mul_small_int_small(uint64_t a, unsigned int b) {
+    unsigned __int128 prod = (unsigned __int128)a * b;
+    return (seq_t)prod;
+}
+
+/* helper: arbitrary‑precision multiplication by 13 ---------------------------------- */
+static inline seq_t pow_mul_seq(seq_t a) {
+    return a * (seq_t)13;
+}
+
+/* helper: small‑integer multiplication by 13 -------------------------------------- */
+static inline seq_t pow_mul_small(uint64_t a) {
+    unsigned __int128 prod = (unsigned __int128)a * 13;
+    return (seq_t)prod;
+}
 
 /* helper: small‑integer modular multiplication ---------------------------------- */
 static inline seq_t mul_mod_small(uint64_t a, uint64_t b, uint64_t mod) {

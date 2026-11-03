@@ -9,7 +9,8 @@
  *            the parts)
  * Range:     u8 n <= 33, u16 n <= 119, u32 n <= 411, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 917 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  *  whose parts all contain that bit, then summing 2^k times that count.    */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t  computed_max   = 0;     /* largest n for which a(seq) is known           */
 static seq_t *a_cache        = NULL;  /* computed values of a(n) up to computed_max  */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Handle n==0 specially (empty partition) */
     if (n == 0) {
         if (!a_cache) {
-            a_cache = (seq_t *)malloc(sizeof(seq_t));
+            a_cache = mem_new(seq_t, 1);
             a_cache[0] = 0;
             computed_max = 0;
         }
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (a_cache == NULL || n > computed_max)
     {
         /* Allocate array for a(n) */
-        seq_t *new_a = (seq_t *)realloc(a_cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_cache, (n + 1));
         if (!new_a) return 0;          /* allocation failed – give up */
         a_cache = new_a;
 
@@ -52,14 +54,14 @@ seq_t a(idx_t n)
 
         /* Free old g_cache tables, if any */
         if (g_cache) {
-            for (int i = 0; i < cached_bits; ++i) free(g_cache[i]);
+            for (int i = 0; i < cached_bits; ++i) mem_free(g_cache[i]);
             free(g_cache);
         }
 
         /* Allocate new tables for each bit */
         g_cache = (seq_t **)malloc(bits_count * sizeof(seq_t *));
         for (int b = 0; b < bits_count; ++b)
-            g_cache[b] = (seq_t *)calloc(n + 1, sizeof(seq_t));
+            g_cache[b] = mem_new(seq_t, n + 1);
 
         cached_bits = bits_count;
 

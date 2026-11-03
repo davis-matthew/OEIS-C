@@ -7,9 +7,10 @@
  * Keywords:  sign
  * Formula:   a(n) = -Sum_{d|n, d < n} bigomega(n/d) * a(d) a(1) = 1 (OEIS
  *            A334744)
- * Range:     i8 n <= 8639, i16 n <= 9503, i32 n <= 9503, i64 n <= 9503,
- *            i128 n <= 9503, big any n
- * Helpers:   bigomega
+ * Range:     i8 n <= 8639, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 108 terms through n = 9503 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/bigomega.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* Cached sequence values, 1‑based   */
 static size_t cache_cap = 0;     /* Current allocated size (index 0 unused) */
@@ -27,7 +29,7 @@ static void ensure_cache_size(idx_t n)
 {
     size_t needed = (size_t)(n + 1);   /* +1 because index 0 is unused */
     if (cache_cap < needed) {
-        seq_t *new_cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, needed);
         if (!new_cache) {
             /* Out of memory: terminate */
             abort();

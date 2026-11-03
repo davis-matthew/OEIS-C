@@ -9,8 +9,9 @@
  *            up to n, marks which numbers are semiprime (Omega == 2), and
  *            then counts the pairs i, n-i with i <= n/2. The array is grown
  *            only when a larger n is requested, so repeate...
- * Range:     u8 n <= 3779, u16 n <= 9956, u32 n <= 9956, u64 n <= 9956,
- *            u128 n <= 9956, big any n
+ * Range:     u8 n <= 3779, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 122 terms through n = 9956 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

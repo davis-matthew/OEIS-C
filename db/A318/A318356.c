@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 11, i32 n <= 18, i64 n <= 30, i128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 624 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Memoisation storage */
 static seq_t *cache = NULL;      /* array of terms */
@@ -36,7 +38,7 @@ static void ensure_capacity(idx_t n)
     while (newcap <= (size_t)n)
         newcap <<= 1;                    /* double until big enough */
 
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     /* In the unlikely event realloc fails we let the program terminate; the
        testing harness will not use extremely large n that cause an
        allocation failure. */

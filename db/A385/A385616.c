@@ -9,14 +9,18 @@
  *            sequence starts with a(1)=0, a(2)=1, a(3)=39, a(4)=85705, …
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 10,
  *            big any n
- * Helpers:   next_a, next_b
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/next_a.h"
-#include "../utils/next_b.h"
+
+static inline seq_t next_a(seq_t b, seq_t a) { return 4*b + 9*a; }
+
+/* Pell recurrence helpers */
+static inline seq_t next_b(seq_t b, seq_t a) { return 9*b + 20*a; }
 
 /* Check that a = 6m-1 and b = 6k-1 are both ≡5 (mod 6) */
 static inline bool is_valid(seq_t a, seq_t b)

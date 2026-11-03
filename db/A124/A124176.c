@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 172, u32 n <= 172, u64 n <= 172,
  *            u128 n <= 172, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 163 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute one step of the map f */
 static inline seq_t f(seq_t x)
@@ -90,7 +92,7 @@ static void ensure_capacity(void)
 {
     if (seq_len >= seq_cap) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 64;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) abort();
         seq_cache = tmp;
         seq_cap   = new_cap;

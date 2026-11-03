@@ -8,6 +8,7 @@
  * Formula:   a(n) = n*11184810 + 7629217
  * Range:     u8 none, u16 none, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

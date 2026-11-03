@@ -9,13 +9,15 @@
  *            tetrahedral number is greedy‑summable
  * Range:     u8 n <= 6, u16 n <= 47, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 973 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 
 static seq_t *tetra = NULL;      /* 1‑based tetrahedral numbers, tetra[0] unused */
@@ -35,7 +37,7 @@ static void ensure_tetra(idx_t k)
         size_t new_cap = tetra_cap ? tetra_cap << 1 : 64;
         while (new_cap <= (size_t)k)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(tetra, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, tetra, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         tetra = tmp;
         tetra_cap = new_cap;
@@ -70,7 +72,7 @@ static void grow_found(size_t needed)
         size_t new_cap = found_cap ? found_cap << 1 : 64;
         while (new_cap < needed)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(found, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, found, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         found = tmp;
         found_cap = new_cap;

@@ -12,6 +12,7 @@
  *            rows. No explicit recurrence is needed
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 23, u128 n <= 48,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 203 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

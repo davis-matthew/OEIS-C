@@ -13,7 +13,8 @@
  *            7^7=823543. For each row we pre–compute all admissib...
  * Range:     u8 none, u16 none, u32 n <= 3, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   is_abs_diff
+ * Validated: standard, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_abs_diff.h"
+#include "../utils/mem.h"
+
+/* helper: absolute value for signed integers */
+static inline int is_abs_diff(int a, int b) { return (a>b)?(a-b):(b-a); }
 
 /* pre–computation of allowed (c,d) for each top pair (a,b) */
 #define MAX_ALLOWED 10
@@ -115,7 +119,7 @@ static void dp_step(void)
     ++cur_n;
     if (cur_n >= ansCacheSize) {
         size_t newSize = cur_n + 1;
-        ansCache = (seq_t *)realloc(ansCache, newSize * sizeof(seq_t));
+        ansCache = mem_resize(seq_t, ansCache, newSize);
         ansKnown = (bool *)realloc(ansKnown, newSize * sizeof(bool));
         for (size_t k = ansCacheSize; k < newSize; ++k) ansKnown[k] = false;
         ansCacheSize = newSize;
@@ -176,14 +180,14 @@ static void init(void)
     }
 
     /* DP buffers */
-    dp_cur = (seq_t *)malloc(ROWS * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(ROWS * sizeof(seq_t));
+    dp_cur = mem_new(seq_t, ROWS);
+    dp_next = mem_new(seq_t, ROWS);
     for (size_t i = 0; i < ROWS; ++i) dp_cur[i] = 1;   /* initial state */
     cur_n = 0;
 
     /* answer cache */
     ansCacheSize = 1;
-    ansCache = (seq_t *)malloc(ansCacheSize * sizeof(seq_t));
+    ansCache = mem_new(seq_t, ansCacheSize);
     ansKnown = (bool *)malloc(ansCacheSize * sizeof(bool));
     ansCache[0] = 0;        /* unused */
     ansKnown[0] = true;
@@ -198,7 +202,7 @@ seq_t a(idx_t n)
 
     if (n >= ansCacheSize) {
         size_t newSize = n + 1;
-        ansCache = (seq_t *)realloc(ansCache, newSize * sizeof(seq_t));
+        ansCache = mem_resize(seq_t, ansCache, newSize);
         ansKnown = (bool *)realloc(ansKnown, newSize * sizeof(bool));
         for (size_t k = ansCacheSize; k < newSize; ++k) ansKnown[k] = false;
         ansCacheSize = newSize;

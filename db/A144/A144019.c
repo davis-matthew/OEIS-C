@@ -11,13 +11,15 @@
  *            3*S[i-1] + S[i-2] for i>=4
  * Range:     u8 n <= 27, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Find the row r for a given index n: cumulative number of elements
    up to row r is r*(r+1)/2.  Uses binary search on 128‑bit product. */
@@ -56,15 +58,15 @@ ensure_arrays(idx_t need)
         return;
 
     /* Allocate new arrays; cast for C++. */
-    seq_t *newP = (seq_t *)malloc((need + 1) * sizeof(seq_t));
-    seq_t *newS = (seq_t *)malloc((need + 1) * sizeof(seq_t));
+    seq_t *newP = mem_new(seq_t, (need + 1));
+    seq_t *newS = mem_new(seq_t, (need + 1));
     if (!newP || !newS) {
-        free(newP); free(newS);
+        mem_free(newP); mem_free(newS);
         return;
     }
     /* Free old arrays if they exist */
-    free(P);
-    free(S);
+    mem_free(P);
+    mem_free(S);
     P = newP;
     S = newS;
 

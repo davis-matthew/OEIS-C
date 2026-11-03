@@ -8,8 +8,9 @@
  * Formula:   a(n) = A000217(A160384(n)) + A081603(n) + 1 where A160384(n) is
  *            the number of nonzero ternary digits of n and A081603(n) is the
  *            number of 2's in the ternary expansion of n
- * Range:     u8 n <= 9411, u16 n <= 9411, u32 n <= 9411, u64 n <= 9411,
- *            u128 n <= 9411, big any n
+ * Range:     u8 n <= 19682, u16 n <= 19682, u32 n <= 19682, u64 n <= 19682,
+ *            u128 n <= 19682, big any n
+ * Validated: standard, pass, 96 terms through n = 9411 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

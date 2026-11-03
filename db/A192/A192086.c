@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 29, u64 n <= 2500, u128 n <= 2500,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 2277 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stddef.h>   /* size_t, NULL */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* Count 1‑bits in a seq_t value.  Works for unsigned integer
    types and any type satisfying the required operators. */
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         if (pc_cube < pc_sq) {
             if (len == cap) {
                 size_t new_cap = (cap == 0) ? 64 : cap * 2;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 terms = tmp;
                 cap   = new_cap;
             }

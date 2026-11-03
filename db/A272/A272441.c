@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   not stated
- * Range:     u8 n <= 22, u16 n <= 623, u32 n <= 8601, u64 n <= 8601,
- *            u128 n <= 8601, big any n
- * Helpers:   none
+ * Range:     u8 n <= 22, u16 n <= 623, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 66 terms through n = 8601 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* helper: primality test for 64‑bit values (deterministic) */
 static bool is_prime_uint64(uint64_t n)
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
                 /* store prime into cache */
                 if (len == (idx_t)cap) {
                     size_t newCap = (cap == 0) ? 4 : cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(primes, newCap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, primes, newCap);
                     if (!tmp) abort();
                     primes = tmp;
                     cap = newCap;

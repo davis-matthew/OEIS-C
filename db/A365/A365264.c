@@ -9,7 +9,8 @@
  *            is the number of positive divisors of m
  * Range:     u8 n <= 239, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 96 terms through n = 9603 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
    are defined as described in the problem statement. */
 
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 /*--------------------------------------------------------------------
  * a(n) – smallest integer k such that d(k) > d(n)
@@ -30,12 +31,12 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* divisor count of n (converted to seq_t to keep types uniform)   */
-    seq_t sigma_n = (seq_t)divisor_count_u64((uint64_t)n);
+    seq_t sigma_n = (seq_t)num_divisors((uint64_t)n);
 
     /* search from 1 upward for the first k with a larger divisor count */
     idx_t k = 1;
     for (;; ++k) {
-        seq_t sigma_k = (seq_t)divisor_count_u64((uint64_t)k);
+        seq_t sigma_k = (seq_t)num_divisors((uint64_t)k);
         if (sigma_k > sigma_n)
             return (seq_t)k;
     }

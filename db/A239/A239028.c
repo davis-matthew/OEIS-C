@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 23, u128 n <= 45,
  *            big any n
- * Helpers:   state_to_digits
+ * Validated: standard, pass, 37 terms through n = 205 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,15 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/state_to_digits.h"
+
+/* Convert a state index 0..728 into its 6 ternary digits. */
+static void state_to_digits(uint16_t idx, unsigned char out[6])
+{
+    for (int j = 5; j >= 0; --j) {
+        out[j] = idx % 3;
+        idx   /= 3;
+    }
+}
 
 /* Pre‑computed powers of 3 for state encoding. */
 static const unsigned char MULT[6] = {243, 81, 27, 9, 3, 1};

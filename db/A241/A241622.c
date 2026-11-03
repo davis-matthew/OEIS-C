@@ -11,12 +11,14 @@
  *            +120x^6-45x^7+10x^8-x^9)/(1-x)^10
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 21, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 40 terms through n = 198 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     for (int j = 0; j < 10; ++j) {
         idx_t top = n + 8 - (idx_t)j;          // n+8-j
         if (top < 9) continue;                // binom(a,b)=0 if a<b
-        seq_t bin = binom(top, (idx_t)9);
+        seq_t bin = binomial(top, (idx_t)9);
 
         int c = coeff[j];
         if (c >= 0)

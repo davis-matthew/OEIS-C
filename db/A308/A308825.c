@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   seq_free
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,11 +22,15 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_free.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 /* Helper to allocate an array of seq_t with given length */
 static seq_t* seq_alloc(size_t len) {
-    return (seq_t*)malloc(len * sizeof(seq_t));
+    return mem_new(seq_t, len);
 }
 
 /* Helper to free an array of seq_t */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 21, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,12 +18,13 @@
    (i.e. m is not a prime nor a prime power of exponent 1, 2, or 3). */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"   /* bool is_prime(uint64_t n); */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 static bool is_valid_base(idx_t m)
 {
     /* Reject primes */
-    if (is_prime((uint64_t)m))
+    if (is_prime_u64((uint64_t)m))
         return false;
 
     /* Find first prime divisor */

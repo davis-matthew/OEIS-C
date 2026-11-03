@@ -8,8 +8,9 @@
  * Formula:   a(n) = the n-th integer k such that gcd(k, sigma(4*k^2)) > 1
  *            (sigma = sum of divisors, A000203). This function searches k =
  *            1,2,3,... and returns the n-th term of that sequence
- * Range:     u8 none, u16 n <= 10, u32 n <= 4850, u64 n <= 9141,
- *            u128 n <= 9141, big any n
+ * Range:     u8 none, u16 n <= 10, u32 n <= 4850, u64 n <= 12241,
+ *            u128 n <= 12241, big any n
+ * Validated: standard, pass, 74 terms through n = 9141 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 148, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   forb_contains, insert_sorted
+ * Validated: standard, pass, 80 terms through n = 9440 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,52 @@
    forbidden by previous terms.  */
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/forb_contains.h"
-#include "../utils/insert_sorted.h"
+#include "../utils/mem.h"
+
+/* Return 1 if x is present in a[0..len-1] (array must be sorted) */
+static int forb_contains(const seq_t *a, size_t len, seq_t x)
+{
+    size_t lo = 0, hi = len;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        seq_t midv = a[mid];
+        if (midv < x)
+            lo = mid + 1;
+        else if (x < midv)
+            hi = mid;
+        else
+            return 1;
+    }
+    return 0;
+}
+
+/* Insert val into sorted array (a,len,cap) updating len and allocating
+   more space if required.  The array pointer may change, therefore it
+   is passed as a pointer to pointer.  */
+static void insert_sorted(seq_t **a, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len >= *cap) {
+        *cap = (*cap == 0) ? 16 : (*cap << 1);
+        *a   = mem_resize(seq_t, *a, (*cap * sizeof(seq_t)) / sizeof(seq_t));
+    }
+
+    /* find insertion point (lower bound) */
+    size_t lo = 0, hi = *len;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if ((*a)[mid] < val)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+
+    /* shift elements to make room */
+    for (size_t i = *len; i > lo; --i)
+        (*a)[i] = (*a)[i - 1];
+
+    (*a)[lo] = val;
+    (*len)++;
+}
 
 /* static arrays that hold the computed sequence and the forbidden values
    We keep them sorted so we can binary‑search (forb_contains) and
@@ -42,10 +87,10 @@ seq_t a(idx_t n)
     /* Initialise static storage on first call */
     if (seq_len == 0) {
         seq_cap = 16;
-        seq     = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq     = mem_new(seq_t, seq_cap);
 
         forb_cap = 32;
-        forb     = (seq_t *)malloc(forb_cap * sizeof(seq_t));
+        forb     = mem_new(seq_t, forb_cap);
 
         /* a(1) = 1 */
         seq[0] = (seq_t)1;
@@ -68,7 +113,7 @@ seq_t a(idx_t n)
         /* append the new term */
         if (seq_len >= seq_cap) {
             seq_cap <<= 1;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len++] = candidate;
 

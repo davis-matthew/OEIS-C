@@ -10,7 +10,8 @@
  *            51: a(n) = 36 · Σ_{k=1}^{49} a(n-k) – 666 · a(n-50)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 171 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <stdint.h>   /* uint64_t */
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build */
 typedef uint64_t idx_t;
@@ -38,8 +40,8 @@ static void ensure_capacity(size_t needed)
     while (new_cap < needed + 1)
         new_cap <<= 1;
 
-    seq_t *new_a  = (seq_t *)realloc(a_arr,  new_cap * sizeof(seq_t));
-    seq_t *new_cu = (seq_t *)realloc(cum_arr, new_cap * sizeof(seq_t));
+    seq_t *new_a  = mem_resize(seq_t, a_arr, new_cap);
+    seq_t *new_cu = mem_resize(seq_t, cum_arr, new_cap);
     if (!new_a || !new_cu) {
         /* On allocation failure, abort to avoid undefined behaviour. */
         abort();

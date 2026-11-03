@@ -9,15 +9,17 @@
  * Formula:   a(n) = n^(A336774(n)-1) where A336774(n) is the index of the
  *            largest power such that every n^k (k≤A336774(n)-1) is exactly
  *            representable as a IEEE‑754 binary32 floating point number
- * Range:     u8 none, u16 none, u32 none, u64 none, u128 n <= 8929, big any n
- * Helpers:   pow_uint
+ * Range:     u8 none, u16 none, u32 none, u64 none, u128 n <= 16384,
+ *            big any n
+ * Validated: standard, pass, 31 terms through n = 8929 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -72,5 +74,5 @@ seq_t a(idx_t n)
     }
 
     /* Return the required power using the provided utility routine. */
-    return pow_uint(n, bestK);
+    return ipow_u64_idx(n, bestK);
 }

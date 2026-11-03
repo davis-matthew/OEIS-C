@@ -9,12 +9,14 @@
  *            a(0)=2, a(1)=0, a(2)=3, a(3)=1
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 31, u64 n <= 61, u128 n <= 121,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 944 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_capacity = 0;
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Make sure the cache is at least big enough for the four base terms */
     if (cache_capacity < 4) {
         idx_t init_cap = 4;
-        seq_t *tmp = (seq_t *)realloc(cache, init_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, init_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_capacity = init_cap;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Grow the cache to include the needs of the requested index */
     idx_t old_cap = cache_capacity;
     idx_t new_cap = n + 1;                      /* index n needs storage for n+1 elements */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_capacity = new_cap;

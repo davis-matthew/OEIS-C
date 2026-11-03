@@ -12,14 +12,27 @@
  *            represen...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 11, u128 n <= 13,
  *            big any n
- * Helpers:   digit_len, is_squarefree, pow10
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
+ * Helpers:   is_squarefree, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_squarefree.h"
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -40,7 +53,7 @@ seq_t a(idx_t n)
                 result = (seq_t)cand;
                 first = false;
             } else {
-                int d = digit_len((seq_t)cand);      /* number of decimal digits of cand */
+                int d = num_digits((seq_t)cand);      /* number of decimal digits of cand */
                 seq_t ten_pow = pow10((idx_t)d);     /* 10^d as seq_t */
                 result = result * ten_pow + (seq_t)cand;
             }

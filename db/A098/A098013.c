@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 3563, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 111 terms through n = 9405 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"   /* bool is_prime_small(uint64_t) */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Cached differences and state for incremental generation */
 static seq_t *gap_cache   = NULL;
@@ -34,7 +36,7 @@ static void ensure_gap_cap(size_t need)
     if (gap_cap >= need) return;
     size_t new_cap = gap_cap ? gap_cap * 2 : 16;
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(gap_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, gap_cache, new_cap);
     gap_cache = tmp;
     gap_cap   = new_cap;
 }
@@ -44,7 +46,7 @@ static void generate_terms(idx_t n)
 {
     while (gap_cnt < (size_t)n) {
         /* Find next prime */
-        while (!is_prime_small(next_candidate))
+        while (!is_prime_seq(next_candidate))
             next_candidate += 2;
 
         uint64_t cur_prime = next_candidate;
@@ -54,7 +56,7 @@ static void generate_terms(idx_t n)
         uint64_t diff = cur_prime - last_prime;
         if ((diff & 1u) == 0) {              /* even gap only can be 2*prime */
             uint64_t half = diff / 2;
-            if (is_prime_small(half)) {
+            if (is_prime_seq(half)) {
                 ensure_gap_cap(gap_cnt + 1);
                 gap_cache[gap_cnt] = (seq_t)diff;
                 gap_cnt++;

@@ -8,13 +8,15 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1316, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 9813 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Numbers n such that n mod digit_sum(n) == 17 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the sum of the decimal digits of v. */
 static seq_t sum_digits(seq_t v)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
             /* Grow cache if necessary. */
             if (cnt == cap) {
                 size_t newCap = cap == 0 ? 128 : cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, newCap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newCap);
                 if (!tmp) abort();
                 cache = tmp;
                 cap = newCap;

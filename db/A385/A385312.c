@@ -10,12 +10,15 @@
  *            (binomial(n,k) is computed directly for k = 2,3)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 20, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"   /* provides seq_t big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -24,10 +27,10 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* 3^n */
-    seq_t pow3n = big_pow((seq_t)3, (seq_t)n);
+    seq_t pow3n = ipow((seq_t)3, (seq_t)n);
 
     /* 2^(n-2)  (n >= 4 so n-2 >= 2) */
-    seq_t pow2nm2 = big_pow((seq_t)2, (seq_t)(n - 2));
+    seq_t pow2nm2 = ipow((seq_t)2, (seq_t)(n - 2));
 
     /* binomial(n,2) = n*(n-1)/2 */
     seq_t bn2 = (seq_t)n * ((seq_t)n - (seq_t)1) / (seq_t)2;

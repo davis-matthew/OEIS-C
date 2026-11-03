@@ -9,13 +9,15 @@
  *            2·x2 + 3·x3 + 4·x4 + 5·x5 = 5·n
  * Range:     u8 n <= 5, u16 n <= 27, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     /* enlarge cache if necessary */
     if (target >= f_size) {
-        seq_t *tmp = (seq_t *)realloc(f, (target + 1U) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, f, (target + 1U));
         if (tmp == NULL)
             abort();                    /* out of memory */
         f = tmp;

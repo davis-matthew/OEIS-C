@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 1 if n==0 else 2 * (is_square(n) + is_square(n/2) -
  *            is_square(n/4))
- * Range:     u8 n <= 9808, u16 n <= 9808, u32 n <= 9808, u64 n <= 9808,
- *            u128 n <= 9808, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 103 terms through n = 9808 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

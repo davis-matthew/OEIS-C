@@ -9,7 +9,8 @@
  *            Σ_{k>0} (-1)^k q^{k^2}) (q = x)
  * Range:     i8 n <= 310, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,15 +26,15 @@ seq_t a(idx_t n)
     if (n == (idx_t)0) return (seq_t)1;
 
     size_t len = (size_t)n + 1;
-    seq_t *D = (seq_t*)calloc(len, sizeof(seq_t));  /* denominator 1+2*C(q) */
-    seq_t *N = (seq_t*)calloc(len, sizeof(seq_t));  /* numerator   1+8*B(q) */
-    seq_t *S = (seq_t*)calloc(len, sizeof(seq_t));  /* result a(q)   */
+    seq_t *D = mem_new(seq_t, len);  /* denominator 1+2*C(q) */
+    seq_t *N = mem_new(seq_t, len);  /* numerator   1+8*B(q) */
+    seq_t *S = mem_new(seq_t, len);  /* result a(q)   */
 
     if (!D || !N || !S) /* allocation failed */
     {
-        if (D) free(D);
-        if (N) free(N);
-        if (S) free(S);
+        if (D) mem_free(D);
+        if (N) mem_free(N);
+        if (S) mem_free(S);
         return (seq_t)0; /* fallback */
     }
 
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     idx_t *squares = (idx_t*)malloc((maxK + 1) * sizeof(idx_t));
     if (!squares)
     {
-        free(D); free(N); free(S);
+        mem_free(D); mem_free(N); mem_free(S);
         return (seq_t)0;
     }
 
@@ -81,9 +83,9 @@ seq_t a(idx_t n)
 
     seq_t result = S[n];
 
-    free(D);
-    free(N);
-    free(S);
+    mem_free(D);
+    mem_free(N);
+    mem_free(S);
     free(squares);
     return result;
 }

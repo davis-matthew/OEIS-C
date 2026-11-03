@@ -8,14 +8,17 @@
  *            non‑residue modulo 37 (n≥1)
  * Range:     u8 n <= 18, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: full, pass, 18 terms through n = 18 (2026-11-02)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +32,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         idx_t count = 0;
         for (idx_t x = 1; x <= 36; ++x) {
-            seq_t val = mod_pow((seq_t)x, (uint64_t)18, (seq_t)37);
+            seq_t val = powmod((seq_t)x, (uint64_t)18, (seq_t)37);
             if (val != (seq_t)1)   /* Legendre symbol (x|37) ≠ 1 ⇒ non‑residue */
                 NONRES[count++] = (seq_t)x;
         }

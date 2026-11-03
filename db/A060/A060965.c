@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,14 @@
    (p_0 = 2), including the point at infinity.  */
 
 /* Use the helper that builds all primes up to a given limit. */
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Maximum prime we will need for n up to about 10 000. */
 #define MAX_PRIME 200000      /* > prime(10 000) = 104 729 */
@@ -47,7 +52,7 @@ static void init(void)
     }
 
     /* Allocate cache for all primes.  Zeroes mean “not computed yet”. */
-    cache = (seq_t *)calloc(primes_cnt, sizeof(seq_t));
+    cache = mem_new(seq_t, primes_cnt);
     if (cache == NULL) {
         exit(EXIT_FAILURE);
     }

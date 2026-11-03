@@ -8,7 +8,8 @@
  *            that p-1 has a prime divisor q > p^(3/4)
  * Range:     u8 none, u16 n <= 1, u32 n <= 28, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   build_primes_upto, build_spf, seq_pow
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   build_primes_upto, build_spf, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,10 @@
 /* prerequisites from utils */
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/build_spf.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 /* forward declarations for utility functions used */
 extern void free_cache(seq_t *p);  /* unused but harmless */
@@ -84,8 +86,8 @@ seq_t a(idx_t n)
         seq_t q_seq = (seq_t)q;
 
         /* compare q^4 > p^3 */
-        seq_t q4 = seq_pow(q_seq, 4);
-        seq_t p3 = seq_pow(p_seq, 3);
+        seq_t q4 = ipow_idx(q_seq, 4);
+        seq_t p3 = ipow_idx(p_seq, 3);
 
         if (q4 > p3) {
             add_value(p_seq);

@@ -12,16 +12,19 @@
  *            Sum_{d|n, d|k} (phi(d)*binomial(n/d,k/d)) / (2*n) * * The
  *            function below follows this formula directly, using the *
  *            prov...
- * Range:     u8 n <= 39, u16 n <= 142, u32 n <= 580, u64 n <= 1274,
+ * Range:     u8 n <= 59, u16 n <= 334, u32 n <= 722, u64 n <= 1274,
  *            u128 n <= 1274, big any n
- * Helpers:   binomial, phi
+ * Validated: standard, pass, 187 terms through n = 1232 (2026-11-01)
+ * Helpers:   binomial, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* binomial(idx_t, idx_t) -> seq_t   */
-#include "../utils/phi.h"        /* phi(idx_t) -> seq_t             */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/totient.h"
 
 static seq_t T_val(idx_t n, idx_t k)
 {
@@ -39,7 +42,7 @@ static seq_t T_val(idx_t n, idx_t k)
         if (n % d != 0) continue;       /* skip non‑divisors        */
         /* first divisor d */
         if (k % d == 0) {
-            seq_t phi_d = phi(d);
+            seq_t phi_d = totient(d);
             idx_t nd = n / d;
             idx_t kd = k / d;
             seq_t bin_nd = binomial(nd, kd);
@@ -48,7 +51,7 @@ static seq_t T_val(idx_t n, idx_t k)
         /* paired divisor n/d */
         idx_t d2 = n / d;
         if (d2 != d && k % d2 == 0) {
-            seq_t phi_d2 = phi(d2);
+            seq_t phi_d2 = totient(d2);
             idx_t nd2 = d;          /* since n/d2 == d             */
             idx_t kd2 = k / d2;
             seq_t bin_nd2 = binomial(nd2, kd2);

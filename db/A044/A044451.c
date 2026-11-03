@@ -10,13 +10,15 @@
  *            contain 21 in its base‑4 representation
  * Range:     u8 n <= 20, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Test whether a base‑4 representation of x contains the substring "21" */
 static bool has21(seq_t x)
@@ -53,8 +55,7 @@ seq_t a(idx_t n)
                 /* Ensure capacity for the new term */
                 if (terms_size >= terms_cap) {
                     idx_t new_cap = terms_cap ? terms_cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(terms,
-                        new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                     if (!tmp) return 0; /* allocation failed */
                     terms = tmp;
                     terms_cap = new_cap;

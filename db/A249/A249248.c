@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 59, u32 n <= 160, u64 n <= 449,
  *            u128 n <= 1350, big any n
- * Helpers:   get_row_pos
+ * Validated: standard, pass, 74 terms through n = 4459 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,7 +37,24 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/get_row_pos.h"
+#include "../utils/mem.h"
+
+/* Return the (row, position) of the coefficient corresponding
+   to overall index n (1‑based).  Positions are 0‑based within the row. */
+static void get_row_pos(idx_t n, idx_t *row, idx_t *pos)
+{
+    /* Find smallest r such that r*(r+1)/2 ≥ n.  Use a simple loop;
+       for n ≤ 10000 this is trivial. */
+    idx_t r = 1;
+    while ((r * (r + 1)) / 2 < n) {
+        ++r;
+    }
+
+    /* Number of elements in all preceding rows. */
+    idx_t prev_sum = (r - 1) * r / 2;
+    *row = r;
+    *pos = n - prev_sum - 1;
+}
 
 /* Forward declaration of seq_t and idx_t */
 extern seq_t _dummy_seq_t;
@@ -70,7 +88,7 @@ static void ensure_rows(idx_t target_row)
 
     /* Compute rows incrementally. */
     for (idx_t i = max_cached_row + 1; i <= target_row; ++i) {
-        seq_t *row = (seq_t *)malloc(sizeof(seq_t) * i);
+        seq_t *row = mem_new(seq_t, i);
         if (!row)
             exit(1);
 

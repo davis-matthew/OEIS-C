@@ -10,6 +10,7 @@
  *            array T(n,k) = Fib(n+3)+Fib(k+3)-1
  * Range:     u8 n <= 55, u16 n <= 231, u32 n <= 990, u64 n <= 1104,
  *            u128 n <= 1104, big any n
+ * Validated: standard, pass, 83 terms through n = 1025 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

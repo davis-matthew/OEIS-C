@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 13, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;              /* array of known a(n) values          */
 static idx_t  memo_cap = 0;             /* current capacity of memo array      */
@@ -41,12 +43,12 @@ static void ensure_memo_capacity(idx_t n)
     if (n + 1 > memo_cap)
     {
         idx_t new_cap = n + 1;
-        seq_t *new_mem = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_mem = mem_new(seq_t, new_cap);
         if (!new_mem) abort();          /* out of memory: terminate */
         if (memo)
         {
-            memcpy(new_mem, memo, memo_max * sizeof(seq_t));
-            free(memo);
+            mem_copy(new_mem, memo, memo_max * sizeof(seq_t));
+            mem_free(memo);
         }
         memo = new_mem;
         memo_cap = new_cap;

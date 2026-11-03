@@ -9,15 +9,36 @@
  *            has an odd length (number of bits) and an odd number of 1's.
  *            That is equivalent to numbers with even number of 0's and odd
  *            number of 1's
- * Range:     u8 n <= 43, u16 n <= 9233, u32 n <= 9233, u64 n <= 9233,
- *            u128 n <= 9233, big any n
- * Helpers:   qualifies
+ * Range:     u8 n <= 43, u16 n <= 10923, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 75 terms through n = 9233 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/qualifies.h"
+
+/* Helper: returns true iff x has odd bit length and odd popcount. */
+static bool qualifies(seq_t x)
+{
+    unsigned len = 0;
+    seq_t t = x;
+    while (t != (seq_t)0) {
+        ++len;
+        t >>= 1;
+    }
+    if ((len & 1) == 0)                 /* even length → reject */
+        return false;
+
+    unsigned parity = 0;
+    t = x;
+    while (t != (seq_t)0) {
+        parity ^= (unsigned)(t & (seq_t)1);
+        t >>= 1;
+    }
+    return parity;                      /* true if odd popcount */
+}
 
 /* Main function: returns the n‑th element of A059014. */
 seq_t a(idx_t n)

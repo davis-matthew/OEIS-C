@@ -9,14 +9,16 @@
  *            arbitrary access order
  * Range:     i8 n <= 6, i16 n <= 11, i32 n <= 22, i64 n <= 30, i128 n <= 30,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t n, idx_t k); */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* static cache for computed terms */
 static seq_t *cache = NULL;
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* extend cache if necessary */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return (seq_t)0;           /* allocation failure is silent */
         cache = tmp;
 

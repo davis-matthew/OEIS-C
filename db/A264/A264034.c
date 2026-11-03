@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 9250, u16 n <= 9482, u32 n <= 9482, u64 n <= 9482,
- *            u128 n <= 9482, big any n
- * Helpers:   gen_part
+ * Range:     u8 n <= 9250, u16 n <= 20875, u32 n <= 20875, u64 n <= 20875,
+ *            u128 n <= 20875, big any n
+ * Validated: standard, pass, 118 terms through n = 9482 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/gen_part.h"
+#include "../utils/mem.h"
+
+/* Recursive enumeration of partitions of 'rem' with largest part <= 'max_part'.
+ * 'parts_len' is the number of parts already chosen (next part index).
+ * 'weight' holds the weighted sum so far.  When a partition is
+ * completed, table[weight] is incremented. */
+static void gen_part(idx_t rem, idx_t max_part, idx_t parts_len,
+                     idx_t weight, seq_t *table)
+{
+    if (rem == 0) {
+        table[weight]++;            /* finished a partition           */
+        return;
+    }
+    for (idx_t part = (rem < max_part ? rem : max_part); part >= 1; --part) {
+        idx_t new_weight = weight + part * parts_len;
+        gen_part(rem - part, part, parts_len + 1, new_weight, table);
+    }
+}
 
 /* Types idx_t and seq_t are provided by the build environment. */
 
@@ -34,7 +52,7 @@ static void build_row(idx_t n)
 {
     idx_t max_w = n * (n - 1) / 2;           /* maximum weighted sum */
     size_t len = (size_t)max_w + 1;          /* number of entries in the row */
-    seq_t *table = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *table = mem_new(seq_t, len);
     if (!table) abort();                     /* memory exhaustion */
 
     gen_part(n, n, 0, 0, table);             /* fill the table */

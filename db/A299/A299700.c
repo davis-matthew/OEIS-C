@@ -8,6 +8,7 @@
  * Formula:   a(n) = A007913(A000178(n))
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 34, u64 n <= 66, u128 n <= 108,
  *            big any n
+ * Validated: standard, pass, 60 terms through n = 2924 (2026-11-01)
  * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/build_spf.h"
 
 seq_t a(idx_t n)

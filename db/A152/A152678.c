@@ -10,13 +10,15 @@
  *            in ascending order of m
  * Range:     u8 n <= 90, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9641 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the n-th term of OEIS sequence A152678. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     while (1) {
         /* allocate sigma array of size limit+1, indexed from 0..limit */
-        seq_t *sigma = (seq_t *)malloc((size_t)(limit + 1) * sizeof(seq_t));
+        seq_t *sigma = mem_new(seq_t, (size_t)(limit + 1));
         if (!sigma) return (seq_t)0; /* allocation failure, return 0 */
 
         /* initialise to zero */
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(sigma);
+        mem_free(sigma);
 
         if (count >= n) return result;           /* success */
         /* not enough terms yet: double the limit and try again */

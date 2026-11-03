@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 81, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9860 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Test whether the property holds for a given number.  The candidate
    is passed as an idx_t so we can examine arbitrarily large values
@@ -70,9 +72,9 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache to accommodate the requested index. */
     if (cache == NULL) {
         cap = (size_t)n > 32 ? (size_t)n : 32;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     } else if (cap < (size_t)n) {
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (tmp == NULL) abort();   /* allocation failure */
         cache = tmp;
         cap = (size_t)n;

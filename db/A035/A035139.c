@@ -10,7 +10,8 @@
  *            OEIS A035139
  * Range:     u8 n <= 67, u16 n <= 3476, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 79 terms through n = 9829 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* cached sequence values */
 static size_t cache_size = 0;     /* number of cached terms */
@@ -93,10 +95,10 @@ seq_t a(idx_t n)
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
             if (new_cap < target)
                 new_cap = target;
-            seq_t *new_buf = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_t *new_buf = mem_new(seq_t, new_cap);
             for (size_t i = 0; i < cache_size; ++i)
                 new_buf[i] = cache[i];
-            free(cache);
+            mem_free(cache);
             cache = new_buf;
             cache_cap = new_cap;
         }

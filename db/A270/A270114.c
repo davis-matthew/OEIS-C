@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 2, u64 n <= 5, u128 n <= 11,
  *            big any n
- * Helpers:   parse_decimal
+ * Validated: standard, pass, 25 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
  * for n > 7, with a(1) … a(7) as initial values.  */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/parse_decimal.h"
+#include "../utils/mem.h"
+
+/* Convert a decimal string to seq_t.  Works for built‑in and
+   arbitrary‑precision types. */
+static seq_t parse_decimal(const char *s)
+{
+    seq_t v = (seq_t)0;
+    while (*s) {
+        v = v * (seq_t)10 + (seq_t)(*s - '0');
+        ++s;
+    }
+    return v;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +46,7 @@ seq_t a(idx_t n)
     /* enlarge cache if necessary */
     if (cache_len <= n) {
         size_t new_len = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return (seq_t)0;        /* allocation failure */
         cache = tmp;
         /* initialise newly allocated elements to zero */

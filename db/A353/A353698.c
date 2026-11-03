@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   enum_factor
+ * Validated: standard, pass, 107 terms through n = 9839 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,40 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/enum_factor.h"
+#include "../utils/mem.h"
+
+/* Recursive enumeration of all factorizations of `rem` using factors ≥ `start`.
+   orig_k  – the original value of k (the product = length).
+   sum_non – sum of the factors chosen so far.
+   parts   – number of factors chosen so far.
+   limit   – maximum n to count (cache size - 1). */
+static void
+enum_factor(idx_t orig_k, idx_t rem, idx_t start,
+            idx_t sum_non, size_t parts,
+            seq_t *cache, idx_t limit)
+{
+    if (rem == 1) {
+        idx_t n = sum_non + (orig_k - parts);
+        if (n <= limit)
+            cache[n] += 1;
+        return;
+    }
+
+    for (idx_t f = start; f * f <= rem; ++f) {
+        if (rem % f == 0) {
+            enum_factor(orig_k, rem / f, f,
+                        sum_non + f, parts + 1,
+                        cache, limit);
+        }
+    }
+
+    /* Remaining factor as a single part */
+    if (rem >= start) {
+        enum_factor(orig_k, 1, rem,
+                    sum_non + rem, parts + 1,
+                    cache, limit);
+    }
+}
 
 /* Static cache (index → value).  All entries are initialized to 0. */
 static seq_t *cache = NULL;
@@ -34,8 +68,7 @@ compute_up_to(idx_t limit)
 
     /* Grow the cache.  Cast the void* from realloc to seq_t*. */
     size_t new_len = (size_t)(limit + 1);
-    seq_t *new_cache = (seq_t *)realloc(cache,
-                                        new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (!new_cache && new_len > 0) {
         abort();                   /* allocation failed */
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   equal_6_8
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/equal_6_8.h"
+
+static int equal_6_8(uint64_t x) {
+    int c6 = 0, c8 = 0;
+    while (x > 0) {
+        int d = x % 10;
+        if (d == 6) ++c6;
+        else if (d == 8) ++c8;
+        x /= 10;
+    }
+    return (c6 > 0 && c8 > 0 && c6 == c8);
+}
 
 static uint64_t *cache = NULL;   /* cache of found values */
 static size_t   cache_cap = 0;   /* allocated size of cache */

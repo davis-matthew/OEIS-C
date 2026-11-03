@@ -11,7 +11,8 @@
  *            exponent-parity vector of k (a(n) = n if n is a square)
  * Range:     u8 n <= 130, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   reduce_vec, set_vec
+ * Validated: standard, pass, 86 terms through n = 9185 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,37 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/reduce_vec.h"
-#include "../utils/set_vec.h"
+
+/* Reduce v against basis (pivot = highest bit). Returns -1 if v becomes zero,
+   otherwise the highest set bit of the reduced vector. */
+static int reduce_vec(uint64_t *v, uint64_t **basis, int W) {
+    int w = W - 1;
+    while (w >= 0) {
+        if (!v[w]) { w--; continue; }
+        int b = 63 - __builtin_clzll(v[w]);
+        int h = w * 64 + b;
+        if (!basis[h]) return h;
+        {
+            uint64_t *bv = basis[h];
+            int i;
+            for (i = 0; i <= w; i++) v[i] ^= bv[i];
+        }
+    }
+    return -1;
+}
+
+static void set_vec(uint64_t x, const uint32_t *spf, const int *pidx, uint64_t *v, int W) {
+    memset(v, 0, (size_t)W * sizeof(uint64_t));
+    while (x > 1) {
+        uint32_t p = spf[x];
+        int e = 0;
+        while (x % p == 0) { x /= p; e++; }
+        if (e & 1) {
+            int k = pidx[p];
+            v[k >> 6] ^= (uint64_t)1 << (k & 63);
+        }
+    }
+}
 
 seq_t a(idx_t n_idx) {
     uint64_t n = (uint64_t)n_idx;

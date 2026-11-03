@@ -8,13 +8,16 @@
  * Formula:   a(n) = ∑_{k=0..n} binomial(n,k) * lcm(1..k+1) (A003418)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>                /* for malloc/realloc */
-#include "../utils/gcd.h"          /* seq_t gcd(seq_t, seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *lcm_cache = NULL;   /* lcm_cache[i] = lcm(1..i), i ≥ 1 */
 static size_t lcm_cap   = 0;       /* allocated capacity of lcm_cache */
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
     /* Ensure lcm_cache can hold indices up to n+1. */
     if ((idx_t)lcm_cap <= n + 1) {
         size_t new_cap = (size_t)(n + 2);          /* indices 0..n+1 */
-        seq_t *tmp = (seq_t *)realloc(lcm_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, lcm_cache, new_cap);
         lcm_cache = tmp;
         lcm_cap   = new_cap;
     }

@@ -7,11 +7,13 @@
  * Formula:   a(n) = sum_{d|n, 1<d<n} ( 2^(n/d-1) - 1 )
  * Range:     u8 n <= 17, u16 n <= 33, u32 n <= 65, u64 n <= 129,
  *            u128 n <= 257, big any n
+ * Validated: standard, pass, 66 terms through n = 6074 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

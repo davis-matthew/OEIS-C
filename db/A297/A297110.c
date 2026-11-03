@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 255, u16 n <= 9901, u32 n <= 9901, u64 n <= 9901,
- *            u128 n <= 9901, big any n
- * Helpers:   none
+ * Range:     u8 n <= 255, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 96 terms through n = 9901 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Gray code inverse: m xor (m>>1) == n  ⇒  m = gray_inverse(n) */
 static seq_t gray_inverse(seq_t g)
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
 {
     if ((size_t)n >= cap) {
         size_t new_cap = n + 1;
-        seq_t   *tmp   = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t   *tmp   = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         uint8_t *tmpd  = (uint8_t *)realloc(done, new_cap);

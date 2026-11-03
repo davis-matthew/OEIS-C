@@ -10,12 +10,14 @@
  *            p(n,x)=(x-(2n-1))*p(n-1,x)-(2n-2)^2*p(n-2,x)
  * Range:     i8 n <= 10, i16 n <= 27, i32 n <= 58, i64 n <= 58, i128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* forward declaration of the static helper */
 static void ensure_row(idx_t r);
@@ -33,7 +35,7 @@ static void ensure_row(idx_t r)
     if (rows == NULL) {
         capacity = 1;
         rows = (seq_t**)malloc(capacity * sizeof(seq_t*));
-        seq_t *row0 = (seq_t*)malloc(sizeof(seq_t));
+        seq_t *row0 = mem_new(seq_t, 1);
         row0[0] = 1;
         rows[0] = row0;
         max_cached = 0;
@@ -44,16 +46,16 @@ static void ensure_row(idx_t r)
         seq_t *row;
 
         if (cur == 0) {                        /* p(0,x)=1 */
-            row = (seq_t*)malloc(sizeof(seq_t));
+            row = mem_new(seq_t, 1);
             row[0] = 1;
         } else if (cur == 1) {                 /* p(1,x)=x-1 */
-            row = (seq_t*)malloc(2 * sizeof(seq_t));
+            row = mem_new(seq_t, 2);
             row[0] = -1;
             row[1] = 1;
         } else {                               /* general recurrence */
             seq_t *q = rows[cur-1];            /* p(cur-1,x) */
             seq_t *p = rows[cur-2];            /* p(cur-2,x) */
-            row = (seq_t*)malloc((cur + 1) * sizeof(seq_t));
+            row = mem_new(seq_t, (cur + 1));
 
             seq_t step1  = (seq_t)(2 * cur - 1);   /* (2n-1)   */
             seq_t step2  = (seq_t)(2 * cur - 2);   /* (2n-2)   */

@@ -8,6 +8,7 @@
  *            1+4x)/(1+4x+5x^2) expansion
  * Range:     i8 n <= 5, i16 n <= 12, i32 n <= 25, i64 n <= 29, i128 n <= 29,
  *            big any n
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

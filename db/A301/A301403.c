@@ -10,13 +10,15 @@
  *            a(1)=8, a(2)=128, a(3)=1988, a(4)=31012, a(5)=483600
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoization array, 1‑based */
 static size_t cache_size = 0;    /* allocated size */
@@ -29,13 +31,13 @@ static void ensure_cache(idx_t n)
     size_t new_size = (cache_size == 0) ? 8 : cache_size * 2;
     if (new_size < (size_t)n + 1)
         new_size = (size_t)n + 1;
-    seq_t *tmp = (cache_size == 0) ? (seq_t *)malloc(new_size * sizeof(seq_t))
-                                   : (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = (cache_size == 0) ? mem_new(seq_t, new_size)
+                                   : mem_resize(seq_t, cache, new_size);
     if (!tmp) /* allocation failed – let the caller crash naturally */
         return;
     /* Zero‑initialize the newly allocated part */
     if (new_size > cache_size)
-        memset(tmp + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
+        mem_set(tmp + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
     cache = tmp;
     cache_size = new_size;
 }

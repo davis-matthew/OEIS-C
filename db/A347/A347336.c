@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   digit_len, is_palindrome, pow10
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,19 @@
 #include <stdint.h>
 
 /* External helper functions supplied by the build system */
-#include "../utils/digit_len.h"        /* int digit_len(idx_t) */
-#include "../utils/pow10.h"           /* seq_t pow10(idx_t) */
-#include "../utils/is_palindrome.h"   /* bool is_palindrome(seq_t, idx_t) */
+#include "../utils/is_palindrome_base.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Internal dynamic arrays for the sequence and the set of used values */
 static seq_t *seq      = NULL;   /* stores a(1)...a(seq_len)  (index 0 = a(1)) */
@@ -44,7 +55,7 @@ static void ensure_seq_cap(size_t need)
     if (seq_cap < need) {
         size_t new_cap = seq_cap == 0 ? 16 : seq_cap << 1;
         while (new_cap < need) new_cap <<= 1;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 }
@@ -55,7 +66,7 @@ static void ensure_used_cap(size_t need)
     if (used_cap < need) {
         size_t new_cap = used_cap == 0 ? 16 : used_cap << 1;
         while (new_cap < need) new_cap <<= 1;
-        used = (seq_t *)realloc(used, new_cap * sizeof(seq_t));
+        used = mem_resize(seq_t, used, new_cap);
         used_cap = new_cap;
     }
 }
@@ -100,7 +111,7 @@ seq_t a(idx_t n)
         seq_t a_m1 = seq[seq_len - 1];    /* a(m-1) */
 
         /* Build concatenation a(m-2) || a(m-1) */
-        int dig_len_m1 = digit_len((idx_t)a_m1);
+        int dig_len_m1 = num_digits((idx_t)a_m1);
         seq_t pow10v   = pow10((idx_t)dig_len_m1);
         seq_t base     = a_m2 * pow10v + a_m1;   /* a(m-2)||a(m-1) */
 
@@ -109,7 +120,7 @@ seq_t a(idx_t n)
         while (true) {
             if (!used_exists(cand)) {
                 seq_t sum = base + cand;
-                if (is_palindrome(sum, (idx_t)10))
+                if (is_palindrome_base(sum, (idx_t)10))
                     break;
             }
             ++cand;

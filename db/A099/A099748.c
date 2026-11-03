@@ -14,13 +14,15 @@
  *            +1057839714*t^1...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
     /* Allocate initial cache if necessary */
     if (!cache) {
         cache_len = 0;
-        cache = (seq_t*)malloc((size_t)(1000) * sizeof(seq_t)); /* arbitrary start */
+        cache = mem_new(seq_t, (size_t)(1000)); /* arbitrary start */
         if (!cache) abort();
     }
 

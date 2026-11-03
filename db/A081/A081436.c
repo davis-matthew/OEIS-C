@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n+1)*(2*n^2 + 3*n + 2)/2
  * Range:     u8 n <= 5, u16 n <= 39, u32 n <= 1623, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 56 terms through n = 4651 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

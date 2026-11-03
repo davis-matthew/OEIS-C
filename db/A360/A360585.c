@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static storage for the sequence and its auxiliary data */
 static seq_t *seq          = NULL;      /* a(1) .. a(seq_len)   */
@@ -50,7 +52,7 @@ static void ensure_seq_capacity(idx_t len_needed)
     while (len_needed > new_cap)
         new_cap <<= 1;
 
-    seq          = (seq_t*)realloc(seq,          (new_cap + 1) * sizeof(seq_t));
+    seq          = mem_resize(seq_t, seq, (new_cap + 1));
     prefix_even  = (idx_t*)realloc(prefix_even,  (new_cap + 1) * sizeof(idx_t));
     if (!seq || !prefix_even) abort();
 

@@ -7,6 +7,7 @@
  * Formula:   a(n) = n-1 + floor(1/2 + sqrt(n-1))
  * Range:     u8 n <= 241, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 88 terms through n = 9615 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

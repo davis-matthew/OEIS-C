@@ -12,12 +12,14 @@
  *            then co...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 17, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,10 +36,10 @@ seq_t a(idx_t n)
     if (n >= (idx_t)cap) {
         size_t newcap = cap ? cap*2 : 16;
         while (newcap <= (size_t)n) newcap *= 2;
-        a1   = (seq_t*)realloc(a1,   newcap * sizeof(seq_t));
-        a2   = (seq_t*)realloc(a2,   newcap * sizeof(seq_t));
-        S    = (seq_t*)realloc(S,    newcap * sizeof(seq_t));
-        conv = (seq_t*)realloc(conv, newcap * sizeof(seq_t));
+        a1   = mem_resize(seq_t, a1, newcap);
+        a2   = mem_resize(seq_t, a2, newcap);
+        S    = mem_resize(seq_t, S, newcap);
+        conv = mem_resize(seq_t, conv, newcap);
         cap = newcap;
     }
     

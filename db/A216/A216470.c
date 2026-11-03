@@ -12,14 +12,17 @@
  *            10^(ord/2) ≡ -1 (mod M), the answer is ord/2;...
  * Range:     u8 n <= 23, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
             /* p is a prime factor of ord */
             while (ord % (seq_t)p == 0) {
                 seq_t cand = ord / (seq_t)p;
-                if (mod_pow((seq_t)10, (uint64_t)cand, M) == 1) {
+                if (powmod((seq_t)10, (uint64_t)cand, M) == 1) {
                     ord = cand;
                 } else {
                     break;
@@ -65,7 +68,7 @@ seq_t a(idx_t n)
         seq_t p = (seq_t)phi_tmp;
         while (ord % p == 0) {
             seq_t cand = ord / p;
-            if (mod_pow((seq_t)10, (uint64_t)cand, M) == 1) {
+            if (powmod((seq_t)10, (uint64_t)cand, M) == 1) {
                 ord = cand;
             } else {
                 break;
@@ -76,7 +79,7 @@ seq_t a(idx_t n)
     /* check for -1 */
     if (ord % 2 == 0) {
         seq_t half = ord / 2;
-        if (mod_pow((seq_t)10, (uint64_t)half, M) == M - 1) {
+        if (powmod((seq_t)10, (uint64_t)half, M) == M - 1) {
             return half;
         }
     }

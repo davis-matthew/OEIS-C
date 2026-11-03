@@ -8,13 +8,15 @@
  * Formula:   a(n) = a(a(n-4)) + a(n-a(n-3)), a(1)=a(2)=a(3)=a(4)=1
  * Range:     u8 n <= 666, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 9632 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;          /* 1‑based cache: A[i] = a(i) */
 static size_t A_cap = 0;          /* allocated size (number of elements)   */
@@ -30,10 +32,10 @@ static void ensure_capacity(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;                      /* double until big enough */
 
-    seq_t *tmp = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, A, new_cap);
     if (!tmp) abort();                      /* allocation failed */
     /* zero out the newly added elements */
-    memset(tmp + A_cap, 0, (new_cap - A_cap) * sizeof(seq_t));
+    mem_set(tmp + A_cap, 0, (new_cap - A_cap) * sizeof(seq_t));
     A = tmp;
     A_cap = new_cap;
 }

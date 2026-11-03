@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 21, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   decode_key, mod_swap
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,19 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/decode_key.h"
-#include "../utils/mod_swap.h"
+#include "../utils/mem.h"
+
+static inline void decode_key(uint32_t key, uint32_t *z, uint32_t *x, uint32_t *y)
+{
+    *z = key >> 16;
+    *x = (key >> 8) & 0xFF;
+    *y = key & 0xFF;
+}
+
+static inline void mod_swap(uint64_t *a, uint64_t *b)
+{
+    uint64_t t = *a; *a = *b; *b = t;
+}
 
 /* ---------- modular arithmetic for recurrence detection ---------- */
 #define PRIME 2305843009213693951ULL   /* 2^61-1, a Mersenne prime */
@@ -150,7 +162,7 @@ static void ensure_cache_capacity(idx_t n)
     if ((size_t)n < cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap : 16;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(global_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, global_cache, new_cap);
     if (!tmp) return; /* memory failure – caller will fail */
     global_cache = tmp;
     cache_cap = new_cap;
@@ -175,8 +187,8 @@ static void expand_cache(idx_t n)
 static void precompute_and_find_recurrence(void)
 {
     /* allocate hash tables */
-    Entry *curr = (Entry *)calloc(HASH_SIZE, sizeof(Entry));
-    Entry *next = (Entry *)calloc(HASH_SIZE, sizeof(Entry));
+    Entry *curr = mem_new(Entry, HASH_SIZE);
+    Entry *next = mem_new(Entry, HASH_SIZE);
 
     int *curr_keys = (int *)calloc(HASH_SIZE, sizeof(int));
     int *next_keys = (int *)calloc(HASH_SIZE, sizeof(int));
@@ -191,7 +203,7 @@ static void precompute_and_find_recurrence(void)
     curr[h0].mod = 1;
     curr_keys[curr_used_cnt++] = h0;
 
-    seq_t *a_seq = (seq_t *)malloc((N0 + 1) * sizeof(seq_t));
+    seq_t *a_seq = mem_new(seq_t, (N0 + 1));
     uint64_t *a_mod = (uint64_t *)malloc((N0 + 1) * sizeof(uint64_t));
     a_seq[0] = (seq_t)1;
     a_mod[0] = 1;
@@ -348,23 +360,23 @@ static void precompute_and_find_recurrence(void)
 
         /* recurrence found */
         rec_order = k;
-        rec_coeff = (seq_t *)malloc(k * sizeof(seq_t));
+        rec_coeff = mem_new(seq_t, k);
         for (int j = 0; j < k; ++j) rec_coeff[j] = coeffs[j];
         found = 1;
     }
 
     /* ---------- initialise global cache ---------- */
     cache_cap = N0 + 1;
-    global_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    global_cache = mem_new(seq_t, cache_cap);
     for (int i = 0; i <= N0; ++i) global_cache[i] = a_seq[i];
     cache_len = N0 + 1;
 
     /* ---------- clean up ---------- */
-    free(curr);
-    free(next);
+    mem_free(curr);
+    mem_free(next);
     free(curr_keys);
     free(next_keys);
-    free(a_seq);
+    mem_free(a_seq);
     free(a_mod);
 }
 

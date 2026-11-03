@@ -10,13 +10,15 @@
  *            for n>=1,k>=0 The sequence is OEIS A371567
  * Range:     u8 n <= 12, u16 n <= 33, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Determine diagonal number d and position i on that diagonal.
@@ -33,10 +35,10 @@ seq_t a(idx_t n) {
     static size_t prev_cap = 0;
     size_t needed = (size_t)d + 3;
     if (prev_cap < needed) {
-        free(prev);
-        free(curr);
-        prev = (seq_t *)malloc(needed * sizeof(seq_t));
-        curr = (seq_t *)malloc(needed * sizeof(seq_t));
+        mem_free(prev);
+        mem_free(curr);
+        prev = mem_new(seq_t, needed);
+        curr = mem_new(seq_t, needed);
         prev_cap = needed;
     }
 

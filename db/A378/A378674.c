@@ -14,12 +14,14 @@
  *            r(r-1)/2 (column). Then a(n)=T(r,k). The function below c...
  * Range:     u8 n <= 96, u16 n <= 96, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 96 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,16 +35,16 @@ seq_t a(idx_t n)
     idx_t k = n - r * (r - 1U) / 2U;
 
     /* Build rows up to r */
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t) * 1);
+    seq_t *prev = mem_new(seq_t, 1);
     if (!prev) return (seq_t)0;  /* allocation failed */
     prev[0] = (seq_t)1;          /* row 1 */
 
     if (r > 1) {
         for (idx_t i = 2; i <= r; ++i) {
             size_t size_curr = (size_t)i;
-            seq_t *curr = (seq_t *)malloc(sizeof(seq_t) * size_curr);
+            seq_t *curr = mem_new(seq_t, size_curr);
             if (!curr) {
-                free(prev);
+                mem_free(prev);
                 return (seq_t)0;  /* allocation failed */
             }
             curr[0] = (seq_t)1;                    /* T(i,1) = 1 */
@@ -50,12 +52,12 @@ seq_t a(idx_t n)
             for (idx_t j = 2; j < i; ++j) {         /* k>2 case */
                 curr[j] = prev[j - 2U] + (seq_t)1;
             }
-            free(prev);
+            mem_free(prev);
             prev = curr;
         }
     }
 
     seq_t result = prev[k - 1U];
-    free(prev);
+    mem_free(prev);
     return result;
 }

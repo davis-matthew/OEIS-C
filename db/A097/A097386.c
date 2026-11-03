@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   mulmod64, small_pow
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   ipow_i32_to_seq, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mulmod64.h"
-#include "../utils/small_pow.h"
+#include "../utils/ipow_i32_to_seq.h"
+#include "../utils/mulmod.h"
 
 /*--------- Miller–Rabin for 64‑bit integers --------*/
 
@@ -37,8 +38,8 @@ static inline uint64_t powmod64(uint64_t a, uint64_t e, uint64_t mod)
     while (e)
     {
         if (e & 1ULL)
-            r = mulmod64(r, a, mod);
-        a = mulmod64(a, a, mod);
+            r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1ULL;
     }
     return r;
@@ -73,7 +74,7 @@ static inline bool is_prime_uint64(uint64_t n)
         bool cont = false;
         for (int r = 1; r < s; ++r)
         {
-            x = mulmod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1)
             {
                 cont = true;
@@ -117,7 +118,7 @@ seq_t a(idx_t n)
             }
         }
 
-        seq_t add = small_pow(largest, smallest);
+        seq_t add = ipow_i32_to_seq(largest, smallest);
         uint64_t test = (uint64_t)candidate + (uint64_t)add;
 
         if (is_prime_uint64(test))

@@ -13,7 +13,8 @@
  *            static * sieve that grows as needed
  * Range:     u8 n <= 2242, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 96 terms through n = 9752 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 static bool *sieve_composite = NULL;
 static idx_t *sieve_pi = NULL;
@@ -74,10 +75,10 @@ seq_t a(idx_t n)
     for (idx_t k = 1; k <= n / 2; ++k) {
         idx_t m = n - k;
         idx_t dk = sieve_pi[2 * k] - sieve_pi[k];
-        if (!is_prime_small((seq_t)dk))
+        if (!is_prime_seq((seq_t)dk))
             continue;
         idx_t dm = sieve_pi[2 * m] - sieve_pi[m];
-        if (!is_prime_small((seq_t)dm))
+        if (!is_prime_seq((seq_t)dm))
             continue;
         ++result;
     }

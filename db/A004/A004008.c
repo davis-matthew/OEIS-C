@@ -8,13 +8,15 @@
  *            Ramanujan theta functions
  * Range:     u8 n <= 1, u16 n <= 11, u32 n <= 991, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 917 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 
 static seq_t *cache = NULL;
@@ -34,15 +36,15 @@ static void poly_mult(seq_t *result, const seq_t *a, const seq_t *b, idx_t max_d
 }
 
 static void compute_cache_to(idx_t n) {
-    seq_t *phi = (seq_t *)calloc(n + 1, sizeof(seq_t));
-    seq_t *psi_q2 = (seq_t *)calloc(n + 1, sizeof(seq_t));
-    seq_t *phi2 = (seq_t *)calloc(n + 1, sizeof(seq_t));
-    seq_t *phi3 = (seq_t *)calloc(n + 1, sizeof(seq_t));
-    seq_t *phi4 = (seq_t *)calloc(n + 1, sizeof(seq_t));
-    seq_t *psi2 = (seq_t *)calloc(n + 1, sizeof(seq_t));
-    seq_t *psi4 = (seq_t *)calloc(n + 1, sizeof(seq_t));
-    seq_t *factor2 = (seq_t *)calloc(n + 1, sizeof(seq_t));
-    seq_t *result = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *phi = mem_new(seq_t, n + 1);
+    seq_t *psi_q2 = mem_new(seq_t, n + 1);
+    seq_t *phi2 = mem_new(seq_t, n + 1);
+    seq_t *phi3 = mem_new(seq_t, n + 1);
+    seq_t *phi4 = mem_new(seq_t, n + 1);
+    seq_t *psi2 = mem_new(seq_t, n + 1);
+    seq_t *psi4 = mem_new(seq_t, n + 1);
+    seq_t *factor2 = mem_new(seq_t, n + 1);
+    seq_t *result = mem_new(seq_t, n + 1);
     
     // phi(q) = sum_{k=-inf}^{inf} q^(k^2)
     for (idx_t k = 0; k * k <= n; k++) {
@@ -74,12 +76,12 @@ static void compute_cache_to(idx_t n) {
     
     poly_mult(result, phi3, factor2, n);
     
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     cache = result;
     cache_len = n + 1;
     
-    free(phi); free(psi_q2); free(phi2); free(phi3); free(phi4);
-    free(psi2); free(psi4); free(factor2);
+    mem_free(phi); mem_free(psi_q2); mem_free(phi2); mem_free(phi3); mem_free(phi4);
+    mem_free(psi2); mem_free(psi4); mem_free(factor2);
 }
 
 seq_t a(idx_t n) {

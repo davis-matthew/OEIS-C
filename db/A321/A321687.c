@@ -11,13 +11,22 @@
  *            1,2,3,4,5,6,7,8,9,8,7,6,5,4,3,2,1,0,1,2,
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   digit_A158289
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digit_A158289.h"
+
+static inline uint8_t digit_A158289(idx_t i)
+{
+    /* i is 1‑based */
+    idx_t m = (i - 1) % 18 + 1;   /* value in 1..18 */
+    if (m <= 9)
+        return (uint8_t)m;
+    return (uint8_t)(18 - m);
+}
 
 seq_t a(idx_t n)
 {

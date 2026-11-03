@@ -8,13 +8,14 @@
  *            (multiplicative)
  * Range:     u8 n <= 9, u16 n <= 83, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_seq_val
+ * Validated: standard, pass, 66 terms through n = 9220 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq_val.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -29,9 +30,9 @@ seq_t a(idx_t n)
             idx_t e = 0;
             while (m % p == 0) { m /= p; ++e; }
 
-            seq_t pow2e = pow_seq_val((seq_t)p, 2 * e);
+            seq_t pow2e = ipow_idx((seq_t)p, 2 * e);
             seq_t pow2e_minus2 = (e >= 2) ?
-                                 pow_seq_val((seq_t)p, 2 * e - 2) :
+                                 ipow_idx((seq_t)p, 2 * e - 2) :
                                  1;                /* p^0 */
 
             seq_t term = ((seq_t)(e + 1)) * pow2e - (seq_t)e * pow2e_minus2;
@@ -42,7 +43,7 @@ seq_t a(idx_t n)
     /* Remaining prime factor with exponent 1 (if any) */
     if (m > 1)
     {
-        seq_t pow2e = pow_seq_val((seq_t)m, 2);  /* p^2 */
+        seq_t pow2e = ipow_idx((seq_t)m, 2);  /* p^2 */
         seq_t term  = ((seq_t)2) * pow2e - (seq_t)1; /* 2*p^2 - 1 */
         result *= term;
     }

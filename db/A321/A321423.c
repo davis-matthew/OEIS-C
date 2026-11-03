@@ -10,13 +10,15 @@
  *            the requested index and memoises them for subsequent calls
  * Range:     u8 n <= 55, u16 n <= 155, u32 n <= 492, u64 n <= 1711,
  *            u128 n <= 6333, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9769 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static memoisation buffers */
 static seq_t *dp_table = NULL;      /* coefficient array a[0..size-1] */
@@ -53,7 +55,7 @@ static void recompute(idx_t n)
 
     /* allocate / resize coefficient table */
     if (dp_size < sz) {
-        dp_table = (seq_t *)realloc(dp_table, sz * sizeof(seq_t));
+        dp_table = mem_resize(seq_t, dp_table, sz);
         dp_size = sz;
     }
 

@@ -10,8 +10,9 @@
  *            totient function of p. * The sum runs over all integers p>1;
  *            composite p are allowed, * but p^2 must not exceed n so the
  *            exponent e≥2 is possible only * for p ≤ √n. Co...
- * Range:     u8 n <= 9927, u16 n <= 9927, u32 n <= 9927, u64 n <= 9927,
- *            u128 n <= 9927, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 119 terms through n = 9927 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

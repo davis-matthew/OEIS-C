@@ -12,12 +12,14 @@
  *            a(0)=1. Complexity O(n)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for previously computed values */
@@ -36,14 +38,14 @@ seq_t a(idx_t n) {
     if (cache_cap < (size_t)(n + 1)) {
         /* allocate new array (at least n+1 entries) */
         size_t new_cap = n + 1;
-        seq_t *new_buf = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_buf = mem_new(seq_t, new_cap);
         /* copy old data if present */
         if (cache_cap > 0 && a_cache != NULL) {
             for (size_t i = 0; i < cache_cap; ++i)
                 new_buf[i] = a_cache[i];
         }
         /* free old buffer */
-        free(a_cache);
+        mem_free(a_cache);
         a_cache = new_buf;
         cache_cap = new_cap;
     }

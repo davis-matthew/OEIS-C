@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 2989, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   contains_substring_17
+ * Validated: standard, pass, 67 terms through n = 9342 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,24 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains_substring_17.h"
+#include "../utils/mem.h"
+
+/* Check whether a number contains the substring "17". */
+static bool contains_substring_17(seq_t x)
+{
+    if (x < 17) return false;                /* too small to contain "17" */
+    int prev = -1;
+    while (x > 0)
+    {
+        int digit = (int)(x % 10);
+        /* Scan from least‑significant digit: when we encounter 1
+           after previously seen a 7, we found the substring "17". */
+        if (digit == 1 && prev == 7) return true;
+        prev = digit;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Ensure a dynamic array has room for at least `needed` elements. */
 static void ensure_capacity(size_t *cap, seq_t **arr, size_t needed)
@@ -26,7 +44,7 @@ static void ensure_capacity(size_t *cap, seq_t **arr, size_t needed)
     {
         size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) abort();                 /* simple error handling */
         *arr   = tmp;
         *cap   = new_cap;

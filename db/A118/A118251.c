@@ -13,9 +13,10 @@
  *            smallest integer m greater than the previous * m that has not
  *            occurred as a contiguous substring in the sequence constructed
  *            so far. * The function returns the bit at po...
- * Range:     u8 n <= 9381, u16 n <= 9381, u32 n <= 9381, u64 n <= 9381,
- *            u128 n <= 9381, big any n
- * Helpers:   pattern_exists
+ * Range:     u8 n <= 11424, u16 n <= 11424, u32 n <= 11424, u64 n <= 11424,
+ *            u128 n <= 11424, big any n
+ * Validated: standard, pass, 121 terms through n = 9381 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,24 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/pattern_exists.h"
+
+/* Return true if pattern pat[0..pat_len-1] appears as a contiguous substring in seq[0..seq_len-1]. */
+static bool pattern_exists(const uint8_t *seq, size_t seq_len,
+                           const uint8_t *pat, size_t pat_len)
+{
+    if (pat_len > seq_len)
+        return false;
+    for (size_t i = 0; i + pat_len <= seq_len; ++i) {
+        size_t j;
+        for (j = 0; j < pat_len; ++j) {
+            if (seq[i + j] != pat[j])
+                break;
+        }
+        if (j == pat_len)
+            return true;
+    }
+    return false;
+}
 
 static uint8_t *seq_bits = NULL;   /* dynamic array holding the sequence bits */
 static size_t seq_len  = 0;         /* current number of bits in seq_bits */

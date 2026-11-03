@@ -8,7 +8,8 @@
  * Formula:   a(n) = ∏_{i=0..4} ( ⌊(n+i)/5⌋! )
  * Range:     u8 n <= 11, u16 n <= 16, u32 n <= 23, u64 n <= 35, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    cache of factorials.  It works for any seq_t (fixed‑size or
    arbitrary‑precision) and any idx_t. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact_cache = NULL;   /* fact_cache[k] == k! for 0 ≤ k < fact_cache_size */
 static idx_t  fact_cache_size = 0;
@@ -26,7 +28,7 @@ static void ensure_fact(idx_t m)
 {
     if (fact_cache_size <= m) {
         size_t new_size = (size_t)(m + 1);
-        seq_t *tmp = (seq_t *)realloc(fact_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact_cache, new_size);
         if (!tmp)      /* allocation failed – leave cache unchanged */
             return;
 

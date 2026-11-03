@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 11, i16 n <= 20, i32 n <= 39, i64 n <= 41, i128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper: ensure that the arrays a[0..cap-1] and b[0..cap-1] have
    capacity at least need.  The arrays are reallocated as needed.
@@ -34,8 +36,8 @@ static void ensure_cap(size_t need, seq_t **a, seq_t **b, size_t *cap, size_t ma
     size_t new_cap = (*cap) ? (*cap) << 1 : 4;
     while (new_cap < need) new_cap <<= 1;
 
-    seq_t *new_a = (seq_t*)malloc(new_cap * sizeof(seq_t));
-    seq_t *new_b = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_a = mem_new(seq_t, new_cap);
+    seq_t *new_b = mem_new(seq_t, new_cap);
     if (!new_a || !new_b) abort();     /* memory failure */
 
     /* copy existing a[0..*cap-1] */
@@ -53,7 +55,7 @@ static void ensure_cap(size_t need, seq_t **a, seq_t **b, size_t *cap, size_t ma
     }
 
     /* free old arrays and commit new ones */
-    free(*a); free(*b);
+    mem_free(*a); mem_free(*b);
     *a = new_a; *b = new_b; *cap = new_cap;
 }
 

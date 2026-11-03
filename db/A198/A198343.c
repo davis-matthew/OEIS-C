@@ -7,13 +7,15 @@
  * Formula:   a(n) = the n-th divisor of 196560 (sorted in ascending order)
  * Range:     u8 n <= 4, u16 n <= 154, u32 n <= 160, u64 n <= 160,
  *            u128 n <= 160, big any n
- * Helpers:   none
+ * Validated: full, pass, 160 terms through n = 160 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Precomputed number of divisors of 196560 (5*4*2*2*2 = 160) */
 #define DIVISOR_COUNT 160
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
                             divisors[idx++] = val;
                         }
         /* Sort divisors */
-        qsort(divisors, DIVISOR_COUNT, sizeof(seq_t), seq_compare);
+        mem_qsort(divisors, DIVISOR_COUNT, sizeof(seq_t), seq_compare);
         initialized = 1;
     }
 

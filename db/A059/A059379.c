@@ -8,14 +8,41 @@
  * Formula:   a(n) = J_k(m) read along anti‑diagonals of the table J_k(n)
  * Range:     u8 n <= 31, u16 n <= 61, u32 n <= 163, u64 n <= 423,
  *            u128 n <= 1113, big any n
- * Helpers:   factor_small
+ * Validated: standard, pass, 75 terms through n = 9937 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/factor_small.h"
+
+/* Factorise a small positive integer m (m ≤ few hundred).
+   Stores distinct prime factors in pr[], corresponding exponents in ex[],
+   and returns the count in *cnt. */
+static void factor_small(uint64_t m, uint64_t *pr, uint64_t *ex, size_t *cnt)
+{
+    size_t c = 0;
+    uint64_t n = m;
+    for (uint64_t p = 2; p * p <= n; ++p) {
+        if (n % p == 0) {
+            uint64_t e = 0;
+            while (n % p == 0) {
+                n /= p;
+                ++e;
+            }
+            pr[c] = p;
+            ex[c] = e;
+            ++c;
+        }
+    }
+    if (n > 1) {
+        pr[c] = n;
+        ex[c] = 1;
+        ++c;
+    }
+    *cnt = c;
+}
 
 /* Small integer power for seq_t.  Works for built‑in integer types
    and for C++ arbitrary‑precision classes with overloaded *. */

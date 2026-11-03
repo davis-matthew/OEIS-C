@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k where 2^k | n} 2^a(k); a(0) = 1
  * Range:     u8 n <= 15, u16 n <= 15, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t exp); */
+#include <stdbool.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache[i] = a(i)  (0 means not yet computed) */
 static size_t cache_len = 0;     /* current allocated size */
@@ -28,7 +31,7 @@ static int ensure_cache(size_t max_index)
     if (cache_len >= needed)
         return 1;               /* already enough */
 
-    seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(*cache));
+    seq_t *tmp = mem_resize(seq_t, cache, needed);
     if (!tmp)
         return 0;               /* allocation failed */
 

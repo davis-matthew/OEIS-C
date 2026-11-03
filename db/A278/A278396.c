@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 22, u128 n <= 43,
  *            big any n
- * Helpers:   array_malloc
+ * Validated: standard, pass, 38 terms through n = 199 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,16 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/array_malloc.h"
+
+/* ---------------------------------------------------------------------- */
+static seq_t* array_malloc(size_t n)
+{
+#ifdef __cplusplus
+    return new seq_t[n]();
+#else
+    return (seq_t*)calloc(n, sizeof(seq_t));
+#endif
+}
 
 /* ---------------------------------------------------------------------- */
 /* Helper to allocate arrays of seq_t in a way that works in both C and C++ */

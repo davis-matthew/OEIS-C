@@ -10,7 +10,8 @@
  *            one instance of the smallest prime factor replaced by (pmin+1)
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----- Utility functions – small trial division ***** */
 static bool is_prime(uint64_t x)
@@ -73,7 +75,7 @@ static void ensure_cache(size_t n)
     if (cache_cap == 0 || cache_cap < n) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap < n) new_cap *= 2;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

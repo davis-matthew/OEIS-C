@@ -7,8 +7,9 @@
  * Formula:   a(0) = 1; for n > 0, a(n) = 1,1,1,0,1,1,1,2 repeated with period
  *            8, i.e. a(n) = pattern[(n-1) % 8], where pattern =
  *            {1,1,1,0,1,1,1,2}
- * Range:     u8 n <= 9987, u16 n <= 9987, u32 n <= 9987, u64 n <= 9987,
- *            u128 n <= 9987, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 122 terms through n = 9987 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

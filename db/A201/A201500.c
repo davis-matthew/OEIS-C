@@ -9,8 +9,9 @@
  * Formula:   a(n) = 2*a(n-2) - 2*a(n-6) + a(n-8) for n ≥ 9, with initial
  *            values a(1)=2, a(2)=2, a(3)=6, a(4)=5, a(5)=12, a(6)=8, a(7)=20,
  *            a(8)=13
- * Range:     u8 n <= 30, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
- *            big any n
+ * Range:     u8 n <= 30, u16 n <= 210, u32 n <= 210, u64 n <= 210,
+ *            u128 n <= 210, big any n
+ * Validated: standard, pass, 76 terms through n = 185 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

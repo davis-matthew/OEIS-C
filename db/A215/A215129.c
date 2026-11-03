@@ -10,13 +10,15 @@
  *            recurrence follows from G(x)=x+(2G+G²)² and A(x)=G'(x))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
     /* we need g[0..n+1] and P[0..n+1] */
     size_t N = (size_t)n + 1u;   /* N = n+1 */
 
-    seq_t *g = (seq_t *)malloc((N + 1u) * sizeof(seq_t));
-    seq_t *P = (seq_t *)malloc((N + 1u) * sizeof(seq_t));
+    seq_t *g = mem_new(seq_t, (N + 1u));
+    seq_t *P = mem_new(seq_t, (N + 1u));
     if (!g || !P) {
         /* allocation failed – return 0 as a safe fallback */
         return (seq_t)0u;
@@ -66,8 +68,8 @@ seq_t a(idx_t n)
     seq_t result = g[N] * (seq_t)(n + 1u);
 
     /* free allocated memory */
-    free(g);
-    free(P);
+    mem_free(g);
+    mem_free(P);
 
     return result;
 }

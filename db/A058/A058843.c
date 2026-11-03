@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 31, u64 n <= 59, u128 n <= 124,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 1259 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -29,6 +30,8 @@
  *  10 000 (the test harness limits its queries to roughly that size).
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

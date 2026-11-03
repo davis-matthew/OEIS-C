@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,14 +18,25 @@
  * n as a sum of decimal palindromes uses more than three palindromes. */
 
 #include <stdint.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static seq_t largest_palindrome_leq(seq_t x)
 {
     if (x < 10) return x;
 
-    const int len = digit_len(x);
+    const int len = num_digits(x);
     const int half_len = (len + 1) / 2;
     const seq_t pow10v = pow10(len - half_len);
     seq_t firstHalf = x / pow10v;
@@ -44,7 +56,7 @@ static seq_t largest_palindrome_leq(seq_t x)
         /* If it fell to zero, the largest palindrome is all 9's of length len-1 */
         if (firstHalf == 0) return pow10(len - 1) - 1;
         /* If the shortened firstHalf has fewer digits, also return all 9's */
-        if (digit_len(firstHalf) < half_len) return pow10(len - 1) - 1;
+        if (num_digits(firstHalf) < half_len) return pow10(len - 1) - 1;
 
         /* Rebuild the palindrome with the decremented firstHalf */
         pal = firstHalf;

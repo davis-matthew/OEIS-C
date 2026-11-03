@@ -12,12 +12,14 @@
  *            a(10)=50
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Initial terms up to n = 10.  They fit in uint64_t; larger seq_t types truncate or cast safely. */
 static const seq_t _init_vals[11] =
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         size_t needed = (size_t)n + 1;
         if (needed < 12)                          /* at least accommodate a(10) */
             needed = 12;
-        _cache = (seq_t*)malloc(needed * sizeof(seq_t));
+        _cache = mem_new(seq_t, needed);
         if (!_cache)
             exit(EXIT_FAILURE);
         for (size_t i = 0; i < 11; ++i)
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         size_t new_size = _cache_size ? _cache_size * 2 : 16;
         if (new_size <= target)
             new_size = target + 1;
-        seq_t *tmp = (seq_t*)realloc(_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _cache, new_size);
         if (!tmp)
             exit(EXIT_FAILURE);
         _cache = tmp;

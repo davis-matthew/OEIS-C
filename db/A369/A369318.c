@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,18 +21,19 @@
 #include <stdint.h>     /* uint64_t, etc. */
 #include <stdlib.h>     /* malloc, realloc, free */
 #include <stdbool.h>    /* bool */
-#include "../utils/bitlen_seq_t.h"   /* bitlen_seq_t(seq_t) */
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* Compute the gcd of two polynomials over GF(2).  The polynomials are
    represented by the binary expansion of the integers a and b.           */
 static inline seq_t poly_gcd(seq_t a, seq_t b)
 {
     while (b != 0) {
-        unsigned deg_b = bitlen_seq_t(b) - 1;
+        unsigned deg_b = bit_length(b) - 1;
         /* reduce a by b repeatedly */
         seq_t r = a;
         while (r != 0) {
-            unsigned deg_r = bitlen_seq_t(r) - 1;
+            unsigned deg_r = bit_length(r) - 1;
             if (deg_r < deg_b)
                 break;
             r ^= b << (deg_r - deg_b);
@@ -69,9 +71,9 @@ seq_t a(idx_t n)
         if (ok_k(last_k)) {
             if (cache_size == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {         /* allocation failure */
-                    free(cache);
+                    mem_free(cache);
                     cache = NULL;
                     cache_cap = cache_size = 0;
                     return 0;

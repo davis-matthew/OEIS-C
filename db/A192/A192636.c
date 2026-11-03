@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 480, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9874 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* assumes seq_t and idx_t are defined by the build */
 extern seq_t a(idx_t n);
@@ -55,8 +57,8 @@ static void compute_sequence(void)
         if (is_powerful[i]) ++power_cnt;
 
     /* allocate arrays */
-    powers = (seq_t *)malloc(power_cnt * sizeof(seq_t));
-    seq_arr = (seq_t *)malloc(power_cnt * sizeof(seq_t));  /* at most
+    powers = mem_new(seq_t, power_cnt);
+    seq_arr = mem_new(seq_t, power_cnt);  /* at most
                                                                 power_cnt terms */
     if (!powers || !seq_arr) exit(1);
 

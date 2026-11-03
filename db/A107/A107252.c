@@ -7,12 +7,14 @@
  * Formula:   a(n) = ∏_{k=0}^{n-1} (n+k)!/(k+1)!
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for factorials and the sequence */
 static seq_t *fact = NULL;          /* fact[i] = i!           */
@@ -31,7 +33,7 @@ static void ensure_fact(idx_t need)
     if (fact_cap <= need) {
         size_t new_cap = (fact_cap == 0) ? 1 : fact_cap;
         while (new_cap <= need) new_cap <<= 1;
-        fact = (seq_t*)realloc(fact, new_cap * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, new_cap);
         fact_cap = new_cap;
     }
     for (idx_t i = fact_last + 1; i <= need; ++i)
@@ -47,7 +49,7 @@ static void ensure_seq(idx_t need)
     if (a_cap <= need) {
         size_t new_cap = (a_cap == 0) ? 1 : a_cap;
         while (new_cap <= need) new_cap <<= 1;
-        a_arr = (seq_t*)realloc(a_arr, new_cap * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, new_cap);
         a_cap = new_cap;
     }
 
@@ -69,12 +71,12 @@ seq_t a(idx_t n)
     /* Lazy one‑time init of index 0 entry */
     if (a_cap == 0) {
         a_cap = 1;
-        a_arr = (seq_t*)malloc(sizeof(seq_t));
+        a_arr = mem_new(seq_t, 1);
         a_arr[0] = (seq_t)1;
         a_last = 0;
 
         fact_cap = 1;
-        fact = (seq_t*)malloc(sizeof(seq_t));
+        fact = mem_new(seq_t, 1);
         fact[0] = (seq_t)1;
         fact_last = 0;
     }

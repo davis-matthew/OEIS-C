@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 6, u128 n <= 10,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 27 terms through n = 259 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <math.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Constants (high precision 80‑bit long double) */
 static const long double LOG10_2 = 0.3010299956639811952137388947244930267682L;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
             /* Ensure capacity of cache */
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap << 1;
-                seq_t *tmp = (seq_t *)realloc((void *)cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) /* allocation failure – abort generation */
                     return (seq_t)0;
                 cache = tmp;

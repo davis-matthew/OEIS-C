@@ -9,8 +9,9 @@
  *            representation is the unique sum of non‑consecutive Fibonacci
  *            numbers * F1=1, F2=2, F3=3, … . The algorithm is O(log n) and
  *            uses only * constant extra space
- * Range:     u8 n <= 9529, u16 n <= 9529, u32 n <= 9529, u64 n <= 9529,
- *            u128 n <= 9529, big any n
+ * Range:     u8 n <= 10946, u16 n <= 10946, u32 n <= 10946, u64 n <= 10946,
+ *            u128 n <= 10946, big any n
+ * Validated: standard, pass, 102 terms through n = 9529 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 66 terms through n = 760 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
     Formula:  a(n) = ∏_{p^e || n} (p^2-1)^e   (product over prime powers dividing n)*/
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i) {
         seq_t p = (seq_t)primes[i];
         seq_t base = p * p - (seq_t)1;            /* p^2-1 */
-        seq_t power = big_pow(base, (seq_t)exps[i]);  /* (p^2-1)^e */
+        seq_t power = ipow(base, (seq_t)exps[i]);  /* (p^2-1)^e */
         result *= power;                           /* multiply into result */
     }
 

@@ -9,13 +9,16 @@
  *            1
  * Range:     u8 n <= 13, u16 n <= 36, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Return the n‑th term of sequence A349576.  Indexing starts at 1. */
 seq_t a(idx_t n)
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
     /* Ensure the cache is large enough for the requested n */
     if ((size_t)n > cap) {
         size_t new_cap = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {         /* allocation failure: abort the computation */
             /* In the unlikely event of failure we simply return 0. */
             return (seq_t)0;

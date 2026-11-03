@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 144, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9159 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    a(13)=23, a(14)=25, a(15)=13, a(16)=14, a(17)=31 */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* initial 18 terms */
 static const seq_t init_vals[18] = {
@@ -37,7 +39,7 @@ static void ensure_capacity(idx_t n)
     if (cap <= (size_t)n) {
         size_t new_cap = (cap == 0) ? 16 : cap * 2;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cap   = new_cap;
     }

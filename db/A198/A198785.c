@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    The algorithm builds A(x) coefficient by coefficient using
    a recursive convolution and divisor sums.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The required interface */
 seq_t a(idx_t n) {
@@ -33,9 +35,9 @@ seq_t a(idx_t n) {
        We preallocate a bit more to reduce reallocs. */
     if (A == NULL) {
         size = (n + 1 > 4 ? n + 1 : 4);
-        A = (seq_t *)malloc(size * sizeof(seq_t));
-        B = (seq_t *)malloc(size * sizeof(seq_t));
-        E = (seq_t *)malloc(size * sizeof(seq_t));
+        A = mem_new(seq_t, size);
+        B = mem_new(seq_t, size);
+        E = mem_new(seq_t, size);
 
         /* initialise base case */
         A[0] = 1;
@@ -44,9 +46,9 @@ seq_t a(idx_t n) {
         next = 1;          /* next index to compute */
     } else if ((size_t)(n + 1) > size) {
         size_t new_size = (size_t)(n + 1) > size * 2 ? (size_t)(n + 1) : size * 2;
-        A = (seq_t *)realloc(A, new_size * sizeof(seq_t));
-        B = (seq_t *)realloc(B, new_size * sizeof(seq_t));
-        E = (seq_t *)realloc(E, new_size * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_size);
+        B = mem_resize(seq_t, B, new_size);
+        E = mem_resize(seq_t, E, new_size);
         size = new_size;
     }
 

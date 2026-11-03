@@ -9,6 +9,7 @@
  * Formula:   a(n) = (4*n^3 + 18*n^2 + 32*n + 3*(-1)^n - 27)/24
  * Range:     u8 n <= 2, u16 n <= 23, u32 n <= 1038, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 60 terms through n = 9804 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

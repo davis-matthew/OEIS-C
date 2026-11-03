@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 8, u32 n <= 1118, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64, seq_mul
+ * Validated: standard, pass, 52 terms through n = 9673 (2026-11-03)
+ * Helpers:   factor_u64, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,9 +27,15 @@
 #include <stdlib.h>
 
 /* Utility functions available in the build environment  */
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Node used in the priority queue  */
 typedef struct {
@@ -47,7 +54,7 @@ static void heap_push(uint64_t base, uint64_t exp, seq_t val)
 {
     if (heap_sz == heap_cap) {
         heap_cap = heap_cap ? heap_cap * 2 : 16;
-        heap = (node_t *)realloc(heap, heap_cap * sizeof(node_t));
+        heap = mem_resize(node_t, heap, heap_cap);
     }
     size_t i = heap_sz++;
     heap[i].base = base;
@@ -118,7 +125,7 @@ static void append_seq_val(seq_t v)
 
     if (seq_sz == seq_cap) {
         seq_cap = seq_cap ? seq_cap * 2 : 256;
-        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
     }
     seq[seq_sz++] = v;
 }
@@ -134,7 +141,7 @@ seq_t a(idx_t n)
     while (seq_sz < (size_t)n) {
         /* If heap empty, find and insert the first valid base */
         while (heap_sz == 0) {
-            seq_t sq = big_pow((seq_t)next_base, (seq_t)2);
+            seq_t sq = ipow((seq_t)next_base, (seq_t)2);
             if (is_valid_base(next_base))
                 heap_push(next_base, 2, sq);
             next_base += 2; /* only odd numbers */
@@ -145,7 +152,7 @@ seq_t a(idx_t n)
 
         /* Insert new bases whose square is <= the current limit */
         while (1) {
-            seq_t sq = big_pow((seq_t)next_base, (seq_t)2);
+            seq_t sq = ipow((seq_t)next_base, (seq_t)2);
             if (sq <= limit) {
                 if (is_valid_base(next_base))
                     heap_push(next_base, 2, sq);

@@ -10,14 +10,28 @@
  *            multiple of 10
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   digit_freq
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_freq.h"
+#include "../utils/mem.h"
+
+/* compute digit frequency array of v */
+static void digit_freq (seq_t v, unsigned int freq[10])
+{
+    for (int i = 0; i < 10; ++i) freq[i] = 0;
+    if (v == 0) { freq[0] = 1; return; }
+    while (v > 0)
+    {
+        int d = (int)(v % 10);
+        freq[d]++;
+        v /= 10;
+    }
+}
 
 static seq_t *cache = NULL;      /* array of terms (0‑based) */
 static idx_t  cache_len = 0;     /* number of terms stored (>=0) */
@@ -29,7 +43,7 @@ static void ensure_capacity (idx_t needed)
     if (needed <= cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

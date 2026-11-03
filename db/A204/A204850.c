@@ -11,12 +11,15 @@
  *            (-p)^(e/2) if p ≡ 5,7 (mod 8)
  * Range:     i8 n <= 594, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 98 terms through n = 985 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
         idx_t k = e >> 1;                    /* exponent/2 */
         /* b(3^e) = -2 * 3^k */
         result *= (seq_t)(-2);
-        result *= big_pow((seq_t)3, (seq_t)k);
+        result *= ipow((seq_t)3, (seq_t)k);
     }
 
     /* trial division by odd primes >= 5 */
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
             while (t % p == 0) { t /= p; ++e; }
             if (e & 1) return (seq_t)0;      /* odd exponent */
             idx_t k = e >> 1;
-            seq_t term = big_pow((seq_t)p, (seq_t)k);
+            seq_t term = ipow((seq_t)p, (seq_t)k);
 
             /* sign adjustment for primes ≡ 5 or 7 (mod 8) */
             if ((p & 7) == 5 || (p & 7) == 7) {

@@ -8,7 +8,8 @@
  *            (p-1)*(p+1)^2*p^(2e-3) for e ≥ 2 (OEIS A140697)
  * Range:     u8 n <= 13, u16 n <= 209, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_int
+ * Validated: standard, pass, 66 terms through n = 8511 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdbool.h>
 #include <stddef.h>                 /* size_t */
 
-#include "../utils/factor_u64.h"    /* factor_u64 */
-#include "../utils/pow_int.h"       /* pow_int(seq_t, idx_t) */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
 
 static seq_t prime_power_term(seq_t p, uint64_t e)
 {
@@ -30,7 +32,7 @@ static seq_t prime_power_term(seq_t p, uint64_t e)
         seq_t base = (p - (seq_t)1) *
                      ((p + (seq_t)1) * (p + (seq_t)1));
         idx_t exp = (idx_t)((2 * e) - 3);
-        seq_t pow = pow_int(p, exp);
+        seq_t pow = ipow_idx(p, exp);
         return base * pow;
     }
 }

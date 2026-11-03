@@ -9,12 +9,14 @@
  *            (offset 1)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 845 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t   cache_size = 0;
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
     while (new_size <= n)
         new_size <<= 1;
 
-    cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
     for (idx_t i = cache_size; i < new_size; ++i)
         cache[i] = 0;  /* 0 marks “not yet computed”; seq_t ≥ 1 for n ≥ 1 */
 

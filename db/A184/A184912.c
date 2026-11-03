@@ -9,15 +9,44 @@
  *            floor(n*2^(3/5))
  * Range:     u8 n <= 51, u16 n <= 120, u32 n <= 120, u64 n <= 120,
  *            u128 n <= 120, big any n
- * Helpers:   fifth_root_floor_uint128, floor_scale
+ * Validated: partial, pass, 120 terms through n = 120 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <limits.h>
-#include "../utils/fifth_root_floor_uint128.h"
-#include "../utils/floor_scale.h"
+
+/* Compute floor of x^(1/5) given x as unsigned __int128. */
+static uint64_t fifth_root_floor_uint128(unsigned __int128 N) {
+    unsigned __int128 low = 0, high = 1;
+    /* Find an upper bound */
+    while (high * high * high * high * high <= N)
+        high <<= 1;
+    low = high >> 1;
+    /* Binary search */
+    while (low + 1 < high) {
+        unsigned __int128 mid = (low + high) >> 1;
+        unsigned __int128 val = mid * mid * mid * mid * mid;
+        if (val <= N)
+            low = mid;
+        else
+            high = mid;
+    }
+    return (uint64_t)low;
+}
+
+/* Compute floor(n * 2^(k/5)) for k=1,2,3 using integer 5th root
+ * via (n^5 * 2^k)^(1/5) */
+static uint64_t floor_scale(idx_t n, unsigned k) {
+    unsigned __int128 rn = (unsigned __int128)n;
+    /* n^5 */
+    unsigned __int128 n5 = rn * rn * rn * rn * rn;
+    /* Multiply by 2^k (shift left by k bits) */
+    unsigned __int128 N = n5 << k; /* 2^k */
+    return fifth_root_floor_uint128(N);
+}
 
 seq_t a(idx_t n) {
     /* a is defined for n >= 1 */

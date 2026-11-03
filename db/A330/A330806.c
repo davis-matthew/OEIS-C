@@ -9,14 +9,17 @@
  *            a(n-2)/gcd(a(n-2), n-2)
  * Range:     u8 n <= 23, u16 n <= 43, u32 n <= 86, u64 n <= 180,
  *            u128 n <= 388, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 66 terms through n = 960 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache: cache[i] holds a(i) for 1 <= i <= last */
@@ -29,7 +32,7 @@ seq_t a(idx_t n) {
     /* first allocation and initialization */
     if (cache == NULL) {
         cap = 4;                  /* start with modest capacity */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;     /* allocation failure */
         for (idx_t i = 0; i < cap; ++i) cache[i] = 0;  /* zero init */
         cache[1] = 1;
@@ -41,7 +44,7 @@ seq_t a(idx_t n) {
     if ((idx_t)(cap - 1) < n) {
         size_t new_cap = cap;
         while (new_cap <= n) new_cap <<= 1;   /* double until enough */
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;                  /* allocation failure */
         cache = tmp;
         for (idx_t i = cap; i < new_cap; ++i) cache[i] = 0;

@@ -7,13 +7,15 @@
  * Formula:   a(n) = (-1)^(n+1) * (3^n + 1) / 2
  * Range:     i8 n <= 4, i16 n <= 9, i32 n <= 19, i64 n <= 29, i128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Expand cache if needed */
     if (n >= pow3_cap) {
         idx_t new_cap = n + 1;   /* need indices 0..n inclusive */
-        seq_t *tmp = (seq_t *)realloc(pow3, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow3, new_cap);
         assert(tmp);              /* abort on OOM */
         pow3 = tmp;
         for (idx_t i = pow3_cap; i < new_cap; ++i) {

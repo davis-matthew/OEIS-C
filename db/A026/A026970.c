@@ -11,20 +11,22 @@
  *            integer power function
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 25, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"  // for big_pow()
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)1;
 
     /* Compute 2^(n+2) as a big integer */
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)(n + 2));
+    seq_t pow2 = ipow((seq_t)2, (seq_t)(n + 2));
 
     /* Subtract 3 */
     seq_t val = pow2 - (seq_t)3;

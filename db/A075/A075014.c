@@ -8,13 +8,31 @@
  * Formula:   not stated
  * Range:     u8 n <= 120, u16 n <= 802, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   extgcd_int64, gcd_u64
+ * Validated: standard, pass, 81 terms through n = 875 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/extgcd_int64.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/gcd_u64.h"
+
+/* --------------------------------------------------------------------- */
+static void extgcd_int64(int64_t a, int64_t b, int64_t *x, int64_t *y, int64_t *g)
+{
+    if (b == 0) {
+        *g = a >= 0 ? a : -a;
+        *x = 1;
+        *y = 0;
+        return;
+    }
+    int64_t x1, y1;
+    extgcd_int64(b, a % b, &x1, &y1, g);
+    *x = y1;
+    *y = x1 - (a / b) * y1;
+}
 /* A075014: a(n) = smallest k>0 such that the decimal concatenation k,(k-1)
    is divisible by n; 0 if no such k exists.  The calculation uses the
    congruence k·(10^d+1) ≡ 1 (mod n) where d = number of decimal digits of k-1. */

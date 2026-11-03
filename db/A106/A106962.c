@@ -9,7 +9,8 @@
  *            sorted to answer a(n) in O(1)
  * Range:     u8 n <= 2, u16 n <= 592, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_seq, int_sqrt, is_prime, push_seq, seq_malloc
+ * Validated: standard, pass, 59 terms through n = 9136 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,11 +19,42 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime.h"
-#include "../utils/push_seq.h"
-#include "../utils/cmp_seq.h"
-#include "../utils/int_sqrt.h"
-#include "../utils/seq_malloc.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* Dynamic array helpers. */
+static void push_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val)
+{
+    if (*size >= *cap) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        *arr = mem_resize(seq_t, *arr, new_cap);
+        *cap = new_cap;
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
+
+/* Comparator for qsort on seq_t values. */
+static int cmp_seq(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
 
 /* Global storage for primes */
 static seq_t *primes = NULL;
@@ -42,7 +74,7 @@ static void generate_up_to(idx_t bound)
 {
     if (bound <= max_checked_value) return;
 
-    idx_t y_limit = int_sqrt(bound / 20ULL);  /* y^2 * 20 <= bound */
+    idx_t y_limit = isqrt(bound / 20ULL);  /* y^2 * 20 <= bound */
     for (idx_t y = 0; y <= y_limit; ++y) {
         uint64_t y2 = (uint64_t)y * (uint64_t)y;
         for (idx_t x = 0; ; ++x) {
@@ -52,7 +84,7 @@ static void generate_up_to(idx_t bound)
                          + 20ULL * y2;
             if (val > (uint64_t)bound) break;
             if (val <= (uint64_t)max_checked_value) continue;
-            if (val >= 2ULL && is_prime((uint64_t)val)) {
+            if (val >= 2ULL && is_prime_u64((uint64_t)val)) {
                 push_seq(&primes, &primes_cap, &primes_size, (seq_t)val);
             }
         }
@@ -60,7 +92,7 @@ static void generate_up_to(idx_t bound)
 
     /* Sort and deduplicate the prime list */
     if (primes_size > 0) {
-        qsort(primes, (size_t)primes_size, sizeof(seq_t), cmp_seq);
+        mem_qsort(primes, (size_t)primes_size, sizeof(seq_t), cmp_seq);
 
         /* Compact in place: keep unique values only */
         idx_t uniq = 0;

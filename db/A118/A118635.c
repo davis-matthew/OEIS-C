@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   reverse_digits
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,10 @@
    a(n) = reverse(a(n-1)) + 39   (for n > 1)  */
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/reverse_digits.h"   /* seq_t reverse_digits(seq_t) */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,11 +38,11 @@ seq_t a(idx_t n)
         if (cap < (size_t)n) {
             size_t new_cap = cap ? cap << 1 : 1;       /* double or start at 1 */
             if (new_cap < (size_t)n) new_cap = (size_t)n;
-            seq_t *tmp = (seq_t*)malloc(new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_new(seq_t, new_cap);
             if (!tmp) exit(1);   /* allocation failed */
             if (cache) {
-                memcpy(tmp, cache, size * sizeof(seq_t));
-                free(cache);
+                mem_copy(tmp, cache, size * sizeof(seq_t));
+                mem_free(cache);
             }
             cache = tmp;
             cap   = new_cap;

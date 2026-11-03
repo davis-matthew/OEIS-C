@@ -7,14 +7,47 @@
  * Formula:   a(n) = Sum_{d|n, d==1 mod 4} d^8 - Sum_{d|n, d==3 mod 4} d^8
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 14, i64 n <= 234,
  *            i128 n <= 10000, big any n
- * Helpers:   prime_power_term
+ * Validated: standard, pass, 42 terms through n = 9999 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/prime_power_term.h"
+
+/* Helper that computes a(p^e) where p is an odd prime or 2 */
+static seq_t prime_power_term(idx_t p, idx_t e)
+{
+    if (p == 2)          /* a(2^e) = 1 by definition */
+        return 1;
+
+    /* compute p^8 */
+    seq_t p8 = 1;
+    seq_t pp = (seq_t)p;
+    for (int i = 0; i < 8; ++i)
+        p8 *= pp;
+
+    /* geometric series with sign depending on p mod 4 */
+    seq_t sum = 1;       /* k = 0 term */
+    seq_t term = 1;      /* p8^k */
+
+    if (p % 4 == 1) {    /* all divisors give + sign */
+        for (idx_t k = 1; k <= e; ++k) {
+            term *= p8;
+            sum += term;
+        }
+    } else {             /* p % 4 == 3, signs alternate */
+        bool neg = true; /* k=1 term is negative */
+        for (idx_t k = 1; k <= e; ++k) {
+            term *= p8;
+            if (neg) sum -= term;
+            else     sum += term;
+            neg = !neg;
+        }
+    }
+    return sum;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

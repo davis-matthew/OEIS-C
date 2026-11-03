@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 12, i64 n <= 20, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  *  arbitrary-order calls. */
 #include <stdlib.h>  /* realloc, abort */
 #include <stddef.h>  /* size_t */
+#include "../utils/mem.h"
 
 /* Multiply two seq_t values, then divide by an idx_t divisor.
  *  Division is exact by construction of the binomial coefficient. */
@@ -42,7 +44,7 @@ a(idx_t n)
     /* Ensure cache large enough for index n. */
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) abort();          /* allocation failure */
         /* Initialise new entries to 0 (uncomputed). */
         for (size_t i = cache_size; i < new_size; ++i) new_cache[i] = 0;

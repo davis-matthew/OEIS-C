@@ -10,14 +10,16 @@
  *            the flat index n in the triangle read by rows
  * Range:     u8 n <= 43, u16 n <= 151, u32 n <= 70, u64 n <= 2143,
  *            u128 n <= 5150, big any n
- * Helpers:   big_pow, gcd
+ * Validated: standard, pass, 87 terms through n = 4899 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Find the 0‑based row number r for a given flat index n.
    Uses binary search on the triangular numbers. */
@@ -78,9 +80,9 @@ seq_t a(idx_t n)
         seq_t g = gcd(numer_mod, denom);
         return denom / g;
     } else { /* arbitrary‑precision build */
-        seq_t denom = big_pow((seq_t)2, (seq_t)q);
+        seq_t denom = ipow((seq_t)2, (seq_t)q);
         denom = denom - (seq_t)1;                /* 2^q‑1 */
-        seq_t numer = big_pow((seq_t)2, (seq_t)p);
+        seq_t numer = ipow((seq_t)2, (seq_t)p);
         numer = numer + (seq_t)1;                /* 1+2^p */
         seq_t g = gcd(numer, denom);
         return denom / g;

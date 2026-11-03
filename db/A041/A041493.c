@@ -7,7 +7,8 @@
  * Formula:   a(n) is the denominator of the n-th convergent of sqrt(263)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 44, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* Initialize caches and CF state on first call */
     if (!denoms) {
         cap = 4;
-        denoms = (seq_t *)malloc(cap * sizeof(seq_t));
+        denoms = mem_new(seq_t, cap);
         if (!denoms) abort();
         denoms[0] = (seq_t)1;   /* a(0) */
         len = 1;
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
         /* Grow cache if necessary */
         if (len == cap) {
             size_t new_cap = cap * 2;
-            seq_t *tmp = (seq_t *)realloc(denoms, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, denoms, new_cap);
             if (!tmp) abort();
             denoms = tmp;
             cap = new_cap;

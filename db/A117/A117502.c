@@ -9,12 +9,14 @@
  *            k < r, and a(n) = Fibonacci(r+1) for k = r
  * Range:     u8 n <= 90, u16 n <= 299, u32 n <= 1127, u64 n <= 4370,
  *            u128 n <= 5050, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 3917 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Minimum Fibonacci cache.  Indexes are 1‑based. */
 static seq_t *fib_cache  = NULL;
@@ -27,7 +29,7 @@ static void ensure_fib(idx_t need)
 
     /* Allocate space for indices 0 … need (index 0 unused). */
     size_t new_len = (size_t)need + 1;
-    seq_t *new_cache = (seq_t *)realloc(fib_cache, sizeof(seq_t) * new_len);
+    seq_t *new_cache = mem_resize(seq_t, fib_cache, new_len);
     if (!new_cache) return;          /* allocation failure – future
                                         calls will likely crash,
                                         but this case is not

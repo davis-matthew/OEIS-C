@@ -7,13 +7,15 @@
  * Formula:   a(n) = n! - Sum_{j=1..n-1} j!
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 408 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
     if (n >= size)
     {
         size_t new_size = (size_t)(n + 1);
-        fact = (seq_t *)realloc(fact, new_size * sizeof(seq_t));
-        cum  = (seq_t *)realloc(cum , new_size * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, new_size);
+        cum  = mem_resize(seq_t, cum, new_size);
 
         /* initialise the first elements if this is the first call */
         if (size == 0)

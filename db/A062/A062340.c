@@ -7,7 +7,8 @@
  * Formula:   a(n) = n-th prime whose sum of decimal digits is a multiple of 5
  * Range:     u8 n <= 12, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 841 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,12 +38,12 @@ seq_t a(idx_t n)
     /* initialise storage on first call */
     if (seq == NULL) {
         seq_cap = 1024;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) return 0;               /* out of memory */
 
         primes_cap = 2;
         primes = (uint64_t*)malloc(primes_cap * sizeof(uint64_t));
-        if (!primes) { free(seq); return 0; }
+        if (!primes) { mem_free(seq); return 0; }
     }
 
     /* generate primes until we have at least n qualifying entries */
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
             if (primes_len == primes_cap) {
                 primes_cap <<= 1;
                 uint64_t *tmp = (uint64_t*)realloc(primes, primes_cap * sizeof(uint64_t));
-                if (!tmp) { free(seq); free(primes); return 0; }
+                if (!tmp) { mem_free(seq); free(primes); return 0; }
                 primes = tmp;
             }
             primes[primes_len++] = candidate;
@@ -77,8 +79,8 @@ seq_t a(idx_t n)
                 /* ensure capacity for result array */
                 if (seq_len == seq_cap) {
                     seq_cap <<= 1;
-                    seq_t *tmp = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
-                    if (!tmp) { free(seq); free(primes); return 0; }
+                    seq_t *tmp = mem_resize(seq_t, seq, seq_cap);
+                    if (!tmp) { mem_free(seq); free(primes); return 0; }
                     seq = tmp;
                 }
                 seq[seq_len++] = (seq_t)candidate;

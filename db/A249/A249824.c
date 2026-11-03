@@ -10,20 +10,21 @@
  *            ⌊b/10⌋ − ⌊b/15⌋ + ⌊b/30⌋
  * Range:     u8 n <= 7, u16 n <= 215, u32 n <= 255, u64 n <= 255,
  *            u128 n <= 255, big any n
- * Helpers:   is_prime_d
+ * Validated: standard, pass, 79 terms through n = 246 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/is_prime_d.h"
+#include "../utils/is_prime_u64.h"
 
 /* next prime after x */
 static uint64_t next_prime(uint64_t x)
 {
     uint64_t cand = x + 1;
     while (1) {
-        if (is_prime_d(cand)) return cand;
+        if (is_prime_u64(cand)) return cand;
         ++cand;
     }
 }

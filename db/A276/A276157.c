@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A260188(n)/A053589(n)
- * Range:     u8 n <= 371, u16 n <= 9673, u32 n <= 9673, u64 n <= 9673,
- *            u128 n <= 9673, big any n
+ * Range:     u8 n <= 371, u16 n <= 11550, u32 n <= 11550, u64 n <= 11550,
+ *            u128 n <= 11550, big any n
+ * Validated: standard, pass, 97 terms through n = 9673 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

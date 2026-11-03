@@ -15,12 +15,14 @@
  *            satisfying c(z) = 1 + z c(z) + z^2 c(z) + z^3...
  * Range:     u8 n <= 15, u16 n <= 45, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state variables, initialized on first call */
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
         /* initial c[0] = 1 */
         if (c_cap < 1) {
             c_cap = 8;
-            c = (seq_t *)malloc(c_cap * sizeof(seq_t));
+            c = mem_new(seq_t, c_cap);
         }
         c[0] = 1;
         c_used = 1;
@@ -48,7 +50,7 @@ seq_t a(idx_t n) {
             dp_rows_cap = 8;
             dpRows = (seq_t **)malloc(dp_rows_cap * sizeof(seq_t *));
         }
-        seq_t *row0 = (seq_t *)calloc(1, sizeof(seq_t));
+        seq_t *row0 = mem_new(seq_t, 1);
         row0[0] = 1;
         dpRows[0] = row0;
         dp_rows_used = 1;
@@ -56,7 +58,7 @@ seq_t a(idx_t n) {
         /* initial seqVals with first term T(0,0) */
         if (seq_cap < 1) {
             seq_cap = 16;
-            seqVals = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+            seqVals = mem_new(seq_t, seq_cap);
         }
         seqVals[0] = 1;
         seq_used = 1;
@@ -74,7 +76,7 @@ seq_t a(idx_t n) {
         if (c_used <= w) {
             if (c_cap < w + 1) {
                 while (c_cap < w + 1) c_cap *= 2;
-                c = (seq_t *)realloc(c, c_cap * sizeof(seq_t));
+                c = mem_resize(seq_t, c, c_cap);
             }
             if (w == 1) c[1] = 1;
             else if (w == 2) c[2] = 2;
@@ -95,7 +97,7 @@ seq_t a(idx_t n) {
             while (dp_rows_cap <= currentWeight) dp_rows_cap *= 2;
             dpRows = (seq_t **)realloc(dpRows, dp_rows_cap * sizeof(seq_t *));
         }
-        seq_t *row = (seq_t *)calloc(maxK + 1, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, maxK + 1);
         for (size_t k = 0; k <= maxK; ++k) {
             seq_t val = 0;
 
@@ -130,7 +132,7 @@ seq_t a(idx_t n) {
         for (size_t k = 0; k <= maxK; ++k) {
             if (seq_cap <= seq_used) {
                 while (seq_cap <= seq_used) seq_cap *= 2;
-                seqVals = (seq_t *)realloc(seqVals, seq_cap * sizeof(seq_t));
+                seqVals = mem_resize(seq_t, seqVals, seq_cap);
             }
             seqVals[seq_used++] = row[k];
         }

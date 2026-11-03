@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 12, u128 n <= 12,
  *            big any n
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-02)
  * Helpers:   digit_product
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,8 @@
    returning 0 thereafter. 
 */
 
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_product.h"
 
 seq_t a(idx_t n)

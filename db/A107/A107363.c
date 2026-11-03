@@ -7,15 +7,17 @@
  * Keywords:  sign, easy
  * Formula:   a(n) = 4*a(n-6) + a(n-12) for n > 11 with initial values (n = 0
  *            .. 11) given below
- * Range:     i8 n <= 21, i16 n <= 43, i32 n <= 59, i64 n <= 59, i128 n <= 59,
- *            big any n
- * Helpers:   none
+ * Range:     i8 n <= 21, i16 n <= 43, i32 n <= 89, i64 n <= 181,
+ *            i128 n <= 365, big any n
+ * Validated: standard, pass, 76 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cache of computed terms (dynamically grown).  The array is
    allocated on the first call and grows as needed. */
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
     /* Initialise the cache on first use.  Use a cast to satisfy
        both C and C++ compiler requirements. */
     if (a_arr == NULL) {
-        a_arr = (seq_t *)malloc(12 * sizeof(seq_t));
-        memcpy(a_arr, a_init, 12 * sizeof(seq_t));
+        a_arr = mem_new(seq_t, 12);
+        mem_copy(a_arr, a_init, 12 * sizeof(seq_t));
         a_size = 12;
     }
 
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache up to and including n. */
     idx_t new_size = n + 1;
-    a_arr = (seq_t *)realloc(a_arr, new_size * sizeof(seq_t));
+    a_arr = mem_resize(seq_t, a_arr, new_size);
     for (idx_t i = a_size; i <= n; ++i) {
         seq_t val = a_arr[i - 6];          /* a(i-6) */
         val = val * (seq_t)4;              /* 4*a(i-6) */

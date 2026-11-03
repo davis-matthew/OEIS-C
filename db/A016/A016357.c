@@ -8,7 +8,8 @@
  *            Φ_210(x)
  * Range:     i8 n <= 48, i16 n <= 48, i32 n <= 48, i64 n <= 48, i128 n <= 48,
  *            big any n
- * Helpers:   poly_div_by_xd_minus_1, poly_mul_by_xd_minus_1
+ * Validated: full, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,40 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/poly_div_by_xd_minus_1.h"
-#include "../utils/poly_mul_by_xd_minus_1.h"
+#include "../utils/mem.h"
+
+/* Divide polynomial by (x^d - 1) (monic divisor) */
+static void poly_div_by_xd_minus_1(seq_t **poly, idx_t *deg, idx_t d)
+{
+    idx_t cur_deg = *deg;
+    idx_t new_deg = cur_deg - d;
+    seq_t *quot = mem_new(seq_t, (size_t)(new_deg + 1));
+
+    for (idx_t i = cur_deg; ; --i) {
+        seq_t q = (*poly)[i];
+        quot[i - d] = q;
+        (*poly)[i - d] += q;          /* subtract q * (-1) at degree i‑d */
+        if (i == d) break;
+    }
+    mem_free(*poly);
+    *poly = quot;
+    *deg  = new_deg;
+}
+
+/* Multiply polynomial * (x^d - 1) */
+static void poly_mul_by_xd_minus_1(seq_t **poly, idx_t *deg, idx_t d)
+{
+    idx_t cur_deg = *deg;
+    idx_t new_deg = cur_deg + d;
+    seq_t *prod = mem_new(seq_t, (size_t)(new_deg + 1));
+    for (idx_t i = 0; i <= cur_deg; ++i) {
+        prod[i]     -= (*poly)[i];
+        prod[i + d] += (*poly)[i];
+    }
+    mem_free(*poly);
+    *poly = prod;
+    *deg  = new_deg;
+}
 
 /* List of all positive divisors of 210 */
 static const idx_t divisors[] = {
@@ -39,7 +72,7 @@ static bool coeff_ready = false;
 static void build_phi_210(void)
 {
     idx_t deg = 0;
-    seq_t *poly = (seq_t *)calloc(1, sizeof(seq_t));
+    seq_t *poly = mem_new(seq_t, 1);
     poly[0] = 1;                   /* initial polynomial = 1 */
 
     /* Multiply by (x^d - 1) for each divisor with μ(210/d) = +1 */
@@ -60,7 +93,7 @@ static void build_phi_210(void)
     for (idx_t k = 0; k <= deg; ++k) {
         coeff[k] = poly[k];
     }
-    free(poly);
+    mem_free(poly);
     coeff_ready = true;
 }
 

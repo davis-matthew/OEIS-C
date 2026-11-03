@@ -8,7 +8,8 @@
  *            a(n-k)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   big_pow, pow2
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,29 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+/* Multiply-by-self exponentiation for big exponent (seq_t type) */
+static seq_t big_pow(seq_t base, seq_t exp) {
+    seq_t result = 1;
+    while (exp != 0) {
+        if ((exp % 2) != 0) {
+            result *= base;
+        }
+        base *= base;
+        exp /= 2;
+    }
+    return result;
+}
+
+/* Compute 2^exp for any exponent that may not fit in the bit width of seq_t. */
+static seq_t pow2(idx_t exp)
+{
+    seq_t res = (seq_t)1;
+    for (idx_t i = 0; i < exp; ++i)
+        res *= (seq_t)2;
+    return res;
+}
 
 static seq_t *a_cache = NULL;       /* a-values */
 static size_t a_cap  = 0;           /* allocated size of a_cache */
@@ -34,11 +56,11 @@ static void ensure_cap(idx_t n)
     size_t need = (size_t)(n + 1);
 
     if (a_cap < need) {
-        a_cache = (seq_t *)realloc(a_cache, need * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, need);
         a_cap   = need;
     }
     if (p_cap < need) {
-        p_cache = (seq_t *)realloc(p_cache, need * sizeof(seq_t));
+        p_cache = mem_resize(seq_t, p_cache, need);
         p_cap   = need;
     }
 }

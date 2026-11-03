@@ -9,14 +9,15 @@
  *            power of an odd prime, (2) 2*k + 1 is not a prime power
  * Range:     u8 n <= 73, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 72 terms through n = 9868 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* Test if n is a prime power.  If base_out is non‑NULL, store the prime base. */
 static inline bool is_prime_power_uint64(uint64_t n, uint64_t *base_out)
@@ -56,7 +57,7 @@ seq_t a(idx_t n)
     uint64_t k = 4;        /* first composite number */
 
     while (1) {
-        if (!is_prime_small(k)) {                 /* k is composite */
+        if (!is_prime_seq(k)) {                 /* k is composite */
             bool bad = false;
             uint64_t kp1 = k + 1;
             uint64_t kp2 = 2 * k + 1;

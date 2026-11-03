@@ -12,7 +12,8 @@
  *            descending order, * and listing the resulting numbe...
  * Range:     u8 n <= 1, u16 n <= 10, u32 n <= 511, u64 n <= 512,
  *            u128 n <= 512, big any n
- * Helpers:   seq_cmp
+ * Validated: full, pass, 512 terms through n = 512 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/seq_cmp.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 /* comparison function for qsort – works for any seq_t type */
 
@@ -54,7 +65,7 @@ static void build_table(void)
         table[(size_t)mask] = num;
     }
     /* sort the numbers to obtain the OEIS order */
-    qsort(table, 512, sizeof(seq_t), seq_cmp);
+    mem_qsort(table, 512, sizeof(seq_t), seq_cmp);
     ready = true;
 }
 

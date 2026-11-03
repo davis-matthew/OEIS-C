@@ -9,8 +9,9 @@
  *            of the base‑n digits of k (k≥1, n≥2), and the array is read by
  *            falling antidiagonals starting from (2,1). This implements the
  *            definition of OEIS sequence A397256
- * Range:     u8 n <= 8440, u16 n <= 8440, u32 n <= 8440, u64 n <= 8440,
- *            u128 n <= 8440, big any n
+ * Range:     u8 n <= 11326, u16 n <= 11326, u32 n <= 11326, u64 n <= 11326,
+ *            u128 n <= 11326, big any n
+ * Validated: standard, pass, 107 terms through n = 8440 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

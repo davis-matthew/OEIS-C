@@ -9,7 +9,8 @@
  *            b(k)=b(floor(k/2)) + k (complement of A005187)
  * Range:     u8 n <= 127, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 937 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static storage for the recurrence values (b) */
 static seq_t *b        = NULL;
@@ -39,7 +41,7 @@ static void grow_b(size_t need)
 {
     if (b_cap == 0) b_cap = 16;
     while (b_cap < need) b_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(b, b_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, b, b_cap);
     if (!tmp) exit(1);
     b = tmp;
 }
@@ -49,7 +51,7 @@ static void grow_missing(size_t need)
 {
     if (missing_cap == 0) missing_cap = 64;
     while (missing_cap < need) missing_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(missing, missing_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, missing, missing_cap);
     if (!tmp) exit(1);
     missing = tmp;
 }

@@ -7,12 +7,13 @@
  * Formula:   a(n) = (concatenate(n, n+1, n+2)) / 3
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   dec_digits_idx
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/dec_digits_idx.h"
+#include "../utils/num_digits_idx.h"
 
 /* Helper to compute 10^e as a seq_t.  The exponent e is small (at most
    the total number of decimal digits of n+2). */
@@ -31,9 +32,9 @@ seq_t a(idx_t n)
     idx_t n2 = n + 2;
 
     /* Number of decimal digits of each term. */
-    int len1 = dec_digits_idx(n);
-    int len2 = dec_digits_idx(n1);
-    int len3 = dec_digits_idx(n2);
+    int len1 = num_digits_idx(n);
+    int len2 = num_digits_idx(n1);
+    int len3 = num_digits_idx(n2);
 
     /* 10^(len2+len3) and 10^len3 as seq_t. */
     seq_t pow1 = pow10_idx((idx_t)(len2 + len3));

@@ -11,13 +11,15 @@
  *            q^(n-4) in * eta(q)*eta(q^30)*eta(q^35)*eta(q^42) * q^(-1/2)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 9048 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *coeff = NULL;          /* array of coefficients up to current max index */
 static idx_t coeff_n = 0;            /* largest index currently stored in coeff[] */
@@ -30,9 +32,9 @@ static void recompute_coeffs(idx_t N)
 {
     /* free old memory if any */
     if (coeff != NULL)
-        free(coeff);
+        mem_free(coeff);
 
-    coeff = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    coeff = mem_new(seq_t, (N + 1));
     if (coeff == NULL)
         return;                      /* out of memory – caller will get 0 */
 

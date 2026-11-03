@@ -8,6 +8,7 @@
  * Formula:   a(n) = A118850(n) + floor(A118850(n)/60)*40
  * Range:     u8 n <= 24, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
+ * Validated: full, pass, 83 terms through n = 83 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

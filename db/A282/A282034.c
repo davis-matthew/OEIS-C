@@ -10,12 +10,14 @@
  *            a(14)=25, a(15)=100, a(16)=125
  * Range:     u8 n <= 18, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 891 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[16] = {
     1, 2, 3, 4,
@@ -32,7 +34,7 @@ static idx_t cache_len   = 0;        /* number of values stored        */
 static void init_cache(void)
 {
     cache_alloc = 16;
-    cache = (seq_t *)malloc(cache_alloc * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_alloc);
     if (!cache) abort();               /* fatal if memory allocation fails */
     for (idx_t i = 0; i < 16; ++i)
         cache[i] = init_vals[i];
@@ -48,7 +50,7 @@ static void ensure_cache_size(idx_t need)
     idx_t new_alloc = cache_alloc ? cache_alloc : 16;
     while (new_alloc < need)
         new_alloc <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_alloc);
     if (!tmp) abort();
     cache = tmp;
     cache_alloc = new_alloc;

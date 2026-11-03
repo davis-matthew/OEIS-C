@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 31, u128 n <= 59,
  *            big any n
- * Helpers:   _pow_prime, build_primes_upto
+ * Validated: standard, pass, 40 terms through n = 205 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,12 +24,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto */
-#include "../utils/_pow_prime.h"
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_idx_to_seq.h"
 
 static void _init_primes(void);
 static idx_t _legendre(idx_t n, idx_t p);
-static seq_t _pow_prime(idx_t p, idx_t exp);
+static seq_t ipow_idx_to_seq(idx_t p, idx_t exp);
 
 /* Prime table initialisation */
 static uint64_t *prime_tbl = NULL;
@@ -79,7 +80,7 @@ seq_t a(idx_t n)
             }
             idx_t exp = e_num - e_den + e_m;
             if (exp > 0) {
-                result *= _pow_prime(p, exp);
+                result *= ipow_idx_to_seq(p, exp);
             }
         }
     } else {                          /* even n = 2k */
@@ -108,7 +109,7 @@ seq_t a(idx_t n)
             }
             idx_t exp = e_num - e_den + add6 - e_n2;
             if (exp > 0) {
-                result *= _pow_prime(p, exp);
+                result *= ipow_idx_to_seq(p, exp);
             }
         }
     }

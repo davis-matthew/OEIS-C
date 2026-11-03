@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2*a(n-1)+15*a(n-2), a(0)=0, a(1)=1
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 28, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;   /* number of elements currently in cache */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
         cache_capacity = (n < 1) ? 2 : ((idx_t)1 << (sizeof(idx_t)*8)); /* will enlarge */
         if (cache_capacity < (n + 1))
             cache_capacity = n + 1;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         if (cache == NULL) return 0; /* out of memory – caller must handle */
         cache[0] = 0;
         cache[1] = 1;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         /* grow cache to at least 2 * current size until enough */
         idx_t new_cap = cache_capacity;
         while (n + 1 > new_cap) new_cap *= 2;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (cache == NULL) return 0; /* out of memory – caller must handle */
         cache_capacity = new_cap;
     }

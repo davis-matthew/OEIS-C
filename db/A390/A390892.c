@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 17,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 31 terms through n = 278 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t* cache = NULL;
 static idx_t cache_size = 0;
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
 {
     if (n + 1 <= cache_size)
         return;
-    seq_t* new_cache = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t* new_cache = mem_resize(seq_t, cache, (n + 1));
     cache = new_cache;
     cache_size = n + 1;
 }
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Guarantee at least one element (a(0) = 1). */
     ensure_cache(n);
     if (cache_size == 0) {
-        cache = (seq_t*)calloc(1, sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache_size = 1;
     }
     if (cache[0] == 0)

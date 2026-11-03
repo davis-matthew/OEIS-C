@@ -7,18 +7,20 @@
  * Keywords:  nonn
  * Formula:   a(n) = (1/(n+1)) * Sum_{k=0..floor(n/2)} binomial(2*n+2,k) *
  *            binomial(2*n+2,n-2*k)
- * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 14, u64 n <= 26, u128 n <= 49,
+ * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 26, u128 n <= 49,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 1143 (2026-11-02)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+#include "../utils/binomial.h"
 
 #ifdef __cplusplus
 /* ------------------------------------------------------------------------- */
 /*  C++ compilation:  the seq_t type is a class (arbitrary‑precision)        */
 /* ------------------------------------------------------------------------- */
-#include "../utils/binomial.h"
+#include <stdlib.h>
 
 seq_t a(idx_t n)
 {
@@ -57,7 +59,6 @@ seq_t a(idx_t n)
 /* ------------------------------------------------------------------------- */
 /*  C compilation:  seq_t is an unsigned integer type (uint8_t … uint64_t)   */
 /* ------------------------------------------------------------------------- */
-#include "../utils/binomial.h"
 
 /* Helper for 128‑bit arithmetic when seq_t is an unsigned integer.      */
 static inline unsigned __int128 mul128(seq_t a, seq_t b)

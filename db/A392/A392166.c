@@ -9,15 +9,18 @@
  *            product runs over the prime power factors p^e of n
  * Range:     u8 n <= 137, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 85 terms through n = 9556 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
         uint64_t p  = primes[i];
         uint64_t e  = exps[i];
         uint64_t exp = (e - 1) / 2;          /* floor((e-1)/2) */
-        seq_t term   = seq_pow((seq_t)p, (idx_t)exp);
+        seq_t term   = ipow_idx((seq_t)p, (idx_t)exp);
         term *= (seq_t)(p + 1);
         result *= term;
     }

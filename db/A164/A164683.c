@@ -7,13 +7,15 @@
  * Formula:   a(n) = 8*a(n-2), a(1) = 1, a(2) = 8
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 43, u128 n <= 85,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 42 terms through n = 295 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -26,5 +28,5 @@ seq_t a(idx_t n)
     else                          /* odd  n: a(2k-1) = 8^(k-1)               */
         exp = (n - 1) / 2;
 
-    return pow_uint(8, exp);
+    return ipow_u64_idx(8, exp);
 }

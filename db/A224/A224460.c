@@ -8,6 +8,7 @@
  * Formula:   a(n) = (3*n^4 +34*n^3 +145*n^2 -190*n +208)/8
  * Range:     u8 none, u16 n <= 9, u32 n <= 323, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 55 terms through n = 9998 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

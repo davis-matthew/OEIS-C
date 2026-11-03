@@ -13,14 +13,30 @@
  *            T(n,k) read row‑wise: 1, 0,1, 0,3,1, 0,4,6,1,...
  * Range:     u8 n <= 30, u16 n <= 95, u32 n <= 285, u64 n <= 1008,
  *            u128 n <= 3775, big any n
- * Helpers:   sigma_of
+ * Validated: standard, pass, 82 terms through n = 9454 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/sigma_of.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* Static cache for the triangle */
 static seq_t **tri = NULL;       /* array of rows, tri[n][k] = T(n,k) */
@@ -61,7 +77,7 @@ static void ensure_rows(idx_t r)
     }
 
     for (idx_t n = cached_rows; n <= r; ++n) {
-        tri[n] = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        tri[n] = mem_new(seq_t, (n + 1));
         if (n == 0) {
             tri[0][0] = 1;
         } else {

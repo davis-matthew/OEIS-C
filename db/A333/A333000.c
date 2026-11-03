@@ -9,9 +9,10 @@
  * Formula:   a(n) = n*A333123(n) + Sum_{p|n, p prime} a(n - n/p) where
  *            A333123(n) is the number of paths from n to 1, with the base
  *            cases a(1) = 1 and A333123(1) = 1
- * Range:     u8 n <= 18, u16 n <= 128, u32 n <= 2880, u64 n <= 9539,
- *            u128 n <= 9539, big any n
- * Helpers:   factor_u64
+ * Range:     u8 n <= 18, u16 n <= 128, u32 n <= 2880, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 81 terms through n = 9539 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *counts = NULL;      /* A333123(n)  */
 static seq_t *sums   = NULL;      /* a(n)        */
@@ -35,10 +38,8 @@ static void ensure_cache(idx_t up_to)
         size_t new_cap = cache_cap ? cache_cap : 1;
         while (new_cap < (size_t)up_to) new_cap <<= 1;
 
-        seq_t *new_counts = (seq_t *)realloc(counts,
-                                             sizeof(seq_t) * (new_cap + 1));
-        seq_t *new_sums   = (seq_t *)realloc(sums,
-                                             sizeof(seq_t) * (new_cap + 1));
+        seq_t *new_counts = mem_resize(seq_t, counts, (new_cap + 1));
+        seq_t *new_sums   = mem_resize(seq_t, sums, (new_cap + 1));
         if (!new_counts || !new_sums) exit(EXIT_FAILURE);
 
         /* Initialise new slots to zero */

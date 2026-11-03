@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     if (is_prime == NULL) {
         /* allocate storage for S */
         S_cap = 128;
-        S = (seq_t *)malloc(S_cap * sizeof(seq_t));
+        S = mem_new(seq_t, S_cap);
         if (!S) return 0;            /* failure: return 0 as a safe fallback */
 
         S[0] = 1;      /* 1 is always in the set */
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
             if (!visited[(size_t)p]) {          /* add once */
                 if (S_len == S_cap) {
                     S_cap *= 2;
-                    S = (seq_t *)realloc(S, S_cap * sizeof(seq_t));
+                    S = mem_resize(seq_t, S, S_cap);
                     if (!S) return 0;
                 }
                 S[S_len++] = p;

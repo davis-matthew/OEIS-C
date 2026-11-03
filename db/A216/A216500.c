@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------- helpers ---------- */
 
@@ -93,17 +95,17 @@ static void _rebuild_masks_and_terms(size_t limit)
     }
 
     /* free old terms if any */
-    free(terms); terms = NULL; terms_len = 0;
+    mem_free(terms); terms = NULL; terms_len = 0;
     /* rough capacity estimate: at least 10% density */
     terms_cap = limit / 10 + 10;
-    terms = (seq_t*)calloc(terms_cap, sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
 
     /* collect numbers representable by all four forms */
     for (idx_t v = 1; v <= limit; ++v) {
         if (mask1[v] && mask2[v] && mask3[v] && mask4[v]) {
             if (terms_len == terms_cap) {
                 terms_cap <<= 1;          /* double capacity */
-                terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)v;
         }

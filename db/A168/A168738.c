@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 500 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -42,6 +43,7 @@
  *  works for any supported seq_t and idx_t type. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the function required by the exercise. */
 seq_t a(idx_t n);
@@ -61,7 +63,7 @@ static void ensure_cache(idx_t size)
     while (new_cap < needed)
         new_cap <<= 1;           /* grow by factor of 2 */
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();   /* no memory; terminate */
 
     /* If expanding, zero the new entries so they are well‑defined.

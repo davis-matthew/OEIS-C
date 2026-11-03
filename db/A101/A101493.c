@@ -7,8 +7,9 @@
  * Formula:   a(n) = ((r+1)*(2*(r+1)-1)) – k*(2*k-1) where r =
  *            floor((sqrt(8*n+1)-1)/2) (row index) k = n – r*(r+1)/2 (column
  *            index) and T(r,k) = (r+1)*(2*(r+1)-1) – k*(2*k-1)
- * Range:     u8 n <= 65, u16 n <= 9804, u32 n <= 9804, u64 n <= 9804,
- *            u128 n <= 9804, big any n
+ * Range:     u8 n <= 65, u16 n <= 11475, u32 n <= 11475, u64 n <= 11475,
+ *            u128 n <= 11475, big any n
+ * Validated: standard, pass, 82 terms through n = 9804 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

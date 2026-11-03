@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
    k with alternating sum i (=y₁−y₂+⋯).  The first term a(0) is the single
    entry of A(1). */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include <stdint.h>
 
 static seq_t count_entry(idx_t n, idx_t k, int64_t i)
@@ -37,10 +39,10 @@ static seq_t count_entry(idx_t n, idx_t k, int64_t i)
 
     if (e == 0) {                /* no even parts */
         if (V != 0) return (seq_t)0;
-        return binom((idx_t)(U - 1), (idx_t)(o - 1));
+        return binomial((idx_t)(U - 1), (idx_t)(o - 1));
     } else {
-        seq_t a1 = binom((idx_t)(U - 1), (idx_t)(o - 1));
-        seq_t a2 = binom((idx_t)(V - 1), (idx_t)(e - 1));
+        seq_t a1 = binomial((idx_t)(U - 1), (idx_t)(o - 1));
+        seq_t a2 = binomial((idx_t)(V - 1), (idx_t)(e - 1));
         return a1 * a2;
     }
 }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = σ( Π_{d|n} d ) = σ( n^{τ(n)/2} )
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 59, u64 n <= 179,
  *            u128 n <= 719, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 63 terms through n = 9484 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,10 @@
 /* where σ is sum-of-divisors, τ(n) is divisor count. */
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
         seq_t temp = e * tau;                /* e * τ  */
         seq_t new_exp = temp / 2;           /* floor( e*τ/2 )  */
         idx_t exp_plus_one = (idx_t)(new_exp + 1); /* exponent for numerator */
-        seq_t numerator = seq_pow((seq_t)primes[i], exp_plus_one) - 1;
+        seq_t numerator = ipow_idx((seq_t)primes[i], exp_plus_one) - 1;
         seq_t denom = (seq_t)primes[i] - 1;
         seq_t term = numerator / denom;
         result = result * term;

@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/2)} binomial(n,k)*(n-2*k)^3
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 25, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* initialise for n == 0 if necessary */
     if (memo_size == 0) {
         memo_size = 1;
-        memo = (seq_t *)realloc(memo, memo_size * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, memo_size);
         memo[0] = (seq_t)0;   /* a(0) = 0 */
         memo_last = 0;
     }
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         idx_t new_size = memo_size ? memo_size * 2 : 16;
         while (new_size <= n)
             new_size *= 2;
-        memo = (seq_t *)realloc(memo, new_size * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, new_size);
         memo_size = new_size;
     }
 

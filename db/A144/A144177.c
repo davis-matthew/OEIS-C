@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 8, u64 n <= 23, u128 n <= 28,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
    b(3k+2) = (k % 9)+2,
    b(3k+3) = b(3k+1)*b(3k+2)           */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Compute b(k) for k ≥ 1 */
 static inline seq_t b_val(idx_t k)
@@ -51,5 +54,5 @@ seq_t a(idx_t n)
     seq_t base = b_val(k1);
     seq_t exp  = b_val(k2);
 
-    return big_pow(base, exp);
+    return ipow(base, exp);
 }

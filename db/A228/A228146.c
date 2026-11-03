@@ -10,14 +10,29 @@
  *            0,1,2,… and columns 0…n
  * Range:     i8 n <= 20, i16 n <= 104, i32 n <= 464, i64 n <= 1952,
  *            i128 n <= 4185, big any n
- * Helpers:   pow_mod_uint128
+ * Validated: standard, pass, 71 terms through n = 4152 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_mod_uint128.h"
+
+/* 2^exp mod mod_val  (mod_val fits in __int128) */
+static
+__int128 pow_mod_uint128(__int128 base, idx_t exp, __int128 mod_val)
+{
+    __int128 result = 1;
+    base %= mod_val;
+    while (exp) {
+        if (exp & 1)
+            result = (result * base) % mod_val;
+        base = (base * base) % mod_val;
+        exp >>= 1;
+    }
+    return result;
+}
 
 /* --- helpers --------------------------------------------------- */
 

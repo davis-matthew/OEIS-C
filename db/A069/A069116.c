@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, floor_sqrt
+ * Validated: standard, pass, 80 terms through n = 9897 (2026-11-03)
+ * Helpers:   ipow_i32, mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,28 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_smallest_prime_factor.h"   /* _smallest_prime_factor(uint64_t) */
-#include "../utils/floor_sqrt.h"              /* floor_sqrt(seq_t) */
+#include <stddef.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -44,7 +65,7 @@ seq_t a(idx_t n)
         ++last_checked;                     /* examine next integer */
         uint64_t k = (uint64_t)last_checked;
 
-        uint64_t p = _smallest_prime_factor(k);
+        uint64_t p = smallest_prime_factor(k);
         if (p == k)                 /* k is prime; skip */
             continue;
 
@@ -52,7 +73,7 @@ seq_t a(idx_t n)
         seq_t kernel = 1;
         uint64_t temp = k;
         while (temp > 1) {
-            uint64_t pr = _smallest_prime_factor(temp);
+            uint64_t pr = smallest_prime_factor(temp);
             int exp = 0;
             while (temp % pr == 0) {
                 temp /= pr;
@@ -66,7 +87,7 @@ seq_t a(idx_t n)
         if (kernel > sqrtk) {      /* satisfies condition */
             if (vals_len == vals_cap) {
                 size_t new_cap = vals_cap ? vals_cap * 2 : 64;
-                seq_t *new_vals = (seq_t *)realloc(vals, new_cap * sizeof(seq_t));
+                seq_t *new_vals = mem_resize(seq_t, vals, new_cap);
                 if (!new_vals) {
                     /* allocation failed */
                     vals = NULL;

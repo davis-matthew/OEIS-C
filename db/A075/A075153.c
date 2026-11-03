@@ -8,7 +8,8 @@
  * Formula:   a(0)=318, a(1)=1071, a(n)=a(n-1)+reverse_base4(a(n-1))
  * Range:     u8 none, u16 n <= 7, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* (where reverse_base4 reverses the base‑4 digits of a number)        */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* reverse the base‑4 representation of v */
 static seq_t reverse_base4(seq_t v)
@@ -40,7 +42,7 @@ static void ensure_cache_cap(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? cache_cap : 1;
     while (new_cap < needed) new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

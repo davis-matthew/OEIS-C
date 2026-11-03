@@ -13,17 +13,19 @@
  *            inequality 2·P(b)-P(a) ≤ P(c). See OEIS A232854 for de...
  * Range:     u8 n <= 3, u16 n <= 19, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     idx_t m = n + 1;                       // number of rows
-    seq_t *P = (seq_t*)malloc((m + 1) * sizeof(seq_t));
+    seq_t *P = mem_new(seq_t, (m + 1));
     if (!P) return (seq_t)0;
     P[0] = 0;
     for (idx_t k = 1; k <= m; ++k) {
@@ -45,6 +47,6 @@ seq_t a(idx_t n) {
         }
     }
 
-    free(P);
+    mem_free(P);
     return count;
 }

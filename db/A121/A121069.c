@@ -9,7 +9,8 @@
  *            primes for n ≥ 4
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static size_t estimate_prime_limit(size_t n)
 {
@@ -77,13 +79,13 @@ seq_t a(idx_t n)
 
         /* Free old storage. */
         free(prime_list);
-        free(prime_prod);
+        mem_free(prime_prod);
 
         prime_list = new_primes;
         prime_count = count;
 
         /* Compute products of primes. */
-        seq_t *new_prod = (seq_t*)malloc(count * sizeof(seq_t));
+        seq_t *new_prod = mem_new(seq_t, count);
         if (!new_prod) { free(prime_list); prime_list = NULL; prime_count = 0; return 0; }
 
         for (size_t i = 0; i < count; ++i) {

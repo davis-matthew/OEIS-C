@@ -9,15 +9,24 @@
  *            a(0) = 1
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 20, u64 n <= 36, u128 n <= 69,
  *            big any n
- * Helpers:   a003239_fixed, a003239_phi
+ * Validated: standard, pass, 46 terms through n = 1523 (2026-11-03)
+ * Helpers:   mem, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a003239_fixed.h"
-#include "../utils/a003239_phi.h"
+#include "../utils/totient_u64.h"
+#include "../utils/mem.h"
+
+static int a003239_fixed(void)
+{
+	seq_t x = 1;
+	int i;
+	for (i = 0; i < 300; i++) x = (seq_t)(x * 2);
+	return x == 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +40,7 @@ seq_t a(idx_t n)
 			c = c * 2 * (seq_t)(2 * k - 1);
 			c = c / (seq_t)k;            /* c = binomial(2k,k) */
 			if (n % k == 0)
-				sum += c * (seq_t)a003239_phi((uint64_t)(n / k));
+				sum += c * (seq_t)totient_u64((uint64_t)(n / k));
 		}
 		return sum / ((seq_t)n * 2);
 	}
@@ -43,7 +52,7 @@ seq_t a(idx_t n)
 	   Pascal triangle (additions only) gives binomial(2d-1,d). */
 	{
 		idx_t rows = 2 * n;              /* rows 0 .. 2n-1 */
-		seq_t *Pq = (seq_t *)malloc(sizeof(seq_t) * (size_t)(rows + 1));
+		seq_t *Pq = mem_new(seq_t, (size_t)(rows + 1));
 		uint64_t *Pr = (uint64_t *)malloc(sizeof(uint64_t) * (size_t)(rows + 1));
 		seq_t Q = 0;
 		uint64_t R = 0;
@@ -63,7 +72,7 @@ seq_t a(idx_t n)
 			if (m % 2 == 1) {
 				idx_t d = (m + 1) / 2;
 				if (n % d == 0) {
-					uint64_t ph = a003239_phi((uint64_t)(n / d));
+					uint64_t ph = totient_u64((uint64_t)(n / d));
 					seq_t q = Pq[d];
 					uint64_t rr = Pr[d] * ph;
 					q *= (seq_t)ph;
@@ -74,7 +83,7 @@ seq_t a(idx_t n)
 			}
 		}
 		Q += (seq_t)(R / n);
-		free(Pq);
+		mem_free(Pq);
 		free(Pr);
 		return Q;
 	}

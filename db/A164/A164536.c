@@ -7,12 +7,14 @@
  * Formula:   a(n) = 10*a(n-1) - 23*a(n-2), a(0) = 3, a(1) = 23
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 150 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Sequence cache.  The array is grown lazily on the first call
  * and extended as needed for higher indices.  The cache holds
@@ -26,7 +28,7 @@ static void seq_init_cache(void) {
     if (seq_cache != NULL)
         return;
     cache_cap = 2;
-    seq_cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, cache_cap);
     seq_cache[0] = 3;
     seq_cache[1] = 23;
     cache_upto = 1;
@@ -40,7 +42,7 @@ static void seq_ensure_capacity(idx_t n) {
     size_t new_cap = n + 1;
     if (new_cap < cache_cap * 2)
         new_cap = cache_cap * 2;
-    seq_cache = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     cache_cap = new_cap;
 }
 

@@ -7,14 +7,17 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/3)} 2^k * |Stirling1(n,3*k)|
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t exp) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,11 +25,11 @@ seq_t a(idx_t n)
         return (seq_t)1;   /* a(0) = 1 */
 
     /* Allocate space for two rows of the unsigned Stirling triangle. */
-    seq_t *prev = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *curr = mem_new(seq_t, (size_t)(n + 1));
     if (!prev || !curr) {
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return (seq_t)0;
     }
 
@@ -71,7 +74,7 @@ seq_t a(idx_t n)
         curr = tmp;
     }
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

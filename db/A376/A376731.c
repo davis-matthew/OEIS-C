@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..floor(n/4)} binomial(2*k, 2*n-8*k)
- * Range:     u8 n <= 17, u16 n <= 35, u32 n <= 51, u64 n <= 51, u128 n <= 51,
+ * Range:     u8 n <= 25, u16 n <= 43, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* See OEIS A376731 */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

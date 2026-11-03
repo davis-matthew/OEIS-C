@@ -10,14 +10,18 @@
  *            so that out‑of‑order calls run in amortised O(n) time
  * Range:     u8 n <= 21, u16 n <= 737, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 69 terms through n = 932 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +38,7 @@ seq_t a(idx_t n)
     /* initialise static state on first call */
     if (!initialized) {
         cache_cap = 128;                   /* arbitrary starting size   */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_size = 0;
         p_search = 11;
         initialized = true;
@@ -43,14 +47,14 @@ seq_t a(idx_t n)
     /* search until we have at least n terms */
     while (cache_size < n) {
         /* test candidate p_search */
-        if (is_prime(p_search)) {
+        if (is_prime_u64(p_search)) {
             uint64_t a1 = 2 * p_search - 15;
             uint64_t a2 = 2 * p_search + 15;
-            if (is_prime(a1) && is_prime(a2)) {
+            if (is_prime_u64(a1) && is_prime_u64(a2)) {
                 /* store found prime */
                 if (cache_size >= cache_cap) {
                     cache_cap *= 2;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_size] = (seq_t)p_search;
                 cache_size++;

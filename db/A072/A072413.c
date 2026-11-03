@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 2320, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd64
+ * Validated: standard, pass, 63 terms through n = 8983 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* prime list: all primes ≤ 2000 (sufficient for n≤10000) */
 #define PRIME_MAX 2000
@@ -63,7 +65,7 @@ static void grow_term_cache(size_t min_cap)
     if (term_cap >= min_cap) return;
     size_t new_cap = term_cap ? term_cap * 2 : 128;
     if (new_cap < min_cap) new_cap = min_cap;
-    term_cache = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+    term_cache = mem_resize(seq_t, term_cache, new_cap);
     term_cap = new_cap;
 }
 
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
         {
             uint64_t e = exps[i];
             prod128 *= e;
-            uint64_t g = gcd64((uint64_t)lcm128, e);
+            uint64_t g = gcd_u64((uint64_t)lcm128, e);
             lcm128 = (lcm128 / g) * e;
         }
 

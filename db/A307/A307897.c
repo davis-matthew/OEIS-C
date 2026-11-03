@@ -9,12 +9,14 @@
  *            for n>8
  * Range:     i8 n <= 100, i16 n <= 100, i32 n <= 100, i64 n <= 100,
  *            i128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of already computed values, grows as needed */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
         idx_t new_cap = (n + 1 > 9) ? (n + 1) : 9;
 
         if (cache == NULL) {                  /* first allocation */
-            cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, new_cap);
             if (!cache) abort();              /* allocation failed */
             for (idx_t i = 0; i < new_cap; ++i)
                 cache[i] = 0;                  /* initial zero values */
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
             cache[7] = 0;
             cache[8] = 0;
         } else {                              /* resize existing cache */
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             cache = tmp;
             for (idx_t i = cap; i < new_cap; ++i)

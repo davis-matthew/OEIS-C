@@ -7,16 +7,23 @@
  * Keywords:  nonn, tabl, easy
  * Formula:   a(n) = binomial(i,j) mod 27, where i*(i+1)/2 <= n <
  *            (i+1)*(i+2)/2 and j = n - i*(i+1)/2
- * Range:     u8 n <= 9700, u16 n <= 9700, u32 n <= 9700, u64 n <= 9700,
- *            u128 n <= 9700, big any n
- * Helpers:   seq_alloc_new_array
+ * Range:     u8 n <= 10010, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 121 terms through n = 9700 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc_new_array.h"
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 static seq_t **rows = NULL;      /* rows[i] points to the i‑th row (size i+1) */
 static idx_t rows_len = 0;       /* number of rows currently allocated */

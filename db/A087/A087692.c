@@ -7,6 +7,7 @@
  * Formula:   a(n) = φ(n) / 3ᵁ where U = #{pᵏ‖n | p≡1 (mod 6) or p = 3,k ≥ 2}
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 98 terms through n = 9471 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

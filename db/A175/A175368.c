@@ -12,20 +12,21 @@
  *            (|x|,|y|,|z|,|u|) where each weight is * 1 for a zero...
  * Range:     u8 n <= 99, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cube_root_uint64
+ * Validated: standard, pass, 100 terms through n = 9903 (2026-11-01)
+ * Helpers:   icbrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, calloc, free */
 #include <stdio.h>    /* for debugging (optional) */
-#include "../utils/cube_root_uint64.h"
+#include "../utils/icbrt.h"
 
 seq_t a(idx_t n) {
     /* Special case: n == 0 */
     if (n == 0) return (seq_t)1;
 
-    idx_t k = cube_root_uint64(n);          /* maximum |value| */
+    idx_t k = icbrt(n);          /* maximum |value| */
     size_t sz = (size_t)(n + 1);            /* array size */
 
     /* Allocate DP arrays */

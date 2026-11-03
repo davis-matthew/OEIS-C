@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4714, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_four_run
+ * Validated: standard, pass, 82 terms through n = 9174 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,27 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/has_four_run.h"
+
+/* Check whether the decimal digits array has a run of at least four equal
+   consecutive digits.  The array contains the digits of the number in
+   little‑endian order (least significant digit first).  */
+static bool has_four_run(const uint8_t *d, size_t len)
+{
+    if (len < 4) return false;
+    uint8_t last = d[0];
+    uint8_t run  = 1;
+    for (size_t i = 1; i < len; ++i)
+    {
+        if (d[i] == last) {
+            ++run;
+            if (run >= 4) return true;
+        } else {
+            last = d[i];
+            run  = 1;
+        }
+    }
+    return false;
+}
 
 /* Multiply the decimal number represented by digits array (little endian)
    by a small integer m (2 ≤ m ≤ 10000).  The array size after multiplication

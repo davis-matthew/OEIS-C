@@ -8,7 +8,8 @@
  *            power of a prime (i.e., not equal to p^e with p prime, e>=1)
  * Range:     u8 n <= 31, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,12 +19,14 @@
    but for positive integers up to 64‑bit this should never happen. */
 
 #include <stdbool.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
 
 static bool is_prime_power(uint64_t n)
 {
     if (n < 2) return false;               /* 1 is not a prime power */
-    uint64_t spf = _smallest_prime_factor(n);
+    uint64_t spf = smallest_prime_factor(n);
     if (spf == 0) return false;            /* safety fallback, should not occur */
     while (n % spf == 0) n /= spf;
     return n == 1;

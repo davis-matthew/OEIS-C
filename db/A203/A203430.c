@@ -8,7 +8,8 @@
  * Formula:   a(n) = ∏_{1≤i<j≤n} (⌊3j/2⌋ - ⌊3i/2⌋)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 28 terms through n = 40 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 /* Computes the Vandermonde determinant of the first n numbers
    1,3,4,6,7,9,10,12,13,15,16,18,...  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -47,13 +50,13 @@ seq_t a(idx_t n)
 
     /* Powers of 3 from the spacing within each progression */
     const idx_t exp3 = (m1 * (m1 - 1)) / 2 + (m2 * (m2 - 1)) / 2;
-    if (exp3) result *= seq_pow((seq_t)3, exp3);
+    if (exp3) result *= ipow_idx((seq_t)3, exp3);
 
     /* Cross terms where an S1 element is smaller: 3*t - 1  */
     for (idx_t t = 1; t <= m2; ++t) {
         idx_t cnt = (t <= m2) ? ((m2 - t + 1 < m1) ? (m2 - t + 1) : m1) : 0;
         if (cnt == 0) continue;
-        result *= seq_pow((seq_t)(3 * t - 1), cnt);
+        result *= ipow_idx((seq_t)(3 * t - 1), cnt);
     }
 
     /* Cross terms where an S2 element is smaller: 3*t + 1  */
@@ -62,7 +65,7 @@ seq_t a(idx_t n)
         if (limit < 1) continue;
         idx_t cnt = (limit < m2) ? limit : m2;
         if (cnt == 0) continue;
-        result *= seq_pow((seq_t)(3 * t + 1), cnt);
+        result *= ipow_idx((seq_t)(3 * t + 1), cnt);
     }
 
     return result;

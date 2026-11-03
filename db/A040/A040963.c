@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    array, and returns terms on demand. */
 #include <stddef.h>
 #include <stdlib.h>       /* for malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
         /* Initially guess a capacity; will grow if necessary */
         size_t cap   = 16;
-        period = (seq_t *)malloc(cap * sizeof(seq_t));
+        period = mem_new(seq_t, cap);
         size_t len  = 0;
 
         /* Generate terms until the last term 2*a0 is reached */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
             /* Store the coefficient */
             if (len == cap) {
                 cap <<= 1;
-                period = (seq_t *)realloc(period, cap * sizeof(seq_t));
+                period = mem_resize(seq_t, period, cap);
             }
             period[len++] = a;
         } while (a != 2 * a0);         /* last term of the period */

@@ -9,7 +9,8 @@
  *            (n+k+1)
  * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static void gen_divs_recursive(const uint64_t *primes, const uint32_t *exps, size_t pcnt,
                                int idx, seq_t cur, seq_t *divs, size_t *divcnt)
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
     gen_divs_recursive(primes, exps, pcnt, 0, 1, divs, &divcnt);
 
     /* sort divisors */
-    qsort(divs, divcnt, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(divs, divcnt, sizeof(seq_t), cmp_seq_t);
 
     /* test each divisor m > n to find the smallest satisfying the condition */
     for (size_t i = 0; i < divcnt; ++i) {

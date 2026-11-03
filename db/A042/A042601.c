@@ -11,6 +11,7 @@
  *            = a_k * q_{k-1} + q_{k-2} a(0) = q_0 = 1, a(n) = q_n
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 29, u128 n <= 29,
  *            big any n
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

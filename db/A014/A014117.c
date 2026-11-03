@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* small prime test, fast enough for primes up to a few million */
 static bool is_prime_uint64(uint64_t n)
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (cache == NULL) {
         cache_cap = 4;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return (seq_t)0;   /* allocation error; return 0 */
         cache[0] = (seq_t)1;                  /* a(1) = 1 */
         cached_n = 1;
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
         /* grow cache if required */
         if (cached_n >= cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (new_cache == NULL) return (seq_t)0; /* allocation error */
             cache = new_cache;
             cache_cap = new_cap;

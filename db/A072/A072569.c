@@ -10,13 +10,15 @@
  *            midpoint
  * Range:     u8 n <= 18, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state for primes and cache */
 static idx_t *primes = NULL;
@@ -38,7 +40,7 @@ static void grow_primes(void) {
 /* Grow an array of seq_t cache */
 static void grow_cache(void) {
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(1);
     cache = tmp;
     cache_cap = new_cap;

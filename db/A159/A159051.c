@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 894, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: compute F_n mod m using fast doubling, with all
    intermediate calculations performed modulo m.  The result
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
     /* grow the cache if needed */
     if (cache == NULL) {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* extend the cache until we have at least n terms */
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
         if (fib_mod_u64(current - 2, current) == 0) {
             if (count >= cap) {
                 cap = cap * 2;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[count++] = (seq_t)current;
         }

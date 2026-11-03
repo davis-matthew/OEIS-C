@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} (n+1)^(k-1) * binomial(3*k, n-k)/k!
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache   = NULL;
 static seq_t *fac_cache = NULL;
@@ -29,8 +31,8 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = (cap > 0 ? cap : 1);
     while (new_cap <= (size_t)n) new_cap <<= 1;
 
-    seq_t *new_a = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
-    seq_t *new_f = (seq_t*)realloc(fac_cache, new_cap * sizeof(seq_t));
+    seq_t *new_a = mem_resize(seq_t, a_cache, new_cap);
+    seq_t *new_f = mem_resize(seq_t, fac_cache, new_cap);
     if (!new_a || !new_f) abort();  /* allocation failure */
 
     /* Initialise any newly allocated slots. */

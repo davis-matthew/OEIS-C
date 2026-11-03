@@ -8,14 +8,25 @@
  *            a(n) = 5040 / A003871(16 - n); the sequence has 15 terms
  * Range:     u8 none, u16 n <= 15, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   hook_compare
+ * Validated: full, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/hook_compare.h"
+#include "../utils/mem.h"
+
+/* Compare two seq_t values for qsort. */
+static int hook_compare(const void *p1, const void *p2)
+{
+    seq_t v1 = *(const seq_t *)p1;
+    seq_t v2 = *(const seq_t *)p2;
+    if (v1 < v2) return -1;
+    if (v1 > v2) return 1;
+    return 0;
+}
 
 /* Compute the hook product of a partition given in parts[0..m-1]. */
 static seq_t hook_product(const int *parts, int m)
@@ -58,7 +69,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         int parts[8];
         gen_parts(7, 7, parts, 0, values, &num_vals);
-        qsort(values, num_vals, sizeof(seq_t), hook_compare);
+        mem_qsort(values, num_vals, sizeof(seq_t), hook_compare);
         initialized = 1;
     }
 

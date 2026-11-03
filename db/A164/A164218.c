@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 33, u64 n <= 66, u128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 483 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define PAT_A 0b00010
 #define PAT_B 0b01100
@@ -34,12 +36,12 @@ seq_t a(idx_t n)
     size_t offset    = (size_t)n;
 
     /* Two DP layers: current and next. */
-    seq_t *cur  = (seq_t *)calloc(16 * diff_size, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(16 * diff_size, sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, 16 * diff_size);
+    seq_t *next = mem_new(seq_t, 16 * diff_size);
     if (!cur || !next) {
         /* Allocation failure – fall back to zero value. */
-        free(cur);
-        free(next);
+        mem_free(cur);
+        mem_free(next);
         return (seq_t)0;
     }
 
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
     for (idx_t len = 0; len < n; ++len) {
         /* Clear next layer. */
-        memset(next, 0, sizeof(seq_t) * 16 * diff_size);
+        mem_set(next, 0, sizeof(seq_t) * 16 * diff_size);
 
         /* At current length len, diff can be within [-len, +len]. */
         int d_min = -(int)len;
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
         result += cur[s * diff_size + offset];
     }
 
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     return result;
 }

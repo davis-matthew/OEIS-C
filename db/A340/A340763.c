@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of primes p ≤ n with p ≡ 1 (mod 3)
  * Range:     u8 n <= 3708, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 106 terms through n = 9180 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     {
         /* Allocate a new array big enough for all indices up to n.
            calloc ensures the new part is zero‑initialized. */
-        seq_t *new_cum = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        seq_t *new_cum = mem_new(seq_t, (size_t)(n + 1));
         if (!new_cum) return 0;      /* allocation failure – return 0 */
 
         /* Copy previous data */
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
                 new_cum[i] = cum[i];
 
         /* Free the old array */
-        free(cum);
+        mem_free(cum);
         cum = new_cum;
 
         /* Compute the missing entries */

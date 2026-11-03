@@ -7,12 +7,14 @@
  * Formula:   a(n) = numerator of Sum_{d|n} tau(d)/d
  * Range:     u8 n <= 47, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 82 terms through n = 960 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes a(n) for n >= 1. */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

@@ -9,14 +9,25 @@
  *            4 horizontally/vertically adjacent 1s
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 33,
  *            big any n
- * Helpers:   cell_ok
+ * Validated: standard, pass, 32 terms through n = 177 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
-#include "../utils/cell_ok.h"
+#include "../utils/mem.h"
+
+static inline int cell_ok(int row, int up, int down, int pos)
+{
+    int cnt = 0;
+    if (up   & (1 << pos)) cnt++;
+    if (down & (1 << pos)) cnt++;
+    if (pos > 0     && (row & (1 << (pos - 1)))) cnt++;
+    if (pos < 4     && (row & (1 << (pos + 1)))) cnt++;
+    return (cnt == 0 || cnt == 1 || cnt == 4);
+}
 
 static inline int row_ok(int row, int up, int down)
 {
@@ -57,7 +68,7 @@ seq_t a(idx_t n)
 
     static seq_t dp[32][32];
     static seq_t newdp[32][32];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* Initialise for the first two rows (first row has no up neighbour). */
     for (int first = 0; first < 32; ++first) {
@@ -69,7 +80,7 @@ seq_t a(idx_t n)
 
     /* Extend rows from 3 to n */
     for (idx_t step = 2; step < n; ++step) {
-        memset(newdp, 0, sizeof(newdp));
+        mem_set(newdp, 0, sizeof(newdp));
         for (int up = 0; up < 32; ++up)
             for (int cur = 0; cur < 32; ++cur) {
                 seq_t val = dp[up][cur];
@@ -80,7 +91,7 @@ seq_t a(idx_t n)
                         newdp[cur][nxt] += val;
             }
         /* Copy newdp to dp for next iteration */
-        memcpy(dp, newdp, sizeof(dp));
+        mem_copy(dp, newdp, sizeof(dp));
     }
 
     /* Sum over all last two rows, checking that the final row has no

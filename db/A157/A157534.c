@@ -9,6 +9,7 @@
  *            n*(n-1)*(n^6-27*n^5+295*n^4-1473*n^3+3376*n^2-3036*n+1008)/1152
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 19, u64 n <= 50, u128 n <= 50,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 50 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

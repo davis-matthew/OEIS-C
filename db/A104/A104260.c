@@ -7,14 +7,15 @@
  * Formula:   a(n) = sum of odd digits of the n‑th prime
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   is_prime_idx
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_idx.h"
+#include "../utils/is_prime.h"
 
 /* Public function required by the test harness */
 seq_t a(idx_t n)
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
     idx_t cand    = 2;                     /* current candidate */
 
     for (;; ++cand) {
-        if (!is_prime_idx(cand))
+        if (!is_prime(cand))
             continue;
 
         ++count;

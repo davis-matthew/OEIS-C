@@ -8,7 +8,8 @@
  *            (n‑k)^(n‑k) * a(k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow, ensure_cache
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,36 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/ensure_cache.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Make sure the cache is large enough */
+static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr) {
+    seq_t *cache = *cache_ptr;
+    size_t cap = *cap_ptr;
+    if (cap <= (size_t)n) {
+        size_t new_cap = cap ? (cap << 1) : 16;
+        while (new_cap <= (size_t)n)
+            new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+        if (!tmp && new_cap > 0) {
+            /* Allocation failed – abort the program. */
+            exit(1);
+        }
+        if (tmp) {
+            /* Initialize newly allocated slots to zero. */
+            if (!cache) {
+                for (size_t i = 0; i < new_cap; ++i)
+                    tmp[i] = 0;
+            } else {
+                for (size_t i = cap; i < new_cap; ++i)
+                    tmp[i] = 0;
+            }
+            *cache_ptr = tmp;
+            *cap_ptr = new_cap;
+        }
+    }
+}
 
 /* static cache for a(n) and for k^k   */
 static seq_t *a_cache = NULL;            /* a_cache[0] unused, a_cache[1] = 1 */
@@ -36,14 +65,13 @@ static void ensure_pow_cache(idx_t n)
     size_t new_cap = pow_cap ? pow_cap : 1;
     while (new_cap < (size_t)(n + 1)) new_cap <<= 1;
 
-    seq_t *new_mem = (seq_t *)realloc(pow_cache,
-                                      (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, pow_cache, (new_cap + 1));
     if (!new_mem) exit(EXIT_FAILURE);
     pow_cache = new_mem;
     pow_cap   = new_cap;
 
     for (idx_t i = pow_max + 1; i <= n; ++i)
-        pow_cache[i] = big_pow((seq_t)i, (idx_t)i);
+        pow_cache[i] = ipow((seq_t)i, (idx_t)i);
     pow_max = n;
 }
 
@@ -61,7 +89,7 @@ seq_t a(idx_t n)
     for (idx_t v = a_max + 1; v <= n; ++v)
     {
         /* first term v^v */
-        seq_t term = big_pow((seq_t)v, (idx_t)v);
+        seq_t term = ipow((seq_t)v, (idx_t)v);
 
         /* sum over k = 1 .. v-1 of binom(v-1, k-1) * (v-k)^(v-k) * a(k) */
         seq_t sum = 0;

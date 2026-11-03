@@ -11,13 +11,15 @@
  *            a(1)=1, a(2)=1, a(3)=2
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         size_t new_cap = (cache_cap > 0) ? cache_cap * 2 : n;
         if (new_cap < (size_t)n) new_cap = (size_t)n;
         /* allocate new_cap + 1 for 1‑based indexing */
-        seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         cache_cap = new_cap;

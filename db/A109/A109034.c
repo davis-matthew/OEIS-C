@@ -10,13 +10,27 @@
  *            also gives a(3)=4
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   mul128
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mul128.h"
+#include <stdalign.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication using 128‑bit intermediate when
+   available and seq_t is a built‑in integer.  For arbitrary‑precision
+   types the plain * operator is used. */
+static inline seq_t mul128(seq_t a, seq_t b)
+{
+#if defined(__SIZEOF_INT128__) && !defined(__cplusplus)
+    return (seq_t)((unsigned __int128)(unsigned long long)a * b);
+#else
+    return a * b;
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -27,7 +41,7 @@ seq_t a(idx_t n)
     /* Initialise cache for the first four terms (0‑3). */
     if (stored == 0) {
         cap = 4; /* minimal capacity for indices 0…3 */
-        cache = (seq_t*)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
         cache[0] = (seq_t)1;      /* a(0) */
         cache[1] = (seq_t)0;      /* a(1) */
         cache[2] = (seq_t)1;      /* a(2) */
@@ -39,7 +53,7 @@ seq_t a(idx_t n)
     if (n + 1 > cap) {
         idx_t newcap = cap ? cap : 1;
         while (newcap <= n) newcap <<= 1;  /* double until big enough */
-        cache = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         cap = newcap;
     }
 

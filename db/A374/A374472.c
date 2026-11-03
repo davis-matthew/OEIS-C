@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 85, u16 n <= 9990, u32 n <= 9990, u64 n <= 9990,
- *            u128 n <= 9990, big any n
- * Helpers:   build_spf
+ * Range:     u8 n <= 85, u16 n <= 12000, u32 n <= 12000, u64 n <= 12000,
+ *            u128 n <= 12000, big any n
+ * Validated: standard, pass, 86 terms through n = 9990 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../utils/build_spf.h"   /* build_spf(idx_t limit, idx_t **pf_out) */
+#include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Static cache for the sequence                                         */
@@ -72,7 +74,7 @@ static void seq_append(seq_t val)
 {
     if (seq_len >= seq_cap) {
         size_t newcap = seq_cap ? seq_cap * 2 : 16;
-        seq = (seq_t*)realloc(seq, newcap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, newcap);
         seq_cap = newcap;
     }
     seq[seq_len++] = val;

@@ -12,6 +12,7 @@
  *            For 1 ≤ n ≤ 9 the values are 5,9,22,68,166,380,821,1700,3374
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 60, u64 n <= 210, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 48 terms through n = 204 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

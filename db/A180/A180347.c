@@ -8,6 +8,7 @@
  * Formula:   a(n) = # of n‑digit numbers of the form 4^k·(8b+7)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

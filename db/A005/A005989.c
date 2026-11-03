@@ -9,16 +9,18 @@
  *            = x^2*(B(x+1,k-1) - B(x,k-1))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     idx_t len = n + 2; /* x ranges over 2..n+3 */
-    seq_t *b = (seq_t *)malloc((size_t)len * sizeof(seq_t));
+    seq_t *b = mem_new(seq_t, (size_t)len);
     idx_t i, k;
     seq_t result;
 
@@ -35,6 +37,6 @@ seq_t a(idx_t n) {
     }
 
     result = b[1] - b[0];
-    free(b);
+    mem_free(b);
     return result;
 }

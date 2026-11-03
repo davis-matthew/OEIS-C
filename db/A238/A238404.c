@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *term_cache  = NULL;      /* array of a(k) values       */
 static size_t cache_len   = 0;          /* number of stored terms     */
@@ -101,7 +103,7 @@ static void recompute_cache(uint64_t limit)
 
     seq_t *new_cache = NULL;
     if (new_len > 0) {
-        new_cache = (seq_t*)malloc(new_len * sizeof(seq_t));
+        new_cache = mem_new(seq_t, new_len);
         if (new_cache != NULL) {
             size_t pos = 0;
             for (uint64_t i = 2; i <= limit; ++i)
@@ -111,7 +113,7 @@ static void recompute_cache(uint64_t limit)
     }
 
     /* ---- 4. Replace old cache -------------------------------------------- */
-    free(term_cache);
+    mem_free(term_cache);
     term_cache = new_cache;
     cache_len   = new_len;
 

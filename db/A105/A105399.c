@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 37, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 37, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 72 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Miller‑Rabin primality test for 64‑bit integers ---------- */
 static inline uint64_t mod_mul_uint64(uint64_t a, uint64_t b, uint64_t mod) {
@@ -81,7 +83,7 @@ seq_t a(idx_t n) {
     /* Initialise on first call. */
     if (term_cnt == 0) {
         term_cap = 8;
-        terms = (seq_t *)malloc(term_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, term_cap);
         terms[0] = (seq_t)3;      /* a(1) = 3 */
         term_cnt = 1;
         current_prime = 3U;
@@ -99,7 +101,7 @@ seq_t a(idx_t n) {
                 /* Ensure capacity. */
                 if (term_cnt == term_cap) {
                     term_cap *= 2;
-                    terms = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, term_cap);
                 }
                 terms[term_cnt++] = val;
             }

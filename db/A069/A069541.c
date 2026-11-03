@@ -7,12 +7,14 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 18, i32 n <= 18, i64 n <= 18, i128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Numbers that are multiples of 6 with digit sum equal to 6. */
 
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_cap = 8;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         candidate = (seq_t)6;
     }
 
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
             if ((size_t)cache_len >= cache_cap)
             {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = val;
         }

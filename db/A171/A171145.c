@@ -12,13 +12,15 @@
  *            + 1)^(floor(r/2)) if r odd
  * Range:     u8 n <= 24, u16 n <= 59, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Required external definitions are provided by the framework.  */
-#include "../utils/pow_uint.h"  /* seq_t pow_uint(uint64_t base, idx_t exp); */
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 /* --------- Binomial coefficient (n choose k) -------------------------------- */
 static seq_t binom_calc(idx_t n, idx_t k)
@@ -49,7 +51,7 @@ static seq_t coeff_odd(idx_t r, idx_t d)
         if (i > k) continue;         /* safety */
         seq_t term = binom_calc(k, j);           /* choose j x^2 terms    */
         term = term * binom_calc(k - j, i);      /* choose i n*x terms   */
-        term = term * pow_uint((uint64_t)r, i);   /* weight n^i          */
+        term = term * ipow_u64_idx((uint64_t)r, i);   /* weight n^i          */
         sum += term;
     }
     return sum;

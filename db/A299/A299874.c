@@ -14,13 +14,15 @@
  *            +51*a(n-7)-50*a(n-8)+44*a(n-...
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 48, u128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -30,7 +32,7 @@ static void ensure_cache_capacity(idx_t new_cap) {
     if (cache_cap >= new_cap) return;
     if (cache_cap < 64) cache_cap = 64;
     while (cache_cap < new_cap) cache_cap <<= 1;
-    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
 }
 
 static const seq_t init_vals[17] = {

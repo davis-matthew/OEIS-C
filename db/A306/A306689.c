@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 571, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 65 terms through n = 9341 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"   /* seq_t gcd(seq_t,seq_t) */
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* LCM table for 1≤a,z≤9 */
 static seq_t lcm_table[10][10];
@@ -55,7 +57,7 @@ static seq_t seq_last_m = 0;
 /* Grow the sequence array when needed */
 static void seq_grow(void) {
     size_t new_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) exit(1);          /* OOM protection */
     seq = tmp;
     seq_cap = new_cap;

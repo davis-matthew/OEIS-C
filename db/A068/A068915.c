@@ -9,13 +9,20 @@
  *            a(n/2 – 1)| if n odd : a(n) = a((n-1)/2) + a((n-1)/2 + 1)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   abs_diff_seq
+ * Validated: standard, pass, 136 terms through n = 9610 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/abs_diff_seq.h"
+#include "../utils/mem.h"
+
+/* Compute the absolute difference of two seq_t values without overflow. */
+static seq_t abs_diff_seq(seq_t x, seq_t y)
+{
+    return (x >= y) ? (x - y) : (y - x);
+}
 
 /* Cached values of the sequence.
    capacity  = size of allocated array.
@@ -31,7 +38,7 @@ static void ensure_cache(idx_t n)
     {
         /* Initialise with two terms. */
         capacity = 2;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache) abort(); /* Out of memory */
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)1;
@@ -43,7 +50,7 @@ static void ensure_cache(idx_t n)
     {
         idx_t new_capacity = capacity * 2;
         if (new_capacity == 0) new_capacity = 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
         if (!tmp) abort(); /* Out of memory */
         cache = tmp;
         capacity = new_capacity;

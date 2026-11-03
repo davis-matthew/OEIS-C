@@ -11,14 +11,16 @@
  *            by its prime powers. It uses seq_pow for power computation
  * Range:     u8 n <= 15, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Prime factorization helper  */
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
 
         if (e > 1) {
             seq_t p2 = (seq_t)p * (seq_t)p;              /* p² */
-            seq_t power = seq_pow(p2, (idx_t)(e - 1));   /* (p²)^(e‑1) */
+            seq_t power = ipow_idx(p2, (idx_t)(e - 1));   /* (p²)^(e‑1) */
             result *= power;
         }
     }

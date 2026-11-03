@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------- */
 /*  SIF LET UTILITIES ------------------------------------------------- */
@@ -125,7 +127,7 @@ static void ensure_initialized(void)
 
         /* Start with a small cache; it will grow as needed. */
         cache_size = 64;
-        term_cache = (seq_t *) malloc(cache_size * sizeof(seq_t));
+        term_cache = mem_new(seq_t, cache_size);
         cache_len  = 0;
         next_prime_index = 0;
 
@@ -138,7 +140,7 @@ static void cache_append(seq_t value)
 {
     if (cache_len == cache_size) {
         cache_size *= 2;
-        term_cache = (seq_t *) realloc(term_cache, cache_size * sizeof(seq_t));
+        term_cache = mem_resize(seq_t, term_cache, cache_size);
     }
     term_cache[cache_len++] = value;
 }

@@ -10,6 +10,7 @@
  *            66λ^6 – 214λ^5 + 441λ^4 – 572λ^3 + 423λ^2 – 133λ
  * Range:     i8 n <= 3, i16 n <= 9, i32 n <= 9, i64 n <= 9, i128 n <= 9,
  *            big any n
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

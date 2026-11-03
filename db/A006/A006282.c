@@ -10,13 +10,15 @@
  *            floor((m+n-1)/2)
  * Range:     u8 n <= 37, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 866 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 
 static seq_t *memo_a = NULL;
@@ -37,13 +39,13 @@ static seq_t C(idx_t m, idx_t n);
 static void ensure_memo_a(idx_t n) {
     if (n >= memo_a_len) {
         idx_t new_len = n + 100;
-        seq_t *new_memo = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, new_len);
         char *new_computed = (char *)malloc(new_len * sizeof(char));
         
         if (memo_a) {
-            memcpy(new_memo, memo_a, memo_a_len * sizeof(seq_t));
+            mem_copy(new_memo, memo_a, memo_a_len * sizeof(seq_t));
             memcpy(new_computed, computed_a, memo_a_len * sizeof(char));
-            free(memo_a);
+            mem_free(memo_a);
             free(computed_a);
         }
         
@@ -82,10 +84,10 @@ static seq_t C(idx_t m, idx_t n) {
     
     if (cache_c_len >= cache_c_cap) {
         idx_t new_cap = cache_c_cap ? cache_c_cap * 2 : 100;
-        CacheEntry *new_cache = (CacheEntry *)malloc(new_cap * sizeof(CacheEntry));
+        CacheEntry *new_cache = mem_new(CacheEntry, new_cap);
         if (cache_c) {
-            memcpy(new_cache, cache_c, cache_c_len * sizeof(CacheEntry));
-            free(cache_c);
+            mem_copy(new_cache, cache_c, cache_c_len * sizeof(CacheEntry));
+            mem_free(cache_c);
         }
         cache_c = new_cache;
         cache_c_cap = new_cap;

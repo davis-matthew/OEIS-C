@@ -14,6 +14,7 @@
  *            row(row+1)/2 * * The values are obtained by first c...
  * Range:     u8 n <= 17, u16 n <= 31, u32 n <= 59, u64 n <= 128,
  *            u128 n <= 315, big any n
+ * Validated: standard, pass, 61 terms through n = 9624 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

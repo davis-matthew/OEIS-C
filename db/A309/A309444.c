@@ -9,12 +9,14 @@
  *            for n > 1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* multiply two seq_t values modulo mod using __int128 when the
    underlying type is 8‑bytes or less, otherwise just use the
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* start with space for a(0) and a(1) */
         cap   = 2;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)4;
         mod_pow5 = (seq_t)5;   /* 5¹, modulus for a(1) */
@@ -53,7 +55,7 @@ seq_t a(idx_t n) {
     if ((size_t)n >= cap) {
         size_t newcap = cap;
         while ((size_t)n >= newcap) newcap <<= 1;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         cap   = newcap;
     }
 

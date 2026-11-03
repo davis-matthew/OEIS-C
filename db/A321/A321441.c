@@ -11,11 +11,13 @@
  *            (k-1 ≤ s ≤ m-1). Parts ≤ s appear once, parts s+1 … m-1...
  * Range:     u8 n <= 383, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 84 terms through n = 7803 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stdint.h>
 
 seq_t a(idx_t n) {

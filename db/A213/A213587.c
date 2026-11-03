@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Fibonacci cache: fib_cache[i] = F(i).  */
 static seq_t *fib_cache = NULL;
@@ -34,7 +36,7 @@ static void ensure_fib(idx_t upto)
     if (upto + 1 <= fib_len) return;
 
     size_t new_len = (size_t)upto + 1;
-    seq_t *tmp = (seq_t *)realloc(fib_cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fib_cache, new_len);
     if (!tmp) abort();
     fib_cache = tmp;
 

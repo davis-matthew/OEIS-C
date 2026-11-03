@@ -10,12 +10,14 @@
  *            (((n-1)/2)!)^2 * n!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact_cache = NULL;      /* factorial cache */
 static size_t fact_cap   = 0;         /* allocated size of cache   */
@@ -29,7 +31,7 @@ ensure_factorial(idx_t n)
 
     if (fact_cache == NULL) {
         fact_cap  = 1;
-        fact_cache = (seq_t*)malloc(sizeof(seq_t) * fact_cap);
+        fact_cache = mem_new(seq_t, fact_cap);
         if (!fact_cache) exit(1);          /* unable to allocate */
         fact_cache[0] = 1;                 /* 0! = 1 */
         fact_size   = 1;
@@ -37,7 +39,7 @@ ensure_factorial(idx_t n)
     if ((idx_t)(fact_cap) <= n) {
         size_t new_cap = fact_cap * 2;
         if (new_cap <= n) new_cap = n + 1;
-        seq_t *tmp = (seq_t*)realloc(fact_cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, fact_cache, new_cap);
         if (!tmp) exit(1);                 /* unable to reallocate */
         fact_cache = tmp;
         fact_cap   = new_cap;

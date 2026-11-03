@@ -11,14 +11,29 @@
  *            approximation 355/113 of π
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   count_sings
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <limits.h>
-#include "../utils/count_sings.h"
+
+/* helper: number of tan singularities with position < L */
+static seq_t count_sings(idx_t L)
+{
+    /* 226 = 2 * 113, 80230 = 226 * 355 */
+    const unsigned __int128 den = (unsigned __int128)226 * 355;
+    /* compute (L*226 - 355) safely in 128‑bit */
+    unsigned __int128 lhs = (unsigned __int128)L * 226;
+    if (lhs <= 355) {
+        return 0;
+    }
+    unsigned __int128 num = (lhs - 355) * 113;
+    unsigned __int128 floor_val = num / den;        /* floor of the division */
+    return (seq_t)(floor_val + 1);
+}
 
 /* required function */
 seq_t a(idx_t n)

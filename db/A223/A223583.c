@@ -9,6 +9,7 @@
  *            (z^6+15*z^5+115*z^4+405*z^3+964*z^2+660*z+720)/720
  * Range:     u8 none, u16 n <= 1, u32 n <= 2, u64 n <= 6, u128 n <= 13,
  *            big any n
+ * Validated: standard, pass, 26 terms through n = 206 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

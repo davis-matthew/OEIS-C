@@ -8,13 +8,15 @@
  *            has an odd number of runs
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return true if VAL has an odd number of runs in base‑7. */
 static bool odd_runs(seq_t VAL)
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* Initialise cache. */
     if (cap == 0) {
         cap = 128;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* Generate terms until we reach the requested index. */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         /* Grow cache if necessary. */
         if (len == cap) {
             size_t new_cap = cap * 2;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             cache = tmp;
             cap = new_cap;
         }

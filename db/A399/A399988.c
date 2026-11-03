@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 18, i32 n <= 47, i64 n <= 154, i128 n <= 527,
  *            big any n
+ * Validated: standard, pass, 56 terms through n = 983 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -33,6 +34,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

@@ -10,7 +10,8 @@
  *            lpf(1) = gpf(1) = 1)
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static cache of computed values */
 static seq_t *a_cache      = NULL;   /* array indexed [1..] */
@@ -79,9 +81,9 @@ static void ensure_a_cache(size_t n)
     if (a_cap < n + 1) {
         /* allocate new cache */
         size_t new_cap = (n + 1) * 2;
-        seq_t *new_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
-        if (a_cache) memcpy(new_arr, a_cache, a_cap * sizeof(seq_t));
-        free(a_cache);
+        seq_t *new_arr = mem_new(seq_t, new_cap);
+        if (a_cache) mem_copy(new_arr, a_cache, a_cap * sizeof(seq_t));
+        mem_free(a_cache);
         a_cache = new_arr;
         a_cap = new_cap;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Return true if the base‑12 representation of x has at least as many
    even‑length runs as odd‑length runs. */
@@ -58,12 +60,12 @@ seq_t a(idx_t n)
     if (n > cache_len) {
         seq_t cur = (cache_len ? cache[cache_len - 1] + 1 : (seq_t)1);
         size_t cap = (cache_len ? cache_len * 2 : 64);
-        cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
         while (cache_len < n) {
             if (even_runs_at_least_odd(cur)) {
                 if (cache_len >= cap) {
                     cap *= 2;
-                    cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cap);
                 }
                 cache[cache_len] = cur;
                 cache_len++;

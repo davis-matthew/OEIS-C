@@ -9,11 +9,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-01)
  * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/reverse_digits.h"
 /* Computation of steps to reach a cycle for sequence A118514.
    S0 = n,  Sj+1 = reverse_digits(Sj) + 2.

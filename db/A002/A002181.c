@@ -10,7 +10,8 @@
  *            value in A002202
  * Range:     u8 n <= 63, u16 n <= 7380, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi_u64
+ * Validated: standard, pass, 79 terms through n = 9840 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/phi_u64.h"
+#include "../utils/totient_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t n64 = (uint64_t)n;
@@ -33,7 +34,7 @@ seq_t a(idx_t n) {
     if (!in_range) return 0;
     
     for (uint64_t k = 1; k <= 2 * search_limit; k++) {
-        uint64_t pk = phi_u64(k);
+        uint64_t pk = totient_u64(k);
         if (pk <= search_limit) {
             in_range[pk] = true;
         }
@@ -56,7 +57,7 @@ seq_t a(idx_t n) {
     if (target_m == 0) return 0;
     
     for (uint64_t k = 1; k <= 2 * target_m + 2; k++) {
-        if (phi_u64(k) == target_m) {
+        if (totient_u64(k) == target_m) {
             return (seq_t)k;
         }
     }

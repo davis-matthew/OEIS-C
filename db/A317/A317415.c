@@ -9,8 +9,9 @@
  * Formula:   a(n) = A317416(n+1) - 1 where A317416 gives the number of the
  *            square visited by a (1,4)-leaper moving to the lowest numbered
  *            unvisited square, starting from square 0
- * Range:     u8 n <= 112, u16 n <= 9561, u32 n <= 9561, u64 n <= 9561,
- *            u128 n <= 9561, big any n
+ * Range:     u8 n <= 112, u16 n <= 13102, u32 n <= 13102, u64 n <= 13102,
+ *            u128 n <= 13102, big any n
+ * Validated: full, pass, 13103 terms through n = 13102 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

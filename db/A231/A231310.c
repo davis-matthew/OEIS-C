@@ -10,13 +10,15 @@
  *            initial values: a(1)=9, a(2)=57, a(3)=414, a(4)=2942, a(5)=20996
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* internal cache for memoisation */
 static seq_t *cache = NULL;        /* array of computed values, indexed 0..n */
@@ -34,7 +36,7 @@ ensure_cache(idx_t n)
     while (new_capacity <= (size_t)n)
         new_capacity <<= 1;                     /* double until > n */
 
-    seq_t *new_cache = (seq_t *)malloc(new_capacity * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_capacity);
     if (!new_cache) {
         /* If allocation fails, abort – this sequence is only used in
            controlled test environments where a full system allocation
@@ -46,7 +48,7 @@ ensure_cache(idx_t n)
     for (size_t i = 0; i < cache_capacity; ++i)
         new_cache[i] = cache[i];
 
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_capacity = new_capacity;
 }

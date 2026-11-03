@@ -16,14 +16,28 @@
  *            function returns the value as a seq_t
  * Range:     u8 n <= 25, u16 n <= 25, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   bit_in_subseq
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/bit_in_subseq.h"
+
+/* Recursive extraction of a bit from the original (non‑reversed) subsequence. */
+static seq_t
+bit_in_subseq(idx_t n, idx_t pos, const idx_t *len)
+{
+    if (n == 1) return (seq_t)0;                     /* "0"           */
+    if (n == 2) return (seq_t)1;                     /* "1"           */
+    if (n == 3) return (pos == 0) ? (seq_t)1 : (seq_t)0; /* "10" */
+
+    if (pos < len[n - 3])
+        return bit_in_subseq(n - 3, pos, len);
+    else
+        return bit_in_subseq(n - 2, pos - len[n - 3], len);
+}
 
 /* Main sequence function. */
 seq_t

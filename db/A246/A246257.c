@@ -12,13 +12,25 @@
  *            finds the corresponding row r and column k from i...
  * Range:     u8 n <= 15, u16 n <= 29, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   binomial, double_factorial_odd
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/double_factorial_odd.h"
+
+/* compute (2k-1)!!, with convention (-1)!! = 1, k>=0 */
+static seq_t double_factorial_odd(idx_t k) {
+    /* k is j, compute product of odd numbers up to 2k-1 */
+    seq_t d = 1;
+    if (k == 0) return 1;
+    for (idx_t odd = 1; odd < 2 * k; odd += 2) {
+        d *= odd;
+    }
+    return d;
+}
 
 /* cumulative number of triangle entries up to and including row r */
 static inline idx_t cumulative_entries(idx_t r) {

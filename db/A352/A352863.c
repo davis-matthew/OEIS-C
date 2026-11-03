@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    (uses memoization; O(n²) time, O(n) memory) */
 
 #include <stdlib.h>
-#include "../utils/binomial.h"          /* seq_t binomial(idx_t a, idx_t b) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* External types supplied by the build system */
 extern seq_t a(idx_t n);
@@ -33,7 +35,7 @@ static void free_cache(void) __attribute__((destructor));
 static void free_cache(void)
 {
     if (cache) {
-        free(cache);
+        mem_free(cache);
         cache = NULL;
     }
     cache_len = 0;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         cache_cap = (size_t)n + 1;
         if (cache_cap == 0) cache_cap = 1;          /* avoid malloc(0) */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();                       /* allocation failed */
         cache[0] = (seq_t)1;                       /* a(0) = 1 */
         cache_len = 1;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     /* Expand cache if necessary to include n */
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

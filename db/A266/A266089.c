@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_realloc
+ * Validated: standard, pass, 83 terms through n = 9174 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,18 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_realloc.h"   /* provides seq_realloc(seq_t *old, size_t old_cap, size_t new_cap) */
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *seq_cache = NULL;         /* array of computed terms      */
 static size_t seq_cap   = 0;            /* capacity of seq_cache        */

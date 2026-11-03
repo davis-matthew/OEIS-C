@@ -6,16 +6,17 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = |{0 < k < n : k*phi(n-k)+1 is a square}|
- * Range:     u8 n <= 100, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ * Range:     u8 n <= 295, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi
+ * Validated: standard, pass, 116 terms through n = 8979 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/calc_phi.h"
+#include "../utils/totient_seq.h"
 
 /* Integer square root of an unsigned 64‑bit value.
    Uses only integer arithmetic and avoids overflow. */
@@ -42,7 +43,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 1; k < n; ++k) {
         idx_t m = n - k;                 /* m = n-k, 1 <= m < n */
-        seq_t phi_m = calc_phi((seq_t)m); /* Euler's totient of m   */
+        seq_t phi_m = totient_seq((seq_t)m); /* Euler's totient of m   */
 
         /* Compute k * phi_m + 1 safely in 64 bits */
         uint64_t val = (uint64_t)k * (uint64_t)phi_m + 1ULL;

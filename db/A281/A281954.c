@@ -11,7 +11,8 @@
  *            introduced in order 0 sequentially upwards
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 16, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define WIDTH        7
 #define ROWS         128          /* 2^7 */
@@ -122,7 +124,7 @@ seq_t a(idx_t n)
 
             /* a(2) */
             seq_t val2 = 0;
-            memset(dp_a, 0, sizeof(dp_cur));
+            mem_set(dp_a, 0, sizeof(dp_cur));
             for (int r0 = 0; r0 < ROWS; ++r0) {
                 if ((r0 & 1) == 0) {
                     for (int r1 = 0; r1 < ROWS; ++r1) {
@@ -141,7 +143,7 @@ seq_t a(idx_t n)
         /* Extend computation up to n. */
         for (size_t target = max_comp_n + 1; target <= n; ++target) {
             /* Clear dp_b fully. */
-            memset(dp_b, 0, sizeof(dp_next));
+            mem_set(dp_b, 0, sizeof(dp_next));
 
             /* Transition */
             for (int prev = 0; prev < ROWS; ++prev) {

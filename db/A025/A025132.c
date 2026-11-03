@@ -8,6 +8,7 @@
  * Formula:   a(n) = (1/2)*∑_{0≤i<j<k≤n} C(n,i)*C(n,j)*C(n,k)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 19 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

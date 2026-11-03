@@ -13,12 +13,14 @@
  *            a_...
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 27, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* sequence function */
 seq_t a(idx_t n)
@@ -35,9 +37,9 @@ seq_t a(idx_t n)
         idx_t newN = n;
 
         /* grow the arrays */
-        A   = (seq_t *)realloc(A,  (newN + 1) * sizeof(seq_t));
-        C1  = (seq_t *)realloc(C1, (newN + 1) * sizeof(seq_t));
-        C2  = (seq_t *)realloc(C2, (newN + 1) * sizeof(seq_t));
+        A   = mem_resize(seq_t, A, (newN + 1));
+        C1  = mem_resize(seq_t, C1, (newN + 1));
+        C2  = mem_resize(seq_t, C2, (newN + 1));
 
         /* initialise new entries */
         for (idx_t i = maxN + 1; i <= newN; ++i) {

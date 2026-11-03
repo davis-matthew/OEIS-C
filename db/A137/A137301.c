@@ -9,13 +9,15 @@
  *            base 10)
  * Range:     u8 none, u16 n <= 2, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 98 terms through n = 97 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const seq_t NUM = (seq_t)999;
 static const seq_t DEN = (seq_t)9801;
@@ -28,8 +30,7 @@ seq_t a(idx_t n)
     /* Extend the cache as needed (cache[0] corresponds to a(0)) */
     if ((size_t)n + 1 > cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();            /* memory exhaustion */
         cache = tmp;
         /* Compute missing digits from cap up to n */

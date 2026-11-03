@@ -8,14 +8,15 @@
  *            computed via prime factorization)
  * Range:     u8 n <= 256, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd_uint64, pow_uint
+ * Validated: standard, pass, 95 terms through n = 884 (2026-11-01)
+ * Helpers:   gcd_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd_uint64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 1) return 1;
@@ -35,12 +36,12 @@ seq_t a(idx_t n) {
                 seq_t phi = ((seq_t)1 << (exp - 1)); /* φ(2^e) = 2^(e-1) */
                 f = 1 + phi;
             } else if (p == 3) {
-                seq_t phi = pow_uint(3, exp - 1) * (seq_t)2; /* φ(3^e) = 3^(e-1)*2 */
+                seq_t phi = ipow_u64_idx(3, exp - 1) * (seq_t)2; /* φ(3^e) = 3^(e-1)*2 */
                 seq_t g = (exp >= 3) ? 9 : (exp == 2 ? 3 : 1);
                 f = 1 + phi / g;
             } else {
-                seq_t phi = pow_uint(p, exp - 1) * (seq_t)(p - 1); /* φ(p^e) = p^(e-1)*(p-1) */
-                seq_t g = (seq_t)gcd_uint64(9, (uint64_t)phi);
+                seq_t phi = ipow_u64_idx(p, exp - 1) * (seq_t)(p - 1); /* φ(p^e) = p^(e-1)*(p-1) */
+                seq_t g = (seq_t)gcd_u64(9, (uint64_t)phi);
                 f = 1 + phi / g;
             }
             total *= f;
@@ -57,7 +58,7 @@ seq_t a(idx_t n) {
             f = 1 + phi;                /* gcd(9,2)=1 */
         } else {
             seq_t phi = (seq_t)(p - 1); /* φ(p^1) = p-1 */
-            seq_t g = (seq_t)gcd_uint64(9, (uint64_t)phi);
+            seq_t g = (seq_t)gcd_u64(9, (uint64_t)phi);
             f = 1 + phi / g;
         }
         total *= f;

@@ -9,13 +9,32 @@
  *            multiplicative partitions)
  * Range:     u8 n <= 13, u16 n <= 20, u32 n <= 32, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   _count_factor
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/_count_factor.h"
+#include "../utils/mem.h"
+
+/* recursive helper to count multiplicative partitions of n
+   with all factors ≥ min (non‑decreasing order)                 */
+static seq_t _count_factor(idx_t n, idx_t min)
+{
+    if (min > n)                      /* impossible to factor further */
+        return (seq_t)0;
+    seq_t total = (seq_t)1;            /* the factorisation consisting of n itself */
+    for (idx_t d = min; d * d <= n; ++d)
+    {
+        if (n % d == 0)
+        {
+            idx_t q = n / d;           /* d ≤ q because d*d ≤ n  */
+            total += _count_factor(q, d);
+        }
+    }
+    return total;
+}
 
 /* forward declaration of the recursive helper */
 static seq_t _count_factor(idx_t n, idx_t min);
@@ -36,8 +55,8 @@ seq_t a(idx_t n)
     {
         idx_t old = cap;
         cap = n;
-        f   = (seq_t*)realloc(f,   sizeof(seq_t) * (cap + 1));
-        prod = (seq_t*)realloc(prod, sizeof(seq_t) * (cap + 1));
+        f   = mem_resize(seq_t, f, (cap + 1));
+        prod = mem_resize(seq_t, prod, (cap + 1));
         if (!f || !prod) { /* memory failure – abort */
             exit(EXIT_FAILURE);
         }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n-1} a(k) * ((-1)^k + a(n-k-1))
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Initialise cache with first term */
     if (cache_len == 0) {
         cache_len = 1;
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) abort();
         cache[0] = (seq_t)1; /* a(0) = 1 */
         if (n == 0) return cache[0];
@@ -37,11 +39,11 @@ seq_t a(idx_t n)
         idx_t old_len = cache_len;
         idx_t new_len = n + 1;
         /* Allocate new buffer */
-        seq_t *new_buf = (seq_t*)malloc((size_t)new_len * sizeof(seq_t));
+        seq_t *new_buf = mem_new(seq_t, (size_t)new_len);
         if (!new_buf) abort();
         /* Copy existing values */
-        memcpy(new_buf, cache, old_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_buf, cache, old_len * sizeof(seq_t));
+        mem_free(cache);
         cache = new_buf;
         cache_len = new_len;
 

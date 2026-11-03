@@ -9,7 +9,8 @@
  *            p_{n+1})
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 97 terms through n = 97 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* precompute up to a limit sufficient for n <= 10000 */
 static const idx_t LIMIT = 200000;      /* covers the 104729th prime comfortably */
@@ -33,7 +35,7 @@ static void init(void)
 
     /* allocate flags and v3 array */
     is_prime = (bool*)malloc((LIMIT + 1) * sizeof(bool));
-    v3 = (seq_t*)malloc((LIMIT + 1) * sizeof(seq_t));
+    v3 = mem_new(seq_t, (LIMIT + 1));
     if (!is_prime || !v3) {
         exit(EXIT_FAILURE);
     }

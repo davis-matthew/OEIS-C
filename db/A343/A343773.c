@@ -9,6 +9,7 @@
  *            a(1) = 1. Recurrence is integer‐valued for all n
  * Range:     i8 n <= 10, i16 n <= 17, i32 n <= 33, i64 n <= 62, i128 n <= 115,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 643 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

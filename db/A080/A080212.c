@@ -7,15 +7,16 @@
  * Formula:   a(n) = binomial(n, p(n)) where p(n) is the smallest odd prime
  *            factor of n, and p(n)=1 when n has no odd prime factor (e.g.
  *            powers of 2)
- * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 33, u64 n <= 45, u128 n <= 45,
+ * Range:     u8 n <= 13, u16 n <= 21, u32 n <= 37, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   binom_combo
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_combo.h"
+#include "../utils/binomial.h"
 
 /* Find smallest odd prime factor of n; if none, return 1. */
 static idx_t smallest_odd_prime_factor(idx_t n) {
@@ -33,5 +34,5 @@ static idx_t smallest_odd_prime_factor(idx_t n) {
 seq_t a(idx_t n) {
     if (n <= 2) return (seq_t)n;        /* a(1)=1, a(2)=2 */
     idx_t p = smallest_odd_prime_factor(n);
-    return binom_combo(n, p);
+    return binomial(n, p);
 }

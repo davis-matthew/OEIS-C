@@ -9,12 +9,14 @@
  *            Stirling2(n,k) satisfies: S(n,k)=S(n-1,k-1)+k*S(n-1,k)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t max_n = 0;
 static seq_t *a_val = NULL;
@@ -33,12 +35,12 @@ static void expand(idx_t limit)
     /* Allocate new tables with enough space */
     size_t new_size = (size_t)(limit + 1);
 
-    seq_t *new_a_val = (seq_t *)malloc(new_size * sizeof(seq_t));
-    seq_t *new_lucas = (seq_t *)malloc(new_size * sizeof(seq_t));
-    seq_t *new_fact  = (seq_t *)malloc(new_size * sizeof(seq_t));
-    seq_t *new_b     = (seq_t *)malloc(new_size * sizeof(seq_t));
-    seq_t *new_S_prev = (seq_t *)malloc(new_size * sizeof(seq_t));
-    seq_t *new_S_curr = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_a_val = mem_new(seq_t, new_size);
+    seq_t *new_lucas = mem_new(seq_t, new_size);
+    seq_t *new_fact  = mem_new(seq_t, new_size);
+    seq_t *new_b     = mem_new(seq_t, new_size);
+    seq_t *new_S_prev = mem_new(seq_t, new_size);
+    seq_t *new_S_curr = mem_new(seq_t, new_size);
 
     /* Copy old data (if any) and zero-fill the rest */
     for (idx_t i = 0; i <= max_n; ++i) {
@@ -59,12 +61,12 @@ static void expand(idx_t limit)
     }
 
     /* Free old tables */
-    free(a_val);
-    free(lucas);
-    free(fact);
-    free(b);
-    free(S_prev);
-    free(S_curr);
+    mem_free(a_val);
+    mem_free(lucas);
+    mem_free(fact);
+    mem_free(b);
+    mem_free(S_prev);
+    mem_free(S_curr);
 
     a_val = new_a_val;
     lucas = new_lucas;

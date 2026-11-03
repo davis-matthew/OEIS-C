@@ -8,7 +8,8 @@
  * Formula:   a(n) = ⌊ n / { n*r } ⌋ , r = (1+√5)/2
  * Range:     u8 n <= 12, u16 n <= 232, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   less_than_value
+ * Validated: standard, pass, 83 terms through n = 997 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,17 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/less_than_value.h"
+
+/* test whether  (2n) / (n*√5 − s_use)  <  m  */
+static inline bool less_than_value(idx_t n, unsigned __int128 s_use, unsigned __int128 m)
+{
+    unsigned __int128 p   = (unsigned __int128)n;        /* n        */
+    unsigned __int128 prod= m * p;                      /* m*n      */
+    unsigned __int128 lhs = 5 * prod * prod;            /* 5*(m*n)² */
+    unsigned __int128 rhs1= 2 * p + m * s_use;          /* 2n + m*s_use  */
+    unsigned __int128 rhs = rhs1 * rhs1;                /* (2n + m*s_use)² */
+    return lhs > rhs;  /* true ⇔ (2n)/(n√5−s_use) < m */
+}
 
 /* fast integer square root for a 128‑bit unsigned integer  */
 static unsigned __int128 isqrt_u128(unsigned __int128 x)

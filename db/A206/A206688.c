@@ -13,14 +13,33 @@
  *            -586*a(n-9) -1008*a(n-10) -32*a(n-11) +1304*a(n...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 26, u128 n <= 53,
  *            big any n
- * Helpers:   effect_legal
+ * Validated: standard, pass, 37 terms through n = 165 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/effect_legal.h"
+
+/* Helper: simulate the Restricted Growth Function (RGF) step for a row.
+   startMax   : current maximum color index already used (-1,0,1,2,3)
+   rowIdx     : index of the candidate row (0..ROWS-1)
+   rowVals    : global array of row patterns  [ROWS][4]
+   newMaxPtr  : output pointer for new maximum after the row
+   returns true if the row is legal under RGF, false otherwise.
+*/
+static bool effect_legal(int startMax, int rowIdx, const unsigned char (*rowVals)[4], int *newMaxPtr) {
+    int cur = startMax;
+    const unsigned char *p = rowVals[rowIdx];
+    for (int pos = 0; pos < 4; ++pos) {
+        int val = p[pos];
+        if (val > cur + 1) return false;          /* would introduce unused color > smallest unused */
+        if (val == cur + 1) cur++;                /* introduce new color */
+    }
+    *newMaxPtr = cur;
+    return true;
+}
 
 #define ROWS 48
 #define SENTINEL ROWS              /* index used for “no previous row”   */

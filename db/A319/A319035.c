@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 78, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 59 terms through n = 8726 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
    any requested index. */
 
 #include <stdlib.h>                 /* malloc, realloc, free */
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,9 +42,9 @@ seq_t a(idx_t n)
         /* Ensure capacity for another element */
         if (cache_len == cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) {                 /* allocation failure */
-                if (cache) free(cache);
+                if (cache) mem_free(cache);
                 cache = NULL;
                 cache_len = cache_cap = 0;
                 return (seq_t)0;
@@ -55,8 +58,8 @@ seq_t a(idx_t n)
         seq_t Tk1  = ((seq_t)(current_k+1) * (seq_t)(current_k + 2)) / 2;
 
         /* Count divisors of both numbers (values fit in uint64_t for the tested range) */
-        seq_t dTk  = (seq_t)divisor_count_u64((uint64_t)Tk);
-        seq_t dTk1 = (seq_t)divisor_count_u64((uint64_t)Tk1);
+        seq_t dTk  = (seq_t)num_divisors((uint64_t)Tk);
+        seq_t dTk1 = (seq_t)num_divisors((uint64_t)Tk1);
 
         /* Record Tk if its divisor count matches Tk+1's */
         if (dTk == dTk1) {

@@ -10,13 +10,15 @@
  *            number of the first kind s(r,c)
  * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *fact = NULL;           /* factorials, fact[i] = i!      */
 static idx_t  fact_size = 0;         /* current factorial array size  */
@@ -37,18 +39,18 @@ static void ensure_rows_upto_row(idx_t target_row)
 {
     /* Initial allocation */
     if (fact_size == 0) {
-        fact = (seq_t *)malloc(1 * sizeof(seq_t));
+        fact = mem_new(seq_t, 1);
         if (!fact) abort();
         fact[0] = (seq_t)1;
         fact_size = 1;
 
-        stirl_prev = (seq_t *)malloc(1 * sizeof(seq_t));
-        stirl_curr = (seq_t *)malloc(1 * sizeof(seq_t));
+        stirl_prev = mem_new(seq_t, 1);
+        stirl_curr = mem_new(seq_t, 1);
         if (!stirl_prev || !stirl_curr) abort();
         stirl_prev[0] = (seq_t)1;      /* s(0,0)=1 */
         stirl_max = 1;
 
-        cache = (seq_t *)malloc(1 * sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) abort();
         cache[0] = (seq_t)1;           /* a(0) = 1 */
         cache_size = 1;
@@ -60,7 +62,7 @@ static void ensure_rows_upto_row(idx_t target_row)
     /* Grow factorial array */
     if (fact_size < (size_t)target_row + 1) {
         size_t new_fact_size = (size_t)target_row + 1;
-        seq_t *new_fact = (seq_t *)realloc(fact, new_fact_size * sizeof(seq_t));
+        seq_t *new_fact = mem_resize(seq_t, fact, new_fact_size);
         if (!new_fact) abort();
         for (size_t i = fact_size; i < new_fact_size; ++i) {
             new_fact[i] = new_fact[i - 1] * (seq_t)(i);
@@ -72,8 +74,8 @@ static void ensure_rows_upto_row(idx_t target_row)
     /* Grow stirling arrays to hold rows up to target_row */
     if (stirl_max < (size_t)target_row + 1) {
         size_t new_max = (size_t)target_row + 1;
-        seq_t *new_prev = (seq_t *)realloc(stirl_prev, new_max * sizeof(seq_t));
-        seq_t *new_curr = (seq_t *)realloc(stirl_curr, new_max * sizeof(seq_t));
+        seq_t *new_prev = mem_resize(seq_t, stirl_prev, new_max);
+        seq_t *new_curr = mem_resize(seq_t, stirl_curr, new_max);
         if (!new_prev || !new_curr) abort();
         stirl_prev = new_prev;
         stirl_curr = new_curr;
@@ -83,7 +85,7 @@ static void ensure_rows_upto_row(idx_t target_row)
     /* Grow cache to hold all entries up to the target row */
     size_t needed_cache = ((size_t)target_row + 1) * ((size_t)target_row + 2) / 2;
     if (cache_size < needed_cache) {
-        seq_t *new_cache = (seq_t *)realloc(cache, needed_cache * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, needed_cache);
         if (!new_cache) abort();
         cache = new_cache;
         cache_size = needed_cache;

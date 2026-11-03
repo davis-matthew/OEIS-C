@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of unordered factorizations of n ≥ 2 into factors
  *            > 1 whose overall greatest common divisor is 1
- * Range:     u8 n <= 2627, u16 n <= 8574, u32 n <= 8574, u64 n <= 8574,
- *            u128 n <= 8574, big any n
+ * Range:     u8 n <= 2627, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 116 terms through n = 8574 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

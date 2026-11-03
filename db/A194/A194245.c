@@ -8,7 +8,8 @@
  * Formula:   a(n) = floor( sum_{k=1}^n frac((2-sqrt3)k) )
  * Range:     u8 n <= 22, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Integer square root for 64‑bit unsigned values */
 static inline uint64_t floor_sqrt_uint64(uint64_t x)
@@ -41,7 +43,7 @@ static void ensure_cache(idx_t n)
 {
     if (n <= cum_cache_size) return;
     /* Allocate new buffer (size n+1 to have index 0..n) */
-    seq_t *new_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (n + 1));
     if (!new_cache) exit(EXIT_FAILURE);
     /* Initialise from previous cache */
     for (idx_t i = 0; i <= cum_cache_size; ++i)
@@ -55,7 +57,7 @@ static void ensure_cache(idx_t n)
         new_cache[k] = new_cache[k - 1] + (seq_t)term;
     }
     /* Free old cache */
-    free(cum_floor_sqrt3);
+    mem_free(cum_floor_sqrt3);
     cum_floor_sqrt3 = new_cache;
     cum_cache_size = n;
 }

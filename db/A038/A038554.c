@@ -9,13 +9,15 @@
  * Formula:   a(n) = (n ^ (n >> 1)) & ((1 << floor_log2(n)) - 1)
  * Range:     u8 n <= 262, u16 n <= 4096, u32 n <= 4096, u64 n <= 4096,
  *            u128 n <= 4096, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 98 terms through n = 3987 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
         return 0;          /* a(0)=a(1)=0 by definition */
 
     /* floor_log2_uint64 returns floor(log2(n)) for n>0 */
-    unsigned k = floor_log2_uint64(n);
+    unsigned k = ilog2(n);
 
     /* Build a mask with k lower bits set to 1.
        If k is larger than or equal to the width of seq_t,

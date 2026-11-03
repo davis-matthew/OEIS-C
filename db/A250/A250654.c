@@ -9,13 +9,15 @@
  * Formula:   a(n) = 3*a(n-1) - 2*a(n-2) with a(1)=64, a(2)=134
  * Range:     u8 n <= 2, u16 n <= 10, u32 n <= 26, u64 n <= 58, u128 n <= 122,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The sequence can also be written as a(n) = 2^(n-1)*36 + (5*2^(n-1)-1)*6 + 2^(n+1) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initialise cache with two base terms if not yet done */
     if (cache == NULL) {
         cache_cap = 4;           /* start with small capacity */
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)64;    /* a(1) */
         cache[1] = (seq_t)134;   /* a(2) */
         cache_size = 2;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
             /* grow cache if needed */
             if (i > cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[i-1] = term;   /* cache indices start at 0 for a(1) */
         }

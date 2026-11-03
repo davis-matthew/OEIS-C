@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   digits, pow10
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,15 +22,24 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow10.h"
-#include "../utils/digits.h"
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
     /* Build L = concat(1..n) */
     seq_t L = 0;
     for (idx_t i = 1; i <= n; ++i) {
-        idx_t d = (idx_t)digits(i);
+        idx_t d = (idx_t)num_digits_idx(i);
         seq_t mult = pow10(d);
         L = L * mult + (seq_t)i;
     }
@@ -37,7 +47,7 @@ seq_t a(idx_t n)
     /* Build R = concat(n..1) */
     seq_t R = 0;
     for (idx_t j = n; j > 0; --j) {
-        idx_t d = (idx_t)digits(j);
+        idx_t d = (idx_t)num_digits_idx(j);
         seq_t mult = pow10(d);
         R = R * mult + (seq_t)j;
     }

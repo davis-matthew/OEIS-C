@@ -9,13 +9,26 @@
  * Formula:   a(n) = (C(n^2,4)+C(floor(n^2/2),2)+floor(n^2/2))/4
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 28, u64 n <= 452, u128 n <= 1000,
  *            big any n
- * Helpers:   binom2_128, binom4_128
+ * Validated: standard, pass, 45 terms through n = 986 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom2_128.h"
-#include "../utils/binom4_128.h"
+/* Computes C(m,2) using 128‑bit arithmetic.  */
+static inline __uint128_t binom2_128(__uint128_t m)
+{
+    if (m < 2) return 0;
+    return (m * (m - 1)) / 2;
+}
+
+/* Computes the binomial coefficient C(m,4) using 128‑bit arithmetic, safe for all n up to the
+   limit of the sequence.  The result always fits in a __uint128_t.  */
+static inline __uint128_t binom4_128(__uint128_t m)
+{
+    if (m < 4) return 0;
+    return (m * (m - 1) * (m - 2) * (m - 3)) / 24;
+}
 
 /* The required sequence function.  It works for any seq_t (uint8_t … arbitrary‑precision).  */
 seq_t a(idx_t n)

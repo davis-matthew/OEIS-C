@@ -9,7 +9,8 @@
  * Formula:   a(n) = a(n-8) for n > 10
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t first10[11];
 static bool first10_inited = false;
@@ -26,7 +28,7 @@ static bool first10_inited = false;
 static void init_first10(void) {
     const idx_t limit = 10;
     /* allocate arrays for the first 10 positions (+ extra for safety) */
-    seq_t *seq = (seq_t *)malloc((limit + 5) * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, (limit + 5));
     bool *used = (bool *)calloc((limit + 5), sizeof(bool));
     int cycle[4] = {0, 1, 2, 3};
     idx_t idx = 1;          /* next free index */
@@ -61,7 +63,7 @@ static void init_first10(void) {
     for (idx_t i = 1; i <= limit; ++i) {
         first10[i] = seq[i];
     }
-    free(seq);
+    mem_free(seq);
     free(used);
     first10_inited = true;
 }

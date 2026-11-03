@@ -7,7 +7,8 @@
  * Formula:   a(n) is the n-th odd number m such that (m^2-7)/6 is prime
  * Range:     u8 n <= 3, u16 n <= 36, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 72 terms through n = 972 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(uint64_t) */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 /* a(n) returns the n‑th term of OEIS A110016;  n ≥ 1. */
 seq_t a(idx_t n)
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
         /* Test primality.  p is small enough to fit in uint64_t for all
            indices we are expected to handle. */
-        if (is_prime((uint64_t)p))
+        if (is_prime_u64((uint64_t)p))
         {
             count++;
             if (count == n) return candidate;

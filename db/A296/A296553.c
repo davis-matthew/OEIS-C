@@ -11,7 +11,8 @@
  *            column patterns
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 28, u64 n <= 56, u128 n <= 111,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Problem parameters */
 #define COLS 7
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
     static seq_t *dp_next = dp1;
 
     /* initialise DP with the first column (left neighbour = 0) */
-    memset(dp_cur, 0, sizeof(seq_t) * STATE_COUNT);
+    mem_set(dp_cur, 0, sizeof(seq_t) * STATE_COUNT);
     for (int c = 0; c < MAX_COL; ++c)
         dp_cur[c] = 1;
 
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
 
     /* iterate over columns 2 .. n */
     for (idx_t col = 2; col <= n; ++col) {
-        memset(dp_next, 0, sizeof(seq_t) * STATE_COUNT);
+        mem_set(dp_next, 0, sizeof(seq_t) * STATE_COUNT);
 
         for (int prev = 0; prev < MAX_COL; ++prev) {
             for (int curr = 0; curr < MAX_COL; ++curr) {

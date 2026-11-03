@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/2)} binomial(n,n-2k) * A002370(k)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 436 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    with a_0=1, a_1=1, a_2=2, a_3=4. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Allocate cache if needed */
     if (cache == NULL) {
         cache_size = 4;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) return 0;  /* allocation failure */
         /* Initialize base terms */
         for (idx_t i = 0; i < 4; ++i)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Grow cache if caller asks for larger n */
     if (n + 1 > cache_size) {
         cache_size = n + 1;
-        cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_size);
         if (cache == NULL) return 0; /* allocation failure */
     }
 

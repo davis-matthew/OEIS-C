@@ -9,9 +9,10 @@
  *            to 2^(n-1) = Σ_{d|n} a(d)*a(n/d). The recurrence is a(n) =
  *            (2^(n-1) - Σ_{d|n, 1<d<n} a(d)*a(n/d)) / 2. The denominators are
  *            always powers of two
- * Range:     u8 n <= 1023, u16 n <= 9911, u32 n <= 9911, u64 n <= 9911,
- *            u128 n <= 9911, big any n
- * Helpers:   pow2
+ * Range:     u8 n <= 1023, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9911 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Add a term term_num/2^term_exp to the accumulating sum
    sum_num/2^sum_exp, updating them in place. */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cap) {
         size_t new_cap = cap ? cap << 1 : 2;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t  *new_num  = (seq_t*)realloc(num,  new_cap * sizeof(*new_num));
+        seq_t  *new_num  = mem_resize(seq_t, num, new_cap);
         uint32_t *new_ex  = (uint32_t*)realloc(exps, new_cap * sizeof(*new_ex));
         if (!new_num || !new_ex) return (seq_t)0; /* allocation failed */
         num   = new_num;

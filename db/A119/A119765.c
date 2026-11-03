@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort that orders idx_t values in ascending order. */
 static int cmp_idx_t(const void *a, const void *b)
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < div_len; ++i) {
             if (cache_len >= cache_cap) {
                 size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
-                cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, new_cap);
                 cache_cap = new_cap;
             }
             cache[cache_len++] = (seq_t)div_buf[i];

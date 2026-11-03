@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 108, u64 n <= 108, u128 n <= 108,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 108 terms through n = 108 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* global cache of generated pandigital values */
 static seq_t *pand = NULL;       /* array of values of A171102 */
@@ -60,7 +62,7 @@ static void ensure_pandigitals(size_t need)
     size_t new_cap = (pand_count == 0) ? 128 : pand_count * 2;
     if (new_cap < need)
         new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(pand, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, pand, new_cap);
     if (!tmp) abort();      /* out of memory – program termination */
     pand = tmp;
 

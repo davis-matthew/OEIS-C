@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   contains71
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,20 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains71.h"
+#include "../utils/mem.h"
+
+static bool contains71(seq_t x)
+{
+    seq_t prev = (seq_t)8;               /* sentinel not 7 or 1 */
+    while (x > (seq_t)0) {
+        seq_t digit = x % (seq_t)8;      /* least significant base‑8 digit */
+        if (prev == (seq_t)1 && digit == (seq_t)7)
+            return true;                /* found ...71 ... */
+        prev = digit;
+        x /= (seq_t)8;                  /* shift right one base‑8 digit */
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;     /* memoised terms, 0‑based index */
 static size_t cache_cap = 0;     /* allocated capacity */
@@ -36,7 +50,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = cache_cap? cache_cap << 1 : 64;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;

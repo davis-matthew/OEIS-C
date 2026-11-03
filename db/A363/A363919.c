@@ -7,7 +7,8 @@
  * Formula:   a(n) = n^A046660(n) = n^(Σ_{p|n} (v_p(n)-1))
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* Computes excess = total multiplicity sum minus number of distinct primes      */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -41,5 +43,5 @@ seq_t a(idx_t n)
 
     /* Remaining prime > 1 has exponent 1, contributes 0 to excess */
     /* exp already contains the correct excess */
-    return seq_pow((seq_t)n, (idx_t)exp);
+    return ipow_idx((seq_t)n, (idx_t)exp);
 }

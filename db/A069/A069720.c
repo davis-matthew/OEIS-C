@@ -8,7 +8,8 @@
  *            1, n*a(n) = 4*(2*n-1)*a(n-1) for n > 1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 23, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #ifndef SEQ_T
 /* The build supplies typedefs for seq_t and idx_t (i.e. unsigned long long).  */
 #endif
+#include "../utils/mem.h"
 
 /* A simple memoised recurrence implementation.  The cache holds the
    values a[1..max_computed].  cache[0] is unused. */
@@ -33,7 +35,7 @@ static seq_t *ensure_cache(idx_t n)
 
     /* Allocate space for indices 0..n (index 0 is unused). */
     idx_t new_size = n + 1;
-    seq_t *new_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache) return NULL;                /* allocation failed */
 
     /* Copy existing data. */
@@ -41,7 +43,7 @@ static seq_t *ensure_cache(idx_t n)
     /* Initialise new elements to zero (unset). */
     for (idx_t i = cache_size + 1; i <= n; ++i) new_cache[i] = (seq_t)0;
 
-    free(cache);
+    mem_free(cache);
     cache      = new_cache;
     cache_size = n;
     return cache;

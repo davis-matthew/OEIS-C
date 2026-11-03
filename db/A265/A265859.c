@@ -8,13 +8,15 @@
  *            step at which they are removed, lucky numbers get 0)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9442 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache for previously computed unluckiness values */
 static idx_t cache_max = 0;          /* maximum n that has been computed */
@@ -25,10 +27,10 @@ static void recompute_unluckiness(idx_t max_n)
 {
     /* free previous cache */
     if (unluckiness != NULL)
-        free(unluckiness);
+        mem_free(unluckiness);
 
     /* allocate new cache and set to 0 */
-    unluckiness = (seq_t *)calloc((size_t)max_n + 1, sizeof(seq_t));
+    unluckiness = mem_new(seq_t, (size_t)max_n + 1);
     if (unluckiness == NULL)
         return;  /* allocation failed; caller will return 0 */
 
@@ -41,7 +43,7 @@ static void recompute_unluckiness(idx_t max_n)
     idx_t *nxt  = (idx_t *)malloc((size_t)max_n * sizeof(idx_t));
     if (cur == NULL || nxt == NULL)
     {
-        free(unluckiness); free(cur); free(nxt);
+        mem_free(unluckiness); free(cur); free(nxt);
         unluckiness = NULL;
         return;
     }

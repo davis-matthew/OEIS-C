@@ -11,14 +11,30 @@
  *            entry.)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   seq_alloc_array, seq_realloc
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+    /* one allocation scheme for every width (the C++ branch here used
+       new[]/delete[] on memory from mem_new) */
+    (void)old_cap;
+    seq_t *p = mem_resize(seq_t, old, new_cap ? new_cap : 1);
+    if (!p) abort();
+    return p;
+}
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;     /* cache of computed terms */

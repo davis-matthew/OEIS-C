@@ -10,7 +10,8 @@
  *            order
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 36, u64 n <= 66, u128 n <= 130,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 53 terms through n = 2997 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Cache of the first primes (1‑based indexing). */
 static uint64_t *prime_cache = NULL;
@@ -103,7 +104,7 @@ seq_t a(idx_t n)
         uint64_t prime_of_i = get_prime(i + 1);           /* prime(1) = 2, prime(2) = 3, ... */
         seq_t base = (seq_t)prime_of_i;
         seq_t exponent = (seq_t)factors[i];
-        seq_t term = big_pow(base, exponent);
+        seq_t term = ipow(base, exponent);
         result = result * term;
     }
     return result;

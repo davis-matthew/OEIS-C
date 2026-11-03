@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 73, u16 n <= 4883, u32 n <= 9801, u64 n <= 9801,
- *            u128 n <= 9801, big any n
- * Helpers:   alloc_seq_array, is_prime
+ * Range:     u8 n <= 73, u16 n <= 4883, u32 n <= 12831, u64 n <= 12831,
+ *            u128 n <= 12831, big any n
+ * Validated: standard, pass, 79 terms through n = 9801 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,14 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"          /* bool is_prime(idx_t)   */
-#include "../utils/alloc_seq_array.h"   /* seq_t *alloc_seq_array(size_t) */
+#include <stdint.h>
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static inline idx_t isqrt_u64(idx_t x)
 {
@@ -45,7 +52,7 @@ static void buf_append(seq_t val, seq_t **buf, size_t *size, size_t *cap)
         seq_t *new_buf = alloc_seq_array(new_cap);
         for (size_t i = 0; i < *size; ++i)
             new_buf[i] = (*buf)[i];
-        free(*buf);
+        mem_free(*buf);
         *buf = new_buf;
         *cap = new_cap;
     }

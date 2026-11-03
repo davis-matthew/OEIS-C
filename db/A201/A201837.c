@@ -8,7 +8,8 @@
  *            a(1)=0, a(2)=-1, a(3)=-2
  * Range:     i8 n <= 15, i16 n <= 29, i32 n <= 60, i64 n <= 121,
  *            i128 n <= 242, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 411 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdint.h>   /* for uint64_t (idx_t) */
 #include <stdlib.h>   /* for malloc / realloc */
+#include "../utils/mem.h"
 
 /* static cache state */
 static seq_t *a_cache   = NULL;  /* pointer to array of terms */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Ensure the cache has at least the first four terms on first call */
     if (a_cache == NULL) {
         a_cap = 4;
-        a_cache = (seq_t *)realloc(NULL, a_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, NULL, a_cap);
         if (a_cache == NULL) return (seq_t)0; /* allocation failed – unlikely */
         a_cache[0] = (seq_t)1;
         a_cache[1] = (seq_t)0;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         /* Double the capacity until it fits the required size */
         while (a_cap < required)
             a_cap = a_cap * 2 + 1;   /* +1 to handle a_cap==0 case */
-        seq_t *tmp = (seq_t *)realloc(a_cache, a_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, a_cap);
         if (tmp == NULL) return (seq_t)0;   /* allocation failed – unlikely */
         a_cache = tmp;
     }

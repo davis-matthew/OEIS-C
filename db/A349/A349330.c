@@ -10,8 +10,9 @@
  *            recursively; a divisor is a square iff all its prime exponents
  *            are even. Sum all square divisors, count the non‑square
  *            divisors, and return the total
- * Range:     u8 n <= 224, u16 n <= 8203, u32 n <= 8203, u64 n <= 8203,
- *            u128 n <= 8203, big any n
+ * Range:     u8 n <= 224, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 103 terms through n = 8203 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static void dfs(const uint64_t *pr, const uint64_t *ex, int total, int pos,

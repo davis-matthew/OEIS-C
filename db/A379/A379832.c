@@ -9,7 +9,8 @@
  *            are all odd
  * Range:     u8 n <= 12, u16 n <= 183, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 66 terms through n = 9829 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Cache for computed a(n) values: 0‑based indices */
 static seq_t *a_vals      = NULL;   /* array of seq_t */
@@ -38,7 +40,7 @@ static void grow_vals(size_t needed)
     size_t new_cap = a_capacity ? a_capacity * 2 : 16;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
     if (!tmp)
         abort();
     a_vals = tmp;

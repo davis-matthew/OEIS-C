@@ -12,14 +12,16 @@
  *            binomial(r+1,j) * (c*(m-j)+1)^r * signum(c*(m-j)+1) (1) w...
  * Range:     i8 n <= 11, i16 n <= 19, i32 n <= 35, i64 n <= 35, i128 n <= 35,
  *            big any n
- * Helpers:   binomial, pow_seq_signed
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq_signed.h"
+#include "../utils/ipow_idx.h"
 
 /* Compute T(n,k) = P(n,k,-1) according to formula (1). */
 static seq_t compute_T(idx_t n, idx_t k)
@@ -54,7 +56,7 @@ static seq_t compute_T(idx_t n, idx_t k)
             if (sign_t == 0)
                 continue;   /* term vanishes when base == 0 */
 
-            seq_t pow_val = pow_seq_signed(base, n);
+            seq_t pow_val = ipow_idx(base, n);
 
             seq_t term = bin * pow_val;
 

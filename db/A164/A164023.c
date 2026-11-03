@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 286, u16 n <= 2500, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 2500 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global prime cache: highest n for which primes are generated */
 static idx_t   _prime_limit = 0;     /* highest n for which primes are generated */
@@ -51,7 +53,7 @@ static void _ensure_primes(idx_t limit)
     for (idx_t i = 2; i <= limit; ++i)
         if (is_prime[i]) ++cnt;
 
-    seq_t *list = (seq_t *)malloc(cnt * sizeof(seq_t));
+    seq_t *list = mem_new(seq_t, cnt);
     if (!list) abort();
     size_t pos = 0;
     for (idx_t i = 2; i <= limit; ++i)
@@ -59,7 +61,7 @@ static void _ensure_primes(idx_t limit)
 
     /* replace old data */
     free(_prime_is);
-    free(_prime_list);
+    mem_free(_prime_list);
     _prime_is   = is_prime;
     _prime_list = list;
     _prime_cnt  = cnt;

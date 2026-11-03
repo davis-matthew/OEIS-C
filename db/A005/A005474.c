@@ -11,7 +11,8 @@
  *            * erfc(m*sqrt(Pi/p)) + E1(Pi*m^2/p) ] (Cohen's rapidly...
  * Range:     u8 n <= 270, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   expint1, jacobi_u
+ * Validated: standard, pass, 98 terms through n = 9423 (2026-11-01)
+ * Helpers:   jacobi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,35 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/expint1.h"
-#include "../utils/jacobi_u.h"
+#include "../utils/jacobi.h"
+
+/* exponential integral E1(x), x > 0 */
+static double expint1(double x) {
+    const double EULER = 0.57721566490153286061;
+    int i;
+    if (x <= 1.0) {
+        double sum = 0.0, term = 1.0;
+        for (i = 1; i < 60; i++) {
+            term *= -x / i;
+            sum += term / i;
+            if (fabs(term / i) < 1e-18) break;
+        }
+        return -EULER - log(x) - sum;
+    } else {
+        const double FPMIN = 1e-300;
+        double b = x + 1.0, c = 1.0 / FPMIN, d = 1.0 / b, h = d;
+        for (i = 1; i < 1000; i++) {
+            double an = -(double)i * i, del;
+            b += 2.0;
+            d = 1.0 / (an * d + b);
+            c = b + an / c;
+            del = c * d;
+            h *= del;
+            if (fabs(del - 1.0) < 1e-16) break;
+        }
+        return h * exp(-x);
+    }
+}
 
 static uint64_t mulmod_u(uint64_t a, uint64_t b, uint64_t m) {
     return (uint64_t)((unsigned __int128)a * b % m);
@@ -93,7 +121,7 @@ seq_t a(idx_t n) {
     double sum = 0.0, hval;
     long long h;
     for (m = 1; m <= N; m++) {
-        int chi = jacobi_u(m, p);
+        int chi = jacobi(m, p);
         double md, t;
         if (chi == 0) continue;
         md = (double)m;

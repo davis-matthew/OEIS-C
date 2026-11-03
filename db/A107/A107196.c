@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 397, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrime_uint64, push_seq
+ * Validated: standard, pass, 57 terms through n = 8768 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,21 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/isPrime_uint64.h"   /* isPrime_uint64(uint64_t) -> bool   */
-#include "../utils/push_seq.h"         /* push_seq(seq_t **, idx_t *, idx_t *, seq_t) */
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* Dynamic array helpers. */
+static void push_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val)
+{
+    if (*size >= *cap) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        *arr = mem_resize(seq_t, *arr, new_cap);
+        *cap = new_cap;
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
 
 static uint64_t isqrt_uint64(uint64_t n)
 {
@@ -76,7 +90,7 @@ seq_t a(idx_t n)
         uint64_t p = last_checked;
         last_checked += 2;              /* only odd candidates */
 
-        if (!isPrime_uint64(p))
+        if (!is_prime_u64(p))
             continue;                   /* not a prime */
 
         if (!good_representation(p))

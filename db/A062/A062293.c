@@ -12,7 +12,8 @@
  *            leading zeroes (e.g. 20 → 020). a(0)=0
  * Range:     u8 n <= 6, u16 n <= 26, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   padded_palindrome
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,39 @@
    tests the digit conditions.  All helper routines are written
    directly and use only integer arithmetic.  */
 #include <stdbool.h>
-#include "../utils/padded_palindrome.h"
+
+static bool padded_palindrome(seq_t x)
+{
+    if (x == 0) return true;                /* 0 is already a palindrome */
+
+    /* digits of x from least significant to most */
+    uint8_t digits[64];
+    int len = 0;
+    seq_t t = x;
+    do {
+        digits[len++] = (uint8_t)(t % 10);
+        t /= 10;
+    } while (t != 0);
+
+    /* try to pad with p leading zeros, p>=1 */
+    for (int p = 1; p <= len; ++p) {
+        int total = len + p;
+        uint8_t pad[128];   /* enough for max len + len padding */
+        /* leading zeros */
+        for (int i = 0; i < p; ++i) pad[i] = 0;
+        /* digits of x in most‑to‑least order */
+        for (int i = 0; i < len; ++i)
+            pad[p + i] = digits[len - 1 - i];
+
+        bool ok = true;
+        for (int i = 0; i < total / 2; ++i)
+            if (pad[i] != pad[total - 1 - i]) {
+                ok = false; break;
+            }
+        if (ok) return true;
+    }
+    return false;
+}
 
 static bool all_even_digits(seq_t x)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
    u(n‑1,x) and v(n‑1,x).  This yields the OEIS sequence A210738.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,12 +51,12 @@ seq_t a(idx_t n)
         /* Initialise on first call. */
         if (u == NULL) {
             len = 1;
-            u   = (seq_t *)malloc(sizeof(seq_t));
-            v   = (seq_t *)malloc(sizeof(seq_t));
+            u   = mem_new(seq_t, 1);
+            v   = mem_new(seq_t, 1);
             u[0] = (seq_t)1;          /* u(1,x) = 1 */
             v[0] = (seq_t)1;          /* v(1,x) = 1 */
             seq_cap = 1;
-            seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+            seq = mem_new(seq_t, seq_cap);
             seq[0] = v[0];            /* first triangle entry */
             seq_len = 1;
         }
@@ -62,10 +64,10 @@ seq_t a(idx_t n)
         /* Build successive rows until we reach term n. */
         while (seq_len < (size_t)n) {
             size_t next_len = len + 1;
-            seq_t *u_next = (seq_t *)malloc(next_len * sizeof(seq_t));
-            seq_t *v_next = (seq_t *)malloc(next_len * sizeof(seq_t));
+            seq_t *u_next = mem_new(seq_t, next_len);
+            seq_t *v_next = mem_new(seq_t, next_len);
             if (!u_next || !v_next) {
-                free(u_next); free(v_next);
+                mem_free(u_next); mem_free(v_next);
                 return (seq_t)0; /* allocation failure */
             }
 
@@ -95,9 +97,9 @@ seq_t a(idx_t n)
                 size_t new_cap = seq_cap ? seq_cap * 2 : 16;
                 while (new_cap < seq_len + next_len)
                     new_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, new_cap);
                 if (!tmp) {
-                    free(u_next); free(v_next);
+                    mem_free(u_next); mem_free(v_next);
                     return (seq_t)0; /* allocation error */
                 }
                 seq = tmp;
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
             seq_len += next_len;
 
             /* Prepare for the next iteration. */
-            free(u); free(v);
+            mem_free(u); mem_free(v);
             u = u_next;
             v = v_next;
             len = next_len;

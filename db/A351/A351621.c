@@ -7,12 +7,14 @@
  * Formula:   a(1) = 1 a(n) = 1 + a(n-1) + Sum_{k=2..n} a(floor(n/k))
  * Range:     u8 n <= 12, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t *cache = NULL;   /* one‑based cache: cache[i] = a(i) */
@@ -25,7 +27,7 @@ static void ensure_cache(idx_t n)
     if (n < cap) return;
 
     idx_t newcap = n + 1;
-    seq_t *tmp = (seq_t *)realloc((void *)cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp) exit(EXIT_FAILURE);
 
     for (idx_t i = cap; i < newcap; ++i) tmp[i] = 0;

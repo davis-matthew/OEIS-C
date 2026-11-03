@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ----- constants ----- */
 #define PAT 64          /* 4³ possible row patterns                    */
@@ -170,15 +172,15 @@ seq_t a(idx_t n)
 
     /* allocate DP arrays on first call */
     if (!dp_cur) {
-        dp_cur  = (seq_t *)calloc(STATE, sizeof(seq_t));
-        dp_next = (seq_t *)calloc(STATE, sizeof(seq_t));
+        dp_cur  = mem_new(seq_t, STATE);
+        dp_next = mem_new(seq_t, STATE);
         if (!dp_cur || !dp_next) exit(1);
     }
 
     /* allocate storage for a(n) values */
     if (n >= vals_cap) {
         idx_t new_cap = (n * 2) + 10;                /* grow fast enough */
-        seq_t *tmp = (seq_t *)realloc(vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, vals, new_cap);
         if (!tmp) exit(1);
         vals = tmp;
         vals_cap = new_cap;
@@ -191,7 +193,7 @@ seq_t a(idx_t n)
         computed_rows++;
         if (computed_rows == 1) {
             /* first row: initialise from start patterns (group index 4) */
-            memset(dp_cur, 0, STATE * sizeof(seq_t));
+            mem_set(dp_cur, 0, STATE * sizeof(seq_t));
             for (int idx = 0; idx < patterns_len[MX]; ++idx) {
                 int p = patterns_for_max[MX][idx];
                 int m = maxv[p];
@@ -200,7 +202,7 @@ seq_t a(idx_t n)
             }
         } else {
             /* transition from previous row to current */
-            memset(dp_next, 0, STATE * sizeof(seq_t));
+            mem_set(dp_next, 0, STATE * sizeof(seq_t));
             for (int s = 0; s < STATE; ++s) {
                 seq_t ways = dp_cur[s];
                 if (!ways) continue;
@@ -218,7 +220,7 @@ seq_t a(idx_t n)
                     dp_next[ns] += ways;
                 }
             }
-            memcpy(dp_cur, dp_next, STATE * sizeof(seq_t));
+            mem_copy(dp_cur, dp_next, STATE * sizeof(seq_t));
         }
 
         /* sum states that satisfy the bottom condition */

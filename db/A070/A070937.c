@@ -11,12 +11,14 @@
  *            n>12
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         /* Allocate at least 13 entries initially */
         cache_len = 13;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         for (idx_t i = 0; i < 13; ++i)
             cache[i] = init_vals[i];
     }
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         idx_t new_len = n + 1;
         if (new_len < cache_len * 2)
             new_len = cache_len * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) {
             /* allocation failed; best effort return 0 */
             return 0;

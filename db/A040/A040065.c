@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 63 terms through n = 826 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,17 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /*--------------------- helper routines ---------------------*/
 
@@ -42,12 +53,26 @@ static bool cubic_residue_of_13(uint64_t p)
     /* p ≡ 1 (mod 3): check 13^{(p-1)/3} mod p == 1 */
     uint64_t exp = (p - 1) / 3;
     seq_t modp = (seq_t)p;
-    seq_t val  = mod_pow(13, exp, modp);
+    seq_t val  = powmod(13, exp, modp);
     return val == (seq_t)1;
 }
 
 /* Append a value to a dynamic array.  The caller keeps track of used
  * length; this routine merely grows the underlying buffer if needed. */
+#ifdef __cplusplus
+template <class T>
+static void grow_array(T **arr, size_t *cap, size_t new_len, size_t elem_size)
+{
+    if (new_len > *cap) {
+        size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
+        while (new_cap < new_len) new_cap <<= 1;
+        T *tmp = mem_resize(T, *arr, (new_cap * elem_size) / sizeof(T));
+        if (!tmp) abort();          /* allocation failure */
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
+#else
 static void grow_array(void **arr, size_t *cap, size_t new_len, size_t elem_size)
 {
     if (new_len > *cap) {
@@ -59,6 +84,7 @@ static void grow_array(void **arr, size_t *cap, size_t new_len, size_t elem_size
         *cap = new_cap;
     }
 }
+#endif
 
 /*--------------------- main sequence function ---------------------*/
 extern seq_t a(idx_t n);
@@ -101,12 +127,12 @@ extern seq_t a(idx_t n)
         uint64_t p = current_candidate;
         while (!is_prime(p)) ++p;
         /* Append found prime to primes list */
-        grow_array((void **)&primes, &primes_cap, primes_used + 1, sizeof(uint64_t));
+        grow_array(OEISC_VPP(&primes), &primes_cap, primes_used + 1, sizeof(uint64_t));
         primes[primes_used++] = p;
 
         /* Test cubic residue condition */
         if (cubic_residue_of_13(p)) {
-            grow_array((void **)&cache, &cache_cap, cache_used + 1, sizeof(seq_t));
+            grow_array(OEISC_VPP(&cache), &cache_cap, cache_used + 1, sizeof(seq_t));
             cache[cache_used++] = (seq_t)p;
         }
         /* Advance candidate for next iteration */

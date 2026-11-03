@@ -9,14 +9,16 @@
  *            the number of positive divisors of k
  * Range:     u8 n <= 27, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;          /* cache of a(n) values */
 static size_t A_cap = 0;         /* allocated capacity of A */
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
 
     size_t new_cap = (size_t)(n + 1);
 
-    seq_t *newA = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+    seq_t *newA = mem_resize(seq_t, A, new_cap);
     if (!newA) exit(EXIT_FAILURE);
     A = newA;
     A_cap = new_cap;
@@ -43,7 +45,7 @@ static void ensure_cache(idx_t n)
     tau_cap = new_cap;
 
     for (idx_t i = A_max + 1; i <= n; ++i) {
-        tau[i] = (uint16_t)divisor_count_u64((uint64_t)i);
+        tau[i] = (uint16_t)num_divisors((uint64_t)i);
         if (i <= 2u) {
             A[i] = (seq_t)1;
         } else {

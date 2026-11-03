@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_len, pow10
+ * Validated: standard, pass, 74 terms through n = 966 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,15 +20,26 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Helper that tests whether a given integer satisfies the
    required property. */
 static bool matches(seq_t x)
 {
     seq_t prod = x * 3;
-    int d = digit_len(prod);                    /* number of decimal digits of 3*x */
+    int d = num_digits(prod);                    /* number of decimal digits of 3*x */
     seq_t pow = pow10((idx_t)(d - 1));           /* 10^(d-1) */
     seq_t first = prod / pow;                   /* most significant digit of 3*x */
     seq_t last  = x % 10;                       /* least significant digit of x */
@@ -52,7 +64,7 @@ static void ensure_cache(idx_t n)
         /* Grow the array if necessary. */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             cache     = tmp;
             cache_cap = new_cap;
         }

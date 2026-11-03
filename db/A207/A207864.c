@@ -10,13 +10,15 @@
  * Formula:   a(n) = number of stable partitions of the n‑ladder graph
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- helper: ensure we have space for at least 'need' elements ----------
    elem_size: size of each element.
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
             size_t new_cap = Bell_cap ? Bell_cap : 1;
             while (new_cap < (size_t)(needBell + 1))
                 new_cap <<= 1;
-            Bell = (seq_t *)realloc(Bell, new_cap * sizeof(seq_t));
+            Bell = mem_resize(seq_t, Bell, new_cap);
             Bell_cap = new_cap;
             for (idx_t i = Bell_size; i <= needBell; ++i) {
                 if (i == 0) {
@@ -94,7 +96,7 @@ seq_t a(idx_t n)
             size_t new_cap = deltaBell_cap ? deltaBell_cap : 1;
             while (new_cap < (size_t)(needDelta + 1))
                 new_cap <<= 1;
-            deltaBell = (seq_t *)realloc(deltaBell, new_cap * sizeof(seq_t));
+            deltaBell = mem_resize(seq_t, deltaBell, new_cap);
             deltaBell_cap = new_cap;
             for (idx_t j = deltaBell_size; j <= needDelta; ++j) {
                 deltaBell[j] = Bell[j + 2] - Bell[j + 1];
@@ -107,8 +109,8 @@ seq_t a(idx_t n)
             /* P_0(x) = 1  --> coefficients: [1] */
             if (poly_cap < 1) {
                 poly_cap = 1;
-                poly = (seq_t *)realloc(poly, poly_cap * sizeof(seq_t));
-                poly_next = (seq_t *)realloc(poly_next, poly_cap * sizeof(seq_t));
+                poly = mem_resize(seq_t, poly, poly_cap);
+                poly_next = mem_resize(seq_t, poly_next, poly_cap);
             }
             poly[0] = 1;
             poly_len = 1;
@@ -118,8 +120,8 @@ seq_t a(idx_t n)
                 size_t new_cap = poly_cap ? poly_cap : 1;
                 while (new_cap < (size_t)new_len)
                     new_cap <<= 1;
-                poly = (seq_t *)realloc(poly, new_cap * sizeof(seq_t));
-                poly_next = (seq_t *)realloc(poly_next, new_cap * sizeof(seq_t));
+                poly = mem_resize(seq_t, poly, new_cap);
+                poly_next = mem_resize(seq_t, poly_next, new_cap);
                 poly_cap = new_cap;
             }
             for (idx_t j = 0; j < new_len; ++j) {
@@ -146,7 +148,7 @@ seq_t a(idx_t n)
             size_t new_cap = memo_cap ? memo_cap : 1;
             while (new_cap < (size_t)(cur + 1))
                 new_cap <<= 1;
-            memo = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+            memo = mem_resize(seq_t, memo, new_cap);
             memo_cap = new_cap;
         }
         memo[cur] = val;

@@ -10,7 +10,8 @@
  *            A050063)
  * Range:     u8 n <= 14, u16 n <= 48, u32 n <= 125, u64 n <= 504,
  *            u128 n <= 3081, big any n
- * Helpers:   log2_floor
+ * Validated: standard, pass, 58 terms through n = 6995 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/log2_floor.h"
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* 1‑indexed array of computed values */
 static idx_t cache_cap = 0;   /* allocated capacity */
@@ -30,7 +32,7 @@ static void ensure_capacity(idx_t n)
     if (n <= cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
     if (!tmp) exit(1);     /* simplest error handling */
     cache = tmp;
     cache_cap = new_cap;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
             else {
                 /* Compute the auxiliary index m. */
                 idx_t v     = i - 1;                /* v >= 3 */
-                unsigned int p = log2_floor(v);
+                unsigned int p = ilog2(v);
                 if (((idx_t)1 << p) == v) p--;      /* exact power of two? */
                 idx_t pow2next = ((idx_t)1) << (p + 1);
                 idx_t m = (2 * i - 2) - pow2next;   /* m < i and >= 1 */

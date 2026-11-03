@@ -9,13 +9,15 @@
  *            a(3)=230903, a(4)=15918887, a(5)=1050866239, a(6)=68122980063
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,9 +34,9 @@ seq_t a(idx_t n)
     if (needed < 7) needed = 7;          /* we need at least up to a(6) */
     if (needed > cap) {
         size_t new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {                       /* allocation failed */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cap   = 0;
             computed = 0;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         }
         /* initialise newly allocated cells to zero */
         if (cap < new_cap)
-            memset(tmp + cap, 0, (new_cap - cap) * sizeof(seq_t));
+            mem_set(tmp + cap, 0, (new_cap - cap) * sizeof(seq_t));
         cache = tmp;
         cap   = new_cap;
     }

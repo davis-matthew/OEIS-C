@@ -8,6 +8,7 @@
  *            repeated F_k times (F_k Fibonacci with F_1 = F_2 = 1)
  * Range:     u8 n <= 42, u16 n <= 4248, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 68 terms through n = 9834 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

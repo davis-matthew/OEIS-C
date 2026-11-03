@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 37, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -42,6 +43,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Peak indexing optimisation for the base terms. */
 static const uint64_t base_vals[17] = {
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
 
     /* Allocate a temporary array to hold the values up to n.  */
     /* Size: n+1  (index 0 unused) */
-    seq_t *tbl = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *tbl = mem_new(seq_t, (size_t)(n + 1));
     if (!tbl) 
         exit(EXIT_FAILURE);
 
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
     /* If the requested index falls within the base range, we are done. */
     if (n <= limit) {
         seq_t res = tbl[n];
-        free(tbl);
+        mem_free(tbl);
         return res;
     }
 
@@ -104,6 +106,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = tbl[n];
-    free(tbl);
+    mem_free(tbl);
     return result;
 }

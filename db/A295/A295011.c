@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 273, u32 n <= 770, u64 n <= 770, u128 n <= 770,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: full, pass, 770 terms through n = 770 (2026-11-02)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +49,7 @@ seq_t a(idx_t n)
                 for (size_t is = 0; is < nm; ++is) {
                     uint8_t S = mnSecPrimes[is];
                     uint32_t secs = prefix + (uint32_t)S;
-                    if (is_prime_small((idx_t)secs)) {
+                    if (is_prime_seq((idx_t)secs)) {
                         seq[count++] = (seq_t)H * 10000u + (seq_t)M * 100u + (seq_t)S;
                     }
                 }

@@ -7,25 +7,27 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = n-th smallest integer k such that A048720(m,k)=3*k
  *            (carryless base‑2 multiplication)
- * Range:     u8 n <= 50, u16 n <= 3192, u32 n <= 8903, u64 n <= 8903,
- *            u128 n <= 8903, big any n
- * Helpers:   bitlen_seq_t
+ * Range:     u8 n <= 50, u16 n <= 3192, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 94 terms through n = 8903 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 /* Check whether divisor | dividend in GF(2) polynomial sense.
    Returns true iff dividend mod divisor == 0 (performed only for divisor > 0). */
 static bool divisible(seq_t divisor, seq_t dividend) {
     if (divisor == 0)               /* not used for k=0 but kept for safety */
         return dividend == 0;
-    unsigned div_len = bitlen_seq_t(divisor);
+    unsigned div_len = bit_length(divisor);
 
     while (dividend != 0) {
-        unsigned divv_len = bitlen_seq_t(dividend);
+        unsigned divv_len = bit_length(dividend);
         if (divv_len < div_len)
             break;
         unsigned shift = divv_len - div_len;

@@ -8,14 +8,27 @@
  *            concatenating the decimal representations of the * base-n digits
  *            (one digit may be more than 9)
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,7 +54,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     for (size_t i = d; i-- > 0; ) {
         seq_t di = digits[i];
-        idx_t k   = (idx_t)digit_len(di);      /* number of decimal digits of di */
+        idx_t k   = (idx_t)num_digits(di);      /* number of decimal digits of di */
         seq_t pow = pow10(k);                  /* 10^k  */
         result = result * pow + di;
     }

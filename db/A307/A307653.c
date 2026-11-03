@@ -7,15 +7,17 @@
  * Formula:   a(n) = Sum_{d|n} mu(d) * d^d
  * Range:     i8 n <= 4, i16 n <= 5, i32 n <= 9, i64 n <= 16, i128 n <= 28,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 37 terms through n = 349 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Recursive helper to enumerate all divisors of n and accumulate the sum
    of mu(d) * d^d. Parameters:
@@ -34,7 +36,7 @@ static seq_t rec_sum_divisors(size_t idx, uint64_t cur, bool square,
         if (square)                       /* mu(cur) = 0 */
             return 0;
         int mu = (cnt % 2 == 0) ? 1 : -1;  /* mu(cur) = (-1)^cnt */
-        seq_t val = big_pow((seq_t)cur, (seq_t)cur); /* d^d */
+        seq_t val = ipow((seq_t)cur, (seq_t)cur); /* d^d */
         if (mu < 0)
             val = -val;
         return val;

@@ -12,12 +12,14 @@
  *            T_n...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,11 +29,11 @@ seq_t a(idx_t n)
 
     /* Lazy initialization */
     if (max_n == (idx_t)-1) {
-        a_vals = (seq_t *)malloc(sizeof(seq_t));
+        a_vals = mem_new(seq_t, 1);
         a_vals[0] = (seq_t)1;
 
         for (int k = 1; k <= 6; ++k) {
-            pow_f[k] = (seq_t *)malloc(sizeof(seq_t));
+            pow_f[k] = mem_new(seq_t, 1);
             pow_f[k][0] = (seq_t)1; /* f^k(0) = 1 for every k≥1 */
         }
         max_n = 0;
@@ -43,9 +45,9 @@ seq_t a(idx_t n)
 
     /* Extend storage to accommodate up to index n. */
     size_t new_cap = (size_t)(n + 1);
-    a_vals = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+    a_vals = mem_resize(seq_t, a_vals, new_cap);
     for (int k = 1; k <= 6; ++k)
-        pow_f[k] = (seq_t *)realloc(pow_f[k], new_cap * sizeof(seq_t));
+        pow_f[k] = mem_resize(seq_t, pow_f[k], new_cap);
 
     /* Binomial coefficients for (x+1)^5. */
     const seq_t bin5[6] = { (seq_t)1, (seq_t)5, (seq_t)10,

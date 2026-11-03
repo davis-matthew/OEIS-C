@@ -10,7 +10,8 @@
  *            sizes)
  * Range:     u8 n <= 9, u16 n <= 13, u32 n <= 19, u64 n <= 31, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 641 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Compute the OEIS sequence A341283: number of ways to partition
    n labeled elements into blocks of distinct sizes ≥3. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* Allocate dynamic array to hold DP values a(0)…a(N) */
-    seq_t *dp = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (N + 1));
     if (!dp) return (seq_t)0;   /* allocation failure → zero */
 
     /* Initialise all entries to 0 except dp[0] = 1 */
@@ -67,6 +69,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[N];
-    free(dp);
+    mem_free(dp);
     return result;
 }

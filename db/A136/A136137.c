@@ -9,13 +9,36 @@
  *            factors of n with multiplicity (OEIS A001414)
  * Range:     u8 n <= 18, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   _sopfr_uint64
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_sopfr_uint64.h"
+
+/* small helper: sum of prime factors with multiplicity, for uint64 values */
+static seq_t _sopfr_uint64(uint64_t x)
+{
+    seq_t sum = 0;
+
+    while ((x & 1ULL) == 0) {      /* factor 2 */
+        sum += 2;
+        x >>= 1;
+    }
+
+    for (uint64_t p = 3; p * p <= x; p += 2) {
+        while (x % p == 0) {
+            sum += p;
+            x /= p;
+        }
+    }
+
+    if (x > 1)                     /* remaining prime factor */
+        sum += x;
+
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

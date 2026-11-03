@@ -10,15 +10,17 @@
  *            2*C(n-1,k) + (n-k)
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 117, u64 n <= 344,
  *            u128 n <= 980, big any n
- * Helpers:   binomial, pow_seq
+ * Validated: standard, pass, 82 terms through n = 4146 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n) {
     /* Off‑set of 5: a(5) is the first triangle element (row 5, k=3). */
@@ -52,7 +54,7 @@ seq_t a(idx_t n) {
     seq_t nk = (seq_t)(R - k);            /* n - k (always ≥ 2) */
 
     /* Compute T(n,k) = (n-k)^k - 2*C(n-1,k) + (n-k) */
-    seq_t term1 = pow_seq(nk, (int)k);
+    seq_t term1 = ipow_i32(nk, (int)k);
     seq_t term2 = binomial(R - 1, k);
     term2 = term2 + term2;                /* multiply by 2 */
     seq_t term3 = nk;

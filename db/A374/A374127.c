@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = sigma(n) - sopfr(n) - n
- * Range:     i8 n <= 89, i16 n <= 8787, i32 n <= 8787, i64 n <= 8787,
- *            i128 n <= 8787, big any n
- * Helpers:   build_primes_upto, floor_isqrt_u64, sigma_of
+ * Range:     i8 n <= 89, i16 n <= 12599, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 97 terms through n = 8787 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,24 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/floor_isqrt_u64.h"   /* floor_isqrt_u64(idx_t n)  */
-#include "../utils/build_primes_upto.h"/* build_primes_upto(idx_t limit, uint64_t **, size_t *) */
-#include "../utils/sigma_of.h"         /* seq_t sigma_of(idx_t n) */
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 static uint64_t *prime_cache = NULL;  /* cached primes */
 static size_t    prime_cnt   = 0;
@@ -29,7 +45,7 @@ static idx_t     prime_limit = 0;      /* maximum sqrt processed so far */
 /* Expands prime_cache to cover sqrt(n) if necessary */
 static void ensure_prime_cache(idx_t n)
 {
-    idx_t limit = floor_isqrt_u64(n);
+    idx_t limit = isqrt(n);
     if (limit > prime_limit)
     {
         free(prime_cache);

@@ -8,7 +8,8 @@
  * Formula:   a(n) = n * (1 + ⌊(a(n‑1)+a(n‑2))/n⌋)
  * Range:     u8 n <= 9, u16 n <= 21, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Initial values: a(0) = a(1) = 1 */
 
 #include <stdlib.h>      /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 /* Static cache for memoisation */
 static seq_t *cache     = NULL;      /* array of computed terms   */
@@ -28,7 +30,7 @@ ensure_cache(idx_t n)
 {
     if (cache_sz <= (size_t)n) {
         size_t new_sz = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_sz);
         if (new_cache == NULL) {
             /* Allocation failure – aborting is acceptable in the OEIS judge */
             abort();

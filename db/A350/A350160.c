@@ -10,13 +10,15 @@
  *            testing consecutive odd numbers
  * Range:     u8 n <= 3, u16 n <= 44, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9770 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Generates the n-th term of OEIS A350160.
    n >= 1.  The function is thread‑local by using static state but
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         if (ok) {               /* store the valid odd number */
             if (cache_len >= cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 32;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = nextodd;
         }

@@ -9,12 +9,29 @@
  *            product of distinct prime factors of x
  * Range:     u8 n <= 10, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   factor_and_mul
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/factor_and_mul.h"
+static void factor_and_mul(idx_t m, seq_t *sqp)
+{
+    /* Multiply each distinct prime factor of m (except 2) into *sqp. */
+    for (idx_t p = 2; p <= m / p; ++p) {
+        if (m % p == 0) {
+            if (p != 2) {
+                *sqp *= (seq_t)p;
+            }
+            while (m % p == 0) {
+                m /= p;
+            }
+        }
+    }
+    if (m > 1 && m != 2) {
+        *sqp *= (seq_t)m;
+    }
+}
 
 seq_t a(idx_t n)
 {

@@ -11,7 +11,8 @@
  *            T(n,k)=0 if k<0 or k>n
  * Range:     u8 n <= 26, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,12 +20,13 @@
 /* Includes */
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for realloc */
+#include "../utils/mem.h"
 
 /* Helper to grow a dynamic array of seq_t */
 static void ensure_capacity(idx_t min_cap, seq_t **p, idx_t *cap)
 {
     if (*cap >= min_cap) return;
-    *p = (seq_t *)realloc(*p, (size_t)min_cap * sizeof(seq_t));
+    *p = mem_resize(seq_t, *p, (size_t)min_cap);
     *cap = min_cap;
 }
 

@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..n} Stirling2(n,k) * k! * n^(n - k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 264 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for computed values and Stirling* k! array. */
 static seq_t *f_arr = NULL;      /* f_k = S(n,k)*k! for current n   */
@@ -27,26 +29,26 @@ static void ensure_cap(idx_t n)
 {
     if (f_arr == NULL) {
         f_cap = 1;
-        f_arr = (seq_t *)calloc(f_cap, sizeof(seq_t));
+        f_arr = mem_new(seq_t, f_cap);
         if (!f_arr) exit(EXIT_FAILURE);
         f_arr[0] = 1;               /* S(0,0)*0! = 1            */
     }
     if (a_arr == NULL) {
         a_cap = 1;
-        a_arr = (seq_t *)calloc(a_cap, sizeof(seq_t));
+        a_arr = mem_new(seq_t, a_cap);
         if (!a_arr) exit(EXIT_FAILURE);
         a_arr[0] = 1;               /* a(0) = 1                 */
     }
     if ((size_t)n + 1 > f_cap) {
         size_t new_cap = ((size_t)n + 1) * 2;
-        seq_t *tmp = (seq_t *)realloc(f_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, f_arr, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         f_arr = tmp;
         f_cap = new_cap;
     }
     if ((size_t)n + 1 > a_cap) {
         size_t new_cap = ((size_t)n + 1) * 2;
-        seq_t *tmp = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_arr, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         a_arr = tmp;
         a_cap = new_cap;

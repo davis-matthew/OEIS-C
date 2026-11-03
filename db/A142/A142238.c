@@ -9,12 +9,14 @@
  *            recurrence generates the OIES sequence A142238
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,11 +26,11 @@ seq_t a(idx_t n)
     /* ensure the cache can hold the requested term */
     size_t needed = (size_t)n + 1;
     if (cache == NULL) {
-        cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         if (!cache) return (seq_t)0; /* allocation failure – unlikely in tests */
         cached = 0;
     } else if (needed > cached) {
-        cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, needed);
         if (!cache) return (seq_t)0;
         cached = 0;  /* will rebuild from scratch */
     }

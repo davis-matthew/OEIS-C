@@ -13,12 +13,14 @@
  *            that keeps track of the current sum and the sig...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 30, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,12 +32,12 @@ seq_t a(idx_t n)
     const idx_t len = 6 * n + 1;
 
     /* allocate DP arrays */
-    seq_t *dp_plus  = (seq_t*)calloc(len, sizeof(seq_t));
-    seq_t *dp_minus = (seq_t*)calloc(len, sizeof(seq_t));
-    seq_t *dp_zero  = (seq_t*)calloc(len, sizeof(seq_t));
-    seq_t *dp2_plus  = (seq_t*)calloc(len, sizeof(seq_t));
-    seq_t *dp2_minus = (seq_t*)calloc(len, sizeof(seq_t));
-    seq_t *dp2_zero  = (seq_t*)calloc(len, sizeof(seq_t));
+    seq_t *dp_plus  = mem_new(seq_t, len);
+    seq_t *dp_minus = mem_new(seq_t, len);
+    seq_t *dp_zero  = mem_new(seq_t, len);
+    seq_t *dp2_plus  = mem_new(seq_t, len);
+    seq_t *dp2_minus = mem_new(seq_t, len);
+    seq_t *dp2_zero  = mem_new(seq_t, len);
 
     /* initialize for length = 1 */
     /* positive entries */
@@ -53,9 +55,9 @@ seq_t a(idx_t n)
     for (idx_t step = 2; step <= n; ++step)
     {
         /* zero the destination arrays */
-        memset(dp2_plus,  0, len * sizeof(seq_t));
-        memset(dp2_minus, 0, len * sizeof(seq_t));
-        memset(dp2_zero,  0, len * sizeof(seq_t));
+        mem_set(dp2_plus, 0, len * sizeof(seq_t));
+        mem_set(dp2_minus, 0, len * sizeof(seq_t));
+        mem_set(dp2_zero, 0, len * sizeof(seq_t));
 
         /* current reachable sum range for length step-1 */
         idx_t minIdx = offset - 3 * (step - 1);
@@ -105,12 +107,12 @@ seq_t a(idx_t n)
     seq_t result = dp_plus[offset] + dp_minus[offset] + dp_zero[offset];
 
     /* free memory */
-    free(dp_plus);
-    free(dp_minus);
-    free(dp_zero);
-    free(dp2_plus);
-    free(dp2_minus);
-    free(dp2_zero);
+    mem_free(dp_plus);
+    mem_free(dp_minus);
+    mem_free(dp_zero);
+    mem_free(dp2_plus);
+    mem_free(dp2_minus);
+    mem_free(dp2_zero);
 
     return result;
 }

@@ -7,15 +7,17 @@
  * Formula:   a(n) = φ(n) + φ(n+1) (offset = 1)
  * Range:     u8 n <= 171, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 76 terms through n = 980 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"   /* provides seq_t phi(idx_t n) */
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;          /* offset is 1, below that is undefined */
-    return phi(n) + phi(n + 1);
+    return totient(n) + totient(n + 1);
 }

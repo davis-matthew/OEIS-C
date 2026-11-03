@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The environment supplies idx_t and seq_t; we must not define them. */
 static seq_t *diffs            = NULL;   /* array of first differences   */
@@ -85,7 +87,7 @@ static struct node heap_pop(struct node *h, size_t *size)
 static void precompute(void)
 {
     /* Allocate and compute fourth powers 1^4 … LIMIT^4 */
-    pow4 = (seq_t *)malloc((LIMIT + 1) * sizeof(seq_t));
+    pow4 = mem_new(seq_t, (LIMIT + 1));
     for (size_t i = 1; i <= LIMIT; ++i) {
         seq_t x = (seq_t)i;
         pow4[i] = x * x * x * x;
@@ -93,7 +95,7 @@ static void precompute(void)
 
     /* Allocate heap: (LIMIT+1)*(LIMIT+2)/2 possible (i,j) pairs */
     size_t pair_cnt = LIMIT * (LIMIT + 1) / 2;
-    heap = (struct node *)malloc(pair_cnt * sizeof(struct node));
+    heap = mem_new(struct node, pair_cnt);
 
     /* Insert initial nodes for all (i,j,k=j) triples */
     heap_size = 0;
@@ -110,7 +112,7 @@ static void precompute(void)
     }
 
     /* Allocate array of differences */
-    diffs = (seq_t *)malloc(MAX_DIFFS * sizeof(seq_t));
+    diffs = mem_new(seq_t, MAX_DIFFS);
 
     /* Generate sorted sums and compute differences */
     seq_t prev_sum = 0;
@@ -147,8 +149,8 @@ static void precompute(void)
     }
 
     /* Clean up memory not needed afterwards (heap and pow4) */
-    free(heap);
-    free(pow4);
+    mem_free(heap);
+    mem_free(pow4);
 }
 
 /* ---------- Public function ---------------------------------------- */
@@ -169,12 +171,12 @@ seq_t a(idx_t n)
     /* ---------------------------------------------------------------- */
     /* Allocate new heap and powers for extension */
     size_t new_limit = LIMIT * 2;    /* double the limit heuristically */
-    pow4 = (seq_t *)malloc((new_limit + 1) * sizeof(seq_t));
+    pow4 = mem_new(seq_t, (new_limit + 1));
     for (size_t i = 1; i <= new_limit; ++i)
         pow4[i] = (seq_t)i * (seq_t)i * (seq_t)i * (seq_t)i;
 
     size_t pair_cnt = new_limit * (new_limit + 1) / 2;
-    heap = (struct node *)malloc(pair_cnt * sizeof(struct node));
+    heap = mem_new(struct node, pair_cnt);
     heap_size = 0;
 
     for (size_t i = 1; i <= new_limit; ++i)
@@ -207,8 +209,8 @@ seq_t a(idx_t n)
         }
     }
 
-    free(heap);
-    free(pow4);
+    mem_free(heap);
+    mem_free(pow4);
 
     /* Now we have enough differences */
     return diffs[n - 1];

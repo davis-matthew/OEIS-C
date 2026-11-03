@@ -8,13 +8,15 @@
  *            ((n+1)*(n+2)*(n+3)*(n+4)), a(0) = 1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 14,
  *            big any n
- * Helpers:   g64
+ * Validated: standard, pass, 30 terms through n = 281 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/g64.h"
+#include <stdlib.h>
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     seq_t r = 1;
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
         /* cancel common factors so remaining numerator and denominator are coprime */
         for (q = 0; q < 4; q++)
             for (p = 0; p < 5; p++) {
-                uint64_t g = g64(num[p], den[q]);
+                uint64_t g = gcd_u64(num[p], den[q]);
                 if (g > 1) { num[p] /= g; den[q] /= g; }
             }
         /* the remaining denominator now divides r exactly */

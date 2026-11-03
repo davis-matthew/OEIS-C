@@ -9,13 +9,15 @@
  *            to: k such that P_k ≡ 0 or 2 (mod 3)
  * Range:     u8 n <= 133, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9580 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime generation by index ---------- */
 static uint64_t *prime_list = NULL;      /* stored primes */
@@ -76,7 +78,7 @@ ensure_a_len(size_t n)
         if (p % 3 != 1) {    /* includes 0 and 2 mod 3 */
             if (a_len >= a_cap) {
                 size_t new_cap = a_cap ? a_cap * 2 : 16;
-                seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
                 if (!tmp) abort();
                 a_cache = tmp;
                 a_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 218, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_candidate, build_primes_upto, int_sqrt
+ * Validated: standard, pass, 84 terms through n = 9534 (2026-11-03)
+ * Helpers:   build_primes_upto, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,25 @@
 #include <stdlib.h>
 
 #include "../utils/build_primes_upto.h"
-#include "../utils/int_sqrt.h"
-#include "../utils/append_candidate.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 /* static storage */
 static uint64_t *primes = NULL;      /* prime table */
@@ -53,7 +71,7 @@ static void factor_and_check(uint64_t n, bool *out_expOdd, bool *out_sqfree) {
     }
     bool expOdd = true, sqfree = true;
 
-    idx_t limit = int_sqrt(n);
+    idx_t limit = isqrt(n);
     if (limit > max_prime_limit) ensure_primes_up_to(limit);
 
     for (size_t i = 0; i < prime_cnt && primes[i] <= limit; ++i) {

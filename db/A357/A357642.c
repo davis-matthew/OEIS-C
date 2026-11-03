@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 34, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 1648 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* For n ≥ 1. */
     idx_t N = n - 1;                /* N = n-1  (≥ 0) */
     /* Allocate array for binomial coefficients C[N+1]. */
-    seq_t *C = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *C = mem_new(seq_t, (N + 1));
     if (!C) return (seq_t)0;        /* failed allocation: return 0 */
 
     C[0] = (seq_t)1;                /* C(N,0) = 1 */
@@ -60,6 +62,6 @@ seq_t a(idx_t n)
         ans += ck * (ck + ck_prev);
     }
 
-    free(C);
+    mem_free(C);
     return ans;
 }

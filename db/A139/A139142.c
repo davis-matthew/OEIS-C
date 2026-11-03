@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 69, u32 n <= 2939, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   grow_seq_array
+ * Validated: standard, pass, 62 terms through n = 9126 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/grow_seq_array.h"   /* declares: void grow_seq_array(seq_t **arr, size_t *cap, size_t new_len); */
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 static seq_t *a_vals   = NULL;   /* array of already computed a(i) values   */
 static size_t   a_len   = 0;     /* number of stored a(i) values            */

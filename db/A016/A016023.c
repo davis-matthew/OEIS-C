@@ -11,7 +11,8 @@
  *            implementation below builds Q once and retur...
  * Range:     i8 n <= 3000, i16 n <= 3000, i32 n <= 3000, i64 n <= 3000,
  *            i128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 2919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  Poly structure for intermediate polynomials  */
 typedef struct
@@ -34,7 +36,7 @@ static Poly *poly_new_zero(size_t deg)
     Poly *p = (Poly *)malloc(sizeof(Poly));
     if (!p) return NULL;
     p->deg = deg;
-    p->c   = (seq_t *)calloc(deg + 1, sizeof(seq_t));
+    p->c   = mem_new(seq_t, deg + 1);
     return p;
 }
 
@@ -60,7 +62,7 @@ static void poly_free(Poly *p)
 {
     if (p)
     {
-        free(p->c);
+        mem_free(p->c);
         free(p);
     }
 }
@@ -82,9 +84,9 @@ static Poly *poly_div(const Poly *NUM, const Poly *DEN)
 {
     size_t ndeg = NUM->deg, ddeg = DEN->deg;
     size_t qdeg = ndeg - ddeg;
-    seq_t *work = (seq_t *)malloc((ndeg + 1) * sizeof(seq_t));
+    seq_t *work = mem_new(seq_t, (ndeg + 1));
     for (size_t i = 0; i <= ndeg; ++i) work[i] = NUM->c[i];
-    seq_t *q = (seq_t *)calloc(qdeg + 1, sizeof(seq_t));
+    seq_t *q = mem_new(seq_t, qdeg + 1);
 
     for (long long i = (long long)ndeg; i >= (long long)ddeg; --i)
     {
@@ -97,7 +99,7 @@ static Poly *poly_div(const Poly *NUM, const Poly *DEN)
                 work[(size_t)i - ddeg + j] -= coeff * DEN->c[j];
         }
     }
-    free(work);
+    mem_free(work);
     Poly *P = poly_new_zero(qdeg);
     P->c = q;
     return P;
@@ -154,7 +156,7 @@ seq_t a(idx_t n)
         }
 
         /* Store coefficients of Q into a static array of size P */
-        coeff = (seq_t *)calloc(P, sizeof(seq_t));
+        coeff = mem_new(seq_t, P);
         for (size_t i = 0; i <= Q->deg; ++i)
             coeff[i] = Q->c[i];
         poly_free(Q);

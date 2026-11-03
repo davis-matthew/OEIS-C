@@ -8,13 +8,23 @@
  *            a(1) = a(2) = a(3) = a(4) = 1 (recurrence defined for all n ≥ 5)
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   abs_diff
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>              /* realloc, size_t */
-#include "../utils/abs_diff.h"   /* idx_t abs_diff(idx_t n, seq_t v); */
+#include "../utils/mem.h"
+
+/* Absolute difference between an idx_t and a seq_t, cast to idx_t. */
+static inline idx_t abs_diff(idx_t n, seq_t v)
+{
+    seq_t diff = (seq_t)n;
+    if (diff >= v) diff -= v;
+    else           diff = v - diff;
+    return (idx_t)diff;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +44,7 @@ seq_t a(idx_t n)
         size_t new_size = cache_size ? cache_size * 2 : needed;
         if (new_size < needed)
             new_size = needed;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         cache = tmp;
         cache_size = new_size;
     }

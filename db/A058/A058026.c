@@ -8,6 +8,7 @@
  * Formula:   a(n) = n * ∏_{p|n} (1 - 2/p) (OEIS A058026)
  * Range:     u8 n <= 262, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 104 terms through n = 9335 (2026-11-01)
  * Helpers:   factorize
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,7 +16,9 @@
 
 /* Uses the multiplicative property: a(p^e) = p^(e-1)*(p-2)          */
 # include <stdint.h>
-# include "../utils/factorize.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/factorize.h"
 
 seq_t a(idx_t n)
 {

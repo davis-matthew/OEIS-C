@@ -9,7 +9,8 @@
  *            d(m) is the number of positive divisors of m
  * Range:     u8 n <= 14, u16 n <= 629, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9941 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------*/
 /*  Parameters – tune as needed                                 */
@@ -85,7 +87,7 @@ static void init_sequence(void)
     /* Allocate auxiliary arrays */
     spf   = (uint32_t *)calloc(SCAN_LIMIT + 1, sizeof(uint32_t));
     dcnt  = (uint32_t *)calloc(SCAN_LIMIT + 1, sizeof(uint32_t));
-    a_cache = (seq_t *)calloc(NMAX + 1, sizeof(seq_t));
+    a_cache = mem_new(seq_t, NMAX + 1);
 
     /* Run the sieve and divisor count */
     build_spf(SCAN_LIMIT, spf);

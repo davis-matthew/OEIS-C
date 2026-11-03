@@ -13,8 +13,8 @@
  *            primes...
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 18, i128 n <= 32,
  *            big any n
- * Helpers:   g2206_add, g2206_cmp, g2206_divsmall, g2206_fma, g2206_modsmall,
- *            g2206_mul, g2206_spf, g2206_sub, g2206_trim
+ * Validated: standard, pass, 40 terms through n = 97 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,15 +22,108 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/g2206_add.h"
-#include "../utils/g2206_cmp.h"
-#include "../utils/g2206_divsmall.h"
-#include "../utils/g2206_fma.h"
-#include "../utils/g2206_modsmall.h"
-#include "../utils/g2206_mul.h"
-#include "../utils/g2206_spf.h"
-#include "../utils/g2206_sub.h"
-#include "../utils/g2206_trim.h"
+#include "../utils/smallest_prime_factor.h"
+
+static size_t g2206_trim(const uint32_t *x, size_t n) {
+    while (n > 0 && x[n - 1] == 0) n--;
+    return n;
+}
+
+static void g2206_add(uint32_t *acc, size_t *al, const uint32_t *x, size_t xl) {
+    size_t n = (*al > xl) ? *al : xl;
+    uint64_t carry = 0;
+    size_t i;
+    for (i = 0; i < n; i++) {
+        uint64_t t = carry;
+        if (i < *al) t += acc[i];
+        if (i < xl) t += x[i];
+        acc[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+    if (carry) acc[n++] = (uint32_t)carry;
+    *al = g2206_trim(acc, n);
+}
+
+static int g2206_cmp(const uint32_t *x, size_t xl, const uint32_t *y, size_t yl) {
+    if (xl != yl) return (xl > yl) ? 1 : -1;
+    while (xl > 0) {
+        xl--;
+        if (x[xl] != y[xl]) return (x[xl] > y[xl]) ? 1 : -1;
+    }
+    return 0;
+}
+
+static uint32_t g2206_divsmall(uint32_t *x, size_t *len, uint32_t d) {
+    uint64_t r = 0;
+    size_t i = *len;
+    while (i > 0) {
+        i--;
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+    *len = g2206_trim(x, *len);
+    return (uint32_t)r;
+}
+
+/* dst = dst*m + src */
+static void g2206_fma(uint32_t *dst, size_t *dl, const uint32_t *src, size_t sl, uint32_t m) {
+    size_t n = (*dl > sl) ? *dl : sl;
+    uint64_t carry = 0;
+    size_t i;
+    for (i = 0; i < n; i++) {
+        uint64_t t = carry;
+        if (i < *dl) t += (uint64_t)dst[i] * m;
+        if (i < sl) t += src[i];
+        dst[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+    if (carry) dst[n++] = (uint32_t)carry;
+    *dl = g2206_trim(dst, n);
+}
+
+static uint32_t g2206_modsmall(const uint32_t *x, size_t len, uint32_t d) {
+    uint64_t r = 0;
+    size_t i = len;
+    while (i > 0) {
+        i--;
+        r = ((r << 32) | x[i]) % d;
+    }
+    return (uint32_t)r;
+}
+
+static size_t g2206_mul(uint32_t *out, const uint32_t *x, size_t xl, const uint32_t *y, size_t yl) {
+    size_t i, j;
+    memset(out, 0, (xl + yl + 1) * sizeof(uint32_t));
+    for (i = 0; i < xl; i++) {
+        uint64_t carry = 0;
+        for (j = 0; j < yl; j++) {
+            uint64_t t = (uint64_t)x[i] * y[j] + out[i + j] + carry;
+            out[i + j] = (uint32_t)t;
+            carry = t >> 32;
+        }
+        size_t k = i + yl;
+        while (carry) {
+            uint64_t t = (uint64_t)out[k] + carry;
+            out[k] = (uint32_t)t;
+            carry = t >> 32;
+            k++;
+        }
+    }
+    return g2206_trim(out, xl + yl + 1);
+}
+
+/* x -= y, requires x >= y */
+static void g2206_sub(uint32_t *x, size_t *xl, const uint32_t *y, size_t yl) {
+    int64_t borrow = 0;
+    size_t i;
+    for (i = 0; i < *xl; i++) {
+        int64_t t = (int64_t)x[i] - borrow - (i < yl ? (int64_t)y[i] : 0);
+        if (t < 0) { t += ((int64_t)1 << 32); borrow = 1; } else borrow = 0;
+        x[i] = (uint32_t)t;
+    }
+    *xl = g2206_trim(x, *xl);
+}
 
 seq_t a(idx_t n) {
     if (n < -1) return 0;
@@ -57,7 +150,7 @@ seq_t a(idx_t n) {
     size_t Ll = 1;
     L[0] = 1;
     for (j = 2; j <= m + 1; j++) {
-        size_t p = g2206_spf(j), q = j;
+        size_t p = smallest_prime_factor(j), q = j;
         while (q % p == 0) q /= p;
         if (q == 1) g2206_fma(L, &Ll, NULL, 0, (uint32_t)p);
     }
@@ -91,7 +184,7 @@ seq_t a(idx_t n) {
 
     /* reduce by common factors with denominator L * m! */
     for (j = 2; j <= m + 1 && Tl > 0; j++) {
-        if (g2206_spf(j) != j) continue;
+        if (smallest_prime_factor(j) != j) continue;
         size_t p = j, e = 0, q;
         for (q = m; q > 0; q /= p) e += q / p;
         for (q = p; q <= m + 1; q *= p) e++;

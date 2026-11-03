@@ -10,7 +10,8 @@
  *            factor is less than the square of the least prime factor
  * Range:     u8 n <= 1, u16 n <= 1243, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9912 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper: integer square root (floor) for 64‑bit numbers */
 static idx_t floor_sqrt_u64(idx_t n) {
@@ -121,7 +123,7 @@ seq_t a(idx_t n) {
             if (satisfies(k)) {
                 if (terms_size == terms_cap) {
                     terms_cap = terms_cap ? terms_cap * 2 : 16;
-                    terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, terms_cap);
                 }
                 terms[terms_size++] = (seq_t)k;
                 break;

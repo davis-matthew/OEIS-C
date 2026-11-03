@@ -8,8 +8,9 @@
  * Formula:   a(n) = 1 if the base‑3 representation of (n-1) contains a digit
  *            2, otherwise a(n) = 0. Equivalent recursive definition: a(3*k-2)
  *            = a(k), a(3*k-1) = a(k), a(3*k) = 1 (k ≥ 1)
- * Range:     u8 n <= 9293, u16 n <= 9293, u32 n <= 9293, u64 n <= 9293,
- *            u128 n <= 9293, big any n
+ * Range:     u8 n <= 13122, u16 n <= 13122, u32 n <= 13122, u64 n <= 13122,
+ *            u128 n <= 13122, big any n
+ * Validated: standard, pass, 121 terms through n = 9293 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

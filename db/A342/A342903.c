@@ -9,6 +9,7 @@
  *            a(3) = 27 a(4) = 28 Values for n < 2 are undefined and return 0
  * Range:     u8 n <= 240, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 86 terms through n = 957 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

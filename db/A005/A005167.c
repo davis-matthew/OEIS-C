@@ -8,6 +8,7 @@
  * Formula:   a(n+1) = (1 + a(0)^4 + ... + a(n)^4)/(n+1), a(0) = 1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 4,
  *            big any n
+ * Validated: standard, pass, 8 terms through n = 7 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

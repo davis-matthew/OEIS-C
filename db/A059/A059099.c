@@ -10,19 +10,21 @@
  *            (2‑exp(x))·G(x)=exp(exp(x)‑1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 404 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static void ensure_capacity(size_t needed, size_t *cap, seq_t **ptr) {
     if (needed <= *cap) return;
     size_t new_cap = *cap;
     if (new_cap == 0) new_cap = 4;
     while (new_cap < needed) new_cap <<= 1;
-    *ptr = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+    *ptr = mem_resize(seq_t, *ptr, new_cap);
     *cap = new_cap;
 }
 
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
     if (A_len == 0) {
         A_cap = 4;
         B_cap = 4;
-        A = (seq_t *)malloc(A_cap * sizeof(seq_t));
-        B = (seq_t *)malloc(B_cap * sizeof(seq_t));
+        A = mem_new(seq_t, A_cap);
+        B = mem_new(seq_t, B_cap);
         A[0] = (seq_t)1;   /* a(0) */
         B[0] = (seq_t)1;   /* B(0) */
         A_len = 1;

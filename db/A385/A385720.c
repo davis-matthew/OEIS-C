@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- sieve tables (smallest prime factor, divisor count, exponent) ---------- */
 static size_t max_sieve = 0;          /* highest index of filled tables */
@@ -98,7 +100,7 @@ static void ensure_terms_capacity(size_t new_cap)
     if (terms_cap >= new_cap)
         return;
     size_t new_size = new_cap * sizeof(seq_t);
-    seq_t *tmp = (seq_t *)realloc(terms, new_size);
+    seq_t *tmp = mem_resize(seq_t, terms, (new_size) / sizeof(seq_t));
     if (!tmp)
         abort();
     terms = tmp;

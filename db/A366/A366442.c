@@ -7,7 +7,8 @@
  * Formula:   a(n) = sigma(A007310(n))
  * Range:     u8 n <= 5, u16 n <= 1106, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 75 terms through n = 9722 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,10 @@
 /*  a(n) is the sum of divisors of the n-th 5‑rough number (numbers coprime to 6). */
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Return σ(m) where m is a 64‑bit integer. */
 static seq_t sigma_of_uint64(uint64_t m)
@@ -30,7 +33,7 @@ static seq_t sigma_of_uint64(uint64_t m)
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t p = pr[i];
         uint64_t e = ex[i];
-        seq_t term = (pow_uint(p, e + 1) - (seq_t)1) / ((seq_t)p - (seq_t)1);
+        seq_t term = (ipow_u64_idx(p, e + 1) - (seq_t)1) / ((seq_t)p - (seq_t)1);
         sigma *= term;
     }
     return sigma;

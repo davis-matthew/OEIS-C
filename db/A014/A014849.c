@@ -8,14 +8,34 @@
  *            1/Φ₈₄₀(x); the sequence is periodic with period 840
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   poly_div_exact
+ * Validated: standard, pass, 97 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/poly_div_exact.h"
+#include "../utils/mem.h"
+
+/* divide polynomial A (degA) by monic polynomial B (degB);
+   division is exact. Quotient stored in Q. */
+static void poly_div_exact(const seq_t *A, int degA,
+                           const seq_t *B, int degB,
+                           seq_t *Q, int *DegQ)
+{
+    seq_t R[842];
+    for (int i = 0; i <= degA; ++i) R[i] = A[i];
+    int degQ = degA - degB;
+    for (int i = degQ; i >= 0; --i) {
+        seq_t coeff = R[i + degB];
+        Q[i] = coeff;
+        if (coeff != 0)
+            for (int j = 0; j <= degB; ++j)
+                R[i + j] -= coeff * B[j];
+    }
+    *DegQ = degQ;
+}
 
 /* multiply two polynomials A (degA) and B (degB).
    Result stored in Res (size at least degA+degB+1). */
@@ -47,10 +67,10 @@ seq_t a(idx_t n)
             if (840 % d == 0) divs[ndiv++] = d;
 
         /* store Φ_d for all divisors of 840 */
-        seq_t poly[841][842];
+        static seq_t poly[841][842];   /* 11 MB for big: not on the stack */
         int degPoly[841];
         for (int i = 0; i < 841; ++i) degPoly[i] = -1;
-        for (int i = 0; i < 841; ++i) memset(poly[i], 0, sizeof(poly[i]));
+        for (int i = 0; i < 841; ++i) mem_set(poly[i], 0, sizeof(poly[i]));
 
         for (int idx = 0; idx < ndiv; ++idx) {
             int d = divs[idx];
@@ -61,7 +81,7 @@ seq_t a(idx_t n)
             } else {
                 seq_t prod[842], tmp[842];
                 int degProd = 0;
-                memset(prod, 0, sizeof(prod));
+                mem_set(prod, 0, sizeof(prod));
                 prod[0] = 1;  /* start with polynomial 1 */
                 for (int j = 0; j < idx; ++j) {
                     int c = divs[j];
@@ -73,7 +93,7 @@ seq_t a(idx_t n)
                     }
                 }
                 seq_t numer[842];
-                memset(numer, 0, sizeof(numer));
+                mem_set(numer, 0, sizeof(numer));
                 numer[0] = -1;
                 numer[d] = 1;
                 int degQ;

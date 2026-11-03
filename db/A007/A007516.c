@@ -7,12 +7,14 @@
  * Formula:   a(n+1) = 2^(a(n)-1) + 1 for n >= 1, a(0) = 1, a(1) = 3
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   A001832_pow2
+ * Validated: partial, pass, 5 terms through n = 4 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/A001832_pow2.h"
+#include <stdint.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
     static seq_t cache[6];
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
 
     for (idx_t i = cache_len; i <= n; i++) {
         seq_t prev = cache[i - 1];
-        cache[i] = A001832_pow2((idx_t)(unsigned long long)(prev - 1)) + 1;
+        cache[i] = pow2((idx_t)(unsigned long long)(prev - 1)) + 1;
         cache_len = i + 1;
     }
 

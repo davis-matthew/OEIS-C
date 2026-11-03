@@ -12,14 +12,29 @@
  *            condition
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_adjacent_78_87
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_adjacent_78_87.h"
+#include "../utils/mem.h"
+
+static bool has_adjacent_78_87(seq_t x)
+{
+    seq_t t = x;
+    /* Scan from least significant digit upwards.
+       For each position check the last two base‑9 digits. */
+    while (t >= (seq_t)9) {
+        seq_t lb = t % (seq_t)81;        /* two least significant base‑9 digits */
+        if (lb == (seq_t)71 || lb == (seq_t)79) /* 71 = 78₉ , 79 = 87₉ */
+            return true;
+        t /= (seq_t)9;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;         /* cached terms */
 static idx_t   cache_len = 0;       /* number of terms stored */
@@ -34,7 +49,7 @@ static void ensure_cache_capacity(idx_t need)
     idx_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *new_buf = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+    seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
     cache = new_buf;
     cache_cap = new_cap;
 }

@@ -9,9 +9,10 @@
  * Keywords:  nonn, tabl
  * Formula:   T(n,k) = floor( binom(n-1,k-1) / k! ); a(n) is the flattened
  *            sequence of T(n,k) read by rows. For n = 0 use a(0) = 1
- * Range:     u8 n <= 59, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
+ * Range:     u8 n <= 64, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   binom, factorial
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,18 @@
 #include <stdlib.h>
 
 /* Helpers for binomial coefficients and factorials. */
-#include "../utils/binom.h"    /* seq_t binom(idx_t a, idx_t b);      */
-#include "../utils/factorial.h"/* seq_t factorial(idx_t n);           */
+#include "../utils/binomial.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* Find the row r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2. */
 static idx_t
@@ -64,7 +75,7 @@ a(idx_t n)
         return (seq_t)0;
 
     /* Compute floor( binom(r-1, k-1) / k! ). */
-    seq_t binom_val = binom(r - 1, k - 1);   /* = C(r-1, k-1) */
+    seq_t binom_val = binomial(r - 1, k - 1);   /* = C(r-1, k-1) */
     seq_t fact_val  = factorial(k);          /* = k! */
     return binom_val / fact_val;             /* integer division is floor */
 }

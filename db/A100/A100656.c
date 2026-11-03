@@ -8,11 +8,13 @@
  *            otherwise 0
  * Range:     u8 n <= 8, u16 n <= 27, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
  * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)

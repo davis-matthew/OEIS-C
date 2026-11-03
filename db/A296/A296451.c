@@ -10,12 +10,14 @@
  *            the anagraprod property
  * Range:     u8 none, u16 n <= 46, u32 n <= 500, u64 n <= 500, u128 n <= 500,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 500 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global workspace --------------------------------------------------- */
 #define CAP 200000                /* maximum number of terms that can be stored */
@@ -115,7 +117,7 @@ seq_t a(idx_t n)
     /* ensure the array is sorted before we index it */
     if (!sorted_flag)
     {
-        qsort(results, res_cnt, sizeof(seq_t), cmp_seq);
+        mem_qsort(results, res_cnt, sizeof(seq_t), cmp_seq);
         sorted_flag = 1;
     }
 

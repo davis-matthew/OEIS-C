@@ -10,12 +10,14 @@
  *            This implements a linear recurrence with memoised array
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 37, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 169 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* handle trivial case */
@@ -30,9 +32,9 @@ seq_t a(idx_t n) {
         idx_t new_size = n;
         if (new_size > cache_size) {
             if (cache == NULL) {
-                cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+                cache = mem_new(seq_t, new_size);
             } else {
-                cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, new_size);
             }
             /* initialise newly added entries */
             for (idx_t i = cache_size + 1; i <= new_size; ++i) {

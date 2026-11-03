@@ -8,12 +8,14 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 49, i32 n <= 49, i64 n <= 49, i128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recurrence for A063319:
    a(0)=a(1)=0,
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
 
     if (n >= memo_size) {
         size_t new_size = (size_t)(n + 1);                /* allocate up to n */
-        memo = (seq_t*)realloc(memo, new_size * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, new_size);
 
         /* compute values from the current size up to n */
         for (idx_t i = memo_size; i <= n; ++i) {

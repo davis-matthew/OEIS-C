@@ -11,6 +11,7 @@
  *            evaluates that sum directly. * Complexity: O(n log n) f...
  * Range:     i8 n <= 20, i16 n <= 59, i32 n <= 214, i64 n <= 764,
  *            i128 n <= 2783, big any n
+ * Validated: standard, pass, 93 terms through n = 9721 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

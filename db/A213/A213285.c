@@ -9,6 +9,7 @@
  * Formula:   a(n) = n*(-332+757*n-632*n^2+255*n^3-48*n^4+4*n^5)/4
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 42, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 47 terms through n = 960 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

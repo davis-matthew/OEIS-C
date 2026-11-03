@@ -9,12 +9,14 @@
  *            a(2)=0
  * Range:     i8 n <= 12, i16 n <= 28, i32 n <= 43, i64 n <= 43, i128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Dynamic storage for previously computed terms */
 static seq_t *dp      = NULL;   /* array of computed values  */
@@ -29,7 +31,7 @@ static void ensure_capacity(size_t n)
     size_t newcap = capacity < 3 ? 3 : capacity * 2;
     while (n + 1 > newcap)
         newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(dp, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, dp, newcap);
     dp = tmp;
     capacity = newcap;
 }

@@ -9,6 +9,7 @@
  *            initial values * a(4)=13, a(5)=21, a(6)=35, a(7)=60, a(8)=102)
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 41, u64 n <= 84, u128 n <= 169,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 403 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

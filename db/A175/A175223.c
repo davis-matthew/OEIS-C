@@ -7,14 +7,16 @@
  * Formula:   a(n) = prime(n) + 7
  * Range:     u8 n <= 53, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   int_sqrt
+ * Validated: standard, pass, 74 terms through n = 899 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         uint64_t candidate = (prime_cnt == 0 ? 2ULL : primes[prime_cnt - 1] + 1ULL);
         while (prime_cnt < needed) {
             bool is_prime = true;
-            uint64_t lim = int_sqrt(candidate);          /* integer sqrt helper */
+            uint64_t lim = isqrt(candidate);          /* integer sqrt helper */
             for (size_t i = 0; i < prime_cnt && primes[i] <= lim; ++i) {
                 if (candidate % primes[i] == 0) {
                     is_prime = false;

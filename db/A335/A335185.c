@@ -8,20 +8,21 @@
  * Formula:   a(n) = nextprime(ceil(n/2)-1) - prevprime(floor(n/2)+1)
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 94 terms through n = 97 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Uses is_prime_small for primality testing. */
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 static inline seq_t nextprime(idx_t start)
 {
     idx_t cand = start + 1;
     if (cand < 2) cand = 2;
-    while (!is_prime_small((seq_t)cand))
+    while (!is_prime_seq((seq_t)cand))
         ++cand;
     return (seq_t)cand;
 }
@@ -29,7 +30,7 @@ static inline seq_t nextprime(idx_t start)
 static inline seq_t prevprime(idx_t start)
 {
     idx_t cand = start - 1;
-    while (cand >= 2 && !is_prime_small((seq_t)cand))
+    while (cand >= 2 && !is_prime_seq((seq_t)cand))
         --cand;
     return (seq_t)cand;
 }

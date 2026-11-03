@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   int_sqrt, rev
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   isqrt, mem, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/int_sqrt.h"  /* int_sqrt */
-#include "../utils/rev.h"       /* rev */
+#include "../utils/isqrt.h"
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
 
 /* =================  Palindrome factor helper  ================= */
 
@@ -72,13 +74,13 @@ static void add_palindromes_up_to(uint64_t limit)
         for (uint64_t h = start; h <= end; ++h) {
             uint64_t pal;
             if (cur_len % 2 == 0) {           /* even length */
-                uint64_t rev = 0, temp = h;
-                while (temp) { rev = rev * 10 + (temp % 10); temp /= 10; }
-                pal = h * pow10[half] + rev;
+                uint64_t reverse_digits_idx = 0, temp = h;
+                while (temp) { reverse_digits_idx = reverse_digits_idx * 10 + (temp % 10); temp /= 10; }
+                pal = h * pow10[half] + reverse_digits_idx;
             } else {                          /* odd length */
-                uint64_t rev = 0, temp = h / 10;
-                while (temp) { rev = rev * 10 + (temp % 10); temp /= 10; }
-                pal = h * pow10[half - 1] + rev;
+                uint64_t reverse_digits_idx = 0, temp = h / 10;
+                while (temp) { reverse_digits_idx = reverse_digits_idx * 10 + (temp % 10); temp /= 10; }
+                pal = h * pow10[half - 1] + reverse_digits_idx;
             }
             if (pal > limit) return;          /* we have generated required ones */
             if (pal <= max_pal) continue;     /* already stored */
@@ -94,7 +96,7 @@ static bool has_pal_factor(uint64_t x)
 {
     if (x < 4) return false;                 /* smallest product 2*2 */
 
-    uint64_t sqrtx = int_sqrt(x);             /* integer sqrt */
+    uint64_t sqrtx = isqrt(x);             /* integer sqrt */
     if (sqrtx > max_pal) add_palindromes_up_to(sqrtx);
 
     for (size_t i = 0; i < pal_used; ++i) {
@@ -104,7 +106,7 @@ static bool has_pal_factor(uint64_t x)
 
         if (x % p == 0) {
             uint64_t q = x / p;
-            if (q > 1 && rev(q) == q) return true;
+            if (q > 1 && reverse_digits_idx(q) == q) return true;
         }
     }
     return false;
@@ -114,7 +116,7 @@ static bool has_pal_factor(uint64_t x)
 static bool qualifies(uint64_t v)
 {
     if (!has_pal_factor(v)) return false;
-    uint64_t rv = rev(v);
+    uint64_t rv = reverse_digits_idx(v);
     return has_pal_factor(rv);
 }
 
@@ -131,7 +133,7 @@ static void ensure_terms_capacity(size_t need)
     if (terms_cap >= need) return;
     size_t new_cap = terms_cap ? terms_cap << 1 : 256;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_terms, new_cap);
     if (!tmp) exit(1);
     seq_terms = tmp;
     terms_cap = new_cap;
@@ -143,7 +145,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)0;     /* undefined for n<1 */
 
     if (!seq_terms) {                /* first call: allocate storage */
-        seq_terms = (seq_t *)malloc(256 * sizeof(seq_t));
+        seq_terms = mem_new(seq_t, 256);
         if (!seq_terms) exit(1);
         terms_cap = 256;
         /* Pre‑populate small palindrome list to speed early checks */

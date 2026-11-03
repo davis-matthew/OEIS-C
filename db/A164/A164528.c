@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* return smallest prime factor of n (for n >= 2) */
 static uint64_t smallest_prime_factor(uint64_t n) {
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
 
     /* initialise cache on first call */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * 1);
+        cache = mem_new(seq_t, 1);
         if (cache == NULL) return (seq_t)0;   /* fallback for safety */
         cache[0] = (seq_t)2;
         sz = 1;
@@ -50,7 +52,7 @@ seq_t a(idx_t n) {
     /* extend cache if necessary */
     if ((size_t)n > sz) {
         size_t new_sz = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_sz);
+        seq_t *tmp = mem_resize(seq_t, cache, new_sz);
         if (tmp == NULL) return (seq_t)0;     /* fallback for safety */
         cache = tmp;
 

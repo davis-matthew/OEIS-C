@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of divisors of n! that have exactly n divisors
  * Range:     u8 n <= 23, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   prime_exp_in_factorial
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,14 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/prime_exp_in_factorial.h"
+
+static inline uint64_t prime_exp_in_factorial(uint64_t n, uint32_t p)
+{
+    uint64_t exp = 0;
+    for (uint64_t div = p; div <= n; div *= p)
+        exp += n / div;
+    return exp;
+}
 
 /* ---------- prime sieve (static) ---------- */
 

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   primes of the form a^4 + b^3 with b>0
- * Range:     u8 n <= 4, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
- *            big any n
- * Helpers:   a4_plus_b3, is_prime_uint64
+ * Range:     u8 n <= 4, u16 n <= 60, u32 n <= 998, u64 n <= 998,
+ *            u128 n <= 998, big any n
+ * Validated: standard, pass, 56 terms through n = 985 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"
-#include "../utils/a4_plus_b3.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* Compute a^4 + b^3 using 128‑bit arithmetic. */
+static inline unsigned __int128 a4_plus_b3(uint64_t a, uint64_t b)
+{
+    unsigned __int128 a2 = (unsigned __int128)a * a;
+    unsigned __int128 a4 = a2 * a2;
+    unsigned __int128 b2 = (unsigned __int128)b * b;
+    unsigned __int128 b3 = b2 * b;
+    return a4 + b3;
+}
 
 /* Node for the priority queue – smallest value first. */
 typedef struct {
@@ -101,7 +112,7 @@ static void append_prime(seq_t v)
 {
     if (p_cnt == p_cap) {
         size_t new_cap = p_cap ? p_cap * 2 : INIT_CAP;
-        seq_t *tmp = (seq_t*)realloc(primes, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, primes, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         primes = tmp; p_cap = new_cap;
     }
@@ -120,7 +131,7 @@ seq_t a(idx_t n)
 
     /* Initialise primes array once. */
     if (!primes) {
-        primes = (seq_t*)malloc(INIT_CAP * sizeof(seq_t));
+        primes = mem_new(seq_t, INIT_CAP);
         if (!primes) exit(EXIT_FAILURE);
         p_cap = INIT_CAP;
     }
@@ -137,7 +148,7 @@ seq_t a(idx_t n)
         /* Only test values that fit in 64 bits for primality. */
         if ((cur.val >> 64) == 0) {
             uint64_t val64 = (uint64_t)cur.val;
-            if (is_prime_uint64(val64) && val64 != last_prime_val) {
+            if (is_prime_u64(val64) && val64 != last_prime_val) {
                 append_prime((seq_t)val64);
                 last_prime_val = val64;
             }

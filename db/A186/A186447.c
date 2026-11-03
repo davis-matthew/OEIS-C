@@ -11,13 +11,15 @@
  *            as both C11 and C++17 and works with integ...
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache of computed values and a bitmap marking stored entries */
 static seq_t  *cache      = NULL;   /* array of seq_t values      */
@@ -36,7 +38,7 @@ static void ensure_capacity(idx_t n)
         new_cap <<= 1;
 
     /* realloc cache for seq_t values */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) exit(1);   /* out of memory -> abort for safety */
 
     /* realloc bitmap */

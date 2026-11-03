@@ -11,7 +11,8 @@
  *            cycle type L induces on {0,1}^n)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   a2857_gcd, a2857_is_fixed, a2857_phi
+ * Validated: standard, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   gcd_u64, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a2857_gcd.h"
-#include "../utils/a2857_is_fixed.h"
-#include "../utils/a2857_phi.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/totient_u64.h"
+
+static int a2857_is_fixed(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 8; i++) t = t << 16;
+    return t == 0;
+}
 
 typedef unsigned __int128 a2857_u128;
 
@@ -72,7 +80,7 @@ static void a2857_process(int k)
     int i, run = 0;
     for (i = 0; i < k; i++) {
         uint64_t p = (uint64_t)a2857_parts[i];
-        m = m / a2857_gcd(m, p) * p;
+        m = m / gcd_u64(m, p) * p;
         if (i > 0 && a2857_parts[i] == a2857_parts[i - 1]) run++;
         else run = 1;
         z *= (a2857_u128)p;
@@ -81,8 +89,8 @@ static void a2857_process(int k)
     for (d = 1; d <= m; d++) {
         if (m % d == 0) {
             uint64_t s = 0;
-            for (i = 0; i < k; i++) s += a2857_gcd((uint64_t)a2857_parts[i], d);
-            sum += a2857_phi(m / d) * ((uint64_t)1 << s);
+            for (i = 0; i < k; i++) s += gcd_u64((uint64_t)a2857_parts[i], d);
+            sum += totient_u64(m / d) * ((uint64_t)1 << s);
         }
     }
     cyc = sum / m;

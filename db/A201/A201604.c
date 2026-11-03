@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 964, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   mul_mod, pow_mod
+ * Validated: standard, pass, 47 terms through n = 4887 (2026-11-01)
+ * Helpers:   mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/mul_mod.h"
-#include "../utils/pow_mod.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
 
 /* 64-bit deterministic Miller–Rabin primality test.  */
 
@@ -47,11 +48,11 @@ static inline bool is_prime_uint64(uint64_t n)
     for (size_t i = 0; i < sizeof(bases) / sizeof(bases[0]); ++i) {
         uint64_t a = bases[i] % n;
         if (a == 0) continue;
-        uint64_t x = pow_mod(a, d, n);
+        uint64_t x = powmod_u64(a, d, n);
         if (x == 1 || x == n - 1) continue;
         bool continue_outer = false;
         for (int r = 1; r < s; ++r) {
-            x = mul_mod(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 continue_outer = true;
                 break;

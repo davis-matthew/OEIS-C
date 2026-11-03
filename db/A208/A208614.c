@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 127, u16 n <= 360, u32 n <= 1182, u64 n <= 4095,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 4638 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* -----------  global cache for primes  ----------- */
 static uint64_t *prime_list   = NULL; /* array of primes */
@@ -106,7 +108,7 @@ seq_t a (idx_t n)
     if (residual == 0) return (seq_t)1;  /* only required primes form the partition */
 
     /* subset‑sum DP */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return (seq_t)0;            /* allocation failure fallback */
 
     for (int i = 0; i <= (int)n; ++i) dp[i] = 0;
@@ -127,6 +129,6 @@ seq_t a (idx_t n)
     }
 
     seq_t result = dp[residual];
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   balanced_with_k, cache_grow
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/balanced_with_k.h"
-#include "../utils/cache_grow.h"
+#include "../utils/mem.h"
+
+/* true if x has the same number of 0‑bits and 1‑bits (>=1),
+   and that number equals k */
+static inline bool balanced_with_k(uint64_t x, unsigned k)
+{
+    if (x == 0 || k == 0) return false;
+    int bitlen = 64 - __builtin_clzll(x);
+    int ones   = __builtin_popcountll(x);
+    int zeros  = bitlen - ones;
+    return zeros == ones && (unsigned)ones == k;
+}
+
+/* grow cache array when needed  (C casting is required for C++ mode) */
+static void cache_grow(seq_t **ptr, size_t *cap)
+{
+    size_t new_cap = (*cap == 0) ? 64 : (*cap * 2);
+    *ptr = mem_resize(seq_t, *ptr, new_cap);
+    *cap = new_cap;
+}
 
 /*-------------  helper functions  ----------------------------------*/
 

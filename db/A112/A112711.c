@@ -8,6 +8,7 @@
  * Formula:   a(n) = sum_{k=0}^{n} Catalan(k)*(-4)^k
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 9, i64 n <= 17, i128 n <= 19,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

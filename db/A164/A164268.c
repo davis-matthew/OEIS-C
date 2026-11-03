@@ -12,12 +12,14 @@
  *            -(1/n) * Σ_{k=1}^{n} c(n‑k) * Σ_{d|k} d·e(d)...
  * Range:     i8 n <= 18, i16 n <= 120, i32 n <= 419, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 930 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----- packed period‑36 sequence --------------------------------------- */
 static const int b[36] = {
@@ -36,9 +38,9 @@ static void recompute_c(size_t need)
     /* arrays are 0‑based; element 0 is unused for e and divsum          */
     size_t sz = need + 1;                          /* indices 0..need      */
 
-    seq_t *e      = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *divsum = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *new_c  = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *e      = mem_new(seq_t, sz);
+    seq_t *divsum = mem_new(seq_t, sz);
+    seq_t *new_c  = mem_new(seq_t, sz);
 
     /* e(k) = -b[(k-1) mod 36]                                       */
     for (size_t k = 1; k <= need; ++k)
@@ -61,11 +63,11 @@ static void recompute_c(size_t need)
         new_c[n] = -(s / (seq_t)n);
     }
 
-    free(e);
-    free(divsum);
+    mem_free(e);
+    mem_free(divsum);
 
     /* replace old array */
-    if (c) free(c);
+    if (c) mem_free(c);
     c = new_c;
     c_size = sz;            /* new_c[0..need] are valid                */
 }

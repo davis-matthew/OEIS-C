@@ -9,7 +9,8 @@
  *            equals n, or 0 if none exists
  * Range:     u8 n <= 14, u16 n <= 20, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   digit_product
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   digit_product, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../utils/digit_product.h"
+#include "../utils/mem.h"
 
 #define LIMIT 2000000
 #define ANS_LIMIT 5000000
@@ -32,7 +35,7 @@ static void compute_all(void)
     if (sigma != NULL) return;
 
     /* 1. Compute sigma for 1..LIMIT by a divisor sieve */
-    sigma = (seq_t*)calloc((size_t)LIMIT + 1, sizeof(seq_t));
+    sigma = mem_new(seq_t, (size_t)LIMIT + 1);
     if (!sigma) return;  /* fall back to 0 on allocation failure */
 
     for (idx_t i = 1; i <= LIMIT; ++i) {
@@ -42,7 +45,7 @@ static void compute_all(void)
     }
 
     /* 2. Allocate answer table */
-    ans = (seq_t*)calloc((size_t)ANS_LIMIT, sizeof(seq_t));
+    ans = mem_new(seq_t, (size_t)ANS_LIMIT);
     if (!ans) return;
 
     /* 3. Scan k and fill ans with the minimal k for each product */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 9093, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_valid_divisor
+ * Validated: standard, pass, 70 terms through n = 7893 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,25 @@
 
 /* Standard integer types. */
 #include <stdint.h>
-#include "../utils/has_valid_divisor.h"
+
+static int has_valid_divisor(uint64_t m)
+{
+    /* Check all divisors d of m, with 1 < d < m.  */
+    for (uint64_t d = 2; d <= m / d; ++d) {
+        if (m % d == 0) {
+            /* d is a proper divisor.  */
+            if (((m + 1) % (d + 1) == 0) && ((m + 2) % (d + 2) == 0))
+                return 1;
+            /* Also check the complementary divisor m/d, if distinct. */
+            uint64_t d2 = m / d;
+            if (d2 != d && d2 > 1 && d2 < m) {
+                if (((m + 1) % (d2 + 1) == 0) && ((m + 2) % (d2 + 2) == 0))
+                    return 1;
+            }
+        }
+    }
+    return 0;
+}
 
 seq_t a(idx_t n)
 {

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   good_ull
+ * Validated: standard, pass, 78 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,30 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/good_ull.h"
+#include "../utils/mem.h"
+
+/* Test whether a 64‑bit value satisfies the property. */
+static inline bool good_ull(uint64_t x)
+{
+    /* x is a positive integer */
+    int l = 64 - __builtin_clzll(x);      /* bit length */
+    int half = l / 2;                     /* length of each half */
+
+    /* mask for lower half bits */
+    uint64_t low_mask = (half == 0) ? 0ULL
+                                   : ((uint64_t)1 << half) - 1;
+
+    uint64_t left, right;
+    if (l & 1) {                          /* odd length: ignore middle bit */
+        left  = x >> (half + 1);
+        right = x & low_mask;
+    } else {                              /* even length */
+        left  = x >> half;
+        right = x & low_mask;
+    }
+
+    return __builtin_popcountll(left) == __builtin_popcountll(right);
+}
 
 seq_t a(idx_t n)
 {
@@ -54,7 +78,7 @@ seq_t a(idx_t n)
         if (good_ull(cand)) {
             if (len == cap) {                 /* grow cache if needed */
                 size_t newcap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 cache = tmp;
                 cap   = newcap;
             }

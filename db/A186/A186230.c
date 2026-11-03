@@ -8,9 +8,10 @@
  * Formula:   a(n) = number of integers j, 1 ≤ j < k, such that *
  *            gcd(n,k)=gcd(n,j)=gcd(k,j)=1, where k is the column of the
  *            triangle * T read row‑wise (T(n,k) is defined in the OEIS entry)
- * Range:     u8 n <= 9464, u16 n <= 9464, u32 n <= 9464, u64 n <= 9464,
- *            u128 n <= 9464, big any n
- * Helpers:   gcd, max_idx
+ * Range:     u8 n <= 31375, u16 n <= 31375, u32 n <= 31375, u64 n <= 31375,
+ *            u128 n <= 31375, big any n
+ * Validated: standard, pass, 121 terms through n = 9464 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/max_idx.h"
+
+/* Utility: maximum of two idx_t values */
+static inline idx_t max_idx(idx_t a, idx_t b) { return a > b ? a : b; }
 
 /* --------- helpers ----------------------------------------------------- */
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    and keeping the smallest unused value.  The array `seq` holds the sequence
    values in ascending order. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* initialisation: first term is 5 (must contain a factor 5)      */
     if (size == 0) {
         capacity = 16;
-        seq = (seq_t *)malloc(capacity * sizeof(seq_t));
+        seq = mem_new(seq_t, capacity);
         if (seq == NULL) abort(); /* allocation failure */
         seq[0] = (seq_t)5;
         size  = 1;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         /* grow the array if necessary */
         if (size + 1 > capacity) {
             size_t new_cap = capacity * 2;
-            seq_t *new_seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq_t *new_seq = mem_resize(seq_t, seq, new_cap);
             if (new_seq == NULL) abort(); /* allocation failure */
             seq = new_seq;
             capacity = new_cap;

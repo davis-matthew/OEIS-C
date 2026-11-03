@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   prime p such that −21 is a primitive root modulo p (OEIS
  *            A105893)
- * Range:     u8 n <= 21, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
- *            big any n
- * Helpers:   mod_neg21, mul_mod64
+ * Range:     u8 n <= 21, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 72 terms through n = 998 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_neg21.h"
-#include "../utils/mul_mod64.h"
+#include <stddef.h>
+#include <string.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
+
+/* Return (−21 mod p) as unsigned integer in [0, p-1] */
+static uint64_t mod_neg21(uint64_t p)
+{
+    int64_t r = (int64_t)p - 21;
+    r %= (int64_t)p;
+    if (r < 0) r += p;
+    return (uint64_t)r;
+}
 
 /* Helper for modular multiplication (avoids overflow using 128-bit) */
 
@@ -26,8 +38,8 @@ static uint64_t mod_pow64(uint64_t base, uint64_t exp, uint64_t mod)
 {
     uint64_t res = 1;
     while (exp) {
-        if (exp & 1) res = mul_mod64(res, base, mod);
-        base = mul_mod64(base, base, mod);
+        if (exp & 1) res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return res;
@@ -61,7 +73,7 @@ static bool is_prime_uint64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (int r = 1; r < s; r++) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 composite = false;
                 break;
@@ -113,7 +125,7 @@ seq_t a(idx_t n)
         if (is_prime_uint64(p) && primitive_minus21(p)) {
             if (sz == cap) {
                 cap = (cap == 0 ? 4 : cap * 2);
-                found = (seq_t*)realloc(found, cap * sizeof(seq_t));
+                found = mem_resize(seq_t, found, cap);
             }
             found[sz++] = (seq_t)p;
         }

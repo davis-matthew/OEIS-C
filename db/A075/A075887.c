@@ -8,6 +8,7 @@
  * Formula:   a(n) = 1 + Sum_{m=1..n} Product_{k=1..m} ceil(n/k)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 36, u128 n <= 72,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 997 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

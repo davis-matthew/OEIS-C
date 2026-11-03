@@ -9,13 +9,15 @@
  *            a(n)=a(n-1)+1+(a(n-2)+1)/6 (floor is implicit integer division)
  * Range:     u8 n <= 26, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (!cache) {
         size_t init = 6;
         if ((size_t)n + 1 > init) init = (size_t)n + 1;
-        cache = (seq_t *)malloc(init * sizeof(seq_t));
+        cache = mem_new(seq_t, init);
         if (!cache) return 0;  /* out‑of‑memory: caller will not use the value */
         capacity = init;
         cache[0] = (seq_t)1;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Grow the array if the requested index exceeds the current capacity. */
     if ((size_t)n + 1 > capacity) {
         size_t newcap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) return 0;  /* allocation failed */
         cache = tmp;
         capacity = newcap;

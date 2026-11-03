@@ -7,13 +7,18 @@
  * Formula:   a(n) = least m>0 such that gcd(6^n - m, n - m) = 1
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   gcd, mod_pow
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +32,7 @@ seq_t a(idx_t n)
         seq_t diff = (seq_t)diff64;
 
         /* compute (6^n - m) mod diff  */
-        seq_t t    = mod_pow((seq_t)6, n, diff);          /* 6^n mod diff   */
+        seq_t t    = powmod((seq_t)6, n, diff);          /* 6^n mod diff   */
         seq_t mmod = (seq_t)(m % diff64);                 /* m mod diff     */
 
         seq_t rem;

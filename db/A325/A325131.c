@@ -10,7 +10,8 @@
  *            disjoint from the set of exponents
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Maximum number that will be checked for membership in the sequence.
    3,000,000 is more than enough to obtain the first 10 000 terms. */
@@ -123,8 +125,7 @@ static void ensure_cache(idx_t n)
         if (satisfies(current_candidate)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 128 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache,
-                                               new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();   /* memory exhausted */
                 cache = tmp;
                 cache_cap = new_cap;

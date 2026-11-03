@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 493, u64 n <= 1500, u128 n <= 1500,
  *            big any n
- * Helpers:   append_candidate, digit_counts
+ * Validated: standard, pass, 39 terms through n = 1413 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,27 @@
 #include <stdbool.h>
 
 /* Utilities provided by the build environment */
-#include "../utils/digit_counts.h"      /* void digit_counts(seq_t x, unsigned char cnt[10]); */
-#include "../utils/append_candidate.h"  /* void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val); */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/digit_counts.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 static seq_t *found_terms = NULL;
 static size_t  found_len  = 0;

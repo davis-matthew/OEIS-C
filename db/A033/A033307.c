@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, cons, easy, changed
  * Formula:   a(n) = nth digit (0‑based) of Champernowne's constant in base 10
- * Range:     u8 n <= 9565, u16 n <= 9565, u32 n <= 9565, u64 n <= 9565,
- *            u128 n <= 9565, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 120 terms through n = 9565 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

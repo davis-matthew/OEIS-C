@@ -8,7 +8,8 @@
  *            a(A285735(n)))
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 136 terms through n = 9934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* local cache for memoised a(n) values; index 0 is unused, a(1)=0 */
 static seq_t *a_cache = NULL;
@@ -36,7 +38,7 @@ static void ensure_a_cache(idx_t n)
     size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 1;
     while (new_cap <= n)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp)
         abort();
     /* initialise new entries to 0 (uncomputed) */

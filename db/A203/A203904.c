@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   gcd, seq_alloc
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/seq_alloc.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 /* Cache of computed rows.  __rows[r] points to the
    array of coefficients for row r (0‑based).  Rows are stored

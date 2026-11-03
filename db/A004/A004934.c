@@ -9,12 +9,23 @@
  *            4181*sqrt(5))/2; computed as (9349*n + isqrt(5*(4181*n)^2)) / 2
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 7, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isqrt_from_above
+ * Validated: standard, pass, 42 terms through n = 9993 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/isqrt_from_above.h"
+static seq_t isqrt_from_above(seq_t N, seq_t x)
+{
+    /* Newton iteration from an upper bound x >= sqrt(N), x > 0 */
+    seq_t y;
+    for (;;) {
+        y = (x + N / x) / 2;
+        if (y >= x) break;
+        x = y;
+    }
+    return x;
+}
 
 seq_t a(idx_t n)
 {

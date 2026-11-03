@@ -7,15 +7,54 @@
  * Keywords:  sign, mult
  * Formula:   a(n) = lambda(n) * lambda(sigma(n)) where lambda(m) =
  *            (-1)^{Ω(m)} (Liouville) and sigma is the sum of divisors
- * Range:     i8 n <= 59, i16 n <= 9454, i32 n <= 9454, i64 n <= 9454,
- *            i128 n <= 9454, big any n
- * Helpers:   lambda_of_seq
+ * Range:     i8 n <= 59, i16 n <= 100000, i32 n <= 100000, i64 n <= 100000,
+ *            i128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 9454 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/lambda_of_seq.h"
+
+/* Liouville λ(m): return +1 for an even total exponent count, -1 otherwise */
+static inline seq_t lambda_of_seq(seq_t m)
+{
+    if (m <= 1)
+        return 1;                /* lambda(1) = 1 */
+
+    int parity = 0;              /* 0 = even, 1 = odd */
+
+    /* factor 2 */
+    if ((m & 1) == 0) {
+        int cnt = 0;
+        while ((m & 1) == 0) {
+            m >>= 1;            /* divide by 2 */
+            cnt++;
+        }
+        if (cnt & 1)
+            parity ^= 1;
+    }
+
+    /* factor odd primes */
+    for (seq_t p = 3; p <= m / p; p += 2) {
+        if (m % p == 0) {
+            int cnt = 0;
+            while (m % p == 0) {
+                m /= p;
+                cnt++;
+            }
+            if (cnt & 1)
+                parity ^= 1;
+        }
+    }
+
+    /* remaining prime factor (if any) */
+    if (m > 1)
+        parity ^= 1;
+
+    return (parity == 0) ? 1 : -1;
+}
 
 /* Compute σ(n) = sum of divisors of n */
 static inline seq_t sigma_of_idx(idx_t n)

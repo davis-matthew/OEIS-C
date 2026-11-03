@@ -12,13 +12,15 @@
  *            a(n)=0
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 29,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -56,5 +58,5 @@ seq_t a(idx_t n)
 
     if (p == 0) return (seq_t)0;          /* no prime with exponent 1 */
 
-    return big_pow((seq_t)p, (seq_t)n);   /* pⁿ */
+    return ipow((seq_t)p, (seq_t)n);   /* pⁿ */
 }

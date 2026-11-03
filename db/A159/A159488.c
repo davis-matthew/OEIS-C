@@ -8,12 +8,14 @@
  *            a(n) = 2*a(n-1) - 338*(n-1)*a(n-2) for n >= 2
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 6, i64 n <= 11, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 420 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache to support arbitrary call order */
@@ -23,14 +25,14 @@ seq_t a(idx_t n) {
     /* initialise cache with a(0) = 1 */
     if (cache_len == 0) {
         cache_len = 1;
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = (seq_t)1;
     }
 
     /* ensure a(1) is stored when needed */
     if (cache_len == 1 && n >= 1) {
         cache_len = 2;
-        cache = (seq_t*)realloc(cache, cache_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_len);
         cache[1] = (seq_t)2;
     }
 
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
         return cache[n];
 
     /* extend the cache up to n inclusive */
-    cache = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (n + 1));
     for (idx_t i = cache_len; i <= n; ++i) {
         seq_t prev1 = cache[i - 1];      /* a(i-1) */
         seq_t prev2 = cache[i - 2];      /* a(i-2) */

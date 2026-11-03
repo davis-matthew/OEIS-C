@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n+1)^9 - n^9
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 11, u64 n <= 194,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 39 terms through n = 9727 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

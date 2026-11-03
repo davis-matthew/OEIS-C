@@ -7,8 +7,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = number of unordered partitions of n into two distinct
  *            non‑zero decimal palindromes
- * Range:     u8 n <= 8845, u16 n <= 8845, u32 n <= 8845, u64 n <= 8845,
- *            u128 n <= 8845, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 109 terms through n = 8845 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

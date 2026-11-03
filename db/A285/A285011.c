@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 30, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   _length_of_n
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,18 @@
 
 #include <stdint.h>   /* for uint64_t */
 #include <stddef.h>
-#include "../utils/_length_of_n.h"
+
+/* Helper to determine the digit length L of the n-th number. */
+static inline idx_t _length_of_n(idx_t n)
+{
+    if (n <= 2)   /* length 1 covers n=1,2 */
+        return 1;
+    idx_t L = 1;
+    /* find smallest L such that 2^(L+1)-2 >= n */
+    while ((((idx_t)1 << (L + 1)) - 2) < n)
+        ++L;
+    return L;
+}
 
 seq_t a(idx_t n)
 {

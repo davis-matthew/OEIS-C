@@ -10,7 +10,8 @@
  *            * row‑by‑row dynamic programming with a 3‑row sliding window
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 12, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static uint64_t trans_mask[64][64];
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
 
     /* Initialize: first two rows.  The upper row for the first row is
      * treated as 0 (all zeros). */
-    memset(dp_curr, 0, sizeof(dp_curr));
+    mem_set(dp_curr, 0, sizeof(dp_curr));
     for (int a = 0; a < 64; ++a) {
         uint64_t mask = trans_mask[0][a];          /* below row */
         while (mask) {
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
 
     /* Process remaining rows: for row index i from 3 to n. */
     for (idx_t row = 3; row <= n; ++row) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (int a = 0; a < 64; ++a) {
             for (int b = 0; b < 64; ++b) {
                 seq_t cnt = dp_curr[a][b];
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
             }
         }
         /* swap dp_curr and dp_next for next iteration */
-        memcpy(dp_curr, dp_next, sizeof(dp_curr));
+        mem_copy(dp_curr, dp_next, sizeof(dp_curr));
     }
 
     /* Sum over states where the last row satisfies the constraint

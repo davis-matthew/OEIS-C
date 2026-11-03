@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 9813 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* constants */
 #define SIEVE_LIMIT 20000000   /* 20 million, enough for n ≤ 10000 */
@@ -46,7 +48,7 @@ static void init_primes(void)
     primes = (uint32_t *)malloc(cap * sizeof(uint32_t));
     if (!primes) abort();
 
-    prefix = (seq_t *)malloc((cap + 1) * sizeof(seq_t));
+    prefix = mem_new(seq_t, (cap + 1));
     if (!prefix) abort();
 
     prefix[0] = 0;
@@ -63,7 +65,7 @@ static void init_primes(void)
                 cap <<= 1;
                 primes = (uint32_t *)realloc(primes, cap * sizeof(uint32_t));
                 if (!primes) abort();
-                prefix = (seq_t *)realloc(prefix, (cap + 1) * sizeof(seq_t));
+                prefix = mem_resize(seq_t, prefix, (cap + 1));
                 if (!prefix) abort();
             }
             primes[cnt++] = i;
@@ -82,7 +84,7 @@ static void init_primes(void)
     /* shrink arrays to actual size */
     primes = (uint32_t *)realloc(primes, primes_cnt * sizeof(uint32_t));
     if (!primes) abort();
-    prefix = (seq_t *)realloc(prefix, (primes_cnt + 1) * sizeof(seq_t));
+    prefix = mem_resize(seq_t, prefix, (primes_cnt + 1));
     if (!prefix) abort();
 }
 
@@ -152,7 +154,7 @@ static void append_found(seq_t val)
 {
     if (found_cnt >= found_cap) {
         found_cap = found_cap ? found_cap << 1 : 8;
-        seq_t *tmp = (seq_t *)realloc(found, found_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, found, found_cap);
         if (!tmp) abort();
         found = tmp;
     }

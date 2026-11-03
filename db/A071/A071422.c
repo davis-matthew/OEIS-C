@@ -9,7 +9,8 @@
  *            a(1) = 1
  * Range:     u8 n <= 38, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper: digit sum for 64‑bit numbers (σ(n) never exceeds 2·n << 10). */
 static inline uint64_t digit_sum_uint64(uint64_t x)
@@ -52,9 +54,9 @@ static void ensure_cache(idx_t n)
         if (sigma) memset(sigma + cache_limit + 1, 0, (new_size - cache_limit - 1) * sizeof(uint64_t));
     }
     if (a_cache == NULL) {
-        a_cache = (seq_t*)calloc(new_size, sizeof(seq_t));
+        a_cache = mem_new(seq_t, new_size);
     } else {
-        a_cache = (seq_t*)realloc(a_cache, new_size * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_size);
     }
 
     /* compute divisor sums up to n by a sieve */

@@ -10,20 +10,21 @@
  *            each prime at most once (2 is counted once)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrime
+ * Validated: standard, pass, 111 terms through n = 9983 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {
     seq_t count = 0;
     idx_t v = n;
     while (1) {
-        if (isPrime(v))
+        if (is_prime(v))
             count++;
         if (v == 1)
             break;

@@ -7,13 +7,16 @@
  * Formula:   a(n) = (binomial(2*n-1,n)-n) * (n^n-1)/(n-1) for n ≥ 2
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 21,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: standard, pass, 32 terms through n = 307 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k) */
-#include "../utils/pow_uint.h"   /* seq_t pow_uint(uint64_t base, idx_t exp) */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
     seq_t part1 = binom - (seq_t)n;
 
     /* Compute (n^n - 1) / (n - 1). */
-    seq_t pow_n_n = pow_uint((uint64_t)n, n);
+    seq_t pow_n_n = ipow_u64_idx((uint64_t)n, n);
     seq_t part2 = (pow_n_n - (seq_t)1) / ((seq_t)n - (seq_t)1);
 
     /* Final product. */

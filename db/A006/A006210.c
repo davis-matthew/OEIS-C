@@ -10,14 +10,28 @@
  *            r < n), so the division by n is exact
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 29, u64 n <= 55, u128 n <= 106,
  *            big any n
- * Helpers:   mu_u64
+ * Validated: standard, pass, 49 terms through n = 961 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/mu_u64.h"
+
+static int mu_u64(uint64_t m) {
+	int s = 1;
+	uint64_t p;
+	for (p = 2; p * p <= m; p++) {
+		if (m % p == 0) {
+			m /= p;
+			if (m % p == 0) return 0;
+			s = -s;
+		}
+	}
+	if (m > 1) s = -s;
+	return s;
+}
 
 typedef struct {
 	seq_t q;

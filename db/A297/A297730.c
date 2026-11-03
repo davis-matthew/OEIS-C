@@ -10,7 +10,8 @@
  *            This is solved by a transfer‑matrix DP over rows
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper: check that all 1‑cells in 'prev' have degree 2 or 4
    given the rows above (pprev) and below (curr). */
@@ -68,13 +70,13 @@ seq_t a(idx_t n)
     /* DP arrays: dp[pprev][prev] counts ways ending with these two rows.
        newdp[prev][curr] is the next state after adding a row 'curr'. */
     static seq_t dp[32][32], newdp[32][32];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     dp[0][0] = 1;                 /* before any row: two zero rows */
 
     init_valid_mask();
 
     for (idx_t row = 1; row <= n; ++row) {
-        memset(newdp, 0, sizeof(newdp));
+        mem_set(newdp, 0, sizeof(newdp));
 
         for (unsigned int pprev = 0; pprev < 32; ++pprev) {
             for (unsigned int prev = 0; prev < 32; ++prev) {
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
         }
         /* swap dp and newdp */
         for (int i = 0; i < 32; ++i)
-            memcpy(dp[i], newdp[i], sizeof(seq_t) * 32);
+            mem_copy(dp[i], newdp[i], sizeof(seq_t) * 32);
     }
 
     /* After processing n rows we must validate the last row

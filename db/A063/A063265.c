@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 189, u32 n <= 515, u64 n <= 1885,
  *            u128 n <= 1975, big any n
- * Helpers:   offset_of
+ * Validated: standard, pass, 77 terms through n = 1904 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/offset_of.h"
+#include "../utils/mem.h"
+
+/* offset(r) = first index in the flattened array that belongs to row r */
+static inline idx_t offset_of(idx_t r)
+{
+    return (idx_t)(3 * r * r - 2 * r);
+}
 
 /* The types seq_t (value) and idx_t (index) are supplied by the build. */
 static seq_t **rows = NULL;        /* array of pointers to rows */
@@ -43,7 +50,7 @@ static void ensure_rows_up_to(idx_t r)
         idx_t len_cur   = 6 * new_r + 1;         /* number of entries in this row */
 
         /* Allocate storage for the new row */
-        seq_t *cur = (seq_t *)malloc(len_cur * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, len_cur);
         if (!cur) return;                       /* allocation failed – abort */
 
         /* Zero initialise */

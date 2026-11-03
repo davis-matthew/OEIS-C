@@ -7,6 +7,7 @@
  * Formula:   a(n) = prime(n) + 1, where prime(0)=1 (the artificial unit)
  * Range:     u8 n <= 54, u16 n <= 6542, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 78 terms through n = 9385 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

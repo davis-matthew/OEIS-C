@@ -9,6 +9,7 @@
  *            f(1,2) = 1, f(2,1) = 2, f(2,2) = 4
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
  * Helpers:   sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/sieve_primes.h"
 
 /* Static storage for a prime table.  primes_tbl[k] = (k+1)-th prime (0‑based). */

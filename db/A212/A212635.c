@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   binom, prefix_sum
+ * Validated: partial, pass, 72 terms through n = 75 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -42,8 +43,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../utils/binom.h"   /* seq_t binom(idx_t a, idx_t b) */
-#include "../utils/prefix_sum.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* prefix sum of the first r integers, minus the offset contribution
+   of rows 0–3, needed to map a flat index to a row/column pair.    */
+static idx_t prefix_sum(idx_t r)
+{
+    return r * (r + 1) / 2 - 6;   /* sum_{i=4}^{r} i */
+}
 
 /* The table of rows.  rows[r] points to an array of length r+1
    (index 0 unused).  rows[0..3] are NULL.                              */
@@ -70,7 +79,7 @@ static seq_t get_T(idx_t r, idx_t k)
         if (rows[(size_t)cur]) continue;   /* already built */
 
         /* allocate storage for this row */
-        rows[(size_t)cur] = (seq_t*)calloc((size_t)cur + 1, sizeof(seq_t));
+        rows[(size_t)cur] = mem_new(seq_t, (size_t)cur + 1);
         if (!rows[(size_t)cur]) return 0;   /* allocation failure → zero */
 
         if (cur == 4) {
@@ -97,7 +106,7 @@ static seq_t get_T(idx_t r, idx_t k)
                 if (j-1 <= cur-1) val += rows[(size_t)(cur-1)][j-1];
                 if (j-1 <= cur-2) val += rows[(size_t)(cur-2)][j-1];
                 if (j-1 <= cur-3) val += rows[(size_t)(cur-3)][j-1];
-                if (j-1 <= cur-4) val += binom(cur-4, j-1);
+                if (j-1 <= cur-4) val += binomial(cur-4, j-1);
                 rows[(size_t)cur][j] = val;
             }
         }

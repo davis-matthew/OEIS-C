@@ -13,22 +13,33 @@
  *            m=n/2: R(n) = (n/2)*( 2 f(2,m-1) + 4 g(4,m) + 4 f(3,m) +...
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 19, u64 n <= 35, u128 n <= 67,
  *            big any n
- * Helpers:   c3448_bin, c3448_f, c3448_g, c3448_gcd
+ * Validated: standard, pass, 40 terms through n = 195 (2026-11-01)
+ * Helpers:   binomial, gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/c3448_bin.h"
-#include "../utils/c3448_f.h"
-#include "../utils/c3448_g.h"
-#include "../utils/c3448_gcd.h"
+#include "../utils/binomial.h"
+#include "../utils/gcd_idx.h"
+
+static seq_t c3448_f(idx_t k, idx_t m)
+{
+    if (m < k) return 0;
+    return binomial(2 * m - k - 1, m - 1) - binomial(2 * m - k - 1, m);
+}
+
+static seq_t c3448_g(idx_t k, idx_t m)
+{
+    if (m < k) return 0;
+    return binomial(2 * m - k, m - k);
+}
 
 seq_t a(idx_t n)
 {
     uint64_t D = 4 * (uint64_t)n;
     uint64_t K = (uint64_t)(n - 3) * (uint64_t)(n - 4);
-    seq_t X = c3448_bin(2 * n - 6, n - 5);
+    seq_t X = binomial(2 * n - 6, n - 5);
     uint64_t xr = (uint64_t)(X % (seq_t)D);
     seq_t q = (X / (seq_t)D) * (seq_t)K;
     uint64_t t = xr * K;
@@ -37,7 +48,7 @@ seq_t a(idx_t n)
 
     if (n % 5 == 0) {
         idx_t j = n / 5;
-        seq_t cat = c3448_bin(2 * j - 2, j - 1) - c3448_bin(2 * j - 2, j);
+        seq_t cat = binomial(2 * j - 2, j - 1) - binomial(2 * j - 2, j);
         seq_t rot2 = (seq_t)(8 * j) * cat;
         q += rot2 / (seq_t)D;
         rsum += (uint64_t)(rot2 % (seq_t)D);

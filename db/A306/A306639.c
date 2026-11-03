@@ -11,7 +11,8 @@
  *            tau(k) is the number of divisors of k
  * Range:     u8 n <= 9, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- helper: Euclidean GCD for seq_t ---------------------------------- */
 static seq_t gcd_seq(seq_t a, seq_t b)
@@ -142,7 +144,7 @@ static void append_term(seq_t val)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap == 0 ? 256 : terms_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) exit(1);
         terms = tmp;
         terms_cap = new_cap;

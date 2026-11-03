@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   digit_frequencies
+ * Validated: standard, pass, 87 terms through n = 100 (2026-11-03)
+ * Helpers:   digit_frequencies, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/digit_frequencies.h"
+#include "../utils/mem.h"
 
 /* Helper to grow cache array when needed */
 static void grow_cache(size_t needed)
@@ -43,7 +46,7 @@ static void ensure_cache(idx_t n)
 
     /* Allocate new storage, copying old data */
     size_t new_size = (size_t)n;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) abort(); /* fatal error */
     cache = new_cache;
     cache_size = new_size;
@@ -55,7 +58,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)0;          /* undefined; return 0 */
     /* Initialize cache if empty */
     if (cache_size == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) abort();
         cache[0] = (seq_t)8;         /* a(1) = 8 */
         cache_size = 1;
@@ -75,7 +78,7 @@ seq_t a(idx_t n)
             }
 
             /* Append new term */
-            seq_t *new_cache = (seq_t *)realloc(cache, ((size_t)idx) * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, ((size_t)idx));
             if (!new_cache) abort();
             cache = new_cache;
             cache[ (size_t)(idx - 1) ] = sum;

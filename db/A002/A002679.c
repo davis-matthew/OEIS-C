@@ -10,7 +10,8 @@
  *            via the multiplicative order of 2 mod p
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 13, u64 n <= 22, u128 n <= 34,
  *            big any n
- * Helpers:   a002679_pm
+ * Validated: standard, pass, 37 terms through n = 97 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a002679_pm.h"
+#include "../utils/powmod_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -51,7 +52,7 @@ seq_t a(idx_t n)
                 v = 0;
                 q = p;
                 for (;;) {
-                    if (a002679_pm(2, d, q) != 1) break;
+                    if (powmod_u64(2, d, q) != 1) break;
                     v++;
                     if (q > ((uint64_t)1 << 62) / p) break;
                     q *= p;

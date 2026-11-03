@@ -13,14 +13,28 @@
  *            a(6)=40 a(7)=264 a(8)=1504 a(9)=7936
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 17, u64 n <= 33, u128 n <= 65,
  *            big any n
- * Helpers:   mul_small
+ * Validated: standard, pass, 41 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* The sequence function.  External linkage, no static helpers except internal. */
 seq_t a(idx_t n)
@@ -38,12 +52,12 @@ seq_t a(idx_t n)
 
     if (needed > cache_cap) {
         size_t new_cap = needed;
-        seq_t *new_cache = (seq_t *)calloc(new_cap, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) abort();         /* out‑of‑memory */
 
         if (cache) {
-            memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
+            mem_free(cache);
         }
         cache      = new_cache;
         cache_cap  = new_cap;

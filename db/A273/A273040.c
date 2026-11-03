@@ -8,14 +8,37 @@
  *            nondecreasing from most significant to least
  * Range:     u8 n <= 715, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digits_nondecreasing
+ * Validated: standard, pass, 101 terms through n = 9934 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/digits_nondecreasing.h"
+
+static bool digits_nondecreasing(seq_t n, seq_t k)
+{
+    seq_t temp = n;
+    seq_t digits[128];
+    size_t len = 0;
+
+    if (temp == 0) {
+        digits[0] = 0;
+        len = 1;
+    } else {
+        while (temp > 0) {
+            digits[len++] = temp % k;
+            temp = temp / k;
+        }
+    }
+
+    /* digits[len-1] is the most significant digit */
+    for (size_t i = len; i > 1; --i) {
+        if (digits[i - 1] > digits[i - 2]) return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

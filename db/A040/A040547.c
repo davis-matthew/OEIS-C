@@ -11,7 +11,8 @@
  *            square‑root continued fractions
  * Range:     u8 none, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   _grow_seq_t
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_grow_seq_t.h"
+#include "../utils/mem.h"
+
+/* Helper to grow an array of seq_t */
+static void _grow_seq_t(seq_t **arr, size_t *cap, size_t *used)
+{
+    if (*used == *cap) {
+        size_t newcap = (*cap == 0) ? 8 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *arr, newcap);
+        if (!tmp) abort();             /* allocation failed */
+        *arr = tmp;
+        *cap = newcap;
+    }
+}
 
 static bool _cf_sqrt571_initialized = false;
 static seq_t _a0;            /* floor(sqrt(571))                          */

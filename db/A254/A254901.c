@@ -13,13 +13,15 @@
  *            rows
  * Range:     u8 none, u16 n <= 4, u32 n <= 26, u64 n <= 72, u128 n <= 166,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- Precomputation tables ---------- */
 
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
     idx_t steps = n > 0 ? n - 1 : 0;
     for (idx_t step = 0; step < steps; ++step)
     {
-        memset(nxtp, 0, sizeof(nxt));
+        mem_set(nxtp, 0, sizeof(nxt));
 
         for (int t = 0; t < 4096; ++t)
         {

@@ -7,6 +7,7 @@
  * Formula:   a(n) = decimal integer obtained by concatenating the base‑n
  *            digits of 53
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

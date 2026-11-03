@@ -7,19 +7,21 @@
  * Formula:   a(n) = -2*n + 7^n - 5^n
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 39 terms through n = 979 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* compute 7^n and 5^n */
-    seq_t pow7 = big_pow((seq_t)7, (seq_t)n);
-    seq_t pow5 = big_pow((seq_t)5, (seq_t)n);
+    seq_t pow7 = ipow((seq_t)7, (seq_t)n);
+    seq_t pow5 = ipow((seq_t)5, (seq_t)n);
 
     /* a(n) = (7^n - 5^n) - 2*n */
     seq_t result = pow7 - pow5;

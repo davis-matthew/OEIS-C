@@ -14,13 +14,15 @@
  *            a(9)=1191449...
  * Range:     u8 none, u16 n <= 2, u32 n <= 5, u64 n <= 12, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cached_n = 0;
@@ -29,7 +31,7 @@ static size_t cache_capacity = 0;
 static void init_cache(void) {
     if (!cache) {
         cache_capacity = 20;
-        cache = (seq_t *)calloc(cache_capacity + 1, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity + 1);
         /* 0‑based index unused */
         cache[1]  = (seq_t)1888;
         cache[2]  = (seq_t)36384;
@@ -55,7 +57,7 @@ seq_t a(idx_t n) {
     if ((idx_t)cache_capacity < n) {
         size_t new_cap = cache_capacity ? cache_capacity : 64;
         while ((idx_t)new_cap < n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (!tmp) abort();
         /* zero the newly allocated space */
         size_t added = new_cap - cache_capacity;

@@ -9,12 +9,14 @@
  *            a(1)=a(2)=a(3)=a(4)=1
  * Range:     i8 n <= 105, i16 n <= 105, i32 n <= 105, i64 n <= 105,
  *            i128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array indexed from 1; cache[0] unused */
 static size_t cache_len = 0;         /* current allocated length (array size) */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     size_t required_len = (size_t)n + 1;
     if (cache_len < required_len) {
         /* Grow the cache to the needed size. */
-        seq_t *tmp = (seq_t *)realloc(cache, required_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, required_len);
         if (!tmp) abort();               /* allocation failure */
         cache = tmp;
         cache_len = required_len;

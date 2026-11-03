@@ -10,12 +10,14 @@
  *            increasingly
  * Range:     u8 n <= 15, u16 n <= 69, u32 n <= 298, u64 n <= 1241,
  *            u128 n <= 5065, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9584 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* We need the (n‑1)-th member of A003586. */
     idx_t m = n - 1;               /* number of terms needed after the initial 1 */
-    seq_t *arr = (seq_t *)malloc(sizeof(seq_t) * m);
+    seq_t *arr = mem_new(seq_t, m);
     if (!arr)
         return 0;                  /* out of memory: return 0 as a safe fallback */
 
@@ -41,6 +43,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[m - 1] * (seq_t)6;
-    free(arr);
+    mem_free(arr);
     return result;
 }

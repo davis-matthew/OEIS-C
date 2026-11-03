@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of distinct residues of x^n (mod 2*n+1), x=0..2*n
  * Range:     u8 n <= 132, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 90 terms through n = 9468 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
 
 /* Trial division factorisation of a small integer (≤20001). */
 static void factor_small(uint64_t m, uint64_t *pr, int *exp, size_t *cnt)
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         seq_t distinct = 0;
         for (idx_t x = 0; x < mod; ++x)
         {
-            seq_t r = mod_pow((seq_t)x, (uint64_t)n, (seq_t)mod);
+            seq_t r = powmod((seq_t)x, (uint64_t)n, (seq_t)mod);
             idx_t ri = (idx_t)r;          /* r is < mod */
             if (!visited[ri])
             {

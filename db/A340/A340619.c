@@ -8,8 +8,9 @@
  *            the unique integer > 0 with k·2^(k‑1) < n ≤ (k+1)·2^k let r = n
  *            - (k+2)·2^(k‑1) then a(n) = 2^k if r = 0 a(n) = 2^k + a(r) if r
  *            > 0 This recurrence yields the OEIS sequence A340619
- * Range:     u8 n <= 1024, u16 n <= 9731, u32 n <= 9731, u64 n <= 9731,
- *            u128 n <= 9731, big any n
+ * Range:     u8 n <= 1024, u16 n <= 11264, u32 n <= 11264, u64 n <= 11264,
+ *            u128 n <= 11264, big any n
+ * Validated: standard, pass, 87 terms through n = 9731 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

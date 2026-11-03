@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 0, i16 n <= 2, i32 n <= 4, i64 n <= 9, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 468 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(n) = 99*a(n-1) - 99*a(n-2) + a(n-3)   (derived from the generating function
    (-7*x^2 + 134*x + 1)/(x^3 - 99*x^2 + 99*x - 1) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation */
 static seq_t *cache      = NULL;
@@ -33,8 +35,7 @@ static void ensure_cache_size(idx_t n)
         idx_t new_cap = cache_cap ? cache_cap : 3;
         /* double until large enough */
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache,
-                          (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

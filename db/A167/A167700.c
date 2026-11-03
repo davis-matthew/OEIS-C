@@ -8,13 +8,15 @@
  *            (weights w_k = (2k+1)^2, each used at most once)
  * Range:     u8 n <= 299, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9490 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +26,8 @@ seq_t a(idx_t n)
 
     /* ensure dp array has size n+1 */
     if (dp_size < n + 1) {
-        if (dp) free(dp);
-        dp = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+        if (dp) mem_free(dp);
+        dp = mem_new(seq_t, (size_t)(n + 1));
         dp_size = n + 1;
     } else {
         /* reset values for indices 0..n */

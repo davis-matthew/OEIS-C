@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 25, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
    seq_t, which may be 8, 16, 32, 64 or an arbitrary‑precision class. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     }
 
     /* Allocate an array big enough for indices 0 … n */
-    seq_t *arr = (seq_t *)malloc(sizeof(seq_t) * ((size_t)n + 1));
+    seq_t *arr = mem_new(seq_t, ((size_t)n + 1));
     if (!arr) {
         /* In a full implementation you might handle allocation failure,
            but for the purposes of this problem we simply return 0. */
@@ -58,6 +60,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, bigomega, is_prime_small
+ * Validated: standard, pass, 89 terms through n = 9836 (2026-11-02)
+ * Helpers:   bigomega, ipow, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"      /* seq_t big_pow(seq_t base, seq_t exp); */
-#include "../utils/bigomega.h"    /* seq_t bigomega(idx_t n); */
-#include "../utils/is_prime_small.h" /* bool is_prime_small(seq_t n); */
+#include "../utils/bigomega.h"
+#include "../utils/ipow.h"
+#include "../utils/is_prime_seq.h"
 
 static uint64_t *prime_list = NULL;   /* primes <= current_limit, sorted */
 static size_t prime_count  = 0;
@@ -41,7 +42,7 @@ static void ensure_prime_sieve(idx_t limit)
         return;
 
     /* free previous list if any */
-    free((void*)prime_list);
+    free(prime_list);
 
     /* Simple sieve of Eratosthenes */
     size_t sz = (size_t)limit + 1;
@@ -81,7 +82,7 @@ static seq_t kth_root(seq_t n, idx_t k)
 
     while (low <= high) {
         seq_t mid = (low + high) / 2;
-        seq_t powmid = big_pow(mid, (seq_t)k);
+        seq_t powmid = ipow(mid, (seq_t)k);
 
         if (powmid <= n) {
             ans = mid;
@@ -124,5 +125,5 @@ seq_t a(idx_t n)
     }
     seq_t p = (seq_t)prime_list[best];
 
-    return big_pow(p, (seq_t)omega);
+    return ipow(p, (seq_t)omega);
 }

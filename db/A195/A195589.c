@@ -11,7 +11,8 @@
  *            on demand, working for any build where seq_t i...
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*-----------------  Möbius function up to a limit  -----------------*/
 static size_t _mu_cap = 0;
@@ -82,7 +84,7 @@ static void _ensure_a(idx_t limit)
     if (_a_cap <= (size_t)limit) {
         size_t new_cap = (_a_cap > 0) ? _a_cap : 16;
         while (new_cap <= (size_t)limit) new_cap <<= 1;
-        _a = (seq_t *)realloc(_a, new_cap * sizeof(seq_t));
+        _a = mem_resize(seq_t, _a, new_cap);
         if (!_a) abort();
         _a_cap = new_cap;
     }

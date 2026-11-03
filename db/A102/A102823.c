@@ -12,7 +12,8 @@
  *            generated iteratively
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* dynamic array holding the sequence and its current length */
 static seq_t *seq = NULL;
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 {
     /* initialise the sequence if it hasn't been built yet */
     if (seq == NULL) {
-        seq = (seq_t*)malloc(sizeof(seq_t));
+        seq = mem_new(seq_t, 1);
         if (!seq) return (seq_t)0;            /* allocation failure */
         seq[0] = (seq_t)0;                    /* a(0) = 0 */
         size   = 1;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
     /* grow the dynamic array to hold the new terms */
     idx_t new_size = n + 1;
-    seq_t *tmp = (seq_t*)realloc(seq, sizeof(seq_t) * new_size);
+    seq_t *tmp = mem_resize(seq_t, seq, new_size);
     if (!tmp) return (seq_t)0;                /* allocation failure */
     seq = tmp;
 

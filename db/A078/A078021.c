@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) - 2*a(n-2) - a(n-3); a(0)=1, a(1)=0, a(2)=-2
  * Range:     i8 n <= 10, i16 n <= 23, i32 n <= 46, i64 n <= 94, i128 n <= 189,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of computed terms */
 static size_t cache_len = 0;         /* allocated length of cache */
@@ -29,7 +31,7 @@ static void ensure_cache_size(idx_t n)
     while (new_len < needed)
         new_len <<= 1;
 
-    seq_t *p = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache, new_len);
     if (!p) abort();          /* out of memory */
     cache = p;
     cache_len = new_len;

@@ -13,13 +13,15 @@
  *            requested. It uses a prefix‑sum array so that a(n) can be * c...
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* --- Utility: floor(log2) for 64-bit unsigned integers --- */
 static inline idx_t floor_log2_idx(idx_t v)
@@ -42,8 +44,8 @@ static void ensure_cache(idx_t n)
 
     /* Allocate/resize arrays to hold indices 0..n (0 unused) */
     size_t new_sz = (size_t)(n + 1);
-    a_cache    = (seq_t *)realloc(a_cache,    new_sz * sizeof(seq_t));
-    pref_cache = (seq_t *)realloc(pref_cache, new_sz * sizeof(seq_t));
+    a_cache    = mem_resize(seq_t, a_cache, new_sz);
+    pref_cache = mem_resize(seq_t, pref_cache, new_sz);
 
     /* Compute missing entries */
     for (idx_t i = cache_size + 1; i <= n; ++i) {

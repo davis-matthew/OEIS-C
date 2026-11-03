@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = τ(n) – Π max(1, eᵢ) (eᵢ are the prime exponents of n)
- * Range:     u8 n <= 9965, u16 n <= 9965, u32 n <= 9965, u64 n <= 9965,
- *            u128 n <= 9965, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 116 terms through n = 9965 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 /* τ(n) = number of divisors of n */
 /* Π max(1, eᵢ) = number of powerful divisors of n (including 1) */
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* returns number of divisors d of n with d > 1 and at least one prime

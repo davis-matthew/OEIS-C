@@ -8,6 +8,7 @@
  *            a(2)=2, a(n) = (n+1)*a(n-1) - n*a(n-2) (n>=3)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 34,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 186 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

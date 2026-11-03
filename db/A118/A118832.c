@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 63, i16 n <= 78, i32 n <= 78, i64 n <= 78, i128 n <= 78,
  *            big any n
- * Helpers:   tz_count
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   ctz_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,8 @@
 */
 
 #include <stdlib.h>
-#include "../utils/tz_count.h"
+#include "../utils/ctz_idx.h"
+#include "../utils/mem.h"
 
 /*--- auxiliary -------------------------------------------------------*/
 
@@ -42,7 +44,7 @@ static void ensure_A(idx_t k)
     if (k == 0) {
         /* Need at least A[0] */
         if (!A) {
-            A = (seq_t *)malloc(sizeof(seq_t));
+            A = mem_new(seq_t, 1);
             if (!A) return;            /* allocation failed – leave it undefined */
             A[0] = (seq_t)0;
             A_size = 1;
@@ -53,7 +55,7 @@ static void ensure_A(idx_t k)
     /* First allocation for A[0] and A[1] */
     if (!A) {
         A_size = 2;                     /* indices 0 and 1 */
-        A = (seq_t *)malloc(A_size * sizeof(seq_t));
+        A = mem_new(seq_t, A_size);
         if (!A) return;
         A[0] = (seq_t)0;
         A[1] = (seq_t)1;
@@ -62,7 +64,7 @@ static void ensure_A(idx_t k)
     if (k < A_size) return;              /* already computed */
 
     /* Grow the array to include index k */
-    seq_t *tmp = (seq_t *)realloc(A, (k + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, A, (k + 1));
     if (!tmp) return;                    /* allocation failed – keep old data */
     A = tmp;
 
@@ -70,7 +72,7 @@ static void ensure_A(idx_t k)
     for (idx_t i = A_size; i <= k; ++i) {
         if ((i & 1ULL) == 0ULL) {             /* even */
             idx_t m = i >> 1;                 /* m = i/2 */
-            unsigned int shift = tz_count(m) + 2;
+            unsigned int shift = ctz_idx(m) + 2;
             seq_t diff = (((seq_t)1) << shift) - (seq_t)1;
             A[i] = A[i - 1] + diff;
         } else {                              /* odd */

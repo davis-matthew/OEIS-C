@@ -5,13 +5,15 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, easy
  * Formula:   a(n) = 2 * (-1)^n * Σ_{k=1..⌊√n⌋} C(n-1, n-k²) for n≥1, a(0)=1
- * Range:     i8 n <= 8, i16 n <= 15, i32 n <= 30, i64 n <= 34, i128 n <= 34,
+ * Range:     i8 n <= 9, i16 n <= 17, i32 n <= 33, i64 n <= 34, i128 n <= 34,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

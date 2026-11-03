@@ -9,6 +9,7 @@
  *            (2^k-1)(2^(k+1)-1) for k<n, and T(n,n)=2^n-1
  * Range:     u8 n <= 13, u16 n <= 43, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Compute 2^exp using multiplication.  Works for any seq_t

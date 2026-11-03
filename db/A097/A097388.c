@@ -10,12 +10,14 @@
  *            C11 and C++17
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 8, i64 n <= 14, i128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of previously computed terms */
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
 
     /* ensure cache[0] exists */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return 0;              /* allocation failure – unlikely */
         cache[0] = (seq_t)1;               /* a(0) = 1 */
         max_cached = 0;
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     /* extend cache to accommodate up to n */
     size_t new_size = (size_t)n + 1;
     if (new_size > (size_t)max_cached + 1) {
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) return 0;          /* allocation failure – unlikely */
         cache = new_cache;
     }

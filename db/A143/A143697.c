@@ -8,117 +8,41 @@
  * Formula:   a(n) = the smallest k² < n² such that n² – k² = p·q * where p
  *            and q are distinct odd primes (p < q). If no such k exists *
  *            a(n) is returned as 0 (this never happens for n ≥ 4)
- * Range:     u8 n <= 8, u16 n <= 102, u32 n <= 9491, u64 n <= 9491,
- *            u128 n <= 9491, big any n
- * Helpers:   floor_sqrt
+ * Range:     u8 n <= 42, u16 n <= 5130, u32 n <= 60000, u64 n <= 60000,
+ *            u128 n <= 60000, big any n
+ * Validated: standard, pass, 87 terms through n = 9491 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-/* Standard headers */
-#include <stdbool.h>
+/* A143697: the least square k^2 with n^2 - k^2 = p q for odd primes p < q
+ * (n >= 4). For k = 1, 2, ... of the other parity from n (so n^2 - k^2 is odd),
+ * the smallest prime factor p of n^2 - k^2 is found by trial division and
+ * q = (n^2 - k^2)/p tested with the exact 64-bit primality test. (The original
+ * capped its prime table at 20000.) */
+
 #include <stdint.h>
-#include <stdlib.h>
-/* Use the utility that provides an integer square‑root function */
-#include "../utils/floor_sqrt.h"
+#include "../utils/is_prime_u64.h"
 
-/* Globals -------------------------------------------------------------- */
-static uint32_t primes[20001];    /* primes up to 20000 (sufficient for n ≤ 10⁴) */
-static size_t   primes_cnt = 0;   /* number of primes stored */
-static idx_t    sieve_limit = 0;  /* highest value for which the sieve is built */
-
-/* -------------------------------------------------------------------- */
-/* Build a simple sieve of Eratosthenes up to at least 'limit'.        */
-/* -------------------------------------------------------------------- */
-static void build_primes_upto(idx_t limit)
+static uint64_t least_factor(uint64_t m)    /* m odd, m > 1 */
 {
-    if (limit <= sieve_limit)
-        return;                       /* nothing to do */
-
-    if (limit > 20000)
-        limit = 20000;                /* we only support primes up to 20000 */
-
-    bool *comp = (bool *)calloc((size_t)(limit + 1), sizeof(bool));
-    if (!comp)
-        return;                       /* allocation failed – leave empty */
-
-    primes_cnt = 0;
-
-    for (idx_t i = 2; i <= limit; ++i) {
-        if (!comp[i]) {
-            primes[primes_cnt++] = (uint32_t)i;
-
-            if (i * i <= limit) {
-                for (idx_t j = i * i; j <= limit; j += i)
-                    comp[j] = true;
-            }
-        }
-    }
-
-    sieve_limit = limit;
-    free(comp);
+    for (uint64_t d = 3; d * d <= m; d += 2)
+        if (m % d == 0) return d;
+    return m;
 }
 
-/* -------------------------------------------------------------------- */
-/* Test whether x is a prime.  Uses the primes[] array (sufficient for */
-/* x ≤ 1e8 because sqrt(x) ≤ 10⁴).                                       */
-/* -------------------------------------------------------------------- */
-static bool prime_test(seq_t x)
-{
-    if (x < 2)
-        return false;
-
-    seq_t sq = floor_sqrt(x);
-    for (size_t i = 0; i < primes_cnt && primes[i] <= sq; ++i) {
-        if (x % primes[i] == 0)
-            return false;
-    }
-    return true;
-}
-
-/* -------------------------------------------------------------------- */
-/* Main sequence function.                                                */
-/* -------------------------------------------------------------------- */
 seq_t a(idx_t n)
 {
-    if (n < 4)
-        return 0;                       /* undefined below the offset */
-
-    build_primes_upto(n);                /* primes up to n are needed */
-
-    seq_t n_sq = (seq_t)n * (seq_t)n;
-
-    for (idx_t k = 1; k < n; ++k) {
-        if ((n & 1) == (k & 1))
-            continue;                   /* parity must differ → diff odd */
-
-        seq_t k_sq = (seq_t)k * (seq_t)k;
-        seq_t diff = n_sq - k_sq;        /* n² – k², guaranteed odd */
-
-        /* Factorise diff as a product of two distinct odd primes.     */
-        seq_t sq_diff = floor_sqrt(diff);
-        seq_t p = 0;
-        for (size_t i = 0; i < primes_cnt && primes[i] <= sq_diff; ++i) {
-            seq_t prime = (seq_t)primes[i];
-            if (diff % prime == 0) {
-                p = prime;
-                break;
-            }
-        }
-
-        if (p == 0)
-            continue;                   /* diff itself is prime → reject */
-
-        seq_t q = diff / p;
-        if (q == p)
-            continue;                   /* not distinct */
-
-        if (!prime_test(q))
-            continue;                   /* q not prime */
-
-        /* All conditions satisfied; return k². */
-        return k_sq;
+    if (n < 4) return (seq_t)0;
+    const uint64_t N = (uint64_t)n;
+    for (uint64_t k = 1; k < N; ++k) {
+        if ((N & 1) == (k & 1)) continue;
+        uint64_t m = N * N - k * k;
+        uint64_t p = least_factor(m);
+        if (p == m) continue;                  /* m prime */
+        uint64_t q = m / p;
+        if (q != p && is_prime_u64(q)) return (seq_t)(k * k);
     }
-
-    return 0;   /* Theoretically unreachable for n ≥ 4. */
+    return (seq_t)0;
 }

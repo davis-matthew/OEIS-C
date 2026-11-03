@@ -12,7 +12,8 @@
  *            (the empty subset)
  * Range:     u8 n <= 62, u16 n <= 96, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 97 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* factorial cache */
 static seq_t *fact_cache = NULL;
@@ -30,8 +32,7 @@ static void ensure_factorials(idx_t r)
 {
     if (fact_cache_size <= r) {
         idx_t new_size = r + 1;
-        seq_t *new_cache = (seq_t *)realloc(fact_cache,
-                                            new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, fact_cache, new_size);
         if (new_cache == NULL) {
             /* allocation failed; abort */
             exit(EXIT_FAILURE);

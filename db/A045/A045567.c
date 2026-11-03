@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 3305, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow2_mod_100
+ * Validated: standard, pass, 59 terms through n = 7665 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,19 @@
    so that calls with arbitrary n are fast.  */
 
 #include <stdlib.h>
-#include "../utils/pow2_mod_100.h"
+#include "../utils/mem.h"
+
+/* Fast exponentiation: 2^exp mod 100 (exp is non‑negative).  */
+static seq_t pow2_mod_100(idx_t exp) {
+    seq_t result = 1;
+    seq_t base = 2;
+    while (exp) {
+        if (exp & 1U) result = (result * base) % 100;
+        base = (base * base) % 100;
+        exp >>= 1U;
+    }
+    return result;
+}
 
 static seq_t *cache = NULL;          /* array of found terms */
 static size_t cache_cap = 0;         /* allocated cache size */
@@ -40,7 +53,7 @@ static void grow_cache(size_t min_cap) {
     if (min_cap <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 128;
     if (new_cap < min_cap) new_cap = min_cap;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();              /* allocation failure */
     cache = tmp;
     cache_cap = new_cap;

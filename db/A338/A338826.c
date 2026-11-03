@@ -10,7 +10,8 @@
  *            of partitions into an odd number of prime parts (including 1)
  * Range:     i8 n <= 31, i16 n <= 55, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     idx_t N = n;
@@ -64,7 +66,7 @@ seq_t a(idx_t n) {
     }
 
     /* ---------- Coefficient array (coefficients of the generating function) ---------- */
-    seq_t *seq = (seq_t*)calloc((size_t)N + 1, sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, (size_t)N + 1);
     if (!seq) return 0;                  /* allocation failure fallback */
 
     seq[0] = 1;                          /* by convention 1/(1+1) contributes +1 */
@@ -85,6 +87,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = seq[N];
-    free(seq);
+    mem_free(seq);
     return result;
 }

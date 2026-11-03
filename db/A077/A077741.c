@@ -13,18 +13,34 @@
  *            sequence is indexed starting at 1
  * Range:     u8 n <= 11, u16 n <= 16, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   digit_len, digits, gcd, pow10, seq_mul
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   gcd, num_digits, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/pow10.h"
-#include "../utils/digits.h"
-#include "../utils/digit_len.h"
-#include "../utils/seq_mul.h"
+#include "../utils/num_digits.h"
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +49,7 @@ seq_t a(idx_t n)
     seq_t N = (seq_t)n;
 
     /* number of decimal digits of n */
-    int len_rev = digits((uint64_t)n);            /* same as digit_len(N) */
+    int len_rev = num_digits_idx((uint64_t)n);            /* same as digit_len(N) */
 
     /* rev(n) written with exactly len_rev digits */
     unsigned char revbuf[64] = {0};
@@ -60,7 +76,7 @@ seq_t a(idx_t n)
     for (;;) {
         /* suffix automatically satisfied by construction (m ≡ n mod 10^len_rev) */
 
-        int len_m = digit_len(m);
+        int len_m = num_digits(m);
         int rem_len = len_rev - zero_prefix;      /* digits of rev(n) that must come from m */
 
         if (len_m >= rem_len) {

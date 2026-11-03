@@ -12,13 +12,16 @@
  *            integer arithmetic on seq_t and idx_t, reducin...
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 8, u64 n <= 10, u128 n <= 11,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>                 /* malloc, realloc */
-#include "../utils/gcd.h"          /* seq_t gcd(seq_t a, seq_t b) */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *num = NULL;         /* numerator of f(n) */
 static seq_t *den = NULL;         /* denominator of f(n) */
@@ -35,8 +38,8 @@ static void ensure_capacity(idx_t n)
     while (newcap <= (size_t)n + 1)
         newcap <<= 1;                     /* grow until big enough */
 
-    num = (seq_t *)realloc(num, (newcap + 1) * sizeof(seq_t));
-    den = (seq_t *)realloc(den, (newcap + 1) * sizeof(seq_t));
+    num = mem_resize(seq_t, num, (newcap + 1));
+    den = mem_resize(seq_t, den, (newcap + 1));
     cap = newcap;
 }
 

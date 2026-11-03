@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 11, i64 n <= 19, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 409 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,11 +19,12 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate array for the Stirling numbers of the first kind (signed). */
-    seq_t *st = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *st = mem_new(seq_t, (size_t)(n + 1));
     if (!st) return 0;   /* unexpected out‑of‑memory */
 
     /* s(0,0) = 1, all other entries are initialized to 0 */
@@ -47,6 +49,6 @@ seq_t a(idx_t n)
         coeff *= neg_n;                   /* multiply by (-n) for next term */
     }
 
-    free(st);
+    mem_free(st);
     return sum;
 }

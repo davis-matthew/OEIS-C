@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ugcd_uint64
+ * Validated: standard, pass, 101 terms through n = 9821 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/ugcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 #define PRIME_MAX 200000U   /* sufficient for n up to ~10⁴ and intermediate sums */
 
@@ -80,7 +81,7 @@ seq_t a(idx_t n)
         factor_sum_cnt(p + q, &s, &c);
 
         /* Reduce the fraction s/c */
-        uint64_t g = ugcd_uint64(s, c);
+        uint64_t g = gcd_u64(s, c);
         if (g > 1) {
             s /= g;
             c /= g;

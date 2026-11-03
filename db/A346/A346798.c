@@ -10,17 +10,19 @@
  *            programming over all allowed part sizes up to n
  * Range:     u8 n <= 47, u16 n <= 114, u32 n <= 319, u64 n <= 1009,
  *            u128 n <= 3471, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9133 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate DP table for values 0..n */
-    seq_t *dp = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)n + 1);
     if (!dp) return 0;          /* allocation failed – unlikely */
 
     dp[0] = 1;                  /* one way to sum to 0 */
@@ -41,6 +43,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

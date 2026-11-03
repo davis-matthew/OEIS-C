@@ -9,6 +9,7 @@
  *            2^(k+1) + 1)
  * Range:     u8 n <= 33, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

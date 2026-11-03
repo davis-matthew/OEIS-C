@@ -12,7 +12,8 @@
  *            T(0,0)
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,11 +34,11 @@ seq_t a(idx_t n)
     idx_t k = n - r * (r + 1) / 2;
 
     /* Allocate arrays for Eulerian numbers of rows 0..r. */
-    seq_t *prev = (seq_t *)malloc((r + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (r + 1));
+    seq_t *curr = mem_new(seq_t, (r + 1));
     if (!prev || !curr) {
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return (seq_t)0;   /* Allocation failed – return a safe value. */
     }
 
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
 
     seq_t result = power * sum;
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

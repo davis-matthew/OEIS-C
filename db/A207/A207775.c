@@ -10,13 +10,20 @@
  *            triples 0 0 0 / 1 1 1)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 57,
  *            big any n
- * Helpers:   zero_seq_array
+ * Validated: standard, pass, 37 terms through n = 179 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/zero_seq_array.h"
+
+/* Helper to zero an array of seq_t */
+static void zero_seq_array(seq_t *arr, int n)
+{
+    seq_t zero = 0;
+    for (int i = 0; i < n; ++i) arr[i] = zero;
+}
 
 /* Types supplied by the build */
 typedef idx_t idx_t;

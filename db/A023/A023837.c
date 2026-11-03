@@ -8,12 +8,16 @@
  *            prime‐factorisation * of the binomial coefficient C(5n,n)
  * Range:     u8 n <= 678, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 95 terms through n = 9274 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Requires the helper that generates a list of primes up to a limit. */
+#include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/build_primes.h"
 #include <stdlib.h>
 #include <stddef.h>

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 20, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   reverse_decimal
+ * Validated: standard, pass, 54 terms through n = 9989 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
-#include "../utils/reverse_decimal.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 /* Computes the n-th term of OEIS A166400 (multiples of 23 whose digit reversal minus 1 is also a multiple of 23),
    using a simple brute‑force search with caching. */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Lazily initialise the cache. */
     if (!cache) {
         cache_cap = 64;                      /* initial capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         assert(cache);
     }
 
@@ -40,12 +42,12 @@ seq_t a(idx_t n)
         seq_t m = next_multiple;                 /* current multiple of 23 */
 
         /* rev(m) - 1 must also be a multiple of 23. */
-        seq_t revm = reverse_decimal(m);
+        seq_t revm = reverse_digits(m);
         if ((revm - 1) % 23 == 0) {
             /* Expand the cache if needed. */
             if (cache_size >= cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 assert(new_cache);
                 cache = new_cache;
                 cache_cap = new_cap;

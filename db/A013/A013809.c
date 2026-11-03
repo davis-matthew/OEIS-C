@@ -7,17 +7,20 @@
  * Formula:   a(n) = 18^(4*n + 3)
  * Range:     u8 none, u16 n <= 0, u32 n <= 1, u64 n <= 3, u128 n <= 6,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 26 terms through n = 99 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* Compute exponent 4*n + 3 as seq_t */
     seq_t exp = (seq_t)(4 * n + 3);
     /* Evaluate 18^exp using the generic big_pow routine */
-    return big_pow((seq_t)18, exp);
+    return ipow((seq_t)18, exp);
 }

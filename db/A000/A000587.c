@@ -10,13 +10,22 @@
  *            T(m+1,k+1) = T(m+1,k) + T(m,k), and a(n) = T(n,0)
  * Range:     i8 n <= 8, i16 n <= 12, i32 n <= 18, i64 n <= 29, i128 n <= 48,
  *            big any n
- * Helpers:   t_grow
+ * Validated: standard, pass, 44 terms through n = 584 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/t_grow.h"
+#include "../utils/mem.h"
+
+static seq_t *t_grow(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static seq_t *t_terms = NULL;   /* t_terms[i] = a(i), i <= t_m */
 static seq_t *t_row = NULL;     /* t_row[0..t_m] = row t_m of the array */

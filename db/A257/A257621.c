@@ -13,13 +13,15 @@
  *            * c of T is the usual triangular indexing: * r...
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 47, u64 n <= 110, u128 n <= 333,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1295 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ----- Integer square root for unsigned __int128 ----- */
 static idx_t
@@ -62,7 +64,7 @@ a(idx_t n)
     size_t cols = (size_t)mp + 1;
     size_t total = rows * cols;
 
-    seq_t *arr = (seq_t *)calloc(total, sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, total);
     if (!arr) return (seq_t)0;   /* allocation failure – unlikely */
 
     for (size_t i = 0; i < rows; ++i) {
@@ -88,6 +90,6 @@ a(idx_t n)
     /* --- Result is t(np, mp) --- */
     seq_t ans = arr[rows * cols - 1];   /* index np*cols + mp */
 
-    free(arr);
+    mem_free(arr);
     return ans;
 }

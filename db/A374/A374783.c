@@ -9,6 +9,7 @@
  *            unitary divisors of n
  * Range:     u8 n <= 29, u16 n <= 2705, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 78 terms through n = 8910 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

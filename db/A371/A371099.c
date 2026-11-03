@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 5, u16 n <= 1489, u32 n <= 8998, u64 n <= 8998,
- *            u128 n <= 8998, big any n
- * Helpers:   factor_u64, gcd, mul_pow
+ * Range:     u8 n <= 5, u16 n <= 1489, u32 n <= 11550, u64 n <= 11550,
+ *            u128 n <= 11550, big any n
+ * Validated: standard, pass, 108 terms through n = 8998 (2026-11-01)
+ * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,9 +31,16 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 #include "../utils/gcd.h"
-#include "../utils/factor_u64.h"   /* for factor_u64() */
-#include "../utils/mul_pow.h"
+
+/* multiply *res by base^exp (exp <= 32 is safe) */
+static void mul_pow(seq_t *res, seq_t base, int exp) {
+    for (int i = 0; i < exp; ++i)
+        *res *= base;
+}
 
 /* first 17 primes – enough for 36*n+9 with n up to 10 000 */
 static const idx_t PRIMES[] = {

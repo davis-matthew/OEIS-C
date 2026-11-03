@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   has_adjacent_2_5
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,32 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adjacent_2_5.h"
+#include "../utils/mem.h"
+
+/* Returns true if decimal value x, written in base‑7, contains
+ * the adjacent pair 2 and 5 in either order. */
+static bool has_adjacent_2_5(seq_t x)
+{
+    if (x == (seq_t)0)
+        return false;
+
+    seq_t t = x;
+    unsigned char digits[128];
+    int len = 0;
+
+    while (t > (seq_t)0) {
+        digits[len++] = (unsigned char)(t % (seq_t)7);
+        t /= (seq_t)7;
+    }
+
+    for (int i = 1; i < len; ++i) {
+        unsigned char lo = digits[i];
+        unsigned char hi = digits[i - 1];
+        if ((lo == 2 && hi == 5) || (lo == 5 && hi == 2))
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -44,7 +70,7 @@ seq_t a(idx_t n)
             /* store the term */
             if (cache_len == cache_cap) {
                 size_t newcap = cache_cap ? cache_cap * 2U : 16U;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp)
                     abort();          /* out of memory */
                 cache = tmp;

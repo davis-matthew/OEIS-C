@@ -8,12 +8,14 @@
  * Formula:   a(n) = (-1)^{⌊n/2⌋} * ∏_{i=1}^{2n-1} binomial(i,⌊i/2⌋)
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 4, i64 n <= 6, i128 n <= 9,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -22,8 +24,8 @@ seq_t a(idx_t n)
 
     /* Compute the product for i = 1 .. 2n-1 in pairs */
     for (idx_t k = 1; k < n; ++k) {
-        prod *= binom(2 * k,     k);   /* i = 2k   */
-        prod *= binom(2 * k + 1, k);   /* i = 2k+1 */
+        prod *= binomial(2 * k,     k);   /* i = 2k   */
+        prod *= binomial(2 * k + 1, k);   /* i = 2k+1 */
     }
 
     /* Sign: (-1)^{floor(n/2)} */

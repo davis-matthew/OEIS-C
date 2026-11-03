@@ -11,6 +11,7 @@
  *            intermediates, each s(k) is kept as Q_k*n + R_k w...
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 26, u64 n <= 50, u128 n <= 96,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 952 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

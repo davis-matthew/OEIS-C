@@ -7,7 +7,8 @@
  * Formula:   computed by intersection of totients and cototients (search)
  * Range:     u8 n <= 78, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 8404 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The function returns the nth term of OEIS sequence A058825. */
 seq_t a(idx_t n)
@@ -66,9 +68,9 @@ seq_t a(idx_t n)
 
         if (count >= (size_t)n) {               /* enough terms: build vector */
             /* free old vector if present */
-            if (vec) free(vec);
+            if (vec) mem_free(vec);
 
-            vec = (seq_t*)malloc(count * sizeof(seq_t));
+            vec = mem_new(seq_t, count);
             if (!vec) {
                 free(phi); free(is_tot); free(is_cot);
                 return (seq_t)0;                 /* allocation failed */

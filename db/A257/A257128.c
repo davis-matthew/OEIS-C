@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 55, u32 n <= 1023, u64 n <= 1023,
  *            u128 n <= 1023, big any n
- * Helpers:   cmp_seq_t
+ * Validated: full, pass, 1023 terms through n = 1023 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/cmp_seq_t.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 struct term { seq_t v, k; };
 
@@ -82,7 +94,7 @@ seq_t a(idx_t n)
             ++idx;
         }
         /* Sort by v */
-        qsort(terms, 1023, sizeof terms[0], cmp_terms);
+        mem_qsort(terms, 1023, sizeof terms[0], cmp_terms);
         initialized = true;
     }
     if (n == 0 || n > 1023) return 0;

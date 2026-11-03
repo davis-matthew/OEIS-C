@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_arr = NULL;      /* sequence values, 1‑based */
 static size_t seq_cap = 0;
@@ -46,7 +48,7 @@ static void ensure_seq_capacity(size_t needed)
     if (seq_cap >= needed) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 256;
     while (new_cap < needed) new_cap <<= 1;
-    seq_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, new_cap);
     seq_cap = new_cap;
 }
 
@@ -69,7 +71,7 @@ static void init_sequence(void)
     if (seq_len > 0) return;          /* already initialized */
 
     seq_cap = 256;
-    seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_arr = mem_new(seq_t, seq_cap);
 
     used_cap = 256;
     used_arr = (bool *)malloc(used_cap * sizeof(bool));

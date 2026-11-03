@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external types ------------------------------------------------------------- */
 extern seq_t a(idx_t n);
@@ -47,7 +49,7 @@ a(idx_t n)
         size_t cur_len = len_prev + 1;   /* since len_prev == last row index +1 */
 
         /* allocate memory for the current row */
-        seq_t *cur_row = (seq_t *)malloc(cur_len * sizeof(seq_t));
+        seq_t *cur_row = mem_new(seq_t, cur_len);
         if (!cur_row) abort();         /* allocation failure */
 
         /* first element: T(row,0) = 2^row */
@@ -73,7 +75,7 @@ a(idx_t n)
 
         /* append current row to cache */
         size_t new_len = cache_len + cur_len;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) abort();       /* allocation failure */
         cache = new_cache;
         for (size_t i = 0; i < cur_len; ++i) {
@@ -82,7 +84,7 @@ a(idx_t n)
         cache_len = new_len;
 
         /* update row pointers for next iteration */
-        free(row_prev2);
+        mem_free(row_prev2);
         row_prev2 = row_prev;
         len_prev2 = len_prev;
 

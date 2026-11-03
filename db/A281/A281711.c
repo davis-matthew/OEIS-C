@@ -13,12 +13,14 @@
  *            a(7)=1625, a(8)=4234, a(9)=11017, a(10)=28652, a(11)=74521...
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 22, u64 n <= 45, u128 n <= 92,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* pre‑computed values for indices 1…16 */
 static const seq_t init_vals[16] = {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache_sz == 0) {
         cache_sz = 16;
-        cache = (seq_t *)malloc(cache_sz * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_sz);
         for (idx_t i = 0; i < 16; ++i)
             cache[i] = init_vals[i];
     }
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     /* resize cache to hold up to n terms */
     if (n > cache_sz) {
         cache_sz = n;
-        cache = (seq_t *)realloc(cache, cache_sz * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_sz);
     }
 
     /* compute successive terms from a(17) up to a(n) */

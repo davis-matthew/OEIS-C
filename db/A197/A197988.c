@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
      a(n) = a(n-1) + 2*a(n-2) - a(n-3) - 2*a(n-4) - a(n-5) + 2*a(n-6) + a(n-7) - a(n-8)
    (for n > 8; the first eight terms are given explicitly). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[9] = {
     0,                       /* a(0) unused */
@@ -43,14 +45,14 @@ seq_t a(idx_t n)
 
     /* Ensure cache has space up to n */
     if (!cache) {
-        cache = (seq_t*)calloc(9, sizeof(seq_t));      /* indices 0..8, 0 unused */
+        cache = mem_new(seq_t, 9);      /* indices 0..8, 0 unused */
         if (!cache) return 0;                         /* allocation failure */
         for (idx_t i = 1; i <= 8; ++i)
             cache[i] = init[i];
         cache_len = 8;
     }
     if (n > cache_len) {
-        seq_t *new_cache = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) return 0;                     /* allocation failure */
         cache = new_cache;
         for (idx_t i = cache_len + 1; i <= n; ++i) {

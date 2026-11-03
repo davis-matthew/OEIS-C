@@ -11,7 +11,8 @@
  *            a(4) = 0. Index offset is 2
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----------  Static state  ---------- */
 static bool        _initialized = false;
@@ -55,8 +57,8 @@ static bool _sieve_to_limit(size_t new_limit)
     /* Compute prefix counts and build value lists. */
     size_t prime_cap = new_limit / 10 + 10;          /* rough initial capacity */
     size_t comp_cap  = new_limit / 2  + 10;          /* rough initial capacity */
-    seq_t *new_prime_vals = (seq_t*)malloc(prime_cap * sizeof(seq_t));
-    seq_t *new_comp_vals  = (seq_t*)malloc(comp_cap  * sizeof(seq_t));
+    seq_t *new_prime_vals = mem_new(seq_t, prime_cap);
+    seq_t *new_comp_vals  = mem_new(seq_t, comp_cap);
     if (!new_prime_vals || !new_comp_vals) {
         free(new_is_prime); free(new_prime_counts); free(new_comp_counts);
         return false;
@@ -85,7 +87,7 @@ static bool _sieve_to_limit(size_t new_limit)
         if (new_is_prime[x]) {
             if (prime_cnt == prime_cap) {
                 prime_cap *= 2;
-                seq_t *tmp = (seq_t*)realloc(new_prime_vals, prime_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, new_prime_vals, prime_cap);
                 if (!tmp) return false;
                 new_prime_vals = tmp;
             }
@@ -94,7 +96,7 @@ static bool _sieve_to_limit(size_t new_limit)
             if (x >= 4) {
                 if (comp_cnt == comp_cap) {
                     comp_cap *= 2;
-                    seq_t *tmp = (seq_t*)realloc(new_comp_vals, comp_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, new_comp_vals, comp_cap);
                     if (!tmp) return false;
                     new_comp_vals = tmp;
                 }
@@ -107,8 +109,8 @@ static bool _sieve_to_limit(size_t new_limit)
     free(_is_prime);
     free(_prime_counts);
     free(_comp_counts);
-    free(_prime_vals);
-    free(_comp_vals);
+    mem_free(_prime_vals);
+    mem_free(_comp_vals);
 
     _is_prime      = new_is_prime;
     _prime_counts  = new_prime_counts;

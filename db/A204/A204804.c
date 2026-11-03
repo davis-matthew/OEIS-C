@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,9 @@
 */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* --- b(n) cache -------------------------------------------------------- */
 static seq_t *b_cache   = NULL; /* index 1… will store b(n) */
@@ -39,7 +42,7 @@ static void ensure_b_capacity(idx_t needed)
     size_t new_cap = needed + 1;                /* capacity for indices 0…needed */
     if (new_cap < b_cap * 2)
         new_cap = b_cap * 2;
-    seq_t *tmp = (seq_t *)realloc(b_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, b_cache, new_cap);
     if (!tmp) abort();
     b_cache = tmp;
     b_cap   = new_cap;

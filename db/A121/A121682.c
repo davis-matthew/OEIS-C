@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    T(1,1)=1.  The sequence a(n) is read row‑wise from this
    triangle, with offset 1 (a(1) is the first term). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n < 1) return 0;          /* undefined for n<1, but not needed */
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
 
     /* Initialize with the first row */
     row_len = 1;
-    row = (seq_t*)malloc(row_len * sizeof(seq_t));
+    row = mem_new(seq_t, row_len);
     if (!row) return 0;           /* allocation failure: shouldn't happen */
     row[0] = (seq_t)1;
     count = 1;                    /* one term generated */
@@ -41,8 +43,8 @@ seq_t a(idx_t n) {
         ++i;                      /* move to next row i */
         size_t new_len = (size_t)i;
 
-        seq_t *new_row = (seq_t*)malloc(new_len * sizeof(seq_t));
-        if (!new_row) { free(row); return 0; }
+        seq_t *new_row = mem_new(seq_t, new_len);
+        if (!new_row) { mem_free(row); return 0; }
 
         /* Compute first (i-1) entries: T(i,j) = (T(i-1,j)+i)*i */
         seq_t inc = (seq_t)i;
@@ -52,7 +54,7 @@ seq_t a(idx_t n) {
         /* Diagonal entry T(i,i) = i*i */
         new_row[new_len - 1] = inc * inc;
 
-        free(row);                /* discard previous row */
+        mem_free(row);                /* discard previous row */
         row = new_row;
         row_len = new_len;
         count += (idx_t)row_len;  /* update term counter */
@@ -60,11 +62,11 @@ seq_t a(idx_t n) {
         if (count >= n) {         /* term found in this row */
             idx_t offset = n - (count - (idx_t)row_len); /* 1‑based within row */
             seq_t result = row[offset - 1];
-            free(row);
+            mem_free(row);
             return result;
         }
     }
 
-    free(row);
+    mem_free(row);
     return 0;                       /* should never reach here */
 }

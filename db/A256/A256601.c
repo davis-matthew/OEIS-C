@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 1584, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has1and9
+ * Validated: standard, pass, 61 terms through n = 8727 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,26 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/has1and9.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether a decimal number has 1 as its smallest digit
+   and 9 as its largest digit. */
+static bool has1and9(seq_t x)
+{
+    if (x == 0) return false;  /* n is always positive */
+
+    int min = 9, max = 1;
+    seq_t t = x;
+    const seq_t TEN = 10;
+
+    while (t > 0) {
+        unsigned d = (unsigned)(t % TEN);  /* lowest decimal digit */
+        if (d < min) min = d;
+        if (d > max) max = d;
+        t = t / TEN;
+    }
+    return (min == 1 && max == 9);
+}
 
 /* Return the n-th term of the sequence (1‑based index). */
 seq_t a(idx_t n)
@@ -41,7 +61,7 @@ seq_t a(idx_t n)
             /* Ensure sufficient capacity. */
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
-                seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_new(seq_t, new_cap);
                 if (!new_cache) {
                     /* Allocation failed – abort. */
                     exit(EXIT_FAILURE);
@@ -50,7 +70,7 @@ seq_t a(idx_t n)
                 for (size_t i = 0; i < cache_len; ++i)
                     new_cache[i] = cache[i];
                 /* Free old cache if it exists. */
-                if (cache) free(cache);
+                if (cache) mem_free(cache);
                 cache = new_cache;
                 cache_cap = new_cap;
             }

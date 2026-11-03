@@ -9,7 +9,8 @@
  *            (for k >= 1)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static idx_t    capacity   = 1;   /* size of allocated tables (>=1)          */
 static int     *mu_tbl    = NULL; /* Möbius values for 1..capacity-1        */
@@ -31,7 +33,7 @@ static void extend_tables(idx_t n)
     /* Reallocate tables to hold 0..n inclusive */
     size_t sz = (size_t)n + 1;
     mu_tbl   = (int*)            realloc(mu_tbl,   sz * sizeof(int));
-    pow2_tbl = (seq_t*)          realloc(pow2_tbl, sz * sizeof(seq_t));
+    pow2_tbl = mem_resize(seq_t, pow2_tbl, sz);
     primes   = (int*)            realloc(primes,   sz * sizeof(int));
 
     bool *is_comp = (bool*)calloc(sz, sizeof(bool));

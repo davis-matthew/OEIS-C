@@ -8,7 +8,8 @@
  * Formula:   a(n) = 9*A002559(n)^2 - 4
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 23, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*-----  data structures  -----*/
 typedef struct {
@@ -39,7 +41,7 @@ static void ensure_visited_cap(size_t need)
     if (visited_cap < need) {
         size_t newcap = visited_cap ? visited_cap << 1 : 64;
         if (newcap < need) newcap = need;
-        Triple *tmp = (Triple *)realloc(visited, newcap * sizeof(Triple));
+        Triple *tmp = mem_resize(Triple, visited, newcap);
         visited = tmp;
         visited_cap = newcap;
     }
@@ -51,7 +53,7 @@ static void ensure_markoff_cap(size_t need)
     if (markoff_cap < need) {
         size_t newcap = markoff_cap ? markoff_cap << 1 : 64;
         if (newcap < need) newcap = need;
-        seq_t *tmp = (seq_t *)realloc(markoff, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, markoff, newcap);
         markoff = tmp;
         markoff_cap = newcap;
     }
@@ -141,11 +143,11 @@ seq_t a(idx_t n)
     /* initialise data structures on first call */
     if (!visited) {
         visited_cap = 64; visited_len = 0;
-        visited = (Triple *)malloc(visited_cap * sizeof(Triple));
+        visited = mem_new(Triple, visited_cap);
         heap_cap = 64; heap_len = 0;
         heap = (size_t *)malloc(heap_cap * sizeof(size_t));
         markoff_cap = 64; markoff_len = 0;
-        markoff = (seq_t *)malloc(markoff_cap * sizeof(seq_t));
+        markoff = mem_new(seq_t, markoff_cap);
 
         /* root triple (1,1,1) */
         Triple root = { (seq_t)1, (seq_t)1, (seq_t)1 };

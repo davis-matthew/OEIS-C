@@ -7,12 +7,49 @@
  * Formula:   a(n) = 5*a(n-1) + 2*a(n-2); a(0) = a(1) = 1
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 27, u128 n <= 53,
  *            big any n
- * Helpers:   ensure_capacity
+ * Validated: standard, pass, 38 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/ensure_capacity.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 seq_t a(idx_t n)
 {
@@ -22,7 +59,7 @@ seq_t a(idx_t n)
 
     /* Initialize the first two terms */
     if (cache_filled == 0) {
-        ensure_capacity(2, &cache_capacity, (void **)&cache, sizeof(seq_t));
+        ensure_capacity(2, &cache_capacity, OEISC_VPP(&cache), sizeof(seq_t));
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)1;
         cache_filled = 2;
@@ -33,7 +70,7 @@ seq_t a(idx_t n)
 
     /* Ensure we have enough allocated space */
     if (target + 1 > cache_capacity) {
-        ensure_capacity(target + 1, &cache_capacity, (void **)&cache, sizeof(seq_t));
+        ensure_capacity(target + 1, &cache_capacity, OEISC_VPP(&cache), sizeof(seq_t));
     }
 
     /* Compute any missing terms up to the target */

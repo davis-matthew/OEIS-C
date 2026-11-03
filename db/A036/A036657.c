@@ -11,13 +11,15 @@
  *            and * exactly two children of the root
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 30, u64 n <= 56, u128 n <= 106,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 2424 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *t_cache   = NULL;   /* array holding t_n values */
 static size_t t_cap     = 0;      /* allocated capacity (in number of entries) */
@@ -30,12 +32,12 @@ static void ensure_computed(idx_t n)
     /* --- Make sure we have enough storage --- */
     if (t_cap == 0) {
         t_cap = (size_t)n + 1;
-        t_cache = (seq_t *)calloc(t_cap, sizeof(seq_t));
+        t_cache = mem_new(seq_t, t_cap);
         if (!t_cache) abort();
     } else if (t_cap <= (size_t)n) {
         size_t new_cap = t_cap * 2;
         if (new_cap <= (size_t)n) new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(t_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, t_cache, new_cap);
         if (!tmp) abort();
         t_cache = tmp;
         t_cap = new_cap;

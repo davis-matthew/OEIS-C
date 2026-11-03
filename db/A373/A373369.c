@@ -8,8 +8,9 @@
  * Formula:   a(n) = gcd(A001414(n), A059975(n)) where A001414(n) = Σ k·p
  *            (over prime powers p^k || n) A059975(n) = Σ k·(p-1) (over prime
  *            powers p^k || n)
- * Range:     u8 n <= 9908, u16 n <= 9908, u32 n <= 9908, u64 n <= 9908,
- *            u128 n <= 9908, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9908 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

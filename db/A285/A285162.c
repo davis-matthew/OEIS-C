@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    of g()
    We cache the generated word up to the required index. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -29,7 +31,7 @@ static void ensure_terms(idx_t target_idx)
 {
     size_t target = (size_t)target_idx;
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = 1;
         cache_len = 1;
     }
@@ -39,7 +41,7 @@ static void ensure_terms(idx_t target_idx)
         for (size_t i = 0; i < cache_len; ++i)
             new_len += (cache[i] == 0 ? 6 : 12);
 
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache) return; /* allocation failed – leave cache unchanged */
 
         /* fill new_cache with expansions */
@@ -68,7 +70,7 @@ static void ensure_terms(idx_t target_idx)
                 new_cache[pos++] = 1;
             }
         }
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len = new_len;
     }

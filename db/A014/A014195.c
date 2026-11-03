@@ -9,14 +9,27 @@
  *            Φ_186(x). The sequence is periodic with period 186
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   get_proper_divisors
+ * Validated: standard, pass, 97 terms through n = 953 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/get_proper_divisors.h"
+
+/* ------------------------------------------------------------------ */
+static void get_proper_divisors(idx_t n, idx_t *out, int *cnt) {
+    int g = 0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            if (d != n) out[g++] = d;
+            idx_t e = n / d;
+            if (e != d && e != n) out[g++] = e;
+        }
+    }
+    *cnt = g;
+}
 
 #define PERIOD 186
 #define MAX_DEG 200  /* safe upper bound for polynomial degrees */

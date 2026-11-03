@@ -9,12 +9,14 @@
  *            323, a(6) = 1021
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 38, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* array holding computed terms          */
 static size_t cap   = 0;          /* allocated capacity (number of slots)  */
@@ -25,7 +27,7 @@ static void ensure_capacity(size_t need)
     if (cap <= need) {
         size_t new_cap = cap ? cap : 1;
         while (new_cap <= need) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();          /* allocation failure */
         /* zero new slots to avoid garbage */
         for (size_t i = cap; i < new_cap; ++i) tmp[i] = (seq_t)0;

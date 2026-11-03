@@ -12,19 +12,21 @@
  *            of n minus 1)
  * Range:     u8 n <= 63, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   bitlen_seq_t, pow2
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   bit_length, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/bitlen_seq_t.h"  /* bitlen_seq_t(seq_t)          */
-#include "../utils/pow2.h"          /* pow2(idx_t exp)              */
+#include <stdbool.h>
+#include "../utils/bit_length.h"
+#include "../utils/pow2.h"
 
 static seq_t b_of_seq(seq_t n)
 {
     /* In the OEIS definition f(n) is the binary length minus 1. */
-    unsigned int f = bitlen_seq_t(n);
+    unsigned int f = bit_length(n);
     if (f == 0)            /* n == 0 would not occur for the sequence      */
         return n;          /* but guard against it for complete              */
     f -= 1;                 /* now f = floor(log2(n))                         */

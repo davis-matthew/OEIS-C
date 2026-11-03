@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 14, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   my_divisor_count
+ * Validated: full, pass, 14 terms through n = 14 (2026-11-02)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/my_divisor_count.h"
+#include "../utils/num_divisors.h"
 
 /* Main sequence routine */
 seq_t a(idx_t n)
@@ -32,7 +33,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         for (idx_t k = 1; term_count < 14; ++k) {
-            uint64_t tau = my_divisor_count((uint64_t)k);
+            uint64_t tau = num_divisors((uint64_t)k);
             seq_t lower = ((seq_t)tau) * ((seq_t)tau + 1) / 2;
 
             if ((seq_t)k < lower) {

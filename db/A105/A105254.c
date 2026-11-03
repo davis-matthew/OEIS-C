@@ -7,11 +7,13 @@
  * Formula:   a(n) = binomial(n+7,n) * binomial(n+11,n)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 44, u128 n <= 581,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 984 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

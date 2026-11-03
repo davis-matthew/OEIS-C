@@ -13,7 +13,8 @@
  *            cannot overflow
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 13, i64 n <= 25, i128 n <= 49,
  *            big any n
- * Helpers:   a2428_add, a2428_divq, a2428_mod, a2428_mul
+ * Validated: standard, pass, 38 terms through n = 946 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,50 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a2428_add.h"
-#include "../utils/a2428_divq.h"
-#include "../utils/a2428_mod.h"
-#include "../utils/a2428_mul.h"
+
+static void a2428_add(uint32_t *a, const uint32_t *b, size_t len)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        c += (uint64_t)a[i] + b[i];
+        a[i] = (uint32_t)c;
+        c >>= 32;
+    }
+}
+
+static uint32_t a2428_divq(uint32_t *q, const uint32_t *x, size_t len, uint32_t d)
+{
+    uint64_t r = 0;
+    size_t i;
+    for (i = len; i-- > 0;) {
+        r = (r << 32) | x[i];
+        q[i] = (uint32_t)(r / d);
+        r %= d;
+    }
+    return (uint32_t)r;
+}
+
+static uint32_t a2428_mod(const uint32_t *x, size_t len, uint32_t d)
+{
+    uint64_t r = 0;
+    size_t i;
+    for (i = len; i-- > 0;) {
+        r = ((r << 32) | x[i]) % d;
+    }
+    return (uint32_t)r;
+}
+
+static void a2428_mul(uint32_t *x, size_t len, uint32_t m)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        c += (uint64_t)x[i] * m;
+        x[i] = (uint32_t)c;
+        c >>= 32;
+    }
+}
 
 seq_t a(idx_t n)
 {

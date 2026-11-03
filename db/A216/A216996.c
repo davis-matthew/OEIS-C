@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 1894, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 71 terms through n = 9701 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build. */
 seq_t a(idx_t n)
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         while (new_cap < n) {
             new_cap <<= 1;
         }
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             abort();      /* allocation failure */
         }
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         if ((digit_sum(prod) % 7) == 0) {
 #ifdef __cplusplus
             /* Construct the element in place when compiling C++. */
-            ::new (cache + cache_len) seq_t(k);
+            *(cache + cache_len) = (seq_t)(k);
 #else
             cache[cache_len] = k;
 #endif

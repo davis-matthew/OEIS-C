@@ -8,7 +8,8 @@
  *            integer k
  * Range:     u8 n <= 24, u16 n <= 369, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   gcd64
+ * Validated: standard, pass, 81 terms through n = 2331 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
 
 /* ---------- 64‑bit arithmetics utilities ---------- */
 
@@ -75,7 +76,7 @@ static uint64_t pollard_rho(uint64_t n)
             y = (mulmod64(y, y, n) + c) % n;
             y = (mulmod64(y, y, n) + c) % n;
             uint64_t diff = x > y ? x - y : y - x;
-            d = gcd64(diff, n);
+            d = gcd_u64(diff, n);
         }
         if (d != n) return d;
         ++c;   /* try a different constant if failure */

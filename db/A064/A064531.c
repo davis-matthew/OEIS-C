@@ -11,6 +11,7 @@
  *            of n is cut out of a paper, assuming that 4 has no hole
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

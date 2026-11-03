@@ -11,7 +11,8 @@
  *            factorisation, regardless of which primes occur
  * Range:     u8 n <= 11, u16 n <= 179, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   _factor_u64, combine_exponents
+ * Validated: standard, pass, 85 terms through n = 2726 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,71 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/_factor_u64.h" /* for _factor_u64 */
-#include "../utils/combine_exponents.h"
+
+/* ---------- Trial division factorisation ----------------------------------- */
+static void _factor_u64(uint64_t n, uint64_t *pr, uint64_t *exp, size_t *cnt)
+{
+    *cnt = 0;
+    if (n < 2) return;
+    /* factor 2 separately */
+    if ((n & 1ULL) == 0) {
+        pr[*cnt] = 2ULL;
+        exp[*cnt] = 0;
+        while ((n & 1ULL) == 0) {
+            n >>= 1;
+            exp[*cnt] += 1;
+        }
+        (*cnt)++;
+    }
+    /* odd primes */
+    for (uint64_t d = 3ULL; d * d <= n; d += 2ULL) {
+        if (n % d == 0) {
+            pr[*cnt] = d;
+            exp[*cnt] = 0;
+            while (n % d == 0) {
+                n /= d;
+                exp[*cnt] += 1;
+            }
+            (*cnt)++;
+        }
+    }
+    if (n > 1) {
+        pr[*cnt] = n;
+        exp[*cnt] = 1;
+        (*cnt)++;
+    }
+}
+
+/* combine exponents of n and k into val[], returning number of exponents.
+   n's and k's primes and exponents are given. */
+static size_t combine_exponents(const uint64_t pr_n[],
+                                const uint64_t exp_n[], size_t cn,
+                                const uint64_t pr_k[],
+                                const uint64_t exp_k[], size_t ck,
+                                uint64_t val[])
+{
+    size_t cnt = 0;
+    /* copy n's exponents */
+    for (size_t i = 0; i < cn; ++i)
+        val[cnt++] = exp_n[i];
+
+    /* add k's exponents, merging with existing primes */
+    for (size_t i = 0; i < ck; ++i) {
+        uint64_t p = pr_k[i];
+        bool merged = false;
+        /* search if prime appears among n's primes */
+        for (size_t j = 0; j < cn; ++j) {
+            if (pr_n[j] == p) {
+                val[j] += exp_k[i];
+                merged = true;
+                break;
+            }
+        }
+        if (!merged)
+            val[cnt++] = exp_k[i];
+    }
+    return cnt;
+}
 
 static int cmp_uint64(const void *a, const void *b)
 {

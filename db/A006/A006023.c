@@ -11,7 +11,8 @@
  *            Expanding (1-x^i)^{j_i} splits (j) into s |-...
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   div_small
+ * Validated: standard, pass, 30 terms through n = 47 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/div_small.h"
+
+static void div_small(uint32_t *x, size_t len, uint32_t dv) {
+    uint64_t r = 0;
+    size_t i;
+    for (i = len; i-- > 0;) {
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / dv);
+        r = cur % dv;
+    }
+}
 
 static uint32_t *Pacc, *Qacc, *Wt, *Fac;
 static size_t Lacc, FL;

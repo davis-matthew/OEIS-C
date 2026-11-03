@@ -13,14 +13,18 @@
  *            (0<k<n) where C(a,b) is the binomial coefficient
  * Range:     i8 n <= 37, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"   /* seq_t binom(idx_t n, idx_t k); */
-#include "../utils/pow2.h"    /* seq_t pow2(idx_t exp); */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t **row_table = NULL;   /* row_table[i] points to the array of T(i, *) */
 static idx_t max_cached = (idx_t)-1;  /* highest row that has been cached */
@@ -40,7 +44,7 @@ static void build_rows(idx_t rmax)
     }
 
     for (idx_t i = max_cached + 1; i <= rmax; ++i) {
-        row_table[i] = (seq_t *)malloc((size_t)(i + 1) * sizeof(seq_t));
+        row_table[i] = mem_new(seq_t, (size_t)(i + 1));
 
         /* Berie boundary values. */
         row_table[i][0] = (seq_t)i;                   /* T(i,0) = i */
@@ -50,7 +54,7 @@ static void build_rows(idx_t rmax)
         /* Interior values via the recurrence. */
         for (idx_t k = 1; k < i; ++k) {
             row_table[i][k] =
-                row_table[i-1][k] + row_table[i-1][k-1] + binom(i-1, k);
+                row_table[i-1][k] + row_table[i-1][k-1] + binomial(i-1, k);
         }
     }
     max_cached = rmax;

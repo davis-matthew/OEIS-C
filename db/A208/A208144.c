@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 30, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   is_col_ok
+ * Validated: standard, pass, 43 terms through n = 197 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,20 @@
 
 #include <stddef.h>
 #include <string.h>
-#include "../utils/is_col_ok.h"
+
+/* check that a 5‑bit column contains no vertical 001 or 101 */
+static int is_col_ok(int pat)
+{
+    for (int r = 0; r <= 2; ++r) {
+        int b0 = (pat >> r) & 1;
+        int b1 = (pat >> (r + 1)) & 1;
+        int b2 = (pat >> (r + 2)) & 1;
+        if ((b0 == 0 && b1 == 0 && b2 == 1) ||      /* 001 */
+            (b0 == 1 && b1 == 0 && b2 == 1))        /* 101 */
+            return 0;
+    }
+    return 1;
+}
 
 static unsigned char allowed[10];          /* 10 admissible columns (5‑bit mask) */
 static unsigned char trans[10][10][10];    /* transition table */

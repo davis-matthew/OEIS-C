@@ -11,12 +11,14 @@
  *            a(8)=6542, a(9)=14580, a(10)=27866, a(11)=62700
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 26, u64 n <= 56, u128 n <= 118,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
     /* Allocate a linear array for the recurrence.  The size is n+1 because
        we index starting at 1. */
-    seq_t *arr = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, (size_t)(n + 1));
     if (!arr)
         return 0;  /* memory failure – the caller can handle the zero */
 
@@ -63,6 +65,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 4081, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9701 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -31,7 +33,7 @@ static void
 init_cache(void)
 {
     size_t cap = 1024;
-    cache = (seq_t*)malloc(cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cap);
     cache_size = 0;
  
     /* Generate numbers of odd bit length L, starting from 3. */
@@ -51,7 +53,7 @@ init_cache(void)
             if (zeros_total == ones_total + 1) {
                 if (cache_size >= cap) {
                     cap *= 2;
-                    seq_t *tmp = (seq_t*)realloc(cache, cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, cap);
                     cache = tmp;
                 }
                 cache[cache_size++] = base | mask;

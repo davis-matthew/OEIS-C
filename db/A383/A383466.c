@@ -7,6 +7,7 @@
  * Formula:   a(0) = 1; a(n) = 10*n^2 - 5*n + 2 for n > 0
  * Range:     u8 n <= 5, u16 n <= 81, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 70 terms through n = 9820 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

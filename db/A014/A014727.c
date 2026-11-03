@@ -8,14 +8,17 @@
  *            n)^2
  * Range:     u8 n <= 6, u16 n <= 28, u32 n <= 102, u64 n <= 389,
  *            u128 n <= 1000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 57 terms through n = 978 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The sequence lists even binomial coefficients row by row (left to right). */
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
         /* Ensure we have a place to store the new value. */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-            seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
             if (!new_ptr) { /* allocation failed – return 0 as a safe fallback */
                 return 0;
             }
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
 
         /* Scan the current row to find the next even binomial coefficient. */
         if (next_k <= next_r) {
-            seq_t val = binom(next_r, next_k);
+            seq_t val = binomial(next_r, next_k);
             if ((val & 1) == 0) {   /* the coefficient is even */
                 cache[cache_len++] = val * val; /* store its square */
             }

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 21, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Global cache for the flattened triangle */
 static seq_t *cache      = NULL;    /* flattened values 1‑based */
@@ -47,10 +49,10 @@ static void ensure_cache(size_t need)
     if (cache_cap < need) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
         while (new_cap < need) new_cap *= 2;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (cache && cache_len)
-            memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-        free(cache);
+            mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
     /* First call: initialise polynomials and cache */
     if (cache_len == 0) {
         /* P_0 = 1  (degree 0) */
-        poly_prev     = (seq_t*)malloc(sizeof(seq_t));
+        poly_prev     = mem_new(seq_t, 1);
         poly_sz_prev  = 1;
         poly_prev[0]  = (seq_t)1;
 
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
         size_t sz_new = k + 1;          /* number of coefficients */
 
         /* Allocate array for P_k */
-        seq_t *poly_new = (seq_t*)malloc(sz_new * sizeof(seq_t));
+        seq_t *poly_new = mem_new(seq_t, sz_new);
 
         /* Compute P_k using (x-1)*P_{k-1} + 4*P_{k-2} */
         for (size_t i = 0; i < sz_new; ++i) {
@@ -125,7 +127,7 @@ seq_t a(idx_t n)
         append_terms(poly_new, sz_new, sign);
 
         /* Prepare for next iteration: shift polynomials */
-        free(poly_prevprev);
+        mem_free(poly_prevprev);
         poly_prevprev = poly_prev;
         poly_sz_prevprev = poly_sz_prev;
 

@@ -11,13 +11,15 @@
  *            compositions of n into parts 5..13
  * Range:     u8 n <= 27, u16 n <= 48, u32 n <= 89, u64 n <= 171,
  *            u128 n <= 336, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 830 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *cache = NULL;
@@ -32,10 +34,10 @@ static void extend_cache(size_t needed)
     size_t new_cap = (cache_cap > 0) ? cache_cap * 2 : 16;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (cache) {
-        memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = new_cap;

@@ -9,14 +9,17 @@
  *            (p^(e-k)-p^(e-k-1)) · p^min(5k,e) and a(n) = Π_{p^e ‖ n} a(p^e)
  * Range:     u8 n <= 26, u16 n <= 511, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 78 terms through n = 8482 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -37,19 +40,19 @@ seq_t a(idx_t n)
         idx_t    e          = (idx_t)exps[i];
 
         /* p^e */
-        seq_t pe = pow_uint(p, e);
+        seq_t pe = ipow_u64_idx(p, e);
 
         /* sum over k = 0 .. e-1 */
         seq_t sum = (seq_t)0;
         for (idx_t k = 0; k < e; ++k) {
             /* p^(e-k) - p^(e-k-1) */
-            seq_t pow_e_k     = pow_uint(p, e - k);
-            seq_t pow_e_km1   = pow_uint(p, e - k - 1);
+            seq_t pow_e_k     = ipow_u64_idx(p, e - k);
+            seq_t pow_e_km1   = ipow_u64_idx(p, e - k - 1);
             seq_t diff        = pow_e_k - pow_e_km1;
 
             /* p^min(5k, e) */
             idx_t exp_min = (5 * k < e) ? (5 * k) : e;
-            seq_t pk = pow_uint(p, exp_min);
+            seq_t pk = ipow_u64_idx(p, exp_min);
 
             sum += diff * pk;
         }

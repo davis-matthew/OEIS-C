@@ -11,12 +11,14 @@
  *            n first.)
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 20, u64 n <= 36, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached factorials: fact_cache[i] = i!  (i = 0 .. fact_cache_size-1) */
 static seq_t *fact_cache = NULL;
@@ -30,7 +32,7 @@ static void ensure_factorial(idx_t m)
         return;
 
     size_t new_size = (size_t)m + 1;
-    seq_t *tmp = (seq_t *)realloc(fact_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fact_cache, new_size);
     if (!tmp)
         abort();   /* out of memory */
     fact_cache = tmp;

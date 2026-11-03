@@ -8,7 +8,8 @@
  *            a(2)=2, a(3)=3, a(4)=6, a(5)=8, a(6)=12
  * Range:     u8 n <= 13, u16 n <= 28, u32 n <= 57, u64 n <= 115,
  *            u128 n <= 231, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 939 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /*------------------------------------------------------------*/
 #include <stdlib.h>   /* malloc, realloc */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 /* initial values – index 0 is unused to keep the array 1‑based */
 static const seq_t a_init[7] = {
@@ -47,7 +49,7 @@ ensure_cache(idx_t n)
 
 #if defined(__cplusplus)
     /* In C++ the cast is required. */
-    new_ptr = reinterpret_cast<seq_t*>(realloc(a_cache, new_cap * sizeof(seq_t)));
+    new_ptr = reinterpret_cast<seq_t*>(mem_resize(seq_t, a_cache, new_cap));
 #else
     /* In C the cast is optional but harmless. */
     new_ptr = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));

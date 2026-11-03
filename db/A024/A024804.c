@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state for the memoised sequence */
 static uint16_t *counts   = NULL;   /* number of representations for each sum */
@@ -74,7 +76,7 @@ static void rebuild_terms(idx_t maxx)
 {
     /* Allocate space for at most one term per integer <= maxx */
     if (terms_cap < (size_t)(maxx + 1)) {
-        seq_t *tmp = (seq_t *)realloc(terms, (maxx + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, (maxx + 1));
         if (tmp == NULL) exit(1);
         terms     = tmp;
         terms_cap = (size_t)(maxx + 1);

@@ -9,12 +9,14 @@
  *            -1, a(6) = 1, a(7) = 17
  * Range:     i8 n <= 62, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9323 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     /* Allocate array to hold values up to n */
     size_t len = (size_t)n + 1;
-    seq_t *arr = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, len);
     if (!arr) { /* allocation failed – return 0 as safe fallback */
         return (seq_t)0;
     }
@@ -54,6 +56,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

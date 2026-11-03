@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External integer types provided by the build system */
 extern seq_t a(idx_t n);  /* we redeclare only to satisfy the compiler */
@@ -101,7 +103,7 @@ static void init_cache(void)
 {
     if (cache) return;                       /* already initialized */
 
-    cache = (struct seq_cache*)calloc(1, sizeof(*cache));
+    cache = mem_new(struct seq_cache, 1);
     if (!cache) abort();   /* in case of allocation failure */
 
     generate_patterns();
@@ -119,14 +121,14 @@ seq_t a(idx_t n)
     seq_t *nxt = cache->nxt;
 
     /* initialize DP */
-    memset(cur, 0, sizeof(seq_t) * NUM_STATES);
+    mem_set(cur, 0, sizeof(seq_t) * NUM_STATES);
     cur[0] = (seq_t)1;          /* all row remainders initially 0 */
 
     /* iterate over the n+1 columns (indices 0 … n) */
     for (idx_t col = 0; col <= n; ++col) {
         int wIdx = (col & 1) ? 1 : 0;          /* even column → weight 1, odd → 2 */
         /* reset nxt */
-        memset(nxt, 0, sizeof(seq_t) * NUM_STATES);
+        mem_set(nxt, 0, sizeof(seq_t) * NUM_STATES);
 
         for (idx_t s = 0; s < NUM_STATES; ++s) {
             seq_t val = cur[s];
@@ -137,7 +139,7 @@ seq_t a(idx_t n)
             }
         }
         /* swap buffers */
-        memcpy(cur, nxt, sizeof(seq_t) * NUM_STATES);
+        mem_copy(cur, nxt, sizeof(seq_t) * NUM_STATES);
     }
     return cur[0];     /* all rows must have remainder 0 after last column */
 }

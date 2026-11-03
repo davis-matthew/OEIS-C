@@ -8,7 +8,8 @@
  *            iff p ≡ 1 or 9 (mod 20). 5 itself is also included
  * Range:     u8 n <= 11, u16 n <= 1602, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_mul
+ * Validated: standard, pass, 73 terms through n = 9990 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_mul.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /*--- modular arithmetic for 64‑bit integers ---------------------------------*/
 
@@ -26,8 +28,8 @@ static uint64_t mod_pow(uint64_t base, uint64_t exp, uint64_t mod)
     base %= mod;
     while (exp) {
         if (exp & 1)
-            result = mod_mul(result, base, mod);
-        base = mod_mul(base, base, mod);
+            result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -70,7 +72,7 @@ static bool is_prime_uint64(uint64_t n)
             continue;
         bool cont = false;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mod_mul(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 cont = true;
                 break;
@@ -92,7 +94,7 @@ static void add_value(seq_t v)
 {
     if (seq_cap <= seq_cnt) {
         size_t new_cap = seq_cap == 0 ? 16 : seq_cap << 1;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp)
             abort();          /* allocation failure */
         seq_cache = tmp;

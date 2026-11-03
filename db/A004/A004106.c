@@ -10,9 +10,10 @@
  *            even-length cycles that s induces on the n(n-1)/2 node pairs (de
  *            Bruijn count of nets fixed by s composed with edge-sign
  *            reversal). The code sums over the cycle types (pa...
- * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 14, u128 n <= 18,
+ * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 14, u128 n <= 20,
  *            big any n
- * Helpers:   badd, bitlen, gcdi
+ * Validated: standard, pass, 35 terms through n = 50 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/badd.h"
-#include "../utils/bitlen.h"
-#include "../utils/gcdi.h"
+#include "../utils/gcd_i32.h"
+
+static void badd(uint32_t *d, int Ld, const uint32_t *s, int Ls) {
+    uint64_t c = 0;
+    int i;
+    for (i = 0; i < Ls; i++) {
+        uint64_t t = (uint64_t)d[i] + s[i] + c;
+        d[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+    for (; c && i < Ld; i++) {
+        uint64_t t = (uint64_t)d[i] + c;
+        d[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+}
+
+static int bitlen(long long x) {
+    int b = 0;
+    while (x) { b++; x >>= 1; }
+    return b;
+}
 
 static int g_L, g_np;
 static uint32_t *g_S, *g_W;
@@ -57,7 +77,7 @@ static void rec(int kmax, int r, long long E, int depth) {
         long long base = 0;
         for (int i = 0; i < g_np; i++)
             if ((k % 2 == 0) || (g_pk[i] % 2 == 0))
-                base += (long long)g_pm[i] * gcdi(k, g_pk[i]);
+                base += (long long)g_pm[i] * gcd_i32(k, g_pk[i]);
         long long wk = (k % 2 == 0) ? (k - 2) / 2 + (k % 4 == 0) : 0;
         memcpy(X, W, (size_t)L * sizeof(uint32_t));
         int rr = r;

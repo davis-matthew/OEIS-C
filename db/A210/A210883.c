@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 22, u32 n <= 331, u64 n <= 331, u128 n <= 331,
  *            big any n
- * Helpers:   days_since_epoch
+ * Validated: standard, pass, 53 terms through n = 328 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/days_since_epoch.h"
+#include "../utils/mem.h"
+
+/* Return the number of days since 1970‑01‑01 for the civil date
+   Y‑M‑D (Gregorian calendar).  The algorithm is from Howard Hinnant. */
+static inline int64_t days_since_epoch(int y, unsigned m, unsigned d)
+{
+    y -= (int)(m <= 2);
+    const int64_t era = (y >= 0 ? y : y - 399) / 400;
+    const unsigned yoe = (unsigned)(y - era * 400);                 /* [0,399] */
+    const unsigned doy = (153 * (m + (m > 2 ? -3 : 9)) + 2) / 5 + d - 1; /* [0,365] */
+    const unsigned doe = yoe * 365 + yoe / 4 - yoe / 100 + yoe / 400 + doy;
+    return era * 146097 + (int64_t)doe - 719468; /* days since 1970‑01‑01 */
+}
 
 static inline bool is_leap_year(int y)
 {
@@ -53,7 +66,7 @@ seq_t a(idx_t n)
     if (pal_offsets == NULL) {
         const size_t init_cap = 4000;
         pal_cap = init_cap;
-        pal_offsets = (seq_t *)malloc(pal_cap * sizeof(seq_t));
+        pal_offsets = mem_new(seq_t, pal_cap);
         pal_count = 0;
 
         const int64_t ref_days = days_since_epoch(1000, 1, 1);
@@ -75,7 +88,7 @@ seq_t a(idx_t n)
 
             if (pal_count >= pal_cap) {
                 pal_cap *= 2;
-                pal_offsets = (seq_t *)realloc(pal_offsets, pal_cap * sizeof(seq_t));
+                pal_offsets = mem_resize(seq_t, pal_offsets, pal_cap);
             }
             pal_offsets[pal_count++] = offset;
         }

@@ -12,14 +12,33 @@
  *            binary run–lengths of n. (See OEIS A355654.)
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 31, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   encode_from_runs
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/encode_from_runs.h"
+
+/* Encode the run lengths 'runs' (least‑significant first) into an integer.
+ * The resulting integer’s binary representation starts with a run of
+ * 1's of length runs[m-1], followed by a run of 0's of length runs[m-2],
+ * and so on, ending with the run corresponding to runs[0].
+ * This correctly produces the required integer for a(n). */
+static seq_t encode_from_runs(const idx_t *runs, size_t len)
+{
+    seq_t result = 0;
+    int bit = 1;                         /* start with a run of 1's */
+    for (size_t i = 0; i < len; ++i) {
+        idx_t run = runs[len - 1 - i];   /* process runs from MSB to LSB */
+        for (idx_t k = 0; k < run; ++k) {
+            result = (result << 1) | (seq_t)bit;
+        }
+        bit ^= 1;                       /* alternate run type (1/0) */
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

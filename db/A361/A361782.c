@@ -8,7 +8,8 @@
  * Formula:   a(n) = numerator( n*A286324(n)/A188999(n) )
  * Range:     u8 n <= 12, u16 n <= 750, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64, gcd
+ * Validated: standard, pass, 84 terms through n = 7820 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,11 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/gcd.h"          /* seq_t gcd(seq_t a, seq_t b); */
-#include "../utils/big_pow.h"      /* seq_t big_pow(seq_t base, seq_t exp); */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -44,8 +47,8 @@ seq_t a(idx_t n)
         seq_t t = ((e & 1) != 0) ? (e_seq + 1) : e_seq;
 
         /* compute powers */
-        seq_t pow_pe  = big_pow(p_seq, e_seq);          /* p^e  */
-        seq_t pow_pe1 = big_pow(p_seq, e_seq + 1);      /* p^(e+1) */
+        seq_t pow_pe  = ipow(p_seq, e_seq);          /* p^e  */
+        seq_t pow_pe1 = ipow(p_seq, e_seq + 1);      /* p^(e+1) */
 
         /* numerator of fraction for this prime power */
         seq_t num_pref = pow_pe * (p_seq - 1) * t;      /* t * p^e * (p-1) */
@@ -55,7 +58,7 @@ seq_t a(idx_t n)
         if (e & 1) { /* e odd */
             den_pref = pow_pe1 - 1;                    /* p^(e+1) - 1 */
         } else { /* e even */
-            seq_t p_half = big_pow(p_seq, e_seq / 2);          /* p^(e/2) */
+            seq_t p_half = ipow(p_seq, e_seq / 2);          /* p^(e/2) */
             seq_t sub = (p_seq - 1) * p_half;                 /* (p-1) * p^(e/2) */
             den_pref = pow_pe1 - 1 - sub;                     /* p^(e+1) -1 - (p-1)p^(e/2) */
         }

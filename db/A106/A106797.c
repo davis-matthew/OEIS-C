@@ -8,8 +8,9 @@
  * Formula:   a(n) = the n‑th symbol (0‑based) of the fixed point * of the
  *            morphism * 1 → 1,1,1,1,2,2,3 * 2 → 4,1 * 3 → 2,1,1,1 * 4 → 1,2,1
  *            * starting with 1
- * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
- *            u128 n <= 104, big any n
+ * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 121 terms through n = 9245 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

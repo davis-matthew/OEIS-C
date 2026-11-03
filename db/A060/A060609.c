@@ -8,7 +8,8 @@
  * Formula:   a(n) = A049116(A000040(n))
  * Range:     u8 n <= 54, u16 n <= 6542, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime64
+ * Validated: standard, pass, 96 terms through n = 9753 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime64.h"
+#include "../utils/is_prime_u64.h"
 
 static idx_t *primes = NULL;
 static size_t prime_count = 0;
@@ -45,7 +46,7 @@ ensure_primes(idx_t n)
     /* Find further primes until we have n of them. */
     while (prime_count < n) {
         ++last_candidate;
-        if (!is_prime64(last_candidate))
+        if (!is_prime_u64(last_candidate))
             continue;
         primes[prime_count++] = last_candidate;
     }

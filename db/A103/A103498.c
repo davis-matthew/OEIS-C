@@ -8,20 +8,21 @@
  *            e exists
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   compute_phi
+ * Validated: partial, pass, 86 terms through n = 85 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/compute_phi.h"
+#include "../utils/totient_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t m = 2 * n + 1;
     if (m == 1) return (seq_t)0;
     if (m % 3 == 0) return (seq_t)0;   /* 12 shares factor 3 → cannot be ±1 mod m */
 
-    uint64_t phi_m = compute_phi(m);
+    uint64_t phi_m = totient_u64(m);
     uint64_t val = 12 % m;
     uint64_t e = 1;
     if (val == 1 || val == m - 1) return (seq_t)e;

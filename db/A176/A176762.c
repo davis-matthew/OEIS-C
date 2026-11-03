@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 19, u32 n <= 19, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   digit_square_sum
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/digit_square_sum.h"
+#include "../utils/mem.h"
+
+/* Helper: sum of squares of decimal digits of a 64‑bit integer. */
+static uint64_t digit_square_sum(uint64_t x)
+{
+    uint64_t sum = 0;
+    while (x > 0) {
+        uint64_t d = x % 10;
+        sum += d * d;
+        x /= 10;
+    }
+    return sum;
+}
 
 /* static cache storing the minimal integer that yields a given
    pre‑period length.  Index 0 is the fixed point 0, which is not
@@ -58,13 +71,13 @@ static void ensure_cap(size_t need)
         new_cap <<= 1;
 
 #ifdef __cplusplus
-    seq_t *tmp = static_cast<seq_t*>(realloc(min_steps, new_cap * sizeof(seq_t)));
+    seq_t *tmp = mem_resize(seq_t, min_steps, new_cap);
 #else
     seq_t *tmp = (seq_t*)realloc(min_steps, new_cap * sizeof(seq_t));
 #endif
     if (!tmp)
         abort();
-    memset(tmp + min_cap, 0, (new_cap - min_cap) * sizeof(seq_t));
+    mem_set(tmp + min_cap, 0, (new_cap - min_cap) * sizeof(seq_t));
     min_steps = tmp;
     min_cap   = new_cap;
 }

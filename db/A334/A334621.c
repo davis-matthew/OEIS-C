@@ -8,6 +8,7 @@
  * Formula:   a(n) = Σ_{p|n, p prime, gcd(p,n/p)=1} μ(n-p)^2
  * Range:     u8 n <= 7237, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 112 terms through n = 9085 (2026-11-01)
  * Helpers:   factor_u64, is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/is_squarefree.h"
 

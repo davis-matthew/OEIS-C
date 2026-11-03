@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 34, u64 n <= 67, u128 n <= 134,
  *            big any n
- * Helpers:   reverse_base3
+ * Validated: standard, pass, 50 terms through n = 448 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/reverse_base3.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: reverse the base‑3 representation of x and return the integer value. */
+static seq_t reverse_base3(seq_t x) {
+    seq_t rev = 0;
+    while (x > 0) {
+        seq_t d = x % 3;      /* least significant base‑3 digit */
+        rev = rev * 3 + d;    /* prepend this digit on the right side */
+        x = x / 3;            /* drop the processed digit */
+    }
+    return rev;
+}
 
 /* Reverse the base‑3 digits of x and return the value. */
 
@@ -34,7 +47,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache_size <= n) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)realloc(seq_cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, seq_cache, new_size);
         if (!new_cache) abort();          /* in case of allocation failure */
         seq_cache = new_cache;
         cache_size = new_size;

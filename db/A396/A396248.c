@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_prime_small, realloc_void
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,29 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/realloc_void.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Helper to reallocate the void* buffer, returning a void* that can be
+   C‑style cast to any pointer type.  This works in both C and C++. */
+#ifdef __cplusplus
+template <class T>
+static inline T *realloc_void(T *p, size_t new_size) {
+    return mem_resize(T, p, (new_size) / sizeof(T));
+}
+#else
+static inline void *realloc_void(void *p, size_t new_size) {
+    return realloc(p, new_size);
+}
+#endif
 
 /* Small factorials that can occur as prime gaps. */
 static const uint64_t fact_list[] = {
@@ -93,7 +115,7 @@ seq_t a(idx_t n) {
         uint64_t prev = prime_arr[prime_cnt - 1];
         uint64_t cand = (prev == 2ULL) ? 3ULL : prev + 2ULL; /* only odd candidates */
 
-        while (!is_prime_small(cand)) cand += 2ULL; /* find next prime */
+        while (!is_prime_seq(cand)) cand += 2ULL; /* find next prime */
 
         ensure_prime_cap(prime_cnt + 1);
         prime_arr[prime_cnt++] = cand;

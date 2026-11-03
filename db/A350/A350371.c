@@ -11,7 +11,8 @@
  *            has exponent at least 2
  * Range:     u8 n <= 16, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 #if defined(_MSC_VER) && !defined(_WIN64)
@@ -66,7 +68,7 @@ static void init(void)
 
     /* Allocate initial buffer for generated sequence terms. */
     seq_cap = 4096;
-    seq = (seq_t *) malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     if (!seq) exit(1);
     seq_len = 0;
 }
@@ -104,7 +106,7 @@ static void generate_upto(idx_t n)
         if (squares + (distinct * (distinct - 1)) / 2 == 4) {
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap * 2 + 16;
-                seq = (seq_t *) realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
                 if (!seq) exit(1);
             }
             seq[seq_len++] = (seq_t)processed;

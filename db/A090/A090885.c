@@ -8,8 +8,9 @@
  * Formula:   a(n) = sum of the squares of the exponents in the prime
  *            factorization of n. This implements the additive function a(p^e)
  *            = e^2
- * Range:     u8 n <= 9577, u16 n <= 9577, u32 n <= 9577, u64 n <= 9577,
- *            u128 n <= 9577, big any n
+ * Range:     u8 n <= 65535, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 116 terms through n = 9577 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

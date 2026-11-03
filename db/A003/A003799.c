@@ -7,13 +7,24 @@
  * Formula:   a(n) = 9^(n(n+1)/2) * Product_{k=2..n+1} (9^k - 1) / gcd(n+1, 8)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 5,
  *            big any n
- * Helpers:   pow9
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow9.h"
+
+static seq_t pow9(idx_t e) {
+    seq_t result = 1;
+    seq_t base = 9;
+    while (e > 0) {
+        if (e & 1) result *= base;
+        e >>= 1;
+        if (e > 0) base *= base;
+    }
+    return result;
+}
 
 static uint64_t gcd_u64(uint64_t x, uint64_t y) {
     while (y) {

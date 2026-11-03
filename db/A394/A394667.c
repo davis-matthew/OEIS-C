@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparison function for sorting seq_t values */
 static int cmp_seq_t(const void *a, const void *b)
@@ -81,7 +83,7 @@ static void dfs_perm(uint64_t p, int pos, int len, seq_t curr,
         seq_t sum = (seq_t)p + curr;
         if (*len_out == *cap_out) {
             *cap_out = (*cap_out ? *cap_out * 2 : 16);
-            *out = (seq_t *)realloc(*out, *cap_out * sizeof(seq_t));
+            *out = mem_resize(seq_t, *out, (*cap_out * sizeof(seq_t)) / sizeof(seq_t));
             if (!*out) exit(1);
         }
         (*out)[(*len_out)++] = sum;
@@ -146,7 +148,7 @@ seq_t a(idx_t n)
         if (new_len == 0) break;   /* no more primes to process */
 
         /* Sort and deduplicate the newly generated sums */
-        qsort(new_sums, new_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(new_sums, new_len, sizeof(seq_t), cmp_seq_t);
         size_t uniq = 0;
         for (size_t i = 0; i < new_len; i++) {
             if (i == 0 || new_sums[i] != new_sums[uniq - 1]) {
@@ -157,7 +159,7 @@ seq_t a(idx_t n)
 
         /* Merge the new sums with the existing sorted list of terms */
         size_t new_total = terms_cnt + new_len;
-        seq_t *merged = (seq_t *)malloc(new_total * sizeof(seq_t));
+        seq_t *merged = mem_new(seq_t, new_total);
         if (!merged) exit(1);
 
         size_t i = 0, j = 0, k = 0;
@@ -174,11 +176,11 @@ seq_t a(idx_t n)
         while (i < terms_cnt) merged[k++] = terms[i++];
         while (j < new_len)  merged[k++] = new_sums[j++];
 
-        free(terms);
+        mem_free(terms);
         terms = merged;
         terms_cnt = k;
 
-        free(new_sums);
+        mem_free(new_sums);
     }
 
     return terms[(size_t)n - 1];

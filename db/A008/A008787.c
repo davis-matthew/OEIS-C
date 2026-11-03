@@ -7,12 +7,15 @@
  * Formula:   a(n) = (n + 6)^n
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 33 terms through n = 165 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -20,5 +23,5 @@ seq_t a(idx_t n)
        intermediate overflow in fixed‑width builds. */
     seq_t base = (seq_t)(n + 6);
     seq_t exp  = (seq_t)n;
-    return big_pow(base, exp);
+    return ipow(base, exp);
 }

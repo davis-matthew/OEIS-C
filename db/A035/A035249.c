@@ -12,7 +12,8 @@
  *            17, or 19 (mod 20)
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   restricted_prime
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,14 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/restricted_prime.h"
+
+/* test whether a prime is one that must have an even exponent */
+static bool restricted_prime(uint64_t p)
+{
+    if (p == 2) return true;
+    uint64_t r = p % 20ULL;
+    return r == 11ULL || r == 13ULL || r == 17ULL || r == 19ULL;
+}
 
 /* maximum prime to sieve (sufficient for all candidates up to a few
    hundred thousand, which covers n <= 10000 ) */

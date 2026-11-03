@@ -11,8 +11,8 @@
  *            y*B_m + m(m-3)*B_{m-1} - y*m(m-1)*B_{m-2} +...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   big_a, sacc, seq_is_fixed_width, u128_to_seq, w_add, w_mul,
- *            w_set, w_sub
+ * Validated: standard, pass, 36 terms through n = 330 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,14 +20,123 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/big_a.h"
-#include "../utils/sacc.h"
-#include "../utils/w_add.h"
-#include "../utils/w_mul.h"
-#include "../utils/w_set.h"
-#include "../utils/w_sub.h"
+#include <stdlib.h>
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+/* signed-magnitude accumulate: (m,s) += (v,vs) */
+static void sacc(seq_t *m, bool *s, seq_t v, bool vs) {
+    if (*s == vs) {
+        *m += v;
+    } else if (*m >= v) {
+        *m -= v;
+    } else {
+        *m = v - *m;
+        *s = vs;
+    }
+}
+
+static seq_t big_a(idx_t n) {
+    seq_t cm;
+    bool cs = false;
+    if (n == 0) {
+        cm = 1;
+    } else {
+        idx_t y = n + 1;
+        seq_t hp = 1, hc = (seq_t)y;
+        bool hps = false, hcs = false;
+        for (idx_t m = 1; m < n; m++) {
+            seq_t nm = hc * y;
+            bool ns = hcs;
+            sacc(&nm, &ns, hp * m, !hps);
+            hp = hc; hps = hcs;
+            hc = nm; hcs = ns;
+        }
+        cm = hc; cs = hcs;
+        sacc(&cm, &cs, hp * n, !hps);
+    }
+
+    seq_t b[4];
+    bool bs[4];
+    for (int i = 0; i < 4; i++) { b[i] = 0; bs[i] = false; }
+    b[3] = 1;
+    for (idx_t m = 0; m < n; m++) {
+        seq_t nm = b[3] * n;
+        bool ns = bs[3];
+        if (m >= 1) {
+            if (m != 3) {
+                seq_t t = b[2] * m * (m > 3 ? m - 3 : 3 - m);
+                sacc(&nm, &ns, t, (bool)(bs[2] ^ (m < 3)));
+            }
+            if (m >= 2) {
+                seq_t t = b[1] * n * m * (m - 1);
+                sacc(&nm, &ns, t, !bs[1]);
+            }
+            if (m >= 3) {
+                seq_t t = b[0] * m * (m - 1) * (m - 2);
+                sacc(&nm, &ns, t, bs[0]);
+            }
+        }
+        b[0] = b[1]; bs[0] = bs[1];
+        b[1] = b[2]; bs[1] = bs[2];
+        b[2] = b[3]; bs[2] = bs[3];
+        b[3] = nm; bs[3] = ns;
+    }
+    sacc(&b[3], &bs[3], cm, cs);
+    return b[3] / 2;
+}
+
+static void w_add(uint64_t *r, const uint64_t *x, const uint64_t *y) {
+    unsigned __int128 c = 0;
+    for (int i = 0; i < 3; i++) {
+        c += (unsigned __int128)x[i] + y[i];
+        r[i] = (uint64_t)c;
+        c >>= 64;
+    }
+}
+
+static void w_mul(uint64_t *r, const uint64_t *x, uint64_t k) {
+    unsigned __int128 c = 0;
+    for (int i = 0; i < 3; i++) {
+        c += (unsigned __int128)x[i] * k;
+        r[i] = (uint64_t)c;
+        c >>= 64;
+    }
+}
+
+/* 192-bit two's complement arithmetic for fixed-width builds */
+static void w_set(uint64_t *r, uint64_t v) { r[0] = v; r[1] = 0; r[2] = 0; }
+
+static void w_sub(uint64_t *r, const uint64_t *x, const uint64_t *y) {
+    unsigned __int128 c = 1;
+    for (int i = 0; i < 3; i++) {
+        c += (unsigned __int128)x[i] + (uint64_t)~y[i];
+        r[i] = (uint64_t)c;
+        c >>= 64;
+    }
+}
 
 static seq_t fix_a(idx_t n) {
     uint64_t c[3], t[3], u[3];

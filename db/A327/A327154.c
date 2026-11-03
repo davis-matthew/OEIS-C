@@ -6,17 +6,34 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Product_{d|n, d>1} A008578(1+A286561(sigma(n), d))
- * Range:     u8 n <= 83, u16 n <= 119, u32 n <= 3359, u64 n <= 9933,
- *            u128 n <= 9933, big any n
- * Helpers:   factor_u64, sigma_of
+ * Range:     u8 n <= 83, u16 n <= 119, u32 n <= 3359, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9933 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/sigma_of.h"
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 static const seq_t A008578_values[] = {
     0,      /* unused index 0 */

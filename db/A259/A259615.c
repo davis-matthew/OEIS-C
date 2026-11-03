@@ -9,13 +9,15 @@
  *            a(n‑k‑(a(n‑k) mod 5))
  * Range:     u8 n <= 17, u16 n <= 30, u32 n <= 60, u64 n <= 98, u128 n <= 164,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 839 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence */
 static seq_t *cache = NULL;
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
     if (needed > cache_cap) {
         size_t new_cap = needed * 2;   /* growth factor */
         /* Portable cast of realloc return value */
-        seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
         if (!new_ptr)
             abort();            /* allocation failure */
         cache = new_ptr;

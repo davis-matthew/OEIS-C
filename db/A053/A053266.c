@@ -11,12 +11,14 @@
  *            dynamic programming on partition numbers. It stores all comp...
  * Range:     u8 n <= 60, u16 n <= 170, u32 n <= 539, u64 n <= 1857,
  *            u128 n <= 6778, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9878 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;      /* array of computed a(n) values       */
 static idx_t memo_len = 0;      /* length of memo (number of entries) */
@@ -24,8 +26,8 @@ static idx_t memo_len = 0;      /* length of memo (number of entries) */
 static void precompute(idx_t N)
 {
     /* Allocate new memo and DP arrays */
-    seq_t *new_a = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *dp   = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *new_a = mem_new(seq_t, (N + 1));
+    seq_t *dp   = mem_new(seq_t, (N + 1));
 
     /* Initial values for k = 0: partitions using only part 1 */
     dp[0] = 1;
@@ -65,11 +67,11 @@ static void precompute(idx_t N)
     new_a[0] -= 1;
 
     /* Replace old memo with the newly computed array */
-    if (memo != NULL) free(memo);
+    if (memo != NULL) mem_free(memo);
     memo = new_a;
     memo_len = N + 1;
 
-    free(dp);
+    mem_free(dp);
 }
 
 seq_t a(idx_t n)

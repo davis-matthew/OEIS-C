@@ -9,17 +9,19 @@
  *            (A000005)
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;              /* offset starts at 1, 0 is unused */
 
-    seq_t base = (seq_t)divisor_count_u64((uint64_t)n);  /* d(n) */
+    seq_t base = (seq_t)num_divisors((uint64_t)n);  /* d(n) */
     seq_t result = 0;
     seq_t power  = 1;
     idx_t t = n;

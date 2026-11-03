@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 36, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 /* The implementation builds a memoised 2‑D table up to the row needed. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Find the row r and column k corresponding to the linear index n */
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
     /* Initialise on first use */
     if (S == NULL) {
         S = (seq_t **)malloc(sizeof(seq_t *));
-        S[0] = (seq_t *)calloc(1, sizeof(seq_t));   /* c(0,0)=1 */
+        S[0] = mem_new(seq_t, 1);   /* c(0,0)=1 */
         S[0][0] = (seq_t)1;
     }
 
@@ -57,7 +59,7 @@ seq_t a(idx_t n) {
         S = (seq_t **)realloc(S, new_len * sizeof(seq_t *));
         for (idx_t i = max_n + 1; i <= n0; i++) {
             /* row i has i+1 entries */
-            S[i] = (seq_t *)calloc(i + 1, sizeof(seq_t));
+            S[i] = mem_new(seq_t, i + 1);
             /* c(i,i) = 1 */
             S[i][i] = (seq_t)1;
             /* c(i,0) is already 0 due to calloc */

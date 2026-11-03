@@ -9,13 +9,23 @@
  *            signed Stirling numbers of the first kind
  * Range:     i8 n <= 29, i16 n <= 55, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   triangle_row
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/triangle_row.h"
+#include "../utils/mem.h"
+
+/* Return the row index (0‑based) of the flattened triangle at position n.
+   This uses a simple loop because n ≤ 10000 (so r ≤ 141). */
+static idx_t triangle_row(idx_t n) {
+    idx_t r = 0;
+    while ((r + 1) * (r + 2) / 2 <= n)
+        ++r;
+    return r;
+}
 
 /* Compute a(n) using only O(n) extra memory and O(n^2) arithmetic
    operations, which is enough for n ≤ 10000. */
@@ -30,7 +40,7 @@ seq_t a(idx_t n) {
     idx_t  cur_len  = 0;
 
     /* row 0: s(0,0) = 1 */
-    prev = (seq_t *)malloc(sizeof(seq_t) * 1);
+    prev = mem_new(seq_t, 1);
     prev[0] = 1;
     prev_len = 1;
 
@@ -38,8 +48,8 @@ seq_t a(idx_t n) {
     for (idx_t i = 1; i <= r; ++i) {
         /* Ensure cur has space for i+1 elements */
         if (cur_len < i + 1) {
-            free(cur);
-            cur = (seq_t *)malloc(sizeof(seq_t) * (i + 1));
+            mem_free(cur);
+            cur = mem_new(seq_t, (i + 1));
             cur_len = i + 1;
         }
 
@@ -65,7 +75,7 @@ seq_t a(idx_t n) {
         t_val += ((seq_t)r * cur[c]);   /* add r * s(r-1, c) */
     }
 
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
     return t_val;
 }

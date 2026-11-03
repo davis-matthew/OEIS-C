@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   append_candidate, is_prime, rev
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   is_prime, mem, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,25 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
-#include "../utils/rev.h"
-#include "../utils/append_candidate.h"
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,7 +53,7 @@ seq_t a(idx_t n)
         /* search for the next prime that satisfies the condition */
         while (true) {
             if (is_prime(cand)) {
-                idx_t revcand = rev(cand);
+                idx_t revcand = reverse_digits_idx(cand);
                 if (revcand % 14 == 0) {
                     seq_t val = (seq_t)cand;
                     append_candidate(&cache, &cache_len, &cache_cap, val);

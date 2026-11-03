@@ -8,8 +8,9 @@
  *            divide the exponent of p in the prime factorisation of n
  *            (equivalently, a(n) = n / gcd(n, n'), where n' is the arithmetic
  *            derivative of n)
- * Range:     u8 n <= 256, u16 n <= 9272, u32 n <= 9272, u64 n <= 9272,
- *            u128 n <= 9272, big any n
+ * Range:     u8 n <= 256, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 94 terms through n = 9272 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

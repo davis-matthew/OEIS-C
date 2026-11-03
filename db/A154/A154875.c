@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 172, u64 n <= 172, u128 n <= 172,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 172 terms through n = 172 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper code: compute 10^e as __uint128_t */
 static __uint128_t pow10_u128(uint32_t e)
@@ -45,13 +47,13 @@ static void ensure_cache(size_t n)
         return;
     if (cache_cap == 0) {
         cache_cap = 1024;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
     }
     while (cache_len < n) {
         if (cache_len == cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
             if (!cache) abort();
         }
         /* calculate k^4 */

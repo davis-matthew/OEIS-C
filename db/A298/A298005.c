@@ -12,13 +12,15 @@
  *            returns the nth term of b (the complementary sequence)
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static storage for the two complementary sequences */
 static seq_t *A_vals = NULL;            /* a(0), a(1), ... (only a0,a1 needed) */
@@ -38,8 +40,8 @@ static void init_sequences(void)
 
     A_cap = 16;
     B_cap = 16;
-    A_vals = (seq_t*)malloc(A_cap * sizeof(seq_t));
-    B_vals = (seq_t*)malloc(B_cap * sizeof(seq_t));
+    A_vals = mem_new(seq_t, A_cap);
+    B_vals = mem_new(seq_t, B_cap);
 
     /* a(0) = 1, a(1) = 2 */
     A_vals[0] = (seq_t)1;
@@ -60,7 +62,7 @@ static void push_A(seq_t v)
 {
     if (A_len == A_cap) {
         A_cap = A_cap ? A_cap * 2 : 8;
-        A_vals = (seq_t*)realloc(A_vals, A_cap * sizeof(seq_t));
+        A_vals = mem_resize(seq_t, A_vals, A_cap);
     }
     A_vals[A_len++] = v;
 }
@@ -70,7 +72,7 @@ static void push_B(seq_t v)
 {
     if (B_len == B_cap) {
         B_cap = B_cap ? B_cap * 2 : 8;
-        B_vals = (seq_t*)realloc(B_vals, B_cap * sizeof(seq_t));
+        B_vals = mem_resize(seq_t, B_vals, B_cap);
     }
     B_vals[B_len++] = v;
 }

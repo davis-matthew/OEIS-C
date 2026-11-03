@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 23, i16 n <= 77, i32 n <= 251, i64 n <= 860,
  *            i128 n <= 1000, big any n
- * Helpers:   isqrt_small
+ * Validated: standard, pass, 77 terms through n = 782 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
  */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isqrt_small.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* Dynamic array to store the sequence c[n] */
 static seq_t *c_seq = NULL;   /* array of c values, indexed from 0 */
@@ -35,7 +37,7 @@ static void ensure_c(idx_t need)
     if (need <= c_max) return;
 
     size_t new_len = (size_t)(need + 1);
-    seq_t *new_c = (seq_t *)realloc(c_seq, new_len * sizeof(seq_t));
+    seq_t *new_c = mem_resize(seq_t, c_seq, new_len);
     if (!new_c) exit(EXIT_FAILURE);                 /* out of memory */
     c_seq = new_c;
 
@@ -46,7 +48,7 @@ static void ensure_c(idx_t need)
         if (i == 0) {
             phi_val = 1;
         } else {
-            idx_t r = isqrt_small(i);
+            idx_t r = isqrt(i);
             phi_val = (r * r == i) ? 2 : 0;
         }
 

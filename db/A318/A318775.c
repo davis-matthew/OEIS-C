@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>   /* malloc, realloc, free, size_t */
 #include <stdint.h>   /* uint64_t */
+#include "../utils/mem.h"
 
 /* static cache for flattened triangle entries and row start indices */
 static seq_t *terms      = NULL;   /* flattened triangle values */
@@ -45,7 +47,7 @@ static void ensure_terms_capacity(size_t needed)
     if (needed > terms_cap) {
         size_t newcap = terms_cap ? terms_cap * 2 : 8;
         while (newcap < needed) newcap *= 2;
-        terms = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, newcap);
         terms_cap = newcap;
     }
 }

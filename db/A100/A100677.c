@@ -7,14 +7,16 @@
  * Formula:   a(1) = 1; a(n) = Σ_{1 <= k <= n/2, gcd(k,n)=1} a(k) (for n >= 2)
  * Range:     u8 n <= 58, u16 n <= 70, u32 n <= 9, u64 n <= 70, u128 n <= 9,
  *            big any n
- * Helpers:   gcd_uint64
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Expand dynamic array if necessary */
     if (n >= sz) {
         idx_t new_sz = (n + 1) * 2;          /* growth factor to reduce reallocs */
-        seq_t *tmp = (seq_t *)realloc(dp, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_sz);
         if (!tmp) {                          /* allocation failed */
             /* In production code you might handle this differently */
             return (seq_t)0;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         seq_t sum = (seq_t)0;
         idx_t half = i >> 1;                 /* floor(i/2) */
         for (idx_t k = 1; k <= half; ++k) {
-            if (gcd_uint64(k, i) == 1) {
+            if (gcd_u64(k, i) == 1) {
                 sum += dp[k];
             }
         }

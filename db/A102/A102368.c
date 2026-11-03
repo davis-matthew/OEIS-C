@@ -8,8 +8,9 @@
  *            a(n)=1 because n+1 is even >2. For even n, a(n)=1 if n+1 is
  *            composite, else a(n)=2 if n^2+1 is composite, else a(n)=3 (since
  *            (n+1)|(n^3+1))
- * Range:     u8 n <= 106, u16 n <= 106, u32 n <= 106, u64 n <= 106,
- *            u128 n <= 106, big any n
+ * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 121 terms through n = 9995 (2026-11-03)
  * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

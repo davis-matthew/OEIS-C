@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} mu(2*k)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 120 terms through n = 9801 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static cache for prefix sums of μ on odd arguments.
    odd_prefix[i] = Σ_{odd k ≤ i} μ(k)  (type seq_t */
@@ -54,7 +56,7 @@ static void compute_upto(idx_t n)
     }
 
     /* Allocate new odd_prefix array. */
-    seq_t *new_prefix = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *new_prefix = mem_new(seq_t, (n + 1));
     if (!new_prefix) abort();
 
     seq_t running = 0;
@@ -67,7 +69,7 @@ static void compute_upto(idx_t n)
     }
 
     /* Replace old cache. */
-    free(odd_prefix);
+    mem_free(odd_prefix);
     odd_prefix = new_prefix;
     cache_max  = n;
 

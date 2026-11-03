@@ -10,16 +10,41 @@
  *            2*Re((x+i*y)^8), p = x^2+y^2, x even
  * Range:     i8 n <= 3, i16 n <= 15, i32 n <= 193, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   a2607_ap, a2607_isqrt, a2607_two_squares
+ * Validated: standard, pass, 68 terms through n = 9426 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/a2607_ap.h"
-#include "../utils/a2607_isqrt.h"
-#include "../utils/a2607_two_squares.h"
+#include "../utils/isqrt_u64.h"
+
+static bool a2607_two_squares(idx_t p, idx_t *x, idx_t *y) {
+	for (idx_t i = 2; i * i < p; i += 2) {
+		idx_t jsq = p - i * i;
+		idx_t j = isqrt_u64(jsq);
+		if (j * j == jsq) {
+			*x = i;
+			*y = j;
+			return true;
+		}
+	}
+	return false;
+}
+
+static seq_t a2607_ap(idx_t p) {
+	idx_t x, y;
+	if (!a2607_two_squares(p, &x, &y)) return 0;
+	seq_t r = (seq_t)x, im = (seq_t)y;
+	for (int k = 0; k < 3; k++) {
+		seq_t rn = r * r - im * im;
+		seq_t in = r * im * 2;
+		r = rn;
+		im = in;
+	}
+	return r * 2;
+}
 
 seq_t a(idx_t n) {
 	seq_t result = 1;

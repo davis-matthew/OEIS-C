@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 103, u16 n <= 103, u32 n <= 103, u64 n <= 103,
  *            u128 n <= 103, big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 104 terms through n = 103 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* cached sequence */
 static seq_t *seq      = NULL;
@@ -43,7 +46,7 @@ static void ensure_seq_cap(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap : 8;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *ptr = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, seq, new_cap);
     if (!ptr) exit(1);
     seq = ptr;
     seq_cap = new_cap;
@@ -56,10 +59,10 @@ static void ensure_cnt_cap(seq_t value)
     if (val < cnt_cap) return;
     size_t new_cap = cnt_cap ? cnt_cap : 8;
     while (new_cap <= val) new_cap <<= 1;
-    seq_t *ptr = (seq_t *)realloc(cnt, new_cap * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, cnt, new_cap);
     if (!ptr) exit(1);
     /* init newly allocated slots to zero */
-    memset(ptr + cnt_cap, 0, (new_cap - cnt_cap) * sizeof(seq_t));
+    mem_set(ptr + cnt_cap, 0, (new_cap - cnt_cap) * sizeof(seq_t));
     cnt = ptr;
     cnt_cap = new_cap;
 }

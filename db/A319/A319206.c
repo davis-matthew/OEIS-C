@@ -8,6 +8,7 @@
  *            ∏_{k=5⌊n/5⌋+1}^{5⌊n/5⌋+j} k (offset 1: a(1)=1.)
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 74, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 50 terms through n = 895 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

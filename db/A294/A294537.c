@@ -11,13 +11,15 @@
  *            each b(k)
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper: binary search to test whether a value is present
    in the currently built portions of a[] and b[]. */
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     if (a_len == 0) {
         size_t cap = 2;
         if (n + 1 > cap) cap = n + 1;
-        a_arr = (seq_t *)malloc(cap * sizeof(seq_t));
+        a_arr = mem_new(seq_t, cap);
         a_cap = cap;
         a_arr[0] = (seq_t)1;
         a_len = 1;
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
     if (a_len == 1) {
         if (a_len >= (idx_t)a_cap) {
             a_cap *= 2;
-            a_arr = (seq_t *)realloc(a_arr, a_cap * sizeof(seq_t));
+            a_arr = mem_resize(seq_t, a_arr, a_cap);
         }
         a_arr[1] = (seq_t)2;
         a_len = 2;
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
     if (b_len == 0) {
         size_t cap = 1;
         if (n + 1 > cap) cap = n + 1;
-        b_arr = (seq_t *)malloc(cap * sizeof(seq_t));
+        b_arr = mem_new(seq_t, cap);
         b_cap = cap;
         b_arr[0] = (seq_t)3;
         b_len = 1;
@@ -96,11 +98,11 @@ seq_t a(idx_t n)
     size_t need = (size_t)(n + 1);
     if (need > a_cap) {
         a_cap = need;
-        a_arr = (seq_t *)realloc(a_arr, a_cap * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, a_cap);
     }
     if (need > b_cap) {
         b_cap = need;
-        b_arr = (seq_t *)realloc(b_arr, b_cap * sizeof(seq_t));
+        b_arr = mem_resize(seq_t, b_arr, b_cap);
     }
 
     /* compute terms sequentially up to n */

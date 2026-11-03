@@ -10,9 +10,10 @@
  * Formula:   lexicographically earliest a(n) with a(i)=a(j) ↔
  *            A349915(i)=A349915(j), where A349915 is the Dirichlet inverse of
  *            h(n) = (τodd(n)+σodd(n))/2
- * Range:     u8 n <= 242, u16 n <= 9861, u32 n <= 9861, u64 n <= 9861,
- *            u128 n <= 9861, big any n
- * Helpers:   none
+ * Range:     u8 n <= 242, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 105 terms through n = 9861 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global caches */
 static seq_t *tau_cache   = NULL;
@@ -42,11 +44,11 @@ static void ensure_cache(idx_t N)
     if ((idx_t)(N + 1) <= cache_size) return;   /* already computed */
 
     size_t sz = (size_t)(N + 1);                 /* array size (0..N) */
-    seq_t  *tau   = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t  *sigma = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t  *h     = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t  *inv   = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t  *a     = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t  *tau   = mem_new(seq_t, sz);
+    seq_t  *sigma = mem_new(seq_t, sz);
+    seq_t  *h     = mem_new(seq_t, sz);
+    seq_t  *inv   = mem_new(seq_t, sz);
+    seq_t  *a     = mem_new(seq_t, sz);
 
     /* Sieve for divisor count (τ) and divisor sum (σ). */
     for (size_t d = 1; d < sz; ++d) {
@@ -102,11 +104,11 @@ static void ensure_cache(idx_t N)
     }
 
     /* Replace old caches with new ones */
-    free(tau_cache);
-    free(sigma_cache);
-    free(h_cache);
-    free(inv_cache);
-    free(a_cache);
+    mem_free(tau_cache);
+    mem_free(sigma_cache);
+    mem_free(h_cache);
+    mem_free(inv_cache);
+    mem_free(a_cache);
     tau_cache   = tau;
     sigma_cache = sigma;
     h_cache     = h;

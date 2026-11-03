@@ -14,12 +14,14 @@
  *            arbitra...
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 22, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 16; /* start with room for indices up to 15 */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0; /* allocation failure → return 0 as failure code */
 
         /* base values for indices 1 … 9 */
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* enlarge the cache array if requested index is outside current capacity */
     while ((size_t)n >= cache_cap) {              /* need index n, so size at least n+1 */
         size_t new_cap = cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0; /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 12, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,14 @@
    integer written in decimal (i.e. the base‑4 digits interpreted as a
    base‑10 number). */
 #include <stdbool.h>
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {

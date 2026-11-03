@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   mod_mul_u64
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>   /* for size_t */
-#include "../utils/mod_mul_u64.h"
+#include "../utils/mulmod.h"
 
 /* ----- Miller‑Rabin primality test for 64‑bit integers ----- */
 
@@ -37,8 +38,8 @@ static inline uint64_t mod_pow_u64(uint64_t base, uint64_t exp, uint64_t mod)
 {
     uint64_t res = 1;
     while (exp) {
-        if (exp & 1ULL) res = mod_mul_u64(res, base, mod);
-        base = mod_mul_u64(base, base, mod);
+        if (exp & 1ULL) res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1ULL;
     }
     return res;
@@ -65,7 +66,7 @@ static bool is_prime_u64(uint64_t n)
         if (x == 1ULL || x == n - 1) continue;
         bool composite = true;
         for (uint64_t r = 1ULL; r < s; ++r) {
-            x = mod_mul_u64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;

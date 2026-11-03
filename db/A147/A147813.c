@@ -10,7 +10,8 @@
  *            (equivalently 2*prime_{k+1} <= prime_k + prime_{k+2})
  * Range:     u8 n <= 31, u16 n <= 3444, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sieve_primes
+ * Validated: standard, pass, 72 terms through n = 9272 (2026-11-03)
+ * Helpers:   mem, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/sieve_primes.h"   /* provides void sieve_primes(idx_t limit,
-                                      idx_t **primes_out, size_t *count_out); */
+#include <string.h>
+#include "../utils/sieve_primes.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         }
 
         /* Allocate the worst-case array size (all primes could qualify) */
-        terms = (seq_t *)malloc(prime_cnt * sizeof(seq_t));
+        terms = mem_new(seq_t, prime_cnt);
         if (!terms) {
             /* Allocation failure – give up safely */
             free(primes);
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         }
 
         /* Shrink the terms buffer to the actual size */
-        terms = (seq_t *)realloc(terms, term_len * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, term_len);
 
         initialized = true;
     }

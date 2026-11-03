@@ -11,7 +11,8 @@
  *            a sieve for smallest * prime factors and prime indices
  * Range:     u8 n <= 23, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* global state ----------------------------------------------------------*/
 static uint32_t *spf = NULL;          /* smallest prime factor of i    */
@@ -120,7 +122,7 @@ seq_t a(idx_t n)
 
         /* Cache initial capacity for the sequence terms. */
         seq_cache_cap = 1024;
-        seq_cache = (seq_t*)malloc(seq_cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cache_cap);
         if (!seq_cache) abort();
 
         initialized = true;
@@ -139,7 +141,7 @@ seq_t a(idx_t n)
         if (satisfies(last_candidate)) {
             if (seq_cache_len == seq_cache_cap) {
                 seq_cache_cap *= 2;
-                seq_cache = (seq_t*)realloc(seq_cache, seq_cache_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cache_cap);
                 if (!seq_cache) abort();
             }
             seq_cache[seq_cache_len++] = (seq_t)last_candidate;

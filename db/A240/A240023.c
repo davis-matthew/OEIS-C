@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 12, u64 n <= 22, u128 n <= 36,
  *            big any n
- * Helpers:   build_spf, seq_mul, seq_pow
+ * Validated: standard, pass, 46 terms through n = 276 (2026-11-01)
+ * Helpers:   build_spf, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,15 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/build_spf.h"   /* build_spf */
-#include "../utils/seq_mul.h"     /* seq_mul */
-#include "../utils/seq_pow.h"     /* seq_pow */
+#include <stdint.h>
+#include <string.h>
+#include "../utils/build_spf.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Cached smallest‑prime‑factor array and its limit. */
 static idx_t *g_spf = NULL;
@@ -70,7 +77,7 @@ seq_t a(idx_t n)
         }
 
         seq_t fact_p = factorial_of_prime(p);
-        seq_t power = seq_pow(fact_p, cnt);
+        seq_t power = ipow_idx(fact_p, cnt);
         result = seq_mul(result, power);
     }
 

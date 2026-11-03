@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   gcd, mod_pow
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   gcd, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /*  Calculate Carmichael function λ(n) for a 64‑bit integer n.  */
 static seq_t calc_lambda(uint64_t n)
@@ -79,7 +82,7 @@ static bool satisfies(uint64_t k)
 {
     seq_t lam = calc_lambda(k);
     seq_t modk = (seq_t)k;
-    seq_t pow_mod = mod_pow(lam, k, modk);
+    seq_t pow_mod = powmod(lam, k, modk);
     return pow_mod == (lam % modk);
 }
 
@@ -98,7 +101,7 @@ seq_t a(idx_t n)
             /* Grow storage if necessary. */
             if (cache_len == cache_cap) {
                 size_t newcap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp) {
                     /* In a production build, handle allocation failure.  */
                     abort();

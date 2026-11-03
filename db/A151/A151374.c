@@ -9,11 +9,15 @@
  * Formula:   a(n) = 2^n * Catalan(n)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 23, u128 n <= 45,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 200 (2026-11-01)
  * Helpers:   catalan, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
 #include "../utils/pow2.h"
 

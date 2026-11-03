@@ -9,14 +9,16 @@
  *            2*(n-2)*(2*n-5)*(n+3)*a(n-1)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   ugcd128
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   gcd_u128, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/ugcd128.h"
+#include "../utils/gcd_u128.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     if (last < 3) {
         if (cap < 4) {
             cap = 4;
-            cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
         }
         cache[1] = (seq_t)4u;
         cache[2] = (seq_t)0u;
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
     /* extend cache if necessary */
     if ((size_t)n + 1 > cap) {
         cap = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
     }
 
     /* compute missing terms up to n using the recurrence */
@@ -55,10 +57,10 @@ seq_t a(idx_t n) {
                                 (unsigned __int128)(i + 2) *
                                 (unsigned __int128)(i - 3);
 
-        unsigned __int128 g = ugcd128(num, den);
+        unsigned __int128 g = gcd_u128(num, den);
         num /= g; den /= g;
 
-        g = ugcd128(prev, den);
+        g = gcd_u128(prev, den);
         prev /= g; den /= g;
 
         /* remaining division is exact */

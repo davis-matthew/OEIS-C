@@ -10,6 +10,7 @@
  *            numbers < H_n where H_n = n(2n–1) is the nth hexagonal number
  * Range:     u8 n <= 2, u16 n <= 37, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

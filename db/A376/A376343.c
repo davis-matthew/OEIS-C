@@ -12,7 +12,8 @@
  *            equals 2. (The sequence is the list of these positions.)
  * Range:     u8 n <= 55, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Local helpers ---------------------------------------------------------- */
 static void ensure_prime_cap(size_t *cap, uint32_t **list, size_t *len)
@@ -36,7 +38,7 @@ static void ensure_cache_cap(size_t *cap, seq_t **list, size_t *len)
 {
     if (*len >= *cap) {
         *cap = (*cap == 0 ? 16 : (*cap << 1));
-        seq_t *tmp = (seq_t*)realloc(*list, *cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *list, (*cap * sizeof(seq_t)) / sizeof(seq_t));
         if (!tmp) { abort(); }
         *list = tmp;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* cache for computed sequence values */
 static seq_t *cache = NULL;
@@ -40,7 +42,7 @@ static void ensure_pow7(idx_t n)
     if (n < pow7_len)   /* already available */
         return;
     idx_t new_len = n + 1;
-    seq_t *tmp = (seq_t *)realloc(pow7, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, pow7, new_len);
     if (!tmp) exit(EXIT_FAILURE);   /* allocation failure */
     pow7 = tmp;
 
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
 
     /* enlarge cache to hold all values up to n */
     idx_t new_len = n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) exit(EXIT_FAILURE);
     cache = tmp;
 

@@ -11,9 +11,10 @@
  *            a(n) = 1 if n itself is a leaf, otherwise a(n) = a(child1) +
  *            a(child2) where the two children of n are the numbers m such
  *            that m - popcount(m) = n. The implementation uses m...
- * Range:     u8 n <= 9847, u16 n <= 9847, u32 n <= 9847, u64 n <= 9847,
- *            u128 n <= 9847, big any n
- * Helpers:   none
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 225 terms through n = 9847 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* maximum recursion depth considered finite; anything deeper is treated as
    belonging to the infinite trunk */
@@ -46,7 +48,7 @@ static void extend_cache(size_t size) {
     /* round up to nearest power of two for amortised efficiency */
     size_t new_cap = cache_cap ? cache_cap : 1;
     while (new_cap < size) new_cap <<= 1;
-    cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     state = (unsigned char*)realloc(state, new_cap * sizeof(unsigned char));
     for (size_t i = cache_cap; i < new_cap; ++i) {
         state[i] = 0;        /* unknown */

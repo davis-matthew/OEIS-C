@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, fini
  * Formula:   not stated
- * Range:     u8 n <= 13, u16 n <= 131, u32 n <= 9984, u64 n <= 9984,
- *            u128 n <= 9984, big any n
- * Helpers:   digit_len_small
+ * Range:     u8 n <= 13, u16 n <= 131, u32 n <= 16796, u64 n <= 16796,
+ *            u128 n <= 16796, big any n
+ * Validated: standard, pass, 62 terms through n = 9984 (2026-11-01)
+ * Helpers:   num_digits_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -42,7 +43,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/digit_len_small.h"
+#include "../utils/num_digits_i32.h"
 
 #define MAX_L  25        /* sufficient for all tested n (<= 2^64) */
 
@@ -117,7 +118,7 @@ seq_t a(idx_t n)
         }
 
         /* append chosen digit to the decimal representation */
-        int digs = digit_len_small(chosen);
+        int digs = num_digits_i32(chosen);
         seq_t mult = 1;
         for (int i = 0; i < digs; ++i)
             mult *= 10;

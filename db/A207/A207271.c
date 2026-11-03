@@ -10,13 +10,15 @@
  *            Computed by dynamic programming over admissible columns
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 26, u64 n <= 63, u128 n <= 136,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* admissible 4‑bit columns satisfying the vertical constraints */
 static const unsigned char VALID_COLS[9] = {0,1,2,4,8,9,12,14,15};
@@ -31,11 +33,11 @@ seq_t a(idx_t n)
 
     size_t M = V * V;          /* number of states (previous two columns) */
 
-    seq_t *dp  = (seq_t*)calloc(M, sizeof(seq_t));
-    seq_t *tmp = (seq_t*)calloc(M, sizeof(seq_t));
+    seq_t *dp  = mem_new(seq_t, M);
+    seq_t *tmp = mem_new(seq_t, M);
     if (!dp || !tmp) {
-        free(dp);
-        free(tmp);
+        mem_free(dp);
+        mem_free(tmp);
         return (seq_t)0;
     }
 
@@ -80,14 +82,14 @@ seq_t a(idx_t n)
         seq_t *swap = dp;
         dp = tmp;
         tmp = swap;
-        memset(tmp, 0, M * sizeof(seq_t));
+        mem_set(tmp, 0, M * sizeof(seq_t));
     }
 
     /* sum all ending states to get the total number of arrays */
     seq_t result = (seq_t)0;
     for (size_t i = 0; i < M; ++i) result += dp[i];
 
-    free(dp);
-    free(tmp);
+    mem_free(dp);
+    mem_free(tmp);
     return result;
 }

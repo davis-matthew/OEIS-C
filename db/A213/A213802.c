@@ -11,12 +11,14 @@
  *            implementation memoises computed values so that any call o...
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 51, u64 n <= 173, u128 n <= 173,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 166 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, calloc */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoised values */
 static idx_t cache_size = 0;     /* number of values stored (max index + 1) */
@@ -41,7 +43,7 @@ static void ensure_capacity(idx_t N) {
     if (cache_cap >= N) return;
     idx_t new_cap = cache_cap ? cache_cap * 2 : 10;
     if (new_cap < N) new_cap = N;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
         /* allocation failed – terminate program (no error handling needed) */
         abort();

@@ -9,14 +9,15 @@
  *            This defines a self‑inverse permutation of the natural numbers
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floorSqrt
+ * Validated: standard, pass, 82 terms through n = 936 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/floorSqrt.h"
+#include "../utils/isqrt_u64.h"
 
 /* simple deterministic 64‑bit isPrime test (trial division up to sqrt) */
 static inline int isPrimeUint64(uint64_t n) {
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
     }
 
     /* check if n is a square of a prime */
-    uint64_t r = floorSqrt(un);
+    uint64_t r = isqrt_u64(un);
     if (r * r == un && isPrimeUint64(r)) {
         return (seq_t)r;
     }

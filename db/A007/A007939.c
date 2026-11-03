@@ -8,7 +8,8 @@
  *            n and no more zeros (leading zeros allowed)
  * Range:     u8 n <= 17, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   hslot, signature
+ * Validated: standard, pass, 67 terms through n = 914 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,29 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/hslot.h"
-#include "../utils/signature.h"
+
+static size_t hslot(uint64_t key, size_t size) {
+	uint64_t h = key * 0x9E3779B97F4A7C15ULL;
+	return (size_t)(h >> 20) & (size - 1);
+}
+
+/* key = nonzero digits sorted descending; returns digit count */
+static int signature(uint64_t x, uint64_t *key, int *zeros) {
+	int cnt[10];
+	int d = 0, dg, r;
+	uint64_t k = 0;
+	memset(cnt, 0, sizeof(cnt));
+	do {
+		cnt[x % 10]++;
+		x /= 10;
+		d++;
+	} while (x > 0);
+	for (dg = 9; dg >= 1; dg--)
+		for (r = 0; r < cnt[dg]; r++) k = k * 10 + (uint64_t)dg;
+	*key = k;
+	*zeros = cnt[0];
+	return d;
+}
 
 static uint64_t *terms = NULL;
 static idx_t tcount = 0, tcap = 0;

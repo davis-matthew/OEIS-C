@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 442, u16 n <= 1427, u32 n <= 5962, u64 n <= 8338,
- *            u128 n <= 8338, big any n
- * Helpers:   none
+ * Range:     u8 n <= 442, u16 n <= 1427, u32 n <= 5962, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 103 terms through n = 8338 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -58,10 +60,10 @@ seq_t a(idx_t n)
      * We flatten it into a 1‑D array. */
     size_t stride = (size_t)cntmax + 1;
     size_t tableSize = (size_t)(n + 1) * stride;
-    seq_t *dp = (seq_t *)malloc(tableSize * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, tableSize);
     if (!dp)
         return (seq_t)0;                 /* allocation failure (unlikely) */
-    memset(dp, 0, tableSize * sizeof(seq_t));
+    mem_set(dp, 0, tableSize * sizeof(seq_t));
     dp[0] = (seq_t)1;                   /* dp[0][0] = 1 */
 
     /* Main DP loop over distinct triangular numbers. */
@@ -86,6 +88,6 @@ seq_t a(idx_t n)
         result += dp[(size_t)n * stride + (size_t)tc];
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

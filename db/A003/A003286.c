@@ -12,7 +12,8 @@
  *            F_k = Sum_{m|k} m*c_m, T_k = Sum_{m|2k, m not divi...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 25,
  *            big any n
- * Helpers:   a3286_add, a3286_div, a3286_mul
+ * Validated: standard, pass, 35 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,49 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a3286_add.h"
-#include "../utils/a3286_div.h"
-#include "../utils/a3286_mul.h"
+
+static void a3286_add(uint32_t *a, size_t *alen, const uint32_t *b, size_t blen)
+{
+    uint64_t carry = 0;
+    size_t i;
+    size_t m = *alen > blen ? *alen : blen;
+    for (i = *alen; i < m; i++) a[i] = 0;
+    for (i = 0; i < m; i++) {
+        uint64_t t = (uint64_t)a[i] + (i < blen ? b[i] : 0) + carry;
+        a[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+    if (carry) a[m++] = (uint32_t)carry;
+    *alen = m;
+}
+
+static void a3286_div(uint32_t *x, size_t *len, uint32_t d)
+{
+    uint64_t rem = 0;
+    size_t i = *len;
+    while (i > 0) {
+        i--;
+        uint64_t cur = (rem << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        rem = cur % d;
+    }
+    while (*len > 0 && x[*len - 1] == 0) (*len)--;
+}
+
+static void a3286_mul(uint32_t *x, size_t *len, uint32_t m)
+{
+    uint64_t carry = 0;
+    size_t i;
+    for (i = 0; i < *len; i++) {
+        uint64_t t = (uint64_t)x[i] * m + carry;
+        x[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+    while (carry) {
+        x[(*len)++] = (uint32_t)carry;
+        carry >>= 32;
+    }
+}
 
 static size_t g_L;
 static uint32_t *g_tot;

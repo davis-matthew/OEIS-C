@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9946, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cache for μ values.  mu_cache[i] holds a(i) for i ≤ mu_n. */
 static seq_t *mu_cache = NULL;
@@ -33,7 +35,7 @@ static void ensure_cache(idx_t n)
     if (new_cap == 0) new_cap = 1;
     while (new_cap < n) new_cap <<= 1;              /* power‑of‑two grows */
 
-    seq_t *tmp = (seq_t *)realloc(mu_cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, mu_cache, (new_cap + 1));
     if (tmp == NULL) abort();                      /* out‑of‑memory protection */
     mu_cache = tmp;
     mu_cap   = new_cap;

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   Dirichlet g.f.: ∏_{k≥2} (1 - μ(k)² k^{-s})
- * Range:     i8 n <= 9793, i16 n <= 9793, i32 n <= 9793, i64 n <= 9793,
- *            i128 n <= 9793, big any n
- * Helpers:   none
+ * Range:     i8 n <= 20000, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 117 terms through n = 9793 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Compute a(n) as the coefficients of this Dirichlet series.   */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         idx_t N = n;
 
         /* allocate new buffers */
-        cache = (seq_t *)realloc(cache, (N + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (N + 1));
         mu2   = (unsigned char *)realloc(mu2, (N + 1) * sizeof(unsigned char));
 
         /* initialise arrays (no value needed for index 0) */

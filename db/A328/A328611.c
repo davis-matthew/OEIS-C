@@ -11,6 +11,7 @@
  *            k ≥ 2: a(n) = Lucas(k-1-j) * binomial(k, j). Here Lucas(–1) = –1
  * Range:     i8 n <= 29, i16 n <= 94, i32 n <= 332, i64 n <= 1239,
  *            i128 n <= 1325, big any n
+ * Validated: standard, pass, 77 terms through n = 1325 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,12 +9,14 @@
  *            a(2)=288, a(3)=960, a(4)=1632, a(5)=2688, a(6)=6048
  * Range:     u8 n <= 1, u16 n <= 10, u32 n <= 29, u64 n <= 66, u128 n <= 142,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 942 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         if (newsize < (size_t)n) newsize = n;
 
         /* realloc may return NULL only if newsize is 0; otherwise failure is fatal. */
-        seq_t *tmp = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newsize);
         if (!tmp && newsize) return 0;  /* allocation failure */
 
         cache = tmp;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  *     a(n) = 27·∑_{i=1}^{33} a(n−i) − 378·a(n−34)
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static idx_t cache_size = 0;
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n)
     size_t want = (cache_cap == 0 ? 64 : cache_cap);
     while (want <= (size_t)n)
         want <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(seq_cache, want * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, seq_cache, want);
     if (!new_cache) {
         /* allocation failure: abort */
         exit(1);

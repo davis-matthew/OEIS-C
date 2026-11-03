@@ -7,14 +7,16 @@
  * Formula:   a(n) = 1 + Σ_{i=0..⌊n/2⌋} φ(n−2i)
  * Range:     u8 n <= 34, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   calc_phi
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Use the totient routine supplied by the build utilities. */
 #include <stddef.h>
-#include "../utils/calc_phi.h"
+#include <stdint.h>
+#include "../utils/totient_seq.h"
 
 /* Compute A225373(n) for any non‑negative n. */
 seq_t a(idx_t n)
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
         if (k == 0)                     /* φ(0) is defined as 0 */
             phi_val = 0;
         else
-            phi_val = calc_phi((seq_t)k);
+            phi_val = totient_seq((seq_t)k);
         sum += phi_val;
     }
     return sum;

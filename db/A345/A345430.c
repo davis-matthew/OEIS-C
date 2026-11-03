@@ -10,13 +10,14 @@
  *            we use (u,v) = (0,1)
  * Range:     u8 n <= 14, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   modinv_idx_t
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
+ * Helpers:   modinv_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/modinv_idx_t.h"
+#include "../utils/modinv_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +28,7 @@ seq_t a(idx_t n)
 
     for (idx_t x = 2; x <= n; ++x) {
         for (idx_t r = 1; r < x && r <= n; ++r) {
-            idx_t inv = modinv_idx_t(r, x);
+            idx_t inv = modinv_idx(r, x);
             if (inv == 0) continue;      /* gcd(x,r) != 1 */
 
             idx_t cnt = (n >= r) ? ((n - r) / x + 1) : 0;

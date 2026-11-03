@@ -7,13 +7,22 @@
  * Formula:   a(n) = concat( floor(n/100), floor(n/10), n )
  * Range:     u8 n <= 29, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   digits_of_seq_t, pow10_of_int
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/digits_of_seq_t.h"
-#include "../utils/pow10_of_int.h"
+#include "../utils/num_digits.h"
+
+static seq_t pow10_of_int(int d)
+{
+    /* Return 10^d as seq_t */
+    seq_t p = 1;
+    for (int i = 0; i < d; ++i)
+        p *= 10;
+    return p;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +42,7 @@ seq_t a(idx_t n)
         if (result == 0 && part == 0)
             continue;
 
-        int d = digits_of_seq_t(part);
+        int d = num_digits(part);
         result = result * pow10_of_int(d) + part;
     }
 

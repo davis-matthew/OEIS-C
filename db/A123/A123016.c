@@ -7,7 +7,8 @@
  * Formula:   a(n) = (16*2^n - (-4)^n)/48, n>0
  * Range:     i8 n <= 6, i16 n <= 10, i32 n <= 18, i64 n <= 27, i128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(1)=1, a(2)=1, a(3)=4, a(4)=0; a(n)=12*a(n-2)-16*a(n-3) for n>=5 */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,11 +29,11 @@ seq_t a(idx_t n)
 
     /* allocate or grow cache as needed */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         if (!cache) abort();
     } else if (n > cache_val) {
         /* grow cache to accommodate n */
-        cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, needed);
         if (!cache) abort();
     }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence */
 static seq_t *cache      = NULL;
@@ -45,7 +47,7 @@ static void cache_append(seq_t val)
 {
     if (cache_len >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         cache_cap = new_cap;
@@ -66,8 +68,8 @@ seq_t a(idx_t n)
         size_t u_len = (k == 1 ? 1 : (size_t)k - 1);   /* coeffs of U(k,x) */
         size_t v_len = (size_t)k;                     /* coeffs of V(k,x) */
 
-        seq_t *u_new = (seq_t *)malloc(sizeof(seq_t) * u_len);
-        seq_t *v_new = (seq_t *)malloc(sizeof(seq_t) * v_len);
+        seq_t *u_new = mem_new(seq_t, u_len);
+        seq_t *v_new = mem_new(seq_t, v_len);
         if (!u_new || !v_new) exit(EXIT_FAILURE);
 
         if (k == 1) {                      /* base row */
@@ -99,8 +101,8 @@ seq_t a(idx_t n)
         }
 
         /* Prepare for next iteration */
-        if (prev_u) free(prev_u);
-        if (prev_v) free(prev_v);
+        if (prev_u) mem_free(prev_u);
+        if (prev_v) mem_free(prev_v);
         prev_u = u_new;
         prev_v = v_new;
         prev_u_len = u_len;

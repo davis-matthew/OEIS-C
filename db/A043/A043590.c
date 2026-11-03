@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 30, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #ifdef __cplusplus
 #  include <algorithm>
 #endif
+#include "../utils/mem.h"
 
 /* ----- static storage for the generated sequence -------------------------------- */
 static seq_t  *cache      = NULL;   /* buffer holding the numbers   */
@@ -37,11 +39,11 @@ static void add_value(seq_t val)
 {
     if (cache_cnt == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 256;
-        seq_t *new_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (!new_arr) exit(EXIT_FAILURE);
         for (size_t i = 0; i < cache_cnt; ++i)
             new_arr[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = new_arr;
         cache_cap = new_cap;
     }

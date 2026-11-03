@@ -10,14 +10,17 @@
  *            Catalan number (C_0 = 1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 /* The build supplies typedefs for seq_t and idx_t */
-#include "../utils/binom.h"     /* binomial(idx_t n, idx_t k) returns seq_t */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Static cache for Catalan numbers */
 static seq_t *cat_cache = NULL;    /* array holding Catalan numbers */
@@ -32,7 +35,7 @@ static void ensure_cat_capacity(idx_t min_cap)
     idx_t new_cap = cat_cap ? cat_cap << 1 : 8;
     while (new_cap < min_cap) new_cap <<= 1;   /* double until enough */
 
-    seq_t *tmp = (seq_t *)realloc(cat_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cat_cache, new_cap);
     if (!tmp) abort();                /* allocation failed */
     cat_cache = tmp;
     cat_cap = new_cap;

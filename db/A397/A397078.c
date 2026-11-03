@@ -9,12 +9,14 @@
  *            Product_{k≥1} (1 + x^k)
  * Range:     u8 n <= 9, u16 n <= 30, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *divcnt  = NULL;   /* divisor counts d(k) */
 static seq_t *conv    = NULL;   /* convolution C(k) = Σ d(i)d(k-i) */
@@ -27,14 +29,14 @@ static void ensure_cache(idx_t n)
     if (n <= max_n) return;
 
     /* free old memory */
-    if (divcnt) free(divcnt);
-    if (conv)   free(conv);
-    if (partd)  free(partd);
+    if (divcnt) mem_free(divcnt);
+    if (conv)   mem_free(conv);
+    if (partd)  mem_free(partd);
 
     size_t sz = (size_t)(n + 1);
-    divcnt = (seq_t*)malloc(sz * sizeof(seq_t));
-    conv   = (seq_t*)malloc(sz * sizeof(seq_t));
-    partd  = (seq_t*)malloc(sz * sizeof(seq_t));
+    divcnt = mem_new(seq_t, sz);
+    conv   = mem_new(seq_t, sz);
+    partd  = mem_new(seq_t, sz);
 
     /* zero‑initialize all arrays */
     for (idx_t i = 0; i <= n; ++i) {

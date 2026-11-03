@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf, easy
  * Formula:   not stated
- * Range:     u8 n <= 8226, u16 n <= 8226, u32 n <= 8226, u64 n <= 8226,
- *            u128 n <= 8226, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10010, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 107 terms through n = 8226 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global storage for computed rows */
 static seq_t **ca_rows = NULL;
@@ -53,7 +55,7 @@ compute_row(idx_t r)
     /* Base case: first row */
     if (r == 0) {
         size_t len = 1;
-        seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) exit(EXIT_FAILURE);
         row[0] = 1;
         ca_rows[0] = row;
@@ -65,7 +67,7 @@ compute_row(idx_t r)
 
     /* Compute this row */
     size_t len = 4 * (size_t)r + 1;            /* current row length   */
-    seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, len);
     if (!row) exit(EXIT_FAILURE);
 
     seq_t *prev    = ca_rows[(size_t)r - 1];

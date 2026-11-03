@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 7108, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_counts
+ * Validated: standard, pass, 66 terms through n = 9397 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,14 @@
  * dynamic array. */
 
 /* include utilities for digit counting */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/digit_counts.h"
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache of computed terms */
 static seq_t *cache = NULL;   /* array of terms */
@@ -36,7 +42,7 @@ static idx_t next_k = 0;
 static void grow_cache(void)
 {
     size_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) {
         /* In a real build, handle out‑of‑memory gracefully; here we abort */
         abort();

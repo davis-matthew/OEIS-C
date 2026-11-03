@@ -8,16 +8,18 @@
  * Formula:   a(n) = Sum_{k=0..n} 5^k * 2^(n-k) * binomial(2*n+k, k)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 16,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     seq_t sum  = 0;
-    seq_t pow2 = pow_uint(2, n); /* 2^n */
+    seq_t pow2 = ipow_u64_idx(2, n); /* 2^n */
     seq_t pow5 = 1;             /* 5^0 */
 
     /* binomial(2n, 0) = 1 */

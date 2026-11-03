@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -42,8 +43,8 @@
 #include <stdbool.h>
 #include <math.h>
 /* Use the provided integer‑square‑root helper if desired:
-   #include "../utils/int_sqrt.h"
-   On most building systems int_sqrt is available from the
+#include "../utils/isqrt.h"
+   On most building systems isqrt is available from the
    utils directory.  We stay independent of it and use the C
    library sqrt for the small indices handled here. */
 

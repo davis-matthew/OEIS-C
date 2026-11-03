@@ -11,7 +11,8 @@
  *            pairs
  * Range:     u8 n <= 9, u16 n <= 11, u32 n <= 15, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   is_prime, powmod64, seq_is_fixed_width
+ * Validated: standard, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   is_prime_u64, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/powmod64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/powmod_u64.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 #define MAXT 256
 
@@ -37,13 +49,13 @@ static unsigned value_bits(void) {
 
 static bool mersenne_prime(unsigned p) {
     if (p == 2) return true;
-    if (p < 2 || !is_prime(p)) return false;
-    if (p < 64) return is_prime(((uint64_t)1 << p) - 1);
+    if (p < 2 || !is_prime_u64(p)) return false;
+    if (p < 64) return is_prime_u64(((uint64_t)1 << p) - 1);
     /* trial factors q = 2kp+1, q = +-1 mod 8 */
     for (uint64_t k = 1; k < 200000; k++) {
         uint64_t q = 2 * k * (uint64_t)p + 1;
         if ((q & 7) != 1 && (q & 7) != 7) continue;
-        if (powmod64(2, p, q) == 1) return false;
+        if (powmod_u64(2, p, q) == 1) return false;
     }
     /* Lucas-Lehmer */
     seq_t one = 1;

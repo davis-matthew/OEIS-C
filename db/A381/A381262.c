@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
    Parameters: idx_t is the index type; seq_t is the integer type used by the build.   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,9 +41,9 @@ seq_t a(idx_t n)
 
     /* allocate auxiliary arrays */
     size_t sz = (size_t)(n + 1);
-    seq_t *a_arr = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *y2    = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *z     = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *a_arr = mem_new(seq_t, sz);
+    seq_t *y2    = mem_new(seq_t, sz);
+    seq_t *z     = mem_new(seq_t, sz);
 
     /* initial values */
     a_arr[0] = 1;
@@ -93,8 +95,8 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_arr[n];
-    free(a_arr);
-    free(y2);
-    free(z);
+    mem_free(a_arr);
+    mem_free(y2);
+    mem_free(z);
     return result;
 }

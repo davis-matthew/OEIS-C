@@ -13,12 +13,14 @@
  *            for n > 18 * * Initial values (n = 1 … 18): * a(1) =...
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 21, u64 n <= 40, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* for malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
 
         /* start with a small capacity, grow as needed */
         capacity = 32;
-        cache = (seq_t *)malloc((size_t)capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)capacity);
         for (idx_t i = 0; i < 18; ++i) cache[i] = init[i];
         size = 18;
     }
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         /* Grow array if necessary */
         if (size >= capacity) {
             capacity = capacity ? capacity * 2 : 32;
-            cache = (seq_t *)realloc(cache, (size_t)capacity * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (size_t)capacity);
         }
 
         /* idx is the zero‑based index of the term we are about to compute */

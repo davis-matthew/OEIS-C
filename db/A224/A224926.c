@@ -8,21 +8,33 @@
  * Formula:   a(n) = the minimal numerator a (1 ≤ a ≤ n) for which there
  *            exists a denominator b such that floor( a / b * 10^digits(n) ) =
  *            n. (digits(n) = number of decimal digits of n.)
- * Range:     u8 n <= 16, u16 n <= 1541, u32 n <= 9687, u64 n <= 9687,
- *            u128 n <= 9687, big any n
- * Helpers:   digits_of, pow10
+ * Range:     u8 n <= 16, u16 n <= 1541, u32 n <= 11000, u64 n <= 11000,
+ *            u128 n <= 11000, big any n
+ * Validated: standard, pass, 99 terms through n = 9687 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/digits_of.h"   /* digits_of(idx_t n)  */
-#include "../utils/pow10.h"       /* pow10(idx_t exp)    */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
     /* number of decimal digits of n */
-    idx_t d = digits_of(n);
+    idx_t d = num_digits_idx(n);
 
     /* 10^d as seq_t */
     seq_t pow10_d = pow10(d);

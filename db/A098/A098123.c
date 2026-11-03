@@ -7,14 +7,16 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = Sum_{k=floor(n/3)..floor(n/2)}
  *            C(2*n-4*k,n-2*k)*C(n-1-k,2*n-4*k-1)
- * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 38, u64 n <= 71, u128 n <= 138,
+ * Range:     u8 n <= 12, u16 n <= 20, u32 n <= 38, u64 n <= 71, u128 n <= 138,
  *            big any n
- * Helpers:   binom, binomial
+ * Validated: standard, pass, 52 terms through n = 872 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

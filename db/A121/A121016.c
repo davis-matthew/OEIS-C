@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 19, u32 n <= 2618, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 8928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* Node in the min‑heap, representing a pattern B (length d) repeated m times.
    N = value of B repeated m times. */
@@ -81,7 +83,7 @@ static void heap_push(Node const *item)
 {
     if (heap_size == heap_cap) {
         size_t new_cap = heap_cap ? heap_cap * 2 : 64;
-        Node *new_heap = (Node *)realloc(heap, new_cap * sizeof(Node));
+        Node *new_heap = mem_resize(Node, heap, new_cap);
         if (!new_heap) exit(EXIT_FAILURE);
         heap = new_heap;
         heap_cap = new_cap;
@@ -119,7 +121,7 @@ static void cache_append(seq_t value)
 {
     if (cache_count == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) exit(EXIT_FAILURE);
         cache = new_cache;
         cache_cap = new_cap;

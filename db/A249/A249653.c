@@ -11,7 +11,8 @@
  *            the sum of the remaining four
  * Range:     u8 none, u16 n <= 21, u32 n <= 61, u64 n <= 137, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define STATES (6*6*6*6)   /* 1296 four‑digit states */
 
@@ -69,15 +71,15 @@ static void init_sequence(void)
     }
 
     /* Allocate DP buffers */
-    dp_curr = (seq_t *)malloc(STATES * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(STATES * sizeof(seq_t));
+    dp_curr = mem_new(seq_t, STATES);
+    dp_next = mem_new(seq_t, STATES);
     for (idx_t s = 0; s < STATES; ++s)
         dp_curr[s] = (seq_t)1;    /* one sequence for each 4‑digit state */
 
     /* Allocate answer cache */
     ans_cap = 64;                 /* initial capacity */
-    answers = (seq_t *)malloc((ans_cap + 1) * sizeof(seq_t));
-    memset(answers, 0, (ans_cap + 1) * sizeof(seq_t));
+    answers = mem_new(seq_t, (ans_cap + 1));
+    mem_set(answers, 0, (ans_cap + 1) * sizeof(seq_t));
     ans_size = 0;
 }
 
@@ -90,16 +92,16 @@ static void ensure_answers(idx_t n)
     /* Grow answer array if necessary */
     if (ans_cap <= n) {
         size_t new_cap = n * 2 + 64;
-        seq_t *new_arr = (seq_t *)malloc((new_cap + 1) * sizeof(seq_t));
-        memcpy(new_arr, answers, (ans_cap + 1) * sizeof(seq_t));
-        free(answers);
+        seq_t *new_arr = mem_new(seq_t, (new_cap + 1));
+        mem_copy(new_arr, answers, (ans_cap + 1) * sizeof(seq_t));
+        mem_free(answers);
         answers = new_arr;
         ans_cap = new_cap;
     }
 
     /* Extend DP until we have sequences of length n+4 */
     while (current_len < n + 4) {
-        memset(dp_next, 0, STATES * sizeof(seq_t));
+        mem_set(dp_next, 0, STATES * sizeof(seq_t));
 
         for (idx_t s = 0; s < STATES; ++s) {
             seq_t val = dp_curr[s];

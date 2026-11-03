@@ -8,7 +8,8 @@
  *            a(1)=2, a(2)=3, a(3)=4, a(4)=6, a(5)=8, a(6)=11
  * Range:     u8 n <= 21, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Memoisation cache for the sequence */
 static seq_t *cache   = NULL;
@@ -31,7 +33,7 @@ ensure_cap(idx_t need)
         return;                     /* already sufficient */
 
     idx_t new_cap = (need + 1) * 2;  /* over‑allocate to keep O(1) amortised */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)                  /* allocation failed – abort */
         abort();
     cache = new_cache;

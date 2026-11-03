@@ -9,14 +9,26 @@
  *            a(n)=5*a(n-1)-7*a(n-2)+5*a(n-3)-a(n-4) for n≥4
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 37, u128 n <= 74,
  *            big any n
- * Helpers:   seq_realloc
+ * Validated: standard, pass, 44 terms through n = 909 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>                    /* for abort, size_t */
-#include "../utils/seq_realloc.h"      /* provides seq_realloc(seq_t*,size_t,size_t) */
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache      = NULL;    /* computed values */
 static size_t cache_cap   = 0;      /* current capacity (number of elements) */

@@ -9,7 +9,8 @@
  * Formula:   a(n) = Abs(A045753(n)-A123986(n))
  * Range:     u8 n <= 17, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----- 64‑bit Miller–Rabin primality test ----- */
 static inline uint64_t mulmod_uint64(uint64_t a, uint64_t b, uint64_t mod)
@@ -74,7 +76,7 @@ static void ensure_capacity_seq_t(seq_t **arr, size_t *cap, size_t need)
     if (*cap < need) {
         size_t newcap = (*cap) ? (*cap << 1) : 64;
         while (newcap < need) newcap <<= 1;
-        seq_t *newarr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        seq_t *newarr = mem_resize(seq_t, *arr, newcap);
         if (!newarr) { /* allocation failure */
             /* In an OEIS context this never happens for the requested sizes */
             exit(1);

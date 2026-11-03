@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 96, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 840 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state for memoisation */
 static seq_t *a_vals = NULL;      /* a(k) values, 1‑indexed */
@@ -42,8 +44,8 @@ static void ensure_capacity(size_t need)
     size_t new_cap = cap ? (cap << 1) : 64;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *na = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
-    seq_t *nd = (seq_t *)realloc(d_vals, new_cap * sizeof(seq_t));
+    seq_t *na = mem_resize(seq_t, a_vals, new_cap);
+    seq_t *nd = mem_resize(seq_t, d_vals, new_cap);
     if (!na || !nd) exit(1);           /* out of memory */
     a_vals = na;
     d_vals = nd;

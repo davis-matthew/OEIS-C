@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 415, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 84 terms through n = 9377 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "../utils/is_prime.h"          /* bool is_prime(idx_t x) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Integer square root (floor) of a 64‑bit unsigned integer. */
 static inline uint64_t isqrt64(uint64_t n)
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ?: 8;
         while (new_cap < (size_t)n)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             return (seq_t)0;            /* allocation failure, return 0 */
         cache = tmp;

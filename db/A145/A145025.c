@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9141 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --- Configuration -------------------------------------------------------- */
 #define PRIME_LIMIT 400000   /* Prime generation limit – enough for 10⁴ terms */
@@ -85,7 +87,7 @@ static void generate_sequence(void)
     /* Rough estimate of needed storage */
     size_t est = prime_cnt * 2 + 10;
 
-    seq_cache = (seq_t *)malloc(est * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, est);
     if (!seq_cache) abort();
 
     size_t idx = 0;
@@ -106,11 +108,11 @@ static void generate_sequence(void)
     }
 
     /* Resize array to actual size and sort */
-    seq_cache = (seq_t *)realloc(seq_cache, idx * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, idx);
     seq_len   = idx;
     ready     = true;
 
-    qsort(seq_cache, seq_len, sizeof(seq_t), seq_compare);
+    mem_qsort(seq_cache, seq_len, sizeof(seq_t), seq_compare);
 }
 
 /* --- Public interface ----------------------------------------------------- */

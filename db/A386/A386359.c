@@ -7,13 +7,27 @@
  * Formula:   a(n) = (1/4)*(9^n - 2*4^n + 3), n > 0; a(0) = 0
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   mul_small, pow_int
+ * Validated: standard, pass, 38 terms through n = 284 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
-#include "../utils/mul_small.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -23,8 +37,8 @@ seq_t a(idx_t n)
     const seq_t nine = (seq_t)9;
     const seq_t four = (seq_t)4;
 
-    seq_t pow9 = pow_int(nine, n);
-    seq_t pow4 = pow_int(four, n);
+    seq_t pow9 = ipow_idx(nine, n);
+    seq_t pow4 = ipow_idx(four, n);
 
     seq_t two_pow4 = mul_small(pow4, 2);   /* 2 * 4^n */
     seq_t val = pow9;                     /* 9^n */

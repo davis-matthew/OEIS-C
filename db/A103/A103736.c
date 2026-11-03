@@ -11,7 +11,8 @@
  *            F(0)=0, F(1)=1
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *fib_arr = NULL;           /* Fibonacci numbers up to current limit */
 static idx_t  current_limit = 0;        /* max index computed so far */
@@ -76,7 +78,7 @@ static void ensure_capacity(idx_t n)
         if (nonprime_count > (size_t)n) {
             /* We have enough nonprime indices; build data structures */
             /* Fibonacci numbers */
-            seq_t *new_fib = (seq_t *)malloc((size_t)(limit + 1) * sizeof(seq_t));
+            seq_t *new_fib = mem_new(seq_t, (size_t)(limit + 1));
             if (!new_fib) abort();
             new_fib[0] = (seq_t)0;
             if (limit >= 1) new_fib[1] = (seq_t)1;
@@ -94,15 +96,15 @@ static void ensure_capacity(idx_t n)
             }
 
             /* Cache for a(n): Fibonacci at nonprime indices */
-            seq_t *new_cache = (seq_t *)malloc(nonprime_count * sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, nonprime_count);
             if (!new_cache) abort();
             for (size_t i = 0; i < nonprime_count; ++i)
                 new_cache[i] = new_fib[new_nonprime[i]];
 
             /* Free old data */
-            if (fib_arr) free(fib_arr);
+            if (fib_arr) mem_free(fib_arr);
             if (nonprime_idx) free(nonprime_idx);
-            if (cache) free(cache);
+            if (cache) mem_free(cache);
 
             /* Assign new data */
             fib_arr = new_fib;

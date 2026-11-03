@@ -11,6 +11,7 @@
  *            a(n)=3*a(n-2)-3*a(n-4)+a(n-6) for n>8 is equivalent.)
  * Range:     u8 n <= 8, u16 n <= 128, u32 n <= 128, u64 n <= 128,
  *            u128 n <= 128, big any n
+ * Validated: standard, pass, 70 terms through n = 128 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

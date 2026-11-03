@@ -9,15 +9,45 @@
  *            contains at least one digit from a(n‑1) (n ≥ 2)
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   digit_present, fill_allowed
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/digit_present.h"
-#include "../utils/fill_allowed.h"
+
+/* ----------------------------------------------------------------
+   Basic helper: does v contain digit d?                                 */
+static bool digit_present(seq_t v, int d)
+{
+    if (v == 0)
+        return d == 0;
+    while (v > 0) {
+        if ((int)(v % 10) == d)
+            return true;
+        v /= 10;
+    }
+    return false;
+}
+
+/* ----------------------------------------------------------------
+   Fill array 'allowed' with true for digits present in v.              */
+static void fill_allowed(seq_t v, bool allowed[10])
+{
+    for (int i = 0; i < 10; ++i)
+        allowed[i] = false;
+    if (v == 0) {
+        allowed[0] = true;
+        return;
+    }
+    while (v > 0) {
+        int d = (int)(v % 10);
+        allowed[d] = true;
+        v /= 10;
+    }
+}
 
 /* Maximum number of terms that may be stored.
    200 000 is comfortably larger than the 10 000 used in tests. */

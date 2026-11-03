@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 666, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum, is_power_of_two, next_prime
+ * Validated: standard, pass, 70 terms through n = 9653 (2026-11-03)
+ * Helpers:   digit_sum, is_pow2, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,10 @@
 #include <stdint.h>        /* uint64_t */
 #include <stdbool.h>       /* bool */
 
-#include "../utils/next_prime.h"      /* uint64_t next_prime(uint64_t) */
-#include "../utils/digit_sum.h"       /* seq_t digit_sum(seq_t) */
-#include "../utils/is_power_of_two.h" /* bool is_power_of_two(seq_t) */
+#include "../utils/digit_sum.h"
+#include "../utils/is_pow2.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* Static cache of qualifying primes. */
 static seq_t *cache     = NULL;   /* array of primes */
@@ -57,11 +59,11 @@ seq_t a(idx_t n)
 
         /* Check whether this prime satisfies the digit‑sum property. */
         seq_t sum = digit_sum((seq_t)last_prime);
-        if (is_power_of_two(sum)) {
+        if (is_pow2(sum)) {
             /* Grow the cache if necessary. */
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {          /* allocation failure */
                     return 0;
                 }

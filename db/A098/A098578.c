@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(n-1) + a(n-4) + 1 (a(0)=0, a(1)=1, a(2)=2, a(3)=3)
  * Range:     u8 n <= 16, u16 n <= 33, u32 n <= 67, u64 n <= 136,
  *            u128 n <= 274, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Compute A098578: a(n) = Sum_{k=0..floor(n/4)} C(n-3*k, k+1) */
 /* The recurrence a(n) = a(n-1) + a(n-4) + 1 is used for fast O(n) computation. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache with the first four terms */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(4 * sizeof(seq_t));
+        cache = mem_new(seq_t, 4);
         if (!cache) abort();   /* OOM protection */
         cache[0] = 0;
         cache[1] = 1;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache to accommodate indices up to n */
     idx_t new_size = n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) abort();
     cache = tmp;
 

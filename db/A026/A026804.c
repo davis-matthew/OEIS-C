@@ -10,7 +10,8 @@
  *            odd k
  * Range:     u8 n <= 17, u16 n <= 43, u32 n <= 128, u64 n <= 417,
  *            u128 n <= 1459, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 6594 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for the DP table and the result array.
    They are lazily allocated and resized on demand. */
@@ -29,12 +31,12 @@ static idx_t   Nmax = 0;     /* largest n processed so far */
 static void compute_up_to(idx_t N)
 {
     /* free previous arrays */
-    if (dp) free((void *)dp);
-    if (A)  free((void *)A);
+    if (dp) mem_free(dp);
+    if (A)  mem_free(A);
 
     /* allocate zeroed arrays */
-    dp = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
-    A  = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    dp = mem_new(seq_t, (size_t)(N + 1));
+    A  = mem_new(seq_t, (size_t)(N + 1));
 
     if (!dp || !A) return;      /* allocation failed – nothing to do */
 

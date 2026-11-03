@@ -12,7 +12,8 @@
  *            of this set, with a(1)=2
  * Range:     u8 n <= 206, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _bitlen_u64
+ * Validated: standard, pass, 97 terms through n = 9900 (2026-11-03)
+ * Helpers:   bit_length_u64_to_u32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/_bitlen_u64.h"
+#include "../utils/bit_length_u64_to_u32.h"
+#include "../utils/mem.h"
 
 /* Integer square root of a 64‑bit unsigned integer (floor). */
 static uint64_t _isqrt_u64(uint64_t n)
@@ -47,7 +49,7 @@ static bool _qualifies(uint64_t m)
         if (m % d != 0)
             continue;
         uint64_t e = m / d;
-        if (_bitlen_u64(d) == _bitlen_u64(e))
+        if (bit_length_u64_to_u32(d) == bit_length_u64_to_u32(e))
             return false;
     }
     return true;
@@ -66,7 +68,7 @@ static void _ensure_cache_capacity(size_t min_cap)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < min_cap)
         new_cap = min_cap;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     seq_cache = tmp;
     cache_cap = new_cap;
 }

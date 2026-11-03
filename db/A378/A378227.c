@@ -9,15 +9,19 @@
  *            σ(m) is the sum of divisors of m. The XOR-Moebius transform of
  *            A318467. The function factorises n once and enumerates all
  *            square‑free divisors via subsets of the distinct prime factors
- * Range:     u8 n <= 16, u16 n <= 490, u32 n <= 9647, u64 n <= 9647,
- *            u128 n <= 9647, big any n
- * Helpers:   factor_u64, pow_seq
+ * Range:     u8 n <= 16, u16 n <= 490, u32 n <= 65536, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 92 terms through n = 9647 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -56,7 +60,7 @@ seq_t a(idx_t n)
                 prod_primes *= (seq_t)p;      /* d contains p once */
             }
             /* σ contribution for prime p in e: (p^(k+1)-1)/(p-1) */
-            seq_t num = pow_seq((seq_t)p, k + 1);
+            seq_t num = ipow_i32((seq_t)p, k + 1);
             seq_t den = (seq_t)(p - 1);
             sigma_factor *= (num - 1) / den;
         }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 20, u64 n <= 43, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  OEIS A249284 – Number of length n+3 0..2 arrays with no four
     consecutive terms having the sum of any three elements equal to
@@ -69,13 +71,13 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold a(n). */
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) return 0;          /* allocation failure */
         /* copy existing data */
         for (size_t i = 0; i <= cache_len; ++i) {
             new_cache[i] = cache ? cache[i] : (seq_t)0;
         }
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

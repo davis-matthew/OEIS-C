@@ -8,12 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 119, u16 n <= 119, u32 n <= 119, u64 n <= 119,
  *            u128 n <= 119, big any n
- * Helpers:   triangle
+ * Validated: partial, pass, 120 terms through n = 119 (2026-11-01)
+ * Helpers:   triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/triangle.h"
+#include "../utils/triangular.h"
 /* Recursion counts for summation table A003056
    (OEIS A050601).  
    For each n ≥ 0, map n to the pair (y,x) given by the
@@ -32,10 +33,10 @@ seq_t a(idx_t n)
 {
     /* Find k such that triangle(k) ≤ n < triangle(k+1) */
     idx_t k = 0;
-    while (triangle(k + 1) <= n)
+    while (triangular(k + 1) <= n)
         ++k;
 
-    idx_t d = n - triangle(k);
+    idx_t d = n - triangular(k);
     seq_t y = (seq_t)d;          /* first coordinate */
     seq_t x = (seq_t)(k - d);    /* second coordinate */
 

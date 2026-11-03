@@ -13,14 +13,29 @@
  *            produce the sequence a(0),a(1),
  * Range:     i8 n <= 11, i16 n <= 23, i32 n <= 59, i64 n <= 62, i128 n <= 62,
  *            big any n
- * Helpers:   real_of_power
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/real_of_power.h"
+
+/* Compute real part of (a + 2i)^r for integer a and r ≥ 0. */
+static inline seq_t real_of_power(seq_t a, idx_t r)
+{
+    seq_t real = 1;
+    seq_t imag = 0;
+    for (idx_t step = 0; step < r; ++step)
+    {
+        seq_t new_real = real * a - imag * (seq_t)2;
+        seq_t new_imag = real * (seq_t)2 + imag * a;
+        real = new_real;
+        imag = new_imag;
+    }
+    return real;
+}
 
 /* Find the row r (0‑based) containing the n‑th element of the triangle. */
 static inline idx_t find_row(idx_t n)

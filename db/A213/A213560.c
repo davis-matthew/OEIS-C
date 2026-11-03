@@ -7,11 +7,13 @@
  * Formula:   a(n) = n*(n+1)^2*(n+2)*(16+18*n+21*n^2+12*n^3+3*n^4)/840
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 31, u64 n <= 516, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 996 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

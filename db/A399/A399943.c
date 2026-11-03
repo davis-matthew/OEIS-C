@@ -8,15 +8,17 @@
  * Formula:   a(n) = ∑_{j=2..n} (-1)^j * (j-1) * binomial(n,j) * (n-j)^(n-j)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         /* binomial(n,j) is provided by the utils library. */
         seq_t term = binomial(n, j);           /* C(n, j)          */
         term = term * (seq_t)(j - 1);          /* *(j-1)           */
-        seq_t powv = pow_uint((uint64_t)(n - j), (idx_t)(n - j));
+        seq_t powv = ipow_u64_idx((uint64_t)(n - j), (idx_t)(n - j));
                                             /* (n-j)^(n-j)      */
         term = term * powv;                    /* full term        */
 

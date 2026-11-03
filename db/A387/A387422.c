@@ -7,8 +7,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = length of maximal common prefix of binary expansions of n
  *            and sigma(n)
- * Range:     u8 n <= 356, u16 n <= 9607, u32 n <= 9607, u64 n <= 9607,
- *            u128 n <= 9607, big any n
+ * Range:     u8 n <= 356, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9607 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

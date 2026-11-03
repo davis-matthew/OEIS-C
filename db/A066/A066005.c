@@ -7,13 +7,15 @@
  * Formula:   a(n) = sum of decimal digits of 11ⁿ
  * Range:     u8 n <= 49, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 860 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         digitsLen = 1;
 
         sumsCap = 1;
-        sums = (seq_t*)malloc(sizeof(seq_t));
+        sums = mem_new(seq_t, 1);
         sums[0] = (seq_t)1;     /* digit sum of 1 */
         sumsLen = 1;
         lastComputed = 0;
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         /* store the sum, expanding array if necessary */
         if (sumsLen == sumsCap) {
             sumsCap = sumsCap ? sumsCap * 2 : 1;
-            sums = (seq_t*)realloc(sums, sumsCap * sizeof(seq_t));
+            sums = mem_resize(seq_t, sums, sumsCap);
         }
         sums[sumsLen++] = sum;
     }

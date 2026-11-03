@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* comparator used by qsort for seq_t values */
 static int seq_compare(const void *a, const void *b)
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
             row_cnt += (size_t)exps[i];
 
         /* allocate array to hold the row values */
-        seq_t *row = (seq_t *)malloc(row_cnt * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, row_cnt);
         if (!row) return 0;            /* out of memory guard */
 
         size_t pos = 0;
@@ -68,16 +71,16 @@ seq_t a(idx_t n)
         }
 
         /* sort the row – the number of elements is small */
-        qsort(row, row_cnt, sizeof(seq_t), seq_compare);
+        mem_qsort(row, row_cnt, sizeof(seq_t), seq_compare);
 
         /* check if the desired index falls into this row */
         if (cum + row_cnt >= n) {
             seq_t result = row[n - cum - 1];
-            free(row);
+            mem_free(row);
             return result;
         }
 
         cum += row_cnt;
-        free(row);
+        mem_free(row);
     }
 }

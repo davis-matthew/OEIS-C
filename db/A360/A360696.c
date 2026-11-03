@@ -7,13 +7,17 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/2)} (n-k)^(k*(n-k)) * binomial(n-k,k)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +27,7 @@ seq_t a(idx_t n)
         idx_t m = n - k;                 /* n-k                      */
         seq_t exp = (seq_t)(k * m);      /* k*(n-k)                 */
         seq_t base = (seq_t)m;           /* (n-k)                    */
-        seq_t pow_val = big_pow(base, exp);
+        seq_t pow_val = ipow(base, exp);
         seq_t bin = binomial(m, k);      /* binomial(n-k, k)         */
         sum += pow_val * bin;
     }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d|n, d==1 mod 4} d^7 - Sum_{d|n, d==3 mod 4} d^7
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 22, i64 n <= 512,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 44 terms through n = 9991 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

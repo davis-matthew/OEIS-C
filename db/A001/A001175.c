@@ -10,17 +10,39 @@
  *            Fibonacci numbers mod p until the pair (0,1) recurs
  * Range:     u8 n <= 49, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pis_gcd, pis_lcm, pisano_prime, pisano_prime_power
+ * Validated: standard, pass, 83 terms through n = 9681 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pis_gcd.h"
-#include "../utils/pis_lcm.h"
-#include "../utils/pisano_prime.h"
-#include "../utils/pisano_prime_power.h"
+#include "../utils/gcd_u64.h"
+
+static uint64_t pis_lcm(uint64_t x, uint64_t y) {
+    return x / gcd_u64(x, y) * y;
+}
+
+static uint64_t pisano_prime(uint64_t p) {
+    if (p == 2) return 3;
+    if (p == 5) return 20;
+    uint64_t f0 = 0, f1 = 1, k = 0;
+    do {
+        uint64_t f2 = (f0 + f1) % p;
+        f0 = f1;
+        f1 = f2;
+        k++;
+    } while (!(f0 == 0 && f1 == 1));
+    return k;
+}
+
+static uint64_t pisano_prime_power(uint64_t p, uint64_t e) {
+    uint64_t r = pisano_prime(p);
+    uint64_t i;
+    for (i = 1; i < e; i++) r *= p;
+    return r;
+}
 
 seq_t a(idx_t n) {
     uint64_t temp = n, result = 1, p;

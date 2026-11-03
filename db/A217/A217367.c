@@ -7,11 +7,13 @@
  * Formula:   a(n) = ((n+7) / gcd(n+7,4)) * (n / gcd(n,4))
  * Range:     u8 n <= 21, u16 n <= 358, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 71 terms through n = 938 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Compute OEIS sequence A217367 */

@@ -12,7 +12,8 @@
  *            a(12)=18944, a(13)=32960
  * Range:     u8 none, u16 n <= 14, u32 n <= 44, u64 n <= 104, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* Includes needed for memory functions and abort. */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* The function itself: external linkage, following the required signature. */
 seq_t a(idx_t n)
@@ -44,11 +46,11 @@ seq_t a(idx_t n)
     if (n >= cap) {
         idx_t new_cap = (cap == 0) ? 16 : cap << 1;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();          /* out‑of‑memory */
         cache = tmp;
         /* Zero the newly allocated part – safe for all used seq_t types. */
-        memset(cache + cap, 0, sizeof(seq_t) * (new_cap - cap));
+        mem_set(cache + cap, 0, sizeof(seq_t) * (new_cap - cap));
         /* Initialise the first 13 entries if this is the first allocation. */
         if (cap == 0) {
             for (idx_t i = 1; i <= 13; ++i)

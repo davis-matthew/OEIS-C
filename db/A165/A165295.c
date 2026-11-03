@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 58 terms through n = 912 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *matches = NULL;       /* stored larger members */
 static size_t matches_len = 0;
@@ -28,10 +30,10 @@ static void grow_matches(void)
 {
     if (matches_cap == 0) {
         matches_cap = 8;
-        matches = (seq_t*)malloc(matches_cap * sizeof(seq_t));
+        matches = mem_new(seq_t, matches_cap);
     } else {
         matches_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(matches, matches_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, matches, matches_cap);
         if (!tmp) return;           /* OOM – not expected in tests */
         matches = tmp;
     }

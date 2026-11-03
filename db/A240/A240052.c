@@ -12,6 +12,7 @@
  *            external utilities are required – a simple * sieve-by-trial‑...
  * Range:     u8 n <= 17, u16 n <= 429, u32 n <= 429, u64 n <= 429,
  *            u128 n <= 429, big any n
+ * Validated: standard, pass, 97 terms through n = 391 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 52, u32 n <= 149, u64 n <= 461,
  *            u128 n <= 1591, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 7205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static storage for rows already computed */
 static seq_t **row_ptrs   = NULL;  /* array of pointers to each row */
@@ -57,7 +59,7 @@ static void build_rows_up_to(idx_t target_row)
     for (idx_t r = rows_len; r <= target_row; ++r)
     {
         /* allocate current row (size r+1) */
-        seq_t *row = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (r + 1));
         if (!row) exit(EXIT_FAILURE);
 
         for (idx_t p = 0; p <= r; ++p)

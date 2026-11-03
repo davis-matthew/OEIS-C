@@ -7,12 +7,15 @@
  * Formula:   a(n) = n! * Sum_{k=0..floor(n/3)} (n - 3*k)^(3*k)/(n - 3*k)!
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Computes the OEIS sequence A357147.
  * Uses an iterative approach that avoids explicit factorial tables.
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
         } else if (e_val == 0) {
             pow_val = 1;
         } else {
-            pow_val = big_pow(m_val, e_val);
+            pow_val = ipow(m_val, e_val);
         }
 
         sum += fact_ratio * pow_val;

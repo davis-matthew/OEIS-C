@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 26, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>   /* size_t, NULL */
 #include <stdbool.h>  /* bool */
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 /* ---------- helper: binary search for first >= key ---------- */
 static idx_t lower_bound_seq(const seq_t *arr, size_t len, seq_t key)
@@ -47,7 +49,7 @@ static void ensure_capacity(seq_t **arr, size_t *cap, size_t needed)
         size_t new_cap = (*cap == 0) ? 4 : *cap;
         while (new_cap < needed)
             new_cap <<= 1;               /* grow geometrically */
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) abort();              /* allocation failed */
         *arr = tmp;
         *cap = new_cap;
@@ -66,8 +68,8 @@ seq_t a(idx_t n)
     /* one‑time initialisation */
     if (a_seq == NULL) {
         a_cap = 4;  b_cap = 4;
-        a_seq = (seq_t *)malloc(a_cap * sizeof(seq_t));
-        b_seq = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        a_seq = mem_new(seq_t, a_cap);
+        b_seq = mem_new(seq_t, b_cap);
         if (!a_seq || !b_seq) abort();
 
         a_seq[0] = (seq_t)1;   /* a(0) = 1 */

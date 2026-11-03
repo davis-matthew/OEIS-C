@@ -7,8 +7,9 @@
  * Formula:   a(n) derives from the triangle a(m,n) with a(1,n)=n² and
  *            a(m+1,n)=(n‑m)·⌊(a(m,n)-1)/(n‑m)⌋; the sequence is read by
  *            columns with rows reversed (m=n,…,1)
- * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
- *            big any n
+ * Range:     u8 n <= 130, u16 n <= 1275, u32 n <= 1275, u64 n <= 1275,
+ *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 82 terms through n = 1111 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

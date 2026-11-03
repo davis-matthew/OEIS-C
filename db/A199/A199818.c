@@ -8,12 +8,14 @@
  *            in the Collatz trajectory
  * Range:     u8 n <= 1, u16 n <= 32, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Lazily compute terms up to the requested index.
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     /* Grow the array as needed */
     if (!terms_cap) {
         terms_cap = 8;
-        terms = (seq_t *)realloc(NULL, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, NULL, terms_cap);
     }
 
     /* Generate terms until we have at least n of them */
@@ -52,7 +54,7 @@ seq_t a(idx_t n) {
         if (evens == 20) {
             if (terms_len == terms_cap) {
                 size_t newcap = terms_cap << 1;
-                seq_t *tmp = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, newcap);
                 if (!tmp) {
                     /* In an unlikely OOM scenario, bail. */
                     return 0;

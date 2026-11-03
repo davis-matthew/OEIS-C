@@ -7,13 +7,15 @@
  * Formula:   a(n) = n‑th smallest divisor of 960
  * Range:     u8 n <= 19, u16 n <= 28, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static int cmp_seq_t(const void *p1, const void *p2)
 {
@@ -35,7 +37,7 @@ static void init_divisors(seq_t arr[28])
             }
         }
     }
-    qsort(arr, 28, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(arr, 28, sizeof(seq_t), cmp_seq_t);
 }
 
 seq_t a(idx_t n)

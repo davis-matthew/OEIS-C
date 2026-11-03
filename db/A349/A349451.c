@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 12, i16 n <= 23, i32 n <= 46, i64 n <= 92, i128 n <= 184,
  *            big any n
- * Helpers:   fib
+ * Validated: standard, pass, 58 terms through n = 940 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,19 @@
 /* Recurrence: a(1)=1; for n>1, a(n) = -Σ_{d|n, d<n} Fibonacci(n/d) * a(d) */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/fib.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +44,7 @@ seq_t a(idx_t n)
     /* enlarge allocation if needed */
     if (n + 1 > cap) {
         size_t newcap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();
         cache = tmp;
         cap = newcap;

@@ -9,7 +9,8 @@
  *            (Σ_{i=1}^{n+3} p_i) where p_i are the first n+3 primes
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 16, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* dynamic storage for primes and elementary symmetric sums */
 static uint64_t *primes      = NULL;          /* primes[0 .. primes_count-1] */
@@ -44,10 +46,10 @@ static void ensure_primes(size_t need)
             new_cap <<= 1;
 
         uint64_t *new_p  = (uint64_t *)realloc(primes,          new_cap * sizeof(uint64_t));
-        seq_t   *new_e1  = (seq_t   *)realloc(e1_arr,        (new_cap + 1) * sizeof(seq_t));
-        seq_t   *new_e2  = (seq_t   *)realloc(e2_arr,        (new_cap + 1) * sizeof(seq_t));
-        seq_t   *new_e3  = (seq_t   *)realloc(e3_arr,        (new_cap + 1) * sizeof(seq_t));
-        seq_t   *new_e4  = (seq_t   *)realloc(e4_arr,        (new_cap + 1) * sizeof(seq_t));
+        seq_t   *new_e1  = mem_resize(seq_t, e1_arr, (new_cap + 1));
+        seq_t   *new_e2  = mem_resize(seq_t, e2_arr, (new_cap + 1));
+        seq_t   *new_e3  = mem_resize(seq_t, e3_arr, (new_cap + 1));
+        seq_t   *new_e4  = mem_resize(seq_t, e4_arr, (new_cap + 1));
 
         if (!new_p || !new_e1 || !new_e2 || !new_e3 || !new_e4)
             abort();

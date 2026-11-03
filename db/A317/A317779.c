@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 36, u64 n <= 71, u128 n <= 142,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 1944 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 /* ---- Standard headers for memory management ---------------------- */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---- API function ------------------------------------------------ */
 seq_t a(idx_t n)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if (dp == NULL) {
         /* Allocate space for at least the first 10 terms. */
         capacity = 10;
-        dp = (seq_t *)malloc(capacity * sizeof(seq_t));
+        dp = mem_new(seq_t, capacity);
         if (dp == NULL) return (seq_t)0;  /* out of memory, return 0 */
         for (idx_t i = 0; i < 10; ++i)
             dp[i] = init_vals[i];
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     if ((idx_t)(n + 1) > capacity) {
         idx_t new_cap = capacity * 2;
         if (new_cap < (idx_t)(n + 1)) new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_cap);
         if (tmp == NULL) return (seq_t)0;  /* out of memory */
         dp = tmp;
         capacity = new_cap;

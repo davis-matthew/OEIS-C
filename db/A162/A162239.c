@@ -8,7 +8,8 @@
  *            falls on a Tuesday (search algorithm)
  * Range:     u8 none, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: determine whether a Gregorian year is a leap year. */
 static bool is_leap_year(idx_t y)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         while (cache_cap < n)
         {
             idx_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (!new_cache) return 0; /* allocation failure – undefined behavior */
             cache = new_cache;
             cache_cap = new_cap;

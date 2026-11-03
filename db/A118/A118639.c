@@ -9,6 +9,7 @@
  *            9*10^((n-3)/2) if n odd
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
+ * Validated: full, pass, 13 terms through n = 13 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

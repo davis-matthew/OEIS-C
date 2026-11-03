@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build environment. */
 seq_t a(idx_t n)
@@ -43,10 +45,10 @@ seq_t a(idx_t n)
             /* grow cache if needed */
             if (cnt == cap) {
                 size_t newcap = cap ? cap * 2 : 4;
-                seq_t *tmp = (seq_t *)malloc(newcap * sizeof(seq_t));
+                seq_t *tmp = mem_new(seq_t, newcap);
                 if (!tmp) abort();
-                if (cache) memcpy(tmp, cache, cnt * sizeof(seq_t));
-                free(cache);
+                if (cache) mem_copy(tmp, cache, cnt * sizeof(seq_t));
+                mem_free(cache);
                 cache = tmp;
                 cap   = newcap;
             }

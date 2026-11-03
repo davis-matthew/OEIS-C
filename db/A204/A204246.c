@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 103, u32 n <= 103, u64 n <= 103,
  *            u128 n <= 103, big any n
- * Helpers:   factorial, terms_in_diagonal
+ * Validated: partial, pass, 103 terms through n = 103 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,23 @@
    along the antidiagonals (i+j constant), starting at n=1 for (1,1). */
 
 #include <stdint.h>
-#include "../utils/factorial.h"
-#include "../utils/terms_in_diagonal.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
+
+/* number of entries on diagonal s  (s ≥ 2) */
+static inline idx_t terms_in_diagonal(idx_t s)
+{
+    return s - 1;
+}
 
 seq_t a(idx_t n)
 {

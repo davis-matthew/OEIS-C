@@ -9,9 +9,10 @@
  *            φ(i) ≥ n, k is the pos‑th integer coprime to r * (pos = n –
  *            sum_{i=1}^{r-1} φ(i)), and * T(r,k) = r + A275314(k) – 1. *
  *            (A275314(k) = ∑_{p^e‖k} (e·p – e) + 1.)
- * Range:     u8 n <= 5152, u16 n <= 9754, u32 n <= 9754, u64 n <= 9754,
- *            u128 n <= 9754, big any n
- * Helpers:   gcd
+ * Range:     u8 n <= 5152, u16 n <= 10060, u32 n <= 10060, u64 n <= 10060,
+ *            u128 n <= 10060, big any n
+ * Validated: standard, pass, 88 terms through n = 9754 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd.h" /* static seq_t gcd(seq_t a, seq_t b) */
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static idx_t *phi_arr   = NULL;
 static idx_t *cum_arr   = NULL;
@@ -42,11 +44,11 @@ static void precompute_until(idx_t n)
     idx_t  *phi = (idx_t *)malloc(lim * sizeof(idx_t));
     idx_t  *cum = (idx_t *)malloc(lim * sizeof(idx_t));
     idx_t  *spf = (idx_t *)malloc(lim * sizeof(idx_t));
-    seq_t  *A275= (seq_t *)malloc(lim * sizeof(seq_t));
+    seq_t  *A275= mem_new(seq_t, lim);
 
     if (!phi || !cum || !spf || !A275) {
         /* memory allocation failed – keep previous data */
-        free(phi); free(cum); free(spf); free(A275);
+        free(phi); free(cum); free(spf); mem_free(A275);
         return;
     }
 
@@ -97,7 +99,7 @@ static void precompute_until(idx_t n)
     }
 
     /* replace old tables */
-    free(phi_arr); free(cum_arr); free(spf_arr); free(A275_arr);
+    free(phi_arr); free(cum_arr); free(spf_arr); mem_free(A275_arr);
     phi_arr   = phi;
     cum_arr   = cum;
     spf_arr   = spf;

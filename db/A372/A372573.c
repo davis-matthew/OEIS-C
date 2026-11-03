@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 1 iff exponent of 2 in n and exponent of 3 in n are
  *            congruent mod 3
- * Range:     u8 n <= 9671, u16 n <= 9671, u32 n <= 9671, u64 n <= 9671,
- *            u128 n <= 9671, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 137 terms through n = 9671 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

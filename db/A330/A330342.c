@@ -11,7 +11,8 @@
  *            holds, a(n) = k; - otherwise a(n) = λ(n) + k
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------------------- */
 /* auxiliary functions                                                     */
@@ -103,22 +106,22 @@ seq_t a(idx_t n)
     idx_t A   = (n - 1) % lam;
 
     /* pre‑compute b^(n-1) (mod n) for all b in [0..n-1] */
-    seq_t *vals = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *vals = mem_new(seq_t, (size_t)n);
     if (!vals) return (seq_t)0; /* allocation failed, return 0 as safe fallback */
 
     for (idx_t b = 0; b < n; ++b)
-        vals[b] = mod_pow((seq_t)b, (uint64_t)(n - 1), (seq_t)n);
+        vals[b] = powmod((seq_t)b, (uint64_t)(n - 1), (seq_t)n);
 
     /* test whether A satisfies the condition */
     bool ok = true;
     for (idx_t b = 0; b < n; ++b) {
-        if (mod_pow((seq_t)b, (uint64_t)A, (seq_t)n) != vals[b]) {
+        if (powmod((seq_t)b, (uint64_t)A, (seq_t)n) != vals[b]) {
             ok = false;
             break;
         }
     }
 
-    free(vals);
+    mem_free(vals);
 
     if (ok)
         return (seq_t)A;          /* a(n) = A */

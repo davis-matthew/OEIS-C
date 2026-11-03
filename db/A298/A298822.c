@@ -7,6 +7,7 @@
  * Formula:   a(2*k) = 2*k^2, a(2*k-1) = (2*k-1)*(2*k^2-1)
  * Range:     u8 n <= 8, u16 n <= 50, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
+ * Validated: standard, pass, 64 terms through n = 191 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

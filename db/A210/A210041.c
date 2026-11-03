@@ -12,12 +12,14 @@
  *            sequence a(n) consists of the coefficients of u(n,x)...
  * Range:     u8 n <= 26, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the n‑th term of sequence A210041 (1‑based index). */
 seq_t a(idx_t n)
@@ -42,8 +44,8 @@ seq_t a(idx_t n)
     /* Prepare arrays for u and v coefficients of the previous row. */
     size_t len_u_prev = 1;                 /* u(1,x) has one coefficient */
     size_t len_v_prev = 1;                 /* v(1,x) has one coefficient */
-    seq_t *u_prev = (seq_t *)malloc(sizeof(seq_t) * len_u_prev);
-    seq_t *v_prev = (seq_t *)malloc(sizeof(seq_t) * len_v_prev);
+    seq_t *u_prev = mem_new(seq_t, len_u_prev);
+    seq_t *v_prev = mem_new(seq_t, len_v_prev);
     u_prev[0] = (seq_t)1;
     v_prev[0] = (seq_t)1;
 
@@ -52,8 +54,8 @@ seq_t a(idx_t n)
         size_t len_u_cur = (cur == 1) ? 1 : (size_t)(cur - 1);
         size_t len_v_cur = (size_t)cur;
 
-        seq_t *u_cur = (seq_t *)malloc(sizeof(seq_t) * len_u_cur);
-        seq_t *v_cur = (seq_t *)malloc(sizeof(seq_t) * len_v_cur);
+        seq_t *u_cur = mem_new(seq_t, len_u_cur);
+        seq_t *v_cur = mem_new(seq_t, len_v_cur);
 
         /* Initialize new v with the constant term 1 and zeros elsewhere. */
         for (size_t k = 0; k < len_v_cur; ++k) {
@@ -84,8 +86,8 @@ seq_t a(idx_t n)
         u_cur[0] += (seq_t)1;  /* constant term from recurrence */
 
         /* Free memory held by the previous row. */
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
 
         /* Move current arrays to previous for the next iteration. */
         u_prev   = u_cur;
@@ -98,8 +100,8 @@ seq_t a(idx_t n)
     seq_t result = u_prev[offset];
 
     /* Clean up. */
-    free(u_prev);
-    free(v_prev);
+    mem_free(u_prev);
+    mem_free(v_prev);
 
     return result;
 }

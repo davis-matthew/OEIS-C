@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn
  * Formula:   not stated
- * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
- *            big any n
- * Helpers:   mul_mod_uint64
+ * Range:     u8 n <= 72, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 77 terms through n = 9359 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,15 +19,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul_mod_uint64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 static uint64_t mod_pow_uint64(uint64_t base, uint64_t exp, uint64_t mod)
 {
     uint64_t result = 1;
     while (exp > 0) {
         if (exp & 1)
-            result = mul_mod_uint64(result, base, mod);
-        base = mul_mod_uint64(base, base, mod);
+            result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -58,7 +60,7 @@ static bool is_prime_uint64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mul_mod_uint64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 composite = false;
                 break;
@@ -87,9 +89,9 @@ seq_t a(idx_t n)
     if (n > cache_sz) {
         idx_t new_size = n;
         if (cache == NULL) {
-            cache = (seq_t *)malloc((size_t)new_size * sizeof(seq_t));
+            cache = mem_new(seq_t, (size_t)new_size);
         } else {
-            cache = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (size_t)new_size);
         }
     }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 546, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 855 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the DFA type used by the harness */
 extern seq_t a(idx_t n);
@@ -103,7 +105,7 @@ static void ensure_terms(idx_t n)
     /* enlarge cache if needed */
     if (term_cap < 8) {
         term_cap = 8;
-        term_cache = (seq_t*)realloc(term_cache, term_cap * sizeof(seq_t));
+        term_cache = mem_resize(seq_t, term_cache, term_cap);
     }
 
     while (term_len < (size_t)n && pair_pos + 1 < prime_count) {
@@ -125,7 +127,7 @@ static void ensure_terms(idx_t n)
             seq_t val = (seq_t)prime_list[low_idx];
             if (term_len == term_cap) {
                 term_cap <<= 1;
-                term_cache = (seq_t*)realloc(term_cache, term_cap * sizeof(seq_t));
+                term_cache = mem_resize(seq_t, term_cache, term_cap);
             }
             term_cache[term_len++] = val;
         }

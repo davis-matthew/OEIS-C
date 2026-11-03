@@ -10,8 +10,9 @@
  *            with S_k ≥ n. This implements the construction “divide the
  *            positive integers into blocks of successive prime lengths and
  *            reverse each block”
- * Range:     u8 n <= 238, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
+ * Range:     u8 n <= 238, u16 n <= 10887, u32 n <= 10887, u64 n <= 10887,
+ *            u128 n <= 10887, big any n
+ * Validated: standard, pass, 93 terms through n = 10000 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

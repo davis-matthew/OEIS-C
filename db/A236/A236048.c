@@ -10,13 +10,15 @@
  *            a(4)=3760, a(5)=13716, a(6)=46828, a(7)=169500, a(8)=582300
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 15, u64 n <= 32, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>   /* for size_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_cap = 8;
-        cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
         /* one–based → zero‑based indices */
         cache[0] = (seq_t)81;     /* a(1) */
         cache[1] = (seq_t)292;    /* a(2) */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         while (new_cap < (size_t)n)
             new_cap = new_cap * 2 + 1;
 
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         /* realloc may return NULL on failure; in that case keep previous pointer */
         if (new_cache == NULL)
             return (seq_t)0; /* unreachable in typical usage */

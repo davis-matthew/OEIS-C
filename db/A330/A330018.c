@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} (bigomega(d) - omega(d))
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, int_sqrt
+ * Validated: standard, pass, 106 terms through n = 9876 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 /* Small static cache for primes */
 static uint64_t *primes = NULL;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         return 0;
 
     idx_t temp = n;
-    idx_t lim = int_sqrt(temp);
+    idx_t lim = isqrt(temp);
     ensure_primes_upto(lim);
 
     seq_t tau = 1;        /* divisor count of the processed part */
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
 
             if (temp == 1)
                 break;
-            lim = int_sqrt(temp);
+            lim = isqrt(temp);
         }
     }
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 21, i32 n <= 39, i64 n <= 39, i128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache   = NULL;   /* cache of a-values      */
 static seq_t *fib_cache = NULL;   /* cache of Fibonacci    */
@@ -31,7 +33,7 @@ static idx_t  fib_cap   = 0;       /* current capacity of fib */
 static void grow_fib(idx_t new_cap)
 {
     if (new_cap <= fib_cap) return;
-    seq_t *tmp = (seq_t *)realloc(fib_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fib_cache, new_cap);
     if (!tmp) abort();                             /* allocation failure */
     fib_cache = tmp;
 
@@ -53,7 +55,7 @@ static void grow_fib(idx_t new_cap)
 static void grow_a(idx_t new_cap)
 {
     if (new_cap <= a_cap) return;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) abort();
     a_cache = tmp;
 

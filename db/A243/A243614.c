@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1500, u16 n <= 1500, u32 n <= 1500, u64 n <= 1500,
  *            u128 n <= 1500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 1412 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t num;
@@ -53,7 +55,7 @@ static void ensure_cache_cap(size_t needed)
         if (new_cap < cache_len + needed)
             new_cap = cache_len + needed;
         /* cast malloc result to required type */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);           /* fatal error, abort */
         cache   = tmp;
         cache_cap = new_cap;
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         ++rows_built;
 
         if (rows_built == 1) { /* row 1 : (1/1) */
-            frac_t *row = (frac_t *)malloc(sizeof(frac_t));
+            frac_t *row = mem_new(frac_t, 1);
             row[0].num = (seq_t)1;
             row[0].den = (seq_t)1;
             ensure_cache_cap(1);
@@ -82,14 +84,14 @@ seq_t a(idx_t n)
             len_prev2 = 0;
         }
         else if (rows_built == 2) { /* row 2 : (2/1) */
-            frac_t *row = (frac_t *)malloc(sizeof(frac_t));
+            frac_t *row = mem_new(frac_t, 1);
             row[0].num = (seq_t)2;
             row[0].den = (seq_t)1;
             ensure_cache_cap(1);
             cache[cache_len++] = row[0].num;
 
             /* shift rows: previous row1 becomes row n‑2. */
-            if (row_prev2) free(row_prev2);
+            if (row_prev2) mem_free(row_prev2);
             row_prev2 = row_prev1;
             len_prev2 = len_prev1;
 
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
         }
         else { /* rows ≥ 3 */
             size_t new_len = len_prev1 + len_prev2;
-            frac_t *row = (frac_t *)malloc(new_len * sizeof(frac_t));
+            frac_t *row = mem_new(frac_t, new_len);
 
             /* (i) x+1 from row_prev1 */
             for (size_t i = 0; i < len_prev1; ++i) {
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
                 cache[cache_len++] = row[i].num;
 
             /* Shift rows for next iteration */
-            if (row_prev2) free(row_prev2);
+            if (row_prev2) mem_free(row_prev2);
             row_prev2 = row_prev1;
             len_prev2 = len_prev1;
 

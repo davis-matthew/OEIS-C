@@ -12,14 +12,27 @@
  *            sorted ascending, starting with a(1)=1
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   sum5_digits
+ * Validated: full, pass, 11 terms through n = 11 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/sum5_digits.h"
+
+static inline uint64_t sum5_digits(uint64_t x)
+{
+    static const uint32_t pow5[10] = {
+        0, 1, 32, 243, 1024, 3125, 7776, 16807, 32768, 59049
+    };
+    uint64_t s = 0;
+    while (x > 0) {
+        s += pow5[x % 10];
+        x /= 10;
+    }
+    return s;
+}
 
 static seq_t seq[400000];
 static size_t seq_len = 0;

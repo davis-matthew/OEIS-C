@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 32, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   satisfies_triangular
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,28 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/satisfies_triangular.h"
+#include "../utils/mem.h"
+
+/* Check if a triangular number satisfies the digit condition.
+ * digits are examined from the least significant digit (k = 1, 2, …).
+ * A digit of 0 is NOT allowed (because 0 is not a positive
+ * multiple of any k).
+ */
+static bool satisfies_triangular(seq_t T)
+{
+    idx_t k = 1;
+    seq_t tmp = T;
+    while (tmp != 0) {
+        int digit = (int)(tmp % 10);
+        if (digit == 0)
+            return false;                      /* zero digit fails */
+        if ( (k % digit != 0) && (digit % k != 0) )
+            return false;
+        tmp /= 10;
+        ++k;
+    }
+    return true;
+}
 
 /* Return the n-th term of the sequence.  n is 1‑based.  The
  * function caches all computed terms so that arbitrary call
@@ -46,7 +68,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap << 1 : 16;
         while (new_cap < cache_len + 1)
             new_cap <<= 1;
-        seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
         cache = new_arr;
         cache_cap = new_cap;
     }

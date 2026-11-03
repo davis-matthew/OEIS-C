@@ -12,12 +12,14 @@
  *            a(3)=2, a(4)=3, a(5)=5, a(6)=9, …
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;   /* undefined for n<1, but safe */
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
 
     if (pad == NULL) {
         pad_cap = 32;
-        pad = (seq_t*)malloc(pad_cap * sizeof(seq_t));
+        pad = mem_new(seq_t, pad_cap);
         pad[0] = (seq_t)0;
         pad[1] = (seq_t)0;
         pad[2] = (seq_t)1;
@@ -48,7 +50,7 @@ seq_t a(idx_t n) {
         if ((size_t)k >= pad_cap) {
             size_t new_cap = pad_cap;
             while (new_cap <= (size_t)k) new_cap <<= 1;
-            pad = (seq_t*)realloc(pad, new_cap * sizeof(seq_t));
+            pad = mem_resize(seq_t, pad, new_cap);
             pad_cap = new_cap;
         }
         /* Compute missing Padovan values */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  * coefficients row‑wise, starting with a(1)=1.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,14 +49,14 @@ seq_t a(idx_t n)
     /* Allocate buffers for two consecutive rows.  The maximum needed
        length is r (row 1 has length 1, row r has r−1 coefficients). */
     size_t max_len = (size_t)r;
-    seq_t *u_prev = (seq_t*)calloc(max_len, sizeof(seq_t));
-    seq_t *v_prev = (seq_t*)calloc(max_len, sizeof(seq_t));
-    seq_t *u_curr = (seq_t*)calloc(max_len, sizeof(seq_t));
-    seq_t *v_curr = (seq_t*)calloc(max_len, sizeof(seq_t));
+    seq_t *u_prev = mem_new(seq_t, max_len);
+    seq_t *v_prev = mem_new(seq_t, max_len);
+    seq_t *u_curr = mem_new(seq_t, max_len);
+    seq_t *v_curr = mem_new(seq_t, max_len);
 
     if (!u_prev || !v_prev || !u_curr || !v_curr) {
         /* Allocation failed; return 0 as a safe default. */
-        free(u_prev); free(v_prev); free(u_curr); free(v_curr);
+        mem_free(u_prev); mem_free(v_prev); mem_free(u_curr); mem_free(v_curr);
         return (seq_t)0;
     }
 
@@ -91,6 +93,6 @@ seq_t a(idx_t n)
     seq_t result = u_prev[j];
 
     /* Free allocated memory. */
-    free(u_prev); free(v_prev); free(u_curr); free(v_curr);
+    mem_free(u_prev); mem_free(v_prev); mem_free(u_curr); mem_free(v_curr);
     return result;
 }

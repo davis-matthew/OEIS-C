@@ -11,7 +11,8 @@
  *            A174551)
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 54, u64 n <= 135, u128 n <= 377,
  *            big any n
- * Helpers:   binom, mul_small, seq_mul
+ * Validated: standard, pass, 61 terms through n = 9476 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,28 @@
 #include <stdint.h>
 
 /* Utility functions from the build */
-#include "../utils/binom.h"      /* binom(idx_t a, idx_t b) -> seq_t */
-#include "../utils/mul_small.h"  /* mul_small(seq_t x, unsigned int m) -> seq_t */
-#include "../utils/seq_mul.h"    /* seq_mul(seq_t a, seq_t b) -> seq_t */
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/binomial.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* local helper: compute base^exp (base is small, exp ≤ 200) */
 static seq_t power_small(idx_t base, idx_t exp)
@@ -48,7 +68,7 @@ seq_t a(idx_t n)
 
     for (idx_t i = 0; i <= c; ++i)
     {
-        seq_t bin = binom(c, i);          /* C(c,i)          */
+        seq_t bin = binomial(c, i);          /* C(c,i)          */
         seq_t pwr = power_small(r - i, r);/* (r-i)^r         */
         seq_t term = seq_mul(bin, pwr);   /* bin * (r-i)^r   */
 

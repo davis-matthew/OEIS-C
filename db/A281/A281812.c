@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 30, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Static state used for memoisation                                    */
@@ -51,8 +53,8 @@ static void g_prepare_up_to(idx_t new_n)
     size_t new_size = (size_t)(new_n + 1);
 
     /* 1. Reallocate f and g arrays */
-    g_f = (seq_t *)realloc(g_f, new_size * sizeof(seq_t));
-    g_g = (seq_t *)realloc(g_g, new_size * sizeof(seq_t));
+    g_f = mem_resize(seq_t, g_f, new_size);
+    g_g = mem_resize(seq_t, g_g, new_size);
 
     /* 2. Recompute square‑free boolean array */
     g_sqfree = (bool *)realloc(g_sqfree, new_size * sizeof(bool));

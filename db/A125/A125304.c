@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   big_pow, digit_frequencies
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-02)
+ * Helpers:   digit_frequencies, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
 #include "../utils/digit_frequencies.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         seq_t best = 0;
 
         for (idx_t a_val = 1; a_val <= LIMIT; ++a_val) {
-            seq_t power = big_pow((seq_t)a_val, (seq_t)n);
+            seq_t power = ipow((seq_t)a_val, (seq_t)n);
             digit_frequencies(power, freq);
 
             bool ok = true;

@@ -7,8 +7,9 @@
  * Formula:   a(n) = number of partitions of n into distinct decimal
  *            palindromes
  * Range:     u8 n <= 103, u16 n <= 450, u32 n <= 1773, u64 n <= 7093,
- *            u128 n <= 9763, big any n
- * Helpers:   is_palindrome
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 86 terms through n = 9763 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     /* Ensure the static array is large enough. */
     if (dp_cap <= sn) {
-        seq_t *tmp = (seq_t *)realloc(dp, (sn + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, (sn + 1));
         if (!tmp) return (seq_t)0;      /* allocation failed – return 0 */
         dp   = tmp;
         dp_cap = sn + 1;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* Enumerate all decimal palindromes p ≤ n.  Each palindrome is used
        at most once (distinct summands) by iterating the DP array backwards. */
     for (idx_t p = 1; p <= n; ++p) {
-        if (!is_palindrome((seq_t)p, 10))
+        if (!is_palindrome_base((seq_t)p, 10))
             continue;
         size_t sp = (size_t)p;
         for (size_t i = sn; i >= sp; --i) {

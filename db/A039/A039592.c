@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   has_equal_345
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,26 @@
    3, 4 and 5.  The first few terms are 0, 1, 2, 6, 7, 8, 12, 13, 14, … */
 
 #include <stdbool.h>
-#include "../utils/has_equal_345.h"
+
+/* Test whether a number has equal counts of 3, 4 and 5 in base‑6. */
+static bool has_equal_345(seq_t x)
+{
+    unsigned c3 = 0, c4 = 0, c5 = 0;
+    if (x == (seq_t)0)
+        return true;                  /* 0 has no 3/4/5 digits */
+    seq_t t = x;
+    while (t > (seq_t)0) {
+        int d = (int)(t % (seq_t)6);
+        if (d == 3)
+            ++c3;
+        else if (d == 4)
+            ++c4;
+        else if (d == 5)
+            ++c5;
+        t /= (seq_t)6;
+    }
+    return c3 == c4 && c4 == c5;
+}
 
 seq_t a(idx_t n)
 {

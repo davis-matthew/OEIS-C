@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 119, u16 n <= 119, u32 n <= 119, u64 n <= 119,
  *            u128 n <= 119, big any n
- * Helpers:   gen_perm, get_digit
+ * Validated: partial, pass, 119 terms through n = 119 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,44 @@
    listed in the order produced by the back‑to‑front insertion algorithm
    described in the OEIS entry. */
 #include <stdint.h>
-#include "../utils/gen_perm.h"
-#include "../utils/get_digit.h"
+
+static void gen_perm(int k, uint64_t idx, int *out) {
+    if (k == 1) {                     /* base case: single permutation [1] */
+        out[0] = 1;
+        return;
+    }
+    int prev[20];                      /* k never exceeds 20 for 64‑bit n   */
+    gen_perm(k - 1, idx / (uint64_t)k, prev);
+    int pos = k - 1 - (int)(idx % (uint64_t)k);
+
+    /* copy elements before insertion point */
+    for (int i = 0; i < pos; ++i)
+        out[i] = prev[i];
+    out[pos] = k;                     /* insert new element */
+
+    /* copy remaining elements after insertion point */
+    for (int i = pos; i < k - 1; ++i)
+        out[i + 1] = prev[i];
+}
+
+/* Return the digit at position 'digitPos' (0‑based) inside the decimal
+   representation of the permutation 'perm' of length 'k' */
+static seq_t get_digit(const int *perm, int k, int digitPos) {
+    for (int i = 0; i < k; ++i) {
+        int v = perm[i];
+        if (v >= 10) {            /* two decimal digits */
+            int high = v / 10, low = v % 10;
+            if (digitPos == 0) return (seq_t)high;
+            --digitPos;
+            if (digitPos == 0) return (seq_t)low;
+            --digitPos;
+        } else {                  /* one decimal digit */
+            if (digitPos == 0) return (seq_t)v;
+            --digitPos;
+        }
+    }
+    return (seq_t)0;               /* should never happen */
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;           /* minimal guard, offset is 1 */

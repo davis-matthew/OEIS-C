@@ -12,12 +12,14 @@
  *            (Off‑by‑one offset is 1.)
  * Range:     u8 n <= 30, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* triangular number: r*(r+1)/2 */
 static idx_t triangular(idx_t r)
@@ -62,7 +64,7 @@ static void ensure_rows(idx_t target)
 
     /* compute any missing rows */
     for (idx_t i = maxRow + 1; i <= target; ++i) {
-        rows[i] = (seq_t *)malloc((size_t)i * sizeof(seq_t));
+        rows[i] = mem_new(seq_t, (size_t)i);
         for (idx_t k = 0; k < i; ++k) {
             seq_t val = 0;
             if (i == 1) {                     /* row 1 */

@@ -12,7 +12,8 @@
  *            pair of the previous two row patterns
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #define NUM_PAT 64
 #define NUM_SP 65              /* 64 normal patterns + sentinel */
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
 
     static seq_t dp_cur[TOTAL_STATES];
     static seq_t dp_next[TOTAL_STATES];
-    memset(dp_cur, 0, sizeof(dp_cur));
+    mem_set(dp_cur, 0, sizeof(dp_cur));
 
     const int sent = NUM_SP - 1;           /* sentinel index = 64 */
 
@@ -112,7 +114,7 @@ seq_t a(idx_t n)
     /* process rows 2..n */
     idx_t row;
     for (row = 2; row <= n; ++row) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (int sid = 0; sid < TOTAL_STATES; ++sid) {
             seq_t val = dp_cur[sid];
             if (val == 0) continue;
@@ -123,7 +125,7 @@ seq_t a(idx_t n)
             }
         }
         /* swap dp arrays */
-        memcpy(dp_cur, dp_next, sizeof(dp_cur));
+        mem_copy(dp_cur, dp_next, sizeof(dp_cur));
     }
 
     /* final summation: last row must have no pending requirement */

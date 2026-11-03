@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   contains21
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
    successive integers. */
 
 #include <stdbool.h>
-#include "../utils/contains21.h"
+
+/* Test whether x in base 7 contains the sequence "21". */
+static bool contains21(seq_t x)
+{
+    seq_t prev = (seq_t)0;
+    seq_t d;
+    const seq_t seven = (seq_t)7;
+
+    while (x > (seq_t)0) {
+        d = x % seven;
+        if (d == (seq_t)2 && prev == (seq_t)1)
+            return true;          /* digits ...2,1 found */
+        prev = d;
+        x = x / seven;
+    }
+    return false;
+}
 
 /* OEIS sequence A044153. */
 seq_t a(idx_t n)

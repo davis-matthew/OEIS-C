@@ -8,6 +8,7 @@
  * Formula:   a(n) = C(n,2)+n if n is odd; a(n) = C(n,2)+n/2+1 if n is even
  * Range:     u8 n <= 22, u16 n <= 362, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 70 terms through n = 4999 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

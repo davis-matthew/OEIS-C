@@ -6,13 +6,15 @@
  * Keywords:  sign
  * Formula:   a(n) = (-1)^(n-1) * Sum_{k=1..n} binomial(3*k-1,k) *
  *            binomial(3*(2*k-1), n-k) / (3*k-1) + binomial(n+2,2) (a(0)=1)
- * Range:     i8 n <= 2, i16 n <= 5, i32 n <= 10, i64 n <= 20, i128 n <= 20,
+ * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 10, i64 n <= 20, i128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

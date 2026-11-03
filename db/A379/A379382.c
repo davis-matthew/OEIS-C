@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 21,
+ * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 781 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    These relations are integer and produce the required sequence. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system.
    Use them directly; do not redefine them. */
@@ -41,8 +43,8 @@ seq_t a(idx_t n)
     if (A == NULL) {
         /* Allocate space for index 0 only. */
         size_t init_size = 1;
-        A = (seq_t *)malloc(init_size * sizeof(seq_t));
-        C = (seq_t *)malloc(init_size * sizeof(seq_t));
+        A = mem_new(seq_t, init_size);
+        C = mem_new(seq_t, init_size);
         if (!A || !C) {
             /* Out of memory – aborting is fine; the caller will get 0. */
             return 0;
@@ -58,8 +60,8 @@ seq_t a(idx_t n)
         idx_t i;
         /* Reallocate arrays to hold indices 0 .. n. */
         size_t new_size = (size_t)(n + 1);
-        A = (seq_t *)realloc(A, new_size * sizeof(seq_t));
-        C = (seq_t *)realloc(C, new_size * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_size);
+        C = mem_resize(seq_t, C, new_size);
         if (!A || !C) {
             /* Reallocation failed – abort. */
             return 0;

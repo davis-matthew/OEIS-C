@@ -13,14 +13,62 @@
  *            two rows * as state. The DP uses 6 neighbour...
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 38, u128 n <= 74,
  *            big any n
- * Helpers:   valid_row_mask
+ * Validated: standard, pass, 42 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/valid_row_mask.h"
+
+/* check that row `cur` (mask cur) satisfies the constraint when the row
+ * above is `prev` and the row below is `next`.  If `top==true`, the
+ * above row does not exist and neighbours above are ignored.
+ * If `bottom==true`, the below row does not exist and neighbours below
+ * are ignored. */
+static inline bool valid_row_mask(int prev, int cur, int next,
+                                  bool top, bool bottom)
+{
+    for (int j = 0; j < 4; ++j) {
+        int target = (cur >> j) & 1;
+        int cnt = 0;
+
+        /* horizontal neighbours */
+        if (j > 0) {
+            int nb = (cur >> (j - 1)) & 1;
+            if (nb == target) cnt++;
+        }
+        if (j < 3) {
+            int nb = (cur >> (j + 1)) & 1;
+            if (nb == target) cnt++;
+        }
+
+        /* vertical neighbours */
+        if (!top) {
+            int nb = (prev >> j) & 1;
+            if (nb == target) cnt++;
+        }
+        if (!bottom) {
+            int nb = (next >> j) & 1;
+            if (nb == target) cnt++;
+        }
+
+        /* anti‑diagonal neighbours (up‑right, down‑left) */
+        if (!top && j < 3) {
+            int nb = (prev >> (j + 1)) & 1;
+            if (nb == target) cnt++;
+        }
+        if (!bottom && j > 0) {
+            int nb = (next >> (j - 1)) & 1;
+            if (nb == target) cnt++;
+        }
+
+        if (cnt != 0 && cnt != 2 && cnt != 3)
+            return false;
+    }
+    return true;
+}
 
 /* pre‑computed tables that avoid recomputing the neighbour checks
  * during the DP.  The tables are built lazily on the first call. */

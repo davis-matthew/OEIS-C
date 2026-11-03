@@ -8,6 +8,7 @@
  * Formula:   a(n) = minimum a+b+c such that a*b*c = n, a,b,c ≥ 1, a≤b≤c
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 91 terms through n = 8282 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

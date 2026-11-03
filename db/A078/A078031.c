@@ -8,13 +8,15 @@
  *            a(2)=-1
  * Range:     i8 n <= 24, i16 n <= 53, i32 n <= 112, i64 n <= 229,
  *            i128 n <= 459, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   // for malloc, realloc
 #include <stddef.h>   // for size_t
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       // memoization array
 static idx_t cache_len = 0;       // number of values currently stored (cache_len-1 is max index)
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         if (new_cap < n + 1) new_cap = n + 1;
 
         /* realloc uses size_t; cast is safe for realistic n */
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!new_cache) {
             /* Allocation failed – abort */
             abort();

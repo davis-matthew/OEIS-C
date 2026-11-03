@@ -8,6 +8,7 @@
  *            (mod 197). For n ≡ 0 (mod 197) the value is defined to be 0
  * Range:     u8 n <= 196, u16 n <= 196, u32 n <= 196, u64 n <= 196,
  *            u128 n <= 196, big any n
+ * Validated: full, pass, 196 terms through n = 196 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

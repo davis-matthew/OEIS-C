@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 23, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   seq_array_destroy, seq_array_resize
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,28 @@
    constructed objects are properly destroyed when the cache grows.  */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_array_destroy.h"
-#include "../utils/seq_array_resize.h"
+
+/* Helper functions – use new[]/delete[] in C++ and malloc/realloc in C. */
+static void seq_array_destroy(seq_t *arr)
+{
+#ifdef __cplusplus
+    delete[] arr;
+#else
+    free(arr);
+#endif
+}
+
+static seq_t *seq_array_resize(seq_t *old, size_t oldcap, size_t newcap)
+{
+#ifdef __cplusplus
+    seq_t *newarr = new seq_t[newcap];
+    for (size_t i = 0; i < oldcap; ++i) newarr[i] = old[i];
+    delete[] old;
+    return newarr;
+#else
+    return (seq_t *)realloc(old, newcap * sizeof(seq_t));
+#endif
+}
 
 /* ------------------------------------------------------------ */
 /*  External linkage function required by the harness           */

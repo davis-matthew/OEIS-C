@@ -13,24 +13,27 @@
  *            is read by falling antidiagonals of T(i,j)
  * Range:     u8 n <= 24, u16 n <= 61, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static seq_t greedy_T(idx_t row, idx_t col)
 {
     /* row ≥ 1, col ≥ 1 */
     /* Compute j^i first, then subtract larger powers first. */
-    seq_t remain = big_pow((seq_t)col, (seq_t)row);
+    seq_t remain = ipow((seq_t)col, (seq_t)row);
 
     /* Descending j from col-1 down to 1 */
     idx_t jj = col;
     while (jj > 1) {
         jj--;                       /* jj now in [1, col-1] */
-        seq_t power = big_pow((seq_t)jj, (seq_t)row);
+        seq_t power = ipow((seq_t)jj, (seq_t)row);
         if (remain >= power)
             remain -= power;
     }

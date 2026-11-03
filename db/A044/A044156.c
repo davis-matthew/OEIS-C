@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return true iff the base‑7 representation of x contains the substring
    "24" (digit 2 followed immediately by digit 4).  */
@@ -47,7 +49,7 @@ static bool has24(idx_t x)
 static seq_t* realloc_cache(seq_t *p, size_t new_cap)
 {
 #if defined(__cplusplus)
-    return reinterpret_cast<seq_t*>(realloc(p, new_cap * sizeof(seq_t)));
+    return reinterpret_cast<seq_t*>(mem_resize(seq_t, p, new_cap));
 #else
     return (seq_t*)realloc(p, new_cap * sizeof(seq_t));
 #endif
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
                 cap = cap ? cap * 2 : 64;
                 seq_t *tmp = realloc_cache(cache, cap);
                 if (!tmp) {
-                    free(cache);
+                    mem_free(cache);
                     abort();
                 }
                 cache = tmp;

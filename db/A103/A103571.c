@@ -8,14 +8,18 @@
  *            (a(1)=7)
  * Range:     u8 n <= 31, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,13 +36,13 @@ seq_t a(idx_t n)
         idx_t cand = next_candidate;
 
         /* test primality using the provided routine */
-        if (is_prime(cand))
+        if (is_prime_u64(cand))
         {
             /* grow storage if needed */
             if (count == capacity)
             {
                 size_t new_cap = (capacity == 0) ? 4 : capacity * 2;
-                seq_t *tmp = (seq_t *)realloc(sums, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, sums, new_cap);
                 if (!tmp) return 0;          /* allocation failure */
                 sums    = tmp;
                 capacity = new_cap;

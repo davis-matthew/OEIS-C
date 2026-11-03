@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 40,
  *            big any n
- * Helpers:   int_sqrt
+ * Validated: standard, pass, 38 terms through n = 976 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    (with 0 at perfect square indices) of length n‑1 after discarding
    the leading two zeros (indices 0 and 1).  Computed by iterating over
    indices 2..n and building the number digit by digit. */
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
     seq_t val = 0;
     for (idx_t i = 2; i <= n; ++i) {
-        idx_t s = int_sqrt(i);
+        idx_t s = isqrt(i);
         seq_t bit = (s * s == i) ? 0 : 1;
         val = val * 10 + bit;
     }

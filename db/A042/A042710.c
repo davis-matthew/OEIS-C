@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static unsigned char *present = NULL;
@@ -37,7 +39,7 @@ static void ensure_capacity(idx_t n)
     if (needed <= cache_cap)
         return;
     size_t new_cap = needed;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     present = (unsigned char *)realloc(present, new_cap * sizeof(unsigned char));
     for (size_t i = cache_cap; i < new_cap; ++i)
         present[i] = 0;

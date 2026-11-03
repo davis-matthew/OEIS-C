@@ -8,8 +8,9 @@
  * Keywords:  sign
  * Formula:   a(n) = (n even ? 1 : -1) if k(n) is prime; 0 otherwise, where
  *            k(n) = 6*ceil(n/2)+(-1)^n
- * Range:     i8 n <= 9119, i16 n <= 9119, i32 n <= 9119, i64 n <= 9119,
- *            i128 n <= 9119, big any n
+ * Range:     i8 n <= 33332, i16 n <= 33332, i32 n <= 33332, i64 n <= 33332,
+ *            i128 n <= 33332, big any n
+ * Validated: standard, pass, 107 terms through n = 9119 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(prime(n)) - 1, with a(0) = 1
  * Range:     u8 n <= 16, u16 n <= 844, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   upper_limit_for_index
+ * Validated: standard, pass, 68 terms through n = 9858 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/upper_limit_for_index.h"
+
+/* Upper bound on the n-th prime (n ≥ 1).  For n < 7 return small constants. */
+static uint64_t upper_limit_for_index(size_t idx) {
+    if (idx == 1) return 2;
+    if (idx == 2) return 3;
+    if (idx == 3) return 5;
+    if (idx == 4) return 7;
+    if (idx == 5) return 11;
+    if (idx == 6) return 13;
+    /* For n ≥ 7 use the proven upper bound p_n < n (ln n + ln ln n) */
+    double n = (double)idx;
+    double upper = n * (log(n) + log(log(n)));
+    return (uint64_t)(upper) + 3;   /* safety margin */
+}
 
 static uint64_t *prime_list = NULL;
 static size_t prime_count = 0;

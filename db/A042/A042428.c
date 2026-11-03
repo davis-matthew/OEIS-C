@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 6, u32 n <= 13, u64 n <= 28, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    are the coefficients of the continued fraction expansion of sqrt(742). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* generate the period on first call */
     if (period_len == 0) {
         period_cap = 16;
-        period = (seq_t *)malloc(period_cap * sizeof(seq_t));
+        period = mem_new(seq_t, period_cap);
         if (!period) return (seq_t)0;              /* allocation failure */
 
         seq_t m = 0, d = 1, a = a0;
@@ -52,8 +54,8 @@ seq_t a(idx_t n)
 
             if (period_len == period_cap) {
                 period_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(period, period_cap * sizeof(seq_t));
-                if (!tmp) { free(period); return (seq_t)0; }
+                seq_t *tmp = mem_resize(seq_t, period, period_cap);
+                if (!tmp) { mem_free(period); return (seq_t)0; }
                 period = tmp;
             }
             period[period_len++] = a;
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     if (tn + 1 > conv_cap) {
         size_t new_cap = conv_cap ? conv_cap * 2 : 16;
         if (new_cap < tn + 1) new_cap = tn + 1;
-        seq_t *tmp = (seq_t *)realloc(conv, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, conv, new_cap);
         if (!tmp) return (seq_t)0;
         conv = tmp;
         conv_cap = new_cap;

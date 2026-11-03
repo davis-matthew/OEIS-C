@@ -10,13 +10,14 @@
  *            row), j = r+1-i
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   gpf
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +36,8 @@ seq_t a(idx_t n)
     idx_t i = n - ((r - 1) * r) / 2;
     idx_t j = r + 1 - i;      /* mirrored position */
 
-    uint64_t p1 = gpf(2 * i + 1);
-    uint64_t p2 = gpf(2 * j + 1);
+    uint64_t p1 = largest_prime_factor(2 * i + 1);
+    uint64_t p2 = largest_prime_factor(2 * j + 1);
 
     return (seq_t)(p1 + p2);
 }

@@ -10,6 +10,7 @@
  *            = 3*k+1, (5*k^3 + 7*k^2 + 2*k)/2 if n = 3*k+2 where k = n / 3
  * Range:     u8 n <= 11, u16 n <= 88, u32 n <= 2898, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 63 terms through n = 9238 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

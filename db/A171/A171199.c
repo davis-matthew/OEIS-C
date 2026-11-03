@@ -7,14 +7,22 @@
  * Formula:   a(0)=1, a(1)=2; a(n)=a(n-1)+a(n-2)+∑_{k=2}^{n-1} a(k)*a(n-k-1)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* static cache for memoization */
 static seq_t *cache = NULL;     /* array of computed terms */
@@ -31,7 +39,7 @@ static void ensure_cache(idx_t n)
     if (cache_len == 0) {
         /* allocate minimal capacity: at least 2 (for a0 and a1) or more if n is larger */
         size_t cap = (n + 1 > 2) ? (n + 1) : 2;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache_cap = cap;
         /* initialise known terms */
         cache[0] = (seq_t)1;
@@ -43,7 +51,7 @@ static void ensure_cache(idx_t n)
     if (cache_len <= (size_t)n && cache_cap <= (size_t)n) {
         size_t new_cap = cache_cap * 2;
         if (new_cap <= (size_t)n) new_cap = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) {
             /* allocation failed – abort; in the context of these exercises
                this situation is unlikely */

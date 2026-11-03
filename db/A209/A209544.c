@@ -8,6 +8,7 @@
  * Formula:   a(1)=3; for n≥2 a(n)= the (n‑2)-th prime ≡1 (mod 8)
  * Range:     u8 n <= 11, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 /* Static state for on‑demand generation of primes ≡1 (mod 8) */

@@ -11,19 +11,21 @@
  *            a(n-1) - 819 a(n-6) + 780 a(n-7)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 12, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 616 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0)
         return (seq_t)1;
 
     size_t len = (size_t)n + 1;
-    seq_t *seq = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, len);
     if (!seq)
         return (seq_t)0;  /* memory allocation failure */
 
@@ -59,6 +61,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = seq[n];
-    free(seq);
+    mem_free(seq);
     return result;
 }

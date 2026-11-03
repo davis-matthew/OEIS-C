@@ -9,6 +9,7 @@
  *            sequence (F(0)=0, F(1)=1)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 46, u128 n <= 92,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 690 (2026-11-01)
  * Helpers:   fib_pair
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

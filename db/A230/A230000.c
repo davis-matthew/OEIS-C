@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 85 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  *  The sequence is indexed starting at n=0. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,28 +43,28 @@ seq_t a(idx_t n)
     idx_t k = n - acc;        /* index within row r                        */
 
     /* Handle row 0 separately. */
-    seq_t *prev2 = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *prev2 = mem_new(seq_t, 1);
     if (!prev2) return 0;
     prev2[0] = (seq_t)1;
     idx_t len2 = 1;
 
     if (r == 0) {
         seq_t val = prev2[k];
-        free(prev2);
+        mem_free(prev2);
         return val;
     }
 
     /* Row 1 */
-    seq_t *prev1 = (seq_t *)malloc(2 * sizeof(seq_t));
-    if (!prev1) { free(prev2); return 0; }
+    seq_t *prev1 = mem_new(seq_t, 2);
+    if (!prev1) { mem_free(prev2); return 0; }
     prev1[0] = (seq_t)1;
     prev1[1] = (seq_t)1;
     idx_t len1 = 2;
 
     if (r == 1) {
         seq_t val = prev1[k];
-        free(prev1);
-        free(prev2);
+        mem_free(prev1);
+        mem_free(prev2);
         return val;
     }
 
@@ -70,10 +72,10 @@ seq_t a(idx_t n)
     for (idx_t i = 2; i <= r; ++i) {
         idx_t tri = i * (i + 1) / 2;
         idx_t len = tri + 1;
-        seq_t *cur = (seq_t *)calloc((size_t)len, sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, (size_t)len);
         if (!cur) {
-            free(prev1);
-            free(prev2);
+            mem_free(prev1);
+            mem_free(prev2);
             return 0;
         }
 
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
             cur[shift + j] += prev2[j];
 
         /* free previous rows and advance */
-        free(prev2);
+        mem_free(prev2);
         prev2 = prev1;
         len2  = len1;
 
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
 
     /* Retrieve the desired coefficient and clean up */
     seq_t result = prev1[k];
-    free(prev1);
-    free(prev2);
+    mem_free(prev1);
+    mem_free(prev2);
     return result;
 }

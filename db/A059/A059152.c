@@ -8,12 +8,13 @@
  *            odd n: A007814(n) = 1 + v₂((n+1)/2), v₂(x) = exponent of 2 in x
  * Range:     u8 n <= 6, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   tz_uint64
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   ctz_idx_to_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/tz_uint64.h"
+#include "../utils/ctz_idx_to_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +24,7 @@ seq_t a(idx_t n)
 
     /* n is odd */
     idx_t m = (n + 1) >> 1;          /* (n+1)/2 */
-    int tz = tz_uint64(m);           /* v₂(m) */
+    int tz = ctz_idx_to_i32(m);           /* v₂(m) */
     int exp = 4 + (2 * tz);          /* exponent of 2 in a(n) */
 
     seq_t result = 1;

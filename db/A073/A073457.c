@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    the prime counting function π(k) plus 2, i.e., φ(k) = π(k) + 2. */
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,10 +31,10 @@ seq_t a(idx_t n)
         const idx_t LIMIT = 255;
 
         /* Allocate working arrays. */
-        seq_t *phi = (seq_t *)malloc((LIMIT + 1) * sizeof(seq_t));
+        seq_t *phi = mem_new(seq_t, (LIMIT + 1));
         unsigned char *is_prime = (unsigned char *)malloc((LIMIT + 1) * sizeof(unsigned char));
         if (!phi || !is_prime) {
-            free(phi); free(is_prime);
+            mem_free(phi); free(is_prime);
             return (seq_t)0;             /* allocation failure */
         }
 
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(phi);
+        mem_free(phi);
         free(is_prime);
         initialized = true;
     }

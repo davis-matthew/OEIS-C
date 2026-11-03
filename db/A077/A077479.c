@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   bigomega, count_distinct_primes
+ * Validated: standard, pass, 121 terms through n = 895 (2026-11-03)
+ * Helpers:   bigomega, mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,11 @@
    and caching the values. */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/bigomega.h"
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* Static cache for computed terms */
 static seq_t      *cache      = NULL;   /* array of a(k) */
@@ -39,7 +43,7 @@ ensure_cache_capacity(size_t need)
     size_t new_cap = (cache_cap == 0) ? 256 : cache_cap;
     while (new_cap < need)
         new_cap <<= 1;                     /* double until large enough */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                           /* memory exhausted */
     cache = tmp;
@@ -54,7 +58,7 @@ grow_cache_to(idx_t target)
         uint64_t m = (uint64_t)next_m;  /* current integer to test   */
         ++next_m;
 
-        int omega_int = count_distinct_primes(m); /* ω(m) */
+        int omega_int = omega(m); /* ω(m) */
         if (omega_int == 0)                  /* skip m = 1  */
             continue;
 

@@ -8,11 +8,13 @@
  *            A374064: 1 + 0x - x^2 + 0x^3 + x^4 - x^5 - x^6 + …)
  * Range:     i8 n <= 75, i16 n <= 75, i32 n <= 75, i64 n <= 75, i128 n <= 75,
  *            big any n
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #ifdef __cplusplus
 #include <vector>

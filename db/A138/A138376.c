@@ -9,7 +9,8 @@
  *            sum_of_digits(n + 1) )
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 111 terms through n = 847 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Needed for dynamic allocation and memory copy */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Sum of decimal digits of an idx_t value */
 static unsigned int digit_sum_idx(idx_t x)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     if (!a_cache)
     {
         a_cap = 1;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         if (!a_cache) abort();          /* unrecoverable on out‑of‑memory */
         a_cache[0] = (seq_t)0;
         a_len = 1;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
 
         if (new_cap > a_cap)
         {
-            seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
             if (!tmp) abort();          /* unrecoverable on out‑of‑memory */
             a_cache = tmp;
             a_cap = new_cap;

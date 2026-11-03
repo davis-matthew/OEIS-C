@@ -8,7 +8,8 @@
  *            k!
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 18, u128 n <= 21,
  *            big any n
- * Helpers:   binomial_local
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 /* Computes the OEIS sequence A376518 by explicit summation. */
 
 #include <stddef.h>  /* For size_t, not required but harmless */
-#include "../utils/binomial_local.h"
+#include "../utils/binomial.h"
 
 /* ------------------------------------------------------------------ */
 
@@ -39,7 +40,7 @@ seq_t a(idx_t n)
         if (r > k) {                 /* binomial(k, r) would be zero */
             /* skip this k */
         } else {
-            seq_t binom = binomial_local(k, r);
+            seq_t binom = binomial(k, r);
 
             /* Compute (k+1)^(k-1).  For k==0 the convention is 1. */
             seq_t power = 1;

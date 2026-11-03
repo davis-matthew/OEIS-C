@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 111, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isprime
+ * Validated: standard, pass, 59 terms through n = 9837 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/isprime.h"   /* bool isprime(uint64_t n); */
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 #define SIEVE_LIMIT 30000000ULL   /* enough for n up to ~10 000 */
 
@@ -88,13 +90,12 @@ seq_t a(idx_t n)
         /* Scan primes starting from the last checked index. */
         for (size_t k = g_next_k; k + 4 < g_prime_cnt; ++k) {
             uint64_t p  = g_primes[k];
-            if (!isprime(p + 2)) continue;              /* p+2 must be prime */
+            if (!is_prime_u64(p + 2)) continue;              /* p+2 must be prime */
             uint64_t pk4 = g_primes[k + 4];
-            if (!isprime(pk4 - 2)) continue;           /* prime(k+4)-2 prime */
+            if (!is_prime_u64(pk4 - 2)) continue;           /* prime(k+4)-2 prime */
 
             /* Store the new term. */
-            seq_t *tmp = (seq_t *)realloc(g_terms,
-                    (g_term_cnt + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, g_terms, (g_term_cnt + 1));
             if (!tmp) return (seq_t)0;                /* allocation fail */
             g_terms = tmp;
             g_terms[g_term_cnt++] = (seq_t)p;

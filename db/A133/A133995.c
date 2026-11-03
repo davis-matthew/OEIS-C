@@ -12,8 +12,9 @@
  *            increasing order, all positive integers i ≤ k that * are neither
  *            a divisor of k nor coprime to k. * - If k has no such integers,
  *            a 0 is written for that row. * The sequen...
- * Range:     u8 n <= 9666, u16 n <= 9666, u32 n <= 9666, u64 n <= 9666,
- *            u128 n <= 9666, big any n
+ * Range:     u8 n <= 10014, u16 n <= 10014, u32 n <= 10014, u64 n <= 10014,
+ *            u128 n <= 10014, big any n
+ * Validated: standard, pass, 107 terms through n = 9666 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

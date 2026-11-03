@@ -10,13 +10,15 @@
  *            4*w^4)/5
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 117 terms through n = 9640 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static inline idx_t pow4(idx_t a) {
     idx_t aa = a * a;
@@ -25,7 +27,7 @@ static inline idx_t pow4(idx_t a) {
 
 static void compute_counts(seq_t *arr, idx_t limit) {
     /* Zero the array (should already be zeroed by calloc, but keep for safety) */
-    memset(arr, 0, (limit + 1) * sizeof(seq_t));
+    mem_set(arr, 0, (limit + 1) * sizeof(seq_t));
 
     idx_t limit5 = 5 * limit;
     for (idx_t x = 0; ; ++x) {
@@ -64,13 +66,13 @@ static idx_t cache_size = 0;
 seq_t a(idx_t n) {
     if (n >= cache_size) {
         idx_t newsize = n + 1;
-        seq_t *new_cache = (seq_t *)calloc(newsize, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, newsize);
         if (!new_cache) {
             /* In the unlikely event of an allocation failure, terminate */
             exit(1);
         }
         compute_counts(new_cache, n);
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache = new_cache;
         cache_size = newsize;
     }

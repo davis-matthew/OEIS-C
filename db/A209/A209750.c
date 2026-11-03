@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,8 +51,8 @@ seq_t a(idx_t n)
     if (cur_row == 0) {
         cur_row  = 1;
         cur_size = 1;
-        u = (seq_t *)malloc(sizeof(seq_t));
-        v = (seq_t *)malloc(sizeof(seq_t));
+        u = mem_new(seq_t, 1);
+        v = mem_new(seq_t, 1);
         if (!u || !v) return 0;           /* out of memory */
         u[0] = (seq_t)1;
         v[0] = (seq_t)1;
@@ -59,10 +61,10 @@ seq_t a(idx_t n)
     /* Expand rows until we reach the required row r. */
     while (cur_row < r) {
         idx_t new_size = cur_size + 1;
-        seq_t *new_u = (seq_t *)malloc(new_size * sizeof(seq_t));
-        seq_t *new_v = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_u = mem_new(seq_t, new_size);
+        seq_t *new_v = mem_new(seq_t, new_size);
         if (!new_u || !new_v) {
-            free(new_u); free(new_v);
+            mem_free(new_u); mem_free(new_v);
             return 0;                    /* out of memory */
         }
 
@@ -85,8 +87,8 @@ seq_t a(idx_t n)
         }
 
         /* Release old arrays and update state. */
-        free(u);
-        free(v);
+        mem_free(u);
+        mem_free(v);
         u = new_u;
         v = new_v;
         cur_size = new_size;

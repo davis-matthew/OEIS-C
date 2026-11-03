@@ -9,6 +9,7 @@
  *            S/2 (main diagonal, which occurs when S is even), else a(n)=0
  * Range:     u8 n <= 1275, u16 n <= 1275, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 152 terms through n = 949 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

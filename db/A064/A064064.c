@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 9943 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    to each previous element in the growing list. */
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,14 +36,14 @@ seq_t a(idx_t n)
     /* initialise the cache to store at least element 0 */
     if (cache == NULL) {
         cache_size = 1;
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = (seq_t)1;
     }
     /* extend cache if necessary */
     if (n >= cache_size) {
         idx_t new_size = cache_size;
         while (new_size <= n) new_size <<= 1;
-        cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         for (idx_t i = cache_size; i < new_size; ++i)
             cache[i] = (seq_t)0;
         cache_size = new_size;

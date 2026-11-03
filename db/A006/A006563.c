@@ -8,13 +8,16 @@
  *            (2*i-1)!]
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 5, i64 n <= 9, i128 n <= 13,
  *            big any n
- * Helpers:   binom, pw2
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/pw2.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
     seq_t fact_2n = 1;
@@ -31,8 +34,8 @@ seq_t a(idx_t n) {
             odd_factorial *= (seq_t)(2 * i - 1);
         }
         
-        seq_t term = binom(n, i);
-        term *= pw2(i);
+        seq_t term = binomial(n, i);
+        term *= pow2(i);
         term *= odd_factorial;
         
         if (i % 2 == 0) {

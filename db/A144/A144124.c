@@ -7,6 +7,7 @@
  * Formula:   a(n) = 70*n^4 + 140*n^3 + 90*n^2 + 20*n + 1
  * Range:     u8 n <= 0, u16 n <= 5, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,12 +7,14 @@
  * Formula:   a(n) = floor(10^(n+1)/79) mod 10
  * Range:     u8 n <= 2, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the nth decimal digit of 1/79 (a(0) = 0) */
 seq_t a(idx_t n)
@@ -29,11 +31,11 @@ seq_t a(idx_t n)
     /* Grow the cache to accommodate index n (next element is n) */
     size_t needed = (size_t)(n + 1);
     if (!cache) {
-        cache = (seq_t*)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         cache_len = 0;
         rem = 1;                     /* initial remainder before first digit */
     } else if (needed > cache_len) {
-        cache = (seq_t*)realloc(cache, needed * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, needed);
     }
 
     /* Compute missing digits using long‑division algorithm */

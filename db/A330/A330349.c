@@ -7,6 +7,7 @@
  * Formula:   a(n) = A070826(n+1) - 2^(n-1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 25,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 343 (2026-11-01)
  * Helpers:   build_primes_upto, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/pow2.h"
 

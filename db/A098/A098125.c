@@ -3,23 +3,26 @@
  *          the number of parts.
  * https://oeis.org/A098125
  *
- * Offset:    1    (a(1) is the first term)
+ * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = Σ_{k=2..n} Σ_{j=0..⌊(n−k)/(k−1)⌋} (−1)^j * C(k, j) * C(n
  *            − j·(k−1) − 1, k−1) where C(a,b) is the binomial coefficient.
  *            The summands with a negative value of the upper argument are
  *            skipped (they are 0). The term with k=1 is omitted because no
  *            composition of a positive integer has largest pa...
- * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 31, u64 n <= 32, u128 n <= 32,
+ * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 # include <stdlib.h>
 # include <stddef.h>
-# include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;      /* memoised a(n) values, indices 0..max_n */
 static idx_t cache_size = 0;         /* currently computed up to cache_size */
@@ -30,7 +33,7 @@ static void compute_up_to(idx_t n)
     if (n <= cache_size) return;
 
     /* extend the cache */
-    seq_cache = (seq_t *)realloc(seq_cache, (n + 1) * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, (n + 1));
     if (!seq_cache) exit(1);  /* out of memory */
 
     /* initialise new entries to zero */
@@ -53,8 +56,8 @@ static void compute_up_to(idx_t n)
                 idx_t N = v - j * (k - 1) - 1;   /* upper argument of the second binomial */
                 if (N < k - 1) break;            /* C(N, k−1) would be zero */
 
-                seq_t term = binom(k, j);
-                term = term * binom(N, k - 1);
+                seq_t term = binomial(k, j);
+                term = term * binomial(N, k - 1);
 
                 if ((j & 1) == 0) pos += term; else neg += term;
             }
@@ -69,6 +72,7 @@ static void compute_up_to(idx_t n)
 /* external linkage required by the framework */
 seq_t a(idx_t n)
 {
+    if (n == 0) return (seq_t)1;    /* the empty composition (the OEIS offset is now 0) */
     if (n == 0) return 0;        /* outside the offset, defined as 0 */
     compute_up_to(n);
     return seq_cache[n];

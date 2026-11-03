@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   divisor_count_u64, ensure_capacity, is_prime
+ * Validated: standard, pass, 71 terms through n = 749 (2026-11-03)
+ * Helpers:   is_prime, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,40 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
-#include "../utils/divisor_count_u64.h"
-#include "../utils/ensure_capacity.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size) /* elem_size: sizeof(T) */
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, new_cap);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 seq_t a(idx_t n)
 {
@@ -37,7 +70,7 @@ seq_t a(idx_t n)
     /* On first call, initialise cache and cap */
     if (cap == 0) {
         cap = 64;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* Generate terms until we have at least n of them */
@@ -50,12 +83,12 @@ seq_t a(idx_t n)
         ++last; /* next search start */
 
         /* Compute divisor count of (p+1) */
-        uint64_t d = divisor_count_u64(p + 1);
+        uint64_t d = num_divisors(p + 1);
 
         /* Test whether p + d is prime */
         if (is_prime(p + d)) {
             /* Ensure cache capacity */
-            ensure_capacity(cnt + 1, &cap, (void **)&cache, sizeof(seq_t));
+            ensure_capacity(cnt + 1, &cap, OEISC_VPP(&cache), sizeof(seq_t));
             cache[cnt++] = (seq_t)p;
         }
     }

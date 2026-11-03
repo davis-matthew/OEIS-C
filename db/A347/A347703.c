@@ -9,7 +9,8 @@
  *            (counting 1 as a prime)
  * Range:     u8 n <= 27, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime sieve (cached) ---------- */
 static uint64_t *prime_list  = NULL; /* primes > 1, sorted */
@@ -99,10 +101,10 @@ recompute_cache(idx_t n)
     size_t np = (size_t)(n + 1);
 
     /* arrays for dynamic programming */
-    seq_t *dp   = (seq_t *)calloc(np, sizeof(seq_t));
-    seq_t *ans  = (seq_t *)calloc(np, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, np);
+    seq_t *ans  = mem_new(seq_t, np);
     if (!dp || !ans) {
-        free(dp); free(ans);
+        mem_free(dp); mem_free(ans);
         return;
     }
 
@@ -111,10 +113,10 @@ recompute_cache(idx_t n)
 
     /* iterations for k = 1..4 parts */
     for (size_t k = 1; k <= 4; ++k) {
-        seq_t *newdp = (seq_t *)calloc(np, sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, np);
         if (!newdp) {
-            free(dp);
-            free(ans);
+            mem_free(dp);
+            mem_free(ans);
             return;
         }
 
@@ -128,16 +130,16 @@ recompute_cache(idx_t n)
             ans[(size_t)i] += sum;                 /* accumulate contributions from all k */
         }
 
-        free(dp);
+        mem_free(dp);
         dp = newdp;
     }
 
     /* replace old cache */
-    free(a_cache);
+    mem_free(a_cache);
     a_cache = ans;
     a_size  = np;
 
-    free(dp); /* free the last dp array (k=4 results are not needed) */
+    mem_free(dp); /* free the last dp array (k=4 results are not needed) */
 }
 
 /* ---------- Public API ---------- */

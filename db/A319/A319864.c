@@ -11,13 +11,25 @@
  *            = s((n-1)/2) + s((n+1)/2)
  * Range:     u8 n <= 110, u16 n <= 110, u32 n <= 110, u64 n <= 110,
  *            u128 n <= 110, big any n
- * Helpers:   stern_idx
+ * Validated: partial, pass, 109 terms through n = 110 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/stern_idx.h"
+
+/* Compute Stern’s diatomic sequence using 64‑bit arithmetic
+   (safe because s(n) <= n for n > 1). */
+static idx_t stern_idx(idx_t n)
+{
+    if (n < 2)                /* n == 0 or 1 */
+        return n;
+    if ((n & 1u) == 0u)       /* even */
+        return stern_idx(n >> 1);
+    /* odd */
+    return stern_idx(n >> 1) + stern_idx((n >> 1) + 1);
+}
 
 /* Integer binary logarithm for powers of two (result fits in seq_t). */
 static seq_t floor_log2(seq_t x)

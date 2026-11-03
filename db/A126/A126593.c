@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 28, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   _f
+ * Validated: full, pass, 28 terms through n = 28 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_f.h"
+
+/* -------------------------------------------------------------
+   Compute f(k) = Σ 2^digit  for all decimal digits of k
+   ------------------------------------------------------------- */
+static seq_t _f(seq_t k)
+{
+    uint64_t m = (uint64_t)k;
+    uint64_t sum = 0;
+    while (m > 0) {
+        int d = m % 10;
+        sum += 1ULL << d;   /* 2^digit */
+        m /= 10;
+    }
+    return (seq_t)sum;
+}
 
 #define LIM 5000  /* covers all cycle elements, see OEIS comments */
 

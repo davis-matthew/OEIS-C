@@ -8,6 +8,7 @@
  * Formula:   a(n) = (n-7)*(n^3-21n^2+158n-420) for n >= 7, otherwise 0
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 262, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 55 terms through n = 924 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

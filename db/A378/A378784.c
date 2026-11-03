@@ -11,7 +11,8 @@
  *            order, each increased by a(m)
  * Range:     u8 n <= 8192, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 8087 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *cache = NULL;        /* array 1..computed_size */
@@ -33,11 +35,11 @@ seq_t a(idx_t n)
         /* ensure a buffer large enough */
         size_t required = (size_t)n + 1; /* indices 0..n */
         if (required > cache_cap) {
-            seq_t *new_cache = (seq_t *)malloc(required * sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, required);
             if (cache) {
                 for (size_t i = 1; i <= computed_size; ++i)
                     new_cache[i] = cache[i];
-                free(cache);
+                mem_free(cache);
             }
             cache = new_cache;
             cache_cap = required;

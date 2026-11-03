@@ -7,10 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   binom, mul_small, seq_mul
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 /* A369784: a(n) = Sum_{k=0..n} Stirling2(n,k) * A004211(k) */
 /* A004211(k) is defined by the EGF exp((exp(2*t)-1)/2).  */
@@ -21,9 +24,37 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_mul.h"
-#include "../utils/binom.h"
-#include "../utils/mul_small.h"
+#include <string.h>
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Compute binomial coefficient C(a,b) using multiplicative formula. */
+static seq_t binom(idx_t a, idx_t b) {
+    if (b > a) return 0;
+    if (b > a - b) b = a - b;          /* use symmetry */
+    seq_t res = 1;
+    for (idx_t i = 1; i <= b; ++i) {
+        res *= (seq_t)(a - b + i);
+        res /= (seq_t)i;
+    }
+    return res;
+}
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* External declarations */
 seq_t a(idx_t n);
@@ -39,10 +70,10 @@ static size_t alloc_size = 0;
 static void ensure_capacity(size_t new_size) {
     if (new_size <= alloc_size) return;
     alloc_size = new_size;
-    B          = (seq_t *)realloc(B,                         (alloc_size + 1) * sizeof(seq_t));
-    S          = (seq_t *)realloc(S,                         (alloc_size + 1) * sizeof(seq_t));
-    a_cache    = (seq_t *)realloc(a_cache,                   (alloc_size + 1) * sizeof(seq_t));
-    pow2       = (seq_t *)realloc(pow2,                      (alloc_size + 1) * sizeof(seq_t));
+    B          = mem_resize(seq_t, B, (alloc_size + 1));
+    S          = mem_resize(seq_t, S, (alloc_size + 1));
+    a_cache    = mem_resize(seq_t, a_cache, (alloc_size + 1));
+    pow2       = mem_resize(seq_t, pow2, (alloc_size + 1));
     for (size_t i = alloc_size; i <= new_size; ++i) {
         B[i] = 0;
         S[i] = 0;

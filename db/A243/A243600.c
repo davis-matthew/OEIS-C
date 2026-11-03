@@ -10,12 +10,14 @@
  *            a(1)=4, a(2)=10, a(3)=28, a(4)=85, a(5)=269
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 37, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 162 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* 1‑based cache */
 static idx_t  cache_size = 0;        /* largest index computed so far  */
@@ -38,7 +40,7 @@ static void ensure_cache(idx_t n) {
     if (need < 6) need = 6;
 
     if (need > cache_cap) {
-        seq_t *np = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *np = mem_resize(seq_t, cache, need);
         if (!np) exit(EXIT_FAILURE);
         cache = np;
         if (cache_cap == 0) {

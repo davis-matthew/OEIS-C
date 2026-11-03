@@ -10,15 +10,26 @@
  *            concatenations iteratively with powers of ten
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 10, i64 n <= 14, i128 n <= 24,
  *            big any n
- * Helpers:   digits_of, pow10
+ * Validated: standard, pass, 34 terms through n = 345 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digits_of.h"   /* digits_of(idx_t) --> number of decimal digits */
-#include "../utils/pow10.h"       /* pow10(idx_t) --> 10^idx_t as seq_t */
+#include <stdlib.h>
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,7 +41,7 @@ seq_t a(idx_t n)
     /* Build ascending concatenation: 1 2 … n */
     seq_t asc = (seq_t)1;
     for (idx_t i = 2; i <= n; ++i) {
-        seq_t p = pow10((idx_t)digits_of(i));
+        seq_t p = pow10((idx_t)num_digits_idx(i));
         asc = asc * p + (seq_t)i;
     }
 
@@ -44,7 +55,7 @@ seq_t a(idx_t n)
         if (i == n) {
             continue;          /* already set desc = n */
         }
-        seq_t p = pow10((idx_t)digits_of(i));
+        seq_t p = pow10((idx_t)num_digits_idx(i));
         desc = desc * p + (seq_t)i;
     }
 

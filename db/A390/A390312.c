@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 2447, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   largest_prime_factor, sigma_of
+ * Validated: standard, pass, 82 terms through n = 8879 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,23 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/largest_prime_factor.h"   /* largest_prime_factor(uint64_t) */
-#include "../utils/sigma_of.h"              /* sigma_of(idx_t)       */
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n) {
     /* Static cache of sequence elements */
@@ -35,7 +51,7 @@ seq_t a(idx_t n) {
     /* Initialise cache on first call */
     if (cache == NULL) {
         cap = 128;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* Generate terms until we have at least n of them */
@@ -60,7 +76,7 @@ seq_t a(idx_t n) {
         if (lpf_sigma > lpf_k) {
             if (len == cap) {
                 cap <<= 1;                /* double capacity */
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[len++] = (seq_t)next;
         }

@@ -11,15 +11,18 @@
  *            (mod 3)
  * Range:     i8 n <= 4, i16 n <= 16, i32 n <= 3500, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 66 terms through n = 8782 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
 
         if (p == 2) {
             /* a(2^e) = 2 + ((-4)^(e+1) - 1)/5 */
-            seq_t pow_val = big_pow((seq_t)(-4), (seq_t)(e + 1));
+            seq_t pow_val = ipow((seq_t)(-4), (seq_t)(e + 1));
             term = 2 + ((pow_val - 1) / 5);
         } else if (p == 3) {
             /* a(3^e) = 1 */
@@ -49,7 +52,7 @@ seq_t a(idx_t n)
             seq_t q = p_sq;
             if (p % 3 == 2) q = -q;
 
-            seq_t pow_val = big_pow(q, (seq_t)(e + 1));
+            seq_t pow_val = ipow(q, (seq_t)(e + 1));
             term = (pow_val - 1) / (q - 1);
         }
         result *= term;

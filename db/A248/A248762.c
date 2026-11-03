@@ -9,14 +9,17 @@
  *            cube dividing n!
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 19, u64 n <= 27, u128 n <= 44,
  *            big any n
- * Helpers:   big_pow, build_primes_upto
+ * Validated: standard, pass, 42 terms through n = 922 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -54,7 +57,7 @@ seq_t a(idx_t n)
         if (cube_exp == 0)
             continue;
 
-        seq_t power = big_pow((seq_t)p, (seq_t)cube_exp);
+        seq_t power = ipow((seq_t)p, (seq_t)cube_exp);
         result = result * power;
     }
 

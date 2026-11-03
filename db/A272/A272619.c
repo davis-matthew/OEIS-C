@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 9978, u16 n <= 9978, u32 n <= 9978, u64 n <= 9978,
- *            u128 n <= 9978, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10447, u16 n <= 10447, u32 n <= 10447, u64 n <= 10447,
+ *            u128 n <= 10447, big any n
+ * Validated: standard, pass, 97 terms through n = 9978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- smallest‑prime‑factor table ----------------------------------- */
 static uint32_t *spf = NULL;      /* spf[i] = smallest prime factor of i */
@@ -82,7 +84,7 @@ static void append_val(seq_t val)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-        seq_t *newp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, seq_cache, new_cap);
         if (!newp) return;          /* allocation failed – abort silently */
         seq_cache = newp;
         seq_cap   = new_cap;

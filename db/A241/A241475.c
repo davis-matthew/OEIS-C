@@ -12,12 +12,14 @@
  *            rows of this triangle
  * Range:     u8 n <= 23, u16 n <= 59, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"  /* seq_t gcd(seq_t a, seq_t b) */
+#include <stdint.h>
+#include "../utils/gcd.h"
 
 /* Compute lcm(a,b) using gcd; all operations are performed in seq_t. */
 static inline seq_t lcm_seq(seq_t a, seq_t b)

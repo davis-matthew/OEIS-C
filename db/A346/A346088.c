@@ -9,8 +9,9 @@
  * Formula:   a(n) = smallest divisor d of n for which A002034(d) =
  *            A002034(n), where A002034(m) is the least k such that k! is
  *            divisible by m
- * Range:     u8 n <= 255, u16 n <= 8347, u32 n <= 8347, u64 n <= 8347,
- *            u128 n <= 8347, big any n
+ * Range:     u8 n <= 255, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 105 terms through n = 8347 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  *            programming using the generating function (x + Σ x^prime)^5
  * Range:     u8 n <= 16, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Helper: generate all primes ≤ limit (using simple sieve).             */
@@ -89,16 +91,16 @@ static void recompute_cache(idx_t upto)
     size_t sz = (size_t)upto + 1;
 
     /* Allocate two working arrays of seq_t */
-    seq_t *cur  = (seq_t*)malloc(sz * sizeof(seq_t));
-    seq_t *next = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, sz);
+    seq_t *next = mem_new(seq_t, sz);
     if (!cur || !next) {
-        free(cur); free(next);
+        mem_free(cur); mem_free(next);
         return;
     }
 
     /* Initialise to zero */
-    memset(cur, 0, sz * sizeof(seq_t));
-    memset(next, 0, sz * sizeof(seq_t));
+    mem_set(cur, 0, sz * sizeof(seq_t));
+    mem_set(next, 0, sz * sizeof(seq_t));
     cur[0] = (seq_t)1;          /* one way to reach sum 0 with 0 parts */
 
     /* Build the list of primes up to 'upto' */
@@ -109,7 +111,7 @@ static void recompute_cache(idx_t upto)
     /* Perform 5 convolutions: each iteration adds one more part. */
     for (int part = 0; part < 5; ++part) {
         /* clear next */
-        memset(next, 0, sz * sizeof(seq_t));
+        mem_set(next, 0, sz * sizeof(seq_t));
 
         for (size_t sum = 0; sum < sz; ++sum) {
             seq_t val = cur[sum];
@@ -130,9 +132,9 @@ static void recompute_cache(idx_t upto)
     }
 
     /* cur now contains the final counts.  Replace the global cache. */
-    if (dp_cache) free(dp_cache);   /* discard old cache */
+    if (dp_cache) mem_free(dp_cache);   /* discard old cache */
     dp_cache = cur;                 /* keep pointer to the finished array */
-    free(next);                     /* free unused temporary array */
+    mem_free(next);                     /* free unused temporary array */
     free(prime_list);               /* clean up prime list */
     cache_size = upto;
 }

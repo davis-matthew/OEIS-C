@@ -14,7 +14,8 @@
  *            a(n)=a(n-1)*n
  * Range:     u8 n <= 27, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Persistent storage for the sequence and a hash table that maps a value
    to its most recent index (the “last index” in the definition). */
@@ -44,13 +46,13 @@ static void seq_grow(size_t needed) {
     if (seq_cap >= needed) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 
 static void hash_rehash(void) {
     size_t new_cap = hash_cap ? hash_cap * 2 : 16;
-    Entry *new_hash = (Entry *)calloc(new_cap, sizeof(Entry));
+    Entry *new_hash = mem_new(Entry, new_cap);
     for (size_t i = 0; i < hash_cap; ++i) {
         if (hash[i].used) {
             uint64_t h = (uint64_t)hash[i].key;
@@ -61,7 +63,7 @@ static void hash_rehash(void) {
             new_hash[idx].used = true;
         }
     }
-    free(hash);
+    mem_free(hash);
     hash = new_hash;
     hash_cap = new_cap;
     hash_used = 0;

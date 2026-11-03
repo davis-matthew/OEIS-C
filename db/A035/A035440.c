@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 184, u32 n <= 501, u64 n <= 1553,
  *            u128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 2787 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (dp_capacity <= n)
     {
         idx_t new_capacity = n + 1;
-        seq_t *new_dp = (seq_t *)realloc(dp, new_capacity * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, new_capacity);
         if (!new_dp) return 0;           /* allocation failed – give up */
         dp = new_dp;
         dp_capacity = new_capacity;

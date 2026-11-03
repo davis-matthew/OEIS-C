@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto
+ * Validated: standard, pass, 82 terms through n = 9865 (2026-11-03)
+ * Helpers:   build_primes_upto, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,11 +28,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* External integer types provided by the build */
-extern idx_t _floor_isqrt_u64(idx_t n);
+extern idx_t isqrt(idx_t n);
 
 /* ---------- Static state for incremental generation ---------- */
 static seq_t *tau = NULL;          /* divisor counts up to current_limit   */
@@ -53,7 +55,7 @@ static void ensure_limit(idx_t up_to)
     if (up_to <= current_limit) return;
 
     /* Allocate new array of divisor counts: indices 0..up_to+1 */
-    seq_t *new_tau = (seq_t*)malloc((up_to + 2) * sizeof(seq_t));
+    seq_t *new_tau = mem_new(seq_t, (up_to + 2));
     if (!new_tau) return;  /* out of memory – abort silently for this task */
 
     /* Initialise to zero */
@@ -68,13 +70,13 @@ static void ensure_limit(idx_t up_to)
     }
 
     /* Replace old array (freeing the old one if present) */
-    free(tau);
+    mem_free(tau);
     tau = new_tau;
     current_limit = up_to;
 
     /* Rebuild primes up to sqrt(current_limit+1) + 1 */
     free(primes);
-    idx_t maxp = _floor_isqrt_u64(current_limit + 1) + 1;
+    idx_t maxp = isqrt(current_limit + 1) + 1;
     build_primes_upto(maxp, &primes, &prime_cnt);
 }
 
@@ -83,7 +85,7 @@ static void append_term(seq_t val)
 {
     if (terms_count == terms_cap) {
         size_t newcap = terms_cap ? terms_cap * 2 : 16;
-        seq_t *newarr = (seq_t*)realloc(terms, newcap * sizeof(seq_t));
+        seq_t *newarr = mem_resize(seq_t, terms, newcap);
         if (!newarr) return;  /* out of memory – abort silently */
         terms = newarr;
         terms_cap = newcap;

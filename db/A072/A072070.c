@@ -8,13 +8,14 @@
  * Formula:   a(n) = number of integer solutions of 4*x^2 + y^2 + 8*z^2 = n
  * Range:     u8 n <= 2151, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt_small
+ * Validated: standard, pass, 106 terms through n = 9883 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_sqrt_small.h"
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -23,8 +24,8 @@ seq_t a(idx_t n)
 
     /* Maximal |x| and |z| that can appear for this n.  We use floor_sqrt_small
      * because the values are tiny for n ≤ 10000. */
-    int maxX = (int)floor_sqrt_small(nn / (seq_t)4);
-    int maxZ = (int)floor_sqrt_small(nn / (seq_t)8);
+    int maxX = (int)isqrt_seq(nn / (seq_t)4);
+    int maxZ = (int)isqrt_seq(nn / (seq_t)8);
 
     for (int x = -maxX; x <= maxX; ++x) {
         seq_t termX = (seq_t)4 * (seq_t)x * (seq_t)x;
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
                 continue;
 
             seq_t rem = nn - termX - termZ;               /* y^2 */
-            seq_t y   = floor_sqrt_small(rem);
+            seq_t y   = isqrt_seq(rem);
             if (y * y == rem) {                          /* perfect square? */
                 if (y == 0)
                     count += (seq_t)1;                   /* y = 0 only once */

@@ -12,6 +12,7 @@
  *            hit exponent m, * using exact integer arithmetic
  * Range:     u8 n <= 16, u16 n <= 54, u32 n <= 200, u64 n <= 770,
  *            u128 n <= 2050, big any n
+ * Validated: standard, pass, 96 terms through n = 2041 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,12 +11,14 @@
  *            All arithmetic is performed in the type seq_t, so the im...
  * Range:     u8 n <= 11, u16 n <= 30, u32 n <= 96, u64 n <= 334,
  *            u128 n <= 1197, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1255 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* integer square‑root, floor(sqrt(x)) for non‑negative x */
 static idx_t floor_sqrt_u64(idx_t x)
@@ -52,12 +54,12 @@ seq_t a(idx_t n)
 
     /* dynamic programming: keep 2 rows only */
     size_t len = (size_t)(r + 1);
-    seq_t *prev = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, len);
+    seq_t *curr = mem_new(seq_t, len);
     if (!prev || !curr) {
         /* allocation failure – return 0 (value not needed in tests) */
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return (seq_t)0;
     }
 
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
 
     seq_t result = prev[k];
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

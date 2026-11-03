@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 5384, u16 n <= 9104, u32 n <= 9104, u64 n <= 9104,
- *            u128 n <= 9104, big any n
- * Helpers:   none
+ * Range:     u8 n <= 5384, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 122 terms through n = 9104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    a(n) = |{ d | d divides n and d > a(n‑1) }| for n ≥ 1 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cached values of a(n) */
 static idx_t  cache_len = 0;  /* number of values cached (>= 1, 0 means uninitialised) */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first term a(0)=0 if necessary. */
     if (cache_len == 0)
     {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (cache == NULL)          /* allocation failure – give a safe result */
             return 0;
         cache[0] = 0;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Expand the cache array to hold indices up through n. */
     idx_t old_len = cache_len;          /* index of first new element */
     idx_t new_len = n + 1;              /* length after expansion */
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (tmp == NULL)
         return 0;                       /* allocation failure – safe result */
     cache = tmp;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 223, u16 n <= 728, u32 n <= 2533, u64 n <= 5150,
  *            u128 n <= 5150, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 4568 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    row i starts at index i*(i+1)/2.) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t **table = NULL;   /* rows of the triangle */
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
     if (table == NULL) {
         table = (seq_t **)malloc(sizeof(seq_t *));
         if (table == NULL) return 0;
-        table[0] = (seq_t *)malloc(sizeof(seq_t));
+        table[0] = mem_new(seq_t, 1);
         if (table[0] == NULL) return 0;
         table[0][0] = 1;
         max_i_computed = 0;
@@ -62,7 +64,7 @@ seq_t a(idx_t n) {
 
         /* compute each new row from max_i_computed+1 .. i */
         for (idx_t r = max_i_computed + 1; r <= i; ++r) {
-            seq_t *row = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+            seq_t *row = mem_new(seq_t, (r + 1));
             if (row == NULL) return 0;
             for (idx_t c = 0; c <= r; ++c) {
                 if (c == 0 || c == r) {

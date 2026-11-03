@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 129, u16 n <= 8695, u32 n <= 8695, u64 n <= 8695,
- *            u128 n <= 8695, big any n
- * Helpers:   none
+ * Range:     u8 n <= 129, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 83 terms through n = 8695 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------
    Memoization tables.
@@ -43,7 +45,7 @@ static void ensure_seq_capacity(idx_t need)
     size_t new_cap = seq_cap ? (size_t)seq_cap << 1 : 64;
     if (new_cap < (size_t)(need + 1))
         new_cap = (size_t)(need + 1);
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = (idx_t)new_cap;
 }
 

@@ -8,17 +8,35 @@
  *            paperfolding sequence: f(0) = 1 f(2m) = f(m) f(4m+1) = 1 f(4m+3)
  *            = 0 In a(n), every step is +1 if the next paperfolding value is
  *            1, and –1 if it is 0
- * Range:     u8 n <= 9951, u16 n <= 9951, u32 n <= 9951, u64 n <= 9951,
- *            u128 n <= 9951, big any n
- * Helpers:   diff_of, paperfolding_bit
+ * Range:     u8 n <= 16383, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 118 terms through n = 9951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/diff_of.h"
-#include "../utils/paperfolding_bit.h"
+#include "../utils/mem.h"
+
+/* Compute bit value of the paperfolding sequence (0/1).               */
+static int paperfolding_bit(idx_t n)
+{
+    if (n == 0) return 1;          /* f(0) = 1 */
+    /* reduce n until it is odd */
+    while ((n & 1ULL) == 0)
+        n >>= 1;
+    /* now n is odd: it is 1 mod 4 or 3 mod 4 */
+    return ((n & 3ULL) == 1) ? 1 : 0;
+}
+
+/* Difference between successive terms: +1 if bit is 1, -1 otherwise. */
+static inline int diff_of(idx_t k)
+{
+    /* use bit value of k+1 according to the recurrence above. */
+    return paperfolding_bit(k + 1) ? 1 : -1;
+}
 
 /* Cache for already computed terms of the sequence. */
 static seq_t *cache = NULL;    /* array of a(i) values */
@@ -30,7 +48,7 @@ seq_t a(idx_t n)
     /* Allocate and init cache if necessary. */
     if (!cache) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;           /* allocation failure */
         cache[0] = (seq_t)1;                  /* a(0) = 1 */
         cache_len = 1;
@@ -41,8 +59,7 @@ seq_t a(idx_t n)
         /* Ensure enough capacity. */
         if (cache_len >= cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 4;
-            seq_t *tmp = (seq_t *)realloc(cache,
-                                          new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return (seq_t)0;        /* allocation failure */
             cache = tmp;
             cache_cap = new_cap;

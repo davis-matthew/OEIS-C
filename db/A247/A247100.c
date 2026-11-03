@@ -8,15 +8,27 @@
  * Formula:   a(n) = 1 + Sum_{k=1..ceil(n/2)} binomial(n+1, 2k)*Bell(k)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 40, u128 n <= 71,
  *            big any n
- * Helpers:   binomial, seq_realloc
+ * Validated: standard, pass, 46 terms through n = 827 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(0) = 1 is the first term. */
 #include <stdlib.h>
-#include "../utils/binomial.h"    /* binomial(idx_t a, idx_t b) returns seq_t */
-#include "../utils/seq_realloc.h" /* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) returns seq_t* */
+#include "../utils/binomial.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *Bell = NULL;      /* Bell[0..Bell_cap-1] */
 static idx_t   Bell_cap = 0;

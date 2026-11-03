@@ -7,7 +7,8 @@
  * Formula:   a(n) = (2n+1)! * [x^(2n+1)] sin(x) * cos(sin x)
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 7, i64 n <= 12, i128 n <= 15,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 
 /* The following utility functions are available in the build environment.
    We use only the binomial coefficient function. */
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 #define MAX_N 10000
 #define MAX_M (2*MAX_N + 1)

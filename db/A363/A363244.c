@@ -9,7 +9,8 @@
  *            representation has digits of alternating parity (e.g. 10110…)
  * Range:     u8 n <= 35, u16 n <= 1574, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9312 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---- static list of first 50 primes ---- */
 static const uint64_t _primes[50] = {
@@ -68,7 +70,7 @@ static void _ensure_cache_capacity(void)
         return;                 /* already enough space */
 
     size_t new_cap = _cache_cap ? _cache_cap * 2 : 64;
-    seq_t *newp = (seq_t *)realloc(_cache, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, _cache, new_cap);
     _cache      = newp;
     _cache_cap  = new_cap;
 }

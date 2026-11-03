@@ -11,17 +11,40 @@
  *            branching node: K(x) = x*(MSET(T) - 1 - T...
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 28, u64 n <= 50, u128 n <= 93,
  *            big any n
- * Helpers:   A2992_c2, A2992_c2plus, A2992_mc, A2992_mset2, A2992_width
+ * Validated: standard, pass, 50 terms through n = 989 (2026-11-01)
+ * Helpers:   multichoose, triangular_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/A2992_c2.h"
-#include "../utils/A2992_c2plus.h"
-#include "../utils/A2992_mc.h"
-#include "../utils/A2992_mset2.h"
-#include "../utils/A2992_width.h"
+#include "../utils/multichoose.h"
+#include "../utils/triangular_seq.h"
+
+static seq_t A2992_c2(seq_t x) { /* x(x-1)/2 */
+    if (x == 0) return 0;
+    if (x % 2 == 0) return (x / 2) * (x - 1);
+    return x * ((x - 1) / 2);
+}
+
+static seq_t A2992_mset2(const seq_t *arr, idx_t m) {
+    seq_t s = 0;
+    idx_t i;
+    for (i = 1; 2 * i < m; i++) s += arr[i] * arr[m - i];
+    if (m >= 2 && m % 2 == 0) s += triangular_seq(arr[m / 2]);
+    return s;
+}
+
+static int A2992_width(void) {
+    seq_t x = 1;
+    int w = 0;
+    while (w < 600) {
+        x = x + x;
+        w++;
+        if (x == 0) return w;
+    }
+    return 0;
+}
 
 #define A2992_CAP 16384
 
@@ -39,7 +62,7 @@ static void A2992_fixed_fill(idx_t N) {
         else A2992_K[m] = 0;
         A2992_T[m] = A2992_K[m];
         if (m <= 5) A2992_T[m] += 1;
-        for (q = 1; q * m <= N; q++) mcs[q] = A2992_mc(A2992_T[m], q);
+        for (q = 1; q * m <= N; q++) mcs[q] = multichoose(A2992_T[m], q);
         for (k = N; k >= m; k--) {
             seq_t s = 0;
             for (q = 1; q * m <= k; q++) s += mcs[q] * A2992_E[k - q * m];

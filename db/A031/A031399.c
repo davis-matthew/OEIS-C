@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   has_no_3mod4
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_no_3mod4.h"
+#include "../utils/mem.h"
+
+/* Return true iff n has no prime factor ≡ 3 (mod 4).  Factors of 2 are ignored. */
+static bool has_no_3mod4(uint64_t n)
+{
+    uint64_t temp = n;
+    while ((temp & 1ULL) == 0)
+        temp >>= 1;
+    for (uint64_t p = 3; p * p <= temp; p += 2) {
+        if (temp % p == 0) {
+            if ((p & 3ULL) == 3)
+                return false;
+            while (temp % p == 0)
+                temp /= p;
+        }
+    }
+    if (temp > 1 && (temp & 3ULL) == 3)
+        return false;
+    return true;
+}
 
 /* Integer square‑root (unsigned 64‑bit) via Newton's method. */
 static uint64_t isqrt_u64(uint64_t n)
@@ -75,7 +95,7 @@ seq_t a(idx_t n)
         if (new_cap < needed)
             new_cap = needed;
         /* cast realloc result for C++ */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)          /* allocation failed – return zero sentinel */
             return (seq_t)0;
         cache = tmp;

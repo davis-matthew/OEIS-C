@@ -8,14 +8,16 @@
  *            floor((sqrt(8*n+1)-1)/2), j = n - i*(i+1)/2
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   big_pow, binom
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"   /* provides big_pow(seq_t base, seq_t exp)  */
-#include "../utils/binom.h"    /* provides binom(idx_t a, idx_t b)       */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 /* integer square root of an unsigned 64‑bit number: floor(sqrt(x)) */
 static inline idx_t int_sqrt_u64(idx_t x)
@@ -34,9 +36,9 @@ seq_t a(idx_t n)
     idx_t j = n - i * (i + 1) / 2;
 
     /* compute the three factors of the term */
-    seq_t pow5  = big_pow((seq_t)5, (seq_t)(i - j)); /* 5^(i-j) */
-    seq_t pow12 = big_pow((seq_t)12, (seq_t)j);     /* 12^j    */
-    seq_t bin   = binom(i, j);                     /* binomial(i,j) */
+    seq_t pow5  = ipow((seq_t)5, (seq_t)(i - j)); /* 5^(i-j) */
+    seq_t pow12 = ipow((seq_t)12, (seq_t)j);     /* 12^j    */
+    seq_t bin   = binomial(i, j);                     /* binomial(i,j) */
 
     /* combine the factors */
     return bin * pow5 * pow12;

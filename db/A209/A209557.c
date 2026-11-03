@@ -11,12 +11,14 @@
  *            list of constant–to–highest‑degree coefficients of u(k,x)
  * Range:     u8 n <= 39, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;            /* offset is 1 */
@@ -30,13 +32,13 @@ seq_t a(idx_t n) {
     /* initialise on first call */
     if (prev_k == 0) {
         prev_k = 1;
-        u_prev = (seq_t*)malloc(sizeof(seq_t));
+        u_prev = mem_new(seq_t, 1);
         u_prev[0] = (seq_t)1;
-        v_prev = (seq_t*)malloc(sizeof(seq_t));
+        v_prev = mem_new(seq_t, 1);
         v_prev[0] = (seq_t)1;
 
         cache_cap = 1;
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = u_prev[0];
         cache_len = 1;
     }
@@ -44,8 +46,8 @@ seq_t a(idx_t n) {
     /* grow cache until it holds at least n terms */
     while (cache_len < n) {
         idx_t new_k = prev_k + 1;
-        seq_t *u_new = (seq_t*)malloc(sizeof(seq_t)*new_k);
-        seq_t *v_new = (seq_t*)malloc(sizeof(seq_t)*new_k);
+        seq_t *u_new = mem_new(seq_t, new_k);
+        seq_t *v_new = mem_new(seq_t, new_k);
 
         for (idx_t i = 0; i < new_k; ++i) {
             seq_t u_shift = (i > 0 && i-1 < prev_k) ? u_prev[i-1] : 0;
@@ -61,15 +63,15 @@ seq_t a(idx_t n) {
         if (cache_len + new_k > cache_cap) {
             idx_t new_cap = cache_cap * 2;
             if (new_cap < cache_len + new_k) new_cap = cache_len + new_k;
-            cache = (seq_t*)realloc(cache, sizeof(seq_t)*new_cap);
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
         for (idx_t i = 0; i < new_k; ++i) {
             cache[cache_len++] = u_new[i];
         }
 
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         u_prev = u_new;
         v_prev = v_new;
         prev_k = new_k;

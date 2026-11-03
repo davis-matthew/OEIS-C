@@ -8,13 +8,16 @@
  *            n, j = n - i(i+1)/2
  * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
     idx_t j = n - i * (i + 1) / 2;
 
     seq_t bin = binomial(i, j);          // binomial(i, j)
-    seq_t pow = seq_pow((seq_t)7, i);    // 7^i
+    seq_t pow = ipow_idx((seq_t)7, i);    // 7^i
 
     return bin * pow;                    // product
 }

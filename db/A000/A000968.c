@@ -11,6 +11,7 @@
  *            Lucas-polynomial coefficients, and sum_{odd c}...
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 27, u64 n <= 51, u128 n <= 97,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 496 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

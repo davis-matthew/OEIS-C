@@ -8,8 +8,9 @@
  *            a(2^2) = 2, a(2^e) = 0 for e > 2 a(p) = -1 for odd prime p,
  *            a(p^e) = 0 for e > 1 In particular a(n) is the product of the
  *            values at the prime‑power factors of n
- * Range:     i8 n <= 9701, i16 n <= 9701, i32 n <= 9701, i64 n <= 9701,
- *            i128 n <= 9701, big any n
+ * Range:     i8 n <= 20000, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 113 terms through n = 9701 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

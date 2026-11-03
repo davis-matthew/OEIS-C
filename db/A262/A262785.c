@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of ordered ways to write n as x^2 + y^2 +
  *            p*(p+d)/2 with 0 ≤ x ≤ y, d ∈ {−1, +1}, and p prime
- * Range:     u8 n <= 35, u16 n <= 2726, u32 n <= 10000, u64 n <= 10000,
+ * Range:     u8 n <= 448, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes, sqrt_floor
+ * Validated: standard, pass, 116 terms through n = 9586 (2026-11-01)
+ * Helpers:   build_primes, isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/sqrt_floor.h"
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/isqrt_seq.h"
 
 /* Cached prime table */
 static idx_t *prime_cache = NULL;
@@ -71,11 +73,11 @@ seq_t a(idx_t n)
         seq_t t1 = p * (p - 1) / 2;
         if (t1 <= nsq) {
             seq_t rem = nsq - t1;
-            idx_t  maxx = (idx_t)sqrt_floor(rem);
+            idx_t  maxx = (idx_t)isqrt_seq(rem);
             for (idx_t x = 0; x <= maxx; ++x) {
                 seq_t xsq = (seq_t)x * x;
                 seq_t y2  = rem - xsq;
-                seq_t y   = sqrt_floor(y2);
+                seq_t y   = isqrt_seq(y2);
                 if (y * y == y2 && y >= x)
                     ++count;
             }
@@ -85,11 +87,11 @@ seq_t a(idx_t n)
         seq_t t2 = p * (p + 1) / 2;
         if (t2 <= nsq) {
             seq_t rem = nsq - t2;
-            idx_t  maxx = (idx_t)sqrt_floor(rem);
+            idx_t  maxx = (idx_t)isqrt_seq(rem);
             for (idx_t x = 0; x <= maxx; ++x) {
                 seq_t xsq = (seq_t)x * x;
                 seq_t y2  = rem - xsq;
-                seq_t y   = sqrt_floor(y2);
+                seq_t y   = isqrt_seq(y2);
                 if (y * y == y2 && y >= x)
                     ++count;
             }

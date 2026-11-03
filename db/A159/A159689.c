@@ -9,12 +9,14 @@
  *            0,1,0 and 1 → 1,1, starting from a(0)=0
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* each call expands a cached array until it covers the requested index.
  * The array holds the infinite word prefix in 0/1 form. */
@@ -28,7 +30,7 @@ static void ensure_cached(idx_t n)
         return;
     if (cached_len == 0) {          /* first time */
         cached_len = 1;
-        cached = (seq_t *)malloc(sizeof(seq_t));
+        cached = mem_new(seq_t, 1);
         cached[0] = 0;
     }
     while (cached_len <= n) {
@@ -38,7 +40,7 @@ static void ensure_cached(idx_t n)
             new_len += (cached[i] == 0) ? (idx_t)3 : (idx_t)2;
 
         /* build new array */
-        seq_t *next = (seq_t *)malloc(sizeof(seq_t) * new_len);
+        seq_t *next = mem_new(seq_t, new_len);
         idx_t pos = 0;
         for (idx_t i = 0; i < cached_len; ++i) {
             if (cached[i] == 0) {            /* 0 → 0,1,0 */
@@ -50,7 +52,7 @@ static void ensure_cached(idx_t n)
                 next[pos++] = 1;
             }
         }
-        free(cached);
+        mem_free(cached);
         cached = next;
         cached_len = new_len;
     }

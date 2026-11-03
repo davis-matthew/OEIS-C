@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   has_equal_product_partition
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,43 @@
  * Search‑based sequential generation. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_equal_product_partition.h"
+#include "../utils/mem.h"
+
+/* Return true if x's digits can be split into two non‑empty groups
+   with equal product. */
+static bool has_equal_product_partition(seq_t x) {
+    /* Extract digits into an array (least significant first). */
+    uint8_t digits[40];           /* enough for 128‑bit numbers */
+    int len = 0;
+    seq_t tmp = x;
+    if (tmp == 0) {               /* 0 has no non‑empty split */
+        return false;
+    }
+    while (tmp > 0) {
+        digits[len++] = (uint8_t)(tmp % 10);
+        tmp /= 10;
+    }
+    if (len <= 1) {
+        return false;             /* cannot form two non‑empty groups */
+    }
+
+    uint64_t maxMask = (1ULL << len);
+    for (uint64_t mask = 1; mask < maxMask - 1; ++mask) {
+        seq_t prod1 = 1;
+        seq_t prod2 = 1;
+        for (int i = 0; i < len; ++i) {
+            if (mask & (1ULL << i)) {
+                prod1 *= digits[i];
+            } else {
+                prod2 *= digits[i];
+            }
+        }
+        if (prod1 == prod2) {
+            return true;
+        }
+    }
+    return false;
+}
 
 /* Main sequence routine.  Results are memoised so that repeated calls
  * are fast even if n is requested in arbitrary order. */
@@ -35,7 +72,7 @@ seq_t a(idx_t n) {
     /* Grow cache if needed */
     if (n > cache_cap) {
         size_t new_cap = (n > 1) ? n : 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* Allocation failure – abort (caller should handle). */
             exit(1);

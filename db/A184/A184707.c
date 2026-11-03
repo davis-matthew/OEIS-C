@@ -10,7 +10,8 @@
  *            y(i)≥0 (unbounded)
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 79, u64 n <= 200, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build environment. */
 
@@ -56,9 +58,9 @@ static void ensure_dp(size_t max_t)
     if (dp && dp_size > max_t) return;  /* already sufficient */
 
     /* Re‑allocate new table; old one is discarded. */
-    free(dp);
+    mem_free(dp);
     /* In C/C++ both allow casting of void* from calloc. */
-    dp = (seq_t *)calloc(max_t + 1, sizeof(seq_t));
+    dp = mem_new(seq_t, max_t + 1);
     if (!dp) exit(1);          /* memory allocation failed */
     dp[0] = (seq_t)1;
     /* Classic unbounded coin change DP for coin denominations 1..7. */

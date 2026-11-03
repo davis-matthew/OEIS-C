@@ -11,7 +11,8 @@
  *            #occurrences of part k in all partitions of n
  * Range:     u8 n <= 14, u16 n <= 38, u32 n <= 114, u64 n <= 383,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* allocate p[0] if this is the first call */
     if (!p) {
-        p = (seq_t*)malloc(sizeof(seq_t));   /* p[0] only for now */
+        p = mem_new(seq_t, 1);   /* p[0] only for now */
         if (!p) return 0;                    /* out‑of‑memory guard */
         p[0] = (seq_t)1;                     /* p(0) = 1 */
         p_max = 0;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     /* extend the table up to n */
     if (n > p_max) {
-        seq_t *new_p = (seq_t*)realloc(p, (n + 1) * sizeof(seq_t));
+        seq_t *new_p = mem_resize(seq_t, p, (n + 1));
         if (!new_p) return 0;                /* out‑of‑memory guard */
         p = new_p;
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   runs_mod9
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,27 @@
  */
 
 #include <stdlib.h>
-#include "../utils/runs_mod9.h"
+#include "../utils/mem.h"
+
+/* Return the number of runs in the binary representation of v modulo 9.
+ * The function works for any seq_t type (fixed width or arbitrary precision). */
+static unsigned runs_mod9(seq_t v)
+{
+    unsigned count = 0;
+    unsigned prev = 0;
+    unsigned first = 1; /* flag for the first bit */
+
+    while (v) {
+        unsigned bit = (unsigned)(v & (seq_t)1);
+        v >>= 1;
+        if (first || bit != prev) {
+            ++count;
+            prev = bit;
+            first = 0;
+        }
+    }
+    return count % 9;
+}
 
 static seq_t *cache = NULL;      /* stored terms */
 static size_t  cache_cap = 0;    /* allocated capacity */
@@ -34,7 +55,7 @@ static void ensure_cache_cap(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, new_cap);
     if (!newp) {
         /* Allocation failed – terminate as per simple error handling policy. */
         exit(1);

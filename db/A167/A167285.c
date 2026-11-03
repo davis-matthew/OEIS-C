@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 500 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
        for 1 ≤ n ≤ 13:  a(n)=2 + 27∑_{k=0}^{n-1} a(k)
        a(14)=1 + 27∑_{k=1}^{13} a(k) – 378a(0)   */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* storage for computed values       */
 static size_t cache_cap = 0;          /* allocated size of cache           */
@@ -35,7 +37,7 @@ static void init_first_terms(void)
 {
     if (initialized) return;
     cache_cap = 15;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache[0] = (seq_t)1;
     seq_t sum = cache[0];                 /* sum of a(0)…a(n-1) */
     for (size_t i = 1; i <= 13; ++i) {
@@ -57,7 +59,7 @@ static void grow_cache(idx_t n)
     if (cache_cap >= target) return;
 
     size_t old_cap = cache_cap;
-    seq_t *new_cache = (seq_t *)realloc(cache, target * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, target);
     cache = new_cache;
     cache_cap = target;
 

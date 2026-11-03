@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 52, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow64
+ * Validated: standard, pass, 54 terms through n = 951 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow64.h"
+#include "../utils/powmod_u64.h"
 
 /* ---------- Miller–Rabin for 64‑bit numbers ---------- */
 
@@ -45,7 +46,7 @@ static inline bool is_prime_uint64(uint64_t n)
     for (size_t i = 0; i < sizeof(bases)/sizeof(bases[0]); ++i) {
         uint64_t a = bases[i];
         if (a >= n) continue;
-        uint64_t x = mod_pow64(a, d, n);
+        uint64_t x = powmod_u64(a, d, n);
         if (x == 1 || x == n-1) continue;
         bool comp = true;
         for (int r = 1; r < s; ++r) {

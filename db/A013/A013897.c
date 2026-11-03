@@ -7,14 +7,17 @@
  * Formula:   a(n) = 20^(5*n + 4)
  * Range:     u8 none, u16 none, u32 n <= 0, u64 n <= 2, u128 n <= 5,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 24 terms through n = 50 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     idx_t exp = 5 * n + 4;
-    return seq_pow((seq_t)20, exp);
+    return ipow_idx((seq_t)20, exp);
 }

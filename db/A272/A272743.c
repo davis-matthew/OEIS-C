@@ -12,12 +12,14 @@
  *            efficient repeated calls
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     /* lazy initialization */
     if (cache == NULL) {
         cache_size = 5;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (!cache) abort();  /* allocation failure */
         cache[0] = 1;
         cache[1] = 5;
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
         while ((size_t)(n + 1) > new_size) {
             new_size *= 2;
         }
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();  /* allocation failure */
         cache = tmp;
         cache_size = new_size;

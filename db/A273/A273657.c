@@ -9,12 +9,15 @@
  * Formula:   a(n) = C(n,7) * Sum_{j=0..7} Stirling2(7,j) * j^(n-7)
  * Range:     u8 none, u16 n <= 8, u32 n <= 12, u64 n <= 22, u128 n <= 43,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 34 terms through n = 963 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (idx_t j = 1; j <= 7; ++j)
     {
-        seq_t pow   = seq_pow((seq_t)j, n - 7);
+        seq_t pow   = ipow_idx((seq_t)j, n - 7);
         seq_t term  = (seq_t)S[j] * pow;
         sum += term;
     }

@@ -10,13 +10,15 @@
  *            = 1/(1‑x) + x/A(x)
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 16, i64 n <= 29, i128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* initial allocation and a(0) */
     if (cache == NULL) {
         cap = 1;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) exit(1);
         cache[0] = (seq_t)1;
         last = 0;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cap) {
         size_t new_cap = cap ? cap << 1 : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) exit(1);
         cache = tmp;
         cap   = new_cap;

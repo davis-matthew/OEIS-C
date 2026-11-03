@@ -13,13 +13,14 @@
  *            Catalan(k), T3(k) = [x^k] C(x)^3 = 3/(2k+3)*binomial(2k+3,...
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 20, u64 n <= 36, u128 n <= 67,
  *            big any n
- * Helpers:   a3447_gcd
+ * Validated: standard, pass, 42 terms through n = 177 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a3447_gcd.h"
+#include "../utils/gcd_u64.h"
 
 #define A3447_DEF(NAME, T)                                                   \
 static T NAME##_binom(uint64_t N, uint64_t K) {                              \
@@ -28,7 +29,7 @@ static T NAME##_binom(uint64_t N, uint64_t K) {                              \
     for (i = 1; i <= K; i++) {                                               \
         uint64_t num = N - K + i;                                            \
         uint64_t r = (uint64_t)(long long)(c % (T)i);                        \
-        uint64_t g = a3447_gcd(r, i);                                        \
+        uint64_t g = gcd_u64(r, i);                                        \
         c = (c / (T)g) * (T)(num / (i / g));                                 \
     }                                                                        \
     return c;                                                                \

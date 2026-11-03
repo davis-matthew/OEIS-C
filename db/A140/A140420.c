@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 922 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    both fixed‑size and arbitrary‑precision builds. */
 
 #include <stddef.h>           /* size_t */
+#include "../utils/mem.h"
 
 static seq_t *a_cache   = NULL;   /* cache of a(n) */
 static seq_t *pow2_cache = NULL;   /* cache of 2^n */
@@ -37,8 +39,8 @@ ensure_cache(idx_t n)
 {
     if (cache_len == 0) { /* first time */
         cache_cap = 4;
-        a_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
-        pow2_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, cache_cap);
+        pow2_cache = mem_new(seq_t, cache_cap);
         a_cache[0]    = 0;
         pow2_cache[0] = 1;
         cache_len = 1;                 /* next index to compute */
@@ -47,8 +49,8 @@ ensure_cache(idx_t n)
     /* Grow the allocation if necessary */
     while (cache_cap <= (size_t)n + 1) {
         cache_cap <<= 1;
-        a_cache = (seq_t *)realloc(a_cache, cache_cap * sizeof(seq_t));
-        pow2_cache = (seq_t *)realloc(pow2_cache, cache_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, cache_cap);
+        pow2_cache = mem_resize(seq_t, pow2_cache, cache_cap);
     }
 
     /* Fill missing entries */

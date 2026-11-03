@@ -10,15 +10,24 @@
  *            read by rows, a(0) = 1
  * Range:     u8 n <= 16, u16 n <= 23, u32 n <= 48, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   pow2, pow3, seq_alloc_new_array
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow2.h"          /* pow2(idx_t exp)  */
-#include "../utils/pow3.h"          /* pow3(idx_t exp)  */
-#include "../utils/seq_alloc_new_array.h"  /* seq_alloc_new_array(size_t n) */
+#include <stdint.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/pow2.h"
+#include "../utils/pow3.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 /* static storage for the already computed triangle rows */
 static seq_t **row_ptr = NULL;          /* array of pointers to rows of T */

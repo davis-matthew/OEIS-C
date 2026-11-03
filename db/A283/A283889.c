@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 9873, u32 n <= 9873, u64 n <= 9873,
- *            u128 n <= 9873, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1, u16 n <= 38961, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 54 terms through n = 9873 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    a(n) = max(0, n+10000)                                            for n ≤ 0   */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* internal memoisation storage: cache[0] = a(0), cache[1] = a(1), … */
 static seq_t *cache = NULL;          /* dynamic array of a(n) */
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t upto) {
     if (upto >= cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 8 : cache_cap;
         while (new_cap <= (size_t)upto) new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) exit(1);          /* out‑of‑memory */
         /* initialise newly allocated part */
         for (idx_t i = cache_cap; i < new_cap; ++i) new_cache[i] = 0;

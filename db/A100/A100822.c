@@ -12,7 +12,8 @@
  *            right)
  * Range:     u8 n <= 21, u16 n <= 45, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *fact = NULL;          /* factorial array */
 static idx_t fact_cap = 0;          /* allocated capacity */
@@ -35,7 +37,7 @@ static void ensure_factorial(idx_t need)
     while (new_cap <= need)
         new_cap <<= 1;
 
-    seq_t *new_fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+    seq_t *new_fact = mem_resize(seq_t, fact, new_cap);
     if (!new_fact)
         exit(1);                      /* out of memory */
 

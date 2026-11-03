@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 31, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   has_four_zeroes_oct
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_four_zeroes_oct.h"
+
+/* Test whether the octal representation of x contains exactly four 0 digits. */
+static inline bool has_four_zeroes_oct(idx_t x)
+{
+    unsigned zeros = 0;
+    while (x) {
+        if ((x & 7ULL) == 0) {      /* digit in base 8 is 0      */
+            if (++zeros > 4)
+                return false;
+        }
+        x >>= 3;                    /* divide by 8                */
+    }
+    return zeros == 4;
+}
 
 /* Cached terms as idx_t (they fit in 64 bits for all n we seek),
    stored this way to avoid construction issues with arbitrary‑precision

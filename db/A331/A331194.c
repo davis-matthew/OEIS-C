@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 6412, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9236 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +21,14 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Append a value to a dynamic array of seq_t; the array is reallocated as needed. */
 static void append_seq(seq_t **arr, size_t *len, size_t *cap, seq_t val)
 {
     if (*len >= *cap) {
         size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
-        seq_t *tmp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, newcap);
         if (!tmp) exit(1);               /* allocation failed */
         *arr   = tmp;
         *cap   = newcap;
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
         free(cnt);
 
         /* Replace the old cache. */
-        free(cache);
+        mem_free(cache);
         cache        = newcache;
         cached_len   = newlen;
         cached_limit = limit;

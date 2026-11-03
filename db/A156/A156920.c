@@ -11,12 +11,14 @@
  *            r(r+1)/2
  * Range:     u8 n <= 16, u16 n <= 31, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate arrays for two consecutive rows */
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t) * r);       /* row r‑1 has r elements */
+    seq_t *prev = mem_new(seq_t, r);       /* row r‑1 has r elements */
     if (!prev)
         return (seq_t)0;   /* allocation failure – return 0 as fallback */
 
@@ -42,9 +44,9 @@ seq_t a(idx_t n)
 
     /* Build rows 1 … r, discarding older ones */
     for (idx_t cur = 1; cur <= r; ++cur) {
-        seq_t *curr = (seq_t *)malloc(sizeof(seq_t) * (cur + 1));
+        seq_t *curr = mem_new(seq_t, (cur + 1));
         if (!curr) {
-            free(prev);
+            mem_free(prev);
             return (seq_t)0; /* allocation failure */
         }
 
@@ -60,12 +62,12 @@ seq_t a(idx_t n)
         }
 
         /* Prepare for next iteration */
-        free(prev);
+        mem_free(prev);
         prev = curr;
     }
 
     /* Now 'prev' holds row r. Return the k-th value. */
     seq_t result = prev[k];
-    free(prev);
+    mem_free(prev);
     return result;
 }

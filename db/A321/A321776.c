@@ -12,13 +12,30 @@
  *            integer if required by the build. Complexity: O(n...
  * Range:     u8 n <= 12, u16 n <= 118, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count2
+ * Validated: standard, pass, 62 terms through n = 948 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t */
-#include "../utils/count2.h"
+
+/* Count ordered 2‑tuples (s1<s2) of distinct positive integers
+   satisfying m1*s1 + m2*s2 == n.  Return the total weight
+   (coefficient) times the number of solutions. */
+static seq_t count2(idx_t n, int m1, int m2, seq_t coeff) {
+    seq_t total = 0;
+    for (idx_t s1 = 1;; ++s1) {
+        idx_t part = (idx_t)m1 * s1;
+        if (part >= n) break;                 /* need rem > 0 */
+        idx_t rem = n - part;
+        if (rem <= (idx_t)m2) continue;       /* at least one for s2 */
+        if (rem % (idx_t)m2 != 0) continue;
+        idx_t s2 = rem / (idx_t)m2;
+        if (s1 < s2) total += coeff;
+    }
+    return total;
+}
 
 static const seq_t fact[7] = { (seq_t)1, (seq_t)1, (seq_t)2, (seq_t)6,
                                (seq_t)24, (seq_t)120, (seq_t)720 };

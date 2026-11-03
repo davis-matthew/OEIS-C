@@ -8,6 +8,7 @@
  * Formula:   a(n) = 18 + 2^n*(66+30*n) + 36*n*4^n
  * Range:     u8 n <= 0, u16 n <= 4, u32 n <= 11, u64 n <= 27, u128 n <= 58,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 959 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

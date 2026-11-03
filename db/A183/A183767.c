@@ -8,14 +8,15 @@
  * Formula:   a(n) = 2^n * binomial(4*n, 2*n)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 31 terms through n = 199 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -27,7 +28,7 @@ seq_t a(idx_t n)
     /* compute binomial(4*n, 2*n) */
     idx_t total = 4 * n;
     idx_t half = 2 * n;
-    seq_t bin = binom(total, half);
+    seq_t bin = binomial(total, half);
 
     /* compute 2^n */
     seq_t pow = pow2(n);

@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..n} Fibonacci(k)^(n-k)
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 14, u64 n <= 20, u128 n <= 28,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 38 terms through n = 130 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
             term = (seq_t)0;
         }
         else {
-            term = seq_pow(base, exp);
+            term = ipow_idx(base, exp);
         }
 
         sum += term;

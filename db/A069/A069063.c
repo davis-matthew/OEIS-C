@@ -9,7 +9,8 @@
  *            Σ_{d|k} φ(d)^2 is greater than k*(k+1)/2
  * Range:     u8 none, u16 n <= 51, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   factorise, grow_seq, is_composite, phi_sum_sq_from_factors
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,78 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factorise.h"
-#include "../utils/grow_seq.h"
-#include "../utils/is_composite.h"
-#include "../utils/phi_sum_sq_from_factors.h"
+#include "../utils/mem.h"
+
+/* --- factorisation ----------------------------------------------------- */
+static void factorise(uint64_t n, uint64_t *pf, int *exps, size_t *cnt)
+{
+    *cnt = 0;
+    uint64_t m = n;
+
+    if (m % 2ULL == 0ULL) {
+        int e = 0;
+        while (m % 2ULL == 0ULL) { m /= 2ULL; ++e; }
+        pf[(*cnt)] = 2ULL; exps[(*cnt)] = e; (*cnt)++;
+    }
+
+    for (uint64_t p = 3ULL; p * p <= m; p += 2ULL) {
+        if (m % p == 0ULL) {
+            int e = 0;
+            while (m % p == 0ULL) { m /= p; ++e; }
+            pf[(*cnt)] = p;   exps[(*cnt)] = e; (*cnt)++;
+        }
+    }
+
+    if (m > 1ULL) {
+        pf[(*cnt)] = m;   exps[(*cnt)] = 1; (*cnt)++;
+    }
+}
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
+
+/* --- helper: composite test ------------------------------------------ */
+static bool is_composite(const uint64_t *pf, const int *exps, size_t cnt)
+{
+    /* k is prime iff it has exactly one prime factor of exponent 1 */
+    return !(cnt == 1 && exps[0] == 1);
+}
+
+/* --- compute Σ φ(d)² for all divisors of k ---------------------------- */
+static seq_t phi_sum_sq_from_factors(const uint64_t *pf, const int *exps, size_t cnt)
+{
+    seq_t total = 1;  /* multiplicative identity for product */
+
+    for (size_t i = 0; i < cnt; ++i) {
+        uint64_t p = pf[i];
+        int     e = exps[i];
+
+        /* S(p^e) = Σ_{i=0..e} φ(p^i)² */
+        seq_t sp = 1;          /* i = 0 term (φ(1) = 1) */
+        seq_t power = 1;       /* p^(i-1) for i≥1, start with p^0 */
+
+        for (int k = 1; k <= e; ++k) {
+            /* φ(p^k) = p^(k-1) * (p-1) */
+            seq_t phi = power * (seq_t)(p - 1);
+            sp += phi * phi;
+            power *= (seq_t)p;
+        }
+
+        total *= sp;
+    }
+
+    return total;
+}
 
 /* --- mutable state ---------------------------------------------------- */
 static seq_t *terms   = NULL;        /* array of computed terms       */

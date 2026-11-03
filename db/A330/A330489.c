@@ -9,7 +9,8 @@
  *            base n+1), with a(1) = 1
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 29, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   reinterpret_in_new_base
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,23 @@
 /* This implementation caches computed terms up to a fixed maximum index. */
 
 #include <stdbool.h>
-#include "../utils/reinterpret_in_new_base.h"
+
+/* Reinterpret the digits of val (in base 'base') as a number in base 'base+1'. */
+static seq_t reinterpret_in_new_base(seq_t val, idx_t base)
+{
+    seq_t res   = 0;
+    seq_t power = 1;
+    seq_t base_ts   = (seq_t)base;
+    seq_t new_base = base_ts + 1;
+    seq_t tmp = val;
+    while (tmp > 0) {
+        seq_t digit = tmp % base_ts;
+        res += digit * power;
+        power *= new_base;
+        tmp /= base_ts;
+    }
+    return res;
+}
 
 #define MAX_N 20000  /* sufficient for n up to about 10000 */
 

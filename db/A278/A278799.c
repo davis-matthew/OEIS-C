@@ -9,7 +9,8 @@
  *            of two non‑prime decimal numbers
  * Range:     u8 n <= 21, u16 n <= 5269, u32 n <= 7135, u64 n <= 7135,
  *            u128 n <= 7135, big any n
- * Helpers:   digit_count, is_prime_small, next_prime, seq_to_str
+ * Validated: standard, pass, 74 terms through n = 7107 (2026-11-01)
+ * Helpers:   is_prime_seq, next_prime, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,16 +19,36 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <math.h>
+#include "../utils/is_prime_seq.h"
 #include "../utils/next_prime.h"
-#include "../utils/digit_count.h"
-#include "../utils/seq_to_str.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/num_digits0.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 static inline bool qualifies(uint64_t p) {
     /* Must have at least two digits. */
     if (p < 10ULL) return false;
 
-    size_t len = digit_count(p);
+    size_t len = num_digits0(p);
     char buf[32];          /* 64‑bit numbers have <= 20 decimal digits. */
     size_t used;
     seq_to_str((seq_t)p, buf, &used);
@@ -42,7 +63,7 @@ static inline bool qualifies(uint64_t p) {
         for (size_t i = split; i < used; ++i)
             right = right * 10 + (buf[i] - '0');
 
-        if (!is_prime_small(left) && !is_prime_small(right))
+        if (!is_prime_seq(left) && !is_prime_seq(right))
             return true;
     }
     return false;

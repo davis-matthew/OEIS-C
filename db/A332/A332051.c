@@ -10,11 +10,13 @@
  *            of 2n in which the first part occurs exactly n times
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 38, u128 n <= 75,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 1685 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

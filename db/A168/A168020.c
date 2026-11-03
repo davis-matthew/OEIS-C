@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 136, u16 n <= 946, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   get_partition
+ * Validated: standard, pass, 107 terms through n = 1230 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,44 @@
  */
 
 #include <stdlib.h>
-#include "../utils/get_partition.h"
+#include "../utils/mem.h"
+
+/* Compute the partition number p(m) for a non‑negative integer m.
+ * Uses the recurrence
+ *      p(0,k) = 1      for all k
+ *      p(n,0) = 0      for n > 0
+ *      p(n,k) = p(n,k-1)          if k > n
+ *               p(n,k-1) + p(n-k,k) if k <= n
+ *  The partition number p(m) is then p(m,m).  All arithmetic is done
+ *  with seq_t additions only. */
+static seq_t get_partition(idx_t m)
+{
+    if (m == 0)
+        return (seq_t)1;
+
+    size_t dim = (size_t)(m + 1);          /* dimension of the table  */
+    seq_t *s = mem_new(seq_t, dim * dim); /* zero‑init */
+    if (!s)
+        exit(1);
+
+    /* Base cases: p(0,k) = 1 for all k */
+    for (size_t k = 0; k < dim; ++k)
+        s[0 * dim + k] = (seq_t)1;
+
+    /* Dynamic programming */
+    for (size_t n = 1; n < dim; ++n) {
+        for (size_t k = 1; k < dim; ++k) {
+            seq_t val = s[n * dim + (k - 1)];      /* p(n,k-1)      */
+            if (k <= n)
+                val = val + s[(n - k) * dim + k]; /* + p(n-k,k)   */
+            s[n * dim + k] = val;
+        }
+    }
+
+    seq_t result = s[m * dim + m];
+    mem_free(s);
+    return result;
+}
 
 /*  Return a(n) for the OEIS sequence A168020, where n >= 1.
  *

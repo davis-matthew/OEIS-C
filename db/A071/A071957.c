@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{i=1}^{n} K(i,n) where K is the Kronecker symbol (i/n)
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   legendre_mod
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,25 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/legendre_mod.h"
+
+/* Legendre symbol (a/p) for odd prime p, result in {-1,0,1} */
+static int legendre_mod(unsigned long long a, int p)
+{
+    int aa = (int)(a % (unsigned long long)p);
+    if (aa == 0) return 0;
+    int exp = (p - 1) >> 1;            /* (p-1)/2 */
+    unsigned long long res = 1;
+    unsigned long long base = (unsigned long long)aa;
+    while (exp) {
+        if (exp & 1)
+            res = (res * base) % (unsigned long long)p;
+        base = (base * base) % (unsigned long long)p;
+        exp >>= 1;
+    }
+    if (res == 1) return 1;
+    if (res == (unsigned long long)p - 1) return -1;
+    return 0;    /* impossible with prime modulus */
+}
 
 /* Precomputed list of primes up to 10000 */
 static int prime_list[2000];

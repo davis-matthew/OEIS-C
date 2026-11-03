@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 27, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 893 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of a helper function that ensures the cache
    has at least 'need' elements. */
@@ -37,7 +39,7 @@ static void ensure_capacity(size_t need)
         return;
 
     /* Allocate more memory.  realloc(NULL, size) behaves like malloc. */
-    cache = (seq_t *)realloc(cache, need * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, need);
     if (!cache)
         abort();          /* abort on allocation failure */
 

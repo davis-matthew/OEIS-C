@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 30, u64 n <= 58, u128 n <= 106,
  *            big any n
- * Helpers:   build_spf
+ * Validated: standard, pass, 56 terms through n = 1982 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,9 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /* Cached tables */
 static idx_t *spf_arr      = NULL;   /* spf_arr[i] = smallest prime factor of i */
@@ -71,13 +74,13 @@ static void ensure_cache(idx_t n)
 
     /* free previous tables */
     if (spf_arr)      free(spf_arr);
-    if (primorial_less) free(primorial_less);
-    if (partial_sum)  free(partial_sum);
+    if (primorial_less) mem_free(primorial_less);
+    if (partial_sum)  mem_free(partial_sum);
 
     /* Build new tables up to limit n */
     build_spf(n, &spf_arr);
 
-    primorial_less = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+    primorial_less = mem_new(seq_t, (size_t)(n + 1));
     seq_t prod = (seq_t)1;
     for (idx_t i = 2; i <= n; ++i) {
         if (spf_arr[i] == i) {          /* i is prime */
@@ -86,7 +89,7 @@ static void ensure_cache(idx_t n)
         }
     }
 
-    partial_sum = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+    partial_sum = mem_new(seq_t, (size_t)(n + 1));
     partial_sum[0] = (seq_t)0;
     for (idx_t i = 1; i <= n; ++i) {
         partial_sum[i] = partial_sum[i - 1] + primorial_log(i);

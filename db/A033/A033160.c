@@ -8,7 +8,8 @@
  *            containing 2 and 4 that avoids any 3‑term arithmetic progression
  * Range:     u8 n <= 32, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Helper: dynamic array for the chosen sequence                     */
@@ -31,7 +33,7 @@ static void grow_chosen(size_t need)
     if (need <= chosen_cap) return;
     if (chosen_cap == 0) chosen_cap = 8;
     while (chosen_cap < need) chosen_cap <<= 1;
-    chosen = (seq_t *)realloc(chosen, chosen_cap * sizeof(seq_t));
+    chosen = mem_resize(seq_t, chosen, chosen_cap);
 }
 
 /* ------------------------------------------------------------------ */

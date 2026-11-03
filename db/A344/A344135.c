@@ -7,18 +7,20 @@
  * Formula:   a(n) = Sum_{i|n, j|n, k|n} i*j*k/lcm(i,j,k)
  * Range:     u8 n <= 5, u16 n <= 59, u32 n <= 9239, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 9032 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Contribution of a prime power p^e to the multiplicative function a(n) */
 static seq_t prime_power_contribution(seq_t p, int e)
 {
     int max_exp = 2 * e;                       /* maximum exponent needed */
-    seq_t *pow_arr = (seq_t *)malloc((max_exp + 1) * sizeof(seq_t));
+    seq_t *pow_arr = mem_new(seq_t, (max_exp + 1));
     pow_arr[0] = (seq_t)1;
     for (int i = 1; i <= max_exp; ++i)
         pow_arr[i] = pow_arr[i - 1] * p;
@@ -35,7 +37,7 @@ static seq_t prime_power_contribution(seq_t p, int e)
             }
         }
     }
-    free(pow_arr);
+    mem_free(pow_arr);
     return sum;
 }
 

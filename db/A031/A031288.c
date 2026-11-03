@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: convert a seq_t value into an array of decimal digits.
    The resulting array holds the most‑significant digit first.
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     /* Initialize cache on first call. */
     if (!pos_cache) {
         cache_cap = 64;
-        pos_cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        pos_cache = mem_new(seq_t, cache_cap);
         if (!pos_cache) abort();  /* OOM: terminate */
     }
 
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
                 /* Ensure capacity for the new entry. */
                 if (cache_len >= cache_cap) {
                     size_t new_cap = cache_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(pos_cache, sizeof(seq_t) * new_cap);
+                    seq_t *tmp = mem_resize(seq_t, pos_cache, new_cap);
                     if (!tmp) abort();      /* OOM */
                     pos_cache = tmp;
                     cache_cap = new_cap;

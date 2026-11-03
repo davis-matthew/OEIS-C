@@ -8,7 +8,8 @@
  *            = 1, a(2) = 2, a(3) = 3, a(4) = 4
  * Range:     i8 n <= 9, i16 n <= 18, i32 n <= 38, i64 n <= 72, i128 n <= 144,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    the explicit cast to (seq_t *) for C++ compatibility. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary. */
     if (cache_len < need) {
         /* realloc() with explicit cast for C++ */
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp) {
             /* Allocation failed – abort the program (simply abort, not printf). */
             abort();

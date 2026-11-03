@@ -12,7 +12,8 @@
  *            x S_2 swapping the two output bits). Summed over cycle t...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   a826_div, a826_gcd, a826_mul
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a826_div.h"
-#include "../utils/a826_gcd.h"
-#include "../utils/a826_mul.h"
+#include "../utils/gcd_u64.h"
+
+static void a826_div(uint32_t *x, size_t L, uint32_t d) {
+    uint64_t r = 0;
+    size_t i = L;
+    while (i > 0) {
+        i--;
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+}
+
+static void a826_mul(uint32_t *x, size_t L, uint32_t m) {
+    uint64_t carry = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)x[i] * m + carry;
+        x[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+}
 
 static uint32_t *a826_S;
 static size_t a826_SL;
@@ -57,10 +77,10 @@ static uint64_t a826_cycles(int k, uint64_t M) {
     uint64_t j;
     int i;
     for (j = 0; j < M; j++) {
-        uint64_t g = a826_gcd(j, M);
+        uint64_t g = gcd_u64(j, M);
         unsigned ex = 0;
         for (i = 0; i < k; i++)
-            ex += (unsigned)a826_gcd((uint64_t)a826_parts[i], g);
+            ex += (unsigned)gcd_u64((uint64_t)a826_parts[i], g);
         sum += (unsigned __int128)1 << ex;
     }
     return (uint64_t)(sum / M);
@@ -70,7 +90,7 @@ static void a826_process(int k) {
     uint64_t m = 1, o;
     int i, j;
     for (i = 0; i < k; i++)
-        m = m / a826_gcd(m, (uint64_t)a826_parts[i]) * (uint64_t)a826_parts[i];
+        m = m / gcd_u64(m, (uint64_t)a826_parts[i]) * (uint64_t)a826_parts[i];
     o = m;
     while ((o & 1) == 0) o >>= 1;
     uint64_t c = a826_cycles(k, m);

@@ -8,8 +8,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = tau_odd(n+1) + tau(2*(n+1)) - 2 where tau_odd(m) is the
  *            number of odd divisors of m
- * Range:     u8 n <= 9274, u16 n <= 9274, u32 n <= 9274, u64 n <= 9274,
- *            u128 n <= 9274, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 97 terms through n = 9274 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

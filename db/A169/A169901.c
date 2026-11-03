@@ -7,6 +7,7 @@
  * Formula:   a(n) = lcm_{x*y = n} (x + y)
  * Range:     u8 n <= 11, u16 n <= 29, u32 n <= 119, u64 n <= 629,
  *            u128 n <= 2519, big any n
+ * Validated: standard, pass, 70 terms through n = 9401 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

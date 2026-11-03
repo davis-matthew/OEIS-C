@@ -7,11 +7,13 @@
  * Formula:   a(n) = 15*2^n
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 28, u64 n <= 60, u128 n <= 124,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 220 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

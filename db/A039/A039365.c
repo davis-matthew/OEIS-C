@@ -9,7 +9,8 @@
  *            of 1's and 2's
  * Range:     u8 n <= 31, u16 n <= 8513, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_equal_nonzero_12
+ * Validated: standard, pass, 69 terms through n = 9711 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,24 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/has_equal_nonzero_12.h"
+#include "../utils/mem.h"
+
+/* Test whether a number has equal non‑zero counts of digits 1 and 2 in base 9 */
+static bool has_equal_nonzero_12(seq_t x)
+{
+    seq_t y = x;
+    unsigned c1 = 0, c2 = 0;
+    while (y > 0)
+    {
+        seq_t d = y % 9;
+        y = y / 9;
+        if (d == 1)
+            ++c1;
+        else if (d == 2)
+            ++c2;
+    }
+    return (c1 > 0) && (c1 == c2);
+}
 
 /* Cache for previously found terms */
 static seq_t *seq_cache        = NULL; /* array of previously computed terms */
@@ -32,7 +50,7 @@ static void ensure_cache_capacity(size_t needed)
     size_t new_cap = seq_cache_cap ? seq_cache_cap * 2 : 8;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     seq_cache = tmp;
     seq_cache_cap = new_cap;
 }

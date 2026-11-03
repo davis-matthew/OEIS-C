@@ -9,6 +9,7 @@
  *            k - 1, n - k)
  * Range:     i8 n <= 5, i16 n <= 11, i32 n <= 18, i64 n <= 28, i128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

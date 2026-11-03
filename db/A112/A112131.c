@@ -8,14 +8,21 @@
  * Formula:   a(n) = concat_{k=Harshad(n)}^{Harshad(n+1)} k
  * Range:     u8 n <= 8, u16 n <= 9, u32 n <= 10, u64 n <= 31, u128 n <= 101,
  *            big any n
- * Helpers:   count_digits, pow10
+ * Validated: standard, pass, 43 terms through n = 964 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/count_digits.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include "../utils/num_digits_idx.h"
+
+static seq_t pow10(idx_t exp) {
+    seq_t res = 1;
+    for (idx_t i = 0; i < exp; ++i) res *= (seq_t)10;
+    return res;
+}
 
 static idx_t *harshad_arr = NULL;   /* array of Harshad numbers   */
 static size_t harshad_cap = 0;      /* allocated capacity        */
@@ -68,7 +75,7 @@ a(idx_t n)
 
     seq_t result = 0;
     for (idx_t k = start; k <= end; ++k) {
-        int d   = count_digits(k);
+        int d   = num_digits_idx(k);
         seq_t mult = pow10((idx_t)d);           /* 10^{#digits(k)} */
         result = result * mult + (seq_t)k;
     }

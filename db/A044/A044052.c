@@ -9,14 +9,31 @@
  *            base‑3 representation of m‑1 contains no consecutive zeros
  * Range:     u8 n <= 25, u16 n <= 3861, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   no_consecutive_zeros
+ * Validated: standard, pass, 72 terms through n = 9779 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/no_consecutive_zeros.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether an unsigned integer has no consecutive zeros in its base‑3 representation. */
+static bool no_consecutive_zeros(idx_t x)
+{
+    if (x == 0)
+        return true;
+    int prev = -1;
+    while (x > 0) {
+        int d = (int)(x % 3);
+        if (prev == 0 && d == 0)
+            return false;
+        prev = d;
+        x /= 3;
+    }
+    return true;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -28,7 +45,7 @@ seq_t a(idx_t n)
     static idx_t next_m = 1;               /* next m to test (k / 9) */
 
     if (cache_cap < (size_t)n) {   /* enlarge cache when needed */
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
         if (!tmp)
             abort(); /* memory error */
         cache = tmp;

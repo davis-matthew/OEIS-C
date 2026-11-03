@@ -12,13 +12,15 @@
  *            building the even‑part product and accumulati...
  * Range:     u8 n <= 27, u16 n <= 61, u32 n <= 160, u64 n <= 481,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build. */
 extern seq_t a(idx_t n);
@@ -38,22 +40,22 @@ seq_t a(idx_t n)
         idx_t new_cap = n + 1;  /* we need indices 0 .. n inclusive */
 
         /* Allocate new cache and copy the old part. */
-        seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) return 0;             /* allocation failed */
 
         /* Initialize new area to zero. */
         if (capacity < new_cap)
-            memset(new_cache + capacity, 0, (new_cap - capacity) * sizeof(seq_t));
+            mem_set(new_cache + capacity, 0, (new_cap - capacity) * sizeof(seq_t));
 
         /* Copy existing values if present. */
         if (cache != NULL) {
-            memcpy(new_cache, cache, capacity * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, capacity * sizeof(seq_t));
+            mem_free(cache);
         }
 
         /* Temporary arrays for dynamic programming. */
-        seq_t *dp   = (seq_t*)calloc(new_cap, sizeof(seq_t)); /* dp[i] : coeff of x^i in current product */
-        seq_t *a_arr = (seq_t*)calloc(new_cap, sizeof(seq_t));/* partial results a_arr[i] */
+        seq_t *dp   = mem_new(seq_t, new_cap); /* dp[i] : coeff of x^i in current product */
+        seq_t *a_arr = mem_new(seq_t, new_cap);/* partial results a_arr[i] */
 
         if (dp && a_arr) {
             /* Base product for k = 0:
@@ -100,8 +102,8 @@ seq_t a(idx_t n)
                 new_cache[i] = a_arr[i];
         }
 
-        free(dp);
-        free(a_arr);
+        mem_free(dp);
+        mem_free(a_arr);
 
         /* Update global cache reference. */
         cache = new_cache;

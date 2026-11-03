@@ -8,12 +8,14 @@
  *            = 38
  * Range:     i8 n <= 2, i16 n <= 5, i32 n <= 12, i64 n <= 24, i128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
         /* Ensure room for at least the first three terms */
         size_t sz = (size_t)n + 1;
         if (sz < 3) sz = 3;
-        cache = (seq_t *)calloc(sz, sizeof(seq_t));
+        cache = mem_new(seq_t, sz);
         if (!cache) return (seq_t)0;          /* out‑of‑memory: signal by 0 */
 
         /* Initialise the base cases */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         cache_cap = sz;
     } else if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;          /* out‑of‑memory: signal by 0 */
         cache = tmp;
         cache_cap = new_cap;

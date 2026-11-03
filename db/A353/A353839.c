@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   duplicate_run_sums
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,22 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/duplicate_run_sums.h"
+#include "../utils/mem.h"
+
+/*--------------------------------------------------------------------------*/
+static bool duplicate_run_sums(const seq_t sums[], size_t count)
+{
+    if (count < 2)
+        return false;
+
+    for (size_t i = 0; i < count - 1; ++i) {
+        for (size_t j = i + 1; j < count; ++j) {
+            if (sums[i] == sums[j])
+                return true;
+        }
+    }
+    return false;
+}
 
 /*===========================================================================*/
 /*  Cached data and helper functions                                      */
@@ -93,7 +109,7 @@ static void append_term(seq_t value)
 {
     if (terms_len == terms_cap) {
         size_t newcap = terms_cap ? terms_cap << 1 : 32;
-        seq_t *newarr = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+        seq_t *newarr = mem_resize(seq_t, terms, newcap);
         if (!newarr) abort();               /* out of memory       */
         terms   = newarr;
         terms_cap = newcap;

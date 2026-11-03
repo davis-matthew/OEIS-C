@@ -7,7 +7,8 @@
  * Formula:   a(n) = least k>0 such that A014221(k) ≡ A014221(k+1) (mod n)
  * Range:     u8 n <= 31, u16 n <= 31, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   calc_phi, exp_ge_limit, mod_pow
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   powmod, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,25 @@
    simple bounds that are sufficient for n up to 10⁴. */
 
 #include <stdbool.h>
-#include "../utils/calc_phi.h"
-#include "../utils/mod_pow.h"
-#include "../utils/exp_ge_limit.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/totient_seq.h"
+
+/* Return true if 2 ↑↑ height >= limit.  The function is valid for
+   height >= 1 and limit up to a few ten thousands. */
+static bool exp_ge_limit(idx_t height, seq_t limit)
+{
+    if (height == 0)            return (seq_t)1 >= limit;   /* unused */
+    if (height == 1)            return (seq_t)2 >= limit;
+    if (height == 2)            return (seq_t)4 >= limit;
+    if (height == 3)            return (seq_t)16 >= limit;
+    if (height == 4)            return (seq_t)65536 >= limit;
+    /* For height >= 5, 2 ↑↑ height is astronomically large,
+       certainly >= limit (which is at most n <= 10000). */
+    return true;
+}
 
 /* Compute 2 ↑↑ height (tower of 2's of given height) modulo mod.
    mod == 1 ⇒ result 0.  height >= 1. */
@@ -32,13 +49,13 @@ static seq_t tetration_mod(seq_t mod, idx_t height)
     if (mod == 1) return 0;
     if (height == 1) return 2 % mod;
 
-    seq_t phi = calc_phi(mod);
+    seq_t phi = totient_seq(mod);
     seq_t exp = tetration_mod(phi, height - 1);   /* exponent modulo φ(mod)   */
     if (exp_ge_limit(height - 1, phi))
         exp += phi;          /* large exponent: add φ(mod)  */
 
     /* exponent fits in uint64_t because φ(mod) <= mod <= n <= 10⁴   */
-    return mod_pow(2, (uint64_t)exp, mod);
+    return powmod(2, (uint64_t)exp, mod);
 }
 
 /* Main sequence function required by the build. */

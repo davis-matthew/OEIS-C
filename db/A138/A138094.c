@@ -15,13 +15,15 @@
  *            even: T(i,m) = (i-1)^(m/2) * P_{i-m}(x) * All P...
  * Range:     u8 n <= 21, u16 n <= 46, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define K 8
 
@@ -52,9 +54,9 @@ seq_t a(idx_t n) {
 
     coef[0] = NULL;  /* unused */
     for (idx_t i = 1; i <= r; ++i) {
-        coef[i] = (seq_t*)calloc((size_t)i, sizeof(seq_t));
+        coef[i] = mem_new(seq_t, (size_t)i);
         if (!coef[i]) { /* cleanup */
-            for (idx_t j = 1; j < i; ++j) free(coef[j]);
+            for (idx_t j = 1; j < i; ++j) mem_free(coef[j]);
             free(coef);
             return (seq_t)0;
         }
@@ -93,7 +95,7 @@ seq_t a(idx_t n) {
     seq_t result = coef[r][idx];
 
     /* cleanup */
-    for (idx_t i = 1; i <= r; ++i) free(coef[i]);
+    for (idx_t i = 1; i <= r; ++i) mem_free(coef[i]);
     free(coef);
 
     return result;

@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = sum of odd‑indexed digits in the primorial base
  *            representation of n
- * Range:     u8 n <= 9854, u16 n <= 9854, u32 n <= 9854, u64 n <= 9854,
- *            u128 n <= 9854, big any n
+ * Range:     u8 n <= 16170, u16 n <= 16170, u32 n <= 16170, u64 n <= 16170,
+ *            u128 n <= 16170, big any n
+ * Validated: standard, pass, 122 terms through n = 9854 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

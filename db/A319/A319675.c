@@ -7,16 +7,27 @@
  * Formula:   a(n) = digit_sum(prime(n)) + digit_sum(prime(n+1))
  * Range:     u8 n <= 53, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto, digit_sum
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   build_primes_upto, digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/digit_sum.h"
-#include "../utils/_prime_limit_for_idx.h"
+#include <stdlib.h>
+#include <math.h>
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/digit_sum.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 /* static cache for primes */
 static uint64_t *prime_cache = NULL;   /* array of primes in ascending order */

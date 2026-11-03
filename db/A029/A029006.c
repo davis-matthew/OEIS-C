@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* a(n) = number of partitions of n into parts 1, 2, 3 and 12 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Persistent cache reused for all calls to reduce allocations */
 static seq_t *dp   = NULL;  /* dp[i] will hold a(i) for i up to dp_capacity-1 */
@@ -25,7 +27,7 @@ static void ensure_capacity(idx_t n)
 {
     if (dp_capacity >= n + 1) return;          /* already big enough */
 
-    seq_t *new_dp = (seq_t *)realloc(dp, (n + 1) * sizeof(seq_t));
+    seq_t *new_dp = mem_resize(seq_t, dp, (n + 1));
     if (!new_dp) return;                       /* out of memory – undefined */
 
     dp = new_dp;

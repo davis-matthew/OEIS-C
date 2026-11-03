@@ -8,7 +8,8 @@
  * Formula:   a(n) = pi(rev(n)) - pi(n)
  * Range:     i8 n <= 799, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 111 terms through n = 9492 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* ---------- Includes ---------- */
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Static data for the sieve ---------- */
 static idx_t sieve_limit = 0;      /* highest number currently sieved   */
@@ -45,7 +47,7 @@ static void ensure_sieve(idx_t n)
 
     /* Allocate new arrays */
     bool  *new_is_prime = (bool *)malloc((new_limit + 1) * sizeof(bool));
-    seq_t *new_pi       = (seq_t *)malloc((new_limit + 1) * sizeof(seq_t));
+    seq_t *new_pi       = mem_new(seq_t, (new_limit + 1));
     if (!new_is_prime || !new_pi)
     {
         /* Allocation failure – aborting is acceptable for this challenge */
@@ -81,7 +83,7 @@ static void ensure_sieve(idx_t n)
 
     /* Replace old tables */
     free(is_prime);
-    free(pi_table);
+    mem_free(pi_table);
     is_prime = new_is_prime;
     pi_table = new_pi;
     sieve_limit = new_limit;

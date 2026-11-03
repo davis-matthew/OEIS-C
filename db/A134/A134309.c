@@ -10,11 +10,13 @@
  *            2^(m-1)
  * Range:     u8 n <= 53, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
+ * Validated: partial, pass, 98 terms through n = 97 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 static inline idx_t isqrt_u64(idx_t x)

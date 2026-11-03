@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 934, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow2_ui
+ * Validated: standard, pass, 116 terms through n = 9924 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,12 @@
    the selected elements are pairwise incomparable under divisibility. */
 
 #include <stdint.h>
-#include "../utils/pow2_ui.h"
+
+/* Return 2^exp as seq_t.  exp is small (≤ 63 on 64‑bit builds). */
+static inline seq_t pow2_ui(idx_t exp)
+{
+    return ((seq_t)1) << exp;
+}
 
 /* Return ⌊log2(x)⌋, where x ≥ 1.  Assumes idx_t is an unsigned integer type. */
 static inline int floor_log2_uint64(idx_t x)

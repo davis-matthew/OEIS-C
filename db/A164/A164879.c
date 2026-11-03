@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 511, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   search_rec
+ * Validated: standard, pass, 117 terms through n = 4962 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,26 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/search_rec.h"
+
+/* Recursive feasibility check for a given t. */
+static bool search_rec(size_t idx, uint64_t rem, uint64_t t,
+                       const uint64_t *primes, size_t r,
+                       const uint64_t *sum_rem)
+{
+    if (rem == 0) return true;
+    if (idx == r) return false;
+    if (rem > t * sum_rem[idx]) return false;          /* prune by maximum possible sum */
+
+    uint64_t p = primes[idx];
+    uint64_t max_c = rem / p;
+    if (max_c > t) max_c = t;
+
+    for (uint64_t c = 0; c <= max_c; ++c) {
+        if (search_rec(idx + 1, rem - c * p, t, primes, r, sum_rem))
+            return true;
+    }
+    return false;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

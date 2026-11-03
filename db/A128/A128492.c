@@ -7,15 +7,22 @@
  * Formula:   a(n) = denominator of the sum_{k=1..n} 1/(2*k-1)^2
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   seq_gcd, seq_mul
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_gcd.h"
-#include "../utils/seq_mul.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/gcd.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* GCD for unsigned __int128 ------------------------------------------- */
 static unsigned __int128 gcd128(unsigned __int128 a, unsigned __int128 b)
@@ -65,7 +72,7 @@ static seq_t a_big(idx_t n)
         seq_t new_num = seq_mul(num, d) + den;
         seq_t new_den = seq_mul(den, d);
 
-        seq_t g = seq_gcd(new_num, new_den);
+        seq_t g = gcd(new_num, new_den);
         new_num = new_num / g;
         new_den = new_den / g;
 

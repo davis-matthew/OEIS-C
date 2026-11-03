@@ -8,8 +8,9 @@
  * Formula:   a(n) = sigma(A170818(n)) * Implementation: factor n, keep only
  *            primes ≡ 1 (mod 4), * compute the sum of divisors of that
  *            prime‑part
- * Range:     u8 n <= 256, u16 n <= 7900, u32 n <= 7900, u64 n <= 7900,
- *            u128 n <= 7900, big any n
+ * Range:     u8 n <= 256, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 7900 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

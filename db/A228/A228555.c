@@ -7,12 +7,14 @@
  * Formula:   a(n) = 571538*a(n-1) - a(n-2); a(1) = 41; a(2) = 23433017
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 4, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 24 terms through n = 137 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n < 1) return (seq_t)0;  /* Outside the valid range, return 0 */
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     /* Ensure we have at least two cached terms */
     if (cache == NULL) {
         cap = 2;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return (seq_t)0;   /* allocation failed */
         cache[0] = (seq_t)41;          /* a(1) */
         cache[1] = (seq_t)23433017;    /* a(2) */
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     /* Grow the cache if necessary */
     if ((size_t)n > cap) {
         size_t new_cap = (size_t)n;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;   /* allocation failed */
         cache = tmp;
         /* Compute missing terms */

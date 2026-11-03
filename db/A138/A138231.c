@@ -10,12 +10,14 @@
  *            correct value
  * Range:     i8 n <= 30, i16 n <= 58, i32 n <= 58, i64 n <= 58, i128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoised terms */
 static size_t cache_size = 0;    /* number of entries currently stored */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
 
     /* Allocate a larger array.  In C++ the result of realloc must be cast. */
     size_t new_sz = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_sz);
     if (tmp == NULL)
         return;                  /* allocation failure – leave cache unchanged */
 

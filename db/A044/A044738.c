@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains25
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,20 @@
    types used for seq_t and idx_t. */
 
 #include <stdbool.h>
-#include "../utils/contains25.h"
+
+/* Test whether a decimal integer x contains the adjacent pair 2,5. */
+static bool contains25(seq_t x)
+{
+    seq_t prev = 0;            /* digit to the right (lower place) */
+    while (x > 0) {
+        seq_t d = x % (seq_t)10;
+        if (d == (seq_t)2 && prev == (seq_t)5)
+            return true;
+        prev = d;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 /* Main function required by the framework. */
 seq_t a(idx_t n)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Check whether all 1s in 'cur' have 3–5 1‑neighbors using the rows
@@ -94,7 +96,7 @@ seq_t a(idx_t n)
     }
 
     const size_t STATES = 1024U;          /* 10‑bit state: (prevprev<<5|prev) */
-    seq_t *dp = (seq_t*)calloc(STATES, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, STATES);
     if (!dp) return (seq_t)0;            /* unlikely allocation failure */
 
     /* Initial states after processing the first two rows */
@@ -107,8 +109,8 @@ seq_t a(idx_t n)
 
     /* Add rows 3 … n (zero‑based) */
     for (idx_t step = 2U; step < n; ++step) {
-        seq_t *next = (seq_t*)calloc(STATES, sizeof(seq_t));
-        if (!next) { free(dp); return (seq_t)0; }
+        seq_t *next = mem_new(seq_t, STATES);
+        if (!next) { mem_free(dp); return (seq_t)0; }
 
         for (size_t s = 0U; s < STATES; ++s) {
             seq_t cur_val = dp[s];
@@ -122,7 +124,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        free(dp);
+        mem_free(dp);
         dp = next;
     }
 
@@ -137,6 +139,6 @@ seq_t a(idx_t n)
             result += cur_val;
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

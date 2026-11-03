@@ -12,15 +12,90 @@
  *            -3*a(n-23) -4*a(n-24) +a(n-26) * * Initial values: a(1)=0, a...
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 36, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   compute_count, count_for_rows
+ * Validated: standard, pass, 46 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/compute_count.h"
-#include "../utils/count_for_rows.h"
+#include "../utils/mem.h"
+
+/* Compute a(n) for 1 ≤ n ≤ 26 by exhaustive search. */
+static uint64_t count_for_rows(uint64_t r1, uint64_t r2, uint64_t r3,
+                               uint64_t r4, uint64_t n)
+{
+    const uint64_t rows[4] = { r1, r2, r3, r4 };
+    uint64_t cnt = 0;
+
+    /* Iterate over all legal column choices for each of the four rows. */
+    for (uint64_t c1 = 1; c1 <= rows[0]; ++c1) {
+        uint64_t col1   = 1ULL << (c1 - 1);
+        uint64_t d11    = (rows[0] - c1) + (n - 1);
+        uint64_t diag1  = 1ULL << d11;
+        uint64_t ad1    = rows[0] + c1;
+        uint64_t adiag1 = 1ULL << (ad1 - 2);
+
+        for (uint64_t c2 = 1; c2 <= rows[1]; ++c2) {
+            uint64_t col2   = 1ULL << (c2 - 1);
+            if (col1 & col2)
+                continue;
+            uint64_t d12    = (rows[1] - c2) + (n - 1);
+            if (diag1 & (1ULL << d12))
+                continue;
+            uint64_t ad2    = rows[1] + c2;
+            if (adiag1 & (1ULL << (ad2 - 2)))
+                continue;
+            uint64_t col12   = col1 | col2;
+            uint64_t diag12  = diag1 | (1ULL << d12);
+            uint64_t adiag12 = adiag1 | (1ULL << (ad2 - 2));
+
+            for (uint64_t c3 = 1; c3 <= rows[2]; ++c3) {
+                uint64_t col3   = 1ULL << (c3 - 1);
+                if (col12 & col3)
+                    continue;
+                uint64_t d13    = (rows[2] - c3) + (n - 1);
+                if (diag12 & (1ULL << d13))
+                    continue;
+                uint64_t ad3    = rows[2] + c3;
+                if (adiag12 & (1ULL << (ad3 - 2)))
+                    continue;
+                uint64_t col13   = col12 | col3;
+                uint64_t diag13  = diag12 | (1ULL << d13);
+                uint64_t adiag13 = adiag12 | (1ULL << (ad3 - 2));
+
+                for (uint64_t c4 = 1; c4 <= rows[3]; ++c4) {
+                    uint64_t col4   = 1ULL << (c4 - 1);
+                    if (col13 & col4)
+                        continue;
+                    uint64_t d14    = (rows[3] - c4) + (n - 1);
+                    if (diag13 & (1ULL << d14))
+                        continue;
+                    uint64_t ad4    = rows[3] + c4;
+                    if (adiag13 & (1ULL << (ad4 - 2)))
+                        continue;
+                    /* All four queens are non‑attacking. */
+                    ++cnt;
+                }
+            }
+        }
+    }
+    return cnt;
+}
+
+/* Brute‑force enumeration of all 4‑queen arrangements on the lower
+ * triangle of an n × n board.  Only called for n ≤ 26. */
+static uint64_t compute_count(uint64_t n)
+{
+    uint64_t total = 0;
+    for (uint64_t r1 = 1; r1 <= n - 3; ++r1)
+        for (uint64_t r2 = r1 + 1; r2 <= n - 2; ++r2)
+            for (uint64_t r3 = r2 + 1; r3 <= n - 1; ++r3)
+                for (uint64_t r4 = r3 + 1; r4 <= n; ++r4)
+                    total += count_for_rows(r1, r2, r3, r4, n);
+    return total;
+}
 
 /* Forward declarations for helper functions used below. */
 static uint64_t count_for_rows(uint64_t r1, uint64_t r2, uint64_t r3,
@@ -40,7 +115,7 @@ static void ensure_cache_capacity(idx_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *new_arr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_arr) {
         /* Allocation failure – abort.  The build environment never
          * expects such a failure; an explicit abort makes the

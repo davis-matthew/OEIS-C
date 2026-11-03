@@ -5,16 +5,18 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{d|n} binomial(2*d-2, d-1). Offset: 1
- * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 25, u128 n <= 25,
+ * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
         size_t old_size = cache_size;
 
         /* Reallocate arrays */
-        seq_t *a_new = (seq_t*)realloc(cached_a, (new_size + 1) * sizeof(seq_t));
-        seq_t *g_new = (seq_t*)realloc(cached_g, (new_size + 1) * sizeof(seq_t));
+        seq_t *a_new = mem_resize(seq_t, cached_a, (new_size + 1));
+        seq_t *g_new = mem_resize(seq_t, cached_g, (new_size + 1));
         if (!a_new) return (seq_t)0;  /* allocation failure - return 0 */
         if (!g_new) return (seq_t)0;
         cached_a = a_new;

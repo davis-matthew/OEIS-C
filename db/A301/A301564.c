@@ -8,12 +8,14 @@
  *            to 2 or 4 modulo 5
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     if (dp == NULL || n > dp_max) {
         /* allocate new array for the new maximum */
-        seq_t *new_dp = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, (n + 1));
         if (!new_dp) return 0;            /* unlikely, but just in case */
 
         /* initialize */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         }
 
         /* replace old table */
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
         dp = new_dp;
         dp_max = n;
     }

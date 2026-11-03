@@ -11,12 +11,14 @@
  *            construction
  * Range:     u8 n <= 60, u16 n <= 9144, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 75 terms through n = 9750 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         seq_t  cand_a;
         while (1) {
             cand_a = (seq_t)((cand_b * 2ULL) - b_next); /* 2*cand_b - b_next */
-            if (is_prime_small(cand_a)) {
+            if (is_prime_seq(cand_a)) {
                 break;
             }
             cand_b += 2ULL;                               /* keep on odds */

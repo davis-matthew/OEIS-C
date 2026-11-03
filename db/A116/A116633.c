@@ -10,8 +10,9 @@
  *            T(r,k) where r and k satisfy n = row_start[r] + k, 0 ≤ k ≤
  *            floor(r/3), and row_start[0] = 0, row_start[r] = row_start[r-1]
  *            + 1 + floor((r-1)/3)
- * Range:     u8 n <= 84, u16 n <= 495, u32 n <= 3728, u64 n <= 8887,
- *            u128 n <= 8887, big any n
+ * Range:     u8 n <= 84, u16 n <= 495, u32 n <= 3728, u64 n <= 10625,
+ *            u128 n <= 10625, big any n
+ * Validated: standard, pass, 95 terms through n = 8887 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

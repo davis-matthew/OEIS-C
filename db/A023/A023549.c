@@ -8,12 +8,14 @@
  *            Lucas(k)=Lucas(k-1)+Lucas(k-2)
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *aarr = NULL;   /* a[1..] */
 static seq_t *La  = NULL;   /* Lucas numbers L[1..] */
@@ -27,8 +29,8 @@ static void ensure(idx_t n)
 
     /* Grow arrays to accommodate n (1‑based).  We keep a tiny spare buffer. */
     size_t newcap = (size_t) n + 3;   /* +3 for safety on small indexes */
-    aarr = (seq_t *)realloc(aarr, newcap * sizeof(seq_t));
-    La  = (seq_t *)realloc(La,  newcap * sizeof(seq_t));
+    aarr = mem_resize(seq_t, aarr, newcap);
+    La  = mem_resize(seq_t, La, newcap);
 
     if (maxn == 0) {
         /* first time: initialise the base values */

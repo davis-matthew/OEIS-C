@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9692 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache_even = NULL;   /* word of the latest even iteration   */
 static size_t cache_even_len = 0;  /* length of cache_even                */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Initialise the cache with the first even iteration (iteration 2). */
     if (cache_even == NULL) {
         /* w2 = "001110" : expansion of "10"  (iteration 1 → 2). */
-        seq_t *tmp = (seq_t *)malloc(6 * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, 6);
         if (tmp == NULL)
             return (seq_t)0;  /* memory allocation failed */
         size_t j = 0;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     while (cache_even_len < (size_t)n) {
         /* First expansion: even → odd (i.e., length × 3). */
         size_t len_odd = cache_even_len * 3;
-        seq_t *odd = (seq_t *)malloc(len_odd * sizeof(seq_t));
+        seq_t *odd = mem_new(seq_t, len_odd);
         if (odd == NULL)
             return (seq_t)0;  /* memory allocation failed */
         size_t pos = 0;
@@ -70,9 +72,9 @@ seq_t a(idx_t n)
 
         /* Second expansion: odd → next even (length × 3 again). */
         size_t new_len = len_odd * 3;
-        seq_t *new_even = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_even = mem_new(seq_t, new_len);
         if (new_even == NULL) {
-            free(odd);
+            mem_free(odd);
             return (seq_t)0;  /* memory allocation failed */
         }
         pos = 0;
@@ -90,8 +92,8 @@ seq_t a(idx_t n)
         }
 
         /* Update cache. */
-        free(cache_even);
-        free(odd);
+        mem_free(cache_even);
+        mem_free(odd);
         cache_even = new_even;
         cache_even_len = new_len;
     }

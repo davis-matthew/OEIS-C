@@ -8,7 +8,8 @@
  *            3*c^2 + 6*d^2 = 8*n + 12 (a,b,c,d > 0, odd)
  * Range:     u8 n <= 290, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9889 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    and records the counts for each n.                         */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_max = 0;   /* largest n whose value was cached */
@@ -33,7 +35,7 @@ grow_cache(idx_t n)
     idx_t maxSum = 8 * newmax + 12;   /* maximum V = a^2+2b^2+3c^2+6d^2 */
 
     /* Allocate a zeroed array for the counts */
-    seq_t *newcache = (seq_t *)calloc((size_t)(newmax + 1), sizeof(seq_t));
+    seq_t *newcache = mem_new(seq_t, (size_t)(newmax + 1));
     if (newcache == NULL) abort();  /* out of memory */
 
     /* Enumerate all odd quadruples */
@@ -61,7 +63,7 @@ grow_cache(idx_t n)
 
     /* Replace old cache */
     if (cache != NULL)
-        free(cache);
+        mem_free(cache);
     cache = newcache;
     cache_max = newmax;
 }

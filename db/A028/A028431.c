@@ -9,7 +9,8 @@
  *            floor(log10(floor(log10(n)))),…, base10 (right to left)
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,19 @@
     its floor base‑10 log again, etc. */
 
 #include <stdint.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 extern seq_t a(idx_t n)
 {
@@ -27,17 +39,17 @@ extern seq_t a(idx_t n)
         return (seq_t)0;
 
     seq_t result = (seq_t)n;
-    idx_t digits = (idx_t)digit_len(result);   /* number of decimal digits of n */
+    idx_t digits = (idx_t)num_digits(result);   /* number of decimal digits of n */
     seq_t t       = (seq_t)(digits - 1);       /* floor(log10(n)) */
 
     while (t > 0) {
         /* shift current result left by number of its digits and prepend t */
-        idx_t res_digits = (idx_t)digit_len(result);   /* digits of current result */
+        idx_t res_digits = (idx_t)num_digits(result);   /* digits of current result */
         seq_t pow = pow10(res_digits);
         result = t * pow + result;
 
         /* next floor log */
-        idx_t t_digits = (idx_t)digit_len(t);
+        idx_t t_digits = (idx_t)num_digits(t);
         t = (seq_t)(t_digits - 1);
     }
 

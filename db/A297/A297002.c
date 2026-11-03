@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 728, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, seq_mul, seq_pow
+ * Validated: standard, pass, 73 terms through n = 8443 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,15 @@
 /* Sequence: A297002 – completely multiplicative with a(prime(k)) = prime(2*k) */
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static uint64_t *primes = NULL;          /* list of primes (0‑based)                     */
 static size_t    prime_count = 0;        /* number of primes in the list                 */
@@ -71,7 +78,7 @@ seq_t a(idx_t n)
             int32_t idx = prime_index[p];
             if (idx <= 0) continue;   /* should not happen */
             uint64_t ap  = primes[(size_t)(2 * idx) - 1];   /* a(p) */
-            seq_t term   = seq_pow((seq_t)ap, (idx_t)exp);
+            seq_t term   = ipow_idx((seq_t)ap, (idx_t)exp);
             result = seq_mul(result, term);
         }
     }

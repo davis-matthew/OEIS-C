@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* internal recursion: count factorizations of 'rest'
    with previous factor 'prev', current length 'len',
@@ -77,7 +79,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache_size <= n) {
         size_t new_sz = (size_t)n + 1;
-        seq_t *new_cache = (seq_t*)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_sz);
         unsigned char *new_cached = (unsigned char*)realloc(cached, new_sz);
         if (!new_cache || !new_cached) abort();   /* allocation failure */
 

@@ -12,13 +12,14 @@
  *            binomial(r-2-k,k) / (k+1)
  * Range:     u8 n <= 24, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 48 terms through n = 50 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"  // provides: seq_t binom(idx_t a, idx_t b)
+#include "../utils/binomial.h"
 
 /* Euclidean gcd for seq_t values */
 static seq_t gcd_seq(seq_t a, seq_t b)
@@ -84,8 +85,8 @@ seq_t a(idx_t n)
     if (k >= (r / 2)) k = (r / 2) - 1;
 
     /* Compute T(r,k) = binomial(r,k) * binomial(r-2-k,k) / (k+1). */
-    seq_t term1   = binom(r, k);
-    seq_t term2   = binom(r - 2 - k, k);
+    seq_t term1   = binomial(r, k);
+    seq_t term2   = binomial(r - 2 - k, k);
     seq_t denom   = k + 1;
     seq_t result  = mul_div(term1, term2, denom);
 

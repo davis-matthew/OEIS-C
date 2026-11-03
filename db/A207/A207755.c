@@ -12,7 +12,8 @@
  *            column at a time * while respecting all forbid...
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 29, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper – convert idx_t to seq_t before arithmetic */
 static inline seq_t to_seq(idx_t x) { return (seq_t)x; }
@@ -140,7 +142,7 @@ seq_t a(idx_t n)
     int cur = 0, next = 1;
 
     /* Initialise after 2 columns: every pair of vertical‑valid columns is allowed */
-    memset(dp[cur], 0, sizeof(dp[cur]));
+    mem_set(dp[cur], 0, sizeof(dp[cur]));
     for (int c1 = 0; c1 < 64; ++c1) {
         if (!col_valid[c1]) continue;
         for (int c2 = 0; c2 < 64; ++c2) {
@@ -151,7 +153,7 @@ seq_t a(idx_t n)
 
     /* Build columns 3 .. n */
     for (idx_t step = 3; step <= n; ++step) {
-        memset(dp[next], 0, sizeof(dp[next]));
+        mem_set(dp[next], 0, sizeof(dp[next]));
         for (int c1 = 0; c1 < 64; ++c1) {
             if (!col_valid[c1]) continue;
             for (int c2 = 0; c2 < 64; ++c2) {

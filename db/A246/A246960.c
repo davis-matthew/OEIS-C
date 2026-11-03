@@ -9,8 +9,9 @@
  *            binary bit of n (most significant first) take the left child if
  *            the bit is 0, or the right child if the bit is 1. The resulting
  *            symbol is a(n). This algorithm runs in O(log...
- * Range:     u8 n <= 9459, u16 n <= 9459, u32 n <= 9459, u64 n <= 9459,
- *            u128 n <= 9459, big any n
+ * Range:     u8 n <= 16383, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 121 terms through n = 9459 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

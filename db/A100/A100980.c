@@ -9,15 +9,16 @@
  *            n/3^{s-1})/2}), where m = v_3(n) (the exponent of 3 in n) and
  *            3^(-∞)=0. Note that (n - n/3^s) is always even, so the exponents
  *            are integers
- * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 35, u64 n <= 52, u128 n <= 52,
+ * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 35, u64 n <= 80, u128 n <= 161,
  *            big any n
- * Helpers:   pow_n
+ * Validated: standard, pass, 68 terms through n = 3722 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_n.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -39,14 +40,14 @@ seq_t a(idx_t n)
         idx_t denom = n / pow3s;
         /* exponent exp_s = (n - n/3^s) / 2, guaranteed integer */
         idx_t exp_s = (n - denom) / 2;
-        seq_t term_pow = pow_n((seq_t)3, exp_s);
+        seq_t term_pow = ipow_idx((seq_t)3, exp_s);
 
         seq_t term_pow_prev = 0;      /* 3^(eps(-1)*n) -> 0 for s=0 */
         if (s > 0) {
             idx_t pow3s_prev = pow3s / 3;      /* 3^{s-1} */
             idx_t denom_prev = n / pow3s_prev;
             idx_t exp_prev = (n - denom_prev) / 2;
-            term_pow_prev = pow_n((seq_t)3, exp_prev);
+            term_pow_prev = ipow_idx((seq_t)3, exp_prev);
         }
 
         seq_t inner = term_pow - term_pow_prev;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   to_base7_uint64
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,29 @@
 */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/to_base7_uint64.h"
+#include "../utils/mem.h"
+
+/* Helper: convert x to base‑7 digits in most significant first order */
+static void to_base7_uint64(uint64_t x, unsigned char *digits, size_t *len)
+{
+    if (x == 0) {
+        digits[0] = 0;
+        *len = 1;
+        return;
+    }
+    size_t i = 0;
+    while (x) {
+        digits[i++] = x % 7;
+        x /= 7;
+    }
+    /* digits are least‑significant first, reverse for MSF */
+    for (size_t l = 0, r = i - 1; l < r; ++l, --r) {
+        unsigned char tmp = digits[l];
+        digits[l] = digits[r];
+        digits[r] = tmp;
+    }
+    *len = i;
+}
 
 /* Helper: test whether a number satisfies the run‑length condition */
 static int is_target(uint64_t x)
@@ -64,7 +87,7 @@ static uint64_t next_candidate = 0;
 static void grow_cache(void)
 {
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort(); /* OOM: give up */
     cache = new_cache;
     cache_cap = new_cap;

@@ -7,13 +7,25 @@
  * Formula:   a(n) = floor(2*n*log(2*n))
  * Range:     u8 n <= 31, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ln2_fixed
+ * Validated: standard, pass, 63 terms through n = 962 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/ln2_fixed.h"
+
+/* compute 2^40 * ln(2) truncated to integer */
+static unsigned long long ln2_fixed(void) {
+    static unsigned long long val = 0;
+    if (!val) {
+        /* ln(2) ≈ 0.6931471805599453094172321215 ≈ 6931471805599453094/1e19 */
+        const unsigned long long NUM = 6931471805599453094ULL;
+        const unsigned long long DEN = 10000000000000000000ULL;
+        val = (unsigned long long)(((__uint128_t)NUM << 40) / DEN);
+    }
+    return val;
+}
 
 /* helper: floor(log2(n)) for n>=1 */
 static inline idx_t floor_log2_u64(idx_t x) {

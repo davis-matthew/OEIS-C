@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, isPrimeSmall
+ * Validated: standard, pass, 116 terms through n = 9861 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/isPrimeSmall.h"
+#include "../utils/is_prime_i32.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Global memoisation and prime tables                               */
@@ -75,7 +78,7 @@ ensure_cache_capacity(idx_t m)
     while ((idx_t)(new_cap) <= m)
         new_cap <<= 1;
 
-    g_cache     = (seq_t *)realloc(g_cache, new_cap * sizeof(seq_t));
+    g_cache     = mem_resize(seq_t, g_cache, new_cap);
     g_compiled  = (bool  *)realloc(g_compiled, new_cap * sizeof(bool));
 
     /* Mark newly allocated slots as not computed. */
@@ -127,7 +130,7 @@ a(idx_t n)
 
             /* Sum of squares fits in 32‑bit signed before casting. */
             uint64_t ss = (uint64_t)p * p + (uint64_t)q * q + (uint64_t)r * r;
-            if (isPrimeSmall((int)ss))
+            if (is_prime_i32((int)ss))
                 ++count;
         }
     }

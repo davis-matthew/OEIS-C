@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9785 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    terms equal to a(n-1) among the first n-1 terms. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *buf = NULL;    /* table of terms, 1‑based index */
 static size_t buf_cap = 0;   /* allocated capacity (≥ current_max+1) */
@@ -30,7 +32,7 @@ static void ensure_terms(idx_t n)
     /* Allocate more space if necessary */
     size_t need = (size_t)(n + 1);
     if (need > buf_cap) {
-        void *p = realloc(buf, need * sizeof(seq_t));
+        void *p = mem_resize(seq_t, buf, need);
         if (!p) abort();                   /* out of memory */
         buf = (seq_t *)p;
         buf_cap = need;

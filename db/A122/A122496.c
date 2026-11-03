@@ -10,11 +10,14 @@
  *            the n‑th term (a(1) = 1)
  * Range:     i8 n <= 14, i16 n <= 34, i32 n <= 90, i64 n <= 299,
  *            i128 n <= 1034, big any n
+ * Validated: standard, pass, 71 terms through n = 5144 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

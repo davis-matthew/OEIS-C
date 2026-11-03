@@ -11,13 +11,15 @@
  *            card‑matching triangle for two kinds of cards. The seq...
  * Range:     u8 n <= 10, u16 n <= 26, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---- helper: integer square root for 64‑bit unsigned ---- */
 static idx_t uint64_sqrt(idx_t n) {
@@ -40,7 +42,7 @@ static idx_t fact_size  = 0;
 static void ensure_fact(idx_t upto) {
     if (upto < fact_size) return;
     size_t new_size = upto + 1;
-    seq_t *new_cache = (seq_t *)realloc(fact_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, fact_cache, new_size);
     if (!new_cache) { /* allocation failed – abort gracefully */
         /* In an extreme failure we return 0 for all future values. */
         fact_cache = NULL;

@@ -9,12 +9,14 @@
  *            a(5) = 56, a(6) = 77
  * Range:     i8 n <= 8, i16 n <= 51, i32 n <= 51, i64 n <= 51, i128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation */
 static seq_t *cache = NULL;
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (n >= cache_cap) {
         idx_t new_cap = n + 1;                 /* need indices 0..n inclusive */
         size_t sz = (size_t) new_cap * sizeof(seq_t);
-        seq_t *tmp = (seq_t *)realloc(cache, sz);
+        seq_t *tmp = mem_resize(seq_t, cache, (sz) / sizeof(seq_t));
         if (!tmp) return 0;   /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;

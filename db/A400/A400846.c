@@ -13,7 +13,8 @@
  *            = T(n,k) with idx = row_start[n] + k
  * Range:     u8 n <= 36, u16 n <= 87, u32 n <= 293, u64 n <= 1335,
  *            u128 n <= 5469, big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 80 terms through n = 9388 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t a, idx_t b) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static size_t dp_rows = 0;          /* number of rows currently allocated */
 static seq_t **dp_rows_ptr = NULL;  /* array of pointers to each row */
@@ -49,7 +51,7 @@ static void grow_rows_to(idx_t new_rows)
         row_kmax[i] = kmax;
 
         /* Allocate storage for this row and zero it. */
-        dp_rows_ptr[i] = (seq_t *)calloc((size_t)(kmax + 1), sizeof(seq_t));
+        dp_rows_ptr[i] = mem_new(seq_t, (size_t)(kmax + 1));
 
         /* Record the starting index of this row in the flat sequence. */
         if (i == 0) {

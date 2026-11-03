@@ -12,12 +12,14 @@
  *            prescribed)
  * Range:     u8 none, u16 n <= 5, u32 n <= 13, u64 n <= 30, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of already computed terms (index 0 unused) */
 static seq_t *cache = NULL;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* initialise cache on first use */
     if (!cache) {
         size_t sz = 11;                 /* indices 0..10 (0 unused) */
-        cache = (seq_t *)realloc(NULL, sz * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, sz);
         cache[0] = (seq_t)0;           /* placeholder for index 0 */
         for (size_t i = 1; i <= 10; ++i)
             cache[i] = init_vals[i-1];
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     if (n > cache_n) {
         size_t new_size = (size_t)n + 1;       /* allocate indices 0..n */
         if (new_size > cache_n) {
-            seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_size);
             if (!tmp) {                       /* allocation failure: abort */
                 /* In the unlikely event of a bad allocation, return 0 */
                 cache = NULL;

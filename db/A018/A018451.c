@@ -7,7 +7,8 @@
  * Formula:   a(n) = n-th smallest divisor of 430 (sorted ascending)
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static seq_t divisors[8];
 static bool initialized = false;
@@ -61,19 +63,19 @@ static void init_divisors(void)
     for (size_t i = 0; i < cnt; ++i)
         num_divs *= (size_t)(exps[i] + 1);
 
-    seq_t *tmp = (seq_t *)malloc(num_divs * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, num_divs);
     if (!tmp)
         return; /* allocation failed – unlikely for such a small array */
 
     size_t idx = 0;
     generate_divisors_rec(0, (seq_t)1, primes, exps, cnt, tmp, &idx);
 
-    qsort(tmp, num_divs, sizeof(seq_t), cmp_seq);
+    mem_qsort(tmp, num_divs, sizeof(seq_t), cmp_seq);
 
     for (size_t i = 0; i < num_divs; ++i)
         divisors[i] = tmp[i];
 
-    free(tmp);
+    mem_free(tmp);
     initialized = true;
 }
 

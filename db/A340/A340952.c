@@ -11,7 +11,8 @@
  *            O(7·n·T(n)) with T(n)≈√(2n) triangular numbers
  * Range:     u8 n <= 20, u16 n <= 106, u32 n <= 6313, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   allocate_vec
+ * Validated: standard, pass, 68 terms through n = 9648 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/allocate_vec.h"
+#include "../utils/mem.h"
+
+static seq_t *
+allocate_vec(idx_t n) { return mem_new(seq_t, (n + 1)); }
 
 /* seq_t and idx_t are supplied by the build system.  */
 
@@ -45,18 +49,18 @@ seq_t a(idx_t n)
     seq_t *dp_prev = allocate_vec(n);
     seq_t *dp_curr = allocate_vec(n);
     if (!dp_prev || !dp_curr) { /* Allocation failure – treat as zero. */
-        free(dp_prev);
-        free(dp_curr);
+        mem_free(dp_prev);
+        mem_free(dp_curr);
         return (seq_t)0;
     }
 
     /* Initialize for 0 summands. */
-    memset(dp_prev, 0, (n + 1) * sizeof(seq_t));
+    mem_set(dp_prev, 0, (n + 1) * sizeof(seq_t));
     dp_prev[0] = (seq_t)1;
 
     /* Add 7 summands successively. */
     for (idx_t step = 0; step < 7; ++step) {
-        memset(dp_curr, 0, (n + 1) * sizeof(seq_t));
+        mem_set(dp_curr, 0, (n + 1) * sizeof(seq_t));
         for (idx_t j = 0; j < tri_cnt; ++j) {
             idx_t t = tri[j];
             for (idx_t i = t; i <= n; ++i) {
@@ -70,7 +74,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp_prev[n];
-    free(dp_prev);
-    free(dp_curr);
+    mem_free(dp_prev);
+    mem_free(dp_curr);
     return result;
 }

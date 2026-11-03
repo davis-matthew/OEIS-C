@@ -8,7 +8,8 @@
  * Formula:   a(n) = denominator of the decimal 0.135...(2n-1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   bi_is_div5, bi_is_even, seq_mul, seq_pow
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -88,10 +89,26 @@ static void bi_div5(uint32_t *limbs, size_t *len)
     while (*len > 1 && limbs[*len - 1] == 0) --(*len);
 }
 
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
-#include "../utils/bi_is_div5.h"
-#include "../utils/bi_is_even.h"
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Return 1 if the big integer is divisible by 5. */
+static int bi_is_div5(const uint32_t *limbs, size_t len)
+{
+    return (limbs[0] % 5) == 0;
+}
+
+/* Return 1 if the big integer is even. */
+static int bi_is_even(const uint32_t *limbs, size_t len)
+{
+    return (limbs[0] & 1) == 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -121,8 +138,8 @@ seq_t a(idx_t n)
     while (bi_is_div5(limbs, len)) { bi_div5(limbs, &len); ++e5; }
 
     /* denominator = 2^(total_digits - e2) * 5^(total_digits - e5) */
-    seq_t denom = seq_pow((seq_t)2, total_digits - e2);
-    seq_t pow5  = seq_pow((seq_t)5, total_digits - e5);
+    seq_t denom = ipow_idx((seq_t)2, total_digits - e2);
+    seq_t pow5  = ipow_idx((seq_t)5, total_digits - e5);
     denom = seq_mul(denom, pow5);
     return denom;
 }

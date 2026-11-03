@@ -9,13 +9,15 @@
  *            values a(1)=1, a(2)=2, a(3)=3, a(4)=4, a(5)=5
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  seq_t and idx_t are provided by the build environment.  */
 extern idx_t _floor_isqrt_u64(idx_t); /* unused, keeps the header */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first five terms if we haven't yet. */
     if (cache == NULL) {
         cache_cap = (size_t)n > 5 ? (size_t)n : 5;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) { /* out of memory – let the program terminate */ }
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)2;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     if ((size_t)n > cache_cap) {
         size_t new_cap = cache_cap * 2;
         if (new_cap < (size_t)n) new_cap = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) { /* out of memory – let the program terminate */ }
         cache = tmp;
         cache_cap = new_cap;

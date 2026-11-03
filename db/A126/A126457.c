@@ -10,13 +10,14 @@
  *            triangle entries T(n,k) read by rows
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 27, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Compute n choose 3, safely for n up to 2^64-1. */
 static inline idx_t comb3(idx_t n)
@@ -52,5 +53,5 @@ seq_t a(idx_t n)
     idx_t A = C_r - C_k + 3;         /* binomial upper index */
     idx_t B = r - k;                 /* binomial lower index */
 
-    return binom(A, B);
+    return binomial(A, B);
 }

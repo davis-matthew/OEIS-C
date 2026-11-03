@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   good_candidate
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,21 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/good_candidate.h"
+#include "../utils/mem.h"
+
+static bool good_candidate(uint64_t n)
+{
+    uint64_t m = n;
+    while (m > 0) {
+        int d = m % 7;   /* base-7 digit */
+        if (d == 1)          /* digit 1 always divides n */
+            return false;
+        if (d > 1 && (n % d) == 0)
+            return false;
+        m /= 7;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,7 +56,7 @@ seq_t a(idx_t n)
         if (len >= cap) {
             if (cap == 0) cap = 16;
             else          cap <<= 1;
-            terms = (seq_t *)realloc(terms, sizeof(seq_t) * cap);
+            terms = mem_resize(seq_t, terms, cap);
         }
         terms[len++] = val;
         ++next;

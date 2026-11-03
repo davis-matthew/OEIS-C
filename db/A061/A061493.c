@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 27, u32 n <= 287, u64 n <= 3999,
  *            u128 n <= 3999, big any n
- * Helpers:   append_digits, roman_digit
+ * Validated: full, pass, 3999 terms through n = 3999 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,28 @@
  * of n (I=1,V=2,X=3,L=4,C=5,D=6,M=7).  The function works for all n≥1,
  * including values >3999 by repeating the symbol 'M' for thousands. */
 #include <stdint.h>
-#include "../utils/append_digits.h"
-#include "../utils/roman_digit.h"
+
+static inline uint8_t roman_digit(unsigned char c) {
+    /* Map Roman characters to digits 1‑7 */
+    switch (c) {
+        case 'I': return 1;
+        case 'V': return 2;
+        case 'X': return 3;
+        case 'L': return 4;
+        case 'C': return 5;
+        case 'D': return 6;
+        case 'M': return 7;
+        default:  return 0;   /* should not happen for valid input */
+    }
+}
+
+static inline void append_digits(seq_t *val, const char *s)
+{
+    while (*s) {
+        *val = (*val * 10) + roman_digit(*s);
+        ++s;
+    }
+}
 
 static const char * const hundreds[10] = {
     "",     "C",   "CC",   "CCC",   "CD",

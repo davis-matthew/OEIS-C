@@ -8,13 +8,15 @@
  * Formula:   a(n) = (101*a(n-1) + 1) mod 2^13, a(1) = 1
  * Range:     u8 n <= 2, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 8186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     const idx_t MOD = (idx_t)1 << 13;           /* 8192 */
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
 
     /* Initialize cache on first call */
     if (!cache) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * CACHE_SIZE);
+        cache = mem_new(seq_t, CACHE_SIZE);
         if (!cache) { /* allocation failure, return 0 as fallback */
             return (seq_t)0;
         }

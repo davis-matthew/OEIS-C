@@ -7,13 +7,15 @@
  * Formula:   a(1) = 1; a(2n) = -a(n); a(2n+1) = -a(n) + a(n+1)
  * Range:     i8 n <= 80, i16 n <= 80, i32 n <= 80, i64 n <= 80, i128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static tables holding computed values and a flag that marks validity.  */
 static seq_t *cache = NULL;          /* Holds a(i) for i <= cap-1 */
@@ -26,13 +28,13 @@ static void ensure_cap(idx_t n) {
         size_t newcap = cap ? (cap << 1) : 1;
         while (newcap <= n) newcap <<= 1;
 
-        seq_t *newcache = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *newcache = mem_new(seq_t, newcap);
         unsigned char *newvalid = (unsigned char *)malloc(newcap);
 
         if (cache) {
-            memcpy(newcache, cache, cap * sizeof(seq_t));
+            mem_copy(newcache, cache, cap * sizeof(seq_t));
             memcpy(newvalid, valid, cap);
-            free(cache);
+            mem_free(cache);
             free(valid);
         }
         /* Mark new elements as invalid. */

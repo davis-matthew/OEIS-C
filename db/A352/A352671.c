@@ -10,7 +10,8 @@
  *            different
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < n; ++i) valid[i] = true;
 
     /* Temporary array for digit sums of all k in the current base. */
-    seq_t *sum = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *sum = mem_new(seq_t, (size_t)n);
     if (!sum) { free(valid); return 0; }
 
     /* For every base b from 2 up to n */
@@ -65,6 +67,6 @@ seq_t a(idx_t n)
         if (valid[k]) result++;
 
     free(valid);
-    free(sum);
+    mem_free(sum);
     return result;
 }

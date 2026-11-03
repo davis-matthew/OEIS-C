@@ -9,6 +9,7 @@
  *            (4*n^3+66*n^2+332*n+495)*(-1)^((6*n-1+(-1)^n)/4) + 48)/1536
  * Range:     i8 none, i16 n <= 6, i32 n <= 237, i64 n <= 1000, i128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 67 terms through n = 991 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

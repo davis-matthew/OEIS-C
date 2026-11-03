@@ -12,14 +12,39 @@
  *            printed value
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   add_small_to_big
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/add_small_to_big.h"
+
+/* Helper: add the small integer 'small' (decimal) to the big integer digits[]
+   (least significant digit first).  digits_len is updated.
+   digits has capacity at least old_len + 2. */
+static void add_small_to_big(unsigned char *digits, size_t *len,
+                             const unsigned char *small, size_t small_len)
+{
+    size_t i = 0, j = 0;
+    int carry = 0;
+    size_t new_len = *len;
+    while (i < new_len || j < small_len || carry) {
+        int ai = (i < new_len) ? digits[i] : 0;
+        int bj = (j < small_len) ? small[j] : 0;
+        int sum = ai + bj + carry;
+        int digit = sum % 10;
+        carry = sum / 10;
+        if (i < new_len)
+            digits[i] = (unsigned char)digit;
+        else
+            digits[*len++] = (unsigned char)digit;
+        ++i;
+        ++j;
+    }
+    *len = new_len < *len ? *len : new_len;
+}
 
 /* Helper: return 10^(exp) mod mod,  exp>=0 */
 static idx_t pow10_mod(idx_t mod, idx_t exp)

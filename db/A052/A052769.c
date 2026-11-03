@@ -7,6 +7,7 @@
  * Formula:   a(n) = (2^n - 16)*(n-2)*(n-1)*n / 8 (a(3) = 0)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 21, u64 n <= 50, u128 n <= 110,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 942 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

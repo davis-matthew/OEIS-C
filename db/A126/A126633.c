@@ -10,6 +10,7 @@
  * Formula:   a(n) = 24*6^n - 60*5^n + 62*4^n - 33*3^n + 9*2^n - 1
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 19,
  *            big any n
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

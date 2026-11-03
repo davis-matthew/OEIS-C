@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 1643, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_64
+ * Validated: standard, pass, 67 terms through n = 9509 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_64.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache */
     if (count >= cap) {
         size_t new_cap = cap ? (cap << 1) : 32;
-        seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, primes, new_cap);
         if (!tmp) abort();
         primes = tmp;
         cap = new_cap;
@@ -74,13 +77,12 @@ seq_t a(idx_t n)
         /* Check residue modulo 24 */
         uint64_t mod24 = candidate % 24ULL;
         if (mod24 == 11ULL || mod24 == 17ULL) {
-            if (is_prime_64(candidate)) {
+            if (is_prime_u64(candidate)) {
                 /* Store prime */
                 primes[count++] = (seq_t)candidate;
                 if (count >= cap) {
                     size_t new_cap = cap << 1;
-                    seq_t *tmp = (seq_t *)realloc(primes,
-                                                  new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, primes, new_cap);
                     if (!tmp) abort();
                     primes = tmp;
                     cap = new_cap;

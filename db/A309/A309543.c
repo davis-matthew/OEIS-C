@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   int_mul_floor
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,15 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/int_mul_floor.h"
+#include "../utils/mem.h"
+
+/* Find the integer k where n = k*d1 + r, 0 <= r < d1.  Used for finding the
+ * next block length.  Not needed in this implementation, but present for
+ * completeness. */
+static inline idx_t int_mul_floor(idx_t n, idx_t d1)
+{
+    return n / d1;
+}
 
 /* Helper to multiply two polynomials a[0..degA] and b[0..degB], result
  * stored in out[0..degA+degB] (out must have that many elements).  All
@@ -135,7 +144,7 @@ seq_t a(idx_t n)
 
         /* Allocate cache for the initial values. */
         cache_len = R;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         for (idx_t i = 0; i < cache_len; ++i) cache[i] = init[i];
 
         initialized = 1;
@@ -145,7 +154,7 @@ seq_t a(idx_t n)
     if (n >= cache_len) {
         idx_t new_len = cache_len ? cache_len * 2 : 32;
         while (new_len <= n) new_len *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         cache = tmp;
         /* Compute new values using the recurrence. */
         for (idx_t i = cache_len; i <= n; ++i) {

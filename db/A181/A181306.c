@@ -8,12 +8,14 @@
  *            2*a(n-1) + 2*a(n-2) - 2*a(n-3) (OEIS A181306)
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 25, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     if (n >= max_n)                        /* need to extend cache */
     {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_size);
         if (!tmp) exit(1);                 /* allocation failure – terminate */
 
         /* fill entries that are not yet present */

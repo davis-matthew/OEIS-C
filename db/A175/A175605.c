@@ -7,7 +7,8 @@
  * Formula:   a(n) = concat(n^3, n^3)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 35, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_len, pow10
+ * Validated: standard, pass, 41 terms through n = 758 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,19 @@
  */
 
 #include <stdint.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -27,7 +39,7 @@ seq_t a(idx_t n)
     seq_t cube = (seq_t)n * (seq_t)n * (seq_t)n;
 
     /* Determine number of decimal digits in cube */
-    int d = digit_len(cube);
+    int d = num_digits(cube);
 
     /* 10^d as seq_t */
     seq_t pow10d = pow10(d);

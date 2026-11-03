@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* compute floor(log2(v)) for 0 < v < 2^64 */
 static inline idx_t floor_log2_uint64(idx_t v)
@@ -45,9 +47,9 @@ seq_t a(idx_t n)
     if (n > cached_n) {
         size_t new_size = (size_t)n;
         if (cache == NULL) {
-            cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+            cache = mem_new(seq_t, new_size);
         } else {
-            cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_size);
         }
         /* Compute missing terms */
         for (idx_t i = cached_n + 1; i <= n; ++i) {

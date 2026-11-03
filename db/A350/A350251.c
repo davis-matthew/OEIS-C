@@ -12,16 +12,53 @@
  *            n <= 10000 because the multiset length is at mos...
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   dfs_perm, fact_upto, factor_u64
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/fact_upto.h"
-#include "../utils/dfs_perm.h"
+
+static seq_t fact_upto(idx_t m)
+{
+    seq_t r = 1;
+    for (idx_t i = 2; i <= m; ++i)
+        r *= (seq_t)i;
+    return r;
+}
+
+static void dfs_perm(size_t depth, int pattern, const seq_t *primes,
+                     size_t *cnt, size_t k, size_t len, seq_t prev,
+                     seq_t *out_count)
+{
+    if (depth == len) {
+        (*out_count) += (seq_t)1;
+        return;
+    }
+    for (size_t i = 0; i < k; ++i) {
+        if (cnt[i] == 0)
+            continue;
+        seq_t val = primes[i];
+        if (depth > 0) {
+            int parity = depth & 1;  /* 1 => odd index (second element) */
+            int ok;
+            if (pattern == 0) { /* up first: <, >, <, > ... */
+                ok = parity ? (prev < val) : (prev > val);
+            } else {           /* down first: >, <, >, < ... */
+                ok = parity ? (prev > val) : (prev < val);
+            }
+            if (!ok)
+                continue;
+        }
+        cnt[i]--;
+        dfs_perm(depth + 1, pattern, primes, cnt, k, len, val, out_count);
+        cnt[i]++;
+    }
+}
 
 seq_t a(idx_t n)
 {

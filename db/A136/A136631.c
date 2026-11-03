@@ -11,12 +11,14 @@
  *            for even and odd squares incrementally
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*-------------------------------------------------------------------------*/
 seq_t a(idx_t n)
@@ -24,8 +26,8 @@ seq_t a(idx_t n)
     /* Arrays that hold the weighted partition coefficients
        for the current set of even and odd squares. */
     size_t sz = (size_t)(n + 1);
-    seq_t *dp_even = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *dp_odd  = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *dp_even = mem_new(seq_t, sz);
+    seq_t *dp_odd  = mem_new(seq_t, sz);
     if (!dp_even || !dp_odd) { /* allocation failure */
         return (seq_t)0;
     }
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
             result += dp_odd[n - k];
     }
 
-    free(dp_even);
-    free(dp_odd);
+    mem_free(dp_even);
+    mem_free(dp_odd);
     return result;
 }

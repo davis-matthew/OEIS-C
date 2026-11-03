@@ -12,7 +12,8 @@
  *            handles calls in any order. For n beyond the number of so...
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   cube_sum_of_digits, digit_sum
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-02)
+ * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,19 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "../utils/digit_sum.h"
-#include "../utils/cube_sum_of_digits.h"
+
+/* helper to compute sum of cubes of decimal digits of x */
+static seq_t cube_sum_of_digits(seq_t x)
+{
+    seq_t sum = 0;
+    while (x != 0) {
+        /* digit is 0..9, fits in unsigned int */
+        unsigned d = (unsigned)(x % 10);
+        sum += (seq_t)d * d * d;
+        x /= 10;
+    }
+    return sum;
+}
 
 /* forward declaration of helper to compute the cube sum of a number */
 static seq_t cube_sum_of_digits(seq_t x);

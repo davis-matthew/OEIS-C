@@ -13,13 +13,17 @@
  *            number padded with leading zeros
  * Range:     u8 n <= 119, u16 n <= 119, u32 n <= 119, u64 n <= 119,
  *            u128 n <= 119, big any n
- * Helpers:   digits
+ * Validated: partial, pass, 120 terms through n = 119 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include the helper that provides the digit count of a uint64_t. */
-#include "../utils/digits.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/num_digits_idx.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -61,8 +65,8 @@ seq_t a(idx_t n) {
     idx_t j = d - offset;
 
     /* 3. Compute T(i,j) */
-    int maxd = digits(i);
-    int dj = digits(j);
+    int maxd = num_digits_idx(i);
+    int dj = num_digits_idx(j);
     if (dj > maxd) maxd = dj;
 
     seq_t result = 0;

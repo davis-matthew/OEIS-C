@@ -8,7 +8,8 @@
  *            (n-2m)^(n-2m-1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   binom, pow_int
+ * Validated: standard, pass, 36 terms through n = 369 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
                 /* -cos(x)·LambertW(-x) */
                 /* a(0)=0, a(1)=1, a(2)=2, ... */
 
-#include "../utils/binom.h"
-#include "../utils/pow_int.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
     for (idx_t m = 0; m <= max_m; ++m) {
         /* k = 2m is the even index in the cosine series */
         idx_t k = m << 1;                /* same as 2*m */
-        seq_t bin   = binom(n, k);       /* binom(n,2m) */
-        seq_t pow   = pow_int((seq_t)(n - k), n - k - 1); /* (n-2m)^(n-2m-1) */
+        seq_t bin   = binomial(n, k);       /* binom(n,2m) */
+        seq_t pow   = ipow_idx((seq_t)(n - k), n - k - 1); /* (n-2m)^(n-2m-1) */
         seq_t term  = bin * pow;
 
         if ((m & 1) == 0) {

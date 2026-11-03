@@ -9,12 +9,14 @@
  *            a(4)=19, a(5)=30
  * Range:     i8 n <= 6, i16 n <= 12, i32 n <= 23, i64 n <= 29, i128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     if (n >= sz) {
         /* grow cache to accommodate n */
         size_t new_len = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();          /* memory exhaustion */
         cache = tmp;
 

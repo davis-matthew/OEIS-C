@@ -9,14 +9,33 @@
  *            k
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   divisor_count
+ * Validated: standard, pass, 103 terms through n = 877 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count.h"
+
+/* Smallest divisor count helper */
+static inline uint64_t divisor_count(uint64_t x, uint64_t *pr, int pcnt)
+{
+    uint64_t d = 1;
+    for (int i = 0; i < pcnt && (uint64_t)pr[i] * pr[i] <= x; ++i) {
+        uint64_t p = pr[i];
+        if (x % p == 0) {
+            uint64_t e = 0;
+            while (x % p == 0) {
+                x /= p;
+                ++e;
+            }
+            d *= (e + 1);
+        }
+    }
+    if (x > 1) d *= 2;          /* remaining prime factor */
+    return d;
+}
 
 /* Max n expected in the tests (can be increased safely) */
 #define MAX_N 10000

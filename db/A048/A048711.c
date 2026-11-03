@@ -10,13 +10,17 @@
  *            i)*(2^(2^(i+1))))+1)', 'i'=0..floor_log_2(n+1));
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   floor_log2_uint64, pow2
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   ilog2, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 #include "../utils/pow2.h"
-#include "../utils/floor_log2_uint64.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +29,7 @@ seq_t a(idx_t n)
 
     /* product for (n+1) */
     idx_t m1 = n + (idx_t)1;
-    idx_t limit1 = floor_log2_uint64(n + (idx_t)2);
+    idx_t limit1 = ilog2(n + (idx_t)2);
     for (idx_t i = 0; i <= limit1; ++i)
     {
         if ((m1 >> i) & (idx_t)1)
@@ -38,7 +42,7 @@ seq_t a(idx_t n)
 
     /* product for n */
     idx_t m2 = n;
-    idx_t limit2 = floor_log2_uint64(n + (idx_t)1);
+    idx_t limit2 = ilog2(n + (idx_t)1);
     for (idx_t i = 0; i <= limit2; ++i)
     {
         if ((m2 >> i) & (idx_t)1)

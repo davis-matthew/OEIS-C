@@ -10,13 +10,16 @@
  *            trailing * zero bit is appended
  * Range:     u8 n <= 15, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   floor_log2_uint64, pow2
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   ilog2, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ilog2.h"
 #include "../utils/pow2.h"
 
 /* Compute A028432(n) for all n ≥ 1.
@@ -35,8 +38,8 @@ seq_t a(idx_t n)
 
     /* Append floor(log₂(prev)) while prev > 1. */
     while (prev > 1u) {
-        idx_t next = floor_log2_uint64(prev);          /* floor(log₂(prev)) */
-        unsigned len = floor_log2_uint64(next) + 1u;    /* bit length of next   */
+        idx_t next = ilog2(prev);          /* floor(log₂(prev)) */
+        unsigned len = ilog2(next) + 1u;    /* bit length of next   */
         seq_t pow = pow2(len);                         /* 2^{len} */
         res = res * pow + (seq_t)next;                 /* res << len | next   */
         prev = next;

@@ -6,18 +6,26 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = lcm(d(n^3), d(n))
- * Range:     u8 n <= 23, u16 n <= 9914, u32 n <= 9914, u64 n <= 9914,
- *            u128 n <= 9914, big any n
- * Helpers:   factor_u64, seq_gcd, seq_mul
+ * Range:     u8 n <= 23, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 90 terms through n = 9914 (2026-11-01)
+ * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Helper: compute divisor counts of n and n^3 */
 static void divisor_counts_u64(uint64_t n, seq_t *d, seq_t *d3)
@@ -51,7 +59,7 @@ seq_t a(idx_t n)
     divisor_counts_u64((uint64_t)n, &d, &d3);
 
     /* lcm(d, d3) = d * d3 / gcd(d, d3) */
-    seq_t g   = seq_gcd(d, d3);
+    seq_t g   = gcd(d, d3);
     seq_t prod = seq_mul(d, d3);
     return prod / g;
 }

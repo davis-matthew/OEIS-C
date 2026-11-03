@@ -6,13 +6,15 @@
  * Keywords:  easy, nonn, tabl
  * Formula:   a(n) = binomial(floor((r+k)/2), floor(k/2)) * where r =
  *            floor((sqrt(1+8n)-1)/2) and k = n - r*(r+1)/2
- * Range:     u8 n <= 43, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
+ * Range:     u8 n <= 76, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static inline idx_t isqrt_u64(idx_t n)

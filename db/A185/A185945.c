@@ -9,16 +9,17 @@
  *            index) k = n - r*(r+1)/2 (column index) If k == 0: a(n) =
  *            binomial(r+3,3) Else: a(n) = k * Σ_{i=0}^{r-k} binomial(i+3,3) *
  *            binomial(2*(r-i)-k-1, r-i-1) / (r-i) (binomial(a,b) i...
- * Range:     u8 n <= 15, u16 n <= 45, u32 n <= 210, u64 n <= 703,
+ * Range:     u8 n <= 21, u16 n <= 66, u32 n <= 210, u64 n <= 703,
  *            u128 n <= 1274, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 1261 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* triangular number t(r) = r*(r+1)/2, computed using 128‑bit to avoid overflow */
 static idx_t triangular(idx_t r)
@@ -58,15 +59,15 @@ seq_t a(idx_t n)
 
     if (k == 0) {
         /* R(r,0,4) = binom(r+3,3) */
-        return binom(r + 3, 3);
+        return binomial(r + 3, 3);
     }
 
     seq_t sum = 0;
     /* Sum over i = 0 .. r-k */
     for (idx_t i = 0; i <= r - k; ++i) {
-        seq_t term1 = binom(i + 3, 3);               /* binom(i+3,3) */
+        seq_t term1 = binomial(i + 3, 3);               /* binom(i+3,3) */
         idx_t t = r - i;                             /* t = r - i */
-        seq_t term2 = binom(2 * t - k - 1, t - 1);    /* binom(2t-k-1, t-1) */
+        seq_t term2 = binomial(2 * t - k - 1, t - 1);    /* binom(2t-k-1, t-1) */
         /* term = k * term1 * term2 / t */
         seq_t prod = term1 * term2;                  /* intermediate product */
         prod = prod * (seq_t)k;                      /* multiply by k */

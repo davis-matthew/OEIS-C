@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 1085, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 8613 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Helper: compute σ(n) for a 64‑bit unsigned integer n.  The result      */
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
     if (!terms)
     {
         terms_cap = 32;
-        terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 
     /* generate terms until we have at least n of them */
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
             if (terms_cnt >= terms_cap)
             {
                 size_t new_cap = terms_cap * 2;
-                terms = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, new_cap);
                 terms_cap = new_cap;
             }
             terms[terms_cnt++] = (seq_t)m;

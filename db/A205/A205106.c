@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   mul2_mod, mul3_mod
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,21 @@
  * in the enumeration of that difference is the desired k.  This uses only
  * the integer operations permitted by the requirements. */
 #include <stdlib.h>
-#include "../utils/mul2_mod.h"
-#include "../utils/mul3_mod.h"
+
+/* Compute (x*2) mod mod without overflow */
+static inline seq_t mul2_mod(seq_t x, seq_t mod)
+{
+    if (x > mod - x) return x + x - mod;
+    return x + x;
+}
+
+/* Compute (x*3) mod mod without overflow, reusing mul2_mod */
+static inline seq_t mul3_mod(seq_t x, seq_t mod)
+{
+    seq_t two = mul2_mod(x, mod);
+    if (two > mod - x) return two + x - mod;
+    return two + x;
+}
 
 seq_t a(idx_t n)
 {

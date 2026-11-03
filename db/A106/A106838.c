@@ -6,15 +6,25 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 8*A091067(n) - 2 (OEIS A106838)
- * Range:     u8 n <= 15, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
- *            big any n
- * Helpers:   count_le
+ * Range:     u8 n <= 15, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 68 terms through n = 895 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>  /* for bool, if needed elsewhere */
-#include "../utils/count_le.h"
+
+static seq_t count_le(seq_t v)
+{
+    seq_t cnt = 0;
+    while (v) {
+        cnt += (v + 1) / 4;  /* count odd t <= v with t ≡ 3 (mod 4) */
+        v >>= 1;             /* next e: divide v by 2 */
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* enlarge buffer as necessary */
     if (!terms || terms_len == terms_cap) {
         idx_t new_cap = terms_cap? terms_cap * 2 : 4;
-        seq_t *tmp = (seq_t *)realloc(terms, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();                  /* allocation failed */
         terms      = tmp;
         terms_cap  = new_cap;
@@ -52,11 +54,11 @@ seq_t a(idx_t n)
         ++last;                             /* next candidate */
 
         /* test if last is composite (i.e., >1 and not prime) */
-        if (last > 1 && !is_prime_small((seq_t)last)) {
+        if (last > 1 && !is_prime_seq((seq_t)last)) {
             cum_sum += (seq_t)last;           /* add to running sum */
 
             /* check if the running sum is also composite */
-            if (cum_sum > (seq_t)1 && !is_prime_small(cum_sum)) {
+            if (cum_sum > (seq_t)1 && !is_prime_seq(cum_sum)) {
                 terms[terms_len++] = last;  /* store term */
             }
         }

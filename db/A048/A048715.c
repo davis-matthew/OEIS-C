@@ -9,6 +9,7 @@
  *            foo(1)=0, foo(2)=1 and foo(k)=foo(k-1)+foo(k-3) for k>=3. a(0)=0
  * Range:     u8 n <= 27, u16 n <= 594, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 74 terms through n = 950 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

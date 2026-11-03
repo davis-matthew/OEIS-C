@@ -8,7 +8,8 @@
  * Formula:   a(n) = denominator of coefficient (2n)!/(n!)^4/2^(2n)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 10, u128 n <= 18,
  *            big any n
- * Helpers:   v_factorial
+ * Validated: standard, pass, 33 terms through n = 216 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/v_factorial.h"
+#include "../utils/mem.h"
+
+/* Legendre's formula: exponent of prime p in n! */
+static idx_t v_factorial(idx_t n, idx_t p)
+{
+    idx_t res = 0;
+    idx_t div = p;
+    while (div <= n) {
+        res += n / div;
+        if (div > n / p)
+            break;
+        div *= p;
+    }
+    return res;
+}
 
 /* Global primes table */
 static int *primes = NULL;
@@ -85,7 +100,7 @@ static void ensure_cache(size_t needed)
 {
     if (needed <= cache_size)
         return;
-    seq_t *new_cache = (seq_t *)realloc(term_cache, needed * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, term_cache, needed);
     term_cache = new_cache;
     cache_size = needed;
 }

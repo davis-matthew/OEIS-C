@@ -9,6 +9,7 @@
  * Formula:   a(n) = Σ_{d|n+1, 3≤d≤√(n+1)} (d + (n+1)/d - 2)
  * Range:     u8 n <= 178, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 96 terms through n = 8944 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

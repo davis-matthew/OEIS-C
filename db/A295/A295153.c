@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #ifndef LIMIT
 # define LIMIT 5408U
 #endif
+#include "../utils/mem.h"
 
 /* ---------- utilitaire ---------- */
 /* racine carrée entière sans utilisation de doubles */
@@ -97,7 +99,7 @@ static void init_sequence(void)
 
     /* Construction du tableau des valeurs avec exactement 5 représentations */
     size_t cap = 64;
-    seq_t *list = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *list = mem_new(seq_t, cap);
     if (!list) {
         free(cnt);
         return; /* échec d'allocation */
@@ -107,9 +109,9 @@ static void init_sequence(void)
         if (cnt[n] == 5u) {
             if (len == cap) {
                 cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(list, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, list, cap);
                 if (!tmp) {
-                    free(list);
+                    mem_free(list);
                     free(cnt);
                     return;
                 }

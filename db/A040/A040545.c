@@ -7,13 +7,15 @@
  * Formula:   continued fraction terms of sqrt(569)
  * Range:     u8 none, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         /* The period length for sqrt(N) is < 2*sqrt(N), so this
            allocation is safe for the fixed radicand 569. */
         size_t cap = 2 * (size_t)a0 + 1;  /* 47 */
-        period = (seq_t *)malloc(cap * sizeof(seq_t));
+        period = mem_new(seq_t, cap);
         if (!period) abort();
 
         seq_t m    = 0;

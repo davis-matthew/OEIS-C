@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 23, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,6 +39,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static state used for memoisation */
 static seq_t *g_prev   = NULL;   /* g_h[w]  for current level h   */
@@ -53,19 +55,19 @@ static void ensure_arrays(idx_t n)
     if (sz <= cap)
         return;
 
-    seq_t *gp = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *gn = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *av = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *gp = mem_new(seq_t, sz);
+    seq_t *gn = mem_new(seq_t, sz);
+    seq_t *av = mem_new(seq_t, sz);
 
     /* copy existing data */
-    if (g_prev) memcpy(gp,  g_prev,  cap * sizeof(seq_t));
-    if (g_next) memcpy(gn,  g_next,  cap * sizeof(seq_t));
-    if (a_vals) memcpy(av,  a_vals,  cap * sizeof(seq_t));
+    if (g_prev) mem_copy(gp, g_prev, cap * sizeof(seq_t));
+    if (g_next) mem_copy(gn, g_next, cap * sizeof(seq_t));
+    if (a_vals) mem_copy(av, a_vals, cap * sizeof(seq_t));
 
     /* free old storage */
-    free(g_prev);
-    free(g_next);
-    free(a_vals);
+    mem_free(g_prev);
+    mem_free(g_next);
+    mem_free(a_vals);
 
     /* bind new arrays */
     g_prev = gp;

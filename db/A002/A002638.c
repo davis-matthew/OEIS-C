@@ -12,7 +12,8 @@
  *            (p^m_p * m_p!)
  * Range:     i8 n <= 6, i16 n <= 8, i32 n <= 11, i64 n <= 14, i128 n <= 19,
  *            big any n
- * Helpers:   q2638_gcd
+ * Validated: standard, pass, 35 terms through n = 71 (2026-11-01)
+ * Helpers:   gcd_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/q2638_gcd.h"
+#include "../utils/gcd_u32.h"
 
 typedef struct { uint32_t *d; size_t n; size_t cap; } q2638_big;
 
@@ -172,7 +173,7 @@ static void q2638_rec(int depth, int rem, int maxp, uint64_t t) {
   for (p = maxp; p >= 1; p -= 2) {
     uint64_t cross = 0;
     for (k = 0; k < depth; k++)
-      cross += (uint64_t)q2638_pm[k] * q2638_gcd((unsigned)p, (unsigned)q2638_pp[k]);
+      cross += (uint64_t)q2638_pm[k] * gcd_u32((unsigned)p, (unsigned)q2638_pp[k]);
     q2638_copy(&q2638_coef[depth + 1], &q2638_coef[depth]);
     q2638_pp[depth] = p;
     if (p == 1) {

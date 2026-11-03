@@ -10,13 +10,15 @@
  *            a(2)=10, a(3)=68
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 23, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for the recurrence */
 static seq_t *a_cache = NULL;   /* array of previously computed a(n) */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first three terms on the first call */
     if (a_cache == NULL) {
         a_cache_cap = 4;                         /* at least indices 0..3 usable */
-        a_cache = (seq_t *)malloc(a_cache_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cache_cap);
         if (!a_cache) return 0;                  /* allocation failure – fall back to 0 */
         a_cache[1] = 2;                          /* a(1) */
         a_cache[2] = 10;                         /* a(2) */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         while (new_cap <= needed + 1) {
             new_cap <<= 1;                       /* double until large enough */
         }
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) return 0;                      /* allocation failure */
         a_cache = tmp;
         a_cache_cap = new_cap;

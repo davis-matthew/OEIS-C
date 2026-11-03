@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Number of partitions of n into at most 4 triangular numbers */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* dp[p][s] = number of partitions of s using exactly p triangular numbers
  * for p = 0..4, s = 0..n.
@@ -25,10 +27,10 @@ seq_t a(idx_t n)
     seq_t *dp[5];
     size_t sz = (size_t)(n + 1);                /* include index n */
     for (int p = 0; p < 5; ++p) {
-        dp[p] = (seq_t *)calloc(sz, sizeof(seq_t));
+        dp[p] = mem_new(seq_t, sz);
         if (!dp[p]) {
             /* failure: free already allocated tables and return 0 */
-            for (int q = 0; q < p; ++q) free(dp[q]);
+            for (int q = 0; q < p; ++q) mem_free(dp[q]);
             return 0;
         }
     }
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     for (int p = 1; p <= 4; ++p) result += dp[p][n];
 
     /* free memory */
-    for (int p = 0; p < 5; ++p) free(dp[p]);
+    for (int p = 0; p < 5; ++p) mem_free(dp[p]);
 
     return result;
 }

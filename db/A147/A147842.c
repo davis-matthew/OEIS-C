@@ -8,7 +8,8 @@
  *            numbers)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 
 static size_t cache_a_cap   = 0;
@@ -40,7 +42,7 @@ static void ensure_cache(size_t needed)
     if (needed < cache_a_cap)
         return;
     size_t new_cap = needed + 1;
-    seq_t *tmp = (seq_t *)realloc(cache_a, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache_a, new_cap);
     if (!tmp)
         abort();
     for (size_t i = cache_a_cap; i < new_cap; ++i)
@@ -55,7 +57,7 @@ static void ensure_pow10(size_t e)
     if (pow10_cap > e)
         return;
     size_t new_cap = e + 1;
-    seq_t *tmp = (seq_t *)realloc(pow10, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, pow10, new_cap);
     if (!tmp)
         abort();
     if (pow10_cap == 0) {
@@ -76,10 +78,10 @@ static void extend_to_next_m(void)
     size_t next_m = cur_m + 1;
     size_t new_range = 9 * next_m;
 
-    seq_t *new_cntL = (seq_t *)calloc(new_range + 1, sizeof(seq_t));
-    seq_t *new_sumL = (seq_t *)calloc(new_range + 1, sizeof(seq_t));
-    seq_t *new_cntR = (seq_t *)calloc(new_range + 1, sizeof(seq_t));
-    seq_t *new_sumR = (seq_t *)calloc(new_range + 1, sizeof(seq_t));
+    seq_t *new_cntL = mem_new(seq_t, new_range + 1);
+    seq_t *new_sumL = mem_new(seq_t, new_range + 1);
+    seq_t *new_cntR = mem_new(seq_t, new_range + 1);
+    seq_t *new_sumR = mem_new(seq_t, new_range + 1);
     if (!new_cntL || !new_sumL || !new_cntR || !new_sumR)
         abort();
 
@@ -103,7 +105,7 @@ static void extend_to_next_m(void)
         }
     }
 
-    free(cntL); free(sumL); free(cntR); free(sumR);
+    mem_free(cntL); mem_free(sumL); mem_free(cntR); mem_free(sumR);
     cntL = new_cntL; sumL = new_sumL;
     cntR = new_cntR; sumR = new_sumR;
     cur_m = next_m;
@@ -120,10 +122,10 @@ static void ensure_a_upto(idx_t n)
     ensure_cache((size_t)n);
 
     if (cur_m == 0) {
-        cntL = (seq_t *)calloc(1, sizeof(seq_t));
-        sumL = (seq_t *)calloc(1, sizeof(seq_t));
-        cntR = (seq_t *)calloc(1, sizeof(seq_t));
-        sumR = (seq_t *)calloc(1, sizeof(seq_t));
+        cntL = mem_new(seq_t, 1);
+        sumL = mem_new(seq_t, 1);
+        cntR = mem_new(seq_t, 1);
+        sumR = mem_new(seq_t, 1);
         if (!cntL || !sumL || !cntR || !sumR)
             abort();
         cntL[0] = cntR[0] = (seq_t)1;
@@ -131,7 +133,7 @@ static void ensure_a_upto(idx_t n)
         max_range = 0;
     }
     if (!cache_a)
-        cache_a = (seq_t *)calloc(1, sizeof(seq_t));
+        cache_a = mem_new(seq_t, 1);
     if (cache_max == 0)
         cache_a[0] = (seq_t)0;
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   _power2, _power5
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-01)
+ * Helpers:   pow2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,15 @@
  */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_power2.h"
-#include "../utils/_power5.h"
+#include "../utils/pow2_u64.h"
+
+static seq_t _power5(size_t e)
+{
+    seq_t res = 1;
+    while (e-- > 0)
+        res = res * 5;
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -42,7 +50,7 @@ seq_t a(idx_t n)
     if (exp2 > exp5) {
         p = _power5(exp2 - exp5);
     } else if (exp5 > exp2) {
-        p = _power2(exp5 - exp2);
+        p = pow2_u64(exp5 - exp2);
     }   /* else exp2 == exp5, p stays 1 */
 
     /* Start long division with numerator p and denominator m. */

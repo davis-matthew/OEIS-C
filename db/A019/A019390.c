@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 73 terms through n = 978 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Prime list used for trial division and factorisation of p‑1. */
 static idx_t *prime_list  = NULL;
@@ -55,11 +57,11 @@ static void grow_cache(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap < need) new_cap *= 2;
-    seq_t *newp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, new_cap);
     if (!newp) exit(1);
     if (cache) {
-        memcpy(newp, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(newp, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = newp;
     cache_cap = new_cap;
@@ -91,7 +93,7 @@ static bool has_primitive_root_67(idx_t p)
     /* Check the defining property for each prime factor. */
     for (size_t i = 0; i < pf_cnt; ++i) {
         idx_t q = pf[i];
-        if (mod_pow((seq_t)67, (uint64_t)(phi / q), (seq_t)p) == (seq_t)1)
+        if (powmod((seq_t)67, (uint64_t)(phi / q), (seq_t)p) == (seq_t)1)
             return false;
     }
     return true;

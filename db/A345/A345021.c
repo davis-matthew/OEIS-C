@@ -11,7 +11,8 @@
  *            A342707(n,0)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9725 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Memoisation storage */
 static seq_t *cache = NULL;          /* computed a(e) values                */
@@ -32,14 +34,14 @@ static void grow_cache(idx_t limit)
     if (limit + 1 <= cache_cap) return;
 
     size_t new_cap = (size_t)limit + 1;
-    seq_t *new_cache = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     bool   *new_seen  = (bool   *)calloc(new_cap, sizeof(bool));
 
     /* Copy old data if any */
     if (cache && seen) {
-        memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
+        mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
         memcpy(new_seen,  seen,  cache_cap * sizeof(bool ));
-        free(cache);
+        mem_free(cache);
         free(seen);
     }
 

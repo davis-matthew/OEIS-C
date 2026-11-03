@@ -9,12 +9,14 @@
  *            a(0)=0, a(1)=1, a(2)=2, a(3)=3, a(4)=4
  * Range:     i8 n <= 9, i16 n <= 18, i32 n <= 37, i64 n <= 69, i128 n <= 139,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 3447 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* initialise cache for the five initial values */
     if (cache_size == 0) {
         cache_size = 5;                       /* indices 0..4 */
-        cache = (seq_t *)realloc(NULL, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_size);
         if (!cache) abort();
         cache[0] = 0;
         cache[1] = 1;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         return cache[n];
 
     /* extend the cache to include index n */
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) abort();
     cache = new_cache;
 

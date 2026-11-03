@@ -10,8 +10,8 @@
  *            Brent-McMillan)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 44, u128 n <= 89,
  *            big any n
- * Helpers:   g_add, g_cmp, g_divk2, g_divs, g_fmul, g_len, g_muladd, g_pow2,
- *            g_shl, g_shr, g_sub
+ * Validated: standard, pass, 45 terms through n = 1945 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,17 +19,125 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/g_add.h"
-#include "../utils/g_cmp.h"
-#include "../utils/g_divk2.h"
-#include "../utils/g_divs.h"
-#include "../utils/g_fmul.h"
-#include "../utils/g_len.h"
-#include "../utils/g_muladd.h"
-#include "../utils/g_pow2.h"
-#include "../utils/g_shl.h"
-#include "../utils/g_shr.h"
-#include "../utils/g_sub.h"
+
+static size_t g_len(const uint32_t *x, size_t L) {
+  while (L && !x[L - 1]) L--;
+  return L;
+}
+
+static void g_add(uint32_t *a, const uint32_t *b, size_t L) {
+  size_t nb = g_len(b, L), i;
+  uint64_t c = 0;
+  for (i = 0; i < nb; i++) {
+    c += (uint64_t)a[i] + b[i];
+    a[i] = (uint32_t)c;
+    c >>= 32;
+  }
+  for (; c && i < L; i++) {
+    c += a[i];
+    a[i] = (uint32_t)c;
+    c >>= 32;
+  }
+}
+
+static int g_cmp(const uint32_t *a, const uint32_t *b, size_t n) {
+  for (size_t i = n; i-- > 0;)
+    if (a[i] != b[i]) return a[i] < b[i] ? -1 : 1;
+  return 0;
+}
+
+static void g_divs(uint32_t *x, size_t L, uint32_t d) {
+  uint64_t r = 0;
+  size_t i = g_len(x, L);
+  while (i-- > 0) {
+    uint64_t cur = (r << 32) | x[i];
+    x[i] = (uint32_t)(cur / d);
+    r = cur % d;
+  }
+}
+
+static void g_divk2(uint32_t *x, size_t L, uint64_t k) {
+  if (k < 65536) {
+    g_divs(x, L, (uint32_t)(k * k));
+  } else {
+    g_divs(x, L, (uint32_t)k);
+    g_divs(x, L, (uint32_t)k);
+  }
+}
+
+static void g_shr(uint32_t *d, const uint32_t *s, size_t Ls, size_t Ld, size_t sh) {
+  size_t q = sh / 32;
+  unsigned r = (unsigned)(sh % 32);
+  for (size_t i = 0; i < Ld; i++) {
+    size_t j = i + q;
+    uint32_t lo = j < Ls ? s[j] : 0;
+    uint32_t hi = j + 1 < Ls ? s[j + 1] : 0;
+    d[i] = r ? ((lo >> r) | (hi << (32 - r))) : lo;
+  }
+}
+
+/* out = x*y / 2^P */
+static void g_fmul(uint32_t *out, const uint32_t *x, const uint32_t *y,
+                   size_t L, size_t P, uint32_t *tmp) {
+  size_t la = g_len(x, L), lb = g_len(y, L), i, j;
+  memset(tmp, 0, (la + lb + 1) * sizeof(uint32_t));
+  for (i = 0; i < la; i++) {
+    uint64_t c = 0, xi = x[i];
+    if (!xi) continue;
+    for (j = 0; j < lb; j++) {
+      c += xi * y[j] + tmp[i + j];
+      tmp[i + j] = (uint32_t)c;
+      c >>= 32;
+    }
+    tmp[i + lb] = (uint32_t)c;
+  }
+  g_shr(out, tmp, la + lb, L, P);
+}
+
+static void g_muladd(uint32_t *a, const uint32_t *b, size_t L, uint32_t m) {
+  size_t nb = g_len(b, L), i;
+  uint64_t c = 0;
+  for (i = 0; i < nb; i++) {
+    c += (uint64_t)b[i] * m + a[i];
+    a[i] = (uint32_t)c;
+    c >>= 32;
+  }
+  for (; c && i < L; i++) {
+    c += a[i];
+    a[i] = (uint32_t)c;
+    c >>= 32;
+  }
+}
+
+static void g_pow2(uint32_t *x, size_t L, size_t e) {
+  memset(x, 0, L * sizeof(uint32_t));
+  x[e / 32] = (uint32_t)1 << (e % 32);
+}
+
+static void g_shl(uint32_t *x, size_t L, size_t s) {
+  size_t q = s / 32, n0 = g_len(x, L), top;
+  unsigned r = (unsigned)(s % 32);
+  if (!n0) return;
+  top = n0 + q + 1;
+  if (top > L) top = L;
+  for (size_t i = top; i-- > 0;) {
+    uint32_t v = 0;
+    if (i >= q) {
+      v = x[i - q] << r;
+      if (r && i > q) v |= x[i - q - 1] >> (32 - r);
+    }
+    x[i] = v;
+  }
+}
+
+static void g_sub(uint32_t *a, const uint32_t *b, size_t n) {
+  uint64_t br = 0;
+  for (size_t i = 0; i < n; i++) {
+    uint64_t t = (uint64_t)a[i] - (uint64_t)b[i] - br;
+    a[i] = (uint32_t)t;
+    br = (t >> 32) ? 1 : 0;
+  }
+}
 
 seq_t a(idx_t n) {
   size_t P, L, i, lv, m;

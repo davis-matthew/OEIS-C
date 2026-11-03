@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = (product of first n primes) mod n
- * Range:     u8 n <= 62, u16 n <= 7127, u32 n <= 9897, u64 n <= 9897,
- *            u128 n <= 9897, big any n
+ * Range:     u8 n <= 62, u16 n <= 7127, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 107 terms through n = 9897 (2026-11-01)
  * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
 
 seq_t a(idx_t n)

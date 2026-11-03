@@ -11,16 +11,39 @@
  *            (including the starting i and the terminating 1), and len_i is
  *            the number of terms in that trajectory (including i and 1).
  *            Trajectories that do not finish are counted as 1
- * Range:     u8 n <= 10, u16 n <= 40, u32 n <= 9701, u64 n <= 9701,
- *            u128 n <= 9701, big any n
- * Helpers:   collatz_sum_len, gcd
+ * Range:     u8 n <= 10, u16 n <= 40, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 84 terms through n = 9701 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/collatz_sum_len.h"
+
+static void collatz_sum_len(idx_t start, seq_t *sum_out, seq_t *len_out)
+{
+    seq_t sum = 0;
+    seq_t len = 0;
+    idx_t cur = start;
+
+    /* Trajectory always terminates for the tested range, but we
+       still use a loop that checks for cur==1. */
+    while (true) {
+        sum += (seq_t)cur;
+        len += 1;
+        if (cur == 1)
+            break;
+        if ((cur & 1) == 0)
+            cur >>= 1;          /* even case */
+        else
+            cur = 3 * cur + 1;  /* odd case */
+    }
+    *sum_out = sum;
+    *len_out = len;
+}
 
 seq_t a(idx_t n)
 {

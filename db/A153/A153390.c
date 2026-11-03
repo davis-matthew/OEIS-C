@@ -10,7 +10,8 @@
  *            a(0)=1
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 9, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 /* The computation uses only integer arithmetic; all divisions are exact. */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
     seq_t sum = (seq_t)0;
 
     /*  V(k) = C(2n-k, n-k).  Start with V(0) = C(2n, n). */
-    seq_t V_prev = binom(2 * n, n);
+    seq_t V_prev = binomial(2 * n, n);
     /*  T(k) = C(3k+2,k) * 2 / (3k+2).  Start with T(0)=1. */
     seq_t T_curr = (seq_t)1;
 

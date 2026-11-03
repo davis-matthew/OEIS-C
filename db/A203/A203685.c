@@ -8,7 +8,8 @@
  * Formula:   a(n) = ∏_{1 ≤ i < j ≤ n} (i!² + i!·j! + j!²)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (n == 1) return (seq_t)1;   /* a(1) = 1 */
 
     /* Allocate space for factorials 1! … n! (index 1..n) */
-    seq_t *fact = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (size_t)(n + 1));
     if (!fact) return (seq_t)0;    /* out of memory – not expected in tests */
 
     fact[1] = (seq_t)1;            /* 1! = 1 */
@@ -44,6 +46,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(fact);
+    mem_free(fact);
     return prod;
 }

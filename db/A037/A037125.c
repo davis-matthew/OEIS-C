@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   enlarge_array
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,20 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/enlarge_array.h"
+
+static void enlarge_array(uint64_t **arr, size_t *cnt, size_t *cap,
+                          size_t *item_cnt, size_t elem_size)
+{
+    if (*item_cnt < *cnt)
+        return;
+    /* need more space */
+    size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+    uint64_t *tmp = (uint64_t *)realloc(*arr, new_cap * elem_size);
+    if (!tmp)
+        return;
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 /* static state ------------------------------------------------------------- */
 

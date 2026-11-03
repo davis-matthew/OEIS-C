@@ -12,6 +12,7 @@
  *            n*(n-1)*(n-2)*(n-3)/12 for n >= 2
  * Range:     u8 n <= 8, u16 n <= 31, u32 n <= 477, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 58 terms through n = 9559 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

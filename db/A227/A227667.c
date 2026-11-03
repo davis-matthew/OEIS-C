@@ -13,7 +13,8 @@
  *            − 3950640 a(n−5) + 37771968 a(n−6) − 36900032...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 16,
  *            big any n
- * Helpers:   abs8
+ * Validated: standard, pass, 30 terms through n = 191 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,12 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/abs8.h"
+
+/* Absolute value for uint8_t */
+static inline int abs8(uint8_t a, uint8_t b)
+{
+    return (a > b) ? (a - b) : (b - a);
+}
 
 /* ----------  Helper to compute a(n) for n ≤ 8 by exhaustive DP  ---------- */
 static inline uint32_t encode_state(const uint8_t p[5])

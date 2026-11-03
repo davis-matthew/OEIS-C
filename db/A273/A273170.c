@@ -12,15 +12,19 @@
  *            (2,2), (3,0), ... * * The denominator is calculated as (2...
  * Range:     u8 n <= 13, u16 n <= 32, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binomial, gcd, pow2, v2_seq
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial, ctz_seq_to_i32, gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ctz_seq_to_i32.h"
 #include "../utils/gcd.h"
 #include "../utils/pow2.h"
-#include "../utils/binomial.h"
-#include "../utils/v2_seq.h"
 
 seq_t a(idx_t n) {
     /* Find the row (r) such that n lies in that row of the triangle */
@@ -39,7 +43,7 @@ seq_t a(idx_t n) {
     seq_t b = binomial(2 * r, r - col);
 
     /* Extract powers of two */
-    int v2_b = v2_seq(b);                     /* exponent of 2 in b      */
+    int v2_b = ctz_seq_to_i32(b);                     /* exponent of 2 in b      */
     int v2_col = (col == 0) ? 0 : __builtin_ctzll(col); /* exponent of 2 in col */
 
     /* Total exponent of two in the numerator a = 2^(2r) * col   */

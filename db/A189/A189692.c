@@ -11,7 +11,8 @@
  *            a(1)=32, a(2)=1024, a(3)=10327, … (see OEIS A189692)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 19, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static bool init_done = false;
 /* allowed[a][b] – bitmask of rows c that are admissible after rows a,b. */
@@ -89,7 +91,7 @@ static void init(void)
 
     /* Allocate cache for indices 0..2.  index 0 unused. */
     cache_len = 3;
-    cache = (seq_t *)calloc(cache_len, sizeof(seq_t));
+    cache = mem_new(seq_t, cache_len);
     cache[1] = (seq_t)32;   /* a(1) */
     cache[2] = (seq_t)1024; /* a(2) */
 
@@ -110,17 +112,17 @@ static void ensure_cache(idx_t n)
     /* Grow cache array if necessary. */
     if ((size_t)n + 1 > cache_len) {
         size_t new_len = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();               /* allocation failure */
         /* initialize new entries to zero */
-        memset(tmp + cache_len, 0, (new_len - cache_len) * sizeof(seq_t));
+        mem_set(tmp + cache_len, 0, (new_len - cache_len) * sizeof(seq_t));
         cache = tmp;
         cache_len = new_len;
     }
 
     /* Compute values for indices > cur_n up to n. */
     for (idx_t k = cur_n + 1; k <= n; ++k) {
-        memset(newdp, 0, sizeof(newdp));
+        mem_set(newdp, 0, sizeof(newdp));
 
         for (int a = 0; a < 32; ++a) {
             for (int b = 0; b < 32; ++b) {
@@ -144,7 +146,7 @@ static void ensure_cache(idx_t n)
         cache[k] = total;
 
         /* Copy newdp into dp for next iteration. */
-        memcpy(dp, newdp, sizeof(dp));
+        mem_copy(dp, newdp, sizeof(dp));
 
         cur_n = k;
     }

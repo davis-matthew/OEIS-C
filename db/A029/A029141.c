@@ -8,6 +8,7 @@
  *            floor((198*(-1+(-1)^n)*(-1)^((n-1)*n/2)+(n+10)*(2*n^2+40*n+125+99*(-1)^n)+1216)/3168)
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

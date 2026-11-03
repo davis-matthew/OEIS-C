@@ -9,7 +9,8 @@
  *            / (n+1), * with a(0)=1, a(1)=2, a(2)=6
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 29, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Standard headers */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The build supplies seq_t (value type) and idx_t (index type). */
 /* We rely on seq_t being either an unsigned integer type (uint8_t … uint64_t,
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* Allocate initial table with the first three known terms. */
     if (table == NULL) {
         table_size = 3;
-        table = (seq_t *)malloc(table_size * sizeof(seq_t));
+        table = mem_new(seq_t, table_size);
         if (!table) return 0;                       /* unlikely */
         table[0] = (seq_t)1;
         table[1] = (seq_t)2;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
     /* Extend the table to hold up to index n. */
     idx_t new_size = n + 1;
-    seq_t *tmp = (seq_t *)realloc(table, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, table, new_size);
     if (!tmp) return 0;                           /* out of memory */
     table = tmp;
 

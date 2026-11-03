@@ -7,14 +7,18 @@
  * Formula:   a(n) = prime((prime(n)+1)/2) (defined for n ≥ 2)
  * Range:     u8 n <= 28, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 56 terms through n = 57 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Dynamic list of primes.  The list is grown lazily as required. */
 static seq_t *prime_array = NULL;
@@ -29,18 +33,17 @@ static void ensure_prime_count(idx_t k)
     /* initialise the array with the first prime 2 */
     if (prime_count == 0) {
         prime_capacity = 16;
-        prime_array = (seq_t*)malloc(prime_capacity * sizeof(seq_t));
+        prime_array = mem_new(seq_t, prime_capacity);
         if (!prime_array) exit(EXIT_FAILURE);
         prime_array[prime_count++] = (seq_t)2;
     }
 
     /* store more primes until we have at least k of them */
     while (prime_count < k) {
-        if (is_prime((uint64_t)next_candidate)) {
+        if (is_prime_u64((uint64_t)next_candidate)) {
             if (prime_count == prime_capacity) {
                 prime_capacity *= 2;
-                seq_t *tmp = (seq_t*)realloc(prime_array,
-                                             prime_capacity * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, prime_array, prime_capacity);
                 if (!tmp) exit(EXIT_FAILURE);
                 prime_array = tmp;
             }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 21, u128 n <= 45,
  *            big any n
- * Helpers:   median4
+ * Validated: standard, pass, 34 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/median4.h"
+#include "../utils/mem.h"
+
+/* ---- helper: compute upper median of four 0..3 values ---- */
+static inline uint8_t median4(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
+{
+    unsigned int cnt[4] = {0,0,0,0};
+    cnt[a]++; cnt[b]++; cnt[c]++; cnt[d]++;
+    unsigned int s = 0;
+    for (int v = 0; v < 4; ++v) {
+        s += cnt[v];
+        if (s >= 3) return (uint8_t)v;
+    }
+    return 0;            /* unreachable */
+}
 
 /* ---- pair of consecutive rows with local medians ---- */
 struct Pair {
@@ -100,8 +114,8 @@ seq_t a(idx_t n)
     init_pairs();
 
     /* DP arrays */
-    seq_t *dp_cur  = (seq_t *)calloc(pair_count, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(pair_count, sizeof(seq_t));
+    seq_t *dp_cur  = mem_new(seq_t, pair_count);
+    seq_t *dp_next = mem_new(seq_t, pair_count);
 
     /* base: each pair is a valid start */
     for (int i = 0; i < pair_count; ++i) dp_cur[i] = (seq_t)1;
@@ -145,7 +159,7 @@ seq_t a(idx_t n)
     for (int i = 0; i < pair_count; ++i)
         ans = ans + dp_cur[i];
 
-    free(dp_cur);
-    free(dp_next);
+    mem_free(dp_cur);
+    mem_free(dp_next);
     return ans;
 }

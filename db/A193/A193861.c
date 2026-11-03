@@ -10,13 +10,15 @@
  *            w(r-1,k) + 2*w(r-1,k-1) (0 < k < r)
  * Range:     u8 n <= 14, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Standard includes for memory allocation. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached rows of triangle w(r,k). */
 static seq_t **_row_cache = NULL;    /* pointer to array of row pointers   */
@@ -31,7 +33,7 @@ static void _ensure_rows(idx_t need)
         if (_cached_rows == 0) {
             _row_cache = (seq_t **)malloc(sizeof(seq_t *));
             if (_row_cache == NULL) exit(1);
-            _row_cache[0] = (seq_t *)malloc(sizeof(seq_t));
+            _row_cache[0] = mem_new(seq_t, 1);
             if (_row_cache[0] == NULL) exit(1);
             _row_cache[0][0] = (seq_t)1;
             _power3 = (seq_t)1;          /* 3^0 */
@@ -42,7 +44,7 @@ static void _ensure_rows(idx_t need)
         /* Compute next row r = _cached_rows. */
         idx_t r = _cached_rows;
         seq_t *prev = _row_cache[r - 1];
-        seq_t *curr = (seq_t *)malloc(sizeof(seq_t) * (r + 1));
+        seq_t *curr = mem_new(seq_t, (r + 1));
         if (curr == NULL) exit(1);
 
         /* w(r,0) = 1. */

@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if gcd(n, d(n)) == 1, else 0, where d(n) is the number
  *            of divisors of n
- * Range:     u8 n <= 8407, u16 n <= 8407, u32 n <= 8407, u64 n <= 8407,
- *            u128 n <= 8407, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 8407 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

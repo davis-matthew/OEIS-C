@@ -8,12 +8,28 @@
  *            that is the second nearest to x (for a rational x = n/k)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   second_nearest_local
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/second_nearest_local.h"
+/* Compute the second nearest integer to n/k.
+   n, k are positive integers. */
+static seq_t second_nearest_local(idx_t n, idx_t k)
+{
+    idx_t q = n / k;      /* floor(n/k)          */
+    idx_t r = n % k;      /* remainder of division */
+
+    if (r == 0) {                 /* n/k is integer                */
+        return (seq_t)(q + 1);     /* second nearest is next integer */
+    }
+    if (2 * r < k) {               /* floor is closer, second nearest is ceil */
+        return (seq_t)(q + 1);
+    }
+    /* otherwise floor is closer or tie (2*r == k), second nearest is floor */
+    return (seq_t)q;
+}
 
 seq_t a(idx_t n)
 {

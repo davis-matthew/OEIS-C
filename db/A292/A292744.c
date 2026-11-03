@@ -7,7 +7,8 @@
  * Formula:   a(0) = 1; a(n) = Sum_{k=1..n} prime(k+1) * a(n-k) (OEIS A292744)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Prime generation (trial‑division, small enough for n <= 10000) */
 static uint64_t *prime_list = NULL;        /* 0‑based: prime_list[0] = 2 */
@@ -65,7 +67,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap <= (size_t)n) {
         size_t new_cap = cache_cap ? (cache_cap << 1) : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         if (!seq_cache) abort();
         for (size_t i = cache_cap; i < new_cap; ++i) seq_cache[i] = 0;
         cache_cap = new_cap;

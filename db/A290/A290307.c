@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 811, u16 n <= 4547, u32 n <= 9869, u64 n <= 9869,
  *            u128 n <= 9869, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9250 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  * k = d - i + 1.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
     /* DP array for partitions of i into distinct parts not divisible by k */
     size_t m = (size_t)i;
-    seq_t *dp = (seq_t*)calloc(m + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, m + 1);
     if (!dp) return (seq_t)0;          /* out of memory (unlikely)    */
     dp[0] = (seq_t)1;                  /* empty partition             */
 
@@ -55,6 +57,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[m];
-    free(dp);
+    mem_free(dp);
     return result;
 }

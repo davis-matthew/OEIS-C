@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 247, u32 n <= 2044, u64 n <= 2046,
  *            u128 n <= 2046, big any n
- * Helpers:   compare_seq
+ * Validated: standard, pass, 97 terms through n = 1822 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/compare_seq.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+static int compare_seq(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 /* Local comparison for qsort */
 
@@ -48,7 +59,7 @@ static void build_row(idx_t r)
 {
     idx_t len = ((idx_t)1) << r;          /* 2^r elements */
     size_t len_u = (size_t)len;
-    seq_t *row = (seq_t *)malloc(len_u * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, len_u);
     if (!row) return;                    /* allocation failure – leave NULL */
 
     for (idx_t mask = 0; mask < len; ++mask) {
@@ -65,7 +76,7 @@ static void build_row(idx_t r)
         row[mask] = prod;
     }
 
-    qsort(row, len_u, sizeof(seq_t), compare_seq);
+    mem_qsort(row, len_u, sizeof(seq_t), compare_seq);
     row_cache[r] = row;
     row_len_cache[r] = len_u;
 }

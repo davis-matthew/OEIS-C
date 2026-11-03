@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* reverse decimal digits of x, dropping leading zeros */
 static seq_t reverse_digits(seq_t x)
@@ -44,8 +46,8 @@ static idx_t   next_k   = 1;      /* smallest candidate k not yet inspected */
 static void grow_terms(void)
 {
     size_t new_cap = (terms_cap == 0) ? 16 : terms_cap * 2;
-    seq_t *t_new = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
-    seq_t *s_new = (seq_t *)realloc(sums,  new_cap * sizeof(seq_t));
+    seq_t *t_new = mem_resize(seq_t, terms, new_cap);
+    seq_t *s_new = mem_resize(seq_t, sums, new_cap);
     if (!t_new || !s_new) {
         /* allocation failed – abort */
         abort();

@@ -10,16 +10,17 @@
  *            otherwise, where r = ⌊(√(8*n + 1) – 1)/2⌋
  * Range:     i8 n <= 90, i16 n <= 90, i32 n <= 90, i64 n <= 90, i128 n <= 90,
  *            big any n
- * Helpers:   intr_isqrt_u64
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/intr_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n) {
     /* Compute r = floor((sqrt(8*n + 1) - 1)/2) using integer sqrt. */
-    idx_t r = (intr_isqrt_u64(8 * n + 1) - 1) >> 1;
+    idx_t r = (isqrt(8 * n + 1) - 1) >> 1;
 
     /* Position of n inside its row: j = n - r*(r+1)/2. */
     idx_t j = n - r * (r + 1) / 2;

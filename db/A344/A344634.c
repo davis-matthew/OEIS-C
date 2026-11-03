@@ -11,7 +11,8 @@
  *            between the counts of “0‑containing” and “non‑zero” numbers
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* computed terms */
 static size_t cache_cap = 0, cache_size = 0;
@@ -34,7 +36,7 @@ static bool initialized = false;    /* one‑time initialization flag */
 static void init(void)
 {
     cache_cap = 32;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     memset(digits, 0, sizeof(digits));
     digits[0] = 1;
     cur = 1;
@@ -77,7 +79,7 @@ static void grow_cache(void)
 {
     if (cache_size >= cache_cap) {
         cache_cap = (cache_cap == 0) ? 32 : cache_cap * 2;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 }
 

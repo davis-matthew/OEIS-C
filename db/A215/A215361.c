@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 65 terms through n = 961 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,18 +39,18 @@ seq_t a(idx_t n)
         /* Initialise cache capacity if this is the first call. */
         if (cap == 0) {
             cap = 128;
-            cache = (seq_t *)malloc(cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cap);
         }
 
         /* Generate primes and store those that satisfy the required residues. */
         uint64_t cand = last;
         while (sz < n) {
-            if (is_prime_small(cand)) {
+            if (is_prime_seq(cand)) {
                 uint64_t r = cand % 19;
                 if (r == 0 || r == 2 || r == 3 || r == 4) {
                     if (sz == cap) {
                         cap <<= 1;  /* double the capacity */
-                        cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                        cache = mem_resize(seq_t, cache, cap);
                     }
                     cache[sz++] = (seq_t)cand;
                 }

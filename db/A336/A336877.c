@@ -10,12 +10,14 @@
  *            m=2^p is the largest power of two ≤ n (0<k<m)
  * Range:     u8 n <= 11, u16 n <= 121, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 7610 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* computed values */
 static unsigned char *done = NULL;   /* 0 = not computed, 1 = computed */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
     idx_t new_cap = 1;
     while (new_cap <= n)
         new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     unsigned char *new_done = (unsigned char *)realloc(done, new_cap);
     if (!new_cache || !new_done) {
         /* allocation failure – terminate */

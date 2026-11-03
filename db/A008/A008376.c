@@ -8,12 +8,22 @@
  *            [1,135,2934,18186,43128,43128,18186,2934,135,1]
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 13, u64 n <= 221, u128 n <= 1000,
  *            big any n
- * Helpers:   comb_8
+ * Validated: standard, pass, 41 terms through n = 987 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/comb_8.h"
+/* Multiplicative computation of binomial coefficient C(N,8)   */
+static inline seq_t comb_8(idx_t N)
+{
+    seq_t res = (seq_t)1;
+    for (idx_t i = 0; i < 8; ++i)
+    {
+        res = res * (seq_t)(N - i) / (seq_t)(i + 1);
+    }
+    return res;
+}
 /*  C(m,8) is computed multiplicatively to avoid overflow.        */
 
 /* Main sequence function                                       */

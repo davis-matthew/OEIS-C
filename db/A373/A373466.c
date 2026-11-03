@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   count_distinct_primes
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* Powers of 10 up to 10^19 – sufficient for 64‑bit palindrome construction. */
 static const uint64_t pow10[20] = {
@@ -90,11 +92,11 @@ seq_t a(idx_t n)
             uint64_t cand = next_palindrome();
             if (cand < 2) continue;                /* skip 0,1 */
 
-            if (count_distinct_primes(cand) == 6) {
+            if (omega(cand) == 6) {
                 /* Ensure capacity. */
                 if (cache_len >= cache_cap) {
                     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) return 0; /* allocation failure */
                     cache = tmp;
                     cache_cap = new_cap;

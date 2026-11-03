@@ -8,7 +8,8 @@
  *            prime factors)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 9785 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cum = NULL;   /* cumulative sums a(0)=0, a(1).. */
 static idx_t cur_max = 0;   /* largest n for which cum is valid */
@@ -23,14 +25,14 @@ static idx_t cur_max = 0;   /* largest n for which cum is valid */
 /* Recompute a(1..n) and store in cum */
 static void recompute(idx_t n) {
     /* Allocate new array for cumulative sums */
-    seq_t *new_cum = (seq_t *)malloc(sizeof(seq_t)*(n+1));
+    seq_t *new_cum = mem_new(seq_t, (n+1));
     if (!new_cum) return; /* allocation failed – let caller handle it */
     new_cum[0] = (seq_t)0;
 
     /* Compute omega(i) for 1..n by marking distinct prime factors */
     unsigned char *omega = (unsigned char *)calloc((size_t)(n+1), sizeof(unsigned char));
     if (!omega) {
-        free(new_cum);
+        mem_free(new_cum);
         return;
     }
 
@@ -51,7 +53,7 @@ static void recompute(idx_t n) {
     free(omega);
 
     /* Replace old array */
-    if (cum) free(cum);
+    if (cum) mem_free(cum);
     cum = new_cum;
     cur_max = n;
 }

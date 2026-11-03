@@ -8,12 +8,14 @@
  *            i in base 6 (OEIS A053827)
  * Range:     u8 n <= 52, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 842 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
     /* first time: allocate space for index 0 */
     if (capacity == 0) {
         capacity = 1;
-        digsum = (seq_t *)malloc(sizeof(seq_t) * capacity);
-        prefix = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        digsum = mem_new(seq_t, capacity);
+        prefix = mem_new(seq_t, capacity);
         if (!digsum || !prefix) /* allocation failure – abort */
             return 0;
         digsum[0] = 0;
@@ -41,8 +43,8 @@ seq_t a(idx_t n)
     if (n >= capacity) {
         idx_t newcap = capacity * 2;
         if (newcap <= n) newcap = n + 1;
-        seq_t *tmpd = (seq_t *)realloc(digsum, sizeof(seq_t) * newcap);
-        seq_t *tmpf = (seq_t *)realloc(prefix, sizeof(seq_t) * newcap);
+        seq_t *tmpd = mem_resize(seq_t, digsum, newcap);
+        seq_t *tmpf = mem_resize(seq_t, prefix, newcap);
         if (!tmpd || !tmpf) /* allocation failure – abort */
             return 0;
         digsum = tmpd;

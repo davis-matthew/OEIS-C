@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   is_valid_candidate
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,88 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_valid_candidate.h"
+#include "../utils/mem.h"
+
+/* Return true if k has all distinct prime factors and exponents.  */
+static bool is_valid_candidate(uint64_t k)
+{
+    if (k <= 1)                     /* 1 has no prime factors */
+        return true;
+
+    /* For a 64‑bit integer the number of distinct prime factors is ≤ 16. */
+    uint64_t seen_primes[16];
+    uint64_t seen_exps[16];
+    size_t pc = 0, ec = 0;          /* counts of stored primes/exponents */
+
+    uint64_t n = k;
+
+    /* factor the prime 2 first */
+    if (!(n & 1ULL)) {
+        uint64_t exp = 0;
+        while (!(n & 1ULL)) {
+            n >>= 1;
+            ++exp;
+        }
+        if (exp == 2)             /* prime equals its exponent → invalid */
+            return false;
+
+        /* the first factor, no previous values to compare with */
+        seen_primes[pc++] = 2;
+        seen_exps[ec++]   = exp;
+    }
+
+    /* factor odd primes */
+    for (uint64_t p = 3; p <= n / p; p += 2) {
+        if (n % p == 0) {
+            uint64_t exp = 0;
+            while (n % p == 0) {
+                n /= p;
+                ++exp;
+            }
+            if (exp == p)          /* prime equals its exponent → invalid */
+                return false;
+
+            /* check for duplicate values with previously seen primes/exponents */
+            for (size_t j = 0; j < pc; ++j) {
+                if (p == seen_primes[j]   /* duplicate prime (should not happen) */
+                    || exp == seen_primes[j]   /* exponent equals a previous prime */
+                    || exp == seen_exps[j])    /* duplicate exponent */
+                    return false;
+            }
+            for (size_t j = 0; j < ec; ++j) {
+                if (p == seen_exps[j])   /* prime equals a previous exponent */
+                    return false;
+            }
+
+            seen_primes[pc++] = p;
+            seen_exps[ec++]   = exp;
+        }
+    }
+
+    /* remaining prime factor greater than sqrt(k) */
+    if (n > 1) {
+        uint64_t p   = n;
+        uint64_t exp = 1;
+        if (exp == p)
+            return false;
+
+        for (size_t j = 0; j < pc; ++j) {
+            if (p == seen_primes[j]
+                || exp == seen_primes[j]
+                || exp == seen_exps[j])
+                return false;
+        }
+        for (size_t j = 0; j < ec; ++j) {
+            if (p == seen_exps[j])
+                return false;
+        }
+
+        seen_primes[pc++] = p;
+        seen_exps[ec++]   = exp;
+    }
+
+    return true;
+}
 
 /* ----------  cached sequence storage  ---------- */
 static seq_t *cache = NULL;          /* dynamic array of computed terms   */
@@ -30,7 +112,7 @@ static void cache_append(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t newcap = (cache_cap == 0) ? 1 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         cache = tmp;
         cache_cap = newcap;
     }

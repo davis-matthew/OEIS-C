@@ -12,12 +12,14 @@
  *            routine
  * Range:     u8 n <= 24, u16 n <= 66, u32 n <= 205, u64 n <= 687,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline int allowed_part(idx_t k) {
     idx_t r = k % 7;
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     /* Allocate a temporary array of size n+1.  The array holds values of type seq_t,
        which may be a primitive integer type or a big‑integer class.  The assignment
        dp[i] = 0; works for both by converting the literal 0 to seq_t. */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return (seq_t)0;   /* out of memory: return 0 */
 
     /* Initialise dp[0] = 1, all other entries = 0. */
@@ -44,6 +46,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

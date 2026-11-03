@@ -8,14 +8,36 @@
  * Formula:   a(n) = #{(w,x,y) | 1 ≤ w,x,y ≤ n, w^2 = x*y - n}
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   count_rec
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/count_rec.h"
+
+/* Helper recursive function that enumerates all divisors of P
+   given its prime factorisation.  For each divisor d we check
+   whether d ≤ N and P/d ≤ N; if so the corresponding ordered
+   pair (d, P/d) contributes one to the count. */
+static void count_rec(const uint64_t *pr, const uint8_t *ex,
+                      size_t k, size_t idx,
+                      uint64_t cur, uint64_t P, uint64_t N,
+                      uint64_t *cnt)
+{
+    if (idx == k) {
+        if (cur <= N && P / cur <= N)
+            ++(*cnt);
+        return;
+    }
+    uint64_t val = 1;
+    for (uint8_t e = 0; e <= ex[idx]; ++e) {
+        count_rec(pr, ex, k, idx + 1, cur * val,
+                  P, N, cnt);
+        val *= pr[idx];
+    }
+}
 
 /* Counts the number of ordered pairs (x,y) in [1,N]^2
    satisfying x*y = P.  It uses trial division to

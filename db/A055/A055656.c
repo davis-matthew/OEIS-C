@@ -9,7 +9,8 @@
  *            v₂(x) is the exponent of 2 in the factorisation of x
  * Range:     i8 n <= 348, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9744 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static data for memoisation */
 static uint64_t *primes = NULL;      /* array of odd primes, sorted ascending   */
@@ -34,12 +36,12 @@ static void ensure_sieve(uint64_t n)
 
     /* free previous arrays */
     if (primes)  free(primes);
-    if (prefix)  free(prefix);
+    if (prefix)  mem_free(prefix);
 
     /* allocate new arrays big enough to hold all odd primes ≤ n */
     size_t alloc_size = n + 1;                 /* safe over‑estimate */
     primes  = (uint64_t *)malloc(alloc_size * sizeof(uint64_t));
-    prefix  = (seq_t *)malloc(alloc_size * sizeof(seq_t));
+    prefix  = mem_new(seq_t, alloc_size);
     primes_len = 0;
 
     /* simple sieve of Eratosthenes with dynamic allocation */

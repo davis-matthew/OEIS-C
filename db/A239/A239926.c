@@ -7,7 +7,8 @@
  * Formula:   a(n) = 3^(p-1) - 2^(p+1) where p is the (n+1)th prime (p > 3)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 20,
  *            big any n
- * Helpers:   build_primes_upto, pow_int
+ * Validated: standard, pass, 31 terms through n = 186 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
 #include <limits.h>
 
 /* Helper function prototypes provided by the build environment */
-#include "../utils/pow_int.h"          /* seq_t pow_int(seq_t base, idx_t exp); */
-#include "../utils/build_primes_upto.h" /* void build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out); */
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -54,8 +55,8 @@ seq_t a(idx_t n)
     uint64_t p = primes[n + 1];             /* primes[0]=2, primes[1]=3, primes[2]=5 */
 
     /* Compute 3^(p-1) – 2^(p+1) using the provided power routine */
-    seq_t term   = pow_int((seq_t)3, (idx_t)(p - 1));
-    seq_t sub    = pow_int((seq_t)2, (idx_t)(p + 1));
+    seq_t term   = ipow_idx((seq_t)3, (idx_t)(p - 1));
+    seq_t sub    = ipow_idx((seq_t)2, (idx_t)(p + 1));
     term -= sub;
 
     return term;

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn
  * Formula:   not stated
- * Range:     u8 n <= 133, u16 n <= 9486, u32 n <= 9486, u64 n <= 9486,
- *            u128 n <= 9486, big any n
- * Helpers:   bal_trit_sum
+ * Range:     u8 n <= 133, u16 n <= 33918, u32 n <= 53007, u64 n <= 53007,
+ *            u128 n <= 53007, big any n
+ * Validated: standard, pass, 83 terms through n = 9486 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,21 @@
 /* (Numbers whose balanced ternary representation has more positive than negative trits) */
 
 #include <stdbool.h>
-#include "../utils/bal_trit_sum.h"
+
+static inline int bal_trit_sum(seq_t x)
+{
+    int sum = 0;
+    while (x != 0) {
+        int r = (int)(x % 3);
+        x /= 3;
+        if (r == 2) {
+            r = -1;
+            x += 1;
+        }
+        sum += r;
+    }
+    return sum;
+}
 
 /* Returns the n-th term of the sequence (n ≥ 1) */
 seq_t a(idx_t n)

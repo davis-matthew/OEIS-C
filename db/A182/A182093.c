@@ -7,7 +7,8 @@
  * Formula:   a(n) = partial sums of A005590
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 7816 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     idx_t max_deg = n;                     /* indices 0 .. n inclusive */
-    seq_t *coeff = (seq_t *)calloc(max_deg + 1, sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, max_deg + 1);
     if (!coeff)
         return (seq_t)0;                   /* unlikely */
 
@@ -34,10 +36,10 @@ seq_t a(idx_t n)
         idx_t shift1 = (idx_t)1 << k;      /* 2^k   */
         idx_t shift2 = shift1 << 1;        /* 2^(k+1) */
 
-        seq_t *tmp = (seq_t *)calloc(max_deg + 1, sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, max_deg + 1);
         if (!tmp)
         {
-            free(coeff);
+            mem_free(coeff);
             return (seq_t)0;
         }
 
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
                 tmp[i + shift2] -= v;
         }
 
-        free(coeff);
+        mem_free(coeff);
         coeff = tmp;
     }
 
@@ -67,6 +69,6 @@ seq_t a(idx_t n)
     for (idx_t i = 0; i < n; ++i)
         result += coeff[i];
 
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

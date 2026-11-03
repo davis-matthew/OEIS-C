@@ -8,13 +8,16 @@
  * Formula:   a(n) = number of s, 0 < s ≤ n‑1, such that (-s)^s ≡ s (mod n)
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   mod_mul
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_mul.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/mulmod.h"
 
 /* modular exponentiation with a 64‑bit modulus (idx_t) */
 static inline idx_t mod_pow_idx(idx_t base, idx_t exp, idx_t mod)
@@ -23,9 +26,9 @@ static inline idx_t mod_pow_idx(idx_t base, idx_t exp, idx_t mod)
     base %= mod;
     while (exp > 0)
     {
-        if (exp & 1ULL) result = mod_mul(result, base, mod);
+        if (exp & 1ULL) result = mulmod(result, base, mod);
         exp >>= 1ULL;
-        if (exp)      base   = mod_mul(base,   base,   mod);
+        if (exp)      base   = mulmod(base,   base,   mod);
     }
     return result;
 }

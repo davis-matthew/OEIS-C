@@ -7,13 +7,15 @@
  * Formula:   a(n) = 1 - (floor(2^n*A002487(n)/A002487(n+1)) mod 2)
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *s_cache = NULL;    /* Stern's diatomic sequence values */
 static size_t s_size  = 0;       /* current allocated size of s_cache */
@@ -40,7 +42,7 @@ static void ensure_s_cache(idx_t n)
     size_t needed = (size_t)n + 2;
     if (s_cache == NULL)
     {
-        s_cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        s_cache = mem_new(seq_t, needed);
         if (s_cache == NULL) exit(1);
         s_cache[0] = (seq_t)0;
         if (needed > 1) s_cache[1] = (seq_t)1;
@@ -48,7 +50,7 @@ static void ensure_s_cache(idx_t n)
     }
     else if (needed > s_size)
     {
-        s_cache = (seq_t *)realloc(s_cache, needed * sizeof(seq_t));
+        s_cache = mem_resize(seq_t, s_cache, needed);
         if (s_cache == NULL) exit(1);
         for (idx_t i = (idx_t)s_size; i < needed; ++i)
         {

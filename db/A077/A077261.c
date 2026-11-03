@@ -8,12 +8,14 @@
  *            a(2)=105, a(3)=4950
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 750 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (buf_len == 0) {
         /* start with a modest capacity, grow as needed */
         buf_cap = 16;
-        buf = (seq_t*)malloc(sizeof(seq_t)*buf_cap);
+        buf = mem_new(seq_t, buf_cap);
 
         /* the first four terms */
         buf[0] = (seq_t)0;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         if (n + 1 > buf_cap) {
             while (buf_cap <= n)
                 buf_cap <<= 1;        /* double capacity until big enough */
-            buf = (seq_t*)realloc(buf, sizeof(seq_t)*buf_cap);
+            buf = mem_resize(seq_t, buf, buf_cap);
         }
         /* compute terms sequentially up to n */
         for (idx_t i = buf_len; i <= n; ++i) {

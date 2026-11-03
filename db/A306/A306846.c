@@ -8,6 +8,7 @@
  * Formula:   A(n,k) = Sum_{j=0..floor(n/k)} binomial(n,k*j)
  * Range:     u8 n <= 43, u16 n <= 151, u32 n <= 559, u64 n <= 2143,
  *            u128 n <= 8382, big any n
+ * Validated: standard, pass, 94 terms through n = 9669 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

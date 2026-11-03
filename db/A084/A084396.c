@@ -12,12 +12,14 @@
  *            arithmetic
  * Range:     u8 n <= 29, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of seq_t and idx_t – provided by the build system. */
 
@@ -45,11 +47,11 @@ static void ensure_capacity(size_t needed)
     if (needed <= a_cap) return;
     size_t new_cap = a_cap ? a_cap * 2 : 4;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *new_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (a_vals)
     {
         for (size_t i = 0; i < a_len; i++) new_arr[i] = a_vals[i];
-        free(a_vals);
+        mem_free(a_vals);
     }
     a_vals = new_arr;
     a_cap = new_cap;

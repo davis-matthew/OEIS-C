@@ -12,12 +12,14 @@
  *            4826809, 20346417 The recurrence holds for all...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 31, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage: required by the build.  Do NOT mark as static. */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Allocate and initialise cache on first call. */
     if (cache == NULL) {
-        cache = (seq_t *)calloc(12, sizeof(seq_t));
+        cache = mem_new(seq_t, 12);
         if (cache == NULL) return (seq_t)0;  /* allocation failure */
 
         /* Initial terms.  Index 0 in cache corresponds to a(1). */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     if (n <= max_n) return cache[n-1];
 
     /* Extend the cache to size n. */
-    seq_t *new_cache = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)n);
     if (!new_cache) return (seq_t)0;  /* allocation failure */
     cache = new_cache;
 
